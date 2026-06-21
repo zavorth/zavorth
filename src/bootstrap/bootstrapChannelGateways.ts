@@ -132,6 +132,18 @@ export async function startChannelGateways(
     );
   }
 
+  // Start Outbox Retry Service daemon
+  try {
+    const { ChannelGatewayFactory } = await import('../gateways/ChannelGatewayFactory.js');
+    const { OutboxRetryService } = await import('../services/OutboxRetryService.js');
+    const gatewayRegistry = ChannelGatewayFactory.createAll();
+    const outboxRetryService = OutboxRetryService.getInstance(gatewayRegistry);
+    outboxRetryService.start();
+    foundation.logRepo.log('info', 'OutboxRetryService', 'Outbox retry daemon started successfully.');
+  } catch (error: any) {
+    foundation.logRepo.log('warn', 'OutboxRetryService', `Failed to start outbox retry daemon: ${error.message}`);
+  }
+
   supervisor.markBootReady();
 }
 

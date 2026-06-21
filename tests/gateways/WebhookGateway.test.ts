@@ -48,4 +48,46 @@ describe('WebhookGateway live delivery', () => {
     expect(accepted).toBe(false);
     expect(logged[0]).toEqual(expect.objectContaining({ channel: 'matrix' }));
   });
+
+  describe('Transient error handling and outbox retry queuing', () => {
+    it('correctly identifies transient errors', () => {
+      const gateway = new MatrixGateway({
+        eventBus: { emit: jest.fn() } as any,
+        policyManager: { verifyAccess: jest.fn(async () => true) } as any,
+      });
+
+      expect(gateway.isTransientError({ ok: false, status: 'failed', transport: 'matrix', httpStatus: 429, reason: 'Too Many Requests' })).toBe(true);
+      expect(gateway.isTransientError({ ok: false, status: 'failed', transport: 'matrix', httpStatus: 503, reason: 'Service Unavailable' })).toBe(true);
+      expect(gateway.isTransientError({ ok: false, status: 'failed', transport: 'matrix', httpStatus: 400, reason: 'Bad Request' })).toBe(false);
+      expect(gateway.isTransientError({ ok: false, status: 'failed', transport: 'matrix', reason: 'fetch failed' })).toBe(true);
+      expect(gateway.isTransientError({ ok: false, status: 'failed', transport: 'matrix', reason: 'Connection timeout' })).toBe(true);
+    });
+
+    it('queues message to outbox on transient live delivery failure', async () => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-webhook-gateway-retry-'));
+      (config as any).matrixBaseUrl = 'https://matrix.example.test';
+      (config as any).matrixAccessToken = 'token';
+      const fetchImpl = jest.fn(async () => new Response('Internal Server Error', { status: 500 }));
+      const gateway = new MatrixGateway({
+        eventBus: { emit: jest.fn() } as any,
+        policyManager: { verifyAccess: jest.fn(async () => true) } as any,
+        fetchImpl: fetchImpl as any,
+        outboxDir: path.join(root, 'outbox'),
+        statusFile: path.join(root, 'status.json'),
+      });
+
+      try {
+        const delivery = await gateway.sendMessage({ text: 'hello retry', recipients: ['!room:example.test'] });
+        expect(delivery.status).toBe('queued');
+        expect(delivery.transport).toBe('local-outbox');
+        
+        const files = fs.readdirSync(path.join(root, 'outbox'));
+        expect(files.length).toBe(1);
+        const queuedEnvelope = JSON.parse(fs.readFileSync(path.join(root, 'outbox', files[0]), 'utf8'));
+        expect(queuedEnvelope.message).toBe('hello retry');
+      } finally {
+        fs.rmSync(root, { recursive: true, force: true });
+      }
+    });
+  });
 });

@@ -53,6 +53,8 @@ import { TrustedWorkspaceService } from './TrustedWorkspaceService.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
 import { LocalEncryptedProviderSecretStore } from './ProviderSecretStore.js';
 import { ProviderConnectionTestService } from './ProviderConnectionTestService.js';
+import * as schemas from '../domain/validation/controlSchemas.js';
+
 
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
@@ -866,11 +868,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { operationId, decision } = body;
-        if (!operationId || !decision) {
-          deps.writeJson(res, { ok: false, error: 'operationId and decision are required' }, 400);
+        const parsed = schemas.resolveWriteApprovalSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { operationId, decision } = parsed.data;
 
         const approvalService = new WorkspaceWriteApprovalService();
         const cache = WorkspaceWriteApprovalPayloadCache.getInstance();
@@ -900,11 +903,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { workspaceId, active, durationMinutes, allowRiskUpTo, allowPackageInstall, allowNetwork } = body;
-        if (!workspaceId) {
-          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+        const parsed = schemas.sessionGrantSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { workspaceId, active, durationMinutes, allowRiskUpTo, allowPackageInstall, allowNetwork } = parsed.data;
 
         const cache = WorkspaceSessionGrantCache.getInstance();
         if (active === false) {
@@ -1012,15 +1016,13 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { workspaceId, rootPath, trusted, allowRiskUpTo, allowPackageInstall, allowNetwork } = body;
-        if (!workspaceId) {
-          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+        const parsed = schemas.resolveWorkspaceTrustSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
-        if (!rootPath) {
-          deps.writeJson(res, { ok: false, error: 'rootPath is required' }, 400);
-          return true;
-        }
+        const { workspaceId, rootPath, trusted, allowRiskUpTo, allowPackageInstall, allowNetwork } = parsed.data;
+
 
         // Validate rootPath and workspaceId against active workspace to prevent path spoofing
         let resolvedPath: string;
@@ -1167,15 +1169,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { workspaceId, approved } = body;
-        if (!workspaceId) {
-          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+        const parsed = schemas.resolveTaskMandateSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
-        if (approved === undefined) {
-          deps.writeJson(res, { ok: false, error: 'approved is required' }, 400);
-          return true;
-        }
+        const { workspaceId, approved } = parsed.data;
 
         const activeWorkspace = WorkspaceResolver.resolve(null);
         if (!this.validateWorkspaceSession(workspaceId)) {
@@ -1200,11 +1199,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { workspaceId } = body;
-        if (!workspaceId) {
-          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+        const parsed = schemas.revokeTaskMandateSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { workspaceId } = parsed.data;
 
         const activeWorkspace = WorkspaceResolver.resolve(null);
         if (!this.validateWorkspaceSession(workspaceId)) {
@@ -1314,20 +1314,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { workspaceId, trustId, approved } = body;
-
-        if (!workspaceId) {
-          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+        const parsed = schemas.resolveTempDirTrustSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
-        if (!trustId) {
-          deps.writeJson(res, { ok: false, error: 'trustId is required' }, 400);
-          return true;
-        }
-        if (approved === undefined) {
-          deps.writeJson(res, { ok: false, error: 'approved is required' }, 400);
-          return true;
-        }
+        const { workspaceId, trustId, approved } = parsed.data;
 
         if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
@@ -1364,16 +1356,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { workspaceId, trustId } = body;
-
-        if (!workspaceId) {
-          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+        const parsed = schemas.revokeTempDirTrustSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
-        if (!trustId) {
-          deps.writeJson(res, { ok: false, error: 'trustId is required' }, 400);
-          return true;
-        }
+        const { workspaceId, trustId } = parsed.data;
 
         if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
@@ -1480,11 +1468,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { operationId, decision } = body;
-        if (!operationId || !decision) {
-          deps.writeJson(res, { ok: false, error: 'operationId and decision are required' }, 400);
+        const parsed = schemas.resolveCommandApprovalSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { operationId, decision } = parsed.data;
 
         const approvalService = new WorkspaceCommandApprovalService();
         if (decision === 'approve') {
@@ -1533,11 +1522,14 @@ export class ZavorthControlCoreRouteService {
         return true;
       }
       try {
-        const { workspaceId, sessionId, approve } = await deps.readJsonBody(req);
-        if (!workspaceId || !sessionId || approve === undefined) {
-          deps.writeJson(res, { ok: false, error: 'Missing parameters' }, 400);
+        const body = await deps.readJsonBody(req);
+        const parsed = schemas.resolvePtySessionSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { workspaceId, sessionId, approve } = parsed.data;
+
         const srv = new PtySessionApprovalService();
         await srv.resolveProposal(workspaceId, sessionId, approve);
         deps.writeJson(res, { ok: true });
@@ -1573,15 +1565,16 @@ export class ZavorthControlCoreRouteService {
         return true;
       }
       try {
-        const { workspaceId, operationId, sessionId, approve, strongConfirmationInput } = await deps.readJsonBody(req);
-        if (!workspaceId || !operationId || !sessionId || approve === undefined) {
-          deps.writeJson(res, { ok: false, error: 'Missing parameters' }, 400);
+        const body = await deps.readJsonBody(req);
+        const parsed = schemas.resolvePtyInputSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { workspaceId, operationId, sessionId, approve, strongConfirmationInput } = parsed.data;
+
         const inputSrv = new PtyInputApprovalService();
         await inputSrv.resolveProposal(workspaceId, operationId, approve, strongConfirmationInput);
-
-
 
         deps.writeJson(res, { ok: true });
       } catch (err: any) {
@@ -1619,11 +1612,14 @@ export class ZavorthControlCoreRouteService {
         return true;
       }
       try {
-        const { workspaceId, sessionId } = await deps.readJsonBody(req);
-        if (!workspaceId || !sessionId) {
-          deps.writeJson(res, { ok: false, error: 'Missing parameters' }, 400);
+        const body = await deps.readJsonBody(req);
+        const parsed = schemas.terminatePtySessionSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { workspaceId, sessionId } = parsed.data;
+
         await PtySessionService.getInstance().terminateSession(sessionId, workspaceId);
         deps.writeJson(res, { ok: true });
       } catch (err: any) {
@@ -1659,21 +1655,27 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
+        const parsed = schemas.providerConfigSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
+          return true;
+        }
+        const validatedBody = parsed.data;
         const srv = ProviderConfigService.getInstance();
 
-        let providerId = body.providerId;
+        let providerId = validatedBody.providerId;
         let config;
 
         if (providerId) {
-          config = await srv.updateProvider(providerId, body);
+          config = await srv.updateProvider(providerId, validatedBody);
         } else {
-          config = await srv.createProvider(body);
+          config = await srv.createProvider(validatedBody);
           providerId = config.providerId;
         }
 
-        if (body.apiKey) {
+        if (validatedBody.apiKey) {
           const store = LocalEncryptedProviderSecretStore.getInstance();
-          const saveResult = await store.saveSecret(providerId, body.apiKey);
+          const saveResult = await store.saveSecret(providerId, validatedBody.apiKey);
           await srv.setSecretRef(providerId, saveResult.secretRef);
           config.secretRef = saveResult.secretRef;
         }
@@ -1684,6 +1686,28 @@ export class ZavorthControlCoreRouteService {
         deps.writeJson(res, { ok: true, data: finalConfig });
       } catch (err: any) {
         deps.writeJson(res, { ok: false, error: err.message }, 400);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/providers/test-connection' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const parsed = schemas.testConnectionSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
+          return true;
+        }
+        const { providerId } = parsed.data;
+        const result = await ProviderConnectionTestService.getInstance().testConnection(providerId);
+        deps.writeJson(res, { ok: true, data: result });
+      } catch (err: any) {
+        const normalized = ErrorNormalizationService.getInstance().normalize(err);
+        deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
       return true;
     }
@@ -1730,25 +1754,7 @@ export class ZavorthControlCoreRouteService {
       return true;
     }
 
-    if (pathname === '/api/v2/providers/test-connection' && req.method === 'POST') {
-      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
-        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
-        return true;
-      }
-      try {
-        const body = await deps.readJsonBody(req);
-        if (!body.providerId) {
-          deps.writeJson(res, { ok: false, error: 'providerId is required' }, 400);
-          return true;
-        }
-        const result = await ProviderConnectionTestService.getInstance().testConnection(body.providerId);
-        deps.writeJson(res, { ok: true, data: result });
-      } catch (err: any) {
-        const normalized = ErrorNormalizationService.getInstance().normalize(err);
-        deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
-      }
-      return true;
-    }
+
 
     // GET /api/v2/workspace/agent-config
     if (pathname === '/api/v2/workspace/agent-config' && req.method === 'GET') {
@@ -1804,7 +1810,13 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const workspaceId = body.workspaceId || url.searchParams.get('workspaceId');
+        const parsed = schemas.agentConfigSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
+          return true;
+        }
+        const validated = parsed.data;
+        const workspaceId = validated.workspaceId || url.searchParams.get('workspaceId');
         if (!workspaceId) {
           deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
           return true;
@@ -1898,7 +1910,13 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const workspaceId = body.workspaceId || url.searchParams.get('workspaceId');
+        const parsed = schemas.agentConfigPreviewSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
+          return true;
+        }
+        const validated = parsed.data;
+        const workspaceId = validated.workspaceId || url.searchParams.get('workspaceId');
         if (!workspaceId) {
           deps.writeJson(res, { ok: false, error: 'workspaceId parameter is required' }, 400);
           return true;
@@ -2049,11 +2067,13 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { workspaceId, durationMinutes } = body;
-        if (!workspaceId || typeof durationMinutes !== 'number') {
-          deps.writeJson(res, { ok: false, error: 'workspaceId and durationMinutes (number) are required' }, 400);
+        const parsed = schemas.enableHostPowerSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { workspaceId, durationMinutes } = parsed.data;
+
         await HostPowerModeService.getInstance().enable(workspaceId, durationMinutes);
         deps.writeJson(res, { ok: true });
       } catch (err: any) {
@@ -2069,11 +2089,13 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { workspaceId } = body;
-        if (!workspaceId) {
-          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+        const parsed = schemas.disableHostPowerSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { workspaceId } = parsed.data;
+
         await HostPowerModeService.getInstance().disable(workspaceId);
         deps.writeJson(res, { ok: true });
       } catch (err: any) {
@@ -2143,11 +2165,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { operationId, decision, strongConfirmationInput } = body;
-        if (!operationId || !decision) {
-          deps.writeJson(res, { ok: false, error: 'operationId and decision are required' }, 400);
+        const parsed = schemas.resolveHostCommandSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { operationId, decision, strongConfirmationInput } = parsed.data;
 
         const approvalService = new HostCommandApprovalService();
         if (decision === 'approve') {
@@ -2173,11 +2196,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { operationId } = body;
-        if (!operationId) {
-          deps.writeJson(res, { ok: false, error: 'operationId is required' }, 400);
+        const parsed = schemas.executeHostCommandSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { operationId } = parsed.data;
 
         const db = await Database.getInstance();
         const proposal = db.get<any>(
@@ -2279,11 +2303,12 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const { operationId } = body;
-        if (!operationId) {
-          deps.writeJson(res, { ok: false, error: 'operationId is required' }, 400);
+        const parsed = schemas.revokeHostCommandSchema.safeParse(body);
+        if (!parsed.success) {
+          deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
+        const { operationId } = parsed.data;
         const db = await Database.getInstance();
         db.run('DELETE FROM workspace_host_command_proposals WHERE operation_id = is', [operationId]);
         HostCommandPayloadCache.getInstance().delete(operationId);
@@ -2310,22 +2335,24 @@ export class ZavorthControlCoreRouteService {
 
     if (pathname === '/api/v2/permissions/resolve' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
-      if (deps.echo) {
-        const approved = this.parseBoolean(body.approved);
-        if (!body.id || typeof body.id !== 'string' || approved === null) {
-          deps.writeJson(res, {
-            ok: false,
-            deprecated: true,
-            canonical: '/api/v2/echo/permissions/resolve',
-            error: 'Campos "id" (string) e "approved" (boolean) obrigatorios.',
-          }, 400);
-          return true;
-        }
+      const parsed = schemas.resolvePermissionSchema.safeParse(body);
+      if (!parsed.success) {
+        deps.writeJson(res, {
+          ok: false,
+          deprecated: true,
+          canonical: '/api/v2/echo/permissions/resolve',
+          error: 'Validation failed',
+          details: parsed.error.format()
+        }, 400);
+        return true;
+      }
+      const { id, approved } = parsed.data;
 
-        const resolverContext = this.readResolverContext(body);
+      if (deps.echo) {
+        const resolverContext = this.readResolverContext(parsed.data);
         const result = resolverContext
-          ? await deps.echo.resolvePermission(body.id, approved, resolverContext)
-          : await deps.echo.resolvePermission(body.id, approved);
+          ? await deps.echo.resolvePermission(id, approved, resolverContext)
+          : await deps.echo.resolvePermission(id, approved);
         deps.writeJson(res, {
           deprecated: true,
           canonical: '/api/v2/echo/permissions/resolve',
@@ -2334,7 +2361,7 @@ export class ZavorthControlCoreRouteService {
         return true;
       }
 
-      const success = deps.proactivePermissions.resolve(body.id, body.approved);
+      const success = deps.proactivePermissions.resolve(id, approved);
       deps.writeJson(res, {
         ok: success,
         deprecated: true,

@@ -99,6 +99,8 @@ const PUBLIC_COMMANDS = [
   'cancel',
   'diagnostics',
   'mock-gateway',
+  'rotate-db-key',
+  '/ops/rotate-db-key',
 ];
 
 function normalizePublicCommandAliases(rawArgs: string[]): string[] {
@@ -2313,8 +2315,60 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   const helpTopic = resolveCliHelpTopic(command);
-  if (helpTopic !== 'root' && (restArgs.includes('--help') || restArgs.includes('-h'))) {
+  if (helpTopic !== 'root' && (restArgs[0] === '--help' || restArgs[0] === '-h')) {
     return printBuiltinHelp(command);
+  }
+
+  if (command === '/ops/rotate-db-key' || command === 'rotate-db-key') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printCliPanel('Database Key Rotation', [
+        'Usage: zavorth /ops/rotate-db-key [new_key_path]',
+        '       zavorth ops rotate-db-key [new_key_path]',
+        '',
+        'Rotates the SQLCipher database master encryption key dynamically.',
+        '',
+        'Arguments:',
+        '  new_key_path  (Optional) Path to a file containing the new key.',
+        '                If not provided, a random 32-byte key is generated.',
+      ], 'info');
+    }
+    const newKeyPath = restArgs[0] || null;
+    let newKey: string;
+    if (newKeyPath) {
+      if (!existsSync(newKeyPath)) {
+        await logCliError(`Key file not found at: ${newKeyPath}`, 'Key Rotation Error');
+        return 1;
+      }
+      try {
+        newKey = readFileSync(newKeyPath, 'utf8').trim();
+      } catch (err: any) {
+        await logCliError(`Failed to read key file: ${err.message}`, 'Key Rotation Error');
+        return 1;
+      }
+    } else {
+      // Auto-generate key
+      const crypto = await import('node:crypto');
+      newKey = crypto.randomBytes(32).toString('base64');
+    }
+
+    try {
+      const { Database } = await import('./storage/Database.js');
+      const db = await Database.getInstance();
+      db.rotateKey(newKey);
+
+      const lines = [
+        '🔑 Database encryption key rotated successfully!',
+        newKeyPath
+          ? `Read new key from file: ${newKeyPath}`
+          : 'Generated new random 32-byte key.',
+        `Configured dbEncryptionKeyFile updated/written to persist key.`
+      ];
+      await printCliPanel('Database Key Rotation', lines, 'success');
+      return 0;
+    } catch (err: any) {
+      await logCliError(`Rekeying failed: ${err.message}`, 'Key Rotation Error');
+      return 1;
+    }
   }
 
   if (command === 'advanced') {
@@ -2325,7 +2379,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'ops') {
-    if (restArgs.length === 0 || restArgs.includes('--help') || restArgs.includes('-h')) {
+    if (restArgs.length === 0 || restArgs[0] === '--help' || restArgs[0] === '-h') {
       return printBuiltinHelp('ops');
     }
     return runBuiltinLauncher(restArgs);

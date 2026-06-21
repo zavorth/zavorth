@@ -33,4 +33,13 @@ module.exports = {
       },
     ],
   },
+  // Cobertura de código unificada (Fase 4: Unified Code Coverage)
+  coverageDirectory: 'coverage/jest',
+  coverageReporters: ['json', 'lcov', 'text', 'text-summary'],
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    '!src/ai-gateway/**',
+    '!src/**/*.spec.ts',
+  ],
 };
