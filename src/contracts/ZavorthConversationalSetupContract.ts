@@ -21,7 +21,11 @@ export type ZavorthConversationalSetupQuestionId =
   | 'detail-level'
   | 'primary-use'
   | 'approval-channel'
-  | 'first-safe-mission';
+  | 'first-safe-mission'
+  | 'domain'
+  | 'learning-style'
+  | 'timezone'
+  | 'weekend-policy';
 
 export type ZavorthConversationalSetupQuestion = {
   id: ZavorthConversationalSetupQuestionId;
@@ -29,6 +33,8 @@ export type ZavorthConversationalSetupQuestion = {
   prompt: string;
   kind: 'text' | 'choice';
   required: boolean;
+  visible: boolean;
+  visibleReason?: string;
   status: 'answered' | 'pending';
   answerPreview: string | null;
   choices?: string[];
@@ -45,6 +51,10 @@ export type ZavorthConversationalSetupAnswers = {
   firstSafeMission: string | null;
   detailLevel: 'simple' | 'advanced';
   experienceProfileId: ZavorthExperienceProfileId;
+  domain: string | null;
+  learningStyle: string | null;
+  timezone: string | null;
+  weekendPolicy: string | null;
 };
 
 export type ZavorthConversationalSetupWritePlan = {
@@ -52,7 +62,7 @@ export type ZavorthConversationalSetupWritePlan = {
   requiresExplicitApply: true;
   requiresLocalProfileConfirmation: true;
   targets: Array<{
-    file: 'IDENTITY.md' | 'USER.md' | 'SOUL.md';
+    file: 'IDENTITY.md' | 'USER.md' | 'SOUL.md' | 'DOMAIN.md' | 'LEARNING-STYLE.md' | 'ERROR-HANDLING.md' | 'OUTPUT-FORMAT.md' | 'TIME-AUTOMATION.md';
     purpose: string;
     action: 'upsert-markdown-fields';
   }>;

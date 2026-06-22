@@ -118,24 +118,41 @@ Then ask:
    - Are there specific dislikes, rituals, naming preferences or habits that
      would make this assistant feel right?
 
+9. Domain expertise
+   - What is your primary domain of expertise?
+   - Examples: software engineering, data science, creative writing, business
+     operations
+
+10. Learning style
+    - How do you prefer to learn new things?
+    - Examples: examples first, theory first, hands-on, visual, step-by-step
+
+11. Timezone and schedule
+    - What is your timezone?
+    - Do you have specific working hours or focus time?
+
+12. Weekend behavior
+    - Should I behave differently on weekends?
+    - Examples: normal, reduced activity, urgent only
+
 ### 2. Governed Operation
 
 After the personal side is clear, ask the operational questions:
 
-9. Safety posture
-   - Should external actions be conservative by default, or more autonomous
-     after trust is established?
+13. Safety posture
+    - Should external actions be conservative by default, or more autonomous
+      after trust is established?
 
-10. Approval boundaries
+14. Approval boundaries
     - What should always require approval? Examples: file writes, shell
       commands, network access, sending messages, device control, scheduled
       tasks or provider changes.
 
-11. Daily surfaces
+15. Daily surfaces
     - Which surfaces matter first: `/control`, CLI, `/satellite`, Telegram or
       another channel?
 
-12. First safe mission
+16. First safe mission
     - What is one safe first task I can help with after bootstrap?
 
 ## Write Targets
@@ -148,6 +165,11 @@ Map answers immediately:
 - voice, warmth, humor, initiative, bluntness and stance -> `SOUL.md`
 - approval boundaries, external-action rules, workspace posture and surfaces ->
   `AGENTS.md`
+- domain expertise -> `DOMAIN.md`
+- learning preferences -> `LEARNING-STYLE.md`
+- timezone and schedule -> `TIME-AUTOMATION.md`
+- error handling -> `ERROR-HANDLING.md`
+- output format -> `OUTPUT-FORMAT.md`
 
 If the user gives a durable project or life preference during bootstrap, capture
 the distilled version in `USER.md`.

@@ -13,6 +13,12 @@ export type FirstRunPersonalizationAnswers = {
   candorLevel?: string | null;
   challengePreference?: string | null;
   externalActionPosture?: string | null;
+  domain?: string | null;
+  learningStyle?: string | null;
+  errorHandlingDefault?: string | null;
+  outputFormatDefault?: string | null;
+  weekendPolicy?: string | null;
+  timezone?: string | null;
 };
 
 export type FirstRunPersonalizationStatus = {
@@ -23,6 +29,11 @@ export type FirstRunPersonalizationStatus = {
     soul: string;
     user: string;
     bootstrap: string;
+    domain: string;
+    learningStyle: string;
+    errorHandling: string;
+    outputFormat: string;
+    timeAutomation: string;
   };
   bootstrapExists: boolean;
   missingUserFields: string[];
@@ -116,6 +127,42 @@ const DEFAULT_SOUL = `# SOUL.md - Zavorth Personality
 You are calm, technical, exact, and quietly warm.
 `;
 
+const DEFAULT_DOMAIN = `# DOMAIN.md - Domain Specialization
+
+## Domain profile
+
+- **Primary domain:** general
+`;
+
+const DEFAULT_LEARNING_STYLE = `# LEARNING-STYLE.md - Learning Preferences
+
+## Learning profile
+
+- **Preferred learning style:** examples-first
+`;
+
+const DEFAULT_ERROR_HANDLING = `# ERROR-HANDLING.md - Error Recovery
+
+## Error handling defaults
+
+- **Default error handling:** ask-user
+`;
+
+const DEFAULT_OUTPUT_FORMAT = `# OUTPUT-FORMAT.md - Output Preferences
+
+## Output formatting
+
+- **Default output format:** answer-first-then-explain
+`;
+
+const DEFAULT_TIME_AUTOMATION = `# TIME-AUTOMATION.md - Schedule and Time
+
+## Time preferences
+
+- **Timezone:** UTC
+- **Weekend policy:** urgent-only
+`;
+
 export class FirstRunPersonalizationService {
   private readonly projectRoot: string;
   private readonly fs: FileSystemLike;
@@ -183,6 +230,26 @@ export class FirstRunPersonalizationService {
     this.writeText(files.soul, soul);
     writtenFiles.push(files.soul);
 
+    const domain = this.personalizeDomain(this.readText(files.domain, DEFAULT_DOMAIN), normalized);
+    this.writeText(files.domain, domain);
+    writtenFiles.push(files.domain);
+
+    const learningStyle = this.personalizeLearningStyle(this.readText(files.learningStyle, DEFAULT_LEARNING_STYLE), normalized);
+    this.writeText(files.learningStyle, learningStyle);
+    writtenFiles.push(files.learningStyle);
+
+    const errorHandling = this.personalizeErrorHandling(this.readText(files.errorHandling, DEFAULT_ERROR_HANDLING), normalized);
+    this.writeText(files.errorHandling, errorHandling);
+    writtenFiles.push(files.errorHandling);
+
+    const outputFormat = this.personalizeOutputFormat(this.readText(files.outputFormat, DEFAULT_OUTPUT_FORMAT), normalized);
+    this.writeText(files.outputFormat, outputFormat);
+    writtenFiles.push(files.outputFormat);
+
+    const timeAutomation = this.personalizeTimeAutomation(this.readText(files.timeAutomation, DEFAULT_TIME_AUTOMATION), normalized);
+    this.writeText(files.timeAutomation, timeAutomation);
+    writtenFiles.push(files.timeAutomation);
+
     let removedBootstrap = false;
     if (options.completeBootstrap && this.fs.existsSync(files.bootstrap)) {
       this.fs.unlinkSync(files.bootstrap);
@@ -204,6 +271,11 @@ export class FirstRunPersonalizationService {
       soul: path.join(this.projectRoot, 'SOUL.md'),
       user: path.join(this.projectRoot, 'USER.md'),
       bootstrap: path.join(this.projectRoot, 'BOOTSTRAP.md'),
+      domain: path.join(this.projectRoot, 'DOMAIN.md'),
+      learningStyle: path.join(this.projectRoot, 'LEARNING-STYLE.md'),
+      errorHandling: path.join(this.projectRoot, 'ERROR-HANDLING.md'),
+      outputFormat: path.join(this.projectRoot, 'OUTPUT-FORMAT.md'),
+      timeAutomation: path.join(this.projectRoot, 'TIME-AUTOMATION.md'),
     };
   }
 
@@ -220,6 +292,12 @@ export class FirstRunPersonalizationService {
       candorLevel: this.clean(answers.candorLevel) || 'honest and respectful',
       challengePreference: this.clean(answers.challengePreference) || 'call out weak ideas early',
       externalActionPosture: this.clean(answers.externalActionPosture) || 'ask before public or irreversible action',
+      domain: this.clean(answers.domain) || 'general',
+      learningStyle: this.clean(answers.learningStyle) || 'examples-first',
+      errorHandlingDefault: this.clean(answers.errorHandlingDefault) || 'ask-user',
+      outputFormatDefault: this.clean(answers.outputFormatDefault) || 'answer-first-then-explain',
+      weekendPolicy: this.clean(answers.weekendPolicy) || 'urgent-only',
+      timezone: this.clean(answers.timezone) || 'UTC',
     };
   }
 
@@ -268,6 +346,52 @@ export class FirstRunPersonalizationService {
     return this.ensureTrailingNewline(this.upsertSection(content || DEFAULT_SOUL, 'User Calibration', section));
   }
 
+  private personalizeDomain(
+    content: string,
+    answers: NormalizedFirstRunPersonalizationAnswers,
+  ): string {
+    let result = content || DEFAULT_DOMAIN;
+    result = this.upsertMarkdownField(result, 'Primary domain', answers.domain);
+    return this.ensureTrailingNewline(result);
+  }
+
+  private personalizeLearningStyle(
+    content: string,
+    answers: NormalizedFirstRunPersonalizationAnswers,
+  ): string {
+    let result = content || DEFAULT_LEARNING_STYLE;
+    result = this.upsertMarkdownField(result, 'Preferred learning style', answers.learningStyle);
+    return this.ensureTrailingNewline(result);
+  }
+
+  private personalizeErrorHandling(
+    content: string,
+    answers: NormalizedFirstRunPersonalizationAnswers,
+  ): string {
+    let result = content || DEFAULT_ERROR_HANDLING;
+    result = this.upsertMarkdownField(result, 'Default error handling', answers.errorHandlingDefault);
+    return this.ensureTrailingNewline(result);
+  }
+
+  private personalizeOutputFormat(
+    content: string,
+    answers: NormalizedFirstRunPersonalizationAnswers,
+  ): string {
+    let result = content || DEFAULT_OUTPUT_FORMAT;
+    result = this.upsertMarkdownField(result, 'Default output format', answers.outputFormatDefault);
+    return this.ensureTrailingNewline(result);
+  }
+
+  private personalizeTimeAutomation(
+    content: string,
+    answers: NormalizedFirstRunPersonalizationAnswers,
+  ): string {
+    let result = content || DEFAULT_TIME_AUTOMATION;
+    result = this.upsertMarkdownField(result, 'Timezone', answers.timezone);
+    result = this.upsertMarkdownField(result, 'Weekend policy', answers.weekendPolicy);
+    return this.ensureTrailingNewline(result);
+  }
+
   private buildSummary(
     answers: NormalizedFirstRunPersonalizationAnswers,
     removedBootstrap: boolean,
@@ -279,6 +403,9 @@ export class FirstRunPersonalizationService {
       `Tom: ${answers.preferredTone}`,
       `Densidade: ${answers.responseDensity}`,
       `Iniciativa: ${answers.initiativeLevel}`,
+      `Dominio: ${answers.domain}`,
+      `Aprendizagem: ${answers.learningStyle}`,
+      `Timezone: ${answers.timezone}`,
       `Bootstrap: ${removedBootstrap ? 'concluido' : 'mantido para revisao'}`,
     ];
   }
