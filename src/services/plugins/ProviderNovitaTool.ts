@@ -8,7 +8,7 @@ export class ProviderNovitaTool extends BaseTool {
   public readonly name = 'zavorth_novita';
 
   public readonly description =
-    'Novita AI provider plugin — acesso a modelos open-source baratos via API Novita (Llama, Mistral, Qwen, Deepseek, Yi, Phi, etc). Suporta chat completion, streaming e function calling.';
+    'Novita AI provider plugin — access to cheap open-source models via API Novita (Llama, Mistral, Qwen, Deepseek, Yi, Phi, etc). Suporta chat completion, streaming e function calling.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -23,19 +23,19 @@ export class ProviderNovitaTool extends BaseTool {
       },
       messages: {
         type: 'string',
-        description: 'JSON array de mensagens [{role, content}].',
+        description: 'JSON array of messages [{role, content}].',
       },
       max_tokens: {
         type: 'number',
-        description: 'Maximo de tokens na resposta. Default: 2048.',
+        description: 'Maximum tokens in response. Default: 2048.',
       },
       temperature: {
         type: 'number',
-        description: 'Temperatura (0-2). Default: 0.7.',
+        description: 'Temperature (0-2). Default: 0.7.',
       },
       stream: {
         type: 'boolean',
-        description: 'Se true, retorna streaming. Default: false.',
+        description: 'If true, returns streaming. Default: false.',
       },
     },
     required: ['action'],
@@ -55,7 +55,7 @@ export class ProviderNovitaTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     switch (action) {
       case 'list_models': return this.listModels();
@@ -63,11 +63,11 @@ export class ProviderNovitaTool extends BaseTool {
       case 'check_status':
       case 'chat': {
         const apiKey = process.env.NOVITA_API_KEY;
-        if (!apiKey) return 'Erro: NOVITA_API_KEY nao configurada. Obtenha em https://novita.ai';
+        if (!apiKey) return 'Error: NOVITA_API_KEY not configured. Get at https://novita.ai';
         if (action === 'check_status') return await this.checkStatus(apiKey);
         return await this.chat(args, apiKey);
       }
-      default: return `Erro: acao "${action}" invalida.`;
+      default: return `Error: action "${action}" is invalid.`;
     }
   }
 
@@ -93,11 +93,11 @@ export class ProviderNovitaTool extends BaseTool {
       const statusCode = statusMatch ? parseInt(statusMatch[1], 10) : 0;
 
       if (statusCode === 200) {
-        return 'Novita AI: Conectado e funcionando.';
+        return 'Novita AI: Connected e funcionando.';
       }
-      return `Novita AI: Erro HTTP ${statusCode}`;
+      return `Novita AI: HTTP Error ${statusCode}`;
     } catch (error: unknown) {
-      return `Novita AI: Erro de conexao: ${error instanceof Error ? error.message : String(error)}`;
+      return `Novita AI: Connection error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
@@ -110,7 +110,7 @@ export class ProviderNovitaTool extends BaseTool {
       '  Deepseek Chat: $0.0005/1K tokens',
       '  Qwen 2 72B: $0.0009/1K tokens',
       '',
-      'Preco medio: ~80% mais barato que OpenAI equivalente.',
+      'Preco medio: ~80% cheaper than OpenAI equivalente.',
       'URL: https://novita.ai/pricing',
     ].join('\n');
   }
@@ -123,13 +123,13 @@ export class ProviderNovitaTool extends BaseTool {
     let messages: Array<{ role: string; content: string }> = [];
     if (typeof args.messages === 'string') {
       try { messages = JSON.parse(args.messages); } catch {
-        return 'Erro: JSON de "messages" invalido.';
+        return 'Error: invalid JSON for "messages"..';
       }
     } else if (Array.isArray(args.messages)) {
       messages = args.messages as Array<{ role: string; content: string }>;
     }
 
-    if (messages.length === 0) return 'Erro: "messages" e obrigatorio para chat.';
+    if (messages.length === 0) return 'Error: "messages" is required. for chat.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -155,7 +155,7 @@ export class ProviderNovitaTool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro Novita: ${parsed.error.message || JSON.stringify(parsed.error)}`;
+      if (parsed.error) return `Novita error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
 
       const content = parsed.choices?.[0]?.message?.content || result;
       const usage = parsed.usage;
@@ -168,7 +168,7 @@ export class ProviderNovitaTool extends BaseTool {
       }
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro na chamada Novita: ${error instanceof Error ? error.message : String(error)}`;
+      return `Call error Novita: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 }

@@ -1,10 +1,10 @@
 import { BaseTool } from './BaseTool.js';
-import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import {
   type ZavorthActionOperation,
   ZavorthActionGateway,
-} from '../runtime/actions/index.js';
-import type { GoalLoopLlmRuntime } from '../services/GoalLoopService.js';
+} from '@zavorth/runtime/actions/index.js';
+import type { GoalLoopLlmRuntime } from '@zavorth/services/GoalLoopService.js';
 
 const OPERATIONS: ZavorthActionOperation[] = [
   'action.schema.lookup',

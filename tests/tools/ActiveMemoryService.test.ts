@@ -18,7 +18,7 @@ describe('ActiveMemoryService', () => {
 
   it('remembers content', () => {
     const result = service.remember('User likes TypeScript');
-    expect(result).toContain('Memorizado');
+    expect(result).toContain('Remembered');
   });
 
   it('recalls by query', () => {
@@ -32,21 +32,21 @@ describe('ActiveMemoryService', () => {
     const id = service.remember('Forget me');
     const memId = id.match(/\[mem_\w+\]/)![0].slice(1, -1);
     const result = service.forget(memId);
-    expect(result).toContain('esquecida');
+    expect(result).toContain('forgotten');
   });
 
   it('updates an entry', () => {
     const id = service.remember('Original');
     const memId = id.match(/\[mem_\w+\]/)![0].slice(1, -1);
     const result = service.update(memId, { content: 'Updated' });
-    expect(result).toContain('atualizada');
+    expect(result).toContain('updated');
   });
 
   it('promotes and demotes', () => {
     const id = service.remember('Important');
     const memId = id.match(/\[mem_\w+\]/)![0].slice(1, -1);
     const promoteResult = service.promote(memId);
-    expect(promoteResult).toContain('promovida');
+    expect(promoteResult).toContain('promoted');
     const demoteResult = service.demote(memId);
     expect(promoteResult).toBeTruthy();
   });
@@ -55,7 +55,7 @@ describe('ActiveMemoryService', () => {
     service.remember('Test 1');
     service.remember('Test 2');
     const result = service.consolidate();
-    expect(result).toContain('Consolidacao');
+    expect(result).toContain('Consolidation');
   });
 
   it('gets stats', () => {

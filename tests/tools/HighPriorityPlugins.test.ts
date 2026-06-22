@@ -11,7 +11,7 @@ describe('ProviderNovitaTool', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('lists models', async () => {
@@ -23,12 +23,12 @@ describe('ProviderNovitaTool', () => {
   it('gets pricing', async () => {
     const result = await tool.execute({ action: 'get_pricing' });
     expect(result).toContain('Pricing');
-    expect(result).toContain('barato');
+    expect(result).toContain('cheaper');
   });
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'dance' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });
 

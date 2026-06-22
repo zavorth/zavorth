@@ -9,12 +9,12 @@ describe('ZavorthPolicyEnforcerTool', () => {
 
   it('returns error when action is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('lists all policies', async () => {
     const result = await tool.execute({ action: 'list_policies' });
-    expect(result).toContain('Politicas');
+    expect(result).toContain('Policies');
     expect(result).toContain('Email Send');
     expect(result).toContain('Destructive Command');
     expect(result).toContain('Sensitive Data');
@@ -60,14 +60,14 @@ describe('ZavorthPolicyEnforcerTool', () => {
 
   it('audits policies', async () => {
     const result = await tool.execute({ action: 'audit' });
-    expect(result).toContain('Auditoria');
+    expect(result).toContain('Audit');
     expect(result).toContain('Total');
-    expect(result).toContain('Habilitadas');
+    expect(result).toContain('Enabled');
   });
 
   it('runs policy tests', async () => {
     const result = await tool.execute({ action: 'test' });
-    expect(result).toContain('Teste');
+    expect(result).toContain('Test');
   });
 
   it('adds a custom policy', async () => {
@@ -80,17 +80,17 @@ describe('ZavorthPolicyEnforcerTool', () => {
       policy_action: 'deny',
       policy_severity: 'block',
     });
-    expect(result).toContain('criada com sucesso');
+    expect(result).toContain('created successfully');
   });
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'dance' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error for check without tool_name', async () => {
     const result = await tool.execute({ action: 'check' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('tool_name');
   });
 });

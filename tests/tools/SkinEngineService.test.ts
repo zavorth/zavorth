@@ -39,7 +39,7 @@ describe('SkinEngineService', () => {
 
   it('returns error for non-existent skin', () => {
     const result = service.setActiveSkin('nonexistent');
-    expect(result).toContain('nao encontrado');
+    expect(result).toContain('not found');
   });
 
   it('installs a custom skin', () => {
@@ -61,7 +61,7 @@ describe('SkinEngineService', () => {
       metadata: { created_at: '2025-01-01', updated_at: '2025-01-01', tags: ['custom'] },
     };
     const result = service.installSkin(JSON.stringify(customSkin));
-    expect(result).toContain('instalado');
+    expect(result).toContain('installed');
     expect(service.listSkins()).toContain('custom');
   });
 
@@ -76,7 +76,7 @@ describe('SkinEngineService', () => {
     };
     service.installSkin(JSON.stringify(customSkin));
     const result = service.removeSkin('removable');
-    expect(result).toContain('removido');
+    expect(result).toContain('removed');
   });
 
   it('gets skin preview', () => {
@@ -93,11 +93,11 @@ describe('SkinEngineService', () => {
 
   it('returns error for invalid JSON on install', () => {
     const result = service.installSkin('not json');
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error for skin without id', () => {
     const result = service.installSkin(JSON.stringify({ name: 'Test' }));
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });

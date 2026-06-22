@@ -19,7 +19,7 @@ export class ZavorthTtsTool extends BaseTool {
   public readonly name = 'zavorth_tts';
 
   public readonly description =
-    'Converte texto em fala (Text-to-Speech) usando multiplos backends: local (macOS/Windows/Linux), Azure Speech, ElevenLabs, MLX (Apple Silicon), Gemini TTS, e Deepgram. Suporta selecao de voz, velocidade, idioma e salvamento em arquivo.';
+    'Converts text to speech (Text-to-Speech) usando multiplos backends: local (macOS/Windows/Linux), Azure Speech, ElevenLabs, MLX (Apple Silicon), Gemini TTS, e Deepgram. Suporta selecao de voz, velocidade, idioma e salvamento em arquivo.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -38,7 +38,7 @@ export class ZavorthTtsTool extends BaseTool {
       },
       voice_id: {
         type: 'string',
-        description: 'ID da voz (especifico do backend).',
+        description: 'Voice ID (especifico do backend).',
       },
       language: {
         type: 'string',
@@ -46,15 +46,15 @@ export class ZavorthTtsTool extends BaseTool {
       },
       speed: {
         type: 'number',
-        description: 'Velocidade da fala (0.5 a 2.0). Default: 1.0.',
+        description: 'Speech speed (0.5 a 2.0). Default: 1.0.',
       },
       pitch: {
         type: 'number',
-        description: 'Tom da voz (-20 a 20, em semitons). Default: 0.',
+        description: 'Voice pitch (-20 a 20, em semitons). Default: 0.',
       },
       output_path: {
         type: 'string',
-        description: 'Caminho para salvar o arquivo de audio (mp3/wav).',
+        description: 'Path to save the audio file (mp3/wav).',
       },
       output_format: {
         type: 'string',
@@ -62,7 +62,7 @@ export class ZavorthTtsTool extends BaseTool {
       },
       ssml: {
         type: 'boolean',
-        description: 'Se true, o texto e interpretado como SSML. Default: false.',
+        description: 'If true, text is interpreted as SSML. Default: false.',
       },
     },
     required: ['action'],
@@ -80,11 +80,11 @@ export class ZavorthTtsTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     const validActions = ['speak', 'list_voices', 'list_backends', 'set_default'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: action "${action}" is invalid. Use: ${validActions.join(', ')}.`;
     }
 
     this.ensureStorageDir();
@@ -95,10 +95,11 @@ export class ZavorthTtsTool extends BaseTool {
         case 'list_voices': return this.listVoices(args);
         case 'list_backends': return this.listBackends();
         case 'set_default': return this.setDefault(args);
+        default: return `Error: action "${action}" is not implemented.`;
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro no TTS: ${message}`;
+      return `TTS error: ${message}`;
     }
   }
 
@@ -110,10 +111,10 @@ export class ZavorthTtsTool extends BaseTool {
 
   private async speak(args: Record<string, unknown>): Promise<string> {
     const text = String(args.text || '');
-    if (!text) return 'Erro: o parametro "text" e obrigatorio para speak.';
+    if (!text) return 'Error: "text" parameter is required for speak.';
 
     if (text.length > 10000) {
-      return 'Erro: texto excede 10.000 caracteres. Divida em partes menores.';
+      return 'Error: text exceeds 10.000 characters. Split into smaller parts.';
     }
 
     const backend = String(args.backend || this.defaultBackend);
@@ -143,9 +144,9 @@ export class ZavorthTtsTool extends BaseTool {
       const fileSize = fs.existsSync(result) ? (fs.statSync(result).size / 1024).toFixed(1) : '?';
 
       const lines: string[] = [
-        `Audio gerado com sucesso.`,
+        `Audio generated successfully.`,
         `  - Backend: ${backend}`,
-        `  - Voz: ${voiceId || 'padrao'}`,
+        `  - Voice: ${voiceId || 'padrao'}`,
         `  - Idioma: ${language}`,
         `  - Velocidade: ${speed}x`,
         `  - Arquivo: ${result}`,
@@ -155,7 +156,7 @@ export class ZavorthTtsTool extends BaseTool {
       return lines.join('\n');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro ao gerar audio: ${message}`;
+      return `Audio generation error: ${message}`;
     }
   }
 
@@ -166,10 +167,10 @@ export class ZavorthTtsTool extends BaseTool {
     const voices = this.getVoicesForBackend(backend, language);
 
     if (voices.length === 0) {
-      return `Nenhuma voz encontrada para o backend "${backend}".`;
+      return `No voz encontrada para o backend "${backend}".`;
     }
 
-    const lines: string[] = [`Vozes disponiveis (${backend}):`];
+    const lines: string[] = [`Voicees disponiveis (${backend}):`];
     for (const voice of voices) {
       const genderIcon = { male: '👨', female: '👩', neutral: '🧑' }[voice.gender];
       lines.push(`  ${genderIcon} ${voice.id} — ${voice.name} (${voice.language})`);
@@ -179,10 +180,10 @@ export class ZavorthTtsTool extends BaseTool {
 
   private listBackends(): string {
     const backends = [
-      { id: 'local', name: 'Local (OS nativo)', platforms: 'macOS (say), Linux (espeak), Windows (System.Speech)', key: 'Nenhuma chave necessaria' },
+      { id: 'local', name: 'Local (OS nativo)', platforms: 'macOS (say), Linux (espeak), Windows (System.Speech)', key: 'No chave necessaria' },
       { id: 'azure', name: 'Azure Speech', platforms: 'Todos', key: 'AZURE_SPEECH_KEY + AZURE_SPEECH_REGION' },
       { id: 'elevenlabs', name: 'ElevenLabs', platforms: 'Todos', key: 'ELEVENLABS_API_KEY' },
-      { id: 'mlx', name: 'MLX (Apple Silicon)', platforms: 'macOS com Apple Silicon', key: 'Nenhuma chave necessaria' },
+      { id: 'mlx', name: 'MLX (Apple Silicon)', platforms: 'macOS com Apple Silicon', key: 'No chave necessaria' },
       { id: 'gemini', name: 'Gemini TTS', platforms: 'Todos', key: 'GEMINI_API_KEY' },
       { id: 'deepgram', name: 'Deepgram Aura', platforms: 'Todos', key: 'DEEPGRAM_API_KEY' },
     ];
@@ -199,11 +200,11 @@ export class ZavorthTtsTool extends BaseTool {
 
   private setDefault(args: Record<string, unknown>): string {
     const backend = String(args.backend || '');
-    if (!backend) return 'Erro: "backend" e obrigatorio.';
+    if (!backend) return 'Error: "backend" is required.';
 
     const validBackends = ['local', 'azure', 'elevenlabs', 'mlx', 'gemini', 'deepgram'];
     if (!validBackends.includes(backend)) {
-      return `Erro: backend "${backend}" invalido. Use: ${validBackends.join(', ')}.`;
+      return `Error: backend "${backend}" is invalid. Use: ${validBackends.join(', ')}.`;
     }
 
     this.defaultBackend = backend;
@@ -315,12 +316,12 @@ export class ZavorthTtsTool extends BaseTool {
           execFileSync('powershell', ['-Command', script], { timeout: 60000 });
           return options.outputPath;
         }
-        throw new Error(`TTS local nao suportado em ${process.platform}.`);
+        throw new Error(`TTS local not supported em ${process.platform}.`);
       }
 
       case 'elevenlabs': {
         const apiKey = process.env.ELEVENLABS_API_KEY;
-        if (!apiKey) throw new Error('ELEVENLABS_API_KEY nao configurada.');
+        if (!apiKey) throw new Error('ELEVENLABS_API_KEY not configured.');
         const voice = options.voiceId || '21m00Tcm4TlvDq8ikWAM';
         const payload = JSON.stringify({
           text,
@@ -347,7 +348,7 @@ export class ZavorthTtsTool extends BaseTool {
       case 'azure': {
         const apiKey = process.env.AZURE_SPEECH_KEY;
         const region = process.env.AZURE_SPEECH_REGION;
-        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY e AZURE_SPEECH_REGION nao configuradas.');
+        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY e AZURE_SPEECH_REGION not configureds.');
         const voice = options.voiceId || 'pt-BR-AntonioNeural';
         const ratePercent = Math.round((options.speed - 1) * 100);
         const pitchHz = options.pitch !== 0 ? `${options.pitch}Hz` : '+0Hz';
@@ -375,8 +376,8 @@ export class ZavorthTtsTool extends BaseTool {
 
       case 'gemini': {
         const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) throw new Error('GEMINI_API_KEY nao configurada.');
-        const prompt = `Converta o seguinte texto em fala. Idioma: ${options.language}. Velocidade: ${options.speed}x.\n\nTexto: ${text}`;
+        if (!apiKey) throw new Error('GEMINI_API_KEY not configured.');
+        const prompt = `Convert the following text to speech. Idioma: ${options.language}. Velocidade: ${options.speed}x.\n\nTexto: ${text}`;
         const payload = JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: { temperature: 0.1 },
@@ -399,7 +400,7 @@ export class ZavorthTtsTool extends BaseTool {
 
       case 'deepgram': {
         const apiKey = process.env.DEEPGRAM_API_KEY;
-        if (!apiKey) throw new Error('DEEPGRAM_API_KEY nao configurada.');
+        if (!apiKey) throw new Error('DEEPGRAM_API_KEY not configured.');
         const voice = options.voiceId || 'asteria';
         const payload = JSON.stringify({ text });
         const tmpPayload = path.join(os.tmpdir(), `dg_tts_${Date.now()}.json`);
@@ -420,7 +421,7 @@ export class ZavorthTtsTool extends BaseTool {
       }
 
       default:
-        throw new Error(`Backend TTS "${options.backend}" nao suportado.`);
+        throw new Error(`Backend TTS "${options.backend}" not supported.`);
     }
   }
 }

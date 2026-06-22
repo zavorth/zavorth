@@ -9,12 +9,12 @@ describe('ZavorthChannelSendTool', () => {
 
   it('returns error when required params missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error when message is missing', async () => {
     const result = await tool.execute({ channel: 'telegram', recipient: '123' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('message');
   });
 
@@ -24,8 +24,8 @@ describe('ZavorthChannelSendTool', () => {
       recipient: '123',
       message: 'Hello',
     });
-    expect(result).toContain('Erro');
-    expect(result).toContain('invalido');
+    expect(result).toContain('Error');
+    expect(result).toContain('invalid');
   });
 
   it('sends to telegram', async () => {
@@ -35,7 +35,7 @@ describe('ZavorthChannelSendTool', () => {
       message: 'Hello from Zavorth',
     });
     expect(result).toContain('Telegram');
-    expect(result).toContain('enviada');
+    expect(result).toContain('sent');
   });
 
   it('sends to discord', async () => {
@@ -76,7 +76,7 @@ describe('ZavorthChannelSendTool', () => {
         { channel: 'slack', recipient: '333' },
       ]),
     });
-    expect(result).toContain('multi-canal');
+    expect(result).toContain('Multi-channel');
     expect(result).toContain('3');
   });
 
@@ -87,7 +87,7 @@ describe('ZavorthChannelSendTool', () => {
       message: 'Silent message',
       silent: true,
     });
-    expect(result).toContain('enviada');
+    expect(result).toContain('sent');
   });
 
   it('handles reply_to', async () => {
@@ -97,6 +97,6 @@ describe('ZavorthChannelSendTool', () => {
       message: 'Reply test',
       reply_to: 'msg_456',
     });
-    expect(result).toContain('enviada');
+    expect(result).toContain('sent');
   });
 });

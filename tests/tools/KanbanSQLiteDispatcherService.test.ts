@@ -19,14 +19,14 @@ describe('KanbanSQLiteDispatcherService', () => {
 
   it('creates a board', () => {
     const result = service.createBoard('Sprint 1');
-    expect(result).toContain('criado');
+    expect(result).toContain('created');
     expect(result).toContain('SQLite');
   });
 
   it('prevents duplicate board', () => {
     service.createBoard('Test');
     const result = service.createBoard('Test');
-    expect(result).toContain('ja existe');
+    expect(result).toContain('already exists');
   });
 
   it('creates board with custom columns', () => {
@@ -38,13 +38,13 @@ describe('KanbanSQLiteDispatcherService', () => {
   it('deletes a board', () => {
     service.createBoard('Temp');
     const result = service.deleteBoard('temp');
-    expect(result).toContain('deletado');
+    expect(result).toContain('deleted');
   });
 
   it('adds a card', () => {
     service.createBoard('Board');
     const result = service.addCard('board', 'Task 1', { priority: 'high', assignee: 'dev' });
-    expect(result).toContain('adicionado');
+    expect(result).toContain('added');
     expect(result).toContain('Task 1');
   });
 
@@ -54,7 +54,7 @@ describe('KanbanSQLiteDispatcherService', () => {
     const board = service.getBoard('board');
     const cardId = board.match(/card_\w+/)![0];
     const result = service.moveCard('board', cardId, 'in_progress', 'Starting work');
-    expect(result).toContain('movido');
+    expect(result).toContain('moved');
   });
 
   it('blocks a card', () => {
@@ -64,7 +64,7 @@ describe('KanbanSQLiteDispatcherService', () => {
     const board = service.getBoard('board');
     const cardIds = board.match(/card_\w+/g)!;
     const result = service.blockCard('board', cardIds[1], cardIds[0], 'Waiting for API');
-    expect(result).toContain('bloqueado');
+    expect(result).toContain('blocked');
   });
 
   it('unblocks a card', () => {
@@ -75,7 +75,7 @@ describe('KanbanSQLiteDispatcherService', () => {
     const cardIds = board.match(/card_\w+/g)!;
     service.blockCard('board', cardIds[1], cardIds[0]);
     const result = service.unblockCard('board', cardIds[1]);
-    expect(result).toContain('desbloqueado');
+    expect(result).toContain('unblocked');
   });
 
   it('dispatches by priority', () => {
@@ -186,12 +186,12 @@ describe('KanbanSQLiteDispatcherService', () => {
 
   it('returns error for non-existent board', () => {
     const result = service.getBoard('nonexistent');
-    expect(result).toContain('nao encontrado');
+    expect(result).toContain('not found');
   });
 
   it('returns error for invalid column', () => {
     service.createBoard('Board');
     const result = service.addCard('board', 'Task', { column: 'invalid_col' });
-    expect(result).toContain('invalida');
+    expect(result).toContain('invalid');
   });
 });

@@ -26,50 +26,50 @@ export class ZavorthDelegateTool extends BaseTool {
   public readonly name = 'zavorth_delegate';
 
   public readonly description =
-    'Delega tarefas para subagentes governados com suporte a execucao em batch paralelo, roles hierarquicas, profundidade maxima e integracao com approval do Zavorth.';
+    'Delegates tasks to governed subagents with support for parallel batch execution, hierarchical roles, maximum depth, and Zavorth approval integration.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'delegate', 'delegate_batch', 'list', 'status', 'cancel', 'result', 'cancel_batch'.",
+        description: "Action: 'delegate', 'delegate_batch', 'list', 'status', 'cancel', 'result', 'cancel_batch'.",
       },
       task_id: {
         type: 'string',
-        description: 'ID da tarefa delegada (para status, cancel, result).',
+        description: 'Delegated task ID (for status, cancel, result).',
       },
       batch_id: {
         type: 'string',
-        description: 'ID do batch (para cancel_batch).',
+        description: 'Batch ID (for cancel_batch).',
       },
       task_description: {
         type: 'string',
-        description: 'Descricao da tarefa para o subagente executar.',
+        description: 'Task description for the subagent to execute.',
       },
       tasks: {
         type: 'string',
-        description: "JSON array de tarefas para batch: [{task_description, role?, context?}].",
+        description: "JSON array of tasks for batch: [{task_description, role?, context?}].",
       },
       role: {
         type: 'string',
-        description: "Role do subagente: 'orchestrator', 'leaf', 'researcher', 'executor', 'reviewer'. Default: 'leaf'.",
+        description: "Subagent role: 'orchestrator', 'leaf', 'researcher', 'executor', 'reviewer'. Default: 'leaf'.",
       },
       parent_id: {
         type: 'string',
-        description: 'ID da tarefa pai (para delegacao hierarquica).',
+        description: 'Parent task ID (for hierarchical delegation).',
       },
       timeout_ms: {
         type: 'number',
-        description: 'Timeout em milissegundos. Default: 300000 (5 min).',
+        description: 'Timeout in milliseconds. Default: 300000 (5 min).',
       },
       max_depth: {
         type: 'number',
-        description: 'Profundidade maxima de delegacao. Default: 3.',
+        description: 'Maximum delegation depth. Default: 3.',
       },
       context: {
         type: 'string',
-        description: 'JSON com contexto adicional para o subagente.',
+        description: 'JSON with additional context for the subagent.',
       },
     },
     required: ['action'],
@@ -84,11 +84,11 @@ export class ZavorthDelegateTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: the "action" parameter is required.';
 
     const validActions = ['delegate', 'delegate_batch', 'list', 'status', 'cancel', 'result', 'cancel_batch'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: invalid action "${action}". Use: ${validActions.join(', ')}.`;
     }
 
     this.ensureStorageDir();
@@ -103,10 +103,10 @@ export class ZavorthDelegateTool extends BaseTool {
         case 'result': return this.taskResult(args);
         case 'cancel_batch': return this.cancelBatch(args);
       }
-      return 'Erro interno.';
+      return 'Internal error.';
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro no Delegate: ${message}`;
+      return `Delegate error: ${message}`;
     }
   }
 
@@ -143,12 +143,12 @@ export class ZavorthDelegateTool extends BaseTool {
 
   private delegate(args: Record<string, unknown>): string {
     const taskDescription = String(args.task_description || '');
-    if (!taskDescription) return 'Erro: "task_description" e obrigatorio.';
+    if (!taskDescription) return 'Error: "task_description" is required.';
 
     const role = String(args.role || 'leaf') as DelegatedTask['role'];
     const validRoles = ['orchestrator', 'leaf', 'researcher', 'executor', 'reviewer'];
     if (!validRoles.includes(role)) {
-      return `Erro: role "${role}" invalido. Use: ${validRoles.join(', ')}.`;
+      return `Error: invalid role "${role}". Use: ${validRoles.join(', ')}.`;
     }
 
     const parentId = typeof args.parent_id === 'string' ? args.parent_id : null;
@@ -158,10 +158,10 @@ export class ZavorthDelegateTool extends BaseTool {
     let currentDepth = 0;
     if (parentId) {
       const parent = this.loadTask(parentId);
-      if (!parent) return `Erro: tarefa pai "${parentId}" nao encontrada.`;
+      if (!parent) return `Error: parent task "${parentId}" not found.`;
       currentDepth = parent.current_depth + 1;
       if (currentDepth > maxDepth) {
-        return `Erro: profundidade maxima (${maxDepth}) atingida. Tarefa pai: ${parentId} (depth ${parent.current_depth}).`;
+        return `Error: maximum depth (${maxDepth}) reached. Parent task: ${parentId} (depth ${parent.current_depth}).`;
       }
     }
 
@@ -203,34 +203,34 @@ export class ZavorthDelegateTool extends BaseTool {
     this.saveTask(task);
 
     const lines: string[] = [
-      `Tarefa delegada criada.`,
+      `Delegated task created.`,
       `  - ID: ${taskId}`,
       `  - Role: ${role}`,
-      `  - Descricao: ${taskDescription.slice(0, 80)}${taskDescription.length > 80 ? '...' : ''}`,
-      `  - Profundidade: ${currentDepth}/${maxDepth}`,
+      `  - Description: ${taskDescription.slice(0, 80)}${taskDescription.length > 80 ? '...' : ''}`,
+      `  - Depth: ${currentDepth}/${maxDepth}`,
       `  - Timeout: ${timeoutMs}ms`,
-      parentId ? `  - Pai: ${parentId}` : `  - Raiz (sem pai)`,
+      parentId ? `  - Parent: ${parentId}` : `  - Root (no parent)`,
     ];
     return lines.join('\n');
   }
 
   private delegateBatch(args: Record<string, unknown>): string {
     const tasksJson = String(args.tasks || '');
-    if (!tasksJson) return 'Erro: "tasks" e obrigatorio (JSON array).';
+    if (!tasksJson) return 'Error: "tasks" is required (JSON array).';
 
     let tasks: Array<{ task_description: string; role?: string; context?: Record<string, unknown> }>;
     try {
       tasks = JSON.parse(tasksJson);
     } catch {
-      return 'Erro: JSON de "tasks" invalido.';
+      return 'Error: invalid JSON for "tasks".';
     }
 
     if (!Array.isArray(tasks) || tasks.length === 0) {
-      return 'Erro: "tasks" deve ser um array nao vazio.';
+      return 'Error: "tasks" must be a non-empty array.';
     }
 
     if (tasks.length > 20) {
-      return 'Erro: maximo de 20 tarefas por batch.';
+      return 'Error: maximum of 20 tasks per batch.';
     }
 
     const batchId = `batch_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -267,16 +267,16 @@ export class ZavorthDelegateTool extends BaseTool {
     }
 
     const lines: string[] = [
-      `Batch "${batchId}" criado com ${taskIds.length} tarefas.`,
+      `Batch "${batchId}" created with ${taskIds.length} tasks.`,
       `  - IDs: ${taskIds.join(', ')}`,
-      `  - Parallelismo: ${taskIds.length} subagentes simultaneos`,
+      `  - Parallelism: ${taskIds.length} simultaneous subagents`,
     ];
     return lines.join('\n');
   }
 
   private listTasks(): string {
     const taskIds = this.listAllTaskIds();
-    if (taskIds.length === 0) return 'Nenhuma tarefa delegada.';
+    if (taskIds.length === 0) return 'No delegated tasks.';
 
     const tasks: DelegatedTask[] = [];
     for (const id of taskIds) {
@@ -292,12 +292,12 @@ export class ZavorthDelegateTool extends BaseTool {
       cancelled: tasks.filter((t) => t.status === 'cancelled'),
     };
 
-    const lines: string[] = [`Tarefas delegadas (${tasks.length} total):`];
-    if (byStatus.pending.length) lines.push(`  ⏳ Pendentes: ${byStatus.pending.length}`);
-    if (byStatus.running.length) lines.push(`  🔄 Rodando: ${byStatus.running.length}`);
-    if (byStatus.completed.length) lines.push(`  ✅ Completas: ${byStatus.completed.length}`);
-    if (byStatus.failed.length) lines.push(`  ❌ Falharam: ${byStatus.failed.length}`);
-    if (byStatus.cancelled.length) lines.push(`  🚫 Canceladas: ${byStatus.cancelled.length}`);
+    const lines: string[] = [`Delegated tasks (${tasks.length} total):`];
+    if (byStatus.pending.length) lines.push(`  ⏳ Pending: ${byStatus.pending.length}`);
+    if (byStatus.running.length) lines.push(`  🔄 Running: ${byStatus.running.length}`);
+    if (byStatus.completed.length) lines.push(`  ✅ Completed: ${byStatus.completed.length}`);
+    if (byStatus.failed.length) lines.push(`  ❌ Failed: ${byStatus.failed.length}`);
+    if (byStatus.cancelled.length) lines.push(`  🚫 Cancelled: ${byStatus.cancelled.length}`);
 
     for (const t of tasks.slice(0, 20)) {
       const icon = { pending: '⏳', running: '🔄', completed: '✅', failed: '❌', cancelled: '🚫' }[t.status];
@@ -310,44 +310,44 @@ export class ZavorthDelegateTool extends BaseTool {
 
   private taskStatus(args: Record<string, unknown>): string {
     const taskId = String(args.task_id || '');
-    if (!taskId) return 'Erro: "task_id" e obrigatorio.';
+    if (!taskId) return 'Error: "task_id" is required.';
 
     const task = this.loadTask(taskId);
-    if (!task) return `Erro: tarefa "${taskId}" nao encontrada.`;
+    if (!task) return `Error: task "${taskId}" not found.`;
 
     const lines: string[] = [
-      `Tarefa: ${task.id}`,
-      `  - Descricao: ${task.task_description}`,
+      `Task: ${task.id}`,
+      `  - Description: ${task.task_description}`,
       `  - Role: ${task.role}`,
       `  - Status: ${task.status}`,
-      `  - Pai: ${task.parent_id || 'nenhum'}`,
-      `  - Filhos: ${task.children_ids.length > 0 ? task.children_ids.join(', ') : 'nenhum'}`,
-      `  - Batch: ${task.batch_id || 'nenhum'}`,
-      `  - Profundidade: ${task.current_depth}/${task.max_depth}`,
+      `  - Parent: ${task.parent_id || 'none'}`,
+      `  - Children: ${task.children_ids.length > 0 ? task.children_ids.join(', ') : 'none'}`,
+      `  - Batch: ${task.batch_id || 'none'}`,
+      `  - Depth: ${task.current_depth}/${task.max_depth}`,
       `  - Timeout: ${task.timeout_ms}ms`,
-      `  - Criado: ${task.created_at}`,
-      `  - Iniciado: ${task.started_at || 'nao'}`,
-      `  - Completado: ${task.completed_at || 'nao'}`,
+      `  - Created: ${task.created_at}`,
+      `  - Started: ${task.started_at || 'no'}`,
+      `  - Completed: ${task.completed_at || 'no'}`,
     ];
-    if (task.result) lines.push(`  - Resultado: ${task.result.slice(0, 200)}`);
-    if (task.error) lines.push(`  - Erro: ${task.error}`);
+    if (task.result) lines.push(`  - Result: ${task.result.slice(0, 200)}`);
+    if (task.error) lines.push(`  - Error: ${task.error}`);
     return lines.join('\n');
   }
 
   private cancelTask(args: Record<string, unknown>): string {
     const taskId = String(args.task_id || '');
-    if (!taskId) return 'Erro: "task_id" e obrigatorio.';
+    if (!taskId) return 'Error: "task_id" is required.';
 
     const task = this.loadTask(taskId);
-    if (!task) return `Erro: tarefa "${taskId}" nao encontrada.`;
+    if (!task) return `Error: task "${taskId}" not found.`;
 
     if (task.status === 'completed' || task.status === 'cancelled') {
-      return `Erro: tarefa "${taskId}" ja esta em status "${task.status}".`;
+      return `Error: task "${taskId}" is already in status "${task.status}".`;
     }
 
     task.status = 'cancelled';
     task.completed_at = new Date().toISOString();
-    task.error = 'Cancelada pelo usuario.';
+    task.error = 'Cancelled by user.';
     this.saveTask(task);
 
     let cancelledChildren = 0;
@@ -356,18 +356,18 @@ export class ZavorthDelegateTool extends BaseTool {
       if (child && child.status !== 'completed' && child.status !== 'cancelled') {
         child.status = 'cancelled';
         child.completed_at = new Date().toISOString();
-        child.error = 'Cancelada (tarefa pai cancelada).';
+        child.error = 'Cancelled (parent task cancelled).';
         this.saveTask(child);
         cancelledChildren++;
       }
     }
 
-    return `Tarefa "${taskId}" cancelada.${cancelledChildren > 0 ? ` ${cancelledChildren} tarefa(s) filha(s) tambem cancelada(s).` : ''}`;
+    return `Task "${taskId}" cancelled.${cancelledChildren > 0 ? ` ${cancelledChildren} child task(s) also cancelled.` : ''}`;
   }
 
   private cancelBatch(args: Record<string, unknown>): string {
     const batchId = String(args.batch_id || '');
-    if (!batchId) return 'Erro: "batch_id" e obrigatorio.';
+    if (!batchId) return 'Error: "batch_id" is required.';
 
     const taskIds = this.listAllTaskIds();
     let cancelled = 0;
@@ -377,27 +377,27 @@ export class ZavorthDelegateTool extends BaseTool {
       if (task && task.batch_id === batchId && task.status !== 'completed' && task.status !== 'cancelled') {
         task.status = 'cancelled';
         task.completed_at = new Date().toISOString();
-        task.error = 'Cancelada (batch cancelado).';
+        task.error = 'Cancelled (batch cancelled).';
         this.saveTask(task);
         cancelled++;
       }
     }
 
-    return `Batch "${batchId}": ${cancelled} tarefa(s) cancelada(s).`;
+    return `Batch "${batchId}": ${cancelled} task(s) cancelled.`;
   }
 
   private taskResult(args: Record<string, unknown>): string {
     const taskId = String(args.task_id || '');
-    if (!taskId) return 'Erro: "task_id" e obrigatorio.';
+    if (!taskId) return 'Error: "task_id" is required.';
 
     const task = this.loadTask(taskId);
-    if (!task) return `Erro: tarefa "${taskId}" nao encontrada.`;
+    if (!task) return `Error: task "${taskId}" not found.`;
 
-    if (task.status === 'pending') return `Tarefa "${taskId}" ainda esta pendente.`;
-    if (task.status === 'running') return `Tarefa "${taskId}" ainda esta rodando.`;
-    if (task.status === 'failed') return `Tarefa "${taskId}" falhou: ${task.error}`;
-    if (task.status === 'cancelled') return `Tarefa "${taskId}" foi cancelada.`;
+    if (task.status === 'pending') return `Task "${taskId}" is still pending.`;
+    if (task.status === 'running') return `Task "${taskId}" is still running.`;
+    if (task.status === 'failed') return `Task "${taskId}" failed: ${task.error}`;
+    if (task.status === 'cancelled') return `Task "${taskId}" was cancelled.`;
 
-    return task.result || 'Tarefa completa mas sem resultado registrado.';
+    return task.result || 'Task completed but no result recorded.';
   }
 }

@@ -32,7 +32,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
       },
       session_id: {
         type: 'string',
-        description: 'ID da sessao de voz.',
+        description: 'Voice session ID.',
       },
       text: {
         type: 'string',
@@ -40,7 +40,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
       },
       audio_path: {
         type: 'string',
-        description: 'Caminho do arquivo de audio para transcrever.',
+        description: 'Path to the audio file para transcrever.',
       },
       mode: {
         type: 'string',
@@ -64,15 +64,15 @@ export class ZavorthVoiceModeTool extends BaseTool {
       },
       voice_id: {
         type: 'string',
-        description: 'ID da voz (para backends que suportam selecao de voz).',
+        description: 'Voice ID (para backends que suportam selecao de voz).',
       },
       speed: {
         type: 'number',
-        description: 'Velocidade da fala (0.5-2.0). Default: 1.0.',
+        description: 'Speech speed (0.5-2.0). Default: 1.0.',
       },
       output_path: {
         type: 'string',
-        description: 'Caminho para salvar audio gerado (TTS).',
+        description: 'Path to save audio gerado (TTS).',
       },
     },
     required: ['action'],
@@ -87,14 +87,14 @@ export class ZavorthVoiceModeTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     const validActions = [
       'start_session', 'stop_session', 'speak', 'listen', 'transcribe',
       'list_sessions', 'status', 'set_mode', 'set_voice', 'interrupt', 'list_backends',
     ];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: action "${action}" is invalid. Use: ${validActions.join(', ')}.`;
     }
 
     this.ensureStorageDir();
@@ -112,10 +112,11 @@ export class ZavorthVoiceModeTool extends BaseTool {
         case 'set_voice': return this.setVoice(args);
         case 'interrupt': return this.interrupt(args);
         case 'list_backends': return this.listBackends();
+        default: return `Error: action "${action}" is not implemented.`;
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro no VoiceMode: ${message}`;
+      return `VoiceMode error: ${message}`;
     }
   }
 
@@ -171,7 +172,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
     this.saveSession(session);
 
     const lines: string[] = [
-      `Sessao de voz criada.`,
+      `Voice session created.`,
       `  - ID: ${sessionId}`,
       `  - Modo: ${mode}`,
       `  - Idioma: ${language}`,
@@ -186,20 +187,20 @@ export class ZavorthVoiceModeTool extends BaseTool {
 
   private stopSession(args: Record<string, unknown>): string {
     const sessionId = String(args.session_id || '');
-    if (!sessionId) return 'Erro: "session_id" e obrigatorio.';
+    if (!sessionId) return 'Error: "session_id" is required.';
 
     const session = this.loadSession(sessionId);
-    if (!session) return `Erro: sessao "${sessionId}" nao encontrada.`;
+    if (!session) return `Error: session "${sessionId}" not found.`;
 
     session.status = 'idle';
     this.saveSession(session);
 
-    return `Sessao de voz "${sessionId}" encerrada. ${session.interaction_count} interacoes realizadas.`;
+    return `Voice session "${sessionId}" encerrada. ${session.interaction_count} interactions realizadas.`;
   }
 
   private async speak(args: Record<string, unknown>): Promise<string> {
     const text = String(args.text || '');
-    if (!text) return 'Erro: "text" e obrigatorio para speak.';
+    if (!text) return 'Error: "text" is required. for speak.';
 
     const sessionId = typeof args.session_id === 'string' ? args.session_id : null;
     const ttsBackend = String(args.tts_backend || 'local');
@@ -244,23 +245,23 @@ export class ZavorthVoiceModeTool extends BaseTool {
 
   private listen(args: Record<string, unknown>): string {
     const sessionId = String(args.session_id || '');
-    if (!sessionId) return 'Erro: "session_id" e obrigatorio para listen.';
+    if (!sessionId) return 'Error: "session_id" is required. for listen.';
 
     const session = this.loadSession(sessionId);
-    if (!session) return `Erro: sessao "${sessionId}" nao encontrada.`;
+    if (!session) return `Error: session "${sessionId}" not found.`;
 
     session.status = 'listening';
     session.last_activity = new Date().toISOString();
     this.saveSession(session);
 
-    return `Sessao "${sessionId}" agora esta ouvindo (modo: ${session.mode}, STT: ${session.stt_backend}).${session.wake_word ? ` Aguardando wake word: "${session.wake_word}"` : ''}`;
+    return `Session "${sessionId}" agora esta ouvindo (modo: ${session.mode}, STT: ${session.stt_backend}).${session.wake_word ? ` Aguardando wake word: "${session.wake_word}"` : ''}`;
   }
 
   private async transcribe(args: Record<string, unknown>): Promise<string> {
     const audioPath = String(args.audio_path || '');
-    if (!audioPath) return 'Erro: "audio_path" e obrigatorio para transcribe.';
+    if (!audioPath) return 'Error: "audio_path" is required. for transcribe.';
 
-    if (!fs.existsSync(audioPath)) return `Erro: arquivo de audio "${audioPath}" nao encontrado.`;
+    if (!fs.existsSync(audioPath)) return `Error: audio file "${audioPath}" not found.`;
 
     const sttBackend = String(args.stt_backend || 'whisper');
     const language = String(args.language || 'pt-BR');
@@ -270,39 +271,39 @@ export class ZavorthVoiceModeTool extends BaseTool {
       return `Transcricao (${sttBackend}): "${text}"`;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro na transcricao: ${message}`;
+      return `Transcription error: ${message}`;
     }
   }
 
   private listSessions(): string {
     const sessionIds = this.listAllSessionIds();
-    if (sessionIds.length === 0) return 'Nenhuma sessao de voz ativa.';
+    if (sessionIds.length === 0) return 'No sessions de voz ativa.';
 
     const lines: string[] = [`Sessoes de voz (${sessionIds.length}):`];
     for (const id of sessionIds) {
       const session = this.loadSession(id);
       if (!session) continue;
       const icon = { idle: '⚪', listening: '🎤', processing: '⚙️', speaking: '🔊' }[session.status];
-      lines.push(`  ${icon} [${session.id}] ${session.mode} | TTS:${session.tts_backend} STT:${session.stt_backend} | interacoes:${session.interaction_count}`);
+      lines.push(`  ${icon} [${session.id}] ${session.mode} | TTS:${session.tts_backend} STT:${session.stt_backend} | interactions:${session.interaction_count}`);
     }
     return lines.join('\n');
   }
 
   private sessionStatus(args: Record<string, unknown>): string {
     const sessionId = String(args.session_id || '');
-    if (!sessionId) return 'Erro: "session_id" e obrigatorio.';
+    if (!sessionId) return 'Error: "session_id" is required.';
 
     const session = this.loadSession(sessionId);
-    if (!session) return `Erro: sessao "${sessionId}" nao encontrada.`;
+    if (!session) return `Error: session "${sessionId}" not found.`;
 
     const lines: string[] = [
-      `Sessao de Voz: ${session.id}`,
+      `Session de Voice: ${session.id}`,
       `  - Status: ${session.status}`,
       `  - Modo: ${session.mode}`,
       `  - Idioma: ${session.language}`,
       `  - TTS: ${session.tts_backend}`,
       `  - STT: ${session.stt_backend}`,
-      `  - Wake word: ${session.wake_word || 'nenhuma'}`,
+      `  - Wake word: ${session.wake_word || 'none'}`,
       `  - Interacoes: ${session.interaction_count}`,
       `  - Iniciado: ${session.started_at}`,
       `  - Ultima atividade: ${session.last_activity}`,
@@ -313,16 +314,16 @@ export class ZavorthVoiceModeTool extends BaseTool {
   private setMode(args: Record<string, unknown>): string {
     const sessionId = String(args.session_id || '');
     const mode = String(args.mode || '');
-    if (!sessionId) return 'Erro: "session_id" e obrigatorio.';
-    if (!mode) return 'Erro: "mode" e obrigatorio.';
+    if (!sessionId) return 'Error: "session_id" is required.';
+    if (!mode) return 'Error: "mode" is required.';
 
     const validModes = ['push_to_talk', 'wake_word', 'continuous', 'manual'];
     if (!validModes.includes(mode)) {
-      return `Erro: modo "${mode}" invalido. Use: ${validModes.join(', ')}.`;
+      return `Error: mode "${mode}" is invalid. Use: ${validModes.join(', ')}.`;
     }
 
     const session = this.loadSession(sessionId);
-    if (!session) return `Erro: sessao "${sessionId}" nao encontrada.`;
+    if (!session) return `Error: session "${sessionId}" not found.`;
 
     session.mode = mode as VoiceSession['mode'];
     if (mode === 'wake_word' && typeof args.wake_word === 'string') {
@@ -333,41 +334,41 @@ export class ZavorthVoiceModeTool extends BaseTool {
     session.last_activity = new Date().toISOString();
     this.saveSession(session);
 
-    return `Modo da sessao "${sessionId}" alterado para "${mode}".`;
+    return `Session "${sessionId}" mode changed para "${mode}".`;
   }
 
   private setVoice(args: Record<string, unknown>): string {
     const sessionId = String(args.session_id || '');
     const voiceId = String(args.voice_id || '');
-    if (!sessionId) return 'Erro: "session_id" e obrigatorio.';
-    if (!voiceId) return 'Erro: "voice_id" e obrigatorio.';
+    if (!sessionId) return 'Error: "session_id" is required.';
+    if (!voiceId) return 'Error: "voice_id" is required.';
 
     const session = this.loadSession(sessionId);
-    if (!session) return `Erro: sessao "${sessionId}" nao encontrada.`;
+    if (!session) return `Error: session "${sessionId}" not found.`;
 
     session.voice_id = voiceId;
     session.last_activity = new Date().toISOString();
     this.saveSession(session);
 
-    return `Voz da sessao "${sessionId}" alterada para "${voiceId}".`;
+    return `Voice da session "${sessionId}" alterada para "${voiceId}".`;
   }
 
   private interrupt(args: Record<string, unknown>): string {
     const sessionId = String(args.session_id || '');
-    if (!sessionId) return 'Erro: "session_id" e obrigatorio.';
+    if (!sessionId) return 'Error: "session_id" is required.';
 
     const session = this.loadSession(sessionId);
-    if (!session) return `Erro: sessao "${sessionId}" nao encontrada.`;
+    if (!session) return `Error: session "${sessionId}" not found.`;
 
     if (session.status !== 'speaking' && session.status !== 'processing') {
-      return `Sessao "${sessionId}" nao esta falando ou processando (status: ${session.status}).`;
+      return `Session "${sessionId}" nao esta falando ou processando (status: ${session.status}).`;
     }
 
     session.status = 'idle';
     session.last_activity = new Date().toISOString();
     this.saveSession(session);
 
-    return `Sessao "${sessionId}" interrompida.`;
+    return `Session "${sessionId}" interrompida.`;
   }
 
   private listBackends(): string {
@@ -386,7 +387,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
       const available =
         !b.envKey ||
         !!process.env[b.envKey];
-      const status = available ? 'Configurado' : 'Nao configurado';
+      const status = available ? 'Configured' : 'Not configured';
       lines.push(`  ${b.id} — ${b.name} [${b.type}] ${status}`);
     }
     return lines.join('\n');
@@ -416,7 +417,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
       }
       case 'elevenlabs': {
         const apiKey = process.env.ELEVENLABS_API_KEY;
-        if (!apiKey) throw new Error('ELEVENLABS_API_KEY nao configurada.');
+        if (!apiKey) throw new Error('ELEVENLABS_API_KEY not configured.');
         const voice = options.voiceId || '21m00Tcm4TlvDq8ikWAM';
         const payload = JSON.stringify({
           text,
@@ -442,7 +443,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
       case 'azure': {
         const apiKey = process.env.AZURE_SPEECH_KEY;
         const region = process.env.AZURE_SPEECH_REGION;
-        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY e AZURE_SPEECH_REGION nao configuradas.');
+        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY e AZURE_SPEECH_REGION not configureds.');
         const voice = options.voiceId || 'pt-BR-AntonioNeural';
         const ssml = `<speak version='1.0' xml:lang='${options.language}'><voice name='${voice}'><prosody rate='${options.speed}'>${text}</prosody></voice></speak>`;
         const tmpSsml = path.join(require('os').tmpdir(), `azure_tts_${Date.now()}.xml`);
@@ -462,7 +463,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
         return outputPath;
       }
       default:
-        throw new Error(`TTS backend "${options.backend}" nao suportado.`);
+        throw new Error(`TTS backend "${options.backend}" not supported.`);
     }
   }
 
@@ -475,7 +476,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
     switch (options.backend) {
       case 'whisper': {
         const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) throw new Error('OPENAI_API_KEY nao configurada para Whisper.');
+        if (!apiKey) throw new Error('OPENAI_API_KEY not configured para Whisper.');
         const result = execFileSync('curl', [
           '-s', '-X', 'POST',
           'https://api.openai.com/v1/audio/transcriptions',
@@ -493,7 +494,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
       }
       case 'deepgram': {
         const apiKey = process.env.DEEPGRAM_API_KEY;
-        if (!apiKey) throw new Error('DEEPGRAM_API_KEY nao configurada.');
+        if (!apiKey) throw new Error('DEEPGRAM_API_KEY not configured.');
         const result = execFileSync('curl', [
           '-s', '-X', 'POST',
           `https://api.deepgram.com/v1/listen?language=${options.language}`,
@@ -510,13 +511,13 @@ export class ZavorthVoiceModeTool extends BaseTool {
       }
       case 'gemini': {
         const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) throw new Error('GEMINI_API_KEY nao configurada.');
+        if (!apiKey) throw new Error('GEMINI_API_KEY not configured.');
         const audioBase64 = fs.readFileSync(audioPath).toString('base64');
         const maxBase64 = 4 * 1024 * 1024;
         const truncated = audioBase64.length > maxBase64;
         const audioData = truncated ? audioBase64.slice(0, maxBase64) : audioBase64;
         if (truncated) {
-          console.warn(`[VoiceMode] Audio truncado de ${audioBase64.length} para ${maxBase64} caracteres base64.`);
+          console.warn(`[VoiceMode] Audio truncated from ${audioBase64.length} para ${maxBase64} characters base64.`);
         }
         const payload = JSON.stringify({
           contents: [{ parts: [
@@ -544,7 +545,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
         }
       }
       default:
-        throw new Error(`STT backend "${options.backend}" nao suportado.`);
+        throw new Error(`STT backend "${options.backend}" not supported.`);
     }
   }
 }

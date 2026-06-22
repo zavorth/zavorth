@@ -55,7 +55,7 @@ describe('ZavorthTrajectoryExportTool', () => {
 
   it('returns error when action is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('lists trajectories', async () => {
@@ -67,7 +67,7 @@ describe('ZavorthTrajectoryExportTool', () => {
 
   it('gets stats', async () => {
     const result = await tool.execute({ action: 'stats' });
-    expect(result).toContain('Estatisticas');
+    expect(result).toContain('Statistics');
     expect(result).toContain('success');
     expect(result).toContain('failure');
     expect(result).toContain('create_file');
@@ -143,6 +143,6 @@ describe('ZavorthTrajectoryExportTool', () => {
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'dance' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });

@@ -26,50 +26,50 @@ export class ZavorthCronSchedulerTool extends BaseTool {
   public readonly name = 'zavorth_cron_scheduler';
 
   public readonly description =
-    'Agenda e gerencia tarefas recorrentes com suporte a cron expressions, intervalos, execucao unica e linguagem natural. Integrado ao sistema de governanca do Zavorth.';
+    'Schedules and manages recurring tasks with support for cron expressions, intervals, one-time execution, and natural language. Integrated with the Zavorth governance system.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'create', 'list', 'delete', 'enable', 'disable', 'run_now', 'status', 'update'.",
+        description: "Action: 'create', 'list', 'delete', 'enable', 'disable', 'run_now', 'status', 'update'.",
       },
       job_id: {
         type: 'string',
-        description: 'ID do job (para delete, enable, disable, run_now, status, update).',
+        description: 'Job ID (for delete, enable, disable, run_now, status, update).',
       },
       name: {
         type: 'string',
-        description: 'Nome descritivo do job.',
+        description: 'Descriptive name of the job.',
       },
       schedule: {
         type: 'string',
-        description: "Agendamento: cron expression ('0 9 * * *'), intervalo em ms, ISO date para 'once', ou texto em linguagem natural ('todo dia as 9h').",
+        description: "Schedule: cron expression ('0 9 * * *'), interval in ms, ISO date for 'once', or natural language text ('every day at 9am').",
       },
       schedule_type: {
         type: 'string',
-        description: "Tipo: 'cron', 'interval', 'once', 'natural_language'. Default: auto-detectado.",
+        description: "Type: 'cron', 'interval', 'once', 'natural_language'. Default: auto-detected.",
       },
       interval_ms: {
         type: 'number',
-        description: 'Intervalo em milissegundos (para schedule_type=interval).',
+        description: 'Interval in milliseconds (for schedule_type=interval).',
       },
       task_description: {
         type: 'string',
-        description: 'Descricao da tarefa a ser executada.',
+        description: 'Description of the task to be executed.',
       },
       channel: {
         type: 'string',
-        description: 'Canal de entrega do resultado (telegram, discord, slack, email, etc).',
+        description: 'Result delivery channel (telegram, discord, slack, email, etc).',
       },
       risk_level: {
         type: 'string',
-        description: "Nivel de risco: 'low', 'medium', 'high', 'critical'. Default: 'medium'.",
+        description: "Risk level: 'low', 'medium', 'high', 'critical'. Default: 'medium'.",
       },
       requires_approval: {
         type: 'boolean',
-        description: 'Se true, exige aprovacao antes de executar. Default: baseado no risk_level.',
+        description: 'If true, requires approval before execution. Default: based on risk_level.',
       },
     },
     required: ['action'],
@@ -84,11 +84,11 @@ export class ZavorthCronSchedulerTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: the "action" parameter is required.';
 
     const validActions = ['create', 'list', 'delete', 'enable', 'disable', 'run_now', 'status', 'update'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: invalid action "${action}". Use: ${validActions.join(', ')}.`;
     }
 
     this.ensureStorageDir();
@@ -103,10 +103,11 @@ export class ZavorthCronSchedulerTool extends BaseTool {
         case 'run_now': return this.runNow(args);
         case 'status': return this.jobStatus(args);
         case 'update': return this.updateJob(args);
+        default: return `Error: action "${action}" not implemented.`;
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro no CronScheduler: ${message}`;
+      return `CronScheduler error: ${message}`;
     }
   }
 
@@ -170,16 +171,16 @@ export class ZavorthCronSchedulerTool extends BaseTool {
 
   private createJob(args: Record<string, unknown>): string {
     const schedule = String(args.schedule || '');
-    if (!schedule) return 'Erro: o parametro "schedule" e obrigatorio.';
+    if (!schedule) return 'Error: the "schedule" parameter is required.';
 
     const taskDescription = String(args.task_description || '');
-    if (!taskDescription) return 'Erro: o parametro "task_description" e obrigatorio.';
+    if (!taskDescription) return 'Error: the "task_description" parameter is required.';
 
     const name = String(args.name || `job_${Date.now()}`);
     const jobId = name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 48);
 
     if (this.loadJob(jobId)) {
-      return `Erro: job "${jobId}" ja existe. Use "update" para modificar.`;
+      return `Error: job "${jobId}" already exists. Use "update" to modify.`;
     }
 
     const scheduleType = this.detectScheduleType(schedule, args.interval_ms as number | undefined);
@@ -213,24 +214,24 @@ export class ZavorthCronSchedulerTool extends BaseTool {
     this.saveJob(job);
 
     const lines: string[] = [
-      `Job "${name}" criado com sucesso.`,
+      `Job "${name}" created successfully.`,
       `  - ID: ${jobId}`,
       `  - Schedule: ${schedule} (${scheduleType})`,
-      `  - Risco: ${riskLevel}`,
-      `  - Aprovacao obrigatoria: ${requiresApproval ? 'Sim' : 'Nao'}`,
-      `  - Habilitado: ${job.enabled ? 'Sim' : 'Nao'}`,
+      `  - Risk: ${riskLevel}`,
+      `  - Approval required: ${requiresApproval ? 'Yes' : 'No'}`,
+      `  - Enabled: ${job.enabled ? 'Yes' : 'No'}`,
     ];
     if (requiresApproval) {
-      lines.push(`  - ⚠️ Job criado DESABILITADO. Use "enable" apos revisar e aprovar.`);
+      lines.push(`  - ⚠️ Job created DISABLED. Use "enable" after reviewing and approving.`);
     }
     return lines.join('\n');
   }
 
   private listJobs(_args: Record<string, unknown>): string {
     const jobIds = this.listAllJobIds();
-    if (jobIds.length === 0) return 'Nenhum job agendado.';
+    if (jobIds.length === 0) return 'No scheduled jobs.';
 
-    const lines: string[] = [`Jobs agendados (${jobIds.length}):`];
+    const lines: string[] = [`Scheduled jobs (${jobIds.length}):`];
     for (const id of jobIds) {
       const job = this.loadJob(id);
       if (!job) continue;
@@ -243,26 +244,26 @@ export class ZavorthCronSchedulerTool extends BaseTool {
 
   private deleteJob(args: Record<string, unknown>): string {
     const jobId = String(args.job_id || '');
-    if (!jobId) return 'Erro: "job_id" e obrigatorio.';
+    if (!jobId) return 'Error: "job_id" is required.';
 
     const job = this.loadJob(jobId);
-    if (!job) return `Erro: job "${jobId}" nao encontrado.`;
+    if (!job) return `Error: job "${jobId}" not found.`;
 
     if (job.risk_level === 'critical' || job.run_count > 0) {
       fs.unlinkSync(this.jobPath(jobId));
-      return `Job "${job.name}" (${jobId}) deletado. Atencao: job tinha risco ${job.risk_level} e ${job.run_count} execucoes anteriores.`;
+      return `Job "${job.name}" (${jobId}) deleted. Warning: job had risk ${job.risk_level} and ${job.run_count} previous executions.`;
     }
 
     fs.unlinkSync(this.jobPath(jobId));
-    return `Job "${job.name}" (${jobId}) deletado.`;
+    return `Job "${job.name}" (${jobId}) deleted.`;
   }
 
   private toggleJob(args: Record<string, unknown>, enabled: boolean): string {
     const jobId = String(args.job_id || '');
-    if (!jobId) return 'Erro: "job_id" e obrigatorio.';
+    if (!jobId) return 'Error: "job_id" is required.';
 
     const job = this.loadJob(jobId);
-    if (!job) return `Erro: job "${jobId}" nao encontrado.`;
+    if (!job) return `Error: job "${jobId}" not found.`;
 
     if (enabled && job.requires_approval) {
       job.requires_approval = false;
@@ -273,15 +274,15 @@ export class ZavorthCronSchedulerTool extends BaseTool {
     job.updated_at = new Date().toISOString();
     this.saveJob(job);
 
-    return `Job "${job.name}" (${jobId}) ${enabled ? 'habilitado' : 'desabilitado'}.${job.next_run ? ` Proxima execucao: ${job.next_run}` : ''}`;
+    return `Job "${job.name}" (${jobId}) ${enabled ? 'enabled' : 'disabled'}.${job.next_run ? ` Next execution: ${job.next_run}` : ''}`;
   }
 
   private runNow(args: Record<string, unknown>): string {
     const jobId = String(args.job_id || '');
-    if (!jobId) return 'Erro: "job_id" e obrigatorio.';
+    if (!jobId) return 'Error: "job_id" is required.';
 
     const job = this.loadJob(jobId);
-    if (!job) return `Erro: job "${jobId}" nao encontrado.`;
+    if (!job) return `Error: job "${jobId}" not found.`;
 
     job.last_run = new Date().toISOString();
     job.run_count += 1;
@@ -290,40 +291,40 @@ export class ZavorthCronSchedulerTool extends BaseTool {
     job.updated_at = new Date().toISOString();
     this.saveJob(job);
 
-    return `Job "${job.name}" (${jobId}) disparado manualmente. Task: "${job.task_description}". Execucao #${job.run_count}.`;
+    return `Job "${job.name}" (${jobId}) manually triggered. Task: "${job.task_description}". Execution #${job.run_count}.`;
   }
 
   private jobStatus(args: Record<string, unknown>): string {
     const jobId = String(args.job_id || '');
-    if (!jobId) return 'Erro: "job_id" e obrigatorio.';
+    if (!jobId) return 'Error: "job_id" is required.';
 
     const job = this.loadJob(jobId);
-    if (!job) return `Erro: job "${jobId}" nao encontrado.`;
+    if (!job) return `Error: job "${jobId}" not found.`;
 
     const lines: string[] = [
       `Job: ${job.name} (${job.id})`,
       `  - Schedule: ${job.schedule} (${job.schedule_type})`,
       `  - Task: ${job.task_description}`,
-      `  - Canal: ${job.channel || 'nenhum'}`,
-      `  - Habilitado: ${job.enabled ? 'Sim' : 'Nao'}`,
-      `  - Risco: ${job.risk_level}`,
-      `  - Aprovacao: ${job.requires_approval ? 'Obrigatoria' : 'Nao necessaria'}`,
-      `  - Execucoes: ${job.run_count}`,
-      `  - Ultima execucao: ${job.last_run || 'nunca'}`,
-      `  - Proxima execucao: ${job.next_run || 'nao agendada'}`,
-      `  - Ultimo resultado: ${job.last_result || 'nenhum'}`,
-      `  - Criado: ${job.created_at}`,
-      `  - Atualizado: ${job.updated_at}`,
+      `  - Channel: ${job.channel || 'none'}`,
+      `  - Enabled: ${job.enabled ? 'Yes' : 'No'}`,
+      `  - Risk: ${job.risk_level}`,
+      `  - Approval: ${job.requires_approval ? 'Required' : 'Not required'}`,
+      `  - Executions: ${job.run_count}`,
+      `  - Last execution: ${job.last_run || 'never'}`,
+      `  - Next execution: ${job.next_run || 'not scheduled'}`,
+      `  - Last result: ${job.last_result || 'none'}`,
+      `  - Created: ${job.created_at}`,
+      `  - Updated: ${job.updated_at}`,
     ];
     return lines.join('\n');
   }
 
   private updateJob(args: Record<string, unknown>): string {
     const jobId = String(args.job_id || '');
-    if (!jobId) return 'Erro: "job_id" e obrigatorio.';
+    if (!jobId) return 'Error: "job_id" is required.';
 
     const job = this.loadJob(jobId);
-    if (!job) return `Erro: job "${jobId}" nao encontrado.`;
+    if (!job) return `Error: job "${jobId}" not found.`;
 
     if (args.name) job.name = String(args.name);
     if (args.schedule) {
@@ -350,6 +351,6 @@ export class ZavorthCronSchedulerTool extends BaseTool {
     job.updated_at = new Date().toISOString();
     this.saveJob(job);
 
-    return `Job "${job.name}" (${jobId}) atualizado com sucesso.`;
+    return `Job "${job.name}" (${jobId}) updated successfully.`;
   }
 }

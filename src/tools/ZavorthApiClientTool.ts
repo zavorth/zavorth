@@ -17,74 +17,74 @@ export class ZavorthApiClientTool extends BaseTool {
   public readonly name = 'zavorth_api_client';
 
   public readonly description =
-    'Cliente HTTP governado para APIs externas. Integrado ao EgressGuard e LlmEgressGuard do Zavorth. Suporta GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS. Inclui validacao de dominio, sanitizacao de headers, rate limiting e auditoria automatica.';
+    'Governed HTTP client for external APIs. Integrated with Zavorth EgressGuard and LlmEgressGuard. Supports GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS. Includes domain validation, header sanitization, rate limiting, and automatic auditing.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       method: {
         type: 'string',
-        description: "Metodo HTTP: 'GET' (default), 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'.",
+        description: "HTTP method: 'GET' (default), 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'.",
       },
       url: {
         type: 'string',
-        description: 'URL completa do endpoint.',
+        description: 'Full endpoint URL.',
       },
       headers: {
         type: 'string',
-        description: 'JSON com headers HTTP adicionais.',
+        description: 'JSON with additional HTTP headers.',
       },
       body: {
         type: 'string',
-        description: 'Corpo da requisicao (para POST/PUT/PATCH).',
+        description: 'Request body (for POST/PUT/PATCH).',
       },
       body_type: {
         type: 'string',
-        description: "Tipo do corpo: 'json' (default), 'form', 'text', 'raw'.",
+        description: "Body type: 'json' (default), 'form', 'text', 'raw'.",
       },
       query_params: {
         type: 'string',
-        description: 'JSON com query parameters.',
+        description: 'JSON with query parameters.',
       },
       timeout_ms: {
         type: 'number',
-        description: 'Timeout em milissegundos. Default: 30000.',
+        description: 'Timeout in milliseconds. Default: 30000.',
       },
       follow_redirects: {
         type: 'boolean',
-        description: 'Seguir redirects. Default: true.',
+        description: 'Follow redirects. Default: true.',
       },
       max_redirects: {
         type: 'number',
-        description: 'Maximo de redirects. Default: 5.',
+        description: 'Maximum redirects. Default: 5.',
       },
       auth_type: {
         type: 'string',
-        description: "Tipo de autenticacao: 'none' (default), 'bearer', 'basic', 'api_key', 'custom'.",
+        description: "Authentication type: 'none' (default), 'bearer', 'basic', 'api_key', 'custom'.",
       },
       auth_token: {
         type: 'string',
-        description: 'Token/credencial de autenticacao.',
+        description: 'Authentication token/credential.',
       },
       auth_header: {
         type: 'string',
-        description: "Header de autenticacao customizado. Default: 'Authorization'.",
+        description: "Custom authentication header. Default: 'Authorization'.",
       },
       response_format: {
         type: 'string',
-        description: "Formato de resposta esperado: 'auto' (default), 'json', 'text', 'binary'.",
+        description: "Expected response format: 'auto' (default), 'json', 'text', 'binary'.",
       },
       save_response_to: {
         type: 'string',
-        description: 'Caminho para salvar o corpo da resposta.',
+        description: 'Path to save the response body.',
       },
       verify_ssl: {
         type: 'boolean',
-        description: 'Verificar certificados SSL. Default: true.',
+        description: 'Verify SSL certificates. Default: true.',
       },
       proxy: {
         type: 'string',
-        description: 'URL do proxy.',
+        description: 'Proxy URL.',
       },
     },
     required: ['url'],
@@ -111,45 +111,45 @@ export class ZavorthApiClientTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const url = String(args.url || '');
-    if (!url) return 'Erro: o parametro "url" e obrigatorio.';
+    if (!url) return 'Error: the "url" parameter is required.';
 
     let parsedUrl: URL;
     try {
       parsedUrl = new URL(url);
     } catch {
-      return `Erro: URL invalida "${url}".`;
+      return `Error: invalid URL "${url}".`;
     }
 
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-      return `Erro: protocolo "${parsedUrl.protocol}" nao suportado. Use http: ou https:.`;
+      return `Error: protocol "${parsedUrl.protocol}" not supported. Use http: or https:.`;
     }
 
     if (this.blockedDomains.has(parsedUrl.hostname)) {
-      return `Erro: dominio "${parsedUrl.hostname}" esta na lista de bloqueio.`;
+      return `Error: domain "${parsedUrl.hostname}" is on the block list.`;
     }
 
     const method = String(args.method || 'GET').toUpperCase();
     const validMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
     if (!validMethods.includes(method)) {
-      return `Erro: metodo "${method}" invalido. Use: ${validMethods.join(', ')}.`;
+      return `Error: invalid method "${method}". Use: ${validMethods.join(', ')}.`;
     }
 
     const isTrusted = this.trustedDomains.has(parsedUrl.hostname);
 
     if (!isTrusted) {
-      const warning = `⚠️ Dominio "${parsedUrl.hostname}" nao esta na lista de confianca. Prosseguindo com cautela.`;
+      const warning = `⚠️ Domain "${parsedUrl.hostname}" is not on the trust list. Proceeding with caution.`;
       console.warn(warning);
     }
 
     const timeoutMs = typeof args.timeout_ms === 'number' ? args.timeout_ms : 30000;
-    if (timeoutMs > 120000) return 'Erro: timeout maximo de 120 segundos.';
+    if (timeoutMs > 120000) return 'Error: maximum timeout is 120 seconds.';
 
     try {
       const result = await this.executeRequest(parsedUrl, method, args);
       return this.formatResponse(result);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro na requisicao HTTP: ${message}`;
+      return `HTTP request error: ${message}`;
     }
   }
 
@@ -171,7 +171,7 @@ export class ZavorthApiClientTool extends BaseTool {
           success: false, status: 0, status_text: 'Bad Headers',
           headers: {}, body: '', body_json: null,
           duration_ms: Date.now() - startTime,
-          error: 'JSON de headers invalido.',
+          error: 'Invalid headers JSON.',
         };
       }
     }
@@ -286,7 +286,7 @@ export class ZavorthApiClientTool extends BaseTool {
             success: false, status: 0, status_text: 'Bad Path',
             headers: {}, body: '', body_json: null,
             duration_ms: Date.now() - startTime,
-            error: 'Caminho de salvamento invalido.',
+            error: 'Invalid save path.',
           };
         }
         const fs = await import('fs');
@@ -328,14 +328,14 @@ export class ZavorthApiClientTool extends BaseTool {
     ];
 
     if (result.error) {
-      lines.push(`Erro: ${result.error}`);
+      lines.push(`Error: ${result.error}`);
       return lines.join('\n');
     }
 
     if (result.body_json !== null) {
       const formatted = JSON.stringify(result.body_json, null, 2);
       if (formatted.length > 3000) {
-        lines.push(`Body (JSON, ${formatted.length} chars, truncado):`);
+        lines.push(`Body (JSON, ${formatted.length} chars, truncated):`);
         lines.push(formatted.slice(0, 3000));
         lines.push('...');
       } else {
@@ -344,7 +344,7 @@ export class ZavorthApiClientTool extends BaseTool {
       }
     } else if (result.body) {
       if (result.body.length > 3000) {
-        lines.push(`Body (${result.body.length} chars, truncado):`);
+        lines.push(`Body (${result.body.length} chars, truncated):`);
         lines.push(result.body.slice(0, 3000));
         lines.push('...');
       } else {
@@ -352,7 +352,7 @@ export class ZavorthApiClientTool extends BaseTool {
         lines.push(result.body);
       }
     } else {
-      lines.push('Body: (vazio)');
+      lines.push('Body: (empty)');
     }
 
     return lines.join('\n');

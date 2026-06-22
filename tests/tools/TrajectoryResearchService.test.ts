@@ -22,7 +22,7 @@ describe('TrajectoryResearchService', () => {
       task: 'Research TypeScript performance',
       method: 'Benchmark comparison',
     });
-    expect(result).toContain('criada');
+    expect(result).toContain('created');
     expect(result).toContain('res_');
   });
 
@@ -94,7 +94,7 @@ describe('TrajectoryResearchService', () => {
     service.createTrajectory({ session_id: 's1', task: 'T1', method: 'M1' });
     service.createTrajectory({ session_id: 's1', task: 'T2', method: 'M2' });
     const result = service.listTrajectories({ outcome: 'confirmed' });
-    expect(result).toContain('Nenhuma');
+    expect(result).toContain('No');
   });
 
   it('creates a report', () => {
@@ -109,7 +109,7 @@ describe('TrajectoryResearchService', () => {
       methodology: 'Benchmarking',
       conclusions: ['Use TS'],
     });
-    expect(result).toContain('criado');
+    expect(result).toContain('created');
   });
 
   it('gets stats', () => {
@@ -126,6 +126,6 @@ describe('TrajectoryResearchService', () => {
 
   it('returns error for non-existent trajectory', () => {
     const result = service.getTrajectory('nonexistent');
-    expect(result).toContain('nao encontrada');
+    expect(result).toContain('not found');
   });
 });

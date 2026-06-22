@@ -22,12 +22,12 @@ describe('ZavorthVoiceModeTool', () => {
 
   it('returns error when action is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('starts a voice session', async () => {
     const result = await tool.execute({ action: 'start_session', mode: 'manual', language: 'pt-BR' });
-    expect(result).toContain('Sessao de voz criada');
+    expect(result).toContain('Voice session created');
     expect(result).toContain('manual');
     expect(result).toContain('pt-BR');
   });
@@ -67,7 +67,7 @@ describe('ZavorthVoiceModeTool', () => {
 
   it('returns error for missing session_id', async () => {
     const result = await tool.execute({ action: 'status' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('session_id');
   });
 
@@ -79,7 +79,7 @@ describe('ZavorthVoiceModeTool', () => {
       session_id: idMatch![1],
       mode: 'telepathy',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('lists backends', async () => {

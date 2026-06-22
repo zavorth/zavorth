@@ -41,9 +41,9 @@ export class SearchExaService {
 
   public async search(options: ExaSearchOptions): Promise<string> {
     const apiKey = process.env.EXA_API_KEY;
-    if (!apiKey) return 'Erro: EXA_API_KEY nao configurada. Obtenha em https://exa.ai';
+    if (!apiKey) return 'Error: EXA_API_KEY not configured. Get at https://exa.ai';
 
-    if (!options.query) return 'Erro: query e obrigatoria.';
+    if (!options.query) return 'Error: query is required.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -79,25 +79,25 @@ export class SearchExaService {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro Exa: ${parsed.error.message || JSON.stringify(parsed.error)}`;
+      if (parsed.error) return `Exa error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
 
       const results: ExaSearchResult[] = (parsed.results || []).map((r: Record<string, unknown>) => ({
-        id: r.id,
-        url: r.url,
-        title: r.title,
-        score: r.score,
-        published_date: r.publishedDate || null,
-        author: r.author || null,
-        image: r.image || null,
-        favicon: r.favicon || null,
-        text: (r.text || '').slice(0, 500),
-        highlights: r.highlights || [],
+        id: String(r.id || ''),
+        url: String(r.url || ''),
+        title: String(r.title || ''),
+        score: Number(r.score || 0),
+        published_date: typeof r.publishedDate === 'string' ? r.publishedDate : null,
+        author: typeof r.author === 'string' ? r.author : null,
+        image: typeof r.image === 'string' ? r.image : null,
+        favicon: typeof r.favicon === 'string' ? r.favicon : null,
+        text: typeof r.text === 'string' ? r.text.slice(0, 500) : '',
+        highlights: Array.isArray(r.highlights) ? r.highlights.map(String) : [],
       }));
 
-      if (results.length === 0) return `Nenhum resultado para "${options.query}".`;
+      if (results.length === 0) return `No results para "${options.query}".`;
 
       const lines: string[] = [
-        `Exa Search: "${options.query}" (${results.length} resultados, tipo: ${options.type || 'auto'})`,
+        `Exa Search: "${options.query}" (${results.length} results, tipo: ${options.type || 'auto'})`,
         '',
       ];
 
@@ -114,13 +114,13 @@ export class SearchExaService {
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro na busca Exa: ${error instanceof Error ? error.message : String(error)}`;
+      return `Exa search error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   public async findSimilar(url: string, options?: { num_results?: number }): Promise<string> {
     const apiKey = process.env.EXA_API_KEY;
-    if (!apiKey) return 'Erro: EXA_API_KEY nao configurada.';
+    if (!apiKey) return 'Error: EXA_API_KEY not configured.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -143,7 +143,7 @@ export class SearchExaService {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro Exa: ${parsed.error.message}`;
+      if (parsed.error) return `Exa error: ${parsed.error.message}`;
 
       const results = parsed.results || [];
       const lines: string[] = [`Paginas similares a ${url} (${results.length}):`];
@@ -152,13 +152,13 @@ export class SearchExaService {
       }
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   public async getContents(urls: string[], options?: { max_characters?: number }): Promise<string> {
     const apiKey = process.env.EXA_API_KEY;
-    if (!apiKey) return 'Erro: EXA_API_KEY nao configurada.';
+    if (!apiKey) return 'Error: EXA_API_KEY not configured.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -191,7 +191,7 @@ export class SearchExaService {
       }
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 }

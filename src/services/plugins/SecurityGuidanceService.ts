@@ -5,7 +5,7 @@ interface PolicyRule {
   id: string;
   category: string;
   rule: string;
-  severity: 'info' | 'warning' | 'critical';
+  severity: 'info' | 'warning' | 'critical' | 'high' | 'medium';
   owasp_ref?: string;
   example_safe: string;
   example_unsafe: string;
@@ -16,7 +16,7 @@ export class SecurityGuidanceService extends BaseTool {
   public readonly name = 'zavorth_security_guidance';
 
   public readonly description =
-    'Consulta interativa de politicas de seguranca, melhores praticas, OWASP Top 10, e orientacoes de hardening para o Zavorth.';
+    'Interactive security policy consultation, melhores praticas, OWASP Top 10, e orientacoes de hardening para o Zavorth.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -27,15 +27,15 @@ export class SecurityGuidanceService extends BaseTool {
       },
       topic: {
         type: 'string',
-        description: 'Topico de seguranca para consultar (ex: injection, auth, xss, ssrf, secrets).',
+        description: 'Security topic to query (ex: injection, auth, xss, ssrf, secrets).',
       },
       code_snippet: {
         type: 'string',
-        description: 'Trecho de codigo para analise de seguranca.',
+        description: 'Code snippet for security analysis.',
       },
       language: {
         type: 'string',
-        description: "Linguagem do codigo: 'typescript', 'python', 'go', 'rust', 'generic'. Default: 'typescript'.",
+        description: "Code language: 'typescript', 'python', 'go', 'rust', 'generic'. Default: 'typescript'.",
       },
     },
     required: ['action'],
@@ -61,7 +61,7 @@ export class SecurityGuidanceService extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     switch (action) {
       case 'query': return this.queryPolicy(args);
@@ -70,13 +70,13 @@ export class SecurityGuidanceService extends BaseTool {
       case 'owasp_top10': return this.owasTop10();
       case 'hardening': return this.hardeningGuide();
       case 'audit_checklist': return this.auditChecklist();
-      default: return `Erro: acao "${action}" invalida.`;
+      default: return `Error: action "${action}" is invalid.`;
     }
   }
 
   private queryPolicy(args: Record<string, unknown>): string {
     const topic = String(args.topic || '').toLowerCase();
-    if (!topic) return 'Erro: "topic" e obrigatorio para query.';
+    if (!topic) return 'Error: "topic" is required. for query.';
 
     const matched = this.policies.filter((p) =>
       p.category.includes(topic) ||
@@ -85,12 +85,12 @@ export class SecurityGuidanceService extends BaseTool {
     );
 
     if (matched.length === 0) {
-      return `Nenhuma politica encontrada para "${topic}". Use "list_categories" para ver categorias disponiveis.`;
+      return `No policies encontrada para "${topic}". Use "list_categories" para ver categorias disponiveis.`;
     }
 
-    const lines: string[] = [`Politicas de seguranca para "${topic}" (${matched.length} encontradas):`];
+    const lines: string[] = [`Security policies for "${topic}" (${matched.length} encontradas):`];
     for (const p of matched) {
-      const icon = { critical: '🔴', high: '🟠', medium: '🟡', info: 'ℹ️' }[p.severity];
+      const icon = { critical: '🔴', high: '🟠', medium: '🟡', warning: '⚠️', info: 'ℹ️' }[p.severity];
       lines.push('');
       lines.push(`${icon} ${p.id} [${p.category}]${p.owasp_ref ? ` (${p.owasp_ref})` : ''}`);
       lines.push(`  Regra: ${p.rule}`);
@@ -103,7 +103,7 @@ export class SecurityGuidanceService extends BaseTool {
 
   private checkCode(args: Record<string, unknown>): string {
     const code = String(args.code_snippet || '');
-    if (!code) return 'Erro: "code_snippet" e obrigatorio.';
+    if (!code) return 'Error: "code_snippet" is required.';
 
     const issues: Array<{ policy: PolicyRule; match: string }> = [];
 
@@ -140,12 +140,12 @@ export class SecurityGuidanceService extends BaseTool {
     }
 
     if (issues.length === 0) {
-      return 'Nenhum problema de seguranca obvio detectado no trecho de codigo.';
+      return 'No obvious security problem detected in the code snippet.';
     }
 
-    const lines: string[] = [`⚠️ ${issues.length} problema(s) de seguranca detectado(s):`];
+    const lines: string[] = [`⚠️ ${issues.length} security problem(s) detected:`];
     for (const { policy, match } of issues) {
-      const icon = { critical: '🔴', high: '🟠', medium: '🟡', info: 'ℹ️' }[policy.severity];
+      const icon = { critical: '🔴', high: '🟠', medium: '🟡', warning: '⚠️', info: 'ℹ️' }[policy.severity];
       lines.push(`\n${icon} ${policy.id}: ${match}`);
       lines.push(`  Regra: ${policy.rule}`);
       lines.push(`  Correcao: ${policy.remediation}`);
@@ -155,7 +155,7 @@ export class SecurityGuidanceService extends BaseTool {
 
   private listCategories(): string {
     const categories = new Set(this.policies.map((p) => p.category));
-    const lines: string[] = ['Categorias de seguranca disponiveis:'];
+    const lines: string[] = ['Available security categories:'];
     for (const cat of [...categories].sort()) {
       const count = this.policies.filter((p) => p.category === cat).length;
       lines.push(`  ${cat}: ${count} politica(s)`);
@@ -189,7 +189,7 @@ export class SecurityGuidanceService extends BaseTool {
       '1. EXECUCAO: Use execFileSync com arrays, nunca execSync com strings',
       '2. INPUT: Valide todo input com schema (zod/joi). Sanitize paths.',
       '3. SECRETS: Variaveis de ambiente, nunca hardcoded. Rotacione periodicamente.',
-      '4. REDE: HTTPS obrigatorio. CORS restritivo. Rate limiting.',
+      '4. REDE: HTTPS required. CORS restritivo. Rate limiting.',
       '5. DEPENDENCIAS: npm audit em CI. Atualize regularmente. Lock files.',
       '6. LOGS: Nunca logar senhas/tokens. Redacao de PII.',
       '7. AUTENTICACAO: JWT com verificacao. Expiracao curta. Refresh tokens.',
@@ -200,9 +200,9 @@ export class SecurityGuidanceService extends BaseTool {
   }
 
   private auditChecklist(): string {
-    const lines: string[] = ['Checklist de Auditoria de Seguranca:', ''];
+    const lines: string[] = ['Checklist de Audit de Seguranca:', ''];
     for (const p of this.policies) {
-      const icon = { critical: '🔴', high: '🟠', medium: '🟡', info: 'ℹ️' }[p.severity];
+      const icon = { critical: '🔴', high: '🟠', medium: '🟡', warning: '⚠️', info: 'ℹ️' }[p.severity];
       lines.push(`  [ ] ${icon} ${p.id}: ${p.category} — ${p.rule.slice(0, 80)}`);
     }
     return lines.join('\n');

@@ -61,33 +61,33 @@ export class MemoryQdrantService {
   }
 
   public createCollection(name: string, dimension: number = 1536): string {
-    if (this.collections.has(name)) return `Erro: colecao "${name}" ja existe.`;
-    if (!/^[a-zA-Z0-9_-]+$/.test(name)) return 'Erro: nome invalido. Use apenas letras, numeros, _ e -.';
+    if (this.collections.has(name)) return `Error: collection "${name}" already exists.`;
+    if (!/^[a-zA-Z0-9_-]+$/.test(name)) return 'Error: invalid name.. Use only letters, numbers, _ and -.';
     this.collections.set(name, { name, vectors: new Map(), dimension, created_at: new Date().toISOString() });
     this.scheduleFlush();
-    return `Colecao "${name}" criada (dimensao: ${dimension}).`;
+    return `Collection "${name}" created (dimensao: ${dimension}).`;
   }
 
   public deleteCollection(name: string): string {
-    if (!this.collections.has(name)) return `Erro: colecao "${name}" nao encontrada.`;
+    if (!this.collections.has(name)) return `Error: collection "${name}" not found.`;
     this.collections.delete(name);
     this.scheduleFlush();
-    return `Colecao "${name}" deletada.`;
+    return `Collection "${name}" deleted.`;
   }
 
   public upsert(collection: string, points: Array<{ id: string; vector: number[]; payload?: Record<string, unknown> }>): string {
     const col = this.collections.get(collection);
-    if (!col) return `Erro: colecao "${collection}" nao encontrada.`;
+    if (!col) return `Error: collection "${collection}" not found.`;
 
     for (const point of points) {
       if (point.vector.length !== col.dimension) {
-        return `Erro: vetor "${point.id}" tem dimensao ${point.vector.length}, esperado ${col.dimension}.`;
+        return `Error: vector "${point.id}" has dimension ${point.vector.length}, esperado ${col.dimension}.`;
       }
       col.vectors.set(point.id, { id: point.id, vector: point.vector, payload: point.payload || {} });
     }
 
     this.scheduleFlush();
-    return `${points.length} ponto(s) inserido(s) na colecao "${collection}".`;
+    return `${points.length} point(s) inserted na collection "${collection}".`;
   }
 
   public search(collection: string, queryVector: number[], limit: number = 5, filter?: Record<string, unknown>): QdrantSearchResult[] {
@@ -118,7 +118,7 @@ export class MemoryQdrantService {
 
   public delete(collection: string, ids: string[]): string {
     const col = this.collections.get(collection);
-    if (!col) return `Erro: colecao "${collection}" nao encontrada.`;
+    if (!col) return `Error: collection "${collection}" not found.`;
 
     let deleted = 0;
     for (const id of ids) {
@@ -126,15 +126,15 @@ export class MemoryQdrantService {
     }
 
     this.scheduleFlush();
-    return `${deleted} ponto(s) deletado(s) da colecao "${collection}".`;
+    return `${deleted} point(s) deleted from collection "${collection}".`;
   }
 
   public listCollections(): string {
-    if (this.collections.size === 0) return 'Nenhuma colecao.';
+    if (this.collections.size === 0) return 'No collections.';
 
     const lines: string[] = ['Colecoes Qdrant:'];
     for (const [name, col] of this.collections) {
-      lines.push(`  ${name}: ${col.vectors.size} vetores, dimensao ${col.dimension}`);
+      lines.push(`  ${name}: ${col.vectors.size} vectors, dimension ${col.dimension}`);
     }
     return lines.join('\n');
   }
@@ -142,8 +142,8 @@ export class MemoryQdrantService {
   public getStats(collection?: string): string {
     if (collection) {
       const col = this.collections.get(collection);
-      if (!col) return `Erro: colecao "${collection}" nao encontrada.`;
-      return `Colecao "${collection}": ${col.vectors.size} vetores, dimensao ${col.dimension}.`;
+      if (!col) return `Error: collection "${collection}" not found.`;
+      return `Collection "${collection}": ${col.vectors.size} vectors, dimension ${col.dimension}.`;
     }
 
     let totalPoints = 0;
@@ -153,13 +153,13 @@ export class MemoryQdrantService {
 
   public searchAndReturn(collection: string, query: string, limit: number = 5): string {
     const col = this.collections.get(collection);
-    if (!col) return `Erro: colecao "${collection}" nao encontrada.`;
-    if (col.vectors.size === 0) return `Colecao "${collection}" esta vazia.`;
+    if (!col) return `Error: collection "${collection}" not found.`;
+    if (col.vectors.size === 0) return `Collection "${collection}" esta vazia.`;
 
     const queryVector = this.textToVector(query, col.dimension);
     const results = this.search(collection, queryVector, limit);
 
-    if (results.length === 0) return 'Nenhum resultado.';
+    if (results.length === 0) return 'No results.';
 
     const lines: string[] = [`Resultados para "${query}" (${results.length}):`];
     for (const r of results) {

@@ -36,13 +36,13 @@ describe('ZavorthCronSchedulerTool — deep coverage', () => {
   it('returns error for duplicate job', async () => {
     await tool.execute({ action: 'create', name: 'DupJob', schedule: '0 * * * *', task_description: 'Dup' });
     const r = await tool.execute({ action: 'create', name: 'DupJob', schedule: '0 * * * *', task_description: 'Dup' });
-    expect(r).toContain('ja existe');
+    expect(r).toContain('already exists');
   });
 
   it('updates job fields', async () => {
     await tool.execute({ action: 'create', name: 'UpdateMe', schedule: '0 * * * *', task_description: 'Original' });
     const r = await tool.execute({ action: 'update', job_id: 'updateme', task_description: 'Updated', risk_level: 'high' });
-    expect(r).toContain('atualizado');
+    expect(r).toContain('updated');
   });
 
   it('run_now increments run_count', async () => {
@@ -54,18 +54,18 @@ describe('ZavorthCronSchedulerTool — deep coverage', () => {
 
   it('returns error for missing job_id on delete', async () => {
     const r = await tool.execute({ action: 'delete' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('returns error for non-existent job status', async () => {
     const r = await tool.execute({ action: 'status', job_id: 'nonexistent' });
-    expect(r).toContain('nao encontrado');
+    expect(r).toContain('not found');
   });
 
   it('handles critical risk with requires_approval', async () => {
     const r = await tool.execute({ action: 'create', name: 'CriticalJob', schedule: '0 * * * *', task_description: 'Delete all production data', risk_level: 'critical' });
     expect(r).toContain('critical');
-    expect(r).toContain('DESABILITADO');
+    expect(r).toContain('DISABLED');
   });
 
   it('handles multiple jobs listing', async () => {
@@ -85,18 +85,18 @@ describe('ZavorthDelegateTool — deep coverage', () => {
 
   it('returns error for invalid role', async () => {
     const r = await tool.execute({ action: 'delegate', task_description: 'Test', role: 'wizard' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
     expect(r).toContain('role');
   });
 
   it('returns error for missing task_description', async () => {
     const r = await tool.execute({ action: 'delegate' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('returns error for missing task_id on status', async () => {
     const r = await tool.execute({ action: 'status' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('cancels a task and its children', async () => {
@@ -104,35 +104,35 @@ describe('ZavorthDelegateTool — deep coverage', () => {
     const parentId = parent.match(/ID: (del_\w+)/)![1];
     await tool.execute({ action: 'delegate', task_description: 'Child', parent_id: parentId });
     const r = await tool.execute({ action: 'cancel', task_id: parentId });
-    expect(r).toContain('cancelada');
+    expect(r).toContain('cancelled');
   });
 
   it('gets result of completed task', async () => {
     const d = await tool.execute({ action: 'delegate', task_description: 'Test result' });
     const id = d.match(/ID: (del_\w+)/)![1];
     const r = await tool.execute({ action: 'result', task_id: id });
-    expect(r).toContain('pendente');
+    expect(r).toContain('pending');
   });
 
   it('returns error for cancel_batch without batch_id', async () => {
     const r = await tool.execute({ action: 'cancel_batch' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('handles batch with max tasks limit', async () => {
     const tasks = Array.from({ length: 25 }, (_, i) => ({ task_description: `Task ${i}` }));
     const r = await tool.execute({ action: 'delegate_batch', tasks: JSON.stringify(tasks) });
-    expect(r).toContain('maximo');
+    expect(r).toContain('maximum');
   });
 
   it('returns error for invalid batch JSON', async () => {
     const r = await tool.execute({ action: 'delegate_batch', tasks: 'not-json' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('handles context parameter', async () => {
     const r = await tool.execute({ action: 'delegate', task_description: 'Context test', context: JSON.stringify({ key: 'value' }) });
-    expect(r).toContain('delegada');
+    expect(r).toContain('Delegated');
   });
 
   it('handles depth limit', async () => {
@@ -141,7 +141,7 @@ describe('ZavorthDelegateTool — deep coverage', () => {
     const child = await tool.execute({ action: 'delegate', task_description: 'Depth child', parent_id: parentId });
     const childId = child.match(/ID: (del_\w+)/)![1];
     const grandchild = await tool.execute({ action: 'delegate', task_description: 'Depth grandchild', parent_id: childId });
-    expect(grandchild).toContain('delegada');
+    expect(grandchild).toContain('Delegated');
   });
 });
 
@@ -150,57 +150,57 @@ describe('ZavorthChannelSendTool — deep coverage', () => {
 
   it('returns error for missing message', async () => {
     const r = await tool.execute({ channel: 'telegram', recipient: '123' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
     expect(r).toContain('message');
   });
 
   it('returns error for invalid channel', async () => {
     const r = await tool.execute({ channel: 'carrier_pigeon', recipient: '123', message: 'test' });
-    expect(r).toContain('invalido');
+    expect(r).toContain('invalid');
   });
 
   it('handles multi-channel with invalid JSON', async () => {
     const r = await tool.execute({ channel: 'telegram', recipient: '123', message: 'test', multi_channel: 'not-json' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('handles multi-channel with empty array', async () => {
     const r = await tool.execute({ channel: 'telegram', recipient: '123', message: 'test', multi_channel: '[]' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('handles multi-channel with too many targets', async () => {
     const targets = Array.from({ length: 15 }, (_, i) => ({ channel: 'telegram', recipient: String(i) }));
     const r = await tool.execute({ channel: 'telegram', recipient: '123', message: 'test', multi_channel: JSON.stringify(targets) });
-    expect(r).toContain('maximo');
+    expect(r).toContain('maximum');
   });
 
   it('handles silent flag', async () => {
     const r = await tool.execute({ channel: 'telegram', recipient: '123', message: 'Silent', silent: true });
-    expect(r).toContain('enviada');
+    expect(r).toContain('sent');
   });
 
   it('handles reply_to', async () => {
     const r = await tool.execute({ channel: 'telegram', recipient: '123', message: 'Reply', reply_to: 'msg_456' });
-    expect(r).toContain('enviada');
+    expect(r).toContain('sent');
   });
 
   it('handles all channel types', async () => {
     const channels = ['telegram', 'discord', 'slack', 'whatsapp', 'email', 'teams', 'signal', 'matrix', 'irc', 'line', 'nostr', 'sms'];
     for (const ch of channels) {
       const r = await tool.execute({ channel: ch, recipient: 'test', message: 'Hello' });
-      expect(r).toContain('enviada');
+      expect(r).toContain('sent');
     }
   });
 
   it('formats message for discord', async () => {
     const r = await tool.execute({ channel: 'discord', recipient: '123', message: '**bold** and *italic*' });
-    expect(r).toContain('enviada');
+    expect(r).toContain('sent');
   });
 
   it('formats message for whatsapp', async () => {
     const r = await tool.execute({ channel: 'whatsapp', recipient: '123', message: '# Header and **bold**' });
-    expect(r).toContain('enviada');
+    expect(r).toContain('sent');
   });
 });
 
@@ -209,7 +209,7 @@ describe('ZavorthPolicyEnforcerTool — deep coverage', () => {
 
   it('lists all policies', async () => {
     const r = await tool.execute({ action: 'list_policies' });
-    expect(r).toContain('Politicas');
+    expect(r).toContain('Policies');
     expect(r).toContain('Email Send');
     expect(r).toContain('Destructive Command');
     expect(r).toContain('Sensitive Data');
@@ -237,28 +237,28 @@ describe('ZavorthPolicyEnforcerTool — deep coverage', () => {
 
   it('runs audit', async () => {
     const r = await tool.execute({ action: 'audit' });
-    expect(r).toContain('Auditoria');
+    expect(r).toContain('Audit');
     expect(r).toContain('Total');
   });
 
   it('runs policy tests', async () => {
     const r = await tool.execute({ action: 'test' });
-    expect(r).toContain('Teste');
+    expect(r).toContain('Test');
   });
 
   it('adds custom policy', async () => {
     const r = await tool.execute({ action: 'add_policy', policy_name: 'Custom Block', policy_description: 'Blocks custom ops', policy_category: 'tool_access', policy_condition: 'tool_name == "custom"', policy_action: 'deny', policy_severity: 'block' });
-    expect(r).toContain('criada');
+    expect(r).toContain('created');
   });
 
   it('returns error for check without tool_name', async () => {
     const r = await tool.execute({ action: 'check' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('returns error for invalid action', async () => {
     const r = await tool.execute({ action: 'dance' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 });
 
@@ -309,7 +309,7 @@ describe('ZavorthReceiptSearchTool — deep coverage', () => {
 
   it('returns error for non-existent receipt', async () => {
     const r = await tool.execute({ action: 'get', receipt_id: 'nonexistent' });
-    expect(r).toContain('nao encontrado');
+    expect(r).toContain('not found');
   });
 
   it('gets stats', async () => {
@@ -425,7 +425,7 @@ describe('ZavorthTrajectoryExportTool — deep coverage', () => {
 
   it('returns error for invalid action', async () => {
     const r = await tool.execute({ action: 'dance' });
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 });
 
@@ -461,12 +461,12 @@ describe('ZavorthSessionSearchTool — deep coverage', () => {
 
   it('returns no results for missing query', async () => {
     const r = await tool.execute({ query: 'quantum_physics_xyz' });
-    expect(r).toContain('Nenhum resultado');
+    expect(r).toContain('No results');
   });
 
   it('limits results with max_results', async () => {
     const r = await tool.execute({ query: 'a', max_results: 1 });
-    expect(r).toContain('1 resultado');
+    expect(r).toContain('1 result');
   });
 
   it('searches in exact mode', async () => {

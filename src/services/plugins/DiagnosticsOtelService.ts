@@ -104,7 +104,7 @@ export class DiagnosticsOtelService {
 
   public endSpan(spanId: string, status?: 'ok' | 'error', statusMessage?: string): string {
     const span = this.activeSpans.get(spanId);
-    if (!span) return `Span "${spanId}" nao encontrado.`;
+    if (!span) return `Span "${spanId}" not found.`;
 
     span.end_time = new Date().toISOString();
     span.duration_ms = new Date(span.end_time).getTime() - new Date(span.start_time).getTime();
@@ -120,7 +120,7 @@ export class DiagnosticsOtelService {
 
   public addSpanEvent(spanId: string, eventName: string, attributes: Record<string, unknown> = {}): string {
     const span = this.activeSpans.get(spanId);
-    if (!span) return `Span "${spanId}" nao encontrado.`;
+    if (!span) return `Span "${spanId}" not found.`;
 
     span.events.push({
       name: eventName,
@@ -128,7 +128,7 @@ export class DiagnosticsOtelService {
       attributes,
     });
 
-    return `Evento "${eventName}" adicionado ao span "${span.name}".`;
+    return `Event "${eventName}" added to span "${span.name}".`;
   }
 
   public recordMetric(name: string, options?: {
@@ -176,7 +176,7 @@ export class DiagnosticsOtelService {
   }
 
   public getActiveSpans(): string {
-    if (this.activeSpans.size === 0) return 'Nenhum span ativo.';
+    if (this.activeSpans.size === 0) return 'No spans ativo.';
 
     const lines: string[] = [`Spans ativos (${this.activeSpans.size}):`];
     for (const [id, span] of this.activeSpans) {
@@ -187,7 +187,7 @@ export class DiagnosticsOtelService {
   }
 
   public getTraces(limit: number = 20): string {
-    if (this.spans.length === 0) return 'Nenhum trace registrado.';
+    if (this.spans.length === 0) return 'No traces recorded.';
 
     const byTrace: Record<string, OtelSpan[]> = {};
     for (const span of this.spans) {
@@ -210,7 +210,7 @@ export class DiagnosticsOtelService {
   }
 
   public getMetrics(): string {
-    if (this.metrics.length === 0 && this.counters.size === 0) return 'Nenhuma metrica registrada.';
+    if (this.metrics.length === 0 && this.counters.size === 0) return 'No metrica registrada.';
 
     const lines: string[] = ['Metricas:'];
 
@@ -240,7 +240,7 @@ export class DiagnosticsOtelService {
     const limit = options?.limit || 50;
     const recent = filtered.slice(-limit);
 
-    if (recent.length === 0) return 'Nenhum log encontrado.';
+    if (recent.length === 0) return 'No logs found.';
 
     const lines: string[] = [`Logs (ultimos ${recent.length}):`];
     for (const log of recent) {
@@ -252,7 +252,7 @@ export class DiagnosticsOtelService {
 
   public getStats(): string {
     const lines: string[] = [
-      'Estatisticas OpenTelemetry:',
+      'Statistics OpenTelemetry:',
       `  Spans: ${this.spans.length} completos, ${this.activeSpans.size} ativos`,
       `  Metricas: ${this.metrics.length} registradas, ${this.counters.size} counters, ${this.gauges.size} gauges`,
       `  Logs: ${this.logs.length} entradas`,
@@ -261,7 +261,7 @@ export class DiagnosticsOtelService {
     if (this.spans.length > 0) {
       const avgDuration = this.spans.reduce((sum, s) => sum + (s.duration_ms || 0), 0) / this.spans.length;
       const errorRate = this.spans.filter((s) => s.status === 'error').length / this.spans.length;
-      lines.push(`  Duracao media de span: ${avgDuration.toFixed(0)}ms`);
+      lines.push(`  Duration media de span: ${avgDuration.toFixed(0)}ms`);
       lines.push(`  Taxa de erro: ${(errorRate * 100).toFixed(1)}%`);
     }
 

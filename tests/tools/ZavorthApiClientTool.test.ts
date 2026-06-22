@@ -9,37 +9,37 @@ describe('ZavorthApiClientTool', () => {
 
   it('returns error when url is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('url');
   });
 
   it('returns error for invalid URL', async () => {
     const result = await tool.execute({ url: 'not-a-url' });
-    expect(result).toContain('Erro');
-    expect(result).toContain('invalida');
+    expect(result).toContain('Error');
+    expect(result).toContain('invalid');
   });
 
   it('returns error for non-http protocol', async () => {
     const result = await tool.execute({ url: 'ftp://example.com' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('protocolo');
   });
 
   it('returns error for blocked domain', async () => {
     const result = await tool.execute({ url: 'https://malware.com/test' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('bloqueio');
   });
 
   it('returns error for invalid method', async () => {
     const result = await tool.execute({ url: 'https://example.com', method: 'PATCHY' });
-    expect(result).toContain('Erro');
-    expect(result).toContain('invalido');
+    expect(result).toContain('Error');
+    expect(result).toContain('invalid');
   });
 
   it('returns error for excessive timeout', async () => {
     const result = await tool.execute({ url: 'https://example.com', timeout_ms: 999999 });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('timeout');
   });
 

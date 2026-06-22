@@ -101,7 +101,7 @@ export class ActiveMemoryService {
     this.maybeEvict();
     this.scheduleFlush();
 
-    return `Memorizado [${id}]: "${content.slice(0, 80)}${content.length > 80 ? '...' : ''}" (importancia: ${importance.toFixed(2)})`;
+    return `Remembered [${id}]: "${content.slice(0, 80)}${content.length > 80 ? '...' : ''}" (importancia: ${importance.toFixed(2)})`;
   }
 
   public recall(query: string, options?: {
@@ -130,9 +130,9 @@ export class ActiveMemoryService {
     scored.sort((a, b) => b.score - a.score);
     const top = scored.slice(0, limit);
 
-    if (top.length === 0) return `Nenhuma memoria encontrada para "${query}".`;
+    if (top.length === 0) return `No memories found para "${query}".`;
 
-    const lines: string[] = [`Memorias para "${query}" (${top.length} resultados):`];
+    const lines: string[] = [`Memorys para "${query}" (${top.length} results):`];
     for (const { entry, score } of top) {
       const cat = { fact: '📌', preference: '💜', event: '📅', instruction: '📋', context: '🔗', relationship: '👥' }[entry.category];
       lines.push(`  ${cat} [${entry.id}] ${entry.content.slice(0, 100)} (score:${score.toFixed(2)} imp:${entry.importance.toFixed(2)} acc:${entry.access_count})`);
@@ -143,15 +143,15 @@ export class ActiveMemoryService {
   }
 
   public forget(entryId: string): string {
-    if (!this.entries.has(entryId)) return `Memoria "${entryId}" nao encontrada.`;
+    if (!this.entries.has(entryId)) return `Memory "${entryId}" not found.`;
     this.entries.delete(entryId);
     this.scheduleFlush();
-    return `Memoria "${entryId}" esquecida.`;
+    return `Memory "${entryId}" forgotten.`;
   }
 
   public update(entryId: string, updates: { content?: string; importance?: number; tags?: string[] }): string {
     const entry = this.entries.get(entryId);
-    if (!entry) return `Memoria "${entryId}" nao encontrada.`;
+    if (!entry) return `Memory "${entryId}" not found.`;
 
     if (updates.content) entry.content = updates.content;
     if (typeof updates.importance === 'number') entry.importance = Math.max(0, Math.min(1, updates.importance));
@@ -159,31 +159,31 @@ export class ActiveMemoryService {
     entry.last_accessed = new Date().toISOString();
 
     this.scheduleFlush();
-    return `Memoria "${entryId}" atualizada.`;
+    return `Memory "${entryId}" updated.`;
   }
 
   public promote(entryId: string, reason?: string): string {
     const entry = this.entries.get(entryId);
-    if (!entry) return `Memoria "${entryId}" nao encontrada.`;
+    if (!entry) return `Memory "${entryId}" not found.`;
 
     entry.importance = Math.min(1, entry.importance + 0.2);
     entry.metadata.promoted_at = new Date().toISOString();
     entry.metadata.promote_reason = reason || 'manual';
 
     this.scheduleFlush();
-    return `Memoria "${entryId}" promovida (importancia: ${entry.importance.toFixed(2)}).`;
+    return `Memory "${entryId}" promoted (importancia: ${entry.importance.toFixed(2)}).`;
   }
 
   public demote(entryId: string, reason?: string): string {
     const entry = this.entries.get(entryId);
-    if (!entry) return `Memoria "${entryId}" nao encontrada.`;
+    if (!entry) return `Memory "${entryId}" not found.`;
 
     entry.importance = Math.max(0, entry.importance - 0.2);
     entry.metadata.demoted_at = new Date().toISOString();
     entry.metadata.demote_reason = reason || 'manual';
 
     this.scheduleFlush();
-    return `Memoria "${entryId}" rebaixada (importancia: ${entry.importance.toFixed(2)}).`;
+    return `Memory "${entryId}" demoted (importancia: ${entry.importance.toFixed(2)}).`;
   }
 
   public consolidate(): string {
@@ -212,7 +212,7 @@ export class ActiveMemoryService {
     }
 
     this.scheduleFlush();
-    return `Consolidacao: ${decayed} importancias reduzidas, ${expired} expiradas, ${forgotten} esquecidas. Total: ${this.entries.size}`;
+    return `Consolidation: ${decayed} importancias reduzidas, ${expired} expiradas, ${forgotten} forgottens. Total: ${this.entries.size}`;
   }
 
   public getStats(): string {
@@ -230,7 +230,7 @@ export class ActiveMemoryService {
     const avgAccess = this.entries.size > 0 ? totalAccess / this.entries.size : 0;
 
     const lines: string[] = [
-      'Estatisticas de Memoria Ativa:',
+      'Statistics de Memory Ativa:',
       `  Total: ${this.entries.size}/${this.MAX_ENTRIES}`,
       `  Importancia media: ${avgImportance.toFixed(3)}`,
       `  Acessos medio: ${avgAccess.toFixed(1)}`,
@@ -255,9 +255,9 @@ export class ActiveMemoryService {
     const limit = options?.limit || 20;
     entries = entries.slice(0, limit);
 
-    if (entries.length === 0) return 'Nenhuma memoria encontrada.';
+    if (entries.length === 0) return 'No memories found.';
 
-    const lines: string[] = [`Memorias (${entries.length}):`];
+    const lines: string[] = [`Memorys (${entries.length}):`];
     for (const e of entries) {
       const cat = { fact: '📌', preference: '💜', event: '📅', instruction: '📋', context: '🔗', relationship: '👥' }[e.category];
       lines.push(`  ${cat} [${e.id}] imp:${e.importance.toFixed(2)} acc:${e.access_count} — ${e.content.slice(0, 80)}`);
@@ -270,7 +270,7 @@ export class ActiveMemoryService {
     const combined = `${userMessage} ${assistantResponse}`.toLowerCase();
 
     if (combined.includes('me chamo') || combined.includes('meu nome é') || combined.includes('my name is')) {
-      const id = this.remember(`Nome do usuario: ${userMessage}`, { category: 'relationship', importance: 0.9, source: 'interaction' });
+      const id = this.remember(`User name: ${userMessage}`, { category: 'relationship', importance: 0.9, source: 'interaction' });
       decisions.push({ action: 'remember', entry_id: id, reason: 'Nome detectado na conversa' });
     }
 

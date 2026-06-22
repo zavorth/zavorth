@@ -8,7 +8,7 @@ export class SpotifyPlayerTool extends BaseTool {
   public readonly name = 'zavorth_spotify';
 
   public readonly description =
-    'Spotify — controle de musica. Play, pause, skip, busca, playlists, e informacoes da musica atual via Spotify Web API.';
+    'Spotify — music control. Play, pause, skip, busca, playlists, e current music information via Spotify Web API.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -19,19 +19,19 @@ export class SpotifyPlayerTool extends BaseTool {
       },
       query: {
         type: 'string',
-        description: 'Termo de busca (para search).',
+        description: 'Search term (para search).',
       },
       track_id: {
         type: 'string',
-        description: 'ID ou URI do track (para play_track).',
+        description: 'Track ID or URI (para play_track).',
       },
       playlist_id: {
         type: 'string',
-        description: 'ID da playlist (para play_playlist).',
+        description: 'Playlist ID (para play_playlist).',
       },
       device_id: {
         type: 'string',
-        description: 'ID do dispositivo.',
+        description: 'Device ID.',
       },
       volume: {
         type: 'number',
@@ -39,7 +39,7 @@ export class SpotifyPlayerTool extends BaseTool {
       },
       search_type: {
         type: 'string',
-        description: "Tipo de busca: 'track', 'artist', 'album', 'playlist'. Default: 'track'.",
+        description: "Search type: 'track', 'artist', 'album', 'playlist'. Default: 'track'.",
       },
       state: {
         type: 'string',
@@ -51,11 +51,11 @@ export class SpotifyPlayerTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     const accessToken = process.env.SPOTIFY_ACCESS_TOKEN;
     if (!accessToken) {
-      return 'Erro: SPOTIFY_ACCESS_TOKEN nao configurado. Obtenha via OAuth em https://developer.spotify.com/dashboard';
+      return 'Error: SPOTIFY_ACCESS_TOKEN not configured. Get via OAuth at https://developer.spotify.com/dashboard';
     }
 
     const validActions = [
@@ -64,7 +64,7 @@ export class SpotifyPlayerTool extends BaseTool {
       'get_devices', 'shuffle', 'repeat',
     ];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}`;
+      return `Error: action "${action}" is invalid. Use: ${validActions.join(', ')}`;
     }
 
     try {
@@ -82,10 +82,10 @@ export class SpotifyPlayerTool extends BaseTool {
         case 'get_devices': return await this.getDevices(accessToken);
         case 'shuffle': return await this.setShuffle(args, accessToken);
         case 'repeat': return await this.setRepeat(args, accessToken);
-        default: return `Erro: acao "${action}" nao implementada.`;
+        default: return `Error: action "${action}" is not implemented.`;
       }
     } catch (error: unknown) {
-      return `Erro Spotify: ${error instanceof Error ? error.message : String(error)}`;
+      return `Spotify error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
@@ -114,13 +114,13 @@ export class SpotifyPlayerTool extends BaseTool {
 
   private async nowPlaying(accessToken: string): Promise<string> {
     const result = await this.apiCall(accessToken, 'GET', '/me/player/currently-playing');
-    if (!result || result.trim() === '') return 'Nenhuma musica tocando no momento.';
+    if (!result || result.trim() === '') return 'No musica tocando no momento.';
 
     const parsed = JSON.parse(result);
-    if (parsed.error) return `Erro: ${parsed.error.message}`;
+    if (parsed.error) return `Error: ${parsed.error.message}`;
 
     const track = parsed.item;
-    if (!track) return 'Nenhuma musica tocando.';
+    if (!track) return 'No musica tocando.';
 
     const artists = track.artists?.map((a: { name: string }) => a.name).join(', ') || 'Unknown';
     const progress = Math.floor((parsed.progress_ms || 0) / 1000);
@@ -145,13 +145,13 @@ export class SpotifyPlayerTool extends BaseTool {
 
   private async search(args: Record<string, unknown>, accessToken: string): Promise<string> {
     const query = String(args.query || '');
-    if (!query) return 'Erro: "query" e obrigatoria para search.';
+    if (!query) return 'Error: "query" is required para search.';
 
     const type = String(args.search_type || 'track');
     const result = await this.apiCall(accessToken, 'GET', `/search?q=${encodeURIComponent(query)}&type=${type}&limit=10`);
     const parsed = JSON.parse(result);
 
-    if (parsed.error) return `Erro: ${parsed.error.message}`;
+    if (parsed.error) return `Error: ${parsed.error.message}`;
 
     const lines: string[] = [`Spotify Search: "${query}" (${type})`];
 
@@ -180,7 +180,7 @@ export class SpotifyPlayerTool extends BaseTool {
 
   private async playTrack(args: Record<string, unknown>, accessToken: string): Promise<string> {
     const trackId = String(args.track_id || '');
-    if (!trackId) return 'Erro: "track_id" e obrigatorio.';
+    if (!trackId) return 'Error: "track_id" is required.';
 
     const uri = trackId.startsWith('spotify:track:') ? trackId : `spotify:track:${trackId}`;
     await this.apiCall(accessToken, 'PUT', '/me/player/play', { uris: [uri] });
@@ -189,7 +189,7 @@ export class SpotifyPlayerTool extends BaseTool {
 
   private async playPlaylist(args: Record<string, unknown>, accessToken: string): Promise<string> {
     const playlistId = String(args.playlist_id || '');
-    if (!playlistId) return 'Erro: "playlist_id" e obrigatorio.';
+    if (!playlistId) return 'Error: "playlist_id" is required.';
 
     const uri = `spotify:playlist:${playlistId}`;
     await this.apiCall(accessToken, 'PUT', '/me/player/play', { context_uri: uri });
@@ -200,7 +200,7 @@ export class SpotifyPlayerTool extends BaseTool {
     const result = await this.apiCall(accessToken, 'GET', '/me/playlists?limit=20');
     const parsed = JSON.parse(result);
 
-    if (parsed.error) return `Erro: ${parsed.error.message}`;
+    if (parsed.error) return `Error: ${parsed.error.message}`;
 
     const lines: string[] = [`Playlists (${parsed.total || 0} total):`];
     for (const pl of (parsed.items || []).slice(0, 15)) {
@@ -219,7 +219,7 @@ export class SpotifyPlayerTool extends BaseTool {
     const result = await this.apiCall(accessToken, 'GET', '/me/player/devices');
     const parsed = JSON.parse(result);
 
-    if (parsed.error) return `Erro: ${parsed.error.message}`;
+    if (parsed.error) return `Error: ${parsed.error.message}`;
 
     const lines: string[] = ['Dispositivos Spotify:'];
     for (const device of (parsed.devices || [])) {

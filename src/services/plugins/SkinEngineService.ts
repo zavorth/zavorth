@@ -71,7 +71,7 @@ export class SkinEngineService {
     this.builtinSkins.set('default', {
       id: 'default',
       name: 'Default',
-      description: 'Tema padrao do Zavorth',
+      description: 'Default Zavorth theme',
       author: 'Zavorth',
       version: '1.0.0',
       colors: {
@@ -113,7 +113,7 @@ export class SkinEngineService {
     this.builtinSkins.set('ares', {
       id: 'ares',
       name: 'Ares',
-      description: 'Tema vermelho militar, alto contraste',
+      description: 'Military red theme, high contrast',
       author: 'Zavorth',
       version: '1.0.0',
       colors: {
@@ -155,7 +155,7 @@ export class SkinEngineService {
     this.builtinSkins.set('mono', {
       id: 'mono',
       name: 'Mono',
-      description: 'Tema monocromatico minimalista',
+      description: 'Minimalist monochrome theme',
       author: 'Zavorth',
       version: '1.0.0',
       colors: {
@@ -197,7 +197,7 @@ export class SkinEngineService {
     this.builtinSkins.set('slate', {
       id: 'slate',
       name: 'Slate',
-      description: 'Tema azul profundo corporativo',
+      description: 'Corporate deep blue theme',
       author: 'Zavorth',
       version: '1.0.0',
       colors: {
@@ -270,11 +270,11 @@ export class SkinEngineService {
 
   public setActiveSkin(skinId: string): string {
     if (!this.builtinSkins.has(skinId) && !this.userSkins.has(skinId)) {
-      return `Skin "${skinId}" nao encontrado.`;
+      return `Skin "${skinId}" not found.`;
     }
     this.activeSkinId = skinId;
     this.saveActiveSkin();
-    return `Skin ativo alterado para "${skinId}".`;
+    return `Active skin changed to "${skinId}".`;
   }
 
   public getActiveSkin(): SkinDefinition {
@@ -282,18 +282,18 @@ export class SkinEngineService {
   }
 
   public listSkins(): string {
-    const lines: string[] = ['Skins disponiveis:'];
+    const lines: string[] = ['Available skins:'];
 
     lines.push('  Built-in:');
     for (const [id, skin] of this.builtinSkins) {
-      const active = id === this.activeSkinId ? ' ← ativo' : '';
+      const active = id === this.activeSkinId ? ' ← active' : '';
       lines.push(`    ${id}: ${skin.name} — ${skin.description}${active}`);
     }
 
     if (this.userSkins.size > 0) {
-      lines.push('  Usuario:');
+      lines.push('  User:');
       for (const [id, skin] of this.userSkins) {
-        const active = id === this.activeSkinId ? ' ← ativo' : '';
+        const active = id === this.activeSkinId ? ' ← active' : '';
         lines.push(`    ${id}: ${skin.name} — ${skin.description}${active}`);
       }
     }
@@ -306,11 +306,11 @@ export class SkinEngineService {
     try {
       skin = JSON.parse(skinJson);
     } catch {
-      return 'Erro: JSON de skin invalido.';
+      return 'Error: invalid skin JSON.';
     }
 
     if (!skin.id || !skin.name) {
-      return 'Erro: skin deve ter "id" e "name".';
+      return 'Error: skin must have "id" and "name".';
     }
 
     const stripProto = (obj: unknown): unknown => {
@@ -334,12 +334,12 @@ export class SkinEngineService {
     if (!fs.existsSync(skinsDir)) fs.mkdirSync(skinsDir, { recursive: true });
     fs.writeFileSync(path.join(skinsDir, `${skin.id}.json`), JSON.stringify(skin, null, 2), 'utf-8');
 
-    return `Skin "${skin.name}" (${skin.id}) instalado com sucesso.`;
+    return `Skin "${skin.name}" (${skin.id}) installed successfully.`;
   }
 
   public removeSkin(skinId: string): string {
     if (!this.userSkins.has(skinId)) {
-      return `Skin "${skinId}" nao encontrado ou e built-in.`;
+      return `Skin "${skinId}" not found or is built-in.`;
     }
 
     this.userSkins.delete(skinId);
@@ -351,7 +351,7 @@ export class SkinEngineService {
       this.saveActiveSkin();
     }
 
-    return `Skin "${skinId}" removido.`;
+    return `Skin "${skinId}" removed.`;
   }
 
   public getSkinPreview(skinId?: string): string {
@@ -359,7 +359,7 @@ export class SkinEngineService {
       ? (this.builtinSkins.get(skinId) || this.userSkins.get(skinId))
       : this.getActiveSkin();
 
-    if (!skin) return `Skin "${skinId}" nao encontrado.`;
+    if (!skin) return `Skin "${skinId}" not found.`;
 
     const c = skin.colors;
     const p = skin.prompt;
@@ -367,12 +367,12 @@ export class SkinEngineService {
     const lines: string[] = [
       `Preview: ${skin.name}`,
       '',
-      `  ${p.prefix} ${p.separator} ${p.thinking_indicator} Pensando...`,
-      `  ${p.prefix} ${p.separator} ${p.success_indicator} Operacao concluida`,
-      `  ${p.prefix} ${p.separator} ${p.error_indicator} Erro encontrado`,
-      `  ${p.prefix} ${p.suffix} Olá! Como posso ajudar?`,
+      `  ${p.prefix} ${p.separator} ${p.thinking_indicator} Thinking...`,
+      `  ${p.prefix} ${p.separator} ${p.success_indicator} Operation completed`,
+      `  ${p.prefix} ${p.separator} ${p.error_indicator} Error found`,
+      `  ${p.prefix} ${p.suffix} Hello! How can I help?`,
       '',
-      `  Cores: primary=${c.primary} accent=${c.accent} bg=${c.background}`,
+      `  Colors: primary=${c.primary} accent=${c.accent} bg=${c.background}`,
       `  Layout: ${skin.layout.max_width}col compact=${skin.layout.compact_mode}`,
     ];
 
@@ -381,7 +381,7 @@ export class SkinEngineService {
 
   public exportSkin(skinId: string): string {
     const skin = this.builtinSkins.get(skinId) || this.userSkins.get(skinId);
-    if (!skin) return `Skin "${skinId}" nao encontrado.`;
+    if (!skin) return `Skin "${skinId}" not found.`;
     return JSON.stringify(skin, null, 2);
   }
 }

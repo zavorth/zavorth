@@ -8,38 +8,38 @@ export class WebFirecrawlTool extends BaseTool {
   public readonly name = 'zavorth_firecrawl';
 
   public readonly description =
-    'Firecrawl — web scraping avancado que converte paginas em Markdown limpo. Suporta scrape, crawl, map e extract.';
+    'Firecrawl — advanced web scraping that converts pages to clean Markdown. Supports scrape, crawl, map, and extract.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'scrape', 'crawl', 'map', 'extract', 'check_status'.",
+        description: "Action: 'scrape', 'crawl', 'map', 'extract', 'check_status'.",
       },
       url: {
         type: 'string',
-        description: 'URL para scrapear.',
+        description: 'URL to scrape.',
       },
       urls: {
         type: 'string',
-        description: 'JSON array de URLs para batch scrape.',
+        description: 'JSON array of URLs for batch scrape.',
       },
       formats: {
         type: 'string',
-        description: "Formatos de saida: 'markdown', 'html', 'rawHtml', 'screenshot', 'links'. Default: 'markdown'.",
+        description: "Output formats: 'markdown', 'html', 'rawHtml', 'screenshot', 'links'. Default: 'markdown'.",
       },
       only_main_content: {
         type: 'boolean',
-        description: 'Extrair apenas conteudo principal (sem header/footer/nav). Default: true.',
+        description: 'Extract only main content (without header/footer/nav). Default: true.',
       },
       max_pages: {
         type: 'number',
-        description: 'Maximo de paginas para crawl. Default: 10.',
+        description: 'Maximum pages for crawl. Default: 10.',
       },
       extract_schema: {
         type: 'string',
-        description: 'JSON schema para extracao estruturada.',
+        description: 'JSON schema for structured extraction.',
       },
     },
     required: ['action'],
@@ -47,10 +47,10 @@ export class WebFirecrawlTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: the "action" parameter is required.';
 
     const apiKey = process.env.FIRECRAWL_API_KEY;
-    if (!apiKey && action !== 'check_status') return 'Erro: FIRECRAWL_API_KEY nao configurada. Obtenha em https://firecrawl.dev';
+    if (!apiKey && action !== 'check_status') return 'Error: FIRECRAWL_API_KEY not configured. Get one at https://firecrawl.dev';
 
     switch (action) {
       case 'scrape': return await this.scrape(args, apiKey!);
@@ -58,13 +58,13 @@ export class WebFirecrawlTool extends BaseTool {
       case 'map': return await this.map(args, apiKey!);
       case 'extract': return await this.extract(args, apiKey!);
       case 'check_status': return this.checkStatus(apiKey || '');
-      default: return `Erro: acao "${action}" invalida.`;
+      default: return `Error: invalid action "${action}".`;
     }
   }
 
   private async scrape(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const url = String(args.url || '');
-    if (!url) return 'Erro: "url" e obrigatoria para scrape.';
+    if (!url) return 'Error: "url" is required for scrape.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -91,24 +91,24 @@ export class WebFirecrawlTool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro Firecrawl: ${parsed.error}`;
+      if (parsed.error) return `Firecrawl Error: ${parsed.error}`;
 
       const data = parsed.data || {};
       const lines: string[] = [
         `Scrape: ${url}`,
-        `  Titulo: ${data.metadata?.title || 'N/A'}`,
-        `  Descricao: ${data.metadata?.description || 'N/A'}`,
-        `  Formatos: ${formats.join(', ')}`,
+        `  Title: ${data.metadata?.title || 'N/A'}`,
+        `  Description: ${data.metadata?.description || 'N/A'}`,
+        `  Formats: ${formats.join(', ')}`,
       ];
 
       if (data.markdown) {
         const md = data.markdown.slice(0, 3000);
-        lines.push('', 'Conteudo (Markdown):', md);
+        lines.push('', 'Content (Markdown):', md);
         if (data.markdown.length > 3000) lines.push(`\n... (${data.markdown.length} chars total)`);
       }
 
       if (data.links && data.links.length > 0) {
-        lines.push('', `Links encontrados: ${data.links.length}`);
+        lines.push('', `Links found: ${data.links.length}`);
         for (const link of data.links.slice(0, 10)) {
           lines.push(`  - ${link}`);
         }
@@ -116,13 +116,13 @@ export class WebFirecrawlTool extends BaseTool {
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   private async crawl(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const url = String(args.url || '');
-    if (!url) return 'Erro: "url" e obrigatoria para crawl.';
+    if (!url) return 'Error: "url" is required for crawl.';
 
     const maxPages = typeof args.max_pages === 'number' ? args.max_pages : 10;
 
@@ -148,30 +148,30 @@ export class WebFirecrawlTool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro Firecrawl: ${parsed.error}`;
+      if (parsed.error) return `Firecrawl Error: ${parsed.error}`;
 
       const lines: string[] = [
-        `Crawl iniciado: ${url}`,
+        `Crawl started: ${url}`,
         `  Job ID: ${parsed.id}`,
         `  Status: ${parsed.status}`,
-        `  Max paginas: ${maxPages}`,
+        `  Max pages: ${maxPages}`,
       ];
 
       if (parsed.data) {
-        lines.push(`  Paginas coletadas: ${parsed.data.length}`);
+        lines.push(`  Pages collected: ${parsed.data.length}`);
       } else {
-        lines.push('  Use o job ID para verificar status.');
+        lines.push('  Use the job ID to check status.');
       }
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   private async map(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const url = String(args.url || '');
-    if (!url) return 'Erro: "url" e obrigatoria para map.';
+    if (!url) return 'Error: "url" is required for map.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -190,27 +190,27 @@ export class WebFirecrawlTool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro Firecrawl: ${parsed.error}`;
+      if (parsed.error) return `Firecrawl Error: ${parsed.error}`;
 
       const links = parsed.links || [];
-      const lines: string[] = [`Map de ${url} (${links.length} links encontrados):`];
+      const lines: string[] = [`Map of ${url} (${links.length} links found):`];
       for (const link of links.slice(0, 30)) {
         lines.push(`  - ${link}`);
       }
-      if (links.length > 30) lines.push(`  ... e mais ${links.length - 30} links`);
+      if (links.length > 30) lines.push(`  ... and ${links.length - 30} more links`);
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   private async extract(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const urlsRaw = String(args.urls || '');
-    if (!urlsRaw) return 'Erro: "urls" e obrigatorio para extract.';
+    if (!urlsRaw) return 'Error: "urls" is required for extract.';
 
     let urls: string[];
-    try { urls = JSON.parse(urlsRaw); } catch { return 'Erro: JSON de "urls" invalido.'; }
+    try { urls = JSON.parse(urlsRaw); } catch { return 'Error: Invalid "urls" JSON.'; }
 
     let schema: Record<string, unknown> = {};
     if (typeof args.extract_schema === 'string') {
@@ -234,16 +234,16 @@ export class WebFirecrawlTool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro Firecrawl: ${parsed.error}`;
+      if (parsed.error) return `Firecrawl Error: ${parsed.error}`;
 
       return `Extract de ${urls.length} URL(s): ${JSON.stringify(parsed.data || parsed).slice(0, 2000)}`;
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   private checkStatus(apiKey: string): string {
-    if (!apiKey) return 'Firecrawl: API key nao configurada.';
-    return 'Firecrawl: API key configurada. Use scrape/crawl/map/extract para testar conexao.';
+    if (!apiKey) return 'Firecrawl: API key not configured.';
+    return 'Firecrawl: API key configured. Use scrape/crawl/map/extract to test connection.';
   }
 }

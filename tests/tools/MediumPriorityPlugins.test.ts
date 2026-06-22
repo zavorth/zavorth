@@ -16,7 +16,7 @@ describe('SecurityGuidanceService', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('lists categories', async () => {
@@ -72,12 +72,12 @@ describe('SecurityGuidanceService', () => {
       action: 'check_code',
       code_snippet: 'const x = 1 + 2;',
     });
-    expect(result).toContain('Nenhum');
+    expect(result).toContain('No');
   });
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'dance' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });
 
@@ -102,7 +102,7 @@ describe('ProviderReplicateTool', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });
 
@@ -122,7 +122,7 @@ describe('ProviderHuggingFaceTool', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });
 
@@ -135,7 +135,7 @@ describe('WebFirecrawlTool', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('checks status', async () => {
@@ -164,7 +164,7 @@ describe('ImageGenFalTool', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });
 
@@ -183,12 +183,12 @@ describe('SearchSearXNGTool', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error for configure without url', async () => {
     const result = await tool.execute({ action: 'configure' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });
 
@@ -207,7 +207,7 @@ describe('VideoGenRunwayTool', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });
 
@@ -220,7 +220,7 @@ describe('SpotifyPlayerTool', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error without token', async () => {

@@ -77,7 +77,7 @@ export class KanbanDispatcherService {
 
   public createBoard(name: string, columns?: string[]): string {
     const id = name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-    if (this.boards.has(id)) return `Erro: quadro "${id}" ja existe.`;
+    if (this.boards.has(id)) return `Error: board "${id}" already exists.`;
 
     const board: KanbanBoard = {
       id,
@@ -90,7 +90,7 @@ export class KanbanDispatcherService {
 
     this.boards.set(id, board);
     this.scheduleFlush();
-    return `Quadro "${name}" criado. Colunas: ${board.columns.join(', ')}`;
+    return `Board "${name}" created. Columns: ${board.columns.join(', ')}`;
   }
 
   public addCard(boardId: string, title: string, options?: {
@@ -102,11 +102,11 @@ export class KanbanDispatcherService {
     blocked_by?: string;
   }): string {
     const board = this.boards.get(boardId);
-    if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+    if (!board) return `Error: board "${boardId}" not found.`;
 
     const column = options?.column || board.columns[0];
     if (!board.columns.includes(column)) {
-      return `Erro: coluna "${column}" invalida. Use: ${board.columns.join(', ')}`;
+      return `Error: column "${column}" is invalid. Use: ${board.columns.join(', ')}`;
     }
 
     const cardId = `card_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -131,20 +131,20 @@ export class KanbanDispatcherService {
     board.updated_at = new Date().toISOString();
     this.scheduleFlush();
 
-    return `Cartao "${title}" adicionado a "${column}" no quadro "${boardId}". ID: ${cardId}`;
+    return `Card "${title}" added a "${column}" no board "${boardId}". ID: ${cardId}`;
   }
 
   public moveCard(boardId: string, cardId: string, targetColumn: string): string {
     const board = this.boards.get(boardId);
-    if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+    if (!board) return `Error: board "${boardId}" not found.`;
 
     const card = board.cards.find((c) => c.id === cardId);
-    if (!card) return `Erro: cartao "${cardId}" nao encontrado.`;
+    if (!card) return `Error: card "${cardId}" not found.`;
 
     if (card.blocked_by) {
       const blocker = board.cards.find((c) => c.id === card.blocked_by);
       if (blocker && blocker.column !== 'done') {
-        return `Erro: cartao "${cardId}" esta bloqueado por "${card.blocked_by}" (${blocker.title}).`;
+        return `Error: card "${cardId}" is blocked por "${card.blocked_by}" (${blocker.title}).`;
       }
       card.blocked_by = null;
       card.blocked_reason = null;
@@ -152,7 +152,7 @@ export class KanbanDispatcherService {
     }
 
     if (!board.columns.includes(targetColumn)) {
-      return `Erro: coluna "${targetColumn}" invalida. Use: ${board.columns.join(', ')}`;
+      return `Error: column "${targetColumn}" is invalid. Use: ${board.columns.join(', ')}`;
     }
 
     const oldColumn = card.column;
@@ -167,15 +167,15 @@ export class KanbanDispatcherService {
     board.updated_at = new Date().toISOString();
     this.scheduleFlush();
 
-    return `Cartao "${card.title}" movido de "${oldColumn}" para "${targetColumn}".`;
+    return `Card "${card.title}" moved de "${oldColumn}" para "${targetColumn}".`;
   }
 
   public blockCard(boardId: string, cardId: string, blockedBy: string, reason?: string): string {
     const board = this.boards.get(boardId);
-    if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+    if (!board) return `Error: board "${boardId}" not found.`;
 
     const card = board.cards.find((c) => c.id === cardId);
-    if (!card) return `Erro: cartao "${cardId}" nao encontrado.`;
+    if (!card) return `Error: card "${cardId}" not found.`;
 
     card.blocked_by = blockedBy;
     card.blocked_reason = reason || `Bloqueado por ${blockedBy}`;
@@ -183,7 +183,7 @@ export class KanbanDispatcherService {
     card.updated_at = new Date().toISOString();
 
     this.scheduleFlush();
-    return `Cartao "${card.title}" bloqueado por "${blockedBy}". Motivo: ${card.blocked_reason}`;
+    return `Card "${card.title}" blocked por "${blockedBy}". Motivo: ${card.blocked_reason}`;
   }
 
   public dispatch(boardId: string, options?: {
@@ -192,7 +192,7 @@ export class KanbanDispatcherService {
     priority_filter?: KanbanCard['priority'];
   }): DispatchResult {
     const board = this.boards.get(boardId);
-    if (!board) return { dispatched: [], blocked: [], skipped: [], errors: [`Quadro "${boardId}" nao encontrado`] };
+    if (!board) return { dispatched: [], blocked: [], skipped: [], errors: [`Board "${boardId}" not found`] };
 
     const maxConcurrent = options?.max_concurrent || 5;
     const result: DispatchResult = { dispatched: [], blocked: [], skipped: [], errors: [] };
@@ -241,12 +241,12 @@ export class KanbanDispatcherService {
 
   public getBoard(boardId: string): string {
     const board = this.boards.get(boardId);
-    if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+    if (!board) return `Error: board "${boardId}" not found.`;
 
     const lines: string[] = [
-      `Quadro: ${board.name} (${board.id})`,
-      `Colunas: ${board.columns.join(' → ')}`,
-      `Cartoes: ${board.cards.length}`,
+      `Board: ${board.name} (${board.id})`,
+      `Columns: ${board.columns.join(' → ')}`,
+      `Cards: ${board.cards.length}`,
       '',
     ];
 
@@ -273,9 +273,9 @@ export class KanbanDispatcherService {
   }
 
   public listBoards(): string {
-    if (this.boards.size === 0) return 'Nenhum quadro criado.';
+    if (this.boards.size === 0) return 'No boards created.';
 
-    const lines: string[] = ['Quadros:'];
+    const lines: string[] = ['Boards:'];
     for (const [id, board] of this.boards) {
       const byColumn: Record<string, number> = {};
       for (const col of board.columns) byColumn[col] = 0;
@@ -290,7 +290,7 @@ export class KanbanDispatcherService {
   public getStats(boardId?: string): string {
     if (boardId) {
       const board = this.boards.get(boardId);
-      if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+      if (!board) return `Error: board "${boardId}" not found.`;
 
       const byPriority: Record<string, number> = {};
       const byColumn: Record<string, number> = {};
@@ -303,7 +303,7 @@ export class KanbanDispatcherService {
       }
 
       return [
-        `Estatisticas do quadro "${board.name}":`,
+        `Statistics do board "${board.name}":`,
         `  Total: ${board.cards.length} cartoes`,
         `  Bloqueados: ${blocked}`,
         '  Por prioridade: ' + Object.entries(byPriority).map(([k, v]) => `${k}:${v}`).join(' '),
@@ -313,7 +313,7 @@ export class KanbanDispatcherService {
 
     let totalCards = 0;
     for (const board of this.boards.values()) totalCards += board.cards.length;
-    return `Total: ${this.boards.size} quadros, ${totalCards} cartoes.`;
+    return `Total: ${this.boards.size} boards, ${totalCards} cartoes.`;
   }
 
   private autoUnblock(board: KanbanBoard, completedCardId: string): void {
