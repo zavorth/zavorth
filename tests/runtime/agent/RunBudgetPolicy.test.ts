@@ -112,7 +112,7 @@ describe('RunBudgetPolicy', () => {
       degraded: true,
       reason: 'estimated-cost-too-high',
     }));
-    expect(decision.summary).toBe('Run degradado por budget minimo antes do executor: estimated-cost-too-high.');
+    expect(decision.summary).toBe('Run degraded by minimum budget before the executor: estimated-cost-too-high.');
     expect(decision.metadata).toEqual(expect.objectContaining({
       estimatedCostUnits: 11,
       maxEstimatedCostUnits: 10,
