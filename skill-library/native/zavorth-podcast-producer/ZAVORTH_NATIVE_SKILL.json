@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-podcast-producer",
+  "name": "Podcast Producer",
+  "native": true,
+  "description": "Podcast recording, editing, publishing, RSS feed management",
+  "category": "media",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["podcast", "audio", "publishing"],
+  "presets": ["developer"],
+  "inputContract": ["audio recordings", "episode metadata", "publishing destinations"],
+  "outputContract": ["media files", "export configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

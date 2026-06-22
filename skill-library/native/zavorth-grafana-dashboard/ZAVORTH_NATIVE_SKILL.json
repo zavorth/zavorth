@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-grafana-dashboard",
+  "name": "Grafana Dashboard",
+  "native": true,
+  "description": "Grafana dashboard creation, query writing, alert configuration",
+  "category": "monitoring",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["grafana", "dashboards", "visualization"],
+  "presets": ["developer"],
+  "inputContract": ["metric queries", "dashboard specifications"],
+  "outputContract": ["dashboard configs", "alert rules"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

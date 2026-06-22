@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-gcp-cloud-ops",
+  "name": "GCP Cloud Ops",
+  "native": true,
+  "description": "GCP services management (GCE, GCS, Cloud Functions, BigQuery)",
+  "category": "cloud",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["gcp", "google-cloud"],
+  "presets": ["developer"],
+  "inputContract": ["gcloud commands", "deployment configs"],
+  "outputContract": ["deployment reports", "infrastructure configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

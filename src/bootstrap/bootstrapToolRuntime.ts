@@ -51,6 +51,19 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { CalendarTool } = require('../tools/CalendarTool.js');
   const { CodeReviewTool } = require('../tools/CodeReviewTool.js');
   const { DatabaseQueryTool } = require('../tools/DatabaseQueryTool.js');
+  const { ZavorthCronSchedulerTool } = require('../tools/ZavorthCronSchedulerTool.js');
+  const { ZavorthDelegateTool } = require('../tools/ZavorthDelegateTool.js');
+  const { ZavorthComputerUseTool } = require('../tools/ZavorthComputerUseTool.js');
+  const { ZavorthVoiceModeTool } = require('../tools/ZavorthVoiceModeTool.js');
+  const { ZavorthSessionSearchTool } = require('../tools/ZavorthSessionSearchTool.js');
+  const { ZavorthChannelSendTool } = require('../tools/ZavorthChannelSendTool.js');
+  const { ZavorthDocumentExtractorTool } = require('../tools/ZavorthDocumentExtractorTool.js');
+  const { ZavorthTtsTool } = require('../tools/ZavorthTtsTool.js');
+  const { ZavorthSttTool } = require('../tools/ZavorthSttTool.js');
+  const { ZavorthReceiptSearchTool } = require('../tools/ZavorthReceiptSearchTool.js');
+  const { ZavorthPolicyEnforcerTool } = require('../tools/ZavorthPolicyEnforcerTool.js');
+  const { ZavorthApiClientTool } = require('../tools/ZavorthApiClientTool.js');
+  const { ZavorthTrajectoryExportTool } = require('../tools/ZavorthTrajectoryExportTool.js');
 
   const toolRegistry = new ToolRegistry();
   toolRegistry.register(new UnifiedSearchTool());
@@ -94,6 +107,19 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new CalendarTool());
   toolRegistry.register(new CodeReviewTool());
   toolRegistry.register(new DatabaseQueryTool());
+  toolRegistry.register(new ZavorthCronSchedulerTool());
+  toolRegistry.register(new ZavorthDelegateTool());
+  toolRegistry.register(new ZavorthComputerUseTool());
+  toolRegistry.register(new ZavorthVoiceModeTool());
+  toolRegistry.register(new ZavorthSessionSearchTool());
+  toolRegistry.register(new ZavorthChannelSendTool());
+  toolRegistry.register(new ZavorthDocumentExtractorTool());
+  toolRegistry.register(new ZavorthTtsTool());
+  toolRegistry.register(new ZavorthSttTool());
+  toolRegistry.register(new ZavorthReceiptSearchTool());
+  toolRegistry.register(new ZavorthPolicyEnforcerTool());
+  toolRegistry.register(new ZavorthApiClientTool());
+  toolRegistry.register(new ZavorthTrajectoryExportTool());
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
   console.log('[BOOT] tools-ready');

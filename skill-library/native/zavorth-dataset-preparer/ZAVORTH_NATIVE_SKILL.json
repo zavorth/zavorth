@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-dataset-preparer",
+  "name": "Dataset Preparer",
+  "native": true,
+  "description": "Dataset preparation, cleaning, splitting, format conversion",
+  "category": "ml",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["dataset", "data-preparation", "cleaning"],
+  "presets": ["developer"],
+  "inputContract": ["raw data sources", "schema definitions", "split ratios"],
+  "outputContract": ["model artifacts", "evaluation reports"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-email-campaign",
+  "name": "Email Campaign",
+  "native": true,
+  "description": "Email campaign management, template design, analytics tracking",
+  "category": "marketing",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["email", "campaigns", "marketing"],
+  "presets": ["developer"],
+  "inputContract": ["campaign briefs", "audience segments", "email templates"],
+  "outputContract": ["campaign reports", "analytics dashboards"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-jupyter-notebook",
+  "name": "Jupyter Notebook",
+  "native": true,
+  "description": "Jupyter notebook creation, execution, and export",
+  "category": "data-science",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["jupyter", "notebooks", "python"],
+  "presets": ["developer"],
+  "inputContract": ["notebook specifications", "data sources"],
+  "outputContract": ["data reports", "visualizations"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

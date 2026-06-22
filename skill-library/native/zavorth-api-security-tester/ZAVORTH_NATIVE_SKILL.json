@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-api-security-tester",
+  "name": "API Security Tester",
+  "native": true,
+  "description": "API security testing, OWASP API Top 10 checks, auth validation",
+  "category": "security",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["api", "security", "owasp"],
+  "presets": ["developer"],
+  "inputContract": ["API specifications (OpenAPI)", "endpoint URLs", "auth credentials"],
+  "outputContract": ["security reports", "remediation plans"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

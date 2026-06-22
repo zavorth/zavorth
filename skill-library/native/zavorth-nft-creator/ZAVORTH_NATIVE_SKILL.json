@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-nft-creator",
+  "name": "NFT Creator",
+  "native": true,
+  "description": "NFT creation, metadata generation, marketplace listing",
+  "category": "blockchain",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["nft", "blockchain", "digital-art"],
+  "presets": ["developer"],
+  "inputContract": ["artwork files", "metadata specs", "collection parameters"],
+  "outputContract": ["NFT metadata", "transaction receipts"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

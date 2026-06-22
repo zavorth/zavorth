@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-apache-spark",
+  "name": "Apache Spark",
+  "native": true,
+  "description": "Spark job management, DataFrame operations, cluster configuration",
+  "category": "big-data",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["spark", "big-data", "distributed"],
+  "presets": ["developer"],
+  "inputContract": ["Spark job definitions", "data sources", "cluster configs"],
+  "outputContract": ["data reports", "visualizations"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

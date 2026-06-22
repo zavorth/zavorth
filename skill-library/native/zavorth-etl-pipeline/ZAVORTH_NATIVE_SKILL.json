@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-etl-pipeline",
+  "name": "ETL Pipeline",
+  "native": true,
+  "description": "ETL pipeline design, data transformation, workflow orchestration",
+  "category": "data",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["etl", "pipeline", "data-engineering"],
+  "presets": ["developer"],
+  "inputContract": ["data sources", "transformation rules", "schedule configs"],
+  "outputContract": ["data reports", "visualizations"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

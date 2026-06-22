@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-prompt-optimizer",
+  "name": "Prompt Optimizer",
+  "native": true,
+  "description": "Prompt engineering, A/B testing, performance benchmarking",
+  "category": "ai",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["prompts", "optimization", "benchmarking"],
+  "presets": ["developer"],
+  "inputContract": ["base prompts", "evaluation criteria", "test datasets"],
+  "outputContract": ["model artifacts", "evaluation reports"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

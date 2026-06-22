@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-market-research",
+  "name": "Market Research",
+  "native": true,
+  "description": "Market research, competitor analysis, trend identification",
+  "category": "research",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["market", "competitors", "trends"],
+  "presets": ["developer"],
+  "inputContract": ["market segments", "competitor names", "research questions"],
+  "outputContract": ["research reports", "bibliography files"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

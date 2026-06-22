@@ -1,6 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  workerIdleMemoryLimit: '512MB',
   roots: ['<rootDir>/tests'],
   testMatch: ['**/*.test.ts'],
   testPathIgnorePatterns: [
@@ -10,12 +11,18 @@ module.exports = {
     '/third_party/',
     '/tests/providers/',
     '/tests/services/providers/catalog/',
-    '/tests/tools/(?!(DatabaseQueryTool|EmailTool|MultiBackendTerminalTool|ExtendedToolRealExecution)\\.test\\.ts)',
+    // Retired HubNativeShell architecture; its replacement is covered by the current desktop shell tests.
+    '/tests/apps/zavorth-desktop/(DesktopProductReadyCockpit|DesktopHermesInspiredShellArchitecture|DesktopChatReferenceAndContextualPreview|DesktopNewChatAndConversationSurface)\\.test\\.ts$',
+    // Allowlist pattern: only run tests for tools/services listed below. All other tool tests are excluded.
+    // To add a new tool test, append its name to this list.
+    '/tests/tools/(?!(DatabaseQueryTool|EmailTool|MultiBackendTerminalTool|ExtendedToolRealExecution|ZavorthCronSchedulerTool|ZavorthDelegateTool|ZavorthComputerUseTool|ZavorthVoiceModeTool|ZavorthSessionSearchTool|ZavorthChannelSendTool|ZavorthDocumentExtractorTool|ZavorthTtsTool|ZavorthSttTool|ZavorthReceiptSearchTool|ZavorthPolicyEnforcerTool|ZavorthApiClientTool|ZavorthTrajectoryExportTool|MemoryLanceDBService|MemoryHonchoService|DiagnosticsOtelService|AchievementsService|SkinEngineService|TrajectoryResearchService)\\.test\\.ts)',
   ],
   moduleNameMapper: {
+    '^@zavorth/(.*)\\.js$': '<rootDir>/src/$1',
+    '^@zavorth/(.*)$': '<rootDir>/src/$1',
     '/presentation/(TerminalSpinner|TerminalPanel|TerminalMarkdown|TerminalDiff|TerminalPrompt|TerminalTimeline)\\.js$': '<rootDir>/tests/cli/mocks/$1.mock.ts',
-    '^.*src/ai-gateway/app/\\(dashboard\\)/dashboard/dashboard/.*\\.js$': '<rootDir>/tests/ai-gateway/dashboard/commandCenterLegacyFacade.ts',
-    '^.*src/ai-gateway/app/\\(dashboard\\)/dashboard/dashboardPageClient\\.utils$': '<rootDir>/src/ai-gateway/app/(dashboard)/control/controlPageClient.utils.ts',
+    '^.*src/zavorth-control/app/\\(dashboard\\)/dashboard/dashboard/.*\\.js$': '<rootDir>/tests/zavorth-control/dashboard/commandCenterLegacyFacade.ts',
+    '^.*src/zavorth-control/app/\\(dashboard\\)/dashboard/dashboardPageClient\\.utils$': '<rootDir>/src/zavorth-control/app/(dashboard)/control/controlPageClient.utils.ts',
     '^react$': '<rootDir>/apps/zavorth-desktop/node_modules/react',
     '^react-dom$': '<rootDir>/apps/zavorth-desktop/node_modules/react-dom',
     '^(\\.{1,2}/.*)\\.js$': '$1', // Mapeamento para imports com extensao .js no TypeScript
@@ -39,7 +46,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
-    '!src/ai-gateway/**',
+    '!src/zavorth-control/**',
     '!src/**/*.spec.ts',
   ],
 };

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-compliance-checker",
+  "name": "Compliance Checker",
+  "native": true,
+  "description": "GDPR/SOC2/HIPAA compliance checks, gap analysis, remediation plans",
+  "category": "security",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["compliance", "gdpr", "soc2", "hipaa"],
+  "presets": ["developer"],
+  "inputContract": ["compliance framework", "system configurations", "policy documents"],
+  "outputContract": ["security reports", "remediation plans"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

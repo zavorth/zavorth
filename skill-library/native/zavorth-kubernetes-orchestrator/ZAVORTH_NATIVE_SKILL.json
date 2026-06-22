@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-kubernetes-orchestrator",
+  "name": "Kubernetes Orchestrator",
+  "native": true,
+  "description": "K8s deployment, scaling, monitoring, pod management",
+  "category": "devops",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["kubernetes", "k8s", "containers"],
+  "presets": ["developer"],
+  "inputContract": ["kubectl commands", "manifest files"],
+  "outputContract": ["deployment reports", "infrastructure configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

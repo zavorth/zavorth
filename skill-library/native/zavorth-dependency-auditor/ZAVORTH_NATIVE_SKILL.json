@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-dependency-auditor",
+  "name": "Dependency Auditor",
+  "native": true,
+  "description": "Supply chain security audit, license compliance, outdated dependency detection",
+  "category": "security",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["dependencies", "supply-chain", "audit"],
+  "presets": ["developer"],
+  "inputContract": ["package manifests", "lock files", "license policies"],
+  "outputContract": ["security reports", "remediation plans"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

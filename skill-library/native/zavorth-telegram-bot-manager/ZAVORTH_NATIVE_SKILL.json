@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-telegram-bot-manager",
+  "name": "Telegram Bot Manager",
+  "native": true,
+  "description": "Telegram bot management, inline keyboards, webhook setup",
+  "category": "channels",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["telegram", "bots", "webhooks"],
+  "presets": ["developer"],
+  "inputContract": ["bot token", "command definitions", "webhook URLs"],
+  "outputContract": ["message logs", "integration configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

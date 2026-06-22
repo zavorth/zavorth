@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-patent-searcher",
+  "name": "Patent Searcher",
+  "native": true,
+  "description": "Patent database search, prior art analysis, claim comparison",
+  "category": "research",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["patents", "ip", "prior-art"],
+  "presets": ["developer"],
+  "inputContract": ["search terms", "patent classifications", "comparison targets"],
+  "outputContract": ["research reports", "bibliography files"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}
