@@ -111,6 +111,9 @@ export class AchievementsService {
         this.saveUserStates();
       }
     }, AchievementsService.SAVE_DELAY_MS);
+    if (this.saveTimer && typeof this.saveTimer === 'object' && 'unref' in this.saveTimer) {
+      (this.saveTimer as NodeJS.Timeout).unref();
+    }
   }
 
   public flush(): void {

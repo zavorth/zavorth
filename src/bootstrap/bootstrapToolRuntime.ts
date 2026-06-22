@@ -65,6 +65,34 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthApiClientTool } = require('../tools/ZavorthApiClientTool.js');
   const { ZavorthTrajectoryExportTool } = require('../tools/ZavorthTrajectoryExportTool.js');
 
+  // ── Plugin tools (BaseTool) ──
+  const { SecurityGuidanceService } = require('../services/plugins/SecurityGuidanceService.js');
+  const { ProviderNovitaTool } = require('../services/plugins/ProviderNovitaTool.js');
+  const { ProviderReplicateTool } = require('../services/plugins/ProviderReplicateTool.js');
+  const { ProviderHuggingFaceTool } = require('../services/plugins/ProviderHuggingFaceTool.js');
+  const { WebFirecrawlTool } = require('../services/plugins/WebFirecrawlTool.js');
+  const { ImageGenFalTool } = require('../services/plugins/ImageGenFalTool.js');
+  const { ImageGenComfyUITool } = require('../services/plugins/ImageGenComfyUITool.js');
+  const { SearchSearXNGTool } = require('../services/plugins/SearchSearXNGTool.js');
+  const { VideoGenRunwayTool } = require('../services/plugins/VideoGenRunwayTool.js');
+  const { SpotifyPlayerTool } = require('../services/plugins/SpotifyPlayerTool.js');
+
+  // ── Plugin services (runtime dependencies) ──
+  const { ActiveMemoryService } = require('../services/plugins/ActiveMemoryService.js');
+  const { DiagnosticsPrometheusService } = require('../services/plugins/DiagnosticsPrometheusService.js');
+  const { KanbanSQLiteDispatcherService } = require('../services/plugins/KanbanSQLiteDispatcherService.js');
+  const { MemoryLanceDBService } = require('../services/plugins/MemoryLanceDBService.js');
+  const { MemoryHonchoService } = require('../services/plugins/MemoryHonchoService.js');
+  const { DiagnosticsOtelService } = require('../services/plugins/DiagnosticsOtelService.js');
+  const { AchievementsService } = require('../services/plugins/AchievementsService.js');
+  const { SkinEngineService } = require('../services/plugins/SkinEngineService.js');
+  const { TrajectoryResearchService } = require('../services/plugins/TrajectoryResearchService.js');
+  const { DiskCleanupService } = require('../services/plugins/DiskCleanupService.js');
+  const { CodexSupervisorService } = require('../services/plugins/CodexSupervisorService.js');
+  const { BrowserPlaywrightService } = require('../services/plugins/BrowserPlaywrightService.js');
+  const { SearchExaService } = require('../services/plugins/SearchExaService.js');
+  const { MemoryQdrantService } = require('../services/plugins/MemoryQdrantService.js');
+
   const toolRegistry = new ToolRegistry();
   toolRegistry.register(new UnifiedSearchTool());
   toolRegistry.register(new CreateFileTool());
@@ -120,9 +148,22 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthPolicyEnforcerTool());
   toolRegistry.register(new ZavorthApiClientTool());
   toolRegistry.register(new ZavorthTrajectoryExportTool());
+
+  // ── Plugin tools ──
+  toolRegistry.register(new SecurityGuidanceService());
+  toolRegistry.register(new ProviderNovitaTool());
+  toolRegistry.register(new ProviderReplicateTool());
+  toolRegistry.register(new ProviderHuggingFaceTool());
+  toolRegistry.register(new WebFirecrawlTool());
+  toolRegistry.register(new ImageGenFalTool());
+  toolRegistry.register(new ImageGenComfyUITool());
+  toolRegistry.register(new SearchSearXNGTool());
+  toolRegistry.register(new VideoGenRunwayTool());
+  toolRegistry.register(new SpotifyPlayerTool());
+
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
-  console.log('[BOOT] tools-ready');
+  console.log('[BOOT] tools-ready (' + toolRegistry.size + ' tools registered)');
   const telemetryRuntime = new TelemetryRuntimeService();
   const toolExecutor = new ToolExecutor(toolRegistry, logRepo, telemetryRuntime);
   const runtimeComposition = new RuntimeCompositionService({
@@ -131,12 +172,51 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     telemetryRuntime,
   });
 
+  // ── Plugin services (runtime) ──
+  const activeMemory = new ActiveMemoryService();
+  const prometheusMetrics = new DiagnosticsPrometheusService();
+  const kanbanDispatcher = new KanbanSQLiteDispatcherService();
+  const lanceDbMemory = new MemoryLanceDBService();
+  const honchoMemory = new MemoryHonchoService();
+  const otelDiagnostics = new DiagnosticsOtelService();
+  const achievements = new AchievementsService();
+  const skinEngine = new SkinEngineService();
+  const trajectoryResearch = new TrajectoryResearchService();
+  const diskCleanup = new DiskCleanupService();
+  const codexSupervisor = new CodexSupervisorService();
+  const playwrightBrowser = new BrowserPlaywrightService();
+  const exaSearch = new SearchExaService();
+  const qdrantMemory = new MemoryQdrantService();
+
+  console.log('[BOOT] plugins-ready (14 services + 10 tools)');
+
+  const dispose = () => {
+    try { kanbanDispatcher.close(); } catch { /* ignore */ }
+  };
+
   return {
     runtimeComposition,
     toolRuntime: runtimeComposition.getToolRuntime(),
     runtimeToolCatalogService: new ToolCatalogService(toolRegistry),
     mcpRuntime: new McpRuntimeService(toolRegistry, logRepo),
     mcpCapabilityControlPlaneService: new McpCapabilityControlPlaneService(),
+    plugins: {
+      activeMemory,
+      prometheusMetrics,
+      kanbanDispatcher,
+      lanceDbMemory,
+      honchoMemory,
+      otelDiagnostics,
+      achievements,
+      skinEngine,
+      trajectoryResearch,
+      diskCleanup,
+      codexSupervisor,
+      playwrightBrowser,
+      exaSearch,
+      qdrantMemory,
+    },
+    dispose,
   };
 }
 
