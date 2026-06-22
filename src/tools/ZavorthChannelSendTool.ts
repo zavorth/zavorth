@@ -11,14 +11,14 @@ export class ZavorthChannelSendTool extends BaseTool {
   public readonly name = 'zavorth_channel_send';
 
   public readonly description =
-    'Envia mensagens para qualquer canal configurado no Zavorth (Telegram, Discord, Slack, WhatsApp, Email, Teams, Signal, Matrix, IRC, Line, etc). Suporta envio multi-canal, anexos, replies e formatacao adaptativa por plataforma.';
+    'Sends messages to any configured Zavorth channel (Telegram, Discord, Slack, WhatsApp, Email, Teams, Signal, Matrix, IRC, Line, etc). Suporta envio multi-canal, anexos, replies e formatacao adaptativa por plataforma.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       channel: {
         type: 'string',
-        description: "Canal de destino: 'telegram', 'discord', 'slack', 'whatsapp', 'email', 'teams', 'signal', 'matrix', 'irc', 'line', 'nostr', 'twitch', 'webhook', 'sms', 'feishu', 'google_chat', 'mattermost', 'imessage', 'instagram', 'zalo', 'qq', 'wecom', 'weixin', 'yuanbao', 'home_assistant', 'voice_call'.",
+        description: "Target channel: 'telegram', 'discord', 'slack', 'whatsapp', 'email', 'teams', 'signal', 'matrix', 'irc', 'line', 'nostr', 'twitch', 'webhook', 'sms', 'feishu', 'google_chat', 'mattermost', 'imessage', 'instagram', 'zalo', 'qq', 'wecom', 'weixin', 'yuanbao', 'home_assistant', 'voice_call'.",
       },
       recipient: {
         type: 'string',
@@ -42,7 +42,7 @@ export class ZavorthChannelSendTool extends BaseTool {
       },
       attachments: {
         type: 'string',
-        description: "JSON array de anexos: [{type, path_or_url, filename}].",
+        description: "JSON array of attachments: [{type, path_or_url, filename}].",
       },
       silent: {
         type: 'boolean',
@@ -50,11 +50,11 @@ export class ZavorthChannelSendTool extends BaseTool {
       },
       multi_channel: {
         type: 'string',
-        description: "JSON array para envio multi-canal: [{channel, recipient, thread_id?}].",
+        description: "JSON array for multi-channel send: [{channel, recipient, thread_id?}].",
       },
       scheduled_at: {
         type: 'string',
-        description: 'ISO 8601 datetime para envio agendado.',
+        description: 'ISO 8601 datetime for scheduled send.',
       },
     },
     required: ['channel', 'recipient', 'message'],
@@ -62,7 +62,7 @@ export class ZavorthChannelSendTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const message = String(args.message || '');
-    if (!message) return 'Erro: o parametro "message" e obrigatorio.';
+    if (!message) return 'Error: "message" parameter is required.';
 
     const multiChannelRaw = typeof args.multi_channel === 'string' ? args.multi_channel : null;
 
@@ -72,8 +72,8 @@ export class ZavorthChannelSendTool extends BaseTool {
 
     const channel = String(args.channel || '');
     const recipient = String(args.recipient || '');
-    if (!channel) return 'Erro: o parametro "channel" e obrigatorio.';
-    if (!recipient) return 'Erro: o parametro "recipient" e obrigatorio.';
+    if (!channel) return 'Error: "channel" parameter is required.';
+    if (!recipient) return 'Error: "recipient" parameter is required.';
 
     const validChannels = [
       'telegram', 'discord', 'slack', 'whatsapp', 'email', 'teams', 'signal',
@@ -82,7 +82,7 @@ export class ZavorthChannelSendTool extends BaseTool {
       'wecom', 'weixin', 'yuanbao', 'home_assistant', 'voice_call',
     ];
     if (!validChannels.includes(channel)) {
-      return `Erro: canal "${channel}" invalido. Use: ${validChannels.join(', ')}.`;
+      return `Error: channel "${channel}" is invalid. Use: ${validChannels.join(', ')}.`;
     }
 
     try {
@@ -93,7 +93,7 @@ export class ZavorthChannelSendTool extends BaseTool {
       }, args);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      return `Erro ao enviar para ${channel}: ${errorMessage}`;
+      return `Error sending to ${channel}: ${errorMessage}`;
     }
   }
 
@@ -102,15 +102,15 @@ export class ZavorthChannelSendTool extends BaseTool {
     try {
       targets = JSON.parse(multiChannelJson);
     } catch {
-      return 'Erro: JSON de "multi_channel" invalido.';
+      return 'Error: invalid JSON for "multi_channel"..';
     }
 
     if (!Array.isArray(targets) || targets.length === 0) {
-      return 'Erro: "multi_channel" deve ser um array nao vazio.';
+      return 'Error: "multi_channel" deve ser um array nao vazio.';
     }
 
     if (targets.length > 10) {
-      return 'Erro: maximo de 10 canais por envio multi-canal.';
+      return 'Error: maximum of 10 canais por envio multi-canal.';
     }
 
     const results: string[] = [];
@@ -130,7 +130,7 @@ export class ZavorthChannelSendTool extends BaseTool {
     }
 
     const lines: string[] = [
-      `Envio multi-canal: ${successCount} sucesso(s), ${failCount} falha(s).`,
+      `Multi-channel send: ${successCount} success(s), ${failCount} failure(s).`,
       ...results,
     ];
     return lines.join('\n');
@@ -209,12 +209,12 @@ export class ZavorthChannelSendTool extends BaseTool {
     if (scheduled_at) {
       const scheduledDate = new Date(scheduled_at);
       if (isNaN(scheduledDate.getTime())) {
-        throw new Error(`Data de agendamento invalida: ${scheduled_at}`);
+        throw new Error(`Invalid schedule date: ${scheduled_at}`);
       }
       if (scheduledDate.getTime() <= Date.now()) {
-        throw new Error('Data de agendamento deve ser no futuro.');
+        throw new Error('Schedule date must be in the future.');
       }
-      return `Mensagem agendada para ${channel}:${recipient} em ${scheduled_at}.`;
+      return `Message scheduled for ${channel}:${recipient} em ${scheduled_at}.`;
     }
 
     const channelDescriptions: Record<string, string> = {
@@ -249,6 +249,6 @@ export class ZavorthChannelSendTool extends BaseTool {
     const gateway = channelDescriptions[channel] || channel;
     const msgPreview = typeof message === 'string' ? message.slice(0, 60) : '';
 
-    return `Mensagem enviada via ${gateway} para ${recipient}. Preview: "${msgPreview}${(typeof message === 'string' && message.length > 60) ? '...' : ''}"`;
+    return `Message sent via ${gateway} para ${recipient}. Preview: "${msgPreview}${(typeof message === 'string' && message.length > 60) ? '...' : ''}"`;
   }
 }

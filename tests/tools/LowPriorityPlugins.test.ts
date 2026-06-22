@@ -21,12 +21,12 @@ describe('ImageGenComfyUITool', () => {
 
   it('returns error without action', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'dance' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });
 
@@ -45,18 +45,18 @@ describe('MemoryQdrantService', () => {
 
   it('creates a collection', () => {
     const result = service.createCollection('test', 64);
-    expect(result).toContain('criada');
+    expect(result).toContain('created');
   });
 
   it('prevents duplicate collection', () => {
     service.createCollection('test', 64);
     const result = service.createCollection('test', 64);
-    expect(result).toContain('ja existe');
+    expect(result).toContain('already exists');
   });
 
   it('validates collection name', () => {
     const result = service.createCollection('../etc/passwd');
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('upserts vectors', () => {
@@ -104,7 +104,7 @@ describe('MemoryQdrantService', () => {
   it('deletes collection', () => {
     service.createCollection('temp', 4);
     const result = service.deleteCollection('temp');
-    expect(result).toContain('deletada');
+    expect(result).toContain('deleted');
   });
 
   it('lists collections', () => {
@@ -119,13 +119,13 @@ describe('MemoryQdrantService', () => {
     service.createCollection('test', 4);
     service.upsert('test', [{ id: 'v1', vector: [1, 0, 0, 0] }]);
     const result = service.getStats('test');
-    expect(result).toContain('1 vetores');
+    expect(result).toContain('1 vectors');
   });
 
   it('validates vector dimension', () => {
     service.createCollection('test', 4);
     const result = service.upsert('test', [{ id: 'v1', vector: [1, 0] }]);
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });
 
@@ -158,17 +158,17 @@ describe('DiskCleanupService', () => {
       dry_run: false,
       enabled: true,
     });
-    expect(result).toContain('adicionada');
+    expect(result).toContain('added');
   });
 
   it('toggles a rule', () => {
     const result = service.toggleRule('temp_files', false);
-    expect(result).toContain('desabilitada');
+    expect(result).toContain('disabled');
   });
 
   it('returns error for non-existent rule toggle', () => {
     const result = service.toggleRule('nonexistent', true);
-    expect(result).toContain('nao encontrada');
+    expect(result).toContain('not found');
   });
 });
 
@@ -187,7 +187,7 @@ describe('CodexSupervisorService', () => {
 
   it('lists tasks when empty', () => {
     const result = service.listTasks();
-    expect(result).toContain('Nenhuma');
+    expect(result).toContain('No');
   });
 
   it('gets stats', () => {
@@ -198,16 +198,16 @@ describe('CodexSupervisorService', () => {
 
   it('returns error for non-existent task status', () => {
     const result = service.getStatus('nonexistent');
-    expect(result).toContain('nao encontrada');
+    expect(result).toContain('not found');
   });
 
   it('returns error for kill on non-existent task', () => {
     const result = service.kill('nonexistent');
-    expect(result).toContain('nao encontrada');
+    expect(result).toContain('not found');
   });
 
   it('cleans up old tasks', () => {
     const result = service.cleanup(0);
-    expect(result).toContain('removida');
+    expect(result).toContain('removed');
   });
 });

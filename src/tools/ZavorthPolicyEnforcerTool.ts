@@ -27,58 +27,58 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
   public readonly name = 'zavorth_policy_enforcer';
 
   public readonly description =
-    'Verifica se uma acao e permitida pelas politicas de governanca do Zavorth. Consulta o EffectPolicyKernel, AgentSecurityPolicyEngine e regras customizadas antes de executar operacoes. Retorna allow/deny/require_approval com justificativa.';
+    'Checks whether an action is allowed by Zavorth governance policies. Queries EffectPolicyKernel, AgentSecurityPolicyEngine, and custom rules before executing operations. Returns allow/deny/require_approval with justification.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'check', 'list_policies', 'add_policy', 'remove_policy', 'enable_policy', 'disable_policy', 'audit', 'test'.",
+        description: "Action: 'check', 'list_policies', 'add_policy', 'remove_policy', 'enable_policy', 'disable_policy', 'audit', 'test'.",
       },
       tool_name: {
         type: 'string',
-        description: 'Nome da tool a ser verificada.',
+        description: 'Name of the tool to be checked.',
       },
       tool_args: {
         type: 'string',
-        description: 'JSON com os argumentos que seriam passados para a tool.',
+        description: 'JSON with the arguments that would be passed to the tool.',
       },
       policy_id: {
         type: 'string',
-        description: 'ID da politica (para remove, enable, disable).',
+        description: 'Policy ID (for remove, enable, disable).',
       },
       policy_name: {
         type: 'string',
-        description: 'Nome da politica (para add_policy).',
+        description: 'Policy name (for add_policy).',
       },
       policy_description: {
         type: 'string',
-        description: 'Descricao da politica.',
+        description: 'Policy description.',
       },
       policy_category: {
         type: 'string',
-        description: "Categoria: 'tool_access', 'data_access', 'network', 'execution', 'approval', 'rate_limit', 'time_window', 'content'.",
+        description: "Category: 'tool_access', 'data_access', 'network', 'execution', 'approval', 'rate_limit', 'time_window', 'content'.",
       },
       policy_condition: {
         type: 'string',
-        description: "Condicao da politica (expressao avaliada). Ex: 'tool_name == \"send_email\" AND risk_level >= high'.",
+        description: "Policy condition (evaluated expression). Ex: 'tool_name == \"send_email\" AND risk_level >= high'.",
       },
       policy_action: {
         type: 'string',
-        description: "Acao da politica: 'allow', 'deny', 'require_approval', 'log', 'throttle'.",
+        description: "Policy action: 'allow', 'deny', 'require_approval', 'log', 'throttle'.",
       },
       policy_severity: {
         type: 'string',
-        description: "Severidade: 'info', 'warning', 'block'.",
+        description: "Severity: 'info', 'warning', 'block'.",
       },
       risk_level: {
         type: 'string',
-        description: "Nivel de risco da operacao: 'low', 'medium', 'high', 'critical'.",
+        description: "Operation risk level: 'low', 'medium', 'high', 'critical'.",
       },
       context: {
         type: 'string',
-        description: 'JSON com contexto adicional (user, channel, session, etc).',
+        description: 'JSON with additional context (user, channel, session, etc).',
       },
     },
     required: ['action'],
@@ -88,7 +88,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_email_send',
       name: 'Email Send Approval',
-      description: 'Envio de emails requer aprovacao quando risk_level >= high',
+      description: 'Email sending requires approval when risk_level >= high',
       category: 'approval',
       severity: 'warning',
       condition: 'tool_name == "send_email" AND risk_level >= high',
@@ -98,7 +98,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_destructive_cmd',
       name: 'Destructive Command Block',
-      description: 'Bloqueia comandos destrutivos sem aprovacao explicita',
+      description: 'Blocks destructive commands without explicit approval',
       category: 'execution',
       severity: 'block',
       condition: 'command matches /(rm\\s+-rf|drop\\s+table|delete\\s+from|format|mkfs)/i',
@@ -108,7 +108,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_network_egress',
       name: 'Network Egress Guard',
-      description: 'Requer aprovacao para requests HTTP externos para dominios nao confiaveis',
+      description: 'Requires approval for external HTTP requests to untrusted domains',
       category: 'network',
       severity: 'warning',
       condition: 'tool_name == "http_request" AND domain NOT IN trusted_domains',
@@ -118,7 +118,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_sensitive_data',
       name: 'Sensitive Data Guard',
-      description: 'Bloqueia acesso a arquivos sensiveis (.env, credentials, keys)',
+      description: 'Blocks access to sensitive files (.env, credentials, keys)',
       category: 'data_access',
       severity: 'block',
       condition: 'file_path matches /\\.(env|credentials|pem|key|secret)$/i',
@@ -128,7 +128,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_rate_limit',
       name: 'Rate Limit',
-      description: 'Limita execucao de tools a 100 chamadas por minuto',
+      description: 'Limits tool execution to 100 calls per minute',
       category: 'rate_limit',
       severity: 'warning',
       condition: 'tool_calls_per_minute > 100',
@@ -138,7 +138,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_night_mode',
       name: 'Night Mode',
-      description: 'Bloqueia acoes destrutivas entre 00:00 e 06:00',
+      description: 'Blocks destructive actions between 00:00 and 06:00',
       category: 'time_window',
       severity: 'warning',
       condition: 'risk_level >= high AND hour >= 0 AND hour < 6',
@@ -148,7 +148,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_approval_signing',
       name: 'Approval Signing Required',
-      description: 'Acoes criticas requerem approval assinado criptograficamente',
+      description: 'Critical actions require cryptographically signed approval',
       category: 'approval',
       severity: 'block',
       condition: 'risk_level == critical AND NOT approval_signed',
@@ -158,7 +158,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_content_filter',
       name: 'Content Safety Filter',
-      description: 'Filtra conteudo gerado que contenha informacoes sensiveis',
+      description: 'Filters generated content containing sensitive information',
       category: 'content',
       severity: 'warning',
       condition: 'output matches /(api[_-]?key|secret[_-]?key|password|token)\\s*[:=]/i',
@@ -168,7 +168,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_untrusted_plugin',
       name: 'Untrusted Plugin Block',
-      description: 'Bloqueia execucao de plugins com trust_state != trusted',
+      description: 'Blocks execution of plugins with trust_state != trusted',
       category: 'tool_access',
       severity: 'block',
       condition: 'plugin_trust_state NOT IN [trusted, verified]',
@@ -178,7 +178,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     {
       id: 'pol_workspace_boundary',
       name: 'Workspace Boundary',
-      description: 'Bloqueia acesso a arquivos fora do workspace',
+      description: 'Blocks access to files outside the workspace',
       category: 'data_access',
       severity: 'block',
       condition: 'file_path NOT IN workspace_paths',
@@ -189,11 +189,11 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: the "action" parameter is required.';
 
     const validActions = ['check', 'list_policies', 'add_policy', 'remove_policy', 'enable_policy', 'disable_policy', 'audit', 'test'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: invalid action "${action}". Use: ${validActions.join(', ')}.`;
     }
 
     try {
@@ -207,16 +207,16 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
         case 'audit': return this.auditPolicies();
         case 'test': return this.testPolicy(args);
       }
-      return 'Erro interno.';
+      return 'Internal error.';
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro no PolicyEnforcer: ${message}`;
+      return `PolicyEnforcer error: ${message}`;
     }
   }
 
   private checkPolicy(args: Record<string, unknown>): string {
     const toolName = String(args.tool_name || '');
-    if (!toolName) return 'Erro: "tool_name" e obrigatorio para check.';
+    if (!toolName) return 'Error: "tool_name" is required for check.';
 
     let toolArgs: Record<string, unknown> = {};
     if (typeof args.tool_args === 'string') {
@@ -232,28 +232,28 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     const results = this.evaluatePolicies(toolName, toolArgs, riskLevel, context);
 
     if (results.length === 0) {
-      return `Nenhuma politica aplicavel para ${toolName}. Operacao PERMITIDA por padrao.`;
+      return `No applicable policy for ${toolName}. Operation ALLOWED by default.`;
     }
 
     const hasDeny = results.some((r) => !r.allowed && r.severity === 'block');
     const hasRequireApproval = results.some((r) => r.requires_approval);
 
-    const overallResult = hasDeny ? '🚫 BLOQUEADO' : hasRequireApproval ? '⚠️ REQUER APROVACAO' : '✅ PERMITIDO';
+    const overallResult = hasDeny ? '🚫 BLOCKED' : hasRequireApproval ? '⚠️ REQUIRES APPROVAL' : '✅ ALLOWED';
 
     const lines: string[] = [
-      `Verificacao de Politicas para "${toolName}":`,
-      `Resultado: ${overallResult}`,
+      `Policy Verification for "${toolName}":`,
+      `Result: ${overallResult}`,
       '',
-      `Politicas avaliadas (${results.length}):`,
+      `Evaluated policies (${results.length}):`,
     ];
 
     for (const result of results) {
       const icon = result.allowed ? '✅' : '🚫';
-      const approval = result.requires_approval ? ' [REQUER APROVACAO]' : '';
+      const approval = result.requires_approval ? ' [REQUIRES APPROVAL]' : '';
       lines.push(`  ${icon} ${result.policy_name} (${result.severity})${approval}`);
       lines.push(`     ${result.reason}`);
       if (result.alternative) {
-        lines.push(`     Alternativa: ${result.alternative}`);
+        lines.push(`     Alternative: ${result.alternative}`);
       }
     }
 
@@ -261,7 +261,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
   }
 
   private listPolicies(): string {
-    const lines: string[] = ['Politicas de Governanca:'];
+    const lines: string[] = ['Governance Policies:'];
 
     const byCategory: Record<string, PolicyRule[]> = {};
     for (const policy of this.builtinPolicies) {
@@ -277,7 +277,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
         const severity = { info: 'ℹ️', warning: '⚠️', block: '🚫' }[policy.severity];
         lines.push(`  ${status} ${severity} ${policy.id}: ${policy.name}`);
         lines.push(`     ${policy.description}`);
-        lines.push(`     Acao: ${policy.action} | Condicao: ${policy.condition.slice(0, 80)}`);
+        lines.push(`     Action: ${policy.action} | Condition: ${policy.condition.slice(0, 80)}`);
       }
     }
 
@@ -286,12 +286,12 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
 
   private addPolicy(args: Record<string, unknown>): string {
     const policyName = String(args.policy_name || '');
-    if (!policyName) return 'Erro: "policy_name" e obrigatorio.';
+    if (!policyName) return 'Error: "policy_name" is required.';
 
     const policyId = `pol_custom_${policyName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32)}`;
 
     const existing = this.builtinPolicies.find((p) => p.id === policyId);
-    if (existing) return `Erro: politica "${policyId}" ja existe.`;
+    if (existing) return `Error: policy "${policyId}" already exists.`;
 
     const policy: PolicyRule = {
       id: policyId,
@@ -306,29 +306,29 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
 
     this.builtinPolicies.push(policy);
 
-    return `Politica "${policyName}" criada com sucesso. ID: ${policyId}`;
+    return `Policy "${policyName}" created successfully. ID: ${policyId}`;
   }
 
   private removePolicy(args: Record<string, unknown>): string {
     const policyId = String(args.policy_id || '');
-    if (!policyId) return 'Erro: "policy_id" e obrigatorio.';
+    if (!policyId) return 'Error: "policy_id" is required.';
 
     const index = this.builtinPolicies.findIndex((p) => p.id === policyId);
-    if (index === -1) return `Erro: politica "${policyId}" nao encontrada.`;
+    if (index === -1) return `Error: policy "${policyId}" not found.`;
 
     const removed = this.builtinPolicies.splice(index, 1)[0];
-    return `Politica "${removed.name}" (${policyId}) removida.`;
+    return `Policy "${removed.name}" (${policyId}) removed.`;
   }
 
   private togglePolicy(args: Record<string, unknown>, enabled: boolean): string {
     const policyId = String(args.policy_id || '');
-    if (!policyId) return 'Erro: "policy_id" e obrigatorio.';
+    if (!policyId) return 'Error: "policy_id" is required.';
 
     const policy = this.builtinPolicies.find((p) => p.id === policyId);
-    if (!policy) return `Erro: politica "${policyId}" nao encontrada.`;
+    if (!policy) return `Error: policy "${policyId}" not found.`;
 
     policy.enabled = enabled;
-    return `Politica "${policy.name}" (${policyId}) ${enabled ? 'habilitada' : 'desabilitada'}.`;
+    return `Policy "${policy.name}" (${policyId}) ${enabled ? 'enabled' : 'disabled'}.`;
   }
 
   private auditPolicies(): string {
@@ -346,24 +346,24 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     }
 
     const lines: string[] = [
-      'Auditoria de Politicas de Governanca:',
+      'Governance Policy Audit:',
       '',
-      `Total: ${this.builtinPolicies.length} politicas`,
-      `Habilitadas: ${enabled.length}`,
-      `Desabilitadas: ${disabled.length}`,
+      `Total: ${this.builtinPolicies.length} policies`,
+      `Enabled: ${enabled.length}`,
+      `Disabled: ${disabled.length}`,
       '',
-      'Por Categoria (habilitadas):',
+      'By Category (enabled):',
       ...Object.entries(byCategory).map(([cat, count]) => `  ${cat}: ${count}`),
       '',
-      'Por Severidade:',
+      'By Severity:',
       ...Object.entries(bySeverity).map(([sev, count]) => `  ${sev}: ${count}`),
       '',
-      'Por Acao:',
+      'By Action:',
       ...Object.entries(byAction).map(([act, count]) => `  ${act}: ${count}`),
     ];
 
     if (disabled.length > 0) {
-      lines.push('', 'Politicas Desabilitadas:');
+      lines.push('', 'Disabled Policies:');
       for (const p of disabled) {
         lines.push(`  ⏸️ ${p.id}: ${p.name}`);
       }
@@ -385,18 +385,18 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
       { tool: 'send_email', args: { to: 'user@example.com', subject: 'Test' }, risk: 'low' },
     ];
 
-    const lines: string[] = ['Teste de Politicas:', ''];
+    const lines: string[] = ['Policy Test:', ''];
 
     for (const test of testCases) {
       const results = this.evaluatePolicies(test.tool, test.args, test.risk, {});
       const hasDeny = results.some((r) => !r.allowed && r.severity === 'block');
       const hasApproval = results.some((r) => r.requires_approval);
 
-      const result = hasDeny ? '🚫 BLOQUEADO' : hasApproval ? '⚠️ APROVACAO' : '✅ PERMITIDO';
+      const result = hasDeny ? '🚫 BLOCKED' : hasApproval ? '⚠️ APPROVAL' : '✅ ALLOWED';
       const triggered = results.length;
       const blocked = results.filter((r) => !r.allowed).length;
 
-      lines.push(`${result} | ${test.tool} (risk:${test.risk}) | ${triggered} politicas | ${blocked} bloqueadas`);
+      lines.push(`${result} | ${test.tool} (risk:${test.risk}) | ${triggered} policies | ${blocked} blocked`);
     }
 
     return lines.join('\n');
@@ -527,15 +527,15 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
   private suggestAlternative(policy: PolicyRule, toolName: string): string | undefined {
     switch (policy.category) {
       case 'execution':
-        return `Use uma sandbox (SandboxExecutionTool) para comandos perigosos.`;
+        return `Use a sandbox (SandboxExecutionTool) for dangerous commands.`;
       case 'data_access':
-        return `Solicite acesso explicito ao arquivo ou use uma ferramenta com escopo limitado.`;
+        return `Request explicit file access or use a tool with limited scope.`;
       case 'network':
-        return `Adicione o dominio a lista de confianca ou use um proxy aprovado.`;
+        return `Add the domain to the trust list or use an approved proxy.`;
       case 'approval':
-        return `Solicite aprovacao do usuario via approval system do Zavorth.`;
+        return `Request user approval via the Zavorth approval system.`;
       case 'time_window':
-        return `Aguarde o horario permitido ou solicite aprovacao explicita.`;
+        return `Wait for the allowed time window or request explicit approval.`;
       default:
         return undefined;
     }

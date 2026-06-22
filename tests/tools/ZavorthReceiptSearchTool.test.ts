@@ -58,7 +58,7 @@ describe('ZavorthReceiptSearchTool', () => {
 
   it('returns error when action is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('searches receipts by query', async () => {
@@ -86,13 +86,13 @@ describe('ZavorthReceiptSearchTool', () => {
 
   it('returns error for non-existent receipt', async () => {
     const result = await tool.execute({ action: 'get', receipt_id: 'nonexistent' });
-    expect(result).toContain('Erro');
-    expect(result).toContain('nao encontrado');
+    expect(result).toContain('Error');
+    expect(result).toContain('not found');
   });
 
   it('gets stats', async () => {
     const result = await tool.execute({ action: 'stats' });
-    expect(result).toContain('Estatisticas');
+    expect(result).toContain('Statistics');
     expect(result).toContain('2');
   });
 
@@ -109,7 +109,7 @@ describe('ZavorthReceiptSearchTool', () => {
 
   it('verifies a receipt', async () => {
     const result = await tool.execute({ action: 'verify', receipt_id: 'receipt_001' });
-    expect(result).toContain('Verificacao');
+    expect(result).toContain('Verification');
     expect(result).toContain('valido');
   });
 

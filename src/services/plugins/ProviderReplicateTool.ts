@@ -8,7 +8,7 @@ export class ProviderReplicateTool extends BaseTool {
   public readonly name = 'zavorth_replicate';
 
   public readonly description =
-    'Replicate provider — rode modelos de ML na nuvem com uma API. Suporta Llama, Stable Diffusion, Whisper, e centenas de modelos da comunidade.';
+    'Replicate provider — run ML models in the cloud com uma API. Suporta Llama, Stable Diffusion, Whisper, e centenas de modelos da comunidade.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -19,11 +19,11 @@ export class ProviderReplicateTool extends BaseTool {
       },
       model: {
         type: 'string',
-        description: "Modelo no formato 'owner/name:version' ou 'owner/name'.",
+        description: "Model in format 'owner/name:version' ou 'owner/name'.",
       },
       input: {
         type: 'string',
-        description: 'JSON com os inputs do modelo.',
+        description: 'JSON with model inputs.',
       },
       prediction_id: {
         type: 'string',
@@ -31,7 +31,7 @@ export class ProviderReplicateTool extends BaseTool {
       },
       stream: {
         type: 'boolean',
-        description: 'Se true, retorna streaming. Default: false.',
+        description: 'If true, returns streaming. Default: false.',
       },
     },
     required: ['action'],
@@ -50,7 +50,7 @@ export class ProviderReplicateTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     switch (action) {
       case 'list_models': return this.listModels();
@@ -59,12 +59,12 @@ export class ProviderReplicateTool extends BaseTool {
       case 'get_prediction':
       case 'check_status': {
         const apiKey = process.env.REPLICATE_API_TOKEN;
-        if (!apiKey) return 'Erro: REPLICATE_API_TOKEN nao configurado. Obtenha em https://replicate.com';
+        if (!apiKey) return 'Error: REPLICATE_API_TOKEN not configured. Get at https://replicate.com';
         if (action === 'run') return await this.runModel(args, apiKey);
         if (action === 'get_prediction') return await this.getPrediction(args, apiKey);
         return await this.checkStatus(apiKey);
       }
-      default: return `Erro: acao "${action}" invalida.`;
+      default: return `Error: action "${action}" is invalid.`;
     }
   }
 
@@ -74,7 +74,7 @@ export class ProviderReplicateTool extends BaseTool {
       const icon = { text: '📝', image: '🖼️', audio: '🔊' }[m.type];
       lines.push(`  ${icon} ${m.id} — ${m.desc}`);
     }
-    lines.push('', 'Mais modelos em: https://replicate.com/explore');
+    lines.push('', 'More models at: https://replicate.com/explore');
     return lines.join('\n');
   }
 
@@ -93,11 +93,11 @@ export class ProviderReplicateTool extends BaseTool {
 
   private async runModel(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const model = String(args.model || '');
-    if (!model) return 'Erro: "model" e obrigatorio para run.';
+    if (!model) return 'Error: "model" is required. for run.';
 
     let input: Record<string, unknown> = {};
     if (typeof args.input === 'string') {
-      try { input = JSON.parse(args.input); } catch { return 'Erro: JSON de "input" invalido.'; }
+      try { input = JSON.parse(args.input); } catch { return 'Error: invalid JSON for "input"..'; }
     }
 
     try {
@@ -117,10 +117,10 @@ export class ProviderReplicateTool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.detail) return `Erro Replicate: ${parsed.detail}`;
+      if (parsed.detail) return `Replicate error: ${parsed.detail}`;
 
       const lines: string[] = [
-        `Prediction criada: ${parsed.id}`,
+        `Prediction created: ${parsed.id}`,
         `  Modelo: ${model}`,
         `  Status: ${parsed.status}`,
       ];
@@ -128,18 +128,18 @@ export class ProviderReplicateTool extends BaseTool {
       if (parsed.status === 'succeeded' && parsed.output) {
         lines.push(`  Output: ${JSON.stringify(parsed.output).slice(0, 500)}`);
       } else if (parsed.status === 'processing') {
-        lines.push('  Use "get_prediction" com o ID para verificar resultado.');
+        lines.push('  Use "get_prediction" com o ID para verificar result.');
       }
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro ao rodar modelo: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error running model: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   private async getPrediction(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const predictionId = String(args.prediction_id || '');
-    if (!predictionId) return 'Erro: "prediction_id" e obrigatorio.';
+    if (!predictionId) return 'Error: "prediction_id" is required.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -150,7 +150,7 @@ export class ProviderReplicateTool extends BaseTool {
       ], { timeout: 30000 }).toString();
 
       const parsed = JSON.parse(result);
-      if (parsed.detail) return `Erro: ${parsed.detail}`;
+      if (parsed.detail) return `Error: ${parsed.detail}`;
 
       const lines: string[] = [
         `Prediction: ${parsed.id}`,
@@ -162,12 +162,12 @@ export class ProviderReplicateTool extends BaseTool {
         lines.push(`  Output: ${JSON.stringify(parsed.output).slice(0, 500)}`);
       }
       if (parsed.error) {
-        lines.push(`  Erro: ${parsed.error}`);
+        lines.push(`  Error: ${parsed.error}`);
       }
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
@@ -181,9 +181,9 @@ export class ProviderReplicateTool extends BaseTool {
 
       const parsed = JSON.parse(result);
       if (parsed.detail) return `Replicate: Erro ${parsed.detail}`;
-      return `Replicate: Conectado. Usuario: ${parsed.username || 'unknown'}`;
+      return `Replicate: Connected. Usuario: ${parsed.username || 'unknown'}`;
     } catch (error: unknown) {
-      return `Replicate: Erro de conexao: ${error instanceof Error ? error.message : String(error)}`;
+      return `Replicate: Connection error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 }

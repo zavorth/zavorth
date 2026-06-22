@@ -34,7 +34,7 @@ describe('DiagnosticsOtelService', () => {
   it('adds events to a span', () => {
     const spanId = service.startSpan('test');
     const result = service.addSpanEvent(spanId, 'my-event', { key: 'value' });
-    expect(result).toContain('adicionado');
+    expect(result).toContain('added');
     service.endSpan(spanId);
   });
 
@@ -96,6 +96,6 @@ describe('DiagnosticsOtelService', () => {
     service.startSpan('test');
     service.log('info', 'test');
     const result = service.flush();
-    expect(result).toContain('Flush completo');
+    expect(result).toContain('Flush complete');
   });
 });

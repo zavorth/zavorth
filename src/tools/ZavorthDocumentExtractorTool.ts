@@ -20,50 +20,50 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
   public readonly name = 'zavorth_document_extractor';
 
   public readonly description =
-    'Extrai texto, tabelas, metadados e imagens de documentos PDF, DOCX, XLSX, PPTX, CSV, HTML, RTF, ODT e outros formatos. Suporta OCR para imagens e PDFs escaneados.';
+    'Extracts text, tables, metadata and images from documents PDF, DOCX, XLSX, PPTX, CSV, HTML, RTF, ODT e outros formatos. Suporta OCR para imagens e PDFs escaneados.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       file_path: {
         type: 'string',
-        description: 'Caminho do arquivo para extrair.',
+        description: 'Path to the file to extract.',
       },
       format: {
         type: 'string',
-        description: "Formato de saida: 'text' (default), 'markdown', 'html', 'json'.",
+        description: "Output format: 'text' (default), 'markdown', 'html', 'json'.",
       },
       extract_tables: {
         type: 'boolean',
-        description: 'Se true, extrai tabelas encontradas. Default: false.',
+        description: 'If true, extracts tables encontradas. Default: false.',
       },
       extract_images: {
         type: 'boolean',
-        description: 'Se true, lista/extra imagens. Default: false.',
+        description: 'If true, lists/extracts images. Default: false.',
       },
       extract_metadata: {
         type: 'boolean',
-        description: 'Se true, extrai metadados do arquivo. Default: true.',
+        description: 'If true, extracts file metadata. Default: true.',
       },
       ocr: {
         type: 'boolean',
-        description: 'Se true, aplica OCR em imagens/PDFs escaneados. Default: false.',
+        description: 'If true, applies OCR to scanned images/PDFs. Default: false.',
       },
       page_range: {
         type: 'string',
-        description: "Paginas para extrair (PDF/DOCX): '1-5', '1,3,5', 'all'. Default: 'all'.",
+        description: "Pages to extract (PDF/DOCX): '1-5', '1,3,5', 'all'. Default: 'all'.",
       },
       language: {
         type: 'string',
-        description: "Idioma para OCR. Default: 'por+eng'.",
+        description: "Language for OCR. Default: 'por+eng'.",
       },
       output_path: {
         type: 'string',
-        description: 'Caminho para salvar o resultado extraido.',
+        description: 'Path to save o result extraido.',
       },
       max_chars: {
         type: 'number',
-        description: 'Limite maximo de caracteres extraidos. Default: 50000.',
+        description: 'Limite maximum of characters extraidos. Default: 50000.',
       },
     },
     required: ['file_path'],
@@ -71,24 +71,24 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const filePath = String(args.file_path || '');
-    if (!filePath) return 'Erro: o parametro "file_path" e obrigatorio.';
+    if (!filePath) return 'Error: "file_path" parameter is required.';
 
     const resolvedPath = path.resolve(filePath);
     if (!fs.existsSync(resolvedPath)) {
-      return `Erro: arquivo "${filePath}" nao encontrado.`;
+      return `Error: file "${filePath}" not found.`;
     }
 
     const stat = fs.statSync(resolvedPath);
     if (!stat.isFile()) {
-      return `Erro: "${filePath}" nao e um arquivo.`;
+      return `Error: "${filePath}" is not a file.`;
     }
 
     if (resolvedPath.includes('\0')) {
-      return 'Erro: caminho de arquivo invalido.';
+      return 'Error: invalid file path.';
     }
 
     if (stat.size > 100 * 1024 * 1024) {
-      return 'Erro: arquivo excede 100MB. Divida em partes menores.';
+      return 'Error: file exceeds 100MB. Split into smaller parts.';
     }
 
     const ext = path.extname(resolvedPath).toLowerCase().replace('.', '');
@@ -110,7 +110,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
     ];
 
     if (!supportedFormats.includes(ext)) {
-      return `Erro: formato "${ext}" nao suportado. Use: ${supportedFormats.join(', ')}.`;
+      return `Error: format "${ext}" not supported. Use: ${supportedFormats.join(', ')}.`;
     }
 
     try {
@@ -126,24 +126,24 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
       });
 
       if (!result.success) {
-        return `Erro na extracao: ${result.error}`;
+        return `Extraction error: ${result.error}`;
       }
 
       const output = this.formatResult(result, format);
 
       if (outputPath) {
         fs.writeFileSync(path.resolve(outputPath), output, 'utf-8');
-        return `Documento extraido e salvo em ${outputPath}. Tamanho: ${output.length} chars.`;
+        return `Document extraido e salvo em ${outputPath}. Tamanho: ${output.length} chars.`;
       }
 
       if (output.length > maxChars) {
-        return output.slice(0, maxChars) + `\n\n... [truncado em ${maxChars} caracteres]`;
+        return output.slice(0, maxChars) + `\n\n... [truncated at ${maxChars} characters]`;
       }
 
       return output;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro na extracao: ${message}`;
+      return `Extraction error: ${message}`;
     }
   }
 
@@ -266,7 +266,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
       if (options.useOcr) {
         return this.ocrPdf(filePath, base, options.language);
       }
-      return { ...base, error: `pdftotext falhou: ${this.sanitizePath(errMsg)}. Instale poppler-utils. Use ocr=true para OCR.` };
+      return { ...base, error: `pdftotext failed: ${this.sanitizePath(errMsg)}. Install poppler-utils. Use ocr=true para OCR.` };
     }
   }
 
@@ -319,7 +319,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
         metadata: { tool: 'tesseract', language },
       };
     } catch (error: unknown) {
-      return { ...base, error: `OCR falhou: ${this.sanitizePath(error instanceof Error ? error.message : String(error))}. Instale tesseract-ocr.` };
+      return { ...base, error: `OCR failed: ${this.sanitizePath(error instanceof Error ? error.message : String(error))}. Install tesseract-ocr.` };
     } finally {
       try {
         const remaining = fs.readdirSync(tmpDir).filter((f) => f.endsWith('.png'));
@@ -368,7 +368,7 @@ print('\\n'.join(texts))`;
           metadata: { tool: 'unzip-fallback' },
         };
       } catch (error: unknown) {
-        return { ...base, error: `Erro ao extrair DOCX: ${error instanceof Error ? error.message : String(error)}` };
+        return { ...base, error: `Error extracting DOCX: ${error instanceof Error ? error.message : String(error)}` };
       }
     }
   }
@@ -426,7 +426,7 @@ for name, spath in sheets:
         try { fs.unlinkSync(tmpScript); } catch { /* ignore */ }
       }
     } catch (error: unknown) {
-      return { ...base, error: `Erro ao extrair XLSX: ${error instanceof Error ? error.message : String(error)}` };
+      return { ...base, error: `Error extracting XLSX: ${error instanceof Error ? error.message : String(error)}` };
     }
   }
 
@@ -461,7 +461,7 @@ for i, slide_path in enumerate(slides, 1):
         try { fs.unlinkSync(tmpScript); } catch { /* ignore */ }
       }
     } catch (error: unknown) {
-      return { ...base, error: `Erro ao extrair PPTX: ${error instanceof Error ? error.message : String(error)}` };
+      return { ...base, error: `Error extracting PPTX: ${error instanceof Error ? error.message : String(error)}` };
     }
   }
 
@@ -618,7 +618,7 @@ for i, slide_path in enumerate(slides, 1):
 
       case 'text':
       default: {
-        const lines: string[] = [`Documento: ${path.basename(result.file_path)}`];
+        const lines: string[] = [`Document: ${path.basename(result.file_path)}`];
         lines.push(`Tipo: ${result.file_type} | Tamanho: ${(result.file_size / 1024).toFixed(1)} KB`);
         if (result.page_count) lines.push(`Paginas: ${result.page_count}`);
         lines.push('---');

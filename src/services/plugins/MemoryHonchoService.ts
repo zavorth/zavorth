@@ -185,7 +185,7 @@ export class MemoryHonchoService {
     profile.updated_at = new Date().toISOString();
 
     this.saveData();
-    return `Fato aprendido para usuario "${userId}": "${fact}" (confianca: ${confidence})`;
+    return `Fact learned for user "${userId}": "${fact}" (confidence: ${confidence})`;
   }
 
   public addTrait(userId: string, trait: string): string {
@@ -195,7 +195,7 @@ export class MemoryHonchoService {
       profile.updated_at = new Date().toISOString();
       this.saveData();
     }
-    return `Traço "${trait}" adicionado ao perfil de "${userId}".`;
+    return `Trait "${trait}" added ao perfil de "${userId}".`;
   }
 
   public setPreference(userId: string, key: string, value: unknown): string {
@@ -203,7 +203,7 @@ export class MemoryHonchoService {
     profile.preferences[key] = value;
     profile.updated_at = new Date().toISOString();
     this.saveData();
-    return `Preferencia "${key}" atualizada para usuario "${userId}".`;
+    return `Preferencia "${key}" updated para usuario "${userId}".`;
   }
 
   public setCommunicationPreference(userId: string, key: string, value: string): string {
@@ -212,9 +212,9 @@ export class MemoryHonchoService {
       (profile.communication_preferences as Record<string, unknown>)[key] = value;
       profile.updated_at = new Date().toISOString();
       this.saveData();
-      return `Preferencia de comunicacao "${key}" atualizada para "${value}".`;
+      return `Communication preference "${key}" updated para "${value}".`;
     }
-    return `Chave de comunicacao "${key}" invalida.`;
+    return `Chave de comunicaction "${key}" is invalid.`;
   }
 
   public addKnowledgeArea(userId: string, area: string): string {
@@ -224,23 +224,23 @@ export class MemoryHonchoService {
       profile.updated_at = new Date().toISOString();
       this.saveData();
     }
-    return `Area de conhecimento "${area}" adicionada ao perfil de "${userId}".`;
+    return `Knowledge area "${area}" added ao perfil de "${userId}".`;
   }
 
   public getProfile(userId: string): string {
     const profile = this.getOrCreateProfile(userId);
     const lines: string[] = [
-      `Perfil: ${profile.id}`,
+      `Profile: ${profile.id}`,
       `  - Nome: ${profile.name || 'nao definido'}`,
       `  - Estilo: ${profile.interaction_style}`,
       `  - Idioma: ${profile.communication_preferences.language}`,
       `  - Formalidade: ${profile.communication_preferences.formality}`,
       `  - Verbosidade: ${profile.communication_preferences.verbosity}`,
-      `  - Tracos: ${profile.traits.join(', ') || 'nenhum'}`,
-      `  - Areas de conhecimento: ${profile.knowledge_areas.join(', ') || 'nenhuma'}`,
-      `  - Fatos aprendidos: ${profile.learned_facts.length}`,
-      `  - Insights dialecticos: ${profile.dialectic_insights.length}`,
-      `  - Total de interacoes: ${profile.interaction_history.total_interactions}`,
+      `  - Tracos: ${profile.traits.join(', ') || 'none'}`,
+      `  - Areas de conhecimento: ${profile.knowledge_areas.join(', ') || 'none'}`,
+      `  - Learned facts: ${profile.learned_facts.length}`,
+      `  - Dialectic insights: ${profile.dialectic_insights.length}`,
+      `  - Total de interactions: ${profile.interaction_history.total_interactions}`,
       `  - Primeira interacao: ${profile.interaction_history.first_interaction}`,
       `  - Ultima interacao: ${profile.interaction_history.last_interaction}`,
     ];
@@ -263,18 +263,18 @@ export class MemoryHonchoService {
       insights = insights.filter((i) => i.category === category);
     }
 
-    if (insights.length === 0) return `Nenhum insight encontrado para "${userId}".`;
+    if (insights.length === 0) return `No insight found for "${userId}".`;
 
-    const lines: string[] = [`Insights dialecticos para "${userId}" (${insights.length}):`];
+    const lines: string[] = [`Dialectic insights for "${userId}" (${insights.length}):`];
     for (const insight of insights.slice(0, 20)) {
-      lines.push(`  [${insight.category}] ${insight.insight} (confianca: ${insight.confidence})`);
+      lines.push(`  [${insight.category}] ${insight.insight} (confidence: ${insight.confidence})`);
     }
     return lines.join('\n');
   }
 
   public getConversationHistory(userId: string, limit: number = 10): string {
     const history = this.conversations.get(userId) || [];
-    if (history.length === 0) return `Nenhuma conversa encontrada para "${userId}".`;
+    if (history.length === 0) return `No conversa encontrada para "${userId}".`;
 
     const recent = history.slice(-limit);
     const lines: string[] = [`Historico de conversas para "${userId}" (ultimas ${recent.length}):`];
@@ -286,11 +286,11 @@ export class MemoryHonchoService {
   }
 
   public listProfiles(): string {
-    if (this.profiles.size === 0) return 'Nenhum perfil de usuario.';
+    if (this.profiles.size === 0) return 'No profiles de usuario.';
 
     const lines: string[] = [`Perfis de usuario (${this.profiles.size}):`];
     for (const [id, profile] of this.profiles) {
-      lines.push(`  ${id}: ${profile.name || 'sem nome'} | ${profile.interaction_history.total_interactions} interacoes | tracos: ${profile.traits.length}`);
+      lines.push(`  ${id}: ${profile.name || 'unnamed'} | ${profile.interaction_history.total_interactions} interactions | traits: ${profile.traits.length}`);
     }
     return lines.join('\n');
   }
@@ -300,18 +300,18 @@ export class MemoryHonchoService {
     const content = turn.content.toLowerCase();
 
     if (content.includes('prefiro') || content.includes('gosto de') || content.includes('eu gosto')) {
-      insights.push(`Usuario expressou preferencia: ${turn.content.slice(0, 100)}`);
+      insights.push(`User expressed preference: ${turn.content.slice(0, 100)}`);
     }
 
     if (content.includes('nao gosto') || content.includes('odeio') || content.includes('nao prefiro')) {
-      insights.push(`Usuario expressou aversao: ${turn.content.slice(0, 100)}`);
+      insights.push(`User expressed aversion: ${turn.content.slice(0, 100)}`);
     }
 
     if (content.includes('me chamo') || content.includes('meu nome') || content.includes('sou o')) {
       const nameMatch = turn.content.match(/(?:me chamo|meu nome é|sou o)\s+(\w+)/i);
       if (nameMatch) {
         profile.name = nameMatch[1];
-        insights.push(`Nome do usuario descoberto: ${nameMatch[1]}`);
+        insights.push(`User name discovered: ${nameMatch[1]}`);
       }
     }
 

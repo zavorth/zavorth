@@ -40,7 +40,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
   public readonly name = 'zavorth_receipt_search';
 
   public readonly description =
-    'Busca e audita receipts (provas auditaveis) de acoes executadas pelo Zavorth. Cada acao do agente gera um receipt imutavel. Permite buscar por acao, tool, sessao, data, nivel de risco, status de aprovacao e mais. Funcionalidade unica do Zavorth para rastreabilidade total.';
+    'Searches and audits receipts (provas auditaveis) de acoes executadas pelo Zavorth. Cada acao do agente gera um receipt imutavel. Permite buscar por acao, tool, session, data, nivel de risco, status de aprovacao e mais. Funcionalidade unica do Zavorth para rastreabilidade total.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -55,7 +55,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       query: {
         type: 'string',
-        description: 'Termo de busca nos receipts.',
+        description: 'Search term nos receipts.',
       },
       tool: {
         type: 'string',
@@ -67,7 +67,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       session_id: {
         type: 'string',
-        description: 'Filtrar por sessao.',
+        description: 'Filtrar por session.',
       },
       date_from: {
         type: 'string',
@@ -79,7 +79,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       success: {
         type: 'boolean',
-        description: 'Filtrar por sucesso (true) ou falha (false).',
+        description: 'Filtrar por success (true) ou failure (false).',
       },
       risk_level: {
         type: 'string',
@@ -99,7 +99,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       max_results: {
         type: 'number',
-        description: 'Maximo de resultados. Default: 20.',
+        description: 'Maximo de results. Default: 20.',
       },
       sort_by: {
         type: 'string',
@@ -111,7 +111,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       output_path: {
         type: 'string',
-        description: 'Caminho para salvar export.',
+        description: 'Path to save export.',
       },
     },
     required: ['action'],
@@ -126,11 +126,11 @@ export class ZavorthReceiptSearchTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     const validActions = ['search', 'get', 'stats', 'export', 'verify', 'list_tools', 'list_sessions'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: action "${action}" is invalid. Use: ${validActions.join(', ')}.`;
     }
 
     try {
@@ -142,10 +142,11 @@ export class ZavorthReceiptSearchTool extends BaseTool {
         case 'verify': return this.verifyReceipt(args);
         case 'list_tools': return this.listTools();
         case 'list_sessions': return this.listSessions();
+        default: return `Error: action "${action}" is not implemented.`;
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro no ReceiptSearch: ${message}`;
+      return `ReceiptSearch error: ${message}`;
     }
   }
 
@@ -173,7 +174,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     filtered = filtered.slice(0, filters.max_results);
 
     if (filtered.length === 0) {
-      return 'Nenhum receipt encontrado com os filtros especificados.';
+      return 'No receipt found with specified filters.';
     }
 
     const lines: string[] = [`Encontrados ${filtered.length} receipt(s):`];
@@ -186,8 +187,8 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       lines.push(`${icon} ${risk} ${approval} [${receipt.id}]`);
       lines.push(`  Tool: ${receipt.tool} | Acao: ${receipt.action}`);
       lines.push(`  Timestamp: ${receipt.timestamp}`);
-      lines.push(`  Sessao: ${receipt.session_id} | Canal: ${receipt.channel} | User: ${receipt.user}`);
-      lines.push(`  Risco: ${receipt.risk_level} | Aprovacao: ${receipt.approval_status} | Duracao: ${receipt.duration_ms}ms`);
+      lines.push(`  Session: ${receipt.session_id} | Canal: ${receipt.channel} | User: ${receipt.user}`);
+      lines.push(`  Risco: ${receipt.risk_level} | Aprovacao: ${receipt.approval_status} | Duration: ${receipt.duration_ms}ms`);
       lines.push(`  Resultado: ${receipt.result_summary.slice(0, 120)}`);
     }
 
@@ -196,10 +197,10 @@ export class ZavorthReceiptSearchTool extends BaseTool {
 
   private getReceipt(args: Record<string, unknown>): string {
     const receiptId = String(args.receipt_id || '');
-    if (!receiptId) return 'Erro: "receipt_id" e obrigatorio.';
+    if (!receiptId) return 'Error: "receipt_id" is required.';
 
     const receipt = this.loadReceipt(receiptId);
-    if (!receipt) return `Erro: receipt "${receiptId}" nao encontrado.`;
+    if (!receipt) return `Error: receipt "${receiptId}" not found.`;
 
     const lines: string[] = [
       `Receipt: ${receipt.id}`,
@@ -209,12 +210,12 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       `  - Args: ${JSON.stringify(receipt.args).slice(0, 200)}`,
       `  - Resultado: ${receipt.result_summary}`,
       `  - Sucesso: ${receipt.success ? 'Sim' : 'Nao'}`,
-      `  - Nivel de risco: ${receipt.risk_level}`,
+      `  - Risk level: ${receipt.risk_level}`,
       `  - Aprovacao: ${receipt.approval_status}`,
-      `  - Sessao: ${receipt.session_id}`,
+      `  - Session: ${receipt.session_id}`,
       `  - Usuario: ${receipt.user}`,
       `  - Canal: ${receipt.channel}`,
-      `  - Duracao: ${receipt.duration_ms}ms`,
+      `  - Duration: ${receipt.duration_ms}ms`,
     ];
 
     if (Object.keys(receipt.metadata).length > 0) {
@@ -233,7 +234,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     if (dateFrom) receipts = receipts.filter((r) => r.timestamp >= dateFrom);
     if (dateTo) receipts = receipts.filter((r) => r.timestamp <= dateTo);
 
-    if (receipts.length === 0) return 'Nenhum receipt encontrado para o periodo.';
+    if (receipts.length === 0) return 'No receipt found for the period.';
 
     const byTool: Record<string, number> = {};
     const byRisk: Record<string, number> = {};
@@ -251,11 +252,11 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     }
 
     const lines: string[] = [
-      `Estatisticas de Receipts (${receipts.length} total):`,
+      `Statistics de Receipts (${receipts.length} total):`,
       '',
       `Sucesso: ${successCount} (${((successCount / receipts.length) * 100).toFixed(1)}%)`,
       `Falha: ${failCount} (${((failCount / receipts.length) * 100).toFixed(1)}%)`,
-      `Duracao media: ${(totalDuration / receipts.length).toFixed(0)}ms`,
+      `Duration media: ${(totalDuration / receipts.length).toFixed(0)}ms`,
       '',
       'Por Tool:',
       ...Object.entries(byTool).sort((a, b) => b[1] - a[1]).map(([tool, count]) => `  ${tool}: ${count}`),
@@ -312,7 +313,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       const dir = path.dirname(path.resolve(outputPath));
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.resolve(outputPath), output, 'utf-8');
-      return `Exportado ${receipts.length} receipts para ${outputPath} (formato: ${exportFormat}).`;
+      return `Exported ${receipts.length} receipts para ${outputPath} (formato: ${exportFormat}).`;
     }
 
     return `Export (${exportFormat}) com ${receipts.length} receipts:\n${output.slice(0, 2000)}`;
@@ -320,18 +321,18 @@ export class ZavorthReceiptSearchTool extends BaseTool {
 
   private verifyReceipt(args: Record<string, unknown>): string {
     const receiptId = String(args.receipt_id || '');
-    if (!receiptId) return 'Erro: "receipt_id" e obrigatorio.';
+    if (!receiptId) return 'Error: "receipt_id" is required.';
 
     const receipt = this.loadReceipt(receiptId);
-    if (!receipt) return `Erro: receipt "${receiptId}" nao encontrado.`;
+    if (!receipt) return `Error: receipt "${receiptId}" not found.`;
 
     const checks: string[] = [];
     let allValid = true;
 
     if (receipt.id && receipt.timestamp && receipt.tool) {
-      checks.push('✅ Campos obrigatorios presentes');
+      checks.push('✅ Campos requireds presentes');
     } else {
-      checks.push('❌ Campos obrigatorios ausentes');
+      checks.push('❌ Campos requireds ausentes');
       allValid = false;
     }
 
@@ -339,15 +340,15 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       new Date(receipt.timestamp).toISOString();
       checks.push('✅ Timestamp valido');
     } catch {
-      checks.push('❌ Timestamp invalido');
+      checks.push('❌ Timestamp invalid');
       allValid = false;
     }
 
     const validRiskLevels = ['low', 'medium', 'high', 'critical'];
     if (validRiskLevels.includes(receipt.risk_level)) {
-      checks.push('✅ Nivel de risco valido');
+      checks.push('✅ Risk level valido');
     } else {
-      checks.push('❌ Nivel de risco invalido');
+      checks.push('❌ Risk level invalid');
       allValid = false;
     }
 
@@ -355,19 +356,19 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     if (validApprovalStatuses.includes(receipt.approval_status)) {
       checks.push('✅ Status de aprovacao valido');
     } else {
-      checks.push('❌ Status de aprovacao invalido');
+      checks.push('❌ Status de aprovacao invalid');
       allValid = false;
     }
 
     if (receipt.duration_ms >= 0) {
-      checks.push('✅ Duracao valida');
+      checks.push('✅ Duration valida');
     } else {
-      checks.push('❌ Duracao invalida');
+      checks.push('❌ Duration invalid');
       allValid = false;
     }
 
     const lines: string[] = [
-      `Verificacao do Receipt ${receiptId}:`,
+      `Verification do Receipt ${receiptId}:`,
       ...checks,
       `Resultado: ${allValid ? '✅ Receipt valido e integro' : '❌ Receipt com problemas de integridade'}`,
     ];

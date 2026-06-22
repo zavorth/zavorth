@@ -49,7 +49,7 @@ export class CodexSupervisorService {
   }): string {
     const running = Array.from(this.tasks.values()).filter((t) => t.status === 'running').length;
     if (running >= this.maxConcurrent) {
-      return `Erro: maximo de ${this.maxConcurrent} tarefas concorrentes atingido (${running} rodando).`;
+      return `Error: maximum of ${this.maxConcurrent} tasks concorrentes atingido (${running} running).`;
     }
 
     const taskId = `sup_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -77,7 +77,7 @@ export class CodexSupervisorService {
     this.runTask(task, options);
 
     return [
-      `Tarefa supervisada criada:`,
+      `Task supervisada created:`,
       `  ID: ${taskId}`,
       `  Comando: ${command.slice(0, 100)}`,
       `  Timeout: ${timeoutMs}ms`,
@@ -135,25 +135,25 @@ export class CodexSupervisorService {
 
   public kill(taskId: string): string {
     const task = this.tasks.get(taskId);
-    if (!task) return `Erro: tarefa "${taskId}" nao encontrada.`;
-    if (task.status !== 'running') return `Tarefa "${taskId}" nao esta rodando (status: ${task.status}).`;
+    if (!task) return `Error: task "${taskId}" not found.`;
+    if (task.status !== 'running') return `Task "${taskId}" nao esta running (status: ${task.status}).`;
 
     task.status = 'killed';
     task.completed_at = new Date().toISOString();
 
-    return `Tarefa "${taskId}" morta.`;
+    return `Task "${taskId}" morta.`;
   }
 
   public getStatus(taskId: string): string {
     const task = this.tasks.get(taskId);
-    if (!task) return `Erro: tarefa "${taskId}" nao encontrada.`;
+    if (!task) return `Error: task "${taskId}" not found.`;
 
     const lines: string[] = [
-      `Tarefa: ${task.id}`,
+      `Task: ${task.id}`,
       `  Comando: ${task.command.slice(0, 100)}`,
       `  Status: ${task.status}`,
       `  Exit code: ${task.exit_code ?? 'N/A'}`,
-      `  Duracao: ${task.duration_ms}ms`,
+      `  Duration: ${task.duration_ms}ms`,
       `  Retries: ${task.retries}/${task.max_retries}`,
       `  Iniciado: ${task.started_at}`,
       `  Completado: ${task.completed_at || 'N/A'}`,
@@ -176,9 +176,9 @@ export class CodexSupervisorService {
     const limit = options?.limit || 20;
     tasks = tasks.slice(0, limit);
 
-    if (tasks.length === 0) return 'Nenhuma tarefa encontrada.';
+    if (tasks.length === 0) return 'No tasks encontrada.';
 
-    const lines: string[] = [`Tarefas (${tasks.length}):`];
+    const lines: string[] = [`Tasks (${tasks.length}):`];
     for (const t of tasks) {
       const icon = { pending: '⏳', running: '🔄', completed: '✅', failed: '❌', timeout: '⏰', killed: '💀' }[t.status];
       lines.push(`  ${icon} [${t.id}] ${t.command.slice(0, 60)} — ${t.duration_ms}ms`);
@@ -201,10 +201,10 @@ export class CodexSupervisorService {
 
     return [
       'Supervisor Stats:',
-      `  Total: ${tasks.length} tarefas`,
-      `  Rodando: ${byStatus.running || 0}/${this.maxConcurrent}`,
-      `  Taxa de sucesso: ${(successRate * 100).toFixed(1)}%`,
-      `  Duracao media: ${avgDuration.toFixed(0)}ms`,
+      `  Total: ${tasks.length} tasks`,
+      `  Running: ${byStatus.running || 0}/${this.maxConcurrent}`,
+      `  Taxa de success: ${(successRate * 100).toFixed(1)}%`,
+      `  Duration media: ${avgDuration.toFixed(0)}ms`,
       '',
       'Por Status:',
       ...Object.entries(byStatus).map(([s, c]) => `  ${s}: ${c}`),
@@ -227,6 +227,6 @@ export class CodexSupervisorService {
       }
     }
 
-    return `${cleaned} tarefa(s) antiga(s) removida(s).`;
+    return `${cleaned} task(s) old removed(s).`;
   }
 }

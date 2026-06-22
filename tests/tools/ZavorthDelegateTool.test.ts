@@ -22,7 +22,7 @@ describe('ZavorthDelegateTool', () => {
 
   it('returns error when action is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('delegates a task', async () => {
@@ -31,7 +31,7 @@ describe('ZavorthDelegateTool', () => {
       task_description: 'Research about TypeScript generics',
       role: 'researcher',
     });
-    expect(result).toContain('Tarefa delegada criada');
+    expect(result).toContain('Delegated task created');
     expect(result).toContain('researcher');
   });
 
@@ -45,7 +45,7 @@ describe('ZavorthDelegateTool', () => {
       ]),
     });
     expect(result).toContain('Batch');
-    expect(result).toContain('3 tarefas');
+    expect(result).toContain('3 tasks');
   });
 
   it('lists delegated tasks', async () => {
@@ -68,7 +68,7 @@ describe('ZavorthDelegateTool', () => {
     const delegate = await tool.execute({ action: 'delegate', task_description: 'Cancel me' });
     const idMatch = delegate.match(/ID: (del_\w+)/);
     const result = await tool.execute({ action: 'cancel', task_id: idMatch![1] });
-    expect(result).toContain('cancelada');
+    expect(result).toContain('cancelled');
   });
 
   it('returns error for invalid role', async () => {
@@ -77,13 +77,13 @@ describe('ZavorthDelegateTool', () => {
       task_description: 'Bad role',
       role: 'invalid_role',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('role');
   });
 
   it('returns error for missing task_description', async () => {
     const result = await tool.execute({ action: 'delegate' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('task_description');
   });
 
@@ -95,6 +95,6 @@ describe('ZavorthDelegateTool', () => {
       task_description: 'Child task',
       parent_id: parentId,
     });
-    expect(child).toContain('Pai: ' + parentId);
+    expect(child).toContain('Parent: ' + parentId);
   });
 });

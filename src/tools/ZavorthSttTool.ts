@@ -17,7 +17,7 @@ export class ZavorthSttTool extends BaseTool {
   public readonly name = 'zavorth_stt';
 
   public readonly description =
-    'Converte fala em texto (Speech-to-Text) usando multiplos backends: Whisper (OpenAI), Deepgram, Gemini, Azure Speech e local (whisper.cpp). Suporta deteccao de idioma, timestamps por palavra, e multiplos formatos de audio.';
+    'Converts speech to text (Speech-to-Text) usando multiplos backends: Whisper (OpenAI), Deepgram, Gemini, Azure Speech e local (whisper.cpp). Suporta deteccao de idioma, timestamps por palavra, e multiplos formatos de audio.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -28,7 +28,7 @@ export class ZavorthSttTool extends BaseTool {
       },
       audio_path: {
         type: 'string',
-        description: 'Caminho do arquivo de audio (mp3, wav, ogg, flac, m4a, webm).',
+        description: 'Path to the audio file (mp3, wav, ogg, flac, m4a, webm).',
       },
       backend: {
         type: 'string',
@@ -48,19 +48,19 @@ export class ZavorthSttTool extends BaseTool {
       },
       output_format: {
         type: 'string',
-        description: "Formato de saida: 'text' (default), 'json', 'srt', 'vtt'.",
+        description: "Output format: 'text' (default), 'json', 'srt', 'vtt'.",
       },
       output_path: {
         type: 'string',
-        description: 'Caminho para salvar a transcricao.',
+        description: 'Path to save a transcricao.',
       },
       prompt: {
         type: 'string',
-        description: 'Prompt de contexto para melhorar a transcricao (nomes proprios, termos tecnicos).',
+        description: 'Context prompt to improve a transcricao (nomes proprios, termos tecnicos).',
       },
       temperature: {
         type: 'number',
-        description: 'Temperatura para geracao (0-1). Default: 0.',
+        description: 'Temperature para geracao (0-1). Default: 0.',
       },
     },
     required: ['action'],
@@ -76,11 +76,11 @@ export class ZavorthSttTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     const validActions = ['transcribe', 'detect_language', 'list_backends', 'set_default'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: action "${action}" is invalid. Use: ${validActions.join(', ')}.`;
     }
 
     this.ensureStorageDir();
@@ -91,10 +91,11 @@ export class ZavorthSttTool extends BaseTool {
         case 'detect_language': return await this.detectLanguage(args);
         case 'list_backends': return this.listBackends();
         case 'set_default': return this.setDefault(args);
+        default: return `Error: action "${action}" is not implemented.`;
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro no STT: ${message}`;
+      return `STT error: ${message}`;
     }
   }
 
@@ -106,22 +107,22 @@ export class ZavorthSttTool extends BaseTool {
 
   private async transcribe(args: Record<string, unknown>): Promise<string> {
     const audioPath = String(args.audio_path || '');
-    if (!audioPath) return 'Erro: o parametro "audio_path" e obrigatorio.';
+    if (!audioPath) return 'Error: "audio_path" parameter is required.';
 
     const resolvedPath = path.resolve(audioPath);
     if (!fs.existsSync(resolvedPath)) {
-      return `Erro: arquivo de audio "${audioPath}" nao encontrado.`;
+      return `Error: audio file "${audioPath}" not found.`;
     }
 
     const stat = fs.statSync(resolvedPath);
     if (stat.size > 25 * 1024 * 1024) {
-      return 'Erro: arquivo de audio excede 25MB. Divida ou comprima.';
+      return 'Error: audio file excede 25MB. Split or compress.';
     }
 
     const ext = path.extname(resolvedPath).toLowerCase();
     const supportedFormats = ['.mp3', '.wav', '.ogg', '.flac', '.m4a', '.webm', '.mp4', '.aac', '.wma'];
     if (!supportedFormats.includes(ext)) {
-      return `Erro: formato "${ext}" nao suportado. Use: ${supportedFormats.join(', ')}.`;
+      return `Error: format "${ext}" not supported. Use: ${supportedFormats.join(', ')}.`;
     }
 
     const backend = String(args.backend || this.defaultBackend);
@@ -144,7 +145,7 @@ export class ZavorthSttTool extends BaseTool {
       });
 
       if (!result.success) {
-        return `Erro na transcricao: ${result.error}`;
+        return `Transcription error: ${result.error}`;
       }
 
       const formatted = this.formatTranscription(result, outputFormat);
@@ -159,7 +160,7 @@ export class ZavorthSttTool extends BaseTool {
         formatted,
       ];
       if (result.language) lines.push(`Idioma detectado: ${result.language}`);
-      if (result.duration_seconds) lines.push(`Duracao: ${result.duration_seconds.toFixed(1)}s`);
+      if (result.duration_seconds) lines.push(`Duration: ${result.duration_seconds.toFixed(1)}s`);
       if (result.words && result.words.length > 0) {
         lines.push(`Palavras: ${result.words.length}`);
       }
@@ -167,17 +168,17 @@ export class ZavorthSttTool extends BaseTool {
       return lines.join('\n');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro na transcricao: ${message}`;
+      return `Transcription error: ${message}`;
     }
   }
 
   private async detectLanguage(args: Record<string, unknown>): Promise<string> {
     const audioPath = String(args.audio_path || '');
-    if (!audioPath) return 'Erro: o parametro "audio_path" e obrigatorio.';
+    if (!audioPath) return 'Error: "audio_path" parameter is required.';
 
     const resolvedPath = path.resolve(audioPath);
     if (!fs.existsSync(resolvedPath)) {
-      return `Erro: arquivo de audio "${audioPath}" nao encontrado.`;
+      return `Error: audio file "${audioPath}" not found.`;
     }
 
     const backend = String(args.backend || this.defaultBackend);
@@ -192,23 +193,23 @@ export class ZavorthSttTool extends BaseTool {
       });
 
       if (!result.success) {
-        return `Erro na deteccao: ${result.error}`;
+        return `Detection error: ${result.error}`;
       }
 
       return `Idioma detectado: ${result.language || 'desconhecido'}. Texto: "${result.text.slice(0, 100)}..."`;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro na deteccao de idioma: ${message}`;
+      return `Language detection error: ${message}`;
     }
   }
 
   private listBackends(): string {
     const backends = [
-      { id: 'whisper', name: 'Whisper (OpenAI)', key: 'OPENAI_API_KEY', note: 'Mais preciso, suporta 99 idiomas' },
+      { id: 'whisper', name: 'Whisper (OpenAI)', key: 'OPENAI_API_KEY', note: 'Most accurate, supports 99 idiomas' },
       { id: 'deepgram', name: 'Deepgram Nova', key: 'DEEPGRAM_API_KEY', note: 'Mais rapido, bom para tempo real' },
       { id: 'gemini', name: 'Gemini', key: 'GEMINI_API_KEY', note: 'Multimodal, contexto longo' },
-      { id: 'azure', name: 'Azure Speech', key: 'AZURE_SPEECH_KEY', note: 'Enterprise, muitos idiomas' },
-      { id: 'local', name: 'Local (whisper.cpp)', key: 'Nenhuma', note: 'Offline, privacidade total' },
+      { id: 'azure', name: 'Azure Speech', key: 'AZURE_SPEECH_KEY', note: 'Enterprise, many languages' },
+      { id: 'local', name: 'Local (whisper.cpp)', key: 'No', note: 'Offline, privacidade total' },
     ];
 
     const lines: string[] = ['Backends STT disponiveis:'];
@@ -223,11 +224,11 @@ export class ZavorthSttTool extends BaseTool {
 
   private setDefault(args: Record<string, unknown>): string {
     const backend = String(args.backend || '');
-    if (!backend) return 'Erro: "backend" e obrigatorio.';
+    if (!backend) return 'Error: "backend" is required.';
 
     const validBackends = ['whisper', 'deepgram', 'gemini', 'azure', 'local'];
     if (!validBackends.includes(backend)) {
-      return `Erro: backend "${backend}" invalido. Use: ${validBackends.join(', ')}.`;
+      return `Error: backend "${backend}" is invalid. Use: ${validBackends.join(', ')}.`;
     }
 
     this.defaultBackend = backend;
@@ -270,7 +271,7 @@ export class ZavorthSttTool extends BaseTool {
     switch (options.backend) {
       case 'whisper': {
         const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) throw new Error('OPENAI_API_KEY nao configurada.');
+        if (!apiKey) throw new Error('OPENAI_API_KEY not configured.');
 
         const curlArgs = [
           '-s', '-X', 'POST',
@@ -317,7 +318,7 @@ export class ZavorthSttTool extends BaseTool {
 
       case 'deepgram': {
         const apiKey = process.env.DEEPGRAM_API_KEY;
-        if (!apiKey) throw new Error('DEEPGRAM_API_KEY nao configurada.');
+        if (!apiKey) throw new Error('DEEPGRAM_API_KEY not configured.');
 
         const model = options.model || 'nova-2';
         let url = `https://api.deepgram.com/v1/listen?model=${model}`;
@@ -355,11 +356,11 @@ export class ZavorthSttTool extends BaseTool {
 
       case 'gemini': {
         const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) throw new Error('GEMINI_API_KEY nao configurada.');
+        if (!apiKey) throw new Error('GEMINI_API_KEY not configured.');
 
         const audioBase64 = fs.readFileSync(audioPath).toString('base64');
         const langHint = options.language ? ` Idioma esperado: ${options.language}.` : '';
-        const promptText = `${options.prompt ? options.prompt + ' ' : ''}Transcreva este audio com precisao.${langHint}`;
+        const promptText = `${options.prompt ? options.prompt + ' ' : ''}Transcribe this audio precisely.${langHint}`;
 
         const payload = JSON.stringify({
           contents: [{
@@ -400,7 +401,7 @@ export class ZavorthSttTool extends BaseTool {
       case 'azure': {
         const apiKey = process.env.AZURE_SPEECH_KEY;
         const region = process.env.AZURE_SPEECH_REGION;
-        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY e AZURE_SPEECH_REGION nao configuradas.');
+        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY e AZURE_SPEECH_REGION not configureds.');
 
         const locale = options.language || 'pt-BR';
         const result = execFileSync('curl', [
@@ -438,7 +439,7 @@ export class ZavorthSttTool extends BaseTool {
       }
 
       default:
-        throw new Error(`Backend STT "${options.backend}" nao suportado.`);
+        throw new Error(`Backend STT "${options.backend}" not supported.`);
     }
   }
 

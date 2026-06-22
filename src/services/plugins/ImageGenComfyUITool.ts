@@ -8,7 +8,7 @@ export class ImageGenComfyUITool extends BaseTool {
   public readonly name = 'zavorth_comfyui';
 
   public readonly description =
-    'ComfyUI — geracao de imagens local e privada via API. Node-based workflow engine para Stable Diffusion, FLUX, e modelos customizados. Rode tudo localmente.';
+    'ComfyUI — local and private image generation via API. Node-based workflow engine para Stable Diffusion, FLUX, e modelos customizados. Rode tudo localmente.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -23,7 +23,7 @@ export class ImageGenComfyUITool extends BaseTool {
       },
       negative_prompt: {
         type: 'string',
-        description: 'Prompt negativo (o que evitar).',
+        description: 'Negative prompt (what to avoid).',
       },
       workflow: {
         type: 'string',
@@ -55,11 +55,11 @@ export class ImageGenComfyUITool extends BaseTool {
       },
       image_path: {
         type: 'string',
-        description: 'Caminho da imagem (para img2img/inpaint).',
+        description: 'Image path (para img2img/inpaint).',
       },
       server_url: {
         type: 'string',
-        description: 'URL do servidor ComfyUI. Default: http://127.0.0.1:8188.',
+        description: 'Server URL ComfyUI. Default: http://127.0.0.1:8188.',
       },
     },
     required: ['action'],
@@ -67,7 +67,7 @@ export class ImageGenComfyUITool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     const serverUrl = String(args.server_url || 'http://127.0.0.1:8188');
 
@@ -77,7 +77,7 @@ export class ImageGenComfyUITool extends BaseTool {
       case 'check_status': return await this.checkStatus(serverUrl);
       case 'get_queue': return await this.getQueue(serverUrl);
       case 'generate': return await this.generate(args, serverUrl);
-      default: return `Erro: acao "${action}" invalida.`;
+      default: return `Error: action "${action}" is invalid.`;
     }
   }
 
@@ -105,7 +105,7 @@ export class ImageGenComfyUITool extends BaseTool {
       const parsed = JSON.parse(result);
       const models = parsed.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
 
-      if (models.length === 0) return 'Nenhum modelo encontrado no ComfyUI.';
+      if (models.length === 0) return 'No model found in ComfyUI.';
 
       const lines: string[] = ['Modelos ComfyUI:'];
       for (const m of models.slice(0, 20)) {
@@ -114,7 +114,7 @@ export class ImageGenComfyUITool extends BaseTool {
       if (models.length > 20) lines.push(`  ... e mais ${models.length - 20}`);
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro ao listar modelos: ${error instanceof Error ? error.message : String(error)}. ComfyUI rodando em ${serverUrl}?`;
+      return `Error listing models: ${error instanceof Error ? error.message : String(error)}. ComfyUI running at ${serverUrl}?`;
     }
   }
 
@@ -131,7 +131,7 @@ export class ImageGenComfyUITool extends BaseTool {
       const freeVram = parsed.devices?.[0]?.vram_free;
 
       return [
-        'ComfyUI: Conectado',
+        'ComfyUI: Connected',
         `  Sistema: ${parsed.system?.os || 'unknown'}`,
         `  Python: ${parsed.system?.python_version || 'unknown'}`,
         vram ? `  VRAM: ${(vram / 1024 / 1024 / 1024).toFixed(1)}GB (livre: ${(freeVram / 1024 / 1024 / 1024).toFixed(1)}GB)` : '',
@@ -150,15 +150,15 @@ export class ImageGenComfyUITool extends BaseTool {
       const running = parsed.queue_running?.length || 0;
       const pending = parsed.queue_pending?.length || 0;
 
-      return `Fila ComfyUI: ${running} rodando, ${pending} pendente(s).`;
+      return `Fila ComfyUI: ${running} running, ${pending} pendente(s).`;
     } catch {
-      return 'Erro ao consultar fila.';
+      return 'Error querying queue.';
     }
   }
 
   private async generate(args: Record<string, unknown>, serverUrl: string): Promise<string> {
     const prompt = String(args.prompt || '');
-    if (!prompt) return 'Erro: "prompt" e obrigatorio.';
+    if (!prompt) return 'Error: "prompt" is required.';
 
     const negativePrompt = String(args.negative_prompt || 'ugly, blurry, low quality');
     const width = typeof args.width === 'number' ? args.width : 1024;
@@ -227,7 +227,7 @@ export class ImageGenComfyUITool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro ComfyUI: ${parsed.error}`;
+      if (parsed.error) return `ComfyUI error: ${parsed.error}`;
 
       return [
         'Imagem enfileirada no ComfyUI:',
@@ -241,7 +241,7 @@ export class ImageGenComfyUITool extends BaseTool {
         '  Use "get_queue" para acompanhar progresso.',
       ].join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}. ComfyUI rodando em ${serverUrl}?`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}. ComfyUI running at ${serverUrl}?`;
     }
   }
 }

@@ -38,8 +38,8 @@ export class BrowserPlaywrightService {
   }
 
   public async navigate(url: string, options?: { wait_until?: 'load' | 'domcontentloaded' | 'networkidle'; timeout?: number }): Promise<string> {
-    if (!url) return 'Erro: URL e obrigatoria.';
-    try { new URL(url); } catch { return `Erro: URL invalida "${url}".`; }
+    if (!url) return 'Error: URL is required.';
+    try { new URL(url); } catch { return `Error: invalid URL "${url}".`; }
 
     const waitUntil = options?.wait_until || 'load';
     const timeout = options?.timeout || this.defaultTimeout;
@@ -68,14 +68,14 @@ export class BrowserPlaywrightService {
         const result = execFileSync('node', [tmpScript], { timeout: timeout + 5000, maxBuffer: 10 * 1024 * 1024 }).toString();
         fs.unlinkSync(tmpScript);
         const parsed = JSON.parse(result);
-        if (parsed.error) return `Erro Playwright: ${parsed.error}`;
-        return `Pagina carregada: "${parsed.title}" (${parsed.load_time_ms}ms)\nURL: ${parsed.url}\nScreenshot: ${parsed.screenshot}\nConteudo: ${parsed.content_length} caracteres`;
+        if (parsed.error) return `Playwright error: ${parsed.error}`;
+        return `Pagina carregada: "${parsed.title}" (${parsed.load_time_ms}ms)\nURL: ${parsed.url}\nScreenshot: ${parsed.screenshot}\nConteudo: ${parsed.content_length} characters`;
       } catch (e) {
         try { fs.unlinkSync(tmpScript); } catch { /* ignore */ }
         throw e;
       }
     } catch (error: unknown) {
-      return `Erro ao navegar: ${error instanceof Error ? error.message : String(error)}. Playwright instalado? npm install playwright`;
+      return `Error navigating: ${error instanceof Error ? error.message : String(error)}. Playwright installed? npm install playwright`;
     }
   }
 
@@ -111,14 +111,14 @@ export class BrowserPlaywrightService {
         const result = execFileSync('node', [tmpScript], { timeout: timeout + 5000 }).toString();
         fs.unlinkSync(tmpScript);
         const parsed = JSON.parse(result);
-        if (parsed.error) return `Erro: ${parsed.error}`;
+        if (parsed.error) return `Error: ${parsed.error}`;
         return `Screenshot salvo: ${parsed.screenshot}`;
       } catch (e) {
         try { fs.unlinkSync(tmpScript); } catch { /* ignore */ }
         throw e;
       }
     } catch (error: unknown) {
-      return `Erro no screenshot: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error in screenshot: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
@@ -154,7 +154,7 @@ export class BrowserPlaywrightService {
         const result = execFileSync('node', [tmpScript], { timeout: timeout + 5000, maxBuffer: 10 * 1024 * 1024 }).toString();
         fs.unlinkSync(tmpScript);
         const parsed = JSON.parse(result);
-        if (parsed.error) return `Erro: ${parsed.error}`;
+        if (parsed.error) return `Error: ${parsed.error}`;
 
         const lines: string[] = [`Extraido de ${url}:`];
         for (const [key, values] of Object.entries(parsed)) {
@@ -170,7 +170,7 @@ export class BrowserPlaywrightService {
         throw e;
       }
     } catch (error: unknown) {
-      return `Erro na extracao: ${error instanceof Error ? error.message : String(error)}`;
+      return `Extraction error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
@@ -198,14 +198,14 @@ export class BrowserPlaywrightService {
         const result = execFileSync('node', [tmpScript], { timeout: timeout + 10000 }).toString();
         fs.unlinkSync(tmpScript);
         const parsed = JSON.parse(result);
-        if (parsed.error) return `Erro: ${parsed.error}`;
+        if (parsed.error) return `Error: ${parsed.error}`;
         return `PDF gerado: ${parsed.pdf}`;
       } catch (e) {
         try { fs.unlinkSync(tmpScript); } catch { /* ignore */ }
         throw e;
       }
     } catch (error: unknown) {
-      return `Erro ao gerar PDF: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error generating PDF: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 

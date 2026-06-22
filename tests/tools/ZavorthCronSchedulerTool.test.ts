@@ -22,14 +22,14 @@ describe('ZavorthCronSchedulerTool', () => {
 
   it('returns error when action is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('action');
   });
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'invalid' });
-    expect(result).toContain('Erro');
-    expect(result).toContain('invalida');
+    expect(result).toContain('Error');
+    expect(result).toContain('invalid');
   });
 
   it('creates a cron job', async () => {
@@ -39,7 +39,7 @@ describe('ZavorthCronSchedulerTool', () => {
       schedule: '0 9 * * *',
       task_description: 'Generate daily report',
     });
-    expect(result).toContain('criado com sucesso');
+    expect(result).toContain('created successfully');
     expect(result).toContain('daily_report');
     expect(result).toContain('cron');
   });
@@ -53,7 +53,7 @@ describe('ZavorthCronSchedulerTool', () => {
       interval_ms: 60000,
       task_description: 'Check system health',
     });
-    expect(result).toContain('criado com sucesso');
+    expect(result).toContain('created successfully');
     expect(result).toContain('interval');
   });
 
@@ -75,27 +75,27 @@ describe('ZavorthCronSchedulerTool', () => {
   it('enables and disables a job', async () => {
     await tool.execute({ action: 'create', name: 'ToggleJob', schedule: '0 * * * *', task_description: 'Toggle me' });
     const disable = await tool.execute({ action: 'disable', job_id: 'togglejob' });
-    expect(disable).toContain('desabilitado');
+    expect(disable).toContain('disabled');
     const enable = await tool.execute({ action: 'enable', job_id: 'togglejob' });
-    expect(enable).toContain('habilitado');
+    expect(enable).toContain('enabled');
   });
 
   it('runs a job now', async () => {
     await tool.execute({ action: 'create', name: 'RunNow', schedule: '0 * * * *', task_description: 'Run me' });
     const result = await tool.execute({ action: 'run_now', job_id: 'runnow' });
-    expect(result).toContain('disparado manualmente');
+    expect(result).toContain('manually triggered');
   });
 
   it('deletes a job', async () => {
     await tool.execute({ action: 'create', name: 'DeleteMe', schedule: '0 * * * *', task_description: 'Delete me' });
     const result = await tool.execute({ action: 'delete', job_id: 'deleteme' });
-    expect(result).toContain('deletado');
+    expect(result).toContain('deleted');
   });
 
   it('updates a job', async () => {
     await tool.execute({ action: 'create', name: 'UpdateMe', schedule: '0 * * * *', task_description: 'Original' });
     const result = await tool.execute({ action: 'update', job_id: 'updateme', task_description: 'Updated task' });
-    expect(result).toContain('atualizado');
+    expect(result).toContain('updated');
   });
 
   it('infers high risk for destructive tasks', async () => {
@@ -110,7 +110,7 @@ describe('ZavorthCronSchedulerTool', () => {
 
   it('returns error for missing job_id on status', async () => {
     const result = await tool.execute({ action: 'status' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('job_id');
   });
 });

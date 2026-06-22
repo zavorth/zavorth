@@ -8,22 +8,22 @@ export class ImageGenFalTool extends BaseTool {
   public readonly name = 'zavorth_fal';
 
   public readonly description =
-    'fal.ai — geracao de imagens via API. Suporta Stable Diffusion XL, FLUX, e modelos proprietarios. Rode modelos de imagem na nuvem.';
+    'fal.ai — image generation via API. Supports Stable Diffusion XL, FLUX, and proprietary models. Run image models in the cloud.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'generate', 'list_models', 'check_status'.",
+        description: "Action: 'generate', 'list_models', 'check_status'.",
       },
       prompt: {
         type: 'string',
-        description: 'Prompt para geracao de imagem.',
+        description: 'Prompt for image generation.',
       },
       negative_prompt: {
         type: 'string',
-        description: 'Prompt negativo (o que evitar).',
+        description: 'Negative prompt (what to avoid).',
       },
       model: {
         type: 'string',
@@ -31,19 +31,19 @@ export class ImageGenFalTool extends BaseTool {
       },
       width: {
         type: 'number',
-        description: 'Largura da imagem. Default: 1024.',
+        description: 'Image width. Default: 1024.',
       },
       height: {
         type: 'number',
-        description: 'Altura da imagem. Default: 1024.',
+        description: 'Image height. Default: 1024.',
       },
       num_images: {
         type: 'number',
-        description: 'Numero de imagens. Default: 1.',
+        description: 'Number of images. Default: 1.',
       },
       seed: {
         type: 'number',
-        description: 'Seed para reprodutibilidade.',
+        description: 'Seed for reproducibility.',
       },
     },
     required: ['action'],
@@ -51,19 +51,19 @@ export class ImageGenFalTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: the "action" parameter is required.';
 
     switch (action) {
       case 'list_models': return this.listModels();
       case 'check_status': return this.checkStatus();
       case 'generate': return await this.generate(args);
-      default: return `Erro: acao "${action}" invalida.`;
+      default: return `Error: invalid action "${action}".`;
     }
   }
 
   private listModels(): string {
     return [
-      'Modelos fal.ai disponiveis:',
+      'Available fal.ai models:',
       '',
       '  fal-ai/flux/schnell — FLUX Schnell (rapido, ~1s)',
       '  fal-ai/flux/dev — FLUX Dev (qualidade alta)',
@@ -73,23 +73,23 @@ export class ImageGenFalTool extends BaseTool {
       '  fal-ai/flux-lora — FLUX com LoRA customizavel',
       '  fal-ai/controlnet — ControlNet (guided generation)',
       '',
-      'Preco: ~$0.003-0.05 por imagem dependendo do modelo.',
+      'Price: ~$0.003-0.05 per image depending on the model.',
       'URL: https://fal.ai/models',
     ].join('\n');
   }
 
   private checkStatus(): string {
     const apiKey = process.env.FAL_KEY;
-    if (!apiKey) return 'fal.ai: FAL_KEY nao configurada. Obtenha em https://fal.ai/dashboard/keys';
-    return 'fal.ai: API key configurada.';
+    if (!apiKey) return 'fal.ai: FAL_KEY not configured. Get one at https://fal.ai/dashboard/keys';
+    return 'fal.ai: API key configured.';
   }
 
   private async generate(args: Record<string, unknown>): Promise<string> {
     const apiKey = process.env.FAL_KEY;
-    if (!apiKey) return 'Erro: FAL_KEY nao configurada. Obtenha em https://fal.ai/dashboard/keys';
+    if (!apiKey) return 'Error: FAL_KEY not configured. Get one at https://fal.ai/dashboard/keys';
 
     const prompt = String(args.prompt || '');
-    if (!prompt) return 'Erro: "prompt" e obrigatorio para generate.';
+    if (!prompt) return 'Error: "prompt" is required for generate.';
 
     const model = String(args.model || 'fal-ai/flux/schnell');
     const width = typeof args.width === 'number' ? args.width : 1024;
@@ -124,14 +124,14 @@ export class ImageGenFalTool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro fal.ai: ${parsed.error.message || JSON.stringify(parsed.error)}`;
+      if (parsed.error) return `fal.ai Error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
 
       const images = parsed.images || [parsed.image] || [];
       const lines: string[] = [
-        `Imagem(ns) gerada(s) via ${model}:`,
+        `Image(s) generated via ${model}:`,
         `  Prompt: "${prompt.slice(0, 100)}"`,
-        `  Tamanho: ${width}x${height}`,
-        `  Imagens: ${images.length}`,
+        `  Size: ${width}x${height}`,
+        `  Images: ${images.length}`,
       ];
 
       for (const img of images) {
@@ -141,19 +141,19 @@ export class ImageGenFalTool extends BaseTool {
             const outputPath = path.join(os.tmpdir(), `fal_image_${Date.now()}.png`);
             execFileSync('curl', ['-s', '-o', outputPath, img.url], { timeout: 30000 });
             if (fs.existsSync(outputPath)) {
-              lines.push(`  Salvo: ${outputPath}`);
+              lines.push(`  Saved: ${outputPath}`);
             }
           } catch { /* ignore */ }
         }
       }
 
       if (parsed.timings) {
-        lines.push(`  Tempo: ${JSON.stringify(parsed.timings)}`);
+        lines.push(`  Time: ${JSON.stringify(parsed.timings)}`);
       }
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 }

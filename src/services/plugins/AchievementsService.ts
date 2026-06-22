@@ -64,22 +64,22 @@ export class AchievementsService {
 
   private initDefaultAchievements(): void {
     this.achievements = [
-      { id: 'first_tool', name: 'Primeira Ferramenta', description: 'Execute sua primeira tool', category: 'usage', icon: '🔧', tier: 'bronze', criteria: { type: 'count', target: 1, metric: 'tool_executions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'tool_master', name: 'Mestre das Ferramentas', description: 'Execute 100 tools', category: 'usage', icon: '⚙️', tier: 'gold', criteria: { type: 'count', target: 100, metric: 'tool_executions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'tool_legend', name: 'Lenda das Ferramentas', description: 'Execute 1000 tools', category: 'usage', icon: '👑', tier: 'diamond', criteria: { type: 'count', target: 1000, metric: 'tool_executions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'first_skill', name: 'Primeira Skill', description: 'Use sua primeira skill', category: 'exploration', icon: '📚', tier: 'bronze', criteria: { type: 'count', target: 1, metric: 'skill_uses' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'skill_collector', name: 'Colecionador de Skills', description: 'Use 10 skills diferentes', category: 'exploration', icon: '🎒', tier: 'silver', criteria: { type: 'unique', target: 10, metric: 'unique_skills' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'multi_channel', name: 'Multi-Canal', description: 'Envie mensagens em 5 canais diferentes', category: 'social', icon: '📡', tier: 'silver', criteria: { type: 'unique', target: 5, metric: 'unique_channels' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'code_reviewer', name: 'Revisor de Código', description: 'Faça 10 code reviews', category: 'mastery', icon: '🔍', tier: 'silver', criteria: { type: 'count', target: 10, metric: 'code_reviews' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'security_guardian', name: 'Guardião da Segurança', description: 'Bloqueie 5 ações perigosas', category: 'security', icon: '🛡️', tier: 'gold', criteria: { type: 'count', target: 5, metric: 'blocked_actions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'voice_user', name: 'Voz Ativa', description: 'Use o modo voz pela primeira vez', category: 'exploration', icon: '🎤', tier: 'bronze', criteria: { type: 'count', target: 1, metric: 'voice_sessions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'document_extractor', name: 'Extrator de Documentos', description: 'Extraia texto de 10 documentos', category: 'productivity', icon: '📄', tier: 'silver', criteria: { type: 'count', target: 10, metric: 'document_extractions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'api_explorer', name: 'Explorador de APIs', description: 'Faça 20 requests HTTP', category: 'exploration', icon: '🌐', tier: 'silver', criteria: { type: 'count', target: 20, metric: 'api_requests' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'scheduler', name: 'Agendador', description: 'Crie 5 jobs agendados', category: 'productivity', icon: '⏰', tier: 'bronze', criteria: { type: 'count', target: 5, metric: 'cron_jobs_created' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'delegator', name: 'Delegador', description: 'Delegue 10 tarefas para subagentes', category: 'mastery', icon: '🤝', tier: 'silver', criteria: { type: 'count', target: 10, metric: 'delegated_tasks' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'receipt_auditor', name: 'Auditor de Receipts', description: 'Consulte 20 receipts', category: 'security', icon: '📋', tier: 'bronze', criteria: { type: 'count', target: 20, metric: 'receipt_searches' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'streak_7', name: 'Semana Completa', description: 'Use o Zavorth 7 dias seguidos', category: 'usage', icon: '🔥', tier: 'gold', criteria: { type: 'streak', target: 7, metric: 'daily_usage' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'hidden_easter_egg', name: 'Oculto', description: '???', category: 'exploration', icon: '🥚', tier: 'platinum', criteria: { type: 'manual', target: 1, metric: 'easter_egg' }, unlocked: false, unlocked_at: null, progress: 0, hidden: true },
+      { id: 'first_tool', name: 'First Tool', description: 'Execute your first tool', category: 'usage', icon: '🔧', tier: 'bronze', criteria: { type: 'count', target: 1, metric: 'tool_executions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'tool_master', name: 'Tool Master', description: 'Execute 100 tools', category: 'usage', icon: '⚙️', tier: 'gold', criteria: { type: 'count', target: 100, metric: 'tool_executions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'tool_legend', name: 'Tool Legend', description: 'Execute 1000 tools', category: 'usage', icon: '👑', tier: 'diamond', criteria: { type: 'count', target: 1000, metric: 'tool_executions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'first_skill', name: 'First Skill', description: 'Use your first skill', category: 'exploration', icon: '📚', tier: 'bronze', criteria: { type: 'count', target: 1, metric: 'skill_uses' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'skill_collector', name: 'Skill Collector', description: 'Use 10 different skills', category: 'exploration', icon: '🎒', tier: 'silver', criteria: { type: 'unique', target: 10, metric: 'unique_skills' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'multi_channel', name: 'Multi-Channel', description: 'Send messages in 5 different channels', category: 'social', icon: '📡', tier: 'silver', criteria: { type: 'unique', target: 5, metric: 'unique_channels' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'code_reviewer', name: 'Code Reviewer', description: 'Do 10 code reviews', category: 'mastery', icon: '🔍', tier: 'silver', criteria: { type: 'count', target: 10, metric: 'code_reviews' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'security_guardian', name: 'Security Guardian', description: 'Block 5 dangerous actions', category: 'security', icon: '🛡️', tier: 'gold', criteria: { type: 'count', target: 5, metric: 'blocked_actions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'voice_user', name: 'Active Voice', description: 'Use voice mode for the first time', category: 'exploration', icon: '🎤', tier: 'bronze', criteria: { type: 'count', target: 1, metric: 'voice_sessions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'document_extractor', name: 'Document Extractor', description: 'Extract text from 10 documents', category: 'productivity', icon: '📄', tier: 'silver', criteria: { type: 'count', target: 10, metric: 'document_extractions' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'api_explorer', name: 'API Explorer', description: 'Make 20 HTTP requests', category: 'exploration', icon: '🌐', tier: 'silver', criteria: { type: 'count', target: 20, metric: 'api_requests' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'scheduler', name: 'Scheduler', description: 'Create 5 scheduled jobs', category: 'productivity', icon: '⏰', tier: 'bronze', criteria: { type: 'count', target: 5, metric: 'cron_jobs_created' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'delegator', name: 'Delegator', description: 'Delegate 10 tasks to subagents', category: 'mastery', icon: '🤝', tier: 'silver', criteria: { type: 'count', target: 10, metric: 'delegated_tasks' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'receipt_auditor', name: 'Receipt Auditor', description: 'Query 20 receipts', category: 'security', icon: '📋', tier: 'bronze', criteria: { type: 'count', target: 20, metric: 'receipt_searches' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'streak_7', name: 'Full Week', description: 'Use Zavorth 7 days in a row', category: 'usage', icon: '🔥', tier: 'gold', criteria: { type: 'streak', target: 7, metric: 'daily_usage' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
+      { id: 'hidden_easter_egg', name: 'Hidden', description: '???', category: 'exploration', icon: '🥚', tier: 'platinum', criteria: { type: 'manual', target: 1, metric: 'easter_egg' }, unlocked: false, unlocked_at: null, progress: 0, hidden: true },
     ];
   }
 
@@ -177,9 +177,9 @@ export class AchievementsService {
     this.markDirty();
 
     if (unlocked.length > 0) {
-      return `Achievement(s) desbloqueado(s): ${unlocked.join(', ')}!`;
+      return `Achievement(s) unlocked: ${unlocked.join(', ')}!`;
     }
-    return `Evento "${metric}" registrado (${value}).`;
+    return `Event "${metric}" recorded (${value}).`;
   }
 
   public updateStreak(userId: string, streakName: string): string {
@@ -206,16 +206,16 @@ export class AchievementsService {
     state.updated_at = new Date().toISOString();
     this.markDirty();
 
-    return `Streak "${streakName}": ${state.streaks[streakName].current} dias (melhor: ${state.streaks[streakName].best}).`;
+    return `Streak "${streakName}": ${state.streaks[streakName].current} days (best: ${state.streaks[streakName].best}).`;
   }
 
   public unlockManually(userId: string, achievementId: string): string {
     const state = this.getUserState(userId);
     const achievement = this.achievements.find((a) => a.id === achievementId);
-    if (!achievement) return `Achievement "${achievementId}" nao encontrado.`;
+    if (!achievement) return `Achievement "${achievementId}" not found.`;
 
     const userAch = state.achievements[achievementId];
-    if (userAch.unlocked) return `Achievement "${achievement.name}" ja desbloqueado.`;
+    if (userAch.unlocked) return `Achievement "${achievement.name}" already unlocked.`;
 
     userAch.unlocked = true;
     userAch.unlocked_at = new Date().toISOString();
@@ -227,19 +227,19 @@ export class AchievementsService {
     this.updateLevel(state);
     this.markDirty();
 
-    return `Achievement "${achievement.name}" desbloqueado manualmente! +${this.TIER_POINTS[achievement.tier]} pontos.`;
+    return `Achievement "${achievement.name}" manually unlocked! +${this.TIER_POINTS[achievement.tier]} points.`;
   }
 
   public getProfile(userId: string): string {
     const state = this.getUserState(userId);
 
     const lines: string[] = [
-      `Perfil de Achievements: ${userId}`,
-      `  Nivel: ${state.level}`,
-      `  Pontos: ${state.total_points}`,
-      `  Desbloqueados: ${state.unlocked_count}/${this.achievements.length}`,
+      `Achievements Profile: ${userId}`,
+      `  Level: ${state.level}`,
+      `  Points: ${state.total_points}`,
+      `  Unlocked: ${state.unlocked_count}/${this.achievements.length}`,
       '',
-      'Conquistas:',
+      'Achievements:',
     ];
 
     const byCategory: Record<string, Achievement[]> = {};
@@ -263,7 +263,7 @@ export class AchievementsService {
     if (Object.keys(state.streaks).length > 0) {
       lines.push('', 'Streaks:');
       for (const [name, streak] of Object.entries(state.streaks)) {
-        lines.push(`  ${name}: ${streak.current} dias (melhor: ${streak.best})`);
+        lines.push(`  ${name}: ${streak.current} days (best: ${streak.best})`);
       }
     }
 
@@ -275,13 +275,13 @@ export class AchievementsService {
       .map(([id, state]) => ({ id, points: state.total_points, level: state.level, unlocked: state.unlocked_count }))
       .sort((a, b) => b.points - a.points);
 
-    if (entries.length === 0) return 'Nenhum usuario com achievements.';
+    if (entries.length === 0) return 'No users with achievements.';
 
     const lines: string[] = ['Leaderboard:'];
     for (let i = 0; i < entries.length; i++) {
       const e = entries[i];
       const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
-      lines.push(`  ${medal} ${e.id}: Nivel ${e.level} | ${e.points} pts | ${e.unlocked} conquistas`);
+      lines.push(`  ${medal} ${e.id}: Level ${e.level} | ${e.points} pts | ${e.unlocked} achievements`);
     }
     return lines.join('\n');
   }

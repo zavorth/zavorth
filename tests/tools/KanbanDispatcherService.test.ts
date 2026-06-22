@@ -18,13 +18,13 @@ describe('KanbanDispatcherService', () => {
 
   it('creates a board', () => {
     const result = service.createBoard('Sprint 1');
-    expect(result).toContain('criado');
+    expect(result).toContain('created');
   });
 
   it('prevents duplicate board', () => {
     service.createBoard('Test');
     const result = service.createBoard('Test');
-    expect(result).toContain('ja existe');
+    expect(result).toContain('already exists');
   });
 
   it('creates board with custom columns', () => {
@@ -36,7 +36,7 @@ describe('KanbanDispatcherService', () => {
   it('adds a card', () => {
     service.createBoard('Board');
     const result = service.addCard('board', 'Task 1', { priority: 'high' });
-    expect(result).toContain('adicionado');
+    expect(result).toContain('added');
     expect(result).toContain('Task 1');
   });
 
@@ -46,7 +46,7 @@ describe('KanbanDispatcherService', () => {
     const board = service.getBoard('board');
     const cardId = board.match(/card_\w+/)![0];
     const result = service.moveCard('board', cardId, 'in_progress');
-    expect(result).toContain('movido');
+    expect(result).toContain('moved');
   });
 
   it('blocks a card', () => {
@@ -55,7 +55,7 @@ describe('KanbanDispatcherService', () => {
     const board = service.getBoard('board');
     const cardId = board.match(/card_\w+/)![0];
     const result = service.blockCard('board', cardId, 'card_other', 'Waiting for API');
-    expect(result).toContain('bloqueado');
+    expect(result).toContain('blocked');
   });
 
   it('dispatches cards by priority', () => {
@@ -108,6 +108,6 @@ describe('KanbanDispatcherService', () => {
 
   it('returns error for non-existent board', () => {
     const result = service.getBoard('nonexistent');
-    expect(result).toContain('nao encontrado');
+    expect(result).toContain('not found');
   });
 });

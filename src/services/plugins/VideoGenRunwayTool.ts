@@ -8,7 +8,7 @@ export class VideoGenRunwayTool extends BaseTool {
   public readonly name = 'zavorth_runway';
 
   public readonly description =
-    'Runway ML — geracao de video via API. Gere videos a partir de texto ou imagens com Gen-3 Alpha Turbo.';
+    'Runway ML — video generation via API. Gere videos from text or images com Gen-3 Alpha Turbo.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -23,15 +23,15 @@ export class VideoGenRunwayTool extends BaseTool {
       },
       prompt_image: {
         type: 'string',
-        description: 'URL ou caminho da imagem de referencia.',
+        description: 'URL or path to reference image.',
       },
       duration: {
         type: 'number',
-        description: 'Duracao em segundos (5 ou 10). Default: 5.',
+        description: 'Duration em segundos (5 ou 10). Default: 5.',
       },
       resolution: {
         type: 'string',
-        description: "Resolucao: '720p', '1080p'. Default: '720p'.",
+        description: "Resolution: '720p', '1080p'. Default: '720p'.",
       },
       model: {
         type: 'string',
@@ -39,7 +39,7 @@ export class VideoGenRunwayTool extends BaseTool {
       },
       task_id: {
         type: 'string',
-        description: 'ID da tarefa para verificar status.',
+        description: 'Task ID to check status.',
       },
     },
     required: ['action'],
@@ -47,18 +47,18 @@ export class VideoGenRunwayTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     switch (action) {
       case 'list_models': return this.listModels();
       case 'check_status':
       case 'generate': {
         const apiKey = process.env.RUNWAY_API_KEY || process.env.RUNWAYML_API_SECRET;
-        if (!apiKey) return 'Erro: RUNWAY_API_KEY nao configurada. Obtenha em https://dev.runwayml.com';
+        if (!apiKey) return 'Error: RUNWAY_API_KEY not configured. Get at https://dev.runwayml.com';
         if (action === 'generate') return await this.generate(args, apiKey);
         return await this.checkStatus(args, apiKey);
       }
-      default: return `Erro: acao "${action}" invalida.`;
+      default: return `Error: action "${action}" is invalid.`;
     }
   }
 
@@ -72,7 +72,7 @@ export class VideoGenRunwayTool extends BaseTool {
       '  Features:',
       '    - Text to Video',
       '    - Image to Video (imagem como primeiro frame)',
-      '    - 5s ou 10s de duracao',
+      '    - 5s ou 10s de duration',
       '    - 720p ou 1080p',
       '',
       '  URL: https://runwayml.com/api',
@@ -81,7 +81,7 @@ export class VideoGenRunwayTool extends BaseTool {
 
   private async generate(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const prompt = String(args.prompt || '');
-    if (!prompt) return 'Erro: "prompt" e obrigatorio para generate.';
+    if (!prompt) return 'Error: "prompt" is required. for generate.';
 
     const duration = typeof args.duration === 'number' ? args.duration : 5;
     const resolution = String(args.resolution || '720p');
@@ -122,15 +122,15 @@ export class VideoGenRunwayTool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro Runway: ${parsed.error.message || JSON.stringify(parsed.error)}`;
+      if (parsed.error) return `Runway error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
 
       const lines: string[] = [
         `Video geracao iniciada:`,
         `  Task ID: ${parsed.id}`,
         `  Status: ${parsed.status}`,
         `  Modelo: ${model}`,
-        `  Duracao: ${duration}s`,
-        `  Resolucao: ${resolution}`,
+        `  Duration: ${duration}s`,
+        `  Resolution: ${resolution}`,
         `  Prompt: "${prompt.slice(0, 80)}"`,
       ];
 
@@ -144,13 +144,13 @@ export class VideoGenRunwayTool extends BaseTool {
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   private async checkStatus(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const taskId = String(args.task_id || '');
-    if (!taskId) return 'Erro: "task_id" e obrigatorio para check_status.';
+    if (!taskId) return 'Error: "task_id" is required. for check_status.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -162,7 +162,7 @@ export class VideoGenRunwayTool extends BaseTool {
       ], { timeout: 30000 }).toString();
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro Runway: ${parsed.error.message}`;
+      if (parsed.error) return `Runway error: ${parsed.error.message}`;
 
       const lines: string[] = [
         `Task: ${parsed.id}`,
@@ -174,12 +174,12 @@ export class VideoGenRunwayTool extends BaseTool {
         lines.push(`  Video: ${JSON.stringify(parsed.output).slice(0, 500)}`);
       }
       if (parsed.failure) {
-        lines.push(`  Erro: ${parsed.failure}`);
+        lines.push(`  Error: ${parsed.failure}`);
       }
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 }

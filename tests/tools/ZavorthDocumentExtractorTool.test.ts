@@ -22,14 +22,14 @@ describe('ZavorthDocumentExtractorTool', () => {
 
   it('returns error when file_path is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('file_path');
   });
 
   it('returns error for non-existent file', async () => {
     const result = await tool.execute({ file_path: '/nonexistent/file.pdf' });
-    expect(result).toContain('Erro');
-    expect(result).toContain('nao encontrado');
+    expect(result).toContain('Error');
+    expect(result).toContain('not found');
   });
 
   it('extracts plain text files', async () => {
@@ -91,7 +91,7 @@ describe('ZavorthDocumentExtractorTool', () => {
     const filePath = path.join(tempDir, 'test.xyz');
     fs.writeFileSync(filePath, 'data');
     const result = await tool.execute({ file_path: filePath });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('nao suportado');
   });
 

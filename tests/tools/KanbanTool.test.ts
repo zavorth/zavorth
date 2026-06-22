@@ -23,20 +23,20 @@ describe('KanbanTool', () => {
 
   it('returns error when action is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('action');
   });
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'invalid_action' });
-    expect(result).toContain('Erro');
-    expect(result).toContain('invalida');
+    expect(result).toContain('Error');
+    expect(result).toContain('invalid');
   });
 
   it('creates a board', async () => {
     const result = await tool.execute({ action: 'create_board', title: 'My Board' });
 
-    expect(result).toContain('Quadro');
+    expect(result).toContain('Board');
     expect(result).toContain('criado com sucesso');
     expect(fs.existsSync(path.join(tempDir, 'my_board.json'))).toBe(true);
   });
@@ -45,8 +45,8 @@ describe('KanbanTool', () => {
     await tool.execute({ action: 'create_board', title: 'Test Board' });
     const result = await tool.execute({ action: 'create_board', title: 'Test Board' });
 
-    expect(result).toContain('Erro');
-    expect(result).toContain('ja existe');
+    expect(result).toContain('Error');
+    expect(result).toContain('already exists');
   });
 
   it('adds a card to a board', async () => {
@@ -60,7 +60,7 @@ describe('KanbanTool', () => {
       priority: 'high',
     });
 
-    expect(result).toContain('adicionado');
+    expect(result).toContain('added');
     expect(result).toContain('Task 1');
   });
 
@@ -68,7 +68,7 @@ describe('KanbanTool', () => {
     await tool.execute({ action: 'create_board', title: 'Board1' });
     const result = await tool.execute({ action: 'add_card', board_id: 'board1' });
 
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('title');
   });
 
@@ -89,7 +89,7 @@ describe('KanbanTool', () => {
       column: 'in_progress',
     });
 
-    expect(moveResult).toContain('movido');
+    expect(moveResult).toContain('moved');
     expect(moveResult).toContain('in_progress');
   });
 
@@ -139,13 +139,13 @@ describe('KanbanTool', () => {
       card_id: cardId,
     });
 
-    expect(result).toContain('removido');
+    expect(result).toContain('removed');
   });
 
   it('returns error when board not found', async () => {
     const result = await tool.execute({ action: 'list_cards', board_id: 'nonexistent' });
-    expect(result).toContain('Erro');
-    expect(result).toContain('nao encontrado');
+    expect(result).toContain('Error');
+    expect(result).toContain('not found');
   });
 
   it('returns error for invalid column', async () => {
@@ -157,7 +157,7 @@ describe('KanbanTool', () => {
       column: 'invalid_column',
     });
 
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('coluna');
   });
 });

@@ -18,58 +18,58 @@ export class ZavorthComputerUseTool extends BaseTool {
   public readonly name = 'zavorth_computer_use';
 
   public readonly description =
-    'Controla o desktop do usuario via screenshot + interacao. Permite capturar tela, clicar, digitar, arrastar, rolar, usar atalhos e navegar por coordenadas. Integrado ao ComputerControlPlane e approval system do Zavorth.';
+    'Controls the user desktop via screenshot + interaction. Allows capturing screen, clicking, typing, dragging, scrolling, using shortcuts, and navigating by coordinates. Integrated with the Zavorth ComputerControlPlane and approval system.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'screenshot', 'click', 'double_click', 'right_click', 'type', 'press_key', 'scroll', 'drag', 'move_mouse', 'find_on_screen', 'wait', 'get_screen_size'.",
+        description: "Action: 'screenshot', 'click', 'double_click', 'right_click', 'type', 'press_key', 'scroll', 'drag', 'move_mouse', 'find_on_screen', 'wait', 'get_screen_size'.",
       },
       x: {
         type: 'number',
-        description: 'Coordenada X do pixel.',
+        description: 'X pixel coordinate.',
       },
       y: {
         type: 'number',
-        description: 'Coordenada Y do pixel.',
+        description: 'Y pixel coordinate.',
       },
       x2: {
         type: 'number',
-        description: 'Coordenada X2 de destino (para drag).',
+        description: 'Destination X2 coordinate (for drag).',
       },
       y2: {
         type: 'number',
-        description: 'Coordenada Y2 de destino (para drag).',
+        description: 'Destination Y2 coordinate (for drag).',
       },
       text: {
         type: 'string',
-        description: 'Texto para digitar ou procurar na tela.',
+        description: 'Text to type or search on screen.',
       },
       key: {
         type: 'string',
-        description: "Tecla para pressionar: 'enter', 'tab', 'escape', 'backspace', 'delete', 'space', 'up', 'down', 'left', 'right', 'home', 'end', 'pageup', 'pagedown', 'f1'-'f12', ou combinacao como 'ctrl+c', 'cmd+shift+a'.",
+        description: "Key to press: 'enter', 'tab', 'escape', 'backspace', 'delete', 'space', 'up', 'down', 'left', 'right', 'home', 'end', 'pageup', 'pagedown', 'f1'-'f12', or combination like 'ctrl+c', 'cmd+shift+a'.",
       },
       direction: {
         type: 'string',
-        description: "Direcao do scroll: 'up', 'down', 'left', 'right'.",
+        description: "Scroll direction: 'up', 'down', 'left', 'right'.",
       },
       amount: {
         type: 'number',
-        description: 'Quantidade de scroll (clicks/linhas). Default: 3.',
+        description: 'Scroll amount (clicks/lines). Default: 3.',
       },
       wait_ms: {
         type: 'number',
-        description: 'Tempo de espera em ms (para wait). Default: 1000.',
+        description: 'Wait time in ms (for wait). Default: 1000.',
       },
       confidence: {
         type: 'number',
-        description: 'Nivel de confianca para find_on_screen (0-1). Default: 0.8.',
+        description: 'Confidence level for find_on_screen (0-1). Default: 0.8.',
       },
       region: {
         type: 'string',
-        description: "JSON {x, y, width, height} para restringir screenshot/find a uma regiao.",
+        description: "JSON {x, y, width, height} to restrict screenshot/find to a region.",
       },
     },
     required: ['action'],
@@ -77,7 +77,7 @@ export class ZavorthComputerUseTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: the "action" parameter is required.';
 
     const validActions = [
       'screenshot', 'click', 'double_click', 'right_click', 'type',
@@ -85,14 +85,14 @@ export class ZavorthComputerUseTool extends BaseTool {
       'wait', 'get_screen_size',
     ];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: invalid action "${action}". Use: ${validActions.join(', ')}.`;
     }
 
     const dangerousKeys = ['alt+f4', 'cmd+q', 'ctrl+alt+delete', 'ctrl+c', 'cmd+c'];
     if (action === 'press_key' && typeof args.key === 'string') {
       const keyLower = args.key.toLowerCase();
       if (dangerousKeys.includes(keyLower)) {
-        return `Erro: tecla "${args.key}" requer aprovacao explicita. Use zavorth_action com approval para teclas perigosas.`;
+        return `Error: key "${args.key}" requires explicit approval. Use zavorth_action with approval for dangerous keys.`;
       }
     }
 
@@ -110,10 +110,11 @@ export class ZavorthComputerUseTool extends BaseTool {
         case 'find_on_screen': return await this.findOnScreen(args);
         case 'wait': return this.wait(args);
         case 'get_screen_size': return await this.getScreenSize();
+        default: return `Error: action "${action}" not implemented.`;
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro no ComputerUse: ${message}`;
+      return `ComputerUse error: ${message}`;
     }
   }
 
@@ -124,41 +125,41 @@ export class ZavorthComputerUseTool extends BaseTool {
     }
 
     const result = await this.executeDesktopCommand('screenshot', { region });
-    if (!result.success) return `Erro ao capturar tela: ${result.error}`;
+    if (!result.success) return `Error capturing screen: ${result.error}`;
 
-    return `Screenshot capturado com sucesso. Tamanho: ${result.image_base64 ? Math.round(result.image_base64.length * 0.75 / 1024) : 0}KB. Use a imagem para analise visual.`;
+    return `Screenshot captured successfully. Size: ${result.image_base64 ? Math.round(result.image_base64.length * 0.75 / 1024) : 0}KB. Use the image for visual analysis.`;
   }
 
   private async click(args: Record<string, unknown>, clickType: 'left' | 'double' | 'right'): Promise<string> {
     const x = Number(args.x);
     const y = Number(args.y);
-    if (isNaN(x) || isNaN(y)) return 'Erro: "x" e "y" sao obrigatorios para click.';
+    if (isNaN(x) || isNaN(y)) return 'Error: "x" and "y" are required for click.';
 
     const result = await this.executeDesktopCommand('click', { x, y, click_type: clickType });
-    if (!result.success) return `Erro ao clicar: ${result.error}`;
+    if (!result.success) return `Error clicking: ${result.error}`;
 
-    const typeLabel = { left: 'clique', double: 'duplo-clique', right: 'clique-direito' }[clickType];
-    return `${typeLabel} executado em (${x}, ${y}).`;
+    const typeLabel = { left: 'click', double: 'double-click', right: 'right-click' }[clickType];
+    return `${typeLabel} performed at (${x}, ${y}).`;
   }
 
   private async typeText(args: Record<string, unknown>): Promise<string> {
     const text = String(args.text || '');
-    if (!text) return 'Erro: "text" e obrigatorio para type.';
+    if (!text) return 'Error: "text" is required for type.';
 
     const result = await this.executeDesktopCommand('type', { text });
-    if (!result.success) return `Erro ao digitar: ${result.error}`;
+    if (!result.success) return `Error typing: ${result.error}`;
 
     return `Texto digitado: "${text.slice(0, 50)}${text.length > 50 ? '...' : ''}"`;
   }
 
   private async pressKey(args: Record<string, unknown>): Promise<string> {
     const key = String(args.key || '');
-    if (!key) return 'Erro: "key" e obrigatorio para press_key.';
+    if (!key) return 'Error: "key" is required for press_key.';
 
     const result = await this.executeDesktopCommand('press_key', { key });
-    if (!result.success) return `Erro ao pressionar tecla: ${result.error}`;
+    if (!result.success) return `Error pressing key: ${result.error}`;
 
-    return `Tecla "${key}" pressionada.`;
+    return `Key "${key}" pressed.`;
   }
 
   private async scroll(args: Record<string, unknown>): Promise<string> {
@@ -168,7 +169,7 @@ export class ZavorthComputerUseTool extends BaseTool {
     const y = typeof args.y === 'number' ? args.y : undefined;
 
     const result = await this.executeDesktopCommand('scroll', { direction, amount, x, y });
-    if (!result.success) return `Erro ao rolar: ${result.error}`;
+    if (!result.success) return `Error scrolling: ${result.error}`;
 
     return `Scroll ${direction} x${amount}${x !== undefined && y !== undefined ? ` em (${x}, ${y})` : ''}.`;
   }
@@ -180,52 +181,52 @@ export class ZavorthComputerUseTool extends BaseTool {
     const y2 = Number(args.y2);
 
     if (isNaN(x) || isNaN(y) || isNaN(x2) || isNaN(y2)) {
-      return 'Erro: "x", "y", "x2", "y2" sao obrigatorios para drag.';
+      return 'Error: "x", "y", "x2", "y2" are required for drag.';
     }
 
     const result = await this.executeDesktopCommand('drag', { x, y, x2, y2 });
-    if (!result.success) return `Erro ao arrastar: ${result.error}`;
+    if (!result.success) return `Error dragging: ${result.error}`;
 
-    return `Arrastado de (${x}, ${y}) para (${x2}, ${y2}).`;
+    return `Dragged from (${x}, ${y}) to (${x2}, ${y2}).`;
   }
 
   private async moveMouse(args: Record<string, unknown>): Promise<string> {
     const x = Number(args.x);
     const y = Number(args.y);
-    if (isNaN(x) || isNaN(y)) return 'Erro: "x" e "y" sao obrigatorios para move_mouse.';
+    if (isNaN(x) || isNaN(y)) return 'Error: "x" and "y" are required for move_mouse.';
 
     const result = await this.executeDesktopCommand('move_mouse', { x, y });
-    if (!result.success) return `Erro ao mover mouse: ${result.error}`;
+    if (!result.success) return `Error moving mouse: ${result.error}`;
 
-    return `Mouse movido para (${x}, ${y}).`;
+    return `Mouse moved to (${x}, ${y}).`;
   }
 
   private async findOnScreen(args: Record<string, unknown>): Promise<string> {
     const text = String(args.text || '');
-    if (!text) return 'Erro: "text" e obrigatorio para find_on_screen.';
+    if (!text) return 'Error: "text" is required for find_on_screen.';
 
     const confidence = typeof args.confidence === 'number' ? args.confidence : 0.8;
 
     const result = await this.executeDesktopCommand('find_on_screen', { text, confidence });
-    if (!result.success) return `Erro ao procurar na tela: ${result.error}`;
+    if (!result.success) return `Error searching on screen: ${result.error}`;
 
-    return `Elemento "${text}" encontrado na tela.`;
+    return `Element "${text}" found on screen.`;
   }
 
   private async wait(args: Record<string, unknown>): Promise<string> {
     const waitMs = typeof args.wait_ms === 'number' ? args.wait_ms : 1000;
-    if (waitMs > 30000) return 'Erro: wait maximo de 30 segundos.';
-    if (waitMs < 0) return 'Erro: wait_ms deve ser positivo.';
+    if (waitMs > 30000) return 'Error: maximum wait is 30 seconds.';
+    if (waitMs < 0) return 'Error: wait_ms must be positive.';
 
     await new Promise(r => setTimeout(r, waitMs));
-    return `Aguardado ${waitMs}ms.`;
+    return `Waited ${waitMs}ms.`;
   }
 
   private async getScreenSize(): Promise<string> {
     const result = await this.executeDesktopCommand('get_screen_size', {});
-    if (!result.success) return `Erro ao obter tamanho da tela: ${result.error}`;
+    if (!result.success) return `Error getting screen size: ${result.error}`;
 
-    return `Tamanho da tela obtido.`;
+    return `Screen size obtained.`;
   }
 
   private async executeDesktopCommand(
@@ -242,7 +243,7 @@ export class ZavorthComputerUseTool extends BaseTool {
       return this.executeLinux(command, params);
     }
 
-    return { success: false, action_performed: command, error: `Plataforma "${platform}" nao suportada.` };
+    return { success: false, action_performed: command, error: `Platform "${platform}" not supported.` };
   }
 
   private async executeMacOS(command: string, params: Record<string, unknown>): Promise<ClickResult & Partial<ScreenshotResult>> {
@@ -295,7 +296,7 @@ export class ZavorthComputerUseTool extends BaseTool {
           return { success: true, action_performed: `screen_size: ${(resolution || '').trim()}` };
         }
         default:
-          return { success: false, action_performed: command, error: `Comando "${command}" nao suportado no macOS.` };
+          return { success: false, action_performed: command, error: `Command "${command}" not supported on macOS.` };
       }
     } catch (error: unknown) {
       return { success: false, action_performed: command, error: error instanceof Error ? error.message : String(error) };
@@ -366,7 +367,7 @@ export class ZavorthComputerUseTool extends BaseTool {
           return { success: true, action_performed: `screen_size: ${result.trim()}` };
         }
         default:
-          return { success: false, action_performed: command, error: `Comando "${command}" nao suportado no Windows.` };
+          return { success: false, action_performed: command, error: `Command "${command}" not supported on Windows.` };
       }
     } catch (error: unknown) {
       return { success: false, action_performed: command, error: error instanceof Error ? error.message : String(error) };
@@ -424,7 +425,7 @@ export class ZavorthComputerUseTool extends BaseTool {
           return { success: true, action_performed: `screen_size: ${result.trim()}` };
         }
         default:
-          return { success: false, action_performed: command, error: `Comando "${command}" nao suportado no Linux.` };
+          return { success: false, action_performed: command, error: `Command "${command}" not supported on Linux.` };
       }
     } catch (error: unknown) {
       return { success: false, action_performed: command, error: error instanceof Error ? error.message : String(error) };

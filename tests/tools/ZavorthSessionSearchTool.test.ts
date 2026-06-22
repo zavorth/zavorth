@@ -33,14 +33,14 @@ describe('ZavorthSessionSearchTool', () => {
 
   it('returns error when query is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('query');
   });
 
   it('finds matches in sessions', async () => {
     const result = await tool.execute({ query: 'TypeScript' });
     expect(result).toContain('TypeScript');
-    expect(result).toContain('resultado');
+    expect(result).toContain('result');
   });
 
   it('finds matches in memory', async () => {
@@ -50,12 +50,12 @@ describe('ZavorthSessionSearchTool', () => {
 
   it('returns no results for missing query', async () => {
     const result = await tool.execute({ query: 'nonexistent_term_xyz' });
-    expect(result).toContain('Nenhum resultado');
+    expect(result).toContain('No results');
   });
 
   it('limits results with max_results', async () => {
     const result = await tool.execute({ query: 'a', max_results: 1 });
-    expect(result).toContain('1 resultado');
+    expect(result).toContain('1 result');
   });
 
   it('supports exact search mode', async () => {

@@ -8,7 +8,7 @@ export class ProviderHuggingFaceTool extends BaseTool {
   public readonly name = 'zavorth_huggingface';
 
   public readonly description =
-    'HuggingFace Inference API — rode modelos open-source diretamente via API. Suporta text generation, image generation, audio, e mais.';
+    'HuggingFace Inference API — run open-source models directly via API. Suporta text generation, image generation, audio, e mais.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -27,19 +27,19 @@ export class ProviderHuggingFaceTool extends BaseTool {
       },
       image_path: {
         type: 'string',
-        description: 'Caminho da imagem para analise.',
+        description: 'Image path para analise.',
       },
       audio_path: {
         type: 'string',
-        description: 'Caminho do audio para transcricao.',
+        description: 'Path to audio for transcription.',
       },
       max_tokens: {
         type: 'number',
-        description: 'Maximo de tokens. Default: 256.',
+        description: 'Maximum tokens. Default: 256.',
       },
       temperature: {
         type: 'number',
-        description: 'Temperatura (0-1). Default: 0.7.',
+        description: 'Temperature (0-1). Default: 0.7.',
       },
     },
     required: ['action'],
@@ -47,7 +47,7 @@ export class ProviderHuggingFaceTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     switch (action) {
       case 'list_models': return this.listModels();
@@ -56,12 +56,12 @@ export class ProviderHuggingFaceTool extends BaseTool {
       case 'image_generation':
       case 'audio_transcription': {
         const apiKey = process.env.HF_API_TOKEN || process.env.HUGGINGFACE_TOKEN;
-        if (!apiKey) return 'Erro: HF_API_TOKEN nao configurado. Obtenha em https://huggingface.co/settings/tokens';
+        if (!apiKey) return 'Error: HF_API_TOKEN not configured. Get at https://huggingface.co/settings/tokens';
         if (action === 'text_generation') return await this.textGeneration(args, apiKey);
         if (action === 'image_generation') return await this.imageGeneration(args, apiKey);
         return await this.audioTranscription(args, apiKey);
       }
-      default: return `Erro: acao "${action}" invalida.`;
+      default: return `Error: action "${action}" is invalid.`;
     }
   }
 
@@ -91,7 +91,7 @@ export class ProviderHuggingFaceTool extends BaseTool {
 
   private async checkStatus(): Promise<string> {
     const apiKey = process.env.HF_API_TOKEN || process.env.HUGGINGFACE_TOKEN;
-    if (!apiKey) return 'HuggingFace: Token nao configurado.';
+    if (!apiKey) return 'HuggingFace: Token not configured.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -102,16 +102,16 @@ export class ProviderHuggingFaceTool extends BaseTool {
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `HuggingFace: Erro ${parsed.error}`;
-      return `HuggingFace: Conectado. Usuario: ${parsed.name || 'unknown'}, Plano: ${parsed.plan || 'free'}`;
+      return `HuggingFace: Connected. Usuario: ${parsed.name || 'unknown'}, Plano: ${parsed.plan || 'free'}`;
     } catch (error: unknown) {
-      return `HuggingFace: Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `HuggingFace: Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   private async textGeneration(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const model = String(args.model || 'meta-llama/Meta-Llama-3-8B-Instruct');
     const prompt = String(args.prompt || '');
-    if (!prompt) return 'Erro: "prompt" e obrigatorio para text_generation.';
+    if (!prompt) return 'Error: "prompt" is required. for text_generation.';
 
     const maxTokens = typeof args.max_tokens === 'number' ? args.max_tokens : 256;
     const temperature = typeof args.temperature === 'number' ? args.temperature : 0.7;
@@ -137,19 +137,19 @@ export class ProviderHuggingFaceTool extends BaseTool {
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro HF: ${parsed.error}`;
+      if (parsed.error) return `HF error: ${parsed.error}`;
 
       const text = Array.isArray(parsed) ? parsed[0]?.generated_text : parsed.generated_text || result;
       return `Resposta (${model}):\n${text}`;
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   private async imageGeneration(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const model = String(args.model || 'stabilityai/stable-diffusion-xl-base-1.0');
     const prompt = String(args.prompt || '');
-    if (!prompt) return 'Erro: "prompt" e obrigatorio para image_generation.';
+    if (!prompt) return 'Error: "prompt" is required. for image_generation.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -172,17 +172,17 @@ export class ProviderHuggingFaceTool extends BaseTool {
       if (fs.existsSync(outputPath)) {
         return `Imagem gerada: ${outputPath}`;
       }
-      return 'Erro: Imagem nao foi gerada.';
+      return 'Error: Image was not generated.';
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 
   private async audioTranscription(args: Record<string, unknown>, apiKey: string): Promise<string> {
     const model = String(args.model || 'openai/whisper-large-v3');
     const audioPath = String(args.audio_path || '');
-    if (!audioPath) return 'Erro: "audio_path" e obrigatorio.';
-    if (!fs.existsSync(audioPath)) return `Erro: arquivo "${audioPath}" nao encontrado.`;
+    if (!audioPath) return 'Error: "audio_path" is required.';
+    if (!fs.existsSync(audioPath)) return `Error: file "${audioPath}" not found.`;
 
     try {
       const { execFileSync } = await import('child_process');
@@ -194,10 +194,10 @@ export class ProviderHuggingFaceTool extends BaseTool {
       ], { timeout: 120000 }).toString();
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro HF: ${parsed.error}`;
+      if (parsed.error) return `HF error: ${parsed.error}`;
       return `Transcricao: ${parsed.text || result}`;
     } catch (error: unknown) {
-      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+      return `Error: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 }

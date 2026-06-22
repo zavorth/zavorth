@@ -59,32 +59,32 @@ export class MemoryLanceDBService {
 
   public createCollection(name: string): string {
     if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
-      return `Erro: nome de colecao "${name}" invalido. Use apenas letras, numeros, _ e -.`;
+      return `Error: invalid collection name "${name}". Use only letters, numbers, _ and -.`;
     }
     if (this.collections.has(name)) {
-      return `Colecao "${name}" ja existe.`;
+      return `Collection "${name}" already exists.`;
     }
     this.collections.set(name, []);
     this.saveCollection(name);
-    return `Colecao "${name}" criada com dimensao ${this.dimension}.`;
+    return `Collection "${name}" created com dimensao ${this.dimension}.`;
   }
 
   public deleteCollection(name: string): string {
     if (!this.collections.has(name)) {
-      return `Colecao "${name}" nao encontrada.`;
+      return `Collection "${name}" not found.`;
     }
     this.collections.delete(name);
     const filePath = this.collectionPath(name);
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    return `Colecao "${name}" deletada.`;
+    return `Collection "${name}" deleted.`;
   }
 
   public listCollections(): string {
-    if (this.collections.size === 0) return 'Nenhuma colecao encontrada.';
+    if (this.collections.size === 0) return 'No collections encontrada.';
 
     const lines: string[] = ['Colecoes LanceDB:'];
     for (const [name, docs] of this.collections) {
-      lines.push(`  ${name}: ${docs.length} documentos`);
+      lines.push(`  ${name}: ${docs.length} documents`);
     }
     return lines.join('\n');
   }
@@ -106,7 +106,7 @@ export class MemoryLanceDBService {
     this.collections.get(collection)!.push(doc);
     this.saveCollection(collection);
 
-    return `Documento inserido na colecao "${collection}". ID: ${doc.id}`;
+    return `Document inserido na collection "${collection}". ID: ${doc.id}`;
   }
 
   public insertBatch(collection: string, documents: Array<{ content: string; metadata?: Record<string, unknown> }>): string {
@@ -131,7 +131,7 @@ export class MemoryLanceDBService {
     }
 
     this.saveCollection(collection);
-    return `${ids.length} documentos inseridos na colecao "${collection}".`;
+    return `${ids.length} documents inseridos na collection "${collection}".`;
   }
 
   public query(collection: string, queryText: string, topK: number = 5, filter?: Record<string, unknown>): LanceDBQueryResult[] {
@@ -163,30 +163,30 @@ export class MemoryLanceDBService {
 
   public delete(collection: string, docId: string): string {
     const docs = this.collections.get(collection);
-    if (!docs) return `Colecao "${collection}" nao encontrada.`;
+    if (!docs) return `Collection "${collection}" not found.`;
 
     const index = docs.findIndex((d) => d.id === docId);
-    if (index === -1) return `Documento "${docId}" nao encontrado.`;
+    if (index === -1) return `Document "${docId}" not found.`;
 
     docs.splice(index, 1);
     this.saveCollection(collection);
-    return `Documento "${docId}" deletado da colecao "${collection}".`;
+    return `Document "${docId}" deleted da collection "${collection}".`;
   }
 
   public getStats(collection?: string): string {
     if (collection) {
       const docs = this.collections.get(collection);
-      if (!docs) return `Colecao "${collection}" nao encontrada.`;
-      return `Colecao "${collection}": ${docs.length} documentos, dimensao ${this.dimension}.`;
+      if (!docs) return `Collection "${collection}" not found.`;
+      return `Collection "${collection}": ${docs.length} documents, dimension ${this.dimension}.`;
     }
 
     let totalDocs = 0;
-    const lines: string[] = ['Estatisticas LanceDB:'];
+    const lines: string[] = ['Statistics LanceDB:'];
     for (const [name, docs] of this.collections) {
       totalDocs += docs.length;
-      lines.push(`  ${name}: ${docs.length} documentos`);
+      lines.push(`  ${name}: ${docs.length} documents`);
     }
-    lines.push(`Total: ${this.collections.size} colecoes, ${totalDocs} documentos`);
+    lines.push(`Total: ${this.collections.size} colecoes, ${totalDocs} documents`);
     return lines.join('\n');
   }
 

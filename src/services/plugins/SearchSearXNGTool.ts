@@ -8,7 +8,7 @@ export class SearchSearXNGTool extends BaseTool {
   public readonly name = 'zavorth_searxng';
 
   public readonly description =
-    'SearXNG — meta-buscador self-hosted e privado. Agrega resultados de multiplos mecanismos de busca sem rastreamento.';
+    'SearXNG — self-hosted private meta-search engine. Agrega results de multiplos mecanismos de busca sem rastreamento.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -19,11 +19,11 @@ export class SearchSearXNGTool extends BaseTool {
       },
       query: {
         type: 'string',
-        description: 'Termo de busca.',
+        description: 'Search term.',
       },
       instance_url: {
         type: 'string',
-        description: 'URL da instancia SearXNG (ex: http://localhost:8888).',
+        description: 'Instance URL SearXNG (ex: http://localhost:8888).',
       },
       categories: {
         type: 'string',
@@ -39,7 +39,7 @@ export class SearchSearXNGTool extends BaseTool {
       },
       max_results: {
         type: 'number',
-        description: 'Maximo de resultados. Default: 10.',
+        description: 'Maximo de results. Default: 10.',
       },
       time_range: {
         type: 'string',
@@ -59,19 +59,19 @@ export class SearchSearXNGTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: 'action' parameter is required.';
 
     switch (action) {
       case 'search': return await this.search(args);
       case 'list_instances': return this.listInstances();
       case 'configure': return this.configure(args);
-      default: return `Erro: acao "${action}" invalida.`;
+      default: return `Error: action "${action}" is invalid.`;
     }
   }
 
   private async search(args: Record<string, unknown>): Promise<string> {
     const query = String(args.query || '');
-    if (!query) return 'Erro: "query" e obrigatoria.';
+    if (!query) return 'Error: "query" is required.';
 
     const instanceUrl = String(args.instance_url || process.env.SEARXNG_URL || this.defaultInstances[0]);
     const categories = typeof args.categories === 'string' ? args.categories : 'general';
@@ -100,13 +100,13 @@ export class SearchSearXNGTool extends BaseTool {
       ], { timeout: 20000, maxBuffer: 10 * 1024 * 1024 }).toString();
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `Erro SearXNG: ${parsed.error}`;
+      if (parsed.error) return `SearXNG error: ${parsed.error}`;
 
       const results = (parsed.results || []).slice(0, maxResults);
-      if (results.length === 0) return `Nenhum resultado para "${query}" no SearXNG.`;
+      if (results.length === 0) return `No results para "${query}" no SearXNG.`;
 
       const lines: string[] = [
-        `SearXNG: "${query}" (${results.length} resultados, instancia: ${instanceUrl})`,
+        `SearXNG: "${query}" (${results.length} results, instance: ${instanceUrl})`,
         '',
       ];
 
@@ -124,7 +124,7 @@ export class SearchSearXNGTool extends BaseTool {
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `Erro ao buscar no SearXNG: ${error instanceof Error ? error.message : String(error)}. Verifique se a instancia esta rodando.`;
+      return `SearXNG search error: ${error instanceof Error ? error.message : String(error)}. Verifique se a instance esta running.`;
     }
   }
 
@@ -138,7 +138,7 @@ export class SearchSearXNGTool extends BaseTool {
       '  Publicas:',
       ...this.defaultInstances.slice(1).map((u) => `    ${u}`),
       '',
-      '  Configure SearXNG_URL para sua instancia.',
+      '  Configure SearXNG_URL for your instance.',
       '  Instalar: pip install searxng ou docker run searxng/searxng',
     ];
     return lines.join('\n');
@@ -146,7 +146,7 @@ export class SearchSearXNGTool extends BaseTool {
 
   private configure(args: Record<string, unknown>): string {
     const instanceUrl = String(args.instance_url || '');
-    if (!instanceUrl) return 'Erro: "instance_url" e obrigatorio para configure.';
+    if (!instanceUrl) return 'Error: "instance_url" is required. for configure.';
 
     return [
       `SearXNG configurado para: ${instanceUrl}`,
@@ -154,7 +154,7 @@ export class SearchSearXNGTool extends BaseTool {
       'Para tornar permanente, adicione ao .env:',
       `  SEARXNG_URL=${instanceUrl}`,
       '',
-      'Verifique se a instancia responde:',
+      'Check if the instance responds:',
       `  curl ${instanceUrl}/search?q=test&format=json`,
     ].join('\n');
   }

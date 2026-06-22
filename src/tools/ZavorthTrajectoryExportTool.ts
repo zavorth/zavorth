@@ -30,74 +30,74 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
   public readonly name = 'zavorth_trajectory_export';
 
   public readonly description =
-    'Exporta trajetorias de execucao do Zavorth para treinamento de modelos, pesquisa e analise. Suporta compressao, multiplos formatos (JSON, JSONL, CSV, Parquet, Markdown), filtragem e particionamento. Integrado ao BatchTrajectoryTool.';
+    'Exports Zavorth execution trajectories for model training, research, and analysis. Supports compression, multiple formats (JSON, JSONL, CSV, Parquet, Markdown), filtering, and partitioning. Integrated with BatchTrajectoryTool.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'list', 'export', 'compress', 'merge', 'stats', 'filter', 'convert'.",
+        description: "Action: 'list', 'export', 'compress', 'merge', 'stats', 'filter', 'convert'.",
       },
       trajectory_ids: {
         type: 'string',
-        description: "JSON array de IDs de trajetorias para exportar. Ou 'all' para todas.",
+        description: "JSON array of trajectory IDs to export. Or 'all' for all.",
       },
       session_id: {
         type: 'string',
-        description: 'Filtrar por sessao.',
+        description: 'Filter by session.',
       },
       format: {
         type: 'string',
-        description: "Formato de saida: 'json' (default), 'jsonl', 'csv', 'parquet', 'markdown', 'alpaca', 'sharegpt'.",
+        description: "Output format: 'json' (default), 'jsonl', 'csv', 'parquet', 'markdown', 'alpaca', 'sharegpt'.",
       },
       output_path: {
         type: 'string',
-        description: 'Caminho do arquivo de saida.',
+        description: 'Output file path.',
       },
       output_dir: {
         type: 'string',
-        description: 'Diretorio de saida (para export multi-arquivo).',
+        description: 'Output directory (for multi-file export).',
       },
       compress: {
         type: 'boolean',
-        description: 'Se true, comprime a saida (gzip). Default: false.',
+        description: 'If true, compresses the output (gzip). Default: false.',
       },
       compress_level: {
         type: 'number',
-        description: 'Nivel de compressao (1-9). Default: 6.',
+        description: 'Compression level (1-9). Default: 6.',
       },
       include_metadata: {
         type: 'boolean',
-        description: 'Incluir metadata nas trajetorias. Default: true.',
+        description: 'Include metadata in trajectories. Default: true.',
       },
       include_system_messages: {
         type: 'boolean',
-        description: 'Incluir mensagens do sistema. Default: false.',
+        description: 'Include system messages. Default: false.',
       },
       include_tool_results: {
         type: 'boolean',
-        description: 'Incluir resultados de tools. Default: true.',
+        description: 'Include tool results. Default: true.',
       },
       max_turns: {
         type: 'number',
-        description: 'Maximo de turnos por trajetoria. Default: sem limite.',
+        description: 'Maximum turns per trajectory. Default: no limit.',
       },
       min_tool_calls: {
         type: 'number',
-        description: 'Minimo de tool calls para incluir. Default: 0.',
+        description: 'Minimum tool calls to include. Default: 0.',
       },
       outcome_filter: {
         type: 'string',
-        description: "Filtrar por outcome: 'success', 'failure', 'partial', 'abandoned'.",
+        description: "Filter by outcome: 'success', 'failure', 'partial', 'abandoned'.",
       },
       split_by: {
         type: 'string',
-        description: "Particionar por: 'none' (default), 'session', 'outcome', 'date'.",
+        description: "Split by: 'none' (default), 'session', 'outcome', 'date'.",
       },
       chunk_size: {
         type: 'number',
-        description: 'Tamanho do chunk para JSONL (linhas por arquivo). Default: 1000.',
+        description: 'Chunk size for JSONL (lines per file). Default: 1000.',
       },
     },
     required: ['action'],
@@ -112,11 +112,11 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: the "action" parameter is required.';
 
     const validActions = ['list', 'export', 'compress', 'merge', 'stats', 'filter', 'convert'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: invalid action "${action}". Use: ${validActions.join(', ')}.`;
     }
 
     try {
@@ -129,10 +129,10 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
         case 'filter': return this.filterTrajectories(args);
         case 'convert': return await this.convertTrajectory(args);
       }
-      return 'Erro interno.';
+      return 'Internal error.';
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro no TrajectoryExport: ${message}`;
+      return `TrajectoryExport error: ${message}`;
     }
   }
 
@@ -145,15 +145,15 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
       filtered = filtered.filter((t) => t.session_id === sessionId);
     }
 
-    if (filtered.length === 0) return 'Nenhuma trajetoria encontrada.';
+    if (filtered.length === 0) return 'No trajectories found.';
 
-    const lines: string[] = [`Trajetorias (${filtered.length}):`];
+    const lines: string[] = [`Trajectories (${filtered.length}):`];
     for (const t of filtered.slice(0, 30)) {
       const outcomeIcon = { success: '✅', failure: '❌', partial: '⚠️', abandoned: '🚫' }[t.outcome];
-      lines.push(`  ${outcomeIcon} [${t.id}] ${t.task_description.slice(0, 60)} | ${t.total_turns} turnos | ${t.total_tool_calls} tools | ${t.outcome}`);
+      lines.push(`  ${outcomeIcon} [${t.id}] ${t.task_description.slice(0, 60)} | ${t.total_turns} turns | ${t.total_tool_calls} tools | ${t.outcome}`);
     }
     if (filtered.length > 30) {
-      lines.push(`  ... e mais ${filtered.length - 30} trajetorias.`);
+      lines.push(`  ... and ${filtered.length - 30} more trajectories.`);
     }
     return lines.join('\n');
   }
@@ -182,7 +182,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
     }
 
     if (trajectories.length === 0) {
-      return 'Nenhuma trajetoria encontrada para exportar.';
+      return 'No trajectories found to export.';
     }
 
     let output: string;
@@ -211,13 +211,13 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
         break;
       }
       case 'markdown': {
-        const mdLines: string[] = ['# Trajetorias Exportadas', '', `Total: ${trajectories.length}`, ''];
+        const mdLines: string[] = ['# Exported Trajectories', '', `Total: ${trajectories.length}`, ''];
         for (const t of trajectories) {
           const outcomeIcon = { success: '✅', failure: '❌', partial: '⚠️', abandoned: '🚫' }[t.outcome];
           mdLines.push(`## ${outcomeIcon} ${t.task_description}`);
           mdLines.push(`- **ID**: ${t.id}`);
           mdLines.push(`- **Outcome**: ${t.outcome}`);
-          mdLines.push(`- **Turnos**: ${t.total_turns}`);
+          mdLines.push(`- **Turns**: ${t.total_turns}`);
           mdLines.push(`- **Tools**: ${t.tools_used.join(', ')}`);
           mdLines.push('');
         }
@@ -288,18 +288,18 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
       }
 
       fs.writeFileSync(resolvedPath, output, 'utf-8');
-      return `Exportado ${trajectories.length} trajetorias para ${resolvedPath} (formato: ${format}). Tamanho: ${(output.length / 1024).toFixed(1)} KB.`;
+      return `Exported ${trajectories.length} trajectories to ${resolvedPath} (format: ${format}). Size: ${(output.length / 1024).toFixed(1)} KB.`;
     }
 
-    return `Export (${format}) com ${trajectories.length} trajetorias:\n${output.slice(0, 3000)}${output.length > 3000 ? '\n...' : ''}`;
+    return `Export (${format}) with ${trajectories.length} trajectories:\n${output.slice(0, 3000)}${output.length > 3000 ? '\n...' : ''}`;
   }
 
   private async compressTrajectories(args: Record<string, unknown>): Promise<string> {
     const inputPath = String(args.output_path || '');
-    if (!inputPath) return 'Erro: "output_path" e obrigatorio para compress.';
+    if (!inputPath) return 'Error: "output_path" is required for compress.';
 
     const resolvedPath = path.resolve(inputPath);
-    if (!fs.existsSync(resolvedPath)) return `Erro: arquivo "${inputPath}" nao encontrado.`;
+    if (!fs.existsSync(resolvedPath)) return `Error: file "${inputPath}" not found.`;
 
     const level = typeof args.compress_level === 'number' ? args.compress_level : 6;
     return this.writeCompressed(resolvedPath, fs.readFileSync(resolvedPath, 'utf-8'), level);
@@ -308,10 +308,10 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
   private async mergeTrajectories(args: Record<string, unknown>): Promise<string> {
     const idsRaw = String(args.trajectory_ids || '[]');
     let ids: string[];
-    try { ids = JSON.parse(idsRaw); } catch { return 'Erro: JSON de "trajectory_ids" invalido.'; }
+    try { ids = JSON.parse(idsRaw); } catch { return 'Error: invalid JSON for "trajectory_ids".'; }
 
     const trajectories = this.loadTrajectories().filter((t) => ids.includes(t.id));
-    if (trajectories.length === 0) return 'Nenhuma trajetoria encontrada com os IDs fornecidos.';
+    if (trajectories.length === 0) return 'No trajectories found with the provided IDs.';
 
     const merged: Trajectory = {
       id: `merged_${Date.now()}`,
@@ -331,13 +331,13 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
     const outputPath = typeof args.output_path === 'string' ? args.output_path : path.join(this.trajectoriesDir, `merged_${Date.now()}.json`);
     fs.writeFileSync(path.resolve(outputPath), JSON.stringify(merged, null, 2), 'utf-8');
 
-    return `Merge de ${trajectories.length} trajetorias salvo em ${outputPath}. Total: ${merged.total_turns} turnos, ${merged.total_tool_calls} tool calls.`;
+    return `Merge of ${trajectories.length} trajectories saved to ${outputPath}. Total: ${merged.total_turns} turns, ${merged.total_tool_calls} tool calls.`;
   }
 
   private getStats(args: Record<string, unknown>): string {
     const trajectories = this.loadTrajectories();
 
-    if (trajectories.length === 0) return 'Nenhuma trajetoria encontrada.';
+    if (trajectories.length === 0) return 'No trajectories found.';
 
     const byOutcome: Record<string, number> = {};
     const byTool: Record<string, number> = {};
@@ -356,17 +356,17 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
     }
 
     const lines: string[] = [
-      'Estatisticas de Trajetorias:',
+      'Trajectory Statistics:',
       '',
-      `Total: ${trajectories.length} trajetorias`,
-      `Turnos totais: ${totalTurns} (media: ${(totalTurns / trajectories.length).toFixed(1)})`,
-      `Tool calls totais: ${totalToolCalls} (media: ${(totalToolCalls / trajectories.length).toFixed(1)})`,
-      `Duracao total: ${(totalDuration / 1000 / 60).toFixed(1)} min (media: ${(totalDuration / trajectories.length / 1000).toFixed(1)}s)`,
+      `Total: ${trajectories.length} trajectories`,
+      `Total turns: ${totalTurns} (average: ${(totalTurns / trajectories.length).toFixed(1)})`,
+      `Total tool calls: ${totalToolCalls} (average: ${(totalToolCalls / trajectories.length).toFixed(1)})`,
+      `Total duration: ${(totalDuration / 1000 / 60).toFixed(1)} min (average: ${(totalDuration / trajectories.length / 1000).toFixed(1)}s)`,
       '',
       'Por Outcome:',
       ...Object.entries(byOutcome).map(([outcome, count]) => `  ${outcome}: ${count} (${((count / trajectories.length) * 100).toFixed(1)}%)`),
       '',
-      'Top Tools Usadas:',
+      'Top Tools Used:',
       ...Object.entries(byTool).sort((a, b) => b[1] - a[1]).slice(0, 15).map(([tool, count]) => `  ${tool}: ${count}`),
     ];
 
@@ -388,16 +388,16 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
       filtered = filtered.filter((t) => t.total_tool_calls >= minToolCalls);
     }
 
-    return `Filtro aplicado: ${filtered.length} de ${trajectories.length} trajetorias selecionadas.`;
+    return `Filter applied: ${filtered.length} of ${trajectories.length} trajectories selected.`;
   }
 
   private async convertTrajectory(args: Record<string, unknown>): Promise<string> {
     const idsRaw = String(args.trajectory_ids || '[]');
     let ids: string[];
-    try { ids = JSON.parse(idsRaw); } catch { return 'Erro: JSON de "trajectory_ids" invalido.'; }
+    try { ids = JSON.parse(idsRaw); } catch { return 'Error: invalid JSON for "trajectory_ids".'; }
 
     const trajectories = this.loadTrajectories().filter((t) => ids.includes(t.id));
-    if (trajectories.length === 0) return 'Nenhuma trajetoria encontrada.';
+    if (trajectories.length === 0) return 'No trajectories found.';
 
     const format = String(args.format || 'alpaca');
     return this.exportTrajectories({ ...args, trajectory_ids: JSON.stringify(ids) });
@@ -488,7 +488,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
       files.push(filePath);
     }
 
-    return `Export particionado por "${splitBy}": ${files.length} arquivo(s) criados em ${outputDir}.`;
+    return `Split export by "${splitBy}": ${files.length} file(s) created in ${outputDir}.`;
   }
 
   private writeCompressed(filePath: string, content: string, level: number): string {
@@ -498,7 +498,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
     const originalSize = content.length;
     const compressedSize = compressed.length;
     const ratio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
-    return `Comprimido: ${filePath}.gz (${(originalSize / 1024).toFixed(1)}KB -> ${(compressedSize / 1024).toFixed(1)}KB, ${ratio}% reducao).`;
+    return `Compressed: ${filePath}.gz (${(originalSize / 1024).toFixed(1)}KB -> ${(compressedSize / 1024).toFixed(1)}KB, ${ratio}% reduction).`;
   }
 
   private listFilesRecursively(dir: string): string[] {

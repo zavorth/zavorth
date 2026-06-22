@@ -18,13 +18,13 @@ describe('MemoryLanceDBService', () => {
 
   it('creates a collection', () => {
     const result = service.createCollection('test');
-    expect(result).toContain('criada');
+    expect(result).toContain('created');
   });
 
   it('prevents duplicate collection', () => {
     service.createCollection('test');
     const result = service.createCollection('test');
-    expect(result).toContain('ja existe');
+    expect(result).toContain('already exists');
   });
 
   it('lists collections', () => {
@@ -38,7 +38,7 @@ describe('MemoryLanceDBService', () => {
   it('inserts a document', () => {
     service.createCollection('docs');
     const result = service.insert('docs', 'Hello world', { type: 'test' });
-    expect(result).toContain('inserido');
+    expect(result).toContain('inserted');
   });
 
   it('inserts batch documents', () => {
@@ -48,7 +48,7 @@ describe('MemoryLanceDBService', () => {
       { content: 'Doc 2' },
       { content: 'Doc 3' },
     ]);
-    expect(result).toContain('3 documentos');
+    expect(result).toContain('3 documents');
   });
 
   it('queries documents', () => {
@@ -74,20 +74,20 @@ describe('MemoryLanceDBService', () => {
     service.insert('docs', 'Delete me');
     const docs = service.query('docs', 'delete', 1);
     const result = service.delete('docs', docs[0].id);
-    expect(result).toContain('deletado');
+    expect(result).toContain('deleted');
   });
 
   it('deletes a collection', () => {
     service.createCollection('temp');
     const result = service.deleteCollection('temp');
-    expect(result).toContain('deletada');
+    expect(result).toContain('deleted');
   });
 
   it('gets stats', () => {
     service.createCollection('docs');
     service.insert('docs', 'Test');
     const result = service.getStats('docs');
-    expect(result).toContain('1 documentos');
+    expect(result).toContain('1 document');
   });
 
   it('gets global stats', () => {
@@ -95,6 +95,6 @@ describe('MemoryLanceDBService', () => {
     service.createCollection('b');
     service.insert('a', 'Test');
     const result = service.getStats();
-    expect(result).toContain('2 colecoes');
+    expect(result).toContain('2 collections');
   });
 });

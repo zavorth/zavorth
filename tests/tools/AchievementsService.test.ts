@@ -44,12 +44,12 @@ describe('AchievementsService', () => {
 
   it('tracks streak', () => {
     const result = service.updateStreak('user1', 'daily_usage');
-    expect(result).toContain('1 dias');
+    expect(result).toContain('1 days');
   });
 
   it('manually unlocks achievement', () => {
     const result = service.unlockManually('user1', 'hidden_easter_egg');
-    expect(result).toContain('desbloqueado');
+    expect(result).toContain('unblocked');
   });
 
   it('gets user profile', () => {
@@ -69,13 +69,13 @@ describe('AchievementsService', () => {
 
   it('returns error for non-existent achievement', () => {
     const result = service.unlockManually('user1', 'nonexistent');
-    expect(result).toContain('nao encontrado');
+    expect(result).toContain('not found');
   });
 
   it('returns error for already unlocked', () => {
     service.unlockManually('user1', 'hidden_easter_egg');
     const result = service.unlockManually('user1', 'hidden_easter_egg');
-    expect(result).toContain('ja desbloqueado');
+    expect(result).toContain('already unlocked');
   });
 
   it('calculates level correctly', () => {

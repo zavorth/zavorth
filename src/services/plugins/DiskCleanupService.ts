@@ -37,23 +37,23 @@ export class DiskCleanupService {
 
   private initDefaultRules(): void {
     this.rules = [
-      { id: 'temp_files', name: 'Arquivos temporarios', pattern: '*.tmp,*.temp,*.bak', max_age_days: 7, max_size_mb: 100, directories: [path.join(process.cwd(), 'data', 'runtime', 'temp'), require('os').tmpdir()], dry_run: false, enabled: true },
-      { id: 'screenshots', name: 'Screenshots antigos', pattern: 'screenshot_*.png', max_age_days: 30, max_size_mb: 500, directories: [path.join(process.cwd(), 'data', 'runtime', 'playwright'), path.join(process.cwd(), 'data', 'runtime', 'computer-use')], dry_run: false, enabled: true },
-      { id: 'logs_old', name: 'Logs antigos', pattern: '*.log', max_age_days: 14, max_size_mb: 200, directories: [path.join(process.cwd(), 'data', 'runtime', 'logs')], dry_run: false, enabled: true },
-      { id: 'cache', name: 'Cache de buscas', pattern: 'search_*.json,contents_*.json', max_age_days: 3, max_size_mb: 100, directories: [path.join(process.cwd(), 'data', 'runtime', 'exa-cache'), path.join(process.cwd(), 'data', 'runtime', 'search-cache')], dry_run: false, enabled: true },
-      { id: 'otel_exports', name: 'Exportes OTEL', pattern: 'export_*.json', max_age_days: 7, max_size_mb: 200, directories: [path.join(process.cwd(), 'data', 'runtime', 'otel')], dry_run: false, enabled: true },
-      { id: 'ocr_temp', name: 'Temp OCR', pattern: 'page-*.png,*.png', max_age_days: 1, max_size_mb: 100, directories: [path.join(process.cwd(), 'data', 'runtime', 'ocr_temp')], dry_run: false, enabled: true },
-      { id: 'node_modules_cache', name: 'Cache npm/yarn', pattern: '_cacache,*.tgz', max_age_days: 30, max_size_mb: 500, directories: [path.join(process.cwd(), 'node_modules', '.cache')], dry_run: false, enabled: true },
+      { id: 'temp_files', name: 'Temporary files', pattern: '*.tmp,*.temp,*.bak', max_age_days: 7, max_size_mb: 100, directories: [path.join(process.cwd(), 'data', 'runtime', 'temp'), require('os').tmpdir()], dry_run: false, enabled: true },
+      { id: 'screenshots', name: 'Old screenshots', pattern: 'screenshot_*.png', max_age_days: 30, max_size_mb: 500, directories: [path.join(process.cwd(), 'data', 'runtime', 'playwright'), path.join(process.cwd(), 'data', 'runtime', 'computer-use')], dry_run: false, enabled: true },
+      { id: 'logs_old', name: 'Old logs', pattern: '*.log', max_age_days: 14, max_size_mb: 200, directories: [path.join(process.cwd(), 'data', 'runtime', 'logs')], dry_run: false, enabled: true },
+      { id: 'cache', name: 'Search cache', pattern: 'search_*.json,contents_*.json', max_age_days: 3, max_size_mb: 100, directories: [path.join(process.cwd(), 'data', 'runtime', 'exa-cache'), path.join(process.cwd(), 'data', 'runtime', 'search-cache')], dry_run: false, enabled: true },
+      { id: 'otel_exports', name: 'OTEL exports', pattern: 'export_*.json', max_age_days: 7, max_size_mb: 200, directories: [path.join(process.cwd(), 'data', 'runtime', 'otel')], dry_run: false, enabled: true },
+      { id: 'ocr_temp', name: 'OCR temp', pattern: 'page-*.png,*.png', max_age_days: 1, max_size_mb: 100, directories: [path.join(process.cwd(), 'data', 'runtime', 'ocr_temp')], dry_run: false, enabled: true },
+      { id: 'node_modules_cache', name: 'npm/yarn cache', pattern: '_cacache,*.tgz', max_age_days: 30, max_size_mb: 500, directories: [path.join(process.cwd(), 'node_modules', '.cache')], dry_run: false, enabled: true },
     ];
   }
 
   public scan(ruleId?: string): string {
     const rules = ruleId ? this.rules.filter((r) => r.id === ruleId) : this.rules.filter((r) => r.enabled);
-    if (rules.length === 0) return 'Nenhuma regra encontrada.';
+    if (rules.length === 0) return 'No rules found.';
 
     let totalSize = 0;
     let totalFiles = 0;
-    const lines: string[] = ['Scan de limpeza:', ''];
+    const lines: string[] = ['Cleanup scan:', ''];
 
     for (const rule of rules) {
       const icon = rule.dry_run ? '🔍' : '🧹';
@@ -83,12 +83,12 @@ export class DiskCleanupService {
 
       const sizeMb = ruleSize / 1024 / 1024;
       const withinLimit = sizeMb <= rule.max_size_mb;
-      lines.push(`${icon} ${rule.name}: ${ruleFiles} arquivos, ${sizeMb.toFixed(1)}MB${withinLimit ? '' : ' ⚠️ acima do limite'}`);
+      lines.push(`${icon} ${rule.name}: ${ruleFiles} files, ${sizeMb.toFixed(1)}MB${withinLimit ? '' : ' ⚠️ above limit'}`);
       totalSize += ruleSize;
       totalFiles += ruleFiles;
     }
 
-    lines.push('', `Total: ${totalFiles} arquivos, ${(totalSize / 1024 / 1024).toFixed(1)}MB potencialmente removiveis.`);
+    lines.push('', `Total: ${totalFiles} files, ${(totalSize / 1024 / 1024).toFixed(1)}MB potentially removable.`);
     return lines.join('\n');
   }
 
@@ -114,7 +114,7 @@ export class DiskCleanupService {
               fs.unlinkSync(file);
               result.files_removed++;
               result.bytes_freed += stat.size;
-              result.details.push({ path: file, size: stat.size, reason: `${rule.name}: ${Math.floor(age / 86400000)} dias` });
+              result.details.push({ path: file, size: stat.size, reason: `${rule.name}: ${Math.floor(age / 86400000)} days` });
             }
           } catch (error: unknown) {
             result.errors.push(`${file}: ${error instanceof Error ? error.message : String(error)}`);
@@ -129,18 +129,18 @@ export class DiskCleanupService {
   public addRule(rule: Omit<CleanupRule, 'id'>): string {
     const id = `rule_${Date.now()}`;
     this.rules.push({ ...rule, id });
-    return `Regra "${rule.name}" adicionada. ID: ${id}`;
+    return `Rule "${rule.name}" added. ID: ${id}`;
   }
 
   public toggleRule(ruleId: string, enabled: boolean): string {
     const rule = this.rules.find((r) => r.id === ruleId);
-    if (!rule) return `Regra "${ruleId}" nao encontrada.`;
+    if (!rule) return `Rule "${ruleId}" not found.`;
     rule.enabled = enabled;
-    return `Regra "${rule.name}" ${enabled ? 'habilitada' : 'desabilitada'}.`;
+    return `Rule "${rule.name}" ${enabled ? 'enabled' : 'disabled'}.`;
   }
 
   public listRules(): string {
-    const lines: string[] = ['Regras de limpeza:'];
+    const lines: string[] = ['Cleanup rules:'];
     for (const rule of this.rules) {
       const status = rule.enabled ? '✅' : '⏸️';
       const dry = rule.dry_run ? ' [DRY RUN]' : '';
@@ -151,10 +151,10 @@ export class DiskCleanupService {
 
   public getUsage(): string {
     const dataDir = path.join(process.cwd(), 'data', 'runtime');
-    if (!fs.existsSync(dataDir)) return 'Diretorio data/runtime nao encontrado.';
+    if (!fs.existsSync(dataDir)) return 'Directory data/runtime not found.';
 
     const dirs = fs.readdirSync(dataDir, { withFileTypes: true }).filter((d) => d.isDirectory());
-    const lines: string[] = ['Uso de disco (data/runtime):'];
+    const lines: string[] = ['Disk usage (data/runtime):'];
 
     let totalSize = 0;
     for (const dir of dirs) {

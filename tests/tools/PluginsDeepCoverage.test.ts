@@ -78,12 +78,12 @@ describe('ActiveMemoryService — deep coverage', () => {
 
   it('returns error for non-existent update', () => {
     const r = svc.update('nonexistent', { content: 'test' });
-    expect(r).toContain('nao encontrada');
+    expect(r).toContain('not found');
   });
 
   it('returns error for non-existent forget', () => {
     const r = svc.forget('nonexistent');
-    expect(r).toContain('nao encontrada');
+    expect(r).toContain('not found');
   });
 
   it('lists with category filter', () => {
@@ -169,18 +169,18 @@ describe('MemoryLanceDBService — deep coverage', () => {
 
   it('creates collection', () => {
     const r = svc.createCollection('test');
-    expect(r).toContain('criada');
+    expect(r).toContain('created');
   });
 
   it('validates collection name', () => {
     const r = svc.createCollection('../etc/passwd');
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('inserts documents', () => {
     svc.createCollection('test');
     const r = svc.insert('test', 'hello world', { source: 'test' });
-    expect(r).toContain('inserido');
+    expect(r).toContain('inserted');
   });
 
   it('inserts batch', () => {
@@ -213,32 +213,32 @@ describe('MemoryLanceDBService — deep coverage', () => {
     svc.insert('test', 'Delete me');
     const docs = svc.query('test', 'delete', 1);
     const r = svc.delete('test', docs[0].id);
-    expect(r).toContain('deletado');
+    expect(r).toContain('deleted');
   });
 
   it('deletes collection', () => {
     svc.createCollection('temp');
     const r = svc.deleteCollection('temp');
-    expect(r).toContain('deletada');
+    expect(r).toContain('deleted');
   });
 
   it('returns error for non-existent collection', () => {
     const r = svc.deleteCollection('nonexistent');
-    expect(r).toContain('nao encontrada');
+    expect(r).toContain('not found');
   });
 
   it('gets stats for collection', () => {
     svc.createCollection('test');
     svc.insert('test', 'Test');
     const r = svc.getStats('test');
-    expect(r).toContain('1 documentos');
+    expect(r).toContain('1 documents');
   });
 
   it('gets global stats', () => {
     svc.createCollection('a');
     svc.createCollection('b');
     const r = svc.getStats();
-    expect(r).toContain('2 colecoes');
+    expect(r).toContain('2 collections');
   });
 
   it('lists collections', () => {
@@ -294,12 +294,12 @@ describe('MemoryHonchoService — deep coverage', () => {
 
   it('sets communication preference', () => {
     const r = svc.setCommunicationPreference('user1', 'formality', 'casual');
-    expect(r).toContain('atualizada');
+    expect(r).toContain('updated');
   });
 
   it('returns error for invalid communication key', () => {
     const r = svc.setCommunicationPreference('user1', 'invalid_key', 'value');
-    expect(r).toContain('invalida');
+    expect(r).toContain('invalid');
   });
 
   it('records interaction and increments count', () => {
@@ -343,7 +343,7 @@ describe('DiagnosticsOtelService — deep coverage', () => {
     svc.endSpan(child2, 'error', 'timeout');
     svc.endSpan(parent, 'ok');
     const r = svc.getStats();
-    expect(r).toContain('3 completos');
+    expect(r).toContain('3 complete');
   });
 
   it('adds events to spans', () => {
@@ -402,7 +402,7 @@ describe('DiagnosticsOtelService — deep coverage', () => {
     svc.log('info', 'test');
     svc.recordMetric('test', { type: 'counter' });
     const r = svc.flush();
-    expect(r).toContain('Flush completo');
+    expect(r).toContain('Flush complete');
   });
 });
 
@@ -435,23 +435,23 @@ describe('AchievementsService — deep coverage', () => {
 
   it('updates streak', () => {
     const r = svc.updateStreak('user1', 'daily_usage');
-    expect(r).toContain('1 dias');
+    expect(r).toContain('1 days');
   });
 
   it('manually unlocks achievement', () => {
     const r = svc.unlockManually('user1', 'hidden_easter_egg');
-    expect(r).toContain('desbloqueado');
+    expect(r).toContain('unlocked');
   });
 
   it('returns error for duplicate manual unlock', () => {
     svc.unlockManually('user1', 'hidden_easter_egg');
     const r = svc.unlockManually('user1', 'hidden_easter_egg');
-    expect(r).toContain('ja desbloqueado');
+    expect(r).toContain('already unlocked');
   });
 
   it('returns error for non-existent achievement', () => {
     const r = svc.unlockManually('user1', 'nonexistent');
-    expect(r).toContain('nao encontrado');
+    expect(r).toContain('not found');
   });
 
   it('gets leaderboard', () => {
@@ -492,20 +492,20 @@ describe('SkinEngineService — deep coverage', () => {
 
   it('returns error for non-existent skin', () => {
     const r = svc.setActiveSkin('nonexistent');
-    expect(r).toContain('nao encontrado');
+    expect(r).toContain('not found');
   });
 
   it('installs custom skin', () => {
     const skin = { id: 'custom', name: 'Custom', description: 'Test', author: 'Test', version: '1.0.0', colors: { primary: '#f00', secondary: '#0f0', accent: '#00f', success: '#0f0', warning: '#ff0', error: '#f00', info: '#0ff', muted: '#888', background: '#000', foreground: '#fff', border: '#333' }, prompt: { prefix: '>', suffix: '', separator: '', thinking_indicator: '.', success_indicator: '+', error_indicator: '-' }, typography: { font_family: 'mono', heading_style: 'normal' as const, code_style: 'normal' as const }, layout: { max_width: 80, padding: 0, compact_mode: true, show_timestamps: false, show_tool_names: false }, metadata: { created_at: '2025-01-01', updated_at: '2025-01-01', tags: [] } };
     const r = svc.installSkin(JSON.stringify(skin));
-    expect(r).toContain('instalado');
+    expect(r).toContain('installed');
   });
 
   it('removes custom skin', () => {
     const skin = { id: 'removable', name: 'Removable', description: 'Test', author: 'Test', version: '1.0.0', colors: { primary: '#f00', secondary: '#0f0', accent: '#00f', success: '#0f0', warning: '#ff0', error: '#f00', info: '#0ff', muted: '#888', background: '#000', foreground: '#fff', border: '#333' }, prompt: { prefix: '>', suffix: '', separator: '', thinking_indicator: '.', success_indicator: '+', error_indicator: '-' }, typography: { font_family: 'mono', heading_style: 'normal' as const, code_style: 'normal' as const }, layout: { max_width: 80, padding: 0, compact_mode: true, show_timestamps: false, show_tool_names: false }, metadata: { created_at: '2025-01-01', updated_at: '2025-01-01', tags: [] } };
     svc.installSkin(JSON.stringify(skin));
     const r = svc.removeSkin('removable');
-    expect(r).toContain('removido');
+    expect(r).toContain('removed');
   });
 
   it('gets preview for each built-in skin', () => {
@@ -523,12 +523,12 @@ describe('SkinEngineService — deep coverage', () => {
 
   it('returns error for invalid JSON on install', () => {
     const r = svc.installSkin('not json');
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('returns error for skin without id', () => {
     const r = svc.installSkin(JSON.stringify({ name: 'Test' }));
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 });
 
@@ -540,7 +540,7 @@ describe('TrajectoryResearchService — deep coverage', () => {
 
   it('creates trajectory with hypothesis', () => {
     const r = svc.createTrajectory({ session_id: 's1', task: 'Test', hypothesis: 'H1', method: 'Benchmark' });
-    expect(r).toContain('criada');
+    expect(r).toContain('created');
   });
 
   it('adds steps', () => {
@@ -578,7 +578,7 @@ describe('TrajectoryResearchService — deep coverage', () => {
     const trajs = svc.listTrajectories();
     const id = trajs.match(/\[res_\w+\]/)![0].slice(1, -1);
     const r = svc.createReport({ title: 'Report', trajectory_ids: [id], findings: ['F1'], methodology: 'Benchmark', conclusions: ['C1'] });
-    expect(r).toContain('criado');
+    expect(r).toContain('created');
   });
 
   it('exports for training in different formats', () => {
@@ -606,12 +606,12 @@ describe('MemoryQdrantService — deep coverage', () => {
 
   it('creates collection', () => {
     const r = svc.createCollection('test', 32);
-    expect(r).toContain('criada');
+    expect(r).toContain('created');
   });
 
   it('validates collection name', () => {
     const r = svc.createCollection('../etc/passwd');
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('upserts and searches', () => {
@@ -628,7 +628,7 @@ describe('MemoryQdrantService — deep coverage', () => {
   it('validates vector dimension', () => {
     svc.createCollection('test', 4);
     const r = svc.upsert('test', [{ id: 'x', vector: [1, 0], payload: {} }]);
-    expect(r).toContain('Erro');
+    expect(r).toContain('Error');
   });
 
   it('retrieves point', () => {
@@ -663,7 +663,7 @@ describe('MemoryQdrantService — deep coverage', () => {
     svc.createCollection('test', 4);
     svc.upsert('test', [{ id: 'v1', vector: [1, 0, 0, 0] }]);
     const r = svc.getStats('test');
-    expect(r).toContain('1 vetores');
+    expect(r).toContain('1 vectors');
   });
 
   it('searches and returns formatted', () => {
@@ -688,18 +688,18 @@ describe('DiskCleanupService — deep coverage', () => {
   it('adds custom rule', () => {
     const svc = makeSvc();
     const r = svc.addRule({ name: 'Custom', pattern: '*.custom', max_age_days: 1, max_size_mb: 10, directories: ['/tmp'], dry_run: false, enabled: true });
-    expect(r).toContain('adicionada');
+    expect(r).toContain('added');
   });
 
   it('toggles rule', () => {
     const svc = makeSvc();
     const r = svc.toggleRule('temp_files', false);
-    expect(r).toContain('desabilitada');
+    expect(r).toContain('disabled');
   });
 
   it('returns error for non-existent toggle', () => {
     const r = makeSvc().toggleRule('nonexistent', true);
-    expect(r).toContain('nao encontrada');
+    expect(r).toContain('not found');
   });
 });
 
@@ -708,7 +708,7 @@ describe('CodexSupervisorService — deep coverage', () => {
 
   it('lists tasks when empty', () => {
     const r = makeSvc().listTasks();
-    expect(r).toContain('Nenhuma');
+    expect(r).toContain('No');
   });
 
   it('gets stats', () => {
@@ -718,16 +718,16 @@ describe('CodexSupervisorService — deep coverage', () => {
 
   it('returns error for non-existent task status', () => {
     const r = makeSvc().getStatus('nonexistent');
-    expect(r).toContain('nao encontrada');
+    expect(r).toContain('not found');
   });
 
   it('returns error for kill on non-existent task', () => {
     const r = makeSvc().kill('nonexistent');
-    expect(r).toContain('nao encontrada');
+    expect(r).toContain('not found');
   });
 
   it('cleans up old tasks', () => {
     const r = makeSvc().cleanup(0);
-    expect(r).toContain('removida');
+    expect(r).toContain('removed');
   });
 });

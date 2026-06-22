@@ -22,18 +22,18 @@ describe('ZavorthTtsTool', () => {
 
   it('returns error when action is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error for speak without text', async () => {
     const result = await tool.execute({ action: 'speak' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('text');
   });
 
   it('rejects text over 10000 characters', async () => {
     const result = await tool.execute({ action: 'speak', text: 'A'.repeat(10001) });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('10.000');
   });
 
@@ -47,7 +47,7 @@ describe('ZavorthTtsTool', () => {
 
   it('lists voices for local backend', async () => {
     const result = await tool.execute({ action: 'list_voices', backend: 'local' });
-    expect(result).toContain('Vozes');
+    expect(result).toContain('Voices');
   });
 
   it('lists voices for azure backend', async () => {
@@ -68,11 +68,11 @@ describe('ZavorthTtsTool', () => {
 
   it('returns error for invalid backend on set_default', async () => {
     const result = await tool.execute({ action: 'set_default', backend: 'nonexistent' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'sing' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 });

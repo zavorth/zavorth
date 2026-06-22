@@ -16,18 +16,18 @@ export class ZavorthSessionSearchTool extends BaseTool {
   public readonly name = 'zavorth_session_search';
 
   public readonly description =
-    'Busca em conversas e sessoes passadas do Zavorth. Suporta busca full-text, filtragem por data, por canal, por tipo de mensagem e ranking por relevancia. Backed pelo Mnemos FTS Index e session logs.';
+    'Searches past conversations and sessions do Zavorth. Suporta busca full-text, filtragem por data, por canal, por tipo de mensagem e ranking por relevancia. Backed pelo Mnemos FTS Index e session logs.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       query: {
         type: 'string',
-        description: 'Termo ou frase para buscar nas sessoes.',
+        description: 'Search term or phrase in sessions.',
       },
       session_id: {
         type: 'string',
-        description: 'Limitar busca a uma sessao especifica.',
+        description: 'Limit search to a specific session.',
       },
       date_from: {
         type: 'string',
@@ -47,7 +47,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
       },
       max_results: {
         type: 'number',
-        description: 'Maximo de resultados. Default: 10.',
+        description: 'Maximo de results. Default: 10.',
       },
       context_lines: {
         type: 'number',
@@ -55,7 +55,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
       },
       include_metadata: {
         type: 'boolean',
-        description: 'Se true, inclui metadados da sessao. Default: true.',
+        description: 'If true, includes metadata da session. Default: true.',
       },
       sort_by: {
         type: 'string',
@@ -80,7 +80,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const query = String(args.query || '');
-    if (!query) return 'Erro: o parametro "query" e obrigatorio.';
+    if (!query) return 'Error: "query" parameter is required.';
 
     const maxResults = typeof args.max_results === 'number' ? Math.min(args.max_results, 50) : 10;
     const contextLines = typeof args.context_lines === 'number' ? args.context_lines : 2;
@@ -102,14 +102,14 @@ export class ZavorthSessionSearchTool extends BaseTool {
       });
 
       if (results.length === 0) {
-        return `Nenhum resultado encontrado para "${query}" nas sessoes.`;
+        return `No results found for "${query}" in sessions.`;
       }
 
-      const lines: string[] = [`Encontrados ${results.length} resultado(s) para "${query}":`];
+      const lines: string[] = [`Encontrados ${results.length} result(s) para "${query}":`];
 
       for (const result of results) {
         lines.push('');
-        lines.push(`--- Sessao: ${result.session_id} (${result.session_file}) ---`);
+        lines.push(`--- Session: ${result.session_id} (${result.session_file}) ---`);
         if (result.timestamp) lines.push(`  Timestamp: ${result.timestamp}`);
         lines.push(`  Relevancia: ${result.match_score.toFixed(2)}`);
         if (result.context) lines.push(`  Contexto: ${result.context.slice(0, 120)}`);
@@ -121,7 +121,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
       return lines.join('\n');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      return `Erro na busca: ${message}`;
+      return `Search error: ${message}`;
     }
   }
 

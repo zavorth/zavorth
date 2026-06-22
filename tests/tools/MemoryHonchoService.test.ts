@@ -45,12 +45,12 @@ describe('MemoryHonchoService', () => {
 
   it('sets a preference', () => {
     const result = service.setPreference('user1', 'theme', 'dark');
-    expect(result).toContain('atualizada');
+    expect(result).toContain('updated');
   });
 
   it('sets communication preference', () => {
     const result = service.setCommunicationPreference('user1', 'formality', 'casual');
-    expect(result).toContain('atualizada');
+    expect(result).toContain('updated');
   });
 
   it('adds knowledge area', () => {
