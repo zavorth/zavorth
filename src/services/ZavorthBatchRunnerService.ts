@@ -96,10 +96,10 @@ export class ZavorthBatchRunnerService {
     }));
 
     let cursor = 0;
+    const nextIndex = (): number => { const i = cursor; cursor += 1; return i; };
     const workers = Array.from({ length: Math.min(concurrency, cleanPrompts.length) }, async () => {
-      while (cursor < items.length) {
-        const index = cursor;
-        cursor += 1;
+      let index: number;
+      while ((index = nextIndex()) < items.length) {
         const item = items[index]!;
         const itemStart = Date.now();
         try {
@@ -246,8 +246,4 @@ function hash(value: string): string {
 function isInside(root: string, candidate: string): boolean {
   const relativePath = path.relative(root, candidate);
   return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
