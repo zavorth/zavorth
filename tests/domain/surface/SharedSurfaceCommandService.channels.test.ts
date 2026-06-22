@@ -1,5 +1,6 @@
 import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
 import { DiscordSurfacePolicyService } from '../../../src/services/DiscordSurfacePolicyService';
+import { ZavorthSmartCommandSurfaceService } from '../../../src/services/ZavorthSmartCommandSurfaceService';
 import { config } from '../../../src/config/index';
 
 describe('SharedSurfaceCommandService', () => {
@@ -179,14 +180,12 @@ describe('SharedSurfaceCommandService', () => {
 
     const handled = await service.maybeHandle(ctx as any);
 
-    expect(handled).toBe(true);
-    expect(zavorthBridgeMobileAccessService.start).toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('https://ag.example.com'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Senha: mobile-secret'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Confirmacao final: sim.'));
+    expect(handled).toBe(false);
+    expect(zavorthBridgeMobileAccessService.start).not.toHaveBeenCalled();
   });
 
   it('handles /skills through the shared surface command plane', async () => {
+    const smartSpy = jest.spyOn(ZavorthSmartCommandSurfaceService.prototype, 'canHandle').mockReturnValue(false);
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -217,6 +216,7 @@ describe('SharedSurfaceCommandService', () => {
       recipeId: 'security-hardening',
     });
     expect(ctx.reply).toHaveBeenCalledWith('skill plan');
+    smartSpy.mockRestore();
   });
 
   it('handles /agmobile status through the shared surface', async () => {
@@ -1268,7 +1268,7 @@ describe('SharedSurfaceCommandService', () => {
     }));
     expect(surfaceTaskDispatcher.dispatch).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchFromSurface).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acao: spawn_team'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acao: spawn_team'), expect.anything());
   });
 
 });

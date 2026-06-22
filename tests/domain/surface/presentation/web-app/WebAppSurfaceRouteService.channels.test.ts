@@ -1074,7 +1074,7 @@ describe('WebAppSurfaceRouteService', () => {
     );
 
     expect(handled).toBe(true);
-    expect(buildSnapshot).toHaveBeenCalledWith({ profile: 'beta' });
+    expect(buildSnapshot).toHaveBeenCalledWith({ profile: 'beta', includeSources: false, refresh: false, scope: null });
     expect(writeJson).toHaveBeenCalledWith(
       res,
       expect.objectContaining({

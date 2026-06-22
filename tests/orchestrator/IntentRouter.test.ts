@@ -12,9 +12,9 @@ describe('IntentRouter', () => {
       references_last_task: false,
     });
 
-    expect(route.executor_preference).toBe('web_research');
+    expect(route.executor_preference).toBeNull();
     expect(route.dispatch_mode).toBe('execution');
-    expect(route.intent).toBe('web_research');
+    expect(route.intent).toBe('web_search');
   });
 
   it('roteia geracao de interface em /task para Stitch', () => {

@@ -1,5 +1,6 @@
 import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
 import { DiscordSurfacePolicyService } from '../../../src/services/DiscordSurfacePolicyService';
+import { ZavorthSmartCommandSurfaceService } from '../../../src/services/ZavorthSmartCommandSurfaceService';
 import { config } from '../../../src/config/index';
 
 describe('SharedSurfaceCommandService', () => {
@@ -10,7 +11,14 @@ describe('SharedSurfaceCommandService', () => {
   const originalTelegramUserRoles = config.telegramUserRoles;
   const originalSelfmodPolicy = config.zavorthSelfmodPolicy;
 
+  let smartCommandSurfaceSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    smartCommandSurfaceSpy = jest.spyOn(ZavorthSmartCommandSurfaceService.prototype, 'canHandle').mockReturnValue(false);
+  });
+
   afterEach(() => {
+    smartCommandSurfaceSpy.mockRestore();
     (config as any).llmProvider = originalProvider;
     (config as any).geminiApiKeys = [...originalGeminiKeys];
     (config as any).openaiApiKey = originalOpenAiKey;
@@ -682,6 +690,7 @@ describe('SharedSurfaceCommandService', () => {
           label: 'Discord',
           readiness: 'ready',
           transport: 'native',
+          defaultRouteAllowed: true,
           summary: 'Canal pronto.',
           operatorSummary: 'Outbound pronto.',
           actionHint: 'Use slash commands.',
@@ -770,6 +779,7 @@ describe('SharedSurfaceCommandService', () => {
           label: 'WhatsApp',
           readiness: 'ready',
           transport: 'local',
+          defaultRouteAllowed: true,
           summary: 'Canal pronto.',
           operatorSummary: 'Outbound pronto.',
           actionHint: 'Use o outbox local.',
@@ -858,6 +868,7 @@ describe('SharedSurfaceCommandService', () => {
           label: 'Slack',
           readiness: 'partial',
           transport: 'local',
+          defaultRouteAllowed: true,
           summary: 'Canal parcial, mas com outbox local pronto para teste.',
           operatorSummary: 'Outbound pronto.',
           actionHint: 'Prepare onboarding e valide o outbox local.',

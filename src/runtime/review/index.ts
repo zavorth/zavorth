@@ -34,6 +34,9 @@ export {
   buildGovernedReviewDashboardSnapshot,
 } from './GovernedReviewDashboardPresenter.js';
 export {
+  buildGovernedReviewZavorthControlSnapshot,
+} from './GovernedReviewZavorthControlPresenter.js';
+export {
   GOVERNED_REVIEW_CONTRACT_VERSION,
 } from './GovernedReviewTypes.js';
 export type {
@@ -53,6 +56,10 @@ export type {
   GovernedReviewDashboardLaneStatus,
   GovernedReviewDashboardSnapshot,
 } from './GovernedReviewDashboardPresenter.js';
+export type {
+  GovernedReviewZavorthControlLaneStatus,
+  GovernedReviewZavorthControlSnapshot,
+} from './GovernedReviewZavorthControlPresenter.js';
 export type {
   GovernedReviewActionOutcome,
   GovernedReviewActionStatus,
