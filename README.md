@@ -1,214 +1,237 @@
 <div align="center">
-  <img src="assets/brand/zavorth-readme-banner.png" alt="Zavorth banner" width="100%" />
+
+  <img src="assets/brand/zavorth-readme-banner.png" alt="Zavorth" width="100%" />
 
   <h1>Zavorth</h1>
 
+  <p><strong>Your AI that does things — and proves it.</strong></p>
+
   <p>
-    <strong>A local operating system for AI agents.</strong>
+    Ask naturally. Watch it plan. Approve only real risk.<br/>
+    Get receipts for everything that happened.
   </p>
 
   <p>
-    Ask in natural language, connect your tools and providers, let Zavorth plan
-    the work, approve real risk, and keep a clear trail of what happened.
-  </p>
-
-  <p>
-    <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-0f9d58?style=for-the-badge"></a>
+    <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-proprietary-red?style=for-the-badge"></a>
     <a href="docs/security.md"><img alt="Security" src="https://img.shields.io/badge/security-governed-0f766e?style=for-the-badge"></a>
-    <a href="docs/operations.md"><img alt="Operations" src="https://img.shields.io/badge/operations-operator--first-2563eb?style=for-the-badge"></a>
-    <a href="docs/zavorth-cli.md"><img alt="CLI" src="https://img.shields.io/badge/cli-premium-7c3aed?style=for-the-badge"></a>
+    <a href="#start-fast"><img alt="Quick Start" src="https://img.shields.io/badge/quickstart-30_seconds-00e88f?style=for-the-badge"></a>
   </p>
 
   <p>
-    <a href="#start-fast">Start Fast</a> |
-    <a href="#what-zavorth-does">What It Does</a> |
-    <a href="#product-surface">Product Surface</a> |
-    <a href="#daily-operator-flow">Daily Flow</a> |
-    <a href="#command-map">Commands</a> |
-    <a href="#trust-model">Trust Model</a> |
-    <a href="#repo-map">Repo Map</a> |
+    <a href="#what-zavorth-does">What It Does</a> ·
+    <a href="#start-fast">Quick Start</a> ·
+    <a href="#daily-flow">Daily Flow</a> ·
+    <a href="#features">Features</a> ·
+    <a href="#commands">Commands</a> ·
+    <a href="#trust-model">Trust</a> ·
     <a href="docs/README.md">Docs</a>
   </p>
+
 </div>
+
+---
+
+> *"Talk to it like a colleague. It listens, plans, asks before acting, and keeps proof of everything."*
 
 ---
 
 ## What Zavorth Is
 
-Zavorth is a local operating system for AI agents. It receives natural language,
-classifies intent, chooses the right provider, tool, channel, memory or worker,
-and routes action through policy before anything sensitive happens.
+Zavorth is an AI agent that actually does things — safely.
 
-It is built for users who want an agent that can be useful every day without
-silently taking unlimited control of their machine.
+You describe what you want in plain language. Zavorth plans the work, shows you what it's about to do, waits for your approval on anything risky, and then executes. Afterward, you get a receipt: a clear, auditable record of what happened.
+
+No silent takeovers. No surprise commands. No "trust me."
+
+**Think of it as:** your personal AI operator that works with local control, explicit trust, and visible receipts.
+
+---
 
 ## Start Fast
-
-Install the current CLI:
 
 ```bash
 npm install -g zavorth@latest
 ```
 
-For a local checkout:
+Then:
 
 ```bash
-npm install
-npx zavorth setup
-npx zavorth start
-npx zavorth open
+npx zavorth setup    # guided setup (30 seconds)
+npx zavorth start    # start the runtime
+npx zavorth open     # open the dashboard
 ```
 
-The primary user surface is `/dashboard`: configure with `zavorth setup`, start
-the local runtime with `zavorth start`, then open it with `zavorth open` for
-readiness, providers, approvals, receipts, skills, review, memory, and daily
-operator work.
-
-For terminal-first use:
+Or just chat:
 
 ```bash
 npx zavorth chat
-npx zavorth providers
-npx zavorth providers add
-npx zavorth channels telegram
-npx zavorth status
-npx zavorth ready
-npx zavorth ready --product
-npx zavorth trust
 ```
 
-For the safest first run, open the Dashboard, connect a provider, review the
-readiness state, then send one normal request:
-
-```text
+**First safe request:**
+```
 Review this repository and tell me what is risky.
 ```
 
-## Product Surface
+Zavorth will read the code, think about it, and give you a structured answer. No side effects. No changes. Just analysis.
 
-The Dashboard is the main operating surface. It is designed around one daily
-loop: ask for the outcome, let Zavorth prepare the work, approve only real risk,
-then review the result.
+---
 
-<p align="center">
-  <img src="assets/brand/zavorth-dashboard-preview.png" alt="Zavorth dashboard preview" width="100%" />
-</p>
+## Daily Flow
 
-## What Zavorth Does
-
-| Surface | What it gives you |
-| --- | --- |
-| Natural First Runtime | Free text enters the agent gateway instead of dying in a shallow command path. |
-| Dashboard | Operator home for readiness, approvals, providers, receipts, tasks, skills, and review. |
-| CLI/TUI | A daily terminal app for chat, status, smart commands, provider state, approvals, tasks, voice, sandbox, and logs. |
-| Telegram and channels | Remote operation with governed approvals, receipts, and channel-aware responses. |
-| Satellite Companion | Pairing, remote approval cards, offline queue, wake/voice readiness, and local-node status. |
-| Provider Catalog | A large provider and model catalog with readiness, fallbacks, and safe status. |
-| Mnemos | Scoped local memory and universal file understanding for documents, PDFs, images, and archives. |
-| Echo | Voice and TTS control surface with clear provider readiness. |
-| Nexus | Integration and connector map for the user's local environment. |
-| Swarm v2 | Multi-agent work planning with budgets, isolation policies, replay, and synthesis. |
-| Agent Review | Read-only code review by default, with patch application separated behind approval. |
-| Skill Ecosystem | Zavorth-native skills, routing, curation, quality scoring, and approval-based evolution. |
-| Transaction Plane | Transaction preview, mandate checks, approval, ledger, simulation, and live execution gates. |
-
-## Daily Operator Flow
-
-1. Ask naturally in the Dashboard, CLI, Telegram, or API.
-2. Zavorth classifies the request as chat, memory, review, skill, tool, provider, approval, or execution.
-3. Low-risk work responds quickly. Sensitive work becomes a preview.
-4. You approve, reject, defer, or grant a scoped permission.
-5. Zavorth executes only through the governed gateway.
-6. Receipts, ledger entries, and memory updates explain what happened.
-7. You can review, revoke, replay, or roll back where a rollback path exists.
-
-## Command Map
-
-| Command | Purpose |
-| --- | --- |
-| `zavorth setup` | Guided First Light flow for provider, model, channels, Mnemos, and safety. |
-| `zavorth start` | Start or resume the local runtime and make `/dashboard` available. |
-| `zavorth open` | Open the local Dashboard with the current access token. |
-| `zavorth ready` | One command operator readiness check. |
-| `zavorth ready --product` | Product certification for setup, providers, channels, dashboard, TUI and clean home isolation. |
-| `zavorth status` | Show current health. |
-| `zavorth providers` | Show provider and model readiness. |
-| `zavorth providers add` | Guided provider/API key/model wizard with redacted secrets. |
-| `zavorth providers switch` | Change the default provider/model through the same safe wizard. |
-| `zavorth channels telegram` | Guided channel wizard for Telegram token, allowlist and readiness. |
-| `zavorth channels discord` | Guided channel wizard for Discord token, guild/channel policy and readiness. |
-| `zavorth skills` | Inspect native skill coverage and curator hints. |
-| `zavorth review` | Run governed agent review. |
-| `zavorth trust` | Inspect approval posture, persistent permissions, and break-glass controls. |
-| `zavorth doctor` | Diagnose setup/runtime issues and show the next safe action. |
-
-Maintainers can run the full product gate before publishing:
-
-```bash
-npm run release:check
 ```
+    ┌─────────────┐
+    │  You speak  │  "Summarize my inbox and draft a reply"
+    └──────┬──────┘
+           │
+    ┌──────▼──────┐
+    │  Zavorth    │  Classifies intent, picks tools, plans steps
+    │  plans      │
+    └──────┬──────┘
+           │
+    ┌──────▼──────┐
+    │  Preview    │  Shows what it will do before doing it
+    └──────┬──────┘
+           │
+    ┌──────▼──────┐
+    │  You approve│  "Go ahead" or "Change this part"
+    └──────┬──────┘
+           │
+    ┌──────▼──────┐
+    │  Execution  │  Runs through governed gateway only
+    └──────┬──────┘
+           │
+    ┌──────▼──────┐
+    │  Receipt    │  Clear record: what, when, result, who approved
+    └─────────────┘
+```
+
+1. **Ask naturally** — in the Dashboard, CLI, Telegram, or API
+2. **Zavorth plans** — classifies intent, picks the right tools
+3. **Preview** — low-risk work runs fast; sensitive work shows a plan first
+4. **You approve** — accept, reject, defer, or grant scoped permissions
+5. **Execution** — runs only through the governed gateway
+6. **Receipt** — you get proof: what happened, when, and why
+
+---
+
+## Features
+
+<table>
+<tr>
+<td width="50%">
+
+### Daily Assistant
+Ask questions, get answers, manage reminders, organize files.
+
+### Code Review
+Read-only by default. Patches only after your approval.
+
+### Memory
+Learns what matters. Forgets what doesn't. Scoped to your workspace.
+
+</td>
+<td width="50%">
+
+### Multi-Channel
+Telegram, Discord, WhatsApp, Slack, and 25+ more.
+
+### Skills
+88+ built-in skills. Install from marketplace. Custom skills welcome.
+
+### Voice
+Talk to it. It listens, thinks, and responds.
+
+</td>
+</tr>
+<tr>
+<td>
+
+### Provider Flexibility
+OpenAI, Anthropic, Gemini, Ollama, OpenRouter, and more.
+
+### Swarm
+Multiple agents working together with budgets and isolation.
+
+</td>
+<td>
+
+### Transaction Plane
+Simulation before execution. Receipts after.
+
+### Self-Modification
+Controlled self-evolution with approval gates.
+
+</td>
+</tr>
+</table>
+
+---
+
+## Commands
+
+| Command | What it does |
+|---------|-------------|
+| `zavorth setup` | Guided setup for providers, channels, and safety |
+| `zavorth start` | Start the local runtime |
+| `zavorth open` | Open the Dashboard |
+| `zavorth chat` | Terminal chat session |
+| `zavorth ask "..."` | One-shot governed request |
+| `zavorth providers` | Show provider readiness |
+| `zavorth providers add` | Add a new provider with guided wizard |
+| `zavorth channels telegram` | Connect Telegram |
+| `zavorth channels discord` | Connect Discord |
+| `zavorth skills` | Browse available skills |
+| `zavorth marketplace list` | Browse skill marketplace |
+| `zavorth trajectory --stats` | Export training data stats |
+| `zavorth trust` | Inspect approval posture |
+| `zavorth doctor` | Diagnose issues |
+
+---
 
 ## Trust Model
 
-Zavorth is designed to be proactive without becoming reckless.
+Zavorth is proactive without being reckless.
 
-- Sensitive actions require policy, preview, approval, and receipt.
-- Natural approval is supported, but risky grants stay scoped by time, action, channel, and limit.
-- Break-glass mode exists for extreme cases, but it is still explicit, audited, revocable, and guarded.
-- Secrets are handled as references and must not be serialized into prompts, logs, receipts, or screenshots.
-- Providers, sandboxes, channels, and skills are configurable capabilities, not silent dependencies.
-- Providers are cataloged honestly: configured and proven routes are marked ready; missing credentials stay "not configured".
-- Transaction and execution flows prefer simulation, preview, and audit before any live operation.
+- **Preview before execute** — sensitive actions show a plan first
+- **Approval gates** — you decide what needs your OK
+- **Receipts** — every action gets a clear audit trail
+- **Scoped permissions** — approvals expire, are limited by time/action/channel
+- **Break-glass mode** — for emergencies, still audited and revocable
+- **No secret leaks** — credentials stay local, never serialized to prompts or logs
+- **Status honesty** — tells you when something isn't ready instead of pretending
 
-## Repo Map
+---
 
-| Path | Role |
-| --- | --- |
-| `src/` | Core runtime, services, providers, gateways, policy, and dashboard integration. |
-| `scripts/` | Operator commands, readiness checks, release utilities, and local tooling. |
-| `tests/` | Unit, runtime, security, gateway, provider, dashboard, and skill checks. |
-| `docs/` | Product docs, architecture notes, security posture, operations, and roadmap. |
-| `skill-library/` | Native skills, governed curation inputs, and approved skill surfaces. |
-| `assets/` | Brand, dashboard, social, and repository presentation assets. |
-| `agent/` | Runtime-side agent support and voice/media helpers. |
-| `apps/` | Application surfaces and companion app code. |
-| `data/` | Local receipts, state snapshots, and runtime artifacts. |
+## What Makes Zavorth Different
 
-## Status Honesty
+| | Zavorth | Typical AI Agent |
+|---|---|---|
+| **Execution** | Governed with receipts | Run and hope |
+| **Approvals** | Per-action, scoped, auditable | All or nothing |
+| **Memory** | Scoped, with consent | Global, uncontrolled |
+| **Self-modification** | Preview → approve → apply | Immediate or not available |
+| **Status** | Honest about what's ready | Pretends everything works |
+| **Multi-agent** | Budgeted, isolated, replayable | Free-for-all |
 
-Zavorth can know about a provider, channel, backend, or skill without pretending
-it is live. A route can be available for execution while still asking for the
-credential, endpoint, policy, or live proof that your machine has not provided
-yet.
-
-That means the repo may show many cataloged routes while only a subset is
-active on a specific machine. This is intentional: it keeps setup simple, avoids
-false readiness, and prevents accidental execution with missing credentials.
+---
 
 ## Documentation
 
-- [Documentation index](docs/README.md)
 - [Quickstart](docs/quickstart.md)
 - [Capabilities](docs/capabilities.md)
 - [Architecture](docs/architecture.md)
 - [Security](docs/security.md)
-- [Telegram](docs/telegram.md)
+- [Channels](docs/telegram.md)
 - [Dashboard](docs/web-dashboard.md)
-- [CLI guide](docs/zavorth-cli.md)
+- [CLI Guide](docs/zavorth-cli.md)
+- [Skills](docs/skills.md)
+- [Self-Modification](docs/self-modification.md)
 - [Operations](docs/operations.md)
-- [Capability mesh](docs/capability-mesh.md)
-- [Product Principles](docs/product-direction.md)
-- [Product Certification](docs/product-certification.md)
-- [Self-modification guide](docs/self-modification.md)
-
-### Self-modification commands
-- preview: docs/self-modification.md
-- /selfmod <relative_file> -- <instruction>
-- /selfmod goal -- <goal>
-- /selfmod apply <preview_id>
 
 ---
 
 <div align="center">
-  <sub>Zavorth is built for autonomous work with local control, explicit trust, and visible receipts.</sub>
+
+  <sub>Built with local control, explicit trust, and visible receipts.</sub>
+
 </div>
