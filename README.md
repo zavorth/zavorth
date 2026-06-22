@@ -12,7 +12,7 @@
   </p>
 
   <p>
-    <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-proprietary-red?style=for-the-badge"></a>
+    <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge"></a>
     <a href="docs/security.md"><img alt="Security" src="https://img.shields.io/badge/security-governed-0f766e?style=for-the-badge"></a>
     <a href="#start-fast"><img alt="Quick Start" src="https://img.shields.io/badge/quickstart-30_seconds-00e88f?style=for-the-badge"></a>
   </p>
