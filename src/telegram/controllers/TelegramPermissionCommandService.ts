@@ -1,6 +1,6 @@
 import { Context } from 'grammy';
-import { PermissionRequest, PermissionStatus } from '../../contracts/PermissionRequest.js';
-import { PermissionService } from '../../services/PermissionService.js';
+import {PermissionRequest} from '@zavorth/contracts/PermissionRequest.js';
+import { PermissionService } from '@zavorth/services/PermissionService.js';
 import { TelegramPermissionDecisionService } from './TelegramPermissionDecisionService.js';
 import { TelegramPermissionLookupService } from './TelegramPermissionLookupService.js';
 import { TelegramPermissionMutationService } from './TelegramPermissionMutationService.js';
@@ -99,7 +99,7 @@ export class TelegramPermissionCommandService {
           return;
         }
         default:
-          await ctx.reply('Subcomando desconhecido. Use: /perm [list|show|approve|reject|edit]');
+          await ctx.reply('Unknown subcommand. Use: /perm [list|show|approve|reject|edit]');
       }
     } catch (error: any) {
       await ctx.reply(`Falha na operacao de permissao: ${error.message}`);

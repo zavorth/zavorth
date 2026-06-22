@@ -1,12 +1,13 @@
 import { Context } from 'grammy';
-import { config } from '../../config/index.js';
-import { Task } from '../../contracts/TaskContract.js';
+import { config } from '@zavorth/config/index.js';
+import { t } from '../i18n.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import { TaskManager } from '../../orchestrator/TaskManager.js';
 import { ExecutionGateway } from '../../execution/ExecutionGateway.js';
 import { AuditLogger } from '../../monitoring/AuditLogger.js';
 import {
   SelfModificationCommandService,
-} from '../../services/SelfModificationCommandService.js';
+} from '@zavorth/services/SelfModificationCommandService.js';
 import { TelegramSelfModificationExecutionService } from './TelegramSelfModificationExecutionService.js';
 
 type PersistTaskFn = (task: Task) => void;
@@ -46,15 +47,13 @@ export class TelegramSelfModificationController {
     }
 
     if (ctx.chat?.type !== 'private') {
-      await ctx.reply('O /selfmod so pode ser usado em chat privado com o Zavorth.');
+      await ctx.reply(t('selfmod.private_only'));
       return;
     }
 
     const modeManager = this.deps.executionGateway.getModeManager();
     if (!modeManager.isSufficientFor('exec')) {
-      await ctx.reply(
-        `Modo operacional insuficiente. /selfmod exige modo BUILD.\nModo atual: ${modeManager.getMode()}\n\nUse /mode BUILD para habilitar.`,
-      );
+      await ctx.reply(t('selfmod.build_mode_required', { mode: modeManager.getMode() }));
       return;
     }
 
@@ -62,9 +61,7 @@ export class TelegramSelfModificationController {
     const userId = ctx.from?.id?.toString() || '';
     const canApplyChanges = this.canApplySelfModification(userId);
     if ((parsed.mode === 'apply' || parsed.mode === 'rollback') && !canApplyChanges) {
-      await ctx.reply(
-        'Voce pode gerar propostas com /selfmod, mas aplicar ou reverter mudancas reais exige papel owner/trusted.',
-      );
+      await ctx.reply(t('selfmod.owner_required'));
       return;
     }
     const rawMessage = `/selfmod ${rawArgs}`.trim();
@@ -166,16 +163,16 @@ export class TelegramSelfModificationController {
 
   public getUsageText(): string {
     return [
-      'Uso:',
-      '/selfmod <arquivo_relativo> -- <instrucao>',
-      '/selfmod preview <arquivo_relativo> -- <instrucao>',
-      '/selfmod goal -- <objetivo>',
+      'Usage:',
+      '/selfmod <relative_file> -- <instruction>',
+      '/selfmod preview <relative_file> -- <instruction>',
+      '/selfmod goal -- <objective>',
       '/selfmod apply <preview_id>',
       '/selfmod rollback <change_id>',
       '',
-      'Exemplos:',
-      '/selfmod src/telegram/AuthGuard.ts -- bloquear tambem /selfmod para vice-owner',
-      '/selfmod goal -- criar uma capability nova para media sob demanda',
+      'Examples:',
+      '/selfmod src/telegram/AuthGuard.ts -- also block /selfmod for vice-owner',
+      '/selfmod goal -- create a new capability for on-demand media',
       '/selfmod apply 123e4567-e89b-12d3-a456-426614174000',
     ].join('\n');
   }

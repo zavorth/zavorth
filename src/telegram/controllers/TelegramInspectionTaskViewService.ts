@@ -1,9 +1,9 @@
 import { Context } from 'grammy';
-import { Task } from '../../contracts/TaskContract.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import { TaskManager } from '../../orchestrator/TaskManager.js';
 import { StateMachine } from '../../orchestrator/StateMachine.js';
-import { ArtifactPipelineService } from '../../runtime/artifacts/ArtifactPipelineService.js';
-import { SmartOutputService } from '../../services/SmartOutputService.js';
+import { ArtifactPipelineService } from '@zavorth/runtime/artifacts/ArtifactPipelineService.js';
+import { SmartOutputService } from '@zavorth/services/SmartOutputService.js';
 
 type TaskListFilter = 'recent' | 'active' | 'approval' | 'failed' | 'completed';
 
@@ -21,12 +21,12 @@ export class TelegramInspectionTaskViewService {
     if (tasks.length === 0) {
       await ctx.reply(
         parsed.filter === 'active' || parsed.filter === 'approval'
-          ? 'Nao ha tarefas ativas suas nesse recorte no momento.'
+          ? 'No active tasks from you in this period.'
           : parsed.filter === 'failed'
-            ? 'Nao encontrei falhas recentes suas nesse recorte.'
+            ? 'No recent failures from you in this period.'
             : parsed.filter === 'completed'
-              ? 'Nao encontrei tarefas concluidas recentes suas nesse recorte.'
-              : 'Nao encontrei tarefas recentes para este usuario ainda.',
+              ? 'No recently completed tasks from you in this period.'
+              : 'No recent tasks found for this user yet.',
       );
       return;
     }
@@ -43,7 +43,7 @@ export class TelegramInspectionTaskViewService {
         '',
         ...lines,
         '',
-        'Atalhos uteis: /tasks active | /tasks approval | /tasks failed | /tasks completed | /files <id> | /diff <id>',
+        'Useful shortcuts: /tasks active | /tasks approval | /tasks failed | /tasks completed | /files <id> | /diff <id>',
       ].join('\n'),
     );
   }
@@ -51,7 +51,7 @@ export class TelegramInspectionTaskViewService {
   public async handleTaskFiles(ctx: Context, args: string, userId: string): Promise<Task | null> {
     const task = this.resolveTaskReference(String(args || '').trim(), userId);
     if (!task) {
-      await ctx.reply('Nao consegui localizar essa tarefa. Use /tasks para descobrir o id curto correto ou descreva melhor a inspecao.');
+      await ctx.reply('Could not locate that task. Use /tasks to find the correct short ID or describe the inspection better.');
       return null;
     }
 
@@ -107,7 +107,7 @@ export class TelegramInspectionTaskViewService {
   public async handleTaskDiff(ctx: Context, args: string, userId: string): Promise<void> {
     const task = this.resolveTaskReference(String(args || '').trim(), userId);
     if (!task) {
-      await ctx.reply('Nao consegui localizar essa tarefa. Use /tasks para pegar o id correto e tente /diff <id>.');
+      await ctx.reply('Could not locate that task. Use /tasks to get the correct ID and try /diff <id>.');
       return;
     }
 
@@ -119,13 +119,13 @@ export class TelegramInspectionTaskViewService {
       task.error_summary;
 
     if (!diffText) {
-      await ctx.reply(`A tarefa ${task.task_id.substring(0, 8)} ainda nao registrou diff ou resumo final.`);
+      await ctx.reply(`Task ${task.task_id.substring(0, 8)} has not recorded a diff or final summary yet.`);
       return;
     }
 
     await SmartOutputService.reply(
       ctx,
-      `Diff/Resumo da tarefa ${task.task_id.substring(0, 8)}\n\n${diffText}`,
+      `Diff/Summary for task ${task.task_id.substring(0, 8)}\n\n${diffText}`,
     );
   }
 
@@ -167,21 +167,17 @@ export class TelegramInspectionTaskViewService {
     let filter: TaskListFilter = 'recent';
     let limit = 8;
 
+    const FILTER_ALIASES: Record<string, TaskListFilter> = {
+      pending: 'active', pendente: 'active', pendentes: 'active', active: 'active', ativo: 'active', ativos: 'active',
+      approval: 'approval', approvals: 'approval', aprovacao: 'approval', aprovacoes: 'approval', waiting_approval: 'approval',
+      failed: 'failed', falha: 'failed', falhas: 'failed', erro: 'failed', erros: 'failed',
+      completed: 'completed', done: 'completed', concluidas: 'completed', concluida: 'completed', finalizadas: 'completed', finalizada: 'completed',
+    };
+
     for (const token of tokens) {
-      if (['pending', 'pendente', 'pendentes', 'active', 'ativo', 'ativos'].includes(token)) {
-        filter = 'active';
-        continue;
-      }
-      if (['approval', 'approvals', 'aprovacao', 'aprovacoes', 'waiting_approval'].includes(token)) {
-        filter = 'approval';
-        continue;
-      }
-      if (['failed', 'falha', 'falhas', 'erro', 'erros'].includes(token)) {
-        filter = 'failed';
-        continue;
-      }
-      if (['completed', 'done', 'concluidas', 'concluida', 'finalizadas', 'finalizada'].includes(token)) {
-        filter = 'completed';
+      const mapped = FILTER_ALIASES[token];
+      if (mapped) {
+        filter = mapped;
         continue;
       }
       const numeric = Number.parseInt(token, 10);

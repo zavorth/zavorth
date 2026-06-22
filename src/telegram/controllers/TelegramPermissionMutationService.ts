@@ -1,7 +1,7 @@
 import { Context } from 'grammy';
-import { config } from '../../config/index.js';
-import { PermissionRequest } from '../../contracts/PermissionRequest.js';
-import { PermissionService } from '../../services/PermissionService.js';
+import { config } from '@zavorth/config/index.js';
+import { PermissionRequest } from '@zavorth/contracts/PermissionRequest.js';
+import { PermissionService } from '@zavorth/services/PermissionService.js';
 import { TelegramPermissionDecisionService } from './TelegramPermissionDecisionService.js';
 import { TelegramPermissionPolicyService } from './TelegramPermissionPolicyService.js';
 import { TelegramPermissionPresentationService } from './TelegramPermissionPresentationService.js';
@@ -138,7 +138,7 @@ export class TelegramPermissionMutationService {
       ctx,
       permission,
       userId,
-      reason || 'Rejeitado por comando explicito',
+      reason || 'Rejected by explicit command',
     );
   }
 

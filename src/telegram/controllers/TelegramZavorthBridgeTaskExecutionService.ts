@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { type Context } from 'grammy';
-import { Task } from '../../contracts/TaskContract.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import { TaskManager } from '../../orchestrator/TaskManager.js';
 import { ZavorthBridgeCliAdapter } from '../../agents/ZavorthBridgeCliAdapter.js';
 import { ZavorthBridgeCompanionBridgeLike } from './TelegramZavorthBridgeService.js';
@@ -18,7 +18,7 @@ export class TelegramZavorthBridgeTaskExecutionService {
 
   public async handleTaskExecution(ctx: Context, task: Task, prompt: string): Promise<void> {
     if (!prompt.trim()) {
-      await ctx.reply('Use /ag <pedido> ou /bridge <pedido> com uma instrucao clara para eu acionar o ZavorthBridge.');
+      await ctx.reply('Use /ag <request> or /bridge <request> with a clear instruction for me to start ZavorthBridge.');
       return;
     }
 
@@ -58,9 +58,9 @@ export class TelegramZavorthBridgeTaskExecutionService {
       }
       await ctx.reply(
         [
-          'Entreguei a tarefa ao ZavorthBridge real.',
-          `Referencia curta: ${task.task_id.substring(0, 8)}`,
-          'Eu so volto aqui se ele terminar, falhar ou pedir sua aprovacao.',
+          'Delivered the task to the real ZavorthBridge.',
+          `Short reference: ${task.task_id.substring(0, 8)}`,
+          'I only come back here if it finishes, fails, or requests your approval.',
         ].join('\n'),
       );
     } catch (error: any) {
@@ -74,11 +74,11 @@ export class TelegramZavorthBridgeTaskExecutionService {
       this.deps.taskManager.advanceState(task, 'failed');
       await ctx.reply(
         [
-          'Nao consegui acionar o ZavorthBridge agora.',
+          'Could not start ZavorthBridge right now.',
           '',
-          `Motivo: ${error.message}`,
+          `Reason: ${error.message}`,
           '',
-          'Alternativa imediata para pesquisa web: use /research <tema>.',
+          'Immediate alternative for web research: use /research <topic>.',
         ].join('\n'),
       );
     }

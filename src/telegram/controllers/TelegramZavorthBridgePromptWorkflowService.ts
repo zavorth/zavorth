@@ -1,16 +1,16 @@
 import { InlineKeyboard, type Context } from 'grammy';
-import { config } from '../../config/index.js';
-import { PermissionRequest } from '../../contracts/PermissionRequest.js';
-import { Task } from '../../contracts/TaskContract.js';
+import { config } from '@zavorth/config/index.js';
+import { PermissionRequest } from '@zavorth/contracts/PermissionRequest.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import { TaskManager } from '../../orchestrator/TaskManager.js';
 import {
   ZavorthBridgePromptCompletionResult,
   ZavorthBridgePromptService,
   type ZavorthBridgePromptStartResult,
-} from '../../services/ZavorthBridgePromptService.js';
-import { PermissionService } from '../../services/PermissionService.js';
-import { SmartOutputService } from '../../services/SmartOutputService.js';
-import { TenantContextService } from '../../services/TenantContextService.js';
+} from '@zavorth/services/ZavorthBridgePromptService.js';
+import { PermissionService } from '@zavorth/services/PermissionService.js';
+import { SmartOutputService } from '@zavorth/services/SmartOutputService.js';
+import { TenantContextService } from '@zavorth/services/TenantContextService.js';
 import { ZavorthBridgeWindowAutomatorLike } from './TelegramZavorthBridgeService.js';
 
 type BotApiLike = {
@@ -88,7 +88,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
       );
 
       if (!startResult.ok) {
-        task.error_summary = startResult.errorMessage || startResult.message || 'Falha ao iniciar o prompt no ZavorthBridge.';
+        task.error_summary = startResult.errorMessage || startResult.message || 'Failed to start prompt in ZavorthBridge.';
         this.deps.persistTask(task);
         this.deps.taskManager.advanceState(task, 'failed');
         await ctx.reply(this.formatPromptStartFailure(startResult));
@@ -103,11 +103,11 @@ export class TelegramZavorthBridgePromptWorkflowService {
       this.deps.persistTask(task);
       await ctx.reply(
         [
-          'Pronto. Seu pedido ja foi enviado ao ZavorthBridge.',
-          `Modelo em uso: ${startResult.selectedModel || normalizedModel}`,
-          'Agora eu vou acompanhar a resposta real do app e te devolver aqui no Telegram.',
+          'Done. Your request has been sent to ZavorthBridge.',
+          `Model in use: ${startResult.selectedModel || normalizedModel}`,
+          'Now I will follow the real response from the app and bring it back here on Telegram.',
           '',
-          `Detalhes tecnicos: task=${task.task_id.substring(0, 8)} | rastreio=${startResult.trackingFile}`,
+          `Technical details: task=${task.task_id.substring(0, 8)} | tracking=${startResult.trackingFile}`,
         ].join('\n'),
       );
 
@@ -116,7 +116,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
       task.error_summary = error.message;
       this.deps.persistTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
-      await ctx.reply(`Nao consegui iniciar esse pedido no ZavorthBridge agora.\n\nMotivo: ${error.message}`);
+      await ctx.reply(`Could not start this request in ZavorthBridge right now.\n\nReason: ${error.message}`);
     }
   }
 

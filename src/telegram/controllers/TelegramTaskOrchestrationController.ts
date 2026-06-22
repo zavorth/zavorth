@@ -1,21 +1,21 @@
 import { Context } from 'grammy';
 import { ParsedCommand } from '../CommandParser.js';
-import { Task } from '../../contracts/TaskContract.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import { RouteIntent } from '../../orchestrator/IntentRouter.js';
 import { RiskClassification } from '../../orchestrator/RiskClassifier.js';
 import { StateMachine } from '../../orchestrator/StateMachine.js';
-import type { OperatorModeService } from '../../services/OperatorModeService.js';
-import type { PresentationModeService } from '../../services/PresentationModeService.js';
-import { TaskResponseEnvelopeService } from '../../services/TaskResponseEnvelopeService.js';
-import { UserFacingResponseService } from '../../services/UserFacingResponseService.js';
-import { WorkspaceProfileService } from '../../services/WorkspaceProfileService.js';
-import { WorkspaceOperationalMemoryService } from '../../runtime/context/WorkspaceOperationalMemoryService.js';
-import type { WorkspaceRoutingAdvice } from '../../runtime/context/WorkspaceRoutingAdvisor.js';
+import type { OperatorModeService } from '@zavorth/services/OperatorModeService.js';
+import type { PresentationModeService } from '@zavorth/services/PresentationModeService.js';
+import { TaskResponseEnvelopeService } from '@zavorth/services/TaskResponseEnvelopeService.js';
+import { UserFacingResponseService } from '@zavorth/services/UserFacingResponseService.js';
+import { WorkspaceProfileService } from '@zavorth/services/WorkspaceProfileService.js';
+import { WorkspaceOperationalMemoryService } from '@zavorth/runtime/context/WorkspaceOperationalMemoryService.js';
+import type { WorkspaceRoutingAdvice } from '@zavorth/runtime/context/WorkspaceRoutingAdvisor.js';
 import type {
   WorkflowRunCreateOptions,
   WorkflowWorkspaceContext,
-} from '../../runtime/workflows/WorkflowRunService.js';
-import type { TrustClassification } from '../../security/TrustedBoundary.js';
+} from '@zavorth/runtime/workflows/WorkflowRunService.js';
+import type { TrustClassification } from '@zavorth/security/TrustedBoundary.js';
 import { TelegramTaskApprovalGateService } from './TelegramTaskApprovalGateService.js';
 import { TelegramTaskAutoRouteService } from './TelegramTaskAutoRouteService.js';
 import { TelegramTaskDispatchService } from './TelegramTaskDispatchService.js';
@@ -25,7 +25,7 @@ import {
 } from './TelegramTaskPreparationService.js';
 import { TelegramTaskSurfaceSecurityService } from './TelegramTaskSurfaceSecurityService.js';
 import { TelegramTaskWorkflowRoutingService } from './TelegramTaskWorkflowRoutingService.js';
-import { buildTaskEventSurfaceResponse } from '../../domain/surface/application/surface-response/index.js';
+import { buildTaskEventSurfaceResponse } from '@zavorth/domain/surface/application/surface-response/index.js';
 import { replyWithTelegramSurfaceResponse } from '../TelegramSurfaceResponseSender.js';
 
 type AttachRecentContextFn = (task: Task) => Promise<void>;
@@ -236,7 +236,7 @@ export class TelegramTaskOrchestrationController {
       });
       return task;
     } catch (error: any) {
-      this.deps.logRepo.log('error', 'BotGateway', `Erro ao processar tarefa: ${error.message}`);
+      this.deps.logRepo.log('error', 'BotGateway', `Error processing task: ${error.message}`);
       if (!StateMachine.isTerminal(task.status)) {
         this.deps.taskManager.advanceState(task, 'failed');
       }
@@ -250,7 +250,7 @@ export class TelegramTaskOrchestrationController {
       });
       await this.replyTaskEvent(ctx, task, {
         event: 'preparation_failure',
-        title: 'Falha ao preparar tarefa',
+        title: 'Failed to prepare task',
         summary: error.message,
         text: userFacingText,
         status: 'failed',

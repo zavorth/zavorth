@@ -1,14 +1,15 @@
 import { Context } from 'grammy';
-import { Task } from '../../contracts/TaskContract.js';
-import { PermissionRequest } from '../../contracts/PermissionRequest.js';
+
+import { PermissionRequest } from '@zavorth/contracts/PermissionRequest.js';
 import { TaskManager } from '../../orchestrator/TaskManager.js';
-import { FileInspectionService } from '../../services/FileInspectionService.js';
-import { LogRepository } from '../../storage/LogRepository.js';
-import { SmartOutputService } from '../../services/SmartOutputService.js';
-import { PermissionService } from '../../services/PermissionService.js';
+import { FileInspectionService } from '@zavorth/services/FileInspectionService.js';
+import { LogRepository } from '@zavorth/storage/LogRepository.js';
+import { SmartOutputService } from '@zavorth/services/SmartOutputService.js';
+import { PermissionService } from '@zavorth/services/PermissionService.js';
 import { InlineKeyboard } from 'grammy';
 import { TelegramInspectionPermissionService } from './TelegramInspectionPermissionService.js';
 import { TelegramInspectionTaskViewService } from './TelegramInspectionTaskViewService.js';
+import { t } from '../i18n.js';
 
 export class TelegramInspectionController {
   private readonly fileInspectionService: FileInspectionService;
@@ -45,7 +46,7 @@ export class TelegramInspectionController {
     const logs = this.logRepo.getRecentLogs(limit);
 
     if (logs.length === 0) {
-      await ctx.reply('Ainda nao ha logs recentes para mostrar.');
+      await ctx.reply(t('inspection.no_logs'));
       return;
     }
 
@@ -65,7 +66,7 @@ export class TelegramInspectionController {
       return;
     }
     if (!resolvedTask) {
-      await ctx.reply('Nao consegui localizar essa tarefa. Use /tasks para descobrir o id curto correto ou descreva melhor a inspecao.');
+      await ctx.reply('Could not locate that task. Use /tasks to find the correct short ID or describe the inspection better.');
       return;
     }
     await this.taskViewService.renderTaskFiles(ctx, resolvedTask);

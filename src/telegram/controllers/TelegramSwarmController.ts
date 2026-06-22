@@ -1,6 +1,6 @@
-import type { IMessageContext } from '../../contracts/IMessageBroker.js';
-import { SwarmOrchestrator, type SwarmRole } from '../../runtime/sessions/v2/SwarmOrchestrator.js';
-import { LlmRuntimeService } from '../../services/llm/LlmRuntimeService.js';
+import type { IMessageContext } from '@zavorth/contracts/IMessageBroker.js';
+import { SwarmOrchestrator, type SwarmRole } from '@zavorth/runtime/sessions/v2/SwarmOrchestrator.js';
+import { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
 import path from 'path';
 
 type TelegramSwarmDeps = {
@@ -39,26 +39,26 @@ export class TelegramSwarmController {
       await this.deps.botApi.sendMessage(chatId, [
         '🐝 **Swarm Orchestrator**',
         '',
-        'Uso: `/swarm <objetivo>`',
+        'Usage: `/swarm <objective>`',
         '',
-        'Exemplos:',
-        '• `/swarm Pesquise sobre as novidades do React 19`',
-        '• `/swarm Crie um script Python que converte CSV para JSON`',
-        '• `/swarm Analise os logs do sistema e identifique erros`',
+        'Examples:',
+        '• `/swarm Research the latest React 19 features`',
+        '• `/swarm Create a Python script that converts CSV to JSON`',
+        '• `/swarm Analyze system logs and identify errors`',
       ].join('\n'), { parse_mode: 'Markdown' });
       return;
     }
 
     // Send initial progress message
     const progressMsg = await this.deps.botApi.sendMessage(chatId, [
-      '🐝 **Swarm Orchestrator Iniciado**',
+      '🐝 **Swarm Orchestrator Started**',
       '',
-      `📎 Objetivo: _${objective}_`,
+      `📎 Objective: _${objective}_`,
       '',
-      '🔄 Preparando agentes paralelos...',
+      '🔄 Preparing parallel agents...',
       '',
-      '`[Researcher]` ⏳ Aguardando...',
-      '`[Actor]`      ⏳ Aguardando...',
+      '`[Researcher]` ⏳ Waiting...',
+      '`[Actor]`      ⏳ Waiting...',
     ].join('\n'), { parse_mode: 'Markdown' });
 
     const progressMsgId = progressMsg?.message_id;
@@ -70,14 +70,14 @@ export class TelegramSwarmController {
       {
         id: 'swarm-researcher',
         label: 'Researcher',
-        systemPrompt: 'Você é um Agente de Pesquisa. Foque em buscar, extrair e organizar informações relevantes sobre o objetivo.',
+        systemPrompt: 'You are a Research Agent. Focus on searching, extracting, and organizing relevant information about the objective.',
         command: process.execPath,
         args: [zavorthCliPath, '--platform', 'telegram', '--session', 'telegram-swarm-researcher', objectiveCommand],
       },
       {
         id: 'swarm-actor',
         label: 'Actor',
-        systemPrompt: 'Você é um Agente de Ação. Foque em escrever código, executar comandos e produzir resultados concretos para o objetivo.',
+        systemPrompt: 'You are an Action Agent. Focus on writing code, executing commands, and producing concrete results for the objective.',
         command: process.execPath,
         args: [zavorthCliPath, '--platform', 'telegram', '--session', 'telegram-swarm-actor', objectiveCommand],
       },
@@ -102,17 +102,17 @@ export class TelegramSwarmController {
     try {
       const snapshot = await orchestrator.execute();
 
-      const synthesized = snapshot.synthesizedOutput || 'Síntese não disponível.';
+      const synthesized = snapshot.synthesizedOutput || 'Synthesis not available.';
       const statusEmoji = snapshot.status === 'completed' ? '✅' : '⚠️';
 
       const finalMessage = [
         `🐝 **Swarm Orchestrator ${statusEmoji}**`,
         '',
-        `📎 Objetivo: _${objective}_`,
+        `📎 Objective: _${objective}_`,
         '',
         `📊 Status: **${snapshot.status}**`,
-        `⏱️ Duração: ${this.calculateDuration(snapshot.startedAt, snapshot.finishedAt)}`,
-        `👥 Agentes: ${snapshot.roles.length}`,
+        `⏱️ Duration: ${this.calculateDuration(snapshot.startedAt, snapshot.finishedAt)}`,
+        `👥 Agents: ${snapshot.roles.length}`,
         '',
         '---',
         '',
@@ -122,13 +122,13 @@ export class TelegramSwarmController {
       // Truncate if too long for Telegram
       const maxLen = 4000;
       const truncated = finalMessage.length > maxLen
-        ? finalMessage.slice(0, maxLen) + '\n\n... _(truncado)_'
+        ? finalMessage.slice(0, maxLen) + '\n\n... _(truncated)_'
         : finalMessage;
 
       await this.deps.botApi.sendMessage(chatId, truncated, { parse_mode: 'Markdown' });
     } catch (err: any) {
       await this.deps.botApi.sendMessage(chatId,
-        `🐝❌ **Swarm falhou**: ${err.message || err}`,
+        `🐝❌ **Swarm failed**: ${err.message || err}`,
         { parse_mode: 'Markdown' },
       );
     } finally {
@@ -163,12 +163,12 @@ export class TelegramSwarmController {
       const actorStatus = roleId.includes('actor') ? emojis[status] : '⏳';
 
       await this.deps.botApi.editMessageText(chatId, messageId, [
-        '🐝 **Swarm Orchestrator em Execução...**',
+        '🐝 **Swarm Orchestrator Running...**',
         '',
-        `📎 Objetivo: _${objective}_`,
+        `📎 Objective: _${objective}_`,
         '',
-        `\`[Researcher]\` ${researcherStatus} ${status === 'running' && roleId.includes('researcher') ? 'Processando...' : ''}`,
-        `\`[Actor]\`      ${actorStatus} ${status === 'running' && roleId.includes('actor') ? 'Processando...' : ''}`,
+        `\`[Researcher]\` ${researcherStatus} ${status === 'running' && roleId.includes('researcher') ? 'Processing...' : ''}`,
+        `\`[Actor]\`      ${actorStatus} ${status === 'running' && roleId.includes('actor') ? 'Processing...' : ''}`,
       ].join('\n'), { parse_mode: 'Markdown' });
     } catch {
       // edit may fail if message is unchanged or too fast — ignore

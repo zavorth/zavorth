@@ -1,14 +1,14 @@
 import { Context } from 'grammy';
-import { config } from '../../config/index.js';
-import { Task } from '../../contracts/TaskContract.js';
-import { ZavorthBridgeControlService } from '../../services/ZavorthBridgeControlService.js';
+import { config } from '@zavorth/config/index.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
+import { ZavorthBridgeControlService } from '@zavorth/services/ZavorthBridgeControlService.js';
 import {
   ZavorthBridgeAutomationResult,
   ZavorthBridgeUiReadState,
   ZavorthBridgeWindowAutomator,
 } from '../../agents/ZavorthBridgeWindowAutomator.js';
 import { ZavorthBridgeCompanionBridge } from '../../agents/ZavorthBridgeCompanionBridge.js';
-import { PermissionService } from '../../services/PermissionService.js';
+import { PermissionService } from '@zavorth/services/PermissionService.js';
 import { TaskManager } from '../../orchestrator/TaskManager.js';
 import { AgentBridgeManager } from '../../orchestrator/AgentBridgeManager.js';
 import {
@@ -33,7 +33,7 @@ export class TelegramZavorthBridgeSessionBridgeService {
 
   public async handleSessionAction(ctx: Context, action: string): Promise<void> {
     if (action !== 'clean' && action !== 'reset') {
-      await ctx.reply('Acao de sessao do ZavorthBridge nao reconhecida.');
+      await ctx.reply('Unrecognized ZavorthBridge session action.');
       return;
     }
 
@@ -43,18 +43,18 @@ export class TelegramZavorthBridgeSessionBridgeService {
     try {
       const bridgeState = await this.readLiveBridgeSnapshot(bridge);
       if (!bridgeState) {
-        await ctx.reply('O ZavorthBridge ainda nao esta com a ponte interna online. Abra o app real antes de usar esse comando.');
+        await ctx.reply('ZavorthBridge internal bridge is not online yet. Open the real app before using this command.');
         return;
       }
 
       if (action === 'clean') {
         if (!bridgeState.capabilities.canCloseAllEditors) {
-          await ctx.reply('Essa instancia do ZavorthBridge nao oferece fechamento de abas por dentro da ponte interna.');
+          await ctx.reply('This ZavorthBridge instance does not support tab closing through the internal bridge.');
           return;
         }
 
         await bridge.closeAllEditors(undefined, 8000, bridgeState.targetInstanceId);
-        await ctx.reply('Pronto. Limpei as abas temporarias do ZavorthBridge pela ponte.');
+        await ctx.reply('Done. Cleaned temporary ZavorthBridge tabs via bridge.');
         return;
       }
 
@@ -67,17 +67,17 @@ export class TelegramZavorthBridgeSessionBridgeService {
 
         if (bridgeState.capabilities.canCloseAllEditors) {
           await bridge.closeAllEditors(undefined, 8000, bridgeState.targetInstanceId);
-          completedSteps.push('abas limpas');
+          completedSteps.push('tabs cleaned');
         }
 
         if (bridgeState.capabilities.canStartNewConversation) {
           await bridge.startNewConversation(undefined, 8000, bridgeState.targetInstanceId);
-          completedSteps.push('conversa reiniciada');
+          completedSteps.push('conversation restarted');
           resetPerformedByBridge = true;
         }
 
         if (completedSteps.length === 0) {
-          await ctx.reply('Essa instancia nao oferece os comandos necessarios para /agreset pela ponte.');
+          await ctx.reply('This instance does not support the commands needed for /agreset via bridge.');
           return;
         }
       }
@@ -90,16 +90,16 @@ export class TelegramZavorthBridgeSessionBridgeService {
         const restartResult = await this.deps.zavorthBridgeControlService.restart();
         if (restartResult.ok) {
           await this.invalidateActiveZavorthBridgeSessions(
-            'Sessao ZavorthBridge encerrada por /agreset depois que o reset rapido nao ficou confiavel.',
+            'ZavorthBridge session terminated by /agreset after quick reset was not reliable.',
           );
           await ctx.reply(
-            `O reset rapido do ZavorthBridge nao ficou confiavel na UI, entao reiniciei o app inteiro para limpar a sessao.${visualReset.message ? `\nMotivo do reset rapido: ${visualReset.message}` : ''}`,
+            `Quick ZavorthBridge reset was not reliable in the UI, so I restarted the entire app to clear the session.${visualReset.message ? `\nQuick reset reason: ${visualReset.message}` : ''}`,
           );
           return;
         }
 
         await ctx.reply(
-          `Disparei o reset do ZavorthBridge, mas nao consegui confirmar a conversa limpa na UI real.${visualReset.message ? `\nMotivo: ${visualReset.message}` : ''}${restartResult.errorMessage ? `\nTambem falhou ao reiniciar o app: ${restartResult.errorMessage}` : ''}`,
+          `Triggered ZavorthBridge reset, but could not confirm a clean conversation in the real UI.${visualReset.message ? `\nReason: ${visualReset.message}` : ''}${restartResult.errorMessage ? `\nAlso failed to restart the app: ${restartResult.errorMessage}` : ''}`,
         );
         return;
       }
@@ -108,26 +108,26 @@ export class TelegramZavorthBridgeSessionBridgeService {
         const restartResult = await this.deps.zavorthBridgeControlService.restart();
         if (restartResult.ok) {
           await this.invalidateActiveZavorthBridgeSessions(
-            'Sessao ZavorthBridge encerrada por /agreset porque a conversa visivel nao confirmou o reset rapido.',
+            'ZavorthBridge session terminated by /agreset because the visible conversation did not confirm the quick reset.',
           );
           await ctx.reply(
-            `O reset rapido do ZavorthBridge nao limpou a conversa visivel, entao reiniciei o app inteiro para te devolver uma sessao limpa.${visualReset.message ? `\nMotivo do reset rapido: ${visualReset.message}` : ''}`,
+            `Quick ZavorthBridge reset did not clean the visible conversation, so I restarted the entire app to give you a clean session.${visualReset.message ? `\nQuick reset reason: ${visualReset.message}` : ''}`,
           );
           return;
         }
 
         await ctx.reply(
-          `Disparei o reset do ZavorthBridge, mas a confirmacao visual ficou parcial.${visualReset.message ? `\nMotivo: ${visualReset.message}` : ''}${restartResult.errorMessage ? `\nTambem falhou ao reiniciar o app: ${restartResult.errorMessage}` : ''}`,
+          `Triggered ZavorthBridge reset, but visual confirmation was partial.${visualReset.message ? `\nReason: ${visualReset.message}` : ''}${restartResult.errorMessage ? `\nAlso failed to restart the app: ${restartResult.errorMessage}` : ''}`,
         );
         return;
       }
 
       await this.invalidateActiveZavorthBridgeSessions(
-        'Sessao ZavorthBridge anterior encerrada por /agreset para abrir uma conversa limpa.',
+        'Previous ZavorthBridge session terminated by /agreset to open a clean conversation.',
       );
-      await ctx.reply('Pronto. Reiniciei a conversa visivel do ZavorthBridge e confirmei o reset na UI real.');
+      await ctx.reply('Done. Restarted the visible ZavorthBridge conversation and confirmed the reset in the real UI.');
     } catch (error: any) {
-      await ctx.reply(`Nao consegui limpar ou reiniciar o ZavorthBridge agora.\n\nMotivo: ${error.message}`);
+      await ctx.reply(`Could not clean or restart ZavorthBridge right now.\n\nReason: ${error.message}`);
     }
   }
 
@@ -161,7 +161,7 @@ export class TelegramZavorthBridgeSessionBridgeService {
         pid: processId || undefined,
         textLength: 0,
         verified: false,
-        message: 'A UI do ZavorthBridge ainda mostra um pedido de permissao apos o reset.',
+        message: 'ZavorthBridge UI still shows a permission request after reset.',
         diagnostics: surface.diagnostics,
       };
     }
@@ -169,7 +169,7 @@ export class TelegramZavorthBridgeSessionBridgeService {
     return {
       ...surface,
       verified: surface.verified !== false,
-      message: surface.message || 'Conversa do ZavorthBridge pronta depois do reset pela ponte.',
+      message: surface.message || 'ZavorthBridge conversation ready after bridge reset.',
     };
   }
 

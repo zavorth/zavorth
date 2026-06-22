@@ -1,11 +1,11 @@
-import { Task } from '../../contracts/TaskContract.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import {
   PermissionAccessLevel,
   PermissionCommandMatchType,
   PermissionRequest,
   PermissionScope,
   PermissionStatus,
-} from '../../contracts/PermissionRequest.js';
+} from '@zavorth/contracts/PermissionRequest.js';
 
 export type TelegramPermissionDescriptorNormalization = {
   normalizePermissionAccessLevel(value: unknown): PermissionAccessLevel;
@@ -18,30 +18,30 @@ export class TelegramPermissionDescriptorService {
   public describePermissionStatus(status: PermissionStatus | 'all'): string {
     switch (status) {
       case 'pending':
-        return 'pendentes';
+        return 'pending';
       case 'approved':
-        return 'aprovadas';
+        return 'approved';
       case 'rejected':
-        return 'rejeitadas';
+        return 'rejected';
       case 'expired':
-        return 'expiradas';
+        return 'expired';
       case 'all':
       default:
-        return 'todos os estados';
+        return 'all statuses';
     }
   }
 
   public describePermissionSubject(permission: PermissionRequest): string {
     if (permission.executor === 'external_executor' && permission.kind === 'agent_binding') {
-      return 'Agent do ExternalExecutor';
+      return 'ExternalExecutor Agent';
     }
     if (permission.executor === 'external_executor' && permission.kind === 'workspace_access') {
-      return 'Acesso extra de pasta para o ExternalExecutor';
+      return 'Extra folder access for ExternalExecutor';
     }
     if (permission.executor === 'file_delivery' && permission.kind === 'workspace_access') {
       return permission.metadata?.permission_source === 'file_inspection'
-        ? 'Inspecao local de arquivos'
-        : 'Leitura local para envio de arquivos';
+        ? 'Local file inspection'
+        : 'Local read for file delivery';
     }
     if (permission.executor === 'aistudio' && permission.kind === 'builtin_tool_access') {
       return 'Tools do Google AI Studio';

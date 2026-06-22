@@ -1,16 +1,16 @@
 import { Context } from 'grammy';
 import { ParsedCommand } from '../CommandParser.js';
-import { Task } from '../../contracts/TaskContract.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import { RouteIntent } from '../../orchestrator/IntentRouter.js';
 import { RiskClassification } from '../../orchestrator/RiskClassifier.js';
 import {
   WorkspaceRoutingAdvisor,
   type WorkspaceRoutingAdvice,
-} from '../../runtime/context/WorkspaceRoutingAdvisor.js';
+} from '@zavorth/runtime/context/WorkspaceRoutingAdvisor.js';
 import type {
   WorkflowRunCreateOptions,
   WorkflowWorkspaceContext,
-} from '../../runtime/workflows/WorkflowRunService.js';
+} from '@zavorth/runtime/workflows/WorkflowRunService.js';
 import { telegramLegacySurfacePolicyService } from './TelegramLegacySurfacePolicyService.js';
 
 type ExecutionControllerLike = {
@@ -218,8 +218,8 @@ export class TelegramTaskAutoRouteService {
           return;
         }
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error || 'erro desconhecido');
-        await ctx.reply(`Nao consegui preparar esse link de video agora.\n\nMotivo: ${message}`);
+        const message = error instanceof Error ? error.message : String(error || 'unknown error');
+        await ctx.reply(`Could not prepare this video link right now.\n\nReason: ${message}`);
         return;
       }
     }

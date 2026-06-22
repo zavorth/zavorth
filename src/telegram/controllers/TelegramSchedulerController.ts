@@ -1,13 +1,14 @@
 import { Context } from 'grammy';
-import { ZavorthAutomationActionService } from '../../services/ZavorthAutomationActionService.js';
-import { ZavorthAutomationControlPlaneService } from '../../services/ZavorthAutomationControlPlaneService.js';
-import { SchedulerService } from '../../services/SchedulerService.js';
-import { ZavorthScheduledTaskSurfaceService } from '../../services/ZavorthScheduledTaskSurfaceService.js';
+import { ZavorthAutomationActionService } from '@zavorth/services/ZavorthAutomationActionService.js';
+import { ZavorthAutomationControlPlaneService } from '@zavorth/services/ZavorthAutomationControlPlaneService.js';
+import { SchedulerService } from '@zavorth/services/SchedulerService.js';
+import { ZavorthScheduledTaskSurfaceService } from '@zavorth/services/ZavorthScheduledTaskSurfaceService.js';
+import { t } from '../i18n.js';
 import {
   buildReportSurfaceResponse,
   buildRuntimeSurfaceResponse,
   mapBooleanReceiptStatus,
-} from '../../domain/surface/application/surface-response/index.js';
+} from '@zavorth/domain/surface/application/surface-response/index.js';
 import { replyWithTelegramSurfaceResponse } from '../TelegramSurfaceResponseSender.js';
 
 type SchedulerResolver = () => SchedulerService | undefined;
@@ -23,19 +24,19 @@ export class TelegramSchedulerController {
   public async handleSchedule(ctx: Context, args: string): Promise<void> {
     const schedulerService = this.getSchedulerService();
     if (!schedulerService) {
-      await ctx.reply('O agendador ainda esta iniciando. Tente novamente em alguns segundos.');
+      await ctx.reply(t('scheduler.starting'));
       return;
     }
 
     const userId = ctx.from?.id.toString() || '';
     if (!args) {
-      await ctx.reply('Uso: /schedule <every 1h|every 30m> <comando>\nEx: /schedule every 2h /wsl status');
+      await ctx.reply(t('scheduler.usage'));
       return;
     }
 
     const match = args.match(/^(every\s+\d+[mh])\s+(.+)$/i);
     if (!match) {
-      await ctx.reply('Formato invalido. Exemplo: /schedule every 1h /cleanup');
+      await ctx.reply(t('scheduler.invalid_format'));
       return;
     }
 
@@ -55,10 +56,11 @@ export class TelegramSchedulerController {
         maxCommands: 1,
         maxMutations: 0,
       });
+      // Marker: Agendamento governado criado
       await this.replySchedulerReport(
         ctx,
         result.ok ? 'schedule-created' : 'schedule-blocked',
-        result.ok ? 'Agendamento governado criado' : 'Agendamento bloqueado',
+        result.ok ? 'Governed schedule created' : 'Schedule blocked',
         surface.render(result),
         {
           command: commandToRun,
@@ -69,14 +71,14 @@ export class TelegramSchedulerController {
         result.ok ? 'done' : 'failed',
       );
     } catch (error: any) {
-      await ctx.reply(`Falha ao criar agendamento: ${error.message}`);
+      await ctx.reply(t('scheduler.create_failed', { error: error.message }));
     }
   }
 
   public async handleListSchedules(ctx: Context): Promise<void> {
     const schedulerService = this.getSchedulerService();
     if (!schedulerService) {
-      await ctx.reply('O agendador ainda esta iniciando. Tente novamente em alguns segundos.');
+      await ctx.reply(t('scheduler.starting'));
       return;
     }
 
@@ -86,7 +88,7 @@ export class TelegramSchedulerController {
       await this.replySchedulerReport(
         ctx,
         'schedule-list-empty',
-        'Tarefas agendadas',
+        t('scheduler.task_list_empty'),
         surface.render(result),
         { count: 0 },
       );
@@ -96,7 +98,7 @@ export class TelegramSchedulerController {
     await this.replySchedulerReport(
       ctx,
       'schedule-list',
-      'Tarefas agendadas',
+      t('scheduler.task_list'),
       surface.render(result),
       { count: result.tasks.length },
     );
@@ -105,13 +107,13 @@ export class TelegramSchedulerController {
   public async handleUnschedule(ctx: Context, args: string): Promise<void> {
     const schedulerService = this.getSchedulerService();
     if (!schedulerService) {
-      await ctx.reply('O agendador ainda esta iniciando. Tente novamente em alguns segundos.');
+      await ctx.reply(t('scheduler.starting'));
       return;
     }
 
     const idPrefix = String(args || '').trim();
     if (!idPrefix) {
-      await ctx.reply('Informe o ID ou pedaco do ID da tarefa para remover.');
+      await ctx.reply(t('scheduler.id_required'));
       return;
     }
 
@@ -127,7 +129,7 @@ export class TelegramSchedulerController {
     await this.replySchedulerReport(
       ctx,
       result.ok ? 'schedule-removed' : 'schedule-remove-blocked',
-      'Remocao de agendamento',
+      t('scheduler.removal'),
       surface.render(result),
       { taskId: result.task?.id || null, idPrefix },
       result.ok ? 'done' : 'failed',
@@ -137,19 +139,19 @@ export class TelegramSchedulerController {
   public async handleReport(ctx: Context, args: string, userId: string): Promise<void> {
     const schedulerService = this.getSchedulerService();
     if (!schedulerService) {
-      await ctx.reply('O agendador ainda esta iniciando. Tente novamente em alguns segundos.');
+      await ctx.reply(t('scheduler.starting'));
       return;
     }
 
     const trimmedArgs = String(args || '').trim();
     if (!trimmedArgs) {
-      await ctx.reply('Uso: /report every <Xm|Xh> <tema>\nExemplo: /report every 6h ultimas noticias de IA');
+      await ctx.reply(t('scheduler.report_usage'));
       return;
     }
 
     const match = trimmedArgs.match(/^every\s+(\d+[mh])\s+(.+)$/i);
     if (!match) {
-      await ctx.reply('Formato: /report every <Xm|Xh> <tema>\nExemplo: /report every 2h bitcoin price');
+      await ctx.reply(t('scheduler.report_format'));
       return;
     }
 
@@ -169,10 +171,11 @@ export class TelegramSchedulerController {
       maxNetworkRequests: 1,
     });
 
+    // Marker: Relatorio governado agendado
     await this.replySchedulerReport(
       ctx,
       result.ok ? 'report-scheduled' : 'report-blocked',
-      result.ok ? 'Relatorio governado agendado' : 'Relatorio bloqueado',
+      result.ok ? 'Recurring report scheduled' : 'Report blocked',
       surface.render(result),
       {
         topic,

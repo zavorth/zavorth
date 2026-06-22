@@ -1,15 +1,15 @@
 import { Context } from 'grammy';
 import { ZavorthBridgePreferenceStore } from '../../agents/ZavorthBridgePreferenceStore.js';
-import { CapabilityLifecycleService } from '../../services/CapabilityLifecycleService.js';
+import { CapabilityLifecycleService } from '@zavorth/services/CapabilityLifecycleService.js';
 import {
   CapabilityUnavailableError,
   isCapabilityUnavailableError,
-} from '../../services/OptionalCapabilityGuard.js';
+} from '@zavorth/services/OptionalCapabilityGuard.js';
 import {
   ZavorthBridgeControlAction,
   ZavorthBridgeControlResult,
   ZavorthBridgeControlService,
-} from '../../services/ZavorthBridgeControlService.js';
+} from '@zavorth/services/ZavorthBridgeControlService.js';
 import { TelegramOpsInsightPresentationService } from './TelegramOpsInsightPresentationService.js';
 
 type TelegramZavorthBridgeControlServiceDeps = {
@@ -31,7 +31,7 @@ export class TelegramZavorthBridgeControlService {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
 
-    if (normalized === '/ag_open' || normalized === 'abrir zavorthbridge' || normalized === 'abrir zavorth bridge') {
+    if (normalized === '/ag_open' || normalized === 'abrir zavorthbridge' || normalized === 'abrir zavorth bridge' || normalized === 'open zavorthbridge' || normalized === 'open zavorth bridge') {
       return { action: 'open' };
     }
 
@@ -40,7 +40,9 @@ export class TelegramZavorthBridgeControlService {
       normalized === 'status do zavorthbridge' ||
       normalized === 'status do zavorth bridge' ||
       normalized === 'status zavorthbridge' ||
-      normalized === 'status zavorth bridge'
+      normalized === 'status zavorth bridge' ||
+      normalized === 'zavorthbridge status' ||
+      normalized === 'zavorth bridge status'
     ) {
       return { action: 'status' };
     }
@@ -50,7 +52,9 @@ export class TelegramZavorthBridgeControlService {
       normalized === 'reiniciar zavorthbridge' ||
       normalized === 'reiniciar zavorth bridge' ||
       normalized === 'reiniciar o zavorthbridge' ||
-      normalized === 'reiniciar o zavorth bridge'
+      normalized === 'reiniciar o zavorth bridge' ||
+      normalized === 'restart zavorthbridge' ||
+      normalized === 'restart zavorth bridge'
     ) {
       return { action: 'restart' };
     }
@@ -120,11 +124,11 @@ export class TelegramZavorthBridgeControlService {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           error,
           ctx.from?.id?.toString() || 'unknown',
-          'Para concluir esse passo do ZavorthBridge eu preciso ativar a capability remota opcional deste host.',
+          'To complete this ZavorthBridge step I need to enable the optional remote capability on this host.',
         ));
         return;
       }
-      await ctx.reply(`Falha no controle seguro do ZavorthBridge: ${error.message}`);
+      await ctx.reply(`ZavorthBridge control failed: ${error.message}`);
     }
   }
 
@@ -143,7 +147,7 @@ export class TelegramZavorthBridgeControlService {
 
     if (!normalizedModel) {
       await this.deps.zavorthBridgePreferenceStore.setPreferredModel(null);
-      await ctx.reply('Pronto. Removi a preferencia salva de modelo do ZavorthBridge.');
+      await ctx.reply('Done. Removed the saved ZavorthBridge model preference.');
       return;
     }
 
@@ -153,53 +157,53 @@ export class TelegramZavorthBridgeControlService {
   public formatControlReply(result: ZavorthBridgeControlResult): string {
     if (result.action === 'set-model') {
       if (result.ok && result.verified) {
-        return `Pronto. Modelo do ZavorthBridge confirmado: ${result.selectedModel || 'indisponivel'}.`;
+        return `Done. ZavorthBridge model confirmed: ${result.selectedModel || 'unavailable'}.`;
       }
 
       const failureLines = [
         result.ok
-          ? 'Consegui iniciar a troca do modelo, mas a confirmacao final ficou parcial.'
-          : 'Nao consegui trocar o modelo do ZavorthBridge agora.',
+          ? 'Started the model switch, but the final confirmation was partial.'
+          : 'Could not switch ZavorthBridge model right now.',
       ];
 
       if (result.selectedModel) {
-        failureLines.push(`Modelo pedido: ${result.selectedModel}`);
+        failureLines.push(`Requested model: ${result.selectedModel}`);
       }
       if (result.errorMessage) {
-        failureLines.push(`Motivo: ${result.errorMessage}`);
+        failureLines.push(`Reason: ${result.errorMessage}`);
       }
       if (result.allowedModels && result.allowedModels.length > 0 && result.errorCode === 'model_not_allowed') {
-        failureLines.push(`Modelos permitidos: ${result.allowedModels.join(', ')}`);
+        failureLines.push(`Allowed models: ${result.allowedModels.join(', ')}`);
       }
       return failureLines.join('\n');
     }
 
     if (result.action === 'open') {
       return result.ok
-        ? 'Pronto. O ZavorthBridge foi aberto.'
-        : `Nao consegui abrir o ZavorthBridge agora.${result.errorMessage ? `\nMotivo: ${result.errorMessage}` : ''}`;
+        ? 'Done. ZavorthBridge has been opened.'
+        : `Could not open ZavorthBridge right now.${result.errorMessage ? `\nReason: ${result.errorMessage}` : ''}`;
     }
 
     if (result.action === 'restart') {
       return result.ok
-        ? 'Pronto. Reiniciei o ZavorthBridge.'
-        : `Nao consegui reiniciar o ZavorthBridge agora.${result.errorMessage ? `\nMotivo: ${result.errorMessage}` : ''}`;
+        ? 'Done. ZavorthBridge has been restarted.'
+        : `Could not restart ZavorthBridge right now.${result.errorMessage ? `\nReason: ${result.errorMessage}` : ''}`;
     }
 
-    const readinessSummary = this.describeReadiness(result) || 'indisponivel';
-    const lines = [`Status do ZavorthBridge: ${readinessSummary}.`];
+    const readinessSummary = this.describeReadiness(result) || 'unavailable';
+    const lines = [`ZavorthBridge status: ${readinessSummary}.`];
 
     if (result.selectedModel) {
-      lines.push(`Modelo: ${result.selectedModel}`);
+      lines.push(`Model: ${result.selectedModel}`);
     }
     if (typeof result.sessionAccessible === 'boolean') {
-      lines.push(`Sessao acessivel: ${result.sessionAccessible ? 'sim' : 'nao'}`);
+      lines.push(`Session accessible: ${result.sessionAccessible ? 'yes' : 'no'}`);
     }
     if (typeof result.remoteModeActive === 'boolean') {
-      lines.push(`Modo remoto: ${result.remoteModeActive ? 'ativo' : 'inativo'}`);
+      lines.push(`Remote mode: ${result.remoteModeActive ? 'active' : 'inactive'}`);
     }
     if (result.errorMessage) {
-      lines.push(`Motivo: ${result.errorMessage}`);
+      lines.push(`Reason: ${result.errorMessage}`);
     }
 
     return lines.join('\n');
@@ -210,24 +214,24 @@ export class TelegramZavorthBridgeControlService {
       return null;
     }
     if (!result.appInstalled) {
-      return 'ZavorthBridge nao instalado neste notebook';
+      return 'ZavorthBridge not installed on this machine';
     }
     if (result.sessionAccessible === false) {
       if (result.desktopName && result.desktopName !== 'Default') {
-        return `bloqueado pela sessao do Windows (desktop atual: ${result.desktopName})`;
+        return `blocked by Windows session (current desktop: ${result.desktopName})`;
       }
-      return 'sessao do Windows nao acessivel para automacao';
+      return 'Windows session not accessible for automation';
     }
     if (!result.processFound || !result.windowFound) {
-      return 'ZavorthBridge fechado ou janela principal nao encontrada';
+      return 'ZavorthBridge closed or main window not found';
     }
     if (result.remoteModeActive === false) {
-      return 'pronto para uso local; para uso remoto, ative /remote on';
+      return 'ready for local use; for remote use, enable /remote on';
     }
     if (result.remoteModeActive === true && result.sessionAccessible === true && result.processFound && result.windowFound) {
-      return 'pronto para uso remoto';
+      return 'ready for remote use';
     }
-    return 'parcialmente pronto; confira os detalhes abaixo';
+    return 'partially ready; check the details below';
   }
 
   private buildCapabilityUnavailableReply(

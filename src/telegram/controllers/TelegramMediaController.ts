@@ -3,20 +3,21 @@ import { randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import JSZip from 'jszip';
-import { config } from '../../config/index.js';
-import { CapabilityLifecycleService } from '../../services/CapabilityLifecycleService.js';
+import { config } from '@zavorth/config/index.js';
+import { t } from '../i18n.js';
+import { CapabilityLifecycleService } from '@zavorth/services/CapabilityLifecycleService.js';
 import {
   CapabilityUnavailableError,
   isCapabilityUnavailableError,
   loadOptionalDependency,
-} from '../../services/OptionalCapabilityGuard.js';
+} from '@zavorth/services/OptionalCapabilityGuard.js';
 import { AudioHandler, type AudioTranscriptionResult } from '../AudioHandler.js';
 import { logEchoTrace } from '../EchoTrace.js';
 import { VideoHandler } from '../VideoHandler.js';
-import { EchoOutputStageService } from '../../services/EchoOutputStageService.js';
-import { safeFetch } from '../../security/SafeFetchService.js';
+import { EchoOutputStageService } from '@zavorth/services/EchoOutputStageService.js';
+import { safeFetch } from '@zavorth/security/SafeFetchService.js';
 import { TelegramOpsInsightPresentationService } from './TelegramOpsInsightPresentationService.js';
-import { wrapUntrustedContent } from '../../security/UntrustedContent.js';
+import { wrapUntrustedContent } from '@zavorth/security/UntrustedContent.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type EchoPreferenceStoreLike = {
@@ -65,7 +66,7 @@ export class TelegramMediaController {
 
     try {
       const fileInfo = await ctx.api.getFile(photo.file_id);
-      if (!fileInfo.file_path) throw new Error('Caminho nao retornado pelo Telegram.');
+      if (!fileInfo.file_path) throw new Error(t('media.path_not_returned'));
 
       const fileUrl = `https://api.telegram.org/file/bot${config.telegramBotToken}/${fileInfo.file_path}`;
       const response = await safeFetch(fileUrl, {}, {
@@ -75,15 +76,15 @@ export class TelegramMediaController {
       const inlineData = [{ mimeType: 'image/jpeg', data: buffer.toString('base64') }];
 
       const fullText = caption
-        ? `[Imagem anexada]\n${caption}`
-        : '[Imagem anexada] Por favor, analise ou descreva esta imagem.';
+        ? `${t('media.image_attached')}\n${caption}`
+        : t('media.image_attached_prompt');
 
       await this.dispatchConversational(ctx, fullText, inlineData, {
         transport: 'photo',
         requestedBy: userId,
       });
     } catch (e: unknown) {
-      await ctx.reply(`Nao consegui analisar essa foto agora.\n\nMotivo: ${getErrorMessage(e)}`);
+      await ctx.reply(t('media.photo_analysis_failed', { error: getErrorMessage(e) }));
     }
   }
 
@@ -99,7 +100,7 @@ export class TelegramMediaController {
       if (!file) return;
 
       const fileInfo = await ctx.api.getFile(file.file_id);
-      if (!fileInfo.file_path) throw new Error('Caminho nao retornado pelo Telegram.');
+      if (!fileInfo.file_path) throw new Error(t('media.path_not_returned'));
 
       filePath = path.join(config.tmpDir, `audio_${Date.now()}.ogg`);
       if (!fs.existsSync(config.tmpDir)) fs.mkdirSync(config.tmpDir, { recursive: true });
@@ -113,8 +114,8 @@ export class TelegramMediaController {
       fs.writeFileSync(filePath, buffer);
       const audioConfig = config.tools.media.audio;
 
-      // Certification matrix: Injetar o Ã¡udio real como inlineData para processamento multimodal.
-      // O Gemini poderÃ¡ "ouvir" entonaÃ§Ã£o, emoÃ§Ã£o e sons ambiente alÃ©m do texto.
+      // Inject real audio as inlineData for multimodal processing.
+      // Gemini can "hear" intonation, emotion, and ambient sounds beyond text.
       const audioInlineData: InlineData = [{
         mimeType: file.mime_type || 'audio/ogg',
         data: buffer.toString('base64'),
@@ -149,8 +150,8 @@ export class TelegramMediaController {
       } catch (transcriptionError: unknown) {
         const message = getErrorMessage(transcriptionError);
         transcriptWarning = message
-          ? `\n[Transcricao local indisponivel: ${message}]`
-          : '\n[Transcricao local indisponivel]';
+          ? t('media.transcription_unavailable_detail', { error: message })
+          : t('media.transcription_unavailable');
       }
       logEchoTrace(traceId, transcriptionResult ? 'voice.stt.completed' : 'voice.stt.failed', {
         provider: transcriptionResult?.provider || 'none',
@@ -167,7 +168,7 @@ export class TelegramMediaController {
       if (!transcript.trim()) {
         await this.replyToUntrustedVoice(
           ctx,
-          transcriptWarning.trim() || 'transcricao local indisponivel',
+          transcriptWarning.trim() || t('media.transcription_unavailable_fallback'),
           traceId,
           this.resolveVoiceLanguageCode(transcript, transcriptionResult?.languageCode || null),
         );
@@ -262,11 +263,11 @@ export class TelegramMediaController {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           e,
           userId,
-          'Para processar este audio eu preciso ativar uma capability opcional deste host.',
+          t('media.audio_processing_capability'),
         ));
         return;
       }
-      await ctx.reply(`Nao consegui transcrever esse audio agora.\n\nMotivo: ${getErrorMessage(e)}`);
+      await ctx.reply(t('media.audio_transcription_failed', { error: getErrorMessage(e) }));
     } finally {
       if (filePath) {
         this.audioHandler.cleanup(filePath);
@@ -309,11 +310,11 @@ export class TelegramMediaController {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           e,
           userId,
-          'Para preparar esse video eu preciso ativar a trilha multimidia opcional.',
+          t('media.video_processing_capability'),
         ));
         return;
       }
-      await ctx.reply(`Nao consegui processar esse video agora.\n\nMotivo: ${getErrorMessage(e)}`);
+      await ctx.reply(t('media.video_processing_failed', { error: getErrorMessage(e) }));
     }
   }
 
@@ -352,9 +353,7 @@ export class TelegramMediaController {
     }
 
     if (!isPdf && !isMd && !isTxt && !isDocx && !isOdt) {
-      await ctx.reply(
-        'Por enquanto eu consigo ler PDFs, DOCX, ODT, arquivos Markdown, TXT e midias suportadas. Se quiser, me envie em um desses formatos.',
-      );
+      await ctx.reply(t('media.unsupported_format'));
       return;
     }
 
@@ -363,7 +362,7 @@ export class TelegramMediaController {
 
     try {
       const fileInfo = await ctx.api.getFile(document.file_id);
-      if (!fileInfo.file_path) throw new Error('Caminho nao retornado.');
+      if (!fileInfo.file_path) throw new Error(t('media.path_not_returned'));
 
       filePath = path.join(
         config.tmpDir,
@@ -388,13 +387,13 @@ export class TelegramMediaController {
 
       const normalizedText = text.trim();
       if (!normalizedText) {
-        await ctx.reply('Esse documento nao trouxe texto legivel. Tente outro arquivo ou um documento com texto extraivel.');
+        await ctx.reply(t('media.document_no_text'));
         return;
       }
 
       const safeText =
         normalizedText.length > maxDocumentChars
-          ? `${normalizedText.slice(0, maxDocumentChars)}\n\n...[Documento truncado para caber na analise inicial. Se precisar, solicite leitura segmentada.]`
+          ? `${normalizedText.slice(0, maxDocumentChars)}\n\n...${t('media.document_truncated')}`
           : normalizedText;
 
       const caption = ctx.message?.caption || '';
@@ -403,8 +402,8 @@ export class TelegramMediaController {
         file_name: fileName,
       });
       const fullText = caption
-        ? `[Documento: ${fileName}]\n${caption}\n\n---\n${untrustedDocumentBlock}`
-        : `[Documento: ${fileName}]\n${untrustedDocumentBlock}`;
+        ? `${t('media.document_prefix', { name: fileName })}\n${caption}\n\n---\n${untrustedDocumentBlock}`
+        : `${t('media.document_prefix', { name: fileName })}\n${untrustedDocumentBlock}`;
 
       await this.dispatchConversational(ctx, fullText, undefined, {
         transport: 'document',
@@ -421,11 +420,11 @@ export class TelegramMediaController {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           e,
           userId,
-          'Para ler esse documento eu preciso ativar a trilha multimidia opcional deste host.',
+          t('media.document_reading_capability'),
         ));
         return;
       }
-      await ctx.reply(`Nao consegui ler esse documento agora.\n\nMotivo: ${getErrorMessage(e)}`);
+      await ctx.reply(t('media.document_reading_failed', { error: getErrorMessage(e) }));
     } finally {
       if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -444,7 +443,7 @@ export class TelegramMediaController {
       const _pdfMod: any = await loadOptionalDependency<any>(
         'pdf-parse',
         'media',
-        'O leitor de PDF opcional nao esta instalado neste host.',
+        t('media.pdf_reader_missing'),
       );
       const pdfParse = _pdfMod.default || _pdfMod;
       const pdfData = await pdfParse(input.buffer);
@@ -736,30 +735,30 @@ export class TelegramMediaController {
 
     if (languageCode === 'pt') {
       return kind === 'connectivity'
-        ? 'Sim, consigo te ouvir corretamente.'
-        : 'Recebi seu audio, mas a transcricao automatica veio inconsistente. Nao vou inventar conteudo em cima disso. Pode repetir em uma frase curta?';
+        ? t('media.audio_connectivity_pt')
+        : t('media.audio_inconsistent_pt');
     }
 
     if (languageCode === 'es') {
       return kind === 'connectivity'
-        ? 'Si, puedo escucharte correctamente.'
-        : 'Recibi tu audio, pero la transcripcion automatica fue inconsistente. No voy a inventar contenido. Puedes repetirlo en una frase corta?';
+        ? t('media.audio_connectivity_es')
+        : t('media.audio_inconsistent_es');
     }
 
     return kind === 'connectivity'
-      ? 'Yes, I can hear you correctly.'
-      : 'I received your audio, but the automatic transcription looked unreliable. I will not invent content from it. Could you repeat it in one short sentence?';
+      ? t('media.audio_connectivity_en')
+      : t('media.audio_inconsistent_en');
   }
 
   private resolveSafetyDetailLabel(ctx: Context, preferredLanguageCode?: string | null): string {
     const language = this.resolveSafetyLanguage(ctx, '', preferredLanguageCode);
     if (language === 'pt') {
-      return 'Detalhe tecnico';
+      return t('media.safety_detail_pt');
     }
     if (language === 'es') {
-      return 'Detalle tecnico';
+      return t('media.safety_detail_es');
     }
-    return 'Technical detail';
+    return t('media.safety_detail_en');
   }
 
   private resolveSafetyLanguage(
@@ -847,5 +846,5 @@ export class TelegramMediaController {
 }
 
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error || 'erro desconhecido');
+  return error instanceof Error ? error.message : String(error || t('media.unknown_error'));
 }

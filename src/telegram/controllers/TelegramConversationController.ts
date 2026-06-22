@@ -1,26 +1,26 @@
 import { randomUUID } from 'crypto';
 import { Context } from 'grammy';
-import { Task } from '../../contracts/TaskContract.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import { BridgeManager } from '../../orchestrator/BridgeManager.js';
 import { TaskManager } from '../../orchestrator/TaskManager.js';
-import { ConversationSummaryService } from '../../services/ConversationSummaryService.js';
-import { MemoryService } from '../../services/MemoryService.js';
-import { RecentTaskResolver } from '../../services/RecentTaskResolver.js';
-import { SmartOutputService } from '../../services/SmartOutputService.js';
-import { GatewaySessionLedgerService } from '../../services/GatewaySessionLedgerService.js';
-import { GatewaySessionReadModelService } from '../../services/GatewaySessionReadModelService.js';
-import { GatewaySessionService, type GatewaySessionSnapshot } from '../../services/GatewaySessionService.js';
-import { buildWorkspaceContinuityContext } from '../../runtime/context/WorkspaceContinuityContext.js';
-import { isStructuredAgentRunAction } from '../../contracts/StructuredAgentRunContract.js';
-import { classifyWorkspaceTaskProfile } from '../../services/WorkspaceTaskKind.js';
+import { ConversationSummaryService } from '@zavorth/services/ConversationSummaryService.js';
+import { MemoryService } from '@zavorth/services/MemoryService.js';
+import { RecentTaskResolver } from '@zavorth/services/RecentTaskResolver.js';
+import { SmartOutputService } from '@zavorth/services/SmartOutputService.js';
+import { GatewaySessionLedgerService } from '@zavorth/services/GatewaySessionLedgerService.js';
+import { GatewaySessionReadModelService } from '@zavorth/services/GatewaySessionReadModelService.js';
+import { GatewaySessionService, type GatewaySessionSnapshot } from '@zavorth/services/GatewaySessionService.js';
+import { buildWorkspaceContinuityContext } from '@zavorth/runtime/context/WorkspaceContinuityContext.js';
+import { isStructuredAgentRunAction } from '@zavorth/contracts/StructuredAgentRunContract.js';
+import { classifyWorkspaceTaskProfile } from '@zavorth/services/WorkspaceTaskKind.js';
 import {
   ExecutionEscalationPolicy,
   ZavorthAgentGateway,
   type UniversalAgentExecutor,
   type UniversalAgentExecutorResult,
-} from '../../runtime/agent/index.js';
-import type { GraphRuntimeService } from '../../services/graph/GraphRuntimeService.js';
-import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+} from '@zavorth/runtime/agent/index.js';
+import type { GraphRuntimeService } from '@zavorth/services/graph/GraphRuntimeService.js';
+import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import type { AudioSynthesisOptions } from '../AudioHandler.js';
 import { TelegramConversationAutonomousService } from './TelegramConversationAutonomousService.js';
 import { TelegramConversationDecisionService } from './TelegramConversationDecisionService.js';
@@ -28,8 +28,8 @@ import { TelegramConversationContextService } from './TelegramConversationContex
 import { TelegramConversationDirectReplyService } from './TelegramConversationDirectReplyService.js';
 import { TelegramConversationStateService } from './TelegramConversationStateService.js';
 import { TelegramExperienceActionCardFormatter } from '../TelegramExperienceActionCardFormatter.js';
-import { wrapUntrustedContent } from '../../security/UntrustedContent.js';
-import type { ExperienceCoreService } from '../../services/experience/ExperienceCoreService.js';
+import { wrapUntrustedContent } from '@zavorth/security/UntrustedContent.js';
+import type { ExperienceCoreService } from '@zavorth/services/experience/ExperienceCoreService.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type TelegramAgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
@@ -537,12 +537,12 @@ export class TelegramConversationController {
         break;
       case 'implementation_ready':
         hints.push(
-          'Responda de forma operacional e pronta para execucao.',
-          'Inclua proposta concreta, impacto esperado e proximos passos práticos.',
+          'Respond in an operational and ready-to-execute manner.',
+          'Include a concrete proposal, expected impact, and practical next steps.',
         );
         break;
       default:
-        hints.push('Responda de forma direta, economica e facil de aplicar.');
+        hints.push('Respond directly, concisely, and in an easy-to-apply manner.');
         break;
     }
 
@@ -552,7 +552,7 @@ export class TelegramConversationController {
   private hasStrongAutonomyIntent(originalMessage: string, autonomousPayload: string): boolean {
     const combined = `${String(originalMessage || '')}\n${String(autonomousPayload || '')}`.toLowerCase();
 
-    return /(arrume|corrija|conserte|modifique|altere|implante|implemente|crie|gere arquivo|rode|execute|automatize|fa[cç]a sozinho|pode seguir|pode fazer|aplique|mude o sistema|edite)/i.test(
+    return /(arrume|corrija|conserte|modifique|altere|implante|implemente|crie|gere arquivo|rode|execute|automatize|fa[cç]a sozinho|pode seguir|pode fazer|aplique|mude o sistema|edite|fix|repair|modify|change|implement|create|generate file|run|execute|automate|do it yourself|go ahead|apply|edit)/i.test(
       combined,
     );
   }

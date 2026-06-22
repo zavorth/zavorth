@@ -1,11 +1,11 @@
-import { Task } from '../../contracts/TaskContract.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import {
   classifyWorkspaceTaskProfile,
   type WorkspaceTaskKind,
   type WorkspaceResponseStyle,
   type WorkspaceTaskSubtype,
   resolveWorkspaceResponseStyle,
-} from '../../services/WorkspaceTaskKind.js';
+} from '@zavorth/services/WorkspaceTaskKind.js';
 
 export type AutonomousExecutionDecision = {
   mode: 'direct' | 'autonomous';
@@ -281,7 +281,7 @@ export class TelegramConversationDecisionService {
   private hasStrongAutonomyIntent(originalMessage: string, autonomousPayload: string): boolean {
     const combined = `${String(originalMessage || '')}\n${String(autonomousPayload || '')}`.toLowerCase();
 
-    return /(arrume|corrija|conserte|modifique|altere|implante|implemente|crie|gere arquivo|rode|execute|automatize|fa[cç]a sozinho|pode seguir|pode fazer|aplique|mude o sistema|edite)/i.test(
+    return /(arrume|corrija|conserte|modifique|altere|implante|implemente|crie|gere arquivo|rode|execute|automatize|fa[cç]a sozinho|pode seguir|pode fazer|aplique|mude o sistema|edite|fix|repair|modify|change|implement|create|generate file|run|execute|automate|do it yourself|go ahead|apply|edit)/i.test(
       combined,
     );
   }

@@ -1,16 +1,17 @@
 import { Context } from 'grammy';
-import { config } from '../../config/index.js';
+import { config } from '@zavorth/config/index.js';
+import { t } from '../i18n.js';
 import { ZavorthBridgePreferenceStore } from '../../agents/ZavorthBridgePreferenceStore.js';
-import { IntegrationHubService } from '../../services/IntegrationHubService.js';
-import { DemoModeService } from '../../services/DemoModeService.js';
-import { OperatorModeService } from '../../services/OperatorModeService.js';
-import { PresentationModeService } from '../../services/PresentationModeService.js';
-import { RuntimeDiagnosticsService } from '../../services/RuntimeDiagnosticsService.js';
-import { CapabilityLifecycleService } from '../../services/CapabilityLifecycleService.js';
+import { IntegrationHubService } from '@zavorth/services/IntegrationHubService.js';
+import { DemoModeService } from '@zavorth/services/DemoModeService.js';
+import { OperatorModeService } from '@zavorth/services/OperatorModeService.js';
+import { PresentationModeService } from '@zavorth/services/PresentationModeService.js';
+import { RuntimeDiagnosticsService } from '@zavorth/services/RuntimeDiagnosticsService.js';
+import { CapabilityLifecycleService } from '@zavorth/services/CapabilityLifecycleService.js';
 import {
   ProductObservabilityService,
   type ProductObservabilitySnapshot,
-} from '../../services/ProductObservabilityService.js';
+} from '@zavorth/services/ProductObservabilityService.js';
 import {
   TelegramOpsInsightPresentationService,
   type TelegramOpsSystemStatusSnapshot,
@@ -242,29 +243,29 @@ export class TelegramOpsInsightService {
       const stageLabel = String(
         (resumableWorkflow as any).stage_label || (resumableWorkflow as any).resume_stage_label || '',
       ).trim();
-      lines.push(`- Workflow para retomar: ${workflowLabel}${stageLabel ? ` Â· ${stageLabel}` : ''}.`);
+      lines.push(`- Workflow to resume: ${workflowLabel}${stageLabel ? ` · ${stageLabel}` : ''}.`);
     }
 
     if (topExecutor) {
       lines.push(
-        `- Executor em destaque: ${topExecutor.executor} (${Math.round(Number(topExecutor.success_rate || 0) * 100)}% de sucesso).`,
+        `- Top executor: ${topExecutor.executor} (${Math.round(Number(topExecutor.success_rate || 0) * 100)}% success).`,
       );
     }
 
     if (highestFriction) {
       lines.push(
-        `- Maior atrito recente: ${highestFriction.executor} em ${highestFriction.kind}/${highestFriction.subtype} (${highestFriction.failed} falha(s), ${highestFriction.waitingApproval} aguardando aprovacao).`,
+        `- Highest recent friction: ${highestFriction.executor} in ${highestFriction.kind}/${highestFriction.subtype} (${highestFriction.failed} failure(s), ${highestFriction.waitingApproval} awaiting approval).`,
       );
     }
 
     if (topPolicy) {
       lines.push(
-        `- Politica mais reaproveitada: ${topPolicy.executor}/${topPolicy.kind} (${topPolicy.count} liberacao(oes)).`,
+        `- Most reused policy: ${topPolicy.executor}/${topPolicy.kind} (${topPolicy.count} authorization(s)).`,
       );
     }
 
     if (lines.length === 0) {
-      lines.push('- Observabilidade de produto: aguardando sinais suficientes nesta janela.');
+      lines.push('- Product observability: waiting for sufficient signals in this window.');
     }
 
     return lines;
@@ -273,15 +274,15 @@ export class TelegramOpsInsightService {
   private describeRuntimeTaskStatus(status: string): string {
     switch (status) {
       case 'running':
-        return 'executando';
+        return 'running';
       case 'waiting_approval':
-        return 'aguardando aprovacao';
+        return 'awaiting approval';
       case 'delivery_pending':
-        return 'entregando';
+        return 'delivering';
       case 'planned':
-        return 'planejadas';
+        return 'planned';
       case 'approved':
-        return 'aprovadas';
+        return 'approved';
       default:
         return status.replace(/_/g, ' ');
     }
@@ -289,22 +290,22 @@ export class TelegramOpsInsightService {
 
   private formatSidecarStatusLine(sidecar: SidecarStatusCard | undefined, url: string | null | undefined): string {
     if (!sidecar) {
-      return 'sem dados ainda.';
+      return 'no data yet.';
     }
 
     if (!sidecar.enabled) {
-      return 'desativado.';
+      return 'disabled.';
     }
 
     if (sidecar.ready) {
-      return `pronto${url ? ` em ${url}` : ''}.`;
+      return `ready${url ? ` at ${url}` : ''}.`;
     }
 
     if (sidecar.running) {
-      return `subindo${url ? ` em ${url}` : ''}.`;
+      return `starting${url ? ` at ${url}` : ''}.`;
     }
 
-    return sidecar.message || 'ainda nao iniciado.';
+    return sidecar.message || 'not started yet.';
   }
   */
 }
