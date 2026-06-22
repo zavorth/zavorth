@@ -67,6 +67,9 @@ export class ActiveMemoryService {
         );
       }
     }, 2000);
+    if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {
+      (this.flushTimer as NodeJS.Timeout).unref();
+    }
   }
 
   public remember(content: string, options?: {
