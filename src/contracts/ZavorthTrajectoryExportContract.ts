@@ -70,3 +70,52 @@ export type ZavorthTrajectoryExportSnapshot = {
     check: 'npm run zavorth:trajectory-export:check';
   };
 };
+
+export type ZavorthTrajectoryToolStat = {
+  toolName: string;
+  count: number;
+  success: number;
+  failure: number;
+  avgDurationMs: number;
+};
+
+export type ZavorthTrajectoryCaptureTurn = {
+  turnId: string;
+  runId: string;
+  sessionId: string;
+  userId: string;
+  channel: string;
+  timestamp: string;
+  userMessage: string;
+  assistantResponse: string;
+  reasoning: string;
+  toolCalls: Array<{ name: string; args: string; result: string; success: boolean; durationMs: number }>;
+  approvals: string[];
+  status: 'completed' | 'failed' | 'partial';
+  metadata: Record<string, unknown>;
+};
+
+export type ZavorthTrajectoryCaptureStats = {
+  totalTurns: number;
+  turnsWithReasoning: number;
+  reasoningCoverage: number;
+  toolStats: ZavorthTrajectoryToolStat[];
+  avgToolsPerTurn: number;
+  approvalRate: number;
+  totalDurationMs: number;
+};
+
+export type ZavorthTrajectoryCaptureSnapshot = {
+  contractVersion: string;
+  generatedAt: string;
+  source: 'ZavorthTrajectoryCaptureService';
+  turns: ZavorthTrajectoryCaptureTurn[];
+  stats: ZavorthTrajectoryCaptureStats;
+  format: ZavorthTrajectoryExportFormat;
+  outputPath: string | null;
+  safety: {
+    requiresApprovalForWrite: true;
+    noRawSecretsSerialized: true;
+    sourceContentRedacted: true;
+  };
+};
