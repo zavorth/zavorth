@@ -1,9 +1,9 @@
 import { Context } from 'grammy';
-import { Task } from '../../contracts/TaskContract.js';
-import { PermissionRequest, PermissionScope } from '../../contracts/PermissionRequest.js';
-import { PermissionService } from '../../services/PermissionService.js';
-import { TaskSecurityPostureService } from '../../services/TaskSecurityPostureService.js';
-import type { ZavorthBridgePromptStartResult } from '../../services/ZavorthBridgePromptService.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
+import { PermissionRequest, PermissionScope } from '@zavorth/contracts/PermissionRequest.js';
+import { PermissionService } from '@zavorth/services/PermissionService.js';
+import { TaskSecurityPostureService } from '@zavorth/services/TaskSecurityPostureService.js';
+import type { ZavorthBridgePromptStartResult } from '@zavorth/services/ZavorthBridgePromptService.js';
 import { TelegramZavorthBridgeController } from './TelegramZavorthBridgeController.js';
 import {
   TelegramZavorthBridgePermissionAutomationService,
@@ -158,16 +158,16 @@ export class TelegramZavorthBridgePermissionService {
 
     if (startResult) {
       await ctx.reply(
-        'Permissao enviada ao ZavorthBridge. Vou retomar o acompanhamento da resposta agora.',
+        'Permission sent to ZavorthBridge. Resuming response monitoring now.',
       );
       void this.deps.getZavorthBridgeController().finishPrompt(existingTask, startResult);
     } else if (trackingFile) {
       await ctx.reply(
-        'Permissao enviada ao ZavorthBridge. Vou seguir monitorando a tarefa real e te aviso quando ela terminar.',
+        'Permission sent to ZavorthBridge. I will monitor the real task and notify you when it finishes.',
       );
     } else {
       await ctx.reply(
-        'A permissao foi aprovada, mas eu perdi o estado do prompt do ZavorthBridge. Reenvie a tarefa se precisar.',
+        'Permission was approved, but I lost the ZavorthBridge prompt state. Resubmit the task if needed.',
       );
     }
 

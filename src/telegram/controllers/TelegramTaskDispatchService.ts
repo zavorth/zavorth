@@ -1,15 +1,15 @@
 import { Context } from 'grammy';
 import { ParsedCommand } from '../CommandParser.js';
-import { Task } from '../../contracts/TaskContract.js';
+import { Task } from '@zavorth/contracts/TaskContract.js';
 import { RouteIntent } from '../../orchestrator/IntentRouter.js';
 import { RiskClassification } from '../../orchestrator/RiskClassifier.js';
-import { WorkspaceRoutingAdvice } from '../../runtime/context/WorkspaceRoutingAdvisor.js';
+import { WorkspaceRoutingAdvice } from '@zavorth/runtime/context/WorkspaceRoutingAdvisor.js';
 import type {
   WorkflowRunCreateOptions,
   WorkflowWorkspaceContext,
-} from '../../runtime/workflows/WorkflowRunService.js';
+} from '@zavorth/runtime/workflows/WorkflowRunService.js';
 import { telegramLegacySurfacePolicyService } from './TelegramLegacySurfacePolicyService.js';
-import { buildTaskEventSurfaceResponse } from '../../domain/surface/application/surface-response/index.js';
+import { buildTaskEventSurfaceResponse } from '@zavorth/domain/surface/application/surface-response/index.js';
 import { replyWithTelegramSurfaceResponse } from '../TelegramSurfaceResponseSender.js';
 
 type ExecutionControllerLike = {
@@ -197,11 +197,11 @@ export class TelegramTaskDispatchService {
       buildTaskEventSurfaceResponse({
         taskId: task.task_id,
         event: 'dispatch_fallback',
-        title: 'Rota de tarefa nao reconhecida',
-        summary: 'O Zavorth nao encontrou uma rota executavel segura para este pedido.',
+        title: 'Unrecognized task route',
+        summary: 'Zavorth did not find a safe executable route for this request.',
         text: fallbackText,
         status: 'blocked',
-        reason: 'Comando sem rota de dispatch compativel.',
+        reason: 'Command has no compatible dispatch route.',
         riskBlocked: true,
         metadata: {
           commandType: task.command_type,

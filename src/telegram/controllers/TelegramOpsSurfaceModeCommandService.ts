@@ -1,6 +1,15 @@
 import { Context } from 'grammy';
-import { OperatorModeService } from '../../services/OperatorModeService.js';
-import { PresentationModeService } from '../../services/PresentationModeService.js';
+import { t } from '../i18n.js';
+
+type ModeAction = 'activate' | 'deactivate' | 'status';
+
+const MODE_ALIASES: Record<string, ModeAction> = {
+  on: 'activate', ativar: 'activate', ligar: 'activate', enable: 'activate', activate: 'activate',
+  off: 'deactivate', desativar: 'deactivate', desligar: 'deactivate', disable: 'deactivate', deactivate: 'deactivate',
+  status: 'status',
+};
+import { OperatorModeService } from '@zavorth/services/OperatorModeService.js';
+import { PresentationModeService } from '@zavorth/services/PresentationModeService.js';
 
 export type TelegramOpsSurfaceModeCommandServiceDeps = {
   operatorModeService: OperatorModeService;
@@ -20,14 +29,15 @@ export class TelegramOpsSurfaceModeCommandService {
     }
 
     const userId = ctx.from?.id?.toString() || 'unknown';
-    if (['on', 'ativar', 'ligar', 'enable'].includes(normalized)) {
-      const status = this.deps.operatorModeService.enable(userId, 'Ativado via Telegram.');
+    const action = MODE_ALIASES[normalized];
+    if (action === 'activate') {
+      const status = this.deps.operatorModeService.enable(userId, 'Activated via Telegram.');
       await ctx.reply(this.formatOperatorModeReply(status, 'activate'));
       return;
     }
 
-    if (['off', 'desativar', 'desligar', 'disable'].includes(normalized)) {
-      const status = this.deps.operatorModeService.disable(userId, 'Desativado via Telegram.');
+    if (action === 'deactivate') {
+      const status = this.deps.operatorModeService.disable(userId, 'Deactivated via Telegram.');
       await ctx.reply(this.formatOperatorModeReply(status, 'deactivate'));
       return;
     }
@@ -45,14 +55,15 @@ export class TelegramOpsSurfaceModeCommandService {
     }
 
     const userId = ctx.from?.id?.toString() || 'unknown';
-    if (['on', 'ativar', 'ligar', 'enable'].includes(normalized)) {
-      const status = this.deps.presentationModeService.enable(userId, 'Ativado via Telegram.');
+    const action = MODE_ALIASES[normalized];
+    if (action === 'activate') {
+      const status = this.deps.presentationModeService.enable(userId, 'Activated via Telegram.');
       await ctx.reply(this.formatPresentationModeReply(status, 'activate'));
       return;
     }
 
-    if (['off', 'desativar', 'desligar', 'disable'].includes(normalized)) {
-      const status = this.deps.presentationModeService.disable(userId, 'Desativado via Telegram.');
+    if (action === 'deactivate') {
+      const status = this.deps.presentationModeService.disable(userId, 'Deactivated via Telegram.');
       await ctx.reply(this.formatPresentationModeReply(status, 'deactivate'));
       return;
     }
@@ -73,32 +84,32 @@ export class TelegramOpsSurfaceModeCommandService {
 
     if (mode === 'activate') {
       lines.push(
-        'Modo operador ativado.',
-        'Agora eu vou preparar a tarefa e parar antes de agir, esperando sua aprovacao via /approve.',
+        'Operator mode activated.',
+        'Now I will prepare the task and stop before acting, awaiting your approval via /approve.',
       );
     } else if (mode === 'deactivate') {
       lines.push(
-        'Modo operador desativado.',
-        'Agora o Zavorth volta a executar imediatamente quando a politica e o risco permitirem.',
+        'Operator mode deactivated.',
+        'Now Zavorth resumes immediate execution when policy and risk allow.',
       );
     } else {
-      lines.push(status.enabled ? 'O modo operador esta ativo.' : 'O modo operador esta inativo.');
+      lines.push(status.enabled ? 'Operator mode is active.' : 'Operator mode is inactive.');
     }
 
     if (status.updatedAt) {
-      lines.push(`Ultima alteracao: ${status.updatedAt}`);
+      lines.push(`Last change: ${status.updatedAt}`);
     }
 
     if (status.updatedBy) {
-      lines.push(`Alterado por: ${status.updatedBy}`);
+      lines.push(`Changed by: ${status.updatedBy}`);
     }
 
     if (status.note) {
-      lines.push(`Observacao: ${status.note}`);
+      lines.push(`Note: ${status.note}`);
     }
 
     if (status.enabled) {
-      lines.push('Enquanto ele estiver ativo, tarefas executaveis vao parar em waiting_approval antes de rodar.');
+      lines.push('While active, executable tasks will stop at waiting_approval before running.');
     }
 
     return lines.join('\n');
@@ -117,33 +128,33 @@ export class TelegramOpsSurfaceModeCommandService {
 
     if (mode === 'activate') {
       lines.push(
-        'Modo apresentacao ativado.',
-        'Agora o Zavorth vai esconder mais detalhes internos nas respostas comuns e falar de forma mais direta.',
+        'Presentation mode activated.',
+        'Now Zavorth will hide more internal details in common replies and speak more directly.',
       );
     } else if (mode === 'deactivate') {
       lines.push(
-        'Modo apresentacao desativado.',
-        'Agora o Zavorth volta a mostrar mais contexto tecnico nas respostas operacionais.',
+        'Presentation mode deactivated.',
+        'Now Zavorth resumes showing more technical context in operational replies.',
       );
     } else {
-      lines.push(status.enabled ? 'O modo apresentacao esta ativo.' : 'O modo apresentacao esta inativo.');
+      lines.push(status.enabled ? 'Presentation mode is active.' : 'Presentation mode is inactive.');
     }
 
     if (status.updatedAt) {
-      lines.push(`Ultima alteracao: ${status.updatedAt}`);
+      lines.push(`Last change: ${status.updatedAt}`);
     }
 
     if (status.updatedBy) {
-      lines.push(`Alterado por: ${status.updatedBy}`);
+      lines.push(`Changed by: ${status.updatedBy}`);
     }
 
     if (status.note) {
-      lines.push(`Observacao: ${status.note}`);
+      lines.push(`Note: ${status.note}`);
     }
 
     if (status.enabled) {
       lines.push(
-        'Nesse modo, respostas comuns evitam mostrar executor, gateway, risco e outros detalhes internos sem necessidade.',
+        'In this mode, common responses avoid showing executor, gateway, risk, and other internal details when not needed.',
       );
     }
 

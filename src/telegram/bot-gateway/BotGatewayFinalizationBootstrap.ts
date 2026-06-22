@@ -1,5 +1,5 @@
 import { TaskManager } from '../../orchestrator/TaskManager.js';
-import { LogRepository } from '../../storage/LogRepository.js';
+import { LogRepository } from '@zavorth/storage/LogRepository.js';
 import { TelegramCallbackController } from '../controllers/TelegramCallbackController.js';
 import { defaultTelegramExperienceActionCardRegistry } from '../TelegramExperienceActionCardRegistry.js';
 import { TelegramMnemosController } from '../controllers/TelegramMnemosController.js';
@@ -12,6 +12,8 @@ import { createBotGatewaySupport } from './BotGatewaySupportBootstrap.js';
 import { initializeTelegramTaskRuntime } from './BotGatewayTaskRuntimeBootstrap.js';
 import type { BotGatewayRuntimeOptions } from './BotGatewayBootstrapTypes.js';
 import { processTextMessage } from './support/BotGatewayMessageProcessing.js';
+import { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
+import { TelegramIntentClassifier } from '../controllers/TelegramIntentClassifier.js';
 
 export function finalizeBotGatewayBootstrap(
   gateway: any,
@@ -118,6 +120,7 @@ export function finalizeBotGatewayBootstrap(
     opsController: gateway.opsController,
     zavorthBridgeController: gateway.zavorthBridgeController,
     securityLock: gateway.securityLock,
+    intentClassifier: new TelegramIntentClassifier(new LlmRuntimeService('gemini')),
   });
 
   gateway.botGatewaySupport = createBotGatewaySupport(gateway, logRepo);

@@ -3,8 +3,8 @@ import type { McpRuntimeService } from '../../mcp/McpRuntimeService.js';
 import {
   MnemosHumanInTheLoopService,
   type MnemosToolInvoker,
-} from '../../services/MnemosHumanInTheLoopService.js';
-import type { LogRepository } from '../../storage/LogRepository.js';
+} from '@zavorth/services/MnemosHumanInTheLoopService.js';
+import type { LogRepository } from '@zavorth/storage/LogRepository.js';
 
 type TelegramMnemosControllerOptions = {
   logRepo: LogRepository;
@@ -28,12 +28,12 @@ export class TelegramMnemosController {
     await this.answerCallback(ctx);
 
     if (!this.mcpRuntimeService) {
-      await this.respond(ctx, '⚠️ Mnemos não está conectado nesta sessão.');
+      await this.respond(ctx, '⚠️ Mnemos is not connected in this session.');
       return;
     }
 
     const result = await this.mnemosService.processCallback(data, this.mcpRuntimeService);
-    await this.respond(ctx, result.responseText || 'Callback Mnemos processado.');
+    await this.respond(ctx, result.responseText || 'Mnemos callback processed.');
   }
 
   private async answerCallback(ctx: Context): Promise<void> {

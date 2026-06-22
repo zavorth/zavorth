@@ -1,12 +1,13 @@
 import { Bot, Context } from 'grammy';
-import { ChatCleanupService } from '../../services/ChatCleanupService.js';
-import { HostIdentityService } from '../../services/HostIdentityService.js';
+import { ChatCleanupService } from '@zavorth/services/ChatCleanupService.js';
+import { HostIdentityService } from '@zavorth/services/HostIdentityService.js';
 import {
   RuntimeAccessManifestService,
   type RuntimeAccessManifest,
-} from '../../runtime/access/RuntimeAccessManifestService.js';
-import { SecurityLockService } from '../../services/SecurityLockService.js';
-import { SystemCleanupService } from '../../services/SystemCleanupService.js';
+} from '@zavorth/runtime/access/RuntimeAccessManifestService.js';
+import { SecurityLockService } from '@zavorth/services/SecurityLockService.js';
+import { SystemCleanupService } from '@zavorth/services/SystemCleanupService.js';
+import { t } from '../i18n.js';
 
 export class TelegramSecurityController {
   constructor(
@@ -20,30 +21,30 @@ export class TelegramSecurityController {
 
   public async handleCleanup(ctx: Context): Promise<void> {
     try {
-      await ctx.reply('Iniciando limpeza profunda do sistema... Todos os apps nao-essenciais serao fechados.');
+      await ctx.reply(`${t('security.deep_clean_started')} All non-essential apps will be closed.`);
       const result = await this.systemCleanup.cleanup({ shutdownWsl: true });
 
       let reply = result.message;
 
       if (result.killed.length > 0) {
         const killedList = result.killed.slice(0, 20).join('\n  ');
-        reply += `\n\nProcessos encerrados:\n  ${killedList}`;
+        reply += `\n\nProcesses terminated:\n  ${killedList}`;
         if (result.killed.length > 20) {
-          reply += `\n  ...e mais ${result.killed.length - 20} processos.`;
+          reply += `\n  ...and ${result.killed.length - 20} more processes.`;
         }
       }
 
       if (result.wslShutdown) {
-        reply += '\n\nWSL tambem foi desligado para liberar RAM.';
+        reply += '\n\nWSL was also shut down to free RAM.';
       }
 
       if (result.warnings.length > 0) {
-        reply += `\n\nAvisos:\n  ${result.warnings.slice(0, 5).join('\n  ')}`;
+        reply += `\n\nWarnings:\n  ${result.warnings.slice(0, 5).join('\n  ')}`;
       }
 
       await ctx.reply(reply);
     } catch (error: any) {
-      await ctx.reply(`Erro na limpeza: ${error.message}`);
+      await ctx.reply(t('security.cleanup_error', { error: error.message }));
     }
   }
 
@@ -53,17 +54,15 @@ export class TelegramSecurityController {
       const tracked = this.chatCleanup.getTrackedCount(chatId);
 
       if (tracked === 0) {
-        await ctx.reply(
-          'Nenhuma mensagem rastreada para apagar.\nNota: so consigo apagar mensagens enviadas desde a ultima vez que o bot iniciou.',
-        );
+        await ctx.reply(t('security.clear_empty'));
         return;
       }
 
-      await ctx.reply(`Apagando ${tracked} mensagem(ns)...`);
+      await ctx.reply(t('security.clear_deleting', { count: String(tracked) }));
       const result = await this.chatCleanup.clearChat(this.bot, chatId);
       await ctx.reply(result.message);
     } catch (error: any) {
-      await ctx.reply(`Erro ao limpar chat: ${error.message}`);
+      await ctx.reply(t('security.clear_error', { error: error.message }));
     }
   }
 
@@ -75,43 +74,40 @@ export class TelegramSecurityController {
       if (subcommand === 'set' || subcommand === 'config') {
         const password = parts.slice(1).join(' ');
         if (!password || password.length < 4) {
-          await ctx.reply('A senha deve ter pelo menos 4 caracteres.\nUso: /lock set <sua_senha>');
+          await ctx.reply(t('security.lock_password_min'));
           return;
         }
 
         this.securityLock.setPassword(password);
         await this.autoDeleteMessage(ctx);
-        await ctx.reply('\u{1F512} Senha configurada com sucesso.\nAgora use /lock para trancar o Zavorth.');
+        await ctx.reply(t('security.password_set'));
         return;
       }
 
       if (!this.securityLock.isPasswordConfigured()) {
-        await ctx.reply('Voce precisa configurar uma senha primeiro.\nUso: /lock set <sua_senha>');
+        await ctx.reply(t('security.password_required'));
         return;
       }
 
       const state = this.securityLock.lock(ctx.from?.id.toString());
       await ctx.reply(
-        `\u{1F512} Zavorth trancado com sucesso.\n` +
-        `Trancado em: ${state.lockedAt}\n\n` +
-        `Todos os comandos de execucao estao bloqueados.\n` +
-        `Use /unlock <senha> para destrancar.`,
+        `${t('security.lock_success', { lockedAt: state.lockedAt || '' })}`,
       );
     } catch (error: any) {
-      await ctx.reply(`Erro ao trancar: ${error.message}`);
+      await ctx.reply(t('security.lock_error', { error: error.message }));
     }
   }
 
   public async handleUnlock(ctx: Context, args: string): Promise<void> {
     try {
       if (!this.securityLock.isLocked()) {
-        await ctx.reply('\u{1F513} O Zavorth nao esta trancado.');
+        await ctx.reply(t('security.not_locked'));
         return;
       }
 
       const password = String(args || '').trim();
       if (!password) {
-        await ctx.reply('Use: /unlock <sua_senha>');
+        await ctx.reply(t('security.unlock_usage'));
         return;
       }
 
@@ -119,7 +115,7 @@ export class TelegramSecurityController {
       const success = this.securityLock.unlock(password);
 
       if (success) {
-        const reply = await ctx.reply('\u{1F513} Zavorth destrancado com sucesso. Todos os comandos reativados.');
+        const reply = await ctx.reply(t('security.unlocked'));
         setTimeout(async () => {
           try {
             await this.bot.api.deleteMessage(ctx.chat!.id, reply.message_id);
@@ -128,16 +124,16 @@ export class TelegramSecurityController {
           }
         }, 5000);
       } else {
-        await ctx.reply('\u{274C} Senha incorreta.');
+        await ctx.reply(t('security.wrong_password'));
       }
     } catch (error: any) {
-      await ctx.reply(`Erro ao destrancar: ${error.message}`);
+      await ctx.reply(t('security.unlock_error', { error: error.message }));
     }
   }
 
   public async handleHostAuth(ctx: Context, args: string): Promise<void> {
     if (!this.hostIdentityService) {
-      await ctx.reply('Servico de autorizacao de host indisponivel neste runtime.');
+      await ctx.reply(t('security.host_unavailable'));
       return;
     }
 
@@ -171,16 +167,16 @@ export class TelegramSecurityController {
     const appSurface = manifest.surfaces.find((entry) => entry.id === 'control') || null;
     const telegramSurface = manifest.surfaces.find((entry) => entry.id === 'telegram') || null;
     const lines = [
-      mode === 'trusted' ? 'Acesso do host atualizado:' : 'Estado de acesso do host:',
-      `Resumo: ${manifest.summary}`,
-      `Host autorizado: ${manifest.auth.authorizedHost === false ? 'nao' : 'sim'}`,
-      `Local: ${manifest.local.ready ? 'pronto' : 'pendente'} | ${manifest.local.appUrl}`,
-      `Remoto: ${manifest.remote.ready ? 'pronto' : 'pendente'} | ${manifest.remote.appUrl || 'nao configurado'}`,
+      mode === 'trusted' ? 'Host access updated:' : 'Host access status:',
+      `Summary: ${manifest.summary}`,
+      `Host authorized: ${manifest.auth.authorizedHost === false ? 'no' : 'yes'}`,
+      `Local: ${manifest.local.ready ? 'ready' : 'pending'} | ${manifest.local.appUrl}`,
+      `Remote: ${manifest.remote.ready ? 'ready' : 'pending'} | ${manifest.remote.appUrl || 'not configured'}`,
     ];
 
     if (hostStatus) {
       lines.push(
-        `Primeira execucao: ${hostStatus.firstRun ? 'sim' : 'nao'}`,
+        `First run: ${hostStatus.firstRun ? 'yes' : 'no'}`,
         `Fingerprint atual: ${hostStatus.currentFingerprint}`,
         `Fingerprint armazenado: ${hostStatus.storedFingerprint || 'nenhum'}`,
       );

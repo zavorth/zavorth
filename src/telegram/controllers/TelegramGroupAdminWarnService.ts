@@ -1,6 +1,6 @@
 import { Context } from 'grammy';
-import { GroupModerationService } from '../../services/GroupModerationService.js';
-import { WarnService, type WarnLimitAction } from '../../services/WarnService.js';
+import { GroupModerationService } from '@zavorth/services/GroupModerationService.js';
+import { WarnService, type WarnLimitAction } from '@zavorth/services/WarnService.js';
 
 export type TelegramGroupAdminTargetSelection = {
   targetId: number | null;
@@ -25,14 +25,14 @@ export class TelegramGroupAdminWarnService {
   ): Promise<void> {
     if (!selection.targetId) {
       await ctx.reply(
-        'âš ï¸ Responda a uma mensagem ou informe o ID. Ex: `/warn 123456 motivo`',
+        '⚠️ Reply to a message or provide the ID. Ex: `/warn 123456 reason`',
         { parse_mode: 'Markdown' },
       );
       return;
     }
 
     const reasonParts = selection.usedReply ? selection.tokens : selection.tokens.slice(1);
-    const reason = reasonParts.join(' ') || 'Sem motivo especificado';
+    const reason = reasonParts.join(' ') || 'No reason specified';
     const result = await this.deps.warnService.warn(
       chatId,
       selection.targetId.toString(),
@@ -41,9 +41,9 @@ export class TelegramGroupAdminWarnService {
     );
     const limitConfig = await this.deps.warnService.getLimitConfig(chatId);
 
-    let msg = `âš ï¸ Usuario ${selection.targetId} recebeu uma advertencia (${result.warnCount}/${limitConfig.max_warns}).\\nMotivo: ${reason}`;
+    let msg = `⚠️ User ${selection.targetId} received a warning (${result.warnCount}/${limitConfig.max_warns}).\nReason: ${reason}`;
     if (result.limitReached) {
-      msg += `\\n\\nðŸš¨ **Limite atingido!** Aplicando ${result.limitAction}...`;
+      msg += `\n\n🚨 **Limit reached!** Applying ${result.limitAction}...`;
       await this.applyLimitAction(
         telegramChatId,
         selection.targetId,
@@ -57,13 +57,13 @@ export class TelegramGroupAdminWarnService {
 
   public async handleWarns(ctx: Context, targetId: number | null, chatId: string): Promise<void> {
     if (!targetId) {
-      await ctx.reply('âš ï¸ Responda a uma mensagem ou informe o ID.');
+      await ctx.reply('⚠️ Reply to a message or provide the ID.');
       return;
     }
 
     const warns = await this.deps.warnService.getWarns(chatId, targetId.toString());
     if (warns.length === 0) {
-      await ctx.reply(`âœ… Usuario ${targetId} nao tem advertencias.`);
+      await ctx.reply(`✅ User ${targetId} has no warnings.`);
       return;
     }
 
@@ -72,7 +72,7 @@ export class TelegramGroupAdminWarnService {
       return `${index + 1}. [ID:${warn.id}] ${warn.reason} (${warn.created_at})`;
     });
     await ctx.reply(
-      `ðŸ“‹ **Warns de ${targetId}** (${warns.length}/${config.max_warns}):\\n${lines.join('\\n')}`,
+      `📋 **Warnings for ${targetId}** (${warns.length}/${config.max_warns}):\n${lines.join('\n')}`,
       { parse_mode: 'Markdown' },
     );
   }
@@ -83,12 +83,12 @@ export class TelegramGroupAdminWarnService {
     chatId: string,
   ): Promise<void> {
     if (!targetId) {
-      await ctx.reply('âš ï¸ Responda a uma mensagem ou informe o ID.');
+      await ctx.reply('⚠️ Reply to a message or provide the ID.');
       return;
     }
 
     const removed = await this.deps.warnService.clearWarns(chatId, targetId.toString());
-    await ctx.reply(`ðŸ—‘ï¸ ${removed} advertencia(s) removida(s) do usuario ${targetId}.`);
+    await ctx.reply(`🗑️ ${removed} warning(s) removed from user ${targetId}.`);
   }
 
   private async applyLimitAction(

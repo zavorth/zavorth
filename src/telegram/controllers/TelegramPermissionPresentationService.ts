@@ -1,14 +1,14 @@
 import type {
   PermissionRequest,
   PermissionStatus,
-} from '../../contracts/PermissionRequest.js';
+} from '@zavorth/contracts/PermissionRequest.js';
 import {
   createSurfaceResponse,
   renderPlainSurfaceResponse,
   type SurfaceReceiptStatus,
   type SurfaceResponse,
   type SurfaceResponseAction,
-} from '../../domain/surface/application/surface-response/index.js';
+} from '@zavorth/domain/surface/application/surface-response/index.js';
 import { TelegramPermissionDecisionPresentationService } from './TelegramPermissionDecisionPresentationService.js';
 import { TelegramPermissionPromptPresentationService } from './TelegramPermissionPromptPresentationService.js';
 import { TelegramPermissionReadPresentationService } from './TelegramPermissionReadPresentationService.js';
@@ -199,38 +199,38 @@ export class TelegramPermissionPresentationService {
       permission.kind === 'workspace_access'
     ) {
       return [
-        this.approveAction('once', 'Liberar leitura so nesta tarefa', shortId, 'success'),
-        this.approveAction('workspace', 'Liberar leitura neste projeto', shortId, 'primary'),
+        this.approveAction('once', 'Allow read-only for this task only', shortId, 'success'),
+        this.approveAction('workspace', 'Allow read-only for this project', shortId, 'primary'),
         this.rejectAction(shortId),
       ];
     }
 
     if (permission.executor === 'zavorthBridge' && permission.kind === 'ui_permission') {
       return [
-        this.approveAction('session', 'Aprovar conversa', shortId, 'primary'),
-        this.approveAction('once', 'Aprovar uma vez', shortId, 'success'),
+        this.approveAction('session', 'Approve conversation', shortId, 'primary'),
+        this.approveAction('once', 'Approve once', shortId, 'success'),
         this.rejectAction(shortId),
       ];
     }
 
     if (permission.executor === 'aistudio' && permission.kind === 'builtin_tool_access') {
       return [
-        this.approveAction('once', 'Liberar so esta tarefa', shortId, 'success'),
-        this.approveAction('workspace', 'Liberar neste projeto', shortId, 'primary'),
+        this.approveAction('once', 'Allow for this task only', shortId, 'success'),
+        this.approveAction('workspace', 'Allow for this project', shortId, 'primary'),
         this.rejectAction(shortId),
       ];
     }
 
     if (permission.executor === 'aistudio' && permission.kind === 'service_access') {
       return [
-        this.approveAction('once', 'Permitir so esta tarefa', shortId, 'success'),
-        this.approveAction('workspace', 'Permitir neste projeto', shortId, 'primary'),
+        this.approveAction('once', 'Allow for this task only', shortId, 'success'),
+        this.approveAction('workspace', 'Allow for this project', shortId, 'primary'),
         this.rejectAction(shortId),
       ];
     }
 
     return [
-      this.approveAction('once', 'Aprovar', shortId, 'success'),
+      this.approveAction('once', 'Approve', shortId, 'success'),
       this.rejectAction(shortId),
     ];
   }

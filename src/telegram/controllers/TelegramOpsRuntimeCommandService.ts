@@ -1,24 +1,25 @@
 import { Context } from 'grammy';
-import { config } from '../../config/index.js';
-import { DashboardService } from '../../services/DashboardService.js';
-import { RemoteModeManager } from '../../services/RemoteModeManager.js';
-import type { RemoteModeCommand } from '../../services/RemoteModeManager.js';
-import { RuntimeAccessManifestService } from '../../runtime/access/RuntimeAccessManifestService.js';
-import { RuntimeBootstrapService } from '../../runtime/access/RuntimeBootstrapService.js';
+import { config } from '@zavorth/config/index.js';
+import { t, getNluPatterns } from '../i18n.js';
+import { DashboardService } from '@zavorth/services/DashboardService.js';
+import { RemoteModeManager } from '@zavorth/services/RemoteModeManager.js';
+import type { RemoteModeCommand } from '@zavorth/services/RemoteModeManager.js';
+import { RuntimeAccessManifestService } from '@zavorth/runtime/access/RuntimeAccessManifestService.js';
+import { RuntimeBootstrapService } from '@zavorth/runtime/access/RuntimeBootstrapService.js';
 import {
   RuntimeOfficialRemoteAccessService,
   type RuntimeOfficialRemoteAccessReport,
   type RuntimeOfficialRemoteRolloutCandidateId,
-} from '../../runtime/access/RuntimeOfficialRemoteAccessService.js';
-import { SidecarStatusService } from '../../services/SidecarStatusService.js';
-import { AutoRepairService } from '../../services/AutoRepairService.js';
-import { SupervisedRuntimeService } from '../../services/SupervisedRuntimeService.js';
-import { WslControlResult, WslControlService } from '../../services/WslControlService.js';
+} from '@zavorth/runtime/access/RuntimeOfficialRemoteAccessService.js';
+import { SidecarStatusService } from '@zavorth/services/SidecarStatusService.js';
+import { AutoRepairService } from '@zavorth/services/AutoRepairService.js';
+import { SupervisedRuntimeService } from '@zavorth/services/SupervisedRuntimeService.js';
+import { WslControlResult, WslControlService } from '@zavorth/services/WslControlService.js';
 import {
   buildRuntimeSurfaceResponse,
   mapBooleanReceiptStatus,
   type SurfaceReceiptStatus,
-} from '../../domain/surface/application/surface-response/index.js';
+} from '@zavorth/domain/surface/application/surface-response/index.js';
 import { replyWithTelegramSurfaceResponse } from '../TelegramSurfaceResponseSender.js';
 
 export type TelegramOpsRuntimeMaintenanceCommand = {
@@ -62,42 +63,17 @@ export class TelegramOpsRuntimeCommandService {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
 
-    if (
-      normalized === 'ativar modo remoto' ||
-      normalized === 'ativar o modo remoto' ||
-      normalized === 'ligar modo remoto' ||
-      normalized === 'ligar o modo remoto' ||
-      normalized === '/remote on' ||
-      normalized === '/remote activate' ||
-      normalized === '/remote ativar' ||
-      normalized === '/remoto on' ||
-      normalized === '/remoto ativar'
-    ) {
+    const patterns = getNluPatterns();
+
+    if (patterns.remoteActivate.test(normalized)) {
       return 'activate';
     }
 
-    if (
-      normalized === 'desativar modo remoto' ||
-      normalized === 'desativar o modo remoto' ||
-      normalized === 'desligar modo remoto' ||
-      normalized === 'desligar o modo remoto' ||
-      normalized === '/remote off' ||
-      normalized === '/remote deactivate' ||
-      normalized === '/remote desativar' ||
-      normalized === '/remoto off' ||
-      normalized === '/remoto desativar'
-    ) {
+    if (patterns.remoteDeactivate.test(normalized)) {
       return 'restore';
     }
 
-    if (
-      normalized === 'status do modo remoto' ||
-      normalized === 'ver modo remoto' ||
-      normalized === '/remote' ||
-      normalized === '/remote status' ||
-      normalized === '/remoto' ||
-      normalized === '/remoto status'
-    ) {
+    if (patterns.remoteStatus.test(normalized)) {
       return 'status';
     }
 
@@ -118,50 +94,27 @@ export class TelegramOpsRuntimeCommandService {
       return null;
     }
 
-    if (
-      /^(resuma|mostre|me diga|quais sao)( as)? (ultimas|ultimas) (alteracoes|mudancas)/i.test(
-        normalized,
-      ) ||
-      normalized.includes('resumo das ultimas alteracoes') ||
-      normalized.includes('resumo das ultimas mudancas')
-    ) {
+    const patterns = getNluPatterns();
+
+    if (patterns.changesSummary.test(normalized)) {
       return { action: 'changes', force: false, dryRun: false, improve: false };
     }
 
-    if (
-      normalized.includes('se autoatualize') ||
-      normalized.includes('se atualize') ||
-      normalized.includes('atualize o zavorth') ||
-      normalized.includes('recarregue o zavorth') ||
-      normalized.includes('reinicie o zavorth') ||
-      normalized.includes('suba o zavorth com as mudancas') ||
-      normalized.includes('religue o zavorth')
-    ) {
+    if (patterns.reload.test(normalized)) {
       return {
         action: 'reload',
-        force: /(force|forcar|forcado|mesmo que ja esteja rodando)/i.test(normalized),
+        force: /(force|forcar|forcado|mesmo que ja esteja rodando|even if already running)/i.test(normalized),
         dryRun: false,
         improve: false,
       };
     }
 
-    if (
-      normalized.includes('se autorepare') ||
-      normalized.includes('se conserte') ||
-      normalized.includes('tente se corrigir') ||
-      normalized.includes('corrija o zavorth') ||
-      normalized.includes('faca autoreparo') ||
-      normalized.includes('faÃ§a autoreparo') ||
-      normalized.includes('se melhore') ||
-      normalized.includes('melhore o zavorth') ||
-      normalized.includes('se otimize') ||
-      normalized.includes('otimize o zavorth')
-    ) {
+    if (patterns.autorepair.test(normalized)) {
       return {
         action: 'autorepair',
         force: /(force|forcar|forcado|mesmo sem erro)/i.test(normalized),
         dryRun: /(simule|dry run|dryrun|planeje|mostre o plano)/i.test(normalized),
-        improve: /(melhore|otimize)/i.test(normalized),
+        improve: /(melhore|otimize|improve)/i.test(normalized),
       };
     }
 
@@ -172,8 +125,8 @@ export class TelegramOpsRuntimeCommandService {
     const summary = this.deps.supervisedRuntimeService.summarizeRecentChanges();
     await this.replyRuntimeSurface(ctx, {
       id: 'telegram-runtime-changes',
-      title: 'Mudancas do Zavorth',
-      summary: firstSurfaceLine(summary) || 'Resumo de mudancas recentes.',
+      title: 'Zavorth Changes',
+      summary: firstSurfaceLine(summary) || 'Summary of recent changes.',
       text: summary,
       status: 'done',
       metadata: {
@@ -193,12 +146,12 @@ export class TelegramOpsRuntimeCommandService {
     if (mode === 'local') {
       await ctx.reply(
         [
-          'Acesso local do Zavorth',
+          'Zavorth Local Access',
           '',
-          `Status: ${manifest.local.ready ? 'pronto' : 'pendente'}.`,
+          `Status: ${manifest.local.ready ? 'ready' : 'pending'}.`,
           `App: ${manifest.local.appUrl}`,
-          `Dashboard legado: ${manifest.local.dashboardUrl}`,
-          `API web: ${manifest.local.apiBaseUrl}`,
+          `Legacy dashboard: ${manifest.local.dashboardUrl}`,
+          `Web API: ${manifest.local.apiBaseUrl}`,
           '',
           ...manifest.guides.local.slice(0, 4).map((line) => `- ${line}`),
         ].join('\n'),
@@ -221,13 +174,13 @@ export class TelegramOpsRuntimeCommandService {
 
     await ctx.reply(
       [
-        'Manifesto de acesso do Zavorth',
+        'Zavorth Access Manifest',
         '',
         manifest.summary,
         '',
-        `Local: ${manifest.local.appUrl} (${manifest.local.ready ? 'pronto' : 'pendente'})`,
-        `Remoto: ${manifest.remote.appUrl || 'nao configurado'} (${manifest.remote.ready ? 'pronto' : 'pendente'})`,
-        `Host autorizado: ${manifest.auth.authorizedHost === false ? 'nao' : 'sim'}`,
+        `Local: ${manifest.local.appUrl} (${manifest.local.ready ? 'ready' : 'pending'})`,
+        `Remote: ${manifest.remote.appUrl || 'not configured'} (${manifest.remote.ready ? 'ready' : 'pending'})`,
+        `Host authorized: ${manifest.auth.authorizedHost === false ? 'no' : 'yes'}`,
         '',
         `Install: ${manifest.commands.install}`,
         `Bootstrap: ${manifest.commands.bootstrap}`,
@@ -280,33 +233,33 @@ export class TelegramOpsRuntimeCommandService {
     } as const;
 
     return [
-      'Acesso remoto oficial do Zavorth',
+      'Zavorth Official Remote Access',
       '',
       action ? actionLabels[action] : report.summary,
       action ? report.summary : null,
       '',
-      `Status: ${report.remote.ready ? 'pronto' : 'pendente'}.`,
-      `URL publica: ${report.remote.baseUrl || 'nao configurada'}`,
-      `App remoto: ${report.remote.appUrl || 'nao configurado'}`,
-      `Caminho ativo: ${activeCandidate ? `${activeCandidate.label} (${activeCandidate.id})` : 'nenhum aplicado'}`,
-      `Caminho recomendado: ${recommendedCandidate ? `${recommendedCandidate.label} (${recommendedCandidate.id})` : 'caminho oficial direto'}`,
-      `Proxima acao sugerida: ${report.actions.recommendedAction || 'nenhuma'}`,
+      `Status: ${report.remote.ready ? 'ready' : 'pending'}.`,
+      `Public URL: ${report.remote.baseUrl || 'not configured'}`,
+      `Remote app: ${report.remote.appUrl || 'not configured'}`,
+      `Active route: ${activeCandidate ? `${activeCandidate.label} (${activeCandidate.id})` : 'none applied'}`,
+      `Recommended route: ${recommendedCandidate ? `${recommendedCandidate.label} (${recommendedCandidate.id})` : 'direct official route'}`,
+      `Suggested next action: ${report.actions.recommendedAction || 'none'}`,
       '',
       ...(remoteIssues.length > 0
         ? [
-            'Pendencias principais:',
+            'Main pending items:',
             ...remoteIssues.map((issue) => `- ${issue}`),
             '',
           ]
         : []),
       ...(nextSteps.length > 0
         ? [
-            'Proximos passos:',
+            'Next steps:',
             ...nextSteps.map((step) => `- ${step}`),
             '',
           ]
         : []),
-      'Comandos uteis:',
+      'Useful commands:',
       `- iniciar: ${manifest.commands.start}`,
       `- verificar acesso: ${manifest.commands.access}`,
       `- rollout remoto: ${manifest.commands.remote}`,
@@ -327,20 +280,20 @@ export class TelegramOpsRuntimeCommandService {
 
     await ctx.reply(
       [
-        'Bootstrap operacional do Zavorth',
+        'Zavorth Operational Bootstrap',
         '',
         report.summary,
         '',
-        `.env: ${report.env.envFilePresent ? 'ok' : 'ausente'} | provider=${report.env.llmProvider} | credencial=${report.env.llmCredentialReady ? 'ok' : 'pendente'}`,
-        `Dependencias: ${report.dependencies.installRequired ? 'npm install pendente' : 'ok'} | build=${report.dependencies.buildRequired ? 'pendente' : 'ok'}`,
-        `Local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'pronto' : 'pendente'} | remoto: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'pronto' : 'pendente'}`,
+        `.env: ${report.env.envFilePresent ? 'ok' : 'missing'} | provider=${report.env.llmProvider} | credential=${report.env.llmCredentialReady ? 'ok' : 'pending'}`,
+        `Dependencies: ${report.dependencies.installRequired ? 'npm install pending' : 'ok'} | build=${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
+        `Local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'ready' : 'pending'} | remote: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'ready' : 'pending'}`,
         '',
         ...(nextActions.length > 0
           ? [
-              'Passos recomendados:',
+              'Recommended steps:',
               ...nextActions.map((action) => `- ${action.title}: ${action.command}`),
             ]
-          : ['Nenhum passo pendente. O bootstrap esta fechado.']),
+          : ['No pending steps. Bootstrap is complete.']),
       ].join('\n'),
     );
   }
@@ -355,7 +308,7 @@ export class TelegramOpsRuntimeCommandService {
 
     if (normalized === 'help' || normalized === 'ajuda') {
       await ctx.reply(
-        'Use /reload para reiniciar o Zavorth quando quiser, /autorepair para ele se ajustar sozinho e /changes para ver o resumo das mudancas.',
+        'Use /reload to restart Zavorth when needed, /autorepair for it to self-adjust, and /changes to see the changes summary.',
       );
       return;
     }
@@ -365,8 +318,8 @@ export class TelegramOpsRuntimeCommandService {
     const chatId = ctx.chat?.id?.toString() || '';
     const result = await this.deps.supervisedRuntimeService.requestReload({
       reason: force
-        ? 'Reload supervisionado forcado via Telegram.'
-        : 'Reload supervisionado solicitado via Telegram.',
+        ? 'Forced supervised reload via Telegram.'
+        : 'Supervised reload requested via Telegram.',
       requestedBy: userId,
       notifyChatId: chatId,
       forceRestart: force,
@@ -374,7 +327,7 @@ export class TelegramOpsRuntimeCommandService {
 
     await this.replyRuntimeSurface(ctx, {
       id: `telegram-runtime-reload-${result.requestId || 'request'}`,
-      title: result.accepted ? 'Reload supervisionado aceito' : 'Reload supervisionado nao aplicado',
+      title: result.accepted ? 'Supervised reload accepted' : 'Supervised reload not applied',
       summary: result.summary,
       text: result.summary,
       status: result.accepted ? 'done' : 'blocked',
@@ -393,8 +346,8 @@ export class TelegramOpsRuntimeCommandService {
       const summary = this.deps.autoRepairService.summarizeLastRun();
       await this.replyRuntimeSurface(ctx, {
         id: 'telegram-autorepair-status',
-        title: 'Autoreparo do Zavorth',
-        summary: firstSurfaceLine(summary) || 'Ultimo estado do autoreparo.',
+        title: 'Zavorth Autorepair',
+        summary: firstSurfaceLine(summary) || 'Latest autorepair status.',
         text: summary,
         status: 'done',
       });
@@ -403,7 +356,7 @@ export class TelegramOpsRuntimeCommandService {
 
     if (normalized === 'help' || normalized === 'ajuda') {
       await ctx.reply(
-        'Use /autorepair para o ciclo completo automatico, /autorepair status para ver o ultimo relatorio, /reload para reiniciar manualmente e /changes para ver as mudancas.',
+        'Use /autorepair for the full automatic cycle, /autorepair status to see the latest report, /reload to restart manually, and /changes to see the changes.',
       );
       return;
     }
@@ -416,18 +369,18 @@ export class TelegramOpsRuntimeCommandService {
 
     await ctx.reply(
       dryRun
-        ? 'Montando um plano seguro de autoreparo agora.'
+        ? 'Preparing a safe autorepair plan now.'
         : improve
-          ? 'Iniciando autoreparo com foco em melhoria segura e validada.'
-          : 'Iniciando autoreparo completo do Zavorth agora.',
+          ? 'Starting autorepair with focus on safe and validated improvement.'
+          : 'Starting full Zavorth autorepair now.',
     );
 
     const result = await this.deps.autoRepairService.run({
       reason: improve
-        ? 'Melhoria segura do Zavorth solicitada via Telegram.'
+        ? 'Safe Zavorth improvement requested via Telegram.'
         : dryRun
-          ? 'Planejamento de autoreparo solicitado via Telegram.'
-          : 'Autoreparo solicitado via Telegram.',
+          ? 'Autorepair planning requested via Telegram.'
+          : 'Autorepair requested via Telegram.',
       requestedBy: userId,
       notifyChatId: chatId,
       dryRun,
@@ -470,11 +423,11 @@ export class TelegramOpsRuntimeCommandService {
     const lines: string[] = [];
 
     if (mode === 'activate') {
-      lines.push('Modo remoto ativado.', 'Agora o notebook fica mais preparado para o Zavorth operar de longe.');
+      lines.push('Remote mode activated.', 'Now the notebook is more prepared for Zavorth to operate remotely.');
     } else if (mode === 'restore') {
-      lines.push('Modo remoto desativado.', 'As configuracoes principais do notebook foram restauradas.');
+      lines.push('Remote mode deactivated.', 'Main notebook settings have been restored.');
     } else {
-      lines.push(result.active ? 'O modo remoto esta ativo.' : 'O modo remoto esta inativo.');
+      lines.push(result.active ? 'Remote mode is active.' : 'Remote mode is inactive.');
     }
 
     if (result.message) {
@@ -482,11 +435,11 @@ export class TelegramOpsRuntimeCommandService {
     }
 
     if (result.appliedAt) {
-      lines.push(`Ultima alteracao: ${result.appliedAt}`);
+      lines.push(`Last change: ${result.appliedAt}`);
     }
 
     if (result.warnings?.length) {
-      lines.push(`Avisos: ${result.warnings.join(' | ')}`);
+      lines.push(`Warnings: ${result.warnings.join(' | ')}`);
     }
 
     return lines.join('\n');
@@ -508,7 +461,7 @@ export class TelegramOpsRuntimeCommandService {
       ];
 
       if (publicUrl) {
-        lines.push('', 'URL publica configurada:', publicUrl);
+        lines.push('', 'Public URL configured:', publicUrl);
       }
 
       const sidecars = this.sidecarStatus.readSummary();
@@ -519,7 +472,7 @@ export class TelegramOpsRuntimeCommandService {
       if (sidecars.ZavorthTerminal.running || sidecars.ZavorthTerminal.ready) {
         lines.push(
           '',
-          'ZavorthBridge remoto para celular:',
+          'Remote ZavorthBridge for mobile:',
           sidecars.ZavorthTerminal.localUrl ||
             sidecars.ZavorthTerminal.baseUrl ||
             config.ZavorthTerminalBaseUrl,
@@ -528,7 +481,7 @@ export class TelegramOpsRuntimeCommandService {
 
       await ctx.reply(lines.join('\n'), { parse_mode: 'Markdown' });
     } catch (error: any) {
-      await ctx.reply(`Falha ao iniciar Dashboard: ${error.message}`);
+      await ctx.reply(`Failed to start Dashboard: ${error.message}`);
     }
   }
 
@@ -540,14 +493,14 @@ export class TelegramOpsRuntimeCommandService {
       const requestedDistro = rest.join(' ').trim() || undefined;
 
       if (action === 'on' || action === 'start') {
-        await ctx.reply(requestedDistro ? `Iniciando WSL na distro ${requestedDistro}...` : 'Iniciando WSL...');
+        await ctx.reply(requestedDistro ? `Starting WSL on distro ${requestedDistro}...` : 'Starting WSL...');
         const result = await this.deps.wslControl.start(requestedDistro);
         await this.replyWslSurface(ctx, result);
         return;
       }
 
       if (action === 'off' || action === 'shutdown' || action === 'stop') {
-        await ctx.reply('Desligando WSL e liberando RAM...');
+        await ctx.reply('Shutting down WSL and freeing RAM...');
         const result = await this.deps.wslControl.shutdown();
         await this.replyWslSurface(ctx, result);
         return;
@@ -556,7 +509,7 @@ export class TelegramOpsRuntimeCommandService {
       const result = await this.deps.wslControl.status();
       await this.replyWslSurface(ctx, result);
     } catch (error: any) {
-      await ctx.reply(`Erro ao acessar WSL: ${error.message}`);
+      await ctx.reply(`Error accessing WSL: ${error.message}`);
     }
   }
 
@@ -568,17 +521,17 @@ export class TelegramOpsRuntimeCommandService {
     if (distros.length > 0) {
       lines.push('', 'Distros:');
       for (const distro of distros) {
-        const marker = distro.isDefault ? ' (padrao)' : '';
+        const marker = distro.isDefault ? ' (default)' : '';
         const stateEmoji = distro.state.toLowerCase() === 'running' ? 'RUN' : 'STOP';
         lines.push(`${stateEmoji} ${distro.name}${marker} - WSL${distro.version} - ${distro.state}`);
       }
     }
 
     if (warnings.length > 0) {
-      lines.push('', `Avisos: ${warnings.join(' | ')}`);
+      lines.push('', `Warnings: ${warnings.join(' | ')}`);
     }
 
-    lines.push('', 'Use /wsl on para ligar ou /wsl off para desligar.');
+    lines.push('', 'Use /wsl on to start or /wsl off to stop.');
     return lines.join('\n');
   }
 
