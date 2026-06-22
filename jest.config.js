@@ -15,7 +15,7 @@ module.exports = {
     '/tests/apps/zavorth-desktop/(DesktopProductReadyCockpit|DesktopHermesInspiredShellArchitecture|DesktopChatReferenceAndContextualPreview|DesktopNewChatAndConversationSurface)\\.test\\.ts$',
     // Allowlist pattern: only run tests for tools/services listed below. All other tool tests are excluded.
     // To add a new tool test, append its name to this list.
-    '/tests/tools/(?!(DatabaseQueryTool|EmailTool|MultiBackendTerminalTool|ExtendedToolRealExecution|ZavorthCronSchedulerTool|ZavorthDelegateTool|ZavorthComputerUseTool|ZavorthVoiceModeTool|ZavorthSessionSearchTool|ZavorthChannelSendTool|ZavorthDocumentExtractorTool|ZavorthTtsTool|ZavorthSttTool|ZavorthReceiptSearchTool|ZavorthPolicyEnforcerTool|ZavorthApiClientTool|ZavorthTrajectoryExportTool|MemoryLanceDBService|MemoryHonchoService|DiagnosticsOtelService|AchievementsService|SkinEngineService|TrajectoryResearchService|ActiveMemoryService|DiagnosticsPrometheusService|KanbanDispatcherService|HighPriorityPlugins)\\.test\\.ts)',
+    '/tests/tools/(?!(DatabaseQueryTool|EmailTool|MultiBackendTerminalTool|ExtendedToolRealExecution|ZavorthCronSchedulerTool|ZavorthDelegateTool|ZavorthComputerUseTool|ZavorthVoiceModeTool|ZavorthSessionSearchTool|ZavorthChannelSendTool|ZavorthDocumentExtractorTool|ZavorthTtsTool|ZavorthSttTool|ZavorthReceiptSearchTool|ZavorthPolicyEnforcerTool|ZavorthApiClientTool|ZavorthTrajectoryExportTool|MemoryLanceDBService|MemoryHonchoService|DiagnosticsOtelService|AchievementsService|SkinEngineService|TrajectoryResearchService|ActiveMemoryService|DiagnosticsPrometheusService|KanbanDispatcherService|HighPriorityPlugins|MediumPriorityPlugins)\\.test\\.ts)',
   ],
   moduleNameMapper: {
     '^@zavorth/(.*)\\.js$': '<rootDir>/src/$1',

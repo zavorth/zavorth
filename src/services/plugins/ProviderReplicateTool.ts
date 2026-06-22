@@ -1,0 +1,189 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { BaseTool } from '../../tools/BaseTool.js';
+import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+
+export class ProviderReplicateTool extends BaseTool {
+  public readonly name = 'zavorth_replicate';
+
+  public readonly description =
+    'Replicate provider — rode modelos de ML na nuvem com uma API. Suporta Llama, Stable Diffusion, Whisper, e centenas de modelos da comunidade.';
+
+  public readonly parameters: ToolDefinition['parameters'] = {
+    type: 'object',
+    properties: {
+      action: {
+        type: 'string',
+        description: "Acao: 'run', 'list_models', 'get_prediction', 'check_status', 'get_pricing'.",
+      },
+      model: {
+        type: 'string',
+        description: "Modelo no formato 'owner/name:version' ou 'owner/name'.",
+      },
+      input: {
+        type: 'string',
+        description: 'JSON com os inputs do modelo.',
+      },
+      prediction_id: {
+        type: 'string',
+        description: 'ID de uma prediction (para get_prediction).',
+      },
+      stream: {
+        type: 'boolean',
+        description: 'Se true, retorna streaming. Default: false.',
+      },
+    },
+    required: ['action'],
+  };
+
+  private readonly popularModels = [
+    { id: 'meta/llama-3-70b-instruct', desc: 'Llama 3 70B Instruct', type: 'text' },
+    { id: 'meta/llama-3-8b-instruct', desc: 'Llama 3 8B Instruct', type: 'text' },
+    { id: 'mistralai/mistral-7b-instruct-v0.2', desc: 'Mistral 7B v0.2', type: 'text' },
+    { id: 'stability-ai/sdxl', desc: 'Stable Diffusion XL', type: 'image' },
+    { id: 'openai/whisper', desc: 'Whisper (speech-to-text)', type: 'audio' },
+    { id: 'lucataco/faceswap', desc: 'Face Swap', type: 'image' },
+    { id: 'tencentarc/photomaker', desc: 'PhotoMaker', type: 'image' },
+    { id: 'adirik/interior-design', desc: 'Interior Design', type: 'image' },
+  ];
+
+  public async execute(args: Record<string, unknown>): Promise<string> {
+    const action = String(args.action || '');
+    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+
+    switch (action) {
+      case 'list_models': return this.listModels();
+      case 'get_pricing': return this.getPricing();
+      case 'run':
+      case 'get_prediction':
+      case 'check_status': {
+        const apiKey = process.env.REPLICATE_API_TOKEN;
+        if (!apiKey) return 'Erro: REPLICATE_API_TOKEN nao configurado. Obtenha em https://replicate.com';
+        if (action === 'run') return await this.runModel(args, apiKey);
+        if (action === 'get_prediction') return await this.getPrediction(args, apiKey);
+        return await this.checkStatus(apiKey);
+      }
+      default: return `Erro: acao "${action}" invalida.`;
+    }
+  }
+
+  private listModels(): string {
+    const lines: string[] = ['Modelos populares no Replicate:', ''];
+    for (const m of this.popularModels) {
+      const icon = { text: '📝', image: '🖼️', audio: '🔊' }[m.type];
+      lines.push(`  ${icon} ${m.id} — ${m.desc}`);
+    }
+    lines.push('', 'Mais modelos em: https://replicate.com/explore');
+    return lines.join('\n');
+  }
+
+  private getPricing(): string {
+    return [
+      'Replicate Pricing (pay-per-second):',
+      '  Llama 3 70B: ~$0.00065/sec (~$2.34/hr)',
+      '  Llama 3 8B: ~$0.000165/sec (~$0.59/hr)',
+      '  SDXL: ~$0.0009/sec (~$3.24/hr)',
+      '  Whisper: ~$0.000237/sec (~$0.85/hr)',
+      '',
+      'Cobrado por segundo de compute. Sem custo minimo.',
+      'URL: https://replicate.com/pricing',
+    ].join('\n');
+  }
+
+  private async runModel(args: Record<string, unknown>, apiKey: string): Promise<string> {
+    const model = String(args.model || '');
+    if (!model) return 'Erro: "model" e obrigatorio para run.';
+
+    let input: Record<string, unknown> = {};
+    if (typeof args.input === 'string') {
+      try { input = JSON.parse(args.input); } catch { return 'Erro: JSON de "input" invalido.'; }
+    }
+
+    try {
+      const { execFileSync } = await import('child_process');
+      const payload = JSON.stringify({ input, stream: args.stream || false });
+      const tmpFile = path.join(os.tmpdir(), `replicate_${Date.now()}.json`);
+      fs.writeFileSync(tmpFile, payload);
+
+      const result = execFileSync('curl', [
+        '-s', '-X', 'POST',
+        '-H', `Authorization: Bearer ${apiKey}`,
+        '-H', 'Content-Type: application/json',
+        '-d', `@${tmpFile}`,
+        `https://api.replicate.com/v1/predictions`,
+      ], { timeout: 60000 }).toString();
+
+      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+
+      const parsed = JSON.parse(result);
+      if (parsed.detail) return `Erro Replicate: ${parsed.detail}`;
+
+      const lines: string[] = [
+        `Prediction criada: ${parsed.id}`,
+        `  Modelo: ${model}`,
+        `  Status: ${parsed.status}`,
+      ];
+
+      if (parsed.status === 'succeeded' && parsed.output) {
+        lines.push(`  Output: ${JSON.stringify(parsed.output).slice(0, 500)}`);
+      } else if (parsed.status === 'processing') {
+        lines.push('  Use "get_prediction" com o ID para verificar resultado.');
+      }
+
+      return lines.join('\n');
+    } catch (error: unknown) {
+      return `Erro ao rodar modelo: ${error instanceof Error ? error.message : String(error)}`;
+    }
+  }
+
+  private async getPrediction(args: Record<string, unknown>, apiKey: string): Promise<string> {
+    const predictionId = String(args.prediction_id || '');
+    if (!predictionId) return 'Erro: "prediction_id" e obrigatorio.';
+
+    try {
+      const { execFileSync } = await import('child_process');
+      const result = execFileSync('curl', [
+        '-s',
+        '-H', `Authorization: Bearer ${apiKey}`,
+        `https://api.replicate.com/v1/predictions/${predictionId}`,
+      ], { timeout: 30000 }).toString();
+
+      const parsed = JSON.parse(result);
+      if (parsed.detail) return `Erro: ${parsed.detail}`;
+
+      const lines: string[] = [
+        `Prediction: ${parsed.id}`,
+        `  Status: ${parsed.status}`,
+        `  Modelo: ${parsed.model || 'unknown'}`,
+      ];
+
+      if (parsed.output) {
+        lines.push(`  Output: ${JSON.stringify(parsed.output).slice(0, 500)}`);
+      }
+      if (parsed.error) {
+        lines.push(`  Erro: ${parsed.error}`);
+      }
+
+      return lines.join('\n');
+    } catch (error: unknown) {
+      return `Erro: ${error instanceof Error ? error.message : String(error)}`;
+    }
+  }
+
+  private async checkStatus(apiKey: string): Promise<string> {
+    try {
+      const { execFileSync } = await import('child_process');
+      const result = execFileSync('curl', [
+        '-s', '-H', `Authorization: Bearer ${apiKey}`,
+        'https://api.replicate.com/v1/account',
+      ], { timeout: 10000 }).toString();
+
+      const parsed = JSON.parse(result);
+      if (parsed.detail) return `Replicate: Erro ${parsed.detail}`;
+      return `Replicate: Conectado. Usuario: ${parsed.username || 'unknown'}`;
+    } catch (error: unknown) {
+      return `Replicate: Erro de conexao: ${error instanceof Error ? error.message : String(error)}`;
+    }
+  }
+}
