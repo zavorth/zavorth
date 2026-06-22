@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-linear-issues",
+  "name": "Linear Issues",
+  "native": true,
+  "description": "Linear issue tracking, project management, cycle planning",
+  "category": "productivity",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["linear", "issues", "project-management"],
+  "presets": ["developer"],
+  "inputContract": ["issue definitions", "project configs", "cycle parameters"],
+  "outputContract": ["documents", "project artifacts"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

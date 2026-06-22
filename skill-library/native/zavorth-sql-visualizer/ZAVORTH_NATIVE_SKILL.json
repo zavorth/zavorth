@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-sql-visualizer",
+  "name": "SQL Visualizer",
+  "native": true,
+  "description": "SQL query result visualization and chart generation",
+  "category": "data",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["sql", "visualization", "charts"],
+  "presets": ["developer"],
+  "inputContract": ["SQL queries", "database connections", "chart specifications"],
+  "outputContract": ["data reports", "visualizations"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-animation-maker",
+  "name": "Animation Maker",
+  "native": true,
+  "description": "Animation creation, keyframe editing, export workflows",
+  "category": "media",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["animation", "video", "motion-graphics"],
+  "presets": ["developer"],
+  "inputContract": ["storyboards", "asset files", "animation parameters"],
+  "outputContract": ["media files", "export configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

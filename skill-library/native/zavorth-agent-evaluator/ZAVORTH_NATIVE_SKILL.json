@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-agent-evaluator",
+  "name": "Agent Evaluator",
+  "native": true,
+  "description": "Agent evaluation, benchmarking, quality scoring, trajectory analysis",
+  "category": "ai",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["evaluation", "benchmarking", "quality"],
+  "presets": ["developer"],
+  "inputContract": ["agent configurations", "test scenarios", "evaluation criteria"],
+  "outputContract": ["model artifacts", "evaluation reports"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

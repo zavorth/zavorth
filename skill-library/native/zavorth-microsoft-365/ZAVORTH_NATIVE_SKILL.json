@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-microsoft-365",
+  "name": "Microsoft 365",
+  "native": true,
+  "description": "Office 365 integration (Word, Excel, PowerPoint, Outlook)",
+  "category": "productivity",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["microsoft", "office", "365"],
+  "presets": ["developer"],
+  "inputContract": ["document templates", "email drafts", "calendar events"],
+  "outputContract": ["documents", "project artifacts"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

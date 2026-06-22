@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-canva-creator",
+  "name": "Canva Creator",
+  "native": true,
+  "description": "Canva design creation, template customization, export",
+  "category": "design",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["canva", "design", "graphics"],
+  "presets": ["developer"],
+  "inputContract": ["design briefs", "brand assets", "template preferences"],
+  "outputContract": ["documents", "design assets"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

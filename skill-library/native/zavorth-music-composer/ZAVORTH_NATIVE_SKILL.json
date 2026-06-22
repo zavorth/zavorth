@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-music-composer",
+  "name": "Music Composer",
+  "native": true,
+  "description": "AI music generation, MIDI editing, audio mixing",
+  "category": "media",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["music", "audio", "composition"],
+  "presets": ["developer"],
+  "inputContract": ["style references", "composition parameters", "instrument selections"],
+  "outputContract": ["media files", "export configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

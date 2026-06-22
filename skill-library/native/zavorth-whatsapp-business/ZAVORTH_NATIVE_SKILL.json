@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-whatsapp-business",
+  "name": "WhatsApp Business",
+  "native": true,
+  "description": "WhatsApp Business API workflows and template management",
+  "category": "channels",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["whatsapp", "business-api", "messaging"],
+  "presets": ["developer"],
+  "inputContract": ["message templates", "contact lists", "webhook configs"],
+  "outputContract": ["message logs", "integration configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

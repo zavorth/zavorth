@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-aws-cloud-ops",
+  "name": "AWS Cloud Ops",
+  "native": true,
+  "description": "AWS services management (EC2, S3, Lambda, RDS, CloudFormation)",
+  "category": "cloud",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["aws", "cloud", "infrastructure"],
+  "presets": ["developer"],
+  "inputContract": ["AWS CLI commands", "CloudFormation templates"],
+  "outputContract": ["deployment reports", "infrastructure configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

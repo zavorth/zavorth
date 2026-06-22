@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-wikipedia-deep-dive",
+  "name": "Wikipedia Deep Dive",
+  "native": true,
+  "description": "Wikipedia research, fact verification, knowledge graph building",
+  "category": "research",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["wikipedia", "knowledge", "facts"],
+  "presets": ["developer"],
+  "inputContract": ["research topics", "fact-check claims", "exploration depth"],
+  "outputContract": ["research reports", "bibliography files"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

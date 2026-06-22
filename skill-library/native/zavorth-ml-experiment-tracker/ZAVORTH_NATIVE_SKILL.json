@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-ml-experiment-tracker",
+  "name": "ML Experiment Tracker",
+  "native": true,
+  "description": "MLflow/W&B integration, experiment logging, metric comparison",
+  "category": "ml",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["experiments", "tracking", "mlflow"],
+  "presets": ["developer"],
+  "inputContract": ["experiment configs", "training metrics", "model artifacts"],
+  "outputContract": ["model artifacts", "evaluation reports"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

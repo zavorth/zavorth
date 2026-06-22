@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-arxiv-researcher",
+  "name": "arXiv Researcher",
+  "native": true,
+  "description": "arXiv paper search, abstract analysis, citation extraction",
+  "category": "research",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["arxiv", "papers", "academic"],
+  "presets": ["developer"],
+  "inputContract": ["search queries", "category filters", "date ranges"],
+  "outputContract": ["research reports", "bibliography files"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

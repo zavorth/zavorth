@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-academic-citation",
+  "name": "Academic Citation",
+  "native": true,
+  "description": "Citation management (APA, MLA, Chicago, IEEE), bibliography generation",
+  "category": "research",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["citation", "bibliography", "academic"],
+  "presets": ["developer"],
+  "inputContract": ["source references", "citation style", "document context"],
+  "outputContract": ["research reports", "bibliography files"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

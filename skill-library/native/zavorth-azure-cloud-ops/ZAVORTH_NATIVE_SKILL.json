@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-azure-cloud-ops",
+  "name": "Azure Cloud Ops",
+  "native": true,
+  "description": "Azure services management (VMs, Blob, Functions, SQL)",
+  "category": "cloud",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["azure", "microsoft-cloud"],
+  "presets": ["developer"],
+  "inputContract": ["Azure CLI commands", "ARM templates"],
+  "outputContract": ["deployment reports", "infrastructure configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

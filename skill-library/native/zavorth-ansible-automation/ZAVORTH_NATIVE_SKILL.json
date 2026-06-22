@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-ansible-automation",
+  "name": "Ansible Automation",
+  "native": true,
+  "description": "Ansible playbook execution, inventory management, role creation",
+  "category": "devops",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["ansible", "automation", "configuration"],
+  "presets": ["developer"],
+  "inputContract": ["playbook definitions", "inventory files"],
+  "outputContract": ["deployment reports", "infrastructure configs"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

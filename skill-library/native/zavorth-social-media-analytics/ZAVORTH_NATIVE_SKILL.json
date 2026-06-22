@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-social-media-analytics",
+  "name": "Social Media Analytics",
+  "native": true,
+  "description": "Social media analytics, engagement tracking, content performance",
+  "category": "marketing",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["social-media", "analytics", "engagement"],
+  "presets": ["developer"],
+  "inputContract": ["social media accounts", "date ranges", "metric types"],
+  "outputContract": ["campaign reports", "analytics dashboards"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

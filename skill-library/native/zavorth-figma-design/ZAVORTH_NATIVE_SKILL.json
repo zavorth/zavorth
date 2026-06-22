@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-figma-design",
+  "name": "Figma Design",
+  "native": true,
+  "description": "Figma file operations, component extraction, design tokens",
+  "category": "design",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["figma", "design", "ui"],
+  "presets": ["developer"],
+  "inputContract": ["Figma file URLs", "component specs", "export settings"],
+  "outputContract": ["documents", "design assets"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

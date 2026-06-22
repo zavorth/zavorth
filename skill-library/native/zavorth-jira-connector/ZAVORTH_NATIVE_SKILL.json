@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-jira-connector",
+  "name": "Jira Connector",
+  "native": true,
+  "description": "Jira integration, issue management, sprint planning",
+  "category": "productivity",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["jira", "agile", "sprint"],
+  "presets": ["developer"],
+  "inputContract": ["project keys", "issue data", "JQL queries", "sprint configs"],
+  "outputContract": ["documents", "project artifacts"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-prometheus-queries",
+  "name": "Prometheus Queries",
+  "native": true,
+  "description": "PromQL query writing, metric exploration, alert rules",
+  "category": "monitoring",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["prometheus", "promql", "metrics"],
+  "presets": ["developer"],
+  "inputContract": ["metric names", "query requirements"],
+  "outputContract": ["dashboard configs", "alert rules"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

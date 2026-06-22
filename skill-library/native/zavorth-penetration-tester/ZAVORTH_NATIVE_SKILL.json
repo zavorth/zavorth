@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-penetration-tester",
+  "name": "Penetration Tester",
+  "native": true,
+  "description": "Automated pentest workflows, vulnerability assessment, report generation",
+  "category": "security",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["pentest", "vulnerability", "security-testing"],
+  "presets": ["developer"],
+  "inputContract": ["target scope", "authorization docs", "test methodologies"],
+  "outputContract": ["security reports", "remediation plans"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

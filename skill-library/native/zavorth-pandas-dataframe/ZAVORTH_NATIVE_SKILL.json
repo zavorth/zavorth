@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-pandas-dataframe",
+  "name": "Pandas DataFrame",
+  "native": true,
+  "description": "Pandas DataFrame operations, data manipulation, analysis",
+  "category": "data-science",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["pandas", "python", "data-analysis"],
+  "presets": ["developer"],
+  "inputContract": ["CSV/JSON data", "transformation requirements"],
+  "outputContract": ["data reports", "visualizations"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}
