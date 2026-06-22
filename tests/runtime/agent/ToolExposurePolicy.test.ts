@@ -25,7 +25,7 @@ describe('ToolExposurePolicy', () => {
     ]);
     expect(profile.toolExposureGatedByCognitiveFirewall).toBe(true);
     expect(profile.toolExposureGatedByImportedCapabilityTrust).toBeUndefined();
-    expect(profile.summary).toContain('1 ferramenta bloqueada');
+    expect(profile.summary).toContain('1 tool blocked by quarantine');
   });
 
   it('keeps current behavior for trusted users (channelUserIdAllowed !== false)', () => {

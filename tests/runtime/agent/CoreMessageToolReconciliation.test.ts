@@ -14,7 +14,7 @@ describe('P0-002c CoreMessageTool reconciliation', () => {
       events: [
         {
           kind: 'reply',
-          title: 'Reply preparado',
+        title: 'Resposta preparada',
           detail: 'Executor retornou replyText; ReplyPipeline montou o pacote de saida.',
           status: 'done',
         },
@@ -38,11 +38,11 @@ describe('P0-002c CoreMessageTool reconciliation', () => {
 
     expect(result.ok).toBe(true);
     expect(result.run.toolExposure.tools).toEqual([]);
-    expect(result.run.toolExposure.summary).toBe('Nenhuma ferramenta foi exposta para esta execucao.');
+    expect(result.run.toolExposure.summary).toBe('No tools were exposed for this execution.');
     expect(result.run.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: 'reply',
-        title: 'Reply preparado',
+        title: 'Resposta preparada',
       }),
     ]));
     expect(result.replies).toHaveLength(1);

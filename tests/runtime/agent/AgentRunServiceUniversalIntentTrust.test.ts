@@ -87,6 +87,6 @@ describe('AgentRunService UNI / Trust enforcement Channel mesh4', () => {
         blocked: true,
       }),
     }));
-    expect(result.run.summary).toBe('Trust Slider bloqueou a execucao em modo protected.');
+    expect(result.run.summary).toBe('Trust Slider blocked execution in protected mode.');
   });
 });

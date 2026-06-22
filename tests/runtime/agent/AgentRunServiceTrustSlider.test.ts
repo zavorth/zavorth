@@ -72,7 +72,7 @@ describe('AgentRunService Trust Slider enforcement', () => {
     expect(executor).not.toHaveBeenCalled();
     expect(result.ok).toBe(false);
     expect(result.run.status).toBe('failed');
-    expect(result.run.summary).toBe('Trust Slider bloqueou a execucao em modo protected.');
+    expect(result.run.summary).toBe('Trust Slider blocked execution in protected mode.');
     expect(result.run.metadata.trustSlider).toEqual(expect.objectContaining({
       level: 'protected',
       decision: 'block',
@@ -80,7 +80,7 @@ describe('AgentRunService Trust Slider enforcement', () => {
       permissionBoundary: 'container-first',
       blocked: true,
     }));
-    expect(result.replies[0].text).toContain('Nenhuma ferramenta foi executada.');
+    expect(result.replies[0].text).toContain('No tools were executed.');
   });
 
   it('requires owner/operator and kill switch for Overlord runs', async () => {
