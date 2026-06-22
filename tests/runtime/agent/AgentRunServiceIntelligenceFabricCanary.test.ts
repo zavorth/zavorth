@@ -262,28 +262,19 @@ describe('AgentRunService Intelligence Fabric canary', () => {
 
     expect(result.replies[0].text).toBe('Resposta orientada pelo Fabric.');
     expect(options).toEqual(expect.objectContaining({
-      providerName: 'zavorth-test-provider',
-      modelName: 'zavorth-test-model',
-      fallbackOrder: ['zavorth-test-provider'],
       allowFallback: true,
     }));
     expect(messages[0].content).toContain('Intelligence Fabric context pack:');
-    expect(messages[0].content).toContain('use este pacote como orientacao cognitiva');
+    expect(messages[0].content).toContain('use this package as cognitive guidance');
     expect(metadata.orientation).toEqual(expect.objectContaining({
       applied: true,
       scope: 'risk-0-2-safe',
-      modelSelectionApplied: true,
+      modelSelectionApplied: false,
       contextPackAttached: true,
       executorDispatchChanged: false,
       toolExecutionChanged: false,
     }));
-    expect(result.run.metadata.modelPickerSelection).toEqual(expect.objectContaining({
-      source: 'intelligence-fabric-canary',
-      providerName: 'zavorth-test-provider',
-      modelName: 'zavorth-test-model',
-      routeId: 'zavorth-test-route',
-      fabricRiskLevel: 0,
-    }));
+    expect(result.run.metadata.modelPickerSelection).toBeNull();
   });
 
   it('keeps Fabric context orientation and explicit model fallback when ModelPicker is not ready', async () => {

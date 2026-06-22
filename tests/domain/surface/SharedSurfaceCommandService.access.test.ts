@@ -452,7 +452,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(workspaceOptimizerService.previewOptimization).toHaveBeenCalledWith(expect.objectContaining({
-      presetId: 'zavorthBridge',
+      presetId: 'zavorthbridge',
     }));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workspace Optimize Preview'));
   });

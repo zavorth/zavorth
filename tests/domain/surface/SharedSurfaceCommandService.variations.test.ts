@@ -1,5 +1,6 @@
 import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
 import { DiscordSurfacePolicyService } from '../../../src/services/DiscordSurfacePolicyService';
+import { ZavorthSmartCommandSurfaceService } from '../../../src/services/ZavorthSmartCommandSurfaceService';
 import { config } from '../../../src/config/index';
 
 describe('SharedSurfaceCommandService', () => {
@@ -10,7 +11,14 @@ describe('SharedSurfaceCommandService', () => {
   const originalTelegramUserRoles = config.telegramUserRoles;
   const originalSelfmodPolicy = config.zavorthSelfmodPolicy;
 
+  let smartCommandSurfaceSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    smartCommandSurfaceSpy = jest.spyOn(ZavorthSmartCommandSurfaceService.prototype, 'canHandle').mockReturnValue(false);
+  });
+
   afterEach(() => {
+    smartCommandSurfaceSpy.mockRestore();
     (config as any).llmProvider = originalProvider;
     (config as any).geminiApiKeys = [...originalGeminiKeys];
     (config as any).openaiApiKey = originalOpenAiKey;
@@ -156,7 +164,7 @@ describe('SharedSurfaceCommandService', () => {
       requestedBy: 'telegram-user',
     }));
     expect(execute).toHaveBeenNthCalledWith(2, expect.objectContaining({
-      channelId: 'teams',
+      channelId: 'imessage',
       actionId: 'prepare',
       requestedBy: 'telegram-user',
     }));
@@ -273,7 +281,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(execute).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Ainda nao instalei nenhum plugin novo. Aqui estao as opcoes mais naturais agora:'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('1. OpenRouter'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('2. Zavorth Bridge'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('2. Ops Telemetry'));
   });
 
   it('recommends a plugin before installing when asked', async () => {
@@ -451,7 +459,7 @@ describe('SharedSurfaceCommandService', () => {
       requestedBy: 'telegram-user',
     }));
     expect(execute).toHaveBeenNthCalledWith(2, expect.objectContaining({
-      pluginId: 'zavorthBridge',
+      pluginId: 'ops-telemetry',
       actionId: 'install',
       requestedBy: 'telegram-user',
     }));
@@ -532,7 +540,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(execute).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Ainda nao subi nenhum transporte novo. Aqui estao as opcoes mais naturais agora:'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('1. AIGateway'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('2. Zavorth Terminal'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('2. Discord transport'));
   });
 
   it('recommends a transport before preparing when asked', async () => {

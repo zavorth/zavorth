@@ -1,5 +1,6 @@
 import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
 import { DiscordSurfacePolicyService } from '../../../src/services/DiscordSurfacePolicyService';
+import { ZavorthSmartCommandSurfaceService } from '../../../src/services/ZavorthSmartCommandSurfaceService';
 import { config } from '../../../src/config/index';
 
 describe('SharedSurfaceCommandService', () => {
@@ -301,6 +302,7 @@ describe('SharedSurfaceCommandService', () => {
   });
 
   it('routes explicit /undo without a task id through the latest undoable task', async () => {
+    const smartSpy = jest.spyOn(ZavorthSmartCommandSurfaceService.prototype, 'canHandle').mockReturnValue(false);
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -340,6 +342,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(taskExecutionController.handleUndo).toHaveBeenCalledWith(ctx, 'task-2');
+    smartSpy.mockRestore();
   });
 
   it('routes natural undo requests through the latest matching task', async () => {
