@@ -23,6 +23,10 @@ export type ZavorthConversationalSetupInput = {
   approvalChannel?: unknown;
   firstSafeMission?: unknown;
   preferredTone?: unknown;
+  domain?: unknown;
+  learningStyle?: unknown;
+  timezone?: unknown;
+  weekendPolicy?: unknown;
   apply?: boolean;
   confirmLocalProfile?: boolean;
   completeBootstrap?: boolean;
@@ -110,6 +114,31 @@ export class ZavorthConversationalSetupService {
             purpose: 'Store durable tone and collaboration calibration without raw transcripts.',
             action: 'upsert-markdown-fields',
           },
+          {
+            file: 'DOMAIN.md',
+            purpose: 'Store domain expertise and specialization profile.',
+            action: 'upsert-markdown-fields',
+          },
+          {
+            file: 'LEARNING-STYLE.md',
+            purpose: 'Store learning and explanation preferences.',
+            action: 'upsert-markdown-fields',
+          },
+          {
+            file: 'ERROR-HANDLING.md',
+            purpose: 'Store error recovery strategies and defaults.',
+            action: 'upsert-markdown-fields',
+          },
+          {
+            file: 'OUTPUT-FORMAT.md',
+            purpose: 'Store response formatting preferences.',
+            action: 'upsert-markdown-fields',
+          },
+          {
+            file: 'TIME-AUTOMATION.md',
+            purpose: 'Store timezone, schedule, and weekend behavior policies.',
+            action: 'upsert-markdown-fields',
+          },
         ],
       },
       safety: {
@@ -163,9 +192,11 @@ export class ZavorthConversationalSetupService {
       `profile=${snapshot.answers.experienceProfileId} mode=${snapshot.experience.selected.dailyMode}/${snapshot.experience.selected.detailMode}`,
       '',
       '[questions]',
-      ...snapshot.questions.map((question) =>
-        `- ${question.id}: ${question.status} | ${question.prompt}`,
-      ),
+      ...snapshot.questions
+        .filter((q) => q.visible)
+        .map((question) =>
+          `- ${question.id}: ${question.status} | ${question.prompt}`,
+        ),
       '',
       '[preview]',
       snapshot.preview.agentIntroduction,
@@ -202,6 +233,10 @@ export class ZavorthConversationalSetupService {
       firstSafeMission: redactSecret(clean(input.firstSafeMission)),
       detailLevel: detail === 'advanced' ? 'advanced' : 'simple',
       experienceProfileId,
+      domain: redactSecret(clean(input.domain)),
+      learningStyle: redactSecret(clean(input.learningStyle)),
+      timezone: redactSecret(clean(input.timezone)),
+      weekendPolicy: redactSecret(clean(input.weekendPolicy)),
     };
   }
 
@@ -226,6 +261,12 @@ export class ZavorthConversationalSetupService {
         ? 'challenge weak plans early with evidence'
         : 'gently point out risks and better options',
       externalActionPosture: 'ask before writes, spending, public messages, installs, network-sensitive actions or irreversible changes',
+      domain: answers.domain,
+      learningStyle: answers.learningStyle,
+      errorHandlingDefault: null,
+      outputFormatDefault: null,
+      weekendPolicy: answers.weekendPolicy,
+      timezone: answers.timezone,
     };
   }
 }
@@ -246,6 +287,10 @@ function resolveStatus(input: {
 }
 
 function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConversationalSetupQuestion[] {
+  const profile = answers.experienceProfileId;
+  const isTechnical = profile === 'developer' || profile === 'business' || profile === 'power';
+  const isGoverned = profile === 'business' || profile === 'power';
+
   const rows: Array<Omit<ZavorthConversationalSetupQuestion, 'status' | 'answerPreview'> & { answer: string | null }> = [
     {
       id: 'agent-name',
@@ -253,6 +298,7 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
       prompt: 'What should this agent be called?',
       kind: 'text',
       required: true,
+      visible: true,
       answer: answers.agentName,
     },
     {
@@ -261,6 +307,7 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
       prompt: 'What should Zavorth call you?',
       kind: 'text',
       required: true,
+      visible: true,
       answer: answers.preferredAddress || answers.userName,
     },
     {
@@ -269,6 +316,7 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
       prompt: 'Which language should Zavorth use when speaking with you?',
       kind: 'text',
       required: true,
+      visible: true,
       answer: answers.preferredLanguage,
     },
     {
@@ -277,6 +325,7 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
       prompt: 'Will you use Zavorth for daily life, creation, code, business or advanced operation?',
       kind: 'choice',
       required: true,
+      visible: true,
       choices: ['personal', 'creator', 'developer', 'business', 'power'],
       answer: answers.experienceProfileId,
     },
@@ -286,6 +335,7 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
       prompt: 'Do you prefer simple or advanced detail?',
       kind: 'choice',
       required: true,
+      visible: true,
       choices: ['simple', 'advanced'],
       answer: answers.detailLevel,
     },
@@ -295,6 +345,7 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
       prompt: 'What do you most want to do with Zavorth?',
       kind: 'text',
       required: false,
+      visible: true,
       answer: answers.primaryUse,
     },
     {
@@ -303,6 +354,8 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
       prompt: 'Where should sensitive approvals appear?',
       kind: 'choice',
       required: false,
+      visible: isGoverned,
+      visibleReason: 'Relevant for business and power profiles with governed workflows.',
       choices: ['dashboard', 'satellite', 'telegram', 'cli'],
       answer: answers.approvalChannel,
     },
@@ -312,7 +365,49 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
       prompt: 'Which safe first mission should Zavorth suggest?',
       kind: 'text',
       required: false,
+      visible: isTechnical,
+      visibleReason: 'Relevant for developer, business and power profiles.',
       answer: answers.firstSafeMission,
+    },
+    {
+      id: 'domain',
+      label: 'Domain expertise',
+      prompt: 'What is your primary domain of expertise?',
+      kind: 'text',
+      required: false,
+      visible: isTechnical,
+      visibleReason: 'Relevant for developer, business and power profiles.',
+      answer: answers.domain,
+    },
+    {
+      id: 'learning-style',
+      label: 'Learning style',
+      prompt: 'How do you prefer to learn new things?',
+      kind: 'choice',
+      required: false,
+      visible: isTechnical,
+      visibleReason: 'Relevant for developer, business and power profiles.',
+      choices: ['examples-first', 'theory-first', 'hands-on', 'visual', 'step-by-step'],
+      answer: answers.learningStyle,
+    },
+    {
+      id: 'timezone',
+      label: 'Timezone',
+      prompt: 'What is your timezone?',
+      kind: 'text',
+      required: false,
+      visible: true,
+      answer: answers.timezone,
+    },
+    {
+      id: 'weekend-policy',
+      label: 'Weekend behavior',
+      prompt: 'Should I behave differently on weekends?',
+      kind: 'choice',
+      required: false,
+      visible: true,
+      choices: ['normal', 'reduced-activity', 'urgent-only'],
+      answer: answers.weekendPolicy,
     },
   ];
 
@@ -322,6 +417,8 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
     prompt: row.prompt,
     kind: row.kind,
     required: row.required,
+    visible: row.visible,
+    ...(row.visibleReason ? { visibleReason: row.visibleReason } : {}),
     status: row.answer ? 'answered' : 'pending',
     answerPreview: row.answer || null,
     ...(row.choices ? { choices: row.choices } : {}),
@@ -356,6 +453,10 @@ function hasRawSecret(input: ZavorthConversationalSetupInput): boolean {
     input.approvalChannel,
     input.firstSafeMission,
     input.preferredTone,
+    input.domain,
+    input.learningStyle,
+    input.timezone,
+    input.weekendPolicy,
   ].map((value) => String(value || ''));
   return values.some((value) => SECRET_PATTERNS.some((pattern) => {
     pattern.lastIndex = 0;

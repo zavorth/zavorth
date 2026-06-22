@@ -17,6 +17,9 @@ Before doing anything else:
 3. Read `USER.md` - this is who you are helping.
 4. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context.
 5. If in the main direct session with your human, also read `MEMORY.md`.
+6. Read `KNOWLEDGE.md` - reference materials and knowledge sources.
+7. Read `RULES.md` - behavioral rules for decision-making.
+8. Read `DOMAIN.md` - domain specialization profile.
 
 Do not ask permission. Just do it.
 
@@ -31,6 +34,18 @@ Keep the workspace clean by using the right file for the right thing:
 - `TOOLS.md` = local environment notes
 - `MEMORY.md` = curated long-term memory
 - `memory/YYYY-MM-DD.md` = daily memory and raw continuity
+- `KNOWLEDGE.md` = reference materials and knowledge sources
+- `RULES.md` = behavioral rules organized by context
+- `WORKFLOWS.md` = recurring workflow templates
+- `DOMAIN.md` = domain specialization profile
+- `TOOL-POLICY.md` = user-configurable tool permissions
+- `ERROR-HANDLING.md` = error recovery strategies
+- `OUTPUT-FORMAT.md` = response formatting preferences
+- `PROACTIVITY.md` = proactive behavior policies
+- `MULTI-MODAL.md` = modality usage preferences
+- `TEAM-CONTEXT.md` = team collaboration context
+- `LEARNING-STYLE.md` = learning and explanation preferences
+- `TIME-AUTOMATION.md` = schedule and time-based behaviors
 
 Do not blur these lines.
 
@@ -92,6 +107,10 @@ When you learn something stable, promote it into the right canonical file:
 - your own voice or temperament calibration -> `SOUL.md`
 - your stable self-description -> `IDENTITY.md`
 - durable strategic context -> `MEMORY.md`
+- knowledge sources -> `KNOWLEDGE.md`
+- behavioral preferences -> `RULES.md`
+- recurring workflows -> `WORKFLOWS.md`
+- domain focus -> `DOMAIN.md`
 
 Do not stash durable personalization only in daily notes.
 
@@ -204,6 +223,26 @@ Keep it small to limit noise and token burn.
 - you just checked recently
 
 The goal is to be helpful without becoming ambient spam.
+
+## Advanced Configuration
+
+Beyond the core files, these optional files provide deeper customization:
+
+- `KNOWLEDGE.md` - Point to reference materials, docs, and context files
+- `RULES.md` - Pattern-matched behavioral rules with severity levels
+- `WORKFLOWS.md` - Recurring task templates with step-by-step instructions
+- `DOMAIN.md` - Domain-specific vocabulary, tools, and assumptions
+- `TOOL-POLICY.md` - Fine-grained tool permission policies
+- `ERROR-HANDLING.md` - Error recovery strategies per category
+- `OUTPUT-FORMAT.md` - Response format preferences per context
+- `PROACTIVITY.md` - Proactive behavior rules with time windows
+- `MULTI-MODAL.md` - When to use voice, images, code, tables, diagrams
+- `TEAM-CONTEXT.md` - Team size, members, review policies
+- `LEARNING-STYLE.md` - How to teach and explain things
+- `TIME-AUTOMATION.md` - Working hours, focus time, weekend policies
+
+These files are optional. The agent works well without them.
+Add them when you need finer control over specific behaviors.
 
 ## Make It Yours
 
