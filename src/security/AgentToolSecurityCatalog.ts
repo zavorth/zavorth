@@ -337,7 +337,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
   {
     toolName: 'zavorth_cron_scheduler',
     surface: 'native-tool',
-    capabilities: ['scheduling', 'filesystem'],
+    capabilities: ['configuration', 'filesystem'],
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'Creates and manages scheduled cron jobs with risk scoring.',
@@ -345,7 +345,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
   {
     toolName: 'zavorth_delegate',
     surface: 'native-tool',
-    capabilities: ['orchestration', 'subagent'],
+    capabilities: ['sandbox', 'skill'],
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'Delegates tasks to governed subagents with batch support.',
@@ -361,7 +361,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
   {
     toolName: 'zavorth_voice_mode',
     surface: 'native-tool',
-    capabilities: ['audio', 'network'],
+    capabilities: ['network', 'local-observation'],
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'Manages voice sessions with STT, TTS, and wake word detection.',
@@ -393,7 +393,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
   {
     toolName: 'zavorth_tts',
     surface: 'native-tool',
-    capabilities: ['audio', 'network'],
+    capabilities: ['network', 'local-observation'],
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'Converts text to speech using multiple backends.',
@@ -401,7 +401,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
   {
     toolName: 'zavorth_stt',
     surface: 'native-tool',
-    capabilities: ['audio', 'network'],
+    capabilities: ['network', 'local-observation'],
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'Converts speech to text using multiple backends.',
@@ -481,7 +481,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
   {
     toolName: 'zavorth_fal',
     surface: 'native-tool',
-    capabilities: ['network', 'media'],
+    capabilities: ['network', 'external-send', 'untrusted-input'],
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'fal.ai image generation.',
@@ -489,7 +489,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
   {
     toolName: 'zavorth_comfyui',
     surface: 'native-tool',
-    capabilities: ['network', 'media', 'local-inference'],
+    capabilities: ['network', 'filesystem', 'sandbox'],
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'ComfyUI local image generation.',
@@ -505,7 +505,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
   {
     toolName: 'zavorth_runway',
     surface: 'native-tool',
-    capabilities: ['network', 'media'],
+    capabilities: ['network', 'external-send'],
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'Runway ML video generation.',

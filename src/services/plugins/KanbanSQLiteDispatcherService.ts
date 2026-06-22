@@ -10,6 +10,14 @@ export interface KanbanBoard {
   updated_at: string;
 }
 
+interface DBKanbanBoard {
+  id: string;
+  name: string;
+  columns: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface KanbanCard {
   id: string;
   board_id: string;
@@ -142,7 +150,7 @@ export class KanbanSQLiteDispatcherService {
     const board = this.getBoardData(boardId);
     if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
 
-    const columns: string[] = JSON.parse(board.columns);
+    const columns = board.columns;
     const column = options?.column || columns[0];
     if (!columns.includes(column)) {
       return `Erro: coluna "${column}" invalida. Use: ${columns.join(', ')}`;
@@ -185,7 +193,7 @@ export class KanbanSQLiteDispatcherService {
       this.db.prepare('UPDATE cards SET blocked_by = NULL, blocked_reason = NULL, auto_blocked = 0 WHERE id = ?').run(cardId);
     }
 
-    const columns: string[] = JSON.parse(board.columns);
+    const columns = board.columns;
     if (!columns.includes(targetColumn)) {
       return `Erro: coluna "${targetColumn}" invalida. Use: ${columns.join(', ')}`;
     }
@@ -239,7 +247,7 @@ export class KanbanSQLiteDispatcherService {
     const board = this.getBoardData(boardId);
     if (!board) return { dispatched: [], blocked: [], skipped: [], errors: [`Quadro "${boardId}" nao encontrado`], dispatched_at: new Date().toISOString() };
 
-    const columns: string[] = JSON.parse(board.columns);
+    const columns = board.columns;
     const fromColumn = options?.column_from || 'todo';
     const toColumn = columns[columns.indexOf(fromColumn) + 1] || 'in_progress';
     const maxConcurrent = options?.max_concurrent || 5;
@@ -295,7 +303,7 @@ export class KanbanSQLiteDispatcherService {
     const board = this.getBoardData(boardId);
     if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
 
-    const columns: string[] = JSON.parse(board.columns);
+    const columns = board.columns;
     const rawCards = this.db.prepare("SELECT * FROM cards WHERE board_id = ? ORDER BY CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END").all(boardId) as Array<Record<string, unknown>>;
     const cards: KanbanCard[] = rawCards.map((c) => ({
       ...c,
@@ -336,13 +344,14 @@ export class KanbanSQLiteDispatcherService {
   }
 
   public listBoards(): string {
-    const boards = this.db.prepare('SELECT * FROM boards').all() as KanbanBoard[];
-    if (boards.length === 0) return 'Nenhum quadro.';
+    const rawBoards = this.db.prepare('SELECT * FROM boards').all() as DBKanbanBoard[];
+    if (rawBoards.length === 0) return 'Nenhum quadro.';
+    const boards = rawBoards.map((b) => this.mapBoard(b));
 
     const lines: string[] = ['Quadros [SQLite]:'];
     for (const board of boards) {
       const cardCount = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ?').get(board.id) as { c: number }).c;
-      const columns: string[] = JSON.parse(board.columns);
+      const columns = board.columns;
       const byCol: Record<string, number> = {};
       for (const col of columns) byCol[col] = 0;
       const colCounts = this.db.prepare('SELECT column_name, COUNT(*) as c FROM cards WHERE board_id = ? GROUP BY column_name').all(board.id) as Array<{ column_name: string; c: number }>;
@@ -398,7 +407,7 @@ export class KanbanSQLiteDispatcherService {
     const board = this.getBoardData(boardId);
     if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
 
-    const columns: string[] = JSON.parse(board.columns);
+    const columns = board.columns;
     if (!columns.includes(targetColumn)) return `Erro: coluna "${targetColumn}" invalida.`;
 
     const now = new Date().toISOString();
@@ -439,7 +448,16 @@ export class KanbanSQLiteDispatcherService {
   }
 
   private getBoardData(boardId: string): KanbanBoard | null {
-    return this.db.prepare('SELECT * FROM boards WHERE id = ?').get(boardId) as KanbanBoard | null;
+    const raw = this.db.prepare('SELECT * FROM boards WHERE id = ?').get(boardId) as DBKanbanBoard | null;
+    if (!raw) return null;
+    return this.mapBoard(raw);
+  }
+
+  private mapBoard(raw: DBKanbanBoard): KanbanBoard {
+    return {
+      ...raw,
+      columns: typeof raw.columns === 'string' ? JSON.parse(raw.columns) : raw.columns,
+    };
   }
 
   private autoUnblock(boardId: string, completedCardId: string): void {
