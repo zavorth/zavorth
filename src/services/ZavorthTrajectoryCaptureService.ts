@@ -149,8 +149,11 @@ export class ZavorthTrajectoryCaptureService {
     this.turns.length = 0;
   }
 
-  public persistToProjectDir(format: ZavorthTrajectoryExportFormat = 'jsonl'): string | null {
+  public persistToProjectDir(format: ZavorthTrajectoryExportFormat = 'jsonl', approvalId?: string): string | null {
     if (this.turns.length === 0) return null;
+    if (!approvalId || !String(approvalId).trim()) {
+      throw new Error('Trajectory persist requires an approval id.');
+    }
     const dir = path.join(this.projectRoot, TRAJECTORIES_DIR);
     fs.mkdirSync(dir, { recursive: true });
     const filename = `trajectory-${this.now().toISOString().replace(/[:.]/g, '-')}.${format === 'jsonl' ? 'jsonl' : 'json'}`;
@@ -219,8 +222,4 @@ function isInside(root: string, candidate: string): boolean {
 
 function relative(root: string, candidate: string): string {
   return path.relative(root, candidate).replace(/\\/g, '/') || '.';
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
