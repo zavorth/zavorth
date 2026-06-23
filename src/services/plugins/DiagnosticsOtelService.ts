@@ -253,7 +253,7 @@ export class DiagnosticsOtelService {
   public getStats(): string {
     const lines: string[] = [
       'Statistics OpenTelemetry:',
-      `  Spans: ${this.spans.length} completos, ${this.activeSpans.size} ativos`,
+      `  Spans: ${this.spans.length} complete, ${this.activeSpans.size} active`,
       `  Metricas: ${this.metrics.length} registradas, ${this.counters.size} counters, ${this.gauges.size} gauges`,
       `  Logs: ${this.logs.length} entradas`,
     ];
@@ -295,7 +295,7 @@ export class DiagnosticsOtelService {
     this.metrics = [];
     this.logs = [];
 
-    return `Flush completo. ${stats.spans} spans, ${stats.metrics} metricas, ${stats.logs} logs exportados para ${exportPath}.`;
+    return `Flush complete. ${stats.spans} spans, ${stats.metrics} metrics, ${stats.logs} logs exported para ${exportPath}.`;
   }
 
   private generateId(): string {

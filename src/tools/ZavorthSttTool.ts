@@ -76,7 +76,7 @@ export class ZavorthSttTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Error: 'action' parameter is required.';
+    if (!action) return "Error: 'action' parameter is required.";
 
     const validActions = ['transcribe', 'detect_language', 'list_backends', 'set_default'];
     if (!validActions.includes(action)) {
@@ -116,7 +116,7 @@ export class ZavorthSttTool extends BaseTool {
 
     const stat = fs.statSync(resolvedPath);
     if (stat.size > 25 * 1024 * 1024) {
-      return 'Error: audio file excede 25MB. Split or compress.';
+      return 'Error: audio file exceeds 25MB. Split or compress.';
     }
 
     const ext = path.extname(resolvedPath).toLowerCase();

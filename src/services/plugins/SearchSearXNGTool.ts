@@ -39,7 +39,7 @@ export class SearchSearXNGTool extends BaseTool {
       },
       max_results: {
         type: 'number',
-        description: 'Maximo de results. Default: 10.',
+        description: 'Maximum results. Default: 10.',
       },
       time_range: {
         type: 'string',
@@ -59,7 +59,7 @@ export class SearchSearXNGTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Error: 'action' parameter is required.';
+    if (!action) return "Error: 'action' parameter is required.";
 
     switch (action) {
       case 'search': return await this.search(args);
@@ -124,7 +124,7 @@ export class SearchSearXNGTool extends BaseTool {
 
       return lines.join('\n');
     } catch (error: unknown) {
-      return `SearXNG search error: ${error instanceof Error ? error.message : String(error)}. Verifique se a instance esta running.`;
+      return `SearXNG search error: ${error instanceof Error ? error.message : String(error)}. Check if the instance is running.`;
     }
   }
 

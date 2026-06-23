@@ -99,7 +99,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       max_results: {
         type: 'number',
-        description: 'Maximo de results. Default: 20.',
+        description: 'Maximum results. Default: 20.',
       },
       sort_by: {
         type: 'string',
@@ -126,7 +126,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Error: 'action' parameter is required.';
+    if (!action) return "Error: 'action' parameter is required.";
 
     const validActions = ['search', 'get', 'stats', 'export', 'verify', 'list_tools', 'list_sessions'];
     if (!validActions.includes(action)) {
