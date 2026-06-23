@@ -518,6 +518,62 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     requiresConfirmation: true,
     description: 'Spotify music player control.',
   },
+  {
+    toolName: 'zavorth_docker_compose',
+    surface: 'native-tool',
+    capabilities: ['shell', 'destructive', 'network'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Docker Compose multi-container management.',
+  },
+  {
+    toolName: 'zavorth_code_intelligence',
+    surface: 'native-tool',
+    capabilities: ['filesystem', 'shell'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Code analysis, formatting, linting, and symbol extraction.',
+  },
+  {
+    toolName: 'zavorth_ssh_tunnel',
+    surface: 'native-tool',
+    capabilities: ['network', 'shell'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'SSH tunnel creation and management.',
+  },
+  {
+    toolName: 'zavorth_chart_generator',
+    surface: 'native-tool',
+    capabilities: ['filesystem'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Chart and visualization generation from data.',
+  },
+  {
+    toolName: 'zavorth_file_watcher',
+    surface: 'native-tool',
+    capabilities: ['filesystem', 'local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'File system change monitoring and event logging.',
+  },
+  {
+    toolName: 'zavorth_network',
+    surface: 'native-tool',
+    capabilities: ['network'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Network diagnostics — DNS, port scan, ping, traceroute, WHOIS.',
+  },
+  {
+    toolName: 'zavorth_webhook_receiver',
+    surface: 'native-tool',
+    capabilities: ['network', 'shell'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'HTTP webhook endpoint creation and request logging.',
+  },
 ];
 
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
@@ -585,6 +641,13 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'SearchSearXNGTool', toolName: 'zavorth_searxng' },
   { className: 'VideoGenRunwayTool', toolName: 'zavorth_runway' },
   { className: 'SpotifyPlayerTool', toolName: 'zavorth_spotify' },
+  { className: 'ZavorthDockerComposeTool', toolName: 'zavorth_docker_compose' },
+  { className: 'ZavorthCodeIntelligenceTool', toolName: 'zavorth_code_intelligence' },
+  { className: 'ZavorthSshTunnelTool', toolName: 'zavorth_ssh_tunnel' },
+  { className: 'ZavorthChartGeneratorTool', toolName: 'zavorth_chart_generator' },
+  { className: 'ZavorthFileWatcherTool', toolName: 'zavorth_file_watcher' },
+  { className: 'ZavorthNetworkTool', toolName: 'zavorth_network' },
+  { className: 'ZavorthWebhookReceiverTool', toolName: 'zavorth_webhook_receiver' },
 ] as const;
 
 const NATIVE_DEFINITIONS_BY_NAME = new Map(

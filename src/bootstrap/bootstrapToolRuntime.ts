@@ -77,6 +77,15 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { VideoGenRunwayTool } = require('../services/plugins/VideoGenRunwayTool.js');
   const { SpotifyPlayerTool } = require('../services/plugins/SpotifyPlayerTool.js');
 
+  // ── Phase 2 tools ──
+  const { ZavorthDockerComposeTool } = require('../tools/ZavorthDockerComposeTool.js');
+  const { ZavorthCodeIntelligenceTool } = require('../tools/ZavorthCodeIntelligenceTool.js');
+  const { ZavorthSshTunnelTool } = require('../tools/ZavorthSshTunnelTool.js');
+  const { ZavorthChartGeneratorTool } = require('../tools/ZavorthChartGeneratorTool.js');
+  const { ZavorthFileWatcherTool } = require('../tools/ZavorthFileWatcherTool.js');
+  const { ZavorthNetworkTool } = require('../tools/ZavorthNetworkTool.js');
+  const { ZavorthWebhookReceiverTool } = require('../tools/ZavorthWebhookReceiverTool.js');
+
   // ── Plugin services (runtime dependencies) ──
   const { ActiveMemoryService } = require('../services/plugins/ActiveMemoryService.js');
   const { DiagnosticsPrometheusService } = require('../services/plugins/DiagnosticsPrometheusService.js');
@@ -92,6 +101,10 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { BrowserPlaywrightService } = require('../services/plugins/BrowserPlaywrightService.js');
   const { SearchExaService } = require('../services/plugins/SearchExaService.js');
   const { MemoryQdrantService } = require('../services/plugins/MemoryQdrantService.js');
+  const { LLMRouterService } = require('../services/plugins/LLMRouterService.js');
+  const { ContextCompressorService } = require('../services/plugins/ContextCompressorService.js');
+  const { ReasoningEffortService } = require('../services/plugins/ReasoningEffortService.js');
+  const { PromptCacheService } = require('../services/plugins/PromptCacheService.js');
 
   const toolRegistry = new ToolRegistry();
   toolRegistry.register(new UnifiedSearchTool());
@@ -161,6 +174,15 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new VideoGenRunwayTool());
   toolRegistry.register(new SpotifyPlayerTool());
 
+  // ── Phase 2 tool registrations ──
+  toolRegistry.register(new ZavorthDockerComposeTool());
+  toolRegistry.register(new ZavorthCodeIntelligenceTool());
+  toolRegistry.register(new ZavorthSshTunnelTool());
+  toolRegistry.register(new ZavorthChartGeneratorTool());
+  toolRegistry.register(new ZavorthFileWatcherTool());
+  toolRegistry.register(new ZavorthNetworkTool());
+  toolRegistry.register(new ZavorthWebhookReceiverTool());
+
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
   console.log('[BOOT] tools-ready (' + toolRegistry.size + ' tools registered)');
@@ -187,8 +209,12 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const playwrightBrowser = new BrowserPlaywrightService();
   const exaSearch = new SearchExaService();
   const qdrantMemory = new MemoryQdrantService();
+  const llmRouter = new LLMRouterService();
+  const contextCompressor = new ContextCompressorService();
+  const reasoningEffort = new ReasoningEffortService();
+  const promptCache = new PromptCacheService();
 
-  console.log('[BOOT] plugins-ready (14 services + 10 tools)');
+  console.log('[BOOT] plugins-ready (18 services + 10 tools)');
 
   const dispose = () => {
     try { kanbanDispatcher.close(); } catch { /* ignore */ }
@@ -215,6 +241,10 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
       playwrightBrowser,
       exaSearch,
       qdrantMemory,
+      llmRouter,
+      contextCompressor,
+      reasoningEffort,
+      promptCache,
     },
     dispose,
   };
