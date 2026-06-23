@@ -806,6 +806,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     requiresConfirmation: false,
     description: 'API builder — OpenAPI spec, endpoints, mock server, tests.',
   },
+  {
+    toolName: 'zavorth_terminal_backends',
+    surface: 'native-tool',
+    capabilities: ['shell', 'destructive', 'network'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Advanced terminal with 6 backends: local, docker, ssh, wsl, singularity, modal.',
+  },
 ];
 
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
@@ -909,6 +917,7 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'ZavorthCalendarAdvancedTool', toolName: 'zavorth_calendar_advanced' },
   { className: 'ZavorthNotificationTool', toolName: 'zavorth_notification' },
   { className: 'ZavorthApiBuilderTool', toolName: 'zavorth_api_builder' },
+  { className: 'ZavorthTerminalBackendsTool', toolName: 'zavorth_terminal_backends' },
 ] as const;
 
 const NATIVE_DEFINITIONS_BY_NAME = new Map(
