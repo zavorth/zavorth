@@ -100,6 +100,11 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthTokenBudgetTool } = require('../tools/ZavorthTokenBudgetTool.js');
   const { ZavorthMemoryGraphTool } = require('../tools/ZavorthMemoryGraphTool.js');
 
+  // ── Low priority tools ──
+  const { ZavorthSandboxCloudTool } = require('../tools/ZavorthSandboxCloudTool.js');
+  const { ZavorthWorkflowBuilderTool } = require('../tools/ZavorthWorkflowBuilderTool.js');
+  const { ZavorthEdgeComputingTool } = require('../tools/ZavorthEdgeComputingTool.js');
+
   // ── Plugin services (runtime dependencies) ──
   const { ActiveMemoryService } = require('../services/plugins/ActiveMemoryService.js');
   const { DiagnosticsPrometheusService } = require('../services/plugins/DiagnosticsPrometheusService.js');
@@ -208,6 +213,9 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthPromptLibraryTool());
   toolRegistry.register(new ZavorthTokenBudgetTool());
   toolRegistry.register(new ZavorthMemoryGraphTool());
+  toolRegistry.register(new ZavorthSandboxCloudTool());
+  toolRegistry.register(new ZavorthWorkflowBuilderTool());
+  toolRegistry.register(new ZavorthEdgeComputingTool());
 
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
