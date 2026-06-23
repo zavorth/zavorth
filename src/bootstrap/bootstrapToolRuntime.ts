@@ -105,6 +105,24 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthWorkflowBuilderTool } = require('../tools/ZavorthWorkflowBuilderTool.js');
   const { ZavorthEdgeComputingTool } = require('../tools/ZavorthEdgeComputingTool.js');
 
+  // ── Gap-closing tools ──
+  const { ZavorthBrowserAutomationTool } = require('../tools/ZavorthBrowserAutomationTool.js');
+  const { ZavorthCodeFormatterTool } = require('../tools/ZavorthCodeFormatterTool.js');
+  const { ZavorthDependencyAnalyzerTool } = require('../tools/ZavorthDependencyAnalyzerTool.js');
+  const { ZavorthGitAdvancedTool } = require('../tools/ZavorthGitAdvancedTool.js');
+  const { ZavorthDataScienceTool } = require('../tools/ZavorthDataScienceTool.js');
+  const { ZavorthMlOpsTool } = require('../tools/ZavorthMlOpsTool.js');
+  const { ZavorthContainerManagerTool } = require('../tools/ZavorthContainerManagerTool.js');
+  const { ZavorthDatabaseAdminTool } = require('../tools/ZavorthDatabaseAdminTool.js');
+  const { ZavorthFileSystemAdvancedTool } = require('../tools/ZavorthFileSystemAdvancedTool.js');
+  const { ZavorthNetworkDiagnosticsTool } = require('../tools/ZavorthNetworkDiagnosticsTool.js');
+  const { ZavorthSecurityScannerTool } = require('../tools/ZavorthSecurityScannerTool.js');
+  const { ZavorthCloudStorageTool } = require('../tools/ZavorthCloudStorageTool.js');
+  const { ZavorthEmailAdvancedTool } = require('../tools/ZavorthEmailAdvancedTool.js');
+  const { ZavorthCalendarAdvancedTool } = require('../tools/ZavorthCalendarAdvancedTool.js');
+  const { ZavorthNotificationTool } = require('../tools/ZavorthNotificationTool.js');
+  const { ZavorthApiBuilderTool } = require('../tools/ZavorthApiBuilderTool.js');
+
   // ── Plugin services (runtime dependencies) ──
   const { ActiveMemoryService } = require('../services/plugins/ActiveMemoryService.js');
   const { DiagnosticsPrometheusService } = require('../services/plugins/DiagnosticsPrometheusService.js');
@@ -216,6 +234,22 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthSandboxCloudTool());
   toolRegistry.register(new ZavorthWorkflowBuilderTool());
   toolRegistry.register(new ZavorthEdgeComputingTool());
+  toolRegistry.register(new ZavorthBrowserAutomationTool());
+  toolRegistry.register(new ZavorthCodeFormatterTool());
+  toolRegistry.register(new ZavorthDependencyAnalyzerTool());
+  toolRegistry.register(new ZavorthGitAdvancedTool());
+  toolRegistry.register(new ZavorthDataScienceTool());
+  toolRegistry.register(new ZavorthMlOpsTool());
+  toolRegistry.register(new ZavorthContainerManagerTool());
+  toolRegistry.register(new ZavorthDatabaseAdminTool());
+  toolRegistry.register(new ZavorthFileSystemAdvancedTool());
+  toolRegistry.register(new ZavorthNetworkDiagnosticsTool());
+  toolRegistry.register(new ZavorthSecurityScannerTool());
+  toolRegistry.register(new ZavorthCloudStorageTool());
+  toolRegistry.register(new ZavorthEmailAdvancedTool());
+  toolRegistry.register(new ZavorthCalendarAdvancedTool());
+  toolRegistry.register(new ZavorthNotificationTool());
+  toolRegistry.register(new ZavorthApiBuilderTool());
 
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
