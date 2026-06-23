@@ -67,6 +67,9 @@ export class MemorySupermemoryService {
         fs.writeFileSync(path.join(this.storageDir, 'entries.json'), JSON.stringify(data, null, 2), 'utf-8');
       }
     }, 2000);
+    if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {
+      (this.flushTimer as NodeJS.Timeout).unref();
+    }
   }
 
   public store(content: string, options?: { importance?: number; topics?: string[]; context?: string; metadata?: Record<string, unknown> }): string {

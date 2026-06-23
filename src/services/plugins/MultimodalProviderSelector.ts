@@ -123,8 +123,9 @@ export async function callVisionProvider(
       try {
         const result = execFileSync('curl', [
           '-s', '-X', 'POST', '-H', 'Content-Type: application/json',
+          '-H', `x-goog-api-key: ${apiKey}`,
           '-d', `@${tmpFile}`,
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+          'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
         ], { timeout: 60000 }).toString();
         const parsed = JSON.parse(result);
         return parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'No analysis available.';

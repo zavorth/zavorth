@@ -174,12 +174,19 @@ export class DataPipelineService {
       }
       case 'compute': {
         const expression = String(config.expression || '');
-        return input.map((item: Record<string, unknown>) => {
-          try {
-            const fn = new Function('item', `return ${expression}`);
-            return { ...item, [field]: fn(item) };
-          } catch { return item; }
-        });
+        // Whitelist of safe operations only
+        const safeOps: Record<string, (item: Record<string, unknown>) => unknown> = {
+          'uppercase': (item) => String(item[field] || '').toUpperCase(),
+          'lowercase': (item) => String(item[field] || '').toLowerCase(),
+          'length': (item) => String(item[field] || '').length,
+          'number': (item) => Number(item[field] || 0),
+          'string': (item) => String(item[field] || ''),
+          'abs': (item) => Math.abs(Number(item[field] || 0)),
+          'round': (item) => Math.round(Number(item[field] || 0)),
+        };
+        const fn = safeOps[expression];
+        if (!fn) throw new Error(`Unsafe expression "${expression}". Allowed: ${Object.keys(safeOps).join(', ')}`);
+        return input.map((item: Record<string, unknown>) => ({ ...item, [field]: fn(item) }));
       }
       default:
         return input;

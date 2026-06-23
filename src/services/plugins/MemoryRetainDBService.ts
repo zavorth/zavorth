@@ -59,6 +59,9 @@ export class MemoryRetainDBService {
         fs.writeFileSync(path.join(this.storageDir, 'memories.json'), JSON.stringify(Object.fromEntries(this.memories), null, 2), 'utf-8');
       }
     }, 2000);
+    if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {
+      (this.flushTimer as NodeJS.Timeout).unref();
+    }
   }
 
   public store(content: string, options?: { category?: string; policy?: RetentionPolicy; importance?: number; tags?: string[]; metadata?: Record<string, unknown> }): string {

@@ -124,6 +124,9 @@ export class CompanionAndroidService {
         fs.writeFileSync(path.join(this.storageDir, 'tiles.json'), JSON.stringify(Object.fromEntries(this.tiles), null, 2), 'utf-8');
       }
     }, 2000);
+    if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {
+      (this.flushTimer as NodeJS.Timeout).unref();
+    }
   }
 
   public registerDevice(name: string, token: string, options?: { android_version?: string; app_version?: string }): string {
