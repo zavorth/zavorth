@@ -43,6 +43,64 @@ export function listProviders(): string {
   return lines.join('\n');
 }
 
+export function getSetupInstructions(): string {
+  const lines: string[] = [
+    '=== Multimodal Provider Setup ===',
+    '',
+    'To enable multimodal capabilities, set these environment variables:',
+    '',
+  ];
+
+  for (const p of PROVIDERS) {
+    const hasKey = !!process.env[p.apiKeyEnv];
+    const status = hasKey ? '✅ Configured' : '❌ Not configured';
+    lines.push(`${p.name} (${p.id}):`);
+    lines.push(`  Env var: ${p.apiKeyEnv}`);
+    lines.push(`  Status: ${status}`);
+    lines.push(`  Capabilities: ${p.capabilities.join(', ')}`);
+    lines.push(`  Get key: ${getApiKeyUrl(p.id)}`);
+    lines.push('');
+  }
+
+  lines.push('Priority order (best first):');
+  lines.push('  Vision: Gemini → OpenAI → Anthropic');
+  lines.push('  Audio: Gemini → OpenAI → Deepgram');
+  lines.push('  Video: Gemini');
+  lines.push('');
+  lines.push('The agent automatically uses the best available provider.');
+
+  return lines.join('\n');
+}
+
+function getApiKeyUrl(providerId: string): string {
+  const urls: Record<string, string> = {
+    gemini: 'https://aistudio.google.com/app/apikey',
+    openai: 'https://platform.openai.com/api-keys',
+    anthropic: 'https://console.anthropic.com/settings/keys',
+    deepgram: 'https://console.deepgram.com/api-keys',
+  };
+  return urls[providerId] || 'Check provider docs';
+}
+
+export function getQuickSetup(): string {
+  const lines: string[] = [
+    '=== Quick Setup (Recommended) ===',
+    '',
+    'For full multimodal support, configure these 2 providers:',
+    '',
+    '1. Gemini (free tier available):',
+    '   export GEMINI_API_KEY=your_key_here',
+    '   Get key: https://aistudio.google.com/app/apikey',
+    '',
+    '2. OpenAI (for Whisper audio):',
+    '   export OPENAI_API_KEY=your_key_here',
+    '   Get key: https://platform.openai.com/api-keys',
+    '',
+    'That\'s it! The agent will automatically use the best available provider.',
+  ];
+  return lines.join('\n');
+}
+
 export async function callVisionProvider(
   provider: MultimodalProvider,
   imageBase64: string,
