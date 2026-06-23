@@ -574,6 +574,46 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     requiresConfirmation: true,
     description: 'HTTP webhook endpoint creation and request logging.',
   },
+  {
+    toolName: 'zavorth_mcp_marketplace',
+    surface: 'native-tool',
+    capabilities: ['network', 'filesystem'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'MCP server marketplace — discover, install, manage MCP servers.',
+  },
+  {
+    toolName: 'zavorth_agent_governance',
+    surface: 'native-tool',
+    capabilities: ['local-observation', 'audit'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Agent governance — runtime guardrails, compliance checks, audit trails.',
+  },
+  {
+    toolName: 'zavorth_rag_builder',
+    surface: 'native-tool',
+    capabilities: ['filesystem', 'network'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'RAG pipeline builder — chunk, embed, index, query with source verification.',
+  },
+  {
+    toolName: 'zavorth_agent_eval',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Agent evaluation — benchmark quality, run test suites, generate reports.',
+  },
+  {
+    toolName: 'zavorth_privacy_vault',
+    surface: 'native-tool',
+    capabilities: ['filesystem', 'encryption'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Privacy vault — encrypted storage for secrets with audit logging.',
+  },
 ];
 
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
@@ -648,6 +688,11 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'ZavorthFileWatcherTool', toolName: 'zavorth_file_watcher' },
   { className: 'ZavorthNetworkTool', toolName: 'zavorth_network' },
   { className: 'ZavorthWebhookReceiverTool', toolName: 'zavorth_webhook_receiver' },
+  { className: 'ZavorthMcpMarketplaceTool', toolName: 'zavorth_mcp_marketplace' },
+  { className: 'ZavorthAgentGovernanceTool', toolName: 'zavorth_agent_governance' },
+  { className: 'ZavorthRagBuilderTool', toolName: 'zavorth_rag_builder' },
+  { className: 'ZavorthAgentEvalTool', toolName: 'zavorth_agent_eval' },
+  { className: 'ZavorthPrivacyVaultTool', toolName: 'zavorth_privacy_vault' },
 ] as const;
 
 const NATIVE_DEFINITIONS_BY_NAME = new Map(

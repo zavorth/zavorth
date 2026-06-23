@@ -86,6 +86,13 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthNetworkTool } = require('../tools/ZavorthNetworkTool.js');
   const { ZavorthWebhookReceiverTool } = require('../tools/ZavorthWebhookReceiverTool.js');
 
+  // ── Innovative tools ──
+  const { ZavorthMcpMarketplaceTool } = require('../tools/ZavorthMcpMarketplaceTool.js');
+  const { ZavorthAgentGovernanceTool } = require('../tools/ZavorthAgentGovernanceTool.js');
+  const { ZavorthRagBuilderTool } = require('../tools/ZavorthRagBuilderTool.js');
+  const { ZavorthAgentEvalTool } = require('../tools/ZavorthAgentEvalTool.js');
+  const { ZavorthPrivacyVaultTool } = require('../tools/ZavorthPrivacyVaultTool.js');
+
   // ── Plugin services (runtime dependencies) ──
   const { ActiveMemoryService } = require('../services/plugins/ActiveMemoryService.js');
   const { DiagnosticsPrometheusService } = require('../services/plugins/DiagnosticsPrometheusService.js');
@@ -182,6 +189,13 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthFileWatcherTool());
   toolRegistry.register(new ZavorthNetworkTool());
   toolRegistry.register(new ZavorthWebhookReceiverTool());
+
+  // ── Innovative tool registrations ──
+  toolRegistry.register(new ZavorthMcpMarketplaceTool());
+  toolRegistry.register(new ZavorthAgentGovernanceTool());
+  toolRegistry.register(new ZavorthRagBuilderTool());
+  toolRegistry.register(new ZavorthAgentEvalTool());
+  toolRegistry.register(new ZavorthPrivacyVaultTool());
 
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
