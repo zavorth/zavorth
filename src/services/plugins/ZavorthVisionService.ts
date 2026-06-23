@@ -74,40 +74,103 @@ export class ZavorthVisionService extends BaseTool {
     const prompt = String(args.prompt || 'Analyze this image in detail.');
     const detailLevel = String(args.detail_level || 'detailed');
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
-    if (!apiKey) return 'Error: GEMINI_API_KEY or OPENAI_API_KEY required for vision.';
+    if (!fs.existsSync(imagePath)) return `Error: "${imagePath}" not found.`;
 
-    try {
-      const { execFileSync } = await import('child_process');
-      const imageBuffer = fs.readFileSync(imagePath);
-      const base64 = imageBuffer.toString('base64');
-      const mimeType = this.getMimeType(imagePath);
+    const imageBuffer = fs.readFileSync(imagePath);
+    const base64 = imageBuffer.toString('base64');
+    const mimeType = this.getMimeType(imagePath);
 
-      if (process.env.GEMINI_API_KEY) {
-        const payload = JSON.stringify({
-          contents: [{ parts: [
-            { text: `${prompt} Detail level: ${detailLevel}` },
-            { inline_data: { mime_type: mimeType, data: base64.slice(0, 4 * 1024 * 1024) } },
-          ] }],
-        });
-        const tmpFile = path.join(require('os').tmpdir(), `vision_${Date.now()}.json`);
-        fs.writeFileSync(tmpFile, payload);
-        try {
-          const result = execFileSync('curl', [
-            '-s', '-X', 'POST',
-            '-H', 'Content-Type: application/json',
-            '-d', `@${tmpFile}`,
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-          ], { timeout: 60000 }).toString();
-          const parsed = JSON.parse(result);
-          return parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'No analysis available.';
-        } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
-      }
-
-      return 'Error: No vision API key configured.';
-    } catch (error: unknown) {
-      return `Error analyzing image: ${error instanceof Error ? error.message : String(error)}`;
+    // Try Gemini first (best quality, free tier available)
+    if (process.env.GEMINI_API_KEY) {
+      try { return await this.analyzeWithGemini(base64, mimeType, prompt, detailLevel); } catch { /* fallback */ }
     }
+
+    // Try OpenAI GPT-4 Vision
+    if (process.env.OPENAI_API_KEY) {
+      try { return await this.analyzeWithOpenAI(base64, mimeType, prompt, detailLevel); } catch { /* fallback */ }
+    }
+
+    // Try Anthropic Claude Vision
+    if (process.env.ANTHROPIC_API_KEY) {
+      try { return await this.analyzeWithAnthropic(base64, mimeType, prompt, detailLevel); } catch { /* fallback */ }
+    }
+
+    return 'Error: No vision API key configured (GEMINI_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY required).';
+  }
+
+  private async analyzeWithGemini(base64: string, mimeType: string, prompt: string, detailLevel: string): Promise<string> {
+    const { execFileSync } = await import('child_process');
+    const apiKey = process.env.GEMINI_API_KEY!;
+    const payload = JSON.stringify({
+      contents: [{ parts: [
+        { text: `${prompt} Detail level: ${detailLevel}` },
+        { inline_data: { mime_type: mimeType, data: base64.slice(0, 4 * 1024 * 1024) } },
+      ] }],
+    });
+    const tmpFile = path.join(require('os').tmpdir(), `vision_gemini_${Date.now()}.json`);
+    fs.writeFileSync(tmpFile, payload);
+    try {
+      const result = execFileSync('curl', [
+        '-s', '-X', 'POST', '-H', 'Content-Type: application/json',
+        '-d', `@${tmpFile}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      ], { timeout: 60000 }).toString();
+      const parsed = JSON.parse(result);
+      return parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'No analysis available.';
+    } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
+  }
+
+  private async analyzeWithOpenAI(base64: string, mimeType: string, prompt: string, detailLevel: string): Promise<string> {
+    const { execFileSync } = await import('child_process');
+    const apiKey = process.env.OPENAI_API_KEY!;
+    const payload = JSON.stringify({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: [
+        { type: 'text', text: `${prompt} Detail level: ${detailLevel}` },
+        { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64.slice(0, 4 * 1024 * 1024)}` } },
+      ] }],
+      max_tokens: 2048,
+    });
+    const tmpFile = path.join(require('os').tmpdir(), `vision_openai_${Date.now()}.json`);
+    fs.writeFileSync(tmpFile, payload);
+    try {
+      const result = execFileSync('curl', [
+        '-s', '-X', 'POST',
+        '-H', `Authorization: Bearer ${apiKey}`,
+        '-H', 'Content-Type: application/json',
+        '-d', `@${tmpFile}`,
+        'https://api.openai.com/v1/chat/completions',
+      ], { timeout: 60000 }).toString();
+      const parsed = JSON.parse(result);
+      return parsed.choices?.[0]?.message?.content || 'No analysis available.';
+    } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
+  }
+
+  private async analyzeWithAnthropic(base64: string, mimeType: string, prompt: string, detailLevel: string): Promise<string> {
+    const { execFileSync } = await import('child_process');
+    const apiKey = process.env.ANTHROPIC_API_KEY!;
+    const payload = JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      messages: [{ role: 'user', content: [
+        { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64.slice(0, 4 * 1024 * 1024) } },
+        { type: 'text', text: `${prompt} Detail level: ${detailLevel}` },
+      ] }],
+    });
+    const tmpFile = path.join(require('os').tmpdir(), `vision_anthropic_${Date.now()}.json`);
+    fs.writeFileSync(tmpFile, payload);
+    try {
+      const result = execFileSync('curl', [
+        '-s', '-X', 'POST',
+        '-H', `x-api-key: ${apiKey}`,
+        '-H', 'anthropic-version: 2023-06-01',
+        '-H', 'Content-Type: application/json',
+        '-d', `@${tmpFile}`,
+        'https://api.anthropic.com/v1/messages',
+      ], { timeout: 60000 }).toString();
+      const parsed = JSON.parse(result);
+      return parsed.content?.[0]?.text || 'No analysis available.';
+    } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
   }
 
   private async ocrImage(args: Record<string, unknown>): Promise<string> {

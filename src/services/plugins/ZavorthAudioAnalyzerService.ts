@@ -60,26 +60,27 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
     const metadata = this.getAudioMetadata(audioPath);
     const lines: string[] = ['Audio Analysis:', ...metadata.split('\n')];
 
+    // Try Whisper (OpenAI) first
+    if (process.env.OPENAI_API_KEY) {
+      try {
+        const transcription = await this.transcribeWithProvider(audioPath, 'openai');
+        lines.push('', 'Transcription:', transcription.slice(0, 1000));
+      } catch { /* fallback */ }
+    }
+
+    // Try Deepgram
+    if (process.env.DEEPGRAM_API_KEY) {
+      try {
+        const transcription = await this.transcribeWithProvider(audioPath, 'deepgram');
+        lines.push('', 'Transcription (Deepgram):', transcription.slice(0, 1000));
+      } catch { /* fallback */ }
+    }
+
+    // Try local whisper.cpp
     try {
       const { execFileSync } = await import('child_process');
-      const apiKey = process.env.OPENAI_API_KEY;
-      if (apiKey) {
-        const result = execFileSync('curl', [
-          '-s', '-X', 'POST',
-          '-H', `Authorization: Bearer ${apiKey}`,
-          '-F', `file=@${audioPath}`,
-          '-F', 'model=whisper-1',
-          '-F', 'response_format=verbose_json',
-          'https://api.openai.com/v1/audio/transcriptions',
-        ], { timeout: 60000 }).toString();
-
-        const parsed = JSON.parse(result);
-        if (parsed.text) {
-          lines.push('', 'Transcription:', parsed.text.slice(0, 1000));
-          if (parsed.duration) lines.push(`Duration: ${parsed.duration.toFixed(1)}s`);
-          if (parsed.language) lines.push(`Language: ${parsed.language}`);
-        }
-      }
+      const result = execFileSync('whisper', [audioPath, '--output_format', 'txt', '--output_dir', require('os').tmpdir()], { timeout: 120000 }).toString();
+      lines.push('', 'Transcription (local):', result.slice(0, 1000));
     } catch { /* ignore */ }
 
     return lines.join('\n');
@@ -89,24 +90,77 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
     if (!fs.existsSync(audioPath)) return `Error: "${audioPath}" not found.`;
     const language = String(args.language || 'auto');
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return 'Error: OPENAI_API_KEY required for transcription.';
+    // Try Whisper first
+    if (process.env.OPENAI_API_KEY) {
+      try { return await this.transcribeWithProvider(audioPath, 'openai', language); } catch { /* fallback */ }
+    }
 
-    try {
-      const { execFileSync } = await import('child_process');
-      const result = execFileSync('curl', [
-        '-s', '-X', 'POST',
-        '-H', `Authorization: Bearer ${apiKey}`,
-        '-F', `file=@${audioPath}`,
-        '-F', 'model=whisper-1',
-        language !== 'auto' ? `-F language=${language}` : '',
-        '-F', 'response_format=text',
-        'https://api.openai.com/v1/audio/transcriptions',
-      ].filter(Boolean), { timeout: 60000 }).toString();
+    // Try Deepgram
+    if (process.env.DEEPGRAM_API_KEY) {
+      try { return await this.transcribeWithProvider(audioPath, 'deepgram', language); } catch { /* fallback */ }
+    }
 
-      return `Transcription:\n${result}`;
-    } catch (error: unknown) {
-      return `Transcription error: ${error instanceof Error ? error.message : String(error)}`;
+    // Try Gemini
+    if (process.env.GEMINI_API_KEY) {
+      try { return await this.transcribeWithProvider(audioPath, 'gemini', language); } catch { /* fallback */ }
+    }
+
+    return 'Error: No STT API key configured (OPENAI_API_KEY, DEEPGRAM_API_KEY, or GEMINI_API_KEY required).';
+  }
+
+  private async transcribeWithProvider(audioPath: string, provider: string, language?: string): Promise<string> {
+    const { execFileSync } = await import('child_process');
+
+    switch (provider) {
+      case 'openai': {
+        const apiKey = process.env.OPENAI_API_KEY!;
+        const langParam = language && language !== 'auto' ? `-F language=${language}` : '';
+        const result = execFileSync('curl', [
+          '-s', '-X', 'POST',
+          '-H', `Authorization: Bearer ${apiKey}`,
+          '-F', `file=@${audioPath}`,
+          '-F', 'model=whisper-1',
+          langParam,
+          '-F', 'response_format=text',
+        ].filter(Boolean), { timeout: 60000 }).toString();
+        return result;
+      }
+      case 'deepgram': {
+        const apiKey = process.env.DEEPGRAM_API_KEY!;
+        const lang = language && language !== 'auto' ? language : 'en';
+        const result = execFileSync('curl', [
+          '-s', '-X', 'POST',
+          '-H', `Authorization: Token ${apiKey}`,
+          '-F', `file=@${audioPath}`,
+          '-F', 'model=nova-2',
+          `-F language=${lang}`,
+        ], { timeout: 60000 }).toString();
+        const parsed = JSON.parse(result);
+        return parsed.results?.channels?.[0]?.alternatives?.[0]?.transcript || result;
+      }
+      case 'gemini': {
+        const apiKey = process.env.GEMINI_API_KEY!;
+        const audioBase64 = fs.readFileSync(audioPath).toString('base64');
+        const payload = JSON.stringify({
+          contents: [{ parts: [
+            { text: `Transcribe this audio. Language: ${language || 'auto-detect'}` },
+            { inline_data: { mime_type: 'audio/mpeg', data: audioBase64.slice(0, 4 * 1024 * 1024) } },
+          ] }],
+        });
+        const tmpFile = path.join(require('os').tmpdir(), `stt_gemini_${Date.now()}.json`);
+        fs.writeFileSync(tmpFile, payload);
+        try {
+          const result = execFileSync('curl', [
+            '-s', '-X', 'POST', '-H', 'Content-Type: application/json',
+            '-d', `@${tmpFile}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+          ], { timeout: 60000 }).toString();
+          const parsed = JSON.parse(result);
+          return parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'No transcription available.';
+        } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
+      }
+      default:
+        throw new Error(`Provider "${provider}" not supported.`);
     }
   }
 
