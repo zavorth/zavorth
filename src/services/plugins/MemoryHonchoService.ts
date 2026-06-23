@@ -237,7 +237,7 @@ export class MemoryHonchoService {
       `  - Formalidade: ${profile.communication_preferences.formality}`,
       `  - Verbosidade: ${profile.communication_preferences.verbosity}`,
       `  - Tracos: ${profile.traits.join(', ') || 'none'}`,
-      `  - Areas de conhecimento: ${profile.knowledge_areas.join(', ') || 'none'}`,
+      `  - Knowledge areas: ${profile.knowledge_areas.join(', ') || 'none'}`,
       `  - Learned facts: ${profile.learned_facts.length}`,
       `  - Dialectic insights: ${profile.dialectic_insights.length}`,
       `  - Total de interactions: ${profile.interaction_history.total_interactions}`,

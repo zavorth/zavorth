@@ -80,7 +80,7 @@ export class ZavorthTtsTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Error: 'action' parameter is required.';
+    if (!action) return "Error: 'action' parameter is required.";
 
     const validActions = ['speak', 'list_voices', 'list_backends', 'set_default'];
     if (!validActions.includes(action)) {
@@ -114,7 +114,7 @@ export class ZavorthTtsTool extends BaseTool {
     if (!text) return 'Error: "text" parameter is required for speak.';
 
     if (text.length > 10000) {
-      return 'Error: text exceeds 10.000 characters. Split into smaller parts.';
+      return 'Error: text exceeds 10,000 characters. Split into smaller parts.';
     }
 
     const backend = String(args.backend || this.defaultBackend);

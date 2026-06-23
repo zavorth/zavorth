@@ -47,7 +47,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
       },
       max_results: {
         type: 'number',
-        description: 'Maximo de results. Default: 10.',
+        description: 'Maximum results. Default: 10.',
       },
       context_lines: {
         type: 'number',

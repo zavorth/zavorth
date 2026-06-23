@@ -110,7 +110,7 @@ export class ZavorthChannelSendTool extends BaseTool {
     }
 
     if (targets.length > 10) {
-      return 'Error: maximum of 10 canais por envio multi-canal.';
+      return 'Error: maximum of 10 channels per multi-channel send.';
     }
 
     const results: string[] = [];
