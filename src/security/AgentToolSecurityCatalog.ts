@@ -654,6 +654,30 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     requiresConfirmation: false,
     description: 'Memory knowledge graph — semantic connections between facts, concepts, events.',
   },
+  {
+    toolName: 'zavorth_sandbox_cloud',
+    surface: 'native-tool',
+    capabilities: ['shell', 'network', 'destructive'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Cloud sandbox — execute code in remote isolated environments.',
+  },
+  {
+    toolName: 'zavorth_workflow_builder',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Visual workflow builder — create and execute complex workflows via API.',
+  },
+  {
+    toolName: 'zavorth_edge_computing',
+    surface: 'native-tool',
+    capabilities: ['network', 'shell'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Edge computing — deploy code to edge networks (Cloudflare, Deno, Vercel).',
+  },
 ];
 
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
@@ -738,6 +762,9 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'ZavorthPromptLibraryTool', toolName: 'zavorth_prompt_library' },
   { className: 'ZavorthTokenBudgetTool', toolName: 'zavorth_token_budget' },
   { className: 'ZavorthMemoryGraphTool', toolName: 'zavorth_memory_graph' },
+  { className: 'ZavorthSandboxCloudTool', toolName: 'zavorth_sandbox_cloud' },
+  { className: 'ZavorthWorkflowBuilderTool', toolName: 'zavorth_workflow_builder' },
+  { className: 'ZavorthEdgeComputingTool', toolName: 'zavorth_edge_computing' },
 ] as const;
 
 const NATIVE_DEFINITIONS_BY_NAME = new Map(
