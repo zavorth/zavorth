@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-edge-computing-specialist",
+  "name": "Edge Computing Specialist",
+  "native": true,
+  "description": "Edge deployment, IoT, embedded systems, real-time processing, WASM",
+  "category": "edge-computing",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["edge-computing", "iot", "embedded", "wasm"],
+  "presets": ["developer", "ops"],
+  "inputContract": ["edge-config", "model-files", "device-manifest"],
+  "outputContract": ["deployment-config", "optimized-models", "device-manifests"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}
