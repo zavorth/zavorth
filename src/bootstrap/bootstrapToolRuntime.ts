@@ -124,6 +124,44 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthApiBuilderTool } = require('../tools/ZavorthApiBuilderTool.js');
   const { ZavorthTerminalBackendsTool } = require('../tools/ZavorthTerminalBackendsTool.js');
 
+  // ── New plugin services (Phase 2) ──
+  const { LLMRouterService } = require('../services/plugins/LLMRouterService.js');
+  const { ContextCompressorService } = require('../services/plugins/ContextCompressorService.js');
+  const { ReasoningEffortService } = require('../services/plugins/ReasoningEffortService.js');
+  const { PromptCacheService } = require('../services/plugins/PromptCacheService.js');
+  const { LLMSelfEditContextService } = require('../services/plugins/LLMSelfEditContextService.js');
+  const { LLMModelSwitcherService } = require('../services/plugins/LLMModelSwitcherService.js');
+  const { LLMDriftDetectorService } = require('../services/plugins/LLMDriftDetectorService.js');
+  const { StreamingLLMService } = require('../services/plugins/StreamingLLMService.js');
+  const { AutoSkillGeneratorService } = require('../services/plugins/AutoSkillGeneratorService.js');
+  const { ZavorthVisionService } = require('../services/plugins/ZavorthVisionService.js');
+  const { ZavorthAudioAnalyzerService } = require('../services/plugins/ZavorthAudioAnalyzerService.js');
+  const { ZavorthVideoAnalyzerService } = require('../services/plugins/ZavorthVideoAnalyzerService.js');
+  const { UsageAnalyticsService } = require('../services/plugins/UsageAnalyticsService.js');
+  const { CostAnalyticsService } = require('../services/plugins/CostAnalyticsService.js');
+  const { QualityMetricsService } = require('../services/plugins/QualityMetricsService.js');
+  const { MultiUserService } = require('../services/plugins/MultiUserService.js');
+  const { SharedWorkspaceService } = require('../services/plugins/SharedWorkspaceService.js');
+  const { RoleBasedAccessService } = require('../services/plugins/RoleBasedAccessService.js');
+  const { CircuitBreakerService } = require('../services/plugins/CircuitBreakerService.js');
+  const { RetryService } = require('../services/plugins/RetryService.js');
+  const { HealthCheckService } = require('../services/plugins/HealthCheckService.js');
+  const { BackupService } = require('../services/plugins/BackupService.js');
+  const { ZavorthPluginMarketplaceService } = require('../services/plugins/ZavorthPluginMarketplaceService.js');
+  const { DocumentIntelligenceService } = require('../services/plugins/DocumentIntelligenceService.js');
+  const { CodeIntelligenceService } = require('../services/plugins/CodeIntelligenceService.js');
+  const { DataPipelineService } = require('../services/plugins/DataPipelineService.js');
+  const { NotificationCenterService } = require('../services/plugins/NotificationCenterService.js');
+  const { VersionControlService } = require('../services/plugins/VersionControlService.js');
+  const { MemorySupermemoryService } = require('../services/plugins/MemorySupermemoryService.js');
+  const { MemoryByteroverService } = require('../services/plugins/MemoryByteroverService.js');
+  const { MemoryHindsightService } = require('../services/plugins/MemoryHindsightService.js');
+  const { MemoryHolographicService } = require('../services/plugins/MemoryHolographicService.js');
+  const { MemoryRetainDBService } = require('../services/plugins/MemoryRetainDBService.js');
+  const { MemorySemanticCacheService } = require('../services/plugins/MemorySemanticCacheService.js');
+  const { CompanionIOSService } = require('../services/plugins/CompanionIOSService.js');
+  const { CompanionAndroidService } = require('../services/plugins/CompanionAndroidService.js');
+
   // ── Plugin services (runtime dependencies) ──
   const { ActiveMemoryService } = require('../services/plugins/ActiveMemoryService.js');
   const { DiagnosticsPrometheusService } = require('../services/plugins/DiagnosticsPrometheusService.js');
@@ -283,8 +321,40 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const contextCompressor = new ContextCompressorService();
   const reasoningEffort = new ReasoningEffortService();
   const promptCache = new PromptCacheService();
+  const llmSelfEditContext = new LLMSelfEditContextService();
+  const llmModelSwitcher = new LLMModelSwitcherService();
+  const llmDriftDetector = new LLMDriftDetectorService();
+  const streamingLLM = new StreamingLLMService();
+  const autoSkillGenerator = new AutoSkillGeneratorService();
+  const zavorthVision = new ZavorthVisionService();
+  const zavorthAudioAnalyzer = new ZavorthAudioAnalyzerService();
+  const zavorthVideoAnalyzer = new ZavorthVideoAnalyzerService();
+  const usageAnalytics = new UsageAnalyticsService();
+  const costAnalytics = new CostAnalyticsService();
+  const qualityMetrics = new QualityMetricsService();
+  const multiUser = new MultiUserService();
+  const sharedWorkspace = new SharedWorkspaceService();
+  const roleBasedAccess = new RoleBasedAccessService();
+  const circuitBreaker = new CircuitBreakerService();
+  const retryService = new RetryService();
+  const healthCheck = new HealthCheckService();
+  const backupService = new BackupService();
+  const pluginMarketplace = new ZavorthPluginMarketplaceService();
+  const documentIntelligence = new DocumentIntelligenceService();
+  const codeIntelligence = new CodeIntelligenceService();
+  const dataPipeline = new DataPipelineService();
+  const notificationCenter = new NotificationCenterService();
+  const versionControl = new VersionControlService();
+  const memorySupermemory = new MemorySupermemoryService();
+  const memoryByterover = new MemoryByteroverService();
+  const memoryHindsight = new MemoryHindsightService();
+  const memoryHolographic = new MemoryHolographicService();
+  const memoryRetainDB = new MemoryRetainDBService();
+  const memorySemanticCache = new MemorySemanticCacheService();
+  const companionIOS = new CompanionIOSService();
+  const companionAndroid = new CompanionAndroidService();
 
-  console.log('[BOOT] plugins-ready (18 services + 10 tools)');
+  console.log('[BOOT] plugins-ready (55 services + 10 tools)');
 
   const dispose = () => {
     try { kanbanDispatcher.close(); } catch { /* ignore */ }
@@ -315,6 +385,38 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
       contextCompressor,
       reasoningEffort,
       promptCache,
+      llmSelfEditContext,
+      llmModelSwitcher,
+      llmDriftDetector,
+      streamingLLM,
+      autoSkillGenerator,
+      zavorthVision,
+      zavorthAudioAnalyzer,
+      zavorthVideoAnalyzer,
+      usageAnalytics,
+      costAnalytics,
+      qualityMetrics,
+      multiUser,
+      sharedWorkspace,
+      roleBasedAccess,
+      circuitBreaker,
+      retryService,
+      healthCheck,
+      backupService,
+      pluginMarketplace,
+      documentIntelligence,
+      codeIntelligence,
+      dataPipeline,
+      notificationCenter,
+      versionControl,
+      memorySupermemory,
+      memoryByterover,
+      memoryHindsight,
+      memoryHolographic,
+      memoryRetainDB,
+      memorySemanticCache,
+      companionIOS,
+      companionAndroid,
     },
     dispose,
   };
