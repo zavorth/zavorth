@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-ai-safety-researcher",
+  "name": "AI Safety Researcher",
+  "native": true,
+  "description": "AI safety research, alignment testing, red teaming, bias detection",
+  "category": "ai-safety",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["ai-safety", "red-team", "alignment", "bias-detection"],
+  "presets": ["developer", "researcher"],
+  "inputContract": ["model", "test-cases", "safety-criteria"],
+  "outputContract": ["safety-report", "vulnerabilities", "recommendations"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

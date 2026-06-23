@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-physical-ai-engineer",
+  "name": "Physical AI Engineer",
+  "native": true,
+  "description": "Physical AI, robotics, sensor fusion, digital twins, NVIDIA Omniverse",
+  "category": "physical-ai",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["physical-ai", "robotics", "sensor-fusion", "digital-twin"],
+  "presets": ["developer", "researcher"],
+  "inputContract": ["simulation-config", "sensor-data", "robot-model"],
+  "outputContract": ["simulation-results", "motion-plans", "synthetic-data"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}
