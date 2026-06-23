@@ -252,55 +252,77 @@ export class DocumentIntelligenceService {
   }
 
   private detectByLLM(text: string): string | null {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) return null;
+    // Try providers in priority order
+    const providers = [
+      { name: 'gemini', key: 'GEMINI_API_KEY', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent' },
+      { name: 'openai', key: 'OPENAI_API_KEY', url: 'https://api.openai.com/v1/chat/completions' },
+      { name: 'anthropic', key: 'ANTHROPIC_API_KEY', url: 'https://api.anthropic.com/v1/messages' },
+      { name: 'groq', key: 'GROQ_API_KEY', url: 'https://api.groq.com/openai/v1/chat/completions' },
+      { name: 'deepseek', key: 'DEEPSEEK_API_KEY', url: 'https://api.deepseek.com/v1/chat/completions' },
+      { name: 'mistral', key: 'MISTRAL_API_KEY', url: 'https://api.mistral.ai/v1/chat/completions' },
+    ];
 
-    try {
-      const { execFileSync } = require('child_process');
-      const prompt = `Detect the language of this text. Reply with ONLY the ISO 639-1 language code (e.g., "en", "es", "fr", "de", "pt", "ja", "zh", "ko", "ru", "ar", "hi", etc.). No explanation, just the code.\n\nText: "${text.slice(0, 300)}"`;
+    const prompt = `Detect the language of this text. Reply with ONLY the ISO 639-1 language code (e.g., "en", "es", "fr", "de", "pt", "ja", "zh", "ko", "ru", "ar", "hi", etc.). No explanation, just the code.\n\nText: "${text.slice(0, 300)}"`;
 
-      if (process.env.GEMINI_API_KEY) {
-        const payload = JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 10, temperature: 0 },
-        });
-        const tmpFile = path.join(require('os').tmpdir(), `lang_detect_${Date.now()}.json`);
+    for (const provider of providers) {
+      const apiKey = process.env[provider.key];
+      if (!apiKey) continue;
+
+      try {
+        const { execFileSync } = require('child_process');
+        let payload: string;
+        let headers: string[];
+        let url: string;
+
+        if (provider.name === 'anthropic') {
+          payload = JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 10,
+            messages: [{ role: 'user', content: prompt }],
+          });
+          headers = ['-H', `x-api-key: ${apiKey}`, '-H', 'anthropic-version: 2023-06-01', '-H', 'Content-Type: application/json'];
+          url = provider.url;
+        } else if (provider.name === 'gemini') {
+          payload = JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 10, temperature: 0 },
+          });
+          headers = ['-H', 'Content-Type: application/json'];
+          url = `${provider.url}?key=${apiKey}`;
+        } else {
+          payload = JSON.stringify({
+            model: provider.name === 'groq' ? 'llama-3.3-70b-versatile' : provider.name === 'deepseek' ? 'deepseek-chat' : 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 10,
+            temperature: 0,
+          });
+          headers = ['-H', `Authorization: Bearer ${apiKey}`, '-H', 'Content-Type: application/json'];
+          url = provider.url;
+        }
+
+        const tmpFile = path.join(require('os').tmpdir(), `lang_detect_${provider.name}_${Date.now()}.json`);
         fs.writeFileSync(tmpFile, payload);
         try {
           const result = execFileSync('curl', [
-            '-s', '-X', 'POST', '-H', 'Content-Type: application/json',
-            '-d', `@${tmpFile}`,
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+            '-s', '-X', 'POST', ...headers, '-d', `@${tmpFile}`, url,
           ], { timeout: 10000 }).toString();
           const parsed = JSON.parse(result);
-          const langCode = parsed.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toLowerCase();
+          
+          let langCode: string | null = null;
+          if (provider.name === 'anthropic') {
+            langCode = parsed.content?.[0]?.text?.trim().toLowerCase();
+          } else if (provider.name === 'gemini') {
+            langCode = parsed.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toLowerCase();
+          } else {
+            langCode = parsed.choices?.[0]?.message?.content?.trim().toLowerCase();
+          }
+          
           if (langCode && langCode.length === 2) return langCode;
         } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
-      }
+      } catch { continue; }
+    }
 
-      if (process.env.OPENAI_API_KEY) {
-        const payload = JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: prompt }],
-          max_tokens: 10,
-          temperature: 0,
-        });
-        const tmpFile = path.join(require('os').tmpdir(), `lang_detect_${Date.now()}.json`);
-        fs.writeFileSync(tmpFile, payload);
-        try {
-          const result = execFileSync('curl', [
-            '-s', '-X', 'POST', '-H', `Authorization: Bearer ${process.env.OPENAI_API_KEY}`,
-            '-H', 'Content-Type: application/json', '-d', `@${tmpFile}`,
-            'https://api.openai.com/v1/chat/completions',
-          ], { timeout: 10000 }).toString();
-          const parsed = JSON.parse(result);
-          const langCode = parsed.choices?.[0]?.message?.content?.trim().toLowerCase();
-          if (langCode && langCode.length === 2) return langCode;
-        } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
-      }
-
-      return null;
-    } catch { return null; }
+    return null;
   }
 
   private detectByScript(text: string): string | null {
