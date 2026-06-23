@@ -9,7 +9,7 @@ module.exports = {
     '/dist/',
     '/data/vendor-worktrees/',
     '/third_party/',
-    '/tests/providers/',
+    '/tests/providers/(?!ProviderCatalog)',
     '/tests/services/providers/catalog/',
     // Retired HubNativeShell architecture; its replacement is covered by the current desktop shell tests.
     '/tests/apps/zavorth-desktop/(DesktopProductReadyCockpit|DesktopHermesInspiredShellArchitecture|DesktopChatReferenceAndContextualPreview|DesktopNewChatAndConversationSurface)\\.test\\.ts$',
