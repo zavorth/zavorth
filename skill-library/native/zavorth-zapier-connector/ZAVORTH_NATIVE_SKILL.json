@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-zapier-connector",
+  "name": "Zapier Connector",
+  "native": true,
+  "description": "Zapier workflow integration, trigger management",
+  "category": "productivity",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["zapier", "automation", "integration"],
+  "presets": ["developer"],
+  "inputContract": ["workflow_spec", "trigger_config"],
+  "outputContract": ["zap_config", "webhook_url"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-terraform-modules",
+  "name": "Terraform Modules",
+  "native": true,
+  "description": "Terraform module development, state management, drift detection",
+  "category": "devops",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["terraform", "iac", "modules"],
+  "presets": ["developer"],
+  "inputContract": ["module_spec", "state_config"],
+  "outputContract": ["terraform_module", "state_file"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

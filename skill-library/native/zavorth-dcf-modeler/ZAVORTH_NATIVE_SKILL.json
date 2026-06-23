@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-dcf-modeler",
+  "name": "DCF Modeler",
+  "native": true,
+  "description": "Discounted Cash Flow valuation model, sensitivity analysis",
+  "category": "finance",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["dcf", "valuation", "modeling"],
+  "presets": ["developer"],
+  "inputContract": ["financial_data", "assumptions"],
+  "outputContract": ["valuation_model", "sensitivity_table"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

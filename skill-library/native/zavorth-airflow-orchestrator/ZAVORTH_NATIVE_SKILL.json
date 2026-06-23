@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-airflow-orchestrator",
+  "name": "Airflow Orchestrator",
+  "native": true,
+  "description": "Apache Airflow DAG management, task scheduling, monitoring",
+  "category": "data-engineering",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["airflow", "dag", "orchestration"],
+  "presets": ["developer"],
+  "inputContract": ["dag_config", "schedule_interval"],
+  "outputContract": ["dag_file", "pipeline_status"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

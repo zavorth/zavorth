@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-osint-investigator",
+  "name": "OSINT Investigator",
+  "native": true,
+  "description": "Open Source Intelligence gathering, social media analysis",
+  "category": "research",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["osint", "intelligence", "investigation"],
+  "presets": ["developer"],
+  "inputContract": ["investigation_target", "scope"],
+  "outputContract": ["intelligence_report", "source_list"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-solana-developer",
+  "name": "Solana Developer",
+  "native": true,
+  "description": "Solana program development, Anchor framework, SPL tokens",
+  "category": "blockchain",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["solana", "anchor", "spl"],
+  "presets": ["developer"],
+  "inputContract": ["program_spec", "network_config"],
+  "outputContract": ["program_code", "idl", "deploy_script"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

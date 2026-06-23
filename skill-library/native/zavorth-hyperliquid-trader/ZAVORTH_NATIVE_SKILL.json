@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-hyperliquid-trader",
+  "name": "Hyperliquid Trader",
+  "native": true,
+  "description": "Hyperliquid DEX trading, order management, position tracking",
+  "category": "blockchain",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["hyperliquid", "dex", "trading"],
+  "presets": ["developer"],
+  "inputContract": ["trade_params", "risk_limits"],
+  "outputContract": ["trade_confirmation", "position_report"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

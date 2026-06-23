@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-airtable-ops",
+  "name": "Airtable Ops",
+  "native": true,
+  "description": "Airtable base operations, views, automations",
+  "category": "productivity",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["airtable", "database", "automation"],
+  "presets": ["developer"],
+  "inputContract": ["base_id", "table_config"],
+  "outputContract": ["records", "view_config"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-financial-reporter",
+  "name": "Financial Reporter",
+  "native": true,
+  "description": "Financial report generation, P&L, balance sheet, cash flow",
+  "category": "finance",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["reports", "financial-statements"],
+  "presets": ["developer"],
+  "inputContract": ["financial_data", "report_format"],
+  "outputContract": ["financial_report", "ratio_analysis"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

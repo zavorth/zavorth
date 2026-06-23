@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-evm-developer",
+  "name": "EVM Developer",
+  "native": true,
+  "description": "EVM smart contract development, Solidity, Hardhat, Foundry",
+  "category": "blockchain",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["evm", "solidity", "ethereum"],
+  "presets": ["developer"],
+  "inputContract": ["contract_spec", "chain_config"],
+  "outputContract": ["solidity_code", "test_suite", "deploy_script"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-lbo-modeler",
+  "name": "LBO Modeler",
+  "native": true,
+  "description": "Leveraged Buyout model, debt structure, returns analysis",
+  "category": "finance",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["lbo", "private-equity", "modeling"],
+  "presets": ["developer"],
+  "inputContract": ["target_financials", "deal_structure"],
+  "outputContract": ["lbo_model", "returns_analysis"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

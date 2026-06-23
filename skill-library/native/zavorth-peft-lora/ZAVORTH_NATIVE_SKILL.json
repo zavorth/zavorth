@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-peft-lora",
+  "name": "PEFT LoRA",
+  "native": true,
+  "description": "PEFT/LoRA adapter training, merge, export",
+  "category": "ml",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["peft", "lora", "adapters"],
+  "presets": ["developer"],
+  "inputContract": ["base_model", "lora_config", "dataset"],
+  "outputContract": ["adapter_weights", "merged_model"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

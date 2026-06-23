@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-notion-database",
+  "name": "Notion Database",
+  "native": true,
+  "description": "Notion database operations, queries, automations",
+  "category": "productivity",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["notion", "database", "automation"],
+  "presets": ["developer"],
+  "inputContract": ["database_id", "query_params"],
+  "outputContract": ["query_results", "page_url"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-prometheus-alerting",
+  "name": "Prometheus Alerting",
+  "native": true,
+  "description": "Prometheus alerting rules, Alertmanager, PagerDuty integration",
+  "category": "monitoring",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["prometheus", "alerting", "monitoring"],
+  "presets": ["developer"],
+  "inputContract": ["alert_rules", "routing_config"],
+  "outputContract": ["prometheus_rules", "alertmanager_config"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

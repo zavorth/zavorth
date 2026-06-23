@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-vllm-inference",
+  "name": "vLLM Inference",
+  "native": true,
+  "description": "vLLM inference server management, model loading, serving",
+  "category": "ml",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["vllm", "inference", "serving"],
+  "presets": ["developer"],
+  "inputContract": ["model_path", "server_config"],
+  "outputContract": ["server_endpoint", "performance_metrics"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

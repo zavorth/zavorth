@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-wandb-tracker",
+  "name": "W&B Tracker",
+  "native": true,
+  "description": "Weights & Biases experiment tracking, logging, visualization",
+  "category": "ml",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["wandb", "experiments", "tracking"],
+  "presets": ["developer"],
+  "inputContract": ["run_config", "metrics"],
+  "outputContract": ["run_url", "logged_artifacts"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}
