@@ -93,6 +93,13 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthAgentEvalTool } = require('../tools/ZavorthAgentEvalTool.js');
   const { ZavorthPrivacyVaultTool } = require('../tools/ZavorthPrivacyVaultTool.js');
 
+  // ── Medium priority tools ──
+  const { ZavorthMultiRepoTool } = require('../tools/ZavorthMultiRepoTool.js');
+  const { ZavorthDocProviderTool } = require('../tools/ZavorthDocProviderTool.js');
+  const { ZavorthPromptLibraryTool } = require('../tools/ZavorthPromptLibraryTool.js');
+  const { ZavorthTokenBudgetTool } = require('../tools/ZavorthTokenBudgetTool.js');
+  const { ZavorthMemoryGraphTool } = require('../tools/ZavorthMemoryGraphTool.js');
+
   // ── Plugin services (runtime dependencies) ──
   const { ActiveMemoryService } = require('../services/plugins/ActiveMemoryService.js');
   const { DiagnosticsPrometheusService } = require('../services/plugins/DiagnosticsPrometheusService.js');
@@ -196,6 +203,11 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthRagBuilderTool());
   toolRegistry.register(new ZavorthAgentEvalTool());
   toolRegistry.register(new ZavorthPrivacyVaultTool());
+  toolRegistry.register(new ZavorthMultiRepoTool());
+  toolRegistry.register(new ZavorthDocProviderTool());
+  toolRegistry.register(new ZavorthPromptLibraryTool());
+  toolRegistry.register(new ZavorthTokenBudgetTool());
+  toolRegistry.register(new ZavorthMemoryGraphTool());
 
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
