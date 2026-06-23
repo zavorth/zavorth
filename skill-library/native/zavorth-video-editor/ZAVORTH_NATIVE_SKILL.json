@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-video-editor",
+  "name": "Video Editor",
+  "native": true,
+  "description": "Video editing automation, cuts, transitions, effects",
+  "category": "media",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["video", "editing", "effects"],
+  "presets": ["developer"],
+  "inputContract": ["video_source", "edit_instructions"],
+  "outputContract": ["edited_video", "processing_log"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

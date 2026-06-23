@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-figma-to-code",
+  "name": "Figma to Code",
+  "native": true,
+  "description": "Figma design to code conversion, component extraction",
+  "category": "design",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["figma", "design-to-code", "components"],
+  "presets": ["developer"],
+  "inputContract": ["figma_file_url", "target_framework"],
+  "outputContract": ["component_code", "design_tokens"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

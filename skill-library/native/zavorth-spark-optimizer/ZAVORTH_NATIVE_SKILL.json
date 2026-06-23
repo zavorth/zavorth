@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-spark-optimizer",
+  "name": "Spark Optimizer",
+  "native": true,
+  "description": "Apache Spark job optimization, cluster tuning, performance",
+  "category": "data-engineering",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["spark", "optimization", "big-data"],
+  "presets": ["developer"],
+  "inputContract": ["spark_job", "cluster_config"],
+  "outputContract": ["optimized_config", "performance_report"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

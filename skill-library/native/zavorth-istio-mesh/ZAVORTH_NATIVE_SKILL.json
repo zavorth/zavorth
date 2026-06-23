@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-istio-mesh",
+  "name": "Istio Mesh",
+  "native": true,
+  "description": "Istio service mesh configuration, traffic management, security",
+  "category": "devops",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["istio", "service-mesh", "networking"],
+  "presets": ["developer"],
+  "inputContract": ["mesh_config", "service_topology"],
+  "outputContract": ["istio_manifests", "security_policies"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

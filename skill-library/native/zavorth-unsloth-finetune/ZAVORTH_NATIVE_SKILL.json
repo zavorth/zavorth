@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-unsloth-finetune",
+  "name": "Unsloth Finetune",
+  "native": true,
+  "description": "Unsloth fast fine-tuning for LLMs, LoRA, QLoRA",
+  "category": "ml",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["unsloth", "lora", "finetune"],
+  "presets": ["developer"],
+  "inputContract": ["model_name", "dataset", "lora_config"],
+  "outputContract": ["finetuned_model", "training_stats"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

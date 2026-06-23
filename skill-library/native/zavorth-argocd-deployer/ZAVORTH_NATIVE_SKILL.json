@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-argocd-deployer",
+  "name": "ArgoCD Deployer",
+  "native": true,
+  "description": "ArgoCD application deployment, sync, rollback",
+  "category": "devops",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "high",
+  "capabilityTags": ["argocd", "gitops", "deployment"],
+  "presets": ["developer"],
+  "inputContract": ["app_manifest", "sync_policy"],
+  "outputContract": ["deployment_status", "sync_result"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

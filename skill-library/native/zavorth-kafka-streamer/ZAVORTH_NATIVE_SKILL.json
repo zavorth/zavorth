@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-kafka-streamer",
+  "name": "Kafka Streamer",
+  "native": true,
+  "description": "Apache Kafka topic management, producer/consumer, streaming",
+  "category": "data-engineering",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["kafka", "streaming", "messaging"],
+  "presets": ["developer"],
+  "inputContract": ["topic_config", "stream_topology"],
+  "outputContract": ["topic_created", "consumer_group_status"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-audio-editor",
+  "name": "Audio Editor",
+  "native": true,
+  "description": "Audio editing, mixing, noise reduction, mastering",
+  "category": "media",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["audio", "editing", "mixing"],
+  "presets": ["developer"],
+  "inputContract": ["audio_source", "processing_params"],
+  "outputContract": ["processed_audio", "analysis_report"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

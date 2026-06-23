@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-axolotl-trainer",
+  "name": "Axolotl Trainer",
+  "native": true,
+  "description": "Axolotl fine-tuning framework, dataset prep, training configs",
+  "category": "ml",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["axolotl", "fine-tuning", "training"],
+  "presets": ["developer"],
+  "inputContract": ["dataset", "training_config"],
+  "outputContract": ["trained_model", "training_metrics"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

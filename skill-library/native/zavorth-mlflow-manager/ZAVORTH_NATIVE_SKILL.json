@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-mlflow-manager",
+  "name": "MLflow Manager",
+  "native": true,
+  "description": "MLflow experiment management, model registry, deployment",
+  "category": "ml",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["mlflow", "experiments", "registry"],
+  "presets": ["developer"],
+  "inputContract": ["experiment_name", "model_config"],
+  "outputContract": ["experiment_id", "model_version"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

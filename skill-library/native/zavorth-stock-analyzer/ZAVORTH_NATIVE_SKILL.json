@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-stock-analyzer",
+  "name": "Stock Analyzer",
+  "native": true,
+  "description": "Stock analysis, fundamentals, technical indicators, screening",
+  "category": "finance",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["stocks", "analysis", "screening"],
+  "presets": ["developer"],
+  "inputContract": ["ticker_symbol", "analysis_criteria"],
+  "outputContract": ["analysis_report", "screening_results"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

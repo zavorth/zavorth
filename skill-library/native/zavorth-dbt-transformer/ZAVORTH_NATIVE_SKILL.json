@@ -1,0 +1,16 @@
+{
+  "id": "zavorth-dbt-transformer",
+  "name": "dbt Transformer",
+  "native": true,
+  "description": "dbt model development, testing, documentation",
+  "category": "data-engineering",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["dbt", "sql", "transformation"],
+  "presets": ["developer"],
+  "inputContract": ["source_schema", "model_spec"],
+  "outputContract": ["dbt_models", "test_results"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}
