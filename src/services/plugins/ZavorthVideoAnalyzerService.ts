@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { getBestProvider, getAvailableProviders, callVisionProvider, listProviders } from './MultimodalProviderSelector.js';

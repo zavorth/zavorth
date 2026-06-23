@@ -76,6 +76,9 @@ export class MemoryHindsightService {
         fs.writeFileSync(path.join(this.storageDir, 'lessons.json'), JSON.stringify(this.lessons, null, 2), 'utf-8');
       }
     }, 2000);
+    if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {
+      (this.flushTimer as NodeJS.Timeout).unref();
+    }
   }
 
   public recordDecision(description: string, context: string, options: string[], chosen: string, reasoning: string, tags?: string[]): string {

@@ -94,6 +94,9 @@ export class MemoryByteroverService {
         fs.writeFileSync(path.join(this.storageDir, 'relations.json'), JSON.stringify(this.relations, null, 2), 'utf-8');
       }
     }, 2000);
+    if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {
+      (this.flushTimer as NodeJS.Timeout).unref();
+    }
   }
 
   public store(content: string, options?: { category?: string; tags?: string[]; importance?: number; metadata?: Record<string, unknown> }): string {

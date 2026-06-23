@@ -282,13 +282,13 @@ export class DocumentIntelligenceService {
           });
           headers = ['-H', `x-api-key: ${apiKey}`, '-H', 'anthropic-version: 2023-06-01', '-H', 'Content-Type: application/json'];
           url = provider.url;
-        } else if (provider.name === 'gemini') {
+        } else         if (provider.name === 'gemini') {
           payload = JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { maxOutputTokens: 10, temperature: 0 },
           });
-          headers = ['-H', 'Content-Type: application/json'];
-          url = `${provider.url}?key=${apiKey}`;
+          headers = ['-H', 'Content-Type: application/json', '-H', `x-goog-api-key: ${apiKey}`];
+          url = provider.url;
         } else {
           payload = JSON.stringify({
             model: provider.name === 'groq' ? 'llama-3.3-70b-versatile' : provider.name === 'deepseek' ? 'deepseek-chat' : 'gpt-4o-mini',
