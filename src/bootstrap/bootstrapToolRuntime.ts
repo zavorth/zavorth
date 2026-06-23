@@ -122,6 +122,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthCalendarAdvancedTool } = require('../tools/ZavorthCalendarAdvancedTool.js');
   const { ZavorthNotificationTool } = require('../tools/ZavorthNotificationTool.js');
   const { ZavorthApiBuilderTool } = require('../tools/ZavorthApiBuilderTool.js');
+  const { ZavorthTerminalBackendsTool } = require('../tools/ZavorthTerminalBackendsTool.js');
 
   // ── Plugin services (runtime dependencies) ──
   const { ActiveMemoryService } = require('../services/plugins/ActiveMemoryService.js');
@@ -250,6 +251,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthCalendarAdvancedTool());
   toolRegistry.register(new ZavorthNotificationTool());
   toolRegistry.register(new ZavorthApiBuilderTool());
+  toolRegistry.register(new ZavorthTerminalBackendsTool());
 
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
