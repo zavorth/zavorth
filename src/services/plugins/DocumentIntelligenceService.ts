@@ -232,19 +232,75 @@ export class DocumentIntelligenceService {
     const scriptResult = this.detectByScript(sample);
     if (scriptResult) return scriptResult;
     
-    // Method 2: N-gram analysis (statistical approach)
+    // Method 2: LLM-based detection (most accurate, requires API key)
+    const llmResult = this.detectByLLM(content.slice(0, 500));
+    if (llmResult) return llmResult;
+    
+    // Method 3: N-gram analysis (statistical approach)
     const ngramResult = this.detectByNgrams(sample);
     if (ngramResult && ngramResult.confidence > 0.3) return ngramResult.language;
     
-    // Method 3: Word frequency analysis
+    // Method 4: Word frequency analysis
     const wordResult = this.detectByWordFrequency(sample);
     if (wordResult) return wordResult;
     
-    // Method 4: Character frequency analysis
+    // Method 5: Character frequency analysis
     const charResult = this.detectByCharFrequency(sample);
     if (charResult) return charResult;
     
     return 'en'; // Default fallback
+  }
+
+  private detectByLLM(text: string): string | null {
+    const apiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) return null;
+
+    try {
+      const { execFileSync } = require('child_process');
+      const prompt = `Detect the language of this text. Reply with ONLY the ISO 639-1 language code (e.g., "en", "es", "fr", "de", "pt", "ja", "zh", "ko", "ru", "ar", "hi", etc.). No explanation, just the code.\n\nText: "${text.slice(0, 300)}"`;
+
+      if (process.env.GEMINI_API_KEY) {
+        const payload = JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 10, temperature: 0 },
+        });
+        const tmpFile = path.join(require('os').tmpdir(), `lang_detect_${Date.now()}.json`);
+        fs.writeFileSync(tmpFile, payload);
+        try {
+          const result = execFileSync('curl', [
+            '-s', '-X', 'POST', '-H', 'Content-Type: application/json',
+            '-d', `@${tmpFile}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+          ], { timeout: 10000 }).toString();
+          const parsed = JSON.parse(result);
+          const langCode = parsed.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toLowerCase();
+          if (langCode && langCode.length === 2) return langCode;
+        } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
+      }
+
+      if (process.env.OPENAI_API_KEY) {
+        const payload = JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 10,
+          temperature: 0,
+        });
+        const tmpFile = path.join(require('os').tmpdir(), `lang_detect_${Date.now()}.json`);
+        fs.writeFileSync(tmpFile, payload);
+        try {
+          const result = execFileSync('curl', [
+            '-s', '-X', 'POST', '-H', `Authorization: Bearer ${process.env.OPENAI_API_KEY}`,
+            '-H', 'Content-Type: application/json', '-d', `@${tmpFile}`,
+            'https://api.openai.com/v1/chat/completions',
+          ], { timeout: 10000 }).toString();
+          const parsed = JSON.parse(result);
+          const langCode = parsed.choices?.[0]?.message?.content?.trim().toLowerCase();
+          if (langCode && langCode.length === 2) return langCode;
+        } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
+      }
+
+      return null;
+    } catch { return null; }
   }
 
   private detectByScript(text: string): string | null {
