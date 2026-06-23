@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import { getBestProvider, getAvailableProviders, callVisionProvider, listProviders } from './MultimodalProviderSelector.js';
 
 export class ZavorthVideoAnalyzerService extends BaseTool {
   public readonly name = 'zavorth_video_analyzer';
@@ -68,101 +69,23 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
     const metadata = this.getVideoMetadata(videoPath);
     const lines: string[] = ['Video Analysis:', ...metadata.split('\n')];
 
-    const videoBuffer = fs.readFileSync(videoPath);
-    const base64 = videoBuffer.slice(0, 20 * 1024 * 1024).toString('base64');
-
-    // Try Gemini first (best multimodal support)
-    if (process.env.GEMINI_API_KEY) {
-      try {
-        const analysis = await this.analyzeVideoWithGemini(base64);
-        if (analysis) lines.push('', 'AI Analysis:', analysis);
-        return lines.join('\n');
-      } catch { /* fallback */ }
+    const provider = getBestProvider('video');
+    if (!provider) {
+      lines.push('', 'Note: No video provider available. Configure GEMINI_API_KEY or OPENAI_API_KEY.');
+      return lines.join('\n');
     }
 
-    // Try OpenAI (frame-by-frame analysis)
-    if (process.env.OPENAI_API_KEY) {
-      try {
-        const analysis = await this.analyzeVideoWithOpenAI(videoPath);
-        if (analysis) lines.push('', 'AI Analysis:', analysis);
-        return lines.join('\n');
-      } catch { /* fallback */ }
+    try {
+      const apiKey = process.env[provider.apiKeyEnv]!;
+      const videoBuffer = fs.readFileSync(videoPath);
+      const base64 = videoBuffer.slice(0, 20 * 1024 * 1024).toString('base64');
+      const analysis = await callVisionProvider(provider, base64, 'video/mp4', 'Analyze this video. Describe what happens, identify key scenes, objects, and any text visible.', apiKey);
+      lines.push('', 'AI Analysis:', analysis);
+    } catch (error: unknown) {
+      lines.push('', `Analysis error: ${error instanceof Error ? error.message : String(error)}`);
     }
 
-    // Try Anthropic
-    if (process.env.ANTHROPIC_API_KEY) {
-      try {
-        const analysis = videoBuffer.length < 5 * 1024 * 1024 ? 'Video too large for Anthropic (max 5MB).' : 'Video analysis via Anthropic not available.';
-        lines.push('', 'AI Analysis:', analysis);
-        return lines.join('\n');
-      } catch { /* fallback */ }
-    }
-
-    lines.push('', 'Note: No vision API configured. Set GEMINI_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY for AI analysis.');
     return lines.join('\n');
-  }
-
-  private async analyzeVideoWithGemini(base64: string): Promise<string> {
-    const { execFileSync } = await import('child_process');
-    const apiKey = process.env.GEMINI_API_KEY!;
-    const payload = JSON.stringify({
-      contents: [{ parts: [
-        { text: 'Analyze this video. Describe what happens, identify key scenes, objects, and any text visible.' },
-        { inline_data: { mime_type: 'video/mp4', data: base64 } },
-      ] }],
-    });
-    const tmpFile = path.join(require('os').tmpdir(), `video_gemini_${Date.now()}.json`);
-    fs.writeFileSync(tmpFile, payload);
-    try {
-      const result = execFileSync('curl', [
-        '-s', '-X', 'POST', '-H', 'Content-Type: application/json',
-        '-d', `@${tmpFile}`,
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      ], { timeout: 120000 }).toString();
-      const parsed = JSON.parse(result);
-      return parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
-  }
-
-  private async analyzeVideoWithOpenAI(videoPath: string): Promise<string> {
-    const { execFileSync } = await import('child_process');
-    const apiKey = process.env.OPENAI_API_KEY!;
-    const frames = this.extractFramesSync(videoPath, 3);
-    const contents = [
-      { type: 'text', text: 'Analyze these video frames. Describe what happens, identify key scenes, objects, and any text visible.' },
-      ...frames.map((f: string) => ({ type: 'image_url', image_url: { url: `data:image/png;base64,${fs.readFileSync(f).toString('base64')}` } })),
-    ];
-    const payload = JSON.stringify({
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: contents }],
-      max_tokens: 2048,
-    });
-    const tmpFile = path.join(require('os').tmpdir(), `video_openai_${Date.now()}.json`);
-    fs.writeFileSync(tmpFile, payload);
-    try {
-      const result = execFileSync('curl', [
-        '-s', '-X', 'POST',
-        '-H', `Authorization: Bearer ${apiKey}`,
-        '-H', 'Content-Type: application/json',
-        '-d', `@${tmpFile}`,
-        'https://api.openai.com/v1/chat/completions',
-      ], { timeout: 120000 }).toString();
-      const parsed = JSON.parse(result);
-      return parsed.choices?.[0]?.message?.content || '';
-    } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
-  }
-
-  private extractFramesSync(videoPath: string, count: number): string[] {
-    const { execFileSync } = require('child_process');
-    const outputDir = path.join(require('os').tmpdir(), `frames_${Date.now()}`);
-    fs.mkdirSync(outputDir, { recursive: true });
-    try {
-      execFileSync('ffmpeg', [
-        '-i', videoPath, '-vf', 'fps=1/5', '-frames:v', String(count),
-        path.join(outputDir, 'frame_%04d.png'),
-      ], { timeout: 30000 });
-      return fs.readdirSync(outputDir).filter((f) => f.endsWith('.map')).map((f) => path.join(outputDir, f));
-    } catch { return []; }
   }
 
   private async extractFrames(videoPath: string, args: Record<string, unknown>): Promise<string> {

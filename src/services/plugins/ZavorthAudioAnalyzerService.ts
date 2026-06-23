@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import { getBestProvider, getAvailableProviders, callAudioProvider, listProviders } from './MultimodalProviderSelector.js';
 
 export class ZavorthAudioAnalyzerService extends BaseTool {
   public readonly name = 'zavorth_audio_analyzer';
@@ -60,28 +61,18 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
     const metadata = this.getAudioMetadata(audioPath);
     const lines: string[] = ['Audio Analysis:', ...metadata.split('\n')];
 
-    // Try Whisper (OpenAI) first
-    if (process.env.OPENAI_API_KEY) {
+    const provider = getBestProvider('audio');
+    if (provider) {
       try {
-        const transcription = await this.transcribeWithProvider(audioPath, 'openai');
+        const apiKey = process.env[provider.apiKeyEnv]!;
+        const transcription = await callAudioProvider(provider, audioPath, 'auto', apiKey);
         lines.push('', 'Transcription:', transcription.slice(0, 1000));
-      } catch { /* fallback */ }
+      } catch (error: unknown) {
+        lines.push('', `Transcription error: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    } else {
+      lines.push('', 'Note: No audio provider available. Configure OPENAI_API_KEY, DEEPGRAM_API_KEY, or GEMINI_API_KEY.');
     }
-
-    // Try Deepgram
-    if (process.env.DEEPGRAM_API_KEY) {
-      try {
-        const transcription = await this.transcribeWithProvider(audioPath, 'deepgram');
-        lines.push('', 'Transcription (Deepgram):', transcription.slice(0, 1000));
-      } catch { /* fallback */ }
-    }
-
-    // Try local whisper.cpp
-    try {
-      const { execFileSync } = await import('child_process');
-      const result = execFileSync('whisper', [audioPath, '--output_format', 'txt', '--output_dir', require('os').tmpdir()], { timeout: 120000 }).toString();
-      lines.push('', 'Transcription (local):', result.slice(0, 1000));
-    } catch { /* ignore */ }
 
     return lines.join('\n');
   }
@@ -90,77 +81,16 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
     if (!fs.existsSync(audioPath)) return `Error: "${audioPath}" not found.`;
     const language = String(args.language || 'auto');
 
-    // Try Whisper first
-    if (process.env.OPENAI_API_KEY) {
-      try { return await this.transcribeWithProvider(audioPath, 'openai', language); } catch { /* fallback */ }
+    const provider = getBestProvider('audio');
+    if (!provider) {
+      return `Error: No audio provider available. Configure one of: ${getAvailableProviders('audio').map(p => p.apiKeyEnv).join(', ')}`;
     }
 
-    // Try Deepgram
-    if (process.env.DEEPGRAM_API_KEY) {
-      try { return await this.transcribeWithProvider(audioPath, 'deepgram', language); } catch { /* fallback */ }
-    }
-
-    // Try Gemini
-    if (process.env.GEMINI_API_KEY) {
-      try { return await this.transcribeWithProvider(audioPath, 'gemini', language); } catch { /* fallback */ }
-    }
-
-    return 'Error: No STT API key configured (OPENAI_API_KEY, DEEPGRAM_API_KEY, or GEMINI_API_KEY required).';
-  }
-
-  private async transcribeWithProvider(audioPath: string, provider: string, language?: string): Promise<string> {
-    const { execFileSync } = await import('child_process');
-
-    switch (provider) {
-      case 'openai': {
-        const apiKey = process.env.OPENAI_API_KEY!;
-        const langParam = language && language !== 'auto' ? `-F language=${language}` : '';
-        const result = execFileSync('curl', [
-          '-s', '-X', 'POST',
-          '-H', `Authorization: Bearer ${apiKey}`,
-          '-F', `file=@${audioPath}`,
-          '-F', 'model=whisper-1',
-          langParam,
-          '-F', 'response_format=text',
-        ].filter(Boolean), { timeout: 60000 }).toString();
-        return result;
-      }
-      case 'deepgram': {
-        const apiKey = process.env.DEEPGRAM_API_KEY!;
-        const lang = language && language !== 'auto' ? language : 'en';
-        const result = execFileSync('curl', [
-          '-s', '-X', 'POST',
-          '-H', `Authorization: Token ${apiKey}`,
-          '-F', `file=@${audioPath}`,
-          '-F', 'model=nova-2',
-          `-F language=${lang}`,
-        ], { timeout: 60000 }).toString();
-        const parsed = JSON.parse(result);
-        return parsed.results?.channels?.[0]?.alternatives?.[0]?.transcript || result;
-      }
-      case 'gemini': {
-        const apiKey = process.env.GEMINI_API_KEY!;
-        const audioBase64 = fs.readFileSync(audioPath).toString('base64');
-        const payload = JSON.stringify({
-          contents: [{ parts: [
-            { text: `Transcribe this audio. Language: ${language || 'auto-detect'}` },
-            { inline_data: { mime_type: 'audio/mpeg', data: audioBase64.slice(0, 4 * 1024 * 1024) } },
-          ] }],
-        });
-        const tmpFile = path.join(require('os').tmpdir(), `stt_gemini_${Date.now()}.json`);
-        fs.writeFileSync(tmpFile, payload);
-        try {
-          const result = execFileSync('curl', [
-            '-s', '-X', 'POST', '-H', 'Content-Type: application/json',
-            '-d', `@${tmpFile}`,
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-          ], { timeout: 60000 }).toString();
-          const parsed = JSON.parse(result);
-          return parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'No transcription available.';
-        } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
-      }
-      default:
-        throw new Error(`Provider "${provider}" not supported.`);
+    try {
+      const apiKey = process.env[provider.apiKeyEnv]!;
+      return await callAudioProvider(provider, audioPath, language, apiKey);
+    } catch (error: unknown) {
+      return `Error with ${provider.name}: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
 

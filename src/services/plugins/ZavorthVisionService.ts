@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import { getBestProvider, getAvailableProviders, callVisionProvider, listProviders } from './MultimodalProviderSelector.js';
 
 export class ZavorthVisionService extends BaseTool {
   public readonly name = 'zavorth_vision';
@@ -80,97 +81,17 @@ export class ZavorthVisionService extends BaseTool {
     const base64 = imageBuffer.toString('base64');
     const mimeType = this.getMimeType(imagePath);
 
-    // Try Gemini first (best quality, free tier available)
-    if (process.env.GEMINI_API_KEY) {
-      try { return await this.analyzeWithGemini(base64, mimeType, prompt, detailLevel); } catch { /* fallback */ }
+    const provider = getBestProvider('vision');
+    if (!provider) {
+      return `Error: No vision provider available. Configure one of: ${getAvailableProviders('vision').map(p => p.apiKeyEnv).join(', ')}`;
     }
 
-    // Try OpenAI GPT-4 Vision
-    if (process.env.OPENAI_API_KEY) {
-      try { return await this.analyzeWithOpenAI(base64, mimeType, prompt, detailLevel); } catch { /* fallback */ }
+    try {
+      const apiKey = process.env[provider.apiKeyEnv]!;
+      return await callVisionProvider(provider, base64, mimeType, `${prompt} Detail level: ${detailLevel}`, apiKey);
+    } catch (error: unknown) {
+      return `Error with ${provider.name}: ${error instanceof Error ? error.message : String(error)}`;
     }
-
-    // Try Anthropic Claude Vision
-    if (process.env.ANTHROPIC_API_KEY) {
-      try { return await this.analyzeWithAnthropic(base64, mimeType, prompt, detailLevel); } catch { /* fallback */ }
-    }
-
-    return 'Error: No vision API key configured (GEMINI_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY required).';
-  }
-
-  private async analyzeWithGemini(base64: string, mimeType: string, prompt: string, detailLevel: string): Promise<string> {
-    const { execFileSync } = await import('child_process');
-    const apiKey = process.env.GEMINI_API_KEY!;
-    const payload = JSON.stringify({
-      contents: [{ parts: [
-        { text: `${prompt} Detail level: ${detailLevel}` },
-        { inline_data: { mime_type: mimeType, data: base64.slice(0, 4 * 1024 * 1024) } },
-      ] }],
-    });
-    const tmpFile = path.join(require('os').tmpdir(), `vision_gemini_${Date.now()}.json`);
-    fs.writeFileSync(tmpFile, payload);
-    try {
-      const result = execFileSync('curl', [
-        '-s', '-X', 'POST', '-H', 'Content-Type: application/json',
-        '-d', `@${tmpFile}`,
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      ], { timeout: 60000 }).toString();
-      const parsed = JSON.parse(result);
-      return parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'No analysis available.';
-    } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
-  }
-
-  private async analyzeWithOpenAI(base64: string, mimeType: string, prompt: string, detailLevel: string): Promise<string> {
-    const { execFileSync } = await import('child_process');
-    const apiKey = process.env.OPENAI_API_KEY!;
-    const payload = JSON.stringify({
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: [
-        { type: 'text', text: `${prompt} Detail level: ${detailLevel}` },
-        { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64.slice(0, 4 * 1024 * 1024)}` } },
-      ] }],
-      max_tokens: 2048,
-    });
-    const tmpFile = path.join(require('os').tmpdir(), `vision_openai_${Date.now()}.json`);
-    fs.writeFileSync(tmpFile, payload);
-    try {
-      const result = execFileSync('curl', [
-        '-s', '-X', 'POST',
-        '-H', `Authorization: Bearer ${apiKey}`,
-        '-H', 'Content-Type: application/json',
-        '-d', `@${tmpFile}`,
-        'https://api.openai.com/v1/chat/completions',
-      ], { timeout: 60000 }).toString();
-      const parsed = JSON.parse(result);
-      return parsed.choices?.[0]?.message?.content || 'No analysis available.';
-    } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
-  }
-
-  private async analyzeWithAnthropic(base64: string, mimeType: string, prompt: string, detailLevel: string): Promise<string> {
-    const { execFileSync } = await import('child_process');
-    const apiKey = process.env.ANTHROPIC_API_KEY!;
-    const payload = JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2048,
-      messages: [{ role: 'user', content: [
-        { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64.slice(0, 4 * 1024 * 1024) } },
-        { type: 'text', text: `${prompt} Detail level: ${detailLevel}` },
-      ] }],
-    });
-    const tmpFile = path.join(require('os').tmpdir(), `vision_anthropic_${Date.now()}.json`);
-    fs.writeFileSync(tmpFile, payload);
-    try {
-      const result = execFileSync('curl', [
-        '-s', '-X', 'POST',
-        '-H', `x-api-key: ${apiKey}`,
-        '-H', 'anthropic-version: 2023-06-01',
-        '-H', 'Content-Type: application/json',
-        '-d', `@${tmpFile}`,
-        'https://api.anthropic.com/v1/messages',
-      ], { timeout: 60000 }).toString();
-      const parsed = JSON.parse(result);
-      return parsed.content?.[0]?.text || 'No analysis available.';
-    } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
   }
 
   private async ocrImage(args: Record<string, unknown>): Promise<string> {
