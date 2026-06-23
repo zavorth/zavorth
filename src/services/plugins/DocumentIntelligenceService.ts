@@ -226,11 +226,66 @@ export class DocumentIntelligenceService {
   }
 
   private detectLanguage(content: string): string | null {
-    const sample = content.slice(0, 1000).toLowerCase();
-    if (/[àáâãéêíóôõúç]/.test(sample)) return 'pt';
-    if (/[äöüß]/.test(sample)) return 'de';
-    if (/[àâçéèêëîïôùûüÿ]/.test(sample)) return 'fr';
-    if (/[áéíóúñ]/.test(sample)) return 'es';
-    return 'en';
+    const sample = content.slice(0, 2000).toLowerCase();
+    
+    // Asian languages (check first - distinctive scripts)
+    if (/[\u3040-\u309f\u30a0-\u30ff]/.test(sample)) return 'ja'; // Japanese (Hiragana/Katakana)
+    if (/[\u4e00-\u9fff]/.test(sample)) return 'zh'; // Chinese
+    if (/[\uac00-\ud7af]/.test(sample)) return 'ko'; // Korean
+    if (/[\u0400-\u04ff]/.test(sample)) return 'ru'; // Russian (Cyrillic)
+    if (/[\u0600-\u06ff]/.test(sample)) return 'ar'; // Arabic
+    if (/[\u0900-\u097f]/.test(sample)) return 'hi'; // Hindi (Devanagari)
+    
+    // European languages with distinctive characters
+    if (/[àáâãéêíóôõúç]/.test(sample)) return 'pt'; // Portuguese
+    if (/[äöüß]/.test(sample)) return 'de'; // German
+    if (/[àâçéèêëîïôùûüÿ]/.test(sample)) return 'fr'; // French
+    if (/[áéíóúñ]/.test(sample)) return 'es'; // Spanish
+    if (/[àèéìíîòóùú]/.test(sample)) return 'it'; // Italian
+    if (/[àèéêîïôùûüÿæœ]/.test(sample)) return 'fr'; // French (extended)
+    if (/[ãõ]/.test(sample)) return 'pt'; // Portuguese (extended)
+    if (/[åæø]/.test(sample)) return 'da'; // Danish/Norwegian
+    if (/[äöüõ]/.test(sample)) return 'et'; // Estonian
+    if (/[ąćęłńóśźż]/.test(sample)) return 'pl'; // Polish
+    if ((/[čďěňřšťůž]/.test(sample))) return 'cs'; // Czech
+    if ((/[áéíóöőúüű]/.test(sample))) return 'hu'; // Hungarian
+    if ((/[ćčđšž]/.test(sample))) return 'hr'; // Croatian
+    if ((/[ãõ]/.test(sample))) return 'pt'; // Portuguese
+    
+    // Word frequency analysis for common languages
+    const words = sample.split(/\s+/).slice(0, 100);
+    const wordFreq: Record<string, number> = {};
+    for (const word of words) {
+      const clean = word.replace(/[^\w]/g, '');
+      if (clean.length > 1) wordFreq[clean] = (wordFreq[clean] || 0) + 1;
+    }
+    
+    // Common words by language
+    const langPatterns: Record<string, string[]> = {
+      'en': ['the', 'is', 'at', 'which', 'on', 'and', 'a', 'to', 'in', 'it', 'of', 'for', 'that', 'was', 'with'],
+      'es': ['el', 'la', 'de', 'que', 'y', 'en', 'un', 'ser', 'se', 'no', 'haber', 'por', 'con', 'su', 'para'],
+      'fr': ['le', 'la', 'de', 'et', 'un', 'être', 'en', 'que', 'pour', 'dans', 'ce', 'il', 'qui', 'ne', 'sur'],
+      'de': ['der', 'die', 'und', 'in', 'den', 'von', 'zu', 'das', 'mit', 'sich', 'des', 'auf', 'für', 'ist', 'ein'],
+      'pt': ['o', 'a', 'de', 'que', 'e', 'do', 'da', 'em', 'um', 'para', 'é', 'com', 'não', 'uma', 'os'],
+      'it': ['il', 'di', 'che', 'è', 'e', 'la', 'per', 'in', 'un', 'del', 'non', 'con', 'sono', 'una', 'si'],
+      'nl': ['de', 'het', 'van', 'een', 'en', 'in', 'is', 'dat', 'op', 'te', 'zijn', 'voor', 'met', 'niet', 'aan'],
+      'ru': ['и', 'в', 'не', 'на', 'я', 'быть', 'он', 'с', 'что', 'а', 'по', 'это', 'как', 'из', 'за'],
+    };
+    
+    let bestLang = 'en';
+    let bestScore = 0;
+    
+    for (const [lang, patterns] of Object.entries(langPatterns)) {
+      let score = 0;
+      for (const pattern of patterns) {
+        if (wordFreq[pattern]) score += wordFreq[pattern];
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestLang = lang;
+      }
+    }
+    
+    return bestLang;
   }
 }
