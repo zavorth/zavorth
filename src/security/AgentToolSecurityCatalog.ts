@@ -614,6 +614,46 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     requiresConfirmation: true,
     description: 'Privacy vault — encrypted storage for secrets with audit logging.',
   },
+  {
+    toolName: 'zavorth_multi_repo',
+    surface: 'native-tool',
+    capabilities: ['filesystem', 'shell', 'network'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Multi-repo operations — clone, sync, diff, PR across multiple Git repos.',
+  },
+  {
+    toolName: 'zavorth_doc_provider',
+    surface: 'native-tool',
+    capabilities: ['network'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Live documentation provider — fetch up-to-date docs for any library.',
+  },
+  {
+    toolName: 'zavorth_prompt_library',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Prompt library — optimized templates by task with versioning and quality tracking.',
+  },
+  {
+    toolName: 'zavorth_token_budget',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Token budget manager — track, limit, and optimize token usage.',
+  },
+  {
+    toolName: 'zavorth_memory_graph',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Memory knowledge graph — semantic connections between facts, concepts, events.',
+  },
 ];
 
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
@@ -693,6 +733,11 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'ZavorthRagBuilderTool', toolName: 'zavorth_rag_builder' },
   { className: 'ZavorthAgentEvalTool', toolName: 'zavorth_agent_eval' },
   { className: 'ZavorthPrivacyVaultTool', toolName: 'zavorth_privacy_vault' },
+  { className: 'ZavorthMultiRepoTool', toolName: 'zavorth_multi_repo' },
+  { className: 'ZavorthDocProviderTool', toolName: 'zavorth_doc_provider' },
+  { className: 'ZavorthPromptLibraryTool', toolName: 'zavorth_prompt_library' },
+  { className: 'ZavorthTokenBudgetTool', toolName: 'zavorth_token_budget' },
+  { className: 'ZavorthMemoryGraphTool', toolName: 'zavorth_memory_graph' },
 ] as const;
 
 const NATIVE_DEFINITIONS_BY_NAME = new Map(
