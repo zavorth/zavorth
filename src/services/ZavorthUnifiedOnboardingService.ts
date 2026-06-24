@@ -130,6 +130,18 @@ export class ZavorthUnifiedOnboardingService {
           appliesMutation: false,
         },
         {
+          id: 'migrate',
+          command: 'zavorth migrate <path-or-name>',
+          summary: 'Migrate settings, skills, and providers from another agent (hermes, openclaw, claude, cursor, or any agent).',
+          appliesMutation: false,
+        },
+        {
+          id: 'migrate-auto',
+          command: 'zavorth migrate --from <agent-name>',
+          summary: 'Auto-detect and migrate from a known agent by name.',
+          appliesMutation: false,
+        },
+        {
           id: 'gateway-status',
           command: 'zavorth gateway status',
           summary: 'Show Gateway/Channel Mesh status from the canonical spine.',
