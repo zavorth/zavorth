@@ -1,0 +1,461 @@
+import { GPT_5_3_CODEX_PRICING } from '../pricingPresets';
+
+export const OAUTH_PROVIDER_PRICING = {
+  // OAuth Providers (using aliases)
+
+  // Claude Code (cc)
+  cc: {
+    "claude-opus-4-6": {
+      input: 5.0,
+      output: 25.0,
+      cached: 2.5,
+      reasoning: 25.0,
+      cache_creation: 5.0,
+    },
+    "claude-sonnet-4-6": {
+      input: 3.0,
+      output: 15.0,
+      cached: 1.5,
+      reasoning: 15.0,
+      cache_creation: 3.0,
+    },
+    "claude-3-opus-20240229-20251101": {
+      input: 15.0,
+      output: 75.0,
+      cached: 7.5,
+      reasoning: 75.0,
+      cache_creation: 15.0,
+    },
+    "claude-3-5-sonnet-latest-20250929": {
+      input: 3.0,
+      output: 15.0,
+      cached: 1.5,
+      reasoning: 15.0,
+      cache_creation: 3.0,
+    },
+    "claude-haiku-4-5-20251001": {
+      input: 0.5,
+      output: 2.5,
+      cached: 0.25,
+      reasoning: 2.5,
+      cache_creation: 0.5,
+    },
+  },
+
+  // OpenAI Codex (cx)
+  cx: {
+    // GPT 5.4
+    "gpt-5.4": {
+      input: 5.0,
+      output: 20.0,
+      cached: 2.5,
+      reasoning: 30.0,
+      cache_creation: 5.0,
+    },
+    "gpt5.4": {
+      input: 5.0,
+      output: 20.0,
+      cached: 2.5,
+      reasoning: 30.0,
+      cache_creation: 5.0,
+    },
+    // T12: fallback pricing for gpt-5.4 mini variants
+    "gpt-5.4-mini": {
+      input: 1.5,
+      output: 6.0,
+      cached: 0.75,
+      reasoning: 9.0,
+      cache_creation: 1.5,
+    },
+    "gpt5.4-mini": {
+      input: 1.5,
+      output: 6.0,
+      cached: 0.75,
+      reasoning: 9.0,
+      cache_creation: 1.5,
+    },
+    // GPT 5.3 Codex family (all same pricing tier)
+    "gpt-5.3-codex": GPT_5_3_CODEX_PRICING,
+    "gpt-5.3-codex-xhigh": GPT_5_3_CODEX_PRICING,
+    "gpt-5.3-codex-high": GPT_5_3_CODEX_PRICING,
+    "gpt-5.3-codex-low": GPT_5_3_CODEX_PRICING,
+    "gpt-5.3-codex-none": GPT_5_3_CODEX_PRICING,
+    "gpt-5.1-codex-mini-high": {
+      input: 1.5,
+      output: 6.0,
+      cached: 0.75,
+      reasoning: 9.0,
+      cache_creation: 1.5,
+    },
+    "gpt-4o-codex": {
+      input: 5.0,
+      output: 20.0,
+      cached: 2.5,
+      reasoning: 30.0,
+      cache_creation: 5.0,
+    },
+
+    "gpt-4o": {
+      input: 5.0,
+      output: 20.0,
+      cached: 2.5,
+      reasoning: 30.0,
+      cache_creation: 5.0,
+    },
+    "gpt-5.1-codex-max": {
+      input: 8.0,
+      output: 32.0,
+      cached: 4.0,
+      reasoning: 48.0,
+      cache_creation: 8.0,
+    },
+    "gpt-5.1-codex": {
+      input: 4.0,
+      output: 16.0,
+      cached: 2.0,
+      reasoning: 24.0,
+      cache_creation: 4.0,
+    },
+    "gpt-5.1-codex-mini": {
+      input: 1.5,
+      output: 6.0,
+      cached: 0.75,
+      reasoning: 9.0,
+      cache_creation: 1.5,
+    },
+    "gpt-5.1": {
+      input: 4.0,
+      output: 16.0,
+      cached: 2.0,
+      reasoning: 24.0,
+      cache_creation: 4.0,
+    },
+    "gpt-5-codex": {
+      input: 3.0,
+      output: 12.0,
+      cached: 1.5,
+      reasoning: 18.0,
+      cache_creation: 3.0,
+    },
+    "gpt-5-codex-mini": {
+      input: 1.0,
+      output: 4.0,
+      cached: 0.5,
+      reasoning: 6.0,
+      cache_creation: 1.0,
+    },
+  },
+
+  // Gemini CLI
+  "gemini-cli": {
+    "gemini-3-flash-preview": {
+      input: 0.5,
+      output: 3.0,
+      cached: 0.03,
+      reasoning: 4.5,
+      cache_creation: 0.5,
+    },
+    "gemini-3.1-flash-lite-preview": {
+      input: 0.5,
+      output: 3.0,
+      cached: 0.03,
+      reasoning: 4.5,
+      cache_creation: 0.5,
+    },
+    "gemini-3-pro-preview": {
+      input: 2.0,
+      output: 12.0,
+      cached: 0.25,
+      reasoning: 18.0,
+      cache_creation: 2.0,
+    },
+    "gemini-3.1-pro-preview": {
+      input: 2.0,
+      output: 12.0,
+      cached: 0.25,
+      reasoning: 18.0,
+      cache_creation: 2.0,
+    },
+
+    "gemini-2.5-pro": {
+      input: 2.0,
+      output: 12.0,
+      cached: 0.25,
+      reasoning: 18.0,
+      cache_creation: 2.0,
+    },
+    "gemini-2.5-flash": {
+      input: 0.3,
+      output: 2.5,
+      cached: 0.03,
+      reasoning: 3.75,
+      cache_creation: 0.3,
+    },
+    // Gemini 2.5 Flash Lite â€” preco corrigido via ClawRouter: $0.10/$0.40 (era $0.15/$1.25)
+    "gemini-2.5-flash-lite": {
+      input: 0.1,
+      output: 0.4,
+      cached: 0.025,
+      reasoning: 0.6,
+      cache_creation: 0.1,
+    },
+  },
+
+  // Qwen Code (qw)
+  qw: {
+    "qwen3-coder-plus": {
+      input: 1.0,
+      output: 4.0,
+      cached: 0.5,
+      reasoning: 6.0,
+      cache_creation: 1.0,
+    },
+    // Next-generation Qwen Coder tier added to the Zavorth pricing catalog in Mar 2026.
+    "qwen3-coder-next": {
+      input: 2.0,
+      output: 8.0,
+      cached: 1.0,
+      reasoning: 12.0,
+      cache_creation: 2.0,
+    },
+    "qwen3-coder-flash": {
+      input: 0.5,
+      output: 2.0,
+      cached: 0.25,
+      reasoning: 3.0,
+      cache_creation: 0.5,
+    },
+    "vision-model": {
+      input: 1.5,
+      output: 6.0,
+      cached: 0.75,
+      reasoning: 9.0,
+      cache_creation: 1.5,
+    },
+  },
+
+  // Qoder AI (if)
+  if: {
+    "qwen3-coder-plus": {
+      input: 1.0,
+      output: 4.0,
+      cached: 0.5,
+      reasoning: 6.0,
+      cache_creation: 1.0,
+    },
+    "kimi-k2": {
+      input: 1.0,
+      output: 4.0,
+      cached: 0.5,
+      reasoning: 6.0,
+      cache_creation: 1.0,
+    },
+    "kimi-k2-thinking": {
+      input: 1.5,
+      output: 6.0,
+      cached: 0.75,
+      reasoning: 9.0,
+      cache_creation: 1.5,
+    },
+    "deepseek-r1": {
+      input: 0.75,
+      output: 3.0,
+      cached: 0.375,
+      reasoning: 4.5,
+      cache_creation: 0.75,
+    },
+    "deepseek-v3.2-chat": {
+      input: 0.28,
+      output: 0.42,
+      cached: 0.014,
+      reasoning: 0.63,
+      cache_creation: 0.28,
+    },
+    "deepseek-v3.2": {
+      input: 0.28,
+      output: 0.42,
+      cached: 0.014,
+      reasoning: 0.63,
+      cache_creation: 0.28,
+    },
+    "deepseek-v3.2-reasoner": {
+      input: 0.55,
+      output: 2.19,
+      cached: 0.14,
+      reasoning: 2.19,
+      cache_creation: 0.55,
+    },
+    // Short-form aliases retained in the Zavorth pricing catalog (Mar 2026).
+    "deepseek-3.1": {
+      input: 0.27,
+      output: 1.1,
+      cached: 0.07,
+      reasoning: 2.2,
+      cache_creation: 0.27,
+    },
+    "deepseek-3.2": {
+      input: 0.27,
+      output: 1.1,
+      cached: 0.07,
+      reasoning: 2.2,
+      cache_creation: 0.27,
+    },
+    "minimax-m2": {
+      input: 0.5,
+      output: 2.0,
+      cached: 0.25,
+      reasoning: 3.0,
+      cache_creation: 0.5,
+    },
+    "glm-4.6": {
+      input: 0.5,
+      output: 2.0,
+      cached: 0.25,
+      reasoning: 3.0,
+      cache_creation: 0.5,
+    },
+    "glm-4.7": {
+      input: 0.75,
+      output: 3.0,
+      cached: 0.375,
+      reasoning: 4.5,
+      cache_creation: 0.75,
+    },
+  },
+
+  // ZavorthBridge (ag) - User-provided pricing
+  ag: {
+    "gemini-3.1-pro-low": {
+      input: 2.0,
+      output: 12.0,
+      cached: 0.25,
+      reasoning: 18.0,
+      cache_creation: 2.0,
+    },
+    "gemini-2.5-pro": {
+      input: 4.0,
+      output: 18.0,
+      cached: 0.5,
+      reasoning: 27.0,
+      cache_creation: 4.0,
+    },
+    "gemini-3-flash": {
+      input: 0.5,
+      output: 3.0,
+      cached: 0.03,
+      reasoning: 4.5,
+      cache_creation: 0.5,
+    },
+    "claude-sonnet-4-6": {
+      input: 3.0,
+      output: 15.0,
+      cached: 0.3,
+      reasoning: 22.5,
+      cache_creation: 3.0,
+    },
+    "claude-opus-4-6-thinking": {
+      input: 5.0,
+      output: 25.0,
+      cached: 0.5,
+      reasoning: 37.5,
+      cache_creation: 5.0,
+    },
+    "gpt-oss-120b-medium": {
+      input: 0.5,
+      output: 2.0,
+      cached: 0.25,
+      reasoning: 3.0,
+      cache_creation: 0.5,
+    },
+  },
+
+  // GitHub Copilot (gh)
+  gh: {
+    "gpt-5": {
+      input: 3.0,
+      output: 12.0,
+      cached: 1.5,
+      reasoning: 18.0,
+      cache_creation: 3.0,
+    },
+    "gpt-5-mini": {
+      input: 0.75,
+      output: 3.0,
+      cached: 0.375,
+      reasoning: 4.5,
+      cache_creation: 0.75,
+    },
+    "gpt-5.1-codex": {
+      input: 4.0,
+      output: 16.0,
+      cached: 2.0,
+      reasoning: 24.0,
+      cache_creation: 4.0,
+    },
+    "gpt-5.1-codex-max": {
+      input: 8.0,
+      output: 32.0,
+      cached: 4.0,
+      reasoning: 48.0,
+      cache_creation: 8.0,
+    },
+    "gpt-4.1": {
+      input: 2.5,
+      output: 10.0,
+      cached: 1.25,
+      reasoning: 15.0,
+      cache_creation: 2.5,
+    },
+    "claude-4.5-sonnet": {
+      input: 3.0,
+      output: 15.0,
+      cached: 0.3,
+      reasoning: 22.5,
+      cache_creation: 3.0,
+    },
+    "claude-4.5-opus": {
+      input: 5.0,
+      output: 25.0,
+      cached: 0.5,
+      reasoning: 37.5,
+      cache_creation: 5.0,
+    },
+    "claude-4.5-haiku": {
+      input: 0.5,
+      output: 2.5,
+      cached: 0.05,
+      reasoning: 3.75,
+      cache_creation: 0.5,
+    },
+    "gemini-3-pro": {
+      input: 2.0,
+      output: 12.0,
+      cached: 0.25,
+      reasoning: 18.0,
+      cache_creation: 2.0,
+    },
+    "gemini-3-flash": {
+      input: 0.5,
+      output: 3.0,
+      cached: 0.03,
+      reasoning: 4.5,
+      cache_creation: 0.5,
+    },
+    "gemini-2.5-pro": {
+      input: 2.0,
+      output: 12.0,
+      cached: 0.25,
+      reasoning: 18.0,
+      cache_creation: 2.0,
+    },
+    "grok-code-fast-1": {
+      input: 0.5,
+      output: 2.0,
+      cached: 0.25,
+      reasoning: 3.0,
+      cache_creation: 0.5,
+    },
+  },
+
+  // API Key Providers (alias = id)
+} as const;
