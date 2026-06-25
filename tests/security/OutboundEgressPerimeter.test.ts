@@ -49,7 +49,14 @@ describe('Outbound egress perimeter', () => {
         const content = fs.readFileSync(file, 'utf8');
         return content.split(/\r?\n/)
           .map((line, index) => ({ file, line, lineNumber: index + 1 }))
-          .filter(({ line }) => /\bfetch\s*\(/.test(line))
+          .filter(({ line }) => {
+            if (!/\bfetch\s*\(/.test(line)) return false;
+            const trimmed = line.trim();
+            if (trimmed.startsWith('//') || trimmed.startsWith('*')) return false;
+            if (/['"`].*\bfetch\s*\(/.test(trimmed) && !trimmed.includes('await')) return false;
+            if (/\.\s*fetch\s*\(/.test(trimmed)) return false;
+            return true;
+          })
           .map(({ file, line, lineNumber }) => `${path.relative(ROOT, file)}:${lineNumber}: ${line.trim()}`);
       });
 

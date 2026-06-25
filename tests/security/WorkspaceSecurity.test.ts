@@ -2,8 +2,6 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { config } from '../../src/config/index.js';
-import { PathValidator } from '../../src/security/PathValidator.js';
-import { WorkspaceGuard } from '../../src/security/WorkspaceGuard.js';
 import { WorkspaceResolver } from '../../src/security/WorkspaceResolver.js';
 
 function normalize(target: string): string {
@@ -42,18 +40,18 @@ describe('Workspace security', () => {
   });
 
   it('allows a relative path inside the workspace', () => {
-    const safePath = PathValidator.ensureInsideWorkspace(tempDefaultWorkspace, 'src/index.ts');
+    const safePath = WorkspaceResolver.ensurePathInsideWorkspace(tempDefaultWorkspace, 'src/index.ts');
     expect(normalize(safePath)).toBe(normalize(path.join(tempDefaultWorkspace, 'src/index.ts')));
   });
 
   it('allows an absolute path inside the workspace', () => {
     const absoluteTarget = path.join(tempDefaultWorkspace, 'README.md');
-    const safePath = PathValidator.ensureInsideWorkspace(tempDefaultWorkspace, absoluteTarget);
+    const safePath = WorkspaceResolver.ensurePathInsideWorkspace(tempDefaultWorkspace, absoluteTarget);
     expect(normalize(safePath)).toBe(normalize(absoluteTarget));
   });
 
   it('blocks traversal with dot-dot escapes', () => {
-    expect(() => PathValidator.ensureInsideWorkspace(tempDefaultWorkspace, '../escape.txt')).toThrow(/Path Traversal/);
+    expect(() => WorkspaceResolver.ensurePathInsideWorkspace(tempDefaultWorkspace, '../escape.txt')).toThrow(/Path Traversal/);
   });
 
   it('blocks sibling paths with the same textual prefix across all layers', () => {
@@ -62,14 +60,13 @@ describe('Workspace security', () => {
     const siblingFile = path.join(siblingWorkspace, 'stolen.txt');
 
     expect(() => WorkspaceResolver.validate(siblingWorkspace)).toThrow(/Workspace nao autorizado/);
-    expect(() => PathValidator.ensureInsideWorkspace(tempWorkspaceRoot, siblingFile)).toThrow(/Path Traversal/);
-    expect(() => WorkspaceGuard.getSecuredPath(tempWorkspaceRoot, siblingFile)).toThrow(/Path Traversal/);
+    expect(() => WorkspaceResolver.ensurePathInsideWorkspace(tempWorkspaceRoot, siblingFile)).toThrow(/Path Traversal/);
   });
 
   it('handles mixed slash styles consistently', () => {
     const base = normalize(tempDefaultWorkspace);
     const mixedTarget = `${base.replace(/\//g, '\\')}\\nested/file.txt`;
-    const safePath = PathValidator.ensureInsideWorkspace(base, mixedTarget);
+    const safePath = WorkspaceResolver.ensurePathInsideWorkspace(base, mixedTarget);
     expect(normalize(safePath)).toBe(normalize(path.join(tempDefaultWorkspace, 'nested', 'file.txt')));
   });
 
@@ -91,7 +88,7 @@ describe('Workspace security', () => {
   it('requires the workspace to exist on disk to be considered allowed', () => {
     const missingWorkspace = path.join(tempDefaultWorkspace, 'missing');
 
-    expect(WorkspaceGuard.isWorkspaceAllowed(missingWorkspace)).toBe(false);
+    expect(WorkspaceResolver.isWorkspaceAllowed(missingWorkspace)).toBe(false);
     expect(() => WorkspaceResolver.validate(missingWorkspace)).toThrow(/Workspace nao encontrado/);
   });
 
@@ -101,16 +98,16 @@ describe('Workspace security', () => {
   });
 
   it('keeps guard and resolver decisions aligned', () => {
-    expect(WorkspaceGuard.isWorkspaceAllowed(tempDefaultWorkspace)).toBe(true);
-    expect(WorkspaceGuard.resolveAlias('zavorth')).toBe(WorkspaceResolver.resolve('zavorth'));
-    expect(() => WorkspaceGuard.validateOrThrow(tempDefaultWorkspace)).not.toThrow();
+    expect(WorkspaceResolver.isWorkspaceAllowed(tempDefaultWorkspace)).toBe(true);
+    expect(WorkspaceResolver.resolveAlias('zavorth')).toBe(WorkspaceResolver.resolve('zavorth'));
+    expect(() => WorkspaceResolver.validate(tempDefaultWorkspace)).not.toThrow();
   });
 
   if (process.platform === 'win32') {
     it('treats Windows paths case-insensitively', () => {
       const lowerBase = tempDefaultWorkspace.toLowerCase();
       const upperTarget = path.join(tempDefaultWorkspace.toUpperCase(), 'src', 'index.ts');
-      const safePath = PathValidator.ensureInsideWorkspace(lowerBase, upperTarget);
+      const safePath = WorkspaceResolver.ensurePathInsideWorkspace(lowerBase, upperTarget);
       expect(normalize(safePath)).toBe(normalize(path.join(tempDefaultWorkspace, 'src', 'index.ts')));
     });
   }

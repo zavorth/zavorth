@@ -23,11 +23,9 @@ const SECURITY_FILES = [
   'EffectPolicyDecision.ts',
   'EffectPolicyContext.ts',
   'EgressGuard.ts',
-  'WorkspaceGuard.ts',
   'UntrustedContent.ts',
   'TrustedBoundary.ts',
   'SecurityProfile.ts',
-  'PathValidator.ts',
   'OperationalSecurityDoctor.ts',
   'ContinuousSecurityMonitor.ts',
   'ApprovalSigningKeyService.ts',
@@ -946,9 +944,9 @@ describe('Supporting security files', () => {
     expect(content).toMatch(/export/);
   });
 
-  it('WorkspaceGuard.ts exports WorkspaceGuard class', () => {
-    const content = readSecurityFile('WorkspaceGuard.ts');
-    expect(content).toMatch(/export\s+class\s+WorkspaceGuard/);
+  it('WorkspaceResolver.ts exports resolver class', () => {
+    const content = readSecurityFile('WorkspaceResolver.ts');
+    expect(content).toMatch(/export\s+class\s+WorkspaceResolver/);
   });
 
   it('SecurityPolicyBroker.ts exports broker functions', () => {
@@ -966,8 +964,8 @@ describe('Supporting security files', () => {
     expect(content).toMatch(/export\s+class\s+DangerousCommandBlocker/);
   });
 
-  it('PathValidator.ts exports validator', () => {
-    const content = readSecurityFile('PathValidator.ts');
+  it('WorkspaceResolver.ts exports resolver', () => {
+    const content = readSecurityFile('WorkspaceResolver.ts');
     expect(content).toMatch(/export/);
   });
 
