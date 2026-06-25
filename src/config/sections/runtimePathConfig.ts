@@ -7,6 +7,7 @@ import {
   deriveExternalExecutorAgentId,
   parseList,
 } from '../configHelpers';
+import { parseEnvInt } from '../envParsers';
 import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
 
 export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFileFallback: string) {
@@ -15,16 +16,16 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
   const runtimePath = (...segments: string[]) => path.join(homePaths.runtimeDir, ...segments);
   return {
     // Memory
-    memoryWindowSize: parseInt(process.env.MEMORY_WINDOW_SIZE || '20', 10),
+    memoryWindowSize: parseEnvInt(process.env.MEMORY_WINDOW_SIZE, 20),
 
     // Tokens
-    maxTokens: parseInt(process.env.MAX_TOKENS || '2000', 10),
+    maxTokens: parseEnvInt(process.env.MAX_TOKENS, 2000),
 
     // Video processing
-    videoChunkConcurrency: parseInt(process.env.VIDEO_CHUNK_CONCURRENCY || '2', 10),
-    videoContextRetentionDays: parseInt(process.env.VIDEO_CONTEXT_RETENTION_DAYS || '30', 10),
-    videoContextMaxFiles: parseInt(process.env.VIDEO_CONTEXT_MAX_FILES || '120', 10),
-    tempFileRetentionHours: parseInt(process.env.TEMP_FILE_RETENTION_HOURS || '2', 10),
+    videoChunkConcurrency: parseEnvInt(process.env.VIDEO_CHUNK_CONCURRENCY, 2),
+    videoContextRetentionDays: parseEnvInt(process.env.VIDEO_CONTEXT_RETENTION_DAYS, 30),
+    videoContextMaxFiles: parseEnvInt(process.env.VIDEO_CONTEXT_MAX_FILES, 120),
+    tempFileRetentionHours: parseEnvInt(process.env.TEMP_FILE_RETENTION_HOURS, 2),
 
     // Paths
     workspaceRoot: process.env.WORKSPACE_ROOT || path.resolve(projectRoot, '..', '..'),
@@ -38,7 +39,7 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     skillsDir: path.join(homePaths.homeRoot, '.agents', 'skills'),
     skillsGovernanceMode: process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual',
     skillsCurationEnabled: (process.env.ZAVORTH_SKILLS_CURATION_ENABLED || 'true').toLowerCase() !== 'false',
-    skillsCurationArchiveAfterDays: parseInt(process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS || '30', 10),
+    skillsCurationArchiveAfterDays: parseEnvInt(process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS, 30),
     skillsCurationBackup: (process.env.ZAVORTH_SKILLS_CURATION_BACKUP || 'true').toLowerCase() !== 'false',
     skillsCuratorStateFile:
       process.env.ZAVORTH_SKILLS_CURATOR_STATE_FILE ||
@@ -48,25 +49,24 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
       dataPath('skills', 'curator', 'reports'),
     skillsCuratorIntervalHours: parseFloat(process.env.ZAVORTH_SKILLS_CURATOR_INTERVAL_HOURS || `${24 * 7}`),
     skillsCuratorMinIdleHours: parseFloat(process.env.ZAVORTH_SKILLS_CURATOR_MIN_IDLE_HOURS || '2'),
-    skillsCuratorStaleAfterDays: parseInt(process.env.ZAVORTH_SKILLS_CURATOR_STALE_AFTER_DAYS || '30', 10),
-    skillsCuratorArchiveAfterDays: parseInt(
+    skillsCuratorStaleAfterDays: parseEnvInt(process.env.ZAVORTH_SKILLS_CURATOR_STALE_AFTER_DAYS, 30),
+    skillsCuratorArchiveAfterDays: parseEnvInt(
       process.env.ZAVORTH_SKILLS_CURATOR_ARCHIVE_AFTER_DAYS ||
-        process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS ||
-        '90',
-      10,
+        process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS,
+      90,
     ),
     skillsCuratorLlmReviewEnabled:
       (process.env.ZAVORTH_SKILLS_CURATOR_LLM_REVIEW_ENABLED || 'false').toLowerCase() === 'true',
     skillsCuratorLlmProvider: process.env.ZAVORTH_SKILLS_CURATOR_LLM_PROVIDER || '',
     skillsCuratorLlmModel: process.env.ZAVORTH_SKILLS_CURATOR_LLM_MODEL || '',
-    skillsCuratorLlmMaxProposals: parseInt(process.env.ZAVORTH_SKILLS_CURATOR_LLM_MAX_PROPOSALS || '12', 10),
+    skillsCuratorLlmMaxProposals: parseEnvInt(process.env.ZAVORTH_SKILLS_CURATOR_LLM_MAX_PROPOSALS, 12),
     dbPath: homePaths.dbPath,
     codexCliPath: process.env.CODEX_CLI_PATH || path.join(USERPROFILE_FALLBACK, '.codex', '.sandbox-bin', 'codex.exe'),
     codexSandbox: process.env.CODEX_SANDBOX || 'workspace-write',
-    codexTimeoutSeconds: parseInt(process.env.CODEX_TIMEOUT_SECONDS || '180', 10),
-    codexRemoteSessionTimeoutSeconds: parseInt(process.env.CODEX_REMOTE_SESSION_TIMEOUT_SECONDS || '1800', 10),
-    codexRemoteSessionHeartbeatMs: parseInt(process.env.CODEX_REMOTE_SESSION_HEARTBEAT_MS || '5000', 10),
-    codexRemoteSessionStaleMs: parseInt(process.env.CODEX_REMOTE_SESSION_STALE_MS || '15000', 10),
+    codexTimeoutSeconds: parseEnvInt(process.env.CODEX_TIMEOUT_SECONDS, 180),
+    codexRemoteSessionTimeoutSeconds: parseEnvInt(process.env.CODEX_REMOTE_SESSION_TIMEOUT_SECONDS, 1800),
+    codexRemoteSessionHeartbeatMs: parseEnvInt(process.env.CODEX_REMOTE_SESSION_HEARTBEAT_MS, 5000),
+    codexRemoteSessionStaleMs: parseEnvInt(process.env.CODEX_REMOTE_SESSION_STALE_MS, 15000),
     externalExecutorCliPath:
       process.env.EXTERNAL_EXECUTOR_CLI_PATH ||
       (process.platform === 'win32'
@@ -78,7 +78,7 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     externalExecutorThinking: process.env.EXTERNAL_EXECUTOR_THINKING || 'low',
     externalExecutorWslDistro: process.env.EXTERNAL_EXECUTOR_WSL_DISTRO || '',
     externalExecutorWslUser: process.env.EXTERNAL_EXECUTOR_WSL_USER || '',
-    externalExecutorTimeoutSeconds: parseInt(process.env.EXTERNAL_EXECUTOR_TIMEOUT_SECONDS || '240', 10),
+    externalExecutorTimeoutSeconds: parseEnvInt(process.env.EXTERNAL_EXECUTOR_TIMEOUT_SECONDS, 240),
     zavorthBridgeCliPath: process.env.ZAVORTH_BRIDGE_CLI_PATH || path.join(LOCALAPPDATA_FALLBACK, 'Programs', 'ZavorthBridge', 'bin', 'zavorthBridge.cmd'),
     zavorthBridgeMode: process.env.ZAVORTH_BRIDGE_MODE || 'agent',
     zavorthBridgeProfileName: process.env.ZAVORTH_BRIDGE_PROFILE_NAME || 'zavorth-model-test',
