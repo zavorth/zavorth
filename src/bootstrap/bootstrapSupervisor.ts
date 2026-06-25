@@ -1,12 +1,13 @@
 import os from 'os';
+import { logger } from '../logger.js';
 import { RuntimeArtifactMaintenanceService } from '../services/RuntimeArtifactMaintenanceService.js';
 import { RuntimeLogMaintenanceService } from '../services/RuntimeLogMaintenanceService.js';
 import type { BootstrapSupervisor } from './bootstrapTypes.js';
 
 export function printBootstrapBanner(): void {
-  console.log('===========================================');
-  console.log('  Zavorth v2.0 - Overhaul Arquitetural');
-  console.log('===========================================\n');
+  logger.info('===========================================');
+  logger.info('  Zavorth v2.0 - Overhaul Arquitetural');
+  logger.info('===========================================\n');
 }
 
 export function runInitialRuntimeMaintenance(
@@ -19,7 +20,7 @@ export function runInitialRuntimeMaintenance(
     return;
   }
 
-  console.log(
+  logger.info(
     `[runtime-maintenance] Limpei ${visualSmokeCleanup.deletedEntries} perfil(is) de visual-smoke e recuperei ${(visualSmokeCleanup.freedBytes / 1024 / 1024).toFixed(1)} MB.`,
   );
 }
