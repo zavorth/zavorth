@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { config } from '../config/index.js';
+import { readSafeJsonResponse } from '../security/SafeFetchService.js';
 
 export type GeminiVoiceSynthesisOptions = {
   model?: string;
@@ -52,7 +53,7 @@ export class GeminiVoiceService {
     this.apiKey = String(options?.apiKey || config.geminiVoiceApiKey || config.geminiApiKey || '').trim();
     this.apiBaseUrl = String(options?.apiBaseUrl || config.geminiApiBaseUrl || 'https://generativelanguage.googleapis.com').trim().replace(/\/+$/, '');
     this.apiVersion = String(options?.apiVersion || config.geminiApiVersion || 'v1beta').trim();
-    this.model = String(options?.model || config.geminiVoiceModel || 'gemini-3.1-flash-tts-preview').trim();
+    this.model = String(options?.model || config.geminiVoiceModel || 'gemini-2.5-flash').trim();
     this.voiceName = String(options?.voiceName || config.geminiVoiceName || 'Kore').trim();
     this.languageCode = String(options?.languageCode || config.geminiVoiceLanguageCode || 'en-US').trim();
     this.customHeaders = { ...(options?.customHeaders || config.geminiCustomHeaders || {}) };
@@ -120,7 +121,7 @@ export class GeminiVoiceService {
       }),
     });
 
-    const body = await response.json().catch(() => null);
+    const body = await readSafeJsonResponse<any>(response as any, 'Gemini Voice Service').catch(() => null);
     if (!response.ok) {
       const message =
         body?.error?.message

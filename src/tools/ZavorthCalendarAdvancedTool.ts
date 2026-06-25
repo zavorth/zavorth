@@ -304,7 +304,7 @@ try {
 
   private async getEvent(args: Record<string, unknown>): Promise<string> {
     const eventId = String(args.event_id || '');
-    if (!eventId) return 'Error: "event_id" is required.`";
+    if (!eventId) return 'Error: "event_id" is required.';
 
     return `Get event details for ${eventId}. Use list_events with a time range to find event IDs.`;
   }
@@ -352,7 +352,7 @@ try {
   private async addReminder(args: Record<string, unknown>): Promise<string> {
     const eventId = String(args.event_id || '');
     const minutes = Number(args.reminder_minutes || 15);
-    if (!eventId) return 'Error: "event_id" is required.`";
+    if (!eventId) return 'Error: "event_id" is required.';
 
     return `Reminder set ${minutes} minutes before event ${eventId}. Use update_event to modify reminders.`;
   }

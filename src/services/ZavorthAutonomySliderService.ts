@@ -4,7 +4,7 @@ import {
   type ZavorthAutonomySliderContract,
   type ZavorthAutonomySliderLevel,
   type ZavorthAutonomySliderLevelCard,
-} from '../contracts/ZavorthAutonomySliderContract.js';
+} from '../contracts/native/ZavorthAutonomySliderContract.js';
 import type { ZavorthExperienceAutonomyLevel } from '../contracts/ZavorthExperienceProfileContract.js';
 import {
   ZavorthExperienceProfileService,

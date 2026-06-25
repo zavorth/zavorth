@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider';
-import { safeFetch } from '../security/SafeFetchService.js';
+import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
 
 export interface LocalLlamaProviderOptions {
     baseUrl?: string; // e.g. http://localhost:11434/v1 for Ollama, http://localhost:8080/v1 for llama.cpp server
@@ -122,7 +122,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
                 throw new Error(`LLM Error: [${res.status}] ${errText}`);
             }
 
-            const data = await res.json();
+            const data = await readSafeJsonResponse<any>(res, 'Local Llama provider');
             const choice = data.choices[0];
             const message = choice.message;
 
@@ -158,7 +158,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
                 finishReason: choice.finish_reason || 'stop'
             };
         } catch (error: any) {
-             throw new Error(`Falha no provedor llama.cpp local (${this.baseUrl}): ${error.message}`);
+             throw new Error(`Failure in local llama.cpp provider (${this.baseUrl}): ${error.message}`);
         }
     }
 

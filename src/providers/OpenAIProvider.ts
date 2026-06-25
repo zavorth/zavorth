@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import OpenAI from 'openai';
 import { config } from '../config/index.js';
 import { extractFunctionToolCalls } from './openaiToolCalls.js';
@@ -27,7 +28,7 @@ export class OpenAIProvider implements ILlmProvider {
         : [config.openaiApiKey].filter(Boolean);
 
     if (keys.length === 0) {
-      throw new Error('OPENAI_API_KEY nao configurada no .env');
+      throw new Error('OPENAI_API_KEY not configured in .env');
     }
 
     this.clients = keys.map((apiKey: string) => new OpenAI({ apiKey }));
@@ -56,7 +57,7 @@ export class OpenAIProvider implements ILlmProvider {
         } as any, buildProviderRequestOptions(options) as any);
 
         if (attempt > 0) {
-          console.log(`[OpenAI Failover] Request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
+          logger.info(`[OpenAI Failover] Request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
         }
         this.currentClientIndex = clientIndex;
         const choice = response.choices[0];
@@ -73,7 +74,7 @@ export class OpenAIProvider implements ILlmProvider {
           throw error;
         }
         lastError = error;
-        console.warn(`[OpenAI] Request failed with key ${clientIndex + 1}: ${error?.message || error}`);
+        logger.warn(`[OpenAI] Request failed with key ${clientIndex + 1}: ${error?.message || error}`);
       }
     }
 
@@ -104,7 +105,7 @@ export class OpenAIProvider implements ILlmProvider {
         } as any, buildProviderRequestOptions(options) as any);
 
         if (attempt > 0) {
-          console.log(`[OpenAI Failover] Streaming request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
+          logger.info(`[OpenAI Failover] Streaming request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
         }
         this.currentClientIndex = clientIndex;
         yield* streamOpenAICompatibleCompletion(stream as any, nativeToolPayload.metadata);
@@ -114,7 +115,7 @@ export class OpenAIProvider implements ILlmProvider {
           throw error;
         }
         lastError = error;
-        console.warn(`[OpenAI] Streaming request failed with key ${clientIndex + 1}: ${error?.message || error}`);
+        logger.warn(`[OpenAI] Streaming request failed with key ${clientIndex + 1}: ${error?.message || error}`);
       }
     }
 

@@ -10,12 +10,12 @@ import {
 import {
   ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION,
   type ZavorthInvocationReceipt,
-} from '../contracts/ZavorthInvocationReceiptContract.js';
+} from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
 import type {
   ZavorthSubagentAutoInvocationDecision,
   ZavorthSubagentAutoInvocationTelemetry,
-} from '../contracts/ZavorthSubagentAutoInvocationContract.js';
-import type { ZavorthSubagentRuntimeMode } from '../contracts/ZavorthSubagentRuntimeContract.js';
+} from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
+import type { ZavorthSubagentRuntimeMode } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 import {
   decideSecurityPolicy,
   type SecurityPolicyBrokerDecision,

@@ -1,4 +1,4 @@
-import type { IntelligenceFabricSnapshot, IntelligenceRiskLevel } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceFabricSnapshot, IntelligenceRiskLevel } from '../contracts/native/IntelligenceFabricContract.js';
 import type { FabricToolIntentSnapshot } from '../contracts/PracticalAgencyContract.js';
 
 export class FabricToolIntentService {

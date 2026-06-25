@@ -76,8 +76,8 @@ export function buildModelsSurfaceResponseExample(): SurfaceResponse {
           ],
           rows: [
             { provider: 'gemini', model: 'gemini-2.5-flash', posture: 'default' },
-            { provider: 'openai', model: 'gpt-5.4', posture: 'manual' },
-            { provider: 'gemma', model: 'gemma-4-31b-it', posture: 'fast local-like' },
+            { provider: 'openai', model: 'gpt-4o', posture: 'manual' },
+            { provider: 'gemma', model: 'gemma-2-27b-it', posture: 'fast local-like' },
           ],
         },
       },
@@ -90,7 +90,7 @@ export function buildModelsSurfaceResponseExample(): SurfaceResponse {
     actions: [
       { id: 'model-gemini', label: 'Gemini', kind: 'command', command: '/model gemini', style: 'primary' },
       { id: 'model-openai', label: 'OpenAI', kind: 'command', command: '/model openai', style: 'secondary' },
-      { id: 'model-gemma', label: 'Gemma', kind: 'command', command: '/model gemma-4-31b-it', style: 'secondary' },
+      { id: 'model-gemma', label: 'Gemma', kind: 'command', command: '/model gemma-2-27b-it', style: 'secondary' },
     ],
   });
 }

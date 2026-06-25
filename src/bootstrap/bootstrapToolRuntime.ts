@@ -77,7 +77,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { VideoGenRunwayTool } = require('../services/plugins/VideoGenRunwayTool.js');
   const { SpotifyPlayerTool } = require('../services/plugins/SpotifyPlayerTool.js');
 
-  // ── Phase 2 tools ──
   const { ZavorthDockerComposeTool } = require('../tools/ZavorthDockerComposeTool.js');
   const { ZavorthCodeIntelligenceTool } = require('../tools/ZavorthCodeIntelligenceTool.js');
   const { ZavorthSshTunnelTool } = require('../tools/ZavorthSshTunnelTool.js');
@@ -123,8 +122,9 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthNotificationTool } = require('../tools/ZavorthNotificationTool.js');
   const { ZavorthApiBuilderTool } = require('../tools/ZavorthApiBuilderTool.js');
   const { ZavorthTerminalBackendsTool } = require('../tools/ZavorthTerminalBackendsTool.js');
+  const { AgentManagerTool } = require('../tools/AgentManagerTool.js');
+  const { CapabilityDiscoveryTool } = require('../tools/CapabilityDiscoveryTool.js');
 
-  // ── New plugin services (Phase 2) ──
   const { LLMRouterService } = require('../services/plugins/LLMRouterService.js');
   const { ContextCompressorService } = require('../services/plugins/ContextCompressorService.js');
   const { ReasoningEffortService } = require('../services/plugins/ReasoningEffortService.js');
@@ -250,7 +250,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new VideoGenRunwayTool());
   toolRegistry.register(new SpotifyPlayerTool());
 
-  // ── Phase 2 tool registrations ──
   toolRegistry.register(new ZavorthDockerComposeTool());
   toolRegistry.register(new ZavorthCodeIntelligenceTool());
   toolRegistry.register(new ZavorthSshTunnelTool());
@@ -259,7 +258,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthNetworkTool());
   toolRegistry.register(new ZavorthWebhookReceiverTool());
 
-  // ── Innovative tool registrations ──
   toolRegistry.register(new ZavorthMcpMarketplaceTool());
   toolRegistry.register(new ZavorthAgentGovernanceTool());
   toolRegistry.register(new ZavorthRagBuilderTool());
@@ -290,6 +288,8 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthNotificationTool());
   toolRegistry.register(new ZavorthApiBuilderTool());
   toolRegistry.register(new ZavorthTerminalBackendsTool());
+  toolRegistry.register(new AgentManagerTool());
+  toolRegistry.register(new CapabilityDiscoveryTool());
 
   toolRegistry.assertNoFallbackSecurityDefinitions();
 

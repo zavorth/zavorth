@@ -3,7 +3,7 @@ import path from 'node:path';
 import type {
   ZavorthNativeCapabilityId,
   ZavorthSatelliteCapabilityBridgeProof,
-} from '../contracts/ZavorthNativeCompanionDeviceContract.js';
+} from '../contracts/native/ZavorthNativeCompanionDeviceContract.js';
 import { SatelliteDeviceLiveService } from './SatelliteDeviceLiveService.js';
 
 type Runtime = {

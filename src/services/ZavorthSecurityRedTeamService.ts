@@ -1,4 +1,4 @@
-import type { IntelligenceExecutionProposal } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceExecutionProposal } from '../contracts/native/IntelligenceFabricContract.js';
 import type { CapabilityBuilderProposal, SecurityRedTeamFinding, SecurityRedTeamSnapshot } from '../contracts/PracticalAgencyContract.js';
 
 export class ZavorthSecurityRedTeamService {

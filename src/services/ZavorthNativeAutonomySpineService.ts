@@ -5,7 +5,7 @@ import {
   type ZavorthNativeAutonomySpineInput,
   type ZavorthNativeAutonomySpineSnapshot,
   type ZavorthSkillForgeInput,
-} from '../contracts/ZavorthNativeAutonomySpineContract.js';
+} from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
 import { MnemosDreamCycleService } from './MnemosDreamCycleService.js';
 import { ZavorthChannelLiveCertificationService } from './ZavorthChannelLiveCertificationService.js';
 import { ZavorthDynamicMissionHarnessService } from './ZavorthDynamicMissionHarnessService.js';

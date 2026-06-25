@@ -2,7 +2,7 @@ import type {
   AgentOsImpactSimulation,
   AgentOsProjectTwinSnapshot,
 } from '../contracts/AgentOsContract.js';
-import type { IntelligenceExecutionProposal } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceExecutionProposal } from '../contracts/native/IntelligenceFabricContract.js';
 import { agentOsHash, isAgentOsSensitivePath, truncateAgentOsText } from './AgentOsTextSafety.js';
 
 export class ImpactSimulatorService {

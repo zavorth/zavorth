@@ -10,6 +10,12 @@ export abstract class BaseTool {
   abstract readonly parameters: ToolDefinition['parameters'];
   public readonly metadata?: ToolDefinition['metadata'];
 
+  constructor() {
+    if (new.target === BaseTool) {
+      throw new Error('Cannot instantiate abstract class BaseTool directly.');
+    }
+  }
+
   /**
    * Executa a ferramenta com os argumentos fornecidos.
    * @returns String com o resultado da execução

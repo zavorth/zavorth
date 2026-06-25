@@ -11,11 +11,11 @@ import {
 import type {
   ZavorthLargeSkillAbsorptionCandidateIndexEntry,
   ZavorthLargeSkillAbsorptionSnapshot,
-} from '../contracts/ZavorthLargeSkillAbsorptionContract.js';
+} from '../contracts/native/ZavorthLargeSkillAbsorptionContract.js';
 import {
   ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION,
   type ZavorthInvocationReceipt,
-} from '../contracts/ZavorthInvocationReceiptContract.js';
+} from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
 import {
   decideSecurityPolicy,
   type SecurityPolicyBrokerDecision,

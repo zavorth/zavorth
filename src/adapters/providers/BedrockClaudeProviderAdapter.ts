@@ -32,7 +32,7 @@ export class BedrockClaudeProviderAdapter implements ILlmProvider {
     this.defaultModelName = String(
       options.modelName
         || process.env.BEDROCK_CLAUDE_MODEL
-        || 'anthropic.claude-sonnet-4-5-20250929-v1:0',
+        || 'anthropic.claude-3-5-sonnet-latest-20250929-v1:0',
     ).trim();
     this.injectedClient = options.client || null;
   }

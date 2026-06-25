@@ -3,7 +3,7 @@ import {
   type PracticalAgencyPhaseStatus,
   type PracticalAgencySnapshot,
 } from '../contracts/PracticalAgencyContract.js';
-import type { IntelligenceFabricInput, IntelligenceFabricSnapshot } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceFabricInput, IntelligenceFabricSnapshot } from '../contracts/native/IntelligenceFabricContract.js';
 import { CapabilityLabService } from './CapabilityLabService.js';
 import { ConversationalAgencyPresenter } from './ConversationalAgencyPresenter.js';
 import { FabricToolIntentService } from './FabricToolIntentService.js';

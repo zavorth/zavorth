@@ -31,7 +31,7 @@ export const MODEL_SPECS: Record<string, ModelSpec> = {
   },
 
   // ── Gemini 3.1 Pro High ─────────────────────────────────────────
-  "gemini-3.1-pro-high": {
+  "gemini-2.5-pro": {
     maxOutputTokens: 65535,
     contextWindow: 1048576,
     defaultThinkingBudget: 24576,
@@ -56,7 +56,7 @@ export const MODEL_SPECS: Record<string, ModelSpec> = {
   },
 
   // ── Claude Opus 4.5 ─────────────────────────────────────────────
-  "claude-opus-4-5": {
+  "claude-3-opus-20240229": {
     maxOutputTokens: 32768,
     contextWindow: 200000,
     defaultThinkingBudget: 10000,

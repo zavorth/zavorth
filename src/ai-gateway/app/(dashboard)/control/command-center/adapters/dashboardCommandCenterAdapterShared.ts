@@ -46,6 +46,7 @@ export type DashboardCommandCenterAdapterInput = {
   providerMeshConsolidation?: LooseRecord | null;
   universalIntentTrustEnforcement?: LooseRecord | null;
   runArtifactReceiptReplay?: LooseRecord | null;
+  home?: LooseRecord | null;
   productizationEvidence?: LooseRecord | null;
   productEntryRuntime?: LooseRecord | null;
   releaseInstallerRollbackPath?: LooseRecord | null;

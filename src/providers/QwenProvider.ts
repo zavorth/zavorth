@@ -19,7 +19,7 @@ export class QwenProvider implements ILlmProvider {
   constructor() {
     if (!config.puterAuthToken) {
       throw new Error(
-        'PUTER_AUTH_TOKEN nao configurado no .env. Para usar Qwen via Puter, gere um token com "npm run puter:auth" e salve-o no .env.',
+        'PUTER_AUTH_TOKEN not configured in .env. To use Qwen via Puter, generate a token with "npm run puter:auth" and save it in .env.',
       );
     }
 

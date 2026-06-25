@@ -16,7 +16,7 @@ import {
 import type {
   ZavorthInnovationRadarCandidate,
   ZavorthInnovationRadarSnapshot,
-} from '../contracts/ZavorthInnovationRadarContract.js';
+} from '../contracts/native/ZavorthInnovationRadarContract.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 
 type Runtime = {

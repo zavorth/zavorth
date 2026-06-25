@@ -1,2 +1,2 @@
-export * from '../../gateways/SlackGateway.stub.js';
-export { SlackGateway } from '../../gateways/SlackGateway.stub.js';
+export * from '../../gateways/channels/slack/SlackGateway.stub.js';
+export { SlackGateway } from '../../gateways/channels/slack/SlackGateway.stub.js';

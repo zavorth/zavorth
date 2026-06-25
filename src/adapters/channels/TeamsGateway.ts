@@ -1,2 +1,2 @@
-export * from '../../gateways/TeamsGateway.js';
-export { TeamsGateway } from '../../gateways/TeamsGateway.js';
+export * from '../../gateways/channels/teams/TeamsGateway.js';
+export { TeamsGateway } from '../../gateways/channels/teams/TeamsGateway.js';

@@ -24,7 +24,7 @@ import type {
 } from '../contracts/ZavorthExternalRuntimeBridgeContract.js';
 import type {
   ZavorthNativeEngineAbsorptionStatus,
-} from '../contracts/ZavorthNativeEngineAbsorptionContract.js';
+} from '../contracts/native/ZavorthNativeEngineAbsorptionContract.js';
 
 type Runtime = {
   now?: () => Date;

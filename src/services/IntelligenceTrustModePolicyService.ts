@@ -2,7 +2,7 @@ import type {
   IntelligenceLegacyTrustMode,
   IntelligenceTrustMode,
   IntelligenceTrustResolutionSource,
-} from '../contracts/IntelligenceFabricContract.js';
+} from '../contracts/native/IntelligenceFabricContract.js';
 import { IntelligenceRiskGateService } from './IntelligenceRiskGateService.js';
 
 export type IntelligenceTrustModePolicyInput = {

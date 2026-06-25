@@ -18,7 +18,7 @@ export class TogetherProvider implements ILlmProvider {
 
   constructor() {
     if (!config.togetherApiKey) {
-      throw new Error('TOGETHER_API_KEY nao configurada no .env');
+      throw new Error('TOGETHER_API_KEY not configured in .env');
     }
 
     this.client = new OpenAI({

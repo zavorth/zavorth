@@ -1,0 +1,134 @@
+import { config } from '../../../config/index.js';
+import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
+import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+
+export class ZaloGateway extends WebhookGateway {
+  public readonly id = 'zalo';
+  public readonly name = 'Zalo';
+  public readonly type: 'async' = 'async';
+  public readonly mode: WebhookGatewayMode = 'bot-http';
+
+  constructor(options: WebhookGatewayOptions) {
+    super({
+      ...options,
+      outboxDir: options.outboxDir || config.zaloOutboxDir,
+      statusFile: options.statusFile || config.zaloStatusFile,
+    });
+  }
+
+  public describe(): ChannelAdapterStatus {
+    return {
+      ...this.buildDefaultDescribe(),
+      webhookPath: '/api/webhooks/zalo',
+      doctorCommand: '/channels doctor zalo',
+      operatorNextStep: this.resolveConfigured()
+        ? 'Zalo configurado. Envie mensagens via API HTTP.'
+        : 'Defina ZALO_SEND_URL e ZALO_ACCESS_TOKEN para ativar.',
+    };
+  }
+
+  public resolveConfigured(): boolean {
+    return Boolean(
+      String(config.zaloSendUrl || '').trim()
+      && String(config.zaloAccessToken || '').trim(),
+    );
+  }
+
+  public resolveEnabled(): boolean {
+    return Boolean(
+      String(config.zaloSendUrl || '').trim()
+      || String(config.zaloAccessToken || '').trim(),
+    );
+  }
+
+  protected resolveOutboxDir(): string {
+    return config.zaloOutboxDir;
+  }
+
+  protected resolveStatusFile(): string {
+    return config.zaloStatusFile;
+  }
+
+  protected extractInboundPayload(webhookPayload: Record<string, unknown>): {
+    userId: string;
+    chatId: string;
+    rawText: string;
+    messageId?: string | null;
+    isGroup?: boolean;
+    fields?: Record<string, unknown>;
+  } | null {
+    const sender = webhookPayload.sender && typeof webhookPayload.sender === 'object'
+      ? webhookPayload.sender as Record<string, unknown>
+      : null;
+    const userId = String(
+      sender?.id
+      || (webhookPayload as any).userId
+      || '',
+    ).trim();
+    const chatId = String(
+      sender?.id
+      || (webhookPayload as any).chatId
+      || 'zalo',
+    ).trim();
+    const message = webhookPayload.message && typeof webhookPayload.message === 'object'
+      ? webhookPayload.message as Record<string, unknown>
+      : null;
+    const rawText = String(
+      message?.text
+      || (webhookPayload as any).text
+      || (webhookPayload as any).rawText
+      || '',
+    ).trim();
+    const messageId = String(
+      (webhookPayload as any).messageId
+      || (webhookPayload as any).msg_id
+      || '',
+    ).trim() || null;
+
+    if (!rawText) {
+      return null;
+    }
+
+    return {
+      userId: userId || 'zalo-user',
+      chatId: chatId || 'zalo',
+      rawText,
+      messageId,
+      isGroup: false,
+      fields: {},
+    };
+  }
+
+  public async sendText(to: string, text: string): Promise<void> {
+    if (!this.resolveConfigured() || !this.fetchImpl) {
+      this.sendMessage({ recipients: [to], text, chatId: to });
+      return;
+    }
+
+    const sendUrl = String(config.zaloSendUrl || '').trim();
+    const accessToken = String(config.zaloAccessToken || '').trim();
+
+    try {
+      const response = await this.fetchImpl(sendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          access_token: accessToken,
+        },
+        body: JSON.stringify({
+          recipient: { user_id: to },
+          message: { text },
+        }),
+      });
+
+      if (!response.ok) {
+        this.recordError(`Zalo API error: HTTP ${response.status}`);
+        return;
+      }
+
+      this.markOutbound();
+    } catch (error: any) {
+      this.recordError(`Zalo send failed: ${error?.message || error}`);
+    }
+  }
+}

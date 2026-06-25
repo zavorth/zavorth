@@ -3,8 +3,8 @@ import type {
   ModuleSdkPackageExport,
   ModuleSdkSurface,
   ModuleSdkSurfaceId,
-} from '../contracts/ModuleSdkExportContract.js';
-import { ZAVORTH_MODULE_SDK_EXPORT_CONTRACT_VERSION } from '../contracts/ModuleSdkExportContract.js';
+} from '../contracts/native/ModuleSdkExportContract.js';
+import { ZAVORTH_MODULE_SDK_EXPORT_CONTRACT_VERSION } from '../contracts/native/ModuleSdkExportContract.js';
 
 type ModuleSdkExportClosureRuntime = {
   now?: () => Date;

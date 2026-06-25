@@ -15,8 +15,8 @@ import {
   type ZavorthPerceptionSurfaceCommand,
   type ZavorthPerceptionTargetKind,
 } from '../contracts/ZavorthPerceptionInvocationContract.js';
-import type { ZavorthGovernedSubagentProfileId } from '../contracts/ZavorthGovernedSubagentContract.js';
-import type { ZavorthSubagentRuntimeSnapshot } from '../contracts/ZavorthSubagentRuntimeContract.js';
+import type { ZavorthGovernedSubagentProfileId } from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
+import type { ZavorthSubagentRuntimeSnapshot } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 
 type RouteIntent = {
   targetKind: ZavorthPerceptionTargetKind;

@@ -348,6 +348,7 @@ function isCliNativeAliasCommand(commandName: string | null): boolean {
     'release',
     'security',
     'workflows',
+    'loop',
     ]).has(String(commandName || '').trim().toLowerCase());
   }
 
@@ -447,6 +448,7 @@ function resolveCliExecutionInput(rawInput: string): CliResolvedExecutionInput {
     case 'transports':
     case 'channels':
     case 'runtime':
+    case 'loop':
     case 'agmobile':
       surfaceText = `/${commandName}${args ? ` ${args}` : ''}`.trim();
       nativeText = canonicalizeCliCommandInput(surfaceText);

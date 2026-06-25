@@ -1,2 +1,2 @@
-export * from '../../gateways/WhatsAppGateway.stub.js';
-export { WhatsAppGateway } from '../../gateways/WhatsAppGateway.stub.js';
+export * from '../../gateways/channels/whatsapp/WhatsAppGateway.stub.js';
+export { WhatsAppGateway } from '../../gateways/channels/whatsapp/WhatsAppGateway.stub.js';

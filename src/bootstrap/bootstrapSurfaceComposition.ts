@@ -8,7 +8,7 @@ import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessi
 import { GatewaySessionService } from '../runtime/sessions/GatewaySessionService.js';
 import { GatewaySessionStoreService } from '../runtime/sessions/GatewaySessionStoreService.js';
 import { GatewaySessionToolsService } from '../runtime/sessions/GatewaySessionToolsService.js';
-import type { BotGateway } from '../adapters/telegram/BotGateway.js';
+import type { BotGateway } from '../gateways/channels/telegram/BotGateway.js';
 import {
   DiscordBridgeGateway,
   DiscordGateway,

@@ -1,2 +1,2 @@
-export * from '../../gateways/DiscordBridgeGateway.js';
-export { DiscordBridgeGateway } from '../../gateways/DiscordBridgeGateway.js';
+export * from '../../gateways/channels/discord/DiscordBridgeGateway.js';
+export { DiscordBridgeGateway } from '../../gateways/channels/discord/DiscordBridgeGateway.js';

@@ -5,7 +5,7 @@ import type {
   AgentOsPermissionLease,
   AgentOsProjectTwinSnapshot,
 } from '../contracts/AgentOsContract.js';
-import type { IntelligenceExecutionProposal } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceExecutionProposal } from '../contracts/native/IntelligenceFabricContract.js';
 import { isAgentOsSensitivePath, truncateAgentOsText } from './AgentOsTextSafety.js';
 
 export class AgentImmuneSystemService {

@@ -1,4 +1,4 @@
-import type { BotGateway } from '../adapters/telegram/BotGateway.js';
+import type { BotGateway } from '../gateways/channels/telegram/BotGateway.js';
 import type { CoreOrchestrator } from '../core/CoreOrchestrator.js';
 import type { PlatformGatewayContract } from '../contracts/PlatformContract.js';
 import type { McpRuntimeService } from '../mcp/McpRuntimeService.js';

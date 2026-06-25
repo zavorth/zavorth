@@ -421,7 +421,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
     return [
       { id: 'model-gemini', label: 'Gemini', kind: 'command', command: '/model gemini', callbackData: '/model gemini', style: 'primary' },
       { id: 'model-openai', label: 'OpenAI', kind: 'command', command: '/model openai', callbackData: '/model openai', style: 'secondary' },
-      { id: 'model-gemma', label: 'Gemma', kind: 'command', command: '/model gemma-4-31b-it', callbackData: '/model gemma-4-31b-it', style: 'secondary' },
+      { id: 'model-gemma', label: 'Gemma', kind: 'command', command: '/model gemma-2-27b-it', callbackData: '/model gemma-2-27b-it', style: 'secondary' },
       { id: 'model-status', label: 'Gateway', kind: 'command', command: '/gateway', callbackData: '/gateway', style: 'success' },
     ];
   }

@@ -1,7 +1,7 @@
 import type {
   ZavorthAdaptiveMultilingualRecallInput,
   ZavorthAdaptiveMultilingualRecallResult,
-} from '../contracts/ZavorthAdaptiveLearningOsContract.js';
+} from '../contracts/native/ZavorthAdaptiveLearningOsContract.js';
 import type { ZavorthMemoryLearningLoopService } from './ZavorthMemoryLearningLoopService.js';
 
 type AdaptiveRecallRuntime = {

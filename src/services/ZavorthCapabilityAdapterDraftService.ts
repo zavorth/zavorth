@@ -12,9 +12,9 @@ import {
   type ZavorthCapabilityAdapterDraftSnapshot,
   type ZavorthCapabilityAdapterDraftStatus,
 } from '../contracts/ZavorthCapabilityAdapterDraftContract.js';
-import type { IntelligenceCapabilityManifest } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceCapabilityManifest } from '../contracts/native/IntelligenceFabricContract.js';
 import type { CapabilityLabSnapshot } from '../contracts/PracticalAgencyContract.js';
-import type { ZavorthInnovationRadarCategory } from '../contracts/ZavorthInnovationRadarContract.js';
+import type { ZavorthInnovationRadarCategory } from '../contracts/native/ZavorthInnovationRadarContract.js';
 import type {
   ZavorthCapabilityPrototypeRecord,
   ZavorthCapabilityPrototypeSandboxSnapshot,

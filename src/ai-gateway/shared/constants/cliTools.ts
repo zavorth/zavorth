@@ -24,14 +24,14 @@ export const CLI_TOOLS = {
         name: "Claude Opus",
         alias: "opus",
         envKey: "ANTHROPIC_DEFAULT_OPUS_MODEL",
-        defaultValue: "cc/claude-opus-4-5-20251101",
+        defaultValue: "cc/claude-3-opus-20240229-20251101",
       },
       {
         id: "sonnet",
         name: "Claude Sonnet",
         alias: "sonnet",
         envKey: "ANTHROPIC_DEFAULT_SONNET_MODEL",
-        defaultValue: "cc/claude-sonnet-4-5-20250929",
+        defaultValue: "cc/claude-3-5-sonnet-latest-20250929",
       },
       {
         id: "haiku",
@@ -190,11 +190,11 @@ export const CLI_TOOLS = {
       "claude-sonnet-4-6",
       "gemini-3-flash",
       "gpt-oss-120b-medium",
-      "gemini-3.1-pro-high",
+      "gemini-2.5-pro",
       "gemini-3.1-pro-low",
     ],
     defaultModels: [
-      { id: "gemini-3.1-pro-high", name: "Gemini 3.1 Pro High", alias: "gemini-3.1-pro-high" },
+      { id: "gemini-2.5-pro", name: "Gemini 3.1 Pro High", alias: "gemini-2.5-pro" },
       { id: "gemini-3.1-pro-low", name: "Gemini 3.1 Pro Low", alias: "gemini-3.1-pro-low" },
       { id: "gemini-3-flash", name: "Gemini 3 Flash", alias: "gemini-3-flash" },
       {
@@ -236,7 +236,7 @@ export const CLI_TOOLS = {
       },
       {
         type: "warning",
-        text: 'Thinking variant example: opencode run "implement this feature" --model ZavorthGateway/claude-sonnet-4-5-thinking --variant high',
+        text: 'Thinking variant example: opencode run "implement this feature" --model ZavorthGateway/claude-3-5-sonnet-latest-thinking --variant high',
       },
     ],
     guideSteps: [
@@ -261,8 +261,8 @@ export const CLI_TOOLS = {
       "apiKey": "{{apiKey}}",
       "models": [
         "{{model}}",
-        "claude-sonnet-4-5-thinking",
-        "gemini-3.1-pro-high",
+        "claude-3-5-sonnet-latest-thinking",
+        "gemini-2.5-pro",
         "gemini-3-flash"
       ]
     }

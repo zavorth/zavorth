@@ -18,7 +18,7 @@ export class MistralProvider implements ILlmProvider {
 
   constructor() {
     if (!config.mistralApiKey) {
-      throw new Error('MISTRAL_API_KEY nao configurada no .env');
+      throw new Error('MISTRAL_API_KEY not configured in .env');
     }
 
     this.client = new OpenAI({

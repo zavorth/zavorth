@@ -1,4 +1,4 @@
-import type { ZavorthAdaptiveLearningSnapshot } from '../contracts/ZavorthAdaptiveLearningOsContract.js';
+import type { ZavorthAdaptiveLearningSnapshot } from '../contracts/native/ZavorthAdaptiveLearningOsContract.js';
 
 export type ZavorthAdaptiveLearningRenderOptions = {
   locale?: string | null;

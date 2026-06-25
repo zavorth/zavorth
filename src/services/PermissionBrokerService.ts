@@ -1,5 +1,5 @@
 import type { AgentOsPermissionLease, AgentOsStatus } from '../contracts/AgentOsContract.js';
-import type { IntelligenceExecutionProposal, IntelligenceProposedAction } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceExecutionProposal, IntelligenceProposedAction } from '../contracts/native/IntelligenceFabricContract.js';
 import { agentOsHash, isAgentOsSensitivePath } from './AgentOsTextSafety.js';
 
 export class PermissionBrokerService {

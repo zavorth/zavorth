@@ -5,8 +5,8 @@ import type {
   ZavorthSubagentRuntimeExecutionMode,
   ZavorthSubagentRuntimeMode,
   ZavorthSubagentRuntimeWorkerResult,
-} from '../contracts/ZavorthSubagentRuntimeContract.js';
-import type { ZavorthGovernedSubagentProfile } from '../contracts/ZavorthGovernedSubagentContract.js';
+} from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
+import type { ZavorthGovernedSubagentProfile } from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
 import { buildUntrustedContentFirewallInstruction } from '../security/UntrustedContent.js';
 import { wrapToolOutputForLlm } from '../security/ToolOutputTrust.js';
 import {

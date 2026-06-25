@@ -3,7 +3,7 @@ import { PlatformGatewayContract, PlatformKey } from '../contracts/PlatformContr
 import { LogRepository } from '../storage/LogRepository.js';
 import type { SurfaceTaskDispatcherLike } from '../services/SurfaceRuntime.js';
 import type { EchoOutputStageService } from '../services/EchoOutputStageService.js';
-import { CommandParser } from '../telegram/CommandParser.js';
+import { CommandParser } from '../gateways/channels/telegram/CommandParser.js';
 import {
   createInternalSurfaceCommandApi,
   type SurfaceCommandBoundary,

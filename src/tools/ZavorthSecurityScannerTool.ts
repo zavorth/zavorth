@@ -367,7 +367,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
 
   private async headerAudit(args: Record<string, unknown>): Promise<string> {
     const url = String(args.url || '');
-    if (!url) return 'Error: "url" is required.`";
+    if (!url) return 'Error: "url" is required.';
 
     try {
       const { execFileSync } = await import('child_process');

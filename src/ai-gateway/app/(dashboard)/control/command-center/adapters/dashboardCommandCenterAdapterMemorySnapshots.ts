@@ -229,7 +229,7 @@ export function buildSelfingDashboard(
         kind: asText(receipt.kind, "policy"),
         source: asText(receipt.source, "SelfingDashboardService"),
         detail: asText(receipt.detail, "Receipt de selfing."),
-        status: status === "needs-review" || status === "missing" ? status : "ready",
+        status: (status === "needs-review" || status === "missing" ? status : "ready") as "missing" | "ready" | "needs-review",
       };
     }).slice(0, 16),
     policy: {
@@ -310,7 +310,7 @@ function mapArtifactMemoryEntry(entry: LooseRecord, index: number): DashboardArt
     taskRef: asText(entry.taskRef) || null,
     summary: asText(entry.summary, "Resumo nao informado."),
     searchableText: asText(entry.searchableText),
-    tags: asTextArray(entry.tags),
+    tags: asTextArray(entry.tags) ?? [],
     importance: normalizeArtifactMemoryImportance(entry.importance),
     reusable: entry.reusable !== false,
     receipt: {
@@ -390,7 +390,7 @@ export function buildArtifactMemory(
         source: asText(receipt.source, "ArtifactMemoryService"),
         artifactId: asText(receipt.artifactId) || undefined,
         detail: asText(receipt.detail, "Receipt de artifact memory."),
-        status: status === "needs-index" || status === "missing" ? status : "ready",
+        status: (status === "needs-index" || status === "missing" ? status : "ready") as "missing" | "ready" | "needs-index",
         observatoryReceiptId: asText(receipt.observatoryReceiptId) || undefined,
       };
     }).slice(0, 20),
@@ -527,7 +527,7 @@ export function buildPersonalOpsAutopilot(
         kind: asText(receipt.kind, "policy"),
         source: asText(receipt.source, "PersonalOpsAutopilotService"),
         detail: asText(receipt.detail, "Receipt de autopilot."),
-        status: status === "needs-review" || status === "missing" ? status : "ready",
+        status: (status === "needs-review" || status === "missing" ? status : "ready") as "missing" | "ready" | "needs-review",
       };
     }).slice(0, 20),
     policy: {

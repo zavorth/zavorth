@@ -1,5 +1,5 @@
 import { config } from '../config/index.js';
-import { safeFetch } from '../security/SafeFetchService.js';
+import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
 import type {
   ChatMessage,
   ILlmProvider,
@@ -55,7 +55,7 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
     this.baseUrl = String(options.baseUrl || (config as any).geminiInteractionsBaseUrl || 'https://generativelanguage.googleapis.com/v1beta')
       .trim()
       .replace(/\/+$/, '');
-    this.defaultModelName = String(options.modelName || (config as any).geminiInteractionsModel || 'gemini-3.5-flash').trim();
+    this.defaultModelName = String(options.modelName || (config as any).geminiInteractionsModel || 'gemini-2.5-flash').trim();
     this.fetchImpl = options.fetchImpl;
   }
 
@@ -86,7 +86,7 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
       },
       body: JSON.stringify(payload),
     });
-    const body = await response.json().catch(() => null);
+    const body = await readSafeJsonResponse<any>(response, 'Gemini Interactions API').catch(() => null);
     if (!response.ok) {
       const detail = body?.error?.message || body?.message || `HTTP ${response.status}`;
       throw new Error(`Gemini Interactions API error: ${detail}`);

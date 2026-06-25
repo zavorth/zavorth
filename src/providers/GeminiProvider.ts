@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import {
   Content,
   FunctionDeclaration,
@@ -15,7 +16,7 @@ import {
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
-import { safeFetch } from '../security/SafeFetchService.js';
+import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
 import { isProviderAbortError } from './ProviderAbort.js';
 
 export class GeminiProvider implements ILlmProvider {
@@ -72,7 +73,7 @@ export class GeminiProvider implements ILlmProvider {
           : await model.generateContent(request);
 
         if (attempt > 0) {
-          console.log(
+          logger.info(
             `[Gemini Failover] Requisicao bem-sucedida usando a chave secundaria (${clientIndex + 1}/${this.clients.length}).`,
           );
         }
@@ -83,7 +84,7 @@ export class GeminiProvider implements ILlmProvider {
           throw error;
         }
         lastError = error;
-        console.warn(
+        logger.warn(
           `[Gemini] Erro usando a chave ${clientIndex + 1}: ${error?.message || error}`,
         );
       }
@@ -165,7 +166,7 @@ export class GeminiProvider implements ILlmProvider {
         );
 
         if (attempt > 0) {
-          console.log(
+          logger.info(
             `[Gemini Failover] Streaming bem-sucedido usando a chave secundaria (${clientIndex + 1}/${this.clients.length}).`,
           );
         }
@@ -255,7 +256,7 @@ export class GeminiProvider implements ILlmProvider {
           throw error;
         }
         lastError = error;
-        console.warn(
+        logger.warn(
           `[Gemini] Erro de streaming usando a chave ${clientIndex + 1}: ${error?.message || error}`,
         );
       }
@@ -331,7 +332,7 @@ export class GeminiProvider implements ILlmProvider {
           allowLoopback: true,
         });
 
-        const responseBody = await response.json().catch(() => null);
+        const responseBody = await readSafeJsonResponse<any>(response, 'Gemini Cloudflare AI Gateway').catch(() => null);
 
         if (!response.ok) {
           const errorText =
@@ -342,7 +343,7 @@ export class GeminiProvider implements ILlmProvider {
         }
 
         if (attempt > 0) {
-          console.log(
+          logger.info(
             `[Gemini Failover] Requisicao via Cloudflare AI Gateway bem-sucedida usando a chave secundaria (${keyIndex + 1}/${keys.length}).`,
           );
         }
@@ -351,7 +352,7 @@ export class GeminiProvider implements ILlmProvider {
         return this.parseGatewayResponse(responseBody);
       } catch (error: any) {
         lastError = error;
-        console.warn(
+        logger.warn(
           `[Gemini via Cloudflare AI Gateway] Erro usando a chave ${keyIndex + 1}: ${error?.message || error}`,
         );
       }

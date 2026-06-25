@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import OpenAI from 'openai';
 import { config } from '../config/index.js';
 import { extractFunctionToolCalls } from './openaiToolCalls.js';
@@ -17,10 +18,10 @@ export class OpenCodeProvider implements ILlmProvider {
 
   constructor() {
     if (!config.openCodeApiKey) {
-      throw new Error('OPENCODE_API_KEY nao configurada no .env. Pegue sua chave em https://opencode.ai/auth');
+      throw new Error('OPENCODE_API_KEY not configured in .env. Get your key at https://opencode.ai/auth');
     }
 
-    console.log(`[OpenCode] Inicializado com modelo: ${config.openCodeModel}`);
+    logger.info(`[OpenCode] Inicializado com modelo: ${config.openCodeModel}`);
     this.client = new OpenAI({
       apiKey: config.openCodeApiKey,
       baseURL: 'https://opencode.ai/zen/v1',
@@ -38,7 +39,7 @@ export class OpenCodeProvider implements ILlmProvider {
     const modelName = options?.modelName || config.openCodeModel;
 
     try {
-      console.log(`[OpenCode] Chamando modelo: ${modelName}`);
+      logger.info(`[OpenCode] Chamando modelo: ${modelName}`);
       const response = await this.client.chat.completions.create({
         model: modelName,
         messages: messages.map((message) => ({
@@ -77,7 +78,7 @@ export class OpenCodeProvider implements ILlmProvider {
         finishReason: choice.finish_reason as any,
       };
     } catch (error: any) {
-      console.error('[OpenCode] Erro na requisicao:', error?.message || error);
+      logger.error('[OpenCode] Erro na requisicao:', error?.message || error);
       throw error;
     }
   }

@@ -13,6 +13,8 @@ import { RemoteMeshNotebookMcpProxyService } from '../../../../services/RemoteMe
 import { ZavorthMnemosQueryService } from '../../../../services/ZavorthMnemosQueryService.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 
+type LooseRecord = any;
+
 export type WebAppRuntimeInteractionRouteHelpers = {
   buildCanonicalSessionBundle: (
     sessionId: string,
@@ -21,7 +23,7 @@ export type WebAppRuntimeInteractionRouteHelpers = {
       historyMode?: 'none' | 'fast' | 'full';
       includeGateway?: boolean;
     },
-  ) => Promise<Record<string, any>>;
+  ) => Promise<Record<string, unknown>>;
   handleChatSend: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
@@ -70,8 +72,8 @@ export class WebAppRuntimeInteractionRouteService {
 
         const preview = deps.consoleAssets.readPreviewFile(targetPath);
         deps.writeJson(res, { ok: true, preview }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao carregar preview.' }, 400);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao carregar preview.' }, 400);
       }
       return true;
     }
@@ -87,7 +89,7 @@ export class WebAppRuntimeInteractionRouteService {
         historyMode: 'fast',
         includeGateway: false,
       });
-      const tasks = canonicalBundle.session?.tasks || (await deps.realtime.getResolvedSnapshot(sessionId)).tasks;
+      const tasks = (canonicalBundle.session as LooseRecord)?.tasks || (await deps.realtime.getResolvedSnapshot(sessionId)).tasks;
       deps.writeJson(
         res,
         {
@@ -124,22 +126,22 @@ export class WebAppRuntimeInteractionRouteService {
     if (pathname === '/api/web/tool-runs' && req.method === 'GET') {
       const sessionId = deps.resolveSessionId(url);
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
-      const toolRuns = Array.isArray((snapshot as any).toolRuns) ? (snapshot as any).toolRuns : [];
+      const toolRuns = Array.isArray((snapshot as LooseRecord).toolRuns) ? (snapshot as LooseRecord).toolRuns : [];
       deps.writeJson(
         res,
         {
           ok: true,
           sessionId,
           toolRuns,
-          filesTouched: Array.from(new Set(toolRuns.flatMap((run: any) => this.shouldExposeArtifactsForRecord(run) && Array.isArray(run?.filesTouched) ? run.filesTouched : []))),
-          artifacts: Array.from(new Map(
+          filesTouched: Array.from(new Set(toolRuns.flatMap((run: LooseRecord) => this.shouldExposeArtifactsForRecord(run) && Array.isArray(run?.filesTouched) ? run.filesTouched : []))),
+          artifacts: (Array.from(new Map<string, LooseRecord>(
             toolRuns
-              .flatMap((run: any) => this.shouldExposeArtifactsForRecord(run) && Array.isArray(run?.artifacts) ? run.artifacts : [])
-              .map((artifact: any) => [
+              .flatMap((run: LooseRecord) => this.shouldExposeArtifactsForRecord(run) && Array.isArray(run?.artifacts) ? run.artifacts as LooseRecord[] : [])
+              .map((artifact: LooseRecord) => [
                 String(artifact?.id || artifact?.key || artifact?.path || artifact?.name || ''),
                 artifact,
               ]),
-          ).values()).filter((artifact: any) => artifact && (artifact.id || artifact.key || artifact.path || artifact.name)),
+          ).values()) as LooseRecord[]).filter((artifact: LooseRecord) => artifact && (artifact.id || artifact.key || artifact.path || artifact.name)),
         },
         200,
       );
@@ -150,8 +152,8 @@ export class WebAppRuntimeInteractionRouteService {
       const sessionId = deps.resolveSessionId(url);
       const runId = decodeURIComponent(pathname.slice('/api/web/tool-runs/'.length, -'/diff'.length));
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
-      const toolRuns = Array.isArray((snapshot as any).toolRuns) ? (snapshot as any).toolRuns : [];
-      const toolRun = toolRuns.find((run: any) => String(run?.runId || '').trim() === runId) || null;
+      const toolRuns = Array.isArray((snapshot as LooseRecord).toolRuns) ? (snapshot as LooseRecord).toolRuns : [];
+      const toolRun = toolRuns.find((run: LooseRecord) => String(run?.runId || '').trim() === runId) || null;
       if (!toolRun) {
         deps.writeJson(res, { ok: false, error: 'Tool run nao encontrado para esta sessao.' }, 404);
         return true;
@@ -178,7 +180,7 @@ export class WebAppRuntimeInteractionRouteService {
         historyMode: 'fast',
         includeGateway: false,
       });
-      const permissions = canonicalBundle.session?.permissions || (await deps.realtime.getResolvedSnapshot(sessionId)).permissions;
+      const permissions = (canonicalBundle.session as LooseRecord)?.permissions || (await deps.realtime.getResolvedSnapshot(sessionId)).permissions;
       deps.writeJson(
         res,
         {
@@ -306,8 +308,8 @@ export class WebAppRuntimeInteractionRouteService {
       res.setHeader('Cache-Control', 'no-store');
       res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(asset.filename)}"`);
       res.end(asset.content);
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao carregar asset.' }, 400);
+    } catch (error: unknown) {
+      deps.writeJson(res, { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao carregar asset.' }, 400);
     }
     return true;
   }
@@ -319,7 +321,7 @@ export class WebAppRuntimeInteractionRouteService {
   ): Promise<boolean> {
     const sessionId = deps.resolveSessionId(url);
     const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
-    const toolRuns = Array.isArray((snapshot as any).toolRuns) ? (snapshot as any).toolRuns : [];
+    const toolRuns = Array.isArray((snapshot as LooseRecord).toolRuns) ? (snapshot as LooseRecord).toolRuns : [];
     const agentSnapshot = deps.agentGateway?.buildSnapshot({
       activeSessionId: sessionId,
     }) || null;
@@ -337,7 +339,7 @@ export class WebAppRuntimeInteractionRouteService {
         sessionId,
         artifacts,
         filesTouched: Array.from(new Set(
-          toolRuns.flatMap((run: any) => Array.isArray(run?.filesTouched) ? run.filesTouched : []),
+          toolRuns.flatMap((run: LooseRecord) => Array.isArray(run?.filesTouched) ? run.filesTouched : []),
         )),
         toolRuns,
         runs,
@@ -403,8 +405,8 @@ export class WebAppRuntimeInteractionRouteService {
         projectRoot: config.projectRoot || process.cwd(),
       }).query({ query, topK });
       deps.writeJson(res, { ok: true, recall: snapshot }, 200);
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: error?.message || 'Mnemos recall failed.' }, 500);
+    } catch (error: unknown) {
+      deps.writeJson(res, { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Mnemos recall failed.' }, 500);
     }
     return true;
   }
@@ -420,13 +422,13 @@ export class WebAppRuntimeInteractionRouteService {
     const agentSnapshot = deps.agentGateway?.buildSnapshot({ activeSessionId: sessionId }) || null;
     const runs = [
       ...(Array.isArray(agentSnapshot?.runs) ? agentSnapshot.runs : []),
-      ...(Array.isArray((snapshot as any)?.workflowRuns) ? (snapshot as any).workflowRuns : []),
+      ...(Array.isArray((snapshot as LooseRecord)?.workflowRuns) ? (snapshot as LooseRecord).workflowRuns : []),
     ];
     const lifecycleEvents = this.readMnemosLifecycleEvents(sessionId);
     const runCandidates = runs
-      .filter((run: any) => /completed|approval|blocked|done/i.test(String(run?.status || 'completed')))
+      .filter((run: LooseRecord) => /completed|approval|blocked|done/i.test(String(run?.status || 'completed')))
       .slice(-30)
-      .map((run: any) => this.buildLearningCandidateFromRun(run, state.entries));
+      .map((run: LooseRecord) => this.buildLearningCandidateFromRun(run, state.entries));
     const hookCandidates = lifecycleEvents
       .filter((event) => String(event.type || '').includes('memory') || /receipt|approval|artifact|tool|workflow|message/i.test(String(event.type || '')))
       .slice(-20)
@@ -518,13 +520,13 @@ export class WebAppRuntimeInteractionRouteService {
 
   private buildDashboardEvents(input: {
     sessionId: string;
-    snapshot: any;
-    runs: any[];
+    snapshot: LooseRecord;
+    runs: LooseRecord[];
     runId?: string;
     traceId?: string;
-  }): Record<string, any>[] {
-    const events: Record<string, any>[] = [];
-    const pushEvent = (event: Record<string, any>) => {
+  }): LooseRecord[] {
+    const events: LooseRecord[] = [];
+    const pushEvent = (event: LooseRecord) => {
       const id = String(event.id || '').trim();
       if (!id) return;
       events.push({
@@ -705,7 +707,7 @@ export class WebAppRuntimeInteractionRouteService {
       .slice(-90);
   }
 
-  private buildDashboardEventSummary(events: Record<string, any>[]): Record<string, number> {
+  private buildDashboardEventSummary(events: LooseRecord[]): Record<string, number> {
     const byType = (type: string) => events.filter((event) => String(event.type || '') === type).length;
     return {
       totalEvents: events.length,
@@ -733,7 +735,7 @@ export class WebAppRuntimeInteractionRouteService {
     }
   }
 
-  private readLearningState(): any {
+  private readLearningState(): LooseRecord {
     try {
       const filePath = this.learningStatePath();
       if (!fs.existsSync(filePath)) return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
@@ -744,7 +746,7 @@ export class WebAppRuntimeInteractionRouteService {
     }
   }
 
-  private writeLearningState(state: any): void {
+  private writeLearningState(state: LooseRecord): void {
     const filePath = this.learningStatePath();
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, JSON.stringify(state, null, 2), 'utf8');
@@ -754,7 +756,7 @@ export class WebAppRuntimeInteractionRouteService {
     return path.resolve(config.projectRoot || process.cwd(), 'data', 'runtime', 'learning-plane-state.json');
   }
 
-  private buildLearningCandidateFromRun(run: any, entries: Record<string, any>): Record<string, any> {
+  private buildLearningCandidateFromRun(run: LooseRecord, entries: Record<string, any>): Record<string, any> {
     const id = String(run?.workflow_run_id || run?.id || run?.requestId || run?.runId || '').trim() || `run-${Date.now()}`;
     const entry = entries[id] || {};
     const artifactCount = Array.isArray(run?.artifacts) ? run.artifacts.length : 0;
@@ -821,10 +823,10 @@ export class WebAppRuntimeInteractionRouteService {
 
   private collectArtifactEntries(input: {
     sessionId: string;
-    toolRuns: any[];
-    runs: any[];
+    toolRuns: LooseRecord[];
+    runs: LooseRecord[];
   }): any[] {
-    const artifacts: any[] = [];
+    const artifacts: LooseRecord[] = [];
     const pushArtifact = (artifact: Record<string, any>) => {
       const id = String(artifact.id || artifact.key || '').trim();
       if (!id) return;
@@ -859,7 +861,7 @@ export class WebAppRuntimeInteractionRouteService {
       });
 
       const filesTouched = Array.isArray(run?.filesTouched) ? run.filesTouched : [];
-      filesTouched.forEach((filePath: any, index: number) => {
+      filesTouched.forEach((filePath: unknown, index: number) => {
         const normalizedPath = String(filePath || '').trim();
         if (!normalizedPath) return;
         pushArtifact({
@@ -894,7 +896,7 @@ export class WebAppRuntimeInteractionRouteService {
       }
       const runId = String(run?.id || '').trim();
       const runArtifacts = Array.isArray(run?.artifacts) ? run.artifacts : [];
-      runArtifacts.forEach((artifact: any, index: number) => {
+      runArtifacts.forEach((artifact: LooseRecord, index: number) => {
         pushArtifact({
           ...artifact,
           id: String(artifact?.id || `${runId}:artifact:${index}`).trim(),
@@ -925,16 +927,16 @@ export class WebAppRuntimeInteractionRouteService {
     return normalized.split('/').filter(Boolean).pop() || '';
   }
 
-  private shouldExposeArtifactsForRecord(record: any): boolean {
+  private shouldExposeArtifactsForRecord(record: LooseRecord | null | undefined): boolean {
     return shouldPersistZavorthArtifacts(this.resolveArtifactPolicyMetadata(record));
   }
 
-  private resolveArtifactPolicyMetadata(record: any): Record<string, unknown> {
+  private resolveArtifactPolicyMetadata(record: LooseRecord | null | undefined): Record<string, unknown> {
     const metadata = record && typeof record.metadata === 'object' ? record.metadata : {};
     return {
       ...metadata,
-      responseDecision: record?.responseDecision || (metadata as any)?.responseDecision,
-      artifactPolicy: record?.artifactPolicy || (metadata as any)?.artifactPolicy,
+      responseDecision: record?.responseDecision || metadata?.responseDecision,
+      artifactPolicy: record?.artifactPolicy || metadata?.artifactPolicy,
     };
   }
 
@@ -968,10 +970,10 @@ export class WebAppRuntimeInteractionRouteService {
       await deps.realtime.captureBaseline(sessionId);
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
       deps.writeJson(res, { ok: true, snapshot }, 200);
-    } catch (error: any) {
+    } catch (error: unknown) {
       deps.writeJson(
         res,
-        { ok: false, error: error?.message || (decision === 'approve' ? 'Falha ao aprovar permissao.' : 'Falha ao rejeitar permissao.') },
+        { ok: false, error: (error instanceof Error ? error.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar permissao.' : 'Falha ao rejeitar permissao.') },
         409,
       );
     }
@@ -1017,10 +1019,10 @@ export class WebAppRuntimeInteractionRouteService {
       await deps.realtime.captureBaseline(sessionId);
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
       deps.writeJson(res, { ok: true, snapshot }, 200);
-    } catch (error: any) {
+    } catch (error: unknown) {
       deps.writeJson(
         res,
-        { ok: false, error: error?.message || (decision === 'approve' ? 'Falha ao aprovar task gate.' : 'Falha ao rejeitar task gate.') },
+        { ok: false, error: (error instanceof Error ? error.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar task gate.' : 'Falha ao rejeitar task gate.') },
         409,
       );
     }
@@ -1103,10 +1105,10 @@ export class WebAppRuntimeInteractionRouteService {
         },
         200,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       deps.writeJson(
         res,
-        { ok: false, error: error?.message || (decision === 'approve' ? 'Falha ao aprovar run universal.' : 'Falha ao rejeitar run universal.') },
+        { ok: false, error: (error instanceof Error ? error.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar run universal.' : 'Falha ao rejeitar run universal.') },
         409,
       );
     }
@@ -1146,7 +1148,7 @@ export class WebAppRuntimeInteractionRouteService {
         activeSessionId: requestedSessionId || null,
       });
       const sourceRun = requestedRunId
-        ? seedSnapshot.runs.find((run: any) => String(run?.id || '') === requestedRunId) || seedSnapshot.activeRun
+        ? seedSnapshot.runs.find((run: LooseRecord) => String(run?.id || '') === requestedRunId) || seedSnapshot.activeRun
         : seedSnapshot.activeRun;
       const sessionId = requestedSessionId || String(sourceRun?.sessionId || '').trim() || deps.runtime.webUserId;
       const userId = String(sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
@@ -1197,10 +1199,10 @@ export class WebAppRuntimeInteractionRouteService {
         },
         result.ok ? 200 : 409,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       deps.writeJson(
         res,
-        { ok: false, error: error?.message || 'Falha ao aplicar rascunho do Intelligence Fabric.' },
+        { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao aplicar rascunho do Intelligence Fabric.' },
         409,
       );
     }
@@ -1235,7 +1237,7 @@ export class WebAppRuntimeInteractionRouteService {
         activeSessionId: requestedSessionId || null,
       });
       const sourceRun = requestedRunId
-        ? seedSnapshot.runs.find((run: any) => String(run?.id || '') === requestedRunId) || seedSnapshot.activeRun
+        ? seedSnapshot.runs.find((run: LooseRecord) => String(run?.id || '') === requestedRunId) || seedSnapshot.activeRun
         : seedSnapshot.activeRun;
       const sessionId = requestedSessionId || String(sourceRun?.sessionId || '').trim() || deps.runtime.webUserId;
       const userId = String(sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
@@ -1293,10 +1295,10 @@ export class WebAppRuntimeInteractionRouteService {
         },
         result.ok ? 200 : 409,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       deps.writeJson(
         res,
-        { ok: false, error: error?.message || 'Falha ao aplicar demote controlado do Intelligence Fabric.' },
+        { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao aplicar demote controlado do Intelligence Fabric.' },
         409,
       );
     }

@@ -28,7 +28,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
     this.baseUrl = String(options.baseUrl || (config as any).geminiManagedAgentsBaseUrl || 'https://generativelanguage.googleapis.com/v1beta')
       .trim()
       .replace(/\/+$/, '');
-    this.model = String(options.model || (config as any).geminiManagedAgentsModel || 'gemini-3.5-flash').trim();
+    this.model = String(options.model || (config as any).geminiManagedAgentsModel || 'gemini-2.5-flash').trim();
     this.agent = String(options.agent || (config as any).geminiManagedAgentsAgent || 'zavorth-managed-agent').trim();
     this.fetchImpl = options.fetchImpl;
   }

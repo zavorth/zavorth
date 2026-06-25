@@ -4,7 +4,7 @@ import type {
   IntelligenceFabricSnapshot,
   IntelligenceTaskEval,
   IntelligenceTaskKind,
-} from '../contracts/IntelligenceFabricContract.js';
+} from '../contracts/native/IntelligenceFabricContract.js';
 
 export type IntelligenceFabricEvalRecord = {
   schemaVersion: 1;

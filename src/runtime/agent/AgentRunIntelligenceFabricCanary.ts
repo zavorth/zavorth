@@ -1,4 +1,4 @@
-import type { IntelligenceFabricInput, IntelligenceFabricSnapshot, IntelligenceTrustMode } from '../../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceFabricInput, IntelligenceFabricSnapshot, IntelligenceTrustMode } from '../../contracts/native/IntelligenceFabricContract.js';
 import type { ZavorthIntelligenceFabricLearningService } from '../../services/ZavorthIntelligenceFabricLearningService.js';
 import { ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligenceFabricService.js';
 import { AgentRunIntelligenceFabricDraftMutation } from './AgentRunIntelligenceFabricDraftMutation.js';

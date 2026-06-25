@@ -7,7 +7,7 @@ import {
   type ZavorthNativeLearningLoopSessionSearch,
   type ZavorthNativeLearningLoopSnapshot,
   type ZavorthNativeLearningLoopUserModel,
-} from '../contracts/ZavorthNativeLearningLoopContract.js';
+} from '../contracts/native/ZavorthNativeLearningLoopContract.js';
 import type { ZavorthLearningMemorySearchResult, ZavorthSkillMemoryCandidateAssessment } from '../contracts/ZavorthMemoryLearningLoopContract.js';
 import { ZavorthMemoryLearningLoopService } from './ZavorthMemoryLearningLoopService.js';
 import { ZavorthMnemosProceduralMemoryService } from './ZavorthMnemosProceduralMemoryService.js';

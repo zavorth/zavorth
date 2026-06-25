@@ -15,6 +15,16 @@ import type {
   DashboardSkillMcpQuarantineSnapshot,
   DashboardToolRehearsalSnapshot,
   DashboardUniversalIntentTrustEnforcementSnapshot,
+  DashboardBlueprintCompletionGateSnapshot,
+  DashboardIntegrationShowcasePartnerSurfaceSnapshot,
+  DashboardReleaseAdoptionReadinessSnapshot,
+  DashboardReleaseCandidatePreCanaryGateSnapshot,
+  DashboardFeedbackTelemetryProductLoopSnapshot,
+  DashboardProductEntryRuntimeSnapshot,
+  DashboardProductizationEvidenceSnapshot,
+  DashboardPublicAdoptionPilotLoopSnapshot,
+  DashboardPublicSiteDocsDemoSyncSnapshot,
+  DashboardReleaseInstallerRollbackPathSnapshot,
   DashboardUniversalPreviewModeSnapshot,
 } from "../contracts";
 import {
@@ -134,8 +144,8 @@ export function buildUniversalIntentTrustEnforcement(
       risk: normalizeUniversalIntentTrustRisk(universalIntent.risk ?? summary.risk),
       sideEffect: asText(universalIntent.sideEffect, "none"),
       confidence: asNumber(universalIntent.confidence) ?? 0,
-      capabilityRequired: asTextArray(universalIntent.capabilityRequired),
-      matchedSignals: asTextArray(universalIntent.matchedSignals),
+      capabilityRequired: asTextArray(universalIntent.capabilityRequired) ?? [],
+      matchedSignals: asTextArray(universalIntent.matchedSignals) ?? [],
       nextSafeAction: asText(universalIntent.nextSafeAction, asText(raw.nextSafeAction, "answer")),
     },
     permission: {
@@ -159,7 +169,7 @@ export function buildUniversalIntentTrustEnforcement(
       askBeforeAssumption: clarification.askBeforeAssumption === true,
       question: asText(clarification.question) || null,
       reason: asText(clarification.reason) || null,
-      missing: asTextArray(clarification.missing),
+      missing: asTextArray(clarification.missing) ?? [],
       sensitiveDomain: clarification.sensitiveDomain === true,
     },
     trustSlider: {
@@ -334,7 +344,7 @@ export function buildRunArtifactReceiptReplay(
         status: asText(anchor.status, "unknown"),
         createdAt: formatTimestamp(anchor.createdAt),
       })).slice(0, 24),
-      commandHints: asTextArray(replay.commandHints),
+      commandHints: asTextArray(replay.commandHints) ?? [],
       summary: asText(replay.summary, "Replay hardening."),
     },
     policy: {
@@ -617,8 +627,8 @@ export function buildProviderMeshConsolidation(
       modelLabel: asText(selected.modelLabel) || null,
       ready: selected.ready === true,
       source: asText(selected.source, "unknown"),
-      fallbackRouteIds: asTextArray(selected.fallbackRouteIds),
-      fallbackOrder: asTextArray(selected.fallbackOrder),
+      fallbackRouteIds: asTextArray(selected.fallbackRouteIds) ?? [],
+      fallbackOrder: asTextArray(selected.fallbackOrder) ?? [],
       runtimeFactory: {
         adapterKind: asText(runtimeFactory.adapterKind, "unknown"),
         runtimeSupported: runtimeFactory.runtimeSupported === true,
@@ -641,7 +651,7 @@ export function buildProviderMeshConsolidation(
       capabilityCount: asNumber(onboarding.capabilityCount) ?? 0,
       selectedCapability: asText(onboarding.selectedCapability) || null,
       sameContractAcrossSurfaces: onboarding.sameContractAcrossSurfaces === true,
-      consumers: asTextArray(onboarding.consumers),
+      consumers: asTextArray(onboarding.consumers) ?? [],
     },
     receipts: asArray<LooseRecord>(raw.receipts).map((receipt, index) => {
       const status = asText(receipt.status).toLowerCase();
@@ -650,7 +660,7 @@ export function buildProviderMeshConsolidation(
         kind: asText(receipt.kind, "policy"),
         source: asText(receipt.source, "ProviderMeshConsolidationService"),
         detail: asText(receipt.detail, "Receipt de provider mesh."),
-        status: status === "partial" || status === "missing" ? status : "ready",
+        status: (status === "partial" || status === "missing" ? status : "ready") as "missing" | "ready" | "partial",
       };
     }).slice(0, 12),
     policy: {

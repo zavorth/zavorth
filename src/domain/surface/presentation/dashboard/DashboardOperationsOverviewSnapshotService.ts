@@ -1,3 +1,4 @@
+type LooseRecord = any;
 import { ZavorthOperationalOverviewService } from '../../../../services/ZavorthOperationalOverviewService.js';
 import { ZavorthTrustOverviewService } from '../../../../services/ZavorthTrustOverviewService.js';
 import { ZavorthProductOverviewService } from '../../../../services/ZavorthProductOverviewService.js';
@@ -15,46 +16,46 @@ import { ZavorthRolloutReadinessControlPlaneService } from '../../../../services
 export type DashboardOperationsOverviewSnapshotDeps = {
   workspaceRoot: string;
   continuityUserId: string;
-  channelMesh: any;
-  nodeMesh: any;
-  remoteTransports: any;
-  accessManifest: any;
-  remoteTransportDoctor: any;
-  memoryPlane: any;
-  layeredMemory: any;
-  learningPlane: any;
-  workflowRuns: any;
-  executionGateway: any;
-  tenantGovernance: any;
-  securityMesh: any;
-  pluginRegistry: any;
-  platformRegistry: any;
-  teamCatalog: any;
-  workspaceExtensions: any;
-  mcpCapabilityControlPlane: any;
-  integrationHub: any;
-  skillLibraryPresentation: any;
-  skillInstallPlanPresentation: any;
-  mcpRuntime: any;
-  productObservability: any;
-  operatorBrief: any;
-  operationsHealth: any;
+  channelMesh: LooseRecord;
+  nodeMesh: LooseRecord;
+  remoteTransports: LooseRecord;
+  accessManifest: LooseRecord;
+  remoteTransportDoctor: LooseRecord;
+  memoryPlane: LooseRecord;
+  layeredMemory: LooseRecord;
+  learningPlane: LooseRecord;
+  workflowRuns: LooseRecord;
+  executionGateway: LooseRecord;
+  tenantGovernance: LooseRecord;
+  securityMesh: LooseRecord;
+  pluginRegistry: LooseRecord;
+  platformRegistry: LooseRecord;
+  teamCatalog: LooseRecord;
+  workspaceExtensions: LooseRecord;
+  mcpCapabilityControlPlane: LooseRecord;
+  integrationHub: LooseRecord;
+  skillLibraryPresentation: LooseRecord;
+  skillInstallPlanPresentation: LooseRecord;
+  mcpRuntime: LooseRecord;
+  productObservability: LooseRecord;
+  operatorBrief: LooseRecord;
+  operationsHealth: LooseRecord;
 };
 
 export class DashboardOperationsOverviewSnapshotService {
   public readOperationalOverviewSnapshot(
     deps: DashboardOperationsOverviewSnapshotDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const overview = new ZavorthOperationalOverviewService({
       workspaceRoot: deps.workspaceRoot,
       distributedRuntimeControlPlaneService: {
-        buildSnapshot: (input?: any) => this.buildDistributedRuntimeService(deps).buildSnapshot(input),
+        buildSnapshot: (input?: LooseRecord) => this.buildDistributedRuntimeService(deps).buildSnapshot(input),
       },
       runtimeStabilityControlPlaneService: {
-        buildSnapshot: (input?: any) => this.buildRuntimeStabilityService(deps).buildSnapshot(input),
+        buildSnapshot: (input?: LooseRecord) => this.buildRuntimeStabilityService(deps).buildSnapshot(input),
       },
       replayLearningControlPlaneService: {
-        buildSnapshot: (input?: any) => this.buildReplayLearningService(deps).buildSnapshot(input),
+        buildSnapshot: (input?: LooseRecord) => this.buildReplayLearningService(deps).buildSnapshot(input),
       },
     });
     return overview.buildSnapshot({
@@ -69,15 +70,15 @@ export class DashboardOperationsOverviewSnapshotService {
 
   public readTrustOverviewSnapshot(
     deps: DashboardOperationsOverviewSnapshotDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const trustPlane = this.buildTrustPlaneService(deps);
     const overview = new ZavorthTrustOverviewService({
       workspaceRoot: deps.workspaceRoot,
       governanceControlPlaneService: {
-        buildSnapshot: (input?: any) => new ZavorthGovernanceControlPlaneService({
+        buildSnapshot: (input?: LooseRecord) => new ZavorthGovernanceControlPlaneService({
           workspaceRoot: deps.workspaceRoot,
           tenantGovernanceService: deps.tenantGovernance,
-          trustPlaneService: trustPlane as any,
+          trustPlaneService: trustPlane as LooseRecord,
           channelMeshService: deps.channelMesh,
           nodeMeshService: deps.nodeMesh,
           remoteTransportService: deps.remoteTransports,
@@ -86,7 +87,7 @@ export class DashboardOperationsOverviewSnapshotService {
           teamCatalogService: deps.teamCatalog,
         }).buildSnapshot(input),
       },
-      trustPlaneService: trustPlane as any,
+      trustPlaneService: trustPlane as LooseRecord,
       tenantGovernanceService: deps.tenantGovernance,
     });
     return Promise.resolve()
@@ -96,7 +97,7 @@ export class DashboardOperationsOverviewSnapshotService {
 
   public readProductOverviewSnapshot(
     deps: DashboardOperationsOverviewSnapshotDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const distributedRuntime = this.buildDistributedRuntimeService(deps);
     const evalControlPlane = new ZavorthEvalControlPlaneService({
       productObservabilityService: deps.productObservability,
@@ -106,7 +107,7 @@ export class DashboardOperationsOverviewSnapshotService {
     const overview = new ZavorthProductOverviewService({
       workspaceRoot: deps.workspaceRoot,
       hubControlPlaneService: {
-        buildSnapshot: (input?: any) => new ZavorthHubControlPlaneService({
+        buildSnapshot: (input?: LooseRecord) => new ZavorthHubControlPlaneService({
           integrationHubService: deps.integrationHub,
           pluginRegistryService: deps.pluginRegistry,
           platformRegistryService: deps.platformRegistry,
@@ -117,17 +118,17 @@ export class DashboardOperationsOverviewSnapshotService {
         }).buildSnapshot(input),
       },
       ecosystemControlPlaneService: {
-        buildSnapshot: (input?: any) => new ZavorthEcosystemControlPlaneService({
+        buildSnapshot: (input?: LooseRecord) => new ZavorthEcosystemControlPlaneService({
           workspaceRoot: deps.workspaceRoot,
           platformRegistryService: deps.platformRegistry,
         }).buildSnapshot(input),
       },
-      evalControlPlaneService: evalControlPlane as any,
+      evalControlPlaneService: evalControlPlane as LooseRecord,
       rolloutReadinessControlPlaneService: {
-        buildSnapshot: (input?: any) => new ZavorthRolloutReadinessControlPlaneService({
+        buildSnapshot: (input?: LooseRecord) => new ZavorthRolloutReadinessControlPlaneService({
           workspaceRoot: deps.workspaceRoot,
-          distributedRuntimeControlPlaneService: distributedRuntime as any,
-          evalControlPlaneService: evalControlPlane as any,
+          distributedRuntimeControlPlaneService: distributedRuntime as LooseRecord,
+          evalControlPlaneService: evalControlPlane as LooseRecord,
         }).buildSnapshot(input),
       },
     });
@@ -142,18 +143,18 @@ export class DashboardOperationsOverviewSnapshotService {
 
   public readControlPlaneCatalogSnapshot(
     deps: DashboardOperationsOverviewSnapshotDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const catalog = new InternalControlPlaneCatalogApiService({
       workspaceRoot: deps.workspaceRoot,
       operationalOverviewService: {
         buildSnapshot: () => this.readOperationalOverviewSnapshot(deps),
-      } as any,
+      } as LooseRecord,
       trustOverviewService: {
         buildSnapshot: () => this.readTrustOverviewSnapshot(deps),
-      } as any,
+      } as LooseRecord,
       productOverviewService: {
         buildSnapshot: () => this.readProductOverviewSnapshot(deps),
-      } as any,
+      } as LooseRecord,
     });
     return catalog.readSnapshot({
       planeId: 'operations-control-plane-catalog',
@@ -223,7 +224,7 @@ export class DashboardOperationsOverviewSnapshotService {
 
   private buildTrustOverviewFallback(
     deps: DashboardOperationsOverviewSnapshotDeps,
-  ): Record<string, any> {
+  ): LooseRecord {
     const tenants = this.safeSync(
       () => deps.tenantGovernance?.buildSnapshot?.({ limit: 8 }),
       { summary: {}, narrative: {}, pendingOnboarding: [] },
@@ -298,7 +299,7 @@ export class DashboardOperationsOverviewSnapshotService {
 
   private async buildProductOverviewFallback(
     deps: DashboardOperationsOverviewSnapshotDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const platform = this.safeSync(
       () => deps.platformRegistry?.buildSnapshot?.(),
       { summary: {} },

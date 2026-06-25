@@ -1,7 +1,7 @@
 import type {
   ZavorthSubagentRuntimeSnapshot,
-} from '../contracts/ZavorthSubagentRuntimeContract.js';
-import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/ZavorthSubagentAutoInvocationContract.js';
+} from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
+import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
 
 export function buildAutoInvocationDashboardProjection(
   latest: ZavorthSubagentAutoInvocationTelemetry | null,

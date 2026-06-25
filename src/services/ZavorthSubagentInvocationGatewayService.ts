@@ -1,8 +1,8 @@
 import type {
   ZavorthSubagentRuntimeMode,
   ZavorthSubagentRuntimeSnapshot,
-} from '../contracts/ZavorthSubagentRuntimeContract.js';
-import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/ZavorthSubagentAutoInvocationContract.js';
+} from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
+import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { ZavorthSubagentRuntimeService, type ZavorthSubagentRuntimeCommandInput } from './ZavorthSubagentRuntimeService.js';
 

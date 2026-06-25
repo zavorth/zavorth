@@ -1,4 +1,5 @@
 import type { ZavorthCliFlags, ZavorthCliRuntime, CliExecutionResult, CliWriter } from './ZavorthCliContract.js';
+import type { UniversalAgentRun } from '../runtime/agent/index.js';
 import {
   buildOperationalSecurityDoctorReport,
   formatOperationalSecurityDoctorReport,
@@ -313,13 +314,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'readiness'
     || commandName === 'ship-readiness'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildProductizationEvidenceSnapshotFromRun(activeRun)
       : buildProductizationEvidenceCliSnapshot({
@@ -342,13 +337,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'start-runtime'
     || commandName === 'first-run'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildProductEntryRuntimeSnapshotFromRun(activeRun)
       : buildProductEntryRuntimeCliSnapshot({
@@ -371,13 +360,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'rollback-path'
     || commandName === 'release-runtime'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildReleaseInstallerRollbackSnapshotFromRun(activeRun)
       : buildReleaseInstallerRollbackCliSnapshot({
@@ -400,13 +383,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'public-product-sync'
     || commandName === 'public-runtime'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildPublicSiteDocsDemoSyncSnapshotFromRun(activeRun)
       : buildPublicSiteDocsDemoSyncCliSnapshot({
@@ -429,13 +406,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'feedback-loop-runtime'
     || commandName === 'feedback-sync'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildFeedbackTelemetryProductLoopSnapshotFromRun(activeRun)
       : buildFeedbackTelemetryProductLoopCliSnapshot({
@@ -458,13 +429,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'adoption-pilot'
     || commandName === 'support-pilot-loop'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildPublicAdoptionPilotLoopSnapshotFromRun(activeRun)
       : buildPublicAdoptionPilotLoopCliSnapshot({
@@ -487,13 +452,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'showcase-partners'
     || commandName === 'integration-runtime'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildIntegrationShowcasePartnerSurfaceSnapshotFromRun(activeRun)
       : buildIntegrationShowcasePartnerSurfaceCliSnapshot({
@@ -517,13 +476,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'release-lts'
     || commandName === 'support-readiness'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildReleaseAdoptionReadinessSnapshotFromRun(activeRun)
       : buildReleaseAdoptionReadinessCliSnapshot({
@@ -546,13 +499,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'go-no-go'
     || commandName === 'precanary'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildReleaseCandidatePreCanaryGateSnapshotFromRun(activeRun)
       : buildReleaseCandidatePreCanaryGateCliSnapshot({
@@ -575,13 +522,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'final-gate'
     || commandName === 'complete-blueprint'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildBlueprintCompletionSnapshotFromRun(activeRun)
       : buildBlueprintCompletionCliSnapshot({
@@ -660,13 +601,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   }
 
   if (commandName === 'quarantine' || commandName === 'skill-mcp-quarantine') {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildSkillMcpQuarantineSnapshotFromRun(activeRun)
       : buildSkillMcpQuarantineCliSnapshot({
@@ -682,13 +617,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   }
 
   if (commandName === 'arena' || commandName === 'provider-arena') {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildProviderArenaSnapshotFromRun(activeRun)
       : buildProviderArenaCliSnapshot({
@@ -704,13 +633,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   }
 
   if (commandName === 'negotiate' || commandName === 'capability-negotiation') {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildCapabilityNegotiationSnapshotFromRun(activeRun)
       : buildCapabilityNegotiationCliSnapshot({
@@ -726,13 +649,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   }
 
   if (commandName === 'rehearse' || commandName === 'tool-rehearsal') {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildToolRehearsalSnapshotFromRun(activeRun)
       : buildToolRehearsalCliSnapshot({
@@ -748,13 +665,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   }
 
   if (commandName === 'selfing' || commandName === 'self') {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildSelfingDashboardSnapshotFromRun(activeRun)
       : buildSelfingDashboardCliSnapshot({
@@ -774,13 +685,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'artifacts-memory'
     || commandName === 'memory-artifacts'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildArtifactMemorySnapshotFromRun(activeRun)
       : buildArtifactMemoryCliSnapshot({
@@ -800,13 +705,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'ops-autopilot'
     || commandName === 'autopilot'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildPersonalOpsAutopilotSnapshotFromRun(activeRun)
       : buildPersonalOpsAutopilotCliSnapshot({
@@ -851,13 +750,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'compile-team'
     || commandName === 'team'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildAgentTeamCompilerSnapshotFromRun(activeRun)
       : buildAgentTeamCompilerCliSnapshot({
@@ -899,13 +792,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'cross-channel'
     || commandName === 'channel-continuity'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildCrossChannelContinuitySnapshotFromRun(activeRun)
       : buildCrossChannelContinuityCliSnapshot({
@@ -926,13 +813,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'ask-policy'
     || commandName === 'ask-first'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildAskBeforeAssumptionPolicySnapshotFromRun(activeRun)
       : buildAskBeforeAssumptionPolicyCliSnapshot({
@@ -955,13 +836,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'replay-hardening'
     || commandName === 'receipts'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildRunArtifactReceiptReplaySnapshotFromRun(activeRun)
       : buildRunArtifactReceiptReplayCliSnapshot({
@@ -984,13 +859,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'trust-slider'
     || commandName === 'trust-policy'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildUniversalIntentTrustSnapshotFromRun(activeRun)
       : buildUniversalIntentTrustCliSnapshot({
@@ -1012,13 +881,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     || commandName === 'picker'
     || commandName === 'mesh'
   ) {
-    const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
-      activeSessionId: effectiveFlags.sessionId,
-    } as any) as any;
-    const activeRun = gatewaySnapshot?.activeRun
-      || (Array.isArray(gatewaySnapshot?.runs)
-        ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
-        : null);
+    const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildProviderMeshConsolidationSnapshotFromRun(activeRun)
       : buildProviderMeshConsolidationCliSnapshot({
@@ -1161,8 +1024,8 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   if (commandName === 'doctor' && runtime.runtimeAccessReadinessService) {
     const probeInput = await buildCliRuntimeAccessProbeInput(runtime);
     const report = effectiveFlags.live && typeof runtime.runtimeAccessReadinessService.inspectLive === 'function'
-      ? await runtime.runtimeAccessReadinessService.inspectLive(probeInput as any)
-      : runtime.runtimeAccessReadinessService.inspect(probeInput as any);
+      ? await runtime.runtimeAccessReadinessService.inspectLive(probeInput)
+      : runtime.runtimeAccessReadinessService.inspect(probeInput);
     const snapshot = await buildCliOperationsDoctorSnapshot(report, runtime, effectiveFlags);
     const body = effectiveFlags.json
       ? JSON.stringify(snapshot, null, 2)
@@ -1189,8 +1052,8 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     if (opsIntent.mode === 'doctor' && runtime.runtimeAccessReadinessService) {
       const probeInput = await buildCliRuntimeAccessProbeInput(runtime);
       const report = effectiveFlags.live && typeof runtime.runtimeAccessReadinessService.inspectLive === 'function'
-        ? await runtime.runtimeAccessReadinessService.inspectLive(probeInput as any)
-        : runtime.runtimeAccessReadinessService.inspect(probeInput as any);
+        ? await runtime.runtimeAccessReadinessService.inspectLive(probeInput)
+        : runtime.runtimeAccessReadinessService.inspect(probeInput);
       const snapshot = await buildCliOperationsDoctorSnapshot(report, runtime, effectiveFlags);
       const body = effectiveFlags.json
         ? JSON.stringify(snapshot, null, 2)
@@ -1222,8 +1085,8 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     if (opsIntent.mode === 'access' && runtime.runtimeAccessReadinessService) {
       const probeInput = await buildCliRuntimeAccessProbeInput(runtime);
       const report = effectiveFlags.live && typeof runtime.runtimeAccessReadinessService.inspectLive === 'function'
-        ? await runtime.runtimeAccessReadinessService.inspectLive(probeInput as any)
-        : runtime.runtimeAccessReadinessService.inspect(probeInput as any);
+        ? await runtime.runtimeAccessReadinessService.inspectLive(probeInput)
+        : runtime.runtimeAccessReadinessService.inspect(probeInput);
       const body = effectiveFlags.json
         ? JSON.stringify(report, null, 2)
         : formatRuntimeAccessReadinessReport(report);
@@ -1342,6 +1205,19 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
 
   return null;
 }
+
+function resolveGatewayActiveRun(runtime: ZavorthCliRuntime, sessionId: string): UniversalAgentRun | null {
+  if (!runtime.agentGateway) return null;
+  const snapshot = runtime.agentGateway.buildSnapshot({ activeSessionId: sessionId });
+  if (snapshot.activeRun) return snapshot.activeRun;
+  if (Array.isArray(snapshot.runs) && snapshot.runs.length > 0) {
+    return snapshot.runs.find((run: UniversalAgentRun) => run?.sessionId === sessionId)
+      ?? snapshot.runs[0]
+      ?? null;
+  }
+  return null;
+}
+
 
 function buildCliProductizationContractSnapshot(
   runtime: ZavorthCliRuntime,

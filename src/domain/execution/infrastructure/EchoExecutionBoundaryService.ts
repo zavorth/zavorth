@@ -12,7 +12,7 @@ import type {
   IntelligenceProposedAction,
   IntelligenceRiskLevel,
   IntelligenceTrustMode,
-} from '../../../contracts/IntelligenceFabricContract.js';
+} from '../../../contracts/native/IntelligenceFabricContract.js';
 import { IntelligenceRiskGateService } from '../../../services/IntelligenceRiskGateService.js';
 
 type EchoExecutionBoundaryRuntime = {

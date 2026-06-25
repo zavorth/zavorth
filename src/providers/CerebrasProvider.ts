@@ -18,7 +18,7 @@ export class CerebrasProvider implements ILlmProvider {
 
   constructor() {
     if (!config.cerebrasApiKey) {
-      throw new Error('CEREBRAS_API_KEY nao configurada no .env');
+      throw new Error('CEREBRAS_API_KEY not configured in .env');
     }
 
     this.client = new OpenAI({

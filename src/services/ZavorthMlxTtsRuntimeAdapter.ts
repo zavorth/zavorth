@@ -1,6 +1,6 @@
 import type {
   ZavorthMlxTtsRuntimeReceipt,
-} from '../contracts/ZavorthNativeCompanionDeviceContract.js';
+} from '../contracts/native/ZavorthNativeCompanionDeviceContract.js';
 
 type Runtime = {
   now?: () => Date;

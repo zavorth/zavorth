@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import OpenAI from 'openai';
 import { config } from '../config/index.js';
 import { extractFunctionToolCalls } from './openaiToolCalls.js';
@@ -19,7 +20,7 @@ export class MiniMaxProvider implements ILlmProvider {
 
   constructor() {
     if (!config.minimaxApiKey) {
-      throw new Error('MINIMAX_API_KEY nao configurada no .env');
+      throw new Error('MINIMAX_API_KEY not configured in .env');
     }
 
     this.client = new OpenAI({
@@ -60,7 +61,7 @@ export class MiniMaxProvider implements ILlmProvider {
         metadata: nativeToolPayload.metadata,
       };
     } catch (error: any) {
-      console.error('[MiniMax] Erro na requisicao:', error?.message || error);
+      logger.error('[MiniMax] Erro na requisicao:', error?.message || error);
       throw error;
     }
   }

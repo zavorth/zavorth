@@ -11,7 +11,7 @@ import { GatewaySessionLedgerService } from '@zavorth/services/GatewaySessionLed
 import { GatewaySessionReadModelService } from '@zavorth/services/GatewaySessionReadModelService.js';
 import { GatewaySessionService, type GatewaySessionSnapshot } from '@zavorth/services/GatewaySessionService.js';
 import { buildWorkspaceContinuityContext } from '@zavorth/runtime/context/WorkspaceContinuityContext.js';
-import { isStructuredAgentRunAction } from '@zavorth/contracts/StructuredAgentRunContract.js';
+import { isStructuredAgentRunAction } from '@zavorth/contracts/runtime/StructuredAgentRunContract.js';
 import { classifyWorkspaceTaskProfile } from '@zavorth/services/WorkspaceTaskKind.js';
 import {
   ExecutionEscalationPolicy,

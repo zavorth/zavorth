@@ -1,2 +1,2 @@
-export * from '../../gateways/EmailGateway.js';
-export { EmailGateway } from '../../gateways/EmailGateway.js';
+export * from '../../gateways/channels/email/EmailGateway.js';
+export { EmailGateway } from '../../gateways/channels/email/EmailGateway.js';

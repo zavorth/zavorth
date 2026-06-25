@@ -1,5 +1,5 @@
 import { config } from '../config/index.js';
-import { BotGateway } from '../adapters/telegram/BotGateway.js';
+import { BotGateway } from '../gateways/channels/telegram/BotGateway.js';
 import type {
   BootstrapFoundation,
   BootstrapSupervisor,

@@ -1,4 +1,4 @@
-import type { IntelligenceCapabilityManifest } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceCapabilityManifest } from '../contracts/native/IntelligenceFabricContract.js';
 import type { CapabilityLabCheck, CapabilityLabSnapshot } from '../contracts/PracticalAgencyContract.js';
 
 export class CapabilityLabService {

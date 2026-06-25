@@ -1,5 +1,5 @@
 /**
- * Tipos e interface para provedores de LLM.
+ * Types and interface for LLM providers.
  */
 
 export interface InlineData {
@@ -96,13 +96,13 @@ export type ProviderNativeToolRequest = {
 
 /**
  * ILlmProvider — Interface para provedores de LLM.
- * Implementações devem converter entre formato interno e formato da API.
+ * Implementations must convert between internal format and API format.
  */
 export interface ILlmProvider {
   readonly name: string;
 
   /**
-   * Envia mensagens para o LLM e recebe uma resposta.
+   * Sends messages to the LLM and receives a response.
    * @param messages - Histórico de mensagens
    * @param tools - Ferramentas disponíveis (opcional)
    * @returns Resposta do LLM com possíveis tool calls

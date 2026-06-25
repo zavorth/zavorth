@@ -2,8 +2,8 @@ import type {
   ZavorthHallucinationFinding,
   ZavorthHallucinationMitigationInput,
   ZavorthHallucinationMitigationReview,
-} from '../contracts/ZavorthHallucinationMitigationContract.js';
-import { ZAVORTH_HALLUCINATION_MITIGATION_VERSION } from '../contracts/ZavorthHallucinationMitigationContract.js';
+} from '../contracts/native/ZavorthHallucinationMitigationContract.js';
+import { ZAVORTH_HALLUCINATION_MITIGATION_VERSION } from '../contracts/native/ZavorthHallucinationMitigationContract.js';
 
 type ZavorthHallucinationMitigationRuntime = {
   now?: () => Date;

@@ -9,7 +9,7 @@ import {
   type ZavorthNativeSkillFileStatus,
   type ZavorthNativeSkillPreset,
   type ZavorthNativeSkillPresetId,
-} from '../contracts/ZavorthNativeIntelligencePackContract.js';
+} from '../contracts/native/ZavorthNativeIntelligencePackContract.js';
 import { SkillCatalogService } from '../skills/SkillCatalogService.js';
 import { SkillLoader } from '../skills/SkillLoader.js';
 import { SkillSourceRegistryService } from './SkillSourceRegistryService.js';

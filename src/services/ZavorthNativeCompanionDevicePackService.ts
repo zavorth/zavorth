@@ -8,8 +8,8 @@ import type {
   ZavorthNativeCompanionDeviceSnapshot,
   ZavorthNativeConsistencyEntry,
   ZavorthSatelliteCapabilityBridgeProof,
-} from '../contracts/ZavorthNativeCompanionDeviceContract.js';
-import { ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION } from '../contracts/ZavorthNativeCompanionDeviceContract.js';
+} from '../contracts/native/ZavorthNativeCompanionDeviceContract.js';
+import { ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION } from '../contracts/native/ZavorthNativeCompanionDeviceContract.js';
 import { ZavorthDesktopCompanionBridgeService } from './ZavorthDesktopCompanionBridgeService.js';
 import { ZavorthMlxTtsRuntimeAdapter } from './ZavorthMlxTtsRuntimeAdapter.js';
 import { ZavorthSatelliteCapabilityBridgeService } from './ZavorthSatelliteCapabilityBridgeService.js';

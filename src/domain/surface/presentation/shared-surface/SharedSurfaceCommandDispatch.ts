@@ -1,5 +1,5 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
-import type { ParsedCommand } from '../../../../telegram/CommandParser.js';
+import type { ParsedCommand } from '../../../../gateways/channels/telegram/CommandParser.js';
 import type { RuntimeDiagnosticsService } from '../../../../services/RuntimeDiagnosticsService.js';
 import type { DiscordSurfacePolicyService } from '../../../../services/DiscordSurfacePolicyService.js';
 import type { EngineeringCoreService } from '../../../../services/EngineeringCoreService.js';

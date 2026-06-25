@@ -18,7 +18,7 @@ export class DeepSeekProvider implements ILlmProvider {
 
   constructor() {
     if (!config.deepseekApiKey) {
-      throw new Error('DEEPSEEK_API_KEY nao configurada no .env');
+      throw new Error('DEEPSEEK_API_KEY not configured in .env');
     }
 
     this.client = new OpenAI({

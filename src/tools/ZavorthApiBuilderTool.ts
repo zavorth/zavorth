@@ -242,7 +242,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
   private async testEndpoint(args: Record<string, unknown>): Promise<string> {
     const url = String(args.url || '');
     const method = String(args.method || 'GET').toUpperCase();
-    if (!url) return 'Error: "url" is required.`";
+    if (!url) return 'Error: "url" is required.';
 
     try {
       const { execFileSync } = await import('child_process');
