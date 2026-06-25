@@ -3,14 +3,15 @@ import { promisify } from 'util';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { t } from './i18n.js';
 
 const execAsync = promisify(exec);
 
 /**
- * TtsService - Text-to-Speech local-first para o Zavorth Agent.
+ * TtsService - Local-first Text-to-Speech for Zavorth Agent.
  *
- * Continua priorizando `edge-tts` localmente, mas agora expoe o caminho
- * edge-only para o pipeline hibrido tentar cloud voice antes do fallback SAPI.
+ * Prioritizes `edge-tts` locally, but exposes edge-only path
+ * so that hybrid pipeline can try cloud voice before SAPI fallback.
  */
 export class TtsService {
   private voice: string;
@@ -28,30 +29,30 @@ export class TtsService {
   }
 
   /**
-   * Converte texto em audio e reproduz.
-   * Mantem o comportamento legado: edge-tts primeiro, SAPI por ultimo recurso.
+   * Converts text to audio and plays it.
+   * Maintains legacy behavior: edge-tts first, SAPI as last resort fallback.
    */
   public async speak(text: string): Promise<string> {
     try {
       return await this.speakEdge(text);
     } catch (error: any) {
-      console.error(`[TTS] Falha: ${error.message}`);
+      console.error(t('tts_failed', { message: error.message }));
 
       try {
         return await this.speakSystemFallback(text);
       } catch {
-        throw new Error(`Nenhum metodo de TTS disponivel: ${error.message}`);
+        throw new Error(`No TTS method available: ${error.message}`);
       }
     }
   }
 
   /**
-   * Caminho local premium: gera audio via edge-tts sem cair no fallback do sistema.
+   * Premium local path: generates audio via edge-tts without system fallback.
    */
   public async speakEdge(text: string): Promise<string> {
     const audioPath = path.join(os.tmpdir(), `zavorth_tts_${Date.now()}.mp3`);
 
-    console.log(`[TTS] Falando: "${text.substring(0, 60)}${text.length > 60 ? '...' : ''}"`);
+    console.log(`[TTS] Speaking: "${text.substring(0, 60)}${text.length > 60 ? '...' : ''}"`);
 
     await this.generateAudio(text, audioPath);
     await TtsService.playAudioFile(audioPath);
@@ -60,7 +61,7 @@ export class TtsService {
   }
 
   /**
-   * Ultimo recurso local para nao bloquear o fluxo do agent no Windows.
+   * Last resort local path to avoid blocking agent flow on Windows.
    */
   public async speakSystemFallback(text: string): Promise<string> {
     await this.speakViaSapi(text);
@@ -68,7 +69,7 @@ export class TtsService {
   }
 
   /**
-   * Gera audio via edge-tts CLI (Python).
+   * Generates audio via edge-tts CLI (Python).
    */
   private async generateAudio(text: string, outputPath: string): Promise<void> {
     const safeText = text
@@ -82,12 +83,12 @@ export class TtsService {
     );
 
     if (!fs.existsSync(outputPath)) {
-      throw new Error('edge-tts nao gerou o arquivo de audio.');
+      throw new Error(t('tts_no_audio'));
     }
   }
 
   /**
-   * Reproduz um arquivo de audio no host local.
+   * Plays audio file on local host.
    */
   public static async playAudioFile(filePath: string): Promise<void> {
     const platform = os.platform();
@@ -109,19 +110,34 @@ export class TtsService {
   }
 
   /**
-   * Fallback: fala via SAPI (Windows built-in, voz robotica).
+   * Fallback: speaks via System TTS (SAPI on Windows, say on macOS, spd-say/espeak on Linux).
    */
   private async speakViaSapi(text: string): Promise<void> {
+    const platform = os.platform();
     const safeText = text.replace(/"/g, "'").replace(/\n/g, ' ');
-    await execAsync(
-      `powershell -NoProfile -Command "Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Speak('${safeText}')"` ,
-      { timeout: 30000 },
-    );
-    console.log('[TTS] Reproduzido via SAPI (fallback).');
+    if (platform === 'win32') {
+      await execAsync(
+        `powershell -NoProfile -Command "Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Speak('${safeText}')"`,
+        { timeout: 30000 },
+      );
+    } else if (platform === 'darwin') {
+      await execAsync(`say "${safeText}"`, { timeout: 30000 });
+    } else {
+      try {
+        await execAsync(`spd-say "${safeText}"`, { timeout: 15000 });
+      } catch {
+        try {
+          await execAsync(`espeak "${safeText}"`, { timeout: 15000 });
+        } catch {
+          throw new Error('No system TTS engine available.');
+        }
+      }
+    }
+    console.log('[TTS] Played via System TTS (fallback).');
   }
 
   /**
-   * Verifica se o edge-tts esta disponivel.
+   * Checks if edge-tts is available.
    */
   public async isAvailable(): Promise<{ available: boolean; method: string }> {
     try {
@@ -131,15 +147,25 @@ export class TtsService {
       // continue
     }
 
-    if (os.platform() === 'win32') {
+    const platform = os.platform();
+    if (platform === 'win32') {
       return { available: true, method: 'sapi-fallback' };
+    }
+    if (platform === 'darwin') {
+      return { available: true, method: 'mac-say-fallback' };
+    }
+    try {
+      await execAsync('which spd-say || which espeak', { timeout: 2000 });
+      return { available: true, method: 'linux-say-fallback' };
+    } catch {
+      // continue
     }
 
     return { available: false, method: 'none' };
   }
 
   /**
-   * Lista vozes disponiveis do edge-tts.
+   * Lists available edge-tts voices.
    */
   public async listVoices(language = 'pt'): Promise<string[]> {
     try {
@@ -155,7 +181,7 @@ export class TtsService {
   }
 
   /**
-   * Remove arquivo de audio temporario.
+   * Removes temporary audio file.
    */
   public cleanup(filePath: string): void {
     try {

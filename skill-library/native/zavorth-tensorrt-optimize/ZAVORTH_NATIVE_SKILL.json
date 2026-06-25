@@ -6,11 +6,23 @@
   "category": "ml",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["tensorrt", "optimization", "inference"],
-  "presets": ["developer"],
-  "inputContract": ["model_path", "optimization_config"],
-  "outputContract": ["trt_engine", "benchmark_results"],
+  "capabilityTags": [
+    "tensorrt",
+    "optimization",
+    "inference"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "model_path",
+    "optimization_config"
+  ],
+  "outputContract": [
+    "trt_engine",
+    "benchmark_results"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

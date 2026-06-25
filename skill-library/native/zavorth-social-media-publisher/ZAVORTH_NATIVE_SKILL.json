@@ -22,7 +22,7 @@
     "formatted drafts",
     "thread structures"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

@@ -24,7 +24,7 @@ describe('Zavorth setup playbooks', () => {
               credentialKind: 'api-key',
               credentialRefs: ['OPENAI_API_KEY'],
               requirements: ['OPENAI_MODEL'],
-              currentModelName: 'gpt-5.2',
+              currentModelName: 'gpt-4o',
               capabilities: ['chat'],
               status: 'missing_auth',
               catalogReady: true,

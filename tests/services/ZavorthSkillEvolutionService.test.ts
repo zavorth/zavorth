@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { ZavorthSkillEvolutionService } from '../../src/services/ZavorthSkillEvolutionService';
+import { ZavorthSkillEvolutionService } from '@zavorth/skills/ZavorthSkillEvolutionService.js';
 import { ZavorthSkillEvolutionRegistryService } from '../../src/services/ZavorthSkillEvolutionRegistryService';
 import type { ZavorthCapabilityRunEnvelope } from '../../src/contracts/ZavorthMutationPlaneContract';
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import { ZavorthHardwareActionPlaneService } from '../src/services/ZavorthHardwareActionPlaneService.js';
+import { ZavorthHardwareActionPlaneService } from '@zavorth/hardware/ZavorthHardwareActionPlaneService.js';
 import type {
   HardwareDeviceType,
   HardwareProviderId,
   HardwareDeviceVisibility,
-} from '../src/services/ZavorthHardwareActionPlaneService.js';
+} from '@zavorth/hardware/ZavorthHardwareActionPlaneService.js';
 
 function readFlag(argv: string[], names: string[]): string | null {
   for (const name of names) {

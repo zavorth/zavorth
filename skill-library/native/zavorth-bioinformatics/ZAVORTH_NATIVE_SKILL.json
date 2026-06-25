@@ -6,11 +6,23 @@
   "category": "research",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["bioinformatics", "biology", "genomics"],
-  "presets": ["developer"],
-  "inputContract": ["sequence_data", "analysis_type"],
-  "outputContract": ["alignment_result", "analysis_report"],
+  "capabilityTags": [
+    "bioinformatics",
+    "biology",
+    "genomics"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "sequence_data",
+    "analysis_type"
+  ],
+  "outputContract": [
+    "alignment_result",
+    "analysis_report"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

@@ -6,11 +6,23 @@
   "category": "media",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["audio", "editing", "mixing"],
-  "presets": ["developer"],
-  "inputContract": ["audio_source", "processing_params"],
-  "outputContract": ["processed_audio", "analysis_report"],
+  "capabilityTags": [
+    "audio",
+    "editing",
+    "mixing"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "audio_source",
+    "processing_params"
+  ],
+  "outputContract": [
+    "processed_audio",
+    "analysis_report"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

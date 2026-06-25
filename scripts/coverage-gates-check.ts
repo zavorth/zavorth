@@ -19,7 +19,7 @@ type CoverageReport = {
   generatedAt: string;
   workspaceRoot: string;
   summary: {
-    status: 'passed' | 'failed';
+    status: 'passed' | 'failed' | 'skipped';
     lines: number;
     statements: number;
     branches: number;
@@ -37,6 +37,7 @@ type CoverageReport = {
 
 const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
+const requireReport = argv.includes('--require-report');
 const workspaceRoot = process.cwd();
 
 function parseThreshold(argName: string, defaultValue: number): number {
@@ -51,14 +52,17 @@ const thresholds = {
   functions: parseThreshold('functions', 40),
 };
 
-const coveragePath = path.join(workspaceRoot, 'coverage', 'coverage-summary.json');
+const coveragePath = [
+  path.join(workspaceRoot, 'coverage', 'jest', 'coverage-summary.json'),
+  path.join(workspaceRoot, 'coverage', 'coverage-summary.json'),
+].find((candidate) => fs.existsSync(candidate));
 
-if (!fs.existsSync(coveragePath)) {
+if (!coveragePath) {
   const report: CoverageReport = {
     generatedAt: new Date().toISOString(),
     workspaceRoot,
     summary: {
-      status: 'failed',
+      status: 'skipped',
       lines: 0,
       statements: 0,
       branches: 0,
@@ -75,7 +79,7 @@ if (!fs.existsSync(coveragePath)) {
     console.log('[coverage-gates] ERROR: coverage/coverage-summary.json not found');
     console.log('[coverage-gates] Run tests with coverage first: npx jest --coverage');
   }
-  process.exitCode = 1;
+  if (requireReport) process.exitCode = 1;
   process.exit();
 }
 

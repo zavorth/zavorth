@@ -50,7 +50,7 @@ function createProviderControlPlane() {
       label: 'Gemma via Gemini API',
       effectiveProviderName: 'gemini',
       mode: 'alias',
-      currentModel: 'gemma-4-31b-it',
+      currentModel: 'gemma-2-27b-it',
     }),
     provider({
       id: 'AIGateway',
@@ -66,7 +66,7 @@ function createProviderControlPlane() {
       id: 'openai',
       label: 'OpenAI',
       effectiveProviderName: 'openai',
-      currentModel: 'gpt-5.2',
+      currentModel: 'gpt-4o',
     }),
   ];
   const profiles = [
@@ -83,7 +83,7 @@ function createProviderControlPlane() {
     requestedTarget: 'gemma',
     replyLabel: 'Gemma 4',
     effectiveProviderName: 'gemini',
-    modelName: 'gemma-4-31b-it',
+    modelName: 'gemma-2-27b-it',
   };
   const codingSelection: ProviderProfileSelection = {
     profile: profiles[1],
@@ -133,7 +133,7 @@ describe('ModelPickerContractService', () => {
     expect(contract.families.families.map((entry) => entry.id)).toEqual(['gemini', 'gemma', 'AIGateway', 'openai']);
     expect(contract.routes.routes.find((entry) => entry.id === 'openai')).toEqual(expect.objectContaining({
       providerName: 'openai',
-      currentModelName: 'gpt-5.2',
+      currentModelName: 'gpt-4o',
       ready: true,
     }));
     expect(contract.selected).toEqual(expect.objectContaining({
@@ -171,7 +171,7 @@ describe('ModelPickerContractService', () => {
     expect(contract.selected).toEqual(expect.objectContaining({
       source: 'target-selection',
       providerName: 'gemini',
-      modelName: 'gemma-4-31b-it',
+      modelName: 'gemma-2-27b-it',
       readiness: 'ready',
     }));
     expect(contract.selected.explanation.join(' ')).toContain('Gemma 4');
@@ -189,7 +189,7 @@ describe('ModelPickerContractService', () => {
     expect(contract.selected).toEqual(expect.objectContaining({
       source: 'profile-selection',
       providerName: 'openai',
-      modelName: 'gpt-5.2',
+      modelName: 'gpt-4o',
       fallbackOrder: ['AIGateway', 'openai', 'gemini'],
     }));
     expect(contract.selected.explanation.join(' ')).toContain('AIGateway: gateway offline');
@@ -208,7 +208,7 @@ describe('ModelPickerContractService', () => {
       vendorId: 'google',
       providerIds: ['gemini'],
       primaryRouteId: 'gemma',
-      defaultModelName: 'gemma-4-31b-it',
+      defaultModelName: 'gemma-2-27b-it',
       catalogSource: 'static',
     }));
     expect(serialized.routes.routes.find((entry: any) => entry.id === 'AIGateway')).toEqual(expect.objectContaining({

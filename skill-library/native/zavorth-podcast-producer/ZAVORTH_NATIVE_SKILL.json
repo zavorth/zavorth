@@ -6,11 +6,24 @@
   "category": "media",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["podcast", "audio", "publishing"],
-  "presets": ["developer"],
-  "inputContract": ["audio recordings", "episode metadata", "publishing destinations"],
-  "outputContract": ["media files", "export configs"],
+  "capabilityTags": [
+    "podcast",
+    "audio",
+    "publishing"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "audio recordings",
+    "episode metadata",
+    "publishing destinations"
+  ],
+  "outputContract": [
+    "media files",
+    "export configs"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

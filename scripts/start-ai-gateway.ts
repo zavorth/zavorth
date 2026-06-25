@@ -37,7 +37,7 @@ async function main(): Promise<void> {
   ensureGatewayOverlay();
   const gateway = new AIGatewayProxyService();
   const status = await gateway.start();
-  console.log(`[start-ai-gateway] enabled=${status.enabled} ready=${status.ready} base=${status.baseUrl}`);
+  console.log(`[start-zavorth-control] enabled=${status.enabled} ready=${status.ready} base=${status.baseUrl}`);
 
   const shutdown = async () => {
     await gateway.stop();
@@ -49,6 +49,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error(`[start-ai-gateway] ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`[start-zavorth-control] ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 });

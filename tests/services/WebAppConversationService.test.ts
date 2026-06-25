@@ -1,5 +1,7 @@
 import { WebAppConversationService } from '../../src/services/WebAppConversationService';
 import { ZavorthAgentGateway } from '../../src/runtime/agent/index.js';
+import { FirstRunPersonalizationService } from '../../src/services/FirstRunPersonalizationService.js';
+import { ZavorthConversationalSetupService } from '../../src/services/ZavorthConversationalSetupService.js';
 
 function createRealtimeMock() {
   const messages: Array<{ role: string; content: string; kind?: string | null }> = [];
@@ -59,6 +61,26 @@ function createRuntime() {
 }
 
 describe('WebAppConversationService natural-first routing', () => {
+  let personalizationSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    personalizationSpy = jest.spyOn(FirstRunPersonalizationService.prototype, 'getStatus').mockReturnValue({
+      pending: false,
+      reasons: [],
+      files: {
+        identity: '', soul: '', user: '', bootstrap: '', domain: '',
+        learningStyle: '', errorHandling: '', outputFormat: '', timeAutomation: ''
+      },
+      bootstrapExists: false,
+      missingUserFields: [],
+      identityName: 'Zavorth'
+    });
+  });
+
+  afterEach(() => {
+    personalizationSpy.mockRestore();
+  });
+
   it('routes web chat natural requests through the shared surface before opening a task', async () => {
     const realtime = createRealtimeMock();
     const sendToSession = jest.fn();
@@ -969,6 +991,57 @@ describe('WebAppConversationService natural-first routing', () => {
       null,
       'mode-escalation',
     );
+  });
+
+  describe('onboarding conversational setup interception', () => {
+    it('intercepts chat messages and runs conversational setup when personalization is pending', async () => {
+      const realtime = createRealtimeMock();
+      const sendToSession = jest.fn();
+      
+      personalizationSpy.mockReturnValue({
+        pending: true,
+        reasons: ['USER.md has pending fields'],
+        files: {
+          identity: '', soul: '', user: '', bootstrap: '', domain: '',
+          learningStyle: '', errorHandling: '', outputFormat: '', timeAutomation: ''
+        },
+        bootstrapExists: false,
+        missingUserFields: ['Name'],
+        identityName: 'Zavorth'
+      });
+
+      const intakeSpy = jest.spyOn(ZavorthConversationalSetupService.prototype, 'runFirstMessageIntake').mockResolvedValue({
+        reply: 'Qual é o seu nome?',
+        finished: false
+      });
+
+      const service = new WebAppConversationService({
+        runtime: {
+          webUserId: 'web-user',
+          projectRoot: '/fake/root'
+        } as any,
+        realtime: realtime as any,
+        getGatewaySessionTools: () => ({ sendToSession } as any),
+      });
+
+      const result = await service.processChatSend({
+        sessionId: 'session-web-onboard-1',
+        message: 'Olá'
+      });
+
+      expect(personalizationSpy).toHaveBeenCalled();
+      expect(intakeSpy).toHaveBeenCalled();
+      expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
+        'session-web-onboard-1',
+        'Qual é o seu nome?',
+        null,
+        'conversational-setup-reply'
+      );
+      expect(result.sessionId).toBe('session-web-onboard-1');
+      expect(result.taskId).toBeNull();
+
+      intakeSpy.mockRestore();
+    });
   });
 });
 

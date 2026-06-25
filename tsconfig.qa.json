@@ -31,7 +31,7 @@
     "dist-qa",
     "tests",
     "vercel-web",
-    "src/ai-gateway",
+    "src/zavorth-control",
     "src/web/components",
     "src/runtime/supervised-launcher.ts",
     "src/runtime/supervised-launcher.ts.tmp.ts"

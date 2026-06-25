@@ -23,7 +23,7 @@
     "raw text",
     "structured content"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

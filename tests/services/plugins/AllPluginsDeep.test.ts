@@ -178,7 +178,7 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
     });
 
     it('recordLlmLatency() should record latency histogram', () => {
-      svc.recordLlmLatency('openai', 'gpt-5.2', 500);
+      svc.recordLlmLatency('openai', 'gpt-4o', 500);
       const json = svc.getMetricsJson();
       expect(json).toContain('zavorth_llm_latency_seconds');
     });
@@ -840,12 +840,12 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
 
     it('listModels() should list available models', () => {
       const result = svc.listModels();
-      expect(result).toContain('gpt-5.2');
+      expect(result).toContain('gpt-4o');
     });
 
     it('getModelProfile() should return model details', () => {
-      const result = svc.getModelProfile('gpt-5.2');
-      expect(result).toContain('gpt-5.2');
+      const result = svc.getModelProfile('gpt-4o');
+      expect(result).toContain('gpt-4o');
     });
 
     it('getModelProfile() invalid should return not found', () => {
@@ -854,7 +854,7 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
     });
 
     it('recordUsage() should track usage stats', () => {
-      svc.recordUsage('gpt-5.2', 1000, 500, 0.05);
+      svc.recordUsage('gpt-4o', 1000, 500, 0.05);
       const stats = svc.getStats();
       expect(stats).toBeDefined();
     });
@@ -990,7 +990,7 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
 
     it('lookup() should find cached prompt', () => {
       const hash = svc.computeHash('cached prompt');
-      svc.store(hash, ['prefix'], 100, 'openai', 'gpt-5.2');
+      svc.store(hash, ['prefix'], 100, 'openai', 'gpt-4o');
       const result = svc.lookup(hash);
       expect(result).toBeDefined();
     });
@@ -1001,7 +1001,7 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
     });
 
     it('store() should cache a prompt prefix', () => {
-      svc.store('hash_abc', ['prefix_tokens'], 50, 'openai', 'gpt-5.2');
+      svc.store('hash_abc', ['prefix_tokens'], 50, 'openai', 'gpt-4o');
       const stats = svc.getStats();
       expect(stats).toBeDefined();
     });
@@ -1020,7 +1020,7 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
     });
 
     it('getHitRate() should return hit rate', () => {
-      svc.store('hash_hr', ['t'], 5, 'openai', 'gpt-5.2');
+      svc.store('hash_hr', ['t'], 5, 'openai', 'gpt-4o');
       svc.lookup('hash_hr');
       const rate = svc.getHitRate();
       expect(typeof rate).toBe('number');

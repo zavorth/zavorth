@@ -2,19 +2,20 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
+import { t } from './i18n.js';
 
 const execAsync = promisify(exec);
 
 /**
- * WhisperService — Speech-to-Text local via whisper.cpp.
+ * WhisperService — Local Speech-to-Text via whisper.cpp.
  *
- * Transcreve áudio em texto usando o modelo Whisper rodando 100% offline.
- * Suporta whisper.cpp (compilado) ou fallback para whisper CLI do Python.
+ * Transcribes audio to text using Whisper model running 100% offline.
+ * Supports whisper.cpp (compiled) or fallback to Python whisper CLI.
  *
- * Modelos recomendados para i5-13420H / 8GB RAM:
- *   tiny  → 75MB, ~500ms (boa qualidade)
- *   base  → 145MB, ~1s (ótima qualidade) ← RECOMENDADO
- *   small → 465MB, ~3s (excelente qualidade)
+ * Recommended models for i5-13420H / 8GB RAM:
+ *   tiny  → 75MB, ~500ms (good quality)
+ *   base  → 145MB, ~1s (great quality) ← RECOMMENDED
+ *   small → 465MB, ~3s (excellent quality)
  */
 export class WhisperService {
   private whisperPath: string;
@@ -26,46 +27,48 @@ export class WhisperService {
     modelPath?: string;
     language?: string;
   }) {
-    // Procura whisper.cpp no diretório do agent ou no PATH
+    // Search whisper.cpp in agent folder or PATH
     this.whisperPath = options?.whisperPath || 'whisper';
     this.modelPath = options?.modelPath || path.join(process.cwd(), 'models', 'ggml-base.bin');
     this.language = options?.language || 'pt';
   }
 
   /**
-   * Transcreve um arquivo de áudio em texto.
-   * @param audioPath Caminho para o arquivo .wav
-   * @returns Texto transcrito
+   * Dynamically updates the transcription target language.
+   */
+  public setLanguage(lang: string): void {
+    this.language = lang;
+  }
+
+  /**
+   * Transcribes an audio file to text.
+   * @param audioPath Path to .wav file
+   * @returns Transcribed text
    */
   public async transcribe(audioPath: string): Promise<string> {
-    console.log(`[Whisper] 🧠 Transcrevendo: ${path.basename(audioPath)}...`);
+    console.log(`[Whisper] 🧠 Transcribing: ${path.basename(audioPath)}...`);
     const startTime = Date.now();
 
     try {
-      // Tenta whisper.cpp primeiro (mais rápido)
+      // Try whisper.cpp first (faster)
       return await this.transcribeViaCpp(audioPath);
     } catch {
       try {
         // Fallback: whisper via Python
         return await this.transcribeViaPython(audioPath);
       } catch (error: any) {
-        throw new Error(
-          `[Whisper] Nenhum método de transcrição disponível.\n` +
-          `  Opção 1: Instale whisper.cpp e coloque o binário no PATH\n` +
-          `  Opção 2: pip install openai-whisper\n` +
-          `  Erro: ${error.message}`
-        );
+        throw new Error(t('whisper_no_method', { message: error.message }));
       }
     }
   }
 
   /**
-   * Transcrição via whisper.cpp (binário compilado).
+   * Transcription via whisper.cpp (compiled binary).
    */
   private async transcribeViaCpp(audioPath: string): Promise<string> {
     const startTime = Date.now();
 
-    // Verifica se o binário existe
+    // Check if binary exists
     const binaryNames = ['whisper', 'whisper.exe', 'main', 'main.exe'];
     let binaryPath = this.whisperPath;
 
@@ -82,10 +85,10 @@ export class WhisperService {
       { timeout: 30000 },
     );
 
-    // whisper.cpp escreve o resultado em stdout ou em arquivo .txt
+    // whisper.cpp writes output to stdout or .txt file
     let text = stdout.trim();
 
-    // Se vazio, tenta ler o arquivo .txt gerado
+    // If empty, try reading generated .txt file
     if (!text) {
       const txtPath = audioPath.replace(/\.\w+$/, '.txt');
       if (fs.existsSync(txtPath)) {
@@ -95,16 +98,16 @@ export class WhisperService {
     }
 
     if (!text) {
-      throw new Error('whisper.cpp não retornou transcrição.');
+      throw new Error(t('whisper_no_transcript'));
     }
 
     const duration = Date.now() - startTime;
-    console.log(`[Whisper] ✅ Transcrito em ${duration}ms: "${text}"`);
+    console.log(`[Whisper] ✅ Transcribed in ${duration}ms: "${text}"`);
     return text;
   }
 
   /**
-   * Fallback: transcrição via Python whisper CLI.
+   * Fallback: transcription via Python whisper CLI.
    */
   private async transcribeViaPython(audioPath: string): Promise<string> {
     const { stdout } = await execAsync(
@@ -112,24 +115,24 @@ export class WhisperService {
       { timeout: 60000 },
     );
 
-    // Lê o arquivo .txt gerado
+    // Read generated .txt file
     const txtPath = audioPath.replace(/\.\w+$/, '.txt');
     if (fs.existsSync(txtPath)) {
       const text = fs.readFileSync(txtPath, 'utf-8').trim();
       fs.unlinkSync(txtPath);
-      console.log(`[Whisper] ✅ Transcrito (Python): "${text}"`);
+      console.log(`[Whisper] ✅ Transcribed (Python): "${text}"`);
       return text;
     }
 
-    // Tenta extrair do stdout
+    // Try extracting from stdout
     const text = stdout.trim();
     if (text) return text;
 
-    throw new Error('Python whisper não retornou transcrição.');
+    throw new Error(t('whisper_python_no_transcript'));
   }
 
   /**
-   * Verifica se o Whisper está disponível (qualquer método).
+   * Verifies if Whisper is available (any method).
    */
   public async isAvailable(): Promise<{ available: boolean; method: string }> {
     // Check whisper.cpp

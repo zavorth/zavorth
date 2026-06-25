@@ -6,11 +6,24 @@
   "category": "finance",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["merger", "m&a", "modeling"],
-  "presets": ["developer"],
-  "inputContract": ["acquirer_data", "target_data", "deal_terms"],
-  "outputContract": ["merger_model", "accretion_dilution"],
+  "capabilityTags": [
+    "merger",
+    "m&a",
+    "modeling"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "acquirer_data",
+    "target_data",
+    "deal_terms"
+  ],
+  "outputContract": [
+    "merger_model",
+    "accretion_dilution"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

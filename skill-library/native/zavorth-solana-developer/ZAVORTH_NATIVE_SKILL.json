@@ -6,11 +6,24 @@
   "category": "blockchain",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["solana", "anchor", "spl"],
-  "presets": ["developer"],
-  "inputContract": ["program_spec", "network_config"],
-  "outputContract": ["program_code", "idl", "deploy_script"],
+  "capabilityTags": [
+    "solana",
+    "anchor",
+    "spl"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "program_spec",
+    "network_config"
+  ],
+  "outputContract": [
+    "program_code",
+    "idl",
+    "deploy_script"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

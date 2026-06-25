@@ -27,11 +27,11 @@ describe('GeminiInteractionsProviderAdapter', () => {
         { type: 'function_call', function_call: { name: 'preview', args: { risk: 'low' } } },
         { type: 'model_output', text: 'Done' },
       ],
-    }, 'gemini-3.5-flash', 'interactions/old', false);
+    }, 'gemini-2.5-flash', 'interactions/old', false);
 
     expect(receipt).toMatchObject({
       provider: 'gemini-interactions',
-      model: 'gemini-3.5-flash',
+      model: 'gemini-2.5-flash',
       interactionId: 'interactions/123',
       previousInteractionId: 'interactions/old',
       storedServerSide: false,

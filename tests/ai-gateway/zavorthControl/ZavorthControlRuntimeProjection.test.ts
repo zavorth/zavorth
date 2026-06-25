@@ -3,11 +3,11 @@ import {
   ZAVORTH_CONTROL_RUNTIME_PROJECTION_VERSION,
   buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection,
   buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.js';
 import {
   buildZavorthControlAdapterInputFromZavorthAgentGatewaySnapshot,
   buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
 
 function createIdFactory() {
   let index = 0;
@@ -23,7 +23,7 @@ describe('ZavorthControlRuntimeProjection', () => {
       now: () => new Date('2026-04-26T15:00:00.000Z'),
       idFactory: createIdFactory(),
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
       executor: ({ run }) => ({
         status: 'completed',
         summary: 'Inventario entregue pelo runtime universal.',
@@ -211,7 +211,7 @@ describe('ZavorthControlRuntimeProjection', () => {
       now: () => new Date('2026-04-26T15:10:00.000Z'),
       idFactory: createIdFactory(),
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
     });
 
     const pending = await gateway.handle({

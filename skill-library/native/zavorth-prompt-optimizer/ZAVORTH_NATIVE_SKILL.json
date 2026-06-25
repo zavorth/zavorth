@@ -6,11 +6,24 @@
   "category": "ai",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["prompts", "optimization", "benchmarking"],
-  "presets": ["developer"],
-  "inputContract": ["base prompts", "evaluation criteria", "test datasets"],
-  "outputContract": ["model artifacts", "evaluation reports"],
+  "capabilityTags": [
+    "prompts",
+    "optimization",
+    "benchmarking"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "base prompts",
+    "evaluation criteria",
+    "test datasets"
+  ],
+  "outputContract": [
+    "model artifacts",
+    "evaluation reports"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

@@ -30,8 +30,8 @@ const rules = [
     label: 'catalog APIs use aggregation service',
     target: 'api/models/catalog and api/v1/models/catalog delegate to ModelCatalogAggregationService',
     files: [
-      'src/ai-gateway/app/api/models/catalog/route.ts',
-      'src/ai-gateway/app/api/v1/models/catalog.ts',
+      'src/zavorth-control/app/api/models/catalog/route.ts',
+      'src/zavorth-control/app/api/v1/models/catalog.ts',
     ],
     needles: ['ModelCatalogAggregationService'],
   }),
@@ -40,7 +40,7 @@ const rules = [
     label: 'provider model listing uses discovery adapters',
     target: 'provider model listing delegates compatible discovery to adapters',
     files: [
-      'src/ai-gateway/app/api/providers/[id]/models/providerModelsFetchers.ts',
+      'src/zavorth-control/app/api/providers/[id]/models/providerModelsFetchers.ts',
     ],
     needles: [
       'OpenAiCompatibleModelDiscoveryAdapter',
@@ -52,7 +52,7 @@ const rules = [
     label: 'onboarding consumes model picker',
     target: 'onboarding reads /api/onboarding/model-picker',
     files: [
-      'src/ai-gateway/app/(zavorthControl)/control/onboarding/page.tsx',
+      'src/zavorth-control/app/(zavorthControl)/control/onboarding/page.tsx',
     ],
     needles: ['/api/onboarding/model-picker'],
   }),
@@ -61,7 +61,7 @@ const rules = [
     label: 'onboarding exposes Provider Mesh product snapshot',
     target: 'model picker API returns the C7 capability-first providerMeshOnboarding snapshot',
     files: [
-      'src/ai-gateway/app/api/onboarding/model-picker/route.ts',
+      'src/zavorth-control/app/api/onboarding/model-picker/route.ts',
     ],
     needles: [
       'ProviderMeshOnboardingProductService',
@@ -74,7 +74,7 @@ const rules = [
     label: 'providers page consumes model picker',
     target: 'providers page reads advanced picker and passes pickerRoute to cards',
     files: [
-      'src/ai-gateway/app/(zavorthControl)/control/providers/page.tsx',
+      'src/zavorth-control/app/(zavorthControl)/control/providers/page.tsx',
     ],
     needles: [
       '/api/onboarding/model-picker?includeAdvanced=true',
@@ -87,7 +87,7 @@ const rules = [
     label: '/zavorthControl consumes model picker snapshot',
     target: 'Gateway Console renders snapshot.modelPicker without rebuilding selection rules',
     files: [
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlGatewayConsole.tsx',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlGatewayConsole.tsx',
     ],
     needles: [
       'snapshot?.modelPicker',
@@ -166,8 +166,8 @@ const rules = [
       'tests/services/providers/catalog/CustomCompatibleProviderOnboardingService.test.ts',
       'tests/services/providers/catalog/ProviderMeshOnboardingProductService.test.ts',
       'tests/providers/ProviderFactoryModelSelectionBridge.test.ts',
-      'tests/ai-gateway/OnboardingModelPickerSurface.test.ts',
-      'tests/ai-gateway/ProvidersPageModelPickerSurface.test.ts',
+      'tests/zavorth-control/OnboardingModelPickerSurface.test.ts',
+      'tests/zavorth-control/ProvidersPageModelPickerSurface.test.ts',
       'tests/cli/ZavorthCliModelPickerHelpers.test.ts',
     ],
   }),
@@ -253,10 +253,10 @@ function ruleContainsAll(input) {
 
 function providerDetailWarning() {
   const files = [
-    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/provider-detail-models-panel.tsx',
-    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/provider-detail-page.model-actions.ts',
-    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/provider-detail-model-sections-compatible.tsx',
-    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/useProviderDetailPageModel.ts',
+    'src/zavorth-control/app/(dashboard)/dashboard/providers/[id]/provider-detail-models-panel.tsx',
+    'src/zavorth-control/app/(dashboard)/dashboard/providers/[id]/provider-detail-page.model-actions.ts',
+    'src/zavorth-control/app/(dashboard)/dashboard/providers/[id]/provider-detail-model-sections-compatible.tsx',
+    'src/zavorth-control/app/(dashboard)/dashboard/providers/[id]/useProviderDetailPageModel.ts',
   ];
   const missingMarkers = files
     .filter((file) => exists(file))

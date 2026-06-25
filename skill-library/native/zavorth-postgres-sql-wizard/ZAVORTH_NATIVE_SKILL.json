@@ -22,7 +22,7 @@
     "optimized SQL",
     "security report"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

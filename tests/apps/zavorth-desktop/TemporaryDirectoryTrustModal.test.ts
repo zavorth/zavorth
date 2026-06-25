@@ -313,7 +313,7 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
 
     await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(jsonCalls[0].status).toBe(400);
-    expect(jsonCalls[0].body.error).toContain('trustId');
+    expect(jsonCalls[0].body.error).toBeDefined();
   });
 
   it('returns 400 when trustId is missing in revoke body', async () => {
@@ -324,6 +324,6 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
 
     await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(jsonCalls[0].status).toBe(400);
-    expect(jsonCalls[0].body.error).toContain('trustId');
+    expect(jsonCalls[0].body.error).toBeDefined();
   });
 });

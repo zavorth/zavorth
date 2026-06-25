@@ -77,9 +77,9 @@ export const DASHBOARD_CAPABILITY_PLACEMENTS: DashboardCapabilityPlacement[] = [
 ];
 
 export const LEGACY_DASHBOARD_SURFACE_MAP = [
-  { legacy: 'src/ai-gateway/app/(dashboard)', canonicalSector: 'terminal', reason: 'Legacy Next dashboard should delegate daily chat/control to the Vite shell.' },
-  { legacy: 'src/ai-gateway/app/(zavorthControl)', canonicalSector: 'overview', reason: 'Legacy control route maps to the Work overview in the canonical shell.' },
-  { legacy: 'src/ai-gateway/public/zavorth-control-vite-shell', canonicalSector: 'overview', reason: 'Built static copy of the same canonical Vite shell.' },
+  { legacy: 'src/zavorth-control/app/(dashboard)', canonicalSector: 'terminal', reason: 'Legacy Next dashboard should delegate daily chat/control to the Vite shell.' },
+  { legacy: 'src/zavorth-control/app/(zavorthControl)', canonicalSector: 'overview', reason: 'Legacy control route maps to the Work overview in the canonical shell.' },
+  { legacy: 'src/zavorth-control/public/zavorth-control-vite-shell', canonicalSector: 'overview', reason: 'Built static copy of the same canonical Vite shell.' },
   { legacy: 'apps/zavorth-control-vite-shell', canonicalSector: 'overview', reason: 'Primary editable dashboard source.' },
 ] as const;
 

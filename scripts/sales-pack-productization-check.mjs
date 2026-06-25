@@ -67,7 +67,7 @@ requireIncludes(testFile, test, [
   'rejects malformed inbound payloads',
 ]);
 
-const businessHookFile = 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/useZavorthControlSalesPackBusinessMode.ts';
+const businessHookFile = 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/useZavorthControlSalesPackBusinessMode.ts';
 const businessHook = read(businessHookFile);
 requireIncludes(businessHookFile, businessHook, [
   'BUSINESS_MODE_STORAGE_KEY',
@@ -82,7 +82,7 @@ requireIncludes(businessHookFile, businessHook, [
   'activationReason',
 ]);
 
-const overviewFile = 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx';
+const overviewFile = 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx';
 const overview = read(overviewFile);
 requireIncludes(overviewFile, overview, [
   'Modo Business',

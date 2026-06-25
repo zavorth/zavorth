@@ -2,8 +2,8 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import Database from 'better-sqlite3';
-import { redactExportedLogValue } from '../../../src/ai-gateway/lib/logExportRedaction';
-import { sanitizeSqliteBackupFile } from '../../../src/ai-gateway/lib/db/backupSanitizer';
+import { redactExportedLogValue } from '../../../src/zavorth-control/lib/logExportRedaction';
+import { sanitizeSqliteBackupFile } from '../../../src/zavorth-control/lib/db/backupSanitizer';
 
 const PROVIDER_TOKEN = 'sk-testredactiontoken000000000000';
 const JWT_TOKEN = [

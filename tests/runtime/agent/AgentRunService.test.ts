@@ -125,7 +125,7 @@ describe('AgentRunService', () => {
       idFactory: createIdFactory(),
       executor,
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
     });
 
     const result = await service.run({
@@ -147,7 +147,7 @@ describe('AgentRunService', () => {
       summary: 'Run agent-run-2 processed.',
       modelProfile: expect.objectContaining({
         providerLabel: 'OpenAI',
-        modelLabel: 'gpt-5.2',
+        modelLabel: 'gpt-4o',
       }),
     }));
     expect(result.run.metadata.runBudget).toEqual(expect.objectContaining({
@@ -345,7 +345,7 @@ describe('AgentRunService', () => {
       idFactory: createIdFactory(),
       executor,
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
     });
 
     const result = await service.run({
@@ -548,7 +548,7 @@ describe('AgentRunService', () => {
     const llmRuntime: UniversalAgentLlmRuntime = {
       chatDetailed: jest.fn(async () => ({
         providerName: 'openai',
-        modelName: 'gpt-5.2',
+        modelName: 'gpt-4o',
         response: {
           content: 'Resposta natural via provider runtime.',
           toolCalls: [],
@@ -559,14 +559,14 @@ describe('AgentRunService', () => {
           requestedProviderName: 'openai',
           primaryProviderName: 'openai',
           providerName: 'openai',
-          modelName: 'gpt-5.2',
+          modelName: 'gpt-4o',
           fallbackAllowed: true,
           fallbackUsed: false,
           providerChain: ['openai'],
           attempts: [
             {
               providerName: 'openai',
-              modelName: 'gpt-5.2',
+              modelName: 'gpt-4o',
               status: 'succeeded',
               fallback: false,
             },
@@ -584,7 +584,7 @@ describe('AgentRunService', () => {
       idFactory: createIdFactory(),
       llmRuntime,
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
     });
 
     const result = await service.run({
@@ -637,7 +637,7 @@ describe('AgentRunService', () => {
     expect(result.replies[0].text).toBe('Resposta natural via provider runtime.');
     expect(result.run.modelProfile).toEqual(expect.objectContaining({
       providerLabel: 'openai',
-      modelLabel: 'gpt-5.2',
+      modelLabel: 'gpt-4o',
       routingPolicy: 'direct',
     }));
     expect(result.run.metadata.governedExecutor).toEqual(expect.objectContaining({
@@ -652,7 +652,7 @@ describe('AgentRunService', () => {
       fallbackUsed: false,
       generatedBy: 'llm-runtime',
       providerName: 'openai',
-      modelName: 'gpt-5.2',
+      modelName: 'gpt-4o',
       safety: expect.objectContaining({
         noToolExecution: true,
         noApprovalBypass: true,
@@ -665,7 +665,7 @@ describe('AgentRunService', () => {
     const llmRuntime: UniversalAgentLlmRuntime = {
       chatDetailed: jest.fn(async () => ({
         providerName: 'openai',
-        modelName: 'gpt-5.2',
+        modelName: 'gpt-4o',
         response: {
           content: 'Agora sao 12:00.',
           toolCalls: [],
@@ -676,14 +676,14 @@ describe('AgentRunService', () => {
           requestedProviderName: 'openai',
           primaryProviderName: 'openai',
           providerName: 'openai',
-          modelName: 'gpt-5.2',
+          modelName: 'gpt-4o',
           fallbackAllowed: true,
           fallbackUsed: false,
           providerChain: ['openai'],
           attempts: [
             {
               providerName: 'openai',
-              modelName: 'gpt-5.2',
+              modelName: 'gpt-4o',
               status: 'succeeded',
               fallback: false,
             },
@@ -713,7 +713,7 @@ describe('AgentRunService', () => {
       llmRuntime,
       toolRuntime,
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
     });
 
     await service.run({
@@ -916,7 +916,7 @@ describe('AgentRunService', () => {
     const llmRuntime: UniversalAgentLlmRuntime = {
       chatDetailed: jest.fn(async () => ({
         providerName: 'openai',
-        modelName: 'gpt-5.2',
+        modelName: 'gpt-4o',
         response: {
           content: 'Resposta com contexto canonico.',
           toolCalls: [],
@@ -927,14 +927,14 @@ describe('AgentRunService', () => {
           requestedProviderName: 'openai',
           primaryProviderName: 'openai',
           providerName: 'openai',
-          modelName: 'gpt-5.2',
+          modelName: 'gpt-4o',
           fallbackAllowed: true,
           fallbackUsed: false,
           providerChain: ['openai'],
           attempts: [
             {
               providerName: 'openai',
-              modelName: 'gpt-5.2',
+              modelName: 'gpt-4o',
               status: 'succeeded',
               fallback: false,
             },

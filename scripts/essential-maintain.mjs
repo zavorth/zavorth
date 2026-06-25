@@ -328,14 +328,14 @@ async function main() {
     console.log(`[maintain] encerrando AI Gateway proxy PID ${before.aiGatewayProxy.pid}`);
     killPid(before.aiGatewayProxy.pid);
     await waitForPortState(ports.aiGatewayProxy, false, 20000);
-    report.actions.push(`ai-gateway-proxy-stopped:${before.aiGatewayProxy.pid}`);
+    report.actions.push(`zavorth-control-proxy-stopped:${before.aiGatewayProxy.pid}`);
   }
 
   if (before.aiGateway.alive) {
     console.log(`[maintain] encerrando AI Gateway PID ${before.aiGateway.pid}`);
     killPid(before.aiGateway.pid);
     await waitForPortState(ports.aiGateway, false, 20000);
-    report.actions.push(`ai-gateway-stopped:${before.aiGateway.pid}`);
+    report.actions.push(`zavorth-control-stopped:${before.aiGateway.pid}`);
   }
 
   if (before.zavorthTerminal.alive) {
@@ -369,17 +369,17 @@ async function main() {
       console.log('[maintain] reiniciando AI Gateway proxy');
       spawnDetached(process.execPath, [path.join(projectRoot, 'scripts', 'start-ai-gateway-runtime.mjs')], projectRoot);
       await waitForPortState(ports.aiGatewayProxy, true, 120000);
-      report.actions.push('ai-gateway-proxy-restarted');
+      report.actions.push('zavorth-control-proxy-restarted');
     }
 
     if (before.aiGateway.alive) {
       console.log('[maintain] reiniciando AI Gateway');
-      spawnDetached(npmCommand, ['run', 'dev'], path.join(projectRoot, 'src', 'ai-gateway'), {
+      spawnDetached(npmCommand, ['run', 'dev'], path.join(projectRoot, 'src', 'zavorth-control'), {
         ...process.env,
         PORT: String(ports.aiGateway),
       });
       await waitForPortState(ports.aiGateway, true, 240000);
-      report.actions.push('ai-gateway-restarted');
+      report.actions.push('zavorth-control-restarted');
     }
 
     if (before.zavorthTerminal.alive) {

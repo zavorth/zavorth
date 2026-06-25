@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { ZavorthFederatedMeshControlPlaneService } from '../../src/services/ZavorthFederatedMeshControlPlaneService';
+import { ZavorthFederatedMeshControlPlaneService } from '@zavorth/mesh/ZavorthFederatedMeshControlPlaneService.js';
 import { NodeInvocationStoreService } from '../../src/services/NodeInvocationStoreService';
 import { NodeInvokeService } from '../../src/services/NodeInvokeService';
 import { NodeRegistryService } from '../../src/services/NodeRegistryService';

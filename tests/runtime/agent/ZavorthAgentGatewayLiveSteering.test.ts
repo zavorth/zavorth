@@ -31,7 +31,7 @@ describe('ZavorthAgentGateway live LLM steering', () => {
       idFactory: createIdFactory(),
       llmRuntime,
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
       runtimeEventBus: {
         emit: async (type, payload) => {
           emitted.push({ type, payload });
@@ -167,7 +167,7 @@ async function waitUntil(predicate: () => boolean, timeoutMs = 1000): Promise<vo
 function llmResult(content: string): LlmRuntimeResult {
   return {
     providerName: 'openai',
-    modelName: 'gpt-5.2',
+    modelName: 'gpt-4o',
     response: {
       content,
       toolCalls: [],
@@ -178,7 +178,7 @@ function llmResult(content: string): LlmRuntimeResult {
       requestedProviderName: 'openai',
       primaryProviderName: 'openai',
       providerName: 'openai',
-      modelName: 'gpt-5.2',
+      modelName: 'gpt-4o',
       fallbackAllowed: true,
       fallbackUsed: false,
       providerChain: ['openai'],

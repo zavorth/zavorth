@@ -74,7 +74,7 @@ describe('AudioHandler', () => {
       isConfigured: jest.fn(() => true),
       synthesizeDetailed: jest.fn(async () => ({
         filePath: geminiFile,
-        model: 'gemini-3.1-flash-tts-preview',
+        model: 'gemini-2.5-flash',
         voiceName: 'Kore',
         languageCode: 'en-US',
         mimeType: 'audio/wav',
@@ -105,7 +105,7 @@ describe('AudioHandler', () => {
     expect(loadEdgeTts).not.toHaveBeenCalled();
     expect(voiceTelemetryService.recordSuccess).toHaveBeenCalledWith(expect.objectContaining({
       provider: 'gemini',
-      model: 'gemini-3.1-flash-tts-preview',
+      model: 'gemini-2.5-flash',
       voiceName: 'Kore',
       languageCode: 'en-US',
     }));
@@ -124,7 +124,7 @@ describe('AudioHandler', () => {
       isConfigured: jest.fn(() => true),
       synthesizeDetailed: jest.fn(async () => ({
         filePath: geminiFile,
-        model: 'gemini-3.1-flash-tts-preview',
+        model: 'gemini-2.5-flash',
         voiceName: 'Kore',
         languageCode: 'es',
         mimeType: 'audio/wav',
@@ -169,7 +169,7 @@ describe('AudioHandler', () => {
       isConfigured: jest.fn(() => true),
       synthesizeDetailed: jest.fn(async () => ({
         filePath: geminiFile,
-        model: 'gemini-3.1-flash-tts-preview',
+        model: 'gemini-2.5-flash',
         voiceName: 'Kore',
         languageCode: 'en-US',
         mimeType: 'audio/wav',
@@ -202,7 +202,7 @@ describe('AudioHandler', () => {
     expect(voiceTelemetryService.recordSuccess).toHaveBeenCalledWith(expect.objectContaining({
       surface: 'telegram',
       provider: 'gemini',
-      model: 'gemini-3.1-flash-tts-preview',
+      model: 'gemini-2.5-flash',
       voiceName: 'Kore',
       fallbackFrom: 'edge-tts',
     }));

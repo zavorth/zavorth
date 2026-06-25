@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { CanvasWorkspaceService } from '../src/services/CanvasWorkspaceService.js';
-import type { CanvasAttachmentKind } from '../src/services/CanvasWorkspaceService.js';
+import { CanvasWorkspaceService } from '@zavorth/canvas/CanvasWorkspaceService.js';
+import type { CanvasAttachmentKind } from '@zavorth/canvas/CanvasWorkspaceService.js';
 
 function readFlag(argv: string[], names: string[]): string | null {
   for (const name of names) {

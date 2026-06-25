@@ -23,7 +23,7 @@
     "updates",
     "digest"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

@@ -17,22 +17,22 @@ const dryRun = !args.has('--apply');
 
 const targets = [
   {
-    id: 'ai-gateway-node-modules',
+    id: 'zavorth-control-node-modules',
     label: 'AI Gateway node_modules',
-    relativePath: path.join('src', 'ai-gateway', 'node_modules'),
-    guard: 'ai-gateway',
+    relativePath: path.join('src', 'zavorth-control', 'node_modules'),
+    guard: 'zavorth-control',
   },
   {
-    id: 'ai-gateway-next-cache',
+    id: 'zavorth-control-next-cache',
     label: 'AI Gateway .next',
-    relativePath: path.join('src', 'ai-gateway', '.next'),
-    guard: 'ai-gateway',
+    relativePath: path.join('src', 'zavorth-control', '.next'),
+    guard: 'zavorth-control',
   },
   {
-    id: 'ai-gateway-logs',
+    id: 'zavorth-control-logs',
     label: 'AI Gateway logs',
-    relativePath: path.join('src', 'ai-gateway', 'logs'),
-    guard: 'ai-gateway',
+    relativePath: path.join('src', 'zavorth-control', 'logs'),
+    guard: 'zavorth-control',
   },
   {
     id: 'zavorth-terminal-node-modules',
@@ -136,7 +136,7 @@ async function readGuards() {
     ));
 
   return {
-    'ai-gateway': aiGatewayLive,
+    'zavorth-control': aiGatewayLive,
     'zavorth-terminal': zavorthTerminalLive,
   };
 }

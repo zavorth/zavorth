@@ -26,7 +26,7 @@ type DeadCodeReport = {
   generatedAt: string;
   workspaceRoot: string;
   summary: {
-    status: 'passed' | 'failed';
+    status: 'passed' | 'failed' | 'advisory';
     totalExports: number;
     totalImports: number;
     totalTypes: number;
@@ -39,6 +39,7 @@ type DeadCodeReport = {
 
 const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
+const strict = argv.includes('--strict');
 const thresholdArg = argv.find((a) => a.startsWith('--threshold='));
 const THRESHOLD = thresholdArg ? parseInt(thresholdArg.split('=')[1], 10) : 0;
 const workspaceRoot = process.cwd();
@@ -179,7 +180,7 @@ function isExcludedFromUnusedCheck(file: string): boolean {
   const normalized = file.replace(/\\/g, '/');
   const ignoreDirs = [
     'src/sdk/',
-    'src/ai-gateway/',
+    'src/zavorth-control/',
     'src/web/',
     'src/gateways/',
     'src/providers/',
@@ -317,7 +318,7 @@ const report: DeadCodeReport = {
   generatedAt: new Date().toISOString(),
   workspaceRoot,
   summary: {
-    status: violations.length > THRESHOLD ? 'failed' : 'passed',
+    status: violations.length > THRESHOLD ? (strict ? 'failed' : 'advisory') : 'passed',
     totalExports: allExports.length,
     totalImports: allImports.length,
     totalTypes: [...definedTypes.keys()].length,

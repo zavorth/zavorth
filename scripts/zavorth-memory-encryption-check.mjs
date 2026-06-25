@@ -16,7 +16,7 @@ const rules = [
       'src/services/ZavorthMemoryEncryptionStatusService.ts',
       'src/cli/ZavorthMemoryEncryptionCommand.ts',
       'src/services/DashboardCoreRouteService.ts',
-      'src/ai-gateway/app/api/experience/memory/encryption/route.ts',
+      'src/zavorth-control/app/api/experience/memory/encryption/route.ts',
       'apps/zavorth-desktop/src/apiClient.ts',
       'apps/zavorth-desktop/src/App.tsx',
       'scripts/zavorth-memory-encryption.ts',

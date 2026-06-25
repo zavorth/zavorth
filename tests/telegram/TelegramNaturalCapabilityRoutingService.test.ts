@@ -17,6 +17,10 @@ describe('TelegramNaturalCapabilityRoutingService', () => {
       schedulerController: {
         handleAutomations: jest.fn().mockResolvedValue(undefined),
       },
+      surfaceOperationalIntentService: {
+        classify: jest.fn().mockReturnValue({ intent: 'operational', shouldExecute: true }),
+        toResponseDecision: jest.fn().mockReturnValue({ responsePath: 'agent-runtime' }),
+      },
     };
 
     return {

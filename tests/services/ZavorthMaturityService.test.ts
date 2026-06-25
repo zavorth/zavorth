@@ -115,8 +115,8 @@ function defaultFiles(): Record<string, string> {
     'package.json': JSON.stringify({ scripts: requiredScripts() }),
     'src/index.ts': 'export const name = "Zavorth";',
     'src/security/SensitiveDataGuard.ts': 'ok',
-    'src/ai-gateway/lib/logExportRedaction.ts': 'ok',
-    'src/ai-gateway/lib/db/backupSanitizer.ts': 'ok',
+    'src/zavorth-control/lib/logExportRedaction.ts': 'ok',
+    'src/zavorth-control/lib/db/backupSanitizer.ts': 'ok',
     'docs/security.md': 'ok',
   };
 }

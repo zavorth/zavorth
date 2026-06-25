@@ -6,7 +6,7 @@ const files = {
   service: 'src/services/ZavorthApprovalActionCardsUxService.ts',
   script: 'scripts/zavorth-approval-action-cards-ux.ts',
   route: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  panel: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
+  panel: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
   test: 'tests/services/ZavorthApprovalActionCardsUxService.test.ts',
 };
 

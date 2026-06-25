@@ -6,11 +6,25 @@
   "category": "productivity",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["google", "docs", "sheets", "workspace"],
-  "presets": ["developer"],
-  "inputContract": ["document templates", "data payloads", "sharing configs"],
-  "outputContract": ["documents", "project artifacts"],
+  "capabilityTags": [
+    "google",
+    "docs",
+    "sheets",
+    "workspace"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "document templates",
+    "data payloads",
+    "sharing configs"
+  ],
+  "outputContract": [
+    "documents",
+    "project artifacts"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

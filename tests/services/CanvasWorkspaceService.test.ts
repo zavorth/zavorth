@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { CanvasWorkspaceService } from '../../src/services/CanvasWorkspaceService';
+import { CanvasWorkspaceService } from '@zavorth/canvas/CanvasWorkspaceService.js';
 
 function mutationPlaneMock(seedPlans: any[] = []) {
   const plans = [...seedPlans];

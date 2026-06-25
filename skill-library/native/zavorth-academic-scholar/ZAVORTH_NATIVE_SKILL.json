@@ -23,7 +23,7 @@
     "paper summaries",
     "metadata bibliography"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

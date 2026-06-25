@@ -32,7 +32,7 @@ if (failed.length > 0) process.exitCode = 1;
 function ruleFilesExist() {
   const files = [
     'src/contracts/ZavorthAndroidAdbBridgeContract.ts',
-    'src/services/ZavorthAndroidAdbBridgeService.ts',
+    'src/hardware/ZavorthAndroidAdbBridgeService.ts',
     'scripts/zavorth-android-adb-bridge.ts',
     'scripts/zavorth-android-adb-bridge-check.mjs',
     'tests/domain/surface/AndroidAdbBridgeService.test.ts',
@@ -45,7 +45,7 @@ function ruleFilesExist() {
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthAndroidAdbBridgeContract.ts', ['device.screenshot', 'device.ui_dump', 'device.plan', 'tapSwipeTextKeyRequireApproval', 'installUninstallBlockedByDefault', 'liveMutationPerformed: false']],
-    ['src/services/ZavorthAndroidAdbBridgeService.ts', ['adb devices -l', 'exec-out', 'screencap', '-p', 'uiautomator', 'logcat', '-d', '-t', 'destructive ADB blocked']],
+    ['src/hardware/ZavorthAndroidAdbBridgeService.ts', ['adb devices -l', 'exec-out', 'screencap', '-p', 'uiautomator', 'logcat', '-d', '-t', 'destructive ADB blocked']],
     ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['ZavorthAndroidAdbBridgeService', 'handleDevice', 'parseDeviceCommand', 'ZavorthPerceptionInvocationRouter', '/device']],
     ['src/services/SharedSurfaceCommandContract.ts', ["discordSlashName: 'device'", 'Android ADB/device bridge governado']],
     ['package.json', ['node scripts/zavorth-android-adb-bridge-check.mjs']],

@@ -57,7 +57,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     ],
     modelProfile: {
       providerLabel: 'OpenAI',
-      modelLabel: 'gpt-5.2',
+      modelLabel: 'gpt-4o',
       routingPolicy: 'direct',
     },
     approvals: [],

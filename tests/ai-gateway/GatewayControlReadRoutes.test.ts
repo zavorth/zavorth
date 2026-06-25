@@ -7,14 +7,14 @@ import {
   buildGatewayControlOperationRouteOptions,
   buildGatewayControlReadPayload,
   parseGatewayControlRouteOptions,
-} from '../../src/ai-gateway/app/api/gateway-control/gatewayControlRouteSupport';
+} from '../../src/zavorth-control/app/api/gateway-control/gatewayControlRouteSupport';
 import {
   GATEWAY_CONTROL_API_CONTRACT_VERSION,
   type ZavorthGatewayControlApiSnapshot,
 } from '../../src/services/ZavorthGatewayRuntimeService';
 
 describe('Gateway Control read routes', () => {
-  const routeRoot = path.join(process.cwd(), 'src', 'ai-gateway', 'app', 'api', 'gateway-control');
+  const routeRoot = path.join(process.cwd(), 'src', 'zavorth-control', 'app', 'api', 'gateway-control');
 
   const snapshot: ZavorthGatewayControlApiSnapshot = {
     ok: true,
@@ -23,7 +23,7 @@ describe('Gateway Control read routes', () => {
     boundary: {
       stableEntry: 'ZavorthGatewayRuntimeService.buildGatewayControlApiSnapshot',
       currentCut: 'P2-006h',
-      doNotBypass: ['src/ai-gateway/app/api/* internals'],
+      doNotBypass: ['src/zavorth-control/app/api/* internals'],
     },
     health: {
       status: 'ready',
@@ -49,7 +49,7 @@ describe('Gateway Control read routes', () => {
       source: 'provider-control-plane',
       includeAdvanced: false,
       currentProvider: 'openai',
-      currentModel: 'gpt-5.2',
+      currentModel: 'gpt-4o',
       summary: {
         total: 1,
         ready: 1,
@@ -66,7 +66,7 @@ describe('Gateway Control read routes', () => {
           visibility: 'public',
           mode: 'cloud',
           summary: 'Provider cloud.',
-          currentModel: 'gpt-5.2',
+          currentModel: 'gpt-4o',
           requirements: ['OPENAI_API_KEY'],
           readiness: 'ready',
           ready: true,
@@ -80,7 +80,7 @@ describe('Gateway Control read routes', () => {
         {
           providerId: 'openai',
           providerLabel: 'OpenAI',
-          model: 'gpt-5.2',
+          model: 'gpt-4o',
           ready: true,
           modality: 'chat',
         },
@@ -151,13 +151,13 @@ describe('Gateway Control read routes', () => {
   const approvedCachePermission = {
     ...approvedPermission,
     permission_id: 'permission-gateway-control-cache',
-    requested_value: 'model:gpt-5.2',
-    resolved_value: 'model:gpt-5.2',
+    requested_value: 'model:gpt-4o',
+    resolved_value: 'model:gpt-4o',
     reason: 'Allow cache invalidation through Gateway Control.',
     metadata: {
       policy_family: 'gateway_control_operation',
       resource: 'cache.invalidate',
-      target: 'model:gpt-5.2',
+      target: 'model:gpt-4o',
       risk: 'write',
     },
   } as const;
@@ -530,7 +530,7 @@ describe('Gateway Control read routes', () => {
       'providers.test',
       {
         connectionId: 'conn-openai',
-        validationModelId: 'gpt-5.2',
+        validationModelId: 'gpt-4o',
       },
       {
         ...buildGatewayControlOperationRouteOptions(request, {
@@ -551,7 +551,7 @@ describe('Gateway Control read routes', () => {
           'X-Zavorth-Gateway-Control': 'true',
           'X-Zavorth-Approval-Id': 'permission-gateway-control-provider',
         }),
-        body: JSON.stringify({ validationModelId: 'gpt-5.2' }),
+        body: JSON.stringify({ validationModelId: 'gpt-4o' }),
       }),
     );
     expect(payload).toEqual(expect.objectContaining({
@@ -585,7 +585,7 @@ describe('Gateway Control read routes', () => {
         ok: true,
         invalidated: 3,
         scope: 'model',
-        model: 'gpt-5.2',
+        model: 'gpt-4o',
         apiKey: 'cache-delegate-secret',
       }),
       {
@@ -599,7 +599,7 @@ describe('Gateway Control read routes', () => {
       'cache.invalidate',
       {
         scope: 'model',
-        model: 'gpt-5.2',
+        model: 'gpt-4o',
       },
       {
         ...buildGatewayControlOperationRouteOptions(request, {
@@ -618,12 +618,12 @@ describe('Gateway Control read routes', () => {
       {
         policy_family: 'gateway_control_operation',
         resource: 'cache.invalidate',
-        target: 'model:gpt-5.2',
+        target: 'model:gpt-4o',
         risk: 'write',
       },
     );
     expect(fetchImpl).toHaveBeenCalledWith(
-      'http://127.0.0.1:3000/api/cache?model=gpt-5.2',
+      'http://127.0.0.1:3000/api/cache?model=gpt-4o',
       expect.objectContaining({
         method: 'DELETE',
         headers: expect.objectContaining({
@@ -646,7 +646,7 @@ describe('Gateway Control read routes', () => {
         approvalId: 'permission-gateway-control-cache',
       }),
       result: expect.objectContaining({
-        equivalentPath: '/api/cache?model=gpt-5.2',
+        equivalentPath: '/api/cache?model=gpt-4o',
         data: expect.objectContaining({
           ok: true,
           apiKey: '[redacted]',

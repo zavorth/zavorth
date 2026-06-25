@@ -39,7 +39,7 @@ describe('TelegramOpsController', () => {
           lastSentAt: '2026-03-28T09:00:00.000Z',
           updatedAt: '2026-03-28T08:00:00.000Z',
           updatedBy: '42',
-          note: 'Ativado via Telegram.',
+          note: 'Activated via Telegram.',
           nextPlannedAt: '2026-03-29T09:00:00.000Z',
         }),
         enable: jest.fn().mockReturnValue({
@@ -47,7 +47,7 @@ describe('TelegramOpsController', () => {
           lastSentAt: null,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Ativado via Telegram.',
+          note: 'Activated via Telegram.',
           nextPlannedAt: '2026-03-29T09:00:00.000Z',
         }),
         disable: jest.fn().mockReturnValue({
@@ -55,7 +55,7 @@ describe('TelegramOpsController', () => {
           lastSentAt: '2026-03-28T09:00:00.000Z',
           updatedAt: '2026-03-28T11:00:00.000Z',
           updatedBy: '42',
-          note: 'Desativado via Telegram.',
+          note: 'Deactivated via Telegram.',
           nextPlannedAt: '2026-03-29T09:00:00.000Z',
         }),
         sendNow: jest.fn().mockResolvedValue({
@@ -77,14 +77,14 @@ describe('TelegramOpsController', () => {
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Ativado via Telegram.',
+          note: 'Activated via Telegram.',
           autoPresentationEnabled: true,
         }),
         disable: jest.fn().mockReturnValue({
           enabled: false,
           updatedAt: '2026-03-28T11:00:00.000Z',
           updatedBy: '42',
-          note: 'Desativado via Telegram.',
+          note: 'Deactivated via Telegram.',
           autoPresentationEnabled: false,
         }),
         ...overrides.demoModeService,
@@ -118,13 +118,13 @@ describe('TelegramOpsController', () => {
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Ativado via Telegram.',
+          note: 'Activated via Telegram.',
         }),
         disable: jest.fn().mockReturnValue({
           enabled: false,
           updatedAt: '2026-03-28T11:00:00.000Z',
           updatedBy: '42',
-          note: 'Desativado via Telegram.',
+          note: 'Deactivated via Telegram.',
         }),
         ...overrides.operatorModeService,
       } as any,
@@ -140,18 +140,18 @@ describe('TelegramOpsController', () => {
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Ativado via Telegram.',
+          note: 'Activated via Telegram.',
         }),
         disable: jest.fn().mockReturnValue({
           enabled: false,
           updatedAt: '2026-03-28T11:00:00.000Z',
           updatedBy: '42',
-          note: 'Desativado via Telegram.',
+          note: 'Deactivated via Telegram.',
         }),
         ...overrides.presentationModeService,
       } as any,
       {
-        activate: jest.fn().mockResolvedValue({ active: true, message: 'ativado' }),
+        activate: jest.fn().mockResolvedValue({ active: true, message: 'activated' }),
         restore: jest.fn().mockResolvedValue({ active: false, message: 'restaurado' }),
         status: jest.fn().mockResolvedValue({ active: false, message: 'inativo' }),
         ...overrides.remoteModeManager,
@@ -377,7 +377,7 @@ describe('TelegramOpsController', () => {
           actions: [
             {
               id: 'configure-public-base-url',
-              title: 'Configurar URL publica',
+              title: 'Configure public URL',
               command: 'definir ZAVORTH_PUBLIC_BASE_URL',
               reason: 'Falta URL publica.',
               blocking: false,
@@ -714,8 +714,8 @@ describe('TelegramOpsController', () => {
 
     await controller.handleBootstrap(ctx);
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Bootstrap operacional do Zavorth'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Configurar URL publica'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Operational Bootstrap'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Configure public URL'));
   });
 
   it('includes the configured public dashboard url when available', async () => {
@@ -757,7 +757,7 @@ describe('TelegramOpsController', () => {
     await controller.handleWslCommand(ctx, '');
 
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Ubuntu-24.04'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Use /wsl on para ligar'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Use /wsl on to start'));
   });
 
   it('parses and handles remote mode commands', async () => {
@@ -775,7 +775,7 @@ describe('TelegramOpsController', () => {
     await controller.handleRemoteMode(ctx, 'activate');
 
     expect(activate).toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Modo remoto ativado.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Remote mode activated.'));
   });
 
   it('reports and toggles operator mode', async () => {
@@ -796,7 +796,7 @@ describe('TelegramOpsController', () => {
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Ativado via Telegram.',
+          note: 'Activated via Telegram.',
         }),
         enable,
       },
@@ -805,9 +805,9 @@ describe('TelegramOpsController', () => {
     await controller.handleOperatorMode(ctx, '');
     await controller.handleOperatorMode(ctx, 'on');
 
-    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('O modo operador esta ativo.'));
-    expect(enable).toHaveBeenCalledWith('42', 'Ativado via Telegram.');
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Modo operador ativado.'));
+    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('Operator mode is active.'));
+    expect(enable).toHaveBeenCalledWith('42', 'Activated via Telegram.');
+    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Operator mode activated.'));
   });
 
   it('reports and toggles presentation mode', async () => {
@@ -828,7 +828,7 @@ describe('TelegramOpsController', () => {
           enabled: true,
           updatedAt: '2026-03-28T10:00:00.000Z',
           updatedBy: '42',
-          note: 'Ativado via Telegram.',
+          note: 'Activated via Telegram.',
         }),
         enable,
       },
@@ -837,9 +837,9 @@ describe('TelegramOpsController', () => {
     await controller.handlePresentationMode(ctx, '');
     await controller.handlePresentationMode(ctx, 'on');
 
-    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('O modo apresentacao esta ativo.'));
-    expect(enable).toHaveBeenCalledWith('42', 'Ativado via Telegram.');
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Modo apresentacao ativado.'));
+    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('Presentation mode is active.'));
+    expect(enable).toHaveBeenCalledWith('42', 'Activated via Telegram.');
+    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Presentation mode activated.'));
   });
 
   it('returns the demo overview and a specific scenario', async () => {
@@ -993,7 +993,7 @@ describe('TelegramOpsController', () => {
           lastSentAt: '2026-03-28T09:00:00.000Z',
           updatedAt: '2026-03-28T08:00:00.000Z',
           updatedBy: '42',
-          note: 'Ativado via Telegram.',
+          note: 'Activated via Telegram.',
           nextPlannedAt: '2026-03-29T09:00:00.000Z',
         }),
         sendNow,
@@ -1014,7 +1014,7 @@ describe('TelegramOpsController', () => {
     } as any;
     const controller = createController({
       zavorthBridgePreferenceStore: {
-        getPreferredModel: jest.fn().mockResolvedValue('gemini-3.1-pro-high'),
+        getPreferredModel: jest.fn().mockResolvedValue('gemini-2.5-pro'),
       },
     });
 
@@ -1023,7 +1023,7 @@ describe('TelegramOpsController', () => {
     const modelText = ctx.reply.mock.calls[0][0];
     expect(modelText).toContain('Modelo conversacional atual');
     expect(modelText).toContain('Modelo preferido do ZavorthBridge');
-    expect(modelText).toContain('gemini-3.1-pro-high');
+    expect(modelText).toContain('gemini-2.5-pro');
   });
 
   it('confirms WSL start with the verified distro status', async () => {
@@ -1049,7 +1049,7 @@ describe('TelegramOpsController', () => {
 
     expect(start).toHaveBeenCalledWith('Ubuntu-24.04');
     expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Ubuntu-24.04'));
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Avisos: Sem marcador extra'));
+    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Warnings: Sem marcador extra'));
   });
 
   it('summarizes the latest local changes on demand', async () => {
@@ -1089,7 +1089,7 @@ describe('TelegramOpsController', () => {
     await controller.handleSelfUpdate(ctx, 'force');
 
     expect(requestReload).toHaveBeenCalledWith({
-      reason: 'Reload supervisionado forcado via Telegram.',
+      reason: 'Forced supervised reload via Telegram.',
       requestedBy: '42',
       notifyChatId: '987654321',
       forceRestart: true,
@@ -1118,7 +1118,7 @@ describe('TelegramOpsController', () => {
     await controller.handleSelfUpdate(ctx, '');
 
     expect(requestReload).toHaveBeenCalledWith({
-      reason: 'Reload supervisionado solicitado via Telegram.',
+      reason: 'Supervised reload requested via Telegram.',
       requestedBy: '42',
       notifyChatId: '987654321',
       forceRestart: false,

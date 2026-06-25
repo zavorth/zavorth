@@ -22,7 +22,7 @@
   "outputContract": [
     "raw svg content"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

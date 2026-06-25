@@ -1,4 +1,4 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
 
 describe('ZavorthControl Run Observatory Run Observatory', () => {
   it('keeps Run Observatory receipts, timeline, replay and health in the zavorthControl contract', () => {
@@ -54,7 +54,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
             status: 'failed',
             channel: 'cli',
             providerLabel: 'OpenAI',
-            modelLabel: 'gpt-5.2',
+            modelLabel: 'gpt-4o',
             eventCount: 2,
             artifactCount: 0,
             approvalCount: 0,
@@ -80,7 +80,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
               updatedAt: '2026-05-03T19:20:00.000Z',
               modelProfile: {
                 providerLabel: 'OpenAI',
-                modelLabel: 'gpt-5.2',
+                modelLabel: 'gpt-4o',
               },
               events: [{ id: 'event-failed' }],
               artifacts: [],

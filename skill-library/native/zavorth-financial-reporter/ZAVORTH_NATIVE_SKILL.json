@@ -6,11 +6,22 @@
   "category": "finance",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["reports", "financial-statements"],
-  "presets": ["developer"],
-  "inputContract": ["financial_data", "report_format"],
-  "outputContract": ["financial_report", "ratio_analysis"],
+  "capabilityTags": [
+    "reports",
+    "financial-statements"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "financial_data",
+    "report_format"
+  ],
+  "outputContract": [
+    "financial_report",
+    "ratio_analysis"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

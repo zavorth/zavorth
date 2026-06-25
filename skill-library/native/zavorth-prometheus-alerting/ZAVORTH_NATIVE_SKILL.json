@@ -6,11 +6,23 @@
   "category": "monitoring",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["prometheus", "alerting", "monitoring"],
-  "presets": ["developer"],
-  "inputContract": ["alert_rules", "routing_config"],
-  "outputContract": ["prometheus_rules", "alertmanager_config"],
+  "capabilityTags": [
+    "prometheus",
+    "alerting",
+    "monitoring"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "alert_rules",
+    "routing_config"
+  ],
+  "outputContract": [
+    "prometheus_rules",
+    "alertmanager_config"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

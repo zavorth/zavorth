@@ -6,11 +6,23 @@
   "category": "finance",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["stocks", "analysis", "screening"],
-  "presets": ["developer"],
-  "inputContract": ["ticker_symbol", "analysis_criteria"],
-  "outputContract": ["analysis_report", "screening_results"],
+  "capabilityTags": [
+    "stocks",
+    "analysis",
+    "screening"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "ticker_symbol",
+    "analysis_criteria"
+  ],
+  "outputContract": [
+    "analysis_report",
+    "screening_results"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

@@ -25,11 +25,11 @@ describe('DiagnosticsExporterService', () => {
       path.join(root, '.env'),
       [
         'ZAVORTH_DEFAULT_PROVIDER=gemini',
-        'GEMINI_API_KEY=AIzaSySensitiveKeyHere',
-        'OPENAI_API_KEY=sk-proj-OpenAiSensitiveKeyHereWhichIsLonger',
-        'ANTHROPIC_API_KEY=sk-ant-sid-AnthropicSensitiveKeyHereWhichIsLonger',
-        'DEEPSEEK_API_KEY=sk-deepseek-SensitiveKeyHere',
-        'SLACK_BOT_TOKEN=xoxb-SlackSensitiveTokenHere',
+        'GEMINI_API_KEY=mock-gemini-key',
+        'OPENAI_API_KEY=mock-openai-key',
+        'ANTHROPIC_API_KEY=mock-anthropic-key',
+        'DEEPSEEK_API_KEY=mock-deepseek-key',
+        'SLACK_BOT_TOKEN=mock-slack-token',
         'ZAVORTH_WEB_AUTH_TOKEN=secretTokenValue',
         'USER_PROFILE_DIR=C:\\Users\\john-doe\\project',
         'PROJECT_NAME=ZavorthTest',
@@ -64,11 +64,11 @@ describe('DiagnosticsExporterService', () => {
     expect(parsed.env.ZAVORTH_WEB_AUTH_TOKEN).toBe('[REDACTED_SECRET]');
     expect(parsed.env.PROJECT_NAME).toBe('ZavorthTest');
     expect(parsed.env.USER_PROFILE_DIR).toContain('[REDACTED_PATH]');
-    expect(fileContent).not.toContain('AIzaSySensitiveKeyHere');
-    expect(fileContent).not.toContain('sk-proj-OpenAiSensitiveKeyHereWhichIsLonger');
-    expect(fileContent).not.toContain('sk-ant-sid-AnthropicSensitiveKeyHereWhichIsLonger');
-    expect(fileContent).not.toContain('sk-deepseek-SensitiveKeyHere');
-    expect(fileContent).not.toContain('xoxb-SlackSensitiveTokenHere');
+    expect(fileContent).not.toContain('mock-gemini-key');
+    expect(fileContent).not.toContain('mock-openai-key');
+    expect(fileContent).not.toContain('mock-anthropic-key');
+    expect(fileContent).not.toContain('mock-deepseek-key');
+    expect(fileContent).not.toContain('mock-slack-token');
     expect(fileContent).not.toContain('secretTokenValue');
     expect(fileContent).not.toContain('john-doe');
   });

@@ -5,18 +5,18 @@ const root = process.cwd();
 const failures = [];
 
 const files = {
-  proxyPlane: 'src/ai-gateway/mitm/proxyPlane.cjs',
-  proxyCompat: 'src/ai-gateway/mitm/compat/legacyProxyCompat.cjs',
-  mitmServer: 'src/ai-gateway/mitm/server.cjs',
-  transportPlane: 'src/ai-gateway/sse/transportPlane.ts',
-  transportCompat: 'src/ai-gateway/sse/compat/legacyTransportCompat.ts',
-  openSseCompat: 'src/ai-gateway/sse/compat/openSseCompat.ts',
-  chatHandler: 'src/ai-gateway/sse/handlers/chat.ts',
-  chatHelpers: 'src/ai-gateway/sse/handlers/chatHelpers.ts',
-  authService: 'src/ai-gateway/sse/services/auth.ts',
-  semanticCache: 'src/ai-gateway/lib/semanticCache.ts',
-  cachePage: 'src/ai-gateway/app/(dashboard)/dashboard/cache/page.tsx',
-  deletedAuthOrig: 'src/ai-gateway/sse/services/auth.ts.orig',
+  proxyPlane: 'src/zavorth-control/mitm/proxyPlane.cjs',
+  proxyCompat: 'src/zavorth-control/mitm/compat/legacyProxyCompat.cjs',
+  mitmServer: 'src/zavorth-control/mitm/server.cjs',
+  transportPlane: 'src/zavorth-control/sse/transportPlane.ts',
+  transportCompat: 'src/zavorth-control/sse/compat/legacyTransportCompat.ts',
+  openSseCompat: 'src/zavorth-control/sse/compat/openSseCompat.ts',
+  chatHandler: 'src/zavorth-control/sse/handlers/chat.ts',
+  chatHelpers: 'src/zavorth-control/sse/handlers/chatHelpers.ts',
+  authService: 'src/zavorth-control/sse/services/auth.ts',
+  semanticCache: 'src/zavorth-control/lib/semanticCache.ts',
+  cachePage: 'src/zavorth-control/app/(dashboard)/dashboard/cache/page.tsx',
+  deletedAuthOrig: 'src/zavorth-control/sse/services/auth.ts.orig',
 };
 
 checkRequiredFiles();
@@ -119,7 +119,7 @@ function checkSseTransportPlane() {
 }
 
 function checkOpenSseCompatBoundary() {
-  const sseRoot = path.join(root, 'src', 'ai-gateway', 'sse');
+  const sseRoot = path.join(root, 'src', 'zavorth-control', 'sse');
   const compatPath = abs(files.openSseCompat);
 
   for (const filePath of walk(sseRoot)) {
@@ -179,8 +179,8 @@ function checkForbiddenResidues() {
     /@zavorthBridge/i,
   ];
   const roots = [
-    path.join(root, 'src', 'ai-gateway', 'mitm'),
-    path.join(root, 'src', 'ai-gateway', 'sse'),
+    path.join(root, 'src', 'zavorth-control', 'mitm'),
+    path.join(root, 'src', 'zavorth-control', 'sse'),
   ];
 
   for (const scanRoot of roots) {

@@ -5,20 +5,20 @@ const root = process.cwd();
 const failures = [];
 
 const files = {
-  authPlane: 'src/ai-gateway/lib/oauth/authPlane.ts',
-  oauthCompat: 'src/ai-gateway/lib/oauth/compat/legacyEnvAliases.ts',
-  providerRegistry: 'src/ai-gateway/lib/oauth/providers.ts',
-  storagePlane: 'src/ai-gateway/lib/db/storagePlane.ts',
-  backupAdapters: 'src/ai-gateway/lib/db/jsonBackupAdapters.ts',
-  jsonMigration: 'src/ai-gateway/lib/db/jsonMigration.ts',
-  migrationRunner: 'src/ai-gateway/lib/db/migrationRunner.ts',
-  coreSingleton: 'src/ai-gateway/lib/db/core/coreSingleton.ts',
-  singletonCompat: 'src/ai-gateway/lib/db/core/legacyDbSingletonCompat.ts',
-  coreSchemaBootstrap: 'src/ai-gateway/lib/db/core/coreSchemaBootstrap.ts',
-  exportRoute: 'src/ai-gateway/app/api/settings/export-json/route.ts',
-  importRoute: 'src/ai-gateway/app/api/settings/import-json/route.ts',
-  initialSchema: 'src/ai-gateway/lib/db/migrations/001_initial_schema.sql',
-  upstreamProxySchema: 'src/ai-gateway/lib/db/migrations/017_version_manager_upstream_proxy.sql',
+  authPlane: 'src/zavorth-control/lib/oauth/authPlane.ts',
+  oauthCompat: 'src/zavorth-control/lib/oauth/compat/legacyEnvAliases.ts',
+  providerRegistry: 'src/zavorth-control/lib/oauth/providers.ts',
+  storagePlane: 'src/zavorth-control/lib/db/storagePlane.ts',
+  backupAdapters: 'src/zavorth-control/lib/db/jsonBackupAdapters.ts',
+  jsonMigration: 'src/zavorth-control/lib/db/jsonMigration.ts',
+  migrationRunner: 'src/zavorth-control/lib/db/migrationRunner.ts',
+  coreSingleton: 'src/zavorth-control/lib/db/core/coreSingleton.ts',
+  singletonCompat: 'src/zavorth-control/lib/db/core/legacyDbSingletonCompat.ts',
+  coreSchemaBootstrap: 'src/zavorth-control/lib/db/core/coreSchemaBootstrap.ts',
+  exportRoute: 'src/zavorth-control/app/api/settings/export-json/route.ts',
+  importRoute: 'src/zavorth-control/app/api/settings/import-json/route.ts',
+  initialSchema: 'src/zavorth-control/lib/db/migrations/001_initial_schema.sql',
+  upstreamProxySchema: 'src/zavorth-control/lib/db/migrations/017_version_manager_upstream_proxy.sql',
 };
 
 checkRequiredFiles();

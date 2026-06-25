@@ -4,11 +4,11 @@ import {
   ZAVORTH_CONTROL_PRODUCT_RULES,
   ZAVORTH_CONTROL_REQUIRED_CLASSES,
   ZAVORTH_CONTROL_TOKEN_NAMES,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControlVisualContract.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/styles/zavorthControlVisualContract.js';
 
 const cssPath = join(
   process.cwd(),
-  'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css',
+  'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css',
 );
 
 describe('ZavorthControlVisualSystem', () => {

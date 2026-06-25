@@ -10,10 +10,10 @@
     "legacyCatalogCommands": 0
   },
   "commands": {
-    "ai-gateway:check": {
+    "zavorth-control:check": {
       "status": "canonical",
-      "command": "node scripts/check-surface-syntax.mjs --target=ai-gateway",
-      "description": "Comando canonico: ai-gateway:check"
+      "command": "node scripts/check-surface-syntax.mjs --target=zavorth-control",
+      "description": "Comando canonico: zavorth-control:check"
     },
     "architecture:activation": {
       "status": "canonical",
@@ -162,12 +162,12 @@
     },
     "qa:zavorthControl": {
       "status": "canonical",
-      "command": "npm run qa:zavorthControl-cockpit --silent && npm run qa:zavorthControl-browser-preview --silent && npm run qa:zavorthControl-real --silent && npm run qa:zavorthControl-chat-visual --silent && npm run qa:zavorthControl-composer-affordances --silent && npm run qa:zavorthControl-response-cortex --silent && npm run ai-gateway:check --silent",
+      "command": "npm run qa:zavorthControl-cockpit --silent && npm run qa:zavorthControl-browser-preview --silent && npm run qa:zavorthControl-real --silent && npm run qa:zavorthControl-chat-visual --silent && npm run qa:zavorthControl-composer-affordances --silent && npm run qa:zavorthControl-response-cortex --silent && npm run zavorth-control:check --silent",
       "description": "Comando canonico: qa:zavorthControl"
     },
     "qa:zavorthControl-browser-preview": {
       "status": "canonical",
-      "command": "npx tsx scripts/zavorthControl-browser-preview.ts --fixture=all --out=.tmp/zavorthControl-browser-preview && npx jest tests/ai-gateway/zavorthControl/ZavorthControlBrowserPreview.test.ts --runInBand",
+      "command": "npx tsx scripts/zavorthControl-browser-preview.ts --fixture=all --out=.tmp/zavorthControl-browser-preview && npx jest tests/zavorth-control/zavorthControl/ZavorthControlBrowserPreview.test.ts --runInBand",
       "description": "Comando canonico: qa:zavorthControl-browser-preview"
     },
     "qa:zavorthControl-chat-visual": {
@@ -177,12 +177,12 @@
     },
     "qa:zavorthControl-cockpit": {
       "status": "canonical",
-      "command": "npx jest tests/ai-gateway/zavorthControl/ZavorthControlCockpitQaGate.test.ts tests/ai-gateway/zavorthControl/ZavorthControlRuntimeFixtures.test.ts tests/ai-gateway/zavorthControl/ZavorthControlRuntimeProjection.test.ts tests/ai-gateway/zavorthControl/ZavorthControlFixturePreview.test.ts tests/ai-gateway/zavorthControl/ZavorthControlVisualPolish.test.ts tests/ai-gateway/zavorthControl/ZavorthControlFixtureScreenPolish.test.ts --runInBand",
+      "command": "npx jest tests/zavorth-control/zavorthControl/ZavorthControlCockpitQaGate.test.ts tests/zavorth-control/zavorthControl/ZavorthControlRuntimeFixtures.test.ts tests/zavorth-control/zavorthControl/ZavorthControlRuntimeProjection.test.ts tests/zavorth-control/zavorthControl/ZavorthControlFixturePreview.test.ts tests/zavorth-control/zavorthControl/ZavorthControlVisualPolish.test.ts tests/zavorth-control/zavorthControl/ZavorthControlFixtureScreenPolish.test.ts --runInBand",
       "description": "Comando canonico: qa:zavorthControl-cockpit"
     },
     "qa:zavorthControl-composer-affordances": {
       "status": "canonical",
-      "command": "npm run ai-gateway:check --silent",
+      "command": "npm run zavorth-control:check --silent",
       "description": "Comando canonico: qa:zavorthControl-composer-affordances"
     },
     "qa:zavorthControl-live-chat": {
@@ -202,12 +202,12 @@
     },
     "qa:zavorthControl-real": {
       "status": "canonical",
-      "command": "npx tsx scripts/dashboard-real-flow-qa.ts --require-pass && npx jest tests/ai-gateway/zavorthControl/ZavorthControlVisualRealQa.test.ts --runInBand",
+      "command": "npx tsx scripts/dashboard-real-flow-qa.ts --require-pass && npx jest tests/zavorth-control/zavorthControl/ZavorthControlVisualRealQa.test.ts --runInBand",
       "description": "Comando canonico: qa:zavorthControl-real"
     },
     "qa:zavorthControl-response-cortex": {
       "status": "canonical",
-      "command": "npx jest tests/ai-gateway/zavorthControl/ZavorthControlResponseCortexQa.test.ts --runInBand",
+      "command": "npx jest tests/zavorth-control/zavorthControl/ZavorthControlResponseCortexQa.test.ts --runInBand",
       "description": "Comando canonico: qa:zavorthControl-response-cortex"
     },
     "qa:productization": {

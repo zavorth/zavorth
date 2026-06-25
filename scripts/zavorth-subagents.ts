@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { ZavorthSubagentRuntimeService } from '../src/services/ZavorthSubagentRuntimeService.js';
+import { ZavorthSubagentRuntimeService } from '@zavorth/agents/ZavorthSubagentRuntimeService.js';
 import type { ZavorthSubagentRuntimeAction, ZavorthSubagentRuntimeMode } from '../src/contracts/ZavorthSubagentRuntimeContract.js';
 
 type Args = {

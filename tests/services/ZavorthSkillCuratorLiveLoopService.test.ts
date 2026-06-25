@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { jest } from '@jest/globals';
-import { ZavorthSkillCuratorLiveLoopService } from '../../src/services/ZavorthSkillCuratorLiveLoopService.js';
+import { ZavorthSkillCuratorLiveLoopService } from '@zavorth/skills/ZavorthSkillCuratorLiveLoopService.js';
 
 describe('ZavorthSkillCuratorLiveLoopService', () => {
   let root: string;

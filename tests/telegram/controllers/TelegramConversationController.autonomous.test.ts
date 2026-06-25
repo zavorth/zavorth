@@ -87,7 +87,7 @@ describe('TelegramConversationController autonomous gateway routing', () => {
       expect.anything(),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      'Preciso da sua aprovacao para continuar com seguranca.',
+      expect.stringContaining('approval'),
       expect.anything(),
     );
     expect(task.metadata.agent_gateway_last_run).toEqual(expect.objectContaining({

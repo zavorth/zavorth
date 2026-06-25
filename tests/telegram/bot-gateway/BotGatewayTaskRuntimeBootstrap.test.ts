@@ -72,7 +72,7 @@ describe('BotGatewayTaskRuntimeBootstrap', () => {
       userId: '99',
       text: 'me ajude com esse projeto',
       metadata: expect.objectContaining({
-        stage: 'legacy-unified-task-route-v1',
+        phase: 'legacy-unified-task-route-v1',
         taskId: 'task-12345678',
         source: 'telegram',
       }),

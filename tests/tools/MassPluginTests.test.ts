@@ -79,7 +79,7 @@ describe('Mass Plugin Tests - Batch 1', () => {
 
   it('LLMModelSwitcherService - suggests switch', () => {
     const svc = new LLMModelSwitcherService({ costBudget: 100 });
-    const r = svc.suggestSwitch('gpt-5.2', 'chat', 1000);
+    const r = svc.suggestSwitch('gpt-4o', 'chat', 1000);
     expect(r).toBeTruthy();
   });
 

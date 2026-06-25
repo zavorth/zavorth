@@ -107,7 +107,7 @@ function safeReadDir(dir) {
 
 function isAllowedPath(relativePath) {
   const normalized = normalize(relativePath);
-  return normalized.startsWith('src/ai-gateway/i18n/messages/')
+  return normalized.startsWith('src/zavorth-control/i18n/messages/')
     || normalized.startsWith('i18n/')
     || normalized.includes('/fixtures/multilingual/')
     || normalized.endsWith('/pt.json')

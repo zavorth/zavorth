@@ -170,9 +170,9 @@ describe('TelegramMediaController', () => {
 
     expect(dispatchConversational).not.toHaveBeenCalled();
     expect(audioHandler.synthesize).toHaveBeenCalledWith(
-      expect.stringContaining('Recebi seu audio'),
+      expect.stringContaining('I received your audio'),
       expect.objectContaining({
-        preferredLanguageCode: 'en-US',
+        preferredLanguageCode: 'en',
         policyHint: 'safety',
         surface: 'telegram',
         requestedBy: 'telegram-bot-safety',
@@ -232,8 +232,8 @@ describe('TelegramMediaController', () => {
     await controller.handleVoice(ctx);
 
     expect(dispatchConversational).not.toHaveBeenCalled();
-    expect(audioHandler.synthesize).toHaveBeenCalledWith('Sim, consigo te ouvir corretamente.', expect.objectContaining({
-      preferredLanguageCode: 'en-US',
+    expect(audioHandler.synthesize).toHaveBeenCalledWith('Yes, I can hear you correctly.', expect.objectContaining({
+      preferredLanguageCode: 'en',
       policyHint: 'safety',
       surface: 'telegram',
       requestedBy: 'telegram-bot-safety',
@@ -293,8 +293,8 @@ describe('TelegramMediaController', () => {
 
     expect(dispatchConversational).not.toHaveBeenCalled();
     expect(audioHandler.synthesize).toHaveBeenCalledWith(
-      'Sim, consigo te ouvir corretamente.',
-      expect.objectContaining({ preferredLanguageCode: 'en-US' }),
+      'Yes, I can hear you correctly.',
+      expect.objectContaining({ preferredLanguageCode: 'en' }),
     );
     expect(ctx.replyWithVoice).toHaveBeenCalledTimes(1);
   });
@@ -309,7 +309,7 @@ describe('TelegramMediaController', () => {
       transcribeDetailed: jest.fn().mockResolvedValue({
         text: 'Pesquise as noticias das ultimas 24 horas.',
         provider: 'openai',
-        model: 'gpt-4o-mini-transcribe',
+        model: 'whisper-1',
         languageCode: 'en-US',
         latencyMs: 123,
         warnings: [],
@@ -355,7 +355,7 @@ describe('TelegramMediaController', () => {
         preferredLanguageCode: 'en-US',
         voiceFlow: expect.objectContaining({
           sttProvider: 'openai',
-          sttModel: 'gpt-4o-mini-transcribe',
+          sttModel: 'whisper-1',
           sttLanguageCode: 'en-US',
           sttLatencyMs: 123,
           transcriptChars: 'Pesquise as noticias das ultimas 24 horas.'.length,
@@ -414,9 +414,9 @@ describe('TelegramMediaController', () => {
 
     expect(dispatchConversational).not.toHaveBeenCalled();
     expect(audioHandler.synthesize).toHaveBeenCalledWith(
-      expect.stringContaining('Sim. Quando o Echo estiver ativo'),
+      expect.stringContaining('Yes. When Echo is active'),
       expect.objectContaining({
-        preferredLanguageCode: 'en-US',
+        preferredLanguageCode: 'en',
         policyHint: 'safety',
       }),
     );
@@ -434,7 +434,7 @@ describe('TelegramMediaController', () => {
       transcribeDetailed: jest.fn().mockResolvedValue({
         text: 'Zavorth, me explique mais sobre essa noticia que voce citou.',
         provider: 'openai',
-        model: 'gpt-4o-mini-transcribe',
+        model: 'whisper-1',
         languageCode: 'en-US',
         latencyMs: 123,
         warnings: [],

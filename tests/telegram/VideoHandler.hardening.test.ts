@@ -10,6 +10,12 @@ import {
   MAX_TRANSCRIPT_EXCERPT_CHARS,
 } from '../../src/telegram/video-handler/VideoHandlerTypes';
 
+jest.mock('../../src/security/SafeFetchService.js', () => ({
+  safeFetch: jest.fn().mockImplementation(async (url: string, init?: any) => {
+    return globalThis.fetch(url, init);
+  }),
+}));
+
 describe('VideoHandler hardening', () => {
   const originalTmpDir = config.tmpDir;
   const tempDirs: string[] = [];

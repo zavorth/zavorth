@@ -2,6 +2,8 @@ import { exec } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import { t, initI18n, setLanguage, setTranslatorCallback } from './i18n.js';
+import { ConfigService } from './ConfigService.js';
 import { HotkeyService } from './HotkeyService.js';
 import { MicGateService } from './MicGateService.js';
 import { AgentVoiceFlowService } from './AgentVoiceFlowService.js';
@@ -18,6 +20,7 @@ import { TtsService } from './TtsService.js';
 import { VoiceRecorderService } from './VoiceRecorderService.js';
 import { WakeWordService } from './WakeWordService.js';
 import { WhisperService } from './WhisperService.js';
+import { ChimeService } from './ChimeService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '..', '..', '.env') });
@@ -42,17 +45,22 @@ const CLOUD_TTS_VOICE = process.env.ZAVORTH_AGENT_CLOUD_TTS_VOICE || 'Kore';
 const CLOUD_TTS_RESPONSE_FORMAT = process.env.ZAVORTH_AGENT_CLOUD_TTS_RESPONSE_FORMAT || 'wav';
 const CLOUD_TTS_TIMEOUT_MS = parseNumberEnv(process.env.ZAVORTH_AGENT_CLOUD_TTS_TIMEOUT_MS, 15000);
 const CLOUD_TTS_API_KEY = process.env.ZAVORTH_AGENT_CLOUD_TTS_API_KEY || process.env.ZAVORTH_API_KEY || '';
+const CHIMES_ENABLED = process.env.ZAVORTH_CHIMES === undefined || parseBooleanEnv(process.env.ZAVORTH_CHIMES);
 
 async function main() {
   console.log('\nZavorth Agent v1.0');
   console.log(`Wake word: ${WAKE_WORD} | Hotkey: Win+${HOTKEY} | Mic gate: enabled\n`);
 
+  const config = new ConfigService();
+  initI18n(config.lang);
+
   const micGate = new MicGateService(1000);
   const wakeWord = new WakeWordService({ wakeWord: WAKE_WORD, threshold: 0.7 });
   const hotkey = new HotkeyService({ hotkey: HOTKEY });
   const recorder = new VoiceRecorderService({ maxDurationMs: 8000 });
-  const whisper = new WhisperService({ language: VOICE_LANGUAGE });
+  const whisper = new WhisperService({ language: config.lang === 'auto' ? VOICE_LANGUAGE : config.lang });
   const localTts = new TtsService({ voice: TTS_VOICE });
+  const chime = new ChimeService({ enabled: config.chimesEnabled });
   const cloudTts = new GatewayCloudTtsService({
     enabled: CLOUD_TTS_ENABLED,
     baseUrl: CLOUD_TTS_BASE_URL,
@@ -76,6 +84,18 @@ async function main() {
     requestedBy: AGENT_REQUESTED_BY,
     apiNamespace: AGENT_API_NAMESPACE,
   });
+
+  // Register remote LLM translator callback
+  setTranslatorCallback(async (key, englishText, targetLang) => {
+    const prompt = `Translate the following English phrase or word into target language "${targetLang}".
+Provide ONLY the translation, with no explanation, formatting, or quotes.
+Phrase: "${englishText}"`;
+    const result = await echoClient.processIntent(prompt);
+    if (result.success && result.response) {
+      return result.response.replace(/^["']|["']$/g, '').trim();
+    }
+    throw new Error(result.response || 'LLM call failed');
+  });
   const agentSurfaceContext = echoClient.getSurfaceContext();
   const overlay = new OverlayService();
   const systray = new SystrayService();
@@ -86,7 +106,7 @@ async function main() {
   let lastAnnouncedPhysicalEventId: string | null = null;
 
   console.log(`[Agent] API ${echoClient.getApiNamespace()} | surface ${agentSurfaceContext.surface} | requestedBy ${agentSurfaceContext.requestedBy} | session ${agentSurfaceContext.sessionId}`);
-  console.log('[Setup] Verificando dependencias...');
+  console.log('[Setup] Checking dependencies...');
   const whisperStatus = await whisper.isAvailable();
   console.log(`[Whisper] ${whisperStatus.available ? 'ok' : 'missing'} ${whisperStatus.method}`);
 
@@ -94,7 +114,7 @@ async function main() {
   ttsAvailable = ttsStatus.available;
   console.log(`[TTS] ${ttsStatus.available ? 'ok' : 'missing'} ${ttsStatus.method}`);
   if (CLOUD_TTS_ENABLED) {
-    console.log(`[TTS] Cloud fallback ativo via ${CLOUD_TTS_MODEL} @ ${CLOUD_TTS_BASE_URL}`);
+    console.log(`[TTS] Cloud fallback active via ${CLOUD_TTS_MODEL} @ ${CLOUD_TTS_BASE_URL}`);
   }
 
   const updateConnectionStatus = async () => {
@@ -111,6 +131,7 @@ async function main() {
       pendingApprovals: surfaceState?.summary.pendingApprovals || 0,
       lastRunId: surfaceState?.summary.lastRunId || null,
       lastStatus: surfaceState?.summary.lastStatus || null,
+      configLang: config.lang,
     });
     return conn;
   };
@@ -130,14 +151,14 @@ async function main() {
         tts.cleanup(ttsAudioPath);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        console.warn(`[Agent] TTS IoT indisponivel: ${message}`);
+        console.warn(`[Agent] TTS IoT unavailable: ${message}`);
       }
     }
   };
 
   const initialConnection = await updateConnectionStatus();
   if (!initialConnection.backendOnline) {
-    console.log('[Backend] offline. Inicie o Zavorth backend antes de enviar comandos.');
+    console.log(t('backend_offline'));
   }
 
   const voiceFlow = new AgentVoiceFlowService({
@@ -146,6 +167,7 @@ async function main() {
     echoClient,
     overlay,
     tts,
+    chime,
     isTtsAvailable: () => ttsAvailable,
     onProcessingChange: (processing) => {
       isProcessing = processing;
@@ -174,14 +196,14 @@ async function main() {
   async function handleActivation(mode: string): Promise<void> {
     const result = await voiceFlow.runActivation(mode);
     if (result.status === 'busy') {
-      console.log('[Agent] Ja existe outro comando em processamento.');
+      console.log(t('busy'));
       return;
     }
     if (result.status === 'empty-transcript') {
-      console.log('[Agent] Nenhuma fala detectada.');
+      console.log(t('no_speech'));
     }
     if (result.status === 'failed') {
-      console.error(`[Agent] Erro no pipeline: ${result.error}`);
+      console.error(t('error_pipeline', { error: result.error || '' }));
     }
   }
 
@@ -194,24 +216,43 @@ async function main() {
   });
 
   wakeWord.on('unavailable', () => {
-    console.log('[WakeWord] indisponivel. Hotkey Win+B continua ativa quando o mic gate permitir.');
+    console.log(t('wakeword_unavailable'));
   });
 
   micGate.on('mic:on', () => {
-    console.log('[Agent] Microfone ativo. Habilitando wake word e hotkey.');
+    console.log('[Agent] Microphone active. Enabling wake word and hotkey.');
     systray.updateState({ micActive: true });
     wakeWord.start();
     void hotkey.enable();
   });
 
   micGate.on('mic:off', () => {
-    console.log('[Agent] Microfone desligado. Escuta suspensa.');
+    console.log(t('mic_off'));
     systray.updateState({ micActive: false, mode: 'idle' });
     wakeWord.stop();
     hotkey.disable();
   });
 
   systray.on('exit', () => shutdown());
+
+  systray.on('change-lang', (newLang: string) => {
+    console.log(`[Agent] Changing language to: ${newLang}`);
+    config.lang = newLang;
+    setLanguage(newLang);
+    systray.updateState({ configLang: newLang });
+    whisper.setLanguage(newLang === 'auto' ? VOICE_LANGUAGE : newLang);
+    void updateConnectionStatus();
+  });
+
+  // Listen to configuration file updates (e.g. from backend API / dashboard settings)
+  config.onChange((newConfig) => {
+    console.log(`[Agent] Configuration file updated externally. Reloading lang=${newConfig.lang} chimes=${newConfig.chimesEnabled}`);
+    setLanguage(newConfig.lang);
+    systray.updateState({ configLang: newConfig.lang });
+    whisper.setLanguage(newConfig.lang === 'auto' ? VOICE_LANGUAGE : newConfig.lang);
+    chime.setEnabled(newConfig.chimesEnabled);
+    void updateConnectionStatus();
+  });
 
   systray.on('toggle-mic', () => {
     if (micGate.active) {
@@ -228,8 +269,14 @@ async function main() {
     const conn = await updateConnectionStatus();
     const state = latestSurfaceState;
     await overlay.showStatus(
-      'Zavorth Status',
-      `Backend: ${conn.backendOnline ? 'online' : 'offline'} | Ollama: ${conn.ollamaOnline ? conn.model : 'offline'} | Mic: ${micGate.active ? 'ativo' : 'desligado'} | Approvals: ${state?.summary.pendingApprovals || 0} | Run: ${shortId(state?.summary.lastRunId)}`,
+      t('status_title'),
+      t('status_format', {
+        backend: conn.backendOnline ? 'online' : 'offline',
+        ollama: conn.ollamaOnline ? conn.model : 'offline',
+        mic: micGate.active ? t('mic_active') : t('mic_disabled'),
+        approvals: state?.summary.pendingApprovals || 0,
+        runId: shortId(state?.summary.lastRunId),
+      }),
     );
     if (state) {
       await overlay.showEchoSurfaceState(state);
@@ -249,12 +296,12 @@ async function main() {
     void updateConnectionStatus();
   }, 10000);
 
-  console.log('[Agent] Iniciando monitoramento...');
+  console.log('[Agent] Starting monitoring...');
   await systray.start();
   micGate.start();
 
   const shutdown = () => {
-    console.log('\n[Agent] Encerrando Zavorth Agent...');
+    console.log('\n[Agent] Shutting down Zavorth Agent...');
     clearInterval(connectionTimer);
     micGate.stop();
     wakeWord.stop();
@@ -266,7 +313,7 @@ async function main() {
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 
-  console.log('[Agent] Ativo. Pressione Ctrl+C para sair.');
+  console.log('[Agent] Active. Press Ctrl+C to exit.');
 }
 
 function buildTrayDetail(

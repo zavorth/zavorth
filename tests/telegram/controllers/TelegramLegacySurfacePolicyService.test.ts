@@ -38,11 +38,11 @@ describe('TelegramLegacySurfacePolicyService', () => {
   it('exposes thin-adapter metadata for natural message receipts', () => {
     expect(telegramLegacySurfacePolicyService.buildThinAdapterMetadata()).toEqual(
       expect.objectContaining({
-        stage: 'P3-001',
+        phase: 'P3-001',
         surface: 'telegram',
         telegramRole: 'thin-adapter',
         canonicalEntrypoint: 'ZavorthAgentGateway.handle',
-        preservedBoundaries: expect.arrayContaining(['operator-commands', 'callbacks', 'approval']),
+        preservedBoundaries: expect.arrayContaining(['operator-commands', 'callbacks', 'approval', 'diagnostics', 'emergency']),
         retiredProductPaths: expect.arrayContaining(['menus', 'hubs', 'chat-cleanup']),
       }),
     );

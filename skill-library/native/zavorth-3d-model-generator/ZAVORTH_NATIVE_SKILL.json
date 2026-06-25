@@ -6,11 +6,24 @@
   "category": "media",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["3d", "modeling", "rendering"],
-  "presets": ["developer"],
-  "inputContract": ["reference images", "model specifications", "material requirements"],
-  "outputContract": ["media files", "export configs"],
+  "capabilityTags": [
+    "3d",
+    "modeling",
+    "rendering"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "reference images",
+    "model specifications",
+    "material requirements"
+  ],
+  "outputContract": [
+    "media files",
+    "export configs"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

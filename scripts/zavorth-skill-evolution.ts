@@ -1,4 +1,4 @@
-import { ZavorthSkillEvolutionService } from '../src/services/ZavorthSkillEvolutionService.js';
+import { ZavorthSkillEvolutionService } from '@zavorth/skills/ZavorthSkillEvolutionService.js';
 
 function readFlag(argv: string[], names: string[]): string | null {
   for (const name of names) {

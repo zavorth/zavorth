@@ -4,7 +4,7 @@ import {
   getZavorthControlZavorthControlFixture,
   listZavorthControlZavorthControlFixtures,
   type ZavorthControlZavorthControlFixtureId,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/zavorthControlZavorthControlFixtures.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/fixtures/zavorthControlZavorthControlFixtures.js';
 
 const REQUIRED_FIXTURE_IDS: ZavorthControlZavorthControlFixtureId[] = [
   'safe-run',

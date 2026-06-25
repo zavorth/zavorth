@@ -7,7 +7,7 @@ const root = process.cwd();
 
 const checks = [
   {
-    file: 'src/services/SwarmV2Service.ts',
+    file: 'src/agents/SwarmV2Service.ts',
     markers: [
       'SWARM_V2_OFFICIAL_CONTRACT_VERSION',
       'launchOfficialSwarm',

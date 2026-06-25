@@ -12,7 +12,7 @@ const bannedRoots = [
   'src/runtime',
   'src/api',
   'src/config',
-  'src/ai-gateway',
+  'src/zavorth-control',
   'src/tools',
   'src/host',
   'src/providers',

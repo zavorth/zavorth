@@ -29,7 +29,7 @@ describe('TelegramSecurityController', () => {
 
     expect(securityLock.setPassword).toHaveBeenCalledWith('segredo-forte');
     expect(bot.api.deleteMessage).toHaveBeenCalledWith(42, 9);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Senha configurada com sucesso'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Password configured successfully'));
   });
 
   it('clears the chat using the cleanup service when messages are tracked', async () => {
@@ -83,8 +83,8 @@ describe('TelegramSecurityController', () => {
         ],
         nextSteps: [
           {
-            title: 'Confiar host',
-            description: 'Rode /hostauth trust.',
+            title: 'Trust host',
+            description: 'Run /hostauth trust.',
           },
         ],
         commands: {
@@ -107,9 +107,9 @@ describe('TelegramSecurityController', () => {
 
     await controller.handleHostAuth(ctx, 'status');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Estado de acesso do host:'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Host access status:'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Dashboard: http://127.0.0.1:33333/dashboard'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Confiar host: Rode /hostauth trust.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Trust host: Run /hostauth trust.'));
   });
 
   it('shows refreshed guidance after trusting the host', async () => {

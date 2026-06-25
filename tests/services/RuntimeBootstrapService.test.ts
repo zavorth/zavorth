@@ -75,14 +75,14 @@ describe('RuntimeBootstrapService', () => {
             source: 'current-config',
             providerName: 'openai',
             providerLabel: 'OpenAI',
-            modelName: 'gpt-5.2',
-            modelLabel: 'gpt-5.2',
+            modelName: 'gpt-4o',
+            modelLabel: 'gpt-4o',
             routeId: 'openai',
             familyId: 'openai',
             readiness: 'ready',
             ready: true,
             fallbackOrder: ['openai', 'gemini'],
-            explanation: ['Configuracao atual seleciona openai/gpt-5.2.'],
+            explanation: ['Configuracao atual seleciona openai/gpt-4o.'],
           },
         }),
       } as any,
@@ -95,7 +95,7 @@ describe('RuntimeBootstrapService', () => {
     expect(report.env.issues).toHaveLength(0);
     expect(report.env.selectedModel).toMatchObject({
       providerLabel: 'OpenAI',
-      modelLabel: 'gpt-5.2',
+      modelLabel: 'gpt-4o',
       readiness: 'ready',
       ready: true,
     });

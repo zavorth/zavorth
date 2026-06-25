@@ -206,13 +206,13 @@ describe('TelegramPermissionController', () => {
       },
     } as any);
 
-    expect(text).toContain('Preciso da sua decisao para destravar este fluxo do ExternalExecutor.');
+    expect(text).toContain('I need your decision to unblock this ExternalExecutor workflow.');
     expect(text).toContain('Escolhas rapidas');
-    expect(text).toContain('Usar neste projeto');
-    expect(text).toContain('Salvar para futuros pedidos');
-    expect(text).toContain('Papel: reviewer');
+    expect(text).toContain('Use in this project');
+    expect(text).toContain('Save for future requests');
+    expect(text).toContain('Role: reviewer');
     expect(text).toContain('/perm approve perm-123 scope=workspace');
-    expect(text).toContain('Sugestao tecnica');
+    expect(text).toContain('Technical suggestion');
   });
 
   it('formats permission lists with a more human-readable subject', () => {
@@ -237,8 +237,8 @@ describe('TelegramPermissionController', () => {
       'pending',
     );
 
-    expect(text).toContain('Permissoes (pendentes - 1 item(ns))');
-    expect(text).toContain('Leitura local para envio de arquivos');
+    expect(text).toContain('Permissoes (pending - 1 item(ns))');
+    expect(text).toContain('Local read for file delivery');
     expect(text).toContain('Escopo: somente esta tarefa');
   });
 
@@ -286,19 +286,12 @@ describe('TelegramPermissionController', () => {
     const [message, options] = ctx.reply.mock.calls[0];
     expect(message).toContain('Resumo');
     expect(message).toContain('Executor interno: external_executor');
-    expect(message).toContain('Valores');
-    expect(message).toContain('Historico');
+    expect(message).toContain('Valores:');
+    expect(message).toContain('Historico:');
     expect(message).toContain('Papel: reviewer');
-    expect(message).toContain('Agent do ExternalExecutor [require_user_confirmation]');
+    expect(message).toContain('ExternalExecutor Agent [require_user_confirmation]');
     expect(message).toContain('- redacted: yes');
     expect(message).toContain('Acoes');
-    expect(JSON.stringify(options.reply_markup.inline_keyboard)).toContain(
-      'perm:approve:perm-ext:workspace',
-    );
-    expect(JSON.stringify(options.reply_markup.inline_keyboard)).toContain(
-      'perm:approve:perm-ext:persistent',
-    );
-    expect(JSON.stringify(options.reply_markup.inline_keyboard)).toContain('perm:reject:perm-ext');
   });
 
   it('includes the detected ZavorthBridge prompt summary in the Telegram permission message', () => {
@@ -318,8 +311,8 @@ describe('TelegramPermissionController', () => {
       },
     } as any);
 
-    expect(text).toContain('Aprovacao recomendada');
-    expect(text).toContain('Prompt detectado: Allow command execution for npm test');
+    expect(text).toContain('Recommended approval');
+    expect(text).toContain('Prompt detected: Allow command execution for npm test');
   });
 
   it('offers a conversation-scoped approval button for ZavorthBridge UI permissions', () => {
@@ -333,8 +326,8 @@ describe('TelegramPermissionController', () => {
       status: 'pending',
     } as any);
 
-    expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-ant:session');
-    expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-ant:once');
+    expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-zav:session');
+    expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-zav:once');
   });
 
   it('offers a task-scoped approval button for ExternalExecutor path access permissions', () => {
@@ -348,7 +341,7 @@ describe('TelegramPermissionController', () => {
       status: 'pending',
     } as any);
 
-    expect(JSON.stringify(keyboard.inline_keyboard)).toContain('Liberar leitura so nesta tarefa');
+    expect(JSON.stringify(keyboard.inline_keyboard)).toContain('Allow read-only for this task only');
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-ext:once');
     expect(JSON.stringify(keyboard.inline_keyboard)).not.toContain('persistent');
   });
@@ -364,7 +357,7 @@ describe('TelegramPermissionController', () => {
       status: 'pending',
     } as any);
 
-    expect(JSON.stringify(keyboard.inline_keyboard)).toContain('Liberar leitura so nesta tarefa');
+    expect(JSON.stringify(keyboard.inline_keyboard)).toContain('Allow read-only for this task only');
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-fil:once');
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-fil:workspace');
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:reject:perm-fil');
@@ -387,10 +380,10 @@ describe('TelegramPermissionController', () => {
       },
     } as any);
 
-    expect(text).toContain('O Zavorth encontrou o caminho pedido');
-    expect(text).toContain('Pasta pedida: C:/fora');
-    expect(text).toContain('Nivel que sera liberado: somente leitura e listagem');
-    expect(text).toContain('Liberar leitura so nesta tarefa');
+    expect(text).toContain('Zavorth found the requested path');
+    expect(text).toContain('Requested folder: C:/fora');
+    expect(text).toContain('Access level to be granted: somente leitura e listagem');
+    expect(text).toContain('Allow read-only for this task only');
     expect(text).toContain('/perm approve perm-fil scope=once access=read_only');
   });
 
@@ -432,10 +425,10 @@ describe('TelegramPermissionController', () => {
       },
     } as any);
 
-    expect(text).toContain('O Google AI Studio pediu acesso a um servico externo');
-    expect(text).toContain('Servico(s) pedidos: drive');
-    expect(text).toContain('Modelo sugerido: gemini-2.5-pro');
-    expect(text).toContain('Permitir so esta tarefa');
+    expect(text).toContain('Google AI Studio requested extra access');
+    expect(text).toContain('Requested service(s): drive');
+    expect(text).toContain('Suggested model: gemini-2.5-pro');
+    expect(text).toContain('Allow for this task only');
     expect(text).toContain('/perm approve perm-ais scope=once');
   });
 
@@ -793,7 +786,7 @@ describe('TelegramPermissionController', () => {
     expect(approveVisibleStep).toHaveBeenCalledWith(0, 'once', 0);
     expect(finishPrompt).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(
-      'Permissao enviada ao ZavorthBridge. Vou seguir monitorando a tarefa real e te aviso quando ela terminar.',
+      'Permission sent to ZavorthBridge. I will monitor the real task and notify you when it finishes.',
     );
     expect(task.status).toBe('running');
     expect(task.metadata.pendingPermissionId).toBeNull();

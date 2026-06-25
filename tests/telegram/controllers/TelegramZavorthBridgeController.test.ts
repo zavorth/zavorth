@@ -370,7 +370,7 @@ describe('TelegramZavorthBridgeController', () => {
     expect(automator.ensureConversationSurface).toHaveBeenCalledWith(0, 4321);
     expect(automator.resetVisibleConversation).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(
-      'Pronto. Reiniciei a conversa visivel do ZavorthBridge e confirmei o reset na UI real.',
+      'Done. Restarted the visible ZavorthBridge conversation and confirmed the reset in the real UI.',
     );
   });
 
@@ -389,7 +389,7 @@ describe('TelegramZavorthBridgeController', () => {
         ok: true,
         verified: false,
         mode: 'ensure-conversation-surface',
-        message: 'A UI do ZavorthBridge ainda mostra um pedido de permissao apos o reset.',
+        message: 'ZavorthBridge UI still shows a permission request after reset.',
       }),
     });
     const controller = createController({
@@ -403,7 +403,7 @@ describe('TelegramZavorthBridgeController', () => {
 
     expect(restart).toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(
-      'O reset rapido do ZavorthBridge nao limpou a conversa visivel, entao reiniciei o app inteiro para te devolver uma sessao limpa.\nMotivo do reset rapido: A UI do ZavorthBridge ainda mostra um pedido de permissao apos o reset.',
+      'Quick ZavorthBridge reset did not clean the visible conversation, so I restarted the entire app to give you a clean session.\nQuick reset reason: ZavorthBridge UI still shows a permission request after reset.',
     );
   });
 
@@ -421,7 +421,7 @@ describe('TelegramZavorthBridgeController', () => {
         ok: false,
         verified: false,
         mode: 'ensure-conversation-surface',
-        message: 'A surface do chat nao ficou pronta depois do reset pela ponte.',
+        message: 'The chat surface was not ready after the bridge reset.',
       }),
     });
     const controller = createController({
@@ -430,7 +430,7 @@ describe('TelegramZavorthBridgeController', () => {
       zavorthBridgeControlService: {
         restart: jest.fn().mockResolvedValue({
           ok: false,
-          errorMessage: 'Falha ao reiniciar o ZavorthBridge.',
+          errorMessage: 'Failed to restart ZavorthBridge.',
         }),
       },
     });
@@ -439,7 +439,7 @@ describe('TelegramZavorthBridgeController', () => {
     await controller.handleSessionAction(ctx, 'reset');
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      'Disparei o reset do ZavorthBridge, mas nao consegui confirmar a conversa limpa na UI real.\nMotivo: A surface do chat nao ficou pronta depois do reset pela ponte.\nTambem falhou ao reiniciar o app: Falha ao reiniciar o ZavorthBridge.',
+      'Triggered ZavorthBridge reset, but could not confirm a clean conversation in the real UI.\nReason: The chat surface was not ready after the bridge reset.\nAlso failed to restart the app: Failed to restart ZavorthBridge.',
     );
   });
 
@@ -469,7 +469,7 @@ describe('TelegramZavorthBridgeController', () => {
 
     await controller.handleModelCommand(ctx, 'gemini-3.1-flash');
 
-    expect(ctx.reply).toHaveBeenCalledWith('Pronto. Modelo do ZavorthBridge confirmado: gemini-3.1-flash.');
+    expect(ctx.reply).toHaveBeenCalledWith('Done. ZavorthBridge model confirmed: gemini-3.1-flash.');
   });
 
   it('formats ZavorthBridge status replies with readiness and remote mode details', async () => {
@@ -494,7 +494,7 @@ describe('TelegramZavorthBridgeController', () => {
     await controller.handleControl(ctx, 'status');
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      ['Status do ZavorthBridge: pronto para uso remoto.', 'Modelo: gemini-3.1-flash', 'Sessao acessivel: sim', 'Modo remoto: ativo'].join('\n'),
+      ['ZavorthBridge status: ready for remote use.', 'Model: gemini-3.1-flash', 'Session accessible: yes', 'Remote mode: active'].join('\n'),
     );
   });
 
@@ -540,7 +540,7 @@ describe('TelegramZavorthBridgeController', () => {
       expect(JSON.parse(fs.readFileSync(trackingFile, 'utf8')).companionInstanceId).toBe('bridge-live-1');
       expect(persistTask).toHaveBeenCalled();
       expect(ctx.reply).toHaveBeenCalledWith(
-        expect.stringContaining('Entreguei a tarefa ao ZavorthBridge real.'),
+        expect.stringContaining('Delivered the task to the real ZavorthBridge.'),
       );
     } finally {
       executePromptSpy.mockRestore();
@@ -566,7 +566,7 @@ describe('TelegramZavorthBridgeController', () => {
     }
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Alternativa imediata para pesquisa web: use /research <tema>.'),
+      expect.stringContaining('Immediate alternative for web research: use /research <topic>.'),
     );
   });
 

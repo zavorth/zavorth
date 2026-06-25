@@ -46,7 +46,7 @@ function ruleFilesExist() {
     'scripts/zavorth-universal-skill-approved-zavorthControl-canary-check.mjs',
     'tests/services/UniversalSkillApprovedZavorthControlCanaryService.test.ts',
     'docs/README.md',
-    'src/ai-gateway/app/api/skills/scale-hardening/route.ts',
+    'src/zavorth-control/app/api/skills/scale-hardening/route.ts',
     'package.json',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
@@ -79,7 +79,7 @@ function ruleContainsMarkers() {
       '--approval-id',
       '--zavorthControl-items',
     ]],
-    ['src/ai-gateway/app/api/skills/scale-hardening/route.ts', [
+    ['src/zavorth-control/app/api/skills/scale-hardening/route.ts', [
       'requireManagementAuth',
       'UniversalSkillApprovedZavorthControlCanaryService',
       'persistCanaryReport: false',

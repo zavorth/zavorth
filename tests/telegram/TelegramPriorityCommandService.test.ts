@@ -41,7 +41,7 @@ describe('TelegramPriorityCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Zavorth trancado'),
+      expect.stringContaining('Zavorth locked'),
     );
     expect(deps.opsController.handleRemoteMode).not.toHaveBeenCalled();
   });

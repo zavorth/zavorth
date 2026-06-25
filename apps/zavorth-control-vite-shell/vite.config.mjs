@@ -23,7 +23,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: resolve(repoDir, "src/ai-gateway/public/zavorth-control-vite-shell"),
+    outDir: resolve(repoDir, "src/zavorth-control/public/zavorth-control-vite-shell"),
     emptyOutDir: true,
     sourcemap: false,
     rollupOptions: {

@@ -109,32 +109,32 @@ const trackedSensitivePatterns = [
 const sensitiveRouteTargets = [
   {
     id: 'db_backups_root',
-    path: 'src/ai-gateway/app/api/db-backups/route.ts',
+    path: 'src/zavorth-control/app/api/db-backups/route.ts',
     surface: 'db-backups',
   },
   {
     id: 'db_backups_export',
-    path: 'src/ai-gateway/app/api/db-backups/export/route.ts',
+    path: 'src/zavorth-control/app/api/db-backups/export/route.ts',
     surface: 'db-backups-export',
   },
   {
     id: 'db_backups_export_all',
-    path: 'src/ai-gateway/app/api/db-backups/exportAll/route.ts',
+    path: 'src/zavorth-control/app/api/db-backups/exportAll/route.ts',
     surface: 'db-backups-export-all',
   },
   {
     id: 'logs_export',
-    path: 'src/ai-gateway/app/api/logs/export/route.ts',
+    path: 'src/zavorth-control/app/api/logs/export/route.ts',
     surface: 'logs-export',
   },
   {
     id: 'mcp_sse',
-    path: 'src/ai-gateway/app/api/mcp/sse/route.ts',
+    path: 'src/zavorth-control/app/api/mcp/sse/route.ts',
     surface: 'mcp-sse',
   },
   {
     id: 'keys_reveal',
-    path: 'src/ai-gateway/app/api/keys/[id]/reveal/route.ts',
+    path: 'src/zavorth-control/app/api/keys/[id]/reveal/route.ts',
     surface: 'keys-reveal',
   },
 ];
@@ -740,11 +740,11 @@ function addBaselineFindings(findings, context) {
 
 function addAuthTopologyFindings(findings, context) {
   const apiAuthEvidence = getLineMatches(
-    'src/ai-gateway/shared/utils/apiAuth.ts',
+    'src/zavorth-control/shared/utils/apiAuth.ts',
     [/settings\.requireLogin === false/, /!settings\.password && !process\.env\.INITIAL_PASSWORD/],
   );
   const proxyEvidence = getLineMatches(
-    'src/ai-gateway/proxy.ts',
+    'src/zavorth-control/proxy.ts',
     [/const authRequired = await isAuthRequired\(\)/, /if \(!authRequired\) \{/],
   );
   const settings = context.settings;

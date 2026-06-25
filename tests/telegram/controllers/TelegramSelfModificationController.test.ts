@@ -137,7 +137,7 @@ describe('TelegramSelfModificationController', () => {
 
     await controller.handleCommand(ctx, 'src/sample.ts -- ajuste o guard');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('chat privado'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('private chat'));
     expect(deps.taskManager.createPendingTask).not.toHaveBeenCalled();
   });
 
@@ -158,7 +158,7 @@ describe('TelegramSelfModificationController', () => {
 
     await controller.handleCommand(ctx, 'src/sample.ts -- ajuste o guard');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/selfmod exige modo BUILD'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/selfmod requires BUILD mode'));
     expect(deps.taskManager.createPendingTask).not.toHaveBeenCalled();
   });
 

@@ -6,11 +6,24 @@
   "category": "design",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["canva", "design", "graphics"],
-  "presets": ["developer"],
-  "inputContract": ["design briefs", "brand assets", "template preferences"],
-  "outputContract": ["documents", "design assets"],
+  "capabilityTags": [
+    "canva",
+    "design",
+    "graphics"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "design briefs",
+    "brand assets",
+    "template preferences"
+  ],
+  "outputContract": [
+    "documents",
+    "design assets"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

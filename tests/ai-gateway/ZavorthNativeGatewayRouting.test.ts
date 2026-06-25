@@ -1,7 +1,7 @@
-import { applyZavorthContextCompression } from '../../src/ai-gateway/lib/zavorthContextCompression';
-import { executeZavorthBatchJsonl } from '../../src/ai-gateway/lib/zavorthBatchWorker';
-import { runZavorthCompressionBenchmark } from '../../src/ai-gateway/lib/zavorthCompressionBenchmark';
-import { RequestTelemetry, getTelemetrySummary, recordTelemetry } from '../../src/ai-gateway/shared/utils/requestTelemetry';
+import { applyZavorthContextCompression } from '../../src/zavorth-control/lib/zavorthContextCompression';
+import { executeZavorthBatchJsonl } from '../../src/zavorth-control/lib/zavorthBatchWorker';
+import { runZavorthCompressionBenchmark } from '../../src/zavorth-control/lib/zavorthCompressionBenchmark';
+import { RequestTelemetry, getTelemetrySummary, recordTelemetry } from '../../src/zavorth-control/shared/utils/requestTelemetry';
 
 describe('Zavorth native gateway routing layer', () => {
   it('compresses oversized chat context without dropping latest user intent', () => {

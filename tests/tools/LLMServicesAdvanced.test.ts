@@ -61,7 +61,7 @@ describe('LLMModelSwitcherService', () => {
 
   it('creates instance', () => { expect(svc).toBeDefined(); });
   it('suggests cheaper model for chat', () => {
-    const r = svc.suggestSwitch('gpt-5.2', 'chat', 1000);
+    const r = svc.suggestSwitch('gpt-4o', 'chat', 1000);
     expect(r).toBeTruthy();
     expect(r!.estimated_savings).toBeGreaterThan(0);
   });
@@ -70,13 +70,13 @@ describe('LLMModelSwitcherService', () => {
     expect(r).toBeTruthy();
   });
   it('suggests better model for reasoning', () => {
-    const r = svc.suggestSwitch('gpt-5.2-mini', 'reasoning', 1000);
+    const r = svc.suggestSwitch('gpt-4o-mini', 'reasoning', 1000);
     expect(r).toBeTruthy();
   });
   it('returns null for same model', () => {
-    const r = svc.suggestSwitch('gpt-5.2', 'chat', 1000);
+    const r = svc.suggestSwitch('gpt-4o', 'chat', 1000);
     expect(r).toBeTruthy();
-    expect(r!.to_model).not.toBe('gpt-5.2');
+    expect(r!.to_model).not.toBe('gpt-4o');
   });
   it('returns null for unknown model', () => {
     const r = svc.suggestSwitch('unknown-model', 'chat', 1000);
@@ -84,7 +84,7 @@ describe('LLMModelSwitcherService', () => {
   });
   it('lists models', () => {
     const r = svc.listModels();
-    expect(r).toContain('gpt-5.2');
+    expect(r).toContain('gpt-4o');
     expect(r).toContain('claude-4');
     expect(r).toContain('gemini-2.5-pro');
   });
@@ -93,7 +93,7 @@ describe('LLMModelSwitcherService', () => {
     expect(r).toContain('Models: 8');
   });
   it('records switch', () => {
-    svc.recordSwitch({ from_model: 'gpt-5.2', to_model: 'gpt-5.2-mini', reason: 'cost', estimated_savings: 0.01, quality_impact: 'minimal' });
+    svc.recordSwitch({ from_model: 'gpt-4o', to_model: 'gpt-4o-mini', reason: 'cost', estimated_savings: 0.01, quality_impact: 'minimal' });
     const r = svc.getStats();
     expect(r).toContain('Switches: 1');
   });

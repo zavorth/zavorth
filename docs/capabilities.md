@@ -335,14 +335,6 @@ A capability becoming visible does not mean it can act silently. Anything that c
 - Receipts: `zavorth actions receipts --id google.workspace.status`
 - Next safe step: Inspect the action schema and run with scoped arguments.
 
-### Hermes parity pack
-
-- Action id: `capabilities.parity.hermes`
-- Status: `available`
-- Preview: `zavorth actions preview capabilities.parity.hermes`
-- Receipts: `zavorth actions receipts --id capabilities.parity.hermes`
-- Next safe step: Inspect the action schema and run with scoped arguments.
-
 ### Inspect hidden capability
 
 - Action id: `capabilities.hidden.inspect`
@@ -469,14 +461,6 @@ A capability becoming visible does not mean it can act silently. Anything that c
 - Status: `available`
 - Preview: `zavorth actions preview packaging.nix_termux.status`
 - Receipts: `zavorth actions receipts --id packaging.nix_termux.status`
-- Next safe step: Inspect the action schema and run with scoped arguments.
-
-### OpenClaw parity pack
-
-- Action id: `capabilities.parity.openclaw`
-- Status: `available`
-- Preview: `zavorth actions preview capabilities.parity.openclaw`
-- Receipts: `zavorth actions receipts --id capabilities.parity.openclaw`
 - Next safe step: Inspect the action schema and run with scoped arguments.
 
 ### Patch workspace output file

@@ -24,7 +24,7 @@
     "cumulative cost",
     "budget alert"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

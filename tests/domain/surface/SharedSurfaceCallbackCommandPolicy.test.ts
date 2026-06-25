@@ -11,7 +11,7 @@ describe('SharedSurfaceCallbackCommandPolicy', () => {
     expect(normalizeSharedSurfaceCommandCallback('/channels consistency')).toBe('/channels consistency');
     expect(normalizeSharedSurfaceCommandCallback('/channels consistency whatsapp')).toBe('/channels consistency whatsapp');
     expect(normalizeSharedSurfaceCommandCallback('/commands page 2')).toBe('/commands page 2');
-    expect(normalizeSharedSurfaceCommandCallback('/model gemma-4-31b-it')).toBe('/model gemma-4-31b-it');
+    expect(normalizeSharedSurfaceCommandCallback('/model gemma-2-27b-it')).toBe('/model gemma-2-27b-it');
     expect(normalizeSharedSurfaceCommandCallback('/readiness')).toBe('/readiness');
     expect(normalizeSharedSurfaceCommandCallback('/ready')).toBe('/ready');
     expect(normalizeSharedSurfaceCommandCallback('/stayonline')).toBe('/stayonline');

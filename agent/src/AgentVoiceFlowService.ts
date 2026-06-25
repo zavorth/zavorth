@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 import type {
   EchoAgentResult,
   EchoAgentSurfaceState,
@@ -47,12 +48,19 @@ export interface AgentTtsLike {
   cleanup(filePath: string): void;
 }
 
+export interface AgentChimeLike {
+  playStart(): void;
+  playStop(): void;
+  playError(): void;
+}
+
 export type AgentVoiceFlowOptions = {
   recorder: AgentVoiceRecorderLike;
   whisper: AgentWhisperLike;
   echoClient: AgentEchoClientLike;
   overlay: AgentOverlayLike;
   tts: AgentTtsLike;
+  chime?: AgentChimeLike;
   isTtsAvailable: () => boolean;
   onModeChange?: (patch: AgentVoiceFlowModePatch) => void | Promise<void>;
   onProcessingChange?: (processing: boolean) => void | Promise<void>;
@@ -89,11 +97,13 @@ export class AgentVoiceFlowService {
     this.processing = true;
     await this.options.onProcessingChange?.(true);
     await this.options.onModeChange?.({ mode: 'listening' });
+    this.options.chime?.playStart();
 
     let audioPath = '';
     try {
       await this.options.overlay.showListening(mode);
       audioPath = await this.options.recorder.record();
+      this.options.chime?.playStop();
 
       await this.options.onModeChange?.({ mode: 'processing' });
       const transcript = normalizeTranscript(await this.options.whisper.transcribe(audioPath));
@@ -134,8 +144,9 @@ export class AgentVoiceFlowService {
         error: null,
       };
     } catch (error: any) {
+      this.options.chime?.playError();
       const message = error instanceof Error ? error.message : String(error);
-      await this.options.overlay.showResult(`Erro: ${message}`, false);
+      await this.options.overlay.showResult(t('error_prefix', { message }), false);
       return {
         status: 'failed',
         transcript: null,
@@ -167,7 +178,7 @@ export class AgentVoiceFlowService {
       ttsAudioPath = await this.options.tts.speak(text);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.warn(`[AgentVoiceFlow] TTS indisponivel: ${message}`);
+      console.warn(`[AgentVoiceFlow] TTS unavailable: ${message}`);
       return;
     }
 

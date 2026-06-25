@@ -3,7 +3,10 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "lib": ["ES2022", "DOM"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -14,13 +17,133 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "paths": {
+      "@zavorth/services/*.js": [
+        "./src/services/*.ts",
+        "./src/services/*.tsx"
+      ],
+      "@zavorth/services/*": [
+        "./src/services/*"
+      ],
+      "@zavorth/contracts/*.js": [
+        "./src/contracts/*.ts"
+      ],
+      "@zavorth/contracts/*": [
+        "./src/contracts/*"
+      ],
+      "@zavorth/config": [
+        "./src/config"
+      ],
+      "@zavorth/config/*.js": [
+        "./src/config/*.ts"
+      ],
+      "@zavorth/config/*": [
+        "./src/config/*"
+      ],
+      "@zavorth/runtime/*.js": [
+        "./src/runtime/*.ts",
+        "./src/runtime/*.tsx"
+      ],
+      "@zavorth/runtime/*": [
+        "./src/runtime/*"
+      ],
+      "@zavorth/domain/*.js": [
+        "./src/domain/*.ts",
+        "./src/domain/*.tsx"
+      ],
+      "@zavorth/domain/*": [
+        "./src/domain/*"
+      ],
+      "@zavorth/security/*.js": [
+        "./src/security/*.ts"
+      ],
+      "@zavorth/security/*": [
+        "./src/security/*"
+      ],
+      "@zavorth/storage/*.js": [
+        "./src/storage/*.ts"
+      ],
+      "@zavorth/storage/*": [
+        "./src/storage/*"
+      ],
+      "@zavorth/providers/*.js": [
+        "./src/providers/*.ts"
+      ],
+      "@zavorth/providers/*": [
+        "./src/providers/*"
+      ],
+      "@zavorth/adapters/*.js": [
+        "./src/adapters/*.ts"
+      ],
+      "@zavorth/adapters/*": [
+        "./src/adapters/*"
+      ],
+      "@zavorth/skills/*.js": [
+        "./src/skills/*.ts"
+      ],
+      "@zavorth/skills/*": [
+        "./src/skills/*"
+      ],
+      "@zavorth/core/*.js": [
+        "./src/core/*.ts"
+      ],
+      "@zavorth/core/*": [
+        "./src/core/*"
+      ],
+      "@zavorth/agent/*.js": [
+        "./src/agent/*.ts"
+      ],
+      "@zavorth/agent/*": [
+        "./src/agent/*"
+      ],
+      "@zavorth/types": [
+        "./src/types.d.ts"
+      ],
+      "@zavorth/autonomy/*.js": [
+        "./src/autonomy/*.ts",
+        "./src/autonomy/*.tsx"
+      ],
+      "@zavorth/autonomy/*": [
+        "./src/autonomy/*"
+      ],
+      "@zavorth/canvas/*.js": [
+        "./src/canvas/*.ts",
+        "./src/canvas/*.tsx"
+      ],
+      "@zavorth/canvas/*": [
+        "./src/canvas/*"
+      ],
+      "@zavorth/mesh/*.js": [
+        "./src/mesh/*.ts",
+        "./src/mesh/*.tsx"
+      ],
+      "@zavorth/mesh/*": [
+        "./src/mesh/*"
+      ],
+      "@zavorth/hardware/*.js": [
+        "./src/hardware/*.ts",
+        "./src/hardware/*.tsx"
+      ],
+      "@zavorth/hardware/*": [
+        "./src/hardware/*"
+      ],
+      "@zavorth/agents/*.js": [
+        "./src/agents/*.ts",
+        "./src/agents/*.tsx"
+      ],
+      "@zavorth/agents/*": [
+        "./src/agents/*"
+      ]
+    }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
     "dist",
-    "src/ai-gateway",
+    "src/zavorth-control",
     "src/cli/ink-test-env",
     "src/cli/test-ink-visuals.tsx",
     "src/runtime/supervised-launcher.ts",

@@ -6,11 +6,24 @@
   "category": "marketing",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["email", "campaigns", "marketing"],
-  "presets": ["developer"],
-  "inputContract": ["campaign briefs", "audience segments", "email templates"],
-  "outputContract": ["campaign reports", "analytics dashboards"],
+  "capabilityTags": [
+    "email",
+    "campaigns",
+    "marketing"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "campaign briefs",
+    "audience segments",
+    "email templates"
+  ],
+  "outputContract": [
+    "campaign reports",
+    "analytics dashboards"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

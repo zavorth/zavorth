@@ -73,7 +73,7 @@ describe('Run Observatory Run Observatory', () => {
       now: () => new Date('2026-05-03T19:00:00.000Z'),
       idFactory: createIdFactory(),
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
       executor,
     });
 

@@ -5,7 +5,7 @@ import path from 'node:path';
 
 const rootDir = process.cwd();
 const files = {
-  css: 'src/ai-gateway/app/(dashboard)/control/command-center/styles/commandCenter.css',
+  css: 'src/zavorth-control/app/(dashboard)/control/command-center/styles/commandCenter.css',
   visualQa: 'scripts/zavorth-dashboard-visual-qa.ts',
   packageJson: 'package.json',
 };

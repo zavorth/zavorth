@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { SwarmV2Service } from '../src/services/SwarmV2Service.js';
+import { SwarmV2Service } from '@zavorth/agents/SwarmV2Service.js';
 
 type Args = {
   roles: number;

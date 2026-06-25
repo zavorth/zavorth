@@ -133,7 +133,7 @@ const server = http.createServer(async (req, res) => {
           entityId: 'lock.front_door',
           oldState: 'locked',
           newState: 'unlocked',
-          feedback: 'Atencao: lock.front_door mudou para unlocked.',
+          feedback: 'Attention: lock.front_door changed to unlocked.',
           severity: 'critical',
         }],
       },

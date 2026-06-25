@@ -170,7 +170,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     } catch (error) {
       report.skipped = !options.requireLive;
       if (options.requireLive) pushCheck(report, "live-server-reachable", false, `Nao consegui abrir o ZavorthControl real: ${String(error?.message || error)}`);
-      else pushSkip(report, "live-server-reachable", "Servidor local nao respondeu. Inicie com npm run start:ai-gateway ou npm run go.");
+      else pushSkip(report, "live-server-reachable", "Servidor local nao respondeu. Inicie com npm run start:zavorth-control ou npm run go.");
       return report;
     }
 

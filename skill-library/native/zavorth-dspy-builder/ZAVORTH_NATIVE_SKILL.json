@@ -6,11 +6,23 @@
   "category": "ai",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["dspy", "prompts", "optimization"],
-  "presets": ["developer"],
-  "inputContract": ["signature_spec", "training_examples"],
-  "outputContract": ["compiled_program", "optimization_report"],
+  "capabilityTags": [
+    "dspy",
+    "prompts",
+    "optimization"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "signature_spec",
+    "training_examples"
+  ],
+  "outputContract": [
+    "compiled_program",
+    "optimization_report"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

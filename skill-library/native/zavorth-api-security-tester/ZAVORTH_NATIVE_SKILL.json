@@ -6,11 +6,24 @@
   "category": "security",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["api", "security", "owasp"],
-  "presets": ["developer"],
-  "inputContract": ["API specifications (OpenAPI)", "endpoint URLs", "auth credentials"],
-  "outputContract": ["security reports", "remediation plans"],
+  "capabilityTags": [
+    "api",
+    "security",
+    "owasp"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "API specifications (OpenAPI)",
+    "endpoint URLs",
+    "auth credentials"
+  ],
+  "outputContract": [
+    "security reports",
+    "remediation plans"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

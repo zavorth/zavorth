@@ -21,7 +21,7 @@
     "dart layout code",
     "compile status"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

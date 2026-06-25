@@ -44,7 +44,7 @@
       "isParallelRuntime": false,
       "evidence": [
         "src/services/DashboardEchoRouteService.ts",
-        "tests/services/DashboardNexusAgentGatewayRoute.test.ts",
+        "tests/services/ZavorthControlNexusAgentGatewayRoute.test.ts",
         "docs/architecture.md"
       ],
       "commands": [
@@ -116,7 +116,7 @@
       "isParallelRuntime": false,
       "evidence": [
         "src/execution/SwarmExecutor.ts",
-        "src/services/SwarmV2Service.ts",
+        "src/agents/SwarmV2Service.ts",
         "src/runtime/sessions/v2/SwarmOrchestrator.ts",
         "src/domain/surface/presentation/web-app/web-app-supervision-route/swarmV2Routes.ts",
         "src/web/components/SwarmMonitor.tsx",

@@ -11,7 +11,7 @@ function createReadinessReport(overrides: Record<string, any> = {}) {
     runtime: {
       providers: {
         activeProviderName: 'openai',
-        activeModelName: 'gpt-5.2',
+        activeModelName: 'gpt-4o',
         preferredZavorthBridgeModel: null,
         readyCount: 1,
         needsConfigurationCount: 0,
@@ -25,10 +25,10 @@ function createReadinessReport(overrides: Record<string, any> = {}) {
           selected: {
             source: 'current-config',
             providerLabel: 'OpenAI',
-            modelLabel: 'gpt-5.2',
+            modelLabel: 'gpt-4o',
             readiness: 'ready',
             ready: true,
-            explanation: ['Configuracao atual seleciona openai/gpt-5.2.'],
+            explanation: ['Configuracao atual seleciona openai/gpt-4o.'],
           },
         },
       },
@@ -62,7 +62,7 @@ function createReadinessReport(overrides: Record<string, any> = {}) {
     auth: { enabled: true, source: 'env', tokenFile: 'token.txt' },
     local: { baseUrl: 'http://127.0.0.1:33333', dashboardUrl: 'http://127.0.0.1:33333/', appUrl: 'http://127.0.0.1:33333/dashboard', ready: true, issues: [] },
     remote: { baseUrl: 'https://zavorth.example.com', appUrl: 'https://zavorth.example.com/dashboard', ready: true, issues: [] },
-    recommendations: ['O Model Picker compartilhado selecionou OpenAI/gpt-5.2 (ready).'],
+    recommendations: ['O Model Picker compartilhado selecionou OpenAI/gpt-4o (ready).'],
     nextSteps: [],
     summary: 'Zavorth pronto para uso local e remoto.',
     ...overrides,
@@ -82,11 +82,11 @@ describe('Zavorth CLI runtime renderers model picker', () => {
 
     expect(snapshot.providers).toMatchObject({
       providerLabel: 'OpenAI',
-      modelLabel: 'gpt-5.2',
+      modelLabel: 'gpt-4o',
       readiness: 'ready',
       ready: true,
     });
-    expect(text).toContain('Modelo atual: OpenAI/gpt-5.2 pronto.');
+    expect(text).toContain('Modelo atual: OpenAI/gpt-4o pronto.');
   });
 
   it('shows the shared selected model in access and bootstrap summaries', () => {
@@ -103,12 +103,12 @@ describe('Zavorth CLI runtime renderers model picker', () => {
           source: 'current-config',
           providerName: 'openai',
           providerLabel: 'OpenAI',
-          modelName: 'gpt-5.2',
-          modelLabel: 'gpt-5.2',
+          modelName: 'gpt-4o',
+          modelLabel: 'gpt-4o',
           routeId: 'openai',
           readiness: 'ready',
           ready: true,
-          explanation: ['Configuracao atual seleciona openai/gpt-5.2.'],
+          explanation: ['Configuracao atual seleciona openai/gpt-4o.'],
         },
       },
       dependencies: { installRequired: false, buildRequired: false },
@@ -118,7 +118,7 @@ describe('Zavorth CLI runtime renderers model picker', () => {
       summary: 'Bootstrap fechado.',
     });
 
-    expect(accessText).toContain('modelo: OpenAI/gpt-5.2 (ready)');
-    expect(bootstrapText).toContain('provider: OpenAI/gpt-5.2 (ready)');
+    expect(accessText).toContain('modelo: OpenAI/gpt-4o (ready)');
+    expect(bootstrapText).toContain('provider: OpenAI/gpt-4o (ready)');
   });
 });

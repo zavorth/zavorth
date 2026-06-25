@@ -12,7 +12,7 @@ describe('GatewayResilienceControlService', () => {
             enabled: true,
             requiresApiKey: true,
             secretRef: 'secret_openai',
-            defaultModel: 'gpt-5.2',
+            defaultModel: 'gpt-4o',
             createdAt: '',
             updatedAt: '',
           },

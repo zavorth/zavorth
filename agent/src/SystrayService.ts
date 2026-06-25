@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import SysTray from 'systray2';
+import { t, getLanguages } from './i18n.js';
 
 type AgentTrayState = {
   backendOnline: boolean;
@@ -18,6 +19,7 @@ type AgentTrayState = {
   lastMemoryReceipt?: string | null;
   lastRunId?: string | null;
   lastStatus?: string | null;
+  configLang?: string;
 };
 
 type TrayNotificationEvent =
@@ -47,6 +49,7 @@ export class SystrayService extends EventEmitter {
     backendOnline: false,
     micActive: false,
     mode: 'offline',
+    configLang: 'auto',
   };
 
   public async start(): Promise<void> {
@@ -54,7 +57,11 @@ export class SystrayService extends EventEmitter {
 
     const started = await this.startWithSystray2();
     if (!started) {
-      await this.startWithPowerShell();
+      if (os.platform() === 'win32') {
+        await this.startWithPowerShell();
+      } else {
+        console.warn('[Systray] Cross-platform systray2 failed, and PowerShell fallback is not supported on this OS.');
+      }
     }
   }
 
@@ -75,8 +82,12 @@ export class SystrayService extends EventEmitter {
   }
 
   public updateState(patch: Partial<AgentTrayState>): void {
+    const langChanged = patch.configLang !== undefined && patch.configLang !== this.state.configLang;
     this.state = { ...this.state, ...patch };
     this.setTooltip(this.buildTooltip());
+    if (langChanged && !this.systray) {
+      void this.rebuildPowerShellTray();
+    }
   }
 
   public notify(event: TrayNotificationEvent, payload: Record<string, unknown> = {}): void {
@@ -157,11 +168,11 @@ export class SystrayService extends EventEmitter {
 
       await this.systray.ready();
       this.isRunning = true;
-      console.log('[Systray] systray2 iniciado.');
+      console.log('[Systray] systray2 started.');
       this.emit('ready');
       return true;
     } catch (error: any) {
-      console.log(`[Systray] systray2 indisponivel: ${error.message}`);
+      console.log(`[Systray] systray2 unavailable: ${error.message}`);
       this.systray = null;
       return false;
     }
@@ -182,6 +193,26 @@ export class SystrayService extends EventEmitter {
   }
 
   private buildMenuItems(): any[] {
+    const configLang = this.state.configLang || 'auto';
+    const languages = getLanguages();
+
+    const langSubmenuItems = [
+      {
+        title: 'Auto (System Language)',
+        tooltip: 'Detect system language automatically',
+        checked: configLang === 'auto',
+        enabled: true,
+        click: () => this.emit('change-lang', 'auto'),
+      },
+      ...Object.entries(languages).map(([code, friendlyName]) => ({
+        title: friendlyName,
+        tooltip: `Switch to ${friendlyName}`,
+        checked: configLang === code,
+        enabled: true,
+        click: () => this.emit('change-lang', code),
+      })),
+    ];
+
     return [
       {
         title: this.state.backendOnline ? 'Backend online' : 'Backend offline',
@@ -191,52 +222,57 @@ export class SystrayService extends EventEmitter {
       {
         title: this.state.gatewayOnline === false ? 'Gateway offline' : 'Gateway online',
         enabled: false,
-        tooltip: 'Estado do gateway local',
+        tooltip: 'Local gateway status',
       },
       {
-        title: this.state.micActive ? 'Microfone ativo' : 'Microfone desligado',
-        tooltip: 'Estado do microfone',
+        title: this.state.micActive ? t('tray_mic_active') : t('tray_mic_disabled'),
+        tooltip: 'Microphone status',
         enabled: false,
       },
       {
         title: `Budget: ${this.state.budgetStatus || 'unknown'}`,
-        tooltip: 'Estado do orcamento do AI Gateway',
+        tooltip: 'AI Gateway budget status',
         enabled: false,
       },
       {
-        title: `Fallback: ${this.shortText(this.state.lastFallback, 'nenhum')}`,
-        tooltip: 'Ultimo fallback de modelo',
+        title: `Fallback: ${this.shortText(this.state.lastFallback, 'none')}`,
+        tooltip: 'Last model fallback',
         enabled: false,
       },
       {
         title: `Echo: ${this.state.pendingApprovals || 0} approval(s) | run ${this.shortId(this.state.lastRunId)}`,
-        tooltip: this.state.lastStatus ? `Ultimo status: ${this.state.lastStatus}` : 'Sem run recente',
+        tooltip: this.state.lastStatus ? t('tray_last_status', { status: this.state.lastStatus }) : t('tray_no_recent_run'),
         enabled: false,
       },
       {
-        title: 'Status',
-        tooltip: 'Mostrar status do Zavorth Agent',
+        title: t('tray_status_title'),
+        tooltip: t('tray_status_tooltip'),
         click: () => this.emit('status'),
       },
       {
-        title: this.state.micActive ? 'Desativar mic gate' : 'Ativar mic gate',
-        tooltip: 'Alternar monitoramento do microfone',
+        title: this.state.micActive ? t('tray_toggle_mic_off') : t('tray_toggle_mic_on'),
+        tooltip: 'Toggle mic gate monitoring',
         click: () => this.emit('toggle-mic'),
       },
       {
-        title: 'Abrir Dashboard',
-        tooltip: 'Abrir http://localhost:5173',
+        title: t('tray_open_dashboard'),
+        tooltip: t('tray_open_dashboard_tooltip'),
         click: () => this.emit('open-dashboard'),
       },
       {
-        title: 'Abrir /control',
-        tooltip: 'Abrir cockpit de controle',
+        title: t('tray_open_control'),
+        tooltip: t('tray_open_control_tooltip'),
         click: () => this.emit('open-control'),
+      },
+      {
+        title: 'Language / Idioma',
+        tooltip: 'Select interface language / Selecionar idioma da interface',
+        items: langSubmenuItems,
       },
       (SysTray as any).separator,
       {
-        title: 'Sair',
-        tooltip: 'Encerrar Zavorth Agent',
+        title: t('tray_exit'),
+        tooltip: t('tray_exit_tooltip'),
         click: () => this.emit('exit'),
       },
     ];
@@ -253,6 +289,11 @@ export class SystrayService extends EventEmitter {
 
       this.trayProcess.stdout?.on('data', (data: string) => {
         const action = data.toString().trim();
+        if (action.startsWith('LANG_CHANGE:')) {
+          const lang = action.split(':')[1];
+          this.emit('change-lang', lang);
+          return;
+        }
         switch (action) {
           case 'TRAY_CLICK':
           case 'TRAY_STATUS':
@@ -272,7 +313,7 @@ export class SystrayService extends EventEmitter {
             break;
           case 'TRAY_READY':
             this.isRunning = true;
-            console.log('[Systray] PowerShell tray iniciado.');
+            console.log('[Systray] PowerShell tray started.');
             this.emit('ready');
             break;
         }
@@ -283,17 +324,28 @@ export class SystrayService extends EventEmitter {
         this.trayProcess = null;
       });
     } catch (error: any) {
-      console.error(`[Systray] Falha ao criar icone: ${error.message}`);
+      console.error(t('systray_icon_failed', { message: error.message }));
     }
+  }
+
+  private async rebuildPowerShellTray(): Promise<void> {
+    if (os.platform() !== 'win32') return;
+    if (this.trayProcess) {
+      this.trayProcess.removeAllListeners('exit');
+      this.trayProcess.kill();
+      this.trayProcess = null;
+      this.isRunning = false;
+    }
+    await this.startWithPowerShell();
   }
 
   private buildTooltip(): string {
     const backend = this.state.backendOnline ? 'backend online' : 'backend offline';
     const gateway = this.state.gatewayOnline === false ? 'gateway offline' : 'gateway online';
-    const mic = this.state.micActive ? 'mic ativo' : 'mic desligado';
+    const mic = this.state.micActive ? t('mic_active') : t('mic_disabled');
     const approvals = `${this.state.pendingApprovals || 0} approvals`;
     const budget = `budget ${this.state.budgetStatus || 'unknown'}`;
-    const run = this.state.lastRunId ? `run ${this.shortId(this.state.lastRunId)}` : 'sem run recente';
+    const run = this.state.lastRunId ? `run ${this.shortId(this.state.lastRunId)}` : t('tray_no_recent_run');
     return `Zavorth Agent - ${this.state.mode} - ${backend} - ${gateway} - ${mic} - ${approvals} - ${budget} - ${run}`;
   }
 
@@ -316,30 +368,30 @@ export class SystrayService extends EventEmitter {
   private buildNotification(event: TrayNotificationEvent, payload: Record<string, unknown>): { title: string; body: string } {
     if (event === 'approval-pending') {
       return {
-        title: 'Zavorth precisa de aprovacao',
-        body: this.sanitizeNotificationText(String(payload.action || payload.summary || 'acao pendente')),
+        title: 'Zavorth needs approval',
+        body: this.sanitizeNotificationText(String(payload.action || payload.summary || 'pending action')),
       };
     }
     if (event === 'gateway-fallback') {
       return {
-        title: 'Fallback de modelo usado',
+        title: 'Model fallback used',
         body: this.sanitizeNotificationText(`${payload.from || 'primary'} -> ${payload.to || 'fallback'}`),
       };
     }
     if (event === 'budget-blocked') {
       return {
-        title: 'Budget bloqueou chamada',
+        title: 'Budget blocked call',
         body: this.sanitizeNotificationText(String(payload.reason || 'daily budget blocked')),
       };
     }
     if (event === 'channel-test-result') {
       return {
-        title: 'Teste de canal finalizado',
+        title: 'Channel test finished',
         body: this.sanitizeNotificationText(`${payload.channelId || 'channel'}: ${payload.status || 'unknown'}`),
       };
     }
     return {
-      title: 'Memoria atualizada',
+      title: 'Memory updated',
       body: this.sanitizeNotificationText(String(payload.receiptId || 'receipt created')),
     };
   }
@@ -381,6 +433,30 @@ export class SystrayService extends EventEmitter {
   }
 
   private buildPowerShellTrayScript(): string {
+    const configLang = this.state.configLang || 'auto';
+    const languages = getLanguages();
+
+    let langItemsScript = '';
+    
+    // Add Auto item
+    const autoCheckedStr = configLang === 'auto' ? '$true' : '$false';
+    langItemsScript += `
+      $autoItem = $langSubmenu.DropDownItems.Add('Auto (System Language)')
+      $autoItem.Checked = ${autoCheckedStr}
+      $autoItem.Add_Click({ Write-Host 'LANG_CHANGE:auto' })
+    `;
+
+    // Add each dynamic language
+    for (const [code, friendlyName] of Object.entries(languages)) {
+      const checkedStr = configLang === code ? '$true' : '$false';
+      const escapeName = friendlyName.replace(/'/g, "''");
+      langItemsScript += `
+        $lang_${code} = $langSubmenu.DropDownItems.Add('${escapeName}')
+        $lang_${code}.Checked = ${checkedStr}
+        $lang_${code}.Add_Click({ Write-Host 'LANG_CHANGE:${code}' })
+      `;
+    }
+
     return `
       Add-Type -AssemblyName System.Windows.Forms
       Add-Type -AssemblyName System.Drawing
@@ -391,16 +467,21 @@ export class SystrayService extends EventEmitter {
       $icon.Visible = $true
 
       $menu = New-Object System.Windows.Forms.ContextMenuStrip
-      $statusItem = $menu.Items.Add('Status')
+      $statusItem = $menu.Items.Add('${t('tray_status_title').replace(/'/g, "''")}')
       $statusItem.Add_Click({ Write-Host 'TRAY_STATUS' })
-      $micItem = $menu.Items.Add('Toggle Mic Gate')
+      $micItem = $menu.Items.Add('${(this.state.micActive ? t('tray_toggle_mic_off') : t('tray_toggle_mic_on')).replace(/'/g, "''")}')
       $micItem.Add_Click({ Write-Host 'TRAY_TOGGLE_MIC' })
-      $dashItem = $menu.Items.Add('Abrir Dashboard')
+      $dashItem = $menu.Items.Add('${t('tray_open_dashboard').replace(/'/g, "''")}')
       $dashItem.Add_Click({ Write-Host 'TRAY_OPEN_DASHBOARD' })
-      $controlItem = $menu.Items.Add('Abrir /control')
+      $controlItem = $menu.Items.Add('${t('tray_open_control').replace(/'/g, "''")}')
       $controlItem.Add_Click({ Write-Host 'TRAY_OPEN_CONTROL' })
+      
+      $langSubmenu = New-Object System.Windows.Forms.ToolStripMenuItem('Language / Idioma')
+      ${langItemsScript}
+      [void]$menu.Items.Add($langSubmenu)
+
       $menu.Items.Add('-')
-      $exitItem = $menu.Items.Add('Sair')
+      $exitItem = $menu.Items.Add('${t('tray_exit').replace(/'/g, "''")}')
       $exitItem.Add_Click({
         Write-Host 'TRAY_EXIT'
         $icon.Visible = $false

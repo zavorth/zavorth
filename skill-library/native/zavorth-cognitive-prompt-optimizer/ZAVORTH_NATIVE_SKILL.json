@@ -21,7 +21,7 @@
   "outputContract": [
     "optimized system prompt"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

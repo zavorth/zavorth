@@ -18,36 +18,36 @@ describe('PromptCacheService', () => {
 
   describe('cache miss then hit', () => {
     it('returns miss on first check', () => {
-      const result = service.checkCache('Hello world', 'openai', 'gpt-5.2');
+      const result = service.checkCache('Hello world', 'openai', 'gpt-4o');
       expect(result.hit).toBe(false);
       expect(result.cache_id).toBeNull();
       expect(result.tokens_saved).toBe(0);
     });
 
     it('returns hit after adding to cache', () => {
-      service.addToCache('Hello world', 'openai', 'gpt-5.2', 100);
-      const result = service.checkCache('Hello world', 'openai', 'gpt-5.2');
+      service.addToCache('Hello world', 'openai', 'gpt-4o', 100);
+      const result = service.checkCache('Hello world', 'openai', 'gpt-4o');
       expect(result.hit).toBe(true);
       expect(result.cache_id).toBeTruthy();
       expect(result.tokens_saved).toBe(100);
     });
 
     it('returns miss for different provider', () => {
-      service.addToCache('Hello', 'openai', 'gpt-5.2', 50);
+      service.addToCache('Hello', 'openai', 'gpt-4o', 50);
       const result = service.checkCache('Hello', 'anthropic', 'claude-4');
       expect(result.hit).toBe(false);
     });
 
     it('returns miss for different model', () => {
-      service.addToCache('Hello', 'openai', 'gpt-5.2', 50);
-      const result = service.checkCache('Hello', 'openai', 'gpt-5.2-mini');
+      service.addToCache('Hello', 'openai', 'gpt-4o', 50);
+      const result = service.checkCache('Hello', 'openai', 'gpt-4o-mini');
       expect(result.hit).toBe(false);
     });
 
     it('increments cache_hits on repeated access', () => {
-      service.addToCache('test prompt', 'openai', 'gpt-5.2', 50);
-      service.checkCache('test prompt', 'openai', 'gpt-5.2');
-      service.checkCache('test prompt', 'openai', 'gpt-5.2');
+      service.addToCache('test prompt', 'openai', 'gpt-4o', 50);
+      service.checkCache('test prompt', 'openai', 'gpt-4o');
+      service.checkCache('test prompt', 'openai', 'gpt-4o');
       const stats = service.getStats();
       expect(stats).toContain('Cache hits: 2');
     });
@@ -133,13 +133,13 @@ describe('PromptCacheService', () => {
     });
 
     it('orders by cache hits descending', () => {
-      service.addToCache('popular', 'openai', 'gpt-5.2', 50);
-      service.addToCache('rare', 'openai', 'gpt-5.2', 50);
+      service.addToCache('popular', 'openai', 'gpt-4o', 50);
+      service.addToCache('rare', 'openai', 'gpt-4o', 50);
 
-      service.checkCache('popular', 'openai', 'gpt-5.2');
-      service.checkCache('popular', 'openai', 'gpt-5.2');
-      service.checkCache('popular', 'openai', 'gpt-5.2');
-      service.checkCache('rare', 'openai', 'gpt-5.2');
+      service.checkCache('popular', 'openai', 'gpt-4o');
+      service.checkCache('popular', 'openai', 'gpt-4o');
+      service.checkCache('popular', 'openai', 'gpt-4o');
+      service.checkCache('rare', 'openai', 'gpt-4o');
 
       const result = service.optimizePromptOrder(['rare', 'popular']);
       expect(result[0]).toBe('popular');
@@ -153,7 +153,7 @@ describe('PromptCacheService', () => {
     });
 
     it('evicts old entries with low hits', () => {
-      service.addToCache('old prompt', 'openai', 'gpt-5.2', 50);
+      service.addToCache('old prompt', 'openai', 'gpt-4o', 50);
 
       const cachePath = path.join(tmpDir, 'cache.json');
       const data = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
@@ -168,9 +168,9 @@ describe('PromptCacheService', () => {
     });
 
     it('does not evict entries with high hits', () => {
-      service.addToCache('popular old', 'openai', 'gpt-5.2', 50);
+      service.addToCache('popular old', 'openai', 'gpt-4o', 50);
       for (let i = 0; i < 10; i++) {
-        service.checkCache('popular old', 'openai', 'gpt-5.2');
+        service.checkCache('popular old', 'openai', 'gpt-4o');
       }
 
       const cachePath = path.join(tmpDir, 'cache.json');
@@ -195,9 +195,9 @@ describe('PromptCacheService', () => {
     });
 
     it('tracks hits and misses', () => {
-      service.addToCache('cached', 'openai', 'gpt-5.2', 100);
-      service.checkCache('cached', 'openai', 'gpt-5.2');
-      service.checkCache('not-cached', 'openai', 'gpt-5.2');
+      service.addToCache('cached', 'openai', 'gpt-4o', 100);
+      service.checkCache('cached', 'openai', 'gpt-4o');
+      service.checkCache('not-cached', 'openai', 'gpt-4o');
       const stats = service.getStats();
       expect(stats).toContain('Cache hits: 1');
       expect(stats).toContain('Cache misses: 1');
@@ -205,15 +205,15 @@ describe('PromptCacheService', () => {
     });
 
     it('tracks tokens saved', () => {
-      service.addToCache('big prompt', 'openai', 'gpt-5.2', 500);
-      service.checkCache('big prompt', 'openai', 'gpt-5.2');
+      service.addToCache('big prompt', 'openai', 'gpt-4o', 500);
+      service.checkCache('big prompt', 'openai', 'gpt-4o');
       const stats = service.getStats();
       expect(stats).toContain('Tokens saved: 500');
     });
 
     it('tracks cached prompt count', () => {
-      service.addToCache('a', 'openai', 'gpt-5.2', 10);
-      service.addToCache('b', 'openai', 'gpt-5.2', 20);
+      service.addToCache('a', 'openai', 'gpt-4o', 10);
+      service.addToCache('b', 'openai', 'gpt-4o', 20);
       const stats = service.getStats();
       expect(stats).toContain('Cached prompts: 2');
     });
@@ -226,20 +226,20 @@ describe('PromptCacheService', () => {
     });
 
     it('lists cached prompts', () => {
-      service.addToCache('test', 'openai', 'gpt-5.2', 100);
+      service.addToCache('test', 'openai', 'gpt-4o', 100);
       const list = service.listCached();
-      expect(list).toContain('openai/gpt-5.2');
+      expect(list).toContain('openai/gpt-4o');
       expect(list).toContain('tokens:100');
     });
 
     it('orders by cache hits', () => {
-      service.addToCache('popular', 'openai', 'gpt-5.2', 50);
-      service.addToCache('rare', 'openai', 'gpt-5.2', 50);
+      service.addToCache('popular', 'openai', 'gpt-4o', 50);
+      service.addToCache('rare', 'openai', 'gpt-4o', 50);
 
-      service.checkCache('popular', 'openai', 'gpt-5.2');
-      service.checkCache('popular', 'openai', 'gpt-5.2');
-      service.checkCache('popular', 'openai', 'gpt-5.2');
-      service.checkCache('rare', 'openai', 'gpt-5.2');
+      service.checkCache('popular', 'openai', 'gpt-4o');
+      service.checkCache('popular', 'openai', 'gpt-4o');
+      service.checkCache('popular', 'openai', 'gpt-4o');
+      service.checkCache('rare', 'openai', 'gpt-4o');
 
       const list = service.listCached();
       const hitsMatches = list.match(/hits:(\d+)/g) || [];
@@ -252,15 +252,15 @@ describe('PromptCacheService', () => {
 
   describe('persistence', () => {
     it('saves cache to disk', () => {
-      service.addToCache('persist test', 'openai', 'gpt-5.2', 100);
+      service.addToCache('persist test', 'openai', 'gpt-4o', 100);
       const cachePath = path.join(tmpDir, 'cache.json');
       expect(fs.existsSync(cachePath)).toBe(true);
     });
 
     it('loads cache from disk on construction', () => {
-      service.addToCache('loaded', 'openai', 'gpt-5.2', 200);
+      service.addToCache('loaded', 'openai', 'gpt-4o', 200);
       const freshService = new PromptCacheService({ storageDir: tmpDir });
-      const result = freshService.checkCache('loaded', 'openai', 'gpt-5.2');
+      const result = freshService.checkCache('loaded', 'openai', 'gpt-4o');
       expect(result.hit).toBe(true);
       expect(result.tokens_saved).toBe(200);
     });

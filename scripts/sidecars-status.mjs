@@ -60,7 +60,7 @@ const aiGatewaySidecar = readJson(['AIGateway-sidecar.json', 'ai-gateway-sidecar
   message: 'Sem status salvo ainda.',
 });
 
-const aiGatewayGateway = readJson('ai-gateway-last.json', {
+const aiGatewayGateway = readJson('zavorth-control-last.json', {
   enabled: envBoolean('ZAVORTH_AIGateway_GATEWAY_ENABLED', false),
   running: false,
   ready: false,

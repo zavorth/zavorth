@@ -170,7 +170,7 @@ function inferCurrentEvidence(text, file) {
     ['large-skill-absorption', ['ZavorthLargeSkillAbsorptionService', 'zavorth-large-skill-absorption.ts']],
     ['perception-control', ['ZavorthPerceptionInvocationRouter', 'zavorth-perception-certification-check.mjs', 'ZavorthAndroidAdbBridgeService']],
     ['channel-capability', ['ChannelCapabilityContract', 'ZavorthChannelCapabilityAwarenessService', 'zavorth-channel-capability-awareness-check.mjs']],
-    ['acp-bridge', ['ZavorthAcpBridgeContract', 'AcpxBridgeRuntimeAdapter', 'src/ai-gateway/lib/acp']],
+    ['acp-bridge', ['ZavorthAcpBridgeContract', 'AcpxBridgeRuntimeAdapter', 'src/zavorth-control/lib/acp']],
     ['agent-run-resilience', ['AgentRunService', 'ZavorthContextRecoveryAssimilationService', 'zavorth-context-recovery-assimilation-check.mjs']],
     ['security-policy', ['SecurityPolicyBroker', 'ToolApprovalEnvelope', 'DangerousCommandBlocker']],
     ['zavorthControl', ['ZavorthControlService', 'NexusCockpitSummary', 'ZavorthControl']],

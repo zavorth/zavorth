@@ -6,11 +6,24 @@
   "category": "channels",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["slack", "workflows", "automation"],
-  "presets": ["developer"],
-  "inputContract": ["workflow definitions", "slash command specs", "app configs"],
-  "outputContract": ["message logs", "integration configs"],
+  "capabilityTags": [
+    "slack",
+    "workflows",
+    "automation"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "workflow definitions",
+    "slash command specs",
+    "app configs"
+  ],
+  "outputContract": [
+    "message logs",
+    "integration configs"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

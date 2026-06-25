@@ -313,7 +313,7 @@ describe('ZavorthEchoService', () => {
         isConfigured: () => true,
         synthesizeDetailed: jest.fn(async () => ({
           filePath: __filename,
-          model: 'gemini-3.1-flash-tts-preview',
+          model: 'gemini-2.5-flash',
           voiceName: 'Kore',
           languageCode: 'en-US',
           mimeType: 'audio/wav',
@@ -337,7 +337,7 @@ describe('ZavorthEchoService', () => {
     if (!result.ok) {
       throw new Error('expected successful audio synthesis');
     }
-    expect(result.model).toBe('gemini-3.1-flash-tts-preview');
+    expect(result.model).toBe('gemini-2.5-flash');
 
     const snapshot = await service.buildSnapshot();
     expect(snapshot.voiceMetrics).toEqual(expect.objectContaining({
@@ -346,7 +346,7 @@ describe('ZavorthEchoService', () => {
       surfaces: [
         expect.objectContaining({
           surface: 'dashboard',
-          lastModel: 'gemini-3.1-flash-tts-preview',
+          lastModel: 'gemini-2.5-flash',
           lastVoiceName: 'Kore',
         }),
       ],

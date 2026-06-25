@@ -1,17 +1,89 @@
+# === Dependencies ===
 node_modules
+package-lock.json
+
+# === Build artifacts ===
 dist
+dist-*
+out
+coverage
+*.tsbuildinfo
+
+# === Source (not needed in runtime image) ===
+src
+scripts
+tests
+docs
+examples
+apps
+packages
+qa
+agent
+bin
+skills
+tool-library
+zavorth-control-extension
+
+# === Config & secrets ===
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+config/AIGateway-overlay.json
+
+# === Data & runtime ===
 data
 data/**/*.db*
 data/**/logs
 data/secrets_honey.txt
-output
+.tmp
+.tmp-*
+logs
+memory
 tmp
-.git
-.external-executor
-.agents
-.env
-debug.log
 tmp_*.ts
 tmp_ag_*.ts
-coverage
+
+# === Git & IDE ===
+.git
+.gitignore
+.gitleaks.toml
+.vscode
+.idea
+*.swp
+*.swo
+
+# === Docker ===
+Dockerfile
+docker-compose*.yml
+deploy
+.dockerignore
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Misc ===
+*.log
+*.md
+!README.md
+LICENSE
+TODO.md
+MEMORY.md
+SOUL.md
+IDENTITY.md
+USER.md
+AGENTS.md
+TOOLS.md
+BOOTSTRAP.md
+AUDIT_LOG.md
+docs.json
+favicon.svg
+logo.svg
+zavorth.yml
+*.tmp
+coverage/
 scripts/out_*.html

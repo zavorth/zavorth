@@ -161,4 +161,47 @@ describe('ContextEngine gateway ingest', () => {
     expect(engine.getContextWindow('chat-2::user-1').recentEvents).toHaveLength(1);
     expect(engine.getContextWindow('chat-3::user-1').recentEvents).toHaveLength(1);
   });
+
+  it('merges consecutive user messages to enforce strict alternation', () => {
+    const engine = new ContextEngine();
+    const tools: ToolDefinition[] = [];
+
+    engine.pushEvent({
+      id: 'event-1',
+      timestamp: new Date().toISOString(),
+      surface: 'telegram',
+      chatId: 'chat-alternation',
+      userId: 'user-1',
+      role: 'user',
+      content: 'primeira mensagem',
+    });
+
+    engine.pushEvent({
+      id: 'event-2',
+      timestamp: new Date().toISOString(),
+      surface: 'telegram',
+      chatId: 'chat-alternation',
+      userId: 'user-1',
+      role: 'user',
+      content: 'segunda mensagem',
+    });
+
+    const decision = engine.prepare(
+      'terceira mensagem',
+      'user-1',
+      'chat-alternation',
+      'telegram',
+      tools,
+      'system',
+    );
+
+    expect(decision.messages.length).toBe(2);
+    expect(decision.messages[0]).toEqual(expect.objectContaining({ role: 'system', content: 'system' }));
+    expect(decision.messages[1]).toEqual(
+      expect.objectContaining({
+        role: 'user',
+        content: 'primeira mensagem\n\nsegunda mensagem\n\nterceira mensagem',
+      })
+    );
+  });
 });

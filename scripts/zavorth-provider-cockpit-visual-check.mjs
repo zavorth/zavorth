@@ -5,13 +5,13 @@ const root = process.cwd();
 const read = (path) => readFileSync(join(root, path), 'utf8');
 
 const files = {
-  contracts: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlZavorthControlObservabilityContracts.ts',
-  adapter: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.ts',
-  providerSnapshots: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapterProviderSnapshots.ts',
-  runtimeProjection: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.ts',
-  gatewayProjection: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.ts',
-  metadata: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShellMetadata.ts',
-  operationsPanel: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
+  contracts: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlZavorthControlObservabilityContracts.ts',
+  adapter: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.ts',
+  providerSnapshots: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapterProviderSnapshots.ts',
+  runtimeProjection: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.ts',
+  gatewayProjection: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.ts',
+  metadata: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShellMetadata.ts',
+  operationsPanel: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
   browserPreview: 'scripts/zavorthControl-browser-preview.ts',
   visualQa: 'scripts/zavorthControl-provider-cockpit-visual-qa.ts',
   liveSmoke: 'scripts/zavorthControl-provider-cockpit-live-smoke.ts',

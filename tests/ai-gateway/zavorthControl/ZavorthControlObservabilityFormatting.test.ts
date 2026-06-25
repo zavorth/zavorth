@@ -12,9 +12,9 @@ import {
   formatZavorthControlRunStatusIndex,
   normalizeZavorthControlRunObservatoryQuery,
   normalizeZavorthControlRunStatus,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlObservability.js';
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
-import type { ZavorthControlRunObservatorySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlObservability.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import type { ZavorthControlRunObservatorySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
 
 describe('ZavorthControlObservabilityFormatting', () => {
   it('formats budget units before falling back to token budget or raw status', () => {

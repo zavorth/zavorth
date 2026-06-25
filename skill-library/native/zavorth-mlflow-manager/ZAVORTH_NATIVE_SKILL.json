@@ -6,11 +6,23 @@
   "category": "ml",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["mlflow", "experiments", "registry"],
-  "presets": ["developer"],
-  "inputContract": ["experiment_name", "model_config"],
-  "outputContract": ["experiment_id", "model_version"],
+  "capabilityTags": [
+    "mlflow",
+    "experiments",
+    "registry"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "experiment_name",
+    "model_config"
+  ],
+  "outputContract": [
+    "experiment_id",
+    "model_version"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

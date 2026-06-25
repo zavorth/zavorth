@@ -11,7 +11,7 @@ describe('ZavorthControlQaIntegration', () => {
   it('exposes a single ZavorthControl QA script for product and CI flows', () => {
     const zavorthControlQa = packageJson.scripts['qa:zavorthControl'];
     for (const gate of [
-      'npm run ai-gateway:check --silent',
+      'npm run zavorth-control:check --silent',
       'npm run runtime-api-v1:check --silent',
       'npm run qa:zavorthControl-response-cortex --silent',
       'npm run qa:zavorthControl-provider-cockpit-visual --silent',
@@ -35,7 +35,7 @@ describe('ZavorthControlQaIntegration', () => {
     expect(zavorthControlQa).toContain('qa:zavorthControl-chat-visual');
     expect(zavorthControlQa).toContain('qa:zavorthControl-composer-affordances');
     expect(zavorthControlQa).toContain('qa:zavorthControl-response-cortex');
-    expect(zavorthControlQa).toContain('ai-gateway:check');
+    expect(zavorthControlQa).toContain('zavorth-control:check');
   });
 
   it('runs the ZavorthControl gate in the local CI core path', () => {

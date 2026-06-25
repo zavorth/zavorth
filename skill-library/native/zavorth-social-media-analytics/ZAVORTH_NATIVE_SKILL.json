@@ -6,11 +6,24 @@
   "category": "marketing",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["social-media", "analytics", "engagement"],
-  "presets": ["developer"],
-  "inputContract": ["social media accounts", "date ranges", "metric types"],
-  "outputContract": ["campaign reports", "analytics dashboards"],
+  "capabilityTags": [
+    "social-media",
+    "analytics",
+    "engagement"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "social media accounts",
+    "date ranges",
+    "metric types"
+  ],
+  "outputContract": [
+    "campaign reports",
+    "analytics dashboards"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

@@ -183,7 +183,7 @@ describe('ProviderRuntimeActivationService Connector registry', () => {
         runtimeSupported: true,
       }),
     );
-    expect(vercel.baseUrl).toBe('https://ai-gateway.vercel.sh/v1');
+    expect(vercel.baseUrl).toBe('https://zavorth-control.vercel.sh/v1');
   });
 
   it('treats curated compatible provider defaults as native routes, not missing base URLs', () => {
@@ -292,7 +292,7 @@ describe('ProviderRuntimeActivationService Connector registry', () => {
       providerId: 'anthropic',
       baseUrl: 'https://api.anthropic.com/v1',
       apiKey: 'anthropic-secret',
-      modelName: 'claude-sonnet-4-5',
+      modelName: 'claude-3-5-sonnet-latest',
     }, { fetchImpl }).chatSmoke({
       messages: [{ role: 'user', content: 'ping' }],
     });

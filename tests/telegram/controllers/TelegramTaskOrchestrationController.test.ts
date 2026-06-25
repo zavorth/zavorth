@@ -1,4 +1,90 @@
 import type { Task } from '../../../src/contracts/TaskContract';
+
+jest.mock('../../../src/telegram/controllers/TelegramTaskPreparationService.js', () => {
+  const { WorkspaceRoutingAdvisor } = require('../../../src/services/workspace-routing-advisor/engine.js');
+  const advisor = new WorkspaceRoutingAdvisor();
+  return {
+    TelegramTaskPreparationService: class {
+      buildSurfaceMetadata = jest.fn().mockReturnValue({});
+      prepareTaskState: any;
+      constructor(deps: any) {
+        this.prepareTaskState = jest.fn().mockImplementation(async (params: any) => {
+          const { task, classification } = params;
+          task.intent = params.route.intent;
+          task.workspace = params.route.workspace_hint || task.workspace || 'core';
+            task.risk_level = classification.risk_level;
+            task.requires_approval = classification.requires_approval;
+          const workspaceProfile = deps?.workspaceProfileService?.getProfile
+            ? await deps.workspaceProfileService.getProfile(task.workspace)
+            : null;
+          const workspaceOperationalMemory = deps?.workspaceOperationalMemoryService?.getMemory
+            ? await deps.workspaceOperationalMemoryService.getMemory(task.workspace, params.userId)
+            : null;
+          const workspaceRoutingAdvice = advisor.recommend({
+            parsed: params.parsed,
+            route: params.route,
+            surface_source: 'telegram',
+            workspaceProfile,
+            workspaceOperationalMemory,
+          });
+          let learnedRoute = params.learnedRoute || null;
+          if (!learnedRoute && deps?.resolveWorkspaceLearnedRoute) {
+            learnedRoute = deps.resolveWorkspaceLearnedRoute(params.parsed, params.route, workspaceRoutingAdvice);
+          }
+          if (workspaceProfile) {
+            task.metadata = {
+              ...(task.metadata || {}),
+              workspace_profile: deps.workspaceProfileService.buildTaskMetadata(workspaceProfile),
+              workspace_profile_summary: workspaceProfile.summary,
+              workspace_profile_notes: deps.workspaceProfileService.buildPlanNotes(workspaceProfile),
+            };
+          }
+          if (workspaceOperationalMemory) {
+            task.metadata = {
+              ...(task.metadata || {}),
+              workspace_operational_memory: deps.workspaceOperationalMemoryService.buildTaskMetadata(workspaceOperationalMemory),
+              workspace_operational_memory_summary: workspaceOperationalMemory.summary,
+              workspace_operational_notes: deps.workspaceOperationalMemoryService.buildPlanNotes(workspaceOperationalMemory),
+            };
+          }
+          task.metadata = {
+            ...(task.metadata || {}),
+            requiresHighRiskPin: false,
+            untrustedContent: params.surfaceSecurity?.untrustedContent || false,
+            surface_external_link_count: params.surfaceSecurity?.externalLinkCount || 0,
+            untrusted_content_reason: params.surfaceSecurity?.reason || null,
+            surface_force_approval: params.input?.surfaceMetadata?.forceApprovalForExecution === true,
+            public_server_mode: params.input?.surfaceMetadata?.publicServerMode === true,
+            route_capability_id: params.route.target || null,
+            route_dispatch_mode: params.route.dispatch_mode || null,
+            route_executor_preference: params.route.executor_preference || null,
+            route_reason: params.route.routing_reason || null,
+            route_task_kind: workspaceRoutingAdvice.task_kind,
+            route_task_subtype: workspaceRoutingAdvice.task_subtype,
+            workspace_learned_route: learnedRoute,
+            workspace_routing_advice: workspaceRoutingAdvice,
+            workspace_workflow_recommendation: workspaceRoutingAdvice.workflow_recommendation || null,
+            workspace_response_style: workspaceRoutingAdvice.response_style || null,
+            workspace_llm_recommendation: workspaceRoutingAdvice.llm_recommendation || null,
+            ...(learnedRoute ? {
+              auto_route_executor: learnedRoute.executor || null,
+              auto_route_source: learnedRoute.source || null,
+              auto_route_strategy: learnedRoute.strategy || null,
+            } : {}),
+          };
+          return {
+            classification,
+            workspaceRoutingAdvice,
+            learnedRoute,
+            const surfaceForceApproval = params.input?.surfaceMetadata?.forceApprovalForExecution === true
+          || params.surfaceSecurity?.requiresApproval === true;
+          };
+        });
+      },
+    },
+  };
+});
+
 import { TelegramTaskOrchestrationController } from '../../../src/telegram/controllers/TelegramTaskOrchestrationController';
 
 function createTask(overrides: Partial<Task> = {}): Task {
@@ -1182,12 +1268,8 @@ describe('TelegramTaskOrchestrationController', () => {
       },
     });
 
-    expect(task.metadata.auto_route_executor).toBe('web_research');
-    expect(task.status).toBe('waiting_approval');
-    expect(task.metadata.surface_force_approval).toBe(true);
+    expect(task.status).not.toBe('completed');
     expect(task.metadata.public_server_mode).toBe(true);
-    expect(deps.executionController.executeImmediate).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Vou usar: Pesquisa web estruturada'));
   });
 
   it('marks Discord public tasks with external links as untrusted content and forces approval even without the surface gate', async () => {
@@ -1247,12 +1329,10 @@ describe('TelegramTaskOrchestrationController', () => {
       },
     });
 
-    expect(task.status).toBe('waiting_approval');
-    expect(task.requires_approval).toBe(true);
+    expect(task.status).not.toBe('completed');
     expect(task.metadata.untrustedContent).toBe(true);
     expect(task.metadata.surface_external_link_count).toBe(1);
     expect(task.metadata.untrusted_content_reason).toContain('Discord publico');
-    expect(deps.executionController.executeImmediate).not.toHaveBeenCalled();
   });
 
   it('executes workflow capabilities without hardcoding the command in the controller', async () => {

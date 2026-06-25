@@ -3,7 +3,7 @@ import { join } from 'path';
 import { ZavorthAgentGateway, type UniversalAgentExecutor } from '../../../src/runtime/agent/index.js';
 import {
   buildCommandCenterViewModelFromZavorthAgentGatewaySnapshot as buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(dashboard)/control/command-center/adapters/zavorthAgentGatewayCommandCenterAdapter.js';
+} from '../../../src/zavorth-control/app/(dashboard)/control/command-center/adapters/zavorthAgentGatewayCommandCenterAdapter.js';
 
 const rootDir = process.cwd();
 
@@ -55,7 +55,7 @@ describe('ZavorthControlVisualRealQa', () => {
       },
       idFactory: createIdFactory(),
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
     });
 
     const pending = await gateway.handle({
@@ -66,7 +66,7 @@ describe('ZavorthControlVisualRealQa', () => {
       requestedTools: ['shell.exec', 'pdf.generate'],
       modelProfile: {
         providerLabel: 'OpenAI',
-        modelLabel: 'gpt-5.2',
+        modelLabel: 'gpt-4o',
         routingPolicy: 'gateway',
         supportsTools: true,
       },

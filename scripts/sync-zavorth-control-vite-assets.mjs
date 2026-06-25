@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const sourceRoot = path.join(root, 'apps', 'zavorth-control-vite-shell');
-const staticShellRoot = path.join(root, 'src', 'ai-gateway', 'public', 'zavorth-control-vite-shell');
+const staticShellRoot = path.join(root, 'src', 'zavorth-control', 'public', 'zavorth-control-vite-shell');
 const normalizeOnly = process.argv.includes('--normalize-only');
 
 const requiredSourceFiles = [

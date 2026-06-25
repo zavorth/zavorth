@@ -53,11 +53,11 @@ describe('TelegramProviderController', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/model <nome>'));
   });
 
-  it('switches to Gemma 4 through the Gemini provider alias', async () => {
+  it('switches to Gemma 2 through the Gemini provider alias', async () => {
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
-    (config as any).gemmaModel = 'gemma-4-31b-it';
+    (config as any).gemmaModel = 'gemma-2-27b-it';
     const clearCache = jest.spyOn(ProviderFactory, 'clearCache').mockImplementation(() => {});
     const controller = new TelegramProviderController();
 
@@ -65,8 +65,8 @@ describe('TelegramProviderController', () => {
 
     expect(clearCache).toHaveBeenCalled();
     expect(config.llmProvider).toBe('gemini');
-    expect(config.geminiModel).toBe('gemma-4-31b-it');
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Gemma 4'));
+    expect(config.geminiModel).toBe('gemma-2-27b-it');
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Gemma 2'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Provider efetivo: `gemini`'));
   });
 
@@ -77,11 +77,11 @@ describe('TelegramProviderController', () => {
     const clearCache = jest.spyOn(ProviderFactory, 'clearCache').mockImplementation(() => {});
     const controller = new TelegramProviderController();
 
-    await controller.handleModel(ctx, 'gemma-4-31b-it');
+    await controller.handleModel(ctx, 'gemma-2-27b-it');
 
     expect(clearCache).toHaveBeenCalled();
     expect(config.llmProvider).toBe('gemini');
-    expect(config.geminiModel).toBe('gemma-4-31b-it');
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Modelo ativo: `gemma-4-31b-it`'));
+    expect(config.geminiModel).toBe('gemma-2-27b-it');
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Modelo ativo: `gemma-2-27b-it`'));
   });
 });

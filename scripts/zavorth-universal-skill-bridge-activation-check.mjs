@@ -178,6 +178,7 @@ function runActivationRule(input) {
       cwd: root,
       encoding: 'utf8',
       env: process.env,
+      maxBuffer: 10 * 1024 * 1024,
     },
   );
   const details = [];

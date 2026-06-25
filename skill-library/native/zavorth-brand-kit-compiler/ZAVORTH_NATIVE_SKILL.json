@@ -21,7 +21,7 @@
   "outputContract": [
     "brand guidelines config"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

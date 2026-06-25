@@ -1,4 +1,4 @@
-﻿---
+---
 name: Music Composer
 description: AI music generation, MIDI editing, audio mixing
 license: Zavorth-Internal
@@ -15,7 +15,7 @@ Use this native skill when:
 - Generate MIDI files with proper tempo and time signature metadata.
 - Apply mixing rules for frequency separation between instruments.
 - Export stems separately for flexible post-production workflows.
-- Respect copyright boundaries when generating style-inspired compositions.
+- Respect copyright boundaries when generating style-aligned compositions.
 - Provide notation output alongside audio for musician collaboration.
 
 ## Output

@@ -6,11 +6,24 @@
   "category": "productivity",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["trello", "project-management", "boards"],
-  "presets": ["developer"],
-  "inputContract": ["board structures", "card definitions", "automation rules"],
-  "outputContract": ["documents", "project artifacts"],
+  "capabilityTags": [
+    "trello",
+    "project-management",
+    "boards"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "board structures",
+    "card definitions",
+    "automation rules"
+  ],
+  "outputContract": [
+    "documents",
+    "project artifacts"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

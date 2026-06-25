@@ -3,30 +3,30 @@ import { join } from 'path';
 import {
   assertPublicHttpTargetAllowed,
   isPrivateNetworkAddress,
-} from '../../../src/ai-gateway/lib/security/egressGuard';
-import { deliverWebhook } from '../../../src/ai-gateway/lib/webhookDispatcher';
+} from '../../../src/zavorth-control/lib/security/egressGuard';
+import { deliverWebhook } from '../../../src/zavorth-control/lib/webhookDispatcher';
 
 function readApiRoute(...segments: string[]): string {
-  return readFileSync(join(process.cwd(), 'src/ai-gateway/app/api', ...segments, 'route.ts'), 'utf8');
+  return readFileSync(join(process.cwd(), 'src/zavorth-control/app/api', ...segments, 'route.ts'), 'utf8');
 }
 
 function readValidationFile(name: string): string {
   return readFileSync(
-    join(process.cwd(), 'src/ai-gateway/lib/providers/validation', name),
+    join(process.cwd(), 'src/zavorth-control/lib/providers/validation', name),
     'utf8'
   );
 }
 
 function readVersionManagerFile(name: string): string {
   return readFileSync(
-    join(process.cwd(), 'src/ai-gateway/lib/versionManager', name),
+    join(process.cwd(), 'src/zavorth-control/lib/versionManager', name),
     'utf8'
   );
 }
 
 function readProviderModelsFile(name: string): string {
   return readFileSync(
-    join(process.cwd(), 'src/ai-gateway/app/api/providers/[id]/models', name),
+    join(process.cwd(), 'src/zavorth-control/app/api/providers/[id]/models', name),
     'utf8'
   );
 }
@@ -124,7 +124,7 @@ describe('egress guard hardening', () => {
     }
 
     const specialty = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/lib/providers/validationSpecialtyProviders.ts'),
+      join(process.cwd(), 'src/zavorth-control/lib/providers/validationSpecialtyProviders.ts'),
       'utf8'
     );
     expect(specialty).toContain('assertProviderValidationTargetAllowed(messagesUrl)');

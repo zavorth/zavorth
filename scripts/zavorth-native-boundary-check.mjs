@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const aiGatewayRoot = path.join(root, 'src', 'ai-gateway');
+const aiGatewayRoot = path.join(root, 'src', 'zavorth-control');
 const freezeDocPath = path.join(aiGatewayRoot, 'NATIVE_BOUNDARY.md');
 const legacyRouteMarker = ['Omni', 'Route'].join('');
 const legacyGatewayBaseUrlMarker = ['OMNI', 'ROUTE_BASE_URL'].join('');
@@ -27,12 +27,12 @@ const requiredFreezeSnippets = [
 ];
 
 const requiredCompatibilityBoundaries = [
-  'src/ai-gateway/lib/db/storagePlane.ts',
-  'src/ai-gateway/lib/db/jsonBackupAdapters.ts',
-  'src/ai-gateway/lib/oauth/authPlane.ts',
-  'src/ai-gateway/mitm/proxyPlane.cjs',
-  'src/ai-gateway/sse/transportPlane.ts',
-  'src/ai-gateway/sse/compat/openSseCompat.ts',
+  'src/zavorth-control/lib/db/storagePlane.ts',
+  'src/zavorth-control/lib/db/jsonBackupAdapters.ts',
+  'src/zavorth-control/lib/oauth/authPlane.ts',
+  'src/zavorth-control/mitm/proxyPlane.cjs',
+  'src/zavorth-control/sse/transportPlane.ts',
+  'src/zavorth-control/sse/compat/openSseCompat.ts',
 ];
 
 const scanExtensions = new Set([
@@ -59,7 +59,7 @@ const failures = [];
 const notes = [];
 
 if (!fs.existsSync(aiGatewayRoot)) {
-  failures.push('src/ai-gateway: missing');
+  failures.push('src/zavorth-control: missing');
 } else {
   checkFreezeDoc();
   checkCompatibilityBoundaryFiles();
@@ -75,27 +75,27 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('[native-boundary] ok: ai-gateway boundary, compatibility register, dead residual guard, and legacy residue scan passed.');
+console.log('[native-boundary] ok: zavorth-control boundary, compatibility register, dead residual guard, and legacy residue scan passed.');
 for (const note of notes) {
   console.log(`[native-boundary] ${note}`);
 }
 
 function checkFreezeDoc() {
   if (!fs.existsSync(freezeDocPath)) {
-    failures.push('src/ai-gateway/NATIVE_BOUNDARY.md: missing active boundary document');
+    failures.push('src/zavorth-control/NATIVE_BOUNDARY.md: missing active boundary document');
     return;
   }
 
   const content = fs.readFileSync(freezeDocPath, 'utf8');
   for (const snippet of requiredFreezeSnippets) {
     if (!content.includes(snippet)) {
-      failures.push(`src/ai-gateway/NATIVE_BOUNDARY.md: missing "${snippet}"`);
+      failures.push(`src/zavorth-control/NATIVE_BOUNDARY.md: missing "${snippet}"`);
     }
   }
 
   for (const relativePath of requiredCompatibilityBoundaries) {
     if (!content.includes(relativePath)) {
-      failures.push(`src/ai-gateway/NATIVE_BOUNDARY.md: boundary register missing ${relativePath}`);
+      failures.push(`src/zavorth-control/NATIVE_BOUNDARY.md: boundary register missing ${relativePath}`);
     }
   }
 }
@@ -132,7 +132,7 @@ function checkForbiddenResidues() {
     });
   }
 
-  notes.push(`scanned ${files.length} ai-gateway text file(s) for forbidden legacy residues`);
+  notes.push(`scanned ${files.length} zavorth-control text file(s) for forbidden legacy residues`);
 }
 
 function checkDeadResidualFiles() {

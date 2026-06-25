@@ -5,13 +5,13 @@ import { join } from 'node:path';
 const root = process.cwd();
 
 const files = {
-  contract: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlAdvancedInteractionContracts.ts',
-  component: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlAdvancedInteractionPanel.tsx',
-  chat: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx',
-  shell: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
-  hook: 'src/ai-gateway/app/(zavorthControl)/control/useControlPageClient.ts',
-  types: 'src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.types.ts',
-  css: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css',
+  contract: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlAdvancedInteractionContracts.ts',
+  component: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlAdvancedInteractionPanel.tsx',
+  chat: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx',
+  shell: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
+  hook: 'src/zavorth-control/app/(zavorthControl)/control/useControlPageClient.ts',
+  types: 'src/zavorth-control/app/(zavorthControl)/control/zavorthControlPageClient.types.ts',
+  css: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css',
   packageJson: 'package.json',
   productGate: 'scripts/zavorth-product-readiness-gate.mjs',
 };

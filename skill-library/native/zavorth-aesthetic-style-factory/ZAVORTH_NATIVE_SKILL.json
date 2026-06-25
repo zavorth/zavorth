@@ -22,7 +22,7 @@
     "refined css",
     "aesthetic score"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

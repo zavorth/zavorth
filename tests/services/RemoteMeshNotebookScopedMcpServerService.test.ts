@@ -3,8 +3,8 @@ import type { Server } from 'node:http';
 import type {
   RemoteMeshNotebookDockerObservabilityProvider,
   RemoteMeshNotebookProjectFileReadProvider,
-} from '../../src/services/RemoteMeshNotebookScopedMcpServerService.js';
-import { RemoteMeshNotebookScopedMcpServerService } from '../../src/services/RemoteMeshNotebookScopedMcpServerService.js';
+} from '@zavorth/mesh/RemoteMeshNotebookScopedMcpServerService.js';
+import { RemoteMeshNotebookScopedMcpServerService } from '@zavorth/mesh/RemoteMeshNotebookScopedMcpServerService.js';
 import { RemoteMeshSandboxScopedMcpStatusTransportService } from '../../src/services/RemoteMeshSandboxScopedMcpStatusTransportService.js';
 import type { RemoteMeshSandboxReadinessSnapshot } from '../../src/contracts/RemoteMeshSandboxReadinessContract.js';
 import { ZAVORTH_REMOTE_MESH_SANDBOX_R0_CONTRACT_VERSION } from '../../src/contracts/RemoteMeshSandboxReadinessContract.js';

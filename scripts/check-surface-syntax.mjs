@@ -5,9 +5,9 @@ import ts from 'typescript';
 const root = process.cwd();
 const targetDefinitions = [
   {
-    id: 'ai-gateway',
-    label: 'ai-gateway',
-    path: path.join(root, 'src', 'ai-gateway'),
+    id: 'zavorth-control',
+    label: 'zavorth-control',
+    path: path.join(root, 'src', 'zavorth-control'),
   },
   {
     id: 'web-components',

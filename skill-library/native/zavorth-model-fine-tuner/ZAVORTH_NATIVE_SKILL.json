@@ -6,11 +6,24 @@
   "category": "ml",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["fine-tuning", "training", "models"],
-  "presets": ["developer"],
-  "inputContract": ["base model", "training dataset", "hyperparameter configs"],
-  "outputContract": ["model artifacts", "evaluation reports"],
+  "capabilityTags": [
+    "fine-tuning",
+    "training",
+    "models"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "base model",
+    "training dataset",
+    "hyperparameter configs"
+  ],
+  "outputContract": [
+    "model artifacts",
+    "evaluation reports"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

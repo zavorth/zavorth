@@ -175,7 +175,7 @@ function resolveAIGatewayUpstreamWorktree(): string | null {
     return configured;
   }
 
-  const legacy = path.resolve(config.projectRoot, 'src', 'ai-gateway');
+  const legacy = path.resolve(config.projectRoot, 'src', 'zavorth-control');
   if (fs.existsSync(path.join(legacy, 'package.json'))) {
     return legacy;
   }
@@ -342,7 +342,7 @@ async function main() {
 
   const processes: ManagedProcess[] = [
     {
-      name: 'ai-gateway-upstream',
+      name: 'zavorth-control-upstream',
       command: process.platform === 'win32' ? 'npm.cmd' : 'npm',
       args: ['run', 'dev'],
       cwd: upstreamCwd || workspaceRoot,
@@ -355,7 +355,7 @@ async function main() {
       cooldownMs: RESTART_DELAY_MS,
     },
     {
-      name: 'ai-gateway-proxy',
+      name: 'zavorth-control-proxy',
       command: process.execPath,
       args: [path.resolve(config.projectRoot, 'scripts', 'start-ai-gateway-runtime.mjs')],
       cwd: workspaceRoot,
@@ -394,8 +394,8 @@ async function main() {
 
   const registry = new NodeRegistryService();
   const healthByName: Record<string, ProcessHealth> = {
-    'ai-gateway-upstream': {
-      name: 'ai-gateway-upstream',
+    'zavorth-control-upstream': {
+      name: 'zavorth-control-upstream',
       ready: false,
       lastCheckAt: null,
       lastStartAt: null,
@@ -403,8 +403,8 @@ async function main() {
       lastError: null,
       restarts: 0,
     },
-    'ai-gateway-proxy': {
-      name: 'ai-gateway-proxy',
+    'zavorth-control-proxy': {
+      name: 'zavorth-control-proxy',
       ready: false,
       lastCheckAt: null,
       lastStartAt: null,

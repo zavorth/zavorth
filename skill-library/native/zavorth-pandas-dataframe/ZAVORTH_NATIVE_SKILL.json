@@ -6,11 +6,23 @@
   "category": "data-science",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["pandas", "python", "data-analysis"],
-  "presets": ["developer"],
-  "inputContract": ["CSV/JSON data", "transformation requirements"],
-  "outputContract": ["data reports", "visualizations"],
+  "capabilityTags": [
+    "pandas",
+    "python",
+    "data-analysis"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "CSV/JSON data",
+    "transformation requirements"
+  ],
+  "outputContract": [
+    "data reports",
+    "visualizations"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

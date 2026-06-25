@@ -371,4 +371,66 @@ describe('Zavorth Setup Studio command', () => {
       }
     }
   });
+
+  it('applies configuration directly and completes conversational setup in non-interactive mode', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-setup-noninteractive-'));
+    tempDirs.push(root);
+
+    // Create a BOOTSTRAP.md file to simulate a fresh install
+    fs.writeFileSync(path.join(root, 'BOOTSTRAP.md'), '# Bootstrapping', 'utf8');
+
+    const result = await runZavorthSetupStudioCommand({
+      projectRoot: root,
+      args: [
+        '--non-interactive',
+        '--provider=openai',
+        '--model=gpt-4o',
+        '--key=sk-secret-key-non-interactive',
+      ],
+      now: () => new Date('2026-05-22T12:00:00.000Z'),
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.applied).toBe(true);
+
+    // Check .env values
+    const envContent = fs.readFileSync(path.join(root, '.env'), 'utf8');
+    expect(envContent).toContain('ZAVORTH_DEFAULT_PROVIDER=openai');
+    expect(envContent).toContain('OPENAI_API_KEY=sk-secret-key-non-interactive');
+
+    // Conversational setup should auto-complete (since --skip-conversational is absent)
+    expect(fs.existsSync(path.join(root, 'IDENTITY.md'))).toBe(true);
+    expect(fs.existsSync(path.join(root, 'USER.md'))).toBe(true);
+    expect(fs.existsSync(path.join(root, 'BOOTSTRAP.md'))).toBe(false); // Deleted during setup
+    expect(result.output).toContain('Conversational setup completed automatically');
+  });
+
+  it('skips conversational setup in non-interactive mode when --skip-conversational is passed', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-setup-skip-conversational-'));
+    tempDirs.push(root);
+
+    fs.writeFileSync(path.join(root, 'BOOTSTRAP.md'), '# Bootstrapping', 'utf8');
+
+    const result = await runZavorthSetupStudioCommand({
+      projectRoot: root,
+      args: [
+        '--non-interactive',
+        '--provider=local',
+        '--skip-conversational',
+      ],
+      now: () => new Date('2026-05-22T12:00:00.000Z'),
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.applied).toBe(true);
+
+    // .env should be updated
+    const envContent = fs.readFileSync(path.join(root, '.env'), 'utf8');
+    expect(envContent).toContain('ZAVORTH_DEFAULT_PROVIDER=local');
+
+    // Conversational files should NOT be created
+    expect(fs.existsSync(path.join(root, 'IDENTITY.md'))).toBe(false);
+    expect(fs.existsSync(path.join(root, 'BOOTSTRAP.md'))).toBe(true); // NOT deleted
+    expect(result.output).not.toContain('Conversational setup completed automatically');
+  });
 });

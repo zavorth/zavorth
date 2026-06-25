@@ -23,7 +23,7 @@
     "diagram code",
     "rendered path"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

@@ -1,8 +1,8 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
 import {
   buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection,
   buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.js';
 import { AgentRunService, AgentTeamCompilerService } from '../../../src/runtime/agent/index.js';
 import { ZavorthDynamicWorkflowService } from '../../../src/services/ZavorthDynamicWorkflowService.js';
 import { ZavorthEffortControlService } from '../../../src/services/ZavorthEffortControlService.js';

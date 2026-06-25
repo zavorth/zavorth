@@ -68,7 +68,7 @@ function contract(): ModelPickerContract {
     label: 'OpenAI',
     vendorId: 'openai',
     providerIds: ['openai'],
-    defaultModelName: 'gpt-5.2',
+    defaultModelName: 'gpt-4o',
     secondaryModelNames: [],
     fallbackModelNames: [],
     primaryRouteId: 'openai',
@@ -87,7 +87,7 @@ function contract(): ModelPickerContract {
     aliases: [],
     requirements: ['OPENAI_API_KEY'],
     credentialRefs: ['OPENAI_API_KEY'],
-    currentModelName: 'gpt-5.2',
+    currentModelName: 'gpt-4o',
     secondaryModelNames: [],
     fallbackModelNames: [],
     fallbackRouteIds: [],
@@ -114,8 +114,8 @@ function contract(): ModelPickerContract {
       source: 'current-config',
       providerName: 'openai',
       providerLabel: 'OpenAI API',
-      modelName: 'gpt-5.2',
-      modelLabel: 'gpt-5.2',
+      modelName: 'gpt-4o',
+      modelLabel: 'gpt-4o',
       routeId: 'openai',
       familyId: 'openai',
       vendorId: 'openai',
@@ -137,7 +137,7 @@ function contract(): ModelPickerContract {
         providerId: 'openai',
         routeId: 'openai',
         routeKind: 'official',
-        modelId: 'gpt-5.2',
+        modelId: 'gpt-4o',
         credentialRef: 'OPENAI_API_KEY',
         credentialKind: 'api_key',
         catalogSource: 'live_api',
@@ -179,7 +179,7 @@ describe('ModelSelectionService', () => {
 
     expect(result.compatibility).toEqual(expect.objectContaining({
       providerName: 'openai',
-      modelName: 'gpt-5.2',
+      modelName: 'gpt-4o',
     }));
     expect(result.compatibility.fallbackOrder).toContain('anthropic');
   });

@@ -32,8 +32,8 @@ const rules = [
     label: 'ZavorthControl consumes Agent Gateway snapshot',
     target: '/zavorthControl can render ZavorthAgentGatewaySnapshot instead of rebuilding a parallel runtime',
     files: [
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.ts',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.ts',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.ts',
     ],
     needles: [
       'ZavorthAgentGatewaySnapshot',
@@ -61,7 +61,7 @@ const rules = [
     target: 'agent runs carry budget/route correlation and ZavorthControl reads it',
     files: [
       'src/runtime/agent/AgentRunLlmRouteReceipt.ts',
-      'src/ai-gateway/app/(dashboard)/control/command-center/adapters/dashboardCommandCenterRunObservability.ts',
+      'src/zavorth-control/app/(dashboard)/control/command-center/adapters/dashboardCommandCenterRunObservability.ts',
     ],
     needles: [
       'providerRouteBudgetCorrelation',
@@ -100,10 +100,10 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[ai-gateway-native-convergence] checking C8 convergence');
+  console.log('[zavorth-control-native-convergence] checking C8 convergence');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
-    console.log(`[ai-gateway-native-convergence] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
+    console.log(`[zavorth-control-native-convergence] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
     for (const detail of rule.details.slice(0, 8)) {
       console.log(`  - ${detail}`);
     }

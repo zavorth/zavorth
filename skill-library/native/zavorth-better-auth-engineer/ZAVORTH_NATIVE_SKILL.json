@@ -21,7 +21,7 @@
     "auth setup code",
     "session schema"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

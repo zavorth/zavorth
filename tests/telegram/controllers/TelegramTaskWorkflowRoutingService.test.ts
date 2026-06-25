@@ -163,7 +163,7 @@ describe('TelegramTaskWorkflowRoutingService', () => {
         {
           workflow: 'ship',
           role: 'implement',
-          executor: 'external_executor',
+          executor: 'externalexecutor',
           success_count: 2,
           pending_count: 0,
           failed_count: 1,

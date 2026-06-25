@@ -8,7 +8,7 @@ import {
   ZavorthSpeculativeAutonomyService,
   type ZavorthSpeculativeDockerValidationRunner,
   type ZavorthSpeculativeCommandRunner,
-} from '../../src/services/ZavorthSpeculativeAutonomyService.js';
+} from '@zavorth/autonomy/ZavorthSpeculativeAutonomyService.js';
 import { ZavorthMutationPlaneService } from '../../src/services/ZavorthMutationPlaneService.js';
 
 describe('ZavorthSpeculativeAutonomyService', () => {

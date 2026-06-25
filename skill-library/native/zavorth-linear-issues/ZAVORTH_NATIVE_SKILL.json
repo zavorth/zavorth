@@ -6,11 +6,24 @@
   "category": "productivity",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["linear", "issues", "project-management"],
-  "presets": ["developer"],
-  "inputContract": ["issue definitions", "project configs", "cycle parameters"],
-  "outputContract": ["documents", "project artifacts"],
+  "capabilityTags": [
+    "linear",
+    "issues",
+    "project-management"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "issue definitions",
+    "project configs",
+    "cycle parameters"
+  ],
+  "outputContract": [
+    "documents",
+    "project artifacts"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }
