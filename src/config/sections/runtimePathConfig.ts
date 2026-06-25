@@ -397,6 +397,7 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
       path.resolve(projectRoot, 'config', 'mcp-servers.json'),
     hostSupervisorLockFile: path.resolve(projectRoot, 'data', 'runtime', 'host-supervisor.lock.json'),
     hostAutoRepairStateFile: path.resolve(projectRoot, 'data', 'runtime', 'host-autorepair-state.json'),
+    processLockFile: path.resolve(projectRoot, 'data', 'runtime', 'zavorth-runtime.lock.json'),
     telegramProcessLockFile: path.resolve(projectRoot, 'data', 'runtime', 'telegram-bot.lock.json'),
     gatewaySessionLedgerDir:
       process.env.ZAVORTH_GATEWAY_SESSION_LEDGER_DIR ||

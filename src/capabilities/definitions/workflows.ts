@@ -1,0 +1,52 @@
+import { CapabilityDefinition } from '../../contracts/CapabilityContract.js';
+
+export const WORKFLOW_CAPABILITIES: CapabilityDefinition[] = [
+  {
+    id: 'command.external-review',
+    label: 'External Review',
+    type: 'workflow',
+    description: 'Roda o pipeline maker+reviewer por executor externo governado.',
+    intent: 'workflow_execution',
+    executor_preference: 'workflow:review',
+    dispatch_mode: 'execution',
+    requires_planning: false,
+    routing_reason: 'Comando explicito para o workflow review.',
+    routing_confidence: 1,
+    command: {
+      command: 'external_review',
+      aliases: ['external-review'],
+      description: 'Pipeline maker+reviewer por executor externo governado.',
+      usage: '<objetivo>',
+      section: 'execution',
+      privateMenu: false,
+      groupMenu: false,
+      explicit_executor: 'workflow:review',
+      handler_action: 'workflow_named',
+      handler_config: {
+        workflow: 'review',
+      },
+    },
+  },
+  {
+    id: 'command-workflow',
+    label: 'Workflow',
+    type: 'workflow',
+    description: 'Executa workflows compostos entre executores.',
+    intent: 'workflow_execution',
+    executor_preference: null,
+    dispatch_mode: 'execution',
+    requires_planning: false,
+    routing_reason: 'Comando explicito para um workflow composto.',
+    routing_confidence: 1,
+    command: {
+      command: 'workflow',
+      description: 'Workflow composto entre executores.',
+      usage: '<review|ship|research|sdd> <objetivo|feature-id>',
+      section: 'execution',
+      privateMenu: false,
+      groupMenu: false,
+      explicit_executor: null,
+      handler_action: 'workflow_dynamic',
+    },
+  },
+];

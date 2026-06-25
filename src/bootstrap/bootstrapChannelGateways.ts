@@ -10,9 +10,17 @@ export async function startChannelGateways(
   surfaceRuntime: BootstrapSurfaceRuntime,
   supervisor: BootstrapSupervisor,
 ): Promise<void> {
-  supervisor.updateProgress('telegram-gateway');
-  console.log('[BOOT] telegram-gateway');
-  await surfaceRuntime.botGateway.start();
+  await startOptionalGateway({
+    capabilityId: 'telegram',
+    start: async () => {
+      supervisor.updateProgress('telegram-gateway');
+      console.log('[BOOT] telegram-gateway');
+      await surfaceRuntime.botGateway.start();
+    },
+    activeMessage: 'Telegram gateway active on boot.',
+    dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not warm up Telegram.`,
+    foundation,
+  });
 
   await startOptionalGateway({
     capabilityId: 'discord',

@@ -1,0 +1,39 @@
+import { MessageChannel, PlatformGatewayContract, PlatformKey } from './PlatformContract.js';
+
+export type MessageTransportKind = 'text' | 'slash_command' | 'interaction';
+
+export type MessageAttachment = {
+  id?: string | null;
+  name?: string | null;
+  url?: string | null;
+  contentType?: string | null;
+  size?: number | null;
+};
+
+export interface IMessageContext {
+  platform: MessageChannel;
+  userId: string;
+  chatId: string;
+  isGroup: boolean;
+  rawText: string;
+  messageId?: string | null;
+  channelId?: string | null;
+  threadId?: string | null;
+  transport?: MessageTransportKind;
+  attachments?: MessageAttachment[];
+  inlineData?: Array<{ mimeType: string; data: string }>;
+  composerPayload?: Record<string, any> | null;
+  nativeCommand?: {
+    name: string;
+    args?: string | null;
+    options?: Record<string, any> | null;
+  } | null;
+  reply: (text: string, options?: any) => Promise<void>;
+  editMessage: (messageId: string, text: string) => Promise<void>;
+}
+
+export interface IMessageBroker {
+  registerGateway(platform: PlatformKey, gateway: PlatformGatewayContract): void;
+  processMessage(ctx: IMessageContext): Promise<void>;
+  broadcast(message: string, roles?: string[]): Promise<void>;
+}
