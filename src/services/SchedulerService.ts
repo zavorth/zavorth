@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { v4 as uuidv4 } from 'uuid';
 import { SchedulerRepository, type ScheduledTask } from '../storage/SchedulerRepository.js';
 import type { ZavorthAutomationDeliveryService } from './ZavorthAutomationDeliveryService.js';
@@ -144,7 +145,7 @@ export class SchedulerService {
   public start(dispatcher: CommandDispatcher): void {
     if (!this.runtimeProfile.supportsRecurringAutomation()) {
       this.dispatcher = dispatcher;
-      console.log('SchedulerService em modo preview: perfil core nao inicia loop recorrente.');
+      logger.info('SchedulerService em modo preview: perfil core nao inicia loop recorrente.');
       return;
     }
     this.dispatcher = dispatcher;
@@ -157,7 +158,7 @@ export class SchedulerService {
       void this.tick();
     }, 30000);
     this.timer.unref?.();
-    console.log('SchedulerService iniciado.');
+    logger.info('SchedulerService iniciado.');
   }
 
   public stop(): void {
@@ -200,7 +201,7 @@ export class SchedulerService {
       created_by: userId,
       status: 'active',
       intent_text: String(options.intentText || '').trim() || command,
-      delivery: options.delivery || 'telegram',
+      delivery: options.delivery || 'app',
       delivery_target: String(options.deliveryTarget || '').trim() || null,
       last_status: 'idle',
       last_error: null,
@@ -439,14 +440,14 @@ export class SchedulerService {
               summary: `Automacao pausada automaticamente: ${pausedReason}. Ultimo erro: ${error?.message || String(error)}`,
             });
           }
-          console.error(`Erro ao disparar tarefa agendada ${task.id}:`, error);
+          logger.error(`Erro ao disparar tarefa agendada ${task.id}:`, error);
         } finally {
           this.runningCount = Math.max(0, this.runningCount - 1);
           this.runningTaskIds.delete(task.id);
         }
       }
     } catch (error) {
-      console.error('Erro no tick do SchedulerService:', error);
+      logger.error('Erro no tick do SchedulerService:', error);
     }
   }
 

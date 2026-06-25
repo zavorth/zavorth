@@ -114,23 +114,23 @@ export class SupervisedRuntimeService {
       readFileSync: this.readFileSync,
       kill: this.killFn,
       hostLockFilePath: config.hostSupervisorLockFile,
-      workerLockFilePath: config.telegramProcessLockFile,
+      workerLockFilePath: config.processLockFile,
     });
   }
 
   public inspect(): SupervisedRuntimeInspection {
     const hostSupervisor = this.readLockSnapshot(config.hostSupervisorLockFile);
-    const telegramWorker = this.readLockSnapshot(config.telegramProcessLockFile);
+    const runtimeWorker = this.readLockSnapshot(config.processLockFile);
     return {
       projectRoot: this.projectRoot,
       ...this.readGitState(),
       installRequired: this.testNpmInstallRequired(this.projectRoot),
       buildRequired: this.testBuildRequired(),
       hostSupervisor,
-      telegramWorker,
+      telegramWorker: runtimeWorker,
       accessReadiness: this.accessReadinessService.inspect({
         hostSupervisor,
-        telegramWorker,
+        telegramWorker: runtimeWorker,
       }),
       lastReloadReport: this.readLastReloadReport(),
     };
@@ -138,17 +138,17 @@ export class SupervisedRuntimeService {
 
   public async inspectLive(): Promise<SupervisedRuntimeInspection> {
     const hostSupervisor = this.readLockSnapshot(config.hostSupervisorLockFile);
-    const telegramWorker = this.readLockSnapshot(config.telegramProcessLockFile);
+    const runtimeWorker = this.readLockSnapshot(config.processLockFile);
     return {
       projectRoot: this.projectRoot,
       ...this.readGitState(),
       installRequired: this.testNpmInstallRequired(this.projectRoot),
       buildRequired: this.testBuildRequired(),
       hostSupervisor,
-      telegramWorker,
+      telegramWorker: runtimeWorker,
       accessReadiness: await this.accessReadinessService.inspectLive({
         hostSupervisor,
-        telegramWorker,
+        telegramWorker: runtimeWorker,
       }),
       lastReloadReport: this.readLastReloadReport(),
     };

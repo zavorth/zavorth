@@ -148,7 +148,7 @@ export class ZavorthAutomationControlPlaneService {
       prompt: String(entry.intent_text || entry.command || '').trim(),
       schedule: scheduler.describeSchedule(entry.schedule),
       status: String(entry.last_status || entry.status || 'idle'),
-      delivery: String(entry.delivery || 'telegram'),
+      delivery: String(entry.delivery || 'app'),
       nextRun: entry.next_run || null,
       lastRun: entry.last_run || null,
       lastError: entry.last_error || null,

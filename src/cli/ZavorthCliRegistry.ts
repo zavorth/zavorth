@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { LoopEngineeringService } from '../services/LoopEngineeringService.js';
 import { globalSpinner } from './presentation/TerminalSpinner.js';
 import readline from 'readline/promises';
 import type { Interface as ReadlineInterface } from 'readline/promises';
@@ -146,19 +147,19 @@ import { StitchExecutor } from '../execution/StitchExecutor.js';
 import { AiStudioExecutor } from '../execution/AiStudioExecutor.js';
 import { HostIdentityService } from '../services/HostIdentityService.js';
 import { BridgeManager } from '../orchestrator/BridgeManager.js';
-import { VideoHandler } from '../telegram/VideoHandler.js';
-import { TelegramConversationController } from '../telegram/controllers/TelegramConversationController.js';
-import { TelegramExecutionController } from '../telegram/controllers/TelegramExecutionController.js';
-import { TelegramPermissionController } from '../telegram/controllers/TelegramPermissionController.js';
-import { TelegramPipelineController } from '../telegram/controllers/TelegramPipelineController.js';
-import { TelegramTaskOrchestrationController } from '../telegram/controllers/TelegramTaskOrchestrationController.js';
-import { CommandParser } from '../telegram/CommandParser.js';
+import { VideoHandler } from '../gateways/channels/telegram/VideoHandler.js';
+import { TelegramConversationController } from '../gateways/channels/telegram/controllers/TelegramConversationController.js';
+import { TelegramExecutionController } from '../gateways/channels/telegram/controllers/TelegramExecutionController.js';
+import { TelegramPermissionController } from '../gateways/channels/telegram/controllers/TelegramPermissionController.js';
+import { TelegramPipelineController } from '../gateways/channels/telegram/controllers/TelegramPipelineController.js';
+import { TelegramTaskOrchestrationController } from '../gateways/channels/telegram/controllers/TelegramTaskOrchestrationController.js';
+import { CommandParser } from '../gateways/channels/telegram/CommandParser.js';
 import { AuditLogger } from '../monitoring/AuditLogger.js';
 import { MultiAgentPipeline } from '../runtime/workflows/MultiAgentPipeline.js';
 import { OperatorModeService } from '../services/OperatorModeService.js';
 import { PresentationModeService } from '../services/PresentationModeService.js';
 import { WorkspaceProfileService } from '../services/WorkspaceProfileService.js';
-import { extractTaskPayload, getDefaultWorkspace, persistTask } from '../telegram/TelegramTaskSupport.js';
+import { extractTaskPayload, getDefaultWorkspace, persistTask } from '../gateways/channels/telegram/TelegramTaskSupport.js';
 import {
   formatAutoRepairRunResult as renderAutoRepairRunResult,
   formatRuntimeAccessReadinessReport as renderRuntimeAccessReadinessReport,
@@ -260,22 +261,10 @@ import { formatLayeredMemoryMetrics } from './ZavorthCliRenderers.js';
 import { formatCliChatAssistantMessage } from './ZavorthCliChatRenderers.js';
 import {
   formatExperienceCommandResult,
-  formatExperienceDiffs,
   formatExperienceHome,
-  formatExperienceHud,
-  formatExperienceLearning,
-  formatExperiencePulse,
 } from './ZavorthCliExperienceRenderer.js';
 import { formatZavorthSelfHealingProjection } from './ZavorthCliSelfHealingRenderer.js';
 import { ZavorthSelfHealingUxService } from '../services/ZavorthSelfHealingUxService.js';
-import {
-  DashboardAccessService,
-  parseDashboardAccessAction,
-  type DashboardAccessDoctorSnapshot,
-  type DashboardAccessSnapshot,
-} from '../services/DashboardAccessService.js';
-import { ZavorthProductDemoService } from '../services/ZavorthProductDemoService.js';
-import { ZavorthConnectorExperienceService } from '../services/ZavorthConnectorExperienceService.js';
 import { ZavorthSmartCommandSurfaceService } from '../services/ZavorthSmartCommandSurfaceService.js';
 import {
   formatCliChatReplyEventCard,
@@ -302,6 +291,10 @@ import { handleZavorthCliRegistrySupervisorCommand } from './ZavorthCliRegistryS
 import { handleZavorthCliRegistryHealCommand } from './ZavorthCliRegistryHeal.js';
 import { handleZavorthCliRegistryReleaseCommand } from './ZavorthCliRegistryRelease.js';
 import { handleZavorthCliRegistryWorkspaceCommand } from './ZavorthCliRegistryWorkspace.js';
+import { handleZavorthCliRegistryExperienceCommand } from './ZavorthCliRegistryExperience.js';
+import { handleZavorthCliRegistryDashboardCommand } from './ZavorthCliRegistryDashboard.js';
+import { handleZavorthCliRegistryConnectorsCommand } from './ZavorthCliRegistryConnectors.js';
+import { handleZavorthCliRegistryScaffoldCommand } from './ZavorthCliRegistryScaffold.js';
 import { handleZavorthUpdateCommand } from './update/ZavorthUpdateCommand.js';
 import { handleZavorthCompletionsCommand } from './completions/ZavorthCompletionsCommand.js';
 import { handleZavorthInspectCommand } from './inspect/ZavorthInspectCommand.js';
@@ -442,6 +435,47 @@ async function executeZavorthCliCommandInner(params: {
   const commandName = String(resolvedInput.commandName || '').trim().toLowerCase() || null;
   const args = resolvedInput.args;
 
+  // Intercept state machine and handle loop command
+  const sessionId = effectiveFlags.sessionId || 'default';
+  const loopService = new LoopEngineeringService();
+  const sessionState = await loopService.getSessionState(sessionId);
+  const cleanedInput = normalized.trim().toLowerCase();
+
+  if (cleanedInput === 'quit' || cleanedInput === 'exit' || cleanedInput === '/reset' || cleanedInput === 'reset') {
+    if (sessionState.status !== 'IDLE') {
+      await loopService.clearSessionState(sessionId);
+    }
+  } else if (sessionState.status === 'WAITING_FOR_LOOP_MODE' || sessionState.status === 'GRILLING') {
+    const reply = await loopService.processInput(sessionId, effectiveFlags.userId || 'cli-operator', normalized);
+    writer.line(reply);
+    return { ok: true, handled: true, output: [reply], error: null };
+  }
+
+  if (commandName === 'loop') {
+    const isAuto = args.includes('--auto');
+    const isGrill = args.includes('--grill');
+    const taskDescription = args
+      .replace(/--auto/g, '')
+      .replace(/--grill/g, '')
+      .trim()
+      .replace(/^['"]|['"]$/g, '')
+      .trim();
+
+    if (!taskDescription) {
+      const error = 'O comando loop exige a descrição de uma tarefa. Ex: loop "implementar calculadora"';
+      writer.error(error);
+      return { ok: false, handled: true, output: [], error };
+    }
+
+    const reply = await loopService.initiateLoop(sessionId, taskDescription, {
+      auto: isAuto,
+      grill: isGrill,
+      userId: effectiveFlags.userId,
+    });
+    writer.line(reply);
+    return { ok: true, handled: true, output: [reply], error: null };
+  }
+
   if (!normalized) {
     const runtime = await resolveRuntime();
     const snapshot = runtime.experienceCoreService?.buildHome({
@@ -477,171 +511,16 @@ async function executeZavorthCliCommandInner(params: {
     return { ok: true, handled: true, output: [body], error: null };
   }
 
-  if (commandName === 'home' || commandName === 'experience') {
-    const runtime = await resolveRuntime();
-    const snapshot = runtime.experienceCoreService?.buildHome({
-      surface: effectiveFlags.platform,
-      userId: effectiveFlags.userId,
-      sessionId: effectiveFlags.sessionId,
-      workspace: effectiveFlags.workspaceHint || null,
-    });
-    const body = effectiveFlags.json
-      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core indisponivel.' }, null, 2)
-      : snapshot
-        ? formatExperienceHome(snapshot)
-        : 'Experience Core indisponivel neste runtime.';
-    writer.line(body);
-    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
-  }
-
-  if (commandName === 'pulse') {
-    const runtime = await resolveRuntime();
-    const responseProfile = parseExperienceResponseProfile(args || normalized);
-    if (responseProfile && runtime.experienceCoreService) {
-      await runtime.experienceCoreService.executeCommand({
-        contractVersion: 'ExperienceCommand/v1',
-        text: `use estilo ${responseProfile}`,
-        intent: 'ask',
-        surface: effectiveFlags.platform,
-        userId: effectiveFlags.userId,
-        sessionId: effectiveFlags.sessionId,
-        workspace: effectiveFlags.workspaceHint || null,
-        responseProfile,
-      });
-    }
-    const snapshot = runtime.experienceCoreService?.buildHome({
-      surface: effectiveFlags.platform,
-      userId: effectiveFlags.userId,
-      sessionId: effectiveFlags.sessionId,
-      workspace: effectiveFlags.workspaceHint || null,
-      responseProfile,
-    });
-    const body = effectiveFlags.json
-      ? JSON.stringify(snapshot?.daily?.pulse || { ok: false, error: 'Zavorth Pulse indisponivel.' }, null, 2)
-      : snapshot
-        ? formatExperiencePulse(snapshot)
-        : 'Zavorth Pulse indisponivel neste runtime.';
-    writer.line(body);
-    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Zavorth Pulse unavailable.' };
-  }
-
-  if (commandName === 'hud') {
-    const runtime = await resolveRuntime();
-    const snapshot = runtime.experienceCoreService?.buildHome({
-      surface: effectiveFlags.platform,
-      userId: effectiveFlags.userId,
-      sessionId: effectiveFlags.sessionId,
-      workspace: effectiveFlags.workspaceHint || null,
-      responseProfile: parseExperienceResponseProfile(args || normalized),
-    });
-    const body = effectiveFlags.json
-      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core indisponivel.' }, null, 2)
-      : snapshot
-        ? formatExperienceHud(snapshot)
-        : 'Experience Core indisponivel neste runtime.';
-    writer.line(body);
-    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
-  }
-
-  if (commandName === 'diff') {
-    const runtime = await resolveRuntime();
-    if (runtime.experienceCoreService) {
-      const diffDecision = parseExperienceDiffCliArgs(args);
-      if (diffDecision) {
-        const result = await runtime.experienceCoreService.executeCommand({
-          contractVersion: 'ExperienceCommand/v1',
-          text: `diff ${args}`.trim(),
-          intent: 'run',
-          surface: effectiveFlags.platform,
-          userId: effectiveFlags.userId,
-          sessionId: effectiveFlags.sessionId,
-          workspace: effectiveFlags.workspaceHint || null,
-          diffDecision,
-        });
-        const body = effectiveFlags.json
-          ? JSON.stringify(result, null, 2)
-          : formatExperienceCommandResult(result);
-        writer.line(body);
-        return { ok: result.ok, handled: true, output: [body], error: result.error };
-      }
-      const snapshot = runtime.experienceCoreService.buildHome({
-        surface: effectiveFlags.platform,
-        userId: effectiveFlags.userId,
-        sessionId: effectiveFlags.sessionId,
-        workspace: effectiveFlags.workspaceHint || null,
-      });
-      const body = effectiveFlags.json
-        ? JSON.stringify(snapshot.diffReviews || [], null, 2)
-        : formatExperienceDiffs(snapshot);
-      writer.line(body);
-      return { ok: true, handled: true, output: [body], error: null };
-    }
-  }
-
-  if (commandName === 'ask' || commandName === 'run') {
-    const runtime = await resolveRuntime();
-    if (runtime.experienceCoreService) {
-      const requestText = args || (commandName === 'run' ? normalized : '');
-      const responseProfile = parseExperienceResponseProfile(requestText);
-      const result = await runtime.experienceCoreService.executeCommand({
-        contractVersion: 'ExperienceCommand/v1',
-        text: requestText,
-        intent: commandName === 'run' ? 'run' : 'ask',
-        surface: effectiveFlags.platform,
-        userId: effectiveFlags.userId,
-        sessionId: effectiveFlags.sessionId,
-        workspace: effectiveFlags.workspaceHint || null,
-        trustMode: 'protected',
-        responseProfile,
-        metadata: {
-          cliCommandName: commandName,
-          repl: effectiveFlags.repl,
-          headless: effectiveFlags.headless,
-          approvalMode: effectiveFlags.approvalMode || undefined,
-          responseProfile: responseProfile || undefined,
-        },
-      });
-      const body = effectiveFlags.json
-        ? JSON.stringify(result, null, 2)
-        : formatExperienceCommandResult(result);
-      writer.line(body);
-      return { ok: result.ok, handled: true, output: [body], error: result.error };
-    }
-  }
-
-  if (commandName === 'learn' || commandName === 'learning') {
-    const runtime = await resolveRuntime();
-    if (runtime.experienceCoreService) {
-      const learning = parseExperienceLearningCliArgs(args);
-      if (!learning) {
-        const snapshot = runtime.experienceCoreService.buildHome({
-          surface: effectiveFlags.platform,
-          userId: effectiveFlags.userId,
-          sessionId: effectiveFlags.sessionId,
-          workspace: effectiveFlags.workspaceHint || null,
-        });
-        const body = effectiveFlags.json
-          ? JSON.stringify(snapshot.learning, null, 2)
-          : formatExperienceLearning(snapshot);
-        writer.line(body);
-        return { ok: true, handled: true, output: [body], error: null };
-      }
-      const result = await runtime.experienceCoreService.executeCommand({
-        contractVersion: 'ExperienceCommand/v1',
-        text: `learn ${args}`.trim(),
-        intent: 'learn',
-        surface: effectiveFlags.platform,
-        userId: effectiveFlags.userId,
-        sessionId: effectiveFlags.sessionId,
-        workspace: effectiveFlags.workspaceHint || null,
-        learning,
-      });
-      const body = effectiveFlags.json
-        ? JSON.stringify(result, null, 2)
-        : formatExperienceCommandResult(result);
-      writer.line(body);
-      return { ok: result.ok, handled: true, output: [body], error: result.error };
-    }
+  const experienceResult = await handleZavorthCliRegistryExperienceCommand({
+    runtime: await resolveRuntime(),
+    effectiveFlags,
+    commandName,
+    normalized,
+    args,
+    writer,
+  });
+  if (experienceResult) {
+    return experienceResult;
   }
 
   const smartCommandSurface = new ZavorthSmartCommandSurfaceService();
@@ -665,82 +544,28 @@ async function executeZavorthCliCommandInner(params: {
     };
   }
 
-  if (commandName === 'dashboard' || commandName === 'control' || commandName === 'dashboard') {
-    const access = new DashboardAccessService();
-    const action = parseDashboardAccessAction(args);
-    const snapshot = action === 'doctor'
-      ? access.doctor()
-      : action === 'repair'
-        ? access.repair()
-        : action === 'generate-token'
-          ? access.generateToken()
-          : await access.run(action);
-    const body = effectiveFlags.json
-      ? JSON.stringify(formatDashboardAccessJson(snapshot), null, 2)
-      : formatDashboardAccessCli(snapshot);
-    writer.line(body);
-    return { ok: true, handled: true, output: [body], error: null };
+  const dashboardResult = await handleZavorthCliRegistryDashboardCommand({
+    runtime: await resolveRuntime(),
+    effectiveFlags,
+    commandName,
+    normalized,
+    args,
+    writer,
+  });
+  if (dashboardResult) {
+    return dashboardResult;
   }
 
-  if (commandName === 'start' || commandName === 'quickstart') {
-    const service = new ZavorthProductDemoService();
-    const snapshot = service.buildSnapshot();
-    const body = effectiveFlags.json
-      ? JSON.stringify(snapshot, null, 2)
-      : [
-          'Zavorth Start',
-          'One command path: setup preview, Home, optional browser demo and connector doctor.',
-          '',
-          service.renderText(snapshot),
-        ].join('\n');
-    writer.line(body);
-    return { ok: true, handled: true, output: [body], error: null };
-  }
-
-  if (commandName === 'demo') {
-    const service = new ZavorthProductDemoService();
-    const snapshot = service.buildSnapshot();
-    const wantsDoctor = /\b(?:doctor|check|status)\b/i.test(args);
-    const wantsBrowser = /\b(?:browser|visual)\b/i.test(args);
-    const body = effectiveFlags.json
-      ? JSON.stringify(snapshot, null, 2)
-      : wantsBrowser
-        ? [
-            'Zavorth Browser Demo',
-            `file: ${snapshot.visualHome.browserDemoPath}`,
-            `open: ${snapshot.visualHome.browserDemoCommand}`,
-            'This demo is local-only and does not require connector secrets.',
-          ].join('\n')
-      : wantsDoctor
-        ? service.renderDoctor(snapshot)
-        : service.renderText(snapshot);
-    writer.line(body);
-    return { ok: true, handled: true, output: [body], error: null };
-  }
-
-  if (commandName === 'connectors' || commandName === 'connector') {
-    const service = new ZavorthConnectorExperienceService();
-    const parsed = parseConnectorCliArgs(args);
-    if (parsed.action === 'setup') {
-      if (!parsed.channelId) {
-        const error = 'Use: zavorth connectors setup <telegram|discord|github> [--apply]';
-        writer.error(error);
-        return { ok: false, handled: true, output: [], error };
-      }
-      const result = parsed.apply
-        ? await service.applySetup({ ...parsed, channelId: parsed.channelId })
-        : service.buildSetup({ ...parsed, channelId: parsed.channelId });
-      const body = effectiveFlags.json ? JSON.stringify(result, null, 2) : service.renderSetup(result);
-      writer.line(body);
-      return { ok: true, handled: true, output: [body], error: null };
-    }
-    const result = await service.runDoctor({
-      selectedId: parsed.channelId,
-      localOnly: parsed.localOnly,
-    });
-    const body = effectiveFlags.json ? JSON.stringify(result, null, 2) : service.renderDoctor(result);
-    writer.line(body);
-    return { ok: true, handled: true, output: [body], error: null };
+  const connectorsResult = await handleZavorthCliRegistryConnectorsCommand({
+    runtime: await resolveRuntime(),
+    effectiveFlags,
+    commandName,
+    normalized,
+    args,
+    writer,
+  });
+  if (connectorsResult) {
+    return connectorsResult;
   }
 
   const dailyUseProjection = formatDailyUseCliProjection(commandName, args);
@@ -858,6 +683,16 @@ async function executeZavorthCliCommandInner(params: {
   const releaseResult = await handleZavorthCliRegistryReleaseCommand(sharedParams);
   if (releaseResult) {
     return releaseResult;
+  }
+
+  const scaffoldResult = await handleZavorthCliRegistryScaffoldCommand({
+    effectiveFlags,
+    commandName,
+    args,
+    writer,
+  });
+  if (scaffoldResult) {
+    return scaffoldResult;
   }
 
   if (commandName === 'workflows') {
@@ -1051,163 +886,6 @@ async function executeZavorthCliCommandInner(params: {
     output: renderedReplies,
     error: null,
   };
-}
-
-function parseExperienceLearningCliArgs(args: string): {
-  candidateId?: string | null;
-  decision: 'approve' | 'reject' | 'promote' | 'revoke' | 'reset' | 'export';
-} | null {
-  const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
-  const action = String(tokens[0] || '').trim().toLowerCase();
-  if (!action) return null;
-  if (action === 'list' || action === 'status' || action === 'review') return null;
-  if (action === 'approve' || action === 'reject' || action === 'promote' || action === 'revoke') {
-    return {
-      decision: action,
-      candidateId: tokens[1] || null,
-    };
-  }
-  if (action === 'reset' || action === 'export') {
-    return {
-      decision: action,
-      candidateId: null,
-    };
-  }
-  return null;
-}
-
-function parseExperienceResponseProfile(args: string): 'short' | 'dev' | 'executive' | 'mentor' | null {
-  const text = String(args || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  if (/\b(estilo|perfil|resposta)\s+(curto|objetivo|short)\b/.test(text) || /\b(use|usar)\s+(curto|objetivo|short)\b/.test(text)) {
-    return 'short';
-  }
-  if (/\b(estilo|perfil|resposta)\s+(dev|developer|tecnico|technical)\b/.test(text) || /\b(include|inclua).*(arquivos|testes|evidencias)\b/.test(text)) {
-    return 'dev';
-  }
-  if (/\b(estilo|perfil|resposta)\s+(executivo|executive|manager)\b/.test(text) || /\b(resuma|resumo).*(impacto|decisao)\b/.test(text)) {
-    return 'executive';
-  }
-  if (/\b(estilo|perfil|resposta)\s+(mentor|didatico|teacher)\b/.test(text) || /\b(explique|ensine).*(enquanto|passo)\b/.test(text)) {
-    return 'mentor';
-  }
-  return null;
-}
-
-function parseExperienceDiffCliArgs(args: string): {
-  reviewId: string;
-  targetId: string;
-  decision: 'approve-plan' | 'approve-file' | 'approve-hunk' | 'reject-hunk' | 'retry-without-hunk';
-} | null {
-  const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
-  const action = String(tokens[0] || '').trim().toLowerCase();
-  if (!action || action === 'list' || action === 'status' || action === 'review' || action === 'show') return null;
-  const firstId = tokens[1] || 'current';
-  const secondId = tokens[2] || firstId;
-  if (action === 'approve' || action === 'approve-plan') {
-    return { reviewId: firstId, targetId: firstId, decision: 'approve-plan' };
-  }
-  if (action === 'approve-file') {
-    return { reviewId: firstId, targetId: secondId, decision: 'approve-file' };
-  }
-  if (action === 'approve-hunk') {
-    return { reviewId: firstId, targetId: secondId, decision: 'approve-hunk' };
-  }
-  if (action === 'reject-hunk' || action === 'reject') {
-    return { reviewId: firstId, targetId: secondId, decision: 'reject-hunk' };
-  }
-  if (action === 'retry' || action === 'retry-without-hunk') {
-    return { reviewId: firstId, targetId: secondId, decision: 'retry-without-hunk' };
-  }
-  return null;
-}
-
-function formatDashboardAccessJson(
-  snapshot: DashboardAccessSnapshot | DashboardAccessDoctorSnapshot,
-): Record<string, unknown> {
-  if (isDashboardDoctorSnapshot(snapshot)) {
-    return snapshot;
-  }
-
-  const base: Record<string, unknown> = {
-    ok: true,
-    action: snapshot.action,
-    opened: snapshot.opened,
-    publicUrl: snapshot.publicUrl,
-    tokenSource: snapshot.tokenSource,
-    tokenFile: snapshot.tokenFile,
-  };
-  if (snapshot.action === 'url') {
-    base.url = snapshot.url;
-  }
-  if (snapshot.action === 'token') {
-    base.token = snapshot.token;
-  }
-  return base;
-}
-
-function parseConnectorCliArgs(args: string): {
-  action: 'doctor' | 'setup';
-  channelId: string | null;
-  mode: string | null;
-  apply: boolean;
-  localOnly: boolean;
-  allowedUserIds: string[];
-  allowedGuildIds: string[];
-  allowedChannelIds: string[];
-  ownerUserIds: string[];
-  allowDms: boolean | null;
-} {
-  const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
-  const first = String(tokens[0] || '').trim().toLowerCase();
-  const action = first === 'setup' ? 'setup' : 'doctor';
-  const positional = String(tokens[1] || '').trim();
-  const channelId = first === 'setup' || first === 'doctor'
-    ? positional && !positional.startsWith('--') ? positional : null
-    : first || null;
-  return {
-    action,
-    channelId,
-    mode: readConnectorFlag(tokens, 'mode'),
-    apply: tokens.includes('--apply'),
-    localOnly: tokens.includes('--local-only'),
-    allowedUserIds: readConnectorMany(tokens, ['allowed-user', 'allowed-users', 'user']),
-    allowedGuildIds: readConnectorMany(tokens, ['guild', 'guilds', 'allowed-guild', 'allowed-guilds']),
-    allowedChannelIds: readConnectorMany(tokens, ['channel', 'channels', 'allowed-channel', 'allowed-channels']),
-    ownerUserIds: readConnectorMany(tokens, ['owner', 'owners', 'owner-user', 'owner-users']),
-    allowDms: tokens.includes('--allow-dms')
-      ? true
-      : tokens.includes('--no-dms')
-        ? false
-        : null,
-  };
-}
-
-function readConnectorFlag(tokens: string[], name: string): string | null {
-  const inlinePrefix = `--${name}=`;
-  const inline = tokens.find((token) => token.startsWith(inlinePrefix));
-  if (inline) {
-    return inline.slice(inlinePrefix.length).trim() || null;
-  }
-  const index = tokens.indexOf(`--${name}`);
-  return index >= 0 ? String(tokens[index + 1] || '').trim() || null : null;
-}
-
-function readConnectorMany(tokens: string[], names: string[]): string[] {
-  const values: string[] = [];
-  for (const name of names) {
-    const inlinePrefix = `--${name}=`;
-    for (const token of tokens) {
-      if (token.startsWith(inlinePrefix)) {
-        values.push(token.slice(inlinePrefix.length));
-      }
-    }
-    for (let index = 0; index < tokens.length; index += 1) {
-      if (tokens[index] === `--${name}` && tokens[index + 1]) {
-        values.push(tokens[index + 1]);
-      }
-    }
-  }
-  return values;
 }
 
 function extractInlineValue(raw: string, name: string): string | null {
@@ -1481,93 +1159,4 @@ function formatDailyUseCliTable(
     for (const note of notes) lines.push(`- ${note}`);
   }
   return lines.join('\n');
-}
-
-function formatDashboardAccessCli(
-  snapshot: DashboardAccessSnapshot | DashboardAccessDoctorSnapshot,
-): string {
-  if (isDashboardDoctorSnapshot(snapshot)) {
-    const source = snapshot.tokenSource === 'env'
-      ? 'ZAVORTH_WEB_AUTH_TOKEN'
-      : snapshot.tokenSource === 'runtime-file'
-        ? 'arquivo de runtime'
-        : snapshot.tokenSource === 'generated-runtime-file'
-          ? 'arquivo de runtime gerado agora'
-          : 'ausente';
-    const problems = snapshot.problems.length > 0
-      ? snapshot.problems.map((entry: string) => `- ${entry}`).join('\n')
-      : '- Nenhum problema de token local detectado.';
-    return [
-      snapshot.action === 'doctor'
-        ? 'Dashboard doctor'
-        : snapshot.action === 'repair'
-          ? 'Dashboard repair'
-          : 'New Dashboard token',
-      `- Estado: ${snapshot.status}`,
-      `- Painel: ${snapshot.publicUrl}`,
-      `- Origem do token: ${source}`,
-      `- Arquivo local: ${snapshot.tokenFile}`,
-      '',
-      'Diagnostico',
-      problems,
-      '',
-      'Recuperacao rapida',
-      '- zavorth dashboard: abre uma aba nova ja desbloqueada',
-      '- zavorth dashboard url: mostra link local ja desbloqueado',
-      '- zavorth dashboard repair: corrige token local ausente/vazio',
-      '- zavorth dashboard generate-token: troca o token local quando ele vem de arquivo',
-      '',
-      ...snapshot.notes.map((entry: string) => `- ${entry}`),
-    ].join('\n');
-  }
-
-  if (snapshot.action === 'token') {
-    return [
-      'Token local do Zavorth',
-      '- Use este token somente nesta maquina.',
-      `- Token: ${snapshot.token}`,
-      `- Origem: ${snapshot.tokenSource === 'env' ? '.env' : snapshot.tokenFile}`,
-      '',
-      'Tip: if you only want to open the panel, use `zavorth dashboard`.',
-    ].join('\n');
-  }
-
-  if (snapshot.action === 'url') {
-    return [
-      'Local Dashboard link',
-      '- This link unlocks the panel in this tab.',
-      '- Do not share this link: it contains the local token.',
-      '',
-      snapshot.url,
-    ].join('\n');
-  }
-
-  if (snapshot.action === 'status') {
-    return [
-      'Dashboard',
-      `- Panel: ${snapshot.publicUrl}`,
-      `- Access: protected by local token (${snapshot.tokenSource === 'env' ? '.env' : 'runtime file'})`,
-      '- Open already unlocked: zavorth dashboard',
-      '- Copy the link: zavorth dashboard url',
-    ].join('\n');
-  }
-
-  return [
-    snapshot.opened ? 'Dashboard opened.' : 'Could not open the browser automatically.',
-    `- Panel: ${snapshot.publicUrl}`,
-    '- Access: unlocked automatically for this launch.',
-    '',
-    'If the page does not load, run `zavorth start` to start the local runtime and try again.',
-    snapshot.opened
-      ? 'If the browser did not appear, run `zavorth dashboard url` and paste the link.'
-      : 'Run `zavorth dashboard url` and paste the link in the browser.',
-  ].join('\n');
-}
-
-function isDashboardDoctorSnapshot(
-  snapshot: DashboardAccessSnapshot | DashboardAccessDoctorSnapshot,
-): snapshot is DashboardAccessDoctorSnapshot {
-  return snapshot.action === 'doctor'
-    || snapshot.action === 'repair'
-    || snapshot.action === 'generate-token';
 }

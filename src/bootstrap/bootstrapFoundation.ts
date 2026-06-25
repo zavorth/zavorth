@@ -63,21 +63,13 @@ export function runCapabilityPreflight(): BootstrapPreflight {
     console.log(`- ${capability.platform}: ${capability.readiness}/${capability.implementationState} (${capability.transport})`);
   }
 
-  if (!platformCapabilityService.isReady('telegram')) {
-    console.error('Nenhum canal operacional esta pronto para receber mensagens.');
-    console.error('O Telegram continua sendo o canal live do Zavorth neste runtime.');
-
-    if (!config.telegramBotToken) {
-      console.error('- TELEGRAM_BOT_TOKEN nao configurado no .env');
-    }
-
-    if (config.allowedUserIds.length === 0) {
-      console.error('- TELEGRAM_ALLOWED_USER_IDS nao configurado no .env');
-    }
+  if (summary.ready.length === 0) {
+    console.error('No operational channel is ready to receive messages.');
+    console.error('At least one channel must be configured and ready.');
 
     if (summary.partial.length > 0 || summary.planned.length > 0 || summary.disabled.length > 0) {
       console.error(
-        `- Canais nao-operacionais neste momento: ${[...summary.partial, ...summary.planned, ...summary.disabled].join(', ')}`,
+        `- Non-operational channels: ${[...summary.partial, ...summary.planned, ...summary.disabled].join(', ')}`,
       );
     }
 
@@ -98,8 +90,8 @@ export async function initializeBootstrapFoundation(
   runtimeLogMaintenanceService: RuntimeLogMaintenanceService,
 ): Promise<BootstrapFoundation> {
   console.log('[BOOT] storage-init');
-  const processLock = new ProcessLockService(config.telegramProcessLockFile);
-  processLock.acquire('telegram-long-polling');
+  const processLock = new ProcessLockService(config.processLockFile);
+  processLock.acquire('zavorth-runtime');
   process.on('exit', () => processLock.release());
 
   await Database.getInstance();
