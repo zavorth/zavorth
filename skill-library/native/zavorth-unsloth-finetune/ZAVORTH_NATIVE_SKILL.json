@@ -6,11 +6,24 @@
   "category": "ml",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["unsloth", "lora", "finetune"],
-  "presets": ["developer"],
-  "inputContract": ["model_name", "dataset", "lora_config"],
-  "outputContract": ["finetuned_model", "training_stats"],
+  "capabilityTags": [
+    "unsloth",
+    "lora",
+    "finetune"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "model_name",
+    "dataset",
+    "lora_config"
+  ],
+  "outputContract": [
+    "finetuned_model",
+    "training_stats"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

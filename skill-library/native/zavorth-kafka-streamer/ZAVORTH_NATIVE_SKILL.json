@@ -6,11 +6,23 @@
   "category": "data-engineering",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["kafka", "streaming", "messaging"],
-  "presets": ["developer"],
-  "inputContract": ["topic_config", "stream_topology"],
-  "outputContract": ["topic_created", "consumer_group_status"],
+  "capabilityTags": [
+    "kafka",
+    "streaming",
+    "messaging"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "topic_config",
+    "stream_topology"
+  ],
+  "outputContract": [
+    "topic_created",
+    "consumer_group_status"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

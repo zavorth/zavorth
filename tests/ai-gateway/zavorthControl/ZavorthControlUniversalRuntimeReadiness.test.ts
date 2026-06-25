@@ -1,5 +1,5 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
-import { buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -79,7 +79,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       ],
       modelProfile: {
         provider: 'OpenAI',
-        model: 'gpt-5.2',
+        model: 'gpt-4o',
         routingPolicy: 'gateway',
         supportsTools: true,
       },
@@ -138,7 +138,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
     ]);
     expect(viewModel.modelProfile).toEqual(expect.objectContaining({
       providerLabel: 'OpenAI',
-      modelLabel: 'gpt-5.2',
+      modelLabel: 'gpt-4o',
       routingPolicy: 'gateway',
       supportsTools: true,
     }));

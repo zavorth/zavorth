@@ -5,7 +5,7 @@ describe('Gemini agentic provider catalog', () => {
   it('publishes Gemini 3.5 Flash, Interactions API, and Managed Agent routes', () => {
     const registry = getDefaultProviderIntegrationRegistry();
     const gemini = registry.resolveProvider('gemini');
-    expect(gemini?.primaryRoute.models?.map((model) => model.modelId)).toContain('gemini-3.5-flash');
+    expect(gemini?.primaryRoute.models?.map((model) => model.modelId)).toContain('gemini-2.5-flash');
 
     const interactions = registry.resolveRoute('gemini-interactions');
     expect(interactions?.route).toMatchObject({

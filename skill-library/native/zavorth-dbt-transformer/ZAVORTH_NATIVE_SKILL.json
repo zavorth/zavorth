@@ -6,11 +6,23 @@
   "category": "data-engineering",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["dbt", "sql", "transformation"],
-  "presets": ["developer"],
-  "inputContract": ["source_schema", "model_spec"],
-  "outputContract": ["dbt_models", "test_results"],
+  "capabilityTags": [
+    "dbt",
+    "sql",
+    "transformation"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "source_schema",
+    "model_spec"
+  ],
+  "outputContract": [
+    "dbt_models",
+    "test_results"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { ZavorthSubagentRuntimeService } from '../../src/services/ZavorthSubagentRuntimeService.js';
+import { ZavorthSubagentRuntimeService } from '@zavorth/agents/ZavorthSubagentRuntimeService.js';
 import { ZavorthSubagentAutoInvocationPolicyService } from '../../src/services/ZavorthSubagentAutoInvocationPolicyService.js';
 
 describe('ZavorthSubagentRuntimeService Connector registry', () => {

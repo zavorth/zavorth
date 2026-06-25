@@ -6,11 +6,23 @@
   "category": "ml",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["wandb", "experiments", "tracking"],
-  "presets": ["developer"],
-  "inputContract": ["run_config", "metrics"],
-  "outputContract": ["run_url", "logged_artifacts"],
+  "capabilityTags": [
+    "wandb",
+    "experiments",
+    "tracking"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "run_config",
+    "metrics"
+  ],
+  "outputContract": [
+    "run_url",
+    "logged_artifacts"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

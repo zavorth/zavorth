@@ -6,11 +6,24 @@
   "category": "ml",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["dataset", "data-preparation", "cleaning"],
-  "presets": ["developer"],
-  "inputContract": ["raw data sources", "schema definitions", "split ratios"],
-  "outputContract": ["model artifacts", "evaluation reports"],
+  "capabilityTags": [
+    "dataset",
+    "data-preparation",
+    "cleaning"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "raw data sources",
+    "schema definitions",
+    "split ratios"
+  ],
+  "outputContract": [
+    "model artifacts",
+    "evaluation reports"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

@@ -5,7 +5,7 @@ import {
 import {
   SwarmV2Service,
   ExperimentalSwarmV2Service,
-} from '../../src/services/SwarmV2Service.js';
+} from '@zavorth/agents/SwarmV2Service.js';
 
 describe('V2 compatibility aliases', () => {
   it('keeps SessionV2 canonical while preserving the legacy experimental export', () => {

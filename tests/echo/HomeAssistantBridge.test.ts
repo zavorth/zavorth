@@ -149,7 +149,7 @@ describe('HomeAssistantBridge', () => {
           ok: true,
           audio: Buffer.from('voice-binary'),
           mimeType: 'audio/wav',
-          model: 'gemini-3.1-flash-tts-preview',
+          model: 'gemini-2.5-flash',
           voiceName: 'Kore',
           languageCode: 'en-US',
           latencyMs: 48,
@@ -203,7 +203,7 @@ describe('HomeAssistantBridge', () => {
         assetId: expect.any(String),
       }),
       voice: expect.objectContaining({
-        model: 'gemini-3.1-flash-tts-preview',
+        model: 'gemini-2.5-flash',
         voiceName: 'Kore',
         languageCode: 'en-US',
         publicUrl: payload.media_content_id,

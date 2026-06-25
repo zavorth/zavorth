@@ -22,7 +22,7 @@
     "routing status",
     "triggered actions"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

@@ -81,7 +81,7 @@ describe('Zavorth premium doctor', () => {
     fs.mkdirSync(path.join(root, 'src', 'tools', 'governance'), { recursive: true });
     fs.mkdirSync(path.join(root, 'src', 'runtime', 'rehearsal'), { recursive: true });
     fs.mkdirSync(path.join(root, 'src', 'runtime', 'commit'), { recursive: true });
-    fs.mkdirSync(path.join(root, 'src', 'ai-gateway', 'app', '(dashboard)', 'control'), { recursive: true });
+    fs.mkdirSync(path.join(root, 'src', 'zavorth-control', 'app', '(dashboard)', 'control'), { recursive: true });
     fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
     fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
     fs.writeFileSync(path.join(root, 'package.json'), '{}', 'utf8');

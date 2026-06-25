@@ -6,11 +6,23 @@
   "category": "productivity",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["notion", "database", "automation"],
-  "presets": ["developer"],
-  "inputContract": ["database_id", "query_params"],
-  "outputContract": ["query_results", "page_url"],
+  "capabilityTags": [
+    "notion",
+    "database",
+    "automation"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "database_id",
+    "query_params"
+  ],
+  "outputContract": [
+    "query_results",
+    "page_url"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

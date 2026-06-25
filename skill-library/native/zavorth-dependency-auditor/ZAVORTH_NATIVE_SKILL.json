@@ -6,11 +6,24 @@
   "category": "security",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["dependencies", "supply-chain", "audit"],
-  "presets": ["developer"],
-  "inputContract": ["package manifests", "lock files", "license policies"],
-  "outputContract": ["security reports", "remediation plans"],
+  "capabilityTags": [
+    "dependencies",
+    "supply-chain",
+    "audit"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "package manifests",
+    "lock files",
+    "license policies"
+  ],
+  "outputContract": [
+    "security reports",
+    "remediation plans"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

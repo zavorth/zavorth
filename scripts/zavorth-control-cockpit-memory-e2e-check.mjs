@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const staticDir = path.join(rootDir, "src", "ai-gateway", "public", "zavorth-control-vite-shell");
+const staticDir = path.join(rootDir, "src", "zavorth-control", "public", "zavorth-control-vite-shell");
 const appPublicDir = path.join(rootDir, "apps", "zavorth-control-vite-shell", "public");
 const port = Number(process.env.ZAVORTH_CONTROL_COCKPIT_E2E_PORT || 5189);
 

@@ -45,8 +45,8 @@ function ruleMarkers() {
     ['src/contracts/ZavorthPerceptionCrossSurfaceCertificationContract.ts', ['pc-screenshot', 'browser-dom', 'adb-ui-dump', 'ZavorthPerceptionZavorthControlProjection', 'visualMutationApplied: false']],
     ['src/services/ZavorthPerceptionCrossSurfaceCertificationService.ts', ['ZavorthPerceptionCrossSurfaceCertificationService', 'ZavorthControl projection carries read-only targets', 'live canary exige flag', 'REQUIRED_COMMANDS']],
     ['scripts/zavorth-perception-certification.ts', ['--json', 'formatSnapshotText']],
-    ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.ts', ['perceptionControl']],
-    ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.ts', ['mapPerceptionControlProjection', 'perceptionControl']],
+    ['src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.ts', ['perceptionControl']],
+    ['src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.ts', ['mapPerceptionControlProjection', 'perceptionControl']],
     ['package.json', ['node scripts/zavorth-perception-certification-check.mjs']],
   ];
   const missing = [];

@@ -78,7 +78,7 @@ describe('ModelCatalogAggregationService', () => {
           providerId: 'openai',
           alias: 'openai',
           label: 'OpenAI',
-          models: [{ id: 'gpt-5.2', name: 'GPT-5.2' }],
+          models: [{ id: 'gpt-4o', name: 'GPT-5.2' }],
         },
       ],
       customCatalogs: [
@@ -98,17 +98,17 @@ describe('ModelCatalogAggregationService', () => {
       provider: 'OpenAI',
       active: true,
       models: expect.arrayContaining([
-        expect.objectContaining({ id: 'openai/gpt-5.2', custom: false, type: 'chat' }),
+        expect.objectContaining({ id: 'openai/gpt-4o', custom: false, type: 'chat' }),
         expect.objectContaining({ id: 'openai/gpt-custom', custom: true, source: 'custom_model' }),
       ]),
     }));
     expect(openAiList).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        id: 'openai/gpt-5.2',
+        id: 'openai/gpt-4o',
         object: 'model',
         created: 1770000000,
         owned_by: 'openai',
-        root: 'gpt-5.2',
+        root: 'gpt-4o',
       }),
       expect.objectContaining({
         id: 'openai/gpt-custom',

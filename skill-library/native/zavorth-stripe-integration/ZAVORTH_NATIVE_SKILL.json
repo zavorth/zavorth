@@ -21,7 +21,7 @@
     "scaffold code",
     "webhook logic"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

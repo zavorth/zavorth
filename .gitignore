@@ -4,9 +4,14 @@ dist/
 *.tsbuildinfo
 
 # === Environment & Secrets ===
+# .env files contain API keys and must never be committed.
+# Use .env.example as a template (it is tracked).
 .env
 .env.local
+.env.development
 .env.production
+.env.test
+.env.staging
 config/AIGateway-overlay.json
 
 # === Database & Runtime Data ===

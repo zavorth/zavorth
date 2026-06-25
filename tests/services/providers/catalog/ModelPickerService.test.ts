@@ -14,7 +14,7 @@ describe('ModelPickerService', () => {
       includeAdvanced: true,
       selectedFamilyId: 'claude',
       selectedRouteId: 'anthropic',
-      selectedModelId: 'claude-opus-4-5',
+      selectedModelId: 'claude-3-opus-20240229',
     });
 
     const claude = result.families.find((family) => family.id === 'claude');
@@ -30,7 +30,7 @@ describe('ModelPickerService', () => {
         expect.objectContaining({
           id: 'anthropic',
           models: expect.arrayContaining([
-            expect.objectContaining({ modelId: 'claude-opus-4-5' }),
+            expect.objectContaining({ modelId: 'claude-3-opus-20240229' }),
           ]),
         }),
         expect.objectContaining({ id: 'claude' }),
@@ -39,7 +39,7 @@ describe('ModelPickerService', () => {
     expect(result.selected).toEqual(expect.objectContaining({
       familyId: 'claude',
       routeId: 'anthropic',
-      modelId: 'claude-opus-4-5',
+      modelId: 'claude-3-opus-20240229',
     }));
   });
 

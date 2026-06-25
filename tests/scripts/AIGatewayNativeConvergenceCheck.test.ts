@@ -6,7 +6,7 @@ describe('AI Gateway native hygiene convergence check', () => {
     const root = path.resolve(__dirname, '..', '..');
     const result = spawnSync(
       process.execPath,
-      ['scripts/ai-gateway-native-convergence-check.mjs', '--json'],
+      ['scripts/zavorth-control-native-convergence-check.mjs', '--json'],
       {
         cwd: root,
         encoding: 'utf8',

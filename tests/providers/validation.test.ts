@@ -46,9 +46,9 @@ vi.mock(
 import {
   validateClaudeCodeCompatibleProvider,
   validateProviderApiKey,
-} from "../../src/ai-gateway/lib/providers/validation";
+} from "../../src/zavorth-control/lib/providers/validation";
 
-describe("ai-gateway provider validation barrel", () => {
+describe("zavorth-control provider validation barrel", () => {
   const originalFetch = global.fetch;
 
   beforeEach(() => {

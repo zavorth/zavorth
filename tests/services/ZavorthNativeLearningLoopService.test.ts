@@ -1,7 +1,7 @@
 import { ZavorthMemoryLearningLoopService } from '../../src/services/ZavorthMemoryLearningLoopService';
 import { ZavorthNativeLearningLoopService } from '../../src/services/ZavorthNativeLearningLoopService';
 import type { ZavorthReplayLearningSnapshot } from '../../src/services/ZavorthReplayLearningService';
-import type { ZavorthSkillEvolutionSnapshot } from '../../src/services/ZavorthSkillEvolutionService';
+import type { ZavorthSkillEvolutionSnapshot } from '@zavorth/skills/ZavorthSkillEvolutionService.js';
 
 function replaySnapshot(): ZavorthReplayLearningSnapshot {
   return {

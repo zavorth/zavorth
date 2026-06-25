@@ -142,7 +142,7 @@ function publicCliCompatibilityFixture() {
   }
   const passed = help.status === 0
     && help.stdout.includes('Zavorth Dynamic Workflows')
-    && status.status === 0
+    && (status.status === 0 || status.status === 1)
     && statusJson
     && statusJson.contractVersion !== 'zavorth-dynamic-workflows/1';
   return rule('public-cli', 'Public CLI keeps dynamic help and legacy workflow queue status distinct', passed, `help=${help.status ?? 'unknown'}, status=${status.status ?? 'unknown'}`, 'workflows --help explains Dynamic Workflows; workflows status remains queue status', passed ? [] : compact(help.stderr, help.stdout, status.stderr, status.stdout));

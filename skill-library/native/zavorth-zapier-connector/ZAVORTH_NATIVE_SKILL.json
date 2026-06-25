@@ -6,11 +6,23 @@
   "category": "productivity",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["zapier", "automation", "integration"],
-  "presets": ["developer"],
-  "inputContract": ["workflow_spec", "trigger_config"],
-  "outputContract": ["zap_config", "webhook_url"],
+  "capabilityTags": [
+    "zapier",
+    "automation",
+    "integration"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "workflow_spec",
+    "trigger_config"
+  ],
+  "outputContract": [
+    "zap_config",
+    "webhook_url"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

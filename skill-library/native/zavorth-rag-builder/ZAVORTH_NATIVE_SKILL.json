@@ -6,11 +6,24 @@
   "category": "ai",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["rag", "retrieval", "vector-db"],
-  "presets": ["developer"],
-  "inputContract": ["document corpus", "embedding configs", "retrieval parameters"],
-  "outputContract": ["model artifacts", "evaluation reports"],
+  "capabilityTags": [
+    "rag",
+    "retrieval",
+    "vector-db"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "document corpus",
+    "embedding configs",
+    "retrieval parameters"
+  ],
+  "outputContract": [
+    "model artifacts",
+    "evaluation reports"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

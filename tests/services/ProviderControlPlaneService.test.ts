@@ -59,7 +59,7 @@ describe('ProviderControlPlaneService', () => {
   });
 
   it('resolves Gemma as a Gemini-hosted model selection', () => {
-    (config as any).gemmaModel = 'gemma-4-31b-it';
+    (config as any).gemmaModel = 'gemma-2-27b-it';
     const service = new ProviderControlPlaneService({
       clearProviderCache: jest.fn(),
     });
@@ -69,7 +69,7 @@ describe('ProviderControlPlaneService', () => {
     expect(selection).toEqual(expect.objectContaining({
       selectionKind: 'model',
       effectiveProviderName: 'gemini',
-      modelName: 'gemma-4-31b-it',
+      modelName: 'gemma-2-27b-it',
     }));
   });
 
@@ -97,7 +97,7 @@ describe('ProviderControlPlaneService', () => {
     (config as any).openaiApiKey = 'test-openai-key';
     (config as any).modelSelectionFamilyId = 'openai';
     (config as any).modelSelectionRouteId = 'openai';
-    (config as any).modelSelectionModelId = 'gpt-5.2';
+    (config as any).modelSelectionModelId = 'gpt-4o';
     const service = new ProviderControlPlaneService({
       clearProviderCache: jest.fn(),
     });
@@ -111,11 +111,11 @@ describe('ProviderControlPlaneService', () => {
       familyId: 'openai',
       routeId: 'openai',
       providerName: 'openai',
-      modelName: 'gpt-5.2',
+      modelName: 'gpt-4o',
     }));
     expect(selection.compatibility).toEqual(expect.objectContaining({
       providerName: 'openai',
-      modelName: 'gpt-5.2',
+      modelName: 'gpt-4o',
     }));
     expect(selection.explanation.join(' ')).toContain('Rota selecionada');
   });

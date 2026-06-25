@@ -115,10 +115,10 @@ function languageFixture() {
 
 function dashboardWire() {
   const files = [
-    'src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx',
-    'src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx',
+    'src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx',
+    'src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx',
     'apps/zavorth-control-vite-shell/public/styles/chat.css',
-    'src/ai-gateway/public/zavorth-control-vite-shell/styles/chat.css',
+    'src/zavorth-control/public/zavorth-control-vite-shell/styles/chat.css',
   ];
   const missing = [];
   for (const file of files) {

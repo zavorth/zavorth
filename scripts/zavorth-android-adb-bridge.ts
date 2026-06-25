@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { ZavorthAndroidAdbBridgeService } from '../src/services/ZavorthAndroidAdbBridgeService.js';
+import { ZavorthAndroidAdbBridgeService } from '@zavorth/hardware/ZavorthAndroidAdbBridgeService.js';
 import type {
   ZavorthAndroidAdbAction,
   ZavorthAndroidAdbInput,

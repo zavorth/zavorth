@@ -130,11 +130,11 @@ describe('ZavorthTokenBudgetTool', () => {
     expect(result).toContain('BUDGET-');
   });
   it('records usage', async () => {
-    const result = await tool.execute({ action: 'record', model: 'gpt-5.2', input_tokens: 100, output_tokens: 200, cost_usd: 0.01, task_type: 'chat' });
+    const result = await tool.execute({ action: 'record', model: 'gpt-4o', input_tokens: 100, output_tokens: 200, cost_usd: 0.01, task_type: 'chat' });
     expect(result).toContain('recorded');
   });
   it('checks budget status', async () => {
-    await tool.execute({ action: 'record', model: 'gpt-5.2', input_tokens: 1000, output_tokens: 2000, cost_usd: 0.05 });
+    await tool.execute({ action: 'record', model: 'gpt-4o', input_tokens: 1000, output_tokens: 2000, cost_usd: 0.05 });
     const result = await tool.execute({ action: 'check', scope: 'global', input_tokens: 100, cost_usd: 0.01 });
     expect(result).toContain('OK');
   });

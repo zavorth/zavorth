@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import { ZavorthFederatedMeshControlPlaneService } from '../src/services/ZavorthFederatedMeshControlPlaneService.js';
+import { ZavorthFederatedMeshControlPlaneService } from '@zavorth/mesh/ZavorthFederatedMeshControlPlaneService.js';
 import type {
   FederatedMeshCommandScope,
   FederatedMeshProfile,
   FederatedMeshTrust,
-} from '../src/services/ZavorthFederatedMeshControlPlaneService.js';
+} from '@zavorth/mesh/ZavorthFederatedMeshControlPlaneService.js';
 import type { NodeMeshCapabilityId } from '../src/contracts/NodeMeshContract.js';
 
 function readFlag(argv: string[], names: string[]): string | null {

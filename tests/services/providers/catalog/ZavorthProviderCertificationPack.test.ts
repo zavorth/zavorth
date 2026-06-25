@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ProviderIntegrationRegistry } from '../../../../src/services/providers/catalog/ProviderIntegrationRegistry.js';
 
 const EXPECTED_CONSISTENCY_PROVIDER_IDS = [
-  'ai-gateway',
+  'zavorth-control',
   'alibaba',
   'alibaba-coding-plan',
   'amazon-bedrock',

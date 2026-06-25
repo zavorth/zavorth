@@ -505,7 +505,7 @@ function proxyApiRequest(
 }
 
 async function startDashboardProxy(apiBase: string): Promise<DashboardProxy> {
-  const staticDir = path.join(rootDir, "src", "ai-gateway", "public", "zavorth-control-vite-shell");
+  const staticDir = path.join(rootDir, "src", "zavorth-control", "public", "zavorth-control-vite-shell");
   const indexPath = path.join(staticDir, "index.html");
   if (!fs.existsSync(indexPath)) {
     throw new Error(`Dashboard build not found at ${indexPath}. Run npm run zavorth-control-vite:build first.`);

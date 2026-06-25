@@ -30,7 +30,7 @@ describe('TelegramOpsInsightService', () => {
     } as any;
 
     const service = new TelegramOpsInsightService({
-      zavorthBridgePreferenceStore: { getPreferredModel: jest.fn().mockResolvedValue('gemini-3.1-pro-high') } as any,
+      zavorthBridgePreferenceStore: { getPreferredModel: jest.fn().mockResolvedValue('gemini-2.5-pro') } as any,
       demoModeService: { isEnabled: () => false } as any,
       integrationHubService: {} as any,
       operatorModeService: { isEnabled: () => false } as any,
@@ -107,7 +107,7 @@ describe('TelegramOpsInsightService', () => {
     const buttons = options.reply_markup.inline_keyboard.flat();
     expect(buttons).toEqual(expect.arrayContaining([
       expect.objectContaining({ text: 'Gemini', callback_data: '/model gemini' }),
-      expect.objectContaining({ text: 'Gemma', callback_data: '/model gemma-4-31b-it' }),
+      expect.objectContaining({ text: 'Gemma', callback_data: '/model gemma-2-27b-it' }),
       expect.objectContaining({ text: 'OpenAI', callback_data: '/model openai' }),
     ]));
   });

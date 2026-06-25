@@ -18,8 +18,8 @@ const service = fs.existsSync('src/services/ZavorthMemoryLearningLoopService.ts'
   ? fs.readFileSync('src/services/ZavorthMemoryLearningLoopService.ts', 'utf8')
   : '';
 const packageJson = fs.existsSync('package.json') ? fs.readFileSync('package.json', 'utf8') : '';
-const skillEvolution = fs.existsSync('src/services/ZavorthSkillEvolutionService.ts')
-  ? fs.readFileSync('src/services/ZavorthSkillEvolutionService.ts', 'utf8')
+const skillEvolution = fs.existsSync('src/skills/ZavorthSkillEvolutionService.ts')
+  ? fs.readFileSync('src/skills/ZavorthSkillEvolutionService.ts', 'utf8')
   : '';
 
 const markers = [

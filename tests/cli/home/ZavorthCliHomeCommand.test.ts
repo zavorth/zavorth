@@ -9,7 +9,7 @@ function createWorkspace(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-cli-home-'));
   fs.mkdirSync(path.join(root, 'src', 'security'), { recursive: true });
   fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
-  fs.mkdirSync(path.join(root, 'src', 'ai-gateway', 'app', '(dashboard)', 'control'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'src', 'zavorth-control', 'app', '(dashboard)', 'control'), { recursive: true });
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ version: '9.9.9' }, null, 2));
   fs.writeFileSync(path.join(root, 'src', 'security', 'EffectPolicyKernel.ts'), 'export const ready = true;\n');
   fs.writeFileSync(path.join(root, 'scripts', 'effect-boundary-invariants-check.mjs'), 'console.log("ok");\n');

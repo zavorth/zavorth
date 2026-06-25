@@ -8,8 +8,8 @@ import type {
 import type {
   RemoteMeshNotebookDockerObservabilityProvider,
   RemoteMeshNotebookProjectFileReadProvider,
-} from '../src/services/RemoteMeshNotebookScopedMcpServerService.js';
-import { RemoteMeshNotebookScopedMcpServerService } from '../src/services/RemoteMeshNotebookScopedMcpServerService.js';
+} from '@zavorth/mesh/RemoteMeshNotebookScopedMcpServerService.js';
+import { RemoteMeshNotebookScopedMcpServerService } from '@zavorth/mesh/RemoteMeshNotebookScopedMcpServerService.js';
 
 const args = process.argv.slice(2);
 const json = args.includes('--json');

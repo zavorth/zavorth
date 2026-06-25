@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { ExperimentalSwarmV2Service } from '../../src/services/SwarmV2Service.js';
+import { ExperimentalSwarmV2Service } from '@zavorth/agents/SwarmV2Service.js';
 
 class FakeSwarmOrchestrator extends EventEmitter {
   private status: 'idle' | 'running' | 'completed' | 'failed' | 'cancelled' = 'idle';

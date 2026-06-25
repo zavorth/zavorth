@@ -1,19 +1,21 @@
 import { EventEmitter } from 'events';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import * as os from 'os';
+import { t } from './i18n.js';
 
 const execAsync = promisify(exec);
 
 /**
- * MicGateService — Guardião de privacidade do Zavorth Agent.
+ * MicGateService — Zavorth Agent privacy guardian.
  *
- * Monitora o status do microfone do Windows a cada 1s.
- * Se o microfone estiver desligado/mutado, o sistema inteiro fica inativo.
- * Quando o microfone é ligado, emite 'mic:on' e habilita Wake Word + Hotkey.
- * Quando desligado, emite 'mic:off' e desabilita tudo.
+ * Monitors the Windows microphone status every 1s.
+ * If the microphone is disabled/muted, the entire system becomes inactive.
+ * When the microphone is enabled, emits 'mic:on' and enables Wake Word + Hotkey.
+ * When disabled, emits 'mic:off' and disables everything.
  *
- * O switch físico do microfone do notebook vira literalmente
- * o interruptor de segurança do Zavorth.
+ * The physical laptop microphone switch literally becomes
+ * Zavorth's safety switch.
  */
 export class MicGateService extends EventEmitter {
   private isActive = false;
@@ -26,22 +28,22 @@ export class MicGateService extends EventEmitter {
   }
 
   /**
-   * Inicia o monitoramento do microfone.
+   * Starts microphone monitoring.
    */
   public start(): void {
     if (this.watchInterval) return;
 
-    console.log('[MicGate] Iniciando monitoramento do microfone...');
+    console.log('[MicGate] Starting microphone monitoring...');
 
-    // Verificação imediata
+    // Immediate check
     this.check();
 
-    // Verificação periódica
+    // Periodic check
     this.watchInterval = setInterval(() => this.check(), this.checkIntervalMs);
   }
 
   /**
-   * Para o monitoramento.
+   * Stops monitoring.
    */
   public stop(): void {
     if (this.watchInterval) {
@@ -52,14 +54,14 @@ export class MicGateService extends EventEmitter {
   }
 
   /**
-   * Retorna o status atual.
+   * Returns current status.
    */
   public get active(): boolean {
     return this.isActive;
   }
 
   /**
-   * Verifica o status do microfone e emite eventos de mudança.
+   * Verifies microphone status and emits change events.
    */
   private async check(): Promise<void> {
     try {
@@ -67,17 +69,17 @@ export class MicGateService extends EventEmitter {
 
       if (micOn && !this.isActive) {
         this.isActive = true;
-        console.log('[MicGate] 🎤 Microfone ATIVO — habilitando escuta...');
+        console.log('[MicGate] 🎤 Microphone ACTIVE — enabling listening...');
         this.emit('mic:on');
 
       } else if (!micOn && this.isActive) {
         this.isActive = false;
-        console.log('[MicGate] 🔇 Microfone DESLIGADO — desabilitando tudo.');
+        console.log(t('mic_off_log'));
         this.emit('mic:off');
       }
     } catch (error: any) {
-      // Falha silenciosa — não queremos crashar o agent por erro de WMI
-      // Assume mic ativo como fallback seguro
+      // Silent failure — we don't want to crash the agent due to WMI errors
+      // Assume active mic as safe fallback
       if (!this.isActive) {
         this.isActive = true;
         this.emit('mic:on');
@@ -86,14 +88,17 @@ export class MicGateService extends EventEmitter {
   }
 
   /**
-   * Verifica se o microfone está habilitado no Windows via PowerShell.
+   * Verifies if microphone is enabled in Windows via PowerShell.
    *
-   * Usa AudioDeviceCmdlets ou WMI para checar o status.
-   * Retorna true se pelo menos um dispositivo de captura está habilitado e não mutado.
+   * Uses AudioDeviceCmdlets or WMI to check status.
+   * Returns true if at least one capture device is enabled and not muted.
    */
   private async isMicrophoneEnabled(): Promise<boolean> {
+    if (os.platform() !== 'win32') {
+      return true; // Safe fallback on non-Windows
+    }
     try {
-      // Método 1: Verificar via WMI se existe dispositivo de áudio de captura ativo
+      // Method 1: Check via WMI if active capture audio device exists
       const { stdout } = await execAsync(
         `powershell -NoProfile -Command "Get-CimInstance Win32_SoundDevice | Where-Object { $_.Status -eq 'OK' -and $_.StatusInfo -eq 3 } | Measure-Object | Select-Object -ExpandProperty Count"`,
         { timeout: 3000 },
@@ -101,7 +106,7 @@ export class MicGateService extends EventEmitter {
       const count = parseInt(stdout.trim(), 10);
       if (!isNaN(count) && count > 0) return true;
 
-      // Método 2: Fallback — verifica se o mic está no Device Manager
+      // Method 2: Fallback — verify if mic exists in Device Manager
       const { stdout: devStdout } = await execAsync(
         `powershell -NoProfile -Command "(Get-PnpDevice -Class AudioEndpoint -Status OK | Where-Object { $_.FriendlyName -match 'Mic|mic|Microphone' }).Count"`,
         { timeout: 3000 },
@@ -110,7 +115,7 @@ export class MicGateService extends EventEmitter {
       return !isNaN(devCount) && devCount > 0;
 
     } catch {
-      // Se não conseguir verificar, assume ativo (fallback seguro para não bloquear o usuário)
+      // If verification fails, assume active (safe fallback not to block the user)
       return true;
     }
   }

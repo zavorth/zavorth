@@ -9,7 +9,7 @@ describe('TelegramSchedulerController', () => {
 
     await controller.handleSchedule(ctx, 'every 1h /wsl status');
 
-    expect(ctx.reply).toHaveBeenCalledWith('O agendador ainda esta iniciando. Tente novamente em alguns segundos.');
+    expect(ctx.reply).toHaveBeenCalledWith('The scheduler is still starting...');
   });
 
   it('creates a report schedule through the scheduler service', async () => {
@@ -35,7 +35,7 @@ describe('TelegramSchedulerController', () => {
         budget_json: '{}',
         guardrail_json: JSON.stringify({
           governedScheduledTask: {
-            stage: 'checkpoint-3-persisted-scheduled-task-registration',
+          phase: 'checkpoint-3-persisted-scheduled-task-registration',
             approvalId: 'telegram-report-99',
             approvedScope: {
               intent: 'Relatorio recorrente: noticias de IA',
@@ -60,11 +60,11 @@ describe('TelegramSchedulerController', () => {
       '99',
       expect.objectContaining({
         governedScheduledTask: expect.objectContaining({
-          stage: 'checkpoint-3-persisted-scheduled-task-registration',
+          phase: 'checkpoint-3-persisted-scheduled-task-registration',
         }),
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Relatorio governado'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Recurring report scheduled'));
   });
 
   it('creates automations from natural language through the automation action service', async () => {

@@ -1,14 +1,15 @@
 import { EventEmitter } from 'events';
 import { spawn, ChildProcess } from 'child_process';
+import { t } from './i18n.js';
 
 /**
- * WakeWordService — Detecta a palavra de ativação "Zavorth" (Mode 1).
+ * WakeWordService — Detects activation word "Zavorth" (Mode 1).
  *
- * Usa openWakeWord via Python subprocess para detecção contínua.
- * O modelo roda no CPU (~1MB, <1% CPU), e emite 'activated' quando
- * a palavra é detectada com confiança acima do threshold.
+ * Uses openWakeWord via Python subprocess for continuous detection.
+ * The model runs on CPU (~1MB, <1% CPU), and emits 'activated' when
+ * the word is detected with confidence above the threshold.
  *
- * Alternativa: Porcupine (Picovoice) Node binding para zero-Python.
+ * Alternative: Porcupine (Picovoice) Node binding for zero-Python.
  */
 export class WakeWordService extends EventEmitter {
   private process: ChildProcess | null = null;
@@ -23,16 +24,16 @@ export class WakeWordService extends EventEmitter {
   }
 
   /**
-   * Inicia o detector de wake word.
+   * Starts the wake word detector.
    */
   public start(): void {
     if (this.process) return;
     this.enabled = true;
 
-    console.log(`[WakeWord] Iniciando detecção de "${this.wakeWord}" (threshold: ${this.threshold})...`);
+    console.log(t('wakeword_starting', { wakeWord: this.wakeWord, threshold: this.threshold }));
 
     try {
-      // Tenta usar openWakeWord via Python
+      // Try openWakeWord via Python
       this.process = spawn('python', [
         '-c',
         this.buildPythonScript(),
@@ -43,7 +44,7 @@ export class WakeWordService extends EventEmitter {
       this.process.stdout?.on('data', (data: Buffer) => {
         const output = data.toString().trim();
         if (output.includes('WAKE_DETECTED')) {
-          console.log(`[WakeWord] 🎤 Wake word "${this.wakeWord}" detectada!`);
+          console.log(`[WakeWord] 🎤 Wake word "${this.wakeWord}" detected!`);
           this.emit('activated', 'wakeword');
         }
       });
@@ -57,48 +58,48 @@ export class WakeWordService extends EventEmitter {
 
       this.process.on('exit', (code) => {
         if (this.enabled) {
-          console.log(`[WakeWord] Processo encerrou com código ${code}. Reiniciando em 3s...`);
+          console.log(t('wakeword_exited', { code: code || 0 }));
           this.process = null;
           setTimeout(() => { if (this.enabled) this.start(); }, 3000);
         }
       });
 
       this.process.on('error', (err) => {
-        console.error(`[WakeWord] Erro ao iniciar Python: ${err.message}`);
-        console.log('[WakeWord] Dica: Instale openWakeWord com: pip install openwakeword');
+        console.error(t('wakeword_python_error', { message: err.message }));
+        console.log('[WakeWord] Hint: Install openWakeWord with: pip install openwakeword');
         this.process = null;
         this.enabled = false;
         this.emit('unavailable', 'python_not_found');
       });
 
     } catch (error: any) {
-      console.error(`[WakeWord] Falha ao iniciar: ${error.message}`);
+      console.error(t('wakeword_start_failed', { message: error.message }));
       this.enabled = false;
     }
   }
 
   /**
-   * Para o detector.
+   * Stops the detector.
    */
   public stop(): void {
     this.enabled = false;
     if (this.process) {
       this.process.kill('SIGTERM');
       this.process = null;
-      console.log('[WakeWord] Detector parado.');
+      console.log('[WakeWord] Detector stopped.');
     }
   }
 
   /**
-   * Status do serviço.
+   * Service status.
    */
   public get isRunning(): boolean {
     return this.process !== null && this.enabled;
   }
 
   /**
-   * Script Python inline para detecção de wake word.
-   * Usa openWakeWord com PyAudio para captura de microfone.
+   * Inline Python script for wake word detection.
+   * Uses openWakeWord with PyAudio for mic capture.
    */
   private buildPythonScript(): string {
     return `
@@ -133,7 +134,7 @@ try:
 
 except ImportError as e:
     print(f"WAKE_ERROR: {e}", flush=True)
-    print("Instale com: pip install openwakeword pyaudio numpy", flush=True)
+    print("Install with: pip install openwakeword pyaudio numpy", flush=True)
     sys.exit(1)
 except Exception as e:
     print(f"WAKE_ERROR: {e}", flush=True)

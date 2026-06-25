@@ -20,9 +20,9 @@ const GROUPS = [
     paths: ['tests/api', 'tests/gateway'],
   },
   {
-    id: 'ai-gateway',
+    id: 'zavorth-control',
     label: 'AI gateway and zavorthControl app contracts',
-    paths: ['tests/ai-gateway', 'tests/apps'],
+    paths: ['tests/zavorth-control', 'tests/apps'],
   },
   {
     id: 'domain-zavorthControl',
@@ -203,7 +203,7 @@ function runGroup(group, timeoutMs, passThroughArgs) {
     '--forceExit',
     ...passThroughArgs,
   ];
-  const child = spawn(process.execPath, args, {
+  const child = spawn(process.execPath, ['--experimental-vm-modules', ...args], {
     cwd: projectRoot,
     env: {
       ...process.env,

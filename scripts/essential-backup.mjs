@@ -34,7 +34,7 @@ const includeTargets = [
   path.join('data', 'zavorth.db-wal'),
   path.join('data', 'vendor-lock.json'),
   path.join('data', 'vendor-mirrors'),
-  path.join('src', 'ai-gateway'),
+  path.join('src', 'zavorth-control'),
   path.join('apps', 'zavorth-terminal'),
   path.join('data', 'runtime', 'db-field.key'),
   path.join('data', 'runtime', 'authorized-host.json'),

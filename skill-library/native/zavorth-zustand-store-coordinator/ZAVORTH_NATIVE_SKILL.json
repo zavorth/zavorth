@@ -20,7 +20,7 @@
   "outputContract": [
     "zustand store code"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

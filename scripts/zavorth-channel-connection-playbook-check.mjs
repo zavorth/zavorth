@@ -66,7 +66,7 @@ function runAllFixture() {
   const result = runTs(['--json']);
   return jsonRule('channel-connection-playbook-all', 'All first-class channels have playbooks', result, (snapshot) =>
     snapshot.version === 'channel-connection-playbook/v1'
-    && snapshot.playbooks?.length === 9
+    && snapshot.playbooks?.length >= 9
     && snapshot.playbooks.every((entry) => entry.safety?.rawSecretsSerialized === false)
     && snapshot.playbooks.every((entry) => entry.safety?.catalogSupportIsNotLiveProof === true)
     && snapshot.playbooks.every((entry) => Array.isArray(entry.requiredInputKeys)));

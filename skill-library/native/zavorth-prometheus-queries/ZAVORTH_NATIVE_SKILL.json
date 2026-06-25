@@ -6,11 +6,23 @@
   "category": "monitoring",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["prometheus", "promql", "metrics"],
-  "presets": ["developer"],
-  "inputContract": ["metric names", "query requirements"],
-  "outputContract": ["dashboard configs", "alert rules"],
+  "capabilityTags": [
+    "prometheus",
+    "promql",
+    "metrics"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "metric names",
+    "query requirements"
+  ],
+  "outputContract": [
+    "dashboard configs",
+    "alert rules"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

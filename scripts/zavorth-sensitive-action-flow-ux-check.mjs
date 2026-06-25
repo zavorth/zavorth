@@ -6,7 +6,7 @@ const files = {
   service: 'src/services/ZavorthSensitiveActionFlowUxService.ts',
   script: 'scripts/zavorth-sensitive-action-flow-ux.ts',
   route: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  panel: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
+  panel: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
   test: 'tests/services/ZavorthSensitiveActionFlowUxService.test.ts',
 };
 

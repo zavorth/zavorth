@@ -22,7 +22,7 @@
     "vulnerabilities",
     "static analysis"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

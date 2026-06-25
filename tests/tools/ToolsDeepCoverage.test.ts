@@ -365,7 +365,7 @@ describe('ZavorthTrajectoryExportTool — deep coverage', () => {
         { step_number: 2, action: 'Test', tool_used: 'terminal', result_summary: 'Passed', duration_ms: 200, success: true },
       ],
       outcome: 'confirmed', conclusion: 'REST works great', evidence: ['Fast response times'], citations: [{ source: 'https://example.com', title: 'REST Guide', relevance: 0.9 }],
-      quality_score: 0.85, created_at: '2025-06-01T10:00:00Z', metadata: { model: 'gpt-5.2' },
+      quality_score: 0.85, created_at: '2025-06-01T10:00:00Z', metadata: { model: 'gpt-4o' },
     };
     fs.writeFileSync(path.join(tempDir, 'traj_001.json'), JSON.stringify(traj));
     tool = new ZavorthTrajectoryExportTool({ trajectoriesDir: tempDir });

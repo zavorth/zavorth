@@ -31,7 +31,7 @@ function ruleFilesExist() {
   const files = [
     'src/contracts/ZavorthSubagentRuntimeContract.ts',
     'src/contracts/ZavorthInvocationReceiptContract.ts',
-    'src/services/ZavorthSubagentRuntimeService.ts',
+    'src/agents/ZavorthSubagentRuntimeService.ts',
     'src/services/ZavorthLiveSubagentExecutionService.ts',
     'src/services/ZavorthSubagentInvocationGatewayService.ts',
     'scripts/zavorth-subagents.ts',
@@ -43,7 +43,7 @@ function ruleFilesExist() {
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthSubagentRuntimeContract.ts', ['subagents.spawn', 'subagents.wait', 'thread-bound', 'explicitUserSubagentsCanRunReadOnly', 'readOnlyToolsRequirePolicyBroker', 'subagentToolCallsAreLimited', 'liveWorkersAreConcurrent', 'autoInvocationTelemetry']],
-    ['src/services/ZavorthSubagentRuntimeService.ts', ['ZavorthGovernedSubagentService', 'ZavorthLiveSubagentExecutionService', 'createSubagentResultReceipt', 'Policy Broker', 'maxSpawnDepth', 'public-readonly-research-precleared', 'Auto subagent decision']],
+    ['src/agents/ZavorthSubagentRuntimeService.ts', ['ZavorthGovernedSubagentService', 'ZavorthLiveSubagentExecutionService', 'createSubagentResultReceipt', 'Policy Broker', 'maxSpawnDepth', 'public-readonly-research-precleared', 'Auto subagent decision']],
     ['src/services/ZavorthLiveSubagentExecutionService.ts', ['subagent-readonly-tool-call', 'workspace-readonly-tool-allowed', 'mutating-or-unknown-tool-blocked', 'Tool policy: requested=']],
     ['src/services/ZavorthSubagentInvocationGatewayService.ts', ['invokeFromCron', 'invokeFromSkill', 'invokeFromPlugin', 'sourceSurface']],
     ['scripts/zavorth-subagents.ts', ['--explicit-subagents', '--mock-live', '--no-persist', 'subagents.spawn']],

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { ZavorthHardwareActionPlaneService } from '../../src/services/ZavorthHardwareActionPlaneService';
+import { ZavorthHardwareActionPlaneService } from '@zavorth/hardware/ZavorthHardwareActionPlaneService.js';
 
 function mutationPlaneMock() {
   const plans: any[] = [];

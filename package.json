@@ -11,8 +11,12 @@
       "default": "./dist/index.js"
     },
     "./sdk": {
-      "types": "./dist/sdk/index.d.ts",
-      "default": "./dist/sdk/index.js"
+      "types": "./dist/sdk/public.d.ts",
+      "default": "./dist/sdk/public.js"
+    },
+    "./sdk/internal": {
+      "types": "./dist/sdk/internal.d.ts",
+      "default": "./dist/sdk/internal.js"
     },
     "./sdk/agent-runtime-bridge": {
       "types": "./dist/sdk/agent-runtime-bridge.d.ts",

@@ -6,11 +6,24 @@
   "category": "data",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["sql", "visualization", "charts"],
-  "presets": ["developer"],
-  "inputContract": ["SQL queries", "database connections", "chart specifications"],
-  "outputContract": ["data reports", "visualizations"],
+  "capabilityTags": [
+    "sql",
+    "visualization",
+    "charts"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "SQL queries",
+    "database connections",
+    "chart specifications"
+  ],
+  "outputContract": [
+    "data reports",
+    "visualizations"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

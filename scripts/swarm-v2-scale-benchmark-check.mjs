@@ -28,7 +28,7 @@ for (const marker of [
   }
 }
 
-const service = read('src/services/SwarmV2Service.ts');
+const service = read('src/agents/SwarmV2Service.ts');
 for (const marker of [
   'selectRoleIdsForObjective',
   'resolveSyncRoleSelection',
@@ -38,7 +38,7 @@ for (const marker of [
   'role.tool.bound',
 ]) {
   if (!service.includes(marker)) {
-    issues.push(`src/services/SwarmV2Service.ts: missing marker ${marker}`);
+    issues.push(`src/agents/SwarmV2Service.ts: missing marker ${marker}`);
   }
 }
 

@@ -26,8 +26,8 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Acesso Restrito'),
-      expect.objectContaining({ parse_mode: 'Markdown' }),
+    expect.stringContaining('Access Restricted'),
+    expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -145,8 +145,8 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Acesso Restrito'),
-      expect.objectContaining({ parse_mode: 'Markdown' }),
+    expect.stringContaining('Access Restricted'),
+    expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -167,8 +167,8 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Acesso Restrito'),
-      expect.objectContaining({ parse_mode: 'Markdown' }),
+    expect.stringContaining('Access Restricted'),
+    expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -189,8 +189,8 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Acesso Restrito'),
-      expect.objectContaining({ parse_mode: 'Markdown' }),
+    expect.stringContaining('Access Restricted'),
+    expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -211,8 +211,8 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Acesso Restrito'),
-      expect.objectContaining({ parse_mode: 'Markdown' }),
+    expect.stringContaining('Access Restricted'),
+    expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -241,7 +241,7 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('modo somente leitura'),
+      expect.stringContaining('read-only mode'),
       expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();

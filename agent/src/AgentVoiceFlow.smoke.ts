@@ -47,20 +47,25 @@ async function smokeOnlineVoiceFlow(): Promise<void> {
         }
       },
     },
+    chime: {
+      playStart: () => events.push('online:chime:start'),
+      playStop: () => events.push('online:chime:stop'),
+      playError: () => events.push('online:chime:error'),
+    },
     whisper: {
       transcribe: async (filePath) => {
         events.push('online:transcribe');
         assert.equal(filePath, audioPath);
-        return 'ligue a luz da sala';
+        return 'turn on the living room light';
       },
     },
     echoClient: {
       processIntent: async (prompt) => {
         events.push('online:echo-execute');
-        assert.equal(prompt, 'ligue a luz da sala');
+        assert.equal(prompt, 'turn on the living room light');
         return {
           success: true,
-          response: 'Approval pendente para ligar a luz.',
+          response: 'Approval pending to turn on the light.',
           toolsUsed: ['home_assistant'],
           permissionsRequested: ['perm-agent-voice'],
           durationMs: 34,
@@ -98,12 +103,12 @@ async function smokeOnlineVoiceFlow(): Promise<void> {
       },
       showProcessing: async (transcript) => {
         events.push('online:processing');
-        assert.equal(transcript, 'ligue a luz da sala');
+        assert.equal(transcript, 'turn on the living room light');
       },
       showResult: async (response, success, durationMs) => {
         events.push('online:result');
         assert.equal(success, true);
-        assert.equal(response, 'Approval pendente para ligar a luz.');
+        assert.equal(response, 'Approval pending to turn on the light.');
         assert.equal(durationMs, 34);
       },
       showEchoSurfaceState: async (renderedState) => {
@@ -114,7 +119,7 @@ async function smokeOnlineVoiceFlow(): Promise<void> {
     tts: {
       speak: async (text) => {
         events.push('online:tts');
-        assert.equal(text, 'Approval pendente para ligar a luz.');
+        assert.equal(text, 'Approval pending to turn on the light.');
         fs.writeFileSync(ttsPath, 'fake tts');
         return ttsPath;
       },
@@ -137,7 +142,7 @@ async function smokeOnlineVoiceFlow(): Promise<void> {
 
   const result = await flow.runActivation('voice-smoke');
   assert.equal(result.status, 'completed');
-  assert.equal(result.transcript, 'ligue a luz da sala');
+  assert.equal(result.transcript, 'turn on the living room light');
   assert.equal(result.echoResult?.runId, 'run-agent-voice');
   assert.equal(result.surfaceState?.summary.pendingApprovals, 1);
   assert.equal(flow.isProcessing, false);
@@ -145,6 +150,8 @@ async function smokeOnlineVoiceFlow(): Promise<void> {
   assert.equal(cleanedTts, true);
   assert.equal(surfaceStateRendered, true);
   assert.equal(processingTransitions, 2);
+  assert.ok(events.includes('online:chime:start'));
+  assert.ok(events.includes('online:chime:stop'));
   assert(!fs.existsSync(audioPath), 'audio fixture should be cleaned');
   assert(!fs.existsSync(ttsPath), 'tts fixture should be cleaned');
 }
@@ -162,9 +169,9 @@ async function smokeConnectionFallbackFlow(): Promise<void> {
   assert.equal(connection.backendOnline, false);
   assert.equal(connection.ollamaOnline, false);
 
-  const offlineResult = await offlineClient.processIntent('teste offline do agent', 'VOICE');
+  const offlineResult = await offlineClient.processIntent('agent offline test', 'VOICE');
   assert.equal(offlineResult.success, false);
-  assert.match(offlineResult.response, /Falha de conexao|demorou demais/);
+  assert.match(offlineResult.response, /Falha de conexao|demorou demais|Connection with backend|took too long/i);
 
   const audioPath = path.join(os.tmpdir(), `zavorth-agent-offline-${process.pid}-${Date.now()}.wav`);
   let cleanedAudio = false;
@@ -185,10 +192,15 @@ async function smokeConnectionFallbackFlow(): Promise<void> {
         }
       },
     },
+    chime: {
+      playStart: () => events.push('offline:chime:start'),
+      playStop: () => events.push('offline:chime:stop'),
+      playError: () => events.push('offline:chime:error'),
+    },
     whisper: {
       transcribe: async () => {
         events.push('offline:transcribe');
-        return 'teste offline do agent';
+        return 'agent offline test';
       },
     },
     echoClient: {
@@ -232,6 +244,8 @@ async function smokeConnectionFallbackFlow(): Promise<void> {
   assert.equal(cleanedAudio, true);
   assert.equal(showedFallbackResult, true);
   assert.equal(flow.isProcessing, false);
+  assert.ok(events.includes('offline:chime:start'));
+  assert.ok(events.includes('offline:chime:stop'));
   assert(!fs.existsSync(audioPath), 'offline audio fixture should be cleaned');
 }
 
@@ -260,7 +274,7 @@ async function smokeCloudVoiceFallbackFlow(): Promise<void> {
       const body = JSON.parse(String(init?.body || '{}'));
       assert.equal(body.model, 'gemini-3.1-flash-tts-preview');
       assert.equal(body.voice, 'Kore');
-      assert.equal(body.input, 'Fallback cloud voice ativo.');
+      assert.equal(body.input, 'Fallback cloud voice active.');
       if (String(input).includes('/api/v2/echo/audio/speech')) {
         assert.equal(body.surface, 'agent');
         assert.equal(body.requestedBy, 'zavorth-agent-voice-smoke');
@@ -313,10 +327,15 @@ async function smokeCloudVoiceFallbackFlow(): Promise<void> {
         }
       },
     },
+    chime: {
+      playStart: () => events.push('cloud:chime:start'),
+      playStop: () => events.push('cloud:chime:stop'),
+      playError: () => events.push('cloud:chime:error'),
+    },
     whisper: {
       transcribe: async () => {
         events.push('cloud:transcribe');
-        return 'ative o fallback cloud';
+        return 'activate cloud fallback';
       },
     },
     echoClient: {
@@ -324,7 +343,7 @@ async function smokeCloudVoiceFallbackFlow(): Promise<void> {
         events.push('cloud:echo');
         return {
           success: true,
-          response: 'Fallback cloud voice ativo.',
+          response: 'Fallback cloud voice active.',
           toolsUsed: [],
           durationMs: 21,
           executionStatus: 'completed',
@@ -355,11 +374,13 @@ async function smokeCloudVoiceFallbackFlow(): Promise<void> {
 
   const result = await flow.runActivation('voice-cloud-fallback');
   assert.equal(result.status, 'completed');
-  assert.equal(result.echoResult?.response, 'Fallback cloud voice ativo.');
+  assert.equal(result.echoResult?.response, 'Fallback cloud voice active.');
   assert.equal(cloudRequestUsed, true);
   assert.equal(cloudPlayerUsed, true);
   assert.equal(systemFallbackUsed, false);
   assert.equal(cleanedAudio, true);
+  assert.ok(events.includes('cloud:chime:start'));
+  assert.ok(events.includes('cloud:chime:stop'));
   assert.ok(cloudTtsPath, 'cloud tts file should be generated');
   assert.equal(fs.existsSync(cloudTtsPath), false, 'cloud tts file should be cleaned by the flow');
 }
@@ -391,9 +412,9 @@ function buildSurfaceState(): EchoAgentSurfaceState {
     recentHistory: [{
       id: 'exec-agent-voice',
       timestamp: '2026-04-18T12:00:00.000Z',
-      prompt: 'ligue a luz da sala',
+      prompt: 'turn on the living room light',
       status: 'approval_required',
-      finalResponse: 'Approval pendente para ligar a luz.',
+      finalResponse: 'Approval pending to turn on the light.',
       durationMs: 34,
       toolsUsed: ['home_assistant'],
       toolStates: [{
@@ -422,7 +443,7 @@ function buildSurfaceState(): EchoAgentSurfaceState {
       entityId: 'lock.front_door',
       oldState: 'locked',
       newState: 'unlocked',
-      feedback: 'Atencao: lock.front_door mudou para unlocked.',
+      feedback: 'Attention: lock.front_door changed to unlocked.',
       severity: 'critical',
     }],
     summary: {
@@ -431,13 +452,13 @@ function buildSurfaceState(): EchoAgentSurfaceState {
       lastRunId: 'run-agent-voice',
       lastTraceId: 'trace-agent-voice',
       lastStatus: 'approval_required',
-      lastPrompt: 'ligue a luz da sala',
-      lastResponse: 'Approval pendente para ligar a luz.',
+      lastPrompt: 'turn on the living room light',
+      lastResponse: 'Approval pending to turn on the light.',
       lastSurface: 'agent',
       lastCapabilityStatus: 'pending',
       physicalSignals: 1,
       lastPhysicalEventId: 'ha-event-voice',
-      lastPhysicalFeedback: 'Atencao: lock.front_door mudou para unlocked.',
+      lastPhysicalFeedback: 'Attention: lock.front_door changed to unlocked.',
       lastPhysicalSeverity: 'critical',
     },
   };

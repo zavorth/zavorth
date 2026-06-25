@@ -8,7 +8,7 @@ const npmCommand = process.platform === 'win32' ? (process.env.ComSpec || 'cmd.e
 
 const checks = [
   checkNpm('runtime typecheck', 'runtime:check'),
-  checkNpm('zavorthControl syntax', 'ai-gateway:check'),
+  checkNpm('zavorthControl syntax', 'zavorth-control:check'),
   checkNpm('zavorthControl preview', 'qa:zavorthControl-browser-preview'),
   checkNpm('design system', 'zavorth:zavorthControl-design-system:check'),
   checkNpm('zavorthControl product polish', 'zavorth:zavorthControl-final-product-polish:check'),

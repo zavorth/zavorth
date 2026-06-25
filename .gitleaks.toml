@@ -8,14 +8,59 @@ paths = [
   '''dist''',
   '''out''',
   '''release''',
-  '''artifacts'''
+  '''artifacts''',
+  '''\.env$''',
+  '''\.env\.local$''',
+  '''\.env\.example$'''
 ]
 
 [[rules]]
 id = "openai-api-key"
 description = "OpenAI API Key"
-regex = '''(?i)sk-[a-zA-Z0-9]{48}'''
+regex = '''(?i)sk-proj-[a-zA-Z0-9_\-]{20,}'''
 tags = ["key", "openai"]
+
+[[rules]]
+id = "openai-api-key-legacy"
+description = "OpenAI API Key (legacy format)"
+regex = '''(?i)sk-[a-zA-Z0-9]{20,}'''
+tags = ["key", "openai"]
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''(?i)sk-ant-[a-zA-Z0-9_\-]{20,}'''
+tags = ["key", "anthropic"]
+
+[[rules]]
+id = "google-api-key"
+description = "Google/Gemini API Key"
+regex = '''(?i)AIzaSy[a-zA-Z0-9_\-]{33}'''
+tags = ["key", "google"]
+
+[[rules]]
+id = "discord-bot-token"
+description = "Discord Bot Token"
+regex = '''(?i)[MN][a-zA-Z0-9]{23,}\.[a-zA-Z0-9_-]{6}\.[a-zA-Z0-9_-]{27,}'''
+tags = ["key", "discord"]
+
+[[rules]]
+id = "telegram-bot-token"
+description = "Telegram Bot Token"
+regex = '''(?i)\d{9,}:[a-zA-Z0-9_\-]{35}'''
+tags = ["key", "telegram"]
+
+[[rules]]
+id = "github-pat"
+description = "GitHub Personal Access Token"
+regex = '''(?i)ghp_[a-zA-Z0-9]{36}'''
+tags = ["key", "github"]
+
+[[rules]]
+id = "huggingface-token"
+description = "HuggingFace Token"
+regex = '''(?i)hf_[a-zA-Z0-9]{34}'''
+tags = ["key", "huggingface"]
 
 [[rules]]
 id = "generic-api-key"
@@ -28,3 +73,9 @@ id = "private-key"
 description = "Private Key"
 regex = '''-----BEGIN[ A-Z0-9_-]+PRIVATE KEY-----'''
 tags = ["key", "private"]
+
+[[rules]]
+id = "jwt-token"
+description = "JWT Token"
+regex = '''eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}'''
+tags = ["key", "jwt"]

@@ -7,8 +7,8 @@ import {
   buildDashboardCommandCenterFixturePreviewViewModel as buildZavorthControlZavorthControlFixturePreviewViewModel,
   listDashboardCommandCenterFixturePreviewOptions as listZavorthControlZavorthControlFixturePreviewOptions,
   resolveDashboardCommandCenterFixturePreviewId as resolveZavorthControlZavorthControlFixturePreviewId,
-} from "../src/ai-gateway/app/(dashboard)/control/command-center/preview/commandCenterFixturePreview";
-import type { DashboardCommandCenterViewModel as ZavorthControlZavorthControlViewModel } from "../src/ai-gateway/app/(dashboard)/control/command-center/contracts";
+} from "../src/zavorth-control/app/(dashboard)/control/command-center/preview/commandCenterFixturePreview";
+import type { DashboardCommandCenterViewModel as ZavorthControlZavorthControlViewModel } from "../src/zavorth-control/app/(dashboard)/control/command-center/contracts";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-browser-preview");
@@ -43,7 +43,7 @@ function escapeScriptJson(value: unknown): string {
 
 function buildPreviewHtml(defaultFixtureId: string): string {
   const css = fs.readFileSync(
-    path.join(rootDir, "src/ai-gateway/app/(dashboard)/control/command-center/styles/commandCenter.css"),
+    path.join(rootDir, "src/zavorth-control/app/(dashboard)/control/command-center/styles/commandCenter.css"),
     "utf8",
   );
   const options = listZavorthControlZavorthControlFixturePreviewOptions();

@@ -23,7 +23,7 @@
     "missing dependencies",
     "execution log"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

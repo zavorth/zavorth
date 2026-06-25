@@ -29,7 +29,7 @@ describe('ZavorthControlComposerAffordancesQa', () => {
       'utf8',
     );
     const inbox = readFileSync(
-      join(rootDir, 'src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx'),
+      join(rootDir, 'src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx'),
       'utf8',
     );
     const qa = readFileSync(
@@ -46,7 +46,7 @@ describe('ZavorthControlComposerAffordancesQa', () => {
     );
 
     expect(packageJson.scripts['qa:zavorthControl-composer-affordances']).toBe(
-      'npm run ai-gateway:check --silent',
+      'npm run zavorth-control:check --silent',
     );
     expect(packageJson.scripts['qa:zavorthControl-live-composer']).toBe(
       'npx tsx scripts/dashboard-live-composer-affordances-qa.ts --allow-send --require-live --require-pass',

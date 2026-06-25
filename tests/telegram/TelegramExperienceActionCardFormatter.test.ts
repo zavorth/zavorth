@@ -162,7 +162,7 @@ describe('TelegramExperienceActionCardFormatter', () => {
     const keyboard = (rendered.replyOptions?.reply_markup as any).inline_keyboard.flat();
     const callbackData = keyboard.map((button: any) => String(button.callback_data || '')).filter(Boolean);
 
-    expect(rendered.text).toContain('Zavorth Daily Control');
+    expect(rendered.text).toContain('Zavorth Control');
     expect(rendered.text).toContain('Rodar validacao');
     expect(callbackData.some((value: string) => value.startsWith('xcard:'))).toBe(true);
     expect(callbackData.every((value: string) => Buffer.byteLength(value, 'utf8') <= 64)).toBe(true);

@@ -6,11 +6,23 @@
   "category": "productivity",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["airtable", "database", "automation"],
-  "presets": ["developer"],
-  "inputContract": ["base_id", "table_config"],
-  "outputContract": ["records", "view_config"],
+  "capabilityTags": [
+    "airtable",
+    "database",
+    "automation"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "base_id",
+    "table_config"
+  ],
+  "outputContract": [
+    "records",
+    "view_config"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

@@ -364,8 +364,8 @@ const staticRules = [
     target: 'UI button calls a protected API route that re-enters AgentRunService with planId and owner confirmation',
     files: [
       'src/domain/surface/presentation/web-app/WebAppRuntimeInteractionRouteService.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx',
       'tests/services/WebAppRuntimeInteractionRouteService.test.ts',
     ],
     needles: [
@@ -385,9 +385,9 @@ const staticRules = [
     files: [
       'src/runtime/agent/AgentRunIntelligenceFabricDraftMutation.ts',
       'src/runtime/agent/RunObservatory.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlZavorthControlObservabilityContracts.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlRunObservatory.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlZavorthControlObservabilityContracts.ts',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlRunObservatory.ts',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx',
     ],
     needles: [
       'draftObservability',
@@ -463,9 +463,9 @@ const staticRules = [
     target: 'Run Observatory publishes Fabric health and ZavorthControl renders status, recommendation, latency and rollback hint',
     files: [
       'src/runtime/agent/RunObservatory.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlZavorthControlObservabilityContracts.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlRunObservatory.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlZavorthControlObservabilityContracts.ts',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlRunObservatory.ts',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx',
       'tests/ai-gateway/zavorthControl/ZavorthControlRunObservatory.test.ts',
       'tests/runtime/agent/RunObservatoryProduct.test.ts',
     ],
@@ -484,9 +484,9 @@ const staticRules = [
     target: 'degraded Fabric health can be demoted through a protected owner-confirmed API action with rollback receipt metadata',
     files: [
       'src/domain/surface/presentation/web-app/WebAppRuntimeInteractionRouteService.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlDemoteFabricAction.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlDemoteFabricAction.ts',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
+      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOverviewSector.tsx',
       'tests/services/WebAppRuntimeInteractionRouteService.test.ts',
     ],
     needles: [

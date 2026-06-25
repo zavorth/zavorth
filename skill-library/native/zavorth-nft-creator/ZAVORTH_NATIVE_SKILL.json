@@ -6,11 +6,24 @@
   "category": "blockchain",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["nft", "blockchain", "digital-art"],
-  "presets": ["developer"],
-  "inputContract": ["artwork files", "metadata specs", "collection parameters"],
-  "outputContract": ["NFT metadata", "transaction receipts"],
+  "capabilityTags": [
+    "nft",
+    "blockchain",
+    "digital-art"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "artwork files",
+    "metadata specs",
+    "collection parameters"
+  ],
+  "outputContract": [
+    "NFT metadata",
+    "transaction receipts"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

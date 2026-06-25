@@ -27,7 +27,7 @@ describe('ZavorthTrajectoryExportTool', () => {
       duration_ms: 10000,
       started_at: '2025-06-01T10:00:00Z',
       completed_at: '2025-06-01T10:00:10Z',
-      metadata: { model: 'gpt-5.2' },
+      metadata: { model: 'gpt-4o' },
     };
 
     const trajectory2 = {

@@ -6,11 +6,24 @@
   "category": "channels",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["whatsapp", "business-api", "messaging"],
-  "presets": ["developer"],
-  "inputContract": ["message templates", "contact lists", "webhook configs"],
-  "outputContract": ["message logs", "integration configs"],
+  "capabilityTags": [
+    "whatsapp",
+    "business-api",
+    "messaging"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "message templates",
+    "contact lists",
+    "webhook configs"
+  ],
+  "outputContract": [
+    "message logs",
+    "integration configs"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

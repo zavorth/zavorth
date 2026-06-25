@@ -11,7 +11,7 @@ describe('OracleCloudflareRolloutService', () => {
       cloudflareAiGatewayAccountId: 'acct',
       cloudflareAiGatewayId: 'gw',
       cloudflareTunnelPublicHostname: 'zavorth.example.com',
-      gemmaModel: 'gemma-4-31b-it',
+      gemmaModel: 'gemma-2-27b-it',
       now: () => new Date('2026-04-02T21:00:00.000Z'),
     });
 
@@ -33,7 +33,7 @@ describe('OracleCloudflareRolloutService', () => {
       cloudflareAiGatewayId: '',
       cloudflareTunnelPublicHostname: '',
       publicBaseUrl: '',
-      gemmaModel: 'gemma-4-31b-it',
+      gemmaModel: 'gemma-2-27b-it',
     });
 
     const snapshot = service.inspect();

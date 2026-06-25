@@ -12,7 +12,7 @@ describe('ModelIdSanitizer', () => {
   describe('sanitizeModelId()', () => {
     it('should sanitize normal model IDs', () => {
       expect(sanitizeModelId('gpt-4o')).toBe('gpt-4o');
-      expect(sanitizeModelId('claude-sonnet-4-5')).toBe('claude-sonnet-4-5');
+      expect(sanitizeModelId('claude-3-5-sonnet-latest')).toBe('claude-3-5-sonnet-latest');
       expect(sanitizeModelId('gemini-2.5-flash')).toBe('gemini-2.5-flash');
     });
 
@@ -127,7 +127,7 @@ describe('ModelIdSanitizer', () => {
   describe('validateModelId()', () => {
     it('should accept valid model IDs', () => {
       expect(validateModelId('gpt-4o').valid).toBe(true);
-      expect(validateModelId('claude-sonnet-4-5').valid).toBe(true);
+      expect(validateModelId('claude-3-5-sonnet-latest').valid).toBe(true);
     });
 
     it('should reject empty model IDs', () => {

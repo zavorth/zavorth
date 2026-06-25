@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 import type { EchoAgentSurfaceState } from './EchoClientService.js';
 
 /**
@@ -22,31 +23,31 @@ export class OverlayService {
   }
 
   public async showListening(activationMode: string): Promise<void> {
-    console.log(`\n  ZAVORTH ECHO - Ouvindo... [${activationMode}]`);
+    console.log(t('listening', { mode: activationMode }));
     console.log('  ----------------------------------------');
-    console.log('  Fale seu comando...\n');
+    console.log('  Speak your command...\n');
 
     await this.notify({
       title: 'Zavorth Echo',
-      message: `Ouvindo... (${activationMode})`,
+      message: t('listening_overlay', { mode: activationMode }),
       icon: this.getIconPath(),
     });
   }
 
   public async showProcessing(transcript: string): Promise<void> {
-    console.log(`  Processando: "${transcript}"`);
-    console.log('  Consultando o backend Echo...\n');
+    console.log(`  Processing: "${transcript}"`);
+    console.log('  Querying Echo backend...\n');
   }
 
   public async showResult(response: string, success: boolean, durationMs?: number): Promise<void> {
-    const status = success ? 'OK' : 'ERRO';
+    const status = success ? t('overlay_status_ok') : t('overlay_status_error');
     const timing = durationMs ? ` | ${durationMs}ms` : '';
 
     console.log(`  [${status}] ${response}${timing}`);
     console.log('  ----------------------------------------\n');
 
     await this.notify({
-      title: success ? 'Zavorth - Executado' : 'Zavorth - Erro',
+      title: success ? t('overlay_executed') : t('overlay_error'),
       message: `${this.truncate(response, 200)}${timing}`,
       icon: this.getIconPath(),
     });
@@ -70,19 +71,19 @@ export class OverlayService {
 
     console.log('\n  ZAVORTH ECHO - Agent Surface State');
     console.log(`  Surface: ${state.context.surface} | Session: ${this.shortId(state.context.sessionId)} | RequestedBy: ${state.context.requestedBy}`);
-    console.log(`  Approvals pendentes: ${summary.pendingApprovals}`);
+    console.log(`  Pending approvals: ${summary.pendingApprovals}`);
     if (pendingPreview.length > 0) {
-      console.log(`  Pendencias: ${pendingPreview.join(' | ')}`);
+      console.log(`  Pending: ${pendingPreview.join(' | ')}`);
     }
     if (latest) {
-      console.log(`  Ultimo run: ${this.shortId(latest.runId)} | ${latest.status} | ${latest.durationMs || 0}ms`);
+      console.log(t('overlay_last_run', { runId: this.shortId(latest.runId), status: latest.status, duration: latest.durationMs || 0 }));
       if (summary.lastCapabilityStatus) {
         console.log(`  Capability: ${summary.lastCapabilityStatus}`);
       }
       console.log(`  Prompt: ${this.truncate(latest.prompt, 120)}`);
-      console.log(`  Resposta: ${this.truncate(latest.finalResponse, 160)}`);
+      console.log(t('overlay_response', { response: this.truncate(latest.finalResponse, 160) }));
     } else {
-      console.log('  Historico: nenhum run recente retornado pelo Echo.');
+      console.log('  History: no recent runs returned by Echo.');
     }
     if (state.recentPhysicalEvents.length > 0) {
       const latestPhysicalEvent = state.recentPhysicalEvents[0];
@@ -91,8 +92,8 @@ export class OverlayService {
     console.log('');
 
     const message = [
-      `${summary.pendingApprovals} approval(s) pendente(s)`,
-      latest ? `ultimo run ${this.shortId(latest.runId)} ${latest.status}` : 'sem runs recentes',
+      `${summary.pendingApprovals} pending approval(s)`,
+      latest ? t('overlay_last_run_short', { runId: this.shortId(latest.runId), status: latest.status }) : t('overlay_no_runs'),
       summary.lastCapabilityStatus ? `capability ${summary.lastCapabilityStatus}` : '',
       summary.lastPhysicalFeedback ? `iot ${this.truncate(summary.lastPhysicalFeedback, 60)}` : '',
     ].filter((entry) => entry.length > 0).join(' | ');

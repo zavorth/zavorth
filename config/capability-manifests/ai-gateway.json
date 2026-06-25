@@ -1,10 +1,10 @@
 {
-  "id": "ai-gateway",
+  "id": "zavorth-control",
   "label": "AI Gateway",
   "kind": "remote",
   "version": "0.1.0",
   "boot": "sidecar",
-  "entry": "./dist/capabilities/ai-gateway/index.js",
+  "entry": "./dist/capabilities/zavorth-control/index.js",
   "description": "Provider proxy and dashboard services run as a managed sidecar.",
   "requires": ["network"],
   "provides": ["provider-routing", "protocol-translation", "usage-observability"],

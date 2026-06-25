@@ -1,4 +1,4 @@
-import { buildCommandCenterRemoteMeshApprovalUxProjection } from '../../src/ai-gateway/app/(dashboard)/control/command-center/projections/remoteMeshApprovalUxProjection.js';
+import { buildCommandCenterRemoteMeshApprovalUxProjection } from '../../src/zavorth-control/app/(dashboard)/control/command-center/projections/remoteMeshApprovalUxProjection.js';
 import type {
   RemoteMeshNotebookDockerControlPreviewPayload,
   RemoteMeshNotebookProjectFileReadPreviewPayload,

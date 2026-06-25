@@ -32,7 +32,7 @@ describe('GeminiVoiceService', () => {
       apiKey: 'gemini-test-key',
       tmpDir: tempDir,
       fetchImpl: fetchImpl as any,
-      model: 'gemini-3.1-flash-tts-preview',
+      model: 'gemini-2.5-flash',
       voiceName: 'Kore',
       languageCode: 'en-US',
     });

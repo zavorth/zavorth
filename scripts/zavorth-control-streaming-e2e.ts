@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const staticDir = path.join(rootDir, "src", "ai-gateway", "public", "zavorth-control-vite-shell");
+const staticDir = path.join(rootDir, "src", "zavorth-control", "public", "zavorth-control-vite-shell");
 const defaultOutDir = path.join(rootDir, ".tmp", "zavorth-control-streaming-e2e");
 
 type CheckStatus = "pass" | "fail";

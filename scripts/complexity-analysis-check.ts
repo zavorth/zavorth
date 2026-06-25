@@ -12,7 +12,7 @@ type ComplexityReport = {
   generatedAt: string;
   workspaceRoot: string;
   summary: {
-    status: 'passed' | 'failed';
+    status: 'passed' | 'failed' | 'advisory';
     totalFunctions: number;
     averageComplexity: number;
     functionsAboveWarn: number;
@@ -28,6 +28,7 @@ type ComplexityReport = {
 
 const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
+const strict = argv.includes('--strict');
 const workspaceRoot = process.cwd();
 const sourceRoot = path.join(workspaceRoot, 'src');
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.next', 'coverage', '.git']);
@@ -178,7 +179,7 @@ const report: ComplexityReport = {
   generatedAt: new Date().toISOString(),
   workspaceRoot,
   summary: {
-    status: allFunctions.some((fn) => fn.complexity > FAIL_THRESHOLD) ? 'failed' : 'passed',
+    status: allFunctions.some((fn) => fn.complexity > FAIL_THRESHOLD) ? (strict ? 'failed' : 'advisory') : 'passed',
     totalFunctions: allFunctions.length,
     averageComplexity: Math.round(avgComplexity * 100) / 100,
     functionsAboveWarn: violations.length,

@@ -1,4 +1,4 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
 
 describe('ZavorthControlZavorthControlAdapter', () => {
   it('maps current control state into ZavorthControl contracts without using demo metrics', () => {
@@ -536,14 +536,14 @@ describe('ZavorthControlZavorthControlAdapter', () => {
             source: 'current-config',
             providerName: 'openai',
             providerLabel: 'OpenAI',
-            modelName: 'gpt-5.2',
-            modelLabel: 'gpt-5.2',
+            modelName: 'gpt-4o',
+            modelLabel: 'gpt-4o',
             routeId: 'openai',
             familyId: 'openai',
             readiness: 'ready',
             ready: true,
             fallbackOrder: [],
-            explanation: ['Configuracao atual seleciona openai/gpt-5.2.'],
+            explanation: ['Configuracao atual seleciona openai/gpt-4o.'],
           },
         },
       },
@@ -551,10 +551,10 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     });
 
     expect(viewModel.runtime.currentProviderLabel).toBe('OpenAI');
-    expect(viewModel.runtime.currentModelLabel).toBe('gpt-5.2');
+    expect(viewModel.runtime.currentModelLabel).toBe('gpt-4o');
     expect(viewModel.modelProfile).toEqual(expect.objectContaining({
       providerLabel: 'OpenAI',
-      modelLabel: 'gpt-5.2',
+      modelLabel: 'gpt-4o',
     }));
   });
 

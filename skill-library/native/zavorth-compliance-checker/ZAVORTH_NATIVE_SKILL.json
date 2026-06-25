@@ -6,11 +6,25 @@
   "category": "security",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["compliance", "gdpr", "soc2", "hipaa"],
-  "presets": ["developer"],
-  "inputContract": ["compliance framework", "system configurations", "policy documents"],
-  "outputContract": ["security reports", "remediation plans"],
+  "capabilityTags": [
+    "compliance",
+    "gdpr",
+    "soc2",
+    "hipaa"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "compliance framework",
+    "system configurations",
+    "policy documents"
+  ],
+  "outputContract": [
+    "security reports",
+    "remediation plans"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

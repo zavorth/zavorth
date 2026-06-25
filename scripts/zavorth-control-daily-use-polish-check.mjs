@@ -1,11 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 
 const files = {
-  panel: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
-  shell: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
-  chat: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx',
-  contextRail: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlContextRail.tsx',
-  adapter: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.ts',
+  panel: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
+  shell: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
+  chat: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx',
+  contextRail: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlContextRail.tsx',
+  adapter: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.ts',
   packageJson: 'package.json',
 };
 

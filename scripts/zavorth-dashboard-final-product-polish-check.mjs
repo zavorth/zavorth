@@ -56,10 +56,10 @@ function ruleFilesExist() {
 
 function ruleContainsMarkers() {
   const checks = [
-    ['src/ai-gateway/app/(dashboard)/dashboard/page.tsx', [
+    ['src/zavorth-control/app/(dashboard)/dashboard/page.tsx', [
       'HomePageClient',
     ]],
-    ['src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx', [
+    ['src/zavorth-control/app/(dashboard)/dashboard/HomePageClient.tsx', [
       'providerSignal',
       'approvalsSignal',
       'runtimeGuidedFixes',
@@ -68,7 +68,7 @@ function ruleContainsMarkers() {
       'Approvals appear here',
       'swarmSnapshot',
     ]],
-    ['src/ai-gateway/shared/constants/sidebarVisibility.ts', [
+    ['src/zavorth-control/shared/constants/sidebarVisibility.ts', [
       'href: "/dashboard"',
       'href: "/dashboard/providers"',
       'href: "/dashboard/skills"',

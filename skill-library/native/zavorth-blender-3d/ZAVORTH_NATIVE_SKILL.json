@@ -6,11 +6,23 @@
   "category": "creative",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["blender", "3d", "rendering"],
-  "presets": ["developer"],
-  "inputContract": ["scene_spec", "model_params"],
-  "outputContract": ["blender_script", "rendered_output"],
+  "capabilityTags": [
+    "blender",
+    "3d",
+    "rendering"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "scene_spec",
+    "model_params"
+  ],
+  "outputContract": [
+    "blender_script",
+    "rendered_output"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

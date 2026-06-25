@@ -40,7 +40,7 @@ describe('TelegramMnemosController', () => {
 
     await controller.handleMnemosCallback(ctx as any, 'mnemos:vault_status');
 
-    expect(ctx.editMessageText).toHaveBeenCalledWith(expect.stringContaining('Mnemos não está conectado'));
+    expect(ctx.editMessageText).toHaveBeenCalledWith(expect.stringContaining('Mnemos is not connected'));
   });
 
   it('falls back to reply when editing the callback message fails', async () => {

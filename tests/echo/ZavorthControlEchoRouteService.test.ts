@@ -118,7 +118,7 @@ function createDeps() {
       ok: true,
       audio: Buffer.from('voice-bytes'),
       mimeType: 'audio/wav',
-      model: 'gemini-3.1-flash-tts-preview',
+      model: 'gemini-2.5-flash',
       voiceName: 'Kore',
       languageCode: 'en-US',
       latencyMs: 42,
@@ -779,7 +779,7 @@ describe('ZavorthControlEchoRouteService', () => {
     });
     expect(audioRes.body?.toString('utf8')).toBe('voice-bytes');
     expect(audioRes.headers['Content-Type']).toBe('audio/wav');
-    expect(audioRes.headers['X-Zavorth-Voice-Model']).toBe('gemini-3.1-flash-tts-preview');
+    expect(audioRes.headers['X-Zavorth-Voice-Model']).toBe('gemini-2.5-flash');
     expect(audioRes.headers['X-Zavorth-Echo-Edge']).toBe('voice');
   });
 

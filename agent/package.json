@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Zavorth Agent — Processo leve de voz com Wake Word + Hotkey que fica na bandeja do sistema",
+  "description": "Zavorth Agent — Lightweight voice process with Wake Word + Hotkey residing in the system tray",
   "main": "src/index.ts",
   "scripts": {
     "start": "npx tsx src/index.ts",

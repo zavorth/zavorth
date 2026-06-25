@@ -50,7 +50,7 @@
 **Files:**
 - Modify: `src/cli/doctor/ZavorthDoctorPremiumCommand.ts`
 - Test: `tests/cli/doctor/ZavorthDoctorPremiumCommand.test.ts`
-- Test: `tests/cli/ZavorthMemoryEncryptionCommand.test.ts`
+- Test: `tests/services/ZavorthMemoryEncryptionStatusService.test.ts`
 
 - [ ] Write failing tests for non-mutating network, writable-storage, and SQLite-integrity diagnostics.
 - [ ] Implement diagnostics with explicit repair plans; do not perform destructive repair automatically.

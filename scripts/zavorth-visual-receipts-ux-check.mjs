@@ -9,7 +9,7 @@ const files = {
   contract: 'src/contracts/ZavorthVisualReceiptUxContract.ts',
   service: 'src/services/ZavorthVisualReceiptUxService.ts',
   webStateRoute: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  operationsPanel: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
+  operationsPanel: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
   script: 'scripts/zavorth-visual-receipts-ux.ts',
   test: 'tests/services/ZavorthVisualReceiptUxService.test.ts',
   packageJson: 'package.json',

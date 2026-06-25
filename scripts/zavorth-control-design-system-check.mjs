@@ -7,17 +7,17 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const normalizeLineEndings = (text) => text.replace(/\r\n?/g, '\n');
 
 const files = {
-  globals: 'src/ai-gateway/app/globals.css',
-  page: 'src/ai-gateway/app/(zavorthControl)/control/page.tsx',
-  assets: 'src/ai-gateway/app/(zavorthControl)/control/ControlPageAssets.tsx',
-  source: 'src/ai-gateway/app/(zavorthControl)/control/legacyDashboardSource.ts',
-  surfaces: 'src/ai-gateway/app/(zavorthControl)/control/ZavorthControlSurfaces.tsx',
-  overlays: 'src/ai-gateway/app/(zavorthControl)/control/ZavorthControlOverlays.tsx',
-  chatCss: 'src/ai-gateway/public/zavorth-control-vite-shell/styles/chat.css',
-  pagesCss: 'src/ai-gateway/public/zavorth-control-vite-shell/styles/pages.css',
-  overlaysCss: 'src/ai-gateway/public/zavorth-control-vite-shell/styles/overlays.css',
-  appJs: 'src/ai-gateway/public/zavorth-control-vite-shell/scripts/app.js',
-  runtimeBridge: 'src/ai-gateway/public/zavorth-control-vite-shell/scripts/runtime-bridge.js',
+  globals: 'src/zavorth-control/app/globals.css',
+  page: 'src/zavorth-control/app/(zavorthControl)/control/page.tsx',
+  assets: 'src/zavorth-control/app/(zavorthControl)/control/ControlPageAssets.tsx',
+  source: 'src/zavorth-control/app/(zavorthControl)/control/legacyDashboardSource.ts',
+  surfaces: 'src/zavorth-control/app/(zavorthControl)/control/ZavorthControlSurfaces.tsx',
+  overlays: 'src/zavorth-control/app/(zavorthControl)/control/ZavorthControlOverlays.tsx',
+  chatCss: 'src/zavorth-control/public/zavorth-control-vite-shell/styles/chat.css',
+  pagesCss: 'src/zavorth-control/public/zavorth-control-vite-shell/styles/pages.css',
+  overlaysCss: 'src/zavorth-control/public/zavorth-control-vite-shell/styles/overlays.css',
+  appJs: 'src/zavorth-control/public/zavorth-control-vite-shell/scripts/app.js',
+  runtimeBridge: 'src/zavorth-control/public/zavorth-control-vite-shell/scripts/runtime-bridge.js',
   viteApp: 'apps/zavorth-control-vite-shell/index.html',
   viteAppTs: 'apps/zavorth-control-vite-shell/src/app.ts',
   viteApprovalArtifactCardsTs: 'apps/zavorth-control-vite-shell/src/approval-artifact-cards.ts',
@@ -228,10 +228,10 @@ const forbiddenVisibleCopy = [
 const failures = [];
 
 const syncedAssetPairs = [
-  ['apps/zavorth-control-vite-shell/public/scripts/app.js', 'src/ai-gateway/public/zavorth-control-vite-shell/scripts/app.js'],
-  ['apps/zavorth-control-vite-shell/public/styles/chat.css', 'src/ai-gateway/public/zavorth-control-vite-shell/styles/chat.css'],
-  ['apps/zavorth-control-vite-shell/public/styles/pages.css', 'src/ai-gateway/public/zavorth-control-vite-shell/styles/pages.css'],
-  ['apps/zavorth-control-vite-shell/public/styles/overlays.css', 'src/ai-gateway/public/zavorth-control-vite-shell/styles/overlays.css'],
+  ['apps/zavorth-control-vite-shell/public/scripts/app.js', 'src/zavorth-control/public/zavorth-control-vite-shell/scripts/app.js'],
+  ['apps/zavorth-control-vite-shell/public/styles/chat.css', 'src/zavorth-control/public/zavorth-control-vite-shell/styles/chat.css'],
+  ['apps/zavorth-control-vite-shell/public/styles/pages.css', 'src/zavorth-control/public/zavorth-control-vite-shell/styles/pages.css'],
+  ['apps/zavorth-control-vite-shell/public/styles/overlays.css', 'src/zavorth-control/public/zavorth-control-vite-shell/styles/overlays.css'],
 ];
 
 for (const token of requiredTokens) {

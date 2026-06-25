@@ -11,7 +11,7 @@ const requiredFiles = [
   'src/services/ZavorthProviderModelCatalogService.ts',
   'scripts/zavorth-provider-model-catalog.ts',
   'tests/services/ZavorthProviderModelCatalogService.test.ts',
-  'tests/ai-gateway/zavorthControl/ZavorthControlProviderModelCatalogImplementation.test.ts',
+  'tests/zavorth-control/zavorthControl/ZavorthControlProviderModelCatalogImplementation.test.ts',
 ];
 
 for (const file of requiredFiles) {

@@ -145,7 +145,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
         transcribeUrl: 'https://deepgram.example.test/v1/listen',
         apiKey: 'dg-secret',
         authScheme: 'Token',
-        modelId: 'nova-3',
+        modelId: 'nova-2',
       }, { fetchImpl }),
     });
 

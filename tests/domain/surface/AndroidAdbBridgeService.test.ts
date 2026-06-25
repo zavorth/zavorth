@@ -5,7 +5,7 @@ import {
   type ZavorthAdbCommandResult,
   type ZavorthAdbRunner,
   ZavorthAndroidAdbBridgeService,
-} from '../../../src/services/ZavorthAndroidAdbBridgeService';
+} from '@zavorth/hardware/ZavorthAndroidAdbBridgeService.js';
 
 function ok(stdoutText = '', stdoutBytes: Buffer | null = null): ZavorthAdbCommandResult {
   return {

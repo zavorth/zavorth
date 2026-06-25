@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 
 const files = {
-  panel: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
+  panel: 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
   packageJson: 'package.json',
 };
 

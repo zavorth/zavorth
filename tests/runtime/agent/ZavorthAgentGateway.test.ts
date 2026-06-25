@@ -48,7 +48,7 @@ describe('ZavorthAgentGateway', () => {
       now: () => new Date('2026-04-26T12:00:00.000Z'),
       idFactory: createIdFactory(),
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
       executor,
     });
 

@@ -132,7 +132,7 @@ describe('AgentWorkflow — Integration tests across multiple components', () =>
     it('should use cached prompt to avoid re-routing', () => {
       const content = 'cached system prompt for chat';
       const hash = cache.computeHash(content);
-      cache.store(hash, ['system'], 50, 'openai', 'gpt-5.2-mini');
+      cache.store(hash, ['system'], 50, 'openai', 'gpt-4o-mini');
 
       const hit = cache.lookup(hash);
       expect(hit).not.toBeNull();

@@ -41,6 +41,6 @@ describe('TelegramSwarmController', () => {
     expect(botApi.editMessageText).toHaveBeenCalled();
     const finalMessage = botApi.sendMessage.mock.calls.at(-1)?.[1] || '';
     expect(finalMessage.length).toBeLessThanOrEqual(4020);
-    expect(finalMessage).toContain('truncado');
+    expect(finalMessage).toContain('truncated');
   });
 });

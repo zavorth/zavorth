@@ -22,7 +22,7 @@
     "sanity schema code",
     "groq queries"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

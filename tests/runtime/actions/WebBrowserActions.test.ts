@@ -5,12 +5,12 @@ import * as path from 'path';
 import { ZavorthActionCatalog, ZavorthActionGateway } from '../../../src/runtime/actions';
 import { SearchQueryService } from '../../../src/services/SearchQueryService';
 import { safeFetch } from '../../../src/security/SafeFetchService';
-import { assertPublicHttpTargetAllowed } from '../../../src/ai-gateway/lib/security/egressGuard';
+import { assertPublicHttpTargetAllowed } from '../../../src/zavorth-control/lib/security/egressGuard';
 import { MinimalBrowserSidecarClient } from '../../../src/core/MinimalBrowserSidecarClient';
 
 jest.mock('../../../src/services/SearchQueryService');
 jest.mock('../../../src/security/SafeFetchService');
-jest.mock('../../../src/ai-gateway/lib/security/egressGuard');
+jest.mock('../../../src/zavorth-control/lib/security/egressGuard');
 jest.mock('../../../src/core/MinimalBrowserSidecarClient');
 
 describe('Web & Browser Actions Harness (Phase 23-A)', () => {

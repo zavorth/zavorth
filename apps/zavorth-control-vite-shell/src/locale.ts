@@ -901,6 +901,52 @@ export function applyControlLocale(root: ParentNode = document) {
   });
 }
 
+async function syncLocaleToBackend(locale: string) {
+  try {
+    const token = sessionStorage.getItem('zavorth.zavorthControl.webToken');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['X-Zavorth-Token'] = token;
+    }
+    const response = await fetch('/api/v2/agent/locale', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ lang: locale }),
+    });
+    if (!response.ok) {
+      console.warn(`[LocaleSync] Failed to sync language to backend: ${response.status}`);
+    }
+  } catch (error) {
+    console.warn(`[LocaleSync] Error syncing language to backend: ${(error as Error).message}`);
+  }
+}
+
+async function loadLocaleFromBackend() {
+  try {
+    const token = sessionStorage.getItem('zavorth.zavorthControl.webToken');
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['X-Zavorth-Token'] = token;
+    }
+    const response = await fetch('/api/v2/agent/locale', { headers });
+    if (response.ok) {
+      const payload = await response.json();
+      if (payload.ok && payload.data && typeof payload.data.lang === 'string') {
+        const backendLang = payload.data.lang;
+        const currentPref = readControlLocalePreference();
+        if (currentPref !== backendLang) {
+          persistControlLocale(backendLang as any);
+          applyControlLocale();
+        }
+      }
+    }
+  } catch (error) {
+    console.warn(`[LocaleSync] Error loading language from backend: ${(error as Error).message}`);
+  }
+}
+
 export function installControlLocale() {
   window.ZavorthLocale = {
     get: readEffectiveDocumentLocale,
@@ -908,12 +954,15 @@ export function installControlLocale() {
     set: (locale) => {
       const resolved = persistControlLocale(locale);
       applyControlLocale();
+      void syncLocaleToBackend(locale);
       return resolved;
     },
     apply: applyControlLocale,
     t: (value) => translate(value),
   };
   applyControlLocale();
+  void loadLocaleFromBackend();
+
   window.addEventListener('languagechange', () => {
     if (readControlLocalePreference() !== 'system') return;
     applyControlLocale();
@@ -924,5 +973,15 @@ export function installControlLocale() {
         preference: 'system',
       },
     }));
+  });
+
+  window.addEventListener('zavorth-control-locale-change', (event: any) => {
+    const pref = event.detail?.preference;
+    if (pref) {
+      const select = document.querySelector('[data-zavorth-locale-select]');
+      if (select instanceof HTMLSelectElement) {
+        select.value = pref;
+      }
+    }
   });
 }

@@ -11,7 +11,7 @@ describe('LLMRouterService', () => {
     it('routes chat tasks to default chat model', () => {
       const result = service.route('chat');
       expect(result.provider).toBe('openai');
-      expect(result.model).toBe('gpt-5.2-mini');
+      expect(result.model).toBe('gpt-4o-mini');
       expect(result.max_tokens).toBe(4096);
       expect(result.temperature).toBe(0.7);
       expect(result.reasoning_effort).toBe('low');
@@ -47,7 +47,7 @@ describe('LLMRouterService', () => {
 
     it('routes translation tasks', () => {
       const result = service.route('translation');
-      expect(result.model).toBe('gpt-5.2-mini');
+      expect(result.model).toBe('gpt-4o-mini');
     });
 
     it('routes data_analysis tasks', () => {
@@ -69,7 +69,7 @@ describe('LLMRouterService', () => {
 
     it('routes vision tasks', () => {
       const result = service.route('vision');
-      expect(result.model).toBe('gpt-5.2');
+      expect(result.model).toBe('gpt-4o');
     });
 
     it('routes audio tasks', () => {
@@ -85,7 +85,7 @@ describe('LLMRouterService', () => {
 
     it('falls back to chat for unknown task types', () => {
       const result = service.route('unknown_task_xyz');
-      expect(result.model).toBe('gpt-5.2-mini');
+      expect(result.model).toBe('gpt-4o-mini');
     });
 
     it('includes estimated_cost in result', () => {
@@ -96,7 +96,7 @@ describe('LLMRouterService', () => {
     it('includes reason string', () => {
       const result = service.route('chat');
       expect(result.reason).toContain('chat');
-      expect(result.reason).toContain('gpt-5.2-mini');
+      expect(result.reason).toContain('gpt-4o-mini');
     });
 
     it('includes fallback_chain', () => {
@@ -163,7 +163,7 @@ describe('LLMRouterService', () => {
 
     it('routes translation description', () => {
       const result = service.routeForTask('Translate this text to Spanish');
-      expect(result.model).toBe('gpt-5.2-mini');
+      expect(result.model).toBe('gpt-4o-mini');
     });
 
     it('routes research description', () => {
@@ -183,7 +183,7 @@ describe('LLMRouterService', () => {
 
     it('routes vision description', () => {
       const result = service.routeForTask('Describe this image');
-      expect(result.model).toBe('gpt-5.2');
+      expect(result.model).toBe('gpt-4o');
     });
 
     it('routes audio description', () => {
@@ -198,7 +198,7 @@ describe('LLMRouterService', () => {
 
     it('defaults to chat for unmatched descriptions', () => {
       const result = service.routeForTask('Hello, how are you?');
-      expect(result.model).toBe('gpt-5.2-mini');
+      expect(result.model).toBe('gpt-4o-mini');
     });
 
     it('passes options through to route()', () => {
@@ -256,7 +256,7 @@ describe('LLMRouterService', () => {
 
     it('listModels includes all default models', () => {
       const models = service.listModels();
-      expect(models).toContain('gpt-5.2');
+      expect(models).toContain('gpt-4o');
       expect(models).toContain('claude-4');
       expect(models).toContain('gemini-2.5-pro');
       expect(models).toContain('deepseek-v3');
@@ -268,7 +268,7 @@ describe('LLMRouterService', () => {
     it('adds a custom routing rule', () => {
       service.addRoutingRule({
         task_pattern: 'custom_task',
-        preferred_model: 'gpt-5.2',
+        preferred_model: 'gpt-4o',
         fallback_models: ['claude-4'],
         max_tokens: 4096,
         temperature: 0.5,
@@ -276,7 +276,7 @@ describe('LLMRouterService', () => {
         cost_budget_per_call: 0.05,
       });
       const result = service.route('custom_task');
-      expect(result.model).toBe('gpt-5.2');
+      expect(result.model).toBe('gpt-4o');
     });
 
     it('listRoutingRules includes all default rules', () => {
@@ -316,14 +316,14 @@ describe('LLMRouterService', () => {
 
     it('includes fallback models for code_generation', () => {
       const result = service.route('code_generation');
-      expect(result.fallback_chain).toContain('gpt-5.2');
+      expect(result.fallback_chain).toContain('gpt-4o');
       expect(result.fallback_chain).toContain('qwen-3-235b');
     });
 
     it('includes fallback models for research', () => {
       const result = service.route('research');
       expect(result.fallback_chain).toContain('claude-4');
-      expect(result.fallback_chain).toContain('gpt-5.2');
+      expect(result.fallback_chain).toContain('gpt-4o');
     });
   });
 });

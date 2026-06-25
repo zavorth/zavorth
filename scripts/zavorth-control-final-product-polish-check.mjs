@@ -56,11 +56,11 @@ function ruleFilesExist() {
 
 function ruleContainsMarkers() {
   const checks = [
-    ['src/ai-gateway/app/(zavorthControl)/control/page.tsx', [
+    ['src/zavorth-control/app/(zavorthControl)/control/page.tsx', [
       'ControlPageClient',
       'force-dynamic',
     ]],
-    ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx', [
+    ['src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx', [
       'activeSectorId === "chat"',
       'ZavorthControlChatSurface',
       'handleSelectSector',
@@ -68,24 +68,24 @@ function ruleContainsMarkers() {
       'sectorId === "config"',
       'sectorId === "docs"',
     ]],
-    ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx', [
+    ['src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx', [
       'bcc-compose',
       'onResolveApproval',
       'Message for Zavorth',
       'bcc-event-stream',
     ]],
-    ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlContextRail.tsx', [
+    ['src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlContextRail.tsx', [
       'ZavorthControlTaskTimeline',
       'Aguardando sua revisao',
       'View receipt',
       'projection-only',
     ]],
-    ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css', [
+    ['src/zavorth-control/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css', [
       'bcc-control-grid--chat',
       '@media (max-width: 700px)',
       'bcc-dock',
     ]],
-    ['src/ai-gateway/proxy.ts', [
+    ['src/zavorth-control/proxy.ts', [
       'redirectZavorthControlPathToControl',
       'zavorthControlSectorForPath',
     ]],

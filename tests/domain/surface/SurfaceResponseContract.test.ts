@@ -57,7 +57,7 @@ describe('Surface Response Contract phase 2', () => {
     expect(rendered.native.replyMarkup?.inline_keyboard.flat()).toEqual([
       expect.objectContaining({ text: 'Gemini', callback_data: '/model gemini' }),
       expect.objectContaining({ text: 'OpenAI', callback_data: '/model openai' }),
-      expect.objectContaining({ text: 'Gemma', callback_data: '/model gemma-4-31b-it' }),
+      expect.objectContaining({ text: 'Gemma', callback_data: '/model gemma-2-27b-it' }),
     ]);
     for (const button of rendered.native.replyMarkup?.inline_keyboard.flat() || []) {
       expect((button.callback_data || button.url || '').length).toBeLessThanOrEqual(64);

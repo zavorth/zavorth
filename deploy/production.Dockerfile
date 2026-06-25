@@ -1,40 +1,43 @@
-FROM node:20-alpine AS builder
+# Production Dockerfile for Zavorth
+# Hardened: non-root, dumb-init, healthcheck, minimal attack surface
 
-WORKDIR /usr/src/app
+FROM node:22-bookworm-slim AS build
+
+WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci --ignore-scripts
 
-COPY . .
+COPY tsconfig.json ./
+COPY src ./src
+
 RUN npm run build
+RUN npm prune --omit=dev
 
-FROM node:20-alpine AS production
+# ── Runtime ──────────────────────────────────────────────────────────────────
+FROM node:22-bookworm-slim AS runtime
 
-RUN addgroup -S zavorth && adduser -S zavorth -G zavorth
+# dumb-init for proper PID 1 signal handling (SIGTERM, SIGINT)
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/package*.json ./
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/docs ./docs
-COPY --from=builder /usr/src/app/config ./config
+ENV NODE_ENV=production
 
-RUN mkdir -p /usr/src/app/data /usr/src/app/tmp /usr/src/app/memory \
- && chown -R zavorth:zavorth /usr/src/app
+# Copy production artifacts only
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
 
-ENV NODE_ENV=production \
-    ZAVORTH_WEB_HOST=0.0.0.0 \
-    ZAVORTH_WEB_PORT=33333 \
-    ZAVORTH_PROFILE=ops \
-    ZAVORTH_CAPABILITY_POLICY=ask-on-demand \
-    ZAVORTH_SELFMOD_POLICY=owner_trusted \
-    ZAVORTH_ALLOW_STARTUP_INSTALL=false
-
-VOLUME ["/usr/src/app/data", "/usr/src/app/tmp", "/usr/src/app/memory"]
-
-USER zavorth
+# Health check — verifies the web server is responding
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:33333/api/auth/status').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 EXPOSE 33333
 
-CMD ["node", "dist/host.js"]
+# Run as non-root (node user, uid 1000)
+USER node
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/index.js"]

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { ZavorthSkillCuratorLiveLoopService } from '../src/services/ZavorthSkillCuratorLiveLoopService.js';
+import { ZavorthSkillCuratorLiveLoopService } from '@zavorth/skills/ZavorthSkillCuratorLiveLoopService.js';
 import { SkillCuratorPlaneService } from '../src/skills/SkillCuratorPlaneService.js';
 
 const args = process.argv.slice(2);

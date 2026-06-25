@@ -6,11 +6,23 @@
   "category": "design",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["figma", "design-to-code", "components"],
-  "presets": ["developer"],
-  "inputContract": ["figma_file_url", "target_framework"],
-  "outputContract": ["component_code", "design_tokens"],
+  "capabilityTags": [
+    "figma",
+    "design-to-code",
+    "components"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "figma_file_url",
+    "target_framework"
+  ],
+  "outputContract": [
+    "component_code",
+    "design_tokens"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

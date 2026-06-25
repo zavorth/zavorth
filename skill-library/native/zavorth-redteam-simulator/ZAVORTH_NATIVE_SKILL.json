@@ -22,7 +22,7 @@
     "report",
     "jailbreak status"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

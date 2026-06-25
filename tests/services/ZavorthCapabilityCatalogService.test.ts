@@ -146,7 +146,7 @@ describe('ZavorthCapabilityCatalogService', () => {
             generatedAt: '2026-04-02T12:00:00.000Z',
             activeProviderName: 'gemini',
             activeModelName: 'gemini-2.5-flash',
-            preferredZavorthBridgeModel: 'ai-gateway-coder',
+            preferredZavorthBridgeModel: 'zavorth-control-coder',
             recommendedProfile: {
               id: 'coding',
               label: 'Coding',
@@ -205,7 +205,7 @@ describe('ZavorthCapabilityCatalogService', () => {
         inspect: () => ({
           activeProviderName: 'gemini',
           activeModelName: 'gemini-2.5-flash',
-          preferredZavorthBridgeModel: 'ai-gateway-coder',
+          preferredZavorthBridgeModel: 'zavorth-control-coder',
           providers: [
             {
               id: 'gemini',

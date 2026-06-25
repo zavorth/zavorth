@@ -11,7 +11,7 @@ for (const file of [
   'src/services/ZavorthControlExperienceHomeService.ts',
   'scripts/zavorth-control-experience-home.ts',
   'tests/services/ZavorthControlExperienceHomeService.test.ts',
-  'src/ai-gateway/app/(zavorthControl)/control/HomePageClient.tsx',
+  'src/zavorth-control/app/(zavorthControl)/control/HomePageClient.tsx',
   'assets/zavorth-control/index.html',
   'assets/zavorth-control/styles/chat.css',
 ]) {
@@ -69,7 +69,7 @@ for (const area of ['inbox', 'tasks', 'approvals', 'receipts', 'connectors']) {
 }
 
 const home = [
-  readFileSync(path.join(root, 'src/ai-gateway/app/(zavorthControl)/control/HomePageClient.tsx'), 'utf8'),
+  readFileSync(path.join(root, 'src/zavorth-control/app/(zavorthControl)/control/HomePageClient.tsx'), 'utf8'),
   readFileSync(path.join(root, 'assets/zavorth-control/index.html'), 'utf8'),
   readFileSync(path.join(root, 'assets/zavorth-control/styles/chat.css'), 'utf8'),
 ].join('\n');

@@ -23,7 +23,7 @@
     "chart path",
     "statistical summary"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

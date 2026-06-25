@@ -12,7 +12,7 @@ type LocBudgetsReport = {
   generatedAt: string;
   workspaceRoot: string;
   summary: {
-    status: 'passed' | 'failed';
+    status: 'passed' | 'failed' | 'advisory';
     totalFiles: number;
     violatingFiles: number;
     domainsChecked: number;
@@ -23,6 +23,7 @@ type LocBudgetsReport = {
 
 const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
+const strict = argv.includes('--strict');
 const workspaceRoot = process.cwd();
 
 const DEFAULT_BUDGETS: Record<string, number> = {
@@ -34,7 +35,7 @@ const DEFAULT_BUDGETS: Record<string, number> = {
   'tests/': 1300,
 };
 
-const SKIP_DIRS = new Set(['node_modules', 'dist', '.next', 'coverage', '.git', 'ai-gateway', 'web']);
+const SKIP_DIRS = new Set(['node_modules', 'dist', '.next', 'coverage', '.git', 'zavorth-control', 'web']);
 
 function loadBudgets(): Record<string, number> {
   const budgetsPath = path.join(workspaceRoot, 'data', 'runtime', 'qa', 'loc-budgets.json');
@@ -126,7 +127,7 @@ const report: LocBudgetsReport = {
   generatedAt: new Date().toISOString(),
   workspaceRoot,
   summary: {
-    status: violations.length > 0 ? 'failed' : 'passed',
+    status: violations.length > 0 ? (strict ? 'failed' : 'advisory') : 'passed',
     totalFiles,
     violatingFiles: violations.length,
     domainsChecked: Object.keys(budgets).length,

@@ -13,7 +13,7 @@ import {
   extractTryCloudflareUrl,
   getCloudflaredAssetSpec,
   getDefaultCloudflaredCertEnv,
-} from "../../src/ai-gateway/lib/cloudflaredTunnel";
+} from "../../src/zavorth-control/lib/cloudflaredTunnel";
 
 describe("cloudflaredTunnel helpers", () => {
   it("extracts the public trycloudflare URL from logs", () => {

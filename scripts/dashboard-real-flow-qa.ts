@@ -9,7 +9,7 @@ import {
 } from "../src/runtime/agent/index";
 import {
   buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from "../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter";
+} from "../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-real-flow-qa");

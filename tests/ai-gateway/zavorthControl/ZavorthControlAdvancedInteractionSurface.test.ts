@@ -9,12 +9,12 @@ function read(rel: string): string {
 
 describe('ZavorthControl Zavorth-native advanced surface', () => {
   it('wires the zavorthControl projection, cards, queue and reconnect affordances', () => {
-    const contract = read('src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlAdvancedInteractionContracts.ts');
-    const panel = read('src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlAdvancedInteractionPanel.tsx');
-    const chat = read('src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx');
-    const hook = read('src/ai-gateway/app/(zavorthControl)/control/useControlPageClient.ts');
-    const shell = read('src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx');
-    const css = read('src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css');
+    const contract = read('src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/zavorthControlAdvancedInteractionContracts.ts');
+    const panel = read('src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlAdvancedInteractionPanel.tsx');
+    const chat = read('src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx');
+    const hook = read('src/zavorth-control/app/(zavorthControl)/control/useControlPageClient.ts');
+    const shell = read('src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx');
+    const css = read('src/zavorth-control/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css');
 
     expect(contract).toContain('zavorth-control-advanced-interaction/v1');
     expect(contract).toContain('ZavorthControlAdvancedInteractionToolCallCard');

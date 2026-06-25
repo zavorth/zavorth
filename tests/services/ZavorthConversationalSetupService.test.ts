@@ -1,7 +1,8 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
+import { LlmRuntimeService } from '../../src/services/llm/LlmRuntimeService.js';
 import { FirstRunPersonalizationService } from '../../src/services/FirstRunPersonalizationService.js';
 import { ZavorthConversationalSetupService } from '../../src/services/ZavorthConversationalSetupService.js';
 
@@ -85,9 +86,88 @@ describe('ZavorthConversationalSetupService', () => {
 
     expect(snapshot.status).toBe('applied');
     expect(snapshot.writePlan.previewOnly).toBe(false);
-    expect(snapshot.applyResult?.writtenFiles.length).toBe(3);
+    expect(snapshot.applyResult?.writtenFiles.length).toBe(8);
     expect(fs.readFileSync(path.join(projectRoot, 'IDENTITY.md'), 'utf8')).toContain('Vritra');
     expect(fs.readFileSync(path.join(projectRoot, 'USER.md'), 'utf8')).toContain('Grey Vritra');
     expect(fs.readFileSync(path.join(projectRoot, 'SOUL.md'), 'utf8')).toContain('User Calibration');
+  });
+
+  describe('runFirstMessageIntake', () => {
+    it('asks the next pending question when onboarding is incomplete', async () => {
+      const service = makeService();
+      const llmSpy = jest.spyOn(LlmRuntimeService.prototype, 'chat');
+      
+      // First mock call (for JSON extraction)
+      llmSpy.mockResolvedValueOnce({
+        content: JSON.stringify({
+          agentName: null,
+          userName: null,
+          language: null,
+          experienceProfile: null,
+          detailLevel: null,
+          primaryUse: null,
+        }),
+        toolCalls: [],
+        finishReason: 'stop',
+      });
+      
+      // Second mock call (for generating the question)
+      llmSpy.mockResolvedValueOnce({
+        content: 'Qual é o seu nome?',
+        toolCalls: [],
+        finishReason: 'stop',
+      });
+
+      const result = await service.runFirstMessageIntake('test-session', [
+        { role: 'user', content: 'Olá' }
+      ]);
+
+      expect(result.finished).toBe(false);
+      expect(result.reply).toBe('Qual é o seu nome?');
+      
+      llmSpy.mockRestore();
+    });
+
+    it('finishes onboarding and applies config when all questions are answered', async () => {
+      const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-intake-apply-'));
+      const service = makeService(projectRoot);
+      const llmSpy = jest.spyOn(LlmRuntimeService.prototype, 'chat');
+      
+      // First mock call (for JSON extraction)
+      llmSpy.mockResolvedValueOnce({
+        content: JSON.stringify({
+          agentName: 'Zavorth',
+          userName: 'Grey',
+          language: 'English',
+          experienceProfile: 'developer',
+          detailLevel: 'advanced',
+          primaryUse: 'development',
+        }),
+        toolCalls: [],
+        finishReason: 'stop',
+      });
+      
+      // Second mock call (for greeting completion summary)
+      llmSpy.mockResolvedValueOnce({
+        content: 'Setup completed successfully!',
+        toolCalls: [],
+        finishReason: 'stop',
+      });
+
+      const result = await service.runFirstMessageIntake('test-session', [
+        { role: 'user', content: 'Use gpt-4o' }
+      ], {
+        type: 'nodejs',
+        suggestedMission: 'review code'
+      });
+
+      expect(result.finished).toBe(true);
+      expect(result.reply).toBe('Setup completed successfully!');
+      
+      expect(fs.existsSync(path.join(projectRoot, 'IDENTITY.md'))).toBe(true);
+      expect(fs.existsSync(path.join(projectRoot, 'USER.md'))).toBe(true);
+      
+      llmSpy.mockRestore();
+    });
   });
 });

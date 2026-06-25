@@ -56,7 +56,7 @@ describe('ZavorthProductizationContractService', () => {
       replyPorts: [],
       modelProfile: {
         providerLabel: 'OpenAI',
-        modelLabel: 'gpt-5.2',
+        modelLabel: 'gpt-4o',
         routingPolicy: 'gateway',
         routeId: 'coding/default',
         familyId: 'coding',
@@ -128,7 +128,7 @@ describe('ZavorthProductizationContractService', () => {
           source: 'provider-control-plane',
           includeAdvanced: false,
           currentProvider: 'openai',
-          currentModel: 'gpt-5.2',
+          currentModel: 'gpt-4o',
           summary: {
             total: 1,
             ready: 1,
@@ -143,7 +143,7 @@ describe('ZavorthProductizationContractService', () => {
             {
               providerId: 'openai',
               providerLabel: 'OpenAI',
-              model: 'gpt-5.2',
+              model: 'gpt-4o',
               ready: true,
               modality: 'chat',
             },
@@ -153,7 +153,7 @@ describe('ZavorthProductizationContractService', () => {
           schemaVersion: 1,
           selected: {
             providerLabel: 'OpenAI',
-            modelLabel: 'gpt-5.2',
+            modelLabel: 'gpt-4o',
             familyId: 'coding',
             routeId: 'coding/default',
             source: 'current-config',

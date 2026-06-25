@@ -22,7 +22,7 @@
     "keyframes",
     "visual context summary"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

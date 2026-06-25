@@ -24,7 +24,7 @@
     "prioritized list",
     "task categories"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

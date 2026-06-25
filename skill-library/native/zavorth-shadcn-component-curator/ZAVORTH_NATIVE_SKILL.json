@@ -20,7 +20,7 @@
   "outputContract": [
     "customized component file"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

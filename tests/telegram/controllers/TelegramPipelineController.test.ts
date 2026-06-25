@@ -141,10 +141,10 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
     await controller.handleWorkflow(ctx, 'research');
     await controller.handleWorkflow(ctx, 'sdd');
 
-    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('Use /workflow <tipo> <objetivo>.'));
-    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('Workflows disponiveis:'));
-    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('executa, revisa e fecha com um parecer final'));
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Faltou o objetivo.'));
+    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('Use /workflow <type> <objective>.'));
+    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('Available workflows:'));
+    expect(ctx.reply).toHaveBeenNthCalledWith(1, expect.stringContaining('executes, reviews and closes with a final assessment'));
+    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Missing objective.'));
     expect(ctx.reply).toHaveBeenNthCalledWith(3, expect.stringContaining('/workflow sdd multisurface/shared-command-contract'));
   });
 
@@ -159,7 +159,7 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
 
     await controller.handleWorkflow(ctx, 'resume');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Faltou o identificador do workflow.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Missing workflow identifier.'));
   });
 
   it('guides the user when /workflow restart-stage is missing the stage', async () => {
@@ -173,7 +173,7 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
 
     await controller.handleWorkflow(ctx, 'restart-stage wf-ship-abc123');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Faltou a etapa para reiniciar.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Missing stage to restart.'));
   });
 
   it('guides the user when /workflow close is missing a run id', async () => {
@@ -193,6 +193,6 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
 
     await controller.handleWorkflow(ctx, 'close');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Faltou o identificador do workflow.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Missing workflow identifier.'));
   });
 });

@@ -2,7 +2,7 @@ import {
   ZavorthGatewayRuntimeService,
   GATEWAY_CONTROL_API_CONTRACT_VERSION,
 } from '../../src/services/ZavorthGatewayRuntimeService.js';
-import { GATEWAY_CONTROL_OPERATION_CONTRACTS } from '../../src/ai-gateway/app/api/gateway-control/gatewayControlRouteSupport.js';
+import { GATEWAY_CONTROL_OPERATION_CONTRACTS } from '../../src/zavorth-control/app/api/gateway-control/gatewayControlRouteSupport.js';
 
 describe('ZavorthGatewayRuntimeService', () => {
   it('builds a canonical runtime snapshot from shared runtime and gateway infrastructure', async () => {
@@ -138,7 +138,7 @@ describe('ZavorthGatewayRuntimeService', () => {
           visibility: 'public',
           mode: 'cloud',
           summary: 'Provider cloud.',
-          currentModel: 'gpt-5.2',
+          currentModel: 'gpt-4o',
           requirements: ['OPENAI_API_KEY'],
           readiness: 'ready',
           ready: true,
@@ -174,8 +174,8 @@ describe('ZavorthGatewayRuntimeService', () => {
         },
       ]),
       getCurrentConversationalProvider: jest.fn(() => 'openai'),
-      getCurrentConversationalModel: jest.fn(() => 'gpt-5.2'),
-      getCurrentModelForProvider: jest.fn((providerName: string) => providerName === 'openai' ? 'gpt-5.2' : 'qwen-coder'),
+      getCurrentConversationalModel: jest.fn(() => 'gpt-4o'),
+      getCurrentModelForProvider: jest.fn((providerName: string) => providerName === 'openai' ? 'gpt-4o' : 'qwen-coder'),
       resolveSelection: jest.fn(() => null),
       resolveProfileSelection: jest.fn(() => null),
     } as any;
@@ -227,7 +227,7 @@ describe('ZavorthGatewayRuntimeService', () => {
     expect(snapshot.models.entries).toEqual(expect.arrayContaining([
       expect.objectContaining({
         providerId: 'openai',
-        model: 'gpt-5.2',
+        model: 'gpt-4o',
         modality: 'chat',
       }),
     ]));
@@ -235,7 +235,7 @@ describe('ZavorthGatewayRuntimeService', () => {
       schemaVersion: 1,
       selected: expect.objectContaining({
         providerLabel: 'OpenAI',
-        modelLabel: 'gpt-5.2',
+        modelLabel: 'gpt-4o',
         source: 'current-config',
       }),
     }));

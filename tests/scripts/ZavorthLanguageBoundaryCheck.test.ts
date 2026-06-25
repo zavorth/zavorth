@@ -9,7 +9,7 @@ function makeRoot(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-language-boundary-'));
   fs.mkdirSync(path.join(root, 'src'), { recursive: true });
   fs.mkdirSync(path.join(root, 'docs', 'product', 'skills'), { recursive: true });
-  fs.mkdirSync(path.join(root, 'src', 'ai-gateway', 'i18n', 'messages'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'src', 'zavorth-control', 'i18n', 'messages'), { recursive: true });
   fs.mkdirSync(path.join(root, 'tests', 'fixtures', 'multilingual'), { recursive: true });
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'language-boundary-test' }));
   return root;
@@ -37,7 +37,7 @@ describe('zavorth-language-boundary-check', () => {
   it('allows Portuguese in pt i18n catalogs and explicit multilingual fixtures', () => {
     const root = makeRoot();
     fs.writeFileSync(path.join(root, 'src', 'runtime-copy.ts'), 'export const copy = "Approval pending";\n');
-    fs.writeFileSync(path.join(root, 'src', 'ai-gateway', 'i18n', 'messages', 'pt-BR.json'), JSON.stringify({
+    fs.writeFileSync(path.join(root, 'src', 'zavorth-control', 'i18n', 'messages', 'pt-BR.json'), JSON.stringify({
       approvalPending: 'Aprovacao pendente',
     }));
     fs.writeFileSync(

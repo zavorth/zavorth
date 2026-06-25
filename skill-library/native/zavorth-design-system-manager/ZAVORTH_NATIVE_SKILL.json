@@ -23,7 +23,7 @@
     "design tokens",
     "theme variables"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

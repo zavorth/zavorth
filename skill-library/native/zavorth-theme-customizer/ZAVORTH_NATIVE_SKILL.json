@@ -21,7 +21,7 @@
   "outputContract": [
     "hsl palette token"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

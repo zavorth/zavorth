@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 function readGatewayFile(...segments: string[]): string {
-  return readFileSync(join(process.cwd(), 'src/ai-gateway', ...segments), 'utf8');
+  return readFileSync(join(process.cwd(), 'src/zavorth-control', ...segments), 'utf8');
 }
 
 function readApiRoute(...segments: string[]): string {

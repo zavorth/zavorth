@@ -6,11 +6,24 @@
   "category": "media",
   "permissionProfileId": "workspace-read",
   "riskLevel": "low",
-  "capabilityTags": ["meme", "images", "social"],
-  "presets": ["developer"],
-  "inputContract": ["template selection", "text content", "style preferences"],
-  "outputContract": ["media files", "export configs"],
+  "capabilityTags": [
+    "meme",
+    "images",
+    "social"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "template selection",
+    "text content",
+    "style preferences"
+  ],
+  "outputContract": [
+    "media files",
+    "export configs"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

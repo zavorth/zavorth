@@ -6,11 +6,24 @@
   "category": "channels",
   "permissionProfileId": "workspace-read",
   "riskLevel": "medium",
-  "capabilityTags": ["discord", "server-admin", "moderation"],
-  "presets": ["developer"],
-  "inputContract": ["server configurations", "role definitions", "channel specs"],
-  "outputContract": ["message logs", "integration configs"],
+  "capabilityTags": [
+    "discord",
+    "server-admin",
+    "moderation"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "server configurations",
+    "role definitions",
+    "channel specs"
+  ],
+  "outputContract": [
+    "message logs",
+    "integration configs"
+  ],
   "noExecutionByDefault": true,
-  "requiresPolicyBroker": false,
-  "receiptsRequired": false
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
 }

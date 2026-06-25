@@ -5,9 +5,9 @@ import path from 'node:path';
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
-const globals = read('src/ai-gateway/app/globals.css');
-const home = read('src/ai-gateway/app/(zavorthControl)/control/HomePageClient.tsx');
-const sidebar = read('src/ai-gateway/shared/constants/sidebarVisibility.ts');
+const globals = read('src/zavorth-control/app/globals.css');
+const home = read('src/zavorth-control/app/(zavorthControl)/control/HomePageClient.tsx');
+const sidebar = read('src/zavorth-control/shared/constants/sidebarVisibility.ts');
 
 const requiredTokens = [
   '--color-primary',

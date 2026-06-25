@@ -22,7 +22,7 @@
     "query results",
     "performance metrics"
   ],
-  "noExecutionByDefault": false,
+  "noExecutionByDefault": true,
   "requiresPolicyBroker": true,
   "receiptsRequired": true
 }

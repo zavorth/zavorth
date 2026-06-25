@@ -1,7 +1,7 @@
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 import {
   buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
 
 function createIdFactory() {
   let index = 0;
@@ -17,7 +17,7 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
       now: () => new Date('2026-04-26T14:00:00.000Z'),
       idFactory: createIdFactory(),
       defaultProviderLabel: 'OpenAI',
-      defaultModelLabel: 'gpt-5.2',
+      defaultModelLabel: 'gpt-4o',
       executor: ({ run }) => ({
         status: 'completed',
         summary: 'Relatorio preparado pelo runtime universal.',
@@ -74,7 +74,7 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
     }));
     expect(viewModel.runtime).toEqual(expect.objectContaining({
       currentProviderLabel: 'OpenAI',
-      currentModelLabel: 'gpt-5.2',
+      currentModelLabel: 'gpt-4o',
       activeSessionId: 'session-ui',
     }));
     expect(viewModel.toolExposure).toEqual(expect.objectContaining({

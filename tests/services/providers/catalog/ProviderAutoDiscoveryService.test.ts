@@ -57,8 +57,8 @@ describe('ProviderAutoDiscoveryService', () => {
     it('should discover models from Anthropic-compatible provider', async () => {
       const mockFetch = createMockFetch({
         data: [
-          { id: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5' },
-          { id: 'claude-opus-4-5', name: 'Claude Opus 4.5' },
+          { id: 'claude-3-5-sonnet-latest', name: 'Claude Sonnet 4.5' },
+          { id: 'claude-3-opus-20240229', name: 'Claude Opus 4.5' },
         ],
       });
       const egressGuard = createMockEgressGuard();
@@ -74,8 +74,8 @@ describe('ProviderAutoDiscoveryService', () => {
 
       expect(result.success).toBe(true);
       expect(result.models).toHaveLength(2);
-      expect(result.models[0].id).toBe('claude-sonnet-4-5');
-      expect(result.manifest.families[0].defaultModelName).toBe('claude-sonnet-4-5');
+      expect(result.models[0].id).toBe('claude-3-5-sonnet-latest');
+      expect(result.manifest.families[0].defaultModelName).toBe('claude-3-5-sonnet-latest');
     });
 
     it('should handle fallback catalog when API fails', async () => {

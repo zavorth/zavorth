@@ -5,7 +5,7 @@ const root = process.cwd();
 const componentsRoot = path.join(
   root,
   'src',
-  'ai-gateway',
+  'zavorth-control',
   'app',
   '(dashboard)',
   'dashboard',
