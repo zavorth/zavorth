@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
@@ -44,9 +45,9 @@ export class McpClientManager {
    * Conecta ao servidor STDIO, descobre as tools e cadastra no registry.
    */
   public async connect(registry: ToolRegistry): Promise<void> {
-    console.log(`[MCP] Tentando conexao via STDIO com servidor: ${this.name}...`);
+    logger.info(`[MCP] Tentando conexao via STDIO com servidor: ${this.name}...`);
     await this.client.connect(this.transport);
-    console.log(`[MCP] Servidor [${this.name}] conectado com sucesso!`);
+    logger.info(`[MCP] Servidor [${this.name}] conectado com sucesso!`);
 
     await this.discoverAndRegisterTools(registry);
   }
@@ -58,11 +59,11 @@ export class McpClientManager {
     const response = await this.client.listTools();
 
     if (!response || !response.tools) {
-      console.warn(`[MCP] Nenhum tool exposto pelo servidor ${this.name}.`);
+      logger.warn(`[MCP] Nenhum tool exposto pelo servidor ${this.name}.`);
       return;
     }
 
-    console.log(`[MCP] ${response.tools.length} modulos/tools encontrados no servidor ${this.name}`);
+    logger.info(`[MCP] ${response.tools.length} modulos/tools encontrados no servidor ${this.name}`);
 
     for (const tool of response.tools) {
       const inputSchema = tool.inputSchema as Record<string, any>;
@@ -88,7 +89,7 @@ export class McpClientManager {
 
       const baseToolName = normalizeMcpToolName(tool.name);
       if (!baseToolName) {
-        console.warn(`[MCP] Tool com nome invalido ignorada no servidor ${this.name}: ${tool.name}`);
+        logger.warn(`[MCP] Tool com nome invalido ignorada no servidor ${this.name}: ${tool.name}`);
         continue;
       }
 
@@ -127,7 +128,7 @@ export class McpClientManager {
       candidate = `${serverPrefix}_${baseToolName}_${suffix}`;
       suffix += 1;
     }
-    console.warn(`[MCP] Tool "${baseToolName}" ja existia; registrando como "${candidate}".`);
+    logger.warn(`[MCP] Tool "${baseToolName}" ja existia; registrando como "${candidate}".`);
     return candidate;
   }
 
@@ -135,11 +136,11 @@ export class McpClientManager {
    * Desconecta graciosamente o processo e a stream stdio.
    */
   public async disconnect(): Promise<void> {
-    console.log(`[MCP] Desconectando servidor ${this.name}...`);
+    logger.info(`[MCP] Desconectando servidor ${this.name}...`);
     try {
       await this.transport.close();
     } catch (e: any) {
-      console.error(`[MCP] Erro desconectando transport: ${e.message}`);
+      logger.error(`[MCP] Erro desconectando transport: ${e.message}`);
     }
   }
 }

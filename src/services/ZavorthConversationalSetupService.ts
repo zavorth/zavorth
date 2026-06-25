@@ -1,5 +1,11 @@
 import type { FirstRunPersonalizationAnswers } from './FirstRunPersonalizationService.js';
+import { logger } from '../logger.js';
 import { FirstRunPersonalizationService } from './FirstRunPersonalizationService.js';
+import { logger } from '../logger.js';
+import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
+import { logger } from '../logger.js';
+import type { ChatMessage } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 import {
   ZAVORTH_CONVERSATIONAL_SETUP_CONTRACT_VERSION,
   type ZavorthConversationalSetupAnswers,
@@ -9,7 +15,9 @@ import {
   type ZavorthConversationalSetupStatus,
 } from '../contracts/ZavorthConversationalSetupContract.js';
 import type { ZavorthExperienceProfileId } from '../contracts/ZavorthExperienceProfileContract.js';
+import { logger } from '../logger.js';
 import { ZavorthExperienceProfileService } from './ZavorthExperienceProfileService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthConversationalSetupInput = {
   agentName?: unknown;
@@ -268,6 +276,127 @@ export class ZavorthConversationalSetupService {
       weekendPolicy: answers.weekendPolicy,
       timezone: answers.timezone,
     };
+  }
+
+  public async runFirstMessageIntake(
+    sessionId: string,
+    history: ChatMessage[],
+    workspaceHint?: { type: string; suggestedMission: string },
+  ): Promise<{
+    reply: string;
+    finished: boolean;
+  }> {
+    const llmService = new LlmRuntimeService();
+
+    // 1. Ask LLM to extract JSON from the history
+    const extractionPrompt = `You are a helper parsing a conversation history between a user and an assistant who is configuring the Zavorth agent.
+Analyze the conversation history and extract the following parameters as JSON. Return ONLY a valid JSON object. If a parameter is not mentioned, return null.
+
+Fields:
+- agentName: name for the agent (e.g. Zavorth, Vritra)
+- userName: name of the user
+- language: primary language for communication (e.g. Portuguese, English)
+- experienceProfile: must be one of: 'personal', 'creator', 'developer', 'business', 'power'
+- detailLevel: must be 'simple' or 'advanced'
+- primaryUse: what the user wants to do with the agent
+
+Example response format:
+{
+  "agentName": null,
+  "userName": "John",
+  "language": "Portuguese",
+  "experienceProfile": "developer",
+  "detailLevel": "advanced",
+  "primaryUse": "programming in Python"
+}
+
+Here is the conversation history:
+${history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
+`;
+
+    let extracted: any = {};
+    try {
+      const response = await llmService.chat([
+        { role: 'user', content: extractionPrompt }
+      ]);
+      const content = response.content || '';
+      const jsonStart = content.indexOf('{');
+      const jsonEnd = content.lastIndexOf('}') + 1;
+      if (jsonStart !== -1 && jsonEnd !== -1) {
+        extracted = JSON.parse(content.substring(jsonStart, jsonEnd));
+      }
+    } catch (err) {
+      logger.error('Extraction from onboarding history failed', err);
+    }
+
+    // 2. Build snapshot with extracted answers
+    const snapshot = this.buildSnapshot({
+      agentName: extracted.agentName,
+      userName: extracted.userName,
+      preferredAddress: extracted.userName,
+      language: extracted.language,
+      experienceProfile: extracted.experienceProfile,
+      detailLevel: extracted.detailLevel,
+      primaryUse: extracted.primaryUse,
+    });
+
+    const isAllAnswered = snapshot.questions.every((q) => q.status === 'answered' || !q.required);
+
+    if (snapshot.status === 'ready' || isAllAnswered) {
+      // 3. Apply setup!
+      const applySnapshot = this.buildSnapshot({
+        agentName: extracted.agentName,
+        userName: extracted.userName,
+        preferredAddress: extracted.userName,
+        language: extracted.language,
+        experienceProfile: extracted.experienceProfile,
+        detailLevel: extracted.detailLevel,
+        primaryUse: extracted.primaryUse,
+        apply: true,
+        confirmLocalProfile: true,
+        completeBootstrap: true,
+      });
+
+      const mission = workspaceHint?.suggestedMission || 'revisar os arquivos locais';
+      
+      const summaryPrompt = `Onboarding conversational setup is complete. Write a warm, professional, and concise greeting (max 3-4 sentences) summarizing the applied configuration and suggesting the first mission:
+- User name: ${extracted.userName || 'Operator'}
+- Language: ${extracted.language || 'English'}
+- Profile: ${extracted.experienceProfile || 'personal'}
+- Suggested Mission: ${mission}
+
+Make sure to speak in the user's preferred language (e.g. Portuguese if language is Portuguese).
+`;
+      const replyResponse = await llmService.chat([
+        { role: 'user', content: summaryPrompt }
+      ]);
+
+      return {
+        reply: replyResponse.content || 'Setup concluído! Estou pronto para ajudar.',
+        finished: true,
+      };
+    } else {
+      // Find the first pending required question
+      const nextQuestion = snapshot.questions.find((q) => q.status === 'pending' && q.required)
+        || snapshot.questions.find((q) => q.status === 'pending');
+
+      const questionPrompt = `Onboarding conversation for Zavorth.
+The user is answering questions to configure their local profile. We need to ask them about the field: "${nextQuestion?.label}".
+Prompt description: "${nextQuestion?.prompt}"
+Available choices (if choice type): ${nextQuestion?.choices ? nextQuestion.choices.join(', ') : 'free text'}
+
+Ask the user this question in a friendly, conversational, and natural way. Keep it to 1-2 sentences.
+Speak in the user's preferred language if known (default to Portuguese if history seems to be in Portuguese or English if not). Do not output anything else, just the question.
+`;
+      const replyResponse = await llmService.chat([
+        { role: 'user', content: questionPrompt }
+      ]);
+
+      return {
+        reply: replyResponse.content || nextQuestion?.prompt || 'Qual seu nome?',
+        finished: false,
+      };
+    }
   }
 }
 

@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../config/index.js';
 
@@ -35,7 +36,7 @@ export class VectorEmbeddingService {
       const result = await model.embedContent(text);
       return this.normalizeDimensions(result.embedding.values);
     } catch (error) {
-      console.error('[VectorEmbeddingService] Erro ao gerar embedding:', error);
+      logger.error('[VectorEmbeddingService] Erro ao gerar embedding:', error);
       throw error;
     }
   }
@@ -55,7 +56,7 @@ export class VectorEmbeddingService {
       });
       return results.embeddings.map((e) => this.normalizeDimensions(e.values));
     } catch (error) {
-      console.error('[VectorEmbeddingService] Erro ao gerar batch embeddings:', error);
+      logger.error('[VectorEmbeddingService] Erro ao gerar batch embeddings:', error);
       throw error;
     }
   }

@@ -284,9 +284,9 @@ export class ProviderControlPlaneService {
       return {
         selectionKind: 'model',
         requestedTarget: normalized,
-        replyLabel: 'Gemma 4',
+        replyLabel: 'Gemma 2',
         effectiveProviderName: 'gemini',
-        modelName: config.gemmaModel || 'gemma-4-31b-it',
+        modelName: config.gemmaModel || 'gemma-2-27b-it',
       };
     }
 
@@ -405,7 +405,7 @@ export class ProviderControlPlaneService {
   }
 
   public getUsageTargets(): string[] {
-    return ['gemini', 'gemma', 'gemma-4-31b-it', 'deepseek', 'openai', 'minimax', 'qwen', 'puter', 'openrouter', 'AIGateway'];
+    return ['gemini', 'gemma', 'gemma-2-27b-it', 'deepseek', 'openai', 'minimax', 'qwen', 'puter', 'openrouter', 'AIGateway'];
   }
 
   public recommendProfileForTask(
@@ -638,7 +638,7 @@ export class ProviderControlPlaneService {
         visibility: 'public',
         mode: 'alias',
         summary: 'Atalho para rodar Gemma hospedado pelo provider Gemini.',
-        currentModel: String(config.gemmaModel || 'gemma-4-31b-it').trim() || null,
+        currentModel: String(config.gemmaModel || 'gemma-2-27b-it').trim() || null,
         requirements: ['GEMINI_API_KEY'],
         readiness: geminiReady ? 'ready' : 'needs_config',
         ready: geminiReady,
@@ -889,7 +889,7 @@ export class ProviderControlPlaneService {
   private buildCurrentModelMap(): Record<string, string | null> {
     return {
       gemini: this.getCurrentModelForProvider('gemini'),
-      gemma: String(config.gemmaModel || 'gemma-4-31b-it').trim() || null,
+      gemma: String(config.gemmaModel || 'gemma-2-27b-it').trim() || null,
       deepseek: this.getCurrentModelForProvider('deepseek'),
       openai: this.getCurrentModelForProvider('openai'),
       minimax: this.getCurrentModelForProvider('minimax'),

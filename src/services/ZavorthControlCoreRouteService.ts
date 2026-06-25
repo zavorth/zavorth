@@ -60,7 +60,7 @@ import * as schemas from '../domain/validation/controlSchemas.js';
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
 type WriteRedirect = (res: http.ServerResponse, location: string, statusCode?: number) => void;
-type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
+type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, unknown>>;
 type ReadRawBody = (req: http.IncomingMessage) => Promise<string>;
 
 const RUNTIME_STATE_ACTION_TYPES = new Set<ZavorthRuntimeStateActionType>([
@@ -84,12 +84,12 @@ const RUNTIME_STATE_ACTION_TYPES = new Set<ZavorthRuntimeStateActionType>([
 ]);
 
 type NodeMeshLike = {
-  buildSnapshot: (input?: any) => any;
+  buildSnapshot: (input?: { selectedNodeId?: string | null }) => unknown;
 };
 
 type NodeHeartbeatLike = {
-  claimPairing: (input: any) => any;
-  receiveHeartbeat: (input: any) => any;
+  claimPairing: (input: Record<string, unknown>) => unknown;
+  receiveHeartbeat: (input: Record<string, unknown>) => unknown;
 };
 
 export type SlackWebhookGatewayLike = {
@@ -154,7 +154,7 @@ export type ZavorthControlCoreRouteDeps = {
   authService?: Pick<ZavorthControlAuthService, 'validate' | 'resolveAuthenticatedIdentity'>;
   echo?: {
     getPendingPermissions: () => unknown[];
-    resolvePermission: (id: string, approved: boolean, resolvedBy?: Record<string, unknown>) => Promise<any>;
+    resolvePermission: (id: string, approved: boolean, resolvedBy?: Record<string, unknown>) => Promise<unknown>;
   };
   slackIngressGateway?: SlackWebhookGatewayLike | null;
   teamsIngressGateway?: TeamsWebhookGatewayLike | null;
@@ -402,7 +402,7 @@ export class ZavorthControlCoreRouteService {
       const rawBody = await deps.readRawBody(req);
       let body: Record<string, unknown> = {};
       try {
-        body = rawBody.trim() ? JSON.parse(rawBody) as Record<string, unknown> : {};
+        body = rawBody.trim() ? JSON.parse(rawBody) as unknown as Record<string, unknown> : {};
       } catch {
         deps.writeJson(res, { ok: false, error: 'Payload JSON invalid para WhatsApp Cloud API.' }, 400);
         return true;
@@ -645,7 +645,7 @@ export class ZavorthControlCoreRouteService {
 
     if (pathname === '/api/v2/a2ui/action' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
-      if (!body.surfaceId || typeof body.surfaceId !== 'string' || !body.actionId || typeof body.actionId !== 'string') {
+      if (!body['surfaceId'] || typeof body['surfaceId'] !== 'string' || !body.actionId || typeof body.actionId !== 'string') {
         deps.writeJson(res, {
           ok: false,
           error: 'Campos "surfaceId" (string) e "actionId" (string) obrigatorios.',
@@ -662,9 +662,9 @@ export class ZavorthControlCoreRouteService {
       }
 
       const result = await deps.a2ui.dispatchAction({
-        surfaceId: body.surfaceId,
+        surfaceId: body['surfaceId'] as string,
         actionId: body.actionId,
-        requestedBy: typeof body.requestedBy === 'string' ? body.requestedBy : 'zavorthControl',
+        requestedBy: typeof body['requestedBy'] === 'string' ? body['requestedBy'] : 'zavorthControl',
         payload: body.payload && typeof body.payload === 'object' ? body.payload : {},
         correlation: body.correlation && typeof body.correlation === 'object' ? body.correlation : null,
       });
@@ -732,8 +732,8 @@ export class ZavorthControlCoreRouteService {
           });
 
         deps.writeJson(res, { ok: true, data });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -802,8 +802,8 @@ export class ZavorthControlCoreRouteService {
         let resolvedPath: string;
         try {
           resolvedPath = pathGuard.resolveForWrite(relativePath);
-        } catch (pathErr: any) {
-          deps.writeJson(res, { ok: false, error: `Unsafe relative path: ${pathErr.message}` }, 403);
+        } catch (pathErr: unknown) {
+          deps.writeJson(res, { ok: false, error: `Unsafe relative path: ${(pathErr as Error).message}` }, 403);
           return true;
         }
 
@@ -821,8 +821,8 @@ export class ZavorthControlCoreRouteService {
             currentContent = buffer.toString('utf8');
             currentContentExists = true;
           }
-        } catch (readErr: any) {
-          deps.writeJson(res, { ok: false, error: `Failed to read current file: ${readErr.message}` }, 403);
+        } catch (readErr: unknown) {
+          deps.writeJson(res, { ok: false, error: `Failed to read current file: ${(readErr as Error).message}` }, 403);
           return true;
         }
 
@@ -855,8 +855,8 @@ export class ZavorthControlCoreRouteService {
             currentContentExists,
           }
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -889,8 +889,8 @@ export class ZavorthControlCoreRouteService {
         }
 
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -942,8 +942,8 @@ export class ZavorthControlCoreRouteService {
             allowNetwork: grant.allowNetwork,
           }
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -969,8 +969,8 @@ export class ZavorthControlCoreRouteService {
           developerModeActive: active,
           grant
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1003,8 +1003,8 @@ export class ZavorthControlCoreRouteService {
           trusted: entry !== null && entry.trusted,
           entry
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1066,8 +1066,8 @@ export class ZavorthControlCoreRouteService {
           });
           deps.writeJson(res, { ok: true, trusted: true, entry });
         }
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1111,8 +1111,8 @@ export class ZavorthControlCoreRouteService {
             targetDirectories: relativeTargets
           }
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1156,8 +1156,8 @@ export class ZavorthControlCoreRouteService {
             targetDirectories: relativeTargets
           }
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1186,8 +1186,8 @@ export class ZavorthControlCoreRouteService {
         const resolved = mandateService.resolveMandate(workspaceId, !!approved);
 
         deps.writeJson(res, { ok: true, resolved: resolved ? { mandateId: resolved.mandateId, expiresAt: resolved.expiresAt } : null });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1216,8 +1216,8 @@ export class ZavorthControlCoreRouteService {
         mandateService.revokeMandate(workspaceId);
 
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1259,8 +1259,8 @@ export class ZavorthControlCoreRouteService {
               }
             : null,
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1300,8 +1300,8 @@ export class ZavorthControlCoreRouteService {
             createdAt: t.createdAt,
           })),
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1342,8 +1342,8 @@ export class ZavorthControlCoreRouteService {
               }
             : null,
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1372,8 +1372,8 @@ export class ZavorthControlCoreRouteService {
         trustService.revokeTrust(workspaceId, trustId);
 
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1388,7 +1388,7 @@ export class ZavorthControlCoreRouteService {
         const db = await Database.getInstance();
         const now = new Date().toISOString();
 
-        let rows;
+        let rows: Record<string, any>[];
         if (workspaceId) {
           rows = db.all<{ operation_id: string; workspace_id: string; command: string; created_at: string; expires_at: string }>(
             'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > is AND workspace_id = is',
@@ -1410,8 +1410,8 @@ export class ZavorthControlCoreRouteService {
         }));
 
         deps.writeJson(res, { ok: true, data });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1455,8 +1455,8 @@ export class ZavorthControlCoreRouteService {
             expiresAt: entry.expires_at
           }
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1486,8 +1486,8 @@ export class ZavorthControlCoreRouteService {
         }
 
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1510,8 +1510,8 @@ export class ZavorthControlCoreRouteService {
         const srv = new PtySessionApprovalService();
         const pending = await srv.getPendingProposals(workspaceId);
         deps.writeJson(res, { ok: true, data: pending });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1533,8 +1533,8 @@ export class ZavorthControlCoreRouteService {
         const srv = new PtySessionApprovalService();
         await srv.resolveProposal(workspaceId, sessionId, approve);
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1553,8 +1553,8 @@ export class ZavorthControlCoreRouteService {
         const srv = new PtyInputApprovalService();
         const pending = await srv.getPendingProposals(workspaceId);
         deps.writeJson(res, { ok: true, data: pending });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1577,8 +1577,8 @@ export class ZavorthControlCoreRouteService {
         await inputSrv.resolveProposal(workspaceId, operationId, approve, strongConfirmationInput);
 
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1600,8 +1600,8 @@ export class ZavorthControlCoreRouteService {
 
         const chunks = PtySessionService.getInstance().getOutput(sessionId, afterSeq);
         deps.writeJson(res, { ok: true, data: chunks });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1622,8 +1622,8 @@ export class ZavorthControlCoreRouteService {
 
         await PtySessionService.getInstance().terminateSession(sessionId, workspaceId);
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1638,12 +1638,12 @@ export class ZavorthControlCoreRouteService {
       try {
         const providers = await ProviderConfigService.getInstance().getProviders();
         const safeProviders = providers.map(p => {
-          const { secretRef, keySuffix, key_suffix, ...rest } = p as any;
+          const { secretRef, keySuffix, key_suffix, ...rest } = p as unknown as Record<string, unknown>;
           return { ...rest, configured: !!secretRef };
         });
         deps.writeJson(res, { ok: true, data: safeProviders });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1680,12 +1680,12 @@ export class ZavorthControlCoreRouteService {
           config.secretRef = saveResult.secretRef;
         }
 
-        const { secretRef, keySuffix, key_suffix, ...safeConfig } = config as any;
+        const { secretRef, keySuffix, key_suffix, ...safeConfig } = config as unknown as Record<string, unknown>;
         const finalConfig = { ...safeConfig, configured: !!secretRef };
 
         deps.writeJson(res, { ok: true, data: finalConfig });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 400);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 400);
       }
       return true;
     }
@@ -1705,7 +1705,7 @@ export class ZavorthControlCoreRouteService {
         const { providerId } = parsed.data;
         const result = await ProviderConnectionTestService.getInstance().testConnection(providerId);
         deps.writeJson(res, { ok: true, data: result });
-      } catch (err: any) {
+      } catch (err: unknown) {
         const normalized = ErrorNormalizationService.getInstance().normalize(err);
         deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
@@ -1729,8 +1729,8 @@ export class ZavorthControlCoreRouteService {
         await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ?', [providerId]);
 
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -1747,7 +1747,7 @@ export class ZavorthControlCoreRouteService {
         const db = await Database.getInstance();
         await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ?', [providerId]);
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
+      } catch (err: unknown) {
         const normalized = ErrorNormalizationService.getInstance().normalize(err);
         deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
@@ -1794,7 +1794,7 @@ export class ZavorthControlCoreRouteService {
 
         const config = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
         deps.writeJson(res, { ok: true, data: config });
-      } catch (err: any) {
+      } catch (err: unknown) {
         const normalized = ErrorNormalizationService.getInstance().normalize(err);
         deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
@@ -1845,11 +1845,11 @@ export class ZavorthControlCoreRouteService {
         }
 
         const currentConfig = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
-        const updatedConfig = { ...currentConfig, ...body.config };
+        const updatedConfig = { ...(currentConfig as Record<string, unknown>), ...body.config };
         await AgentWorkspaceConfigService.getInstance().updateConfig(workspaceId, updatedConfig);
 
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
+      } catch (err: unknown) {
         const normalized = ErrorNormalizationService.getInstance().normalize(err);
         deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
@@ -1894,7 +1894,7 @@ export class ZavorthControlCoreRouteService {
 
         const readiness = await WorkspaceRuntimeReadinessService.getInstance().checkReadiness(workspaceId);
         deps.writeJson(res, { ok: true, data: readiness });
-      } catch (err: any) {
+      } catch (err: unknown) {
         const normalized = ErrorNormalizationService.getInstance().normalize(err);
         deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
@@ -1946,7 +1946,7 @@ export class ZavorthControlCoreRouteService {
 
         const previewData = await WorkspacePolicyPreviewService.getInstance().previewPolicy(workspaceId, body.config || {});
         deps.writeJson(res, { ok: true, data: previewData });
-      } catch (err: any) {
+      } catch (err: unknown) {
         const normalized = ErrorNormalizationService.getInstance().normalize(err);
         deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
@@ -1991,8 +1991,8 @@ export class ZavorthControlCoreRouteService {
 
         const diagnostics = await InternalBetaDiagnosticsService.getInstance().runDiagnostics(workspaceId);
         deps.writeJson(res, { ok: true, data: diagnostics });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -2035,8 +2035,8 @@ export class ZavorthControlCoreRouteService {
 
         const checklist = await InternalBetaChecklistService.getInstance().getChecklist(workspaceId);
         deps.writeJson(res, { ok: true, data: checklist });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -2054,8 +2054,8 @@ export class ZavorthControlCoreRouteService {
         }
         const state = HostPowerModeService.getInstance().getState(workspaceId);
         deps.writeJson(res, { ok: true, data: state });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -2076,8 +2076,8 @@ export class ZavorthControlCoreRouteService {
 
         await HostPowerModeService.getInstance().enable(workspaceId, durationMinutes);
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -2098,8 +2098,8 @@ export class ZavorthControlCoreRouteService {
 
         await HostPowerModeService.getInstance().disable(workspaceId);
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -2117,7 +2117,7 @@ export class ZavorthControlCoreRouteService {
 
         let rows;
         if (workspaceId) {
-          rows = db.all<any>(
+          rows = db.all<unknown>(
             `SELECT operation_id, workspace_id, command_preview_redacted, args_preview_redacted,
                     cwd_suffix, shell, risk_level, reason_redacted, created_at, expires_at,
                     requires_strong_confirmation, strong_confirmation_phrase
@@ -2126,7 +2126,7 @@ export class ZavorthControlCoreRouteService {
             [now, workspaceId]
           );
         } else {
-          rows = db.all<any>(
+          rows = db.all<Record<string, any>>(
             `SELECT operation_id, workspace_id, command_preview_redacted, args_preview_redacted,
                     cwd_suffix, shell, risk_level, reason_redacted, created_at, expires_at,
                     requires_strong_confirmation, strong_confirmation_phrase
@@ -2152,8 +2152,8 @@ export class ZavorthControlCoreRouteService {
         }));
 
         deps.writeJson(res, { ok: true, data });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -2183,8 +2183,8 @@ export class ZavorthControlCoreRouteService {
         }
 
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -2204,7 +2204,7 @@ export class ZavorthControlCoreRouteService {
         const { operationId } = parsed.data;
 
         const db = await Database.getInstance();
-        const proposal = db.get<any>(
+        const proposal = db.get<{ workspace_id: string; risk_level: string; shell: number }>(
           'SELECT workspace_id, risk_level, shell FROM workspace_host_command_proposals WHERE operation_id = is AND approved = 1',
           [operationId]
         );
@@ -2290,8 +2290,8 @@ export class ZavorthControlCoreRouteService {
           ok: true,
           data: runResult
         });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -2313,8 +2313,8 @@ export class ZavorthControlCoreRouteService {
         db.run('DELETE FROM workspace_host_command_proposals WHERE operation_id = is', [operationId]);
         HostCommandPayloadCache.getInstance().delete(operationId);
         deps.writeJson(res, { ok: true });
-      } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      } catch (err: unknown) {
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
       }
       return true;
     }
@@ -2356,8 +2356,8 @@ export class ZavorthControlCoreRouteService {
         deps.writeJson(res, {
           deprecated: true,
           canonical: '/api/v2/echo/permissions/resolve',
-          ...result,
-        }, result.ok ? 200 : 404);
+          ...((result || {}) as Record<string, unknown>),
+        }, (result as { ok?: boolean })?.ok ? 200 : 404);
         return true;
       }
 
@@ -2393,7 +2393,7 @@ export class ZavorthControlCoreRouteService {
     req: http.IncomingMessage,
     url: URL,
     deps: ZavorthControlCoreRouteDeps,
-    body: Record<string, any> = {},
+    body: Record<string, unknown> = {},
   ): boolean {
     const authService = deps.authService;
     if (!authService) {
@@ -2448,9 +2448,9 @@ export class ZavorthControlCoreRouteService {
       }
       const result = service.dispatchRuntimeStateAction({
         type: actionType,
-        surface: this.readOptionalString(body.surface) || homeInput.surface,
+        surface: this.readOptionalString(body['surface']) || homeInput.surface,
         userId: desktopBridgeUserId || this.readIdentityUserId(authenticatedIdentity) || 'authenticated-user',
-        sessionId: this.readOptionalString(body.sessionId) || homeInput.sessionId,
+        sessionId: this.readOptionalString(body['sessionId']) || homeInput.sessionId,
         source: trustedDesktopBridge ? 'zavorth-desktop-bridge' : 'runtime-api',
         approved: trustedDesktopBridge,
         previewOnly: this.parseBoolean(body.previewOnly) === true,
@@ -2467,18 +2467,18 @@ export class ZavorthControlCoreRouteService {
 
     if (pathname === '/api/experience/ask' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
-      const text = this.readOptionalString(body.text) || this.readOptionalString(body.message);
+      const text = this.readOptionalString(body['text']) || this.readOptionalString(body.message);
       if (!text) {
         deps.writeJson(res, { ok: false, error: 'Campo "text" needs ser uma string not empty.' }, 400);
         return true;
       }
-      const metadata = this.readRecord(body.metadata) || { source: 'runtime-api' };
+      const metadata = this.readRecord(body['metadata']) || { source: 'runtime-api' };
       const command: Partial<ExperienceCommand> & { text: string } = {
         text,
         intent: (this.readOptionalString(body.intent) as ExperienceCommand['intent']) || 'ask',
-        surface: this.readExperienceSurface(body.surface),
-        userId: this.readOptionalString(body.userId) || 'web-user',
-        sessionId: this.readOptionalString(body.sessionId),
+        surface: this.readExperienceSurface(body['surface']),
+        userId: this.readOptionalString(body['userId']) || 'web-user',
+        sessionId: this.readOptionalString(body['sessionId']),
         workspace: this.readOptionalString(body.workspace),
         trustMode: (this.readOptionalString(body.trustMode) as ExperienceCommand['trustMode']) || 'protected',
         responseProfile: this.readOptionalString(body.responseProfile) as ExperienceCommand['responseProfile'],
@@ -2504,12 +2504,12 @@ export class ZavorthControlCoreRouteService {
       deps.writeJson(res, await service.executeCommand({
         text: `${decision} approval ${approvalId}`,
         intent: 'approve',
-        surface: this.readExperienceSurface(body.surface),
-        userId: this.readOptionalString(body.userId) || 'web-user',
-        sessionId: this.readOptionalString(body.sessionId),
+        surface: this.readExperienceSurface(body['surface']),
+        userId: this.readOptionalString(body['userId']) || 'web-user',
+        sessionId: this.readOptionalString(body['sessionId']),
         workspace: this.readOptionalString(body.workspace),
         approval: { id: approvalId, decision },
-        metadata: this.readRecord(body.metadata) || { source: 'runtime-api' },
+        metadata: this.readRecord(body['metadata']) || { source: 'runtime-api' },
       }));
       return true;
     }
@@ -2530,12 +2530,12 @@ export class ZavorthControlCoreRouteService {
       deps.writeJson(res, await service.executeCommand({
         text: `${decision} learning ${candidateId}`,
         intent: 'learn',
-        surface: this.readExperienceSurface(body.surface),
-        userId: this.readOptionalString(body.userId) || 'web-user',
-        sessionId: this.readOptionalString(body.sessionId),
+        surface: this.readExperienceSurface(body['surface']),
+        userId: this.readOptionalString(body['userId']) || 'web-user',
+        sessionId: this.readOptionalString(body['sessionId']),
         workspace: this.readOptionalString(body.workspace),
         learning: { candidateId, decision },
-        metadata: this.readRecord(body.metadata) || { source: 'runtime-api' },
+        metadata: this.readRecord(body['metadata']) || { source: 'runtime-api' },
       }));
       return true;
     }
@@ -2576,70 +2576,70 @@ export class ZavorthControlCoreRouteService {
     return null;
   }
 
-  private readResolverContext(body: Record<string, any>): Record<string, unknown> | null {
+  private readResolverContext(body: Record<string, unknown>): Record<string, unknown> | null {
     const context = {
-      sessionId: typeof body.sessionId === 'string' ? body.sessionId : undefined,
-      surface: typeof body.surface === 'string' ? body.surface : undefined,
-      requestedBy: typeof body.requestedBy === 'string' ? body.requestedBy : undefined,
-      channel: typeof body.channel === 'string' ? body.channel : undefined,
-      chatId: typeof body.chatId === 'string' ? body.chatId : undefined,
-      threadId: typeof body.threadId === 'string' ? body.threadId : undefined,
-      userId: typeof body.userId === 'string' ? body.userId : undefined,
+      sessionId: typeof body['sessionId'] === 'string' ? body['sessionId'] : undefined,
+      surface: typeof body['surface'] === 'string' ? body['surface'] : undefined,
+      requestedBy: typeof body['requestedBy'] === 'string' ? body['requestedBy'] : undefined,
+      channel: typeof body['channel'] === 'string' ? body['channel'] : undefined,
+      chatId: typeof body['chatId'] === 'string' ? body['chatId'] : undefined,
+      threadId: typeof body['threadId'] === 'string' ? body['threadId'] : undefined,
+      userId: typeof body['userId'] === 'string' ? body['userId'] : undefined,
     };
     return Object.values(context).some((value) => typeof value === 'string' && value.trim().length > 0)
       ? context
       : null;
   }
 
-  private readSalesPackInboundMessage(body: Record<string, any>): SalesPackInboundMessageInput | null {
-    const text = this.readNonEmptyString(body.text);
-    const customerId = this.readNonEmptyString(body.customerId);
+  private readSalesPackInboundMessage(body: Record<string, unknown>): SalesPackInboundMessageInput | null {
+    const text = this.readNonEmptyString(body['text']);
+    const customerId = this.readNonEmptyString(body['customerId']);
     if (!text || !customerId) {
       return null;
     }
 
     return {
-      tenantId: this.readNonEmptyString(body.tenantId) || 'default-tenant',
-      channelAccountId: this.readOptionalString(body.channelAccountId),
+      tenantId: this.readNonEmptyString(body['tenantId']) || 'default-tenant',
+      channelAccountId: this.readOptionalString(body['channelAccountId']),
       customerId,
-      conversationId: this.readOptionalString(body.conversationId),
-      actorId: this.readOptionalString(body.actorId),
+      conversationId: this.readOptionalString(body['conversationId']),
+      actorId: this.readOptionalString(body['actorId']),
       text,
-      traceId: this.readOptionalString(body.traceId),
-      runId: this.readOptionalString(body.runId),
-      surface: this.readOptionalString(body.surface) || 'zavorthControl-sales-pack',
-      receivedAt: this.readOptionalString(body.receivedAt),
-      metadata: this.readRecord(body.metadata),
+      traceId: this.readOptionalString(body['traceId']),
+      runId: this.readOptionalString(body['runId']),
+      surface: this.readOptionalString(body['surface']) || 'zavorthControl-sales-pack',
+      receivedAt: this.readOptionalString(body['receivedAt']),
+      metadata: this.readRecord(body['metadata']),
     };
   }
 
   private readSalesPackChannelIoEnvelope(
-    body: Record<string, any>,
+    body: Record<string, unknown>,
     headers: http.IncomingHttpHeaders,
   ): SalesPackChannelIoEnvelope {
     return {
-      tenantId: this.readOptionalString(body.tenantId),
-      channelAccountId: this.readOptionalString(body.channelAccountId),
+      tenantId: this.readOptionalString(body['tenantId']),
+      channelAccountId: this.readOptionalString(body['channelAccountId']),
       platform: this.readOptionalString(body.platform) as SalesPackChannelIoEnvelope['platform'],
       provider: this.readOptionalString(body.provider) as SalesPackChannelIoEnvelope['provider'],
       providerMessageId: this.readOptionalString(body.providerMessageId),
-      customerId: this.readOptionalString(body.customerId),
-      conversationId: this.readOptionalString(body.conversationId),
-      actorId: this.readOptionalString(body.actorId),
-      text: this.readOptionalString(body.text),
-      traceId: this.readOptionalString(body.traceId),
-      runId: this.readOptionalString(body.runId),
-      receivedAt: this.readOptionalString(body.receivedAt),
+      customerId: this.readOptionalString(body['customerId']),
+      conversationId: this.readOptionalString(body['conversationId']),
+      actorId: this.readOptionalString(body['actorId']),
+      text: this.readOptionalString(body['text']),
+      traceId: this.readOptionalString(body['traceId']),
+      runId: this.readOptionalString(body['runId']),
+      receivedAt: this.readOptionalString(body['receivedAt']),
       headers,
       body,
-      metadata: this.readRecord(body.metadata),
+      metadata: this.readRecord(body['metadata']),
     };
   }
 
   private readBusinessModeIdentity(
     req: http.IncomingMessage,
     url: URL,
-    body: Record<string, any> = {},
+    body: Record<string, unknown> = {},
     deps: ZavorthControlCoreRouteDeps,
   ): SalesPackBusinessModeIdentity & { authorized: boolean } {
     const authenticatedIdentity = deps.authService?.resolveAuthenticatedIdentity(req) || null;
@@ -2651,7 +2651,7 @@ export class ZavorthControlCoreRouteService {
       };
     }
     const profileId = authenticatedIdentity.profileId
-      || this.readOptionalString(body.productModeId)
+      || this.readOptionalString(body['productModeId'])
       || this.readOptionalString(url.searchParams.get('productModeId'))
       || this.readScopedProfileId(authenticatedIdentity, body, url);
     return {
@@ -2663,14 +2663,14 @@ export class ZavorthControlCoreRouteService {
 
   private readScopedProfileId(
     authenticatedIdentity: ZavorthControlAuthenticatedIdentity,
-    body: Record<string, any>,
+    body: Record<string, unknown>,
     url: URL,
   ): string | null {
     if (authenticatedIdentity.source === 'zavorthControl-token') {
       return authenticatedIdentity.profileId;
     }
-    return this.readOptionalString(body.profileId)
-      || this.readOptionalString(body.tenantId)
+    return this.readOptionalString(body['profileId'])
+      || this.readOptionalString(body['tenantId'])
       || this.readOptionalString(url.searchParams.get('profileId'));
   }
 

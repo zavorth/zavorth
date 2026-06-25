@@ -59,7 +59,7 @@ const CONSISTENCY_ROUTES: ConsistencyRoute[] = [
   {
     id: 'codex',
     label: 'Codex App Server',
-    defaultModelName: 'gpt-5.2-codex',
+    defaultModelName: 'gpt-4o-codex',
     website: 'https://openai.com/codex',
     aliases: ['codex-app-server', 'codex-cli-provider', 'openai-codex-app-server'],
     authKind: 'custom',

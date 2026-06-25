@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { randomUUID } from 'crypto';
 import * as http from 'http';
 import type { GatewayCanonicalStatePayload } from '../contracts/GatewayContract.js';
@@ -54,7 +55,7 @@ export class WebAppRuntimeSessionCommandService {
       }, deps, helpers);
       deps.writeJson(res, payload, 200);
     } catch (error: unknown) {
-      console.error('[WebAppRuntimeSessionCommandService] command failed', error);
+      logger.error('[WebAppRuntimeSessionCommandService] command failed', error);
       deps.writeJson(res, {
         ok: false,
         error: 'Falha ao executar comando de sessao.',

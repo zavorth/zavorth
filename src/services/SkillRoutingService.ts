@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import {
   SkillCatalogService,
 } from '../skills/SkillCatalogService.js';
@@ -117,7 +118,7 @@ export class SkillRoutingService {
         `, [skillId]);
       })
       .catch((error) => {
-        console.warn(`[SkillRoutingService] Erro ao salvar telemetria para a skill ${skillId}:`, error);
+        logger.warn(`[SkillRoutingService] Erro ao salvar telemetria para a skill ${skillId}:`, error);
       });
   }
 

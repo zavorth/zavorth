@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { EventEmitter } from 'events';
@@ -70,7 +71,7 @@ export class ZavorthMcpClient extends EventEmitter {
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       if (result.status === 'rejected') {
-        console.error(
+        logger.error(
           `[ZavorthMcpClient] Falha ao conectar ao servidor MCP "${enabled[i].label}": ${result.reason}`,
         );
       }

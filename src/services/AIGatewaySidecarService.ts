@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { execFile, type ChildProcess } from 'child_process';
@@ -323,7 +324,7 @@ export class AIGatewaySidecarService {
       return;
     }
 
-    const method = level === 'error' ? console.error : level === 'warn' ? console.warn : console.log;
+    const method = level === 'error' ? logger.error : level === 'warn' ? logger.warn : logger.info;
     method(`[AIGatewaySidecar] ${message}`);
   }
 }

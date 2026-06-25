@@ -1,20 +1,33 @@
 import fs from 'fs';
+import { logger } from '../logger.js';
 import path from 'path';
+import { logger } from '../logger.js';
 import { TaskManager } from './TaskManager.js';
+import { logger } from '../logger.js';
 import { LogRepository } from '../storage/LogRepository.js';
+import { logger } from '../logger.js';
 import { ZavorthBridgeAdapter } from '../agents/ZavorthBridgeAdapter.js';
+import { logger } from '../logger.js';
 import { MailboxProtocol } from './MailboxProtocol.js';
+import { logger } from '../logger.js';
 import { BridgeProtocolAdapter } from './BridgeProtocolAdapter.js';
+import { logger } from '../logger.js';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import { ExecutionGateway } from '../execution/ExecutionGateway.js';
+import { logger } from '../logger.js';
 import { LocalExecutor } from '../execution/LocalExecutor.js';
+import { logger } from '../logger.js';
 import { CodexExecutor } from '../execution/CodexExecutor.js';
+import { logger } from '../logger.js';
 import {
   EXTERNAL_EXECUTOR_ID,
   ExternalExecutor,
 } from '../execution/ExternalExecutor.js';
 import type { Plan, PlanStep } from '../contracts/PlanContract.js';
+import { logger } from '../logger.js';
 import type { ToolRuntimeService } from '../services/tools/ToolRuntimeService.js';
+import { logger } from '../logger.js';
 
 type BroadcastClient = {
   broadcast(message: string, roles?: string[]): Promise<void>;
@@ -222,7 +235,7 @@ export class MailboxWatcher {
           : 'Plano analisado e marcado como concluido (nenhuma instrucao executavel identificada).',
       );
     } catch (error: any) {
-      console.error('[MailboxWatcher] Falha critica:', error.message);
+      logger.error('[MailboxWatcher] Falha critica:', error.message);
       task.error_summary = error.message;
       this.taskManager.advanceState(task, 'failed');
       this.taskManager.saveTask(task);

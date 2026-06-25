@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { execSync, spawnSync } from 'child_process';
@@ -159,7 +160,7 @@ export class ZavorthSkillPreprocessorService {
       try {
         this.database = await Database.getInstance();
       } catch (err) {
-        console.warn('[ZavorthSkillPreprocessorService] Database.getInstance() failed, proceeding with fallback config lookup only.', err);
+        logger.warn('[ZavorthSkillPreprocessorService] Database.getInstance() failed, proceeding with fallback config lookup only.', err);
       }
     }
 
@@ -194,7 +195,7 @@ export class ZavorthSkillPreprocessorService {
           }
         }
       } catch (err) {
-        console.warn('[ZavorthSkillPreprocessorService] Frontmatter parsing failed:', err);
+        logger.warn('[ZavorthSkillPreprocessorService] Frontmatter parsing failed:', err);
       }
     }
 
@@ -338,7 +339,7 @@ export class ZavorthSkillPreprocessorService {
           return JSON.parse(stateMetaRow.value_json);
         }
       } catch (err) {
-        console.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in zavorth_state_meta:`, err);
+        logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in zavorth_state_meta:`, err);
       }
 
       try {
@@ -359,7 +360,7 @@ export class ZavorthSkillPreprocessorService {
           return fallbackMemoryRow.value;
         }
       } catch (err) {
-        console.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in user_memory:`, err);
+        logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in user_memory:`, err);
       }
 
       try {
@@ -371,7 +372,7 @@ export class ZavorthSkillPreprocessorService {
           return snippetRow.content;
         }
       } catch (err) {
-        console.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in snippets:`, err);
+        logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in snippets:`, err);
       }
     }
 

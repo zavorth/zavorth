@@ -1,6 +1,7 @@
+import { logger } from '../logger.js';
 import { config } from '../config/index.js';
-import type { AudioSynthesisOptions } from '../telegram/AudioHandler.js';
-import { logEchoTrace } from '../telegram/EchoTrace.js';
+import type { AudioSynthesisOptions } from '../gateways/channels/telegram/AudioHandler.js';
+import { logEchoTrace } from '../gateways/channels/telegram/EchoTrace.js';
 
 export type EchoOutputStageAudioHandler = {
   synthesize: (text: string, voiceIdOrOptions?: string | AudioSynthesisOptions) => Promise<string | null>;
@@ -153,7 +154,7 @@ export class EchoOutputStageService {
             llmMs: voiceFlow.llmLatencyMs || null,
           });
         }
-        console.log(
+        logger.info(
           `[EchoOutputStage] voice sent surface=${request.surface} chars=${spokenText.length} ttsMs=${ttsLatencyMs} sendMs=${Date.now() - sendStartedAt}`,
         );
       } finally {
@@ -170,7 +171,7 @@ export class EchoOutputStageService {
           error: message,
         });
       }
-      console.warn(`[EchoOutputStage] voice failed, falling back to text: ${message}`);
+      logger.warn(`[EchoOutputStage] voice failed, falling back to text: ${message}`);
       return false;
     }
   }

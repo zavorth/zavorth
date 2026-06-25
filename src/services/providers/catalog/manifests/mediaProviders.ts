@@ -22,7 +22,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
         vendorId: 'deepgram',
         providerIds: ['deepgram'],
         summary: 'Speech transcription and voice route.',
-        defaultModelName: 'nova-3',
+        defaultModelName: 'nova-2',
         secondaryModelNames: ['nova-2', 'aura-asteria-en'],
         fallbackModelNames: [],
         capabilities: ['audio', 'streaming'],
@@ -45,7 +45,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
         capabilities: ['audio', 'streaming'],
         modalities: ['audio'],
         models: [
-          { modelId: 'nova-3', label: 'Nova 3', primary: true },
+          { modelId: 'nova-2', label: 'Nova 3', primary: true },
           { modelId: 'nova-2', label: 'Nova 2' },
           { modelId: 'aura-asteria-en', label: 'Aura Asteria EN' },
         ],

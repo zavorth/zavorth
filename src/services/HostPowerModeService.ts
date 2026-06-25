@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { Database } from '../storage/Database.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
@@ -178,7 +179,7 @@ export class HostPowerModeService {
       try {
         await cb(workspaceId);
       } catch (e) {
-        console.error('Error in HostPowerMode disable callback:', e);
+        logger.error('Error in HostPowerMode disable callback:', e);
       }
     }
   }

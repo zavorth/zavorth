@@ -38,8 +38,8 @@ export class LLMModelSwitcherService {
 
   private initModels(): void {
     const models: ModelProfile[] = [
-      { id: 'gpt-5.2', provider: 'openai', model: 'gpt-5.2', cost_per_1k_input: 0.01, cost_per_1k_output: 0.03, latency_tier: 'medium', quality_tier: 'frontier', max_context: 128000, strengths: ['reasoning', 'code', 'analysis'], weaknesses: ['cost'] },
-      { id: 'gpt-5.2-mini', provider: 'openai', model: 'gpt-5.2-mini', cost_per_1k_input: 0.001, cost_per_1k_output: 0.004, latency_tier: 'fast', quality_tier: 'standard', max_context: 128000, strengths: ['speed', 'cost'], weaknesses: ['complex-reasoning'] },
+      { id: 'gpt-4o', provider: 'openai', model: 'gpt-4o', cost_per_1k_input: 0.01, cost_per_1k_output: 0.03, latency_tier: 'medium', quality_tier: 'frontier', max_context: 128000, strengths: ['reasoning', 'code', 'analysis'], weaknesses: ['cost'] },
+      { id: 'gpt-4o-mini', provider: 'openai', model: 'gpt-4o-mini', cost_per_1k_input: 0.001, cost_per_1k_output: 0.004, latency_tier: 'fast', quality_tier: 'standard', max_context: 128000, strengths: ['speed', 'cost'], weaknesses: ['complex-reasoning'] },
       { id: 'claude-4', provider: 'anthropic', model: 'claude-4', cost_per_1k_input: 0.015, cost_per_1k_output: 0.075, latency_tier: 'medium', quality_tier: 'frontier', max_context: 200000, strengths: ['reasoning', 'code', 'safety'], weaknesses: ['cost'] },
       { id: 'claude-4-sonnet', provider: 'anthropic', model: 'claude-4-sonnet', cost_per_1k_input: 0.003, cost_per_1k_output: 0.015, latency_tier: 'fast', quality_tier: 'premium', max_context: 200000, strengths: ['balanced', 'code'], weaknesses: ['very-long-context'] },
       { id: 'gemini-2.5-pro', provider: 'google', model: 'gemini-2.5-pro', cost_per_1k_input: 0.00125, cost_per_1k_output: 0.005, latency_tier: 'medium', quality_tier: 'premium', max_context: 1000000, strengths: ['long-context', 'multimodal', 'cost'], weaknesses: ['instruction-following'] },

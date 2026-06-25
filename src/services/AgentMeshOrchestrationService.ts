@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createHash, randomUUID } from 'crypto';
@@ -226,7 +227,7 @@ export class AgentMeshOrchestrationService {
           }
         }
       } catch (error) {
-        console.error('Failed to load Agent Mesh registry:', error);
+        logger.error('Failed to load Agent Mesh registry:', error);
       }
     }
 
@@ -242,7 +243,7 @@ export class AgentMeshOrchestrationService {
           }
         }
       } catch (error) {
-        console.error('Failed to load Agent Mesh consents:', error);
+        logger.error('Failed to load Agent Mesh consents:', error);
       }
     }
   }
@@ -257,7 +258,7 @@ export class AgentMeshOrchestrationService {
       if (!fs.existsSync(registryDir)) fs.mkdirSync(registryDir, { recursive: true });
       fs.writeFileSync(this.registryPath, JSON.stringify(Array.from(this.bridges.values()), null, 2));
     } catch (error) {
-      console.error('Failed to save Agent Mesh state:', error);
+      logger.error('Failed to save Agent Mesh state:', error);
     }
   }
 

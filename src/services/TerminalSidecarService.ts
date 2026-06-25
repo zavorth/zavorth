@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -307,7 +308,7 @@ export class TerminalSidecarService {
       return;
     }
 
-    const method = level === 'error' ? console.error : level === 'warn' ? console.warn : console.log;
+    const method = level === 'error' ? logger.error : level === 'warn' ? logger.warn : logger.info;
     method(`[ZavorthTerminalSidecar] ${message}`);
   }
 }

@@ -1,4 +1,5 @@
-import type { ParsedCommand } from '../../telegram/CommandParser.js';
+type LooseRecord = any;
+import type { ParsedCommand } from '../../gateways/channels/telegram/CommandParser.js';
 import type { RouteIntent } from '../../orchestrator/IntentRouter.js';
 import type { WorkspaceProfile } from '../WorkspaceProfileService.js';
 import type { WorkspaceOperationalMemory } from '../WorkspaceOperationalMemoryService.js';
@@ -64,41 +65,41 @@ export class WorkspaceRoutingAdvisor {
     const candidates: RoutingCandidate[] = [];
     const rationale: string[] = [];
 
-    const taskKindRecommendations = Array.isArray((memory as any).task_kind_recommendations)
-      ? (memory as any).task_kind_recommendations
+    const taskKindRecommendations = Array.isArray((memory as LooseRecord).task_kind_recommendations)
+      ? (memory as LooseRecord).task_kind_recommendations
       : [];
-    const taskSubtypeRecommendations = Array.isArray((memory as any).task_subtype_recommendations)
-      ? (memory as any).task_subtype_recommendations
+    const taskSubtypeRecommendations = Array.isArray((memory as LooseRecord).task_subtype_recommendations)
+      ? (memory as LooseRecord).task_subtype_recommendations
       : [];
-    const activeFocuses = Array.isArray((memory as any).active_focuses)
-      ? (memory as any).active_focuses
+    const activeFocuses = Array.isArray((memory as LooseRecord).active_focuses)
+      ? (memory as LooseRecord).active_focuses
       : [];
-    const recentArtifacts = Array.isArray((memory as any).recent_artifacts)
-      ? (memory as any).recent_artifacts
+    const recentArtifacts = Array.isArray((memory as LooseRecord).recent_artifacts)
+      ? (memory as LooseRecord).recent_artifacts
       : [];
-    const continuityRecommendations = Array.isArray((memory as any).continuity_recommendations)
-      ? (memory as any).continuity_recommendations
+    const continuityRecommendations = Array.isArray((memory as LooseRecord).continuity_recommendations)
+      ? (memory as LooseRecord).continuity_recommendations
       : [];
-    const workflowRecommendations = Array.isArray((memory as any).workflow_recommendations)
-      ? (memory as any).workflow_recommendations
+    const workflowRecommendations = Array.isArray((memory as LooseRecord).workflow_recommendations)
+      ? (memory as LooseRecord).workflow_recommendations
       : [];
-    const workflowExecutorRecommendations = Array.isArray((memory as any).workflow_executor_recommendations)
-      ? (memory as any).workflow_executor_recommendations
+    const workflowExecutorRecommendations = Array.isArray((memory as LooseRecord).workflow_executor_recommendations)
+      ? (memory as LooseRecord).workflow_executor_recommendations
       : [];
-    const workflowStageExecutorRecommendations = Array.isArray((memory as any).workflow_stage_executor_recommendations)
-      ? (memory as any).workflow_stage_executor_recommendations
+    const workflowStageExecutorRecommendations = Array.isArray((memory as LooseRecord).workflow_stage_executor_recommendations)
+      ? (memory as LooseRecord).workflow_stage_executor_recommendations
       : [];
-    const workflowFrictionRecommendations = Array.isArray((memory as any).workflow_friction_recommendations)
-      ? (memory as any).workflow_friction_recommendations
+    const workflowFrictionRecommendations = Array.isArray((memory as LooseRecord).workflow_friction_recommendations)
+      ? (memory as LooseRecord).workflow_friction_recommendations
       : [];
-    const approvalFrictionRecommendations = Array.isArray((memory as any).approval_friction_recommendations)
-      ? (memory as any).approval_friction_recommendations
+    const approvalFrictionRecommendations = Array.isArray((memory as LooseRecord).approval_friction_recommendations)
+      ? (memory as LooseRecord).approval_friction_recommendations
       : [];
-    const approvedPolicies = Array.isArray((memory as any).approved_policies)
-      ? (memory as any).approved_policies
+    const approvedPolicies = Array.isArray((memory as LooseRecord).approved_policies)
+      ? (memory as LooseRecord).approved_policies
       : [];
-    const routeOutcomes = Array.isArray((memory as any).route_outcomes)
-      ? (memory as any).route_outcomes
+    const routeOutcomes = Array.isArray((memory as LooseRecord).route_outcomes)
+      ? (memory as LooseRecord).route_outcomes
       : [];
     const blockedExecutors = collectBlockedExecutors(
       memory,
@@ -111,17 +112,17 @@ export class WorkspaceRoutingAdvisor {
       findApprovedPolicyBoost,
       shouldBlockByRouteOutcome,
     );
-    const successfulExecutors = Array.isArray((memory as any).successful_executors)
-      ? (memory as any).successful_executors
+    const successfulExecutors = Array.isArray((memory as LooseRecord).successful_executors)
+      ? (memory as LooseRecord).successful_executors
       : [];
-    const directResponseStyleRecommendations = Array.isArray((memory as any).direct_response_style_recommendations)
-      ? (memory as any).direct_response_style_recommendations
+    const directResponseStyleRecommendations = Array.isArray((memory as LooseRecord).direct_response_style_recommendations)
+      ? (memory as LooseRecord).direct_response_style_recommendations
       : [];
-    const taskKindLlmRecommendations = Array.isArray((memory as any).task_kind_llm_recommendations)
-      ? (memory as any).task_kind_llm_recommendations
+    const taskKindLlmRecommendations = Array.isArray((memory as LooseRecord).task_kind_llm_recommendations)
+      ? (memory as LooseRecord).task_kind_llm_recommendations
       : [];
-    const taskSubtypeLlmRecommendations = Array.isArray((memory as any).task_subtype_llm_recommendations)
-      ? (memory as any).task_subtype_llm_recommendations
+    const taskSubtypeLlmRecommendations = Array.isArray((memory as LooseRecord).task_subtype_llm_recommendations)
+      ? (memory as LooseRecord).task_subtype_llm_recommendations
       : [];
 
     const subtypeRecommendation = taskSubtypeRecommendations.find((entry: any) => {

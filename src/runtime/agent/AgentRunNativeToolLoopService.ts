@@ -1,4 +1,5 @@
-import type { ChatMessage, ToolCall, ToolDefinition } from '../../providers/ILlmProvider.js';
+import type { ChatMessage, ToolCall, ToolDefinition, ILlmProvider } from '../../providers/ILlmProvider.js';
+import { ContextCompactionService } from '../../services/ContextCompactionService.js';
 import type { LlmRunOptions, LlmRuntimeResult } from '../../services/llm/LlmRuntimeService.js';
 import type { UniversalAgentEvent, UniversalAgentRun, UniversalAgentRequest } from './UniversalAgentRuntimeTypes.js';
 import type { UniversalAgentLlmRuntime } from './AgentRunLlmRuntimeExecutor.js';
@@ -120,6 +121,7 @@ export class AgentRunNativeToolLoopService {
   private readonly terminalBackends: Pick<ZavorthTerminalBackendsService, 'execute'> | null;
   private readonly profileReceipts = new ProfileEnforcementReceiptService();
   private readonly toolCatalogByRun = new Map<string, ToolCatalogState>();
+  private readonly compactionService = new ContextCompactionService();
 
   constructor(runtime: Runtime) {
     this.llmRuntime = runtime.llmRuntime;
@@ -244,204 +246,222 @@ export class AgentRunNativeToolLoopService {
 
     let knownToolNames = new Set(input.tools.map((tool) => tool.name));
     let stopReasonRecoveryUsed = false;
-    for (let round = 0; round < stats.maxRounds; round += 1) {
-      const recovery = await this.recoverStopReasonIfNeeded({
-        input,
-        result,
-        stopReasonRecoveryUsed,
-      });
-      if (recovery.recovered) {
-        result = recovery.result;
-        stopReasonRecoveryUsed = true;
-        stats.stopReasonRecoveries += 1;
-        events.push(this.buildToolEvent(input.run, 'llm.stop_reason_recovery', 'Continuation requested after an incomplete provider stop reason.', 'done', {
-          reason: 'stop-reason-recovery',
-          finishReason: recovery.previousFinishReason,
-        }));
-      }
-      const declaredToolCalls = result.response.toolCalls || [];
-      const fallbackToolCalls = declaredToolCalls.length === 0
-        ? this.buildProviderNativeFallbackToolCalls({
+
+    try {
+      for (let round = 0; round < stats.maxRounds; round += 1) {
+        if (input.options.signal?.aborted) {
+          break;
+        }
+        const recovery = await this.recoverStopReasonIfNeeded({
+          input,
           result,
-          run: input.run,
-          request: input.request,
-          knownToolNames,
-        })
-        : [];
-      const rawToolCalls = declaredToolCalls.length > 0 ? declaredToolCalls : fallbackToolCalls;
-      const repairs = rawToolCalls.map((toolCall) => this.repairToolCall(toolCall, knownToolNames));
-      const toolCalls = repairs.map((repair) => repair.toolCall);
-      stats.repairedToolCalls += repairs.filter((repair) => repair.repaired).length;
-      if (toolCalls.length === 0) break;
-      stats.rounds += 1;
-      input.messages.push({
-        role: 'assistant',
-        content: result.response.content || '',
-        toolCalls,
-      });
-
-      const toolMessages: ChatMessage[] = [];
-      for (const [index, toolCall] of toolCalls.slice(0, MAX_NATIVE_TOOL_CALLS_PER_ROUND).entries()) {
-        stats.requested += 1;
-        const repair = repairs[index];
-        if (toolCall.name === COMPACT_TOOL_CATALOG_NAME) {
-          const catalogResult = this.handleToolCatalogCall({
-            run: input.run,
-            request: input.request,
-            toolCall,
-            tools: input.tools,
-            knownToolNames,
-          });
-          stats.catalogSearches += 1;
-          stats.catalogMaterializedTools += catalogResult.materializedTools;
-          if (catalogResult.materializedTools > 0) {
-            knownToolNames = new Set(input.tools.map((tool) => tool.name));
-          }
-          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, catalogResult.output));
-          events.push(this.buildToolEvent(input.run, toolCall.name, catalogResult.output, 'done', {
-            reason: 'compact-tool-catalog',
-            toolCallId: toolCall.id,
-            materializedTools: catalogResult.materializedTools,
-          }));
-          continue;
-        }
-        if (toolCall.name === TOOL_PLANNER_NAME) {
-          const plan = this.handleToolPlanningCall({
-            run: input.run,
-            request: input.request,
-            toolCall,
-            knownToolNames,
-          });
-          stats.planningCalls += 1;
-          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, plan));
-          events.push(this.buildToolEvent(input.run, toolCall.name, plan, 'done', {
-            reason: 'agent-run-tool-planning',
-            toolCallId: toolCall.id,
-          }));
-          continue;
-        }
-        if (!knownToolNames.has(toolCall.name)) {
-          stats.denied += 1;
-          stats.unknownToolCalls += 1;
-          const denied = `Tool ${toolCall.name} nao esta exposta para este run.${repair?.reason ? ` ${repair.reason}` : ''}`;
-          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, denied));
-          events.push(this.buildToolEvent(input.run, toolCall.name, denied, 'failed', {
-            reason: 'tool-not-exposed',
-            toolCallId: toolCall.id,
-            candidates: this.findToolCandidates(toolCall.name, knownToolNames).slice(0, 5),
-          }));
-          continue;
-        }
-
-        const influencedByUntrustedContent = containsUntrustedContentMarker(input.messages)
-          || containsUntrustedContentMarker(toolCall.arguments);
-        const sourceTrust = influencedByUntrustedContent ? 'untrusted-content' : 'trusted-user';
-        const effectMapping = mapToolCallToEffectDecision({
-          toolCall,
-          registry: TOOL_EFFECT_REGISTRY,
-          sourceTrust,
-          policyContext: {
-            surface: 'agent-native-tool-loop',
-            workspace: input.run.workspace || null,
-            sandboxAvailable: true,
-          },
+          stopReasonRecoveryUsed,
         });
-        const safeObservation = effectMapping.decision.action === 'allow'
-          && effectMapping.analysis.readOnly
-          && isSafeObservationTool(toolCall.name, TOOL_EFFECT_REGISTRY);
-        if (safeObservation) {
-          stats.safeObservations += 1;
-        } else if (effectMapping.decision.action === 'deny') {
-          stats.denied += 1;
-          stats.effectBoundaryDenied += 1;
-          const denied = `Tool ${toolCall.name} bloqueada pela effect boundary: ${effectMapping.decision.reasons.join(' ')}`;
-          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, denied));
-          events.push(this.buildToolEvent(input.run, toolCall.name, denied, 'failed', {
-            reason: 'effect-boundary-deny',
-            toolCallId: toolCall.id,
-            sourceTrust,
-            effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+        if (recovery.recovered) {
+          result = recovery.result;
+          stopReasonRecoveryUsed = true;
+          stats.stopReasonRecoveries += 1;
+          events.push(this.buildToolEvent(input.run, 'llm.stop_reason_recovery', 'Continuation requested after an incomplete provider stop reason.', 'done', {
+            reason: 'stop-reason-recovery',
+            finishReason: recovery.previousFinishReason,
           }));
-          continue;
-        } else {
-          stats.denied += 1;
-          stats.sideEffectsDeferred += 1;
-          const rehearsalEnvelope = buildEffectRehearsalEnvelope({
-            id: `${input.run.id}:${toolCall.id}:effect-boundary`,
-            mapping: effectMapping,
-          });
-          const deferredPlan = await this.createPlanForDeferredEffect({
+        }
+        const declaredToolCalls = result.response.toolCalls || [];
+        const fallbackToolCalls = declaredToolCalls.length === 0
+          ? this.buildProviderNativeFallbackToolCalls({
+            result,
             run: input.run,
+            request: input.request,
+            knownToolNames,
+          })
+          : [];
+        const rawToolCalls = declaredToolCalls.length > 0 ? declaredToolCalls : fallbackToolCalls;
+        const repairs = rawToolCalls.map((toolCall) => this.repairToolCall(toolCall, knownToolNames));
+        const toolCalls = repairs.map((repair) => repair.toolCall);
+        stats.repairedToolCalls += repairs.filter((repair) => repair.repaired).length;
+        if (toolCalls.length === 0) break;
+        stats.rounds += 1;
+        input.messages.push({
+          role: 'assistant',
+          content: result.response.content || '',
+          toolCalls,
+        });
+
+        const toolMessages: ChatMessage[] = [];
+        for (const [index, toolCall] of toolCalls.slice(0, MAX_NATIVE_TOOL_CALLS_PER_ROUND).entries()) {
+          if (input.options.signal?.aborted) {
+            break;
+          }
+          stats.requested += 1;
+          const repair = repairs[index];
+          if (toolCall.name === COMPACT_TOOL_CATALOG_NAME) {
+            const catalogResult = this.handleToolCatalogCall({
+              run: input.run,
+              request: input.request,
+              toolCall,
+              tools: input.tools,
+              knownToolNames,
+            });
+            stats.catalogSearches += 1;
+            stats.catalogMaterializedTools += catalogResult.materializedTools;
+            if (catalogResult.materializedTools > 0) {
+              knownToolNames = new Set(input.tools.map((tool) => tool.name));
+            }
+            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, catalogResult.output));
+            events.push(this.buildToolEvent(input.run, toolCall.name, catalogResult.output, 'done', {
+              reason: 'compact-tool-catalog',
+              toolCallId: toolCall.id,
+              materializedTools: catalogResult.materializedTools,
+            }));
+            continue;
+          }
+          if (toolCall.name === TOOL_PLANNER_NAME) {
+            const plan = this.handleToolPlanningCall({
+              run: input.run,
+              request: input.request,
+              toolCall,
+              knownToolNames,
+            });
+            stats.planningCalls += 1;
+            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, plan));
+            events.push(this.buildToolEvent(input.run, toolCall.name, plan, 'done', {
+              reason: 'agent-run-tool-planning',
+              toolCallId: toolCall.id,
+            }));
+            continue;
+          }
+          if (!knownToolNames.has(toolCall.name)) {
+            stats.denied += 1;
+            stats.unknownToolCalls += 1;
+            const denied = `Tool ${toolCall.name} nao esta exposta para este run.${repair?.reason ? ` ${repair.reason}` : ''}`;
+            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, denied));
+            events.push(this.buildToolEvent(input.run, toolCall.name, denied, 'failed', {
+              reason: 'tool-not-exposed',
+              toolCallId: toolCall.id,
+              candidates: this.findToolCandidates(toolCall.name, knownToolNames).slice(0, 5),
+            }));
+            continue;
+          }
+
+          const influencedByUntrustedContent = containsUntrustedContentMarker(input.messages)
+            || containsUntrustedContentMarker(toolCall.arguments);
+          const sourceTrust = influencedByUntrustedContent ? 'untrusted-content' : 'trusted-user';
+          const effectMapping = mapToolCallToEffectDecision({
+            toolCall,
+            registry: TOOL_EFFECT_REGISTRY,
+            sourceTrust,
+            policyContext: {
+              surface: 'agent-native-tool-loop',
+              workspace: input.run.workspace || null,
+              sandboxAvailable: true,
+            },
+          });
+          const safeObservation = effectMapping.decision.action === 'allow'
+            && effectMapping.analysis.readOnly
+            && isSafeObservationTool(toolCall.name, TOOL_EFFECT_REGISTRY);
+          if (safeObservation) {
+            stats.safeObservations += 1;
+          } else if (effectMapping.decision.action === 'deny') {
+            stats.denied += 1;
+            stats.effectBoundaryDenied += 1;
+            const denied = `Tool ${toolCall.name} bloqueada pela effect boundary: ${effectMapping.decision.reasons.join(' ')}`;
+            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, denied));
+            events.push(this.buildToolEvent(input.run, toolCall.name, denied, 'failed', {
+              reason: 'effect-boundary-deny',
+              toolCallId: toolCall.id,
+              sourceTrust,
+              effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+            }));
+            continue;
+          } else {
+            stats.denied += 1;
+            stats.sideEffectsDeferred += 1;
+            const rehearsalEnvelope = buildEffectRehearsalEnvelope({
+              id: `${input.run.id}:${toolCall.id}:effect-boundary`,
+              mapping: effectMapping,
+            });
+            const deferredPlan = await this.createPlanForDeferredEffect({
+              run: input.run,
+              toolName: toolCall.name,
+              mapping: effectMapping,
+              rehearsalEnvelope,
+            });
+            const deferred = this.buildDeferredToolEffectMessage(toolCall.name, effectMapping);
+            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, deferred));
+            events.push(this.buildToolEvent(input.run, toolCall.name, deferred, 'failed', {
+              reason: 'effect-boundary-deferred',
+              toolCallId: toolCall.id,
+              sourceTrust,
+              effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+              effectRehearsal: rehearsalEnvelope,
+              ...(deferredPlan.mutationPlan ? { mutationPlan: this.buildMutationPlanMetadata(deferredPlan.mutationPlan) } : {}),
+              ...(deferredPlan.speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(deferredPlan.speculativeAutonomy) } : {}),
+              ...(deferredPlan.zCanvasSession ? { zCanvasSession: deferredPlan.zCanvasSession } : {}),
+              ...(deferredPlan.terminalBackendPlan ? { terminalBackendPlan: deferredPlan.terminalBackendPlan } : {}),
+            }));
+            continue;
+          }
+
+          const rawToolArgs = influencedByUntrustedContent
+            ? withUntrustedInputMetadata(toolCall.arguments, 'agent-run-llm-native-loop-contained-untrusted-evidence')
+            : toolCall.arguments;
+          const toolArgs = this.enrichNativeToolArgs({
             toolName: toolCall.name,
-            mapping: effectMapping,
-            rehearsalEnvelope,
+            args: rawToolArgs,
+            providerName: result.providerName,
+            modelName: result.modelName,
           });
-          const deferred = this.buildDeferredToolEffectMessage(toolCall.name, effectMapping);
-          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, deferred));
-          events.push(this.buildToolEvent(input.run, toolCall.name, deferred, 'failed', {
-            reason: 'effect-boundary-deferred',
-            toolCallId: toolCall.id,
-            sourceTrust,
-            effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
-            effectRehearsal: rehearsalEnvelope,
-            ...(deferredPlan.mutationPlan ? { mutationPlan: this.buildMutationPlanMetadata(deferredPlan.mutationPlan) } : {}),
-            ...(deferredPlan.speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(deferredPlan.speculativeAutonomy) } : {}),
-            ...(deferredPlan.zCanvasSession ? { zCanvasSession: deferredPlan.zCanvasSession } : {}),
-            ...(deferredPlan.terminalBackendPlan ? { terminalBackendPlan: deferredPlan.terminalBackendPlan } : {}),
-          }));
-          continue;
+          try {
+            const execution = await this.executeToolWithRetry(toolCall.name, toolArgs);
+            const toolResult = execution.output;
+            if (execution.attempts > 1) {
+              stats.retriedToolCalls += 1;
+              stats.successfulRetries += 1;
+            }
+            stats.executed += 1;
+            evidenceTexts.push(`${toolCall.name}:\n${clampText(toolResult, 6000)}`);
+            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, toolResult));
+            events.push(this.buildToolEvent(input.run, toolCall.name, toolResult, 'done', {
+              toolCallId: toolCall.id,
+              sourceTrust,
+              ...(repair?.repaired ? { toolCallRepair: repair.reason || 'normalized-tool-call' } : {}),
+              effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+              ...(toolCall.arguments?.providerNativeFallback
+                ? { providerNativeFallback: toolCall.arguments.providerNativeFallback }
+                : {}),
+            }));
+          } catch (error: unknown) {
+            stats.failed += 1;
+            if (isTransientToolError(error)) {
+              stats.retriedToolCalls += 1;
+            }
+            const message = `Tool ${toolCall.name} failed: ${error instanceof Error ? error.message : String(error)}`;
+            evidenceTexts.push(`${toolCall.name}:\n${message}`);
+            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, message));
+            events.push(this.buildToolEvent(input.run, toolCall.name, message, 'failed', {
+              toolCallId: toolCall.id,
+              sourceTrust,
+              effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+            }));
+          }
         }
 
-        const rawToolArgs = influencedByUntrustedContent
-          ? withUntrustedInputMetadata(toolCall.arguments, 'agent-run-llm-native-loop-contained-untrusted-evidence')
-          : toolCall.arguments;
-        const toolArgs = this.enrichNativeToolArgs({
-          toolName: toolCall.name,
-          args: rawToolArgs,
-          providerName: result.providerName,
-          modelName: result.modelName,
-        });
-        try {
-          const execution = await this.executeToolWithRetry(toolCall.name, toolArgs);
-          const toolResult = execution.output;
-          if (execution.attempts > 1) {
-            stats.retriedToolCalls += 1;
-            stats.successfulRetries += 1;
-          }
-          stats.executed += 1;
-          evidenceTexts.push(`${toolCall.name}:\n${clampText(toolResult, 6000)}`);
-          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, toolResult));
-          events.push(this.buildToolEvent(input.run, toolCall.name, toolResult, 'done', {
-            toolCallId: toolCall.id,
-            sourceTrust,
-            ...(repair?.repaired ? { toolCallRepair: repair.reason || 'normalized-tool-call' } : {}),
-            effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
-            ...(toolCall.arguments?.providerNativeFallback
-              ? { providerNativeFallback: toolCall.arguments.providerNativeFallback }
-              : {}),
-          }));
-        } catch (error: unknown) {
-          stats.failed += 1;
-          if (isTransientToolError(error)) {
-            stats.retriedToolCalls += 1;
-          }
-          const message = `Tool ${toolCall.name} failed: ${error instanceof Error ? error.message : String(error)}`;
-          evidenceTexts.push(`${toolCall.name}:\n${message}`);
-          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, message));
-          events.push(this.buildToolEvent(input.run, toolCall.name, message, 'failed', {
-            toolCallId: toolCall.id,
-            sourceTrust,
-            effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
-          }));
+        if (toolMessages.length === 0) break;
+        input.messages.push(...toolMessages);
+        if (input.options.signal?.aborted) {
+          break;
+        }
+        const compaction = await this.compactMessagesForNextTurn(input.messages, this.resolveContextBudgetChars(input.run, input.request), input.options);
+        stats.compactions += compaction.compacted ? 1 : 0;
+        stats.truncatedToolMessages += compaction.truncatedToolMessages;
+        result = await this.llmRuntime.chatDetailed(input.messages, input.tools, input.options);
+      }
+    } finally {
+      if (input.options.signal?.aborted) {
+        if (input.messages.length > 0 && input.messages[input.messages.length - 1].role === 'tool') {
+          input.messages.push({ role: 'assistant', content: 'Operation interrupted.' });
         }
       }
-
-      if (toolMessages.length === 0) break;
-      input.messages.push(...toolMessages);
-      const compaction = this.compactMessagesForNextTurn(input.messages, this.resolveContextBudgetChars(input.run, input.request));
-      stats.compactions += compaction.compacted ? 1 : 0;
-      stats.truncatedToolMessages += compaction.truncatedToolMessages;
-      result = await this.llmRuntime.chatDetailed(input.messages, input.tools, input.options);
     }
 
     return { result, evidenceTexts, toolReceiptCount: stats.executed, stats, events };
@@ -811,26 +831,76 @@ export class AgentRunNativeToolLoopService {
     }
   }
 
-  private compactMessagesForNextTurn(messages: ChatMessage[], maxChars: number): {
-    compacted: boolean;
-    truncatedToolMessages: number;
-  } {
+  private async compactMessagesForNextTurn(
+    messages: ChatMessage[],
+    maxChars: number,
+    options?: LlmRunOptions,
+  ): Promise<{ compacted: boolean; truncatedToolMessages: number }> {
     if (estimateMessagesChars(messages) <= maxChars) {
       return { compacted: false, truncatedToolMessages: 0 };
     }
     let truncatedToolMessages = 0;
-    const protectedStart = 1;
-    const protectedTail = Math.max(0, messages.length - 8);
-    for (let index = protectedStart; index < protectedTail; index += 1) {
-      const message = messages[index];
-      if (!message?.content) continue;
-      if (message.role === 'tool' && message.content.length > 1600) {
-        message.content = `${message.content.slice(0, 1500).trim()}\n[tool result compacted before next round]`;
-        truncatedToolMessages += 1;
-      } else if (message.role === 'assistant' && message.content.length > 2400) {
-        message.content = `${message.content.slice(0, 2200).trim()}\n[assistant turn compacted before next round]`;
+
+    if (this.llmRuntime) {
+      const providerAdapter: ILlmProvider = {
+        name: this.llmRuntime.getPreferredProviderName?.() || 'active-provider',
+        chat: async (msgs, tools, opts) => {
+          const runResult = await this.llmRuntime!.chatDetailed(msgs, tools, {
+            modelName: opts?.modelName,
+            allowFallback: false,
+          });
+          return runResult.response;
+        },
+      };
+
+      try {
+        const compMessages = messages.map((m) => ({
+          role: m.role as any,
+          content: m.content,
+          toolName: m.toolName || m.name || null,
+          toolCallId: m.toolCallId || null,
+          toolCalls: m.toolCalls || null,
+        }));
+
+        const result = await this.compactionService.compactSemanticAsync(
+          compMessages,
+          providerAdapter,
+          8,
+          options?.modelName,
+        );
+
+        if (result.clearedToolOutputs > 0) {
+          const mappedMessages: ChatMessage[] = result.messages.map((m) => ({
+            role: m.role as any,
+            content: m.content,
+            toolName: m.toolName || undefined,
+            toolCallId: m.toolCallId || undefined,
+            toolCalls: m.toolCalls || undefined,
+          }));
+          messages.length = 0;
+          messages.push(...mappedMessages);
+          truncatedToolMessages = result.clearedToolOutputs;
+        }
+      } catch (err) {
+        // Fallback cleanly to static compaction
       }
     }
+
+    if (estimateMessagesChars(messages) > maxChars) {
+      const protectedStart = 1;
+      const protectedTail = Math.max(0, messages.length - 8);
+      for (let index = protectedStart; index < protectedTail; index += 1) {
+        const message = messages[index];
+        if (!message?.content) continue;
+        if (message.role === 'tool' && message.content.length > 1600) {
+          message.content = `${message.content.slice(0, 1500).trim()}\n[tool result compacted before next round]`;
+          truncatedToolMessages += 1;
+        } else if (message.role === 'assistant' && message.content.length > 2400) {
+          message.content = `${message.content.slice(0, 2200).trim()}\n[assistant turn compacted before next round]`;
+        }
+      }
+    }
+
     if (estimateMessagesChars(messages) > maxChars) {
       const compactNotice: ChatMessage = {
         role: 'system',

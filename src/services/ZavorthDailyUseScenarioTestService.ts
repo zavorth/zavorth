@@ -6,7 +6,7 @@ import { SwarmV2Service } from './SwarmV2Service.js';
 import { ZavorthAgentReviewService } from './ZavorthAgentReviewService.js';
 import { ZavorthProviderModelCatalogService } from './ZavorthProviderModelCatalogService.js';
 import { ZavorthSkillCuratorLiveLoopService } from './ZavorthSkillCuratorLiveLoopService.js';
-import { TelegramDailyAssistantService } from '../telegram/TelegramDailyAssistantService.js';
+import { TelegramDailyAssistantService } from '../gateways/channels/telegram/TelegramDailyAssistantService.js';
 import type { UniversalAgentRun } from '../runtime/agent/index.js';
 
 export const ZAVORTH_DAILY_USE_SCENARIO_TEST_CONTRACT_VERSION =

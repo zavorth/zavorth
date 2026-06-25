@@ -149,3 +149,92 @@ function isLoopbackHost(hostname: string): boolean {
     || normalized === '::1'
     || normalized === '0:0:0:0:0:0:0:1';
 }
+
+export async function readSafeJsonResponse<T>(
+  response: Response,
+  serviceLabel: string,
+  maxBytes = 16 * 1024 * 1024,
+): Promise<T> {
+  const contentLengthHeader = response.headers?.get?.('content-length');
+  if (contentLengthHeader) {
+    const contentLength = parseInt(contentLengthHeader, 10);
+    if (!isNaN(contentLength) && contentLength > maxBytes) {
+      throw new Error(
+        `Egress response size limit exceeded: ${serviceLabel} returned a content-length of ${contentLength} bytes, which exceeds the max allowed limit of ${maxBytes} bytes.`
+      );
+    }
+  }
+
+  if (!response.body) {
+    const text = await response.text();
+    const bytes = new TextEncoder().encode(text).length;
+    if (bytes > maxBytes) {
+      throw new Error(
+        `Egress response size limit exceeded: ${serviceLabel} body size ${bytes} bytes exceeds the max allowed limit of ${maxBytes} bytes.`
+      );
+    }
+    return JSON.parse(text) as T;
+  }
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  if (typeof (response.body as any).getReader === 'function') {
+    const reader = (response.body as any).getReader();
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+        if (value) {
+          totalBytes += value.length;
+          if (totalBytes > maxBytes) {
+            await reader.cancel();
+            throw new Error(
+              `Egress response size limit exceeded: ${serviceLabel} stream exceeded the max allowed limit of ${maxBytes} bytes.`
+            );
+          }
+          chunks.push(value);
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  } else if (typeof (response.body as any)[Symbol.asyncIterator] === 'function') {
+    const stream = response.body as any;
+    for await (const chunk of stream) {
+      const buf = typeof chunk === 'string' ? new TextEncoder().encode(chunk) : chunk;
+      totalBytes += buf.length;
+      if (totalBytes > maxBytes) {
+        if (typeof stream.destroy === 'function') {
+          stream.destroy();
+        }
+        throw new Error(
+          `Egress response size limit exceeded: ${serviceLabel} stream exceeded the max allowed limit of ${maxBytes} bytes.`
+        );
+      }
+      chunks.push(buf);
+    }
+  } else {
+    const text = await response.text();
+    const bytes = new TextEncoder().encode(text).length;
+    if (bytes > maxBytes) {
+      throw new Error(
+        `Egress response size limit exceeded: ${serviceLabel} body size ${bytes} bytes exceeds the max allowed limit of ${maxBytes} bytes.`
+      );
+    }
+    return JSON.parse(text) as T;
+  }
+
+  const concatenated = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    concatenated.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  const decoder = new TextDecoder('utf-8');
+  const text = decoder.decode(concatenated);
+  return JSON.parse(text) as T;
+}

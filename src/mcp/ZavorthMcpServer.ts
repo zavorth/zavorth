@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
@@ -39,7 +40,7 @@ export class ZavorthMcpServer {
 
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('Zavorth MCP Server running on stdio');
+    logger.error('Zavorth MCP Server running on stdio');
   }
 
   private registerTools() {
@@ -65,7 +66,7 @@ export class ZavorthMcpServer {
         const { name, arguments: args } = request.params;
         const decision = this.toolPolicy.decide(name);
         if (!decision.allowed) {
-          console.error(`[MCP policy] ${decision.reason}`);
+          logger.error(`[MCP policy] ${decision.reason}`);
           return {
             content: [
               {

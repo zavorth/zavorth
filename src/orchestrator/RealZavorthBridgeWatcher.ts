@@ -229,24 +229,24 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('collectRecentLogEvents', []);
   }
 
-  private findLatestZavorthBridgeLogFile(...args: any[]): any {
-    return this.callWorkflow('findLatestZavorthBridgeLogFile', args);
+    private findLatestZavorthBridgeLogFile(): Promise<string | null> {
+    return this.callWorkflow('findLatestZavorthBridgeLogFile', []);
   }
 
-  private parseLogEvent(...args: any[]): any {
-    return this.callWorkflow('parseLogEvent', args);
+    private parseLogEvent(line: string): ZavorthBridgeLogEvent | null {
+    return this.callWorkflow('parseLogEvent', [line]);
   }
 
-  private isInterestingLogLine(...args: any[]): any {
-    return this.callWorkflow('isInterestingLogLine', args);
+    private isInterestingLogLine(line: string): boolean {
+    return this.callWorkflow('isInterestingLogLine', [line]);
   }
 
-  private isAutomationTriggerLogLine(...args: any[]): any {
-    return this.callWorkflow('isAutomationTriggerLogLine', args);
+    private isAutomationTriggerLogLine(line: string): boolean {
+    return this.callWorkflow('isAutomationTriggerLogLine', [line]);
   }
 
-  private resolveArtifactContentPath(...args: any[]): any {
-    return this.callWorkflow('resolveArtifactContentPath', args);
+    private resolveArtifactContentPath(dirPath: string, baseName: string): Promise<string | null> {
+    return this.callWorkflow('resolveArtifactContentPath', [dirPath, baseName]);
   }
 
   private findBestArtifactForSession(
@@ -256,40 +256,50 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('findBestArtifactForSession', [session, artifacts]);
   }
 
-  private matchesSession(...args: any[]): any {
-    return this.callWorkflow('matchesSession', args);
+    private matchesSession(session: PendingZavorthBridgeSession, artifact: ZavorthBridgeArtifact): boolean {
+    return this.callWorkflow('matchesSession', [session, artifact]);
   }
 
   private isSessionActive(session: PendingZavorthBridgeSession): boolean {
     return this.callWorkflow('isSessionActive', [session]);
   }
 
-  private tryAutomationRescue(...args: any[]): any {
-    return this.callWorkflow('tryAutomationRescue', args);
+    private tryAutomationRescue(session: PendingZavorthBridgeSession, reason: 'stalled' | 'log_error'): Promise<void> {
+    return this.callWorkflow('tryAutomationRescue', [session, reason]);
   }
 
-  private getLiveCompanionStatus(...args: any[]): any {
-    return this.callWorkflow('getLiveCompanionStatus', args);
+    private getLiveCompanionStatus(targetInstanceId?: string): Promise<Record<string, any> | null> {
+    return this.callWorkflow('getLiveCompanionStatus', [targetInstanceId]);
   }
 
-  private resolveScopedCompanionUiTarget(...args: any[]): any {
-    return this.callWorkflow('resolveScopedCompanionUiTarget', args);
+    private resolveScopedCompanionUiTarget(session: PendingZavorthBridgeSession): Promise<ScopedCompanionUiTarget> {
+    return this.callWorkflow('resolveScopedCompanionUiTarget', [session]);
   }
 
-  private canCaptureScopedSessionUi(...args: any[]): any {
-    return this.callWorkflow('canCaptureScopedSessionUi', args);
+    private canCaptureScopedSessionUi(target: ScopedCompanionUiTarget): boolean {
+    return this.callWorkflow('canCaptureScopedSessionUi', [target]);
   }
 
-  private resolveCompanionTargetInstanceId(...args: any[]): any {
-    return this.callWorkflow('resolveCompanionTargetInstanceId', args);
+    private resolveCompanionTargetInstanceId(session: PendingZavorthBridgeSession): string | undefined {
+    return this.callWorkflow('resolveCompanionTargetInstanceId', [session]);
   }
 
-  private tryCompanionRecovery(...args: any[]): any {
-    return this.callWorkflow('tryCompanionRecovery', args);
+    private tryCompanionRecovery(
+    session: PendingZavorthBridgeSession,
+    target: ScopedCompanionUiTarget,
+    liveStatus: Record<string, any> | null,
+    errorReason: string,
+  ): Promise<boolean> {
+    return this.callWorkflow('tryCompanionRecovery', [session, target, liveStatus, errorReason]);
   }
 
-  private buildCompanionRecoveryPrompt(...args: any[]): any {
-    return this.callWorkflow('buildCompanionRecoveryPrompt', args);
+    private buildCompanionRecoveryPrompt(
+    session: PendingZavorthBridgeSession,
+    target: ScopedCompanionUiTarget,
+    liveStatus: Record<string, any> | null,
+    errorReason: string,
+  ): string {
+    return this.callWorkflow('buildCompanionRecoveryPrompt', [session, target, liveStatus, errorReason]);
   }
 
   private getTask(taskId: string): Task | null {
@@ -300,191 +310,205 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('isTaskTerminal', [task || null]);
   }
 
-  private markTaskDelivered(...args: any[]): any {
-    return this.callWorkflow('markTaskDelivered', args);
+    private markTaskDelivered(taskId: string, summary: string | null): Promise<void> {
+    return this.callWorkflow('markTaskDelivered', [taskId, summary]);
   }
 
-  private markTaskFailed(...args: any[]): any {
-    return this.callWorkflow('markTaskFailed', args);
+    private markTaskFailed(taskId: string, summary: string): Promise<void> {
+    return this.callWorkflow('markTaskFailed', [taskId, summary]);
   }
 
-  private resolvePendingPermissionForTerminalTask(...args: any[]): any {
-    return this.callWorkflow('resolvePendingPermissionForTerminalTask', args);
+    private resolvePendingPermissionForTerminalTask(task: Task, note: string): Promise<void> {
+    return this.callWorkflow('resolvePendingPermissionForTerminalTask', [task, note]);
   }
 
-  private queueSessionDelivery(...args: any[]): any {
-    return this.callWorkflow('queueSessionDelivery', args);
+    private queueSessionDelivery(
+    session: PendingZavorthBridgeSession,
+    deliverable: any,
+    chatGatewayId: string | null,
+  ): void {
+    return this.callWorkflow('queueSessionDelivery', [session, deliverable, chatGatewayId]);
   }
 
-  private failStalledSession(...args: any[]): any {
-    return this.callWorkflow('failStalledSession', args);
+    private failStalledSession(session: PendingZavorthBridgeSession, errorReason: string): Promise<void> {
+    return this.callWorkflow('failStalledSession', [session, errorReason]);
   }
 
-  private tryQueueLocalDirectoryFallback(...args: any[]): any {
-    return this.callWorkflow('tryQueueLocalDirectoryFallback', args);
+    private tryQueueLocalDirectoryFallback(session: PendingZavorthBridgeSession, workspace: string): Promise<boolean> {
+    return this.callWorkflow('tryQueueLocalDirectoryFallback', [session, workspace]);
   }
 
-  private describeStalledFailure(...args: any[]): any {
-    return this.callWorkflow('describeStalledFailure', args);
+    private describeStalledFailure(session: PendingZavorthBridgeSession, liveStatus: Record<string, any> | null): string {
+    return this.callWorkflow('describeStalledFailure', [session, liveStatus]);
   }
 
-  private hasCompanionHandoffMismatch(...args: any[]): any {
-    return this.callWorkflow('hasCompanionHandoffMismatch', args);
+    private hasCompanionHandoffMismatch(
+    session: PendingZavorthBridgeSession,
+    liveStatus: Record<string, any> | null,
+  ): boolean {
+    return this.callWorkflow('hasCompanionHandoffMismatch', [session, liveStatus]);
   }
 
-  private normalizeComparisonValue(...args: any[]): any {
-    return this.callWorkflow('normalizeComparisonValue', args);
+    private normalizeComparisonValue(rawValue: string | null | undefined): string {
+    return this.callWorkflow('normalizeComparisonValue', [rawValue]);
   }
 
-  private isLocalDirectoryInspectionPrompt(...args: any[]): any {
-    return this.callWorkflow('isLocalDirectoryInspectionPrompt', args);
+    private isLocalDirectoryInspectionPrompt(prompt: string): boolean {
+    return this.callWorkflow('isLocalDirectoryInspectionPrompt', [prompt]);
   }
 
-  private resolveDirectoryListingTarget(...args: any[]): any {
-    return this.callWorkflow('resolveDirectoryListingTarget', args);
+    private resolveDirectoryListingTarget(prompt: string, workspace: string): string | null {
+    return this.callWorkflow('resolveDirectoryListingTarget', [prompt, workspace]);
   }
 
-  private extractDirectoryHints(...args: any[]): any {
-    return this.callWorkflow('extractDirectoryHints', args);
+    private extractDirectoryHints(prompt: string): string[] {
+    return this.callWorkflow('extractDirectoryHints', [prompt]);
   }
 
-  private resolveDirectoryHint(...args: any[]): any {
-    return this.callWorkflow('resolveDirectoryHint', args);
+    private resolveDirectoryHint(hint: string, workspacePath: string): string | null {
+    return this.callWorkflow('resolveDirectoryHint', [hint, workspacePath]);
   }
 
-  private listAncestorDirectories(...args: any[]): any {
-    return this.callWorkflow('listAncestorDirectories', args);
+    private listAncestorDirectories(startPath: string): string[] {
+    return this.callWorkflow('listAncestorDirectories', [startPath]);
   }
 
-  private normalizePathToken(...args: any[]): any {
-    return this.callWorkflow('normalizePathToken', args);
+    private normalizePathToken(value: string): string {
+    return this.callWorkflow('normalizePathToken', [value]);
   }
 
-  private pathTokensRoughlyMatch(...args: any[]): any {
-    return this.callWorkflow('pathTokensRoughlyMatch', args);
+    private pathTokensRoughlyMatch(left: string, right: string): boolean {
+    return this.callWorkflow('pathTokensRoughlyMatch', [left, right]);
   }
 
-  private isExistingDirectory(...args: any[]): any {
-    return this.callWorkflow('isExistingDirectory', args);
+    private isExistingDirectory(candidate: string): boolean {
+    return this.callWorkflow('isExistingDirectory', [candidate]);
   }
 
-  private safeReadDirectory(...args: any[]): any {
-    return this.callWorkflow('safeReadDirectory', args);
+    private safeReadDirectory(candidate: string): fs.Dirent[] {
+    return this.callWorkflow('safeReadDirectory', [candidate]);
   }
 
-  private normalizeVisibleResponse(...args: any[]): any {
-    return this.callWorkflow('normalizeVisibleResponse', args);
+    private normalizeVisibleResponse(value: string | null | undefined): string {
+    return this.callWorkflow('normalizeVisibleResponse', [value]);
   }
 
-  private sanitizeVisibleResponse(...args: any[]): any {
-    return this.callWorkflow('sanitizeVisibleResponse', args);
+    private sanitizeVisibleResponse(value: string | null | undefined, promptText: string | null | undefined): string {
+    return this.callWorkflow('sanitizeVisibleResponse', [value, promptText]);
   }
 
-  private isVisibleResponseCaptureReady(...args: any[]): any {
-    return this.callWorkflow('isVisibleResponseCaptureReady', args);
+    private isVisibleResponseCaptureReady(promptText: string, visibleResponse: string | null | undefined): boolean {
+    return this.callWorkflow('isVisibleResponseCaptureReady', [promptText, visibleResponse]);
   }
 
-  private tryQueuePromptContractDelivery(...args: any[]): any {
-    return this.callWorkflow('tryQueuePromptContractDelivery', args);
+    private tryQueuePromptContractDelivery(session: PendingZavorthBridgeSession): Promise<boolean> {
+    return this.callWorkflow('tryQueuePromptContractDelivery', [session]);
   }
 
-  private extractFileCreationPromptContract(...args: any[]): any {
-    return this.callWorkflow('extractFileCreationPromptContract', args);
+    private extractFileCreationPromptContract(
+    promptText: string,
+    visibleResponse: string | null | undefined,
+  ): { filePath: string; fileContent: string } | null {
+    return this.callWorkflow('extractFileCreationPromptContract', [promptText, visibleResponse]);
   }
 
-  private normalizePromptContractFileContent(...args: any[]): any {
-    return this.callWorkflow('normalizePromptContractFileContent', args);
+    private normalizePromptContractFileContent(value: string | null | undefined): string {
+    return this.callWorkflow('normalizePromptContractFileContent', [value]);
   }
 
-  private clearPendingPermissionMetadata(...args: any[]): any {
-    return this.callWorkflow('clearPendingPermissionMetadata', args);
+    private clearPendingPermissionMetadata(task: Task): void {
+    return this.callWorkflow('clearPendingPermissionMetadata', [task]);
   }
 
-  private isTrackingFileCompleted(...args: any[]): any {
-    return this.callWorkflow('isTrackingFileCompleted', args);
+    private isTrackingFileCompleted(trackingFile: string): boolean {
+    return this.callWorkflow('isTrackingFileCompleted', [trackingFile]);
   }
 
-  private isZavorthBridgeTask(...args: any[]): any {
-    return this.callWorkflow('isZavorthBridgeTask', args);
+    private isZavorthBridgeTask(task: Task | null | undefined): boolean {
+    return this.callWorkflow('isZavorthBridgeTask', [task]);
   }
 
-  private wasPermissionRecentlyNotified(...args: any[]): any {
-    return this.callWorkflow('wasPermissionRecentlyNotified', args);
+    private wasPermissionRecentlyNotified(permissionId: string, minAgeMs: number): boolean {
+    return this.callWorkflow('wasPermissionRecentlyNotified', [permissionId, minAgeMs]);
   }
 
-  private maybeHandlePermissionPrompt(...args: any[]): any {
-    return this.callWorkflow('maybeHandlePermissionPrompt', args);
+    private maybeHandlePermissionPrompt(session: PendingZavorthBridgeSession, trackingFile: string): Promise<boolean> {
+    return this.callWorkflow('maybeHandlePermissionPrompt', [session, trackingFile]);
   }
 
-  private findZavorthBridgeAutoApprovalPolicy(...args: any[]): any {
-    return this.callWorkflow('findZavorthBridgeAutoApprovalPolicy', args);
+    private findZavorthBridgeAutoApprovalPolicy(permission: PermissionRequest): Promise<any> {
+    return this.callWorkflow('findZavorthBridgeAutoApprovalPolicy', [permission]);
   }
 
-  private resolveZavorthBridgeApprovalMode(...args: any[]): any {
-    return this.callWorkflow('resolveZavorthBridgeApprovalMode', args);
+    private resolveZavorthBridgeApprovalMode(permission: PermissionRequest): 'once' | 'conversation' {
+    return this.callWorkflow('resolveZavorthBridgeApprovalMode', [permission]);
   }
 
-  private buildZavorthBridgePermissionReason(...args: any[]): any {
-    return this.callWorkflow('buildZavorthBridgePermissionReason', args);
+    private buildZavorthBridgePermissionReason(snapshot: ZavorthBridgeUiSnapshot): string | null {
+    return this.callWorkflow('buildZavorthBridgePermissionReason', [snapshot]);
   }
 
-  private notifyPermissionRequest(...args: any[]): any {
-    return this.callWorkflow('notifyPermissionRequest', args);
+    private notifyPermissionRequest(permission: PermissionRequest, reason: string): Promise<void> {
+    return this.callWorkflow('notifyPermissionRequest', [permission, reason]);
   }
 
-  private isRecentTimestamp(...args: any[]): any {
-    return this.callWorkflow('isRecentTimestamp', args);
+    private isRecentTimestamp(value: string | null | undefined, maxAgeMs: number): boolean {
+    return this.callWorkflow('isRecentTimestamp', [value, maxAgeMs]);
   }
 
-  private formatFinalResponseBroadcast(...args: any[]): any {
-    return this.callWorkflow('formatFinalResponseBroadcast', args);
+    private formatFinalResponseBroadcast(session: PendingZavorthBridgeSession, finalResponseText: string): string {
+    return this.callWorkflow('formatFinalResponseBroadcast', [session, finalResponseText]);
   }
 
-  private formatArtifactCompletion(...args: any[]): any {
-    return this.callWorkflow('formatArtifactCompletion', args);
+    private formatArtifactCompletion(session: PendingZavorthBridgeSession, artifact: ZavorthBridgeArtifact): string {
+    return this.callWorkflow('formatArtifactCompletion', [session, artifact]);
   }
 
-  private humanizeArtifactType(...args: any[]): any {
-    return this.callWorkflow('humanizeArtifactType', args);
+    private humanizeArtifactType(artifactType: string): string {
+    return this.callWorkflow('humanizeArtifactType', [artifactType]);
   }
 
-  private truncate(...args: any[]): any {
-    return this.callWorkflow('truncate', args);
+    private truncate(content: string, maxLength: number): string {
+    return this.callWorkflow('truncate', [content, maxLength]);
   }
 
-  private formatTelegramFriendlyResponse(...args: any[]): any {
-    return this.callWorkflow('formatTelegramFriendlyResponse', args);
+    private formatTelegramFriendlyResponse(
+    originalResponse: string,
+    session: PendingZavorthBridgeSession,
+    artifact?: ZavorthBridgeArtifact,
+  ): string {
+    return this.callWorkflow('formatTelegramFriendlyResponse', [originalResponse, session, artifact]);
   }
 
-  private tryFormatStructuredInventory(...args: any[]): any {
-    return this.callWorkflow('tryFormatStructuredInventory', args);
+    private tryFormatStructuredInventory(originalResponse: string, session: PendingZavorthBridgeSession): string | null {
+    return this.callWorkflow('tryFormatStructuredInventory', [originalResponse, session]);
   }
 
-  private extractInventoryHeading(...args: any[]): any {
-    return this.callWorkflow('extractInventoryHeading', args);
+    private extractInventoryHeading(line: string): string | null {
+    return this.callWorkflow('extractInventoryHeading', [line]);
   }
 
-  private extractInventoryItem(...args: any[]): any {
-    return this.callWorkflow('extractInventoryItem', args);
+    private extractInventoryItem(line: string): string | null {
+    return this.callWorkflow('extractInventoryItem', [line]);
   }
 
-  private looksLikeInventoryItem(...args: any[]): any {
-    return this.callWorkflow('looksLikeInventoryItem', args);
+    private looksLikeInventoryItem(line: string): boolean {
+    return this.callWorkflow('looksLikeInventoryItem', [line]);
   }
 
-  private isDiscardableZavorthBridgeClosingLine(...args: any[]): any {
-    return this.callWorkflow('isDiscardableZavorthBridgeClosingLine', args);
+    private isDiscardableZavorthBridgeClosingLine(line: string): boolean {
+    return this.callWorkflow('isDiscardableZavorthBridgeClosingLine', [line]);
   }
 
-  private normalizeTelegramFriendlyText(...args: any[]): any {
-    return this.callWorkflow('normalizeTelegramFriendlyText', args);
+    private normalizeTelegramFriendlyText(value: string): string {
+    return this.callWorkflow('normalizeTelegramFriendlyText', [value]);
   }
 
-  private sendDeliveryToOriginChat(...args: any[]): any {
-    return this.callWorkflow('sendDeliveryToOriginChat', args);
+    private sendDeliveryToOriginChat(session: PendingZavorthBridgeSession, message: string): Promise<void> {
+    return this.callWorkflow('sendDeliveryToOriginChat', [session, message]);
   }
 
-  private sendToSession(...args: any[]): any {
-    return this.callWorkflow('sendToSession', args);
+    private sendToSession(session: PendingZavorthBridgeSession, message: string): Promise<void> {
+    return this.callWorkflow('sendToSession', [session, message]);
   }
 }

@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { randomUUID } from 'node:crypto';
 import type { CanvasEgressEvent } from '../contracts/ExecutionEngineContract';
 
@@ -59,7 +60,7 @@ export class CanvasEgressGuardService {
         const canvasMeta = ${payload};
         const notify = (url, reason) => {
           window.parent?.postMessage({ type: 'zavorth.canvas.egress_blocked', sessionId: canvasMeta.sessionId, url, reason }, '*');
-          console.warn('[Z-Canvas] blocked external request:', url, reason);
+          logger.warn('[Z-Canvas] blocked external request:', url, reason);
         };
         const shouldBlock = (value) => {
           try {

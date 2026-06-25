@@ -1,3 +1,4 @@
+import { logger } from '../../../logger.js';
 import type * as http from 'http';
 import type { Duplex } from 'stream';
 import { WebSocketServer, type WebSocket } from 'ws';
@@ -58,7 +59,7 @@ export class PtyWebSocketServer {
       this.bindSessionToWebSocket(session, ws, this.isInputAllowedFromEnv());
     });
 
-    console.log(`[PtyWebSocketServer] WebSockets online on ws://127.0.0.1:${port}`);
+    logger.info(`[PtyWebSocketServer] WebSockets online on ws://127.0.0.1:${port}`);
   }
 
   public handleUpgrade(

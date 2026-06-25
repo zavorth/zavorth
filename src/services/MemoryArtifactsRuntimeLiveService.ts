@@ -1,17 +1,31 @@
 import crypto from 'crypto';
+import { logger } from '../logger.js';
 import { execFile } from 'child_process';
+import { logger } from '../logger.js';
 import fs from 'fs';
+import { logger } from '../logger.js';
 import os from 'os';
+import { logger } from '../logger.js';
 import path from 'path';
+import { logger } from '../logger.js';
 import { promisify } from 'util';
+import { logger } from '../logger.js';
 import { ZAVORTH_PLUGIN_OS_API_VERSION, type ZavorthPluginManifest } from '../contracts/PluginManifestContract.js';
+import { logger } from '../logger.js';
 import type { ExecutionResult } from '../contracts/ExecutionContract.js';
+import { logger } from '../logger.js';
 import { ArtifactPipelineService } from './ArtifactPipelineService.js';
+import { logger } from '../logger.js';
 import { CodexRuntimePlaneService } from './CodexRuntimePlaneService.js';
+import { logger } from '../logger.js';
 import { MemoryWikiService } from './MemoryWikiService.js';
+import { logger } from '../logger.js';
 import { OpenShellRemoteSandboxService } from './OpenShellRemoteSandboxService.js';
+import { logger } from '../logger.js';
 import { PluginRegistryService } from './PluginRegistryService.js';
+import { logger } from '../logger.js';
 import { WorkflowRunService } from './WorkflowRunService.js';
+import { logger } from '../logger.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -335,14 +349,14 @@ export class MemoryArtifactsRuntimeLiveService {
       ],
     });
     const openShell = this.openShellRuntime.buildCommandPlan({
-      command: 'node -e "console.log(\'intent-model2\')"',
+      command: 'node -e "logger.info(\'intent-model2\')"',
       localRoot: this.workspaceRoot,
       scopeKey: 'checkpoint-12',
     });
     let stdout: string | null = null;
     let localRuntimeExecuted = false;
     if (input.confirmExecution === true) {
-      const result = await execFileAsync(process.execPath, ['-e', 'console.log("zavorth-checkpoint-12-runtime")'], {
+      const result = await execFileAsync(process.execPath, ['-e', 'logger.info("zavorth-checkpoint-12-runtime")'], {
         cwd: this.workspaceRoot,
         timeout: 5000,
       });

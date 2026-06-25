@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import fs from 'fs';
 import { execFile } from 'child_process';
 import { config } from '../config/index.js';
@@ -468,7 +469,7 @@ export class ZavorthBridgeControlService {
           ),
         }));
     } catch (error) {
-      console.warn(`[ZavorthBridgeControlService] Falha ao carregar modelos permitidos: ${error}`);
+      logger.warn(`[ZavorthBridgeControlService] Falha ao carregar modelos permitidos: ${error}`);
       return [];
     }
   }

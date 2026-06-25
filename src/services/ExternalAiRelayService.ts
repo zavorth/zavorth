@@ -1,7 +1,7 @@
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { ChatMessage, ILlmProvider } from '../providers/ILlmProvider.js';
-import { GeminiVideoAnalyzer } from '../telegram/GeminiVideoAnalyzer.js';
+import { GeminiVideoAnalyzer } from '../gateways/channels/telegram/GeminiVideoAnalyzer.js';
 
 export type ExternalAiRelayTask = 'chat' | 'youtube_transcription';
 type NormalizedRelayProvider = 'gemini' | 'openai' | 'deepseek' | 'qwen';

@@ -1,3 +1,4 @@
+import { logger } from '../../logger.js';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -57,9 +58,9 @@ export class BrowserPlaywrightService {
           const content = (await page.content()).slice(0, 5000);
           const screenshot = '${path.join(this.storageDir, `screenshot_${Date.now()}.png`).replace(/\\/g, '\\\\')}';
           await page.screenshot({ path: screenshot, fullPage: false });
-          console.log(JSON.stringify({ url: '${url}', title, content_length: content.length, screenshot, status: 200, load_time_ms: Date.now() - start }));
+          logger.info(JSON.stringify({ url: '${url}', title, content_length: content.length, screenshot, status: 200, load_time_ms: Date.now() - start }));
           await browser.close();
-        })().catch(e => { console.log(JSON.stringify({ error: e.message })); process.exit(1); });
+        })().catch(e => { logger.info(JSON.stringify({ error: e.message })); process.exit(1); });
       `;
 
       const tmpScript = path.join(os.tmpdir(), `pw_nav_${Date.now()}.js`);
@@ -100,9 +101,9 @@ export class BrowserPlaywrightService {
           const page = await browser.newPage();
           await page.goto('${url}', { waitUntil: 'load', timeout: ${timeout} });
           ${captureCode};
-          console.log(JSON.stringify({ screenshot: '${screenshotPath}', url: '${url}' }));
+          logger.info(JSON.stringify({ screenshot: '${screenshotPath}', url: '${url}' }));
           await browser.close();
-        })().catch(e => { console.log(JSON.stringify({ error: e.message })); process.exit(1); });
+        })().catch(e => { logger.info(JSON.stringify({ error: e.message })); process.exit(1); });
       `;
 
       const tmpScript = path.join(os.tmpdir(), `pw_ss_${Date.now()}.js`);
@@ -143,9 +144,9 @@ export class BrowserPlaywrightService {
               result[key] = await Promise.all(els.map(el => el.textContent()));
             } catch { result[key] = []; }
           }
-          console.log(JSON.stringify(result));
+          logger.info(JSON.stringify(result));
           await browser.close();
-        })().catch(e => { console.log(JSON.stringify({ error: e.message })); process.exit(1); });
+        })().catch(e => { logger.info(JSON.stringify({ error: e.message })); process.exit(1); });
       `;
 
       const tmpScript = path.join(os.tmpdir(), `pw_ext_${Date.now()}.js`);
@@ -187,9 +188,9 @@ export class BrowserPlaywrightService {
           const page = await browser.newPage();
           await page.goto('${url}', { waitUntil: 'load', timeout: ${timeout} });
           await page.pdf({ path: '${pdfPath.replace(/\\/g, '\\\\')}', format: 'A4' });
-          console.log(JSON.stringify({ pdf: '${pdfPath}', url: '${url}' }));
+          logger.info(JSON.stringify({ pdf: '${pdfPath}', url: '${url}' }));
           await browser.close();
-        })().catch(e => { console.log(JSON.stringify({ error: e.message })); process.exit(1); });
+        })().catch(e => { logger.info(JSON.stringify({ error: e.message })); process.exit(1); });
       `;
 
       const tmpScript = path.join(os.tmpdir(), `pw_pdf_${Date.now()}.js`);

@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import type {
   ZavorthBoundaryCorrelation,
 } from '../contracts/InternalBoundaryContract.js';
@@ -270,7 +271,7 @@ export class EchoExecutionLoop {
         finalResponse = finalLlmResponse.content || finalResponse;
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
-        console.warn('[Echo] ReAct loop failed, falling back to tool output', message);
+        logger.warn('[Echo] ReAct loop failed, falling back to tool output', message);
       }
     }
 

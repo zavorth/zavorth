@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { HostPowerModeService } from './HostPowerModeService';
 import { PtySessionApprovalService } from './PtySessionApprovalService';
 import { SecurityAuditLogger } from './SecurityAuditLogger';
@@ -38,7 +39,7 @@ export class PtySessionService {
       this.ptyModule = require('node-pty');
       this.isAvailable = true;
     } catch (e) {
-      console.warn('node-pty is not available. PTY tools will fail-closed.');
+      logger.warn('node-pty is not available. PTY tools will fail-closed.');
       this.isAvailable = false;
     }
 

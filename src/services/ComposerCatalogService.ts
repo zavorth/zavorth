@@ -7,11 +7,11 @@ import type {
 } from '../contracts/WebComposer.js';
 import type {
   CommandCatalogEntry,
-} from '../telegram/commandCatalog.js';
+} from '../gateways/channels/telegram/commandCatalog.js';
 import {
   COMMAND_ALIASES,
   TELEGRAM_COMMAND_CATALOG,
-} from '../telegram/commandCatalog.js';
+} from '../gateways/channels/telegram/commandCatalog.js';
 import { SkillLoader, type SkillMetadata } from '../skills/SkillLoader.js';
 import { WorkflowRunService, type WorkflowRunSnapshot } from '../runtime/workflows/WorkflowRunService.js';
 

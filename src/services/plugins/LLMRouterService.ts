@@ -50,8 +50,8 @@ export class LLMRouterService {
 
   private initDefaultProfiles(): void {
     const profiles: ModelProfile[] = [
-      { id: 'gpt-5.2', provider: 'openai', model: 'gpt-5.2', capabilities: ['chat', 'code', 'reasoning', 'vision'], cost_per_1k_input: 0.01, cost_per_1k_output: 0.03, max_context_tokens: 128000, supports_streaming: true, supports_vision: true, supports_function_calling: true, reasoning_effort: 'high', latency_tier: 'medium', quality_tier: 'frontier' },
-      { id: 'gpt-5.2-mini', provider: 'openai', model: 'gpt-5.2-mini', capabilities: ['chat', 'code', 'reasoning'], cost_per_1k_input: 0.001, cost_per_1k_output: 0.004, max_context_tokens: 128000, supports_streaming: true, supports_vision: false, supports_function_calling: true, reasoning_effort: 'medium', latency_tier: 'fast', quality_tier: 'standard' },
+      { id: 'gpt-4o', provider: 'openai', model: 'gpt-4o', capabilities: ['chat', 'code', 'reasoning', 'vision'], cost_per_1k_input: 0.01, cost_per_1k_output: 0.03, max_context_tokens: 128000, supports_streaming: true, supports_vision: true, supports_function_calling: true, reasoning_effort: 'high', latency_tier: 'medium', quality_tier: 'frontier' },
+      { id: 'gpt-4o-mini', provider: 'openai', model: 'gpt-4o-mini', capabilities: ['chat', 'code', 'reasoning'], cost_per_1k_input: 0.001, cost_per_1k_output: 0.004, max_context_tokens: 128000, supports_streaming: true, supports_vision: false, supports_function_calling: true, reasoning_effort: 'medium', latency_tier: 'fast', quality_tier: 'standard' },
       { id: 'claude-4', provider: 'anthropic', model: 'claude-4', capabilities: ['chat', 'code', 'reasoning', 'vision'], cost_per_1k_input: 0.015, cost_per_1k_output: 0.075, max_context_tokens: 200000, supports_streaming: true, supports_vision: true, supports_function_calling: true, reasoning_effort: 'high', latency_tier: 'medium', quality_tier: 'frontier' },
       { id: 'claude-4-sonnet', provider: 'anthropic', model: 'claude-4-sonnet', capabilities: ['chat', 'code', 'reasoning', 'vision'], cost_per_1k_input: 0.003, cost_per_1k_output: 0.015, max_context_tokens: 200000, supports_streaming: true, supports_vision: true, supports_function_calling: true, reasoning_effort: 'medium', latency_tier: 'fast', quality_tier: 'premium' },
       { id: 'gemini-2.5-pro', provider: 'google', model: 'gemini-2.5-pro', capabilities: ['chat', 'code', 'reasoning', 'vision', 'audio'], cost_per_1k_input: 0.00125, cost_per_1k_output: 0.005, max_context_tokens: 1000000, supports_streaming: true, supports_vision: true, supports_function_calling: true, reasoning_effort: 'high', latency_tier: 'medium', quality_tier: 'premium' },
@@ -67,19 +67,19 @@ export class LLMRouterService {
 
   private initDefaultRoutingRules(): void {
     const rules: TaskRoutingRule[] = [
-      { task_pattern: 'chat', preferred_model: 'gpt-5.2-mini', fallback_models: ['claude-4-sonnet', 'gemini-2.5-flash'], max_tokens: 4096, temperature: 0.7, reasoning_effort: 'low', cost_budget_per_call: 0.01 },
-      { task_pattern: 'code_generation', preferred_model: 'claude-4', fallback_models: ['gpt-5.2', 'qwen-3-235b'], max_tokens: 8192, temperature: 0.3, reasoning_effort: 'high', cost_budget_per_call: 0.10 },
-      { task_pattern: 'code_review', preferred_model: 'claude-4-sonnet', fallback_models: ['gpt-5.2-mini', 'deepseek-v3'], max_tokens: 4096, temperature: 0.2, reasoning_effort: 'medium', cost_budget_per_call: 0.05 },
-      { task_pattern: 'reasoning', preferred_model: 'gpt-5.2', fallback_models: ['claude-4', 'gemini-2.5-pro'], max_tokens: 8192, temperature: 0.1, reasoning_effort: 'high', cost_budget_per_call: 0.15 },
-      { task_pattern: 'summarization', preferred_model: 'gemini-2.5-flash', fallback_models: ['gpt-5.2-mini', 'llama-3.3-70b'], max_tokens: 2048, temperature: 0.3, reasoning_effort: 'low', cost_budget_per_call: 0.005 },
-      { task_pattern: 'translation', preferred_model: 'gpt-5.2-mini', fallback_models: ['claude-4-sonnet', 'gemini-2.5-flash'], max_tokens: 4096, temperature: 0.3, reasoning_effort: 'low', cost_budget_per_call: 0.01 },
-      { task_pattern: 'research', preferred_model: 'gemini-2.5-pro', fallback_models: ['claude-4', 'gpt-5.2'], max_tokens: 16384, temperature: 0.5, reasoning_effort: 'high', cost_budget_per_call: 0.20 },
-      { task_pattern: 'data_analysis', preferred_model: 'claude-4-sonnet', fallback_models: ['gpt-5.2-mini', 'deepseek-v3'], max_tokens: 8192, temperature: 0.2, reasoning_effort: 'medium', cost_budget_per_call: 0.05 },
-      { task_pattern: 'creative_writing', preferred_model: 'claude-4', fallback_models: ['gpt-5.2', 'mistral-large'], max_tokens: 16384, temperature: 0.9, reasoning_effort: 'medium', cost_budget_per_call: 0.10 },
-      { task_pattern: 'tool_planning', preferred_model: 'claude-4-sonnet', fallback_models: ['gpt-5.2-mini', 'gemini-2.5-flash'], max_tokens: 2048, temperature: 0.1, reasoning_effort: 'medium', cost_budget_per_call: 0.03 },
+      { task_pattern: 'chat', preferred_model: 'gpt-4o-mini', fallback_models: ['claude-4-sonnet', 'gemini-2.5-flash'], max_tokens: 4096, temperature: 0.7, reasoning_effort: 'low', cost_budget_per_call: 0.01 },
+      { task_pattern: 'code_generation', preferred_model: 'claude-4', fallback_models: ['gpt-4o', 'qwen-3-235b'], max_tokens: 8192, temperature: 0.3, reasoning_effort: 'high', cost_budget_per_call: 0.10 },
+      { task_pattern: 'code_review', preferred_model: 'claude-4-sonnet', fallback_models: ['gpt-4o-mini', 'deepseek-v3'], max_tokens: 4096, temperature: 0.2, reasoning_effort: 'medium', cost_budget_per_call: 0.05 },
+      { task_pattern: 'reasoning', preferred_model: 'gpt-4o', fallback_models: ['claude-4', 'gemini-2.5-pro'], max_tokens: 8192, temperature: 0.1, reasoning_effort: 'high', cost_budget_per_call: 0.15 },
+      { task_pattern: 'summarization', preferred_model: 'gemini-2.5-flash', fallback_models: ['gpt-4o-mini', 'llama-3.3-70b'], max_tokens: 2048, temperature: 0.3, reasoning_effort: 'low', cost_budget_per_call: 0.005 },
+      { task_pattern: 'translation', preferred_model: 'gpt-4o-mini', fallback_models: ['claude-4-sonnet', 'gemini-2.5-flash'], max_tokens: 4096, temperature: 0.3, reasoning_effort: 'low', cost_budget_per_call: 0.01 },
+      { task_pattern: 'research', preferred_model: 'gemini-2.5-pro', fallback_models: ['claude-4', 'gpt-4o'], max_tokens: 16384, temperature: 0.5, reasoning_effort: 'high', cost_budget_per_call: 0.20 },
+      { task_pattern: 'data_analysis', preferred_model: 'claude-4-sonnet', fallback_models: ['gpt-4o-mini', 'deepseek-v3'], max_tokens: 8192, temperature: 0.2, reasoning_effort: 'medium', cost_budget_per_call: 0.05 },
+      { task_pattern: 'creative_writing', preferred_model: 'claude-4', fallback_models: ['gpt-4o', 'mistral-large'], max_tokens: 16384, temperature: 0.9, reasoning_effort: 'medium', cost_budget_per_call: 0.10 },
+      { task_pattern: 'tool_planning', preferred_model: 'claude-4-sonnet', fallback_models: ['gpt-4o-mini', 'gemini-2.5-flash'], max_tokens: 2048, temperature: 0.1, reasoning_effort: 'medium', cost_budget_per_call: 0.03 },
       { task_pattern: 'embedding', preferred_model: 'gemini-2.5-flash', fallback_models: ['llama-3.3-70b'], max_tokens: 0, temperature: 0, reasoning_effort: 'low', cost_budget_per_call: 0.001 },
-      { task_pattern: 'vision', preferred_model: 'gpt-5.2', fallback_models: ['claude-4', 'gemini-2.5-pro'], max_tokens: 4096, temperature: 0.5, reasoning_effort: 'medium', cost_budget_per_call: 0.05 },
-      { task_pattern: 'audio', preferred_model: 'gemini-2.5-pro', fallback_models: ['gpt-5.2'], max_tokens: 4096, temperature: 0.5, reasoning_effort: 'medium', cost_budget_per_call: 0.05 },
+      { task_pattern: 'vision', preferred_model: 'gpt-4o', fallback_models: ['claude-4', 'gemini-2.5-pro'], max_tokens: 4096, temperature: 0.5, reasoning_effort: 'medium', cost_budget_per_call: 0.05 },
+      { task_pattern: 'audio', preferred_model: 'gemini-2.5-pro', fallback_models: ['gpt-4o'], max_tokens: 4096, temperature: 0.5, reasoning_effort: 'medium', cost_budget_per_call: 0.05 },
       { task_pattern: 'fast_answer', preferred_model: 'llama-3.3-70b', fallback_models: ['gemini-2.5-flash', 'deepseek-v3'], max_tokens: 1024, temperature: 0.5, reasoning_effort: 'low', cost_budget_per_call: 0.001 },
     ];
 

@@ -29,13 +29,13 @@ type ProviderRuntimeActivationDescriptor = {
 };
 
 const PROVIDER_RUNTIME_P0: ProviderRuntimeActivationDescriptor[] = [
-  firstClass('openai', 'bespoke', 'src/providers/OpenAIProvider.ts', 'gpt-5.2', ['OPENAI_API_KEY']),
+  firstClass('openai', 'bespoke', 'src/providers/OpenAIProvider.ts', 'gpt-4o', ['OPENAI_API_KEY']),
   firstClass('google', 'gemini-rest', 'src/providers/GeminiProvider.ts + src/adapters/providers/ProviderP0LiveClients.ts#GeminiRestProviderLiveClient', 'gemini-2.5-flash', ['GEMINI_API_KEY']),
   firstClass('deepseek', 'bespoke', 'src/providers/DeepSeekProvider.ts', 'deepseek-chat', ['DEEPSEEK_API_KEY']),
   firstClass('qwen', 'bespoke', 'src/providers/QwenProvider.ts', 'qwen3-coder-plus', ['PUTER_AUTH_TOKEN']),
   firstClass('openrouter', 'bespoke', 'src/providers/OpenRouterProvider.ts', 'openrouter/auto', ['OPENROUTER_API_KEY']),
   firstClass('ollama', 'local-openai-compatible', 'src/providers/LocalLlamaProvider.ts', 'gemma2:2b', ['OLLAMA_BASE_URL'], []),
-  compatible('anthropic', 'anthropic-compatible', 'src/adapters/providers/ProviderP0LiveClients.ts#AnthropicCompatibleProviderLiveClient', 'claude-sonnet-4-5', ['ANTHROPIC_API_KEY'], ['ANTHROPIC_BASE_URL']),
+  compatible('anthropic', 'anthropic-compatible', 'src/adapters/providers/ProviderP0LiveClients.ts#AnthropicCompatibleProviderLiveClient', 'claude-3-5-sonnet-latest', ['ANTHROPIC_API_KEY'], ['ANTHROPIC_BASE_URL']),
   compatible('mistral', 'openai-compatible', 'src/adapters/providers/ProviderP0LiveClients.ts#OpenAICompatibleProviderLiveClient', 'mistral-large-latest', ['MISTRAL_API_KEY'], ['MISTRAL_BASE_URL']),
   compatible('groq', 'openai-compatible', 'src/adapters/providers/ProviderP0LiveClients.ts#OpenAICompatibleProviderLiveClient', 'llama-3.3-70b-versatile', ['GROQ_API_KEY'], ['GROQ_BASE_URL']),
   compatible('together', 'openai-compatible', 'src/adapters/providers/ProviderP0LiveClients.ts#OpenAICompatibleProviderLiveClient', 'meta-llama/Llama-3.3-70B-Instruct-Turbo', ['TOGETHER_API_KEY'], ['TOGETHER_BASE_URL']),
@@ -52,7 +52,7 @@ const PROVIDER_RUNTIME_P0: ProviderRuntimeActivationDescriptor[] = [
   compatible('deepinfra', 'openai-compatible', 'src/adapters/providers/ProviderP0LiveClients.ts#OpenAICompatibleProviderLiveClient', 'meta-llama/Meta-Llama-3.1-70B-Instruct', ['DEEPINFRA_API_KEY'], ['DEEPINFRA_BASE_URL']),
   local('lmstudio', 'src/adapters/providers/ProviderP0LiveClients.ts#OpenAICompatibleProviderLiveClient', 'local-model', ['LMSTUDIO_BASE_URL']),
   local('vllm', 'src/adapters/providers/ProviderP0LiveClients.ts#OpenAICompatibleProviderLiveClient', 'local-model', ['VLLM_BASE_URL']),
-  gateway('vercel-ai-gateway', 'src/adapters/providers/ProviderP0LiveClients.ts#OpenAICompatibleProviderLiveClient', 'openai/gpt-5.2', ['VERCEL_AI_GATEWAY_API_KEY'], ['VERCEL_AI_GATEWAY_BASE_URL']),
+  gateway('vercel-ai-gateway', 'src/adapters/providers/ProviderP0LiveClients.ts#OpenAICompatibleProviderLiveClient', 'openai/gpt-4o', ['VERCEL_AI_GATEWAY_API_KEY'], ['VERCEL_AI_GATEWAY_BASE_URL']),
 ];
 
 export class ProviderRuntimeActivationService {

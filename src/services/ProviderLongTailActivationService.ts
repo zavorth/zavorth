@@ -42,7 +42,7 @@ const PROVIDER_LONG_TAIL: ProviderLongTailActivationDescriptor[] = [
   compatible('alibaba', 'qwen-plus', ['ALIBABA_API_KEY'], ['ALIBABA_BASE_URL']),
   managed('amazon-bedrock', 'anthropic.claude-3-5-sonnet-20241022-v2:0', ['AMAZON_BEDROCK_API_KEY', 'AMAZON_BEDROCK_BASE_URL']),
   managed('amazon-bedrock-mantle', 'anthropic.claude-3-5-sonnet-20241022-v2:0', ['AMAZON_BEDROCK_MANTLE_API_KEY', 'AMAZON_BEDROCK_MANTLE_BASE_URL']),
-  managed('anthropic-vertex', 'claude-sonnet-4-5', ['ANTHROPIC_VERTEX_API_KEY', 'ANTHROPIC_VERTEX_BASE_URL']),
+  managed('anthropic-vertex', 'claude-3-5-sonnet-latest', ['ANTHROPIC_VERTEX_API_KEY', 'ANTHROPIC_VERTEX_BASE_URL']),
   compatible('arcee', 'auto', ['ARCEE_API_KEY', 'ARCEE_BASE_URL']),
   compatible('cerebras', 'llama-3.3-70b', ['CEREBRAS_API_KEY'], ['CEREBRAS_BASE_URL']),
   compatible('chutes', 'deepseek-ai/DeepSeek-V3', ['CHUTES_API_KEY', 'CHUTES_BASE_URL']),

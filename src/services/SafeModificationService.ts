@@ -8,6 +8,7 @@
  * 4. Apply the change only if validation passes
  */
 
+import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { execCommandSync } from '../core/CommandSpawn.js';
@@ -234,14 +235,14 @@ export class SafeModificationService {
    */
   private async requestHostBackup(files: string[]): Promise<void> {
     if (process.env.ZAVORTH_SUPERVISED !== 'true' || !process.send) {
-      console.log('[SafeModification] Not supervised - skipping Host backup request.');
+      logger.info('[SafeModification] Not supervised - skipping Host backup request.');
       return;
     }
 
     return new Promise<void>((resolve) => {
       const timeout = setTimeout(() => {
         process.removeListener('message', handler);
-        console.warn('[SafeModification] Host backup acknowledgment timed out.');
+        logger.warn('[SafeModification] Host backup acknowledgment timed out.');
         resolve();
       }, 5000);
 
