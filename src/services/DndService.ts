@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { execFile } from 'child_process';
 
 export class DndService {
@@ -107,7 +108,7 @@ export class DndService {
           try {
             await this.botApiAccessor.sendMessage(chatId, combined.substring(0, 3900));
           } catch(e) {
-             console.warn("Falha ao flushar DND buffer: ", e);
+             logger.warn("Falha ao flushar DND buffer: ", e);
           }
         }
       }, 15000);

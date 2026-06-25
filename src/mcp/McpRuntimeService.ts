@@ -193,25 +193,25 @@ export class McpRuntimeService {
       error?: any;
     };
 
-    const perServerData: PerServerData[] = [];
+    const perServerData = await Promise.all(
+      enabledServers.map(async (server) => {
+        const manager = this.managerFactory(server);
+        const attemptedAt = new Date().toISOString();
+        const entry = this.entries.get(server.id);
+        if (entry) {
+          entry.lastAttemptedAt = attemptedAt;
+          entry.lastError = null;
+          this.entries.set(server.id, entry);
+        }
 
-    for (const server of enabledServers) {
-      const manager = this.managerFactory(server);
-      const attemptedAt = new Date().toISOString();
-      const entry = this.entries.get(server.id);
-      if (entry) {
-        entry.lastAttemptedAt = attemptedAt;
-        entry.lastError = null;
-        this.entries.set(server.id, entry);
-      }
-
-      try {
-        const discovered = await this.collectDiscoveredTools(manager, server.id);
-        perServerData.push({ manager, server, discovered, attemptedAt });
-      } catch (error: any) {
-        perServerData.push({ manager, server, discovered: [], attemptedAt, error });
-      }
-    }
+        try {
+          const discovered = await this.collectDiscoveredTools(manager, server.id);
+          return { manager, server, discovered, attemptedAt };
+        } catch (error: any) {
+          return { manager, server, discovered: [], attemptedAt, error };
+        }
+      })
+    );
 
     // ── Global Phase 2: Resolve drift/migration with full collision context ─
     // Build the complete global list of ALL discovered namespaced names.

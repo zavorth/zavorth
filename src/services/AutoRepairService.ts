@@ -428,6 +428,13 @@ export class AutoRepairService {
       );
       const runtimeDiagnostics = this.readOptionalText(config.runtimeDiagnosticsFile);
       const rawReloadReport = this.readOptionalText(config.supervisedReloadReportFile);
+      let parsedReport = rawReloadReport;
+      if (rawReloadReport) {
+        const failure = this.extractStructuredFailure(rawReloadReport);
+        if (failure) {
+          parsedReport = `--- STRUCTURED FAILURE ---\nTest: ${failure.testName}\nFile: ${failure.file}:${failure.line}\nError: ${failure.error}\n--------------------------`;
+        }
+      }
       const candidateFiles = this.validationService.collectCandidateFiles([
         ...inspection.modifiedFiles,
         ...inspection.stagedFiles,
@@ -443,7 +450,7 @@ export class AutoRepairService {
         previousAttempts: input.previousAttempts,
         runtimeSummary,
         incidentMemorySummary,
-        rawReloadReport,
+        rawReloadReport: parsedReport,
         runtimeDiagnostics,
         launcherLog,
         candidateFiles,
@@ -497,6 +504,76 @@ export class AutoRepairService {
     return readOptionalAutoRepairText(filePath, this.existsSync, (target) =>
       String(this.readFileSync(target, 'utf8')),
     );
+  }
+
+  public extractStructuredFailure(stdout: string): { testName: string; file: string; line: number; error: string } | null {
+    if (!stdout) return null;
+
+    const lines = stdout.split(/\r?\n/);
+    let testName = '';
+    let file = '';
+    let line = 0;
+    let errorLines: string[] = [];
+    let insideTestFailure = false;
+
+    for (const l of lines) {
+      const testNameMatch = l.match(/^\s*●\s*(.+)$/);
+      if (testNameMatch) {
+        testName = testNameMatch[1].trim();
+        insideTestFailure = true;
+        errorLines = [];
+        continue;
+      }
+
+      if (insideTestFailure) {
+        const stackMatch = l.match(/at\s+(?:.+?\s+\()?([a-zA-Z0-9_\-\/\\\.]+?\.(?:ts|js)):(\d+):(\d+)\)?/);
+        if (stackMatch) {
+          if (!file) {
+            file = stackMatch[1].replace(/\\/g, '/');
+            line = parseInt(stackMatch[2], 10);
+          }
+        }
+
+        if (l.trim().startsWith('at ')) {
+          insideTestFailure = false;
+          continue;
+        }
+
+        errorLines.push(l);
+      }
+    }
+
+    if (!file) {
+      for (const l of lines) {
+        const stackMatch = l.match(/at\s+(?:.+?\s+\()?([a-zA-Z0-9_\-\/\\\.]+?\.(?:ts|js)):(\d+):(\d+)\)?/);
+        if (stackMatch) {
+          file = stackMatch[1].replace(/\\/g, '/');
+          line = parseInt(stackMatch[2], 10);
+          break;
+        }
+      }
+    }
+
+    if (!file) {
+      return null;
+    }
+
+    const cleanedErrorLines = errorLines.filter((el) => {
+      const trimmed = el.trim();
+      if (trimmed.includes('|')) return false;
+      if (trimmed.startsWith('>')) return false;
+      if (/^[~^\|\s]+$/.test(trimmed)) return false;
+      return true;
+    });
+
+    const error = cleanedErrorLines.join('\n').trim() || 'Assertion failed / Test failed';
+
+    return {
+      testName: testName || 'Unknown Test',
+      file,
+      line,
+      error,
+    };
   }
 
   private getProvider(): ILlmProvider {

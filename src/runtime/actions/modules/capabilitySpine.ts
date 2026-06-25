@@ -9,7 +9,7 @@ import type {
   ZavorthActionResult,
   ZavorthActionSchema,
 } from '../ZavorthActionContracts.js';
-import { ZavorthHiddenCapabilitySpineService, type ZavorthParitySource } from '../../../services/ZavorthHiddenCapabilitySpineService.js';
+import { ZavorthHiddenCapabilitySpineService } from '../../../services/ZavorthHiddenCapabilitySpineService.js';
 import { UniversalSkillExpansionService } from '../../../services/UniversalSkillExpansionService.js';
 import { ZavorthExternalAgentGatewayService } from '../../../services/ZavorthExternalAgentGatewayService.js';
 
@@ -345,19 +345,6 @@ async function workflowsRun(input: ZavorthActionHandlerInput): Promise<ZavorthAc
   });
 }
 
-function parity(input: ZavorthActionHandlerInput, source: ZavorthParitySource): ZavorthActionResult {
-  const pack = service(input.root).buildParityPack(source);
-  return result({
-    ok: true,
-    actionId: input.actionId,
-    operation: input.operation,
-    status: 'ok',
-    summary: `${source} parity: ${pack.summary.native}/${pack.summary.total} native mappings.`,
-    lines: pack.tools.map((tool) => `${tool.status}: ${tool.sourceToolId} -> ${tool.zavorthActionId}`),
-    data: { pack },
-  });
-}
-
 function action(capabilityId: string, input: Omit<ZavorthActionDefinition, 'capabilityId' | 'verificationStatus' | 'surface' | 'testRefs'>): ZavorthActionDefinition {
   return { ...input, capabilityId, verificationStatus: 'verified', surface: SURFACE, testRefs: TEST_REFS };
 }
@@ -377,8 +364,6 @@ export function createCapabilitySpineActionModule(): ZavorthActionModule {
       action('capability-spine', { id: 'agents.external.invoke', title: 'Invoke external agent', description: 'Preview or invoke an approved external agent profile as a governed arm.', aliases: ['invoke external agent', 'delegate task', 'external arm'], domains: ['agents'], risk: 'danger', mutationDomain: 'capability', mutationRisk: 'high', effects: ['external_send', 'shell'], scope: 'agents', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { profileId: { type: 'string' }, prompt: { type: 'string' } }, required: ['profileId', 'prompt'] }, outputSchema, handler: externalAgentInvoke }),
       action('capability-spine', { id: 'workflows.list', title: 'List workflows', description: 'List Zavorth package workflow scripts that can be surfaced as governed workflow actions.', aliases: ['workflow list', 'list workflows'], domains: ['workflows'], risk: 'safe', effects: ['read'], scope: 'workflows', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: {} }, outputSchema, handler: workflowsList }),
       action('capability-spine', { id: 'workflows.run', title: 'Run workflow', description: 'Preview or run an allowlisted Zavorth workflow script with approval and receipt.', aliases: ['run workflow', 'workflow run'], domains: ['workflows'], risk: 'attention', mutationDomain: 'sandbox', mutationRisk: 'medium', effects: ['shell'], scope: 'workflows', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { script: { type: 'string' } }, required: ['script'] }, outputSchema, handler: workflowsRun }),
-      action('capability-spine', { id: 'capabilities.parity.hermes', title: 'Hermes parity pack', description: 'Map Hermes tools and toolsets to native or planned Zavorth Action Harness actions.', aliases: ['hermes parity', 'hermes tools'], domains: ['capabilities', 'parity'], risk: 'safe', effects: ['read'], scope: 'capabilities', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: {} }, outputSchema, handler: (input) => parity(input, 'hermes') }),
-      action('capability-spine', { id: 'capabilities.parity.openclaw', title: 'OpenClaw parity pack', description: 'Map OpenClaw plugins/tools to native or planned Zavorth Action Harness actions.', aliases: ['openclaw parity', 'openclaw tools'], domains: ['capabilities', 'parity'], risk: 'safe', effects: ['read'], scope: 'capabilities', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: {} }, outputSchema, handler: (input) => parity(input, 'openclaw') }),
     ],
   };
 }

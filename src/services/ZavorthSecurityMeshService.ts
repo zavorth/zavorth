@@ -1,6 +1,9 @@
 import { SandboxPolicyService } from './sandbox/SandboxPolicyService.js';
+import { logger } from '../logger.js';
 import { ZavorthRuntimeModesService, type ZavorthRuntimeModeSnapshot } from './ZavorthRuntimeModesService.js';
+import { logger } from '../logger.js';
 import { OperationsHealthService, type OperationsHealthSnapshot } from '../observability/OperationsHealthService.js';
+import { logger } from '../logger.js';
 
 type OperationsHealthLike = Pick<OperationsHealthService, 'readSnapshot'> &
   Partial<Pick<OperationsHealthService, 'readSnapshotFast'>>;
@@ -141,7 +144,7 @@ export class ZavorthSecurityMeshService {
     entries: ZavorthRuntimeModeSnapshot[],
   ): ZavorthSecurityMeshSnapshot['policies'] {
     const lowRiskToLocalJail =
-      this.policy.resolveCodeExecutionPolicy('javascript', "console.log('ok')").securityLevel === 'local-jail';
+      this.policy.resolveCodeExecutionPolicy('javascript', "logger.info('ok')").securityLevel === 'local-jail';
     const mediumRiskToContainer =
       this.policy.resolveCodeExecutionPolicy('shell', 'curl https://example.com').securityLevel === 'container';
     const highRiskToMicrovm =

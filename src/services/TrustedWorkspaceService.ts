@@ -42,7 +42,7 @@ export class TrustedWorkspaceService {
     this.db = await Database.getInstance();
     this.auditLogger = new SecurityAuditLogger();
     if (!process.env.ZAVORTH_WORKSPACE_TRUST_SALT) {
-      console.warn('[SECURITY] ZAVORTH_WORKSPACE_TRUST_SALT not set. Using random salt. Workspace trust hashes will not persist across restarts.');
+      logger.warn('[SECURITY] ZAVORTH_WORKSPACE_TRUST_SALT not set. Using random salt. Workspace trust hashes will not persist across restarts.');
     }
   }
 

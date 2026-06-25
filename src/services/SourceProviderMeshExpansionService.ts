@@ -130,7 +130,7 @@ const ADAPTERS: AdapterDescriptor[] = [
     decision: 'implemented-owner-gated',
     adapterPath: 'src/adapters/providers/BedrockClaudeProviderAdapter.ts',
     providerFactoryName: 'bedrock-claude',
-    defaultModelName: 'anthropic.claude-sonnet-4-5-20250929-v1:0',
+    defaultModelName: 'anthropic.claude-3-5-sonnet-latest-20250929-v1:0',
     route: {
       kind: 'bedrock',
       requiredEnv: ['AWS_REGION'],

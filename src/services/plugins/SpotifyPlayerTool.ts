@@ -51,7 +51,7 @@ export class SpotifyPlayerTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Error: 'action' parameter is required.';
+    if (!action) return "Error: 'action' parameter is required.";
 
     const accessToken = process.env.SPOTIFY_ACCESS_TOKEN;
     if (!accessToken) {

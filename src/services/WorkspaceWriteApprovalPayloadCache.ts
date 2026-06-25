@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 export interface WorkspaceWriteApprovalPayload {
   file: string;
   content?: string;
@@ -48,7 +49,7 @@ export class WorkspaceWriteApprovalPayloadCache {
         }
       }
     } catch (err) {
-      console.error('Error clearing expired cache payloads:', err);
+      logger.error('Error clearing expired cache payloads:', err);
     }
   }
 

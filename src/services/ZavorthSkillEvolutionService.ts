@@ -1,7 +1,11 @@
 import crypto from 'crypto';
+import { logger } from '../logger.js';
 import fs from 'fs';
+import { logger } from '../logger.js';
 import path from 'path';
+import { logger } from '../logger.js';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
   ZavorthLearningArtifact,
   ZavorthMutationPlan,
@@ -10,16 +14,23 @@ import type {
   ZavorthResourceImpact,
 } from '../contracts/ZavorthMutationPlaneContract.js';
 import { SkillContentScannerService, type SkillContentScanResult } from '../skills/SkillContentScannerService.js';
+import { logger } from '../logger.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
+import { logger } from '../logger.js';
 import {
   ZavorthSkillEvolutionRegistryService,
   type ZavorthEvolvedSkillRecord,
 } from './ZavorthSkillEvolutionRegistryService.js';
 import { ZavorthSandboxControlPlaneService } from './ZavorthSandboxControlPlaneService.js';
+import { logger } from '../logger.js';
 import { SandboxExecutionService, type SandboxEnvelopeExecutionReport } from './SandboxExecutionService.js';
+import { logger } from '../logger.js';
 import { SkillTrustPolicyService, type SkillTrustPolicyDocument } from './SkillTrustPolicyService.js';
+import { logger } from '../logger.js';
 import { TrustDecisionService, type TrustDecision } from './TrustDecisionService.js';
+import { logger } from '../logger.js';
 import { PermissionService } from './PermissionService.js';
+import { logger } from '../logger.js';
 
 type SkillEvolutionEvalGateStatus = 'passed' | 'warning' | 'failed' | 'blocked';
 
@@ -739,7 +750,7 @@ export class ZavorthSkillEvolutionService {
     const script = [
       `const draftId = ${JSON.stringify(synthesized.draftId)};`,
       'if (!draftId.startsWith("skill-draft:")) process.exit(2);',
-      'console.log("skill draft validated");',
+      'logger.info("skill draft validated");',
     ].join('\n');
     const snapshot = this.sandboxControlPlane.buildSnapshot({
       code: script,

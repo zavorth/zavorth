@@ -1,13 +1,18 @@
 import fs from 'node:fs';
+import { logger } from '../logger.js';
 import path from 'node:path';
+import { logger } from '../logger.js';
 import { createHash } from 'node:crypto';
+import { logger } from '../logger.js';
 
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
   ZavorthOperationalRefinementReceipt,
   ZavorthOperationalSkillQuarantine,
 } from '../contracts/ZavorthOperationalRefinementContract.js';
 import { ZavorthSandboxControlPlaneService } from './ZavorthSandboxControlPlaneService.js';
+import { logger } from '../logger.js';
 
 export type SkillQuarantinePipelineInput = {
   skillId?: string | null;
@@ -50,7 +55,7 @@ export class SkillQuarantinePipelineService {
     const quarantinePath = path.join(this.projectRoot, '.zavorth', 'skills', 'quarantine', skillId);
     const proposalPath = path.join(quarantinePath, 'proposal.json');
     const sandboxSnapshot = this.sandbox.buildSnapshot({
-      command: `node -e "console.log('skill:${skillId}:smoke')"`,
+      command: `node -e "logger.info('skill:${skillId}:smoke')"`,
       preferredProfile: 'auto',
       networkPolicy: 'none',
       requestedBy: 'skill-quarantine',

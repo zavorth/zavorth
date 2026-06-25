@@ -67,7 +67,7 @@ export class ImageGenComfyUITool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Error: 'action' parameter is required.';
+    if (!action) return "Error: 'action' parameter is required.";
 
     const serverUrl = String(args.server_url || 'http://127.0.0.1:8188');
 

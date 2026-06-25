@@ -1,4 +1,10 @@
 import type { RuntimeAccessManifestService } from '../../runtime/access/RuntimeAccessManifestService.js';
+import type { ChannelMeshSnapshot } from '../../contracts/ChannelMeshContract.js';
+import type { NodeMeshSnapshot } from '../../contracts/NodeMeshContract.js';
+import type { ZavorthRemoteTransportSnapshot } from '../ZavorthRemoteTransportService.js';
+import type { RuntimeAccessManifest } from '../../domain/gateway/infrastructure/runtime-access/RuntimeAccessManifestService.js';
+
+export type { ChannelMeshSnapshot, NodeMeshSnapshot, ZavorthRemoteTransportSnapshot, RuntimeAccessManifest };
 
 export type ZavorthDistributedRuntimePosture = 'healthy' | 'attention' | 'critical';
 export type ZavorthDistributedRuntimeActionSeverity = 'info' | 'warn' | 'critical';
@@ -98,14 +104,14 @@ export type ZavorthDistributedRuntimeSnapshot = {
     command: string | null;
     reason: string;
   }>;
-  advancedChannels: any[];
+  advancedChannels: ChannelMeshSnapshot['entries'];
   fleetCapabilities: ZavorthDistributedRuntimeCapabilityCoverage[];
   surfaces: ZavorthDistributedRuntimeSurfaceEntry[];
   sourceSnapshots: {
-    channels: any;
-    nodes: any;
-    transports: any;
-    manifest: any;
+    channels: ChannelMeshSnapshot;
+    nodes: NodeMeshSnapshot;
+    transports: ZavorthRemoteTransportSnapshot;
+    manifest: RuntimeAccessManifest;
   };
   narrative: {
     headline: string;

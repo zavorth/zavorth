@@ -4,6 +4,8 @@ import {
   ZAVORTH_MNEMOS_RESERVED_TOKEN_BUFFER,
   type ZavorthMnemosCompactionMode,
 } from '../contracts/ZavorthMnemosMemoryOsContract.js';
+import { countTokens, countMessagesTokens } from '../utils/tokenCounter.js';
+import type { ILlmProvider } from '../providers/ILlmProvider.js';
 
 export type ContextCompactionMessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
@@ -187,15 +189,11 @@ export class ContextCompactionService {
   }
 
   public estimateTokensForMessages(messages: readonly ContextCompactionMessage[]): number {
-    return this.estimateTokens(messages.map((message) => message.content).join('\n'));
+    return countMessagesTokens(messages);
   }
 
   public estimateTokens(text: string): number {
-    const normalized = String(text || '').trim();
-    if (!normalized) {
-      return 0;
-    }
-    return Math.ceil(normalized.length / 4);
+    return countTokens(text);
   }
 
   private normalizeMessage(message: ContextCompactionMessage, index: number): ContextCompactionMessage {
@@ -383,5 +381,55 @@ export class ContextCompactionService {
     }
 
     return result;
+  }
+
+  public async compactSemanticAsync(
+    messages: ContextCompactionMessage[],
+    provider: ILlmProvider,
+    recentVerbatimTurns: number,
+    modelName?: string
+  ): Promise<{ messages: ContextCompactionMessage[]; clearedToolOutputs: number }> {
+    const protectedStart = Math.max(0, messages.length - recentVerbatimTurns);
+    let clearedToolOutputs = 0;
+
+    const compacted: ContextCompactionMessage[] = [];
+
+    for (let index = 0; index < messages.length; index += 1) {
+      const message = messages[index];
+      const isOldTool = index < protectedStart && message.role === 'tool';
+      const isBulky = countTokens(message.content) > 80;
+
+      if (isOldTool && isBulky) {
+        clearedToolOutputs += 1;
+        const tool = message.toolName || 'tool';
+
+        try {
+          const prompt = `Summarize this tool's execution result. Outline only the main output paths, actions taken, and errors. Limit the response to 120 words.\n\nTool Name: ${tool}\nResult:\n${message.content}`;
+          const response = await provider.chat(
+            [{ role: 'user', content: prompt }],
+            undefined,
+            modelName ? { modelName } : undefined
+          );
+
+          const summary = response.content?.trim() || '[Empty summary]';
+          compacted.push({
+            ...message,
+            content: `[Old tool result summarized (${tool}) - ${summary}]`,
+          });
+        } catch (err) {
+          // Fallback cleanly to static description in case of error
+          const status = message.status || 'ok';
+          compacted.push({
+            ...message,
+            content: `[Old tool result cleared (${tool}) - status=${status}; context preserved by receipt.]`,
+          });
+        }
+      } else {
+        compacted.push(message);
+      }
+    }
+
+    const coherent = this.enforceToolCoherence(compacted);
+    return { messages: coherent, clearedToolOutputs };
   }
 }

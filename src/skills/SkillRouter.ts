@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { ILlmProvider, ChatMessage } from '../providers/ILlmProvider.js';
 import { SkillMetadata } from './SkillLoader.js';
 
@@ -193,7 +194,7 @@ export class SkillRouter {
           last_executed_at = datetime('now')
       `, [skillId]);
     } catch (error) {
-      console.warn(`[SkillRouter] Failed to record telemetry for skill ${skillId}:`, error);
+      logger.warn(`[SkillRouter] Failed to record telemetry for skill ${skillId}:`, error);
     }
   }
 
@@ -204,7 +205,7 @@ export class SkillRouter {
 
     const heuristicSelection = this.routeWithHeuristics(userMessage, skills);
     if (heuristicSelection?.confidence === 'high') {
-      console.log(`[SkillRouter] Strong heuristic: ${heuristicSelection.reason}`);
+      logger.info(`[SkillRouter] Strong heuristic: ${heuristicSelection.reason}`);
       return {
         primarySkillName: heuristicSelection.primarySkillName,
         supportSkillName: heuristicSelection.supportSkillName,
@@ -215,10 +216,10 @@ export class SkillRouter {
     const mergedSelection = this.mergeSelections(heuristicSelection, llmSelection, skills);
 
     if (!llmSelection.primarySkillName && heuristicSelection) {
-      console.log(`[SkillRouter] Heuristic fallback: ${heuristicSelection.reason}`);
+      logger.info(`[SkillRouter] Heuristic fallback: ${heuristicSelection.reason}`);
     }
 
-    console.log(
+    logger.info(
       `Selected skills: primary=${mergedSelection.primarySkillName || 'none'}, support=${mergedSelection.supportSkillName || 'none'}`
     );
     return mergedSelection;
@@ -245,7 +246,7 @@ export class SkillRouter {
 
       const jsonMatch = response.content.match(/\{[\s\S]*?\}/);
       if (!jsonMatch) {
-        console.warn('LLM response does not contain valid JSON for routeSelection.');
+        logger.warn('LLM response does not contain valid JSON for routeSelection.');
         return { primarySkillName: null, supportSkillName: null };
       }
 
@@ -258,7 +259,7 @@ export class SkillRouter {
 
       return this.normalizeSelection(parsed, skills);
     } catch (error) {
-      console.warn(`routeSelection error: ${error}. Falling back to heuristics or free mode.`);
+      logger.warn(`routeSelection error: ${error}. Falling back to heuristics or free mode.`);
       return { primarySkillName: null, supportSkillName: null };
     }
   }
@@ -605,7 +606,7 @@ export class SkillRouter {
 
     const exists = skills.some((skill) => skill.name === normalizedSkillName);
     if (!exists) {
-      console.warn(`Skill "${normalizedSkillName}" was not found in the available skills.`);
+      logger.warn(`Skill "${normalizedSkillName}" was not found in the available skills.`);
       return null;
     }
 

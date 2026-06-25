@@ -1,16 +1,17 @@
 ```json
 {
   "fullContent": "import * as fs from 'fs';
+import { logger } from '../logger.js';
 import * as path from 'path';
 import * as os from 'os';
 import { execSync } from 'child_process';
 
 // Um logger simples para fins de demonstração e para atender aos requisitos de log.
 const logger = {
-  info: (message: string) => console.log(`[INFO] ${message}`),
-  warn: (message: string) => console.warn(`[WARN] ${message}`),
-  error: (message: string) => console.error(`[ERROR] ${message}`),
-  critical: (message: string) => console.error(`[CRITICAL] ${message}`),
+  info: (message: string) => logger.info(`[INFO] ${message}`),
+  warn: (message: string) => logger.warn(`[WARN] ${message}`),
+  error: (message: string) => logger.error(`[ERROR] ${message}`),
+  critical: (message: string) => logger.error(`[CRITICAL] ${message}`),
 };
 
 /**

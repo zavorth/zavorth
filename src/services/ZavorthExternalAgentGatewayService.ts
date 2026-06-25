@@ -361,7 +361,7 @@ export class ZavorthExternalAgentGatewayService {
       cwd: plan.cwd,
       input: plan.inputText,
       encoding: 'utf8',
-      shell: false,
+      shell: process.platform === 'win32',
       windowsHide: true,
       timeout: positiveInt(input.timeoutMs) || DEFAULT_TIMEOUT_MS,
       env: buildSafeEnv(),

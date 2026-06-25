@@ -78,7 +78,7 @@ export class LocalCloudflareRolloutService {
       options.cloudflareTunnelPublicHostname ?? config.cloudflareTunnelPublicHostname ?? '',
     ).trim();
     this.publicBaseUrl = String(options.publicBaseUrl ?? config.zavorthPublicBaseUrl ?? '').trim();
-    this.gemmaModel = String(options.gemmaModel || config.gemmaModel || 'gemma-4-31b-it').trim();
+    this.gemmaModel = String(options.gemmaModel || config.gemmaModel || 'gemma-2-27b-it').trim();
   }
 
   public inspect(): LocalCloudflareRolloutSnapshot {

@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import crypto from 'crypto';
 import path from 'path';
@@ -89,7 +90,7 @@ export class SecurityAuditLogger {
       this.logRepo.log('security', 'security_audit', event, metadata);
     } catch (err: any) {
       // Minimal safe warning to stderr without leaking any sensitive metadata/payload.
-      console.error(`[SecurityAuditLogger] Failed to persist security audit event: DB error.`);
+      logger.error(`[SecurityAuditLogger] Failed to persist security audit event: DB error.`);
     }
   }
 

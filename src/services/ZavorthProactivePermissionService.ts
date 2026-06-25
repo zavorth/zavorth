@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -49,7 +50,7 @@ export class ZavorthProactivePermissionService {
     
     // Em um cenário real, isso dispararia uma notificacao via WebSocket para a UI
     // ou uma mensagem no canal de chat atual (Telegram/WhatsApp).
-    console.log(`[PermissionService] Nova solicitacao: ${request.reason}`);
+    logger.info(`[PermissionService] Nova solicitacao: ${request.reason}`);
     
     return request;
   }

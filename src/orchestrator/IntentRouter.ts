@@ -1,5 +1,5 @@
 import { CapabilityDefinition } from '../contracts/CapabilityContract.js';
-import { ParsedCommand } from '../telegram/CommandParser.js';
+import { ParsedCommand } from '../gateways/channels/telegram/CommandParser.js';
 import { getDefaultCapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
 
 export interface RouteIntent {

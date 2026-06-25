@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
@@ -104,7 +105,7 @@ export class SkillLoader {
       if (!fs.existsSync(source.absolutePath)) {
         fs.mkdirSync(source.absolutePath, { recursive: true });
         if (!this.quiet) {
-          console.log(`Diretorio de skills criado: ${source.absolutePath}`);
+          logger.info(`Diretorio de skills criado: ${source.absolutePath}`);
         }
       }
     }
@@ -123,7 +124,7 @@ export class SkillLoader {
       const sourceDecision = this.trustPolicy.evaluateSource(source.id);
       if (!sourceDecision.allowed) {
         if (!quiet) {
-          console.warn(`Fonte de skill bloqueada antes da ingestao: ${source.id} (${sourceDecision.reason})`);
+          logger.warn(`Fonte de skill bloqueada antes da ingestao: ${source.id} (${sourceDecision.reason})`);
         }
         continue;
       }
@@ -136,7 +137,7 @@ export class SkillLoader {
         const skillName = path.basename(skillDir);
         if (IGNORED_SKILL_NAMES.has(skillName)) {
           if (!quiet) {
-            console.log(`Skill ignorada por configuracao: ${skillName}`);
+            logger.info(`Skill ignorada por configuracao: ${skillName}`);
           }
           continue;
         }
@@ -145,7 +146,7 @@ export class SkillLoader {
 
         if (!fs.existsSync(skillFile)) {
           if (!quiet) {
-            console.warn(`Skill sem SKILL.md ignorada: ${skillName}`);
+            logger.warn(`Skill sem SKILL.md ignorada: ${skillName}`);
           }
           continue;
         }
@@ -159,31 +160,31 @@ export class SkillLoader {
           const skillDecision = this.trustPolicy.evaluateSkill(source.id, metadata.name);
           if (!skillDecision.allowed) {
             if (!quiet) {
-              console.warn(`Skill bloqueada pela allowlist: ${metadata.name} (${skillDecision.reason})`);
+              logger.warn(`Skill bloqueada pela allowlist: ${metadata.name} (${skillDecision.reason})`);
             }
             continue;
           }
 
           if (IGNORED_SKILL_NAMES.has(metadata.name)) {
             if (!quiet) {
-              console.log(`Skill ignorada por configuracao: ${metadata.name}`);
+              logger.info(`Skill ignorada por configuracao: ${metadata.name}`);
             }
             continue;
           }
 
           if (skillMap.has(metadata.name)) {
             if (!quiet) {
-              console.log(`Skill sobrescrita: ${metadata.name}`);
+              logger.info(`Skill sobrescrita: ${metadata.name}`);
             }
           }
 
           skillMap.set(metadata.name, metadata);
           if (!quiet) {
-            console.log(`Skill carregada: ${metadata.name}`);
+            logger.info(`Skill carregada: ${metadata.name}`);
           }
         } catch (error) {
           if (!quiet) {
-            console.warn(`Erro ao carregar skill "${skillName}": ${error}`);
+            logger.warn(`Erro ao carregar skill "${skillName}": ${error}`);
           }
         }
       }
@@ -194,7 +195,7 @@ export class SkillLoader {
     );
 
     if (!quiet) {
-      console.log(`Total de skills carregadas: ${skills.length}`);
+      logger.info(`Total de skills carregadas: ${skills.length}`);
     }
     return skills;
   }
@@ -278,12 +279,12 @@ export class SkillLoader {
     const raw = this.readRawFile(filePath);
     const frontmatter = this.readFrontmatterFields(raw);
     if (!frontmatter) {
-      console.warn(`SKILL.md sem frontmatter YAML: ${filePath}`);
+      logger.warn(`SKILL.md sem frontmatter YAML: ${filePath}`);
       return null;
     }
 
     if (!frontmatter || !frontmatter.name || !frontmatter.description) {
-      console.warn(`Frontmatter incompleto (precisa de name e description): ${filePath}`);
+      logger.warn(`Frontmatter incompleto (precisa de name e description): ${filePath}`);
       return null;
     }
     const provenance = this.enrichProvenance(

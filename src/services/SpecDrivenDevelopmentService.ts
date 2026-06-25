@@ -102,6 +102,106 @@ export class SpecDrivenDevelopmentService {
     return output;
   }
 
+  public async validateFeatureCompliance(
+    featureId: string,
+    modifiedCodeFiles: string[],
+  ): Promise<{ compliant: boolean; report: string }> {
+    const normalized = this.normalizeFeatureId(featureId);
+    const targetDir = path.join(this.projectRoot, 'specs', 'features', ...normalized.split('/'));
+    const specPath = path.join(targetDir, 'spec.md');
+    const planPath = path.join(targetDir, 'plan.md');
+
+    if (!this.existsSync(specPath) || !this.existsSync(planPath)) {
+      return {
+        compliant: false,
+        report: `Feature specs not found under ${targetDir}. Make sure both spec.md and plan.md exist.`,
+      };
+    }
+
+    const specContent = this.readTemplate(specPath);
+    const planContent = this.readTemplate(planPath);
+    const combinedContent = specContent + '\n' + planContent;
+
+    // Scan for files: e.g. src/... or tests/...
+    const pathRegex = /\b(?:src|tests)\/[a-zA-Z0-9_\-\/\.]+\b/g;
+    const pathsMentioned = Array.from(new Set(combinedContent.match(pathRegex) || []));
+
+    // Scan for classes and methods in backticks
+    const classRegex = /`([A-Z][a-zA-Z0-9_]+)`/g;
+    const classesMentioned = Array.from(new Set([...combinedContent.matchAll(classRegex)].map((m) => m[1])));
+
+    const methodRegex = /`([a-z][a-zA-Z0-9_]+)`/g;
+    const methodsMentioned = Array.from(new Set([...combinedContent.matchAll(methodRegex)].map((m) => m[1])));
+
+    const fileResults: Array<{ path: string; exists: boolean }> = [];
+    const signatureResults: Array<{ name: string; type: 'class' | 'method'; found: boolean; file?: string }> = [];
+
+    // Verify paths
+    for (const filePath of pathsMentioned) {
+      const fullPath = path.join(this.projectRoot, filePath);
+      const exists = this.existsSync(fullPath);
+      fileResults.push({ path: filePath, exists });
+
+      if (exists) {
+        const fileContent = this.readTemplate(fullPath);
+        for (const cls of classesMentioned) {
+          const clsRegex = new RegExp(`\\b(?:class|type|interface)\\s+${cls}\\b`);
+          if (clsRegex.test(fileContent)) {
+            const existing = signatureResults.find((r) => r.name === cls && r.type === 'class');
+            if (existing) {
+              existing.found = true;
+              existing.file = filePath;
+            } else {
+              signatureResults.push({ name: cls, type: 'class', found: true, file: filePath });
+            }
+          }
+        }
+        for (const method of methodsMentioned) {
+          const mRegex = new RegExp(`\\b(?:function\\s+${method}\\b|${method}\\s*\\(|const\\s+${method}\\s*=)`);
+          if (mRegex.test(fileContent)) {
+            const existing = signatureResults.find((r) => r.name === method && r.type === 'method');
+            if (existing) {
+              existing.found = true;
+              existing.file = filePath;
+            } else {
+              signatureResults.push({ name: method, type: 'method', found: true, file: filePath });
+            }
+          }
+        }
+      }
+    }
+
+    for (const cls of classesMentioned) {
+      if (!signatureResults.some((r) => r.name === cls && r.type === 'class')) {
+        signatureResults.push({ name: cls, type: 'class', found: false });
+      }
+    }
+    for (const method of methodsMentioned) {
+      if (!signatureResults.some((r) => r.name === method && r.type === 'method')) {
+        signatureResults.push({ name: method, type: 'method', found: false });
+      }
+    }
+
+    const missingFiles = fileResults.filter((f) => !f.exists);
+    const missingSignatures = signatureResults.filter((s) => !s.found);
+    const compliant = missingFiles.length === 0 && missingSignatures.length === 0;
+
+    let report = `# Spec Compliance Report for featureId: ${featureId}\n`;
+    report += `Status: ${compliant ? 'COMPLIANT' : 'NON-COMPLIANT'}\n\n`;
+
+    report += `## Checked Files\n`;
+    for (const f of fileResults) {
+      report += `- [${f.exists ? 'x' : ' '}] ${f.path} (${f.exists ? 'exists' : 'does not exist'})\n`;
+    }
+
+    report += `\n## Checked Signatures\n`;
+    for (const s of signatureResults) {
+      report += `- [${s.found ? 'x' : ' '}] ${s.type === 'class' ? 'Class/Type' : 'Method/Function'} \`${s.name}\`${s.found ? ` (found in ${s.file})` : ' (not found in codebase)'}\n`;
+    }
+
+    return { compliant, report };
+  }
+
   private normalizeFeatureId(rawValue: string): string {
     return String(rawValue || '')
       .trim()

@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { config } from '../config/index.js';
@@ -68,7 +69,7 @@ export class AgentMeshLedgerService {
         }
       }
     } catch (error) {
-      console.error('Failed to load Agent Mesh Ledger:', error);
+      logger.error('Failed to load Agent Mesh Ledger:', error);
     }
   }
 
@@ -78,7 +79,7 @@ export class AgentMeshLedgerService {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       fs.appendFileSync(this.ledgerPath, `${JSON.stringify(sanitizeReceipt(receipt))}\n`);
     } catch (error) {
-      console.error('Failed to append to Agent Mesh Ledger:', error);
+      logger.error('Failed to append to Agent Mesh Ledger:', error);
     }
   }
 }

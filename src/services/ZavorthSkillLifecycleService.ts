@@ -1,9 +1,14 @@
 import fs from 'node:fs';
+import { logger } from '../logger.js';
 import path from 'node:path';
+import { logger } from '../logger.js';
 import { createHash } from 'node:crypto';
+import { logger } from '../logger.js';
 
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import { ZavorthSandboxControlPlaneService } from './ZavorthSandboxControlPlaneService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthSkillLifecycleState =
   | 'draft'
@@ -106,7 +111,7 @@ export class ZavorthSkillLifecycleService {
     const skillMarkdown = input.contentMarkdown || renderSkillMarkdown(name, summary, dependencies);
     const scanResult = scanSkillCandidate(`${name}\n${summary}\n${skillMarkdown}\n${dependencies.join('\n')}`);
     const sandboxSnapshot = this.sandbox.buildSnapshot({
-      command: `node -e "console.log('skill:${skillId}:smoke')"`,
+      command: `node -e "logger.info('skill:${skillId}:smoke')"`,
       preferredProfile: 'auto',
       networkPolicy: 'none',
       requestedBy: 'skill-lifecycle',
@@ -115,7 +120,7 @@ export class ZavorthSkillLifecycleService {
     const sandboxSmokeResult = {
       status: sandboxSnapshot.envelopePreview && scanResult.status === 'passed' ? 'passed' as const : 'blocked' as const,
       posture: sandboxSnapshot.summary.posture,
-      command: `node -e "console.log('skill:${skillId}:smoke')"`,
+      command: `node -e "logger.info('skill:${skillId}:smoke')"`,
       hostExecutionPerformed: false as false,
     };
     const evidenceRefs = [

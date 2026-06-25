@@ -101,7 +101,7 @@ export const LONG_TAIL_PROVIDER_ACTIVATION_MANIFESTS: ProviderIntegrationManifes
   compatible('alibaba', 'Alibaba DashScope Compatible', 'qwen-plus', 'https://dashscope.aliyun.com'),
   managedGateway('amazon-bedrock', 'Amazon Bedrock Gateway', 'anthropic.claude-3-5-sonnet-20241022-v2:0', 'https://aws.amazon.com/bedrock'),
   managedGateway('amazon-bedrock-mantle', 'Amazon Bedrock Mantle Gateway', 'anthropic.claude-3-5-sonnet-20241022-v2:0', 'https://aws.amazon.com/bedrock'),
-  managedGateway('anthropic-vertex', 'Anthropic Vertex Gateway', 'claude-sonnet-4-5', 'https://cloud.google.com/vertex-ai'),
+  managedGateway('anthropic-vertex', 'Anthropic Vertex Gateway', 'claude-3-5-sonnet-latest', 'https://cloud.google.com/vertex-ai'),
   compatible('arcee', 'Arcee AI', 'auto', 'https://www.arcee.ai'),
   compatible('cerebras', 'Cerebras Inference', 'llama-3.3-70b', 'https://cloud.cerebras.ai'),
   compatible('chutes', 'Chutes AI', 'deepseek-ai/DeepSeek-V3', 'https://chutes.ai'),

@@ -49,6 +49,11 @@ import {
   getReadyMediaAttachments,
   resolveReadyMediaAttachment,
 } from './WebAppConversationInlineData.js';
+import { FirstRunPersonalizationService } from './FirstRunPersonalizationService.js';
+import { ZavorthFirstBootDetectionService } from './ZavorthFirstBootDetectionService.js';
+import { ZavorthConversationalSetupService } from './ZavorthConversationalSetupService.js';
+import { ZavorthContextualTipsService, CONTEXTUAL_TIP_FLAGS } from './ZavorthContextualTipsService.js';
+import type { ChatMessage } from '../providers/ILlmProvider.js';
 
 type RuntimeRecord = Record<string, unknown>;
 type ComposerCatalogOptions = NonNullable<ConstructorParameters<typeof ComposerCatalogService>[0]>;
@@ -147,6 +152,53 @@ export class WebAppConversationService {
       null,
       normalizedComposerPayload.mentions,
     );
+
+    const personalizationService = new FirstRunPersonalizationService({ projectRoot: this.deps.runtime.projectRoot });
+    const personalizationStatus = personalizationService.getStatus();
+    if (personalizationStatus.pending) {
+      const firstBootService = new ZavorthFirstBootDetectionService({ cwd: this.deps.runtime.projectRoot });
+      const workspace = firstBootService.detectWorkspace();
+      
+      const sessionSnapshot = await this.deps.realtime.getResolvedSnapshot(sessionId);
+      const chatHistory: ChatMessage[] = sessionSnapshot.messages.map((msg) => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content,
+      }));
+
+      const setupService = new ZavorthConversationalSetupService({
+        personalization: personalizationService,
+      });
+
+      const { reply, finished } = await setupService.runFirstMessageIntake(sessionId, chatHistory, workspace);
+      
+      this.deps.realtime.recordAssistantMessage(
+        sessionId,
+        reply,
+        null,
+        'conversational-setup-reply'
+      );
+
+      if (finished) {
+        const tipsService = new ZavorthContextualTipsService();
+        const tip = await tipsService.getTipIfUnseen(CONTEXTUAL_TIP_FLAGS.ONBOARDING_COMPLETED);
+        if (tip) {
+          this.deps.realtime.recordAssistantMessage(
+            sessionId,
+            await tipsService.formatTip(tip),
+            null,
+            'contextual-tip'
+          );
+        }
+      }
+
+      return {
+        sessionId,
+        taskId: null,
+        snapshot: await this.deps.realtime.getResolvedSnapshot(sessionId),
+        resourceImpact: null,
+        modeEscalation: null,
+      };
+    }
     const executionEngineDecision = this.decideExecutionEngine({
       message,
       body,

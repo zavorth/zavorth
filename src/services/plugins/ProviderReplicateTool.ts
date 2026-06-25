@@ -50,7 +50,7 @@ export class ProviderReplicateTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Error: 'action' parameter is required.';
+    if (!action) return "Error: 'action' parameter is required.";
 
     switch (action) {
       case 'list_models': return this.listModels();

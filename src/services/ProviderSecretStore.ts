@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import * as crypto from 'crypto';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -135,7 +136,7 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
 
       return decrypted;
     } catch (err) {
-      console.warn('[SECURITY] Failed to decrypt provider secret. Database might be corrupted or moved to a different machine.');
+      logger.warn('[SECURITY] Failed to decrypt provider secret. Database might be corrupted or moved to a different machine.');
       return null;
     }
   }

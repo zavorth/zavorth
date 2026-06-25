@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { Database } from './Database.js';
 import { SecureStorageService } from '../services/SecureStorageService.js';
 
@@ -25,9 +26,9 @@ export class LogRepository {
         this.db = dbInstance;
       } else {
         if (level === 'error' || level === 'security') {
-          console.warn(`[${level.toUpperCase()}] [${category}] ${message} (DB not ready)`);
+          logger.warn(`[${level.toUpperCase()}] [${category}] ${message} (DB not ready)`);
         } else {
-          console.log(`[${level.toUpperCase()}] [${category}] ${message} (DB not ready)`);
+          logger.info(`[${level.toUpperCase()}] [${category}] ${message} (DB not ready)`);
         }
         return;
       }
@@ -39,9 +40,9 @@ export class LogRepository {
       [level, category, encryptedMessage, metaStr]
     );
     if (level === 'error' || level === 'security') {
-      console.warn(`[${level.toUpperCase()}] [${category}] ${message}`);
+      logger.warn(`[${level.toUpperCase()}] [${category}] ${message}`);
     } else {
-      console.log(`[${level.toUpperCase()}] [${category}] ${message}`);
+      logger.info(`[${level.toUpperCase()}] [${category}] ${message}`);
     }
   }
 

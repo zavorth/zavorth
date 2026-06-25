@@ -72,7 +72,7 @@ export const P0_PROVIDER_ACTIVATION_MANIFESTS: ProviderIntegrationManifest[] = [
     credentialRefs: ['VERCEL_AI_GATEWAY_API_KEY', 'VERCEL_AI_GATEWAY_BASE_URL'],
     capabilities: ['chat', 'coding', 'reasoning', 'streaming', 'tool_use'],
     modalities: ['text', 'tool'],
-    defaultModelName: 'openai/gpt-5.2',
+    defaultModelName: 'openai/gpt-4o',
     source: 'curated',
   }),
 ];

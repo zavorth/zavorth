@@ -1,3 +1,4 @@
+import { logger } from '../../logger.js';
 import fs from 'fs';
 import path from 'path';
 import http from 'http';
@@ -214,7 +215,7 @@ export class DiagnosticsPrometheusService {
     });
 
     this.server.listen(this.port, () => {
-      console.log(`[Prometheus] Metrics server on :${this.port}/metrics`);
+      logger.info(`[Prometheus] Metrics server on :${this.port}/metrics`);
     });
 
     return `Servidor Prometheus iniciado na porta ${this.port}. Endpoints: /metrics, /metrics/json, /health`;

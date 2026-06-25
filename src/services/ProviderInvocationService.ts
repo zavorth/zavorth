@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { ProviderRuntimeRouter } from './ProviderRuntimeRouter.js';
 import { ProviderRuntimeClientFactory, ProviderInvocationResult } from './ProviderRuntimeClientFactory.js';
 import { ProviderRuntimeRequest, ResolvedProviderRuntime } from './ModelSelectionService.js';
@@ -23,7 +24,7 @@ export class ProviderInvocationService {
     const wsId = request.workspaceId || 'system';
 
     if (wsId === 'system') {
-      console.log('[ProviderInvocationService] Warning: Fallback to system-level workspaceId. Diagnostic/global invocation.');
+      logger.info('[ProviderInvocationService] Warning: Fallback to system-level workspaceId. Diagnostic/global invocation.');
     }
 
     try {

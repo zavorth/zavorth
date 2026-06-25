@@ -1,3 +1,4 @@
+import { logger } from '../../logger.js';
 import * as http from 'http';
 import type {
   ZavorthProviderRouterEntry,
@@ -516,7 +517,7 @@ export class ZavorthProviderRouterService {
     });
 
     server.listen(resolvedPort, () => {
-      console.log(`[ZavorthProviderRouter] OpenAI-compatible endpoint iniciado na porta ${resolvedPort}`);
+      logger.info(`[ZavorthProviderRouter] OpenAI-compatible endpoint iniciado na porta ${resolvedPort}`);
     });
 
     this.httpServer = server;

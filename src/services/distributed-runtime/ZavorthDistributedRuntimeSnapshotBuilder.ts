@@ -9,6 +9,10 @@ import {
   type ZavorthDistributedRuntimePosture,
   type ZavorthDistributedRuntimeSnapshot,
   type ZavorthDistributedRuntimeSurfaceEntry,
+  type ChannelMeshSnapshot,
+  type NodeMeshSnapshot,
+  type ZavorthRemoteTransportSnapshot,
+  type RuntimeAccessManifest,
 } from './ZavorthDistributedRuntimeTypes.js';
 
 export class ZavorthDistributedRuntimeSnapshotBuilder {
@@ -20,15 +24,15 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
   public composeSnapshot(input: {
     selectedId: string | null;
     query: string | null;
-    channels: any;
-    nodes: any;
-    transports: any;
-    manifest: any;
+    channels: ChannelMeshSnapshot;
+    nodes: NodeMeshSnapshot;
+    transports: ZavorthRemoteTransportSnapshot;
+    manifest: RuntimeAccessManifest;
   }): ZavorthDistributedRuntimeSnapshot {
     const focusId = input.selectedId || input.query;
     const advancedChannels = Array.isArray(input.channels?.entries)
       ? this.prioritizeAdvancedChannels(
-        input.channels.entries.filter((entry: any) =>
+        input.channels.entries.filter(entry =>
           ADVANCED_CHANNEL_IDS.has(String(entry?.id || '').trim().toLowerCase())),
       )
       : [];
@@ -63,9 +67,9 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       totalChannels: Number(input.channels?.summary?.total || 0) || 0,
       readyChannels: Number(input.channels?.summary?.ready || 0) || 0,
       advancedChannels: advancedChannels.length,
-      readyAdvancedChannels: advancedChannels.filter((entry: any) => String(entry?.readiness || '') === 'ready').length,
-      channelsWithAttachments: advancedChannels.filter((entry: any) => entry?.features?.attachments).length,
-      channelsWithThreads: advancedChannels.filter((entry: any) => entry?.features?.threads).length,
+      readyAdvancedChannels: advancedChannels.filter(entry => String(entry?.readiness || '') === 'ready').length,
+      channelsWithAttachments: advancedChannels.filter(entry => entry?.features?.attachments).length,
+      channelsWithThreads: advancedChannels.filter(entry => entry?.features?.threads).length,
       totalNodes: Number(input.nodes?.summary?.total || 0) || 0,
       pairedNodes: Number(input.nodes?.summary?.paired || 0) || 0,
       onlineNodes: Number(input.nodes?.summary?.online || 0) || 0,
@@ -156,7 +160,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       lines.push(
         '',
         'Channels avancados:',
-        ...snapshot.advancedChannels.slice(0, 6).map((entry: any) =>
+        ...snapshot.advancedChannels.slice(0, 6).map(entry =>
           `- ${this.text(entry?.label, entry?.id || 'channel')}: ${this.text(entry?.readiness, 'unknown')} | ${this.text(entry?.summary, 'Sem resumo.')}`),
       );
     }
@@ -211,7 +215,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     const nodePosture = this.resolveFleetPosture(input.nodes, input.fleetCapabilities);
     const transportPosture = this.resolveTransportPosture(input.transports);
     const surfacePosture = this.resolveSurfacePosture(input.manifest);
-    const readyAdvancedChannels = input.advancedChannels.filter((entry: any) => String(entry?.readiness || '') === 'ready').length;
+    const readyAdvancedChannels = input.advancedChannels.filter(entry => String(entry?.readiness || '') === 'ready').length;
     const advancedCoverage = input.fleetCapabilities.filter((entry) => entry.supportedNodes > 0).length;
 
     return [
@@ -285,7 +289,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     }> = [];
 
     const pendingAdvancedChannel = this.prioritizeAdvancedChannels(input.advancedChannels)
-      .find((entry: any) => this.isActionableAdvancedChannel(entry));
+      .find(entry => this.isActionableAdvancedChannel(entry));
     if (pendingAdvancedChannel) {
       actions.push({
         id: 'advanced-channel-prepare',
@@ -363,14 +367,14 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     return actions.slice(0, 6);
   }
 
-  private buildFleetCapabilityCoverage(nodes: any): ZavorthDistributedRuntimeCapabilityCoverage[] {
+  private buildFleetCapabilityCoverage(nodes: NodeMeshSnapshot): ZavorthDistributedRuntimeCapabilityCoverage[] {
     const entries = Array.isArray(nodes?.entries) ? nodes.entries : [];
     const catalog = Array.isArray(nodes?.capabilityCatalog) ? nodes.capabilityCatalog : [];
     return ADVANCED_CAPABILITY_IDS.map((capabilityId) => {
-      const descriptor = catalog.find((entry: any) =>
+      const descriptor = catalog.find(entry =>
         String(entry?.id || '').trim().toLowerCase() === capabilityId.toLowerCase())
         || this.buildFallbackCapabilityDescriptor(capabilityId);
-      const supportedNodes = entries.filter((entry: any) =>
+      const supportedNodes = entries.filter(entry =>
         Array.isArray(entry?.capabilityIds)
         && entry.capabilityIds.some((item: string) => String(item || '').trim().toLowerCase() === capabilityId.toLowerCase()))
         .length;
@@ -385,9 +389,9 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     });
   }
 
-  private buildSurfaceEntries(manifest: any): ZavorthDistributedRuntimeSurfaceEntry[] {
+  private buildSurfaceEntries(manifest: RuntimeAccessManifest): ZavorthDistributedRuntimeSurfaceEntry[] {
     const surfaces = Array.isArray(manifest?.surfaces) ? manifest.surfaces : [];
-    return surfaces.map((entry: any) => ({
+    return surfaces.map(entry => ({
       id: this.text(entry?.id, 'surface'),
       label: this.text(entry?.label, entry?.id || 'Surface'),
       primary: Boolean(entry?.primary),
@@ -401,9 +405,9 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
 
   private buildFocus(input: {
     focusId: string | null;
-    channels: any;
-    nodes: any;
-    transports: any;
+    channels: ChannelMeshSnapshot;
+    nodes: NodeMeshSnapshot;
+    transports: ZavorthRemoteTransportSnapshot;
     surfaces: ZavorthDistributedRuntimeSurfaceEntry[];
   }): ZavorthDistributedRuntimeFocus {
     const target = this.nullableText(input.focusId);
@@ -418,7 +422,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     }
     const normalizedTarget = target.toLowerCase();
     const channel = Array.isArray(input.channels?.entries)
-      ? input.channels.entries.find((entry: any) =>
+      ? input.channels.entries.find(entry =>
           this.matchesFocus(entry?.id, entry?.label, normalizedTarget))
       : null;
     if (channel) {
@@ -431,7 +435,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       };
     }
     const node = Array.isArray(input.nodes?.entries)
-      ? input.nodes.entries.find((entry: any) =>
+      ? input.nodes.entries.find(entry =>
           this.matchesFocus(entry?.id, entry?.label, normalizedTarget))
       : null;
     if (node) {
@@ -444,7 +448,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       };
     }
     const transport = Array.isArray(input.transports?.entries)
-      ? input.transports.entries.find((entry: any) =>
+      ? input.transports.entries.find(entry =>
           this.matchesFocus(entry?.id, entry?.label, normalizedTarget))
       : null;
     if (transport) {
@@ -490,10 +494,10 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       + ` Remoto ${summary.remoteReady ? 'pronto' : 'pendente'}.${focusPart}`;
   }
 
-  private resolveChannelPosture(channels: any, advancedChannels: any[]): ZavorthDistributedRuntimePosture {
+  private resolveChannelPosture(channels: ChannelMeshSnapshot, advancedChannels: ChannelMeshSnapshot['entries']): ZavorthDistributedRuntimePosture {
     const ready = Number(channels?.summary?.ready || 0) || 0;
     const total = Number(channels?.summary?.total || 0) || 0;
-    const pendingAdvanced = advancedChannels.filter((entry: any) => this.isActionableAdvancedChannel(entry)).length;
+    const pendingAdvanced = advancedChannels.filter(entry => this.isActionableAdvancedChannel(entry)).length;
     if (total > 0 && ready === 0) {
       return 'critical';
     }
@@ -521,7 +525,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     return 'healthy';
   }
 
-  private resolveTransportPosture(transports: any): ZavorthDistributedRuntimePosture {
+  private resolveTransportPosture(transports: ZavorthRemoteTransportSnapshot): ZavorthDistributedRuntimePosture {
     const total = Number(transports?.summary?.total || 0) || 0;
     const ready = Number(transports?.summary?.ready || 0) || 0;
     const attention = Number(transports?.summary?.attentionRequired || 0) || 0;
@@ -534,7 +538,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     return 'healthy';
   }
 
-  private resolveSurfacePosture(manifest: any): ZavorthDistributedRuntimePosture {
+  private resolveSurfacePosture(manifest: RuntimeAccessManifest): ZavorthDistributedRuntimePosture {
     const total = this.countTotalSurfaces(manifest);
     const ready = this.countReadySurfaces(manifest);
     if (total > 0 && ready === 0) {
@@ -562,7 +566,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     return 'healthy';
   }
 
-  private resolveInfrastructureState(nodes: any, transports: any): 'mesh_online' | 'offline' | 'dormant' {
+  private resolveInfrastructureState(nodes: NodeMeshSnapshot, transports: ZavorthRemoteTransportSnapshot): 'mesh_online' | 'offline' | 'dormant' {
     const onlineNodes = Number(nodes?.summary?.online || 0) || 0;
     const pairedNodes = Number(nodes?.summary?.paired || 0) || 0;
     const liveTransports = Number(transports?.summary?.live || 0) || 0;
@@ -575,7 +579,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     return 'dormant';
   }
 
-  private resolveInfrastructureOfflineReason(nodes: any, transports: any): string | null {
+  private resolveInfrastructureOfflineReason(nodes: NodeMeshSnapshot, transports: ZavorthRemoteTransportSnapshot): string | null {
     const state = this.resolveInfrastructureState(nodes, transports);
     if (state === 'mesh_online') {
       return null;
@@ -586,20 +590,20 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     return 'Implementacao pronta, mas nenhum node/transport remoto foi ligado neste ambiente.';
   }
 
-  private pickChannelNextAction(advancedChannels: any[]): string {
+  private pickChannelNextAction(advancedChannels: ChannelMeshSnapshot['entries']): string {
     const prioritized = this.prioritizeAdvancedChannels(advancedChannels);
-    const next = prioritized.find((entry: any) => this.isActionableAdvancedChannel(entry)) || prioritized[0];
+    const next = prioritized.find(entry => this.isActionableAdvancedChannel(entry)) || prioritized[0];
     return this.text(
       next?.operatorNextStep,
       next?.actionHint || 'Revisar channels avancados sob o mesmo contrato canonico.',
     );
   }
 
-  private isActionableAdvancedChannel(entry: any): boolean {
+  private isActionableAdvancedChannel(entry: ChannelMeshSnapshot['entries'][number]): boolean {
     return this.text(entry?.readiness, 'planned') === 'partial';
   }
 
-  private prioritizeAdvancedChannels(entries: any[]): any[] {
+  private prioritizeAdvancedChannels(entries: ChannelMeshSnapshot['entries']): ChannelMeshSnapshot['entries'] {
     return [...entries].sort((left, right) => {
       const leftReadiness = this.text(left?.readiness, 'planned');
       const rightReadiness = this.text(right?.readiness, 'planned');
@@ -617,7 +621,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     });
   }
 
-  private pickFleetNextAction(nodes: any, fleetCapabilities: ZavorthDistributedRuntimeCapabilityCoverage[]): string {
+  private pickFleetNextAction(nodes: NodeMeshSnapshot, fleetCapabilities: ZavorthDistributedRuntimeCapabilityCoverage[]): string {
     if ((Number(nodes?.summary?.total || 0) || 0) === 0) {
       return 'Pareie um node host para habilitar browser, screen, files watch e notificacoes na malha.';
     }
@@ -631,40 +635,40 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     return 'A fleet atual ja cobre o conjunto avancado principal do runtime distribuido.';
   }
 
-  private pickTransportNextAction(transports: any): string {
+  private pickTransportNextAction(transports: ZavorthRemoteTransportSnapshot): string {
     const next = Array.isArray(transports?.suggestedActions) ? transports.suggestedActions[0] : null;
     return this.text(next?.reason, 'Revisar bridges, sidecars e node-hosts remotos no mesmo plano operacional.');
   }
 
-  private pickSurfaceNextAction(manifest: any): string {
+  private pickSurfaceNextAction(manifest: RuntimeAccessManifest): string {
     if (!Boolean(manifest?.remote?.ready)) {
       return 'Fechar o rollout remoto oficial para abrir o mesmo cockpit fora do host local.';
     }
     return 'As superficies oficiais ja contam a mesma historia do runtime distribuido.';
   }
 
-  private countMaintenanceNodes(nodes: any): number {
+  private countMaintenanceNodes(nodes: NodeMeshSnapshot): number {
     return Array.isArray(nodes?.entries)
-      ? nodes.entries.filter((entry: any) =>
+      ? nodes.entries.filter(entry =>
           Array.isArray(entry?.capabilityIds)
           && entry.capabilityIds.some((capabilityId: string) => String(capabilityId || '').trim() === 'node.maintenance'))
         .length
       : 0;
   }
 
-  private countReadySurfaces(manifest: any): number {
+  private countReadySurfaces(manifest: RuntimeAccessManifest): number {
     return Array.isArray(manifest?.surfaces)
-      ? manifest.surfaces.filter((entry: any) => Boolean(entry?.ready)).length
+      ? manifest.surfaces.filter(entry => Boolean(entry?.ready)).length
       : 0;
   }
 
-  private countTotalSurfaces(manifest: any): number {
+  private countTotalSurfaces(manifest: RuntimeAccessManifest): number {
     return Array.isArray(manifest?.surfaces) ? manifest.surfaces.length : 0;
   }
 
-  private resolvePrimarySurfaceReady(manifest: any): boolean {
+  private resolvePrimarySurfaceReady(manifest: RuntimeAccessManifest): boolean {
     const primary = Array.isArray(manifest?.surfaces)
-      ? manifest.surfaces.find((entry: any) => Boolean(entry?.primary))
+      ? manifest.surfaces.find(entry => Boolean(entry?.primary))
       : null;
     return primary ? Boolean(primary.ready) : false;
   }
@@ -685,9 +689,12 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     };
   }
 
-  private firstActionCommand(entry: any, kind: string): string | null {
+  private firstActionCommand(
+    entry: { actions?: Array<{ kind?: string; command?: string }> } | null | undefined,
+    kind: string,
+  ): string | null {
     const action = Array.isArray(entry?.actions)
-      ? entry.actions.find((item: any) => String(item?.kind || '').trim().toLowerCase() === kind.toLowerCase())
+      ? entry.actions.find(item => String(item?.kind || '').trim().toLowerCase() === kind.toLowerCase())
       : null;
     return this.nullableText(action?.command);
   }

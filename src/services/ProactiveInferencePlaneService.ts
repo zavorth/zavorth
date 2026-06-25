@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { z } from 'zod';
 import type { ZavorthEchoOrchestrator } from '../echo/orchestrator/ZavorthEchoOrchestrator.js';
 import type { ToolCategory } from '../echo/types/IZavorthTool.js';
@@ -208,7 +209,7 @@ export class ProactiveInferencePlaneService {
         warnings: memoryRecall.warnings || [],
       };
     } catch (error: any) {
-      console.error('[ProactiveInferencePlane] Ciclo de inferencia falhou.', error);
+      logger.error('[ProactiveInferencePlane] Ciclo de inferencia falhou.', error);
       return {
         ok: false,
         skipped: 'invalid_payload',

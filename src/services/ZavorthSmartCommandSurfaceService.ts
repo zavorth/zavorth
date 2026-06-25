@@ -195,6 +195,17 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     cliCommand: 'sethome <path>',
     supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
   },
+  {
+    id: 'loop',
+    aliases: ['loop', 'interacao', 'eng-loop', 'loop-engineering'],
+    label: 'Loop de engenharia',
+    summary: 'Executa um loop interativo ou automatico de refinamento e sandbox para tarefas de engenharia.',
+    risk: 'high',
+    executionMode: 'approval-gated',
+    canonicalSlash: '/loop <tarefa>',
+    cliCommand: 'loop <tarefa>',
+    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+  },
 ];
 
 const COMMAND_BY_ALIAS = new Map<string, ZavorthSmartCommandResolution>();
@@ -441,6 +452,13 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
         ? `Novo home proposto: ${args}. Gravacao persistente exige approval e path seguro.`
         : 'Informe um caminho: /sethome <path>. O Zavorth vai validar antes de gravar.',
       hints: ['Nao ha varredura automatica do computador.', 'Use caminhos explicitos.'],
+    };
+  }
+  if (command.id === 'loop') {
+    return {
+      title: 'Loop de engenharia preparado',
+      body: 'Iniciando o LoopEngineeringService para refinar e executar a tarefa de forma segura.',
+      hints: ['Use --auto para modo automatico.', 'Use --grill para modo guiado de perguntas.'],
     };
   }
   return {

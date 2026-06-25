@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { SkillLoader, SkillMetadata } from './SkillLoader.js';
 
 export interface ActiveSkill {
@@ -19,18 +20,18 @@ export class SkillExecutor {
     const skill = skills.find((item) => item.name === skillName);
 
     if (!skill) {
-      console.warn(`Skill "${skillName}" nao encontrada.`);
+      logger.warn(`Skill "${skillName}" nao encontrada.`);
       return '';
     }
 
     const content = this.loader.getSkillContent(skill.dirPath);
 
     if (!content) {
-      console.warn(`Conteudo vazio para skill "${skillName}".`);
+      logger.warn(`Conteudo vazio para skill "${skillName}".`);
       return '';
     }
 
-    console.log(`Skill "${skillName}" carregada (${content.length} chars)`);
+    logger.info(`Skill "${skillName}" carregada (${content.length} chars)`);
     return content;
   }
 
@@ -45,7 +46,7 @@ export class SkillExecutor {
       const content = this.loader.buildSkillPrompt(activeSkill.metadata);
 
       if (!content) {
-        console.warn(`Conteudo vazio para skill "${activeSkill.metadata.name}".`);
+        logger.warn(`Conteudo vazio para skill "${activeSkill.metadata.name}".`);
         continue;
       }
 
@@ -57,7 +58,7 @@ export class SkillExecutor {
       return '';
     }
 
-    console.log(`Skills injetadas: ${activeSkills.map((skill) => skill.metadata.name).join(', ')}`);
+    logger.info(`Skills injetadas: ${activeSkills.map((skill) => skill.metadata.name).join(', ')}`);
     return sections.join('\n\n');
   }
 }

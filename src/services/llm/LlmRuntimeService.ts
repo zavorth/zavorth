@@ -669,7 +669,7 @@ export class LlmRuntimeService {
       case 'anthropic-vertex':
         return process.env.ANTHROPIC_VERTEX_MODEL || 'claude-sonnet-4-6';
       case 'bedrock-claude':
-        return process.env.BEDROCK_CLAUDE_MODEL || 'anthropic.claude-sonnet-4-5-20250929-v1:0';
+        return process.env.BEDROCK_CLAUDE_MODEL || 'anthropic.claude-3-5-sonnet-latest-20250929-v1:0';
       case 'google-genai':
         return process.env.GOOGLE_GENAI_MODEL || config.geminiModel;
       case 'lmstudio':

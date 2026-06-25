@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
@@ -49,7 +50,7 @@ export class SkillCurationService {
       ON CONFLICT(skill_id) DO UPDATE SET
         pinned = ?
     `, [normalizedSkillId, pinned ? 1 : 0, pinned ? 1 : 0]);
-    console.log(`[SkillCurationService] Skill "${normalizedSkillId}" pin status atualizado para: ${pinned}`);
+    logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" pin status atualizado para: ${pinned}`);
   }
 
   public async archiveSkill(skillId: string): Promise<void> {
@@ -77,7 +78,7 @@ export class SkillCurationService {
     const manifestPath = this.manifestPathForSkill(normalizedSkillId);
     const manifest = this.buildArchiveManifest(normalizedSkillId, skill, sourceDir);
 
-    console.log(`[SkillCurationService] Compactando skill "${normalizedSkillId}" de ${sourceDir} para ${zipPath}...`);
+    logger.info(`[SkillCurationService] Compactando skill "${normalizedSkillId}" de ${sourceDir} para ${zipPath}...`);
 
     const zip = new JSZip();
     zip.file('.zavorth-skill-archive.json', JSON.stringify(manifest, null, 2));
@@ -92,7 +93,7 @@ export class SkillCurationService {
     fs.writeFileSync(zipPath, buffer);
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 
-    console.log(`[SkillCurationService] Removendo pasta original da skill arquivada: ${sourceDir}`);
+    logger.info(`[SkillCurationService] Removendo pasta original da skill arquivada: ${sourceDir}`);
     fs.rmSync(sourceDir, { recursive: true, force: true });
 
     const db = await Database.getInstance();
@@ -103,7 +104,7 @@ export class SkillCurationService {
         status = 'archived'
     `, [normalizedSkillId]);
 
-    console.log(`[SkillCurationService] Skill "${normalizedSkillId}" arquivada com sucesso.`);
+    logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" arquivada com sucesso.`);
   }
 
   public async restoreSkill(skillId: string): Promise<void> {
@@ -127,7 +128,7 @@ export class SkillCurationService {
       throw new Error(`Destino de restauracao ja existe e nao esta vazio: ${destDir}`);
     }
 
-    console.log(`[SkillCurationService] Restaurando skill "${normalizedSkillId}" extraindo ${zipPath} para ${destDir}...`);
+    logger.info(`[SkillCurationService] Restaurando skill "${normalizedSkillId}" extraindo ${zipPath} para ${destDir}...`);
     const zipData = fs.readFileSync(zipPath);
     const zip = await JSZip.loadAsync(zipData);
 
@@ -165,12 +166,12 @@ export class SkillCurationService {
         last_executed_at = datetime('now')
     `, [normalizedSkillId]);
 
-    console.log(`[SkillCurationService] Skill "${normalizedSkillId}" restaurada com sucesso.`);
+    logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" restaurada com sucesso.`);
   }
 
   public async runAutoCuration(): Promise<{ archivedCount: number }> {
     if (!config.skillsCurationEnabled) {
-      console.log('[SkillCurationService] Auto-curadoria desabilitada globalmente nas configuracoes.');
+      logger.info('[SkillCurationService] Auto-curadoria desabilitada globalmente nas configuracoes.');
       return { archivedCount: 0 };
     }
 
@@ -196,7 +197,7 @@ export class SkillCurationService {
         AND datetime(last_executed_at) < datetime('now', ?)
     `, [`-${archiveDays} days`]);
 
-    console.log(`[SkillCurationService] Escaneando por inatividade (> ${archiveDays} dias). Encontradas ${inactiveSkills.length} skills candidatas.`);
+    logger.info(`[SkillCurationService] Escaneando por inatividade (> ${archiveDays} dias). Encontradas ${inactiveSkills.length} skills candidatas.`);
 
     let archivedCount = 0;
     for (const row of inactiveSkills) {
@@ -204,12 +205,12 @@ export class SkillCurationService {
         await this.archiveSkill(row.skill_id);
         archivedCount++;
       } catch (error) {
-        console.error(`[SkillCurationService] Falha ao arquivar automaticamente a skill "${row.skill_id}":`, error);
+        logger.error(`[SkillCurationService] Falha ao arquivar automaticamente a skill "${row.skill_id}":`, error);
       }
     }
 
     if (archivedCount > 0) {
-      console.log(`[SkillCurationService] Auto-curadoria concluida. ${archivedCount} skills inativas foram arquivadas.`);
+      logger.info(`[SkillCurationService] Auto-curadoria concluida. ${archivedCount} skills inativas foram arquivadas.`);
     }
 
     return { archivedCount };
