@@ -6,7 +6,7 @@ const rootDir = process.cwd();
 describe('skill execution storage hardening', () => {
   it('stores redacted skill inputs, outputs and errors', () => {
     const executor = readFileSync(
-      join(rootDir, 'src/ai-gateway/lib/skills/executor.ts'),
+      join(rootDir, 'src/zavorth-control/lib/skills/executor.ts'),
       'utf8',
     );
 
