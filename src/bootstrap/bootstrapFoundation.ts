@@ -1,4 +1,5 @@
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import { GoalLoopDaemonService } from '../services/GoalLoopDaemonService.js';
 import { GoalLoopService } from '../services/GoalLoopService.js';
 import { GoalLoopWorkerService } from '../services/GoalLoopWorkerService.js';
@@ -58,17 +59,17 @@ export function runCapabilityPreflight(): BootstrapPreflight {
     bridgeConfigured: config.discordBridgeEnabled,
   });
 
-  console.log('Preflight de canais configurados neste runtime:');
+  logger.info('Preflight de canais configurados neste runtime:');
   for (const capability of capabilities) {
-    console.log(`- ${capability.platform}: ${capability.readiness}/${capability.implementationState} (${capability.transport})`);
+    logger.info(`- ${capability.platform}: ${capability.readiness}/${capability.implementationState} (${capability.transport})`);
   }
 
   if (summary.ready.length === 0) {
-    console.error('No operational channel is ready to receive messages.');
-    console.error('At least one channel must be configured and ready.');
+    logger.error('No operational channel is ready to receive messages.');
+    logger.error('At least one channel must be configured and ready.');
 
     if (summary.partial.length > 0 || summary.planned.length > 0 || summary.disabled.length > 0) {
-      console.error(
+      logger.error(
         `- Non-operational channels: ${[...summary.partial, ...summary.planned, ...summary.disabled].join(', ')}`,
       );
     }
@@ -89,7 +90,7 @@ export async function initializeBootstrapFoundation(
   runtimeArtifactMaintenanceService: RuntimeArtifactMaintenanceService,
   runtimeLogMaintenanceService: RuntimeLogMaintenanceService,
 ): Promise<BootstrapFoundation> {
-  console.log('[BOOT] storage-init');
+  logger.info('[BOOT] storage-init');
   const processLock = new ProcessLockService(config.processLockFile);
   processLock.acquire('zavorth-runtime');
   process.on('exit', () => processLock.release());
@@ -99,7 +100,7 @@ export async function initializeBootstrapFoundation(
   const taskRepo = new TaskRepository();
   await logRepo.init();
   await taskRepo.init();
-  console.log('[BOOT] storage-ready');
+  logger.info('[BOOT] storage-ready');
 
   const runtimeProfileService = new RuntimeProfileService();
   const capabilityLifecycleService = new CapabilityLifecycleService({
@@ -263,7 +264,7 @@ export async function startRemoteRuntimeServices(
   supervisor: BootstrapSupervisor,
 ): Promise<BootstrapRuntimeServices> {
   supervisor.updateProgress('sidecars');
-  console.log('[BOOT] sidecars');
+  logger.info('[BOOT] sidecars');
 
   const aiGatewaySidecar = new AIGatewaySidecarService(foundation.logRepo);
   const aiGatewayGateway = new AIGatewayProxyService();
@@ -339,11 +340,11 @@ export async function startRemoteRuntimeServices(
     });
   }
 
-  console.log('[BOOT] sidecars-ready');
+  logger.info('[BOOT] sidecars-ready');
   supervisor.updateProgress('mcp-runtime');
-  console.log('[BOOT] mcp-runtime');
+  logger.info('[BOOT] mcp-runtime');
   await foundation.mcpRuntime.start();
-  console.log('[BOOT] mcp-runtime-ready');
+  logger.info('[BOOT] mcp-runtime-ready');
 
   const MonitorModule = require('../monitoring/Monitor.js').Monitor;
   const RecoveryModule = require('../orchestrator/RecoveryManager.js').RecoveryManager;
@@ -351,10 +352,10 @@ export async function startRemoteRuntimeServices(
   sysMonitor.startHeartbeat();
 
   supervisor.updateProgress('boot-recovery');
-  console.log('[BOOT] boot-recovery');
+  logger.info('[BOOT] boot-recovery');
   const recovery = new RecoveryModule(foundation.taskManager, foundation.logRepo);
   await recovery.runBootRecovery();
-  console.log('[BOOT] boot-recovery-ready');
+  logger.info('[BOOT] boot-recovery-ready');
 
   return {
     aiGatewaySidecar,

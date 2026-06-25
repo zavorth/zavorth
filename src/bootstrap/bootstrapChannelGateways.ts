@@ -1,4 +1,5 @@
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
   BootstrapFoundation,
   BootstrapSupervisor,
@@ -14,7 +15,7 @@ export async function startChannelGateways(
     capabilityId: 'telegram',
     start: async () => {
       supervisor.updateProgress('telegram-gateway');
-      console.log('[BOOT] telegram-gateway');
+      logger.info('[BOOT] telegram-gateway');
       await surfaceRuntime.botGateway.start();
     },
     activeMessage: 'Telegram gateway active on boot.',
@@ -104,9 +105,9 @@ export async function startChannelGateways(
   });
 
   const runtimeChannelSnapshot = surfaceRuntime.sharedGatewayChannelRegistry.buildSnapshot();
-  console.log('Mesh operacional de canais no runtime atual:');
+  logger.info('Mesh operacional de canais no runtime atual:');
   for (const channel of runtimeChannelSnapshot.channels) {
-    console.log(`- ${channel.id}: ${channel.readiness} (${channel.transport})`);
+    logger.info(`- ${channel.id}: ${channel.readiness} (${channel.transport})`);
   }
 
   foundation.logRepo.log(
