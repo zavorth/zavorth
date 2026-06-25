@@ -33,7 +33,7 @@ const P0_CHANNELS: P0Descriptor[] = [
     platformId: 'signal',
     status: 'partial-live',
     runtimeTarget: 'Signal JSON-RPC or signal-cli daemon',
-    gatewayTarget: 'src/gateways/SignalGateway.stub.ts',
+    gatewayTarget: 'src/gateways/channels/signal/SignalGateway.stub.ts',
     adapterTarget: 'src/adapters/channels/SignalLiveClient.ts',
     configSchema: schema({
       requiredEnv: ['SIGNAL_ACCOUNT_NUMBER', 'SIGNAL_ALLOWED_RECIPIENTS', 'SIGNAL_JSONRPC_URL or SIGNAL_CLI_PATH'],
@@ -61,7 +61,7 @@ const P0_CHANNELS: P0Descriptor[] = [
     platformId: 'teams',
     status: 'partial-live',
     runtimeTarget: 'Microsoft Graph chat messages',
-    gatewayTarget: 'src/gateways/TeamsGateway.stub.ts',
+    gatewayTarget: 'src/gateways/channels/teams/TeamsGateway.stub.ts',
     adapterTarget: 'src/adapters/channels/TeamsGraphBotClient.ts',
     configSchema: schema({
       requiredEnv: [
@@ -94,8 +94,8 @@ const P0_CHANNELS: P0Descriptor[] = [
     platformId: 'slack',
     status: 'partial-live',
     runtimeTarget: 'Slack Web API',
-    gatewayTarget: 'src/gateways/SlackGateway.stub.ts',
-    adapterTarget: 'src/gateways/SlackGateway.stub.ts#callSlackApi',
+    gatewayTarget: 'src/gateways/channels/slack/SlackGateway.stub.ts',
+    adapterTarget: 'src/gateways/channels/slack/SlackGateway.stub.ts#callSlackApi',
     configSchema: schema({
       requiredEnv: ['SLACK_BOT_TOKEN', 'SLACK_ALLOWED_CHANNEL_IDS'],
       optionalEnv: ['SLACK_ENABLED', 'SLACK_TRANSPORT', 'SLACK_SIGNING_SECRET', 'SLACK_WORKSPACE_ID', 'SLACK_API_BASE_URL'],
@@ -119,8 +119,8 @@ const P0_CHANNELS: P0Descriptor[] = [
     platformId: 'whatsapp',
     status: 'partial-live',
     runtimeTarget: 'Meta WhatsApp Cloud API',
-    gatewayTarget: 'src/gateways/WhatsAppGateway.stub.ts',
-    adapterTarget: 'src/gateways/WhatsAppGateway.stub.ts#sendCloudApiTextMessage',
+    gatewayTarget: 'src/gateways/channels/whatsapp/WhatsAppGateway.stub.ts',
+    adapterTarget: 'src/gateways/channels/whatsapp/WhatsAppGateway.stub.ts#sendCloudApiTextMessage',
     configSchema: schema({
       requiredEnv: [
         'WHATSAPP_PROVIDER=cloud-api',
