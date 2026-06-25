@@ -23,9 +23,11 @@ export class TrustedWorkspaceService {
   private static instance: TrustedWorkspaceService | null = null;
   private db!: Database;
   private auditLogger!: SecurityAuditLogger;
-  private readonly secret = 'zavorth-workspace-trust-salt-2026';
+  private readonly secret: string;
 
-  private constructor() {}
+  private constructor() {
+    this.secret = process.env.ZAVORTH_WORKSPACE_TRUST_SALT || crypto.randomBytes(32).toString('hex');
+  }
 
   public static async getInstance(): Promise<TrustedWorkspaceService> {
     if (!TrustedWorkspaceService.instance) {
@@ -39,6 +41,9 @@ export class TrustedWorkspaceService {
   private async init(): Promise<void> {
     this.db = await Database.getInstance();
     this.auditLogger = new SecurityAuditLogger();
+    if (!process.env.ZAVORTH_WORKSPACE_TRUST_SALT) {
+      console.warn('[SECURITY] ZAVORTH_WORKSPACE_TRUST_SALT not set. Using random salt. Workspace trust hashes will not persist across restarts.');
+    }
   }
 
   public getTrustEntry(workspaceId: string): TrustedWorkspaceEntry | null {
