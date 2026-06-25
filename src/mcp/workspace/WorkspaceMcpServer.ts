@@ -1,3 +1,4 @@
+import { logger } from '../../logger.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
@@ -14,14 +15,14 @@ const workspaceRootEnv = process.env.ZAVORTH_WORKSPACE_ROOT;
 const sessionId = process.env.ZAVORTH_WORKSPACE_SESSION_ID;
 
 if (!workspaceRootEnv) {
-  console.error('Error: ZAVORTH_WORKSPACE_ROOT environment variable is required.');
+  logger.error('Error: ZAVORTH_WORKSPACE_ROOT environment variable is required.');
   process.exit(1);
 }
 
 const workspaceRoot: string = workspaceRootEnv;
 
 if (!sessionId) {
-  console.error('Error: ZAVORTH_WORKSPACE_SESSION_ID environment variable is required.');
+  logger.error('Error: ZAVORTH_WORKSPACE_SESSION_ID environment variable is required.');
   process.exit(1);
 }
 
@@ -29,7 +30,7 @@ let pathGuard: WorkspacePathGuard;
 try {
   pathGuard = new WorkspacePathGuard(workspaceRoot);
 } catch (e: any) {
-  console.error(`Failed to initialize path guard: ${e.message}`);
+  logger.error(`Failed to initialize path guard: ${e.message}`);
   process.exit(1);
 }
 
@@ -610,7 +611,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (fs.existsSync(tempFile)) {
           try {
             fs.unlinkSync(tempFile);
-          } catch {}
+          } catch (cleanupError: any) {
+            logger.warn(`Failed to cleanup temp file ${tempFile}: ${cleanupError.message}`);
+          }
         }
         throw writeError;
       }
@@ -736,6 +739,6 @@ async function run() {
 }
 
 run().catch((error) => {
-  console.error('Fatal error running workspace MCP server:', error);
+  logger.error('Fatal error running workspace MCP server:', error);
   process.exit(1);
 });
