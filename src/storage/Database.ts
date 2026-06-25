@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import DatabaseLib, { Database as SQLiteDatabase } from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
@@ -144,7 +145,9 @@ export class Database {
             openedWithKey = true;
           } catch (migrationError: any) {
             if (dbInstance) {
-              try { dbInstance.close(); } catch {}
+              try { dbInstance.close(); } catch (closeError: any) {
+                logger.error(`Failed to close database during migration failure: ${closeError.message}`);
+              }
               dbInstance = null;
             }
             throw new Error(`SQLite database exists but key is invalid and plaintext migration failed: ${migrationError.message}`);
@@ -168,7 +171,7 @@ export class Database {
     this.db.pragma('temp_store = MEMORY');
 
     this.createTables();
-    console.warn(`💾 [V3] Database SQLite inicializado com \`${sqlite.driverPackage || 'better-sqlite3'}\` (WAL mode ativo) at: ${config.dbPath}. Encryption: ${openedWithKey ? 'active' : 'off'}`);
+    logger.warn(`💾 [V3] Database SQLite inicializado com \`${sqlite.driverPackage || 'better-sqlite3'}\` (WAL mode ativo) at: ${config.dbPath}. Encryption: ${openedWithKey ? 'active' : 'off'}`);
   }
 
   public static async getInstance(): Promise<Database> {
@@ -194,7 +197,7 @@ export class Database {
     try {
       this.db.prepare(sql).run(...params);
     } catch (e) {
-      console.error('SQL Error (RUN):', e, '\\nSQL:', sql);
+      logger.error('SQL Error (RUN):', e, '\\nSQL:', sql);
       throw e;
     }
   }
@@ -203,7 +206,7 @@ export class Database {
     try {
       return this.db.prepare(sql).get(...params) as T | undefined;
     } catch (e) {
-      console.error('SQL Error (GET):', e, '\\nSQL:', sql);
+      logger.error('SQL Error (GET):', e, '\\nSQL:', sql);
       throw e;
     }
   }
@@ -212,7 +215,7 @@ export class Database {
     try {
       return this.db.prepare(sql).all(...params) as T[];
     } catch (e) {
-      console.error('SQL Error (ALL):', e, '\\nSQL:', sql);
+      logger.error('SQL Error (ALL):', e, '\\nSQL:', sql);
       throw e;
     }
   }
@@ -579,14 +582,18 @@ export class Database {
       // If rekey failed, restore journal mode and throw
       try {
         this.db.pragma(`journal_mode = ${currentJournalMode || 'WAL'}`);
-      } catch {}
+      } catch (restoreError: any) {
+        logger.error(`Failed to restore journal mode after rekey failure: ${restoreError.message}`);
+      }
       throw new Error(`Failed to rotate database encryption key: ${error.message}`);
     }
 
     // 5. Restore the journal mode (typically WAL)
     try {
       this.db.pragma(`journal_mode = ${currentJournalMode || 'WAL'}`);
-    } catch {}
+    } catch (restoreError: any) {
+      logger.error(`Failed to restore journal mode after rekey: ${restoreError.message}`);
+    }
 
     // 6. Update configuration and/or key file to persist the new key
     config.dbEncryptionKey = newKey;
@@ -596,7 +603,7 @@ export class Database {
         fs.mkdirSync(path.dirname(keyFile), { recursive: true });
         fs.writeFileSync(keyFile, newKey, 'utf8');
       } catch (fileError: any) {
-        console.error(`Warning: Key rotated in database but failed to write to dbEncryptionKeyFile: ${fileError.message}`);
+        logger.error(`Warning: Key rotated in database but failed to write to dbEncryptionKeyFile: ${fileError.message}`);
       }
     }
   }
