@@ -202,12 +202,12 @@ export {
   createStructuredAgentRunAction,
   isStructuredAgentRunAction,
   STRUCTURED_AGENT_RUN_ACTION_TYPE,
-} from '../../contracts/StructuredAgentRunContract.js';
+} from '../../contracts/runtime/StructuredAgentRunContract.js';
 export type {
   AgentRunAction,
   StructuredAgentRunAction,
   StructuredAgentRunActionType,
-} from '../../contracts/StructuredAgentRunContract.js';
+} from '../../contracts/runtime/StructuredAgentRunContract.js';
 export {
   createGovernedExecutorAdapter,
   GovernedExecutorAdapter,

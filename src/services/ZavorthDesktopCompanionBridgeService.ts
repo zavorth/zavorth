@@ -2,7 +2,7 @@ import type {
   ZavorthDesktopCompanionBridgeProof,
   ZavorthNativeCapabilityId,
   ZavorthNativeCapabilityReceipt,
-} from '../contracts/ZavorthNativeCompanionDeviceContract.js';
+} from '../contracts/native/ZavorthNativeCompanionDeviceContract.js';
 import { NodeDeviceProfileService } from './NodeDeviceProfileService.js';
 
 type Runtime = {

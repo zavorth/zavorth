@@ -5,7 +5,7 @@ import type {
   AgentOsTransactionalPlan,
   AgentOsWorkspaceWrite,
 } from '../contracts/AgentOsContract.js';
-import type { IntelligenceExecutionProposal } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceExecutionProposal } from '../contracts/native/IntelligenceFabricContract.js';
 import type { ZavorthMutationPlan } from '../contracts/ZavorthMutationPlaneContract.js';
 import fs from 'fs';
 import path from 'path';

@@ -11,8 +11,8 @@ import type {
   ZavorthOwnerGatedLiveActivationSnapshot,
   ZavorthOwnerGatedLiveActivationStatus,
   ZavorthOwnerGatedLiveIoStatus,
-} from '../contracts/ZavorthOwnerGatedLiveActivationContract.js';
-import { ZAVORTH_OWNER_GATED_LIVE_ACTIVATION_CONTRACT_VERSION } from '../contracts/ZavorthOwnerGatedLiveActivationContract.js';
+} from '../contracts/native/ZavorthOwnerGatedLiveActivationContract.js';
+import { ZAVORTH_OWNER_GATED_LIVE_ACTIVATION_CONTRACT_VERSION } from '../contracts/native/ZavorthOwnerGatedLiveActivationContract.js';
 
 type Runtime = {
   now?: () => Date;

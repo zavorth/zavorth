@@ -20,7 +20,7 @@ export class XaiProvider implements ILlmProvider {
 
   constructor() {
     if (!config.xaiApiKey) {
-      throw new Error('XAI_API_KEY nao configurada no .env');
+      throw new Error('XAI_API_KEY not configured in .env');
     }
 
     this.client = new OpenAI({

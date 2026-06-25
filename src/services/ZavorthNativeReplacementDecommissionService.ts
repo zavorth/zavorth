@@ -9,7 +9,7 @@ import {
   type ZavorthNativeReplacementRegistryEntry,
   type ZavorthConsistencyTestHarnessReceipt,
   type ZavorthSourceAssumptionDecommissionReceipt,
-} from '../contracts/ZavorthNativeReplacementDecommissionContract.js';
+} from '../contracts/native/ZavorthNativeReplacementDecommissionContract.js';
 import type {
   ZavorthDelegatedWorkerBridgeStatus,
 } from '../contracts/ZavorthDelegatedWorkerBridgeContract.js';

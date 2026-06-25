@@ -5,9 +5,9 @@ type OpenCodeConfigInput = {
 };
 
 const OPENCODE_DEFAULT_MODELS = [
-  "claude-opus-4-5-thinking",
-  "claude-sonnet-4-5-thinking",
-  "gemini-3.1-pro-high",
+  "claude-3-opus-20240229-thinking",
+  "claude-3-5-sonnet-latest-thinking",
+  "gemini-2.5-pro",
   "gemini-3-flash",
 ] as const;
 

@@ -2,7 +2,7 @@ import type {
   AgentOsReputationScore,
   AgentOsReputationSnapshot,
 } from '../contracts/AgentOsContract.js';
-import type { IntelligenceTaskEval } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceTaskEval } from '../contracts/native/IntelligenceFabricContract.js';
 import { safeAgentOsId } from './AgentOsTextSafety.js';
 
 export type AgentOsReputationEval = Pick<

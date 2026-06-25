@@ -3,7 +3,7 @@ import {
   type ZavorthSkillForgeDraft,
   type ZavorthSkillForgeInput,
   type ZavorthSkillForgeRuntimeSnapshot,
-} from '../contracts/ZavorthNativeAutonomySpineContract.js';
+} from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
 import { redactSensitiveText, stableId } from './ZavorthNativeAutonomyShared.js';
 
 type SkillForgeDeps = {

@@ -1,13 +1,14 @@
 import readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
-import { SlackGateway } from '../gateways/SlackGateway.stub.js';
-import { WhatsAppGateway } from '../gateways/WhatsAppGateway.stub.js';
-import { TeamsGateway } from '../gateways/TeamsGateway.stub.js';
-import { IMessageGateway } from '../gateways/IMessageGateway.stub.js';
-import { SignalGateway } from '../gateways/SignalGateway.stub.js';
-import { EmailGateway } from '../gateways/EmailGateway.stub.js';
-import { InstagramGateway } from '../gateways/InstagramGateway.stub.js';
-import { DiscordGateway } from '../gateways/DiscordGateway.stub.js';
+import { SlackGateway } from '../gateways/channels/slack/SlackGateway.stub.js';
+import { WhatsAppGateway } from '../gateways/channels/whatsapp/WhatsAppGateway.stub.js';
+import { TeamsGateway } from '../gateways/channels/teams/TeamsGateway.stub.js';
+import { IMessageGateway } from '../gateways/channels/imessage/IMessageGateway.stub.js';
+import { SignalGateway } from '../gateways/channels/signal/SignalGateway.stub.js';
+import { EmailGateway } from '../gateways/channels/email/EmailGateway.stub.js';
+import { InstagramGateway } from '../gateways/channels/instagram/InstagramGateway.stub.js';
+import { DiscordGateway } from '../gateways/channels/discord/DiscordGateway.stub.js';
+
 import { CoreOrchestrator } from '../core/CoreOrchestrator.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { DiscordSurfacePolicyService } from '../services/DiscordSurfacePolicyService.js';

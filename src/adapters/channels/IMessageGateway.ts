@@ -1,2 +1,2 @@
-export * from '../../gateways/IMessageGateway.js';
-export { IMessageGateway } from '../../gateways/IMessageGateway.js';
+export * from '../../gateways/channels/imessage/IMessageGateway.js';
+export { IMessageGateway } from '../../gateways/channels/imessage/IMessageGateway.js';

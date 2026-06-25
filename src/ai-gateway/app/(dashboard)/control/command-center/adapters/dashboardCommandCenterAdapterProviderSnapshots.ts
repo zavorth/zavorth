@@ -68,8 +68,8 @@ function mapSkillMcpQuarantineEntry(entry: LooseRecord, index: number): Dashboar
     requiresReview: entry.requiresReview === true,
     canExposeToModel: entry.canExposeToModel !== false,
     canExposeTools: entry.canExposeTools !== false,
-    toolNames: asTextArray(entry.toolNames),
-    reasons: asTextArray(entry.reasons),
+    toolNames: asTextArray(entry.toolNames) ?? [],
+    reasons: asTextArray(entry.reasons) ?? [],
     origin: {
       source: asText(origin.source, "runtime"),
       ref: asText(origin.ref) || null,
@@ -419,8 +419,8 @@ export function buildProviderCockpit(
       const rawStatus = asText(receipt.status).toLowerCase();
       return {
         id: asText(receipt.id, `provider-cockpit-receipt-${index + 1}`),
-        kind: rawKind === "live-evidence" || rawKind === "safety" ? rawKind : "matrix",
-        status: rawStatus === "recorded" || rawStatus === "blocked" ? rawStatus : "not-run",
+        kind: (rawKind === "live-evidence" || rawKind === "safety" ? rawKind : "matrix") as "matrix" | "safety" | "live-evidence",
+        status: (rawStatus === "recorded" || rawStatus === "blocked" ? rawStatus : "not-run") as "recorded" | "blocked" | "not-run",
         providerId: asText(receipt.providerId) || null,
         detail: asText(receipt.detail, "Provider cockpit receipt."),
         evidenceHash: asText(receipt.evidenceHash) || null,

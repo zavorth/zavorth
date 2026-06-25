@@ -7,8 +7,8 @@ import type {
   ZavorthExperienceLearningCandidate,
   ZavorthNativeAutonomySpineSnapshot,
   ZavorthSkillForgeDraft,
-} from '../contracts/ZavorthNativeAutonomySpineContract.js';
-import { ZAVORTH_NATIVE_AUTONOMY_SPINE_VERSION } from '../contracts/ZavorthNativeAutonomySpineContract.js';
+} from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
+import { ZAVORTH_NATIVE_AUTONOMY_SPINE_VERSION } from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
 import { redactSensitiveText } from './ZavorthNativeAutonomyShared.js';
 import {
   WorkflowRunService,

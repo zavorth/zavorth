@@ -3,7 +3,7 @@ import {
   type ZavorthExperienceLearningCandidate,
   type ZavorthExperienceLearningDaemonSnapshot,
   type ZavorthExperienceLearningTurnInput,
-} from '../contracts/ZavorthNativeAutonomySpineContract.js';
+} from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
 import { addDays, clampConfidence, redactSensitiveText, stableId } from './ZavorthNativeAutonomyShared.js';
 
 type ExperienceLearningDaemonDeps = {

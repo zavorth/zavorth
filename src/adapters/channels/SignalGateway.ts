@@ -1,2 +1,2 @@
-export * from '../../gateways/SignalGateway.js';
-export { SignalGateway } from '../../gateways/SignalGateway.js';
+export * from '../../gateways/channels/signal/SignalGateway.js';
+export { SignalGateway } from '../../gateways/channels/signal/SignalGateway.js';

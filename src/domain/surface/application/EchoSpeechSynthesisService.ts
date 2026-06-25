@@ -7,7 +7,7 @@ import {
   type EchoVoiceTelemetryRecorder,
 } from '../domain/EchoSpeechSynthesisPorts.js';
 
-export const DEFAULT_ECHO_GEMINI_TTS_MODEL = 'gemini-3.1-flash-tts-preview';
+export const DEFAULT_ECHO_GEMINI_TTS_MODEL = 'gemini-2.5-flash';
 
 export type EchoSpeechSynthesisInput = {
   text: string;

@@ -14,12 +14,12 @@ import {
   type ZavorthAdaptiveTechnicalScan,
   type ZavorthAdaptiveUserModelRecord,
   type ZavorthUserModelUse,
-} from '../contracts/ZavorthAdaptiveLearningOsContract.js';
+} from '../contracts/native/ZavorthAdaptiveLearningOsContract.js';
 import type {
   ZavorthAdaptiveSemanticClassification,
   ZavorthAdaptiveSemanticClassifier,
   ZavorthAdaptiveSemanticLlmGate,
-} from '../contracts/ZavorthAdaptiveLearningSemanticContract.js';
+} from '../contracts/native/ZavorthAdaptiveLearningSemanticContract.js';
 import type {
   ZavorthLearningMemoryReceipt,
   ZavorthLearningMemoryRisk,

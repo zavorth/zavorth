@@ -1,3 +1,4 @@
+type LooseRecord = any;
 import {
   GATEWAY_SESSION_ROUTE_PATHS,
   LEGACY_GATEWAY_SESSION_ROUTE_ALIASES,
@@ -16,7 +17,7 @@ import { ProductChannelExperienceService } from '../../../../../services/Product
 const productChannelExperience = new ProductChannelExperienceService();
 
 export type WebAppRuntimeLightweightState = {
-  snapshot: Record<string, any> | null;
+  snapshot: LooseRecord | null;
   agentRuntime: GatewayCanonicalStatePayload['agentRuntime'];
   productMode: GatewayCanonicalStatePayload['productMode'];
   modeEscalation: GatewayCanonicalStatePayload['modeEscalation'];
@@ -24,46 +25,46 @@ export type WebAppRuntimeLightweightState = {
   gateway:
     | {
         generatedAt?: string;
-        summary?: Record<string, any>;
-        narrative?: Record<string, any>;
+        summary?: LooseRecord;
+        narrative?: LooseRecord;
       }
     | null;
   session: GatewayCanonicalStatePayload['session'];
   memoryPlane:
     | {
         generatedAt?: string;
-        summary?: Record<string, any>;
-        narrative?: Record<string, any>;
+        summary?: LooseRecord;
+        narrative?: LooseRecord;
       }
     | null;
   memoryRecall: GatewayCanonicalStatePayload['memoryRecall'];
   layeredMemory:
     | {
         generatedAt?: string;
-        summary?: Record<string, any>;
-        narrative?: Record<string, any>;
+        summary?: LooseRecord;
+        narrative?: LooseRecord;
       }
     | null;
   layeredMemoryMetrics:
     | {
         generatedAt?: string;
-        summary?: Record<string, any>;
-        budgets?: Record<string, any>;
-        procedures?: Record<string, any>;
+        summary?: LooseRecord;
+        budgets?: LooseRecord;
+        procedures?: LooseRecord;
       }
     | null;
   learningPlane:
     | {
         generatedAt?: string;
-        summary?: Record<string, any>;
-        narrative?: Record<string, any>;
+        summary?: LooseRecord;
+        narrative?: LooseRecord;
       }
     | null;
   learningMetrics:
     | {
         generatedAt?: string;
-        summary?: Record<string, any>;
-        counts?: Record<string, any>;
+        summary?: LooseRecord;
+        counts?: LooseRecord;
       }
     | null;
   opsQuality:
@@ -71,32 +72,32 @@ export type WebAppRuntimeLightweightState = {
         generatedAt?: string;
         score?: number;
         healthy?: boolean;
-        summary?: Record<string, any>;
-        operations?: Record<string, any>;
-        learning?: Record<string, any>;
-        memory?: Record<string, any>;
-        platform?: Record<string, any>;
+        summary?: LooseRecord;
+        operations?: LooseRecord;
+        learning?: LooseRecord;
+        memory?: LooseRecord;
+        platform?: LooseRecord;
       }
     | null;
   controlPlane:
     | {
         generatedAt?: string;
-        summary?: Record<string, any>;
-        narrative?: Record<string, any>;
+        summary?: LooseRecord;
+        narrative?: LooseRecord;
       }
     | null;
   sessionPlane: GatewayCanonicalStatePayload['sessionPlane'];
   gatewayRuntime: {
     generatedAt: string;
-    auth: Record<string, any>;
-    health: Record<string, any>;
-    sessionBus: Record<string, any> | null;
+    auth: LooseRecord;
+    health: LooseRecord;
+    sessionBus: LooseRecord | null;
   } | null;
 };
 
 export function buildWebAppRuntimeLightweightStateResponse(
   state: WebAppRuntimeLightweightState,
-): Record<string, any> {
+): LooseRecord {
   const snapshot = state.snapshot
     ? {
         sessionId: state.snapshot.sessionId,
@@ -104,16 +105,16 @@ export function buildWebAppRuntimeLightweightStateResponse(
         continuity: state.snapshot.continuity || null,
         tasks: Array.isArray(state.snapshot.tasks) ? state.snapshot.tasks : [],
         workflowRuns: Array.isArray(state.snapshot.workflowRuns) ? state.snapshot.workflowRuns : [],
-        toolRuns: Array.isArray((state.snapshot as any).toolRuns) ? (state.snapshot as any).toolRuns : [],
+        toolRuns: Array.isArray((state.snapshot as LooseRecord).toolRuns) ? (state.snapshot as LooseRecord).toolRuns : [],
         filesTouched: Array.from(new Set(
-          Array.isArray((state.snapshot as any).toolRuns)
-            ? (state.snapshot as any).toolRuns.flatMap((run: any) => Array.isArray(run?.filesTouched) ? run.filesTouched : [])
+          Array.isArray((state.snapshot as LooseRecord).toolRuns)
+            ? (state.snapshot as LooseRecord).toolRuns.flatMap((run: any) => Array.isArray(run?.filesTouched) ? run.filesTouched : [])
             : [],
         )),
         taskCount: Array.isArray(state.snapshot.tasks) ? state.snapshot.tasks.length : 0,
-        toolRunCount: Array.isArray((state.snapshot as any).toolRuns) ? (state.snapshot as any).toolRuns.length : 0,
+        toolRunCount: Array.isArray((state.snapshot as LooseRecord).toolRuns) ? (state.snapshot as LooseRecord).toolRuns.length : 0,
         pendingPermissions: Array.isArray(state.snapshot.permissions)
-          ? state.snapshot.permissions.filter((entry: any) => entry?.status === 'pending').length
+          ? state.snapshot.permissions.filter((entry: LooseRecord) => entry?.status === 'pending').length
           : 0,
       }
     : null;
@@ -226,7 +227,7 @@ export function buildWebAppRuntimeProductMode(
   return buildZavorthProductModeSnapshot(config.zavorthProductMode, config.zavorthProfile);
 }
 
-export function buildWebAppRuntimeRecallQueryFromSnapshot(snapshot: Record<string, any> | null | undefined): string {
+export function buildWebAppRuntimeRecallQueryFromSnapshot(snapshot: LooseRecord | null | undefined): string {
   if (!snapshot || typeof snapshot !== 'object') {
     return '';
   }
@@ -318,17 +319,17 @@ export function buildWebAppRuntimeUiSurfaceHints(
 }
 
 export function readWebAppRuntimeChannelReadiness(
-  companionPlane: Record<string, any> | null,
-  resourcePlane: Record<string, any> | null,
+  companionPlane: LooseRecord | null,
+  resourcePlane: LooseRecord | null,
   channelId: 'telegram' | 'discord',
 ): boolean {
   const companionWarnings = Array.isArray(companionPlane?.warnings) ? companionPlane.warnings : [];
   const resourceWarnings = Array.isArray(resourcePlane?.warnings) ? resourcePlane.warnings : [];
   if (channelId === 'telegram') {
-    return !companionWarnings.some((entry) => String(entry || '').toLowerCase().includes('telegram'));
+    return !companionWarnings.some((entry: unknown) => String(entry || '').toLowerCase().includes('telegram'));
   }
-  return !resourceWarnings.some((entry) => String(entry || '').toLowerCase().includes('discord'))
-    && !companionWarnings.some((entry) => String(entry || '').toLowerCase().includes('discord'));
+  return !resourceWarnings.some((entry: unknown) => String(entry || '').toLowerCase().includes('discord'))
+    && !companionWarnings.some((entry: unknown) => String(entry || '').toLowerCase().includes('discord'));
 }
 
 export function isWebAppRuntimeCanonicalSessionPlaneRoute(pathname: string): boolean {

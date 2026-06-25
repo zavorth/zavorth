@@ -1,3 +1,4 @@
+type LooseRecord = any;
 import type {
   HybridMemoryRecallInput,
   HybridMemoryRecallResult,
@@ -87,7 +88,7 @@ export class WebAppGatewayControlService {
   public async buildSelfmodPlane(
     sessionId: string,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     return this.selfmodSupport.buildSelfmodPlane(sessionId, deps);
   }
 
@@ -95,7 +96,7 @@ export class WebAppGatewayControlService {
     sessionId: string,
     deps: WebAppRuntimeRouteDeps,
     limit = 20,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
     const sessionPermissions = Array.isArray(snapshot.permissions) ? snapshot.permissions : [];
     const mutationPlans = deps.mutationPlane
@@ -106,7 +107,7 @@ export class WebAppGatewayControlService {
     return {
       generatedAt: new Date().toISOString(),
       sessionId,
-      pending: sessionPermissions.filter((entry: any) => entry?.status === 'pending').slice(0, limit),
+      pending: sessionPermissions.filter((entry: LooseRecord) => entry?.status === 'pending').slice(0, limit),
       recent: sessionPermissions.slice(0, limit),
       mutationPlans: mutationPlans.map((plan) => ({
         id: plan.id,
@@ -135,7 +136,7 @@ export class WebAppGatewayControlService {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const approvalId = String(input.approvalId || '').trim();
     const decision = String(input.decision || '').trim().toLowerCase();
     if (!approvalId || (decision !== 'approve' && decision !== 'reject')) {
@@ -235,21 +236,21 @@ export class WebAppGatewayControlService {
     sessionId: string,
     deps: WebAppRuntimeRouteDeps,
     input: { toolRunId?: string | null } = {},
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
-    const toolRuns = Array.isArray((snapshot as any).toolRuns) ? (snapshot as any).toolRuns : [];
+    const toolRuns = Array.isArray((snapshot as LooseRecord).toolRuns) ? (snapshot as LooseRecord).toolRuns : [];
     const toolRunId = String(input.toolRunId || '').trim() || null;
     const filteredToolRuns = toolRunId
-      ? toolRuns.filter((entry: any) => String(entry?.runId || '').trim() === toolRunId)
+      ? toolRuns.filter((entry: LooseRecord) => String(entry?.runId || '').trim() === toolRunId)
       : toolRuns;
-    const visibleToolRuns = filteredToolRuns.filter((entry: any) => this.shouldExposeArtifactsForRecord(entry));
+    const visibleToolRuns = filteredToolRuns.filter((entry: LooseRecord) => this.shouldExposeArtifactsForRecord(entry));
     const artifacts = Array.from(new Map(
       visibleToolRuns
-        .flatMap((run: any) => Array.isArray(run?.artifacts) ? run.artifacts.map((artifact: any) => ({
+        .flatMap((run: LooseRecord) => Array.isArray(run?.artifacts) ? run.artifacts.map((artifact: LooseRecord) => ({
           ...artifact,
           toolRunId: run.runId,
         })) : [])
-        .map((artifact: any) => [String(artifact?.id || artifact?.key || `${artifact?.toolRunId}:${artifact?.path || artifact?.name || 'artifact'}`).trim(), artifact]),
+        .map((artifact: LooseRecord) => [String(artifact?.id || artifact?.key || `${artifact?.toolRunId}:${artifact?.path || artifact?.name || 'artifact'}`).trim(), artifact]),
     ).values());
     return {
       ok: true,
@@ -259,7 +260,7 @@ export class WebAppGatewayControlService {
       toolRuns: filteredToolRuns,
       artifacts,
       filesTouched: Array.from(new Set(
-        visibleToolRuns.flatMap((run: any) => Array.isArray(run?.filesTouched) ? run.filesTouched : []),
+        visibleToolRuns.flatMap((run: LooseRecord) => Array.isArray(run?.filesTouched) ? run.filesTouched : []),
       )),
     };
   }
@@ -271,21 +272,21 @@ export class WebAppGatewayControlService {
       path?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const sessionId = String(input.sessionId || '').trim();
     const toolRunId = String(input.toolRunId || '').trim();
     if (!sessionId || !toolRunId) {
       throw new Error('sessionId e toolRunId sao obrigatorios para artifact.diff.');
     }
     const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
-    const toolRuns = Array.isArray((snapshot as any).toolRuns) ? (snapshot as any).toolRuns : [];
-    const toolRun = toolRuns.find((entry: any) => String(entry?.runId || '').trim() === toolRunId) || null;
+    const toolRuns = Array.isArray((snapshot as LooseRecord).toolRuns) ? (snapshot as LooseRecord).toolRuns : [];
+    const toolRun = toolRuns.find((entry: LooseRecord) => String(entry?.runId || '').trim() === toolRunId) || null;
     if (!toolRun) {
       throw new Error('Tool run nao encontrado para esta sessao.');
     }
     const targetPath = String(input.path || '').trim();
     const patches = Array.isArray(toolRun?.diff?.patches)
-      ? toolRun.diff.patches.filter((entry: any) => !targetPath || String(entry?.path || '').trim() === targetPath)
+      ? toolRun.diff.patches.filter((entry: LooseRecord) => !targetPath || String(entry?.path || '').trim() === targetPath)
       : [];
     return {
       ok: true,
@@ -296,14 +297,14 @@ export class WebAppGatewayControlService {
       diff: {
         summary: toolRun?.diff?.summary || null,
         patches,
-        consolidatedDiff: patches.map((entry: any) => String(entry?.diff || '').trim()).filter(Boolean).join('\n\n') || null,
+        consolidatedDiff: patches.map((entry: LooseRecord) => String(entry?.diff || '').trim()).filter(Boolean).join('\n\n') || null,
       },
     };
   }
 
   public async listGatewayCapabilities(
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     return this.capabilitySupport.listGatewayCapabilities(deps);
   }
 
@@ -317,7 +318,7 @@ export class WebAppGatewayControlService {
       sourceSurface?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     return this.capabilitySupport.enableGatewayCapability(input, deps);
   }
 
@@ -327,7 +328,7 @@ export class WebAppGatewayControlService {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     return this.capabilitySupport.disableGatewayCapability(input, deps);
   }
 
@@ -340,7 +341,7 @@ export class WebAppGatewayControlService {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     return this.selfmodSupport.previewGatewaySelfmod(input, deps);
   }
 
@@ -351,7 +352,7 @@ export class WebAppGatewayControlService {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     return this.selfmodSupport.applyGatewaySelfmod(input, deps);
   }
 
@@ -361,7 +362,7 @@ export class WebAppGatewayControlService {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     return this.selfmodSupport.rollbackGatewaySelfmod(input, deps);
   }
 
@@ -371,7 +372,7 @@ export class WebAppGatewayControlService {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<LooseRecord> {
     const sessionId = String(input.sessionId || '').trim();
     if (!sessionId) {
       throw new Error('sessionId obrigatorio para chat.abort.');
@@ -389,7 +390,7 @@ export class WebAppGatewayControlService {
       'retrying',
     ]);
     const tasks = deps.runtime.taskManager.getRecentTasksByChat(chatId, 25) || [];
-    const activeTask = tasks.find((task: any) => activeStatuses.has(String(task?.status || '').trim().toLowerCase())) || null;
+    const activeTask = tasks.find((task: LooseRecord) => activeStatuses.has(String(task?.status || '').trim().toLowerCase())) || null;
     if (!activeTask) {
       return {
         ok: true,
@@ -400,7 +401,7 @@ export class WebAppGatewayControlService {
       };
     }
 
-    const taskManager = deps.runtime.taskManager as any;
+    const taskManager = deps.runtime.taskManager as LooseRecord;
     if (typeof taskManager.saveTask === 'function') {
       taskManager.saveTask({
         ...activeTask,
@@ -424,12 +425,12 @@ export class WebAppGatewayControlService {
     };
   }
 
-  private shouldExposeArtifactsForRecord(record: any): boolean {
+  private shouldExposeArtifactsForRecord(record: LooseRecord | null | undefined): boolean {
     const metadata = record && typeof record.metadata === 'object' ? record.metadata : {};
     return shouldPersistZavorthArtifacts({
       ...metadata,
-      responseDecision: record?.responseDecision || (metadata as any)?.responseDecision,
-      artifactPolicy: record?.artifactPolicy || (metadata as any)?.artifactPolicy,
+      responseDecision: record?.responseDecision || (metadata as LooseRecord)?.responseDecision,
+      artifactPolicy: record?.artifactPolicy || (metadata as LooseRecord)?.artifactPolicy,
     });
   }
 

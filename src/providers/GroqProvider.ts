@@ -18,7 +18,7 @@ export class GroqProvider implements ILlmProvider {
 
   constructor() {
     if (!config.groqApiKey) {
-      throw new Error('GROQ_API_KEY nao configurada no .env');
+      throw new Error('GROQ_API_KEY not configured in .env');
     }
 
     this.client = new OpenAI({

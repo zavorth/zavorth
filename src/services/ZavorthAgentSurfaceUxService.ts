@@ -10,7 +10,7 @@ import type {
   ZavorthSubagentRuntimeSnapshot,
   ZavorthSubagentRuntimeStatus,
   ZavorthSubagentRuntimeTimelineEvent,
-} from '../contracts/ZavorthSubagentRuntimeContract.js';
+} from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 
 export class ZavorthAgentSurfaceUxService {
   public buildSubagentRuntimeResponse(

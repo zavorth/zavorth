@@ -11,7 +11,7 @@ import type {
   ZavorthModelProviderExperienceProviderTier,
   ZavorthModelProviderExperienceRoute,
   ZavorthModelProviderExperienceSnapshot,
-} from '../../../contracts/ZavorthModelProviderExperienceContract.js';
+} from '../../../contracts/native/ZavorthModelProviderExperienceContract.js';
 
 export type ModelProviderExperienceOptions = {
   generatedAt?: string | null;

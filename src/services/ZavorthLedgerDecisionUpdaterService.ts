@@ -1,7 +1,7 @@
 import type {
   ZavorthFunctionalClosureItem,
   ZavorthLedgerDecisionUpdaterSnapshot,
-} from '../contracts/ZavorthFunctionalClosureContract.js';
+} from '../contracts/native/ZavorthFunctionalClosureContract.js';
 
 type Runtime = {
   now?: () => Date;

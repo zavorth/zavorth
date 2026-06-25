@@ -1,7 +1,7 @@
 import type {
   IntelligenceFabricInput,
   IntelligenceFabricSnapshot,
-} from '../contracts/IntelligenceFabricContract.js';
+} from '../contracts/native/IntelligenceFabricContract.js';
 import { ZavorthIntelligenceFabricService } from './ZavorthIntelligenceFabricService.js';
 
 export class ZavorthIntelligenceFabricApiService {

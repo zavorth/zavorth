@@ -28,6 +28,9 @@ import {
   writeZavorthProviderLiveValidationProof,
 } from '../ZavorthProviderLiveValidationService.js';
 import type { ZavorthSetupStudioSnapshot } from './ZavorthSetupStudioSchema.js';
+import { ZavorthFirstBootDetectionService } from '../../services/ZavorthFirstBootDetectionService.js';
+import { FirstRunPersonalizationService } from '../../services/FirstRunPersonalizationService.js';
+import { ZavorthConversationalSetupService } from '../../services/ZavorthConversationalSetupService.js';
 
 export type RunZavorthSetupStudioInput = {
   projectRoot: string;
@@ -86,13 +89,14 @@ export async function runZavorthSetupStudioCommand(
 ): Promise<RunZavorthSetupStudioResult> {
   const args = input.args || [];
   const json = input.json || args.includes('--json');
-  const apply = args.includes('--apply');
+  const nonInteractive = args.includes('--non-interactive');
+  const apply = args.includes('--apply') || (nonInteractive && !args.includes('--dry-run') && !args.includes('--preview'));
   const dryRun = args.includes('--dry-run') || args.includes('--preview') || !apply;
   const wantsTui = args.includes('--tui') || args.includes('--fullscreen');
   const interactive = input.forceInteractive === true || (
     Boolean(process.stdin?.isTTY && process.stdout?.isTTY)
     && !json
-    && !args.includes('--non-interactive')
+    && !nonInteractive
     && (wantsTui || !hasDirectConfiguration(args))
   );
   let answers: SetupStudioCliAnswers;
@@ -156,7 +160,54 @@ export async function runZavorthSetupStudioCommand(
   }
 
   if (apply) {
-    return applySnapshot(snapshot, json);
+    const res = applySnapshot(snapshot, json);
+    if (!dryRun && nonInteractive && !args.includes('--skip-conversational')) {
+      try {
+        const detectionService = new ZavorthFirstBootDetectionService({ cwd: input.projectRoot });
+        const workspaceHint = detectionService.detectWorkspace();
+
+        const personalization = new FirstRunPersonalizationService({ projectRoot: input.projectRoot });
+
+        const convService = new ZavorthConversationalSetupService({ personalization });
+
+        const userName = process.env.USERNAME || process.env.USER || 'Operator';
+        const convSnapshot = convService.buildSnapshot({
+          agentName: 'Zavorth',
+          userName,
+          preferredAddress: userName,
+          language: 'en-US',
+          primaryUse: workspaceHint.suggestedMission,
+          intent: workspaceHint.suggestedMission,
+          apply: true,
+          confirmLocalProfile: true,
+          completeBootstrap: true,
+        });
+
+        if (json) {
+          try {
+            const parsedOutput = JSON.parse(res.output);
+            parsedOutput.conversationalSetup = {
+              status: convSnapshot.status,
+              mission: workspaceHint.suggestedMission,
+            };
+            res.output = `${JSON.stringify(parsedOutput, null, 2)}\n`;
+          } catch {}
+        } else {
+          res.output += `\nConversational setup completed automatically with workspace mission: "${workspaceHint.suggestedMission}"\n`;
+        }
+      } catch (e) {
+        if (json) {
+          try {
+            const parsedOutput = JSON.parse(res.output);
+            parsedOutput.conversationalSetupError = e instanceof Error ? e.message : String(e);
+            res.output = `${JSON.stringify(parsedOutput, null, 2)}\n`;
+          } catch {}
+        } else {
+          res.output += `\nWarning: Auto conversational setup failed: ${e instanceof Error ? e.message : String(e)}\n`;
+        }
+      }
+    }
+    return res;
   }
 
   if (wantsTui && !json) {
@@ -1218,7 +1269,7 @@ function collectArgsAnswers(args: string[]): SetupStudioCliAnswers {
     wakeArgs: readFlag(args, 'wake-args'),
     providerId,
     modelId: readFlag(args, 'model') || readFlag(args, 'model-id') || provider.defaultModel,
-    providerSecret: readFlag(args, 'secret') || readFlag(args, 'provider-secret'),
+    providerSecret: readFlag(args, 'secret') || readFlag(args, 'provider-secret') || readFlag(args, 'key'),
     telegramBotToken: readFlag(args, 'telegram-token'),
     telegramAllowedUserIds: readFlag(args, 'telegram-users') || readFlag(args, 'allowed-users'),
     discordBotToken: readFlag(args, 'discord-token'),
@@ -1320,6 +1371,8 @@ function hasDirectConfiguration(args: string[]): boolean {
     '--wake-default-local',
     '--enable-hooks',
     '--hooks',
+    '--key',
+    '--skip-conversational',
   ].some((name) => arg === name || arg.startsWith(`${name}=`)));
 }
 

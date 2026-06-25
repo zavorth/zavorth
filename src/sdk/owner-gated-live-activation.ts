@@ -1,2 +1,2 @@
-export * from '../contracts/ZavorthOwnerGatedLiveActivationContract.js';
+export * from '../contracts/native/ZavorthOwnerGatedLiveActivationContract.js';
 export * from '../services/ZavorthOwnerGatedLiveActivationService.js';

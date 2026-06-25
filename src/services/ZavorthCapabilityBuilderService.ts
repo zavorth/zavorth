@@ -1,4 +1,4 @@
-import type { IntelligenceCapabilityManifest, IntelligenceFabricSnapshot } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceCapabilityManifest, IntelligenceFabricSnapshot } from '../contracts/native/IntelligenceFabricContract.js';
 import type { CapabilityBuilderProposal, CapabilityBuilderScaffold } from '../contracts/PracticalAgencyContract.js';
 
 export class ZavorthCapabilityBuilderService {

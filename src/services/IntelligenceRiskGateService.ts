@@ -4,7 +4,7 @@ import type {
   IntelligenceRiskActionDecision,
   IntelligenceRiskGateSnapshot,
   IntelligenceTrustMode,
-} from '../contracts/IntelligenceFabricContract.js';
+} from '../contracts/native/IntelligenceFabricContract.js';
 
 const TRUST_TO_LEGACY: Record<IntelligenceTrustMode, IntelligenceLegacyTrustMode> = {
   locked_down: 'protected',

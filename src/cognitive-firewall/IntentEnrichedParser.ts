@@ -17,7 +17,7 @@
  * 3. Se pode pular o fluxo inteiro do ConversationalAgent (p.ex. resposta local)
  */
 
-import { CommandParser, type ParsedCommand } from '../telegram/CommandParser.js';
+import { CommandParser, type ParsedCommand } from '../gateways/channels/telegram/CommandParser.js';
 import { NaturalLanguageRouter, type NaturalRouteDecision } from './NaturalLanguageRouter.js';
 
 export interface IntentEnrichedCommand extends ParsedCommand {

@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { Plan } from '../contracts/PlanContract.js';
 import { Task } from '../contracts/TaskContract.js';
 import { config } from '../config/index.js';
@@ -32,7 +33,7 @@ export class ZavorthBridgeAdapter {
       if (this.logRepo) {
         this.logRepo.log('error', 'ZavorthBridgeAdapter', `Erro no planner: ${error.message}`);
       }
-      console.error('[ZavorthBridgeAdapter] Erro no planner:', error.message);
+      logger.error('[ZavorthBridgeAdapter] Erro no planner:', error.message);
       throw new Error(`Erro do Planejador (${modelName}): ${error.message}`);
     }
   }

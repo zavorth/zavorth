@@ -5,7 +5,7 @@ import type {
   ZavorthFunctionalClosurePriority,
   ZavorthFunctionalClosureReceipt,
   ZavorthFunctionalClosureSnapshot,
-} from '../contracts/ZavorthFunctionalClosureContract.js';
+} from '../contracts/native/ZavorthFunctionalClosureContract.js';
 import { ZavorthFunctionalClosureService } from './ZavorthFunctionalClosureService.js';
 import type {
   ZavorthSemanticFunctionalClosureCertificationSnapshot,

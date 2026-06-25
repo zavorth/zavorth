@@ -12,10 +12,10 @@ import {
   type ZavorthLargeSkillAbsorptionSourceInput,
   type ZavorthLargeSkillAbsorptionSourceResult,
   type ZavorthLargeSkillAbsorptionStatus,
-} from '../contracts/ZavorthLargeSkillAbsorptionContract.js';
+} from '../contracts/native/ZavorthLargeSkillAbsorptionContract.js';
 import type {
   ZavorthGovernedSubagentProfileId,
-} from '../contracts/ZavorthGovernedSubagentContract.js';
+} from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
 import type {
   ZavorthUniversalSkillCandidate,
   ZavorthUniversalSkillIntakePreview,

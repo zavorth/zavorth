@@ -17,7 +17,7 @@ import {
   type IntelligenceTaskKind,
   type IntelligenceVerifierFinding,
   type IntelligenceVerifierSnapshot,
-} from '../contracts/IntelligenceFabricContract.js';
+} from '../contracts/native/IntelligenceFabricContract.js';
 import type { CapabilityHubItem } from '../contracts/CapabilityHubContract.js';
 import { UniversalIntentService } from '../runtime/uni/UniversalIntentService.js';
 import type { UniversalIntentDecision } from '../runtime/uni/UniversalIntentContracts.js';

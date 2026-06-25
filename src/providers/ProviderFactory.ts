@@ -1,23 +1,7 @@
+import { logger } from '../logger.js';
 import { ILlmProvider } from './ILlmProvider.js';
-import { GeminiProvider } from './GeminiProvider.js';
-import { DeepSeekProvider } from './DeepSeekProvider.js';
-import { OpenAIProvider } from './OpenAIProvider.js';
-import { OpenRouterProvider } from './OpenRouterProvider.js';
-import { OpenCodeProvider } from './OpenCodeProvider.js';
-import { QwenProvider } from './QwenProvider.js';
 import { GatewayProvider } from './GatewayProvider.js';
-import { MiniMaxProvider } from './MiniMaxProvider.js';
-import { GroqProvider } from './GroqProvider.js';
-import { XaiProvider } from './XaiProvider.js';
-import { MistralProvider } from './MistralProvider.js';
-import { CerebrasProvider } from './CerebrasProvider.js';
-import { TogetherProvider } from './TogetherProvider.js';
 import { LocalLlamaProvider } from './LocalLlamaProvider.js';
-import { AnthropicDirectProviderAdapter } from '../adapters/providers/AnthropicDirectProviderAdapter.js';
-import { AnthropicVertexProviderAdapter } from '../adapters/providers/AnthropicVertexProviderAdapter.js';
-import { BedrockClaudeProviderAdapter } from '../adapters/providers/BedrockClaudeProviderAdapter.js';
-import { GoogleGenAiProviderAdapter } from '../adapters/providers/GoogleGenAiProviderAdapter.js';
-import { GeminiInteractionsProviderAdapter } from './GeminiInteractionsProviderAdapter.js';
 import { config } from '../config/index.js';
 import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard.js';
 import type { SelectedModelProfile } from '../contracts/ModelPickerContract.js';
@@ -27,6 +11,8 @@ import {
 } from '../services/providers/catalog/ProviderCompatibilityClassifier.js';
 import type { ProviderIntegrationRouteManifest } from '../services/providers/catalog/ProviderIntegrationManifest.js';
 import { getDefaultProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry.js';
+import { ProviderRegistry } from './ProviderRegistry.js';
+import './plugins/index.js';
 
 export type ProviderFactoryRouteInput = Partial<SelectedModelProfile> & {
   baseUrl?: string | null;
@@ -106,23 +92,20 @@ const DEDICATED_OPENAI_COMPATIBLE_PROVIDERS: Record<string, { modelEnv: string; 
 };
 
 /**
- * ProviderFactory - Singleton/Factory para instanciar e gerenciar
- * o ciclo de vida dos provedores LLM.
+ * ProviderFactory - Singleton/Factory to instantiate and manage
+ * the lifecycle of LLM providers.
  */
 export class ProviderFactory {
   private static cache: Map<string, ILlmProvider> = new Map();
 
   public static normalizeProviderName(name: string): string {
     const normalized = String(name || '').trim().toLowerCase();
-    if (normalized === 'ai-gateway' || normalized === 'ai_gateway' || normalized === 'aigateway') {
-      return 'aigateway';
+
+    const registryResolved = ProviderRegistry.resolve(normalized);
+    if (registryResolved) {
+      return registryResolved.name;
     }
-    if (normalized === 'amazon-bedrock' || normalized === 'amazon_bedrock' || normalized === 'aws-bedrock') {
-      return 'bedrock-claude';
-    }
-    if (normalized === 'anthropic' || normalized === 'claude-direct' || normalized === 'anthropic_direct') {
-      return 'anthropic-direct';
-    }
+
     if (normalized === 'google' || normalized === 'google-ai-studio' || normalized === 'google_ai_studio') {
       return 'gemini';
     }
@@ -137,27 +120,10 @@ export class ProviderFactory {
     ) {
       return 'custom-openai-compatible';
     }
-    if (normalized === 'local-llama' || normalized === 'local_llama' || normalized === 'localllama') {
-      return 'ollama';
-    }
-    if (normalized === 'anthropic-sdk') {
-      return 'anthropic-direct';
-    }
-    if (normalized === 'anthropic_vertex' || normalized === 'claude-vertex' || normalized === 'vertex-claude') {
-      return 'anthropic-vertex';
-    }
-    if (normalized === 'bedrock' || normalized === 'aws-bedrock' || normalized === 'bedrock_claude') {
-      return 'bedrock-claude';
-    }
-    if (normalized === 'genai' || normalized === 'google_genai' || normalized === 'google-ai') {
-      return 'google-genai';
-    }
-    if (normalized === 'gemini-interactions' || normalized === 'google-interactions-api' || normalized === 'interactions-api') {
-      return 'gemini-interactions';
-    }
     if (normalized === 'lm-studio' || normalized === 'lm_studio') {
       return 'lmstudio';
     }
+
     return normalized || 'gemini';
   }
 
@@ -228,13 +194,13 @@ export class ProviderFactory {
       genericCompatible: shouldPreserveUnknownFallback ? false : classification.genericCompatible,
       runtimeSupported: shouldPreserveUnknownFallback ? true : classification.runtimeSupported,
       explanation: shouldPreserveUnknownFallback
-        ? [`Provedor "${rawProviderName}" nao declarou compatibilidade; mantendo fallback Gemini legado.`]
+        ? [`Provider "${rawProviderName}" did not declare compatibility; keeping Gemini legacy fallback.`]
         : classification.explanation,
     };
   }
 
   /**
-   * Cria ou obtem um provedor LLM com base no nome legado ou SelectedModelProfile.
+   * Creates or gets an LLM provider based on legacy name or SelectedModelProfile.
    */
   public static create(name: ProviderFactoryCreateInput): ILlmProvider {
     const target = this.resolveRuntimeTarget(name);
@@ -244,36 +210,11 @@ export class ProviderFactory {
       return this.cache.get(target.cacheKey)!;
     }
 
-    let provider: ILlmProvider;
+    let provider: ILlmProvider | null = null;
 
-    if (providerName === 'anthropic-direct') {
-      provider = new AnthropicDirectProviderAdapter({
-        apiKey: target.apiKey,
-        baseUrl: target.baseUrl,
-        modelName: target.modelName,
-      });
-    } else if (providerName === 'anthropic-vertex') {
-      provider = new AnthropicVertexProviderAdapter({
-        modelName: target.modelName,
-      });
-    } else if (providerName === 'bedrock-claude') {
-      provider = new BedrockClaudeProviderAdapter({
-        modelName: target.modelName,
-      });
-    } else if (providerName === 'google-genai') {
-      provider = new GoogleGenAiProviderAdapter({
-        apiKey: target.apiKey,
-        modelName: target.modelName,
-      });
-    } else if (providerName === 'gemini-interactions') {
-      provider = new GeminiInteractionsProviderAdapter({
-        apiKey: target.apiKey,
-        baseUrl: target.baseUrl,
-        modelName: target.modelName,
-      });
-    } else if (target.adapterKind === 'openai_compatible') {
+    if (target.adapterKind === 'openai_compatible') {
       if (!target.baseUrl) {
-        throw new Error(`Provider OpenAI-compatible "${providerName}" precisa de base URL declarada.`);
+        throw new Error(`OpenAI-compatible provider "${providerName}" requires a declared base URL.`);
       }
       provider = new GatewayProvider({
         name: providerName,
@@ -304,67 +245,21 @@ export class ProviderFactory {
         },
       });
     } else {
-      switch (providerName) {
-        case 'gemini':
-          provider = new GeminiProvider();
-          break;
-        case 'deepseek':
-          provider = new DeepSeekProvider();
-          break;
-        case 'openai':
-          provider = new OpenAIProvider();
-          break;
-        case 'minimax':
-          provider = new MiniMaxProvider();
-          break;
-        case 'aigateway':
-          provider = new GatewayProvider();
-          break;
-        case 'qwen':
-        case 'puter':
-          provider = new QwenProvider();
-          break;
-        case 'openrouter':
-          provider = new OpenRouterProvider();
-          break;
-        case 'groq':
-          provider = new GroqProvider();
-          break;
-        case 'xai':
-          provider = new XaiProvider();
-          break;
-        case 'mistral':
-          provider = new MistralProvider();
-          break;
-        case 'cerebras':
-          provider = new CerebrasProvider();
-          break;
-        case 'together':
-          provider = new TogetherProvider();
-          break;
-        case 'opencode':
-          provider = new OpenCodeProvider();
-          break;
-        case 'ollama':
-          provider = new LocalLlamaProvider({
-            baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1',
-            modelName: process.env.OLLAMA_MODEL || 'gemma2:2b',
-          });
-          break;
-        default:
-          console.warn(`Provider "${providerName}" desconhecido. Usando Gemini como fallback.`);
-          provider = new GeminiProvider();
+      provider = ProviderRegistry.create(providerName, target);
+      if (!provider) {
+        logger.warn(`Provider "${providerName}" unknown. Using Gemini as fallback.`);
+        provider = ProviderRegistry.create('gemini', target)!;
       }
     }
 
     provider = wrapLlmProviderWithEgressGuard(provider);
     this.cache.set(target.cacheKey, provider);
-    console.log(`Provider LLM "${providerName}" instanciado com sucesso.`);
+    logger.info(`LLM provider "${providerName}" instantiated successfully.`);
     return provider;
   }
 
   /**
-   * Limpa o cache de provedores (usado pelo /model para forcar re-instanciacao).
+   * Clears the provider cache (used by /model to force re-instantiation).
    */
   public static clearCache(): void {
     this.cache.clear();
@@ -383,8 +278,8 @@ export class ProviderFactory {
         baseUrl: String(input?.baseUrl || input?.baseURL || process.env.ANTHROPIC_BASE_URL || '').trim() || null,
         apiKey: String(input?.apiKey || process.env.ANTHROPIC_API_KEY || '').trim() || null,
         explanation: [
-          'anthropic-direct usa o SDK oficial Anthropic por selecao explicita.',
-          'A rota nao emula API de outro provider e nao executa live sem credencial real.',
+          'anthropic-direct uses the official Anthropic SDK by explicit selection.',
+          'The route does not emulate another provider API and does not execute live without real credentials.',
         ],
       });
     }
@@ -396,8 +291,8 @@ export class ProviderFactory {
         baseUrl: null,
         apiKey: null,
         explanation: [
-          'anthropic-vertex usa o SDK Anthropic Vertex por rota Google Cloud explicita.',
-          'Project, region e identidade cloud ficam fora de receipts secretos.',
+          'anthropic-vertex uses the Anthropic Vertex SDK by explicit Google Cloud route.',
+          'Project, region, and cloud identity remain outside secret receipts.',
         ],
       });
     }
@@ -405,12 +300,12 @@ export class ProviderFactory {
       return this.buildProviderMeshExpansionTarget({
         providerName: normalized,
         adapterKind: 'bespoke',
-        modelName: String(input?.modelName || process.env.BEDROCK_CLAUDE_MODEL || 'anthropic.claude-sonnet-4-5-20250929-v1:0').trim(),
+        modelName: String(input?.modelName || process.env.BEDROCK_CLAUDE_MODEL || 'anthropic.claude-3-5-sonnet-latest-20250929-v1:0').trim(),
         baseUrl: null,
         apiKey: null,
         explanation: [
-          'bedrock-claude usa AWS Bedrock Runtime por selecao explicita.',
-          'A rota nao finge endpoint Anthropic e depende de credenciais AWS normais.',
+          'bedrock-claude uses AWS Bedrock Runtime by explicit selection.',
+          'The route does not pretend to be an Anthropic endpoint and relies on normal AWS credentials.',
         ],
       });
     }
@@ -422,8 +317,8 @@ export class ProviderFactory {
         baseUrl: null,
         apiKey: String(input?.apiKey || process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || '').trim() || null,
         explanation: [
-          'google-genai usa o SDK @google/genai como rota explicita do Provider Mesh.',
-          'O provider Gemini legado continua disponivel separadamente.',
+          'google-genai uses the @google/genai SDK as an explicit Provider Mesh route.',
+          'The legacy Gemini provider remains available separately.',
         ],
       });
     }
@@ -431,12 +326,12 @@ export class ProviderFactory {
       return this.buildProviderMeshExpansionTarget({
         providerName: normalized,
         adapterKind: 'bespoke',
-        modelName: String(input?.modelName || process.env.GEMINI_INTERACTIONS_MODEL || process.env.GEMINI_MODEL || 'gemini-3.5-flash').trim(),
+        modelName: String(input?.modelName || process.env.GEMINI_INTERACTIONS_MODEL || process.env.GEMINI_MODEL || 'gemini-2.5-flash').trim(),
         baseUrl: String(input?.baseUrl || input?.baseURL || process.env.GEMINI_INTERACTIONS_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta').trim(),
         apiKey: String(input?.apiKey || process.env.GEMINI_INTERACTIONS_API_KEY || process.env.GEMINI_API_KEY || '').trim() || null,
         explanation: [
-          'gemini-interactions usa a Interactions API beta para steps observaveis e estado server-side opcional.',
-          'A rota fica opt-in e nao substitui o Gemini generateContent estavel.',
+          'gemini-interactions uses the Interactions API beta for observable steps and optional server-side state.',
+          'The route is opt-in and does not replace the stable Gemini generateContent.',
         ],
       });
     }
@@ -451,8 +346,8 @@ export class ProviderFactory {
         firstClassProvider: false,
         genericCompatible: true,
         explanation: [
-          `${normalized} e tratado como rota local OpenAI-compatible do Provider Mesh.`,
-          'Modelos locais nao devem usar impersonacao Anthropic.',
+          `${normalized} is treated as a local OpenAI-compatible route in the Provider Mesh.`,
+          'Local models should not use Anthropic impersonation.',
         ],
       });
     }
@@ -479,8 +374,8 @@ export class ProviderFactory {
       firstClassProvider: true,
       genericCompatible: true,
       explanation: [
-        `${providerName} usa provider dedicado do Zavorth, preservando metadados e ferramentas nativas do adapter.`,
-        'A API continua OpenAI-compatible, mas nao cai no GatewayProvider generico.',
+        `${providerName} uses a dedicated Zavorth provider, preserving adapter metadata and native tools.`,
+        'The API remains OpenAI-compatible, but does not fall through to the generic GatewayProvider.',
       ],
     });
   }
@@ -586,6 +481,12 @@ export class ProviderFactory {
       voyage: 'https://api.voyageai.com/v1',
       xai: 'https://api.x.ai/v1',
       zai: 'https://open.bigmodel.cn/api/paas/v4',
+      nous: 'https://api.nousresearch.com/v1',
+      novita: 'https://api.novita.ai/v3/openai',
+      arcee: 'https://api.arcee.ai/v2',
+      gmi: 'https://api.gmi.cloud/v1',
+      kilocode: 'https://api.kilocode.ai/v1',
+      xiaomi: 'https://api.xiaomimimo.com/v1',
     };
     return defaults[this.normalizeProviderName(providerName)] || null;
   }

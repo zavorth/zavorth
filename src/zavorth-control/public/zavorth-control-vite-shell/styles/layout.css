@@ -1,0 +1,1233 @@
+/*
+ * Zavorth Nexus — Core Layout
+ * Dock-based navigation at bottom, bridge telemetry at top, viewport in center.
+ */
+
+/* ═══ Core Frame ═══ */
+.core-frame {
+  --dock-height: 72px;
+  --bridge-height: 54px;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: var(--bridge-height) 1fr var(--dock-height);
+  grid-template-areas:
+    "bridge"
+    "viewport"
+    "dock";
+  overflow: hidden;
+  background: var(--b-app-gradient);
+  animation: b-frame-enter 0.3s var(--b-ease-out);
+}
+
+/* Light mode must be designed, not inverted over the dark shell. */
+[data-theme="light"] .core-frame {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+[data-theme="light"] .core-frame::before {
+  opacity: 0.24;
+  filter: blur(46px);
+}
+
+[data-theme="light"] .core-frame::after {
+  opacity: 0.08;
+}
+
+[data-theme="light"] .sidebar,
+[data-theme="light"] .nexus-dock {
+  background: rgba(255, 255, 255, 0.94);
+  border-right-color: rgba(15, 23, 42, 0.12);
+}
+
+[data-theme="light"] .bridge {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(15, 23, 42, 0.1);
+}
+
+[data-theme="light"] .bridge__search,
+[data-theme="light"] .bridge__action-btn,
+[data-theme="light"] .dock-sys-info {
+  background: rgba(248, 250, 252, 0.94);
+  color: #334155;
+}
+
+[data-theme="light"] .dock-node {
+  color: #475569;
+}
+
+[data-theme="light"] .dock-node.active {
+  background: rgba(5, 150, 105, 0.09);
+  color: #064e3b;
+}
+.core-frame::before,
+.core-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.core-frame::before {
+  background: var(--b-aurora-layer);
+  background-size: 160% 160%;
+  filter: blur(34px);
+  opacity: 0.72;
+  transform: translateZ(0);
+  animation: b-aurora-drift 16s var(--b-ease-in-out) infinite;
+}
+.core-frame::after {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--b-surface) 20%, transparent) 0%, transparent 24%),
+    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 7%, transparent) 52%, transparent 100%);
+  opacity: 0.68;
+}
+@supports (height: 100dvh) {
+  .core-frame { height: 100dvh; }
+}
+
+/* ═══ Bridge (Top Telemetry) ═══ */
+.bridge {
+  grid-area: bridge;
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  min-height: var(--bridge-height);
+  border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 60%, transparent);
+  background: color-mix(in srgb, var(--b-glass-strong) 72%, transparent);
+  box-shadow: inset 0 -1px 0 var(--b-glass-highlight);
+  backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  z-index: 40;
+}
+
+.bridge__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.bridge__menu-trigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--b-shell);
+  border-radius: var(--b-radius-md);
+  background: color-mix(in srgb, var(--b-glass) 72%, transparent);
+  color: var(--b-signal-muted);
+  cursor: pointer;
+}
+.bridge__menu-trigger svg {
+  stroke: currentColor; fill: none;
+  stroke-width: 1.5px; stroke-linecap: round;
+}
+.bridge__menu-trigger:hover { color: var(--b-signal); background: var(--b-void-hover); }
+
+.bridge__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bridge__logo {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--b-chrome-strong) 88%, black);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 20%, transparent);
+}
+.bridge__logo-svg { 
+  width: 100%; height: 100%; 
+  display: block; 
+}
+.bridge__logo-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.bridge__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.bridge__brand-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--b-pulse);
+  text-transform: uppercase;
+  font-family: var(--b-font-display);
+}
+
+.bridge__brand-name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--b-signal-strong);
+  font-family: var(--b-font-display);
+}
+
+.bridge__center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bridge__path { color: var(--b-signal-muted); }
+.bridge__path-sep { color: var(--b-signal-dim); }
+.bridge__path-current {
+  color: var(--b-pulse);
+  font-weight: 650;
+  font-family: var(--b-font-display);
+}
+
+.bridge__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bridge__telemetry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bridge__pulse {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--b-ok);
+  padding: 4px 10px 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--b-ok) 20%, transparent);
+  border-radius: var(--b-radius-full);
+  background: var(--b-ok-subtle);
+}
+
+.bridge__pulse-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--b-ok);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+  animation: b-pulse-subtle 2s ease-in-out infinite;
+}
+
+.bridge__pulse[data-auth-state="protected"] {
+  color: var(--b-warn);
+  border-color: color-mix(in srgb, var(--b-warn) 28%, transparent);
+  background: var(--b-warn-subtle);
+}
+.bridge__pulse[data-auth-state="protected"] .bridge__pulse-dot {
+  background: var(--b-warn);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+
+.bridge__pulse[data-auth-state="unlocked"] {
+  color: var(--b-ok);
+  border-color: color-mix(in srgb, var(--b-ok) 28%, transparent);
+  background: var(--b-ok-subtle);
+}
+.bridge__pulse[data-auth-state="unlocked"] .bridge__pulse-dot {
+  background: var(--b-ok);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.bridge__pulse[data-auth-state="local"],
+.bridge__pulse[data-auth-state="checking"] {
+  color: var(--b-info);
+  border-color: color-mix(in srgb, var(--b-info) 24%, transparent);
+  background: color-mix(in srgb, var(--b-info) 8%, transparent);
+}
+.bridge__pulse[data-auth-state="local"] .bridge__pulse-dot,
+.bridge__pulse[data-auth-state="checking"] .bridge__pulse-dot {
+  background: var(--b-info);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.42);
+}
+
+.bridge__pulse-label { font-family: var(--b-font-body); font-size: 11px; text-transform: none; letter-spacing: 0; }
+
+.bridge__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border: 1px solid var(--b-shell);
+  border-radius: var(--b-radius-md);
+  background: color-mix(in srgb, var(--b-glass) 72%, transparent);
+  color: var(--b-signal-muted);
+  cursor: pointer;
+  transition: all var(--b-duration-fast) ease;
+}
+.bridge__action-btn:hover {
+  color: var(--b-signal);
+  background: var(--b-void-hover);
+  border-color: var(--b-shell-strong);
+}
+
+.bridge__search {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--b-shell) 88%, transparent);
+  border-radius: var(--b-radius-full);
+  background: color-mix(in srgb, var(--b-glass) 82%, transparent);
+  box-shadow: inset 0 1px 0 var(--b-glass-highlight);
+  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.55)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.55)) saturate(var(--b-glass-saturate));
+  color: var(--b-signal-muted);
+  font-size: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color var(--b-duration-fast) ease, background var(--b-duration-fast) ease;
+  min-width: 180px;
+}
+.bridge__search:hover {
+  border-color: var(--b-shell-strong);
+  background: var(--b-void-hover);
+  color: var(--b-signal);
+}
+.bridge__search-label { flex: 1; text-align: left; }
+.bridge__search-kbd {
+  padding: 2px 5px;
+  border: 1px solid var(--b-shell);
+  border-radius: var(--b-radius-sm);
+  background: var(--b-void);
+  font-family: var(--b-mono);
+  font-size: 10px;
+  color: var(--b-signal-muted);
+}
+.bridge__search-ghost {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* ═══ Viewport ═══ */
+.viewport {
+  grid-area: viewport;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ═══ Nexus Dock (Bottom Navigation) ═══ */
+.nexus-dock {
+  grid-area: dock;
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 20px;
+  border-top: 1px solid color-mix(in srgb, var(--b-shell) 50%, transparent);
+  background: color-mix(in srgb, var(--b-glass-strong) 76%, transparent);
+  box-shadow: inset 0 1px 0 var(--b-glass-highlight);
+  backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  z-index: 40;
+  overflow: hidden;
+}
+
+.nexus-dock__rail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 900px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 8px 0;
+}
+.nexus-dock__rail::-webkit-scrollbar { display: none; }
+
+.dock-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dock-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--b-shell);
+  margin: 0 6px;
+  flex-shrink: 0;
+}
+
+/* Dock Node */
+.dock-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
+  border-radius: var(--b-radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--b-signal-muted);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--b-duration-fast) ease;
+  min-width: 52px;
+}
+
+.dock-node__glyph {
+  width: 20px; height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.65;
+  transition: opacity var(--b-duration-fast) ease;
+}
+.dock-node__glyph svg {
+  width: 18px; height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dock-node__label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  font-family: var(--b-font-display);
+}
+
+.dock-node:hover {
+  color: var(--b-signal);
+  background: color-mix(in srgb, var(--b-glass) 76%, transparent);
+  border-color: color-mix(in srgb, var(--b-shell) 72%, transparent);
+  box-shadow: var(--b-glass-shadow-soft);
+  text-decoration: none;
+}
+.dock-node:hover .dock-node__glyph { opacity: 1; }
+
+.dock-node.active {
+  color: var(--b-signal-strong);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--b-pulse) 16%, transparent), transparent 58%),
+    color-mix(in srgb, var(--b-glass) 86%, transparent);
+  border-color: color-mix(in srgb, var(--b-pulse) 22%, transparent);
+  box-shadow: 0 -2px 12px color-mix(in srgb, var(--b-pulse) 10%, transparent);
+}
+.dock-node.active .dock-node__glyph {
+  opacity: 1;
+  color: var(--b-pulse);
+}
+
+/* Dock system info */
+.dock-sys-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  font-size: 10px;
+  font-family: var(--b-mono);
+  color: var(--b-signal-dim);
+  flex-shrink: 0;
+}
+.dock-sys-info__status {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dock-sys-info__status--live {
+  background: var(--b-ok);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+.dock-sys-info__status--offline {
+  background: var(--b-danger);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+/* ═══ Mobile ═══ */
+@media (max-width: 768px) {
+  .core-frame {
+    --dock-height: calc(66px + env(safe-area-inset-bottom));
+    --bridge-height: 52px;
+  }
+  .bridge {
+    padding: 0 12px;
+    min-height: var(--bridge-height);
+  }
+  .bridge__left { gap: 8px; }
+  .bridge__menu-trigger { display: none; }
+  .bridge__brand-text { display: none; }
+  .bridge__logo { width: 34px; height: 34px; }
+  .bridge__center { display: none; }
+  .bridge__right { gap: 8px; }
+  .bridge__action-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--b-glass) 78%, transparent);
+  }
+  .bridge__search {
+    min-width: 38px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .bridge__search-label { display: none; }
+  .bridge__search-kbd { display: none; }
+  .bridge__telemetry { display: none; }
+
+  .nexus-dock {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+  .nexus-dock::before,
+  .nexus-dock::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 2;
+    width: 18px;
+    pointer-events: none;
+  }
+  .nexus-dock::before {
+    left: 0;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--b-glass-strong) 88%, transparent), transparent);
+  }
+  .nexus-dock::after {
+    right: 0;
+    background: linear-gradient(270deg, color-mix(in srgb, var(--b-glass-strong) 88%, transparent), transparent);
+  }
+  .nexus-dock__rail {
+    width: 100%;
+    max-width: none;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 0 10px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dock-group { gap: 4px; }
+  .dock-divider { display: none; }
+  .dock-node__label { display: none; }
+  .dock-node {
+    min-width: 46px;
+    height: 46px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 17px;
+    scroll-snap-align: center;
+  }
+  .dock-node__glyph { width: 22px; height: 22px; }
+  .dock-node__glyph svg { width: 20px; height: 20px; }
+  .dock-node.active {
+    border-color: color-mix(in srgb, var(--b-pulse) 34%, transparent);
+    box-shadow: 0 6px 22px color-mix(in srgb, var(--b-pulse) 16%, transparent), inset 0 1px 0 var(--b-glass-highlight);
+  }
+  .dock-sys-info { display: none; }
+}
+
+@media (max-width: 420px) {
+  .bridge { padding: 0 10px; }
+  .bridge__logo { width: 32px; height: 32px; }
+  .bridge__action-btn,
+  .bridge__search {
+    width: 36px;
+    height: 36px;
+  }
+  .nexus-dock {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+  .dock-node {
+    min-width: 44px;
+    height: 44px;
+    border-radius: 16px;
+  }
+}
+
+/* Premium dashboard shell: desktop sidebar, compact top bar, mobile keeps bottom nav */
+@media (min-width: 981px) {
+  .core-frame {
+    --dock-width: 292px;
+    --bridge-height: 64px;
+    grid-template-columns: var(--dock-width) minmax(0, 1fr);
+    grid-template-rows: var(--bridge-height) minmax(0, 1fr);
+    grid-template-areas:
+      "dock bridge"
+      "dock viewport";
+  }
+
+  .bridge {
+    padding: 0 28px;
+    background: color-mix(in srgb, var(--b-chrome-strong) 82%, transparent);
+  }
+
+  .bridge__left .bridge__brand { display: none; }
+
+  .bridge__center {
+    position: static;
+    transform: none;
+    margin-right: auto;
+    padding-left: 2px;
+  }
+
+  .bridge__right { margin-left: auto; }
+  .bridge__search { min-width: 260px; }
+
+  .nexus-dock {
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 18px;
+    height: 100%;
+    padding: 22px 18px;
+    border-top: 0;
+    border-right: 1px solid color-mix(in srgb, var(--b-shell) 66%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--b-glass-highlight) 7%, transparent), transparent 34%),
+      color-mix(in srgb, var(--b-chrome-strong) 92%, transparent);
+    overflow: hidden;
+  }
+
+  .nexus-dock::before {
+    content: "Zavorth\A Control";
+    white-space: pre;
+    display: block;
+    min-height: 64px;
+    padding: 8px 10px 18px 52px;
+    color: var(--b-signal-strong);
+    font-family: var(--b-font-display);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 60%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 10%, transparent), transparent 55%);
+    position: relative;
+  }
+
+  .nexus-dock::after {
+    content: "";
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    border: 1px solid color-mix(in srgb, var(--b-pulse) 30%, transparent);
+    background:
+      url("../assets/zavorth-mascot-mark.svg") center / cover no-repeat,
+      color-mix(in srgb, var(--b-chrome-strong) 88%, black);
+    color: var(--b-pulse);
+    font-family: var(--b-font-display);
+    font-weight: 800;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 16%, transparent);
+  }
+
+  .nexus-dock__rail {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 2px 84px;
+  }
+
+  .dock-group {
+    display: grid;
+    gap: 6px;
+  }
+
+  .dock-group::before {
+    color: var(--b-signal-muted);
+    font-family: var(--b-mono);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0 10px 4px;
+  }
+
+  .dock-group:nth-of-type(1)::before { content: "Operate"; }
+  .dock-group:nth-of-type(2)::before { content: "Agent"; }
+  .dock-group:nth-of-type(3)::before { content: "System"; }
+  .dock-divider { display: none; }
+
+  .dock-node {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
+    min-height: 48px;
+    width: 100%;
+    padding: 0 12px;
+    border-radius: 12px;
+    color: color-mix(in srgb, var(--b-signal) 74%, transparent);
+  }
+
+  .dock-node:hover {
+    background: color-mix(in srgb, var(--b-glass-highlight) 24%, transparent);
+    color: var(--b-signal-strong);
+  }
+
+  .dock-node.active {
+    border-color: color-mix(in srgb, var(--b-pulse) 24%, var(--b-glass-border));
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 12%, transparent), transparent 66%),
+      color-mix(in srgb, var(--b-glass-highlight) 28%, transparent);
+    color: var(--b-signal-strong);
+  }
+
+  .dock-node__glyph {
+    width: 21px;
+    height: 21px;
+    opacity: 0.88;
+  }
+
+  .dock-node__label {
+    display: inline;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .dock-sys-info {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--b-glass-border);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--b-glass-highlight) 16%, transparent);
+  }
+}
+
+@media (max-width: 980px) {
+  .bridge__center { display: none; }
+}
+
+/* Platform polish: compact navigation and calm operator chrome */
+@media (min-width: 981px) {
+  .core-frame {
+    --dock-width: 236px;
+    --bridge-height: 56px;
+  }
+
+  .bridge {
+    padding: 0 22px;
+    border-bottom-color: color-mix(in srgb, var(--b-shell) 42%, transparent);
+    background: color-mix(in srgb, #07110f 92%, transparent);
+  }
+
+  .bridge__center {
+    font-size: 12px;
+  }
+
+  .bridge__search {
+    min-width: 220px;
+    min-height: 32px;
+    border-radius: 16px;
+  }
+
+  .bridge__action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+  }
+
+  .bridge__pulse {
+    min-height: 30px;
+    padding: 3px 10px 3px 8px;
+  }
+
+  .nexus-dock {
+    gap: 12px;
+    padding: 18px 14px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--b-pulse) 5%, transparent), transparent 28%),
+      color-mix(in srgb, #04100d 96%, transparent);
+  }
+
+  .nexus-dock::before {
+    min-height: 54px;
+    padding: 6px 8px 14px 44px;
+    font-size: 16px;
+    border-bottom-color: color-mix(in srgb, var(--b-shell) 52%, transparent);
+    background: transparent;
+  }
+
+  .nexus-dock::after {
+    top: 23px;
+    left: 22px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .nexus-dock__rail {
+    gap: 12px;
+    padding: 0 0 78px;
+  }
+
+  .dock-group {
+    gap: 2px;
+  }
+
+  .dock-group::before {
+    padding: 0 8px 5px;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+
+  .dock-node {
+    min-height: 38px;
+    gap: 10px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border-color: transparent;
+    color: color-mix(in srgb, var(--b-signal-muted) 88%, transparent);
+    box-shadow: none;
+  }
+
+  .dock-node:hover {
+    background: color-mix(in srgb, var(--b-glass-highlight) 14%, transparent);
+    box-shadow: none;
+  }
+
+  .dock-node.active {
+    border-color: color-mix(in srgb, var(--b-pulse) 34%, transparent);
+    background: color-mix(in srgb, var(--b-pulse) 9%, transparent);
+    box-shadow: none;
+  }
+
+  .dock-node__glyph {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dock-node__glyph svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .dock-node__label {
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  .dock-sys-info {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    min-height: 34px;
+    padding: 0 11px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--b-glass-highlight) 10%, transparent);
+  }
+}
+
+/* ==========================================================================
+   Everyday Product Polish
+   Keeps the chat-first shell calm while preserving all existing controls.
+   ========================================================================== */
+
+.core-frame {
+  background:
+    radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--b-pulse) 10%, transparent) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 76% 22%, rgba(255, 255, 255, 0.08) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 38% 78%, color-mix(in srgb, var(--b-warn) 10%, transparent) 0 1px, transparent 1.8px),
+    linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 10%, transparent), transparent 34%),
+    linear-gradient(220deg, color-mix(in srgb, var(--b-warn) 7%, transparent), transparent 42%),
+    linear-gradient(180deg, #050708 0%, #070d11 54%, #040607 100%);
+  background-size: 190px 190px, 260px 260px, 230px 230px, auto, auto, auto;
+}
+
+.core-frame::before {
+  opacity: 0.46;
+  filter: blur(42px);
+}
+
+.core-frame::after {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, transparent 18%),
+    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 5%, transparent) 50%, transparent 100%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 112px);
+  opacity: 0.52;
+}
+
+.bridge {
+  min-height: 58px;
+  padding-inline: 18px;
+  border-bottom-color: color-mix(in srgb, var(--b-glass-border) 76%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--b-glass-highlight) 12%, transparent), transparent),
+    color-mix(in srgb, var(--b-chrome-strong) 82%, transparent);
+}
+
+.bridge__logo {
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 22%, transparent),
+    0 0 18px color-mix(in srgb, var(--b-pulse) 10%, transparent);
+}
+
+.bridge__brand-eyebrow {
+  color: var(--b-signal-muted);
+  letter-spacing: 0.08em;
+}
+
+.bridge__path-current {
+  color: var(--b-signal-strong);
+}
+
+.bridge__search,
+.bridge__action-btn,
+.bridge__pulse {
+  border-color: color-mix(in srgb, var(--b-glass-border) 82%, transparent);
+  background: color-mix(in srgb, var(--b-glass) 56%, transparent);
+}
+
+.bridge__search:hover,
+.bridge__action-btn:hover {
+  border-color: color-mix(in srgb, var(--b-pulse) 28%, var(--b-glass-border));
+  background: color-mix(in srgb, var(--b-glass-strong) 72%, transparent);
+}
+
+.dock-node {
+  border-radius: 8px;
+}
+
+.dock-node.active {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 28%, transparent),
+    0 8px 24px color-mix(in srgb, var(--b-pulse) 8%, transparent);
+}
+
+[data-theme="light"] .core-frame {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(5, 150, 105, 0.10) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 76% 22%, rgba(15, 23, 42, 0.08) 0 1px, transparent 1.7px),
+    linear-gradient(180deg, #ffffff 0%, #f7fbfa 54%, #f8fafc 100%);
+  background-size: 190px 190px, 260px 260px, auto;
+}
+
+/* ==========================================================================
+   Operator Workbench Shell
+   Removes the landing-page glow and keeps the dashboard visually quiet.
+   ========================================================================== */
+
+.core-frame {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px),
+    radial-gradient(circle at 72% 18%, rgba(197, 154, 74, 0.035), transparent 34%),
+    linear-gradient(180deg, #090a0c 0%, #0b0d10 50%, #08090b 100%);
+  background-size: 48px 48px, 48px 48px, auto, auto;
+}
+
+.core-frame::before {
+  opacity: 0.16;
+  filter: blur(54px);
+  background: radial-gradient(circle at 50% 18%, rgba(197, 154, 74, 0.16), transparent 46%);
+}
+
+.core-frame::after {
+  opacity: 0.18;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 22%),
+    repeating-linear-gradient(90deg, transparent 0 111px, rgba(255, 255, 255, 0.018) 112px);
+}
+
+.bridge {
+  min-height: 56px;
+  border-bottom-color: rgba(225, 232, 240, 0.07);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+    rgba(10, 12, 15, 0.94);
+  box-shadow: none;
+}
+
+.bridge__logo {
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 1px rgba(225, 232, 240, 0.08);
+}
+
+.bridge__path-current,
+.bridge__brand-name {
+  color: #e7e9ee;
+}
+
+.bridge__brand-eyebrow,
+.bridge__path,
+.bridge__path-sep {
+  color: #727b88;
+}
+
+.bridge__pulse {
+  color: #7fa7ff;
+  border-color: rgba(90, 134, 220, 0.22);
+  background: rgba(57, 85, 137, 0.10);
+  box-shadow: none;
+}
+
+.bridge__pulse-dot {
+  background: #528bff;
+  box-shadow: 0 0 0 3px rgba(82, 139, 255, 0.13);
+}
+
+.bridge__search,
+.bridge__action-btn {
+  border-color: rgba(225, 232, 240, 0.075);
+  background: rgba(17, 20, 25, 0.72);
+  box-shadow: none;
+}
+
+.bridge__search:hover,
+.bridge__action-btn:hover {
+  border-color: rgba(197, 154, 74, 0.28);
+  background: rgba(22, 26, 32, 0.9);
+}
+
+@media (min-width: 981px) {
+  .nexus-dock {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.026), transparent 20%),
+      rgba(8, 9, 11, 0.98);
+    border-right-color: rgba(225, 232, 240, 0.065);
+  }
+
+  .nexus-dock::before {
+    border-bottom-color: rgba(225, 232, 240, 0.07);
+  }
+
+  .dock-node {
+    color: #818997;
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .dock-node:hover {
+    color: #d7dbe2;
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .dock-node.active {
+    color: #f2f4f7;
+    border-color: rgba(197, 154, 74, 0.20);
+    background: rgba(197, 154, 74, 0.075);
+    box-shadow: inset 0 0 0 1px rgba(197, 154, 74, 0.09);
+  }
+
+  .dock-sys-info {
+    border-color: rgba(225, 232, 240, 0.07);
+    background: rgba(255, 255, 255, 0.035);
+  }
+}
+
+[data-theme="light"] .core-frame {
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.042) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.032) 1px, transparent 1px),
+    linear-gradient(180deg, #f8fafc 0%, #f3f5f8 50%, #f8fafc 100%);
+  background-size: 48px 48px, 48px 48px, auto;
+}
+
+/* Sidebar collapse control */
+.bridge__sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(225, 232, 240, 0.08);
+  border-radius: 11px;
+  background: rgba(17, 20, 25, 0.68);
+  color: #8c95a4;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.bridge__sidebar-toggle:hover {
+  color: #f2f4f7;
+  border-color: rgba(197, 154, 74, 0.34);
+  background: rgba(22, 26, 32, 0.92);
+}
+
+[data-theme="light"] .bridge__sidebar-toggle {
+  color: #475569;
+  border-color: rgba(15, 23, 42, 0.14);
+  background: rgba(248, 250, 252, 0.92);
+}
+
+[data-theme="light"] .bridge__sidebar-toggle:hover {
+  color: #0f172a;
+  border-color: rgba(197, 154, 74, 0.42);
+  background: #fff;
+}
+
+.bridge__sidebar-toggle:active {
+  transform: translateY(1px);
+}
+
+.bridge__sidebar-toggle:focus-visible {
+  outline: 2px solid rgba(197, 154, 74, 0.56);
+  outline-offset: 2px;
+}
+
+.bridge__sidebar-toggle-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentcolor;
+  fill: none;
+  stroke-width: 1.7px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bridge__sidebar-toggle-icon--expand {
+  display: none;
+}
+
+@media (min-width: 981px) {
+  .bridge__sidebar-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+  }
+
+  .core-frame {
+    transition: grid-template-columns 220ms ease;
+  }
+
+  .core-frame.is-sidebar-collapsed {
+    --dock-width: 76px;
+
+    grid-template-columns: var(--dock-width) minmax(0, 1fr);
+  }
+
+  .core-frame.is-sidebar-collapsed .bridge__sidebar-toggle-icon--collapse {
+    display: none;
+  }
+
+  .core-frame.is-sidebar-collapsed .bridge__sidebar-toggle-icon--expand {
+    display: block;
+  }
+
+  .core-frame.is-sidebar-collapsed .nexus-dock {
+    align-items: center;
+    gap: 12px;
+    padding: 18px 10px;
+  }
+
+  .core-frame.is-sidebar-collapsed .nexus-dock::before {
+    content: "";
+    width: 42px;
+    min-height: 50px;
+    padding: 0;
+    border-bottom-color: rgba(225, 232, 240, 0.06);
+    background: transparent;
+  }
+
+  .core-frame.is-sidebar-collapsed .nexus-dock::after {
+    top: 22px;
+    left: 22px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .core-frame.is-sidebar-collapsed .nexus-dock__rail {
+    align-items: center;
+    gap: 10px;
+    padding: 0 0 76px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-group {
+    gap: 6px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-group::before,
+  .core-frame.is-sidebar-collapsed .dock-node__label,
+  .core-frame.is-sidebar-collapsed .dock-sys-info__version {
+    display: none;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-node {
+    justify-content: center;
+    width: 44px;
+    min-width: 44px;
+    min-height: 42px;
+    padding: 0;
+    border-radius: 12px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-node__glyph {
+    width: 19px;
+    height: 19px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-node__glyph svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-sys-info {
+    left: 12px;
+    right: 12px;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0;
+  }
+}

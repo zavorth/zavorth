@@ -5,7 +5,7 @@ import {
   type AgentOsWorkspaceWrite,
   type AgentOsZavorthControlProjection,
 } from '../contracts/AgentOsContract.js';
-import type { IntelligenceFabricInput, IntelligenceFabricSnapshot } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceFabricInput, IntelligenceFabricSnapshot } from '../contracts/native/IntelligenceFabricContract.js';
 import { AgentImmuneSystemService } from './AgentImmuneSystemService.js';
 import { ArchitectureDecisionRecorder } from './ArchitectureDecisionRecorder.js';
 import { FutureComparatorService } from './FutureComparatorService.js';

@@ -1,13 +1,13 @@
 import {
   type ZavorthAutonomySliderLevel,
-} from '../contracts/ZavorthAutonomySliderContract.js';
+} from '../contracts/native/ZavorthAutonomySliderContract.js';
 import {
   ZAVORTH_MODEL_COST_GUARD_CONTRACT_VERSION,
   type ZavorthModelCostGuardContract,
   type ZavorthModelCostGuardDecision,
   type ZavorthModelCostGuardProviderCard,
   type ZavorthModelCostTier,
-} from '../contracts/ZavorthModelCostGuardContract.js';
+} from '../contracts/native/ZavorthModelCostGuardContract.js';
 import {
   ZavorthAutonomySliderService,
   type ZavorthAutonomySliderInput,

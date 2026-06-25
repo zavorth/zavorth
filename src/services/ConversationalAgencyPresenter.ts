@@ -1,4 +1,4 @@
-import type { IntelligenceFabricSnapshot } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceFabricSnapshot } from '../contracts/native/IntelligenceFabricContract.js';
 import type { ConversationalAgencyMessage } from '../contracts/PracticalAgencyContract.js';
 
 const TERM_MAP = [

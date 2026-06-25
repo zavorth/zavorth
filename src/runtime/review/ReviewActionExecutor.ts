@@ -3,7 +3,7 @@ import { WorkspaceApplyPatchTool } from '../../tools/workspace/WorkspaceApplyPat
 import { ZavorthSubagentInvocationGatewayService } from '../../services/ZavorthSubagentInvocationGatewayService.js';
 import type {
   ZavorthSubagentRuntimeSnapshot,
-} from '../../contracts/ZavorthSubagentRuntimeContract.js';
+} from '../../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 import type {
   GovernedReviewActionOutcome,
   GovernedReviewActionStatus,

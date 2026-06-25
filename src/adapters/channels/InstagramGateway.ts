@@ -1,2 +1,2 @@
-export * from '../../gateways/InstagramGateway.js';
-export { InstagramGateway } from '../../gateways/InstagramGateway.js';
+export * from '../../gateways/channels/instagram/InstagramGateway.js';
+export { InstagramGateway } from '../../gateways/channels/instagram/InstagramGateway.js';

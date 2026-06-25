@@ -15,7 +15,7 @@ import {
   type ZavorthToolArgumentRepairReceipt,
   type ZavorthToolParallelismReceipt,
   type ZavorthToolParallelismTask,
-} from '../contracts/ZavorthNativeEngineAbsorptionContract.js';
+} from '../contracts/native/ZavorthNativeEngineAbsorptionContract.js';
 import type {
   ZavorthExternalContractLayerStatus,
 } from '../contracts/ZavorthExternalContractLayerContract.js';

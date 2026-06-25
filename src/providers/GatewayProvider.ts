@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import OpenAI from 'openai';
 import { config } from '../config/index.js';
 import { extractFunctionToolCalls } from './openaiToolCalls.js';
@@ -58,7 +59,7 @@ export class GatewayProvider implements ILlmProvider {
         metadata: nativeToolPayload.metadata,
       };
     } catch (error: any) {
-      console.error('❌ [AIGateway] Erro na requisição:', error?.message || error);
+      logger.error('❌ [AIGateway] Erro na requisição:', error?.message || error);
       throw error;
     }
   }
@@ -80,7 +81,7 @@ export class GatewayProvider implements ILlmProvider {
 
       yield* streamOpenAICompatibleCompletion(stream as any, nativeToolPayload.metadata);
     } catch (error: any) {
-      console.error('❌ [AIGateway] Erro no streaming:', error?.message || error);
+      logger.error('❌ [AIGateway] Erro no streaming:', error?.message || error);
       throw error;
     }
   }

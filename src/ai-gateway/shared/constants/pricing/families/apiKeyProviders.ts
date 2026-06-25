@@ -117,8 +117,8 @@ export const API_KEY_PROVIDER_PRICING = {
     // to cover hyphen-notation IDs (claude-opus-4-6) used by some clients
     "claude-opus-4-6": CLAUDE_OPUS_46_PRICING,
     "claude-sonnet-4-6": CLAUDE_SONNET_46_PRICING,
-    "claude-opus-4-5-20251101": CLAUDE_OPUS_4_PRICING,
-    "claude-sonnet-4-5-20250929": CLAUDE_SONNET_4_PRICING,
+    "claude-3-opus-20240229-20251101": CLAUDE_OPUS_4_PRICING,
+    "claude-3-5-sonnet-latest-20250929": CLAUDE_SONNET_4_PRICING,
     "claude-sonnet-4": CLAUDE_SONNET_4_PRICING,
     "claude-opus-4": CLAUDE_OPUS_4_PRICING,
   },

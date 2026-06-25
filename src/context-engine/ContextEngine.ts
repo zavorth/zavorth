@@ -206,8 +206,10 @@ export class ContextEngine {
 
     messages.push({ role: 'user', content: userMessage, inlineData });
 
+    const merged = this.mergeConsecutiveMessages(messages);
+
     return {
-      messages,
+      messages: merged,
       tools: firewallDecision.tools,
       toolHintProfile: firewallDecision.toolHintProfile,
       recommendedToolNames: firewallDecision.recommendedToolNames,
@@ -379,6 +381,35 @@ export class ContextEngine {
       }
     }
 
+    decision.messages = this.mergeConsecutiveMessages(decision.messages);
+
     return decision;
+  }
+
+  private mergeConsecutiveMessages(messages: ChatMessage[]): ChatMessage[] {
+    const merged: ChatMessage[] = [];
+    for (const msg of messages) {
+      if (merged.length > 0 && merged[merged.length - 1].role === msg.role) {
+        const lastMsg = merged[merged.length - 1];
+        const lastContent = lastMsg.content || '';
+        const newContent = msg.content || '';
+        if (lastContent && newContent) {
+          lastMsg.content = lastContent + '\n\n' + newContent;
+        } else {
+          lastMsg.content = lastContent || newContent || undefined;
+        }
+
+        if (msg.inlineData && msg.inlineData.length > 0) {
+          lastMsg.inlineData = [...(lastMsg.inlineData || []), ...msg.inlineData];
+        }
+
+        if (msg.toolCalls && msg.toolCalls.length > 0) {
+          lastMsg.toolCalls = [...(lastMsg.toolCalls || []), ...msg.toolCalls];
+        }
+      } else {
+        merged.push({ ...msg });
+      }
+    }
+    return merged;
   }
 }

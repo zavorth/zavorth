@@ -170,7 +170,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
 
   private async dnsLookup(args: Record<string, unknown>): Promise<string> {
     const domain = String(args.domain || args.host || '');
-    if (!domain) return 'Error: "domain" is required.`";
+    if (!domain) return 'Error: "domain" is required.';
 
     const recordType = String(args.record_type || 'A');
 
@@ -185,7 +185,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
 
   private async sslCheck(args: Record<string, unknown>): Promise<string> {
     const host = String(args.host || args.domain || '');
-    if (!host) return 'Error: "host" is required.`";
+    if (!host) return 'Error: "host" is required.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -240,7 +240,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
 
   private async latencyTest(args: Record<string, unknown>): Promise<string> {
     const host = String(args.host || '');
-    if (!host) return 'Error: "host" is required.`";
+    if (!host) return 'Error: "host" is required.';
 
     const count = Number(args.count || 10);
 
@@ -281,7 +281,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
 
   private async mtr(args: Record<string, unknown>): Promise<string> {
     const host = String(args.host || '');
-    if (!host) return 'Error: "host" is required.`";
+    if (!host) return 'Error: "host" is required.';
 
     const count = Number(args.count || 10);
 
@@ -296,7 +296,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
 
   private async dig(args: Record<string, unknown>): Promise<string> {
     const domain = String(args.domain || args.host || '');
-    if (!domain) return 'Error: "domain" is required.`";
+    if (!domain) return 'Error: "domain" is required.';
 
     const recordType = String(args.record_type || 'ANY');
 
@@ -311,7 +311,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
 
   private async curlDebug(args: Record<string, unknown>): Promise<string> {
     const url = String(args.url || '');
-    if (!url) return 'Error: "url" is required.`";
+    if (!url) return 'Error: "url" is required.';
 
     try {
       const { execFileSync } = await import('child_process');
@@ -328,7 +328,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
   private async tcpCheck(args: Record<string, unknown>): Promise<string> {
     const host = String(args.host || '');
     const port = Number(args.port || 0);
-    if (!host || !port) return 'Error: "host" and "port" are required.`";
+    if (!host || !port) return 'Error: "host" and "port" are required.';
 
     const timeout = Number(args.timeout_ms || 5000);
 

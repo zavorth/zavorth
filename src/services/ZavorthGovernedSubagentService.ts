@@ -7,8 +7,8 @@ import {
   type ZavorthGovernedSubagentProfileId,
   type ZavorthGovernedSubagentSnapshot,
   type ZavorthGovernedSubagentStatus,
-} from '../contracts/ZavorthGovernedSubagentContract.js';
-import type { ZavorthNativeSkillPresetId } from '../contracts/ZavorthNativeIntelligencePackContract.js';
+} from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
+import type { ZavorthNativeSkillPresetId } from '../contracts/native/ZavorthNativeIntelligencePackContract.js';
 import {
   decideSecurityPolicy,
   type SecurityPolicyBrokerDecision,

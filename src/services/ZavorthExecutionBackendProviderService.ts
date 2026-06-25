@@ -4,7 +4,7 @@ import {
   type ZavorthExecutionBackendProviderInput,
   type ZavorthExecutionBackendProviderSnapshot,
   type ZavorthLiveProof,
-} from '../contracts/ZavorthNativeAutonomySpineContract.js';
+} from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
 import type { ZavorthTerminalBackendSnapshot } from '../contracts/ZavorthTerminalBackendsContract.js';
 import { redactSensitiveText } from './ZavorthNativeAutonomyShared.js';
 

@@ -1,6 +1,6 @@
 import type {
   ZavorthSubagentRuntimeSnapshot,
-} from '../contracts/ZavorthSubagentRuntimeContract.js';
+} from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 
 export const AUTO_SUBAGENT_DECISION_LABEL = 'Auto subagent decision';
 

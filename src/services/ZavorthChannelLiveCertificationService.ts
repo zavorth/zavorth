@@ -4,7 +4,7 @@ import {
   type ZavorthChannelLiveCertificationSnapshot,
   type ZavorthChannelProofResults,
   type ZavorthLiveProof,
-} from '../contracts/ZavorthNativeAutonomySpineContract.js';
+} from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
 import type { ChannelMeshSnapshot, ChannelMeshSnapshotEntry } from '../contracts/ChannelMeshContract.js';
 
 type ChannelLiveCertificationDeps = {

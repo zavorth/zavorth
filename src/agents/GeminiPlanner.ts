@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { Plan } from '../contracts/PlanContract.js';
 import { Task } from '../contracts/TaskContract.js';
 import { config } from '../config/index.js';
@@ -18,7 +19,7 @@ export class GeminiPlanner {
       const result = await this.planner.generatePlan(task, prompt);
       return result.plan;
     } catch (err: any) {
-      console.error('[GeminiPlanner] Erro ao planejar:', err.message);
+      logger.error('[GeminiPlanner] Erro ao planejar:', err.message);
       throw new Error(`Erro do planejador (${modelName}): ${err.message}`);
     }
   }

@@ -1,6 +1,6 @@
 import {
   type ZavorthLargeSkillAbsorptionSourceInput,
-} from '../contracts/ZavorthLargeSkillAbsorptionContract.js';
+} from '../contracts/native/ZavorthLargeSkillAbsorptionContract.js';
 import type { SkillMetadata } from '../skills/SkillLoader.js';
 import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
 import { ZavorthNaturalInvocationRouter } from './ZavorthNaturalInvocationRouter.js';

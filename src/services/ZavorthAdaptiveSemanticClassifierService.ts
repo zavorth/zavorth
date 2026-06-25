@@ -3,12 +3,12 @@ import type {
   ZavorthAdaptiveSemanticClassifier,
   ZavorthAdaptiveSemanticClassifierInput,
   ZavorthAdaptiveSemanticLlmGate,
-} from '../contracts/ZavorthAdaptiveLearningSemanticContract.js';
+} from '../contracts/native/ZavorthAdaptiveLearningSemanticContract.js';
 import type {
   ZavorthAdaptiveLearningLaneId,
   ZavorthAdaptiveLearningSensitivity,
   ZavorthUserModelUse,
-} from '../contracts/ZavorthAdaptiveLearningOsContract.js';
+} from '../contracts/native/ZavorthAdaptiveLearningOsContract.js';
 import type { ZavorthLearningMemoryRisk } from '../contracts/ZavorthMemoryLearningLoopContract.js';
 
 const STYLE_PATTERNS: RegExp[] = [

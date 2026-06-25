@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import OpenAI from 'openai';
 import { config } from '../config/index.js';
 import { extractFunctionToolCalls } from './openaiToolCalls.js';
@@ -20,10 +21,10 @@ export class OpenRouterProvider implements ILlmProvider {
 
   constructor() {
     if (!config.openRouterApiKey) {
-      throw new Error('OPENROUTER_API_KEY nao configurada no .env');
+      throw new Error('OPENROUTER_API_KEY not configured in .env');
     }
 
-    console.log(`[OpenRouter] Inicializado com modelo: ${config.openRouterModel}`);
+    logger.info(`[OpenRouter] Inicializado com modelo: ${config.openRouterModel}`);
     this.client = new OpenAI({
       apiKey: config.openRouterApiKey,
       baseURL: 'https://openrouter.ai/api/v1',
@@ -42,7 +43,7 @@ export class OpenRouterProvider implements ILlmProvider {
     const modelName = options?.modelName || config.openRouterModel;
 
     try {
-      console.log(`[OpenRouter] Chamando modelo: ${modelName}`);
+      logger.info(`[OpenRouter] Chamando modelo: ${modelName}`);
       const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
         providerName: this.name,
         tools,
@@ -78,7 +79,7 @@ export class OpenRouterProvider implements ILlmProvider {
         metadata: nativeToolPayload.metadata,
       };
     } catch (error: any) {
-      console.error('[OpenRouter] Erro na requisicao:', error?.message || error);
+      logger.error('[OpenRouter] Erro na requisicao:', error?.message || error);
       throw error;
     }
   }
@@ -91,7 +92,7 @@ export class OpenRouterProvider implements ILlmProvider {
     const modelName = options?.modelName || config.openRouterModel;
 
     try {
-      console.log(`[OpenRouter] Streaming modelo: ${modelName}`);
+      logger.info(`[OpenRouter] Streaming modelo: ${modelName}`);
       const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
         providerName: this.name,
         tools,
@@ -120,7 +121,7 @@ export class OpenRouterProvider implements ILlmProvider {
 
       yield* streamOpenAICompatibleCompletion(stream as any, nativeToolPayload.metadata);
     } catch (error: any) {
-      console.error('[OpenRouter] Erro no streaming:', error?.message || error);
+      logger.error('[OpenRouter] Erro no streaming:', error?.message || error);
       throw error;
     }
   }

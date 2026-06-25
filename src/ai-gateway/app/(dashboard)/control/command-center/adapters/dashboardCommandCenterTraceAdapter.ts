@@ -146,7 +146,7 @@ function normalizeTraceStatus(value: unknown, kind: DashboardAgentTraceKind): Da
   if (kind === "run.failed") {
     return "failed";
   }
-  return status;
+  return (status || "done") as DashboardEventStatus;
 }
 
 function sanitizeTraceSummary(value: unknown, fallback = "Evento operacional registrado."): string {

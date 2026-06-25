@@ -1041,7 +1041,7 @@ function buildHealthSnapshot(
 function buildHomeSnapshot(input: DashboardCommandCenterAdapterInput): DashboardCommandCenterViewModel["home"] {
   const raw = asRecord(input.home ?? input.runtime?.home ?? input.state?.home);
   const root = asText(raw?.root ?? raw?.homeRoot);
-  if (!root) {
+  if (!root || !raw) {
     return null;
   }
   return {
@@ -1484,3 +1484,5 @@ export function buildDashboardCommandCenterViewModel(
     },
   };
 }
+
+export type { DashboardCommandCenterAdapterInput };

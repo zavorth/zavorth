@@ -4,8 +4,8 @@ import {
   type ZavorthSubagentAutoInvocationRoleTelemetry,
   type ZavorthSubagentAutoInvocationSelectionSource,
   type ZavorthSubagentAutoInvocationTelemetry,
-} from '../contracts/ZavorthSubagentAutoInvocationContract.js';
-import type { ZavorthSubagentRuntimeMode } from '../contracts/ZavorthSubagentRuntimeContract.js';
+} from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
+import type { ZavorthSubagentRuntimeMode } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 
 export type ZavorthSubagentAutoInvocationInput = {
   text: string;

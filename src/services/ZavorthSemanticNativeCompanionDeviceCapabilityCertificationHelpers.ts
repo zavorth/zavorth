@@ -5,7 +5,7 @@ import type {
   ZavorthNativeCompanionDeviceSnapshot,
   ZavorthNativePermissionMode,
   ZavorthNativeRuntimeTarget,
-} from '../contracts/ZavorthNativeCompanionDeviceContract.js';
+} from '../contracts/native/ZavorthNativeCompanionDeviceContract.js';
 import type {
   ZavorthSemanticNativeCompanionDeviceCapabilityCertificationSnapshot,
   ZavorthSemanticNativeCompanionDeviceCapabilityClaim,

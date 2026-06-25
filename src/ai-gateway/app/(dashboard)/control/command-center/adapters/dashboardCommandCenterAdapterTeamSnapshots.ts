@@ -185,7 +185,7 @@ export function buildAgentTeamCompiler(
         kind: asText(receipt.kind, "policy"),
         source: asText(receipt.source, "AgentTeamCompilerService"),
         detail: asText(receipt.detail, "Receipt de team compiler."),
-        status: status === "needs-approval" || status === "missing" ? status : "ready",
+        status: (status === "needs-approval" || status === "missing" ? status : "ready") as "missing" | "ready" | "needs-approval",
       };
     }).slice(0, 12),
     policy: {
@@ -331,7 +331,7 @@ export function buildCrossChannelContinuity(
         kind: asText(receipt.kind, "policy"),
         source: asText(receipt.source, "CrossChannelContinuityService"),
         detail: asText(receipt.detail, "Receipt de continuidade."),
-        status: status === "needs-approval" || status === "missing" ? status : "ready",
+        status: (status === "needs-approval" || status === "missing" ? status : "ready") as "missing" | "ready" | "needs-approval",
       };
     }).slice(0, 12),
     policy: {
@@ -490,7 +490,7 @@ export function buildAskBeforeAssumptionPolicy(
         kind: asText(receipt.kind, "policy"),
         source: asText(receipt.source, "AskBeforeAssumptionPolicyService"),
         detail: asText(receipt.detail, "Receipt da Ask Before Assumption Policy."),
-        status: status === "needs-answer" || status === "missing" ? status : "ready",
+        status: (status === "needs-answer" || status === "missing" ? status : "ready") as "missing" | "ready" | "needs-answer",
       };
     }).slice(0, 12),
     policy: {

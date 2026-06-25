@@ -181,7 +181,7 @@ function mapSidecars(rawSidecars: LooseRecord | null): DashboardRunObservatorySn
 
 function mapDiffPreviews(value: unknown): DashboardRunObservatorySnapshot["diffPreviews"] {
   return asArray<LooseRecord>(value).map((entry) => {
-    const actions = asRecord(entry.actions);
+    const actions = asRecord(entry.actions) || {};
     const observability = asRecord(entry.observability) || {};
     return {
       id: asText(entry.id, "diff-preview:unknown"),

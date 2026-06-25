@@ -16,7 +16,7 @@ import {
   replyWorkflowOperationalSurfaceResponse,
   replyWorkflowStageSurfaceResponse,
   type TelegramWorkflowSurfaceReceiptStatus,
-} from '../../../../telegram/TelegramWorkflowSurfaceResponses.js';
+} from '../../../../gateways/channels/telegram/TelegramWorkflowSurfaceResponses.js';
 
 type MultiAgentPipelineRunnerDeps = {
   executionGateway: PipelineGateway;

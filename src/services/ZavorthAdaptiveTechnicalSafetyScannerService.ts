@@ -2,7 +2,7 @@ import type {
   ZavorthAdaptiveLearningLaneId,
   ZavorthAdaptiveLearningSensitivity,
   ZavorthAdaptiveTechnicalScan,
-} from '../contracts/ZavorthAdaptiveLearningOsContract.js';
+} from '../contracts/native/ZavorthAdaptiveLearningOsContract.js';
 import type { ZavorthLearningMemoryRisk } from '../contracts/ZavorthMemoryLearningLoopContract.js';
 
 const SECRET_PATTERNS: RegExp[] = [

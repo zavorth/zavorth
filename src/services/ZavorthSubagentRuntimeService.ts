@@ -16,18 +16,18 @@ import {
   type ZavorthSubagentRuntimeStatus,
   type ZavorthSubagentRuntimeTimelineEvent,
   type ZavorthSubagentRuntimeWorkerResult,
-} from '../contracts/ZavorthSubagentRuntimeContract.js';
-import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/ZavorthSubagentAutoInvocationContract.js';
+} from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
+import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
 import {
   ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION,
   type ZavorthInvocationReceipt,
   type ZavorthInvocationReceiptKind,
   type ZavorthInvocationReceiptStatus,
-} from '../contracts/ZavorthInvocationReceiptContract.js';
+} from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
 import type {
   ZavorthGovernedSubagentProfile,
   ZavorthGovernedSubagentProfileId,
-} from '../contracts/ZavorthGovernedSubagentContract.js';
+} from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
 import {
   decideSecurityPolicy,
   type SecurityPolicyBrokerDecision,

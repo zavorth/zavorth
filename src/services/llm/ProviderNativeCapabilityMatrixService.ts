@@ -6,7 +6,7 @@ import {
   type ProviderNativeCapabilityEntry,
   type ProviderNativeCapabilityPolicy,
   type ProviderNativeFallbackAssessment,
-} from '../../contracts/ProviderNativeCapabilityContract.js';
+} from '../../contracts/provider/ProviderNativeCapabilityContract.js';
 
 const SAFE_PUBLIC_SEARCH_POLICY: ProviderNativeCapabilityPolicy = {
   risk: 'safe_observation',

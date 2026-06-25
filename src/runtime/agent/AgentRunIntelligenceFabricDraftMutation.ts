@@ -1,4 +1,4 @@
-import type { IntelligenceFabricSnapshot } from '../../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceFabricSnapshot } from '../../contracts/native/IntelligenceFabricContract.js';
 import type { ZavorthMutationPlan } from '../../contracts/ZavorthMutationPlaneContract.js';
 import { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
 import { renderIntelligenceFabricDiffReceipt } from './AgentRunIntelligenceFabricDiffReceiptRenderer.js';

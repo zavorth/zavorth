@@ -2,7 +2,7 @@ import type {
   ZavorthFunctionalClosureItem,
   ZavorthFunctionalClosurePriority,
   ZavorthFunctionalReleaseGateSnapshot,
-} from '../contracts/ZavorthFunctionalClosureContract.js';
+} from '../contracts/native/ZavorthFunctionalClosureContract.js';
 
 type Runtime = {
   now?: () => Date;

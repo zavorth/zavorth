@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import * as os from 'os';
 import { config } from '../config/index.js';
 import type { ChatMessage, ToolDefinition } from '../providers/ILlmProvider.js';
@@ -7,7 +8,7 @@ import {
   type WorkspaceTaskSubtype,
 } from '../services/WorkspaceTaskKind.js';
 import { resolveWorkspaceLlmStrategy } from '../services/WorkspaceLlmProfile.js';
-import { TELEGRAM_COMMAND_CATALOG } from '../telegram/commandCatalog.js';
+import { TELEGRAM_COMMAND_CATALOG } from '../gateways/channels/telegram/commandCatalog.js';
 import {
   CognitiveFirewall,
   type FirewallDecision,
@@ -18,7 +19,7 @@ import type { MessageChannel } from '../contracts/PlatformContract.js';
 import {
   createStructuredAgentRunAction,
   type AgentRunAction,
-} from '../contracts/StructuredAgentRunContract.js';
+} from '../contracts/runtime/StructuredAgentRunContract.js';
 import {
   ExecutionEscalationPolicy,
   type ExecutionEscalationDecision,
@@ -38,7 +39,7 @@ import {
   type ZavorthSubagentAutoInvocationInput,
 } from '../services/ZavorthSubagentAutoInvocationPolicyService.js';
 import { ZavorthSubagentInvocationGatewayService } from '../services/ZavorthSubagentInvocationGatewayService.js';
-import type { ZavorthSubagentRuntimeSnapshot } from '../contracts/ZavorthSubagentRuntimeContract.js';
+import type { ZavorthSubagentRuntimeSnapshot } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type ConversationalResponse = {
@@ -217,7 +218,7 @@ export class ConversationalAgent {
 
     const firewallStats = contextDecision?.firewallStats || firewallDecision?.stats;
     if (firewallStats) {
-      console.log(firewallStats);
+      logger.info(firewallStats);
     }
 
     let { providerName, response } = await this.llmRuntime.chatDetailed(
@@ -315,7 +316,7 @@ export class ConversationalAgent {
     const escalation = this.resolveExecutionEscalation(safeResponseText, mode, options);
 
     if (providerName !== llmStrategy.providerName) {
-      console.log(
+      logger.info(
         `[Fallback] Requisicao servida por ${providerName} (preferencial ${llmStrategy.providerName} falhou)`,
       );
     }

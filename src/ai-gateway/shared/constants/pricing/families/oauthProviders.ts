@@ -19,14 +19,14 @@ export const OAUTH_PROVIDER_PRICING = {
       reasoning: 15.0,
       cache_creation: 3.0,
     },
-    "claude-opus-4-5-20251101": {
+    "claude-3-opus-20240229-20251101": {
       input: 15.0,
       output: 75.0,
       cached: 7.5,
       reasoning: 75.0,
       cache_creation: 15.0,
     },
-    "claude-sonnet-4-5-20250929": {
+    "claude-3-5-sonnet-latest-20250929": {
       input: 3.0,
       output: 15.0,
       cached: 1.5,
@@ -87,7 +87,7 @@ export const OAUTH_PROVIDER_PRICING = {
       reasoning: 9.0,
       cache_creation: 1.5,
     },
-    "gpt-5.2-codex": {
+    "gpt-4o-codex": {
       input: 5.0,
       output: 20.0,
       cached: 2.5,
@@ -95,7 +95,7 @@ export const OAUTH_PROVIDER_PRICING = {
       cache_creation: 5.0,
     },
 
-    "gpt-5.2": {
+    "gpt-4o": {
       input: 5.0,
       output: 20.0,
       cached: 2.5,
@@ -332,7 +332,7 @@ export const OAUTH_PROVIDER_PRICING = {
       reasoning: 18.0,
       cache_creation: 2.0,
     },
-    "gemini-3.1-pro-high": {
+    "gemini-2.5-pro": {
       input: 4.0,
       output: 18.0,
       cached: 0.5,

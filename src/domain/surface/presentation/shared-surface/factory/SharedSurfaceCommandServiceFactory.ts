@@ -27,7 +27,7 @@ import { ZavorthTeamCatalogService } from "../../../../../services/ZavorthTeamCa
 import { ZavorthTenantGovernanceActionService } from "../../../../../services/ZavorthTenantGovernanceActionService.js";
 import { ZavorthTenantGovernanceService } from "../../../../../services/ZavorthTenantGovernanceService.js";
 import { IntegrationHubService } from "../../../../../services/IntegrationHubService.js";
-import { CommandParser } from "../../../../../telegram/CommandParser.js";
+import { CommandParser } from "../../../../../gateways/channels/telegram/CommandParser.js";
 import { DiscordSurfacePolicyService } from "../../../../../services/DiscordSurfacePolicyService.js";
 import { ZavorthNodeMeshService } from "../../../../../services/ZavorthNodeMeshService.js";
 import { NodeCapabilityService } from "../../../../../services/NodeCapabilityService.js";

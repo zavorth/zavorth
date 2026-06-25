@@ -4,7 +4,7 @@ import type {
   AgentOsImpactSimulation,
   AgentOsProjectTwinSnapshot,
 } from '../contracts/AgentOsContract.js';
-import type { IntelligenceFabricClassification } from '../contracts/IntelligenceFabricContract.js';
+import type { IntelligenceFabricClassification } from '../contracts/native/IntelligenceFabricContract.js';
 
 export class FutureComparatorService {
   public compare(input: {

@@ -7,8 +7,8 @@ import type {
   NativeCapabilityClosureSnapshot,
   NativeCapabilityClosureStatus,
   NativeCapabilityClosureStrategy,
-} from '../contracts/NativeCapabilityClosureContract.js';
-import { ZAVORTH_NATIVE_CAPABILITY_CLOSURE_CONTRACT_VERSION } from '../contracts/NativeCapabilityClosureContract.js';
+} from '../contracts/native/NativeCapabilityClosureContract.js';
+import { ZAVORTH_NATIVE_CAPABILITY_CLOSURE_CONTRACT_VERSION } from '../contracts/native/NativeCapabilityClosureContract.js';
 import { CapabilityNormalizationService } from './CapabilityNormalizationService.js';
 import { ReleaseCertificationService } from './ReleaseCertificationService.js';
 

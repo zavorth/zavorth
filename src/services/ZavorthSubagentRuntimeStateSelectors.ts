@@ -2,7 +2,7 @@ import type {
   ZavorthSubagentRuntimeRun,
   ZavorthSubagentRuntimeSession,
   ZavorthSubagentRuntimeStatus,
-} from '../contracts/ZavorthSubagentRuntimeContract.js';
+} from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 
 export function isLatestSubagentReference(value: string): boolean {
   const normalized = value
