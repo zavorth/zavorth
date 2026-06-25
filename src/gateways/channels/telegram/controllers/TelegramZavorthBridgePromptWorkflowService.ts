@@ -110,7 +110,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
       );
 
       void this.finishPrompt(task, startResult);
-    } catch (error: any) {
+    } catch (error: unknown) {
       task.error_summary = error.message;
       this.deps.persistTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
@@ -187,7 +187,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
         task.chat_id as any,
         this.formatPromptCompletion(task, completion),
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       task.error_summary = error.message;
       this.deps.persistTask(task);
       this.deps.taskManager.advanceState(task, 'failed');

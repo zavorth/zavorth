@@ -238,7 +238,7 @@ export class TelegramTaskOrchestrationController {
         surfaceForceApproval,
       });
       return task;
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.deps.logRepo.log('error', 'BotGateway', `Error processing task: ${error.message}`);
       if (!StateMachine.isTerminal(task.status)) {
         this.deps.taskManager.advanceState(task, 'failed');
