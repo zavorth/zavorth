@@ -10,7 +10,7 @@ describe('WhatsAppGateway stub', () => {
     let WhatsAppGateway: any;
 
     jest.isolateModules(() => {
-      ({ WhatsAppGateway } = require('../../src/gateways/WhatsAppGateway.stub'));
+      ({ WhatsAppGateway } = require('../../src/gateways/channels/whatsapp/WhatsAppGateway.stub'));
     });
 
     return WhatsAppGateway;

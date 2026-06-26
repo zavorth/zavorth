@@ -10,7 +10,7 @@ describe('InstagramGateway', () => {
     let InstagramGateway: any;
 
     jest.isolateModules(() => {
-      ({ InstagramGateway } = require('../../src/gateways/InstagramGateway.stub'));
+      ({ InstagramGateway } = require('../../src/gateways/channels/instagram/InstagramGateway.stub'));
     });
 
     return InstagramGateway;

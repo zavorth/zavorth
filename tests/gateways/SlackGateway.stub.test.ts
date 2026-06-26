@@ -11,7 +11,7 @@ describe('SlackGateway stub', () => {
     let SlackGateway: any;
 
     jest.isolateModules(() => {
-      ({ SlackGateway } = require('../../src/gateways/SlackGateway.stub'));
+      ({ SlackGateway } = require('../../src/gateways/channels/slack/SlackGateway.stub'));
     });
 
     return SlackGateway;

@@ -54,10 +54,10 @@ describe('Expanded channel gateways', () => {
     let TeamsGateway: any;
     let EmailGateway: any;
     jest.isolateModules(() => {
-      ({ SignalGateway } = require('../../src/gateways/SignalGateway.stub'));
-      ({ IMessageGateway } = require('../../src/gateways/IMessageGateway.stub'));
-      ({ TeamsGateway } = require('../../src/gateways/TeamsGateway.stub'));
-      ({ EmailGateway } = require('../../src/gateways/EmailGateway.stub'));
+      ({ SignalGateway } = require('../../src/gateways/channels/signal/SignalGateway.stub'));
+      ({ IMessageGateway } = require('../../src/gateways/channels/imessage/IMessageGateway.stub'));
+      ({ TeamsGateway } = require('../../src/gateways/channels/teams/TeamsGateway.stub'));
+      ({ EmailGateway } = require('../../src/gateways/channels/email/EmailGateway.stub'));
     });
 
     const signalGateway = new SignalGateway();
