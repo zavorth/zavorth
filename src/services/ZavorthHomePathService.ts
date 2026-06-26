@@ -7,6 +7,7 @@ import type {
   ZavorthHomeSnapshot,
   ZavorthHomeSource,
 } from '../contracts/ZavorthHomeContract.js';
+import { getInstanceName, resolveInstanceHome } from './ZavorthInstanceService.js';
 
 type ZavorthHomePathServiceOptions = {
   projectRoot: string;
@@ -257,13 +258,20 @@ export class ZavorthHomePathService {
   }
 
   private resolveHomeRoot(source: ZavorthHomeSource): string {
+    let baseRoot: string;
     if (source === 'explicit' && this.explicitHome) {
-      return path.resolve(this.explicitHome);
+      baseRoot = path.resolve(this.explicitHome);
+    } else if (source === 'env') {
+      baseRoot = path.resolve(String(this.env.ZAVORTH_HOME || ''));
+    } else {
+      baseRoot = this.projectRoot;
     }
-    if (source === 'env') {
-      return path.resolve(String(this.env.ZAVORTH_HOME || ''));
+
+    const instanceName = getInstanceName(this.env);
+    if (instanceName !== 'default') {
+      return resolveInstanceHome(baseRoot, instanceName);
     }
-    return this.projectRoot;
+    return baseRoot;
   }
 
   private buildMigrationEntries(paths: ZavorthHomeResolvedPaths): ZavorthHomeMigrationEntry[] {

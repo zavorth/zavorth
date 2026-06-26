@@ -1,0 +1,72 @@
+app:
+  name: Zavorth
+  tagline: Your AI that does things — and proves it
+  mascot: Kael
+
+status:
+  ready: Ready
+  loading: Loading
+  error: Error
+  warning: Warning
+  success: Success
+  idle: Idle
+  active: Active
+  paused: Paused
+  blocked: Blocked
+  offline: Offline
+  online: Online
+
+actions:
+  approve: Approve
+  reject: Reject
+  defer: Defer
+  cancel: Cancel
+  confirm: Confirm
+  save: Save
+  delete: Delete
+  edit: Edit
+  create: Create
+  update: Update
+  retry: Retry
+  back: Back
+  next: Next
+  close: Close
+  open: Open
+  start: Start
+  stop: Stop
+  restart: Restart
+  refresh: Refresh
+  search: Search
+  filter: Filter
+  sort: Sort
+  export: Export
+  import: Import
+  copy: Copy
+  paste: Paste
+  undo: Undo
+  redo: Redo
+
+time:
+  now: now
+  today: today
+  yesterday: yesterday
+  tomorrow: tomorrow
+  seconds_ago: "{count} seconds ago"
+  minutes_ago: "{count} minutes ago"
+  hours_ago: "{count} hours ago"
+  days_ago: "{count} days ago"
+  in_seconds: "in {count} seconds"
+  in_minutes: "in {count} minutes"
+  in_hours: "in {count} hours"
+  in_days: "in {count} days"
+
+units:
+  bytes: B
+  kilobytes: KB
+  megabytes: MB
+  gigabytes: GB
+  milliseconds: ms
+  seconds: s
+  minutes: min
+  hours: h
+  days: d

@@ -1,0 +1,70 @@
+nav:
+  home: Home
+  chat: Chat
+  providers: Providers
+  channels: Channels
+  skills: Skills
+  memory: Memory
+  approvals: Approvals
+  settings: Settings
+  logs: Logs
+  help: Help
+
+home:
+  title: "Dashboard"
+  welcome: "Welcome back, {name}."
+  status: "System Status"
+  recent_activity: "Recent Activity"
+  quick_actions: "Quick Actions"
+
+chat:
+  title: "Chat"
+  placeholder: "Type a message..."
+  send: "Send"
+  thinking: "Thinking..."
+  no_messages: "No messages yet. Start a conversation!"
+  clear: "Clear Chat"
+  export: "Export Chat"
+
+providers:
+  title: "Providers"
+  add: "Add Provider"
+  connected: "Connected"
+  disconnected: "Disconnected"
+  testing: "Testing..."
+  test_connection: "Test Connection"
+  remove: "Remove"
+  configure: "Configure"
+
+channels:
+  title: "Channels"
+  add: "Add Channel"
+  active: "Active"
+  inactive: "Inactive"
+  configure: "Configure"
+  disconnect: "Disconnect"
+
+skills:
+  title: "Skills"
+  installed: "Installed"
+  available: "Available"
+  marketplace: "Marketplace"
+  install: "Install"
+  uninstall: "Uninstall"
+  configure: "Configure"
+
+approvals:
+  title: "Approvals"
+  pending: "Pending"
+  approved: "Approved"
+  rejected: "Rejected"
+  no_pending: "No pending approvals."
+
+settings:
+  title: "Settings"
+  general: "General"
+  security: "Security"
+  appearance: "Appearance"
+  language: "Language"
+  save: "Save Settings"
+  saved: "Settings saved."

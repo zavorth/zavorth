@@ -1,0 +1,50 @@
+app:
+  title: "Zavorth Desktop"
+  loading: "Carregando..."
+
+sidebar:
+  chat: "Chat"
+  workspace: "Área de Trabalho"
+  skills: "Skills"
+  memory: "Memória"
+  channels: "Canais"
+  approvals: "Aprovações"
+  automations: "Automações"
+  settings: "Configurações"
+  providers: "Provedores"
+
+chat:
+  placeholder: "Digite uma mensagem..."
+  send: "Enviar"
+  thinking: "Pensando..."
+  no_messages: "Nenhuma mensagem ainda."
+  clear: "Limpar"
+
+workspace:
+  title: "Área de Trabalho"
+  files: "Arquivos"
+  terminal: "Terminal"
+  explorer: "Explorador"
+
+approvals:
+  title: "Aprovações"
+  pending: "Pendentes"
+  approve: "Aprovar"
+  reject: "Rejeitar"
+  no_pending: "Nenhuma aprovação pendente."
+
+settings:
+  title: "Configurações"
+  language: "Idioma"
+  theme: "Tema"
+  provider: "Provedor"
+  save: "Salvar"
+  saved: "Salvo"
+
+notifications:
+  new_message: "Nova mensagem de {sender}"
+  approval_needed: "Aprovação necessária: {action}"
+  task_completed: "Tarefa concluída: {name}"
+  task_failed: "Tarefa falhou: {name}"
+  connection_lost: "Conexão com {service} perdida"
+  connection_restored: "Conexão com {service} restaurada"

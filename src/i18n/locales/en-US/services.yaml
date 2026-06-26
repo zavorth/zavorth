@@ -1,0 +1,50 @@
+learning:
+  skill_created: "New skill created from experience: {name}"
+  skill_improved: "Skill '{name}' improved based on usage patterns."
+  memory_consolidated: "Memory consolidated. {count} items merged, {pruned} pruned."
+  nudge_applied: "Learning nudge applied: {description}"
+  candidate_pending: "Learning candidate pending review: {type}"
+
+scheduler:
+  task_created: "Scheduled task created: {name}"
+  task_started: "Scheduled task '{name}' started."
+  task_completed: "Scheduled task '{name}' completed."
+  task_failed: "Scheduled task '{name}' failed: {error}"
+  task_paused: "Scheduled task '{name}' paused."
+  task_resumed: "Scheduled task '{name}' resumed."
+  task_removed: "Scheduled task '{name}' removed."
+  no_tasks: "No scheduled tasks."
+
+approval:
+  requested: "Approval requested for: {action}"
+  approved: "Approved by {user}."
+  rejected: "Rejected by {user}."
+  expired: "Approval request expired."
+  auto_approved: "Auto-approved (low risk)."
+
+receipt:
+  created: "Receipt generated: {id}"
+  action: "Action: {action}"
+  result: "Result: {result}"
+  duration: "Duration: {duration}"
+  approved_by: "Approved by: {user}"
+
+swarm:
+  task_assigned: "Task assigned to worker {worker}: {task}"
+  task_completed: "Worker {worker} completed: {task}"
+  task_failed: "Worker {worker} failed: {task}: {error}"
+  synthesis_started: "Synthesis started for {count} results."
+  synthesis_completed: "Synthesis completed."
+
+provider:
+  connected: "Connected to {provider}."
+  disconnected: "Disconnected from {provider}."
+  model_switched: "Switched to model {model} on {provider}."
+  fallback_activated: "Fallback activated: {from} -> {to}"
+
+voice:
+  listening: "Listening..."
+  processing: "Processing audio..."
+  transcription: "Transcription: {text}"
+  tts_generating: "Generating speech..."
+  tts_generated: "Speech generated."

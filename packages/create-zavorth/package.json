@@ -10,6 +10,6 @@
     "README.md",
     "package.json"
   ],
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": false
 }

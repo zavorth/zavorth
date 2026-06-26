@@ -1,0 +1,45 @@
+generic:
+  unexpected: "Ocorreu um erro inesperado: {error}"
+  not_implemented: "Esta funcionalidade ainda não foi implementada."
+  not_supported: "Esta operação não é suportada."
+  invalid_input: "Entrada inválida: {reason}"
+  rate_limited: "Limite de taxa atingido. Tente novamente em {seconds} segundos."
+  unauthorized: "Não autorizado. Verifique suas credenciais."
+  forbidden: "Proibido. Você não tem permissão para realizar esta ação."
+  not_found: "Recurso não encontrado: {resource}"
+  conflict: "Conflito: {reason}"
+  internal: "Erro interno. Tente novamente mais tarde."
+
+provider:
+  api_key_missing: "Chave de API para {provider} não configurada."
+  api_key_invalid: "Chave de API para {provider} inválida."
+  model_not_found: "Modelo '{model}' não encontrado para o provedor '{provider}'."
+  quota_exceeded: "Cota excedida para o provedor '{provider}'."
+  timeout: "Provedor '{provider}' expirou após {seconds} segundos."
+  rate_limit: "Limite de taxa do provedor '{provider}' excedido."
+  unavailable: "Provedor '{provider}' está indisponível no momento."
+
+channel:
+  connection_lost: "Conexão com {channel} perdida."
+  authentication_failed: "Autenticação falhou para {channel}."
+  message_send_failed: "Falha ao enviar mensagem via {channel}: {error}"
+  webhook_invalid: "Payload de webhook inválido de {channel}."
+
+security:
+  approval_required: "Esta ação requer aprovação."
+  approval_expired: "A aprovação expirou. Solicite uma nova."
+  permission_denied: "Permissão negada: {reason}"
+  dangerous_command: "Este comando foi bloqueado pela política de segurança."
+  secret_detected: "Segredo detectado na saída. Redigindo."
+
+memory:
+  load_failed: "Falha ao carregar memória: {error}"
+  save_failed: "Falha ao salvar memória: {error}"
+  search_failed: "Busca na memória falhou: {error}"
+  corrupted: "Dados da memória parecem corrompidos."
+
+skill:
+  load_failed: "Falha ao carregar skill '{skill}': {error}"
+  not_found: "Skill '{skill}' não encontrada."
+  execution_failed: "Execução da skill '{skill}' falhou: {error}"
+  invalid_manifest: "Manifesto inválido para a skill '{skill}'."

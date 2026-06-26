@@ -13,6 +13,8 @@ import { buildProviderConfig } from './providerConfig';
 import { buildRuntimePathConfig } from './runtimePathConfig';
 import { buildSurfaceConfig } from './surfaceConfig';
 import { buildWebRuntimeConfig } from './webRuntimeConfig';
+import { buildLocaleConfig } from './localeConfig';
+import { buildInstanceConfig } from './instanceConfig';
 
 export function buildZavorthConfig() {
   const projectRoot = findProjectRoot();
@@ -45,6 +47,8 @@ export function buildZavorthConfig() {
     ...buildProviderConfig(projectRoot),
     ...buildExecutionHostConfig(projectRoot, defaultProfile, defaultProductMode),
     ...buildRuntimePathConfig(projectRoot, publicTunnelStateFileFallback),
+    ...buildLocaleConfig(),
+    ...buildInstanceConfig(),
   };
 }
 

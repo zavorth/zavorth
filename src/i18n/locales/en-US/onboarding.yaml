@@ -1,0 +1,37 @@
+welcome:
+  title: "Welcome to Zavorth"
+  subtitle: "Let's set up your AI assistant."
+  description: "Zavorth is a governed AI agent that works with local control, explicit trust, and visible receipts."
+
+steps:
+  language:
+    title: "Language"
+    prompt: "Which language should I use?"
+    en: "English"
+    pt: "Portuguese (Brazil)"
+  identity:
+    title: "Identity"
+    agent_name: "What should I call you?"
+    user_name: "What should I call you?"
+  provider:
+    title: "Provider"
+    prompt: "Select your AI provider:"
+    api_key: "Enter your API key:"
+  channels:
+    title: "Channels"
+    prompt: "Which channels do you want to enable?"
+  safety:
+    title: "Safety"
+    prompt: "How should I handle risky actions?"
+    conservative: "Conservative - always ask first"
+    balanced: "Balanced - ask for risky actions"
+    autonomous: "Autonomous - act first, report after"
+  complete:
+    title: "Setup Complete"
+    summary: "Your Zavorth is ready!"
+    next_steps: "Next steps:"
+
+progress:
+  step_of: "Step {current} of {total}"
+  completing: "Completing setup..."
+  almost_done: "Almost done..."

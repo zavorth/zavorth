@@ -1,0 +1,50 @@
+app:
+  title: "Zavorth Desktop"
+  loading: "Loading..."
+
+sidebar:
+  chat: "Chat"
+  workspace: "Workspace"
+  skills: "Skills"
+  memory: "Memory"
+  channels: "Channels"
+  approvals: "Approvals"
+  automations: "Automations"
+  settings: "Settings"
+  providers: "Providers"
+
+chat:
+  placeholder: "Type a message..."
+  send: "Send"
+  thinking: "Thinking..."
+  no_messages: "No messages yet."
+  clear: "Clear"
+
+workspace:
+  title: "Workspace"
+  files: "Files"
+  terminal: "Terminal"
+  explorer: "Explorer"
+
+approvals:
+  title: "Approvals"
+  pending: "Pending"
+  approve: "Approve"
+  reject: "Reject"
+  no_pending: "No pending approvals."
+
+settings:
+  title: "Settings"
+  language: "Language"
+  theme: "Theme"
+  provider: "Provider"
+  save: "Save"
+  saved: "Saved"
+
+notifications:
+  new_message: "New message from {sender}"
+  approval_needed: "Approval needed: {action}"
+  task_completed: "Task completed: {name}"
+  task_failed: "Task failed: {name}"
+  connection_lost: "Connection to {service} lost"
+  connection_restored: "Connection to {service} restored"

@@ -1,0 +1,50 @@
+learning:
+  skill_created: "Nova skill criada a partir de experiência: {name}"
+  skill_improved: "Skill '{name}' melhorada com base em padrões de uso."
+  memory_consolidated: "Memória consolidada. {count} itens unidos, {pruned} removidos."
+  nudge_applied: "Nudge de aprendizado aplicado: {description}"
+  candidate_pending: "Candidato de aprendizado pendente de revisão: {type}"
+
+scheduler:
+  task_created: "Tarefa agendada criada: {name}"
+  task_started: "Tarefa agendada '{name}' iniciada."
+  task_completed: "Tarefa agendada '{name}' concluída."
+  task_failed: "Tarefa agendada '{name}' falhou: {error}"
+  task_paused: "Tarefa agendada '{name}' pausada."
+  task_resumed: "Tarefa agendada '{name}' retomada."
+  task_removed: "Tarefa agendada '{name}' removida."
+  no_tasks: "Nenhuma tarefa agendada."
+
+approval:
+  requested: "Aprovação solicitada para: {action}"
+  approved: "Aprovado por {user}."
+  rejected: "Rejeitado por {user}."
+  expired: "Solicitação de aprovação expirada."
+  auto_approved: "Auto-aprovado (risco baixo)."
+
+receipt:
+  created: "Receipt gerado: {id}"
+  action: "Ação: {action}"
+  result: "Resultado: {result}"
+  duration: "Duração: {duration}"
+  approved_by: "Aprovado por: {user}"
+
+swarm:
+  task_assigned: "Tarefa atribuída ao worker {worker}: {task}"
+  task_completed: "Worker {worker} completou: {task}"
+  task_failed: "Worker {worker} falhou: {task}: {error}"
+  synthesis_started: "Síntese iniciada para {count} resultados."
+  synthesis_completed: "Síntese concluída."
+
+provider:
+  connected: "Conectado a {provider}."
+  disconnected: "Desconectado de {provider}."
+  model_switched: "Modelo alterado para {model} em {provider}."
+  fallback_activated: "Fallback ativado: {from} -> {to}"
+
+voice:
+  listening: "Ouvindo..."
+  processing: "Processando áudio..."
+  transcription: "Transcrição: {text}"
+  tts_generating: "Gerando fala..."
+  tts_generated: "Fala gerada."

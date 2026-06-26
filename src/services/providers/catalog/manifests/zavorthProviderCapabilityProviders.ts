@@ -48,6 +48,33 @@ const REQUIRED_CAPABILITY_ROUTES: CapabilityProviderRoute[] = [
     aliases: ['google-media', 'google-generative-media'],
     credentialRefs: ['GEMINI_API_KEY', 'GOOGLE_API_KEY'],
   }),
+  cloud('assemblyai', 'AssemblyAI', 'https://assemblyai.com', {
+    credentialRefs: ['ASSEMBLYAI_API_KEY'],
+  }),
+  cloud('cartesia', 'Cartesia', 'https://cartesia.ai', {
+    credentialRefs: ['CARTESIA_API_KEY'],
+  }),
+  cloud('playht', 'PlayHT', 'https://play.ht', {
+    credentialRefs: ['PLAYHT_API_KEY', 'PLAYHT_USER_ID'],
+  }),
+  cloud('sdwebui', 'Stable Diffusion WebUI', 'https://github.com/AUTOMATIC1111/stable-diffusion-webui', {
+    mode: 'local',
+    routeKind: 'local_runtime',
+    authKind: 'local_endpoint',
+    credentialRefs: ['SDWEBUI_BASE_URL'],
+  }),
+  cloud('huggingface', 'HuggingFace Inference', 'https://huggingface.co', {
+    credentialRefs: ['HUGGINGFACE_API_KEY', 'HF_TOKEN'],
+  }),
+  cloud('deepinfra', 'DeepInfra', 'https://deepinfra.com', {
+    credentialRefs: ['DEEPINFRA_API_KEY'],
+  }),
+  cloud('runway', 'Runway', 'https://runwayml.com', {
+    credentialRefs: ['RUNWAYML_API_SECRET'],
+  }),
+  cloud('fal', 'fal', 'https://fal.ai', {
+    credentialRefs: ['FAL_KEY'],
+  }),
 ];
 
 export const ZAVORTH_PROVIDER_CAPABILITY_MANIFESTS: ProviderIntegrationManifest[] =
