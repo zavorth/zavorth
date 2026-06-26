@@ -25,6 +25,7 @@ import { RuntimeProfileService } from '../services/RuntimeProfileService.js';
 import { TerminalSidecarService } from '../services/TerminalSidecarService.js';
 import { ChannelProgressRuntimeBridgeService } from '../services/ChannelProgressRuntimeBridgeService.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
+import { UserModelReviewDaemonService } from '../services/UserModelReviewDaemonService.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import {
@@ -234,6 +235,27 @@ export async function initializeBootstrapFoundation(
   }
   // === END CONTEXT ENGINE WIRING ===
 
+  // === USER MODEL REVIEW DAEMON ===
+  let userModelDaemon: UserModelReviewDaemonService | null = null;
+  if (config.userModelDaemonEnabled) {
+    userModelDaemon = new UserModelReviewDaemonService({
+      homeRoot: config.projectRoot,
+      config: {
+        intervalMs: config.userModelDaemonIntervalMs,
+        minTurnsForReview: config.userModelDaemonMinTurns,
+      },
+    });
+    userModelDaemon.start();
+    logRepo.log(
+      'info',
+      'UserModelDaemon',
+      `User model review daemon ativo: interval=${config.userModelDaemonIntervalMs}ms minTurns=${config.userModelDaemonMinTurns}.`,
+    );
+  } else {
+    logRepo.log('info', 'UserModelDaemon', 'User model review daemon desativado por ZAVORTH_USER_MODEL_DAEMON_ENABLED=false.');
+  }
+  // === END USER MODEL REVIEW DAEMON ===
+
   return {
     ...preflight,
     ...toolRuntimeServices,
@@ -248,6 +270,7 @@ export async function initializeBootstrapFoundation(
     maintenanceAutomation,
     skillCuratorPlaneService,
     stopRuntimeMaintenance() {
+      userModelDaemon?.stop();
       goalLoopDaemon?.stop({ daemonId: 'bootstrap-goal-loop-daemon' });
       if (!runtimeMaintenanceTimer) {
         return;
