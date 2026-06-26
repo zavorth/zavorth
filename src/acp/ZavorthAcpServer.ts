@@ -50,6 +50,8 @@ const JSONRPC_PARSE_ERROR = -32700;
 const JSONRPC_INVALID_REQUEST = -32600;
 const JSONRPC_METHOD_NOT_FOUND = -32601;
 const JSONRPC_INTERNAL_ERROR = -32603;
+const MAX_BUFFER_SIZE = 1024 * 1024;
+const MAX_LINE_LENGTH = 64 * 1024;
 
 export class ZavorthAcpServer {
   private readonly manifest: AcpServerManifest;
@@ -93,6 +95,12 @@ export class ZavorthAcpServer {
       this.stdin.setEncoding('utf-8');
       this.stdin.on('data', (chunk: string) => {
         this.buffer += chunk;
+        if (this.buffer.length > MAX_BUFFER_SIZE) {
+          this.log(`Buffer overflow rejected (${this.buffer.length} bytes)`);
+          this.buffer = '';
+          this.sendError(null, JSONRPC_INVALID_REQUEST, 'Message too large');
+          return;
+        }
         this.processBuffer();
       });
       this.stdin.on('end', () => {
@@ -144,6 +152,10 @@ export class ZavorthAcpServer {
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed) continue;
+      if (trimmed.length > MAX_LINE_LENGTH) {
+        this.sendError(null, JSONRPC_INVALID_REQUEST, 'Line too large');
+        continue;
+      }
 
       let request: AcpJsonRpcRequest;
       try {
@@ -373,19 +385,28 @@ export class ZavorthAcpServer {
 
   private async defaultToolExecution(toolName: string, args: Record<string, unknown>): Promise<string> {
     const fs = await import('fs');
-    const path = await import('path');
+    const pathMod = await import('path');
+
+    const cwd = this.getCwd();
+    const containedPath = (target: string): string | null => {
+      const resolved = pathMod.resolve(cwd, target);
+      if (!resolved.startsWith(cwd)) return null;
+      return resolved;
+    };
 
     switch (toolName) {
       case 'Read': {
         const filePath = String(args.path || args.file || '');
         if (!filePath) return 'Error: no file path provided';
-        const resolved = path.resolve(filePath);
+        const resolved = containedPath(filePath);
+        if (!resolved) return 'Error: path traversal denied';
         if (!fs.existsSync(resolved)) return `File not found: ${resolved}`;
         return fs.readFileSync(resolved, 'utf-8');
       }
       case 'LS': {
         const dirPath = String(args.path || args.directory || '.');
-        const resolved = path.resolve(dirPath);
+        const resolved = containedPath(dirPath);
+        if (!resolved) return 'Error: path traversal denied';
         if (!fs.existsSync(resolved)) return `Directory not found: ${resolved}`;
         const entries = fs.readdirSync(resolved, { withFileTypes: true });
         return entries.map((e) => `${e.isDirectory() ? 'd' : 'f'} ${e.name}`).join('\n');
@@ -423,6 +444,13 @@ export class ZavorthAcpServer {
       }
     }
     return [...caps];
+  }
+
+  private getCwd(): string {
+    for (const session of this.sessions.values()) {
+      if (session.status === 'active') return session.cwd;
+    }
+    return process.cwd();
   }
 
   private sendResult(id: string | number, result: unknown): void {
