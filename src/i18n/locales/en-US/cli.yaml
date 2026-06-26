@@ -1,0 +1,59 @@
+welcome: "Welcome to Zavorth, {name}."
+welcome_anonymous: "Welcome to Zavorth."
+
+help:
+  title: "Zavorth CLI Help"
+  usage: "Usage: zavorth <command> [options]"
+  commands: "Commands:"
+  options: "Options:"
+  examples: "Examples:"
+  more_info: "Run 'zavorth <command> --help' for more information on a specific command."
+
+errors:
+  unknown_command: "Unknown command: {command}"
+  missing_argument: "Missing required argument: {argument}"
+  invalid_option: "Invalid option: {option}"
+  config_not_found: "Configuration file not found at {path}"
+  config_invalid: "Invalid configuration: {reason}"
+  provider_not_configured: "Provider '{provider}' is not configured. Run 'zavorth setup' to configure."
+  provider_connection_failed: "Failed to connect to provider '{provider}': {error}"
+  channel_not_configured: "Channel '{channel}' is not configured."
+  channel_connection_failed: "Failed to connect to channel '{channel}': {error}"
+  runtime_not_started: "Runtime is not started. Run 'zavorth start' first."
+  runtime_already_running: "Runtime is already running."
+  permission_denied: "Permission denied: {reason}"
+  file_not_found: "File not found: {path}"
+  network_error: "Network error: {error}"
+  timeout: "Operation timed out after {seconds} seconds."
+
+setup:
+  title: "Zavorth Setup"
+  provider_select: "Select a provider:"
+  channel_select: "Select channels to enable:"
+  language_select: "Select your preferred language:"
+  api_key_prompt: "Enter your API key for {provider}:"
+  success: "Setup completed successfully."
+  cancelled: "Setup cancelled."
+
+doctor:
+  title: "Zavorth Doctor"
+  checking: "Checking system health..."
+  pass: "PASS"
+  fail: "FAIL"
+  warn: "WARN"
+  summary: "{pass} passed, {fail} failed, {warn} warnings"
+
+start:
+  starting: "Starting Zavorth runtime..."
+  started: "Zavorth runtime started on port {port}."
+  failed: "Failed to start runtime: {error}"
+  stopping: "Stopping Zavorth runtime..."
+  stopped: "Zavorth runtime stopped."
+
+chat:
+  you: "You"
+  assistant: "Zavorth"
+  thinking: "Thinking..."
+  error: "Error: {error}"
+  interrupted: "Interrupted."
+  empty_input: "Please enter a message."

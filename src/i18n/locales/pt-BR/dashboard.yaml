@@ -1,0 +1,70 @@
+nav:
+  home: Início
+  chat: Chat
+  providers: Provedores
+  channels: Canais
+  skills: Skills
+  memory: Memória
+  approvals: Aprovações
+  settings: Configurações
+  logs: Logs
+  help: Ajuda
+
+home:
+  title: "Dashboard"
+  welcome: "Bem-vindo de volta, {name}."
+  status: "Status do Sistema"
+  recent_activity: "Atividade Recente"
+  quick_actions: "Ações Rápidas"
+
+chat:
+  title: "Chat"
+  placeholder: "Digite uma mensagem..."
+  send: "Enviar"
+  thinking: "Pensando..."
+  no_messages: "Nenhuma mensagem ainda. Inicie uma conversa!"
+  clear: "Limpar Chat"
+  export: "Exportar Chat"
+
+providers:
+  title: "Provedores"
+  add: "Adicionar Provedor"
+  connected: "Conectado"
+  disconnected: "Desconectado"
+  testing: "Testando..."
+  test_connection: "Testar Conexão"
+  remove: "Remover"
+  configure: "Configurar"
+
+channels:
+  title: "Canais"
+  add: "Adicionar Canal"
+  active: "Ativo"
+  inactive: "Inativo"
+  configure: "Configurar"
+  disconnect: "Desconectar"
+
+skills:
+  title: "Skills"
+  installed: "Instaladas"
+  available: "Disponíveis"
+  marketplace: "Marketplace"
+  install: "Instalar"
+  uninstall: "Desinstalar"
+  configure: "Configurar"
+
+approvals:
+  title: "Aprovações"
+  pending: "Pendentes"
+  approved: "Aprovadas"
+  rejected: "Rejeitadas"
+  no_pending: "Nenhuma aprovação pendente."
+
+settings:
+  title: "Configurações"
+  general: "Geral"
+  security: "Segurança"
+  appearance: "Aparência"
+  language: "Idioma"
+  save: "Salvar Configurações"
+  saved: "Configurações salvas."

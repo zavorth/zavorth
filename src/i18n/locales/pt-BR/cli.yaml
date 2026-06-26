@@ -1,0 +1,59 @@
+welcome: "Bem-vindo ao Zavorth, {name}."
+welcome_anonymous: "Bem-vindo ao Zavorth."
+
+help:
+  title: "Ajuda do CLI Zavorth"
+  usage: "Uso: zavorth <comando> [opções]"
+  commands: "Comandos:"
+  options: "Opções:"
+  examples: "Exemplos:"
+  more_info: "Execute 'zavorth <comando> --help' para mais informações sobre um comando específico."
+
+errors:
+  unknown_command: "Comando desconhecido: {command}"
+  missing_argument: "Argumento obrigatório ausente: {argument}"
+  invalid_option: "Opção inválida: {option}"
+  config_not_found: "Arquivo de configuração não encontrado em {path}"
+  config_invalid: "Configuração inválida: {reason}"
+  provider_not_configured: "O provedor '{provider}' não está configurado. Execute 'zavorth setup' para configurar."
+  provider_connection_failed: "Falha ao conectar ao provedor '{provider}': {error}"
+  channel_not_configured: "O canal '{channel}' não está configurado."
+  channel_connection_failed: "Falha ao conectar ao canal '{channel}': {error}"
+  runtime_not_started: "O runtime não foi iniciado. Execute 'zavorth start' primeiro."
+  runtime_already_running: "O runtime já está em execução."
+  permission_denied: "Permissão negada: {reason}"
+  file_not_found: "Arquivo não encontrado: {path}"
+  network_error: "Erro de rede: {error}"
+  timeout: "Operação expirou após {seconds} segundos."
+
+setup:
+  title: "Configuração do Zavorth"
+  provider_select: "Selecione um provedor:"
+  channel_select: "Selecione os canais para ativar:"
+  language_select: "Selecione seu idioma preferido:"
+  api_key_prompt: "Digite sua chave de API para {provider}:"
+  success: "Configuração concluída com sucesso."
+  cancelled: "Configuração cancelada."
+
+doctor:
+  title: "Zavorth Doctor"
+  checking: "Verificando saúde do sistema..."
+  pass: "PASSOU"
+  fail: "FALHOU"
+  warn: "AVISO"
+  summary: "{pass} passaram, {fail} falharam, {warn} avisos"
+
+start:
+  starting: "Iniciando runtime do Zavorth..."
+  started: "Runtime do Zavorth iniciado na porta {port}."
+  failed: "Falha ao iniciar runtime: {error}"
+  stopping: "Parando runtime do Zavorth..."
+  stopped: "Runtime do Zavorth parado."
+
+chat:
+  you: "Você"
+  assistant: "Zavorth"
+  thinking: "Pensando..."
+  error: "Erro: {error}"
+  interrupted: "Interrompido."
+  empty_input: "Por favor, digite uma mensagem."

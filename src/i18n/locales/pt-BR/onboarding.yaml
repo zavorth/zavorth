@@ -1,0 +1,37 @@
+welcome:
+  title: "Bem-vindo ao Zavorth"
+  subtitle: "Vamos configurar seu assistente de IA."
+  description: "Zavorth é um agente de IA governado que trabalha com controle local, confiança explícita e receipts visíveis."
+
+steps:
+  language:
+    title: "Idioma"
+    prompt: "Qual idioma devo usar?"
+    en: "Inglês"
+    pt: "Português (Brasil)"
+  identity:
+    title: "Identidade"
+    agent_name: "Como devo te chamar?"
+    user_name: "Como devo te chamar?"
+  provider:
+    title: "Provedor"
+    prompt: "Selecione seu provedor de IA:"
+    api_key: "Digite sua chave de API:"
+  channels:
+    title: "Canais"
+    prompt: "Quais canais deseja ativar?"
+  safety:
+    title: "Segurança"
+    prompt: "Como devo lidar com ações arriscadas?"
+    conservative: "Conservador - sempre perguntar primeiro"
+    balanced: "Equilibrado - perguntar para ações arriscadas"
+    autonomous: "Autônomo - agir primeiro, relatar depois"
+  complete:
+    title: "Configuração Completa"
+    summary: "Seu Zavorth está pronto!"
+    next_steps: "Próximos passos:"
+
+progress:
+  step_of: "Passo {current} de {total}"
+  completing: "Completando configuração..."
+  almost_done: "Quase pronto..."

@@ -2,7 +2,7 @@
   "name": "zavorth",
   "version": "2.0.0",
   "description": "Zavorth - local-first governed AI agent runtime with onboarding, CLI, API and supervised execution",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
