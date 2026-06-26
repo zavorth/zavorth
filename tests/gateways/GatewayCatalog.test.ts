@@ -4,12 +4,29 @@ import path from 'path';
 
 const GATEWAYS_DIR = path.resolve(__dirname, '../../src/gateways');
 const CHANNELS_DIR = path.resolve(__dirname, '../../src/channels');
-const CHANNEL_ADAPTERS_DIR = path.join(CHANNELS_DIR, 'adapters');
+const ADAPTERS_DIR = path.resolve(__dirname, '../../src/adapters/channels');
+const CHANNEL_ADAPTERS_DIR = ADAPTERS_DIR;
 const CHANNEL_CONTRACTS_DIR = path.join(CHANNELS_DIR, 'contracts');
 const CHANNEL_POLICIES_DIR = path.join(CHANNELS_DIR, 'policies');
+const CHANNEL_GATEWAYS_DIR = path.join(GATEWAYS_DIR, 'channels');
+
+function resolveGatewayPath(filename: string): string {
+  const direct = path.join(GATEWAYS_DIR, filename);
+  if (fs.existsSync(direct)) return direct;
+  const channelNames = ['telegram', 'discord', 'whatsapp', 'slack', 'signal', 'email', 'imessage', 'teams', 'instagram', 'matrix', 'irc', 'line', 'feishu', 'google-chat', 'qq', 'zalo', 'wecom', 'weixin', 'yuanbao', 'sms', 'home-assistant', 'voice-call', 'google-meet', 'twitch', 'nextcloud-talk', 'mattermost', 'synology-chat', 'nostr', 'clickclack', 'simple'];
+  for (const ch of channelNames) {
+    const candidate = path.join(CHANNEL_GATEWAYS_DIR, ch, filename);
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return direct;
+}
 
 function readGatewayFile(filename: string): string {
-  return fs.readFileSync(path.join(GATEWAYS_DIR, filename), 'utf-8');
+  return fs.readFileSync(resolveGatewayPath(filename), 'utf-8');
+}
+
+function gatewayFileExists(filename: string): boolean {
+  return fs.existsSync(resolveGatewayPath(filename));
 }
 
 const GATEWAY_FILES = [
@@ -71,10 +88,21 @@ const DISCORD_SUBDIR_FILES = [
   'DiscordGatewayReplyService.ts',
 ];
 
+function resolveAdapterPath(filename: string): string {
+  const direct = path.join(CHANNEL_ADAPTERS_DIR, filename);
+  if (fs.existsSync(direct)) return direct;
+  const channelNames = ['telegram', 'discord', 'whatsapp', 'slack', 'signal', 'email', 'imessage', 'teams', 'instagram', 'matrix', 'irc', 'line', 'feishu', 'google-chat', 'qq', 'zalo', 'wecom', 'weixin', 'yuanbao', 'sms', 'home-assistant', 'voice-call', 'google-meet', 'twitch', 'nextcloud-talk', 'mattermost', 'synology-chat', 'nostr', 'clickclack', 'simple'];
+  for (const ch of channelNames) {
+    const candidate = path.join(CHANNEL_GATEWAYS_DIR, ch, filename);
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return direct;
+}
+
 const CHANNEL_ADAPTER_FILES = [
-  'WhatsAppChannelAdapter.ts',
+  'WhatsAppChannelPack.ts',
   'TeamsChannelAdapter.ts',
-  'SlackChannelAdapter.ts',
+  'SlackChannelPack.ts',
   'SignalChannelAdapter.ts',
   'IMessageMacBridgeAdapter.ts',
   'EmailChannelAdapter.ts',
@@ -149,27 +177,27 @@ describe('Gateway file catalog', () => {
     expect(fs.existsSync(path.join(GATEWAYS_DIR, 'discord-gateway'))).toBe(true);
   });
 
-  GATEWAY_FILES.forEach((filename) => {
+    GATEWAY_FILES.forEach((filename) => {
     it(`gateway file exists: ${filename}`, () => {
-      expect(fs.existsSync(path.join(GATEWAYS_DIR, filename))).toBe(true);
+      expect(gatewayFileExists(filename)).toBe(true);
     });
   });
 
   STUB_GATEWAY_FILES.forEach((filename) => {
     it(`stub gateway file exists: ${filename}`, () => {
-      expect(fs.existsSync(path.join(GATEWAYS_DIR, filename))).toBe(true);
+      expect(gatewayFileExists(filename)).toBe(true);
     });
   });
 
   DISCORD_SUBDIR_FILES.forEach((filename) => {
     it(`discord subdir file exists: ${filename}`, () => {
-      expect(fs.existsSync(path.join(GATEWAYS_DIR, 'discord-gateway', filename))).toBe(true);
+      expect(gatewayFileExists(filename)).toBe(true);
     });
   });
 
   CHANNEL_ADAPTER_FILES.forEach((filename) => {
     it(`channel adapter file exists: ${filename}`, () => {
-      expect(fs.existsSync(path.join(CHANNEL_ADAPTERS_DIR, filename))).toBe(true);
+      expect(fs.existsSync(resolveAdapterPath(filename))).toBe(true);
     });
   });
 
@@ -412,7 +440,7 @@ describe('GatewaySurfaceTemplate structure', () => {
 
 describe('Channel adapters structure', () => {
   CHANNEL_ADAPTER_FILES.forEach((filename) => {
-    const content = fs.readFileSync(path.join(CHANNEL_ADAPTERS_DIR, filename), 'utf-8');
+    const content = fs.readFileSync(resolveAdapterPath(filename), 'utf-8');
     const adapterName = filename.replace('.ts', '');
 
     it(`${adapterName} exports a class or function`, () => {
@@ -936,7 +964,7 @@ describe('Gateway configuration checks use config object', () => {
 
 describe('GatewayChannelAdapter files have content', () => {
   CHANNEL_ADAPTER_FILES.forEach((filename) => {
-    const filePath = path.join(CHANNEL_ADAPTERS_DIR, filename);
+    const filePath = resolveAdapterPath(filename);
     const stats = fs.statSync(filePath);
 
     it(`${filename} has non-zero size`, () => {

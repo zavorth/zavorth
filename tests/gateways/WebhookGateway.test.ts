@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { config } from '../../src/config/index.js';
-import { MatrixGateway } from '../../src/gateways/MatrixGateway.js';
+import { MatrixGateway } from '../../src/gateways/channels/simple/MatrixGateway.js';
 
 describe('WebhookGateway live delivery', () => {
   const originalBaseUrl = config.matrixBaseUrl;
