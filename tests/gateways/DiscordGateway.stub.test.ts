@@ -1,4 +1,4 @@
-import { DiscordGateway } from '../../src/gateways/DiscordGateway.stub';
+import { DiscordGateway } from '../../src/gateways/channels/discord/DiscordGateway.stub';
 
 describe('DiscordGateway stub', () => {
   it('tracks started state', async () => {

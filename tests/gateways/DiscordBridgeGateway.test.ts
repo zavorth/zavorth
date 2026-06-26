@@ -5,7 +5,7 @@ import {
   DiscordBridgeGateway,
   signDiscordBridgeEnvelope,
   type DiscordBridgeInboundEnvelope,
-} from '../../src/gateways/DiscordBridgeGateway';
+} from '../../src/adapters/channels/DiscordBridgeGateway';
 import { ZavorthAgentGateway } from '../../src/runtime/agent';
 
 function createTempPaths() {
