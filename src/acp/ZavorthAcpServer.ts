@@ -31,6 +31,7 @@ type AcpServerSession = {
   id: string;
   cwd: string;
   startedAt: Date;
+  endedAt: Date | null;
   status: AcpServerSessionStatus;
   toolCalls: AcpServerSessionReceipt['toolCalls'];
   messagesProcessed: number;
