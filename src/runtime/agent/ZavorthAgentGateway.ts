@@ -162,6 +162,7 @@ export class ZavorthAgentGateway {
 
   constructor(runtime: ZavorthAgentGatewayRuntime = {}) {
     const upstreamOnRunCreated = runtime.onRunCreated;
+    const upstreamOnRunCompleted = runtime.onRunCompleted;
     // Surface entrypoints inherit Fabric defaults through this canonical gateway.
     // Equivalent entrypoint contract: new AgentRunService(runtime), with onRunCreated persistence added below.
     this.runService = new AgentRunService({
@@ -170,6 +171,11 @@ export class ZavorthAgentGateway {
         upstreamOnRunCreated?.(run, request);
         this.inFlightRuns.set(run.id, run);
         this.runs.set(run.id, run);
+        this.persistRuns();
+      },
+      onRunCompleted: (run, request, replyText) => {
+        upstreamOnRunCompleted?.(run, request, replyText);
+        this.inFlightRuns.delete(run.id);
         this.persistRuns();
       },
     });
