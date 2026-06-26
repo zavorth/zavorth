@@ -26,6 +26,7 @@ import { TerminalSidecarService } from '../services/TerminalSidecarService.js';
 import { ChannelProgressRuntimeBridgeService } from '../services/ChannelProgressRuntimeBridgeService.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { UserModelReviewDaemonService } from '../services/UserModelReviewDaemonService.js';
+import { UserModelTurnCaptureService } from '../services/UserModelTurnCaptureService.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import {
@@ -187,6 +188,24 @@ export async function initializeBootstrapFoundation(
     workflowQueueStore: createDefaultAgentWorkflowQueueStore(),
   });
   agentGateway.addRuntimeEventBus(new ChannelProgressRuntimeBridgeService());
+
+  // === USER MODEL TURN CAPTURE ===
+  const turnCapture = new UserModelTurnCaptureService({ homeRoot: config.projectRoot });
+  const existingOnRunCompleted = (agentGateway as any).onRunCompleted;
+  const patchedGateway = agentGateway as any;
+  patchedGateway.runService.onRunCompleted = (run: any, request: any, replyText: string) => {
+    existingOnRunCompleted?.(run, request, replyText);
+    const userMessage = request?.messages?.find((m: any) => m.role === 'user')?.content || '';
+    const surface = request?.surface || request?.channel || 'runtime';
+    if (userMessage) {
+      turnCapture.captureConversation(String(userMessage).slice(0, 5000), replyText.slice(0, 5000), {
+        surface: String(surface),
+        sessionId: run?.id || undefined,
+      });
+    }
+  };
+  logRepo.log('info', 'TurnCapture', 'User model turn capture ativo.');
+  // === END USER MODEL TURN CAPTURE ===
   let goalLoopDaemon: GoalLoopDaemonService | null = null;
   if (config.goalLoopDaemonEnabled) {
     const taskPlane = new TaskPlaneService({

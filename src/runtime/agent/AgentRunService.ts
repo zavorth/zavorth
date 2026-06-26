@@ -198,6 +198,7 @@ export type AgentRunServiceRuntime = {
   intelligenceFabricMode?: AgentRunIntelligenceFabricMode | null;
   steeringStream?: AgentRunSteeringStream | null;
   onRunCreated?: (run: UniversalAgentRun, request: UniversalAgentRequest) => void;
+  onRunCompleted?: (run: UniversalAgentRun, request: UniversalAgentRequest, replyText: string) => void;
 };
 
 export type AgentRunRuntimeEventType =
@@ -339,6 +340,7 @@ export class AgentRunService {
   private readonly llmRuntimeExecutor: AgentRunLlmRuntimeExecutor;
   private readonly steeringStream: AgentRunSteeringStream;
   private readonly onRunCreated: ((run: UniversalAgentRun, request: UniversalAgentRequest) => void) | null;
+  private readonly onRunCompleted: ((run: UniversalAgentRun, request: UniversalAgentRequest, replyText: string) => void) | null;
   private readonly corePipeline: AgentRunCorePipeline<CoreDietBaselineDraft>;
   private readonly executorBoundary: AgentRunExecutorBoundary;
   private readonly swarmHierarchyService: SwarmHierarchyRuntime | null;
@@ -406,6 +408,7 @@ export class AgentRunService {
     this.executor = runtime.executor || null;
     this.steeringStream = runtime.steeringStream || new AgentRunSteeringStream();
     this.onRunCreated = runtime.onRunCreated || null;
+    this.onRunCompleted = runtime.onRunCompleted || null;
     this.llmRuntimeExecutor = new AgentRunLlmRuntimeExecutor({
       llmRuntime: runtime.llmRuntime,
       toolRuntime: runtime.toolRuntime,
@@ -1122,6 +1125,8 @@ export class AgentRunService {
       memorySignalCount: run.memorySignals.length,
     });
     this.applyCapabilityLoopGovernance(run, input);
+
+    this.onRunCompleted?.(run, input, replyText);
 
       return this.replyPipeline.buildResult({
         run,
