@@ -876,3 +876,11 @@ export async function getPtyOutput(workspaceId: string, sessionId: string, after
   const data = requireOk(result, 'Could not get PTY output.');
   return data.data || [];
 }
+
+export async function sendPtyInput(workspaceId: string, sessionId: string, data: string): Promise<void> {
+  await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/pty/input',
+    body: { workspaceId, sessionId, data },
+  });
+}

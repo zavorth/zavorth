@@ -121,6 +121,12 @@ export function deleteInstance(homeRoot: string, instanceName: string, force = f
   }
 
   const instanceDir = resolveInstanceHome(homeRoot, instanceName);
+  const resolvedHome = path.resolve(homeRoot);
+  const resolvedInstance = path.resolve(instanceDir);
+
+  if (!resolvedInstance.startsWith(resolvedHome)) {
+    throw new Error('Path traversal detected in instance name.');
+  }
 
   if (!force) {
     const metaPath = path.join(instanceDir, '.instance-meta.json');

@@ -43,6 +43,17 @@ understand, operate and integrate the agent.
 | [Gateway Control API](/docs/gateway-control-api.md) | Control-plane HTTP surface |
 | [REST v1](/docs/protocol/rest-v1.md) | Public REST contract |
 | [Runtime API v1](/docs/protocol/runtime-api-v1.md) | GUI/API runtime contract |
+| [ACP Server](/docs/acp-server.md) | IDE integration (VS Code, Zed, JetBrains) |
+
+## Configuration & Customization
+
+| Doc | Use it for |
+| --- | --- |
+| [Internationalization](/docs/i18n.md) | Multi-language support (en-US, pt-BR) |
+| [Instance Profiles](/docs/instance-profiles.md) | Multiple isolated runtime instances |
+| [Tools Reference](/docs/tools-reference.md) | Complete list of 88+ built-in tools |
+| [Provider Mesh](/docs/provider-mesh.md) | Provider selection and live readiness |
+| [Channel Mesh](/docs/channel-mesh.md) | Multi-channel status and setup |
 
 ## Documentation Rules
 

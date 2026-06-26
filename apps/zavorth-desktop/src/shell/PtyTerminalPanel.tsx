@@ -1,101 +1,189 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { getPtyOutput } from '../apiClient';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { Terminal } from '@xterm/xterm';
+import { FitAddon } from '@xterm/addon-fit';
+import { Unicode11Addon } from '@xterm/addon-unicode11';
+import '@xterm/xterm/css/xterm.css';
+import { getPtyOutput, sendPtyInput } from '../apiClient';
 
 interface PtyTerminalPanelProps {
   workspaceId: string;
 }
 
+const TERMINAL_THEME = {
+  background: '#0d1117',
+  foreground: '#c9d1d9',
+  cursor: '#58a6ff',
+  cursorAccent: '#0d1117',
+  selectionBackground: '#264f78',
+  black: '#484f58',
+  red: '#ff7b72',
+  green: '#3fb950',
+  yellow: '#d29922',
+  blue: '#58a6ff',
+  magenta: '#bc8cff',
+  cyan: '#39c5cf',
+  white: '#c9d1d9',
+  brightBlack: '#6e7681',
+  brightRed: '#ffa198',
+  brightGreen: '#56d364',
+  brightYellow: '#e3b341',
+  brightBlue: '#79c0ff',
+  brightMagenta: '#d2a8ff',
+  brightCyan: '#56d4dd',
+  brightWhite: '#f0f6fc',
+};
+
 export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
   const [sessions, setSessions] = useState<any[]>([]);
   const [activeSession, setActiveSession] = useState<any | null>(null);
-  const [output, setOutput] = useState<string>('');
-  const [afterSeq, setAfterSeq] = useState<number>(0);
-  const [inputVal, setInputVal] = useState<string>('');
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const outputRef = useRef<HTMLPreElement>(null);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const termRef = useRef<Terminal | null>(null);
+  const fitAddonRef = useRef<FitAddon | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const afterSeqRef = useRef<number>(0);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    let interval: any;
-    if (activeSession && isPanelOpen) {
-      interval = setInterval(async () => {
-        try {
-          const chunks = await getPtyOutput(workspaceId, activeSession.sessionId, afterSeq);
-          if (chunks.length > 0) {
-            let newText = '';
-            let maxSeq = afterSeq;
-            for (const chunk of chunks) {
-              newText += chunk.chunk;
-              if (chunk.seq > maxSeq) maxSeq = chunk.seq;
-            }
-            setOutput(prev => prev + newText);
-            setAfterSeq(maxSeq);
-          }
-        } catch (e) {
-          console.error('PTY output polling error', e);
-        }
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [workspaceId, activeSession, afterSeq, isPanelOpen]);
+  const initTerminal = useCallback(() => {
+    if (termRef.current || !containerRef.current) return;
 
-  useEffect(() => {
-    if (outputRef.current) {
-      outputRef.current.scrollTop = outputRef.current.scrollHeight;
-    }
-  }, [output]);
+    const term = new Terminal({
+      theme: TERMINAL_THEME,
+      fontFamily: '"Cascadia Code", "Fira Code", "JetBrains Mono", Menlo, monospace',
+      fontSize: 14,
+      lineHeight: 1.2,
+      cursorBlink: true,
+      cursorStyle: 'bar',
+      scrollback: 10000,
+      allowProposedApi: true,
+      convertEol: true,
+    });
 
-  // For finding an active session, let's pretend we have an endpoint or we just pick the first one we see from approvals
-  useEffect(() => {
-    const checkSessions = async () => {
-      // Actually we don't have a GET /active-sessions endpoint. We might just rely on the user seeing a pending approval 
-      // and once approved, we could track it locally in the UI state.
-      // But for 21G, let's just make the terminal visible. We can add an endpoint to fetch active sessions if needed.
+    const fitAddon = new FitAddon();
+    const unicodeAddon = new Unicode11Addon();
+
+    term.loadAddon(fitAddon);
+    term.loadAddon(unicodeAddon);
+
+    term.open(containerRef.current);
+    fitAddon.fit();
+
+    termRef.current = term;
+    fitAddonRef.current = fitAddon;
+
+    term.writeln('\x1b[1;36m Zavorth Terminal\x1b[0m');
+    term.writeln('\x1b[90m Ready. Waiting for PTY session...\x1b[0m');
+    term.writeln('');
+
+    term.onData((data) => {
+      if (activeSession) {
+        sendPtyInput(workspaceId, activeSession.sessionId, data).catch(() => {});
+      }
+    });
+
+    const resizeObserver = new ResizeObserver(() => {
+      fitAddon.fit();
+    });
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+      term.dispose();
+      termRef.current = null;
+      fitAddonRef.current = null;
     };
+  }, [workspaceId, activeSession]);
+
+  useEffect(() => {
     if (isPanelOpen) {
-      checkSessions();
+      const cleanup = initTerminal();
+      return cleanup;
     }
-  }, [isPanelOpen]);
+  }, [isPanelOpen, initTerminal]);
+
+  useEffect(() => {
+    if (!activeSession || !isPanelOpen || !termRef.current) return;
+
+    const term = termRef.current;
+    afterSeqRef.current = 0;
+
+    pollingRef.current = setInterval(async () => {
+      try {
+        const chunks = await getPtyOutput(workspaceId, activeSession.sessionId, afterSeqRef.current);
+        if (chunks.length > 0) {
+          let maxSeq = afterSeqRef.current;
+          for (const chunk of chunks) {
+            term.write(chunk.chunk);
+            if (chunk.seq > maxSeq) maxSeq = chunk.seq;
+          }
+          afterSeqRef.current = maxSeq;
+        }
+      } catch (e) {
+        // silent
+      }
+    }, 200);
+
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+  }, [workspaceId, activeSession, isPanelOpen]);
+
+  useEffect(() => {
+    if (fitAddonRef.current && isPanelOpen) {
+      setTimeout(() => fitAddonRef.current?.fit(), 50);
+    }
+  }, [isPanelOpen, isMaximized]);
 
   if (!isPanelOpen) {
     return (
-      <div 
-        className="fixed bottom-0 right-10 bg-slate-800 text-white p-2 rounded-t cursor-pointer z-50 hover:bg-slate-700"
+      <div
+        className="fixed bottom-0 right-10 bg-slate-800 text-white p-2 rounded-t cursor-pointer z-50 hover:bg-slate-700 flex items-center gap-2"
         onClick={() => setIsPanelOpen(true)}
       >
-        Open Terminal
+        <span className="text-green-400">●</span>
+        Terminal
       </div>
     );
   }
 
+  const height = isMaximized ? 'calc(100vh - 60px)' : '320px';
+
   return (
-    <div className="fixed bottom-0 left-10 right-10 h-80 bg-slate-900 border-t border-slate-700 flex flex-col z-50 text-white font-mono text-sm shadow-2xl">
-      <div className="flex justify-between items-center bg-slate-800 p-2 text-xs text-slate-300">
-        <span>PTY Terminal {activeSession ? `(${activeSession.sessionId})` : '(No Session)'}</span>
-        <button onClick={() => setIsPanelOpen(false)} className="hover:text-white px-2">Close</button>
+    <div
+      className="fixed bottom-0 left-0 right-0 bg-[#0d1117] border-t border-slate-700 flex flex-col z-50 shadow-2xl transition-all duration-200"
+      style={{ height }}
+    >
+      <div className="flex justify-between items-center bg-[#161b22] px-3 py-1.5 text-xs text-slate-400 border-b border-slate-700">
+        <div className="flex items-center gap-3">
+          <span className="text-green-400">●</span>
+          <span className="font-medium text-slate-300">
+            PTY {activeSession ? `— ${activeSession.sessionId.slice(0, 8)}` : '— No Session'}
+          </span>
+          {activeSession && (
+            <span className="text-slate-500">│ {activeSession.cwd || '~'}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsMaximized(!isMaximized)}
+            className="hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-700"
+            title={isMaximized ? 'Restore' : 'Maximize'}
+          >
+            {isMaximized ? '❐' : '□'}
+          </button>
+          <button
+            onClick={() => { setIsPanelOpen(false); setIsMaximized(false); }}
+            className="hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-700"
+            title="Close"
+          >
+            ✕
+          </button>
+        </div>
       </div>
-      <div className="flex-1 p-2 overflow-auto text-green-400 bg-black">
-        <pre ref={outputRef} className="whitespace-pre-wrap break-all">{output}</pre>
-      </div>
-      <div className="p-2 bg-slate-800 flex gap-2">
-        <span className="text-blue-400">$</span>
-        <input 
-          type="text" 
-          value={inputVal}
-          onChange={e => setInputVal(e.target.value)}
-          onKeyDown={async e => {
-            if (e.key === 'Enter' && activeSession) {
-              const cmd = inputVal + '\n';
-              setInputVal('');
-              // Just simulate input. The agent uses workspace.pty.write tool. 
-              // The user shouldn't write to the terminal natively, the agent writes, but we could allow user to type.
-              // We won't implement direct UI input writing for the user right now since 21G focuses on agent writing.
-            }
-          }}
-          placeholder={activeSession ? "Agent controls this terminal..." : "Waiting for session..."}
-          className="flex-1 bg-transparent outline-none text-slate-200"
-          readOnly
-        />
-      </div>
+      <div ref={containerRef} className="flex-1 overflow-hidden" />
     </div>
   );
 }
