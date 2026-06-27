@@ -6,7 +6,7 @@ import type { ScheduledTask } from '../storage/SchedulerRepository.js';
 export type AutomationDeliveryRecord = {
   id: string;
   taskId: string;
-  delivery: 'telegram' | 'app' | 'email' | 'webhook';
+  delivery: 'telegram' | 'app' | 'email' | 'webhook' | 'slack' | 'whatsapp' | 'teams';
   status: 'recorded' | 'queued' | 'skipped';
   createdAt: string;
   prompt: string;
@@ -104,6 +104,8 @@ export class ZavorthAutomationDeliveryService {
       this.writeEmailEnvelope(record);
     } else if (normalizedDelivery === 'webhook') {
       this.writeWebhookEnvelope(record);
+    } else if (normalizedDelivery === 'slack' || normalizedDelivery === 'whatsapp' || normalizedDelivery === 'teams') {
+      this.writeChannelEnvelope(record);
     }
 
     return record;
@@ -192,7 +194,7 @@ export class ZavorthAutomationDeliveryService {
       queuedDeliveries,
       webhookQueued: webhookEnvelopes.length,
       emailQueued: emailEnvelopes.length,
-      externalDeliveries: deliveryRecords.filter((entry) => entry.delivery === 'email' || entry.delivery === 'webhook').length,
+      externalDeliveries: deliveryRecords.filter((entry) => entry.delivery === 'email' || entry.delivery === 'webhook' || entry.delivery === 'slack' || entry.delivery === 'whatsapp' || entry.delivery === 'teams').length,
       idempotencyKeys: idempotencyKeys.size,
       lastQueuedAt,
       recommendation:
@@ -239,6 +241,25 @@ export class ZavorthAutomationDeliveryService {
       `${JSON.stringify(envelope)}${process.platform === 'win32' ? '\r\n' : '\n'}`,
       'utf8',
     );
+  }
+
+  private writeChannelEnvelope(record: AutomationDeliveryRecord): void {
+    const channelOutboxDir = path.join(config.runtimeDir, `${record.delivery}-outbox`);
+    this.mkdirSync(channelOutboxDir, { recursive: true });
+    this.pruneOutboxDir(channelOutboxDir, `-automation-${record.delivery}.json`);
+    const envelope = {
+      id: `automation-${record.delivery}-${Date.now()}`,
+      createdAt: record.createdAt,
+      platform: record.delivery,
+      taskId: record.taskId,
+      idempotencyKey: `${record.taskId}:${record.createdAt}:${record.delivery}`,
+      target: record.target,
+      prompt: record.prompt,
+      summary: record.summary,
+      kind: 'automation',
+    };
+    const fileName = `${record.createdAt.replace(/[:.]/g, '-')}-${record.taskId}-automation-${record.delivery}.json`;
+    this.writeFileSync(path.join(channelOutboxDir, fileName), JSON.stringify(envelope, null, 2), 'utf8');
   }
 
   private ensureParentDir(filePath: string): void {
@@ -350,7 +371,8 @@ export class ZavorthAutomationDeliveryService {
 
   private normalizeDelivery(value: ScheduledTask['delivery']): AutomationDeliveryRecord['delivery'] {
     const normalized = String(value || '').trim().toLowerCase();
-    if (normalized === 'email' || normalized === 'webhook' || normalized === 'app') {
+    if (normalized === 'email' || normalized === 'webhook' || normalized === 'app'
+      || normalized === 'slack' || normalized === 'whatsapp' || normalized === 'teams') {
       return normalized;
     }
     return 'telegram';
