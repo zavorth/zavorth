@@ -2291,7 +2291,7 @@ function resolveProductizationView(rawArgs: string[]): 'all' | 'journey' | 'temp
 }
 
 async function runInstanceCommand(rawArgs: string[]): Promise<number> {
-  const { listInstances, createInstance, deleteInstance, getInstanceName } = await import('./services/ZavorthInstanceService.js');
+  const { listInstances, createInstance, deleteInstance, getInstanceName, instanceExists } = await import('./services/ZavorthInstanceService.js');
   const { tCli, tCommon } = await import('./i18n/cli.js');
   const action = String(rawArgs[0] || 'list').trim().toLowerCase();
   const asJson = rawArgs.includes('--json');
