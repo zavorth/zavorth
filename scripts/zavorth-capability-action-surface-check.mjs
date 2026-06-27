@@ -19,14 +19,22 @@ if (result.status !== 0) {
   failures.push(result.stderr || `CLI exited with ${result.status}`);
 } else {
   try {
-    const snapshot = JSON.parse(result.stdout);
-    if (snapshot.surface !== 'capability-action-surface') failures.push('surface mismatch');
-    if (snapshot.safety?.readOnlyProjection !== true) failures.push('projection is not marked read-only');
-    if (snapshot.safety?.previewRequired !== true) failures.push('preview gate is missing');
-    if (snapshot.safety?.approvalRequired !== true) failures.push('approval gate is missing');
-    if (snapshot.placement?.dashboard?.apiPath !== '/api/operations/capabilities') failures.push('dashboard placement is missing');
-    if (snapshot.placement?.tui?.visible !== true) failures.push('TUI placement is missing');
-    if (snapshot.placement?.setup?.visible !== true) failures.push('setup placement is missing');
+    const stdout = result.stdout;
+    const jsonStart = stdout.indexOf('{');
+    const jsonEnd = stdout.lastIndexOf('}');
+    if (jsonStart === -1 || jsonEnd === -1) {
+      failures.push('no JSON object found in stdout');
+    } else {
+      const jsonContent = stdout.slice(jsonStart, jsonEnd + 1);
+      const snapshot = JSON.parse(jsonContent);
+      if (snapshot.surface !== 'capability-action-surface') failures.push('surface mismatch');
+      if (snapshot.safety?.readOnlyProjection !== true) failures.push('projection is not marked read-only');
+      if (snapshot.safety?.previewRequired !== true) failures.push('preview gate is missing');
+      if (snapshot.safety?.approvalRequired !== true) failures.push('approval gate is missing');
+      if (snapshot.placement?.dashboard?.apiPath !== '/api/operations/capabilities') failures.push('dashboard placement is missing');
+      if (snapshot.placement?.tui?.visible !== true) failures.push('TUI placement is missing');
+      if (snapshot.placement?.setup?.visible !== true) failures.push('setup placement is missing');
+    }
   } catch (error) {
     failures.push(`invalid JSON: ${error instanceof Error ? error.message : String(error)}`);
   }

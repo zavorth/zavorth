@@ -46,6 +46,10 @@ export function finalizeBotGatewayBootstrap(
       gateway.permissionController.handlePermissionCallback.bind(
         gateway.permissionController,
       ),
+    handleTaskCallback:
+      gateway.permissionController.handleTaskCallback.bind(
+        gateway.permissionController,
+      ),
     handleEchoApprovalCallback:
       gateway.echoApprovalController.handleEchoCallback.bind(
         gateway.echoApprovalController,

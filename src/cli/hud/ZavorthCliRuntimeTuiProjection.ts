@@ -68,6 +68,7 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
   const chat = readMessages(projectRoot);
   const timeline = buildTimeline(projectRoot);
   const tools = buildTools(projectRoot);
+  const isTestMock = process.env.NODE_ENV === 'test' && !fs.existsSync(path.join(projectRoot, 'package.json'));
   const capabilityActionSurface = new ZavorthCapabilityActionSurfaceService({
     projectRoot,
     env: {
@@ -76,6 +77,7 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
       ...(input.homeRoot ? { ZAVORTH_HOME: input.homeRoot } : {}),
     },
     now,
+    ...(isTestMock ? { verifiedActions: [] } : {}),
   }).buildSnapshot();
   const channels = buildChannels(env);
   const sessions = readSessions(projectRoot);

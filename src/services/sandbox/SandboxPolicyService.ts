@@ -240,9 +240,29 @@ export class SandboxPolicyService {
       return false;
     }
 
-    return request.instructions.some((instruction) =>
-      TEST_COMMAND_PATTERNS.some((pattern) => pattern.test(instruction)) ||
-      CODE_CAPABLE_EXECUTION_PATTERNS.some((pattern) => pattern.test(instruction)),
+    return request.instructions.some((instruction) => !this.isStrictlySafeCommand(instruction));
+  }
+
+  private isStrictlySafeCommand(command: string): boolean {
+    const normalized = String(command || '').trim();
+    if (!normalized) {
+      return false;
+    }
+
+    if (/&&|\|\||[|><`;\r\n]/.test(normalized) || /\$\(/.test(normalized)) {
+      return false;
+    }
+
+    if (
+      /\b(curl|wget|invoke-webrequest|npm\s+install|pnpm\s+install|yarn\s+add|pip(?:3)?\s+install|apt(?:-get)?\s+install|docker|choco|winget|scp|ssh|ftp|powershell|pwsh|reg|netsh)\b/i.test(
+        normalized,
+      )
+    ) {
+      return false;
+    }
+
+    return /^(dir\b|ls\b|pwd\b|cd\b|whoami\b|hostname\b|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)?\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)?\s+--version\b|py\s+-V\b)/i.test(
+      normalized,
     );
   }
 

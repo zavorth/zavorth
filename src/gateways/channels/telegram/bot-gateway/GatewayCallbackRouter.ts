@@ -7,6 +7,7 @@ export type GatewayCallbackRouterDeps = {
   handleEchoApprovalCallback?: (ctx: Context, data: string) => Promise<void>;
   handleMnemosCallback?: (ctx: Context, data: string) => Promise<void>;
   handleExperienceActionCardCallback?: (ctx: Context, data: string) => Promise<void>;
+  handleTaskCallback?: (ctx: Context, data: string) => Promise<void>;
   handleStatusAction: (ctx: Context) => Promise<void>;
   handleHelpAction: (ctx: Context) => Promise<void>;
   handleAuditAction: (ctx: Context) => Promise<void>;
@@ -41,6 +42,11 @@ export class GatewayCallbackRouter {
 
       if (data.startsWith('perm:')) {
         await this.deps.handlePermissionCallback(ctx, data);
+        return;
+      }
+
+      if (data.startsWith('task:') && this.deps.handleTaskCallback) {
+        await this.deps.handleTaskCallback(ctx, data);
         return;
       }
 

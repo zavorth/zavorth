@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { TelegramPermissionController } from '../../../src/telegram/controllers/TelegramPermissionController';
+import { TelegramPermissionController } from '../../../src/gateways/channels/telegram/controllers/TelegramPermissionController';
 import { ZavorthBridgeWindowAutomator } from '../../../src/agents/ZavorthBridgeWindowAutomator';
 import { config } from '../../../src/config/index';
 
