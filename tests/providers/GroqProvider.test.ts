@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const { mockCreate, MockOpenAI } = vi.hoisted(() => {
-  const mockCreate = vi.fn();
-  const MockOpenAI = vi.fn(function(this: any) { this.chat = { completions: { create: mockCreate } }; });
+
+const { mockCreate, MockOpenAI } = (() => {
+  const mockCreate = jest.fn();
+  const MockOpenAI = jest.fn(function(this: any) { this.chat = { completions: { create: mockCreate } }; });
   return { mockCreate, MockOpenAI };
-});
+})();
 
-vi.mock('openai', () => ({
+jest.mock('openai', () => ({
   __esModule: true,
   default: MockOpenAI,
 }));
@@ -26,12 +26,12 @@ describe('GroqProvider', () => {
   afterEach(() => {
     (config as any).groqApiKey = originalApiKey;
     (config as any).groqModel = originalModel;
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('throws when GROQ_API_KEY is missing', () => {
     (config as any).groqApiKey = '';
-    expect(() => new GroqProvider()).toThrow('GROQ_API_KEY nao configurada no .env');
+    expect(() => new GroqProvider()).toThrow('GROQ_API_KEY not configured in .env');
   });
 
   it('succeeds with valid config', () => {

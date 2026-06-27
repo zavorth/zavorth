@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { BatchTrajectoryTool } from '../../src/tools/BatchTrajectoryTool';
 import { ProviderFactory } from '../../src/providers/ProviderFactory';
 
-vi.mock('../../src/providers/ProviderFactory', () => ({
+jest.mock('../../src/providers/ProviderFactory', () => ({
   ProviderFactory: {
-    create: vi.fn(),
+    create: jest.fn(),
   },
 }));
 
@@ -15,10 +15,10 @@ describe('BatchTrajectoryTool', () => {
   beforeEach(() => {
     process.env = { ...originalEnv };
     delete process.env.ZAVORTH_BATCH_TRAJECTORY_ALLOW_LIVE;
-    vi.mocked(ProviderFactory.create).mockReset();
-    vi.mocked(ProviderFactory.create).mockReturnValue({
+    jest.mocked(ProviderFactory.create).mockReset();
+    jest.mocked(ProviderFactory.create).mockReturnValue({
       name: 'mock-provider',
-      chat: vi.fn(async (messages: any[]) => ({
+      chat: jest.fn(async (messages: any[]) => ({
         content: `real output for ${messages[0]?.content || 'unknown'}`,
         toolCalls: [],
         finishReason: 'stop',

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -8,7 +8,7 @@ describe('GeminiVoiceService', () => {
   it('gera um arquivo wav a partir do payload inlineData do Gemini TTS', async () => {
     const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-gemini-voice-'));
     const pcm = Buffer.from([0x00, 0x00, 0xff, 0x7f]);
-    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({
+    const fetchImpl = jest.fn(async () => new Response(JSON.stringify({
       candidates: [
         {
           content: {

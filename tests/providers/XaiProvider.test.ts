@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const { mockCreate, MockOpenAI } = vi.hoisted(() => {
-  const mockCreate = vi.fn();
-  const MockOpenAI = vi.fn(function(this: any) { this.chat = { completions: { create: mockCreate } }; });
+
+const { mockCreate, MockOpenAI } = (() => {
+  const mockCreate = jest.fn();
+  const MockOpenAI = jest.fn(function(this: any) { this.chat = { completions: { create: mockCreate } }; });
   return { mockCreate, MockOpenAI };
-});
+})();
 
-vi.mock('openai', () => ({
+jest.mock('openai', () => ({
   __esModule: true,
   default: MockOpenAI,
 }));
@@ -26,12 +26,12 @@ describe('XaiProvider', () => {
   afterEach(() => {
     (config as any).xaiApiKey = originalApiKey;
     (config as any).xaiModel = originalModel;
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('throws when XAI_API_KEY is missing', () => {
     (config as any).xaiApiKey = '';
-    expect(() => new XaiProvider()).toThrow('XAI_API_KEY nao configurada no .env');
+    expect(() => new XaiProvider()).toThrow('XAI_API_KEY not configured in .env');
   });
 
   it('succeeds with valid config', () => {

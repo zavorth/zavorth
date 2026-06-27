@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+
 import { convertChatMessagesToOpenAI } from '../../src/providers/openaiMessageConversion';
 
 describe('openaiMessageConversion', () => {

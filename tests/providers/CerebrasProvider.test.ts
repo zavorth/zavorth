@@ -1,14 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-const { mockCreate, MockOpenAI } = vi.hoisted(() => {
-  const mockCreate = vi.fn();
-  const MockOpenAI = vi.fn(function(this: any) {
+const { mockCreate, MockOpenAI } = (() => {
+  const mockCreate = jest.fn();
+  const MockOpenAI = jest.fn(function(this: any) {
     this.chat = { completions: { create: mockCreate } };
   });
   return { mockCreate, MockOpenAI };
-});
+})();
 
-vi.mock('openai', () => ({
+jest.mock('openai', () => ({
   __esModule: true,
   default: MockOpenAI,
 }));
@@ -28,12 +26,12 @@ describe('CerebrasProvider', () => {
   afterEach(() => {
     (config as any).cerebrasApiKey = originalApiKey;
     (config as any).cerebrasModel = originalModel;
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('throws when CEREBRAS_API_KEY is missing', () => {
     (config as any).cerebrasApiKey = '';
-    expect(() => new CerebrasProvider()).toThrow('CEREBRAS_API_KEY nao configurada no .env');
+    expect(() => new CerebrasProvider()).toThrow('CEREBRAS_API_KEY not configured in .env');
   });
 
   it('succeeds with valid config', () => {

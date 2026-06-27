@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+
 import { RemoteShellTool } from '../../src/tools/RemoteShellTool';
 
 describe('RemoteShellTool isolation slice', () => {
@@ -42,7 +42,7 @@ describe('RemoteShellTool isolation slice', () => {
 
   it('blocks raw credential arguments before command execution', async () => {
     process.env.ZAVORTH_REMOTE_SHELL_ALLOWED_BINARIES = 'node';
-    const adapter = { execute: vi.fn() };
+    const adapter = { execute: jest.fn() };
     const tool = new RemoteShellTool({ ephemeralAdapter: adapter, sidecarAdapter: null });
 
     const output = await tool.execute({
@@ -57,7 +57,7 @@ describe('RemoteShellTool isolation slice', () => {
   it('routes opt-in ephemeral execution through the adapter and permits SecretRef placeholders', async () => {
     process.env.ZAVORTH_REMOTE_SHELL_ALLOWED_BINARIES = 'zavorth-test-bin';
     const adapter = {
-      execute: vi.fn().mockResolvedValue({
+      execute: jest.fn().mockResolvedValue({
         stdout: 'adapter-ok\n',
         stderr: '',
         auditId: 'audit-test',
@@ -82,7 +82,7 @@ describe('RemoteShellTool isolation slice', () => {
   it('blocks code-capable binaries on the host and requires explicit ephemeral code opt-in', async () => {
     process.env.ZAVORTH_REMOTE_SHELL_ALLOWED_BINARIES = 'node';
     const adapter = {
-      execute: vi.fn().mockResolvedValue({
+      execute: jest.fn().mockResolvedValue({
         stdout: 'ephemeral-node-ok\n',
         stderr: '',
         auditId: 'audit-node',
@@ -129,8 +129,8 @@ describe('RemoteShellTool isolation slice', () => {
   it('routes code-capable binaries to an isolated sidecar by default when available', async () => {
     process.env.ZAVORTH_REMOTE_SHELL_ALLOWED_BINARIES = 'node';
     const sidecar = {
-      isConfigured: vi.fn(() => true),
-      execute: vi.fn().mockResolvedValue({
+      isConfigured: jest.fn(() => true),
+      execute: jest.fn().mockResolvedValue({
         stdout: 'sidecar-node-ok\n',
         stderr: '',
         exitCode: 0,
@@ -174,8 +174,8 @@ describe('RemoteShellTool isolation slice', () => {
 
   it('routes broad shell syntax through an isolated sidecar instead of host parsing', async () => {
     const sidecar = {
-      isConfigured: vi.fn(() => true),
-      execute: vi.fn().mockResolvedValue({
+      isConfigured: jest.fn(() => true),
+      execute: jest.fn().mockResolvedValue({
         stdout: 'sidecar-ok\n',
         stderr: '',
         exitCode: 0,
@@ -212,7 +212,7 @@ describe('RemoteShellTool isolation slice', () => {
       ephemeralAdapter: null,
       sidecarAdapter: {
         isConfigured: () => false,
-        execute: vi.fn(),
+        execute: jest.fn(),
       },
     });
 

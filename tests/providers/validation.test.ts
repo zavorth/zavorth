@@ -1,44 +1,44 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-vi.mock(
+
+jest.mock(
   "@ZavorthGateway/open-sse/config/providerRegistry.ts",
   () => ({
-    getRegistryEntry: vi.fn(),
+    getRegistryEntry: jest.fn(),
   }),
   { virtual: true }
 );
 
-vi.mock(
+jest.mock(
   "@ZavorthGateway/open-sse/services/claudeCodeCompatible.ts",
   () => ({
-    buildClaudeCodeCompatibleHeaders: vi.fn(() => ({})),
-    buildClaudeCodeCompatibleValidationPayload: vi.fn(() => ({
+    buildClaudeCodeCompatibleHeaders: jest.fn(() => ({})),
+    buildClaudeCodeCompatibleValidationPayload: jest.fn(() => ({
       metadata: {
         user_id: JSON.stringify({ session_id: "session-test" }),
       },
     })),
     CLAUDE_CODE_COMPATIBLE_DEFAULT_CHAT_PATH: "/chat",
     CLAUDE_CODE_COMPATIBLE_DEFAULT_MODELS_PATH: "/models",
-    joinClaudeCodeCompatibleUrl: vi.fn((baseUrl: string, path: string) => `${baseUrl}${path}`),
-    stripClaudeCodeCompatibleEndpointSuffix: vi.fn((baseUrl: string) => baseUrl),
-    stripAnthropicMessagesSuffix: vi.fn((baseUrl: string) => baseUrl),
+    joinClaudeCodeCompatibleUrl: jest.fn((baseUrl: string, path: string) => `${baseUrl}${path}`),
+    stripClaudeCodeCompatibleEndpointSuffix: jest.fn((baseUrl: string) => baseUrl),
+    stripAnthropicMessagesSuffix: jest.fn((baseUrl: string) => baseUrl),
   }),
   { virtual: true }
 );
 
-vi.mock(
+jest.mock(
   "@ZavorthGateway/open-sse/services/qoderCli.ts",
   () => ({
-    validateQoderCliPat: vi.fn(async () => ({ valid: true, error: null })),
+    validateQoderCliPat: jest.fn(async () => ({ valid: true, error: null })),
   }),
   { virtual: true }
 );
 
-vi.mock(
+jest.mock(
   "@/shared/constants/providers",
   () => ({
-    isAnthropicCompatibleProvider: vi.fn(() => false),
-    isClaudeCodeCompatibleProvider: vi.fn(() => false),
-    isOpenAICompatibleProvider: vi.fn(() => false),
+    isAnthropicCompatibleProvider: jest.fn(() => false),
+    isClaudeCodeCompatibleProvider: jest.fn(() => false),
+    isOpenAICompatibleProvider: jest.fn(() => false),
   }),
   { virtual: true }
 );
@@ -52,12 +52,12 @@ describe("zavorth-control provider validation barrel", () => {
   const originalFetch = global.fetch;
 
   beforeEach(() => {
-    global.fetch = vi.fn();
+    global.fetch = jest.fn();
   });
 
   afterEach(() => {
     global.fetch = originalFetch;
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it("re-exports the public validation API from the split modules", async () => {
@@ -77,7 +77,7 @@ describe("zavorth-control provider validation barrel", () => {
   });
 
   it("validates Claude Code compatible providers through the extracted helper", async () => {
-    (global.fetch as vi.mock).mockResolvedValue({
+    (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       status: 200,
     });
