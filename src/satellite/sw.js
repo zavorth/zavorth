@@ -29,3 +29,33 @@ self.addEventListener('fetch', (event) => {
   }
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
 });
+
+self.addEventListener('push', (event) => {
+  let data = { title: 'Zavorth', body: 'Solicitacao de aprovacao pendente.' };
+  try {
+    data = event.data.json();
+  } catch {
+    if (event.data) {
+      data = { title: 'Zavorth', body: event.data.text() };
+    }
+  }
+
+  const options = {
+    body: data.body,
+    vibrate: [100, 50, 100],
+    data: {
+      url: '/satellite'
+    }
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.openWindow(event.notification.data?.url || '/satellite')
+  );
+});

@@ -128,6 +128,20 @@ export class TelegramPermissionController {
     await this.permissionInteraction.handlePermissionCallback(ctx, data);
   }
 
+  public async handleTaskCallback(ctx: Context, data: string): Promise<void> {
+    const [, action, taskId] = data.split(':');
+    if (action === 'approve') {
+      await ctx.answerCallbackQuery({ text: 'Aprovando tarefa...' }).catch(() => undefined);
+      await this.taskApproval.handleApproval(ctx, taskId);
+    } else if (action === 'reject') {
+      await ctx.answerCallbackQuery({ text: 'Rejeitando tarefa...' }).catch(() => undefined);
+      await this.taskApproval.handleRejection(ctx, taskId);
+    } else {
+      await ctx.answerCallbackQuery({ text: 'Acao desconhecida.' }).catch(() => undefined);
+    }
+    await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
+  }
+
   public buildPermissionKeyboard(permission: PermissionRequest): InlineKeyboard {
     return this.permissionInteraction.buildPermissionKeyboard(permission);
   }

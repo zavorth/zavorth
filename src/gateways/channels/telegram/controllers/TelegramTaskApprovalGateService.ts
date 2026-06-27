@@ -1,4 +1,4 @@
-import { Context } from 'grammy';
+import { Context, InlineKeyboard } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { RiskClassification } from '../../../../orchestrator/RiskClassifier.js';
 import { HighRiskConfirmationService } from '../../../../services/HighRiskConfirmationService.js';
@@ -93,7 +93,11 @@ export class TelegramTaskApprovalGateService {
       kind: 'approval_prompt',
     });
 
-    await ctx.reply(userFacingText);
+    const keyboard = new InlineKeyboard()
+      .text('👍 Aprovar', `task:approve:${task.task_id}`)
+      .text('👎 Rejeitar', `task:reject:${task.task_id}`);
+
+    await ctx.reply(userFacingText, { reply_markup: keyboard });
     return true;
   }
 }

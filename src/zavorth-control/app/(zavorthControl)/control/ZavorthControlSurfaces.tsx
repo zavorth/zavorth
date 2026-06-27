@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 
 type MetricProps = {
   label: string;
@@ -347,24 +347,155 @@ export function ProvidersSurface() {
 }
 
 export function SettingsSurface() {
+  const [apiKey, setApiKey] = useState("");
+  const [botToken, setBotToken] = useState("");
+  const [chatId, setChatId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings/wizard")
+      .then((res) => res.json())
+      .then((data) => {
+        setApiKey(data.AISTUDIO_API_KEY || "");
+        setBotToken(data.TELEGRAM_BOT_TOKEN || "");
+        setChatId(data.TELEGRAM_DEFAULT_CHAT_ID || "");
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to load settings:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleSave = async (e: any) => {
+    e.preventDefault();
+    setSaving(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/settings/wizard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          AISTUDIO_API_KEY: apiKey,
+          TELEGRAM_BOT_TOKEN: botToken,
+          TELEGRAM_DEFAULT_CHAT_ID: chatId,
+        }),
+      });
+      if (res.ok) {
+        setMessage({ text: "Configuracoes salvas e aplicadas com sucesso!", type: "success" });
+      } else {
+        const data = await res.json();
+        setMessage({ text: data.error || "Falha ao salvar configuracoes.", type: "error" });
+      }
+    } catch (err: any) {
+      setMessage({ text: err.message || "Erro de rede.", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Surface
       id="sector-config"
       eyebrow="Settings"
-      title="Configuration without exposing secrets."
-      subtitle="Runtime access, provider routing, approvals, break-glass posture and receipt controls are summarized here."
-      actions={<button className="operator-secondary-action" type="button" data-dashboard-prompt="Show settings that need attention and suggest safe guided fixes.">Guided fixes</button>}
+      title="Setup Wizard & Posture"
+      subtitle="Configure suas chaves de API e canais de acesso com seguranca."
     >
       <div className="premium-layout premium-layout--wide-left">
         <div className="platform-main">
-          <div className="info-grid info-grid--quiet">
-            {["Endpoint", "Auth", "Status", "Chat", "Agents", "Fallback", "Protocol"].map((label) => (
-              <div className="info-row" key={label}>
-                <span className="info-row__label">{label}</span>
-                <span className="info-row__value">checking</span>
+          <span className="platform-section-title">Visual Setup Wizard</span>
+          {loading ? (
+            <div className="loading-spinner">Carregando configuracoes...</div>
+          ) : (
+            <form onSubmit={handleSave} className="setup-wizard-form" style={{ display: "flex", flexDirection: "column", gap: "1rem", maxWidth: "480px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-color, #fff)" }}>Google AI Studio Key (Gemini API)</label>
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="Insira a chave da Google AI Studio (ou GEMINI_API_KEY)"
+                  style={{
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid var(--border-color, #333)",
+                    backgroundColor: "var(--bg-input, #111)",
+                    color: "var(--text-color, #fff)",
+                    fontSize: "0.9rem"
+                  }}
+                />
               </div>
-            ))}
-          </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-color, #fff)" }}>Access Bot Token</label>
+                <input
+                  type="password"
+                  value={botToken}
+                  onChange={(e) => setBotToken(e.target.value)}
+                  placeholder="Insira o Token do Bot"
+                  style={{
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid var(--border-color, #333)",
+                    backgroundColor: "var(--bg-input, #111)",
+                    color: "var(--text-color, #fff)",
+                    fontSize: "0.9rem"
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-color, #fff)" }}>Default Channel Chat ID</label>
+                <input
+                  type="text"
+                  value={chatId}
+                  onChange={(e) => setChatId(e.target.value)}
+                  placeholder="Insira o ID do Chat"
+                  style={{
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid var(--border-color, #333)",
+                    backgroundColor: "var(--bg-input, #111)",
+                    color: "var(--text-color, #fff)",
+                    fontSize: "0.9rem"
+                  }}
+                />
+              </div>
+
+              {message && (
+                <div style={{
+                  padding: "0.75rem",
+                  borderRadius: "8px",
+                  fontSize: "0.85rem",
+                  backgroundColor: message.type === "success" ? "rgba(46, 204, 113, 0.15)" : "rgba(231, 76, 60, 0.15)",
+                  color: message.type === "success" ? "#2ecc71" : "#e74c3c",
+                  border: `1px solid ${message.type === "success" ? "#2ecc71" : "#e74c3c"}`
+                }}>
+                  {message.text}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={saving}
+                style={{
+                  padding: "0.75rem",
+                  borderRadius: "8px",
+                  border: "none",
+                  backgroundColor: saving ? "#666" : "var(--primary-color, #1a73e8)",
+                  color: "#fff",
+                  fontWeight: "bold",
+                  cursor: saving ? "not-allowed" : "pointer",
+                  marginTop: "0.5rem",
+                  transition: "background-color 0.2s"
+                }}
+              >
+                {saving ? "Salvando..." : "Save Settings"}
+              </button>
+            </form>
+          )}
         </div>
         <aside className="platform-side">
           <span className="platform-section-title">Trust posture</span>

@@ -82,6 +82,7 @@ export function buildZavorthSetupStudioSnapshot(
       ...(selectedHome ? { ZAVORTH_HOME: selectedHome } : {}),
     },
     now: input.now,
+    ...(dryRun ? { verifiedActions: [] } : {}),
   }).buildSnapshot();
   return {
     contractVersion: 'zavorth-setup-studio-snapshot/1',
