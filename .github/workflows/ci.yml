@@ -1,0 +1,167 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: TypeScript type-check
+        run: npx tsc --noEmit --pretty false 2>&1 | head -100
+        continue-on-error: true
+
+      - name: Build runtime
+        run: npm run runtime:build --silent
+
+      - name: Verify build output
+        run: |
+          test -d dist || (echo "dist/ directory not found after build" && exit 1)
+          test -f dist/index.js || (echo "dist/index.js not found after build" && exit 1)
+
+  test-core:
+    name: Core Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Security tests
+        run: npm run test:ci:security --silent
+
+      - name: Services tests
+        run: npm run test:ci:services --silent
+
+      - name: Runtime agent tests
+        run: npm run test:ci:runtime-agent --silent
+
+      - name: Runtime sessions tests
+        run: npm run test:ci:runtime-sessions --silent
+
+      - name: Runtime other tests
+        run: npm run test:ci:runtime-other --silent
+
+  test-surfaces:
+    name: Surface Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: API tests
+        run: npm run test:ci:api --silent
+
+      - name: AI Gateway tests
+        run: npm run test:ci:ai-gateway --silent
+
+      - name: Telegram tests
+        run: npm run test:ci:telegram --silent
+
+      - name: Channels tests
+        run: npm run test:ci:channels --silent
+
+      - name: Domain zavorthControl tests
+        run: npm run test:ci:domain-zavorthControl --silent
+
+      - name: Domain web tests
+        run: npm run test:ci:domain-web --silent
+
+      - name: Domain shared tests
+        run: npm run test:ci:domain-shared --silent
+
+  test-platform:
+    name: Platform Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Platform tests
+        run: npm run test:ci:platform --silent
+
+      - name: Integration tests
+        run: npm run test:ci:integration --silent
+
+  release-check:
+    name: Release Readiness
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [test-core, test-surfaces, test-platform]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Release check
+        run: npm run release:check --silent
+        continue-on-error: true
+
+      - name: Surface syntax check
+        run: npm run surfaces:check --silent
