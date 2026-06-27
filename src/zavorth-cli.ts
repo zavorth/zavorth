@@ -2393,8 +2393,81 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
     }
   }
 
+  if (action === 'switch') {
+    if (!name) {
+      await logCliError(tCli('instance.name_required'), tCli('instance.unknown_action', { action: 'switch' }));
+      return 1;
+    }
+    if (!instanceExists(projectRoot, name)) {
+      await logCliError(tCli('instance.switch_not_found', { name }), 'Instance Error');
+      return 1;
+    }
+    const current = getInstanceName(process.env);
+    if (current === name) {
+      if (asJson) {
+        process.stdout.write(`${JSON.stringify({ switched: name, changed: false })}\n`);
+      } else {
+        process.stdout.write(`${tCli('instance.switch_no_change', { name })}\n`);
+      }
+      return 0;
+    }
+    const result = writeInstanceEnv(projectRoot, name);
+    if (asJson) {
+      process.stdout.write(`${JSON.stringify({ switched: name, changed: result.written, envFile: result.envFile })}\n`);
+    } else {
+      if (result.written) {
+        process.stdout.write(`${tCli('instance.switched', { name, path: result.envFile })}\n`);
+        process.stdout.write(`${tCli('instance.use_hint', { name })}\n`);
+      } else {
+        process.stdout.write(`${tCli('instance.switched', { name, path: result.envFile })}\n`);
+      }
+    }
+    return 0;
+  }
+
   await logCliError(tCli('instance.unknown_action', { action }), 'Usage Error');
   return 1;
+}
+
+function writeInstanceEnv(root: string, instanceName: string): { written: boolean; envFile: string; key: string } {
+  const envFile = path.join(root, '.env');
+  const key = 'ZAVORTH_INSTANCE';
+  const nextLine = `${key}=${instanceName}`;
+  let current = '';
+  try {
+    current = existsSync(envFile) ? readFileSync(envFile, 'utf8') : '';
+  } catch {
+    current = '';
+  }
+  const lines = current.split(/\r?\n/u);
+  let changed = false;
+  let seen = false;
+  const next = lines.map((line) => {
+    if (!line.trim() || line.trim().startsWith('#')) {
+      return line;
+    }
+    if (/^ZAVORTH_INSTANCE\s*=/u.test(line)) {
+      seen = true;
+      if (line === nextLine) {
+        return line;
+      }
+      changed = true;
+      return nextLine;
+    }
+    return line;
+  });
+  if (!seen) {
+    if (next.length > 0 && next[next.length - 1] !== '') {
+      next.push('');
+    }
+    next.push(nextLine);
+    changed = true;
+  }
+  if (!changed) {
+    return { written: false, envFile, key };
+  }
+  writeFileSync(envFile, `${next.join('\n').replace(/\n+$/u, '')}\n`, 'utf8');
+  return { written: true, envFile, key };
 }
 
 async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
