@@ -93,9 +93,11 @@ export class TelegramTaskApprovalGateService {
       kind: 'approval_prompt',
     });
 
-    const keyboard = new InlineKeyboard()
-      .text('👍 Aprovar', `task:approve:${task.task_id}`)
-      .text('👎 Rejeitar', `task:reject:${task.task_id}`);
+    const keyboard = new InlineKeyboard();
+    if (!highRiskRequiresPin) {
+      keyboard.text('Aprovar', `task:approve:${task.task_id}`);
+    }
+    keyboard.text('Rejeitar', `task:reject:${task.task_id}`);
 
     await ctx.reply(userFacingText, { reply_markup: keyboard });
     return true;

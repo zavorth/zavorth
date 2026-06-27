@@ -4,12 +4,14 @@
 $WshShell = New-Object -ComObject WScript.Shell
 $StartupFolder = [System.IO.Path]::Combine($env:APPDATA, "Microsoft\Windows\Start Menu\Programs\Startup")
 $ShortcutPath = Join-Path $StartupFolder "ZavorthDaemon.lnk"
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
+$LauncherPath = Join-Path $PSScriptRoot "launch-daemon.vbs"
 
 # Criar atalho para o VBS launcher
 $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
 $Shortcut.TargetPath = "wscript.exe"
-$Shortcut.Arguments = "`"$PSScriptRoot\launch-daemon.vbs`""
-$Shortcut.WorkingDirectory = $PSScriptRoot
+$Shortcut.Arguments = "`"$LauncherPath`""
+$Shortcut.WorkingDirectory = $ProjectRoot
 $Shortcut.Description = "Inicializador em segundo plano para o daemon do Zavorth"
 $Shortcut.Save()
 

@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
+import { ApprovalManager } from '../../../../orchestrator/ApprovalManager.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { HighRiskConfirmationService } from '../../../../services/HighRiskConfirmationService.js';
 import { TelemetryRuntimeService } from '../../../../observability/telemetry/TelemetryRuntimeService.js';
@@ -28,8 +28,12 @@ export class TelegramTaskApprovalService {
       this.deps.highRiskConfirmation || new HighRiskConfirmationService();
   }
 
+  public requiresHighRiskConfirmation(taskId: string): boolean {
+    const task = this.deps.taskManager.getTask(taskId);
+    return this.highRiskConfirmation.requiresPin(task);
+  }
+
   public async handleApproval(ctx: Context, args: string): Promise<void> {
-    const ApprovalManager = require('../../../../orchestrator/ApprovalManager.js').ApprovalManager;
     const approvalManager = new ApprovalManager(this.deps.taskManager);
     const { taskId, approvalCode } = this.parseTaskApprovalInput(args);
     const userId = ctx.from?.id?.toString() || null;
@@ -80,20 +84,20 @@ export class TelegramTaskApprovalService {
       });
       await this.resumeApprovedTaskOrWorkflow(ctx, task);
     } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       const task = this.deps.taskManager.getTask(taskId);
       if (task && task.status === 'running') {
         this.deps.taskManager.advanceState(task, 'failed');
       }
       await this.recordTaskApprovalTelemetry(task, 'approve', 'failed', userId, {
         taskId,
-        errorMessage: error.message,
+        errorMessage: message,
       });
-      await ctx.reply(`Nao consegui processar essa aprovacao.\n\nMotivo: ${error.message}`);
+      await ctx.reply(`Nao consegui processar essa aprovacao.\n\nMotivo: ${message}`);
     }
   }
 
   public async handleRejection(ctx: Context, taskId: string): Promise<void> {
-    const ApprovalManager = require('../../../../orchestrator/ApprovalManager.js').ApprovalManager;
     const approvalManager = new ApprovalManager(this.deps.taskManager);
     const userId = ctx.from?.id?.toString() || null;
 
@@ -112,11 +116,12 @@ export class TelegramTaskApprovalService {
       await this.recordTaskApprovalTelemetry(task, 'reject', 'rejected', userId);
       await ctx.reply(`Tudo certo. A tarefa ${taskId} foi rejeitada e nao vou seguir com ela.`);
     } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       await this.recordTaskApprovalTelemetry(undefined, 'reject', 'failed', userId, {
         taskId,
-        errorMessage: error.message,
+        errorMessage: message,
       });
-      await ctx.reply(`Nao consegui registrar essa rejeicao.\n\nMotivo: ${error.message}`);
+      await ctx.reply(`Nao consegui registrar essa rejeicao.\n\nMotivo: ${message}`);
     }
   }
 
