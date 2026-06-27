@@ -23,6 +23,7 @@ import { TelegramPermissionPresentationService } from '../../../../gateways/chan
 import { TelegramPersistedPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPersistedPermissionPolicyService.js';
 import { TelegramTaskApprovalService } from '../../../../gateways/channels/telegram/controllers/TelegramTaskApprovalService.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
+import { config } from '../../../../config/index.js';
 
 type ZavorthBridgeCompanionBridgeLike = Pick<ZavorthBridgeCompanionBridge, 'readStatus' | 'isOnline'>;
 
@@ -217,8 +218,7 @@ export class TelegramPermissionController {
     if (!userId) {
       throw new Error('User ID invalido.');
     }
-    const { config } = require('../../../../config/index.js');
-    const userRoles = config.telegramUserRoles?.[userId] || ['admin'];
+    const userRoles = config.telegramUserRoles?.[userId] || [];
     if (!userRoles.includes('admin')) {
       throw new Error('Apenas administradores podem decidir sobre aprovacoes/permissoes.');
     }

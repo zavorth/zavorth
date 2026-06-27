@@ -17,7 +17,7 @@ export class TelegramPermissionCallbackService {
 
   public async handlePermissionCallback(ctx: Context, data: string): Promise<void> {
     const [, action, reference, scopeToken] = data.split(':');
-    const userId = ctx.from?.id.toString() || '';
+    const userId = ctx.from?.id?.toString() || '';
     let callbackAnswered = false;
 
     try {
@@ -53,7 +53,7 @@ export class TelegramPermissionCallbackService {
 
       await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
     } catch (error: unknown) {
-      const message = error?.message || 'Falha ao processar a permissao.';
+      const message = error instanceof Error ? error.message : 'Falha ao processar a permissao.';
       if (!callbackAnswered) {
         await ctx.answerCallbackQuery({ text: message });
         return;

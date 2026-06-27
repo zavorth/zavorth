@@ -8,12 +8,21 @@ describe('TelegramPermissionController', () => {
   const originalHighRiskTotpSecret = config.highRiskApprovalTotpSecret;
   const originalHighRiskTotpSecretRef = (config as any).highRiskApprovalTotpSecretRef;
   const originalHighRiskTotpEnvFallback = (config as any).highRiskApprovalAllowEnvFallback;
+  const originalTelegramUserRoles = { ...(config.telegramUserRoles || {}) };
+
+  beforeEach(() => {
+    (config as any).telegramUserRoles = {
+      ...originalTelegramUserRoles,
+      '42': ['admin'],
+    };
+  });
 
   afterEach(() => {
     (config as any).highRiskApprovalPin = originalHighRiskPin;
     (config as any).highRiskApprovalTotpSecret = originalHighRiskTotpSecret;
     (config as any).highRiskApprovalTotpSecretRef = originalHighRiskTotpSecretRef;
     (config as any).highRiskApprovalAllowEnvFallback = originalHighRiskTotpEnvFallback;
+    (config as any).telegramUserRoles = { ...originalTelegramUserRoles };
     jest.restoreAllMocks();
   });
 
@@ -1697,6 +1706,153 @@ describe('TelegramPermissionController', () => {
 
     expect(task.approval_status).toBe('approved');
     expect(resumeTaskExecution).toHaveBeenCalled();
+  });
+
+  it('does not approve high-risk tasks from inline callback without TOTP', async () => {
+    const task = {
+      task_id: 'task-high-risk-inline-1',
+      status: 'waiting_approval',
+      approval_status: 'pending',
+      risk_level: 3,
+      metadata: {
+        requiresHighRiskPin: true,
+      },
+    };
+    const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
+    const controller = createController({
+      taskManager: {
+        getTask: jest.fn().mockReturnValue(task),
+        advanceState: jest.fn((targetTask: any, nextStatus: string) => {
+          targetTask.status = nextStatus;
+        }),
+      } as any,
+      resumeTaskExecution,
+    });
+    const ctx = {
+      from: { id: 42 },
+      answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    await controller.handleTaskCallback(ctx, 'task:approve:task-high-risk-inline-1');
+
+    expect(task.approval_status).toBe('pending');
+    expect(resumeTaskExecution).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('/approve <task_id> <codigo TOTP>'),
+      expect.any(Object),
+    );
+  });
+
+  it('blocks inline task callbacks while the host is read-only', async () => {
+    const task = {
+      task_id: 'task-readonly-inline-1',
+      status: 'waiting_approval',
+      approval_status: 'pending',
+      risk_level: 1,
+      metadata: {},
+    };
+    const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
+    const controller = createController({
+      hostIdentityService: {
+        getStatus: jest.fn().mockReturnValue({ authorized: false }),
+      },
+      taskManager: {
+        getTask: jest.fn().mockReturnValue(task),
+        advanceState: jest.fn((targetTask: any, nextStatus: string) => {
+          targetTask.status = nextStatus;
+        }),
+      } as any,
+      resumeTaskExecution,
+    });
+    const ctx = {
+      from: { id: 42 },
+      answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    await expect(controller.handleTaskCallback(ctx, 'task:approve:task-readonly-inline-1')).rejects.toThrow(
+      'Host novo detectado',
+    );
+
+    expect(task.approval_status).toBe('pending');
+    expect(resumeTaskExecution).not.toHaveBeenCalled();
+  });
+
+  it('blocks inline task callbacks from users without explicit admin role', async () => {
+    (config as any).telegramUserRoles = {
+      ...config.telegramUserRoles,
+      '42': ['vice-owner'],
+    };
+    const task = {
+      task_id: 'task-non-admin-inline-1',
+      status: 'waiting_approval',
+      approval_status: 'pending',
+      risk_level: 1,
+      metadata: {},
+    };
+    const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
+    const controller = createController({
+      taskManager: {
+        getTask: jest.fn().mockReturnValue(task),
+        advanceState: jest.fn((targetTask: any, nextStatus: string) => {
+          targetTask.status = nextStatus;
+        }),
+      } as any,
+      resumeTaskExecution,
+    });
+    const ctx = {
+      from: { id: 42 },
+      answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    await expect(controller.handleTaskCallback(ctx, 'task:approve:task-non-admin-inline-1')).rejects.toThrow(
+      'Apenas administradores',
+    );
+
+    expect(task.approval_status).toBe('pending');
+    expect(resumeTaskExecution).not.toHaveBeenCalled();
+  });
+
+  it('blocks inline permission callbacks from users without explicit admin role', async () => {
+    (config as any).telegramUserRoles = {
+      ...config.telegramUserRoles,
+      '42': ['vice-owner'],
+    };
+    const listRequests = jest.fn().mockResolvedValue([
+      {
+        permission_id: 'perm-non-admin-1',
+        executor: 'codex',
+        kind: 'command_access',
+        scope: 'once',
+        resolved_value: 'npm test',
+        metadata: {},
+      },
+    ]);
+    const approveRequest = jest.fn();
+    const controller = createController({
+      permissionService: {
+        listRequests,
+        approveRequest,
+      } as any,
+    });
+    const ctx = {
+      from: { id: 42 },
+      answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    await expect(controller.handlePermissionCallback(ctx, 'perm:approve:perm-non-admin-1:once')).rejects.toThrow(
+      'Apenas administradores',
+    );
+
+    expect(listRequests).not.toHaveBeenCalled();
+    expect(approveRequest).not.toHaveBeenCalled();
   });
 
   it('resumes the workflow run instead of the plain task after approving a workflow stage', async () => {
