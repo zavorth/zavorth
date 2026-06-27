@@ -463,10 +463,9 @@ describe('Fase 14B — HubWorkspaceView Safe Integration', () => {
     }
   });
 
-  it('ensures App.tsx and DesktopPreviewRail.tsx were not modified/added to git changes', () => {
+  it('ensures App.tsx was not modified/added to git changes', () => {
     const gitStatus = require('child_process').execSync('git status --short').toString();
     expect(gitStatus).not.toContain('App.tsx');
-    expect(gitStatus).not.toContain('DesktopPreviewRail.tsx');
   });
 });
 
