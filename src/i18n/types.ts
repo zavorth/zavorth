@@ -1,5 +1,16 @@
 // @ts-nocheck
-export type SupportedLocale = 'en-US' | 'pt-BR';
+export type SupportedLocale =
+  | 'en-US'
+  | 'pt-BR'
+  | 'es-ES'
+  | 'fr-FR'
+  | 'de-DE'
+  | 'it-IT'
+  | 'ja-JP'
+  | 'zh-CN'
+  | 'ko-KR'
+  | 'ru-RU'
+  | 'ar-SA';
 
 export type LocaleNamespace =
   | 'common'
@@ -33,7 +44,10 @@ export type LocaleSource = {
   header?: string | null;
 };
 
-export const SUPPORTED_LOCALES: readonly SupportedLocale[] = ['en-US', 'pt-BR'] as const;
+export const SUPPORTED_LOCALES: readonly SupportedLocale[] = [
+  'en-US', 'pt-BR', 'es-ES', 'fr-FR', 'de-DE',
+  'it-IT', 'ja-JP', 'zh-CN', 'ko-KR', 'ru-RU', 'ar-SA',
+] as const;
 
 export const DEFAULT_LOCALE: SupportedLocale = 'en-US';
 
