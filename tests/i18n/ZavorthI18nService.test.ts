@@ -39,8 +39,49 @@ describe('ZavorthI18nService', () => {
       expect(normalizeLocale('EN')).toBe('en-US');
     });
 
+    it('should normalize es variants to es-ES', () => {
+      expect(normalizeLocale('es')).toBe('es-ES');
+      expect(normalizeLocale('es-ES')).toBe('es-ES');
+      expect(normalizeLocale('es-MX')).toBe('es-ES');
+    });
+
+    it('should normalize fr variants to fr-FR', () => {
+      expect(normalizeLocale('fr')).toBe('fr-FR');
+      expect(normalizeLocale('fr-FR')).toBe('fr-FR');
+      expect(normalizeLocale('fr-CA')).toBe('fr-FR');
+    });
+
+    it('should normalize de variants to de-DE', () => {
+      expect(normalizeLocale('de')).toBe('de-DE');
+      expect(normalizeLocale('de-DE')).toBe('de-DE');
+      expect(normalizeLocale('de-AT')).toBe('de-DE');
+    });
+
+    it('should normalize ja to ja-JP', () => {
+      expect(normalizeLocale('ja')).toBe('ja-JP');
+      expect(normalizeLocale('ja-JP')).toBe('ja-JP');
+    });
+
+    it('should normalize zh to zh-CN', () => {
+      expect(normalizeLocale('zh')).toBe('zh-CN');
+      expect(normalizeLocale('zh-CN')).toBe('zh-CN');
+      expect(normalizeLocale('zh-TW')).toBe('zh-CN');
+    });
+
+    it('should normalize ko to ko-KR', () => {
+      expect(normalizeLocale('ko')).toBe('ko-KR');
+    });
+
+    it('should normalize ru to ru-RU', () => {
+      expect(normalizeLocale('ru')).toBe('ru-RU');
+    });
+
+    it('should normalize ar to ar-SA', () => {
+      expect(normalizeLocale('ar')).toBe('ar-SA');
+    });
+
     it('should default to en-US for unknown', () => {
-      expect(normalizeLocale('fr')).toBe('en-US');
+      expect(normalizeLocale('xx')).toBe('en-US');
       expect(normalizeLocale(null)).toBe('en-US');
       expect(normalizeLocale('')).toBe('en-US');
     });
