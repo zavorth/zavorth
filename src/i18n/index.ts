@@ -9,8 +9,8 @@ export type {
 } from './types.js';
 
 export {
-  SUPPORTED_LOCALES,
   DEFAULT_LOCALE,
+  KNOWN_LOCALES,
   NAMESPACE_LIST,
 } from './types.js';
 
@@ -20,6 +20,8 @@ export {
   normalizeLocale,
   resolveFromEnv,
   resolveLocale,
+  getAvailableLocales,
+  getAvailableLocaleLabels,
 } from './localeDetector.js';
 
 export {
