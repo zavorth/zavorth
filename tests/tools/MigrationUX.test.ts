@@ -13,24 +13,24 @@ describe('MigrationUXService', () => {
 
   it('creates instance', () => { expect(svc).toBeDefined(); });
 
-  it('detects hermes agent', () => {
-    const agentDir = path.join(dir, 'hermes');
+  it('detects legacy Python-style agent workspace', () => {
+    const agentDir = path.join(dir, 'legacy-python-agent');
     fs.mkdirSync(agentDir);
     fs.writeFileSync(path.join(agentDir, 'config.yaml'), 'test');
     fs.mkdirSync(path.join(agentDir, 'agent'));
     const detection = svc.detectAgent(agentDir);
     expect(detection).toBeTruthy();
-    expect(detection!.type).toBe('hermes');
+    expect(detection!.type).toBe('legacy-python');
   });
 
-  it('detects openclaw agent', () => {
-    const agentDir = path.join(dir, 'openclaw');
+  it('detects legacy TypeScript-style agent workspace', () => {
+    const agentDir = path.join(dir, 'legacy-typescript-agent');
     fs.mkdirSync(agentDir);
-    fs.writeFileSync(path.join(agentDir, 'openclaw.json'), '{}');
+    fs.writeFileSync(path.join(agentDir, 'agent.json'), '{}');
     fs.mkdirSync(path.join(agentDir, 'src'));
     const detection = svc.detectAgent(agentDir);
     expect(detection).toBeTruthy();
-    expect(detection!.type).toBe('openclaw');
+    expect(detection!.type).toBe('legacy-typescript');
   });
 
   it('detects zavorth agent', () => {

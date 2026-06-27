@@ -636,6 +636,117 @@ describe('ZavorthPlatformRegistryService', () => {
     expect(snapshot.catalogSync.status).toBe('stale');
   });
 
+  it('surfaces disabled MCP manifest entries as local review candidates instead of discovery-only plans', () => {
+    const service = new ZavorthPlatformRegistryService({
+      now: () => new Date('2026-04-10T10:00:00.000Z'),
+      pluginRegistryService: {
+        buildSnapshot: () => ({
+          generatedAt: '2026-04-10T10:00:00.000Z',
+          summary: {
+            total: 0,
+            ready: 0,
+            configurable: 0,
+            templates: 0,
+            workspaceExtensions: 0,
+            trusted: 0,
+            installed: 0,
+            catalogBacked: 0,
+            featured: 0,
+          },
+          query: null,
+          entries: [],
+          selected: null,
+          featuredIds: [],
+          narrative: {
+            headline: 'Plugin plane',
+            operatorSummary: 'Resumo',
+          },
+        }),
+      } as any,
+      catalogSourceService: {
+        listEntries: () => [
+          {
+            id: 'mcp:playwright',
+            label: 'playwright',
+            kind: 'mcp',
+            source: 'registry:local-catalog',
+            readiness: 'partial',
+            trust: 'review',
+            installState: 'available',
+            summary: 'MCP de browser automation cadastrado para revisao local.',
+            actionHint: 'Revisar manifesto MCP para playwright',
+            tags: ['browser'],
+            capabilities: ['browser'],
+            details: ['Pack: ui-debug'],
+            featured: false,
+            searchText: 'mcp playwright',
+          },
+        ],
+        listCollections: () => [],
+        listRecipes: () => [],
+        readSyncStatus: () => ({
+          enabled: false,
+          status: 'disabled',
+          remoteUrl: null,
+          sourceTrusted: false,
+          contentSha256: null,
+          expectedSha256: null,
+          checkedAt: null,
+          syncedAt: null,
+          stale: false,
+          ageMs: null,
+          maxAgeMs: 0,
+          entryCount: 1,
+          collectionCount: 0,
+          recipeCount: 0,
+          error: null,
+          cacheFile: '',
+          statusFile: '',
+          command: 'zavorth platform sync',
+          summary: 'Registry remoto desabilitado.',
+        }),
+      } as any,
+      skillLoader: {
+        loadAll: () => [],
+      } as any,
+      mcpManifestLoader: {
+        load: () => [
+          {
+            id: 'playwright',
+            command: 'npx',
+            args: ['-y', '@playwright/mcp'],
+            capability: 'browser',
+            enabled: false,
+            env: {},
+            allowedEnv: ['PATH'],
+          },
+        ],
+      } as any,
+    });
+
+    const snapshot = service.buildSnapshot({ selectedId: 'mcp:playwright' });
+
+    expect(snapshot.selected).toEqual(
+      expect.objectContaining({
+        id: 'mcp:playwright',
+        source: 'mcp-manifest',
+        discoveryOnly: false,
+        readiness: 'partial',
+        trust: 'review',
+        trustState: 'review',
+        reviewState: 'pending',
+        installState: 'installed',
+        runtimePermissionProfile: 'mcp-exec',
+      }),
+    );
+    expect(snapshot.selected?.details).toEqual(
+      expect.arrayContaining([
+        'Enabled: nao',
+        'Manifesto MCP cadastrado localmente; falta habilitar execucao apos revisao.',
+      ]),
+    );
+  });
+
   it('surfaces learned candidates inside the platform plane with review-first lifecycle', () => {
     const service = new ZavorthPlatformRegistryService({
       now: () => new Date('2026-04-09T16:00:00.000Z'),
