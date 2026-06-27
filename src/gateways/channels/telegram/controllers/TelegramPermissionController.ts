@@ -125,15 +125,32 @@ export class TelegramPermissionController {
   }
 
   public async handlePermissionCallback(ctx: Context, data: string): Promise<void> {
+    this.assertUserIsAdmin(ctx);
     await this.permissionInteraction.handlePermissionCallback(ctx, data);
   }
 
   public async handleTaskCallback(ctx: Context, data: string): Promise<void> {
-    const [, action, taskId] = data.split(':');
+    const match = /^task:(approve|reject):([^:\s]{1,160})$/.exec(String(data || ''));
+    if (!match) {
+      await ctx.answerCallbackQuery({ text: 'Acao invalida.' }).catch(() => undefined);
+      return;
+    }
+
+    this.assertUserIsAdmin(ctx);
+    const [, action, taskId] = match;
     if (action === 'approve') {
+      this.assertHostWritable();
+      if (this.taskApproval.requiresHighRiskConfirmation(taskId)) {
+        await ctx.answerCallbackQuery({ text: 'TOTP necessario.' }).catch(() => undefined);
+        await ctx.reply('Essa tarefa e HIGH_RISK. Aprove com `/approve <task_id> <codigo TOTP>`.', {
+          parse_mode: 'Markdown',
+        }).catch(() => undefined);
+        return;
+      }
       await ctx.answerCallbackQuery({ text: 'Aprovando tarefa...' }).catch(() => undefined);
       await this.taskApproval.handleApproval(ctx, taskId);
     } else if (action === 'reject') {
+      this.assertHostWritable();
       await ctx.answerCallbackQuery({ text: 'Rejeitando tarefa...' }).catch(() => undefined);
       await this.taskApproval.handleRejection(ctx, taskId);
     } else {
@@ -192,6 +209,18 @@ export class TelegramPermissionController {
     const status = this.deps.hostIdentityService?.getStatus();
     if (status && !status.authorized) {
       throw new Error('Host novo detectado. O Zavorth esta em modo somente leitura ate /hostauth trust.');
+    }
+  }
+
+  private assertUserIsAdmin(ctx: Context): void {
+    const userId = ctx.from?.id?.toString();
+    if (!userId) {
+      throw new Error('User ID invalido.');
+    }
+    const { config } = require('../../../../config/index.js');
+    const userRoles = config.telegramUserRoles?.[userId] || ['admin'];
+    if (!userRoles.includes('admin')) {
+      throw new Error('Apenas administradores podem decidir sobre aprovacoes/permissoes.');
     }
   }
 }

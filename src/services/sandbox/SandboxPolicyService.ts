@@ -244,26 +244,49 @@ export class SandboxPolicyService {
   }
 
   private isStrictlySafeCommand(command: string): boolean {
-    const normalized = String(command || '').trim();
+    const normalized = String(command || '').trim().replace(/\s+/g, ' ');
     if (!normalized) {
       return false;
     }
 
-    if (/&&|\|\||[|><`;\r\n]/.test(normalized) || /\$\(/.test(normalized)) {
-      return false;
+    // Apenas estes comandos exatos (sem argumentos adicionais perigosos ou injeção)
+    const SAFE_EXACT_COMMANDS = [
+      /^pwd$/i,
+      /^whoami$/i,
+      /^hostname$/i,
+      /^git status$/i,
+      /^git diff$/i,
+      /^git diff --stat$/i,
+      /^node -v$/i,
+      /^node --version$/i,
+      /^npm -v$/i,
+      /^npm --version$/i,
+      /^pnpm -v$/i,
+      /^pnpm --version$/i,
+      /^yarn -v$/i,
+      /^yarn --version$/i,
+      /^python -v$/i,
+      /^python --version$/i,
+      /^python3 --version$/i,
+      /^py -V$/i,
+      /^py --version$/i,
+    ];
+
+    if (SAFE_EXACT_COMMANDS.some((regex) => regex.test(normalized))) {
+      return true;
     }
 
-    if (
-      /\b(curl|wget|invoke-webrequest|npm\s+install|pnpm\s+install|yarn\s+add|pip(?:3)?\s+install|apt(?:-get)?\s+install|docker|choco|winget|scp|ssh|ftp|powershell|pwsh|reg|netsh)\b/i.test(
-        normalized,
-      )
-    ) {
-      return false;
+    // Permite ls/dir/cd/where/which apenas com argumentos simples e seguros
+    if (/^(ls|dir|cd|where|which)(?:\s+[^;&|><`$]+)?$/i.test(normalized)) {
+      if (/[$-]/.test(normalized) && !/^ls\s+-[a-zA-Z]+$/i.test(normalized) && !/^dir\s+\/[a-zA-Z]+$/i.test(normalized)) {
+        if (!/^(ls\s+-[a-zA-Z]+|dir\s+\/[a-zA-Z]+|cd\s+[a-zA-Z0-9_\-./\\]+)$/i.test(normalized)) {
+          return false;
+        }
+      }
+      return true;
     }
 
-    return /^(dir\b|ls\b|pwd\b|cd\b|whoami\b|hostname\b|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)?\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)?\s+--version\b|py\s+-V\b)/i.test(
-      normalized,
-    );
+    return false;
   }
 
   /**
