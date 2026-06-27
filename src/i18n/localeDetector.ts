@@ -1,5 +1,7 @@
-import type { SupportedLocale, LocaleSource } from './types.js';
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from './types.js';
+import fs from 'fs';
+import path from 'path';
+import { DEFAULT_LOCALE, KNOWN_LOCALES } from './types.js';
+import type { LocaleSource } from './types.js';
 
 const ENV_PRIORITY = [
   'ZAVORTH_LANG',
@@ -11,7 +13,7 @@ const ENV_PRIORITY = [
   'USER_LANGUAGE',
 ] as const;
 
-const LOCALE_MAP: Record<string, SupportedLocale> = {
+const LOCALE_MAP: Record<string, string> = {
   'en': 'en-US',
   'en-us': 'en-US',
   'en-gb': 'en-US',
@@ -46,7 +48,7 @@ const LOCALE_MAP: Record<string, SupportedLocale> = {
   'ar-eg': 'ar-SA',
 };
 
-export function normalizeLocale(input: string | null | undefined): SupportedLocale {
+export function normalizeLocale(input: string | null | undefined): string {
   const raw = String(input || '').trim().toLowerCase().replace(/_/g, '-');
   if (!raw) return DEFAULT_LOCALE;
 
@@ -57,7 +59,7 @@ export function normalizeLocale(input: string | null | undefined): SupportedLoca
   const byPrefix = LOCALE_MAP[prefix];
   if (byPrefix) return byPrefix;
 
-  return DEFAULT_LOCALE;
+  return raw || DEFAULT_LOCALE;
 }
 
 export function resolveFromEnv(env?: Record<string, string | undefined>): string {
@@ -78,8 +80,8 @@ export function resolveFromNavigator(): string {
 
 export function resolveLocale(
   source: LocaleSource,
-  fallback: SupportedLocale = DEFAULT_LOCALE,
-): SupportedLocale {
+  fallback: string = DEFAULT_LOCALE,
+): string {
   const raw =
     source.explicitLocale ||
     source.cookie ||
@@ -88,18 +90,46 @@ export function resolveLocale(
   return normalizeLocale(raw) || fallback;
 }
 
-export function getAvailableLocaleLabels(): Array<{ locale: SupportedLocale; label: string }> {
-  return [
-    { locale: 'en-US', label: 'English' },
-    { locale: 'pt-BR', label: 'Português (Brasil)' },
-    { locale: 'es-ES', label: 'Español' },
-    { locale: 'fr-FR', label: 'Français' },
-    { locale: 'de-DE', label: 'Deutsch' },
-    { locale: 'it-IT', label: 'Italiano' },
-    { locale: 'ja-JP', label: '日本語' },
-    { locale: 'zh-CN', label: '中文' },
-    { locale: 'ko-KR', label: '한국어' },
-    { locale: 'ru-RU', label: 'Русский' },
-    { locale: 'ar-SA', label: 'العربية' },
-  ];
+export function getAvailableLocales(localesDir: string): string[] {
+  const locales: string[] = [DEFAULT_LOCALE];
+  try {
+    if (fs.existsSync(localesDir)) {
+      const entries = fs.readdirSync(localesDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory() && entry.name !== DEFAULT_LOCALE) {
+          const localeDir = path.join(localesDir, entry.name);
+          const yamlFiles = fs.readdirSync(localeDir).filter((f) => f.endsWith('.yaml'));
+          if (yamlFiles.length > 0) {
+            locales.push(entry.name);
+          }
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return locales.sort();
+}
+
+export function getAvailableLocaleLabels(localesDir: string): Array<{ locale: string; label: string; hasTranslations: boolean }> {
+  const labels: Record<string, string> = {
+    'en-US': 'English',
+    'pt-BR': 'Português (Brasil)',
+    'es-ES': 'Español',
+    'fr-FR': 'Français',
+    'de-DE': 'Deutsch',
+    'it-IT': 'Italiano',
+    'ja-JP': '日本語',
+    'zh-CN': '中文',
+    'ko-KR': '한국어',
+    'ru-RU': 'Русский',
+    'ar-SA': 'العربية',
+  };
+
+  const available = getAvailableLocales(localesDir);
+  return available.map((locale) => ({
+    locale,
+    label: labels[locale] || locale,
+    hasTranslations: locale === DEFAULT_LOCALE || available.includes(locale),
+  }));
 }

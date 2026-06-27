@@ -80,8 +80,8 @@ describe('ZavorthI18nService', () => {
       expect(normalizeLocale('ar')).toBe('ar-SA');
     });
 
-    it('should default to en-US for unknown', () => {
-      expect(normalizeLocale('xx')).toBe('en-US');
+    it('should return raw locale for unknown (dynamic fallback)', () => {
+      expect(normalizeLocale('xx')).toBe('xx');
       expect(normalizeLocale(null)).toBe('en-US');
       expect(normalizeLocale('')).toBe('en-US');
     });
