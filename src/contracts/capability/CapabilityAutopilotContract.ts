@@ -3,16 +3,16 @@ import type {
   CapabilityPolicy,
   CapabilityType,
 } from './CapabilityContract.js';
-import type { ExecutionRequest, ExecutionResult } from './ExecutionContract.js';
+import type { ExecutionRequest, ExecutionResult } from '../ExecutionContract.js';
 import type {
   IntegrationBinding,
   IntegrationInstallStep,
   IntegrationManifest,
   IntegrationProbeSnapshot,
   IntegrationRequirement,
-} from './IntegrationHubContract.js';
-import type { Plan } from './PlanContract.js';
-import type { Task } from './TaskContract.js';
+} from '../IntegrationHubContract.js';
+import type { Plan } from '../PlanContract.js';
+import type { Task } from '../TaskContract.js';
 
 export type CapabilityAutopilotSurface =
   | 'chat'

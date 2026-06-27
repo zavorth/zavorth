@@ -3,10 +3,10 @@ import type {
   PlatformImplementationState,
   PlatformReadiness,
   PlatformTransport,
-} from './PlatformContract.js';
+} from '../PlatformContract.js';
 import type {
   NaturalFirstRuntimeEntrypoint,
-} from './NaturalFirstAgentRuntimeContract.js';
+} from '../NaturalFirstAgentRuntimeContract.js';
 
 export const GATEWAY_SURFACE_CONTRACT_VERSION = 'checkpoint-37.1';
 

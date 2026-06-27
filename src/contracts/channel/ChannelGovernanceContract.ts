@@ -1,4 +1,4 @@
-import type { CanonicalChannelPlatform } from '../channels/contracts/ChannelMessageContract.js';
+import type { CanonicalChannelPlatform } from '../../channels/contracts/ChannelMessageContract.js';
 
 export type ChannelPolicyDecision = 'allowed' | 'requires_approval' | 'blocked';
 

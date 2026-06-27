@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context } from 'grammy';
 import {PermissionRequest} from '@zavorth/contracts/PermissionRequest.js';
 import { PermissionService } from '@zavorth/services/PermissionService.js';

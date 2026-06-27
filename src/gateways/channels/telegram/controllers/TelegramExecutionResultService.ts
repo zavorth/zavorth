@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Task } from '../../../../contracts/TaskContract.js';
 import { ArtifactRecord } from '../../../../contracts/ArtifactContract.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';

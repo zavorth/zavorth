@@ -762,7 +762,7 @@ function signalsFromPath(target: string): ZavorthExternalAgentOnboardingSignal[]
     signals.push(signal('known-family-agent-family', 'Generic local agent family marker', 3, maskHome(target)));
   }
   if (lowered.includes('claude')) {
-    signals.push(signal('known-family-claude', 'Claude-style CLI agent marker', 3, maskHome(target)));
+    signals.push(signal('known-family-claude', 'Known CLI agent marker', 3, maskHome(target)));
   }
   if (lowered.includes('external-agent')) {
     signals.push(signal('known-family-agent', 'Generic agent runtime marker', 3, maskHome(target)));
@@ -822,7 +822,7 @@ function signalsFromManifests(manifests: Map<string, string>): ZavorthExternalAg
       signals.push(signal('protocol-mcp-manifest-text', 'Manifest references MCP', 4, file));
     }
     if (lowered.includes('claude')) {
-      signals.push(signal('known-family-claude-manifest', 'Manifest references Claude-style tooling', 3, file));
+      signals.push(signal('known-family-claude-manifest', 'Manifest references known CLI agent tooling', 3, file));
     }
     if (lowered.includes('claw')) {
       signals.push(signal('known-family-agent-family-manifest', 'Manifest references Generic local agent tooling', 3, file));
@@ -944,7 +944,7 @@ function labelForCandidate(
   protocols: ZavorthExternalAgentOnboardingProtocol[],
 ): string {
   const ids = signals.map((entry) => entry.id).join('|');
-  if (ids.includes('known-family-claude')) return 'External agent candidate: Claude-style CLI';
+  if (ids.includes('known-family-claude')) return 'External agent candidate: known CLI';
   if (ids.includes('known-family-agent-family')) return 'External agent candidate: local agent runtime';
   if (ids.includes('known-family-agent')) return 'External agent candidate: generic agent runtime';
   if (protocols.includes('acp')) return 'External agent candidate: ACP-compatible runtime';

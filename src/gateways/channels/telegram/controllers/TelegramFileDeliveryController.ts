@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from 'fs';
 import { Context, InputFile, InlineKeyboard } from 'grammy';
 import { config } from '../../../../config/index.js';

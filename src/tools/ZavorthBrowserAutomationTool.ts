@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 

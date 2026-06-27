@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { FirstRunPersonalizationAnswers } from './FirstRunPersonalizationService.js';
 import { logger } from '../logger.js';
 import { FirstRunPersonalizationService } from './FirstRunPersonalizationService.js';

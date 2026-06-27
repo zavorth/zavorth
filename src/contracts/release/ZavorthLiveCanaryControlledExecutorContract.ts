@@ -2,7 +2,7 @@ import type {
   ZavorthLiveCanaryApplyGateRollbackDrillInput,
   ZavorthLiveCanaryApplyGateRollbackDrillSnapshot,
 } from './ZavorthLiveCanaryApplyGateRollbackDrillContract.js';
-import type { ZavorthProviderLiveCanarySnapshot } from './ZavorthProviderLiveCanaryContract.js';
+import type { ZavorthProviderLiveCanarySnapshot } from '../ZavorthProviderLiveCanaryContract.js';
 
 export const ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION =
   '2026-05-11.live-canary-controlled-executor-checkpoint-10' as const;

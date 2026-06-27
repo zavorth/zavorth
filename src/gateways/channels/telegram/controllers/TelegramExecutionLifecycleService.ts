@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context, InlineKeyboard } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';

@@ -1,6 +1,6 @@
-import type { ChannelMeshConsistencySnapshot } from './ChannelMeshConsistencyContract.js';
-import type { ReleaseCertificationSnapshot } from './ReleaseCertificationContract.js';
-import type { ProviderMeshReadinessSnapshot } from './ProviderMeshReadinessContract.js';
+import type { ChannelMeshConsistencySnapshot } from '../ChannelMeshConsistencyContract.js';
+import type { ReleaseCertificationSnapshot } from '../ReleaseCertificationContract.js';
+import type { ProviderMeshReadinessSnapshot } from '../ProviderMeshReadinessContract.js';
 
 export const ZAVORTH_RUNTIME_ADAPTER_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-11';
 

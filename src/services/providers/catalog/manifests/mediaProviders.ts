@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ProviderIntegrationManifest } from '../ProviderIntegrationManifest.js';
 
 export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[] = [

@@ -1,4 +1,4 @@
-import type { ZavorthProviderCapabilityModality } from '../services/providers/catalog/zavorthProviderCapabilityInventory.js';
+import type { ZavorthProviderCapabilityModality } from '../../services/providers/catalog/zavorthProviderCapabilityInventory.js';
 
 export const ZAVORTH_PROVIDER_CAPABILITY_MATRIX_CONTRACT_VERSION =
   '2026-06-03.provider-capability-matrix.v1' as const;

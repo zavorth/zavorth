@@ -2,7 +2,7 @@ import type {
   OperationalReadinessGate,
   OperationalReadinessGap,
   OperationalReadinessSnapshot,
-} from './OperationalReadinessToolingContract.js';
+} from '../OperationalReadinessToolingContract.js';
 
 export const ZAVORTH_RELEASE_CERTIFICATION_CONTRACT_VERSION = '2026-05-04.checkpoint-9';
 

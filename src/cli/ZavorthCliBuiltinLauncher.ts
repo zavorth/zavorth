@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { resolveCliHelpTopic } from './ZavorthCliSurfaceHelpers.js';

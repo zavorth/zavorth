@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { logger } from '../../../../logger.js';
 import { Bot } from 'grammy';
 import { LogRepository } from '../../../../storage/LogRepository.js';

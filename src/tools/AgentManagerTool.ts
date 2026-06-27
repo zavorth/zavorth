@@ -350,8 +350,6 @@ export class AgentManagerTool extends BaseTool {
     const patterns = [
       { regex: /claude|anthropic/i, command: 'claude', label: 'Claude Code' },
       { regex: /codex|openai.*codex/i, command: 'codex', label: 'OpenAI Codex' },
-      { regex: /openclaw|claw/i, command: 'openclaw', label: 'OpenClaw' },
-      { regex: /hermes/i, command: 'hermes', label: 'Hermes Agent' },
       { regex: /gemini|google.*ai/i, command: 'gemini', label: 'Gemini CLI' },
       { regex: /aider/i, command: 'aider', label: 'Aider' },
       { regex: /cursor/i, command: 'cursor', label: 'Cursor' },

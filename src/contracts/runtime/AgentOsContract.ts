@@ -4,7 +4,7 @@ import type {
   IntelligenceProposedAction,
   IntelligenceRiskLevel,
   IntelligenceTaskKind,
-} from './IntelligenceFabricContract.js';
+} from '../IntelligenceFabricContract.js';
 
 export const AGENT_OS_CONTRACT_VERSION = 'zavorth-agent-os/v1' as const;
 

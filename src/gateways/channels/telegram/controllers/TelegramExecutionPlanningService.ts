@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';

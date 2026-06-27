@@ -10,7 +10,7 @@
     "activeHandles": 12
   },
   "entry": "src/runtime/actions/modules/capabilitySpine.ts",
-  "description": "Verified routes that discover hidden Zavorth capabilities, expose skill/agent/workflow surfaces, and map Hermes/OpenClaw parity packs.",
+  "description": "Verified routes that discover hidden Zavorth capabilities and expose skill, agent, and workflow surfaces.",
   "requires": ["filesystem", "process"],
   "provides": [
     "capabilities_hidden_scan",
@@ -23,8 +23,8 @@
     "agents_external_invoke",
     "workflows_list",
     "workflows_run",
-    "capabilities_parity_hermes",
-    "capabilities_parity_openclaw"
+    "capabilities_reference_agent",
+    "capabilities_reference_workspace"
   ],
   "tags": ["native", "verified", "action-harness", "capability-spine"],
   "actions": [
@@ -119,7 +119,7 @@
       "receipt": "required"
     },
     {
-      "id": "capabilities.parity.hermes",
+      "id": "capabilities.reference.agent",
       "status": "verified",
       "risk": "safe",
       "requiresPreview": false,
@@ -128,7 +128,7 @@
       "receipt": "none"
     },
     {
-      "id": "capabilities.parity.openclaw",
+      "id": "capabilities.reference.workspace",
       "status": "verified",
       "risk": "safe",
       "requiresPreview": false,

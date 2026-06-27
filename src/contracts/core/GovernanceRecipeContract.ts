@@ -2,7 +2,7 @@ import type {
   CapabilityHubItem,
   CapabilityHubItemKind,
   CapabilityHubRiskLevel,
-} from './CapabilityHubContract.js';
+} from '../CapabilityHubContract.js';
 
 export const GOVERNANCE_RECIPE_CONTRACT_VERSION = 'zavorth-governance-recipes/v1';
 

@@ -3,7 +3,7 @@ import type {
   ZavorthAdaptiveLearningSensitivity,
   ZavorthUserModelUse,
 } from './ZavorthAdaptiveLearningOsContract.js';
-import type { ZavorthLearningMemoryRisk } from './ZavorthMemoryLearningLoopContract.js';
+import type { ZavorthLearningMemoryRisk } from '../ZavorthMemoryLearningLoopContract.js';
 
 export type ZavorthAdaptiveSemanticClassifierInput = {
   text: string;

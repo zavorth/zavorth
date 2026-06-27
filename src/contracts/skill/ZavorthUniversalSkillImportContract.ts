@@ -2,7 +2,7 @@ import type {
   SkillImportAuditReference,
   SkillLicensePolicyDecision,
   SkillRiskAssessment,
-} from '../skills/SkillCatalogContract.js';
+} from '../../skills/SkillCatalogContract.js';
 import type {
   ZavorthUniversalSkillCandidate,
   ZavorthUniversalSkillIntakePreview,

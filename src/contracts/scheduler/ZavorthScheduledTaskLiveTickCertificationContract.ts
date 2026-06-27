@@ -1,4 +1,4 @@
-import type { ScheduledTask } from '../storage/SchedulerRepository.js';
+import type { ScheduledTask } from '../../storage/SchedulerRepository.js';
 import type { ZavorthScheduledTaskOperationalGuardSnapshot } from './ZavorthScheduledTaskOperationalGuardContract.js';
 import type { ZavorthScheduledTaskRuntimeSnapshot } from './ZavorthScheduledTaskRuntimeContract.js';
 

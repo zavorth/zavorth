@@ -4,7 +4,7 @@ import type {
   ZavorthLiveCanaryExecutionAdapterReviewInput,
   ZavorthLiveCanaryExecutionAdapterReviewSnapshot,
 } from './ZavorthLiveCanaryExecutionAdapterReviewContract.js';
-import type { ZavorthCrossSurfaceProjectionSurface } from './ZavorthCrossSurfaceRuntimeProjectionContract.js';
+import type { ZavorthCrossSurfaceProjectionSurface } from '../ZavorthCrossSurfaceRuntimeProjectionContract.js';
 
 export const ZAVORTH_LIVE_CANARY_APPLY_GATE_ROLLBACK_DRILL_CONTRACT_VERSION =
   '2026-05-11.live-canary-apply-gate-rollback-drill-checkpoint-9' as const;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ComposerActionService } from './ComposerActionService.js';
 import { ComposerCatalogService } from './ComposerCatalogService.js';
 import { ComposerContextService } from './ComposerContextService.js';

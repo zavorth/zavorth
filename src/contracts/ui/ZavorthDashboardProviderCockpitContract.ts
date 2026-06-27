@@ -2,7 +2,7 @@ import type {
   ZavorthProviderReadinessMatrixSnapshot,
   ZavorthProviderReadinessStatus,
   ZavorthProviderProbeStatus,
-} from './ZavorthProviderReadinessMatrixContract.js';
+} from '../ZavorthProviderReadinessMatrixContract.js';
 
 export const ZAVORTH_COMMAND_CENTER_PROVIDER_COCKPIT_CONTRACT_VERSION = '2026-05-13.checkpoint-6' as const;
 

@@ -1,6 +1,6 @@
 import type {
   ZavorthChannelMessagingBridgeStatus,
-} from './ZavorthChannelMessagingBridgeContract.js';
+} from '../ZavorthChannelMessagingBridgeContract.js';
 
 export const ZAVORTH_SESSION_MEMORY_CONTINUATION_CONTRACT_VERSION =
   'zavorth-session-memory-continuation/6' as const;

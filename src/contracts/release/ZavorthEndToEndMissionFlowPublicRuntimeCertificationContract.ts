@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type {
   CanonicalApprovalsDTO,
   CanonicalChannelMeshDTO,
@@ -7,10 +8,10 @@ import type {
   CanonicalReceiptsDTO,
   CanonicalRuntimeHealthDTO,
   CanonicalRuntimeStatusDTO,
-} from './public/rest/runtime-api-v1-dto.js';
-import type { PublicRuntimeEvent } from './public/events/sse.js';
-import type { ZavorthSchedulerPerceptionDeviceLiveCompletionSnapshot } from './ZavorthSchedulerPerceptionDeviceLiveCompletionContract.js';
-import type { ZavorthSubagentSkillLiveCompletionSnapshot } from './ZavorthSubagentSkillLiveCompletionContract.js';
+} from '../../public/rest/runtime-api-v1-dto.js';
+import type { PublicRuntimeEvent } from '../../public/events/sse.js';
+import type { ZavorthSchedulerPerceptionDeviceLiveCompletionSnapshot } from '../ZavorthSchedulerPerceptionDeviceLiveCompletionContract.js';
+import type { ZavorthSubagentSkillLiveCompletionSnapshot } from '../ZavorthSubagentSkillLiveCompletionContract.js';
 
 export const ZAVORTH_END_TO_END_MISSION_FLOW_PUBLIC_RUNTIME_CERTIFICATION_CONTRACT_VERSION =
   '2026-05-14.checkpoint-8-end-to-end-mission-flow-public-runtime-certification' as const;

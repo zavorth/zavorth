@@ -1,4 +1,5 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
+import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { createGatewayFile, listGatewayFiles } from "@/lib/zavorthGatewayRuntimeStore";
 
 export async function OPTIONS() {
@@ -11,13 +12,19 @@ export async function OPTIONS() {
   });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const policy = await enforceApiKeyPolicy(request, null);
+  if (policy.rejection) return policy.rejection;
+
   return Response.json({ object: "list", data: listGatewayFiles() }, {
     headers: { "Access-Control-Allow-Origin": CORS_ORIGIN },
   });
 }
 
 export async function POST(request: Request) {
+  const policy = await enforceApiKeyPolicy(request, null);
+  if (policy.rejection) return policy.rejection;
+
   try {
     const file = await createGatewayFile(request);
     return Response.json(file, {

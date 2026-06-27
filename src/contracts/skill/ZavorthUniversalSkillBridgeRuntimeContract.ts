@@ -1,13 +1,13 @@
 import type {
   SecurityPolicyBrokerAction,
   SecurityPolicyBrokerReceipt,
-} from '../security/SecurityPolicyBroker.js';
+} from '../../security/SecurityPolicyBroker.js';
 import type {
   SkillImportAuditReference,
   SkillLicensePolicyDecision,
   SkillProvenanceMetadata,
   SkillRiskAssessment,
-} from '../skills/SkillCatalogContract.js';
+} from '../../skills/SkillCatalogContract.js';
 
 export const ZAVORTH_UNIVERSAL_SKILL_BRIDGE_RUNTIME_CONTRACT_VERSION = '2026-05-10.checkpoint-3' as const;
 

@@ -30,16 +30,16 @@ export async function runMigrationUX(rawArgs: string[] = []): Promise<number> {
     console.log('  zavorth migrate --dry-run        # Preview without applying');
     console.log('');
     console.log('Supported agents:');
-    console.log('  - hermes     (Hermes Agent)');
-    console.log('  - openclaw   (OpenClaw)');
+    console.log('  - legacy-python      (Python-style agent workspace)');
+    console.log('  - legacy-typescript  (TypeScript-style agent workspace)');
     console.log('  - zavorth    (Zavorth)');
     console.log('  - claude     (Claude)');
     console.log('  - cursor     (Cursor)');
     console.log('  - generic    (Any agent)');
     console.log('');
     console.log('Examples:');
-    console.log('  zavorth migrate ~/.hermes');
-    console.log('  zavorth migrate --from hermes');
+    console.log('  zavorth migrate /path/to/agent');
+    console.log('  zavorth migrate --from legacy-typescript');
     console.log('  zavorth migrate /path/to/agent --dry-run');
     return 1;
   }

@@ -52,8 +52,6 @@ const DEFAULT_PRICING: Record<string, { inputPer1k: number; outputPer1k: number 
   'claude': { inputPer1k: 0.003, outputPer1k: 0.015 },
   'codex': { inputPer1k: 0.0025, outputPer1k: 0.01 },
   'gemini': { inputPer1k: 0.000125, outputPer1k: 0.0005 },
-  'openclaw': { inputPer1k: 0.002, outputPer1k: 0.008 },
-  'hermes': { inputPer1k: 0.001, outputPer1k: 0.004 },
   'default': { inputPer1k: 0.002, outputPer1k: 0.008 },
 };
 

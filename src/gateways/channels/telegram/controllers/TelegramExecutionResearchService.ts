@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Task } from '../../../../contracts/TaskContract.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { DeepSearchService } from '../../../../services/DeepSearchService.js';

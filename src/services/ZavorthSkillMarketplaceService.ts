@@ -51,6 +51,17 @@ function escapeRegExp(value: string): string {
 }
 
 export class ZavorthSkillMarketplaceService {
+  private static readonly CATEGORY_ALIASES: Record<string, string[]> = {
+    development: ['development', 'engineering', 'workspace', 'reasoning'],
+    research: ['research', 'ai', 'ai-safety'],
+    productivity: ['productivity', 'onboarding', 'memory'],
+    media: ['media', 'design', 'creative'],
+    security: ['security'],
+    devops: ['devops', 'operations', 'cloud', 'monitoring', 'orchestration', 'edge-computing', 'providers'],
+    communication: ['communication', 'channels', 'marketing'],
+    data: ['data', 'data-engineering', 'data-science', 'database', 'big-data', 'ml', 'finance', 'blockchain', 'smart-home', 'physical-ai'],
+  };
+
   private readonly projectRoot: string;
   private readonly existsSync: typeof fs.existsSync;
   private readonly readFileSync: typeof fs.readFileSync;
@@ -186,15 +197,10 @@ export class ZavorthSkillMarketplaceService {
   listCategories(): ZavorthMarketplaceCategory[] {
     const index = this.readIndex();
     const skills = this.discoverNativeSkills();
-    const categoryCounts = new Map<string, number>();
-
-    for (const skill of skills) {
-      categoryCounts.set(skill.category, (categoryCounts.get(skill.category) || 0) + 1);
-    }
 
     return index.categories.map((cat) => ({
       ...cat,
-      skillCount: categoryCounts.get(cat.id) || cat.skillCount || 0,
+      skillCount: this.countSkillsForCategory(skills, cat.id) || cat.skillCount || 0,
     }));
   }
 
@@ -214,7 +220,8 @@ export class ZavorthSkillMarketplaceService {
     }
 
     if (input.category) {
-      entries = entries.filter((entry) => entry.category === input.category);
+      const categoryAliases = new Set(this.resolveMarketplaceCategoryAliases(input.category));
+      entries = entries.filter((entry) => categoryAliases.has(entry.category));
     }
 
     if (input.tags && input.tags.length > 0) {
@@ -232,6 +239,20 @@ export class ZavorthSkillMarketplaceService {
       page: 1,
       pageSize,
     };
+  }
+
+  private countSkillsForCategory(skills: ZavorthMarketplaceSkillEntry[], categoryId: string): number {
+    const categoryAliases = new Set(this.resolveMarketplaceCategoryAliases(categoryId));
+    return skills.filter((skill) => categoryAliases.has(skill.category)).length;
+  }
+
+  private resolveMarketplaceCategoryAliases(categoryId: string): string[] {
+    const normalized = String(categoryId || '').trim();
+    if (!normalized) {
+      return [];
+    }
+
+    return ZavorthSkillMarketplaceService.CATEGORY_ALIASES[normalized] || [normalized];
   }
 
   getSkill(id: string): ZavorthMarketplaceSkillEntry | null {
@@ -324,5 +345,4 @@ export class ZavorthSkillMarketplaceService {
     };
   }
 }
-
 

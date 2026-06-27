@@ -1,4 +1,4 @@
-import { ExecutionRequest, ExecutionResult } from './ExecutionContract.js';
+import { ExecutionRequest, ExecutionResult } from '../ExecutionContract.js';
 
 /**
  * IExecutor — Interface comum para todos os executores do Zavorth.

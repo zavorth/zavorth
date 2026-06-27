@@ -1,5 +1,5 @@
 import type { ZavorthExperienceProfileId } from './ZavorthExperienceProfileContract.js';
-import type { ZavorthMissionRiskLevel } from './ZavorthMissionContract.js';
+import type { ZavorthMissionRiskLevel } from '../ZavorthMissionContract.js';
 
 export const ZAVORTH_GUIDED_MISSIONS_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-3' as const;
 

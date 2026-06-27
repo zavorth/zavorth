@@ -553,7 +553,7 @@ Respond with ONLY a JSON object:
 {"action": "<category>", "confidence": <0.0-1.0>, "skillQuery": "<extracted skill name or null>", "sourcePath": "<extracted path or null>"}
 
 Examples:
-- "import the github skill from openclaw" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "github", "sourcePath": null}
+- "import the github skill from an external library" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "github", "sourcePath": null}
 - "استورد مهارة الطقس" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "weather", "sourcePath": null}
 - "bring in the discord skill" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "discord", "sourcePath": null}
 - "use the code review skill" → {"action": "use_skill", "confidence": 0.9, "skillQuery": "code review", "sourcePath": null}

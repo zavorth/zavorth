@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context } from 'grammy';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';

@@ -1,4 +1,4 @@
-import type { ZavorthNativeCompanionDeviceSnapshot } from './ZavorthNativeCompanionDeviceContract.js';
+import type { ZavorthNativeCompanionDeviceSnapshot } from '../ZavorthNativeCompanionDeviceContract.js';
 import type { ZavorthPerceptionCrossSurfaceCertificationSnapshot } from './ZavorthPerceptionCrossSurfaceCertificationContract.js';
 
 export const ZAVORTH_PERCEPTION_DEVICE_CONTROL_COMPLETION_CONTRACT_VERSION =

@@ -1,7 +1,7 @@
 import type {
   CapabilityNormalizationFamily,
   CapabilityPrimitiveRuntimeStatus,
-} from './CapabilityNormalizationContract.js';
+} from '../CapabilityNormalizationContract.js';
 
 export const ZAVORTH_RUNTIME_FAMILY_CLOSURE_CONTRACT_VERSION = '2026-05-04.worker-6' as const;
 

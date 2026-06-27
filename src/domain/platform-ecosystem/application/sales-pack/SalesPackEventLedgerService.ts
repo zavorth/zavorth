@@ -1,8 +1,8 @@
 import type {
   SalesEventKind,
   SalesPackLedgerEvent,
-} from '../../../../contracts/SalesPackContract.js';
-import { SALES_EVENT_KINDS } from '../../../../contracts/SalesPackContract.js';
+} from '../../../../contracts/core/SalesPackContract.js';
+import { SALES_EVENT_KINDS } from '../../../../contracts/core/SalesPackContract.js';
 
 type SalesPackEventLedgerRuntime = {
   now?: () => Date;

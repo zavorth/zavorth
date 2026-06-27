@@ -1,7 +1,7 @@
-import type { ZavorthAndroidAdbInput } from './ZavorthAndroidAdbBridgeContract.js';
-import type { ZavorthBrowserVisionInput } from './ZavorthBrowserVisionBridgeContract.js';
-import type { ZavorthComputerControlInput } from './ZavorthComputerControlPlaneContract.js';
-import type { ZavorthVisionControlPlaneInput } from './ZavorthVisionControlPlaneContract.js';
+import type { ZavorthAndroidAdbInput } from '../ZavorthAndroidAdbBridgeContract.js';
+import type { ZavorthBrowserVisionInput } from '../ZavorthBrowserVisionBridgeContract.js';
+import type { ZavorthComputerControlInput } from '../ZavorthComputerControlPlaneContract.js';
+import type { ZavorthVisionControlPlaneInput } from '../ZavorthVisionControlPlaneContract.js';
 import type { ZavorthGovernedSubagentProfileId } from './ZavorthGovernedSubagentContract.js';
 
 export const ZAVORTH_PERCEPTION_INVOCATION_CONTRACT_VERSION =

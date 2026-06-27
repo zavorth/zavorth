@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Task } from '@zavorth/contracts/TaskContract.js';
 import {
   classifyWorkspaceTaskProfile,

@@ -1,9 +1,9 @@
 import type {
   ZavorthExternalContractLayerStatus,
-} from './ZavorthExternalContractLayerContract.js';
+} from '../ZavorthExternalContractLayerContract.js';
 import type {
   ZavorthExternalRuntimeNaturalFirstRoute,
-} from './ZavorthExternalRuntimeBridgeContract.js';
+} from '../ZavorthExternalRuntimeBridgeContract.js';
 
 export const ZAVORTH_NATIVE_ENGINE_ABSORPTION_CONTRACT_VERSION =
   'zavorth-native-engine-absorption/2' as const;

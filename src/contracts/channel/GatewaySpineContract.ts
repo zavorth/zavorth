@@ -1,4 +1,4 @@
-import type { PlatformReadiness } from './PlatformContract.js';
+import type { PlatformReadiness } from '../PlatformContract.js';
 
 export const GATEWAY_SPINE_CONTRACT_VERSION = '2026-05-13.checkpoint-1' as const;
 

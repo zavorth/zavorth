@@ -1,4 +1,4 @@
-import type { CapabilityNormalizationFamily } from './CapabilityNormalizationContract.js';
+import type { CapabilityNormalizationFamily } from '../CapabilityNormalizationContract.js';
 
 export const ZAVORTH_LIVE_READINESS_CONTRACT_VERSION = '2026-05-04.live-checkpoint-1' as const;
 

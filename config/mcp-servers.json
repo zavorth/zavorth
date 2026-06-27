@@ -1,1 +1,49 @@
-[]
+[
+  {
+    "id": "filesystem",
+    "enabled": false,
+    "command": "${npxCommand}",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-filesystem",
+      "${workspaceRoot}"
+    ],
+    "env": {
+      "ZAVORTH_MCP_WORKSPACE": "${workspaceRoot}"
+    },
+    "allowedEnv": [
+      "PATH"
+    ],
+    "capability": "filesystem"
+  },
+  {
+    "id": "reasoning",
+    "enabled": false,
+    "command": "${npxCommand}",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-sequential-thinking"
+    ],
+    "env": {},
+    "allowedEnv": [
+      "PATH"
+    ],
+    "capability": "reasoning"
+  },
+  {
+    "id": "playwright",
+    "enabled": false,
+    "command": "${npxCommand}",
+    "args": [
+      "-y",
+      "@playwright/mcp"
+    ],
+    "env": {
+      "ZAVORTH_MCP_BROWSER_PROFILE": "${projectRoot}/.zavorth/mcp/playwright"
+    },
+    "allowedEnv": [
+      "PATH"
+    ],
+    "capability": "browser"
+  }
+]

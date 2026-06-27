@@ -20,6 +20,16 @@ ways to add or expose capabilities while keeping policy in the middle.
 - unknown capability sources should start in preview or quarantine;
 - channel and provider capabilities need live readiness, not just a manifest.
 
+## MCP Readiness States
+
+MCP entries move through three explicit states:
+
+- **Catalogued**: the platform registry knows about the MCP, but there is no local execution manifest yet.
+- **Manifest-backed disabled**: `config/mcp-servers.json` declares the server with `enabled: false`; it can be reviewed, audited and shown in the platform plane, but it cannot execute.
+- **Enabled**: the manifest enables the server and policy still decides which tools can run, which tools need approval, and which tools remain blocked.
+
+The bundled filesystem, reasoning and Playwright MCP entries start as manifest-backed disabled candidates. This keeps the marketplace and platform registry concrete without silently granting executable MCP access.
+
 ## Daily Use
 
 Users should be able to ask naturally:

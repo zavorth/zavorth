@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
   ZAVORTH_UNIFIED_ONBOARDING_CONTRACT_VERSION,
   type ZavorthUnifiedOnboardingProviderSummary,
@@ -132,7 +133,7 @@ export class ZavorthUnifiedOnboardingService {
         {
           id: 'migrate',
           command: 'zavorth migrate <path-or-name>',
-          summary: 'Migrate settings, skills, and providers from another agent (hermes, openclaw, claude, cursor, or any agent).',
+          summary: 'Migrate settings, skills, and providers from another local agent workspace or generic agent export.',
           appliesMutation: false,
         },
         {

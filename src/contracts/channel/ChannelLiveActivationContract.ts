@@ -1,4 +1,4 @@
-import type { LiveReadinessStatus } from './LiveReadinessContract.js';
+import type { LiveReadinessStatus } from '../LiveReadinessContract.js';
 
 export const ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-2' as const;
 

@@ -77,7 +77,7 @@ After installation, verify that the `zavorth` command is available:
 zavorth --help
 ```
 
-For a cleaner Claude-style terminal flow, prefer the Zavorth wrappers instead of
+For a cleaner terminal flow, prefer the Zavorth wrappers instead of
 raw npm commands:
 
 ```bash

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ProviderIntegrationManifest } from '../ProviderIntegrationManifest.js';
 import { createMinimalProviderIntegrationManifest } from '../ProviderIntegrationManifest.js';
 

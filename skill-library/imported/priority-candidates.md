@@ -5,9 +5,9 @@ They are not trusted or enabled by default. Zavorth uses them as reference mater
 
 ## Promoted into native
 
-- `Hermes/subagent-driven-development`: inspired `zavorth-subagent-development`; useful for splitting implementation work into registered lanes with staged review.
-- `OpenClaw/taskflow`: inspired `zavorth-taskflow`; useful for durable, resumable work with waits and child tasks.
-- `OpenClaw/taskflow-inbox-triage`: inspired the TaskFlow wait/routing pattern; useful as a concrete example, not as a standalone native skill.
+- `external/subagent-driven-development`: informed `zavorth-subagent-development`; useful for splitting implementation work into registered lanes with staged review.
+- `external/taskflow`: informed `zavorth-taskflow`; useful for durable, resumable work with waits and child tasks.
+- `external/taskflow-inbox-triage`: informed the TaskFlow wait/routing pattern; useful as a concrete example, not as a standalone native skill.
 - `AIAgentSkills/alinaqi_claude-bootstrap/workspace`: inspired `zavorth-workspace-scope`; useful because the desktop needs real project-folder boundaries.
 - `AIAgentSkills/alinaqi_claude-bootstrap/ai-models`: inspired `zavorth-model-routing`; useful for model selection concepts, but not copied because model lists become stale.
 - `AIAgentSkills/alinaqi_claude-bootstrap/model-routing`: inspired `zavorth-model-routing`; useful conceptually, but the original is Claude-hook-specific and lacks portable frontmatter.
@@ -15,7 +15,7 @@ They are not trusted or enabled by default. Zavorth uses them as reference mater
 
 ## Kept as reference, not promoted
 
-- `OpenClaw/browser-automation`: good operational browser discipline, but Zavorth already has `zavorth-browser-operator`; its stable-ref/snapshot ideas should inform runtime/browser implementation.
+- `external/browser-automation`: good operational browser discipline, but Zavorth already has `zavorth-browser-operator`; its stable-ref/snapshot ideas should inform runtime/browser implementation.
 - `AIAgentSkills/code-review` variants: useful review discipline, but Zavorth already has `code-review` and `zavorth-dev-workbench`; external versions depend on specific engines such as CodeRabbit or ADR gates.
 - `AIAgentSkills/deep-research`: useful research pattern, but provider-specific and cost-bearing; Zavorth already has `zavorth-research-synthesis` and `web-research-governed`.
 - `AIAgentSkills/research-review`: useful external-review pattern, but depends on unavailable MCP reviewer backends.

@@ -1,4 +1,4 @@
-import type { SkillCatalogEntry } from '../skills/SkillCatalogContract.js';
+import type { SkillCatalogEntry } from '../../skills/SkillCatalogContract.js';
 import type {
   ZavorthUniversalSkillBridgeMode,
   ZavorthUniversalSkillBridgeSnapshot,

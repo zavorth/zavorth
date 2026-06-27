@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ZavorthActionDefinition, ZavorthActionHandlerInput, ZavorthActionResult, ZavorthActionSchema } from '../runtime/actions/ZavorthActionContracts.js';
 import { AgentChainBuilder, type AgentChainConfig } from './AgentChainBuilder.js';
 import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';

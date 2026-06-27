@@ -37,7 +37,7 @@
 
 ## What Zavorth Is
 
-Zavorth is a **proprietary** AI agent runtime that actually does things — safely. The main interface is the `/dashboard` web surface, which serves as your primary control center, while a lightweight desktop agent acts as a companion.
+Zavorth is an **MIT-licensed**, local-first AI agent runtime that actually does things - safely. The main browser surface is Zavorth Control at `/control` (with `/dashboard` kept as a compatibility route in current builds), while a lightweight desktop agent acts as a companion.
 
 You describe what you want in plain language. Zavorth plans the work, shows you what it's about to do, waits for your approval on anything risky, and then executes. Afterward, you get a receipt: a clear, auditable record of what happened.
 

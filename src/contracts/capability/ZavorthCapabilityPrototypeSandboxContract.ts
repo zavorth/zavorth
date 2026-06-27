@@ -1,4 +1,4 @@
-import type { SandboxExecutionReceipt } from './SandboxExecutionReceiptContract.js';
+import type { SandboxExecutionReceipt } from '../SandboxExecutionReceiptContract.js';
 import type { ZavorthCapabilityCandidate } from './ZavorthCapabilityCandidateRegistryContract.js';
 
 export const ZAVORTH_CAPABILITY_PROTOTYPE_SANDBOX_CONTRACT_VERSION = '2026-06-02.capability-prototype-sandbox.v1' as const;

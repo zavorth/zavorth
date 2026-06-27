@@ -1,4 +1,4 @@
-import type { ZavorthCrossSurfaceProjectionSurface } from './ZavorthCrossSurfaceRuntimeProjectionContract.js';
+import type { ZavorthCrossSurfaceProjectionSurface } from '../ZavorthCrossSurfaceRuntimeProjectionContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION =
   '2026-05-12.governed-scheduled-task-checkpoint-1' as const;

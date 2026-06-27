@@ -1,5 +1,5 @@
-import type { ZavorthMutationPlan } from './ZavorthMutationPlaneContract.js';
-import type { TrustDecision } from '../services/TrustDecisionService.js';
+import type { ZavorthMutationPlan } from '../ZavorthMutationPlaneContract.js';
+import type { TrustDecision } from '../../services/TrustDecisionService.js';
 
 export type IDECompanionPresetId =
   | 'zavorthBridge'

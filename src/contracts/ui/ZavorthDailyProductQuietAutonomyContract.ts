@@ -3,7 +3,7 @@ import type {
   ProfileImprovementLane,
   ProfileImprovementMode,
   ProfileImprovementRisk,
-} from './ProfileManifestContract.js';
+} from '../ProfileManifestContract.js';
 
 export const ZAVORTH_DAILY_PRODUCT_QUIET_AUTONOMY_VERSION = '2026-06-02.daily-product-quiet-autonomy.v1' as const;
 

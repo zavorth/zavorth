@@ -1,8 +1,8 @@
-import type { LiveReadinessStatus } from './LiveReadinessContract.js';
+import type { LiveReadinessStatus } from '../LiveReadinessContract.js';
 import type {
   ProviderLongTailChatSmokeReceipt,
   ProviderLongTailEmbeddingSmokeReceipt,
-} from '../adapters/providers/ProviderLongTailLiveClients.js';
+} from '../../adapters/providers/ProviderLongTailLiveClients.js';
 
 export const ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-5' as const;
 

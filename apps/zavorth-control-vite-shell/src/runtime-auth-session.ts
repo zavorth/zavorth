@@ -30,14 +30,17 @@ export function createRuntimeAuthSession({
     try {
       const url = new URL(window.location.href);
       const hashParams = new URLSearchParams(url.hash.startsWith('#') ? url.hash.slice(1) : url.hash);
-      const tokenFromUrl = String(hashParams.get('token') || url.searchParams.get('token') || '').trim();
-      if (tokenFromUrl) {
-        sessionStorage.setItem(authStorageKey, tokenFromUrl);
+      const tokenFromHash = String(hashParams.get('token') || '').trim();
+      const hadQueryToken = url.searchParams.has('token');
+      if (tokenFromHash || hadQueryToken) {
+        if (tokenFromHash) {
+          sessionStorage.setItem(authStorageKey, tokenFromHash);
+        }
         hashParams.delete('token');
         url.searchParams.delete('token');
         url.hash = hashParams.toString() ? `#${hashParams.toString()}` : '';
         history.replaceState(null, '', url);
-        return tokenFromUrl;
+        if (tokenFromHash) return tokenFromHash;
       }
       return String(sessionStorage.getItem(authStorageKey) || '').trim();
     } catch {

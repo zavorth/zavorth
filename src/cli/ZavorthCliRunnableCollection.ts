@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';

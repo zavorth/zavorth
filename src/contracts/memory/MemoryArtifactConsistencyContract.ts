@@ -1,4 +1,4 @@
-import type { ZavorthPluginManifest } from './PluginManifestContract.js';
+import type { ZavorthPluginManifest } from '../PluginManifestContract.js';
 
 export const ZAVORTH_MEMORY_ARTIFACT_CONSISTENCY_CONTRACT_VERSION = '2026-05-04.checkpoint-7';
 

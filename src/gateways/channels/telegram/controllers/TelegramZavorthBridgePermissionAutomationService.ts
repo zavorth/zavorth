@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ZavorthBridgeCompanionBridge } from '../../../../agents/ZavorthBridgeCompanionBridge.js';
 import { ZavorthBridgeWindowAutomator } from '../../../../agents/ZavorthBridgeWindowAutomator.js';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';

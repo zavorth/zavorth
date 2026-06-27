@@ -1,9 +1,9 @@
 import type {
   ZavorthFirstRunProductJourneyContract,
   ZavorthGuidedMissionTemplate,
-} from './ZavorthFirstRunProductJourneyContract.js';
-import type { ZavorthProductModeContract } from './ZavorthProductModeContract.js';
-import type { ZavorthSandboxReadinessContract } from './ZavorthSandboxReadinessContract.js';
+} from '../ZavorthFirstRunProductJourneyContract.js';
+import type { ZavorthProductModeContract } from '../ZavorthProductModeContract.js';
+import type { ZavorthSandboxReadinessContract } from '../ZavorthSandboxReadinessContract.js';
 import type { ZavorthConversationalSetupLanguage } from './ZavorthConversationalSetupContract.js';
 import type { ZavorthExperienceProfileId } from './ZavorthExperienceProfileContract.js';
 

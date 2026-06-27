@@ -1,5 +1,5 @@
-import type { Plan } from './PlanContract.js';
-import type { Task } from './TaskContract.js';
+import type { Plan } from '../PlanContract.js';
+import type { Task } from '../TaskContract.js';
 import type {
   ZavorthScheduledTaskInput,
   ZavorthScheduledTaskSnapshot,

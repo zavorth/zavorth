@@ -1,4 +1,4 @@
-import type { ZavorthCapabilityRunEnvelope } from './ZavorthMutationPlaneContract.js';
+import type { ZavorthCapabilityRunEnvelope } from '../ZavorthMutationPlaneContract.js';
 
 export const ZAVORTH_SANDBOX_LIFECYCLE_CONTRACT_VERSION =
   '2026-05-14.sandbox-lifecycle-natural-control' as const;

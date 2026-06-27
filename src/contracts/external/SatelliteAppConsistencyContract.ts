@@ -1,5 +1,5 @@
-import type { NodeMeshCapabilityId } from './NodeMeshContract.js';
-import type { ZavorthPluginManifest } from './PluginManifestContract.js';
+import type { NodeMeshCapabilityId } from '../NodeMeshContract.js';
+import type { ZavorthPluginManifest } from '../PluginManifestContract.js';
 
 export const ZAVORTH_SATELLITE_APP_CONSISTENCY_CONTRACT_VERSION = '2026-05-04.checkpoint-6';
 

@@ -6,6 +6,7 @@ import { WorkspaceSessionGrantCache } from './WorkspaceSessionGrantCache.js';
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService.js';
+import { logger } from '../logger.js';
 
 export interface TrustedWorkspaceEntry {
   workspaceId: string;

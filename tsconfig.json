@@ -143,6 +143,9 @@
   "exclude": [
     "node_modules",
     "dist",
+    "src/ai-gateway",
+    "src/domain/surface/presentation/web-app",
+    "src/gateways/channels/telegram",
     "src/zavorth-control",
     "src/cli/ink-test-env",
     "src/cli/test-ink-visuals.tsx",

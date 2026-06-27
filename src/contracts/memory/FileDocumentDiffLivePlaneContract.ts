@@ -1,4 +1,4 @@
-import type { LiveReadinessStatus } from './LiveReadinessContract.js';
+import type { LiveReadinessStatus } from '../LiveReadinessContract.js';
 
 export const ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-checkpoint-9' as const;
 

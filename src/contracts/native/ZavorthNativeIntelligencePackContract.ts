@@ -1,7 +1,7 @@
 import type {
   ZavorthUniversalSkillCapabilityTag,
   ZavorthUniversalSkillPermissionProfileId,
-} from './ZavorthUniversalSkillIntakeContract.js';
+} from '../ZavorthUniversalSkillIntakeContract.js';
 
 export const ZAVORTH_NATIVE_INTELLIGENCE_PACK_CONTRACT_VERSION =
   '2026-05-10.native-intelligence-checkpoint-1' as const;

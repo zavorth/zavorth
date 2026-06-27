@@ -1,7 +1,7 @@
 import type {
   ZavorthProductDailyMode,
   ZavorthProductDetailMode,
-} from './ZavorthProductModeContract.js';
+} from '../ZavorthProductModeContract.js';
 
 export const ZAVORTH_EXPERIENCE_PROFILE_IDS = [
   'personal',

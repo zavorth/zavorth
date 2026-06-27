@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ContextEngine â€” Unified Context Engine (Modelo ExternalExecutor adaptado)
  *

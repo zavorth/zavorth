@@ -1,5 +1,5 @@
-import type { ZavorthGuidedMissionTemplateId } from './ZavorthFirstRunProductJourneyContract.js';
-import type { ZavorthSandboxMutationMode } from './ZavorthSandboxReadinessContract.js';
+import type { ZavorthGuidedMissionTemplateId } from '../ZavorthFirstRunProductJourneyContract.js';
+import type { ZavorthSandboxMutationMode } from '../ZavorthSandboxReadinessContract.js';
 
 export type ZavorthMissionStatus =
   | 'draft'

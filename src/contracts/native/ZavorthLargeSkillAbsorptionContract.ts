@@ -1,8 +1,8 @@
-import type { SecurityPolicyBrokerReceipt } from '../security/SecurityPolicyBroker.js';
+import type { SecurityPolicyBrokerReceipt } from '../../security/SecurityPolicyBroker.js';
 import type {
   ZavorthGovernedSubagentProfileId,
   ZavorthGovernedSubagentSnapshot,
-} from './ZavorthGovernedSubagentContract.js';
+} from '../ZavorthGovernedSubagentContract.js';
 import type {
   ZavorthUniversalSkillCapabilityTag,
   ZavorthUniversalSkillCandidate,
@@ -10,7 +10,7 @@ import type {
   ZavorthUniversalSkillIntakePreview,
   ZavorthUniversalSkillPermissionProfileId,
   ZavorthUniversalSkillSourceKind,
-} from './ZavorthUniversalSkillIntakeContract.js';
+} from '../ZavorthUniversalSkillIntakeContract.js';
 
 export const ZAVORTH_LARGE_SKILL_ABSORPTION_CONTRACT_VERSION =
   '2026-05-10.large-skill-absorption-checkpoint-3' as const;

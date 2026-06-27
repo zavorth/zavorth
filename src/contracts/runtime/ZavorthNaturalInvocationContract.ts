@@ -1,11 +1,11 @@
-import type { ZavorthUniversalSkillBridgeSnapshot } from './ZavorthUniversalSkillBridgeRuntimeContract.js';
+import type { ZavorthUniversalSkillBridgeSnapshot } from '../ZavorthUniversalSkillBridgeRuntimeContract.js';
 import type { ZavorthInvocationReceipt } from './ZavorthInvocationReceiptContract.js';
 import type {
   ZavorthSubagentRuntimeSnapshot,
   ZavorthSubagentRuntimeMode,
 } from './ZavorthSubagentRuntimeContract.js';
 import type { ZavorthSubagentAutoInvocationTelemetry } from './ZavorthSubagentAutoInvocationContract.js';
-import type { ZavorthSandboxLifecyclePlan } from './ZavorthSandboxLifecycleContract.js';
+import type { ZavorthSandboxLifecyclePlan } from '../ZavorthSandboxLifecycleContract.js';
 
 export const ZAVORTH_NATURAL_INVOCATION_CONTRACT_VERSION =
   '2026-05-10.natural-invocation-checkpoint-5' as const;

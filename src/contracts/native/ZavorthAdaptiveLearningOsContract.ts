@@ -3,7 +3,7 @@ import type {
   ZavorthLearningMemoryReceipt,
   ZavorthLearningMemoryRisk,
   ZavorthLearningMemoryLayer,
-} from './ZavorthMemoryLearningLoopContract.js';
+} from '../ZavorthMemoryLearningLoopContract.js';
 import type { ZavorthAdaptiveSemanticClassification } from './ZavorthAdaptiveLearningSemanticContract.js';
 
 export const ZAVORTH_ADAPTIVE_LEARNING_OS_CONTRACT_VERSION =

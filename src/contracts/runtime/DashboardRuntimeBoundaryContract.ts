@@ -4,7 +4,7 @@ export {
   createZavorthNativeDashboardViewModelRegistryFixture,
   createZavorthNativeIntegrationRegistryFixture,
   createZavorthNativeSessionHistoryRegistryFixture,
-} from '../runtime/zavorth-runtime-adapters/index.js';
+} from '../../runtime/zavorth-runtime-adapters/index.js';
 export type {
   RuntimeAdapterBridgeChannelHealthSnapshot,
   RuntimeAdapterCapabilityInventorySnapshot,
@@ -21,7 +21,7 @@ export type {
   ZavorthNativeIntegrationRegistry,
   ZavorthNativeSessionHistoryRegistry,
   ZavorthNativeSessionMetadataRecord,
-} from '../runtime/zavorth-runtime-adapters/index.js';
+} from '../../runtime/zavorth-runtime-adapters/index.js';
 export type {
   UniversalAgentEvent,
   UniversalAgentRun,
@@ -44,4 +44,4 @@ export type {
   UniversalReplyPort,
   UniversalToolExposure,
   ZavorthAgentGatewaySnapshot,
-} from '../runtime/agent/index.js';
+} from '../../runtime/agent/index.js';

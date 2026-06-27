@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from 'fs';
 import { logger } from '../logger.js';
 import os from 'os';

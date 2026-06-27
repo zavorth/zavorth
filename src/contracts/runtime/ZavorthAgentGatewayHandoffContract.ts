@@ -1,11 +1,11 @@
 import type {
   ZavorthGatewaySnapshot,
   ZavorthGatewayShellSnapshot,
-} from '../services/ZavorthGatewayService.js';
+} from '../../services/ZavorthGatewayService.js';
 import type {
   ZavorthGatewayRuntimeHealthSnapshot,
   ZavorthGatewayRuntimeSnapshot,
-} from '../services/ZavorthGatewayRuntimeService.js';
+} from '../../services/ZavorthGatewayRuntimeService.js';
 
 export const ZAVORTH_AGENT_GATEWAY_HANDOFF_VERSION = 'zavorth-agent-gateway-handoff/1' as const;
 

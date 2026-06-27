@@ -13,7 +13,7 @@
   "inspiredBy": [
     "AIAgentSkills/alinaqi_claude-bootstrap/ai-models",
     "AIAgentSkills/alinaqi_claude-bootstrap/model-routing",
-    "OpenClaw/model-usage"
+    "external/model-usage"
   ],
   "noExecutionByDefault": true,
   "requiresPolicyBroker": true,

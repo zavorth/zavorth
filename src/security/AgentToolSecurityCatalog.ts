@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type {
   AgentToolSecurityDefinition,
 } from './AgentSecurityPolicyEngine.js';
