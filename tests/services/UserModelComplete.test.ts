@@ -164,20 +164,20 @@ describe('UserModelDialecticReasoningService', () => {
   beforeEach(() => { tmpDir = makeTmpDir(); });
   afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
 
-  it('should synthesize from conversations', () => {
+  it('should synthesize from conversations', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const conversations = [
       { user: 'Faça um resumo direto', assistant: 'Ok, resumo curto.' },
       { user: 'Prefiro respostas detalhadas', assistant: 'Entendido.' },
       { user: 'Trabalho com Python', assistant: 'Legal!' },
     ];
-    const synthesis = svc.synthesize(conversations);
+    const synthesis = await svc.synthesize(conversations);
     expect(synthesis.insights.length).toBeGreaterThan(0);
     expect(synthesis.traits).toBeDefined();
     expect(synthesis.confidence).toBeGreaterThan(0);
   });
 
-  it('should find cross-conversation patterns', () => {
+  it('should find cross-conversation patterns', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 2 } });
     const conversations = [
       { user: 'Como fazer X?', assistant: '...' },
@@ -185,23 +185,23 @@ describe('UserModelDialecticReasoningService', () => {
       { user: 'Como fazer Z?', assistant: '...' },
       { user: 'Preciso de ajuda', assistant: '...' },
     ];
-    const synthesis = svc.synthesize(conversations);
+    const synthesis = await svc.synthesize(conversations);
     expect(synthesis.patterns.length).toBeGreaterThan(0);
   });
 
-  it('should generate recommendations', () => {
+  it('should generate recommendations', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
     const conversations = [
       { user: 'Faça isso rapidamente', assistant: 'Ok.' },
       { user: 'Quero respostas curtas', assistant: 'Ok.' },
     ];
-    const synthesis = svc.synthesize(conversations);
+    const synthesis = await svc.synthesize(conversations);
     expect(synthesis.recommendations.length).toBeGreaterThan(0);
   });
 
-  it('should persist synthesis', () => {
+  it('should persist synthesis', async () => {
     const svc = new UserModelDialecticReasoningService({ homeRoot: tmpDir });
-    svc.synthesize([
+    await svc.synthesize([
       { user: 'Prefiro respostas diretas e curtas', assistant: 'Entendido, vou ser direto.' },
       { user: 'Trabalho com Python e Docker', assistant: 'Legal, posso ajudar com isso.' },
     ]);
@@ -210,14 +210,14 @@ describe('UserModelDialecticReasoningService', () => {
     expect(loaded!.insights.length).toBeGreaterThan(0);
   });
 
-  it('should respect depth level', () => {
+  it('should respect depth level', async () => {
     const svc1 = new UserModelDialecticReasoningService({ homeRoot: tmpDir, config: { depth: 1 } });
-    const s1 = svc1.synthesize([{ user: 'test message here', assistant: 'ok' }]);
+    const s1 = await svc1.synthesize([{ user: 'test message here', assistant: 'ok' }]);
     expect(s1.depth).toBe(1);
 
     const tmpDir2 = makeTmpDir();
     const svc2 = new UserModelDialecticReasoningService({ homeRoot: tmpDir2, config: { depth: 3 } });
-    const s2 = svc2.synthesize([
+    const s2 = await svc2.synthesize([
       { user: 'como fazer x?', assistant: '...' },
       { user: 'como fazer y?', assistant: '...' },
       { user: 'como fazer z?', assistant: '...' },

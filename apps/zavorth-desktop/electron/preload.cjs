@@ -9,6 +9,11 @@ contextBridge.exposeInMainWorld('zavorthDesktop', {
   startSetup: () => ipcRenderer.invoke('zavorth:setup:start'),
   selectWorkspaceFolder: () => ipcRenderer.invoke('zavorth:workspace:select-folder'),
   openLogs: () => ipcRenderer.invoke('zavorth:logs:open'),
+  sendNotification: options => ipcRenderer.invoke('zavorth:notification:send', options),
+  getNotificationPermission: () => ipcRenderer.invoke('zavorth:notification:permission'),
+  listSessions: () => ipcRenderer.invoke('zavorth:sessions:list'),
+  switchSession: sessionId => ipcRenderer.invoke('zavorth:sessions:switch', sessionId),
+  readFileTree: rootPath => ipcRenderer.invoke('zavorth:files:read-tree', rootPath),
   onBootEvent: callback => {
     const listener = (_event, payload) => callback(payload);
     ipcRenderer.on('zavorth:boot:event', listener);
