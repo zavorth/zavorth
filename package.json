@@ -228,6 +228,7 @@
     "status": "npx tsx scripts/access-readiness.ts",
     "zavorthControl": "node bin/zavorth.js zavorthControl",
     "mcp": "npx tsx scripts/zavorth-mcp.ts",
+    "acp-runtime": "npx tsx scripts/zavorth-acp-runtime.ts",
     "mcp:browser:doctor": "npx tsx scripts/mcp-browser-doctor.ts",
     "browser:sidecar": "npx tsx scripts/browser-sidecar-server.ts",
     "sidecars:bootstrap": "npx tsx scripts/sidecar-docker-bootstrap.ts",
