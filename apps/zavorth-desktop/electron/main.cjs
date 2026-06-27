@@ -698,7 +698,7 @@ ipcMain.handle('zavorth:workspace:select-folder', async () => {
     return { canceled: true, path: null, label: null };
   }
   const result = await dialog.showOpenDialog(mainWindow, {
-    title: 'Selecionar pasta de trabalho do Zavorth',
+    title: 'Select Zavorth workspace folder',
     properties: ['openDirectory'],
   });
   if (result.canceled || result.filePaths.length === 0) {
@@ -736,6 +736,116 @@ ipcMain.handle('zavorth:logs:open', async () => {
     : { ok: true, path: logsDir };
 });
 ipcMain.handle('zavorth:boot:events', async () => lastEvents);
+
+ipcMain.handle('zavorth:notification:send', async (_event, input) => {
+  const title = String(input?.title || 'Zavorth').slice(0, 200);
+  const body = String(input?.body || '').slice(0, 1000);
+  const silent = Boolean(input?.silent);
+
+  if (!Notification.isSupported()) {
+    return { ok: false, error: 'Notifications not supported on this platform.' };
+  }
+
+  const notification = new Notification({
+    title,
+    body,
+    silent,
+    icon: path.join(__dirname, '..', 'dist', 'favicon.png'),
+  });
+
+  notification.on('click', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  notification.show();
+  return { ok: true };
+});
+
+ipcMain.handle('zavorth:notification:permission', async () => {
+  if (!Notification.isSupported()) return 'denied';
+  return Notification.permission;
+});
+
+ipcMain.handle('zavorth:sessions:list', async () => {
+  const result = await desktopApiRequest({
+    method: 'GET',
+    path: '/api/experience/sessions',
+    timeoutMs: 8000,
+  });
+  if (!result.ok || !Array.isArray(result.data)) {
+    return [];
+  }
+  return result.data.map((session) => ({
+    id: String(session.id || session.sessionId || ''),
+    label: String(session.label || session.name || session.id || 'Unnamed'),
+    createdAt: String(session.createdAt || session.startedAt || ''),
+    messageCount: Number(session.messageCount || session.turns || 0),
+    surface: String(session.surface || ''),
+    lastMessage: String(session.lastMessage || session.preview || ''),
+  }));
+});
+
+ipcMain.handle('zavorth:sessions:switch', async (_event, sessionId) => {
+  const result = await desktopApiRequest({
+    method: 'POST',
+    path: '/api/experience/sessions/switch',
+    body: { sessionId: String(sessionId || '') },
+    timeoutMs: 8000,
+  });
+  return result;
+});
+
+ipcMain.handle('zavorth:files:read-tree', async (_event, rootPath) => {
+  const safePath = String(rootPath || '').trim();
+  if (!safePath || /\.\./.test(safePath)) {
+    return { ok: false, error: 'Invalid path.' };
+  }
+
+  function readDir(dirPath, relativeTo, depth = 0) {
+    if (depth > 8) return [];
+    let entries;
+    try {
+      entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    } catch {
+      return [];
+    }
+
+    return entries
+      .filter((e) => !e.name.startsWith('.') && e.name !== 'node_modules' && e.name !== 'dist')
+      .sort((a, b) => {
+        if (a.isDirectory() !== b.isDirectory()) return a.isDirectory() ? -1 : 1;
+        return a.name.localeCompare(b.name);
+      })
+      .slice(0, 200)
+      .map((e) => {
+        const fullPath = path.join(dirPath, e.name);
+        const relativePath = path.relative(relativeTo, fullPath).replace(/\\/g, '/');
+        if (e.isDirectory()) {
+          return {
+            name: e.name,
+            relativePath,
+            type: 'directory',
+            children: readDir(fullPath, relativeTo, depth + 1),
+          };
+        }
+        return {
+          name: e.name,
+          relativePath,
+          type: 'file',
+        };
+      });
+  }
+
+  try {
+    const tree = readDir(safePath, safePath);
+    return { ok: true, tree };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Failed to read directory.' };
+  }
+});
 
 app.whenReady().then(() => {
   createWindow();

@@ -4,12 +4,17 @@ import path from 'path';
 import { UserModelTurnCaptureService, type CapturedTurn } from './UserModelTurnCaptureService.js';
 import { UserModelDialecticReasoningService, type DialecticSynthesis } from './UserModelDialecticReasoningService.js';
 import { UserModelDialecticService } from './UserModelDialecticService.js';
+import { ZavorthLlmRuntimeService } from './ZavorthLlmRuntimeService.js';
 
 export type ReviewDaemonConfig = {
   enabled: boolean;
   intervalMs: number;
   minTurnsForReview: number;
   maxReviewAge: number;
+  enableLlmReasoning: boolean;
+  llmProvider?: string;
+  llmModel?: string;
+  llmMaxPasses: number;
 };
 
 export type ReviewDaemonStatus = {
@@ -19,6 +24,8 @@ export type ReviewDaemonStatus = {
   totalReviews: number;
   turnsSinceLastReview: number;
   currentSynthesis: DialecticSynthesis | null;
+  lastLlmReviewAt: string | null;
+  totalLlmReviews: number;
 };
 
 export type ReviewDaemonRuntime = {
@@ -28,6 +35,7 @@ export type ReviewDaemonRuntime = {
   turnCapture?: UserModelTurnCaptureService;
   dialecticReasoning?: UserModelDialecticReasoningService;
   dialectic?: UserModelDialecticService;
+  llmService?: ZavorthLlmRuntimeService;
 };
 
 const DEFAULT_CONFIG: ReviewDaemonConfig = {
@@ -35,6 +43,8 @@ const DEFAULT_CONFIG: ReviewDaemonConfig = {
   intervalMs: 300000,
   minTurnsForReview: 5,
   maxReviewAge: 86400000,
+  enableLlmReasoning: false,
+  llmMaxPasses: 3,
 };
 
 const STATUS_FILE = 'data/runtime/user-model-review-daemon.json';
@@ -46,6 +56,7 @@ export class UserModelReviewDaemonService {
   private readonly turnCapture: UserModelTurnCaptureService;
   private readonly dialecticReasoning: UserModelDialecticReasoningService;
   private readonly dialectic: UserModelDialecticService;
+  private readonly llmService: ZavorthLlmRuntimeService | null;
   private status: ReviewDaemonStatus;
   private intervalHandle: ReturnType<typeof setInterval> | null = null;
 
@@ -54,7 +65,22 @@ export class UserModelReviewDaemonService {
     this.now = runtime.now || (() => new Date());
     this.config = { ...DEFAULT_CONFIG, ...runtime.config };
     this.turnCapture = runtime.turnCapture || new UserModelTurnCaptureService({ homeRoot: this.homeRoot, now: this.now });
-    this.dialecticReasoning = runtime.dialecticReasoning || new UserModelDialecticReasoningService({ homeRoot: this.homeRoot, now: this.now });
+    this.llmService = runtime.llmService || (this.config.enableLlmReasoning
+      ? new ZavorthLlmRuntimeService(this.config.llmProvider)
+      : null);
+
+    this.dialecticReasoning = runtime.dialecticReasoning || new UserModelDialecticReasoningService({
+      homeRoot: this.homeRoot,
+      now: this.now,
+      llmService: this.llmService || undefined,
+      config: {
+        depth: this.config.enableLlmReasoning ? 4 : 2,
+        llmProvider: this.config.llmProvider,
+        llmModel: this.config.llmModel,
+        llmMaxPasses: this.config.llmMaxPasses,
+      },
+    });
+
     this.dialectic = runtime.dialectic || new UserModelDialecticService({ homeRoot: this.homeRoot, now: this.now });
     this.status = this.loadStatus();
   }
@@ -90,7 +116,7 @@ export class UserModelReviewDaemonService {
     const conversations = this.buildConversationPairs(turns);
     if (conversations.length < 2) return null;
 
-    const synthesis = this.dialecticReasoning.synthesize(conversations, {
+    const synthesis = await this.dialecticReasoning.synthesize(conversations, {
       userId: turns[0]?.userId || undefined,
       sessionId: turns[0]?.sessionId || undefined,
     });
@@ -101,11 +127,56 @@ export class UserModelReviewDaemonService {
       }
     }
 
+    if (synthesis.llmSynthesis) {
+      this.status.lastLlmReviewAt = this.now().toISOString();
+      this.status.totalLlmReviews++;
+    }
+
     this.status.lastReviewAt = this.now().toISOString();
     this.status.totalReviews++;
     this.status.turnsSinceLastReview = 0;
     this.status.currentSynthesis = synthesis;
     this.updateNextReviewAt();
+    this.saveStatus();
+
+    return synthesis;
+  }
+
+  async runLlmReview(): Promise<DialecticSynthesis | null> {
+    if (!this.config.enableLlmReasoning || !this.llmService) return null;
+
+    const turns = this.turnCapture.getRecentTurns(200);
+    const conversations = this.buildConversationPairs(turns);
+    if (conversations.length < 2) return null;
+
+    const llmReasoning = new UserModelDialecticReasoningService({
+      homeRoot: this.homeRoot,
+      now: this.now,
+      llmService: this.llmService,
+      config: {
+        depth: 4,
+        llmProvider: this.config.llmProvider,
+        llmModel: this.config.llmModel,
+        llmMaxPasses: this.config.llmMaxPasses,
+      },
+    });
+
+    const synthesis = await llmReasoning.synthesize(conversations, {
+      userId: turns[0]?.userId || undefined,
+      sessionId: turns[0]?.sessionId || undefined,
+    });
+
+    for (const insight of synthesis.insights) {
+      if (insight.confidence >= 0.5 && insight.category !== 'inquiry') {
+        this.dialectic.recordAnswer(insight.category, insight.observation);
+      }
+    }
+
+    this.status.lastLlmReviewAt = this.now().toISOString();
+    this.status.totalLlmReviews++;
+    this.status.lastReviewAt = this.now().toISOString();
+    this.status.totalReviews++;
+    this.status.currentSynthesis = synthesis;
     this.saveStatus();
 
     return synthesis;
@@ -149,6 +220,8 @@ export class UserModelReviewDaemonService {
       totalReviews: 0,
       turnsSinceLastReview: 0,
       currentSynthesis: null,
+      lastLlmReviewAt: null,
+      totalLlmReviews: 0,
     };
   }
 

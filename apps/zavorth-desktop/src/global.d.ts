@@ -17,6 +17,11 @@ declare global {
       selectWorkspaceFolder(): Promise<{ canceled: boolean; path: string | null; label: string | null }>;
       openLogs(): Promise<{ ok: boolean; path: string }>;
       onBootEvent(callback: (event: BootEvent) => void): () => void;
+      sendNotification(options: { title: string; body: string; silent?: boolean }): Promise<{ ok: boolean; error?: string }>;
+      getNotificationPermission(): Promise<string>;
+      listSessions(): Promise<SessionEntry[]>;
+      switchSession(sessionId: string): Promise<DesktopApiResult<unknown>>;
+      readFileTree(rootPath: string): Promise<{ ok: boolean; tree?: FileExplorerNode[]; error?: string }>;
     };
   }
 }
@@ -59,4 +64,20 @@ export type BootEvent = {
   type: 'info' | 'warn' | 'error';
   message: string;
   at: string;
+};
+
+export type SessionEntry = {
+  id: string;
+  label: string;
+  createdAt: string;
+  messageCount: number;
+  surface: string;
+  lastMessage: string;
+};
+
+export type FileExplorerNode = {
+  name: string;
+  relativePath: string;
+  type: 'file' | 'directory';
+  children?: FileExplorerNode[];
 };

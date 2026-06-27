@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
-export type DialecticDepth = 1 | 2 | 3;
+import { ZavorthLlmRuntimeService } from './ZavorthLlmRuntimeService.js';
+
+export type DialecticDepth = 1 | 2 | 3 | 4;
 
 export type DialecticInsight = {
   id: string;
@@ -10,7 +12,7 @@ export type DialecticInsight = {
   confidence: number;
   evidence: string[];
   createdAt: string;
-  source: 'conversation' | 'behavior' | 'inference' | 'question';
+  source: 'conversation' | 'behavior' | 'inference' | 'question' | 'llm_synthesis';
 };
 
 export type DialecticSynthesis = {
@@ -24,6 +26,14 @@ export type DialecticSynthesis = {
   recommendations: string[];
   depth: DialecticDepth;
   confidence: number;
+  llmSynthesis?: {
+    providerName: string;
+    modelName: string | null;
+    rawOutput: string;
+    deepInsights: string[];
+    inputTokens: number;
+    outputTokens: number;
+  };
 };
 
 export type DialecticReasoningConfig = {
@@ -31,18 +41,23 @@ export type DialecticReasoningConfig = {
   maxInsights: number;
   minConversationPairs: number;
   traitCategories: string[];
+  llmProvider?: string;
+  llmModel?: string;
+  llmMaxPasses: number;
 };
 
 export type DialecticReasoningRuntime = {
   homeRoot?: string;
   now?: () => Date;
   config?: Partial<DialecticReasoningConfig>;
+  llmService?: ZavorthLlmRuntimeService;
 };
 
 const DEFAULT_CONFIG: DialecticReasoningConfig = {
   depth: 2,
   maxInsights: 20,
   minConversationPairs: 3,
+  llmMaxPasses: 3,
   traitCategories: [
     'communication_style',
     'work_preferences',
@@ -68,21 +83,54 @@ const INFERENCE_PATTERNS: Array<{ pattern: RegExp; trait: string; confidence: nu
   { pattern: /\b(serio|formal|profissional)\b/i, trait: 'personality', confidence: 0.4 },
 ];
 
+const LLM_SYNTHESIS_SYSTEM_PROMPT = `You are a user-behavior analyst for a conversational AI agent called Zavorth.
+
+Given a set of user-assistant conversation pairs, analyze the user's behavior and extract deep insights about:
+
+1. **Communication style**: How does the user prefer to communicate? Direct/verbose, formal/casual, question-heavy or command-heavy?
+2. **Domain expertise**: What technical domains does the user work in? What is their apparent skill level?
+3. **Work preferences**: How do they prefer to work? Do they want the agent to act autonomously or ask first?
+4. **Personality traits**: What personality patterns emerge? Do they value humor, directness, thoroughness?
+5. **Tool preferences**: What tools and workflows do they favor?
+6. **Schedule patterns**: Any indicators of work schedule or preferred interaction times?
+7. **Hidden patterns**: Any deeper behavioral patterns not immediately obvious from surface-level analysis?
+
+For each insight, provide:
+- category: one of communication_style, work_preferences, domain_expertise, tool_preferences, schedule, personality, hidden_pattern
+- observation: a clear description of the insight
+- confidence: a number between 0 and 1
+- reasoning: WHY you believe this, citing specific evidence from the conversations
+
+Return your analysis as a JSON array of objects with fields: category, observation, confidence, reasoning.
+Focus on INSIGHTS that go beyond simple keyword matching — what can you infer about this user as a person and professional?
+
+Example output:
+[
+  {
+    "category": "domain_expertise",
+    "observation": "Senior backend engineer with strong DevOps background, likely 5+ years experience",
+    "confidence": 0.85,
+    "reasoning": "User mentions Docker, Kubernetes, CI/CD naturally without explanation, uses production terminology correctly, and asks about deployment patterns rather than basics"
+  }
+]`;
+
 export class UserModelDialecticReasoningService {
   private readonly homeRoot: string;
   private readonly now: () => Date;
   private readonly config: DialecticReasoningConfig;
+  private readonly llmService: ZavorthLlmRuntimeService | null;
 
   constructor(runtime: DialecticReasoningRuntime = {}) {
     this.homeRoot = runtime.homeRoot || process.cwd();
     this.now = runtime.now || (() => new Date());
     this.config = { ...DEFAULT_CONFIG, ...runtime.config };
+    this.llmService = runtime.llmService || null;
   }
 
-  synthesize(conversations: Array<{ user: string; assistant: string }>, options?: {
+  async synthesize(conversations: Array<{ user: string; assistant: string }>, options?: {
     userId?: string;
     sessionId?: string;
-  }): DialecticSynthesis {
+  }): Promise<DialecticSynthesis> {
     const insights: DialecticInsight[] = [];
     const allTraits: Record<string, string[]> = {};
     const patterns: string[] = [];
@@ -130,8 +178,98 @@ export class UserModelDialecticReasoningService {
       confidence: this.calculateConfidence(insights, conversations.length),
     };
 
+    if (this.config.depth >= 4 && this.llmService) {
+      const llmResult = await this.runLlmSynthesis(conversations, synthesis);
+      if (llmResult) {
+        synthesis.llmSynthesis = llmResult;
+        for (const deepInsight of llmResult.deepInsights) {
+          synthesis.insights.push({
+            id: `llm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            category: 'llm_synthesis',
+            observation: deepInsight,
+            confidence: 0.8,
+            evidence: ['LLM multi-pass analysis'],
+            createdAt: this.now().toISOString(),
+            source: 'llm_synthesis',
+          });
+        }
+        synthesis.confidence = Math.min(synthesis.confidence + 0.15, 1.0);
+      }
+    }
+
     this.saveSynthesis(synthesis);
     return synthesis;
+  }
+
+  private async runLlmSynthesis(
+    conversations: Array<{ user: string; assistant: string }>,
+    baseSynthesis: DialecticSynthesis,
+  ): Promise<DialecticSynthesis['llmSynthesis'] | null> {
+    if (!this.llmService) return null;
+
+    const conversationSummary = conversations
+      .slice(0, 20)
+      .map((c, i) => `[Turn ${i + 1}]\nUser: ${c.user.slice(0, 500)}\nAssistant: ${c.assistant.slice(0, 500)}`)
+      .join('\n\n');
+
+    const baseContext = `\n\n--- Pre-analysis from regex-based reasoning ---\n` +
+      `Traits detected: ${JSON.stringify(baseSynthesis.traits)}\n` +
+      `Patterns found: ${baseSynthesis.patterns.join('; ')}\n` +
+      `Confidence: ${baseSynthesis.confidence}\n` +
+      `--- End pre-analysis ---`;
+
+    const maxPasses = Math.max(1, Math.min(this.config.llmMaxPasses, 3));
+    let lastOutput = '';
+    const allDeepInsights: string[] = [];
+
+    for (let pass = 0; pass < maxPasses; pass++) {
+      const passPrompt = pass === 0
+        ? `Analyze these conversation pairs and extract deep user behavior insights.\n${conversationSummary}${baseContext}`
+        : `Pass ${pass + 1}: Refine your previous analysis. Focus on subtler patterns, contradictions, or deeper inferences.\n\nPrevious analysis:\n${lastOutput}\n\nRe-read the conversations:\n${conversationSummary}`;
+
+      const result = await this.llmService.synthesize(LLM_SYNTHESIS_SYSTEM_PROMPT, passPrompt, {
+        providerName: this.config.llmProvider,
+        modelName: this.config.llmModel,
+        allowFallback: true,
+      });
+
+      lastOutput = result.content;
+
+      try {
+        const parsed = this.parseLlmOutput(result.content);
+        for (const item of parsed) {
+          const obs = String(item.observation || '').trim();
+          if (obs && !allDeepInsights.includes(obs)) {
+            allDeepInsights.push(obs);
+          }
+        }
+      } catch {
+        if (lastOutput.trim().length > 20) {
+          allDeepInsights.push(lastOutput.trim().slice(0, 500));
+        }
+      }
+    }
+
+    if (allDeepInsights.length === 0 && lastOutput.trim().length > 0) {
+      allDeepInsights.push(lastOutput.trim().slice(0, 500));
+    }
+
+    return {
+      providerName: this.config.llmProvider || this.llmService.getPreferredProviderName(),
+      modelName: this.config.llmModel || null,
+      rawOutput: lastOutput,
+      deepInsights: allDeepInsights.slice(0, 15),
+      inputTokens: 0,
+      outputTokens: 0,
+    };
+  }
+
+  private parseLlmOutput(content: string): Array<{ category: string; observation: string; confidence: number; reasoning: string }> {
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    return [];
   }
 
   private extractInsights(text: string, source: 'user_message' | 'assistant_response'): DialecticInsight[] {
