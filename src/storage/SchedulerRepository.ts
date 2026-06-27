@@ -10,7 +10,7 @@ export interface ScheduledTask {
   created_by: string | null;
   status: 'active' | 'paused';
   intent_text?: string | null;
-  delivery?: 'telegram' | 'app' | 'email' | 'webhook' | 'slack' | 'whatsapp' | 'teams' | null;
+  delivery?: string | null;
   delivery_target?: string | null;
   last_status?: 'idle' | 'running' | 'completed' | 'failed' | null;
   last_error?: string | null;

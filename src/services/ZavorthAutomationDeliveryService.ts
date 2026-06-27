@@ -6,7 +6,7 @@ import type { ScheduledTask } from '../storage/SchedulerRepository.js';
 export type AutomationDeliveryRecord = {
   id: string;
   taskId: string;
-  delivery: 'telegram' | 'app' | 'email' | 'webhook' | 'slack' | 'whatsapp' | 'teams';
+  delivery: string;
   status: 'recorded' | 'queued' | 'skipped';
   createdAt: string;
   prompt: string;
@@ -104,7 +104,7 @@ export class ZavorthAutomationDeliveryService {
       this.writeEmailEnvelope(record);
     } else if (normalizedDelivery === 'webhook') {
       this.writeWebhookEnvelope(record);
-    } else if (normalizedDelivery === 'slack' || normalizedDelivery === 'whatsapp' || normalizedDelivery === 'teams') {
+    } else if (normalizedDelivery !== 'app' && normalizedDelivery !== 'telegram') {
       this.writeChannelEnvelope(record);
     }
 
@@ -369,12 +369,9 @@ export class ZavorthAutomationDeliveryService {
     }
   }
 
-  private normalizeDelivery(value: ScheduledTask['delivery']): AutomationDeliveryRecord['delivery'] {
+  private normalizeDelivery(value: ScheduledTask['delivery']): string {
     const normalized = String(value || '').trim().toLowerCase();
-    if (normalized === 'email' || normalized === 'webhook' || normalized === 'app'
-      || normalized === 'slack' || normalized === 'whatsapp' || normalized === 'teams') {
-      return normalized;
-    }
-    return 'telegram';
+    if (!normalized || normalized === 'none') return 'app';
+    return normalized;
   }
 }
