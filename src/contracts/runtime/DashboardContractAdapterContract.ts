@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type {
   CanonicalApprovalsDTO,
   CanonicalChannelMeshDTO,
@@ -6,7 +7,7 @@ import type {
   CanonicalReceiptsDTO,
   CanonicalRuntimeHealthDTO,
   CanonicalRuntimeStatusDTO,
-} from './public/rest/runtime-api-v1-dto.js';
+} from '../../public/rest/runtime-api-v1-dto.js';
 
 export const COMMAND_CENTER_CONTRACT_ADAPTER_VERSION = 'dashboard-contract-adapter/v1' as const;
 

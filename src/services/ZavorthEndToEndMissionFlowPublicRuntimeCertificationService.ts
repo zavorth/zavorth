@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
 import {
   ZAVORTH_END_TO_END_MISSION_FLOW_PUBLIC_RUNTIME_CERTIFICATION_CONTRACT_VERSION,

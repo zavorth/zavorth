@@ -1,7 +1,7 @@
-import type { ChannelMeshSnapshot } from './ChannelMeshContract.js';
-import type { ProviderChannelSmokeProofSnapshot } from './ProviderChannelSmokeProofContract.js';
-import type { ZavorthTerminalBackendSnapshot } from './ZavorthTerminalBackendsContract.js';
-import type { ZavorthProviderReadinessMatrixSnapshot } from './ZavorthProviderReadinessMatrixContract.js';
+import type { ChannelMeshSnapshot } from '../ChannelMeshContract.js';
+import type { ProviderChannelSmokeProofSnapshot } from '../ProviderChannelSmokeProofContract.js';
+import type { ZavorthTerminalBackendSnapshot } from '../ZavorthTerminalBackendsContract.js';
+import type { ZavorthProviderReadinessMatrixSnapshot } from '../ZavorthProviderReadinessMatrixContract.js';
 
 export const ZAVORTH_LIVE_READINESS_EVIDENCE_PROOF_PACK_CONTRACT_VERSION =
   '2026-05-14.checkpoint-9-live-readiness-evidence-proof-pack' as const;

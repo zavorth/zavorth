@@ -1,4 +1,4 @@
-import type { ZavorthCrossSurfaceProjectionSurface } from './ZavorthCrossSurfaceRuntimeProjectionContract.js';
+import type { ZavorthCrossSurfaceProjectionSurface } from '../ZavorthCrossSurfaceRuntimeProjectionContract.js';
 import type {
   ZavorthOperationalRolloutEvalInput,
   ZavorthOperationalRolloutEvalSnapshot,

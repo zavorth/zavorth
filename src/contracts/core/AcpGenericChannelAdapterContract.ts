@@ -1,11 +1,11 @@
-import type { NormalizedInboundMessage } from '../runtime/agent/contracts/index.js';
+import type { NormalizedInboundMessage } from '../../runtime/agent/contracts/index.js';
 import type {
   RuntimeAdapterApprovalEnvelope,
   RuntimeAdapterEventEnvelope,
-} from '../runtime/zavorth-runtime-adapters/contracts.js';
+} from '../../runtime/zavorth-runtime-adapters/contracts.js';
 import type {
   RuntimeAdapterGatewayHandshakeNormalization,
-} from '../runtime/zavorth-runtime-adapters/RuntimeAdapterGatewayHandshakeBoundary.js';
+} from '../../runtime/zavorth-runtime-adapters/RuntimeAdapterGatewayHandshakeBoundary.js';
 import type {
   SourceAgentRuntimeToolPolicyDoctorSnapshot,
 } from './SourceAgentRuntimeBridgeContract.js';

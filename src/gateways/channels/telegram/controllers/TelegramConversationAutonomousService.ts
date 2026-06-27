@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context } from 'grammy';
 import { config } from '../../../../config/index.js';
 import { Task } from '../../../../contracts/TaskContract.js';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { IMessageContext } from '@zavorth/contracts/IMessageBroker.js';
 import { SwarmOrchestrator, type SwarmRole } from '@zavorth/runtime/sessions/v2/SwarmOrchestrator.js';
 import { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';

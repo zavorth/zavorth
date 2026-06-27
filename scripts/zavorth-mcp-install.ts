@@ -251,24 +251,40 @@ async function main(): Promise<void> {
 
     const capability = readFlag('--capability');
 
-    const result = managementService.install({
+    const sandbox = new McpDiscoverySandbox({
+      sandboxCwd: process.cwd(),
+      kill: (serverId) => {
+        managementService.kill(serverId);
+      },
+    });
+    const installer = new SafeMcpInstaller({
+      management: managementService,
+      policy: policyFileService,
+      discovery: sandbox,
+      audit: {
+        log: async (event, payload) => {
+          await (await getAuditLogger()).logCliAdminEvent({
+            event,
+            actor: 'local-cli',
+            source: 'zavorth-mcp-install',
+            serverId: id,
+            metadata: payload,
+          });
+        },
+      },
+    });
+
+    const result = await installer.install({
       id,
       command,
       args: mcpArgs,
       env,
+      allowedEnv,
       capability: capability || undefined,
-      enabled: true,
+      confirmInstall: args.includes('--confirm-install'),
+      confirmRisk: args.includes('--confirm-risk'),
+      timeoutMs: Number(readFlag('--timeout-ms') || 5000),
     });
-
-    // If allowedEnv was specified, we need to mutate the created entry since McpManagementService install signature is basic.
-    if (allowedEnv.length > 0) {
-      const manifest = (managementService as any).readManifest();
-      const idx = manifest.findIndex((entry: any) => String(entry.id).toLowerCase() === id.toLowerCase());
-      if (idx >= 0) {
-        manifest[idx].allowedEnv = allowedEnv;
-        (managementService as any).writeManifest(manifest);
-      }
-    }
 
     (await getAuditLogger()).logCliAdminEvent({
       event: 'mcp_server_added',
@@ -279,8 +295,11 @@ async function main(): Promise<void> {
 
     if (args.includes('--json')) {
       console.log(JSON.stringify(result, null, 2));
+    } else if (result.ok) {
+      console.log(result.summary);
     } else {
-      console.log(result.message);
+      console.error(result.errors.join('\n'));
+      process.exitCode = 1;
     }
     return;
   }

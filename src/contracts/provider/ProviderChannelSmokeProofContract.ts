@@ -1,4 +1,4 @@
-import type { ChannelMeshConsistencySnapshot } from './ChannelMeshConsistencyContract.js';
+import type { ChannelMeshConsistencySnapshot } from '../ChannelMeshConsistencyContract.js';
 import type { ProviderMeshReadinessSnapshot } from './ProviderMeshReadinessContract.js';
 
 export const ZAVORTH_PROVIDER_CHANNEL_SMOKE_PROOF_CONTRACT_VERSION = '2026-05-04.worker-5' as const;

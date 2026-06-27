@@ -1,8 +1,8 @@
 import type {
   ZavorthSensitiveActionFlowSnapshot,
   ZavorthSensitiveActionFlowStatus,
-} from './ZavorthSensitiveActionFlowContract.js';
-import type { ZavorthMissionRiskLevel } from './ZavorthMissionContract.js';
+} from '../ZavorthSensitiveActionFlowContract.js';
+import type { ZavorthMissionRiskLevel } from '../ZavorthMissionContract.js';
 
 export const ZAVORTH_SENSITIVE_ACTION_FLOW_UX_CONTRACT_VERSION = '2026-05-13.checkpoint-15';
 

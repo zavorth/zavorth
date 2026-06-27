@@ -1,9 +1,9 @@
 import type {
   SecurityPolicyBrokerAction,
   SecurityPolicyBrokerReceipt,
-} from '../security/SecurityPolicyBroker.js';
-import type { ZavorthMissionRiskLevel } from './ZavorthMissionContract.js';
-import type { ZavorthVisualReceiptContract } from './ZavorthVisualReceiptContract.js';
+} from '../../security/SecurityPolicyBroker.js';
+import type { ZavorthMissionRiskLevel } from '../ZavorthMissionContract.js';
+import type { ZavorthVisualReceiptContract } from '../ZavorthVisualReceiptContract.js';
 
 export const ZAVORTH_SENSITIVE_ACTION_FLOW_CONTRACT_VERSION = '2026-05-13.checkpoint-3' as const;
 

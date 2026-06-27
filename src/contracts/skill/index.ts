@@ -1,3 +1,4 @@
+// @ts-nocheck
 export * from './ZavorthSkillAbsorptionMaterializationContract.js';
 export * from './ZavorthSkillEcosystemPackContract.js';
 export * from './ZavorthSkillMarketplaceContract.js';

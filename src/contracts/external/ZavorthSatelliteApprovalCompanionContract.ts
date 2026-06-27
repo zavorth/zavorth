@@ -1,5 +1,5 @@
-import type { ZavorthApprovalActionCard } from './ZavorthApprovalActionCardsUxContract.js';
-import type { ZavorthVisualReceiptV2Card } from './ZavorthVisualReceiptsV2Contract.js';
+import type { ZavorthApprovalActionCard } from '../ZavorthApprovalActionCardsUxContract.js';
+import type { ZavorthVisualReceiptV2Card } from '../ZavorthVisualReceiptsV2Contract.js';
 
 export const ZAVORTH_SATELLITE_APPROVAL_COMPANION_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-10' as const;
 

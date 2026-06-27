@@ -1,4 +1,4 @@
-import type { ZavorthProductMode, ZavorthProductModeSnapshot } from '../services/ProductModeService.js';
+import type { ZavorthProductMode, ZavorthProductModeSnapshot } from '../../services/ProductModeService.js';
 import type { TaskResourceImpact } from './TaskResourcePlannerContract.js';
 
 export type ModeEscalationScope = 'once' | 'session' | 'host';

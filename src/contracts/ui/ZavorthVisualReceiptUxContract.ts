@@ -1,4 +1,4 @@
-import type { ZavorthMissionRiskLevel } from './ZavorthMissionContract.js';
+import type { ZavorthMissionRiskLevel } from '../ZavorthMissionContract.js';
 import type { ZavorthVisualReceiptContract } from './ZavorthVisualReceiptContract.js';
 
 export const ZAVORTH_VISUAL_RECEIPT_UX_CONTRACT_VERSION = '2026-05-13.checkpoint-14';

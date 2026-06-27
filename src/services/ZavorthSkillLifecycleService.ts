@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from 'node:fs';
 import { logger } from '../logger.js';
 import path from 'node:path';

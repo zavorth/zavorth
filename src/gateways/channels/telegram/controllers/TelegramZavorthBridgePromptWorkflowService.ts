@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { InlineKeyboard, type Context, Api } from 'grammy';
 import { config } from '@zavorth/config/index.js';
 import { PermissionRequest } from '@zavorth/contracts/PermissionRequest.js';

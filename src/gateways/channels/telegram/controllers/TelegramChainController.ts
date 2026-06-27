@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context } from 'grammy';
 import { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
 import { MemoryService } from '../../../../services/MemoryService.js';

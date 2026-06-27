@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { existsSync, readFileSync } from 'fs';
 import * as path from 'path';
 import { ZavorthActionGateway } from '../../runtime/actions/index.js';

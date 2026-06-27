@@ -1,4 +1,5 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
+import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { handleChat } from "@/sse/handlers/chat";
 import { executeZavorthBatchJsonl } from "@/lib/zavorthBatchWorker";
 import {
@@ -20,13 +21,19 @@ export async function OPTIONS() {
   });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const policy = await enforceApiKeyPolicy(request, null);
+  if (policy.rejection) return policy.rejection;
+
   return Response.json({ object: "list", data: listGatewayBatches() }, {
     headers: { "Access-Control-Allow-Origin": CORS_ORIGIN },
   });
 }
 
 export async function POST(request: Request) {
+  const policy = await enforceApiKeyPolicy(request, null);
+  if (policy.rejection) return policy.rejection;
+
   const body = await request.json().catch(() => ({}));
   let batch = createGatewayBatch(body);
   if (batch.status === "in_progress") {

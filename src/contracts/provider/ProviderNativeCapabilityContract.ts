@@ -1,4 +1,4 @@
-import type { ProviderNativeToolName } from '../providers/ILlmProvider.js';
+import type { ProviderNativeToolName } from '../../providers/ILlmProvider.js';
 
 export const PROVIDER_NATIVE_CAPABILITY_MATRIX_VERSION = 'provider-native-capability-matrix/1' as const;
 

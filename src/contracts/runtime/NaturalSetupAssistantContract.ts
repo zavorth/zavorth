@@ -1,8 +1,8 @@
-import type { CapabilityHubItem } from './CapabilityHubContract.js';
+import type { CapabilityHubItem } from '../CapabilityHubContract.js';
 import type {
   GovernanceRecipeExecutionReceipt,
   GovernanceRecipePlan,
-} from './GovernanceRecipeContract.js';
+} from '../GovernanceRecipeContract.js';
 
 export const NATURAL_SETUP_ASSISTANT_CONTRACT_VERSION = 'zavorth-natural-setup-assistant/v1';
 

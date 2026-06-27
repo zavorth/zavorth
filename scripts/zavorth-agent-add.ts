@@ -20,8 +20,6 @@ type DiscoveredAgent = {
 const KNOWN_AGENTS: Record<string, { command: string; adapter: ZavorthExternalAgentAdapterKind; label: string }> = {
   claude: { command: 'claude', adapter: 'cli', label: 'Claude Code' },
   codex: { command: 'codex', adapter: 'cli', label: 'OpenAI Codex' },
-  openclaw: { command: 'openclaw', adapter: 'cli', label: 'OpenClaw' },
-  hermes: { command: 'hermes', adapter: 'cli', label: 'Hermes Agent' },
   gemini: { command: 'gemini', adapter: 'cli', label: 'Gemini CLI' },
   aider: { command: 'aider', adapter: 'cli', label: 'Aider' },
   continue: { command: 'continue', adapter: 'cli', label: 'Continue' },

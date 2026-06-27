@@ -1,10 +1,10 @@
-import type { CapabilityNormalizationSnapshot } from './CapabilityNormalizationContract.js';
-import type { CodexRuntimeSnapshot } from './CodexRuntimeContract.js';
-import type { ModuleSdkExportSnapshot } from './ModuleSdkExportContract.js';
-import type { OpenShellRemoteSandboxSnapshot } from './RemoteSandboxContract.js';
+import type { CapabilityNormalizationSnapshot } from '../CapabilityNormalizationContract.js';
+import type { CodexRuntimeSnapshot } from '../CodexRuntimeContract.js';
+import type { ModuleSdkExportSnapshot } from '../ModuleSdkExportContract.js';
+import type { OpenShellRemoteSandboxSnapshot } from '../RemoteSandboxContract.js';
 import type { ReleaseCertificationSnapshot } from './ReleaseCertificationContract.js';
-import type { ProviderChannelSmokeProofSnapshot } from './ProviderChannelSmokeProofContract.js';
-import type { RuntimeFamilyClosureSnapshot } from './RuntimeFamilyClosureContract.js';
+import type { ProviderChannelSmokeProofSnapshot } from '../ProviderChannelSmokeProofContract.js';
+import type { RuntimeFamilyClosureSnapshot } from '../RuntimeFamilyClosureContract.js';
 
 export const ZAVORTH_FINAL_ABSORPTION_CERTIFICATION_CONTRACT_VERSION = '2026-05-04.worker-7' as const;
 

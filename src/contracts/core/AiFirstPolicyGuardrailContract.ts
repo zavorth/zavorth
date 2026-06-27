@@ -8,7 +8,7 @@ import type {
   UniversalIntentCategory,
   UniversalIntentNextSafeAction,
   UniversalIntentSideEffect,
-} from '../runtime/uni/UniversalIntentContracts.js';
+} from '../../runtime/uni/UniversalIntentContracts.js';
 
 export const AI_FIRST_POLICY_GUARDRAIL_CONTRACT_VERSION = '2026-05-06.checkpoint-3' as const;
 

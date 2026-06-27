@@ -1,7 +1,7 @@
 import type {
   ZavorthCapabilityStoreCard,
   ZavorthCapabilityStoreCategoryId,
-} from './ZavorthCapabilityStoreContract.js';
+} from '../ZavorthCapabilityStoreContract.js';
 import type {
   ZavorthExperienceAutonomyLevel,
   ZavorthExperienceProfileId,

@@ -1,4 +1,4 @@
-import { ArtifactInput } from './ArtifactContract.js';
+import { ArtifactInput } from '../ArtifactContract.js';
 
 export interface ExecutionRequest {
   execution_id: string;

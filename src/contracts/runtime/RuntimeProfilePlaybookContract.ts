@@ -1,4 +1,4 @@
-import type { RuntimeBudgetProfile } from '../services/RuntimeResourceBudgetService.js';
+import type { RuntimeBudgetProfile } from '../../services/RuntimeResourceBudgetService.js';
 
 export const RUNTIME_PROFILE_PLAYBOOK_VERSION = 'runtime-profile-playbook/v1' as const;
 

@@ -3,7 +3,7 @@ import type {
   ModelPickerReadiness,
   ProviderCredentialKind,
   ProviderRouteKind,
-} from './ModelPickerContract.js';
+} from '../ModelPickerContract.js';
 
 export type ZavorthModelProviderExperienceCategoryId =
   | 'fast_and_budget'

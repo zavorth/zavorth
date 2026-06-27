@@ -7,7 +7,7 @@ import type {
   ZavorthResponseDecisionMode,
   ZavorthResponseDecisionPath,
   ZavorthResponseDecisionTarget,
-} from './ZavorthResponseDecisionContract.js';
+} from '../ZavorthResponseDecisionContract.js';
 
 export const AI_FIRST_RUNTIME_ENTRYPOINT_ADAPTER_CONTRACT_VERSION = '2026-05-06.checkpoint-7' as const;
 

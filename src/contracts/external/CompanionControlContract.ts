@@ -3,7 +3,7 @@ import type {
   DesktopResourceActionSafety,
   DesktopResourcePressureLevel,
 } from './DesktopResourceContract.js';
-import type { TaskResourceImpact } from './TaskResourcePlannerContract.js';
+import type { TaskResourceImpact } from '../TaskResourcePlannerContract.js';
 
 export type CompanionId =
   | 'wsl'

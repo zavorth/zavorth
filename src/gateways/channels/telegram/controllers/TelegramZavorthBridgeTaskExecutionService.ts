@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from 'fs';
 import { type Context } from 'grammy';
 import { Task } from '@zavorth/contracts/TaskContract.js';

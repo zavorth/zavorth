@@ -1,14 +1,14 @@
 {
   "schemaVersion": "zavorth.marketplace-index/v1",
   "categories": [
-    {"id": "development", "label": "Development", "description": "Code review, testing, debugging", "skillCount": 0},
-    {"id": "research", "label": "Research", "description": "Web search, analysis, summarization", "skillCount": 0},
-    {"id": "productivity", "label": "Productivity", "description": "Tasks, calendar, reminders", "skillCount": 0},
-    {"id": "media", "label": "Media", "description": "Image, audio, video generation", "skillCount": 0},
-    {"id": "security", "label": "Security", "description": "Auditing, scanning, hardening", "skillCount": 0},
-    {"id": "devops", "label": "DevOps", "description": "Docker, deployment, monitoring", "skillCount": 0},
-    {"id": "communication", "label": "Communication", "description": "Email, messaging, notifications", "skillCount": 0},
-    {"id": "data", "label": "Data", "description": "Databases, analytics, visualization", "skillCount": 0}
+    {"id": "development", "label": "Development", "description": "Code review, testing, debugging", "skillCount": 14},
+    {"id": "research", "label": "Research", "description": "Web search, analysis, summarization", "skillCount": 26},
+    {"id": "productivity", "label": "Productivity", "description": "Tasks, calendar, reminders", "skillCount": 21},
+    {"id": "media", "label": "Media", "description": "Image, audio, video generation", "skillCount": 24},
+    {"id": "security", "label": "Security", "description": "Auditing, scanning, hardening", "skillCount": 15},
+    {"id": "devops", "label": "DevOps", "description": "Docker, deployment, monitoring", "skillCount": 34},
+    {"id": "communication", "label": "Communication", "description": "Email, messaging, notifications", "skillCount": 9},
+    {"id": "data", "label": "Data", "description": "Databases, analytics, visualization", "skillCount": 34}
   ],
   "remoteRegistry": null
 }

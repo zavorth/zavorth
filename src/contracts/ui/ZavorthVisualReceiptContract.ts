@@ -1,7 +1,7 @@
 import type {
   ZavorthMissionContract,
   ZavorthMissionRiskLevel,
-} from './ZavorthMissionContract.js';
+} from '../ZavorthMissionContract.js';
 
 export type ZavorthVisualReceiptContract = {
   schemaVersion: 1;

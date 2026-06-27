@@ -1,7 +1,7 @@
 import type {
   SandboxHostReadinessSnapshot,
   SandboxHostTierId,
-} from '../services/SandboxHostReadinessService.js';
+} from '../../services/SandboxHostReadinessService.js';
 
 export type ZavorthSandboxReadinessStatus = 'ready' | 'fallback' | 'blocked';
 export type ZavorthSandboxMutationMode = 'sandbox' | 'dry-run' | 'blocked';

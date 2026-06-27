@@ -4,7 +4,7 @@ import type {
   ZavorthFunctionalClosurePriority,
   ZavorthFunctionalClosureRiskLevel,
   ZavorthFunctionalClosureSnapshot,
-} from './ZavorthFunctionalClosureContract.js';
+} from '../ZavorthFunctionalClosureContract.js';
 
 export const ZAVORTH_SEMANTIC_FUNCTIONAL_CLOSURE_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.semantic-s9' as const;
 

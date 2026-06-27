@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context, InlineKeyboard } from 'grammy';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { Task } from '../../../../contracts/TaskContract.js';

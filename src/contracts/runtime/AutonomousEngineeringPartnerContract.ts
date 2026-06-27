@@ -3,7 +3,7 @@ import type {
   ZavorthMutationRiskLevel,
   ZavorthReadinessGate,
 } from './ZavorthMutationPlaneContract.js';
-import type { TrustDecision } from '../services/TrustDecisionService.js';
+import type { TrustDecision } from '../../services/TrustDecisionService.js';
 
 export type ZavorthAutonomyLevel =
   | 'assist'

@@ -3,7 +3,7 @@ import {
   type ZavorthExecutionCorrelation,
   type CanonicalRunContext,
   type ExecutionLifecycleRecord,
-} from './ExecutionLifecycleContract.js';
+} from '../ExecutionLifecycleContract.js';
 
 export const ZAVORTH_OPERATIONAL_ERROR_CODES = [
   'validation_error',

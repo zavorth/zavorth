@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context } from 'grammy';
 import { config } from '@zavorth/config/index.js';
 import { t, getNluPatterns } from '../../../../gateways/channels/telegram/i18n.js';

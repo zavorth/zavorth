@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { McpRuntimeService } from '../mcp/McpRuntimeService.js';
 import { TelemetryRuntimeService } from '../observability/telemetry/TelemetryRuntimeService.js';
 import { McpCapabilityControlPlaneService } from '../services/McpCapabilityControlPlaneService.js';

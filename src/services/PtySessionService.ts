@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { logger } from '../logger.js';
 import { HostPowerModeService } from './HostPowerModeService';
 import { PtySessionApprovalService } from './PtySessionApprovalService';

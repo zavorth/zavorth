@@ -1,4 +1,4 @@
-import type { ZavorthUniversalSkillIntakeStatus } from './ZavorthUniversalSkillIntakeContract.js';
+import type { ZavorthUniversalSkillIntakeStatus } from '../ZavorthUniversalSkillIntakeContract.js';
 
 export const MCP_ECOSYSTEM_INTAKE_VERSION = 'mcp-ecosystem-intake/v1' as const;
 

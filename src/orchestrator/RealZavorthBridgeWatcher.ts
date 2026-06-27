@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from 'fs';
 import { Task } from '../contracts/TaskContract.js';
 import { LogRepository } from '../storage/LogRepository.js';

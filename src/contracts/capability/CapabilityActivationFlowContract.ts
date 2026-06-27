@@ -1,7 +1,7 @@
 import type { CapabilityImportManifest, CapabilityImportSnapshot } from './CapabilityImportContract.js';
 import type { CapabilityHubItem } from './CapabilityHubContract.js';
 import type { CapabilityPackReadinessSnapshot } from './CapabilityPackReadinessContract.js';
-import type { NaturalSetupAssistantSnapshot } from './NaturalSetupAssistantContract.js';
+import type { NaturalSetupAssistantSnapshot } from '../NaturalSetupAssistantContract.js';
 
 export const CAPABILITY_ACTIVATION_FLOW_CONTRACT_VERSION = 'zavorth-capability-activation-flow/v1';
 

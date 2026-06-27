@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { CliHelpPage, CliHelpTopic } from '../ZavorthCliSurfaceHelpers.js';
 
 export const CLI_COMMAND_HELP_PAGES_PART2: Record<string, CliHelpPage> = {

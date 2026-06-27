@@ -1,4 +1,4 @@
-import type { ExecutionLifecycleRecord } from './ExecutionLifecycleContract.js';
+import type { ExecutionLifecycleRecord } from '../ExecutionLifecycleContract.js';
 
 export type NodeMeshNodeKind = 'headless' | 'desktop' | 'mobile' | 'browser';
 export type NodeMeshTransport = 'local' | 'bridge' | 'sidecar' | 'remote';

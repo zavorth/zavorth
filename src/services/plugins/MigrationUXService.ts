@@ -4,7 +4,7 @@ import path from 'path';
 export interface AgentDetection {
   name: string;
   path: string;
-  type: 'hermes' | 'openclaw' | 'zavorth' | 'claude' | 'cursor' | 'generic';
+  type: 'legacy-python' | 'legacy-typescript' | 'zavorth' | 'claude' | 'cursor' | 'generic';
   configFiles: string[];
   skills: number;
   providers: number;
@@ -39,12 +39,12 @@ export class MigrationUXService {
 
   private initKnownAgents(): void {
     // Known config file patterns for each agent
-    this.knownAgents.set('hermes', [
-      'hermes_state.py', 'config.yaml', 'config.yml', '.hermes',
+    this.knownAgents.set('legacy-python', [
+      'agent_state.py', 'state.py', 'config.yaml', 'config.yml',
       'agent/', 'skills/', 'providers/', 'memory/'
     ]);
-    this.knownAgents.set('openclaw', [
-      'openclaw.json', 'config.json', '.openclaw',
+    this.knownAgents.set('legacy-typescript', [
+      'agent.json', 'workspace.json', 'config.json',
       'src/', 'skills/', 'channels/', 'plugins/'
     ]);
     this.knownAgents.set('zavorth', [

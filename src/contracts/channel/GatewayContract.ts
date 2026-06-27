@@ -1,23 +1,23 @@
-import type { ZavorthGatewaySnapshot } from '../services/ZavorthGatewayService.js';
+import type { ZavorthGatewaySnapshot } from '../../services/ZavorthGatewayService.js';
 import type {
   ZavorthSessionPlaneSnapshot,
   ZavorthSessionPlaneStatusSummarySnapshot,
-} from '../services/ZavorthSessionPlaneService.js';
+} from '../../services/ZavorthSessionPlaneService.js';
 import type {
   GatewaySessionListSnapshot,
   GatewaySessionListSummarySnapshot,
   GatewaySessionSnapshot,
-} from '../runtime/sessions/GatewaySessionService.js';
+} from '../../runtime/sessions/GatewaySessionService.js';
 import type {
   GatewaySessionSendResult,
   GatewaySessionSpawnResult,
   GatewaySessionToolDescriptor,
-} from '../runtime/sessions/GatewaySessionToolsService.js';
-import type { ZavorthProductModeSnapshot } from '../services/ProductModeService.js';
-import type { ProductChannelExperienceSnapshot } from '../services/ProductChannelExperienceService.js';
-import type { ModeEscalationSnapshot } from './ModeEscalationContract.js';
-import type { HybridMemoryRecallResult } from './HybridMemoryContract.js';
-import type { ZavorthAgentGatewaySnapshot } from '../runtime/agent/index.js';
+} from '../../runtime/sessions/GatewaySessionToolsService.js';
+import type { ZavorthProductModeSnapshot } from '../../services/ProductModeService.js';
+import type { ProductChannelExperienceSnapshot } from '../../services/ProductChannelExperienceService.js';
+import type { ModeEscalationSnapshot } from '../ModeEscalationContract.js';
+import type { HybridMemoryRecallResult } from '../HybridMemoryContract.js';
+import type { ZavorthAgentGatewaySnapshot } from '../../runtime/agent/index.js';
 
 export const GATEWAY_CONTRACT_VERSION = 'v1' as const;
 export const GATEWAY_WS_PROTOCOL_VERSION = 'zavorth-gateway-ws/1' as const;

@@ -2,14 +2,14 @@ import type {
   ZavorthLargeSkillAbsorptionBatch,
   ZavorthLargeSkillAbsorptionSnapshot,
   ZavorthLargeSkillAbsorptionSourceInput,
-} from './ZavorthLargeSkillAbsorptionContract.js';
+} from '../ZavorthLargeSkillAbsorptionContract.js';
 import type { ZavorthUniversalSkillBridgeSnapshot } from './ZavorthUniversalSkillBridgeRuntimeContract.js';
 import type {
   ZavorthUniversalSkillImportDecision,
   ZavorthUniversalSkillImportMaterializedFile,
   ZavorthUniversalSkillImportSnapshot,
 } from './ZavorthUniversalSkillImportContract.js';
-import type { ZavorthInvocationReceipt } from './ZavorthInvocationReceiptContract.js';
+import type { ZavorthInvocationReceipt } from '../ZavorthInvocationReceiptContract.js';
 
 export const ZAVORTH_SKILL_ABSORPTION_MATERIALIZATION_CONTRACT_VERSION =
   '2026-05-10.skill-absorption-materialization-checkpoint-6' as const;

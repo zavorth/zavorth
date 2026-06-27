@@ -255,7 +255,7 @@ const CANDIDATES: CandidateTemplate[] = [
     id: 'media.generation',
     title: 'Media generation and understanding',
     domain: 'media',
-    summary: 'Add native image, video, audio and document extraction actions comparable to Hermes/OpenClaw media plugins.',
+    summary: 'Add native image, video, audio and document extraction actions as governed media tools.',
     sourceFiles: [
       'src/services/ZavorthNativePowerPackService.ts',
       'src/domain/surface/application/EchoSpeechSynthesisService.ts',

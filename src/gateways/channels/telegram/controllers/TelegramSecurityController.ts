@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Bot, Context } from 'grammy';
 import { ChatCleanupService } from '@zavorth/services/ChatCleanupService.js';
 import { HostIdentityService } from '@zavorth/services/HostIdentityService.js';

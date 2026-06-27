@@ -2,7 +2,7 @@ import type {
   SurfaceRenderedResponse,
   SurfaceRenderTarget,
   SurfaceResponse,
-} from '../domain/surface/application/surface-response/SurfaceResponseContract.js';
+} from '../../domain/surface/application/surface-response/SurfaceResponseContract.js';
 
 export const CHANNEL_CAPABILITY_CONTRACT_VERSION =
   '2026-05-12.channel-capability-awareness-checkpoint-7' as const;

@@ -1,5 +1,5 @@
 import type { ProviderMeshReadinessSnapshot } from './ProviderMeshReadinessContract.js';
-import type { ReleaseCertificationSnapshot } from './ReleaseCertificationContract.js';
+import type { ReleaseCertificationSnapshot } from '../ReleaseCertificationContract.js';
 
 export const ZAVORTH_PROVIDER_P0_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-10';
 

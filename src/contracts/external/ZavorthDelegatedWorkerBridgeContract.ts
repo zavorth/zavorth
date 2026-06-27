@@ -1,6 +1,6 @@
 import type {
   ZavorthSessionMemoryContinuationStatus,
-} from './ZavorthSessionMemoryContinuationContract.js';
+} from '../ZavorthSessionMemoryContinuationContract.js';
 
 export const ZAVORTH_DELEGATED_WORKER_BRIDGE_CONTRACT_VERSION =
   'zavorth-delegated-worker-bridge/7' as const;

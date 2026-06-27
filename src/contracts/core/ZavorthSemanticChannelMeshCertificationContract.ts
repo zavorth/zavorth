@@ -5,7 +5,7 @@ import type {
   ChannelRuntimeId,
   SourceChannelMeshExpansionSnapshot,
   SourceChannelMeshPackageName,
-} from './SourceChannelMeshExpansionContract.js';
+} from '../SourceChannelMeshExpansionContract.js';
 
 export const ZAVORTH_SEMANTIC_CHANNEL_MESH_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.semantic-s4' as const;
 

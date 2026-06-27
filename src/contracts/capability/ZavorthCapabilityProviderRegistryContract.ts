@@ -1,7 +1,7 @@
 import type {
   ZavorthExternalSidecarAdapterStatus,
   ZavorthExternalSidecarRisk,
-} from './ZavorthExternalSidecarAdapterContract.js';
+} from '../ZavorthExternalSidecarAdapterContract.js';
 
 export const ZAVORTH_CAPABILITY_PROVIDER_REGISTRY_CONTRACT_VERSION =
   'zavorth-capability-provider-registry/4' as const;

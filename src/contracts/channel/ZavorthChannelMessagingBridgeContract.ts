@@ -1,6 +1,6 @@
 import type {
   ZavorthCapabilityProviderRegistryStatus,
-} from './ZavorthCapabilityProviderRegistryContract.js';
+} from '../ZavorthCapabilityProviderRegistryContract.js';
 
 export const ZAVORTH_CHANNEL_MESSAGING_BRIDGE_CONTRACT_VERSION =
   'zavorth-channel-messaging-bridge/5' as const;

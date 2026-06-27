@@ -1,4 +1,4 @@
-import type { SurfaceResponse } from '../domain/surface/application/surface-response/index.js';
+import type { SurfaceResponse } from '../../domain/surface/application/surface-response/index.js';
 
 export const ZAVORTH_AGENT_PRACTICALITY_COMPLETION_VERSION =
   '2026-05-11.agent-practicality-checkpoint-6' as const;

@@ -187,20 +187,16 @@ export class ZavorthPlatformRegistryEntryMapper {
       trust: entry.enabled ? 'trusted' : 'review',
       installedRevision: commandText || entry.command || entry.id,
     });
-    const isLocallyAdopted = entry.enabled || localState.resolved.installed;
+    const isLocallyAdopted = true;
     const trust = entry.enabled || localState.stored
       ? localState.resolved.trust
-      : 'planned';
+      : 'review';
     const readiness: ZavorthPlatformRegistryEntry['readiness'] = entry.enabled
       ? 'ready'
-      : isLocallyAdopted
-        ? 'partial'
-        : 'disabled';
+      : 'partial';
     const installState: ZavorthPlatformRegistryEntry['installState'] = entry.enabled
       ? 'enabled'
-      : isLocallyAdopted
-        ? 'installed'
-        : 'disabled';
+      : 'installed';
     return {
       id: mcpId,
       label: entry.id,
@@ -238,8 +234,8 @@ export class ZavorthPlatformRegistryEntryMapper {
         `Enabled: ${entry.enabled ? 'sim' : 'nao'}`,
         entry.capability ? `Capability: ${entry.capability}` : 'Capability nao informada.',
         `Env: ${Object.keys(entry.env || {}).length} chave(s).`,
-        ...(!entry.enabled && isLocallyAdopted
-          ? ['Lifecycle local: cadastro persistido; falta habilitar o manifesto MCP.']
+        ...(!entry.enabled
+          ? ['Manifesto MCP cadastrado localmente; falta habilitar execucao apos revisao.']
           : []),
         ...(entry.enabled && localState.stored
           ? [`Lifecycle local: trust persistido como ${trust}.`]

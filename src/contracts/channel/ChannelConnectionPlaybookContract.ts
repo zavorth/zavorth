@@ -1,6 +1,6 @@
 import type { ChannelReadinessProof } from './ChannelMeshContract.js';
-import type { PlatformKey } from './PlatformContract.js';
-import type { ChannelInstallMode } from '../services/ChannelInstallScaffoldService.js';
+import type { PlatformKey } from '../PlatformContract.js';
+import type { ChannelInstallMode } from '../../services/ChannelInstallScaffoldService.js';
 
 export const CHANNEL_CONNECTION_PLAYBOOK_VERSION = 'channel-connection-playbook/v1' as const;
 

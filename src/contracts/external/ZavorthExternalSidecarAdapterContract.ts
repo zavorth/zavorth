@@ -1,6 +1,6 @@
 import type {
   ZavorthNativeEngineAbsorptionStatus,
-} from './ZavorthNativeEngineAbsorptionContract.js';
+} from '../ZavorthNativeEngineAbsorptionContract.js';
 import type {
   ZavorthExternalRuntimeNaturalFirstRoute,
 } from './ZavorthExternalRuntimeBridgeContract.js';

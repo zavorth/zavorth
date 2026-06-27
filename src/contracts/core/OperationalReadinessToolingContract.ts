@@ -1,4 +1,4 @@
-import type { PluginRegistrySnapshot } from '../services/PluginRegistryService.js';
+import type { PluginRegistrySnapshot } from '../../services/PluginRegistryService.js';
 import type { ZavorthPluginManifest } from './PluginManifestContract.js';
 
 export const ZAVORTH_OPERATIONAL_READINESS_TOOLING_CONTRACT_VERSION = '2026-05-04.checkpoint-8';

@@ -1,4 +1,4 @@
-import type { DesktopPanel } from '../slashCommands';
+﻿import type { DesktopPanel } from '../slashCommands';
 import {
   AppWindow,
   Brand,
@@ -30,25 +30,25 @@ type SidebarItem = {
 
 const items: SidebarItem[] = [
   { panel: 'chat', label: 'Chat', Icon: Chat },
-  { panel: 'approvals', label: 'Revisão', Icon: Review },
-  { panel: 'memory', label: 'Memória', Icon: Memory },
+  { panel: 'approvals', label: 'Review', Icon: Review },
+  { panel: 'memory', label: 'Memory', Icon: Memory },
   { panel: 'skills', label: 'Plugins', Icon: Skills },
-  { panel: 'channels', label: 'Canais', Icon: Channels },
-  { panel: 'settings', label: 'Configurações', Icon: Settings },
+  { panel: 'channels', label: 'Channels', Icon: Channels },
+  { panel: 'settings', label: 'Settings', Icon: Settings },
 ];
 
 const chatThreads = [
-  { title: 'Calcular faltas permitidas', age: '1 sem' },
-  { title: 'Sugerir animações ao site', age: '2 sem' },
-  { title: 'Install hatch-pet skill', age: '3 sem' },
-  { title: 'vou formatar o bootloader e preparar', age: '4 sem' },
+  { title: 'Calculate allowed absences', age: '1w' },
+  { title: 'Suggest site animations', age: '2w' },
+  { title: 'Install hatch-pet skill', age: '3w' },
+  { title: 'Prepare bootloader maintenance', age: '4w' },
 ];
 
 const projectThreads = [
-  { title: 'Análise base do desktop Zavorth', age: '8 min' },
-  { title: 'Construir hub de IA minimalista', age: '21 h' },
-  { title: 'Revisar comparação Zavorth-Hermes', age: '21 h' },
-  { title: 'Validar mudanças do dashboard', age: '5 d' },
+  { title: 'Review Zavorth desktop baseline', age: '8 min' },
+  { title: 'Build a minimal AI hub', age: '21 h' },
+  { title: 'Review desktop interaction model', age: '21 h' },
+  { title: 'Validate dashboard changes', age: '5 d' },
 ];
 
 export function DesktopSidebar(props: {
@@ -72,11 +72,11 @@ export function DesktopSidebar(props: {
         <button className="zvd-sidebar-toggle" aria-label="Toggle sidebar" onClick={props.onToggle} type="button">
           <AppWindow aria-hidden="true" size={16} stroke={1.8} />
         </button>
-        <span>Arquivo</span>
-        <span>Editar</span>
-        <span>Exibir</span>
-        <span>Janela</span>
-        <span>Ajuda</span>
+        <span>File</span>
+        <span>Edit</span>
+        <span>View</span>
+        <span>Window</span>
+        <span>Help</span>
       </div>
 
       <div className="zvd-sidebar-top">
@@ -134,7 +134,7 @@ export function DesktopSidebar(props: {
         ))}
         <button className="zvd-add-project" type="button" onClick={() => void props.onWorkspaceFolder()}>
           <Plus aria-hidden="true" size={16} stroke={1.9} />
-          <span>Adicionar pasta</span>
+          <span>Add folder</span>
         </button>
 
         {props.workspaceScope.kind === 'folder' && (
@@ -175,7 +175,7 @@ export function DesktopSidebar(props: {
         )}
       </section>
 
-      <section className="zvd-sidebar-chats" aria-label="Chats sem projeto">
+      <section className="zvd-sidebar-chats" aria-label="Chats without project">
         <p>Chats</p>
         <div className="zvd-thread-list">
           {chatThreads.map(thread => (

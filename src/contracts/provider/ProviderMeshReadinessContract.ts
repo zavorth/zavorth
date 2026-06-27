@@ -4,16 +4,16 @@ import type {
   ProviderCredentialKind,
   ProviderRouteKind,
 } from './ModelPickerContract.js';
-import type { CapabilitySourceMapping } from './CapabilityNormalizationContract.js';
-import type { ZavorthPluginManifest } from './PluginManifestContract.js';
+import type { CapabilitySourceMapping } from '../CapabilityNormalizationContract.js';
+import type { ZavorthPluginManifest } from '../PluginManifestContract.js';
 import type {
   ProviderCompatibilityClassification,
   ProviderRuntimeAdapterKind,
-} from '../services/providers/catalog/ProviderCompatibilityClassifier.js';
+} from '../../services/providers/catalog/ProviderCompatibilityClassifier.js';
 import type {
   ProviderIntegrationManifest,
   ProviderIntegrationRouteManifest,
-} from '../services/providers/catalog/ProviderIntegrationManifest.js';
+} from '../../services/providers/catalog/ProviderIntegrationManifest.js';
 
 export const ZAVORTH_PROVIDER_MESH_READINESS_CONTRACT_VERSION = '2026-05-04.checkpoint-4';
 

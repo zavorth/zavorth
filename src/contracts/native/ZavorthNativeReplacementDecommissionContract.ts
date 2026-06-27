@@ -1,6 +1,6 @@
 import type {
   ZavorthDelegatedWorkerBridgeStatus,
-} from './ZavorthDelegatedWorkerBridgeContract.js';
+} from '../ZavorthDelegatedWorkerBridgeContract.js';
 
 export const ZAVORTH_NATIVE_REPLACEMENT_DECOMMISSION_CONTRACT_VERSION =
   'zavorth-native-replacement-decommission/8' as const;

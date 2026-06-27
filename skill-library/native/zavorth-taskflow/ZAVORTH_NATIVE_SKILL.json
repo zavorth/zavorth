@@ -11,8 +11,8 @@
   "inputContract": ["owner", "goal", "current state", "waits", "child tasks"],
   "outputContract": ["flow status", "next action", "receipts", "blocked reason"],
   "inspiredBy": [
-    "OpenClaw/taskflow",
-    "OpenClaw/taskflow-inbox-triage"
+    "external/taskflow",
+    "external/taskflow-inbox-triage"
   ],
   "noExecutionByDefault": true,
   "requiresPolicyBroker": true,

@@ -4,7 +4,7 @@ import type {
   SourceProviderRuntimeFamily,
   SourceProviderRuntimeId,
   SourceProviderRuntimeStatus,
-} from './SourceProviderMeshExpansionContract.js';
+} from '../SourceProviderMeshExpansionContract.js';
 
 export const ZAVORTH_SEMANTIC_PROVIDER_MESH_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.semantic-s3' as const;
 

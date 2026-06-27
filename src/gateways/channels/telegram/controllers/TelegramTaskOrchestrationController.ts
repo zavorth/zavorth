@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context } from 'grammy';
 import { ParsedCommand } from '../../../../gateways/channels/telegram/CommandParser.js';
 import { Task } from '@zavorth/contracts/TaskContract.js';

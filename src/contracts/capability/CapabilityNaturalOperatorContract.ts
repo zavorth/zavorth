@@ -1,5 +1,5 @@
 import type { CapabilityConsoleSnapshot } from './CapabilityConsoleContract.js';
-import type { NaturalSetupAssistantSnapshot } from './NaturalSetupAssistantContract.js';
+import type { NaturalSetupAssistantSnapshot } from '../NaturalSetupAssistantContract.js';
 import type { CapabilitySetupQueueTicket } from './CapabilitySetupQueueContract.js';
 import type { CapabilitySetupExecutorResult } from './CapabilitySetupExecutorContract.js';
 

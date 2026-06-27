@@ -1,5 +1,5 @@
-import type { IntelligenceCapabilityManifest } from './IntelligenceFabricContract.js';
-import type { CapabilityLabSnapshot } from './PracticalAgencyContract.js';
+import type { IntelligenceCapabilityManifest } from '../IntelligenceFabricContract.js';
+import type { CapabilityLabSnapshot } from '../PracticalAgencyContract.js';
 import type { ZavorthCapabilityPrototypeRecord } from './ZavorthCapabilityPrototypeSandboxContract.js';
 
 export const ZAVORTH_CAPABILITY_ADAPTER_DRAFT_CONTRACT_VERSION = '2026-06-02.capability-adapter-draft.v1' as const;

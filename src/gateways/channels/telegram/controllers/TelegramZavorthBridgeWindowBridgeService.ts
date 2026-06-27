@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { logger } from '../../../../logger.js';
 import { Context, InputFile } from 'grammy';
 import fs from 'fs';

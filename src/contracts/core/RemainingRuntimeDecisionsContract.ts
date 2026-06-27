@@ -1,7 +1,7 @@
-import type { ChannelMeshConsistencySnapshot } from './ChannelMeshConsistencyContract.js';
-import type { MemoryArtifactConsistencySnapshot } from './MemoryArtifactConsistencyContract.js';
-import type { ReleaseCertificationSnapshot } from './ReleaseCertificationContract.js';
-import type { SatelliteAppConsistencySnapshot } from './SatelliteAppConsistencyContract.js';
+import type { ChannelMeshConsistencySnapshot } from '../ChannelMeshConsistencyContract.js';
+import type { MemoryArtifactConsistencySnapshot } from '../MemoryArtifactConsistencyContract.js';
+import type { ReleaseCertificationSnapshot } from '../ReleaseCertificationContract.js';
+import type { SatelliteAppConsistencySnapshot } from '../SatelliteAppConsistencyContract.js';
 
 export const ZAVORTH_REMAINING_RUNTIME_DECISIONS_CONTRACT_VERSION = '2026-05-04.checkpoint-13';
 

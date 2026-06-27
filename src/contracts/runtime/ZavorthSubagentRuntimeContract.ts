@@ -1,5 +1,5 @@
-import type { SecurityPolicyBrokerReceipt } from '../security/SecurityPolicyBroker.js';
-import type { SubagentResultReceipt } from '../runtime/agent/subagents/index.js';
+import type { SecurityPolicyBrokerReceipt } from '../../security/SecurityPolicyBroker.js';
+import type { SubagentResultReceipt } from '../../runtime/agent/subagents/index.js';
 import type {
   ZavorthSubagentAutoInvocationTelemetry,
 } from './ZavorthSubagentAutoInvocationContract.js';

@@ -4,7 +4,7 @@ import type { ProviderIntegrationManifest } from './ProviderIntegrationManifest.
 import { createMinimalProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { sanitizeModelId, sanitizeProviderId, sanitizeLabel } from './ModelIdSanitizer.js';
 
-export type ExternalProviderFormat = 'auto' | 'json' | 'yaml' | 'env' | 'openclaw' | 'generic';
+export type ExternalProviderFormat = 'auto' | 'json' | 'yaml' | 'env' | 'external-json' | 'generic';
 
 export type ExternalProviderConfig = {
   id: string;
@@ -205,7 +205,7 @@ export class ProviderExternalImportService {
     try {
       switch (format) {
         case 'json':
-        case 'openclaw':
+        case 'external-json':
         case 'generic':
           providers.push(...parseJsonConfig(content));
           break;

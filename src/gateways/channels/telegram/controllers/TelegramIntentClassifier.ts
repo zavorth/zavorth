@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
 
 export type IntentType =

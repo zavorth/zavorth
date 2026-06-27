@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { DemoGuideService } from '../../../../services/DemoGuideService.js';

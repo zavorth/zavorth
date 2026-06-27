@@ -6,7 +6,7 @@ import type {
   AiFirstRoutePlanIntent,
   AiFirstRoutePlanRisk,
 } from './AiFirstRoutePlanContract.js';
-import type { UniversalIntentCategory } from '../runtime/uni/UniversalIntentContracts.js';
+import type { UniversalIntentCategory } from '../../runtime/uni/UniversalIntentContracts.js';
 
 export const AI_FIRST_SHADOW_BATCH_RECORDER_CONTRACT_VERSION = '2026-05-06.checkpoint-4' as const;
 

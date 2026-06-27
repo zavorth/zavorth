@@ -1,10 +1,10 @@
-import type { SecurityPolicyBrokerReceipt, SecurityPolicyBrokerSurface } from '../security/SecurityPolicyBroker.js';
-import type { SubagentResultReceipt, SubagentScopeMode } from '../runtime/agent/subagents/index.js';
+import type { SecurityPolicyBrokerReceipt, SecurityPolicyBrokerSurface } from '../../security/SecurityPolicyBroker.js';
+import type { SubagentResultReceipt, SubagentScopeMode } from '../../runtime/agent/subagents/index.js';
 import type {
   ZavorthNativeSkillPresetId,
   ZavorthNativeSkillRiskLevel,
-} from './ZavorthNativeIntelligencePackContract.js';
-import type { ZavorthUniversalSkillPermissionProfileId } from './ZavorthUniversalSkillIntakeContract.js';
+} from '../ZavorthNativeIntelligencePackContract.js';
+import type { ZavorthUniversalSkillPermissionProfileId } from '../ZavorthUniversalSkillIntakeContract.js';
 
 export const ZAVORTH_GOVERNED_SUBAGENT_CONTRACT_VERSION =
   '2026-05-10.governed-subagent-checkpoint-2' as const;

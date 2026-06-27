@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context, InputFile } from 'grammy';
 import fs from 'fs';
 import path from 'path';

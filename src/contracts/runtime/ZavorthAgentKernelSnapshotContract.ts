@@ -1,5 +1,5 @@
-import type { ProfileRuntimeBundle } from './ProfileManifestContract.js';
-import type { ZavorthCapabilityAtlasSnapshot } from './ZavorthCapabilityAtlasContract.js';
+import type { ProfileRuntimeBundle } from '../ProfileManifestContract.js';
+import type { ZavorthCapabilityAtlasSnapshot } from '../ZavorthCapabilityAtlasContract.js';
 
 export const ZAVORTH_AGENT_KERNEL_SNAPSHOT_VERSION = '2026-06-02.agent-kernel-snapshot.v1' as const;
 

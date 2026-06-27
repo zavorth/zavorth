@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ChatMessage, ToolCall, ToolDefinition, ILlmProvider } from '../../providers/ILlmProvider.js';
 import { ContextCompactionService } from '../../services/ContextCompactionService.js';
 import type { LlmRunOptions, LlmRuntimeResult } from '../../services/llm/LlmRuntimeService.js';

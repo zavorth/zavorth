@@ -5,7 +5,7 @@ import type {
   ZavorthQaSecurityReleaseFamilyId,
   ZavorthQaSecurityReleaseReceipt,
   ZavorthQaSecurityReleaseSeverity,
-} from './ZavorthQaSecurityReleaseCertificationContract.js';
+} from '../ZavorthQaSecurityReleaseCertificationContract.js';
 
 export const ZAVORTH_SEMANTIC_QA_SECURITY_RELEASE_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.semantic-s7' as const;
 

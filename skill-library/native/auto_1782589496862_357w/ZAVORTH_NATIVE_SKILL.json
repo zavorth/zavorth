@@ -1,0 +1,25 @@
+{
+  "id": "auto_1782589496862_357w",
+  "name": "Auto: create file + web search workflow",
+  "native": true,
+  "description": "Automated workflow using create_file, web_search (3 successful uses, 100% success rate).",
+  "category": "research",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "auto-generated",
+    "research"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "workflow"
+  ],
+  "outputContract": [
+    "result"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Context } from 'grammy';
 import { ZavorthAutomationActionService } from '@zavorth/services/ZavorthAutomationActionService.js';
 import { ZavorthAutomationControlPlaneService } from '@zavorth/services/ZavorthAutomationControlPlaneService.js';

@@ -2,8 +2,8 @@ import type {
   ZavorthCrossSurfaceProjectionSurface,
   ZavorthCrossSurfaceRuntimeProjectionInput,
   ZavorthCrossSurfaceRuntimeProjectionSnapshot,
-} from './ZavorthCrossSurfaceRuntimeProjectionContract.js';
-import type { ZavorthToolOrchestrationVerificationStatus } from './ZavorthToolOrchestrationVerificationContract.js';
+} from '../ZavorthCrossSurfaceRuntimeProjectionContract.js';
+import type { ZavorthToolOrchestrationVerificationStatus } from '../ZavorthToolOrchestrationVerificationContract.js';
 
 export const ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION =
   '2026-05-11.operational-rollout-eval-checkpoint-6' as const;

@@ -1,5 +1,5 @@
-import type { ChannelCapabilitySnapshot } from './ChannelCapabilityContract.js';
-import type { ZavorthContextRecoverySnapshot } from './ZavorthContextRecoveryAssimilationContract.js';
+import type { ChannelCapabilitySnapshot } from '../ChannelCapabilityContract.js';
+import type { ZavorthContextRecoverySnapshot } from '../ZavorthContextRecoveryAssimilationContract.js';
 import type { ZavorthScheduledTaskSnapshot } from './ZavorthScheduledTaskContract.js';
 import type { ZavorthScheduledTaskDailyOpsReadinessSnapshot } from './ZavorthScheduledTaskDailyOpsReadinessContract.js';
 import type { ZavorthScheduledTaskLiveTickCertificationSnapshot } from './ZavorthScheduledTaskLiveTickCertificationContract.js';

@@ -4,7 +4,7 @@ import type {
   ZavorthNativeCompanionDeviceSnapshot,
   ZavorthNativePermissionMode,
   ZavorthNativeRuntimeTarget,
-} from './ZavorthNativeCompanionDeviceContract.js';
+} from '../ZavorthNativeCompanionDeviceContract.js';
 
 export const ZAVORTH_SEMANTIC_NATIVE_COMPANION_DEVICE_CAPABILITY_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.semantic-s6' as const;
 

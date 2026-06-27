@@ -1,5 +1,5 @@
-import type { MnemosDreamCycleInput, MnemosDreamCycleSnapshot } from './MnemosDreamCycleContract.js';
-import type { ZavorthDynamicMissionHarnessInput, ZavorthDynamicMissionHarnessSnapshot } from './ZavorthDynamicMissionHarnessContract.js';
+import type { MnemosDreamCycleInput, MnemosDreamCycleSnapshot } from '../MnemosDreamCycleContract.js';
+import type { ZavorthDynamicMissionHarnessInput, ZavorthDynamicMissionHarnessSnapshot } from '../ZavorthDynamicMissionHarnessContract.js';
 
 export const ZAVORTH_EXPERIENCE_LEARNING_DAEMON_VERSION = 'experience-learning-daemon/v1' as const;
 export const ZAVORTH_SKILL_FORGE_RUNTIME_VERSION = 'skill-forge-runtime/v1' as const;

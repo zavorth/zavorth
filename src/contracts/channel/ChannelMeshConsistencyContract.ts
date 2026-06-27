@@ -2,8 +2,8 @@ import type {
   ChannelAdapterStatus,
   ChannelFeatureSet,
 } from './ChannelMeshContract.js';
-import type { CapabilitySourceMapping } from './CapabilityNormalizationContract.js';
-import type { ZavorthPluginManifest } from './PluginManifestContract.js';
+import type { CapabilitySourceMapping } from '../CapabilityNormalizationContract.js';
+import type { ZavorthPluginManifest } from '../PluginManifestContract.js';
 
 export const ZAVORTH_CHANNEL_MESH_CONSISTENCY_CONTRACT_VERSION = '2026-05-04.checkpoint-5';
 

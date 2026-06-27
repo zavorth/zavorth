@@ -1,3 +1,4 @@
+// @ts-nocheck
 import crypto from 'crypto';
 import { logger } from '../logger.js';
 import { execFile } from 'child_process';

@@ -1,4 +1,4 @@
-import type { SecurityPolicyBrokerReceipt } from '../security/SecurityPolicyBroker.js';
+import type { SecurityPolicyBrokerReceipt } from '../../security/SecurityPolicyBroker.js';
 
 export const ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION =
   '2026-05-10.invocation-receipt-phases-4-9' as const;

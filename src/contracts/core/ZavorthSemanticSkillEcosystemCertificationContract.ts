@@ -4,7 +4,7 @@ import type {
   ZavorthSkillEcosystemPackSnapshot,
   ZavorthSkillPackReceiptKind,
   ZavorthSkillPermissionProfileId,
-} from './ZavorthSkillEcosystemPackContract.js';
+} from '../ZavorthSkillEcosystemPackContract.js';
 
 export const ZAVORTH_SEMANTIC_SKILL_ECOSYSTEM_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.semantic-s8' as const;
 

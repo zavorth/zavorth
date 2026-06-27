@@ -1,4 +1,4 @@
-import type { RuntimeDeploymentTarget } from './RuntimeProfilePlaybookContract.js';
+import type { RuntimeDeploymentTarget } from '../RuntimeProfilePlaybookContract.js';
 
 export const ZAVORTH_DAILY_CAPABILITY_FLOW_VERSION = 'daily-capability-flow/v1' as const;
 

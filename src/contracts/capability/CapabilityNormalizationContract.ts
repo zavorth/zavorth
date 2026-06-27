@@ -2,7 +2,7 @@ import type {
   ZavorthPluginManifest,
   ZavorthPluginModuleKind,
   ZavorthPluginPermission,
-} from './PluginManifestContract.js';
+} from '../PluginManifestContract.js';
 
 export const ZAVORTH_CAPABILITY_NORMALIZATION_CONTRACT_VERSION = '2026-05-04.checkpoint-3';
 

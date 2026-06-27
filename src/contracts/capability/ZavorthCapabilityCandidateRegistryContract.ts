@@ -1,7 +1,7 @@
 import type {
   ZavorthInnovationRadarCategory,
   ZavorthInnovationRadarSnapshot,
-} from './ZavorthInnovationRadarContract.js';
+} from '../ZavorthInnovationRadarContract.js';
 
 export const ZAVORTH_CAPABILITY_CANDIDATE_REGISTRY_CONTRACT_VERSION = '2026-06-02.capability-candidate-registry.v1' as const;
 

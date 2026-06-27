@@ -11,7 +11,7 @@
   "inputContract": ["plan", "registered lanes", "workspace scope", "verification criteria"],
   "outputContract": ["task assignments", "review results", "integration decision"],
   "inspiredBy": [
-    "Hermes/subagent-driven-development",
+    "external/subagent-driven-development",
     "AIAgentSkills/obra_superpowers/dispatching-parallel-agents",
     "AIAgentSkills/obra_superpowers/subagent-driven-development"
   ],

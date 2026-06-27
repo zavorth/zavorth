@@ -3,7 +3,7 @@ import type {
   PlatformImplementationState,
   PlatformReadiness,
   PlatformTransport,
-} from './PlatformContract.js';
+} from '../PlatformContract.js';
 
 export type ChannelMeshId = MessageChannel | 'slack' | 'teams' | 'signal';
 

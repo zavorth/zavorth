@@ -1,5 +1,5 @@
-import type { ZavorthNativeCompanionDeviceSnapshot } from './ZavorthNativeCompanionDeviceContract.js';
-import type { ZavorthPerceptionCrossSurfaceCertificationSnapshot } from './ZavorthPerceptionCrossSurfaceCertificationContract.js';
+import type { ZavorthNativeCompanionDeviceSnapshot } from '../ZavorthNativeCompanionDeviceContract.js';
+import type { ZavorthPerceptionCrossSurfaceCertificationSnapshot } from '../ZavorthPerceptionCrossSurfaceCertificationContract.js';
 import type { ZavorthScheduledTaskDailyOpsReadinessSnapshot } from './ZavorthScheduledTaskDailyOpsReadinessContract.js';
 
 export const ZAVORTH_SCHEDULER_PERCEPTION_DEVICE_LIVE_COMPLETION_CONTRACT_VERSION =

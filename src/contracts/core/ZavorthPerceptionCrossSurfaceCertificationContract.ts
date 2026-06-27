@@ -1,5 +1,5 @@
-import type { SurfaceResponse } from '../domain/surface/application/surface-response/index.js';
-import type { ZavorthPerceptionInvocationPlan } from './ZavorthPerceptionInvocationContract.js';
+import type { SurfaceResponse } from '../../domain/surface/application/surface-response/index.js';
+import type { ZavorthPerceptionInvocationPlan } from '../ZavorthPerceptionInvocationContract.js';
 
 export const ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION =
   '2026-05-11.perception-cross-surface-checkpoint-6' as const;
