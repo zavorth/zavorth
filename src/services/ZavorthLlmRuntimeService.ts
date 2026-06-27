@@ -18,6 +18,11 @@ export type ZavorthLlmSynthesisResult = {
   outputTokens: number;
 };
 
+type LlmUsageMetadata = {
+  inputTokens?: unknown;
+  outputTokens?: unknown;
+};
+
 export class ZavorthLlmRuntimeService {
   private readonly runtime: LlmRuntimeService;
 
@@ -47,8 +52,7 @@ export class ZavorthLlmRuntimeService {
       content: response.content || '',
       providerName: runOptions.providerName || this.runtime.getPreferredProviderName(),
       modelName: runOptions.modelName || null,
-      inputTokens: response.metadata?.usage?.inputTokens ?? 0,
-      outputTokens: response.metadata?.usage?.outputTokens ?? 0,
+      ...this.readUsage(response),
     };
   }
 
@@ -73,8 +77,7 @@ export class ZavorthLlmRuntimeService {
       content: response.content || '',
       providerName: runOptions.providerName || this.runtime.getPreferredProviderName(),
       modelName: runOptions.modelName || null,
-      inputTokens: response.metadata?.usage?.inputTokens ?? 0,
-      outputTokens: response.metadata?.usage?.outputTokens ?? 0,
+      ...this.readUsage(response),
     };
   }
 
@@ -84,5 +87,13 @@ export class ZavorthLlmRuntimeService {
 
   isProviderAvailable(name: string): boolean {
     return this.runtime.isProviderAvailable(name);
+  }
+
+  private readUsage(response: LlmResponse): Pick<ZavorthLlmSynthesisResult, 'inputTokens' | 'outputTokens'> {
+    const usage = response.metadata?.usage as LlmUsageMetadata | undefined;
+    return {
+      inputTokens: typeof usage?.inputTokens === 'number' ? usage.inputTokens : 0,
+      outputTokens: typeof usage?.outputTokens === 'number' ? usage.outputTokens : 0,
+    };
   }
 }
