@@ -28,7 +28,7 @@ describe('Zavorth capability spine actions', () => {
     }
   });
 
-  it('registers hidden capability, skill, agent, workflow and parity actions as verified LLM-facing routes', () => {
+  it('registers hidden capability, skill, agent, workflow and reference actions as verified LLM-facing routes', () => {
     const actions = new ZavorthActionCatalog().list();
     const byId = new Map(actions.map((action) => [action.id, action]));
 
@@ -43,8 +43,8 @@ describe('Zavorth capability spine actions', () => {
       'agents.external.invoke',
       'workflows.list',
       'workflows.run',
-      'capabilities.parity.hermes',
-      'capabilities.parity.openclaw',
+      'capabilities.reference.agent',
+      'capabilities.reference.workspace',
     ]) {
       expect(byId.get(id)).toEqual(expect.objectContaining({
         verificationStatus: 'verified',
@@ -80,20 +80,20 @@ describe('Zavorth capability spine actions', () => {
     expect(blockedApply.status).toBe('approval_required');
   });
 
-  it('exposes parity packs and workflow inventory without running workflows', async () => {
+  it('exposes reference packs and workflow inventory without running workflows', async () => {
     const root = makeRoot();
     roots.push(root);
     const gateway = new ZavorthActionGateway({ root });
 
-    const hermes = await gateway.status('capabilities.parity.hermes');
-    const openclaw = await gateway.status('capabilities.parity.openclaw');
+    const agentReference = await gateway.status('capabilities.reference.agent');
+    const workspaceReference = await gateway.status('capabilities.reference.workspace');
     const workflows = await gateway.status('workflows.list');
     const runPreview = await gateway.preview('workflows.run', { script: 'qa:zavorth-natural-action-harness' });
 
-    expect(hermes.status).toBe('ok');
-    expect(JSON.stringify(hermes.data)).toContain('delegate_task');
-    expect(openclaw.status).toBe('ok');
-    expect(JSON.stringify(openclaw.data)).toContain('file_fetch');
+    expect(agentReference.status).toBe('ok');
+    expect(JSON.stringify(agentReference.data)).toContain('delegate_task');
+    expect(workspaceReference.status).toBe('ok');
+    expect(JSON.stringify(workspaceReference.data)).toContain('file_fetch');
     expect(workflows.status).toBe('ok');
     expect(JSON.stringify(workflows.data)).toContain('qa:zavorth-natural-action-harness');
     expect(runPreview.status).toBe('preview');

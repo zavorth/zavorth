@@ -108,7 +108,7 @@ describe('ZavorthExternalAgentOnboardingService', () => {
     });
 
     expect(snapshot.status).toBe('ready-for-review');
-    expect(snapshot.candidates[0].label).toContain('Claude-style');
+    expect(snapshot.candidates[0].label).toContain('known CLI');
     expect(snapshot.candidates[0].protocols).toContain('cli');
     expect(snapshot.candidates[0].gatewayProfileDraft).toEqual(expect.objectContaining({
       adapter: 'cli',

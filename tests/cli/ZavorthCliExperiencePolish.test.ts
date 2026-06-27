@@ -36,7 +36,7 @@ describe('ZavorthCliExperiencePolish Tests (Phase 21N)', () => {
 
     const rendered = service.renderCli(snapshot);
     expect(rendered).toContain('Zavorth');
-    expect(rendered).not.toContain('Hermes');
+    expect(rendered).not.toContain('Legacy Agent');
     expect(rendered).not.toContain('undefined');
     expect(rendered).not.toContain('null');
   });

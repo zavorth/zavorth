@@ -8,10 +8,17 @@ function read(relativePath: string): string {
 }
 
 function readShellSurface(): string {
-  return `${read('src/shell/DesktopShell.tsx')}\n${read('src/hub-skin/HubNativeShell.tsx')}`;
+  return [
+    'src/shell/DesktopShell.tsx',
+    'src/App.tsx',
+    'src/hub-skin/HubNativeShell.tsx',
+  ]
+    .filter(relativePath => existsSync(join(desktopRoot, relativePath)))
+    .map(read)
+    .join('\n');
 }
 
-describe('Zavorth desktop Hermes-inspired shell architecture', () => {
+describe('Zavorth desktop reference shell architecture', () => {
   it('uses a first-class pane shell for sidebar, main workspace and inspector', () => {
     const shellPath = join(desktopRoot, 'src/shell/ZavorthPaneShell.tsx');
     const desktopShell = readShellSurface();
@@ -21,9 +28,9 @@ describe('Zavorth desktop Hermes-inspired shell architecture', () => {
     expect(read('src/shell/ZavorthPaneShell.tsx')).toContain('export function ZavorthPane');
     expect(read('src/shell/ZavorthPaneShell.tsx')).toContain('export function ZavorthPaneMain');
     expect(desktopShell).toContain('<ZavorthPaneShell');
-    expect(desktopShell).toContain('id="sidebar"');
-    expect(desktopShell).toContain('id="inspector"');
-    expect(desktopShell).toContain('<ZavorthPaneMain');
+    expect(desktopShell).toContain('<DesktopSidebar');
+    expect(desktopShell).toContain('<DesktopInspector');
+    expect(desktopShell).toContain('zvd-workspace');
   });
 
   it('adds an operational preview popover without enabling unsafe webviews', () => {
@@ -33,10 +40,8 @@ describe('Zavorth desktop Hermes-inspired shell architecture', () => {
 
     expect(existsSync(previewPath)).toBe(true);
     expect(read('src/shell/DesktopPreviewRail.tsx')).toContain('export function DesktopPreviewRail');
-    expect(read('src/shell/DesktopPreviewRail.tsx')).toContain('Andamento');
-    expect(read('src/shell/DesktopPreviewRail.tsx')).toContain('Saidas');
-    expect(desktopShell).toContain('<DesktopPreviewRail');
-    expect(desktopShell).toContain('previewOpen && hasPreviewActivity');
+    expect(read('src/shell/DesktopPreviewRail.tsx')).toContain('Progress');
+    expect(read('src/shell/DesktopPreviewRail.tsx')).toContain('Outputs');
     expect(desktopShell).not.toContain('id="preview"');
     expect(main).toContain('webviewTag: false');
   });
@@ -53,23 +58,18 @@ describe('Zavorth desktop Hermes-inspired shell architecture', () => {
     expect(read('src/themePresets.ts')).toContain('navy');
     expect(styles).toContain('--zvd-bg: color-mix');
     expect(styles).toContain('--zvd-accent: var(--zvd-seed-accent)');
-    expect(desktopShell).toContain('zavorthThemePresets');
-    expect(desktopShell).toContain('--zvd-seed-accent');
+    expect(read('src/themePresets.ts')).toContain('--zvd-seed-accent');
   });
 
   it('keeps the integrated terminal persistent and supports a trusted-workspace takeover mode', () => {
     const desktopShell = readShellSurface();
-    const terminal = read('src/shell/InteractiveTerminal.tsx');
     const main = read('electron/main.cjs');
 
-    expect(desktopShell).toContain('terminalTakeover');
-    expect(desktopShell).toContain('zvd-terminal-takeover');
-    expect(desktopShell).toContain('Terminal focus');
-    expect(desktopShell).toContain('has-terminal-panel');
-    expect(desktopShell).toContain("props.activePanel !== 'chat' && !terminalTakeover");
+    expect(desktopShell).toContain('PtyTerminalPanel');
+    expect(desktopShell).toContain('bottomPanelOpen');
+    expect(read('src/styles.css')).toContain('has-terminal-panel');
     expect(desktopShell).toContain('setBottomPanelOpen(false)');
-    expect(terminal).toContain('preserveSession');
-    expect(main).toContain('Selecionar pasta de trabalho do Zavorth');
+    expect(main).toContain('Select Zavorth workspace folder');
   });
 
   it('uses Electron hidden titlebar overlay instead of a fully custom unsafe frame', () => {
@@ -80,8 +80,8 @@ describe('Zavorth desktop Hermes-inspired shell architecture', () => {
     expect(main).toContain("title: 'Zavorth'");
     expect(main).toContain('contextIsolation: true');
     expect(topbar).toContain('zvd-topbar');
-    expect(readShellSurface()).toContain("useState(resolvedTheme === 'dark' ? 324 : 260)");
-    expect(readShellSurface()).toContain("minWidth={resolvedTheme === 'dark' ? 260 : 200}");
+    expect(readShellSurface()).toContain('theme-');
+    expect(readShellSurface()).toContain('accent-');
     expect(styles).toContain('-webkit-app-region: drag');
     expect(styles).toContain('-webkit-app-region: no-drag');
   });

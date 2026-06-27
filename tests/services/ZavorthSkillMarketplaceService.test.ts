@@ -127,6 +127,41 @@ describe('ZavorthSkillMarketplaceService', () => {
     expect(result.entries[0].id).toBe('zavorth-security-audit');
   });
 
+  it('aggregates curated category aliases for marketplace counts and category search', () => {
+    createMarketplaceIndex(projectRoot, [
+      { id: 'devops', label: 'DevOps', description: '', skillCount: 0 },
+      { id: 'communication', label: 'Communication', description: '', skillCount: 0 },
+    ]);
+    createNativeSkill(path.join(projectRoot, 'skill-library', 'native'), 'zavorth-docker', {
+      title: 'Docker Ops',
+      category: 'devops',
+    });
+    createNativeSkill(path.join(projectRoot, 'skill-library', 'native'), 'zavorth-incident', {
+      title: 'Incident Ops',
+      category: 'operations',
+    });
+    createNativeSkill(path.join(projectRoot, 'skill-library', 'native'), 'zavorth-slack', {
+      title: 'Slack Workflow',
+      category: 'channels',
+    });
+
+    const service = new ZavorthSkillMarketplaceService({ projectRoot });
+
+    expect(service.listCategories()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'devops', skillCount: 2 }),
+        expect.objectContaining({ id: 'communication', skillCount: 1 }),
+      ]),
+    );
+    expect(service.search({ category: 'devops' }).entries.map((entry) => entry.id).sort()).toEqual([
+      'zavorth-docker',
+      'zavorth-incident',
+    ]);
+    expect(service.search({ category: 'communication' }).entries.map((entry) => entry.id)).toEqual([
+      'zavorth-slack',
+    ]);
+  });
+
   it('gets skill details by id', () => {
     createMarketplaceIndex(projectRoot, []);
     createNativeSkill(path.join(projectRoot, 'skill-library', 'native'), 'zavorth-data-analysis', {

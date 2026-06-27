@@ -114,7 +114,7 @@ describe('I18nService', () => {
   });
 
   it('handles params', () => {
-    expect(svc.t('migrate.found', { name: 'hermes', type: 'hermes' })).toContain('hermes');
+    expect(svc.t('migrate.found', { name: 'legacy-agent', type: 'legacy-python' })).toContain('legacy-agent');
   });
 
   it('returns key for missing translation', () => {

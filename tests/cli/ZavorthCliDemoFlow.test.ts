@@ -20,7 +20,7 @@ describe('ZavorthCliDemoFlow Tests (Phase 21O)', () => {
 
     const fullOutput = writes.join('\n') + '\n' + errors.join('\n');
     expect(fullOutput).toContain('Zavorth');
-    expect(fullOutput).not.toContain('Hermes');
+    expect(fullOutput).not.toContain('Legacy Agent');
     expect(fullOutput).not.toContain('undefined');
     expect(fullOutput).not.toContain('null');
   });
@@ -41,7 +41,7 @@ describe('ZavorthCliDemoFlow Tests (Phase 21O)', () => {
 
     const fullOutput = writes.join('\n') + '\n' + errors.join('\n');
     expect(fullOutput).toContain('help');
-    expect(fullOutput).not.toContain('Hermes');
+    expect(fullOutput).not.toContain('Legacy Agent');
     expect(fullOutput).not.toContain('Authorization: Bearer');
   });
 

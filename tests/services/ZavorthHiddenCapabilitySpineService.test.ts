@@ -79,7 +79,7 @@ describe('ZavorthHiddenCapabilitySpineService', () => {
     expect(skills?.missingActionIds).toContain('skills.absorb');
   });
 
-  it('builds a materialization plan and parity packs for Hermes and OpenClaw', () => {
+  it('builds a materialization plan and reference packs for external capability coverage', () => {
     const root = makeRoot();
     roots.push(root);
     touch(root, 'src/services/UniversalSkillExpansionService.ts');
@@ -88,19 +88,19 @@ describe('ZavorthHiddenCapabilitySpineService', () => {
 
     const service = new ZavorthHiddenCapabilitySpineService({ projectRoot: root });
     const plan = service.buildMaterializationPlan('skills.absorption');
-    const hermes = service.buildParityPack('hermes');
-    const openclaw = service.buildParityPack('openclaw');
+    const agentReference = service.buildParityPack('agent');
+    const workspaceReference = service.buildParityPack('workspace');
 
     expect(plan?.actionIds).toEqual(expect.arrayContaining(['skills.catalog.list', 'skills.absorb']));
     expect(plan?.manifestId).toBe('capability-spine');
-    expect(hermes.tools.find((tool) => tool.sourceToolId === 'web_search')).toEqual(expect.objectContaining({
+    expect(agentReference.tools.find((tool) => tool.sourceToolId === 'web_search')).toEqual(expect.objectContaining({
       zavorthActionId: 'web.search',
       status: 'native',
     }));
-    expect(hermes.tools.find((tool) => tool.sourceToolId === 'delegate_task')).toEqual(expect.objectContaining({
+    expect(agentReference.tools.find((tool) => tool.sourceToolId === 'delegate_task')).toEqual(expect.objectContaining({
       zavorthActionId: 'agents.external.invoke',
     }));
-    expect(openclaw.tools.find((tool) => tool.sourceToolId === 'file_fetch')).toEqual(expect.objectContaining({
+    expect(workspaceReference.tools.find((tool) => tool.sourceToolId === 'file_fetch')).toEqual(expect.objectContaining({
       zavorthActionId: 'workspace.read_file',
     }));
   });
