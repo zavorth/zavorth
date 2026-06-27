@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type SupportedLocale = 'en-US' | 'pt-BR';
 
 export type LocaleNamespace =

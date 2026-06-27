@@ -2292,27 +2292,27 @@ function resolveProductizationView(rawArgs: string[]): 'all' | 'journey' | 'temp
 
 async function runInstanceCommand(rawArgs: string[]): Promise<number> {
   const { listInstances, createInstance, deleteInstance, getInstanceName } = await import('./services/ZavorthInstanceService.js');
+  const { tCli, tCommon } = await import('./i18n/cli.js');
   const action = String(rawArgs[0] || 'list').trim().toLowerCase();
   const asJson = rawArgs.includes('--json');
   const name = readFlexibleStringFlag(rawArgs, 'name') || rawArgs[1] || null;
 
   if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
-    await printCliPanel('Zavorth Instance Profiles', [
-      'Manage isolated runtime instances.',
+    await printCliPanel(tCli('instance.title'), [
+      tCli('instance.description'),
       '',
-      'Usage:',
-      '  zavorth instance list                List all instances',
-      '  zavorth instance current             Show current instance',
-      '  zavorth instance create <name>       Create a new instance',
-      '  zavorth instance delete <name>       Delete an instance',
+      tCli('instance.usage'),
+      `  zavorth instance list                ${tCli('instance.commands.list')}`,
+      `  zavorth instance current             ${tCli('instance.commands.current')}`,
+      `  zavorth instance create <name>       ${tCli('instance.commands.create')}`,
+      `  zavorth instance delete <name>       ${tCli('instance.commands.delete')}`,
       '',
-      'Environment:',
-      '  ZAVORTH_INSTANCE=<name>              Set active instance',
+      tCli('instance.env_hint'),
       '',
-      'Examples:',
-      '  ZAVORTH_INSTANCE=work zavorth start',
-      '  zavorth instance create dev',
-      '  zavorth instance list --json',
+      tCli('instance.examples'),
+      tCli('instance.example_1'),
+      tCli('instance.example_2'),
+      tCli('instance.example_3'),
     ], 'info');
     return 0;
   }
@@ -2322,8 +2322,9 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
     if (asJson) {
       process.stdout.write(`${JSON.stringify({ instance: current, isDefault: current === 'default' })}\n`);
     } else {
-      process.stdout.write(`Current instance: ${current}${current === 'default' ? ' (default)' : ''}\n`);
-      process.stdout.write(`Set ZAVORTH_INSTANCE=<name> to switch.\n`);
+      const label = current === 'default' ? tCli('instance.current_default', { name: current }) : tCli('instance.current_instance', { name: current });
+      process.stdout.write(`${label}\n`);
+      process.stdout.write(`${tCli('instance.switch_hint')}\n`);
     }
     return 0;
   }
@@ -2335,23 +2336,23 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
     } else {
       const lines = instances.map((inst) => {
         const marker = inst.name === getInstanceName(process.env) ? ' *' : '';
-        const created = inst.createdAt ? ` created ${inst.createdAt}` : '';
+        const created = inst.createdAt ? ` ${tCli('instance.created_at', { date: inst.createdAt })}` : '';
         const flags = [
-          inst.hasMemory ? 'memory' : null,
-          inst.hasConfig ? 'config' : null,
-          inst.hasCredentials ? 'creds' : null,
+          inst.hasMemory ? tCli('instance.has_memory') : null,
+          inst.hasConfig ? tCli('instance.has_config') : null,
+          inst.hasCredentials ? tCli('instance.has_creds') : null,
         ].filter(Boolean).join(', ');
         return `  ${inst.name.padEnd(20)}${created}${flags ? ` [${flags}]` : ''}${marker}`;
       });
-      process.stdout.write(`Instances (${instances.length}):\n${lines.join('\n')}\n`);
-      process.stdout.write('\n* = active instance (ZAVORTH_INSTANCE env var)\n');
+      process.stdout.write(`${tCli('instance.list_header', { count: String(instances.length) })}\n${lines.join('\n')}\n`);
+      process.stdout.write(`\n${tCli('instance.list_marker')}\n`);
     }
     return 0;
   }
 
   if (action === 'create') {
     if (!name) {
-      await logCliError('Instance name required. Usage: zavorth instance create <name>', 'Usage Error');
+      await logCliError(tCli('instance.name_required'), tCommon('errors.generic.unexpected'));
       return 1;
     }
     try {
@@ -2359,8 +2360,8 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
       if (asJson) {
         process.stdout.write(`${JSON.stringify(info, null, 2)}\n`);
       } else {
-        process.stdout.write(`Instance "${name}" created at ${info.homeRoot}\n`);
-        process.stdout.write(`Use: ZAVORTH_INSTANCE=${name} zavorth start\n`);
+        process.stdout.write(`${tCli('instance.created', { name, path: info.homeRoot })}\n`);
+        process.stdout.write(`${tCli('instance.use_hint', { name })}\n`);
       }
       return 0;
     } catch (err: any) {
@@ -2371,11 +2372,11 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
 
   if (action === 'delete' || action === 'remove') {
     if (!name) {
-      await logCliError('Instance name required. Usage: zavorth instance delete <name>', 'Usage Error');
+      await logCliError(tCli('instance.name_required'), tCommon('errors.generic.unexpected'));
       return 1;
     }
     if (name === getInstanceName(process.env)) {
-      await logCliError('Cannot delete the currently active instance. Switch to another first.', 'Instance Error');
+      await logCliError(tCli('instance.delete_active'), 'Instance Error');
       return 1;
     }
     try {
@@ -2383,7 +2384,7 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
       if (asJson) {
         process.stdout.write(`${JSON.stringify({ deleted: name })}\n`);
       } else {
-        process.stdout.write(`Instance "${name}" deleted.\n`);
+        process.stdout.write(`${tCli('instance.deleted', { name })}\n`);
       }
       return 0;
     } catch (err: any) {
@@ -2392,7 +2393,7 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
     }
   }
 
-  await logCliError(`Unknown instance action: ${action}. Use list, current, create, or delete.`, 'Usage Error');
+  await logCliError(tCli('instance.unknown_action', { action }), 'Usage Error');
   return 1;
 }
 
