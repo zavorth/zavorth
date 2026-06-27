@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -36,7 +36,7 @@ describe('ConfigureLlmProfileTool', () => {
 
   it('persists a valid OpenCode selection to the configured env file', async () => {
     (config as any).openCodeApiKey = 'test-opencode-key';
-    const clearProviderCache = vi.fn();
+    const clearProviderCache = jest.fn();
     const tool = new ConfigureLlmProfileTool({ envFilePath, clearProviderCache });
 
     const result = JSON.parse(await tool.execute({

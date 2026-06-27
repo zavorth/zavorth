@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -35,12 +35,12 @@ describe('Workspace tool adapters', () => {
     ];
     const runtime = new ToolRuntimeService(
       {
-        getToolDefinitions: vi.fn().mockReturnValue([]),
-        getAllTools: vi.fn().mockReturnValue(tools),
-        getTool: vi.fn((name: string) => tools.find((tool) => tool.name === name)),
+        getToolDefinitions: jest.fn().mockReturnValue([]),
+        getAllTools: jest.fn().mockReturnValue(tools),
+        getTool: jest.fn((name: string) => tools.find((tool) => tool.name === name)),
       } as any,
       {
-        executeTool: vi.fn(),
+        executeTool: jest.fn(),
       } as any,
     );
 

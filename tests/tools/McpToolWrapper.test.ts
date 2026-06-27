@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+
 import { McpToolWrapper } from '../../src/tools/McpToolWrapper';
 
 describe('McpToolWrapper', () => {
   it('calls the original remote MCP tool name instead of rewriting underscores', async () => {
-    const callTool = vi.fn().mockResolvedValue({
+    const callTool = jest.fn().mockResolvedValue({
       content: [{ type: 'text', text: '{"ok":true}' }],
       isError: false,
     });
@@ -24,7 +24,7 @@ describe('McpToolWrapper', () => {
   });
 
   it('keeps a safe registry name while invoking a hyphenated remote name', async () => {
-    const callTool = vi.fn().mockResolvedValue({
+    const callTool = jest.fn().mockResolvedValue({
       content: [{ type: 'text', text: 'ok' }],
       isError: false,
     });
@@ -47,7 +47,7 @@ describe('McpToolWrapper', () => {
 
   it('preserves MCP plugin provenance in the tool definition for quarantine checks', () => {
     const wrapper = new McpToolWrapper(
-      { callTool: vi.fn() } as any,
+      { callTool: jest.fn() } as any,
       'browser_navigate',
       'browser-navigate',
       'Navigate browser',

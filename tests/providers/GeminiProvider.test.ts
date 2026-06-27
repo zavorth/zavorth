@@ -1,14 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const { mockGetGenerativeModel, MockGoogleGenerativeAI } = vi.hoisted(() => {
-  const mockGetGenerativeModel = vi.fn();
-  const MockGoogleGenerativeAI = vi.fn(function(this: any) {
+
+const { mockGetGenerativeModel, MockGoogleGenerativeAI } = (() => {
+  const mockGetGenerativeModel = jest.fn();
+  const MockGoogleGenerativeAI = jest.fn(function(this: any) {
     this.getGenerativeModel = mockGetGenerativeModel;
   });
   return { mockGetGenerativeModel, MockGoogleGenerativeAI };
-});
+})();
 
-vi.mock('@google/generative-ai', () => ({
+jest.mock('@google/generative-ai', () => ({
   __esModule: true,
   GoogleGenerativeAI: MockGoogleGenerativeAI,
   SchemaType: {
@@ -40,7 +40,7 @@ describe('GeminiProvider', () => {
     (config as any).cloudflareAiGatewayEnabled = false;
     (config as any).cloudflareAiGatewayBaseUrl = '';
     mockGetGenerativeModel.mockReturnValue({
-      generateContent: vi.fn().mockResolvedValue({
+      generateContent: jest.fn().mockResolvedValue({
         response: {
           candidates: [
             {
@@ -64,7 +64,7 @@ describe('GeminiProvider', () => {
     (config as any).geminiCustomHeaders = { ...originalGeminiCustomHeaders };
     (config as any).cloudflareAiGatewayEnabled = originalCloudflareAiGatewayEnabled;
     (config as any).cloudflareAiGatewayBaseUrl = originalCloudflareAiGatewayBaseUrl;
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('passes custom request options to the Gemini SDK when a proxy transport is configured', async () => {
@@ -164,7 +164,7 @@ describe('GeminiProvider', () => {
       }),
     );
 
-    const generateContent = mockGetGenerativeModel.mock.results[0]?.value?.generateContent as ReturnType<typeof vi.fn>;
+    const generateContent = mockGetGenerativeModel.mock.results[0]?.value?.generateContent as ReturnType<typeof jest.fn>;
     expect(generateContent).toHaveBeenCalledWith(
       expect.objectContaining({
         systemInstruction: 'Seja objetivo.',
@@ -257,7 +257,7 @@ describe('GeminiProvider', () => {
       },
     ]);
 
-    const generateContent = mockGetGenerativeModel.mock.results[0]?.value?.generateContent as ReturnType<typeof vi.fn>;
+    const generateContent = mockGetGenerativeModel.mock.results[0]?.value?.generateContent as ReturnType<typeof jest.fn>;
     const payload = generateContent.mock.calls[0][0];
     expect(payload.contents).toEqual(expect.arrayContaining([
       expect.objectContaining({

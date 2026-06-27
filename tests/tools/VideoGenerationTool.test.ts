@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { VideoGenerationTool } from '../../src/tools/VideoGenerationTool';
 import { safeFetch } from '../../src/security/SafeFetchService';
 
-vi.mock('../../src/security/SafeFetchService', () => ({
-  safeFetch: vi.fn(),
+jest.mock('../../src/security/SafeFetchService', () => ({
+  safeFetch: jest.fn(),
 }));
 
 describe('VideoGenerationTool', () => {
@@ -62,11 +62,11 @@ describe('VideoGenerationTool', () => {
     const originalEndpoint = process.env.ZAVORTH_VIDEO_GENERATION_ENDPOINT;
     const originalFetch = global.fetch;
     process.env.ZAVORTH_VIDEO_GENERATION_ENDPOINT = 'https://video.example.test/generate';
-    global.fetch = vi.fn();
-    vi.mocked(safeFetch).mockResolvedValueOnce({
+    global.fetch = jest.fn();
+    jest.mocked(safeFetch).mockResolvedValueOnce({
       ok: true,
       status: 200,
-      text: vi.fn().mockResolvedValue(JSON.stringify({ id: 'video-1', status: 'submitted' })),
+      text: jest.fn().mockResolvedValue(JSON.stringify({ id: 'video-1', status: 'submitted' })),
     } as unknown as Response);
 
     const result = await tool.execute({ prompt: 'A cat walking on the beach' });

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+
 import { DateTimeTool } from '../../src/tools/DateTimeTool';
 import { ToolRegistry } from '../../src/tools/ToolRegistry';
 import { createMcpAgentToolSecurityDefinition } from '../../src/security/AgentToolSecurityCatalog';
@@ -29,7 +29,7 @@ describe('ToolRegistry security catalog', () => {
         properties: {},
         required: [],
       },
-      execute: vi.fn(),
+      execute: jest.fn(),
       getDefinition() {
         return {
           name: this.name,
@@ -65,7 +65,7 @@ describe('ToolRegistry security catalog', () => {
           properties: {},
           required: [],
         },
-        execute: vi.fn(),
+        execute: jest.fn(),
         getDefinition() {
           return {
             name: this.name,

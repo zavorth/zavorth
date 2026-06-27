@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const { mockCreate, MockOpenAI } = vi.hoisted(() => {
-  const mockCreate = vi.fn();
-  const MockOpenAI = vi.fn(function(this: any) { this.chat = { completions: { create: mockCreate } }; });
+
+const { mockCreate, MockOpenAI } = (() => {
+  const mockCreate = jest.fn();
+  const MockOpenAI = jest.fn(function(this: any) { this.chat = { completions: { create: mockCreate } }; });
   return { mockCreate, MockOpenAI };
-});
+})();
 
-vi.mock('openai', () => ({
+jest.mock('openai', () => ({
   __esModule: true,
   default: MockOpenAI,
 }));
@@ -26,12 +26,12 @@ describe('TogetherProvider', () => {
   afterEach(() => {
     (config as any).togetherApiKey = originalApiKey;
     (config as any).togetherModel = originalModel;
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('throws when TOGETHER_API_KEY is missing', () => {
     (config as any).togetherApiKey = '';
-    expect(() => new TogetherProvider()).toThrow('TOGETHER_API_KEY nao configurada no .env');
+    expect(() => new TogetherProvider()).toThrow('TOGETHER_API_KEY not configured in .env');
   });
 
   it('succeeds with valid config', () => {

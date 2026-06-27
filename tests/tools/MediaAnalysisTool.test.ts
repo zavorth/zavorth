@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+
 import { MediaAnalysisTool } from '../../src/tools/MediaAnalysisTool';
 
 describe('MediaAnalysisTool', () => {
   it('exposes artifact_id instead of file_path', () => {
-    const tool = new MediaAnalysisTool({ service: { analyze: vi.fn() } as any });
+    const tool = new MediaAnalysisTool({ service: { analyze: jest.fn() } as any });
 
     expect(tool.parameters.required).toEqual(['artifact_id']);
     expect(tool.parameters.properties).toHaveProperty('artifact_id');
@@ -11,7 +11,7 @@ describe('MediaAnalysisTool', () => {
   });
 
   it('passes artifact-ref source to the service', async () => {
-    const analyze = vi.fn(async () => ({
+    const analyze = jest.fn(async () => ({
       ok: false,
       analysisType: 'describe',
       modality: 'image',
