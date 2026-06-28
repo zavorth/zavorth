@@ -10,6 +10,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const electronExecutable = require('electron');
 const mainPath = resolve(root, 'electron', 'main.cjs');
 const receivedRuntimeActions = [];
+const receivedApiPaths = [];
 
 function runtimeStateSnapshot() {
   return {
@@ -232,6 +233,7 @@ async function readBody(req) {
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', 'http://127.0.0.1');
+  receivedApiPaths.push(`${req.method || 'GET'} ${url.pathname}`);
   let body = {};
   if (req.method !== 'GET') {
     body = await readBody(req).catch(() => ({}));
@@ -277,6 +279,26 @@ const server = http.createServer(async (req, res) => {
   }
   if (url.pathname === '/api/experience/memory/encryption') {
     send(200, { status: null });
+    return;
+  }
+  if (url.pathname === '/api/v2/workspace/approvals/pending') {
+    send(200, { data: [] });
+    return;
+  }
+  if (url.pathname === '/api/v2/workspace/task-mandates/pending') {
+    send(200, { data: [] });
+    return;
+  }
+  if (url.pathname === '/api/v2/workspace/task-mandates/active') {
+    send(200, null);
+    return;
+  }
+  if (url.pathname === '/api/v2/workspace/trust/status') {
+    send(200, { trusted: false, status: 'untrusted' });
+    return;
+  }
+  if (url.pathname === '/api/v2/workspace/host-commands/pending') {
+    send(200, { data: [] });
     return;
   }
   send(404, { ok: false, error: `Unhandled smoke endpoint: ${url.pathname}` });
@@ -325,35 +347,65 @@ try {
   await window.getByTitle('Effort settings').click();
   await waitForRuntimeAction('agents', 'sync');
 
-  await window.locator('.zvd-sidebar-nav button').nth(5).click();
+  await window.getByRole('button', { name: 'Settings', exact: true }).click();
   await window.waitForSelector('.zvd-settings-section[aria-label="Runtime"]', { timeout: 5000 });
   const runtimeTabs = () => window.locator('.zvd-settings-section[aria-label="Runtime"] .zvd-text-tabs button');
 
-  await runtimeTabs().nth(2).click();
-  await window.locator('.zvd-detail-row', { hasText: 'Coding' }).locator('button', { hasText: 'Select' }).click();
+  async function clickDetailAction(rowText, buttonText) {
+    const deadline = Date.now() + 12000;
+    let lastError = null;
+    while (Date.now() < deadline) {
+      try {
+        const row = window.locator('.zvd-detail-row', { hasText: rowText }).first();
+        await row.waitFor({ state: 'visible', timeout: 2000 });
+        const button = row.locator('button', { hasText: buttonText }).first();
+        await button.waitFor({ state: 'visible', timeout: 2000 });
+        const enabled = await button.evaluate((element) => !element.disabled);
+        if (!enabled) {
+          throw new Error(`Button ${buttonText} in row ${rowText} is disabled.`);
+        }
+        await button.dispatchEvent('click', { bubbles: true, cancelable: true });
+        return;
+      } catch (error) {
+        lastError = error;
+        await window.waitForTimeout(150);
+      }
+    }
+    const visibleText = await window.locator('.zvd-settings-section[aria-label="Runtime"]').innerText().catch(() => '');
+    throw new Error(`Could not click ${buttonText} in row ${rowText}. Last error: ${lastError?.message || 'none'}. Visible runtime text: ${visibleText}`);
+  }
+
+  await window.getByRole('tab', { name: /Permissions/i }).click();
+  try {
+    await window.getByText('Code-heavy work with safer fallbacks.').waitFor({ state: 'visible', timeout: 10000 });
+  } catch (error) {
+    const runtimeText = await window.locator('.zvd-settings-section[aria-label="Runtime"]').innerText().catch(() => '');
+    throw new Error(`Runtime permissions tab did not render model spec rows. API paths: ${receivedApiPaths.join(', ')}. Visible runtime text: ${runtimeText}`);
+  }
+  await clickDetailAction('Coding', 'Select');
   await waitForRuntimeActionType('select-model-spec');
-  await window.locator('.zvd-detail-row', { hasText: 'Anthropic' }).locator('button', { hasText: 'Setup' }).click();
+  await clickDetailAction('Anthropic', 'Setup');
   await waitForRuntimeActionType('set-provider-connection');
 
-  await runtimeTabs().nth(4).click();
-  await window.locator('.zvd-detail-row', { hasText: 'Smoke docs' }).locator('button', { hasText: 'Trust source' }).click();
+  await window.getByRole('tab', { name: /Workspace/i }).click();
+  await clickDetailAction('Smoke docs', 'Trust source');
   await waitForRuntimeActionType('set-workspace-knowledge');
 
-  await runtimeTabs().nth(5).click();
-  await window.locator('.zvd-detail-row', { hasText: 'Filesystem MCP' }).locator('button', { hasText: 'Trust' }).click();
+  await window.getByRole('tab', { name: /^MCP/i }).click();
+  await clickDetailAction('Filesystem MCP', 'Trust');
   await waitForRuntimeActionType('set-mcp-trust');
 
-  await runtimeTabs().nth(5).click();
-  await window.locator('.zvd-detail-row', { hasText: 'Write file' }).locator('button', { hasText: 'Execute' }).click();
+  await window.getByRole('tab', { name: /Skills/i }).click();
+  await clickDetailAction('Write file', 'Execute');
   await waitForRuntimeActionType('skill-lifecycle');
 
-  await runtimeTabs().nth(6).click();
-  await window.locator('.zvd-detail-row', { hasText: 'Scheduled jobs' }).locator('button', { hasText: 'Recover' }).click();
+  await window.getByRole('tab', { name: /Jobs/i }).click();
+  await clickDetailAction('Scheduled jobs', 'Recover');
   await waitForRuntimeActionType('recover-scheduled-jobs');
-  await window.locator('.zvd-detail-row', { hasText: 'Stream session' }).locator('button', { hasText: 'Resume' }).click();
+  await clickDetailAction('Stream session', 'Resume');
   await waitForRuntimeActionType('resume-stream');
 
-  await runtimeTabs().nth(7).click();
+  await window.getByRole('tab', { name: /Personal Ops/i }).click();
   await window.locator('.zvd-detail-row', { hasText: 'Primary email' }).locator('button', { hasText: 'Connect Google' }).waitFor();
 
   console.log(JSON.stringify({

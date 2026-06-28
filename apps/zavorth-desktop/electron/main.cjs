@@ -3,6 +3,7 @@ const {
   BrowserWindow,
   dialog,
   ipcMain,
+  Notification,
   shell,
 } = require('electron');
 const crypto = require('node:crypto');
@@ -17,6 +18,7 @@ const { execFileSync, spawn } = require('node:child_process');
 let mainWindow = null;
 let runtimeProcess = null;
 let lastEvents = [];
+const trustedWorkspaceRoots = new Set();
 
 function resolveRepoRoot() {
   const fromEnv = process.env.ZAVORTH_ROOT && path.resolve(process.env.ZAVORTH_ROOT);
@@ -173,6 +175,58 @@ function buildRuntimeBaseUrl() {
   const host = rawHost && rawHost !== '0.0.0.0' ? rawHost : '127.0.0.1';
   const port = Number(process.env.ZAVORTH_WEB_PORT || process.env.PORT || 3000);
   return `http://${host}:${Number.isFinite(port) ? port : 3000}`;
+}
+
+function normalizeResolvedPath(value) {
+  return path.resolve(String(value || '')).toLowerCase();
+}
+
+function rememberTrustedWorkspaceRoot(value) {
+  const resolved = path.resolve(String(value || ''));
+  trustedWorkspaceRoots.add(normalizeResolvedPath(resolved));
+  return resolved;
+}
+
+function isPathInside(parent, child) {
+  const relative = path.relative(parent, child);
+  return relative === '' || (relative && !relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+function isTrustedWorkspacePath(value) {
+  const resolved = path.resolve(String(value || ''));
+  const allowedRoots = [
+    resolveRepoRoot(),
+    resolveZavorthHome(),
+    ...Array.from(trustedWorkspaceRoots),
+  ].map(normalizeResolvedPath);
+  const normalized = normalizeResolvedPath(resolved);
+  return allowedRoots.some(root => isPathInside(root, normalized));
+}
+
+function validateRendererUrl(value) {
+  const text = String(value || '').trim();
+  if (!text) {
+    return '';
+  }
+  const parsed = new URL(text);
+  const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
+  if ((parsed.protocol === 'http:' || parsed.protocol === 'https:') && localHosts.has(parsed.hostname)) {
+    return parsed.toString();
+  }
+  throw new Error('ZAVORTH_DESKTOP_RENDERER_URL must point to localhost.');
+}
+
+function isAllowedNavigationUrl(value) {
+  try {
+    const parsed = new URL(String(value || ''));
+    if (parsed.protocol === 'file:') {
+      return true;
+    }
+    return (parsed.protocol === 'http:' || parsed.protocol === 'https:')
+      && ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname);
+  } catch {
+    return false;
+  }
 }
 
 function sanitizeApiPath(value) {
@@ -642,7 +696,7 @@ async function loadRenderer() {
     return;
   }
 
-  const rendererUrl = process.env.ZAVORTH_DESKTOP_RENDERER_URL || '';
+  const rendererUrl = validateRendererUrl(process.env.ZAVORTH_DESKTOP_RENDERER_URL || '');
   if (rendererUrl) {
     await mainWindow.loadURL(rendererUrl);
     return;
@@ -667,6 +721,21 @@ function createWindow() {
       sandbox: true,
       webviewTag: false,
     },
+  });
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (isAllowedNavigationUrl(url)) {
+      return { action: 'allow' };
+    }
+    shell.openExternal(url).catch(() => {});
+    return { action: 'deny' };
+  });
+
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (!isAllowedNavigationUrl(url)) {
+      event.preventDefault();
+      shell.openExternal(url).catch(() => {});
+    }
   });
 
   void loadRenderer();
@@ -705,6 +774,7 @@ ipcMain.handle('zavorth:workspace:select-folder', async () => {
     return { canceled: true, path: null, label: null };
   }
   const selectedPath = path.resolve(result.filePaths[0]);
+  rememberTrustedWorkspaceRoot(selectedPath);
   return {
     canceled: false,
     path: selectedPath,
@@ -800,8 +870,12 @@ ipcMain.handle('zavorth:sessions:switch', async (_event, sessionId) => {
 
 ipcMain.handle('zavorth:files:read-tree', async (_event, rootPath) => {
   const safePath = String(rootPath || '').trim();
-  if (!safePath || /\.\./.test(safePath)) {
+  if (!safePath || /\.\./.test(safePath) || !path.isAbsolute(path.resolve(safePath))) {
     return { ok: false, error: 'Invalid path.' };
+  }
+  const resolvedRoot = path.resolve(safePath);
+  if (!isTrustedWorkspacePath(resolvedRoot)) {
+    return { ok: false, error: 'Folder is not trusted for desktop file browsing.' };
   }
 
   function readDir(dirPath, relativeTo, depth = 0) {
@@ -840,7 +914,7 @@ ipcMain.handle('zavorth:files:read-tree', async (_event, rootPath) => {
   }
 
   try {
-    const tree = readDir(safePath, safePath);
+    const tree = readDir(resolvedRoot, resolvedRoot);
     return { ok: true, tree };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Failed to read directory.' };

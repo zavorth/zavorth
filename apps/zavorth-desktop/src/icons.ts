@@ -6,6 +6,7 @@ import {
   IconBrain,
   IconBrandOauth,
   IconChevronDown,
+  IconChevronRight,
   IconCircleCheck,
   IconClock,
   IconCommand,
@@ -25,6 +26,7 @@ import {
   IconSparkles,
   IconSquareRoundedX,
   IconTerminal2,
+  IconTrash,
   IconUsers,
   IconX,
 } from '@tabler/icons-react';
@@ -37,6 +39,7 @@ export const Brand = IconHexagonLetterZ;
 export const Channels = IconUsers;
 export const Chat = IconMessageCircle;
 export const ChevronDown = IconChevronDown;
+export const ChevronRight = IconChevronRight;
 export const Clock = IconClock;
 export const Command = IconCommand;
 export const Core = IconDeviceDesktopAnalytics;
@@ -47,6 +50,7 @@ export const Pencil = IconPencil;
 export const Plugins = IconPlugConnected;
 export const Plus = IconPlus;
 export const Refresh = IconRefresh;
+export const RefreshCw = IconRefresh;
 export const Review = IconCircleCheck;
 export const Search = IconSearch;
 export const Send = IconSend2;
@@ -57,4 +61,5 @@ export const Sliders = IconAdjustmentsHorizontal;
 export const Sparkles = IconSparkles;
 export const Stop = IconSquareRoundedX;
 export const Terminal = IconTerminal2;
+export const Trash2 = IconTrash;
 export const X = IconX;

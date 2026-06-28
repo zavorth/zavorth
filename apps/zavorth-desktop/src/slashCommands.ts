@@ -1,4 +1,4 @@
-export type DesktopPanel = 'chat' | 'approvals' | 'memory' | 'skills' | 'channels' | 'settings';
+export type DesktopPanel = 'chat' | 'approvals' | 'memory' | 'skills' | 'channels' | 'settings' | 'files';
 
 export type SlashCommandDefinition = {
   name: string;
@@ -78,6 +78,11 @@ export const slashCommands: SlashCommandDefinition[] = [
     usage: '/settings',
   },
   {
+    name: '/files',
+    description: 'Open local workspace files explorer.',
+    usage: '/files',
+  },
+  {
     name: '/help',
     description: 'Show available commands.',
     usage: '/help',
@@ -91,6 +96,7 @@ const panels: Record<string, DesktopPanel> = {
   '/skills': 'skills',
   '/channels': 'channels',
   '/settings': 'settings',
+  '/files': 'files',
 };
 
 const allowedEfforts = new Set(['low', 'medium', 'high', 'ultra']);

@@ -76,6 +76,7 @@ export function App() {
     handleProposedMandateResolve,
     handleActiveMandateRevoke,
     handleHostCommandResolve,
+    handleSwitchSession,
     dispatchRuntimeStateAction,
   } = useDesktopAppState();
 
@@ -115,6 +116,8 @@ export function App() {
           tools={tools}
           workspaceScope={activeWorkspaceScope}
           workspaceScopes={workspaceScopes}
+          currentSessionId={sessionId}
+          onSwitchSession={handleSwitchSession}
           onAccessRepair={requestAccessRepair}
           onAccent={setAccent}
           onCommandPalette={setCommandPaletteOpen}

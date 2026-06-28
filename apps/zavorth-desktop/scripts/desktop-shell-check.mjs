@@ -21,6 +21,7 @@ const requiredFiles = [
   'src/overlays/CommandPalette.tsx',
   'src/primitives/desktopPrimitives.tsx',
   'src/modelCatalog.ts',
+  'src/workspaceScopes.ts',
 ];
 
 function readIfExists(relativePath) {

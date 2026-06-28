@@ -26,6 +26,7 @@ import { DesktopWorkspaceView } from '../views/DesktopWorkspaceView';
 const WorkspaceViewRef = DesktopWorkspaceView;
 import { PtyTerminalPanel } from './PtyTerminalPanel';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
+import { zavorthThemePresets } from '../themePresets';
 
 export function DesktopShell(props: {
   accent: 'orange' | 'purple' | 'navy';
@@ -90,6 +91,8 @@ export function DesktopShell(props: {
   onWorkspaceScope(value: string): void;
   activeMandate?: any;
   onRevokeMandate?: () => Promise<void>;
+  currentSessionId?: string;
+  onSwitchSession?: (sessionId: string) => void;
 }) {
   const isMac = navigator.userAgent.includes('Macintosh');
   const [systemDark, setSystemDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true);
@@ -125,7 +128,7 @@ export function DesktopShell(props: {
   }, []);
 
   return (
-    <main className={appClassName}>
+    <main className={appClassName} style={zavorthThemePresets[props.accent]?.cssVars}>
       <DesktopSidebar
         activePanel={props.activePanel}
         collapsed={props.sidebarCollapsed}
@@ -139,6 +142,8 @@ export function DesktopShell(props: {
         onWorkspaceScope={props.onWorkspaceScope}
         activeMandate={props.activeMandate}
         onRevokeMandate={props.onRevokeMandate}
+        currentSessionId={props.currentSessionId}
+        onSwitchSession={props.onSwitchSession}
       />
 
       <section className="zvd-workspace" aria-label="Zavorth Desktop">
@@ -229,6 +234,7 @@ export function DesktopShell(props: {
               theme={props.theme}
               accent={props.accent}
               tools={props.tools}
+              workspaceScope={props.workspaceScope}
               onAccessRepair={props.onAccessRepair}
               onAccent={props.onAccent}
               onEffort={props.onEffort}
