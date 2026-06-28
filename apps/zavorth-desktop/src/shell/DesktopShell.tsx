@@ -23,6 +23,7 @@ import { DesktopInspector } from '../panels/DesktopInspector';
 import type { DesktopPanel } from '../slashCommands';
 import { ThreadView } from '../thread/ThreadView';
 import { DesktopWorkspaceView } from '../views/DesktopWorkspaceView';
+const WorkspaceViewRef = DesktopWorkspaceView;
 import { PtyTerminalPanel } from './PtyTerminalPanel';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 
@@ -207,9 +208,10 @@ export function DesktopShell(props: {
               )}
             </>
           ) : (
-            <DesktopWorkspaceView
+            <WorkspaceViewRef
               activePanel={props.activePanel}
               approvals={props.approvals}
+              approvalsCount={props.approvals?.length ?? 0}
               busy={props.busy}
               channels={props.channels}
               channelSetup={props.channelSetup}

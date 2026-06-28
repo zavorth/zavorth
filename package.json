@@ -263,6 +263,7 @@
     "zavorth:swarm-scale-plane:check": "node scripts/zavorth-swarm-scale-plane-check.mjs",
     "qa:zavorth-swarm-scale-plane": "npm run runtime:check --silent && npx jest tests/services/SwarmScalePlaneService.test.ts tests/runtime/agent/SwarmWorkloadAssessmentService.test.ts tests/runtime/agent/AgentRunServiceSwarmEscalation.test.ts tests/domain/surface/presentation/web-app/WebAppRuntimeRouteService.experimental.test.ts --runInBand && node scripts/zavorth-swarm-scale-plane-check.mjs",
     "surfaces:check": "node scripts/check-surface-syntax.mjs",
+    "zavorth-control:check": "node scripts/check-surface-syntax.mjs --target=zavorth-control",
     "ai-gateway:check": "node scripts/check-surface-syntax.mjs --target=ai-gateway",
     "productization:check": "node scripts/productization-contract-check.mjs",
     "qa:productization": "node scripts/productization-contract-check.mjs",
@@ -1291,6 +1292,12 @@
     "hono": "^4.12.18",
     "ip-address": "^10.2.0",
     "js-yaml": "^4.2.0",
-    "postcss": "^8.5.15"
+    "postcss": "^8.5.15",
+    "discord.js": {
+      "undici": "6.27.0"
+    },
+    "@discordjs/rest": {
+      "undici": "6.27.0"
+    }
   }
 }

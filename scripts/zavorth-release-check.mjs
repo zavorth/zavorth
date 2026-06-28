@@ -5,6 +5,7 @@ import fs from 'node:fs';
 const root = process.cwd();
 const asJson = process.argv.includes('--json');
 const npmCommand = process.platform === 'win32' ? (process.env.ComSpec || 'cmd.exe') : 'npm';
+const releaseNodeOptions = mergeNodeOptions(process.env.NODE_OPTIONS, '--max-old-space-size=4096');
 
 const checks = [
   checkNpm('runtime typecheck', 'runtime:check'),
@@ -59,7 +60,10 @@ function checkCommand(label, command, args) {
   const startedAt = Date.now();
   const result = spawnSync(command, args, {
     cwd: root,
-    env: process.env,
+    env: {
+      ...process.env,
+      NODE_OPTIONS: releaseNodeOptions,
+    },
     encoding: 'utf8',
     shell: false,
     timeout: 420000,
@@ -108,6 +112,13 @@ function checkProductHygiene() {
     durationMs: 0,
     details: checks,
   };
+}
+
+function mergeNodeOptions(current, required) {
+  const tokens = String(current || '').split(/\s+/).filter(Boolean);
+  return tokens.some((token) => token.startsWith('--max-old-space-size='))
+    ? tokens.join(' ')
+    : [...tokens, required].join(' ');
 }
 
 function cleanOutput(output) {

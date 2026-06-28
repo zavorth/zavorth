@@ -24,6 +24,7 @@ type WorkspaceViewProps = {
   activePanel: Exclude<DesktopPanel, 'chat'>;
   accent: 'orange' | 'purple' | 'navy';
   approvals: ApprovalItem[];
+  approvalsCount?: number;
   busy: boolean;
   channels: ChannelItem[];
   channelSetup: ChannelSetupSnapshot | null;
@@ -105,6 +106,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
       runtimeCapabilities={props.runtimeCapabilities}
       gatewayResilience={props.gatewayResilience}
       status={props.status}
+      approvalsCount={props.approvalsCount ?? props.approvals?.length ?? 0}
       theme={props.theme}
       accent={props.accent}
       onEffort={props.onEffort}
@@ -641,6 +643,7 @@ function SettingsView(props: {
   runtimeCapabilities: RuntimeCapabilitiesSnapshot | null;
   gatewayResilience: GatewayResilienceSnapshot | null;
   status: RuntimeStatus;
+  approvalsCount: number;
   theme: 'light' | 'dark' | 'system';
   onAccent(value: 'orange' | 'purple' | 'navy'): void;
   onEffort(value: string): void;
@@ -1276,7 +1279,7 @@ function SettingsView(props: {
     })),
   ];
   const runtimeRowsForMode = runtimeMode === 'permissions'
-    ? permissionRows
+    ? [...providerRows, ...permissionRows]
     : runtimeMode === 'gateway'
       ? gatewayRows
       : runtimeMode === 'providers'
@@ -1312,7 +1315,7 @@ function SettingsView(props: {
             items={[
               { value: 'overview', label: 'Overview' },
               { value: 'gateway', label: 'Gateway', count: gatewayRows.length },
-              { value: 'permissions', label: 'Permissions', count: permissionRows.length },
+              { value: 'permissions', label: 'Permissions', count: providerRows.length + permissionRows.length },
               { value: 'providers', label: 'Providers', count: providerRows.length },
               { value: 'workspace', label: 'Workspace', count: workspaceRows.length },
               { value: 'mcp', label: 'MCP', count: mcpRows.length },
@@ -1332,7 +1335,7 @@ function SettingsView(props: {
               workspacePath={capabilities?.workspace?.path || null}
               runtimeCapabilities={capabilities}
               status={props.status}
-              approvalsCount={props.approvals.length}
+              approvalsCount={props.approvalsCount}
               onStart={props.onStart}
               onRepair={props.onRepair}
             />

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-19T05:39:57.838Z",
+  "updatedAt": "2026-06-27T23:02:51.889Z",
   "snapshot": {
     "controls": [
       {
@@ -12,7 +12,7 @@
       {
         "id": "security/AgentToolSecurityCatalog",
         "relativePath": "src/security/AgentToolSecurityCatalog.ts",
-        "sha256": "d2bc4bd3b8f44a23014245305608e49fdbeb7599c819249f46f092feaa6adb1b",
+        "sha256": "4d8093b2be4bc5780a847f604c1b3f192149f98ef643a3e4f6f74ecb34be394b",
         "present": true
       },
       {
@@ -36,7 +36,7 @@
       {
         "id": "security/SafeFetchService",
         "relativePath": "src/security/SafeFetchService.ts",
-        "sha256": "75d37f37adb5112f685b4118fc9f80ab61817414939a9a5b89741912d6426a38",
+        "sha256": "9a5c5647432212e2fc2b9f0ea523b800f7c3dca490a21ecb7581c43cde9567dc",
         "present": true
       },
       {
@@ -192,7 +192,7 @@
       {
         "id": "scripts/security-ci-check.mjs",
         "relativePath": "scripts/security-ci-check.mjs",
-        "sha256": "0430360991f06e9c843ed485feca973f6e6edbb4171fbf0ee04be41b2cdee625",
+        "sha256": "a7106e75c422fba640656b154a45d9f88c19627ea4eae512eb8c05e6a29246a3",
         "present": true
       },
       {
@@ -216,7 +216,7 @@
       {
         "id": "scripts/command-catalog.json",
         "relativePath": "scripts/command-catalog.json",
-        "sha256": "6b67eabdbe6660bda49079a4a0a1f276a1553be4c9a796a209c00ac1d4b60910",
+        "sha256": "dfcb94330dd4e2544db4fc815c46787e6a29a80f10a6820756f35db6124d3a6b",
         "present": true
       }
     ],

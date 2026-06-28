@@ -22,6 +22,22 @@ describe("Security CI gate", () => {
     expect(workflow).toContain("npm run security:ci");
   });
 
+  it("does not let production CI silently pass typecheck, lint, or release failures", () => {
+    const ciWorkflow = readFileSync(join(repoRoot, ".github", "workflows", "ci.yml"), "utf8");
+    const lintWorkflow = readFileSync(join(repoRoot, ".github", "workflows", "lint.yml"), "utf8");
+    const releaseWorkflow = readFileSync(join(repoRoot, ".github", "workflows", "release.yml"), "utf8");
+
+    expect(ciWorkflow).toContain("node --max-old-space-size=4096 node_modules/typescript/bin/tsc --noEmit --pretty false");
+    expect(releaseWorkflow).toContain("node --max-old-space-size=4096 node_modules/typescript/bin/tsc --noEmit --pretty false");
+    expect(ciWorkflow).not.toContain("npm run release:check --silent");
+    expect(releaseWorkflow).toContain("npm run release:check --silent");
+    expect(ciWorkflow).not.toContain("continue-on-error: true");
+    expect(lintWorkflow).not.toContain("continue-on-error: true");
+    expect(releaseWorkflow).not.toContain("continue-on-error: true");
+    expect(ciWorkflow).not.toContain("| head");
+    expect(releaseWorkflow).not.toContain("| tail");
+  });
+
   it("keeps core security controls in the aggregator", () => {
     const script = readFileSync(join(repoRoot, "scripts", "security-ci-check.mjs"), "utf8");
 

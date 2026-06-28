@@ -14,6 +14,7 @@ describe('ZavorthDocumentationRepoFinalService', () => {
     expect(snapshot.guarantees.satelliteAndCliRemainValidSurfaces).toBe(true);
     expect(snapshot.guarantees.retiredVisualSurfacesAreNotUserFacing).toBe(true);
     expect(snapshot.guarantees.publicIdentityIsZavorthNative).toBe(true);
+    expect(snapshot.guarantees.openSourceDistributionIsExplicit).toBe(true);
     expect(snapshot.guarantees.dashboardCanExecute).toBe(false);
     expect(snapshot.summary.rawSecretsSerialized).toBe(false);
     expect(snapshot.summary.workspaceMutationPerformed).toBe(false);

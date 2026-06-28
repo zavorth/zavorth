@@ -1,8 +1,8 @@
-﻿# Zavorth Memory
+# Zavorth Memory
 
 ## Project Identity
 
-- **Name:** Zavorth â€” "Your AI that does things â€” and proves it"
+- **Name:** Zavorth — "Your AI that does things — and proves it"
 - **Version:** 2.0.0 (2026-06-22)
 - **License:** MIT (updated 2026-06-25)
 - **Stack:** TypeScript (Node.js), Next.js dashboard, Jest tests
@@ -23,24 +23,24 @@
 
 ## Architecture Summary
 
-Runtime governado com receipts auditÃ¡veis. Todo pathway de aÃ§Ã£o sensÃ­vel segue:
-normalizar intenÃ§Ã£o â†’ preview â†’ classificar risco â†’ Policy Broker â†’ aprovar â†’ executar â†’ receipt â†’ rollback.
+Runtime governado com receipts auditáveis. Todo pathway de ação sensível segue:
+normalizar intenção → preview → classificar risco → Policy Broker → aprovar → executar → receipt → rollback.
 
-**Planos principais:** Surface Plane (CLI, Dashboard, API, canais), Gateway Spine (estado de sessÃ£o),
-Policy Plane (aprovaÃ§Ãµes, bloqueios, guards), Execution Plane (tools, subagents, skills, providers),
-Swarm v2 (multi-agente com orÃ§amento), Memory & Artifact Plane, Capability Plane.
+**Planos principais:** Surface Plane (CLI, Dashboard, API, canais), Gateway Spine (estado de sessão),
+Policy Plane (aprovações, bloqueios, guards), Execution Plane (tools, subagents, skills, providers),
+Swarm v2 (multi-agente com orçamento), Memory & Artifact Plane, Capability Plane.
 
 ## License Update (2026-06-25)
 
 Arquivos atualizados de Proprietary/UNLICENSED para MIT:
-- `LICENSE` â€” texto MIT completo
-- `package.json` â€” "license": "MIT"
-- `packages/create-zavorth/package.json` â€” "license": "MIT"
-- `sdk/typescript/package.json` â€” jÃ¡ era MIT (nÃ£o precisou alteraÃ§Ã£o)
+- `LICENSE` — texto MIT completo
+- `package.json` — "license": "MIT"
+- `packages/create-zavorth/package.json` — "license": "MIT"
+- `sdk/typescript/package.json` — já era MIT (não precisou alteração)
 
 ## Provider Catalog Update (2026-06-25)
 
-Providers adicionados aos manifests de catÃ¡logo que existiam no dashboard/code mas nÃ£o nos manifests:
+Providers adicionados aos manifests de catálogo que existiam no dashboard/code mas não nos manifests:
 
 **longTailProviderActivationProviders.ts** (+21): deepinfra, fireworks, glm, kimi, kimi-coding-apikey, alicode, alicode-intl, blackbox, nebius, siliconflow, hyperbolic, longcat, pollinations, aimlapi, novita, piapi, getgoapi, laozhang, puter, scaleway, cloudflare-ai
 
@@ -55,40 +55,40 @@ Providers adicionados aos manifests de catÃ¡logo que existiam no dashboard/cod
 O Zavorth possui ecossistema completo de auto-aprendizado com 15 componentes governados:
 
 ### Loop Central
-- `ZavorthNativeLearningLoopService.ts` (616 linhas) â€” hub que processa observaÃ§Ãµes, passa por firewall de seguranÃ§a, gera candidatos tipados: auto-skill-candidate, procedural-memory, skill-improvement-candidate, user-model-update, approved-nudge
+- `ZavorthNativeLearningLoopService.ts` (616 linhas) — hub que processa observações, passa por firewall de segurança, gera candidatos tipados: auto-skill-candidate, procedural-memory, skill-improvement-candidate, user-model-update, approved-nudge
 
-### Skill Auto-CriaÃ§Ã£o e EvoluÃ§Ã£o
-- `ZavorthSkillEvolutionService.ts` (1.107 linhas) â€” pipeline de 7 estÃ¡gios: sintetizar â†’ scan â†’ sandbox â†’ eval gate (score 0.8+) â†’ mutation plan â†’ install â†’ rollback. Bloqueia prompt injection e alto risco
-- `ZavorthSkillCuratorLiveLoopService.ts` (1.083 linhas) â€” quality scoring 0-100, duplicate detection, maintenance proposals
-- `SkillCuratorPlaneService.ts` (1.085 linhas) â€” curator periÃ³dico com lifecycle states (active/stale/archived), LLM reviewer opcional
-- `SkillQuarantinePipelineService.ts` â€” holds drafts isolados atÃ© validaÃ§Ã£o
+### Skill Auto-Criação e Evolução
+- `ZavorthSkillEvolutionService.ts` (1.107 linhas) — pipeline de 7 estágios: sintetizar → scan → sandbox → eval gate (score 0.8+) → mutation plan → install → rollback. Bloqueia prompt injection e alto risco
+- `ZavorthSkillCuratorLiveLoopService.ts` (1.083 linhas) — quality scoring 0-100, duplicate detection, maintenance proposals
+- `SkillCuratorPlaneService.ts` (1.085 linhas) — curator periódico com lifecycle states (active/stale/archived), LLM reviewer opcional
+- `SkillQuarantinePipelineService.ts` — holds drafts isolados até validação
 
-### Dream Cycle (ConsolidaÃ§Ã£o de MemÃ³ria)
-- `MnemosDreamCycleService.ts` (313+ linhas) â€” consolidaÃ§Ã£o periÃ³dica: merge duplicatas, poda obsoletos, resolve contradiÃ§Ãµes por recÃªncia, quarentena secrets. Requer aprovaÃ§Ã£o para aplicar. MÃ­nimo 24h entre ciclos, 5 sessÃµes, 30min idle
+### Dream Cycle (Consolidação de Memória)
+- `MnemosDreamCycleService.ts` (313+ linhas) — consolidação periódica: merge duplicatas, poda obsoletos, resolve contradições por recência, quarentena secrets. Requer aprovação para aplicar. Mínimo 24h entre ciclos, 5 sessões, 30min idle
 
 ### Learning OS Adaptativo (3 Faixas)
 - `ZavorthAdaptiveLearningOsService.ts` (622 linhas)
-  - Verde: preferÃªncias de baixo risco (estilo, idioma) â€” aplicadas silenciosamente
-  - Amarelo: drafts e candidatos â€” staged para digest review
-  - Vermelho: mudanÃ§as sensÃ­veis (inferÃªncias psicolÃ³gicas, seguranÃ§a) â€” aprovaÃ§Ã£o explÃ­cita
-- Scanner tÃ©cnico bloqueia prompt injection antes da classificaÃ§Ã£o semÃ¢ntica
+  - Verde: preferências de baixo risco (estilo, idioma) — aplicadas silenciosamente
+  - Amarelo: drafts e candidatos — staged para digest review
+  - Vermelho: mudanças sensíveis (inferências psicológicas, segurança) — aprovação explícita
+- Scanner técnico bloqueia prompt injection antes da classificação semântica
 
 ### Replay Learning
-- `ZavorthReplayLearningService.ts` (775 linhas) â€” "digital twin" de sessÃµes, rastreia preferÃªncias, estilo, padrÃµes de debug. Modo suggest-only
-- `ZavorthReplayLearningControlPlaneService.ts` (345 linhas) â€” artifacts, candidates, timeline, resume prompts
+- `ZavorthReplayLearningService.ts` (775 linhas) — "digital twin" de sessões, rastreia preferências, estilo, padrões de debug. Modo suggest-only
+- `ZavorthReplayLearningControlPlaneService.ts` (345 linhas) — artifacts, candidates, timeline, resume prompts
 
 ### Memory e Procedural Learning
-- `ZavorthMemoryLearningLoopService.ts` â€” SQLite + FTS5, search, layer management, skill candidate assessment
-- `ZavorthMnemosProceduralMemoryService.ts` â€” extrai hÃ¡bitos do operador como regras tipadas com risk scoring
+- `ZavorthMemoryLearningLoopService.ts` — SQLite + FTS5, search, layer management, skill candidate assessment
+- `ZavorthMnemosProceduralMemoryService.ts` — extrai hábitos do operador como regras tipadas com risk scoring
 
 ### Skill Import e Marketplace
-- `UniversalSkillIntakeService.ts` â€” scan directories e ZIPs em 7 perfis de fonte
-- `UniversalSkillTrustImportService.ts` â€” materializa candidatos aprovados em skill-library/imported/
-- `SkillImportService.ts` â€” import governado com audit trail e license classification
+- `UniversalSkillIntakeService.ts` — scan directories e ZIPs em 7 perfis de fonte
+- `UniversalSkillTrustImportService.ts` — materializa candidatos aprovados em skill-library/imported/
+- `SkillImportService.ts` — import governado com audit trail e license classification
 
-### TrajetÃ³ria e AutoconsciÃªncia
-- `ZavorthTrajectoryExportService.ts` â€” exporta trajectories de receipts, logs, memory, mnemos
-- `CapabilityDiscoveryService.ts` â€” auto-descobre e cataloga capacidades do prÃ³prio Zavorth
+### Trajetória e Autoconsciência
+- `ZavorthTrajectoryExportService.ts` — exporta trajectories de receipts, logs, memory, mnemos
+- `CapabilityDiscoveryService.ts` — auto-descobre e cataloga capacidades do próprio Zavorth
 
 ## 29 Channel Gateways (verified 2026-06-25)
 
@@ -96,11 +96,10 @@ O Zavorth possui ecossistema completo de auto-aprendizado com 15 componentes gov
 
 **Via factory/registry (19 adicionais):** Matrix, LINE, Google Chat, Feishu/Lark, IRC, QQ, Zalo, WeCom, Weixin/WeChat, Yuanbao (Tencent), SMS, Home Assistant, Voice Call, Google Meet, Twitch, Nextcloud Talk, Mattermost, Synology Chat, ClickClack, Nostr
 
-**Modos de conexÃ£o:**
+**Modos de conexão:**
 - API nativa (3): Matrix, LINE, Zalo
 - Webhook (12): Slack, Teams, Email, Google Chat, Feishu, QQ, WeCom, Mattermost, Synology, ClickClack, Nextcloud Talk, Instagram
 - Bridge local (8): WhatsApp, iMessage, Weixin, Yuanbao, Voice Call, Google Meet, IRC, Nostr
 - Bot HTTP API (2): SMS, Twitch
 
-**SuperfÃ­cies adicionais:** Web Dashboard, CLI, REST API, WebSocket
-
+**Superfícies adicionais:** Web Dashboard, CLI, REST API, WebSocket
