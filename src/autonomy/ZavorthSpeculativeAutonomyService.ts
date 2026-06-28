@@ -42,6 +42,10 @@ import {
   defaultDockerValidationRunner
 } from './ZavorthSpeculativeSandboxRunner.js';
 
+export {
+  buildSpeculativeDockerValidationArgs,
+  parseSpeculativeValidationCommand,
+} from './ZavorthSpeculativeSandboxRunner.js';
 
 export type ZavorthSpeculativeWorkspaceWrite = {
   path: string;

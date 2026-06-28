@@ -8,6 +8,9 @@ import type {
   ZavorthMarketplaceIndexDocument,
   ZavorthMarketplaceInstallInput,
   ZavorthMarketplaceInstallResult,
+  ZavorthMarketplaceRemoteRegistryDocument,
+  ZavorthMarketplaceRemoteRegistryVerification,
+  ZavorthMarketplaceRemoteSkillEntry,
   ZavorthMarketplaceSearchInput,
   ZavorthMarketplaceSearchResult,
   ZavorthMarketplaceSkillEntry,
@@ -58,6 +61,11 @@ function hashObject(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
 
+function normalizeHash(value: string): string {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized.startsWith('sha256:') ? normalized : `sha256:${normalized}`;
+}
+
 export class ZavorthSkillMarketplaceService {
   private static readonly CATEGORY_ALIASES: Record<string, string[]> = {
     development: ['development', 'engineering', 'workspace', 'reasoning'],
@@ -79,6 +87,7 @@ export class ZavorthSkillMarketplaceService {
   private readonly mkdirSync: typeof fs.mkdirSync;
   private readonly guard: Pick<SkillHubGuardService, 'evaluateSkillDirectory'>;
   private readonly now: () => Date;
+  private readonly trustedPublisherIds: Set<string>;
 
   constructor(runtime?: ZavorthSkillMarketplaceRuntime) {
     this.projectRoot = runtime?.projectRoot ?? config.projectRoot;
@@ -90,6 +99,7 @@ export class ZavorthSkillMarketplaceService {
     this.mkdirSync = runtime?.mkdirSync ?? fs.mkdirSync;
     this.guard = runtime?.skillHubGuardService ?? new SkillHubGuardService();
     this.now = runtime?.now ?? (() => new Date());
+    this.trustedPublisherIds = new Set(['@zavorth-official', 'registry:zavorth']);
   }
 
   private get nativeSkillsDir(): string {
@@ -278,6 +288,60 @@ export class ZavorthSkillMarketplaceService {
   getSkill(id: string): ZavorthMarketplaceSkillEntry | null {
     const skills = this.discoverNativeSkills();
     return skills.find((entry) => entry.id === id) || null;
+  }
+
+  buildRemoteEntrySignature(entry: Pick<ZavorthMarketplaceRemoteSkillEntry, 'id' | 'version' | 'publisherId' | 'sourceUrl' | 'packageHash'>): string {
+    return `sha256:${hashObject({
+      id: entry.id,
+      version: entry.version,
+      publisherId: entry.publisherId,
+      sourceUrl: entry.sourceUrl,
+      packageHash: normalizeHash(entry.packageHash),
+    })}`;
+  }
+
+  verifyRemoteRegistry(document: ZavorthMarketplaceRemoteRegistryDocument): ZavorthMarketplaceRemoteRegistryVerification {
+    const revoked = new Set((document.revokedVersions || []).map((entry) => `${entry.skillId}@${entry.version}`));
+    const issues: ZavorthMarketplaceRemoteRegistryVerification['issues'] = [];
+
+    for (const entry of document.entries || []) {
+      const skillId = entry.id || 'unknown-skill';
+      if (!this.trustedPublisherIds.has(entry.publisherId) && entry.trustLevel !== 'community') {
+        issues.push({
+          skillId,
+          severity: 'error',
+          code: 'untrusted-publisher',
+          message: `Publisher ${entry.publisherId || 'unknown'} is not trusted.`,
+        });
+      }
+      if (!entry.signature) {
+        issues.push({ skillId, severity: 'error', code: 'unsigned', message: 'Remote skill entry is unsigned.' });
+      }
+      if (!/^sha256:[a-f0-9]{64}$/i.test(entry.packageHash || '')) {
+        issues.push({ skillId, severity: 'error', code: 'invalid-hash', message: 'Remote skill entry must include a sha256 package hash.' });
+      }
+      if (entry.sourceUrl && !/^https:\/\//i.test(entry.sourceUrl)) {
+        issues.push({ skillId, severity: 'error', code: 'insecure-source-url', message: 'Remote skill packages must use HTTPS URLs.' });
+      }
+      if (entry.signature && entry.signature !== this.buildRemoteEntrySignature(entry)) {
+        issues.push({ skillId, severity: 'error', code: 'invalid-signature', message: 'Remote skill signature does not match the signed manifest payload.' });
+      }
+      if (revoked.has(`${entry.id}@${entry.version}`)) {
+        issues.push({ skillId, severity: 'error', code: 'revoked-version', message: `Remote skill version ${entry.version} has been revoked.` });
+      }
+      if (entry.trustLevel === 'community') {
+        issues.push({ skillId, severity: 'warn', code: 'untrusted-publisher', message: 'Community skill must remain quarantined until reviewed.' });
+      }
+    }
+
+    const blockedSkillIds = new Set(issues.filter((issue) => issue.severity === 'error').map((issue) => issue.skillId));
+    return {
+      trusted: blockedSkillIds.size === 0,
+      totalEntries: document.entries.length,
+      trustedEntries: document.entries.length - blockedSkillIds.size,
+      blockedEntries: blockedSkillIds.size,
+      issues,
+    };
   }
 
   installSkill(input: ZavorthMarketplaceInstallInput): ZavorthMarketplaceInstallResult {
