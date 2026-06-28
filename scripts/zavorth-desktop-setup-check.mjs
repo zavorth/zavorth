@@ -106,6 +106,7 @@ if (failures.length === 0) {
     read('apps/zavorth-desktop/src/composer/DesktopCommandBar.tsx'),
     read('apps/zavorth-desktop/src/views/DesktopWorkspaceView.tsx'),
     read('apps/zavorth-desktop/src/thread/ThreadView.tsx'),
+    read('apps/zavorth-desktop/src/useDesktopAppState.ts'),
   ].join('\n');
   for (const needle of [
     'sendMessage',

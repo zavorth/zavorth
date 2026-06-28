@@ -120,10 +120,23 @@ function runTs(script, args) {
 function jsonRule(id, result, predicate) {
   if (!result.stdout.trim()) return rule(id, false, `empty output: ${result.stderr}`, []);
   try {
-    const parsed = JSON.parse(result.stdout);
+    const parsed = parseJson(result.stdout);
     return rule(id, Boolean(predicate(parsed)), `status=${parsed.status}; selected=${parsed.selected?.providerId || parsed.selected?.backendId || 'none'}`, []);
   } catch (error) {
     return rule(id, false, String(error), [result.stdout, result.stderr]);
+  }
+}
+
+function parseJson(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      return JSON.parse(text.slice(start, end + 1));
+    }
+    throw new Error('No JSON object found in output');
   }
 }
 
