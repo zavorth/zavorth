@@ -16,7 +16,7 @@ function registerPlugin(plugin: ProviderPlugin): void {
     factory: plugin.create,
   });
 
-  logger.info(`Provider plugin "${plugin.manifest.name}" registered.`);
+  logger.debug(`Provider plugin "${plugin.manifest.name}" registered.`);
 }
 
 function registerBatch(plugins: ProviderPlugin[]): void {
