@@ -21,7 +21,7 @@ interface HostCommandApprovalModalProps {
 }
 
 export function HostCommandApprovalModal({
-  approvals,
+  approvals = [],
   onResolve,
 }: HostCommandApprovalModalProps) {
   const activeApproval = approvals[0];

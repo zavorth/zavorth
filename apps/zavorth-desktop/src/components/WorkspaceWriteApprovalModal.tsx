@@ -16,12 +16,12 @@ interface WorkspaceWriteApprovalModalProps {
 }
 
 export function WorkspaceWriteApprovalModal({
-  approvals,
+  approvals = [],
   sessionId,
   workspacePath,
   onResolve,
 }: WorkspaceWriteApprovalModalProps) {
-  const activeApproval = approvals[0];
+  const activeApproval = Array.isArray(approvals) && approvals.length > 0 ? approvals[0] : null;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payload, setPayload] = useState<{

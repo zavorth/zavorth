@@ -335,11 +335,11 @@ try {
   await window.locator('.zvd-detail-row', { hasText: 'Anthropic' }).locator('button', { hasText: 'Setup' }).click();
   await waitForRuntimeActionType('set-provider-connection');
 
-  await runtimeTabs().nth(3).click();
+  await runtimeTabs().nth(4).click();
   await window.locator('.zvd-detail-row', { hasText: 'Smoke docs' }).locator('button', { hasText: 'Trust source' }).click();
   await waitForRuntimeActionType('set-workspace-knowledge');
 
-  await runtimeTabs().nth(4).click();
+  await runtimeTabs().nth(5).click();
   await window.locator('.zvd-detail-row', { hasText: 'Filesystem MCP' }).locator('button', { hasText: 'Trust' }).click();
   await waitForRuntimeActionType('set-mcp-trust');
 

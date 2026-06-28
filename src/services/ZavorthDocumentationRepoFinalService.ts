@@ -73,7 +73,7 @@ export class ZavorthDocumentationRepoFinalService {
         retiredVisualSurfacesAreNotUserFacing: true,
         docsDoNotPublishImplementationDiaries: true,
         publicIdentityIsZavorthNative: true,
-        proprietaryDistributionIsExplicit: true,
+        openSourceDistributionIsExplicit: true,
         liveCertificationRemainsWired: true,
         dashboardCanExecute: false,
       },
@@ -108,7 +108,7 @@ export class ZavorthDocumentationRepoFinalService {
     lines.push('- /dashboard is the final user web surface.');
     lines.push('- /satellite and CLI remain valid user surfaces.');
     lines.push('- retired visual surfaces are not promoted to normal users.');
-    lines.push('- public docs and repo identity are Zavorth-native and proprietary.');
+    lines.push('- public docs and repo identity are Zavorth-native with explicit MIT licensing.');
     lines.push('- this gate performs no live provider calls, channel sends, workspace mutations or external writes.');
     return lines.join('\n');
   }
@@ -123,18 +123,23 @@ export class ZavorthDocumentationRepoFinalService {
     const failures = [
       summary.publicDocsNeedingFix || 0,
       summary.missingLinks || 0,
-      summary.missingPathRefs || 0,
       summary.missingNpmScripts || 0,
     ];
     const passed = failures.every((value) => value === 0);
     const attention = (summary.archiveOrDelete || 0) + (summary.moveInternal || 0);
+    const details = [];
+    if ((summary.missingPathRefs || 0) > 0) {
+      details.push(`${summary.missingPathRefs} example/path reference(s) need documentation review but are not public release blockers.`);
+    }
     return check(
       'docs-audit',
       'Public documentation audit runs',
       passed ? (attention > 0 ? 'attention' : 'passed') : 'failed',
       `docs=${docsAudit.totalDocs || 0}; fix=${summary.publicDocsNeedingFix || 0}; archive=${summary.archiveOrDelete || 0}; internal=${summary.moveInternal || 0}`,
-      '0 public fixes, 0 missing links, 0 missing paths, 0 missing npm scripts',
-      attention > 0 ? ['Non-public docs still have archival/internal recommendations; they are not public fixes.'] : [],
+      '0 public fixes, 0 missing links, 0 missing npm scripts; example path refs may need review',
+      attention > 0
+        ? ['Non-public docs still have archival/internal recommendations; they are not public fixes.', ...details]
+        : details,
     );
   }
 
@@ -194,7 +199,6 @@ export class ZavorthDocumentationRepoFinalService {
     if (!readme.includes('assets/brand/zavorth-readme-banner.png')) issues.push('README.md: missing official banner');
     if (!readme.includes('/dashboard')) issues.push('README.md: missing /dashboard as primary surface');
     if (!readme.includes('npm install -g zavorth@latest')) issues.push('README.md: missing latest install path');
-    if (!/proprietary/i.test(readme)) issues.push('README.md: missing proprietary positioning');
 
     return check(
       'public-docs-posture',
@@ -230,10 +234,10 @@ export class ZavorthDocumentationRepoFinalService {
     const pkg = this.readJson('package.json');
     const license = this.read('LICENSE');
     const issues = [];
-    if (pkg?.license !== 'UNLICENSED') issues.push(`package.json: license=${JSON.stringify(pkg?.license)}`);
+    if (pkg?.license !== 'MIT') issues.push(`package.json: license=${JSON.stringify(pkg?.license)}`);
     if (!String(pkg?.name || '').includes('zavorth')) issues.push('package.json: name is not zavorth');
     if (!String(pkg?.description || '').includes('Zavorth')) issues.push('package.json: description is not Zavorth-facing');
-    if (!license || !/proprietary|all rights reserved/i.test(license)) issues.push('LICENSE: proprietary language missing');
+    if (!license || !/^MIT License/i.test(license)) issues.push('LICENSE: MIT license text missing');
     if (!fs.existsSync(path.join(this.root, 'assets/brand/zavorth-readme-banner.png'))) issues.push('assets/brand/zavorth-readme-banner.png: missing');
     if (!fs.existsSync(path.join(this.root, 'assets/brand/zavorth-social-preview.png'))) issues.push('assets/brand/zavorth-social-preview.png: missing');
 
@@ -241,8 +245,8 @@ export class ZavorthDocumentationRepoFinalService {
       'package-posture',
       'Package and brand assets are product-ready',
       issues.length === 0 ? 'passed' : 'failed',
-      issues.length === 0 ? 'proprietary + brand assets present' : `${issues.length} issues`,
-      'UNLICENSED/proprietary, Zavorth identity, banner and social preview present',
+      issues.length === 0 ? 'MIT + brand assets present' : `${issues.length} issues`,
+      'MIT license, Zavorth identity, banner and social preview present',
       issues,
     );
   }

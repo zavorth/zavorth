@@ -61,7 +61,7 @@ function ruleContainsMarkers() {
       'dashboardIsPrimarySurface',
       'docsDoNotPublishImplementationDiaries',
       'publicIdentityIsZavorthNative',
-      'proprietaryDistributionIsExplicit',
+      'openSourceDistributionIsExplicit',
     ]],
     ['src/services/ZavorthDocumentationRepoFinalService.ts', [
       'docs-public-repo-audit.mjs',

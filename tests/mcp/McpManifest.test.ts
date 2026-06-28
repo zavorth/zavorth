@@ -73,9 +73,12 @@ describe('McpManifestLoader', () => {
 
     expect(Array.from(byId.keys()).sort()).toEqual(['filesystem', 'playwright', 'reasoning']);
     expect(servers.every((server) => server.enabled === false)).toBe(true);
+    expect(servers.every((server) => server.allowedEnv.length === 1 && server.allowedEnv[0] === 'PATH')).toBe(true);
+    expect(servers.every((server) => !Object.keys(server.env).some((key) => /token|secret|key|password/i.test(key)))).toBe(true);
     expect(byId.get('filesystem')).toEqual(
       expect.objectContaining({
         command: 'npx.cmd',
+        args: ['-y', '@modelcontextprotocol/server-filesystem', 'C:/workspace-root'],
         capability: 'filesystem',
       }),
     );

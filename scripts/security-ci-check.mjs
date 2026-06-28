@@ -9,6 +9,7 @@ const npmCommand = npmCli && existsSync(npmCli) ? process.execPath : process.pla
 const npmArgs = npmCli && existsSync(npmCli) ? [npmCli] : [];
 const jestCli = resolve(root, "node_modules", "jest", "bin", "jest.js");
 const tsxCli = resolve(root, "node_modules", "tsx", "dist", "cli.cjs");
+const securityNodeOptions = mergeNodeOptions(process.env.NODE_OPTIONS, "--max-old-space-size=4096");
 
 const requiredSecurityTests = [
   "tests/security/SupplyChainGuard.test.ts",
@@ -64,6 +65,7 @@ function run(label, command, args, options = {}) {
       ...process.env,
       CI_SECURITY: "1",
       NODE_ENV: process.env.NODE_ENV ?? "test",
+      NODE_OPTIONS: securityNodeOptions,
     },
     shell: false,
     stdio: "inherit",
@@ -78,6 +80,13 @@ function run(label, command, args, options = {}) {
     console.error(`[security-ci] ${label} failed with exit code ${result.status}`);
     process.exit(result.status ?? 1);
   }
+}
+
+function mergeNodeOptions(current, required) {
+  const tokens = String(current || "").split(/\s+/).filter(Boolean);
+  return tokens.some((token) => token.startsWith("--max-old-space-size="))
+    ? tokens.join(" ")
+    : [...tokens, required].join(" ");
 }
 
 function assertRequiredSecurityTests() {

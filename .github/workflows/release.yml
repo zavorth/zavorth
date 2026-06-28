@@ -38,8 +38,7 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: TypeScript type-check
-        run: npx tsc --noEmit --pretty false 2>&1 | tail -5
-        continue-on-error: true
+        run: node --max-old-space-size=4096 node_modules/typescript/bin/tsc --noEmit --pretty false
 
       - name: Build
         run: npm run build --silent
@@ -56,7 +55,6 @@ jobs:
 
       - name: Run release check
         run: npm run release:check --silent
-        continue-on-error: true
 
   test-suite:
     name: Full Test Suite

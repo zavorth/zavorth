@@ -38,7 +38,7 @@ export type ZavorthDocumentationRepoFinalSnapshot = {
     retiredVisualSurfacesAreNotUserFacing: true;
     docsDoNotPublishImplementationDiaries: true;
     publicIdentityIsZavorthNative: true;
-    proprietaryDistributionIsExplicit: true;
+    openSourceDistributionIsExplicit: true;
     liveCertificationRemainsWired: true;
     dashboardCanExecute: false;
   };
