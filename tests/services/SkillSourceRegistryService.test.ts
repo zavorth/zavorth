@@ -65,4 +65,41 @@ describe('SkillSourceRegistryService', () => {
       expect.arrayContaining(['workspace-agents', 'workspace-library']),
     );
   });
+
+  it('resolves profile-scoped sources under an isolated skill profile root', () => {
+    const service = new SkillSourceRegistryService({
+      projectRoot: 'C:/workspace/zavorth',
+      profileRoot: 'C:/Users/example/.zavorth/profiles/work',
+      configFile: 'C:/workspace/zavorth/config/skill-sources.json',
+      existsSync: jest.fn(() => true),
+      readFileSync: jest.fn(() =>
+        JSON.stringify({
+          version: 1,
+          sources: [
+            {
+              id: 'profile-skills',
+              label: 'Profile skills',
+              kind: 'workspace',
+              trust: 'trusted',
+              enabled: true,
+              ingestionMode: 'local-scan',
+              path: 'skills',
+              createIfMissing: true,
+              profileScoped: true,
+              allowedExternalSupportPaths: ['support'],
+            },
+          ],
+        }),
+      ) as any,
+    });
+
+    expect(service.listSources()[0]).toEqual(
+      expect.objectContaining({
+        id: 'profile-skills',
+        profileScoped: true,
+        absolutePath: 'C:\\Users\\example\\.zavorth\\profiles\\work\\skills',
+        absoluteAllowedExternalSupportPaths: ['C:\\Users\\example\\.zavorth\\profiles\\work\\support'],
+      }),
+    );
+  });
 });

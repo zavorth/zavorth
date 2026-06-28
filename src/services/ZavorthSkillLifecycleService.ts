@@ -1,15 +1,9 @@
-// @ts-nocheck
 import fs from 'node:fs';
-import { logger } from '../logger.js';
 import path from 'node:path';
-import { logger } from '../logger.js';
 import { createHash } from 'node:crypto';
-import { logger } from '../logger.js';
 
 import { config } from '../config/index.js';
-import { logger } from '../logger.js';
 import { ZavorthSandboxControlPlaneService } from './ZavorthSandboxControlPlaneService.js';
-import { logger } from '../logger.js';
 
 export type ZavorthSkillLifecycleState =
   | 'draft'

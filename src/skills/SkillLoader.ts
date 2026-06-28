@@ -61,6 +61,24 @@ type LoadSkillOptions = {
   quiet?: boolean;
 };
 
+export type SkillDisclosureIndexEntry = {
+  name: string;
+  description: string;
+  sourceId?: string;
+  sourceLabel?: string;
+  sourceTrust?: string;
+  bundleTags: string[];
+  supportFileCount: number;
+  dirPath: string;
+  skillFilePath: string;
+};
+
+export type SkillDisclosureView = {
+  metadata: SkillMetadata;
+  prompt: string;
+  supportFilesIncluded: boolean;
+};
+
 type SkillLoaderRuntime = {
   sourceRegistryService?: Pick<SkillSourceRegistryService, 'listSearchSources'>;
   skillTrustPolicyService?: Pick<SkillTrustPolicyService, 'evaluateSource' | 'evaluateSkill'>;
@@ -198,6 +216,38 @@ export class SkillLoader {
       logger.info(`Total de skills carregadas: ${skills.length}`);
     }
     return skills;
+  }
+
+  public listDisclosureIndex(options: Omit<LoadSkillOptions, 'includeSupportFiles'> = {}): SkillDisclosureIndexEntry[] {
+    return this.loadAll({ ...options, includeSupportFiles: false }).map((skill) => ({
+      name: skill.name,
+      description: skill.description,
+      sourceId: skill.sourceId,
+      sourceLabel: skill.sourceLabel,
+      sourceTrust: skill.sourceTrust,
+      bundleTags: skill.bundleTags || [],
+      supportFileCount: skill.supportFiles?.length || skill.supportFilePaths.length,
+      dirPath: skill.dirPath,
+      skillFilePath: skill.skillFilePath,
+    }));
+  }
+
+  public viewSkill(name: string, options: LoadSkillOptions = {}): SkillDisclosureView | null {
+    const includeSupportFiles = options.includeSupportFiles === true;
+    const skill = this.loadAll({
+      quiet: options.quiet,
+      includeSupportFiles,
+    }).find((entry) => entry.name === name);
+
+    if (!skill) {
+      return null;
+    }
+
+    return {
+      metadata: skill,
+      prompt: includeSupportFiles ? this.buildSkillPrompt(skill) : this.getSkillContent(skill.dirPath),
+      supportFilesIncluded: includeSupportFiles,
+    };
   }
 
   private discoverSkillDirectories(source: SkillSourceRegistryEntry): string[] {
