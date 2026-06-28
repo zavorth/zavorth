@@ -124,7 +124,7 @@ describe('SharedSurfaceLearningCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(executeAction).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith('Use /learning <approve|reject|promote> <candidateId>.');
+    expect(ctx.reply).toHaveBeenCalledWith('Use /learning <approve|reject|promote|forget|promote-skill|promote-procedure> <candidateId>.');
   });
 
   it('executes approve/reject/promote actions through the learning plane service', async () => {

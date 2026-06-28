@@ -10,6 +10,7 @@ const MAX_SKILL_FILE_BYTES = 256 * 1024;
 const MAX_USAGE_FILE_BYTES = 256 * 1024;
 const MAX_USAGE_FILES = 500;
 const USAGE_CONTEXT_RADIUS = 220;
+const DESTRUCTIVE_MERGE_MIN_SCORE = 0.65;
 
 export type ZavorthSkillCuratorStatus = 'ready' | 'attention' | 'blocked';
 export type ZavorthSkillCuratorActionKind =
@@ -464,7 +465,8 @@ export class ZavorthSkillCuratorLiveLoopService {
 
   private buildProposals(skills: ZavorthSkillCuratorSkill[]): ZavorthSkillCuratorProposal[] {
     const proposals: ZavorthSkillCuratorProposal[] = [];
-    const pairs = findSimilarPairs(skills);
+    const pairs = findSimilarPairs(skills)
+      .filter((pair) => pair.score >= DESTRUCTIVE_MERGE_MIN_SCORE);
     for (const pair of pairs.slice(0, 12)) {
       proposals.push({
         id: `merge:${pair.a.id}:${pair.b.id}`,
