@@ -66,7 +66,13 @@ if (failures.length === 0) {
     'contextIsolation: true',
     'nodeIntegration: false',
     'sandbox: true',
+    'Notification',
     "preload: path.join(__dirname, 'preload.cjs')",
+    'trustedWorkspaceRoots',
+    'isTrustedWorkspacePath',
+    'validateRendererUrl',
+    'setWindowOpenHandler',
+    'will-navigate',
     'resolveZavorthHome',
     'startZavorthRuntime',
     'buildRuntimeBaseUrl',
@@ -83,6 +89,9 @@ if (failures.length === 0) {
   }
   if (/loadURL\(next\.dashboardUrl\)|buildDashboardUrl|dashboardUrl|\/dashboard/iu.test(main)) {
     failures.push('desktop main must not load dashboard as the chat surface');
+  }
+  if (!main.includes("Folder is not trusted for desktop file browsing.")) {
+    failures.push('desktop main must reject untrusted file-tree roots');
   }
 
   const preload = read('apps/zavorth-desktop/electron/preload.cjs');
@@ -171,6 +180,17 @@ if (failures.length === 0) {
   ]) {
     if (!bootstrap.includes(needle)) {
       failures.push(`setup bootstrap missing contract: ${needle}`);
+    }
+  }
+
+  const legacyDaemon = read('scripts/launch-daemon.vbs');
+  if (/npm run dev/iu.test(legacyDaemon)) {
+    failures.push('legacy daemon launcher must not start npm run dev');
+  }
+  const registerDaemon = read('scripts/register-zavorth-daemon.ps1');
+  for (const needle of ['install-windows-startup.ps1', '-AllowInstall']) {
+    if (!registerDaemon.includes(needle)) {
+      failures.push(`daemon registration must delegate to guarded startup installer: ${needle}`);
     }
   }
 }

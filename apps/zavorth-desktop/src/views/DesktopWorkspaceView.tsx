@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type {
   ApprovalItem,
   ChannelItem,
@@ -12,13 +12,15 @@ import type {
   ToolItem,
 } from '../apiClient';
 import { connectGooglePersonalOps } from '../apiClient';
-import type { BootEvent, RuntimeStatus } from '../global';
+import type { BootEvent, RuntimeStatus, FileExplorerNode } from '../global';
 import { asRecord, effortLabels, itemId, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
 import { DesktopSidebar } from '../shell/DesktopSidebar.js';
 import { ProviderSettingsPanel } from '../panels/ProviderSettingsPanel.js';
 import { InternalBetaDiagnosticsPanel } from '../panels/InternalBetaDiagnosticsPanel.js';
 import { CockpitDashboard } from '../components/CockpitDashboard.js';
 import type { DesktopPanel } from '../slashCommands';
+import type { DesktopWorkspaceScope } from '../workspaceScopes';
+import { Folder, ChevronDown, ChevronRight, Refresh } from '../icons';
 
 type WorkspaceViewProps = {
   activePanel: Exclude<DesktopPanel, 'chat'>;
@@ -41,6 +43,7 @@ type WorkspaceViewProps = {
   status: RuntimeStatus;
   theme: 'light' | 'dark' | 'system';
   tools: ToolItem[];
+  workspaceScope: DesktopWorkspaceScope;
   onAccessRepair(): void | Promise<void>;
   onAccent(value: 'orange' | 'purple' | 'navy'): void;
   onEffort(value: string): void;
@@ -62,6 +65,10 @@ type WorkspaceViewProps = {
 };
 
 export function DesktopWorkspaceView(props: WorkspaceViewProps) {
+  if (props.activePanel === 'files') {
+    return <FilesView workspaceScope={props.workspaceScope} />;
+  }
+
   if (props.activePanel === 'approvals') {
     return <ReviewView approvals={props.approvals} busy={props.busy} onDecision={props.onReviewDecision} />;
   }
@@ -1345,5 +1352,159 @@ function SettingsView(props: {
         </section>
       </div>
     </PageFrame>
+  );
+}
+
+function FilesView(props: { workspaceScope: DesktopWorkspaceScope }) {
+  const [tree, setTree] = useState<FileExplorerNode[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState('');
+  const [error, setError] = useState('');
+
+  const loadFileTree = useCallback(async () => {
+    if (!props.workspaceScope.path) {
+      setError('No active folder selected.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      if (window.zavorthDesktop?.readFileTree) {
+        const res = await window.zavorthDesktop.readFileTree(props.workspaceScope.path);
+        if (res.ok && res.tree) {
+          setTree(res.tree);
+        } else {
+          setError(res.error || 'Failed to read workspace folder.');
+        }
+      } else {
+        setError('Desktop API is not available.');
+      }
+    } catch {
+      setError('An error occurred while reading the workspace.');
+    } finally {
+      setLoading(false);
+    }
+  }, [props.workspaceScope.path]);
+
+  useEffect(() => {
+    void loadFileTree();
+  }, [loadFileTree]);
+
+  // Recursively filters the tree based on query
+  const filterTree = (nodes: FileExplorerNode[], q: string): FileExplorerNode[] => {
+    if (!q) return nodes;
+    return nodes
+      .map(node => {
+        if (node.type === 'file') {
+          return node.name.toLowerCase().includes(q) ? node : null;
+        }
+        const filteredChildren = node.children ? filterTree(node.children, q) : [];
+        if (filteredChildren.length > 0 || node.name.toLowerCase().includes(q)) {
+          return { ...node, children: filteredChildren };
+        }
+        return null;
+      })
+      .filter((n): n is FileExplorerNode => n !== null);
+  };
+
+  const filteredTree = useMemo(() => filterTree(tree, query.trim().toLowerCase()), [tree, query]);
+
+  return (
+    <PageFrame
+      description="Navigate local files governed by Zavorth."
+      meta={props.workspaceScope.path || 'No path'}
+      title="Workspace Files"
+      actions={
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={() => void loadFileTree()}
+            className="session-picker-btn"
+            disabled={loading}
+            title="Refresh"
+            style={{
+              padding: '6px',
+              backgroundColor: 'var(--zvd-bg-subtle, #161b22)',
+              border: '1px solid var(--zvd-border, #30363d)',
+              borderRadius: '4px',
+              color: '#c9d1d9',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            type="button"
+          >
+            <Refresh size={14} />
+          </button>
+          <SearchBox value={query} onChange={setQuery} placeholder="Filter files..." />
+        </div>
+      }
+    >
+      <div
+        style={{
+          padding: '16px',
+          backgroundColor: '#0d1117',
+          border: '1px solid #30363d',
+          borderRadius: '8px',
+          overflowY: 'auto',
+          maxHeight: 'calc(100vh - 200px)',
+          fontFamily: 'monospace',
+          fontSize: '13px',
+        }}
+      >
+        {loading && <div style={{ color: '#8b949e', padding: '8px' }}>Loading file structure...</div>}
+        {error && <div style={{ color: '#ff7b72', padding: '8px' }}>{error}</div>}
+        {!loading && !error && filteredTree.length === 0 && (
+          <div style={{ color: '#8b949e', padding: '8px' }}>No files found.</div>
+        )}
+        {!loading && !error && filteredTree.map(node => (
+          <FileTreeNodeRow key={node.relativePath} node={node} depth={0} />
+        ))}
+      </div>
+    </PageFrame>
+  );
+}
+
+function FileTreeNodeRow({ node, depth }: { node: FileExplorerNode; depth: number }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const isDir = node.type === 'directory';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div
+        onClick={() => isDir && setIsOpen(!isOpen)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '6px 8px',
+          paddingLeft: `${depth * 16 + 8}px`,
+          cursor: isDir ? 'pointer' : 'default',
+          borderRadius: '4px',
+          userSelect: 'none',
+          color: isDir ? '#e2e8f0' : '#8b949e',
+          transition: 'background-color 0.15s ease',
+        }}
+      >
+        {isDir ? (
+          <>
+            <span style={{ display: 'inline-flex', alignItems: 'center', width: '12px' }}>
+              {isOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+            </span>
+            <Folder size={16} style={{ color: '#d29922' }} />
+            <strong style={{ fontWeight: '500' }}>{node.name}</strong>
+          </>
+        ) : (
+          <>
+            <span style={{ width: '12px' }} />
+            <span style={{ fontSize: '13px' }}>📄</span>
+            <span>{node.name}</span>
+          </>
+        )}
+      </div>
+      {isDir && isOpen && node.children?.map(child => (
+        <FileTreeNodeRow key={child.relativePath} node={child} depth={depth + 1} />
+      ))}
+    </div>
   );
 }

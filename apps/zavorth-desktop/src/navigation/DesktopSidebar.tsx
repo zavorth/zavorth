@@ -1,9 +1,11 @@
-﻿import type { DesktopPanel } from '../slashCommands';
+﻿import { useCallback, useEffect, useState } from 'react';
+import type { DesktopPanel } from '../slashCommands';
 import {
   AppWindow,
   Brand,
   Channels,
   Chat,
+  Clock,
   Core,
   Folder,
   Memory,
@@ -20,6 +22,7 @@ import { WorkspaceTrustControl } from '../components/WorkspaceTrustControl';
 import { WorkspaceTaskMandateStatus } from '../components/WorkspaceTaskMandateStatus';
 import { TemporaryDirectoryTrustStatus } from '../components/TemporaryDirectoryTrustStatus';
 import { HostPowerModeControl } from '../components/HostPowerModeControl';
+import { SessionPicker, type SessionEntry } from '../components/SessionPicker';
 
 type SidebarItem = {
   panel: DesktopPanel;
@@ -30,6 +33,7 @@ type SidebarItem = {
 
 const items: SidebarItem[] = [
   { panel: 'chat', label: 'Chat', Icon: Chat },
+  { panel: 'files', label: 'Files', Icon: Folder },
   { panel: 'approvals', label: 'Review', Icon: Review },
   { panel: 'memory', label: 'Memory', Icon: Memory },
   { panel: 'skills', label: 'Plugins', Icon: Skills },
@@ -64,7 +68,64 @@ export function DesktopSidebar(props: {
   onWorkspaceScope(value: string): void;
   activeMandate?: any;
   onRevokeMandate?: () => Promise<void>;
+  currentSessionId?: string;
+  onSwitchSession?: (sessionId: string) => void;
 }) {
+  const [sessions, setSessions] = useState<SessionEntry[]>([]);
+
+  const loadSessions = useCallback(async () => {
+    try {
+      if (window.zavorthDesktop?.listSessions) {
+        const data = await window.zavorthDesktop.listSessions();
+        if (Array.isArray(data)) {
+          setSessions(data);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadSessions();
+  }, [loadSessions, props.currentSessionId, props.workspaceScope.id]);
+
+  const formatRelativeTime = (iso: string) => {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const now = new Date();
+      const diffMs = now.getTime() - d.getTime();
+      if (diffMs < 0) return 'now';
+
+      const diffMins = Math.floor(diffMs / 60000);
+      if (diffMins < 1) return 'now';
+      if (diffMins < 60) return `${diffMins}m`;
+
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h`;
+
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays}d`;
+    } catch {
+      return '';
+    }
+  };
+
+  const matchesProject = (session: SessionEntry, scope: DesktopWorkspaceScope) => {
+    if (!session.surface) return false;
+    const surfaceLower = session.surface.toLowerCase();
+    const labelLower = scope.label.toLowerCase();
+    const idLower = scope.id.toLowerCase();
+    const pathLower = scope.path?.toLowerCase() || '';
+
+    return (
+      surfaceLower === labelLower ||
+      surfaceLower === idLower ||
+      (pathLower && (surfaceLower.includes(pathLower) || pathLower.includes(surfaceLower)))
+    );
+  };
+
   const projectScopes = props.workspaceScopes.filter(scope => scope.kind === 'folder');
   return (
     <aside className={`zvd-sidebar ${props.collapsed ? 'is-collapsed' : ''}`} aria-label="Desktop navigation">
@@ -117,82 +178,99 @@ export function DesktopSidebar(props: {
 
       <section className="zvd-sidebar-projects" aria-label="Projetos locais">
         <p>Projetos</p>
-        {projectScopes.map(scope => (
-          <button
-            className={`zvd-project-root ${props.workspaceScope.id === scope.id ? 'is-active' : ''}`}
-            key={scope.id}
-            type="button"
-            onClick={() => {
-              props.onWorkspaceScope(scope.id);
-              props.onPanel('chat');
-            }}
-            title={scope.path || scope.label}
-          >
-            <Folder className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
-            <span>{scope.label}</span>
-          </button>
-        ))}
+        {projectScopes.map(scope => {
+          const isActiveProject = props.workspaceScope.id === scope.id;
+          const projectSess = sessions.filter(s => matchesProject(s, scope));
+
+          return (
+            <div key={scope.id} className={`zvd-project-group ${isActiveProject ? 'is-active' : ''}`}>
+              <button
+                className={`zvd-project-root ${isActiveProject ? 'is-active' : ''}`}
+                type="button"
+                onClick={() => {
+                  props.onWorkspaceScope(scope.id);
+                  props.onPanel('chat');
+                }}
+                title={scope.path || scope.label}
+              >
+                <Folder className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
+                <span>{scope.label}</span>
+              </button>
+
+              {isActiveProject && !props.collapsed && (
+                <div className="zvd-project-sub-sessions">
+                  {projectSess.length === 0 ? (
+                    <div className="zvd-sidebar-no-threads">No conversations yet</div>
+                  ) : (
+                    projectSess.map(session => (
+                      <button
+                        key={session.id}
+                        className={`zvd-sidebar-thread-item ${session.id === props.currentSessionId ? 'is-active' : ''}`}
+                        onClick={() => props.onSwitchSession?.(session.id)}
+                        type="button"
+                      >
+                        <span className="zvd-thread-title">{session.label || session.id}</span>
+                        <small className="zvd-thread-age">{formatRelativeTime(session.createdAt)}</small>
+                      </button>
+                    ))
+                  )}
+
+                  {/* Trust controls nested inside active project */}
+                  {props.workspaceScope.path && (
+                    <div style={{ padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid var(--zvd-border-soft)' }}>
+                      <WorkspaceTrustControl
+                        workspaceId={props.workspaceScope.id}
+                        workspaceRoot={props.workspaceScope.path}
+                      />
+                      {props.activeMandate !== undefined && (
+                        <WorkspaceTaskMandateStatus
+                          activeMandate={props.activeMandate}
+                          onRevoke={props.onRevokeMandate || (async () => {})}
+                        />
+                      )}
+                      <TemporaryDirectoryTrustStatus
+                        workspaceId={props.workspaceScope.id}
+                      />
+                      <HostPowerModeControl
+                        workspaceId={props.workspaceScope.id}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
         <button className="zvd-add-project" type="button" onClick={() => void props.onWorkspaceFolder()}>
           <Plus aria-hidden="true" size={16} stroke={1.9} />
           <span>Add folder</span>
         </button>
+      </section>
 
-        {props.workspaceScope.kind === 'folder' && (
-          <>
-            <button className="zvd-project-card" type="button" onClick={() => props.onPanel('chat')}>
-              <Core className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
-              <span className="zvd-project-name">{props.workspaceScope.shortLabel}</span>
-            </button>
-            {!props.collapsed && props.workspaceScope.path && (
-              <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <WorkspaceTrustControl
-                  workspaceId={props.workspaceScope.id}
-                  workspaceRoot={props.workspaceScope.path}
-                />
-                {props.activeMandate !== undefined && (
-                  <WorkspaceTaskMandateStatus
-                    activeMandate={props.activeMandate}
-                    onRevoke={props.onRevokeMandate || (async () => {})}
-                  />
-                )}
-                <TemporaryDirectoryTrustStatus
-                  workspaceId={props.workspaceScope.id}
-                />
-                <HostPowerModeControl
-                  workspaceId={props.workspaceScope.id}
-                />
-              </div>
+      {!props.collapsed && (
+        <section className="zvd-sidebar-chats" aria-label="Conversas gerais">
+          <p>Conversations</p>
+          <div className="zvd-thread-list">
+            {sessions.filter(s => !projectScopes.some(scope => matchesProject(s, scope))).length === 0 ? (
+              <div className="zvd-sidebar-no-threads">No conversations yet</div>
+            ) : (
+              sessions
+                .filter(s => !projectScopes.some(scope => matchesProject(s, scope)))
+                .map(session => (
+                  <button
+                    key={session.id}
+                    className={`zvd-sidebar-thread-item ${session.id === props.currentSessionId ? 'is-active' : ''}`}
+                    onClick={() => props.onSwitchSession?.(session.id)}
+                    type="button"
+                  >
+                    <span className="zvd-thread-title">{session.label || session.id}</span>
+                    <small className="zvd-thread-age">{formatRelativeTime(session.createdAt)}</small>
+                  </button>
+                ))
             )}
-            <div className="zvd-thread-list">
-              {projectThreads.map(thread => (
-                <button type="button" key={thread.title} onClick={() => props.onPanel('chat')}>
-                  <span>{thread.title}</span>
-                  <small>{thread.age}</small>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-      </section>
-
-      <section className="zvd-sidebar-chats" aria-label="Chats without project">
-        <p>Chats</p>
-        <div className="zvd-thread-list">
-          {chatThreads.map(thread => (
-            <button
-              type="button"
-              key={thread.title}
-              onClick={() => {
-                props.onWorkspaceScope('chat');
-                props.onPanel('chat');
-              }}
-            >
-              <span>{thread.title}</span>
-              <small>{thread.age}</small>
-            </button>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
     </aside>
   );
 }

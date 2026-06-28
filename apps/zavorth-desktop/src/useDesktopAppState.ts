@@ -729,6 +729,26 @@ export function useDesktopAppState() {
     }
   }, []);
 
+  const handleSwitchSession = useCallback(async (nextSessionId: string) => {
+    setBusy(true);
+    try {
+      if (window.zavorthDesktop?.switchSession) {
+        const res = await window.zavorthDesktop.switchSession(nextSessionId);
+        if (res.ok) {
+          await refreshHome();
+          await refreshPanels();
+          setActivePanel('chat');
+        } else {
+          setNotice(res.error || 'Failed to switch session.');
+        }
+      }
+    } catch (err) {
+      setNotice(err instanceof Error ? err.message : 'Error switching session.');
+    } finally {
+      setBusy(false);
+    }
+  }, [refreshHome, refreshPanels]);
+
   return {
     status: status || fallbackStatus,
     snapshot: snapshot || null,
@@ -799,6 +819,7 @@ export function useDesktopAppState() {
     handleProposedMandateResolve,
     handleActiveMandateRevoke,
     handleHostCommandResolve,
+    handleSwitchSession,
     dispatchRuntimeStateAction,
   };
 }
