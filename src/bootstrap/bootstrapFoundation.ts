@@ -45,6 +45,25 @@ import type {
 
 const DORMANT_BOOT_CAPABILITIES = ['remote', 'qa', 'sandbox', 'public-tunnel'];
 
+type AgentRunCompletedRequest = {
+  messages?: Array<{ role?: string; content?: unknown }>;
+  surface?: unknown;
+  channel?: unknown;
+};
+
+type AgentRunCompletedCallback = (
+  run: { id?: string | null },
+  request: AgentRunCompletedRequest,
+  replyText: string,
+) => void;
+
+type AgentGatewayRunCompletionPatch = {
+  onRunCompleted?: AgentRunCompletedCallback;
+  runService: {
+    onRunCompleted?: AgentRunCompletedCallback;
+  };
+};
+
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
@@ -191,11 +210,11 @@ export async function initializeBootstrapFoundation(
 
   // === USER MODEL TURN CAPTURE ===
   const turnCapture = new UserModelTurnCaptureService({ homeRoot: config.projectRoot });
-  const existingOnRunCompleted = (agentGateway as any).onRunCompleted;
-  const patchedGateway = agentGateway as any;
-  patchedGateway.runService.onRunCompleted = (run: any, request: any, replyText: string) => {
+  const patchedGateway = agentGateway as unknown as AgentGatewayRunCompletionPatch;
+  const existingOnRunCompleted = patchedGateway.onRunCompleted;
+  patchedGateway.runService.onRunCompleted = (run, request, replyText) => {
     existingOnRunCompleted?.(run, request, replyText);
-    const userMessage = request?.messages?.find((m: any) => m.role === 'user')?.content || '';
+    const userMessage = request?.messages?.find((message) => message.role === 'user')?.content || '';
     const surface = request?.surface || request?.channel || 'runtime';
     if (userMessage) {
       turnCapture.captureConversation(String(userMessage).slice(0, 5000), replyText.slice(0, 5000), {

@@ -28,12 +28,12 @@ type OnboardingWizardModalProps = {
 };
 
 const PROVIDER_TEMPLATES = [
-  { id: "openai", name: "OpenAI", type: "openai", defaultModel: "gpt-4o", placeholderUrl: "https://api.openai.com/v1" },
-  { id: "anthropic", name: "Anthropic", type: "anthropic", defaultModel: "claude-3-5-sonnet-latest", placeholderUrl: "https://api.anthropic.com" },
-  { id: "google", name: "Google Gemini", type: "google", defaultModel: "gemini-1.5-pro", placeholderUrl: "https://generativelanguage.googleapis.com" },
-  { id: "openrouter", name: "OpenRouter", type: "openrouter", defaultModel: "meta-llama/llama-3-8b-instruct:free", placeholderUrl: "https://openrouter.ai/api/v1" },
-  { id: "ollama", name: "Ollama (Local)", type: "ollama", defaultModel: "llama3", placeholderUrl: "http://localhost:11434" },
-  { id: "openai-compatible", name: "OpenAI Compatible", type: "openai-compatible", defaultModel: "custom-model", placeholderUrl: "https://your-api-endpoint/v1" }
+  { id: "openai", name: "OpenAI", type: "openai", defaultModel: "gpt-4o", placeholderUrl: "https://api.openai.com/v1", docsUrl: "https://platform.openai.com/api-keys" },
+  { id: "anthropic", name: "Anthropic", type: "anthropic", defaultModel: "claude-3-5-sonnet-latest", placeholderUrl: "https://api.anthropic.com", docsUrl: "https://console.anthropic.com/settings/keys", oauthPath: "/api/oauth/anthropic/start" },
+  { id: "google", name: "Google Gemini", type: "google", defaultModel: "gemini-1.5-pro", placeholderUrl: "https://generativelanguage.googleapis.com", docsUrl: "https://aistudio.google.com/app/apikey" },
+  { id: "openrouter", name: "OpenRouter", type: "openrouter", defaultModel: "meta-llama/llama-3-8b-instruct:free", placeholderUrl: "https://openrouter.ai/api/v1", docsUrl: "https://openrouter.ai/settings/keys" },
+  { id: "ollama", name: "Ollama (Local)", type: "ollama", defaultModel: "llama3", placeholderUrl: "http://localhost:11434", docsUrl: "https://ollama.com/download" },
+  { id: "openai-compatible", name: "OpenAI Compatible", type: "openai-compatible", defaultModel: "custom-model", placeholderUrl: "https://your-api-endpoint/v1", docsUrl: "https://platform.openai.com/docs/api-reference" }
 ] as const;
 
 export function OnboardingWizardModal({ isOpen, onComplete }: OnboardingWizardModalProps) {
@@ -99,9 +99,9 @@ export function OnboardingWizardModal({ isOpen, onComplete }: OnboardingWizardMo
         if (matched) setSelectedProvider(matched);
         setTestResult({ ok: false, message: data.probe?.message || "Connection probe failed." });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStep("manual");
-      setTestResult({ ok: false, message: err.message || "Failed to confirm provider." });
+      setTestResult({ ok: false, message: errorMessage(err, "Failed to confirm provider.") });
     }
   };
 
@@ -149,11 +149,11 @@ export function OnboardingWizardModal({ isOpen, onComplete }: OnboardingWizardMo
           message: data.error?.message || data.probe?.message || "A validação falhou. Verifique as credenciais."
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStep("manual");
       setTestResult({
         ok: false,
-        message: err.message || "Erro de rede ao validar o provider."
+        message: errorMessage(err, "Erro de rede ao validar o provider.")
       });
     }
   };
@@ -320,7 +320,27 @@ export function OnboardingWizardModal({ isOpen, onComplete }: OnboardingWizardMo
                       </div>
                     )}
 
-                    <div className="flex gap-3 justify-end pt-4">
+                    <div className="flex flex-wrap gap-3 justify-end pt-4">
+                      {selectedProvider.docsUrl ? (
+                        <button
+                          type="button"
+                          onClick={() => window.open(selectedProvider.docsUrl, "_blank", "noopener,noreferrer")}
+                          className="rounded-lg bg-zinc-900 px-4 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-zinc-700 hover:bg-zinc-800 hover:text-white transition"
+                        >
+                          Abrir pagina da chave
+                        </button>
+                      ) : null}
+                      {selectedProvider.oauthPath ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            window.location.href = selectedProvider.oauthPath;
+                          }}
+                          className="rounded-lg bg-zinc-900 px-4 py-2 text-xs font-semibold text-zinc-300 ring-1 ring-indigo-700 hover:bg-indigo-950 hover:text-white transition"
+                        >
+                          Conectar por OAuth
+                        </button>
+                      ) : null}
                       <button
                         type="button"
                         onClick={() => {
@@ -365,7 +385,15 @@ export function OnboardingWizardModal({ isOpen, onComplete }: OnboardingWizardMo
                     O Zavorth conseguiu testar a conexão com o provedor de IA e está pronto para receber instruções.
                   </p>
                 </div>
-                <div className="pt-4 border-t border-white/5">
+                <div className="grid gap-3 pt-4 border-t border-white/5 sm:grid-cols-2">
+                  <button
+                    onClick={() => {
+                      window.location.href = "/control?sector=channels";
+                    }}
+                    className="w-full rounded-lg bg-zinc-800 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-700 transition"
+                  >
+                    Conectar canais
+                  </button>
                   <button
                     onClick={onComplete}
                     className="w-full rounded-lg bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-500 transition"
@@ -380,4 +408,8 @@ export function OnboardingWizardModal({ isOpen, onComplete }: OnboardingWizardMo
       </div>
     </div>
   );
+}
+
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }

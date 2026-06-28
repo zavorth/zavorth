@@ -268,4 +268,78 @@ describe('ZavorthSkillMarketplaceService', () => {
     expect(result.warnings.join(' ')).toContain('blocked by marketplace guard');
     expect(fs.existsSync(path.join(projectRoot, 'skill-library', 'imported', 'zavorth-blocked-skill'))).toBe(false);
   });
+
+  it('verifies remote marketplace registry signatures before trusting entries', () => {
+    const service = new ZavorthSkillMarketplaceService({ projectRoot });
+    const entry = {
+      id: 'zavorth-remote-skill',
+      name: 'Remote Skill',
+      description: 'Signed remote skill',
+      author: 'zavorth',
+      version: '1.0.0',
+      license: 'MIT',
+      category: 'development',
+      tags: ['remote'],
+      downloads: 0,
+      rating: 0,
+      updatedAt: '2026-06-22T00:00:00.000Z',
+      sourceUrl: 'https://registry.example.test/zavorth-remote-skill.zip',
+      skillPath: 'remote/zavorth-remote-skill',
+      publisherId: '@zavorth-official',
+      trustLevel: 'official' as const,
+      packageHash: `sha256:${'a'.repeat(64)}`,
+      signature: '',
+    };
+    entry.signature = service.buildRemoteEntrySignature(entry);
+
+    const verification = service.verifyRemoteRegistry({
+      schemaVersion: 'zavorth.marketplace-remote-registry/v1',
+      generatedAt: '2026-06-22T00:00:00.000Z',
+      entries: [entry],
+    });
+
+    expect(verification).toEqual(
+      expect.objectContaining({
+        trusted: true,
+        trustedEntries: 1,
+        blockedEntries: 0,
+      }),
+    );
+  });
+
+  it('blocks tampered or revoked remote marketplace entries', () => {
+    const service = new ZavorthSkillMarketplaceService({ projectRoot });
+    const entry = {
+      id: 'zavorth-remote-skill',
+      name: 'Remote Skill',
+      description: 'Tampered remote skill',
+      author: 'community',
+      version: '1.0.0',
+      license: 'MIT',
+      category: 'development',
+      tags: ['remote'],
+      downloads: 0,
+      rating: 0,
+      updatedAt: '2026-06-22T00:00:00.000Z',
+      sourceUrl: 'http://registry.example.test/zavorth-remote-skill.zip',
+      skillPath: 'remote/zavorth-remote-skill',
+      publisherId: 'unknown-publisher',
+      trustLevel: 'verified-publisher' as const,
+      packageHash: `sha256:${'b'.repeat(64)}`,
+      signature: 'sha256:bad',
+    };
+
+    const verification = service.verifyRemoteRegistry({
+      schemaVersion: 'zavorth.marketplace-remote-registry/v1',
+      generatedAt: '2026-06-22T00:00:00.000Z',
+      entries: [entry],
+      revokedVersions: [{ skillId: entry.id, version: entry.version, reason: 'test revocation' }],
+    });
+
+    expect(verification.trusted).toBe(false);
+    expect(verification.blockedEntries).toBe(1);
+    expect(verification.issues.map((issue) => issue.code)).toEqual(
+      expect.arrayContaining(['untrusted-publisher', 'insecure-source-url', 'invalid-signature', 'revoked-version']),
+    );
+  });
 });

@@ -71,3 +71,36 @@ export type ZavorthMarketplaceIndexDocument = {
   categories: ZavorthMarketplaceIndexCategory[];
   remoteRegistry: string | null;
 };
+
+export type ZavorthMarketplaceRemoteTrustLevel = 'official' | 'verified-publisher' | 'community';
+
+export type ZavorthMarketplaceRemoteSkillEntry = ZavorthMarketplaceSkillEntry & {
+  publisherId: string;
+  trustLevel: ZavorthMarketplaceRemoteTrustLevel;
+  packageHash: string;
+  signature: string;
+};
+
+export type ZavorthMarketplaceRemoteRegistryDocument = {
+  schemaVersion: 'zavorth.marketplace-remote-registry/v1';
+  generatedAt: string;
+  entries: ZavorthMarketplaceRemoteSkillEntry[];
+  revokedVersions?: Array<{
+    skillId: string;
+    version: string;
+    reason: string;
+  }>;
+};
+
+export type ZavorthMarketplaceRemoteRegistryVerification = {
+  trusted: boolean;
+  totalEntries: number;
+  trustedEntries: number;
+  blockedEntries: number;
+  issues: Array<{
+    skillId: string;
+    severity: 'error' | 'warn';
+    code: 'untrusted-publisher' | 'unsigned' | 'invalid-signature' | 'invalid-hash' | 'insecure-source-url' | 'revoked-version';
+    message: string;
+  }>;
+};
