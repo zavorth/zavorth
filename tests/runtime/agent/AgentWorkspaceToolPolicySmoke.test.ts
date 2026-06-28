@@ -31,7 +31,7 @@ function buildWorkspaceMeta(overrides: Partial<{
 }> = {}) {
   return {
     workspaceId: 'test-ws-21k-a',
-    workspaceRoot: 'C:/TESTES DEV/1_PROJETOS_ATIVOS/Zavorth',
+    workspaceRoot: 'C:/workspaces/zavorth',
     rootPathHash: 'hash-test',
     rootPathSuffix: 'Zavorth',
     workspacePermissions: {

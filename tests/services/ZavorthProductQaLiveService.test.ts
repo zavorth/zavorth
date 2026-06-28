@@ -110,7 +110,7 @@ function existingFiles() {
     'scripts/install-zavorth.ps1',
     'docs/install.md',
     'bin/zavorth.js',
-    'src/zavorth-control/app/(dashboard)/control/useControlPageClient.ts',
+    'src/ai-gateway/app/(dashboard)/control/useControlPageClient.ts',
     'scripts/zavorth-dashboard-final-product-polish-check.mjs',
     'scripts/zavorth-cli-final-product-polish-check.mjs',
     'src/zavorth-cli.ts',
@@ -126,7 +126,7 @@ function existingFiles() {
     'src/runtime/agent/AgentRunService.ts',
     'src/adapters/channels/ChannelLongTailLiveClients.ts',
     'src/adapters/providers/ProviderLongTailLiveClients.ts',
-    'src/zavorth-control/app/api/experience/approvals/[id]/decision/route.ts',
+    'src/ai-gateway/app/api/experience/approvals/[id]/decision/route.ts',
     'src/services/experience/ActionCardService.ts',
   ]);
   return (file: string) => {

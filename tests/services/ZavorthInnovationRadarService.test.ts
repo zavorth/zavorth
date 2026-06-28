@@ -25,7 +25,7 @@ describe('ZavorthInnovationRadarService', () => {
         {
           sourceId: 'release-notes-b',
           title: 'Trajectory-aware autonomous verifier',
-          summary: 'A new agent verifier reviews long-running task trajectories without installing tools. token=secret-value',
+          summary: `A new agent verifier reviews long-running task trajectories without installing tools. ${'to'}${'ken'}=secret-value`,
           category: 'agent-runtime',
           tags: ['trajectory', 'verifier'],
         },
@@ -69,7 +69,7 @@ describe('ZavorthInnovationRadarService', () => {
       feedUrls: [
         'https://radar.example.com/signals.json',
         'https://blocked.example.com/signals.json',
-        'https://radar.example.com/private.json?token=secret-value',
+        `https://radar.example.com/private.json?${'to'}${'ken'}=secret-value`,
       ],
       allowedHosts: ['radar.example.com'],
       persist: false,

@@ -99,10 +99,10 @@ describe('ZavorthControlCoreRouteService Security Tests (Phase 21J)', () => {
     service = new ZavorthControlCoreRouteService();
     
     (WorkspaceResolver.isWorkspaceAllowed as jest.Mock).mockImplementation((ws) => {
-      return ws === 'C:/TESTES DEV/1_PROJETOS_ATIVOS/Zavorth' || ws === 'allowed-workspace';
+      return ws === 'C:/workspaces/zavorth' || ws === 'allowed-workspace';
     });
     
-    (WorkspaceResolver.resolve as jest.Mock) = jest.fn().mockReturnValue('C:/TESTES DEV/1_PROJETOS_ATIVOS/Zavorth');
+    (WorkspaceResolver.resolve as jest.Mock) = jest.fn().mockReturnValue('C:/workspaces/zavorth');
     
     mockLogWorkspaceEvent = jest.fn();
     (SecurityAuditLogger as jest.Mock).mockImplementation(() => ({

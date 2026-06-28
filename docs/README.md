@@ -34,6 +34,7 @@ understand, operate and integrate the agent.
 ## Product Readiness
 
 - Zavorth checks the active runtime inventory before publishing readiness. Provider and channel routes only become live when this installation has the required credentials, allowlists and proof receipts.
+- Intent model3 - Live Consistency Certification tracks modules tracked, providers, channels and signed exclusions. No live external IO is performed by certification itself; production-live claims require an operator receipt ledger.
 
 ## Integrations
 

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { ZavorthWorkspaceKnowledgeService } from '../../src/services/ZavorthWorkspaceKnowledgeService.js';
 
 describe('ZavorthWorkspaceKnowledgeService', () => {
-  const workspacePath = path.resolve('C:/TESTES DEV/1_PROJETOS_ATIVOS/Zavorth');
+  const workspacePath = path.resolve('C:/workspaces/zavorth');
 
   it('wraps web and email sources as untrusted context', () => {
     const service = new ZavorthWorkspaceKnowledgeService();
