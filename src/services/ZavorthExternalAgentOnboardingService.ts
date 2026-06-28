@@ -177,7 +177,7 @@ export class ZavorthExternalAgentOnboardingService {
         },
         {
           kind: 'approximate-path',
-          example: 'zavorth external-agent-onboarding --approx-path C:/TESTES DEV --consent',
+          example: 'zavorth external-agent-onboarding --approx-path <workspace-parent> --consent',
           safety: 'Procura candidatos abaixo da pasta indicada com profundidade limitada.',
         },
         {

@@ -21,3 +21,4 @@ export * from './provider-mesh-expansion.js';
 export * from './runtime-codex.js';
 export * from './runtime-openshell.js';
 export * from './sales-pack.js';
+export { LiveReadinessCertificationService } from '../services/LiveReadinessCertificationService.js';

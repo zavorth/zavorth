@@ -25,7 +25,7 @@ Then give Zavorth a user-declared hint:
 
 ```text
 zavorth external-agent-onboarding --path C:/agents/my-agent --consent
-zavorth external-agent-onboarding --approx-path C:/TESTES DEV --consent
+zavorth external-agent-onboarding --approx-path <workspace-parent> --consent
 zavorth external-agent-onboarding --command claude --consent
 zavorth external-agent-onboarding --endpoint http://127.0.0.1:8765/acp --consent
 ```

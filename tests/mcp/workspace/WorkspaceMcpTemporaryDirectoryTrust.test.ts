@@ -21,7 +21,7 @@ describe('WorkspaceMcpTemporaryDirectoryTrust', () => {
 
   it('deve validar se a acao de ler/escrever arquivos via MCP valida o trust do workspaceId correto', () => {
     const workspaceId = 'my-workspace-id';
-    const workspaceRoot = 'C:/TESTES DEV/1_PROJETOS_ATIVOS/Zavorth';
+    const workspaceRoot = 'C:/workspaces/zavorth';
     const filePath = 'C:/some/external/temp/file.txt';
 
     mockTrustService.checkPathAccess.mockReturnValue({

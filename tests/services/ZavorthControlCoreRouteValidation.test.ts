@@ -43,7 +43,7 @@ describe('ZavorthControlCoreRouteService Schema Validation Tests (Fase 1)', () =
 
     // Setup basic mock implementations to bypass router errors
     (WorkspaceResolver.isWorkspaceAllowed as jest.Mock).mockReturnValue(true);
-    (WorkspaceResolver.resolve as jest.Mock).mockReturnValue('C:/TESTES DEV/1_PROJETOS_ATIVOS/Zavorth');
+    (WorkspaceResolver.resolve as jest.Mock).mockReturnValue('C:/workspaces/zavorth');
     
     // Mock the validateWorkspaceSession helper internally by making resolve return the workspace
     // wait, we can also mock validation of sessions
