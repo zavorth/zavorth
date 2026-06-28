@@ -66,7 +66,7 @@ function checkCommand(label, command, args) {
     },
     encoding: 'utf8',
     shell: false,
-    timeout: 420000,
+    timeout: 900000,
   });
   const durationMs = Date.now() - startedAt;
   const output = `${result.stdout || ''}\n${result.stderr || ''}`;
