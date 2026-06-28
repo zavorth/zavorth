@@ -22,6 +22,7 @@ export type SkillSourceRegistryEntry = {
   pinnedRevision: string | null;
   license: string | null;
   notes: string[];
+  profileScoped?: boolean;
   allowedExternalSupportPaths: string[];
   absoluteAllowedExternalSupportPaths: string[];
 };
@@ -44,6 +45,7 @@ type SkillSourceRegistryRawDocument = {
 
 type SkillSourceRegistryRuntime = {
   projectRoot?: string;
+  profileRoot?: string;
   configFile?: string;
   existsSync?: typeof fs.existsSync;
   readFileSync?: typeof fs.readFileSync;
@@ -111,12 +113,14 @@ const DEFAULT_SOURCE_REGISTRY: SkillSourceRegistryRawDocument = {
 
 export class SkillSourceRegistryService {
   private readonly projectRoot: string;
+  private readonly profileRoot: string;
   private readonly configFile: string;
   private readonly existsSyncImpl: typeof fs.existsSync;
   private readonly readFileSyncImpl: typeof fs.readFileSync;
 
   constructor(runtime: SkillSourceRegistryRuntime = {}) {
     this.projectRoot = runtime.projectRoot || config.projectRoot;
+    this.profileRoot = path.resolve(runtime.profileRoot || process.env.ZAVORTH_SKILL_PROFILE_ROOT || path.join(this.projectRoot, '.zavorth', 'profiles', 'default'));
     this.configFile = runtime.configFile || path.join(this.projectRoot, 'config', 'skill-sources.json');
     this.existsSyncImpl = runtime.existsSync || fs.existsSync.bind(fs);
     this.readFileSyncImpl = runtime.readFileSync || fs.readFileSync.bind(fs);
@@ -191,6 +195,7 @@ export class SkillSourceRegistryService {
     const ingestionMode = this.normalizeIngestionMode(raw.ingestionMode);
     const pathValue = this.normalizePath(raw.path || this.defaultPathFor(id));
     const allowedExternalSupportPaths = this.normalizePathList(raw.allowedExternalSupportPaths);
+    const profileScoped = raw.profileScoped === true;
 
     return {
       id,
@@ -200,7 +205,7 @@ export class SkillSourceRegistryService {
       enabled: raw.enabled !== false,
       ingestionMode,
       path: pathValue,
-      absolutePath: this.resolveProjectPath(pathValue),
+      absolutePath: this.resolveSourcePath(pathValue, profileScoped),
       createIfMissing: typeof raw.createIfMissing === 'boolean'
         ? raw.createIfMissing
         : (kind === 'workspace' && ingestionMode === 'local-scan'),
@@ -210,8 +215,9 @@ export class SkillSourceRegistryService {
       pinnedRevision: this.normalizeNullableString(raw.pinnedRevision),
       license: this.normalizeNullableString(raw.license),
       notes: this.normalizeStringList(raw.notes),
+      profileScoped,
       allowedExternalSupportPaths,
-      absoluteAllowedExternalSupportPaths: allowedExternalSupportPaths.map((entry) => this.resolveProjectPath(entry)),
+      absoluteAllowedExternalSupportPaths: allowedExternalSupportPaths.map((entry) => this.resolveSourcePath(entry, profileScoped)),
     };
   }
 
@@ -269,14 +275,14 @@ export class SkillSourceRegistryService {
     return normalized || null;
   }
 
-  private resolveProjectPath(relativeOrAbsolutePath: string): string {
+  private resolveSourcePath(relativeOrAbsolutePath: string, profileScoped: boolean): string {
     if (!relativeOrAbsolutePath) {
-      return this.projectRoot;
+      return profileScoped ? this.profileRoot : this.projectRoot;
     }
 
     return path.isAbsolute(relativeOrAbsolutePath)
       ? path.resolve(relativeOrAbsolutePath)
-      : path.resolve(this.projectRoot, relativeOrAbsolutePath);
+      : path.resolve(profileScoped ? this.profileRoot : this.projectRoot, relativeOrAbsolutePath);
   }
 
   private defaultPathFor(sourceId: string): string {

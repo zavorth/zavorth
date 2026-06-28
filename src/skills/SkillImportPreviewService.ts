@@ -6,6 +6,7 @@ import {
 } from '../services/SkillSourceRegistryService.js';
 import { SkillTrustPolicyService } from '../services/SkillTrustPolicyService.js';
 import { SkillContentScannerService, type SkillContentScanIssue } from './SkillContentScannerService.js';
+import { SkillHubGuardService, type SkillHubGuardSnapshot } from './SkillHubGuardService.js';
 import { SkillLicenseClassifierService } from './SkillLicenseClassifierService.js';
 import { LicensePolicyService } from './LicensePolicyService.js';
 import { SkillRiskScoringService } from './SkillRiskScoringService.js';
@@ -19,6 +20,7 @@ type SkillImportPreviewRuntime = {
   sourceRegistryService?: Pick<SkillSourceRegistryService, 'getSource'>;
   skillTrustPolicyService?: Pick<SkillTrustPolicyService, 'evaluateSource' | 'evaluateSkill'>;
   skillContentScannerService?: Pick<SkillContentScannerService, 'scanSkillDirectory'>;
+  skillHubGuardService?: Pick<SkillHubGuardService, 'evaluateSkillDirectory'>;
   skillLicenseClassifierService?: Pick<SkillLicenseClassifierService, 'classifySkillDirectory'>;
   licensePolicyService?: Pick<LicensePolicyService, 'evaluateClassification'>;
   skillRiskScoringService?: Pick<SkillRiskScoringService, 'assessImport'>;
@@ -36,6 +38,7 @@ export type SkillImportDetailedPreviewEntry = {
   licenseEvidence: string[];
   licensePolicy: SkillLicensePolicyDecision;
   risk: SkillRiskAssessment;
+  guard: SkillHubGuardSnapshot;
   safeToImport: boolean;
   issues: SkillContentScanIssue[];
   importableFiles: string[];
@@ -60,6 +63,7 @@ export class SkillImportPreviewService {
   private readonly sourceRegistry: Pick<SkillSourceRegistryService, 'getSource'>;
   private readonly trustPolicy: Pick<SkillTrustPolicyService, 'evaluateSource' | 'evaluateSkill'>;
   private readonly scanner: Pick<SkillContentScannerService, 'scanSkillDirectory'>;
+  private readonly guard: Pick<SkillHubGuardService, 'evaluateSkillDirectory'>;
   private readonly licenseClassifier: Pick<SkillLicenseClassifierService, 'classifySkillDirectory'>;
   private readonly licensePolicyService: Pick<LicensePolicyService, 'evaluateClassification'>;
   private readonly riskScoringService: Pick<SkillRiskScoringService, 'assessImport'>;
@@ -68,6 +72,7 @@ export class SkillImportPreviewService {
     this.sourceRegistry = runtime.sourceRegistryService || new SkillSourceRegistryService();
     this.trustPolicy = runtime.skillTrustPolicyService || new SkillTrustPolicyService();
     this.scanner = runtime.skillContentScannerService || new SkillContentScannerService();
+    this.guard = runtime.skillHubGuardService || new SkillHubGuardService({ scanner: this.scanner });
     this.licenseClassifier = runtime.skillLicenseClassifierService || new SkillLicenseClassifierService();
     this.licensePolicyService = runtime.licensePolicyService || new LicensePolicyService();
     this.riskScoringService = runtime.skillRiskScoringService || new SkillRiskScoringService();
@@ -94,7 +99,11 @@ export class SkillImportPreviewService {
       .map((sourceSkillDirPath) => {
         const skillName = path.basename(sourceSkillDirPath);
         const decision = this.trustPolicy.evaluateSkill(input.source.id, skillName);
-        const scan = this.scanner.scanSkillDirectory(sourceSkillDirPath);
+        const guard = this.guard.evaluateSkillDirectory({
+          skillDirPath: sourceSkillDirPath,
+          sourceTrust: input.source.trust,
+        });
+        const scan = guard.scan;
         const licenseClassification = this.licenseClassifier.classifySkillDirectory(sourceSkillDirPath, input.source);
         let licensePolicy = this.licensePolicyService.evaluateClassification(licenseClassification);
         let risk = this.riskScoringService.assessImport({
@@ -155,6 +164,7 @@ export class SkillImportPreviewService {
           licenseEvidence: licenseClassification.evidence,
           licensePolicy,
           risk,
+          guard,
           safeToImport: scan.safeToImport,
           issues: scan.issues,
           importableFiles: scan.importableFiles,

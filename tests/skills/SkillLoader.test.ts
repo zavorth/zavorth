@@ -254,6 +254,70 @@ describe('SkillLoader', () => {
     );
   });
 
+  it('supports progressive disclosure by listing metadata before opening full skill prompts', () => {
+    const skillDir = path.join(workspaceRoot, '.agents', 'skills', 'progressive-skill');
+    writeSkill(skillDir, 'progressive-skill', 'Progressive disclosure fixture.');
+    fs.mkdirSync(path.join(skillDir, 'references'), { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'references', 'deep-context.md'), '# Deep context', 'utf8');
+
+    fs.writeFileSync(
+      path.join(workspaceRoot, 'config', 'skill-sources.json'),
+      JSON.stringify({
+        version: 1,
+        sources: [
+          {
+            id: 'workspace-agents',
+            label: 'Workspace .agents skills',
+            kind: 'workspace',
+            trust: 'trusted',
+            enabled: true,
+            ingestionMode: 'local-scan',
+            path: '.agents/skills',
+            createIfMissing: true,
+          },
+        ],
+      }, null, 2),
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(workspaceRoot, 'config', 'skill-allowlist.json'),
+      JSON.stringify({
+        version: 1,
+        defaultPolicy: 'deny',
+        allowedSourceIds: ['workspace-agents'],
+        rules: [{ sourceId: 'workspace-agents', mode: 'all' }],
+      }, null, 2),
+      'utf8',
+    );
+
+    const loader = new SkillLoader({
+      sourceRegistryService: new SkillSourceRegistryService({
+        projectRoot: workspaceRoot,
+        configFile: path.join(workspaceRoot, 'config', 'skill-sources.json'),
+      }),
+      skillTrustPolicyService: new SkillTrustPolicyService({
+        projectRoot: workspaceRoot,
+        policyFile: path.join(workspaceRoot, 'config', 'skill-allowlist.json'),
+      }),
+    });
+
+    const index = loader.listDisclosureIndex({ quiet: true });
+    expect(index).toEqual([
+      expect.objectContaining({
+        name: 'progressive-skill',
+        description: 'Progressive disclosure fixture.',
+      }),
+    ]);
+
+    const metadataOnlyView = loader.viewSkill('progressive-skill', { quiet: true });
+    expect(metadataOnlyView?.prompt).toContain('# progressive-skill');
+    expect(metadataOnlyView?.prompt).not.toContain('Deep context');
+
+    const fullView = loader.viewSkill('progressive-skill', { quiet: true, includeSupportFiles: true });
+    expect(fullView?.prompt).toContain('Deep context');
+    expect(fullView?.supportFilesIncluded).toBe(true);
+  });
+
   it('discovers nested generated expansion skills under imported libraries', () => {
     writeSkill(
       path.join(workspaceRoot, 'skill-library', 'imported', 'zavorth-expansion-pack', 'research', 'research-pack'),

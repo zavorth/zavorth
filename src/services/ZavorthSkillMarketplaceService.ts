@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { createHash } from 'crypto';
 import { config } from '../config/index.js';
+import { SkillHubGuardService } from '../skills/SkillHubGuardService.js';
 import type {
   ZavorthMarketplaceCategory,
   ZavorthMarketplaceIndexDocument,
@@ -44,10 +46,16 @@ type ZavorthSkillMarketplaceRuntime = {
   statSync?: typeof fs.statSync;
   writeFileSync?: typeof fs.writeFileSync;
   mkdirSync?: typeof fs.mkdirSync;
+  skillHubGuardService?: Pick<SkillHubGuardService, 'evaluateSkillDirectory'>;
+  now?: () => Date;
 };
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function hashObject(value: unknown): string {
+  return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
 
 export class ZavorthSkillMarketplaceService {
@@ -69,6 +77,8 @@ export class ZavorthSkillMarketplaceService {
   private readonly statSync: typeof fs.statSync;
   private readonly writeFileSync: typeof fs.writeFileSync;
   private readonly mkdirSync: typeof fs.mkdirSync;
+  private readonly guard: Pick<SkillHubGuardService, 'evaluateSkillDirectory'>;
+  private readonly now: () => Date;
 
   constructor(runtime?: ZavorthSkillMarketplaceRuntime) {
     this.projectRoot = runtime?.projectRoot ?? config.projectRoot;
@@ -78,6 +88,8 @@ export class ZavorthSkillMarketplaceService {
     this.statSync = runtime?.statSync ?? fs.statSync;
     this.writeFileSync = runtime?.writeFileSync ?? fs.writeFileSync;
     this.mkdirSync = runtime?.mkdirSync ?? fs.mkdirSync;
+    this.guard = runtime?.skillHubGuardService ?? new SkillHubGuardService();
+    this.now = runtime?.now ?? (() => new Date());
   }
 
   private get nativeSkillsDir(): string {
@@ -90,6 +102,14 @@ export class ZavorthSkillMarketplaceService {
 
   private get ratingsPath(): string {
     return path.join(this.projectRoot, 'data', 'runtime', 'marketplace-ratings.json');
+  }
+
+  private get lockPath(): string {
+    return path.join(this.projectRoot, 'data', 'runtime', 'marketplace-lock.json');
+  }
+
+  private get auditPath(): string {
+    return path.join(this.projectRoot, 'data', 'runtime', 'marketplace-audit.log');
   }
 
   private readIndex(): ZavorthMarketplaceIndexDocument {
@@ -273,6 +293,34 @@ export class ZavorthSkillMarketplaceService {
 
     const targetDir = path.join(this.projectRoot, 'skill-library', 'imported', skill.id);
     const warnings: string[] = [];
+    const guard = this.guard.evaluateSkillDirectory({
+      skillDirPath: sourceDir,
+      sourceTrust: 'trusted',
+    });
+
+    if (guard.decision === 'block') {
+      this.recordMarketplaceAudit({
+        action: 'install',
+        skillId: skill.id,
+        installed: false,
+        sourcePath: path.relative(this.projectRoot, sourceDir),
+        targetPath: path.relative(this.projectRoot, targetDir),
+        guardDecision: guard.decision,
+        guardVerdict: guard.verdict,
+        importableFiles: guard.scan.importableFiles,
+        skippedFiles: guard.scan.skippedFiles,
+        warnings: guard.reasons,
+      });
+      return {
+        installed: false,
+        skillPath: '',
+        warnings: [`Skill blocked by marketplace guard: ${guard.reasons.join(' ')}`],
+      };
+    }
+
+    if (guard.decision === 'review') {
+      warnings.push(`Skill installed selectively after guard review: ${guard.reasons.join(' ')}`);
+    }
 
     if (this.existsSync(targetDir)) {
       warnings.push(`Skill already exists at imported location: ${skill.id}`);
@@ -281,7 +329,28 @@ export class ZavorthSkillMarketplaceService {
 
     try {
       this.mkdirSync(targetDir, { recursive: true });
-      this.copyDirectory(sourceDir, targetDir);
+      this.copySelectedFiles(sourceDir, targetDir, guard.scan.importableFiles);
+      this.writeMarketplaceLock({
+        skillId: skill.id,
+        sourcePath: path.relative(this.projectRoot, sourceDir),
+        targetPath: path.relative(this.projectRoot, targetDir),
+        copiedFiles: guard.scan.importableFiles,
+        skippedFiles: guard.scan.skippedFiles,
+        guardDecision: guard.decision,
+        guardVerdict: guard.verdict,
+      });
+      this.recordMarketplaceAudit({
+        action: 'install',
+        skillId: skill.id,
+        installed: true,
+        sourcePath: path.relative(this.projectRoot, sourceDir),
+        targetPath: path.relative(this.projectRoot, targetDir),
+        guardDecision: guard.decision,
+        guardVerdict: guard.verdict,
+        importableFiles: guard.scan.importableFiles,
+        skippedFiles: guard.scan.skippedFiles,
+        warnings,
+      });
       return { installed: true, skillPath: path.relative(this.projectRoot, targetDir), warnings };
     } catch (error) {
       return {
@@ -292,19 +361,78 @@ export class ZavorthSkillMarketplaceService {
     }
   }
 
-  private copyDirectory(source: string, target: string): void {
-    const entries = this.readdirSync(source, { withFileTypes: true });
-    for (const entry of entries) {
-      const sourcePath = path.join(source, entry.name);
-      const targetPath = path.join(target, entry.name);
-      if (entry.isDirectory()) {
-        this.mkdirSync(targetPath, { recursive: true });
-        this.copyDirectory(sourcePath, targetPath);
-      } else {
-        const content = this.readFileSync(sourcePath);
-        this.writeFileSync(targetPath, content);
-      }
+  private copySelectedFiles(source: string, target: string, relativeFiles: string[]): void {
+    for (const relativeFile of relativeFiles) {
+      const normalized = relativeFile.replace(/\\/g, '/');
+      const sourcePath = path.join(source, normalized);
+      const targetPath = path.join(target, normalized);
+      this.mkdirSync(path.dirname(targetPath), { recursive: true });
+      this.writeFileSync(targetPath, this.readFileSync(sourcePath));
     }
+  }
+
+  private writeMarketplaceLock(entry: {
+    skillId: string;
+    sourcePath: string;
+    targetPath: string;
+    copiedFiles: string[];
+    skippedFiles: string[];
+    guardDecision: string;
+    guardVerdict: string;
+  }): void {
+    const dir = path.dirname(this.lockPath);
+    if (!this.existsSync(dir)) {
+      this.mkdirSync(dir, { recursive: true });
+    }
+    const current = this.readMarketplaceLock();
+    current[entry.skillId] = {
+      ...entry,
+      installedAt: this.now().toISOString(),
+      contentHash: hashObject({
+        sourcePath: entry.sourcePath,
+        copiedFiles: entry.copiedFiles,
+        skippedFiles: entry.skippedFiles,
+      }),
+    };
+    this.writeFileSync(this.lockPath, JSON.stringify(current, null, 2), 'utf8');
+  }
+
+  private readMarketplaceLock(): Record<string, unknown> {
+    if (!this.existsSync(this.lockPath)) {
+      return {};
+    }
+    try {
+      return JSON.parse(this.readFileSync(this.lockPath, 'utf8')) as Record<string, unknown>;
+    } catch {
+      return {};
+    }
+  }
+
+  private recordMarketplaceAudit(entry: {
+    action: 'install';
+    skillId: string;
+    installed: boolean;
+    sourcePath: string;
+    targetPath: string;
+    guardDecision: string;
+    guardVerdict: string;
+    importableFiles: string[];
+    skippedFiles: string[];
+    warnings: string[];
+  }): void {
+    const dir = path.dirname(this.auditPath);
+    if (!this.existsSync(dir)) {
+      this.mkdirSync(dir, { recursive: true });
+    }
+    const event = {
+      ...entry,
+      recordedAt: this.now().toISOString(),
+      receiptId: `marketplace-${hashObject(entry).slice(0, 16)}`,
+      noExecutionPerformed: true,
+      selectiveImportOnly: true,
+    };
+    const existing = this.existsSync(this.auditPath) ? this.readFileSync(this.auditPath, 'utf8') : '';
+    this.writeFileSync(this.auditPath, `${existing}${JSON.stringify(event)}\n`, 'utf8');
   }
 
   rateSkill(id: string, rating: number): boolean {
@@ -345,4 +473,3 @@ export class ZavorthSkillMarketplaceService {
     };
   }
 }
-
