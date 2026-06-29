@@ -63,7 +63,7 @@ describe('Zavorth CLI approval/diff premium UX', () => {
     expect(result.snapshot.summary.pending).toBe(1);
     expect(result.snapshot.cards[0]?.id).toBe(plan.id);
     expect(result.output).toContain('Approvals');
-    expect(result.output).toContain('Approval is not apply');
+    expect(result.output).toContain('Approval is preview-only');
     expect(result.output).toContain(`zavorth approve ${plan.id} --yes`);
     expect(result.output).not.toContain('sk-secret-value');
   });

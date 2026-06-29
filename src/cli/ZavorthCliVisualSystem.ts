@@ -4,6 +4,7 @@ import {
   stripCliAnsi,
   type CliVisualTone,
 } from './ZavorthCliVisualTheme.js';
+import { ZAVORTH_BLOCK_BANNER } from './premium/ZavorthPremiumCliSigil.js';
 
 export type CliVisualPanel = {
   title: string;
@@ -54,15 +55,10 @@ function renderCliPanel(panel: CliVisualPanel, mode: 'hero' | 'compact'): string
 }
 
 function renderHeroHeader(screen: CliVisualScreen): string {
-  const title = stripCliAnsi(screen.title || 'ZAVORTH').toUpperCase();
   const subtitle = String(screen.summary || '').trim();
   const commandLine = 'zavorth <ask|setup|approve|open>';
-  const lines = [
-    paintCliTone(title, 'brand'),
-    subtitle,
-    paintCliTone(commandLine, 'muted'),
-  ].filter(Boolean);
-  return renderBox('Zavorth CLI', lines, 'brand', 'hero');
+  const banner = ZAVORTH_BLOCK_BANNER.join('\n');
+  return [banner, '', paintCliTone(commandLine, 'muted')].join('\n');
 }
 
 function renderBox(title: string, lines: string[], tone: CliVisualTone, mode: 'hero' | 'compact'): string {
@@ -73,10 +69,10 @@ function renderBox(title: string, lines: string[], tone: CliVisualTone, mode: 'h
   const inner = width - 4;
   const titleText = ` ${stripCliAnsi(title)} `;
   const titleWidth = Math.min(stripCliAnsi(titleText).length, inner);
-  const top = `╭${paintCliTone(titleText.slice(0, titleWidth), tone)}${'─'.repeat(Math.max(0, width - titleWidth - 2))}╮`;
+  const top = `── ${paintCliTone(titleText.slice(0, titleWidth), 'info')} ${'─'.repeat(Math.max(0, width - titleText.length - 5))}`;
   const body = lines.flatMap((line) => wrapVisualLine(line, inner))
-    .map((line) => `│ ${padCliVisualText(line, inner)} │`);
-  const bottom = `╰${'─'.repeat(width - 2)}╯`;
+    .map((line) => `  ${padCliVisualText(line, inner)}`);
+  const bottom = `${'─'.repeat(width)}`;
   const paddedBody = mode === 'hero' ? ['', ...body, ''] : body;
   return [top, ...paddedBody, bottom].join('\n');
 }

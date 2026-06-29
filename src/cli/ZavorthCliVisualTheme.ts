@@ -2,6 +2,7 @@ import color from 'picocolors';
 
 export type CliVisualTone =
   | 'brand'
+  | 'accent'
   | 'neutral'
   | 'muted'
   | 'info'
@@ -10,7 +11,8 @@ export type CliVisualTone =
   | 'danger';
 
 const ANSI_PATTERN = /\u001B\[[0-9;]*m/g;
-const ZAVORTH_ORANGE = '\u001b[38;2;255;111;31m';
+const ZAVORTH_CYAN = '\u001b[38;2;6;182;212m';
+const ZAVORTH_CYAN_BRIGHT = '\u001b[38;2;34;211;238m';
 const ANSI_RESET = '\u001b[0m';
 
 export function isCliColorEnabled(): boolean {
@@ -42,7 +44,9 @@ export function paintCliTone(value: string, tone: CliVisualTone = 'neutral'): st
 
   switch (tone) {
     case 'brand':
-      return color.bold(`${ZAVORTH_ORANGE}${value}${ANSI_RESET}`);
+      return color.bold(`${ZAVORTH_CYAN_BRIGHT}${value}${ANSI_RESET}`);
+    case 'accent':
+      return color.bold(`${ZAVORTH_CYAN}${value}${ANSI_RESET}`);
     case 'muted':
       return color.dim(value);
     case 'info':
@@ -79,3 +83,9 @@ export function renderCliWordmark(label = 'ZAVORTH'): string {
     paintCliDivider(Math.max(normalized.length, 12), 'brand'),
   ].join('\n') : plain;
 }
+
+export const ANSI_COLORS = {
+  CYAN: ZAVORTH_CYAN,
+  CYAN_BRIGHT: ZAVORTH_CYAN_BRIGHT,
+  RESET: ANSI_RESET,
+} as const;

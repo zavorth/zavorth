@@ -9,11 +9,9 @@
  */
 
 export const ZAVORTH_BLOCK_BANNER = [
-  "██████    ████    ██  ██    ████    █████    ██████   ██  ██",
-  "   ██    ██  ██   ██  ██   ██  ██   ██  ██     ██     ██  ██",
-  "  ██     ██████   ██  ██   ██  ██   █████      ██     ██████",
-  " ██      ██  ██    ████    ██  ██   ██ ██      ██     ██  ██",
-  "██████   ██  ██     ██      ████    ██  ██     ██     ██  ██",
+  ' \u001b[38;2;6;182;212m▄▄   ▄▄  ▄▄▄▄  ▄▄   ▄▄ ▄▄▄▄  ▄▄▄▄ \u001b[0m',
+  ' \u001b[38;2;6;182;212m█▀█  █▀█ █  █▀█ █▀█  █▀█ █  █▀█ \u001b[0m',
+  ' \u001b[38;2;107;114;128m█▀▀█ █▀▀▄ █  █ ▄ █  █▄▀ █  █▄▄▄ \u001b[0m',
 ];
 
 /** Backward-compatible alias — now points to the block banner. */
@@ -30,13 +28,13 @@ export const ZAVORTH_VORTEX_SIGIL: string[] = [];
 export const ZAVORTH_EVENT_HORIZON_SIGIL: string[] = [];
 
 export const ZAVORTH_ASCII_SIGIL = [
-  ' .-----------------------------------------------. ',
-  ' |  Z A V O R T H   E V E N T   H O R I Z O N  | ',
-  ' `-----------------------------------------------` ',
+  ' .──────────────────────────────────────────. ',
+  ' │  Z A V O R T H   E V E N T   H O R I Z O N  │ ',
+  ' `──────────────────────────────────────────` ',
 ];
 
 export const ZAVORTH_COMPACT_SIGIL = [
-  '⟡ ZAVORTH ⟡',
+  '\u001b[38;2;6;182;212m◇\u001b[0m ZAVORTH \u001b[38;2;6;182;212m◇\u001b[0m',
   'Event-horizon agent dashboard',
 ];
 

@@ -13,7 +13,7 @@ export class TerminalPanel {
   static render(content: string, options: PanelOptions = {}): string {
     const { type = 'default', title, padding = 1, margin = 0, width } = options;
 
-    let borderColor = 'gray';
+    let borderColor = 'cyan';
     let titleColor = TerminalTheme.colors.primary;
 
     switch (type) {
@@ -34,16 +34,16 @@ export class TerminalPanel {
         titleColor = TerminalTheme.colors.error;
         break;
       case 'default':
-        borderColor = 'gray';
+        borderColor = 'cyan';
         titleColor = TerminalTheme.colors.primary;
         break;
     }
 
     const boxenOptions: BoxenOptions = {
-      padding,
+      padding: Math.max(0, (padding || 1) - 1),  // reduce padding
       margin,
       borderColor,
-      borderStyle: 'round',
+      borderStyle: 'single',
       title: title ? titleColor(TerminalTheme.format.bold(` ${title} `)) : undefined,
       titleAlignment: 'left',
       width,

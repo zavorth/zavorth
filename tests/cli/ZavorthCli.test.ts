@@ -55,8 +55,8 @@ describe('ZavorthCli public surface', () => {
 
       expect(exitCode).toBe(0);
       expect(errors).toEqual([]);
-      expect(writes[0]).toContain('Zavorth CLI');
-      expect(writes[0]).toContain('Speak naturally. Approve sensitive work. Keep evidence.');
+      expect(writes[0]).toContain('▄▄');
+      expect(writes[0]).toContain('zavorth <ask|setup|approve|open>');
       expect(writes[0]).toContain('Daily commands');
       expect(writes[0]).toContain('zavorth chat');
       expect(writes[0]).toContain('zavorth setup');
