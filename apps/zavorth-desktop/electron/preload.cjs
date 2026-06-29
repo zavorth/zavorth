@@ -14,9 +14,44 @@ contextBridge.exposeInMainWorld('zavorthDesktop', {
   listSessions: () => ipcRenderer.invoke('zavorth:sessions:list'),
   switchSession: sessionId => ipcRenderer.invoke('zavorth:sessions:switch', sessionId),
   readFileTree: rootPath => ipcRenderer.invoke('zavorth:files:read-tree', rootPath),
+  checkUpdates: () => ipcRenderer.invoke('zavorth:check-updates'),
+  openWindow: () => ipcRenderer.invoke('zavorth:open-window'),
+  onDeepLink: (callback) => {
+    const listener = (_event, url) => callback(url);
+    ipcRenderer.on('zavorth:deeplink', listener);
+    return () => ipcRenderer.removeListener('zavorth:deeplink', listener);
+  },
   onBootEvent: callback => {
     const listener = (_event, payload) => callback(payload);
     ipcRenderer.on('zavorth:boot:event', listener);
     return () => ipcRenderer.removeListener('zavorth:boot:event', listener);
   },
+  kaelOverlay: {
+    open: (bounds) => ipcRenderer.invoke('zavorth:kael-overlay:open', bounds),
+    close: () => ipcRenderer.invoke('zavorth:kael-overlay:close'),
+    setBounds: (bounds) => ipcRenderer.send('zavorth:kael-overlay:set-bounds', bounds),
+    setIgnoreMouse: (ignore) => ipcRenderer.send('zavorth:kael-overlay:ignore-mouse', ignore),
+    setFocusable: (focusable) => ipcRenderer.send('zavorth:kael-overlay:set-focusable', focusable),
+    onState: (callback) => {
+      const listener = (_event, state) => callback(state);
+      ipcRenderer.on('zavorth:kael-overlay:state', listener);
+      return () => ipcRenderer.removeListener('zavorth:kael-overlay:state', listener);
+    },
+    control: (payload) => ipcRenderer.send('zavorth:kael-overlay:control', payload),
+    onControl: (callback) => {
+      const listener = (_event, payload) => callback(payload);
+      ipcRenderer.on('zavorth:kael-overlay:control', listener);
+      return () => ipcRenderer.removeListener('zavorth:kael-overlay:control', listener);
+    }
+  },
+  getPathForFile: (file) => {
+    try {
+      const { webUtils } = require('electron');
+      return webUtils.getPathForFile(file) || '';
+    } catch {
+      return file.path || '';
+    }
+  }
 });
+
+

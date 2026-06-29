@@ -1,4 +1,4 @@
-export type DesktopPanel = 'chat' | 'approvals' | 'memory' | 'skills' | 'channels' | 'settings' | 'files';
+export type DesktopPanel = 'chat' | 'approvals' | 'memory' | 'skills' | 'channels' | 'settings' | 'files' | 'preview';
 
 export type SlashCommandDefinition = {
   name: string;

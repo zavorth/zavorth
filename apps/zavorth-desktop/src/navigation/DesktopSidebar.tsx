@@ -1,4 +1,5 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { t } from '../i18n';
+import { useCallback, useEffect, useState } from 'react';
 import type { DesktopPanel } from '../slashCommands';
 import {
   AppWindow,
@@ -32,13 +33,14 @@ type SidebarItem = {
 };
 
 const items: SidebarItem[] = [
-  { panel: 'chat', label: 'Chat', Icon: Chat },
-  { panel: 'files', label: 'Files', Icon: Folder },
-  { panel: 'approvals', label: 'Review', Icon: Review },
-  { panel: 'memory', label: 'Memory', Icon: Memory },
-  { panel: 'skills', label: 'Plugins', Icon: Skills },
-  { panel: 'channels', label: 'Channels', Icon: Channels },
-  { panel: 'settings', label: 'Settings', Icon: Settings },
+  { panel: 'chat', label: t('chat'), Icon: Chat },
+  { panel: 'files', label: t('files'), Icon: Folder },
+  { panel: 'approvals', label: t('review'), Icon: Review },
+  { panel: 'memory', label: t('memory'), Icon: Memory },
+  { panel: 'skills', label: t('plugins'), Icon: Skills },
+  { panel: 'channels', label: t('channels'), Icon: Channels },
+  { panel: 'preview', label: t('webPreview'), Icon: AppWindow },
+  { panel: 'settings', label: t('settings'), Icon: Settings },
 ];
 
 const chatThreads = [
@@ -141,9 +143,8 @@ export function DesktopSidebar(props: {
       </div>
 
       <div className="zvd-sidebar-top">
-        <div className="zvd-brand" aria-label="Zavorth">
+        <div className="zvd-brand" aria-label="Logo">
           <Brand aria-hidden="true" size={18} stroke={1.9} />
-          <strong>Zavorth</strong>
         </div>
       </div>
 

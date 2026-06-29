@@ -18,6 +18,7 @@ import { DesktopSidebar } from '../shell/DesktopSidebar.js';
 import { ProviderSettingsPanel } from '../panels/ProviderSettingsPanel.js';
 import { InternalBetaDiagnosticsPanel } from '../panels/InternalBetaDiagnosticsPanel.js';
 import { CockpitDashboard } from '../components/CockpitDashboard.js';
+import { WebPreviewView } from './WebPreviewView';
 import type { DesktopPanel } from '../slashCommands';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 import { Folder, ChevronDown, ChevronRight, Refresh } from '../icons';
@@ -65,6 +66,9 @@ type WorkspaceViewProps = {
 };
 
 export function DesktopWorkspaceView(props: WorkspaceViewProps) {
+  if (props.activePanel === 'preview') {
+    return <WebPreviewView />;
+  }
   if (props.activePanel === 'files') {
     return <FilesView workspaceScope={props.workspaceScope} />;
   }

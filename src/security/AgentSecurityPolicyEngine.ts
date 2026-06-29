@@ -233,6 +233,29 @@ export class AgentSecurityPolicyEngine {
       metadata: invocation.metadata,
     });
     const definition = this.getToolDefinition(toolName);
+    
+    // Phase 7.1: Predictive Risk-Based Auto-Approval
+    let isPredictiveSafe = false;
+    const command = (invocation.metadata?.command || invocation.metadata?.args || '') as string;
+    if (command) {
+      const lowerCmd = command.trim().toLowerCase();
+      // Block shell command chaining/injection characters
+      const hasInjection = /[;&|\n\r`$]/.test(command);
+      if (!hasInjection) {
+        const readOnlyGitPatterns = /^(git\s+(status|diff|log|show|branch|rev-parse|tag|remote|config\s+-l))/;
+        const readOnlySysPatterns = /^(ls|dir|pwd|cat|type|echo)\b/;
+        const lintCheckPatterns = /^(eslint|prettier\s+--check|tsc\s+--noemit)/;
+        
+        if (readOnlyGitPatterns.test(lowerCmd) || readOnlySysPatterns.test(lowerCmd) || lintCheckPatterns.test(lowerCmd)) {
+          isPredictiveSafe = true;
+        }
+      }
+    }
+
+    if (definition && (definition.surface === 'rag' || definition.toolName === 'workspace.files.read' || definition.toolName === 'workspace.files.list')) {
+      isPredictiveSafe = true;
+    }
+    
     if (!toolName || !definition) {
       return this.deny({
         toolName: toolName || '<missing>',
@@ -316,10 +339,14 @@ export class AgentSecurityPolicyEngine {
       capabilities,
       definition,
     );
-    const requiresConfirmation =
+    let requiresConfirmation =
       definition.requiresConfirmation ||
       AGENT_SECURITY_DECISION_MATRIX[risk] === 'require_confirmation' ||
       profileConfirmation.required;
+
+    if (isPredictiveSafe) {
+      requiresConfirmation = false;
+    }
 
     if (requiresConfirmation && !invocation.userConfirmed) {
       return {

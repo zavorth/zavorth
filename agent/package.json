@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "node-global-key-listener": "^0.3.0",
     "node-notifier": "^10.0.1",
     "systray2": "^2.1.4"
   },

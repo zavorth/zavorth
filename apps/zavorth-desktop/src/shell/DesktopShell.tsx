@@ -93,11 +93,14 @@ export function DesktopShell(props: {
   onRevokeMandate?: () => Promise<void>;
   currentSessionId?: string;
   onSwitchSession?: (sessionId: string) => void;
+  kaelActive: boolean;
+  onToggleKael: () => void;
 }) {
   const isMac = navigator.userAgent.includes('Macintosh');
   const [systemDark, setSystemDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true);
   const resolvedTheme = props.theme === 'system' ? (systemDark ? 'dark' : 'light') : props.theme;
-  const appClassName = `zvd-app ${props.sidebarCollapsed ? 'has-collapsed-sidebar' : ''} theme-${resolvedTheme} mode-${props.theme} accent-${props.accent} ${isMac ? 'is-mac' : ''}`;
+  const sidebarSide = localStorage.getItem('zvd:sidebar-side') || 'left';
+  const appClassName = `zvd-app ${props.sidebarCollapsed ? 'has-collapsed-sidebar' : ''} theme-${resolvedTheme} mode-${props.theme} accent-${props.accent} ${isMac ? 'is-mac' : ''} zvd-sidebar-side-${sidebarSide}`;
   const [bottomPanelOpen, setBottomPanelOpen] = useState(false);
   const activeModel = props.modelOptions.find(model => model.id === props.selectedModel) || props.modelOptions[0];
 
@@ -151,6 +154,8 @@ export function DesktopShell(props: {
           busy={props.busy}
           modelLabel={activeModel?.label || 'Zavorth Core'}
           status={props.status}
+          kaelActive={props.kaelActive}
+          onToggleKael={props.onToggleKael}
           onCommandPalette={() => props.onCommandPalette(true)}
           onModel={() => props.onPanel('settings')}
           onRefresh={props.onRefresh}
