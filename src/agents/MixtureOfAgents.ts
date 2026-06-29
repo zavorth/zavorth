@@ -1,12 +1,12 @@
 /**
- * MixtureOfAgents — Orchestration multi-model para consenso.
+ * MixtureOfAgents — Multi-model orchestration for consensus.
  *
- * Executa N modelos de referência em paralelo, coleta suas respostas,
- * e usa um modelo agregador para sintetizar o melhor resultado.
- * Cada modelo de referência gera uma "opinião" que é combinada
- * pelo agregador final.
+ * Runs N reference models in parallel, collects their responses,
+ * and uses an aggregator model to synthesize the best result.
+ * Each reference model generates an "opinion" that is combined
+ * by the final aggregator.
  *
- * Uso:
+ * Usage:
  *   const moa = new MixtureOfAgents({
  *     references: [
  *       { provider: 'openai', model: 'gpt-4o', temperature: 0.7 },
@@ -14,7 +14,7 @@
  *     ],
  *     aggregator: { provider: 'openai', model: 'gpt-4o' },
  *   });
- *   const result = await moa.run('Explique quantum computing');
+ *   const result = await moa.run('Explain quantum computing');
  */
 
 export interface MoAReferenceConfig {
@@ -94,7 +94,7 @@ export class MixtureOfAgents {
   ): Promise<MoAResult> {
     const startTime = Date.now();
 
-    // Verificar cache
+    // Check cache
     if (this.config.enableCache) {
       const cached = this.getFromCache(query);
       if (cached) {
@@ -102,10 +102,10 @@ export class MixtureOfAgents {
       }
     }
 
-    // Fase 1: Executar modelos de referência em paralelo
+    // Phase 1: Run reference models in parallel
     const referenceResults = await this.runReferences(query, options);
 
-    // Fase 2: Sintetizar com o agregador
+    // Phase 2: Synthesize with aggregator
     const aggregatorStart = Date.now();
     const finalResponse = await this.aggregate(query, referenceResults, options);
     const aggregatorLatencyMs = Date.now() - aggregatorStart;
@@ -271,7 +271,7 @@ Instruções:
   }
 
   /**
-   * Retorna estatísticas do MoA.
+   * Returns MoA statistics.
    */
   getStats(): {
     cacheSize: number;
@@ -280,7 +280,7 @@ Instruções:
   } {
     return {
       cacheSize: this.cache.size,
-      cacheHitRate: 0, // rastreado em produção
+      cacheHitRate: 0, // tracked in production
       referenceCount: this.config.references.length,
     };
   }

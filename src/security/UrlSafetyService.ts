@@ -1,11 +1,11 @@
 /**
- * UrlSafetyService — Proteção contra SSRF e acesso a endereços internos.
+ * UrlSafetyService — SSRF protection and internal address blocking.
  *
- * Resolve DNS para verificar o IP real contra ranges privados,
- * bloqueia endereços de metadata cloud, e valida HTTPS contra
- * allowlist de hosts confiáveis.
+ * Resolves DNS to verify actual IP against private ranges,
+ * blocks cloud metadata addresses, and validates HTTPS against
+ * trusted host allowlist.
  *
- * Uso:
+ * Usage:
  *   const service = new UrlSafetyService();
  *   const result = await service.checkUrl('http://169.254.169.254/latest/meta-data/');
  *   if (!result.safe) {
@@ -115,46 +115,46 @@ export class UrlSafetyService {
   }
 
   /**
-   * Verifica se uma URL é segura para acesso.
+   * Checks if a URL is safe to access.
    */
   async checkUrl(url: string): Promise<UrlSafetyResult> {
     let parsed: URL;
     try {
       parsed = new URL(url);
     } catch {
-      return { safe: false, reason: 'URL inválida' };
+      return { safe: false, reason: 'Invalid URL' };
     }
 
-    // Bloquear protocolos perigosos
+    // Block dangerous protocols
     const protocol = parsed.protocol.toLowerCase();
     if (protocol !== 'http:' && protocol !== 'https:') {
       return {
         safe: false,
-        reason: `Protocolo não suportado: ${protocol}`,
+        reason: `Unsupported protocol: ${protocol}`,
       };
     }
 
     const hostname = parsed.hostname;
 
-    // localhost sempre permitido (desenvolvimento)
+    // localhost always allowed (development)
     if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
       return { safe: true };
     }
 
-    // Allowlist de hosts confiáveis
+    // Trusted host allowlist
     if (this.allowedHosts.has(hostname)) {
       return { safe: true };
     }
 
-    // Se não for IP, resolver DNS
+    // If not IP, resolve DNS
     if (!isIPv4(hostname) && !isIPv6(hostname)) {
       const ips = await resolveDns(hostname, this.timeoutMs);
 
       if (ips.length === 0) {
-        return { safe: false, reason: `Falha ao resolver DNS para ${hostname}` };
+        return { safe: false, reason: `Failed to resolve DNS for ${hostname}` };
       }
 
-      // Verificar cada IP resolvido
+      // Check each resolved IP
       for (const ip of ips) {
         const result = this.checkIp(ip);
         if (!result.safe) {
@@ -165,21 +165,21 @@ export class UrlSafetyService {
       return { safe: true, resolvedIp: ips[0] };
     }
 
-    // IP direto
+    // Direct IP
     return this.checkIp(hostname);
   }
 
   /**
-   * Verifica se um IP é seguro.
+   * Checks if an IP is safe.
    */
   private checkIp(ip: string): UrlSafetyResult {
     const normalized = normalizeIp(ip);
 
-    // Cloud metadata — sempre bloqueado
+    // Cloud metadata — always blocked
     if (this.blockMetadata && CLOUD_METADATA_IPS.includes(normalized)) {
       return {
         safe: false,
-        reason: `Endereço de metadata cloud bloqueado: ${normalized}`,
+        reason: `Cloud metadata address blocked: ${normalized}`,
       };
     }
 
@@ -187,7 +187,7 @@ export class UrlSafetyService {
     if (isIPv4(normalized)) {
       const octets = ipToOctets(normalized);
       if (!octets) {
-        return { safe: false, reason: `IP inválido: ${normalized}` };
+        return { safe: false, reason: `Invalid IP: ${normalized}` };
       }
 
       if (this.blockPrivate) {
@@ -198,24 +198,24 @@ export class UrlSafetyService {
             }
             return {
               safe: false,
-              reason: `IP em range privado bloqueado: ${normalized} (${range.label})`,
+              reason: `IP in blocked private range: ${normalized} (${range.label})`,
             };
           }
         }
       }
     }
 
-    // IPv6 — verificar se é loopback ou link-local
+    // IPv6 — check if loopback or link-local
     if (isIPv6(normalized)) {
       const lower = normalized.toLowerCase();
       if (lower === '::1' || lower.startsWith('fe80:')) {
         if (this.blockLinkLocal && lower.startsWith('fe80:')) {
           return {
             safe: false,
-            reason: `IPv6 link-local bloqueado: ${normalized}`,
+            reason: `IPv6 link-local blocked: ${normalized}`,
           };
         }
-        // ::1 é loopback, permitido
+        // ::1 is loopback, allowed
       }
     }
 
@@ -223,14 +223,14 @@ export class UrlSafetyService {
   }
 
   /**
-   * Adiciona um host à allowlist.
+   * Adds a host to allowlist.
    */
   allowHost(hostname: string): void {
     this.allowedHosts.add(hostname);
   }
 
   /**
-   * Remove um host da allowlist.
+   * Removes a host from allowlist.
    */
   denyHost(hostname: string): void {
     this.allowedHosts.delete(hostname);

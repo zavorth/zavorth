@@ -1,11 +1,11 @@
 /**
- * StreamingByteGuard — Proteção contra consumo ilimitado de respostas de providers.
+ * StreamingByteGuard — Protection against unlimited provider response consumption.
  *
- * Envolva um ReadableStreamDefaultReader para rastrear bytes acumulados
- * e aplicar um limite rígido. Se o stream exceder o cap, o reader é
- * cancelado e um erro canônico é lançado.
+ * Wraps a ReadableStreamDefaultReader to track accumulated bytes
+ * and enforce a hard limit. If the stream exceeds the cap, the reader is
+ * cancelled and a canonical error is thrown.
  *
- * Uso:
+ * Usage:
  *   const guard = new StreamingByteGuard(reader, { maxBytes: 10_000_000 });
  *   while (true) {
  *     const chunk = await guard.read();
@@ -20,7 +20,7 @@ export class ByteLimitExceededError extends Error {
 
   constructor(totalBytes: number, maxBytes: number) {
     super(
-      `Stream excedeu o limite de ${maxBytes} bytes (recebidos: ${totalBytes})`,
+      `Stream exceeded limit of ${maxBytes} bytes (received: ${totalBytes})`,
     );
     this.name = 'ByteLimitExceededError';
     this.totalBytes = totalBytes;
@@ -48,8 +48,8 @@ export class StreamingByteGuard {
   }
 
   /**
-   * Lê o próximo chunk do stream. Retorna null quando o stream termina.
-   * Lança ByteLimitExceededError se o limite for excedido.
+   * Reads the next chunk from the stream. Returns null when stream ends.
+   * Throws ByteLimitExceededError if limit is exceeded.
    */
   async read(): Promise<Uint8Array | null> {
     if (this.cancelled || this.overflowed) {
