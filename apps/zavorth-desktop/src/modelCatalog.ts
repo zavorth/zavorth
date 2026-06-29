@@ -11,25 +11,6 @@ export const modelFamilies: Array<{
   models: ModelOption[];
 }> = [
   {
-    name: 'Zavorth Core',
-    models: [
-      {
-        id: 'zavorth:core',
-        family: 'Zavorth Core',
-        label: 'Zavorth Core',
-        tone: 'local-first',
-        connected: true,
-      },
-      {
-        id: 'zavorth:governed',
-        family: 'Zavorth Core',
-        label: 'Governed Runtime',
-        tone: 'audited',
-        connected: true,
-      },
-    ],
-  },
-  {
     name: 'OpenAI',
     models: [
       {

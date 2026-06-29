@@ -51,19 +51,19 @@
       ]
     },
     {
-      "id": "workspace-imported-library",
-      "label": "Workspace imported skill library",
+      "id": "nexus-core",
+      "label": "Nexus Core Skill Library",
       "kind": "workspace",
-      "trust": "review",
-      "enabled": false,
+      "trust": "trusted",
+      "enabled": true,
       "ingestionMode": "local-scan",
-      "path": "skill-library/imported",
-      "createIfMissing": false,
-      "ownership": "curated-import",
-      "registrySource": "zavorth:curated-import",
+      "path": "skill-library/nexus-core",
+      "createIfMissing": true,
+      "ownership": "workspace",
+      "registrySource": "zavorth:nexus-core-skills",
       "notes": [
-        "Temporary area for reviewed selective imports.",
-        "Disabled by default to keep the product surface clean."
+        "Colecao completa de skills da engine do Nexus Mesh.",
+        "Habilitadas e confiaveis por padrao."
       ]
     }
   ]

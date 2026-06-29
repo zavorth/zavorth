@@ -6,7 +6,7 @@ export const CLI_TOOLS = {
     icon: "terminal",
     color: "#D97757",
     description: "Anthropic Claude Code CLI",
-    docsUrl: "https://docs.anthropic.com/en/docs/claude-code/overview",
+    docsUrl: "",
     configType: "env",
     envVars: {
       baseUrl: "ANTHROPIC_BASE_URL",

@@ -22,6 +22,10 @@ declare global {
       listSessions(): Promise<SessionEntry[]>;
       switchSession(sessionId: string): Promise<DesktopApiResult<unknown>>;
       readFileTree(rootPath: string): Promise<{ ok: boolean; tree?: FileExplorerNode[]; error?: string }>;
+      getPathForFile(file: File): string;
+      checkUpdates(): Promise<{ hasUpdate: boolean; version: string; latestVersion: string; changelog: string }>;
+      openWindow(): Promise<{ ok: boolean }>;
+      onDeepLink(callback: (url: string) => void): () => void;
     };
   }
 }

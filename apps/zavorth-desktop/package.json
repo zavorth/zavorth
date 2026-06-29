@@ -13,11 +13,16 @@
     "package:dir": "npm run build --silent && npx --yes --package electron-builder electron-builder --dir"
   },
   "dependencies": {
+    "@nanostores/react": "^1.1.0",
     "@tabler/icons-react": "^3.44.0",
     "@vitejs/plugin-react": "^6.0.2",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-unicode11": "^0.8.0",
     "@xterm/xterm": "^5.5.0",
+    "highlight.js": "^11.11.1",
+    "katex": "^0.17.0",
+    "marked": "^18.0.5",
+    "nanostores": "^1.4.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "typescript": "^5.7.0",

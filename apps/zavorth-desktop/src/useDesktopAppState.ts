@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useStore } from '@nanostores/react';
 import {
   dispatchRuntimeStateAction,
   loadDesktopPanelsData,
@@ -53,58 +54,103 @@ import {
   runtimeStateState,
 } from './appRuntimeState';
 import { modelOptions } from './modelCatalog';
-import { parseSlashCommand, slashCommands, type DesktopPanel } from './slashCommands';
-import { defaultWorkspaceScopes, workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
+import { parseSlashCommand, slashCommands } from './slashCommands';
+import { workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
+
+import {
+  $status, setStatus,
+  $snapshot, setSnapshot,
+  $messages, setMessages,
+  $busy, setBusy,
+  $notice, setNotice,
+  $selectedModel, setSelectedModel,
+  $effort, setEffort,
+  $experienceProfile, setExperienceProfile,
+  $sessionId,
+  $events, addEvent,
+  
+  $activePanel, setActivePanel,
+  $commandPaletteOpen, setCommandPaletteOpen,
+  $sidebarCollapsed, setSidebarCollapsed,
+  $inspectorOpen, setInspectorOpen,
+  
+  $approvals, setApprovals,
+  $workspaceWriteApprovals, setWorkspaceWriteApprovals,
+  $proposedMandate, setProposedMandate,
+  $activeMandate, setActiveMandate,
+  $pendingHostCommands, setPendingHostCommands,
+  $showTrustPrompt, setShowTrustPrompt,
+  $trustLoading, setTrustLoading,
+  
+  $learning, setLearning,
+  $tools, setTools,
+  $controlMemory, setControlMemory,
+  $memoryEncryptionStatus, setMemoryEncryptionStatus,
+  $memoryEncryptionReceipt, setMemoryEncryptionReceipt,
+  
+  $themeMode, setThemeMode,
+  $accentPreset, setAccentPreset,
+  
+  $composerInput, setComposerInput,
+  
+  $workspaceScopes, setWorkspaceScopes,
+  $workspaceScopeId, setWorkspaceScopeId,
+  $nexusStatus, setNexusStatus,
+  $channelSetup, setChannelSetup,
+  $gatewayResilience, setGatewayResilience,
+  $runtimeCapabilities, setRuntimeCapabilities,
+} from './store';
 
 export function useDesktopAppState() {
-  const [status, setStatus] = useState<RuntimeStatus>(fallbackStatus);
-  const [snapshot, setSnapshot] = useState<ExperienceSnapshot | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [approvals, setApprovals] = useState<ApprovalItem[]>([]);
-  const [learning, setLearning] = useState<LearningItem[]>([]);
-  const [tools, setTools] = useState<ToolItem[]>([]);
-  const [nexusStatus, setNexusStatus] = useState<unknown>(null);
-  const [memoryEncryptionStatus, setMemoryEncryptionStatus] = useState<MemoryEncryptionStatus | null>(null);
-  const [memoryEncryptionReceipt, setMemoryEncryptionReceipt] = useState<MemoryEncryptionMigrationReceipt | null>(null);
-  const [runtimeCapabilities, setRuntimeCapabilities] = useState<RuntimeCapabilitiesSnapshot | null>(null);
-  const [controlMemory, setControlMemory] = useState<ControlMemorySnapshot | null>(null);
-  const [channelSetup, setChannelSetup] = useState<ChannelSetupSnapshot | null>(null);
-  const [gatewayResilience, setGatewayResilience] = useState<GatewayResilienceSnapshot | null>(null);
-  const [events, setEvents] = useState<BootEvent[]>([]);
-  const [activePanel, setActivePanel] = useState<DesktopPanel>('chat');
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const [experienceProfile, setExperienceProfile] = useState('personal');
-  const [effort, setEffort] = useState('medium');
-  const [inspectorOpen] = useState(false);
-  const [input, setInput] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState('');
-  const [selectedModel, setSelectedModel] = useState('zavorth:core');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
-  const [accent, setAccent] = useState<'orange' | 'purple' | 'navy'>('orange');
-  const [workspaceScopes, setWorkspaceScopes] = useState<DesktopWorkspaceScope[]>(defaultWorkspaceScopes);
-  const [workspaceScopeId, setWorkspaceScopeId] = useState('local');
-  const [runtimeConnectedModelIds, setRuntimeConnectedModelIds] = useState<string[]>(() => defaultConnectedModelIds());
-  const [workspaceWriteApprovals, setWorkspaceWriteApprovals] = useState<any[]>([]);
+  const status = useStore($status);
+  const snapshot = useStore($snapshot);
+  const messages = useStore($messages);
+  const approvals = useStore($approvals);
+  const learning = useStore($learning);
+  const tools = useStore($tools);
+  const nexusStatus = useStore($nexusStatus);
+  const memoryEncryptionStatus = useStore($memoryEncryptionStatus);
+  const memoryEncryptionReceipt = useStore($memoryEncryptionReceipt);
+  const runtimeCapabilities = useStore($runtimeCapabilities);
+  const channelSetup = useStore($channelSetup);
+  const gatewayResilience = useStore($gatewayResilience);
+  const events = useStore($events);
+  const activePanel = useStore($activePanel);
+  const commandPaletteOpen = useStore($commandPaletteOpen);
+  const experienceProfile = useStore($experienceProfile);
+  const effort = useStore($effort);
+  const inspectorOpen = useStore($inspectorOpen);
+  const input = useStore($composerInput);
+  const busy = useStore($busy);
+  const notice = useStore($notice);
+  const selectedModel = useStore($selectedModel);
+  const sidebarCollapsed = useStore($sidebarCollapsed);
+  const theme = useStore($themeMode);
+  const accent = useStore($accentPreset);
+  const workspaceScopes = useStore($workspaceScopes);
+  const workspaceScopeId = useStore($workspaceScopeId);
+  const workspaceWriteApprovals = useStore($workspaceWriteApprovals);
+  const showTrustPrompt = useStore($showTrustPrompt);
+  const trustLoading = useStore($trustLoading);
+  const proposedMandate = useStore($proposedMandate);
+  const activeMandate = useStore($activeMandate);
+  const pendingHostCommands = useStore($pendingHostCommands);
+
   const [promptedWorkspaces, setPromptedWorkspaces] = useState<Set<string>>(() => new Set());
-  const [showTrustPrompt, setShowTrustPrompt] = useState(false);
-  const [trustLoading, setTrustLoading] = useState(false);
-  const [proposedMandate, setProposedMandate] = useState<any>(null);
-  const [activeMandate, setActiveMandate] = useState<any>(null);
-  const [pendingHostCommands, setPendingHostCommands] = useState<any[]>([]);
+  const [kaelActive, setKaelActive] = useState(false);
 
   const bridgeReady = Boolean(window.zavorthDesktop);
-  const sessionId = snapshot?.sessionId || 'desktop-main';
+  const sessionId = useStore($sessionId);
   const responseProfile = responseProfileByExperience[experienceProfile] || 'short';
+
   const connectedModelOptions = useMemo(() => {
     if (runtimeCapabilities) {
       return modelOptionsFromRuntimeCapabilities(runtimeCapabilities);
     }
-    const connectedIds = new Set(runtimeConnectedModelIds.length > 0 ? runtimeConnectedModelIds : defaultConnectedModelIds());
-    const options = modelOptions.filter(model => connectedIds.has(model.id));
-    return options.length > 0 ? options : modelOptions.filter(model => model.connected !== false);
-  }, [runtimeCapabilities, runtimeConnectedModelIds]);
+    const connectedIds = new Set(defaultConnectedModelIds());
+    return modelOptions.filter(model => model.connected !== false);
+  }, [runtimeCapabilities]);
+
   const activeWorkspaceScope = workspaceScopes.find(scope => scope.id === workspaceScopeId) || workspaceScopes[0];
 
   const applyRuntimeStateProjection = useCallback((home: ExperienceSnapshot | null) => {
@@ -114,9 +160,6 @@ export function useDesktopAppState() {
     const projectedConnectedModelIds = Array.isArray(commandBar.connectedModelIds)
       ? commandBar.connectedModelIds.map(value => String(value || '').trim()).filter(Boolean)
       : [];
-    if (projectedConnectedModelIds.length > 0) {
-      setRuntimeConnectedModelIds(projectedConnectedModelIds);
-    }
     const state = runtimeStateState(home);
     const model = asRecord(state.model);
     const effortState = asRecord(state.effort);
@@ -140,10 +183,10 @@ export function useDesktopAppState() {
         kind: String(workspace.kind || '').toLowerCase() === 'chat' ? 'chat' : 'folder',
         path: workspace.path ? String(workspace.path) : null,
       };
-      setWorkspaceScopes(current => current.some(scope => scope.id === nextScope.id) ? current : [...current, nextScope]);
+      setWorkspaceScopes(workspaceScopes.some(scope => scope.id === nextScope.id) ? workspaceScopes : [...workspaceScopes, nextScope]);
       setWorkspaceScopeId(workspaceId);
     }
-  }, [connectedModelOptions]);
+  }, [connectedModelOptions, workspaceScopes]);
 
   const refreshRuntime = useCallback(async () => {
     if (!bridgeReady) {
@@ -197,7 +240,7 @@ export function useDesktopAppState() {
       setActiveMandate(null);
       setPendingHostCommands([]);
     }
-  }, [sessionId, applyRuntimeCapabilitiesToDesktop, activeWorkspaceScope]);
+  }, [sessionId, activeWorkspaceScope]);
 
   const refreshHome = useCallback(async () => {
     try {
@@ -212,7 +255,7 @@ export function useDesktopAppState() {
       setNotice(error instanceof Error ? error.message : 'Could not reach the local runtime.');
       return null;
     }
-  }, [applyRuntimeStateProjection, responseProfile, sessionId]);
+  }, [responseProfile, sessionId, applyRuntimeStateProjection]);
 
   useEffect(() => {
     if (!bridgeReady) {
@@ -225,7 +268,7 @@ export function useDesktopAppState() {
       .then(() => (mounted ? refreshPanels() : null))
       .catch(() => undefined);
     const off = window.zavorthDesktop!.onBootEvent(event => {
-      setEvents(current => [event, ...current].slice(0, 8));
+      addEvent(event);
     });
 
     return () => {
@@ -451,7 +494,7 @@ export function useDesktopAppState() {
     }
 
     const parsed = parseSlashCommand(text);
-    setInput('');
+    setComposerInput('');
     setNotice('');
 
     if (parsed.kind === 'help') {
@@ -613,6 +656,7 @@ export function useDesktopAppState() {
   }, [refreshHome, refreshPanels, sessionId]);
 
   const handleEffortSelection = useCallback(async (value: string) => {
+    setEffort(value);
     await applyRuntimeSelection({
       type: 'set-effort',
       payload: { effort: value },
@@ -620,6 +664,7 @@ export function useDesktopAppState() {
   }, [applyRuntimeSelection]);
 
   const handleModelSelection = useCallback(async (value: string) => {
+    setSelectedModel(value);
     const model = connectedModelOptions.find(option => option.id === value);
     await applyRuntimeSelection({
       type: 'route-model',
@@ -720,14 +765,14 @@ export function useDesktopAppState() {
     setBusy(true);
     try {
       await resolveHostCommand(operationId, decision, strongPhrase);
-      setPendingHostCommands(current => current.filter(cmd => cmd.operation_id !== operationId));
+      setPendingHostCommands(pendingHostCommands.filter(cmd => cmd.operation_id !== operationId));
       appendLocalMessage(setMessages, 'system', `Host command proposal ${decision}d.`);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not resolve host command proposal.');
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [pendingHostCommands]);
 
   const handleSwitchSession = useCallback(async (nextSessionId: string) => {
     setBusy(true);
@@ -749,21 +794,76 @@ export function useDesktopAppState() {
     }
   }, [refreshHome, refreshPanels]);
 
+  const handleToggleKael = useCallback(async () => {
+    if (!window.zavorthDesktop?.kaelOverlay) return;
+    if (kaelActive) {
+      await window.zavorthDesktop.kaelOverlay.close();
+      setKaelActive(false);
+    } else {
+      const screenWidth = window.screen.availWidth;
+      const screenHeight = window.screen.availHeight;
+      await window.zavorthDesktop.kaelOverlay.open({
+        x: screenWidth - 260,
+        y: screenHeight - 280,
+        width: 240,
+        height: 240
+      });
+      setKaelActive(true);
+    }
+  }, [kaelActive]);
+
+  useEffect(() => {
+    if (!window.zavorthDesktop?.kaelOverlay) return;
+
+    const unsubControl = window.zavorthDesktop.kaelOverlay.onControl((payload: any) => {
+      if (payload?.type === 'submit-prompt' && payload?.text) {
+        void sendMessage(payload.text);
+      } else if (payload?.type === 'pop-in') {
+        setKaelActive(false);
+      }
+    });
+
+    return () => {
+      unsubControl?.();
+    };
+  }, [sendMessage]);
+
+  useEffect(() => {
+    if (!window.zavorthDesktop?.kaelOverlay || !kaelActive) return;
+
+    let mascotState: 'idle' | 'thinking' | 'working' | 'finished' = 'idle';
+    if (busy) {
+      mascotState = 'working';
+    }
+
+    let bubbleText: string | null = null;
+    if (messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.role === 'assistant') {
+        const textOnly = lastMsg.content || '';
+        bubbleText = textOnly.length > 80 ? textOnly.slice(0, 77) + '...' : textOnly;
+      }
+    }
+
+    window.zavorthDesktop.kaelOverlay.state({
+      state: mascotState,
+      bubbleText,
+    });
+  }, [busy, messages, kaelActive]);
+
   return {
-    status: status || fallbackStatus,
-    snapshot: snapshot || null,
-    messages: messages || [],
-    approvals: approvals || [],
-    learning: learning || [],
-    tools: tools || [],
-    nexusStatus: nexusStatus || null,
-    memoryEncryptionStatus: memoryEncryptionStatus || null,
-    memoryEncryptionReceipt: memoryEncryptionReceipt || null,
-    runtimeCapabilities: runtimeCapabilities || null,
-    controlMemory: controlMemory || null,
-    channelSetup: channelSetup || null,
-    gatewayResilience: gatewayResilience || null,
-    events: events || [],
+    status,
+    messages,
+    approvals,
+    learning,
+    tools,
+    nexusStatus,
+    memoryEncryptionStatus,
+    memoryEncryptionReceipt,
+    runtimeCapabilities,
+    channelSetup,
+    gatewayResilience,
+    events,
     activePanel,
     commandPaletteOpen,
     experienceProfile,
@@ -788,14 +888,15 @@ export function useDesktopAppState() {
     activeWorkspaceScope,
     memoryItems,
     channelItems,
+    kaelActive,
     setAccent,
     setCommandPaletteOpen,
-    setInput,
+    setInput: setComposerInput,
     setMessages,
     setActivePanel,
     setExperienceProfile,
     setSidebarCollapsed,
-    setTheme,
+    setTheme: setThemeMode,
     setShowTrustPrompt,
     refreshRuntime,
     refreshHome,
@@ -821,5 +922,6 @@ export function useDesktopAppState() {
     handleHostCommandResolve,
     handleSwitchSession,
     dispatchRuntimeStateAction,
+    handleToggleKael,
   };
 }

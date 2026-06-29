@@ -163,4 +163,45 @@ describe('AgentSecurityPolicyEngine', () => {
     expect(decision.action).toBe('require_confirmation');
     expect(decision.capabilities).toEqual(expect.arrayContaining(['mcp', 'network', 'external-send']));
   });
+
+  it('auto-approves predictive safe commands', () => {
+    const customEngine = AgentSecurityPolicyEngine.fromDefinitions([
+      {
+        toolName: 'run_cmd',
+        surface: 'native-tool',
+        capabilities: ['shell'],
+        defaultRisk: 'dangerous',
+        requiresConfirmation: true,
+        description: 'Runs a command',
+      }
+    ]);
+    const decision = customEngine.evaluateToolInvocation({
+      toolName: 'run_cmd',
+      sourceTrust: 'trusted-user',
+      metadata: { command: 'git status' }
+    });
+    expect(decision.allowed).toBe(true);
+    expect(decision.action).toBe('allow');
+  });
+
+  it('blocks predictive auto-approval if command injection is detected', () => {
+    const customEngine = AgentSecurityPolicyEngine.fromDefinitions([
+      {
+        toolName: 'run_cmd',
+        surface: 'native-tool',
+        capabilities: ['shell'],
+        defaultRisk: 'dangerous',
+        requiresConfirmation: true,
+        description: 'Runs a command',
+      }
+    ]);
+    const decision = customEngine.evaluateToolInvocation({
+      toolName: 'run_cmd',
+      sourceTrust: 'trusted-user',
+      metadata: { command: 'git status ; rm -rf /' }
+    });
+    expect(decision.allowed).toBe(false);
+    expect(decision.action).toBe('require_confirmation');
+  });
 });
+

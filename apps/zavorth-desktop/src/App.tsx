@@ -6,6 +6,11 @@ import { TemporaryDirectoryTrustModal } from './components/TemporaryDirectoryTru
 import { HostCommandApprovalModal } from './components/HostCommandApprovalModal';
 import { WorkspaceTrustPromptModal } from './components/WorkspaceTrustPromptModal';
 import { ZavorthPaneShell } from './shell/ZavorthPaneShell';
+import { DropOverlay } from './components/DropOverlay';
+import { OnboardingOverlay } from './components/OnboardingOverlay';
+import { SettingsOverlay } from './components/SettingsOverlay';
+import { useEffect, useRef } from 'react';
+import { playDingSound } from './lib/haptics';
 
 export function App() {
   const {
@@ -45,6 +50,8 @@ export function App() {
     activeWorkspaceScope,
     memoryItems,
     channelItems,
+    kaelActive,
+    handleToggleKael,
     setAccent,
     setCommandPaletteOpen,
     setInput,
@@ -80,8 +87,45 @@ export function App() {
     dispatchRuntimeStateAction,
   } = useDesktopAppState();
 
+  const prevBusyRef = useRef(busy);
+  useEffect(() => {
+    if (prevBusyRef.current && !busy) {
+      playDingSound();
+    }
+    prevBusyRef.current = busy;
+  }, [busy]);
+
   return (
     <>
+      <OnboardingOverlay isOpen={onboardingOpen} onCompleted={() => setOnboardingOpen(false)} />
+      <SettingsOverlay
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        accent={accent}
+        busy={busy}
+        effort={effort}
+        events={events}
+        nexusStatus={nexusStatus}
+        profile={experienceProfile}
+        runtimeCapabilities={runtimeCapabilities}
+        gatewayResilience={gatewayResilience}
+        status={status}
+        approvalsCount={approvals?.length || 0}
+        theme={theme}
+        onAccent={setAccent}
+        onEffort={handleEffortSelection}
+        onProfile={setExperienceProfile}
+        onRepair={requestAccessRepair}
+        onGatewayResilienceAction={handleGatewayResilienceAction}
+        onStart={requestRuntimeStart}
+        onRuntimeStateAction={requestRuntimeInstrument}
+        onTheme={setTheme}
+      />
+      <DropOverlay onFilesDropped={(paths) => {
+        const currentInput = input;
+        const newRefs = paths.map(p => `@file:"${p}"`).join(' ');
+        setInput(currentInput ? `${currentInput} ${newRefs}` : newRefs);
+      }} />
       <ZavorthPaneShell>
         <DesktopShell
           activePanel={activePanel}
@@ -117,6 +161,8 @@ export function App() {
           workspaceScope={activeWorkspaceScope}
           workspaceScopes={workspaceScopes}
           currentSessionId={sessionId}
+          kaelActive={kaelActive}
+          onToggleKael={handleToggleKael}
           onSwitchSession={handleSwitchSession}
           onAccessRepair={requestAccessRepair}
           onAccent={setAccent}
@@ -134,7 +180,13 @@ export function App() {
             setInput('');
             setActivePanel('chat');
           }}
-          onPanel={setActivePanel}
+          onPanel={(panel) => {
+            if (panel === 'settings') {
+              setSettingsOpen(true);
+            } else {
+              setActivePanel(panel);
+            }
+          }}
           onProfile={setExperienceProfile}
           onRefresh={async () => {
             await refreshRuntime();

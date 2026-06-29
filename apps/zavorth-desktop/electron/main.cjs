@@ -921,6 +921,187 @@ ipcMain.handle('zavorth:files:read-tree', async (_event, rootPath) => {
   }
 });
 
+let kaelWindow = null;
+
+function kaelOverlayUrl() {
+  const rendererUrl = process.env.ZAVORTH_DESKTOP_RENDERER_URL || '';
+  if (rendererUrl) {
+    return `${rendererUrl}?win=overlay#/`;
+  }
+  return `${pathToFileURL(path.join(__dirname, '..', 'dist', 'index.html')).toString()}?win=overlay#/`;
+}
+
+function spawnKaelWindow(bounds) {
+  const isMac = process.platform === 'darwin';
+  const win = new BrowserWindow({
+    width: Math.max(80, Math.round(bounds?.width || 220)),
+    height: Math.max(80, Math.round(bounds?.height || 220)),
+    x: Number.isFinite(bounds?.x) ? Math.round(bounds.x) : undefined,
+    y: Number.isFinite(bounds?.y) ? Math.round(bounds.y) : undefined,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    movable: true,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    skipTaskbar: !isMac,
+    hasShadow: false,
+    alwaysOnTop: true,
+    type: isMac ? 'panel' : undefined,
+    hiddenInMissionControl: isMac,
+    focusable: false,
+    show: false,
+    backgroundColor: '#00000000',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
+      contextIsolation: true,
+      sandbox: true,
+      nodeIntegration: false,
+      backgroundThrottling: false
+    }
+  });
+
+  win.setAlwaysOnTop(true, isMac ? 'floating' : 'screen-saver');
+  win.setHiddenInMissionControl?.(true);
+  try {
+    win.setVisibleOnAllWorkspaces(true, isMac ? { visibleOnFullScreen: true, skipTransformProcessType: true } : undefined);
+  } catch {}
+
+  win.once('ready-to-show', () => {
+    if (!win.isDestroyed()) win.showInactive();
+  });
+
+  win.on('closed', () => {
+    if (kaelWindow === win) {
+      kaelWindow = null;
+    }
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('zavorth:kael-overlay:control', { type: 'pop-in' });
+    }
+  });
+
+  win.loadURL(kaelOverlayUrl());
+  return win;
+}
+
+ipcMain.handle('zavorth:kael-overlay:open', async (_event, bounds) => {
+  if (kaelWindow && !kaelWindow.isDestroyed()) {
+    if (bounds) {
+      kaelWindow.setBounds({
+        x: Math.round(bounds.x),
+        y: Math.round(bounds.y),
+        width: Math.max(80, Math.round(bounds.width)),
+        height: Math.max(80, Math.round(bounds.height))
+      });
+    }
+    kaelWindow.showInactive();
+    return { ok: true };
+  }
+  kaelWindow = spawnKaelWindow(bounds);
+  return { ok: true };
+});
+
+ipcMain.handle('zavorth:kael-overlay:close', async () => {
+  if (kaelWindow && !kaelWindow.isDestroyed()) {
+    kaelWindow.close();
+  }
+  kaelWindow = null;
+  return { ok: true };
+});
+
+ipcMain.on('zavorth:kael-overlay:set-bounds', (_event, bounds) => {
+  if (kaelWindow && !kaelWindow.isDestroyed() && bounds) {
+    kaelWindow.setBounds({
+      x: Math.round(bounds.x),
+      y: Math.round(bounds.y),
+      width: Math.max(80, Math.round(bounds.width)),
+      height: Math.max(80, Math.round(bounds.height))
+    });
+  }
+});
+
+ipcMain.on('zavorth:kael-overlay:ignore-mouse', (_event, ignore) => {
+  if (kaelWindow && !kaelWindow.isDestroyed()) {
+    kaelWindow.setIgnoreMouseEvents(Boolean(ignore), { forward: true });
+  }
+});
+
+ipcMain.on('zavorth:kael-overlay:set-focusable', (_event, focusable) => {
+  if (kaelWindow && !kaelWindow.isDestroyed()) {
+    kaelWindow.setFocusable(Boolean(focusable));
+    if (focusable) {
+      kaelWindow.focus();
+    }
+  }
+});
+
+ipcMain.on('zavorth:kael-overlay:state', (_event, payload) => {
+  if (kaelWindow && !kaelWindow.isDestroyed()) {
+    kaelWindow.webContents.send('zavorth:kael-overlay:state', payload);
+  }
+});
+
+ipcMain.on('zavorth:kael-overlay:control', (_event, payload) => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (payload?.type === 'toggle-main-window') {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
+        mainWindow.focus();
+      } else if (mainWindow.isVisible() && mainWindow.isFocused()) {
+        mainWindow.minimize();
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+      return;
+    }
+    mainWindow.webContents.send('zavorth:kael-overlay:control', payload);
+  }
+});
+
+
+// Phase 4 - Auto-Updates and Multiple Windows IPC Handlers
+ipcMain.handle('zavorth:check-updates', async () => {
+  // Simulates check updates
+  return {
+    hasUpdate: false,
+    version: app.getVersion(),
+    latestVersion: app.getVersion(),
+    changelog: 'Nenhuma atualização disponível no momento.'
+  };
+});
+
+ipcMain.handle('zavorth:open-window', async () => {
+  const win = new BrowserWindow({
+    width: 1000,
+    height: 700,
+    webPreferences: {
+      preload: require('path').join(__dirname, 'preload.cjs'),
+      contextIsolation: true,
+      sandbox: true,
+      nodeIntegration: false
+    }
+  });
+
+  const devUrl = process.env.VITE_DEV_SERVER_URL;
+  if (devUrl) {
+    win.loadURL(devUrl);
+  } else {
+    win.loadFile(require('path').join(__dirname, '../dist/index.html'));
+  }
+  return { ok: true };
+});
+
+// Deep link open-url listener
+app.on('open-url', (event, url) => {
+  event.preventDefault();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.focus();
+    mainWindow.webContents.send('zavorth:deeplink', url);
+  }
+});
+
 app.whenReady().then(() => {
   createWindow();
   app.on('activate', () => {

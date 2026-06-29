@@ -1,10 +1,12 @@
-import { Refresh, Search, Sliders, Stop } from '../icons';
+import { Refresh, Search, Sliders, Stop, Sparkles } from '../icons';
 import type { RuntimeStatus } from '../global';
 
 export function DesktopTopbar(props: {
   busy: boolean;
   modelLabel: string;
   status: RuntimeStatus;
+  kaelActive: boolean;
+  onToggleKael(): void;
   onCommandPalette(): void;
   onModel(): void;
   onRefresh(): void;
@@ -13,9 +15,10 @@ export function DesktopTopbar(props: {
   return (
     <header className="zvd-topbar">
       <div className="zvd-topbar-left">
+        {/* Zavorth Core */}
         <button className="zvd-topbar-title" type="button" onClick={props.onModel} title="Abrir configurações do workspace">
-          <span>Zavorth Core</span>
-          <small>Desktop local</small>
+          <span>Desktop</span>
+          <small>local</small>
         </button>
       </div>
 
@@ -29,6 +32,16 @@ export function DesktopTopbar(props: {
           <span aria-hidden="true" className="zvd-status-dot" />
           {props.status.running ? 'Local ready' : 'Local offline'}
           <small>{props.modelLabel}</small>
+        </button>
+        <button
+          className={`zvd-icon-button ${props.kaelActive ? 'is-active' : ''}`}
+          onClick={props.onToggleKael}
+          type="button"
+          aria-label="Toggle Kael Mascot"
+          title="Toggle Kael Mascot"
+          style={props.kaelActive ? { color: '#f16a21', background: 'rgba(241, 106, 33, 0.15)' } : undefined}
+        >
+          <Sparkles aria-hidden="true" size={18} stroke={1.8} />
         </button>
         <button
           className="zvd-icon-button"
@@ -66,3 +79,4 @@ export function DesktopTopbar(props: {
     </header>
   );
 }
+

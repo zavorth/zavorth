@@ -1,22 +1,27 @@
-import { getI18nService } from '../../../../src/i18n/ZavorthI18nService.js';
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    chat: 'Chat',
+    files: 'Files',
+    review: 'Review',
+    memory: 'Memory',
+    plugins: 'Plugins',
+    channels: 'Channels',
+    settings: 'Settings',
+    webPreview: 'Web Preview',
+  },
+  pt: {
+    chat: 'Conversa',
+    files: 'Arquivos',
+    review: 'Revisão',
+    memory: 'Memória',
+    plugins: 'Plugins',
+    channels: 'Canais',
+    settings: 'Configurações',
+    webPreview: 'Visualizador Web',
+  }
+};
 
-const i18n = getI18nService();
-
-export function tDesktop(key: string, vars?: Record<string, string | number>): string {
-  return i18n.t(`desktop.${key}`, { vars });
-}
-
-export function initDesktopLocale(): void {
-  const systemLang = typeof navigator !== 'undefined'
-    ? navigator.language || 'en-US'
-    : 'en-US';
-  i18n.setLocale(systemLang);
-}
-
-export function getDesktopLocale(): string {
-  return i18n.getLocale();
-}
-
-export function setDesktopLocale(locale: string): void {
-  i18n.setLocale(locale);
+export function t(key: string): string {
+  const lang = navigator.language.startsWith('pt') ? 'pt' : 'en';
+  return translations[lang][key] || key;
 }
