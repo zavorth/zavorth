@@ -1,15 +1,15 @@
 /**
- * LLMFallbackRouter — Integração entre LLMRouterService e ModelFallbackChain.
+ * LLMFallbackRouter — Integration between LLMRouterService and ModelFallbackChain.
  *
- * Combina o routing inteligente do LLMRouterService com o fallback
- * progressivo do ModelFallbackChain. Quando um provider falha,
- * automaticamente tenta o próximo candidato com cooldown.
+ * Combines intelligent routing from LLMRouterService with progressive
+ * fallback from ModelFallbackChain. When a provider fails,
+ * automatically tries the next candidate with cooldown.
  *
- * Uso:
+ * Usage:
  *   const router = new LLMFallbackRouter(llmRouter);
  *   const result = await router.executeWithFallback({
  *     taskType: 'code_generation',
- *     messages: [{ role: 'user', content: 'Escreva uma função排序' }],
+ *     messages: [{ role: 'user', content: 'Write a sort function' }],
  *   });
  */
 
@@ -173,7 +173,7 @@ export class LLMFallbackRouter {
   }
 
   /**
-   * Retorna estatísticas do fallback router.
+   * Returns fallback router statistics.
    */
   getStats(): {
     chainSummary: ReturnType<ModelFallbackChain['getSummary']>;

@@ -1,18 +1,18 @@
 /**
- * AuthRateLimiter — Proteção contra tentativas excessivas de autenticação.
+ * AuthRateLimiter — Protection against excessive authentication attempts.
  *
- * Implementa sliding window rate limiting por escopo e identificador.
- * Cada classe de credencial (shared-secret, device-token, node-pairing)
- * possui contadores independentes. Endereços loopback são isentos por padrão.
+ * Implements sliding window rate limiting per scope and identifier.
+ * Each credential class (shared-secret, device-token, node-pairing)
+ * has independent counters. Loopback addresses are exempt by default.
  *
- * Uso:
+ * Usage:
  *   const limiter = new AuthRateLimiter();
  *   if (limiter.isBlocked('gateway', clientIp)) {
  *     return res.status(429).json({ error: 'Too many attempts' });
  *   }
- *   // ... validar credenciais ...
+ *   // ... validate credentials ...
  *   limiter.recordFailure('gateway', clientIp);
- *   // ou em caso de sucesso:
+ *   // or on success:
  *   limiter.recordSuccess('gateway', clientIp);
  */
 
@@ -76,7 +76,7 @@ export class AuthRateLimiter {
   }
 
   /**
-   * Verifica se o identificador está bloqueado.
+   * Checks if the identifier is blocked.
    */
   isBlocked(scope: string, identifier: string): boolean {
     if (this.exemptLoopback && this.isLoopback(identifier)) {
@@ -139,7 +139,7 @@ export class AuthRateLimiter {
   }
 
   /**
-   * Retorna quantas tentativas restam antes do lockout.
+   * Returns how many attempts remain before lockout.
    */
   remainingAttempts(scope: string, identifier: string): number {
     if (this.exemptLoopback && this.isLoopback(identifier)) {
@@ -157,7 +157,7 @@ export class AuthRateLimiter {
   }
 
   /**
-   * Retorna o tempo em ms até o fim do lockout, ou 0 se não bloqueado.
+   * Returns time in ms until lockout ends, or 0 if not blocked.
    */
   lockoutRemainingMs(scope: string, identifier: string): number {
     const record = this.getRecord(scope, identifier);
@@ -166,7 +166,7 @@ export class AuthRateLimiter {
   }
 
   /**
-   * Remove registros expirados.
+   * Removes expired records.
    */
   private prune(): void {
     const now = Date.now();
@@ -181,14 +181,14 @@ export class AuthRateLimiter {
   }
 
   /**
-   * Limpa todos os registros.
+   * Clears all records.
    */
   reset(): void {
     this.attempts.clear();
   }
 
   /**
-   * Destrói o limiter, parando o timer de pruning.
+   * Destroys the limiter, stopping the pruning timer.
    */
   destroy(): void {
     if (this.pruneTimer) {

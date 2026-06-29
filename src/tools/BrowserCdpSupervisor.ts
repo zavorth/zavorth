@@ -1,11 +1,11 @@
 /**
- * BrowserCdpSupervisor — WebSocket persistente para controle de browser.
+ * BrowserCdpSupervisor — Persistent WebSocket for browser control.
  *
- * Mantém conexão CDP (Chrome DevTools Protocol) ativa com o browser,
- * rastreia árvore de frames, captura erros de console, e intercepta
- * diálogos JS (alert, confirm, prompt) via bridge injetado.
+ * Maintains active CDP (Chrome DevTools Protocol) connection with browser,
+ * tracks frame tree, captures console errors, and intercepts
+ * JS dialogs (alert, confirm, prompt) via injected bridge.
  *
- * Uso:
+ * Usage:
  *   const supervisor = new BrowserCdpSupervisor({ browserWSEndpoint: 'ws://...' });
  *   await supervisor.connect();
  *   await supervisor.navigate('https://example.com');
@@ -76,7 +76,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
   }
 
   /**
-   * Conecta ao browser via WebSocket CDP.
+   * Connects to browser via WebSocket CDP.
    */
   async connect(): Promise<void> {
     const WebSocket = (await import('ws')).default;
@@ -99,7 +99,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
       this.ws.on('close', () => {
         this.connected = false;
         this.emit('disconnected');
-        this.rejectAllPending('WebSocket fechado');
+        this.rejectAllPending('WebSocket closed');
         this.attemptReconnect();
       });
 
@@ -113,10 +113,10 @@ export class BrowserCdpSupervisor extends EventEmitter {
   }
 
   /**
-   * Desconecta do browser.
+   * Disconnects from browser.
    */
   async disconnect(): Promise<void> {
-    this.rejectAllPending('Desconectado manualmente');
+    this.rejectAllPending('Disconnected manually');
     if (this.ws) {
       this.ws.close();
       this.ws = null;
@@ -292,14 +292,14 @@ export class BrowserCdpSupervisor extends EventEmitter {
   }
 
   /**
-   * Navega para uma URL.
+   * Navigates to a URL.
    */
   async navigate(url: string): Promise<void> {
     await this.send('Page.navigate', { url });
   }
 
   /**
-   * Avalia JavaScript na página.
+   * Evaluates JavaScript on the page.
    */
   async evaluate(expression: string): Promise<unknown> {
     const result = await this.send('Runtime.evaluate', {
@@ -312,7 +312,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
   }
 
   /**
-   * Captura screenshot da página.
+   * Captures page screenshot.
    */
   async screenshot(options: { format?: string; quality?: number } = {}): Promise<string> {
     const result = await this.send('Page.captureScreenshot', {
@@ -324,35 +324,35 @@ export class BrowserCdpSupervisor extends EventEmitter {
   }
 
   /**
-   * Retorna frames ativos.
+   * Returns active frames.
    */
   getFrames(): FrameInfo[] {
     return Array.from(this.frames.values());
   }
 
   /**
-   * Retorna log de console.
+   * Returns console log.
    */
   getConsoleLog(limit: number = 100): ConsoleEntry[] {
     return this.consoleLog.slice(-limit);
   }
 
   /**
-   * Define política de tratamento de diálogos.
+   * Sets dialog handling policy.
    */
   setDialogPolicy(policy: DialogPolicy): void {
     this.dialogPolicy = policy;
   }
 
   /**
-   * Retorna diálogos pendentes.
+   * Returns pending dialogs.
    */
   getPendingDialogs(): DialogInfo[] {
     return [...this.dialogQueue];
   }
 
   /**
-   * Limpa fila de diálogos processados.
+   * Clears processed dialog queue.
    */
   clearDialogQueue(): void {
     this.dialogQueue = [];

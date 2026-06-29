@@ -1,13 +1,13 @@
 /**
- * McpPluginToolsServer — Servidor MCP que expõe as tools do Zavorth
- * para clientes MCP compatíveis (Claude Code, Cursor, etc.).
+ * McpPluginToolsServer — MCP server that exposes Zavorth tools
+ * to compatible MCP clients (Claude Code, Cursor, etc.).
  *
- * Cria um servidor MCP via stdio que roteia chamadas de tools
- * para o ToolRegistry interno do Zavorth.
+ * Creates an MCP server via stdio that routes tool calls
+ * to Zavorth's internal ToolRegistry.
  *
- * Uso:
+ * Usage:
  *   const server = new McpPluginToolsServer(toolRegistry);
- *   await server.start(); // escuta stdin/stdout
+ *   await server.start(); // listens on stdin/stdout
  */
 
 import type { ToolRegistry } from '../tools/ToolRegistry.js';
@@ -63,7 +63,7 @@ export class McpPluginToolsServer {
   }
 
   /**
-   * Lista todas as tools disponíveis no formato MCP.
+   * Lists all available tools in MCP format.
    */
   listTools(): McpToolDefinition[] {
     return this.registry
@@ -73,7 +73,7 @@ export class McpPluginToolsServer {
   }
 
   /**
-   * Executa uma tool via o registry.
+   * Executes a tool via the registry.
    */
   async callTool(
     name: string,
@@ -82,7 +82,7 @@ export class McpPluginToolsServer {
     const tool = this.registry.getTool(name);
     if (!tool) {
       return {
-        content: [{ type: 'text', text: `Tool "${name}" não encontrada` }],
+        content: [{ type: 'text', text: `Tool "${name}" not found` }],
         isError: true,
       };
     }

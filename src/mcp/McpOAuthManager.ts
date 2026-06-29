@@ -1,10 +1,10 @@
 /**
- * McpOAuthManager — Gerenciamento de tokens OAuth 2.1 para MCP.
+ * McpOAuthManager — OAuth 2.1 token management for MCP.
  *
- * Implementa refresh automático de tokens com persistência em disco,
- * detecção de mudanças por mtime, e deduplicação de requisições 401.
+ * Implements automatic token refresh with disk persistence,
+ * mtime-based change detection, and 401 request deduplication.
  *
- * Uso:
+ * Usage:
  *   const manager = new McpOAuthManager({
  *     tokenPath: '.zavorth/mcp-tokens.json',
  *     clientId: 'zavorth-mcp',
@@ -63,23 +63,23 @@ export class McpOAuthManager {
   }
 
   /**
-   * Retorna um access token válido. Faz refresh se necessário.
-   * Deduplica requisições concorrentes.
+   * Returns a valid access token. Refreshes if necessary.
+   * Deduplicates concurrent requests.
    */
   async getAccessToken(): Promise<TokenData> {
-    // Verificar cache em memória
+    // Check memory cache
     const cached = await this.getFromDiskCache();
     if (cached && !this.isExpired(cached)) {
       return cached;
     }
 
-    // Verificar se há refresh em andamento
+    // Check if refresh is in progress
     const pendingKey = 'refresh';
     if (this.refreshPromises.has(pendingKey)) {
       return this.refreshPromises.get(pendingKey)!;
     }
 
-    // Iniciar refresh
+    // Start refresh
     const refreshPromise = this.performRefresh();
     this.refreshPromises.set(pendingKey, refreshPromise);
 
@@ -175,14 +175,14 @@ export class McpOAuthManager {
       scope: data.scope ? String(data.scope) : undefined,
     };
 
-    // Salvar em disco
+    // Save to disk
     this.writeStoredTokens(token);
 
     return token;
   }
 
   private isExpired(token: TokenData): boolean {
-    // Margem de 30 segundos antes de expirar
+    // 30 second margin before expiry
     return Date.now() > token.expiresAt - 30_000;
   }
 
@@ -192,7 +192,7 @@ export class McpOAuthManager {
   }
 
   /**
-   * Salva tokens em disco.
+   * Saves tokens to disk.
    */
   private writeStoredTokens(token: TokenData): void {
     const dir = path.dirname(this.tokenPath);
@@ -235,7 +235,7 @@ export class McpOAuthManager {
   }
 
   /**
-   * Verifica se o disco mudou desde a última leitura.
+   * Checks if disk changed since last read.
    */
   private async getFromDiskCache(): Promise<TokenData | null> {
     try {
@@ -253,7 +253,7 @@ export class McpOAuthManager {
   }
 
   /**
-   * Limpa tokens armazenados.
+   * Clears stored tokens.
    */
   clearTokens(): void {
     this.cachedTokens = null;
@@ -263,21 +263,21 @@ export class McpOAuthManager {
   }
 
   /**
-   * Verifica se o client está marcado como dead.
+   * Checks if client is marked as dead.
    */
   isDeadClient(): boolean {
     return this.deadClients.has(this.clientId);
   }
 
   /**
-   * Remove o client da lista de dead clients.
+   * Removes client from dead clients list.
    */
   resetDeadClient(): void {
     this.deadClients.delete(this.clientId);
   }
 
   /**
-   * Retorna status do manager.
+   * Returns manager status.
    */
   getStatus(): {
     hasTokens: boolean;

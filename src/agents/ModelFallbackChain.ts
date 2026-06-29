@@ -1,12 +1,12 @@
 /**
- * ModelFallbackChain — Fallback multi-candidate com cooldown per-provider.
+ * ModelFallbackChain — Multi-candidate fallback with per-provider cooldown.
  *
- * Gerencia uma cadeia ordenada de modelos alternativos. Quando um provider
- * falha (rate limit, auth error, billing), ele entra em cooldown automático
- * e o próximo candidato é tentado. Inclui sonda de recuperação periódica
- * e cache de erros conhecidos dentro da sessão.
+ * Manages an ordered chain of alternative models. When a provider
+ * fails (rate limit, auth error, billing), it enters automatic cooldown
+ * and the next candidate is tried. Includes periodic recovery probing
+ * and known-bad error cache within the session.
  *
- * Uso:
+ * Usage:
  *   const chain = new ModelFallbackChain({
  *     primary: { provider: 'openai', model: 'gpt-4o' },
  *     fallbacks: [
@@ -15,9 +15,9 @@
  *     ],
  *   });
  *   const candidate = chain.selectCandidate();
- *   // ... usar candidate ...
- *   if (falhou) chain.recordFailure(candidate, 'rate_limit');
- *   if (sucesso) chain.recordSuccess(candidate);
+ *   // ... use candidate ...
+ *   if (failed) chain.recordFailure(candidate, 'rate_limit');
+ *   if (success) chain.recordSuccess(candidate);
  */
 
 export type FailureReason =
@@ -93,8 +93,8 @@ export class ModelFallbackChain {
   }
 
   /**
-   * Seleciona o próximo candidato disponível.
-   * Retorna null se todos estiverem em cooldown.
+   * Selects the next available candidate.
+   * Returns null if all are in cooldown.
    */
   selectCandidate(): ModelCandidate | null {
     for (const candidate of this.candidates) {
@@ -106,7 +106,7 @@ export class ModelFallbackChain {
   }
 
   /**
-   * Retorna todos os candidatos com seu status.
+   * Returns all candidates with their status.
    */
   getCandidatesWithStatus(): Array<ModelCandidate & { available: boolean; cooldownRemainingMs: number }> {
     const now = Date.now();
@@ -123,7 +123,7 @@ export class ModelFallbackChain {
   }
 
   /**
-   * Registra uma falha para um candidato.
+   * Records a failure for a candidate.
    */
   recordFailure(candidate: ModelCandidate, reason: FailureReason = 'unknown'): void {
     const k = this.key(candidate);
@@ -164,7 +164,7 @@ export class ModelFallbackChain {
   }
 
   /**
-   * Retorna o menor cooldown restante entre todos os candidatos.
+   * Returns the shortest cooldown remaining among all candidates.
    */
   soonestCooldownMs(): number {
     const now = Date.now();
@@ -179,7 +179,7 @@ export class ModelFallbackChain {
   }
 
   /**
-   * Retorna um resumo do estado atual.
+   * Returns a summary of current state.
    */
   getSummary(): {
     total: number;
@@ -210,7 +210,7 @@ export class ModelFallbackChain {
   }
 
   /**
-   * Limpa todo o estado (cooldowns, knownBad, probes).
+   * Clears all state (cooldowns, knownBad, probes).
    */
   reset(): void {
     this.cooldowns.clear();
