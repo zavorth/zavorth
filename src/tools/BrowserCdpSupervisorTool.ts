@@ -1,25 +1,26 @@
 /**
  * BrowserCdpSupervisorTool — Tool wrapper for browser CDP control.
  *
- * Exposes BrowserCdpSupervisor functionality through the tool registry,
+ * Exposes BrowserCdpSupervisorEnhanced functionality through the tool registry,
  * allowing the agent to control browsers via Chrome DevTools Protocol.
  *
- * Actions: connect, disconnect, navigate, evaluate, screenshot, getFrames, getConsoleLog
+ * Actions: connect, disconnect, navigate, evaluate, screenshot, frames, frameTree,
+ * console, consoleErrors, injectBridge, setDialogPolicy, respondDialog, stats
  */
 
 import { BaseTool } from './BaseTool.js';
-import { BrowserCdpSupervisor, type DialogPolicy } from '../tools/BrowserCdpSupervisor.js';
+import { BrowserCdpSupervisorEnhanced, type DialogPolicy } from './BrowserCdpSupervisorEnhanced.js';
 
 export class BrowserCdpSupervisorTool extends BaseTool {
   public readonly name = 'browser_cdp_control';
-  public readonly description = 'Control browser via CDP WebSocket. Actions: connect, disconnect, navigate, evaluate, screenshot, frames, console, setDialogPolicy, respondDialog';
+  public readonly description = 'Control browser via CDP WebSocket. Actions: connect, disconnect, navigate, evaluate, screenshot, frames, frameTree, console, consoleErrors, injectBridge, setDialogPolicy, respondDialog, stats';
 
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       action: {
         type: 'string',
-        enum: ['connect', 'disconnect', 'navigate', 'evaluate', 'screenshot', 'frames', 'console', 'setDialogPolicy', 'respondDialog'],
+        enum: ['connect', 'disconnect', 'navigate', 'evaluate', 'screenshot', 'frames', 'frameTree', 'console', 'consoleErrors', 'injectBridge', 'setDialogPolicy', 'respondDialog', 'stats'],
         description: 'Action to perform.',
       },
       wsEndpoint: {
@@ -33,6 +34,10 @@ export class BrowserCdpSupervisorTool extends BaseTool {
       expression: {
         type: 'string',
         description: 'JavaScript expression to evaluate (for evaluate action).',
+      },
+      frameId: {
+        type: 'string',
+        description: 'Frame ID for frame-specific operations.',
       },
       policy: {
         type: 'string',
@@ -60,7 +65,7 @@ export class BrowserCdpSupervisorTool extends BaseTool {
     required: ['action'],
   };
 
-  private supervisor: BrowserCdpSupervisor | null = null;
+  private supervisor: BrowserCdpSupervisorEnhanced | null = null;
 
   async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
@@ -70,9 +75,13 @@ export class BrowserCdpSupervisorTool extends BaseTool {
         const wsEndpoint = String(args.wsEndpoint || '');
         if (!wsEndpoint) return 'Error: wsEndpoint is required for connect action.';
 
-        this.supervisor = new BrowserCdpSupervisor({ browserWSEndpoint: wsEndpoint });
+        this.supervisor = new BrowserCdpSupervisorEnhanced({
+          browserWSEndpoint: wsEndpoint,
+          captureConsoleErrors: true,
+          injectDialogBridge: true,
+        });
         await this.supervisor.connect();
-        return 'Connected to browser.';
+        return 'Connected to browser with enhanced features.';
       }
 
       case 'disconnect': {
@@ -94,14 +103,26 @@ export class BrowserCdpSupervisorTool extends BaseTool {
         if (!this.supervisor) return 'Error: No active connection. Connect first.';
         const expression = String(args.expression || '');
         if (!expression) return 'Error: expression is required for evaluate action.';
-        const result = await this.supervisor.evaluate(expression);
+        const frameId = args.frameId ? String(args.frameId) : undefined;
+        let result: unknown;
+        if (frameId) {
+          result = await this.supervisor.evaluateInFrame(frameId, expression);
+        } else {
+          result = await this.supervisor.evaluate(expression);
+        }
         return `Result: ${JSON.stringify(result)}`;
       }
 
       case 'screenshot': {
         if (!this.supervisor) return 'Error: No active connection. Connect first.';
         const format = String(args.format || 'png') as 'png' | 'jpeg';
-        const data = await this.supervisor.screenshot({ format });
+        const frameId = args.frameId ? String(args.frameId) : undefined;
+        let data: string;
+        if (frameId) {
+          data = await this.supervisor.screenshotFrame(frameId, { format });
+        } else {
+          data = await this.supervisor.screenshot({ format });
+        }
         return `Screenshot captured (${data.length} base64 chars). Format: ${format}`;
       }
 
@@ -112,12 +133,32 @@ export class BrowserCdpSupervisorTool extends BaseTool {
         return frames.map((f) => `${f.id}: ${f.url}`).join('\n');
       }
 
+      case 'frameTree': {
+        if (!this.supervisor) return 'Error: No active connection. Connect first.';
+        const tree = await this.supervisor.getFrameTree();
+        return this.formatFrameTree(tree, 0);
+      }
+
       case 'console': {
         if (!this.supervisor) return 'Error: No active connection. Connect first.';
         const limit = Number(args.limit) || 100;
         const log = this.supervisor.getConsoleLog(limit);
         if (log.length === 0) return 'No console entries.';
         return log.map((e) => `[${e.type}] ${e.text}`).join('\n');
+      }
+
+      case 'consoleErrors': {
+        if (!this.supervisor) return 'Error: No active connection. Connect first.';
+        const limit = Number(args.limit) || 100;
+        const errors = this.supervisor.getConsoleErrors(limit);
+        if (errors.length === 0) return 'No console errors.';
+        return errors.map((e) => `[${e.type}] ${e.text} (${e.url}:${e.line})`).join('\n');
+      }
+
+      case 'injectBridge': {
+        if (!this.supervisor) return 'Error: No active connection. Connect first.';
+        await this.supervisor.injectDialogBridge();
+        return 'Dialog bridge injected.';
       }
 
       case 'setDialogPolicy': {
@@ -138,8 +179,33 @@ export class BrowserCdpSupervisorTool extends BaseTool {
         return `Dialog responded: ${accept ? 'accepted' : 'dismissed'}`;
       }
 
+      case 'stats': {
+        if (!this.supervisor) return 'Error: No active connection. Connect first.';
+        const stats = this.supervisor.getStats();
+        return [
+          `Connected: ${stats.connected}`,
+          `Frames: ${stats.frames}`,
+          `OOPIF Frames: ${stats.oopifFrames}`,
+          `Console Entries: ${stats.consoleEntries}`,
+          `Console Errors: ${stats.consoleErrors}`,
+          `Dialogs Pending: ${stats.dialogsPending}`,
+          `Dialogs Handled: ${stats.dialogsHandled}`,
+          `Bridge Injected: ${stats.bridgeInjected}`,
+        ].join('\n');
+      }
+
       default:
-        return `Unknown action: ${action}. Valid actions: connect, disconnect, navigate, evaluate, screenshot, frames, console, setDialogPolicy, respondDialog`;
+        return `Unknown action: ${action}. Valid actions: connect, disconnect, navigate, evaluate, screenshot, frames, frameTree, console, consoleErrors, injectBridge, setDialogPolicy, respondDialog, stats`;
     }
+  }
+
+  private formatFrameTree(node: { id: string; url: string; name?: string; children: unknown[] }, indent: number): string {
+    const prefix = '  '.repeat(indent);
+    const name = node.name ? ` (${node.name})` : '';
+    let result = `${prefix}${node.id}: ${node.url}${name}`;
+    for (const child of node.children) {
+      result += '\n' + this.formatFrameTree(child as { id: string; url: string; name?: string; children: unknown[] }, indent + 1);
+    }
+    return result;
   }
 }
