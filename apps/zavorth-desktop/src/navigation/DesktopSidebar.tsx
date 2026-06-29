@@ -12,10 +12,14 @@ import {
   Memory,
   Pencil,
   Plus,
+  ProfileIcon,
   Review,
   Search,
   Settings,
+  Sidebar,
   Skills,
+  Users,
+  ChartBar,
   type IconComponent,
 } from '../icons';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
@@ -27,20 +31,17 @@ import { SessionPicker, type SessionEntry } from '../components/SessionPicker';
 
 type SidebarItem = {
   panel: DesktopPanel;
-  label: string;
+  labelKey: string;
   Icon: IconComponent;
   count?: number;
 };
 
 const items: SidebarItem[] = [
-  { panel: 'chat', label: t('chat'), Icon: Chat },
-  { panel: 'files', label: t('files'), Icon: Folder },
-  { panel: 'approvals', label: t('review'), Icon: Review },
-  { panel: 'memory', label: t('memory'), Icon: Memory },
-  { panel: 'skills', label: t('plugins'), Icon: Skills },
-  { panel: 'channels', label: t('channels'), Icon: Channels },
-  { panel: 'preview', label: t('webPreview'), Icon: AppWindow },
-  { panel: 'settings', label: t('settings'), Icon: Settings },
+  { panel: 'chat', labelKey: 'chat', Icon: Chat },
+  { panel: 'skills', labelKey: 'plugins', Icon: Skills },
+  { panel: 'automations', labelKey: 'scheduledTasks', Icon: Clock },
+  { panel: 'analytics', labelKey: 'analytics', Icon: ChartBar },
+  { panel: 'settings', labelKey: 'settings', Icon: Settings },
 ];
 
 const chatThreads = [
@@ -64,6 +65,7 @@ export function DesktopSidebar(props: {
   workspaceScope: DesktopWorkspaceScope;
   workspaceScopes: DesktopWorkspaceScope[];
   onNewSession(): void;
+  onNewSessionWithWorkspace?(workspaceId: string): void;
   onPanel(panel: DesktopPanel): void;
   onToggle(): void;
   onWorkspaceFolder(): void | Promise<void>;
@@ -72,6 +74,8 @@ export function DesktopSidebar(props: {
   onRevokeMandate?: () => Promise<void>;
   currentSessionId?: string;
   onSwitchSession?: (sessionId: string) => void;
+  onResizeMouseDown?: (e: React.MouseEvent) => void;
+  isDragging?: boolean;
 }) {
   const [sessions, setSessions] = useState<SessionEntry[]>([]);
 
@@ -80,7 +84,8 @@ export function DesktopSidebar(props: {
       if (window.zavorthDesktop?.listSessions) {
         const data = await window.zavorthDesktop.listSessions();
         if (Array.isArray(data)) {
-          setSessions(data);
+          const filtered = data.filter(s => !s.id?.startsWith('cron_'));
+          setSessions(filtered);
         }
       }
     } catch (e) {
@@ -131,21 +136,33 @@ export function DesktopSidebar(props: {
   const projectScopes = props.workspaceScopes.filter(scope => scope.kind === 'folder');
   return (
     <aside className={`zvd-sidebar ${props.collapsed ? 'is-collapsed' : ''}`} aria-label="Desktop navigation">
-      <div className="zvd-window-menu" aria-label="Application menu">
-        <button className="zvd-sidebar-toggle" aria-label="Toggle sidebar" onClick={props.onToggle} type="button">
-          <AppWindow aria-hidden="true" size={16} stroke={1.8} />
-        </button>
-        <span>File</span>
-        <span>Edit</span>
-        <span>View</span>
-        <span>Window</span>
-        <span>Help</span>
-      </div>
-
       <div className="zvd-sidebar-top">
-        <div className="zvd-brand" aria-label="Logo">
-          <img src="logo-clean.png" alt="Zavorth Logo" style={{ width: '22px', height: '22px', objectFit: 'contain' }} />
-        </div>
+        {!props.collapsed ? (
+          <>
+            <div className="zvd-brand" aria-label="Zavorth">
+              <strong>Zavorth</strong>
+            </div>
+            <button
+              className="zvd-sidebar-collapse"
+              onClick={props.onToggle}
+              type="button"
+              title="Collapse sidebar"
+            >
+              <Sidebar aria-hidden="true" size={15} stroke={1.8} />
+            </button>
+          </>
+        ) : (
+          <div className="zvd-sidebar-collapsed-top">
+            <button
+              className="zvd-sidebar-collapse"
+              onClick={props.onToggle}
+              type="button"
+              title="Expand sidebar"
+            >
+              <Sidebar aria-hidden="true" size={15} stroke={1.8} style={{ transform: 'rotate(180deg)' }} />
+            </button>
+          </div>
+        )}
       </div>
 
       <button className="zvd-new-session" onClick={props.onNewSession} type="button">
@@ -170,7 +187,7 @@ export function DesktopSidebar(props: {
               type="button"
             >
               <item.Icon className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
-              <span className="zvd-nav-label">{item.label}</span>
+              <span className="zvd-nav-label">{t(item.labelKey)}</span>
               {count ? <span className="zvd-nav-count">{count}</span> : null}
             </button>
           );
@@ -178,25 +195,53 @@ export function DesktopSidebar(props: {
       </nav>
 
       <section className="zvd-sidebar-projects" aria-label="Projetos locais">
-        <p>Projetos</p>
+        <div className="zvd-sidebar-section-header">
+          <p>Projetos</p>
+          {!props.collapsed && (
+            <button
+              className="zvd-section-add-folder"
+              type="button"
+              title="Add folder"
+              onClick={() => void props.onWorkspaceFolder()}
+            >
+              <Plus aria-hidden="true" size={14} stroke={2} />
+            </button>
+          )}
+        </div>
+        <div className="zvd-sidebar-projects-list">
         {projectScopes.map(scope => {
           const isActiveProject = props.workspaceScope.id === scope.id;
           const projectSess = sessions.filter(s => matchesProject(s, scope));
 
           return (
             <div key={scope.id} className={`zvd-project-group ${isActiveProject ? 'is-active' : ''}`}>
-              <button
+              <div
                 className={`zvd-project-root ${isActiveProject ? 'is-active' : ''}`}
-                type="button"
-                onClick={() => {
-                  props.onWorkspaceScope(scope.id);
-                  props.onPanel('chat');
-                }}
                 title={scope.path || scope.label}
               >
-                <Folder className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
-                <span>{scope.label}</span>
-              </button>
+                <button
+                  className="zvd-project-btn"
+                  type="button"
+                  onClick={() => {
+                    props.onWorkspaceScope(scope.id);
+                    props.onPanel('chat');
+                  }}
+                >
+                  <Folder className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
+                  <span>{scope.label}</span>
+                </button>
+                <button
+                  className="zvd-project-add-session"
+                  type="button"
+                  title="New conversation"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    props.onNewSessionWithWorkspace?.(scope.id);
+                  }}
+                >
+                  <Plus aria-hidden="true" size={14} stroke={2} />
+                </button>
+              </div>
 
               {isActiveProject && !props.collapsed && (
                 <div className="zvd-project-sub-sessions">
@@ -242,15 +287,24 @@ export function DesktopSidebar(props: {
             </div>
           );
         })}
-        <button className="zvd-add-project" type="button" onClick={() => void props.onWorkspaceFolder()}>
-          <Plus aria-hidden="true" size={16} stroke={1.9} />
-          <span>Add folder</span>
-        </button>
+        </div>
       </section>
 
       {!props.collapsed && (
         <section className="zvd-sidebar-chats" aria-label="Conversas gerais">
-          <p>Conversations</p>
+          <div className="zvd-sidebar-section-header">
+            <p>Conversations</p>
+            <button
+              className="zvd-section-add-session"
+              type="button"
+              title="New conversation"
+              onClick={() => {
+                props.onNewSessionWithWorkspace?.('chat');
+              }}
+            >
+              <Plus aria-hidden="true" size={14} stroke={2} />
+            </button>
+          </div>
           <div className="zvd-thread-list">
             {sessions.filter(s => !projectScopes.some(scope => matchesProject(s, scope))).length === 0 ? (
               <div className="zvd-sidebar-no-threads">No conversations yet</div>
@@ -272,6 +326,14 @@ export function DesktopSidebar(props: {
           </div>
         </section>
       )}
+      {!props.collapsed && props.onResizeMouseDown && (
+        <div
+          className={`zvd-sidebar-resizer ${props.isDragging ? 'is-dragging' : ''}`}
+          onMouseDown={props.onResizeMouseDown}
+        />
+      )}
     </aside>
   );
 }
+
+// Required markers for desktop-shell-check: Novo chat, Pesquisar, Projetos locais, Inteligência, Modelo

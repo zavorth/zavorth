@@ -21,6 +21,12 @@ import { CockpitDashboard } from '../components/CockpitDashboard.js';
 import { WebPreviewView } from './WebPreviewView';
 import type { DesktopPanel } from '../slashCommands';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
+import { AutomationsPanel } from './panels/AutomationsPanel';
+import { AgentsPanel } from './panels/AgentsPanel';
+import { ProfilesPanel } from './panels/ProfilesPanel';
+import UsageAnalyticsPanel from './panels/UsageAnalyticsPanel';
+import { LemniscateLoader } from '../components/LemniscateLoader';
+import type { ScheduledTask, ActiveSubagent, AgentProfile } from '../useDesktopAppState';
 import { Folder, ChevronDown, ChevronRight, Refresh } from '../icons';
 
 type WorkspaceViewProps = {
@@ -63,11 +69,25 @@ type WorkspaceViewProps = {
   onRuntimeStart(): void | Promise<void>;
   onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
+  scheduledTasks?: ScheduledTask[];
+  onAddScheduledTask?: (name: string, project: string, prompt: string, intervalMinutes: number) => void;
+  onDeleteScheduledTask?: (id: string) => void;
+  onToggleScheduledTask?: (id: string) => void;
+  onRunScheduledTask?: (id: string) => void;
+  loadScheduledTaskLogs?: (sessionId: string) => Promise<any[]>;
+  subagents?: ActiveSubagent[];
+  onAddSubagent?: (role: string, typeName: string) => void;
+  onDeleteSubagent?: (id: string) => void;
+  onTriggerSubagentTask?: (id: string, task: string) => void;
+  customProfiles?: AgentProfile[];
+  allProfiles?: AgentProfile[];
+  onAddCustomProfile?: (name: string, prompt: string, effort: any, costLimit: number) => void;
+  onDeleteCustomProfile?: (id: string) => void;
 };
 
 export function DesktopWorkspaceView(props: WorkspaceViewProps) {
   if (props.activePanel === 'preview') {
-    return <WebPreviewView />;
+    return <WebPreviewView workspaceScope={props.workspaceScope} />;
   }
   if (props.activePanel === 'files') {
     return <FilesView workspaceScope={props.workspaceScope} />;
@@ -107,6 +127,56 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
     );
   }
 
+  if (props.activePanel === 'automations') {
+    return (
+      <AutomationsPanel
+        busy={props.busy}
+        runtimeCapabilities={props.runtimeCapabilities}
+        onRuntimeStateAction={props.onRuntimeStateAction}
+        scheduledTasks={props.scheduledTasks}
+        onAddScheduledTask={props.onAddScheduledTask}
+        onDeleteScheduledTask={props.onDeleteScheduledTask}
+        onToggleScheduledTask={props.onToggleScheduledTask}
+        onRunScheduledTask={props.onRunScheduledTask}
+        loadScheduledTaskLogs={props.loadScheduledTaskLogs}
+      />
+    );
+  }
+
+  if (props.activePanel === 'agents') {
+    return (
+      <AgentsPanel
+        busy={props.busy}
+        subagents={props.subagents}
+        onAddSubagent={props.onAddSubagent}
+        onDeleteSubagent={props.onDeleteSubagent}
+        onTriggerSubagentTask={props.onTriggerSubagentTask}
+      />
+    );
+  }
+
+  if (props.activePanel === 'profiles') {
+    return (
+      <ProfilesPanel
+        customProfiles={props.customProfiles || []}
+        allProfiles={props.allProfiles || []}
+        onAddCustomProfile={props.onAddCustomProfile}
+        onDeleteCustomProfile={props.onDeleteCustomProfile}
+      />
+    );
+  }
+
+  if (props.activePanel === 'analytics') {
+    return (
+      <UsageAnalyticsPanel
+        sessions={props.sessions || []}
+        toolCalls={props.toolCalls || []}
+        tokenUsage={props.tokenUsage || []}
+        currentModel={props.currentModel || 'unknown'}
+      />
+    );
+  }
+
   return (
     <SettingsView
       busy={props.busy}
@@ -132,7 +202,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
   );
 }
 
-function PageFrame(props: {
+export function PageFrame(props: {
   title: string;
   eyebrow?: string;
   description: string;
@@ -235,7 +305,7 @@ function DetailRows(props: {
   );
 }
 
-function ReviewView(props: {
+export function ReviewView(props: {
   approvals: ApprovalItem[];
   busy: boolean;
   onDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
@@ -278,7 +348,7 @@ function ReviewView(props: {
   );
 }
 
-function MemoryView(props: {
+export function MemoryView(props: {
   busy: boolean;
   encryptionReceipt: MemoryEncryptionMigrationReceipt | null;
   encryptionStatus: MemoryEncryptionStatus | null;
@@ -462,7 +532,7 @@ function SkillsView(props: { tools: ToolItem[] }) {
   );
 }
 
-function ChannelsView(props: {
+export function ChannelsView(props: {
   busy: boolean;
   channels: ChannelItem[];
   setup: ChannelSetupSnapshot | null;
@@ -1359,7 +1429,7 @@ function SettingsView(props: {
   );
 }
 
-function FilesView(props: { workspaceScope: DesktopWorkspaceScope }) {
+export function FilesView(props: { workspaceScope: DesktopWorkspaceScope }) {
   const [tree, setTree] = useState<FileExplorerNode[]>([]);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState('');
@@ -1456,7 +1526,7 @@ function FilesView(props: { workspaceScope: DesktopWorkspaceScope }) {
           fontSize: '13px',
         }}
       >
-        {loading && <div style={{ color: '#8b949e', padding: '8px' }}>Loading file structure...</div>}
+        {loading && <LemniscateLoader text="Loading file structure..." />}
         {error && <div style={{ color: '#ff7b72', padding: '8px' }}>{error}</div>}
         {!loading && !error && filteredTree.length === 0 && (
           <div style={{ color: '#8b949e', padding: '8px' }}>No files found.</div>
