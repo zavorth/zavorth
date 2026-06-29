@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { apiRequest } from '../apiClient';
 
 interface ActiveTrust {
   trustId: string;
@@ -14,7 +15,6 @@ interface ActiveTrust {
 
 interface TemporaryDirectoryTrustStatusProps {
   workspaceId: string;
-  apiBase?: string;
 }
 
 function formatTimeLeft(expiresAt: string): string {
@@ -32,24 +32,25 @@ function formatTimeLeft(expiresAt: string): string {
  *
  * Displays active Temporary Directory/External Trusts in the sidebar with a revoke button.
  */
-export function TemporaryDirectoryTrustStatus({ workspaceId, apiBase = '' }: TemporaryDirectoryTrustStatusProps) {
+export function TemporaryDirectoryTrustStatus({ workspaceId }: TemporaryDirectoryTrustStatusProps) {
   const [trusts, setTrusts] = useState<ActiveTrust[]>([]);
   const [revoking, setRevoking] = useState<string | null>(null);
   const [, setTick] = useState(0);
 
   const fetchTrusts = useCallback(async () => {
     try {
-      const res = await fetch(
-        `${apiBase}/api/v2/workspace/temporary-directory-trusts/active?workspaceId=${encodeURIComponent(workspaceId)}`
-      );
-      const data = await res.json();
-      if (data.ok) {
-        setTrusts(data.trusts ?? []);
+      const result = await apiRequest<{ ok: boolean; trusts?: ActiveTrust[] }>({
+        method: 'GET',
+        path: '/api/v2/workspace/temporary-directory-trusts/active',
+        query: { workspaceId }
+      });
+      if (result.ok && result.data?.ok) {
+        setTrusts(result.data.trusts ?? []);
       }
     } catch {
       // silent
     }
-  }, [workspaceId, apiBase]);
+  }, [workspaceId]);
 
   useEffect(() => {
     fetchTrusts();
@@ -66,10 +67,10 @@ export function TemporaryDirectoryTrustStatus({ workspaceId, apiBase = '' }: Tem
   const handleRevoke = async (trustId: string) => {
     setRevoking(trustId);
     try {
-      await fetch(`${apiBase}/api/v2/workspace/temporary-directory-trusts/revoke`, {
+      await apiRequest({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspaceId, trustId }),
+        path: '/api/v2/workspace/temporary-directory-trusts/revoke',
+        body: { workspaceId, trustId }
       });
       setTrusts(prev => prev.filter(t => t.trustId !== trustId));
     } catch {
