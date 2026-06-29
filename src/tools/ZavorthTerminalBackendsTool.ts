@@ -2,6 +2,7 @@ import { execFileSync } from 'child_process';
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
+import { BaseTool } from './BaseTool.js';
 
 export type BackendType = 'local' | 'docker' | 'ssh' | 'wsl' | 'singularity' | 'modal';
 
@@ -20,12 +21,48 @@ export interface ExecuteResult {
   duration_ms: number;
 }
 
-export class ZavorthTerminalBackendsTool {
+export class ZavorthTerminalBackendsTool extends BaseTool {
+  public readonly name = 'terminal_backends';
+  public readonly description = 'Manage and execute commands across multiple terminal backends (local, Docker, SSH, WSL, Singularity, Modal).';
+
+  public readonly parameters = {
+    type: 'object' as const,
+    properties: {
+      action: {
+        type: 'string',
+        enum: ['connect', 'disconnect', 'status', 'execute', 'log', 'stats'],
+        description: 'Action to perform on terminal backends.',
+      },
+      backend: {
+        type: 'string',
+        enum: ['local', 'docker', 'ssh', 'wsl', 'singularity', 'modal'],
+        description: 'Backend type to operate on.',
+      },
+      command: {
+        type: 'string',
+        description: 'Command to execute (required for "execute" action).',
+      },
+      options: {
+        type: 'object',
+        description: 'Backend-specific options (e.g., host, port, container, image).',
+      },
+      timeout_ms: {
+        type: 'number',
+        description: 'Execution timeout in milliseconds (default: 30000, max: 120000).',
+      },
+      working_directory: {
+        type: 'string',
+        description: 'Working directory for command execution (local backend only).',
+      },
+    },
+    required: ['action'],
+  };
   private backends: Map<BackendType, BackendConfig> = new Map();
   private executionLog: Array<{ backend: BackendType; command: string; result: ExecuteResult; timestamp: string }> = [];
   private readonly MAX_LOG = 200;
 
   constructor() {
+    super();
     this.backends.set('local', { type: 'local', name: 'Local Shell', connected: true, options: {} });
     this.backends.set('docker', { type: 'docker', name: 'Docker', connected: false, options: {} });
     this.backends.set('ssh', { type: 'ssh', name: 'SSH Remote', connected: false, options: {} });
@@ -111,7 +148,37 @@ export class ZavorthTerminalBackendsTool {
     return lines.join('\n');
   }
 
-  public execute(backend: BackendType, command: string, options?: { timeout_ms?: number; working_directory?: string }): ExecuteResult {
+  public async execute(args: Record<string, unknown>): Promise<string> {
+    const action = String(args.action || '');
+    const backend = String(args.backend || '') as BackendType;
+    const command = String(args.command || '');
+    const options = args.options as Record<string, unknown> | undefined;
+    const timeout_ms = Number(args.timeout_ms) || 30000;
+    const working_directory = String(args.working_directory || '');
+
+    switch (action) {
+      case 'connect':
+        return this.connect(backend, options);
+      case 'disconnect':
+        return this.disconnect(backend);
+      case 'status':
+        return this.status();
+      case 'execute': {
+        if (!backend) return 'Error: "backend" is required for execute action.';
+        if (!command) return 'Error: "command" is required for execute action.';
+        const result = this.executeOnBackend(backend, command, { timeout_ms, working_directory, ...options });
+        return this.executeAsString(backend, command, { timeout_ms, working_directory });
+      }
+      case 'log':
+        return this.getExecutionLog();
+      case 'stats':
+        return this.getStats();
+      default:
+        return `Error: unknown action "${action}". Valid actions: connect, disconnect, status, execute, log, stats`;
+    }
+  }
+
+  public executeOnBackend(backend: BackendType, command: string, options?: { timeout_ms?: number; working_directory?: string }): ExecuteResult {
     const config = this.backends.get(backend);
     if (!config) return this.errorResult(backend, `Unknown backend "${backend}".`);
     if (!config.connected) return this.errorResult(backend, `Backend "${backend}" is not connected. Call connect() first.`);
@@ -158,7 +225,7 @@ export class ZavorthTerminalBackendsTool {
   }
 
   public executeAsString(backend: BackendType, command: string, options?: { timeout_ms?: number; working_directory?: string }): string {
-    const result = this.execute(backend, command, options);
+    const result = this.executeOnBackend(backend, command, options);
     const lines: string[] = [`[${backend}] Exit: ${result.exitCode} (${result.duration_ms}ms)`];
     if (result.stdout) lines.push(`[STDOUT]\n${result.stdout}`);
     if (result.stderr) lines.push(`[STDERR]\n${result.stderr}`);

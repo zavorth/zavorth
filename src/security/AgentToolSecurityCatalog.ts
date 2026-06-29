@@ -1119,6 +1119,22 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     requiresConfirmation: false,
     description: 'Android companion app integration.',
   },
+  {
+    toolName: 'terminal_backends',
+    surface: 'native-tool',
+    capabilities: ['local-observation', 'filesystem'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Manages and executes commands across multiple terminal backends.',
+  },
+  {
+    toolName: 'zavorth_file_system_advanced',
+    surface: 'native-tool',
+    capabilities: ['filesystem'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Advanced filesystem operations.',
+  },
 ];
 
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
@@ -1214,7 +1230,7 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'ZavorthMlOpsTool', toolName: 'zavorth_ml_ops' },
   { className: 'ZavorthContainerManagerTool', toolName: 'zavorth_container_manager' },
   { className: 'ZavorthDatabaseAdminTool', toolName: 'zavorth_database_admin' },
-  { className: 'ZavorthFileSystemAdvancedTool', toolName: 'zavorth_filesystem_advanced' },
+  { className: 'ZavorthFileSystemAdvancedTool', toolName: 'zavorth_file_system_advanced' },
   { className: 'ZavorthNetworkDiagnosticsTool', toolName: 'zavorth_network_diagnostics' },
   { className: 'ZavorthSecurityScannerTool', toolName: 'zavorth_security_scanner' },
   { className: 'ZavorthCloudStorageTool', toolName: 'zavorth_cloud_storage' },
@@ -1222,7 +1238,7 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'ZavorthCalendarAdvancedTool', toolName: 'zavorth_calendar_advanced' },
   { className: 'ZavorthNotificationTool', toolName: 'zavorth_notification' },
   { className: 'ZavorthApiBuilderTool', toolName: 'zavorth_api_builder' },
-  { className: 'ZavorthTerminalBackendsTool', toolName: 'zavorth_terminal_backends' },
+  { className: 'ZavorthTerminalBackendsTool', toolName: 'terminal_backends' },
   { className: 'AgentManagerTool', toolName: 'agent_manager' },
   { className: 'CapabilityDiscoveryTool', toolName: 'capability_discovery' },
   { className: 'LLMRouterService', toolName: 'llm_router' },

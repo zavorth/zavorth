@@ -178,10 +178,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { BrowserPlaywrightService } = require('../services/plugins/BrowserPlaywrightService.js');
   const { SearchExaService } = require('../services/plugins/SearchExaService.js');
   const { MemoryQdrantService } = require('../services/plugins/MemoryQdrantService.js');
-  const { LLMRouterService } = require('../services/plugins/LLMRouterService.js');
-  const { ContextCompressorService } = require('../services/plugins/ContextCompressorService.js');
-  const { ReasoningEffortService } = require('../services/plugins/ReasoningEffortService.js');
-  const { PromptCacheService } = require('../services/plugins/PromptCacheService.js');
 
   const toolRegistry = new ToolRegistry();
   toolRegistry.register(new UnifiedSearchTool());

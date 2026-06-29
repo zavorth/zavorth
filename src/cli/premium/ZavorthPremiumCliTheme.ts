@@ -44,8 +44,8 @@ export type ZavorthPremiumCliTheme = {
 
 const DEFAULT_MAX_WIDTH = 82;
 const DEFAULT_MIN_WIDTH = 44;
-const ZAVORTH_ORANGE = '\u001b[38;2;255;111;31m';
-const ZAVORTH_ORANGE_SOFT = '\u001b[38;2;255;149;79m';
+const ZAVORTH_CYAN = '\u001b[38;2;6;182;212m';
+const ZAVORTH_CYAN_BRIGHT = '\u001b[38;2;34;211;238m';
 const ANSI_RESET = '\u001b[0m';
 
 export function createZavorthPremiumCliTheme(input: {
@@ -64,13 +64,13 @@ export function createZavorthPremiumCliTheme(input: {
     minWidth: DEFAULT_MIN_WIDTH,
     colorEnabled: input.colorEnabled ?? isCliColorEnabled(),
     symbols: {
-      pass: 'o',
-      warn: '!',
-      fail: 'x',
-      wait: '*',
-      arrow: '>',
-      bullet: '-',
-      rail: '|',
+      pass: '✓',
+      warn: '⚠',
+      fail: '✗',
+      wait: '◌',
+      arrow: '→',
+      bullet: '•',
+      rail: '│',
     },
   };
 }
@@ -85,7 +85,7 @@ export function paintPremiumAccent(
   }
   switch (accent) {
     case 'neural':
-      return color.bold(`${ZAVORTH_ORANGE}${value}${ANSI_RESET}`);
+      return color.bold(`${ZAVORTH_CYAN_BRIGHT}${value}${ANSI_RESET}`);
     case 'cyan':
       return color.cyan(value);
     case 'violet':
@@ -93,7 +93,7 @@ export function paintPremiumAccent(
     case 'emerald':
       return color.green(value);
     case 'amber':
-      return `${ZAVORTH_ORANGE_SOFT}${value}${ANSI_RESET}`;
+      return color.yellow(value);
     case 'rose':
       return color.red(value);
     case 'muted':

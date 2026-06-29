@@ -8,10 +8,9 @@ const ANSI_RESET = '\u001b[0m';
 
 function gradientText(text: string): string {
   const colors = [
-    '\u001b[38;2;255;111;31m',
-    '\u001b[38;2;255;132;48m',
-    '\u001b[38;2;255;154;77m',
-    '\u001b[38;2;255;190;108m',
+    '\u001b[38;2;34;211;238m',   // #22D3EE
+    '\u001b[38;2;6;182;212m',    // #06B6D4
+    '\u001b[38;2;8;145;178m',    // #0891B2
   ];
 
   let result = '';
@@ -36,10 +35,9 @@ export function renderPremiumBrand(
 
   if (isAsciiOnly) {
     return [
-      paintPremiumAccent('  ZAVORTH', 'amber', theme),
+      paintPremiumAccent('  ZAVORTH', 'cyan', theme),
       '',
       paintPremiumAccent(`  ${theme.tagline}`, 'muted', theme),
-      paintPremiumAccent(`  ${theme.subtagline}`, 'muted', theme),
     ].join('\n');
   }
 
@@ -48,14 +46,14 @@ export function renderPremiumBrand(
     : '  Z A V O R T H';
 
   const divider = theme.colorEnabled
-    ? `  \u001b[38;2;60;60;70m────────────────────────────────────────${ANSI_RESET}`
-    : '  ────────────────────────────────────────';
+    ? `  \u001b[38;2;6;182;212m${'─'.repeat(40)}${ANSI_RESET}`
+    : '  ' + '─'.repeat(40);
 
   return [
     title,
     divider,
-    `  \u001b[38;2;125;133;151mNatural language in. Governed action out.${ANSI_RESET}`,
-    `  \u001b[38;2;90;100;115mLocal-first agent OS with evidence, approvals and native integrations.${ANSI_RESET}`,
+    `  \u001b[38;2;107;114;128m${theme.tagline}${ANSI_RESET}`,
+    `  \u001b[38;2;75;85;99m${theme.subtagline}${ANSI_RESET}`,
     '',
   ].join('\n');
 }
@@ -66,8 +64,8 @@ export function renderPremiumCompactBrand(
   const isAsciiOnly = process.env.ZAVORTH_ASCII_LOGO === '1';
 
   if (theme.colorEnabled && !isAsciiOnly) {
-    return `\u001b[1m${gradientText('ZAVORTH')}${ANSI_RESET} \u001b[2m(v1.1.0)${ANSI_RESET}  \u001b[2m·  Local-first governed agent OS${ANSI_RESET}`;
+    return `\u001b[1m${gradientText('ZAVORTH')}${ANSI_RESET} \u001b[2m(v1.1.0)${ANSI_RESET}  Local-first governed agent OS`;
   }
 
-  return 'ZAVORTH (v1.1.0)  ·  Local-first governed agent OS';
+  return 'ZAVORTH (v1.1.0)  Local-first governed agent OS';
 }

@@ -317,7 +317,7 @@ function visibleLength(value: string): number {
 function orange(value: string): string {
   if (String(process.env.NO_COLOR || '').trim()) return value;
   if (!process.stdout?.isTTY && !String(process.env.FORCE_COLOR || '').trim()) return value;
-  return `\u001b[38;2;255;111;31m${value}\u001b[0m`;
+  return `\u001b[38;2;6;182;212m${value}\u001b[0m`;
 }
 
 function warm(value: string): string {
@@ -342,8 +342,8 @@ function paintBannerLine(value: string): string {
   if (String(process.env.NO_COLOR || '').trim()) return value;
   if (!process.stdout?.isTTY && !String(process.env.FORCE_COLOR || '').trim()) return value;
   return Array.from(value).map((char) => {
-    if (char === '█') return `\u001b[38;2;255;111;31m${char}\u001b[0m`;
-    if ('╗╔╝╚║═'.includes(char)) return `\u001b[38;2;166;72;23m${char}\u001b[0m`;
+    if (char === '█') return `\u001b[38;2;6;182;212m${char}\u001b[0m`;
+    if ('╗╔╝╚║═'.includes(char)) return `\u001b[38;2;8;145;178m${char}\u001b[0m`;
     return char;
   }).join('');
 }
