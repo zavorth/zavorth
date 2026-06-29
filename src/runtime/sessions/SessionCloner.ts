@@ -349,8 +349,8 @@ export class SessionCloner {
       throw new Error('One or both sessions not found.');
     }
 
-    const fields1 = this.flattenObject(data1);
-    const fields2 = this.flattenObject(data2);
+    const fields1 = this.flattenObject(data1 as unknown as Record<string, unknown>);
+    const fields2 = this.flattenObject(data2 as unknown as Record<string, unknown>);
 
     const allKeys = new Set([...Object.keys(fields1), ...Object.keys(fields2)]);
 

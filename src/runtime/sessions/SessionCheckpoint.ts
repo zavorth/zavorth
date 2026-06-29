@@ -231,8 +231,8 @@ export class SessionCheckpoint {
       throw new Error('One or both checkpoints not found.');
     }
 
-    const fields1 = this.flattenObject(cp1.data);
-    const fields2 = this.flattenObject(cp2.data);
+    const fields1 = this.flattenObject(cp1.data as unknown as Record<string, unknown>);
+    const fields2 = this.flattenObject(cp2.data as unknown as Record<string, unknown>);
 
     const allKeys = new Set([...Object.keys(fields1), ...Object.keys(fields2)]);
     const added: string[] = [];
