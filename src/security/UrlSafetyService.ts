@@ -81,14 +81,12 @@ async function resolveDns(
   hostname: string,
   timeoutMs: number,
 ): Promise<string[]> {
-  const { lookup } = await import('dns');
-  const { promisify } = await import('util');
-  const lookupAsync = promisify(lookup);
+  const dns = await import('dns');
 
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve([]), timeoutMs);
 
-    lookupAsync(hostname, { all: true }, (err, addresses) => {
+    dns.lookup(hostname, { all: true }, (err: NodeJS.ErrnoException | null, addresses: Array<{ address: string; family: number }>) => {
       clearTimeout(timer);
       if (err || !addresses) {
         resolve([]);

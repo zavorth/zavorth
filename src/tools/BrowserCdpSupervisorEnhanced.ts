@@ -253,9 +253,10 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
   private handleEvent(method: string, params: Record<string, unknown>): void {
     switch (method) {
       case 'Runtime.consoleAPICalled': {
+        const args = params.args as Array<{ value: unknown }> | undefined;
         const entry = {
           type: String(params.type),
-          text: String(params.args?.[0]?.value ?? ''),
+          text: String(args?.[0]?.value ?? ''),
           url: String(params.source),
           line: Number(params.lineNumber),
           timestamp: Date.now(),

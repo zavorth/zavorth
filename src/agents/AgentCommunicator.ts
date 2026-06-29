@@ -117,9 +117,13 @@ export class AgentCommunicator {
 
     this.bus.publish({
       topic: TOPIC_AGENT_COMM,
-      type: 'agent:registered',
-      senderId: agent.id,
-      payload: { agent },
+      type: 'status',
+      sender: agent.id,
+      payload: { event: 'agent:registered', agent },
+      priority: 'normal',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
     });
 
     this.log.info(`[AgentCommunicator] Agent "${agent.name}" (${agent.id}) registered with capabilities: [${agent.capabilities.join(', ')}]`);
@@ -142,9 +146,13 @@ export class AgentCommunicator {
 
     this.bus.publish({
       topic: TOPIC_AGENT_COMM,
-      type: 'agent:unregistered',
-      senderId: agentId,
-      payload: { agent },
+      type: 'status',
+      sender: agentId,
+      payload: { event: 'agent:unregistered', agentId },
+      priority: 'normal',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
     });
 
     this.log.info(`[AgentCommunicator] Agent "${agent.name}" (${agentId}) unregistered`);
@@ -181,16 +189,15 @@ export class AgentCommunicator {
     const timeoutMs = message.timeoutMs ?? this.config.defaultRequestTimeoutMs;
 
     this.bus.publish({
-      topic: TOPIC_AGENT_COMM,
-      type: 'direct:message',
-      senderId: message.from,
-      targetId: message.to,
-      payload: {
-        type: message.type,
-        payload: message.payload,
-        timeoutMs,
-      },
-      ttlMs: timeoutMs,
+      topic: TOPIC_DIRECT_MSG,
+      type: 'result',
+      sender: message.from,
+      recipient: message.to,
+      payload: { event: 'request:response', messageId: id, message, response },
+      priority: 'high',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
     });
 
     this.updateAgentLastSeen(message.from);
@@ -206,17 +213,16 @@ export class AgentCommunicator {
     const count = targets.length;
 
     for (const agent of targets) {
-      this.bus.publish({
-        topic: TOPIC_AGENT_COMM,
-        type: 'broadcast:message',
-        senderId: message.from,
-        targetId: agent.id,
-        payload: {
-          type: message.type,
-          payload: message.payload,
-          capabilityFilter: message.capabilityFilter,
-        },
-      });
+    this.bus.publish({
+      topic: TOPIC_BROADCAST,
+      type: 'status',
+      sender: message.from,
+      payload: { event: 'broadcast:message', message },
+      priority: 'normal',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
+    });
     }
 
     this.updateAgentLastSeen(message.from);
@@ -302,15 +308,14 @@ export class AgentCommunicator {
     this.tasks.set(delegation.id, delegation);
 
     this.bus.publish({
-      topic: TOPIC_AGENT_COMM,
-      type: 'task:delegated',
-      senderId: task.assignedBy,
-      targetId: task.assignedTo,
-      payload: {
-        taskId: delegation.id,
-        taskType: task.taskType,
-        payload: task.payload,
-      },
+      topic: TOPIC_TASKS,
+      type: 'error',
+      sender: task.assignedTo,
+      payload: { event: 'task:failed', taskId: task.id, error },
+      priority: 'high',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
     });
 
     this.log.info(`[AgentCommunicator] Task "${task.taskType}" (${delegation.id}) delegated to "${task.assignedTo}"`);
@@ -377,12 +382,13 @@ export class AgentCommunicator {
 
     this.bus.publish({
       topic: TOPIC_AGENT_COMM,
-      type: 'agent:status_changed',
-      senderId: agentId,
-      payload: {
-        previousStatus,
-        currentStatus: status,
-      },
+      type: 'status',
+      sender: agentId,
+      payload: { event: 'agent:status_changed', agentId, oldStatus: agent.status, newStatus: status },
+      priority: 'normal',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
     });
 
     this.log.info(`[AgentCommunicator] Agent "${agent.name}" (${agentId}) status: ${previousStatus} -> ${status}`);
@@ -414,12 +420,16 @@ export class AgentCommunicator {
         return;
       }
 
-      this.bus.publish({
-        topic: TOPIC_HEARTBEAT,
-        type: 'heartbeat:ping',
-        senderId: agentId,
-        payload: { timestamp: this.config.now().toISOString() },
-      });
+    this.bus.publish({
+      topic: TOPIC_HEARTBEAT,
+      type: 'heartbeat',
+      sender: agentId,
+      payload: { event: 'heartbeat:ping', agentId },
+      priority: 'low',
+      ttlMs: 10_000,
+      ackRequired: false,
+      status: 'pending',
+    });
     }, interval);
 
     this.heartbeatTimers.set(agentId, timer);
@@ -449,9 +459,13 @@ export class AgentCommunicator {
 
     this.bus.publish({
       topic: TOPIC_HEARTBEAT,
-      type: 'heartbeat:pong',
-      senderId: agentId,
-      payload: { timestamp: this.config.now().toISOString() },
+      type: 'heartbeat',
+      sender: agentId,
+      payload: { event: 'heartbeat:pong', agentId },
+      priority: 'low',
+      ttlMs: 10_000,
+      ackRequired: false,
+      status: 'pending',
     });
   }
 
@@ -473,12 +487,16 @@ export class AgentCommunicator {
     if (!agent.capabilities.includes(capability)) {
       agent.capabilities.push(capability);
 
-      this.bus.publish({
-        topic: TOPIC_AGENT_COMM,
-        type: 'agent:capability_added',
-        senderId: agentId,
-        payload: { capability, capabilities: agent.capabilities },
-      });
+    this.bus.publish({
+      topic: TOPIC_AGENT_COMM,
+      type: 'status',
+      sender: agentId,
+      payload: { event: 'agent:capability_added', agentId, capability },
+      priority: 'normal',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
+    });
     }
 
     return true;
@@ -495,9 +513,13 @@ export class AgentCommunicator {
 
     this.bus.publish({
       topic: TOPIC_AGENT_COMM,
-      type: 'agent:capability_removed',
-      senderId: agentId,
-      payload: { capability, capabilities: agent.capabilities },
+      type: 'status',
+      sender: agentId,
+      payload: { event: 'agent:capability_removed', agentId, capability },
+      priority: 'normal',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
     });
 
     return true;
