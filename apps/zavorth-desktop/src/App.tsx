@@ -9,7 +9,7 @@ import { ZavorthPaneShell } from './shell/ZavorthPaneShell';
 import { DropOverlay } from './components/DropOverlay';
 import { OnboardingOverlay } from './components/OnboardingOverlay';
 import { SettingsOverlay } from './components/SettingsOverlay';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { playDingSound } from './lib/haptics';
 
 export function App() {
@@ -86,6 +86,9 @@ export function App() {
     handleSwitchSession,
     dispatchRuntimeStateAction,
   } = useDesktopAppState();
+
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const prevBusyRef = useRef(busy);
   useEffect(() => {
