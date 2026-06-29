@@ -26,6 +26,7 @@ import { AgentsPanel } from './panels/AgentsPanel';
 import { ProfilesPanel } from './panels/ProfilesPanel';
 import UsageAnalyticsPanel from './panels/UsageAnalyticsPanel';
 import PluginMarketplacePanel from './panels/PluginMarketplacePanel';
+import WorkboardPanel from './panels/WorkboardPanel';
 import { LemniscateLoader } from '../components/LemniscateLoader';
 import type { ScheduledTask, ActiveSubagent, AgentProfile } from '../useDesktopAppState';
 import { Folder, ChevronDown, ChevronRight, Refresh } from '../icons';
@@ -185,6 +186,19 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
         onInstall={props.onInstallPlugin}
         onUninstall={props.onUninstallPlugin}
         onUpdate={props.onUpdatePlugin}
+      />
+    );
+  }
+
+  if (props.activePanel === 'workboard') {
+    return (
+      <WorkboardPanel
+        boards={props.boards || []}
+        onBoardSelect={props.onBoardSelect}
+        onCardMove={props.onCardMove}
+        onCardCreate={props.onCardCreate}
+        onCardUpdate={props.onCardUpdate}
+        onCardDelete={props.onCardDelete}
       />
     );
   }

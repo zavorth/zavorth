@@ -21,6 +21,7 @@ import {
   Users,
   ChartBar,
   Store,
+  LayoutGrid,
   type IconComponent,
 } from '../icons';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
@@ -41,6 +42,7 @@ const items: SidebarItem[] = [
   { panel: 'chat', labelKey: 'chat', Icon: Chat },
   { panel: 'skills', labelKey: 'plugins', Icon: Skills },
   { panel: 'marketplace', labelKey: 'marketplace', Icon: Store },
+  { panel: 'workboard', labelKey: 'workboard', Icon: LayoutGrid },
   { panel: 'automations', labelKey: 'scheduledTasks', Icon: Clock },
   { panel: 'analytics', labelKey: 'analytics', Icon: ChartBar },
   { panel: 'settings', labelKey: 'settings', Icon: Settings },
