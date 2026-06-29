@@ -108,6 +108,7 @@ export function useDesktopAppState() {
   const approvals = useStore($approvals);
   const learning = useStore($learning);
   const tools = useStore($tools);
+  const controlMemory = useStore($controlMemory);
   const nexusStatus = useStore($nexusStatus);
   const memoryEncryptionStatus = useStore($memoryEncryptionStatus);
   const memoryEncryptionReceipt = useStore($memoryEncryptionReceipt);
