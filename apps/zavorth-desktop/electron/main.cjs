@@ -714,6 +714,7 @@ function createWindow() {
     minHeight: 620,
     backgroundColor: '#08090c',
     title: 'Zavorth',
+    icon: path.join(__dirname, '../public/icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
