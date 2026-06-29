@@ -1255,6 +1255,30 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     requiresConfirmation: true,
     description: 'OAuth 2.1 token management for MCP servers.',
   },
+  {
+    toolName: 'rbac_engine',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Role-Based Access Control engine for permission management.',
+  },
+  {
+    toolName: 'abac_engine',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Attribute-Based Access Control engine for policy evaluation.',
+  },
+  {
+    toolName: 'access_control',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Integrated access control combining RBAC and ABAC.',
+  },
 ];
 
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
@@ -1412,6 +1436,9 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'MoAWithFallback', toolName: 'moa_with_fallback' },
   { className: 'BrowserCdpSupervisorTool', toolName: 'browser_cdp_control' },
   { className: 'McpOAuthManagerTool', toolName: 'mcp_oauth_manager' },
+  { className: 'RbacEngine', toolName: 'rbac_engine' },
+  { className: 'AbacEngine', toolName: 'abac_engine' },
+  { className: 'AccessControlService', toolName: 'access_control' },
 ] as const;
 
 const NATIVE_DEFINITIONS_BY_NAME = new Map(
