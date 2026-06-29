@@ -25,6 +25,7 @@ import { AutomationsPanel } from './panels/AutomationsPanel';
 import { AgentsPanel } from './panels/AgentsPanel';
 import { ProfilesPanel } from './panels/ProfilesPanel';
 import UsageAnalyticsPanel from './panels/UsageAnalyticsPanel';
+import PluginMarketplacePanel from './panels/PluginMarketplacePanel';
 import { LemniscateLoader } from '../components/LemniscateLoader';
 import type { ScheduledTask, ActiveSubagent, AgentProfile } from '../useDesktopAppState';
 import { Folder, ChevronDown, ChevronRight, Refresh } from '../icons';
@@ -173,6 +174,17 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
         toolCalls={props.toolCalls || []}
         tokenUsage={props.tokenUsage || []}
         currentModel={props.currentModel || 'unknown'}
+      />
+    );
+  }
+
+  if (props.activePanel === 'marketplace') {
+    return (
+      <PluginMarketplacePanel
+        plugins={props.marketplacePlugins || []}
+        onInstall={props.onInstallPlugin}
+        onUninstall={props.onUninstallPlugin}
+        onUpdate={props.onUpdatePlugin}
       />
     );
   }

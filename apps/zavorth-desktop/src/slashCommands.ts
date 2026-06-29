@@ -1,4 +1,4 @@
-export type DesktopPanel = 'chat' | 'approvals' | 'memory' | 'skills' | 'channels' | 'settings' | 'files' | 'preview' | 'automations' | 'agents' | 'profiles' | 'analytics';
+export type DesktopPanel = 'chat' | 'approvals' | 'memory' | 'skills' | 'channels' | 'settings' | 'files' | 'preview' | 'automations' | 'agents' | 'profiles' | 'analytics' | 'marketplace';
 
 export type SlashCommandDefinition = {
   name: string;
@@ -98,6 +98,8 @@ const panels: Record<string, DesktopPanel> = {
   '/settings': 'settings',
   '/files': 'files',
   '/analytics': 'analytics',
+  '/marketplace': 'marketplace',
+  '/plugins': 'marketplace',
 };
 
 const allowedEfforts = new Set(['low', 'medium', 'high', 'ultra']);
