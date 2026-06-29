@@ -144,7 +144,7 @@ export function DesktopSidebar(props: {
 
       <div className="zvd-sidebar-top">
         <div className="zvd-brand" aria-label="Logo">
-          <img src="/logo-clean.png" alt="Zavorth Logo" style={{ width: '22px', height: '22px', objectFit: 'contain' }} />
+          <img src="logo-clean.png" alt="Zavorth Logo" style={{ width: '22px', height: '22px', objectFit: 'contain' }} />
         </div>
       </div>
 

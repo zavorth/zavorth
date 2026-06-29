@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiRequest } from '../apiClient';
 
 interface TempDirTrustProposed {
   trustId: string;
@@ -13,10 +14,9 @@ interface TempDirTrustProposed {
 
 interface TemporaryDirectoryTrustModalProps {
   workspaceId: string;
-  apiBase?: string;
 }
 
-export function TemporaryDirectoryTrustModal({ workspaceId, apiBase = '' }: TemporaryDirectoryTrustModalProps) {
+export function TemporaryDirectoryTrustModal({ workspaceId }: TemporaryDirectoryTrustModalProps) {
   const [proposed, setProposed] = useState<TempDirTrustProposed | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,12 +27,13 @@ export function TemporaryDirectoryTrustModal({ workspaceId, apiBase = '' }: Temp
 
     const poll = async () => {
       try {
-        const res = await fetch(
-          `${apiBase}/api/v2/workspace/temporary-directory-trusts/pending?workspaceId=${encodeURIComponent(workspaceId)}`
-        );
-        const data = await res.json();
-        if (!cancelled && data.ok) {
-          setProposed(data.proposed ?? null);
+        const result = await apiRequest<{ ok: boolean; proposed?: TempDirTrustProposed | null }>({
+          method: 'GET',
+          path: '/api/v2/workspace/temporary-directory-trusts/pending',
+          query: { workspaceId }
+        });
+        if (!cancelled && result.ok && result.data) {
+          setProposed(result.data.proposed ?? null);
         }
       } catch {
         // silent poll failure
@@ -47,23 +48,22 @@ export function TemporaryDirectoryTrustModal({ workspaceId, apiBase = '' }: Temp
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [workspaceId, apiBase]);
+  }, [workspaceId]);
 
   const handleResolve = async (approved: boolean) => {
     if (!proposed) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${apiBase}/api/v2/workspace/temporary-directory-trusts/resolve`, {
+      const result = await apiRequest<{ ok: boolean; error?: string }>({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspaceId, trustId: proposed.trustId, approved }),
+        path: '/api/v2/workspace/temporary-directory-trusts/resolve',
+        body: { workspaceId, trustId: proposed.trustId, approved }
       });
-      const data = await res.json();
-      if (data.ok) {
+      if (result.ok && result.data?.ok) {
         setProposed(null);
       } else {
-        setError(data.error ?? 'Failed to resolve trust.');
+        setError(result.error || result.data?.error || 'Failed to resolve trust.');
       }
     } catch (err: any) {
       setError(err.message ?? 'Network error.');
