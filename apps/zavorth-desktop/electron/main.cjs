@@ -740,6 +740,7 @@ function createWindow() {
   });
 
   void loadRenderer();
+  mainWindow.webContents.openDevTools();
 }
 
 ipcMain.handle('zavorth:runtime:status', async () => runtimeStatus());
