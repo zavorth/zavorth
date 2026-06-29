@@ -890,7 +890,7 @@ export function useDesktopAppState() {
     memoryItems,
     channelItems,
     kaelActive,
-    setAccent,
+    setAccent: setAccentPreset,
     setCommandPaletteOpen,
     setInput: setComposerInput,
     setMessages,
