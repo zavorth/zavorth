@@ -30,12 +30,18 @@ import arcee from './arcee.plugin.js';
 import gmi from './gmi.plugin.js';
 import kilocode from './kilocode.plugin.js';
 import xiaomi from './xiaomi.plugin.js';
+import replicate from './replicate.plugin.js';
+import watsonx from './watsonx.plugin.js';
+import oracle from './oracle.plugin.js';
+import samsung from './samsung.plugin.js';
+import apple from './apple.plugin.js';
 
 const builtinPlugins: ProviderPlugin[] = [
   gemini, deepseek, openai, groq, xai, mistral, cerebras, together,
   openrouter, minimax, qwen, opencode, anthropicDirect, anthropicVertex,
   bedrockClaude, googleGenai, geminiInteractions, aigateway, ollama,
-  lmstudio, nous, novita, arcee, gmi, kilocode, xiaomi,
+  lmstudio, nous, novita, arcee, gmi, kilocode, xiaomi, replicate, watsonx,
+  oracle, samsung, apple,
 ];
 
 registerBatch(builtinPlugins);
