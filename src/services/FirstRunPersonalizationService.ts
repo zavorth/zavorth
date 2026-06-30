@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { WakeWordSyncService } from './WakeWordSyncService.js';
 
 export type FirstRunPersonalizationAnswers = {
   agentName?: string | null;
@@ -255,6 +256,10 @@ export class FirstRunPersonalizationService {
       this.fs.unlinkSync(files.bootstrap);
       removedBootstrap = true;
     }
+
+    // Sync agent name to wake words
+    const wakeWordSync = new WakeWordSyncService();
+    await wakeWordSync.syncAgentNameToWakeWords(normalized.agentName);
 
     const status = this.getStatus();
     return {
