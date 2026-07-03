@@ -7,6 +7,17 @@ import type http from 'http';
 import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
 import type { WebAppSupervisionRouteContext } from './types.js';
 
+interface EngineeringWebBody {
+  sessionId?: string;
+  text?: string;
+}
+
+interface OperatorApprovalBody {
+  approved?: boolean;
+  confirmed?: boolean;
+  approvalGranted?: boolean;
+}
+
 const SYSTEM_OVERLORD_CAPABILITIES: readonly SystemOverlordCapability[] = [
   'host.shell',
   'host.files.write',
@@ -59,7 +70,7 @@ export function getRequestedBy(ctx: WebAppSupervisionRouteContext, fallback: str
 
 export function buildEngineeringWebContext(
   ctx: WebAppSupervisionRouteContext,
-  body: Record<string, any>,
+  body: EngineeringWebBody,
 ) {
   const engineeringSessionId = String(body.sessionId || '').trim() || `engineering-web-${Date.now()}`;
   const baseCtx = ctx.deps.createWebContext(engineeringSessionId) || {};
@@ -79,13 +90,13 @@ export function buildEngineeringWebContext(
   };
 }
 
-export function isWebOperatorApprovalRequested(body: Record<string, any> | null | undefined): boolean {
+export function isWebOperatorApprovalRequested(body: OperatorApprovalBody | null | undefined): boolean {
   return body?.approved === true || body?.confirmed === true || body?.approvalGranted === true;
 }
 
 export function isStrongWebOperatorApprovalAccepted(
   ctx: WebAppSupervisionRouteContext,
-  body: Record<string, any> | null | undefined,
+  body: OperatorApprovalBody | null | undefined,
 ): boolean {
   if (!isWebOperatorApprovalRequested(body)) {
     return false;
@@ -105,7 +116,7 @@ export function isStrongWebOperatorApprovalAccepted(
 
 export function buildWebOperatorApprovalSafety(
   ctx: WebAppSupervisionRouteContext,
-  body: Record<string, any> | null | undefined,
+  body: OperatorApprovalBody | null | undefined,
 ): {
   operatorApprovalRequested: boolean;
   operatorApprovalAccepted: boolean;

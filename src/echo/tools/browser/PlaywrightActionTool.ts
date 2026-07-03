@@ -3,7 +3,6 @@ import type { Browser, Page } from 'playwright-core';
 import { IZavorthTool, ToolCategory, ToolDangerLevel, ToolExecutionResult } from '../../types/IZavorthTool';
 import { EchoVisionAnalysisService } from '../../../domain/platform-ecosystem/infrastructure/EchoVisionAnalysisService.js';
 import {
-import { logger } from '../logger.js';
     isBlockedFilePath,
     resolveBrowserTargetPolicy,
     type BrowserTargetPolicy,

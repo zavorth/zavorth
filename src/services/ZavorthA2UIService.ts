@@ -1,14 +1,16 @@
+export type A2UIPropValue = string | number | boolean | null | A2UIPropValue[] | Record<string, A2UIPropValue>;
+
 export interface A2UIComponent {
   type: string;
   id: string;
-  props: Record<string, any>;
+  props: Record<string, A2UIPropValue>;
   children?: A2UIComponent[];
 }
 
 export interface A2UISurfaceState {
   surfaceId: string;
   components: A2UIComponent[];
-  dataModel: Record<string, any>;
+  dataModel: Record<string, A2UIPropValue>;
   lastUpdated: string;
   metadata?: Record<string, unknown>;
 }
@@ -149,7 +151,7 @@ export class ZavorthA2UIService {
 
   public beginRendering(
     surfaceId: string,
-    initialData: Record<string, any> = {},
+    initialData: Record<string, A2UIPropValue> = {},
     metadata: Record<string, unknown> = {},
   ): A2UISurfaceState {
     const normalizedSurfaceId = this.normalizeSurfaceId(surfaceId);
@@ -183,7 +185,7 @@ export class ZavorthA2UIService {
     return true;
   }
 
-  public updateDataModel(surfaceId: string, partialData: Record<string, any>): boolean {
+  public updateDataModel(surfaceId: string, partialData: Record<string, A2UIPropValue>): boolean {
     const state = this.surfaces.get(this.normalizeSurfaceId(surfaceId));
     if (!state) {
       return false;
@@ -305,17 +307,18 @@ export class ZavorthA2UIService {
         event: completionEvent,
         data: handlerResult ? this.clone(handlerResult) : null,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       const event = this.appendEvent(surfaceId, 'action_blocked', {
         actionId,
-        reason: error?.message || 'unknown_error',
+        reason: message || 'unknown_error',
       });
       return {
         ok: false,
         surfaceId,
         actionId,
         status: 'error',
-        summary: `Falha ao despachar action "${actionId}": ${error?.message || 'erro desconhecido'}.`,
+        summary: `Falha ao despachar action "${actionId}": ${message || 'erro desconhecido'}.`,
         event: event || dispatchedEvent,
         data: null,
       };
@@ -404,8 +407,8 @@ export class ZavorthA2UIService {
     });
   }
 
-  private sanitizeProps(input: Record<string, any>): Record<string, any> {
-    const output: Record<string, any> = {};
+  private sanitizeProps(input: Record<string, A2UIPropValue>): Record<string, A2UIPropValue> {
+    const output: Record<string, A2UIPropValue> = {};
     for (const [key, value] of Object.entries(input || {})) {
       const normalizedKey = String(key || '').trim();
       if (!normalizedKey || /^on[A-Z_:-]?/u.test(normalizedKey) || ['dangerouslySetInnerHTML', 'innerHTML', 'outerHTML', 'srcDoc'].includes(normalizedKey)) {
@@ -415,9 +418,9 @@ export class ZavorthA2UIService {
         continue;
       }
       output[normalizedKey] = Array.isArray(value)
-        ? value.map((entry) => (entry && typeof entry === 'object' ? this.sanitizeProps(entry as Record<string, any>) : entry))
+        ? value.map((entry) => (entry && typeof entry === 'object' ? this.sanitizeProps(entry as Record<string, A2UIPropValue>) : entry))
         : value && typeof value === 'object'
-          ? this.sanitizeProps(value as Record<string, any>)
+          ? this.sanitizeProps(value as Record<string, A2UIPropValue>)
           : value;
     }
     return this.clone(output);

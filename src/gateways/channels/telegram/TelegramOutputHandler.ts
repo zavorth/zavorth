@@ -1,5 +1,6 @@
 import { logger } from '../../../logger.js';
 import { Context, InputFile } from 'grammy';
+import type { Message } from '@grammyjs/types';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../../../config/index.js';
@@ -13,6 +14,19 @@ export interface OutputResult {
   isAudio: boolean;
   isFile: boolean;
   fileName?: string;
+}
+
+interface AudioOptions {
+  caption?: string;
+  title?: string;
+}
+
+interface TelegramApiError {
+  error_code: number;
+  parameters?: {
+    retry_after?: number;
+  };
+  message?: string;
 }
 
 /**
@@ -120,21 +134,21 @@ export class TelegramOutputHandler {
   private async sendTelegramAudio(ctx: Context, file: InputFile, filePath: string): Promise<void> {
     const preferVoice = /\.(ogg|opus)$/i.test(filePath);
 
-    if (preferVoice && typeof (ctx as any).replyWithVoice === 'function') {
-      await (ctx as any).replyWithVoice(file);
+    if (preferVoice && typeof ctx.replyWithVoice === 'function') {
+      await (ctx.replyWithVoice as (file: InputFile) => Promise<Message>)(file);
       return;
     }
 
-    if (typeof (ctx as any).replyWithAudio === 'function') {
-      await (ctx as any).replyWithAudio(file, {
+    if (typeof ctx.replyWithAudio === 'function') {
+      await (ctx.replyWithAudio as (file: InputFile, options?: AudioOptions) => Promise<Message>)(file, {
         caption: 'Resposta em audio',
         title: path.basename(filePath),
       });
       return;
     }
 
-    if (typeof (ctx as any).replyWithVoice === 'function') {
-      await (ctx as any).replyWithVoice(file);
+    if (typeof ctx.replyWithVoice === 'function') {
+      await (ctx.replyWithVoice as (file: InputFile) => Promise<Message>)(file);
       return;
     }
 
@@ -169,15 +183,16 @@ export class TelegramOutputHandler {
   private async safeSend(ctx: Context, text: string): Promise<void> {
     try {
       await ctx.reply(text);
-    } catch (error: any) {
-      if (error?.error_code === 429) {
-        const retryAfter = error?.parameters?.retry_after || 5;
+    } catch (error: unknown) {
+      const telegramError = error as TelegramApiError;
+      if (telegramError?.error_code === 429) {
+        const retryAfter = telegramError?.parameters?.retry_after || 5;
         await this.sleep(retryAfter * 1000);
         await ctx.reply(text);
         return;
       }
 
-      if (error?.error_code === 403) {
+      if (telegramError?.error_code === 403) {
         logger.warn('[OutputHandler] Usuario bloqueou o bot. Mensagem descartada.');
         return;
       }

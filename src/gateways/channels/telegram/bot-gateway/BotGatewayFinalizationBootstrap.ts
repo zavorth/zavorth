@@ -1,3 +1,4 @@
+import type { Bot, Context } from 'grammy';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { LogRepository } from '@zavorth/storage/LogRepository.js';
 import { TelegramCallbackController } from '../../../../gateways/channels/telegram/controllers/TelegramCallbackController.js';
@@ -14,64 +15,129 @@ import type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/tel
 import { processTextMessage } from '../../../../gateways/channels/telegram/bot-gateway/support/BotGatewayMessageProcessing.js';
 import { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
 import { TelegramIntentClassifier } from '../../../../gateways/channels/telegram/controllers/TelegramIntentClassifier.js';
+import type { BotGateway } from '../../../../gateways/channels/telegram/BotGateway.js';
+import type { WorkflowRunService } from '../../../../services/WorkflowRunService.js';
+import type { RuntimeCompositionService } from '../../../../services/RuntimeCompositionService.js';
+import type { SecurityLockService } from '../../../../services/SecurityLockService.js';
+import type { SchedulerService } from '../../../../services/SchedulerService.js';
+import type { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
+import type { BotGatewaySupport } from './BotGatewaySupport.js';
+import type { TelegramHubController } from '../controllers/TelegramHubController.js';
+import type { TelegramPermissionController } from '../controllers/TelegramPermissionController.js';
+import type { TelegramEchoApprovalController } from '../controllers/TelegramEchoApprovalController.js';
+import type { TelegramOpsController } from '../controllers/TelegramOpsController.js';
+import type { TelegramMenuController } from '../controllers/TelegramMenuController.js';
+import type { TelegramSchedulerController } from '../controllers/TelegramSchedulerController.js';
+import type { TelegramFunController } from '../controllers/TelegramFunController.js';
+import type { TelegramGroupAdminController } from '../controllers/TelegramGroupAdminController.js';
+import type { TelegramResearchController } from '../controllers/TelegramResearchController.js';
+import type { TelegramKnowledgeController } from '../controllers/TelegramKnowledgeController.js';
+import type { TelegramExecutionController } from '../controllers/TelegramExecutionController.js';
+import type { TelegramSelfModificationController } from '../controllers/TelegramSelfModificationController.js';
+import type { TelegramZavorthBridgeController } from '../controllers/TelegramZavorthBridgeController.js';
+import type { TelegramFileDeliveryController } from '../controllers/TelegramFileDeliveryController.js';
+import type { TelegramSwarmController } from '../controllers/TelegramSwarmController.js';
+import type { TelegramInspectionController } from '../controllers/TelegramInspectionController.js';
+import type { TelegramSkillCatalogController } from '../controllers/TelegramSkillCatalogController.js';
+import type { TelegramSecurityController } from '../controllers/TelegramSecurityController.js';
+import type { TelegramProviderController } from '../controllers/TelegramProviderController.js';
+
+type BotGatewayFinalizationTarget = {
+  mnemosController: TelegramMnemosController;
+  mnemosMemoryUxController: TelegramMnemosMemoryUxController;
+  callbackController: TelegramCallbackController;
+  commandRoutingService: TelegramCommandRoutingService;
+  priorityCommandService: TelegramPriorityCommandService;
+  botGatewaySupport: BotGatewaySupport;
+  schedulerService: SchedulerService;
+  registerOutgoingTracker(): void;
+  registerMiddlewares(): void;
+  registerHandlers(): void;
+  bot: { api: Bot['api'] };
+  processTextMessage(ctx: Context, text: string): Promise<void>;
+  hubController: TelegramHubController;
+  permissionController: TelegramPermissionController;
+  echoApprovalController: TelegramEchoApprovalController;
+  opsController: TelegramOpsController;
+  menuController: TelegramMenuController;
+  zavorthBridgePreferenceStore: ZavorthBridgePreferenceStore;
+  runtimeComposition: RuntimeCompositionService;
+  schedulerController: TelegramSchedulerController;
+  funController: TelegramFunController;
+  groupAdminController: TelegramGroupAdminController;
+  researchController: TelegramResearchController;
+  knowledgeController: TelegramKnowledgeController;
+  executionController: TelegramExecutionController;
+  selfModificationController: TelegramSelfModificationController;
+  zavorthBridgeController: TelegramZavorthBridgeController;
+  fileDeliveryController: TelegramFileDeliveryController;
+  swarmController: TelegramSwarmController;
+  inspectionController: TelegramInspectionController;
+  skillCatalogController: TelegramSkillCatalogController;
+  securityController: TelegramSecurityController;
+  providerController: TelegramProviderController;
+  securityLock: SecurityLockService;
+};
 
 export function finalizeBotGatewayBootstrap(
-  gateway: any,
+  gateway: BotGateway,
   taskManager: TaskManager,
   logRepo: LogRepository,
-  workflowRunService: any,
+  workflowRunService: WorkflowRunService,
   runtimeOptions?: BotGatewayRuntimeOptions,
 ): void {
+  // Bootstrap phase: cast to access all gateway properties for initialization
+  const gw = gateway as unknown as BotGatewayFinalizationTarget;
   initializeTelegramTaskRuntime(
-    gateway,
+    gw as never,
     taskManager,
     logRepo,
     workflowRunService,
   );
 
-  gateway.mnemosController = new TelegramMnemosController({
+  gw.mnemosController = new TelegramMnemosController({
     logRepo,
     mcpRuntimeService: runtimeOptions?.mcpRuntimeService || null,
     toolInvoker: {
-      execute: (toolName, args) =>
-        gateway.runtimeComposition.getToolRuntime().executeTool(toolName, args),
+      execute: (toolName: string, args: Record<string, unknown>) =>
+        gw.runtimeComposition.getToolRuntime().executeTool(toolName, args),
     },
   });
-  gateway.mnemosMemoryUxController = new TelegramMnemosMemoryUxController();
-  gateway.callbackController = new TelegramCallbackController({
-    handleHubCallback: gateway.hubController.handleHubCallback.bind(
-      gateway.hubController,
+  gw.mnemosMemoryUxController = new TelegramMnemosMemoryUxController();
+  gw.callbackController = new TelegramCallbackController({
+    handleHubCallback: gw.hubController.handleHubCallback.bind(
+      gw.hubController,
     ),
     handlePermissionCallback:
-      gateway.permissionController.handlePermissionCallback.bind(
-        gateway.permissionController,
+      gw.permissionController.handlePermissionCallback.bind(
+        gw.permissionController,
       ),
     handleTaskCallback:
-      gateway.permissionController.handleTaskCallback.bind(
-        gateway.permissionController,
+      gw.permissionController.handleTaskCallback.bind(
+        gw.permissionController,
       ),
     handleEchoApprovalCallback:
-      gateway.echoApprovalController.handleEchoCallback.bind(
-        gateway.echoApprovalController,
+      gw.echoApprovalController.handleEchoCallback.bind(
+        gw.echoApprovalController,
       ),
     handleMnemosCallback:
-      gateway.mnemosController.handleMnemosCallback.bind(gateway.mnemosController),
-    handleStatusAction: gateway.opsController.handleStatus.bind(
-      gateway.opsController,
+      gw.mnemosController.handleMnemosCallback.bind(gw.mnemosController),
+    handleStatusAction: gw.opsController.handleStatus.bind(
+      gw.opsController,
     ),
-    handleHelpAction: gateway.menuController.renderHelpCard.bind(
-      gateway.menuController,
+    handleHelpAction: gw.menuController.renderHelpCard.bind(
+      gw.menuController,
     ),
-    handleAuditAction: (ctx) => gateway.opsController.handleAudit(ctx, '10'),
-    handleModeAction: (ctx) =>
-      gateway.opsController.handleOperationalMode(ctx, ''),
-    handleModelsAction: gateway.opsController.handleModels.bind(
-      gateway.opsController,
+    handleAuditAction: (ctx: Context) => gw.opsController.handleAudit(ctx, '10'),
+    handleModeAction: (ctx: Context) =>
+      gw.opsController.handleOperationalMode(ctx, ''),
+    handleModelsAction: gw.opsController.handleModels.bind(
+      gw.opsController,
     ),
-    handleSurfaceCommandCallback: async (ctx, commandText) => {
-      await processTextMessage(gateway, ctx, commandText);
+    handleSurfaceCommandCallback: async (ctx: Context, commandText: string) => {
+      await processTextMessage(gw as never, ctx, commandText);
     },
-    handleExperienceActionCardCallback: async (ctx, data) => {
+    handleExperienceActionCardCallback: async (ctx: Context, data: string) => {
       const resolved = defaultTelegramExperienceActionCardRegistry.resolve(data, {
         userId: String(ctx.from?.id || '').trim() || null,
         chatId: String(ctx.chat?.id || '').trim() || null,
@@ -86,57 +152,56 @@ export function finalizeBotGatewayBootstrap(
         return;
       }
       await ctx.answerCallbackQuery({ text: 'Action card recebido.' });
-      await processTextMessage(gateway, ctx, resolved.entry.commandText);
+      await processTextMessage(gw as never, ctx, resolved.entry.commandText);
     },
-    logError: (message) =>
+    logError: (message: string) =>
       logRepo.log('error', 'BotGateway', `Callback error: ${message}`),
   });
-  gateway.commandRoutingService = new TelegramCommandRoutingService({
-    menuController: gateway.menuController,
-    opsController: gateway.opsController,
-    hubController: gateway.hubController,
-    skillCatalogController: gateway.skillCatalogController,
-    securityController: gateway.securityController,
-    providerController: gateway.providerController,
-    permissionController: gateway.permissionController,
-    echoApprovalController: gateway.echoApprovalController,
-    schedulerController: gateway.schedulerController,
-    funController: gateway.funController,
-    groupAdminController: gateway.groupAdminController,
-    researchController: gateway.researchController,
-    knowledgeController: gateway.knowledgeController,
-    executionController: gateway.executionController,
-    selfModificationController: gateway.selfModificationController,
-    zavorthBridgeController: gateway.zavorthBridgeController,
-    fileDeliveryController: gateway.fileDeliveryController,
-    swarmController: gateway.swarmController,
-    mnemosMemoryUxController: gateway.mnemosMemoryUxController,
+  gw.commandRoutingService = new TelegramCommandRoutingService({
+    menuController: gw.menuController,
+    opsController: gw.opsController,
+    hubController: gw.hubController,
+    skillCatalogController: gw.skillCatalogController,
+    securityController: gw.securityController,
+    providerController: gw.providerController,
+    permissionController: gw.permissionController,
+    echoApprovalController: gw.echoApprovalController,
+    schedulerController: gw.schedulerController,
+    funController: gw.funController,
+    groupAdminController: gw.groupAdminController,
+    researchController: gw.researchController,
+    knowledgeController: gw.knowledgeController,
+    executionController: gw.executionController,
+    selfModificationController: gw.selfModificationController,
+    zavorthBridgeController: gw.zavorthBridgeController,
+    fileDeliveryController: gw.fileDeliveryController,
+    swarmController: gw.swarmController,
+    mnemosMemoryUxController: gw.mnemosMemoryUxController,
     naturalCapabilityRouter: new TelegramNaturalCapabilityRoutingService({
-      fileDeliveryController: gateway.fileDeliveryController,
-      inspectionController: gateway.inspectionController,
-      researchController: gateway.researchController,
-      schedulerController: gateway.schedulerController,
+      fileDeliveryController: gw.fileDeliveryController,
+      inspectionController: gw.inspectionController,
+      researchController: gw.researchController,
+      schedulerController: gw.schedulerController,
     }),
-    // Certification matrix: Modo Echo
-    echoPreferenceStore: gateway.zavorthBridgePreferenceStore,
+    echoPreferenceStore: gw.zavorthBridgePreferenceStore,
   });
-  gateway.priorityCommandService = new TelegramPriorityCommandService({
-    opsController: gateway.opsController,
-    zavorthBridgeController: gateway.zavorthBridgeController,
-    securityLock: gateway.securityLock,
+  gw.priorityCommandService = new TelegramPriorityCommandService({
+    opsController: gw.opsController,
+    zavorthBridgeController: gw.zavorthBridgeController,
+    securityLock: gw.securityLock,
     intentClassifier: new TelegramIntentClassifier(new LlmRuntimeService('gemini')),
   });
 
-  gateway.botGatewaySupport = createBotGatewaySupport(gateway, logRepo);
+  gw.botGatewaySupport = createBotGatewaySupport(gw as never, logRepo);
 
-  gateway.registerOutgoingTracker();
-  gateway.registerMiddlewares();
-  gateway.registerHandlers();
+  gw.registerOutgoingTracker();
+  gw.registerMiddlewares();
+  gw.registerHandlers();
   void new TelegramSchedulerBootstrap({
-    botApi: gateway.bot.api,
-    processTextMessage: (ctx, text) => gateway.processTextMessage(ctx, text),
-    onReady: (schedulerService) => {
-      gateway.schedulerService = schedulerService;
+    botApi: gw.bot.api,
+    processTextMessage: (ctx: Context, text: string) => gw.processTextMessage(ctx, text),
+    onReady: (schedulerService: SchedulerService) => {
+      gw.schedulerService = schedulerService;
     },
   }).init();
 }

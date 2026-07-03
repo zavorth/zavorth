@@ -1,4 +1,4 @@
-import { buildZavorthControlZavorthControlViewModel } from '../adapters/zavorthControlZavorthControlAdapter';
+import { buildZavorthControlZavorthControlViewModel } from '../adapters/ZavorthControlAdapter';
 
 export const ZAVORTH_CONTROL_FIXTURE_IDS = [
   'safe-run',

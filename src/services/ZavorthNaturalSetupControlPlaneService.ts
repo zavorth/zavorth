@@ -1,5 +1,8 @@
 import { config } from '../config/index.js';
 import type {
+  ChannelMeshSnapshot,
+} from '../contracts/ChannelMeshContract.js';
+import type {
   ZavorthMutationRiskLevel,
   ZavorthReadinessGate,
   ZavorthResourceImpact,
@@ -9,8 +12,15 @@ import {
   type CapabilityStateSnapshot,
 } from './CapabilityLifecycleService.js';
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
-import { ChannelSetupAssistantService } from './ChannelSetupAssistantService.js';
-import { NaturalChannelSetupTurnService } from './NaturalChannelSetupTurnService.js';
+import {
+  ChannelSetupAssistantService,
+  type ChannelSetupAssistantOption,
+  type ChannelSetupAssistantSession,
+} from './ChannelSetupAssistantService.js';
+import {
+  NaturalChannelSetupTurnService,
+  type NaturalChannelSetupTurnResult,
+} from './NaturalChannelSetupTurnService.js';
 
 type NaturalSetupPosture = 'healthy' | 'attention' | 'critical';
 type NaturalSetupSeverity = 'info' | 'warn' | 'critical';
@@ -18,7 +28,7 @@ type NaturalSetupOperationMode = 'explain' | 'preview';
 type NaturalSetupRequestedAction = 'apply' | 'doctor' | 'test';
 
 type ChannelMeshLike = {
-  buildSnapshot: (input?: any) => any;
+  buildSnapshot: (input?: { selectedId?: string | null }) => ChannelMeshSnapshot;
 };
 
 type NaturalSetupDeps = {
@@ -80,9 +90,9 @@ export type ZavorthNaturalSetupControlPlaneSnapshot = {
     command: string | null;
   }>;
   examples: string[];
-  assistant: any;
-  turn: any;
-  channels: any;
+  assistant: ChannelSetupAssistantSession;
+  turn: NaturalChannelSetupTurnResult | null;
+  channels: ChannelMeshSnapshot;
   planPreview: NaturalSetupPlanPreview;
   safety: {
     previewFirst: true;
@@ -110,7 +120,7 @@ export class ZavorthNaturalSetupControlPlaneService {
     this.workspaceRoot = this.text(runtime.workspaceRoot, config.projectRoot || process.cwd());
     this.channels = runtime.channelMeshService || new ZavorthChannelMeshService();
     this.assistant = runtime.channelSetupAssistantService || new ChannelSetupAssistantService({
-      channelMeshService: this.channels as any,
+      channelMeshService: this.channels,
     });
     this.naturalTurn = runtime.naturalChannelSetupTurnService || null;
     this.capabilityLifecycle = runtime.capabilityLifecycleService || new CapabilityLifecycleService();
@@ -259,9 +269,9 @@ export class ZavorthNaturalSetupControlPlaneService {
   }
 
   private buildActions(input: {
-    assistant: any;
-    turn: any;
-    selected: any;
+    assistant: ChannelSetupAssistantSession;
+    turn: NaturalChannelSetupTurnResult | null;
+    selected: ChannelSetupAssistantOption | null;
     missingEnvKeys: number;
     promotionReady: boolean;
   }): ZavorthNaturalSetupControlPlaneSnapshot['actions'] {
@@ -317,14 +327,14 @@ export class ZavorthNaturalSetupControlPlaneService {
 
   private buildPlanPreview(input: {
     operationMode: NaturalSetupOperationMode;
-    selected: any;
+    selected: ChannelSetupAssistantOption | null;
     selectedChannelId: string | null;
     requestedActions: NaturalSetupRequestedAction[];
     missingEnvKeys: number;
     promotionReady: boolean;
     capabilityId: string | null;
     capability: CapabilityStateSnapshot | null;
-    turn: any;
+    turn: NaturalChannelSetupTurnResult | null;
   }): NaturalSetupPlanPreview {
     const setupMode = this.text(input.turn?.mode || input.selected?.setupMode || input.selected?.recommendedMode) || null;
     const riskLevel = input.requestedActions.includes('test')
@@ -443,7 +453,7 @@ export class ZavorthNaturalSetupControlPlaneService {
     };
   }
 
-  private buildManualFallback(selected: any, missingEnvKeys: number): string[] {
+  private buildManualFallback(selected: ChannelSetupAssistantOption | null, missingEnvKeys: number): string[] {
     if (!selected) {
       return ['Escolha explicitamente o canal: Discord, Slack, WhatsApp, Instagram, Signal, iMessage, Teams, Email ou Telegram.'];
     }

@@ -8,7 +8,7 @@ export class WhatsAppGateway extends WebhookGateway {
   public readonly type: 'async' = 'async';
   public readonly mode: WebhookGatewayMode = 'local-bridge';
 
-  constructor(options: WebhookGatewayOptions | any) {
+  constructor(options: WebhookGatewayOptions | Record<string, unknown>) {
     const isOptionsObj = options && typeof options === 'object' && 'eventBus' in options;
     super(isOptionsObj ? {
       ...options,
@@ -46,15 +46,15 @@ export class WhatsAppGateway extends WebhookGateway {
 
   public resolveConfigured(): boolean {
     return Boolean(
-      String((config as any).whatsappBridgeUrl || '').trim() ||
-      String((config as any).whatsappWebhookUrl || '').trim()
+      String(config.whatsappBridgeUrl || '').trim() ||
+      String(config.whatsappWebhookUrl || '').trim()
     );
   }
 
   public resolveEnabled(): boolean {
     return Boolean(
-      String((config as any).whatsappBridgeUrl || '').trim() ||
-      String((config as any).whatsappWebhookUrl || '').trim()
+      String(config.whatsappBridgeUrl || '').trim() ||
+      String(config.whatsappWebhookUrl || '').trim()
     );
   }
 

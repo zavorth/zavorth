@@ -49,4 +49,4 @@ export type {
   ZavorthControlAgentTeamCompilerRole,
   ZavorthControlAgentTeamCompilerRoleKind,
   ZavorthControlAgentTeamCompilerSnapshot,
-} from './zavorthControlZavorthControlContracts';
+} from './ZavorthControlContracts';

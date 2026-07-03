@@ -8,6 +8,20 @@ import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 
 type PersistTaskFn = (task: Task) => void;
 
+type ReplyWithPhotoFn = (photo: InputFile, options?: { caption?: string }) => Promise<unknown>;
+type ReplyWithAudioFn = (audio: InputFile, options?: { caption?: string; title?: string }) => Promise<unknown>;
+type ReplyWithDocumentFn = (document: InputFile, options?: { caption?: string }) => Promise<unknown>;
+
+interface TelegramMediaContext {
+  replyWithPhoto?: ReplyWithPhotoFn;
+  replyWithAudio?: ReplyWithAudioFn;
+  replyWithDocument?: ReplyWithDocumentFn;
+}
+
+function asTelegramMediaContext(ctx: Context): TelegramMediaContext {
+  return ctx as TelegramMediaContext;
+}
+
 export type TelegramExecutionArtifactDeliveryServiceDeps = {
   persistTask: PersistTaskFn;
 };
@@ -114,23 +128,25 @@ export class TelegramExecutionArtifactDeliveryService {
     const imageLike = mimeType.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(fileName);
     const audioLike = mimeType.startsWith('audio/') || /\.(mp3|wav|ogg|opus|m4a|flac|aac)$/i.test(fileName);
 
-    if (imageLike && typeof (ctx as any).replyWithPhoto === 'function') {
-      await (ctx as any).replyWithPhoto(new InputFile(filePath, fileName), {
+    const mediaCtx = asTelegramMediaContext(ctx);
+
+    if (imageLike && typeof mediaCtx.replyWithPhoto === 'function') {
+      await mediaCtx.replyWithPhoto(new InputFile(filePath, fileName), {
         caption: caption.slice(0, 1024),
       });
       return true;
     }
 
-    if (audioLike && typeof (ctx as any).replyWithAudio === 'function') {
-      await (ctx as any).replyWithAudio(new InputFile(filePath, fileName), {
+    if (audioLike && typeof mediaCtx.replyWithAudio === 'function') {
+      await mediaCtx.replyWithAudio(new InputFile(filePath, fileName), {
         caption: caption.slice(0, 1024),
         title: fileName,
       });
       return true;
     }
 
-    if (typeof (ctx as any).replyWithDocument === 'function') {
-      await (ctx as any).replyWithDocument(new InputFile(filePath, fileName), {
+    if (typeof mediaCtx.replyWithDocument === 'function') {
+      await mediaCtx.replyWithDocument(new InputFile(filePath, fileName), {
         caption: caption.slice(0, 1024),
       });
       return true;

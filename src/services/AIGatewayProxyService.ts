@@ -35,6 +35,48 @@ type GoogleStudioContent = {
   parts?: GoogleStudioPart[];
 };
 
+interface GatewayWebSocketMessage {
+  id?: string;
+  type?: string;
+  body?: Record<string, unknown>;
+}
+
+interface OpenAiChatMessage {
+  role?: string;
+  content?: unknown;
+}
+
+interface GoogleAiStudioChatPayload {
+  model?: string;
+  messages?: OpenAiChatMessage[];
+  temperature?: number;
+  max_tokens?: number;
+}
+
+interface GoogleAiStudioError {
+  message?: string;
+  type?: string;
+}
+
+interface GoogleAiStudioResponseBody {
+  candidates?: Array<{
+    content?: {
+      parts?: Array<{
+        text?: string;
+      }>;
+    };
+    finishReason?: string;
+  }>;
+  responseId?: string;
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+    totalTokenCount?: number;
+  };
+  error?: GoogleAiStudioError;
+  message?: string;
+}
+
 export class AIGatewayProxyService {
   private static server: http.Server | null = null;
   private static wss: WebSocketServer | null = null;
@@ -73,10 +115,11 @@ export class AIGatewayProxyService {
           resolve();
         });
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       server.removeAllListeners();
       this.server = null;
-      if (error?.code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
+      const errObj = error && typeof error === 'object' ? error as { code?: string } : {};
+      if (errObj.code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
         const status = this.buildExternalGatewayStatus('Gateway proprio do AIGateway ja estava ativo em outro processo.');
         this.writeStatus(status);
         return status;
@@ -217,8 +260,9 @@ export class AIGatewayProxyService {
       res.end(bodyBuffer);
       const status = this.buildStatus(true, response.ok, 'Gateway proprio do AIGateway respondeu ao upstream.');
       this.writeStatus(status);
-    } catch (error: any) {
-      const status = this.buildStatus(true, false, `Falha ao encaminhar request ao AIGateway upstream: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const status = this.buildStatus(true, false, `Falha ao encaminhar request ao AIGateway upstream: ${errorMessage}`);
       this.writeStatus(status);
       this.writeJson(res, { ok: false, error: status.message }, 502);
     }
@@ -258,7 +302,7 @@ export class AIGatewayProxyService {
   }
 
   private async handleGatewayWebSocketMessage(ws: WebSocket, raw: RawData): Promise<void> {
-    let message: any;
+    let message: GatewayWebSocketMessage;
     try {
       message = JSON.parse(Buffer.isBuffer(raw) ? raw.toString('utf8') : raw.toString());
     } catch (err) {
@@ -396,7 +440,7 @@ export class AIGatewayProxyService {
     res: http.ServerResponse,
     requestBody: Buffer,
   ): Promise<void> {
-    const payload = JSON.parse(requestBody.toString('utf8') || '{}') as Record<string, any>;
+    const payload = JSON.parse(requestBody.toString('utf8') || '{}') as GoogleAiStudioChatPayload;
     const model = this.resolveGoogleAiStudioModel(payload.model);
     const upstreamUrl = this.joinUrl(
       config.AIGatewayUpstreamBaseUrl,
@@ -407,7 +451,7 @@ export class AIGatewayProxyService {
     const requestPayload = JSON.stringify(this.toGoogleAiStudioGenerateContentPayload(payload));
     const keyCandidates = this.resolveGoogleAiStudioApiKeys();
     let response: Response | null = null;
-    let body: Record<string, any> | null = null;
+    let body: GoogleAiStudioResponseBody | null = null;
     let lastStatus = 0;
     let lastMessage = '';
     for (let attempt = 0; attempt < keyCandidates.length; attempt += 1) {
@@ -421,7 +465,7 @@ export class AIGatewayProxyService {
         serviceName: 'AI Gateway Google AI Studio chat completions',
         allowLoopback: true,
       });
-      body = await response.json().catch(() => null) as Record<string, any> | null;
+      body = await response.json().catch(() => null) as GoogleAiStudioResponseBody | null;
       if (response.ok) {
         break;
       }
@@ -452,7 +496,7 @@ export class AIGatewayProxyService {
     this.writeStatus(status);
   }
 
-  private toGoogleAiStudioGenerateContentPayload(payload: Record<string, any>): Record<string, unknown> {
+  private toGoogleAiStudioGenerateContentPayload(payload: GoogleAiStudioChatPayload): Record<string, unknown> {
     const systemParts: GoogleStudioPart[] = [];
     const contents: GoogleStudioContent[] = [];
     const messages = Array.isArray(payload.messages) ? payload.messages : [];
@@ -488,10 +532,10 @@ export class AIGatewayProxyService {
     return next;
   }
 
-  private toOpenAiChatCompletion(body: Record<string, any> | null, model: string): Record<string, unknown> {
+  private toOpenAiChatCompletion(body: GoogleAiStudioResponseBody | null, model: string): Record<string, unknown> {
     const candidate = body?.candidates?.[0] || {};
     const content = Array.isArray(candidate?.content?.parts)
-      ? candidate.content.parts.map((part: any) => part?.text || '').join('')
+      ? candidate.content.parts.map((part: GoogleStudioPart) => part?.text || '').join('')
       : '';
     return {
       id: body?.responseId || `chatcmpl-zavorth-${Date.now()}`,

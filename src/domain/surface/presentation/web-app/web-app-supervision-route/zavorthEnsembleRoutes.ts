@@ -1,5 +1,22 @@
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
 import { buildWebOperatorApprovalSafety } from './helpers.js';
+import type { SwarmScalePlannerMode, SwarmScaleExecutionMode } from '../../../../execution/infrastructure/SwarmScalePlaneService.js';
+import type { SwarmV2IsolationMode } from '../../../../agents/SwarmV2Service.js';
+
+interface RoleBodyInput {
+  id?: string;
+  label?: string;
+  systemPrompt?: string;
+  stdinMode?: string;
+  cwd?: string;
+  toolSpecId?: string;
+  command?: string;
+  args?: string[];
+}
+
+interface ToolSpecBodyInput {
+  command?: string;
+}
 
 export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async (ctx) => {
   const {
@@ -62,8 +79,8 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
       maxAgents: Number.isFinite(Number(body.maxAgents)) ? Number(body.maxAgents) : undefined,
       maxSteps: Number.isFinite(Number(body.maxSteps || body.steps)) ? Number(body.maxSteps || body.steps) : undefined,
       maxConcurrency: Number.isFinite(Number(body.maxConcurrency || body.concurrency)) ? Number(body.maxConcurrency || body.concurrency) : undefined,
-      plannerMode: String(body.plannerMode || '').trim() as any || undefined,
-      executionMode: executionMode as any || undefined,
+      plannerMode: String(body.plannerMode || '').trim() as SwarmScalePlannerMode || undefined,
+      executionMode: executionMode as SwarmScaleExecutionMode || undefined,
       stopAfterSteps: Number.isFinite(Number(body.stopAfterSteps)) ? Number(body.stopAfterSteps) : undefined,
       persistState: body.persistState !== false,
       approvalId: String(body.approvalId || '').trim() || undefined,
@@ -150,7 +167,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
     const body = await deps.readJsonBody(req);
     const objective = String(body.objective || '').trim();
     const roles = Array.isArray(body.roles)
-      ? body.roles.map((role: any, index: number) => ({
+      ? body.roles.map((role: RoleBodyInput, index: number) => ({
         id: String(role?.id || `role-${index + 1}`),
         label: String(role?.label || `Role ${index + 1}`),
         systemPrompt: String(role?.systemPrompt || '').trim(),
@@ -160,10 +177,10 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
       }))
       : [];
     const requestedCommandRoles = Array.isArray(body.roles)
-      ? body.roles.some((role: any) => String(role?.command || '').trim() || (Array.isArray(role?.args) && role.args.length > 0))
+      ? body.roles.some((role: RoleBodyInput) => String(role?.command || '').trim() || (Array.isArray(role?.args) && role.args.length > 0))
       : false;
     const requestedToolSpecs = Array.isArray(body.toolSpecs)
-      ? body.toolSpecs.some((tool: any) => String(tool?.command || '').trim())
+      ? body.toolSpecs.some((tool: ToolSpecBodyInput) => String(tool?.command || '').trim())
       : false;
     if (requestedCommandRoles || requestedToolSpecs) {
       deps.writeJson(res, {
@@ -183,7 +200,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
         maxRoles: Number.isFinite(Number(body.maxRoles)) ? Number(body.maxRoles) : undefined,
         maxConcurrency: Number.isFinite(Number(body.maxConcurrency)) ? Number(body.maxConcurrency) : undefined,
         batchSize: Number.isFinite(Number(body.batchSize)) ? Number(body.batchSize) : undefined,
-        isolationMode: String(body.isolationMode || '').trim() as any || undefined,
+        isolationMode: String(body.isolationMode || '').trim() as SwarmV2IsolationMode || undefined,
         isolationImage: String(body.isolationImage || '').trim() || undefined,
         wslDistro: String(body.wslDistro || '').trim() || undefined,
         requireStrongIsolation: body.requireStrongIsolation === true,

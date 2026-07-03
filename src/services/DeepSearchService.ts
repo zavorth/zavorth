@@ -6,6 +6,29 @@ import { LogRepository } from '../storage/LogRepository.js';
 
 const SEARCH_FALLBACK_ORDER = ['AIGateway', 'gemini', 'deepseek', 'qwen', 'openrouter', 'minimax', 'opencode', 'openai'];
 
+interface GoogleSearchTool {
+  googleSearch: Record<string, unknown>;
+}
+
+interface GroundingChunk {
+  web?: {
+    uri?: string;
+    title?: string;
+  };
+}
+
+interface GroundingMetadata {
+  groundingChunks?: GroundingChunk[];
+}
+
+interface Candidate {
+  groundingMetadata?: GroundingMetadata;
+}
+
+interface ConfigWithOpenaiKeys {
+  openaiApiKeys?: string[];
+}
+
 /**
  * DeepSearchService - Pesquisa avançada com duas estratégias:
  * 1. Gemini Grounding (usa Google Search nativamente dentro do modelo)
@@ -23,8 +46,9 @@ export class DeepSearchService {
         this.logRepo.log('info', 'DeepSearch', `Grounding bem-sucedido (${groundedResult.length} chars)`);
         return groundedResult;
       }
-    } catch (error: any) {
-      this.logRepo.log('warn', 'DeepSearch', `Grounding falhou: ${error?.message || error}. Usando fallback DDG.`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logRepo.log('warn', 'DeepSearch', `Grounding falhou: ${message}. Usando fallback DDG.`);
     }
 
     return this.duckDuckGoSearch(query);
@@ -67,7 +91,7 @@ export class DeepSearchService {
         const genAI = new GoogleGenerativeAI(key);
         const model = genAI.getGenerativeModel({
           model: config.geminiModel,
-          tools: [{ googleSearch: {} } as any],
+          tools: [{ googleSearch: {} } as GoogleSearchTool],
         });
 
         const result = await model.generateContent({
@@ -82,19 +106,20 @@ export class DeepSearchService {
         const response = result.response;
         const text = response.text();
 
-        const groundingMetadata = (response.candidates?.[0] as any)?.groundingMetadata;
+        const groundingMetadata = (response.candidates?.[0] as Candidate)?.groundingMetadata;
         let sources = '';
         if (groundingMetadata?.groundingChunks) {
           sources = '\n\n📎 *Fontes:*\n' + groundingMetadata.groundingChunks
-            .filter((chunk: any) => chunk.web?.uri)
+            .filter((chunk: GroundingChunk) => chunk.web?.uri)
             .slice(0, 5)
-            .map((chunk: any, index: number) => `${index + 1}. ${chunk.web.title || chunk.web.uri}: ${chunk.web.uri}`)
+            .map((chunk: GroundingChunk, index: number) => `${index + 1}. ${chunk.web?.title || chunk.web?.uri}: ${chunk.web?.uri}`)
             .join('\n');
         }
 
         return text + sources;
-      } catch (error: any) {
-        this.logRepo.log('warn', 'DeepSearch', `Grounding com chave falhou: ${error?.message || error}`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logRepo.log('warn', 'DeepSearch', `Grounding com chave falhou: ${message}`);
       }
     }
 
@@ -139,8 +164,8 @@ export class DeepSearchService {
       }
 
       return this.formatRawDuckDuckGoResults(query, topResults);
-    } catch (error: any) {
-      const errMsg = error?.message || String(error) || 'Erro desconhecido';
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : String(error);
       this.logRepo.log('error', 'DeepSearch', `Falha DDG: ${errMsg}`);
       return `❌ Falha no Deep Search.\n\nMotivo: ${errMsg}`;
     }
@@ -191,8 +216,9 @@ export class DeepSearchService {
           }
           return text;
         }
-      } catch (error: any) {
-        this.logRepo.log('warn', 'DeepSearch', `Resumo com ${providerName} falhou: ${error?.message || error}`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logRepo.log('warn', 'DeepSearch', `Resumo com ${providerName} falhou: ${message}`);
       }
     }
 
@@ -217,7 +243,7 @@ export class DeepSearchService {
       case 'opencode':
         return !!config.openCodeApiKey;
       case 'openai':
-        return !!(config.openaiApiKey || (config as any).openaiApiKeys?.length > 0);
+        return !!(config.openaiApiKey || (config as ConfigWithOpenaiKeys).openaiApiKeys?.length > 0);
       default:
         return false;
     }

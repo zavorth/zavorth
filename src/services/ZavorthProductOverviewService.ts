@@ -1,8 +1,9 @@
 import { config } from '../config/index.js';
-import { ZavorthHubControlPlaneService } from './ZavorthHubControlPlaneService.js';
-import { ZavorthEcosystemControlPlaneService } from './ZavorthEcosystemControlPlaneService.js';
-import { ZavorthEvalControlPlaneService } from './ZavorthEvalControlPlaneService.js';
-import { ZavorthRolloutReadinessControlPlaneService } from './ZavorthRolloutReadinessControlPlaneService.js';
+import { ZavorthHubControlPlaneService, type ZavorthHubControlPlaneSnapshot } from './ZavorthHubControlPlaneService.js';
+import { ZavorthEcosystemControlPlaneService, type ZavorthEcosystemControlPlaneSnapshot } from './ZavorthEcosystemControlPlaneService.js';
+import { ZavorthEvalControlPlaneService, type ZavorthEvalControlPlaneSnapshot, type ZavorthEvalRegression, type ZavorthEvalSelfmodBinding } from './ZavorthEvalControlPlaneService.js';
+import type { ZavorthEvalHistorySnapshot } from './ZavorthEvalHistoryFileService.js';
+import { ZavorthRolloutReadinessControlPlaneService, type ZavorthRolloutReadinessSnapshot } from './ZavorthRolloutReadinessControlPlaneService.js';
 import {
   buildOverviewCard,
   buildOverviewNarrative,
@@ -59,10 +60,10 @@ export type ZavorthProductOverviewSnapshot = {
   cards: ControlPlaneOverviewCard[];
   actions: ControlPlaneOverviewAction[];
   sourceSnapshots: {
-    hub: any;
-    ecosystem: any;
-    evals: any;
-    rollout: any;
+    hub: ZavorthHubControlPlaneSnapshot;
+    ecosystem: ZavorthEcosystemControlPlaneSnapshot;
+    evals: ZavorthEvalControlPlaneSnapshot;
+    rollout: ZavorthRolloutReadinessSnapshot;
   };
   narrative: ControlPlaneOverviewNarrative;
 };
@@ -114,7 +115,7 @@ export class ZavorthProductOverviewService {
     ]);
     const cards = this.buildCards({ hub, ecosystem, evals, rollout });
     const evalActions = Array.isArray(evals?.regressions)
-      ? evals.regressions.slice(0, 3).map((entry: any) => ({
+      ? evals.regressions.slice(0, 3).map((entry: ZavorthEvalRegression) => ({
         id: `eval:${entry.id}`,
         label: `Corrigir ${entry.label}`,
         severity: entry?.severity,
@@ -229,10 +230,10 @@ export class ZavorthProductOverviewService {
   }
 
   private buildCards(input: {
-    hub: any;
-    ecosystem: any;
-    evals: any;
-    rollout: any;
+    hub: ZavorthHubControlPlaneSnapshot;
+    ecosystem: ZavorthEcosystemControlPlaneSnapshot;
+    evals: ZavorthEvalControlPlaneSnapshot;
+    rollout: ZavorthRolloutReadinessSnapshot;
   }): ControlPlaneOverviewCard[] {
     return [
       buildOverviewCard({
@@ -287,8 +288,17 @@ export class ZavorthProductOverviewService {
   }
 
   private buildFallbackEvalControlPlane(): EvalLike {
+    const selfmod: ZavorthEvalSelfmodBinding = {
+      status: 'attention',
+      policy: 'fallback',
+      evaluatedChangeSignals: 0,
+      missingEvalEvidence: 0,
+      relatedDatasets: [],
+      requiredBeforeApply: [],
+      recommendation: 'Evaluate plane in fallback mode.',
+    };
     return {
-      buildSnapshot: async () => ({
+      buildSnapshot: async (): Promise<ZavorthEvalControlPlaneSnapshot> => ({
         generatedAt: this.now().toISOString(),
         windowHours: 24,
         scope: {
@@ -296,6 +306,7 @@ export class ZavorthProductOverviewService {
           sourceSurface: 'product-overview-fallback',
           executor: null,
           workflow: null,
+          scoped: false,
         },
         summary: {
           posture: 'attention',
@@ -312,28 +323,39 @@ export class ZavorthProductOverviewService {
           headline: 'Eval Plane fallback',
           operatorSummary: 'Eval plane sem deps dedicadas neste contexto; mantendo product overview em modo fail-soft.',
         },
-        scorecards: [],
-        datasets: [],
-        regressions: [],
+        scorecards: [] as ZavorthEvalControlPlaneSnapshot['scorecards'],
+        datasets: [] as ZavorthEvalControlPlaneSnapshot['datasets'],
+        regressions: [] as ZavorthEvalRegression[],
         regressionGate: {
+          id: 'eval-regression:fallback',
           status: 'warning',
           canProceed: true,
-          blockingReasons: [],
+          scope: 'product-overview-fallback',
+          blockers: [] as string[],
           warnings: ['Eval plane em fallback dentro do product overview.'],
+          reasons: ['Fallback mode.'],
+          checkedAt: this.now().toISOString(),
           criticalRegressions: 0,
+          rolloutBlocked: false,
+          rolloutScopes: {
+            local: true,
+            beta: false,
+            production: false,
+          },
+          requiredActions: [] as string[],
         },
         comparisons: {
           executors: [],
           surfaces: [],
           workflows: [],
-        },
+        } as ZavorthEvalControlPlaneSnapshot['comparisons'],
         coverage: {
           taskSignal: 'missing',
           workflowSignal: 'missing',
           approvalSignal: 'missing',
           artifactSignal: 'missing',
           notes: ['Fallback local do ProductOverviewService.'],
-        },
+        } as ZavorthEvalControlPlaneSnapshot['coverage'],
         telemetry: {
           status: 'missing',
           totalEvents: 0,
@@ -344,15 +366,64 @@ export class ZavorthProductOverviewService {
           topSources: [],
           topEventTypes: [],
           traces: [],
-          sinks: [],
+          sinks: {
+            localJsonl: false,
+            langfuseConfigured: false,
+            otelExporterConfigured: false,
+            otelReady: false,
+            externalRequired: false,
+          },
+          retention: {
+            windowHours: 24,
+            maxEvents: 5000,
+            maxTraces: 8,
+            maxTopEntries: 5,
+            scannedEvents: 0,
+            retainedEvents: 0,
+            truncated: false,
+          },
+          redaction: {
+            mode: 'hashed-references',
+            traceIdsHashed: true,
+            payloadsIncluded: false,
+            notes: [],
+          },
           recommendation: 'Injetar ZavorthEvalControlPlaneService completo no composition root de produto.',
-        },
+        } as ZavorthEvalControlPlaneSnapshot['telemetry'],
+        selfmod,
         history: {
-          capturedAt: this.now().toISOString(),
-          entries: [],
-        },
-        insights: [],
-      } as any),
+          file: '',
+          available: false,
+          entries: 0,
+          lastCapturedAt: this.now().toISOString(),
+          latestPosture: 'unknown',
+          delta: {
+            scorecards: 0,
+            datasets: 0,
+            regressions: 0,
+            telemetrySignals: 0,
+            traceCount: 0,
+            failureEvents: 0,
+          },
+          trend: [],
+          baseline: {
+            available: false,
+            generatedAt: null,
+            posture: 'unknown',
+            manifestHash: null,
+            comparableWindows: 0,
+            summary: 'No baseline available in fallback mode.',
+          },
+          retention: {
+            maxEntries: 100,
+            trendWindow: 7,
+            captureIntervalMs: 3600000,
+            compacted: false,
+          },
+          recommendation: 'Run full eval control plane to populate history.',
+        } as ZavorthEvalHistorySnapshot,
+        insights: [] as string[],
+      }),
     };
   }
 

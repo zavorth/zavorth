@@ -30,10 +30,13 @@ import { TelegramConversationStateService } from '../../../../gateways/channels/
 import { TelegramExperienceActionCardFormatter } from '../../../../gateways/channels/telegram/TelegramExperienceActionCardFormatter.js';
 import { wrapUntrustedContent } from '@zavorth/security/UntrustedContent.js';
 import type { ExperienceCoreService } from '@zavorth/services/experience/ExperienceCoreService.js';
+import type { ChatMessage } from '@zavorth/providers/ILlmProvider.js';
+import type { TaskManagerLike, PermissionServiceLike } from '@zavorth/services/GatewaySessionService.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type TelegramAgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
 type TelegramExperienceCore = Pick<ExperienceCoreService, 'buildHome' | 'executeCommand'>;
+type TelegramReplyOptions = { reply_markup?: unknown; [key: string]: unknown };
 type TelegramConversationControllerRuntime = {
   agentGateway?: TelegramAgentGateway | null;
   experienceCoreService?: TelegramExperienceCore | null;
@@ -91,8 +94,8 @@ export class TelegramConversationController {
       runtime.sessionReadModelService ||
       new GatewaySessionReadModelService(
         new GatewaySessionService({
-          taskManager: this.taskManager as any,
-          permissionService: (runtime.permissionService as any) || null,
+          taskManager: this.taskManager as TaskManagerLike,
+          permissionService: (runtime.permissionService as PermissionServiceLike) || null,
           sessionLedgerService: this.sessionLedger,
         }),
       );
@@ -315,10 +318,10 @@ export class TelegramConversationController {
     return async ({ request, run }): Promise<UniversalAgentExecutorResult> => {
       const metadata = request.metadata || {};
       const contextMessages = Array.isArray(metadata.contextMessages)
-        ? metadata.contextMessages as any[]
+        ? metadata.contextMessages as ChatMessage[]
         : [];
       const result = await graphRuntime.runAutonomousTask(request.text, {
-        initialMessages: contextMessages.length > 0 ? contextMessages as any : undefined,
+        initialMessages: contextMessages.length > 0 ? contextMessages : undefined,
         metadata: {
           ...metadata,
           agentRunId: run.id,
@@ -433,7 +436,7 @@ export class TelegramConversationController {
         ? this.experienceFormatter.formatLearningSummary(snapshot, renderOptions)
         : this.experienceFormatter.formatSnapshot(snapshot, renderOptions);
 
-    await input.ctx.reply(rendered.text, rendered.replyOptions as any);
+    await input.ctx.reply(rendered.text, rendered.replyOptions as TelegramReplyOptions);
     this.recordLedgerMessage(input.canonicalTarget, {
       id: randomUUID(),
       role: 'assistant',

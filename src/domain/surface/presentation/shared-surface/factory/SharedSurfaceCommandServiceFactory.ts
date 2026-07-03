@@ -262,9 +262,9 @@ export function buildSharedSurfaceCommandServiceComposition(
     deps.channelInstallService || new ChannelInstallScaffoldService();
   const channelSetupAssistantService =
     deps.channelSetupAssistantService ||
-    (typeof (channelInstallService as any)?.buildReport === "function"
+    (channelInstallService != null && "buildReport" in channelInstallService
       ? new ChannelSetupAssistantService({
-          installService: channelInstallService as any,
+          installService: channelInstallService as Pick<ChannelInstallScaffoldService, "buildReport" | "buildPlanForChannel" | "applyScaffold">,
           channelMeshService,
         })
       : null);
@@ -272,7 +272,7 @@ export function buildSharedSurfaceCommandServiceComposition(
     deps.naturalChannelSetupTurnService ||
     (channelSetupAssistantService
       ? new NaturalChannelSetupTurnService({
-          assistant: channelSetupAssistantService as any,
+          assistant: channelSetupAssistantService as Pick<ChannelSetupAssistantService, "buildSession" | "apply" | "runDoctor">,
           channelActions: channelActionService,
         })
       : null);
@@ -303,7 +303,7 @@ export function buildSharedSurfaceCommandServiceComposition(
       productObservabilityService: new ProductObservabilityService(
         (taskManager && typeof taskManager.getRecentTasks === "function"
           ? taskManager
-          : undefined) as any,
+          : undefined) as { getRecentTasks?: (limit?: number, userId?: string) => Task[] } | undefined,
         permissionService || undefined,
       ),
       telemetryLedgerService: new ZavorthTelemetryLedgerService(),
@@ -386,8 +386,8 @@ export function buildSharedSurfaceCommandServiceComposition(
   const taskResourcePlannerService =
     deps.taskResourcePlannerService ||
     new TaskResourcePlannerService({
-      capabilityLifecycle: capabilityLifecycleService as any,
-      desktopResources: desktopResourcePlaneService as any,
+      capabilityLifecycle: capabilityLifecycleService as Pick<CapabilityLifecycleService, "getManifest">,
+      desktopResources: desktopResourcePlaneService as Pick<DesktopResourcePlaneService, "readLatest" | "inspectLive"> | null,
     });
   const modeEscalationService = deps.modeEscalationService || null;
   const sharedSurfaceConsistencyService =

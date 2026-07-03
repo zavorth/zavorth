@@ -34,7 +34,7 @@ export class ProviderFallbackPolicyService {
 
     if (budget.decision === 'blocked') {
       await logger.logWorkspaceEvent({
-        event: 'provider_route_budget_blocked' as any,
+        event: 'provider_route_budget_blocked',
         workspaceId,
         providerId: request.providerId || policy.primaryProviderId || 'unknown',
         metadata: {
@@ -65,14 +65,13 @@ export class ProviderFallbackPolicyService {
         fallbackUsed: false,
         budgetDecision: budget.decision,
       });
-    } catch (originalError: any) {
+    } catch (originalError: unknown) {
       if (!request.allowFallback) {
         throw originalError;
       }
 
       // Check if the error is a definitive failure where fallback is unsafe/useless
-      // Rule: fallback nunca pula missing_key para remoto sem key
-      if (originalError.message === 'missing_key') {
+      if (originalError instanceof Error && originalError.message === 'missing_key') {
         throw originalError;
       }
 
@@ -90,7 +89,7 @@ export class ProviderFallbackPolicyService {
       for (const target of fallbackTargets.slice(0, Math.max(0, policy.maxAttempts - attempts.length))) {
         try {
           await logger.logWorkspaceEvent({
-            event: 'provider_runtime_fallback_attempted' as any,
+            event: 'provider_runtime_fallback_attempted',
             workspaceId,
             metadata: {
               routingReceiptId,
@@ -117,7 +116,7 @@ export class ProviderFallbackPolicyService {
           });
           
           await logger.logWorkspaceEvent({
-            event: 'provider_runtime_fallback_succeeded' as any,
+            event: 'provider_runtime_fallback_succeeded',
             workspaceId,
             metadata: {
               routingReceiptId,
@@ -127,7 +126,7 @@ export class ProviderFallbackPolicyService {
           });
 
           await logger.logWorkspaceEvent({
-            event: 'provider_route_fallback_succeeded' as any,
+            event: 'provider_route_fallback_succeeded',
             workspaceId,
             providerId: target.providerId,
             metadata: {
@@ -143,10 +142,10 @@ export class ProviderFallbackPolicyService {
             fallbackUsed: true,
             budgetDecision: budget.decision,
           });
-        } catch (fallbackError: any) {
+        } catch (fallbackError: unknown) {
           const fallbackNormalized = ErrorNormalizationService.getInstance().normalize(fallbackError);
           await logger.logWorkspaceEvent({
-            event: 'provider_runtime_fallback_failed' as any,
+            event: 'provider_runtime_fallback_failed',
             workspaceId,
             metadata: {
               routingReceiptId,
@@ -187,7 +186,7 @@ export class ProviderFallbackPolicyService {
     input.attempts.push(attempt);
 
     await input.logger.logWorkspaceEvent({
-      event: 'provider_route_attempt_started' as any,
+      event: 'provider_route_attempt_started',
       workspaceId: input.workspaceId,
       providerId,
       metadata: {
@@ -202,7 +201,7 @@ export class ProviderFallbackPolicyService {
       attempt.status = 'succeeded';
       attempt.durationMs = Date.now() - startedAt;
       await input.logger.logWorkspaceEvent({
-        event: 'provider_route_attempt_succeeded' as any,
+        event: 'provider_route_attempt_succeeded',
         workspaceId: input.workspaceId,
         providerId,
         durationMs: attempt.durationMs,
@@ -220,7 +219,7 @@ export class ProviderFallbackPolicyService {
       attempt.errorCode = normalized.code;
       attempt.errorMessage = normalized.message;
       await input.logger.logWorkspaceEvent({
-        event: 'provider_route_attempt_failed' as any,
+        event: 'provider_route_attempt_failed',
         workspaceId: input.workspaceId,
         providerId,
         durationMs: attempt.durationMs,

@@ -18,9 +18,70 @@ export type BotGatewaySupportState = {
   zavorthControlSurfaceStarted: boolean;
 };
 
+export type LogFunction = (...args: unknown[]) => void;
+
+export type CapabilityType = string;
+
+export type SurfaceTaskDispatchResult = {
+  taskId: string;
+  status: 'pending' | 'completed' | 'failed';
+};
+
+export type SurfaceTaskDispatcher = {
+  dispatch: (task: string, options?: Record<string, unknown>) => Promise<SurfaceTaskDispatchResult>;
+};
+
+export type SurfaceIdentity = {
+  id: string;
+  name: string;
+  type: string;
+  metadata?: Record<string, unknown>;
+};
+
+export type WorkspaceProfile = {
+  workspace: string;
+  name: string;
+  settings: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type TelemetryRuntime = {
+  track: (event: string, properties?: Record<string, unknown>) => void;
+  flush: () => Promise<void>;
+  getMetrics: () => Record<string, unknown>;
+};
+
+export type RuntimeComposition = {
+  services: Map<string, unknown>;
+  compose: <T>(key: string, factory: () => T) => T;
+  resolve: <T>(key: string) => T | undefined;
+};
+
+export type CapabilityLifecycleState = 'active' | 'inactive' | 'pending' | 'error';
+
+export type CapabilityLifecycle = {
+  state: CapabilityLifecycleState;
+  activate: () => Promise<void>;
+  deactivate: () => Promise<void>;
+  getState: () => CapabilityLifecycleState;
+};
+
+export type ZavorthControlStartResult = {
+  success: boolean;
+  message: string;
+  controlUrl?: string;
+};
+
+export type FlushPendingResult = {
+  flushed: number;
+  failed: number;
+  errors: string[];
+};
+
 export type BotGatewaySupportRuntime = {
   bot: Bot;
-  logRepo: { log: (...args: any[]) => void };
+  logRepo: { log: (...args: unknown[]) => void };
   parser: { parse: (text: string) => ParsedCommand };
   priorityCommandService: { handle: (ctx: Context, text: string) => Promise<boolean> };
   securityLock: {
@@ -31,7 +92,7 @@ export type BotGatewaySupportRuntime = {
   hubController: { handleStartCommand: (ctx: Context, args: string) => Promise<void> };
   opsController: { handleStatus: (ctx: Context) => Promise<void> };
   capabilityController: {
-    handleCommand: (ctx: Context, capability: any, args: string, userId: string) => Promise<boolean>;
+    handleCommand: (ctx: Context, capability: CapabilityType, args: string, userId: string) => Promise<boolean>;
   };
   commandRoutingService: {
     dispatchPrivateCommand: (
@@ -55,22 +116,22 @@ export type BotGatewaySupportRuntime = {
     handleVideo: (ctx: Context) => Promise<void>;
     handleDocument: (ctx: Context) => Promise<void>;
   };
-  surfaceTaskDispatcher: any;
+  surfaceTaskDispatcher: SurfaceTaskDispatcher;
   legacyUnifiedGateway?: LegacyUnifiedGatewayAdapter | null;
   agentGateway?: Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'resolveApprovalIntent'> | null;
-  surfaceIdentityService: any;
+  surfaceIdentityService: SurfaceIdentity;
   workspaceProfileService: {
-    getProfile: (workspace: string) => Promise<any>;
+    getProfile: (workspace: string) => Promise<WorkspaceProfile>;
   };
   workspaceCommandService: {
     resolveInvocation: (
-      profile: any,
+      profile: WorkspaceProfile,
       commandName: string,
       args: string,
     ) => { resolvedText: string; name: string } | null;
   };
-  telemetryRuntime: any;
-  runtimeComposition: any;
+  telemetryRuntime: TelemetryRuntime;
+  runtimeComposition: RuntimeComposition;
   runtimeDiagnostics: {
     start: () => void;
   };
@@ -78,19 +139,19 @@ export type BotGatewaySupportRuntime = {
     supportsAdvancedRuntime: () => boolean;
     getProfile: () => string;
   };
-  capabilityLifecycleService: any;
+  capabilityLifecycleService: CapabilityLifecycle;
   dailyReportService: {
     start: (broadcast: (message: string, roles?: string[]) => Promise<void>) => void;
   };
   zavorthControlService: {
-    start: () => Promise<any>;
+    start: () => Promise<ZavorthControlStartResult>;
     getUrl: () => string;
   };
   lifecycleController: {
     start: (bot: Bot) => Promise<void>;
   };
   supervisedRuntimeNotificationService: {
-    flushPending: (sender: (chatId: string, message: string) => Promise<void>) => Promise<any>;
+    flushPending: (sender: (chatId: string, message: string) => Promise<void>) => Promise<FlushPendingResult>;
   };
   researchQueueWorker: { start: () => void };
   julesQueueWorker: { start: () => void };
@@ -108,7 +169,7 @@ export type BotGatewaySupportRuntime = {
   canUseInteractiveGroupAi?: (ctx: Context) => Promise<boolean>;
   state: BotGatewaySupportState;
   getSharedSurfaceCommandService: () => BotGatewaySupportState['sharedSurfaceCommandService'];
-  // Certification matrix: Dependências opcionais para Modo Echo (resposta por voz)
+  // Optional dependencies for Echo Mode (voice response)
   echoAudioHandler?: {
     synthesize: (text: string, voiceIdOrOptions?: string | AudioSynthesisOptions) => Promise<string | null>;
     cleanup: (filePath: string) => void;

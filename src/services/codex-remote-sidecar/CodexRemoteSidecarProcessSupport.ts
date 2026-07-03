@@ -2,7 +2,6 @@ import { execFile, type ChildProcess } from 'child_process';
 import { config } from '../../config/index.js';
 import type { CodexRemoteSessionRecord, CodexRemoteSessionStoreService } from '../CodexRemoteSessionStoreService.js';
 import type {
-import { logger } from '../logger.js';
   CodexRemoteRuntimeGuardrailMetadata,
   CodexRemoteRuntimePresenceMetadata,
 } from './CodexRemoteSidecarMetadataSupport.js';

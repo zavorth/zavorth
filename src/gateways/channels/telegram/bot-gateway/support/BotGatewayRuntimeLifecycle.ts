@@ -1,4 +1,4 @@
-import { Context } from 'grammy';
+import { Context, type Api } from 'grammy';
 import { config } from '../../../../../config/index.js';
 import { SmartOutputService } from '../../../../../services/SmartOutputService.js';
 import { WorkspaceResolver } from '../../../../../security/WorkspaceResolver.js';
@@ -11,6 +11,19 @@ import {
   EXTERNAL_EXECUTOR_LABEL,
   getRuntimeAdapterRoleFromMetadata,
 } from '../../../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+
+interface TelegramApi {
+  sendMessage(
+    chatId: string | number,
+    text: string,
+    options?: Record<string, unknown>,
+  ): Promise<unknown>;
+  sendDocument?(
+    chatId: string | number,
+    document: unknown,
+    options?: Record<string, unknown>,
+  ): Promise<unknown>;
+}
 
 export function resolveBroadcastRecipients(
   roles: string[] = ['admin'],
@@ -42,12 +55,13 @@ export async function broadcast(
 
   for (const userId of recipients) {
     try {
-      await SmartOutputService.send(runtime.bot.api as any, userId, message);
-    } catch (error: any) {
+      await SmartOutputService.send(runtime.bot.api as TelegramApi, userId, message);
+    } catch (error: unknown) {
+      const message_ = error instanceof Error ? error.message : String(error);
       runtime.logRepo.log(
         'error',
         'BotGateway',
-        `Erro ao enviar broadcast: ${error.message}`,
+        `Erro ao enviar broadcast: ${message_}`,
       );
     }
   }
@@ -59,12 +73,13 @@ export async function sendToChat(
   message: string,
 ): Promise<void> {
   try {
-    await SmartOutputService.send(runtime.bot.api as any, chatId, message);
-  } catch (error: any) {
+    await SmartOutputService.send(runtime.bot.api as TelegramApi, chatId, message);
+  } catch (error: unknown) {
+    const message_ = error instanceof Error ? error.message : String(error);
     runtime.logRepo.log(
       'error',
       'BotGateway',
-      `Erro ao enviar mensagem direta para ${chatId}: ${error.message}`,
+      `Erro ao enviar mensagem direta para ${chatId}: ${message_}`,
     );
     throw error;
   }
@@ -85,11 +100,12 @@ export async function startZavorthControlSurface(
       'ZavorthControlService',
       `ZavorthControl web online em ${runtime.zavorthControlService.getUrl()}`,
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : String(error);
     runtime.logRepo.log(
       'error',
       'ZavorthControlService',
-      `Falha ao iniciar zavorthControl web: ${error.message || error}`,
+      `Falha ao iniciar zavorthControl web: ${errMsg || error}`,
     );
     throw error;
   }

@@ -41,10 +41,12 @@ export type ZavorthAutomationHookDefinition = {
   actions: ZavorthAutomationHookAction[];
 };
 
+export type ZavorthAutomationHookContext = Record<string, unknown>;
+
 export type ZavorthAutomationHookRunInput = {
   workspace: string;
   event: string;
-  context?: Record<string, any>;
+  context?: ZavorthAutomationHookContext;
   dryRun?: boolean;
 };
 
@@ -95,7 +97,7 @@ export class ZavorthAutomationHookService {
   public async runEvent(input: ZavorthAutomationHookRunInput): Promise<ZavorthAutomationHookRunResult> {
     const workspace = path.resolve(input.workspace);
     const event = this.normalizeEvent(input.event);
-    const context = this.redactValue(input.context || {}) as Record<string, any>;
+    const context = this.redactValue(input.context || {}) as ZavorthAutomationHookContext;
     const dryRun = input.dryRun === true;
     const hooks = this.listHooks(workspace).filter((hook) => hook.enabled && this.matchesEvent(hook, event));
     const actionResults: ZavorthAutomationHookActionResult[] = [];
@@ -138,7 +140,7 @@ export class ZavorthAutomationHookService {
     event: string;
     hook: ZavorthAutomationHookDefinition;
     action: ZavorthAutomationHookAction;
-    context: Record<string, any>;
+    context: ZavorthAutomationHookContext;
     dryRun: boolean;
   }): Promise<ZavorthAutomationHookActionResult> {
     const actionType = String(input.action.type || '').trim();
@@ -188,7 +190,7 @@ export class ZavorthAutomationHookService {
     event: string;
     hook: ZavorthAutomationHookDefinition;
     action: Extract<ZavorthAutomationHookAction, { type: 'mnemos.write_summary' }>;
-    context: Record<string, any>;
+    context: ZavorthAutomationHookContext;
   }): ZavorthAutomationHookActionResult {
     const summary = this.interpolate(
       input.action.summaryTemplate || '{{event}} completed through {{toolName}}.',
@@ -219,7 +221,7 @@ export class ZavorthAutomationHookService {
     event: string;
     hook: ZavorthAutomationHookDefinition;
     action: Extract<ZavorthAutomationHookAction, { type: 'notification.create' }>;
-    context: Record<string, any>;
+    context: ZavorthAutomationHookContext;
   }): ZavorthAutomationHookActionResult {
     const channel = input.action.channel || 'local';
     const external = !['local', 'zavorthControl'].includes(channel);
@@ -261,7 +263,7 @@ export class ZavorthAutomationHookService {
     event: string;
     hook: ZavorthAutomationHookDefinition;
     action: Extract<ZavorthAutomationHookAction, { type: 'doctor.run' }>;
-    context: Record<string, any>;
+    context: ZavorthAutomationHookContext;
   }): ZavorthAutomationHookActionResult {
     const filePath = this.safeArtifactPath(input.workspace, [
       '.zavorth',
@@ -295,7 +297,7 @@ export class ZavorthAutomationHookService {
     event: string;
     hook: ZavorthAutomationHookDefinition;
     action: ZavorthAutomationHookAction;
-    context: Record<string, any>;
+    context: ZavorthAutomationHookContext;
   }, receipt: {
     title: string;
     summary: string;
@@ -340,27 +342,31 @@ export class ZavorthAutomationHookService {
     }
   }
 
-  private normalizeHook(raw: any): ZavorthAutomationHookDefinition | null {
-    const id = String(raw?.id || raw?.name || '').trim();
-    const event = String(raw?.event || '').trim();
-    if (!id || !event || !Array.isArray(raw?.actions)) {
+  private normalizeHook(raw: unknown): ZavorthAutomationHookDefinition | null {
+    if (!raw || typeof raw !== 'object') {
       return null;
     }
-    const safety = raw?.safety && typeof raw.safety === 'object' ? raw.safety : {};
+    const hook = raw as Record<string, unknown>;
+    const id = String(hook.id || hook.name || '').trim();
+    const event = String(hook.event || '').trim();
+    if (!id || !event || !Array.isArray(hook.actions)) {
+      return null;
+    }
+    const safety = hook.safety && typeof hook.safety === 'object' ? hook.safety as Record<string, unknown> : {};
     return {
       contractVersion: CONTRACT_VERSION,
       id,
-      title: String(raw?.title || id).trim(),
-      description: String(raw?.description || '').trim() || undefined,
-      enabled: raw?.enabled === true,
+      title: String(hook.title || id).trim(),
+      description: String(hook.description || '').trim() || undefined,
+      enabled: hook.enabled === true,
       event: this.normalizeEvent(event),
-      aliases: Array.isArray(raw?.aliases) ? raw.aliases.map((entry: unknown) => this.normalizeEvent(String(entry))) : [],
+      aliases: Array.isArray(hook.aliases) ? (hook.aliases as unknown[]).map((entry: unknown) => this.normalizeEvent(String(entry))) : [],
       safety: {
         noSecrets: true,
         requiresPolicy: true,
         canSendExternalData: safety.canSendExternalData === true,
       },
-      actions: raw.actions.filter((action: unknown) => action && typeof action === 'object') as ZavorthAutomationHookAction[],
+      actions: (hook.actions as unknown[]).filter((action: unknown) => action && typeof action === 'object') as ZavorthAutomationHookAction[],
     };
   }
 
@@ -382,7 +388,7 @@ export class ZavorthAutomationHookService {
     ].includes(actionType);
   }
 
-  private interpolate(template: string, context: Record<string, any>, event: string): string {
+  private interpolate(template: string, context: ZavorthAutomationHookContext, event: string): string {
     return this.redactText(String(template || '')
       .replace(/\{\{event\}\}/g, event)
       .replace(/\{\{([A-Za-z0-9_.-]+)\}\}/g, (_match, key) => {
@@ -391,7 +397,7 @@ export class ZavorthAutomationHookService {
       }));
   }
 
-  private lookupContext(context: Record<string, any>, key: string): unknown {
+  private lookupContext(context: ZavorthAutomationHookContext, key: string): unknown {
     return key.split('.').reduce<unknown>((current, part) => {
       if (!current || typeof current !== 'object') {
         return undefined;

@@ -2,8 +2,9 @@ import { CommandParser } from '../../../../gateways/channels/telegram/CommandPar
 import { TelegramChannelContractService } from '../../../../gateways/channels/telegram/TelegramChannelContractService.js';
 import { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
 import { BotGatewaySupport } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupport.js';
+import type { BotGatewaySupportRuntime } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js';
 
-export type BotGatewaySupportHost = Record<string, any> & {
+export type BotGatewaySupportHost = Partial<BotGatewaySupportRuntime> & {
   botGatewaySupport?: BotGatewaySupport;
 };
 

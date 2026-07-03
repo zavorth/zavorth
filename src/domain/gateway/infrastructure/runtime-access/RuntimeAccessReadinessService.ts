@@ -110,11 +110,11 @@ export class RuntimeAccessReadinessService {
     this.systemOverlordSmokeReportFile =
       this.resolveRuntimeArtifactPath(
         options.systemOverlordSmokeReportFile,
-        (config as any).systemOverlordSmokeReportFile
+        config.systemOverlordSmokeReportFile
           || path.resolve(config.dataDir, 'runtime', 'system-overlord-smoke-last.json'),
       );
     this.systemOverlordSmokeMaxAgeMs =
-      Number(options.systemOverlordSmokeMaxAgeMs || (config as any).systemOverlordSmokeMaxAgeMs) || 43_200_000;
+      Number(options.systemOverlordSmokeMaxAgeMs || config.systemOverlordSmokeMaxAgeMs) || 43_200_000;
     this.channelProviderDoctorReportFile =
       this.resolveRuntimeArtifactPath(
         options.channelProviderDoctorReportFile,
@@ -125,11 +125,11 @@ export class RuntimeAccessReadinessService {
     this.remoteTransportDoctorReportFile =
       this.resolveRuntimeArtifactPath(
         options.remoteTransportDoctorReportFile,
-        (config as any).remoteTransportDoctorReportFile
+        config.remoteTransportDoctorReportFile
           || path.resolve(config.dataDir, 'runtime', 'remote-transport-doctor-last.json'),
       );
     this.remoteTransportDoctorMaxAgeMs =
-      Number(options.remoteTransportDoctorMaxAgeMs || (config as any).remoteTransportDoctorMaxAgeMs) || 43_200_000;
+      Number(options.remoteTransportDoctorMaxAgeMs || config.remoteTransportDoctorMaxAgeMs) || 43_200_000;
     this.hostIdentityFile = options.hostIdentityFile || config.hostIdentityFile;
     this.webHost = String(options.webHost ?? config.zavorthWebHost ?? '127.0.0.1').trim() || '127.0.0.1';
     const defaultWebPort =
@@ -258,17 +258,18 @@ export class RuntimeAccessReadinessService {
         statusCode: response.status,
         error: response.ok ? null : `status ${response.status}`,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const fallbackProbe = await this.probeLocalSurfaceViaNodeHttp(targetUrl);
       if (fallbackProbe) {
         return fallbackProbe;
       }
-      const isAbort = error?.name === 'AbortError';
+      const isAbort = error instanceof Error && error.name === 'AbortError';
+      const message = error instanceof Error ? error.message : String(error || 'network failure');
       return {
         ok: false,
         targetUrl,
         statusCode: null,
-        error: isAbort ? `timeout ${this.liveProbeTimeoutMs}ms` : String(error?.message || error || 'falha de rede'),
+        error: isAbort ? `timeout ${this.liveProbeTimeoutMs}ms` : message,
       };
     } finally {
       clearTimeout(timeout);

@@ -3,13 +3,65 @@ import { LogRepository } from '../../../../storage/LogRepository.js';
 
 type SidecarSummaryReader = () => unknown;
 
+interface HealthStats {
+  uptime_seconds?: number;
+  ram_mb_rss?: number;
+  ram_mb_heap?: number;
+  cpu_arch?: string;
+  [key: string]: unknown;
+}
+
+interface ServiceStats {
+  uptime?: string;
+  memoryUsage?: string;
+  heapUsage?: string;
+  cpuUsage?: string;
+  sidecars?: unknown;
+  error?: string;
+}
+
+interface AuditLogEntry {
+  id: number;
+  event_type: string;
+  policy_decision: string;
+  timestamp: string;
+  [key: string]: unknown;
+}
+
+interface AuditLogsResponse {
+  logs: AuditLogEntry[];
+  total: number;
+  limit: number;
+  offset: number;
+  error?: string;
+}
+
+interface AuditByType {
+  event_type: string;
+  c: number;
+}
+
+interface AuditStatsResponse {
+  total: number;
+  allowed: number;
+  blocked: number;
+  recent24h: number;
+  byType: AuditByType[];
+  error?: string;
+}
+
+interface AuditStatsError {
+  total: 0;
+  error: string;
+}
+
 export class ZavorthControlObservabilityService {
   constructor(
     private readonly logRepo: LogRepository,
     private readonly readSidecars: SidecarSummaryReader,
   ) {}
 
-  public getStats(): any {
+  public getStats(): ServiceStats {
     const MonitorModule = require('../../../../monitoring/Monitor.js').Monitor;
     const monitor = new MonitorModule(this.logRepo);
     let stats = null;
@@ -44,7 +96,7 @@ export class ZavorthControlObservabilityService {
     return this.logRepo.getRecentLogs(limit);
   }
 
-  public async getAuditLogs(url: URL): Promise<any> {
+  public async getAuditLogs(url: URL): Promise<AuditLogsResponse> {
     try {
       const db = await Database.getInstance();
       const limit = Math.min(parseInt(url.searchParams.get('limit') || '100', 10), 500);
@@ -53,7 +105,7 @@ export class ZavorthControlObservabilityService {
       const policyDecision = url.searchParams.get('policy') || '';
 
       let sql = 'SELECT * FROM audit_log WHERE 1=1';
-      const params: any[] = [];
+      const params: (string | number)[] = [];
 
       if (eventType) {
         sql += ' AND event_type = ?';
@@ -70,12 +122,13 @@ export class ZavorthControlObservabilityService {
       const rows = db.all(sql, params);
       const countRow = db.get<{ total: number }>('SELECT COUNT(*) as total FROM audit_log');
       return { logs: rows, total: countRow?.total || 0, limit, offset };
-    } catch (error: any) {
-      return { logs: [], total: 0, error: error?.message || String(error) };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { logs: [], total: 0, limit: 0, offset: 0, error: message };
     }
   }
 
-  public async getAuditStats(): Promise<any> {
+  public async getAuditStats(): Promise<AuditStatsResponse | AuditStatsError> {
     try {
       const db = await Database.getInstance();
       const total = db.get<{ c: number }>('SELECT COUNT(*) as c FROM audit_log')?.c || 0;
@@ -84,8 +137,9 @@ export class ZavorthControlObservabilityService {
       const byType = db.all<{ event_type: string; c: number }>('SELECT event_type, COUNT(*) as c FROM audit_log GROUP BY event_type ORDER BY c DESC LIMIT 10');
       const recent24h = db.get<{ c: number }>("SELECT COUNT(*) as c FROM audit_log WHERE timestamp >= datetime('now', '-1 day')")?.c || 0;
       return { total, allowed, blocked, recent24h, byType };
-    } catch (error: any) {
-      return { total: 0, error: error?.message || String(error) };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { total: 0, error: message };
     }
   }
 }

@@ -1,4 +1,5 @@
 import { config } from '../../../config/index.js';
+import type { IExecutor } from '../../../contracts/core/IExecutor.js';
 
 const LEGACY_PREFIX = ['ope', 'nclaw'].join('');
 const LEGACY_LABEL = ['Open', 'Claw'].join('');
@@ -103,9 +104,9 @@ export function isExternalWorkspaceMismatchError(errorCode: unknown): boolean {
 }
 
 export function getExternalMetadataValue(
-  metadata: Record<string, any> | null | undefined,
+  metadata: Record<string, unknown> | null | undefined,
   key: ExternalMetadataKey,
-): any {
+): unknown {
   if (!metadata) {
     return undefined;
   }
@@ -113,7 +114,7 @@ export function getExternalMetadataValue(
 }
 
 export function getRuntimeAdapterRoleFromMetadata(
-  metadata: Record<string, any> | null | undefined,
+  metadata: Record<string, unknown> | null | undefined,
 ): string {
   const role =
     getExternalMetadataValue(metadata, 'agentRole') ||
@@ -123,31 +124,39 @@ export function getRuntimeAdapterRoleFromMetadata(
 }
 
 export function getRuntimeAdapterBindingsFromMetadata(
-  metadata: Record<string, any> | null | undefined,
+  metadata: Record<string, unknown> | null | undefined,
 ): Record<string, string> {
   const legacyBindings = getExternalMetadataValue(metadata, 'agentBindings');
   const externalBindings = metadata?.[EXTERNAL_METADATA_KEYS.agentBindings];
   return {
-    ...(legacyBindings && typeof legacyBindings === 'object' ? legacyBindings : {}),
-    ...(externalBindings && typeof externalBindings === 'object' ? externalBindings : {}),
+    ...(legacyBindings && typeof legacyBindings === 'object'
+      ? (legacyBindings as Record<string, string>)
+      : {}),
+    ...(externalBindings && typeof externalBindings === 'object'
+      ? (externalBindings as Record<string, string>)
+      : {}),
   };
 }
 
 export function getExternalPermissionIdsFromMetadata(
-  metadata: Record<string, any> | null | undefined,
+  metadata: Record<string, unknown> | null | undefined,
 ): Record<string, string> {
   const legacyIds = getExternalMetadataValue(metadata, 'permissionIds');
   const externalIds = metadata?.[EXTERNAL_METADATA_KEYS.permissionIds];
   return {
-    ...(legacyIds && typeof legacyIds === 'object' ? legacyIds : {}),
-    ...(externalIds && typeof externalIds === 'object' ? externalIds : {}),
+    ...(legacyIds && typeof legacyIds === 'object'
+      ? (legacyIds as Record<string, string>)
+      : {}),
+    ...(externalIds && typeof externalIds === 'object'
+      ? (externalIds as Record<string, string>)
+      : {}),
   };
 }
 
 export function buildExternalMetadataPatch(
-  values: Partial<Record<ExternalMetadataKey, any>>,
-): Record<string, any> {
-  const patch: Record<string, any> = {};
+  values: Partial<Record<ExternalMetadataKey, string>>,
+): Record<string, string> {
+  const patch: Record<string, string> = {};
   for (const key of Object.keys(values) as ExternalMetadataKey[]) {
     patch[EXTERNAL_METADATA_KEYS[key]] = values[key];
   }
@@ -162,7 +171,7 @@ export function getExternalExecutorTimeoutSeconds(): number {
   return Number(readLegacyConfigValue('TimeoutSeconds', 600));
 }
 
-export function createExternalExecutor(): any {
+export function createExternalExecutor(): IExecutor {
   const loaded = require('../execution/ExternalExecutor.js');
   return new loaded.ExternalExecutor();
 }
@@ -190,5 +199,5 @@ export function externalizeExecutorText(value: unknown): string {
 
 function readLegacyConfigValue<T>(suffix: string, fallback: T): T {
   const key = `${LEGACY_EXTERNAL_EXECUTOR_ID}${suffix}`;
-  return ((config as Record<string, any>)[key] ?? fallback) as T;
+  return ((config as Record<string, unknown>)[key] ?? fallback) as T;
 }

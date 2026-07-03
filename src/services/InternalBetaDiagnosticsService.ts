@@ -53,11 +53,12 @@ export class InternalBetaDiagnosticsService {
           remediation: 'Verifique a integridade do arquivo de dados zavorth.db.'
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       checks.push({
         id: 'database_reachable',
         status: 'fail',
-        message: `Falha na conexão com o banco de dados SQLite: ${err.message}`,
+        message: `Falha na conexão com o banco de dados SQLite: ${message}`,
         remediation: 'Certifique-se de que a pasta data/ existe e tem permissões de escrita.'
       });
     }
@@ -74,11 +75,12 @@ export class InternalBetaDiagnosticsService {
           message: 'SecurityAuditLogger instanciado com sucesso.'
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       checks.push({
         id: 'audit_logger_reachable',
         status: 'fail',
-        message: `Falha ao instanciar SecurityAuditLogger: ${err.message}`,
+        message: `Falha ao instanciar SecurityAuditLogger: ${message}`,
         remediation: 'Verifique se ZAVORTH_AUDIT_HASH_KEY está corretamente configurada.'
       });
     }
@@ -104,11 +106,12 @@ export class InternalBetaDiagnosticsService {
             remediation: 'Selecione "Confiar neste Workspace" na interface do Desktop.'
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'workspace_trusted',
           status: 'fail',
-          message: `Erro ao verificar confiança do workspace: ${err.message}`
+          message: `Erro ao verificar confiança do workspace: ${message}`
         });
       }
     } else {
@@ -157,11 +160,12 @@ export class InternalBetaDiagnosticsService {
             remediation: 'Ajuste as permissões do workspace na aba Workspace Settings.'
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'workspace_config_present',
           status: 'warning',
-          message: `Erro ao ler configuração do workspace: ${err.message}`
+          message: `Erro ao ler configuração do workspace: ${message}`
         });
       }
     }
@@ -203,11 +207,12 @@ export class InternalBetaDiagnosticsService {
             remediation: 'Selecione um modelo padrão nas configurações de Workspace Settings.'
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'provider_default_selected',
           status: 'fail',
-          message: `Erro ao validar seleções padrão: ${err.message}`
+          message: `Erro ao validar seleções padrão: ${message}`
         });
       }
     }
@@ -253,11 +258,12 @@ export class InternalBetaDiagnosticsService {
             });
           }
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'provider_configured',
           status: 'fail',
-          message: `Erro ao inspecionar provedor padrão: ${err.message}`
+          message: `Erro ao inspecionar provedor padrão: ${message}`
         });
       }
     } else if (dbReachable && !defaultProviderSelected) {
@@ -287,11 +293,12 @@ export class InternalBetaDiagnosticsService {
             remediation: firstErr ? firstErr.message : 'Corrija as inconsistências indicadas no painel de Workspace Settings.'
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'runtime_ready',
           status: 'fail',
-          message: `Falha ao computar readiness check: ${err.message}`
+          message: `Falha ao computar readiness check: ${message}`
         });
       }
     }
@@ -369,7 +376,7 @@ export class InternalBetaDiagnosticsService {
       try {
         const logger = new SecurityAuditLogger();
         await logger.logWorkspaceEvent({
-          event: 'internal_beta_diagnostics_checked' as any,
+          event: 'internal_beta_diagnostics_checked',
           workspaceId,
           metadata: {
             readyForInternalBeta,

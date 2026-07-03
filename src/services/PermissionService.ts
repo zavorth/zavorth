@@ -10,6 +10,8 @@ import { ConfigVersioningService } from './ConfigVersioningService.js';
 import { PermissionRepository } from '../storage/PermissionRepository.js';
 import { TelemetryRuntimeService } from './telemetry/TelemetryRuntimeService.js';
 
+export type PermissionMetadataValue = string | number | boolean | null;
+
 type CreatePermissionInput = {
   task_id?: string | null;
   executor: string;
@@ -20,7 +22,7 @@ type CreatePermissionInput = {
   resolved_value?: string | null;
   reason: string;
   requested_by?: string | null;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, PermissionMetadataValue>;
 };
 
 type PermissionPatch = {
@@ -30,7 +32,7 @@ type PermissionPatch = {
   resolved_value?: string | null;
   reason?: string;
   decision_note?: string | null;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, PermissionMetadataValue>;
 };
 
 export class PermissionService {
@@ -230,7 +232,7 @@ export class PermissionService {
     executor: string,
     kind: string,
     workspace: string | null,
-    metadataMatch?: Record<string, any>,
+    metadataMatch?: Record<string, PermissionMetadataValue>,
   ): Promise<PermissionRequest | undefined> {
     await this.ensureInit();
     return this.repo.findApproved(executor, kind, workspace, metadataMatch);
@@ -240,7 +242,7 @@ export class PermissionService {
     executor?: string,
     kind?: string,
     workspace?: string | null,
-    metadataMatch?: Record<string, any>,
+    metadataMatch?: Record<string, PermissionMetadataValue>,
   ): Promise<PermissionRequest[]> {
     await this.ensureInit();
     return this.repo.listApproved(executor, kind, workspace, metadataMatch);
@@ -249,7 +251,7 @@ export class PermissionService {
   public async findApprovedExternalExecutorBinding(
     workspace: string | null,
     agentRole: string | null,
-    metadataMatch?: Record<string, any>,
+    metadataMatch?: Record<string, PermissionMetadataValue>,
   ): Promise<PermissionRequest | undefined> {
     const normalizedRole = this.normalizeAgentRole(agentRole);
     const exact = await this.findApprovedRequest('external_executor', 'agent_binding', workspace, {
@@ -270,8 +272,8 @@ export class PermissionService {
   private buildMetadataMatch(
     executor: string,
     kind: string,
-    metadata?: Record<string, any>,
-  ): Record<string, any> | undefined {
+    metadata?: Record<string, PermissionMetadataValue>,
+  ): Record<string, PermissionMetadataValue> | undefined {
     if (executor !== 'external_executor' || kind !== 'agent_binding') {
       return undefined;
     }
@@ -326,11 +328,11 @@ export class PermissionService {
   private normalizePermissionMetadata(
     executor: string,
     kind: string,
-    metadata: Record<string, any> | undefined,
+    metadata: Record<string, PermissionMetadataValue> | undefined,
     requestedValue: string | null,
     resolvedValue: string | null,
-  ): Record<string, any> {
-    const nextMetadata: Record<string, any> = { ...(metadata || {}) };
+  ): Record<string, PermissionMetadataValue> {
+    const nextMetadata: Record<string, PermissionMetadataValue> = { ...(metadata || {}) };
 
     if (kind === 'workspace_access') {
       nextMetadata.access_level = this.normalizeAccessLevel(

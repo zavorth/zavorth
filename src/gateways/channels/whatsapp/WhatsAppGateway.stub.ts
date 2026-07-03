@@ -5,6 +5,44 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 
+// Cloud API response when message is sent successfully
+interface CloudApiSendMessageSuccess {
+  messaging_product: string;
+  contacts: Array<{ input: string; wa_id: string }>;
+  messages: Array<{ id: string }>;
+}
+
+// Cloud API error response structure
+interface CloudApiErrorDetail {
+  message: string;
+  type: string;
+  code: number;
+  error_subcode?: number;
+  fbtrace_id?: string;
+}
+
+// Unified result type for sendCloudApiTextMessage
+type CloudApiSendResult =
+  | CloudApiSendMessageSuccess
+  | { ok: false; error: string }
+  | { error: CloudApiErrorDetail };
+
+// Cloud API webhook message structure
+interface CloudApiWebhookMessage {
+  from: string;
+  id: string;
+  timestamp: string;
+  type: string;
+  text?: { body: string };
+  button?: { text: string };
+  interactive?: {
+    type?: string;
+    button_reply?: { id: string; title: string };
+    list_reply?: { id: string; title: string };
+  };
+  [key: string]: unknown;
+}
+
 export interface WhatsAppGatewayStubMessage {
   userId: string;
   chatId: string;
@@ -715,7 +753,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     chatId: string,
     text: string,
     options: { contextMessageId?: string | null } = {},
-  ): Promise<Record<string, any>> {
+  ): Promise<CloudApiSendResult> {
     const phoneNumberId = String(config.whatsappPhoneNumberId || '').trim();
     const accessToken = String(config.whatsappAccessToken || '').trim();
     const apiVersion = String(config.whatsappCloudApiVersion || 'v20.0').trim() || 'v20.0';
@@ -756,9 +794,9 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       },
     );
 
-    let responsePayload: Record<string, any> | null = null;
+    let responsePayload: CloudApiSendResult | null = null;
     try {
-      responsePayload = await response.json() as Record<string, any>;
+      responsePayload = await response.json() as CloudApiSendResult;
     } catch {
       responsePayload = null;
     }
@@ -770,9 +808,9 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     return responsePayload || { ok: response.ok };
   }
 
-  private extractCloudApiMessages(body: Record<string, unknown>): Record<string, any>[] {
+  private extractCloudApiMessages(body: Record<string, unknown>): CloudApiWebhookMessage[] {
     const entries = Array.isArray(body.entry) ? body.entry : [];
-    const messages: Record<string, any>[] = [];
+    const messages: CloudApiWebhookMessage[] = [];
 
     for (const entry of entries) {
       if (!entry || typeof entry !== 'object') {
@@ -798,32 +836,21 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     return messages;
   }
 
-  private extractTextFromCloudApiMessage(message: Record<string, unknown>): string | null {
+  private extractTextFromCloudApiMessage(message: CloudApiWebhookMessage): string | null {
     const type = String(message.type || '').trim().toLowerCase();
     if (type === 'text') {
-      const text = message.text && typeof message.text === 'object'
-        ? String((message.text as Record<string, unknown>).body || '').trim()
-        : '';
+      const text = message.text?.body?.trim() || '';
       return text || null;
     }
 
     if (type === 'button') {
-      const button = message.button && typeof message.button === 'object'
-        ? String((message.button as Record<string, unknown>).text || '').trim()
-        : '';
+      const button = message.button?.text?.trim() || '';
       return button || null;
     }
 
     if (type === 'interactive') {
-      const interactive = message.interactive && typeof message.interactive === 'object'
-        ? message.interactive as Record<string, unknown>
-        : null;
-      const buttonReply = interactive?.button_reply && typeof interactive.button_reply === 'object'
-        ? String((interactive.button_reply as Record<string, unknown>).title || '').trim()
-        : '';
-      const listReply = interactive?.list_reply && typeof interactive.list_reply === 'object'
-        ? String((interactive.list_reply as Record<string, unknown>).title || '').trim()
-        : '';
+      const buttonReply = message.interactive?.button_reply?.title?.trim() || '';
+      const listReply = message.interactive?.list_reply?.title?.trim() || '';
       return buttonReply || listReply || null;
     }
 

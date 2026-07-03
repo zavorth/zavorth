@@ -5,6 +5,7 @@ import type {
 } from './ZavorthSecurityMeshService.js';
 import type { ZavorthPluginRegistryService, ZavorthPluginRegistrySnapshot } from './ZavorthPluginRegistryService.js';
 import type { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';
+import type { NodeMeshSnapshot, NodeMeshSnapshotEntry } from '../contracts/NodeMeshContract.js';
 import { McpToolPolicy, type McpSecurityProfile } from '../mcp/McpToolPolicy.js';
 import type { McpCapabilityControlPlaneService } from './McpCapabilityControlPlaneService.js';
 import {
@@ -13,7 +14,7 @@ import {
   type SkillTrustPolicyDocument,
 } from './SkillTrustPolicyService.js';
 import type { SystemOverlordControlService } from './SystemOverlordControlService.js';
-import type { SystemOverlordRiskLevel } from '../contracts/SystemOverlordContract.js';
+import type { SystemOverlordRiskLevel, SystemOverlordControlSnapshot, SystemOverlordProfileDescriptor, SystemOverlordCapabilityDescriptor } from '../contracts/SystemOverlordContract.js';
 import type { WorkspaceExtensionRegistryService } from './WorkspaceExtensionRegistryService.js';
 import {
   TrustPlanePolicyLedgerService,
@@ -226,7 +227,7 @@ export class ZavorthTrustPlaneService {
       surfaces: {
         systemOverlord: {
           profiles: Array.isArray(systemOverlord?.profiles)
-            ? systemOverlord!.profiles.map((entry: any) => String(entry?.profile || '').trim()).filter(Boolean)
+            ? systemOverlord!.profiles.map((entry: SystemOverlordProfileDescriptor) => String(entry?.profile || '').trim()).filter(Boolean)
             : [],
           autonomyLevels: Array.isArray(systemOverlord?.autonomyLevels) ? systemOverlord!.autonomyLevels.length : 0,
           pendingApprovals: Number(systemOverlord?.summary?.pendingApprovals || 0),
@@ -361,11 +362,11 @@ export class ZavorthTrustPlaneService {
 
   private buildOperatorSummary(input: {
     securityMesh: ZavorthSecurityMeshSnapshot | null;
-    systemOverlord: any;
+    systemOverlord: SystemOverlordControlSnapshot | null;
     mcpProfile: ReturnType<McpToolPolicy['describe']>;
     skillPolicy: SkillTrustPolicyDocument;
     pluginSnapshot: ZavorthPluginRegistrySnapshot | null;
-    nodeSnapshot: any;
+    nodeSnapshot: NodeMeshSnapshot | null;
   }): string {
     const parts: string[] = [];
 
@@ -399,12 +400,12 @@ export class ZavorthTrustPlaneService {
   }
 
   private buildRiskHighlights(input: {
-    systemOverlord: any;
+    systemOverlord: SystemOverlordControlSnapshot | null;
     mcpProfile: ReturnType<McpToolPolicy['describe']>;
     skillPolicy: SkillTrustPolicyDocument;
     securityMesh: ZavorthSecurityMeshSnapshot | null;
     pluginSnapshot: ZavorthPluginRegistrySnapshot | null;
-    nodeSnapshot: any;
+    nodeSnapshot: NodeMeshSnapshot | null;
   }): ZavorthTrustPlaneSnapshot['riskHighlights'] {
     const highlights: ZavorthTrustPlaneSnapshot['riskHighlights'] = [];
     const pendingApprovals = Number(input.systemOverlord?.summary?.pendingApprovals || 0);
@@ -488,7 +489,7 @@ export class ZavorthTrustPlaneService {
     mcpProfile: ReturnType<McpToolPolicy['describe']>;
     skillPolicy: SkillTrustPolicyDocument;
     pluginSnapshot: ZavorthPluginRegistrySnapshot | null;
-    nodeSnapshot: any;
+    nodeSnapshot: NodeMeshSnapshot | null;
   }): ZavorthTrustPlaneSnapshot['suggestedActions'] {
     const actions: ZavorthTrustPlaneSnapshot['suggestedActions'] = [];
 
@@ -666,17 +667,17 @@ export class ZavorthTrustPlaneService {
     return `Policy default ${policy.defaultPolicy}, ${policy.allowedSourceIds.length} fonte(s) liberada(s), ${explicitRules} regra(s) explicita(s) e ${blockedRules} bloqueio(s) dedicado(s).`;
   }
 
-  private countHighRiskCapabilities(systemOverlord: any): number {
+  private countHighRiskCapabilities(systemOverlord: SystemOverlordControlSnapshot | null): number {
     const capabilities = Array.isArray(systemOverlord?.capabilities) ? systemOverlord.capabilities : [];
-    return capabilities.filter((entry: any) => {
+    return capabilities.filter((entry: SystemOverlordCapabilityDescriptor) => {
       const riskLevel = String(entry?.riskLevel || '').trim().toLowerCase();
       return riskLevel === 'high' || riskLevel === 'critical';
     }).length;
   }
 
-  private countRestrictedNodes(nodeSnapshot: any): number {
+  private countRestrictedNodes(nodeSnapshot: NodeMeshSnapshot | null): number {
     const entries = Array.isArray(nodeSnapshot?.entries) ? nodeSnapshot.entries : [];
-    return entries.filter((entry: any) => {
+    return entries.filter((entry: NodeMeshSnapshotEntry) => {
       const approved = Number(entry?.approvedCapabilityIds?.length || 0);
       const capabilities = Number(entry?.capabilityIds?.length || 0);
       return approved > 0 && approved < capabilities;

@@ -6,19 +6,20 @@ import { finalizeBotGatewayBootstrap } from '../../../../gateways/channels/teleg
 import { initializeBotGatewayFoundation } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayFoundationBootstrap.js';
 import { initializeTelegramOperationsServices } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayOperationsBootstrap.js';
 import type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayBootstrapTypes.js';
+import type { BotGateway } from '../../../../gateways/channels/telegram/BotGateway.js';
 
 export type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayBootstrapTypes.js';
 
 export function initializeBotGateway(
-  gateway: any,
+  gateway: BotGateway,
   token: string,
   taskManager: TaskManager,
   logRepo: LogRepository,
   runtimeComposition?: RuntimeCompositionService,
   runtimeOptions?: BotGatewayRuntimeOptions,
 ): void {
-  gateway.taskManager = taskManager;
-  gateway.logRepo = logRepo;
+  // Bootstrap phase: assign private properties via Object.assign
+  Object.assign(gateway, { taskManager, logRepo });
   initializeBotGatewayFoundation(
     gateway,
     token,

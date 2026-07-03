@@ -1,6 +1,6 @@
 import type { PermissionRequest } from "../../../../../contracts/PermissionRequest.js";
 import type { Task } from "../../../../../contracts/TaskContract.js";
-import type { SurfaceTaskDispatcherLike } from "../../../../../services/SurfaceRuntime.js";
+import type { SurfaceControllerContext, SurfaceTaskDispatcherLike } from "../../../../../services/SurfaceRuntime.js";
 import type { DesktopResourcePlaneService } from "../../../../../services/DesktopResourcePlaneService.js";
 import type { CompanionControlService } from "../../../../../services/CompanionControlService.js";
 import type { CompanionWorkspaceOptimizerService } from "../../../../../services/CompanionWorkspaceOptimizerService.js";
@@ -86,6 +86,15 @@ import type { AutomaticBrowserDoctorService } from "../../../../../mcp/Automatic
 import type { ComputerUseWatchModePolicyFileService } from "../../../../../services/ComputerUseWatchModePolicyFileService.js";
 import type { CapabilityLifecycleService } from "../../../../../services/CapabilityLifecycleService.js";
 import type { TaskResourcePlannerService } from "../../../../../services/TaskResourcePlannerService.js";
+
+type TaskAdvanceOptions = {
+  actor?: string | null;
+  reason?: string;
+};
+
+type PermissionKeyboardMarkup = {
+  inline_keyboard: Array<Array<{ text: string; callback_data: string }>>;
+};
 
 export type SharedSurfaceCommandServiceDeps = {
   runtimeDiagnostics: RuntimeDiagnosticsService;
@@ -189,12 +198,12 @@ export type SharedSurfaceCommandServiceDeps = {
   permissionService?: PermissionService | null;
   selfModificationCommandService?: SelfModificationCommandService | null;
   taskApprovalController?: {
-    handleApproval: (ctx: any, args: string) => Promise<void>;
-    handleRejection: (ctx: any, taskId: string) => Promise<void>;
+    handleApproval: (ctx: SurfaceControllerContext, args: string) => Promise<void>;
+    handleRejection: (ctx: SurfaceControllerContext, taskId: string) => Promise<void>;
   } | null;
   taskExecutionController?: {
-    handleUndo: (ctx: any, taskId: string) => Promise<void>;
-    resumeTaskExecution: (ctx: any, task: Task) => Promise<void>;
+    handleUndo: (ctx: SurfaceControllerContext, taskId: string) => Promise<void>;
+    resumeTaskExecution: (ctx: SurfaceControllerContext, task: Task) => Promise<void>;
   } | null;
   surfaceTaskDispatcher?: SurfaceTaskDispatcherLike | null;
   taskManager?: {
@@ -203,15 +212,15 @@ export type SharedSurfaceCommandServiceDeps = {
     advanceState?: (
       task: Task,
       nextStatus: Task["status"],
-      options?: Record<string, any>,
+      options?: TaskAdvanceOptions,
     ) => void;
   } | null;
   formatPermissionCreatedMessage?:
     | ((permission: PermissionRequest) => string)
     | null;
-  buildPermissionKeyboard?: ((permission: PermissionRequest) => any) | null;
+  buildPermissionKeyboard?: ((permission: PermissionRequest) => PermissionKeyboardMarkup) | null;
   workflowController?: {
-    handleWorkflow: (ctx: any, args: string) => Promise<void>;
+    handleWorkflow: (ctx: SurfaceControllerContext, args: string) => Promise<void>;
   } | null;
   engineeringCoreService?: EngineeringCoreService | null;
   channelInstallService?: Pick<

@@ -42,6 +42,15 @@ import { ZavorthExternalAgentMigrationPackService } from '../../../../services/Z
 import { ZavorthExternalAgentGatewayService } from '../../../../services/ZavorthExternalAgentGatewayService.js';
 import type { ZavorthExternalAgentMigrationPreset } from '../../../../contracts/ZavorthExternalAgentMigrationPackContract.js';
 
+interface TelegramInlineKeyboardButton {
+  text: string;
+  callback_data: string;
+}
+
+interface TelegramInlineKeyboardMarkup {
+  inline_keyboard: TelegramInlineKeyboardButton[][];
+}
+
 export class TelegramOpsController {
   private readonly administrationCommands: TelegramOpsAdministrationService;
   private readonly insightCommands: TelegramOpsInsightService;
@@ -113,7 +122,7 @@ export class TelegramOpsController {
     const uxService = new ZavorthRuntimeReadinessUxService();
     const ux = uxService.buildSnapshot(readiness);
     await ctx.reply(uxService.renderTelegram(ux), {
-      reply_markup: ux.telegramProjection.replyMarkup as any,
+      reply_markup: ux.telegramProjection.replyMarkup as TelegramInlineKeyboardMarkup,
     });
   }
 
@@ -137,7 +146,7 @@ export class TelegramOpsController {
             { text: 'Approvals', callback_data: '/echoapprovals' },
           ],
         ],
-      } as any,
+      } as TelegramInlineKeyboardMarkup,
     });
   }
 
@@ -161,7 +170,7 @@ export class TelegramOpsController {
             { text: 'Approvals', callback_data: '/echoapprovals' },
           ],
         ],
-      } as any,
+      } as TelegramInlineKeyboardMarkup,
     });
   }
 
@@ -185,7 +194,7 @@ export class TelegramOpsController {
             { text: 'ZavorthControl', callback_data: '/zavorthControl' },
           ],
         ],
-      } as any,
+      } as TelegramInlineKeyboardMarkup,
     });
   }
 
@@ -209,7 +218,7 @@ export class TelegramOpsController {
             { text: 'ZavorthControl', callback_data: '/zavorthControl' },
           ],
         ],
-      } as any,
+      } as TelegramInlineKeyboardMarkup,
     });
   }
 
@@ -233,7 +242,7 @@ export class TelegramOpsController {
             { text: 'Readiness', callback_data: '/readiness' },
           ],
         ],
-      } as any,
+      } as TelegramInlineKeyboardMarkup,
     });
   }
 
@@ -256,7 +265,7 @@ export class TelegramOpsController {
               { text: 'Readiness', callback_data: '/readiness' },
             ],
           ],
-        } as any,
+        } as TelegramInlineKeyboardMarkup,
       });
       return;
     }
@@ -274,7 +283,7 @@ export class TelegramOpsController {
             { text: 'Readiness', callback_data: '/readiness' },
           ],
         ],
-      } as any,
+      } as TelegramInlineKeyboardMarkup,
     });
   }
 
@@ -422,8 +431,8 @@ export class TelegramOpsController {
     }
 
     if (resumableWorkflow) {
-      const workflowLabel = String((resumableWorkflow as any).workflow || '').trim() || 'workflow';
-      const stageLabel = String((resumableWorkflow as any).stage_label || (resumableWorkflow as any).resume_stage_label || '').trim();
+      const workflowLabel = String(resumableWorkflow.workflow || '').trim() || 'workflow';
+      const stageLabel = String(('stage_label' in resumableWorkflow ? resumableWorkflow.stage_label : null) || ('resume_stage_label' in resumableWorkflow ? resumableWorkflow.resume_stage_label : null) || '').trim();
       lines.push(
         `- Workflow para retomar: ${workflowLabel}${stageLabel ? ` · ${stageLabel}` : ''}.`,
       );

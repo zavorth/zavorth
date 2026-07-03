@@ -44,13 +44,123 @@ import {
 } from '../../../../gateways/channels/telegram/BotGatewayHelpers.js';
 import { getDefaultWorkspace, persistTask } from '../../../../gateways/channels/telegram/TelegramTaskSupport.js';
 import type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayBootstrapTypes.js';
+import type { Bot, Context, InlineKeyboard } from 'grammy';
+import type { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
+import type { AudioHandler } from '../../../../gateways/channels/telegram/AudioHandler.js';
+import type { VideoHandler } from '../../../../gateways/channels/telegram/VideoHandler.js';
+import type { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
+import type { AuditLogger } from '../../../../monitoring/AuditLogger.js';
+import type { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
+import type { RemoteModeManager } from '../../../../services/RemoteModeManager.js';
+import type { ZavorthBridgeControlService } from '../../../../services/ZavorthBridgeControlService.js';
+import type { ZavorthBridgePromptService } from '../../../../services/ZavorthBridgePromptService.js';
+import type { WslControlService } from '../../../../services/WslControlService.js';
+import type { SystemCleanupService } from '../../../../services/SystemCleanupService.js';
+import type { ChatCleanupService } from '../../../../services/ChatCleanupService.js';
+import type { PermissionService } from '../../../../services/PermissionService.js';
+import type { SecurityLockService } from '../../../../services/SecurityLockService.js';
+import type { SchedulerService } from '../../../../services/SchedulerService.js';
+import type { FunGamesService } from '../../../../services/FunGamesService.js';
+import type { WelcomeService } from '../../../../services/WelcomeService.js';
+import type { AntiSpamService } from '../../../../services/AntiSpamService.js';
+import type { MessageFilterService } from '../../../../services/MessageFilterService.js';
+import type { WarnService } from '../../../../services/WarnService.js';
+import type { GroupStatsService } from '../../../../services/GroupStatsService.js';
+import type { ZavorthControlService } from '../../../../services/ZavorthControlService.js';
+import type { DailyReportService } from '../../../../services/DailyReportService.js';
+import type { DemoGuideService } from '../../../../services/DemoGuideService.js';
+import type { DemoModeService } from '../../../../services/DemoModeService.js';
+import type { OperatorModeService } from '../../../../services/OperatorModeService.js';
+import type { PresentationModeService } from '../../../../services/PresentationModeService.js';
+import type { RuntimeDiagnosticsService } from '../../../../services/RuntimeDiagnosticsService.js';
+import type { RuntimeCompositionService } from '../../../../services/RuntimeCompositionService.js';
+import type { TelemetryRuntimeService } from '../../../../observability/telemetry/TelemetryRuntimeService.js';
+import type { HostIdentityService } from '../../../../services/HostIdentityService.js';
+import type { BotGatewaySupport } from './BotGatewaySupport.js';
+import type { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
+import type { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
+import type { NaturalConversationIngressMetadata } from './support/BotGatewayMessageProcessing.js';
+import type { WorkflowRunService } from '../../../../runtime/workflows/WorkflowRunService.js';
+import type { ProductObservabilityService } from '../../../../observability/ProductObservabilityService.js';
+
+type BotGatewayControllerTarget = {
+  bot: Bot;
+  parser: CommandParser;
+  auditLogger: AuditLogger;
+  executionGateway: ExecutionGateway;
+  zavorthBridgePreferenceStore: ZavorthBridgePreferenceStore;
+  zavorthBridgeControlService: ZavorthBridgeControlService;
+  zavorthBridgePromptService: ZavorthBridgePromptService;
+  remoteModeManager: RemoteModeManager;
+  runtimeDiagnostics: RuntimeDiagnosticsService;
+  wslControl: WslControlService;
+  capabilityLifecycleService: CapabilityLifecycleService;
+  funGamesService: FunGamesService;
+  permissionService: PermissionService;
+  audioHandler: AudioHandler;
+  videoHandler: VideoHandler;
+  echoOutputStage: EchoOutputStageService;
+  welcomeService: WelcomeService;
+  antiSpamService: AntiSpamService;
+  messageFilterService: MessageFilterService;
+  warnService: WarnService;
+  groupStatsService: GroupStatsService;
+  schedulerService: SchedulerService;
+  systemCleanup: SystemCleanupService;
+  chatCleanup: ChatCleanupService;
+  securityLock: SecurityLockService;
+  hostIdentityService: HostIdentityService;
+  telemetryRuntime: TelemetryRuntimeService;
+  botGatewaySupport: BotGatewaySupport;
+  buildPermissionKeyboard: (permission: PermissionRequest) => InlineKeyboard;
+  runtimeComposition: RuntimeCompositionService;
+  processTextMessage: (
+    ctx: Context,
+    text: string,
+    inlineData?: Array<{ mimeType: string; data: string }>,
+    ingressMetadata?: NaturalConversationIngressMetadata,
+  ) => Promise<void>;
+  demoGuideService: DemoGuideService;
+  demoModeService: DemoModeService;
+  operatorModeService: OperatorModeService;
+  presentationModeService: PresentationModeService;
+  zavorthControlService: ZavorthControlService;
+  dailyReportService: DailyReportService;
+  groupModerationService: GroupModerationService;
+  menuController: TelegramMenuController;
+  opsController: TelegramOpsController;
+  providerController: TelegramProviderController;
+  researchController: TelegramResearchController;
+  researchQueueWorker: ResearchQueueWorker;
+  julesQueueWorker: JulesQueueWorker;
+  lifecycleController: TelegramLifecycleController;
+  funController: TelegramFunController;
+  groupAdminController: TelegramGroupAdminController;
+  groupEventController: TelegramGroupEventController;
+  mediaController: TelegramMediaController;
+  permissionController: TelegramPermissionController;
+  echoApprovalController: TelegramEchoApprovalController;
+  knowledgeController: TelegramKnowledgeController;
+  schedulerController: TelegramSchedulerController;
+  inspectionController: TelegramInspectionController;
+  securityController: TelegramSecurityController;
+  executionController: TelegramExecutionController;
+  chainController: TelegramChainController;
+  pipelineController: TelegramPipelineController;
+  selfModificationController: TelegramSelfModificationController;
+  fileDeliveryController: TelegramFileDeliveryController;
+  capabilityController: TelegramCapabilityController;
+  hubController: TelegramHubController;
+  skillCatalogController: TelegramSkillCatalogController;
+  zavorthBridgeController: TelegramZavorthBridgeController;
+};
 
 export function initializeBotGatewayControllers(
-  gateway: any,
+  gateway: BotGatewayControllerTarget,
   taskManager: TaskManager,
   logRepo: LogRepository,
-  workflowRunService: any,
-  productObservabilityService: any,
+  workflowRunService: WorkflowRunService,
+  productObservabilityService: ProductObservabilityService,
   runtimeOptions?: BotGatewayRuntimeOptions,
 ): void {
   gateway.demoGuideService = new DemoGuideService();

@@ -16,6 +16,7 @@ import { RuntimeAccessReadinessService } from '../../../../runtime/access/Runtim
 import { RuntimeInstallJourneyService } from '../../../../runtime/access/RuntimeInstallJourneyService.js';
 import { RuntimeOfficialRemoteAccessService } from '../../../../runtime/access/RuntimeOfficialRemoteAccessService.js';
 import { RuntimeRemoteAccessService } from '../../../../runtime/access/RuntimeRemoteAccessService.js';
+import type { NodeInvocationCompletion, NodeMeshHostHints } from '../../../../contracts/core/NodeMeshContract.js';
 import type { ZavorthControlAuthService } from '../../../../services/ZavorthControlAuthService.js';
 import { ZavorthGatewayControlSocketService } from '../../../../services/ZavorthGatewayControlSocketService.js';
 import { ZavorthGatewayLauncherService } from '../../../../services/ZavorthGatewayLauncherService.js';
@@ -79,6 +80,29 @@ import {
   type WebAppSharedSurfaceFactorySource,
 } from './WebAppSharedSurfaceFactoryService.js';
 import type { WebAppOperationsState, WebAppRuntimeServiceState } from './WebAppServiceState.js';
+
+interface ConversationSnapshotMessage {
+  role?: string | null;
+  kind?: string | null;
+  type?: string | null;
+  text?: string | null;
+  content?: string | null;
+  message?: string | null;
+  body?: string | null;
+}
+
+interface ConversationSnapshot {
+  messages?: ConversationSnapshotMessage[];
+  history?: ConversationSnapshotMessage[];
+  session?: { messages?: ConversationSnapshotMessage[] } | null;
+  conversation?: { messages?: ConversationSnapshotMessage[] } | null;
+  timeline?: ConversationSnapshotMessage[];
+}
+
+type SwarmScalePlaneRuntimeDeps = {
+  llmRuntime: { chatDetailed: (...args: unknown[]) => Promise<unknown> } | null;
+  toolRuntime: { executeTool: (toolName: string, args: unknown) => Promise<string>; getToolDefinitions?: () => unknown[] } | null;
+};
 
 type WebAppServiceCompositionOptions = {
   auth: ZavorthControlAuthService;
@@ -145,8 +169,8 @@ async function invokeSatelliteCapability(
   capability: unknown,
   options: WebAppServiceCompositionOptions,
 ) {
-  const args = payload.args && typeof payload.args === 'object' && !Array.isArray(payload.args)
-    ? payload.args as Record<string, any>
+  const args: Record<string, unknown> = payload.args && typeof payload.args === 'object' && !Array.isArray(payload.args)
+    ? payload.args
     : {};
   const nodeId = String(args.nodeId || args.node_id || '').trim();
   if (nodeId && options.operations.nodeInvoke) {
@@ -189,10 +213,12 @@ async function handleSatelliteHeartbeat(
     nodeId,
     sharedSecret,
     capabilityIds: Array.isArray(payload.capabilities) ? payload.capabilities : [],
-    results: Array.isArray(payload.completedInvocations) ? payload.completedInvocations as any : [],
+    results: Array.isArray(payload.completedInvocations)
+      ? payload.completedInvocations as NodeInvocationCompletion[]
+      : [],
     hostHints: {
       surface: 'satellite-pwa',
-    } as any,
+    } as Partial<NodeMeshHostHints>,
   });
   const nodeMesh = options.operations.nodeMesh?.buildSnapshot
     ? options.operations.nodeMesh.buildSnapshot({ selectedNodeId: nodeId })
@@ -203,7 +229,7 @@ async function handleSatelliteHeartbeat(
   };
 }
 
-function extractLatestAssistantText(snapshot: any): string | null {
+function extractLatestAssistantText(snapshot: ConversationSnapshot | null | undefined): string | null {
   const candidates = [
     snapshot?.messages,
     snapshot?.history,
@@ -358,8 +384,8 @@ export function createWebAppServiceComposition(
   const selfModificationCommandService = new SelfModificationCommandService();
   const gatewayLlmRuntime = new LlmRuntimeService();
   const swarmScalePlane = new SwarmScalePlaneRuntimeService({
-    llmRuntime: gatewayLlmRuntime as any,
-    toolRuntime: options.toolRuntime as any || null,
+    llmRuntime: gatewayLlmRuntime as SwarmScalePlaneRuntimeDeps['llmRuntime'],
+    toolRuntime: (options.toolRuntime || null) as SwarmScalePlaneRuntimeDeps['toolRuntime'],
   });
   const agentGateway = options.agentGateway || new ZavorthAgentGateway({
     defaultProviderLabel: 'Zavorth Gateway',

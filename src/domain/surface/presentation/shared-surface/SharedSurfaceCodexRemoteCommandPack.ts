@@ -10,12 +10,14 @@ type CodexRemoteControlPlaneLike = Pick<CodexRemoteControlPlaneService, 'buildSn
 type CodexRemoteActionLike = Pick<CodexRemoteActionService, 'execute'>;
 type CodexRemoteSessionPlaneLike = Pick<ZavorthSessionPlaneService, 'spawnSession'> | null;
 
+type PermissionKeyboardMarkup = Record<string, unknown>;
+
 type SharedSurfaceCodexRemoteCommandPackDeps = {
   controlPlaneService: CodexRemoteControlPlaneLike;
   actionService: CodexRemoteActionLike;
   sessionPlaneService: CodexRemoteSessionPlaneLike;
   formatPermissionCreatedMessage?: ((permission: PermissionRequest) => string) | null;
-  buildPermissionKeyboard?: ((permission: PermissionRequest) => any) | null;
+  buildPermissionKeyboard?: ((permission: PermissionRequest) => PermissionKeyboardMarkup) | null;
 };
 
 export class SharedSurfaceCodexRemoteCommandPack {
@@ -310,8 +312,9 @@ export class SharedSurfaceCodexRemoteCommandPack {
         await ctx.reply(lines.join('\n'));
         return;
       }
-    } catch (error: any) {
-      await ctx.reply(`Nao consegui operar o Codex Remote agora.\n\nMotivo: ${error?.message || 'erro desconhecido'}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      await ctx.reply(`Nao consegui operar o Codex Remote agora.\n\nMotivo: ${message}`);
     }
   }
 
@@ -600,7 +603,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
 
     if (normalized.startsWith('{')) {
       try {
-        const parsed = JSON.parse(normalized) as Record<string, any>;
+        const parsed: Record<string, unknown> = JSON.parse(normalized);
         return {
           profileLabel: String(parsed.label || parsed.profileLabel || '').trim() || null,
           profileDescription: String(parsed.description || parsed.profileDescription || '').trim() || null,
@@ -608,8 +611,9 @@ export class SharedSurfaceCodexRemoteCommandPack {
           codexHome: String(parsed.codexHome || '').trim() || null,
           workspaceRoot: String(parsed.workspaceRoot || '').trim() || null,
         };
-      } catch (error: any) {
-        throw new Error(`Payload de perfil invalido: ${error?.message || 'JSON invalido'}.`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'JSON invalido';
+        throw new Error(`Payload de perfil invalido: ${message}.`);
       }
     }
 

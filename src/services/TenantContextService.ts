@@ -33,6 +33,52 @@ import type {
   TenantResolutionInput,
 } from '../domain/trust-governance/infrastructure/tenant-context/TenantContextTypes.js';
 
+interface TenantMetadataRecord {
+  tenant_id?: string;
+  tenant_context?: { tenant_id?: string; policy_profile?: string; [key: string]: unknown };
+  tenantContext?: { tenantId?: string; [key: string]: unknown };
+  traceId?: string;
+  trace_id?: string;
+  tenant_policy_profile?: string;
+  [key: string]: unknown;
+}
+
+interface TenantMetadataOutput {
+  tenant_id: string;
+  tenant_type: TenantType;
+  boundary: TenantBoundary;
+  isolation_mode: string;
+  onboarding_status: string;
+  platform: string;
+  policy_profile: string;
+  public_server_mode: boolean;
+  scope_id: string | null;
+  source_user_id: string | null;
+  runtime_user_id: string | null;
+  session_id: string | null;
+  guild_id: string | null;
+  channel_id: string | null;
+  thread_id: string | null;
+  chat_id: string | null;
+  owner_user_ids: string[];
+  allowed_guild_ids: string[];
+  allowed_channel_ids: string[];
+  metadata: Record<string, unknown>;
+}
+
+interface PermissionMetadataMatch {
+  tenant_id: string;
+  tenant_policy_profile?: string;
+}
+
+interface TaskMetadataRecord {
+  tenant_id: string;
+  tenant_type: TenantType;
+  tenant_isolation_mode: string;
+  tenant_policy_profile: string;
+  tenant_context: TenantMetadataOutput | null;
+}
+
 export type { TenantBoundary, TenantContext, TenantType };
 
 export class TenantContextService {
@@ -88,7 +134,7 @@ export class TenantContextService {
     chatId?: string | null;
     userId?: string | null;
     sessionId?: string | null;
-    composerPayload?: Record<string, any> | null;
+    composerPayload?: Record<string, unknown> | null;
     publicServerMode?: boolean | null;
   }): TenantContext | null {
     return resolveTenantContext(
@@ -122,7 +168,7 @@ export class TenantContextService {
     return normalizeTenantContextRecord(value);
   }
 
-  public toMetadataRecord(context: TenantContext | null | undefined): Record<string, any> | null {
+  public toMetadataRecord(context: TenantContext | null | undefined): TenantMetadataOutput | null {
     return toTenantMetadataRecord(context);
   }
 
@@ -143,16 +189,16 @@ export class TenantContextService {
   }
 
   public static buildTaskMetadataFromContext(
-    context: TenantContext | Record<string, any> | null | undefined,
-  ): Record<string, any> {
+    context: TenantContext | TenantMetadataRecord | null | undefined,
+  ): TaskMetadataRecord | Record<string, never> {
     return buildTaskMetadataFromTenantContext(context);
   }
 
-  public static extractTenantId(metadata: Record<string, any> | null | undefined): string | null {
+  public static extractTenantId(metadata: TenantMetadataRecord | null | undefined): string | null {
     return extractTenantIdFromMetadata(metadata);
   }
 
-  public static buildPermissionMetadataFromTask(task: Task | null | undefined): Record<string, any> {
+  public static buildPermissionMetadataFromTask(task: Task | null | undefined): Record<string, unknown> {
     if (!task) {
       return {};
     }
@@ -162,11 +208,13 @@ export class TenantContextService {
   }
 
   public static buildPermissionMetadataMatchFromTask(
-    task: Task | { metadata?: Record<string, any> } | null | undefined,
-  ): Record<string, any> | undefined {
+    task: Task | { metadata?: TenantMetadataRecord } | null | undefined,
+  ): PermissionMetadataMatch | undefined {
     return buildPermissionMetadataMatchFromTaskMetadata(
       task,
-      'task_id' in (task as any) ? (candidate) => new TenantContextService().resolveFromTask(candidate) : undefined,
+      task && 'task_id' in (task as Record<string, unknown>)
+        ? (candidate) => new TenantContextService().resolveFromTask(candidate)
+        : undefined,
     );
   }
 }

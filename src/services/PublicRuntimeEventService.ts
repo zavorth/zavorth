@@ -8,6 +8,52 @@ import type {
 } from '../contracts/public/events/sse.js';
 import type { WebRealtimeEvent, WebSessionSnapshot } from './WebRealtimeService.js';
 
+interface SerializedPermissionPayload {
+  permission_id: string;
+  task_id: string | null;
+  kind: string | null;
+  status: string | null;
+  reason: string | null;
+  requested_value: string | null;
+  resolved_value: string | null;
+  metadata: Record<string, unknown>;
+}
+
+interface SerializedTaskPayload {
+  task_id: string;
+  command_type: string | null;
+  raw_message: string | null;
+  status: string | null;
+  risk_level: number | null;
+  artifacts: unknown[];
+}
+
+interface SerializedWorkflowPayload {
+  workflow_run_id: string;
+  workflow_name: string;
+  objective: string;
+  status: string;
+  phases: Array<{ status: string }>;
+  resume_stage: { label: string | null; objective: string | null } | null;
+  artifacts: unknown[];
+}
+
+interface AgentStreamProgressPayload extends Record<string, unknown> {
+  eventType: string;
+  sessionId: string;
+  totalChunks?: number;
+  chunkIndex?: number;
+  [key: string]: unknown;
+}
+
+interface SnapshotPermission {
+  status: string | null;
+}
+
+interface SnapshotTask {
+  status: string | null;
+}
+
 export class PublicRuntimeEventService {
   public mapWebRealtimeEvent(event: WebRealtimeEvent): PublicRuntimeEvent[] {
     switch (event.type) {
@@ -94,7 +140,7 @@ export class PublicRuntimeEventService {
         return [
           this.wrap('error', event as WebRealtimeEvent, {
             code: 'unsupported_event',
-            message: `Unsupported realtime event type: ${(event as any).type}`,
+            message: `Unsupported realtime event type: ${(event as { type: string }).type}`,
           }),
         ];
     }
@@ -116,7 +162,7 @@ export class PublicRuntimeEventService {
     });
   }
 
-  private buildApprovalRequest(payload: any): ApprovalRequestEventData {
+  private buildApprovalRequest(payload: SerializedPermissionPayload): ApprovalRequestEventData {
     const taskId = sanitizeNullableText(payload.task_id);
     const files = safeStringArray(payload.metadata?.files || payload.metadata?.target_files);
     return {
@@ -166,14 +212,14 @@ export class PublicRuntimeEventService {
 
   private resolveRuntimeStatus(snapshot: WebSessionSnapshot): RuntimeStatusEventData['status'] {
     const permissions = Array.isArray(snapshot.permissions) ? snapshot.permissions : [];
-    if (permissions.some((permission: any) => String(permission?.status || '').toLowerCase() === 'pending')) {
+    if (permissions.some((permission: SnapshotPermission) => String(permission?.status || '').toLowerCase() === 'pending')) {
       return 'waiting_approval';
     }
     const tasks = Array.isArray(snapshot.tasks) ? snapshot.tasks : [];
-    if (tasks.some((task: any) => ['failed', 'rejected', 'cancelled', 'blocked'].includes(String(task?.status || '').toLowerCase()))) {
+    if (tasks.some((task: SnapshotTask) => ['failed', 'rejected', 'cancelled', 'blocked'].includes(String(task?.status || '').toLowerCase()))) {
       return 'blocked';
     }
-    if (tasks.some((task: any) => ['running', 'queued', 'pending'].includes(String(task?.status || '').toLowerCase()))) {
+    if (tasks.some((task: SnapshotTask) => ['running', 'queued', 'pending'].includes(String(task?.status || '').toLowerCase()))) {
       return 'running';
     }
     return 'ready';
@@ -189,16 +235,16 @@ export class PublicRuntimeEventService {
     };
   }
 
-  private resolveWorkflowProgress(payload: any): number | null {
+  private resolveWorkflowProgress(payload: SerializedWorkflowPayload): number | null {
     const phases = safeArray(payload.phases);
     if (phases.length === 0) {
       return null;
     }
-    const completed = phases.filter((phase: any) => String(phase?.status || '').toLowerCase() === 'completed').length;
+    const completed = phases.filter((phase: { status: string }) => String(phase?.status || '').toLowerCase() === 'completed').length;
     return Math.round((completed / phases.length) * 100);
   }
 
-  private resolveAgentStreamProgress(payload: any): number | null {
+  private resolveAgentStreamProgress(payload: AgentStreamProgressPayload): number | null {
     const total = Number(payload?.totalChunks || 0);
     const index = Number(payload?.chunkIndex || 0);
     if (!Number.isFinite(total) || !Number.isFinite(index) || total <= 0 || index < 0) {
@@ -209,7 +255,7 @@ export class PublicRuntimeEventService {
 
   private wrap<TType extends PublicRuntimeEvent['type']>(
     type: TType,
-    event: Pick<WebRealtimeEvent, 'id' | 'createdAt'> & { payload?: any },
+    event: Pick<WebRealtimeEvent, 'id' | 'createdAt'> & { payload?: Record<string, unknown> },
     data: Extract<PublicRuntimeEvent, { type: TType }>['data'],
   ): Extract<PublicRuntimeEvent, { type: TType }> {
     return {
@@ -228,7 +274,7 @@ export class PublicRuntimeEventService {
     } as Extract<PublicRuntimeEvent, { type: TType }>;
   }
 
-  private resolveSessionId(payload: any): string | null {
+  private resolveSessionId(payload: Record<string, unknown> | null | undefined): string | null {
     return sanitizeNullableText(payload?.sessionId || payload?.session_id);
   }
 }
