@@ -1,6 +1,9 @@
 import { config } from '../config/index.js';
+import type { ZavorthGovernanceControlPlaneSnapshot } from './ZavorthGovernanceControlPlaneService.js';
 import { ZavorthGovernanceControlPlaneService } from './ZavorthGovernanceControlPlaneService.js';
+import type { ZavorthTenantGovernanceEntry, ZavorthTenantGovernanceSnapshot } from './ZavorthTenantGovernanceService.js';
 import { ZavorthTenantGovernanceService } from './ZavorthTenantGovernanceService.js';
+import type { ZavorthTrustPlaneSnapshot } from './ZavorthTrustPlaneService.js';
 import { ZavorthTrustPlaneService } from './ZavorthTrustPlaneService.js';
 import {
   buildOverviewCard,
@@ -47,9 +50,9 @@ export type ZavorthTrustOverviewSnapshot = {
   cards: ControlPlaneOverviewCard[];
   actions: ControlPlaneOverviewAction[];
   sourceSnapshots: {
-    governance: any;
-    trust: any;
-    tenants: any;
+    governance: ZavorthGovernanceControlPlaneSnapshot;
+    trust: ZavorthTrustPlaneSnapshot;
+    tenants: ZavorthTenantGovernanceSnapshot;
   };
   narrative: ControlPlaneOverviewNarrative;
 };
@@ -81,7 +84,7 @@ export class ZavorthTrustOverviewService {
       {
         source: 'tenants',
         actions: Array.isArray(tenants?.pendingOnboarding)
-          ? tenants.pendingOnboarding.slice(0, 3).map((entry: any) => ({
+          ? tenants.pendingOnboarding.slice(0, 3).map((entry: ZavorthTenantGovernanceEntry) => ({
             id: `tenant:${entry.tenantId}`,
             label: `Onboard tenant ${entry.tenantId}`,
             severity: 'warn',
@@ -175,9 +178,9 @@ export class ZavorthTrustOverviewService {
   }
 
   private buildCards(input: {
-    governance: any;
-    trust: any;
-    tenants: any;
+    governance: ZavorthGovernanceControlPlaneSnapshot;
+    trust: ZavorthTrustPlaneSnapshot;
+    tenants: ZavorthTenantGovernanceSnapshot;
   }): ControlPlaneOverviewCard[] {
     return [
       buildOverviewCard({

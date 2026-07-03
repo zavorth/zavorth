@@ -8,9 +8,9 @@ export type WebAppSupervisionRouteContext = {
   pathname: string;
   deps: WebAppRuntimeRouteDeps;
   experimentalAlias: boolean;
-  sessionV2Service: any;
-  swarmV2Service: any;
-  swarmScalePlaneService: any;
+  sessionV2Service: WebAppRuntimeRouteDeps['sessionV2'];
+  swarmV2Service: WebAppRuntimeRouteDeps['swarmV2'];
+  swarmScalePlaneService: WebAppRuntimeRouteDeps['swarmScalePlane'];
   sessionV2Label: string;
   swarmV2Label: string;
   isSessionV2Route: (suffix?: string) => boolean;

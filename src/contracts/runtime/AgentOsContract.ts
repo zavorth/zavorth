@@ -198,7 +198,6 @@ export type AgentOsSnapshot = {
   reputation: AgentOsReputationSnapshot;
   architectureDecision: AgentOsArchitectureDecisionDraft;
   zavorthControl: AgentOsZavorthControlSnapshot;
-  zavorthControl: AgentOsZavorthControlProjection;
   safety: {
     thinkingBlocked: false;
     simulationHasSideEffects: false;

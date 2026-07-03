@@ -4,7 +4,7 @@ import type {
   SupervisorGraphStatus,
 } from '../../orchestrator/graph/SupervisorGraph.js';
 import type { ChatMessage } from '../../providers/ILlmProvider.js';
-import type { ExecutionIntentClassification } from '../ExecutionIntentClassifierService.js';
+import type { ExecutionIntentClassification, ExecutionModeHint } from '../ExecutionIntentClassifierService.js';
 import type { LlmRuntimeService } from '../llm/LlmRuntimeService.js';
 import type { ProviderStrategyDecision } from '../ProviderStrategyService.js';
 import type { SkillRoutingDecision } from '../SkillRoutingService.js';
@@ -111,7 +111,33 @@ export type GraphRuntimeServiceOptions = Omit<SupervisorGraphDependencies, 'llmR
   telemetryRuntime?: TelemetryRuntimeService;
   tokenBudgetService?: TokenBudgetService;
   costBudgetService?: CostBudgetService;
-  executionIntentClassifierService?: { classify: (input: any) => ExecutionIntentClassification };
-  providerStrategyService?: { resolve: (input: any) => ProviderStrategyDecision };
-  skillRoutingService?: { recommend: (input: any) => SkillRoutingDecision };
+  executionIntentClassifierService?: {
+    classify: (input: {
+      text?: string | null;
+      commandType?: string | null;
+      intent?: string | null;
+      executor?: string | null;
+      taskKind?: WorkspaceTaskKind | null;
+      taskSubtype?: WorkspaceTaskSubtype | null;
+      modeHint?: ExecutionModeHint;
+    }) => ExecutionIntentClassification;
+  };
+  providerStrategyService?: {
+    resolve: (input: {
+      taskKind: WorkspaceTaskKind;
+      taskSubtype: WorkspaceTaskSubtype;
+      configuredProviderName?: string;
+      isProviderUsable?: (name: string) => boolean;
+      workspaceMemory?: Record<string, unknown> | null | undefined;
+    }) => ProviderStrategyDecision;
+  };
+  skillRoutingService?: {
+    recommend: (input: {
+      taskGoal: string;
+      taskKind: WorkspaceTaskKind;
+      taskSubtype: WorkspaceTaskSubtype;
+      modeHint?: ExecutionModeHint;
+      maxSupportingSkills?: number;
+    }) => SkillRoutingDecision;
+  };
 };

@@ -56,8 +56,8 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
         dryRun: typeof body.dryRun === 'boolean' ? body.dryRun : null,
       });
       deps.writeJson(res, { ok: true, ...result }, 200);
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao decidir approval do Overlord.' }, 409);
+    } catch (error: unknown) {
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Falha ao decidir approval do Overlord.' }, 409);
     }
     return true;
   }
@@ -141,8 +141,8 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
           reason: String(body.reason || '').trim() || null,
         });
       deps.writeJson(res, { ok: true, ...result }, 200);
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: error?.message || 'Acao supervisionada indisponivel.' }, 400);
+    } catch (error: unknown) {
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Acao supervisionada indisponivel.' }, 400);
     }
     return true;
   }

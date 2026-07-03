@@ -86,7 +86,7 @@ export class DatabaseQueryTool extends BaseTool {
         fs.mkdirSync(dbDir, { recursive: true });
       }
 
-      let sqlite3: any;
+      let sqlite3: { default: (dbPath: string, opts?: { readonly?: boolean }) => { prepare(query: string): { all(): unknown[]; run(): { changes: number; lastInsertRowid?: unknown } }; close(): void } };
       try {
         sqlite3 = await import('better-sqlite3');
       } catch (error: unknown) {
@@ -114,7 +114,7 @@ export class DatabaseQueryTool extends BaseTool {
     }
   }
 
-  private formatReadResult(rows: any[], totalRows: number, maxRows: number, dbPath: string): string {
+  private formatReadResult(rows: Record<string, unknown>[], totalRows: number, maxRows: number, dbPath: string): string {
     const lines: string[] = [];
     lines.push(`Query executada com sucesso.`);
     lines.push(`  - Database: ${dbPath}`);
@@ -139,7 +139,7 @@ export class DatabaseQueryTool extends BaseTool {
     return lines.join('\n');
   }
 
-  private formatWriteResult(result: any, dbPath: string): string {
+  private formatWriteResult(result: { changes: number; lastInsertRowid?: unknown }, dbPath: string): string {
     const lines: string[] = [];
     lines.push(`Query de escrita executada com sucesso.`);
     lines.push(`  - Database: ${dbPath}`);

@@ -64,8 +64,6 @@ export type ZavorthProviderReadinessEntry = {
   userAction: string;
   testCommand: string;
   probe: {
-    status: ZavorthProviderProbeStatus;
-    mode: ZavorthProviderLiveProbeMode;
     liveNetworkUsed: boolean;
     requestedAt: string | null;
     completedAt: string | null;
@@ -108,7 +106,6 @@ export type ZavorthProviderReadinessMatrixSnapshot = {
   profiles: Array<{
     id: string;
     label: string;
-    summary: string;
     preferredOrder: string[];
   }>;
   simpleCatalog: {
@@ -126,15 +123,10 @@ export type ZavorthProviderReadinessMatrixSnapshot = {
     defaultRoutingPolicy: 'ready-and-live-proof';
     counts: {
       catalogReady: number;
-      liveReady: number;
-      catalogReadyButNotLive: number;
-      defaultRouteAllowed: number;
     };
   };
   commands: Array<{
-    id: string;
     command: string;
-    summary: string;
     liveNetworkUsedByDefault: boolean;
   }>;
   zavorthControlProjection: {
@@ -143,15 +135,7 @@ export type ZavorthProviderReadinessMatrixSnapshot = {
     executionAuthority: false;
     canRenderTestButtons: true;
   };
-  zavorthControlProjection: {
-    route: '/zavorthControl';
-    endpoint: '/api/providers/readiness';
-    executionAuthority: false;
-    canRenderTestButtons: true;
-  };
   invariants: Array<{
-    id: string;
-    status: 'passed';
     detail: string;
   }>;
   nextAction: string;

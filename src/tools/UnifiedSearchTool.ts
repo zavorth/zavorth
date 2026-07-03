@@ -28,6 +28,8 @@ import type {
   SearchQueryRequest,
   SearchQueryResult,
   SearchResultItem,
+  SearchQueryMode,
+  SearchEvidenceDomain,
 } from '../contracts/SearchQueryContract.js';
 
 // ---------------------------------------------------------------------------
@@ -96,13 +98,13 @@ export class UnifiedSearchTool extends BaseTool {
   private buildRequest(args: Record<string, unknown>): SearchQueryRequest {
     const mode = String(args.mode || args.search_mode || 'deep').toLowerCase();
     const validModes = ['quick', 'deep', 'grounded'];
-    const effectiveMode = validModes.includes(mode) ? mode as any : 'deep';
+    const effectiveMode = validModes.includes(mode) ? mode as SearchQueryMode : 'deep';
 
     return {
       query: String(args.query || ''),
       mode: effectiveMode,
       limit: typeof args.limit === 'number' ? args.limit : 5,
-      evidenceDomain: (args.evidence_domain || args.evidenceDomain || args.domainProfile || args.domain_profile || 'auto') as any,
+      evidenceDomain: (args.evidence_domain || args.evidenceDomain || args.domainProfile || args.domain_profile || 'auto') as SearchEvidenceDomain | 'auto',
       providerHints: this.buildProviderHints(args),
       extractPages: typeof args.extract_pages === 'boolean'
         ? args.extract_pages

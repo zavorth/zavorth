@@ -72,24 +72,17 @@ export type ZavorthPerceptionZavorthControlProjection = {
   pendingPlans: Array<{
     id: string;
     targetId: string;
-    status: 'approval-required' | 'blocked' | 'planned';
     approvalRequired: boolean;
     commandHint: string;
   }>;
   approvals: Array<{
-    id: string;
-    targetId: string;
     reason: string;
-    commandHint: string;
   }>;
   artifacts: Array<{
-    id: string;
-    targetId: string;
     kind: 'screenshot' | 'ui-dump' | 'dom' | 'pdf' | 'vision' | 'receipt';
     redacted: true;
     rawContentStored: false;
     retentionTtlMs: number;
-    commandHint: string;
   }>;
   liveSafetyStatus: {
     liveCanaryDisabledByDefault: true;
@@ -106,10 +99,6 @@ export type ZavorthPerceptionZavorthControlProjection = {
     visualMutationApplied: false;
   };
   receipts: Array<{
-    id: string;
-    kind: 'target' | 'policy' | 'artifact' | 'surface' | 'certification';
-    status: ZavorthPerceptionCrossSurfaceStatus;
-    reason: string;
     rawSecretSerialized: false;
   }>;
 };
@@ -134,7 +123,6 @@ export type ZavorthPerceptionCrossSurfaceCertificationSnapshot = {
   naturalPlan: ZavorthPerceptionInvocationPlan;
   surfaceResponse: SurfaceResponse;
   surfaceProjections: ZavorthPerceptionSurfaceProjection[];
-  zavorthControlProjection: ZavorthPerceptionZavorthControlProjection;
   zavorthControlProjection: ZavorthPerceptionZavorthControlProjection;
   certificationMatrix: ZavorthPerceptionCertificationMatrixRow[];
   liveCanary: {

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { WebAppSupervisionRouteHandler } from './types.js';
+import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
 import { getRequestedBy } from './helpers.js';
 import {
   ZavorthMobileSupervisionService,
@@ -17,9 +17,7 @@ const STREAM_TICKET_TTL_MS = 30_000;
 // Helpers
 // ---------------------------------------------------------------------------
 
-function extractMobileToken(ctx: {
-  req: { headers: Record<string, string | string[] | undefined> };
-}): string {
+function extractMobileToken(ctx: WebAppSupervisionRouteContext): string {
   const fromHeader = String(
     (Array.isArray(ctx.req.headers['x-zavorth-mobile-token'])
       ? ctx.req.headers['x-zavorth-mobile-token'][0]
@@ -28,8 +26,8 @@ function extractMobileToken(ctx: {
   return fromHeader;
 }
 
-function requireAuth(ctx: Parameters<WebAppSupervisionRouteHandler>[0]): boolean {
-  const token = extractMobileToken(ctx as any);
+function requireAuth(ctx: WebAppSupervisionRouteContext): boolean {
+  const token = extractMobileToken(ctx);
   return mobileService.validateSessionToken(token);
 }
 

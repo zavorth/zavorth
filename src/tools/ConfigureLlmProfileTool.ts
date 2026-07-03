@@ -11,6 +11,13 @@ type ConfigureLlmProfileToolRuntime = {
   clearProviderCache?: () => void;
 };
 
+/** Mutable access to config properties that the set handler mutates at runtime. */
+interface MutableConfigProxy {
+  llmProvider: string;
+  geminiDefaultModel: string;
+  [key: string]: string;
+}
+
 export class ConfigureLlmProfileTool extends BaseTool {
   public readonly name = 'configure_llm_profile';
   public readonly description =
@@ -76,7 +83,7 @@ Use "set" para gravar a mudanca.`,
     throw new Error('Acao invalida. Use "list" ou "set".');
   }
 
-  private handleList(): Record<string, any> {
+  private handleList(): Record<string, unknown> {
     const isAvailable = (key: string) => Boolean(key && key.trim().length > 0);
 
     return {
@@ -131,7 +138,7 @@ Use "set" para gravar a mudanca.`,
     };
   }
 
-  private handleSet(providerName: string, modelName: string, allowUnavailable: boolean): Record<string, any> {
+  private handleSet(providerName: string, modelName: string, allowUnavailable: boolean): Record<string, unknown> {
     const envService = this.runtime.envFileService || new EnvFileService();
     const projectRoot = path.resolve(__dirname, '../..');
     const envFilePath = this.runtime.envFilePath || path.join(projectRoot, '.env');
@@ -158,10 +165,11 @@ Use "set" para gravar a mudanca.`,
     envService.upsertEntries(envFilePath, envUpdates);
 
     (this.runtime.clearProviderCache || (() => ProviderFactory.clearCache()))();
-    (config as any).llmProvider = providerDefinition.provider;
-    (config as any)[providerDefinition.configModelKey] = modelName;
+    const mutableConfig = config as unknown as MutableConfigProxy;
+    mutableConfig.llmProvider = providerDefinition.provider;
+    mutableConfig[providerDefinition.configModelKey] = modelName;
     if (providerDefinition.configModelKey === 'geminiModel') {
-      (config as any).geminiDefaultModel = modelName;
+      mutableConfig.geminiDefaultModel = modelName;
     }
 
     return {

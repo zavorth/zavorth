@@ -21,6 +21,7 @@ import { SharedSurfaceTaskVariationCommandPack } from '../SharedSurfaceTaskVaria
 import { SharedSurfaceTenantGovernanceCommandPack } from '../SharedSurfaceTenantGovernanceCommandPack.js';
 import { SharedSurfaceWatchModeCommandPack } from '../SharedSurfaceWatchModeCommandPack.js';
 import { SharedSurfaceWorkflowGovernanceCommandPack } from '../SharedSurfaceWorkflowGovernanceCommandPack.js';
+import type { SharedSurfaceCommandServiceDeps } from './SharedSurfaceCommandServiceDeps.js';
 
 type SharedSurfaceTaskVariationHelpers = {
   normalizeNaturalText?: (value: string | null | undefined) => string;
@@ -29,7 +30,7 @@ type SharedSurfaceTaskVariationHelpers = {
 };
 
 export function buildSharedSurfaceCommandServiceAssembly(
-  deps: Record<string, any>,
+  deps: SharedSurfaceCommandServiceDeps,
   helpers: SharedSurfaceTaskVariationHelpers = {},
 ) {
   const codexRemoteCommandPack = new SharedSurfaceCodexRemoteCommandPack({
