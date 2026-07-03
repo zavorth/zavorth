@@ -6,6 +6,15 @@ import {
   type WorkspaceTaskSubtype,
 } from '../../../../services/WorkspaceTaskKind.js';
 
+interface GateDecisionEntry {
+  action?: string;
+  at?: string;
+}
+
+interface WorkspaceMemoryRecord {
+  [key: string]: unknown;
+}
+
 export function workspaceMemoryTaskBelongsToWorkspace(task: Task, workspace: string): boolean {
   const taskWorkspace = String(task.workspace || '').trim();
   if (!taskWorkspace) {
@@ -88,8 +97,8 @@ export function getWorkspaceMemoryLlmExecutionProfile(task: Task): {
 
 export function computeWorkspaceApprovalWaitMs(
   task: Task,
-  approvalHistory: any[],
-  permissionHistory: any[],
+  approvalHistory: GateDecisionEntry[],
+  permissionHistory: GateDecisionEntry[],
 ): number {
   const createdAtMs = Date.parse(String(task.created_at || ''));
   if (!Number.isFinite(createdAtMs)) {
@@ -112,8 +121,8 @@ export function computeWorkspaceApprovalWaitMs(
 
 export function computeWorkspacePostApprovalRecoveryMs(
   task: Task,
-  approvalHistory: any[],
-  permissionHistory: any[],
+  approvalHistory: GateDecisionEntry[],
+  permissionHistory: GateDecisionEntry[],
 ): number {
   const gateTimes = collectWorkspaceGateDecisionTimes(approvalHistory, permissionHistory);
   const finalGateAt = gateTimes.length > 0 ? gateTimes[gateTimes.length - 1] : NaN;
@@ -128,8 +137,8 @@ export function computeWorkspacePostApprovalRecoveryMs(
 
 export function computeWorkspaceArtifactDeliveryAfterApprovalMs(
   task: Task,
-  approvalHistory: any[],
-  permissionHistory: any[],
+  approvalHistory: GateDecisionEntry[],
+  permissionHistory: GateDecisionEntry[],
 ): number {
   const gateTimes = collectWorkspaceGateDecisionTimes(approvalHistory, permissionHistory);
   const finalGateAt = gateTimes.length > 0 ? gateTimes[gateTimes.length - 1] : NaN;
@@ -147,17 +156,17 @@ export function computeWorkspaceArtifactDeliveryAfterApprovalMs(
   return 0;
 }
 
-export function collectWorkspaceGateDecisionTimes(approvalHistory: any[], permissionHistory: any[]): number[] {
+export function collectWorkspaceGateDecisionTimes(approvalHistory: GateDecisionEntry[], permissionHistory: GateDecisionEntry[]): number[] {
   const timestamps = [
     ...approvalHistory
-      .filter((entry: any) => String(entry?.action || '').trim().toLowerCase() === 'approve')
-      .map((entry: any) => Date.parse(String(entry?.at || ''))),
+      .filter((entry) => String(entry?.action || '').trim().toLowerCase() === 'approve')
+      .map((entry) => Date.parse(String(entry?.at || ''))),
     ...permissionHistory
-      .filter((entry: any) => {
+      .filter((entry) => {
         const action = String(entry?.action || '').trim().toLowerCase();
         return action === 'grant' || action === 'approve';
       })
-      .map((entry: any) => Date.parse(String(entry?.at || ''))),
+      .map((entry) => Date.parse(String(entry?.at || ''))),
   ]
     .filter((value) => Number.isFinite(value))
     .sort((left, right) => left - right);
@@ -167,7 +176,7 @@ export function collectWorkspaceGateDecisionTimes(approvalHistory: any[], permis
 
 export function collectWorkspaceArtifactTimes(task: Task): number[] {
   return (Array.isArray(task.artifacts) ? task.artifacts : [])
-    .map((artifact: any) => Date.parse(String(artifact?.created_at || artifact?.createdAt || '')))
+    .map((artifact) => Date.parse(String(artifact?.created_at || artifact?.createdAt || '')))
     .filter((value) => Number.isFinite(value));
 }
 
@@ -205,11 +214,11 @@ export function normalizeWorkspaceMemoryOutcomeSummary(value: string): string {
     .slice(0, 220) || 'ciclo autonomo sem resumo';
 }
 
-export function toWorkspaceMemoryRecord(value: unknown): Record<string, any> {
+export function toWorkspaceMemoryRecord(value: unknown): WorkspaceMemoryRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return {};
   }
-  return value as Record<string, any>;
+  return value as WorkspaceMemoryRecord;
 }
 
 export function slugifyWorkspaceMemoryValue(value: string): string {

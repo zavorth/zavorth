@@ -60,15 +60,37 @@ export class ActiveMemoryService {
       this.flushTimer = null;
       if (this.dirty) {
         this.dirty = false;
-        fs.writeFileSync(
-          path.join(this.storageDir, 'entries.json'),
-          JSON.stringify(Object.fromEntries(this.entries), null, 2),
-          'utf-8',
-        );
+        this.flushNow();
       }
     }, 2000);
     if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {
       (this.flushTimer as NodeJS.Timeout).unref();
+    }
+  }
+
+  public flush(): void {
+    if (this.flushTimer) {
+      clearTimeout(this.flushTimer);
+      this.flushTimer = null;
+    }
+    if (this.dirty) {
+      this.dirty = false;
+      this.flushNow();
+    }
+  }
+
+  private flushNow(): void {
+    try {
+      if (!fs.existsSync(this.storageDir)) return;
+      fs.writeFileSync(
+        path.join(this.storageDir, 'entries.json'),
+        JSON.stringify(Object.fromEntries(this.entries), null, 2),
+        'utf-8',
+      );
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error;
+      }
     }
   }
 

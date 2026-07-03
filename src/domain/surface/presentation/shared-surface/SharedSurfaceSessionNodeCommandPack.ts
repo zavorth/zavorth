@@ -296,7 +296,7 @@ export class SharedSurfaceSessionNodeCommandPack {
       `Capabilities base: ${draft.entry.capabilityIds.join(', ') || 'sem capabilities declaradas'}.`,
       'Bootstrap sugerido:',
       draft.bootstrap?.command
-        || `npm run nodes:host -- --base-url <dashboard-url> --node-id ${draft.entry.id} --pairing-code ${draft.pairingCode} --capabilities ${draft.entry.capabilityIds.join(',') || 'system.run'}`,
+        || `npm run nodes:host -- --base-url <zavorthControl-url> --node-id ${draft.entry.id} --pairing-code ${draft.pairingCode} --capabilities ${draft.entry.capabilityIds.join(',') || 'system.run'}`,
       ...(draft.bootstrap?.fallbackCommand ? ['Fallback:', draft.bootstrap.fallbackCommand] : []),
     ].join('\n'));
   }

@@ -68,7 +68,7 @@ function renderMainInterface() {
     `  trust-plane:  ${theme.dim('policy-broker, cognitive-firewall')}`,
     `  development:  ${theme.dim('coder, qa-auditor, repo-map')}`,
     `  security:     ${theme.dim('prompt-injection-defense, code-review')}`,
-    `  ops:          ${theme.dim('incident-triage, dashboard-ops')}`,
+    `  ops:          ${theme.dim('incident-triage, zavorthControl-ops')}`,
     `  research:     ${theme.dim('document-analysis, web-research-governed')}`,
     ``,
     `  ${theme.dim('24 tools • 5 profiles • /help for commands')}`

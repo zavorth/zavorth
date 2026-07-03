@@ -46,7 +46,7 @@ export class WebConsolePreviewFileService {
     const stat = fs.statSync(resolved);
     const maxBytes = 15 * 1024 * 1024;
     if (stat.size > maxBytes) {
-      throw new Error('File is too large for dashboard preview.');
+      throw new Error('File is too large for zavorthControl preview.');
     }
 
     return {

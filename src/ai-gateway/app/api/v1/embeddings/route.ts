@@ -24,6 +24,7 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 
 import { getAllCustomModels, getProviderNodes } from "@/lib/localDb";
 import { assertProviderRequestTargetAllowed } from "@/lib/security/egressGuard";
+import { logger } from '../logger.js';
 
 /**
  * Handle CORS preflight
@@ -77,7 +78,7 @@ export async function GET(request: Request) {
         });
       }
     }
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
   return new Response(JSON.stringify({ object: "list", data }), {
     headers: { "Content-Type": "application/json" },

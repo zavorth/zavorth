@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 const ENCRYPTION_PREFIX = 'enc:v1:';
 
@@ -57,7 +58,8 @@ export class SecureStorageService {
       const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
       decipher.setAuthTag(tag);
       return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8');
-    } catch {
+    } catch (err) {
+      logger.warn(`[SecureStorage] Failed to decrypt value: ${(err as Error).message}`);
       return normalized;
     }
   }
@@ -73,7 +75,8 @@ export class SecureStorageService {
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : {};
-    } catch {
+    } catch (err) {
+      logger.warn(`[SecureStorage] Failed to parse decrypted JSON: ${(err as Error).message}`);
       return {};
     }
   }
@@ -148,7 +151,8 @@ export class SecureStorageService {
       }
 
       return fs.readFileSync(keyFile, 'utf8').trim() || null;
-    } catch {
+    } catch (err) {
+      logger.warn(`[SecureStorage] Failed to read or create key file: ${(err as Error).message}`);
       return null;
     }
   }
@@ -172,7 +176,8 @@ export class SecureStorageService {
         }
       }
       return store;
-    } catch {
+    } catch (err) {
+      logger.warn(`[SecureStorage] Failed to read secret store: ${(err as Error).message}`);
       return {};
     }
   }
@@ -187,7 +192,8 @@ export class SecureStorageService {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, `${JSON.stringify(store, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
       return true;
-    } catch {
+    } catch (err) {
+      logger.error(`[SecureStorage] Failed to write secret store: ${(err as Error).message}`);
       return false;
     }
   }

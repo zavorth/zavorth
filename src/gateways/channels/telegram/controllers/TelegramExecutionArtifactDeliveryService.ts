@@ -1,8 +1,8 @@
-// @ts-nocheck
 import { Context, InputFile } from 'grammy';
 import fs from 'fs';
 import path from 'path';
 import { Task } from '../../../../contracts/TaskContract.js';
+import { ArtifactRecord } from '../../../../contracts/ArtifactContract.js';
 import { ArtifactPipelineService } from '../../../../runtime/artifacts/ArtifactPipelineService.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 
@@ -107,7 +107,7 @@ export class TelegramExecutionArtifactDeliveryService {
     ctx: Context,
     filePath: string,
     fileName: string,
-    artifact: Record<string, unknown>,
+    artifact: ArtifactRecord,
     caption: string,
   ): Promise<boolean> {
     const mimeType = String(artifact?.mimeType || '').toLowerCase();

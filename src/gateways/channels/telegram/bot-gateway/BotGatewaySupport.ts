@@ -20,7 +20,7 @@ import {
   resolveRuntimeAdapterRole,
   sendToChat,
   start,
-  startDashboardSurface,
+  startZavorthControlSurface,
   toWslPath,
 } from '../../../../gateways/channels/telegram/bot-gateway/support/BotGatewayRuntimeLifecycle.js';
 import type {
@@ -66,7 +66,7 @@ export class BotGatewaySupport {
   }
 
   public isStarted(): boolean {
-    return this.runtime.state.dashboardSurfaceStarted;
+    return this.runtime.state.zavorthControlSurfaceStarted;
   }
 
   public async processTextMessage(
@@ -102,8 +102,8 @@ export class BotGatewaySupport {
     return start(this.runtime);
   }
 
-  public async startDashboardSurface(): Promise<void> {
-    return startDashboardSurface(this.runtime);
+  public async startZavorthControlSurface(): Promise<void> {
+    return startZavorthControlSurface(this.runtime);
   }
 
   public async flushPendingSupervisedNotifications(): Promise<void> {

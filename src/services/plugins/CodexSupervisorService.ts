@@ -165,6 +165,10 @@ export class CodexSupervisorService {
     return lines.join('\n');
   }
 
+  public getTask(taskId: string): string {
+    return this.getStatus(taskId);
+  }
+
   public listTasks(options?: { status?: string; limit?: number }): string {
     let tasks = Array.from(this.tasks.values());
 
@@ -209,6 +213,10 @@ export class CodexSupervisorService {
       'Por Status:',
       ...Object.entries(byStatus).map(([s, c]) => `  ${s}: ${c}`),
     ].join('\n');
+  }
+
+  public getRunningTasks(): string {
+    return this.listTasks({ status: 'running' });
   }
 
   public cleanup(maxAgeDays: number = 7): string {

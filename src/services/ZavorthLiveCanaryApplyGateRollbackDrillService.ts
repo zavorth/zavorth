@@ -80,7 +80,7 @@ export class ZavorthLiveCanaryApplyGateRollbackDrillService {
         noExternalImpactFromGate: true,
         requiresFinalHumanTrigger: true,
         rollbackDrillRequiredBeforeLive: true,
-        noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         rawSecretsSerialized: false,
         separateExecutorRequired: true,
       },
@@ -151,7 +151,7 @@ function buildChecks(
       adapterReview.status === 'adapter-reviewed' && adapterReview.executionEnvelope.preparedForReview && adapterReview.executionEnvelope.executionEnabled === false,
       'adapter-review-ready',
       `Adapter review status is ${adapterReview.status}.`,
-      'Complete Dashboard controls adapter review before opening the apply gate.',
+      'Complete ZavorthControl controls adapter review before opening the apply gate.',
     ),
     check(
       'final-owner-trigger',
@@ -193,8 +193,8 @@ function buildChecks(
       'receipt-chain',
       adapterReview.receipts.some((receipt) => receipt.kind === 'checkpoint-8-live-canary-adapter-review' && receipt.status === 'recorded'),
       'receipt-chain',
-      'Dashboard controls adapter review receipt chain is present.',
-      'Re-run Dashboard controls review to produce recorded receipts.',
+      'ZavorthControl controls adapter review receipt chain is present.',
+      'Re-run ZavorthControl controls review to produce recorded receipts.',
     ),
     check(
       'no-implicit-execution',
@@ -205,9 +205,9 @@ function buildChecks(
     ),
     check(
       'visual-boundary',
-      adapterReview.safety.noDashboardVisualMutation,
+      adapterReview.safety.noZavorthControlVisualMutation,
       'visual-boundary',
-      'Dashboard visual mutation remains disabled.',
+      'ZavorthControl visual mutation remains disabled.',
       null,
     ),
   ];
@@ -283,7 +283,7 @@ function buildAuthorizationPacket(
       'A separate live adapter invocation must consume this authorization receipt.',
       'The adapter must emit execution and rollback receipts.',
       'The authorization expires quickly and must not be reused across targets.',
-      'No dashboard visual mutation is authorized by this packet.',
+      'No zavorthControl visual mutation is authorized by this packet.',
     ],
   };
 }
@@ -306,7 +306,7 @@ function buildReceipts(
       id: 'checkpoint-9-adapter-review-chain',
       kind: 'adapter-review-chain',
       status: adapterReviewStatus === 'adapter-reviewed' ? 'recorded' : receiptStatus(status),
-      summary: `Dashboard controls adapter review status is ${adapterReviewStatus}.`,
+      summary: `ZavorthControl controls adapter review status is ${adapterReviewStatus}.`,
     },
     {
       id: 'checkpoint-9-final-trigger-boundary',
@@ -338,7 +338,7 @@ function buildReceipts(
       id: 'checkpoint-9-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
-      summary: 'No dashboard visual mutation is performed by the apply gate.',
+      summary: 'No zavorthControl visual mutation is performed by the apply gate.',
     },
   ];
 }
@@ -398,8 +398,8 @@ function narrativeForStatus(
   if (status === 'needs-adapter-review') {
     return {
       headline: 'Live canary apply gate needs adapter review.',
-      operatorSummary: 'Dashboard controls adapter review is not recorded as adapter-reviewed.',
-      nextAction: 'Complete Dashboard controls evidence, approval and adapter review first.',
+      operatorSummary: 'ZavorthControl controls adapter review is not recorded as adapter-reviewed.',
+      nextAction: 'Complete ZavorthControl controls evidence, approval and adapter review first.',
     };
   }
   return {

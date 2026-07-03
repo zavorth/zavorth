@@ -186,14 +186,12 @@ export class AgentCommunicator {
       throw new Error(`Agent "${message.to}" is not registered`);
     }
 
-    const timeoutMs = message.timeoutMs ?? this.config.defaultRequestTimeoutMs;
-
     this.bus.publish({
-      topic: TOPIC_DIRECT_MSG,
-      type: 'result',
+      topic: TOPIC_AGENT_COMM,
+      type: 'custom',
       sender: message.from,
       recipient: message.to,
-      payload: { event: 'request:response', messageId: id, message, response },
+      payload: message,
       priority: 'high',
       ttlMs: 60_000,
       ackRequired: false,
@@ -213,16 +211,17 @@ export class AgentCommunicator {
     const count = targets.length;
 
     for (const agent of targets) {
-    this.bus.publish({
-      topic: TOPIC_BROADCAST,
-      type: 'status',
-      sender: message.from,
-      payload: { event: 'broadcast:message', message },
-      priority: 'normal',
-      ttlMs: 60_000,
-      ackRequired: false,
-      status: 'pending',
-    });
+      this.bus.publish({
+        topic: TOPIC_AGENT_COMM,
+        type: 'status',
+        sender: message.from,
+        recipient: agent.id,
+        payload: message,
+        priority: 'normal',
+        ttlMs: 60_000,
+        ackRequired: false,
+        status: 'pending',
+      });
     }
 
     this.updateAgentLastSeen(message.from);
@@ -250,16 +249,19 @@ export class AgentCommunicator {
 
       this.bus.publish({
         topic: TOPIC_AGENT_COMM,
-        type: 'request:send',
-        senderId: message.from,
-        targetId: message.to,
+        type: 'custom',
+        sender: message.from,
+        recipient: message.to,
         payload: {
           requestId,
           type: message.type,
           payload: message.payload,
           timeoutMs,
         },
+        priority: 'high',
         ttlMs: timeoutMs,
+        ackRequired: true,
+        status: 'pending',
       });
 
       this.updateAgentLastSeen(message.from);
@@ -278,12 +280,16 @@ export class AgentCommunicator {
 
     this.bus.publish({
       topic: TOPIC_AGENT_COMM,
-      type: 'request:response',
-      senderId: agentId,
+      type: 'result',
+      sender: agentId,
       payload: {
         requestId,
         response,
       },
+      priority: 'high',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
     });
 
     this.updateAgentLastSeen(agentId);
@@ -308,13 +314,14 @@ export class AgentCommunicator {
     this.tasks.set(delegation.id, delegation);
 
     this.bus.publish({
-      topic: TOPIC_TASKS,
-      type: 'error',
-      sender: task.assignedTo,
-      payload: { event: 'task:failed', taskId: task.id, error },
+      topic: TOPIC_AGENT_COMM,
+      type: 'task',
+      sender: task.assignedBy,
+      recipient: task.assignedTo,
+      payload: delegation,
       priority: 'high',
       ttlMs: 60_000,
-      ackRequired: false,
+      ackRequired: true,
       status: 'pending',
     });
 
@@ -333,12 +340,16 @@ export class AgentCommunicator {
 
     this.bus.publish({
       topic: TOPIC_AGENT_COMM,
-      type: 'task:completed',
-      senderId: agentId,
+      type: 'result',
+      sender: agentId,
       payload: {
         taskId,
         result,
       },
+      priority: 'high',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
     });
 
     this.log.info(`[AgentCommunicator] Task "${task.taskType}" (${taskId}) completed by "${agentId}"`);
@@ -356,12 +367,16 @@ export class AgentCommunicator {
 
     this.bus.publish({
       topic: TOPIC_AGENT_COMM,
-      type: 'task:failed',
-      senderId: agentId,
+      type: 'error',
+      sender: agentId,
       payload: {
         taskId,
         error: String(error),
       },
+      priority: 'high',
+      ttlMs: 60_000,
+      ackRequired: false,
+      status: 'pending',
     });
 
     this.log.info(`[AgentCommunicator] Task "${task.taskType}" (${taskId}) failed: ${error}`);

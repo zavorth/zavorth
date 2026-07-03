@@ -185,13 +185,13 @@ export default function DocsPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
-                href="/dashboard"
+                href="/zavorthControl"
                 className="px-3 py-2 rounded-lg border border-border text-sm hover:bg-bg transition-colors"
               >
-                {t("openDashboard")}
+                {t("openZavorthControl")}
               </Link>
               <Link
-                href="/dashboard/endpoint"
+                href="/zavorthControl/endpoint"
                 className="px-3 py-2 rounded-lg border border-border text-sm hover:bg-bg transition-colors"
               >
                 {t("endpointPage")}
@@ -299,7 +299,7 @@ export default function DocsPage() {
               </p>
             </div>
             <Link
-              href="/dashboard/providers"
+              href="/zavorthControl/providers"
               className="px-3 py-2 rounded-lg border border-border text-sm hover:bg-bg transition-colors"
             >
               {t("manageProviders")}

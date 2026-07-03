@@ -5,6 +5,7 @@ import {
   skipFromSmokeAction,
 } from './smokeActions.js';
 import type { ExecuteSmokeAction, SystemOverlordSmokeItem } from './smokeTypes.js';
+import { logger } from '../logger.js';
 
 async function inspectDockerRuntime(
   executeSmokeAction: ExecuteSmokeAction,
@@ -202,7 +203,7 @@ export async function runDockerSmoke(input: {
       if (containerProvisionedBySmoke) {
         try {
           await removeDockerProbeContainer(container, input.executeSmokeAction);
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       }
     }
 
@@ -226,7 +227,7 @@ export async function runDockerSmoke(input: {
         if (!hasContainers) {
           await input.stopDockerDesktop();
         }
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
     }
   }
 }

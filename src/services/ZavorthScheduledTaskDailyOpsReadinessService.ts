@@ -76,7 +76,7 @@ export class ZavorthScheduledTaskDailyOpsReadinessService {
         allUserActionsGoThroughGovernedSurfaces: true,
         hostTaskCertificationIsExplicit: true,
         noZavorthControlVisualMutation: true,
-        noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         noDirectDispatcherBypass: true,
         rawSecretsSerialized: false,
       },
@@ -150,7 +150,7 @@ function buildSurfaceCommands(): ZavorthScheduledTaskDailyOpsReadinessSurfaceCom
     surface('automation_control_plane', '/automations reapprove', 'ready', 'Reapproval is available through the automation action lifecycle.'),
     surface('automation_control_plane', '/automations pause|resume', 'ready', 'Pause and resume stay in the governed lifecycle.'),
     surface('cli', 'zavorth-scheduled-task-daily-ops-readiness', 'ready', 'CLI reports daily readiness and host task certification.'),
-    surface('dashboard_projection', 'operationalGuard', 'projection_only', 'Backend projection is ready; no new visual dashboard section was created.'),
+    surface('zavorthControl_projection', 'operationalGuard', 'projection_only', 'Backend projection is ready; no new visual zavorthControl section was created.'),
   ];
 }
 
@@ -209,10 +209,10 @@ function buildGates(
       'Run with --task=<id> to certify a real persisted scheduled task on this host.',
     ),
     gate(
-      'dashboard-visual-mutation',
-      'no-dashboard-visual-mutation',
+      'zavorthControl-visual-mutation',
+      'no-zavorthControl-visual-mutation',
       'pass',
-      'Surface controls exposes backend/readiness only and does not create dashboard visual sections.',
+      'Surface controls exposes backend/readiness only and does not create zavorthControl visual sections.',
       null,
     ),
     gate(
@@ -312,7 +312,7 @@ function buildReceipts(
       id: 'checkpoint-7-no-visual-mutation',
       kind: 'no-visual-mutation',
       status: 'recorded',
-      summary: 'No dashboard visual section or card was created by Surface controls.',
+      summary: 'No zavorthControl visual section or card was created by Surface controls.',
     },
     {
       id: 'checkpoint-7-no-direct-dispatch',

@@ -1,34 +1,21 @@
-// @ts-nocheck
 import fs from 'fs';
-import { logger } from '../logger.js';
 import path from 'path';
 import { logger } from '../logger.js';
 import { TaskManager } from './TaskManager.js';
-import { logger } from '../logger.js';
 import { LogRepository } from '../storage/LogRepository.js';
-import { logger } from '../logger.js';
 import { ZavorthBridgeAdapter } from '../agents/ZavorthBridgeAdapter.js';
-import { logger } from '../logger.js';
 import { MailboxProtocol } from './MailboxProtocol.js';
-import { logger } from '../logger.js';
 import { BridgeProtocolAdapter } from './BridgeProtocolAdapter.js';
-import { logger } from '../logger.js';
 import { config } from '../config/index.js';
-import { logger } from '../logger.js';
 import { ExecutionGateway } from '../execution/ExecutionGateway.js';
-import { logger } from '../logger.js';
 import { LocalExecutor } from '../execution/LocalExecutor.js';
-import { logger } from '../logger.js';
 import { CodexExecutor } from '../execution/CodexExecutor.js';
-import { logger } from '../logger.js';
 import {
   EXTERNAL_EXECUTOR_ID,
   ExternalExecutor,
 } from '../execution/ExternalExecutor.js';
 import type { Plan, PlanStep } from '../contracts/PlanContract.js';
-import { logger } from '../logger.js';
 import type { ToolRuntimeService } from '../services/tools/ToolRuntimeService.js';
-import { logger } from '../logger.js';
 
 type BroadcastClient = {
   broadcast(message: string, roles?: string[]): Promise<void>;
@@ -132,9 +119,10 @@ export class MailboxWatcher {
     // Usa o adapter universal V2 que aceita tanto V1 (.msg) quanto V2 (.json)
     const parsed = this.bridgeAdapter.parseUniversal(content);
     if (!parsed.accepted) {
-      this.logRepo.log('warn', 'MailboxWatcher', parsed.reason);
+      const reason = parsed.reason;
+      this.logRepo.log('warn', 'MailboxWatcher', reason);
       await this.moveMessageFile(messagePath, this.rejectedDir, 'rejected');
-      await this.writeMailboxStatus('REJECTED', parsed.reason);
+      await this.writeMailboxStatus('REJECTED', reason);
       return;
     }
 

@@ -34,7 +34,7 @@ interface AsciinemaHeader {
  * with sub-millisecond timestamps and stored in the Asciinema v2 `.cast`
  * format. This enables:
  *
- *  - Full session replay in the Dashboard web UI
+ *  - Full session replay in the ZavorthControl web UI
  *  - Security auditing of agent actions
  *  - Recovery and debugging of failed workflows
  *  - Shareable terminal recordings for team review

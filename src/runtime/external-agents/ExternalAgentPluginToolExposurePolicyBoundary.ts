@@ -84,7 +84,7 @@ export type ExternalAgentPluginToolExposurePolicyBoundaryNormalization<TRuntimeI
   generatedAt: string;
   runtimeId: TRuntimeId;
   policies: ExternalAgentZavorthToolExposurePolicySurface[];
-  dashboard: {
+  zavorthControl: {
     capabilityRows: ExternalAgentToolExposureCapabilityRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
@@ -153,7 +153,7 @@ export function normalizeExternalAgentPluginToolExposurePolicy<TRuntimeId extend
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     policies,
-    dashboard: {
+    zavorthControl: {
       capabilityRows: policies.map((policy) => ({
         id: `${policy.id}:capability-row`,
         policyId: policy.id,

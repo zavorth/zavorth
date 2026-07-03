@@ -20,7 +20,7 @@ export function renderZavorthCliHud(snapshot: ZavorthCliHudSnapshot): string {
         '',
         ...renderPremiumKeyValueTable([
           { key: 'provider', value: snapshot.home.provider.configured ? `${snapshot.home.provider.id || 'configured'} ${snapshot.home.provider.model || ''}`.trim() : 'missing', accent: snapshot.home.provider.configured ? 'emerald' : 'amber' },
-          { key: 'dashboard', value: snapshot.home.runtime.dashboard },
+          { key: 'zavorthControl', value: snapshot.home.runtime.zavorthControl },
           { key: 'telegram', value: snapshot.home.channels.telegram },
           { key: 'safety', value: snapshot.home.safety.effectBoundary, accent: snapshot.home.safety.effectBoundary === 'ready' ? 'emerald' : 'rose' },
           { key: 'fallback mode', value: snapshot.safety.fallbackTextMode ? 'text' : 'interactive-ready' },

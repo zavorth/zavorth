@@ -84,7 +84,7 @@ export class ZavorthAgentPracticalityCompletionService {
         commands,
         actionIds,
       },
-      dashboardProjection: {
+      zavorthControlProjection: {
         available: true,
         operationalFieldsRequired: REQUIRED_COMMAND_CENTER_FIELDS,
         actionsRequired: ['/agents status', '/agents read <session>', '/agents summarize <session>', '/agents cancel <session>'],
@@ -134,7 +134,7 @@ function buildAxes(
     axis('surface-response', 'Agent UX is a channel-neutral SurfaceResponse', response.blocks.length >= 3 && safeActions(response).length >= 4, `${response.blocks.length} blocks and ${safeActions(response).length} actions`),
     axis('commands', 'Daily agent commands are discoverable', REQUIRED_COMMANDS.every((command) => commands.includes(command)), `${commands.length} commands projected`),
     axis('cross-surface', 'Main channels can consume equivalent actions', surfaceProjections.every((surface) => surface.status === 'passed'), `${surfaceProjections.length} surfaces projected`),
-    axis('dashboard', 'Dashboard/API projection is operational before visual mutation', true, 'Credential vault exposes operational/actions/timeline/receipts without changing layout'),
+    axis('zavorthControl', 'ZavorthControl/API projection is operational before visual mutation', true, 'Credential vault exposes operational/actions/timeline/receipts without changing layout'),
     axis('safety', 'Runtime gateway stays read-only and approval-first', true, 'no workspace mutation, no external I/O, visual changes require owner approval'),
   ];
 }

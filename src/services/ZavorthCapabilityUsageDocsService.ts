@@ -54,7 +54,7 @@ export class ZavorthCapabilityUsageDocsService {
         usageSignals: 'zavorth actions usage',
         lifecycle: 'zavorth actions lifecycle',
       },
-      visibleIn: ['dashboard', 'tui', 'setup', 'cli'],
+      visibleIn: ['zavorthControl', 'tui', 'setup', 'cli'],
       safety: {
         publicDocsOnly: true,
         noSecrets: true,
@@ -78,7 +78,7 @@ export class ZavorthCapabilityUsageDocsService {
       : [
         'No verified capability action is exposed yet.',
         '',
-        'When Zavorth verifies a new adapter and exposes it through the Action Harness, it appears in the dashboard, the terminal TUI and this generated list.',
+        'When Zavorth verifies a new adapter and exposes it through the Action Harness, it appears in the zavorthControl, the terminal TUI and this generated list.',
       ].join('\n');
 
     return [
@@ -90,7 +90,7 @@ export class ZavorthCapabilityUsageDocsService {
       '',
       '## Where To See Capabilities',
       '',
-      '- Dashboard: open `Ferramentas` and look for verified capabilities.',
+      '- ZavorthControl: open `Ferramentas` and look for verified capabilities.',
       '- Terminal: run `zavorth tui` and open the Capability actions panel.',
       '- Setup: run `zavorth setup` to see what is available during First Light.',
       '- CLI: use `zavorth actions lookup capabilities` for a compact list.',
@@ -139,7 +139,7 @@ export class ZavorthCapabilityUsageDocsService {
       '',
       '## Troubleshooting',
       '',
-      '- If the dashboard shows `0 available`, run `zavorth actions lookup capabilities` to confirm the runtime view.',
+      '- If the zavorthControl shows `0 available`, run `zavorth actions lookup capabilities` to confirm the runtime view.',
       '- If a capability is missing, run `zavorth doctor` and check provider, channel or connector setup.',
       '- If a preview is blocked, read the reason before changing policy.',
       '',

@@ -1,10 +1,7 @@
-// @ts-nocheck
 import { SandboxPolicyService } from './sandbox/SandboxPolicyService.js';
 import { logger } from '../logger.js';
 import { ZavorthRuntimeModesService, type ZavorthRuntimeModeSnapshot } from './ZavorthRuntimeModesService.js';
-import { logger } from '../logger.js';
 import { OperationsHealthService, type OperationsHealthSnapshot } from '../observability/OperationsHealthService.js';
-import { logger } from '../logger.js';
 
 type OperationsHealthLike = Pick<OperationsHealthService, 'readSnapshot'> &
   Partial<Pick<OperationsHealthService, 'readSnapshotFast'>>;

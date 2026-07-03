@@ -62,7 +62,7 @@ import {
 } from './ZavorthEchoServiceSupport.js';
 
 /**
- * High-level Echo pipeline service used by the dashboard and the voice agent.
+ * High-level Echo pipeline service used by the zavorthControl and the voice agent.
  * The public API remains stable while execution, permissions and snapshots
  * are re-anchored in the canonical internal boundaries.
  */

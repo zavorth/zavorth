@@ -1,23 +1,28 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import type { ZavorthCapabilityCatalogSnapshot } from '../../../../services/ZavorthCapabilityCatalogService.js';
+
+declare function escapeHtml(value: unknown): string;
+
+type CapabilityCatalogErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewSummaryCapabilities() {
-    function renderOperationsCapabilities(capabilities) {
+    function renderOperationsCapabilities(capabilities: ZavorthCapabilityCatalogSnapshot | CapabilityCatalogErrorPayload | null | undefined) {
       const node = document.getElementById('operations-capabilities');
       if (!node) return;
-      if (!capabilities || capabilities.error) {
+      if (!capabilities || 'error' in (capabilities as CapabilityCatalogErrorPayload)) {
         node.innerHTML = '<div class="muted">Nao foi possivel carregar o catalogo de capacidades.</div>';
         return;
       }
 
-      const summary = capabilities.summary || {};
-      const categories = Array.isArray(capabilities.categories) ? capabilities.categories : [];
-      const featuredCommands = Array.isArray(capabilities.featuredCommands) ? capabilities.featuredCommands : [];
-      const featuredRoutes = Array.isArray(capabilities.featuredImplicitRoutes) ? capabilities.featuredImplicitRoutes : [];
-      const platformSummary = capabilities.platforms?.summary || {};
-      const integrationSummary = capabilities.integrations || {};
-      const capabilityActions = capabilities.capabilityActions || {};
-      const capabilityActionSummary = capabilityActions.summary || {};
+      const snapshot = capabilities as ZavorthCapabilityCatalogSnapshot;
+      const summary = snapshot.summary || ({} as ZavorthCapabilityCatalogSnapshot['summary']);
+      const categories = Array.isArray(snapshot.categories) ? snapshot.categories : [];
+      const featuredCommands = Array.isArray(snapshot.featuredCommands) ? snapshot.featuredCommands : [];
+      const featuredRoutes = Array.isArray(snapshot.featuredImplicitRoutes) ? snapshot.featuredImplicitRoutes : [];
+      const platformSummary = snapshot.platforms?.summary || { ready: 0, partial: 0, planned: 0, disabled: 0 };
+      const integrationSummary = snapshot.integrations || ({} as ZavorthCapabilityCatalogSnapshot['integrations']);
+      const capabilityActions = snapshot.capabilityActions || ({} as ZavorthCapabilityCatalogSnapshot['capabilityActions']);
+      const capabilityActionSummary = capabilityActions.summary || ({} as { exposed?: number });
       const capabilityActionItems = Array.isArray(capabilityActions.items) ? capabilityActions.items : [];
       const categoryItems = categories.length
         ? categories.map((category) =>
@@ -74,7 +79,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
         + '<strong>Catalogo de capacidades</strong>'
         + '<span class="badge ' + (summary.plugin ? 'badge-info' : 'badge-allowed') + '">' + escapeHtml(String(summary.total || 0)) + ' carregadas</span>'
         + '</div>'
-        + '<div class="cockpit-headline">' + escapeHtml(capabilities.narrative?.operatorSummary || 'Commands, rotas automaticas, plataformas e integracoes visiveis em uma unica leitura.') + '</div>'
+        + '<div class="cockpit-headline">' + escapeHtml(snapshot.narrative?.operatorSummary || 'Commands, rotas automaticas, plataformas e integracoes visiveis em uma unica leitura.') + '</div>'
         + '</div>'
         + '<a class="sidecar-link" href="/api/operations/capabilities" target="_blank">/api/operations/capabilities</a>'
         + '</div>'

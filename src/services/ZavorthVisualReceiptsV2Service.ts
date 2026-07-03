@@ -65,10 +65,10 @@ export class ZavorthVisualReceiptsV2Service {
       sourceProjection: {
         surface: source.surface,
         contractVersion: source.contractVersion,
-        dashboardProjection: source.dashboardProjection,
+        zavorthControlProjection: source.zavorthControlProjection,
       },
-      dashboardProjection: {
-        route: '/dashboard',
+      zavorthControlProjection: {
+        route: '/zavorthControl',
         renderMode: 'product-cards',
         executionAuthority: false,
         advancedModeAvailable: true,
@@ -77,7 +77,7 @@ export class ZavorthVisualReceiptsV2Service {
       safety: {
         projectionOnly: true,
         rawSecretsSerialized: false,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         zavorthControlCanExecute: false,
         approvalActionsStayScoped: true,
         rollbackRequiresApproval: true,
@@ -85,7 +85,7 @@ export class ZavorthVisualReceiptsV2Service {
       nextAction: resolveNextAction(cards, source.nextAction),
       invariants: [
         'Visual Receipts 2.0 is a product-facing projection over existing receipt contracts, not a new execution path.',
-        'Receipt cards can suggest approval, export or rollback commands, but Dashboard/Satellite cannot execute them directly.',
+        'Receipt cards can suggest approval, export or rollback commands, but ZavorthControl/Satellite cannot execute them directly.',
         'Raw secrets, emails and token-looking values remain redacted before rendering.',
         'Simple mode explains outcome and impact; advanced mode exposes policy, sandbox and artifact evidence.',
         'Rollback is never automatic from a receipt card; it remains scoped and approval-gated.',
@@ -195,7 +195,7 @@ function buildActions(source: ZavorthVisualReceiptUxCard): ZavorthVisualReceiptV
     safeByDefault: !action.mutatesState && !action.requiresApproval,
     requiresApproval: action.requiresApproval,
     mutatesState: action.mutatesState,
-    dashboardCanExecute: false,
+    zavorthControlCanExecute: false,
     zavorthControlCanExecute: false,
   }));
   base.push({
@@ -206,7 +206,7 @@ function buildActions(source: ZavorthVisualReceiptUxCard): ZavorthVisualReceiptV
     safeByDefault: true,
     requiresApproval: false,
     mutatesState: false,
-    dashboardCanExecute: false,
+    zavorthControlCanExecute: false,
     zavorthControlCanExecute: false,
   });
   return base;

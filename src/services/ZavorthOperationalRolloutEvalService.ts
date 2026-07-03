@@ -86,7 +86,7 @@ export class ZavorthOperationalRolloutEvalService {
       receipts,
       safety: {
         noLiveActionExecuted: true,
-        noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         noZavorthControlVisualMutation: true,
         projectionsOnly: true,
         noExternalProviderRequired: true,
@@ -209,7 +209,7 @@ function evaluateScenario(
   findings.push(...requiredActionFindings(scenarioId, projection, expected));
   findings.push(...surfaceFallbackFindings(scenarioId, projection));
   findings.push(...apiFindings(scenarioId, projection, expected));
-  findings.push(...dashboardFindings(scenarioId, projection));
+  findings.push(...zavorthControlFindings(scenarioId, projection));
   findings.push(...safetyFindings(scenarioId, projection));
   findings.push(telegramConsistencyFinding(scenarioId, projection));
 
@@ -243,7 +243,7 @@ function evaluateScenario(
       actionCount: projection.summary.actionCount,
       fallbackSurfaces: projection.summary.fallbackSurfaces,
       buttonSurfaces: projection.summary.buttonSurfaces,
-      dashboardVisualMutation: projection.summary.dashboardVisualMutation,
+      zavorthControlVisualMutation: projection.summary.zavorthControlVisualMutation,
       noLiveActionExecuted: projection.safety.noLiveActionExecuted,
     },
   };
@@ -347,25 +347,25 @@ function apiFindings(
   ];
 }
 
-function dashboardFindings(
+function zavorthControlFindings(
   scenarioId: string,
   projection: ZavorthCrossSurfaceRuntimeProjectionSnapshot,
 ): ZavorthOperationalRolloutEvalFinding[] {
-  const dashboard = projection.dashboardProjection;
+  const zavorthControl = projection.zavorthControlProjection;
   return [
     finding(
       scenarioId,
       'command_center',
-      !dashboard.visualMutationApplied && dashboard.safeViewModelOnly ? 'pass' : 'fail',
-      'dashboard-boundary',
-      'Dashboard remains view-model only.',
+      !zavorthControl.visualMutationApplied && zavorthControl.safeViewModelOnly ? 'pass' : 'fail',
+      'zavorthControl-boundary',
+      'ZavorthControl remains view-model only.',
       null,
     ),
     finding(
       scenarioId,
       'command_center',
-      dashboard.requiresOwnerApprovalForVisualChange ? 'pass' : 'fail',
-      'dashboard-boundary',
+      zavorthControl.requiresOwnerApprovalForVisualChange ? 'pass' : 'fail',
+      'zavorthControl-boundary',
       'Visual change requires owner approval.',
       null,
     ),
@@ -388,9 +388,9 @@ function safetyFindings(
     finding(
       scenarioId,
       'all',
-      projection.safety.noDashboardVisualMutation ? 'pass' : 'fail',
-      'dashboard-boundary',
-      'Projection did not mutate dashboard visuals.',
+      projection.safety.noZavorthControlVisualMutation ? 'pass' : 'fail',
+      'zavorthControl-boundary',
+      'Projection did not mutate zavorthControl visuals.',
       null,
     ),
   ];
@@ -507,7 +507,7 @@ function buildReceipts(
       id: 'checkpoint-6-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
-      summary: 'No dashboard visual mutation is performed by operational eval.',
+      summary: 'No zavorthControl visual mutation is performed by operational eval.',
     },
     {
       id: 'checkpoint-6-continuous-eval-boundary',
@@ -553,20 +553,20 @@ function scenarioEvalToSample(
       actionCount: scenarioEval.projectionDigest.actionCount,
       approvalActions: 0,
       disabledActions: 0,
-      dashboardVisualMutation: false,
+      zavorthControlVisualMutation: false,
     },
     safety: {
       noZavorthControlVisualMutation: true,
       zavorthControlIsViewModelOnly: true,
-      noDashboardVisualMutation: true,
-      dashboardIsViewModelOnly: true,
+      noZavorthControlVisualMutation: true,
+      zavorthControlIsViewModelOnly: true,
       noLiveActionExecuted: true,
       sameSemanticsAcrossSurfaces: true,
       telegramNotPrivileged: true,
       channelFallbacksRequired: true,
       rawSecretsSerialized: false,
     },
-    dashboardProjection: {
+    zavorthControlProjection: {
       projectionId: 'checkpoint-6-sample',
       title: 'Runtime projection sample',
       statusPill: scenarioEval.observedStatus,

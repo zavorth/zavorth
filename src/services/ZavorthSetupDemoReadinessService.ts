@@ -45,7 +45,7 @@ const SETUP_STEPS: ZavorthSetupDemoStep[] = [
     estimatedMinutes: 1,
     writesFiles: false,
     requiresNetwork: false,
-    outcome: 'dashboard, GitHub review and Telegram assistant fixtures are visible.',
+    outcome: 'zavorthControl, GitHub review and Telegram assistant fixtures are visible.',
   },
   {
     id: 'run-smoke',
@@ -62,7 +62,7 @@ const DEMO_FIXTURES: ZavorthSetupDemoFixture[] = [
   {
     id: 'product-home',
     label: 'Zavorth Home',
-    entrypoint: '/dashboard or zavorth daily',
+    entrypoint: '/zavorthControl or zavorth daily',
     seed: 'Inbox, Tasks, Approvals, Receipts and Connectors are the first screen.',
     externalIo: 'none',
     successSignal: 'Home exposes the five simple product areas and hides internal runtime names.',
@@ -110,7 +110,7 @@ const SMOKE_CHECKS: ZavorthSetupDemoSmokeCheck[] = [
     command: 'npx jest tests/e2e/ZavorthSetupDemoSmoke.test.ts --runInBand',
     requiresSecrets: false,
     requiresNetwork: false,
-    expectedSignal: 'dashboard home, GitHub governed review and Telegram approval loop all return receipts.',
+    expectedSignal: 'zavorthControl home, GitHub governed review and Telegram approval loop all return receipts.',
   },
   {
     id: 'script-gate',

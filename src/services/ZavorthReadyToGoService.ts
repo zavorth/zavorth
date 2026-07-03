@@ -47,7 +47,7 @@ export type ZavorthReadyToGoSnapshot = {
     providerLiveReady: number;
     providerLiveFailed: number;
     telegramReady: boolean;
-    dashboardReady: boolean;
+    zavorthControlReady: boolean;
     approvalsReady: boolean;
     blockingFixes: number;
     attentionFixes: number;
@@ -62,13 +62,13 @@ export type ZavorthReadyToGoSnapshot = {
     missingConfiguredProof: ZavorthReadyToGoProviderLane[];
   };
   channels: {
-    dashboard: 'ready' | 'blocked';
+    zavorthControl: 'ready' | 'blocked';
     telegram: 'ready' | 'attention';
     approvals: 'ready' | 'attention' | 'blocked';
   };
   actions: {
     primary: string;
-    dashboard: '/dashboard';
+    zavorthControl: '/zavorthControl';
     telegram: '/readiness';
     fixes: 'zavorth readiness fixes';
     refreshProviders: 'zavorth ready --refresh-providers';
@@ -139,11 +139,11 @@ export class ZavorthReadyToGoService {
     const failed = providerLanes.filter((lane) => lane.status === 'blocked' || lane.summary.toLowerCase().includes('failed'));
     const missingConfiguredProof = providerLanes.filter((lane) => lane.status === 'attention' && !lane.liveReady);
     const telegramReady = readiness.checks.find((check) => check.id === 'telegram')?.status === 'ready';
-    const dashboardReady = readiness.checks.find((check) => check.id === 'dashboard')?.status === 'ready';
+    const zavorthControlReady = readiness.checks.find((check) => check.id === 'zavorthControl')?.status === 'ready';
     const approvalsReady = readiness.checks.find((check) => check.id === 'approvals')?.status !== 'blocked';
     const providerReady = provider.summary.defaultRouteAllowed > 0;
     const runtimeReady = readiness.status !== 'blocked' && readiness.dailyUseReady === true;
-    const localReady = runtimeReady && providerReady && dashboardReady && approvalsReady;
+    const localReady = runtimeReady && providerReady && zavorthControlReady && approvalsReady;
     const remoteReady = localReady && telegramReady;
     const status = readiness.status === 'blocked' || !localReady
       ? 'blocked'
@@ -168,7 +168,7 @@ export class ZavorthReadyToGoService {
         providerLiveReady: provider.summary.liveReady,
         providerLiveFailed: provider.summary.liveFailed,
         telegramReady,
-        dashboardReady,
+        zavorthControlReady,
         approvalsReady,
         blockingFixes: fixes.filter((fix) => fix.status === 'blocked').length,
         attentionFixes: fixes.filter((fix) => fix.status === 'attention').length,
@@ -183,7 +183,7 @@ export class ZavorthReadyToGoService {
         missingConfiguredProof,
       },
       channels: {
-        dashboard: dashboardReady ? 'ready' : 'blocked',
+        zavorthControl: zavorthControlReady ? 'ready' : 'blocked',
         telegram: telegramReady ? 'ready' : 'attention',
         approvals: approvalsReady
           ? readiness.checks.find((check) => check.id === 'approvals')?.status === 'attention'
@@ -197,7 +197,7 @@ export class ZavorthReadyToGoService {
           : status === 'attention'
             ? 'Local use is ready; review warnings before relying on remote use.'
             : 'Do not rely on remote use yet; resolve blockers first.',
-        dashboard: '/dashboard',
+        zavorthControl: '/zavorthControl',
         telegram: '/readiness',
         fixes: 'zavorth readiness fixes',
         refreshProviders: 'zavorth ready --refresh-providers',
@@ -236,7 +236,7 @@ export class ZavorthReadyToGoService {
           `local: ${snapshot.localReady ? 'ready' : 'blocked'}`,
           `provider routes: ${snapshot.summary.providerDefaultRoutes} live-ready`,
           `telegram: ${snapshot.channels.telegram}`,
-          `dashboard: ${snapshot.channels.dashboard}`,
+          `zavorthControl: ${snapshot.channels.zavorthControl}`,
           `approvals: ${snapshot.channels.approvals}`,
         ],
       },

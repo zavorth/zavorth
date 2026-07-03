@@ -15,7 +15,7 @@ declare namespace NodeJS {
     NEXT_PUBLIC_CLOUD_URL?: string;
     API_PORT?: string;
     API_HOST?: string;
-    DASHBOARD_PORT?: string;
+    ZAVORTH_CONTROL_PORT?: string;
     ZavorthGateway_PORT?: string;
     NODE_ENV?: "development" | "production" | "test";
   }

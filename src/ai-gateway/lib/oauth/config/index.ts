@@ -15,8 +15,8 @@ interface ServerCredentials {
 }
 
 function getDefaultApiServer() {
-  const { dashboardPort } = getRuntimePorts();
-  return `http://localhost:${dashboardPort}`;
+  const { zavorthControlPort } = getRuntimePorts();
+  return `http://localhost:${zavorthControlPort}`;
 }
 
 /**

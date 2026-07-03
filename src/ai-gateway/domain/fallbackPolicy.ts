@@ -132,7 +132,7 @@ export function removeFallback(model) {
 }
 
 /**
- * Get all registered fallback chains (for dashboard).
+ * Get all registered fallback chains (for zavorthControl).
  *
  * @returns {Record<string, FallbackEntry[]>}
  */

@@ -177,7 +177,7 @@ export type ProviderMeshConsolidationSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     pickerHint: string;
     onboardingHint: string;
   };
@@ -464,7 +464,7 @@ export class ProviderMeshConsolidationService {
       },
       surface: {
         cliCommand: `zavorth provider-mesh run ${input.run.id} --json`,
-        dashboardPath: '/dashboard?sector=config',
+        zavorthControlPath: '/zavorthControl?sector=config',
         pickerHint: 'Use o Model Picker para escolher familia, rota e modelo pelo mesmo contrato em todas as surfaces.',
         onboardingHint: 'Onboarding pergunta primeiro pela capability desejada, depois sugere provider/modelo.',
       },

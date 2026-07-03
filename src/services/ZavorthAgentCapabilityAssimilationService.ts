@@ -72,7 +72,7 @@ export class ZavorthAgentCapabilityAssimilationService {
         noExternalPromptsCopied: true,
         noRawChainOfThoughtPolicy: true,
         policyBrokerRequiredForRisk: true,
-        dashboardVisualChangesRequireOwnerApproval: true,
+        zavorthControlVisualChangesRequireOwnerApproval: true,
         importedCapabilitiesRemainGoverned: true,
       },
       commands: {
@@ -297,7 +297,7 @@ function buildMatrix(): ZavorthAgentCapabilityAssimilationMatrixItem[] {
       status: 'partial',
       policy: ['policy-broker', 'approval', 'receipt'],
       tests: ['telegram buttons', 'discord components', 'text fallback', 'CLI dense table'],
-      acceptance: ['same action has equivalent semantics on every channel', 'dashboard visuals require owner approval'],
+      acceptance: ['same action has equivalent semantics on every channel', 'zavorthControl visuals require owner approval'],
       nativeName: 'Shared Surface UX',
       visualApproval: true,
     }),

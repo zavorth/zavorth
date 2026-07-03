@@ -2,7 +2,7 @@
  * Cost Estimator — Pre-flight cost estimation for LLM requests
  *
  * Estimates token-based costs before routing to a provider.
- * Uses pricing data from the dashboard/database.
+ * Uses pricing data from the zavorthControl/database.
  *
  * @module shared/utils/costEstimator
  */

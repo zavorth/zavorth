@@ -3,13 +3,13 @@ import path from 'node:path';
 
 import { config } from '../config/index.js';
 import type { ZavorthProviderReadinessMatrixSnapshot } from '../contracts/ZavorthProviderReadinessMatrixContract.js';
-import type { ZavorthDashboardExperienceHomeSnapshot } from '../contracts/ZavorthDashboardExperienceHomeContract.js';
+import type { ZavorthZavorthControlExperienceHomeSnapshot } from '../contracts/ZavorthZavorthControlExperienceHomeContract.js';
 import type { ZavorthApprovalActionCardsUxSnapshot } from '../contracts/ZavorthApprovalActionCardsUxContract.js';
 import type { ZavorthTransactionLiveExecutorGateContractSnapshot } from '../contracts/ZavorthTransactionLiveExecutorGateContract.js';
 import type { ZavorthMemoryPlaneSnapshot } from './ZavorthMemoryPlaneService.js';
 import { NaturalFirstRunClassifier } from '../runtime/agent/NaturalFirstRunClassifier.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
-import { ZavorthDashboardExperienceHomeService } from './ZavorthDashboardExperienceHomeService.js';
+import { ZavorthZavorthControlExperienceHomeService } from './ZavorthZavorthControlExperienceHomeService.js';
 import { ZavorthApprovalActionCardsUxService } from './ZavorthApprovalActionCardsUxService.js';
 import { ZavorthTransactionLiveExecutorGateService } from './ZavorthTransactionLiveExecutorGateService.js';
 import { ZavorthMemoryPlaneService } from './ZavorthMemoryPlaneService.js';
@@ -22,7 +22,7 @@ export type ZavorthRuntimeReadinessStatus = 'ready' | 'attention' | 'blocked';
 export type ZavorthRuntimeReadinessCheckId =
   | 'natural-first-runtime'
   | 'provider-mesh'
-  | 'dashboard'
+  | 'zavorthControl'
   | 'telegram'
   | 'approvals'
   | 'transaction-plane'
@@ -53,7 +53,7 @@ export type ZavorthRuntimeReadinessSnapshot = {
     blocked: number;
     requiredBlocked: number;
     providerOk: boolean;
-    dashboardOk: boolean;
+    zavorthControlOk: boolean;
     telegramOk: boolean;
     approvalsOk: boolean;
     transactionPlaneSafe: boolean;
@@ -66,8 +66,8 @@ export type ZavorthRuntimeReadinessSnapshot = {
     primaryCommand: 'zavorth readiness';
     jsonCommand: 'zavorth readiness --json';
     dailyCommand: 'zavorth daily';
-    dashboardRoute: '/dashboard';
-    zavorthControlRoute: '/dashboard';
+    zavorthControlRoute: '/zavorthControl';
+    zavorthControlRoute: '/zavorthControl';
     safeStartupCommand: 'zavorth go';
   };
   safety: {
@@ -75,14 +75,14 @@ export type ZavorthRuntimeReadinessSnapshot = {
     noHiddenProviderProbe: true;
     noRawSecretsSerialized: true;
     importedSkillsDoNotBypassReview: true;
-    dashboardHasNoTargetExecutionAuthority: true;
+    zavorthControlHasNoTargetExecutionAuthority: true;
     approvalsRemainGatewayMediated: true;
   };
   nextAction: string;
 };
 
 type ProviderReadinessLike = Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
-type DashboardHomeLike = Pick<ZavorthDashboardExperienceHomeService, 'buildSnapshot'>;
+type ZavorthControlHomeLike = Pick<ZavorthZavorthControlExperienceHomeService, 'buildSnapshot'>;
 type ApprovalCardsLike = Pick<ZavorthApprovalActionCardsUxService, 'buildSnapshot'>;
 type TransactionGateLike = Pick<ZavorthTransactionLiveExecutorGateService, 'buildSnapshot'>;
 type SkillSourcesLike = Pick<SkillSourceRegistryService, 'readConfig'>;
@@ -103,7 +103,7 @@ export type ZavorthRuntimeReadinessRuntime = {
   existsSync?: typeof fs.existsSync;
   naturalClassifier?: NaturalClassifierLike;
   providerReadiness?: ProviderReadinessLike;
-  dashboardHome?: DashboardHomeLike;
+  zavorthControlHome?: ZavorthControlHomeLike;
   approvalCards?: ApprovalCardsLike;
   transactionLiveExecutorGate?: TransactionGateLike;
   skillSources?: SkillSourcesLike;
@@ -117,7 +117,7 @@ export class ZavorthRuntimeReadinessService {
   private readonly existsSyncImpl: typeof fs.existsSync;
   private readonly naturalClassifier: NaturalClassifierLike;
   private readonly providerReadiness: ProviderReadinessLike;
-  private readonly dashboardHome: DashboardHomeLike;
+  private readonly zavorthControlHome: ZavorthControlHomeLike;
   private readonly approvalCards: ApprovalCardsLike;
   private readonly transactionLiveExecutorGate: TransactionGateLike;
   private readonly skillSources: SkillSourcesLike;
@@ -130,7 +130,7 @@ export class ZavorthRuntimeReadinessService {
     this.existsSyncImpl = runtime.existsSync || fs.existsSync.bind(fs);
     this.naturalClassifier = runtime.naturalClassifier || new NaturalFirstRunClassifier();
     this.providerReadiness = runtime.providerReadiness || new ZavorthProviderReadinessMatrixService({ now: this.now });
-    this.dashboardHome = runtime.dashboardHome || new ZavorthDashboardExperienceHomeService({ now: this.now });
+    this.zavorthControlHome = runtime.zavorthControlHome || new ZavorthZavorthControlExperienceHomeService({ now: this.now });
     this.approvalCards = runtime.approvalCards || new ZavorthApprovalActionCardsUxService({ now: this.now });
     this.transactionLiveExecutorGate = runtime.transactionLiveExecutorGate || new ZavorthTransactionLiveExecutorGateService({ now: this.now });
     this.skillSources = runtime.skillSources || new SkillSourceRegistryService({ projectRoot: this.projectRoot });
@@ -141,7 +141,7 @@ export class ZavorthRuntimeReadinessService {
     const checks = [
       this.buildNaturalFirstCheck(input),
       this.buildProviderCheck(),
-      this.buildDashboardCheck(),
+      this.buildZavorthControlCheck(),
       this.buildTelegramCheck(),
       this.buildApprovalsCheck(input),
       this.buildTransactionPlaneCheck(),
@@ -152,7 +152,7 @@ export class ZavorthRuntimeReadinessService {
     const status = resolveStatus(checks);
     const dailyUseReady = summary.requiredBlocked === 0
       && summary.naturalFirstReady
-      && summary.dashboardOk
+      && summary.zavorthControlOk
       && summary.approvalsOk
       && summary.transactionPlaneSafe
       && summary.skillsBlockedByDefault
@@ -171,8 +171,8 @@ export class ZavorthRuntimeReadinessService {
         primaryCommand: 'zavorth readiness',
         jsonCommand: 'zavorth readiness --json',
         dailyCommand: 'zavorth daily',
-        dashboardRoute: '/dashboard',
-        zavorthControlRoute: '/dashboard',
+        zavorthControlRoute: '/zavorthControl',
+        zavorthControlRoute: '/zavorthControl',
         safeStartupCommand: 'zavorth go',
       },
       safety: {
@@ -180,7 +180,7 @@ export class ZavorthRuntimeReadinessService {
         noHiddenProviderProbe: true,
         noRawSecretsSerialized: true,
         importedSkillsDoNotBypassReview: true,
-        dashboardHasNoTargetExecutionAuthority: true,
+        zavorthControlHasNoTargetExecutionAuthority: true,
         approvalsRemainGatewayMediated: true,
       },
       nextAction: buildNextAction(status, dailyUseReady, checks),
@@ -196,7 +196,7 @@ export class ZavorthRuntimeReadinessService {
       '',
       '[summary]',
       `ready=${snapshot.summary.ready} attention=${snapshot.summary.attention} blocked=${snapshot.summary.blocked} required_blocked=${snapshot.summary.requiredBlocked}`,
-      `provider_ok=${snapshot.summary.providerOk} dashboard_ok=${snapshot.summary.dashboardOk} telegram_ok=${snapshot.summary.telegramOk}`,
+      `provider_ok=${snapshot.summary.providerOk} zavorthControl_ok=${snapshot.summary.zavorthControlOk} telegram_ok=${snapshot.summary.telegramOk}`,
       `approvals_ok=${snapshot.summary.approvalsOk} transaction_plane_safe=${snapshot.summary.transactionPlaneSafe}`,
       `skills_blocked_by_default=${snapshot.summary.skillsBlockedByDefault} memory_ready=${snapshot.summary.memoryReady} natural_first_ready=${snapshot.summary.naturalFirstReady}`,
       '',
@@ -212,7 +212,7 @@ export class ZavorthRuntimeReadinessService {
       `primary=${snapshot.operator.primaryCommand}`,
       `json=${snapshot.operator.jsonCommand}`,
       `daily=${snapshot.operator.dailyCommand}`,
-      `dashboard=${snapshot.operator.dashboardRoute}`,
+      `zavorthControl=${snapshot.operator.zavorthControlRoute}`,
       `startup=${snapshot.operator.safeStartupCommand}`,
       '',
       `next=${snapshot.nextAction}`,
@@ -289,32 +289,32 @@ export class ZavorthRuntimeReadinessService {
     });
   }
 
-  private buildDashboardCheck(): ZavorthRuntimeReadinessCheck {
-    return this.safeCheck('dashboard', 'Dashboard', true, 'zavorth go', () => {
-      const snapshot = this.dashboardHome.buildSnapshot() as ZavorthDashboardExperienceHomeSnapshot;
-      const groupedPageExists = this.existsSyncImpl(path.join(this.projectRoot, 'src', 'ai-gateway', 'app', '(dashboard)', 'dashboard', 'page.tsx'));
-      const rootPageExists = this.existsSyncImpl(path.join(this.projectRoot, 'src', 'ai-gateway', 'app', 'dashboard', 'page.tsx'));
+  private buildZavorthControlCheck(): ZavorthRuntimeReadinessCheck {
+    return this.safeCheck('zavorthControl', 'ZavorthControl', true, 'zavorth go', () => {
+      const snapshot = this.zavorthControlHome.buildSnapshot() as ZavorthZavorthControlExperienceHomeSnapshot;
+      const groupedPageExists = this.existsSyncImpl(path.join(this.projectRoot, 'src', 'ai-gateway', 'app', '(zavorthControl)', 'zavorthControl', 'page.tsx'));
+      const rootPageExists = this.existsSyncImpl(path.join(this.projectRoot, 'src', 'ai-gateway', 'app', 'zavorthControl', 'page.tsx'));
       const viteShellExists = this.existsSyncImpl(path.join(this.projectRoot, 'apps', 'zavorth-control-vite-shell', 'index.html'))
         && this.existsSyncImpl(path.join(this.projectRoot, 'apps', 'zavorth-control-vite-shell', 'src', 'pages.ts'));
       const surfaceExists = groupedPageExists || rootPageExists || viteShellExists;
-      const ok = snapshot.route === '/dashboard'
+      const ok = snapshot.route === '/zavorthControl'
         && snapshot.safety.projectionOnly === true
-        && snapshot.safety.dashboardCanExecuteTargetAction === false
+        && snapshot.safety.zavorthControlCanExecuteTargetAction === false
         && surfaceExists;
       return {
         status: ok ? 'ready' : 'blocked',
         summary: ok
-          ? 'Dashboard daily-use route is present and projection-only.'
-          : 'Dashboard route or projection-only safety contract is missing.',
+          ? 'ZavorthControl daily-use route is present and projection-only.'
+          : 'ZavorthControl route or projection-only safety contract is missing.',
         evidence: [
           `route=${snapshot.route}`,
           `projectionOnly=${String(snapshot.safety.projectionOnly)}`,
-          `dashboardCanExecute=${String(snapshot.safety.dashboardCanExecuteTargetAction)}`,
+          `zavorthControlCanExecute=${String(snapshot.safety.zavorthControlCanExecuteTargetAction)}`,
           `groupedPageExists=${String(groupedPageExists)}`,
           `rootPageExists=${String(rootPageExists)}`,
           `viteShellExists=${String(viteShellExists)}`,
         ],
-        nextAction: ok ? 'Open /dashboard or run zavorth go.' : 'Restore the /dashboard daily-use surface.',
+        nextAction: ok ? 'Open /zavorthControl or run zavorth go.' : 'Restore the /zavorthControl daily-use surface.',
       };
     });
   }
@@ -330,7 +330,7 @@ export class ZavorthRuntimeReadinessService {
         status: configured ? 'ready' : 'attention',
         summary: configured
           ? 'Telegram token is configured; remote approval can be wired by the channel doctor.'
-          : 'Telegram is not configured in this environment; dashboard/CLI remain usable.',
+          : 'Telegram is not configured in this environment; zavorthControl/CLI remain usable.',
         evidence: [
           `tokenPresent=${String(configured)}`,
           'approvalButtons=inline-callbacks',
@@ -346,7 +346,7 @@ export class ZavorthRuntimeReadinessService {
       const snapshot = this.approvalCards.buildSnapshot({
         approvals: input.pendingApprovals || [],
       }) as ZavorthApprovalActionCardsUxSnapshot;
-      const projection = snapshot.dashboardProjection;
+      const projection = snapshot.zavorthControlProjection;
       const ok = snapshot.summary.rawSecretsSerialized === false
         && projection.executionAuthority === false
         && projection.approvalResolutionAuthority === 'gateway-mediated';
@@ -523,7 +523,7 @@ function summarizeChecks(checks: ZavorthRuntimeReadinessCheck[]): ZavorthRuntime
     blocked: checks.filter((check) => check.status === 'blocked').length,
     requiredBlocked: checks.filter((check) => check.required && check.status === 'blocked').length,
     providerOk: byId.get('provider-mesh')?.status === 'ready',
-    dashboardOk: byId.get('dashboard')?.status === 'ready',
+    zavorthControlOk: byId.get('zavorthControl')?.status === 'ready',
     telegramOk: byId.get('telegram')?.status === 'ready',
     approvalsOk: byId.get('approvals')?.status !== 'blocked',
     transactionPlaneSafe: byId.get('transaction-plane')?.status === 'ready',
@@ -558,7 +558,7 @@ function buildNextAction(
       ? `Zavorth is usable; optional attention: ${firstAttention?.label || 'configuration'}.`
       : `Resolve attention item before unattended use: ${firstAttention?.label || 'configuration'}.`;
   }
-  return 'Zavorth is ready for daily use. Start with zavorth go, zavorth daily or /dashboard.';
+  return 'Zavorth is ready for daily use. Start with zavorth go, zavorth daily or /zavorthControl.';
 }
 
 function hasUsableSecret(value: unknown): boolean {

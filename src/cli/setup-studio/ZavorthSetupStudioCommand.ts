@@ -11,6 +11,7 @@ import {
 } from './ZavorthSetupStudioFlow.js';
 import { renderZavorthSetupStudioInk } from './ZavorthSetupStudioInkRenderer.js';
 import { ZavorthSetupStudioProgressStore } from './ZavorthSetupStudioProgressStore.js';
+import { normalizeSetupSection } from './ZavorthSetupStudioWizardContract.js';
 import {
   renderZavorthChannelLiveValidationResult,
   validateZavorthChannelLive,
@@ -20,11 +21,12 @@ import {
   validateZavorthProviderLive,
   writeZavorthProviderLiveValidationProof,
 } from '../ZavorthProviderLiveValidationService.js';
-import type { ZavorthSetupStudioSnapshot } from './ZavorthSetupStudioSchema.js';
+import type { ZavorthSetupStudioSection, ZavorthSetupStudioSnapshot } from './ZavorthSetupStudioSchema.js';
 import { ZavorthFirstBootDetectionService } from '../../services/ZavorthFirstBootDetectionService.js';
 import { FirstRunPersonalizationService } from '../../services/FirstRunPersonalizationService.js';
 import { ZavorthConversationalSetupService } from '../../services/ZavorthConversationalSetupService.js';
 import { orange, sanitizeOutput, withTimeout } from './ZavorthSetupStudioCommandUtils.js';
+import { logger } from '../../logger.js';
 
 export type RunZavorthSetupStudioInput = {
   projectRoot: string;
@@ -43,6 +45,9 @@ export type RunZavorthSetupStudioResult = {
 };
 
 type SetupStudioCliAnswers = {
+  mode: 'quickstart' | 'safe' | 'advanced' | 'blank-slate';
+  configHandling: 'keep' | 'review' | 'reset' | null;
+  setupSection: ZavorthSetupStudioSection;
   zavorthHome: string | null;
   skillsGovernanceMode: 'casual' | 'governed';
   wakeDetectorMode: 'disabled' | 'default-local' | 'custom-command';
@@ -64,6 +69,17 @@ type SetupStudioCliAnswers = {
   scanDirs: string[];
 };
 
+export type SetupModeDefaults = {
+  providerId: string;
+  skillGovernanceMode: SetupStudioCliAnswers['skillsGovernanceMode'];
+  wakeDetectorMode: SetupStudioCliAnswers['wakeDetectorMode'];
+  searchProvider: SetupStudioCliAnswers['searchProvider'];
+  memoryMode: SetupStudioCliAnswers['memoryMode'];
+  vaultScope: SetupStudioCliAnswers['vaultScope'];
+  enableHooks: boolean;
+  channelBrowseInitial: 'all' | 'none';
+};
+
 class SetupStudioCancelled extends Error {
   constructor() {
     super('First Light cancelled. Nothing was changed.');
@@ -81,7 +97,9 @@ export function renderZavorthSetupCancelledMessage(): string {
 export async function runZavorthSetupStudioCommand(
   input: RunZavorthSetupStudioInput,
 ): Promise<RunZavorthSetupStudioResult> {
-  const args = input.args || [];
+  const parsedSetupArgs = parseSetupStudioArgs(input.args || []);
+  const args = parsedSetupArgs.args;
+  const setupSection = parsedSetupArgs.section;
   const json = input.json || args.includes('--json');
   const nonInteractive = args.includes('--non-interactive');
   const apply = args.includes('--apply') || (nonInteractive && !args.includes('--dry-run') && !args.includes('--preview'));
@@ -91,18 +109,21 @@ export async function runZavorthSetupStudioCommand(
     Boolean(process.stdin?.isTTY && process.stdout?.isTTY)
     && !json
     && !nonInteractive
+    && setupSection === 'all'
     && (wantsTui || !hasDirectConfiguration(args))
   );
+
   let answers: SetupStudioCliAnswers;
   try {
     answers = interactive
       ? await collectInteractiveAnswers(input.projectRoot)
-      : collectArgsAnswers(args);
+      : collectArgsAnswers(args, setupSection);
   } catch (error) {
     if (error instanceof SetupStudioCancelled) {
       const snapshot = buildZavorthSetupStudioSnapshot({
         projectRoot: input.projectRoot,
         ...defaultAnswers(),
+        setupSection,
         dryRun,
         now: input.now,
       });
@@ -115,6 +136,9 @@ export async function runZavorthSetupStudioCommand(
   const answersWithProgress = mergeAnswersWithProgress(answers, progressStore.read(), args);
   const snapshotInput: BuildZavorthSetupStudioSnapshotInput = {
     projectRoot: input.projectRoot,
+    mode: answersWithProgress.mode,
+    configHandling: answersWithProgress.configHandling || undefined,
+    setupSection: answersWithProgress.setupSection,
     providerId: answersWithProgress.providerId,
     modelId: answersWithProgress.modelId,
     providerSecret: answersWithProgress.providerSecret,
@@ -185,7 +209,7 @@ export async function runZavorthSetupStudioCommand(
               mission: workspaceHint.suggestedMission,
             };
             res.output = `${JSON.stringify(parsedOutput, null, 2)}\n`;
-          } catch {}
+          } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         } else {
           res.output += `\nConversational setup completed automatically with workspace mission: "${workspaceHint.suggestedMission}"\n`;
         }
@@ -195,7 +219,7 @@ export async function runZavorthSetupStudioCommand(
             const parsedOutput = JSON.parse(res.output);
             parsedOutput.conversationalSetupError = e instanceof Error ? e.message : String(e);
             res.output = `${JSON.stringify(parsedOutput, null, 2)}\n`;
-          } catch {}
+          } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         } else {
           res.output += `\nWarning: Auto conversational setup failed: ${e instanceof Error ? e.message : String(e)}\n`;
         }
@@ -454,14 +478,22 @@ function redactSnapshotForOutput(snapshot: ZavorthSetupStudioSnapshot): ZavorthS
 }
 
 function applySnapshot(snapshot: ZavorthSetupStudioSnapshot, json: boolean): RunZavorthSetupStudioResult {
-  const result = applyZavorthSetupStudioEnvPlan(snapshot.plan);
+  const result = applyZavorthSetupStudioEnvPlan(snapshot.plan, {
+    resetManagedEnv: snapshot.configHandling === 'reset',
+    backupStamp: snapshot.generatedAt,
+  });
   writeSetupProgress(snapshot.projectRoot, snapshot, null);
   const outputPayload = {
     contractVersion: 'zavorth-setup-studio-apply/1',
     generatedAt: snapshot.generatedAt,
+    setupSection: snapshot.setupSection,
     envFile: result.envFile,
     written: result.written,
     keys: result.keys,
+    reset: {
+      backupFile: result.backupFile,
+      removedKeys: result.removedKeys,
+    },
     nextCommands: snapshot.plan.nextCommands,
     safety: snapshot.safety,
   };
@@ -541,6 +573,38 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   const zavorthHome = resolveSetupHomeChoice(projectRoot, String(homeChoice), String(customHome || ''), baselineSnapshot.home.root);
   p.note(renderHomeSelectionPanel(zavorthHome, baselineSnapshot.home.source), orange('Zavorth Home'));
 
+  const setupMode = await p.select({
+    message: 'Setup mode',
+    options: [
+      { value: 'quickstart', label: 'QuickStart', hint: 'recommended' },
+      { value: 'safe', label: 'Safe', hint: 'stricter approvals' },
+      { value: 'advanced', label: 'Advanced', hint: 'show more controls later' },
+      { value: 'blank-slate', label: 'Blank Slate', hint: 'minimal agent; opt in to each capability' },
+    ],
+    initialValue: 'quickstart',
+  });
+  if (p.isCancel(setupMode)) {
+    p.cancel('First Light cancelled. Nothing was changed.');
+    throw new SetupStudioCancelled();
+  }
+  const normalizedSetupMode = normalizeSetupMode(String(setupMode));
+  const modeDefaults = resolveSetupModeDefaults(normalizedSetupMode);
+
+  const configHandling = await p.select({
+    message: 'How should First Light handle existing config?',
+    options: [
+      { value: 'keep', label: 'Keep current values', hint: 'recommended' },
+      { value: 'review', label: 'Review and update' },
+      { value: 'reset', label: 'Reset before setup', hint: 'preview until apply' },
+    ],
+    initialValue: baselineSnapshot.configHandling,
+  });
+  if (p.isCancel(configHandling)) {
+    p.cancel('First Light cancelled. Nothing was changed.');
+    throw new SetupStudioCancelled();
+  }
+  const normalizedConfigHandling = normalizeConfigHandling(String(configHandling), baselineSnapshot.configHandling);
+
   p.note(renderSkillGovernanceIntroPanel(), orange('Skill governance'));
   const skillsGovernanceMode = await p.select({
     message: 'How should Zavorth handle imported skills?',
@@ -548,7 +612,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
       { value: 'casual', label: 'Casual', hint: 'recommended for personal use; fast imports, hard blockers remain' },
       { value: 'governed', label: 'Governed', hint: 'stricter enterprise review for risk, license and audit' },
     ],
-    initialValue: baselineSnapshot.plan.skillGovernance.mode,
+    initialValue: modeDefaults.skillGovernanceMode,
   });
   if (p.isCancel(skillsGovernanceMode)) {
     p.cancel('First Light cancelled. Nothing was changed.');
@@ -563,7 +627,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
       { value: 'custom-command', label: 'Custom detector command', hint: 'use your own local/API bridge process' },
       { value: 'disabled', label: 'Keep off', hint: 'configure later with zavorth echo wake setup' },
     ],
-    initialValue: baselineSnapshot.plan.wakeDetector.mode,
+    initialValue: modeDefaults.wakeDetectorMode,
   });
   if (p.isCancel(wakeDetectorMode)) {
     p.cancel('First Light cancelled. Nothing was changed.');
@@ -584,37 +648,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     throw new SetupStudioCancelled();
   }
 
-  const setupMode = await p.select({
-    message: 'Setup mode',
-    options: [
-      { value: 'quickstart', label: 'QuickStart', hint: 'recommended' },
-      { value: 'safe', label: 'Safe', hint: 'stricter approvals' },
-      { value: 'advanced', label: 'Advanced', hint: 'show more controls later' },
-    ],
-    initialValue: 'quickstart',
-  });
-  if (p.isCancel(setupMode)) {
-    p.cancel('First Light cancelled. Nothing was changed.');
-    throw new SetupStudioCancelled();
-  }
-  void setupMode;
-
-  const configHandling = await p.select({
-    message: 'How should First Light handle existing config?',
-    options: [
-      { value: 'keep', label: 'Keep current values', hint: 'recommended' },
-      { value: 'review', label: 'Review and update' },
-      { value: 'reset', label: 'Reset before setup', hint: 'preview until apply' },
-    ],
-    initialValue: baselineSnapshot.configHandling,
-  });
-  if (p.isCancel(configHandling)) {
-    p.cancel('First Light cancelled. Nothing was changed.');
-    throw new SetupStudioCancelled();
-  }
-  void configHandling;
-
-  const providerId = await selectSetupProvider(p);
+  const providerId = await selectSetupProvider(p, modeDefaults.providerId);
   if (p.isCancel(providerId)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
@@ -655,7 +689,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
 
   p.note(renderHowChannelsWorkPanel(), orange('Communication surfaces'));
 
-  const selectedRemoteChannels = await selectSetupChannels(p, projectRoot);
+  const selectedRemoteChannels = await selectSetupChannels(p, projectRoot, modeDefaults.channelBrowseInitial);
   if (p.isCancel(selectedRemoteChannels)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
@@ -698,7 +732,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   }
 
   p.note(renderWebSearchIntroPanel(), orange('Web search'));
-  const searchProvider = await selectSetupSearchProvider(p);
+  const searchProvider = await selectSetupSearchProvider(p, modeDefaults.searchProvider);
   if (p.isCancel(searchProvider)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
@@ -718,6 +752,8 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
 
   const skillsSnapshot = buildZavorthSetupStudioSnapshot({
     projectRoot,
+    mode: normalizedSetupMode,
+    configHandling: normalizedConfigHandling,
     providerId,
     zavorthHome,
     modelId: String(modelId || provider.defaultModel),
@@ -775,7 +811,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
       { value: 'local-summary', label: 'Local summaries (short project/context summaries)', hint: 'more context' },
       { value: 'off', label: 'Off (do not use Mnemos during setup)', hint: 'no memory setup now' },
     ],
-    initialValue: 'local-metadata',
+    initialValue: modeDefaults.memoryMode,
   });
   if (p.isCancel(memoryMode)) {
     p.cancel('First Light cancelled. Nothing was changed.');
@@ -791,7 +827,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
       { value: 'custom', label: 'Custom path (choose one folder manually)' },
       { value: 'whole-pc', label: 'Whole PC (broad scan; sensitive)', hint: 'not recommended' },
     ],
-    initialValue: 'skip',
+    initialValue: modeDefaults.vaultScope,
   });
   if (p.isCancel(vaultScope)) {
     p.cancel('First Light cancelled. Nothing was changed.');
@@ -806,7 +842,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   }
   const enableHooks = await p.confirm({
     message: 'Prepare automation templates? (disabled until you review and enable them)',
-    initialValue: false,
+    initialValue: modeDefaults.enableHooks,
   });
   if (p.isCancel(enableHooks)) {
     p.cancel('First Light cancelled. Nothing was changed.');
@@ -828,13 +864,13 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     throw new SetupStudioCancelled();
   }
   void gatewayAction;
-  p.note(renderControlUiPanel(baselineSnapshot), orange('Dashboard'));
+  p.note(renderControlUiPanel(baselineSnapshot), orange('ZavorthControl'));
   p.note(renderHatchPanel(baselineSnapshot), orange('Start the agent'));
   const hatchMode = await p.select({
     message: 'How do you want to start your agent after setup?',
     options: [
       { value: 'terminal', label: 'Hatch in Terminal', hint: 'recommended' },
-      { value: 'browser', label: 'Hatch in Dashboard' },
+      { value: 'browser', label: 'Hatch in ZavorthControl' },
       { value: 'later', label: 'Hatch later' },
     ],
     initialValue: 'terminal',
@@ -846,6 +882,9 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   void hatchMode;
 
   return {
+    mode: normalizedSetupMode,
+    configHandling: normalizedConfigHandling,
+    setupSection: 'all',
     zavorthHome,
     skillsGovernanceMode: normalizeSkillsGovernanceMode(String(skillsGovernanceMode)),
     wakeDetectorMode: normalizeWakeDetectorMode(String(wakeDetectorMode)),
@@ -953,7 +992,7 @@ function renderHowChannelsWorkPanel(): string {
     'Discord: bot token and approved guild/channel scope.',
     'Slack: bot/socket token with channel allowlist.',
     'Signal/WhatsApp/iMessage/Matrix/LINE/Zalo/Teams/Google Chat: bridge or API credentials plus pairing.',
-    'Dashboard: local visual control plane for approvals, diffs and evidence.',
+    'ZavorthControl: local visual control plane for approvals, diffs and evidence.',
   ].join('\n');
 }
 
@@ -1040,7 +1079,10 @@ function renderHatchPanel(snapshot: ZavorthSetupStudioSnapshot): string {
   ].join('\n');
 }
 
-async function selectSetupProvider(p: typeof import('@clack/prompts')): Promise<string | symbol> {
+async function selectSetupProvider(
+  p: typeof import('@clack/prompts'),
+  initialProviderId = 'openai',
+): Promise<string | symbol> {
   const popularIds = ['openai', 'anthropic', 'gemini', 'openrouter', 'local'];
   const popularOptions = popularIds
     .map((providerId) => resolveSetupStudioProvider(providerId))
@@ -1060,7 +1102,7 @@ async function selectSetupProvider(p: typeof import('@clack/prompts')): Promise<
         hint: `${ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS.length - popularOptions.length} additional native routes`,
       },
     ],
-    initialValue: 'openai',
+    initialValue: popularIds.includes(initialProviderId) ? initialProviderId : 'openai',
   });
   if (p.isCancel(selected) || selected !== '__more_providers__') {
     return selected;
@@ -1073,7 +1115,7 @@ async function selectSetupProvider(p: typeof import('@clack/prompts')): Promise<
       label: provider.label,
       hint: providerHint(provider.id, provider.defaultModel),
     })),
-    initialValue: 'openai',
+    initialValue: initialProviderId,
   });
 }
 
@@ -1089,6 +1131,7 @@ function providerHint(providerId: string, defaultModel: string): string {
 async function selectSetupChannels(
   p: typeof import('@clack/prompts'),
   projectRoot: string,
+  channelBrowseInitial: 'all' | 'none' = 'all',
 ): Promise<string[] | symbol> {
   const snapshot = buildZavorthSetupStudioSnapshot({
     projectRoot,
@@ -1134,7 +1177,7 @@ async function selectSetupChannels(
         hint: 'keep remote surfaces disabled for now',
       },
     ],
-    initialValue: selectedBase.size > 0 ? 'continue' : 'all',
+    initialValue: selectedBase.size > 0 ? 'continue' : channelBrowseInitial,
   });
   if (p.isCancel(browseAll)) {
     return browseAll;
@@ -1166,6 +1209,7 @@ async function selectSetupChannels(
 
 async function selectSetupSearchProvider(
   p: typeof import('@clack/prompts'),
+  initialProvider: SetupStudioCliAnswers['searchProvider'] = 'local',
 ): Promise<string | symbol> {
   const selected = await p.select({
     message: 'Web/search provider',
@@ -1177,7 +1221,7 @@ async function selectSetupSearchProvider(
       { value: '__more_search__', label: 'More search providers...', hint: 'Kimi, MiniMax, Ollama, Perplexity, Tavily, Firecrawl' },
       { value: 'skip', label: 'Skip for now', hint: 'keep the agent local-first' },
     ],
-    initialValue: 'local',
+    initialValue: initialProvider,
   });
   if (p.isCancel(selected) || selected !== '__more_search__') {
     return selected;
@@ -1236,13 +1280,58 @@ async function renderSetupStudioHero(): Promise<string> {
   ].join('\n');
 }
 
-function collectArgsAnswers(args: string[]): SetupStudioCliAnswers {
+function parseSetupStudioArgs(rawArgs: string[]): { args: string[]; section: ZavorthSetupStudioSection } {
+  const explicitSection = readFlag(rawArgs, 'section') || readFlag(rawArgs, 'setup-section');
+  let args = stripSetupSectionFlags(rawArgs);
+  let section = normalizeSetupSection(explicitSection);
+  const first = String(args[0] || '').trim();
+  if (section === 'all' && first && !first.startsWith('-')) {
+    const positionalSection = normalizeSetupSection(first);
+    if (positionalSection !== 'all') {
+      section = positionalSection;
+      args = args.slice(1);
+    }
+  }
+  return { args, section };
+}
+
+function stripSetupSectionFlags(args: string[]): string[] {
+  const stripped: string[] = [];
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--section' || arg === '--setup-section') {
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith('--section=') || arg.startsWith('--setup-section=')) {
+      continue;
+    }
+    stripped.push(arg);
+  }
+  return stripped;
+}
+
+function collectArgsAnswers(args: string[], setupSection: ZavorthSetupStudioSection = 'all'): SetupStudioCliAnswers {
+  const mode = normalizeSetupMode(
+    readFlag(args, 'setup-mode')
+    || readFlag(args, 'mode')
+    || (args.includes('--blank-slate') ? 'blank-slate' : null),
+  );
+  const configHandling = normalizeConfigHandling(
+    readFlag(args, 'config-handling')
+    || readFlag(args, 'config')
+    || (args.includes('--reset') ? 'reset' : null),
+    null,
+  );
   const providerId = readFlag(args, 'provider')
     || readFlag(args, 'provider-id')
     || resolveProviderQuery(readFlag(args, 'provider-query') || readFlag(args, 'search-provider-name'))
     || 'deferred';
   const provider = resolveSetupStudioProvider(providerId);
-  return {
+  const answers: SetupStudioCliAnswers = {
+    mode,
+    configHandling,
+    setupSection,
     zavorthHome: readFlag(args, 'home') || readFlag(args, 'zavorth-home'),
     skillsGovernanceMode: normalizeSkillsGovernanceMode(
       readFlag(args, 'skills-governance')
@@ -1276,6 +1365,25 @@ function collectArgsAnswers(args: string[]): SetupStudioCliAnswers {
     vaultScope: normalizeVaultScope(readFlag(args, 'vault-scope')),
     scanDirs: readAllFlags(args, 'scan-dir'),
   };
+  return applySetupModeDefaults(answers, {
+    skillsGovernanceMode: hasAnyFlag(args, [
+      'skills-governance',
+      'skill-governance',
+      'skills-governance-mode',
+      'skill-governance-mode',
+    ]),
+    wakeDetectorMode: hasAnyFlag(args, [
+      'wake-detector',
+      'wake-mode',
+      'wake-disabled',
+      'wake-custom-command',
+      'wake-default-local',
+    ]),
+    searchProvider: hasAnyFlag(args, ['search-provider', 'web-search-provider']),
+    enableHooks: args.includes('--enable-hooks') || args.includes('--hooks'),
+    memoryMode: hasAnyFlag(args, ['memory-mode']),
+    vaultScope: hasAnyFlag(args, ['vault-scope']),
+  });
 }
 
 function mergeAnswersWithProgress(
@@ -1283,7 +1391,7 @@ function mergeAnswersWithProgress(
   progress: ReturnType<ZavorthSetupStudioProgressStore['read']>,
   args: string[],
 ): SetupStudioCliAnswers {
-  if (!progress) {
+  if (!progress || answers.configHandling === 'reset') {
     return answers;
   }
   const providerExplicit = hasAnyFlag(args, ['provider', 'provider-id', 'provider-query', 'search-provider-name']);
@@ -1303,6 +1411,9 @@ function mergeAnswersWithProgress(
 
 function defaultAnswers(): SetupStudioCliAnswers {
   return {
+    mode: 'quickstart',
+    configHandling: null,
+    setupSection: 'all',
     zavorthHome: null,
     skillsGovernanceMode: normalizeSkillsGovernanceMode(process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual'),
     wakeDetectorMode: normalizeWakeDetectorMode(process.env.ZAVORTH_WAKE_EMBEDDED === '1' ? 'default-local' : process.env.ZAVORTH_WAKE_COMMAND ? 'custom-command' : 'default-local'),
@@ -1331,6 +1442,14 @@ function hasAnyFlag(args: string[], names: string[]): boolean {
 
 function hasDirectConfiguration(args: string[]): boolean {
   return args.some((arg) => [
+    '--setup-mode',
+    '--mode',
+    '--section',
+    '--setup-section',
+    '--blank-slate',
+    '--config-handling',
+    '--config',
+    '--reset',
     '--provider',
     '--provider-id',
     '--provider-query',
@@ -1368,6 +1487,122 @@ function hasDirectConfiguration(args: string[]): boolean {
     '--key',
     '--skip-conversational',
   ].some((name) => arg === name || arg.startsWith(`${name}=`)));
+}
+
+type SetupModeExplicitFlags = {
+  skillsGovernanceMode?: boolean;
+  wakeDetectorMode?: boolean;
+  searchProvider?: boolean;
+  enableHooks?: boolean;
+  memoryMode?: boolean;
+  vaultScope?: boolean;
+};
+
+export function resolveSetupModeDefaults(value: string | null): SetupModeDefaults {
+  const mode = normalizeSetupMode(value);
+  if (mode === 'safe') {
+    return {
+      providerId: 'local',
+      skillGovernanceMode: 'governed',
+      wakeDetectorMode: 'disabled',
+      searchProvider: 'local',
+      memoryMode: 'local-summary',
+      vaultScope: 'skip',
+      enableHooks: false,
+      channelBrowseInitial: 'none',
+    };
+  }
+
+  if (mode === 'blank-slate') {
+    return {
+      providerId: 'local',
+      skillGovernanceMode: 'governed',
+      wakeDetectorMode: 'disabled',
+      searchProvider: 'skip',
+      memoryMode: 'off',
+      vaultScope: 'skip',
+      enableHooks: false,
+      channelBrowseInitial: 'none',
+    };
+  }
+
+  return {
+    providerId: 'openai',
+    skillGovernanceMode: 'casual',
+    wakeDetectorMode: 'default-local',
+    searchProvider: 'local',
+    memoryMode: 'local-metadata',
+    vaultScope: 'skip',
+    enableHooks: false,
+    channelBrowseInitial: 'all',
+  };
+}
+
+function applySetupModeDefaults(
+  answers: SetupStudioCliAnswers,
+  explicit: SetupModeExplicitFlags,
+): SetupStudioCliAnswers {
+  const defaults = resolveSetupModeDefaults(answers.mode);
+
+  if (answers.mode === 'safe') {
+    return {
+      ...answers,
+      skillsGovernanceMode: explicit.skillsGovernanceMode ? answers.skillsGovernanceMode : defaults.skillGovernanceMode,
+      wakeDetectorMode: explicit.wakeDetectorMode ? answers.wakeDetectorMode : defaults.wakeDetectorMode,
+      wakeCommand: explicit.wakeDetectorMode ? answers.wakeCommand : null,
+      wakeArgs: explicit.wakeDetectorMode ? answers.wakeArgs : null,
+      searchProvider: explicit.searchProvider ? answers.searchProvider : defaults.searchProvider,
+      enableHooks: explicit.enableHooks ? answers.enableHooks : defaults.enableHooks,
+      memoryMode: explicit.memoryMode ? answers.memoryMode : defaults.memoryMode,
+      vaultScope: explicit.vaultScope ? answers.vaultScope : defaults.vaultScope,
+      scanDirs: explicit.vaultScope ? answers.scanDirs : [],
+    };
+  }
+
+  if (answers.mode === 'blank-slate') {
+    return {
+      ...answers,
+      skillsGovernanceMode: explicit.skillsGovernanceMode ? answers.skillsGovernanceMode : defaults.skillGovernanceMode,
+      wakeDetectorMode: explicit.wakeDetectorMode ? answers.wakeDetectorMode : defaults.wakeDetectorMode,
+      wakeCommand: explicit.wakeDetectorMode ? answers.wakeCommand : null,
+      wakeArgs: explicit.wakeDetectorMode ? answers.wakeArgs : null,
+      searchProvider: explicit.searchProvider ? answers.searchProvider : defaults.searchProvider,
+      searchSecret: explicit.searchProvider ? answers.searchSecret : null,
+      enableHooks: explicit.enableHooks ? answers.enableHooks : defaults.enableHooks,
+      memoryMode: explicit.memoryMode ? answers.memoryMode : defaults.memoryMode,
+      vaultScope: explicit.vaultScope ? answers.vaultScope : defaults.vaultScope,
+      scanDirs: explicit.vaultScope ? answers.scanDirs : [],
+      telegramBotToken: null,
+      telegramAllowedUserIds: null,
+      discordBotToken: null,
+      slackBotToken: null,
+      emailSmtpUrl: null,
+    };
+  }
+
+  return answers;
+}
+
+function normalizeSetupMode(value: string | null): SetupStudioCliAnswers['mode'] {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'safe' || normalized === 'advanced' || normalized === 'blank-slate') {
+    return normalized;
+  }
+  if (normalized === 'blank' || normalized === 'minimal') {
+    return 'blank-slate';
+  }
+  return 'quickstart';
+}
+
+function normalizeConfigHandling(
+  value: string | null,
+  fallback: SetupStudioCliAnswers['configHandling'],
+): SetupStudioCliAnswers['configHandling'] {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'keep' || normalized === 'review' || normalized === 'reset') {
+    return normalized;
+  }
+  return fallback;
 }
 
 function resolveProviderQuery(value: string | null): string | null {

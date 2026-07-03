@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { persistVisibleColumns, loadVisibleColumns, buildLogsQuery, filterLogs, sortLogs, getUniqueAccounts, getUniqueApiKeys, getUniqueModels, getUniqueProviders, getLoggerStats } from "./requestLoggerUtils";
 import { REQUEST_LOGGER_REFRESH_MS } from "./requestLoggerConfig";
 import type {
+import { logger } from '../logger.js';
   ProviderNode,
   RequestLogEntry,
   RequestLoggerSortKey,
@@ -74,7 +75,7 @@ export function useRequestLoggerV2() {
     void fetch("/api/provider-nodes")
       .then((response) => (response.ok ? response.json() : { nodes: [] }))
       .then((data) => setProviderNodes(((data?.nodes as ProviderNode[]) || [])))
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
   }, []);
 
   useEffect(() => {
@@ -87,7 +88,7 @@ export function useRequestLoggerV2() {
         if (!data) return;
         setDetailLoggingEnabled(data.enabled === true);
       })
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
   }, []);
 
   useEffect(() => {

@@ -267,7 +267,7 @@ export class ZavorthDailyUseScenarioTestService {
         `noSilentMerge=${snapshot.safety.noSilentMerge}`,
       ],
       nextAction: destructive > 0
-        ? 'Mostrar no dashboard que attention restante e destrutivo por design, com botao separado para revisar merges.'
+        ? 'Mostrar no zavorthControl que attention restante e destrutivo por design, com botao separado para revisar merges.'
         : 'Manter shadow curator semanal sem notificacao ruidosa.',
       safety: {
         hiddenExecution: false,
@@ -365,7 +365,7 @@ export class ZavorthDailyUseScenarioTestService {
         `replayEvents=${swarm.replay?.eventCount || 0}`,
         `tokenBudget=${swarm.tokenBudget?.status || 'unknown'}`,
       ],
-      nextAction: 'No dashboard, mostrar Review e Swarm como uma historia unica: achados, replay, sintese e aplicar patch somente apos approval.',
+      nextAction: 'No zavorthControl, mostrar Review e Swarm como uma historia unica: achados, replay, sintese e aplicar patch somente apos approval.',
       safety: {
         hiddenExecution: false,
         rawSecretsSerialized: false,

@@ -48,6 +48,82 @@ import {
   withSessionHeader,
 } from "./chatHelpers";
 
+/** Chat completion request body (OpenAI-compatible format). */
+interface ChatBody {
+  model?: string;
+  messages?: unknown[];
+  input?: unknown[];
+  tools?: unknown[];
+  stream?: boolean;
+  temperature?: number;
+  top_p?: number;
+  max_tokens?: number;
+  max_completion_tokens?: number;
+  reasoning_effort?: string;
+  reasoning?: { effort?: string };
+  [key: string]: unknown;
+}
+
+/** Client request metadata for logging. */
+interface ClientRawRequest {
+  endpoint?: string;
+  body?: unknown;
+  headers?: Record<string, string>;
+}
+
+/** Combo configuration from getComboForModel(). */
+interface ComboConfig {
+  id?: string;
+  name: string;
+  models: Array<string | { model: string; weight?: number; priority?: number }>;
+  strategy: string;
+  config?: Record<string, unknown>;
+  isHidden?: boolean;
+  [key: string]: unknown;
+}
+
+/** Application settings from getSettings(). */
+interface AppSettings extends Record<string, unknown> {
+  globalFallbackModel?: string;
+  fallbackStrategy?: string;
+  [key: string]: unknown;
+}
+
+/** Response payload shape (OpenAI-compatible usage block). */
+interface ResponsePayload {
+  usage?: { total_tokens?: number };
+  [key: string]: unknown;
+}
+
+/** Provider credentials returned by getProviderCredentials(). */
+interface ProviderCredentials {
+  apiKey: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  expiresAt: string | null;
+  projectId: string | null;
+  copilotToken: string | null;
+  providerSpecificData: Record<string, unknown>;
+  connectionId: string;
+  testStatus: string | null;
+  lastError: string | null;
+  lastErrorType: string | null;
+  lastErrorSource: string | null;
+  errorCode: string | number | null;
+  rateLimitedUntil: string | null;
+  allRateLimited?: boolean;
+  retryAfter?: string;
+  retryAfterHuman?: string;
+}
+
+/** Minimal logger shape accepted by sanitizeRequest(). */
+interface SanitizeLogger {
+  debug: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+}
+
 // Pipeline integration — wired modules
 import { getCircuitBreaker } from "../../shared/utils/circuitBreaker";
 import {
@@ -59,7 +135,7 @@ import { markAccountExhaustedFrom429 } from "../../domain/quotaCache";
 import { RequestTelemetry, recordTelemetry } from "../../shared/utils/requestTelemetry";
 import { generateRequestId } from "../../shared/utils/requestId";
 import { logAuditEvent } from "../../lib/compliance/index";
-import { enforceApiKeyPolicy } from "../../shared/utils/apiKeyPolicy";
+import { enforceApiKeyPolicy, type ApiKeyMetadata } from "../../shared/utils/apiKeyPolicy";
 import { cloneLogPayload } from "@/lib/logPayloads";
 import {
   generateSignature,
@@ -78,7 +154,7 @@ registerCodexQuotaFetcher();
  * Supports: OpenAI, Claude, Gemini, OpenAI Responses API formats
  * Format detection and translation handled by translator
  */
-export async function handleChat(request: any, clientRawRequest: any = null) {
+export async function handleChat(request: Request, clientRawRequest: ClientRawRequest | null = null) {
   // Pipeline: Start request telemetry
   const reqId = generateRequestId();
   const telemetry = new RequestTelemetry(reqId);
@@ -102,7 +178,7 @@ export async function handleChat(request: any, clientRawRequest: any = null) {
 
   // FASE-01: Input sanitization — prompt injection detection & PII redaction
   telemetry.startPhase("validate");
-  const sanitizeResult = sanitizeRequest(body, log as any);
+  const sanitizeResult = sanitizeRequest(body, log as SanitizeLogger);
   if (sanitizeResult.blocked) {
     log.warn("SANITIZER", "Request blocked due to prompt injection", {
       detections: sanitizeResult.detections,
@@ -350,10 +426,10 @@ export async function handleChat(request: any, clientRawRequest: any = null) {
 
     // Context-relay keeps generation in combo.ts, but handoff injection lives here
     // because only this layer knows which connectionId was actually selected.
-    const response = await (handleComboChat as any)({
+    const response = await (handleComboChat as (args: Record<string, unknown>) => Promise<Response>)({
       body,
       combo,
-      handleSingleModel: (b: any, m: string) =>
+      handleSingleModel: (b: ChatBody, m: string) =>
         handleSingleModelChat(
           b,
           m,
@@ -387,10 +463,10 @@ export async function handleChat(request: any, clientRawRequest: any = null) {
     if (
       !response.ok &&
       [502, 503].includes(response.status) &&
-      typeof (settings as any)?.globalFallbackModel === "string" &&
-      (settings as any).globalFallbackModel.trim()
+      typeof (settings as AppSettings)?.globalFallbackModel === "string" &&
+      (settings as AppSettings).globalFallbackModel.trim()
     ) {
-      const fallbackModel = (settings as any).globalFallbackModel.trim();
+      const fallbackModel = (settings as AppSettings).globalFallbackModel.trim();
       log.info(
         "GLOBAL_FALLBACK",
         `Combo "${combo.name}" exhausted — attempting global fallback: ${fallbackModel}`
@@ -418,8 +494,9 @@ export async function handleChat(request: any, clientRawRequest: any = null) {
           "GLOBAL_FALLBACK",
           `Global fallback ${fallbackModel} also failed (${fallbackResponse.status})`
         );
-      } catch (err: any) {
-        log.warn("GLOBAL_FALLBACK", `Global fallback error: ${err?.message || "unknown"}`);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "unknown";
+        log.warn("GLOBAL_FALLBACK", `Global fallback error: ${message}`);
       }
     }
     // ─────────────────────────────────────────────────────────────────────────
@@ -459,7 +536,7 @@ async function cacheChatResponseIfEligible(
   if (!contentType.includes("application/json")) return;
   try {
     const payload = await response.clone().json();
-    const usage = payload && typeof payload === "object" ? (payload as any).usage : null;
+    const usage = payload && typeof payload === "object" ? (payload as ResponsePayload).usage : null;
     const tokensSaved =
       Number(usage?.total_tokens || 0) ||
       Math.ceil(Buffer.byteLength(JSON.stringify(payload), "utf8") / 4);
@@ -486,13 +563,13 @@ export function buildClientRawRequest(request: Request, body: unknown) {
  * retry loop.
  */
 async function handleSingleModelChat(
-  body: any,
+  body: ChatBody,
   modelStr: string,
-  clientRawRequest: any = null,
-  request: any = null,
+  clientRawRequest: ClientRawRequest | null = null,
+  request: Request | null = null,
   comboName: string | null = null,
-  apiKeyInfo: any = null,
-  telemetry: any = null,
+  apiKeyInfo: ApiKeyMetadata | null = null,
+  telemetry: RequestTelemetry | null = null,
   runtimeOptions: {
     emergencyFallbackTried?: boolean;
     forceLiveComboTest?: boolean;

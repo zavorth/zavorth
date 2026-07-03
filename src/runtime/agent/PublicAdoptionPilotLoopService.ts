@@ -10,7 +10,7 @@ export type PublicAdoptionPilotLoopStatus =
   | 'needs-feedback-product-loop'
   | 'needs-pilot-loop'
   | 'needs-artifacts'
-  | 'needs-dashboard'
+  | 'needs-zavorthControl'
   | 'blocked'
   | 'adoption-disabled';
 
@@ -30,7 +30,7 @@ export type PublicAdoptionPilotLoopGate = {
 };
 
 export type PublicAdoptionPilotLoopSurface = {
-  id: 'cli' | 'control' | 'feedback' | 'docs' | 'pilot-ledger' | 'dashboard' | 'next-phase';
+  id: 'cli' | 'control' | 'feedback' | 'docs' | 'pilot-ledger' | 'zavorthControl' | 'next-phase';
   label: string;
   routeOrCommand: string;
   status: PublicAdoptionPilotLoopGateStatus;
@@ -39,7 +39,7 @@ export type PublicAdoptionPilotLoopSurface = {
 
 export type PublicAdoptionPilotLoopReceipt = {
   id: string;
-  kind: 'feedback-loop' | 'pilot-loop' | 'triage' | 'ledger' | 'dashboard' | 'policy';
+  kind: 'feedback-loop' | 'pilot-loop' | 'triage' | 'ledger' | 'zavorthControl' | 'policy';
   source: string;
   detail: string;
   status: PublicAdoptionPilotLoopGateStatus;
@@ -73,16 +73,16 @@ export type PublicAdoptionPilotLoopSnapshot = {
     triageRuleCount: number;
     ledgerEntryCount: number;
     supportPolicyCount: number;
-    dashboardMetricCount: number;
+    zavorthControlMetricCount: number;
     nextStage: string | null;
   };
   artifacts: {
     feedbackPreviewPath: string | null;
     pilotLedgerPath: string | null;
-    dashboardPath: string | null;
+    zavorthControlPath: string | null;
     feedbackPreviewReady: boolean;
     pilotLedgerReady: boolean;
-    dashboardReady: boolean;
+    zavorthControlReady: boolean;
   };
   adoptionLoop: {
     plannedPilotCount: number;
@@ -90,7 +90,7 @@ export type PublicAdoptionPilotLoopSnapshot = {
     completedPilotCount: number;
     highSeverityRuleCount: number;
     supportPolicyReady: boolean;
-    dashboardAggregationOnly: boolean;
+    zavorthControlAggregationOnly: boolean;
     noPayloadPolicy: boolean;
   };
   readiness: {
@@ -100,7 +100,7 @@ export type PublicAdoptionPilotLoopSnapshot = {
     triageReady: boolean;
     ledgerReady: boolean;
     supportReady: boolean;
-    dashboardReady: boolean;
+    zavorthControlReady: boolean;
     canStartControlledPilot: boolean;
     canCollectPublicFeedback: boolean;
     canPublishPilotMetrics: boolean;
@@ -117,20 +117,20 @@ export type PublicAdoptionPilotLoopSnapshot = {
     optInRequired: true;
     redactedPreviewRequired: true;
     localLedgerOnly: true;
-    dashboardAggregatedOnly: true;
+    zavorthControlAggregatedOnly: true;
     pilotRequiresExplicitOwner: true;
     naturalLanguageDoesNotBypassPolicy: true;
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     feedbackRoute: '/feedback';
     docsAnchor: '/docs#pilot-loop';
     pilotLoopCommand: 'npm run pilot-loop';
     qaCommand: 'npm run qa:pilot-loop';
     phaseGateCommand: 'npm run qa:phase:57';
     ledgerArtifact: 'pilot-ledger.json';
-    dashboardArtifact: 'support-dashboard.json';
+    zavorthControlArtifact: 'support-zavorthControl.json';
   };
   nextSafeAction: string;
 };
@@ -214,15 +214,15 @@ export class PublicAdoptionPilotLoopService {
     const triageRuleCount = arrayOrEmpty(pilot?.triageRules).length;
     const ledgerEntries = arrayOrEmpty<{ status?: string; dataPolicy?: string }>(pilot?.pilotLedger);
     const supportPolicyCount = arrayOrEmpty(pilot?.supportPolicy).length;
-    const dashboardMetrics = arrayOrEmpty<{ aggregateOnly?: boolean; excludesPayload?: boolean }>(pilot?.dashboardMetrics);
+    const zavorthControlMetrics = arrayOrEmpty<{ aggregateOnly?: boolean; excludesPayload?: boolean }>(pilot?.zavorthControlMetrics);
     const feedbackProductLoopReady = feedbackProductLoop?.status === 'opt-in-ready';
     const templatesReady = templateCount >= 4;
     const triageReady = triageRuleCount >= 5 && arrayOrEmpty<{ severity?: string }>(pilot?.triageRules).some((rule) => rule.severity === 'high');
     const feedbackPreviewReady = hasPassingCheck(pilot, 'pilot-loop:feedback-preview');
     const pilotLedgerReady = hasPassingCheck(pilot, 'pilot-loop:pilot-ledger') && ledgerEntries.length >= 3;
-    const dashboardReady = hasPassingCheck(pilot, 'pilot-loop:dashboard') && dashboardMetrics.length > 0;
+    const zavorthControlReady = hasPassingCheck(pilot, 'pilot-loop:zavorthControl') && zavorthControlMetrics.length > 0;
     const supportReady = supportPolicyCount >= 3;
-    const dashboardAggregationOnly = dashboardMetrics.length > 0 && dashboardMetrics.every((metric) => metric.aggregateOnly === true && metric.excludesPayload === true);
+    const zavorthControlAggregationOnly = zavorthControlMetrics.length > 0 && zavorthControlMetrics.every((metric) => metric.aggregateOnly === true && metric.excludesPayload === true);
     const noPayloadPolicy = ledgerEntries.every((entry) => entry.dataPolicy === 'no-workspace-payload' || entry.dataPolicy === 'redacted-only');
     const canStartControlledPilot = Boolean(
       feedbackProductLoopReady
@@ -231,9 +231,9 @@ export class PublicAdoptionPilotLoopService {
       && triageReady
       && feedbackPreviewReady
       && pilotLedgerReady
-      && dashboardReady
+      && zavorthControlReady
       && supportReady
-      && dashboardAggregationOnly
+      && zavorthControlAggregationOnly
       && noPayloadPolicy,
     );
     const status = this.resolveStatus({
@@ -243,7 +243,7 @@ export class PublicAdoptionPilotLoopService {
       pilotStatus,
       feedbackPreviewReady,
       pilotLedgerReady,
-      dashboardReady,
+      zavorthControlReady,
       canStartControlledPilot,
     });
     const readiness = {
@@ -253,10 +253,10 @@ export class PublicAdoptionPilotLoopService {
       triageReady,
       ledgerReady: pilotLedgerReady,
       supportReady,
-      dashboardReady,
+      zavorthControlReady,
       canStartControlledPilot,
       canCollectPublicFeedback: canStartControlledPilot,
-      canPublishPilotMetrics: canStartControlledPilot && dashboardAggregationOnly,
+      canPublishPilotMetrics: canStartControlledPilot && zavorthControlAggregationOnly,
     };
 
     return {
@@ -287,16 +287,16 @@ export class PublicAdoptionPilotLoopService {
         triageRuleCount,
         ledgerEntryCount: ledgerEntries.length,
         supportPolicyCount,
-        dashboardMetricCount: dashboardMetrics.length,
+        zavorthControlMetricCount: zavorthControlMetrics.length,
         nextStage: normalizeText(pilot?.nextRecommendedPhase?.phase) || null,
       },
       artifacts: {
         feedbackPreviewPath: normalizeText(pilot?.artifacts.feedbackPreviewPath) || null,
         pilotLedgerPath: normalizeText(pilot?.artifacts.pilotLedgerPath) || null,
-        dashboardPath: normalizeText(pilot?.artifacts.dashboardPath) || null,
+        zavorthControlPath: normalizeText(pilot?.artifacts.zavorthControlPath) || null,
         feedbackPreviewReady,
         pilotLedgerReady,
-        dashboardReady,
+        zavorthControlReady,
       },
       adoptionLoop: {
         plannedPilotCount: ledgerEntries.filter((entry) => entry.status === 'planned').length,
@@ -304,7 +304,7 @@ export class PublicAdoptionPilotLoopService {
         completedPilotCount: ledgerEntries.filter((entry) => entry.status === 'complete').length,
         highSeverityRuleCount: arrayOrEmpty<{ severity?: string }>(pilot?.triageRules).filter((rule) => rule.severity === 'high' || rule.severity === 'critical').length,
         supportPolicyReady: supportReady,
-        dashboardAggregationOnly,
+        zavorthControlAggregationOnly,
         noPayloadPolicy,
       },
       readiness,
@@ -315,9 +315,9 @@ export class PublicAdoptionPilotLoopService {
         triageReady,
         feedbackPreviewReady,
         pilotLedgerReady,
-        dashboardReady,
+        zavorthControlReady,
         supportReady,
-        dashboardAggregationOnly,
+        zavorthControlAggregationOnly,
         noPayloadPolicy,
       }),
       surfaces: this.buildSurfaces({
@@ -325,14 +325,14 @@ export class PublicAdoptionPilotLoopService {
         feedbackProductLoopReady,
         pilotStatus,
         pilotLedgerReady,
-        dashboardReady,
+        zavorthControlReady,
       }),
       receipts: this.buildReceipts({
         feedbackProductLoopReady,
         pilotLinked: Boolean(pilot),
         triageReady,
         pilotLedgerReady,
-        dashboardReady,
+        zavorthControlReady,
         supportReady,
         noPayloadPolicy,
       }),
@@ -345,20 +345,20 @@ export class PublicAdoptionPilotLoopService {
         optInRequired: true,
         redactedPreviewRequired: true,
         localLedgerOnly: true,
-        dashboardAggregatedOnly: true,
+        zavorthControlAggregatedOnly: true,
         pilotRequiresExplicitOwner: true,
         naturalLanguageDoesNotBypassPolicy: true,
       },
       surface: {
         cliCommand: `zavorth public-adoption-pilot-loop run ${run.id} --json`,
-        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
         feedbackRoute: '/feedback',
         docsAnchor: '/docs#pilot-loop',
         pilotLoopCommand: 'npm run pilot-loop',
         qaCommand: 'npm run qa:pilot-loop',
         phaseGateCommand: 'npm run qa:phase:57',
         ledgerArtifact: 'pilot-ledger.json',
-        dashboardArtifact: 'support-dashboard.json',
+        zavorthControlArtifact: 'support-zavorthControl.json',
       },
       nextSafeAction: this.resolveNextSafeAction(status),
     };
@@ -381,7 +381,7 @@ export class PublicAdoptionPilotLoopService {
     pilotStatus: PublicAdoptionPilotLoopSnapshot['pilot']['contractStatus'];
     feedbackPreviewReady: boolean;
     pilotLedgerReady: boolean;
-    dashboardReady: boolean;
+    zavorthControlReady: boolean;
     canStartControlledPilot: boolean;
   }): PublicAdoptionPilotLoopStatus {
     if (!input.feedbackProductLoop) {
@@ -399,8 +399,8 @@ export class PublicAdoptionPilotLoopService {
     if (!input.feedbackPreviewReady || !input.pilotLedgerReady) {
       return 'needs-artifacts';
     }
-    if (!input.dashboardReady) {
-      return 'needs-dashboard';
+    if (!input.zavorthControlReady) {
+      return 'needs-zavorthControl';
     }
     return input.canStartControlledPilot ? 'pilot-ready' : 'needs-pilot-loop';
   }
@@ -412,9 +412,9 @@ export class PublicAdoptionPilotLoopService {
     triageReady: boolean;
     feedbackPreviewReady: boolean;
     pilotLedgerReady: boolean;
-    dashboardReady: boolean;
+    zavorthControlReady: boolean;
     supportReady: boolean;
-    dashboardAggregationOnly: boolean;
+    zavorthControlAggregationOnly: boolean;
     noPayloadPolicy: boolean;
   }): PublicAdoptionPilotLoopGate[] {
     return [
@@ -436,7 +436,7 @@ export class PublicAdoptionPilotLoopService {
         source: 'PilotLoopService',
         command: 'npm run qa:pilot-loop',
         detail: input.pilotStatus === 'ready'
-          ? 'Pilot loop validou templates, triagem, ledger e dashboard.'
+          ? 'Pilot loop validou templates, triagem, ledger e zavorthControl.'
           : 'Rodar gate de piloto antes de abrir adoption loop.',
         critical: true,
       },
@@ -463,14 +463,14 @@ export class PublicAdoptionPilotLoopService {
         critical: true,
       },
       {
-        id: 'support-dashboard-aggregated',
-        label: 'Support dashboard agregado',
-        status: input.dashboardReady && input.dashboardAggregationOnly ? 'ready' : 'needs-action',
+        id: 'support-zavorthControl-aggregated',
+        label: 'Support zavorthControl agregado',
+        status: input.zavorthControlReady && input.zavorthControlAggregationOnly ? 'ready' : 'needs-action',
         source: 'PilotLoopService',
-        command: 'npm run pilot-loop -- --dashboard',
-        detail: input.dashboardReady && input.dashboardAggregationOnly
-          ? 'Dashboard usa somente metricas agregadas.'
-          : 'Dashboard precisa ser agregado e sem payload bruto.',
+        command: 'npm run pilot-loop -- --zavorthControl',
+        detail: input.zavorthControlReady && input.zavorthControlAggregationOnly
+          ? 'ZavorthControl usa somente metricas agregadas.'
+          : 'ZavorthControl precisa ser agregado e sem payload bruto.',
         critical: true,
       },
       {
@@ -492,7 +492,7 @@ export class PublicAdoptionPilotLoopService {
     feedbackProductLoopReady: boolean;
     pilotStatus: PublicAdoptionPilotLoopSnapshot['pilot']['contractStatus'];
     pilotLedgerReady: boolean;
-    dashboardReady: boolean;
+    zavorthControlReady: boolean;
   }): PublicAdoptionPilotLoopSurface[] {
     return [
       {
@@ -504,10 +504,10 @@ export class PublicAdoptionPilotLoopService {
       },
       {
         id: 'control',
-        label: 'Dashboard',
-        routeOrCommand: '/dashboard?sector=config',
+        label: 'ZavorthControl',
+        routeOrCommand: '/zavorthControl?sector=config',
         status: 'ready',
-        detail: 'Config mostra readiness, ledger e dashboard do piloto.',
+        detail: 'Config mostra readiness, ledger e zavorthControl do piloto.',
       },
       {
         id: 'feedback',
@@ -531,11 +531,11 @@ export class PublicAdoptionPilotLoopService {
         detail: 'Ledger local e revisavel antes de qualquer metric publicavel.',
       },
       {
-        id: 'dashboard',
-        label: 'Support dashboard',
-        routeOrCommand: 'support-dashboard.json',
-        status: input.dashboardReady ? 'ready' : 'needs-action',
-        detail: 'Dashboard agrega area, severidade, status e follow-ups.',
+        id: 'zavorthControl',
+        label: 'Support zavorthControl',
+        routeOrCommand: 'support-zavorthControl.json',
+        status: input.zavorthControlReady ? 'ready' : 'needs-action',
+        detail: 'ZavorthControl agrega area, severidade, status e follow-ups.',
       },
       {
         id: 'next-phase',
@@ -552,7 +552,7 @@ export class PublicAdoptionPilotLoopService {
     pilotLinked: boolean;
     triageReady: boolean;
     pilotLedgerReady: boolean;
-    dashboardReady: boolean;
+    zavorthControlReady: boolean;
     supportReady: boolean;
     noPayloadPolicy: boolean;
   }): PublicAdoptionPilotLoopReceipt[] {
@@ -586,11 +586,11 @@ export class PublicAdoptionPilotLoopService {
         status: input.pilotLedgerReady && input.noPayloadPolicy ? 'ready' : 'needs-action',
       },
       {
-        id: 'public-adoption-pilot:dashboard',
-        kind: 'dashboard',
+        id: 'public-adoption-pilot:zavorthControl',
+        kind: 'zavorthControl',
         source: 'PilotLoopService',
-        detail: input.dashboardReady ? 'Dashboard agregado disponivel.' : 'Dashboard agregado pendente.',
-        status: input.dashboardReady ? 'ready' : 'needs-action',
+        detail: input.zavorthControlReady ? 'ZavorthControl agregado disponivel.' : 'ZavorthControl agregado pendente.',
+        status: input.zavorthControlReady ? 'ready' : 'needs-action',
       },
       {
         id: 'public-adoption-pilot:policy',
@@ -612,8 +612,8 @@ export class PublicAdoptionPilotLoopService {
     if (status === 'needs-artifacts') {
       return 'Gerar preview redigido e pilot-ledger local com npm run pilot-loop -- --preview --ledger.';
     }
-    if (status === 'needs-dashboard') {
-      return 'Gerar support-dashboard agregado com npm run pilot-loop -- --dashboard.';
+    if (status === 'needs-zavorthControl') {
+      return 'Gerar support-zavorthControl agregado com npm run pilot-loop -- --zavorthControl.';
     }
     if (status === 'blocked') {
       return 'Corrigir bloqueios de feedback/piloto antes de qualquer coleta publica.';

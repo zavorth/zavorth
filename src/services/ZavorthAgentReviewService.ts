@@ -2,7 +2,7 @@ import { execFile, spawn } from 'node:child_process';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import {
-  buildGovernedReviewDashboardSnapshot,
+  buildGovernedReviewZavorthControlSnapshot,
   GovernedReviewGitHubService,
   GovernedReviewService,
   type GovernedReviewContextFile,
@@ -49,9 +49,9 @@ export type ZavorthAgentReviewSnapshot = {
   status: GovernedReviewResult['status'];
   target: ZavorthAgentReviewTarget;
   review: GovernedReviewResult;
-  dashboard: ReturnType<typeof buildGovernedReviewDashboardSnapshot>;
+  zavorthControl: ReturnType<typeof buildGovernedReviewZavorthControlSnapshot>;
   visual: {
-    route: '/dashboard/reviews';
+    route: '/zavorthControl/reviews';
     layout: 'review-board';
     statusTone: 'ok' | 'warning' | 'danger' | 'blocked';
     severityCounts: Record<GovernedReviewFinding['severity'], number>;
@@ -169,7 +169,7 @@ export class ZavorthAgentReviewService {
       `- Patch apply: ${snapshot.visual.patchApplyMode}`,
       '',
       'Actions:',
-      ...snapshot.dashboard.actions.map((action) =>
+      ...snapshot.zavorthControl.actions.map((action) =>
         `- ${action.label}: ${action.enabled ? 'enabled' : 'blocked'}${action.requiresApproval ? ' (approval required)' : ''}`,
       ),
       '',
@@ -317,15 +317,15 @@ export class ZavorthAgentReviewService {
     heuristicFindingsGenerated: number;
     summary: string;
   }): ZavorthAgentReviewSnapshot {
-    const dashboard = buildGovernedReviewDashboardSnapshot(input.review);
-    const visual = buildAgentReviewVisualSnapshot(input.review, dashboard);
+    const zavorthControl = buildGovernedReviewZavorthControlSnapshot(input.review);
+    const visual = buildAgentReviewVisualSnapshot(input.review, zavorthControl);
     return {
       contractVersion: ZAVORTH_AGENT_REVIEW_CONTRACT_VERSION,
       surface: 'zavorth-agent-review',
       status: input.review.status,
       target: input.target,
       review: input.review,
-      dashboard,
+      zavorthControl,
       visual,
       command: {
         primary: 'zavorth agent-review',
@@ -349,7 +349,7 @@ export class ZavorthAgentReviewService {
 
 function buildAgentReviewVisualSnapshot(
   review: GovernedReviewResult,
-  dashboard: ReturnType<typeof buildGovernedReviewDashboardSnapshot>,
+  zavorthControl: ReturnType<typeof buildGovernedReviewZavorthControlSnapshot>,
 ): ZavorthAgentReviewSnapshot['visual'] {
   const findings = [
     ...review.verification.acceptedFindings,
@@ -382,7 +382,7 @@ function buildAgentReviewVisualSnapshot(
         : 'ok';
 
   return {
-    route: '/dashboard/reviews',
+    route: '/zavorthControl/reviews',
     layout: 'review-board',
     statusTone,
     severityCounts,
@@ -395,13 +395,13 @@ function buildAgentReviewVisualSnapshot(
       location: formatReviewLocation(finding.file, finding.line),
       recommendation: finding.recommendation,
     })),
-    laneCards: dashboard.lanes.map((lane) => ({
+    laneCards: zavorthControl.lanes.map((lane) => ({
       id: lane.id,
       label: lane.label,
       status: lane.status,
       detail: lane.detail,
     })),
-    actionCards: dashboard.actions.map((action) => ({
+    actionCards: zavorthControl.actions.map((action) => ({
       id: action.id,
       label: action.label,
       state: action.enabled

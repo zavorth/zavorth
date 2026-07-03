@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { ChatMessage, ToolCall, ToolDefinition, ILlmProvider } from '../../providers/ILlmProvider.js';
 import { ContextCompactionService } from '../../services/ContextCompactionService.js';
 import type { LlmRunOptions, LlmRuntimeResult } from '../../services/llm/LlmRuntimeService.js';
@@ -873,11 +872,11 @@ export class AgentRunNativeToolLoopService {
       try {
         const compMessages = messages.map((m) => ({
           role: m.role as any,
-          content: m.content,
-          toolName: m.toolName || m.name || null,
+          content: m.content || '',
+          toolName: m.toolName || null,
           toolCallId: m.toolCallId || null,
           toolCalls: m.toolCalls || null,
-        }));
+        })) as import('../../services/ContextCompactionService.js').ContextCompactionMessage[];
 
         const result = await this.compactionService.compactSemanticAsync(
           compMessages,

@@ -22,6 +22,10 @@ import { isModelAvailable } from "../../domain/modelAvailability";
 import { logProxyEvent } from "../../lib/proxyLogger";
 import { logTranslationEvent } from "../../lib/translatorEvents";
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 export async function resolveModelOrError(modelStr: string, body: any, endpointPath: string = "") {
   const modelInfo = await getModelInfo(modelStr);
   if (!modelInfo.provider) {
@@ -269,7 +273,9 @@ export function safeLogEvents({
       account: credentials.connectionId?.slice(0, 8) || null,
       tlsFingerprint: tlsFingerprintUsed,
     });
-  } catch {}
+  } catch (error: unknown) {
+    log.warn("CHAT", "Failed to record proxy event", { error: errorMessage(error), provider, model });
+  }
 
   try {
     logTranslationEvent({
@@ -284,7 +290,9 @@ export function safeLogEvents({
       connectionId: credentials.connectionId || null,
       comboName: comboName || null,
     });
-  } catch {}
+  } catch (error: unknown) {
+    log.warn("CHAT", "Failed to record translation event", { error: errorMessage(error), provider, model });
+  }
 }
 
 export function withSessionHeader(response: Response, sessionId: string | null): Response {

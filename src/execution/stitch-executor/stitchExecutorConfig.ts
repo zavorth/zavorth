@@ -53,7 +53,7 @@ export function resolveStitchDeviceType(
   if (/\b(tablet|ipad)\b/.test(normalized)) {
     return 'TABLET';
   }
-  if (/\b(desktop|web app|dashboard|site|website|landing page|pagina web)\b/.test(normalized)) {
+  if (/\b(desktop|web app|zavorthControl|site|website|landing page|pagina web)\b/.test(normalized)) {
     return 'DESKTOP';
   }
 

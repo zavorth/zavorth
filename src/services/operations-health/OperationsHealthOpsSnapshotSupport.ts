@@ -2,7 +2,19 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import type { SystemLog } from '../../storage/LogRepository.js';
-import { isWeakDashboardToken } from '../DashboardTokenService.js';
+import { isWeakZavorthControlToken } from '../ZavorthControlTokenService.js';
+import type {
+  MaintenanceSnapshot,
+  StorageSnapshot,
+  HotspotEntry,
+  RecentErrorsSnapshot,
+  MappedLog,
+  SecuritySnapshot,
+  SecurityCheckSnapshot,
+  PublishSnapshot,
+  PublishHistoryEntry,
+  MaintenanceAutomationSnapshot,
+} from './OperationsHealthSnapshotTypes.js';
 
 type OperationsHealthOpsSnapshotSupportOptions = {
   now: () => Date;
@@ -28,7 +40,7 @@ export class OperationsHealthOpsSnapshotSupport {
     this.logRepo = options.logRepo;
   }
 
-  public readMaintenanceSnapshot(): any {
+  public readMaintenanceSnapshot(): MaintenanceSnapshot {
     try {
       if (!this.existsSync(config.maintenanceStatusFile)) {
         return {
@@ -43,14 +55,14 @@ export class OperationsHealthOpsSnapshotSupport {
         };
       }
 
-      const parsed = JSON.parse(this.readFileSync(config.maintenanceStatusFile, 'utf8')) as any;
+      const parsed = JSON.parse(this.readFileSync(config.maintenanceStatusFile, 'utf8')) as Record<string, unknown>;
       const steps = Array.isArray(parsed.steps) ? parsed.steps : [];
       return {
         available: true,
         startedAt: typeof parsed.startedAt === 'string' ? parsed.startedAt : null,
         finishedAt: typeof parsed.finishedAt === 'string' ? parsed.finishedAt : null,
         stepCount: steps.length,
-        completedSteps: steps.filter((step: any) => step?.status === 'completed').length,
+        completedSteps: steps.filter((step: Record<string, unknown>) => step?.status === 'completed').length,
         dryRun: parsed.dryRun === true,
         withSoak: parsed.withSoak === true,
         withPublish: parsed.withPublish === true,
@@ -69,16 +81,16 @@ export class OperationsHealthOpsSnapshotSupport {
     }
   }
 
-  public readStorageSnapshot(cachedHotspotsOnly = false): any {
+  public readStorageSnapshot(cachedHotspotsOnly = false): StorageSnapshot {
     const rootPath = config.dataDir;
     let totalBytes = 0;
     let freeBytes = 0;
 
     try {
-      const stats = this.statfsSync(rootPath, { bigint: false } as any);
-      const blockSize = Number((stats as any).bsize || 0);
-      totalBytes = Number((stats as any).blocks || 0) * blockSize;
-      freeBytes = Number((stats as any).bavail || 0) * blockSize;
+      const stats = this.statfsSync(rootPath, { bigint: false } as fs.StatFsOptions);
+      const blockSize = Number(stats.bsize || 0);
+      totalBytes = Number(stats.blocks || 0) * blockSize;
+      freeBytes = Number(stats.bavail || 0) * blockSize;
     } catch {
       totalBytes = 0;
       freeBytes = 0;
@@ -97,7 +109,7 @@ export class OperationsHealthOpsSnapshotSupport {
     };
   }
 
-  public readRecentErrors(): any {
+  public readRecentErrors(): RecentErrorsSnapshot {
     const recentLogs = this.logRepo
       .getRecentLogs(150)
       .filter((entry) => entry.level === 'error' || entry.level === 'security' || entry.level === 'warn')
@@ -110,14 +122,14 @@ export class OperationsHealthOpsSnapshotSupport {
     };
   }
 
-  public buildEstimatedSecuritySnapshot(cachedSecurity?: any): any {
+  public buildEstimatedSecuritySnapshot(cachedSecurity?: SecuritySnapshot): SecuritySnapshot {
     if (cachedSecurity) {
       return cachedSecurity;
     }
 
-    const dashboardAuthSource =
+    const zavorthControlAuthSource =
       String(config.zavorthWebAuthToken || '').trim() &&
-      !isWeakDashboardToken(config.zavorthWebAuthToken)
+      !isWeakZavorthControlToken(config.zavorthWebAuthToken)
         ? ('env' as const)
         : (this.existsSync(config.zavorthWebAuthTokenFile) ? ('runtime-file' as const) : ('missing' as const));
     const mailboxSource =
@@ -133,9 +145,9 @@ export class OperationsHealthOpsSnapshotSupport {
     const lastPreflight = this.readEstimatedSecurityCheck(config.securityPreflightStatusFile);
 
     return {
-      dashboardAuth: {
-        enabled: dashboardAuthSource !== 'missing',
-        source: dashboardAuthSource,
+      zavorthControlAuth: {
+        enabled: zavorthControlAuthSource !== 'missing',
+        source: zavorthControlAuthSource,
         tokenFile: config.zavorthWebAuthTokenFile,
         tokenFileExists: this.existsSync(config.zavorthWebAuthTokenFile),
         note: 'Fast snapshot reutilizou verificacoes basicas. Use --live para auditar a trilha completa.',
@@ -171,7 +183,7 @@ export class OperationsHealthOpsSnapshotSupport {
       },
       lastPreflight,
       needsAttention:
-        dashboardAuthSource === 'missing'
+        zavorthControlAuthSource === 'missing'
         || mailboxSource === 'missing'
         || dbSource === 'missing'
         || !hostIdentityExists
@@ -180,7 +192,7 @@ export class OperationsHealthOpsSnapshotSupport {
     };
   }
 
-  public buildEstimatedErrors(cachedErrors?: any): any {
+  public buildEstimatedErrors(cachedErrors?: RecentErrorsSnapshot): RecentErrorsSnapshot {
     if (cachedErrors) {
       return cachedErrors;
     }
@@ -191,7 +203,7 @@ export class OperationsHealthOpsSnapshotSupport {
     };
   }
 
-  public readPublishSnapshot(): any {
+  public readPublishSnapshot(): PublishSnapshot {
     try {
       if (!this.existsSync(config.lastPublishStatusFile)) {
         return {
@@ -208,7 +220,7 @@ export class OperationsHealthOpsSnapshotSupport {
         };
       }
 
-      const parsed = JSON.parse(this.readFileSync(config.lastPublishStatusFile, 'utf8')) as any;
+      const parsed = JSON.parse(this.readFileSync(config.lastPublishStatusFile, 'utf8')) as Record<string, unknown>;
       return {
         available: true,
         publishedAt: typeof parsed.publishedAt === 'string' ? parsed.publishedAt : null,
@@ -247,7 +259,7 @@ export class OperationsHealthOpsSnapshotSupport {
     }
   }
 
-  public readPublishHistory(): any {
+  public readPublishHistory(): PublishHistoryEntry[] {
     try {
       if (!this.existsSync(config.publishHistoryFile)) {
         return [];
@@ -258,7 +270,7 @@ export class OperationsHealthOpsSnapshotSupport {
         return [];
       }
 
-      return parsed.slice(0, 4).map((entry: any) => ({
+      return parsed.slice(0, 4).map((entry: Record<string, unknown>) => ({
         publishedAt: typeof entry.publishedAt === 'string' ? entry.publishedAt : null,
         branch: typeof entry.branch === 'string' ? entry.branch : null,
         commit: typeof entry.commit === 'string' ? entry.commit : null,
@@ -282,8 +294,8 @@ export class OperationsHealthOpsSnapshotSupport {
     }
   }
 
-  public readMaintenanceAutomationSnapshot(): any {
-    const fallback: any = {
+  public readMaintenanceAutomationSnapshot(): MaintenanceAutomationSnapshot {
+    const fallback: MaintenanceAutomationSnapshot = {
       enabled: config.maintenanceAutomationEnabled,
       running: false,
       lastTriggeredAt: null,
@@ -299,10 +311,10 @@ export class OperationsHealthOpsSnapshotSupport {
       lastReportStepCount: 0,
     };
 
-    let state: any = fallback;
+    let state: MaintenanceAutomationSnapshot = fallback;
     try {
       if (this.existsSync(config.maintenanceAutomationStateFile)) {
-        const parsed = JSON.parse(this.readFileSync(config.maintenanceAutomationStateFile, 'utf8')) as any;
+        const parsed = JSON.parse(this.readFileSync(config.maintenanceAutomationStateFile, 'utf8')) as Record<string, unknown>;
         const nextPlannedAt = this.computeNextMaintenanceAutomationAt(
           parsed.enabled !== false,
           this.now(),
@@ -349,7 +361,7 @@ export class OperationsHealthOpsSnapshotSupport {
 
     try {
       if (this.existsSync(config.maintenanceAutomationReportFile)) {
-        const report = JSON.parse(this.readFileSync(config.maintenanceAutomationReportFile, 'utf8')) as any;
+        const report = JSON.parse(this.readFileSync(config.maintenanceAutomationReportFile, 'utf8')) as Record<string, unknown>;
         state = {
           ...state,
           lastReportFinishedAt: typeof report.finishedAt === 'string' ? report.finishedAt : null,
@@ -376,7 +388,7 @@ export class OperationsHealthOpsSnapshotSupport {
     return next.toISOString();
   }
 
-  public readHotspots(cachedOnly = false): any[] {
+  public readHotspots(cachedOnly = false): HotspotEntry[] {
     const nowMs = this.now().getTime();
     if (this.sizeCache && nowMs - this.sizeCache.generatedAt < 5 * 60 * 1000) {
       return this.sizeCache.hotspots;
@@ -459,7 +471,7 @@ export class OperationsHealthOpsSnapshotSupport {
     return false;
   }
 
-  public mapLog(entry: SystemLog): any {
+  public mapLog(entry: SystemLog): MappedLog {
     return {
       timestamp: entry.timestamp || null,
       level: entry.level,
@@ -468,7 +480,7 @@ export class OperationsHealthOpsSnapshotSupport {
     };
   }
 
-  public readEstimatedSecurityCheck(filePath: string): any {
+  public readEstimatedSecurityCheck(filePath: string): SecurityCheckSnapshot {
     try {
       if (!this.existsSync(filePath)) {
         return {

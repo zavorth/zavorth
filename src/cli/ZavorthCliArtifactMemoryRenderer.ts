@@ -40,7 +40,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
           summary: 'Relatorio de validacao de Artifact Memory com gates e testes focados.',
         },
         'artifact-memory-diff': {
-          summary: 'Diff de implementacao conectando runtime, CLI e Dashboard.',
+          summary: 'Diff de implementacao conectando runtime, CLI e ZavorthControl.',
         },
       },
     },
@@ -143,7 +143,7 @@ export function formatArtifactMemorySnapshot(
   lines.push('- todo reuso deve citar artifactId, runId e receipt de origem');
 
   lines.push('', 'Superficies');
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Busca: ${snapshot.search.commands.searchCommand}`);
 

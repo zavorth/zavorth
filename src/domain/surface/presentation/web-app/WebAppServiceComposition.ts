@@ -16,7 +16,7 @@ import { RuntimeAccessReadinessService } from '../../../../runtime/access/Runtim
 import { RuntimeInstallJourneyService } from '../../../../runtime/access/RuntimeInstallJourneyService.js';
 import { RuntimeOfficialRemoteAccessService } from '../../../../runtime/access/RuntimeOfficialRemoteAccessService.js';
 import { RuntimeRemoteAccessService } from '../../../../runtime/access/RuntimeRemoteAccessService.js';
-import type { DashboardAuthService } from '../../../../services/DashboardAuthService.js';
+import type { ZavorthControlAuthService } from '../../../../services/ZavorthControlAuthService.js';
 import { ZavorthGatewayControlSocketService } from '../../../../services/ZavorthGatewayControlSocketService.js';
 import { ZavorthGatewayLauncherService } from '../../../../services/ZavorthGatewayLauncherService.js';
 import { ZavorthGatewayRuntimeService } from '../../../../services/ZavorthGatewayRuntimeService.js';
@@ -81,7 +81,7 @@ import {
 import type { WebAppOperationsState, WebAppRuntimeServiceState } from './WebAppServiceState.js';
 
 type WebAppServiceCompositionOptions = {
-  auth: DashboardAuthService;
+  auth: ZavorthControlAuthService;
   operations: WebAppOperationsState;
   runtimeServices: WebAppRuntimeServiceState;
   getRuntime: () => SharedSurfaceRuntime | null;
@@ -133,7 +133,7 @@ async function handleSatelliteChatSend(
   });
   return {
     text: extractLatestAssistantText(result.snapshot)
-      || 'Pedido recebido pelo runtime. Abra o Dashboard para acompanhar a execucao.',
+      || 'Pedido recebido pelo runtime. Abra o ZavorthControl para acompanhar a execucao.',
     streaming: false,
     artifacts: null,
   };

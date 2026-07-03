@@ -191,7 +191,7 @@ export class ZavorthMcpClient extends EventEmitter {
   }
 
   /**
-   * Get a summary snapshot for the dashboard / observability layer.
+   * Get a summary snapshot for the zavorthControl / observability layer.
    */
   public getSnapshot(): {
     connectedServers: number;

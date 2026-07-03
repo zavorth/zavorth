@@ -85,7 +85,7 @@ export class ZavorthProviderSelectionUxService {
         selectionDoesNotWriteConfig: true,
         liveProbeRequiresExplicitCommand: true,
         rawSecretsSerialized: false,
-        dashboardExecutionAuthority: false,
+        zavorthControlExecutionAuthority: false,
       },
       commands: buildCommands(selected, fallbacks),
       nextAction: buildNextAction(selected, decision),

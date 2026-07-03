@@ -7,6 +7,7 @@ import {
   requestDeviceCode,
   pollForToken,
 } from "@/lib/oauth/providers";
+import type { ZavorthProviderAuthHandler } from "@/lib/oauth/authPlane";
 import {
   createProviderConnection,
   updateProviderConnection,
@@ -26,7 +27,91 @@ import {
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 
+// Shared interfaces for OAuth flow data in this route
+
+interface OAuthTokenData {
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
+  tokenType?: string;
+  scope?: string;
+  name?: string;
+  email?: string;
+  displayName?: string;
+  providerSpecificData?: Record<string, unknown>;
+}
+
+interface OAuthDeviceData {
+  device_code?: string;
+  user_code?: string;
+  verification_uri?: string;
+  verification_uri_complete?: string;
+  expires_in?: number;
+  interval?: number;
+  [key: string]: unknown;
+}
+
+interface OAuthAuthData {
+  authUrl: string | null;
+  state: string;
+  codeVerifier: string;
+  codeChallenge: string;
+  redirectUri: string | null;
+  flowType: string;
+  fixedPort?: number;
+  callbackPath?: string;
+}
+
+interface OAuthPollResult {
+  success: boolean;
+  tokens?: OAuthTokenData;
+  error?: string;
+  errorDescription?: string;
+  pending?: boolean;
+}
+
+interface ProviderConnection {
+  id: string;
+  provider: string;
+  email?: string;
+  displayName?: string;
+  authType?: string;
+  name?: string;
+  providerSpecificData?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+interface CodexCallbackParams {
+  code?: string;
+  state?: string;
+  error?: string;
+  error_description?: string;
+}
+
+interface CodexCallbackState {
+  callbackParams: CodexCallbackParams | null;
+  close: () => void;
+  port: number;
+  redirectUri: string;
+  codeVerifier: string;
+  state: string;
+  startedAt: number;
+}
+
+type OAuthRequestBody = Record<string, unknown> & {
+  code?: string;
+  redirectUri?: string;
+  codeVerifier?: string;
+  state?: string;
+  deviceCode?: string;
+  extraData?: Record<string, unknown>;
+};
+
 // Use globalThis to persist callback server state across Next.js HMR reloads
+declare global {
+  // eslint-disable-next-line no-var
+  var __codexCallbackState: CodexCallbackState | null;
+}
 if (!globalThis.__codexCallbackState) {
   globalThis.__codexCallbackState = null;
 }
@@ -127,15 +212,15 @@ export async function GET(
       const proxy = await resolveProxyForProvider(provider);
 
       // Request device code (through proxy if configured)
-      let deviceData;
+      let deviceData: OAuthDeviceData;
       if (provider === "github" || provider === "kiro" || provider === "kilocode") {
         // GitHub, Kiro, and KiloCode don't use PKCE for device code
-        deviceData = await runWithProxyContext(proxy, () => (requestDeviceCode as any)(provider));
+        deviceData = await runWithProxyContext(proxy, () => requestDeviceCode(provider)) as OAuthDeviceData;
       } else {
         // Qwen and other providers use PKCE
         deviceData = await runWithProxyContext(proxy, () =>
           requestDeviceCode(provider, authData.codeChallenge)
-        );
+        ) as OAuthDeviceData;
       }
 
       return NextResponse.json({
@@ -151,7 +236,7 @@ export async function GET(
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (error) {
     console.log("OAuth GET error:", error);
-    return NextResponse.json({ error: (error as any).message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }
 
@@ -219,7 +304,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
       serverPort: port,
     });
   } catch (error) {
-    return NextResponse.json({ error: (error as any).message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }
 
@@ -234,9 +319,9 @@ export async function POST(
 
   try {
     const { provider, action } = await params;
-    let rawBody: any = {};
+    let rawBody: Record<string, unknown> = {};
     try {
-      rawBody = await request.json();
+      rawBody = await request.json() as Record<string, unknown>;
     } catch {
       if (action !== "poll-callback") {
         return NextResponse.json(
@@ -251,7 +336,7 @@ export async function POST(
       }
     }
 
-    let body: any = rawBody;
+    let body: OAuthRequestBody = rawBody as OAuthRequestBody;
     if (action === "exchange") {
       const validation = validateBody(oauthExchangeSchema, rawBody);
       if (isValidationFailure(validation)) {
@@ -274,7 +359,7 @@ export async function POST(
 
     if (action === "exchange") {
       const { code, redirectUri, codeVerifier, state } = body;
-      const normalizedRedirectUri = normalizeOAuthRedirectUri(redirectUri, request);
+      const normalizedRedirectUri = normalizeOAuthRedirectUri(redirectUri ?? null, request);
       const normalizedState = typeof state === "string" && state.length > 0 ? state : undefined;
       const providerData = getProvider(provider);
 
@@ -314,10 +399,10 @@ export async function POST(
         ? new Date(Date.now() + tokenData.expiresIn * 1000).toISOString()
         : null;
 
-      let connection: any;
+      let connection: ProviderConnection | null = null;
       if (tokenData.email) {
         const existing = await getProviderConnections({ provider });
-        const match = existing.find((c: any) => {
+        const match = existing.find((c: ProviderConnection) => {
           // safeEqual: constant-time comparison to prevent timing attacks (CWE-208, finding #258-6/7)
           if (!safeEqual(c.email, tokenData.email) || c.authType !== "oauth") return false;
           // For Codex, also check workspaceId to avoid overwriting different workspace connections
@@ -368,25 +453,25 @@ export async function POST(
       const proxy = await resolveProxyForProvider(provider);
 
       // Poll for token (through proxy if configured)
-      let result;
+      let result: OAuthPollResult;
       if (provider === "github" || provider === "kimi-coding" || provider === "kilocode") {
         // For providers that don't use PKCE (like GitHub, Kiro, Kimi Coding), don't pass codeVerifier
         result = await runWithProxyContext(proxy, () =>
-          (pollForToken as any)(provider, deviceCode)
-        );
+          pollForToken(provider, deviceCode)
+        ) as OAuthPollResult;
       } else if (provider === "kiro") {
         // Kiro needs extraData (clientId, clientSecret) from device code response
         result = await runWithProxyContext(proxy, () =>
-          (pollForToken as any)(provider, deviceCode, null, extraData)
-        );
+          pollForToken(provider, deviceCode, null, extraData)
+        ) as OAuthPollResult;
       } else {
         // Qwen and other providers use PKCE
         if (!codeVerifier) {
           return NextResponse.json({ error: "Missing code verifier" }, { status: 400 });
         }
         result = await runWithProxyContext(proxy, () =>
-          (pollForToken as any)(provider, deviceCode, codeVerifier)
-        );
+          pollForToken(provider, deviceCode, codeVerifier)
+        ) as OAuthPollResult;
       }
 
       if (result.success) {
@@ -400,10 +485,10 @@ export async function POST(
           ? new Date(Date.now() + result.tokens.expiresIn * 1000).toISOString()
           : null;
 
-        let connection: any;
-        if (result.tokens.email) {
+        let connection: ProviderConnection | null = null;
+        if (result.tokens?.email) {
           const existing = await getProviderConnections({ provider });
-          const match = existing.find((c: any) => {
+          const match = existing.find((c: ProviderConnection) => {
             // safeEqual: constant-time comparison to prevent timing attacks (CWE-208, finding #258-8/9)
             if (!safeEqual(c.email, result.tokens.email) || c.authType !== "oauth") return false;
             // For Codex, also check workspaceId to avoid overwriting different workspace connections
@@ -536,10 +621,10 @@ export async function POST(
           ? new Date(Date.now() + tokenData.expiresIn * 1000).toISOString()
           : null;
 
-        let connection: any;
+        let connection: ProviderConnection | null = null;
         if (tokenData.email) {
           const existing = await getProviderConnections({ provider });
-          const match = existing.find((c: any) => {
+          const match = existing.find((c: ProviderConnection) => {
             // safeEqual: constant-time comparison to prevent timing attacks (CWE-208, finding #258-6/7)
             if (!safeEqual(c.email, tokenData.email) || c.authType !== "oauth") return false;
             // For Codex, also check workspaceId to avoid overwriting different workspace connections
@@ -580,15 +665,15 @@ export async function POST(
             displayName: connection.displayName,
           },
         });
-      } catch (exchangeErr: any) {
-        return NextResponse.json({ success: false, error: exchangeErr.message }, { status: 500 });
+      } catch (exchangeErr: unknown) {
+        return NextResponse.json({ success: false, error: exchangeErr instanceof Error ? exchangeErr.message : "Unknown exchange error" }, { status: 500 });
       }
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (error) {
     console.log("OAuth POST error:", error);
-    return NextResponse.json({ error: (error as any).message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }
 

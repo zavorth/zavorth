@@ -1,5 +1,5 @@
-import type { ZavorthDashboardExperienceHomeSnapshot } from '../contracts/ZavorthDashboardExperienceHomeContract.js';
-import { ZavorthDashboardExperienceHomeService } from './ZavorthDashboardExperienceHomeService.js';
+import type { ZavorthZavorthControlExperienceHomeSnapshot } from '../contracts/ZavorthZavorthControlExperienceHomeContract.js';
+import { ZavorthZavorthControlExperienceHomeService } from './ZavorthZavorthControlExperienceHomeService.js';
 import { ZavorthDailyUseScenarioTestService, type ZavorthDailyUseScenarioTestSnapshot } from './ZavorthDailyUseScenarioTestService.js';
 import { ZavorthReadyToGoService, type ZavorthReadyToGoSnapshot, type ZavorthReadyToGoStatus } from './ZavorthReadyToGoService.js';
 import { ZavorthTrustApprovalUxFinalService, type ZavorthTrustApprovalUxFinalSnapshot } from './ZavorthTrustApprovalUxFinalService.js';
@@ -18,7 +18,7 @@ export type ZavorthOneCommandOperatorCheckInput = {
 };
 
 export type ZavorthOneCommandOperatorCheckArea = {
-  id: 'ready-to-go' | 'daily-use' | 'dashboard-permissions' | 'trust-approvals' | 'operator-safety';
+  id: 'ready-to-go' | 'daily-use' | 'zavorthControl-permissions' | 'trust-approvals' | 'operator-safety';
   label: string;
   status: ZavorthOneCommandOperatorCheckStatus;
   summary: string;
@@ -52,7 +52,7 @@ export type ZavorthOneCommandOperatorCheckSnapshot = {
     json: 'zavorth operator-check --json';
     strict: 'zavorth operator-check --strict';
     live: 'zavorth operator-check --live';
-    dashboard: '/dashboard';
+    zavorthControl: '/zavorthControl';
     trust: 'zavorth trust';
     ready: 'zavorth ready';
   };
@@ -62,27 +62,27 @@ export type ZavorthOneCommandOperatorCheckSnapshot = {
     noLiveTransactionExecution: true;
     noRawSecretsSerialized: true;
     liveProviderProbeOnlyWhenRequested: boolean;
-    dashboardCanExecuteTargetAction: false;
+    zavorthControlCanExecuteTargetAction: false;
     approvalsRemainGatewayMediated: true;
   };
   source: {
     readyToGo: Pick<ZavorthReadyToGoSnapshot, 'generatedAt' | 'status' | 'remoteReady' | 'localReady' | 'summary'>;
     dailyUse: Pick<ZavorthDailyUseScenarioTestSnapshot, 'generatedAt' | 'status' | 'summary'>;
-    dashboard: Pick<ZavorthDashboardExperienceHomeSnapshot, 'generatedAt' | 'surface' | 'permissionPanel' | 'safety'>;
+    zavorthControl: Pick<ZavorthZavorthControlExperienceHomeSnapshot, 'generatedAt' | 'surface' | 'permissionPanel' | 'safety'>;
     trust: Pick<ZavorthTrustApprovalUxFinalSnapshot, 'generatedAt' | 'status' | 'summary' | 'safety'>;
   };
 };
 
 type ReadyToGoLike = Pick<ZavorthReadyToGoService, 'buildSnapshot'>;
 type DailyUseLike = Pick<ZavorthDailyUseScenarioTestService, 'buildSnapshot'>;
-type DashboardLike = Pick<ZavorthDashboardExperienceHomeService, 'buildSnapshot'>;
+type ZavorthControlLike = Pick<ZavorthZavorthControlExperienceHomeService, 'buildSnapshot'>;
 type TrustLike = Pick<ZavorthTrustApprovalUxFinalService, 'buildSnapshot'>;
 
 export type ZavorthOneCommandOperatorCheckRuntime = {
   now?: () => Date;
   readyToGo?: ReadyToGoLike;
   dailyUse?: DailyUseLike;
-  dashboard?: DashboardLike;
+  zavorthControl?: ZavorthControlLike;
   trust?: TrustLike;
 };
 
@@ -90,20 +90,20 @@ export class ZavorthOneCommandOperatorCheckService {
   private readonly now: () => Date;
   private readonly readyToGo: ReadyToGoLike;
   private readonly dailyUse: DailyUseLike;
-  private readonly dashboard: DashboardLike;
+  private readonly zavorthControl: ZavorthControlLike;
   private readonly trust: TrustLike;
 
   public constructor(runtime: ZavorthOneCommandOperatorCheckRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.readyToGo = runtime.readyToGo || new ZavorthReadyToGoService({ now: this.now });
     this.dailyUse = runtime.dailyUse || new ZavorthDailyUseScenarioTestService({ now: this.now });
-    this.dashboard = runtime.dashboard || new ZavorthDashboardExperienceHomeService({ now: this.now });
+    this.zavorthControl = runtime.zavorthControl || new ZavorthZavorthControlExperienceHomeService({ now: this.now });
     this.trust = runtime.trust || new ZavorthTrustApprovalUxFinalService({ now: this.now });
   }
 
   public async buildSnapshot(input: ZavorthOneCommandOperatorCheckInput = {}): Promise<ZavorthOneCommandOperatorCheckSnapshot> {
     const live = input.live === true;
-    const [readyToGo, dailyUse, dashboard, trust] = await Promise.all([
+    const [readyToGo, dailyUse, zavorthControl, trust] = await Promise.all([
       this.readyToGo.buildSnapshot({
         refreshProviders: live,
         includeAdvancedProviders: false,
@@ -112,16 +112,16 @@ export class ZavorthOneCommandOperatorCheckService {
         workspaceHint: input.workspaceHint || process.cwd(),
       }),
       this.dailyUse.buildSnapshot(),
-      Promise.resolve(this.dashboard.buildSnapshot()),
+      Promise.resolve(this.zavorthControl.buildSnapshot()),
       Promise.resolve(this.trust.buildSnapshot({ limit: 8 })),
     ]);
 
     const areas = [
       buildReadyToGoArea(readyToGo, live),
       buildDailyUseArea(dailyUse),
-      buildDashboardPermissionArea(dashboard),
+      buildZavorthControlPermissionArea(zavorthControl),
       buildTrustArea(trust),
-      buildSafetyArea({ readyToGo, dailyUse, dashboard, trust, live }),
+      buildSafetyArea({ readyToGo, dailyUse, zavorthControl, trust, live }),
     ];
     const summary = {
       areas: areas.length,
@@ -157,7 +157,7 @@ export class ZavorthOneCommandOperatorCheckService {
         json: 'zavorth operator-check --json',
         strict: 'zavorth operator-check --strict',
         live: 'zavorth operator-check --live',
-        dashboard: '/dashboard',
+        zavorthControl: '/zavorthControl',
         trust: 'zavorth trust',
         ready: 'zavorth ready',
       },
@@ -167,7 +167,7 @@ export class ZavorthOneCommandOperatorCheckService {
         noLiveTransactionExecution: true,
         noRawSecretsSerialized: true,
         liveProviderProbeOnlyWhenRequested: !live || input.live === true,
-        dashboardCanExecuteTargetAction: false,
+        zavorthControlCanExecuteTargetAction: false,
         approvalsRemainGatewayMediated: true,
       },
       source: {
@@ -183,11 +183,11 @@ export class ZavorthOneCommandOperatorCheckService {
           status: dailyUse.status,
           summary: dailyUse.summary,
         },
-        dashboard: {
-          generatedAt: dashboard.generatedAt,
-          surface: dashboard.surface,
-          permissionPanel: dashboard.permissionPanel,
-          safety: dashboard.safety,
+        zavorthControl: {
+          generatedAt: zavorthControl.generatedAt,
+          surface: zavorthControl.surface,
+          permissionPanel: zavorthControl.permissionPanel,
+          safety: zavorthControl.safety,
         },
         trust: {
           generatedAt: trust.generatedAt,
@@ -218,7 +218,7 @@ export class ZavorthOneCommandOperatorCheckService {
       ...areaLines,
       '',
       'Comandos uteis',
-      `- Dashboard: ${snapshot.commands.dashboard}`,
+      `- ZavorthControl: ${snapshot.commands.zavorthControl}`,
       `- Trust: ${snapshot.commands.trust}`,
       `- Ready: ${snapshot.commands.ready}`,
       `- JSON: ${snapshot.commands.json}`,
@@ -235,7 +235,7 @@ function buildReadyToGoArea(snapshot: ZavorthReadyToGoSnapshot, live: boolean): 
     id: 'ready-to-go',
     label: 'Ready To Go',
     status: mapReadyToGoStatus(snapshot.status),
-    summary: `${snapshot.actions.primary} Provider default=${snapshot.summary.providerDefaultRoutes}; Telegram=${snapshot.channels.telegram}; Dashboard=${snapshot.channels.dashboard}.`,
+    summary: `${snapshot.actions.primary} Provider default=${snapshot.summary.providerDefaultRoutes}; Telegram=${snapshot.channels.telegram}; ZavorthControl=${snapshot.channels.zavorthControl}.`,
     evidence: [
       `remoteReady=${snapshot.remoteReady}`,
       `localReady=${snapshot.localReady}`,
@@ -256,27 +256,27 @@ function buildDailyUseArea(snapshot: ZavorthDailyUseScenarioTestSnapshot): Zavor
   };
 }
 
-function buildDashboardPermissionArea(snapshot: ZavorthDashboardExperienceHomeSnapshot): ZavorthOneCommandOperatorCheckArea {
+function buildZavorthControlPermissionArea(snapshot: ZavorthZavorthControlExperienceHomeSnapshot): ZavorthOneCommandOperatorCheckArea {
   const permissionPanel = snapshot.permissionPanel;
   const itemIds = Array.isArray(permissionPanel?.items)
     ? permissionPanel.items.map((item) => item.id)
     : [];
   const complete = ['permissions', 'auto-approvals', 'extreme-mode', 'revoke', 'receipts']
     .every((item) => itemIds.includes(item as any));
-  const dashboardCanExecute = snapshot.safety?.dashboardCanExecuteTargetAction === false ? false : true;
+  const zavorthControlCanExecute = snapshot.safety?.zavorthControlCanExecuteTargetAction === false ? false : true;
   return {
-    id: 'dashboard-permissions',
-    label: 'Dashboard Permissions',
-    status: complete && dashboardCanExecute === false ? 'ready' : 'blocked',
+    id: 'zavorthControl-permissions',
+    label: 'ZavorthControl Permissions',
+    status: complete && zavorthControlCanExecute === false ? 'ready' : 'blocked',
     summary: complete
-      ? 'Dashboard expoe permissoes, auto-aprovacoes, modo extremo, revogacao e receipts sem autoridade direta.'
-      : 'Dashboard ainda nao expoe todas as areas de permissao pedidas.',
+      ? 'ZavorthControl expoe permissoes, auto-aprovacoes, modo extremo, revogacao e receipts sem autoridade direta.'
+      : 'ZavorthControl ainda nao expoe todas as areas de permissao pedidas.',
     evidence: [
       `items=${itemIds.join(',')}`,
-      `dashboardCanExecute=${dashboardCanExecute}`,
+      `zavorthControlCanExecute=${zavorthControlCanExecute}`,
       permissionPanel?.defaultPosture || 'permissionPanel=missing',
     ],
-    nextAction: complete ? '/dashboard' : 'Rodar zavorth dashboard-home e corrigir projection de permissoes.',
+    nextAction: complete ? '/zavorthControl' : 'Rodar zavorth zavorthControl-home e corrigir projection de permissoes.',
   };
 }
 
@@ -299,13 +299,13 @@ function buildTrustArea(snapshot: ZavorthTrustApprovalUxFinalSnapshot): ZavorthO
 function buildSafetyArea(input: {
   readyToGo: ZavorthReadyToGoSnapshot;
   dailyUse: ZavorthDailyUseScenarioTestSnapshot;
-  dashboard: ZavorthDashboardExperienceHomeSnapshot;
+  zavorthControl: ZavorthZavorthControlExperienceHomeSnapshot;
   trust: ZavorthTrustApprovalUxFinalSnapshot;
   live: boolean;
 }): ZavorthOneCommandOperatorCheckArea {
   const ok = input.readyToGo.safety.noRawSecretsSerialized
     && input.dailyUse.safety.noFileContentExfiltration
-    && input.dashboard.safety.rawSecretsSerialized === false
+    && input.zavorthControl.safety.rawSecretsSerialized === false
     && input.trust.safety.rawSecretsSerialized === false
     && input.trust.safety.naturalLanguageCanRequestApprovalButNotBypass;
   return {
@@ -336,7 +336,7 @@ function mapScenarioStatus(status: ZavorthDailyUseScenarioTestSnapshot['status']
 }
 
 function buildHeadline(status: ZavorthOneCommandOperatorCheckStatus, readyToGo: ZavorthReadyToGoSnapshot): string {
-  if (status === 'ready') return 'Tudo pronto para operar: local, remoto, trust e dashboard estao coerentes.';
+  if (status === 'ready') return 'Tudo pronto para operar: local, remoto, trust e zavorthControl estao coerentes.';
   if (status === 'attention') return 'Zavorth esta utilizavel, mas ha avisos que merecem revisao antes de depender remoto.';
   return readyToGo.actions.primary;
 }

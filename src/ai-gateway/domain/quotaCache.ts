@@ -3,7 +3,7 @@
  *
  * In-memory cache of provider quota data per connectionId.
  * Populated by:
- *   - Dashboard usage endpoint (GET /api/usage/[connectionId])
+ *   - ZavorthControl usage endpoint (GET /api/usage/[connectionId])
  *   - 429 responses marking account as exhausted
  *
  * Background refresh runs every 1 minute:
@@ -391,7 +391,7 @@ export function stopBackgroundRefresh() {
 }
 
 /**
- * Get cache stats (for debugging/dashboard).
+ * Get cache stats (for debugging/zavorthControl).
  */
 export function getQuotaCacheStats() {
   const entries: Array<{

@@ -6,6 +6,20 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const nextConfig = {
   reactStrictMode: true,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  async redirects() {
+    return [
+      {
+        source: '/zavorthControl',
+        destination: '/control',
+        permanent: true,
+      },
+      {
+        source: '/zavorthControl/:path*',
+        destination: '/control/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

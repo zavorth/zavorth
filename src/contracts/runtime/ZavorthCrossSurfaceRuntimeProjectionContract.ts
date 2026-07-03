@@ -25,7 +25,7 @@ export type ZavorthCrossSurfaceInteractionMode =
   | 'menu'
   | 'table'
   | 'json'
-  | 'dashboard_projection';
+  | 'zavorthControl_projection';
 
 export type ZavorthCrossSurfaceProjectionTone =
   | 'neutral'
@@ -96,7 +96,7 @@ export type ZavorthCrossSurfaceApiProjection = {
   };
 };
 
-export type ZavorthDashboardRuntimeProjection = {
+export type ZavorthZavorthControlRuntimeProjection = {
   projectionId: string;
   title: string;
   statusPill: ZavorthToolOrchestrationVerificationStatus;
@@ -106,7 +106,7 @@ export type ZavorthDashboardRuntimeProjection = {
   safeViewModelOnly: true;
 };
 
-export type ZavorthControlRuntimeProjection = ZavorthDashboardRuntimeProjection;
+export type ZavorthControlRuntimeProjection = ZavorthZavorthControlRuntimeProjection;
 
 export type ZavorthCrossSurfaceProjectionReceipt = {
   id: string;
@@ -115,7 +115,7 @@ export type ZavorthCrossSurfaceProjectionReceipt = {
     | 'surface-card'
     | 'channel-fallback'
     | 'api-projection'
-    | 'dashboard-view-model'
+    | 'zavorthControl-view-model'
     | 'visual-change-boundary';
   surface: ZavorthCrossSurfaceProjectionSurface | 'all';
   status: 'recorded' | 'requires-verification' | 'requires-approval' | 'blocked';
@@ -125,8 +125,8 @@ export type ZavorthCrossSurfaceProjectionReceipt = {
 export type ZavorthCrossSurfaceProjectionSafety = {
   noZavorthControlVisualMutation: true;
   zavorthControlIsViewModelOnly: true;
-  noDashboardVisualMutation: true;
-  dashboardIsViewModelOnly: true;
+  noZavorthControlVisualMutation: true;
+  zavorthControlIsViewModelOnly: true;
   noLiveActionExecuted: true;
   sameSemanticsAcrossSurfaces: true;
   telegramNotPrivileged: true;
@@ -150,7 +150,7 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
   surfaceCards: ZavorthCrossSurfaceProjectionCard[];
   apiProjection: ZavorthCrossSurfaceApiProjection;
   zavorthControlProjection: ZavorthControlRuntimeProjection;
-  dashboardProjection: ZavorthDashboardRuntimeProjection;
+  zavorthControlProjection: ZavorthZavorthControlRuntimeProjection;
   channelFallbacks: Record<ZavorthCrossSurfaceProjectionSurface, string>;
   receipts: ZavorthCrossSurfaceProjectionReceipt[];
   safety: ZavorthCrossSurfaceProjectionSafety;
@@ -161,7 +161,7 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
     actionCount: number;
     approvalActions: number;
     disabledActions: number;
-    dashboardVisualMutation: false;
+    zavorthControlVisualMutation: false;
   };
   commands: {
     report: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --text "<request>"';

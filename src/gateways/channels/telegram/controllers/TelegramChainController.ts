@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { CommandParser } from '../../../../gateways/channels/telegram/CommandParser.js';
 import { MemoryService } from '../../../../services/MemoryService.js';
@@ -46,7 +45,7 @@ export class TelegramChainController {
       '/model',
       '/wsl',
       '/audit',
-      '/dashboard',
+      '/zavorthControl',
     ]);
 
     if (segments.length > maxChainSegments) {
@@ -87,7 +86,7 @@ export class TelegramChainController {
         return { message_id: 0, text: message, options };
       };
       (chainedCtx as any).replyWithDocument = async (_file: unknown, extra?: Record<string, unknown>) => {
-        const summary = extra?.caption || '[documento enviado]';
+        const summary = String(extra?.caption || '[documento enviado]');
         capturedOutputs.push(summary);
         return { message_id: 0, caption: summary };
       };
@@ -112,7 +111,7 @@ export class TelegramChainController {
           }`,
         );
       } catch (error: unknown) {
-        summaries.push(`Passo ${i + 1}: ${segments[i]}\nFalhou: ${error?.message || error}`);
+        summaries.push(`Passo ${i + 1}: ${segments[i]}\nFalhou: ${error instanceof Error ? error.message : String(error)}`);
         previousOutput = '';
       }
     }
@@ -214,7 +213,7 @@ export class TelegramChainController {
       return input;
     }
 
-    const replacements = await Promise.all(matches.map((match) => replacer(match[0], match[1])));
+    const replacements = await Promise.all(matches.map((match) => replacer(match[0], match[1] ?? '')));
     let result = input;
     matches.forEach((match, index) => {
       result = result.replace(match[0], replacements[index]);

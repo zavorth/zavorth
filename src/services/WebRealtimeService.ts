@@ -13,6 +13,8 @@ import {
   type GatewaySessionPermissionSnapshot,
   type GatewaySessionTaskSnapshot,
   type GatewaySessionSnapshot,
+  type TaskManagerLike,
+  type PermissionServiceLike,
 } from '../runtime/sessions/GatewaySessionService.js';
 import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
 import { GatewaySessionStoreService } from '../runtime/sessions/GatewaySessionStoreService.js';
@@ -109,8 +111,8 @@ export class WebRealtimeService {
       runtime.sessionReadModelService ||
       new GatewaySessionReadModelService(
         new GatewaySessionService({
-          taskManager: this.taskManager as any,
-          permissionService: this.permissionService as any,
+          taskManager: this.taskManager as TaskManagerLike,
+          permissionService: this.permissionService as PermissionServiceLike,
           workflowRunService: workflowRuns,
         }),
         {
@@ -756,7 +758,7 @@ export class WebRealtimeService {
       status: run.status,
       phases: Array.isArray(run.phases) ? run.phases : [],
       resume_stage: run.resume_stage || null,
-      actionable_stages: Array.isArray((run as any).actionable_stages) ? (run as any).actionable_stages : [],
+      actionable_stages: Array.isArray(run.actionable_stages) ? run.actionable_stages : [],
       resume_prompt: run.resume_prompt || null,
       artifacts: Array.isArray(run.artifacts) ? run.artifacts : [],
       artifacts_manifest: run.artifacts_manifest || null,

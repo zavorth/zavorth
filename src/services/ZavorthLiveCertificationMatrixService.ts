@@ -16,7 +16,7 @@ import { ZavorthSubagentSkillLiveCompletionService } from './ZavorthSubagentSkil
 
 type Runtime = {
   now?: () => Date;
-  dashboard?: Pick<ZavorthControlFinalProductPolishService, 'buildSnapshot'>;
+  zavorthControl?: Pick<ZavorthControlFinalProductPolishService, 'buildSnapshot'>;
   cli?: Pick<ZavorthCliFinalProductPolishService, 'buildSnapshot'>;
   missionFlow?: Pick<ZavorthEndToEndMissionFlowPublicRuntimeCertificationService, 'buildSnapshot'>;
   liveReadiness?: Pick<ZavorthLiveReadinessEvidenceProofPackService, 'buildSnapshot'>;
@@ -27,7 +27,7 @@ type Runtime = {
 
 export class ZavorthLiveCertificationMatrixService {
   private readonly now: () => Date;
-  private readonly dashboard: Pick<ZavorthControlFinalProductPolishService, 'buildSnapshot'>;
+  private readonly zavorthControl: Pick<ZavorthControlFinalProductPolishService, 'buildSnapshot'>;
   private readonly cli: Pick<ZavorthCliFinalProductPolishService, 'buildSnapshot'>;
   private readonly missionFlow: Pick<ZavorthEndToEndMissionFlowPublicRuntimeCertificationService, 'buildSnapshot'>;
   private readonly liveReadiness: Pick<ZavorthLiveReadinessEvidenceProofPackService, 'buildSnapshot'>;
@@ -37,7 +37,7 @@ export class ZavorthLiveCertificationMatrixService {
 
   public constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.dashboard = runtime.dashboard || new ZavorthControlFinalProductPolishService({ now: this.now });
+    this.zavorthControl = runtime.zavorthControl || new ZavorthControlFinalProductPolishService({ now: this.now });
     this.cli = runtime.cli || new ZavorthCliFinalProductPolishService({ now: this.now });
     this.missionFlow = runtime.missionFlow || new ZavorthEndToEndMissionFlowPublicRuntimeCertificationService({ now: this.now });
     this.liveReadiness = runtime.liveReadiness || new ZavorthLiveReadinessEvidenceProofPackService({ now: this.now });
@@ -49,12 +49,12 @@ export class ZavorthLiveCertificationMatrixService {
   public async buildSnapshot(): Promise<ZavorthLiveCertificationMatrixSnapshot> {
     const generatedAt = this.now().toISOString();
     const [
-      dashboard,
+      zavorthControl,
       cli,
       missionFlow,
       liveReadiness,
     ] = await Promise.all([
-      Promise.resolve(this.dashboard.buildSnapshot()),
+      Promise.resolve(this.zavorthControl.buildSnapshot()),
       Promise.resolve(this.cli.buildSnapshot()),
       this.missionFlow.buildSnapshot({ sessionId: 'checkpoint-13-live-certification-matrix' }),
       this.liveReadiness.buildSnapshot({ includeAdvanced: true }),
@@ -67,7 +67,7 @@ export class ZavorthLiveCertificationMatrixService {
       sourceSurface: 'certification',
     });
     const matrix = buildMatrix({
-      dashboard,
+      zavorthControl,
       cli,
       missionFlow,
       liveReadiness,
@@ -94,7 +94,7 @@ export class ZavorthLiveCertificationMatrixService {
         scheduledTasksCannotCreateScheduledTasks: true,
         subagentSpawnDepthLimited: true,
         skillsAreInstructionsOnlyByDefault: true,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         cliCanExecuteMutations: false,
         rawSecretsSerialized: false,
       },
@@ -134,7 +134,7 @@ export class ZavorthLiveCertificationMatrixService {
 }
 
 function buildMatrix(input: {
-  dashboard: Awaited<ReturnType<ZavorthControlFinalProductPolishService['buildSnapshot']>>;
+  zavorthControl: Awaited<ReturnType<ZavorthControlFinalProductPolishService['buildSnapshot']>>;
   cli: Awaited<ReturnType<ZavorthCliFinalProductPolishService['buildSnapshot']>>;
   missionFlow: Awaited<ReturnType<ZavorthEndToEndMissionFlowPublicRuntimeCertificationService['buildSnapshot']>>;
   liveReadiness: Awaited<ReturnType<ZavorthLiveReadinessEvidenceProofPackService['buildSnapshot']>>;
@@ -154,15 +154,15 @@ function buildMatrix(input: {
     : telegram ? 'needs_setup' : 'unsupported';
 
   return [
-    item('dashboard', 'Dashboard gateway', 'surface', input.dashboard.status === 'passed' ? 'dry_run_passed' : 'blocked', true, true, [
-      `path=${input.dashboard.summary.zavorthControlPath}`,
-      `chatFirst=${input.dashboard.summary.chatFirstHome}`,
-      `displayOnly=${input.dashboard.safety.zavorthControlIsDisplayOnly}`,
+    item('zavorthControl', 'ZavorthControl gateway', 'surface', input.zavorthControl.status === 'passed' ? 'dry_run_passed' : 'blocked', true, true, [
+      `path=${input.zavorthControl.summary.zavorthControlPath}`,
+      `chatFirst=${input.zavorthControl.summary.chatFirstHome}`,
+      `displayOnly=${input.zavorthControl.safety.zavorthControlIsDisplayOnly}`,
     ], null),
     item('cli', 'CLI daily-use surface', 'surface', input.cli.status === 'passed' ? 'dry_run_passed' : 'blocked', true, true, [
       `commands=${input.cli.summary.requiredCommands.length}`,
       `inkRendersOnce=${input.cli.summary.inkPreviewRendersOnce}`,
-      `dashboardPath=${input.cli.summary.dashboardPath}`,
+      `zavorthControlPath=${input.cli.summary.zavorthControlPath}`,
     ], null),
     item('telegram', 'Telegram channel', 'channel', telegramStatus, false, true, [
       `readiness=${telegram?.readiness || 'unknown'}`,
@@ -296,7 +296,7 @@ function summarize(
     abuseCases: abuseCases.length,
     abuseCasesControlled: abuseCases.filter((entry) =>
       entry.status === entry.expectedDisposition).length,
-    dashboardCertified: hasNonFailure('dashboard'),
+    zavorthControlCertified: hasNonFailure('zavorthControl'),
     cliCertified: hasNonFailure('cli'),
     providerP0Certified: hasNonFailure('providers-p0'),
     channelMeshCertified: hasNonFailure('channels'),

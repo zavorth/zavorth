@@ -1,6 +1,7 @@
 import { getDbInstance } from "@/lib/db/core";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { redactExportedLogRows } from "@/lib/logExportRedaction";
+import { safeParseIntBounded } from "@/shared/utils/safeParseInt";
 
 /**
  * GET /api/logs/export — export logs as JSON
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const hours = Math.min(Math.max(parseInt(searchParams.get("hours") || "24") || 24, 1), 168);
+    const hours = safeParseIntBounded(searchParams.get("hours"), 24, 1, 168);
     const logType = searchParams.get("type") || "call-logs";
 
     const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();

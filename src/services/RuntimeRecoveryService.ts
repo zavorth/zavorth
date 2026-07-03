@@ -35,7 +35,7 @@ export class RuntimeRecoveryService {
 
     const readonlyReady =
       readiness.runtime.telegramWorker.alive
-      && (readiness.runtime.hostSupervisor.alive || readiness.runtime.dashboard?.active === true)
+      && (readiness.runtime.hostSupervisor.alive || readiness.runtime.zavorthControl?.active === true)
       && !readiness.local.issues.some((issue) => {
         const normalized = String(issue || '').trim().toLowerCase();
         return normalized.startsWith('o host supervisor nao esta ativo')

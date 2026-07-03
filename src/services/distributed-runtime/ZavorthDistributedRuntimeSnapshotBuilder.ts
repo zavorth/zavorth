@@ -177,38 +177,123 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
     return lines.join('\n');
   }
 
-  public buildFallbackManifest(): any {
+  public buildFallbackManifest(): RuntimeAccessManifest {
     return {
       generatedAt: this.deps.now().toISOString(),
+      summary: 'Manifest unavailable; using minimal fallback.',
+      local: {
+        ready: false,
+        baseUrl: '',
+        appUrl: '',
+        zavorthControlUrl: '',
+        apiBaseUrl: '',
+        controlUrl: '',
+        legacyAppUrl: null,
+        classicUrl: null,
+      },
       remote: {
         ready: false,
+        baseUrl: null,
+        appUrl: null,
+        requiresHttps: false,
+        controlUrl: null,
+        legacyAppUrl: null,
+        classicUrl: null,
+      },
+      auth: {
+        required: false,
+        source: 'missing',
+        tokenFile: '',
+        authorizedHost: null,
+      },
+      officialRemote: {
+        ready: false,
+        summary: 'Official remote access not available.',
+        recommendedProvider: null,
+        recommendedAction: null,
+        appUrl: null,
+        baseUrl: null,
+        issues: [],
+        nextSteps: [],
+        command: '',
       },
       commands: {
         go: 'npm run ops:go',
         remoteGo: 'npm run ops:remote:go',
+        install: '',
+        launcher: '',
+        startupLauncher: '',
+        startupLauncherRemove: '',
+        bootstrap: '',
+        journey: '',
+        channels: '',
+        ready: '',
+        start: '',
+        access: '',
+        remote: '',
+        manifest: '',
+        trust: '',
       },
+      launchers: [],
+      journey: [],
       surfaces: [
         {
           id: 'control',
-          label: 'Dashboard',
+          label: 'ZavorthControl',
           surface: 'web',
           primary: true,
           ready: false,
-          entry: 'http://127.0.0.1:33333/dashboard',
+          entry: 'http://127.0.0.1:33333/zavorthControl',
           remoteEntry: null,
-          description: 'Manifesto indisponivel; superficie padrao ainda nao foi confirmada.',
+          description: 'Manifest unavailable; default surface not yet confirmed.',
         },
       ],
-      warnings: ['Manifesto de acesso indisponivel no momento.'],
+      guides: {
+        local: [],
+        remote: [],
+      },
+      legacyContainment: {
+        contractVersion: 'legacy-surface-containment-v1',
+        canonicalEntry: '/zavorthControl',
+        frozenSurfaces: [],
+        retiredSurfaces: ['/app', '/classic'],
+        generatedAt: this.deps.now().toISOString(),
+        summary: 'Legacy containment active with canonical /zavorthControl entry.',
+        consolidation: {
+          phase: 'P3-003',
+          canonicalDocs: [],
+          rule: 'All legacy features redirected to gateway contract, control plane, or zavorthControl.',
+        },
+        surfaces: [],
+        policy: {
+          productFeaturesMustLandIn: ['gateway contract', 'control plane', 'zavorthControl'],
+          legacyFeatureFreeze: false,
+          legacyRoutesRetired: true,
+          compatibilityPreserved: false,
+          fallbackPreserved: false,
+        },
+        links: {
+          localControlUrl: '',
+          localZavorthControlUrl: '',
+          localLegacyAppUrl: null,
+          localClassicUrl: null,
+          remoteControlUrl: null,
+          remoteZavorthControlUrl: null,
+          remoteLegacyAppUrl: null,
+          remoteClassicUrl: null,
+        },
+      },
+      warnings: ['Access manifest unavailable at the moment.'],
+      nextSteps: [],
     };
   }
 
   private buildCards(input: {
-    channels: any;
-    nodes: any;
-    transports: any;
-    manifest: any;
-    advancedChannels: any[];
+    channels: ChannelMeshSnapshot;
+    nodes: NodeMeshSnapshot;
+    transports: ZavorthRemoteTransportSnapshot;
+    manifest: RuntimeAccessManifest;
+    advancedChannels: ChannelMeshSnapshot['entries'];
     fleetCapabilities: ZavorthDistributedRuntimeCapabilityCoverage[];
   }): ZavorthDistributedRuntimeCard[] {
     const channelPosture = this.resolveChannelPosture(input.channels, input.advancedChannels);
@@ -266,11 +351,11 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
   }
 
   private buildActions(input: {
-    channels: any;
-    nodes: any;
-    transports: any;
-    manifest: any;
-    advancedChannels: any[];
+    channels: ChannelMeshSnapshot;
+    nodes: NodeMeshSnapshot;
+    transports: ZavorthRemoteTransportSnapshot;
+    manifest: RuntimeAccessManifest;
+    advancedChannels: ChannelMeshSnapshot['entries'];
     fleetCapabilities: ZavorthDistributedRuntimeCapabilityCoverage[];
     focus: ZavorthDistributedRuntimeFocus;
   }): Array<{
@@ -508,7 +593,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
   }
 
   private resolveFleetPosture(
-    nodes: any,
+    nodes: NodeMeshSnapshot,
     fleetCapabilities: ZavorthDistributedRuntimeCapabilityCoverage[],
   ): ZavorthDistributedRuntimePosture {
     const total = Number(nodes?.summary?.total || 0) || 0;

@@ -5,6 +5,39 @@ import type { MessageTransportKind } from '../contracts/IMessageBroker.js';
 import type { TenantContext } from '../contracts/TenantContext.js';
 import type { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';
 import type { EchoOutputStageService } from './EchoOutputStageService.js';
+
+// Task object returned by the task manager
+export type SurfaceTask = {
+  id: string;
+  status: string;
+  title?: string;
+  chatId?: string;
+  [key: string]: unknown;
+};
+
+// Parsed message result from the parser
+export type ParsedSurfaceMessage = {
+  type: string;
+  intent?: string;
+  [key: string]: unknown;
+};
+
+// Context passed to surface controllers
+export type SurfaceControllerContext = {
+  userId?: string;
+  chatId?: string;
+  platform?: MessageChannel;
+  tenant?: TenantContext | null;
+  [key: string]: unknown;
+};
+
+// Workflow run service contract
+export type WorkflowRunServiceLike = {
+  startRun?(input: unknown): Promise<unknown>;
+  getRun?(runId: string): Promise<unknown>;
+  [key: string]: unknown;
+};
+
 export type PermissionServiceLike = {
   listRequests(
     status?: 'pending' | 'approved' | 'rejected' | 'expired' | 'all',
@@ -13,30 +46,30 @@ export type PermissionServiceLike = {
 };
 
 export type TaskManagerLike = {
-  getRecentTasks?(limit?: number, userId?: string): any[];
-  getRecentTasksByChat(chatId: string, limit?: number): any[];
-  getTask(taskId: string): any;
+  getRecentTasks?(limit?: number, userId?: string): SurfaceTask[];
+  getRecentTasksByChat(chatId: string, limit?: number): SurfaceTask[];
+  getTask(taskId: string): SurfaceTask;
 };
 
 export type ParserLike = {
-  parse(rawMessage: string): any;
+  parse(rawMessage: string): ParsedSurfaceMessage;
 };
 
 export type TaskOrchestrationControllerLike = {
-  handleTaskMessage(ctx: any, input: any): Promise<any>;
+  handleTaskMessage(ctx: SurfaceControllerContext, input: ParsedSurfaceMessage): Promise<SurfaceTask>;
 };
 
 export type PermissionControllerLike = {
   resolvePermissionReference(ref: string): Promise<PermissionRequest>;
   shortPermissionId(permission: PermissionRequest): string;
-  handlePermissionCallback(ctx: any, data: string): Promise<void>;
-  handleApproval(ctx: any, args: string): Promise<void>;
-  handleRejection(ctx: any, taskId: string): Promise<void>;
+  handlePermissionCallback(ctx: SurfaceControllerContext, data: string): Promise<void>;
+  handleApproval(ctx: SurfaceControllerContext, args: string): Promise<void>;
+  handleRejection(ctx: SurfaceControllerContext, taskId: string): Promise<void>;
   formatPermissionCreatedMessage(permission: PermissionRequest): string;
 };
 
 export type WorkflowControllerLike = {
-  handleWorkflow(ctx: any, args: string): Promise<void>;
+  handleWorkflow(ctx: SurfaceControllerContext, args: string): Promise<void>;
 };
 
 export type HostIdentityServiceLike = {
@@ -54,7 +87,7 @@ export type HostIdentityServiceLike = {
 };
 
 export type SurfaceTaskDispatchInput = {
-  ctx: any;
+  ctx: SurfaceControllerContext;
   platform: MessageChannel;
   chatId: string;
   text: string;
@@ -65,7 +98,7 @@ export type SurfaceTaskDispatchInput = {
   threadId?: string | null;
   chatHint?: string | null;
   mentions?: WebComposerMention[];
-  composerPayload?: Record<string, any> | null;
+  composerPayload?: Record<string, unknown> | null;
   identity?: {
     linkedBy?: string | null;
     verificationMethod?: string | null;
@@ -80,8 +113,8 @@ export type SurfaceTaskDispatchInput = {
 };
 
 export type SurfaceTaskDispatchResult = {
-  task: any;
-  parsed: any;
+  task: SurfaceTask;
+  parsed: ParsedSurfaceMessage;
   runtimeUserId: string;
   sourceUserId: string;
   tenantId: string | null;
@@ -95,7 +128,7 @@ export type SurfaceTaskDispatcherLike = {
 export type SharedSurfaceRuntime = {
   permissionService: PermissionServiceLike;
   taskManager: TaskManagerLike;
-  workflowRunService?: any;
+  workflowRunService?: WorkflowRunServiceLike;
   parser: ParserLike;
   taskOrchestrationController: TaskOrchestrationControllerLike;
   permissionController: PermissionControllerLike;
@@ -105,4 +138,5 @@ export type SharedSurfaceRuntime = {
   echoOutputStage?: Pick<EchoOutputStageService, 'deliver'> | null;
   hostIdentityService?: HostIdentityServiceLike | null;
   webUserId: string;
+  projectRoot?: string;
 };

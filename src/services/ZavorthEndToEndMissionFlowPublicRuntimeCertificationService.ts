@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
 import {
   ZAVORTH_END_TO_END_MISSION_FLOW_PUBLIC_RUNTIME_CERTIFICATION_CONTRACT_VERSION,
@@ -122,7 +121,7 @@ export class ZavorthEndToEndMissionFlowPublicRuntimeCertificationService {
         subagentSkillReady: subagentSkillCompletion.status !== 'blocked',
         schedulerPerceptionDeviceReady: schedulerPerceptionDeviceCompletion.status !== 'blocked',
         publicRuntimeCanBypassPolicy: false,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         rawSecretsSerialized: false,
         workspaceMutationPerformed: false,
         externalIoPerformed: false,
@@ -134,7 +133,7 @@ export class ZavorthEndToEndMissionFlowPublicRuntimeCertificationService {
         userGetsReceiptEvidence: receiptReady,
         userCanInspectProvidersAndChannels: runtime.providers.summary.total > 0 && runtime.channels.entries.length > 0,
         liveMutationRequiresApprovalAndReadiness: true,
-        dashboardIsProjectionOnly: true,
+        zavorthControlIsProjectionOnly: true,
         cliAndApiShareRuntimeTruth: true,
       },
       safety: {
@@ -158,7 +157,7 @@ export class ZavorthEndToEndMissionFlowPublicRuntimeCertificationService {
 
   public formatSnapshotText(snapshot: ZavorthEndToEndMissionFlowPublicRuntimeCertificationSnapshot): string {
     const lines = [
-      'Zavorth End-to-End Mission Flow + Public Runtime Certification - Dashboard controls',
+      'Zavorth End-to-End Mission Flow + Public Runtime Certification - ZavorthControl controls',
       '',
       `Status: ${snapshot.status}`,
       `Entries: ${snapshot.summary.passed}/${snapshot.summary.entries} passed, attention=${snapshot.summary.attention}, blocked=${snapshot.summary.blocked}`,
@@ -223,11 +222,11 @@ function buildEntries(input: {
       surface: 'approval',
       passed: chat.flow.eventTypes.includes('approval.request')
         && input.runtime.approvals.safety.approvalDoesNotExecuteTargetAction === true
-        && input.runtime.approvals.safety.dashboardCanExecute === false,
+        && input.runtime.approvals.safety.zavorthControlCanExecute === false,
       evidence: [
         `approvalGate=${chat.flow.approvalGate.status}`,
         `approvalCards=${input.runtime.approvals.approvalCards.cards.length}`,
-        'dashboardCanExecute=false',
+        'zavorthControlCanExecute=false',
       ],
       nextAction: 'approve once, deny, view preview or view rollback from governed surfaces only',
     }),
@@ -238,7 +237,7 @@ function buildEntries(input: {
       passed: chat.flow.receiptReady === true
         && chat.flow.eventTypes.includes('receipt.ready')
         && input.runtime.receipts.summary.rawSecretsSerialized === false
-        && input.runtime.receipts.cards.every((card) => card.safety.rawSecretsSerialized === false),
+        && input.runtime.receipts.cards.every((card: { safety: { rawSecretsSerialized: boolean } }) => card.safety.rawSecretsSerialized === false),
       evidence: [
         `receipt=${chat.receipt?.id || 'missing'}`,
         `cards=${input.runtime.receipts.cards.length}`,
@@ -278,13 +277,13 @@ function buildEntries(input: {
       id: 'events.public-runtime',
       label: 'Public runtime events expose mission, approval and receipt lifecycle',
       surface: 'events',
-      passed: events.safety.dashboardCanExecute === false
+      passed: events.safety.zavorthControlCanExecute === false
         && events.streaming.canonicalEventTypes.includes('approval.request')
         && events.streaming.canonicalEventTypes.includes('receipt.ready'),
       evidence: [
         `events=${events.data.length}`,
         `sse=${events.streaming.ssePath}`,
-        'dashboardCanExecute=false',
+        'zavorthControlCanExecute=false',
       ],
       nextAction: null,
     }),
@@ -319,11 +318,11 @@ function buildEntries(input: {
       id: 'public-surfaces.no-bypass',
       label: 'Public surfaces cannot bypass Policy Broker',
       surface: 'safety',
-      passed: chat.safety.dashboardCanExecute === false
+      passed: chat.safety.zavorthControlCanExecute === false
         && chat.safety.policyBrokerRequiredForTools === true
         && input.runtime.health.safety.publicApiCanBypassPolicy === false,
       evidence: [
-        'dashboardCanExecute=false',
+        'zavorthControlCanExecute=false',
         'policyBrokerRequiredForTools=true',
         'publicApiCanBypassPolicy=false',
       ],
@@ -347,7 +346,7 @@ function entry(input: {
     surface: input.surface,
     evidence: input.evidence,
     userVisible: true,
-    dashboardCanExecute: false,
+    zavorthControlCanExecute: false,
     nextAction: input.nextAction,
   };
 }

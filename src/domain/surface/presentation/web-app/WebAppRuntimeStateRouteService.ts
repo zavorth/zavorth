@@ -13,7 +13,7 @@ import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 import { defaultLlmRuntimeTelemetryService } from '../../../../services/llm/LlmRuntimeTelemetryService.js';
 import { ZavorthActiveMissionUxService } from '../../../../services/ZavorthActiveMissionUxService.js';
 import { ZavorthApprovalActionCardsUxService } from '../../../../services/ZavorthApprovalActionCardsUxService.js';
-import { ZavorthDashboardProviderCockpitService } from '../../../../services/ZavorthDashboardProviderCockpitService.js';
+import { ZavorthZavorthControlProviderCockpitService } from '../../../../services/ZavorthZavorthControlProviderCockpitService.js';
 import { ZavorthProviderActivationService } from '../../../../services/ZavorthProviderActivationService.js';
 import { ZavorthProviderModelCatalogService } from '../../../../services/ZavorthProviderModelCatalogService.js';
 import { ZavorthProviderPreferencePersistenceService } from '../../../../services/ZavorthProviderPreferencePersistenceService.js';
@@ -28,7 +28,7 @@ import { ZavorthExternalAgentOnboardingService } from '../../../../services/Zavo
 import { ZavorthExternalAgentGatewayService } from '../../../../services/ZavorthExternalAgentGatewayService.js';
 import { ZavorthCapabilityMeshService } from '../../../../services/ZavorthCapabilityMeshService.js';
 import { ZavorthVisualReceiptUxService } from '../../../../services/ZavorthVisualReceiptUxService.js';
-import { DashboardContractAdapterService } from '../../../../services/DashboardContractAdapterService.js';
+import { ZavorthControlContractAdapterService } from '../../../../services/ZavorthControlContractAdapterService.js';
 import { ZavorthDailyUseGuiCertificationService } from '../../../../services/ZavorthDailyUseGuiCertificationService.js';
 import type { ZavorthSensitiveActionFlowDecision } from '../../../../contracts/ZavorthSensitiveActionFlowContract.js';
 
@@ -109,11 +109,11 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/dashboard' && req.method === 'GET') {
+    if (pathname === '/api/web/zavorthControl' && req.method === 'GET') {
       const activeSessionId = String(url.searchParams.get('sessionId') || '').trim() || null;
       const agentRunQuery = this.buildAgentRunQuery(url);
       const generatedAt = new Date().toISOString();
-      const contractAdapter = await this.buildDashboardContractAdapterProjection(url, deps);
+      const contractAdapter = await this.buildZavorthControlContractAdapterProjection(url, deps);
       const snapshot = deps.agentGateway?.buildSnapshot(
         this.buildAgentRunSnapshotOptions(activeSessionId, agentRunQuery),
       ) || this.buildUnavailableAgentGatewaySnapshot(
@@ -158,30 +158,30 @@ export class WebAppRuntimeStateRouteService {
         ),
         providerCockpit,
       );
-      const dashboardSnapshot = this.attachDashboardContractAdapter(enrichedSnapshot, contractAdapter);
+      const zavorthControlSnapshot = this.attachZavorthControlContractAdapter(enrichedSnapshot, contractAdapter);
       deps.writeJson(
         res,
         {
           ok: true,
           live: Boolean(deps.agentGateway),
-          generatedAt: dashboardSnapshot.generatedAt,
-          snapshot: dashboardSnapshot,
+          generatedAt: zavorthControlSnapshot.generatedAt,
+          snapshot: zavorthControlSnapshot,
           contractAdapter,
           contractsV1: contractAdapter,
-          modelProfile: this.buildCurrentModelProfile(dashboardSnapshot),
+          modelProfile: this.buildCurrentModelProfile(zavorthControlSnapshot),
         },
         200,
       );
       return true;
     }
 
-    if (pathname === '/api/web/dashboard/contracts-v1' && req.method === 'GET') {
-      const contractAdapter = await this.buildDashboardContractAdapterProjection(url, deps);
+    if (pathname === '/api/web/zavorthControl/contracts-v1' && req.method === 'GET') {
+      const contractAdapter = await this.buildZavorthControlContractAdapterProjection(url, deps);
       if (!contractAdapter) {
         deps.writeJson(res, {
           ok: false,
           error: 'canonical_public_api_unavailable',
-          detail: 'Dashboard contract adapter requires the runtime API v1 service.',
+          detail: 'ZavorthControl contract adapter requires the runtime API v1 service.',
         }, 503);
         return true;
       }
@@ -194,12 +194,12 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if ((pathname === '/api/web/dashboard/events-v1' || pathname === '/api/web/zavorthControl/events-v1') && req.method === 'GET') {
+    if ((pathname === '/api/web/zavorthControl/events-v1' || pathname === '/api/web/zavorthControl/events-v1') && req.method === 'GET') {
       if (!deps.publicApi) {
         deps.writeJson(res, {
           ok: false,
           error: 'canonical_public_api_unavailable',
-          detail: 'Dashboard event wiring requires the runtime API v1 service.',
+          detail: 'ZavorthControl event wiring requires the runtime API v1 service.',
         }, 503);
         return true;
       }
@@ -210,7 +210,7 @@ export class WebAppRuntimeStateRouteService {
         eventsV1: await deps.publicApi.readRuntimeEvents({ sessionId }),
         safety: {
           projectionOnly: true,
-          dashboardCanExecute: false,
+          zavorthControlCanExecute: false,
           zavorthControlCanExecute: false,
           policyBrokerRequiredForMutableActions: true,
           rawSecretsSerialized: false,
@@ -219,7 +219,7 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if ((pathname === '/api/web/dashboard/gui-certification-v1' || pathname === '/api/web/zavorthControl/gui-certification-v1') && req.method === 'GET') {
+    if ((pathname === '/api/web/zavorthControl/gui-certification-v1' || pathname === '/api/web/zavorthControl/gui-certification-v1') && req.method === 'GET') {
       if (!deps.publicApi) {
         deps.writeJson(res, {
           ok: false,
@@ -240,7 +240,7 @@ export class WebAppRuntimeStateRouteService {
         }),
         safety: {
           projectionOnly: true,
-          dashboardCanExecute: false,
+          zavorthControlCanExecute: false,
           zavorthControlCanExecute: false,
           desktopCanBypassRuntime: false,
           policyBrokerRequiredForMutableActions: true,
@@ -250,28 +250,28 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if ((pathname === '/api/web/dashboard/actions' || pathname === '/api/web/zavorthControl/actions') && req.method === 'POST') {
-      await this.handleDashboardActionRequest(req, res, deps);
+    if ((pathname === '/api/web/zavorthControl/actions' || pathname === '/api/web/zavorthControl/actions') && req.method === 'POST') {
+      await this.handleZavorthControlActionRequest(req, res, deps);
       return true;
     }
 
-    if ((pathname === '/api/web/dashboard/chat-v1' || pathname === '/api/web/zavorthControl/chat-v1') && req.method === 'POST') {
-      await this.handleDashboardChatRequest(req, res, deps);
+    if ((pathname === '/api/web/zavorthControl/chat-v1' || pathname === '/api/web/zavorthControl/chat-v1') && req.method === 'POST') {
+      await this.handleZavorthControlChatRequest(req, res, deps);
       return true;
     }
 
     if (pathname === '/api/web/chat/side' && req.method === 'POST') {
-      await this.handleDashboardSideChatRequest(req, res, deps);
+      await this.handleZavorthControlSideChatRequest(req, res, deps);
       return true;
     }
 
     if (pathname === '/api/web/chat/steer' && req.method === 'POST') {
-      await this.handleDashboardSteerChatRequest(req, res, deps);
+      await this.handleZavorthControlSteerChatRequest(req, res, deps);
       return true;
     }
 
     if (
-      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/dashboard/memory')
+      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/zavorthControl/memory')
       && req.method === 'GET'
     ) {
       deps.writeJson(res, this.readZavorthControlMemoryFacts(url), 200);
@@ -279,7 +279,7 @@ export class WebAppRuntimeStateRouteService {
     }
 
     if (
-      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/dashboard/memory')
+      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/zavorthControl/memory')
       && req.method === 'POST'
     ) {
       const body = await deps.readJsonBody(req);
@@ -310,7 +310,7 @@ export class WebAppRuntimeStateRouteService {
           live: false,
           generatedAt: approvalActionCardsUx.generatedAt,
           approvalActionCardsUx,
-          safety: approvalActionCardsUx.dashboardProjection,
+          safety: approvalActionCardsUx.zavorthControlProjection,
         },
         200,
       );
@@ -353,7 +353,7 @@ export class WebAppRuntimeStateRouteService {
           generatedAt: sensitiveActionFlowUx.generatedAt,
           sensitiveActionFlowUx,
           safety: asRecord(asRecord(sensitiveActionFlowUx.card)?.safety) || {
-            dashboardCanExecute: false,
+            zavorthControlCanExecute: false,
             rawSecretsSerialized: false,
           },
         },
@@ -363,8 +363,8 @@ export class WebAppRuntimeStateRouteService {
     }
 
     if (pathname === '/api/runtime/readiness' && req.method === 'GET') {
-      const userId = String(url.searchParams.get('userId') || 'dashboard-operator');
-      const sessionId = String(url.searchParams.get('sessionId') || 'dashboard-runtime-readiness');
+      const userId = String(url.searchParams.get('userId') || 'zavorthControl-operator');
+      const sessionId = String(url.searchParams.get('sessionId') || 'zavorthControl-runtime-readiness');
       const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
         userId,
         sessionId,
@@ -387,8 +387,8 @@ export class WebAppRuntimeStateRouteService {
     }
 
     if (pathname === '/api/runtime/readiness/fixes' && req.method === 'GET') {
-      const userId = String(url.searchParams.get('userId') || 'dashboard-operator');
-      const sessionId = String(url.searchParams.get('sessionId') || 'dashboard-runtime-guided-fixes');
+      const userId = String(url.searchParams.get('userId') || 'zavorthControl-operator');
+      const sessionId = String(url.searchParams.get('sessionId') || 'zavorthControl-runtime-guided-fixes');
       const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
         userId,
         sessionId,
@@ -414,8 +414,8 @@ export class WebAppRuntimeStateRouteService {
       const readyToGo = await new ZavorthReadyToGoService().buildSnapshot({
         refreshProviders,
         includeAdvancedProviders: url.searchParams.get('advanced') === 'true',
-        userId: String(url.searchParams.get('userId') || 'dashboard-operator'),
-        sessionId: String(url.searchParams.get('sessionId') || 'dashboard-ready-to-go'),
+        userId: String(url.searchParams.get('userId') || 'zavorthControl-operator'),
+        sessionId: String(url.searchParams.get('sessionId') || 'zavorthControl-ready-to-go'),
         workspaceHint: config.projectRoot,
       });
       deps.writeJson(
@@ -438,8 +438,8 @@ export class WebAppRuntimeStateRouteService {
         refreshProviders,
         writeSnapshot: url.searchParams.get('write') === 'true',
         intervalMs: Number(url.searchParams.get('intervalMs') || 0) || undefined,
-        userId: String(url.searchParams.get('userId') || 'dashboard-operator'),
-        sessionId: String(url.searchParams.get('sessionId') || 'dashboard-stay-online'),
+        userId: String(url.searchParams.get('userId') || 'zavorthControl-operator'),
+        sessionId: String(url.searchParams.get('sessionId') || 'zavorthControl-stay-online'),
         workspaceHint: config.projectRoot,
       });
       deps.writeJson(
@@ -463,7 +463,7 @@ export class WebAppRuntimeStateRouteService {
         approximatePathHint: url.searchParams.get('approxPath') || url.searchParams.get('approximatePath'),
         commandHint: url.searchParams.get('command') || url.searchParams.get('cli'),
         endpointHint: url.searchParams.get('endpoint') || url.searchParams.get('url'),
-        requestedBy: url.searchParams.get('requestedBy') || 'dashboard-operator',
+        requestedBy: url.searchParams.get('requestedBy') || 'zavorthControl-operator',
         maxDepth: Number(url.searchParams.get('maxDepth') || 0) || null,
         writeSnapshot: url.searchParams.get('write') === 'true',
       });
@@ -489,7 +489,7 @@ export class WebAppRuntimeStateRouteService {
         approximatePathHint: String(body?.approxPath || body?.approximatePath || body?.approximatePathHint || '').trim() || null,
         commandHint: String(body?.command || body?.cli || body?.commandHint || '').trim() || null,
         endpointHint: String(body?.endpoint || body?.url || body?.endpointHint || '').trim() || null,
-        requestedBy: String(body?.requestedBy || 'dashboard-operator').trim(),
+        requestedBy: String(body?.requestedBy || 'zavorthControl-operator').trim(),
         maxDepth: Number(body?.maxDepth || 0) || null,
         writeSnapshot: body?.write === true,
       });
@@ -556,7 +556,7 @@ export class WebAppRuntimeStateRouteService {
           readOnlyRoot: body?.readOnlyRoot === true,
           requireStrongIsolation: body?.requireStrongIsolation === true,
           approvalGranted: apiApprovalAccepted,
-          requestedBy: String(body?.requestedBy || 'dashboard-operator').trim(),
+          requestedBy: String(body?.requestedBy || 'zavorthControl-operator').trim(),
           source: 'api',
         });
         deps.writeJson(
@@ -578,7 +578,7 @@ export class WebAppRuntimeStateRouteService {
           approvalGranted: apiApprovalAccepted,
           dryRun: body?.dryRun === true || !apiApprovalAccepted,
           timeoutMs: Number(body?.timeoutMs || 0) || null,
-          requestedBy: String(body?.requestedBy || 'dashboard-operator').trim(),
+          requestedBy: String(body?.requestedBy || 'zavorthControl-operator').trim(),
         });
         deps.writeJson(
           res,
@@ -600,8 +600,8 @@ export class WebAppRuntimeStateRouteService {
       const mesh = new ZavorthCapabilityMeshService();
       const snapshot = mesh.buildSnapshot({
         requestText: url.searchParams.get('request') || url.searchParams.get('intent') || '',
-        requestedBy: url.searchParams.get('requestedBy') || 'dashboard-operator',
-        channel: 'dashboard',
+        requestedBy: url.searchParams.get('requestedBy') || 'zavorthControl-operator',
+        channel: 'zavorthControl',
         preferExternal: url.searchParams.get('preferExternal') === 'true',
         allowExternalAgents: url.searchParams.get('allowExternalAgents') !== 'false',
         allowSkillCreation: url.searchParams.get('allowSkillCreation') !== 'false',
@@ -617,8 +617,8 @@ export class WebAppRuntimeStateRouteService {
       const mesh = new ZavorthCapabilityMeshService();
       const snapshot = mesh.buildSnapshot({
         requestText: String(body?.request || body?.intent || body?.prompt || '').trim(),
-        requestedBy: String(body?.requestedBy || 'dashboard-operator').trim(),
-        channel: String(body?.channel || 'dashboard').trim(),
+        requestedBy: String(body?.requestedBy || 'zavorthControl-operator').trim(),
+        channel: String(body?.channel || 'zavorthControl').trim(),
         preferExternal: body?.preferExternal === true,
         allowExternalAgents: body?.allowExternalAgents !== false,
         allowSkillCreation: body?.allowSkillCreation !== false,
@@ -636,7 +636,7 @@ export class WebAppRuntimeStateRouteService {
           {
             ok: false,
             error: 'provider_live_probe_requires_explicit_operator_cli_or_approved_api',
-            detail: 'O Dashboard expõe readiness/projection only. Probe live de provider não roda por render normal do dashboard.',
+            detail: 'O ZavorthControl expõe readiness/projection only. Probe live de provider não roda por render normal do zavorthControl.',
           },
           403,
         );
@@ -664,7 +664,7 @@ export class WebAppRuntimeStateRouteService {
           {
             ok: false,
             error: 'provider_model_catalog_live_probe_requires_explicit_operator_cli_or_approved_api',
-            detail: 'O dashboard renderiza o catalogo de providers/modelos sem chamada live oculta. Prova live precisa ser acionada explicitamente pelo operador.',
+            detail: 'O zavorthControl renderiza o catalogo de providers/modelos sem chamada live oculta. Prova live precisa ser acionada explicitamente pelo operador.',
           },
           403,
         );
@@ -692,7 +692,7 @@ export class WebAppRuntimeStateRouteService {
           {
             ok: false,
             error: 'provider_activation_live_probe_requires_explicit_operator_cli_or_approved_api',
-            detail: 'O dashboard renderiza ativacao de providers sem chamada live oculta. Prova live deve ser acionada explicitamente pelo operador.',
+            detail: 'O zavorthControl renderiza ativacao de providers sem chamada live oculta. Prova live deve ser acionada explicitamente pelo operador.',
           },
           403,
         );
@@ -1126,7 +1126,7 @@ export class WebAppRuntimeStateRouteService {
           retry: false,
         },
         notes: [
-          'O Dashboard carregou, mas o Zavorth Agent Gateway ainda nao foi acoplado a este processo.',
+          'O ZavorthControl carregou, mas o Zavorth Agent Gateway ainda nao foi acoplado a este processo.',
         ],
       },
     };
@@ -1146,7 +1146,7 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private async buildProviderCockpitProjection(url: URL): Promise<RuntimeRecord> {
-    const service = new ZavorthDashboardProviderCockpitService();
+    const service = new ZavorthZavorthControlProviderCockpitService();
     return service.buildProjection({
       includeAdvanced: this.readBooleanParam(url, 'advanced'),
       providerId: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,
@@ -1177,14 +1177,14 @@ export class WebAppRuntimeStateRouteService {
     }) as Promise<RuntimeRecord>;
   }
 
-  private async buildDashboardContractAdapterProjection(
+  private async buildZavorthControlContractAdapterProjection(
     url: URL,
     deps: WebAppRuntimeRouteDeps,
   ): Promise<RuntimeRecord | null> {
     if (!deps.publicApi) {
       return null;
     }
-    const service = new DashboardContractAdapterService(deps.publicApi);
+    const service = new ZavorthControlContractAdapterService(deps.publicApi);
     return service.buildSnapshot({
       includeAdvanced: this.readBooleanParam(url, 'advanced'),
       providerId: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,
@@ -1217,7 +1217,7 @@ export class WebAppRuntimeStateRouteService {
         projectionOnly: true,
         rawSecretsSerialized: false,
         mutatesConfig: false,
-        dashboardExecutionAuthority: false,
+        zavorthControlExecutionAuthority: false,
         zavorthControlExecutionAuthority: false,
       },
       commands: {
@@ -1360,7 +1360,7 @@ export class WebAppRuntimeStateRouteService {
     };
   }
 
-  private attachDashboardContractAdapter(
+  private attachZavorthControlContractAdapter(
     snapshot: RuntimeRecord,
     contractAdapter: RuntimeRecord | null,
   ): RuntimeRecord {
@@ -1388,7 +1388,7 @@ export class WebAppRuntimeStateRouteService {
     };
   }
 
-  private async handleDashboardActionRequest(
+  private async handleZavorthControlActionRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
@@ -1397,7 +1397,7 @@ export class WebAppRuntimeStateRouteService {
       deps.writeJson(res, {
         ok: false,
         error: 'canonical_public_api_unavailable',
-        detail: 'Dashboard action wiring requires the runtime API v1 service.',
+        detail: 'ZavorthControl action wiring requires the runtime API v1 service.',
       }, 503);
       return;
     }
@@ -1457,7 +1457,7 @@ export class WebAppRuntimeStateRouteService {
           detail: 'Use approval.approve, approval.deny, mission.cancel, provider.test or channel.action.',
           safety: {
             controllerMutatedDirectly: false,
-            dashboardCanExecute: false,
+            zavorthControlCanExecute: false,
             zavorthControlCanExecute: false,
             policyBrokerRequiredForMutableActions: true,
           },
@@ -1473,7 +1473,7 @@ export class WebAppRuntimeStateRouteService {
       safety: {
         controllerMutatedDirectly: false,
         delegatedToRuntimeApiV1: true,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         zavorthControlCanExecute: false,
         policyBrokerRequiredForMutableActions: true,
         rawSecretsSerialized: false,
@@ -1481,7 +1481,7 @@ export class WebAppRuntimeStateRouteService {
     }, 200);
   }
 
-  private async handleDashboardChatRequest(
+  private async handleZavorthControlChatRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
@@ -1490,7 +1490,7 @@ export class WebAppRuntimeStateRouteService {
       deps.writeJson(res, {
         ok: false,
         error: 'canonical_chat_runtime_unavailable',
-        detail: 'Dashboard chat wiring requires the canonical web conversation runtime.',
+        detail: 'ZavorthControl chat wiring requires the canonical web conversation runtime.',
       }, 503);
       return;
     }
@@ -1500,8 +1500,8 @@ export class WebAppRuntimeStateRouteService {
     if (!message) {
       deps.writeJson(res, {
         ok: false,
-        error: 'empty_dashboard_message',
-        detail: 'Dashboard chat requires a non-empty message.',
+        error: 'empty_zavorthControl_message',
+        detail: 'ZavorthControl chat requires a non-empty message.',
       }, 400);
       return;
     }
@@ -1519,7 +1519,7 @@ export class WebAppRuntimeStateRouteService {
         source: 'zavorth-control',
         metadata: {
           ...requestMetadata,
-          dashboardChat: true,
+          zavorthControlChat: true,
           ...(workflowIntent ? { workflowIntent } : {}),
           ...(composerSettings ? { composerSettings } : {}),
           ...(experienceProfile ? { experienceProfile } : {}),
@@ -1536,7 +1536,7 @@ export class WebAppRuntimeStateRouteService {
         snapshot: result.snapshot,
         safety: {
           delegatedToCanonicalWebRuntime: true,
-          dashboardCanExecute: false,
+          zavorthControlCanExecute: false,
           zavorthControlCanExecute: false,
           policyBrokerRequiredForTools: true,
           rawSecretsSerialized: false,
@@ -1550,7 +1550,7 @@ export class WebAppRuntimeStateRouteService {
       deps.writeJson(res, {
         ok: false,
         error: 'canonical_public_api_unavailable',
-        detail: 'Dashboard chat fallback requires the runtime API v1 service.',
+        detail: 'ZavorthControl chat fallback requires the runtime API v1 service.',
       }, 503);
       return;
     }
@@ -1569,7 +1569,7 @@ export class WebAppRuntimeStateRouteService {
       mission: result.mission,
       safety: {
         delegatedToRuntimeApiV1: true,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         zavorthControlCanExecute: false,
         dryRunByDefault: true,
         liveRequiresExplicitFlag: true,
@@ -1579,7 +1579,7 @@ export class WebAppRuntimeStateRouteService {
     }, 200);
   }
 
-  private async handleDashboardSideChatRequest(
+  private async handleZavorthControlSideChatRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
@@ -1588,7 +1588,7 @@ export class WebAppRuntimeStateRouteService {
       deps.writeJson(res, {
         ok: false,
         error: 'canonical_chat_runtime_unavailable',
-        detail: 'Detached dashboard chat requires the canonical web conversation runtime.',
+        detail: 'Detached zavorthControl chat requires the canonical web conversation runtime.',
       }, 503);
       return;
     }
@@ -1651,7 +1651,7 @@ export class WebAppRuntimeStateRouteService {
     }, 200);
   }
 
-  private async handleDashboardSteerChatRequest(
+  private async handleZavorthControlSteerChatRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
@@ -2010,7 +2010,7 @@ export class WebAppRuntimeStateRouteService {
           String(url.searchParams.get('sessionId') || '').trim() || 'state-bootstrap',
         ) || null,
         uiSurfaceHints: helpers.buildUiSurfaceHints(productMode, {
-          localControlEntry: '/dashboard',
+          localControlEntry: '/zavorthControl',
           localControlReady: true,
           telegramReady: true,
           discordReady: false,
@@ -2141,7 +2141,7 @@ export class WebAppRuntimeStateRouteService {
           metadata: {
             ...metadata,
             correctedAt: now,
-            correctionReason: text(body.reason) || 'dashboard correction',
+            correctionReason: text(body.reason) || 'zavorthControl correction',
             trust: {
               ...(asRecord(metadata.trust) || {}),
               level: 'operator-approved',
@@ -2220,7 +2220,7 @@ function isExternalAgentApiApprovalRequested(body: RuntimeRecord | null | undefi
 
 function isExternalAgentApiApprovalAccepted(req: http.IncomingMessage, body: RuntimeRecord | null | undefined): boolean {
   if (!isExternalAgentApiApprovalRequested(body)) return false;
-  const expected = text(process.env.ZAVORTH_EXTERNAL_AGENT_API_APPROVAL_TOKEN || process.env.ZAVORTH_DASHBOARD_OPERATOR_TOKEN);
+  const expected = text(process.env.ZAVORTH_EXTERNAL_AGENT_API_APPROVAL_TOKEN || process.env.ZAVORTH_ZAVORTH_CONTROL_OPERATOR_TOKEN);
   if (expected.length < 16) return false;
   const provided = readHeaderValue(req, 'x-zavorth-operator-approval');
   return safeTokenEquals(provided, expected);

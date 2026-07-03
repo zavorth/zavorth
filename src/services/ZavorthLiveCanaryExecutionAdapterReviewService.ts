@@ -63,7 +63,7 @@ export class ZavorthLiveCanaryExecutionAdapterReviewService {
         executionDisabledUntilFinalTrigger: true,
         ownerApprovalRequired: true,
         rollbackRequiredBeforeLive: true,
-        noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         rawSecretsSerialized: false,
       },
       summary,
@@ -79,7 +79,7 @@ export class ZavorthLiveCanaryExecutionAdapterReviewService {
 
   public formatSnapshotText(snapshot: ZavorthLiveCanaryExecutionAdapterReviewSnapshot): string {
     const lines = [
-      'Zavorth Live Canary Execution Adapter Review - Dashboard controls',
+      'Zavorth Live Canary Execution Adapter Review - ZavorthControl controls',
       '',
       `Status: ${snapshot.status}`,
       `Mode: ${snapshot.mode}`,
@@ -189,9 +189,9 @@ function buildChecks(
   ));
   checks.push(check(
     'visual-boundary',
-    evidenceCanary.safety.noDashboardVisualMutation,
+    evidenceCanary.safety.noZavorthControlVisualMutation,
     'visual-boundary',
-    'Dashboard visual mutation remains disabled.',
+    'ZavorthControl visual mutation remains disabled.',
     null,
   ));
   return checks;
@@ -295,7 +295,7 @@ function buildReceipts(
       id: 'checkpoint-8-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
-      summary: 'No dashboard visual mutation is performed by adapter review.',
+      summary: 'No zavorthControl visual mutation is performed by adapter review.',
     },
   ];
 }

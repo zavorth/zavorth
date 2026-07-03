@@ -92,7 +92,7 @@ export type ExternalExecutorRealCapabilitySnapshotReadOnlyNormalization = {
   cleanupConfirmed: true;
   sourceIdsEvidenceOnly: true;
   capabilityInventory: ExternalAgentLiveReadinessAssimilationPackNormalization['snapshot'];
-  dashboardProjection: ExternalAgentLiveReadinessAssimilationPackNormalization['dashboardProjection'];
+  zavorthControlProjection: ExternalAgentLiveReadinessAssimilationPackNormalization['zavorthControlProjection'];
   capabilityImportClassification: ExternalAgentLiveReadinessAssimilationPackNormalization['capabilityImportClassification'];
   degradedUnavailableStateHandling: ExternalAgentLiveReadinessAssimilationPackNormalization['degradedUnavailableStateHandling'];
   auditReceipts: ExternalAgentLiveReadinessAssimilationPackNormalization['auditReceipts'];
@@ -348,7 +348,7 @@ export function normalizeExternalExecutorRealCapabilitySnapshotReadOnly<TRuntime
     cleanupConfirmed: options.source.gateway.cleanupConfirmed,
     sourceIdsEvidenceOnly: true,
     capabilityInventory: assimilation.snapshot,
-    dashboardProjection: assimilation.dashboardProjection,
+    zavorthControlProjection: assimilation.zavorthControlProjection,
     capabilityImportClassification: assimilation.capabilityImportClassification,
     degradedUnavailableStateHandling: assimilation.degradedUnavailableStateHandling,
     auditReceipts: assimilation.auditReceipts,

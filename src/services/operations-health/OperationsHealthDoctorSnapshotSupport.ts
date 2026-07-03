@@ -1,3 +1,9 @@
+import type {
+  NodeMeshSmokeSnapshot,
+  ChannelProviderDoctorSnapshot,
+  RemoteTransportDoctorSnapshot,
+} from './OperationsHealthSnapshotTypes.js';
+
 type OperationsHealthDoctorSnapshotSupportOptions = {
   now: () => Date;
   existsSync: (path: string) => boolean;
@@ -33,7 +39,7 @@ export class OperationsHealthDoctorSnapshotSupport {
     this.remoteTransportDoctorMaxAgeMs = options.remoteTransportDoctorMaxAgeMs;
   }
 
-  public readNodeMeshSmokeSnapshot(): any {
+  public readNodeMeshSmokeSnapshot(): NodeMeshSmokeSnapshot {
     const fallback = {
       available: false,
       status: 'missing' as const,
@@ -84,7 +90,7 @@ export class OperationsHealthDoctorSnapshotSupport {
     }
   }
 
-  public readChannelProviderDoctorSnapshot(): any {
+  public readChannelProviderDoctorSnapshot(): ChannelProviderDoctorSnapshot {
     const fallback = {
       available: false,
       status: 'missing' as const,
@@ -164,7 +170,7 @@ export class OperationsHealthDoctorSnapshotSupport {
     }
   }
 
-  public readRemoteTransportDoctorSnapshot(): any {
+  public readRemoteTransportDoctorSnapshot(): RemoteTransportDoctorSnapshot {
     const fallback = {
       available: false,
       status: 'missing' as const,

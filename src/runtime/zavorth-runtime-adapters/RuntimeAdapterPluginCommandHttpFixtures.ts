@@ -101,7 +101,7 @@ export type RuntimeAdapterCanonicalZavorthCommandDescriptor = {
   nativeContract: 'ZavorthCommandDescriptor/v1';
 };
 
-export type RuntimeAdapterCanonicalDashboardCommandCatalogRow = {
+export type RuntimeAdapterCanonicalZavorthControlCommandCatalogRow = {
   id: string;
   commandId: string;
   label: string;
@@ -114,8 +114,8 @@ export type RuntimeAdapterCanonicalPluginCommandDescriptorNormalization = {
   generatedAt: string;
   runtimeId: typeof RUNTIME_ADAPTER_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   descriptors: RuntimeAdapterCanonicalZavorthCommandDescriptor[];
-  dashboard: {
-    catalogRows: RuntimeAdapterCanonicalDashboardCommandCatalogRow[];
+  zavorthControl: {
+    catalogRows: RuntimeAdapterCanonicalZavorthControlCommandCatalogRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
   sourceCommandNamesStoredAsEvidenceOnly: true;
@@ -183,8 +183,8 @@ export type RuntimeAdapterCanonicalPluginCliCommandSurfaceNormalization = {
   generatedAt: string;
   runtimeId: typeof RUNTIME_ADAPTER_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   cliCommands: RuntimeAdapterCanonicalZavorthCliCommandSurface[];
-  dashboard: {
-    catalogRows: RuntimeAdapterCanonicalDashboardCommandCatalogRow[];
+  zavorthControl: {
+    catalogRows: RuntimeAdapterCanonicalZavorthControlCommandCatalogRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
   sourceCliBinariesStoredAsEvidenceOnly: true;
@@ -484,7 +484,7 @@ export type RuntimeAdapterCanonicalPluginToolExposurePolicyNormalization = {
   generatedAt: string;
   runtimeId: typeof RUNTIME_ADAPTER_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   policies: RuntimeAdapterCanonicalZavorthToolExposurePolicySurface[];
-  dashboard: {
+  zavorthControl: {
     capabilityRows: RuntimeAdapterCanonicalToolExposureCapabilityRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;

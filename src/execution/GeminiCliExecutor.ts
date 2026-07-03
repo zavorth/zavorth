@@ -5,6 +5,25 @@ import { config } from '../config/index.js';
 import { spawnCommand } from '../core/CommandSpawn.js';
 import { buildChildProcessEnv } from '../security/ChildProcessEnv.js';
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
+import { logger } from '../logger.js';
+
+/** Error returned by the Gemini CLI process with optional stderr output. */
+interface GeminiCliProcessError extends Error {
+  stderr?: string;
+}
+
+/** Structured error info produced by classifyExecutionError. */
+interface ClassifiedError {
+  errorCode: string;
+  errorMessage: string;
+  stderr: string | null;
+  metadata?: Record<string, string>;
+}
+
+/** Type guard to check if a value is a GeminiCliProcessError. */
+function isGeminiCliProcessError(err: unknown): err is GeminiCliProcessError {
+  return err instanceof Error;
+}
 
 export function buildGeminiCliChildEnv(
   geminiApiKey: string | null | undefined = config.geminiApiKey,
@@ -68,7 +87,7 @@ export class GeminiCliExecutor implements IExecutor {
       result.success = true;
       result.actions_executed.push(`[GeminiCLI] Prompt executado (${prompt.length} chars)`);
       result.commands_executed.push(`gemini --prompt "${prompt.substring(0, 80)}..."`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const classifiedError = this.classifyExecutionError(error);
       result.error_message = classifiedError.errorMessage;
       result.error_code = classifiedError.errorCode;
@@ -124,7 +143,7 @@ export class GeminiCliExecutor implements IExecutor {
       const timer = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         reject(new Error(`Gemini CLI timeout apos ${timeoutMs / 1000}s`));
       }, timeoutMs);
 
@@ -136,7 +155,7 @@ export class GeminiCliExecutor implements IExecutor {
       child.on('close', (code) => {
         clearTimeout(timer);
         if (code !== 0) {
-          const err: any = new Error(`Gemini CLI saiu com codigo ${code}`);
+          const err = new Error(`Gemini CLI saiu com codigo ${code}`) as GeminiCliProcessError;
           err.stderr = stderr;
           reject(err);
         } else {
@@ -146,14 +165,9 @@ export class GeminiCliExecutor implements IExecutor {
     });
   }
 
-  private classifyExecutionError(error: any): {
-    errorCode: string;
-    errorMessage: string;
-    stderr: string | null;
-    metadata?: Record<string, any>;
-  } {
-    const rawStderr = String(error?.stderr || '').trim();
-    const rawMessage = String(error?.message || '').trim();
+  private classifyExecutionError(error: unknown): ClassifiedError {
+    const rawStderr = String((isGeminiCliProcessError(error) ? error.stderr : null) || '').trim();
+    const rawMessage = String((error instanceof Error ? error.message : null) || '').trim();
     const combined = `${rawMessage}\n${rawStderr}`.trim();
     const normalized = combined.toLowerCase();
 

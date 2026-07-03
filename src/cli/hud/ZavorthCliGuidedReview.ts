@@ -165,13 +165,13 @@ function buildNextCommands(
   if (!hud.selectedPlanId) {
     return [
       { label: 'Select first plan', command: 'zavorth hud guide --select 1', detail: 'choose target' },
-      { label: 'Open dashboard', command: 'zavorth open', detail: 'visual review' },
+      { label: 'Open zavorthControl', command: 'zavorth open', detail: 'visual review' },
     ];
   }
   if (['approved', 'rejected', 'deferred'].includes(hud.decision.status)) {
     return [
       { label: 'Refresh review', command: 'zavorth hud guide', detail: 'continue queue' },
-      { label: 'Open dashboard', command: 'zavorth open', detail: 'inspect evidence' },
+      { label: 'Open zavorthControl', command: 'zavorth open', detail: 'inspect evidence' },
     ];
   }
   return [

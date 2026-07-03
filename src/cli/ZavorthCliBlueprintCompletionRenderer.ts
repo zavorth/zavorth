@@ -98,7 +98,7 @@ export function formatBlueprintCompletionSnapshot(snapshot: BlueprintCompletionG
   lines.push(`- Canary promotion: ${snapshot.surface.canaryPromotionCommand}`);
   lines.push(`- Decision: ${snapshot.surface.decisionCommand}`);
   lines.push(`- Final gate: ${snapshot.surface.finalGateCommand}`);
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');

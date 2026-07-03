@@ -70,26 +70,26 @@ export async function sendToChat(
   }
 }
 
-export async function startDashboardSurface(
+export async function startZavorthControlSurface(
   runtime: BotGatewaySupportRuntime,
 ): Promise<void> {
-  if (runtime.state.dashboardSurfaceStarted) {
+  if (runtime.state.zavorthControlSurfaceStarted) {
     return;
   }
 
   try {
-    await runtime.dashboardService.start();
-    runtime.state.dashboardSurfaceStarted = true;
+    await runtime.zavorthControlService.start();
+    runtime.state.zavorthControlSurfaceStarted = true;
     runtime.logRepo.log(
       'info',
-      'DashboardService',
-      `Dashboard web online em ${runtime.dashboardService.getUrl()}`,
+      'ZavorthControlService',
+      `ZavorthControl web online em ${runtime.zavorthControlService.getUrl()}`,
     );
   } catch (error: any) {
     runtime.logRepo.log(
       'error',
-      'DashboardService',
-      `Falha ao iniciar dashboard web: ${error.message || error}`,
+      'ZavorthControlService',
+      `Falha ao iniciar zavorthControl web: ${error.message || error}`,
     );
     throw error;
   }
@@ -179,7 +179,7 @@ export async function start(
       `Perfil ${runtime.runtimeProfileService.getProfile()} manteve o relatorio diario em modo manual.`,
     );
   }
-  await startDashboardSurface(runtime);
+  await startZavorthControlSurface(runtime);
   await runtime.lifecycleController.start(runtime.bot);
   await flushPendingSupervisedNotifications(runtime);
   if (!runtime.state.supervisedRuntimeNotificationTimer) {

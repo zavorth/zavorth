@@ -2,7 +2,7 @@
  * Centralized display name helpers for provider and account/connection labels.
  *
  * Prevents raw internal IDs (connection UUIDs, dynamic provider IDs) from
- * leaking into user-facing dashboards (Health, Analytics, Sessions, Rate-limits,
+ * leaking into user-facing zavorthControls (Health, Analytics, Sessions, Rate-limits,
  * Quota, Compatible Provider pages, etc.).
  *
  * Priority order:

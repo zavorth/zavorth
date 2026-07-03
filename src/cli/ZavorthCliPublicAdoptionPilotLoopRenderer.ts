@@ -113,7 +113,7 @@ export function formatPublicAdoptionPilotLoopSnapshot(
     `- feedback opt-in: ${String(snapshot.feedbackProductLoop.optInReady)}`,
     `- pilot loop: ${snapshot.pilot.contractStatus}`,
     `- pilotos planejados: ${snapshot.adoptionLoop.plannedPilotCount}`,
-    `- dashboard agregado: ${String(snapshot.adoptionLoop.dashboardAggregationOnly)}`,
+    `- zavorthControl agregado: ${String(snapshot.adoptionLoop.zavorthControlAggregationOnly)}`,
     `- proximo passo: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
@@ -137,7 +137,7 @@ export function formatPublicAdoptionPilotLoopSnapshot(
   lines.push(`- templates ready: ${String(snapshot.readiness.templatesReady)}`);
   lines.push(`- triage ready: ${String(snapshot.readiness.triageReady)}`);
   lines.push(`- ledger ready: ${String(snapshot.readiness.ledgerReady)}`);
-  lines.push(`- dashboard ready: ${String(snapshot.readiness.dashboardReady)}`);
+  lines.push(`- zavorthControl ready: ${String(snapshot.readiness.zavorthControlReady)}`);
   lines.push(`- controlled pilot: ${String(snapshot.readiness.canStartControlledPilot)}`);
 
   lines.push('', 'Politica');
@@ -146,7 +146,7 @@ export function formatPublicAdoptionPilotLoopSnapshot(
   lines.push('- submissao externa nao foi feita');
   lines.push('- payload de workspace nao foi armazenado');
   lines.push('- ledger permanece local');
-  lines.push('- dashboard usa apenas agregados');
+  lines.push('- zavorthControl usa apenas agregados');
   lines.push('- piloto exige owner explicito');
 
   lines.push('', 'Rotas e comandos');
@@ -156,8 +156,8 @@ export function formatPublicAdoptionPilotLoopSnapshot(
   lines.push(`- QA: ${snapshot.surface.qaCommand}`);
   lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);
   lines.push(`- Ledger: ${snapshot.surface.ledgerArtifact}`);
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardArtifact}`);
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlArtifact}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');
@@ -285,7 +285,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       artifacts: {
         feedbackPreviewPath: '.qa/pilot-loop/feedback-preview-redacted.json',
         pilotLedgerPath: '.qa/pilot-loop/pilot-ledger.json',
-        dashboardPath: '.qa/pilot-loop/support-dashboard.json',
+        zavorthControlPath: '.qa/pilot-loop/support-zavorthControl.json',
       },
       templates: [
         { id: 'bug', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['tokens', 'secrets', 'paths pessoais'], safePrompt: 'Use dados redigidos.' },
@@ -310,7 +310,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
         { id: 'install-runtime', channel: 'support issue', responseWindow: '1-2 business days', boundaries: ['comando publico', 'erro resumido', 'ambiente redigido'], escalation: 'Reproduzir via fixture local.' },
         { id: 'feature-planning', channel: 'feature request', responseWindow: 'next planning review', boundaries: ['sem promessa', 'sem dados privados', 'sem parceria implicita'], escalation: 'Converter para proposta.' },
       ],
-      dashboardMetrics: [
+      zavorthControlMetrics: [
         { id: 'feedback-count-by-area', label: 'Feedback por area', aggregateOnly: true, excludesPayload: true, source: 'redacted feedback preview' },
         { id: 'severity-mix', label: 'Distribuicao por severidade', aggregateOnly: true, excludesPayload: true, source: 'triage rules' },
         { id: 'pilot-status', label: 'Status dos pilotos', aggregateOnly: true, excludesPayload: true, source: 'local pilot ledger' },
@@ -319,7 +319,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       checks: [
         { id: 'pilot-loop:feedback-preview', title: 'feedback preview redigido', status: 'pass', reason: 'preview redigido sem envio', evidence: ['feedback-preview-redacted.json'] },
         { id: 'pilot-loop:pilot-ledger', title: 'ledger local de pilotos', status: 'pass', reason: 'ledger local sem payload', evidence: ['pilot-ledger.json'] },
-        { id: 'pilot-loop:dashboard', title: 'dashboard agregado de suporte', status: 'pass', reason: 'dashboard agregado sem payload', evidence: ['support-dashboard.json'] },
+        { id: 'pilot-loop:zavorthControl', title: 'zavorthControl agregado de suporte', status: 'pass', reason: 'zavorthControl agregado sem payload', evidence: ['support-zavorthControl.json'] },
       ],
       nextRecommendedStage: {
         stage: '58',

@@ -198,7 +198,7 @@ export type RuntimeAccessPlatformSnapshot = {
   };
 };
 
-export type RuntimeAccessDashboardSnapshot = {
+export type RuntimeAccessZavorthControlSnapshot = {
   active: boolean;
   pid: number | null;
   host: string;
@@ -215,7 +215,7 @@ export type RuntimeAccessReadinessInput = {
   providers?: RuntimeAccessProviderSnapshot | null;
   mcp?: RuntimeAccessMcpSnapshot | null;
   tenants?: RuntimeAccessTenantSnapshot | null;
-  dashboard?: RuntimeAccessDashboardSnapshot | null;
+  zavorthControl?: RuntimeAccessZavorthControlSnapshot | null;
   nodeMeshSmoke?: RuntimeAccessNodeMeshSmokeSnapshot | null;
   systemOverlordSmoke?: RuntimeAccessSystemOverlordSmokeSnapshot | null;
   channelProviderDoctor?: RuntimeAccessChannelProviderDoctorSnapshot | null;
@@ -236,7 +236,7 @@ export type RuntimeAccessReadinessReport = {
     providers: RuntimeAccessProviderSnapshot;
     mcp: RuntimeAccessMcpSnapshot;
     tenants: RuntimeAccessTenantSnapshot;
-    dashboard: RuntimeAccessDashboardSnapshot | null;
+    zavorthControl: RuntimeAccessZavorthControlSnapshot | null;
     nodeMeshSmoke: RuntimeAccessNodeMeshSmokeSnapshot;
     systemOverlordSmoke: RuntimeAccessSystemOverlordSmokeSnapshot;
     channelProviderDoctor: RuntimeAccessChannelProviderDoctorSnapshot;
@@ -250,7 +250,7 @@ export type RuntimeAccessReadinessReport = {
   auth: RuntimeAccessAuthStatus;
   local: {
     baseUrl: string;
-    dashboardUrl: string;
+    zavorthControlUrl: string;
     appUrl: string;
     ready: boolean;
     issues: string[];
@@ -273,7 +273,7 @@ export type RuntimeAccessResolvedInput = {
   providers: RuntimeAccessProviderSnapshot;
   mcp: RuntimeAccessMcpSnapshot;
   tenants: RuntimeAccessTenantSnapshot;
-  dashboard: RuntimeAccessDashboardSnapshot | null;
+  zavorthControl: RuntimeAccessZavorthControlSnapshot | null;
   nodeMeshSmoke: RuntimeAccessNodeMeshSmokeSnapshot;
   systemOverlordSmoke: RuntimeAccessSystemOverlordSmokeSnapshot;
   channelProviderDoctor: RuntimeAccessChannelProviderDoctorSnapshot;

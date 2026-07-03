@@ -107,8 +107,8 @@ export class OracleCloudflareRolloutService {
         title: 'Template do cloudflared',
         status: this.existsSync(cloudflaredTemplate) ? 'done' : 'pending',
         detail: this.existsSync(cloudflaredTemplate)
-          ? 'Template pronto para publicar o /dashboard por tunnel.'
-          : 'Falta o template do cloudflared para publicar o /dashboard.',
+          ? 'Template pronto para publicar o /zavorthControl por tunnel.'
+          : 'Falta o template do cloudflared para publicar o /zavorthControl.',
         command: `usar ${cloudflaredTemplate}`,
       },
       {

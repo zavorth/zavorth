@@ -56,7 +56,7 @@ export type RuntimeAdapterProviderIdentityCatalogNormalization<RuntimeId extends
   generatedAt: string;
   runtimeId: RuntimeId;
   providers: RuntimeAdapterProviderCatalogRecord[];
-  dashboard: {
+  zavorthControl: {
     capabilities: Array<{
       id: string;
       providerId: string;
@@ -142,7 +142,7 @@ export function normalizeRuntimeAdapterProviderIdentityCatalog<RuntimeId extends
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     providers,
-    dashboard: {
+    zavorthControl: {
       capabilities: providers.map((provider) => ({
         id: `${provider.id}:catalog`,
         providerId: provider.id,

@@ -1,16 +1,20 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import type { ZavorthTeamCatalogSnapshot } from '../../../../services/ZavorthTeamCatalogService.js';
+
+declare function escapeHtml(value: unknown): string;
+
+type TeamCatalogErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshTeams() {
-    function renderOperationsTeams(teamCatalog) {
+    function renderOperationsTeams(teamCatalog: ZavorthTeamCatalogSnapshot | TeamCatalogErrorPayload | null | undefined) {
       const node = document.getElementById('operations-teams');
       if (!node) return;
-      if (!teamCatalog || teamCatalog.error) {
+      if (!teamCatalog || 'error' in teamCatalog) {
         node.innerHTML = '<div class="muted">Nao foi possivel carregar o catalogo de teams.</div>';
         return;
       }
 
-      const summary = teamCatalog.summary || {};
+      const summary: ZavorthTeamCatalogSnapshot['summary'] = teamCatalog.summary || {} as ZavorthTeamCatalogSnapshot['summary'];
       const teams = Array.isArray(teamCatalog.teams) ? teamCatalog.teams : [];
       const teamItems = teams.length
         ? teams.map((team) => {

@@ -137,6 +137,6 @@ export function formatRunObservatorySnapshot(
   }
 
   lines.push('', `CLI: ${snapshot.surface.cliCommand || 'zavorth observatory --json'}`);
-  lines.push(`Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   return lines.join('\n');
 }

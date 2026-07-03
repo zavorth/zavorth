@@ -270,10 +270,8 @@ export class ZavorthNaturalSetupAssistantService {
     persistSecrets: boolean,
   ): NaturalSetupSecretPlan {
     const requiredRefs = selectedCapability
-      ? [
-          ...selectedCapability.requirements.secretRefs,
-          ...selectedCapability.requirements.envKeys,
-        ].filter((value, index, all) => value && all.indexOf(value) === index)
+      ? selectedCapability.requirements.secretRefs
+        .filter((value, index, all) => value && all.indexOf(value) === index)
       : [];
     const providedRefs = detectedSecretInputs
       .map((input) => input.secretRef)

@@ -1,6 +1,110 @@
 import type { AutoRepairReport, AutoRepairRunResult, AutoRepairService } from './AutoRepairService.js';
 import type { OperationsHealthSnapshot, OperationsHealthService } from './OperationsHealthService.js';
-type SelfHealDynamic = any;
+
+interface AutoRepairRunInput {
+  dryRun: boolean;
+  force: boolean;
+  goal: string;
+  requestedBy: string;
+  reason: string;
+}
+
+interface AutoRepairAttempt {
+  status?: string;
+}
+
+interface AutoRepairReportDynamic {
+  status?: string;
+  attempts?: AutoRepairAttempt[];
+  warnings?: string[];
+}
+interface SidecarCard {
+  name?: string;
+  id?: string;
+  enabled?: boolean;
+  ready?: boolean;
+  running?: boolean;
+  message?: string;
+}
+
+interface SidecarsSnapshot {
+  down?: number;
+  unhealthy?: number;
+  failed?: number;
+  [key: string]: unknown;
+}
+
+interface PerformanceSnapshot {
+  runtimeP95Ms?: number;
+  p95Ms?: number;
+  latencyP95Ms?: number;
+}
+
+interface PublishSnapshot {
+  smokeTest?: string;
+  gitPush?: string;
+  recommendedAction?: string;
+  recommendation?: string;
+  status?: string;
+}
+
+interface StorageHotspot {
+  label?: string;
+  id?: string;
+  bytes?: number;
+}
+
+interface StorageSnapshot {
+  hotspots?: StorageHotspot[];
+  freePercent?: number;
+}
+
+interface RemoteTransportItem {
+  status?: string;
+  error?: string;
+  summary?: string;
+  transportId?: string;
+}
+
+interface RemoteTransportDoctor {
+  status?: string;
+  summary?: string;
+  items?: RemoteTransportItem[];
+}
+
+interface ChannelConfigItem {
+  configured?: boolean;
+  status?: string;
+  channelId?: string;
+  error?: string;
+  summary?: string;
+}
+
+interface ChannelProviderDoctor {
+  items?: ChannelConfigItem[];
+}
+
+interface ErrorEntry {
+  message?: string;
+  category?: string;
+}
+
+interface ErrorsSnapshot {
+  lastError?: ErrorEntry;
+  recent?: ErrorEntry[];
+}
+
+interface SelfHealDynamic {
+  sidecars?: SidecarsSnapshot;
+  performance?: PerformanceSnapshot;
+  runtime?: PerformanceSnapshot;
+  publish?: PublishSnapshot;
+  storage?: StorageSnapshot;
+  storageHotspots?: StorageHotspot[];
+  remoteTransportDoctor?: RemoteTransportDoctor;
+  channelProviderDoctor?: ChannelProviderDoctor;
+  errors?: ErrorsSnapshot;
+}
 
 export type ZavorthSelfHealFlowId =
   | 'sidecar_down'
@@ -412,10 +516,11 @@ export class ZavorthSelfHealControlPlaneService {
         ? this.operationsHealthService.readSnapshotLive()
         : this.operationsHealthService.readSnapshotFast();
       return { snapshot, error: null };
-    } catch (error: SelfHealDynamic) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       return {
         snapshot: null,
-        error: `Falha ao ler OperationsHealthService: ${error?.message || String(error)}`,
+        error: `Falha ao ler OperationsHealthService: ${message}`,
       };
     }
   }
@@ -830,7 +935,7 @@ export class ZavorthSelfHealControlPlaneService {
       goal: 'auto',
       requestedBy: input.requestedBy || 'cli-operator',
       reason: 'Self-Heal Etapa 30 aplicou recuperacao segura e supervisionada.',
-    } as SelfHealDynamic);
+    } as AutoRepairRunInput);
 
     return {
       plan: input.plan.map((action) => ({ ...action, status: result.success ? 'applied' : 'blocked' })),
@@ -855,12 +960,13 @@ export class ZavorthSelfHealControlPlaneService {
       };
     }
 
-    const attempts = Array.isArray((report as SelfHealDynamic).attempts) ? (report as SelfHealDynamic).attempts : [];
-    const failedAttempts = attempts.filter((attempt: SelfHealDynamic) =>
+    const reportDynamic = report as AutoRepairReportDynamic;
+    const attempts = Array.isArray(reportDynamic.attempts) ? reportDynamic.attempts : [];
+    const failedAttempts = attempts.filter((attempt) =>
       /failed|blocked|error/i.test(String(attempt.status || ''))).length;
-    const statusFailed = /failed|blocked|error/i.test(String((report as SelfHealDynamic).status || '')) ? 1 : 0;
-    const warnings = Array.isArray((report as SelfHealDynamic).warnings) ? (report as SelfHealDynamic).warnings : [];
-    const repeatedWarning = warnings.some((warning: SelfHealDynamic) => /\brepeat|repet|loop|flap\b/i.test(String(warning || '')));
+    const statusFailed = /failed|blocked|error/i.test(String(reportDynamic.status || '')) ? 1 : 0;
+    const warnings = Array.isArray(reportDynamic.warnings) ? reportDynamic.warnings : [];
+    const repeatedWarning = warnings.some((warning) => /\brepeat|repet|loop|flap\b/i.test(String(warning || '')));
     const failures = Math.max(failedAttempts, statusFailed + (repeatedWarning ? 2 : 0));
     const paused = failures >= 2;
 
@@ -871,7 +977,7 @@ export class ZavorthSelfHealControlPlaneService {
       reason: paused
         ? 'Falhas repetidas detectadas; self-heal pausou para evitar loop infinito.'
         : null,
-      source: `autorepair:${String((report as SelfHealDynamic).status || 'unknown')}`,
+      source: `autorepair:${String(reportDynamic.status || 'unknown')}`,
     };
   }
 

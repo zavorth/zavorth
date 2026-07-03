@@ -4,7 +4,7 @@
  * Server Error Page — P-1
  *
  * Per-page error boundary for unrecoverable errors within the
- * dashboard layout. Falls back to global-error.tsx if this fails.
+ * zavorthControl layout. Falls back to global-error.tsx if this fails.
  */
 
 interface ErrorProps {
@@ -52,11 +52,11 @@ export default function Error({ error, reset }: ErrorProps) {
           Try Again
         </button>
         <a
-          href="/dashboard"
+          href="/zavorthControl"
           className="px-6 py-2.5 rounded-lg text-[var(--color-text-main)] text-sm font-semibold cursor-pointer transition-all duration-200 motion-reduce:transition-none border border-[var(--color-border)] hover:bg-[var(--color-bg-alt)] no-underline focus:outline-2 focus:outline-offset-2 focus:outline-[var(--color-accent)]"
-          aria-label="Return to dashboard"
+          aria-label="Return to zavorthControl"
         >
-          Go to Dashboard
+          Go to ZavorthControl
         </a>
         <a
           href="/status"

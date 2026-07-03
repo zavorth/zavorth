@@ -1,8 +1,22 @@
 import { StitchClassifiedError, StitchSuccessSummaryInput } from './stitchExecutorTypes.js';
 
+interface StitchErrorLike {
+  code?: string;
+  message?: string;
+  suggestion?: string;
+}
+
+function asStitchError(error: unknown): StitchErrorLike {
+  if (typeof error === 'object' && error !== null) {
+    return error as StitchErrorLike;
+  }
+  return {};
+}
+
 export function isRetriableStitchGenerationError(error: unknown): boolean {
-  const code = String((error as any)?.code || '').trim().toUpperCase();
-  const message = String((error as any)?.message || error || '').toLowerCase();
+  const stitchErr = asStitchError(error);
+  const code = String(stitchErr.code || '').trim().toUpperCase();
+  const message = String(stitchErr.message || error || '').toLowerCase();
   return (
     code === 'TIMEOUT' ||
     code === 'NETWORK_ERROR' ||
@@ -47,9 +61,10 @@ export function formatStitchSuccessSummary(input: StitchSuccessSummaryInput): st
 }
 
 export function classifyStitchError(error: unknown): StitchClassifiedError {
-  const stitchCode = String((error as any)?.code || '').trim().toUpperCase();
-  const stitchSuggestion = String((error as any)?.suggestion || '').trim() || undefined;
-  const message = String((error as any)?.message || error || '').trim();
+  const stitchErr = asStitchError(error);
+  const stitchCode = String(stitchErr.code || '').trim().toUpperCase();
+  const stitchSuggestion = String(stitchErr.suggestion || '').trim() || undefined;
+  const message = String(stitchErr.message || error || '').trim();
   const normalized = message.toLowerCase();
 
   if (
@@ -71,42 +86,42 @@ export function classifyStitchError(error: unknown): StitchClassifiedError {
           code: 'STITCH_AUTH_FAILED',
           message:
             'O Stitch rejeitou a autenticacao. Verifique STITCH_API_KEY ou STITCH_ACCESS_TOKEN/GOOGLE_CLOUD_PROJECT.',
-          stderr: String((error as any)?.message || ''),
+          stderr: String(stitchErr.message || ''),
           suggestion: stitchSuggestion,
         };
       case 'RATE_LIMITED':
         return {
           code: 'STITCH_RATE_LIMITED',
           message: 'O Stitch recusou a chamada por limite de taxa. Aguarde um pouco antes de tentar novamente.',
-          stderr: String((error as any)?.message || ''),
+          stderr: String(stitchErr.message || ''),
           suggestion: stitchSuggestion,
         };
       case 'NETWORK_ERROR':
         return {
           code: 'STITCH_NETWORK_ERROR',
           message: 'Nao consegui falar com o Stitch pela rede neste momento.',
-          stderr: String((error as any)?.message || ''),
+          stderr: String(stitchErr.message || ''),
           suggestion: stitchSuggestion,
         };
       case 'VALIDATION_ERROR':
         return {
           code: 'STITCH_VALIDATION_ERROR',
-          message: String((error as any)?.message || '') || 'O Stitch recusou os parametros da geracao.',
-          stderr: String((error as any)?.message || ''),
+          message: String(stitchErr.message || '') || 'O Stitch recusou os parametros da geracao.',
+          stderr: String(stitchErr.message || ''),
           suggestion: stitchSuggestion,
         };
       case 'PERMISSION_DENIED':
         return {
           code: 'STITCH_PERMISSION_DENIED',
           message: 'O Stitch negou acesso a esse recurso para a autenticacao atual.',
-          stderr: String((error as any)?.message || ''),
+          stderr: String(stitchErr.message || ''),
           suggestion: stitchSuggestion,
         };
       default:
         return {
           code: `STITCH_${stitchCode}`,
-          message: String((error as any)?.message || '') || 'O Stitch falhou durante a geracao.',
-          stderr: String((error as any)?.message || ''),
+          message: String(stitchErr.message || '') || 'O Stitch falhou durante a geracao.',
+          stderr: String(stitchErr.message || ''),
           suggestion: stitchSuggestion,
         };
     }

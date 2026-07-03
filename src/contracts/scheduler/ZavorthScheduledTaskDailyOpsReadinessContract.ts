@@ -13,7 +13,7 @@ export type ZavorthScheduledTaskDailyOpsReadinessGateKind =
   | 'surface-command-coverage'
   | 'lifecycle-command-coverage'
   | 'host-task-readiness'
-  | 'no-dashboard-visual-mutation'
+  | 'no-zavorthControl-visual-mutation'
   | 'no-direct-dispatch';
 
 export type ZavorthScheduledTaskDailyOpsReadinessGate = {
@@ -29,7 +29,7 @@ export type ZavorthScheduledTaskDailyOpsReadinessSurface =
   | 'telegram'
   | 'automation_control_plane'
   | 'cli'
-  | 'dashboard_projection';
+  | 'zavorthControl_projection';
 
 export type ZavorthScheduledTaskDailyOpsReadinessSurfaceCommand = {
   surface: ZavorthScheduledTaskDailyOpsReadinessSurface;
@@ -92,7 +92,7 @@ export type ZavorthScheduledTaskDailyOpsReadinessSnapshot = {
     allUserActionsGoThroughGovernedSurfaces: true;
     hostTaskCertificationIsExplicit: true;
     noZavorthControlVisualMutation: true;
-    noDashboardVisualMutation: true;
+    noZavorthControlVisualMutation: true;
     noDirectDispatcherBypass: true;
     rawSecretsSerialized: false;
   };

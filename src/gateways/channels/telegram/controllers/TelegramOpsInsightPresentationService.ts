@@ -81,7 +81,7 @@ export class TelegramOpsInsightPresentationService {
       ],
       actions: [
         { id: 'hub', label: 'Hub', kind: 'callback', callbackData: 'hub:page:overview', style: 'primary' },
-        { id: 'dashboard', label: 'Dashboard', kind: 'command', command: '/dashboard', style: 'secondary' },
+        { id: 'zavorthControl', label: 'ZavorthControl', kind: 'command', command: '/zavorthControl', style: 'secondary' },
         { id: 'tasks', label: 'Tasks', kind: 'command', command: '/tasks', style: 'secondary' },
         { id: 'permissions', label: 'Permissoes', kind: 'command', command: '/perm list', style: 'secondary' },
       ],
@@ -137,7 +137,7 @@ export class TelegramOpsInsightPresentationService {
       lines.push(`Backlog antigo ainda visivel: ${staleCount}.`);
     }
 
-    lines.push('Atalhos uteis: /zavorth, /settings, /tasks, /dashboard, /presentation, /demo');
+    lines.push('Atalhos uteis: /zavorth, /settings, /tasks, /zavorthControl, /presentation, /demo');
 
     if (lastFailure) {
       lines.push(

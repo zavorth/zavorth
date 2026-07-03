@@ -14,7 +14,7 @@ export function renderZavorthCliHatch(snapshot: ZavorthCliHatchSnapshot): string
       lines: renderPremiumKeyValueTable([
         { key: 'recommended', value: snapshot.launch.recommended, accent: snapshot.status === 'ready' ? 'emerald' : 'cyan' },
         { key: 'terminal', value: snapshot.launch.terminal, accent: 'cyan' },
-        { key: 'dashboard', value: snapshot.launch.dashboard, accent: 'cyan' },
+        { key: 'zavorthControl', value: snapshot.launch.zavorthControl, accent: 'cyan' },
         { key: 'setup', value: snapshot.launch.setup, accent: snapshot.status === 'needs_setup' ? 'amber' : 'muted' },
       ]).split('\n'),
     },
@@ -46,7 +46,7 @@ export function renderZavorthCliHatch(snapshot: ZavorthCliHatchSnapshot): string
       { label: 'Hatch', value: statusLabel(snapshot.status), status: statusToPremium(snapshot.status) },
       { label: 'Provider', value: snapshot.home.provider.configured ? `${snapshot.home.provider.id}/${snapshot.home.provider.model || 'default'}` : 'missing', status: snapshot.home.provider.configured ? 'ready' : 'warning' },
       { label: 'Approvals', value: `${snapshot.home.approvals.pending} pending`, status: snapshot.home.approvals.pending > 0 ? 'waiting' : 'ready' },
-      { label: 'Dashboard', value: snapshot.home.runtime.dashboard, status: snapshot.home.runtime.dashboard === 'available' ? 'ready' : 'warning' },
+      { label: 'ZavorthControl', value: snapshot.home.runtime.zavorthControl, status: snapshot.home.runtime.zavorthControl === 'available' ? 'ready' : 'warning' },
     ],
     panels,
     actions: snapshot.nextActions.map((action) => ({

@@ -6,7 +6,7 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 /**
  * POST /api/providers/[id]/refresh
  * Manually trigger an OAuth token refresh for a provider connection.
- * Useful when the dashboard shows a stale/expired token and the user
+ * Useful when the zavorthControl shows a stale/expired token and the user
  * doesn't want to wait for the next auto-refresh cycle.
  *
  * T12 — Manual Token Refresh UI

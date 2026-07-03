@@ -294,15 +294,15 @@ export class TenantTeamOpsService {
   }
 
   private checkWebMarkers(): TenantTeamOpsCheck {
-    const html = this.html !== null ? this.html : buildRuntimeShellHtml('/dashboard');
+    const html = this.html !== null ? this.html : buildRuntimeShellHtml('/zavorthControl');
     const missing = TENANT_TEAM_OPS_WEB_MARKERS.filter((marker) => !html.includes(marker));
     return this.check(
       'web:tenant-team-ops-card',
-      'card Tenant/Team Ops no /dashboard',
+      'card Tenant/Team Ops no /zavorthControl',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Dashboard expoe identidade, policy, permissoes e isolamento por tenant/time.'
-        : 'Dashboard perdeu marcadores de Tenant/Team Ops.',
+        ? 'ZavorthControl expoe identidade, policy, permissoes e isolamento por tenant/time.'
+        : 'ZavorthControl perdeu marcadores de Tenant/Team Ops.',
       'web',
       missing.map((marker) => `faltando: ${marker}`),
     );

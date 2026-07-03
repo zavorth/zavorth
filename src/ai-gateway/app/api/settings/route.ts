@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       hasPassword: !!password || !!process.env.INITIAL_PASSWORD,
       runtimePorts,
       apiPort: runtimePorts.apiPort,
-      dashboardPort: runtimePorts.dashboardPort,
+      zavorthControlPort: runtimePorts.zavorthControlPort,
       cloudConfigured: Boolean(cloudUrl),
       cloudUrl,
       machineId,

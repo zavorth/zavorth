@@ -47,7 +47,7 @@ export const KIRO_MITM_PROFILE: MitmTarget = {
     "2. Start the MITM proxy: `zavorth mitm start --target kiro`",
     "3. Set your system HTTP proxy to 127.0.0.1:20130 (or use transparent MITM via DNS override)",
     "4. Open Kiro IDE - API calls will be automatically routed through Zavorth.",
-    "5. Verify: check the Proxy Logs in the Zavorth dashboard and look for provider=anthropic source=mitm",
+    "5. Verify: check the Proxy Logs in the Zavorth zavorthControl and look for provider=anthropic source=mitm",
   ],
   referenceIde: "zavorthBridge",
 };

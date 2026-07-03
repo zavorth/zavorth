@@ -27,9 +27,9 @@ export function buildWebRuntimeConfig(projectRoot: string) {
     zavorthEchoEdgeExecuteRateLimitMaxRequests: parseEnvInt(process.env.ZAVORTH_ECHO_EDGE_EXECUTE_RATE_LIMIT_MAX_REQUESTS, 12),
     zavorthEchoEdgeResolveRateLimitMaxRequests: parseEnvInt(process.env.ZAVORTH_ECHO_EDGE_RESOLVE_RATE_LIMIT_MAX_REQUESTS, 30),
     zavorthEchoEdgeMaxBodyBytes: parseEnvInt(process.env.ZAVORTH_ECHO_EDGE_MAX_BODY_BYTES, 32768),
-    dashboardRuntimeStateFile:
-      process.env.ZAVORTH_DASHBOARD_RUNTIME_STATE_FILE ||
-      path.resolve(projectRoot, 'data', 'runtime', 'dashboard-runtime.json'),
+    zavorthControlRuntimeStateFile:
+      process.env.ZAVORTH_ZAVORTH_CONTROL_RUNTIME_STATE_FILE ||
+      path.resolve(projectRoot, 'data', 'runtime', 'zavorthControl-runtime.json'),
     mcpRuntimeStateFile:
       process.env.ZAVORTH_MCP_RUNTIME_STATE_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'mcp-runtime-state.json'),

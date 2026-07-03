@@ -132,7 +132,7 @@ export type BlueprintCompletionGateSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     preCanaryCommand: 'npm run qa:release-candidate-pre-canary';
     rolloutCommand: 'npm run qa:capability-autopilot-release-rollout';
     executionCommand: 'npm run qa:capability-autopilot-release-execution';
@@ -371,7 +371,7 @@ export class BlueprintCompletionGateService {
       },
       surface: {
         cliCommand: `zavorth blueprint-completion run ${run.id} --json`,
-        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
         preCanaryCommand: 'npm run qa:release-candidate-pre-canary',
         rolloutCommand: 'npm run qa:capability-autopilot-release-rollout',
         executionCommand: 'npm run qa:capability-autopilot-release-execution',

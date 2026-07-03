@@ -143,7 +143,7 @@ export function formatPersonalOpsAutopilotSnapshot(
   lines.push('- sugestoes usam receipts e nao serializam secrets');
 
   lines.push('', 'Superficies');
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Approval: ${snapshot.surface.approvalHint}`);
 

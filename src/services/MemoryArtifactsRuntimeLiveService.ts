@@ -1,32 +1,18 @@
-// @ts-nocheck
 import crypto from 'crypto';
 import { logger } from '../logger.js';
 import { execFile } from 'child_process';
-import { logger } from '../logger.js';
 import fs from 'fs';
-import { logger } from '../logger.js';
 import os from 'os';
-import { logger } from '../logger.js';
 import path from 'path';
-import { logger } from '../logger.js';
 import { promisify } from 'util';
-import { logger } from '../logger.js';
 import { ZAVORTH_PLUGIN_OS_API_VERSION, type ZavorthPluginManifest } from '../contracts/PluginManifestContract.js';
-import { logger } from '../logger.js';
 import type { ExecutionResult } from '../contracts/ExecutionContract.js';
-import { logger } from '../logger.js';
 import { ArtifactPipelineService } from './ArtifactPipelineService.js';
-import { logger } from '../logger.js';
 import { CodexRuntimePlaneService } from './CodexRuntimePlaneService.js';
-import { logger } from '../logger.js';
 import { MemoryWikiService } from './MemoryWikiService.js';
-import { logger } from '../logger.js';
 import { OpenShellRemoteSandboxService } from './OpenShellRemoteSandboxService.js';
-import { logger } from '../logger.js';
 import { PluginRegistryService } from './PluginRegistryService.js';
-import { logger } from '../logger.js';
 import { WorkflowRunService } from './WorkflowRunService.js';
-import { logger } from '../logger.js';
 
 const execFileAsync = promisify(execFile);
 

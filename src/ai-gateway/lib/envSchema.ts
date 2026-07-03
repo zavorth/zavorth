@@ -123,5 +123,5 @@ export function enforceEnvSchema(logger = console): void {
   logger.error("═══════════════════════════════════════════════════════════");
   logger.error("");
 
-  process.exit(1);
+  throw new Error(`Environment validation failed: ${result.errors.map((e) => `${e.field}: ${e.message}`).join(', ')}`);
 }

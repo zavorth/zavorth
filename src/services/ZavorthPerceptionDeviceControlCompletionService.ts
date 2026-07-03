@@ -73,13 +73,13 @@ export class ZavorthPerceptionDeviceControlCompletionService {
     const blocked = entries.filter((entry) => entry.status === 'blocked').length;
     const pcScreenshotReadOnlyReady = hasPassed(perception, 'pc-screenshot');
     const browserViewReady = hasPassed(perception, 'browser-dom') && hasPassed(perception, 'browser-screenshot');
-    const browserControlPolicyGated = perception.dashboardProjection.liveSafetyStatus.explicitApprovalRequired
-      && perception.dashboardProjection.liveSafetyStatus.mutationRequiresApproval;
+    const browserControlPolicyGated = perception.zavorthControlProjection.liveSafetyStatus.explicitApprovalRequired
+      && perception.zavorthControlProjection.liveSafetyStatus.mutationRequiresApproval;
     const androidObserveReady = hasPassed(perception, 'adb-screenshot') && hasPassed(perception, 'adb-ui-dump');
     const androidControlPolicyGated = hasPassed(perception, 'approval-required-tap-type-click')
       && device.policy.biometricOrDeviceConfirmRequiresTrust;
-    const visualArtifactsInReceipts = perception.dashboardProjection.artifacts.length >= 5
-      && perception.dashboardProjection.artifacts.every((artifact) =>
+    const visualArtifactsInReceipts = perception.zavorthControlProjection.artifacts.length >= 5
+      && perception.zavorthControlProjection.artifacts.every((artifact) =>
         artifact.redacted === true && artifact.rawContentStored === false);
 
     return {
@@ -125,7 +125,7 @@ export class ZavorthPerceptionDeviceControlCompletionService {
         inspect: 'npm run zavorth:perception-device-control-completion',
         inspectJson: 'npm run zavorth:perception-device-control-completion:json',
         check: 'npm run zavorth:perception-device-control-completion:check --silent',
-        nextStage: 'Intent model1 - Dashboard Final Product Polish',
+        nextStage: 'Intent model1 - ZavorthControl Final Product Polish',
       },
     };
   }
@@ -177,7 +177,7 @@ function buildEntries(input: {
       requiresApprovalForMutation: false,
       evidence: [
         matrixEvidence(perception, 'pc-screenshot'),
-        `artifacts=${perception.dashboardProjection.artifacts.filter((artifact) => artifact.targetId === 'pc').length}`,
+        `artifacts=${perception.zavorthControlProjection.artifacts.filter((artifact) => artifact.targetId === 'pc').length}`,
       ],
       blockers: [],
     }),
@@ -196,15 +196,15 @@ function buildEntries(input: {
       id: 'browser.control-gated',
       label: 'Browser control remains policy-gated',
       kind: 'browser',
-      passed: perception.dashboardProjection.liveSafetyStatus.explicitApprovalRequired
-        && perception.dashboardProjection.liveSafetyStatus.mutationRequiresApproval
-        && perception.dashboardProjection.liveSafetyStatus.noVisualMutationWithoutOwnerApproval,
+      passed: perception.zavorthControlProjection.liveSafetyStatus.explicitApprovalRequired
+        && perception.zavorthControlProjection.liveSafetyStatus.mutationRequiresApproval
+        && perception.zavorthControlProjection.liveSafetyStatus.noVisualMutationWithoutOwnerApproval,
       readyForDailyUse: true,
       liveReadyWhenHostConfigured: true,
       requiresApprovalForMutation: true,
       evidence: [
-        `explicitApprovalRequired=${perception.dashboardProjection.liveSafetyStatus.explicitApprovalRequired}`,
-        `mutationRequiresApproval=${perception.dashboardProjection.liveSafetyStatus.mutationRequiresApproval}`,
+        `explicitApprovalRequired=${perception.zavorthControlProjection.liveSafetyStatus.explicitApprovalRequired}`,
+        `mutationRequiresApproval=${perception.zavorthControlProjection.liveSafetyStatus.mutationRequiresApproval}`,
       ],
       blockers: [],
     }),
@@ -252,16 +252,16 @@ function buildEntries(input: {
       id: 'visual.artifact-receipts',
       label: 'Visual artifacts are receipt-safe',
       kind: 'artifact',
-      passed: perception.dashboardProjection.artifacts.length >= 5
-        && perception.dashboardProjection.artifacts.every((artifact) =>
+      passed: perception.zavorthControlProjection.artifacts.length >= 5
+        && perception.zavorthControlProjection.artifacts.every((artifact) =>
           artifact.redacted === true && artifact.rawContentStored === false)
-        && perception.dashboardProjection.receipts.every((receipt) => receipt.rawSecretSerialized === false),
+        && perception.zavorthControlProjection.receipts.every((receipt) => receipt.rawSecretSerialized === false),
       readyForDailyUse: true,
       liveReadyWhenHostConfigured: true,
       requiresApprovalForMutation: false,
       evidence: [
-        `artifacts=${perception.dashboardProjection.artifacts.length}`,
-        `receipts=${perception.dashboardProjection.receipts.length}`,
+        `artifacts=${perception.zavorthControlProjection.artifacts.length}`,
+        `receipts=${perception.zavorthControlProjection.receipts.length}`,
       ],
       blockers: [],
     }),

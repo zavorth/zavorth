@@ -1,5 +1,6 @@
 import path from 'path';
 import type {
+import { logger } from '../logger.js';
   SystemOverlordSmokeItem,
   SystemOverlordSmokeReport,
   SystemOverlordSmokeStatus,
@@ -107,5 +108,5 @@ export function writeSmokeReport(
   try {
     input.mkdirSync(path.dirname(input.reportFile), { recursive: true });
     input.writeFileSync(input.reportFile, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 }

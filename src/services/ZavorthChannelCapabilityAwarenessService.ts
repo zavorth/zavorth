@@ -76,7 +76,7 @@ export class ZavorthChannelCapabilityAwarenessService {
         sharedResponseContract: true,
         noTelegramPrivileging: true,
         channelSpecificRenderingOnly: true,
-        noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         rawSecretsSerialized: false,
       },
       commands: {

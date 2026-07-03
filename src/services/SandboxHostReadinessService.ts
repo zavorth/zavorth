@@ -1,22 +1,13 @@
-// @ts-nocheck
 import fs from 'fs';
 import { logger } from '../logger.js';
 import os from 'os';
-import { logger } from '../logger.js';
 import path from 'path';
-import { logger } from '../logger.js';
 import { config as defaultConfig, type ZavorthConfig } from '../config/index.js';
-import { logger } from '../logger.js';
 import { SandboxExecutionService } from './SandboxExecutionService.js';
-import { logger } from '../logger.js';
 import { DockerSandboxRuntime, type DockerSandboxStatus } from './sandbox/DockerSandboxRuntime.js';
-import { logger } from '../logger.js';
 import { FirecrackerSandboxRuntime, type FirecrackerSandboxStatus } from './sandbox/FirecrackerSandboxRuntime.js';
-import { logger } from '../logger.js';
 import type { SandboxResult } from './sandbox/ISandboxRuntime.js';
-import { logger } from '../logger.js';
 import { LocalJailSandboxRuntime } from './sandbox/LocalJailSandboxRuntime.js';
-import { logger } from '../logger.js';
 
 export type SandboxHostTierId = 'local-jail' | 'docker' | 'gvisor' | 'firecracker';
 export type SandboxHostTierStatus =

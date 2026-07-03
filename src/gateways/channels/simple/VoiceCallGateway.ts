@@ -2,6 +2,20 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface VoiceCallWebhookPayload {
+  caller?: string;
+  from?: string;
+  userId?: string;
+  chatId?: string;
+  callId?: string;
+  transcript?: string;
+  text?: string;
+  rawText?: string;
+  messageId?: string;
+  status?: string;
+  duration?: string | number | null;
+}
+
 export class VoiceCallGateway extends WebhookGateway {
   public readonly id = 'voice-call';
   public readonly name = 'Voice Call';
@@ -54,28 +68,11 @@ export class VoiceCallGateway extends WebhookGateway {
     isGroup?: boolean;
     fields?: Record<string, unknown>;
   } | null {
-    const userId = String(
-      (webhookPayload as any).caller
-      || (webhookPayload as any).from
-      || (webhookPayload as any).userId
-      || '',
-    ).trim();
-    const chatId = String(
-      (webhookPayload as any).chatId
-      || (webhookPayload as any).callId
-      || 'voice-call',
-    ).trim();
-    const rawText = String(
-      (webhookPayload as any).transcript
-      || (webhookPayload as any).text
-      || (webhookPayload as any).rawText
-      || '',
-    ).trim();
-    const messageId = String(
-      (webhookPayload as any).callId
-      || (webhookPayload as any).messageId
-      || '',
-    ).trim() || null;
+    const p = webhookPayload as VoiceCallWebhookPayload;
+    const userId = String(p.caller || p.from || p.userId || '').trim();
+    const chatId = String(p.chatId || p.callId || 'voice-call').trim();
+    const rawText = String(p.transcript || p.text || p.rawText || '').trim();
+    const messageId = String(p.callId || p.messageId || '').trim() || null;
 
     if (!rawText) {
       return null;
@@ -88,8 +85,8 @@ export class VoiceCallGateway extends WebhookGateway {
       messageId,
       isGroup: false,
       fields: {
-        callStatus: String((webhookPayload as any).status || ''),
-        duration: (webhookPayload as any).duration || null,
+        callStatus: String(p.status || ''),
+        duration: p.duration || null,
       },
     };
   }

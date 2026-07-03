@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { logger } from '../../../../logger.js';
 import { Context, InputFile } from 'grammy';
 import fs from 'fs';
@@ -11,6 +10,12 @@ import {
   ZavorthBridgeWindowAutomatorLike,
   LiveBridgeSnapshot,
 } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeTypes.js';
+
+interface MediaGroupPhotoItem {
+  type: 'photo';
+  media: InputFile | string;
+  caption?: string;
+}
 
 type TelegramZavorthBridgeWindowBridgeServiceDeps = {
   zavorthBridgePreferenceStore: Pick<ZavorthBridgePreferenceStore, 'getPreferredModel'>;
@@ -77,7 +82,7 @@ export class TelegramZavorthBridgeWindowBridgeService {
       }
 
       try {
-        const mediaGroup = [];
+        const mediaGroup: MediaGroupPhotoItem[] = [];
         if (fs.existsSync(beforePath)) {
           mediaGroup.push({ type: 'photo', media: new InputFile(beforePath), caption: 'ANTES da acao' });
         }
@@ -85,7 +90,7 @@ export class TelegramZavorthBridgeWindowBridgeService {
           mediaGroup.push({ type: 'photo', media: new InputFile(afterPath), caption: 'DEPOIS da acao' });
         }
         if (mediaGroup.length > 0) {
-          await ctx.replyWithMediaGroup?.(mediaGroup as any);
+          await ctx.replyWithMediaGroup?.(mediaGroup);
         }
       } catch (sendError) {
         logger.warn('[ZavorthBridge] Falha ao enviar snapshots via Telegram:', sendError);
@@ -94,15 +99,16 @@ export class TelegramZavorthBridgeWindowBridgeService {
           if (fs.existsSync(beforePath)) {
             fs.unlinkSync(beforePath);
           }
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         try {
           if (fs.existsSync(afterPath)) {
             fs.unlinkSync(afterPath);
           }
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       }
     } catch (error: unknown) {
-      await ctx.reply(`Falha na automacao da janela do ZavorthBridge: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      await ctx.reply(`Falha na automacao da janela do ZavorthBridge: ${message}`);
     }
   }
 
@@ -125,7 +131,8 @@ export class TelegramZavorthBridgeWindowBridgeService {
         ].join('\n'),
       );
     } catch (error: unknown) {
-      await ctx.reply(`Nao consegui ler o estado da ponte interna do ZavorthBridge agora.\n\nMotivo: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      await ctx.reply(`Nao consegui ler o estado da ponte interna do ZavorthBridge agora.\n\nMotivo: ${message}`);
     }
   }
 

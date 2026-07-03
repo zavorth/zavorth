@@ -637,7 +637,7 @@ export class AgentRunFactory {
       {
         id: `${input.channel || 'unknown'}:primary`,
         label: input.channel === 'web'
-          ? 'Dashboard'
+          ? 'ZavorthControl'
           : input.channel === 'cli'
             ? 'Terminal'
             : input.channel === 'telegram'

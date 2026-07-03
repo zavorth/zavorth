@@ -17,7 +17,32 @@ const CHANNEL_INSTALL_MODES = [
   'smtp-imap',
 ] as const;
 
-type NaturalSetupMutationPlannerLike = {
+interface NaturalSetupPreviewResult {
+  mutationPlan?: unknown;
+  trustDecision?: unknown;
+  snapshot?: unknown;
+  ok?: boolean;
+  status?: string;
+  results?: unknown;
+  summary?: unknown;
+}
+
+interface NaturalSetupApplyResult {
+  ok: boolean;
+  status: string;
+  mutationPlan?: unknown;
+  results?: unknown;
+  snapshot?: unknown;
+  summary?: unknown;
+}
+
+interface InstallReportChannelEntry {
+  channelId?: string;
+  modes?: ChannelInstallMode[];
+  [key: string]: unknown;
+}
+
+interface NaturalSetupMutationPlannerLike {
   preview: (input: {
     intentText?: string | null;
     channelId?: string | null;
@@ -28,9 +53,9 @@ type NaturalSetupMutationPlannerLike = {
     localOnly?: boolean;
     requestedBy?: string | null;
     sourceSurface?: string | null;
-  }) => Promise<any>;
-  apply: (input: { planId: string; requestedBy?: string | null }) => Promise<any>;
-};
+  }) => Promise<NaturalSetupPreviewResult>;
+  apply: (input: { planId: string; requestedBy?: string | null }) => Promise<NaturalSetupApplyResult>;
+}
 
 export class WebAppSurfaceChannelTransportRouteService {
   public async handleRequest(
@@ -185,8 +210,9 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           202,
         );
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao aplicar setup assistido do canal.' }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Falha ao aplicar setup assistido do canal.';
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }
@@ -239,8 +265,9 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           202,
         );
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar doctor assistido do canal.' }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Falha ao executar doctor assistido do canal.';
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }
@@ -271,8 +298,9 @@ export class WebAppSurfaceChannelTransportRouteService {
             selectedId: result.assistant.selected?.channelId || result.channelId || null,
           }) || null,
         }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar o fluxo natural de setup do canal.' }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Falha ao executar o fluxo natural de setup do canal.';
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }
@@ -297,8 +325,9 @@ export class WebAppSurfaceChannelTransportRouteService {
           result,
           channels: deps.channelMesh.buildSnapshot({ selectedId: channelId }),
         }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar a acao do Channel Mesh.' }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Falha ao executar a acao do Channel Mesh.';
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }
@@ -313,7 +342,7 @@ export class WebAppSurfaceChannelTransportRouteService {
       const selectedId = String(url.searchParams.get('selectedId') || '').trim().toLowerCase() || null;
       const requestedMode = String(url.searchParams.get('mode') || '').trim().toLowerCase();
       const selected = Array.isArray(report?.channels)
-        ? report.channels.find((entry: any) => String(entry?.channelId || '').trim().toLowerCase() === selectedId)
+        ? report.channels.find((entry: InstallReportChannelEntry) => String(entry?.channelId || '').trim().toLowerCase() === selectedId)
           || report.channels[0]
           || null
         : null;
@@ -370,7 +399,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
         const installReport = deps.channelInstall.buildReport();
         const selected = Array.isArray(installReport?.channels)
-          ? installReport.channels.find((entry: any) => String(entry?.channelId || '').trim().toLowerCase() === channelId) || null
+          ? installReport.channels.find((entry: InstallReportChannelEntry) => String(entry?.channelId || '').trim().toLowerCase() === channelId) || null
           : null;
         const selectedMode = selected && Array.isArray(selected?.modes) && selected.modes.length > 0
           ? selected.modes.find((entry: ChannelInstallMode) => String(entry || '').trim().toLowerCase() === mode) || null
@@ -396,8 +425,9 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           200,
         );
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao aplicar o scaffold do canal.' }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Falha ao aplicar o scaffold do canal.';
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }
@@ -424,8 +454,9 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           200,
         );
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar o doctor dos canais.' }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Falha ao executar o doctor dos canais.';
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }
@@ -504,8 +535,9 @@ export class WebAppSurfaceChannelTransportRouteService {
         });
         deps.writeJson(res, { ok: true, result, channel, channels: snapshot }, 200);
         return true;
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao operar o canal.' }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Falha ao operar o canal.';
+        deps.writeJson(res, { ok: false, error: message }, 400);
         return true;
       }
     }
@@ -549,8 +581,9 @@ export class WebAppSurfaceChannelTransportRouteService {
           result,
           transports: deps.remoteTransports.buildSnapshot({ selectedId: transportId }),
         }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar a acao do plano remoto.' }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Falha ao executar a acao do plano remoto.';
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }
@@ -611,8 +644,9 @@ export class WebAppSurfaceChannelTransportRouteService {
             },
             report.status === 'failed' ? 409 : 200,
           );
-        } catch (error: any) {
-          deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao rodar o doctor remoto.' }, 400);
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Falha ao rodar o doctor remoto.';
+          deps.writeJson(res, { ok: false, error: message }, 400);
         }
         return true;
       }
@@ -641,8 +675,9 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           result.ok ? 200 : 409,
         );
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao recuperar o transporte remoto.' }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Falha ao recuperar o transporte remoto.';
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }

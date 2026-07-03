@@ -19,9 +19,9 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <h1>Runtime, terminal and API live here.</h1>
         <p class="hero-copy">
           This official repo is the home of the Zavorth runtime, CLI and API.
-          The main entry is <code>/dashboard</code>.
+          The main entry is <code>/zavorthControl</code>.
           This shell is an internal maintenance fallback: it summarizes runtime, sessions, approvals
-          and the operational mesh when the canonical dashboard assets are unavailable.
+          and the operational mesh when the canonical zavorthControl assets are unavailable.
         </p>
         <div class="status-grid">
           <article class="status-pill">
@@ -48,7 +48,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <div class="action-row hero-actions">
           <button type="button" class="action-button" data-copy="npm run ops:go">Copy npm run ops:go</button>
           <button type="button" class="action-button secondary" data-copy="npm run cli -- status">Copy CLI status</button>
-          <a id="open-dashboard" class="action-button secondary" href="/dashboard">Open dashboard</a>
+          <a id="open-zavorthControl" class="action-button secondary" href="/zavorthControl">Open zavorthControl</a>
         </div>
         <p class="muted-copy hero-note">
           Main path: <code>npm run ops:go</code>. If you operate from terminal only, use
@@ -342,7 +342,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             <li>Entrada principal: <code>npm run ops:go</code></li>
             <li>Ready check: <code>npm run ops:ready</code></li>
             <li>CLI: <code>npm run cli -- status</code></li>
-            <li>Dashboard web: <code>/dashboard</code></li>
+            <li>ZavorthControl web: <code>/zavorthControl</code></li>
           </ul>
         </article>
         <article class="handoff-card">
@@ -357,10 +357,10 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <article class="handoff-card">
           <h2>Fronteira do produto</h2>
           <ul class="handoff-list">
-            <li><code>/dashboard</code> = entrada principal do Zavorth web</li>
+            <li><code>/zavorthControl</code> = entrada principal do Zavorth web</li>
             <li><code>/satellite</code> = superficie movel/PWA quando configurada</li>
             <li><code>/api/*</code> = contrato de runtime para CLI, web e clientes futuros</li>
-            <li><code>/app</code> e <code>/classic</code> = removidos; use <code>/dashboard</code></li>
+            <li><code>/app</code> e <code>/classic</code> = removidos; use <code>/zavorthControl</code></li>
             <li><code>zavorth-web</code> = cliente externo, quando configurado</li>
             <li>Terminal e API continuam no centro do repositorio oficial</li>
           </ul>

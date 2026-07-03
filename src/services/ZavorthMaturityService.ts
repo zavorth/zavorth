@@ -8,7 +8,7 @@ import type {
 import { OperationalMaturityService } from '../domain/platform-ecosystem/application/OperationalMaturityService.js';
 import { ChannelExperienceCertificationService } from './ChannelExperienceCertificationService.js';
 import { LiveReadinessCertificationService } from './LiveReadinessCertificationService.js';
-import { ZavorthDashboardVisualQaService } from './ZavorthDashboardVisualQaService.js';
+import { ZavorthZavorthControlVisualQaService } from './ZavorthZavorthControlVisualQaService.js';
 import { ZavorthDataLifecyclePolicyService } from './ZavorthDataLifecyclePolicyService.js';
 import { ZavorthHostLiveCertificationService } from './ZavorthHostLiveCertificationService.js';
 
@@ -17,7 +17,7 @@ type LiveReadinessCertificationReader = Pick<LiveReadinessCertificationService, 
 type OperationalMaturityReader = Pick<OperationalMaturityService, 'validate'>;
 type ZavorthHostLiveCertificationReader = Pick<ZavorthHostLiveCertificationService, 'buildSnapshot'>;
 type ZavorthDataLifecyclePolicyReader = Pick<ZavorthDataLifecyclePolicyService, 'buildSnapshot'>;
-type ZavorthDashboardVisualQaReader = Pick<ZavorthDashboardVisualQaService, 'buildSnapshot'>;
+type ZavorthZavorthControlVisualQaReader = Pick<ZavorthZavorthControlVisualQaService, 'buildSnapshot'>;
 
 type ZavorthMaturityRuntime = {
   now?: () => Date;
@@ -27,7 +27,7 @@ type ZavorthMaturityRuntime = {
   operationalMaturityService?: OperationalMaturityReader;
   hostLiveCertificationService?: ZavorthHostLiveCertificationReader;
   dataLifecyclePolicyService?: ZavorthDataLifecyclePolicyReader;
-  dashboardVisualQaService?: ZavorthDashboardVisualQaReader;
+  zavorthControlVisualQaService?: ZavorthZavorthControlVisualQaReader;
   existsSync?: typeof fs.existsSync;
   readFileSync?: typeof fs.readFileSync;
 };
@@ -48,8 +48,8 @@ const REQUIRED_OPERATOR_SCRIPTS = [
   'zavorth:live-host:check',
   'zavorth:data-lifecycle',
   'zavorth:data-lifecycle:check',
-  'zavorth:dashboard-visual-qa',
-  'zavorth:dashboard-visual-qa:check',
+  'zavorth:zavorthControl-visual-qa',
+  'zavorth:zavorthControl-visual-qa:check',
 ];
 
 export class ZavorthMaturityService {
@@ -60,7 +60,7 @@ export class ZavorthMaturityService {
   private readonly operationalMaturity: OperationalMaturityReader;
   private readonly hostLive: ZavorthHostLiveCertificationReader;
   private readonly dataLifecycle: ZavorthDataLifecyclePolicyReader;
-  private readonly dashboardVisualQa: ZavorthDashboardVisualQaReader;
+  private readonly zavorthControlVisualQa: ZavorthZavorthControlVisualQaReader;
   private readonly readFileSync: typeof fs.readFileSync;
 
   public constructor(runtime: ZavorthMaturityRuntime = {}) {
@@ -78,7 +78,7 @@ export class ZavorthMaturityService {
       now: this.now,
       existsSync: runtime.existsSync,
     });
-    this.dashboardVisualQa = runtime.dashboardVisualQaService || new ZavorthDashboardVisualQaService({
+    this.zavorthControlVisualQa = runtime.zavorthControlVisualQaService || new ZavorthZavorthControlVisualQaService({
       projectRoot: this.projectRoot,
       now: this.now,
       existsSync: runtime.existsSync,
@@ -92,7 +92,7 @@ export class ZavorthMaturityService {
     const operational = this.operationalMaturity.validate();
     const hostLive = this.hostLive.buildSnapshot();
     const dataLifecycle = this.dataLifecycle.buildSnapshot();
-    const dashboardVisualQa = this.dashboardVisualQa.buildSnapshot();
+    const zavorthControlVisualQa = this.zavorthControlVisualQa.buildSnapshot();
     const packageInfo = this.readPackageInfo();
     const stubsOrPartials = channel.entries.filter((entry) =>
       ['partial', 'planned', 'missing'].includes(String(entry.readiness || '').toLowerCase())
@@ -105,7 +105,7 @@ export class ZavorthMaturityService {
       this.hostLiveCertificationGate(hostLive),
       this.operationalMaturityGate(operational),
       this.stubTruthGate(stubsOrPartials, channel.entries.length),
-      this.dashboardEvidenceGate(channel, dashboardVisualQa),
+      this.zavorthControlEvidenceGate(channel, zavorthControlVisualQa),
       this.dataLifecycleGate(dataLifecycle),
       this.operatorSimplicityGate(packageInfo),
     ];
@@ -127,7 +127,7 @@ export class ZavorthMaturityService {
       hostLiveReadyChannels: hostLive.summary.liveReady,
       hostLiveTotalChannels: hostLive.summary.total,
       dataLifecycleReleaseReady: dataLifecycle.summary.releaseReady,
-      dashboardVisualQaEvidenceReady: dashboardVisualQa.summary.evidenceReady,
+      zavorthControlVisualQaEvidenceReady: zavorthControlVisualQa.summary.evidenceReady,
       operationalMaturityOk: operational.ok,
       stubsOrPartials,
     };
@@ -143,7 +143,7 @@ export class ZavorthMaturityService {
         contractReady: channel.summary.releaseReady,
         dailyUseReady: summary.dailyUseReady,
         productionLiveReady,
-        dashboardVisualQaClaimed: dashboardVisualQa.summary.evidenceReady,
+        zavorthControlVisualQaClaimed: zavorthControlVisualQa.summary.evidenceReady,
         stubsAndPartialsExplicit: stubsOrPartials >= 0 && gates.some((gate) => gate.id === 'stub-partial-truth-ledger'),
         hostLiveCertificationHonest: hostLive.distinctions.contractReadyIsNotLive
           && hostLive.distinctions.noExternalSendDuringCertification,
@@ -179,7 +179,7 @@ export class ZavorthMaturityService {
       `Live de producao: ${snapshot.summary.productionLiveReady ? 'reivindicado' : 'nao reivindicado sem recibos do operador'}.`,
       `Host live: ${snapshot.summary.hostLiveReadyChannels}/${snapshot.summary.hostLiveTotalChannels} canal(is) live-ready.`,
       `Data lifecycle: ${snapshot.summary.dataLifecycleReleaseReady ? 'release-ready' : 'bloqueado'}.`,
-      `Dashboard QA visual: ${snapshot.summary.dashboardVisualQaEvidenceReady ? 'evidencia pronta' : 'plano/preview pendente'}.`,
+      `ZavorthControl QA visual: ${snapshot.summary.zavorthControlVisualQaEvidenceReady ? 'evidencia pronta' : 'plano/preview pendente'}.`,
       '',
       'Gates:',
       ...snapshot.gates.map((gate) => `- ${gate.status.toUpperCase()} ${gate.label}: ${gate.summary}`),
@@ -197,7 +197,7 @@ export class ZavorthMaturityService {
       summary: `${channel.summary.certified}/${channel.summary.total} canais certificados; blockers=${channel.summary.blockers}.`,
       evidence: [
         `contractVersion=${channel.contractVersion}`,
-        `dashboard=${channel.dashboardEvidence.status}`,
+        `zavorthControl=${channel.zavorthControlEvidence.status}`,
         `requirements=${channel.summary.requiredPassed}/${channel.summary.requiredTotal}`,
       ],
       commands: ['npm run channel-experience-certification -- --require-pass'],
@@ -299,36 +299,36 @@ export class ZavorthMaturityService {
     });
   }
 
-  private dashboardEvidenceGate(
+  private zavorthControlEvidenceGate(
     channel: ReturnType<ChannelExperienceCertificationService['buildSnapshot']>,
-    dashboard: ReturnType<ZavorthDashboardVisualQaService['buildSnapshot']>,
+    zavorthControl: ReturnType<ZavorthZavorthControlVisualQaService['buildSnapshot']>,
   ): ZavorthMaturityGate {
-    const contractReady = channel.dashboardEvidence.status === 'contract-ready';
-    const evidenceReady = dashboard.summary.evidenceReady;
+    const contractReady = channel.zavorthControlEvidence.status === 'contract-ready';
+    const evidenceReady = zavorthControl.summary.evidenceReady;
     return this.gate({
-      id: 'dashboard-contract-and-visual-qa',
-      label: 'Dashboard: contrato pronto, QA visual separado',
+      id: 'zavorthControl-contract-and-visual-qa',
+      label: 'ZavorthControl: contrato pronto, QA visual separado',
       status: contractReady ? (evidenceReady ? 'passed' : 'attention') : 'blocked',
       required: true,
       summary: contractReady && evidenceReady
         ? 'Backend entrega contrato e screenshots/manifest de QA visual existem.'
         : contractReady
         ? 'Backend entrega status/actions/QR, mas screenshot QA visual continua separado por aprovacao.'
-        : 'Dashboard nao recebe contrato suficiente para operar canais.',
+        : 'ZavorthControl nao recebe contrato suficiente para operar canais.',
       evidence: [
-        `dashboardEvidence=${channel.dashboardEvidence.status}`,
-        `visualQa=${dashboard.status}`,
-        `visualArtifacts=${dashboard.summary.artifactsPresent}/${dashboard.summary.artifactsExpected}`,
-        `routes=${channel.dashboardEvidence.routes.join(',')}`,
-        `dashboardVisualQaClaimed=${String(evidenceReady)}`,
+        `zavorthControlEvidence=${channel.zavorthControlEvidence.status}`,
+        `visualQa=${zavorthControl.status}`,
+        `visualArtifacts=${zavorthControl.summary.artifactsPresent}/${zavorthControl.summary.artifactsExpected}`,
+        `routes=${channel.zavorthControlEvidence.routes.join(',')}`,
+        `zavorthControlVisualQaClaimed=${String(evidenceReady)}`,
       ],
       commands: [
         'npm run channel-experience-certification',
-        'npm run qa:dashboard-browser-preview',
-        'npm run zavorth:dashboard-visual-qa -- --capture',
+        'npm run qa:zavorthControl-browser-preview',
+        'npm run zavorth:zavorthControl-visual-qa -- --capture',
       ],
       nextAction: contractReady
-        ? dashboard.commands.nextStep
+        ? zavorthControl.commands.nextStep
         : 'Fechar rotas/actions/status rows antes de mexer no visual.',
     });
   }

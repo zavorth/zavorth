@@ -80,13 +80,13 @@ export class ImageGenFalTool extends BaseTool {
 
   private checkStatus(): string {
     const apiKey = process.env.FAL_KEY;
-    if (!apiKey) return 'fal.ai: FAL_KEY not configured. Get one at https://fal.ai/dashboard/keys';
+    if (!apiKey) return 'fal.ai: FAL_KEY not configured. Get one at https://fal.ai/zavorthControl/keys';
     return 'fal.ai: API key configured.';
   }
 
   private async generate(args: Record<string, unknown>): Promise<string> {
     const apiKey = process.env.FAL_KEY;
-    if (!apiKey) return 'Error: FAL_KEY not configured. Get one at https://fal.ai/dashboard/keys';
+    if (!apiKey) return 'Error: FAL_KEY not configured. Get one at https://fal.ai/zavorthControl/keys';
 
     const prompt = String(args.prompt || '');
     if (!prompt) return 'Error: "prompt" is required for generate.';

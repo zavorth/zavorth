@@ -11,9 +11,15 @@ import { TemporaryDirectoryTrustService } from './TemporaryDirectoryTrustService
 import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { TrustedWorkspaceService } from './TrustedWorkspaceService.js';
+import { logger } from '../logger.js';
 import { config } from '../config/index.js';
 import * as schemas from '../domain/validation/controlSchemas.js';
 import type { ZavorthControlCoreRouteDeps } from './ZavorthControlCoreRouteService.js';
+
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return String(err);
+}
 
 function validateWorkspaceSession(workspaceId: string): boolean {
   if (!workspaceId) return false;
@@ -27,7 +33,9 @@ function validateWorkspaceSession(workspaceId: string): boolean {
     if (path.normalize(activeReal).toLowerCase() === path.normalize(candidateReal).toLowerCase()) {
       return true;
     }
-  } catch {}
+  } catch (err) {
+    logger.warn("[workspace-approvals] Workspace session validation failed (primary check):", err);
+  }
 
   try {
     const activeWs = WorkspaceResolver.resolve(null);
@@ -40,7 +48,9 @@ function validateWorkspaceSession(workspaceId: string): boolean {
         return true;
       }
     }
-  } catch {}
+  } catch (err) {
+    logger.warn("[workspace-approvals] Workspace session validation failed (alias check):", err);
+  }
 
   return false;
 }
@@ -90,8 +100,8 @@ export async function handleWorkspaceApprovalsRequest(
         });
 
       deps.writeJson(res, { ok: true, data });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -160,8 +170,8 @@ export async function handleWorkspaceApprovalsRequest(
       let resolvedPath: string;
       try {
         resolvedPath = pathGuard.resolveForWrite(relativePath);
-      } catch (pathErr: any) {
-        deps.writeJson(res, { ok: false, error: `Unsafe relative path: ${pathErr.message}` }, 403);
+      } catch (pathErr: unknown) {
+        deps.writeJson(res, { ok: false, error: `Unsafe relative path: ${getErrorMessage(pathErr)}` }, 403);
         return true;
       }
 
@@ -179,8 +189,8 @@ export async function handleWorkspaceApprovalsRequest(
           currentContent = buffer.toString('utf8');
           currentContentExists = true;
         }
-      } catch (readErr: any) {
-        deps.writeJson(res, { ok: false, error: `Failed to read current file: ${readErr.message}` }, 403);
+      } catch (readErr: unknown) {
+        deps.writeJson(res, { ok: false, error: `Failed to read current file: ${getErrorMessage(readErr)}` }, 403);
         return true;
       }
 
@@ -213,8 +223,8 @@ export async function handleWorkspaceApprovalsRequest(
           currentContentExists,
         }
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -247,8 +257,8 @@ export async function handleWorkspaceApprovalsRequest(
       }
 
       deps.writeJson(res, { ok: true });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -300,8 +310,8 @@ export async function handleWorkspaceApprovalsRequest(
           allowNetwork: grant.allowNetwork,
         }
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -327,8 +337,8 @@ export async function handleWorkspaceApprovalsRequest(
         developerModeActive: active,
         grant
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -360,8 +370,8 @@ export async function handleWorkspaceApprovalsRequest(
         trusted: entry !== null && entry.trusted,
         entry
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -421,8 +431,8 @@ export async function handleWorkspaceApprovalsRequest(
         });
         deps.writeJson(res, { ok: true, trusted: true, entry });
       }
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -466,8 +476,8 @@ export async function handleWorkspaceApprovalsRequest(
           targetDirectories: relativeTargets
         }
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -511,8 +521,8 @@ export async function handleWorkspaceApprovalsRequest(
           targetDirectories: relativeTargets
         }
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -540,8 +550,8 @@ export async function handleWorkspaceApprovalsRequest(
       const resolved = mandateService.resolveMandate(workspaceId, !!approved);
 
       deps.writeJson(res, { ok: true, resolved: resolved ? { mandateId: resolved.mandateId, expiresAt: resolved.expiresAt } : null });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -569,8 +579,8 @@ export async function handleWorkspaceApprovalsRequest(
       mandateService.revokeMandate(workspaceId);
 
       deps.writeJson(res, { ok: true });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -611,8 +621,8 @@ export async function handleWorkspaceApprovalsRequest(
             }
           : null,
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -651,8 +661,8 @@ export async function handleWorkspaceApprovalsRequest(
           createdAt: t.createdAt,
         })),
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -692,8 +702,8 @@ export async function handleWorkspaceApprovalsRequest(
             }
           : null,
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -721,8 +731,8 @@ export async function handleWorkspaceApprovalsRequest(
       trustService.revokeTrust(workspaceId, trustId);
 
       deps.writeJson(res, { ok: true });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -760,8 +770,8 @@ export async function handleWorkspaceApprovalsRequest(
       }));
 
       deps.writeJson(res, { ok: true, data });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -805,8 +815,8 @@ export async function handleWorkspaceApprovalsRequest(
           expiresAt: entry.expires_at
         }
       });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }
@@ -836,8 +846,8 @@ export async function handleWorkspaceApprovalsRequest(
       }
 
       deps.writeJson(res, { ok: true });
-    } catch (err: any) {
-      deps.writeJson(res, { ok: false, error: err.message }, 500);
+    } catch (err: unknown) {
+      deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
   }

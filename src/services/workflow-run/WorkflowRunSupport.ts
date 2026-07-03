@@ -23,6 +23,61 @@ import { SmartOutputService } from '../SmartOutputService.js';
 import { WorkflowRunLifecycleSupport } from './WorkflowRunLifecycleSupport.js';
 import { WorkflowRunStageStateSupport } from './WorkflowRunStageStateSupport.js';
 
+type BotApiLike = {
+  sendMessage(chatId: string | number, text: string, options?: Record<string, unknown>): Promise<unknown>;
+  sendDocument?(chatId: string | number, document: unknown, options?: Record<string, unknown>): Promise<unknown>;
+};
+
+type LogRepo = {
+  log: (level: string, source: string, message: string) => void;
+};
+
+type WorkflowTaskMetadata = {
+  workflow_run_id: string;
+  workflow_name: WorkflowKind;
+  workflow_run_state_file: string;
+  workflow_run_compatibility_file: string;
+  workflow_run_state_dir: string;
+  workflow_run_checkpoints_file: string;
+  workflow_run_ledger_file: string;
+  workflow_run_checkpoint_count: number;
+  workflow_run_latest_chain_hash: string | null;
+  workflow_origin: WorkflowRunSnapshot['origin'];
+  workflow_origin_task_id: string | null;
+  workflow_origin_user_id: string | null;
+  workflow_runtime_user_id: string | null;
+  workflow_tenant_id: string | null;
+  workflow_source_surface: string | null;
+  workflow_route_strategy: string | null;
+  workflow_route_source: string | null;
+  workflow_parent_chat_id: string | null;
+  workflow_trigger_task_kind: string | null;
+  workflow_trigger_task_subtype: string | null;
+  workflow_trigger_feature_id: string | null;
+  workflow_stage_id: string;
+  workflow_stage_label: string;
+  workflow_stage_executor: WorkflowRunStageSnapshot['executor'];
+  workflow_stage_role: string;
+  workflow_stage_index: number;
+  workflow_stage_total: number;
+  workflow_handoff_summary: string | null;
+  workflow_status: WorkflowRunSnapshot['status'];
+  traceId: string;
+  runId: string;
+  sessionId: string;
+  workflow_resume_stage_id: string | null;
+  workflow_resume_stage_label: string | null;
+  workflow_resume_stage_status: string | null;
+  workflow_resume_stage_index: number | null;
+  workflow_resume_stage_summary: string | null;
+  workflow_resume_prompt: string | null;
+  workflow_stage_strategy_note: string | null;
+  workflow_artifacts_manifest: Record<string, unknown>;
+  workflow_execution_lifecycle: ExecutionLifecycleRecord[];
+  workflow_workspace_context: WorkflowWorkspaceContext | null;
+  workflow_workspace_context_summary: string | null;
+};
+
 type WorkflowRunSupportRuntime = {
   artifactPipeline: ArtifactPipelineService;
   storageDir: string;
@@ -30,8 +85,8 @@ type WorkflowRunSupportRuntime = {
   now: () => Date;
   inMemoryRuns: Map<string, WorkflowRunSnapshot>;
   externalizedState: WorkflowExternalizedStateService;
-  botApi?: any;
-  logRepo?: { log: (...args: any[]) => void };
+  botApi?: BotApiLike;
+  logRepo?: LogRepo;
 };
 
 export class WorkflowRunSupport {
@@ -45,16 +100,16 @@ export class WorkflowRunSupport {
     const normalized = {
       ...run,
       operator_state: run?.operator_state === 'closed' ? 'closed' : 'active',
-      operator_closed_at: this.normalizeNullableString((run as any)?.operator_closed_at),
-      operator_close_reason: this.normalizeNullableString((run as any)?.operator_close_reason),
-      operator_closed_by_surface: this.normalizeNullableString((run as any)?.operator_closed_by_surface),
+      operator_closed_at: this.normalizeNullableString(run?.operator_closed_at),
+      operator_close_reason: this.normalizeNullableString(run?.operator_close_reason),
+      operator_closed_by_surface: this.normalizeNullableString(run?.operator_closed_by_surface),
       phases: Array.isArray(run?.phases)
         ? run.phases.map((phase, index) => ({
             id: String(phase?.id || '').trim(),
             label: String(phase?.label || '').trim(),
             executor: String(phase?.executor || 'codex').trim() as WorkflowRunStageSnapshot['executor'],
             role: String(phase?.role || '').trim(),
-            strategy_note: this.normalizeNullableString((phase as any)?.strategy_note),
+            strategy_note: this.normalizeNullableString(phase?.strategy_note),
             index: Number.isFinite(phase?.index) ? Number(phase.index) : index,
             status: String(phase?.status || 'pending').trim() as WorkflowStageStatus,
             task_id: this.normalizeNullableString(phase?.task_id),
@@ -68,15 +123,15 @@ export class WorkflowRunSupport {
           }))
         : [],
       artifacts: Array.isArray(run?.artifacts) ? run.artifacts : [],
-      origin: this.normalizeOrigin((run as any)?.origin),
-      trigger: this.normalizeTrigger((run as any)?.trigger),
+      origin: this.normalizeOrigin(run?.origin),
+      trigger: this.normalizeTrigger(run?.trigger),
       artifacts_manifest: run?.artifacts_manifest || this.runtime.artifactPipeline.buildManifest([], {
         traceId: this.normalizeNullableString(run?.workflow_run_id) || 'workflow:unknown',
         runId: this.normalizeNullableString(run?.workflow_run_id) || 'workflow:unknown',
         source: 'workflow-run',
       }),
-      execution_lifecycle: this.normalizeLifecycleRecords((run as any)?.execution_lifecycle),
-      externalized_state: (run as any)?.externalized_state || null,
+      execution_lifecycle: this.normalizeLifecycleRecords(run?.execution_lifecycle),
+      externalized_state: run?.externalized_state || null,
       resume_stage: null,
       actionable_stages: [],
       resume_prompt: null,
@@ -327,18 +382,20 @@ export class WorkflowRunSupport {
 
     for (const userId of recipients) {
       try {
-        await SmartOutputService.send(this.runtime.botApi as any, userId, message);
-      } catch (error: any) {
-        this.runtime.logRepo?.log?.('error', 'BotGateway', `Erro ao enviar broadcast: ${error.message}`);
+        await SmartOutputService.send(this.runtime.botApi!, userId, message);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        this.runtime.logRepo?.log('error', 'BotGateway', `Erro ao enviar broadcast: ${errorMessage}`);
       }
     }
   }
 
   public async sendToChat(chatId: string, message: string): Promise<void> {
     try {
-      await SmartOutputService.send(this.runtime.botApi as any, chatId, message);
-    } catch (error: any) {
-      this.runtime.logRepo?.log?.('error', 'BotGateway', `Erro ao enviar mensagem direta para ${chatId}: ${error.message}`);
+      await SmartOutputService.send(this.runtime.botApi!, chatId, message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.runtime.logRepo?.log('error', 'BotGateway', `Erro ao enviar mensagem direta para ${chatId}: ${errorMessage}`);
       throw error;
     }
   }
@@ -349,7 +406,7 @@ export class WorkflowRunSupport {
     stageIndex: number,
     handoffSummary: string | null,
     workspaceContext?: WorkflowWorkspaceContext | null,
-  ): Record<string, any> {
+  ): WorkflowTaskMetadata {
     const correlation = this.buildRunCorrelation(run);
     return {
       workflow_run_id: run.workflow_run_id,

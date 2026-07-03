@@ -3,24 +3,24 @@ import {
   type ZavorthCliExperienceCertificationCommand,
   type ZavorthCliExperienceCertificationSnapshot,
 } from '../contracts/ZavorthCliExperienceCertificationContract.js';
-import { ZavorthDashboardExperienceHomeService } from './ZavorthDashboardExperienceHomeService.js';
+import { ZavorthZavorthControlExperienceHomeService } from './ZavorthZavorthControlExperienceHomeService.js';
 
 export type ZavorthCliExperienceCertificationRuntime = {
   now?: () => Date;
-  dashboardHome?: ZavorthDashboardExperienceHomeService;
+  zavorthControlHome?: ZavorthZavorthControlExperienceHomeService;
 };
 
 export class ZavorthCliExperienceCertificationService {
   private readonly now: () => Date;
-  private readonly dashboardHome: ZavorthDashboardExperienceHomeService;
+  private readonly zavorthControlHome: ZavorthZavorthControlExperienceHomeService;
 
   constructor(runtime: ZavorthCliExperienceCertificationRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.dashboardHome = runtime.dashboardHome || new ZavorthDashboardExperienceHomeService({ now: this.now });
+    this.zavorthControlHome = runtime.zavorthControlHome || new ZavorthZavorthControlExperienceHomeService({ now: this.now });
   }
 
   public buildSnapshot(): ZavorthCliExperienceCertificationSnapshot {
-    const home = this.dashboardHome.buildSnapshot();
+    const home = this.zavorthControlHome.buildSnapshot();
     const homeAreaCommands: ZavorthCliExperienceCertificationCommand[] = home.simpleNavigation.areas.map((area) => ({
       id: `home-${area.id}`,
       label: area.label,
@@ -28,7 +28,7 @@ export class ZavorthCliExperienceCertificationService {
       description: area.summary,
       kind: 'home_area',
       risk: 'read_only',
-      mirrorsDashboardHome: true,
+      mirrorsZavorthControlHome: true,
       cliCanExecuteTargetAction: false,
     }));
     const guidedCommands: ZavorthCliExperienceCertificationCommand[] = home.primaryMissions.map((mission) => ({
@@ -38,7 +38,7 @@ export class ZavorthCliExperienceCertificationService {
       description: mission.description,
       kind: 'guided_mission',
       risk: mission.risk === 'low' ? 'read_only' : 'approval_gated',
-      mirrorsDashboardHome: true,
+      mirrorsZavorthControlHome: true,
       cliCanExecuteTargetAction: false,
     }));
     const questionCommands: ZavorthCliExperienceCertificationCommand[] = home.runtimeQuestions.map((question) => ({
@@ -48,7 +48,7 @@ export class ZavorthCliExperienceCertificationService {
       description: question.question,
       kind: 'runtime_question',
       risk: 'read_only',
-      mirrorsDashboardHome: true,
+      mirrorsZavorthControlHome: true,
       cliCanExecuteTargetAction: false,
     }));
     const utilityCommands: ZavorthCliExperienceCertificationCommand[] = [
@@ -59,7 +59,7 @@ export class ZavorthCliExperienceCertificationService {
         description: 'See what Zavorth may do alone, what needs approval and what is blocked.',
         kind: 'trust',
         risk: 'read_only',
-        mirrorsDashboardHome: false,
+        mirrorsZavorthControlHome: false,
         cliCanExecuteTargetAction: false,
       },
       {
@@ -69,7 +69,7 @@ export class ZavorthCliExperienceCertificationService {
         description: 'Read a plain-language receipt for recent work and blocked actions.',
         kind: 'receipt',
         risk: 'read_only',
-        mirrorsDashboardHome: false,
+        mirrorsZavorthControlHome: false,
         cliCanExecuteTargetAction: false,
       },
       {
@@ -79,17 +79,17 @@ export class ZavorthCliExperienceCertificationService {
         description: 'Preview the mobile approval companion without granting execution authority.',
         kind: 'satellite',
         risk: 'read_only',
-        mirrorsDashboardHome: false,
+        mirrorsZavorthControlHome: false,
         cliCanExecuteTargetAction: false,
       },
       {
-        id: 'dashboard',
-        label: 'Open dashboard',
-        command: 'zavorth dashboard',
-        description: 'Open the main /dashboard gateway for daily use.',
-        kind: 'dashboard',
+        id: 'zavorthControl',
+        label: 'Open zavorthControl',
+        command: 'zavorth zavorthControl',
+        description: 'Open the main /zavorthControl gateway for daily use.',
+        kind: 'zavorthControl',
         risk: 'read_only',
-        mirrorsDashboardHome: true,
+        mirrorsZavorthControlHome: true,
         cliCanExecuteTargetAction: false,
       },
     ];
@@ -101,14 +101,14 @@ export class ZavorthCliExperienceCertificationService {
       generatedAt: this.now().toISOString(),
       entryCommands: ['zavorth daily', 'zavorth cli-home', 'zavorth start-here'],
       headline: 'Start simple. Stay governed.',
-      promise: 'The CLI mirrors the Dashboard Home: Inbox, Tasks, Approvals, Receipts, Connectors and safe next steps first.',
+      promise: 'The CLI mirrors the ZavorthControl Home: Inbox, Tasks, Approvals, Receipts, Connectors and safe next steps first.',
       commands: [...homeAreaCommands, ...guidedCommands, ...questionCommands, ...utilityCommands],
       recommendedFlow: [
         'Run zavorth go when you want Home, or zavorth daily when you are not sure where to start.',
         'Choose Inbox, Tasks, Approvals, Receipts or Connectors.',
         'Pick a guided mission or ask a runtime question.',
         'Use trust-panel or visual-receipts when you need confidence before continuing.',
-        'Open /dashboard only when a visual flow is more comfortable.',
+        'Open /zavorthControl only when a visual flow is more comfortable.',
       ],
       safety: {
         cliCanExecuteTargetAction: false,
@@ -120,7 +120,7 @@ export class ZavorthCliExperienceCertificationService {
         'CLI Experience Consistency is a navigation and projection layer, not a privileged executor.',
         'Commands that imply mutation still become governed missions, previews, approvals and receipts.',
         'The CLI must not expose raw secrets or treat catalog entries as live readiness.',
-        'The CLI and Dashboard Home should point to the same daily-use concepts: Inbox, Tasks, Approvals, Receipts and Connectors.',
+        'The CLI and ZavorthControl Home should point to the same daily-use concepts: Inbox, Tasks, Approvals, Receipts and Connectors.',
       ],
     };
   }

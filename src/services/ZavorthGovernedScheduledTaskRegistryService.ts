@@ -132,7 +132,7 @@ export class ZavorthGovernedScheduledTaskRegistryService {
         approvalTtlRequired: true,
         budgetBoundariesRequired: true,
         noImplicitExecution: true,
-        noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         rawSecretsSerialized: false,
       },
       summary,

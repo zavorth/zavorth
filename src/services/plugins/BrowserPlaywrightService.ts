@@ -1,7 +1,7 @@
-import { logger } from '../../logger.js';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { logger } from '../../cli/logger.js';
 
 export interface BrowserPage {
   url: string;
@@ -38,12 +38,40 @@ export class BrowserPlaywrightService {
     }
   }
 
+  private jsLiteral(value: unknown): string {
+    return JSON.stringify(value);
+  }
+
+  private assertHttpUrl(url: string): string | null {
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return `Error: unsupported URL protocol "${parsed.protocol}".`;
+      }
+      return null;
+    } catch {
+      return `Error: invalid URL "${url}".`;
+    }
+  }
+
+  private cleanupTempScript(tmpScript: string): void {
+    try {
+      fs.unlinkSync(tmpScript);
+    } catch {
+      // Best-effort cleanup only; execution errors are reported separately.
+    }
+  }
+
   public async navigate(url: string, options?: { wait_until?: 'load' | 'domcontentloaded' | 'networkidle'; timeout?: number }): Promise<string> {
     if (!url) return 'Error: URL is required.';
-    try { new URL(url); } catch { return `Error: invalid URL "${url}".`; }
+    const urlError = this.assertHttpUrl(url);
+    if (urlError) return urlError;
 
     const waitUntil = options?.wait_until || 'load';
     const timeout = options?.timeout || this.defaultTimeout;
+    const urlLiteral = this.jsLiteral(url);
+    const waitUntilLiteral = this.jsLiteral(waitUntil);
+    const screenshotLiteral = this.jsLiteral(path.join(this.storageDir, `screenshot_${Date.now()}.png`));
 
     try {
       const { execFileSync } = await import('child_process');
@@ -53,26 +81,30 @@ export class BrowserPlaywrightService {
           const browser = await chromium.launch({ headless: true });
           const page = await browser.newPage();
           const start = Date.now();
-          await page.goto('${url}', { waitUntil: '${waitUntil}', timeout: ${timeout} });
+          const targetUrl = ${urlLiteral};
+          await page.goto(targetUrl, { waitUntil: ${waitUntilLiteral}, timeout: ${timeout} });
           const title = await page.title();
           const content = (await page.content()).slice(0, 5000);
-          const screenshot = '${path.join(this.storageDir, `screenshot_${Date.now()}.png`).replace(/\\/g, '\\\\')}';
+          const screenshot = ${screenshotLiteral};
           await page.screenshot({ path: screenshot, fullPage: false });
-          logger.info(JSON.stringify({ url: '${url}', title, content_length: content.length, screenshot, status: 200, load_time_ms: Date.now() - start }));
+          console.log(JSON.stringify({ url: targetUrl, title, content_length: content.length, screenshot, status: 200, load_time_ms: Date.now() - start }));
           await browser.close();
-        })().catch(e => { logger.info(JSON.stringify({ error: e.message })); process.exit(1); });
+        })().catch((error) => {
+          logger.error(JSON.stringify({ error: error instanceof Error ? error.message : String(error) }));
+          process.exitCode = 1;
+        });
       `;
 
       const tmpScript = path.join(os.tmpdir(), `pw_nav_${Date.now()}.js`);
       fs.writeFileSync(tmpScript, script);
       try {
         const result = execFileSync('node', [tmpScript], { timeout: timeout + 5000, maxBuffer: 10 * 1024 * 1024 }).toString();
-        fs.unlinkSync(tmpScript);
+        this.cleanupTempScript(tmpScript);
         const parsed = JSON.parse(result);
         if (parsed.error) return `Playwright error: ${parsed.error}`;
         return `Pagina carregada: "${parsed.title}" (${parsed.load_time_ms}ms)\nURL: ${parsed.url}\nScreenshot: ${parsed.screenshot}\nConteudo: ${parsed.content_length} characters`;
       } catch (e) {
-        try { fs.unlinkSync(tmpScript); } catch { /* ignore */ }
+        this.cleanupTempScript(tmpScript);
         throw e;
       }
     } catch (error: unknown) {
@@ -81,17 +113,22 @@ export class BrowserPlaywrightService {
   }
 
   public async screenshot(url: string, options?: { full_page?: boolean; selector?: string }): Promise<string> {
+    if (!url) return 'Error: URL is required.';
+    const urlError = this.assertHttpUrl(url);
+    if (urlError) return urlError;
     const timeout = this.defaultTimeout;
     const fullPage = options?.full_page || false;
     const selector = options?.selector;
 
     try {
       const { execFileSync } = await import('child_process');
-      const screenshotPath = path.join(this.storageDir, `screenshot_${Date.now()}.png`).replace(/\\/g, '\\\\');
+      const screenshotPath = path.join(this.storageDir, `screenshot_${Date.now()}.png`);
+      const screenshotLiteral = this.jsLiteral(screenshotPath);
+      const urlLiteral = this.jsLiteral(url);
 
-      let captureCode = `await page.screenshot({ path: '${screenshotPath}', fullPage: ${fullPage} })`;
+      let captureCode = `await page.screenshot({ path: outputPath, fullPage: ${fullPage} })`;
       if (selector) {
-        captureCode = `await page.locator('${selector}').screenshot({ path: '${screenshotPath}' })`;
+        captureCode = `await page.locator(${this.jsLiteral(selector)}).screenshot({ path: outputPath })`;
       }
 
       const script = `
@@ -99,23 +136,28 @@ export class BrowserPlaywrightService {
         (async () => {
           const browser = await chromium.launch({ headless: true });
           const page = await browser.newPage();
-          await page.goto('${url}', { waitUntil: 'load', timeout: ${timeout} });
+          const targetUrl = ${urlLiteral};
+          const outputPath = ${screenshotLiteral};
+          await page.goto(targetUrl, { waitUntil: 'load', timeout: ${timeout} });
           ${captureCode};
-          logger.info(JSON.stringify({ screenshot: '${screenshotPath}', url: '${url}' }));
+          console.log(JSON.stringify({ screenshot: outputPath, url: targetUrl }));
           await browser.close();
-        })().catch(e => { logger.info(JSON.stringify({ error: e.message })); process.exit(1); });
+        })().catch((error) => {
+          logger.error(JSON.stringify({ error: error instanceof Error ? error.message : String(error) }));
+          process.exitCode = 1;
+        });
       `;
 
       const tmpScript = path.join(os.tmpdir(), `pw_ss_${Date.now()}.js`);
       fs.writeFileSync(tmpScript, script);
       try {
         const result = execFileSync('node', [tmpScript], { timeout: timeout + 5000 }).toString();
-        fs.unlinkSync(tmpScript);
+        this.cleanupTempScript(tmpScript);
         const parsed = JSON.parse(result);
         if (parsed.error) return `Error: ${parsed.error}`;
         return `Screenshot salvo: ${parsed.screenshot}`;
       } catch (e) {
-        try { fs.unlinkSync(tmpScript); } catch { /* ignore */ }
+        this.cleanupTempScript(tmpScript);
         throw e;
       }
     } catch (error: unknown) {
@@ -124,11 +166,15 @@ export class BrowserPlaywrightService {
   }
 
   public async extract(url: string, selectors: Record<string, string>): Promise<string> {
+    if (!url) return 'Error: URL is required.';
+    const urlError = this.assertHttpUrl(url);
+    if (urlError) return urlError;
     const timeout = this.defaultTimeout;
 
     try {
       const { execFileSync } = await import('child_process');
       const selectorsJson = JSON.stringify(selectors);
+      const urlLiteral = this.jsLiteral(url);
 
       const script = `
         const { chromium } = require('playwright');
@@ -136,24 +182,30 @@ export class BrowserPlaywrightService {
         (async () => {
           const browser = await chromium.launch({ headless: true });
           const page = await browser.newPage();
-          await page.goto('${url}', { waitUntil: 'load', timeout: ${timeout} });
+          const targetUrl = ${urlLiteral};
+          await page.goto(targetUrl, { waitUntil: 'load', timeout: ${timeout} });
           const result = {};
           for (const [key, sel] of Object.entries(selectors)) {
             try {
               const els = await page.locator(sel).all();
               result[key] = await Promise.all(els.map(el => el.textContent()));
-            } catch { result[key] = []; }
+            } catch (error) {
+              result[key] = [];
+            }
           }
-          logger.info(JSON.stringify(result));
+          console.log(JSON.stringify(result));
           await browser.close();
-        })().catch(e => { logger.info(JSON.stringify({ error: e.message })); process.exit(1); });
+        })().catch((error) => {
+          logger.error(JSON.stringify({ error: error instanceof Error ? error.message : String(error) }));
+          process.exitCode = 1;
+        });
       `;
 
       const tmpScript = path.join(os.tmpdir(), `pw_ext_${Date.now()}.js`);
       fs.writeFileSync(tmpScript, script);
       try {
         const result = execFileSync('node', [tmpScript], { timeout: timeout + 5000, maxBuffer: 10 * 1024 * 1024 }).toString();
-        fs.unlinkSync(tmpScript);
+        this.cleanupTempScript(tmpScript);
         const parsed = JSON.parse(result);
         if (parsed.error) return `Error: ${parsed.error}`;
 
@@ -167,7 +219,7 @@ export class BrowserPlaywrightService {
         }
         return lines.join('\n');
       } catch (e) {
-        try { fs.unlinkSync(tmpScript); } catch { /* ignore */ }
+        this.cleanupTempScript(tmpScript);
         throw e;
       }
     } catch (error: unknown) {
@@ -176,8 +228,13 @@ export class BrowserPlaywrightService {
   }
 
   public async pdf(url: string, outputPath?: string): Promise<string> {
+    if (!url) return 'Error: URL is required.';
+    const urlError = this.assertHttpUrl(url);
+    if (urlError) return urlError;
     const timeout = this.defaultTimeout;
     const pdfPath = outputPath || path.join(this.storageDir, `page_${Date.now()}.pdf`);
+    const pdfPathLiteral = this.jsLiteral(pdfPath);
+    const urlLiteral = this.jsLiteral(url);
 
     try {
       const { execFileSync } = await import('child_process');
@@ -186,23 +243,28 @@ export class BrowserPlaywrightService {
         (async () => {
           const browser = await chromium.launch({ headless: true });
           const page = await browser.newPage();
-          await page.goto('${url}', { waitUntil: 'load', timeout: ${timeout} });
-          await page.pdf({ path: '${pdfPath.replace(/\\/g, '\\\\')}', format: 'A4' });
-          logger.info(JSON.stringify({ pdf: '${pdfPath}', url: '${url}' }));
+          const targetUrl = ${urlLiteral};
+          const pdfPath = ${pdfPathLiteral};
+          await page.goto(targetUrl, { waitUntil: 'load', timeout: ${timeout} });
+          await page.pdf({ path: pdfPath, format: 'A4' });
+          console.log(JSON.stringify({ pdf: pdfPath, url: targetUrl }));
           await browser.close();
-        })().catch(e => { logger.info(JSON.stringify({ error: e.message })); process.exit(1); });
+        })().catch((error) => {
+          logger.error(JSON.stringify({ error: error instanceof Error ? error.message : String(error) }));
+          process.exitCode = 1;
+        });
       `;
 
       const tmpScript = path.join(os.tmpdir(), `pw_pdf_${Date.now()}.js`);
       fs.writeFileSync(tmpScript, script);
       try {
         const result = execFileSync('node', [tmpScript], { timeout: timeout + 10000 }).toString();
-        fs.unlinkSync(tmpScript);
+        this.cleanupTempScript(tmpScript);
         const parsed = JSON.parse(result);
         if (parsed.error) return `Error: ${parsed.error}`;
         return `PDF gerado: ${parsed.pdf}`;
       } catch (e) {
-        try { fs.unlinkSync(tmpScript); } catch { /* ignore */ }
+        this.cleanupTempScript(tmpScript);
         throw e;
       }
     } catch (error: unknown) {

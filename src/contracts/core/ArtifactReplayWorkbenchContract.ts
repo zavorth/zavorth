@@ -123,5 +123,5 @@ export const ARTIFACT_REPLAY_WORKBENCH_CONTRACTS = [
   'Replay learning permanece preview-first, redigido e revogavel.',
   'Marcacao de sessoes boas para aprendizado vira learning mark, nao auto-aplicacao.',
   'Export de evidencia usa referencias/resumos; payload bruto e secrets nao entram no bundle.',
-  'A Dashboard deve expor indice, comparacao, redaction, learning e export controlado.',
+  'A ZavorthControl deve expor indice, comparacao, redaction, learning e export controlado.',
 ];

@@ -129,7 +129,7 @@ async function buildGitHubGovernedReviewCliSnapshot(input: {
     ],
     metadata: {
       source: 'zavorth-cli',
-      dashboardPath: '/dashboard/reviews',
+      zavorthControlPath: '/zavorthControl/reviews',
     },
   });
 }
@@ -161,7 +161,7 @@ function buildGovernedReviewRequest(input: {
       source: 'zavorth-cli',
       userId: input.userId,
       sessionId: input.sessionId,
-      dashboardPath: '/dashboard/reviews',
+      zavorthControlPath: '/zavorthControl/reviews',
     },
   };
 }
@@ -240,7 +240,7 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
 
   lines.push('', 'Superficies');
   lines.push('- CLI JSON: zavorth governed-review --json');
-  lines.push('- Dashboard: /dashboard/reviews');
+  lines.push('- ZavorthControl: /zavorthControl/reviews');
   lines.push('- Comentario em PR, patch e live agents continuam approval-gated.');
 
   return lines.join('\n');

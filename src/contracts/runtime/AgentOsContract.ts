@@ -169,8 +169,8 @@ export type AgentOsTransactionalCommitResult = {
   blockedReasons: string[];
 };
 
-export type AgentOsDashboardSnapshot = {
-  source: 'AgentOsDashboardProjection';
+export type AgentOsZavorthControlSnapshot = {
+  source: 'AgentOsZavorthControlProjection';
   title: string;
   status: AgentOsStatus;
   cards: Array<{ id: string; label: string; value: string; tone: 'ok' | 'warn' | 'danger' | 'info' }>;
@@ -183,8 +183,8 @@ export type AgentOsZavorthControlProjection = {
   status: AgentOsStatus;
   detailsHiddenByDefault: true;
   liveActionApplied: false;
-  cards: AgentOsDashboardSnapshot['cards'];
-  actions: AgentOsDashboardSnapshot['actions'];
+  cards: AgentOsZavorthControlSnapshot['cards'];
+  actions: AgentOsZavorthControlSnapshot['actions'];
 };
 
 export type AgentOsSnapshot = {
@@ -197,7 +197,7 @@ export type AgentOsSnapshot = {
   immuneSystem: AgentOsImmuneSnapshot;
   reputation: AgentOsReputationSnapshot;
   architectureDecision: AgentOsArchitectureDecisionDraft;
-  dashboard: AgentOsDashboardSnapshot;
+  zavorthControl: AgentOsZavorthControlSnapshot;
   zavorthControl: AgentOsZavorthControlProjection;
   safety: {
     thinkingBlocked: false;

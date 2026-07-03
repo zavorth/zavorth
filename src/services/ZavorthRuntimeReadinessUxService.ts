@@ -36,8 +36,8 @@ export type ZavorthRuntimeReadinessUxCard = {
   action: ZavorthRuntimeReadinessUxAction;
 };
 
-export type ZavorthRuntimeReadinessUxDashboardProjection = {
-  route: '/dashboard';
+export type ZavorthRuntimeReadinessUxZavorthControlProjection = {
+  route: '/zavorthControl';
   endpoint: '/api/runtime/readiness';
   slot: 'runtime-readiness';
   renderMode: 'operator-cards';
@@ -60,8 +60,8 @@ export type ZavorthRuntimeReadinessUxSnapshot = {
   primaryAction: ZavorthRuntimeReadinessUxAction;
   secondaryActions: ZavorthRuntimeReadinessUxAction[];
   cards: ZavorthRuntimeReadinessUxCard[];
-  dashboardProjection: ZavorthRuntimeReadinessUxDashboardProjection;
-  zavorthControlProjection: ZavorthRuntimeReadinessUxDashboardProjection;
+  zavorthControlProjection: ZavorthRuntimeReadinessUxZavorthControlProjection;
+  zavorthControlProjection: ZavorthRuntimeReadinessUxZavorthControlProjection;
   cliProjection: {
     command: 'zavorth readiness';
     jsonCommand: 'zavorth readiness --json';
@@ -123,7 +123,7 @@ export class ZavorthRuntimeReadinessUxService {
       primaryAction,
       secondaryActions,
       cards,
-      dashboardProjection: createRuntimeReadinessProjection(cards),
+      zavorthControlProjection: createRuntimeReadinessProjection(cards),
       zavorthControlProjection: createRuntimeReadinessProjection(cards),
       cliProjection: {
         command: 'zavorth readiness',
@@ -157,7 +157,7 @@ export class ZavorthRuntimeReadinessUxService {
         replyMarkup: {
           inline_keyboard: [
             [
-              { text: 'Dashboard', callback_data: '/dashboard' },
+              { text: 'ZavorthControl', callback_data: '/zavorthControl' },
               { text: 'Status', callback_data: '/status' },
             ],
             [
@@ -240,15 +240,15 @@ export class ZavorthRuntimeReadinessUxService {
   ): ZavorthRuntimeReadinessUxAction {
     const target = cards.find((card) => card.required && card.status === 'blocked')
       || cards.find((card) => card.status === 'attention')
-      || cards.find((card) => card.id === 'dashboard')
+      || cards.find((card) => card.id === 'zavorthControl')
       || cards[0];
 
     if (!target) {
       return {
-        id: 'open-dashboard',
-        label: 'Abrir dashboard',
+        id: 'open-zavorthControl',
+        label: 'Abrir zavorthControl',
         kind: 'route',
-        route: readiness.operator.dashboardRoute,
+        route: readiness.operator.zavorthControlRoute,
         primary: true,
         executionAuthority: false,
         summary: 'Abrir a superficie diaria do Zavorth.',
@@ -269,25 +269,25 @@ export class ZavorthRuntimeReadinessUxService {
     const actions = cards
       .filter((card) => card.action.id !== primaryAction.id.replace(/-primary$/, ''))
       .map((card) => card.action);
-    const dashboardAction: ZavorthRuntimeReadinessUxAction = {
-      id: 'open-dashboard',
-      label: 'Abrir dashboard',
+    const zavorthControlAction: ZavorthRuntimeReadinessUxAction = {
+      id: 'open-zavorthControl',
+      label: 'Abrir zavorthControl',
       kind: 'route',
-      route: '/dashboard',
-      callbackData: '/dashboard',
+      route: '/zavorthControl',
+      callbackData: '/zavorthControl',
       primary: false,
       executionAuthority: false,
       summary: 'Abrir a superficie diaria do Zavorth.',
     };
-    return uniqueActions([dashboardAction, ...actions]);
+    return uniqueActions([zavorthControlAction, ...actions]);
   }
 }
 
 function createRuntimeReadinessProjection(
   cards: ZavorthRuntimeReadinessUxCard[],
-): ZavorthRuntimeReadinessUxDashboardProjection {
+): ZavorthRuntimeReadinessUxZavorthControlProjection {
   return {
-    route: '/dashboard',
+    route: '/zavorthControl',
     endpoint: '/api/runtime/readiness',
     slot: 'runtime-readiness',
     renderMode: 'operator-cards',
@@ -301,7 +301,7 @@ function titleForCheck(id: ZavorthRuntimeReadinessCheckId): string {
   const titles: Record<ZavorthRuntimeReadinessCheckId, string> = {
     'natural-first-runtime': 'Entrada natural',
     'provider-mesh': 'Provider',
-    dashboard: 'Dashboard',
+    zavorthControl: 'ZavorthControl',
     telegram: 'Telegram',
     approvals: 'Approvals',
     'transaction-plane': 'Transaction plane',
@@ -338,7 +338,7 @@ function subheadFor(
   const attention = cards.filter((card) => card.status === 'attention').length;
   const blocked = cards.filter((card) => card.status === 'blocked').length;
   if (status === 'ready') {
-    return 'CLI, dashboard, approvals, memoria, skills e transaction plane estao coerentes.';
+    return 'CLI, zavorthControl, approvals, memoria, skills e transaction plane estao coerentes.';
   }
   if (dailyUseReady) {
     return `${formatItemCount(attention)} ${attention === 1 ? 'pede' : 'pedem'} setup, mas os contratos obrigatorios estao seguros.`;
@@ -358,7 +358,7 @@ function summaryForCheck(check: ZavorthRuntimeReadinessCheck): string {
       ? 'Provider padrao pode responder quando voce pedir LLM ao vivo.'
       : 'Provider ainda precisa de configuracao para respostas LLM ao vivo.';
   }
-  if (check.id === 'dashboard') {
+  if (check.id === 'zavorthControl') {
     return 'Home diario esta disponivel e nao executa acao alvo.';
   }
   if (check.id === 'telegram') {
@@ -381,8 +381,8 @@ function summaryForCheck(check: ZavorthRuntimeReadinessCheck): string {
 }
 
 function blockedSummaryForCheck(check: ZavorthRuntimeReadinessCheck): string {
-  if (check.id === 'dashboard') {
-    return 'Dashboard diario ou contrato projection-only precisa ser restaurado.';
+  if (check.id === 'zavorthControl') {
+    return 'ZavorthControl diario ou contrato projection-only precisa ser restaurado.';
   }
   if (check.id === 'approvals') {
     return 'Approval UX nao provou mediacao pelo gateway.';
@@ -411,14 +411,14 @@ function nextActionForCheck(check: ZavorthRuntimeReadinessCheck): string {
 
 function hrefForCheck(id: ZavorthRuntimeReadinessCheckId): string {
   const hrefs: Record<ZavorthRuntimeReadinessCheckId, string> = {
-    'natural-first-runtime': '/dashboard',
-    'provider-mesh': '/dashboard/providers',
-    dashboard: '/dashboard',
-    telegram: '/dashboard/providers',
-    approvals: '/dashboard/logs',
-    'transaction-plane': '/dashboard/health',
-    'skill-imports': '/dashboard/health',
-    'memory-continuity': '/dashboard/logs',
+    'natural-first-runtime': '/zavorthControl',
+    'provider-mesh': '/zavorthControl/providers',
+    zavorthControl: '/zavorthControl',
+    telegram: '/zavorthControl/providers',
+    approvals: '/zavorthControl/logs',
+    'transaction-plane': '/zavorthControl/health',
+    'skill-imports': '/zavorthControl/health',
+    'memory-continuity': '/zavorthControl/logs',
   };
   return hrefs[id];
 }
@@ -450,7 +450,7 @@ function actionIdForCheck(id: ZavorthRuntimeReadinessCheckId): string {
 
 function actionLabelForCheck(check: ZavorthRuntimeReadinessCheck): string {
   if (check.status === 'ready') {
-    if (check.id === 'dashboard') return 'Abrir dashboard';
+    if (check.id === 'zavorthControl') return 'Abrir zavorthControl';
     if (check.id === 'approvals') return 'Ver approvals';
     if (check.id === 'provider-mesh') return 'Ver providers';
     return `Ver ${titleForCheck(check.id)}`;
@@ -458,7 +458,7 @@ function actionLabelForCheck(check: ZavorthRuntimeReadinessCheck): string {
   if (check.id === 'provider-mesh') return 'Configurar provider';
   if (check.id === 'telegram') return 'Configurar Telegram';
   if (check.id === 'approvals') return 'Resolver approvals';
-  if (check.id === 'dashboard') return 'Abrir dashboard';
+  if (check.id === 'zavorthControl') return 'Abrir zavorthControl';
   if (check.id === 'skill-imports') return 'Revisar skills';
   return `Revisar ${titleForCheck(check.id)}`;
 }
@@ -466,7 +466,7 @@ function actionLabelForCheck(check: ZavorthRuntimeReadinessCheck): string {
 function callbackForCheck(id: ZavorthRuntimeReadinessCheckId): string | undefined {
   const callbacks: Partial<Record<ZavorthRuntimeReadinessCheckId, string>> = {
     'provider-mesh': '/models',
-    dashboard: '/dashboard',
+    zavorthControl: '/zavorthControl',
     approvals: '/echoapprovals',
     telegram: '/status',
   };

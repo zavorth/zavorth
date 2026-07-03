@@ -123,7 +123,7 @@ export type ChannelCapabilitySnapshot = {
     sharedResponseContract: true;
     noTelegramPrivileging: true;
     channelSpecificRenderingOnly: true;
-    noDashboardVisualMutation: true;
+    noZavorthControlVisualMutation: true;
     rawSecretsSerialized: false;
   };
   commands: {

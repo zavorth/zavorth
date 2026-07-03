@@ -1,4 +1,6 @@
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
+import type { Task } from '../contracts/TaskContract.js';
+import type { ArtifactRecord } from '../contracts/core/ArtifactContract.js';
 import { SurfaceIdentityService } from './SurfaceIdentityService.js';
 import {
   SessionContinuityService,
@@ -36,13 +38,16 @@ import {
 } from './ExecutionLifecycleLinkService.js';
 import { GatewaySessionSnapshotSupport } from './gateway-session/GatewaySessionSnapshotSupport.js';
 
-type TaskManagerLike = {
-  getRecentTasks?(limit?: number, userId?: string): any[];
-  getRecentTasksByChat(chatId: string, limit?: number): any[];
-  getRecentTasksByUsers?(userIds: string[], limit?: number): any[];
+export type TaskManagerLike = {
+  getRecentTasks?(limit?: number, userId?: string): Task[];
+  getRecentTasksByChat(chatId: string, limit?: number): Task[];
+  getRecentTasksByUsers?(userIds: string[], limit?: number): Task[];
+  getRecentTasksByUsersAndTenant?(userIds: string[], tenantId: string, limit?: number): Task[];
+  getLatestTaskForUsers?(userIds: string[], excludeTaskId?: string): Task | undefined;
+  getLatestTaskForUsersAndTenant?(userIds: string[], tenantId: string, excludeTaskId?: string): Task | undefined;
 };
 
-type PermissionServiceLike = {
+export type PermissionServiceLike = {
   listRequests(
     status?: 'pending' | 'approved' | 'rejected' | 'expired' | 'all',
     limit?: number,
@@ -81,10 +86,10 @@ export type GatewaySessionTaskSnapshot = {
   diff_summary: string | null;
   updated_at: string | null;
   pending_permission_id: string | null;
-  actions_executed: any[];
+  actions_executed: Record<string, unknown>[];
   target_files: string[];
-  artifacts: any[];
-  metadata: Record<string, any>;
+  artifacts: ArtifactRecord[];
+  metadata: Record<string, unknown>;
   execution: ExecutionLifecycleContextLink | null;
 };
 
@@ -101,7 +106,7 @@ export type GatewaySessionPermissionSnapshot = {
   resolved_value: string | null;
   workspace: string | null;
   updated_at: string | null;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 };
 
 export type GatewaySessionSnapshot = {
@@ -122,7 +127,7 @@ export type GatewaySessionSnapshot = {
   workflowRuns: WorkflowRunSnapshot[];
   transcript: GatewaySessionTranscriptEntry[];
   toolRuns: ToolRunRecord[];
-  artifacts: Array<Record<string, any>>;
+  artifacts: Array<Record<string, unknown>>;
   filesTouched: string[];
   summary: {
     messages: number;
@@ -196,7 +201,7 @@ export class GatewaySessionService {
     this.continuity =
       resolvedRuntime.sessionContinuityService ||
       (this.taskManager
-        ? new SessionContinuityService(this.taskManager as any, {
+        ? new SessionContinuityService(this.taskManager, {
             surfaceIdentityService: this.surfaceIdentity,
           })
         : null);
@@ -208,7 +213,7 @@ export class GatewaySessionService {
       resolvedRuntime.sessionToolsService ||
       new ZavorthSessionToolsService({
         now: this.now,
-        taskManager: this.taskManager as any,
+        taskManager: this.taskManager,
         surfaceIdentityService: this.surfaceIdentity,
         workflowRunService: this.workflowRuns,
       });

@@ -70,8 +70,8 @@ export type ZavorthProviderActivationSnapshot = {
     reason: string;
     nextStep: string;
   }>;
-  dashboardProjection: {
-    route: '/dashboard';
+  zavorthControlProjection: {
+    route: '/zavorthControl';
     endpoint: '/api/providers/activation';
     executionAuthority: false;
     normalRenderMakesNoNetworkCalls: true;
@@ -81,7 +81,7 @@ export type ZavorthProviderActivationSnapshot = {
     noHiddenLiveNetworkCalls: true;
     liveProofRequiresExplicitOperatorAction: true;
     nonCompatibleProvidersNeedTypedConnector: true;
-    dashboardCannotExecuteProviderCalls: true;
+    zavorthControlCannotExecuteProviderCalls: true;
   };
   commands: Array<{
     id: string;
@@ -180,8 +180,8 @@ export class ZavorthProviderActivationService {
       adapterMatrix,
       liveProofPlan,
       connectorBacklog,
-      dashboardProjection: {
-        route: '/dashboard',
+      zavorthControlProjection: {
+        route: '/zavorthControl',
         endpoint: '/api/providers/activation',
         executionAuthority: false,
         normalRenderMakesNoNetworkCalls: true,
@@ -191,7 +191,7 @@ export class ZavorthProviderActivationService {
         noHiddenLiveNetworkCalls: true,
         liveProofRequiresExplicitOperatorAction: true,
         nonCompatibleProvidersNeedTypedConnector: true,
-        dashboardCannotExecuteProviderCalls: true,
+        zavorthControlCannotExecuteProviderCalls: true,
       },
       commands: [
         {

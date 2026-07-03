@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -25,8 +24,7 @@ import {
   escapeRegex
 } from '../ZavorthCliSharedHelpers.js';
 import { idFromSpec } from '../ZavorthCliLiveNamespaces.js';
-
-type JsonObject = Record<string, unknown>;
+import type { JsonObject } from '../ZavorthCliSharedHelpers.js';
 
 const gzipAsync = promisify(gzip);
 const gunzipAsync = promisify(gunzip);

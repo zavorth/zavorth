@@ -14,12 +14,12 @@ export async function GET(request: Request) {
     agent: {
       state: "ready",
       headline: "Hello, operator.",
-      summary: "Zavorth is ready for governed work from the dashboard, CLI and connected channels.",
+      summary: "Zavorth is ready for governed work from the zavorthControl, CLI and connected channels.",
       model: "configured route",
     },
     health: {
       status: "ready",
-      summary: "Local dashboard is reachable. Runtime details appear as they become available.",
+      summary: "Local zavorthControl is reachable. Runtime details appear as they become available.",
     },
     chat: {
       messages: [

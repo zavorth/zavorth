@@ -1,6 +1,6 @@
 import {
   ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION,
-  type ZavorthDashboardRuntimeProjection,
+  type ZavorthZavorthControlRuntimeProjection,
   type ZavorthCrossSurfaceActionKind,
   type ZavorthCrossSurfaceActionProjection,
   type ZavorthCrossSurfaceApiProjection,
@@ -59,10 +59,10 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
     const surfaceCards = surfaces.map((surface) => buildSurfaceCard(surface, toolOrchestration, Boolean(input.compact)));
     const channelFallbacks = buildFallbacks(surfaceCards);
     const apiProjection = buildApiProjection(toolOrchestration);
-    const dashboardProjection = buildDashboardProjection(toolOrchestration);
-    const receipts = buildReceipts(surfaceCards, apiProjection, dashboardProjection, toolOrchestration.status);
+    const zavorthControlProjection = buildZavorthControlProjection(toolOrchestration);
+    const receipts = buildReceipts(surfaceCards, apiProjection, zavorthControlProjection, toolOrchestration.status);
     const safety = buildSafety();
-    const summary = summarize(surfaceCards, dashboardProjection);
+    const summary = summarize(surfaceCards, zavorthControlProjection);
 
     return {
       generatedAt,
@@ -79,8 +79,8 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
       toolOrchestration,
       surfaceCards,
       apiProjection,
-      zavorthControlProjection: dashboardProjection,
-      dashboardProjection,
+      zavorthControlProjection: zavorthControlProjection,
+      zavorthControlProjection,
       channelFallbacks,
       receipts,
       safety,
@@ -91,7 +91,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
         check: 'node scripts/zavorth-cross-surface-runtime-projection-check.mjs',
         nextStage: 'Runtime gateway - Operational Rollout And Continuous Eval Assimilation',
       },
-      narrative: buildNarrative(toolOrchestration.status, surfaceCards, dashboardProjection),
+      narrative: buildNarrative(toolOrchestration.status, surfaceCards, zavorthControlProjection),
     };
   }
 
@@ -101,7 +101,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
       '',
       `Status: ${snapshot.status}`,
       `Surfaces: ${snapshot.summary.surfaces} | actions=${snapshot.summary.actionCount} | approvals=${snapshot.summary.approvalActions} | disabled=${snapshot.summary.disabledActions}`,
-      `Dashboard visual mutation: ${snapshot.summary.dashboardVisualMutation}`,
+      `ZavorthControl visual mutation: ${snapshot.summary.zavorthControlVisualMutation}`,
       '',
       'Surface cards:',
       ...snapshot.surfaceCards.map((card) => `- ${card.surface}: ${card.status} | ${card.summary}`),
@@ -170,7 +170,7 @@ function buildSurfaceCard(
 function interactionModes(surface: ZavorthCrossSurfaceProjectionSurface): ZavorthCrossSurfaceInteractionMode[] {
   if (surface === 'cli') return ['table', 'text'];
   if (surface === 'api') return ['json'];
-  if (surface === 'command_center') return ['dashboard_projection', 'text'];
+  if (surface === 'command_center') return ['zavorthControl_projection', 'text'];
   if (BUTTON_SURFACES.has(surface)) return ['buttons', 'menu', 'text'];
   return ['text'];
 }
@@ -280,9 +280,9 @@ function buildApiProjection(runtime: ZavorthToolOrchestrationVerificationSnapsho
   };
 }
 
-function buildDashboardProjection(runtime: ZavorthToolOrchestrationVerificationSnapshot): ZavorthDashboardRuntimeProjection {
+function buildZavorthControlProjection(runtime: ZavorthToolOrchestrationVerificationSnapshot): ZavorthZavorthControlRuntimeProjection {
   return {
-    projectionId: 'checkpoint-5-dashboard-runtime-projection',
+    projectionId: 'checkpoint-5-zavorthControl-runtime-projection',
     title: 'Runtime projection',
     statusPill: runtime.status,
     visualMutationApplied: false,
@@ -295,7 +295,7 @@ function buildDashboardProjection(runtime: ZavorthToolOrchestrationVerificationS
 function buildReceipts(
   cards: ZavorthCrossSurfaceProjectionCard[],
   apiProjection: ZavorthCrossSurfaceApiProjection,
-  dashboard: ZavorthDashboardRuntimeProjection,
+  zavorthControl: ZavorthZavorthControlRuntimeProjection,
   status: ZavorthToolOrchestrationVerificationStatus,
 ): ZavorthCrossSurfaceProjectionReceipt[] {
   const receipts: ZavorthCrossSurfaceProjectionReceipt[] = [
@@ -314,13 +314,13 @@ function buildReceipts(
       summary: `${apiProjection.endpoints.length} endpoints projetados como contrato JSON.`,
     },
     {
-      id: 'checkpoint-5-dashboard-boundary-receipt',
+      id: 'checkpoint-5-zavorthControl-boundary-receipt',
       kind: 'visual-change-boundary',
       surface: 'command_center',
       status: 'recorded',
-      summary: dashboard.visualMutationApplied
+      summary: zavorthControl.visualMutationApplied
         ? 'Mutação visual aplicada.'
-        : 'Dashboard recebeu apenas view-model; mudança visual exige aprovação separada.',
+        : 'ZavorthControl recebeu apenas view-model; mudança visual exige aprovação separada.',
     },
   ];
   for (const card of cards) {
@@ -339,8 +339,8 @@ function buildSafety(): ZavorthCrossSurfaceProjectionSafety {
   return {
     noZavorthControlVisualMutation: true,
     zavorthControlIsViewModelOnly: true,
-    noDashboardVisualMutation: true,
-    dashboardIsViewModelOnly: true,
+    noZavorthControlVisualMutation: true,
+    zavorthControlIsViewModelOnly: true,
     noLiveActionExecuted: true,
     sameSemanticsAcrossSurfaces: true,
     telegramNotPrivileged: true,
@@ -351,7 +351,7 @@ function buildSafety(): ZavorthCrossSurfaceProjectionSafety {
 
 function summarize(
   cards: ZavorthCrossSurfaceProjectionCard[],
-  dashboard: ZavorthDashboardRuntimeProjection,
+  zavorthControl: ZavorthZavorthControlRuntimeProjection,
 ): ZavorthCrossSurfaceRuntimeProjectionSnapshot['summary'] {
   const actions = cards.flatMap((card) => card.actions);
   return {
@@ -361,7 +361,7 @@ function summarize(
     actionCount: actions.length,
     approvalActions: actions.filter((actionItem) => actionItem.requiresApproval).length,
     disabledActions: actions.filter((actionItem) => !actionItem.enabled).length,
-    dashboardVisualMutation: dashboard.visualMutationApplied,
+    zavorthControlVisualMutation: zavorthControl.visualMutationApplied,
   };
 }
 
@@ -371,7 +371,7 @@ function summaryForSurface(
 ): string {
   if (surface === 'cli') return `Tabela operacional pronta com ${runtime.summary.routes} rotas e ${runtime.summary.verificationItems} verificações.`;
   if (surface === 'api') return `Payload JSON pronto para status ${runtime.status}.`;
-  if (surface === 'command_center') return 'View-model seguro para o Dashboard, sem alteração visual automática.';
+  if (surface === 'command_center') return 'View-model seguro para o ZavorthControl, sem alteração visual automática.';
   if (BUTTON_SURFACES.has(surface)) return `Menus e botões projetados para status ${runtime.status}.`;
   return `Fallback textual equivalente projetado para status ${runtime.status}.`;
 }
@@ -384,7 +384,7 @@ function fallbackForSurface(
   const primary = actions.find((item) => item.enabled)?.label || 'Ver status';
   if (surface === 'cli') return `Status ${status}. Use: ${actions.map((item) => item.command).join(' | ')}`;
   if (surface === 'api') return `GET /api/runtime/projection retorna status ${status}.`;
-  if (surface === 'command_center') return `Dashboard pode mostrar status ${status}, aguardando aprovação visual para novos cards.`;
+  if (surface === 'command_center') return `ZavorthControl pode mostrar status ${status}, aguardando aprovação visual para novos cards.`;
   if (BUTTON_SURFACES.has(surface)) return `${titleForSurface(surface)}: ${status}. Ação sugerida: ${primary}.`;
   return `${titleForSurface(surface)}: ${status}. Responda com o comando textual "${actions[0]?.command || '/status'}" para continuar.`;
 }
@@ -398,7 +398,7 @@ function titleForSurface(surface: ZavorthCrossSurfaceProjectionSurface): string 
   if (surface === 'imessage') return 'iMessage';
   if (surface === 'web') return 'Web';
   if (surface === 'api') return 'API';
-  return 'Dashboard';
+  return 'ZavorthControl';
 }
 
 function metric(label: string, value: string, tone: ZavorthCrossSurfaceProjectionTone): ZavorthCrossSurfaceProjectionCard['metrics'][number] {
@@ -426,12 +426,12 @@ function receiptStatus(status: ZavorthToolOrchestrationVerificationStatus): Zavo
 function buildNarrative(
   status: ZavorthToolOrchestrationVerificationStatus,
   cards: ZavorthCrossSurfaceProjectionCard[],
-  dashboard: ZavorthDashboardRuntimeProjection,
+  zavorthControl: ZavorthZavorthControlRuntimeProjection,
 ): ZavorthCrossSurfaceRuntimeProjectionSnapshot['narrative'] {
   if (status === 'ready') {
     return {
       headline: 'Projeção pronta para resposta final com evidência.',
-      operatorSummary: `${cards.length} superfícies receberam ações equivalentes e o Dashboard ficou em modo view-model.`,
+      operatorSummary: `${cards.length} superfícies receberam ações equivalentes e o ZavorthControl ficou em modo view-model.`,
       nextAction: 'Responder com evidência ou expor recibos.',
     };
   }
@@ -458,7 +458,7 @@ function buildNarrative(
   }
   return {
     headline: 'Verificação necessária antes de afirmar conclusão.',
-    operatorSummary: `${cards.length} superfícies mostram a necessidade de evidência. Mutação visual aplicada: ${dashboard.visualMutationApplied}.`,
+    operatorSummary: `${cards.length} superfícies mostram a necessidade de evidência. Mutação visual aplicada: ${zavorthControl.visualMutationApplied}.`,
     nextAction: 'Anexar evidência, recibos ou screenshots antes da resposta final.',
   };
 }

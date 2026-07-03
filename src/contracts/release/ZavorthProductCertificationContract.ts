@@ -38,7 +38,7 @@ export type ZavorthProductCertificationSnapshot = {
     expectedResult: string;
   }>;
   dailyUx: {
-    primarySurface: 'dashboard';
+    primarySurface: 'zavorthControl';
     terminalSurface: 'zavorth tui';
     readyCommand: 'zavorth ready --product';
     certificationCommand: 'npm run qa:zavorth-product-certification --silent';

@@ -7,7 +7,37 @@
  * @module secretsValidator
  */
 
-const KNOWN_WEAK_SECRETS = [
+interface SecretRule {
+  name: string;
+  minLength: number;
+  required: boolean;
+  description: string;
+  generateHint: string;
+}
+
+interface ValidationIssue {
+  name: string;
+  issue: string;
+  hint: string;
+}
+
+interface ValidationWarning {
+  name: string;
+  issue: string;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: ValidationIssue[];
+  warnings: ValidationWarning[];
+}
+
+interface Logger {
+  warn(message: string): void;
+  error(message: string): void;
+}
+
+const KNOWN_WEAK_SECRETS: string[] = [
   "ZavorthGateway-default-secret-change-me",
   "change-me-to-a-long-random-secret",
   "endpoint-proxy-api-key-secret",
@@ -18,22 +48,12 @@ const KNOWN_WEAK_SECRETS = [
   "changeme",
 ];
 
-/**
- * @typedef {Object} SecretRule
- * @property {string} name - Environment variable name
- * @property {number} minLength - Minimum acceptable length
- * @property {boolean} required - Whether the secret is required for startup
- * @property {string} description - Human-readable description
- * @property {string} generateHint - Command to generate a strong value
- */
-
-/** @type {SecretRule[]} */
-const SECRET_RULES = [
+const SECRET_RULES: SecretRule[] = [
   {
     name: "JWT_SECRET",
     minLength: 32,
     required: false,
-    description: "JWT signing secret for dashboard authentication (auto-generated if not set)",
+    description: "JWT signing secret for zavorthControl authentication (auto-generated if not set)",
     generateHint: "openssl rand -base64 48",
   },
   {
@@ -46,19 +66,11 @@ const SECRET_RULES = [
 ];
 
 /**
- * @typedef {Object} ValidationResult
- * @property {boolean} valid
- * @property {Array<{name: string, issue: string, hint: string}>} errors
- * @property {Array<{name: string, issue: string}>} warnings
- */
-
-/**
  * Validate all required secrets.
- * @returns {ValidationResult}
  */
-export function validateSecrets() {
-  const errors = [];
-  const warnings = [];
+export function validateSecrets(): ValidationResult {
+  const errors: ValidationIssue[] = [];
+  const warnings: ValidationWarning[] = [];
 
   for (const rule of SECRET_RULES) {
     const value = process.env[rule.name];
@@ -104,9 +116,8 @@ export function validateSecrets() {
 /**
  * Validate secrets and terminate process if critical ones are missing.
  * Should be called during server initialization (fail-fast).
- * @param {object} [logger] - Optional logger (defaults to console)
  */
-export function enforceSecrets(logger = console) {
+export function enforceSecrets(logger: Logger = console): void {
   const result = validateSecrets();
 
   // Print warnings (non-fatal)
@@ -129,6 +140,6 @@ export function enforceSecrets(logger = console) {
     logger.error("  See .env.example for reference.");
     logger.error("═══════════════════════════════════════════════════");
     logger.error("");
-    process.exit(1);
+    throw new Error(`Missing required secrets: ${result.errors.map((e) => e.issue).join(', ')}`);
   }
 }

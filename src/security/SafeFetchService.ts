@@ -1,6 +1,15 @@
 import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
 import { decideSecurityPolicy, formatSecurityPolicyReceipt } from './SecurityPolicyBroker.js';
 
+interface ReadableStreamLike {
+  getReader(): ReadableStreamDefaultReader<Uint8Array>;
+}
+
+interface AsyncIterableBody {
+  [Symbol.asyncIterator](): AsyncIterableIterator<Uint8Array | string>;
+  destroy?(): void;
+}
+
 export type SafeFetchOptions = {
   serviceName?: string;
   allowPrivateEnvVar?: string;
@@ -179,8 +188,8 @@ export async function readSafeJsonResponse<T>(
   const chunks: Uint8Array[] = [];
   let totalBytes = 0;
 
-  if (typeof (response.body as any).getReader === 'function') {
-    const reader = (response.body as any).getReader();
+  if (typeof (response.body as unknown as ReadableStreamLike).getReader === 'function') {
+    const reader = (response.body as unknown as ReadableStreamLike).getReader();
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -201,8 +210,8 @@ export async function readSafeJsonResponse<T>(
     } finally {
       reader.releaseLock();
     }
-  } else if (typeof (response.body as any)[Symbol.asyncIterator] === 'function') {
-    const stream = response.body as any;
+  } else if (typeof (response.body as unknown as AsyncIterableBody)[Symbol.asyncIterator] === 'function') {
+    const stream = response.body as unknown as AsyncIterableBody;
     for await (const chunk of stream) {
       const buf = typeof chunk === 'string' ? new TextEncoder().encode(chunk) : chunk;
       totalBytes += buf.length;

@@ -3,16 +3,16 @@ import {
   normalizeZavorthNativeCapabilityRegistryReplacementFixture,
 } from './ZavorthNativeCapabilityRegistry.js';
 import {
-  createZavorthNativeDashboardViewModelRegistryFixture,
-  normalizeZavorthNativeDashboardViewModelRegistryFixture,
-} from './ZavorthNativeDashboardViewModelRegistry.js';
+  createZavorthNativeZavorthControlViewModelRegistryFixture,
+  normalizeZavorthNativeZavorthControlViewModelRegistryFixture,
+} from './ZavorthNativeZavorthControlViewModelRegistry.js';
 import {
   createZavorthNativeIntegrationRegistryFixture,
   normalizeZavorthNativeIntegrationRegistryFixture,
 } from './ZavorthNativeIntegrationRegistry.js';
 import {
-  normalizeRuntimeAdapterDashboardLiveAssimilationFixture,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 import {
   normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture,
 } from './RuntimeAdapterExternalExecutorSessionHistoryReadOnlyBridge.js';
@@ -21,17 +21,17 @@ import type {
   ZavorthNativeCapabilityRegistryReplacementNormalization,
 } from './ZavorthNativeCapabilityRegistry.js';
 import type {
-  ZavorthNativeDashboardViewModelRegistry,
-  ZavorthNativeDashboardViewModelRegistryNormalization,
-} from './ZavorthNativeDashboardViewModelRegistry.js';
+  ZavorthNativeZavorthControlViewModelRegistry,
+  ZavorthNativeZavorthControlViewModelRegistryNormalization,
+} from './ZavorthNativeZavorthControlViewModelRegistry.js';
 import type {
   ZavorthNativeIntegrationRegistry,
   ZavorthNativeIntegrationRegistryNormalization,
 } from './ZavorthNativeIntegrationRegistry.js';
 import type {
-  RuntimeAdapterDashboardLiveAssimilationNormalization,
-  RuntimeAdapterDashboardOperationalStatus,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  RuntimeAdapterZavorthControlLiveAssimilationNormalization,
+  RuntimeAdapterZavorthControlOperationalStatus,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 import type {
   ZavorthExternalMessageMetadataView,
   ZavorthExternalSessionView,
@@ -50,8 +50,8 @@ export type ZavorthNativeSessionHistoryRegistryDecision =
   | 'native-session-history-registry-ready';
 
 export type ZavorthNativeSessionHistoryProvenanceKind =
-  | 'dashboard-assimilation'
-  | 'dashboard-view-model-registry'
+  | 'zavorthControl-assimilation'
+  | 'zavorthControl-view-model-registry'
   | 'integration-registry'
   | 'native-capability-registry'
   | 'session-history-read-only-bridge'
@@ -90,7 +90,7 @@ export type ZavorthNativeSessionMetadataRecord = {
   threadRecordIds: string[];
   messageMetadataRecordIds: string[];
   capabilityRegistryEntryIds: string[];
-  dashboardViewModelIds: string[];
+  zavorthControlViewModelIds: string[];
   channelIntegrationIds: string[];
   transportIntegrationIds: string[];
   provenance: ZavorthNativeSessionHistoryProvenance;
@@ -168,18 +168,18 @@ export type ZavorthNativeSessionHistoryLookupResult<TRecord> = {
   sourceRuntimeAuthority: false;
 };
 
-export type ZavorthNativeSessionHistoryDashboardProjection = {
-  nativeContract: 'ZavorthNativeSessionHistoryDashboardProjection/v1';
+export type ZavorthNativeSessionHistoryZavorthControlProjection = {
+  nativeContract: 'ZavorthNativeSessionHistoryZavorthControlProjection/v1';
   id: string;
   sessionRecordId: string;
   title: string;
-  status: RuntimeAdapterDashboardOperationalStatus;
+  status: RuntimeAdapterZavorthControlOperationalStatus;
   channel: UniversalAgentChannel;
   messageCount: number;
   threadCount: number;
   redactedMessageCount: number;
-  dashboardViewModelIds: string[];
-  dashboardConsumable: true;
+  zavorthControlViewModelIds: string[];
+  zavorthControlConsumable: true;
   sourceIdentityPublic: false;
   messageContentRawStored: false;
   executionAuthority: false;
@@ -202,9 +202,9 @@ export type ZavorthNativeSessionHistoryRegistrySnapshot = {
   sourceArtifactsConsumed: {
     sqliteSessionStoreDryRunDesign: 'docs/sqlite-session-store-dry-run-design.md';
     sessionHistoryReadOnlyBridge: 'docs/external-executor-session-history-read-only-bridge.md';
-    dashboardAssimilation: 'docs/dashboard-live-assimilation.md';
+    zavorthControlAssimilation: 'docs/zavorthControl-live-assimilation.md';
     nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
-    dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md';
+    zavorthControlViewModelRegistry: 'docs/zavorthControl-view-model-registry-native-slice.md';
     integrationRegistry: 'docs/provider-channel-transport-native-registry.md';
     migrationStrategy: 'docs/runtime-adapter-config-state-migration-strategy.md';
     readOnlyInventory: 'docs/runtime-adapter-config-state-read-only-inventory.md';
@@ -266,7 +266,7 @@ export type ZavorthNativeSessionHistoryRegistryExecutionGate = {
 
 export type ZavorthNativeSessionHistoryRegistryIntegration = {
   nativeContract: 'ZavorthNativeSessionHistoryRegistryIntegration/v1';
-  dashboardProjectionReady: true;
+  zavorthControlProjectionReady: true;
   integrationRegistryCrossReferenceReady: true;
   migrationDryRunOnly: true;
   sqliteRealDbNotOpened: true;
@@ -279,11 +279,11 @@ export type ZavorthNativeSessionHistoryRegistryIntegration = {
 
 export type ZavorthNativeSessionHistoryRegistrySource = {
   sessionHistoryBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization;
-  dashboardAssimilation: RuntimeAdapterDashboardLiveAssimilationNormalization;
+  zavorthControlAssimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization;
   nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization;
   capabilityRegistry: ZavorthNativeCapabilityRegistry;
-  dashboardViewModelRegistry: ZavorthNativeDashboardViewModelRegistryNormalization;
-  dashboardRegistry: ZavorthNativeDashboardViewModelRegistry;
+  zavorthControlViewModelRegistry: ZavorthNativeZavorthControlViewModelRegistryNormalization;
+  zavorthControlRegistry: ZavorthNativeZavorthControlViewModelRegistry;
   nativeIntegrationRegistry: ZavorthNativeIntegrationRegistryNormalization;
   integrationRegistry: ZavorthNativeIntegrationRegistry;
   sqliteSessionStoreDryRunDesignDoc: 'docs/sqlite-session-store-dry-run-design.md';
@@ -310,21 +310,21 @@ export type ZavorthNativeSessionHistoryRegistryNormalization = {
   status: 'blocked' | 'native-session-history-registry-ready';
   sourceReadiness: {
     sessionHistoryReadOnlyBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization['decision'];
-    dashboardAssimilation: RuntimeAdapterDashboardLiveAssimilationNormalization['decision'];
+    zavorthControlAssimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization['decision'];
     nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization['decision'];
-    dashboardViewModelRegistry: ZavorthNativeDashboardViewModelRegistryNormalization['decision'];
+    zavorthControlViewModelRegistry: ZavorthNativeZavorthControlViewModelRegistryNormalization['decision'];
     nativeIntegrationRegistry: ZavorthNativeIntegrationRegistryNormalization['decision'];
     sqliteDryRunDesign: 'sqlite-session-dry-run-design-no-real-db';
   };
   registry: ZavorthNativeSessionHistoryRegistrySnapshot;
-  dashboardProjection: ZavorthNativeSessionHistoryDashboardProjection[];
+  zavorthControlProjection: ZavorthNativeSessionHistoryZavorthControlProjection[];
   integration: ZavorthNativeSessionHistoryRegistryIntegration;
   dependencyReductionProof: {
     lookupWorksWithoutLiveExternalExecutor: true;
     listWorksWithoutLiveExternalExecutor: true;
     filterWorksWithoutLiveExternalExecutor: true;
     historyRenderWorksWithoutLiveExternalExecutor: true;
-    dashboardConsumesNativeSessionRegistry: true;
+    zavorthControlConsumesNativeSessionRegistry: true;
     integrationRegistryCrossReferenceWorks: true;
   };
   executionGate: ZavorthNativeSessionHistoryRegistryExecutionGate;
@@ -390,7 +390,7 @@ function provenance(
   };
 }
 
-function dashboardStatus(status: ZavorthExternalSessionViewStatus): RuntimeAdapterDashboardOperationalStatus {
+function zavorthControlStatus(status: ZavorthExternalSessionViewStatus): RuntimeAdapterZavorthControlOperationalStatus {
   if (status === 'ready') {
     return 'ready';
   }
@@ -423,15 +423,15 @@ function sessionCapabilityEntryIds(source: ZavorthNativeSessionHistoryRegistrySo
   return source.capabilityRegistry.list({ kind: 'session-history' }).map((entry) => entry.id);
 }
 
-function sessionDashboardViewModelIds(source: ZavorthNativeSessionHistoryRegistrySource, status: ZavorthExternalSessionViewStatus): string[] {
-  return source.dashboardRegistry
+function sessionZavorthControlViewModelIds(source: ZavorthNativeSessionHistoryRegistrySource, status: ZavorthExternalSessionViewStatus): string[] {
+  return source.zavorthControlRegistry
     .list({ viewType: 'session' })
-    .filter((view) => view.status === dashboardStatus(status))
+    .filter((view) => view.status === zavorthControlStatus(status))
     .map((view) => view.id);
 }
 
-function messageDashboardViewModelIds(source: ZavorthNativeSessionHistoryRegistrySource): string[] {
-  return source.dashboardRegistry.list({ viewType: 'message-metadata' }).map((view) => view.id);
+function messageZavorthControlViewModelIds(source: ZavorthNativeSessionHistoryRegistrySource): string[] {
+  return source.zavorthControlRegistry.list({ viewType: 'message-metadata' }).map((view) => view.id);
 }
 
 function channelIntegrationIds(source: ZavorthNativeSessionHistoryRegistrySource): string[] {
@@ -536,9 +536,9 @@ function sessionRecord(
     threadRecordIds,
     messageMetadataRecordIds: messageRecordIds,
     capabilityRegistryEntryIds: sessionCapabilityEntryIds(source),
-    dashboardViewModelIds: [
-      ...sessionDashboardViewModelIds(source, view.status),
-      ...messageDashboardViewModelIds(source),
+    zavorthControlViewModelIds: [
+      ...sessionZavorthControlViewModelIds(source, view.status),
+      ...messageZavorthControlViewModelIds(source),
     ],
     channelIntegrationIds: channelIntegrationIds(source),
     transportIntegrationIds: transportIntegrationIds(source),
@@ -652,9 +652,9 @@ function buildSnapshot(
     sourceArtifactsConsumed: {
       sqliteSessionStoreDryRunDesign: 'docs/sqlite-session-store-dry-run-design.md',
       sessionHistoryReadOnlyBridge: 'docs/external-executor-session-history-read-only-bridge.md',
-      dashboardAssimilation: 'docs/dashboard-live-assimilation.md',
+      zavorthControlAssimilation: 'docs/zavorthControl-live-assimilation.md',
       nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
-      dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md',
+      zavorthControlViewModelRegistry: 'docs/zavorthControl-view-model-registry-native-slice.md',
       integrationRegistry: 'docs/provider-channel-transport-native-registry.md',
       migrationStrategy: 'docs/runtime-adapter-config-state-migration-strategy.md',
       readOnlyInventory: 'docs/runtime-adapter-config-state-read-only-inventory.md',
@@ -677,9 +677,9 @@ function buildSnapshot(
   };
 }
 
-function dashboardProjection(
+function zavorthControlProjection(
   registry: ZavorthNativeSessionHistoryRegistrySnapshot,
-): ZavorthNativeSessionHistoryDashboardProjection[] {
+): ZavorthNativeSessionHistoryZavorthControlProjection[] {
   return registry.sessions.map((session) => {
     const redactedMessageCount = session.messageMetadataRecordIds
       .map((messageId) => registry.messages.find((message) => message.id === messageId))
@@ -687,17 +687,17 @@ function dashboardProjection(
       .length;
 
     return {
-      nativeContract: 'ZavorthNativeSessionHistoryDashboardProjection/v1',
-      id: `${session.id}:dashboard-projection`,
+      nativeContract: 'ZavorthNativeSessionHistoryZavorthControlProjection/v1',
+      id: `${session.id}:zavorthControl-projection`,
       sessionRecordId: session.id,
       title: session.title,
-      status: dashboardStatus(session.status),
+      status: zavorthControlStatus(session.status),
       channel: session.channel,
       messageCount: session.messageCount,
       threadCount: session.threadRecordIds.length,
       redactedMessageCount,
-      dashboardViewModelIds: session.dashboardViewModelIds,
-      dashboardConsumable: true,
+      zavorthControlViewModelIds: session.zavorthControlViewModelIds,
+      zavorthControlConsumable: true,
       sourceIdentityPublic: false,
       messageContentRawStored: false,
       executionAuthority: false,
@@ -708,9 +708,9 @@ function dashboardProjection(
 function sourceReady(source: ZavorthNativeSessionHistoryRegistrySource): boolean {
   return (
     source.sessionHistoryBridge.decision === 'external-executor-session-history-read-only-bridge-ready' &&
-    source.dashboardAssimilation.decision === 'dashboard-live-assimilation-ready' &&
+    source.zavorthControlAssimilation.decision === 'zavorthControl-live-assimilation-ready' &&
     source.nativeCapabilityRegistry.decision === 'native-capability-registry-replacement-ready' &&
-    source.dashboardViewModelRegistry.decision === 'native-dashboard-view-model-registry-ready' &&
+    source.zavorthControlViewModelRegistry.decision === 'native-zavorthControl-view-model-registry-ready' &&
     source.nativeIntegrationRegistry.decision === 'native-integration-registry-ready' &&
     !source.gatewayLiveCalledDuringLookup &&
     !source.sourceDbOpenedForWrite &&
@@ -952,19 +952,19 @@ export class ZavorthNativeSessionHistoryRegistry {
     };
   }
 
-  public renderDashboardProjection(): ZavorthNativeSessionHistoryDashboardProjection[] {
-    return dashboardProjection(this.snapshot);
+  public renderZavorthControlProjection(): ZavorthNativeSessionHistoryZavorthControlProjection[] {
+    return zavorthControlProjection(this.snapshot);
   }
 }
 
 export function createZavorthNativeSessionHistoryRegistryFixtureSource(): ZavorthNativeSessionHistoryRegistrySource {
   return {
     sessionHistoryBridge: normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture(),
-    dashboardAssimilation: normalizeRuntimeAdapterDashboardLiveAssimilationFixture(),
+    zavorthControlAssimilation: normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture(),
     nativeCapabilityRegistry: normalizeZavorthNativeCapabilityRegistryReplacementFixture(),
     capabilityRegistry: createZavorthNativeCapabilityRegistryFixture(),
-    dashboardViewModelRegistry: normalizeZavorthNativeDashboardViewModelRegistryFixture(),
-    dashboardRegistry: createZavorthNativeDashboardViewModelRegistryFixture(),
+    zavorthControlViewModelRegistry: normalizeZavorthNativeZavorthControlViewModelRegistryFixture(),
+    zavorthControlRegistry: createZavorthNativeZavorthControlViewModelRegistryFixture(),
     nativeIntegrationRegistry: normalizeZavorthNativeIntegrationRegistryFixture(),
     integrationRegistry: createZavorthNativeIntegrationRegistryFixture(),
     sqliteSessionStoreDryRunDesignDoc: 'docs/sqlite-session-store-dry-run-design.md',
@@ -988,7 +988,7 @@ export function normalizeZavorthNativeSessionHistoryRegistry<TRuntimeId extends 
   options: ZavorthNativeSessionHistoryRegistryOptions<TRuntimeId>,
 ): ZavorthNativeSessionHistoryRegistryNormalization {
   const registry = buildSnapshot(options);
-  const projection = dashboardProjection(registry);
+  const projection = zavorthControlProjection(registry);
   const gate = executionGate();
   const ready = sourceReady(options.source) &&
     registry.sessions.length > 0 &&
@@ -1008,17 +1008,17 @@ export function normalizeZavorthNativeSessionHistoryRegistry<TRuntimeId extends 
     status: ready ? 'native-session-history-registry-ready' : 'blocked',
     sourceReadiness: {
       sessionHistoryReadOnlyBridge: options.source.sessionHistoryBridge.decision,
-      dashboardAssimilation: options.source.dashboardAssimilation.decision,
+      zavorthControlAssimilation: options.source.zavorthControlAssimilation.decision,
       nativeCapabilityRegistry: options.source.nativeCapabilityRegistry.decision,
-      dashboardViewModelRegistry: options.source.dashboardViewModelRegistry.decision,
+      zavorthControlViewModelRegistry: options.source.zavorthControlViewModelRegistry.decision,
       nativeIntegrationRegistry: options.source.nativeIntegrationRegistry.decision,
       sqliteDryRunDesign: 'sqlite-session-dry-run-design-no-real-db',
     },
     registry,
-    dashboardProjection: projection,
+    zavorthControlProjection: projection,
     integration: {
       nativeContract: 'ZavorthNativeSessionHistoryRegistryIntegration/v1',
-      dashboardProjectionReady: true,
+      zavorthControlProjectionReady: true,
       integrationRegistryCrossReferenceReady: true,
       migrationDryRunOnly: true,
       sqliteRealDbNotOpened: true,
@@ -1033,7 +1033,7 @@ export function normalizeZavorthNativeSessionHistoryRegistry<TRuntimeId extends 
       listWorksWithoutLiveExternalExecutor: true,
       filterWorksWithoutLiveExternalExecutor: true,
       historyRenderWorksWithoutLiveExternalExecutor: true,
-      dashboardConsumesNativeSessionRegistry: true,
+      zavorthControlConsumesNativeSessionRegistry: true,
       integrationRegistryCrossReferenceWorks: true,
     },
     executionGate: gate,

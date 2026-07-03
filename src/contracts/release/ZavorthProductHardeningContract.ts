@@ -6,7 +6,7 @@ export type ZavorthProductHardeningAreaId =
   | 'quality-gates'
   | 'surface-consolidation'
   | 'install-ux'
-  | 'dashboard-ux'
+  | 'zavorthControl-ux'
   | 'certification'
   | 'repo-hygiene';
 
@@ -62,7 +62,7 @@ export type ZavorthProductHardeningSnapshot = {
     inspect: 'npm run zavorth:product-hardening -- --json';
     doctor: 'zavorth doctor product-hardening';
     qa: 'npm run qa:zavorth-product-hardening --silent';
-    dashboard: 'npm run zavorth-control-vite:check --silent';
+    zavorthControl: 'npm run zavorth-control-vite:check --silent';
     convergence: 'npm run zavorth:native-convergence:check --silent';
     refinement: 'npm run zavorth:operational-refinement:check --silent';
   };

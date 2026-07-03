@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { ProviderIntegrationManifest } from '../ProviderIntegrationManifest.js';
 import { createMinimalProviderIntegrationManifest } from '../ProviderIntegrationManifest.js';
 
@@ -8,9 +7,10 @@ type ConsistencyRoute = {
   defaultModelName: string;
   website: string;
   aliases?: string[];
-  authKind?: 'api_key' | 'oauth' | 'local_endpoint' | 'custom';
+  authKind?: 'api_key' | 'bearer_token' | 'oauth' | 'local_endpoint' | 'custom';
   mode?: 'cloud' | 'local' | 'hybrid';
   credentialRefs?: string[];
+  passthroughModels?: boolean;
 };
 
 const CONSISTENCY_ROUTES: ConsistencyRoute[] = [
@@ -483,6 +483,7 @@ function toManifest(route: ConsistencyRoute): ProviderIntegrationManifest {
     ],
     routes: manifest.routes.map((entry) => ({
       ...entry,
+      ...(route.passthroughModels !== undefined ? { passthroughModels: route.passthroughModels } : {}),
       limitations: [
         'Not enabled for default routing until readiness and live proof pass.',
         'OAuth and ACP-flavored routes require owner-configured local credentials or adapter commands.',

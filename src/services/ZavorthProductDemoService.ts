@@ -35,7 +35,7 @@ const QUICKSTART_STEPS: ZavorthProductDemoQuickstartStep[] = [
     minute: '4-6',
     command: 'zavorth go',
     label: 'Open Home',
-    outcome: 'The local Home opens at /dashboard with Inbox, Tasks, Approvals, Receipts and Connectors.',
+    outcome: 'The local Home opens at /zavorthControl with Inbox, Tasks, Approvals, Receipts and Connectors.',
     sideEffect: 'local-runtime',
   },
   {
@@ -104,7 +104,7 @@ export class ZavorthProductDemoService {
         steps: QUICKSTART_STEPS,
       },
       visualHome: {
-        route: '/dashboard',
+        route: '/zavorthControl',
         title: 'Zavorth Home',
         areas: ['Inbox', 'Tasks', 'Approvals', 'Receipts', 'Connectors'],
         openCommand: 'zavorth go',
@@ -275,7 +275,7 @@ export class ZavorthProductDemoService {
         id: 'visual-home',
         label: 'Visual Home',
         status: homeOk ? 'pass' : 'fail',
-        missing: homeOk ? [] : ['Home route /dashboard is not declared.'],
+        missing: homeOk ? [] : ['Home route /zavorthControl is not declared.'],
         nextCommand: 'zavorth go --dry-run',
       },
       ...connectors.map((connector): ZavorthProductDemoDoctorCheck => ({

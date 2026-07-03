@@ -222,7 +222,8 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
       { key: 'v', label: 'Voice', command: 'zavorth echo wake status', detail: 'show wake word privacy state' },
       { key: 'c', label: 'Channels', command: 'zavorth channels status', detail: 'channel readiness' },
       { key: 'k', label: 'Capabilities', command: 'npm run zavorth:capability-action-surface --silent -- --list', detail: 'verified capabilities available through Action Harness' },
-      { key: 'o', label: 'Open', command: 'zavorth open', detail: 'Dashboard' },
+      { key: 'g', label: 'Swarm', command: 'zavorth swarm cloud-pool', detail: 'check dynamic cloud worker pool readiness' },
+      { key: 'o', label: 'Open', command: 'zavorth open', detail: 'ZavorthControl' },
       { key: 'r', label: 'Refresh', command: 'zavorth tui', detail: 'reload this daily TUI' },
       { key: 'q', label: 'Quit', command: 'quit', detail: 'leave runtime TUI' },
     ],
@@ -241,7 +242,7 @@ function buildConnection(projectRoot: string, home: ReturnType<typeof buildZavor
   return {
     gateway: row('gateway', 'Gateway', String(gateway.status || (home.runtime.gatewayToken === 'present' ? 'token-ready' : 'not-started')), gateway.status === 'running' || home.runtime.gatewayToken === 'present' ? 'ready' : 'warning', gateway.pid ? `pid ${String(gateway.pid)}` : 'local gateway state'),
     daemon: row('daemon', 'Daemon', String(daemon.status || 'not-installed'), daemon.status === 'running' ? 'ready' : daemon.installed ? 'warning' : 'warning', daemon.pid ? `pid ${String(daemon.pid)}` : 'service supervisor'),
-    dashboard: row('dashboard', 'Dashboard', home.runtime.dashboard, home.runtime.dashboard === 'available' ? 'ready' : 'blocked', 'visual Dashboard'),
+    zavorthControl: row('zavorthControl', 'ZavorthControl', home.runtime.zavorthControl, home.runtime.zavorthControl === 'available' ? 'ready' : 'blocked', 'visual ZavorthControl'),
   };
 }
 

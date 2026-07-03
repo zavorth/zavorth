@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type {
   RemoteMeshNotebookDockerControlPreviewPayload,
   RemoteMeshNotebookDockerControlReceiptPayload,
@@ -30,7 +29,7 @@ export class RemoteMeshNotebookApprovalUxService {
 
   public buildCard(
     source: RemoteMeshNotebookApprovalUxSource,
-    surface: RemoteMeshNotebookApprovalUxSurface = 'dashboard',
+    surface: RemoteMeshNotebookApprovalUxSurface = 'zavorthControl',
   ): RemoteMeshNotebookApprovalUxCard {
     return buildRemoteMeshNotebookApprovalUxCard({
       source,
@@ -42,7 +41,7 @@ export class RemoteMeshNotebookApprovalUxService {
   public buildSnapshot(input: {
     fixtures: RemoteMeshNotebookApprovalUxFixture[];
   }): RemoteMeshNotebookApprovalUxSnapshot {
-    const cards = input.fixtures.map((fixture) => this.buildCard(fixture.source, fixture.surface || 'dashboard'));
+    const cards = input.fixtures.map((fixture) => this.buildCard(fixture.source, fixture.surface || 'zavorthControl'));
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_REMOTE_MESH_R11_APPROVAL_UX_VERSION,
@@ -53,7 +52,7 @@ export class RemoteMeshNotebookApprovalUxService {
         approvalCards: cards.filter((card) => card.state === 'approval-required').length,
         receiptCards: cards.filter((card) => card.state === 'receipt').length,
         mobileReady: cards.some((card) => card.surface === 'mobile'),
-        dashboardReady: cards.some((card) => card.surface === 'dashboard'),
+        zavorthControlReady: cards.some((card) => card.surface === 'zavorthControl'),
         rawJsonRequiredFromUser: false,
         rawCommandSerialized: false,
         secretValuesSerialized: false,
@@ -70,7 +69,7 @@ export class RemoteMeshNotebookApprovalUxService {
         json: 'npm run remote-mesh:notebook:approval-ux:json --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshNotebookApprovalUxService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Real Mobile Dashboard Wiring',
+        nextStage: 'Real Mobile ZavorthControl Wiring',
       },
     };
   }
@@ -102,7 +101,7 @@ export class RemoteMeshNotebookApprovalUxService {
         rawJsonRequiredFromUser: false,
       },
       receipt: null,
-      dashboard: approvalDashboard('Docker lifecycle approval', 'Approve Docker action'),
+      zavorthControl: approvalZavorthControl('Docker lifecycle approval', 'Approve Docker action'),
       mobile: approvalMobile(
         `Docker ${source.action}`,
         `Zavorth wants to ${source.action} ${source.container}.`,
@@ -141,11 +140,11 @@ export class RemoteMeshNotebookApprovalUxService {
         timeline: [
           `Approval ${source.approvalId} accepted.`,
           `Docker ${source.action} executed.`,
-          'Receipt recorded for Dashboard timeline.',
+          'Receipt recorded for ZavorthControl timeline.',
         ],
         contentPreview: null,
       },
-      dashboard: receiptDashboard('Docker lifecycle receipt'),
+      zavorthControl: receiptZavorthControl('Docker lifecycle receipt'),
       mobile: receiptMobile('Docker done', summary),
       safety: {
         ...baseSafety(),
@@ -185,7 +184,7 @@ export class RemoteMeshNotebookApprovalUxService {
         rawJsonRequiredFromUser: false,
       },
       receipt: null,
-      dashboard: approvalDashboard('Project file read approval', 'Approve file read'),
+      zavorthControl: approvalZavorthControl('Project file read approval', 'Approve file read'),
       mobile: approvalMobile(
         'Read project file',
         `Zavorth wants to read ${targetLabel}.`,
@@ -225,11 +224,11 @@ export class RemoteMeshNotebookApprovalUxService {
         timeline: [
           `Approval ${source.approvalId} accepted.`,
           'File content returned after approval.',
-          'Receipt recorded for Dashboard timeline.',
+          'Receipt recorded for ZavorthControl timeline.',
         ],
         contentPreview: source.content.slice(0, 240),
       },
-      dashboard: receiptDashboard('Project file read receipt'),
+      zavorthControl: receiptZavorthControl('Project file read receipt'),
       mobile: receiptMobile('File read complete', summary),
       safety: {
         ...baseSafety(),
@@ -253,7 +252,7 @@ export class RemoteMeshNotebookApprovalUxService {
   }
 }
 
-function approvalDashboard(timelineLabel: string, primaryActionLabel: string) {
+function approvalZavorthControl(timelineLabel: string, primaryActionLabel: string) {
   return {
     queue: 'approvals' as const,
     badge: 'Needs approval' as const,
@@ -263,7 +262,7 @@ function approvalDashboard(timelineLabel: string, primaryActionLabel: string) {
   };
 }
 
-function receiptDashboard(timelineLabel: string) {
+function receiptZavorthControl(timelineLabel: string) {
   return {
     queue: 'timeline' as const,
     badge: 'Receipt' as const,

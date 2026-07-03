@@ -91,7 +91,7 @@ export type SwarmOrchestratorOptions = {
  *  - A post-processing "synthesize" hook merges all outputs into a single
  *    coherent result that the caller (or the UI) can consume.
  *  - The orchestrator emits granular events so the WebSocket layer and
- *    dashboard can show real-time multi-pane progress.
+ *    zavorthControl can show real-time multi-pane progress.
  */
 export class SwarmOrchestrator extends EventEmitter {
   private readonly sessions = new Map<string, SessionController>();

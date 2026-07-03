@@ -111,14 +111,14 @@ export type ZavorthGovernedReadOnlyCapabilityRefreshSnapshot = {
 };
 
 export type ZavorthGovernedReadOnlyCapabilityProjectionUpdate = {
-  nativeContract: 'ZavorthDashboardCapabilityProjectionUpdate/v1';
+  nativeContract: 'ZavorthZavorthControlCapabilityProjectionUpdate/v1';
   id: string;
   rows: Array<{
     id: string;
     rowKind: RuntimeAdapterLiveReadinessCapabilityRowKind;
     status: 'approval-required' | 'blocked' | 'degraded' | 'ready' | 'unavailable';
     readOnly: true;
-    dashboardConsumable: true;
+    zavorthControlConsumable: true;
     sourceAuthorityGranted: false;
   }>;
   inMemoryOnly: true;
@@ -366,14 +366,14 @@ function buildProjectionUpdate(
   snapshot: ZavorthGovernedReadOnlyCapabilityRefreshSnapshot,
 ): ZavorthGovernedReadOnlyCapabilityProjectionUpdate {
   return {
-    nativeContract: 'ZavorthDashboardCapabilityProjectionUpdate/v1',
+    nativeContract: 'ZavorthZavorthControlCapabilityProjectionUpdate/v1',
     id: `${idPrefix}:projection-update`,
     rows: snapshot.rows.map((row) => ({
       id: `${row.id}:projection`,
       rowKind: row.rowKind,
       status: projectionStatus(row),
       readOnly: true,
-      dashboardConsumable: true,
+      zavorthControlConsumable: true,
       sourceAuthorityGranted: false,
     })),
     inMemoryOnly: true,

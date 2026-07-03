@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   ZAVORTH_MNEMOS_IDLE_MICROCOMPACT_MS,
   ZAVORTH_MNEMOS_RECENT_VERBATIM_TURNS,
@@ -189,7 +188,7 @@ export class ContextCompactionService {
     };
   }
 
-  public estimateTokensForMessages(messages: readonly ContextCompactionMessage[]): number {
+  public estimateTokensForMessages(messages: ContextCompactionMessage[]): number {
     return countMessagesTokens(messages);
   }
 
@@ -417,7 +416,7 @@ export class ContextCompactionService {
             ...message,
             content: `[Old tool result summarized (${tool}) - ${summary}]`,
           });
-        } catch (err) {
+        } catch (err: unknown) {
           // Fallback cleanly to static description in case of error
           const status = message.status || 'ok';
           compacted.push({

@@ -23,7 +23,7 @@ export type ZavorthSensitiveActionFlowUxAction = {
   kind: 'preview' | 'approve_once' | 'deny' | 'rollback' | 'inspect_receipt';
   requiresApproval: boolean;
   mutatesState: boolean;
-  dashboardCanExecute: false;
+  zavorthControlCanExecute: false;
 };
 
 export type ZavorthSensitiveActionFlowUxCard = {
@@ -66,7 +66,7 @@ export type ZavorthSensitiveActionFlowUxCard = {
   steps: ZavorthSensitiveActionFlowUxStep[];
   actions: ZavorthSensitiveActionFlowUxAction[];
   safety: {
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     zavorthControlCanExecute: false;
     policyBrokerRequired: true;
     previewBeforeApply: true;
@@ -83,8 +83,8 @@ export type ZavorthSensitiveActionFlowUxSnapshot = {
   status: 'ready' | 'attention' | 'blocked';
   card: ZavorthSensitiveActionFlowUxCard;
   source: ZavorthSensitiveActionFlowSnapshot;
-  dashboardProjection: {
-    route: '/dashboard';
+  zavorthControlProjection: {
+    route: '/zavorthControl';
     renderMode: 'action-card';
     executionAuthority: false;
   };

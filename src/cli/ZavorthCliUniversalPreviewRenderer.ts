@@ -57,7 +57,7 @@ export function formatUniversalPreviewModeSnapshot(
   }
 
   lines.push('', 'Superficies');
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');

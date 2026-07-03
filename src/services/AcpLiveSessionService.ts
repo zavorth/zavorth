@@ -2,7 +2,8 @@ import { createHash, randomUUID } from 'node:crypto';
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, relative as relativePath, resolve } from 'node:path';
-import { Readable, Writable } from 'node:stream';
+import { Readable, Writable, Transform } from 'node:stream';
+import readline from 'node:readline';
 import type { RequestPermissionRequest, SessionNotification } from '@agentclientprotocol/sdk';
 import {
   ZAVORTH_ACP_LIVE_BRIDGE_CONTRACT_VERSION,
@@ -14,6 +15,151 @@ import {
 } from '../contracts/AcpLiveBridgeContract.js';
 import { AcpLiveBridgeService } from './AcpLiveBridgeService.js';
 import { SourceAgentRuntimeToolPolicyService } from './SourceAgentRuntimeToolPolicyService.js';
+
+interface AcpElevatedApprovalRequest {
+  id: string | number | null;
+  method: string;
+  params?: {
+    type?: string;
+    message?: string;
+    metadata?: Record<string, unknown>;
+  };
+}
+
+interface PendingJitApproval {
+  id: string;
+  type: string;
+  message: string;
+  metadata: Record<string, unknown> | undefined;
+  createdAt: string;
+  resolve: (val: boolean) => void;
+}
+
+interface GlobalWithJitApprovals {
+  globalPendingJitApprovals?: Map<string, PendingJitApproval>;
+}
+
+type PlainStyle = ((value: string) => string) & {
+  bold: (value: string) => string;
+};
+
+const plainStyle = ((value: string) => value) as PlainStyle;
+plainStyle.bold = (value: string) => value;
+
+const terminalStyle = {
+  red: plainStyle,
+  yellow: plainStyle,
+  white: plainStyle,
+  cyan: plainStyle,
+};
+
+class AcpStreamInterceptor extends Transform {
+  private buffer = '';
+
+  constructor(
+    private readonly onElevatedApproval: (request: AcpElevatedApprovalRequest) => Promise<void>
+  ) {
+    super();
+  }
+
+  _transform(chunk: string | Buffer, encoding: string, callback: () => void) {
+    this.buffer += chunk.toString('utf8');
+    const lines = this.buffer.split(/\r?\n/);
+    this.buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      try {
+        const obj = JSON.parse(trimmed);
+        if (obj && obj.method === 'client:requestElevatedApproval') {
+          void this.onElevatedApproval(obj);
+          continue;
+        }
+      } catch (err) {
+        // Not JSON or parse error, let it pass
+      }
+      this.push(line + '\n');
+    }
+    callback();
+  }
+
+  _flush(callback: () => void) {
+    if (this.buffer.trim()) {
+      try {
+        const obj = JSON.parse(this.buffer.trim());
+        if (obj && obj.method === 'client:requestElevatedApproval') {
+          void this.onElevatedApproval(obj);
+        } else {
+          this.push(this.buffer + '\n');
+        }
+      } catch (err) {
+        this.push(this.buffer + '\n');
+      }
+    }
+    callback();
+  }
+}
+
+async function askElevatedApproval(
+  requestId: string | number,
+  type: string,
+  message: string,
+  metadata: Record<string, unknown> | undefined
+): Promise<boolean> {
+  const details = metadata ? JSON.stringify(metadata, null, 2) : 'None';
+
+  // If stdin is not a TTY (like Next.js or background daemon processes),
+  // queue in global map for zavorthControl / other channels to pick up
+  if (!process.stdin.isTTY) {
+    const jitMap = ((global as unknown as GlobalWithJitApprovals).globalPendingJitApprovals ??= new Map());
+    return new Promise<boolean>((resolvePromise) => {
+      jitMap.set(String(requestId), {
+        id: String(requestId),
+        type,
+        message,
+        metadata,
+        createdAt: new Date().toISOString(),
+        resolve: (val: boolean) => {
+          jitMap.delete(String(requestId));
+          resolvePromise(val);
+        }
+      });
+    });
+  }
+
+  // Interactive CLI mode
+  const title = terminalStyle.red.bold('SECURITY WARNING');
+  const riskLine = `${terminalStyle.yellow.bold('RISK TYPE:')} ${terminalStyle.white(type)}`;
+  const msgLine = `${terminalStyle.yellow.bold('MESSAGE:')} ${terminalStyle.white(message)}`;
+  const detailsTitle = terminalStyle.yellow.bold('DETAILS:');
+  const detailsBody = terminalStyle.cyan(details);
+
+  const border = terminalStyle.red('================================================================================');
+  console.log('\n' + border);
+  console.log(title);
+  console.log(border);
+  console.log(riskLine);
+  console.log(msgLine);
+  console.log(border);
+  console.log(detailsTitle);
+  console.log(detailsBody);
+  console.log(border + '\n');
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const answer = await new Promise<string>((resolve) => {
+    rl.question('Allow this action? [y/N]: ', (response) => {
+      resolve(response);
+    });
+  });
+  rl.close();
+
+  return answer.trim().toLowerCase() === 'y';
+}
 
 export type AcpLiveSessionInput = {
   prompt: string;
@@ -306,9 +452,29 @@ export class AcpLiveSessionService {
       }
 
       const acpSdk = await import('@agentclientprotocol/sdk');
+
+      const handleElevatedApproval = async (request: AcpElevatedApprovalRequest) => {
+        const requestId = request.id ?? randomUUID();
+        const reqParams = request.params || {};
+        const type = reqParams.type || 'N/A';
+        const message = reqParams.message || 'No message provided.';
+        const approved = await askElevatedApproval(requestId, type, message, reqParams.metadata);
+        const response = {
+          jsonrpc: '2.0',
+          id: requestId,
+          result: {
+            approved
+          }
+        };
+        child.stdin?.write(JSON.stringify(response) + '\n', 'utf8');
+      };
+
+      const interceptor = new AcpStreamInterceptor(handleElevatedApproval);
+      child.stdout.pipe(interceptor);
+
       const stream = acpSdk.ndJsonStream(
         Writable.toWeb(child.stdin),
-        Readable.toWeb(child.stdout) as unknown as ReadableStream<Uint8Array>,
+        Readable.toWeb(interceptor) as unknown as ReadableStream<Uint8Array>,
       );
       const client = new acpSdk.ClientSideConnection(
         () => ({
@@ -566,6 +732,10 @@ class StdioAcpJsonRpcTransport implements AcpJsonRpcTransport {
     for (const line of chunk.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean)) {
       try {
         const response = JSON.parse(line) as AcpJsonRpcResponse;
+        if (response.method === 'client:requestElevatedApproval') {
+          void this.handleElevatedApproval(response as unknown as AcpElevatedApprovalRequest);
+          continue;
+        }
         if (response.id !== undefined && response.id !== null && this.pending.has(response.id)) {
           this.pending.get(response.id)?.resolve(response);
           this.pending.delete(response.id);
@@ -574,6 +744,22 @@ class StdioAcpJsonRpcTransport implements AcpJsonRpcTransport {
         // Ignore non-JSON diagnostic output from third-party ACP servers.
       }
     }
+  }
+
+  private async handleElevatedApproval(request: AcpElevatedApprovalRequest): Promise<void> {
+    const requestId = request.id ?? randomUUID();
+    const params = request.params || {};
+    const type = params.type || 'N/A';
+    const message = params.message || 'No message provided.';
+    const approved = await askElevatedApproval(requestId, type, message, params.metadata);
+    const response = {
+      jsonrpc: '2.0',
+      id: requestId,
+      result: {
+        approved
+      }
+    };
+    this.child?.stdin.write(JSON.stringify(response) + '\n', 'utf8');
   }
 }
 

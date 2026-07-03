@@ -3,8 +3,39 @@ import { join, extname } from 'path';
 import type { ProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { createMinimalProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { sanitizeModelId, sanitizeProviderId, sanitizeLabel } from './ModelIdSanitizer.js';
+import type { ModelCapabilityKind, ModelModality } from './ProviderCatalogContracts.js';
 
 export type ExternalProviderFormat = 'auto' | 'json' | 'yaml' | 'env' | 'external-json' | 'generic';
+
+export interface RawProviderModel {
+  id?: string;
+  name?: string;
+  label?: string;
+  model?: string;
+  primary?: boolean;
+}
+
+export interface RawProviderConfig {
+  id?: string;
+  name?: string;
+  provider?: string;
+  label?: string;
+  baseUrl?: string;
+  base_url?: string;
+  baseURL?: string;
+  apiKeyEnv?: string;
+  api_key_env?: string;
+  apiKey?: string;
+  api_key?: string;
+  models?: Array<string | RawProviderModel>;
+  kind?: 'openai_compatible' | 'anthropic_compatible' | 'custom';
+  compatibility?: 'openai_compatible' | 'anthropic_compatible' | 'custom';
+  capabilities?: ModelCapabilityKind[];
+  modalities?: ModelModality[];
+  aliases?: string[];
+  website?: string;
+  url?: string;
+}
 
 export type ExternalProviderConfig = {
   id: string;
@@ -14,8 +45,8 @@ export type ExternalProviderConfig = {
   apiKey?: string;
   models?: Array<{ id: string; name?: string; primary?: boolean }>;
   kind?: 'openai_compatible' | 'anthropic_compatible' | 'custom';
-  capabilities?: string[];
-  modalities?: string[];
+  capabilities?: ModelCapabilityKind[];
+  modalities?: ModelModality[];
   aliases?: string[];
   website?: string;
 };
@@ -97,7 +128,7 @@ function parseEnvConfig(content: string): ExternalProviderConfig[] {
     }
   }
 
-  for (const config of providerMap.values()) {
+  for (const config of Array.from(providerMap.values())) {
     if (config.id) {
       providers.push(normalizeConfig(config));
     }
@@ -106,7 +137,7 @@ function parseEnvConfig(content: string): ExternalProviderConfig[] {
   return providers;
 }
 
-function normalizeConfig(raw: any): ExternalProviderConfig {
+function normalizeConfig(raw: RawProviderConfig): ExternalProviderConfig {
   const id = sanitizeProviderId(raw.id || raw.name || raw.provider || '');
   return {
     id,
@@ -115,10 +146,10 @@ function normalizeConfig(raw: any): ExternalProviderConfig {
     apiKeyEnv: raw.apiKeyEnv || raw.api_key_env || undefined,
     apiKey: raw.apiKey || raw.api_key || undefined,
     models: Array.isArray(raw.models)
-      ? raw.models.map((m: any) => ({
+      ? raw.models.map((m) => ({
           id: sanitizeModelId(typeof m === 'string' ? m : m.id || m.model || ''),
-          name: m.name || m.label || undefined,
-          primary: m.primary || false,
+          name: typeof m === 'string' ? undefined : m.name || m.label || undefined,
+          primary: typeof m === 'string' ? false : m.primary || false,
         }))
       : undefined,
     kind: raw.kind || raw.compatibility || 'openai_compatible',
@@ -153,8 +184,8 @@ function configToManifest(config: ExternalProviderConfig): ProviderIntegrationMa
     mode: 'cloud',
     authKind: 'api_key',
     credentialRefs: [config.apiKeyEnv || `${id.toUpperCase().replace(/-/g, '_')}_API_KEY`],
-    capabilities: (config.capabilities as any[]) || ['chat', 'streaming'],
-    modalities: (config.modalities as any[]) || ['text'],
+    capabilities: config.capabilities || ['chat', 'streaming'],
+    modalities: config.modalities || ['text'],
     defaultModelName: defaultModel,
     source: 'custom',
   });

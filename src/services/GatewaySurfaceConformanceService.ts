@@ -345,7 +345,7 @@ export function buildWebGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
   return {
     contractVersion: GATEWAY_SURFACE_CONTRACT_VERSION,
     id: 'web-control',
-    label: 'Web Dashboard Gateway',
+    label: 'Web ZavorthControl Gateway',
     channel: 'web',
     readiness: 'ready',
     implementationState: 'full',
@@ -437,7 +437,7 @@ export function buildWebGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
       sourceFiles: [
         'src/services/WebAppConversationService.ts',
         'src/domain/surface/presentation/web-app/WebAppRuntimeInteractionRouteService.ts',
-        'assets/dashboard/scripts/runtime-bridge.js',
+        'assets/zavorthControl/scripts/runtime-bridge.js',
       ],
     },
     degradedMode: {
@@ -445,7 +445,7 @@ export function buildWebGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
       summary: 'Sem token remoto, a surface permanece local/loopback e nao vira acesso publico.',
     },
     docs: {
-      operatorGuide: 'docs/web-dashboard.md',
+      operatorGuide: 'docs/web-zavorthControl.md',
       setupCommand: 'npm run ops:start',
     },
   };
@@ -641,7 +641,7 @@ export function buildApiGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
       commandShortcutAllowed: true,
       llmDirectEntryAllowed: false,
       sourceFiles: [
-        'src/services/DashboardEchoRouteService.ts',
+        'src/services/ZavorthControlEchoRouteService.ts',
         'src/services/NexusFacadeService.ts',
         'src/runtime/agent/ZavorthAgentGateway.ts',
       ],

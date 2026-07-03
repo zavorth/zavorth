@@ -121,6 +121,38 @@ export class PromptCacheService {
     return id;
   }
 
+  public store(hash: string, prefixTokens: string[], tokenCount: number, provider: string, model: string): void {
+    const key = `${provider}:${model}:${hash}`;
+    const cached: CachedPrompt = {
+      id: `cache_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      prompt_hash: hash,
+      prefix_tokens: prefixTokens,
+      cache_hits: 0,
+      last_used: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      token_count: tokenCount,
+      provider,
+      model,
+    };
+    this.cache.set(key, cached);
+    this.saveCache();
+  }
+
+  public lookup(hash: string): CachedPrompt | null {
+    for (const cached of this.cache.values()) {
+      if (cached.prompt_hash === hash) {
+        cached.cache_hits++;
+        cached.last_used = new Date().toISOString();
+        this.stats.hits++;
+        this.stats.tokens_saved += cached.token_count;
+        this.saveCache();
+        return cached;
+      }
+    }
+    this.stats.misses++;
+    return null;
+  }
+
   public findCommonPrefix(prompts: string[]): string[] {
     if (prompts.length === 0) return [];
 
@@ -194,6 +226,16 @@ export class PromptCacheService {
       `  Hit rate: ${(hitRate * 100).toFixed(1)}%`,
       `  Tokens saved: ${this.stats.tokens_saved}`,
     ].join('\n');
+  }
+
+  public clear(): void {
+    this.cache.clear();
+    this.saveCache();
+  }
+
+  public getHitRate(): number {
+    const total = this.stats.hits + this.stats.misses;
+    return total > 0 ? this.stats.hits / total : 0;
   }
 
   public listCached(): string {

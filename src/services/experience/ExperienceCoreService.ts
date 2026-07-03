@@ -1,3 +1,4 @@
+import { logger } from '../../logger.js';
 import {
   EXPERIENCE_COMMAND_CONTRACT_VERSION,
   EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
@@ -182,7 +183,8 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
       timeZoneName: 'short',
     }).format(now);
     return `Agora em ${timeZone} é ${formatted}.`;
-  } catch {
+  } catch (error) {
+    logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
     return `Agora são ${now.toLocaleString('pt-BR')} no fuso local do sistema.`;
   }
 }
@@ -288,7 +290,20 @@ export class ExperienceCoreService {
     });
     const activeRun = agentSnapshot?.activeRun || null;
     const runs = agentSnapshot?.runs || [];
-    const approvals = this.collectApprovals(runs);
+    const jitMap = ((global as any).globalPendingJitApprovals ??= new Map());
+    const jitApprovals: UniversalApprovalRequest[] = Array.from(jitMap.values()).map((jit: any) => ({
+      id: jit.id,
+      runId: String(jit.runId || activeRun?.id || 'jit-elevation'),
+      title: `DYNAMIC ELEVATION: ${jit.type.toUpperCase()}`,
+      reason: jit.message,
+      risk: 'danger',
+      status: 'pending',
+      createdAt: jit.createdAt,
+    }));
+    const approvals = [
+      ...this.collectApprovals(runs),
+      ...jitApprovals,
+    ];
     const timeline = this.buildTimeline(activeRun, runs);
     const receipts = this.mergeExperienceReceipts(
       this.selfHealingReceipts.toExperienceReceipts(6),
@@ -414,7 +429,7 @@ export class ExperienceCoreService {
           'Revise este workspace',
           'Explique o que esta bloqueado',
           'Mostre aprendizados pendentes',
-          'Abra o dashboard',
+          'Abra o zavorthControl',
         ],
       },
       approvals: approvals.map((approval) => this.toExperienceApproval(approval)),
@@ -605,7 +620,7 @@ export class ExperienceCoreService {
         });
       }
 
-      if (plan.kind === 'dashboard' || plan.kind === 'diagnostics' || plan.kind === 'learning' || plan.kind === 'memory') {
+      if (plan.kind === 'zavorthControl' || plan.kind === 'diagnostics' || plan.kind === 'learning' || plan.kind === 'memory') {
         const snapshot = this.buildHome(command);
         const reply = this.replyFromText(plan.nextSafeAction, command, snapshot.agent.activeRunId);
         return this.finalizeCommandResult(command, {
@@ -730,7 +745,8 @@ export class ExperienceCoreService {
   public dispatchRuntimeStateAction(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeSecureIntegration?.dispatch(input) || this.runtimeStateBus?.dispatch(input) || null;
-    } catch {
+    } catch (error) {
+      logger.warn('[ExperienceCore] dispatchRuntimeStateAction failed:', error);
       return null;
     }
   }
@@ -744,7 +760,8 @@ export class ExperienceCoreService {
         now: this.now,
         runtimeStateBus: this.runtimeStateBus,
       }).buildSnapshot();
-    } catch {
+    } catch (error) {
+      logger.warn('[ExperienceCore] buildRuntimeCapabilities failed:', error);
       return null;
     }
   }
@@ -754,7 +771,8 @@ export class ExperienceCoreService {
   ): Promise<ZavorthRuntimeOperationalSpineSyncResult | null> {
     try {
       return await this.runtimeOperationalSpine?.syncOperationalState(input) || null;
-    } catch {
+    } catch (error) {
+      logger.warn('[ExperienceCore] syncRuntimeOperationalState failed:', error);
       return null;
     }
   }
@@ -999,7 +1017,8 @@ export class ExperienceCoreService {
   private safeDispatchRuntimeState(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeStateBus?.dispatch(input) || null;
-    } catch {
+    } catch (error) {
+      logger.warn('[ExperienceCore] safeDispatchRuntimeState failed:', error);
       return null;
     }
   }
@@ -1007,7 +1026,8 @@ export class ExperienceCoreService {
   private safeAgentSnapshot(input: ZavorthAgentGatewaySnapshotOptions): ZavorthAgentGatewaySnapshot | null {
     try {
       return this.agentGateway?.buildSnapshot(input) || null;
-    } catch {
+    } catch (error) {
+      logger.warn('[ExperienceCore] safeAgentSnapshot failed:', error);
       return null;
     }
   }
@@ -1104,8 +1124,8 @@ export class ExperienceCoreService {
           confidence: 0.7,
         }];
       }
-    } catch {
-      // Keep the experience surface available even if memory is offline.
+    } catch (error) {
+      logger.warn('[ExperienceCore] buildMemorySignals memoryPlane fallback failed:', error);
     }
     return [];
   }
@@ -1150,7 +1170,8 @@ export class ExperienceCoreService {
   private safeRuntimeStateSnapshot(): ZavorthRuntimeStateBusSnapshot | null {
     try {
       return this.runtimeStateBus?.buildSnapshot() || null;
-    } catch {
+    } catch (error) {
+      logger.warn('[ExperienceCore] safeRuntimeStateSnapshot failed:', error);
       return null;
     }
   }
@@ -1166,7 +1187,8 @@ export class ExperienceCoreService {
         responseProfile: command.responseProfile || null,
         metadata: command.metadata || {},
       }) || null;
-    } catch {
+    } catch (error) {
+      logger.warn('[ExperienceCore] safeRuntimeStateSync failed, falling back to snapshot:', error);
       return this.safeRuntimeStateSnapshot();
     }
   }
@@ -1375,11 +1397,11 @@ export class ExperienceCoreService {
         reason: 'Entrada natural-first principal.',
       }),
       action({
-        id: 'dashboard.open',
-        label: 'Abrir Dashboard',
+        id: 'zavorthControl.open',
+        label: 'Abrir ZavorthControl',
         kind: 'navigation',
         command: 'zavorth open',
-        route: '/dashboard',
+        route: '/zavorthControl',
         reason: 'Superficie visual oficial.',
       }),
     ];
@@ -1911,7 +1933,8 @@ export class ExperienceCoreService {
         probe: false,
         live: false,
       });
-    } catch {
+    } catch (error) {
+      logger.warn('[ExperienceCore] safeProviderReadinessMatrix failed:', error);
       return null;
     }
   }

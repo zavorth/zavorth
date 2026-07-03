@@ -94,9 +94,9 @@ export class ZavorthAutomationIntentService {
     } else if (/(?:por|via|no?)\s+telegram/iu.test(remainingText)) {
       delivery = 'telegram';
       remainingText = remainingText.replace(/(?:por|via|no?)\s+telegram/giu, ' ');
-    } else if (/(?:por|via|no?)\s+(?:app|dashboard)/iu.test(remainingText)) {
+    } else if (/(?:por|via|no?)\s+(?:app|zavorthControl)/iu.test(remainingText)) {
       delivery = 'app';
-      remainingText = remainingText.replace(/(?:por|via|no?)\s+(?:app|dashboard)/giu, ' ');
+      remainingText = remainingText.replace(/(?:por|via|no?)\s+(?:app|zavorthControl)/giu, ' ');
     }
 
     return {

@@ -113,7 +113,7 @@ export function formatAskBeforeAssumptionPolicySnapshot(
   lines.push('- preview vem antes de acao arriscada');
 
   lines.push('', 'Superficies');
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Hint: ${snapshot.surface.askHint}`);
 

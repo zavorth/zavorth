@@ -108,7 +108,7 @@ async function checkNode(node: {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(CHECK_TIMEOUT_MS) });
     // Consume/cancel response body to free resources
-    res.body?.cancel().catch(() => {});
+    res.body?.cancel().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
     const isHealthy = res.ok || res.status === 401; // 401 = server up but auth required
     return {
       nodeId: node.id,
@@ -247,4 +247,5 @@ export function stopLocalHealthCheck(): void {
 }
 
 // Auto-initialize on first import (same pattern as tokenHealthCheck.ts:272)
+import { logger } from '../logger.js';
 initLocalHealthCheck();

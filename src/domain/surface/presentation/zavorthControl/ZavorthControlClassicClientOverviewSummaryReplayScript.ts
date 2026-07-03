@@ -1,8 +1,178 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 
+declare function escapeHtml(value: unknown): string;
+declare function formatRelativeTime(value: unknown): string;
+
+interface OverviewNarrative {
+  headline?: string;
+  operatorSummary?: string;
+  nextAction?: string;
+}
+
+interface OverviewSummary {
+  posture?: string;
+  readyChannels?: number;
+  onlineNodes?: number;
+  lifecycleEvents?: number;
+  lifecycleAttention?: number;
+  tenants?: number;
+  pendingOnboarding?: number;
+  pendingApprovals?: number;
+  highRiskCapabilities?: number;
+  integrations?: number;
+  platformEntries?: number;
+  scorecards?: number;
+  releaseReady?: boolean;
+  rolloutGateStatus?: string;
+  families?: number;
+  healthyFamilies?: number;
+  attentionFamilies?: number;
+  criticalFamilies?: number;
+  operationalPosture?: string;
+  trustPosture?: string;
+  productPosture?: string;
+}
+
+interface OverviewCard {
+  label?: string;
+  id?: string;
+  posture?: string;
+  summary?: string;
+}
+
+interface OverviewAction {
+  label?: string;
+  id?: string;
+  reason?: string;
+  command?: string;
+}
+
+interface OverviewData {
+  error?: boolean;
+  available?: boolean;
+  reason?: string;
+  summary?: OverviewSummary;
+  narrative?: OverviewNarrative;
+  cards?: OverviewCard[];
+  actions?: OverviewAction[];
+}
+
+interface ReplayRecommendedEntry {
+  label?: string;
+  reason?: string;
+}
+
+interface ReplayTimelineStep {
+  label?: string;
+  detail?: string;
+  happenedAt?: string;
+}
+
+interface ReplayArtifact {
+  label?: string;
+  summary?: string;
+  path?: string;
+}
+
+interface ReplayStats {
+  tasks?: number;
+  workflowRuns?: number;
+  pendingPermissions?: number;
+  artifacts?: number;
+}
+
+interface ReplayData {
+  error?: boolean;
+  available?: boolean;
+  reason?: string;
+  dominantSurface?: string;
+  headline?: string;
+  operatorSummary?: string;
+  recommendedEntry?: ReplayRecommendedEntry;
+  timeline?: ReplayTimelineStep[];
+  recentArtifacts?: ReplayArtifact[];
+  stats?: ReplayStats;
+}
+
+interface LifecycleSummary {
+  recent?: number;
+  runs?: number;
+  approvals?: number;
+  artifacts?: number;
+  approvalRequired?: number;
+  blocked?: number;
+  failed?: number;
+}
+
+interface LifecycleNarrative {
+  headline?: string;
+  operatorSummary?: string;
+}
+
+interface LifecycleEvent {
+  kind?: string;
+  status?: string;
+  summary?: string;
+  id?: string;
+  runId?: string;
+}
+
+interface LifecycleByRun {
+  runId?: string;
+  total?: number;
+  approvals?: number;
+  artifacts?: number;
+}
+
+interface LifecycleData {
+  error?: boolean;
+  available?: boolean;
+  reason?: string;
+  summary?: LifecycleSummary;
+  narrative?: LifecycleNarrative;
+  latest?: LifecycleEvent[];
+  byRun?: LifecycleByRun[];
+}
+
+interface HandoffSurface {
+  label?: string;
+  source?: string;
+  activity?: string;
+  linked?: boolean;
+}
+
+interface HandoffCarryForward {
+  label?: string;
+  detail?: string;
+}
+
+interface HandoffCanonicalTarget {
+  label?: string;
+}
+
+interface HandoffCheckpoints {
+  tasks?: number;
+  workflowRuns?: number;
+  linkedSurfaces?: number;
+}
+
+interface HandoffData {
+  error?: boolean;
+  available?: boolean;
+  reason?: string;
+  status?: string;
+  headline?: string;
+  operatorSummary?: string;
+  handoffPrompt?: string;
+  handoffCommand?: string;
+  canonicalTarget?: HandoffCanonicalTarget;
+  checkpoints?: HandoffCheckpoints;
+  surfaces?: HandoffSurface[];
+  carryForward?: HandoffCarryForward[];
+}
+
 function zavorthControlClassicClientOverviewSummaryReplay() {
-    function renderOverviewBlock(nodeId, title, endpoint, overview, metricCards, detailHtml) {
+    function renderOverviewBlock(nodeId: string, title: string, endpoint: string, overview: OverviewData | null | undefined, metricCards: string, detailHtml: string): void {
       const node = document.getElementById(nodeId);
       if (!node) return;
       if (!overview || overview.error || overview.available === false) {
@@ -13,10 +183,10 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         return;
       }
 
-      const cards = Array.isArray(overview.cards) ? overview.cards : [];
-      const actions = Array.isArray(overview.actions) ? overview.actions : [];
+      const cards: OverviewCard[] = Array.isArray(overview.cards) ? overview.cards : [];
+      const actions: OverviewAction[] = Array.isArray(overview.actions) ? overview.actions : [];
       const cardItems = cards.length
-        ? cards.slice(0, 6).map((entry) =>
+        ? cards.slice(0, 6).map((entry: OverviewCard) =>
             '<li><strong>' + escapeHtml(entry.label || entry.id || 'Plane') + '</strong> '
             + '<span class="badge badge-info">' + escapeHtml(entry.posture || 'attention') + '</span> '
             + escapeHtml(entry.summary || 'Sem resumo adicional.')
@@ -24,8 +194,8 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
           ).join('')
         : '<li>Nenhum plane agregado ainda.</li>';
       const actionItems = actions.length
-        ? actions.slice(0, 6).map((entry) =>
-            '<li><strong>' + escapeHtml(entry.label || entry.id || 'Acao') + '</strong> Ãƒâ€šÃ‚Â· '
+        ? actions.slice(0, 6).map((entry: OverviewAction) =>
+            '<li><strong>' + escapeHtml(entry.label || entry.id || 'Acao') + '</strong> '
             + escapeHtml(entry.reason || 'Sem motivo adicional.')
             + (entry.command ? '<div class="cockpit-command">' + escapeHtml(entry.command) + '</div>' : '')
             + '</li>'
@@ -56,8 +226,8 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '</div>';
     }
 
-    function renderOperationsOverview(overview) {
-      const summary = overview && overview.summary ? overview.summary : {};
+    function renderOperationsOverview(overview: OverviewData): void {
+      const summary: OverviewSummary = overview && overview.summary ? overview.summary : {};
       renderOverviewBlock(
         'operations-overview',
         'Operational Overview',
@@ -71,8 +241,8 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       );
     }
 
-    function renderOperationsTrustOverview(overview) {
-      const summary = overview && overview.summary ? overview.summary : {};
+    function renderOperationsTrustOverview(overview: OverviewData): void {
+      const summary: OverviewSummary = overview && overview.summary ? overview.summary : {};
       renderOverviewBlock(
         'operations-trust-overview',
         'Trust Overview',
@@ -86,8 +256,8 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       );
     }
 
-    function renderOperationsProductOverview(overview) {
-      const summary = overview && overview.summary ? overview.summary : {};
+    function renderOperationsProductOverview(overview: OverviewData): void {
+      const summary: OverviewSummary = overview && overview.summary ? overview.summary : {};
       renderOverviewBlock(
         'operations-product-overview',
         'Product Overview',
@@ -101,8 +271,8 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       );
     }
 
-    function renderOperationsControlPlaneCatalog(catalog) {
-      const summary = catalog && catalog.summary ? catalog.summary : {};
+    function renderOperationsControlPlaneCatalog(catalog: OverviewData): void {
+      const summary: OverviewSummary = catalog && catalog.summary ? catalog.summary : {};
       renderOverviewBlock(
         'operations-control-plane-catalog',
         'Control Plane Catalog',
@@ -119,7 +289,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       );
     }
 
-    function renderOperationsReplay(replay) {
+    function renderOperationsReplay(replay: ReplayData): void {
       const node = document.getElementById('operations-replay');
       if (!node) return;
       if (!replay || replay.error || replay.available === false) {
@@ -130,20 +300,20 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         return;
       }
 
-      const recommended = replay.recommendedEntry || {};
-      const timeline = Array.isArray(replay.timeline) ? replay.timeline : [];
-      const recentArtifacts = Array.isArray(replay.recentArtifacts) ? replay.recentArtifacts : [];
+      const recommended: ReplayRecommendedEntry = replay.recommendedEntry || {};
+      const timeline: ReplayTimelineStep[] = Array.isArray(replay.timeline) ? replay.timeline : [];
+      const recentArtifacts: ReplayArtifact[] = Array.isArray(replay.recentArtifacts) ? replay.recentArtifacts : [];
       const timelineItems = timeline.length
-        ? timeline.map((step) =>
-            '<li><strong>' + escapeHtml(step.label || 'Passo') + '</strong> Ã‚Â· '
+        ? timeline.map((step: ReplayTimelineStep) =>
+            '<li><strong>' + escapeHtml(step.label || 'Passo') + '</strong> '
             + escapeHtml(step.detail || 'Sem detalhe adicional.')
             + (step.happenedAt ? ' <small>(' + escapeHtml(formatRelativeTime(step.happenedAt) || 'agora') + ')</small>' : '')
             + '</li>'
           ).join('')
         : '<li>Nenhum passo relevante no replay ainda.</li>';
       const artifactItems = recentArtifacts.length
-        ? recentArtifacts.map((artifact) =>
-            '<li><strong>' + escapeHtml(artifact.label || 'Entrega') + '</strong> Ã‚Â· '
+        ? recentArtifacts.map((artifact: ReplayArtifact) =>
+            '<li><strong>' + escapeHtml(artifact.label || 'Entrega') + '</strong> '
             + escapeHtml(artifact.summary || artifact.path || 'Sem resumo adicional.')
             + '</li>'
           ).join('')
@@ -171,7 +341,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '<div class="sidecar-card"><strong>Resumo do operador</strong><small>' + escapeHtml(replay.operatorSummary || 'Sem resumo adicional.') + '</small></div>'
         + '<div class="sidecar-card"><strong>Melhor ponto de entrada</strong><ul class="cockpit-list"><li><strong>'
         + escapeHtml(recommended.label || 'Abrir contexto')
-        + '</strong> Ã‚Â· '
+        + '</strong> '
         + escapeHtml(recommended.reason || 'Sem recomendacao adicional.')
         + '</li></ul></div>'
         + '</div>'
@@ -182,7 +352,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '</div>';
     }
 
-    function renderOperationsLifecycle(lifecycle) {
+    function renderOperationsLifecycle(lifecycle: LifecycleData): void {
       const node = document.getElementById('operations-lifecycle');
       if (!node) return;
       if (!lifecycle || lifecycle.error || lifecycle.available === false) {
@@ -193,11 +363,11 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         return;
       }
 
-      const summary = lifecycle.summary || {};
-      const latest = Array.isArray(lifecycle.latest) ? lifecycle.latest : [];
-      const byRun = Array.isArray(lifecycle.byRun) ? lifecycle.byRun : [];
+      const summary: LifecycleSummary = lifecycle.summary || {};
+      const latest: LifecycleEvent[] = Array.isArray(lifecycle.latest) ? lifecycle.latest : [];
+      const byRun: LifecycleByRun[] = Array.isArray(lifecycle.byRun) ? lifecycle.byRun : [];
       const latestItems = latest.length
-        ? latest.slice(0, 6).map((entry) =>
+        ? latest.slice(0, 6).map((entry: LifecycleEvent) =>
             '<li><strong>' + escapeHtml(entry.kind || 'execution') + '</strong> '
             + '<span class="badge badge-info">' + escapeHtml(entry.status || 'linked') + '</span> '
             + escapeHtml(entry.summary || entry.id || 'Evento de lifecycle.')
@@ -206,7 +376,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
           ).join('')
         : '<li>Nenhum evento canonico recente.</li>';
       const runItems = byRun.length
-        ? byRun.slice(0, 5).map((entry) =>
+        ? byRun.slice(0, 5).map((entry: LifecycleByRun) =>
             '<li><strong>' + escapeHtml(entry.runId || 'run') + '</strong> - '
             + escapeHtml(String(entry.total || 0)) + ' evento(s), '
             + escapeHtml(String(entry.approvals || 0)) + ' approval(s), '
@@ -243,7 +413,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '</div>';
     }
 
-    function renderOperationsHandoff(handoff) {
+    function renderOperationsHandoff(handoff: HandoffData): void {
       const node = document.getElementById('operations-handoff');
       if (!node) return;
       if (!handoff || handoff.error || handoff.available === false) {
@@ -254,19 +424,19 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         return;
       }
 
-      const surfaces = Array.isArray(handoff.surfaces) ? handoff.surfaces : [];
-      const carryForward = Array.isArray(handoff.carryForward) ? handoff.carryForward : [];
+      const surfaces: HandoffSurface[] = Array.isArray(handoff.surfaces) ? handoff.surfaces : [];
+      const carryForward: HandoffCarryForward[] = Array.isArray(handoff.carryForward) ? handoff.carryForward : [];
       const surfaceItems = surfaces.length
-        ? surfaces.map((entry) =>
-            '<li><strong>' + escapeHtml(entry.label || entry.source || 'Superficie') + '</strong> Ã‚Â· '
+        ? surfaces.map((entry: HandoffSurface) =>
+            '<li><strong>' + escapeHtml(entry.label || entry.source || 'Superficie') + '</strong> '
             + escapeHtml(entry.activity || 'Sem atividade recente.')
             + (entry.linked ? ' <small>(ligada)</small>' : '')
             + '</li>'
           ).join('')
         : '<li>Nenhuma superficie adicional ligada ainda.</li>';
       const carryItems = carryForward.length
-        ? carryForward.map((entry) =>
-            '<li><strong>' + escapeHtml(entry.label || 'Contexto') + '</strong> Ã‚Â· '
+        ? carryForward.map((entry: HandoffCarryForward) =>
+            '<li><strong>' + escapeHtml(entry.label || 'Contexto') + '</strong> '
             + escapeHtml(entry.detail || 'Sem detalhe adicional.')
             + '</li>'
           ).join('')
@@ -307,4 +477,3 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
 export function getZavorthControlClassicClientOverviewSummaryReplayScript(): string {
   return extractFunctionBody(zavorthControlClassicClientOverviewSummaryReplay);
 }
-

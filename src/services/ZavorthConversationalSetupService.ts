@@ -1,12 +1,8 @@
-// @ts-nocheck
 import type { FirstRunPersonalizationAnswers } from './FirstRunPersonalizationService.js';
 import { logger } from '../logger.js';
 import { FirstRunPersonalizationService } from './FirstRunPersonalizationService.js';
-import { logger } from '../logger.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
-import { logger } from '../logger.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
-import { logger } from '../logger.js';
 import {
   ZAVORTH_CONVERSATIONAL_SETUP_CONTRACT_VERSION,
   type ZavorthConversationalSetupAnswers,
@@ -16,9 +12,7 @@ import {
   type ZavorthConversationalSetupStatus,
 } from '../contracts/ZavorthConversationalSetupContract.js';
 import type { ZavorthExperienceProfileId } from '../contracts/ZavorthExperienceProfileContract.js';
-import { logger } from '../logger.js';
 import { ZavorthExperienceProfileService } from './ZavorthExperienceProfileService.js';
-import { logger } from '../logger.js';
 
 export type ZavorthConversationalSetupInput = {
   agentName?: unknown;
@@ -486,7 +480,7 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
       required: false,
       visible: isGoverned,
       visibleReason: 'Relevant for business and power profiles with governed workflows.',
-      choices: ['dashboard', 'satellite', 'telegram', 'cli'],
+      choices: ['zavorthControl', 'satellite', 'telegram', 'cli'],
       answer: answers.approvalChannel,
     },
     {

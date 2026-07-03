@@ -266,11 +266,11 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         status: runtimeHealth?.authEnabled ? 'ready' : runtimeAvailable ? 'partial' : 'blocked',
         owner: 'ai-gateway',
         sourceFiles: [
-          'src/services/DashboardAuthService.ts',
+          'src/services/ZavorthControlAuthService.ts',
           'src/ai-gateway/lib/oauth/authPlane.ts',
         ],
         capabilities: [
-          'Dashboard auth status',
+          'ZavorthControl auth status',
           'Provider OAuth handoff boundaries',
           'Zavorth-native auth environment naming',
         ],

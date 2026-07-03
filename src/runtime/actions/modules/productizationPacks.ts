@@ -17,7 +17,7 @@ import { SpeechRuntimeService } from '../../../services/SpeechRuntimeService.js'
 import { GeminiVoiceService } from '../../../providers/GeminiVoiceService.js';
 import { config } from '../../../config/index.js';
 
-const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'dashboard', 'tui', 'api', 'channel', 'llm'];
+const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = ['tests/runtime/actions/ZavorthProductizationPackActions.test.ts'];
 
 const outputSchema: ZavorthActionSchema = {
@@ -328,6 +328,7 @@ async function voiceBackends(input: ZavorthActionHandlerInput): Promise<ZavorthA
 
   if (selected.id === 'edge') {
     try {
+      // @ts-ignore
       const { MsEdgeTTS } = await import('msedge-tts');
       const tts = new MsEdgeTTS();
       const voiceName = text(input.args.voice, 'pt-BR-FranciscaNeural');

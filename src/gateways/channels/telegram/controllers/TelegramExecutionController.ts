@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context, InlineKeyboard } from 'grammy';
 import { config } from '../../../../config/index.js';
 import { Task } from '../../../../contracts/TaskContract.js';
@@ -144,7 +143,8 @@ export class TelegramExecutionController {
         `Pronto. Tentei desfazer a tarefa ${taskId}.\n\nItens restaurados:\n${restored.join('\n')}`,
       );
     } catch (error: unknown) {
-      await SmartOutputService.reply(ctx, `Nao consegui desfazer essa tarefa agora.\n\nMotivo: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      await SmartOutputService.reply(ctx, `Nao consegui desfazer essa tarefa agora.\n\nMotivo: ${message}`);
     }
   }
 

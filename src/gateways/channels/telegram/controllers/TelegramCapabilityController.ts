@@ -11,7 +11,7 @@ type TelegramCapabilityControllerDeps = {
   pipelineController: TelegramPipelineController;
   inspectionController: TelegramInspectionController;
   fileDeliveryController: TelegramFileDeliveryController;
-  opsController: Pick<TelegramOpsController, 'handleCapabilities' | 'handleDashboard'>;
+  opsController: Pick<TelegramOpsController, 'handleCapabilities' | 'handleZavorthControl'>;
 };
 
 export class TelegramCapabilityController {
@@ -78,8 +78,8 @@ export class TelegramCapabilityController {
         await this.deps.opsController.handleCapabilities(ctx);
         return true;
 
-      case 'ops_dashboard':
-        await this.deps.opsController.handleDashboard(ctx);
+      case 'ops_zavorthControl':
+        await this.deps.opsController.handleZavorthControl(ctx);
         return true;
 
       default:

@@ -132,7 +132,7 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
           userId: 'system',
           context: { secretRef, operation: 'get' }
         });
-      } catch (e) {}
+      } catch (e) { logger.warn('[SECURITY] Failed to write audit log for secret decryption', { secretRef, error: (e as Error).message }); }
 
       return decrypted;
     } catch (err) {

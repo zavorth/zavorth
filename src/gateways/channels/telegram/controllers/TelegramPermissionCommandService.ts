@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import {PermissionRequest} from '@zavorth/contracts/PermissionRequest.js';
 import { PermissionService } from '@zavorth/services/PermissionService.js';
@@ -8,6 +7,7 @@ import { TelegramPermissionMutationService } from '../../../../gateways/channels
 import { TelegramPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPolicyService.js';
 import { TelegramPermissionPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPresentationService.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
+import { logger } from '../../../../logger.js';
 
 export type TelegramPermissionCommandServiceDeps = {
   permissionService: PermissionService;
@@ -103,7 +103,9 @@ export class TelegramPermissionCommandService {
           await ctx.reply('Unknown subcommand. Use: /perm [list|show|approve|reject|edit]');
       }
     } catch (error: unknown) {
-      await ctx.reply(`Falha na operacao de permissao: ${error.message}`);
+      const msg = error instanceof Error ? error.message : String(error);
+      logger.error(`[TelegramPermission] Falha na operacao de permissao (${subcommand}): ${msg}`, error);
+      await ctx.reply(`Falha na operacao de permissao: ${msg}`);
     }
   }
 

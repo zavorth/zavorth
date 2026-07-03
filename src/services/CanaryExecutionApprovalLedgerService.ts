@@ -73,7 +73,7 @@ export class CanaryExecutionApprovalLedgerService {
           'rollbackCheckpoint',
           'auditSink',
           'supportBridge',
-          'observabilityDashboard',
+          'observabilityZavorthControl',
         ],
         ledgerId: 'canary-execution-approval-ledger',
         canaryCohortId: canaryPlanSnapshot.plan.canaryCohortId,
@@ -99,7 +99,7 @@ export class CanaryExecutionApprovalLedgerService {
         rollbackCheckpointReady: entries.some((entry) => entry.id === 'rollback-checkpoint-template' && entry.status === 'approval-ready'),
         auditSinkReady: entries.some((entry) => entry.id === 'audit-sink-template' && entry.status === 'approval-ready'),
         supportBridgeReady: entries.some((entry) => entry.id === 'support-bridge-template' && entry.status === 'approval-ready'),
-        observabilityDashboardReady: entries.some((entry) => entry.id === 'observability-dashboard-template' && entry.status === 'approval-ready'),
+        observabilityZavorthControlReady: entries.some((entry) => entry.id === 'observability-zavorthControl-template' && entry.status === 'approval-ready'),
         approvalLedgerReady: status === 'ledger-ready' && canaryPlanSnapshot.summary.canaryPlanDryRunReady,
         signatureRecorded: false,
         launchAuthorized: false,
@@ -162,7 +162,7 @@ export class CanaryExecutionApprovalLedgerService {
         rollbackCheckpointRequired: true,
         auditSinkRequired: true,
         supportBridgeRequired: true,
-        observabilityDashboardRequired: true,
+        observabilityZavorthControlRequired: true,
         noRemoteMutationByDefault: true,
         noNetworkRequiredByDefault: true,
         secretsSerialized: false,
@@ -266,10 +266,10 @@ export class CanaryExecutionApprovalLedgerService {
         evidence: 'Support bridge template is ready without notifying live channels.',
       }),
       approvalEntry({
-        id: 'observability-dashboard-template',
+        id: 'observability-zavorthControl-template',
         surface: 'observability',
-        command: 'manual:prepare-observability-dashboard-template --no-live-attach',
-        evidence: 'Observability dashboard template is ready without attaching live telemetry.',
+        command: 'manual:prepare-observability-zavorthControl-template --no-live-attach',
+        evidence: 'Observability zavorthControl template is ready without attaching live telemetry.',
       }),
       lockedEntry({
         id: 'execution-launch-hold',
@@ -313,7 +313,7 @@ export class CanaryExecutionApprovalLedgerService {
     ].every((id) => input.entries.some((entry) => entry.id === id && entry.status === 'approval-ready'));
     const supportObservabilityReady = [
       'support-bridge-template',
-      'observability-dashboard-template',
+      'observability-zavorthControl-template',
     ].every((id) => input.entries.some((entry) => entry.id === id && entry.status === 'approval-ready'));
     const launchSideEffectsBlocked = input.entries.every((entry) =>
       entry.launchAuthorized === false
@@ -373,7 +373,7 @@ export class CanaryExecutionApprovalLedgerService {
         observed: supportObservabilityReady,
         threshold: true,
         receipt: 'canary-execution-approval.support-observability-ready.receipt',
-        nextAction: 'prepare support bridge and observability dashboard templates',
+        nextAction: 'prepare support bridge and observability zavorthControl templates',
       }),
       gate({
         id: 'launch-side-effects-blocked',

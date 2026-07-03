@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
 import { PermissionService } from '../../../../services/PermissionService.js';
@@ -19,7 +18,7 @@ export type TelegramHubControllerDeps = {
   formatSystemStatusReply: (stats: Record<string, unknown>) => string;
   formatModelsReply: (currentModel: string, preferredModel: string | null) => string;
   formatPermissionList: (permissions: PermissionRequest[], status: PermissionStatus | 'all') => string;
-  handleDashboard: (ctx: Context) => Promise<void>;
+  handleZavorthControl: (ctx: Context) => Promise<void>;
   handleOperationalMode: (ctx: Context, args: string) => Promise<void>;
   handleWslCommand: (ctx: Context, args: string) => Promise<void>;
   handleAudit: (ctx: Context, args: string) => Promise<void>;
@@ -49,7 +48,7 @@ export class TelegramHubController {
       formatSystemStatusReply: this.deps.formatSystemStatusReply,
       formatModelsReply: this.deps.formatModelsReply,
       formatPermissionList: this.deps.formatPermissionList,
-      handleDashboard: this.deps.handleDashboard,
+      handleZavorthControl: this.deps.handleZavorthControl,
       handleOperationalMode: this.deps.handleOperationalMode,
       handleWslCommand: this.deps.handleWslCommand,
       handleAudit: this.deps.handleAudit,
@@ -104,7 +103,7 @@ export class TelegramHubController {
         await ctx.api.editMessageText(ctx.chat.id, ctx.callbackQuery.message.message_id, text, options);
         return;
       } catch (err: unknown) {
-        if (!err.message?.includes('not modified')) {
+        if (!(err instanceof Error) || !err.message?.includes('not modified')) {
           await ctx.reply(text, options);
         }
         return;

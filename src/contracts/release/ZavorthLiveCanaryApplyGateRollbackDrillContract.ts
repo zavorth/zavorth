@@ -112,7 +112,7 @@ export type ZavorthLiveCanaryApplyGateSafety = {
   noExternalImpactFromGate: true;
   requiresFinalHumanTrigger: true;
   rollbackDrillRequiredBeforeLive: true;
-  noDashboardVisualMutation: true;
+  noZavorthControlVisualMutation: true;
   rawSecretsSerialized: false;
   separateExecutorRequired: true;
 };

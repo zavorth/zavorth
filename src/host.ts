@@ -412,7 +412,7 @@ export class ZavorthHost {
       return false;
     }
 
-    const probeUrl = `http://${config.zavorthWebHost}:${config.zavorthWebPort}/dashboard`;
+    const probeUrl = `http://${config.zavorthWebHost}:${config.zavorthWebPort}/zavorthControl`;
 
     try {
       const timeoutSignal =

@@ -50,7 +50,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'session-local',
     canonicalSlash: '/new',
     cliCommand: 'new',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'reset',
@@ -61,7 +61,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'session-local',
     canonicalSlash: '/reset',
     cliCommand: 'reset',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'model',
@@ -72,7 +72,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'state-preview',
     canonicalSlash: '/model [provider:model]',
     cliCommand: 'model [provider:model]',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'personality',
@@ -83,7 +83,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'approval-gated',
     canonicalSlash: '/personality [name]',
     cliCommand: 'personality [name]',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'retry',
@@ -94,7 +94,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'approval-gated',
     canonicalSlash: '/retry',
     cliCommand: 'retry',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'undo',
@@ -105,7 +105,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'approval-gated',
     canonicalSlash: '/undo',
     cliCommand: 'undo',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'compress',
@@ -116,7 +116,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'state-preview',
     canonicalSlash: '/compress',
     cliCommand: 'compress',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'usage',
@@ -127,7 +127,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'read-only',
     canonicalSlash: '/usage',
     cliCommand: 'usage',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'insights',
@@ -138,7 +138,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'read-only',
     canonicalSlash: '/insights [days]',
     cliCommand: 'insights [days]',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'skills',
@@ -149,7 +149,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'state-preview',
     canonicalSlash: '/skills [query]',
     cliCommand: 'skills [query]',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'stop',
@@ -160,7 +160,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'approval-gated',
     canonicalSlash: '/stop',
     cliCommand: 'stop',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'platforms',
@@ -171,7 +171,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'read-only',
     canonicalSlash: '/platforms',
     cliCommand: 'platforms',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'status',
@@ -182,7 +182,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'read-only',
     canonicalSlash: '/status',
     cliCommand: 'status',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'sethome',
@@ -193,7 +193,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'approval-gated',
     canonicalSlash: '/sethome <path>',
     cliCommand: 'sethome <path>',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
   {
     id: 'loop',
@@ -204,7 +204,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     executionMode: 'approval-gated',
     canonicalSlash: '/loop <tarefa>',
     cliCommand: 'loop <tarefa>',
-    supportedSurfaces: ['cli', 'dashboard', 'telegram', 'discord', 'whatsapp', 'api'],
+    supportedSurfaces: ['cli', 'zavorthControl', 'telegram', 'discord', 'whatsapp', 'api'],
   },
 ];
 
@@ -441,7 +441,7 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
   if (command.id === 'platforms') {
     return {
       title: 'Plataformas do Zavorth',
-      body: 'Superficies suportadas: CLI, dashboard, Telegram, Discord, WhatsApp/API e canais externos governados.',
+      body: 'Superficies suportadas: CLI, zavorthControl, Telegram, Discord, WhatsApp/API e canais externos governados.',
       hints: ['zavorth connectors doctor', 'zavorth capability-mesh --request "<pedido>"'],
     };
   }

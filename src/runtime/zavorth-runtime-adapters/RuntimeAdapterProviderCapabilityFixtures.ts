@@ -88,7 +88,7 @@ export type RuntimeAdapterCanonicalProviderIdentityCatalogNormalization = {
   generatedAt: string;
   runtimeId: typeof RUNTIME_ADAPTER_CANONICAL_PROVIDER_RUNTIME_ID;
   providers: RuntimeAdapterCanonicalProviderCatalogRecord[];
-  dashboard: {
+  zavorthControl: {
     capabilities: Array<{
       id: string;
       providerId: string;

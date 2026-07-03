@@ -7,10 +7,121 @@ import { StateMachine } from './StateMachine.js';
 import { ArtifactPipelineService } from '../runtime/artifacts/ArtifactPipelineService.js';
 import { TaskSecurityPostureService } from '../services/TaskSecurityPostureService.js';
 
+interface MetadataPatch {
+  [key: string]: unknown;
+}
+
+interface StateHistoryEntry {
+  from: string;
+  to: string;
+  at: string;
+  reason: string | null;
+  actor: string | null;
+}
+
+interface TransitionRecord {
+  from: string;
+  to: string;
+  at: string;
+  reason: string | null;
+  actor: string | null;
+}
+
+interface HistoryEntry {
+  action: string;
+  [key: string]: unknown;
+}
+
+interface TaskMetadata {
+  lifecycle?: {
+    status?: string;
+    updated_at?: string;
+    previous_status?: string | null;
+    [key: string]: unknown;
+  };
+  state_history?: StateHistoryEntry[];
+  last_transition?: TransitionRecord | null;
+  traceId?: string | null;
+  trace_id?: string | null;
+  runId?: string | null;
+  run_id?: string | null;
+  sessionId?: string | null;
+  session_id?: string | null;
+  approval_history?: HistoryEntry[];
+  permission_history?: HistoryEntry[];
+  auto_route_executor?: string | null;
+  workspace_learned_route?: { executor?: string; source?: string; strategy?: string };
+  route_executor_preference?: string | null;
+  route_capability_id?: string | null;
+  workflow_stage_executor?: string | null;
+  workflow_name?: string | null;
+  workspace_workflow_recommendation?: { workflow?: string };
+  workflow_run_id?: string | null;
+  route_task_kind?: string | null;
+  route_task_subtype?: string | null;
+  workflow_source_surface?: string | null;
+  surface_platform?: string | null;
+  auto_route_source?: string | null;
+  workspace_routing_advice?: { source?: string; confidence?: number };
+  auto_route_strategy?: string | null;
+  route_dispatch_mode?: string | null;
+  tenant_id?: string | null;
+  tenant_context?: { tenant_id?: string };
+  auto_route_confidence?: number;
+  workspace_route_outcome?: WorkspaceRouteOutcome | null;
+  [key: string]: unknown;
+}
+
+interface SecuritySnapshot {
+  route_task_kind?: string | null;
+  route_task_subtype?: string | null;
+  requires_approval?: boolean;
+  pending_permission?: boolean;
+  high_risk_confirmation_required?: boolean;
+  approval_history_count?: number;
+  permission_history_count?: number;
+  tenant_id?: string | null;
+  active_controls?: unknown[];
+  [key: string]: unknown;
+}
+
+interface WorkspaceRouteOutcome {
+  selected_executor?: string | null;
+  final_executor?: string | null;
+  source?: string | null;
+  strategy?: string | null;
+  workflow_name?: string | null;
+  workflow_run_id?: string | null;
+  task_kind?: string | null;
+  task_subtype?: string | null;
+  source_surface?: string | null;
+  tenant_id?: string | null;
+  confidence?: number;
+  approval_needed?: boolean;
+  permission_needed?: boolean;
+  requires_high_risk_pin?: boolean;
+  approval_status?: string;
+  final_status?: string;
+  artifact_count?: number;
+  approval_history_count?: number;
+  permission_history_count?: number;
+  approval_granted_count?: number;
+  approval_rejected_count?: number;
+  permission_granted_count?: number;
+  permission_rejected_count?: number;
+  gated_completion_count?: number;
+  gated_artifactful_count?: number;
+  high_risk_count?: number;
+  duration_ms?: number;
+  active_controls?: unknown[];
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
 type AdvanceStateOptions = {
   reason?: string;
   actor?: string;
-  metadataPatch?: Record<string, any>;
+  metadataPatch?: MetadataPatch;
 };
 
 export class TaskManager {
@@ -27,13 +138,13 @@ export class TaskManager {
   }
 
   public createPendingTask(
-    chat_id: string, 
-    user_id: string, 
-    raw_message: string, 
+    chat_id: string,
+    user_id: string,
+    raw_message: string,
     normalized_message: string,
     command_type: string,
     source: Task['source'] = 'telegram',
-    metadataPatch: Record<string, any> = {},
+    metadataPatch: MetadataPatch = {},
   ): Task {
     const task: Task = {
       task_id: uuidv4(),
@@ -201,10 +312,10 @@ export class TaskManager {
     changedAt: string,
     changed: boolean,
     options: AdvanceStateOptions,
-  ): Record<string, any> {
-    const previousMetadata = task.metadata || {};
+  ): TaskMetadata {
+    const previousMetadata = (task.metadata || {}) as TaskMetadata;
     const currentHistory = Array.isArray(previousMetadata.state_history)
-      ? previousMetadata.state_history.filter((entry: unknown) => Boolean(entry))
+      ? previousMetadata.state_history.filter((entry: StateHistoryEntry | null) => Boolean(entry))
       : [];
 
     const nextHistory = changed
@@ -286,11 +397,11 @@ export class TaskManager {
 
   private normalizeWorkspaceRouteOutcome(
     task: Task,
-    metadata: Record<string, any>,
+    metadata: TaskMetadata,
     artifacts: Task['artifacts'],
-    securitySnapshot: Record<string, any>,
-  ): Record<string, any> | null {
-    const previous = this.toRecord(metadata.workspace_route_outcome);
+    securitySnapshot: SecuritySnapshot,
+  ): WorkspaceRouteOutcome | null {
+    const previous = this.toRecord(metadata.workspace_route_outcome) as WorkspaceRouteOutcome;
     const approvalHistory = Array.isArray(metadata.approval_history) ? metadata.approval_history : [];
     const permissionHistory = Array.isArray(metadata.permission_history) ? metadata.permission_history : [];
     const selectedExecutor = this.normalizeNullableString(

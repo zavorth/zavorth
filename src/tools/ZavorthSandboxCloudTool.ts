@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -111,7 +110,7 @@ export class ZavorthSandboxCloudTool extends BaseTool {
 
         try {
           result = execFileSync('docker', [
-            'run', '--rm', '--memory', `${options?.memory_mb || 256}m`,
+            'run', '--rm', '--memory', `${typeof args.memory_mb === 'number' ? args.memory_mb : 256}m`,
             '--cpus', '0.5',
             '-v', `${scriptFile}:/code/script${language === 'python' ? '.py' : language === 'go' ? '.go' : '.js'}`,
             image,

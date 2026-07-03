@@ -84,10 +84,10 @@ export class ZavorthSchedulerPerceptionDeviceLiveCompletionService {
         policyBrokerRequired: true,
         noDirectSchedulerDispatch: scheduler.safety.noDirectDispatcherBypass,
         noUnapprovedComputerMutation: perception.safety.mutationStillRequiresApproval,
-        noSecretScreenAutomation: perception.dashboardProjection.liveSafetyStatus.hardBlocksPreserved,
+        noSecretScreenAutomation: perception.zavorthControlProjection.liveSafetyStatus.hardBlocksPreserved,
         noTerminalAutomationBypass: perception.certificationMatrix.some((entry) =>
           entry.id === 'blocked-terminal-automation' && entry.status === 'passed'),
-        visualArtifactsRedacted: perception.dashboardProjection.artifacts.every((artifact) =>
+        visualArtifactsRedacted: perception.zavorthControlProjection.artifacts.every((artifact) =>
           artifact.redacted === true && artifact.rawContentStored === false),
         deviceActionsOwnerGated: device.summary.enabledByDefault === false,
         rawSecretsSerialized: false,
@@ -96,7 +96,7 @@ export class ZavorthSchedulerPerceptionDeviceLiveCompletionService {
         inspect: 'npm run zavorth:scheduler-perception-device-live-completion',
         inspectJson: 'npm run zavorth:scheduler-perception-device-live-completion:json',
         check: 'npm run zavorth:scheduler-perception-device-live-completion:check --silent',
-        nextStage: 'Dashboard controls - End-to-End Mission Flow and Public Runtime Certification',
+        nextStage: 'ZavorthControl controls - End-to-End Mission Flow and Public Runtime Certification',
       },
     };
   }
@@ -171,7 +171,7 @@ function buildEntries(input: {
       evidence: [
         `perceptionStatus=${input.perception.status}`,
         `matrix=${input.perception.certificationMatrix.length}`,
-        `targets=${input.perception.dashboardProjection.targets.length}`,
+        `targets=${input.perception.zavorthControlProjection.targets.length}`,
       ],
     }),
     entry({
@@ -179,7 +179,7 @@ function buildEntries(input: {
       label: 'Computer and device mutation gates',
       kind: 'safety',
       passed: input.perception.safety.mutationStillRequiresApproval
-        && input.perception.dashboardProjection.liveSafetyStatus.hardBlocksPreserved,
+        && input.perception.zavorthControlProjection.liveSafetyStatus.hardBlocksPreserved,
       dailyUseReady: true,
       liveReady: true,
       defaultRouteAllowed: false,
@@ -187,7 +187,7 @@ function buildEntries(input: {
       defaultBlockReason: 'Tap, type, click, install, uninstall and external control stay blocked until explicit approval.',
       evidence: [
         `mutationStillRequiresApproval=${input.perception.safety.mutationStillRequiresApproval}`,
-        `hardBlocksPreserved=${input.perception.dashboardProjection.liveSafetyStatus.hardBlocksPreserved}`,
+        `hardBlocksPreserved=${input.perception.zavorthControlProjection.liveSafetyStatus.hardBlocksPreserved}`,
       ],
     }),
     entry({

@@ -33,7 +33,7 @@ export function buildZavorthCliHatchSnapshot(
     launch: {
       recommended: nextActions[0]?.command || 'zavorth setup',
       terminal: 'zavorth ask "wake up and review this workspace"',
-      dashboard: 'zavorth open',
+      zavorthControl: 'zavorth open',
       setup: 'zavorth setup',
       approve: approveCommand,
     },
@@ -94,10 +94,10 @@ function buildChecklist(home: ReturnType<typeof buildZavorthCliHomeSnapshot>): Z
         : 'configure provider/model first',
     },
     {
-      id: 'dashboard',
-      title: 'Dashboard',
-      status: home.runtime.dashboard === 'available' ? 'ready' : 'warning',
-      detail: home.runtime.dashboard === 'available' ? 'available' : 'dashboard source missing',
+      id: 'zavorthControl',
+      title: 'ZavorthControl',
+      status: home.runtime.zavorthControl === 'available' ? 'ready' : 'warning',
+      detail: home.runtime.zavorthControl === 'available' ? 'available' : 'zavorthControl source missing',
     },
     {
       id: 'approvals',
@@ -133,13 +133,13 @@ function buildNextActions(
   if (status === 'needs_approval' && approveCommand) {
     return [
       { label: 'Review approvals', command: approveCommand, detail: 'clear governed queue first' },
-      { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual approval flow' },
+      { label: 'Open ZavorthControl', command: 'zavorth open', detail: 'visual approval flow' },
       { label: 'Hatch after approval', command: 'zavorth hatch', detail: 'recheck session readiness' },
     ];
   }
   return [
     { label: 'Hatch in terminal', command: 'zavorth ask "wake up and review this workspace"', detail: 'natural LLM-first flow' },
-    { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual home' },
+    { label: 'Open ZavorthControl', command: 'zavorth open', detail: 'visual home' },
     { label: 'Start runtime', command: 'zavorth start', detail: 'delegates to existing start/go flow' },
   ];
 }

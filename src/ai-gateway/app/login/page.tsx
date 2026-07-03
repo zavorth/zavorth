@@ -36,7 +36,7 @@ export default function LoginPage() {
           if (data.nodeVersion) setNodeVersion(data.nodeVersion);
           if (data.nodeCompatible === false) setNodeCompatible(false);
           if (data.requireLogin === false) {
-            router.push("/dashboard");
+            router.push("/zavorthControl");
             router.refresh();
             return;
           }
@@ -69,13 +69,13 @@ export default function LoginPage() {
 
       if (res.ok) {
         sessionStorage.setItem("ZavorthGateway_login_time", String(Date.now()));
-        router.push("/dashboard");
+        router.push("/zavorthControl");
         router.refresh();
       } else {
         const data = await res.json();
         // (#521) If no password is set, redirect to onboarding instead of showing an error
         if (data.needsSetup) {
-          router.push("/dashboard/onboarding");
+          router.push("/zavorthControl/onboarding");
           return;
         }
         setError(data.error || t("invalidPassword"));
@@ -154,7 +154,7 @@ export default function LoginPage() {
               <Button
                 variant="primary"
                 className="w-full h-11 text-sm font-medium"
-                onClick={() => router.push("/dashboard/onboarding")}
+                onClick={() => router.push("/zavorthControl/onboarding")}
               >
                 {t("startOnboarding")}
               </Button>
@@ -194,7 +194,7 @@ export default function LoginPage() {
               <Button
                 variant="primary"
                 className="w-full h-11 text-sm font-medium"
-                onClick={() => router.push("/dashboard/settings?tab=security")}
+                onClick={() => router.push("/zavorthControl/settings?tab=security")}
               >
                 {t("configurePassword")}
               </Button>

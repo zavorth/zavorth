@@ -10,7 +10,7 @@ export type ZavorthCapabilityActionExposureManifest = {
   description: string;
   aliases: string[];
   domains: string[];
-  surface: Array<'cli' | 'dashboard' | 'tui' | 'api' | 'channel' | 'llm'>;
+  surface: Array<'cli' | 'zavorthControl' | 'tui' | 'api' | 'channel' | 'llm'>;
   risk: 'attention';
   requiresPreview: true;
   requiresApproval: true;

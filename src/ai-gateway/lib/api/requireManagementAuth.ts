@@ -1,7 +1,7 @@
 import { isAuthenticated, isLoopbackRequest, isStrictlyAuthenticated } from "@/shared/utils/apiAuth";
 import { createErrorResponse } from "@/lib/api/errorResponse";
 
-function isLocalDashboardRequest(request: Request): boolean {
+function isLocalZavorthControlRequest(request: Request): boolean {
   try {
     const hostname = new URL(request.url).hostname.toLowerCase();
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
@@ -11,7 +11,7 @@ function isLocalDashboardRequest(request: Request): boolean {
 }
 
 export async function requireManagementAuth(request: Request): Promise<Response | null> {
-  if (isLoopbackRequest(request) || isLocalDashboardRequest(request)) {
+  if (isLoopbackRequest(request) || isLocalZavorthControlRequest(request)) {
     return null;
   }
 

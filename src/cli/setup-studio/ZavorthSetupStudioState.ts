@@ -13,6 +13,7 @@ import type {
   ZavorthSetupStudioConfigHandling,
   ZavorthSetupStudioMode,
   ZavorthSetupStudioSnapshot,
+  ZavorthSetupStudioSection,
   ZavorthSetupStudioChannelGuide,
   ZavorthSetupStudioControlUiReadiness,
   ZavorthSetupStudioGatewayReadiness,
@@ -23,11 +24,13 @@ import type {
   ZavorthSetupStudioWebSearchReadiness,
 } from './ZavorthSetupStudioSchema.js';
 import { buildZavorthSetupStudioSteps } from './steps/ZavorthSetupStudioSteps.js';
+import { buildZavorthSetupWizardContract, normalizeSetupSection } from './ZavorthSetupStudioWizardContract.js';
 
 export type BuildZavorthSetupStudioSnapshotInput = Partial<BuildZavorthSetupStudioPlanInput> & {
   projectRoot: string;
   mode?: ZavorthSetupStudioMode;
   configHandling?: ZavorthSetupStudioConfigHandling;
+  setupSection?: ZavorthSetupStudioSection;
   dryRun?: boolean;
   now?: () => Date;
 };
@@ -38,6 +41,13 @@ export function buildZavorthSetupStudioSnapshot(
   const projectRoot = path.resolve(input.projectRoot || process.cwd());
   const configStore = new ZavorthSetupStudioConfigStore(projectRoot);
   const existingConfig = configStore.inspect();
+  const mode = normalizeSetupStudioMode(input.mode);
+  const setupSection = normalizeSetupSection(input.setupSection);
+  const configHandling = normalizeSetupStudioConfigHandling(
+    input.configHandling,
+    existingConfig.envExists || existingConfig.profileExists,
+  );
+  const useExistingConfig = configHandling !== 'reset';
   const selectedHome = String(input.zavorthHome || '').trim();
   const homeSnapshot = new ZavorthHomePathService({
     projectRoot,
@@ -47,8 +57,8 @@ export function buildZavorthSetupStudioSnapshot(
   }).resolveSnapshot();
   const plan = buildZavorthSetupStudioPlan({
     projectRoot,
-    providerId: input.providerId || existingConfig.configuredProvider || 'deferred',
-    modelId: input.modelId || existingConfig.configuredModel || null,
+    providerId: input.providerId || (useExistingConfig ? existingConfig.configuredProvider : null) || 'deferred',
+    modelId: input.modelId || (useExistingConfig ? existingConfig.configuredModel : null) || null,
     providerSecret: input.providerSecret || null,
     telegramBotToken: input.telegramBotToken || null,
     telegramAllowedUserIds: input.telegramAllowedUserIds || null,
@@ -84,12 +94,13 @@ export function buildZavorthSetupStudioSnapshot(
     now: input.now,
     ...(dryRun ? { verifiedActions: [] } : {}),
   }).buildSnapshot();
-  return {
+  const snapshotWithoutWizard: Omit<ZavorthSetupStudioSnapshot, 'wizard'> = {
     contractVersion: 'zavorth-setup-studio-snapshot/1',
     generatedAt: (input.now || (() => new Date()))().toISOString(),
     projectRoot,
-    mode: input.mode || 'quickstart',
-    configHandling: input.configHandling || (existingConfig.envExists || existingConfig.profileExists ? 'keep' : 'review'),
+    mode,
+    configHandling,
+    setupSection,
     existingConfig,
     home: buildHomeReadiness(homeSnapshot),
     plan,
@@ -122,12 +133,7 @@ export function buildZavorthSetupStudioSnapshot(
       gateway,
       controlUi,
     }),
-    nextActions: [
-      { label: 'Preview setup', command: 'zavorth setup --dry-run', detail: 'safe no-write preview' },
-      { label: 'Apply setup', command: 'zavorth setup', detail: 'interactive guided flow' },
-      { label: 'Check readiness', command: 'zavorth ready' },
-      { label: 'Open Dashboard', command: 'zavorth open' },
-    ],
+    nextActions: buildNextActions(setupSection),
     safety: {
       dryRun,
       writesRequireConfirmation: true,
@@ -136,6 +142,46 @@ export function buildZavorthSetupStudioSnapshot(
       liveProviderProbeRequiresConsent: true,
     },
   };
+  return {
+    ...snapshotWithoutWizard,
+    wizard: buildZavorthSetupWizardContract(snapshotWithoutWizard),
+  };
+}
+
+function buildNextActions(section: ZavorthSetupStudioSection): ZavorthSetupStudioSnapshot['nextActions'] {
+  if (section !== 'all') {
+    return [
+      { label: `Apply ${section} setup`, command: `zavorth setup ${section} --apply`, detail: 'writes only after confirmation' },
+      { label: 'Preview full setup', command: 'zavorth setup --dry-run', detail: 'safe no-write preview' },
+      { label: 'Check readiness', command: 'zavorth ready' },
+      { label: 'Open ZavorthControl', command: 'zavorth open' },
+    ];
+  }
+  return [
+    { label: 'Preview setup', command: 'zavorth setup --dry-run', detail: 'safe no-write preview' },
+    { label: 'Apply setup', command: 'zavorth setup', detail: 'interactive guided flow' },
+    { label: 'Check readiness', command: 'zavorth ready' },
+    { label: 'Open ZavorthControl', command: 'zavorth open' },
+  ];
+}
+
+function normalizeSetupStudioMode(value: unknown): ZavorthSetupStudioMode {
+  return value === 'safe'
+    || value === 'advanced'
+    || value === 'blank-slate'
+    ? value
+    : 'quickstart';
+}
+
+function normalizeSetupStudioConfigHandling(
+  value: unknown,
+  hasExistingConfig: boolean,
+): ZavorthSetupStudioConfigHandling {
+  return value === 'keep' || value === 'review' || value === 'reset'
+    ? value
+    : hasExistingConfig
+      ? 'keep'
+      : 'review';
 }
 
 function buildHomeReadiness(snapshot: ReturnType<ZavorthHomePathService['resolveSnapshot']>): ZavorthSetupStudioHomeReadiness {
@@ -171,8 +217,8 @@ function buildChannelGuide(
       detail: 'primary local channel, ready for chat and approvals',
     },
     {
-      id: 'dashboard',
-      label: 'Dashboard',
+      id: 'zavorthControl',
+      label: 'ZavorthControl',
       status: 'recommended',
       setupCommand: 'zavorth open',
       detail: 'visual home for timeline, diffs, evidence and learning',
@@ -353,7 +399,7 @@ function buildSkillReadiness(projectRoot: string): ZavorthSetupStudioSkillReadin
     recommendedSetupCommand: 'zavorth doctor',
     highlights: [
       'Effect Boundary governs tools before real effects',
-      'Experience Core synchronizes CLI, dashboard and channels',
+      'Experience Core synchronizes CLI, zavorthControl and channels',
       'Evidence and approvals remain the audit trail',
     ],
   };
@@ -393,10 +439,10 @@ function buildControlUiReadiness(projectRoot: string): ZavorthSetupStudioControl
   const env = readEnv(path.join(projectRoot, '.env'));
   const port = env.PORT || env.ZAVORTH_PORT || '3000';
   return {
-    url: `http://127.0.0.1:${port}/dashboard`,
+    url: `http://127.0.0.1:${port}/zavorthControl`,
     tokenStatus: env.ZAVORTH_CONTROL_TOKEN ? 'configured' : 'generated-at-runtime',
     openCommand: 'zavorth open',
-    docsCommand: 'zavorth help dashboard',
+    docsCommand: 'zavorth help zavorthControl',
   };
 }
 

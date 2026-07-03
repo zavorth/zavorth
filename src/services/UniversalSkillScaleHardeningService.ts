@@ -3,7 +3,7 @@ import path from 'path';
 import { config } from '../config/index.js';
 import {
   ZAVORTH_UNIVERSAL_SKILL_SCALE_HARDENING_CONTRACT_VERSION,
-  type ZavorthUniversalSkillDashboardReviewItem,
+  type ZavorthUniversalSkillZavorthControlReviewItem,
   type ZavorthUniversalSkillScaleBand,
   type ZavorthUniversalSkillScaleBatch,
   type ZavorthUniversalSkillScaleGate,
@@ -86,7 +86,7 @@ export class UniversalSkillScaleHardeningService {
       items: this.buildZavorthControlReviewItems({ onboarding, batches, capacity }),
       recommendedDataEndpoint: '/api/skills/scale-hardening' as const,
     };
-    const dashboardReview: ZavorthUniversalSkillScaleHardeningSnapshot['dashboardReview'] = {
+    const zavorthControlReview: ZavorthUniversalSkillScaleHardeningSnapshot['zavorthControlReview'] = {
       ...zavorthControlReview,
       items: zavorthControlReview.items,
     };
@@ -106,7 +106,7 @@ export class UniversalSkillScaleHardeningService {
       capacity,
       gates,
       batches,
-      dashboardReview,
+      zavorthControlReview,
       zavorthControlReview,
       status,
       reportPersisted: false,
@@ -179,7 +179,7 @@ export class UniversalSkillScaleHardeningService {
     capacity: ZavorthUniversalSkillScaleHardeningSnapshot['capacity'];
     gates: ZavorthUniversalSkillScaleGate[];
     batches: ZavorthUniversalSkillScaleBatch[];
-    dashboardReview: ZavorthUniversalSkillScaleHardeningSnapshot['dashboardReview'];
+    zavorthControlReview: ZavorthUniversalSkillScaleHardeningSnapshot['zavorthControlReview'];
     zavorthControlReview: ZavorthUniversalSkillScaleHardeningSnapshot['zavorthControlReview'];
     status: ZavorthUniversalSkillScaleHardeningStatus;
     reportPersisted: boolean;
@@ -195,7 +195,7 @@ export class UniversalSkillScaleHardeningService {
       capacity: input.capacity,
       gates: input.gates,
       batches: input.batches,
-      dashboardReview: input.dashboardReview,
+      zavorthControlReview: input.zavorthControlReview,
       zavorthControlReview: input.zavorthControlReview,
       rollout: this.buildRollout({ status: input.status, onboarding: input.onboarding, capacity: input.capacity }),
       report: {
@@ -204,12 +204,12 @@ export class UniversalSkillScaleHardeningService {
         rawSecretsSerialized: false,
       },
       policy: {
-        dashboardControlsOnboardingIsAuthority: true,
+        zavorthControlControlsOnboardingIsAuthority: true,
         zavorthControlControlsOnboardingIsAuthority: true,
         previewFirstForLargeLibraries: true,
         batchApplyRequiresExplicitAllowlist: true,
         canaryBeforeBulkApply: true,
-        dashboardReviewDoesNotChangeVisuals: true,
+        zavorthControlReviewDoesNotChangeVisuals: true,
         zavorthControlReviewDoesNotChangeVisuals: true,
         noVisualChangeWithoutOwnerApproval: true,
         noExecutionPerformed: true,
@@ -350,7 +350,7 @@ export class UniversalSkillScaleHardeningService {
   }): ZavorthUniversalSkillZavorthControlReviewItem[] {
     const status = input.onboarding.status;
     return [
-      dashboardItem({
+      zavorthControlItem({
         id: 'source-summary-card',
         label: 'Card denso de fontes',
         surface: 'summary-card',
@@ -358,7 +358,7 @@ export class UniversalSkillScaleHardeningService {
         status,
         evidence: `${input.capacity.includedSourceCount} fonte(s), ${input.capacity.candidateCount} candidato(s), ${input.capacity.scaleBand}.`,
       }),
-      dashboardItem({
+      zavorthControlItem({
         id: 'regression-alert',
         label: 'Alerta de regressao',
         surface: 'alert',
@@ -370,7 +370,7 @@ export class UniversalSkillScaleHardeningService {
             : 'passed',
         evidence: `${input.onboarding.regression.findings.length} finding(s) de regressao.`,
       }),
-      dashboardItem({
+      zavorthControlItem({
         id: 'batch-table',
         label: 'Tabela de batches/canary',
         surface: 'table',
@@ -378,7 +378,7 @@ export class UniversalSkillScaleHardeningService {
         status: input.batches.length > 0 ? 'passed' : 'attention',
         evidence: `${input.batches.length} batch(es) planejados com approval obrigatorio.`,
       }),
-      dashboardItem({
+      zavorthControlItem({
         id: 'source-filter',
         label: 'Filtros por fonte e status',
         surface: 'filter',
@@ -386,7 +386,7 @@ export class UniversalSkillScaleHardeningService {
         status: 'passed',
         evidence: 'Dados de sourceLabel, preset, status e includedInQa existem no contrato.',
       }),
-      dashboardItem({
+      zavorthControlItem({
         id: 'approval-action-row',
         label: 'Acoes de apply limitado',
         surface: 'action-row',
@@ -394,7 +394,7 @@ export class UniversalSkillScaleHardeningService {
         status: input.onboarding.status === 'blocked' ? 'blocked' : 'passed',
         evidence: 'Acoes recomendadas continuam atras de --apply, --allow-source e allowlist.',
       }),
-      dashboardItem({
+      zavorthControlItem({
         id: 'empty-state',
         label: 'Estado vazio operacional',
         surface: 'empty-state',
@@ -468,7 +468,7 @@ function gate(input: {
   };
 }
 
-function dashboardItem(input: Omit<ZavorthUniversalSkillDashboardReviewItem, 'visualChangeProposed' | 'ownerApprovalRequired'>): ZavorthUniversalSkillDashboardReviewItem {
+function zavorthControlItem(input: Omit<ZavorthUniversalSkillZavorthControlReviewItem, 'visualChangeProposed' | 'ownerApprovalRequired'>): ZavorthUniversalSkillZavorthControlReviewItem {
   return {
     ...input,
     visualChangeProposed: true,

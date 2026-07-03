@@ -147,7 +147,7 @@ export class TelegramHubContentService {
           '- `/presentation on|off` para ajustar o tom',
           '- `/operator on|off` para exigir confirmacao antes de agir',
           '- `/demo on|off` para preparar uma demonstracao',
-          '- `/dashboard` para abrir o painel web',
+          '- `/zavorthControl` para abrir o painel web',
         ].join('\n');
       case 'actions':
         return [

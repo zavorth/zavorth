@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
 import { CapabilityLifecycleService } from '@zavorth/services/CapabilityLifecycleService.js';
@@ -129,7 +128,7 @@ export class TelegramZavorthBridgeControlService {
         ));
         return;
       }
-      await ctx.reply(`ZavorthBridge control failed: ${error.message}`);
+      await ctx.reply(`ZavorthBridge control failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

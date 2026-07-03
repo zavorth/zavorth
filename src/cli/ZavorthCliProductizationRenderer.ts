@@ -48,7 +48,7 @@ export function formatZavorthProductizationContractSnapshot(
   ];
   const panels: CliVisualPanel[] = [
     {
-      title: '/dashboard',
+      title: '/zavorthControl',
       tone: toneForStatus(snapshot.control.status),
       lines: [
         `- rota: ${snapshot.control.route}`,

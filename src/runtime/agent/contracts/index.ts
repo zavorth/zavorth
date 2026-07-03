@@ -141,7 +141,7 @@ export const PUBLIC_ECOSYSTEM_CONTRACTS = [
     stability: 'experimental',
     sourceModule: 'src/runtime/agent/ZavorthAgentGateway.ts',
     sourceType: 'ZavorthAgentGatewaySnapshot',
-    notes: ['Canonical gateway observability snapshot for Dashboard and diagnostics.'],
+    notes: ['Canonical gateway observability snapshot for ZavorthControl and diagnostics.'],
   },
   {
     name: 'NormalizedInboundMessage',

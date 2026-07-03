@@ -80,7 +80,7 @@ export type ZavorthLiveReadinessEvidenceProofPackSnapshot = {
     liveProviderProbeRequiresExplicitOperatorAction: true;
     liveChannelActionRequiresPolicyBroker: true;
     smokeProofDoesNotUseExternalIo: true;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     rawSecretsSerialized: false;
   };
   commands: {

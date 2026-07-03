@@ -1,5 +1,5 @@
 import { config } from '../../../../config/index.js';
-import { isWeakDashboardToken } from '../../../../services/DashboardTokenService.js';
+import { isWeakZavorthControlToken } from '../../../../services/ZavorthControlTokenService.js';
 import type { SharedSurfaceConsistencyOptions, SurfaceConsistencyDiscordReadiness } from './SharedSurfaceConsistencyTypes.js';
 
 export function buildWebReadiness(
@@ -21,7 +21,7 @@ export function buildWebReadiness(
 
   return {
     ready,
-    summary: config.zavorthWebAuthToken && !isWeakDashboardToken(config.zavorthWebAuthToken)
+    summary: config.zavorthWebAuthToken && !isWeakZavorthControlToken(config.zavorthWebAuthToken)
       ? 'Chat web pronto com autenticacao, approvals, workflows e operacao do runtime.'
       : 'Chat web pronto sem token exigido; recomenda-se ativar autenticacao para uso compartilhado.',
   };

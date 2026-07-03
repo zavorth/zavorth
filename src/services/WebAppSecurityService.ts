@@ -1,7 +1,7 @@
 import * as http from 'http';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
-import { DashboardAuthService } from './DashboardAuthService.js';
+import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
 
 type UpgradeTicket = {
   expiresAt: number;
@@ -11,7 +11,7 @@ type UpgradeTicket = {
 export class WebAppSecurityService {
   private readonly upgradeTickets = new Map<string, UpgradeTicket>();
 
-  constructor(private readonly auth: DashboardAuthService) {}
+  constructor(private readonly auth: ZavorthControlAuthService) {}
 
   public isAuthorized(req: http.IncomingMessage): boolean {
     const resolved = this.resolveRequestToken(req);

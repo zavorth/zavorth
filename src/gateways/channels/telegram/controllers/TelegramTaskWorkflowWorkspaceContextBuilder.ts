@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Task } from '../../../../contracts/TaskContract.js';
 import type {
   WorkflowKind,
@@ -20,7 +19,7 @@ export class TelegramTaskWorkflowWorkspaceContextBuilder {
       : null;
     const workflowExecutorRecommendations = Array.isArray(workspaceOperationalMemory.workflow_executor_recommendations)
       ? workspaceOperationalMemory.workflow_executor_recommendations
-        .map((entry: unknown) => {
+        .map((entry: Record<string, any>) => {
           const workflow = this.normalizeWorkflowKind(entry?.workflow);
           const executor = String(entry?.executor || '').trim().toLowerCase();
           if (!workflow || !executor) {
@@ -36,11 +35,11 @@ export class TelegramTaskWorkflowWorkspaceContextBuilder {
             rationale: String(entry?.rationale || '').trim(),
           };
         })
-        .filter((entry: unknown): entry is NonNullable<typeof entry> => Boolean(entry))
+        .filter((entry: Record<string, any> | null): entry is NonNullable<typeof entry> => Boolean(entry))
       : [];
     const workflowStageExecutorRecommendations = Array.isArray(workspaceOperationalMemory.workflow_stage_executor_recommendations)
       ? workspaceOperationalMemory.workflow_stage_executor_recommendations
-        .map((entry: unknown) => {
+        .map((entry: Record<string, any>) => {
           const workflow = this.normalizeWorkflowKind(entry?.workflow);
           const role = String(entry?.role || '').trim().toLowerCase();
           const executor = String(entry?.executor || '').trim().toLowerCase();
@@ -58,11 +57,11 @@ export class TelegramTaskWorkflowWorkspaceContextBuilder {
             rationale: String(entry?.rationale || '').trim(),
           };
         })
-        .filter((entry: unknown): entry is NonNullable<typeof entry> => Boolean(entry))
+        .filter((entry: Record<string, any> | null): entry is NonNullable<typeof entry> => Boolean(entry))
       : [];
     const workflowFrictionRecommendations = Array.isArray(workspaceOperationalMemory.workflow_friction_recommendations)
       ? workspaceOperationalMemory.workflow_friction_recommendations
-        .map((entry: unknown) => {
+        .map((entry: Record<string, any>) => {
           const workflow = this.normalizeWorkflowKind(entry?.workflow);
           if (!workflow) {
             return null;
@@ -77,11 +76,11 @@ export class TelegramTaskWorkflowWorkspaceContextBuilder {
             rationale: String(entry?.rationale || '').trim(),
           };
         })
-        .filter((entry: unknown): entry is NonNullable<typeof entry> => Boolean(entry))
+        .filter((entry: Record<string, any> | null): entry is NonNullable<typeof entry> => Boolean(entry))
       : [];
     const approvalFrictionRecommendations = Array.isArray(workspaceOperationalMemory.approval_friction_recommendations)
       ? workspaceOperationalMemory.approval_friction_recommendations
-        .map((entry: unknown) => {
+        .map((entry: Record<string, any>) => {
           const executor = String(entry?.executor || '').trim().toLowerCase();
           if (!executor) {
             return null;
@@ -98,7 +97,7 @@ export class TelegramTaskWorkflowWorkspaceContextBuilder {
             rationale: String(entry?.rationale || '').trim(),
           };
         })
-        .filter((entry: unknown): entry is NonNullable<typeof entry> => Boolean(entry))
+        .filter((entry: Record<string, any> | null): entry is NonNullable<typeof entry> => Boolean(entry))
       : [];
 
     const context: WorkflowWorkspaceContext = {

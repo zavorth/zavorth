@@ -17,7 +17,7 @@ const WATCHER_TOUCH_PATTERNS = [
 
 const UI_TOUCH_PATTERNS = [
   /^src\/services\/WebApp/i,
-  /^src\/services\/Dashboard/i,
+  /^src\/services\/ZavorthControl/i,
   /^src\/domain\/surface\/presentation\/web-console\//i,
   /^src\/domain\/surface\/presentation\/web-app\//i,
 ];

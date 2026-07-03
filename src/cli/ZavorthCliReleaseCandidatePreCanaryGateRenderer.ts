@@ -109,7 +109,7 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
   lines.push(`- Autopilot RC: ${snapshot.surface.autopilotCommand}`);
   lines.push(`- Rollback preview: ${snapshot.surface.rollbackPreviewCommand}`);
   lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');

@@ -2,7 +2,7 @@
  * maskEmail — Privacy display utility for email addresses.
  *
  * Masks the username and domain name portions of an email address
- * to prevent identity exposure in dashboards and logs.
+ * to prevent identity exposure in zavorthControls and logs.
  *
  * @example
  *   maskEmail("diego.souza@gmail.com")  // "di*********@g****.com"

@@ -347,7 +347,7 @@ export class ZavorthAgentKernelSnapshotService {
       maxSilentRisk: policy?.maxSilentRisk || 'low',
       interruptMode: policy?.interruptMode || 'daily-digest',
       operatorSummary: summary,
-      dailyProductRule: daily.dailyProduct.dashboardRule,
+      dailyProductRule: daily.dailyProduct.zavorthControlRule,
       llmGuidance: daily.quietAutonomy.llmGuidance,
     };
   }

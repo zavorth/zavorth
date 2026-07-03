@@ -1,8 +1,7 @@
-// @ts-nocheck
 export * from './ZavorthSkillAbsorptionMaterializationContract.js';
 export * from './ZavorthSkillEcosystemPackContract.js';
 export * from './ZavorthSkillMarketplaceContract.js';
-export * from './ZavorthUniversalSkillApprovedDashboardCanaryContract.js';
+export * from './ZavorthUniversalSkillApprovedZavorthControlCanaryContract.js';
 export * from './ZavorthUniversalSkillApprovedZavorthControlCanaryContract.js';
 export * from './ZavorthUniversalSkillBridgeActivationContract.js';
 export * from './ZavorthUniversalSkillBridgeRegistryContract.js';

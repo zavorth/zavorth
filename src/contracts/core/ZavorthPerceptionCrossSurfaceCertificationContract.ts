@@ -44,7 +44,7 @@ export type ZavorthPerceptionSurfaceProjection = {
   evidence: string;
 };
 
-export type ZavorthPerceptionDashboardTarget = {
+export type ZavorthPerceptionZavorthControlTarget = {
   id: string;
   kind: ZavorthPerceptionProjectionTargetKind;
   label: string;
@@ -57,12 +57,12 @@ export type ZavorthPerceptionDashboardTarget = {
   commandHint: string;
 };
 
-export type ZavorthPerceptionDashboardProjection = {
+export type ZavorthPerceptionZavorthControlProjection = {
   contractVersion: typeof ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION;
   generatedAt: string;
   source: 'ZavorthPerceptionCrossSurfaceCertificationService';
   status: ZavorthPerceptionCrossSurfaceStatus;
-  targets: ZavorthPerceptionDashboardTarget[];
+  targets: ZavorthPerceptionZavorthControlTarget[];
   activeObservation: {
     route: string;
     targetKind: string;
@@ -99,8 +99,8 @@ export type ZavorthPerceptionDashboardProjection = {
     noVisualMutationWithoutOwnerApproval: true;
   };
   surface: {
-    apiPath: '/api/dashboard/perception-control';
-    dashboardPath: '/dashboard?sector=perception';
+    apiPath: '/api/zavorthControl/perception-control';
+    zavorthControlPath: '/zavorthControl?sector=perception';
     channelCommand: '/vision status';
     cliCommand: 'node scripts/zavorth-perception-certification.ts';
     visualMutationApplied: false;
@@ -114,9 +114,9 @@ export type ZavorthPerceptionDashboardProjection = {
   }>;
 };
 
-export interface ZavorthPerceptionZavorthControlTarget extends ZavorthPerceptionDashboardTarget {}
+export interface ZavorthPerceptionZavorthControlTarget extends ZavorthPerceptionZavorthControlTarget {}
 
-export interface ZavorthPerceptionZavorthControlProjection extends ZavorthPerceptionDashboardProjection {}
+export interface ZavorthPerceptionZavorthControlProjection extends ZavorthPerceptionZavorthControlProjection {}
 
 export type ZavorthPerceptionCertificationMatrixRow = {
   id: ZavorthPerceptionCertificationScenarioId;
@@ -135,7 +135,7 @@ export type ZavorthPerceptionCrossSurfaceCertificationSnapshot = {
   surfaceResponse: SurfaceResponse;
   surfaceProjections: ZavorthPerceptionSurfaceProjection[];
   zavorthControlProjection: ZavorthPerceptionZavorthControlProjection;
-  dashboardProjection: ZavorthPerceptionDashboardProjection;
+  zavorthControlProjection: ZavorthPerceptionZavorthControlProjection;
   certificationMatrix: ZavorthPerceptionCertificationMatrixRow[];
   liveCanary: {
     enabled: false;

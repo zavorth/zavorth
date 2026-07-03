@@ -265,7 +265,7 @@ async function runHappyPath(_root: string, args: string[], kind: 'start' | 'setu
         'Profile: choose personal, creator, developer, business or power.',
         'Provider: add a key or local model, then run a probe.',
         'Runtime: pick VPS, safe-8GB, developer or full and run the doctor.',
-        'Dashboard: open the setup checklist for the next useful action.',
+        'ZavorthControl: open the setup checklist for the next useful action.',
       ],
       commands: ['zavorth setup profile', 'zavorth setup provider', 'zavorth setup runtime', 'zavorth health'],
     },
@@ -310,7 +310,7 @@ async function runHappyPath(_root: string, args: string[], kind: 'start' | 'setu
   });
 }
 
-async function runBackground(root: string, args: string[]) {
+export async function runBackground(root: string, args: string[]) {
   const action = firstArg(args, 'status');
   const service = new ZavorthBackgroundTaskService({
     projectRoot: root,
@@ -483,7 +483,7 @@ async function runGoals(root: string, args: string[]) {
   ], { goal });
 }
 
-async function runTaskBoard(root: string, args: string[]) {
+export async function runTaskBoard(root: string, args: string[]) {
   const action = firstArg(args, 'status');
   const service = taskBoardServiceForCli(root, args);
   if (['status', 'list', 'ls'].includes(action)) {
@@ -595,7 +595,7 @@ async function runState(root: string, args: string[]) {
   ], snapshot as unknown as JsonObject);
 }
 
-function taskPlaneServiceForCli(root: string, args: string[]): TaskPlaneService {
+export function taskPlaneServiceForCli(root: string, args: string[]): TaskPlaneService {
   const home = new ZavorthHomePathService({
     projectRoot: root,
     explicitHome: readFlag(args, 'home') || null,
@@ -893,6 +893,20 @@ async function runSatellite(root: string, args: string[]) {
       `Execution authority: ${snapshot.executionAuthority ? 'yes' : 'no'}`,
     ], snapshot as unknown as JsonObject);
   }
+  if (action === 'foundation' || action === 'device-foundation' || action === 'devices-foundation') {
+    const { ZavorthPairedDeviceFoundationService } = await import('../services/ZavorthPairedDeviceFoundationService.js');
+    const snapshot = new ZavorthPairedDeviceFoundationService().buildSnapshot();
+    return render(args, 'Zavorth Satellite foundation', [
+      `status: ${snapshot.status}`,
+      `native mobile app required now: ${snapshot.summary.nativeMobileAppRequiredNow ? 'yes' : 'no'}`,
+      `future native targets: ${snapshot.summary.futureNativeTargets.join(', ')}`,
+      `canonical capabilities: ${snapshot.summary.canonicalCapabilities}`,
+      `sensitive capabilities: ${snapshot.summary.sensitiveCapabilities}`,
+      `pairing: ${snapshot.pairing.draftCommand}`,
+      `heartbeat: ${snapshot.heartbeat.endpoint}`,
+      `invocation: ${snapshot.invocation.queueMode}`,
+    ], snapshot as unknown as JsonObject);
+  }
   const { ZavorthAppsSatelliteNodesService } = await import('../services/ZavorthAppsSatelliteNodesService.js');
   const service = new ZavorthAppsSatelliteNodesService({ cwd: root });
   const satelliteAction = action === 'pair' || action === 'pairing'
@@ -918,6 +932,43 @@ async function runSwarm(root: string, args: string[]) {
   const { SwarmScalePlaneService } = await import('../domain/execution/infrastructure/SwarmScalePlaneService.js');
   const stateFilePath = path.join(stateDir(root), 'swarm-scale-plane.json');
   const service = new SwarmScalePlaneService({ stateFilePath });
+  if (action === 'cloud-pool' || action === 'cloud' || action === 'backends') {
+    const { ZavorthCloudSandboxPoolService } = await import('../services/ZavorthCloudSandboxPoolService.js');
+    const snapshot = new ZavorthCloudSandboxPoolService().buildSnapshot({
+      preferredBackend: (readFlag(args, 'backend') || readFlag(args, 'execution-backend') || null) as any,
+    });
+    return render(args, 'Zavorth Swarm cloud pool', [
+      `status: ${snapshot.status}`,
+      `ready cloud backends: ${snapshot.summary.readyCloudBackends}/${snapshot.summary.totalPoolBackends}`,
+      `preferred backend: ${snapshot.preferredBackend?.id || 'none'}`,
+      `configure: ${snapshot.swarmIntegration.configureCommand}`,
+      ...snapshot.backends.map((backend) =>
+        `- ${backend.id}: ${backend.status} ${backend.liveReady ? 'ready' : 'not-ready'} ${backend.remoteTier}`),
+    ], snapshot as unknown as JsonObject);
+  }
+  if (action === 'configure' || action === 'config' || action === 'reconfigure') {
+    const runId = readFlag(args, 'run-id') || args[1] || '';
+    if (!runId) return render(args, 'Zavorth Swarm configure', ['Missing --run-id for configure.'], { ok: false });
+    const snapshot = service.configureRun({
+      runId,
+      sourceSurface: 'cli',
+      actorId: readFlag(args, 'actor') || 'operator',
+      reason: readFlag(args, 'reason') || null,
+      persistState: !args.includes('--no-persist'),
+      patch: {
+        maxConcurrency: readNumberFlag(args, 'concurrency') || readNumberFlag(args, 'max-concurrency') || undefined,
+        maxSteps: readNumberFlag(args, 'max-steps') || readNumberFlag(args, 'steps') || undefined,
+        executionMode: (readFlag(args, 'execution-mode') || readFlag(args, 'mode') || undefined) as any,
+        executionBackend: (readFlag(args, 'execution-backend') || readFlag(args, 'backend') || undefined) as any,
+        cloudSandboxEnabled: readSwarmToggleFlag(args, 'cloud-sandbox') ?? readSwarmToggleFlag(args, 'cloud'),
+        deviceNodeRouting: readSwarmToggleFlag(args, 'device-routing')
+          ?? readSwarmToggleFlag(args, 'device-node-routing')
+          ?? readSwarmToggleFlag(args, 'devices'),
+        pauseReason: readFlag(args, 'pause-reason') || undefined,
+      },
+    });
+    return render(args, 'Zavorth Swarm configure', renderSwarmLines(snapshot), snapshot);
+  }
   if (action === 'resume') {
     const runId = readFlag(args, 'run-id') || args[1] || '';
     if (!runId) return render(args, 'Zavorth Swarm', ['Missing --run-id for resume.'], { ok: false });
@@ -948,6 +999,11 @@ async function runSwarm(root: string, args: string[]) {
     persistState: action !== 'plan' && !args.includes('--no-persist'),
     approvalId: readFlag(args, 'approval-id') || null,
     allowMutatingTools: args.includes('--allow-mutating-tools'),
+    executionBackend: (readFlag(args, 'execution-backend') || readFlag(args, 'backend') || undefined) as any,
+    cloudSandboxEnabled: readSwarmToggleFlag(args, 'cloud-sandbox') ?? readSwarmToggleFlag(args, 'cloud'),
+    deviceNodeRouting: readSwarmToggleFlag(args, 'device-routing')
+      ?? readSwarmToggleFlag(args, 'device-node-routing')
+      ?? readSwarmToggleFlag(args, 'devices'),
   });
   return render(args, `Zavorth Swarm ${action === 'run' ? 'run' : 'plan'}`, renderSwarmLines(snapshot), snapshot);
 }
@@ -959,6 +1015,15 @@ function renderSwarmLines(snapshot: {
   workerPool: { maxConcurrency: number; actualMaxConcurrency: number; mode: string };
   ledger: { usedSteps: number; maxSteps: number };
   reducer: { conflictCount: number; confidence: number; synthesis: string };
+  dynamicConfig?: {
+    revision: number;
+    sourceSurface: string;
+    executionBackend: string;
+    cloudSandboxEnabled: boolean;
+    deviceNodeRouting: boolean;
+    maxConcurrency: number;
+    maxSteps: number;
+  };
 }): string[] {
   return [
     `run: ${snapshot.runId}`,
@@ -966,10 +1031,37 @@ function renderSwarmLines(snapshot: {
     `agents: ${snapshot.planner.plannedAgents}/${snapshot.planner.requestedAgents} (${snapshot.planner.mode})`,
     `workers: ${snapshot.workerPool.mode} concurrency=${snapshot.workerPool.actualMaxConcurrency || snapshot.workerPool.maxConcurrency}`,
     `ledger: ${snapshot.ledger.usedSteps}/${snapshot.ledger.maxSteps}`,
+    snapshot.dynamicConfig
+      ? `config: rev=${snapshot.dynamicConfig.revision} source=${snapshot.dynamicConfig.sourceSurface} backend=${snapshot.dynamicConfig.executionBackend} cloud=${snapshot.dynamicConfig.cloudSandboxEnabled ? 'on' : 'off'} devices=${snapshot.dynamicConfig.deviceNodeRouting ? 'on' : 'off'}`
+      : 'config: legacy',
     `conflicts: ${snapshot.reducer.conflictCount}`,
     `confidence: ${snapshot.reducer.confidence}`,
     snapshot.reducer.synthesis ? `synthesis: ${snapshot.reducer.synthesis.slice(0, 240)}` : 'synthesis: pending',
   ];
+}
+
+function readSwarmToggleFlag(args: string[], name: string): boolean | undefined {
+  const exact = `--${name}`;
+  const prefix = `${exact}=`;
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === exact) {
+      const next = args[index + 1];
+      if (!next || next.startsWith('--')) return true;
+      return parseSwarmToggle(next);
+    }
+    if (arg.startsWith(prefix)) {
+      return parseSwarmToggle(arg.slice(prefix.length));
+    }
+  }
+  return undefined;
+}
+
+function parseSwarmToggle(value: string): boolean | undefined {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (['1', 'true', 'yes', 'y', 'on', 'enabled', 'enable'].includes(normalized)) return true;
+  if (['0', 'false', 'no', 'n', 'off', 'disabled', 'disable'].includes(normalized)) return false;
+  return undefined;
 }
 
 async function cancelSwarmRun(stateFilePath: string, runId: string): Promise<boolean> {
@@ -1422,7 +1514,7 @@ async function loadManagedConfigSource(source: string): Promise<{ ok: boolean; c
   }
 }
 
-function normalizeRequirements(value: unknown[]): Array<{ kind: string; name: string; required: boolean }> {
+export function normalizeRequirements(value: unknown[]): Array<{ kind: string; name: string; required: boolean }> {
   return value.map((entry) => {
     if (typeof entry === 'string') return { kind: 'env', name: entry, required: true };
     const item = (entry || {}) as JsonObject;
@@ -1430,7 +1522,7 @@ function normalizeRequirements(value: unknown[]): Array<{ kind: string; name: st
   }).filter((entry) => entry.name);
 }
 
-function enforceRequirements(requirements: Array<{ kind: string; name: string; required: boolean }>): { ok: boolean; lines: string[]; missing: string[] } {
+export function enforceRequirements(requirements: Array<{ kind: string; name: string; required: boolean }>): { ok: boolean; lines: string[]; missing: string[] } {
   const missing: string[] = [];
   for (const requirement of requirements) {
     if (!requirement.required) continue;
@@ -2273,7 +2365,7 @@ function sanitizeMcpServer(value: unknown): JsonObject {
   return item;
 }
 
-function redactCommand(command: string): string {
+export function redactCommand(command: string): string {
   return command.replace(/(token|key|secret|password)=("[^"]+"|'[^']+'|\S+)/giu, '$1=***');
 }
 
@@ -4464,11 +4556,11 @@ function resolveOpenAiLikeProvider(provider: string, args: string[]): { baseUrl:
 
 
 
-function idFromSpec(spec: string): string {
+export function idFromSpec(spec: string): string {
   return spec.replace(/[^a-z0-9._-]+/giu, '-').replace(/^-+|-+$/gu, '').toLowerCase() || idWithTime('plugin');
 }
 
-function resolveNpmCommand(): string {
+export function resolveNpmCommand(): string {
   return process.platform === 'win32' ? 'npm.cmd' : 'npm';
 }
 

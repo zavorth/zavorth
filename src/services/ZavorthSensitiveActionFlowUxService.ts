@@ -43,8 +43,8 @@ export class ZavorthSensitiveActionFlowUxService {
           : 'ready',
       card,
       source,
-      dashboardProjection: {
-        route: '/dashboard',
+      zavorthControlProjection: {
+        route: '/zavorthControl',
         renderMode: 'action-card',
         executionAuthority: false,
       },
@@ -120,7 +120,7 @@ function buildCard(source: ZavorthSensitiveActionFlowSnapshot): ZavorthSensitive
     steps: buildSteps(source),
     actions: buildActions(source),
     safety: {
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
       zavorthControlCanExecute: false,
       policyBrokerRequired: true,
       previewBeforeApply: true,
@@ -151,7 +151,7 @@ function buildActions(source: ZavorthSensitiveActionFlowSnapshot): ZavorthSensit
       kind: 'preview',
       requiresApproval: false,
       mutatesState: false,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
     },
     {
       id: 'inspect-receipt',
@@ -160,7 +160,7 @@ function buildActions(source: ZavorthSensitiveActionFlowSnapshot): ZavorthSensit
       kind: 'inspect_receipt',
       requiresApproval: false,
       mutatesState: false,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
     },
   ];
   if (source.approval.required && source.approval.status === 'pending') {
@@ -172,7 +172,7 @@ function buildActions(source: ZavorthSensitiveActionFlowSnapshot): ZavorthSensit
         kind: 'approve_once',
         requiresApproval: true,
         mutatesState: false,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
       },
       {
         id: 'deny',
@@ -181,7 +181,7 @@ function buildActions(source: ZavorthSensitiveActionFlowSnapshot): ZavorthSensit
         kind: 'deny',
         requiresApproval: false,
         mutatesState: false,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
       },
     );
   }
@@ -193,7 +193,7 @@ function buildActions(source: ZavorthSensitiveActionFlowSnapshot): ZavorthSensit
       kind: 'rollback',
       requiresApproval: true,
       mutatesState: true,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
     });
   }
   return actions;

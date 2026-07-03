@@ -1,11 +1,11 @@
-// @ts-nocheck
 import type { ZavorthActionDefinition, ZavorthActionHandlerInput, ZavorthActionResult, ZavorthActionSchema } from '../runtime/actions/ZavorthActionContracts.js';
 import { AgentChainBuilder, type AgentChainConfig } from './AgentChainBuilder.js';
 import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';
 import { logger } from '../logger.js';
 
-const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'dashboard', 'tui', 'api', 'channel', 'llm'];
+const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = ['tests/agents/AgentChainBuilder.test.ts'];
+const DEFAULT_MAX_CONCURRENCY = 5;
 
 const outputSchema: ZavorthActionSchema = {
   type: 'object',
@@ -20,7 +20,7 @@ const outputSchema: ZavorthActionSchema = {
   },
 };
 
-function result(partial: Partial<ZavorthActionResult> & { ok: boolean; actionId: string; operation: string; status: string; summary: string }): ZavorthActionResult {
+function result(partial: Partial<ZavorthActionResult> & { ok: boolean; actionId: string; operation: ZavorthActionResult['operation']; status: ZavorthActionResult['status']; summary: string }): ZavorthActionResult {
   return {
     lines: [],
     data: {},
@@ -71,7 +71,7 @@ export function createAgentChainActionModule(externalAgentGateway: ZavorthExtern
         ok: false,
         actionId: input.actionId,
         operation: input.operation,
-        status: 'error',
+        status: 'blocked',
         summary: 'Chain must have at least one step.',
       });
     }
@@ -84,7 +84,7 @@ export function createAgentChainActionModule(externalAgentGateway: ZavorthExtern
       return `${s.id}: ${s.kind}${s.agent ? `(${s.agent})` : ''}${fallback}${parallelGroup}${dependsOn}`;
     });
 
-    if (input.operation === 'preview') {
+    if (input.operation === 'action.preview') {
       const agentLines = availableAgents.length > 0
         ? availableAgents.map((a) => `  - ${a.id}: ${a.label} (${a.adapter}) live=${a.liveReady}`)
         : ['  (none registered)'];
@@ -92,7 +92,7 @@ export function createAgentChainActionModule(externalAgentGateway: ZavorthExtern
       return result({
         ok: true,
         actionId: input.actionId,
-        operation: 'preview',
+        operation: 'action.preview',
         status: 'preview',
         summary: `Chain "${chainConfig.name || 'unnamed'}" with ${chainConfig.steps.length} steps will execute.`,
         lines: [
@@ -121,7 +121,7 @@ export function createAgentChainActionModule(externalAgentGateway: ZavorthExtern
         ok: execution.status === 'completed',
         actionId: input.actionId,
         operation: input.operation,
-        status: execution.status,
+        status: execution.status === 'completed' ? 'ok' : execution.status === 'failed' ? 'blocked' : 'preview',
         summary: `Chain "${chainConfig.name || execution.chainId}" ${execution.status}: ${execution.successCount}/${chainConfig.steps.length} steps succeeded.`,
         lines: summary.split('\n'),
         data: { execution },
@@ -133,14 +133,14 @@ export function createAgentChainActionModule(externalAgentGateway: ZavorthExtern
         ok: false,
         actionId: input.actionId,
         operation: input.operation,
-        status: 'error',
+        status: 'blocked',
         summary: `Chain execution failed: ${errorMsg}`,
       });
     }
   }
 
   function chainPreview(input: ZavorthActionHandlerInput): Promise<ZavorthActionResult> {
-    return chainRun({ ...input, operation: 'preview' });
+    return chainRun({ ...input, operation: 'action.preview' });
   }
 
   return {

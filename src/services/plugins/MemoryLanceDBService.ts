@@ -109,6 +109,32 @@ export class MemoryLanceDBService {
     return `Document inserido na collection "${collection}". ID: ${doc.id}`;
   }
 
+  public addDocument(
+    collection: string,
+    content: string,
+    embedding: number[],
+    metadata: Record<string, unknown> = {},
+  ): string {
+    if (!this.collections.has(collection)) {
+      return `Collection "${collection}" not found.`;
+    }
+    if (!Array.isArray(embedding) || embedding.length !== this.dimension) {
+      return `Error: embedding dimension mismatch. Expected ${this.dimension}.`;
+    }
+
+    const doc: LanceDBDocument = {
+      id: `doc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      content,
+      embedding,
+      metadata,
+      created_at: new Date().toISOString(),
+    };
+    this.collections.get(collection)!.push(doc);
+    this.saveCollection(collection);
+
+    return `Document added to collection "${collection}". ID: ${doc.id}`;
+  }
+
   public insertBatch(collection: string, documents: Array<{ content: string; metadata?: Record<string, unknown> }>): string {
     if (!this.collections.has(collection)) {
       this.collections.set(collection, []);
@@ -134,11 +160,18 @@ export class MemoryLanceDBService {
     return `${ids.length} documents inseridos na collection "${collection}".`;
   }
 
-  public query(collection: string, queryText: string, topK: number = 5, filter?: Record<string, unknown>): LanceDBQueryResult[] {
+  public query(collection: string, queryText: string, topK?: number, filter?: Record<string, unknown>): LanceDBQueryResult[];
+  public query(collection: string, queryEmbedding: number[], topK?: number, filter?: Record<string, unknown>): string;
+  public query(
+    collection: string,
+    queryInput: string | number[],
+    topK: number = 5,
+    filter?: Record<string, unknown>,
+  ): LanceDBQueryResult[] | string {
     const docs = this.collections.get(collection) || [];
-    if (docs.length === 0) return [];
+    if (docs.length === 0) return Array.isArray(queryInput) ? 'No results.' : [];
 
-    const queryEmbedding = this.generateEmbedding(queryText);
+    const queryEmbedding = Array.isArray(queryInput) ? queryInput : this.generateEmbedding(queryInput);
 
     let candidates = docs;
     if (filter) {
@@ -158,7 +191,15 @@ export class MemoryLanceDBService {
     }));
 
     scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, topK);
+    const results = scored.slice(0, topK);
+    if (!Array.isArray(queryInput)) {
+      return results;
+    }
+    if (results.length === 0) return 'No results.';
+    return [
+      `Results (${results.length}) from collection "${collection}":`,
+      ...results.map((result) => `  ${result.id} score:${result.score.toFixed(3)} ${result.content}`),
+    ].join('\n');
   }
 
   public delete(collection: string, docId: string): string {
@@ -188,6 +229,10 @@ export class MemoryLanceDBService {
     }
     lines.push(`Total: ${this.collections.size} colecoes, ${totalDocs} documents`);
     return lines.join('\n');
+  }
+
+  public getCollectionStats(collection: string): string {
+    return this.getStats(collection);
   }
 
   private generateEmbedding(text: string): number[] {

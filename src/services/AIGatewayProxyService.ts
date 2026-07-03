@@ -4,6 +4,7 @@ import path from 'path';
 import type { Duplex } from 'stream';
 import { WebSocketServer, type RawData, type WebSocket } from 'ws';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 
 export type AIGatewayProxyStatus = {
@@ -107,7 +108,9 @@ export class AIGatewayProxyService {
     AIGatewayProxyService.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch {}
+      } catch (err) {
+        logger.warn('Falha ao fechar cliente WebSocket durante shutdown do gateway.', { err });
+      }
     });
     AIGatewayProxyService.wss?.close();
     AIGatewayProxyService.wss = null;
@@ -134,7 +137,8 @@ export class AIGatewayProxyService {
         ...fallback,
         ...parsed,
       };
-    } catch {
+    } catch (err) {
+      logger.warn('Falha ao ler status persistido do gateway, usando fallback.', { err });
       return fallback;
     }
   }
@@ -257,7 +261,8 @@ export class AIGatewayProxyService {
     let message: any;
     try {
       message = JSON.parse(Buffer.isBuffer(raw) ? raw.toString('utf8') : raw.toString());
-    } catch {
+    } catch (err) {
+      logger.warn('Mensagem WebSocket recebida não é JSON válido.', { err });
       this.sendWebSocketJson(ws, { type: 'error', error: 'Expected JSON message.' });
       return;
     }
@@ -323,7 +328,8 @@ export class AIGatewayProxyService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch {
+    } catch (err) {
+      logger.warn('Healthcheck do gateway proprio falhou.', { err });
       return false;
     }
   }
@@ -340,7 +346,8 @@ export class AIGatewayProxyService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch {
+    } catch (err) {
+      logger.warn('Healthcheck do upstream falhou.', { err });
       return false;
     }
   }
@@ -574,7 +581,8 @@ export class AIGatewayProxyService {
         return {};
       }
       return JSON.parse(fs.readFileSync(config.AIGatewayOverlayFile, 'utf8')) as GatewayOverlay;
-    } catch {
+    } catch (err) {
+      logger.warn('Falha ao ler overlay do gateway, usando configuração padrão.', { err });
       return {};
     }
   }

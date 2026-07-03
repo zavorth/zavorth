@@ -2,7 +2,7 @@ import {
   ZAVORTH_NATIVE_REPLACEMENT_DECOMMISSION_CONTRACT_VERSION,
   type ZavorthAdapterDependencyReductionReceipt,
   type ZavorthCompatibilityBoundaryReceipt,
-  type ZavorthNativeReplacementDashboardProjection,
+  type ZavorthNativeReplacementZavorthControlProjection,
   type ZavorthNativeReplacementDecommissionSnapshot,
   type ZavorthNativeReplacementDecommissionStatus,
   type ZavorthNativeReplacementInput,
@@ -101,7 +101,7 @@ export class ZavorthNativeReplacementDecommissionService {
       compatibilityBoundaryReceipt,
     );
     const status = resolveStatus(previousDelegatedWorkerStatus, acceptanceMatrix);
-    const dashboardProjection = this.buildDashboardProjection({
+    const zavorthControlProjection = this.buildZavorthControlProjection({
       status,
       registryEntries,
       consistencyHarnessReceipts,
@@ -123,7 +123,7 @@ export class ZavorthNativeReplacementDecommissionService {
       adapterDependencyReductionReceipts,
       sourceAssumptionDecommissionReceipts,
       compatibilityBoundaryReceipt,
-      dashboardProjection,
+      zavorthControlProjection,
       acceptanceMatrix,
       summary: {
         nativeReplacementRegistryEntries: registryEntries.length,
@@ -286,14 +286,14 @@ export class ZavorthNativeReplacementDecommissionService {
     };
   }
 
-  public buildDashboardProjection(input: {
+  public buildZavorthControlProjection(input: {
     status: ZavorthNativeReplacementDecommissionStatus;
     registryEntries: ZavorthNativeReplacementRegistryEntry[];
     consistencyHarnessReceipts: ZavorthConsistencyTestHarnessReceipt[];
     adapterDependencyReductionReceipts: ZavorthAdapterDependencyReductionReceipt[];
     sourceAssumptionDecommissionReceipts: ZavorthSourceAssumptionDecommissionReceipt[];
     compatibilityBoundaryReceipt: ZavorthCompatibilityBoundaryReceipt;
-  }): ZavorthNativeReplacementDashboardProjection {
+  }): ZavorthNativeReplacementZavorthControlProjection {
     const promoted = input.registryEntries.filter((entry) => entry.replacementDecision === 'promote-native').length;
     return {
       title: 'Native Replacement And Decommission',
@@ -324,7 +324,7 @@ export class ZavorthNativeReplacementDecommissionService {
 
   public formatSnapshotText(snapshot: ZavorthNativeReplacementDecommissionSnapshot): string {
     const lines = [
-      'Zavorth Native Replacement Decommission - Dashboard controls',
+      'Zavorth Native Replacement Decommission - ZavorthControl controls',
       '',
       `Status: ${snapshot.status}`,
       `Previous delegated worker bridge: ${snapshot.previousDelegatedWorkerStatus}`,
@@ -337,8 +337,8 @@ export class ZavorthNativeReplacementDecommissionService {
       `Source runtime required for promoted capabilities: ${snapshot.summary.sourceRuntimeRequiredForPromotedCapabilities}`,
       `Hard adapter dependencies for promoted capabilities: ${snapshot.summary.hardAdapterDependenciesForPromotedCapabilities}`,
       '',
-      'Dashboard:',
-      ...snapshot.dashboardProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
+      'ZavorthControl:',
+      ...snapshot.zavorthControlProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
       '',
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
@@ -431,6 +431,6 @@ function card(
   label: string,
   value: string,
   detail: string,
-): ZavorthNativeReplacementDashboardProjection['cards'][number] {
+): ZavorthNativeReplacementZavorthControlProjection['cards'][number] {
   return { id, label, value, detail };
 }

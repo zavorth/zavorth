@@ -150,7 +150,7 @@ function renderHudShortcuts(snapshot: ExperienceSnapshot): string[] {
     rejectAction ? `N reject first card -> ${rejectAction.command}` : 'N reject first card -> no pending action card',
     firstReview ? `D open diff -> zavorth diff ${firstReview.id}` : 'D open diff -> no pending diff',
     'L review learning -> zavorth learn',
-    'O open dashboard -> zavorth open',
+    'O open zavorthControl -> zavorth open',
   ];
 }
 
@@ -266,7 +266,7 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
     ? [
       renderAgentShortcut('ask', 'send a natural request'),
       renderAgentShortcut('approve', pendingApprovals > 0 ? 'review pending governed work' : 'review governed work'),
-      renderAgentShortcut('open', 'Dashboard'),
+      renderAgentShortcut('open', 'ZavorthControl'),
       renderAgentShortcut('status', 'runtime health'),
     ]
     : [

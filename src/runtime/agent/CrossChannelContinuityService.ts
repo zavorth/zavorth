@@ -99,7 +99,7 @@ export type CrossChannelContinuitySnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     resumeHint: string;
     approvalHint: string;
   };
@@ -256,7 +256,7 @@ export class CrossChannelContinuityService {
       },
       surface: {
         cliCommand: `zavorth continuity "${redactText(run.input, 'pedido', 80)}"`,
-        dashboardPath: '/dashboard?sector=channels',
+        zavorthControlPath: '/zavorthControl?sector=channels',
         resumeHint: 'Retomar em outro canal usa o mesmo sessionId e gateway universal.',
         approvalHint: 'Enviar notificacao ou mudar canal primario exige approval explicito.',
       },
@@ -472,8 +472,8 @@ export class CrossChannelContinuityService {
       {
         id: `continuity-receipt:${input.run.id}:surface`,
         kind: 'surface',
-        source: 'CLI/Dashboard',
-        detail: 'Continuidade exposta por CLI read-only e Dashboard.',
+        source: 'CLI/ZavorthControl',
+        detail: 'Continuidade exposta por CLI read-only e ZavorthControl.',
         status: 'ready',
       },
     ];
@@ -536,7 +536,7 @@ export class CrossChannelContinuityService {
 
   private labelForChannel(channel: UniversalAgentChannel): string {
     if (channel === 'web') {
-      return 'Dashboard';
+      return 'ZavorthControl';
     }
     if (channel === 'cli') {
       return 'Terminal';

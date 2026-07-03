@@ -40,7 +40,7 @@ export type ZavorthUniversalSkillScaleBatch = {
   approvalRequired: true;
 };
 
-export type ZavorthUniversalSkillDashboardReviewItem = {
+export type ZavorthUniversalSkillZavorthControlReviewItem = {
   id: string;
   label: string;
   surface: 'summary-card' | 'table' | 'filter' | 'action-row' | 'empty-state' | 'alert';
@@ -51,7 +51,7 @@ export type ZavorthUniversalSkillDashboardReviewItem = {
   ownerApprovalRequired: true;
 };
 
-export type ZavorthUniversalSkillZavorthControlReviewItem = ZavorthUniversalSkillDashboardReviewItem;
+export type ZavorthUniversalSkillZavorthControlReviewItem = ZavorthUniversalSkillZavorthControlReviewItem;
 
 export type ZavorthUniversalSkillScaleHardeningSnapshot = {
   generatedAt: string;
@@ -71,11 +71,11 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
   };
   gates: ZavorthUniversalSkillScaleGate[];
   batches: ZavorthUniversalSkillScaleBatch[];
-  dashboardReview: {
+  zavorthControlReview: {
     contractOnly: true;
     approvedVisualChangesApplied: false;
     layoutMutationPerformed: false;
-    items: ZavorthUniversalSkillDashboardReviewItem[];
+    items: ZavorthUniversalSkillZavorthControlReviewItem[];
     recommendedDataEndpoint: '/api/skills/scale-hardening';
   };
   zavorthControlReview: {
@@ -96,12 +96,12 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
     rawSecretsSerialized: false;
   };
   policy: {
-    dashboardControlsOnboardingIsAuthority: true;
+    zavorthControlControlsOnboardingIsAuthority: true;
     zavorthControlControlsOnboardingIsAuthority: true;
     previewFirstForLargeLibraries: true;
     batchApplyRequiresExplicitAllowlist: true;
     canaryBeforeBulkApply: true;
-    dashboardReviewDoesNotChangeVisuals: true;
+    zavorthControlReviewDoesNotChangeVisuals: true;
     zavorthControlReviewDoesNotChangeVisuals: true;
     noVisualChangeWithoutOwnerApproval: true;
     noExecutionPerformed: true;

@@ -3,9 +3,9 @@ import {
   normalizeZavorthNativeCapabilityRegistryReplacementFixture,
 } from './ZavorthNativeCapabilityRegistry.js';
 import {
-  createZavorthNativeDashboardViewModelRegistryFixture,
-  normalizeZavorthNativeDashboardViewModelRegistryFixture,
-} from './ZavorthNativeDashboardViewModelRegistry.js';
+  createZavorthNativeZavorthControlViewModelRegistryFixture,
+  normalizeZavorthNativeZavorthControlViewModelRegistryFixture,
+} from './ZavorthNativeZavorthControlViewModelRegistry.js';
 import {
   createZavorthNativeIntegrationRegistryFixture,
   normalizeZavorthNativeIntegrationRegistryFixture,
@@ -22,9 +22,9 @@ import type {
   ZavorthNativeCapabilityRegistryReplacementNormalization,
 } from './ZavorthNativeCapabilityRegistry.js';
 import type {
-  ZavorthNativeDashboardViewModelRegistry,
-  ZavorthNativeDashboardViewModelRegistryNormalization,
-} from './ZavorthNativeDashboardViewModelRegistry.js';
+  ZavorthNativeZavorthControlViewModelRegistry,
+  ZavorthNativeZavorthControlViewModelRegistryNormalization,
+} from './ZavorthNativeZavorthControlViewModelRegistry.js';
 import type {
   ZavorthNativeIntegrationRegistry,
   ZavorthNativeIntegrationRegistryNormalization,
@@ -135,7 +135,7 @@ export type ZavorthNativeConfigStateRecord = {
   rollbackRequiredBeforeMutation: boolean;
   degradedOrUnavailableReason?: string;
   capabilityRegistryEntryIds: string[];
-  dashboardViewModelIds: string[];
+  zavorthControlViewModelIds: string[];
   integrationRegistryRecordIds: string[];
   sessionRegistryRecordIds: string[];
   provenance: ZavorthNativeConfigStateProvenance;
@@ -165,8 +165,8 @@ export type ZavorthNativeConfigStateLookupResult = {
   sourceRuntimeAuthority: false;
 };
 
-export type ZavorthNativeConfigStateDashboardProjection = {
-  nativeContract: 'ZavorthNativeConfigStateDashboardProjection/v1';
+export type ZavorthNativeConfigStateZavorthControlProjection = {
+  nativeContract: 'ZavorthNativeConfigStateZavorthControlProjection/v1';
   id: string;
   configStateRecordId: string;
   label: string;
@@ -175,7 +175,7 @@ export type ZavorthNativeConfigStateDashboardProjection = {
   risk: ZavorthNativeConfigStateRisk;
   migrationEligibility: ZavorthNativeConfigStateMigrationEligibility;
   secretRefCount: number;
-  dashboardConsumable: true;
+  zavorthControlConsumable: true;
   sourceIdentityPublic: false;
   secretRawValueSerialized: false;
   executionAuthority: false;
@@ -202,7 +202,7 @@ export type ZavorthNativeConfigStateRegistrySnapshot = {
     dryRunMigrationPlan: 'docs/dry-run-migration-plan.md';
     rollbackRestoreRehearsal: 'docs/rollback-restore-rehearsal.md';
     nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
-    dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md';
+    zavorthControlViewModelRegistry: 'docs/zavorthControl-view-model-registry-native-slice.md';
     integrationRegistry: 'docs/provider-channel-transport-native-registry.md';
     sessionHistoryRegistry: 'docs/session-history-native-registry.md';
   };
@@ -255,7 +255,7 @@ export type ZavorthNativeConfigStateRegistryIntegration = {
   capabilityRegistryCrossReferenceReady: true;
   integrationRegistryCrossReferenceReady: true;
   sessionRegistryCrossReferenceReady: true;
-  dashboardProjectionReady: true;
+  zavorthControlProjectionReady: true;
   migrationDryRunOnly: true;
   rollbackMetadataPreserved: true;
   secretRefsMetadataOnly: true;
@@ -269,8 +269,8 @@ export type ZavorthNativeConfigStateRegistrySource = {
   secretRefResolverBoundary: ExternalAgentSecretResolutionEnvelope;
   nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization;
   capabilityRegistry: ZavorthNativeCapabilityRegistry;
-  dashboardViewModelRegistry: ZavorthNativeDashboardViewModelRegistryNormalization;
-  dashboardRegistry: ZavorthNativeDashboardViewModelRegistry;
+  zavorthControlViewModelRegistry: ZavorthNativeZavorthControlViewModelRegistryNormalization;
+  zavorthControlRegistry: ZavorthNativeZavorthControlViewModelRegistry;
   nativeIntegrationRegistry: ZavorthNativeIntegrationRegistryNormalization;
   integrationRegistry: ZavorthNativeIntegrationRegistry;
   nativeSessionHistoryRegistry: ZavorthNativeSessionHistoryRegistryNormalization;
@@ -304,12 +304,12 @@ export type ZavorthNativeConfigStateRegistryNormalization = {
     dryRunMigrationPlan: ZavorthNativeConfigStateRegistrySource['dryRunPlanStatus'];
     rollbackRestoreRehearsal: ZavorthNativeConfigStateRegistrySource['rollbackRehearsalStatus'];
     nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization['decision'];
-    dashboardViewModelRegistry: ZavorthNativeDashboardViewModelRegistryNormalization['decision'];
+    zavorthControlViewModelRegistry: ZavorthNativeZavorthControlViewModelRegistryNormalization['decision'];
     nativeIntegrationRegistry: ZavorthNativeIntegrationRegistryNormalization['decision'];
     nativeSessionHistoryRegistry: ZavorthNativeSessionHistoryRegistryNormalization['decision'];
   };
   registry: ZavorthNativeConfigStateRegistrySnapshot;
-  dashboardProjection: ZavorthNativeConfigStateDashboardProjection[];
+  zavorthControlProjection: ZavorthNativeConfigStateZavorthControlProjection[];
   integration: ZavorthNativeConfigStateRegistryIntegration;
   dependencyReductionProof: {
     lookupWorksWithoutLiveExternalExecutor: true;
@@ -773,20 +773,20 @@ function integrationIds(source: ZavorthNativeConfigStateRegistrySource, category
   return [];
 }
 
-function dashboardIds(source: ZavorthNativeConfigStateRegistrySource, category: ZavorthNativeConfigStateCategory): string[] {
+function zavorthControlIds(source: ZavorthNativeConfigStateRegistrySource, category: ZavorthNativeConfigStateCategory): string[] {
   if (category === 'provider-credentials') {
-    return source.dashboardRegistry.list({ viewType: 'provider' }).map((record) => record.id);
+    return source.zavorthControlRegistry.list({ viewType: 'provider' }).map((record) => record.id);
   }
   if (category === 'channel-credentials') {
-    return source.dashboardRegistry.list({ viewType: 'channel' }).map((record) => record.id);
+    return source.zavorthControlRegistry.list({ viewType: 'channel' }).map((record) => record.id);
   }
   if (category === 'sqlite-store') {
-    return source.dashboardRegistry.list({ viewType: 'session' }).map((record) => record.id);
+    return source.zavorthControlRegistry.list({ viewType: 'session' }).map((record) => record.id);
   }
   if (category === 'logs' || category === 'cache') {
-    return source.dashboardRegistry.list({ degradedOrUnavailable: true }).slice(0, 3).map((record) => record.id);
+    return source.zavorthControlRegistry.list({ degradedOrUnavailable: true }).slice(0, 3).map((record) => record.id);
   }
-  return source.dashboardRegistry.list({ viewType: 'health-status' }).map((record) => record.id);
+  return source.zavorthControlRegistry.list({ viewType: 'health-status' }).map((record) => record.id);
 }
 
 function sessionIds(source: ZavorthNativeConfigStateRegistrySource, category: ZavorthNativeConfigStateCategory): string[] {
@@ -819,7 +819,7 @@ function buildRecords(
     rollbackRequiredBeforeMutation: fixture.rollbackRequiredBeforeMutation,
     ...(fixture.degradedOrUnavailableReason ? { degradedOrUnavailableReason: fixture.degradedOrUnavailableReason } : {}),
     capabilityRegistryEntryIds: capabilityIds(source, fixture.category),
-    dashboardViewModelIds: dashboardIds(source, fixture.category),
+    zavorthControlViewModelIds: zavorthControlIds(source, fixture.category),
     integrationRegistryRecordIds: integrationIds(source, fixture.category),
     sessionRegistryRecordIds: sessionIds(source, fixture.category),
     provenance: provenance(fixture.evidenceDocs),
@@ -906,7 +906,7 @@ function buildSnapshot(
       dryRunMigrationPlan: 'docs/dry-run-migration-plan.md',
       rollbackRestoreRehearsal: 'docs/rollback-restore-rehearsal.md',
       nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
-      dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md',
+      zavorthControlViewModelRegistry: 'docs/zavorthControl-view-model-registry-native-slice.md',
       integrationRegistry: 'docs/provider-channel-transport-native-registry.md',
       sessionHistoryRegistry: 'docs/session-history-native-registry.md',
     },
@@ -928,10 +928,10 @@ function buildSnapshot(
   };
 }
 
-function dashboardProjection(records: ZavorthNativeConfigStateRecord[]): ZavorthNativeConfigStateDashboardProjection[] {
+function zavorthControlProjection(records: ZavorthNativeConfigStateRecord[]): ZavorthNativeConfigStateZavorthControlProjection[] {
   return records.map((record) => ({
-    nativeContract: 'ZavorthNativeConfigStateDashboardProjection/v1',
-    id: `${record.id}:dashboard-projection`,
+    nativeContract: 'ZavorthNativeConfigStateZavorthControlProjection/v1',
+    id: `${record.id}:zavorthControl-projection`,
     configStateRecordId: record.id,
     label: record.publicLabel,
     category: record.category,
@@ -939,7 +939,7 @@ function dashboardProjection(records: ZavorthNativeConfigStateRecord[]): Zavorth
     risk: record.risk,
     migrationEligibility: record.migrationEligibility,
     secretRefCount: record.secretRefs.length,
-    dashboardConsumable: true,
+    zavorthControlConsumable: true,
     sourceIdentityPublic: false,
     secretRawValueSerialized: false,
     executionAuthority: false,
@@ -956,7 +956,7 @@ function sourceReady(source: ZavorthNativeConfigStateRegistrySource): boolean {
     source.dryRunPlanStatus === 'dry-run-plan-no-migration' &&
     source.rollbackRehearsalStatus === 'rollback-restore-rehearsal-no-mutation' &&
     source.nativeCapabilityRegistry.decision === 'native-capability-registry-replacement-ready' &&
-    source.dashboardViewModelRegistry.decision === 'native-dashboard-view-model-registry-ready' &&
+    source.zavorthControlViewModelRegistry.decision === 'native-zavorthControl-view-model-registry-ready' &&
     source.nativeIntegrationRegistry.decision === 'native-integration-registry-ready' &&
     source.nativeSessionHistoryRegistry.decision === 'native-session-history-registry-ready' &&
     !source.gatewayLiveCalledDuringLookup &&
@@ -1040,8 +1040,8 @@ export class ZavorthNativeConfigStateRegistry {
     };
   }
 
-  public toDashboardProjection(): ZavorthNativeConfigStateDashboardProjection[] {
-    return dashboardProjection(this.snapshot.records);
+  public toZavorthControlProjection(): ZavorthNativeConfigStateZavorthControlProjection[] {
+    return zavorthControlProjection(this.snapshot.records);
   }
 }
 
@@ -1050,8 +1050,8 @@ export function createZavorthNativeConfigStateRegistryFixtureSource(): ZavorthNa
     secretRefResolverBoundary: normalizeExternalAgentSecretRefResolverBoundaryFixture(),
     nativeCapabilityRegistry: normalizeZavorthNativeCapabilityRegistryReplacementFixture(),
     capabilityRegistry: createZavorthNativeCapabilityRegistryFixture(),
-    dashboardViewModelRegistry: normalizeZavorthNativeDashboardViewModelRegistryFixture(),
-    dashboardRegistry: createZavorthNativeDashboardViewModelRegistryFixture(),
+    zavorthControlViewModelRegistry: normalizeZavorthNativeZavorthControlViewModelRegistryFixture(),
+    zavorthControlRegistry: createZavorthNativeZavorthControlViewModelRegistryFixture(),
     nativeIntegrationRegistry: normalizeZavorthNativeIntegrationRegistryFixture(),
     integrationRegistry: createZavorthNativeIntegrationRegistryFixture(),
     nativeSessionHistoryRegistry: normalizeZavorthNativeSessionHistoryRegistryFixture(),
@@ -1076,7 +1076,7 @@ export function normalizeZavorthNativeConfigStateRegistry<TRuntimeId extends str
   options: ZavorthNativeConfigStateRegistryOptions<TRuntimeId>,
 ): ZavorthNativeConfigStateRegistryNormalization {
   const registry = buildSnapshot(options);
-  const projection = dashboardProjection(registry.records);
+  const projection = zavorthControlProjection(registry.records);
   const gate = executionGate();
   const ready = sourceReady(options.source) &&
     registry.records.length >= 12 &&
@@ -1110,18 +1110,18 @@ export function normalizeZavorthNativeConfigStateRegistry<TRuntimeId extends str
       dryRunMigrationPlan: options.source.dryRunPlanStatus,
       rollbackRestoreRehearsal: options.source.rollbackRehearsalStatus,
       nativeCapabilityRegistry: options.source.nativeCapabilityRegistry.decision,
-      dashboardViewModelRegistry: options.source.dashboardViewModelRegistry.decision,
+      zavorthControlViewModelRegistry: options.source.zavorthControlViewModelRegistry.decision,
       nativeIntegrationRegistry: options.source.nativeIntegrationRegistry.decision,
       nativeSessionHistoryRegistry: options.source.nativeSessionHistoryRegistry.decision,
     },
     registry,
-    dashboardProjection: projection,
+    zavorthControlProjection: projection,
     integration: {
       nativeContract: 'ZavorthNativeConfigStateRegistryIntegration/v1',
       capabilityRegistryCrossReferenceReady: true,
       integrationRegistryCrossReferenceReady: true,
       sessionRegistryCrossReferenceReady: true,
-      dashboardProjectionReady: true,
+      zavorthControlProjectionReady: true,
       migrationDryRunOnly: true,
       rollbackMetadataPreserved: true,
       secretRefsMetadataOnly: true,

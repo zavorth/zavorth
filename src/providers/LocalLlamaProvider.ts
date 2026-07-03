@@ -10,6 +10,56 @@ export interface LocalLlamaProviderOptions {
     startTimeoutMs?: number;
 }
 
+interface ContentPartText {
+    type: 'text';
+    text: string;
+}
+
+interface ContentPartImage {
+    type: 'image_url';
+    image_url: {
+        url: string;
+    };
+}
+
+type ContentPart = ContentPartText | ContentPartImage;
+
+interface LocalLlamaMessageBody {
+    role: 'user' | 'assistant' | 'system' | 'tool';
+    content: string | ContentPart[];
+    tool_call_id?: string;
+    tool_calls?: Array<{
+        id: string;
+        type: 'function';
+        function: { name: string; arguments: string };
+    }>;
+}
+
+interface LocalLlamaRequestBody {
+    model: string;
+    messages: LocalLlamaMessageBody[];
+    temperature: number;
+    keep_alive: string;
+    format: string;
+}
+
+interface LocalLlamaMessageResponse {
+    content: string | null;
+    tool_calls?: Array<{
+        id: string;
+        function: { name: string; arguments: string };
+    }>;
+}
+
+interface LocalLlamaChoice {
+    message: LocalLlamaMessageResponse;
+    finish_reason: string | null;
+}
+
+interface LocalLlamaResponseData {
+    choices: LocalLlamaChoice[];
+}
+
 export class LocalLlamaProvider implements ILlmProvider {
     public readonly name = 'local-llama-cpp';
     private baseUrl: string;
@@ -57,29 +107,30 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
             }
         }
 
-        const payload: any = {
+        const payload: LocalLlamaRequestBody = {
             model: modelInfo,
             messages: localMessages.map(m => {
-                let finalContent: any = m.content || '';
-                
+                let finalContent: string | ContentPart[] = m.content || '';
+
                 if (m.inlineData && m.inlineData.length > 0) {
-                    finalContent = [
+                    const parts: ContentPart[] = [
                         { type: 'text', text: m.content || '' },
                         ...m.inlineData
                             .filter(media => media.mimeType.startsWith('image/'))
                             .map(media => ({
-                                type: 'image_url',
+                                type: 'image_url' as const,
                                 image_url: {
                                     url: `data:${media.mimeType};base64,${media.data}`
                                 }
                             }))
                     ];
                     if (m.inlineData.some(media => media.mimeType.startsWith('audio/'))) {
-                        finalContent.push({
+                        parts.push({
                             type: 'text',
                             text: '[Audio anexado omitido no provider local: use Gemini/OpenAI-compatible multimodal para analise nativa de audio.]'
                         });
                     }
+                    finalContent = parts;
                 }
 
                 return {
@@ -88,7 +139,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
                     ...(m.toolCallId && { tool_call_id: m.toolCallId }),
                     ...(m.toolCalls && { tool_calls: m.toolCalls.map(tc => ({
                         id: tc.id,
-                        type: 'function',
+                        type: 'function' as const,
                         function: {
                             name: tc.name,
                             arguments: JSON.stringify(tc.arguments)
@@ -98,10 +149,10 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
             }),
             temperature: 0.1,
             keep_alive: this.keepAlive,
-            format: 'json' // Força o modelo a responder em JSON para facilitar o parse das tool calls
+            format: 'json' // Forces the model to respond in JSON to ease tool call parsing
         };
 
-        // Somente enviamos o campo "tools" se soubermos que o modelo suporta (fallback via prompt é mais seguro para modelos 2B)
+        // We only send the "tools" field if we know the model supports it (prompt fallback is safer for 2B models)
         // Mas para manter a compatibilidade com modelos que suportam (como llama3.1), podemos tentar.
         // Se falhar (400), o código abaixo já lida com o erro ou podemos remover esta parte:
         // payload.tools = ...
@@ -122,7 +173,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
                 throw new Error(`LLM Error: [${res.status}] ${errText}`);
             }
 
-            const data = await readSafeJsonResponse<any>(res, 'Local Llama provider');
+            const data = await readSafeJsonResponse<LocalLlamaResponseData>(res, 'Local Llama provider');
             const choice = data.choices[0];
             const message = choice.message;
 
@@ -157,8 +208,9 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
                 toolCalls,
                 finishReason: choice.finish_reason || 'stop'
             };
-        } catch (error: any) {
-             throw new Error(`Failure in local llama.cpp provider (${this.baseUrl}): ${error.message}`);
+        } catch (error: unknown) {
+             const message = error instanceof Error ? error.message : String(error);
+             throw new Error(`Failure in local llama.cpp provider (${this.baseUrl}): ${message}`);
         }
     }
 

@@ -49,7 +49,7 @@ export type CapabilityAutopilotReleaseExecutionOptions = {
   smokeReceiptId?: string | null;
   rollbackCheckpointId?: string | null;
   rollbackDryRunReceiptId?: string | null;
-  observabilityDashboardId?: string | null;
+  observabilityZavorthControlId?: string | null;
   incidentCommanderId?: string | null;
   supportBridgeId?: string | null;
   auditReceiptId?: string | null;
@@ -112,7 +112,7 @@ export type CapabilityAutopilotReleaseExecutionSnapshot = {
     rollbackDryRunPassed: boolean;
     rollbackDryRunReceiptId: string | null;
     observabilityLive: boolean;
-    observabilityDashboardId: string | null;
+    observabilityZavorthControlId: string | null;
     incidentCommanderAssigned: boolean;
     incidentCommanderId: string | null;
     supportBridgeReady: boolean;
@@ -257,7 +257,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
         rollbackDryRunPassed: resolved.rollbackDryRunPassed,
         rollbackDryRunReceiptId: options.rollbackDryRunReceiptId || null,
         observabilityLive: resolved.observabilityLive,
-        observabilityDashboardId: options.observabilityDashboardId || null,
+        observabilityZavorthControlId: options.observabilityZavorthControlId || null,
         incidentCommanderAssigned: resolved.incidentCommanderAssigned,
         incidentCommanderId: options.incidentCommanderId || null,
         supportBridgeReady: resolved.supportBridgeReady,
@@ -564,7 +564,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
           options.auditSinkReady
           ? 'pass'
           : 'fail',
-        'Execucao exige checkpoint, rollback dry-run, dashboards, incident commander, suporte e audit sink.',
+        'Execucao exige checkpoint, rollback dry-run, zavorthControls, incident commander, suporte e audit sink.',
         [
           `rollbackCheckpointReady=${options.rollbackCheckpointReady}`,
           `rollbackDryRunPassed=${options.rollbackDryRunPassed}`,

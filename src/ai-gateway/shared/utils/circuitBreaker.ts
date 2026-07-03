@@ -278,7 +278,7 @@ export function getCircuitBreaker(name: string, options?: CircuitBreakerOptions)
 }
 
 /**
- * Get all circuit breaker statuses (for monitoring dashboard).
+ * Get all circuit breaker statuses (for monitoring zavorthControl).
  * @returns {Array<{ name: string, state: string, failureCount: number }>}
  */
 export function getAllCircuitBreakerStatuses() {

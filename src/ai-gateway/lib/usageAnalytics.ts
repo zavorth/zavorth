@@ -1,7 +1,7 @@
 /**
- * Usage Analytics — Aggregation functions for the analytics dashboard
+ * Usage Analytics — Aggregation functions for the analytics zavorthControl
  *
- * Processes usage.json history entries into dashboard-ready data:
+ * Processes usage.json history entries into zavorthControl-ready data:
  * summary cards, daily trends, activity heatmap, model breakdown, etc.
  */
 

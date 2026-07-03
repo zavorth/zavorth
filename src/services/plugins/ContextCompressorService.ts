@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs';
 import path from 'path';
 
@@ -18,8 +17,8 @@ export interface CompressedContext {
   compression_ratio: number;
   summary: string;
   key_facts: string[];
-  preserved_turns: conversationTurn[];
-  archived_turns: conversationTurn[];
+  preserved_turns: ConversationTurn[];
+  archived_turns: ConversationTurn[];
 }
 
 export interface CompressionStrategy {
@@ -96,7 +95,7 @@ export class ContextCompressorService {
     });
   }
 
-  public compress(turns: conversationTurn[], strategyName: string = 'balanced'): CompressedContext {
+  public compress(turns: ConversationTurn[], strategyName: string = 'balanced'): CompressedContext {
     const strategy = this.strategies.get(strategyName) || this.strategies.get('balanced')!;
     const originalTokens = this.estimateTokens(turns);
 
@@ -120,7 +119,7 @@ export class ContextCompressorService {
     const keyFacts = strategy.extract_facts ? this.extractFacts(oldTurns) : [];
     const summary = strategy.summarize_old ? this.generateSummary(oldTurns) : '';
 
-    const preservedTurns: conversationTurn[] = [];
+    const preservedTurns: ConversationTurn[] = [];
 
     if (summary) {
       preservedTurns.push({
@@ -165,7 +164,7 @@ export class ContextCompressorService {
     };
   }
 
-  public compressForProvider(turns: conversationTurn[], providerMaxTokens: number): CompressedContext {
+  public compressForProvider(turns: ConversationTurn[], providerMaxTokens: number): CompressedContext {
     const totalTokens = this.estimateTokens(turns);
 
     if (totalTokens <= providerMaxTokens * 0.7) {
@@ -177,7 +176,7 @@ export class ContextCompressorService {
     return this.compress(turns, 'aggressive');
   }
 
-  private extractFacts(turns: conversationTurn[]): string[] {
+  private extractFacts(turns: ConversationTurn[]): string[] {
     const facts: string[] = [];
     for (const turn of turns) {
       if (turn.role !== 'user' && turn.role !== 'assistant') continue;
@@ -206,7 +205,7 @@ export class ContextCompressorService {
     return [...new Set(facts)].slice(0, 20);
   }
 
-  private generateSummary(turns: conversationTurn[]): string {
+  private generateSummary(turns: ConversationTurn[]): string {
     const userTurns = turns.filter((t) => t.role === 'user');
     const assistantTurns = turns.filter((t) => t.role === 'assistant');
     const toolCalls = turns.flatMap((t) => t.tool_calls || []);
@@ -224,7 +223,7 @@ export class ContextCompressorService {
     ].join(' ');
   }
 
-  private estimateTokens(turns: conversationTurn[]): number {
+  private estimateTokens(turns: ConversationTurn[]): number {
     let totalChars = 0;
     for (const turn of turns) {
       totalChars += turn.content.length;
@@ -241,6 +240,18 @@ export class ContextCompressorService {
       lines.push(`  ${name}: ${s.description} (max_turns:${s.max_turns} max_tokens:${s.max_tokens} preserve_recent:${s.preserve_recent})`);
     }
     return lines.join('\n');
+  }
+
+  public getStrategy(strategyName: string): string {
+    const strategy = this.strategies.get(strategyName);
+    if (!strategy) return `Strategy "${strategyName}" not found.`;
+    return [
+      `Strategy: ${strategy.name}`,
+      `  Description: ${strategy.description}`,
+      `  Max turns: ${strategy.max_turns}`,
+      `  Max tokens: ${strategy.max_tokens}`,
+      `  Preserve recent: ${strategy.preserve_recent}`,
+    ].join('\n');
   }
 
   public getStats(): string {

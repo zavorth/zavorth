@@ -84,7 +84,7 @@ export type MemoryWithReceiptsSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     sourceQuestionHint: string;
   };
   nextSafeAction: string;
@@ -344,7 +344,7 @@ export class MemoryWithReceiptsService {
       },
       surface: {
         cliCommand: `zavorth memory receipts run ${input.run.id} --json`,
-        dashboardPath: '/dashboard?sector=dreams',
+        zavorthControlPath: '/zavorthControl?sector=dreams',
         sourceQuestionHint: 'Pergunte "de onde voce tirou isso?" para listar estes receipts.',
       },
       nextSafeAction: this.nextSafeAction(receipts),

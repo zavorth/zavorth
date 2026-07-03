@@ -2,6 +2,22 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface NextcloudTalkWebhookPayload {
+  user_id?: string;
+  actorId?: string;
+  userId?: string;
+  token?: string;
+  roomToken?: string;
+  chatId?: string;
+  message?: string;
+  text?: string;
+  rawText?: string;
+  messageId?: string;
+  id?: string;
+  roomName?: string;
+  messageType?: string;
+}
+
 export class NextcloudTalkGateway extends WebhookGateway {
   public readonly id = 'nextcloud-talk';
   public readonly name = 'Nextcloud Talk';
@@ -51,27 +67,28 @@ export class NextcloudTalkGateway extends WebhookGateway {
     isGroup?: boolean;
     fields?: Record<string, unknown>;
   } | null {
+    const payload = webhookPayload as NextcloudTalkWebhookPayload;
     const userId = String(
-      (webhookPayload as any).user_id
-      || (webhookPayload as any).actorId
-      || (webhookPayload as any).userId
+      payload.user_id
+      || payload.actorId
+      || payload.userId
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).token
-      || (webhookPayload as any).roomToken
-      || (webhookPayload as any).chatId
+      payload.token
+      || payload.roomToken
+      || payload.chatId
       || 'nextcloud-talk',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).message
-      || (webhookPayload as any).text
-      || (webhookPayload as any).rawText
+      payload.message
+      || payload.text
+      || payload.rawText
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).messageId
-      || (webhookPayload as any).id
+      payload.messageId
+      || payload.id
       || '',
     ).trim() || null;
 
@@ -86,8 +103,8 @@ export class NextcloudTalkGateway extends WebhookGateway {
       messageId,
       isGroup: true,
       fields: {
-        roomName: String((webhookPayload as any).roomName || ''),
-        messageType: String((webhookPayload as any).messageType || 'comment'),
+        roomName: String(payload.roomName || ''),
+        messageType: String(payload.messageType || 'comment'),
       },
     };
   }
@@ -113,8 +130,9 @@ export class NextcloudTalkGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`Nextcloud Talk send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.recordError(`Nextcloud Talk send failed: ${errorMessage}`);
     }
   }
 }

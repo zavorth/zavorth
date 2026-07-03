@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context, InlineKeyboard } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
@@ -9,6 +8,7 @@ import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import { TaskResponseEnvelopeService } from '../../../../services/TaskResponseEnvelopeService.js';
+import { logger } from '../logger.js';
 
 type ExecuteTaskFn = (task: Task, isDryRun: boolean) => Promise<{ output: string; success: boolean }>;
 type CaptureExecutionEnvelopeFn = (task: Task, userFacingText: string, success: boolean) => void;
@@ -70,7 +70,7 @@ export class TelegramExecutionLifecycleService {
         execution_success: success,
         execution_summary: success ? 'Execucao concluida com sucesso' : 'Execucao falhou',
         metadata: { dry_run: isDryRun },
-      }).catch(() => {});
+      }).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
       if (task.status === 'waiting_approval' && task.metadata?.pendingPermissionId) {
         const permission = await this.deps.permissionService.getRequest(String(task.metadata.pendingPermissionId));
@@ -89,11 +89,12 @@ export class TelegramExecutionLifecycleService {
       if (!StateMachine.isTerminal(task.status)) {
         this.deps.taskManager.advanceState(task, 'failed');
       }
-      task.error_summary = error.message;
+      const message = error instanceof Error ? error.message : String(error);
+      task.error_summary = message;
       this.deps.persistTask(task);
-      this.deps.auditLogger.logSecurityBlock(task.task_id, `Execucao falhou: ${error.message}`).catch(() => {});
-      const userFacingText = `Nao consegui executar essa tarefa agora.\n\nMotivo: ${error.message}`;
-      const operationalText = TaskResponseEnvelopeService.buildPreparationFailure(task, error.message);
+      this.deps.auditLogger.logSecurityBlock(task.task_id, `Execucao falhou: ${message}`).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      const userFacingText = `Nao consegui executar essa tarefa agora.\n\nMotivo: ${message}`;
+      const operationalText = TaskResponseEnvelopeService.buildPreparationFailure(task, message);
       TaskResponseEnvelopeService.capture(task, 'preparation_failure', userFacingText, operationalText);
       this.deps.persistTask(task);
       this.deps.logRepo.log('error', 'ResponseEnvelope', operationalText, {

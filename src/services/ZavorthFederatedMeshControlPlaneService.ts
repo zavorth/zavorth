@@ -17,6 +17,7 @@ import type {
 import {
   ZavorthDistributedRuntimeControlPlaneService,
   type ZavorthDistributedRuntimeSnapshot,
+  type AsyncSnapshotLike,
 } from './ZavorthDistributedRuntimeControlPlaneService.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
 import { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';
@@ -289,7 +290,7 @@ export class ZavorthFederatedMeshControlPlaneService {
     this.capabilityService = runtime.capabilityService || new NodeCapabilityService();
     this.distributedRuntimeService = runtime.distributedRuntimeService || new ZavorthDistributedRuntimeControlPlaneService({
       now: this.now,
-      nodeMeshService: this.nodeMeshService as any,
+      nodeMeshService: this.nodeMeshService as AsyncSnapshotLike,
     });
     this.mutationPlaneService = runtime.mutationPlaneService || new ZavorthMutationPlaneService();
     this.trustDecisionService = runtime.trustDecisionService || new TrustDecisionService();

@@ -11,7 +11,7 @@ import { isAuthenticated } from "@/shared/utils/apiAuth";
 import { getOpenRouterCatalog, refreshOpenRouterCatalog } from "@/lib/catalog/openrouterCatalog";
 
 export async function GET(req: NextRequest) {
-  // Require authentication (dashboard/API key)
+  // Require authentication (zavorthControl/API key)
   if (!(await isAuthenticated(req))) {
     return NextResponse.json(
       { error: { message: "Authentication required", type: "invalid_request_error" } },

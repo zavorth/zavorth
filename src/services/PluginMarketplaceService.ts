@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { logger } from '../logger.js';
+
 export type PluginCategory =
   | 'development'
   | 'productivity'
@@ -134,8 +136,9 @@ export class PluginMarketplaceService {
           this.plugins.set(plugin.id, plugin);
         }
       }
-    } catch {
-      // Start with empty catalog on read failure
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.warn(`[PluginMarketplace] Failed to load plugins catalog: ${message}`);
     }
 
     try {
@@ -148,8 +151,9 @@ export class PluginMarketplaceService {
           this.reviews.set(review.pluginId, list);
         }
       }
-    } catch {
-      // Start with empty reviews on read failure
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.warn(`[PluginMarketplace] Failed to load reviews: ${message}`);
     }
   }
 
@@ -164,8 +168,9 @@ export class PluginMarketplaceService {
         for (const r of list) allReviews.push(r);
       });
       fs.writeFileSync(reviewsFile, JSON.stringify(allReviews, null, 2), 'utf-8');
-    } catch {
-      // Silent persistence failure
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error(`[PluginMarketplace] Failed to persist marketplace data: ${message}`);
     }
   }
 

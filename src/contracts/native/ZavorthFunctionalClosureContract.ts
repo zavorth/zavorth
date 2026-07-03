@@ -50,10 +50,10 @@ export type ZavorthFunctionalClosureItem = {
   sourceSummary: Record<string, unknown>;
 };
 
-export type ZavorthFunctionalClosureDashboardSnapshot = {
+export type ZavorthFunctionalClosureZavorthControlSnapshot = {
   status: ZavorthFunctionalClosureItemStatus;
   generatedAt: string;
-  title: 'Zavorth Functional Closure Dashboard';
+  title: 'Zavorth Functional Closure ZavorthControl';
   categoryRows: Array<{
     category: string;
     phase: number;
@@ -144,7 +144,7 @@ export type ZavorthFunctionalClosureSnapshot = {
   };
   items: ZavorthFunctionalClosureItem[];
   receipts: ZavorthFunctionalClosureReceipt[];
-  dashboard: ZavorthFunctionalClosureDashboardSnapshot;
+  zavorthControl: ZavorthFunctionalClosureZavorthControlSnapshot;
   ledgerDecisionUpdater: ZavorthLedgerDecisionUpdaterSnapshot;
   releaseGate: ZavorthFunctionalReleaseGateSnapshot;
   summary: {
@@ -186,4 +186,4 @@ export type ZavorthFunctionalClosureSnapshot = {
   };
 };
 
-export type ZavorthFunctionalClosureZavorthControlSnapshot = ZavorthFunctionalClosureDashboardSnapshot;
+export type ZavorthFunctionalClosureZavorthControlSnapshot = ZavorthFunctionalClosureZavorthControlSnapshot;

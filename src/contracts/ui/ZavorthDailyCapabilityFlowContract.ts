@@ -31,7 +31,7 @@ export type ZavorthDailyCapabilityFlowMcpItem = {
   reviewCommand: string;
 };
 
-export type ZavorthDailyCapabilityFlowDashboardCard = {
+export type ZavorthDailyCapabilityFlowZavorthControlCard = {
   id:
     | 'improve-behavior'
     | 'memory-learning'
@@ -92,10 +92,10 @@ export type ZavorthDailyCapabilityFlowSnapshot = {
     commands: string[];
     summary: string;
   };
-  dashboardProjection: {
+  zavorthControlProjection: {
     route: '/control';
     renderMode: 'daily-capability-flow';
-    cards: ZavorthDailyCapabilityFlowDashboardCard[];
+    cards: ZavorthDailyCapabilityFlowZavorthControlCard[];
     safety: {
       projectionOnly: true;
       rawSecretsSerialized: false;

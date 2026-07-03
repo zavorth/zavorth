@@ -17,7 +17,7 @@ export class WebRuntimeChannelAdapter implements ChannelAdapterContract {
   ) {}
 
   public describe(): ChannelAdapterStatus {
-    const notes = ['Canal web local do Zavorth sempre disponivel no dashboard e no app remoto.'];
+    const notes = ['Canal web local do Zavorth sempre disponivel no zavorthControl e no app remoto.'];
     if (this.hasDispatcher && this.canSpawnWeb) {
       notes.push('Runtime web anexado ao gateway com session plane e approvals ativos.');
     }
@@ -1056,7 +1056,7 @@ export class EmailRuntimeChannelAdapter implements ChannelAdapterContract {
 }
 
 function buildConnection(
-  status: any,
+  status: Record<string, unknown> | null,
   fallback: {
     running: boolean;
     linked: boolean;

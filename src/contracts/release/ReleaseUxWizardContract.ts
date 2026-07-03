@@ -132,5 +132,5 @@ export const RELEASE_UX_CONTRACTS = [
   'Rollback sempre exige preflight, evidencia, risco e confirmacao; preview nunca executa troca de release.',
   'Diff humano deve existir mesmo quando o historico real ainda estiver frio, com estado degradado em vez de falso sucesso.',
   'Changelog operacional usa publish history e telemetry summaries; payload bruto, token e secret nao entram na primeira camada.',
-  'A Dashboard deve expor readiness, diff, rollback e changelog com comandos copiaveis.',
+  'A ZavorthControl deve expor readiness, diff, rollback e changelog com comandos copiaveis.',
 ];

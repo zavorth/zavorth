@@ -15,7 +15,7 @@ export type BotGatewaySupportState = {
   telegramGatewayHandlerRegistrar?: TelegramGatewayHandlerRegistrar | null;
   supervisedRuntimeNotificationTimer: ReturnType<typeof setInterval> | null;
   supervisedRuntimeNotificationFlushInFlight: boolean;
-  dashboardSurfaceStarted: boolean;
+  zavorthControlSurfaceStarted: boolean;
 };
 
 export type BotGatewaySupportRuntime = {
@@ -82,7 +82,7 @@ export type BotGatewaySupportRuntime = {
   dailyReportService: {
     start: (broadcast: (message: string, roles?: string[]) => Promise<void>) => void;
   };
-  dashboardService: {
+  zavorthControlService: {
     start: () => Promise<any>;
     getUrl: () => string;
   };

@@ -34,7 +34,7 @@ export type ExperienceJourneyKind =
   | 'approval'
   | 'memory'
   | 'learning'
-  | 'dashboard'
+  | 'zavorthControl'
   | 'diagnostics'
   | 'release'
   | 'automation';
@@ -57,7 +57,7 @@ export type ExperienceResponseProfileId = 'short' | 'dev' | 'executive' | 'mento
 export type ExperienceCommandIntent =
   | 'ask'
   | 'run'
-  | 'open-dashboard'
+  | 'open-zavorthControl'
   | 'diagnose'
   | 'approve'
   | 'reject'
@@ -342,7 +342,7 @@ export type ExperienceContextRecovery = {
     totalOptions: number;
     shownOptions: number;
     hasOverflow: boolean;
-    dashboardCommand: string;
+    zavorthControlCommand: string;
   };
 };
 

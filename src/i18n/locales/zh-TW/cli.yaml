@@ -1,0 +1,29 @@
+help: 顯示說明
+version: 顯示版本
+commands: 命令
+options: 選項
+usage: 用法
+examples: 範例
+arguments: 引數
+flags: 旗標
+verbose: 啟用詳細輸出
+quiet: 啟用靜默模式
+debug: 啟用偵錯模式
+no_color: 停用彩色輸出
+config: 設定檔路徑
+output: 輸出檔案路徑
+format: 輸出格式
+json: 以 JSON 格式輸出
+yaml: 以 YAML 格式輸出
+table: 以表格格式輸出
+list: 列出可用命令
+init: 初始化新專案
+build: 建構專案
+test: 執行測試
+lint: 執行程式碼檢查
+clean: 清除建構產物
+deploy: 部署專案
+start_server: 啟動伺服器
+stop_server: 停止伺服器
+status: 顯示狀態
+logs: 顯示日誌

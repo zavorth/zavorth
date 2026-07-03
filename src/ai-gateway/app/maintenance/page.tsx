@@ -42,10 +42,10 @@ export default function MaintenancePage() {
             View System Status
           </Link>
           <Link
-            href="/dashboard/health"
+            href="/zavorthControl/health"
             className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-sm font-semibold border border-border hover:bg-bg-alt transition-colors duration-200 motion-reduce:transition-none"
           >
-            Open Health Dashboard
+            Open Health ZavorthControl
           </Link>
         </div>
       </section>

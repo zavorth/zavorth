@@ -14,7 +14,7 @@ import type {
   ZavorthDoctorPremiumStatus,
 } from './ZavorthDoctorPremiumTypes.js';
 import { RuntimeBootstrapRepairService } from '../../runtime/access/RuntimeBootstrapRepairService.js';
-import { DashboardAccessService } from '../../services/DashboardAccessService.js';
+import { ZavorthControlAccessService } from '../../services/ZavorthControlAccessService.js';
 
 export type RunZavorthDoctorPremiumInput = {
   projectRoot: string;
@@ -53,12 +53,12 @@ export function runZavorthDoctorPremium(input: RunZavorthDoctorPremiumInput): {
     const initialSnapshot = buildZavorthDoctorPremiumSnapshot({ projectRoot: input.projectRoot });
     const gatewayCheck = initialSnapshot.checks.find(c => c.id === 'gateway');
     if (gatewayCheck && gatewayCheck.status !== 'pass') {
-      const dashboardService = new DashboardAccessService();
+      const zavorthControlService = new ZavorthControlAccessService();
       if (dryRun) {
-        logBuffer += `[zavorth-ops] Step: Repair local dashboard token | Status: skipped | Dry-run: token repair planned\n`;
+        logBuffer += `[zavorth-ops] Step: Repair local zavorthControl token | Status: skipped | Dry-run: token repair planned\n`;
       } else {
-        const repairResult = dashboardService.repair();
-        logBuffer += `[zavorth-ops] Step: Repair local dashboard token | Status: ${repairResult.ok ? 'executed' : 'failed'}\n`;
+        const repairResult = zavorthControlService.repair();
+        logBuffer += `[zavorth-ops] Step: Repair local zavorthControl token | Status: ${repairResult.ok ? 'executed' : 'failed'}\n`;
         for (const note of repairResult.notes) {
           logBuffer += `  Note: ${note}\n`;
         }

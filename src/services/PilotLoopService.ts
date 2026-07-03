@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
-  PILOT_DASHBOARD_METRICS,
+  PILOT_ZAVORTH_CONTROL_METRICS,
   PILOT_FEEDBACK_TEMPLATES,
   PILOT_LEDGER_ENTRIES,
   PILOT_LOOP_FORBIDDEN_CLAIMS,
@@ -27,7 +27,7 @@ export type PilotLoopServiceOptions = {
   artifactDir?: string;
   feedbackPreviewPath?: string;
   pilotLedgerPath?: string;
-  dashboardPath?: string;
+  zavorthControlPath?: string;
   requireArtifacts?: boolean;
   files?: Record<string, string>;
   existsSync?: (targetPath: string) => boolean;
@@ -41,7 +41,7 @@ export class PilotLoopService {
   private readonly artifactDir: string;
   private readonly feedbackPreviewPath: string;
   private readonly pilotLedgerPath: string;
-  private readonly dashboardPath: string;
+  private readonly zavorthControlPath: string;
   private readonly requireArtifacts: boolean;
   private readonly files: Record<string, string>;
   private readonly existsSync: (targetPath: string) => boolean;
@@ -54,7 +54,7 @@ export class PilotLoopService {
     this.artifactDir = options.artifactDir || path.join(this.projectRoot, '.qa', 'pilot-loop');
     this.feedbackPreviewPath = options.feedbackPreviewPath || path.join(this.artifactDir, 'feedback-preview-redacted.json');
     this.pilotLedgerPath = options.pilotLedgerPath || path.join(this.artifactDir, 'pilot-ledger.json');
-    this.dashboardPath = options.dashboardPath || path.join(this.artifactDir, 'support-dashboard.json');
+    this.zavorthControlPath = options.zavorthControlPath || path.join(this.artifactDir, 'support-zavorthControl.json');
     this.requireArtifacts = Boolean(options.requireArtifacts);
     this.files = options.files || {};
     this.existsSync = options.existsSync || fs.existsSync;
@@ -73,12 +73,12 @@ export class PilotLoopService {
       this.checkTriageRules(),
       this.checkPilotLedgerContract(),
       this.checkSupportPolicy(),
-      this.checkDashboardMetrics(),
+      this.checkZavorthControlMetrics(),
       this.checkWebsiteAndDocsCoverage(),
       this.checkForbiddenClaims(),
       this.checkFeedbackPreviewArtifact(),
       this.checkPilotLedgerArtifact(),
-      this.checkDashboardArtifact(),
+      this.checkZavorthControlArtifact(),
       this.checkDocsRunbook(),
       this.checkNextPhasePlanning(),
     ];
@@ -103,13 +103,13 @@ export class PilotLoopService {
       artifacts: {
         feedbackPreviewPath: this.feedbackPreviewPath,
         pilotLedgerPath: this.pilotLedgerPath,
-        dashboardPath: this.dashboardPath,
+        zavorthControlPath: this.zavorthControlPath,
       },
       templates: PILOT_FEEDBACK_TEMPLATES,
       triageRules: PILOT_TRIAGE_RULES,
       pilotLedger: PILOT_LEDGER_ENTRIES,
       supportPolicy: PILOT_SUPPORT_POLICY,
-      dashboardMetrics: PILOT_DASHBOARD_METRICS,
+      zavorthControlMetrics: PILOT_ZAVORTH_CONTROL_METRICS,
       checks,
       nextRecommendedPhase: {
         phase: '58',
@@ -339,8 +339,8 @@ export class PilotLoopService {
     );
   }
 
-  private checkDashboardMetrics(): PilotLoopCheck {
-    const issues = PILOT_DASHBOARD_METRICS.flatMap((metric) => {
+  private checkZavorthControlMetrics(): PilotLoopCheck {
+    const issues = PILOT_ZAVORTH_CONTROL_METRICS.flatMap((metric) => {
       const local: string[] = [];
       if (!metric.aggregateOnly) {
         local.push(`${metric.id}: precisa ser agregado`);
@@ -351,12 +351,12 @@ export class PilotLoopService {
       return local;
     });
     return this.check(
-      'pilot-loop:dashboard-metrics',
-      'dashboard agregado sem payload',
+      'pilot-loop:zavorthControl-metrics',
+      'zavorthControl agregado sem payload',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'dashboard usa apenas metricas agregadas e exclui payload sensivel.'
-        : 'dashboard publico nao pode depender de payload bruto.',
+        ? 'zavorthControl usa apenas metricas agregadas e exclui payload sensivel.'
+        : 'zavorthControl publico nao pode depender de payload bruto.',
       'src/contracts/PilotLoopContract.ts',
       issues,
     );
@@ -489,13 +489,13 @@ export class PilotLoopService {
     );
   }
 
-  private checkDashboardArtifact(): PilotLoopCheck {
-    const artifact = this.readArtifactJson(this.dashboardPath, 'support-dashboard.json');
+  private checkZavorthControlArtifact(): PilotLoopCheck {
+    const artifact = this.readArtifactJson(this.zavorthControlPath, 'support-zavorthControl.json');
     if (!artifact) {
       return this.missingArtifactCheck(
-        'pilot-loop:dashboard',
-        'dashboard agregado de suporte',
-        'support-dashboard.json',
+        'pilot-loop:zavorthControl',
+        'zavorthControl agregado de suporte',
+        'support-zavorthControl.json',
       );
     }
     const metrics = Array.isArray(artifact.metrics) ? artifact.metrics as JsonRecord[] : [];
@@ -506,8 +506,8 @@ export class PilotLoopService {
     if (artifact.containsPayload !== false) {
       issues.push('containsPayload precisa ser false');
     }
-    if (metrics.length < PILOT_DASHBOARD_METRICS.length) {
-      issues.push(`metricas insuficientes: ${metrics.length}/${PILOT_DASHBOARD_METRICS.length}`);
+    if (metrics.length < PILOT_ZAVORTH_CONTROL_METRICS.length) {
+      issues.push(`metricas insuficientes: ${metrics.length}/${PILOT_ZAVORTH_CONTROL_METRICS.length}`);
     }
     for (const metric of metrics) {
       if (metric.aggregateOnly !== true || metric.excludesPayload !== true) {
@@ -515,13 +515,13 @@ export class PilotLoopService {
       }
     }
     return this.check(
-      'pilot-loop:dashboard',
-      'dashboard agregado de suporte',
+      'pilot-loop:zavorthControl',
+      'zavorthControl agregado de suporte',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'dashboard agrega sinais sem payload sensivel.'
-        : 'dashboard precisa ser agregado e sem payload.',
-      this.dashboardPath,
+        ? 'zavorthControl agrega sinais sem payload sensivel.'
+        : 'zavorthControl precisa ser agregado e sem payload.',
+      this.zavorthControlPath,
       issues,
     );
   }

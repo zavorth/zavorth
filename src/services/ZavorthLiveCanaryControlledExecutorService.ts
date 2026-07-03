@@ -78,7 +78,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
         noImplicitExecutionFromChecks: true,
         idempotencyKeyRequiredForExecution: true,
         rollbackReceiptRequiredAfterExecution: true,
-        noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         rawSecretsSerialized: false,
       },
       summary,
@@ -346,7 +346,7 @@ function buildReceipts(
       id: 'checkpoint-10-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
-      summary: 'No dashboard visual mutation is performed by controlled executor.',
+      summary: 'No zavorthControl visual mutation is performed by controlled executor.',
     },
   ];
 }

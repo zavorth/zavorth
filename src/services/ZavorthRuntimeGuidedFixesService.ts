@@ -47,8 +47,8 @@ export type ZavorthRuntimeGuidedFixesSnapshot = {
   pending: number;
   fixes: ZavorthRuntimeGuidedFix[];
   primaryFix: ZavorthRuntimeGuidedFix | null;
-  dashboardProjection: {
-    route: '/dashboard';
+  zavorthControlProjection: {
+    route: '/zavorthControl';
     endpoint: '/api/runtime/readiness/fixes';
     renderMode: 'guided-fix-cards';
     executionAuthority: false;
@@ -101,8 +101,8 @@ export class ZavorthRuntimeGuidedFixesService {
       pending: effectiveFixes.filter((fix) => fix.status !== 'ready').length,
       fixes: effectiveFixes,
       primaryFix,
-      dashboardProjection: {
-        route: '/dashboard',
+      zavorthControlProjection: {
+        route: '/zavorthControl',
         endpoint: '/api/runtime/readiness/fixes',
         renderMode: 'guided-fix-cards',
         executionAuthority: false,
@@ -172,21 +172,21 @@ export class ZavorthRuntimeGuidedFixesService {
         risk: 'read_only',
         summary: 'Abre o diagnostico do conector e mostra o que falta sem expor token.',
         command: 'zavorth connectors doctor telegram',
-        route: '/dashboard/providers',
+        route: '/zavorthControl/providers',
         telegramCommand: '/status',
       });
     }
-    if (check.id === 'dashboard') {
+    if (check.id === 'zavorthControl') {
       return fix({
         check,
-        id: 'fix-dashboard',
-        label: 'Reabrir Dashboard',
+        id: 'fix-zavorthControl',
+        label: 'Reabrir ZavorthControl',
         kind: 'run-command',
         risk: 'read_only',
         summary: 'Sobe a superficie local diaria para confirmar que o painel responde.',
         command: 'zavorth go',
-        route: '/dashboard',
-        telegramCommand: '/dashboard',
+        route: '/zavorthControl',
+        telegramCommand: '/zavorthControl',
       });
     }
     if (check.id === 'approvals') {
@@ -198,7 +198,7 @@ export class ZavorthRuntimeGuidedFixesService {
         risk: 'read_only',
         summary: 'Mostra decisoes pendentes; aprovar ou rejeitar ainda passa pelo gateway.',
         command: 'zavorth gateway approvals',
-        route: '/dashboard/logs',
+        route: '/zavorthControl/logs',
         telegramCommand: '/echoapprovals',
       });
     }
@@ -211,7 +211,7 @@ export class ZavorthRuntimeGuidedFixesService {
         risk: 'read_only',
         summary: 'Confirma que transacoes reais continuam travadas ate approval e live gate explicitos.',
         command: 'zavorth transaction-live-executor-gate',
-        route: '/dashboard/health',
+        route: '/zavorthControl/health',
         telegramCommand: '/status',
       });
     }
@@ -224,7 +224,7 @@ export class ZavorthRuntimeGuidedFixesService {
         risk: 'read_only',
         summary: 'Lista fontes externas e garante que nenhuma fonte sem pin entre no runtime.',
         command: 'npx tsx scripts/skills-security-scan.ts',
-        route: '/dashboard/health',
+        route: '/zavorthControl/health',
         telegramCommand: '/status',
       });
     }
@@ -237,7 +237,7 @@ export class ZavorthRuntimeGuidedFixesService {
         risk: 'read_only',
         summary: 'Mostra continuidade e recall sem gravar memoria oculta.',
         command: 'zavorth memory review --json',
-        route: '/dashboard/logs',
+        route: '/zavorthControl/logs',
         telegramCommand: '/status',
       });
     }
@@ -249,7 +249,7 @@ export class ZavorthRuntimeGuidedFixesService {
       risk: 'read_only',
       summary: 'Confirma que texto livre entra pelo gateway e risco vira preview/approval.',
       command: 'zavorth ask-runtime "oi"',
-      route: '/dashboard',
+      route: '/zavorthControl',
       telegramCommand: '/readiness',
     });
   }
@@ -290,7 +290,7 @@ function providerFix(
       risk: 'low',
       summary: `Executa um probe explicito em ${providerId} e salva evidencia sanitaria sem segredo bruto.`,
       command: `zavorth readiness fix provider --live-proof --provider ${providerId}`,
-      route: '/dashboard/providers',
+      route: '/zavorthControl/providers',
       telegramCommand: '/models',
       requiresExplicitOperatorAction: true,
     });
@@ -303,23 +303,23 @@ function providerFix(
     risk: 'read_only',
     summary: 'Mostra quais providers precisam de credencial ou base URL antes de usar LLM real.',
     command: 'zavorth providers',
-    route: '/dashboard/providers',
+    route: '/zavorthControl/providers',
     telegramCommand: '/models',
   });
 }
 
 function readyFix(readiness: ZavorthRuntimeReadinessSnapshot): ZavorthRuntimeGuidedFix {
   return {
-    id: 'open-dashboard-ready',
-    checkId: 'dashboard',
-    label: 'Abrir dashboard',
+    id: 'open-zavorthControl-ready',
+    checkId: 'zavorthControl',
+    label: 'Abrir zavorthControl',
     status: readiness.status,
     kind: 'open-route',
     risk: 'read_only',
-    summary: 'Zavorth esta pronto; abrir o Dashboard e usar normalmente.',
+    summary: 'Zavorth esta pronto; abrir o ZavorthControl e usar normalmente.',
     command: 'zavorth go',
-    route: '/dashboard',
-    telegramCommand: '/dashboard',
+    route: '/zavorthControl',
+    telegramCommand: '/zavorthControl',
     requiresExplicitOperatorAction: false,
     requiresApproval: false,
     canRunFromCli: true,

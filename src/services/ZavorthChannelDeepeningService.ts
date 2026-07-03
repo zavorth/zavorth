@@ -44,7 +44,7 @@ const CORE_OUTBOX = 'data/channel-outbox';
 
 const CHANNELS: Descriptor[] = [
   internal('cli', 'Terminal CLI', ['terminal']),
-  internal('web', 'Dashboard Web', ['dashboard', 'control']),
+  internal('web', 'ZavorthControl Web', ['zavorthControl', 'control']),
   internal('api', 'Runtime API', ['http']),
   bot('telegram', 'Telegram', {
     requiredEnvKeys: ['TELEGRAM_BOT_TOKEN'],

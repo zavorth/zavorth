@@ -16,13 +16,13 @@ const DEFAULT_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const MODEL_SYNC_SETTING_KEY = "model_sync_last_run";
 const MODEL_SYNC_INTERNAL_AUTH_HEADER = "x-model-sync-internal-auth";
 
-const { dashboardPort } = getRuntimePorts();
+const { zavorthControlPort } = getRuntimePorts();
 
 const INTERNAL_BASE_URL =
   process.env.BASE_URL ||
   process.env.NEXT_PUBLIC_BASE_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
-  `http://localhost:${dashboardPort}`;
+  `http://localhost:${zavorthControlPort}`;
 
 const globalState = globalThis as typeof globalThis & {
   __ZavorthGatewayModelSyncInternalAuthToken?: string;

@@ -210,7 +210,7 @@ export class IdentityContainmentService {
       status: 'legacy-active',
       nativeReplacement: '/external-executor/ or /execution/',
       migrationRisk: 2,
-      notes: 'Dashboard-internal routes. Rename with redirects when the matching UI moves.',
+      notes: 'ZavorthControl-internal routes. Rename with redirects when the matching UI moves.',
       zone: 'compatibility-quarantine',
     });
 

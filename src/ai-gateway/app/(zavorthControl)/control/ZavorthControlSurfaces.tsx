@@ -55,8 +55,8 @@ function Action({ title, detail, prompt, sector, className, status }: ActionProp
     <button
       className={className}
       type="button"
-      data-dashboard-prompt={prompt}
-      data-dashboard-sector={sector}
+      data-zavorthControl-prompt={prompt}
+      data-zavorthControl-sector={sector}
       data-skill-status={status}
       data-skill-row={status ? "" : undefined}
       data-skill-search-text={status ? `${title} ${detail}`.toLowerCase() : undefined}
@@ -123,7 +123,7 @@ export function WorkSurface() {
       title="Current work"
       subtitle="See what Zavorth is doing now, what needs a decision, and the safest next step."
       actions={
-        <button className="operator-primary-action" type="button" data-dashboard-sector="terminal">
+        <button className="operator-primary-action" type="button" data-zavorthControl-sector="terminal">
           Open chat
         </button>
       }
@@ -132,9 +132,9 @@ export function WorkSurface() {
         <section className="work-simple-panel work-simple-panel--main">
           <span className="platform-section-title">Current task</span>
           <div className="work-current-task">
-            <strong data-dashboard-runtime-title>No task running</strong>
-            <p data-dashboard-runtime-text>Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.</p>
-            <button type="button" data-dashboard-sector="terminal">Ask Zavorth</button>
+            <strong data-zavorthControl-runtime-title>No task running</strong>
+            <p data-zavorthControl-runtime-text>Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.</p>
+            <button type="button" data-zavorthControl-sector="terminal">Ask Zavorth</button>
           </div>
           <div className="work-now-strip" aria-label="Current runtime facts">
             <span><strong data-live-runtime-state>Runtime</strong><small data-live-runtime-detail>Checking access</small></span>
@@ -151,8 +151,8 @@ export function WorkSurface() {
         <section className="work-simple-panel">
           <span className="platform-section-title">Needs attention</span>
           <div className="work-decision-empty">
-            <strong data-dashboard-approval-title>No pending approvals</strong>
-            <p data-dashboard-approval-text>When Zavorth needs a decision, it appears here with approve, deny, or adjust scope.</p>
+            <strong data-zavorthControl-approval-title>No pending approvals</strong>
+            <p data-zavorthControl-approval-text>When Zavorth needs a decision, it appears here with approve, deny, or adjust scope.</p>
           </div>
         </section>
 
@@ -160,7 +160,7 @@ export function WorkSurface() {
           <span className="platform-section-title">State</span>
           <div className="work-compact-status">
             <Status label="Engine" value={<span data-runtime-engine-active>Lite</span>} tone="info" />
-            <Status label="Dashboard" value="online" tone="ok" />
+            <Status label="ZavorthControl" value="online" tone="ok" />
             <Status label="Goal Loop" value={<span data-goal-loop-status>idle</span>} tone="info" />
             <Status label="Sensitive actions" value="approval gated" tone="ok" />
           </div>
@@ -177,7 +177,7 @@ export function CanvasSurface() {
       eyebrow="Canvas"
       title="Sandbox preview first."
       subtitle="Review attempts, diffs and blocked network calls before anything is applied to your workspace."
-      actions={<button className="operator-primary-action" type="button" data-dashboard-prompt="Open Z-Canvas for the current request and show preview, diff, logs and risks before applying anything.">Use Canvas</button>}
+      actions={<button className="operator-primary-action" type="button" data-zavorthControl-prompt="Open Z-Canvas for the current request and show preview, diff, logs and risks before applying anything.">Use Canvas</button>}
     >
       <section className="z-canvas-shell" data-canvas-root>
         <div className="z-canvas-loading">Starting sandbox preview...</div>
@@ -193,7 +193,7 @@ export function MemorySurface() {
       eyebrow="Memory"
       title="Zavorth memory"
       subtitle="Control what Zavorth may remember, which files it can read, and which agents can work alongside it."
-      actions={<button className="operator-primary-action" type="button" data-dashboard-prompt="Show what Zavorth can remember right now and which scopes are active.">View memory</button>}
+      actions={<button className="operator-primary-action" type="button" data-zavorthControl-prompt="Show what Zavorth can remember right now and which scopes are active.">View memory</button>}
     >
       <div className="platform-workspace platform-workspace--operator">
         <div className="platform-main">
@@ -201,7 +201,7 @@ export function MemorySurface() {
           <div className="tool-empty-action">
             <strong>No memory scope required yet.</strong>
             <span>Start with a folder, document, or rule that Zavorth should remember only when useful.</span>
-            <button type="button" data-dashboard-prompt="Help me add a safe memory scope. Ask what folder or fact should be remembered, then explain how to forget it later.">Add memory scope</button>
+            <button type="button" data-zavorthControl-prompt="Help me add a safe memory scope. Ask what folder or fact should be remembered, then explain how to forget it later.">Add memory scope</button>
           </div>
           <div className="agent-os-live-summary" aria-label="Live memory summary">
             <span><strong data-memory-live-files>waiting</strong><small>file memory</small></span>
@@ -246,7 +246,7 @@ export function SkillsSurface() {
       eyebrow="Tools"
       title="Zavorth tools"
       subtitle="Use ready capabilities when they help the current task. Risky work still asks for approval."
-      actions={<button className="operator-primary-action" type="button" data-dashboard-prompt="Suggest the best Zavorth tool for my current task and explain why.">Suggest tool</button>}
+      actions={<button className="operator-primary-action" type="button" data-zavorthControl-prompt="Suggest the best Zavorth tool for my current task and explain why.">Suggest tool</button>}
     >
       <section className="skill-toolbar skill-toolbar--quiet">
         <input type="search" placeholder="Search tools" aria-label="Search tools" data-skill-search />
@@ -261,7 +261,7 @@ export function SkillsSurface() {
           <div className="tool-empty-action">
             <strong>Not sure what to use?</strong>
             <span>Ask Zavorth to choose the lightest safe tool for the current request.</span>
-            <button type="button" data-dashboard-prompt="Choose the lightest safe tool for my current request. Explain the risk before using anything.">Choose for me</button>
+            <button type="button" data-zavorthControl-prompt="Choose the lightest safe tool for my current request. Explain the risk before using anything.">Choose for me</button>
           </div>
           <div className="agent-os-live-summary" aria-label="Live tool summary">
             <span><strong data-tools-live-count>0</strong><small>runtime tools</small></span>
@@ -272,17 +272,17 @@ export function SkillsSurface() {
             <article className="skill-row skill-row--ok" data-skill-row="" data-skill-status="ready" data-skill-search-text="review workspace project read only clear risks">
               <div><h2>Review workspace</h2><p>Reads the project and highlights clear risks without editing files.</p></div>
               <span>Ready</span>
-              <button type="button" className="skill-row__use" data-dashboard-prompt="Review my workspace in read-only mode and show the highest-risk items first.">Use</button>
+              <button type="button" className="skill-row__use" data-zavorthControl-prompt="Review my workspace in read-only mode and show the highest-risk items first.">Use</button>
             </article>
             <article className="skill-row skill-row--info" data-skill-row="" data-skill-status="setup" data-skill-search-text="understand files folders documents scope">
               <div><h2>Understand files</h2><p>Uses only approved folders to explain documents.</p></div>
               <span>Needs scope</span>
-              <button type="button" className="skill-row__use" data-dashboard-prompt="Show me how to configure a safe folder scope for file memory.">Use</button>
+              <button type="button" className="skill-row__use" data-zavorthControl-prompt="Show me how to configure a safe folder scope for file memory.">Use</button>
             </article>
             <article className="skill-row skill-row--info" data-skill-row="" data-skill-status="approval" data-skill-search-text="tool curator preview approval">
               <div><h2>Tool curator</h2><p>Suggests improvements without changing anything before approval.</p></div>
               <span>Preview first</span>
-              <button type="button" className="skill-row__use" data-dashboard-prompt="Open the tool curator in preview mode and show only safe suggestions.">Use</button>
+              <button type="button" className="skill-row__use" data-zavorthControl-prompt="Open the tool curator in preview mode and show only safe suggestions.">Use</button>
             </article>
           </div>
         </div>
@@ -307,7 +307,7 @@ export function ProvidersSurface() {
       eyebrow="Models"
       title="AI models"
       subtitle="See which route Zavorth uses, whether it is ready, and what has been measured in this session."
-      actions={<button className="operator-primary-action" type="button" data-dashboard-prompt="Explain the current AI model, provider route, fallback, and anything that still needs setup.">View current model</button>}
+      actions={<button className="operator-primary-action" type="button" data-zavorthControl-prompt="Explain the current AI model, provider route, fallback, and anything that still needs setup.">View current model</button>}
     >
       <div className="premium-metrics">
         <Metric label="Tokens" value="0" sub="no measured usage" />
@@ -353,7 +353,7 @@ export function SettingsSurface() {
       eyebrow="Settings"
       title="Configuration without exposing secrets."
       subtitle="Runtime access, provider routing, approvals, break-glass posture and receipt controls are summarized here."
-      actions={<button className="operator-secondary-action" type="button" data-dashboard-prompt="Show settings that need attention and suggest safe guided fixes.">Guided fixes</button>}
+      actions={<button className="operator-secondary-action" type="button" data-zavorthControl-prompt="Show settings that need attention and suggest safe guided fixes.">Guided fixes</button>}
     >
       <div className="premium-layout premium-layout--wide-left">
         <div className="platform-main">

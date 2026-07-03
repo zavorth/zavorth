@@ -13,7 +13,7 @@ export type ZavorthCapabilityUsageEventKind =
   | 'abandoned'
   | 'receipt_read';
 
-export type ZavorthCapabilityUsageSurface = 'cli' | 'dashboard' | 'tui' | 'setup' | 'api' | 'channel' | 'llm';
+export type ZavorthCapabilityUsageSurface = 'cli' | 'zavorthControl' | 'tui' | 'setup' | 'api' | 'channel' | 'llm';
 
 export type ZavorthCapabilityUsageEvent = {
   id: string;

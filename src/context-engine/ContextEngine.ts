@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * ContextEngine â€” Unified Context Engine (Modelo ExternalExecutor adaptado)
  *
@@ -397,7 +396,7 @@ export class ContextEngine {
         if (lastContent && newContent) {
           lastMsg.content = lastContent + '\n\n' + newContent;
         } else {
-          lastMsg.content = lastContent || newContent || undefined;
+          lastMsg.content = lastContent || newContent || null;
         }
 
         if (msg.inlineData && msg.inlineData.length > 0) {

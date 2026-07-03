@@ -5,6 +5,16 @@ import path from 'path';
 import crypto from 'node:crypto';
 import { config } from '../config/index.js';
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  return String(error);
+}
+
+interface SqliteDriver {
+  new (filename: string): SQLiteDatabase;
+}
+
 function getDatabaseKey(): Buffer | null {
   const rawKey = String(config.dbEncryptionKey || '').trim();
   let baseKey: string | Buffer | null = rawKey;
@@ -31,13 +41,14 @@ function getOrCreateFileKey(): string | null {
       return generated;
     }
     return fs.readFileSync(keyFile, 'utf8').trim() || null;
-  } catch {
+  } catch (error: unknown) {
+    logger.error(`Failed to read or create database key file: ${getErrorMessage(error)}`);
     return null;
   }
 }
 
 function resolveSqliteConstructor(mode: string, driverPackages: string[]): {
-  constructorRef: any;
+  constructorRef: SqliteDriver | null;
   driverPackage: string | null;
   reason: string;
 } {
@@ -51,7 +62,7 @@ function resolveSqliteConstructor(mode: string, driverPackages: string[]): {
   for (const packageName of driverPackages) {
     try {
       const module = require(packageName);
-      const constructorRef = module.default || module.Database || module;
+      const constructorRef = (module.default || module.Database || module) as SqliteDriver | null;
       if (typeof constructorRef === 'function') {
         return {
           constructorRef,
@@ -59,8 +70,8 @@ function resolveSqliteConstructor(mode: string, driverPackages: string[]): {
           reason: `loaded ${packageName}`,
         };
       }
-    } catch {
-      // Try next package
+    } catch (error: unknown) {
+      logger.debug(`Failed to load SQLite driver ${packageName}: ${getErrorMessage(error)}`);
     }
   }
   return {
@@ -70,7 +81,7 @@ function resolveSqliteConstructor(mode: string, driverPackages: string[]): {
   };
 }
 
-function applySqlCipherPragmas(db: any, key: Buffer): void {
+function applySqlCipherPragmas(db: SQLiteDatabase, key: Buffer): void {
   const hex = key.toString('hex');
   db.exec(`
     PRAGMA key = "x'${hex}'";
@@ -105,7 +116,7 @@ export class Database {
       throw new Error(`SQLite database could not be initialized securely: ${reason}`);
     }
 
-    let dbInstance: any = null;
+    let dbInstance: SQLiteDatabase | null = null;
     let openedWithKey = false;
 
     if (mode !== 'off' && sqlite.constructorRef && key) {
@@ -116,12 +127,12 @@ export class Database {
         // Test query to verify key is correct and DB can be read
         dbInstance.prepare("PRAGMA user_version").get();
         openedWithKey = true;
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (existedBefore && dbInstance) {
           try {
             dbInstance.close();
-          } catch {
-            // Ignore
+          } catch (closeError: unknown) {
+            logger.error(`Failed to close database during migration failure: ${getErrorMessage(closeError)}`);
           }
         }
         dbInstance = null;
@@ -143,14 +154,14 @@ export class Database {
             applySqlCipherPragmas(dbInstance, key);
             dbInstance.prepare("PRAGMA user_version").get();
             openedWithKey = true;
-          } catch (migrationError: any) {
+          } catch (migrationError: unknown) {
             if (dbInstance) {
-              try { dbInstance.close(); } catch (closeError: any) {
-                logger.error(`Failed to close database during migration failure: ${closeError.message}`);
+              try { dbInstance.close(); } catch (closeError: unknown) {
+                logger.error(`Failed to close database during migration failure: ${getErrorMessage(closeError)}`);
               }
               dbInstance = null;
             }
-            throw new Error(`SQLite database exists but key is invalid and plaintext migration failed: ${migrationError.message}`);
+            throw new Error(`SQLite database exists but key is invalid and plaintext migration failed: ${getErrorMessage(migrationError)}`);
           }
         } else {
           throw error;
@@ -193,7 +204,7 @@ export class Database {
     return this.db;
   }
 
-  public run(sql: string, params: any[] = []): void {
+  public run(sql: string, params: unknown[] = []): void {
     try {
       this.db.prepare(sql).run(...params);
     } catch (e) {
@@ -202,7 +213,7 @@ export class Database {
     }
   }
 
-  public get<T = any>(sql: string, params: any[] = []): T | undefined {
+  public get<T = Record<string, unknown>>(sql: string, params: unknown[] = []): T | undefined {
     try {
       return this.db.prepare(sql).get(...params) as T | undefined;
     } catch (e) {
@@ -211,7 +222,7 @@ export class Database {
     }
   }
 
-  public all<T = any>(sql: string, params: any[] = []): T[] {
+  public all<T = Record<string, unknown>>(sql: string, params: unknown[] = []): T[] {
     try {
       return this.db.prepare(sql).all(...params) as T[];
     } catch (e) {
@@ -541,8 +552,8 @@ export class Database {
     }
     try {
       this.run(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
-    } catch (error: any) {
-      const message = String(error?.message || '').toLowerCase();
+    } catch (error: unknown) {
+      const message = getErrorMessage(error).toLowerCase();
       if (message.includes('duplicate column name')) {
         return;
       }
@@ -578,21 +589,21 @@ export class Database {
       // 4. Test integrity/access with the new key (the connection is already rekeyed)
       this.db.prepare('PRAGMA user_version').get();
       this.db.prepare('SELECT count(*) FROM snippets').get();
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If rekey failed, restore journal mode and throw
       try {
         this.db.pragma(`journal_mode = ${currentJournalMode || 'WAL'}`);
-      } catch (restoreError: any) {
-        logger.error(`Failed to restore journal mode after rekey failure: ${restoreError.message}`);
+      } catch (restoreError: unknown) {
+        logger.error(`Failed to restore journal mode after rekey failure: ${getErrorMessage(restoreError)}`);
       }
-      throw new Error(`Failed to rotate database encryption key: ${error.message}`);
+      throw new Error(`Failed to rotate database encryption key: ${getErrorMessage(error)}`);
     }
 
     // 5. Restore the journal mode (typically WAL)
     try {
       this.db.pragma(`journal_mode = ${currentJournalMode || 'WAL'}`);
-    } catch (restoreError: any) {
-      logger.error(`Failed to restore journal mode after rekey: ${restoreError.message}`);
+    } catch (restoreError: unknown) {
+      logger.error(`Failed to restore journal mode after rekey: ${getErrorMessage(restoreError)}`);
     }
 
     // 6. Update configuration and/or key file to persist the new key
@@ -602,8 +613,8 @@ export class Database {
       try {
         fs.mkdirSync(path.dirname(keyFile), { recursive: true });
         fs.writeFileSync(keyFile, newKey, 'utf8');
-      } catch (fileError: any) {
-        logger.error(`Warning: Key rotated in database but failed to write to dbEncryptionKeyFile: ${fileError.message}`);
+      } catch (fileError: unknown) {
+        logger.error(`Warning: Key rotated in database but failed to write to dbEncryptionKeyFile: ${getErrorMessage(fileError)}`);
       }
     }
   }

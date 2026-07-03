@@ -1,0 +1,19 @@
+not_found: No encontrado
+permission_denied: Permiso denegado
+timeout: La operación expiró
+invalid_input: Entrada inválida
+file_exists: El archivo ya existe
+file_not_found: Archivo no encontrado
+directory_not_found: Directorio no encontrado
+access_denied: Acceso denegado
+network_error: Error de red
+unknown_error: Ocurrió un error desconocido
+invalid_format: Formato inválido
+missing_required_field: Campo requerido faltante
+operation_failed: La operación falló
+connection_refused: Conexión rechazada
+disk_full: Disco lleno
+out_of_memory: Memoria insuficiente
+syntax_error: Error de sintaxis
+type_error: Error de tipo
+reference_error: Error de referencia

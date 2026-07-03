@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { WebAppSupervisionRouteHandler } from './types.js';
 import { getRequestedBy } from './helpers.js';
 import {
+import { logger } from '../logger.js';
   ZavorthMobileSupervisionService,
 } from '../../../../../services/ZavorthMobileSupervisionService.js';
 
@@ -148,8 +149,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <div id="login-error"></div>
   </div>
 
-  <!-- Dashboard (hidden until auth) -->
-  <div id="dashboard" style="display:none">
+  <!-- ZavorthControl (hidden until auth) -->
+  <div id="zavorthControl" style="display:none">
     <div class="header glass">
       <div>
         <h2>Supervisao Movel</h2>
@@ -222,7 +223,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         if(d.ok&&d.authenticated){
           token=t;
           localStorage.setItem('zv_mobile_token',t);
-          showDashboard();
+          showZavorthControl();
         }else{err.textContent='Token invalido ou expirado.';}
       })
       .catch(function(){err.textContent='Erro de conexao.';});
@@ -232,13 +233,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     token='';
     localStorage.removeItem('zv_mobile_token');
     if(sse){sse.close();sse=null;}
-    document.getElementById('dashboard').style.display='none';
+    document.getElementById('zavorthControl').style.display='none';
     document.getElementById('login-screen').style.display='flex';
   };
 
-  function showDashboard(){
+  function showZavorthControl(){
     document.getElementById('login-screen').style.display='none';
-    document.getElementById('dashboard').style.display='block';
+    document.getElementById('zavorthControl').style.display='block';
     fetchStatus();
     connectSSE();
   }
@@ -351,7 +352,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       if(data.type==='status-change'&&data.data)setStatus(data.data.status);
       if(data.type==='approval-pending'||data.type==='approval-resolved')fetchStatus();
       prependEvent(data);
-    }catch(e){}
+    }catch (e) { logger.warn("[auto-fix] Empty catch block", e); }
   }
 
   function prependEvent(e){
@@ -419,7 +420,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
     const expected = String(
       process.env.ZAVORTH_OPERATOR_APPROVAL_TOKEN
       || process.env.ZAVORTH_RUNTIME_ADAPTER_API_APPROVAL_TOKEN
-      || process.env.ZAVORTH_DASHBOARD_OPERATOR_TOKEN
+      || process.env.ZAVORTH_ZAVORTH_CONTROL_OPERATOR_TOKEN
       || '',
     ).trim();
     const provided = String(
@@ -456,7 +457,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
   }
 
   // -----------------------------------------------------------------------
-  // GET /api/web/mobile/status — Dashboard snapshot JSON
+  // GET /api/web/mobile/status — ZavorthControl snapshot JSON
   // -----------------------------------------------------------------------
   if (pathname === '/api/web/mobile/status' && req.method === 'GET') {
     if (!requireAuth(ctx)) {

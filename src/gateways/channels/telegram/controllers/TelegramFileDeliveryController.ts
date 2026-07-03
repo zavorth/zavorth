@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs';
 import { Context, InputFile, InlineKeyboard } from 'grammy';
 import { config } from '../../../../config/index.js';
@@ -57,7 +56,7 @@ export class TelegramFileDeliveryController {
       await ctx.reply(
         this.formatter.compose('Nao consegui preparar esse envio agora.', [
           {
-            lines: [`Motivo: ${error.message}`],
+            lines: [`Motivo: ${error instanceof Error ? error.message : String(error)}`],
           },
         ]),
       );
@@ -154,7 +153,7 @@ export class TelegramFileDeliveryController {
       await ctx.reply(
         this.formatter.compose('Nao consegui enviar esse arquivo agora.', [
           {
-            lines: [`Motivo: ${error.message}`],
+            lines: [`Motivo: ${error instanceof Error ? error.message : String(error)}`],
           },
         ]),
       );

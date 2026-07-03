@@ -207,7 +207,7 @@ export type ZavorthExternalSidecarOutboundDryRunReceipt = {
   };
 };
 
-export type ZavorthExternalSidecarDashboardProjection = {
+export type ZavorthExternalSidecarZavorthControlProjection = {
   title: 'External Sidecar Adapter';
   status: ZavorthExternalSidecarAdapterStatus;
   tone: 'ready' | 'attention' | 'blocked';
@@ -232,7 +232,7 @@ export type ZavorthExternalSidecarAdapterSnapshot = {
   inboundGatewayReceipt: ZavorthExternalSidecarInboundGatewayReceipt;
   outboundDryRunReceipt: ZavorthExternalSidecarOutboundDryRunReceipt;
   riskyOutboundDryRunReceipt: ZavorthExternalSidecarOutboundDryRunReceipt;
-  dashboardProjection: ZavorthExternalSidecarDashboardProjection;
+  zavorthControlProjection: ZavorthExternalSidecarZavorthControlProjection;
   acceptanceMatrix: Array<{
     requirementId: string;
     status: 'passed' | 'failed';

@@ -78,7 +78,7 @@ export class ZavorthCapabilityActionSurfaceService {
       items,
       receipts,
       placement: {
-        dashboard: {
+        zavorthControl: {
           visible: true,
           sectionId: 'operations-capabilities',
           apiPath: '/api/operations/capabilities',

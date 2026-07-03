@@ -23,7 +23,7 @@ export type ZavorthCapabilityUsageDocsSnapshot = {
     usageSignals: string;
     lifecycle: string;
   };
-  visibleIn: Array<'dashboard' | 'tui' | 'setup' | 'cli'>;
+  visibleIn: Array<'zavorthControl' | 'tui' | 'setup' | 'cli'>;
   safety: {
     publicDocsOnly: true;
     noSecrets: true;

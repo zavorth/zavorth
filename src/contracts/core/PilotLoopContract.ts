@@ -48,7 +48,7 @@ export type PilotSupportPolicy = {
   escalation: string;
 };
 
-export type PilotDashboardMetric = {
+export type PilotZavorthControlMetric = {
   id: string;
   label: string;
   aggregateOnly: boolean;
@@ -73,13 +73,13 @@ export type PilotLoopSnapshot = {
   artifacts: {
     feedbackPreviewPath: string;
     pilotLedgerPath: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
   };
   templates: PilotFeedbackTemplate[];
   triageRules: PilotTriageRule[];
   pilotLedger: PilotLedgerEntry[];
   supportPolicy: PilotSupportPolicy[];
-  dashboardMetrics: PilotDashboardMetric[];
+  zavorthControlMetrics: PilotZavorthControlMetric[];
   checks: PilotLoopCheck[];
   nextRecommendedPhase: {
     phase: '58';
@@ -239,7 +239,7 @@ export const PILOT_SUPPORT_POLICY: PilotSupportPolicy[] = [
   },
 ];
 
-export const PILOT_DASHBOARD_METRICS: PilotDashboardMetric[] = [
+export const PILOT_ZAVORTH_CONTROL_METRICS: PilotZavorthControlMetric[] = [
   {
     id: 'feedback-count-by-area',
     label: 'Feedback por area',

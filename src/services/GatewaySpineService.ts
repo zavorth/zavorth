@@ -101,7 +101,7 @@ const DEFAULT_SURFACES: GatewaySpineSurfaceProjection[] = [
     stateSource: 'GatewaySpineSnapshot',
     sameSourceOfTruth: true,
     canRenderActions: true,
-    fallback: 'Render the same snapshot as cards/tables in Dashboard.',
+    fallback: 'Render the same snapshot as cards/tables in ZavorthControl.',
   },
   {
     surface: 'cli',
@@ -384,7 +384,7 @@ function resolveStatus(input: {
 function buildNextActions(status: GatewaySpineStatus): string[] {
   if (status === 'ready') {
     return [
-      'Render this snapshot in Dashboard after visual approval.',
+      'Render this snapshot in ZavorthControl after visual approval.',
       'Use the same commands in CLI and channel adapters.',
     ];
   }

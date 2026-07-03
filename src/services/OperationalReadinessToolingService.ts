@@ -308,7 +308,7 @@ export class OperationalReadinessToolingService {
       },
       {
         id: 'checkpoint-8-operational-tooling',
-        title: 'Dashboard controls - Operational Tooling',
+        title: 'ZavorthControl controls - Operational Tooling',
         status: 'passed',
         document: 'docs/product-direction.md',
         service: 'src/services/OperationalReadinessToolingService.ts',

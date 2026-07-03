@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
@@ -81,11 +80,12 @@ export class ZavorthSecurityScannerTool extends BaseTool {
     return 'npm';
   }
 
-  private async runCmd(cmd: string, cmdArgs: string[], timeout = 60000): Promise<string> {
+  private async runCmd(cmd: string, cmdArgs: string[], options: { cwd?: string; timeout?: number } = {}): Promise<string> {
     try {
       const { execFileSync } = await import('child_process');
       const result = execFileSync(cmd, cmdArgs, {
-        timeout,
+        cwd: options.cwd,
+        timeout: options.timeout || 60000,
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
@@ -135,7 +135,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
     try {
       switch (resolved) {
         case 'npm': {
-          const result = await this.runCmd('npm', ['audit', '--json'], targetPath);
+          const result = await this.runCmd('npm', ['audit', '--json'], { cwd: targetPath });
           try {
             const parsed = JSON.parse(result);
             const advisories = parsed.vulnerabilities || {};
@@ -152,7 +152,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
           }
         }
         case 'pip':
-          return `Dependency audit:\n${await this.runCmd('pip', ['audit'], targetPath)}`;
+          return `Dependency audit:\n${await this.runCmd('pip', ['audit'], { cwd: targetPath })}`;
         default:
           return `Dependency audit not supported for "${resolved}".`;
       }

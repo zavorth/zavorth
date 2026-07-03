@@ -46,7 +46,7 @@ type HttpProbeInput = {
 };
 
 export class IntegrationProbeService {
-  private readonly controlUiEntryPath = '/dashboard';
+  private readonly controlUiEntryPath = '/zavorthControl';
   private readonly now: () => Date;
   private readonly fetchImpl: ProbeFetch;
   private readonly registryService: IntegrationRegistryService;

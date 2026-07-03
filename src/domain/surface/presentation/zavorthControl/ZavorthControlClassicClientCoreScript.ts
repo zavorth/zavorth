@@ -1,13 +1,39 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import { logger } from '../logger.js';
+
+declare function loadLogs(): void;
+declare function loadAudit(): void;
+declare function loadSnippets(): void;
+declare function renderOperatorBrief(brief: Record<string, unknown>): void;
+declare function renderOperationsOverview(overview: Record<string, unknown>): void;
+declare function renderOperationsTrustOverview(overview: Record<string, unknown>): void;
+declare function renderOperationsProductOverview(overview: Record<string, unknown>): void;
+declare function renderOperationsControlPlaneCatalog(catalog: Record<string, unknown>): void;
+declare function renderOperationsMemoryPlane(memoryPlane: Record<string, unknown>): void;
+declare function renderOperationsContinuity(continuity: Record<string, unknown>): void;
+declare function renderOperationsReplay(replay: Record<string, unknown>): void;
+declare function renderOperationsLifecycle(lifecycle: Record<string, unknown>): void;
+declare function renderOperationsHandoff(handoff: Record<string, unknown>): void;
+declare function renderOperationsCapabilities(capabilities: Record<string, unknown>): void;
+declare function renderOperationsPlugins(plugins: Record<string, unknown>): void;
+declare function renderOperationsChannels(channels: Record<string, unknown>): void;
+declare function renderOperationsSecurityMesh(securityMesh: Record<string, unknown>): void;
+declare function renderOperationsRuntimeModes(runtimeModes: Record<string, unknown>): void;
+declare function renderOperationsNodes(nodes: Record<string, unknown>): void;
+declare function renderOperationsTeams(teams: Record<string, unknown>): void;
+declare function renderOperationsIntegrations(integrations: Record<string, unknown>): void;
+declare function renderOperationsCockpit(cockpit: Record<string, unknown>): void;
+declare function renderOperationsReport(report: Record<string, unknown>): void;
+declare function renderSidecars(sidecars: Record<string, unknown>): void;
+declare function renderOperationsHealth(operations: Record<string, unknown>): void;
 
 function zavorthControlClassicClientCore() {
     // Tab Navigation
-    function switchTab(tabId) {
+    function switchTab(tabId: string) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('view-' + tabId).classList.add('active');
+      (window.event as MouseEvent).target && ((window.event as MouseEvent).target as HTMLElement).classList.add('active');
+      document.getElementById('view-' + tabId)!.classList.add('active');
       
       if(tabId === 'logs') loadLogs();
       if(tabId === 'audit') loadAudit();
@@ -15,8 +41,8 @@ function zavorthControlClassicClientCore() {
     }
 
     // Toast Notification
-    function showToast(msg, isError) {
-      const t = document.getElementById('toast');
+    function showToast(msg: string, isError?: boolean) {
+      const t = document.getElementById('toast')!;
       t.innerText = msg;
       t.style.background = isError ? '#ff4757' : '#2ed573';
       t.style.color = isError ? '#fff' : '#000';
@@ -24,7 +50,7 @@ function zavorthControlClassicClientCore() {
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    function escapeHtml(value) {
+    function escapeHtml(value: unknown) {
       return String(value ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -60,29 +86,29 @@ function zavorthControlClassicClientCore() {
           fetch('/api/operations/cockpit'),
           fetch('/api/operations/report'),
         ]);
-        const stats = await statsRes.json();
-        const operations = await opsRes.json();
-        const brief = await briefRes.json();
-        const overview = await overviewRes.json();
-        const trustOverview = await trustOverviewRes.json();
-        const productOverview = await productOverviewRes.json();
-        const controlPlaneCatalog = await controlPlaneCatalogRes.json();
-        const memoryPlane = await memoryPlaneRes.json();
-        const continuity = await continuityRes.json();
-        const replay = await replayRes.json();
-        const lifecycle = await lifecycleRes.json();
-        const handoff = await handoffRes.json();
-        const capabilities = await capabilitiesRes.json();
-        const plugins = await pluginsRes.json();
-        const channels = await channelsRes.json();
-        const securityMesh = await securityMeshRes.json();
-        const runtimeModes = await runtimeModesRes.json();
-        const nodes = await nodesRes.json();
-        const teams = await teamsRes.json();
-        const integrations = await integrationsRes.json();
-        const cockpit = await cockpitRes.json();
-        const report = await reportRes.json();
-        const cnt = document.getElementById('metrics-container');
+        const stats = await statsRes.json() as Record<string, unknown>;
+        const operations = await opsRes.json() as Record<string, unknown>;
+        const brief = await briefRes.json() as Record<string, unknown>;
+        const overview = await overviewRes.json() as Record<string, unknown>;
+        const trustOverview = await trustOverviewRes.json() as Record<string, unknown>;
+        const productOverview = await productOverviewRes.json() as Record<string, unknown>;
+        const controlPlaneCatalog = await controlPlaneCatalogRes.json() as Record<string, unknown>;
+        const memoryPlane = await memoryPlaneRes.json() as Record<string, unknown>;
+        const continuity = await continuityRes.json() as Record<string, unknown>;
+        const replay = await replayRes.json() as Record<string, unknown>;
+        const lifecycle = await lifecycleRes.json() as Record<string, unknown>;
+        const handoff = await handoffRes.json() as Record<string, unknown>;
+        const capabilities = await capabilitiesRes.json() as Record<string, unknown>;
+        const plugins = await pluginsRes.json() as Record<string, unknown>;
+        const channels = await channelsRes.json() as Record<string, unknown>;
+        const securityMesh = await securityMeshRes.json() as Record<string, unknown>;
+        const runtimeModes = await runtimeModesRes.json() as Record<string, unknown>;
+        const nodes = await nodesRes.json() as Record<string, unknown>;
+        const teams = await teamsRes.json() as Record<string, unknown>;
+        const integrations = await integrationsRes.json() as Record<string, unknown>;
+        const cockpit = await cockpitRes.json() as Record<string, unknown>;
+        const report = await reportRes.json() as Record<string, unknown>;
+        const cnt = document.getElementById('metrics-container')!;
         const sidecarNode = document.getElementById('sidecar-links');
         if (stats.error) {
            cnt.innerHTML = `<div class="metric-card" style="grid-column: 1/-1"><strong>Erro</strong><div>${stats.error}</div></div>`;
@@ -111,7 +137,7 @@ function zavorthControlClassicClientCore() {
         renderOperationsIntegrations(integrations);
         renderOperationsCockpit(cockpit);
         renderOperationsReport(report);
-        renderSidecars((operations && operations.sidecars) || stats.sidecars || {});
+        renderSidecars(((operations && operations.sidecars) || stats.sidecars || {}) as Record<string, unknown>);
         renderOperationsHealth(operations);
         cnt.innerHTML = `
           <div class="metric-card">
@@ -130,10 +156,10 @@ function zavorthControlClassicClientCore() {
             <small>Heartbeat ON</small>
           </div>
         `;
-      } catch(e) {}
+      } catch (_e) { logger.warn("[auto-fix] Empty catch block", _e); }
     }
 
-    function formatBytes(bytes) {
+    function formatBytes(bytes: unknown) {
       const value = Number(bytes || 0);
       if (!Number.isFinite(value) || value <= 0) return '0 B';
       const units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -147,11 +173,11 @@ function zavorthControlClassicClientCore() {
       return current.toFixed(decimals) + ' ' + units[unitIndex];
     }
 
-    function formatRelativeTime(value) {
+    function formatRelativeTime(value: unknown) {
       if (!value) return 'Nunca';
-      const target = new Date(value);
+      const target = new Date(String(value));
       const diffMs = Date.now() - target.getTime();
-      if (!Number.isFinite(diffMs)) return value;
+      if (!Number.isFinite(diffMs)) return String(value);
       const minutes = Math.round(diffMs / 60000);
       if (minutes < 1) return 'agora';
       if (minutes < 60) return 'ha ' + minutes + ' min';
@@ -165,4 +191,3 @@ function zavorthControlClassicClientCore() {
 export function getZavorthControlClassicClientCoreScript(): string {
   return extractFunctionBody(zavorthControlClassicClientCore);
 }
-

@@ -13,7 +13,27 @@ import { RemoteMeshNotebookMcpProxyService } from '../../../../services/RemoteMe
 import { ZavorthMnemosQueryService } from '../../../../services/ZavorthMnemosQueryService.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 
-type LooseRecord = any;
+type LooseRecord = Record<string, unknown>;
+
+interface MnemosLifecyclePayload {
+  objective?: string;
+  content?: string;
+  toolName?: string;
+  status?: string;
+  runId?: string;
+  workflowRunId?: string;
+  traceId?: string;
+}
+
+interface MnemosLifecycleTrust {
+  level?: string;
+  receiptId?: string;
+  approvalId?: string;
+}
+
+interface MnemosLifecycleSource {
+  surface?: string;
+}
 
 export type WebAppRuntimeInteractionRouteHelpers = {
   buildCanonicalSessionBundle: (
@@ -107,8 +127,8 @@ export class WebAppRuntimeInteractionRouteService {
       return this.handleArtifactsRequest(res, url, deps);
     }
 
-    if (pathname === '/api/web/dashboard/events' && req.method === 'GET') {
-      return this.handleDashboardEventsRequest(res, url, deps);
+    if (pathname === '/api/web/zavorthControl/events' && req.method === 'GET') {
+      return this.handleZavorthControlEventsRequest(res, url, deps);
     }
 
     if (pathname === '/api/web/mnemos/recall' && req.method === 'GET') {
@@ -349,7 +369,7 @@ export class WebAppRuntimeInteractionRouteService {
     return true;
   }
 
-  private async handleDashboardEventsRequest(
+  private async handleZavorthControlEventsRequest(
     res: http.ServerResponse,
     url: URL,
     deps: WebAppRuntimeRouteDeps,
@@ -363,7 +383,7 @@ export class WebAppRuntimeInteractionRouteService {
     const runs = Array.isArray(agentSnapshot?.runs) ? agentSnapshot.runs : [];
     const runId = String(url.searchParams.get('runId') || '').trim();
     const traceId = String(url.searchParams.get('traceId') || '').trim();
-    const events = this.buildDashboardEvents({
+    const events = this.buildZavorthControlEvents({
       sessionId,
       snapshot,
       runs,
@@ -381,7 +401,7 @@ export class WebAppRuntimeInteractionRouteService {
           traceId: traceId || null,
         },
         source: 'persistent-session-history',
-        summary: this.buildDashboardEventSummary(events),
+        summary: this.buildZavorthControlEventSummary(events),
         events,
       },
       200,
@@ -518,7 +538,7 @@ export class WebAppRuntimeInteractionRouteService {
     return true;
   }
 
-  private buildDashboardEvents(input: {
+  private buildZavorthControlEvents(input: {
     sessionId: string;
     snapshot: LooseRecord;
     runs: LooseRecord[];
@@ -532,7 +552,7 @@ export class WebAppRuntimeInteractionRouteService {
       events.push({
         ...event,
         id,
-        source: event.source || 'dashboard-history',
+        source: event.source || 'zavorthControl-history',
         sessionId: input.sessionId,
       });
     };
@@ -666,28 +686,28 @@ export class WebAppRuntimeInteractionRouteService {
     for (const lifecycleEvent of this.readMnemosLifecycleEvents(input.sessionId)) {
       const eventId = String(lifecycleEvent.id || '').trim();
       if (!eventId) continue;
-      const payload = lifecycleEvent.payload && typeof lifecycleEvent.payload === 'object' ? lifecycleEvent.payload : {};
-      const trust = lifecycleEvent.trust && typeof lifecycleEvent.trust === 'object' ? lifecycleEvent.trust : {};
-      const source = lifecycleEvent.source && typeof lifecycleEvent.source === 'object' ? lifecycleEvent.source : {};
+      const payload: MnemosLifecyclePayload = lifecycleEvent.payload && typeof lifecycleEvent.payload === 'object' ? lifecycleEvent.payload as MnemosLifecyclePayload : {};
+      const trust: MnemosLifecycleTrust = lifecycleEvent.trust && typeof lifecycleEvent.trust === 'object' ? lifecycleEvent.trust as MnemosLifecycleTrust : {};
+      const source: MnemosLifecycleSource = lifecycleEvent.source && typeof lifecycleEvent.source === 'object' ? lifecycleEvent.source as MnemosLifecycleSource : {};
       pushEvent({
         id: `mnemos:${eventId}`,
         type: 'lifecycle',
         title: String(lifecycleEvent.type || 'Mnemos lifecycle').trim(),
-        detail: String((payload as any).objective || (payload as any).content || (payload as any).toolName || (payload as any).status || 'Session lifecycle event captured by Mnemos.').trim(),
-        meta: `mnemos - ${String((source as any).surface || 'runtime')} - ${String((trust as any).level || 'raw')}`,
-        status: String((payload as any).status || (trust as any).level || 'captured').trim(),
+        detail: String(payload.objective || payload.content || payload.toolName || payload.status || 'Session lifecycle event captured by Mnemos.').trim(),
+        meta: `mnemos - ${String(source.surface || 'runtime')} - ${String(trust.level || 'raw')}`,
+        status: String(payload.status || trust.level || 'captured').trim(),
         time: lifecycleEvent.timestamp || lifecycleEvent.createdAt || null,
-        runId: (payload as any).runId || (payload as any).workflowRunId || null,
-        traceId: (payload as any).traceId || null,
+        runId: payload.runId || payload.workflowRunId || null,
+        traceId: payload.traceId || null,
         lifecycle: {
           source,
           trust,
-          receiptId: (trust as any).receiptId || null,
-          approvalId: (trust as any).approvalId || null,
+          receiptId: trust.receiptId || null,
+          approvalId: trust.approvalId || null,
         },
         replay: {
-          runId: (payload as any).runId || (payload as any).workflowRunId || eventId,
-          traceId: (payload as any).traceId || null,
+          runId: payload.runId || payload.workflowRunId || eventId,
+          traceId: payload.traceId || null,
           sessionId: input.sessionId,
           policy: 'mnemos lifecycle',
         },
@@ -707,7 +727,7 @@ export class WebAppRuntimeInteractionRouteService {
       .slice(-90);
   }
 
-  private buildDashboardEventSummary(events: LooseRecord[]): Record<string, number> {
+  private buildZavorthControlEventSummary(events: LooseRecord[]): Record<string, number> {
     const byType = (type: string) => events.filter((event) => String(event.type || '') === type).length;
     return {
       totalEvents: events.length,
@@ -719,15 +739,15 @@ export class WebAppRuntimeInteractionRouteService {
     };
   }
 
-  private readMnemosLifecycleEvents(sessionId = ''): Record<string, any>[] {
+  private readMnemosLifecycleEvents(sessionId = ''): Record<string, unknown>[] {
     try {
       const filePath = path.resolve(config.projectRoot || process.cwd(), '.zavorth', 'memory', 'session-events.json');
       if (!fs.existsSync(filePath)) return [];
-      const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, any>;
+      const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, unknown>;
       const events = Array.isArray(parsed.events) ? parsed.events : [];
       return events
-        .map((event) => event && typeof event === 'object' && !Array.isArray(event) ? event as Record<string, any> : null)
-        .filter((event): event is Record<string, any> => Boolean(event))
+        .map((event) => event && typeof event === 'object' && !Array.isArray(event) ? event as Record<string, unknown> : null)
+        .filter((event): event is Record<string, unknown> => Boolean(event))
         .filter((event) => !sessionId || !event.sessionId || event.sessionId === sessionId)
         .slice(-120);
     } catch {
@@ -756,11 +776,11 @@ export class WebAppRuntimeInteractionRouteService {
     return path.resolve(config.projectRoot || process.cwd(), 'data', 'runtime', 'learning-plane-state.json');
   }
 
-  private buildLearningCandidateFromRun(run: LooseRecord, entries: Record<string, any>): Record<string, any> {
+  private buildLearningCandidateFromRun(run: LooseRecord, entries: Record<string, unknown>): Record<string, unknown> {
     const id = String(run?.workflow_run_id || run?.id || run?.requestId || run?.runId || '').trim() || `run-${Date.now()}`;
     const entry = entries[id] || {};
     const artifactCount = Array.isArray(run?.artifacts) ? run.artifacts.length : 0;
-    const completed = Array.isArray(run?.events) ? run.events.filter((event: any) => /done|completed/i.test(String(event?.status || ''))).length : 0;
+    const completed = Array.isArray(run?.events) ? run.events.filter((event: LooseRecord) => /done|completed/i.test(String(event?.status || ''))).length : 0;
     return {
       id,
       title: String(run?.title || run?.objective || run?.input || 'Recent run').trim().slice(0, 96),
@@ -782,12 +802,12 @@ export class WebAppRuntimeInteractionRouteService {
     };
   }
 
-  private buildLearningCandidateFromLifecycleEvent(event: Record<string, any>, entries: Record<string, any>): Record<string, any> {
+  private buildLearningCandidateFromLifecycleEvent(event: Record<string, unknown>, entries: Record<string, unknown>): Record<string, unknown> {
     const id = `hook-${String(event.id || '').trim() || Date.now()}`;
     const entry = entries[id] || {};
-    const payload = event.payload && typeof event.payload === 'object' ? event.payload as Record<string, any> : {};
-    const trust = event.trust && typeof event.trust === 'object' ? event.trust as Record<string, any> : {};
-    const source = event.source && typeof event.source === 'object' ? event.source as Record<string, any> : {};
+    const payload: MnemosLifecyclePayload = event.payload && typeof event.payload === 'object' ? event.payload as MnemosLifecyclePayload : {};
+    const trust: MnemosLifecycleTrust = event.trust && typeof event.trust === 'object' ? event.trust as MnemosLifecycleTrust : {};
+    const source: MnemosLifecycleSource = event.source && typeof event.source === 'object' ? event.source as MnemosLifecycleSource : {};
     return {
       id,
       title: String(payload.objective || payload.toolName || payload.content || event.type || 'Lifecycle signal').trim().slice(0, 96),
@@ -812,7 +832,7 @@ export class WebAppRuntimeInteractionRouteService {
     };
   }
 
-  private eventTimeMs(event: Record<string, any>): number {
+  private eventTimeMs(event: Record<string, unknown>): number {
     const date = new Date(String(event.time || event.createdAt || event.created_at || ''));
     return Number.isFinite(date.getTime()) ? date.getTime() : 0;
   }
@@ -825,9 +845,9 @@ export class WebAppRuntimeInteractionRouteService {
     sessionId: string;
     toolRuns: LooseRecord[];
     runs: LooseRecord[];
-  }): any[] {
+  }): LooseRecord[] {
     const artifacts: LooseRecord[] = [];
-    const pushArtifact = (artifact: Record<string, any>) => {
+    const pushArtifact = (artifact: Record<string, unknown>) => {
       const id = String(artifact.id || artifact.key || '').trim();
       if (!id) return;
       artifacts.push({
@@ -845,7 +865,7 @@ export class WebAppRuntimeInteractionRouteService {
       }
       const toolRunId = String(run?.runId || run?.id || '').trim();
       const runArtifacts = Array.isArray(run?.artifacts) ? run.artifacts : [];
-      runArtifacts.forEach((artifact: any, index: number) => {
+      runArtifacts.forEach((artifact: LooseRecord, index: number) => {
         const path = String(artifact?.path || artifact?.filePath || '').trim();
         const name = String(artifact?.name || artifact?.title || this.basename(path) || '').trim();
         pushArtifact({
@@ -911,7 +931,7 @@ export class WebAppRuntimeInteractionRouteService {
     return Array.from(new Map(artifacts.map((artifact) => [artifact.id, artifact])).values());
   }
 
-  private resolveArtifactKind(artifact: Record<string, any>): string {
+  private resolveArtifactKind(artifact: Record<string, unknown>): string {
     const explicit = String(artifact.kind || artifact.type || '').trim().toLowerCase();
     if (explicit) return explicit;
     const extension = String(artifact.path || artifact.name || '').split('.').pop()?.toLowerCase() || '';
@@ -1062,8 +1082,8 @@ export class WebAppRuntimeInteractionRouteService {
           decision: decision === 'approve' ? 'approved' : 'rejected',
           ref: approvalRef,
           text: String(body.text || body.message || '').trim(),
-          source: String(body.source || '').trim() === 'button' ? 'button' : 'dashboard',
-          channel: 'dashboard',
+          source: String(body.source || '').trim() === 'button' ? 'button' : 'zavorthControl',
+          channel: 'zavorthControl',
           userId: String(body.userId || '').trim() || null,
           sessionId: String(body.sessionId || '').trim() || null,
         })
@@ -1161,8 +1181,8 @@ export class WebAppRuntimeInteractionRouteService {
         text: `aplicar rascunho ${planId}`,
         workspace: String(body.workspace || sourceRun?.workspace || '').trim() || null,
         replyPort: {
-          id: 'dashboard',
-          label: 'Dashboard',
+          id: 'zavorthControl',
+          label: 'ZavorthControl',
           kind: 'web',
           status: 'available',
           primary: true,
@@ -1251,8 +1271,8 @@ export class WebAppRuntimeInteractionRouteService {
         text: 'desativar Intelligence Fabric por health degradado',
         workspace: String(body.workspace || sourceRun?.workspace || '').trim() || null,
         replyPort: {
-          id: 'dashboard',
-          label: 'Dashboard',
+          id: 'zavorthControl',
+          label: 'ZavorthControl',
           kind: 'web',
           status: 'available',
           primary: true,

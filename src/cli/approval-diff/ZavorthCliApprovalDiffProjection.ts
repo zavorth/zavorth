@@ -230,7 +230,7 @@ function buildNextActions(
   if (decision.status === 'approved') {
     return [
       { label: 'Review approved plan', command: `zavorth diff ${decision.planId}`, detail: 'preview only' },
-      { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual approval flow' },
+      { label: 'Open ZavorthControl', command: 'zavorth open', detail: 'visual approval flow' },
     ];
   }
   const pending = cards.find((card) => card.status === 'waiting_approval' || card.approvalStatus === 'pending');
@@ -238,13 +238,13 @@ function buildNextActions(
     return [
       { label: 'Inspect diff', command: `zavorth diff ${pending.id}`, detail: `${pending.diffCount} preview entries` },
       { label: 'Approve plan only', command: `zavorth approve ${pending.id} --yes`, detail: 'does not apply to host' },
-      { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual review' },
+      { label: 'Open ZavorthControl', command: 'zavorth open', detail: 'visual review' },
     ];
   }
   if (view === 'diff' && diffs.length === 0) {
     return [
       { label: 'List approvals', command: 'zavorth approve', detail: 'find pending plans' },
-      { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual review' },
+      { label: 'Open ZavorthControl', command: 'zavorth open', detail: 'visual review' },
     ];
   }
   return [

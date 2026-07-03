@@ -264,7 +264,7 @@ export class ZavorthNaturalInvocationRouter {
       `Channel: ${plan.channel}`,
       `Skill: ${plan.selectedSkillName || 'n/d'}`,
       `Subagent mode: ${plan.selectedSubagentMode || 'n/d'} | roles=${plan.selectedRoleIds.join(', ') || 'auto'}`,
-      `Auto subagents: ${plan.subagentAutoInvocation?.dashboard.status || 'n/d'} | ${plan.subagentAutoInvocation?.selectedBy || 'n/d'} | confidence=${plan.subagentAutoInvocation?.confidence ?? 'n/d'}`,
+      `Auto subagents: ${plan.subagentAutoInvocation?.zavorthControl.status || 'n/d'} | ${plan.subagentAutoInvocation?.selectedBy || 'n/d'} | confidence=${plan.subagentAutoInvocation?.confidence ?? 'n/d'}`,
       `Sandbox: ${plan.execution.sandboxLifecycle?.intent || 'n/d'} | runtime=${plan.execution.sandboxLifecycle?.selectedRuntime || 'n/d'} | approval=${plan.execution.sandboxLifecycle?.approval.required ? 'required' : 'n/d'}`,
       '',
       plan.narrative.summary,

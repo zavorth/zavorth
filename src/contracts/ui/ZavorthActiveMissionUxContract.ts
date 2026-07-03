@@ -60,7 +60,7 @@ export type ZavorthActiveMissionUxSnapshot = {
   timeline: ZavorthActiveMissionUxTimelineEvent[];
   actions: ZavorthActiveMissionUxAction[];
   zavorthControlProjection: {
-    route: '/dashboard';
+    route: '/zavorthControl';
     renderMode: 'mission-timeline';
     executionAuthority: false;
   };

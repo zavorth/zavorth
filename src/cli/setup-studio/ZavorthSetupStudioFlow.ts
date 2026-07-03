@@ -28,7 +28,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
   ].filter(Boolean) as string[];
   const channelSummary = selectedChannels.length > 0
     ? selectedChannels
-    : ['No remote channel selected. Terminal and Dashboard remain available.'];
+    : ['No remote channel selected. Terminal and ZavorthControl remain available.'];
   const readinessLines = [
     `Tools: ${snapshot.skills.eligible} available, ${snapshot.skills.missingRequirements} need setup`,
     `Unsupported here: ${snapshot.skills.unsupportedOnThisOs}`,
@@ -55,7 +55,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
       'Live validation runs only after explicit confirmation.',
     ];
   const surfacesLines = [
-    'Terminal and Dashboard are local control surfaces.',
+    'Terminal and ZavorthControl are local control surfaces.',
     'Remote surfaces require pairing or allowlists before messages can reach tools.',
     'Unknown senders stay outside the tool boundary until you approve them.',
     '',
@@ -64,7 +64,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
   const gatewayLines = [
     `Runtime: ${snapshot.gateway.recommendedRuntime}`,
     `Gateway: ${snapshot.gateway.installed ? 'detected' : 'not installed yet'}`,
-    `Dashboard: ${snapshot.controlUi.url}`,
+    `ZavorthControl: ${snapshot.controlUi.url}`,
     snapshot.gateway.installed
       ? 'Setup will not restart persistent services automatically.'
       : 'Setup can finish now; start the runtime later when you are ready.',
@@ -88,6 +88,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
       `Skill governance: ${snapshot.plan.skillGovernance.mode}`,
       `Mode: ${snapshot.mode}`,
       `Config: ${snapshot.configHandling}`,
+      `Section: ${snapshot.setupSection}`,
       ...existingConfig,
     ]),
     onboardingSection('Plan', [
@@ -174,11 +175,17 @@ export function renderZavorthSetupAppliedSummary(snapshot: ZavorthSetupStudioSna
   written: boolean;
   keys: string[];
   envFile: string;
+  backupFile?: string | null;
+  removedKeys?: string[];
 }): string {
   const lines = [
     result.written
       ? `Updated ${result.keys.length} key(s) in ${result.envFile}`
       : 'No .env updates were needed.',
+    result.backupFile ? `Backup: ${result.backupFile}` : null,
+    result.removedKeys && result.removedKeys.length > 0
+      ? `Reset removed ${result.removedKeys.length} managed key(s).`
+      : null,
     `Home: ${snapshot.home.root}`,
     snapshot.plan.hooks.enabled
       ? `Automation templates prepared in .zavorth/hooks (${snapshot.plan.hooks.templates.length}).`
@@ -186,7 +193,7 @@ export function renderZavorthSetupAppliedSummary(snapshot: ZavorthSetupStudioSna
     '',
     'Next commands:',
     ...snapshot.plan.nextCommands.map((command) => `- ${command}`),
-  ];
+  ].filter((line): line is string => Boolean(line));
   return compactSection('First Light complete', lines);
 }
 

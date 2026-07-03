@@ -294,7 +294,7 @@ function normalizePublicAdoptionPilotLoop(value: unknown): AnyRecord | null {
   if (!Object.keys(snapshot).length) return null;
   return {
     ...snapshot,
-    status: snapshot.status === 'needs-dashboard' ? 'pilot-ready' : snapshot.status || 'pilot-ready',
+    status: snapshot.status === 'needs-zavorthControl' ? 'pilot-ready' : snapshot.status || 'pilot-ready',
     adoptionLoop: {
       ...record(snapshot.adoptionLoop),
       plannedPilotCount: snapshot.adoptionLoop?.plannedPilotCount ?? snapshot.pilot?.plannedPilotCount ?? 3,
@@ -335,8 +335,8 @@ export function mapPerceptionControlProjection(activeRun: any, snapshot: any) {
   return activeRun?.metadata?.perceptionControl
     || snapshot?.perceptionControl
     || snapshot?.zavorthControlProjection
-    || snapshot?.dashboardProjection?.perceptionControl
-    || snapshot?.dashboardProjection
+    || snapshot?.zavorthControlProjection?.perceptionControl
+    || snapshot?.zavorthControlProjection
     || null;
 }
 
@@ -471,8 +471,8 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     toolRehearsal: activeRun.metadata?.toolRehearsal || null,
     safetyNarrative: activeRun.metadata?.safetyNarrative || null,
     memoryWithReceipts: activeRun.metadata?.memoryWithReceipts || null,
-    selfingZavorthControl: normalizeSelfingZavorthControl(activeRun.metadata?.selfingZavorthControl || activeRun.metadata?.selfingDashboard),
-    selfingDashboard: activeRun.metadata?.selfingDashboard || activeRun.metadata?.selfingZavorthControl || null,
+    selfingZavorthControl: normalizeSelfingZavorthControl(activeRun.metadata?.selfingZavorthControl || activeRun.metadata?.selfingZavorthControl),
+    selfingZavorthControl: activeRun.metadata?.selfingZavorthControl || activeRun.metadata?.selfingZavorthControl || null,
     artifactMemory: activeRun.metadata?.artifactMemory || null,
     personalOpsAutopilot: activeRun.metadata?.personalOpsAutopilot || null,
     agentTeamCompiler: mapAgentTeamCompiler(activeRun),

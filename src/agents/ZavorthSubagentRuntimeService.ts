@@ -47,13 +47,14 @@ import {
   type ZavorthLiveSubagentExecutionResult,
 } from '@zavorth/services/ZavorthLiveSubagentExecutionService.js';
 import {
-  buildAutoInvocationDashboardProjection,
+  buildAutoInvocationZavorthControlProjection,
   normalizeAutoInvocation,
 } from '@zavorth/services/ZavorthSubagentRuntimeTelemetrySupport.js';
 import {
   AUTO_SUBAGENT_DECISION_LABEL,
   formatSubagentRuntimeSnapshotText,
 } from '@zavorth/services/ZavorthSubagentRuntimePresenter.js';
+import { buildSubagentIdentity } from '@zavorth/services/ZavorthSubagentIdentityService.js';
 import {
   compareSubagentRunsByActivity,
   compareSubagentSessionsByActivity,
@@ -356,11 +357,20 @@ export class ZavorthSubagentRuntimeService {
       createdAt: generatedAt,
       updatedAt: generatedAt,
       roleIds,
-      profileSummaries: profiles.map((profile) => ({
-        id: profile.id,
-        label: profile.label,
-        objective: profile.objective,
-      })),
+      profileSummaries: profiles.map((profile) => {
+        const identity = buildSubagentIdentity({
+          roleId: profile.id,
+          sessionId,
+          status,
+          label: profile.label,
+        });
+        return {
+          id: profile.id,
+          label: identity.displayName,
+          objective: profile.objective,
+          identity,
+        };
+      }),
       messages: [
         this.message(generatedAt, 'user', task, receipt.id),
         this.message(generatedAt, 'subagent', output, receipt.id),
@@ -1034,6 +1044,7 @@ export class ZavorthSubagentRuntimeService {
       .map((run) => run.autoInvocation)
       .filter((entry): entry is ZavorthSubagentAutoInvocationTelemetry => Boolean(entry));
     const latestAutoInvocation = autoInvocationDecisions.at(-1) || runAutoInvocations.at(-1) || null;
+    const autoInvocationProjection = buildAutoInvocationZavorthControlProjection(latestAutoInvocation);
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_SUBAGENT_RUNTIME_CONTRACT_VERSION,
@@ -1070,7 +1081,7 @@ export class ZavorthSubagentRuntimeService {
       autoInvocationTelemetry: {
         latest: latestAutoInvocation,
         decisions: autoInvocationDecisions,
-        dashboardProjection: buildAutoInvocationDashboardProjection(latestAutoInvocation),
+        zavorthControlProjection: autoInvocationProjection,
       },
       limits: input.limits,
       policy: {

@@ -42,7 +42,7 @@ export type ZavorthSmartCommandResolution = {
   executionMode: ZavorthSmartCommandExecutionMode;
   canonicalSlash: string;
   cliCommand: string;
-  supportedSurfaces: Array<'cli' | 'dashboard' | 'telegram' | 'discord' | 'whatsapp' | 'api'>;
+  supportedSurfaces: Array<'cli' | 'zavorthControl' | 'telegram' | 'discord' | 'whatsapp' | 'api'>;
 };
 
 export type ZavorthSmartCommandSnapshot = {

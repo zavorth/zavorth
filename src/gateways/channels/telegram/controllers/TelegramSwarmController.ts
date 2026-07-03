@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { IMessageContext } from '@zavorth/contracts/IMessageBroker.js';
 import { SwarmOrchestrator, type SwarmRole } from '@zavorth/runtime/sessions/v2/SwarmOrchestrator.js';
 import { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
@@ -93,11 +92,13 @@ export class TelegramSwarmController {
 
     // Listen for role events and update progress
     orchestrator.on('role:started', (data: Record<string, unknown>) => {
-      this.updateProgress(chatId, progressMsgId, objective, data.roleId as string, 'running');
+      const roleId = typeof data.roleId === 'string' ? data.roleId : String(data.roleId ?? '');
+      this.updateProgress(chatId, progressMsgId, objective, roleId, 'running');
     });
 
     orchestrator.on('role:finished', (data: Record<string, unknown>) => {
-      this.updateProgress(chatId, progressMsgId, objective, data.roleId as string, data.status === 'IDLE' ? 'done' : 'error');
+      const roleId = typeof data.roleId === 'string' ? data.roleId : String(data.roleId ?? '');
+      this.updateProgress(chatId, progressMsgId, objective, roleId, data.status === 'IDLE' ? 'done' : 'error');
     });
 
     try {
@@ -128,8 +129,9 @@ export class TelegramSwarmController {
 
       await this.deps.botApi.sendMessage(chatId, truncated, { parse_mode: 'Markdown' });
     } catch (err: unknown) {
+      const errMessage = err instanceof Error ? err.message : String(err);
       await this.deps.botApi.sendMessage(chatId,
-        `🐝❌ **Swarm failed**: ${err.message || err}`,
+        `🐝❌ **Swarm failed**: ${errMessage}`,
         { parse_mode: 'Markdown' },
       );
     } finally {

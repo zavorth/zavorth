@@ -21,7 +21,7 @@ export default function ErrorPageScaffold({
   description,
   icon = "error",
   suggestions = [],
-  primaryAction = { href: "/dashboard", label: "Go to Dashboard" },
+  primaryAction = { href: "/zavorthControl", label: "Go to ZavorthControl" },
   secondaryAction = { href: "/status", label: "Check System Status" },
 }: ErrorPageScaffoldProps) {
   return (

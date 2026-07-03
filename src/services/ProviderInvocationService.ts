@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { logger } from '../logger.js';
 import { ProviderRuntimeRouter } from './ProviderRuntimeRouter.js';
 import { ProviderRuntimeClientFactory, ProviderInvocationResult } from './ProviderRuntimeClientFactory.js';
@@ -21,7 +20,7 @@ export class ProviderInvocationService {
   public async invoke(request: ProviderRuntimeRequest, messages: unknown[]): Promise<ProviderInvocationResult> {
     const startMs = Date.now();
     let resolved: ResolvedProviderRuntime | null = null;
-    const logger = new SecurityAuditLogger();
+    const auditLogger = new SecurityAuditLogger();
     const wsId = request.workspaceId || 'system';
 
     if (wsId === 'system') {
@@ -35,7 +34,7 @@ export class ProviderInvocationService {
       const factory = ProviderRuntimeClientFactory.getInstance();
       const invoker = await factory.createInvoker(resolved);
 
-      await logger.logWorkspaceEvent({
+      await auditLogger.logWorkspaceEvent({
         event: 'provider_invocation_started' as any,
         workspaceId: wsId,
         providerId: resolved.providerId,
@@ -49,7 +48,7 @@ export class ProviderInvocationService {
       const result = await invoker.invoke({ messages, stream: false });
       
       const durationMs = Date.now() - startMs;
-      await logger.logWorkspaceEvent({
+      await auditLogger.logWorkspaceEvent({
         event: 'provider_invocation_succeeded' as any,
         workspaceId: wsId,
         providerId: resolved.providerId,
@@ -62,12 +61,12 @@ export class ProviderInvocationService {
       });
       
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const durationMs = Date.now() - startMs;
       const normalized = ErrorNormalizationService.getInstance().normalize(error);
       const errorCode = normalized.code;
 
-      await logger.logWorkspaceEvent({
+        await auditLogger.logWorkspaceEvent({
         event: 'provider_invocation_failed' as any,
         workspaceId: wsId,
         providerId: resolved?.providerId || request.providerId || 'unknown',

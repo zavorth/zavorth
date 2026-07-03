@@ -100,8 +100,9 @@ async function cleanup(): Promise<void> {
     if (closeDbInstance()) {
       console.log("[Shutdown] SQLite database checkpointed and closed.");
     }
-  } catch (err) {
-    console.error("[Shutdown] Error during cleanup:", (err as Error).message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[Shutdown] Error during cleanup:", message);
   }
 }
 

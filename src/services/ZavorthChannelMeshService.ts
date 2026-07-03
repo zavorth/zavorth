@@ -544,7 +544,7 @@ export class ZavorthChannelMeshService {
       updatedAt: null,
       nextStep: connected
         ? 'WhatsApp ja aparece conectado neste snapshot.'
-        : 'Use /channels login-qr whatsapp para gerar ou buscar o QR no dashboard/API local.',
+        : 'Use /channels login-qr whatsapp para gerar ou buscar o QR no zavorthControl/API local.',
     };
   }
 

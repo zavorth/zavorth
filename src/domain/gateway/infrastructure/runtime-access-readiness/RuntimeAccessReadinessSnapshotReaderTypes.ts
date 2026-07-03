@@ -8,7 +8,7 @@ export type RuntimeAccessReadinessSnapshotReaderOptions = {
   readFileSync: typeof fs.readFileSync;
   kill: (pid: number, signal?: number | NodeJS.Signals) => void;
   tenantRegistryFile: string;
-  dashboardRuntimeFile: string;
+  zavorthControlRuntimeFile: string;
   nodeMeshSmokeReportFile: string;
   nodeMeshSmokeMaxAgeMs: number;
   systemOverlordSmokeReportFile: string;

@@ -94,7 +94,7 @@ export function isSafeGroupCommand(commandType: string): boolean {
     '/capabilities',
     '/integrations',
     '/status',
-    '/dashboard',
+    '/zavorthControl',
   ]).has(commandType);
 }
 

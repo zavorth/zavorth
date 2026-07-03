@@ -13,7 +13,7 @@ export type RuntimeAdapterNativeReplacementArea =
   | 'channel-bridge'
   | 'session-memory'
   | 'worker-delegation'
-  | 'dashboard';
+  | 'zavorthControl';
 
 export type RuntimeAdapterNativeReplacementContract =
   | 'NormalizedInboundMessage'
@@ -22,7 +22,7 @@ export type RuntimeAdapterNativeReplacementContract =
   | 'UniversalReplyPacket'
   | 'CanonicalSessionContextSnapshot'
   | 'UniversalAgentExecutorResult'
-  | 'ZavorthDashboardAssimilationSnapshot';
+  | 'ZavorthZavorthControlAssimilationSnapshot';
 
 export type RuntimeAdapterNativeReplacementConsistencyCase = {
   id: string;

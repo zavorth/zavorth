@@ -889,7 +889,7 @@
   setState('disconnected');
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/satellite/sw.js', { scope: '/satellite/' }).catch(() => {});
+    navigator.serviceWorker.register('/satellite/sw.js', { scope: '/satellite/' }).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
   }
   window.addEventListener('online', flushOfflineQueue);
 })();

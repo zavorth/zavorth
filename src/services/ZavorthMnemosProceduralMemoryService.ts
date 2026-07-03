@@ -243,7 +243,7 @@ export class ZavorthMnemosProceduralMemoryService {
     if (/\b(aprova|approve|approval|permit|autoriza|autorizo|sempre pode)\b/i.test(text)) return 'approval-policy';
     if (/\b(provider|modelo|model|gemini|openrouter|groq|deepseek|qwen)\b/i.test(text)) return 'provider-preference';
     if (/\b(seguran|risco|nunca|bloque|limite|senha|token|secret|chave)\b/i.test(text)) return 'safety-boundary';
-    if (/\b(responda|fale|telegram|dashboard|notifica|mensagem|formato)\b/i.test(text)) return 'communication-preference';
+    if (/\b(responda|fale|telegram|zavorthControl|notifica|mensagem|formato)\b/i.test(text)) return 'communication-preference';
     if (/\b(prefiro|sempre|evite|use|rode|teste|commit|pr|pull request)\b/i.test(text)) return 'workflow-preference';
     return 'general-procedure';
   }
@@ -266,7 +266,7 @@ export class ZavorthMnemosProceduralMemoryService {
     const scopes = new Set<string>([kind]);
     if (/\b(skill|curator|curador)\b/i.test(text)) scopes.add('skills');
     if (/\b(provider|modelo|model)\b/i.test(text)) scopes.add('providers');
-    if (/\b(telegram|discord|whatsapp|dashboard|cli)\b/i.test(text)) scopes.add('channels');
+    if (/\b(telegram|discord|whatsapp|zavorthControl|cli)\b/i.test(text)) scopes.add('channels');
     if (/\b(transaction|pagamento|dinheiro|trade|compra)\b/i.test(text)) scopes.add('transactions');
     if (/\b(repo|codigo|código|teste|commit|pr|pull request)\b/i.test(text)) scopes.add('code-workflow');
     return Array.from(scopes);

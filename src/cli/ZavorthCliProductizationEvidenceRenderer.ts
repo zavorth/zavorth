@@ -126,10 +126,10 @@ export function formatProductizationEvidenceSnapshot(
   lines.push(`- replay: ${String(snapshot.runtimeEvidence.runArtifactReceiptReplay)}`);
   lines.push(`- provider mesh: ${String(snapshot.runtimeEvidence.providerMeshConsolidation)}`);
   lines.push(`- UNI/trust: ${String(snapshot.runtimeEvidence.universalIntentTrustEnforcement)}`);
-  lines.push(`- Dashboard: ${String(snapshot.runtimeEvidence.dashboardProjection)}`);
+  lines.push(`- ZavorthControl: ${String(snapshot.runtimeEvidence.zavorthControlProjection)}`);
 
   lines.push('', 'Superficies de consumo');
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Release: ${snapshot.surface.releaseHint}`);
 

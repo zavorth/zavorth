@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * Maintenance Banner — Dashboard controls.4
+ * Maintenance Banner — ZavorthControl controls.4
  *
- * Shows a warning banner at the top of the dashboard when the server
+ * Shows a warning banner at the top of the zavorthControl when the server
  * is restarting or in maintenance mode. Auto-dismisses when the server
  * comes back online.
  */

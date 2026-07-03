@@ -10,7 +10,7 @@ import { isModelSyncInternalRequest } from "./shared/services/modelSyncScheduler
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "");
 const AUTH_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60;
 
-function isLocalDashboardRequest(request: any): boolean {
+function isLocalZavorthControlRequest(request: any): boolean {
   try {
     const hostname = new URL(request.url).hostname.toLowerCase();
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
@@ -85,13 +85,13 @@ export async function proxy(request: any) {
   }
 
   // zavorthControlSectorForPath — Control routes map to the ZavorthControl sector.
-  if (pathname.startsWith("/control") || pathname.startsWith("/dashboard")) {
-    if (isLoopbackRequest(request) || isLocalDashboardRequest(request)) {
+  if (pathname.startsWith("/control") || pathname.startsWith("/zavorthControl")) {
+    if (isLoopbackRequest(request) || isLocalZavorthControlRequest(request)) {
       return response;
     }
 
     // Always allow onboarding — it has its own setupComplete guard
-    if (pathname.startsWith("/dashboard/onboarding")) {
+    if (pathname.startsWith("/zavorthControl/onboarding")) {
       return response;
     }
 
@@ -179,7 +179,7 @@ export async function proxy(request: any) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Redirect / to the single official dashboard surface.
+  // Redirect / to the single official zavorthControl surface.
   // redirectZavorthControlPathToControl — Root always lands on the primary control surface.
   if (pathname === "/") {
     return NextResponse.redirect(new URL("/control", request.url));
@@ -189,5 +189,5 @@ export async function proxy(request: any) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/api/:path*"],
+  matcher: ["/", "/zavorthControl/:path*", "/api/:path*"],
 };

@@ -1,10 +1,9 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { config } from '@zavorth/config/index.js';
 import { t, getNluPatterns } from '../../../../gateways/channels/telegram/i18n.js';
-import { DashboardService } from '@zavorth/services/DashboardService.js';
+import { ZavorthControlService } from '@zavorth/services/ZavorthControlService.js';
 import { RemoteModeManager } from '@zavorth/services/RemoteModeManager.js';
-import type { RemoteModeCommand } from '@zavorth/services/RemoteModeManager.js';
+import type { RemoteModeCommand, RemoteModeResult } from '@zavorth/services/RemoteModeManager.js';
 import { RuntimeAccessManifestService } from '@zavorth/runtime/access/RuntimeAccessManifestService.js';
 import { RuntimeBootstrapService } from '@zavorth/runtime/access/RuntimeBootstrapService.js';
 import {
@@ -31,7 +30,7 @@ export type TelegramOpsRuntimeMaintenanceCommand = {
 };
 
 export type TelegramOpsRuntimeCommandServiceDeps = {
-  dashboardService: DashboardService;
+  zavorthControlService: ZavorthControlService;
   remoteModeManager: RemoteModeManager;
   wslControl: WslControlService;
   supervisedRuntimeService: SupervisedRuntimeService;
@@ -151,7 +150,7 @@ export class TelegramOpsRuntimeCommandService {
           '',
           `Status: ${manifest.local.ready ? 'ready' : 'pending'}.`,
           `App: ${manifest.local.appUrl}`,
-          `Legacy dashboard: ${manifest.local.dashboardUrl}`,
+          `Legacy zavorthControl: ${manifest.local.zavorthControlUrl}`,
           `Web API: ${manifest.local.apiBaseUrl}`,
           '',
           ...manifest.guides.local.slice(0, 4).map((line) => `- ${line}`),
@@ -416,11 +415,11 @@ export class TelegramOpsRuntimeCommandService {
 
       await ctx.reply(this.formatRemoteModeReply(result, mode));
     } catch (error: unknown) {
-      await ctx.reply(`Nao consegui ajustar o modo remoto agora.\n\nMotivo: ${error.message}`);
+      await ctx.reply(`Nao consegui ajustar o modo remoto agora.\n\nMotivo: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  public formatRemoteModeReply(result: unknown, mode: string): string {
+  public formatRemoteModeReply(result: RemoteModeResult, mode: string): string {
     const lines: string[] = [];
 
     if (mode === 'activate') {
@@ -446,19 +445,19 @@ export class TelegramOpsRuntimeCommandService {
     return lines.join('\n');
   }
 
-  public async handleDashboard(ctx: Context): Promise<void> {
+  public async handleZavorthControl(ctx: Context): Promise<void> {
     try {
-      await this.deps.dashboardService.start();
-      const url = this.deps.dashboardService.getUrl();
+      await this.deps.zavorthControlService.start();
+      const url = this.deps.zavorthControlService.getUrl();
       const publicUrl =
-        typeof (this.deps.dashboardService as any).getPublicBaseUrl === 'function'
-          ? this.deps.dashboardService.getPublicBaseUrl()
+        typeof (this.deps.zavorthControlService as any).getPublicBaseUrl === 'function'
+          ? this.deps.zavorthControlService.getPublicBaseUrl()
           : null;
       const lines = [
-        '**Zavorth Dashboard Online**',
+        '**Zavorth ZavorthControl Online**',
         '',
         'Main web gateway on the host machine:',
-        `${url}/dashboard`,
+        `${url}/zavorthControl`,
       ];
 
       if (publicUrl) {
@@ -482,7 +481,7 @@ export class TelegramOpsRuntimeCommandService {
 
       await ctx.reply(lines.join('\n'), { parse_mode: 'Markdown' });
     } catch (error: unknown) {
-      await ctx.reply(`Failed to start Dashboard: ${error.message}`);
+      await ctx.reply(`Failed to start ZavorthControl: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -510,7 +509,7 @@ export class TelegramOpsRuntimeCommandService {
       const result = await this.deps.wslControl.status();
       await this.replyWslSurface(ctx, result);
     } catch (error: unknown) {
-      await ctx.reply(`Error accessing WSL: ${error.message}`);
+      await ctx.reply(`Error accessing WSL: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

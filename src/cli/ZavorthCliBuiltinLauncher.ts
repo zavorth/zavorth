@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { resolveCliHelpTopic } from './ZavorthCliSurfaceHelpers.js';
@@ -53,7 +52,7 @@ import {
   runContinuousSecurityMonitor, runSecurityOperationalPreset, runMinimalKernel, runAiFirstOwnerControlledDefault,
   runPromotedScript, buildQuickSandboxHostReadiness,
   runProductizationProtectedRuntime,
-  runExperienceProfiles, runConversationalSetup, runGuidedMissions, runCapabilityStore, runDoItWithMe, runTrustPanel, runTrustApprovalUxFinal, runAutonomySlider, runModelCostGuard, runVisualReceiptsV2, runSatelliteApprovalCompanion, runNaturalRuntimeQuestions, runDashboardExperienceHome, runRuntimeReadiness, runReadyToGo, runOneCommandOperatorCheck, runStayOnline, runSmartCommands, runExternalAgentOnboarding, runExternalAgentMigrationPack, runExternalAgentGateway, runAgentManager, runCapabilityMesh, runAgentReview, runSkillCurator, runPersistentApprovals, runSkillExpansionPack, runCapabilityCertification, runProviderConsistency, runProviderCapabilityCatalog, runProviderCapabilityMatrix, runNativeIntegrations, runProviderChannelWizard, runChannelCapabilityCatalog, runChannelCapabilityAtlas, runChannelDeepening, runNativeLearningLoop, runZavorthConvergenceDoctor, runZavorthProductHardeningDoctor, runGatewayMatrix, runExecutionBackends, runSkillEcosystem, runAcp, runRuntimeGuidedFixes, runRuntimeReadinessFix, runRuntimeReadinessFixProvider, runCliExperienceConsistency, runExperienceLayerDailyUseCertification, runGatewaySpine, runUnifiedOnboarding, runSensitiveActionFlow, runProviderReadiness, runDynamicWorkflows, runEffortControl, collectEffortControlPositionals, runProviderLongTailActivation, runChannelLongTailActivation, normalizeMeshActivationArgs, resolveProductizationView
+  runExperienceProfiles, runConversationalSetup, runGuidedMissions, runCapabilityStore, runDoItWithMe, runTrustPanel, runTrustApprovalUxFinal, runAutonomySlider, runModelCostGuard, runVisualReceiptsV2, runSatelliteApprovalCompanion, runNaturalRuntimeQuestions, runZavorthControlExperienceHome, runRuntimeReadiness, runReadyToGo, runOneCommandOperatorCheck, runStayOnline, runSmartCommands, runExternalAgentOnboarding, runExternalAgentMigrationPack, runExternalAgentGateway, runAgentManager, runCapabilities, runCapabilityMesh, runAgentReview, runSkillCurator, runPersistentApprovals, runSkillExpansionPack, runCapabilityCertification, runProviderConsistency, runProviderCapabilityCatalog, runProviderCapabilityMatrix, runNativeIntegrations, runProviderChannelWizard, runChannelCapabilityCatalog, runChannelCapabilityAtlas, runChannelDeepening, runNativeLearningLoop, runZavorthConvergenceDoctor, runZavorthProductHardeningDoctor, runGatewayMatrix, runExecutionBackends, runSkillEcosystem, runAcp, runRuntimeGuidedFixes, runRuntimeReadinessFix, runRuntimeReadinessFixProvider, runCliExperienceConsistency, runExperienceLayerDailyUseCertification, runGatewaySpine, runUnifiedOnboarding, runSensitiveActionFlow, runProviderReadiness, runDynamicWorkflows, runEffortControl, collectEffortControlPositionals, runProviderLongTailActivation, runChannelLongTailActivation, normalizeMeshActivationArgs, resolveProductizationView
 } from './ZavorthCliPremiumHandlers.js';
 
 export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
@@ -326,9 +325,9 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     return runPromotedScript('ops-go', restArgs);
   }
 
-  if (command === 'open' || command === 'dashboard') {
+  if (command === 'open' || command === 'control') {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
-      return printBuiltinHelp('dashboard');
+      return printBuiltinHelp('control');
     }
     return runPromotedScript('ops-go', restArgs);
   }
@@ -540,8 +539,8 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     return runNaturalRuntimeQuestions(restArgs);
   }
 
-  if (command === 'dashboard-home' || command === 'experience-home' || command === 'zavorthControl-home') {
-    return runDashboardExperienceHome(restArgs);
+  if (command === 'zavorthControl-home' || command === 'experience-home' || command === 'zavorthControl-home') {
+    return runZavorthControlExperienceHome(restArgs);
   }
 
   if (command === 'status' || command === 'ready' || command === 'ready-to-go') {

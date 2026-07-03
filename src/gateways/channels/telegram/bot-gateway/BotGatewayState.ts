@@ -22,7 +22,7 @@ import type { MessageFilterService } from '../../../../services/MessageFilterSer
 import type { WarnService } from '../../../../services/WarnService.js';
 import type { GroupModerationService } from '../../../../services/GroupModerationService.js';
 import type { GroupStatsService } from '../../../../services/GroupStatsService.js';
-import type { DashboardService } from '../../../../services/DashboardService.js';
+import type { ZavorthControlService } from '../../../../services/ZavorthControlService.js';
 import type { DailyReportService } from '../../../../services/DailyReportService.js';
 import type { DemoGuideService } from '../../../../services/DemoGuideService.js';
 import type { DemoModeService } from '../../../../services/DemoModeService.js';
@@ -96,7 +96,7 @@ export abstract class BotGatewayState {
   protected honeypot!: HoneypotMonitor;
   protected schedulerService!: SchedulerService;
   protected funGamesService!: FunGamesService;
-  protected dashboardService!: DashboardService;
+  protected zavorthControlService!: ZavorthControlService;
   protected dailyReportService!: DailyReportService;
   protected demoGuideService!: DemoGuideService;
   protected demoModeService!: DemoModeService;

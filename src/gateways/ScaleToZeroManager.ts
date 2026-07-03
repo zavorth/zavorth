@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import type { WebhookGateway } from './WebhookGateway.js';
 import type { ChannelGatewayRegistry } from './ChannelGatewayRegistry.js';
+import { logger } from '../logger.js';
 
 export type ScaleToZeroConfig = {
   enabled: boolean;
@@ -39,6 +40,20 @@ type PersistedState = {
   states: Record<string, GatewayIdleState>;
   events: ScaleToZeroEvent[];
 };
+
+interface LifecycleGateway {
+  shutdown(): Promise<void>;
+  initialize(): Promise<void>;
+}
+
+function isLifecycleGateway(gateway: unknown): gateway is LifecycleGateway {
+  return (
+    typeof gateway === 'object'
+    && gateway !== null
+    && typeof (gateway as LifecycleGateway).shutdown === 'function'
+    && typeof (gateway as LifecycleGateway).initialize === 'function'
+  );
+}
 
 const DEFAULT_CONFIG: ScaleToZeroConfig = {
   enabled: false,
@@ -90,7 +105,7 @@ export class ScaleToZeroManager {
   start(): void {
     if (this.checkTimer) return;
     this.checkTimer = setInterval(() => {
-      this.runCheck().catch(() => {});
+      this.runCheck().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
     }, this.config.checkIntervalMs);
   }
 
@@ -145,9 +160,9 @@ export class ScaleToZeroManager {
     if (!state || state.isShutdown) return false;
 
     const gateway = this.registry?.resolveGateway(normalized);
-    if (gateway && typeof (gateway as any).shutdown === 'function') {
+    if (gateway && isLifecycleGateway(gateway)) {
       try {
-        await (gateway as any).shutdown();
+        await gateway.shutdown();
       } catch {
         return false;
       }
@@ -178,7 +193,7 @@ export class ScaleToZeroManager {
     }
 
     const warmUpPromise = this.executeWarmUp(normalized);
-    this.pendingWarmUps.set(normalized, warmUpPromise);
+    this.pendingWarmUps.set(normalized, warmUpPromise.then(() => {}));
 
     try {
       const result = await warmUpPromise;
@@ -190,12 +205,12 @@ export class ScaleToZeroManager {
 
   private async executeWarmUp(gatewayId: string): Promise<boolean> {
     const gateway = this.registry?.resolveGateway(gatewayId);
-    if (gateway && typeof (gateway as any).initialize === 'function') {
+    if (gateway && isLifecycleGateway(gateway)) {
       const timeoutPromise = new Promise<boolean>((_, reject) => {
         setTimeout(() => reject(new Error('warmup_timeout')), this.config.warmUpTimeoutMs);
       });
 
-      const initPromise = (gateway as any).initialize().then(() => true).catch(() => false);
+      const initPromise = gateway.initialize().then(() => true).catch(() => false);
 
       try {
         await Promise.race([initPromise, timeoutPromise]);

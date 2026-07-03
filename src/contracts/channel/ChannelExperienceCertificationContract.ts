@@ -40,7 +40,7 @@ export type ChannelExperienceCertificationSmokePlan = {
   notes: string[];
 };
 
-export type ChannelExperienceDashboardEvidence = {
+export type ChannelExperienceZavorthControlEvidence = {
   status: 'contract-ready' | 'blocked';
   note: string;
   routes: string[];
@@ -65,7 +65,7 @@ export type ChannelExperienceCertificationSnapshot = {
   entries: ChannelExperienceCertificationEntry[];
   selected: ChannelExperienceCertificationEntry | null;
   smokePlan: ChannelExperienceCertificationSmokePlan;
-  dashboardEvidence: ChannelExperienceDashboardEvidence;
+  zavorthControlEvidence: ChannelExperienceZavorthControlEvidence;
   narrative: {
     headline: string;
     operatorSummary: string;

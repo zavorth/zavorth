@@ -259,7 +259,9 @@ export class FirstRunPersonalizationService {
 
     // Sync agent name to wake words
     const wakeWordSync = new WakeWordSyncService();
-    await wakeWordSync.syncAgentNameToWakeWords(normalized.agentName);
+    wakeWordSync.syncAgentNameToWakeWords(normalized.agentName).catch((err) => {
+      console.error('Failed to sync agent name to wake words:', err);
+    });
 
     const status = this.getStatus();
     return {

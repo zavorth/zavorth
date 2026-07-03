@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Task } from '../../../../contracts/TaskContract.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { DeepSearchService } from '../../../../services/DeepSearchService.js';
@@ -58,7 +57,9 @@ export class TelegramExecutionResearchService {
         success: true,
       };
     } catch (error: unknown) {
-      const message = String(error?.message || error || 'Falha desconhecida na pesquisa web.').trim();
+      const message = String(
+        (error instanceof Error ? error.message : null) ?? error ?? 'Falha desconhecida na pesquisa web.',
+      ).trim();
       task.executor_used = 'web_research';
       task.error_summary = this.truncateSummary(message);
       task.metadata = {

@@ -93,7 +93,7 @@ export function isStrongWebOperatorApprovalAccepted(
   const expected = String(
     process.env.ZAVORTH_OPERATOR_APPROVAL_TOKEN
     || process.env.ZAVORTH_RUNTIME_ADAPTER_API_APPROVAL_TOKEN
-    || process.env.ZAVORTH_DASHBOARD_OPERATOR_TOKEN
+    || process.env.ZAVORTH_ZAVORTH_CONTROL_OPERATOR_TOKEN
     || '',
   ).trim();
   if (expected.length < 16) {

@@ -1,8 +1,143 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 
+declare function escapeHtml(value: unknown): string;
+declare function formatRelativeTime(value: unknown): string;
+declare function showToast(msg: string, isError?: boolean): void;
+declare function loadMetrics(): void;
+
+interface CockpitAction {
+  id?: string;
+  label?: string;
+  priority?: string;
+  reason?: string;
+  command?: string;
+}
+
+interface CockpitAlert {
+  title?: string;
+  level?: string;
+  detail?: string;
+  source?: string;
+  timestamp?: string;
+}
+
+interface CockpitSummary {
+  readySidecars?: number;
+  enabledSidecars?: number;
+  freeDiskPercent?: number;
+  publishAgeLabel?: string;
+}
+
+interface CockpitRuntime {
+  uptimeLabel?: string;
+  platformLabel?: string;
+  memoryLabel?: string;
+  heapLabel?: string;
+}
+
+interface OperationsCockpit {
+  error?: string;
+  headline?: string;
+  status?: string;
+  summary?: CockpitSummary;
+  runtime?: CockpitRuntime;
+  actions?: CockpitAction[];
+  alerts?: CockpitAlert[];
+  highlights?: string[];
+}
+
+interface ReportOverviewAction {
+  label?: string;
+  command?: string;
+  reason?: string;
+  source?: string;
+}
+
+interface ReportOverview {
+  posture?: string;
+  headline?: string;
+  operatorSummary?: string;
+  nextAction?: string;
+  actions?: ReportOverviewAction[];
+}
+
+interface ReportOperatorBrief {
+  posture?: string;
+  headline?: string;
+  nextAction?: {
+    label?: string;
+    command?: string;
+  };
+}
+
+interface ReportContinuityAction {
+  label?: string;
+  reason?: string;
+}
+
+interface ReportContinuityTask {
+  shortId?: string;
+  source?: string;
+  status?: string;
+}
+
+interface ReportContinuitySurfaces {
+  telegram?: number;
+  web?: number;
+  other?: number;
+}
+
+interface ReportContinuity {
+  suggestedAction?: ReportContinuityAction;
+  focusTask?: ReportContinuityTask | null;
+  surfaces?: ReportContinuitySurfaces;
+}
+
+interface ReportTasks {
+  activeCount?: number;
+  completedLast24h?: number;
+  failedLast24h?: number;
+  waitingApprovalLast24h?: number;
+  topExecutors?: string[];
+}
+
+interface ReportPermission {
+  executor?: string;
+  kind?: string;
+  reason?: string;
+}
+
+interface ReportAlert {
+  source?: string;
+  title?: string;
+  detail?: string;
+}
+
+interface ReportAction {
+  label?: string;
+  command?: string;
+  reason?: string;
+}
+
+interface OperationsReport {
+  error?: string;
+  text?: string;
+  executiveSummary?: string[];
+  operatorBrief?: ReportOperatorBrief | null;
+  continuity?: ReportContinuity | null;
+  overviews?: {
+    operational?: ReportOverview;
+    trust?: ReportOverview;
+    product?: ReportOverview;
+  };
+  tasks?: ReportTasks;
+  pendingPermissions?: ReportPermission[];
+  alerts?: ReportAlert[];
+  actions?: ReportAction[];
+}
+
 function zavorthControlClassicClientOverviewOperationsCockpit() {
-    function renderOperationsCockpit(cockpit) {
+    function renderOperationsCockpit(cockpit: OperationsCockpit) {
       const node = document.getElementById('operations-cockpit');
       if (!node) return;
       if (!cockpit || cockpit.error) {
@@ -19,7 +154,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       const statusClass = status === 'healthy' ? 'badge-allowed' : (status === 'degraded' ? 'badge-blocked' : 'badge-warning');
       const statusLabel = status === 'healthy' ? 'estavel' : (status === 'degraded' ? 'degradado' : 'atencao');
       const actionItems = actions.length
-        ? actions.map((action) =>
+        ? actions.map((action: CockpitAction) =>
             '<div class="cockpit-action-card">'
             + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">'
             + '<strong>' + escapeHtml(action.label || 'Acao operacional') + '</strong>'
@@ -32,7 +167,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
           ).join('')
         : '<div class="muted">Nenhuma acao recomendada no momento.</div>';
       const alertItems = alerts.length
-        ? alerts.map((alert) =>
+        ? alerts.map((alert: CockpitAlert) =>
             '<div class="cockpit-alert-card">'
             + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">'
             + '<strong>' + escapeHtml(alert.title || 'Sinal operacional') + '</strong>'
@@ -65,7 +200,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         + '</div>'
         + '<div class="sidecar-card">'
         + '<strong>Destaques</strong>'
-        + '<ul class="cockpit-list">' + highlights.map((item) => '<li>' + escapeHtml(item) + '</li>').join('') + '</ul>'
+        + '<ul class="cockpit-list">' + highlights.map((item: string) => '<li>' + escapeHtml(item) + '</li>').join('') + '</ul>'
         + '</div>'
         + '<div class="sidecar-card">'
         + '<strong>Proximas acoes</strong>'
@@ -81,7 +216,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         + '</div>';
     }
 
-    function renderOperationsReport(report) {
+    function renderOperationsReport(report: OperationsReport) {
       const node = document.getElementById('operations-report');
       if (!node) return;
       if (!report || report.error) {
@@ -97,12 +232,12 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       const pendingPermissions = report.pendingPermissions || [];
       const alerts = report.alerts || [];
       const actions = report.actions || [];
-      const renderOverviewSection = (title, overview, href) => {
+      const renderOverviewSection = (title: string, overview: ReportOverview | undefined, href: string) => {
         if (!overview) {
           return '';
         }
         const overviewActions = (overview.actions || []).length
-          ? (overview.actions || []).map((action) =>
+          ? (overview.actions || []).map((action: ReportOverviewAction) =>
               '<li><strong>' + escapeHtml(action.label || 'Acao recomendada') + '</strong>: '
               + escapeHtml(action.command || 'n/d') + ' | ' + escapeHtml(action.reason || 'Sem detalhe.')
               + ' <span class="muted">(' + escapeHtml(action.source || 'overview') + ')</span></li>'
@@ -122,22 +257,22 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
           + '</ul></div>';
       };
       const summaryItems = executiveSummary.length
-        ? executiveSummary.map((item) => '<li>' + escapeHtml(item) + '</li>').join('')
+        ? executiveSummary.map((item: string) => '<li>' + escapeHtml(item) + '</li>').join('')
         : '<li>Sem resumo executivo.</li>';
       const permissionItems = pendingPermissions.length
-        ? pendingPermissions.map((permission) =>
+        ? pendingPermissions.map((permission: ReportPermission) =>
             '<li><strong>' + escapeHtml(permission.executor || 'n/d') + '</strong> / '
             + escapeHtml(permission.kind || 'n/d') + ': ' + escapeHtml(permission.reason || 'Sem detalhe.') + '</li>'
           ).join('')
         : '<li>Nenhuma permissao pendente agora.</li>';
       const alertItems = alerts.length
-        ? alerts.map((alert) =>
+        ? alerts.map((alert: ReportAlert) =>
             '<li><strong>' + escapeHtml(alert.source || 'runtime') + '</strong>: '
             + escapeHtml(alert.title || 'Alerta') + ' | ' + escapeHtml(alert.detail || 'Sem detalhe.') + '</li>'
           ).join('')
         : '<li>Nenhum alerta recente.</li>';
       const actionItems = actions.length
-        ? actions.map((action) =>
+        ? actions.map((action: ReportAction) =>
             '<li><strong>' + escapeHtml(action.label || 'Acao') + '</strong>: '
             + escapeHtml(action.command || 'n/d') + ' | ' + escapeHtml(action.reason || 'Sem detalhe.') + '</li>'
           ).join('')
@@ -210,7 +345,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       }
     }
 
-    async function copyTextToClipboard(value, successMessage) {
+    async function copyTextToClipboard(value: string | number | boolean, successMessage?: string) {
       try {
         if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
           throw new Error('clipboard indisponivel');
@@ -222,7 +357,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       }
     }
 
-    async function runCockpitAction(actionId) {
+    async function runCockpitAction(actionId: string) {
       try {
         const response = await fetch('/api/operations/actions', {
           method: 'POST',
@@ -231,7 +366,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
           },
           body: JSON.stringify({ actionId }),
         });
-        const payload = await response.json();
+        const payload = await response.json() as { ok?: boolean; error?: string; action?: { label?: string } };
         if (!response.ok || !payload.ok) {
           throw new Error(payload.error || 'Falha ao iniciar acao operacional.');
         }
@@ -241,11 +376,11 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
           loadMetrics();
         }, 1500);
       } catch (error) {
-        showToast(error.message || 'Falha ao iniciar acao operacional.', true);
+        showToast(error instanceof Error ? error.message : 'Falha ao iniciar acao operacional.', true);
       }
     }
 
-    async function runIntegrationHubAction(integrationId, actionId) {
+    async function runIntegrationHubAction(integrationId: string, actionId: string) {
       try {
         const response = await fetch('/api/operations/integrations/actions', {
           method: 'POST',
@@ -254,7 +389,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
           },
           body: JSON.stringify({ integrationId, actionId }),
         });
-        const payload = await response.json();
+        const payload = await response.json() as { ok?: boolean; error?: string; action?: { label?: string; note?: string; status?: string } };
         if (!response.ok || !payload.ok) {
           throw new Error(payload.error || 'Falha ao executar a acao do Integration Hub.');
         }
@@ -265,7 +400,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
           loadMetrics();
         }, 1200);
       } catch (error) {
-        showToast(error.message || 'Falha ao executar a acao do Integration Hub.', true);
+        showToast(error instanceof Error ? error.message : 'Falha ao executar a acao do Integration Hub.', true);
       }
     }
 }
@@ -273,4 +408,3 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
 export function getZavorthControlClassicClientOverviewOperationsCockpitScript(): string {
   return extractFunctionBody(zavorthControlClassicClientOverviewOperationsCockpit);
 }
-

@@ -12,7 +12,7 @@ export default function RequestTimeoutPage() {
         "Check your network stability and VPN/proxy latency.",
         "For long operations, enable streaming or split the request.",
       ]}
-      primaryAction={{ href: "/dashboard/endpoint", label: "Open Endpoint Guide" }}
+      primaryAction={{ href: "/zavorthControl/endpoint", label: "Open Endpoint Guide" }}
       secondaryAction={{ href: "/status", label: "Check Network Status" }}
     />
   );

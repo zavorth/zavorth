@@ -4,7 +4,7 @@ import {
   type ZavorthChannelDescriptorInput,
   type ZavorthChannelMessagingBridgeSnapshot,
   type ZavorthChannelMessagingBridgeStatus,
-  type ZavorthChannelMessagingDashboardProjection,
+  type ZavorthChannelMessagingZavorthControlProjection,
   type ZavorthChannelPairingTrustReceipt,
   type ZavorthInboundChannelMessageInput,
   type ZavorthNormalizedChannelDescriptor,
@@ -108,7 +108,7 @@ export class ZavorthChannelMessagingBridgeService {
       pairingTrustReceipts,
     );
     const status = resolveStatus(previousCapabilityProviderStatus, acceptanceMatrix);
-    const dashboardProjection = this.buildDashboardProjection({
+    const zavorthControlProjection = this.buildZavorthControlProjection({
       status,
       channelDescriptors,
       sessionEventReceipt,
@@ -132,7 +132,7 @@ export class ZavorthChannelMessagingBridgeService {
       blockedOutboundReplyPacket,
       credentialIsolationReceipts,
       pairingTrustReceipts,
-      dashboardProjection,
+      zavorthControlProjection,
       acceptanceMatrix,
       summary: {
         normalizedChannels: channelDescriptors.length,
@@ -372,7 +372,7 @@ export class ZavorthChannelMessagingBridgeService {
     };
   }
 
-  public buildDashboardProjection(input: {
+  public buildZavorthControlProjection(input: {
     status: ZavorthChannelMessagingBridgeStatus;
     channelDescriptors: ZavorthNormalizedChannelDescriptor[];
     sessionEventReceipt: ZavorthChannelSessionEventReceipt;
@@ -380,7 +380,7 @@ export class ZavorthChannelMessagingBridgeService {
     blockedOutboundReplyPacket: ZavorthReplyPipelinePacket;
     credentialIsolationReceipts: ZavorthChannelCredentialIsolationReceipt[];
     pairingTrustReceipts: ZavorthChannelPairingTrustReceipt[];
-  }): ZavorthChannelMessagingDashboardProjection {
+  }): ZavorthChannelMessagingZavorthControlProjection {
     return {
       title: 'Channel Messaging Bridge',
       status: input.status,
@@ -424,8 +424,8 @@ export class ZavorthChannelMessagingBridgeService {
       `Raw credentials stored: ${snapshot.summary.rawCredentialsStored}`,
       `Direct channel sends: ${snapshot.summary.directChannelSends}`,
       '',
-      'Dashboard:',
-      ...snapshot.dashboardProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
+      'ZavorthControl:',
+      ...snapshot.zavorthControlProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
       '',
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
@@ -533,6 +533,6 @@ function card(
   label: string,
   value: string,
   detail: string,
-): ZavorthChannelMessagingDashboardProjection['cards'][number] {
+): ZavorthChannelMessagingZavorthControlProjection['cards'][number] {
   return { id, label, value, detail };
 }

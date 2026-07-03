@@ -24,7 +24,7 @@ import {
   type SatelliteStatusPayload,
 } from '../contracts/SatelliteContract.js';
 import { logger } from '../logger.js';
-import { DashboardAuthService } from './DashboardAuthService.js';
+import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
 
 export interface SatelliteSession {
   sessionId: string;
@@ -60,7 +60,7 @@ export type SatelliteHeartbeatHandler = (
 ) => Promise<unknown>;
 
 export type SatelliteTransportServiceOptions = {
-  auth?: DashboardAuthService | null;
+  auth?: ZavorthControlAuthService | null;
   path?: string;
   agentName?: string;
   capabilityRegistry?: Pick<CapabilityRegistry, 'getAll'>;
@@ -79,7 +79,7 @@ export type SatelliteUpgradeOptions = {
 export class SatelliteTransportService {
   private readonly sessions = new Map<string, SatelliteSession>();
   private readonly messageHandlers = new Map<SatelliteMessageType, SatelliteMessageHandler>();
-  private readonly auth: DashboardAuthService | null;
+  private readonly auth: ZavorthControlAuthService | null;
   private readonly path: string;
   private readonly agentName: string;
   private readonly capabilityRegistry: Pick<CapabilityRegistry, 'getAll'>;
@@ -404,7 +404,7 @@ export class SatelliteTransportService {
     const nonce = randomUUID();
     session.authNonce = nonce;
     const challenge: SatelliteAuthChallengePayload = {
-      authType: 'dashboard-token',
+      authType: 'zavorthControl-token',
       nonce,
     };
     this.sendEnvelope(session, 'auth.challenge', challenge);

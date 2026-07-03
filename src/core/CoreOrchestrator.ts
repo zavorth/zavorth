@@ -584,7 +584,7 @@ export class CoreOrchestrator implements IMessageBroker {
       case 'email':
         return 'Email';
       case 'web':
-        return 'Dashboard';
+        return 'ZavorthControl';
       case 'cli':
         return 'Terminal';
       default:
@@ -638,7 +638,7 @@ export class CoreOrchestrator implements IMessageBroker {
       case 'web':
         return {
           linkedBy: 'web-session',
-          verificationMethod: 'dashboard-auth',
+          verificationMethod: 'zavorthControl-auth',
         };
       case 'whatsapp':
         return {

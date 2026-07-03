@@ -8,6 +8,18 @@ import { WorkspaceOperationalMemoryService } from "../../../../runtime/context/W
 import { SurfaceTaskDispatchService } from "../../../../services/SurfaceTaskDispatchService.js";
 import type { EchoOutputStageService } from "../../../../services/EchoOutputStageService.js";
 import { TelegramTaskOrchestrationController } from "../../../../gateways/channels/telegram/controllers/TelegramTaskOrchestrationController.js";
+import type { TelegramTaskPreparationInput } from "../../../../gateways/channels/telegram/controllers/TelegramTaskPreparationService.js";
+import type {
+  ParserLike,
+  TaskOrchestrationControllerLike,
+  PermissionServiceLike,
+  TaskManagerLike,
+  WorkflowControllerLike,
+  SurfaceTaskDispatcherLike,
+  PermissionControllerLike,
+  HostIdentityServiceLike,
+} from "../../../../services/SurfaceRuntime.js";
+import type { WorkflowRunService } from "../../../../services/WorkflowRunService.js";
 import {
   extractTaskPayload,
   getDefaultWorkspace,
@@ -40,6 +52,50 @@ type TaskRuntimeIngressGateway = {
   legacyUnifiedGateway?: TaskLegacyUnifiedGatewayAdapterLike | null;
   echoOutputStage?: Pick<EchoOutputStageService, 'deliver'> | null;
   logRepo: Pick<LogRepository, 'log'>;
+};
+
+type VoiceReplyCapableContext = Context & {
+  replyWithVoice(audio: InputFile): Promise<unknown>;
+};
+
+type BotGatewayRuntimeTarget = {
+  bot: { api: Record<string, unknown> };
+  swarmController: unknown;
+  taskOrchestrationController: TelegramTaskOrchestrationController;
+  surfaceTaskDispatcher: SurfaceTaskDispatchService;
+  auditLogger: unknown;
+  operatorModeService: unknown;
+  presentationModeService: unknown;
+  workspaceProfileService: unknown;
+  permissionService: PermissionServiceLike;
+  executionController: unknown;
+  zavorthBridgeController: unknown;
+  legacyUnifiedGateway?: TaskLegacyUnifiedGatewayAdapterLike | null;
+  echoOutputStage?: EchoOutputStageService | null;
+  videoHandler: unknown;
+  pipelineController: WorkflowControllerLike;
+  parser: ParserLike;
+  surfaceIdentityService: unknown;
+  zavorthControlService: {
+    attachChatRuntime(runtime: ZavorthControlChatRuntime): void;
+  };
+  permissionController: PermissionControllerLike;
+  hostIdentityService: HostIdentityServiceLike;
+};
+
+type ZavorthControlChatRuntime = {
+  permissionService: PermissionServiceLike;
+  taskManager: TaskManagerLike;
+  workflowRunService: WorkflowRunService;
+  parser: ParserLike;
+  taskOrchestrationController: TaskOrchestrationControllerLike;
+  workflowController: WorkflowControllerLike;
+  surfaceTaskDispatcher: SurfaceTaskDispatcherLike;
+  legacyUnifiedGateway?: TaskLegacyUnifiedGatewayAdapterLike | null;
+  echoOutputStage?: Pick<EchoOutputStageService, 'deliver'> | null;
+  permissionController: PermissionControllerLike;
+  hostIdentityService: HostIdentityServiceLike;
+  webUserId: string;
 };
 
 export function buildTaskNaturalConversationIngress(
@@ -121,9 +177,9 @@ export function buildTaskNaturalConversationIngress(
               await ctx.api.sendChatAction(ctx.chat.id, action);
             },
             sendVoice:
-              typeof (ctx as any).replyWithVoice === 'function'
+              typeof (ctx as VoiceReplyCapableContext).replyWithVoice === 'function'
                 ? async (audioPath) => {
-                    await (ctx as any).replyWithVoice(new InputFile(audioPath));
+                    await (ctx as VoiceReplyCapableContext).replyWithVoice(new InputFile(audioPath));
                   }
                 : undefined,
           },
@@ -143,10 +199,10 @@ export function buildTaskNaturalConversationIngress(
 }
 
 export function initializeTelegramTaskRuntime(
-  gateway: any,
+  gateway: BotGatewayRuntimeTarget,
   taskManager: TaskManager,
   logRepo: LogRepository,
-  workflowRunService: any,
+  workflowRunService: WorkflowRunService,
 ): void {
   const {
     TelegramSwarmController,
@@ -203,27 +259,27 @@ export function initializeTelegramTaskRuntime(
     },
   );
   gateway.surfaceTaskDispatcher = new SurfaceTaskDispatchService({
-    parser: gateway.parser as any,
-    taskOrchestrationController: gateway.taskOrchestrationController as any,
+    parser: gateway.parser,
+    taskOrchestrationController: gateway.taskOrchestrationController,
     surfaceIdentityService: gateway.surfaceIdentityService,
   });
-  gateway.dashboardService.attachChatRuntime({
-    permissionService: gateway.permissionService as any,
-    taskManager: taskManager as any,
+  gateway.zavorthControlService.attachChatRuntime({
+    permissionService: gateway.permissionService,
+    taskManager: taskManager,
     workflowRunService,
-    parser: gateway.parser as any,
-    taskOrchestrationController: gateway.taskOrchestrationController as any,
-    workflowController: gateway.pipelineController as any,
-    surfaceTaskDispatcher: gateway.surfaceTaskDispatcher as any,
+    parser: gateway.parser,
+    taskOrchestrationController: gateway.taskOrchestrationController,
+    workflowController: gateway.pipelineController,
+    surfaceTaskDispatcher: gateway.surfaceTaskDispatcher,
     legacyUnifiedGateway: gateway.legacyUnifiedGateway || null,
     echoOutputStage: gateway.echoOutputStage || null,
-    permissionController: gateway.permissionController as any,
-    hostIdentityService: gateway.hostIdentityService as any,
+    permissionController: gateway.permissionController,
+    hostIdentityService: gateway.hostIdentityService,
     webUserId: config.allowedUserIds[0] || "1",
   });
 }
 
-function classifyTaskTrust(text: string, input: any) {
+function classifyTaskTrust(text: string, input: TelegramTaskPreparationInput) {
   const platform = String(
     input?.surfaceMetadata?.platform || input?.source || "telegram",
   )

@@ -13,7 +13,7 @@ export default function UnauthorizedPage() {
         "If the token was recently rotated, update your client credentials.",
       ]}
       primaryAction={{ href: "/login", label: "Go to Login" }}
-      secondaryAction={{ href: "/dashboard/api-manager", label: "Manage API Keys" }}
+      secondaryAction={{ href: "/zavorthControl/api-manager", label: "Manage API Keys" }}
     />
   );
 }

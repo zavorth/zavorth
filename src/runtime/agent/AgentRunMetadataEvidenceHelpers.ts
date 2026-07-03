@@ -102,7 +102,7 @@ const METADATA_DIET_CLASSES: Record<MetadataDietClass, Set<string>> = {
   ]),
   debug: new Set([
     'coreDietBaseline',
-    'selfingDashboard',
+    'selfingZavorthControl',
   ]),
 };
 

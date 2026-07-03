@@ -132,19 +132,19 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applySelfingDashboard = function (this: AgentRunFlowHost, 
+  proto.applySelfingZavorthControl = function (this: AgentRunFlowHost, 
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
-    return this.applyCachedEvidenceSnapshot(run, 'selfingDashboard', () => (
-      this.selfingDashboard.buildSnapshot({
+    return this.applyCachedEvidenceSnapshot(run, 'selfingZavorthControl', () => (
+      this.selfingZavorthControl.buildSnapshot({
         run,
         generatedAt,
       })
     ), (snapshot: Record<string, unknown>) => {
       run.metadata = {
         ...run.metadata,
-        selfingDashboard: snapshot,
+        selfingZavorthControl: snapshot,
       };
     });
   };

@@ -10,7 +10,7 @@ export type ZavorthDistributedRuntimePosture = 'healthy' | 'attention' | 'critic
 export type ZavorthDistributedRuntimeActionSeverity = 'info' | 'warn' | 'critical';
 
 export type AsyncSnapshotLike = {
-  buildSnapshot: (input?: any) => any | Promise<any>;
+  buildSnapshot: (input?: Record<string, unknown>) => unknown | Promise<unknown>;
 };
 
 export type RuntimeAccessManifestLike = Pick<RuntimeAccessManifestService, 'buildManifest'>;

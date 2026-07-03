@@ -235,7 +235,7 @@ function buildGates(input: {
   rollbackDrill: ZavorthTransactionLiveActivationRollbackDrill;
 }): ZavorthTransactionLiveActivationReviewGate[] {
   const envelope = input.envelope;
-  const runtimeConnector = input.sourceCandidate.dashboardProjection.surfaceProjection.runtime.connectorRun?.connector;
+  const runtimeConnector = input.sourceCandidate.zavorthControlProjection.surfaceProjection.runtime.connectorRun?.connector;
   const limitsEvaluation = evaluateLimits(input.limits, envelope);
   const canaryEvaluation = evaluateCanaryLimits(input.limits);
   const serialized = JSON.stringify({

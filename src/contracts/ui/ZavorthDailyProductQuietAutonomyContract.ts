@@ -61,7 +61,7 @@ export type ZavorthDailyProductQuietAutonomySnapshot = {
     visibleTabs: ZavorthDailyProductTab[];
     collapsedTechnicalSurfaces: string[];
     emptyStateRules: string[];
-    dashboardRule: string;
+    zavorthControlRule: string;
     tuiRule: string;
     cliRule: string;
   };

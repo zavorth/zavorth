@@ -126,6 +126,10 @@ export class ReasoningEffortService {
     this.overrides.set(taskType, effort);
   }
 
+  public setOverride(taskType: string, effort: ReasoningEffort): void {
+    this.setTaskEffort(taskType, effort);
+  }
+
   public getEffortDescription(effort: ReasoningEffort): string {
     switch (effort) {
       case 'low': return 'Fast, concise responses. No chain-of-thought. Good for simple tasks.';
@@ -155,6 +159,15 @@ export class ReasoningEffortService {
       lines.push(`    tokens:${p.config.max_tokens} temp:${p.config.temperature} cot:${p.config.chain_of_thought} reflection:${p.config.self_reflection}`);
     }
     return lines.join('\n');
+  }
+
+  public getStats(): string {
+    return [
+      'Reasoning effort statistics:',
+      `  Profiles: ${this.profiles.size}`,
+      `  Global effort: ${this.globalEffort}`,
+      `  Overrides: ${this.overrides.size}`,
+    ].join('\n');
   }
 
   private getDefaultConfig(effort: ReasoningEffort): ReasoningConfig {

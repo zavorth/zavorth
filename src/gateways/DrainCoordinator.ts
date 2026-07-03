@@ -53,7 +53,7 @@ export class DrainCoordinator {
 
     this.events.push({
       type: 'drain_started',
-      timestamp: this.state.startedAt,
+      timestamp: this.state.startedAt || new Date().toISOString(),
       data: { targetGateways: this.state.targetGateways },
     });
 

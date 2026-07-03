@@ -277,7 +277,7 @@ export class TerminalSidecarService {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         finalize();
       }, 5000);
 

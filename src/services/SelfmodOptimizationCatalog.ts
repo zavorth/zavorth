@@ -66,12 +66,12 @@ export class SelfmodOptimizationCatalog {
         || entry.startsWith('src/domain/surface/presentation/web-app/')) ||
       normalizedGoal.includes('ui') ||
       normalizedGoal.includes('painel') ||
-      normalizedGoal.includes('dashboard')
+      normalizedGoal.includes('zavorthControl')
     ) {
       opportunities.push({
         id: 'control-ui-polish',
         category: 'ui',
-        title: 'Validar clareza da Dashboard',
+        title: 'Validar clareza da ZavorthControl',
         summary: 'Mudancas em UI/web pedem revisao se os cards, approvals e diffs continuam honestos e legiveis.',
         recommendedCommand: '/doctor desktop',
         appliesBecause: ['Changeset toca a surface web ou narrativa visual do Zavorth.'],

@@ -22,7 +22,7 @@ export class ZavorthAgentSurfaceUxService {
     const selectedSession = snapshot.selectedSessionId
       ? sessions.find((session) => session.sessionId === snapshot.selectedSessionId) || null
       : null;
-    const autoProjection = snapshot.autoInvocationTelemetry?.dashboardProjection || null;
+    const autoProjection = snapshot.autoInvocationTelemetry?.zavorthControlProjection || null;
     const text = this.formatSubagentRuntimeText(snapshot, selectedSession);
     const actions = this.buildAgentActions(snapshot);
 
@@ -57,7 +57,7 @@ export class ZavorthAgentSurfaceUxService {
               session: session.sessionId,
               status: session.status,
               modo: `${session.mode}/${session.executionMode}`,
-              roles: session.roleIds.join(', ') || 'auto',
+              roles: formatSubagentSessionRoles(session),
             })),
             emptyText: 'Nenhuma sessao ainda. Use /agents spawn <tarefa>.',
           },
@@ -188,7 +188,7 @@ export class ZavorthAgentSurfaceUxService {
         'Selected:',
         `- session: ${selectedSession.sessionId}`,
         `- status: ${selectedSession.status}`,
-        `- roles: ${selectedSession.roleIds.join(', ') || 'auto'}`,
+        `- roles: ${formatSubagentSessionRoles(selectedSession)}`,
       );
       const lastMessages = safeArray(selectedSession.messages).slice(-3);
       for (const message of lastMessages) {
@@ -307,6 +307,15 @@ function toneForNaturalStatus(status: string): SurfaceResponseTone {
 
 function safeArray<T>(value: T[] | null | undefined): T[] {
   return Array.isArray(value) ? value : [];
+}
+
+function formatSubagentSessionRoles(session: ZavorthSubagentRuntimeSession): string {
+  if (session.profileSummaries.length > 0) {
+    return session.profileSummaries
+      .map((profile) => profile.identity?.displayName || profile.label || profile.id)
+      .join(', ');
+  }
+  return session.roleIds.join(', ') || 'auto';
 }
 
 function numberValue(value: unknown): number {

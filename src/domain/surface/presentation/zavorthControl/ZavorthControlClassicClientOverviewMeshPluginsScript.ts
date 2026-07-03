@@ -1,18 +1,24 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import type { ZavorthPluginRegistrySnapshot } from '../../../../services/ZavorthPluginRegistryService.js';
+
+declare function escapeHtml(value: unknown): string;
+declare function showToast(msg: string, isError?: boolean): void;
+
+type PluginPlaneErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshPlugins() {
-    function renderOperationsPlugins(plugins) {
+    function renderOperationsPlugins(plugins: ZavorthPluginRegistrySnapshot | PluginPlaneErrorPayload | null | undefined) {
       const node = document.getElementById('operations-plugins');
       if (!node) return;
-      if (!plugins || plugins.error) {
+      if (!plugins || 'error' in (plugins as PluginPlaneErrorPayload)) {
         node.innerHTML = '<div class="muted">Nao foi possivel carregar o plugin plane.</div>';
         return;
       }
 
-      const summary = plugins.summary || {};
-      const selected = plugins.selected || null;
-      const entries = Array.isArray(plugins.entries) ? plugins.entries : [];
+      const snapshot = plugins as ZavorthPluginRegistrySnapshot;
+      const summary = snapshot.summary || ({} as ZavorthPluginRegistrySnapshot['summary']);
+      const selected = snapshot.selected || null;
+      const entries = Array.isArray(snapshot.entries) ? snapshot.entries : [];
       const actionItems = selected && Array.isArray(selected.actions) && selected.actions.length
         ? selected.actions.slice(0, 3).map((action) =>
             '<button class="btn" type="button" onclick="runPluginAction('
@@ -48,7 +54,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
         + '<strong>Plugin plane</strong>'
         + '<span class="badge ' + (summary.trusted ? 'badge-info' : 'badge-warning') + '">' + escapeHtml(String(summary.total || 0)) + ' item(ns)</span>'
         + '</div>'
-        + '<div class="cockpit-headline">' + escapeHtml(plugins.narrative?.operatorSummary || 'Plugins, skills e extensoes visiveis com acoes guiadas.') + '</div>'
+        + '<div class="cockpit-headline">' + escapeHtml(snapshot.narrative?.operatorSummary || 'Plugins, skills e extensoes visiveis com acoes guiadas.') + '</div>'
         + '</div>'
         + '<a class="sidecar-link" href="/api/operations/plugins" target="_blank">/api/operations/plugins</a>'
         + '</div>'
@@ -69,7 +75,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
         + '</div>';
     }
 
-    async function runPluginAction(pluginId, actionId) {
+    async function runPluginAction(pluginId: string, actionId: string) {
       try {
         const response = await fetch('/api/operations/plugins/actions', {
           method: 'POST',
@@ -83,7 +89,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
         renderOperationsPlugins(payload.plugins || null);
         showToast(payload.result?.summary || ('Acao executada: ' + actionId + '.'));
       } catch (error) {
-        showToast(error.message || 'Falha ao executar a acao do plugin plane.');
+        showToast(error instanceof Error ? error.message : 'Falha ao executar a acao do plugin plane.');
       }
     }
 

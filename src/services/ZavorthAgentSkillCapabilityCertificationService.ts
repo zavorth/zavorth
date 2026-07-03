@@ -24,7 +24,7 @@ export type ZavorthAgentSkillCapabilityFeatureId =
   | 'approved_live_use_gate'
   | 'cross_surface_channels'
   | 'cli_commands'
-  | 'dashboard_projection'
+  | 'zavorthControl_projection'
   | 'policy_broker_everywhere'
   | 'prompt_injection_and_hostile_skill_block';
 
@@ -227,7 +227,7 @@ export class ZavorthAgentSkillCapabilityCertificationService {
       entry('approved_live_use_gate', 'Approved live-use gate', true, 'skill bridge live mode requires owner approval id'),
       entry('cross_surface_channels', 'Cross-surface commands', input.crossSurfaceCommandCount >= 9, `${input.crossSurfaceCommandCount} shared commands`),
       entry('cli_commands', 'CLI scripts', true, 'subagents, natural invocation, materialization and capability certification scripts are public'),
-      entry('dashboard_projection', 'Dashboard/API projection', true, 'services expose snapshots without visual changes'),
+      entry('zavorthControl_projection', 'ZavorthControl/API projection', true, 'services expose snapshots without visual changes'),
       entry('policy_broker_everywhere', 'Policy Broker coverage', true, 'spawn, route and materialization emit Policy Broker receipts'),
       entry('prompt_injection_and_hostile_skill_block', 'Hostile skill blocking', true, 'skill bridge scanner and import quarantine remain the authority'),
     ];

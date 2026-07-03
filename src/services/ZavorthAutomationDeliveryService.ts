@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type { ScheduledTask } from '../storage/SchedulerRepository.js';
 
 export type AutomationDeliveryRecord = {
@@ -26,6 +27,29 @@ type DeliveryRuntime = {
   unlinkSync?: typeof fs.unlinkSync;
   maxOutboxAgeMs?: number;
   maxOutboxFiles?: number;
+};
+
+export type AutomationWebhookEnvelope = {
+  id: string;
+  createdAt: string;
+  taskId: string;
+  idempotencyKey: string;
+  target: string | null;
+  prompt: string;
+  summary: string;
+};
+
+export type AutomationEmailEnvelope = {
+  id: string;
+  createdAt: string;
+  platform: string;
+  idempotencyKey: string;
+  recipient: string | null;
+  recipients: string[];
+  subject: string;
+  message: string;
+  prompt: string;
+  kind: string;
 };
 
 export type AutomationOutboxStatus = {
@@ -151,14 +175,33 @@ export class ZavorthAutomationDeliveryService {
         .map((line) => JSON.parse(line) as AutomationDeliveryRecord)
         .slice(-Math.max(0, limit))
         .reverse();
-    } catch {
+    } catch (error) {
+      logger.warn('Falha ao ler registros recentes de entrega.', { err: error });
       return [];
     }
   }
 
+  private readWebhookEnvelopes(): AutomationWebhookEnvelope[] {
+    if (!this.existsSync(config.automationWebhookOutboxFile)) {
+      return [];
+    }
+    return this.readFileSync(config.automationWebhookOutboxFile, 'utf8')
+      .split(/\r?\n/u)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        try {
+          return JSON.parse(line) as AutomationWebhookEnvelope;
+        } catch {
+          return null;
+        }
+      })
+      .filter((entry): entry is AutomationWebhookEnvelope => Boolean(entry));
+  }
+
   public readOutboxStatus(): AutomationOutboxStatus {
     const deliveryRecords = this.readDeliveryRecords();
-    const webhookEnvelopes = this.readJsonlRecords(config.automationWebhookOutboxFile);
+    const webhookEnvelopes = this.readWebhookEnvelopes();
     const emailEnvelopes = this.readEmailEnvelopes();
     const queuedDeliveries = deliveryRecords.filter((entry) => entry.status === 'queued').length;
     const lastQueuedAt = deliveryRecords
@@ -168,13 +211,13 @@ export class ZavorthAutomationDeliveryService {
       .slice(-1)[0] || null;
     const idempotencyKeys = new Set<string>();
     for (const entry of webhookEnvelopes) {
-      const key = String((entry as any)?.idempotencyKey || '').trim();
+      const key = String(entry.idempotencyKey || '').trim();
       if (key) {
         idempotencyKeys.add(key);
       }
     }
     for (const entry of emailEnvelopes) {
-      const key = String((entry as any)?.idempotencyKey || '').trim();
+      const key = String(entry.idempotencyKey || '').trim();
       if (key) {
         idempotencyKeys.add(key);
       }
@@ -295,10 +338,10 @@ export class ZavorthAutomationDeliveryService {
       return [];
     }
     return this.readJsonlRecords(config.automationDeliveryReportFile)
-      .filter((entry): entry is AutomationDeliveryRecord => Boolean((entry as any)?.taskId));
+      .filter((entry): entry is AutomationDeliveryRecord => Boolean(entry.taskId));
   }
 
-  private readJsonlRecords(filePath: string): Record<string, unknown>[] {
+  private readJsonlRecords(filePath: string): AutomationDeliveryRecord[] {
     if (!filePath || !this.existsSync(filePath)) {
       return [];
     }
@@ -309,18 +352,20 @@ export class ZavorthAutomationDeliveryService {
         .filter(Boolean)
         .map((line) => {
           try {
-            return JSON.parse(line) as Record<string, unknown>;
-          } catch {
+            return JSON.parse(line) as AutomationDeliveryRecord;
+          } catch (error) {
+            logger.warn('Linha JSON invalida no arquivo de automacao.', { err: error });
             return null;
           }
         })
-        .filter((entry): entry is Record<string, unknown> => Boolean(entry));
-    } catch {
+        .filter((entry): entry is AutomationDeliveryRecord => Boolean(entry));
+    } catch (error) {
+      logger.warn('Falha ao ler registros JSONL de automacao.', { err: error });
       return [];
     }
   }
 
-  private readEmailEnvelopes(): Record<string, unknown>[] {
+  private readEmailEnvelopes(): AutomationEmailEnvelope[] {
     try {
       if (!this.existsSync(config.emailOutboxDir)) {
         return [];
@@ -329,13 +374,15 @@ export class ZavorthAutomationDeliveryService {
         .filter((entry) => entry.endsWith('-automation-email.json'))
         .map((entry) => {
           try {
-            return JSON.parse(this.readFileSync(path.join(config.emailOutboxDir, entry), 'utf8')) as Record<string, unknown>;
-          } catch {
+            return JSON.parse(this.readFileSync(path.join(config.emailOutboxDir, entry), 'utf8')) as AutomationEmailEnvelope;
+          } catch (error) {
+            logger.warn('Envelope de email invalido no outbox.', { err: error });
             return null;
           }
         })
-        .filter((entry): entry is Record<string, unknown> => Boolean(entry));
-    } catch {
+        .filter((entry): entry is AutomationEmailEnvelope => Boolean(entry));
+    } catch (error) {
+      logger.warn('Falha ao ler envelopes de email do outbox.', { err: error });
       return [];
     }
   }

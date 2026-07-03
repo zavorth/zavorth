@@ -4,6 +4,7 @@ import { execFile } from 'child_process';
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { ChatMessage, ILlmProvider } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 type CaptureScriptResult = {
   ok: boolean;
@@ -243,17 +244,17 @@ export class ZavorthBridgeUiCaptureService {
     try {
       ProviderFactory.create('gemini');
       providerNames.push('gemini');
-    } catch {}
+    } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
     try {
       ProviderFactory.create('openai');
       providerNames.push('openai');
-    } catch {}
+    } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
     try {
       ProviderFactory.create('qwen');
       providerNames.push('qwen');
-    } catch {}
+    } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
     let lastError: string | null = null;
     let lastRawResponse: string | null = null;

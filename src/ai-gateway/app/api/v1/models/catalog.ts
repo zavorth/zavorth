@@ -25,6 +25,24 @@ import {
   ModelCatalogAggregationService,
   type ModelCatalogProviderInput,
 } from "../../../../../services/providers/catalog/ModelCatalogAggregationService.js";
+import type { ProviderModel } from "@ZavorthGateway/open-sse/config/providerModels.ts";
+import type { SyncedAvailableModel } from "@/lib/db/models";
+
+interface LocalRegistryModel {
+  provider: string;
+  id: string;
+  name: string;
+  dimensions?: number;
+  supportedSizes?: string[];
+  subtype?: string;
+}
+
+interface FallbackModel {
+  id: string;
+  name?: string;
+  contextLength?: number;
+  inputTokenLimit?: number;
+}
 
 const FALLBACK_ALIAS_TO_PROVIDER = {
   ag: "zavorthBridge",
@@ -86,7 +104,7 @@ function buildAliasMaps() {
   const aliasToProviderId: Record<string, string> = {};
   const providerIdToAlias: Record<string, string> = {};
 
-  // Canonical source for ID/alias pairs used across dashboard/provider config.
+  // Canonical source for ID/alias pairs used across zavorthControl/provider config.
   for (const provider of Object.values(AI_PROVIDERS)) {
     const providerId = provider?.id;
     const alias = provider?.alias || providerId;
@@ -152,11 +170,11 @@ export async function getUnifiedModelsResponse(
 
     // Issue #100: Optionally require authentication for /models (security hardening)
     // When enabled, unauthenticated requests get 401 with proper error response.
-    // Supports API key (Bearer token) for external clients and JWT cookie for dashboard.
-    let settings: Record<string, any> = {};
+    // Supports API key (Bearer token) for external clients and JWT cookie for zavorthControl.
+    let settings: Record<string, unknown> = {};
     try {
       settings = await getSettings();
-    } catch {}
+    } catch (e) { console.warn('[catalog] Failed to fetch settings for auth check:', e); }
     if (settings.requireAuthForModels === true) {
       if (!(await isAuthenticated(request))) {
         return Response.json(
@@ -261,7 +279,7 @@ export async function getUnifiedModelsResponse(
           label: AI_PROVIDERS[canonicalProviderId]?.name || AI_PROVIDERS[providerId]?.name || alias,
           active: activeAliases.has(alias) || activeAliases.has(canonicalProviderId),
           source: "provider_catalog",
-          models: (providerModels as any[])
+          models: (providerModels as ProviderModel[])
             .filter((model) => !getModelIsHidden(canonicalProviderId, model.id))
             .map((model) => {
               const visionFields = getVisionCapabilityFields(`${alias}/${model.id}`) || getVisionCapabilityFields(model.id);
@@ -289,8 +307,8 @@ export async function getUnifiedModelsResponse(
             active: true,
             source: "live_api",
             models: syncedModels
-              .filter((sm: any) => !getModelIsHidden("gemini", sm.id))
-              .flatMap((sm: any) => {
+              .filter((sm: SyncedAvailableModel) => !getModelIsHidden("gemini", sm.id))
+              .flatMap((sm: SyncedAvailableModel) => {
                 const endpoints = Array.isArray(sm.supportedEndpoints) ? sm.supportedEndpoints : ["chat"];
                 let modelType: "chat" | "embedding" | "image" | "audio" = "chat";
                 if (endpoints.includes("embeddings")) modelType = "embedding";
@@ -319,7 +337,7 @@ export async function getUnifiedModelsResponse(
         return activeAliases.has(alias) || activeAliases.has(provider);
       };
       const localCatalogs: ModelCatalogProviderInput[] = [
-        ...getAllEmbeddingModels().map((model: any) => ({
+        ...getAllEmbeddingModels().map((model: LocalRegistryModel) => ({
           providerId: model.provider,
           alias: providerIdToAlias[model.provider] || model.provider,
           label: AI_PROVIDERS[model.provider]?.name || model.provider,
@@ -333,7 +351,7 @@ export async function getUnifiedModelsResponse(
             source: "local_catalog" as const,
           }],
         })),
-        ...getAllImageModels().map((model: any) => ({
+        ...getAllImageModels().map((model: LocalRegistryModel) => ({
           providerId: model.provider,
           alias: providerIdToAlias[model.provider] || model.provider,
           label: AI_PROVIDERS[model.provider]?.name || model.provider,
@@ -347,7 +365,7 @@ export async function getUnifiedModelsResponse(
             source: "local_catalog" as const,
           }],
         })),
-        ...getAllRerankModels().map((model: any) => ({
+        ...getAllRerankModels().map((model: LocalRegistryModel) => ({
           providerId: model.provider,
           alias: providerIdToAlias[model.provider] || model.provider,
           label: AI_PROVIDERS[model.provider]?.name || model.provider,
@@ -355,7 +373,7 @@ export async function getUnifiedModelsResponse(
           source: "local_catalog" as const,
           models: [{ id: model.id, name: model.name || model.id, type: "rerank" as const, source: "local_catalog" as const }],
         })),
-        ...getAllAudioModels().map((model: any) => ({
+        ...getAllAudioModels().map((model: LocalRegistryModel) => ({
           providerId: model.provider,
           alias: providerIdToAlias[model.provider] || model.provider,
           label: AI_PROVIDERS[model.provider]?.name || model.provider,
@@ -363,7 +381,7 @@ export async function getUnifiedModelsResponse(
           source: "local_catalog" as const,
           models: [{ id: model.id, name: model.name || model.id, type: "audio" as const, subtype: model.subtype, source: "local_catalog" as const }],
         })),
-        ...getAllModerationModels().map((model: any) => ({
+        ...getAllModerationModels().map((model: LocalRegistryModel) => ({
           providerId: model.provider,
           alias: providerIdToAlias[model.provider] || model.provider,
           label: AI_PROVIDERS[model.provider]?.name || model.provider,
@@ -371,7 +389,7 @@ export async function getUnifiedModelsResponse(
           source: "local_catalog" as const,
           models: [{ id: model.id, name: model.name || model.id, type: "moderation" as const, source: "local_catalog" as const }],
         })),
-        ...getAllVideoModels().map((model: any) => ({
+        ...getAllVideoModels().map((model: LocalRegistryModel) => ({
           providerId: model.provider,
           alias: providerIdToAlias[model.provider] || model.provider,
           label: AI_PROVIDERS[model.provider]?.name || model.provider,
@@ -379,7 +397,7 @@ export async function getUnifiedModelsResponse(
           source: "local_catalog" as const,
           models: [{ id: model.id, name: model.name || model.id, type: "video" as const, source: "local_catalog" as const }],
         })),
-        ...getAllMusicModels().map((model: any) => ({
+        ...getAllMusicModels().map((model: LocalRegistryModel) => ({
           providerId: model.provider,
           alias: providerIdToAlias[model.provider] || model.provider,
           label: AI_PROVIDERS[model.provider]?.name || model.provider,
@@ -454,9 +472,9 @@ export async function getUnifiedModelsResponse(
           label: AI_PROVIDERS[providerId]?.name || alias,
           active: true,
           source: "fallback_catalog" as const,
-          models: fallbackModels
-            .filter((model: any) => typeof model.id === "string" && !getModelIsHidden(providerId, model.id))
-            .map((model: any) => {
+          models: (fallbackModels as FallbackModel[])
+            .filter((model) => typeof model.id === "string" && !getModelIsHidden(providerId, model.id))
+            .map((model) => {
               const visionFields = getVisionCapabilityFields(`${alias}/${model.id}`) || getVisionCapabilityFields(model.id);
               return {
                 id: model.id,
@@ -758,8 +776,8 @@ export async function getUnifiedModelsResponse(
             ...(endpoints.length > 1 || !endpoints.includes("chat")
               ? { supported_endpoints: endpoints }
               : {}),
-            ...(typeof (model as any).inputTokenLimit === "number"
-              ? { context_length: (model as any).inputTokenLimit }
+            ...(typeof (model as Record<string, unknown>).inputTokenLimit === "number"
+              ? { context_length: (model as Record<string, unknown>).inputTokenLimit }
               : {}),
             ...(visionFields || {}),
           });
@@ -783,8 +801,8 @@ export async function getUnifiedModelsResponse(
               parent: aliasId,
               custom: true,
               ...(modelType ? { type: modelType } : {}),
-              ...(typeof (model as any).inputTokenLimit === "number"
-                ? { context_length: (model as any).inputTokenLimit }
+              ...(typeof (model as Record<string, unknown>).inputTokenLimit === "number"
+                ? { context_length: (model as Record<string, unknown>).inputTokenLimit }
                 : {}),
               ...(providerVisionFields || {}),
             });
@@ -803,11 +821,12 @@ export async function getUnifiedModelsResponse(
 
       const fallbackModels = getCompatibleFallbackModels(providerId);
       if (!Array.isArray(fallbackModels) || fallbackModels.length === 0) continue;
+      const typedFallbackModels = fallbackModels as FallbackModel[];
 
       const prefix = providerIdToPrefix[providerId];
       const alias = prefix || providerIdToAlias[providerId] || providerId;
 
-      for (const model of fallbackModels) {
+      for (const model of typedFallbackModels) {
         const modelId = typeof model.id === "string" ? model.id : null;
         if (!modelId) continue;
         if (getModelIsHidden(providerId, modelId)) continue;
@@ -818,8 +837,8 @@ export async function getUnifiedModelsResponse(
         const visionFields =
           getVisionCapabilityFields(aliasId) || getVisionCapabilityFields(modelId);
         const contextLength =
-          typeof (model as any).contextLength === "number"
-            ? (model as any).contextLength
+          typeof model.contextLength === "number"
+            ? model.contextLength
             : undefined;
 
         models.push({
@@ -871,7 +890,7 @@ export async function getUnifiedModelsResponse(
   } catch (error) {
     console.log("Error fetching models:", error);
     return Response.json(
-      { error: { message: (error as any).message, type: "server_error" } },
+      { error: { message: error instanceof Error ? error.message : "Unknown error", type: "server_error" } },
       { status: 500 }
     );
   }

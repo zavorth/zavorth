@@ -65,7 +65,7 @@ export type SkillMcpQuarantineSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     reviewHint: string;
   };
   nextSafeAction: string;
@@ -250,7 +250,7 @@ export class SkillMcpQuarantineService {
       },
       surface: {
         cliCommand: `zavorth quarantine run ${input.run.id} --json`,
-        dashboardPath: '/dashboard?sector=skills',
+        zavorthControlPath: '/zavorthControl?sector=skills',
         reviewHint: 'Revise origem, risco e manifest antes de promover qualquer capability importada.',
       },
       nextSafeAction: this.nextSafeAction(entries),

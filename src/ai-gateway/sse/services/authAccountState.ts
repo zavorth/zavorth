@@ -51,7 +51,7 @@ export async function markAccountUnavailable(
         lastError: `Model ${model} ${reason}`,
         lastErrorAt: new Date().toISOString(),
         errorCode: status,
-      }).catch(() => {});
+      }).catch((e) => log.warn('AUTH', `Failed to update provider connection after model lockout: ${e}`));
       log.info(
         "AUTH",
         `Model-only lockout for ${provider}:${model} - ${status} ${reason} ${Math.ceil(cooldown / 1000)}s (connection stays active)`

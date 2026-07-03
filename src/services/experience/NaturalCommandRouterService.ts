@@ -76,7 +76,7 @@ export class NaturalCommandRouterService {
   }
 
   private resolveKind(normalized: string, explicit?: ExperienceCommand['intent']): ExperienceJourneyKind {
-    if (explicit === 'open-dashboard') return 'dashboard';
+    if (explicit === 'open-zavorthControl') return 'zavorthControl';
     if (explicit === 'diagnose') return 'diagnostics';
     if (explicit === 'approve' || explicit === 'reject') return 'approval';
     if (explicit === 'learn') return 'learning';
@@ -87,7 +87,7 @@ export class NaturalCommandRouterService {
     if (/\b(aprendi|aprendizado|learning|learn|memoria|memory|preferencia|preference)\b/.test(normalized)) {
       return /\b(memoria|memory|recall|lembr)\b/.test(normalized) ? 'memory' : 'learning';
     }
-    if (/\b(abrir|open|dashboard|painel|control|dashboard)\b/.test(normalized)) return 'dashboard';
+    if (/\b(abrir|open|zavorthControl|painel|control|zavorthControl)\b/.test(normalized)) return 'zavorthControl';
     if (/\b(doctor|diagnostico|diagnose|status|bloqueado|blocked|erro|falha|health|ready)\b/.test(normalized)) {
       return /\b(bloqueado|blocked|por que|porque|why)\b/.test(normalized) ? 'explain-block' : 'diagnostics';
     }
@@ -106,7 +106,7 @@ export class NaturalCommandRouterService {
   }
 
   private resolveRisk(kind: ExperienceJourneyKind, normalized: string): ExperienceAction['risk'] {
-    if (kind === 'security-audit' || kind === 'diagnostics' || kind === 'dashboard' || kind === 'memory' || kind === 'learning') {
+    if (kind === 'security-audit' || kind === 'diagnostics' || kind === 'zavorthControl' || kind === 'memory' || kind === 'learning') {
       return 'safe';
     }
     if (kind === 'approval') return 'attention';
@@ -121,7 +121,7 @@ export class NaturalCommandRouterService {
 
   private requiresApproval(kind: ExperienceJourneyKind, normalized: string): boolean {
     if (kind === 'approval') return false;
-    if (kind === 'dashboard' || kind === 'diagnostics' || kind === 'memory' || kind === 'learning' || kind === 'conversation') {
+    if (kind === 'zavorthControl' || kind === 'diagnostics' || kind === 'memory' || kind === 'learning' || kind === 'conversation') {
       return false;
     }
     return /\b(delete|deletar|remover|rm\s+-|formatar|publish|publicar|deploy|enviar|send|instalar|install|shell|powershell)\b/.test(normalized);
@@ -129,7 +129,7 @@ export class NaturalCommandRouterService {
 
   private shouldExecuteAgent(kind: ExperienceJourneyKind, normalized: string, explicit?: ExperienceCommand['intent']): boolean {
     if (explicit === 'run') return true;
-    if (kind === 'dashboard' || kind === 'diagnostics' || kind === 'approval' || kind === 'learning' || kind === 'memory') return false;
+    if (kind === 'zavorthControl' || kind === 'diagnostics' || kind === 'approval' || kind === 'learning' || kind === 'memory') return false;
     if (kind === 'conversation') return normalized.length > 0;
     return true;
   }
@@ -147,7 +147,7 @@ export class NaturalCommandRouterService {
       approval: 'Resolve approval',
       memory: 'Query memory',
       learning: 'Review learning',
-      dashboard: 'Open Dashboard',
+      zavorthControl: 'Open ZavorthControl',
       diagnostics: 'Diagnose runtime',
       release: 'Prepare release',
       automation: 'Automate routine',
@@ -157,7 +157,7 @@ export class NaturalCommandRouterService {
 
   private summaryFor(kind: ExperienceJourneyKind, text: string): string {
     const request = String(text || '').trim();
-    if (kind === 'dashboard') return 'Open the main visual surface for Zavorth.';
+    if (kind === 'zavorthControl') return 'Open the main visual surface for Zavorth.';
     if (kind === 'diagnostics') return 'Read readiness, runtime and next safe-action signals.';
     if (kind === 'learning') return 'Show, approve, reject or export governed learning.';
     if (kind === 'memory') return 'Query memory signals and workspace continuity.';
@@ -166,7 +166,7 @@ export class NaturalCommandRouterService {
 
   private nextSafeActionFor(kind: ExperienceJourneyKind, requiresApproval: boolean): string {
     if (requiresApproval) return 'Review Trust Lens before any sensitive effect runs.';
-    if (kind === 'dashboard') return 'Open /dashboard.';
+    if (kind === 'zavorthControl') return 'Open /zavorthControl.';
     if (kind === 'provider-setup') return 'Open contextual provider setup and test the route before using it.';
     if (kind === 'channel-setup') return 'Open contextual channel setup, pair/allowlist the sender, and verify a proof receipt.';
     if (kind === 'automation') return 'Prepare a governed event hook or scheduled task with preview, receipt and rollback.';
@@ -212,17 +212,17 @@ export class NaturalCommandRouterService {
         label: 'Continue in natural language',
         kind: 'natural',
         command: requestText ? `zavorth ask "${requestText.replace(/"/g, '\\"')}"` : 'zavorth ask "<pedido>"',
-        reason: 'Keeps CLI and Dashboard on the same experience route.',
+        reason: 'Keeps CLI and ZavorthControl on the same experience route.',
       }),
     ];
-    if (kind === 'dashboard') {
+    if (kind === 'zavorthControl') {
       actions.push(makeAction({
-        id: 'dashboard.open',
-        label: 'Open Dashboard',
+        id: 'zavorthControl.open',
+        label: 'Open ZavorthControl',
         kind: 'navigation',
         command: 'zavorth open',
-        route: '/dashboard',
-        reason: 'Dashboard is the official visual surface.',
+        route: '/zavorthControl',
+        reason: 'ZavorthControl is the official visual surface.',
       }));
     }
     if (kind === 'diagnostics' || kind === 'explain-block') {

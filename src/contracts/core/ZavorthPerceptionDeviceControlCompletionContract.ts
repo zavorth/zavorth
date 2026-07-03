@@ -64,6 +64,6 @@ export type ZavorthPerceptionDeviceControlCompletionSnapshot = {
     inspect: 'npm run zavorth:perception-device-control-completion';
     inspectJson: 'npm run zavorth:perception-device-control-completion:json';
     check: 'npm run zavorth:perception-device-control-completion:check --silent';
-    nextStage: 'Intent model1 - Dashboard Final Product Polish';
+    nextStage: 'Intent model1 - ZavorthControl Final Product Polish';
   };
 };

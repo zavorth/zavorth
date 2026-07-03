@@ -1,5 +1,13 @@
 import { config } from '../../config/index.js';
 import { ZavorthBridgeAccessLeaseService } from '../ZavorthBridgeAccessLeaseService.js';
+import type {
+  ChannelsSnapshot,
+  DiscordBridgeSnapshot,
+  WhatsAppChannelSnapshot,
+  SlackChannelSnapshot,
+  PlannedChannelSnapshot,
+  ZavorthBridgeMobileAccessSnapshot,
+} from './OperationsHealthSnapshotTypes.js';
 
 type OperationsHealthChannelSnapshotSupportOptions = {
   now: () => Date;
@@ -31,7 +39,7 @@ export class OperationsHealthChannelSnapshotSupport {
     });
   }
 
-  public readChannelsSnapshot(): any {
+  public readChannelsSnapshot(): ChannelsSnapshot {
     return {
       discordBridge: this.readDiscordBridgeSnapshot(),
       whatsapp: this.readWhatsAppChannelSnapshot(),
@@ -43,7 +51,7 @@ export class OperationsHealthChannelSnapshotSupport {
     };
   }
 
-  public readDiscordBridgeSnapshot(): any {
+  public readDiscordBridgeSnapshot(): DiscordBridgeSnapshot {
     const fallback = {
       mode: config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : 'unknown',
       enabled: config.discordBridgeEnabled || Boolean(config.discordBotToken),
@@ -90,7 +98,7 @@ export class OperationsHealthChannelSnapshotSupport {
     }
   }
 
-  public readWhatsAppChannelSnapshot(): any {
+  public readWhatsAppChannelSnapshot(): WhatsAppChannelSnapshot {
     const fallbackProvider =
       config.whatsappProvider === 'cloud-api'
       || config.whatsappProvider === 'baileys'
@@ -190,7 +198,7 @@ export class OperationsHealthChannelSnapshotSupport {
     }
   }
 
-  public readSlackChannelSnapshot(): any {
+  public readSlackChannelSnapshot(): SlackChannelSnapshot {
     const fallback = {
       mode:
         String(config.slackBotToken || '').trim() && config.slackTransport !== 'stub'
@@ -254,7 +262,7 @@ export class OperationsHealthChannelSnapshotSupport {
     }
   }
 
-  public readSignalChannelSnapshot(): any {
+  public readSignalChannelSnapshot(): PlannedChannelSnapshot {
     return this.readPlannedChannelHealthSnapshot({
       statusFile: config.signalStatusFile,
       fallback: {
@@ -275,7 +283,7 @@ export class OperationsHealthChannelSnapshotSupport {
     });
   }
 
-  public readIMessageChannelSnapshot(): any {
+  public readIMessageChannelSnapshot(): PlannedChannelSnapshot {
     return this.readPlannedChannelHealthSnapshot({
       statusFile: config.imessageStatusFile,
       fallback: {
@@ -296,7 +304,7 @@ export class OperationsHealthChannelSnapshotSupport {
     });
   }
 
-  public readTeamsChannelSnapshot(): any {
+  public readTeamsChannelSnapshot(): PlannedChannelSnapshot {
     return this.readPlannedChannelHealthSnapshot({
       statusFile: config.teamsStatusFile,
       fallback: {
@@ -322,7 +330,7 @@ export class OperationsHealthChannelSnapshotSupport {
     });
   }
 
-  public readEmailChannelSnapshot(): any {
+  public readEmailChannelSnapshot(): PlannedChannelSnapshot {
     return this.readPlannedChannelHealthSnapshot({
       statusFile: config.emailStatusFile,
       fallback: {
@@ -343,7 +351,7 @@ export class OperationsHealthChannelSnapshotSupport {
     });
   }
 
-  public readPlannedChannelHealthSnapshot(input: { statusFile: string; fallback: any }): any {
+  public readPlannedChannelHealthSnapshot(input: { statusFile: string; fallback: PlannedChannelSnapshot }): PlannedChannelSnapshot {
     const fallback = input.fallback;
     try {
       if (!input.statusFile || !this.existsSync(input.statusFile)) {
@@ -398,7 +406,7 @@ export class OperationsHealthChannelSnapshotSupport {
     }
   }
 
-  public readZavorthBridgeMobileAccessSnapshot(): any {
+  public readZavorthBridgeMobileAccessSnapshot(): ZavorthBridgeMobileAccessSnapshot {
     const lease = this.zavorthBridgeAccessLease.readSnapshot();
     if (lease.status === 'missing') {
       return {

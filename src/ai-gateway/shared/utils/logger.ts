@@ -108,7 +108,7 @@ function buildLogger(): pino.Logger {
         process.stderr.write(
           `[logger] Failed to set up file transport, attempting sync fallback: ${(err as Error)?.message || err}\n`
         );
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
       // Fallback: use sync pino.destination() instead of worker-thread transport
       // pino.transport() uses worker threads which can fail in Next.js production bundles
@@ -129,7 +129,7 @@ function buildLogger(): pino.Logger {
           process.stderr.write(
             `[logger] Sync fallback also failed, falling back to console only: ${(fallbackErr as Error)?.message || fallbackErr}\n`
           );
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       }
     }
   }

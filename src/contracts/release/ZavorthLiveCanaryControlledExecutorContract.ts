@@ -98,7 +98,7 @@ export type ZavorthLiveCanaryControlledExecutorSafety = {
   noImplicitExecutionFromChecks: true;
   idempotencyKeyRequiredForExecution: true;
   rollbackReceiptRequiredAfterExecution: true;
-  noDashboardVisualMutation: true;
+  noZavorthControlVisualMutation: true;
   rawSecretsSerialized: false;
 };
 

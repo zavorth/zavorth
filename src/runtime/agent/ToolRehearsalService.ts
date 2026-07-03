@@ -88,7 +88,7 @@ export type ToolRehearsalSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     approvalHint: string;
   };
   nextSafeAction: string;
@@ -302,7 +302,7 @@ export class ToolRehearsalService {
       },
       surface: {
         cliCommand: 'zavorth rehearse --json',
-        dashboardPath: '/dashboard?sector=skills',
+        zavorthControlPath: '/zavorthControl?sector=skills',
         approvalHint: 'Ajuste o ensaio se a ordem, path ou comando aproximado estiver errado.',
       },
       nextSafeAction: this.buildNextSafeAction(status, budget.reason),

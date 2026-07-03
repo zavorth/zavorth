@@ -112,7 +112,7 @@ export type ProviderArenaSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     arenaHint: string;
   };
   nextSafeAction: string;
@@ -786,7 +786,7 @@ export class ProviderArenaService {
       },
       surface: {
         cliCommand: `zavorth arena run ${input.run.id} --json`,
-        dashboardPath: '/dashboard?sector=config',
+        zavorthControlPath: '/zavorthControl?sector=config',
         arenaHint: 'Use a arena para comparar rota configurada, rota observada, fallback, budget e health antes de trocar provider.',
       },
       nextSafeAction: buildNextSafeAction({

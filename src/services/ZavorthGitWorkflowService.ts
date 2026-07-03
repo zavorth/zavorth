@@ -42,6 +42,7 @@ export type ZavorthGitWorkflowSnapshot = {
   workspaceRoot: string;
   branch: string | null;
   dirtyFiles: number;
+  statusOutput: string;
   summary: string;
   requested: {
     branchName: string | null;
@@ -201,6 +202,7 @@ export class ZavorthGitWorkflowService {
   private async collectStatus(workspaceRoot: string): Promise<{
     branch: string | null;
     dirtyFiles: number;
+    statusOutput: string;
     summary: string;
     commands: ZavorthGitWorkflowSnapshot['commands'];
   }> {
@@ -218,9 +220,11 @@ export class ZavorthGitWorkflowService {
     const dirtyFiles = status.exitCode === 0
       ? status.stdout.split(/\r?\n/).filter((line) => line.trim() && !line.startsWith('##')).length
       : 0;
+    const statusOutput = status.exitCode === 0 ? status.stdout : '';
     return {
       branch: branchName,
       dirtyFiles,
+      statusOutput,
       summary: `Git status: branch ${branchName || 'unknown'}, ${dirtyFiles} changed file(s).`,
       commands,
     };
@@ -350,7 +354,7 @@ export class ZavorthGitWorkflowService {
   private snapshot(input: {
     action: ZavorthGitWorkflowAction;
     workspaceRoot: string;
-    status: { branch: string | null; dirtyFiles: number; summary: string; commands: ZavorthGitWorkflowSnapshot['commands'] };
+    status: { branch: string | null; dirtyFiles: number; statusOutput: string; summary: string; commands: ZavorthGitWorkflowSnapshot['commands'] };
     parsed: ParsedArgs;
     state: ZavorthGitWorkflowSnapshot['status'];
     summary: string;
@@ -368,6 +372,7 @@ export class ZavorthGitWorkflowService {
       workspaceRoot: input.workspaceRoot,
       branch: input.status.branch,
       dirtyFiles: input.status.dirtyFiles,
+      statusOutput: input.status.statusOutput,
       summary: input.summary,
       requested: {
         branchName: input.parsed.branchName,

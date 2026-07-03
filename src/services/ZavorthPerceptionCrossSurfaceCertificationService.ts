@@ -1,8 +1,8 @@
 import {
   ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION,
   type ZavorthPerceptionCertificationMatrixRow,
-  type ZavorthPerceptionDashboardProjection,
-  type ZavorthPerceptionDashboardTarget,
+  type ZavorthPerceptionZavorthControlProjection,
+  type ZavorthPerceptionZavorthControlTarget,
   type ZavorthPerceptionCrossSurfaceCertificationSnapshot,
   type ZavorthPerceptionCrossSurfaceName,
   type ZavorthPerceptionCrossSurfaceStatus,
@@ -105,17 +105,17 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
     const surfaceResponse = this.router.buildSurfaceResponse(naturalPlan);
     const phaseSnapshots = await this.buildPhaseSnapshots();
     const certificationMatrix = buildCertificationMatrix(phaseSnapshots);
-    const dashboardProjection = buildDashboardProjection(this.now().toISOString(), phaseSnapshots, certificationMatrix);
+    const zavorthControlProjection = buildZavorthControlProjection(this.now().toISOString(), phaseSnapshots, certificationMatrix);
     const surfaceProjections = PHASE_6_SURFACES.map((surface) =>
-      buildSurfaceProjection(surface, surfaceResponse, dashboardProjection),
+      buildSurfaceProjection(surface, surfaceResponse, zavorthControlProjection),
     );
     const status = summarizeStatus([
       ...certificationMatrix,
       ...surfaceProjections,
-      dashboardProjection,
+      zavorthControlProjection,
     ]);
     const zavorthControlProjection = {
-      ...dashboardProjection,
+      ...zavorthControlProjection,
       status,
     };
 
@@ -128,7 +128,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       surfaceResponse,
       surfaceProjections,
       zavorthControlProjection,
-      dashboardProjection: zavorthControlProjection,
+      zavorthControlProjection: zavorthControlProjection,
       certificationMatrix,
       liveCanary: {
         enabled: false,
@@ -149,7 +149,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
   }
 
   public formatSnapshotText(snapshot: ZavorthPerceptionCrossSurfaceCertificationSnapshot): string {
-    const projection = snapshot.zavorthControlProjection || snapshot.dashboardProjection;
+    const projection = snapshot.zavorthControlProjection || snapshot.zavorthControlProjection;
     const rows = snapshot.certificationMatrix.map((row) =>
       `${pad(row.id, 35)} ${pad(row.status, 10)} ${row.evidence}`,
     );
@@ -169,7 +169,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       'Commands:',
       ...REQUIRED_COMMANDS.map((command) => `- ${command}`),
       '',
-      `ZavorthControl projection: ${projection.surface.dashboardPath}`,
+      `ZavorthControl projection: ${projection.surface.zavorthControlPath}`,
       `API projection: ${projection.surface.apiPath}`,
       `Next: ${snapshot.nextSafeAction}`,
     ].join('\n');
@@ -186,7 +186,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
     const browserDom = await this.browser.execute({
       action: 'browser.inspect',
       url: 'https://example.com/app',
-      domText: '<main><h1>Dashboard pronto</h1><button>CHECK</button></main>',
+      domText: '<main><h1>ZavorthControl pronto</h1><button>CHECK</button></main>',
     });
     const browserScreenshot = await this.browser.execute({
       action: 'browser.inspect',
@@ -253,12 +253,12 @@ function buildCertificationMatrix(s: PhaseSnapshots): ZavorthPerceptionCertifica
   ];
 }
 
-function buildDashboardProjection(
+function buildZavorthControlProjection(
   generatedAt: string,
   s: PhaseSnapshots,
   matrix: ZavorthPerceptionCertificationMatrixRow[],
-): ZavorthPerceptionDashboardProjection {
-  const targets: ZavorthPerceptionDashboardTarget[] = [
+): ZavorthPerceptionZavorthControlProjection {
+  const targets: ZavorthPerceptionZavorthControlTarget[] = [
     target('pc', 'pc', 'PC screenshot', s.pc.status === 'blocked' ? 'blocked' : 'passed', true, false, false, s.pc.artifacts.length, s.pc.artifacts[0]?.id || null, '/vision inspect'),
     target('browser', 'browser', 'Browser DOM/screenshot', s.browserDom.status === 'blocked' ? 'blocked' : 'passed', true, s.browserDom.plan.approvalRequired, s.browserDom.plan.approvalRequired, s.browserDom.vision.artifacts.length + s.browserScreenshot.vision.artifacts.length, null, '/vision browser inspect'),
     target('android', 'android', 'Android ADB', s.adbScreenshot.status === 'blocked' ? 'blocked' : 'passed', true, s.adbScreenshot.plan.approvalRequired, s.adbScreenshot.plan.approvalRequired, [s.adbScreenshot.evidence.screenshot, s.adbUiDump.evidence.uiDump].filter(Boolean).length, s.adbScreenshot.evidence.screenshot?.id || null, '/device inspect'),
@@ -306,8 +306,8 @@ function buildDashboardProjection(
       noVisualMutationWithoutOwnerApproval: true,
     },
     surface: {
-      apiPath: '/api/dashboard/perception-control',
-      dashboardPath: '/dashboard?sector=perception',
+      apiPath: '/api/zavorthControl/perception-control',
+      zavorthControlPath: '/zavorthControl?sector=perception',
       channelCommand: '/vision status',
       cliCommand: 'node scripts/zavorth-perception-certification.ts',
       visualMutationApplied: false,
@@ -325,7 +325,7 @@ function buildDashboardProjection(
 function buildSurfaceProjection(
   surface: ZavorthPerceptionCrossSurfaceName,
   response: SurfaceResponse,
-  projection: ZavorthPerceptionDashboardProjection,
+  projection: ZavorthPerceptionZavorthControlProjection,
 ): ZavorthPerceptionSurfaceProjection {
   const interactive = surface === 'telegram' || surface === 'discord' || surface === 'web';
   const commands = Array.from(new Set([
@@ -364,7 +364,7 @@ function row(
 
 function target(
   id: string,
-  kind: ZavorthPerceptionDashboardTarget['kind'],
+  kind: ZavorthPerceptionZavorthControlTarget['kind'],
   label: string,
   status: ZavorthPerceptionCrossSurfaceStatus,
   activeObservation: boolean,
@@ -373,7 +373,7 @@ function target(
   artifactCount: number,
   lastScreenshotRef: string | null,
   commandHint: string,
-): ZavorthPerceptionDashboardTarget {
+): ZavorthPerceptionZavorthControlTarget {
   return { id, kind, label, status, activeObservation, pendingPlan, approvalRequired, artifactCount, lastScreenshotRef, commandHint };
 }
 
@@ -383,7 +383,7 @@ function pending(
   status: string,
   approvalRequired: boolean,
   commandHint: string,
-): ZavorthPerceptionDashboardProjection['pendingPlans'][number] {
+): ZavorthPerceptionZavorthControlProjection['pendingPlans'][number] {
   const mapped = status === 'blocked' ? 'blocked' : approvalRequired ? 'approval-required' : 'planned';
   return { id, targetId, status: mapped, approvalRequired, commandHint };
 }
@@ -391,10 +391,10 @@ function pending(
 function artifact(
   id: string,
   targetId: string,
-  kind: ZavorthPerceptionDashboardProjection['artifacts'][number]['kind'],
+  kind: ZavorthPerceptionZavorthControlProjection['artifacts'][number]['kind'],
   retentionTtlMs: number,
   commandHint: string,
-): ZavorthPerceptionDashboardProjection['artifacts'][number] {
+): ZavorthPerceptionZavorthControlProjection['artifacts'][number] {
   return { id, targetId, kind, redacted: true, rawContentStored: false, retentionTtlMs, commandHint };
 }
 

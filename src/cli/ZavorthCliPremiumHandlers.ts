@@ -37,7 +37,7 @@ export {
   runVisualReceiptsV2,
   runSatelliteApprovalCompanion,
   runNaturalRuntimeQuestions,
-  runDashboardExperienceHome,
+  runZavorthControlExperienceHome,
   runRuntimeReadiness,
   runReadyToGo,
   runOneCommandOperatorCheck,

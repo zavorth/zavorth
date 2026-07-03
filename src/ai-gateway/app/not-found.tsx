@@ -23,11 +23,11 @@ export default function NotFound() {
       </p>
       <div className="flex flex-col sm:flex-row items-center gap-3">
         <Link
-          href="/dashboard"
+          href="/zavorthControl"
           className="px-8 py-3 rounded-xl text-white text-sm font-medium no-underline transition-all duration-200 motion-reduce:transition-none shadow-warm hover:-translate-y-0.5 bg-gradient-to-br from-primary to-primary-hover hover:shadow-elevated focus:outline-2 focus:outline-offset-2 focus:outline-primary"
-          aria-label="Return to dashboard"
+          aria-label="Return to zavorthControl"
         >
-          Go to Dashboard
+          Go to ZavorthControl
         </Link>
         <Link
           href="/status"

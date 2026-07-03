@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../cli/logger.js';
 
 export class ZavorthEmailAdvancedTool extends BaseTool {
   public readonly name = 'zavorth_email_advanced';
@@ -182,7 +183,7 @@ const { ImapFlow } = require('imapflow');
     lock.release();
   }
   await client.logout();
-})().catch(e => console.error(e.message));
+})().catch(e => logger.error(e.message));
 `;
 
     const result = await this.runNodeScript(script, 30000);
@@ -254,7 +255,7 @@ const { ImapFlow } = require('imapflow');
     lock.release();
   }
   await client.logout();
-})().catch(e => console.error(e.message));
+})().catch(e => logger.error(e.message));
 `;
 
     const result = await this.runNodeScript(script, 30000);
@@ -309,7 +310,7 @@ const nodemailer = require('nodemailer');
 
   const info = await transporter.sendMail(mailOptions);
   console.log(JSON.stringify({ messageId: info.messageId, accepted: info.accepted, response: info.response }));
-})().catch(e => console.error(e.message));
+})().catch(e => logger.error(e.message));
 `;
 
     const result = await this.runNodeScript(script, 30000);
@@ -368,7 +369,7 @@ const { ImapFlow } = require('imapflow');
     console.log(f.path);
   }
   await client.logout();
-})().catch(e => console.error(e.message));
+})().catch(e => logger.error(e.message));
 `;
 
     const result = await this.runNodeScript(script, 15000);
@@ -397,7 +398,7 @@ const { ImapFlow } = require('imapflow');
   await client.mailboxCreate('${folder.replace(/'/g, "\\'")}');
   console.log('Folder created: ${folder.replace(/'/g, "\\'")}');
   await client.logout();
-})().catch(e => console.error(e.message));
+})().catch(e => logger.error(e.message));
 `;
 
     return await this.runNodeScript(script, 15000);
@@ -455,7 +456,7 @@ const { ImapFlow } = require('imapflow');
     lock.release();
   }
   await client.logout();
-})().catch(e => console.error(e.message));
+})().catch(e => logger.error(e.message));
 `;
 
     return await this.runNodeScript(script, 15000);

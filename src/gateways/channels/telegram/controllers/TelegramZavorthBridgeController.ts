@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { Context, InlineKeyboard } from 'grammy';
+import { Context, InlineKeyboard, type Api } from 'grammy';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
@@ -23,9 +22,7 @@ import { TelegramZavorthBridgePromptWorkflowService } from '../../../../gateways
 import { TelegramZavorthBridgeResearchService } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeResearchService.js';
 import { TelegramZavorthBridgeTaskExecutionService } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeTaskExecutionService.js';
 
-type BotApiLike = {
-  sendMessage(chatId: string | number, text: string, other?: Record<string, unknown>): Promise<unknown>;
-};
+type BotApiLike = Api;
 
 type ZavorthBridgePermissionFactory = (
   task: Task,

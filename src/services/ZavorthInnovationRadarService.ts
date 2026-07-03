@@ -327,7 +327,7 @@ function normalizeCategory(value: ZavorthInnovationRadarCategory | null | undefi
   if (/\b(image|video|audio|voice|multimodal|vision)\b/.test(normalized)) return 'multimodal';
   if (/\b(security|policy|approval|receipt|redaction|secret)\b/.test(normalized)) return 'security';
   if (/\b(workflow|automation|task|scheduler|background)\b/.test(normalized)) return 'workflow';
-  if (/\b(ui|ux|dashboard|tui|mobile|companion)\b/.test(normalized)) return 'ux';
+  if (/\b(ui|ux|zavorthControl|tui|mobile|companion)\b/.test(normalized)) return 'ux';
   if (/\b(agent|swarm|subagent|orchestration|tool.call)\b/.test(normalized)) return 'agent-runtime';
   if (/\b(tool|mcp|plugin|skill|connector)\b/.test(normalized)) return 'tooling';
   return 'unknown';

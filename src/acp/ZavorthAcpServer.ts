@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { randomUUID } from 'node:crypto';
 import { Readable, Writable } from 'node:stream';
 
@@ -64,6 +63,7 @@ export class ZavorthAcpServer {
   private readonly onToolCall?: (name: string, args: Record<string, unknown>) => Promise<string>;
   private readonly sessions: Map<string, AcpServerSession> = new Map();
   private readonly tools: Map<string, AcpServerToolDef> = new Map();
+  private readonly pendingRequests = new Map<string | number, { resolve: (val: any) => void; reject: (err: any) => void }>();
   private status: AcpServerSnapshot['status'] = 'starting';
   private totalSessions = 0;
   private lastError: string | null = null;
@@ -110,7 +110,7 @@ export class ZavorthAcpServer {
         this.listening = false;
         resolve();
       });
-      this.stdin.on('error', (err) => {
+      this.stdin.on('error', (err: Error) => {
         this.status = 'error';
         this.lastError = err.message;
         reject(err);
@@ -126,6 +126,43 @@ export class ZavorthAcpServer {
         session.status = 'completed';
         session.endedAt = this.now();
       }
+    }
+  }
+
+  async sendRequest(method: string, params: unknown): Promise<any> {
+    const id = randomUUID();
+    const request = {
+      jsonrpc: '2.0',
+      id,
+      method,
+      params,
+    };
+    return new Promise((resolve, reject) => {
+      this.pendingRequests.set(id, { resolve, reject });
+      try {
+        this.stdout.write(JSON.stringify(request) + '\n');
+      } catch (err) {
+        this.pendingRequests.delete(id);
+        reject(err instanceof Error ? err : new Error(String(err)));
+      }
+    });
+  }
+
+  async requestElevatedApproval(
+    type: string,
+    message: string,
+    metadata: Record<string, unknown>
+  ): Promise<boolean> {
+    try {
+      const response = await this.sendRequest('client:requestElevatedApproval', {
+        type,
+        message,
+        metadata,
+      });
+      return response && response.approved === true;
+    } catch (err) {
+      this.log(`Elevated approval request failed: ${err instanceof Error ? err.message : String(err)}`);
+      return false;
     }
   }
 
@@ -159,14 +196,36 @@ export class ZavorthAcpServer {
         continue;
       }
 
-      let request: AcpJsonRpcRequest;
+      let msg: any;
       try {
-        request = JSON.parse(trimmed);
+        msg = JSON.parse(trimmed);
       } catch {
         this.sendError(null, JSONRPC_PARSE_ERROR, 'Parse error');
         continue;
       }
 
+      // Intercept incoming JSON-RPC responses (have an 'id' and either 'result' or 'error' but do NOT have a 'method')
+      if (
+        msg &&
+        typeof msg === 'object' &&
+        msg.id !== undefined &&
+        msg.id !== null &&
+        ('result' in msg || 'error' in msg) &&
+        !('method' in msg)
+      ) {
+        if (this.pendingRequests.has(msg.id)) {
+          const pending = this.pendingRequests.get(msg.id)!;
+          this.pendingRequests.delete(msg.id);
+          if (msg.error) {
+            pending.reject(new Error(msg.error.message || 'JSON-RPC request failed'));
+          } else {
+            pending.resolve(msg.result);
+          }
+          continue;
+        }
+      }
+
+      const request = msg as AcpJsonRpcRequest;
       this.handleRequest(request).catch((err) => {
         this.sendError(request.id, JSONRPC_INTERNAL_ERROR, err instanceof Error ? err.message : 'Internal error');
       });
@@ -232,6 +291,7 @@ export class ZavorthAcpServer {
       id: sessionId,
       cwd,
       startedAt: this.now(),
+      endedAt: null,
       status: 'active',
       toolCalls: [],
       messagesProcessed: 0,
@@ -417,9 +477,23 @@ export class ZavorthAcpServer {
     const pathMod = await import('path');
 
     const cwd = this.getCwd();
-    const containedPath = (target: string): string | null => {
+    const containedPath = async (target: string): Promise<string | null> => {
       const resolved = pathMod.resolve(cwd, target);
-      if (!resolved.startsWith(cwd)) return null;
+      if (!resolved.startsWith(cwd)) {
+        if (args.bypassPathRestriction === true) {
+          return resolved;
+        }
+        const approved = await this.requestElevatedApproval(
+          'path_traversal',
+          'O agente está tentando ler/escrever em um arquivo fora do workspace.',
+          { path: resolved }
+        );
+        if (approved) {
+          args.bypassPathRestriction = true;
+          return resolved;
+        }
+        return null;
+      }
       return resolved;
     };
 
@@ -427,14 +501,31 @@ export class ZavorthAcpServer {
       case 'Read': {
         const filePath = String(args.path || args.file || '');
         if (!filePath) return 'Error: no file path provided';
-        const resolved = containedPath(filePath);
+        const resolved = await containedPath(filePath);
         if (!resolved) return 'Error: path traversal denied';
         if (!fs.existsSync(resolved)) return `File not found: ${resolved}`;
+
+        const stats = fs.statSync(resolved);
+        const size = stats.size;
+        const limit = 5 * 1024 * 1024; // 5MB
+        if (size > limit) {
+          if (args.bypassSizeLimit !== true) {
+            const sizeInMB = (size / (1024 * 1024)).toFixed(2);
+            const msg = `O agente está tentando ler um arquivo de ${sizeInMB}MB. Isso pode causar lentidão ou estouro de memória.`;
+            const approved = await this.requestElevatedApproval('file_size', msg, { path: filePath, size });
+            if (approved) {
+              args.bypassSizeLimit = true;
+            } else {
+              return `Error: File size exceeds 5MB limit (${sizeInMB}MB) and elevated approval was denied.`;
+            }
+          }
+        }
+
         return fs.readFileSync(resolved, 'utf-8');
       }
       case 'LS': {
         const dirPath = String(args.path || args.directory || '.');
-        const resolved = containedPath(dirPath);
+        const resolved = await containedPath(dirPath);
         if (!resolved) return 'Error: path traversal denied';
         if (!fs.existsSync(resolved)) return `Directory not found: ${resolved}`;
         const entries = fs.readdirSync(resolved, { withFileTypes: true });

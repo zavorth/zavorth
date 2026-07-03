@@ -58,7 +58,7 @@ export type ZavorthLiveCertificationMatrixSnapshot = {
     unsupported: number;
     abuseCases: number;
     abuseCasesControlled: number;
-    dashboardCertified: boolean;
+    zavorthControlCertified: boolean;
     cliCertified: boolean;
     providerP0Certified: boolean;
     channelMeshCertified: boolean;
@@ -80,7 +80,7 @@ export type ZavorthLiveCertificationMatrixSnapshot = {
     scheduledTasksCannotCreateScheduledTasks: true;
     subagentSpawnDepthLimited: true;
     skillsAreInstructionsOnlyByDefault: true;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     cliCanExecuteMutations: false;
     rawSecretsSerialized: false;
   };

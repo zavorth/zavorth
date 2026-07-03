@@ -53,7 +53,7 @@ function createBuiltInProfiles(): MinimalRuntimeProfile[] {
     {
       id: 'minimal',
       label: 'Minimal',
-      description: 'Core kernel only. No channels, browser, gateway, dashboards, or dev tooling on boot.',
+      description: 'Core kernel only. No channels, browser, gateway, zavorthControls, or dev tooling on boot.',
       budgetProfile: 'minimal',
       resourcePosture: 'lean',
       pollingMode: 'event-first',

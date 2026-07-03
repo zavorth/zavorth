@@ -2,6 +2,7 @@ import { CORS_ORIGIN } from "@/shared/utils/cors";
 import { handleChat } from "@/sse/handlers/chat";
 import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
 import { transformToOllama } from "@ZavorthGateway/open-sse/utils/ollamaTransform.ts";
+import { logger } from '../logger.js';
 
 let initialized = false;
 
@@ -31,7 +32,7 @@ export async function POST(request) {
   try {
     const body = await clonedReq.json();
     modelName = body.model || "llama3.2";
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
   const response = await handleChat(request);
   return transformToOllama(response, modelName);

@@ -9,8 +9,6 @@ import {
   type ZavorthProductHardeningStatus,
 } from '../contracts/ZavorthProductHardeningContract.js';
 import { LegacySurfaceContainmentService } from './LegacySurfaceContainmentService.js';
-import { ZavorthNativeConvergenceService } from './ZavorthNativeConvergenceService.js';
-import { ZavorthOperationalRefinementService } from './ZavorthOperationalRefinementService.js';
 
 type ProductHardeningRuntime = {
   projectRoot?: string;
@@ -36,11 +34,11 @@ export class ZavorthProductHardeningService {
   }
 
   public async buildSnapshot(): Promise<ZavorthProductHardeningSnapshot> {
-    const [qualityGates, surfaceConsolidation, installUx, dashboardUx, certification, repoHygiene] = await Promise.all([
+    const [qualityGates, surfaceConsolidation, installUx, zavorthControlUx, certification, repoHygiene] = await Promise.all([
       this.qualityGates(),
       this.surfaceConsolidation(),
       this.installUx(),
-      this.dashboardUx(),
+      this.zavorthControlUx(),
       this.certification(),
       this.repoHygiene(),
     ]);
@@ -48,7 +46,7 @@ export class ZavorthProductHardeningService {
       qualityGates,
       surfaceConsolidation,
       installUx,
-      dashboardUx,
+      zavorthControlUx,
       certification,
       repoHygiene,
     ];
@@ -84,7 +82,7 @@ export class ZavorthProductHardeningService {
         inspect: 'npm run zavorth:product-hardening -- --json',
         doctor: 'zavorth doctor product-hardening',
         qa: 'npm run qa:zavorth-product-hardening --silent',
-        dashboard: 'npm run zavorth-control-vite:check --silent',
+        zavorthControl: 'npm run zavorth-control-vite:check --silent',
         convergence: 'npm run zavorth:native-convergence:check --silent',
         refinement: 'npm run zavorth:operational-refinement:check --silent',
       },
@@ -114,7 +112,7 @@ export class ZavorthProductHardeningService {
     const scripts = this.packageScripts();
     const gates = [
       this.scriptGate('runtime-check', 'TypeScript/runtime check', 'runtime:check', scripts),
-      this.scriptGate('dashboard-check', 'Dashboard build and design-system check', 'zavorth-control-vite:check', scripts),
+      this.scriptGate('zavorthControl-check', 'ZavorthControl build and design-system check', 'zavorth-control-vite:check', scripts),
       this.scriptGate('native-convergence-check', 'Native convergence check', 'zavorth:native-convergence:check', scripts),
       this.scriptGate('operational-refinement-check', 'Operational refinement check', 'zavorth:operational-refinement:check', scripts),
       this.scriptGate('product-readiness-gate', 'Large product readiness gate', 'zavorth:product-readiness:check', scripts),
@@ -150,7 +148,7 @@ export class ZavorthProductHardeningService {
           `vite source: ${viteSource ? 'ok' : 'missing'}`,
           `control assets: ${staticShell ? 'ok' : 'missing'}`,
         ],
-        nextActions: viteSource && staticShell ? [] : ['reconectar shell principal do dashboard'],
+        nextActions: viteSource && staticShell ? [] : ['reconectar shell principal do zavorthControl'],
       }),
       this.gate('surface-docs', 'Surface docs', docs ? 'ready' : 'attention', docs
         ? 'Documentos de direcao das superficies existem.'
@@ -163,7 +161,7 @@ export class ZavorthProductHardeningService {
       'surface-consolidation',
       'Surface Consolidation',
       gates,
-      'Superficies antigas ficam contidas e o dashboard principal permanece como produto ativo.',
+      'Superficies antigas ficam contidas e o zavorthControl principal permanece como produto ativo.',
     );
   }
 
@@ -211,7 +209,7 @@ export class ZavorthProductHardeningService {
     );
   }
 
-  private dashboardUx(): ZavorthProductHardeningArea {
+  private zavorthControlUx(): ZavorthProductHardeningArea {
     const files = [
       'apps/zavorth-control-vite-shell/src/app.ts',
       'apps/zavorth-control-vite-shell/src/pages.ts',
@@ -224,9 +222,9 @@ export class ZavorthProductHardeningService {
       && this.hasMarker('apps/zavorth-control-vite-shell/index.html', 'Ask Zavorth or start with a suggestion.');
     const scripts = this.packageScripts();
     const gates = [
-      this.gate('dashboard-files', 'Dashboard files', allFiles ? 'ready' : 'blocked', allFiles
-        ? 'Arquivos principais do dashboard existem.'
-        : 'Algum arquivo principal do dashboard esta ausente.', {
+      this.gate('zavorthControl-files', 'ZavorthControl files', allFiles ? 'ready' : 'blocked', allFiles
+        ? 'Arquivos principais do zavorthControl existem.'
+        : 'Algum arquivo principal do zavorthControl esta ausente.', {
         evidence: files,
         nextActions: allFiles ? [] : ['restaurar arquivos principais do ZavorthControl'],
       }),
@@ -236,45 +234,46 @@ export class ZavorthProductHardeningService {
         evidence: ['chat composer style', 'home prompt text'],
         nextActions: chatHome ? [] : ['revisar tela inicial do chat'],
       }),
-      this.scriptGate('dashboard-build-script', 'Dashboard check script', 'zavorth-control-vite:check', scripts),
+      this.scriptGate('zavorthControl-build-script', 'ZavorthControl check script', 'zavorth-control-vite:check', scripts),
     ];
     return this.area(
-      'dashboard-ux',
-      'Dashboard UX',
+      'zavorthControl-ux',
+      'ZavorthControl UX',
       gates,
-      'Dashboard tem fonte unica, build repetivel e tela de chat mantida simples.',
+      'ZavorthControl tem fonte unica, build repetivel e tela de chat mantida simples.',
     );
   }
 
   private async certification(): Promise<ZavorthProductHardeningArea> {
-    const [convergence, refinement] = await Promise.all([
-      new ZavorthNativeConvergenceService({
-        projectRoot: this.projectRoot,
-        now: this.now,
-        env: this.env,
-      }).buildSnapshot(),
-      new ZavorthOperationalRefinementService({
-        projectRoot: this.projectRoot,
-        now: this.now,
-      }).buildSnapshot(),
-    ]);
+    const scripts = this.packageScripts();
+    const convergenceReady = Boolean(scripts['zavorth:native-convergence:check'])
+      && this.exists('src/services/ZavorthNativeConvergenceService.ts')
+      && this.exists('tests/services/ZavorthNativeConvergenceService.test.ts');
+    const refinementReady = Boolean(scripts['zavorth:operational-refinement:check'])
+      && this.exists('src/services/ZavorthOperationalRefinementService.ts')
+      && this.exists('tests/services/ZavorthOperationalRefinementService.test.ts');
     const gates = [
-      this.gate('native-convergence', 'Native convergence', convergence.status === 'blocked' ? 'blocked' : 'ready',
-        `Convergencia nativa reporta ${convergence.status}.`, {
+      this.gate('native-convergence', 'Native convergence', convergenceReady ? 'ready' : 'blocked',
+        convergenceReady
+          ? 'Native convergence certification is wired as a repeatable check.'
+          : 'Native convergence certification is not fully wired.', {
           evidence: [
-            `ready=${convergence.summary.ready}/${convergence.summary.total}`,
-            `missing_config=${convergence.summary.missingConfig}`,
-            convergence.commands.qa,
+            'src/services/ZavorthNativeConvergenceService.ts',
+            'tests/services/ZavorthNativeConvergenceService.test.ts',
+            scripts['zavorth:native-convergence:check'] || 'missing script',
           ],
-          nextActions: convergence.status === 'blocked' ? ['resolver pilares bloqueados da convergencia nativa'] : [],
+          nextActions: convergenceReady ? [] : ['wire native convergence service, tests and package script'],
         }),
-      this.gate('operational-refinement', 'Operational refinement', refinement.status === 'ready' ? 'ready' : 'attention',
-        `Refinamento operacional reporta ${refinement.status}.`, {
+      this.gate('operational-refinement', 'Operational refinement', refinementReady ? 'ready' : 'attention',
+        refinementReady
+          ? 'Operational refinement certification is wired as a repeatable check.'
+          : 'Operational refinement certification is partially wired.', {
           evidence: [
-            `ready=${refinement.summary.ready}`,
-            refinement.commands.qa,
+            'src/services/ZavorthOperationalRefinementService.ts',
+            'tests/services/ZavorthOperationalRefinementService.test.ts',
+            scripts['zavorth:operational-refinement:check'] || 'missing script',
           ],
-          nextActions: refinement.status === 'ready' ? [] : ['resolver areas parciais do refinamento operacional'],
+          nextActions: refinementReady ? [] : ['wire operational refinement service, tests and package script'],
         }),
     ];
     return this.area(

@@ -5,6 +5,7 @@ import type { Duplex } from 'stream';
 import { WebSocketServer, type RawData, type WebSocket } from 'ws';
 import { config } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthGatewayStatus = {
   enabled: boolean;
@@ -24,6 +25,16 @@ export type ZavorthGatewayStatus = {
 type GatewayOverlay = {
   headers?: Record<string, string>;
 };
+
+interface GatewayWebSocketMessage {
+  id?: string;
+  type?: string;
+  body?: Record<string, unknown>;
+}
+
+interface GatewayError extends Error {
+  code?: string;
+}
 
 export class ZavorthGatewayService {
   private static server: http.Server | null = null;
@@ -63,7 +74,7 @@ export class ZavorthGatewayService {
           resolve();
         });
       });
-    } catch (error: any) {
+    } catch (error: GatewayError) {
       server.removeAllListeners();
       this.server = null;
       if (error?.code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
@@ -98,7 +109,7 @@ export class ZavorthGatewayService {
     ZavorthGatewayService.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
     });
     ZavorthGatewayService.wss?.close();
     ZavorthGatewayService.wss = null;
@@ -196,8 +207,9 @@ export class ZavorthGatewayService {
       res.end(bodyBuffer);
       const status = this.buildStatus(true, response.ok || response.status < 500, 'Gateway proprio do AIGateway respondeu ao upstream.');
       this.writeStatus(status);
-    } catch (error: any) {
-      const status = this.buildStatus(true, false, `Falha ao encaminhar request ao AIGateway upstream: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const status = this.buildStatus(true, false, `Falha ao encaminhar request ao AIGateway upstream: ${errorMessage}`);
       this.writeStatus(status);
       this.writeJson(res, { ok: false, error: status.message }, 502);
     }
@@ -237,7 +249,7 @@ export class ZavorthGatewayService {
   }
 
   private async handleGatewayWebSocketMessage(ws: WebSocket, raw: RawData): Promise<void> {
-    let message: any;
+    let message: GatewayWebSocketMessage;
     try {
       message = JSON.parse(Buffer.isBuffer(raw) ? raw.toString('utf8') : raw.toString());
     } catch {

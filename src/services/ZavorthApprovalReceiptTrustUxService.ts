@@ -65,8 +65,8 @@ export class ZavorthApprovalReceiptTrustUxService {
       cards: input.approvalCards.cards,
       receipts: input.visualReceipts.cards,
       safety: {
-        dashboardCanExecuteTargetAction: false,
-        dashboardCanResolveApprovalOnlyThroughGateway: true,
+        zavorthControlCanExecuteTargetAction: false,
+        zavorthControlCanResolveApprovalOnlyThroughGateway: true,
         approvalScopedToExactAction: true,
         rawSecretsSerialized: false,
         telegramPrivileged: false,

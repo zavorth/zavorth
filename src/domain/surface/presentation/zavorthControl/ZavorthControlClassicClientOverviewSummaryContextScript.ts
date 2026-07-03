@@ -1,8 +1,142 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 
+declare function escapeHtml(value: unknown): string;
+declare function formatRelativeTime(value: unknown): string;
+declare function runCockpitAction(actionId: string): void;
+declare function copyTextToClipboard(value: string, successMessage?: string): void;
+
+interface OperatorBriefHighlight {
+  key?: string;
+  value?: string;
+}
+
+interface ZavorthBridgeInfo {
+  available?: boolean;
+  latestIncident?: string;
+  latestSeverity?: string;
+  flappingLikely?: boolean;
+}
+
+interface NextAction {
+  actionId?: string;
+  label?: string;
+  reason?: string;
+  command?: string;
+}
+
+interface OperatorBrief {
+  error?: boolean;
+  headline?: string;
+  highlights?: string[];
+  zavorthBridge?: ZavorthBridgeInfo;
+  nextAction?: NextAction;
+  posture?: string;
+}
+
+interface MemoryRecentEntry {
+  key?: string;
+  value?: string;
+}
+
+interface MemoryRelevantEntry {
+  key?: string;
+  value?: string;
+}
+
+interface MemoryPlaneMemory {
+  recent?: MemoryRecentEntry[];
+  relevant?: MemoryRelevantEntry[];
+}
+
+interface MemoryArtifact {
+  label?: string;
+  summary?: string;
+  path?: string;
+}
+
+interface MemoryPlaneArtifacts {
+  recent?: MemoryArtifact[];
+}
+
+interface MemoryPlaneReplay {
+  recommendedEntry?: {
+    reason?: string;
+  };
+}
+
+interface MemoryPlaneWorkspace {
+  workspace?: string;
+  summary?: string;
+}
+
+interface MemoryPlaneSummary {
+  artifacts?: number;
+  persistedMemories?: number;
+  relevantMemories?: number;
+  replayTasks?: number;
+  workspaceSignals?: number;
+}
+
+interface MemoryPlaneNarrative {
+  headline?: string;
+  operatorSummary?: string;
+}
+
+interface SuggestedAction {
+  label?: string;
+  reason?: string;
+  command?: string;
+}
+
+interface MemoryPlane {
+  error?: boolean;
+  available?: boolean;
+  reason?: string;
+  replay?: MemoryPlaneReplay;
+  workspace?: MemoryPlaneWorkspace;
+  memory?: MemoryPlaneMemory;
+  artifacts?: MemoryPlaneArtifacts;
+  suggestedActions?: SuggestedAction[];
+  summary?: MemoryPlaneSummary;
+  narrative?: MemoryPlaneNarrative;
+}
+
+interface ContinuityTask {
+  shortId?: string;
+  commandType?: string;
+  summary?: string;
+  source?: string;
+  status?: string;
+  updatedAt?: string;
+}
+
+interface ContinuitySuggestedAction {
+  kind?: string;
+  label?: string;
+  reason?: string;
+}
+
+interface ContinuitySurfaces {
+  telegram?: number;
+  web?: number;
+  other?: number;
+}
+
+interface Continuity {
+  error?: boolean;
+  available?: boolean;
+  reason?: string;
+  suggestedAction?: ContinuitySuggestedAction;
+  focusTask?: ContinuityTask;
+  activeTask?: ContinuityTask;
+  latestTelegramTask?: ContinuityTask;
+  latestWebTask?: ContinuityTask;
+  surfaces?: ContinuitySurfaces;
+  recentTasks?: ContinuityTask[];
+}
+
 function zavorthControlClassicClientOverviewSummaryContext() {
-    function renderOperatorBrief(brief) {
+    function renderOperatorBrief(brief: OperatorBrief | null): void {
       const node = document.getElementById('operations-brief');
       if (!node) return;
       if (!brief || brief.error) {
@@ -69,7 +203,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         + '</div>';
     }
 
-    function renderOperationsMemoryPlane(memoryPlane) {
+    function renderOperationsMemoryPlane(memoryPlane: MemoryPlane | null): void {
       const node = document.getElementById('operations-memory-plane');
       if (!node) return;
       if (!memoryPlane || memoryPlane.error || memoryPlane.available === false) {
@@ -88,14 +222,14 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       const suggestedActions = Array.isArray(memoryPlane.suggestedActions) ? memoryPlane.suggestedActions : [];
       const memoryItems = recentMemories.length
         ? recentMemories.slice(0, 4).map((entry) =>
-            '<li><strong>' + escapeHtml(entry.key || 'memoria') + '</strong> Ã‚Â· '
+            '<li><strong>' + escapeHtml(entry.key || 'memoria') + '</strong> · '
             + escapeHtml(entry.value || 'Sem valor adicional.')
             + '</li>'
           ).join('')
         : '<li>Nenhuma memoria persistente recente.</li>';
       const artifactItems = artifacts.length
         ? artifacts.slice(0, 4).map((artifact) =>
-            '<li><strong>' + escapeHtml(artifact.label || 'Entrega') + '</strong> Ã‚Â· '
+            '<li><strong>' + escapeHtml(artifact.label || 'Entrega') + '</strong> · '
             + escapeHtml(artifact.summary || artifact.path || 'Sem resumo adicional.')
             + '</li>'
           ).join('')
@@ -135,7 +269,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         + '<div class="cockpit-stack">'
         + '<div class="sidecar-card"><strong>Entregas recentes</strong><ul class="cockpit-list">' + artifactItems + '</ul></div>'
         + '<div class="sidecar-card"><strong>Retomada</strong><small>' + escapeHtml(replay?.recommendedEntry?.reason || 'Sem replay consolidado adicional.') + '</small>'
-        + (workspace ? '<small>Workspace: ' + escapeHtml(workspace.workspace || 'n/d') + ' Ã‚Â· ' + escapeHtml(workspace.summary || 'Sem resumo adicional.') + '</small>' : '')
+        + (workspace ? '<small>Workspace: ' + escapeHtml(workspace.workspace || 'n/d') + ' · ' + escapeHtml(workspace.summary || 'Sem resumo adicional.') + '</small>' : '')
         + (relevantMemories[0] ? '<small>Memoria em foco: ' + escapeHtml(relevantMemories[0].key || 'memoria') + '</small>' : '')
         + '</div>'
         + '<div class="sidecar-card"><strong>Acoes sugeridas</strong><div class="cockpit-action-list">' + actionItems + '</div></div>'
@@ -143,7 +277,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         + '</div>';
     }
 
-    function renderOperationsContinuity(continuity) {
+    function renderOperationsContinuity(continuity: Continuity | null): void {
       const node = document.getElementById('operations-continuity');
       if (!node) return;
       if (!continuity || continuity.error || continuity.available === false) {
@@ -165,7 +299,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         ? 'retomar contexto'
         : (suggestedAction.kind === 'resume-active' ? 'atividade em curso' : 'sem continuidade');
       const focusTitle = focusTask
-        ? escapeHtml((focusTask.shortId || 'task') + ' Ã‚Â· ' + (focusTask.commandType || 'fluxo livre'))
+        ? escapeHtml((focusTask.shortId || 'task') + ' · ' + (focusTask.commandType || 'fluxo livre'))
         : 'Nenhuma task em foco';
       const focusSummary = focusTask
         ? escapeHtml(focusTask.summary || 'Sem resumo disponivel.')
@@ -177,9 +311,9 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         : 'Use Telegram ou /app para criar um novo fio de continuidade.';
       const recentItems = recentTasks.length
         ? recentTasks.slice(0, 4).map((task) =>
-            '<li><strong>' + escapeHtml(task.shortId || 'task') + '</strong> Ã‚Â· '
-            + escapeHtml(task.source || 'n/d') + ' Ã‚Â· '
-            + escapeHtml(task.status || 'n/d') + ' Ã‚Â· '
+            '<li><strong>' + escapeHtml(task.shortId || 'task') + '</strong> · '
+            + escapeHtml(task.source || 'n/d') + ' · '
+            + escapeHtml(task.status || 'n/d') + ' · '
             + escapeHtml(formatRelativeTime(task.updatedAt))
             + '</li>'
           ).join('')
@@ -221,4 +355,3 @@ function zavorthControlClassicClientOverviewSummaryContext() {
 export function getZavorthControlClassicClientOverviewSummaryContextScript(): string {
   return extractFunctionBody(zavorthControlClassicClientOverviewSummaryContext);
 }
-

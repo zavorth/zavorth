@@ -13,11 +13,11 @@ import {
 } from "./RuntimeAccessReadinessDataSnapshotBuilders.js";
 import type { RuntimeAccessReadinessSnapshotReaderOptions } from "./RuntimeAccessReadinessSnapshotReaderTypes.js";
 import { RuntimeAccessReadinessSmokeSnapshotReader } from "./RuntimeAccessReadinessSmokeSnapshotReader.js";
-import { isWeakDashboardToken } from "../../../../services/DashboardTokenService.js";
+import { isWeakZavorthControlToken } from "../../../../services/ZavorthControlTokenService.js";
 import type {
   RuntimeAccessAuthStatus,
   RuntimeAccessChannelProviderDoctorSnapshot,
-  RuntimeAccessDashboardSnapshot,
+  RuntimeAccessZavorthControlSnapshot,
   RuntimeAccessDiscordBridgeSnapshot,
   RuntimeAccessLayeredMemorySnapshot,
   RuntimeAccessLearningSnapshot,
@@ -135,7 +135,7 @@ export class RuntimeAccessReadinessSnapshotReader {
   public readAuthStatus(): RuntimeAccessAuthStatus {
     if (
       this.options.webAuthToken &&
-      !isWeakDashboardToken(this.options.webAuthToken)
+      !isWeakZavorthControlToken(this.options.webAuthToken)
     ) {
       return {
         enabled: true,
@@ -223,19 +223,19 @@ export class RuntimeAccessReadinessSnapshotReader {
     }
   }
 
-  public readDashboardSnapshot(
+  public readZavorthControlSnapshot(
     workerLock: RuntimeAccessLockSnapshot | null = null,
-  ): RuntimeAccessDashboardSnapshot | null {
+  ): RuntimeAccessZavorthControlSnapshot | null {
     try {
       if (
-        !this.options.dashboardRuntimeFile ||
-        !this.options.existsSync(this.options.dashboardRuntimeFile)
+        !this.options.zavorthControlRuntimeFile ||
+        !this.options.existsSync(this.options.zavorthControlRuntimeFile)
       ) {
         return null;
       }
 
       const parsed = JSON.parse(
-        this.options.readFileSync(this.options.dashboardRuntimeFile, "utf8"),
+        this.options.readFileSync(this.options.zavorthControlRuntimeFile, "utf8"),
       ) as Record<string, unknown>;
       const pid = Number(parsed.pid || 0) || null;
       const active = pid ? this.isProcessAlive(pid) : true;

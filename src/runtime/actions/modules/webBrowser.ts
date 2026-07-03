@@ -13,7 +13,7 @@ import type {
 
 const WEB_BROWSER_CAPABILITY_ID = 'web-browser';
 const WEB_BROWSER_TEST_REFS = ['tests/runtime/actions/WebBrowserActions.test.ts'];
-const WEB_BROWSER_SURFACES: ZavorthActionDefinition['surface'] = ['cli', 'dashboard', 'tui', 'api', 'channel', 'llm'];
+const WEB_BROWSER_SURFACES: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 
 const outputSchema: ZavorthActionSchema = {
   type: 'object',

@@ -35,7 +35,7 @@ try {
 }
 
 const logRepo = new LogRepository();
-logRepo.init().catch(() => {});
+logRepo.init().catch((err) => { logger.warn('Failed to initialize log repository:', err); });
 const auditLogger = new SecurityAuditLogger(logRepo);
 
 const server = new Server(
@@ -485,7 +485,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         let entries: fs.Dirent[];
         try {
           entries = fs.readdirSync(currentDir, { withFileTypes: true });
-        } catch {
+        } catch (readErr) {
+          logger.warn(`Failed to read directory ${currentDir}: ${readErr}`);
           return;
         }
 

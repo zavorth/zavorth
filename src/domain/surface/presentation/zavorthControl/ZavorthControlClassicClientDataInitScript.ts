@@ -1,5 +1,6 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+
+declare const loadMetrics: () => void;
 
 function zavorthControlClassicClientDataInit() {
     loadMetrics();

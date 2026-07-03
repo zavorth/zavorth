@@ -1,0 +1,53 @@
+'yes': Có
+'no': Không
+ok: OK
+cancel: Hủy bỏ
+error: Đã xảy ra lỗi
+success: thành công
+loading: Đang tải...
+saving: Saving...
+confirm: Bạn có chắc không?
+back: Quay lại
+next: Tiếp theo
+finish: Finish
+retry: Retry
+skip: Skip
+close: Đóng
+create: Create
+delete: Xóa
+edit: Chỉnh sửa
+update: Update
+search: Tìm kiếm
+none: không có
+all: Tất cả
+enabled: Đã bật
+disabled: Đã tắt
+pending: Pending
+completed: Completed
+failed: Failed
+warning: Cảnh báo
+details: Chi tiết
+name: Tên
+type: loại
+status: Trạng thái
+path: Path
+file: tập tin
+folder: Folder
+copied: Đã sao chép!
+save: Lưu
+discard: Discard
+apply: Apply
+reset: Đặt lại
+refresh: Làm mới
+export: Export
+import: Nhập khẩu
+download: Download
+upload: Upload
+connect: Connect
+disconnect: Disconnect
+start: Start
+stop: Stop
+restart: Restart
+unknown: Unknown
+required: Required
+optional: Optional

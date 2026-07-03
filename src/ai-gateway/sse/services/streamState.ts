@@ -210,7 +210,7 @@ export function archiveStream(requestId) {
 }
 
 /**
- * Get all active streams (for monitoring dashboard).
+ * Get all active streams (for monitoring zavorthControl).
  * @returns {Array<Object>}
  */
 export function getActiveStreams() {

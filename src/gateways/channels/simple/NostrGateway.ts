@@ -2,6 +2,21 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface NostrWebhookPayload {
+  pubkey?: string;
+  author?: string;
+  userId?: string;
+  chatId?: string;
+  relay?: string;
+  content?: string;
+  text?: string;
+  rawText?: string;
+  id?: string;
+  eventId?: string;
+  messageId?: string;
+  kind?: number;
+}
+
 export class NostrGateway extends WebhookGateway {
   public readonly id = 'nostr';
   public readonly name = 'Nostr';
@@ -53,27 +68,29 @@ export class NostrGateway extends WebhookGateway {
     isGroup?: boolean;
     fields?: Record<string, unknown>;
   } | null {
+    const payload = webhookPayload as NostrWebhookPayload;
+
     const userId = String(
-      (webhookPayload as any).pubkey
-      || (webhookPayload as any).author
-      || (webhookPayload as any).userId
+      payload.pubkey
+      || payload.author
+      || payload.userId
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).chatId
-      || (webhookPayload as any).relay
+      payload.chatId
+      || payload.relay
       || 'nostr',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).content
-      || (webhookPayload as any).text
-      || (webhookPayload as any).rawText
+      payload.content
+      || payload.text
+      || payload.rawText
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).id
-      || (webhookPayload as any).eventId
-      || (webhookPayload as any).messageId
+      payload.id
+      || payload.eventId
+      || payload.messageId
       || '',
     ).trim() || null;
 
@@ -88,8 +105,8 @@ export class NostrGateway extends WebhookGateway {
       messageId,
       isGroup: false,
       fields: {
-        kind: (webhookPayload as any).kind || 1,
-        relay: String((webhookPayload as any).relay || ''),
+        kind: payload.kind ?? 1,
+        relay: String(payload.relay || ''),
       },
     };
   }

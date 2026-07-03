@@ -20,7 +20,7 @@ export type ZavorthCapabilityAtlasSurface = {
   llm: boolean;
   actionHarness: boolean;
   cli: boolean;
-  dashboard: boolean;
+  zavorthControl: boolean;
   tui: boolean;
   docs: boolean;
 };
@@ -58,7 +58,7 @@ export type ZavorthCapabilityAtlasSnapshot = {
     llmVisible: number;
     actionHarnessBacked: number;
     cliVisible: number;
-    dashboardVisible: number;
+    zavorthControlVisible: number;
     tuiVisible: number;
   };
   categories: Record<ZavorthCapabilityAtlasCategory, number>;

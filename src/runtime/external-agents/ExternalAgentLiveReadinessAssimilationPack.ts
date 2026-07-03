@@ -42,7 +42,7 @@ export type ExternalAgentLiveReadinessSubgateName =
   | 'audit-receipt-model'
   | 'capability-import-classification'
   | 'capability-snapshot-normalizer'
-  | 'dashboard-live-assimilation-projection'
+  | 'zavorthControl-live-assimilation-projection'
   | 'degraded-unavailable-state-handling'
   | 'event-bridge-read-only-contract'
   | 'no-execution-policy-invariants'
@@ -199,8 +199,8 @@ export type ExternalAgentLiveReadinessEventBridge = {
   noSecondEventBus: true;
 };
 
-export type ExternalAgentLiveReadinessDashboardRow = {
-  nativeContract: 'ZavorthExternalAgentDashboardLiveAssimilationRow/v1';
+export type ExternalAgentLiveReadinessZavorthControlRow = {
+  nativeContract: 'ZavorthExternalAgentZavorthControlLiveAssimilationRow/v1';
   id: string;
   label: string;
   rowKind: ExternalAgentLiveReadinessCapabilityRowKind;
@@ -216,12 +216,12 @@ export type ExternalAgentLiveReadinessDashboardRow = {
   sessionImportControlExposed: false;
 };
 
-export type ExternalAgentLiveReadinessDashboardProjection = {
-  nativeContract: 'ZavorthExternalAgentDashboardLiveAssimilationProjection/v1';
+export type ExternalAgentLiveReadinessZavorthControlProjection = {
+  nativeContract: 'ZavorthExternalAgentZavorthControlLiveAssimilationProjection/v1';
   id: string;
   readOnly: true;
   usesZavorthTerms: true;
-  rows: ExternalAgentLiveReadinessDashboardRow[];
+  rows: ExternalAgentLiveReadinessZavorthControlRow[];
   executableControlsExposed: false;
   providerExecutionControlsExposed: false;
   commandExecutionControlsExposed: false;
@@ -290,7 +290,7 @@ export type ExternalAgentLiveReadinessAssimilationPackNormalization<TRuntimeId e
   snapshot: ExternalAgentLiveReadinessCapabilitySnapshot;
   adapterInterface: ExternalAgentLiveReadinessReadOnlyAdapterInterface;
   eventBridge: ExternalAgentLiveReadinessEventBridge;
-  dashboardProjection: ExternalAgentLiveReadinessDashboardProjection;
+  zavorthControlProjection: ExternalAgentLiveReadinessZavorthControlProjection;
   capabilityImportClassification: ExternalAgentLiveReadinessClassification;
   degradedUnavailableStateHandling: ExternalAgentLiveReadinessDegradedUnavailableHandling;
   auditReceipts: ExternalAgentLiveReadinessAuditReceipt[];
@@ -304,7 +304,7 @@ const SUBGATES: ExternalAgentLiveReadinessSubgateName[] = [
   'capability-snapshot-normalizer',
   'read-only-adapter-interface',
   'event-bridge-read-only-contract',
-  'dashboard-live-assimilation-projection',
+  'zavorthControl-live-assimilation-projection',
   'capability-import-classification',
   'degraded-unavailable-state-handling',
   'audit-receipt-model',
@@ -373,9 +373,9 @@ function classificationReason(classification: ExternalAgentLiveReadinessImportCl
   }
 }
 
-function dashboardStatus(
+function zavorthControlStatus(
   classification: ExternalAgentLiveReadinessImportClassification,
-): ExternalAgentLiveReadinessDashboardRow['status'] {
+): ExternalAgentLiveReadinessZavorthControlRow['status'] {
   if (classification === 'inventory-only') {
     return 'ready';
   }
@@ -570,16 +570,16 @@ function buildEventBridge<TRuntimeId extends string>(
   };
 }
 
-function buildDashboardProjection(
+function buildZavorthControlProjection(
   idPrefix: string,
   rows: ExternalAgentLiveReadinessCapabilityInventoryRow[],
-): ExternalAgentLiveReadinessDashboardProjection {
-  const dashboardRows = rows.map((row, index): ExternalAgentLiveReadinessDashboardRow => ({
-    nativeContract: 'ZavorthExternalAgentDashboardLiveAssimilationRow/v1',
-    id: `${idPrefix}:dashboard-${index + 1}-${normalizeId(row.rowKind, 'row')}`,
-    label: `Zavorth ${row.rowKind} ${dashboardStatus(row.importClassification)}`,
+): ExternalAgentLiveReadinessZavorthControlProjection {
+  const zavorthControlRows = rows.map((row, index): ExternalAgentLiveReadinessZavorthControlRow => ({
+    nativeContract: 'ZavorthExternalAgentZavorthControlLiveAssimilationRow/v1',
+    id: `${idPrefix}:zavorthControl-${index + 1}-${normalizeId(row.rowKind, 'row')}`,
+    label: `Zavorth ${row.rowKind} ${zavorthControlStatus(row.importClassification)}`,
     rowKind: row.rowKind,
-    status: dashboardStatus(row.importClassification),
+    status: zavorthControlStatus(row.importClassification),
     zavorthTerm: 'Zavorth capability inventory projection',
     readOnly: true,
     usesZavorthTerms: true,
@@ -592,11 +592,11 @@ function buildDashboardProjection(
   }));
 
   return {
-    nativeContract: 'ZavorthExternalAgentDashboardLiveAssimilationProjection/v1',
-    id: `${idPrefix}:dashboard-live-assimilation`,
+    nativeContract: 'ZavorthExternalAgentZavorthControlLiveAssimilationProjection/v1',
+    id: `${idPrefix}:zavorthControl-live-assimilation`,
     readOnly: true,
     usesZavorthTerms: true,
-    rows: dashboardRows,
+    rows: zavorthControlRows,
     executableControlsExposed: false,
     providerExecutionControlsExposed: false,
     commandExecutionControlsExposed: false,
@@ -805,7 +805,7 @@ export function normalizeExternalAgentLiveReadinessAssimilationPack<TRuntimeId e
   const snapshot = buildSnapshot(options.idPrefix, inventoryRows);
   const adapterInterface = buildReadOnlyAdapterInterface(options.idPrefix);
   const eventBridge = buildEventBridge(options);
-  const dashboardProjection = buildDashboardProjection(options.idPrefix, inventoryRows);
+  const zavorthControlProjection = buildZavorthControlProjection(options.idPrefix, inventoryRows);
   const capabilityImportClassification = buildCapabilityImportClassification(inventoryRows);
   const degradedUnavailableStateHandling = buildDegradedUnavailableHandling(inventoryRows);
   const auditReceipts = buildAuditReceipts(options.idPrefix);
@@ -825,7 +825,7 @@ export function normalizeExternalAgentLiveReadinessAssimilationPack<TRuntimeId e
     snapshot,
     adapterInterface,
     eventBridge,
-    dashboardProjection,
+    zavorthControlProjection,
     capabilityImportClassification,
     degradedUnavailableStateHandling,
     auditReceipts,

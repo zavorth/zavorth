@@ -1,12 +1,42 @@
-// @ts-nocheck
 import { Task, type TaskStatus } from '../../../../contracts/TaskContract.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { buildWorkspaceContinuityContext } from '../../../../runtime/context/WorkspaceContinuityContext.js';
 import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from '../../../../services/WorkspaceTaskKind.js';
+import { logger } from '../../../../cli/logger.js';
 
 type WorkspaceStrategySnapshotBuilder = (task: Task, taskGoal?: string) => Record<string, unknown>;
 
 type ContinuityContext = ReturnType<typeof buildWorkspaceContinuityContext>;
+
+interface AgentGatewayRunResult {
+  run?: {
+    id?: string | null;
+    traceId?: string | null;
+    requestId?: string | null;
+    status?: string | null;
+    summary?: string | null;
+    toolExposure?: { tools?: Array<{ id?: string | null }> | null } | null;
+    approvals?: Array<{ id?: string | null; status?: string | null; risk?: string | null }> | null;
+    metadata?: { graphRuntimeBackend?: { called?: boolean } | null } | null;
+  } | null;
+  replies?: Array<{ text?: string }> | null;
+  ok?: boolean;
+}
+
+interface AutonomousGraphResult {
+  finalReply?: string | null;
+  criticFeedback?: string | null;
+  error?: string | null;
+  traceId?: string | null;
+  status?: string | null;
+  approved?: boolean;
+  providerName?: string | null;
+  modelName?: string | null;
+  iterations?: number | null;
+  tokenBudget?: unknown;
+  costBudget?: unknown;
+  ok?: boolean;
+}
 
 export type TelegramConversationStateServiceDeps = {
   taskManager?: TaskManager;
@@ -63,8 +93,9 @@ export class TelegramConversationStateService {
 
     try {
       this.persistDirectTerminalState(task, 'direct_response_completed');
-    } catch {
+    } catch (err) {
       // best-effort persistence for workspace learning
+      logger.warn('[TelegramConversationState] persistDirectTerminalState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
   }
@@ -88,7 +119,7 @@ export class TelegramConversationStateService {
     this.persistAgentGatewayState(task, 'running', 'agent_gateway_start');
   }
 
-  public recordAgentGatewayRunOutcome(task: Task, taskGoal: string, result: unknown): void {
+  public recordAgentGatewayRunOutcome(task: Task, taskGoal: string, result: AgentGatewayRunResult): void {
     const finishedAt = new Date().toISOString();
     const run = result?.run || null;
     const runStatus = String(run?.status || (result?.ok ? 'completed' : 'failed')).trim() || 'failed';
@@ -99,7 +130,7 @@ export class TelegramConversationStateService {
       || (result?.ok ? 'Execucao registrada pelo runtime universal.' : 'A execucao governada falhou.');
     const continuityContext = buildWorkspaceContinuityContext(task, String(task.source || 'telegram').trim());
     const requestedTools = Array.isArray(run?.toolExposure?.tools)
-      ? run.toolExposure.tools.map((tool: unknown) => String(tool?.id || '').trim()).filter(Boolean)
+      ? run.toolExposure.tools.map((tool) => String(tool?.id || '').trim()).filter(Boolean)
       : [];
 
     task.planner_used = 'zavorth_agent_gateway';
@@ -116,7 +147,7 @@ export class TelegramConversationStateService {
         replyText: replyText || null,
         requestedTools,
         approvals: Array.isArray(run?.approvals)
-          ? run.approvals.map((approval: unknown) => ({
+          ? run.approvals.map((approval) => ({
               id: approval?.id || null,
               status: approval?.status || null,
               risk: approval?.risk || null,
@@ -170,7 +201,9 @@ export class TelegramConversationStateService {
   }
 
   public recordAgentGatewayRunException(task: Task, taskGoal: string, error: unknown): void {
-    const message = String(error?.message || error || 'Falha inesperada no runtime universal.');
+    const message = error instanceof Error
+      ? error.message
+      : String(error || 'Falha inesperada no runtime universal.');
     const continuityContext = buildWorkspaceContinuityContext(task, String(task.source || 'telegram').trim());
     task.planner_used = 'zavorth_agent_gateway';
     task.executor_used = 'agent_run_service';
@@ -227,12 +260,13 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch {
+    } catch (err) {
+      logger.warn('[TelegramConversationState] advanceState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
   }
 
-  public recordAutonomousTaskOutcome(task: Task, taskGoal: string, result: unknown): void {
+  public recordAutonomousTaskOutcome(task: Task, taskGoal: string, result: AutonomousGraphResult): void {
     const finishedAt = new Date().toISOString();
     const outcomeSummary = String(result?.finalReply || result?.criticFeedback || result?.error || '').trim() || null;
     const continuityContext = buildWorkspaceContinuityContext(task, String(task.source || 'telegram').trim());
@@ -285,7 +319,9 @@ export class TelegramConversationStateService {
     task.planner_used = 'supervisor_graph';
     task.executor_used = 'god_mode';
     task.result_summary = null;
-    task.error_summary = String(error?.message || error || 'Falha inesperada na orquestracao autonoma.');
+    task.error_summary = error instanceof Error
+      ? error.message
+      : String(error || 'Falha inesperada na orquestracao autonoma.');
     task.metadata = {
       ...(task.metadata || {}),
       autonomous_graph_last_run: {
@@ -391,7 +427,8 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch {
+    } catch (err) {
+      logger.warn('[TelegramConversationState] advanceState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
   }
@@ -421,7 +458,8 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch {
+    } catch (err) {
+      logger.warn('[TelegramConversationState] advanceState to completed failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
   }
@@ -472,7 +510,8 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch {
+    } catch (err) {
+      logger.warn('[TelegramConversationState] advanceState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
   }

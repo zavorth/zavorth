@@ -74,7 +74,7 @@ import {
 } from './ToolRehearsalService.js';
 import { MemoryWithReceiptsService } from './MemoryWithReceiptsService.js';
 import { ProviderArenaService } from './ProviderArenaService.js';
-import { SelfingDashboardService } from './SelfingDashboardService.js';
+import { SelfingZavorthControlService } from './SelfingZavorthControlService.js';
 import { ArtifactMemoryService } from './ArtifactMemoryService.js';
 import {
   ZavorthLlmBrainService,
@@ -166,7 +166,7 @@ export type AgentRunServiceRuntime = {
   memoryWithReceipts?: MemoryWithReceiptsService | null;
   capabilityNegotiation?: CapabilityNegotiationService | null;
   toolRehearsal?: ToolRehearsalService | null;
-  selfingDashboard?: SelfingDashboardService | null;
+  selfingZavorthControl?: SelfingZavorthControlService | null;
   artifactMemory?: ArtifactMemoryService | null;
   personalOpsAutopilot?: PersonalOpsAutopilotService | null;
   agentTeamCompiler?: AgentTeamCompilerService | null;
@@ -243,7 +243,7 @@ type SwarmScalePlaneRuntime = Pick<SwarmScalePlaneService, 'launch' | 'resume' |
 export type SelfModificationRuntime = Pick<SelfModificationCommandService, 'createGoalPreview'>;
 export type WatchModeRuntime = Pick<ComputerUseWatchModeService, 'startRun'>;
 
-function normalizeText(value: unknown, fallback = ''): string {
+export function normalizeText(value: unknown, fallback = ''): string {
   const text = String(value ?? '').trim();
   return text || fallback;
 }
@@ -252,7 +252,7 @@ function defaultIdFactory(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function recordOrNull(value: unknown): Record<string, unknown> | null {
+export function recordOrNull(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : null;
@@ -266,7 +266,7 @@ export class AgentRunService {
   declare private applyAgentTeamCompiler: Function;
   declare private applyAskBeforeAssumptionPolicy: Function;
   declare private applyCrossChannelContinuity: Function;
-  declare private applySelfingDashboard: Function;
+  declare private applySelfingZavorthControl: Function;
   declare private applyRunArtifactReceiptReplay: Function;
   declare private applyProductizationEvidence: Function;
   declare private applyProductEntryRuntime: Function;
@@ -279,7 +279,7 @@ export class AgentRunService {
   declare private applyReleaseCandidatePreCanaryGate: Function;
   declare private applyBlueprintCompletionGate: Function;
   declare private resolveTrustSliderDecision: Function;
-  declare private serializeTrustSliderDecision: Function;
+  declare public serializeTrustSliderDecision: Function;
   declare private resolveTrustSliderLevel: Function;
   declare private resolveTrustSliderUserRole: Function;
   declare private resolveBooleanFlag: Function;
@@ -292,7 +292,7 @@ export class AgentRunService {
   declare private createSelfModificationPreviewIfNeeded: Function;
   declare private createSelfModificationActionProposalIfNeeded: Function;
   declare public canExecute: Function;
-  declare private shouldBypassCapabilityNegotiationForSpecializedFlow: Function;
+  declare public shouldBypassCapabilityNegotiationForSpecializedFlow: Function;
   declare private shouldProposeSwarmEscalation: Function;
   declare private shouldCreateSelfModificationPreview: Function;
   declare private shouldUseNaturalCapabilityDiscoveryWithoutNegotiation: Function;
@@ -329,16 +329,16 @@ export class AgentRunService {
   declare private buildSwarmScaleProposalReply: Function;
   declare private buildSwarmScaleExecutionReply: Function;
 
-  private readonly now: () => Date;
-  private readonly idFactory: (prefix: string) => string;
+  readonly now: () => Date;
+  readonly idFactory: (prefix: string) => string;
   private runtimeEventBus: AgentRunRuntimeEventBus | null;
   private readonly runtimeEventBusSubscribers: AgentRunRuntimeEventBus[] = [];
   private readonly evidenceWorkerMode: 'inline' | 'async-heavy' | 'worker-first-heavy';
   private readonly evidenceWorker: AgentRunEvidenceWorker | null;
   private readonly asyncEvidenceCollectorIds: AgentRunEvidenceCollectorId[] | null;
-  private readonly executor: UniversalAgentExecutor | null;
-  private readonly llmRuntimeExecutor: AgentRunLlmRuntimeExecutor;
-  private readonly steeringStream: AgentRunSteeringStream;
+  readonly executor: UniversalAgentExecutor | null;
+  readonly llmRuntimeExecutor: AgentRunLlmRuntimeExecutor;
+  readonly steeringStream: AgentRunSteeringStream;
   private readonly onRunCreated: ((run: UniversalAgentRun, request: UniversalAgentRequest) => void) | null;
   private readonly onRunCompleted: ((run: UniversalAgentRun, request: UniversalAgentRequest, replyText: string) => void) | null;
   private readonly corePipeline: AgentRunCorePipeline<CoreDietBaselineDraft>;
@@ -353,29 +353,29 @@ export class AgentRunService {
   private readonly runBudgetPolicy: RunBudgetPolicy;
   private readonly policyKernel: AgentRunPolicyKernel;
   private readonly failureResultBuilder: AgentRunFailureResultBuilder;
-  private readonly intelligenceFabricCanary: AgentRunIntelligenceFabricCanary;
+  readonly intelligenceFabricCanary: AgentRunIntelligenceFabricCanary;
   private readonly executionEscalationPolicy: ExecutionEscalationPolicy;
-  private readonly replyPipeline: ReplyPipeline;
-  private readonly evidencePipeline: AgentRunEvidencePipeline;
+  readonly replyPipeline: ReplyPipeline;
+  readonly evidencePipeline: AgentRunEvidencePipeline;
   private readonly evidenceStore: AgentRunEvidenceStore;
   private readonly canonicalContextService: AgentRunCanonicalContextService;
   private readonly runFactory: AgentRunFactory;
-  private readonly riskHooks: AgentRunRiskHooks;
-  private readonly auditHooks: AgentRunAuditHooks;
+  readonly riskHooks: AgentRunRiskHooks;
+  readonly auditHooks: AgentRunAuditHooks;
   private readonly trustSliderPolicy: TrustSliderPolicyService;
-  private readonly capabilityLoopGovernance: CapabilityLoopGovernanceService;
-  private readonly safetyNarrative: SafetyNarrativeService;
-  private readonly memoryWithReceipts: MemoryWithReceiptsService;
-  private readonly capabilityNegotiation: CapabilityNegotiationService;
-  private readonly toolRehearsal: ToolRehearsalService;
-  private readonly selfingDashboard: SelfingDashboardService;
+  readonly capabilityLoopGovernance: CapabilityLoopGovernanceService;
+  readonly safetyNarrative: SafetyNarrativeService;
+  readonly memoryWithReceipts: MemoryWithReceiptsService;
+  readonly capabilityNegotiation: CapabilityNegotiationService;
+  readonly toolRehearsal: ToolRehearsalService;
+  private readonly selfingZavorthControl: SelfingZavorthControlService;
   private readonly artifactMemory: ArtifactMemoryService;
   private readonly personalOpsAutopilot: PersonalOpsAutopilotService;
   private readonly agentTeamCompiler: AgentTeamCompilerService;
   private readonly crossChannelContinuity: CrossChannelContinuityService;
   private readonly askBeforeAssumptionPolicy: AskBeforeAssumptionPolicyService;
   private readonly providerMeshConsolidation: ProviderMeshConsolidationService;
-  private readonly universalIntentTrustEnforcement: UniversalIntentTrustEnforcementService;
+  readonly universalIntentTrustEnforcement: UniversalIntentTrustEnforcementService;
   private readonly runArtifactReceiptReplay: RunArtifactReceiptReplayService;
   private readonly productizationEvidence: ProductizationEvidenceService;
   private readonly productEntryRuntime: ProductEntryRuntimeService;
@@ -388,15 +388,15 @@ export class AgentRunService {
   private readonly releaseCandidatePreCanaryGate: ReleaseCandidatePreCanaryGateService;
   private readonly blueprintCompletionGate: BlueprintCompletionGateService;
   private readonly providerArena: ProviderArenaService;
-  private readonly skillMcpQuarantine: SkillMcpQuarantineService;
-  private readonly autoSkillInvocation: Pick<AgentRunAutomaticSkillInvocationService, 'apply'> | null;
-  private readonly llmBrain: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'>;
+  readonly skillMcpQuarantine: SkillMcpQuarantineService;
+  readonly autoSkillInvocation: Pick<AgentRunAutomaticSkillInvocationService, 'apply'> | null;
+  readonly llmBrain: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'>;
   private readonly nativeAutonomySpine: Pick<ZavorthNativeAutonomySpineService, 'buildSnapshot'> | null;
   private readonly modelPickerContractService: AgentRunModelPickerContractService | null;
   private readonly naturalFirstApprovalSafety: NaturalFirstApprovalSafetyService;
   private readonly naturalFirstMemoryContinuity: NaturalFirstMemoryContinuityService;
   private readonly metadataEvidenceHelpers = new AgentRunMetadataEvidenceHelpers();
-  private readonly appliedEvidenceSnapshotChains = new WeakSet<UniversalAgentRun>();
+  readonly appliedEvidenceSnapshotChains = new WeakSet<UniversalAgentRun>();
 
   constructor(runtime: AgentRunServiceRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -455,7 +455,7 @@ export class AgentRunService {
     this.toolRehearsal = runtime.toolRehearsal || new ToolRehearsalService({
       now: this.now,
     });
-    this.selfingDashboard = runtime.selfingDashboard || new SelfingDashboardService({
+    this.selfingZavorthControl = runtime.selfingZavorthControl || new SelfingZavorthControlService({
       now: this.now,
     });
     this.artifactMemory = runtime.artifactMemory || new ArtifactMemoryService({
@@ -874,8 +874,8 @@ export class AgentRunService {
         apply: ({ run, generatedAt }) => this.applyPersonalOpsAutopilot(run, generatedAt),
       },
       {
-        id: 'selfingDashboard',
-        apply: ({ run, generatedAt }) => this.applySelfingDashboard(run, generatedAt),
+        id: 'selfingZavorthControl',
+        apply: ({ run, generatedAt }) => this.applySelfingZavorthControl(run, generatedAt),
       },
       {
         id: 'runArtifactReceiptReplay',

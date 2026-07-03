@@ -3,6 +3,7 @@ import path from 'path';
 import type { NodeHostCapabilityRuntime, NodeHostExecutionResult } from './NodeHostCapabilityTypes.js';
 import { buildScopeViolationResult, resolveAllowedPath } from './NodeHostCapabilityPathPolicy.js';
 import { normalizeTimeout } from './NodeHostCapabilityExecutionHelpers.js';
+import { logger } from '../logger.js';
 
 export class NodeHostCapabilityFilesystemService {
   private readonly workspaceRoot: string;
@@ -41,7 +42,7 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       return buildScopeViolationResult({
         capabilityId: 'files.read',
         targetPath: rawTargetPath,
@@ -108,7 +109,7 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       return buildScopeViolationResult({
         capabilityId: 'files.write',
         targetPath: rawTargetPath,
@@ -253,7 +254,7 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       return buildScopeViolationResult({
         capabilityId: 'files.watch',
         targetPath: rawTargetPath,
@@ -292,7 +293,7 @@ export class NodeHostCapabilityFilesystemService {
         settled = true;
         try {
           watcher?.close();
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         resolve(result);
       };
 
@@ -358,7 +359,7 @@ export class NodeHostCapabilityFilesystemService {
             },
           });
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         cleanupAndFinish({
           ok: false,
           resultSummary: `Falha ao iniciar observacao em ${targetPath}.`,

@@ -1,14 +1,15 @@
 import { getConsistentMachineId } from "@/shared/utils/machineId";
 import { isCloudEnabled } from "@/lib/localDb";
 import { getRuntimePorts } from "@/lib/runtime/ports";
+import { logger } from '../logger.js';
 
-const { dashboardPort } = getRuntimePorts();
+const { zavorthControlPort } = getRuntimePorts();
 
 const INTERNAL_BASE_URL =
   process.env.BASE_URL ||
   process.env.NEXT_PUBLIC_BASE_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
-  `http://localhost:${dashboardPort}`;
+  `http://localhost:${zavorthControlPort}`;
 
 /**
  * Cloud sync scheduler
@@ -45,13 +46,13 @@ export class CloudSyncScheduler {
 
     // Delay first sync by 30 seconds to ensure server is ready
     setTimeout(() => {
-      this.syncWithRetry().catch(() => {});
+      this.syncWithRetry().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
     }, 30000);
 
     // Then sync periodically
     this.intervalId = setInterval(
       () => {
-        this.syncWithRetry().catch(() => {});
+        this.syncWithRetry().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
       },
       this.intervalMinutes * 60 * 1000
     );

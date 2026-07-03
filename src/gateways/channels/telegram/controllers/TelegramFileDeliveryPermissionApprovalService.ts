@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 
@@ -28,8 +27,9 @@ export class TelegramFileDeliveryPermissionApprovalService {
           return true;
         }
       } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : String(error);
         await ctx.reply(
-          `A permissao foi aprovada, mas nao consegui concluir o envio agora.\n\nMotivo: ${error.message}`,
+          `A permissao foi aprovada, mas nao consegui concluir o envio agora.\n\nMotivo: ${msg}`,
         );
         return true;
       }
@@ -42,8 +42,9 @@ export class TelegramFileDeliveryPermissionApprovalService {
           return true;
         }
       } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : String(error);
         await ctx.reply(
-          `A permissao foi aprovada, mas nao consegui concluir a inspecao agora.\n\nMotivo: ${error.message}`,
+          `A permissao foi aprovada, mas nao consegui concluir a inspecao agora.\n\nMotivo: ${msg}`,
         );
         return true;
       }

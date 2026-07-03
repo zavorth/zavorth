@@ -92,7 +92,7 @@ export function invalidateProxyHealth(proxyUrl: string): void {
 }
 
 /**
- * Get all currently cached proxy health entries (for dashboard display).
+ * Get all currently cached proxy health entries (for zavorthControl display).
  */
 export function getAllProxyHealthStatuses(): Array<{
   proxyUrl: string;

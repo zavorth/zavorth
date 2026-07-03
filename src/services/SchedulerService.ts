@@ -417,14 +417,14 @@ export class SchedulerService {
             lastFailureAt: null,
             consecutiveFailures: 0,
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
           const consecutiveFailures = Number(task.consecutive_failures || 0) + 1;
           const shouldAutoPause = consecutiveFailures >= runtime.guardrails.autoPauseAfterConsecutiveFailures;
           this.repo.updateLastRun(task.id, {
             lastRun: now.toISOString(),
             nextRun,
             lastStatus: 'failed',
-            lastError: error?.message || String(error),
+            lastError: this.extractErrorMessage(error),
             lastResult: null,
             runCount: currentRunCount,
             failureCount: Number(task.failure_count || 0) + 1,
@@ -437,7 +437,7 @@ export class SchedulerService {
             this.deliveryService?.recordSystemNotice?.({
               taskId: task.id,
               prompt: task.intent_text || task.command,
-              summary: `Automacao pausada automaticamente: ${pausedReason}. Ultimo erro: ${error?.message || String(error)}`,
+              summary: `Automacao pausada automaticamente: ${pausedReason}. Ultimo erro: ${this.extractErrorMessage(error)}`,
             });
           }
           logger.error(`Erro ao disparar tarefa agendada ${task.id}:`, error);
@@ -568,7 +568,7 @@ export class SchedulerService {
       maxConcurrentRuns: this.toBoundedNumber(parsed.maxConcurrentRuns, defaults.maxConcurrentRuns, 1, 2),
       maxPerTaskConcurrentRuns: this.toBoundedNumber(parsed.maxPerTaskConcurrentRuns, 1, 1, 1),
       maintenanceWindows: Array.isArray(parsed.maintenanceWindows) && parsed.maintenanceWindows.length > 0
-        ? parsed.maintenanceWindows.slice(0, 3).map((entry: any) => ({
+        ? parsed.maintenanceWindows.slice(0, 3).map((entry: Record<string, unknown>) => ({
           label: String(entry?.label || 'maintenance').trim(),
           start: String(entry?.start || '04:00').trim(),
           end: String(entry?.end || '06:00').trim(),
@@ -606,7 +606,7 @@ export class SchedulerService {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }
-    const record = value as Record<string, any>;
+    const record = value as Record<string, unknown>;
     if (
       typeof record.contractVersion !== 'string'
       || record.phase !== 'checkpoint-3-persisted-scheduled-task-registration'
@@ -619,9 +619,9 @@ export class SchedulerService {
     return record as SchedulerGovernedScheduledTaskMetadata;
   }
 
-  private parseJsonObject(rawValue: unknown): Record<string, any> {
+  private parseJsonObject(rawValue: unknown): Record<string, unknown> {
     if (rawValue && typeof rawValue === 'object') {
-      return rawValue as Record<string, any>;
+      return rawValue as Record<string, unknown>;
     }
     try {
       const parsed = JSON.parse(String(rawValue || '{}'));
@@ -635,6 +635,13 @@ export class SchedulerService {
     const numeric = Number(value);
     const candidate = Number.isFinite(numeric) ? numeric : fallback;
     return Math.max(min, Math.min(Math.round(candidate), max));
+  }
+
+  private extractErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return String(error);
   }
 
   private runWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {

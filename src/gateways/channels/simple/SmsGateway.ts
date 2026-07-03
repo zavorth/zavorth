@@ -2,6 +2,22 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface SmsWebhookPayload {
+  from?: string;
+  sender?: string;
+  phone?: string;
+  userId?: string;
+  to?: string;
+  chatId?: string;
+  body?: string;
+  text?: string;
+  content?: string;
+  rawText?: string;
+  messageId?: string;
+  sid?: string;
+  provider?: string;
+}
+
 export class SmsGateway extends WebhookGateway {
   public readonly id = 'sms';
   public readonly name = 'SMS';
@@ -50,7 +66,7 @@ export class SmsGateway extends WebhookGateway {
     return config.smsStatusFile;
   }
 
-  protected extractInboundPayload(webhookPayload: Record<string, unknown>): {
+  protected extractInboundPayload(webhookPayload: SmsWebhookPayload): {
     userId: string;
     chatId: string;
     rawText: string;
@@ -59,27 +75,27 @@ export class SmsGateway extends WebhookGateway {
     fields?: Record<string, unknown>;
   } | null {
     const userId = String(
-      (webhookPayload as any).from
-      || (webhookPayload as any).sender
-      || (webhookPayload as any).phone
-      || (webhookPayload as any).userId
+      webhookPayload.from
+      || webhookPayload.sender
+      || webhookPayload.phone
+      || webhookPayload.userId
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).to
-      || (webhookPayload as any).chatId
+      webhookPayload.to
+      || webhookPayload.chatId
       || 'sms',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).body
-      || (webhookPayload as any).text
-      || (webhookPayload as any).content
-      || (webhookPayload as any).rawText
+      webhookPayload.body
+      || webhookPayload.text
+      || webhookPayload.content
+      || webhookPayload.rawText
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).messageId
-      || (webhookPayload as any).sid
+      webhookPayload.messageId
+      || webhookPayload.sid
       || '',
     ).trim() || null;
 
@@ -94,7 +110,7 @@ export class SmsGateway extends WebhookGateway {
       messageId,
       isGroup: false,
       fields: {
-        provider: String((webhookPayload as any).provider || ''),
+        provider: String(webhookPayload.provider || ''),
       },
     };
   }
@@ -127,8 +143,9 @@ export class SmsGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`SMS send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.recordError(`SMS send failed: ${message}`);
     }
   }
 }

@@ -99,7 +99,7 @@ export class SelfmodImpactAnalyzer {
       entry.includes('contextresolver') ||
       entry.includes('desktopresource') ||
       entry.includes('companion'),
-    ) || /workspace|ide|zavorthBridge|editor|ui|dashboard/.test(normalizedGoal);
+    ) || /workspace|ide|zavorthBridge|editor|ui|zavorthControl/.test(normalizedGoal);
     if (touchesWorkspace) {
       companionIds.add('zavorthBridge');
       notes.push('Mudanca toca surface/workspace e pode refletir em watchers ou carga da IDE companheira.');

@@ -3,14 +3,14 @@ import { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePr
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
-import { DashboardService } from '../../../../services/DashboardService.js';
+import { ZavorthControlService } from '../../../../services/ZavorthControlService.js';
 import { DailyReportService } from '../../../../services/DailyReportService.js';
 import { DemoModeService } from '../../../../services/DemoModeService.js';
 import { DemoGuideService } from '../../../../services/DemoGuideService.js';
 import { OperatorModeService } from '../../../../services/OperatorModeService.js';
 import { PresentationModeService } from '../../../../services/PresentationModeService.js';
 import { RemoteModeManager } from '../../../../services/RemoteModeManager.js';
-import type { RemoteModeCommand } from '../../../../services/RemoteModeManager.js';
+import type { RemoteModeCommand, RemoteModeResult } from '../../../../services/RemoteModeManager.js';
 import { RuntimeDiagnosticsService } from '../../../../services/RuntimeDiagnosticsService.js';
 import { RuntimeAccessManifestService } from '../../../../runtime/access/RuntimeAccessManifestService.js';
 import { RuntimeBootstrapService } from '../../../../runtime/access/RuntimeBootstrapService.js';
@@ -53,7 +53,7 @@ export class TelegramOpsController {
     auditLogger: AuditLogger,
     executionGateway: ExecutionGateway,
     zavorthBridgePreferenceStore: ZavorthBridgePreferenceStore,
-    dashboardService: DashboardService,
+    zavorthControlService: ZavorthControlService,
     dailyReportService: DailyReportService,
     demoModeService: DemoModeService,
     demoGuideService: DemoGuideService,
@@ -93,7 +93,7 @@ export class TelegramOpsController {
       presentationModeService,
     });
     this.runtimeCommands = new TelegramOpsRuntimeCommandService({
-      dashboardService,
+      zavorthControlService,
       remoteModeManager,
       wslControl,
       supervisedRuntimeService,
@@ -133,7 +133,7 @@ export class TelegramOpsController {
             { text: 'Providers', callback_data: '/models' },
           ],
           [
-            { text: 'Dashboard', callback_data: '/dashboard' },
+            { text: 'ZavorthControl', callback_data: '/zavorthControl' },
             { text: 'Approvals', callback_data: '/echoapprovals' },
           ],
         ],
@@ -157,7 +157,7 @@ export class TelegramOpsController {
             { text: 'Fixes', callback_data: '/fixes' },
           ],
           [
-            { text: 'Dashboard', callback_data: '/dashboard' },
+            { text: 'ZavorthControl', callback_data: '/zavorthControl' },
             { text: 'Approvals', callback_data: '/echoapprovals' },
           ],
         ],
@@ -182,7 +182,7 @@ export class TelegramOpsController {
           ],
           [
             { text: 'Fixes', callback_data: '/fixes' },
-            { text: 'Dashboard', callback_data: '/dashboard' },
+            { text: 'ZavorthControl', callback_data: '/zavorthControl' },
           ],
         ],
       } as any,
@@ -206,7 +206,7 @@ export class TelegramOpsController {
           ],
           [
             { text: 'Readiness', callback_data: '/readiness' },
-            { text: 'Dashboard', callback_data: '/dashboard' },
+            { text: 'ZavorthControl', callback_data: '/zavorthControl' },
           ],
         ],
       } as any,
@@ -270,7 +270,7 @@ export class TelegramOpsController {
             { text: 'ACP', callback_data: '/agbridge' },
           ],
           [
-            { text: 'Dashboard', callback_data: '/dashboard' },
+            { text: 'ZavorthControl', callback_data: '/zavorthControl' },
             { text: 'Readiness', callback_data: '/readiness' },
           ],
         ],
@@ -463,7 +463,7 @@ export class TelegramOpsController {
     return this.insightCommands.formatCapabilitiesReply();
   }
 
-  public formatRemoteModeReply(result: unknown, mode: string): string {
+  public formatRemoteModeReply(result: RemoteModeResult, mode: string): string {
     return this.runtimeCommands.formatRemoteModeReply(result, mode);
   }
 
@@ -526,8 +526,8 @@ export class TelegramOpsController {
     await this.administrationCommands.handleOperationalMode(ctx, args);
   }
 
-  public async handleDashboard(ctx: Context): Promise<void> {
-    await this.runtimeCommands.handleDashboard(ctx);
+  public async handleZavorthControl(ctx: Context): Promise<void> {
+    await this.runtimeCommands.handleZavorthControl(ctx);
   }
 
   public async handleWslCommand(ctx: Context, args: string): Promise<void> {

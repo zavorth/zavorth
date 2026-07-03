@@ -292,7 +292,7 @@ import { handleZavorthCliRegistryHealCommand } from './ZavorthCliRegistryHeal.js
 import { handleZavorthCliRegistryReleaseCommand } from './ZavorthCliRegistryRelease.js';
 import { handleZavorthCliRegistryWorkspaceCommand } from './ZavorthCliRegistryWorkspace.js';
 import { handleZavorthCliRegistryExperienceCommand } from './ZavorthCliRegistryExperience.js';
-import { handleZavorthCliRegistryDashboardCommand } from './ZavorthCliRegistryDashboard.js';
+import { handleZavorthCliRegistryControlCommand } from './ZavorthCliRegistryZavorthControl.js';
 import { handleZavorthCliRegistryConnectorsCommand } from './ZavorthCliRegistryConnectors.js';
 import { handleZavorthCliRegistryScaffoldCommand } from './ZavorthCliRegistryScaffold.js';
 import { handleZavorthUpdateCommand } from './update/ZavorthUpdateCommand.js';
@@ -544,7 +544,7 @@ async function executeZavorthCliCommandInner(params: {
     };
   }
 
-  const dashboardResult = await handleZavorthCliRegistryDashboardCommand({
+  const zavorthControlResult = await handleZavorthCliRegistryControlCommand({
     runtime: await resolveRuntime(),
     effectiveFlags,
     commandName,
@@ -552,8 +552,8 @@ async function executeZavorthCliCommandInner(params: {
     args,
     writer,
   });
-  if (dashboardResult) {
-    return dashboardResult;
+  if (zavorthControlResult) {
+    return zavorthControlResult;
   }
 
   const connectorsResult = await handleZavorthCliRegistryConnectorsCommand({
@@ -913,8 +913,8 @@ function formatDailyUseCliProjection(
       summary: 'Guided first-run path for daily local use.',
       rows: [
         ['1', 'zavorth setup', 'Create the local profile, workspace defaults and safe runtime files.'],
-        ['2', 'zavorth doctor --simple', 'Check provider, sandbox, workspace and dashboard readiness.'],
-        ['3', 'zavorth go', 'Start or resume the main /dashboard gateway.'],
+        ['2', 'zavorth doctor --simple', 'Check provider, sandbox, workspace and zavorthControl readiness.'],
+        ['3', 'zavorth go', 'Start or resume the main /zavorthControl gateway.'],
       ],
       notes: [
         'Personal mode keeps daily use simple. Governed mode exposes policy details.',
@@ -926,8 +926,8 @@ function formatDailyUseCliProjection(
       summary: 'Guided first-run path for daily local use.',
       rows: [
         ['1', 'zavorth setup', 'Create the local profile, workspace defaults and safe runtime files.'],
-        ['2', 'zavorth doctor --simple', 'Check provider, sandbox, workspace and dashboard readiness.'],
-        ['3', 'zavorth go', 'Start or resume the main /dashboard gateway.'],
+        ['2', 'zavorth doctor --simple', 'Check provider, sandbox, workspace and zavorthControl readiness.'],
+        ['3', 'zavorth go', 'Start or resume the main /zavorthControl gateway.'],
       ],
       notes: [
         'Personal mode keeps daily use simple. Governed mode exposes policy details.',
@@ -967,7 +967,7 @@ function formatDailyUseCliProjection(
       title: 'Channel Mesh',
       summary: 'Surface readiness without letting any channel become a separate agent.',
       rows: [
-        ['dashboard', 'ready', 'Main gateway for normal users.'],
+        ['zavorthControl', 'ready', 'Main gateway for normal users.'],
         ['cli', 'ready', 'Power-user surface and recovery path.'],
         ['telegram', 'needs_token', 'Configure bot token and approval routing.'],
         ['discord', 'needs_token', 'Configure bot token and component support.'],
@@ -983,7 +983,7 @@ function formatDailyUseCliProjection(
       title: 'Channel Mesh',
       summary: 'Surface readiness without letting any channel become a separate agent.',
       rows: [
-        ['dashboard', 'ready', 'Main gateway for normal users.'],
+        ['zavorthControl', 'ready', 'Main gateway for normal users.'],
         ['cli', 'ready', 'Power-user surface and recovery path.'],
         ['telegram', 'needs_token', 'Configure bot token and approval routing.'],
         ['discord', 'needs_token', 'Configure bot token and component support.'],
@@ -1001,7 +1001,7 @@ function formatDailyUseCliProjection(
       ],
       notes: [
         'Use: zavorth missions --json for machine-readable projection.',
-        'The dashboard should display the same mission truth as this CLI surface.',
+        'The zavorthControl should display the same mission truth as this CLI surface.',
       ],
     },
     receipts: {
@@ -1082,7 +1082,7 @@ function formatDailyUseCliProjection(
         ['spawn', 'available', 'Explicit "use subagents" creates scoped workers.'],
         ['auto', 'guarded', 'Auto-subagents can run when parallelism is obvious and safe.'],
         ['wait/summarize', 'available', 'Results return through the parent mission receipt.'],
-        ['cancel/list/read', 'available', 'Operator controls stay visible in CLI and dashboard.'],
+        ['cancel/list/read', 'available', 'Operator controls stay visible in CLI and zavorthControl.'],
       ],
       notes: [
         'Budgets cover time, tokens, tools, files, network and spawn depth.',
@@ -1095,7 +1095,7 @@ function formatDailyUseCliProjection(
       rows: [
         ['spawn', 'available', 'Explicit "use subagents" creates scoped workers.'],
         ['wait/summarize', 'available', 'Results return through the parent mission receipt.'],
-        ['cancel/list/read', 'available', 'Operator controls stay visible in CLI and dashboard.'],
+        ['cancel/list/read', 'available', 'Operator controls stay visible in CLI and zavorthControl.'],
       ],
       notes: ['Mutations by subagents still require approval.'],
     },
@@ -1128,7 +1128,7 @@ function formatDailyUseCliProjection(
       summary: table.summary,
       rows: table.rows.map(([name, status, detail]) => ({ name, status, detail })),
       notes: table.notes,
-      dashboardPath: '/dashboard',
+      zavorthControlPath: '/zavorthControl',
       canExecuteMutations: false,
     },
   };

@@ -1,0 +1,53 @@
+'yes': हाँ
+'no': नहीं
+ok: OK
+cancel: रद्द करें
+error: एक त्रुटि हुई
+success: सफलता
+loading: लोड हो रहा है...
+saving: Saving...
+confirm: क्या आप निश्चित हैं?
+back: वापस
+next: अगला
+finish: Finish
+retry: Retry
+skip: Skip
+close: बंद करें
+create: Create
+delete: हटाएँ
+edit: संपादित करें
+update: Update
+search: खोजें
+none: कोई नहीं
+all: सब
+enabled: सक्षम
+disabled: विकलांग
+pending: Pending
+completed: Completed
+failed: Failed
+warning: चेतावनी
+details: विवरण
+name: नाम
+type: प्रकार
+status: स्थिति
+path: Path
+file: File
+folder: Folder
+copied: नकल की गई!
+save: सहेजें
+discard: Discard
+apply: Apply
+reset: रीसेट करें
+refresh: ताज़ा करें
+export: Export
+import: Import
+download: Download
+upload: Upload
+connect: Connect
+disconnect: Disconnect
+start: Start
+stop: Stop
+restart: Restart
+unknown: Unknown
+required: Required
+optional: Optional

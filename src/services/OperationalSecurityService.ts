@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
-import { DashboardAuthService } from './DashboardAuthService.js';
+import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
 
 type SecurityCheckSnapshot = {
   available: boolean;
@@ -34,7 +34,7 @@ type SecurityAuditSnapshot = SecurityCheckSnapshot & {
 };
 
 export type OperationalSecuritySnapshot = {
-  dashboardAuth: {
+  zavorthControlAuth: {
     enabled: boolean;
     source: 'env' | 'runtime-file' | 'missing';
     tokenFile: string;
@@ -85,14 +85,14 @@ export class OperationalSecurityService {
   private readonly readFileSync: typeof fs.readFileSync;
 
   constructor(runtime: OperationalSecurityRuntime = {}) {
-    this.authService = runtime.authService || new DashboardAuthService();
+    this.authService = runtime.authService || new ZavorthControlAuthService();
     this.existsSync = runtime.existsSync || fs.existsSync.bind(fs);
     this.readFileSync = runtime.readFileSync || fs.readFileSync.bind(fs);
   }
 
   public readSnapshot(): OperationalSecuritySnapshot {
     const authStatus = this.authService.getStatus();
-    const dashboardAuthSource =
+    const zavorthControlAuthSource =
       authStatus.enabled && authStatus.source ? authStatus.source : ('missing' as const);
     const tokenFileExists = this.existsSync(authStatus.tokenFile);
     const mailboxSource = this.resolveMailboxSecretSource();
@@ -104,7 +104,7 @@ export class OperationalSecurityService {
     const lastPreflight = this.readSecurityCheck(config.securityPreflightStatusFile);
 
     const needsAttention =
-      dashboardAuthSource === 'missing' ||
+      zavorthControlAuthSource === 'missing' ||
       mailboxSource === 'missing' ||
       dbSource === 'missing' ||
       !hostIdentityExists ||
@@ -112,12 +112,12 @@ export class OperationalSecurityService {
       lastPreflight.ok === false;
 
     return {
-      dashboardAuth: {
+      zavorthControlAuth: {
         enabled: authStatus.enabled,
-        source: dashboardAuthSource,
+        source: zavorthControlAuthSource,
         tokenFile: authStatus.tokenFile,
         tokenFileExists,
-        note: this.describeDashboardAuthSource(dashboardAuthSource, tokenFileExists),
+        note: this.describeZavorthControlAuthSource(zavorthControlAuthSource, tokenFileExists),
       },
       mailboxSecret: {
         source: mailboxSource,
@@ -252,7 +252,7 @@ export class OperationalSecurityService {
     }
   }
 
-  private describeDashboardAuthSource(
+  private describeZavorthControlAuthSource(
     source: 'env' | 'runtime-file' | 'missing',
     tokenFileExists: boolean,
   ): string {

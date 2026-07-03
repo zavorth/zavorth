@@ -11,6 +11,7 @@ import type {
   ZavorthProviderRouterHealthState,
   ZavorthProviderRouterMessage,
   ZavorthProviderRouterContextBudgetReceipt,
+  ZavorthProviderRouterBudgetPreference,
 } from '../../contracts/ZavorthProviderRouterContract.js';
 import { ZAVORTH_PROVIDER_ROUTER_CONTRACT_VERSION } from '../../contracts/ZavorthProviderRouterContract.js';
 import { ZavorthContextBudgetService } from './ZavorthContextBudgetService.js';
@@ -24,7 +25,7 @@ import type {
 } from './catalog/ProviderIntegrationManifest.js';
 
 // ---------------------------------------------------------------------------
-// Tipos internos
+// Internal types
 // ---------------------------------------------------------------------------
 
 type InternalRateLimitState = {
@@ -46,6 +47,87 @@ type InternalHealthState = {
 type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 type NowFn = () => string;
 
+// Provider error with HTTP status details
+interface ProviderError extends Error {
+  status?: number;
+  statusCode?: number;
+}
+
+// API request body types
+interface AnthropicApiBody {
+  model: string;
+  messages: Array<{ role: string; content: string }>;
+  system?: string;
+  max_tokens: number;
+  temperature?: number | null;
+}
+
+interface OpenAiApiBody {
+  model: string;
+  messages: Array<{ role: string; content: string }>;
+  max_tokens: number;
+  temperature?: number | null;
+}
+
+// API response types
+interface AnthropicApiResponse {
+  content?: Array<{ text: string }>;
+  stop_reason?: string | null;
+  usage?: { input_tokens?: number; output_tokens?: number };
+}
+
+interface OpenAiApiResponse {
+  choices?: Array<{
+    message?: { content: string };
+    finish_reason?: string;
+  }>;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+  };
+}
+
+// OpenAI request body for chat completions
+interface OpenAiRequestBody {
+  model?: string;
+  messages?: Array<{ role: string; content: string }>;
+  max_tokens?: number;
+  max_completion_tokens?: number;
+  temperature?: number;
+}
+
+// Router request from manual HTTP endpoint
+interface RouterRequestInput {
+  prompt?: string;
+  model?: string;
+  preferredProvider?: string;
+  maxTokens?: number | string;
+  temperature?: number | string;
+  systemPrompt?: string;
+  conversationHistory?: Array<{ role: string; content: string }> | null;
+  requestedBy?: string;
+  budgetPreference?: string;
+}
+
+// OpenAI response wrapper
+interface OpenAiResponseWrapper {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    message: { role: string; content: string };
+    finish_reason: string;
+  }>;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+  system_fingerprint: string;
+}
+
 export type ZavorthProviderRouterDeps = {
   fetch?: FetchFn;
   now?: NowFn;
@@ -54,7 +136,7 @@ export type ZavorthProviderRouterDeps = {
 };
 
 // ---------------------------------------------------------------------------
-// Constantes
+// Constants
 // ---------------------------------------------------------------------------
 
 const MAX_HEALTH_SAMPLES = 20;
@@ -64,7 +146,7 @@ const OPENAI_COMPAT_PORT_ENV = 'ZAVORTH_PROVIDER_ROUTER_PORT';
 const DEFAULT_OPENAI_COMPAT_PORT = 5588;
 
 // ---------------------------------------------------------------------------
-// Mapeamento de compatibilidade de API por routeKind
+// API compatibility mapping by routeKind
 // ---------------------------------------------------------------------------
 
 function resolveApiCompatibility(
@@ -122,7 +204,7 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Catálogo: transforma o ProviderIntegrationRegistry em entradas do router
+  // Catalog: transforms ProviderIntegrationRegistry into router entries
   // -------------------------------------------------------------------------
 
   public buildRouterCatalog(): ZavorthProviderRouterEntry[] {
@@ -165,7 +247,7 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Roteamento principal
+  // Main routing
   // -------------------------------------------------------------------------
 
   public async route(
@@ -175,7 +257,7 @@ export class ZavorthProviderRouterService {
     const catalog = this.buildRouterCatalog();
     const sorted = this.sortCandidates(catalog, request);
 
-    // Monta mensagens para compressão
+    // Build messages for compression
     const messages = this.buildMessages(request);
     const model = request.model || sorted[0]?.models[0] || null;
     const maxContext = sorted[0]?.maxContextTokens || DEFAULT_MAX_CONTEXT_TOKENS;
@@ -190,7 +272,7 @@ export class ZavorthProviderRouterService {
 
     const routingLatencyMs = Date.now() - routeStart;
 
-    // Tenta cada provider em ordem
+    // Try each provider in order
     const fallbacksAttempted: Array<{ providerId: string; reason: string }> = [];
 
     for (const entry of sorted) {
@@ -234,16 +316,17 @@ export class ZavorthProviderRouterService {
 
         this.lastReceipt = receipt;
         return receipt;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const providerError = error as ProviderError;
         const providerLatencyMs = Date.now() - providerStart;
         this.recordHealth(entry.providerId, false, providerLatencyMs);
 
-        const statusCode = error?.status || error?.statusCode || 0;
+        const statusCode = providerError?.status || providerError?.statusCode || 0;
         const reason = statusCode === 429
           ? 'rate-limit 429'
           : statusCode >= 500
             ? `erro do servidor ${statusCode}`
-            : `erro: ${error?.message || 'desconhecido'}`;
+            : `erro: ${providerError?.message || 'desconhecido'}`;
 
         if (statusCode === 429) {
           this.markThrottled(entry.providerId);
@@ -253,7 +336,7 @@ export class ZavorthProviderRouterService {
       }
     }
 
-    // Todos os providers exaustos
+    // All providers exhausted
     const totalLatencyMs = Date.now() - routeStart;
     const receipt = this.buildReceipt({
       status: 'all-providers-exhausted',
@@ -315,7 +398,7 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Rate-limit e saúde
+  // Rate-limit and health
   // -------------------------------------------------------------------------
 
   public updateRateLimitState(
@@ -339,7 +422,7 @@ export class ZavorthProviderRouterService {
 
     let resetsAt: string | null = null;
     if (resetAt) {
-      // Se for um timestamp ISO ou epoch
+      // If it's an ISO timestamp or epoch
       const epoch = Number(resetAt);
       resetsAt = isNaN(epoch) ? resetAt : new Date(epoch * 1000).toISOString();
     } else if (retryAfter) {
@@ -396,7 +479,7 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Último receipt
+  // Latest receipt
   // -------------------------------------------------------------------------
 
   public getLastReceipt(): ZavorthProviderRouterReceipt | null {
@@ -442,17 +525,18 @@ export class ZavorthProviderRouterService {
       return;
     }
 
-    // Roteamento manual
+    // Manual routing
     if (pathname === '/api/web/provider-router/route' && req.method === 'POST') {
       try {
         const body = await this.readJsonBody(req);
-        const routerRequest = this.parseRouterRequest(body);
+        const routerRequest = this.parseRouterRequest(body as RouterRequestInput);
         const receipt = await this.route(routerRequest);
         this.writeJson(res, { ok: true, receipt }, 200);
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = error as Error;
         this.writeJson(
           res,
-          { ok: false, error: error?.message || 'Falha ao rotear a requisicao.' },
+          { ok: false, error: err?.message || 'Falha ao rotear a requisicao.' },
           400,
         );
       }
@@ -463,15 +547,17 @@ export class ZavorthProviderRouterService {
     if (pathname === '/v1/chat/completions' && req.method === 'POST') {
       try {
         const body = await this.readJsonBody(req);
-        const routerRequest = this.openAiBodyToRouterRequest(body);
+        const openAiBody = body as OpenAiRequestBody;
+        const routerRequest = this.openAiBodyToRouterRequest(openAiBody);
         const receipt = await this.route(routerRequest);
 
-        const openAiResponse = this.receiptToOpenAiResponse(receipt, body.model);
+        const openAiResponse = this.receiptToOpenAiResponse(receipt, openAiBody.model);
         this.writeJson(res, openAiResponse, receipt.status === 'all-providers-exhausted' ? 503 : 200);
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = error as Error;
         this.writeJson(res, {
           error: {
-            message: error?.message || 'Erro interno do roteador.',
+            message: err?.message || 'Erro interno do roteador.',
             type: 'server_error',
             code: 'internal_error',
           },
@@ -480,7 +566,7 @@ export class ZavorthProviderRouterService {
       return;
     }
 
-    // Modelos disponíveis
+    // Available models
     if (pathname === '/v1/models' && req.method === 'GET') {
       const catalog = this.buildRouterCatalog();
       const models = catalog.flatMap((entry) =>
@@ -500,7 +586,7 @@ export class ZavorthProviderRouterService {
   }
 
   /**
-   * Inicia o servidor HTTP OpenAI-compatible na porta configurada.
+   * Starts the OpenAI-compatible HTTP server on the configured port.
    */
   public startOpenAiCompatServer(port?: number): http.Server {
     const resolvedPort = port
@@ -525,7 +611,7 @@ export class ZavorthProviderRouterService {
   }
 
   /**
-   * Encerra o servidor HTTP.
+   * Stops the HTTP server.
    */
   public stopOpenAiCompatServer(): void {
     if (this.httpServer) {
@@ -535,7 +621,7 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Internos: Ordenação de candidatos
+  // Internal: Candidate sorting
   // -------------------------------------------------------------------------
 
   private sortCandidates(
@@ -544,7 +630,7 @@ export class ZavorthProviderRouterService {
   ): ZavorthProviderRouterEntry[] {
     const sorted = [...catalog];
 
-    // Se há provider preferido, coloca na frente
+    // If preferred provider exists, move it to the front
     if (request.preferredProvider) {
       const preferredId = request.preferredProvider.toLowerCase();
       sorted.sort((a, b) => {
@@ -555,7 +641,7 @@ export class ZavorthProviderRouterService {
       return sorted;
     }
 
-    // Filtra por modelo se especificado
+    // Filter by model if specified
     if (request.model) {
       const modelId = request.model.toLowerCase();
       sorted.sort((a, b) => {
@@ -566,15 +652,15 @@ export class ZavorthProviderRouterService {
       });
     }
 
-    // Ordena por preferência de orçamento
+    // Sort by budget preference
     const pref = request.budgetPreference || 'auto';
 
     sorted.sort((a, b) => {
-      // Providers throttled vão para o final
+      // Throttled providers go to the end
       if (a.rateLimitState.isThrottled !== b.rateLimitState.isThrottled) {
         return a.rateLimitState.isThrottled ? 1 : -1;
       }
-      // Providers com muitas falhas vão para o final
+      // Providers with many failures go to the end
       if (a.healthState.consecutiveFailures !== b.healthState.consecutiveFailures) {
         return a.healthState.consecutiveFailures - b.healthState.consecutiveFailures;
       }
@@ -590,7 +676,7 @@ export class ZavorthProviderRouterService {
         return aLatency - bLatency;
       }
 
-      // auto / best-quality: prioridade original
+      // auto / best-quality: original priority
       return a.priority - b.priority;
     });
 
@@ -598,7 +684,7 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Internos: Construção de mensagens
+  // Internal: Message construction
   // -------------------------------------------------------------------------
 
   private buildMessages(request: ZavorthProviderRouterRequest): ZavorthProviderRouterMessage[] {
@@ -619,7 +705,7 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Internos: Chamada ao provider
+  // Internal: Provider call
   // -------------------------------------------------------------------------
 
   private async callProvider(
@@ -636,8 +722,8 @@ export class ZavorthProviderRouterService {
       'Content-Type': 'application/json',
     };
 
-    // Não expõe API keys diretamente — o fetch pode usar interceptors configurados
-    const body: Record<string, any> = entry.apiCompatibility === 'anthropic'
+    // Does not expose API keys directly — fetch may use configured interceptors
+    const body: AnthropicApiBody | OpenAiApiBody = entry.apiCompatibility === 'anthropic'
       ? {
           model,
           messages: messages.filter((m) => m.role !== 'system'),
@@ -658,7 +744,7 @@ export class ZavorthProviderRouterService {
       body: JSON.stringify(body),
     });
 
-    // Atualiza rate-limit a partir dos headers da resposta
+    // Update rate-limit from response headers
     const responseHeaders: Record<string, string> = {};
     response.headers.forEach((value, key) => {
       responseHeaders[key] = value;
@@ -666,15 +752,14 @@ export class ZavorthProviderRouterService {
     this.updateRateLimitState(entry.providerId, responseHeaders);
 
     if (!response.ok) {
-      const error: any = new Error(`Provider ${entry.providerId} retornou ${response.status}`);
+      const error: ProviderError = new Error(`Provider ${entry.providerId} retornou ${response.status}`) as ProviderError;
       error.status = response.status;
       error.statusCode = response.status;
       throw error;
     }
 
-    const json = await response.json() as any;
-
     if (entry.apiCompatibility === 'anthropic') {
+      const json = await response.json() as AnthropicApiResponse;
       return {
         text: json.content?.[0]?.text || '',
         finishReason: json.stop_reason || null,
@@ -684,6 +769,7 @@ export class ZavorthProviderRouterService {
     }
 
     // OpenAI-compatible
+    const json = await response.json() as OpenAiApiResponse;
     const choice = json.choices?.[0];
     return {
       text: choice?.message?.content || '',
@@ -694,7 +780,7 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Internos: Construção de receipt
+  // Internal: Receipt construction
   // -------------------------------------------------------------------------
 
   private buildReceipt(input: {
@@ -755,10 +841,10 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Internos: Conversão OpenAI ←→ Router
+  // Internal: OpenAI <-> Router conversion
   // -------------------------------------------------------------------------
 
-  private openAiBodyToRouterRequest(body: any): ZavorthProviderRouterRequest {
+  private openAiBodyToRouterRequest(body: OpenAiRequestBody): ZavorthProviderRouterRequest {
     const messages: Array<{ role: string; content: string }> = body.messages || [];
     const systemMessages = messages.filter((m) => m.role === 'system');
     const nonSystemMessages = messages.filter((m) => m.role !== 'system');
@@ -782,7 +868,7 @@ export class ZavorthProviderRouterService {
   private receiptToOpenAiResponse(
     receipt: ZavorthProviderRouterReceipt,
     requestModel?: string,
-  ): Record<string, any> {
+  ): OpenAiResponseWrapper {
     return {
       id: `chatcmpl-zavorth-${Date.now()}`,
       object: 'chat.completion',
@@ -809,7 +895,7 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Internos: Helpers de estado
+  // Internal: State helpers
   // -------------------------------------------------------------------------
 
   private getRateLimitState(providerId: string): InternalRateLimitState {
@@ -844,10 +930,10 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Internos: Helpers HTTP
+  // Internal: HTTP helpers
   // -------------------------------------------------------------------------
 
-  private writeJson(res: http.ServerResponse, data: any, statusCode: number): void {
+  private writeJson(res: http.ServerResponse, data: unknown, statusCode: number): void {
     res.writeHead(statusCode, {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'no-store',
@@ -856,7 +942,7 @@ export class ZavorthProviderRouterService {
     res.end(JSON.stringify(data));
   }
 
-  private readJsonBody(req: http.IncomingMessage): Promise<any> {
+  private readJsonBody(req: http.IncomingMessage): Promise<Record<string, unknown>> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
       req.on('data', (chunk: Buffer) => chunks.push(chunk));
@@ -873,10 +959,10 @@ export class ZavorthProviderRouterService {
   }
 
   // -------------------------------------------------------------------------
-  // Internos: Parser de request manual
+  // Internal: Manual request parser
   // -------------------------------------------------------------------------
 
-  private parseRouterRequest(body: any): ZavorthProviderRouterRequest {
+  private parseRouterRequest(body: RouterRequestInput): ZavorthProviderRouterRequest {
     const prompt = String(body.prompt || '').trim();
     if (!prompt) {
       throw new Error('Campo "prompt" obrigatorio.');
@@ -890,7 +976,7 @@ export class ZavorthProviderRouterService {
       systemPrompt: body.systemPrompt || null,
       conversationHistory: body.conversationHistory || null,
       requestedBy: body.requestedBy || null,
-      budgetPreference: body.budgetPreference || 'auto',
+      budgetPreference: (body.budgetPreference as ZavorthProviderRouterBudgetPreference) || 'auto',
     };
   }
 }

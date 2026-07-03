@@ -40,14 +40,14 @@ function parseList(envKey: string): Set<string> {
   );
 }
 
-// ── Runtime overrides (for dashboard/API configuration) ──
+// ── Runtime overrides (for zavorthControl/API configuration) ──
 
 let _runtimeAllowlist: Set<string> | null = null;
 let _runtimeDenylist: Set<string> | null = null;
 let _runtimeMode: PolicyMode | null = null;
 
 /**
- * Override the policy at runtime (e.g., from dashboard settings).
+ * Override the policy at runtime (e.g., from zavorthControl settings).
  */
 export function setRuntimePolicy(config: {
   mode?: PolicyMode;

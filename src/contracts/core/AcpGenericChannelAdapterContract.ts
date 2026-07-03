@@ -104,8 +104,8 @@ export type AcpGenericChannelAdapterSnapshot = {
     rawSecretsSerialized: false;
   };
   routes: {
-    dashboardStatus: '/api/web/acp-generic-channel-adapter';
-    dashboardIngest: '/api/web/acp-generic-channel-adapter';
+    zavorthControlStatus: '/api/web/acp-generic-channel-adapter';
+    zavorthControlIngest: '/api/web/acp-generic-channel-adapter';
     cliStatus: 'zavorth acp channel status';
     cliIngest: 'zavorth acp channel ingest --text "<message>"';
   };

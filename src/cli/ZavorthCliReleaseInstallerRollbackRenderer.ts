@@ -211,7 +211,7 @@ export function formatReleaseInstallerRollbackSnapshot(
   lines.push('- secrets nao foram serializados');
 
   lines.push('', 'Superficies de consumo');
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Public release: ${snapshot.surface.publicReleaseRoute}`);
   lines.push(`- Installer dry-run: ${snapshot.surface.dryRunCommand}`);

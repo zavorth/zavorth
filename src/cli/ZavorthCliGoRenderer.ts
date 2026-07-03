@@ -103,8 +103,8 @@ function buildReadyGoLines(
   const lines = [
     paintCliTone('Home', 'muted'),
     homeUrl
-      ? `  > Zavorth Dashboard: ${homeUrl}`
-      : '  > Zavorth Dashboard at /dashboard',
+      ? `  > Zavorth ZavorthControl: ${homeUrl}`
+      : '  > Zavorth ZavorthControl at /zavorthControl',
     '',
     paintCliTone('Areas principais', 'muted'),
     '  > Inbox | Tasks | Approvals | Receipts | Connectors',
@@ -247,14 +247,14 @@ function normalizeHomeUrl(value: string | null): string {
   }
   try {
     const url = new URL(target);
-    if (url.pathname.replace(/\/+$/u, '') === '/dashboard') {
-      url.pathname = '/dashboard';
+    if (url.pathname.replace(/\/+$/u, '') === '/zavorthControl') {
+      url.pathname = '/zavorthControl';
       url.search = '';
       url.hash = '';
       return url.toString();
     }
   } catch {
-    return target.replace(/\/dashboard(?:[?#].*)?$/u, '/dashboard');
+    return target.replace(/\/zavorthControl(?:[?#].*)?$/u, '/zavorthControl');
   }
   return target;
 }

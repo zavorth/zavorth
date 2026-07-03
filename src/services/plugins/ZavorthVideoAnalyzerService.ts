@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -56,7 +55,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
     switch (action) {
       case 'analyze': return await this.analyzeVideo(videoPath!);
       case 'extract_frames': return await this.extractFrames(videoPath!, args);
-      case 'get_metadata': return this.getMetadata(videoPath!);
+      case 'get_metadata': return await this.getMetadata(videoPath!);
       case 'generate_summary': return await this.generateSummary(videoPath!, args);
       case 'detect_scenes': return await this.detectScenes(videoPath!);
       case 'extract_thumbnail': return await this.extractThumbnail(videoPath!);
@@ -68,7 +67,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
   private async analyzeVideo(videoPath: string): Promise<string> {
     if (!fs.existsSync(videoPath)) return `Error: "${videoPath}" not found.`;
 
-    const metadata = this.getVideoMetadata(videoPath);
+    const metadata = await this.getMetadata(videoPath);
     const lines: string[] = ['Video Analysis:', ...metadata.split('\n')];
 
     const provider = getBestProvider('video');
@@ -115,7 +114,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
     }
   }
 
-  private getMetadata(videoPath: string): string {
+  private async getMetadata(videoPath: string): Promise<string> {
     if (!fs.existsSync(videoPath)) return `Error: "${videoPath}" not found.`;
 
     const stat = fs.statSync(videoPath);
@@ -130,20 +129,20 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
     ];
 
     try {
-      const { execFileSync } = require('child_process');
+      const { execFileSync } = await import('child_process');
       const probe = execFileSync('ffprobe', [
         '-v', 'quiet', '-print_format', 'json',
         '-show_format', '-show_streams',
         videoPath,
       ], { timeout: 10000 }).toString();
 
-      const parsed = JSON.parse(probe);
+      const parsed = JSON.parse(probe) as { format?: { duration?: string; bit_rate?: string }; streams?: Array<{ codec_type: string; width?: number; height?: number; codec_name?: string; r_frame_rate?: string }> };
       if (parsed.format) {
         lines.push(`Duration: ${parseFloat(parsed.format.duration || '0').toFixed(1)}s`);
         lines.push(`Bitrate: ${parseInt(parsed.format.bit_rate || '0') / 1000}kbps`);
       }
       if (parsed.streams) {
-        const video = parsed.streams.find((s: { codec_type: string }) => s.codec_type === 'video');
+        const video = parsed.streams.find((s) => s.codec_type === 'video');
         if (video) {
           lines.push(`Resolution: ${video.width}x${video.height}`);
           lines.push(`Codec: ${video.codec_name}`);
@@ -170,7 +169,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
         '-f', 'lavfi', `movie=${videoPath},select='gt(scene,0.3)'`,
       ], { timeout: 30000 }).toString();
 
-      const parsed = JSON.parse(result);
+      const parsed = JSON.parse(result) as { frames?: Array<{ pkt_pts_time?: string }> };
       const scenes = parsed.frames?.length || 0;
       return `Detected ${scenes} scene changes in video.`;
     } catch {

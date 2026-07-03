@@ -1,4 +1,14 @@
 import type {
+  ApprovedPolicyAggregate,
+  ContinuityRecommendation,
+  RecentArtifactAggregate,
+  RouteOutcomeAggregate,
+  TaskKindLlmRecommendation,
+  TaskSubtypeLlmRecommendation,
+  WorkflowExecutorRecommendationAggregate,
+  WorkflowRecommendationAggregate,
+} from '../WorkspaceOperationalMemoryService.js';
+import type {
   LlmRecommendation,
   RoutingCandidate,
   WorkflowFrictionRecommendation,
@@ -43,7 +53,7 @@ export function applyWorkflowStagePerformanceBoost(
 
 export function applyWorkflowExecutorPerformanceBoost(
   baseConfidence: number,
-  recommendation: any,
+  recommendation: WorkflowExecutorRecommendationAggregate | null,
 ): number {
   if (!recommendation) {
     return baseConfidence;
@@ -59,8 +69,8 @@ export function applyWorkflowExecutorPerformanceBoost(
 export function shouldDeferWorkflowRecommendation(
   workflowRecommendation: NonNullable<WorkflowRecommendation>,
   workflowFriction: WorkflowFrictionRecommendation,
-  routeOutcome: any,
-  approvedPolicy: any,
+  routeOutcome: RouteOutcomeAggregate,
+  approvedPolicy: ApprovedPolicyAggregate,
 ): boolean {
   if (!workflowRecommendation || !workflowFriction || !routeOutcome) {
     return false;
@@ -90,7 +100,10 @@ export function shouldDeferWorkflowRecommendation(
   return frictionWeight - recoveryWeight >= 5 && routeFailureWeight > routeSuccessWeight + recoveryWeight;
 }
 
-export function buildLlmRecommendation(subtypeEntry: any, kindEntry: any): LlmRecommendation {
+export function buildLlmRecommendation(
+  subtypeEntry: TaskSubtypeLlmRecommendation | null,
+  kindEntry: TaskKindLlmRecommendation | null,
+): LlmRecommendation {
   const subtypeProvider = String(subtypeEntry?.preferred_provider || '').trim();
   if (subtypeProvider) {
     return {
@@ -120,10 +133,10 @@ export function buildWorkflowRecommendation(input: {
   taskKind: string;
   taskSubtype: string;
   selectedCandidate: RoutingCandidate | null;
-  activeFocusMatch: any;
-  recentArtifacts: any[];
-  continuityRecommendations: any[];
-  workflowRecommendations: any[];
+  activeFocusMatch: { kind?: string; subtype?: string; executor?: string } | null;
+  recentArtifacts: RecentArtifactAggregate[];
+  continuityRecommendations: ContinuityRecommendation[];
+  workflowRecommendations: WorkflowRecommendationAggregate[];
 }): WorkflowRecommendation {
   const hasStrongContinuitySignal = Boolean(
     input.activeFocusMatch ||

@@ -15,6 +15,7 @@ import { getCorrelationId } from "../middleware/correlationId";
 import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { dirname, resolve } from "path";
 import { getAppLogFilePath, getAppLogLevel, getAppLogToFile } from "@/lib/logEnv";
+import { logger } from '../logger.js';
 
 const LOG_LEVELS: Record<string, number> = {
   debug: 10,
@@ -171,7 +172,7 @@ export function createLogger(component: string) {
         // Use stderr.write to avoid Next.js console patching that triggers EPIPE loops
         try {
           process.stderr.write(formatEntry("error", component, message, meta) + "\n");
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         writeToFile(entry);
       }
     },
@@ -180,7 +181,7 @@ export function createLogger(component: string) {
       const entry = buildEntry("fatal", component, message, meta);
       try {
         process.stderr.write(formatEntry("fatal", component, message, meta) + "\n");
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       writeToFile(entry);
     },
     child(defaultMeta: Record<string, unknown>) {

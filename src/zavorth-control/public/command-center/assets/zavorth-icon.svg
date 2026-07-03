@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Zavorth">
-  <rect width="64" height="64" rx="18" fill="#060809"/>
-  <rect x="7" y="7" width="50" height="50" rx="15" fill="#00e88f" opacity=".12"/>
-  <path d="M19 19h28L24 45h28" fill="none" stroke="#00e88f" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="46" cy="18" r="4" fill="#00e88f"/>
-</svg>

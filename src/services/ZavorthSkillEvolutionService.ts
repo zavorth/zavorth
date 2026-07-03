@@ -739,8 +739,8 @@ export class ZavorthSkillEvolutionService {
   ): Promise<SandboxEnvelopeExecutionReport> {
     const script = [
       `const draftId = ${JSON.stringify(synthesized.draftId)};`,
-      'if (!draftId.startsWith("skill-draft:")) process.exit(2);',
-      'logger.info("skill draft validated");',
+      'if (!draftId.startsWith("skill-draft:")) throw new Error("invalid skill draft id");',
+      'console.log("skill draft validated");',
     ].join('\n');
     const snapshot = this.sandboxControlPlane.buildSnapshot({
       code: script,

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Task } from '@zavorth/contracts/TaskContract.js';
 import {
   classifyWorkspaceTaskProfile,
@@ -216,20 +215,20 @@ export class TelegramConversationDecisionService {
       ? workspaceMemory.autonomous_mode_recommendations
       : [];
 
-    const subtypeRecommendation = recommendations.find((entry: unknown) => {
+    const subtypeRecommendation = recommendations.find((entry: { kind?: unknown; subtype?: unknown }) => {
       return String(entry?.kind || '').trim().toLowerCase() === taskKind
         && String(entry?.subtype || '').trim().toLowerCase() === taskSubtype;
     });
     if (subtypeRecommendation) {
-      return subtypeRecommendation;
+      return subtypeRecommendation as { kind: WorkspaceTaskKind; subtype: WorkspaceTaskSubtype | 'general'; preferred_mode: 'autonomous' | 'direct'; approved_count: number; failed_count: number; confidence: 'low' | 'medium' | 'high' };
     }
 
-    const kindRecommendation = recommendations.find((entry: unknown) => {
+    const kindRecommendation = recommendations.find((entry: { kind?: unknown; subtype?: unknown }) => {
       return String(entry?.kind || '').trim().toLowerCase() === taskKind
         && String(entry?.subtype || '').trim().toLowerCase() === 'general';
     });
 
-    return kindRecommendation || null;
+    return kindRecommendation as { kind: WorkspaceTaskKind; subtype: WorkspaceTaskSubtype | 'general'; preferred_mode: 'autonomous' | 'direct'; approved_count: number; failed_count: number; confidence: 'low' | 'medium' | 'high' } || null;
   }
 
   private resolveDirectStyleRecommendation(
@@ -249,20 +248,20 @@ export class TelegramConversationDecisionService {
       ? workspaceMemory.direct_response_style_recommendations
       : [];
 
-    const subtypeRecommendation = recommendations.find((entry: unknown) => {
+    const subtypeRecommendation = recommendations.find((entry: { kind?: unknown; subtype?: unknown }) => {
       return String(entry?.kind || '').trim().toLowerCase() === taskKind
         && String(entry?.subtype || '').trim().toLowerCase() === taskSubtype;
     });
     if (subtypeRecommendation) {
-      return subtypeRecommendation;
+      return subtypeRecommendation as { kind: WorkspaceTaskKind; subtype: WorkspaceTaskSubtype | 'general'; preferred_style: WorkspaceResponseStyle; success_count: number; confidence: 'low' | 'medium' | 'high'; rationale: string };
     }
 
-    const kindRecommendation = recommendations.find((entry: unknown) => {
+    const kindRecommendation = recommendations.find((entry: { kind?: unknown; subtype?: unknown }) => {
       return String(entry?.kind || '').trim().toLowerCase() === taskKind
         && String(entry?.subtype || '').trim().toLowerCase() === 'general';
     });
 
-    return kindRecommendation || null;
+    return kindRecommendation as { kind: WorkspaceTaskKind; subtype: WorkspaceTaskSubtype | 'general'; preferred_style: WorkspaceResponseStyle; success_count: number; confidence: 'low' | 'medium' | 'high'; rationale: string } || null;
   }
 
   private hasWorkspaceSignal(task: Task): boolean {

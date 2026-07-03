@@ -233,11 +233,11 @@ export class ActionCardService {
         })),
         ...(recovery.overflow?.hasOverflow ? [
           makeAction({
-            id: `context:${recovery.id}:dashboard`,
-            label: 'Ver todos no Dashboard',
+            id: `context:${recovery.id}:zavorthControl`,
+            label: 'Ver todos no ZavorthControl',
             kind: 'navigation' as const,
-            command: recovery.overflow.dashboardCommand,
-            route: '/dashboard',
+            command: recovery.overflow.zavorthControlCommand,
+            route: '/zavorthControl',
             risk: 'safe' as const,
             reason: 'Canais curtos mostram apenas os alvos mais relevantes.',
           }),

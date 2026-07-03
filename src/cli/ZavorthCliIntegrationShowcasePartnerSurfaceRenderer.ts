@@ -163,7 +163,7 @@ export function formatIntegrationShowcasePartnerSurfaceSnapshot(
   lines.push(`- Smoke: ${snapshot.surface.smokeArtifact}`);
   lines.push(`- Matrix: ${snapshot.surface.matrixArtifact}`);
   lines.push(`- Partner surface: ${snapshot.surface.partnerSurfaceArtifact}`);
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');
@@ -188,7 +188,7 @@ function buildPilotReadySnapshot(run: UniversalAgentRun) {
       triageReady: true,
       ledgerReady: true,
       supportReady: true,
-      dashboardReady: true,
+      zavorthControlReady: true,
       canStartControlledPilot: true,
       canCollectPublicFeedback: true,
       canPublishPilotMetrics: true,

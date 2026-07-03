@@ -46,7 +46,7 @@ const registry = new Map<string, DegradationStatus>();
  *
  * Tries the primary function first. If it fails, tries the fallback.
  * If both fail, returns the safe default. All transitions are tracked
- * in the global registry for dashboard visibility.
+ * in the global registry for zavorthControl visibility.
  *
  * @param feature - Name of the feature (e.g., "rate-limiting", "semantic-search")
  * @param primary - Primary implementation (full capability)

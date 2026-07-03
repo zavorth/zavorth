@@ -130,7 +130,7 @@ export type ZavorthCompatibilityBoundaryReceipt = {
   };
 };
 
-export type ZavorthNativeReplacementDashboardProjection = {
+export type ZavorthNativeReplacementZavorthControlProjection = {
   title: 'Native Replacement And Decommission';
   status: ZavorthNativeReplacementDecommissionStatus;
   tone: 'ready' | 'attention' | 'blocked';
@@ -156,7 +156,7 @@ export type ZavorthNativeReplacementDecommissionSnapshot = {
   adapterDependencyReductionReceipts: ZavorthAdapterDependencyReductionReceipt[];
   sourceAssumptionDecommissionReceipts: ZavorthSourceAssumptionDecommissionReceipt[];
   compatibilityBoundaryReceipt: ZavorthCompatibilityBoundaryReceipt;
-  dashboardProjection: ZavorthNativeReplacementDashboardProjection;
+  zavorthControlProjection: ZavorthNativeReplacementZavorthControlProjection;
   acceptanceMatrix: Array<{
     requirementId: string;
     status: 'passed' | 'failed';

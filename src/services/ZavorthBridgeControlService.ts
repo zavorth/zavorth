@@ -10,6 +10,21 @@ import { RemoteModeManager } from './RemoteModeManager.js';
 import { loadOptionalDependency } from './OptionalCapabilityGuard.js';
 import { WindowsSessionService, type WindowsSessionStatus } from './WindowsSessionService.js';
 
+type SqlJsModule = {
+  default: () => Promise<{
+    Database: new (data?: Buffer) => {
+      run(sql: string, params?: unknown[]): void;
+      export(): ArrayBuffer;
+      close(): void;
+    };
+  }>;
+  Database: new (data?: Buffer) => {
+    run(sql: string, params?: unknown[]): void;
+    export(): ArrayBuffer;
+    close(): void;
+  };
+};
+
 export type ZavorthBridgeControlAction = 'open' | 'status' | 'restart' | 'set-model';
 
 type AllowedModelEntry = {
@@ -39,7 +54,7 @@ export type ZavorthBridgeControlResult = {
   errorCode: string | null;
   errorMessage: string | null;
   logFile: string | null;
-  diagnostics: AutomationDiagnostics | Record<string, any> | null;
+  diagnostics: AutomationDiagnostics | Record<string, unknown> | null;
   remoteModeActive?: boolean | null;
   sessionAccessible?: boolean | null;
   desktopName?: string | null;
@@ -62,7 +77,7 @@ type ZavorthBridgeInteractionPreflight = {
   processId: number | null;
   windowTitle: string | null;
   statusResult: ZavorthBridgeControlResult | null;
-  diagnostics: Record<string, any> | null;
+  diagnostics: Record<string, unknown> | null;
   errorCode: string | null;
   errorMessage: string | null;
   message: string | null;
@@ -267,7 +282,7 @@ export class ZavorthBridgeControlService {
 
     try {
       await this.focusInteractiveWindow(effectiveResult.processId ?? preferredProcessId ?? undefined);
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         ok: false,
         action,
@@ -283,7 +298,7 @@ export class ZavorthBridgeControlService {
           focusFailed: true,
         },
         errorCode: 'window_focus_failed',
-        errorMessage: error.message || 'A janela do ZavorthBridge nao respondeu ao foco.',
+        errorMessage: error instanceof Error ? error.message : 'A janela do ZavorthBridge nao respondeu ao foco.',
         message: 'O ZavorthBridge foi encontrado, mas o Zavorth nao conseguiu trazer a janela para uma superficie operavel.',
       };
     }
@@ -376,8 +391,8 @@ export class ZavorthBridgeControlService {
   }
 
   private asDiagnostics(
-    diagnostics: AutomationDiagnostics | Record<string, any> | null | undefined,
-  ): Record<string, any> | null {
+    diagnostics: AutomationDiagnostics | Record<string, unknown> | null | undefined,
+  ): Record<string, unknown> | null {
     if (!diagnostics || typeof diagnostics !== 'object') {
       return null;
     }
@@ -501,7 +516,7 @@ export class ZavorthBridgeControlService {
     await fs.promises.copyFile(config.zavorthBridgeStateDbPath, backupPath);
 
     const initSqlJs = (
-      await loadOptionalDependency<any>(
+      await loadOptionalDependency<SqlJsModule>(
         'sql.js',
         'remote',
         'O editor de estado remoto do ZavorthBridge depende do pacote sql.js opcional.',
@@ -538,7 +553,7 @@ export class ZavorthBridgeControlService {
     ok: boolean;
     verified: boolean;
     message?: string;
-    diagnostics?: AutomationDiagnostics | Record<string, any> | null;
+    diagnostics?: AutomationDiagnostics | Record<string, unknown> | null;
   }> {
     return new Promise((resolve, reject) => {
       const powershellPath = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
@@ -575,8 +590,8 @@ export class ZavorthBridgeControlService {
 
           try {
             resolve(this.parseJsonPayload(stdout, 'ZavorthBridge UI result'));
-          } catch (parseError: any) {
-            reject(new Error(`Failed to parse ZavorthBridge UI result: ${parseError.message}`));
+          } catch (parseError: unknown) {
+            reject(new Error(`Failed to parse ZavorthBridge UI result: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
           }
         },
       );
@@ -639,8 +654,8 @@ export class ZavorthBridgeControlService {
           try {
             const parsed = this.parseJsonPayload<ZavorthBridgeControlResult>(stdout, 'ZavorthBridge control result');
             resolve(parsed);
-          } catch (parseError: any) {
-            reject(new Error(`Failed to parse ZavorthBridge control result: ${parseError.message}`));
+          } catch (parseError: unknown) {
+            reject(new Error(`Failed to parse ZavorthBridge control result: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
           }
         },
       );

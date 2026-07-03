@@ -1,7 +1,6 @@
-// @ts-nocheck
-import fs from 'fs';
+import * as fs from 'fs';
 import { type Context } from 'grammy';
-import { Task } from '@zavorth/contracts/TaskContract.js';
+import { Task } from '../../../../contracts/TaskContract.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { ZavorthBridgeCliAdapter } from '../../../../agents/ZavorthBridgeCliAdapter.js';
 import { ZavorthBridgeCompanionBridgeLike } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeService.js';
@@ -70,14 +69,15 @@ export class TelegramZavorthBridgeTaskExecutionService {
         return;
       }
 
-      task.error_summary = error.message;
+      const msg = error instanceof Error ? error.message : String(error);
+      task.error_summary = msg;
       this.deps.persistTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
       await ctx.reply(
         [
           'Could not start ZavorthBridge right now.',
           '',
-          `Reason: ${error.message}`,
+          `Reason: ${msg}`,
           '',
           'Immediate alternative for web research: use /research <topic>.',
         ].join('\n'),

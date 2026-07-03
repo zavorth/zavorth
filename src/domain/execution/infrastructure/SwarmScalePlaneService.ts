@@ -6,10 +6,66 @@ export const SWARM_SCALE_PLANE_CONTRACT_VERSION = '2026-06-01.swarm-scale-plane'
 
 export type SwarmScalePlannerMode = 'heuristic' | 'llm' | 'custom';
 export type SwarmScaleExecutionMode = 'deterministic' | 'llm-live' | 'custom';
+export type SwarmScaleExecutionBackendId =
+  | 'auto'
+  | 'local'
+  | 'docker'
+  | 'ssh'
+  | 'wsl'
+  | 'vercel-sandbox'
+  | 'modal'
+  | 'daytona'
+  | 'singularity';
+export type SwarmScaleControlSurface = 'cli' | 'tui' | 'desktop' | 'zavorthControl' | 'api' | 'agent' | 'system';
 export type SwarmScaleRunStatus = 'planned' | 'running' | 'paused' | 'completed' | 'failed' | 'cancelled';
 export type SwarmScaleAgentStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
 export type SwarmScaleStepStatus = 'running' | 'completed' | 'failed' | 'skipped';
 export type SwarmScaleStepKind = 'agent_execution' | 'llm_call' | 'tool_call' | 'reducer';
+
+export type SwarmScaleDynamicConfigPatch = {
+  maxConcurrency?: number | null;
+  maxSteps?: number | null;
+  executionMode?: SwarmScaleExecutionMode | null;
+  executionBackend?: SwarmScaleExecutionBackendId | null;
+  cloudSandboxEnabled?: boolean | null;
+  deviceNodeRouting?: boolean | null;
+  pauseReason?: string | null;
+};
+
+export type SwarmScaleNormalizedDynamicConfigPatch = {
+  maxConcurrency: number;
+  maxSteps: number;
+  executionMode: SwarmScaleExecutionMode;
+  executionBackend: SwarmScaleExecutionBackendId;
+  cloudSandboxEnabled: boolean;
+  deviceNodeRouting: boolean;
+};
+
+export type SwarmScaleDynamicConfigChange = {
+  revision: number;
+  changedAt: string;
+  sourceSurface: SwarmScaleControlSurface;
+  actorId: string | null;
+  reason: string | null;
+  requestedPatch: SwarmScaleDynamicConfigPatch;
+  normalizedPatch: SwarmScaleNormalizedDynamicConfigPatch;
+  appliedToQueuedWorkersOnly: true;
+};
+
+export type SwarmScaleDynamicConfig = {
+  revision: number;
+  updatedAt: string;
+  updatedBy: string | null;
+  sourceSurface: SwarmScaleControlSurface;
+  maxConcurrency: number;
+  maxSteps: number;
+  executionMode: SwarmScaleExecutionMode;
+  executionBackend: SwarmScaleExecutionBackendId;
+  cloudSandboxEnabled: boolean;
+  deviceNodeRouting: boolean;
+  queuedWorkersOnly: true;
+  history: SwarmScaleDynamicConfigChange[];
+};
 
 export type SwarmScaleAgentTask = {
   agentId: string;
@@ -111,6 +167,7 @@ export type SwarmScaleSnapshot = {
   ledger: SwarmScaleLedger;
   agents: SwarmScaleAgentTask[];
   reducer: SwarmScaleReducerSnapshot;
+  dynamicConfig: SwarmScaleDynamicConfig;
 };
 
 export type SwarmScaleLaunchInput = {
@@ -122,6 +179,9 @@ export type SwarmScaleLaunchInput = {
   maxConcurrency?: number | null;
   plannerMode?: SwarmScalePlannerMode | null;
   executionMode?: SwarmScaleExecutionMode | null;
+  executionBackend?: SwarmScaleExecutionBackendId | null;
+  cloudSandboxEnabled?: boolean | null;
+  deviceNodeRouting?: boolean | null;
   stopAfterSteps?: number | null;
   persistState?: boolean | null;
   allowMutatingTools?: boolean | null;
@@ -131,6 +191,15 @@ export type SwarmScaleLaunchInput = {
 export type SwarmScaleResumeInput = {
   runId: string;
   stopAfterSteps?: number | null;
+  persistState?: boolean | null;
+};
+
+export type SwarmScaleConfigureInput = {
+  runId: string;
+  sourceSurface?: SwarmScaleControlSurface | string | null;
+  actorId?: string | null;
+  reason?: string | null;
+  patch: SwarmScaleDynamicConfigPatch;
   persistState?: boolean | null;
 };
 
@@ -285,14 +354,85 @@ export class SwarmScalePlaneService {
     });
   }
 
+  public configureRun(input: SwarmScaleConfigureInput): SwarmScaleSnapshot {
+    const current = this.getRun(input.runId);
+    if (!current) {
+      throw new Error(`Swarm scale run not found: ${input.runId}`);
+    }
+    const sourceSurface = normalizeControlSurface(input.sourceSurface);
+    const actorId = normalizeNullable(input.actorId);
+    const reason = normalizeNullable(input.reason);
+    const patch = input.patch || {};
+    const snapshot = this.ensureDynamicConfig(current);
+    const normalizedPatch = this.normalizeDynamicPatch(snapshot, patch);
+    const changedAt = this.now().toISOString();
+    const revision = snapshot.dynamicConfig.revision + 1;
+    const executionMode = normalizedPatch.executionMode;
+    const maxConcurrency = normalizedPatch.maxConcurrency;
+    const maxSteps = normalizedPatch.maxSteps;
+    const dynamicConfig: SwarmScaleDynamicConfig = {
+      ...snapshot.dynamicConfig,
+      revision,
+      updatedAt: changedAt,
+      updatedBy: actorId,
+      sourceSurface,
+      maxConcurrency,
+      maxSteps,
+      executionMode,
+      executionBackend: normalizedPatch.executionBackend,
+      cloudSandboxEnabled: normalizedPatch.cloudSandboxEnabled,
+      deviceNodeRouting: normalizedPatch.deviceNodeRouting,
+      history: [
+        {
+          revision,
+          changedAt,
+          sourceSurface,
+          actorId,
+          reason,
+          requestedPatch: { ...patch },
+          normalizedPatch,
+          appliedToQueuedWorkersOnly: true,
+        },
+        ...snapshot.dynamicConfig.history,
+      ].slice(0, 25),
+    };
+    const configured = this.recompute({
+      ...snapshot,
+      status: snapshot.status === 'completed' || snapshot.status === 'cancelled'
+        ? snapshot.status
+        : snapshot.status === 'planned'
+          ? 'planned'
+          : 'paused',
+      updatedAt: changedAt,
+      workerPool: {
+        ...snapshot.workerPool,
+        maxConcurrency,
+        mode: executionMode,
+        pauseReason: patch.pauseReason === undefined
+          ? snapshot.workerPool.pauseReason
+          : normalizeNullable(patch.pauseReason),
+      },
+      ledger: {
+        ...snapshot.ledger,
+        maxSteps,
+      },
+      dynamicConfig,
+    });
+    this.persistSnapshot(configured, input.persistState !== false);
+    return configured;
+  }
+
   public listRuns(): SwarmScaleSnapshot[] {
-    return this.readState().runs.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+    return this.readState().runs
+      .map((run) => this.ensureDynamicConfig(run))
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   }
 
   public getRun(runId: string): SwarmScaleSnapshot | null {
     const normalized = String(runId || '').trim();
     if (!normalized) return null;
-    return this.readState().runs.find((run) => run.runId === normalized) || null;
+    const run = this.readState().runs.find((entry) => entry.runId === normalized) || null;
+    return run ? this.ensureDynamicConfig(run) : null;
   }
 
   private async createSnapshot(input: SwarmScaleLaunchInput): Promise<SwarmScaleSnapshot> {
@@ -314,6 +454,7 @@ export class SwarmScalePlaneService {
     });
     const maxSteps = clampInt(input.maxSteps, 1, DEFAULT_MAX_STEPS, Math.max(agents.length, DEFAULT_MAX_STEPS));
     const maxConcurrency = clampInt(input.maxConcurrency, 1, Math.min(MAX_SCALE_AGENTS, maxSteps), Math.min(DEFAULT_MAX_CONCURRENCY, agents.length || 1));
+    const executionMode = input.executionMode || (this.worker ? 'custom' : this.llmRuntime ? 'llm-live' : 'deterministic');
     const snapshot: SwarmScaleSnapshot = {
       contractVersion: SWARM_SCALE_PLANE_CONTRACT_VERSION,
       runId,
@@ -330,7 +471,7 @@ export class SwarmScalePlaneService {
         rationale: this.describePlanner(plannerMode, objective, agents.length),
       },
       workerPool: {
-        mode: input.executionMode || (this.worker ? 'custom' : this.llmRuntime ? 'llm-live' : 'deterministic'),
+        mode: executionMode,
         maxConcurrency,
         actualMaxConcurrency: 0,
         batchesStarted: 0,
@@ -368,6 +509,20 @@ export class SwarmScalePlaneService {
         conflicts: [],
         synthesis: 'Reducer has not run yet.',
         confidence: 0,
+      },
+      dynamicConfig: {
+        revision: 1,
+        updatedAt: createdAt,
+        updatedBy: null,
+        sourceSurface: 'system',
+        maxConcurrency,
+        maxSteps,
+        executionMode,
+        executionBackend: normalizeExecutionBackend(input.executionBackend),
+        cloudSandboxEnabled: input.cloudSandboxEnabled === true,
+        deviceNodeRouting: input.deviceNodeRouting === true,
+        queuedWorkersOnly: true,
+        history: [],
       },
     };
     return this.recompute(snapshot);
@@ -616,7 +771,7 @@ export class SwarmScalePlaneService {
         ? await this.worker({ snapshot, task, reserveStep })
         : snapshot.workerPool.mode === 'llm-live' && this.llmRuntime
           ? await this.runLlmAgent(snapshot, task, reserveStep, options)
-          : await this.runDeterministicAgent(task, reserveStep);
+          : await this.runDeterministicAgent(snapshot, task, reserveStep);
       const output = clampText(result.output, 12000);
       const conflictKey = result.conflictKey || detectConflictKey(output);
       return {
@@ -647,11 +802,15 @@ export class SwarmScalePlaneService {
   }
 
   private async runDeterministicAgent(
+    snapshot: SwarmScaleSnapshot,
     task: SwarmScaleAgentTask,
     reserveStep: (kind: SwarmScaleStepKind, summary: string, metadata?: Record<string, unknown>) => SwarmScaleStep | null,
   ): Promise<SwarmScaleWorkerResult> {
     const step = reserveStep('agent_execution', `${task.agentId} deterministic execution.`, {
       lane: task.lane,
+      executionBackend: snapshot.dynamicConfig.executionBackend,
+      cloudSandboxEnabled: snapshot.dynamicConfig.cloudSandboxEnabled,
+      deviceNodeRouting: snapshot.dynamicConfig.deviceNodeRouting,
     });
     if (!step) {
       throw new Error('Global step ledger exhausted before deterministic agent execution.');
@@ -675,6 +834,9 @@ export class SwarmScalePlaneService {
       conflictKey: null,
       metadata: {
         backend: 'deterministic-scale-worker',
+        executionBackend: snapshot.dynamicConfig.executionBackend,
+        cloudSandboxEnabled: snapshot.dynamicConfig.cloudSandboxEnabled,
+        deviceNodeRouting: snapshot.dynamicConfig.deviceNodeRouting,
       },
     };
   }
@@ -804,6 +966,9 @@ export class SwarmScalePlaneService {
       conflictKey: detectConflictKey(output),
       metadata: {
         backend: 'llm-live-scale-worker',
+        executionBackend: snapshot.dynamicConfig.executionBackend,
+        cloudSandboxEnabled: snapshot.dynamicConfig.cloudSandboxEnabled,
+        deviceNodeRouting: snapshot.dynamicConfig.deviceNodeRouting,
         providerName: result.providerName || null,
         modelName: result.modelName || null,
         toolCallsExecuted,
@@ -973,6 +1138,60 @@ export class SwarmScalePlaneService {
     return `Heuristic planner decomposed "${firstLine(objective)}" into ${plannedAgents} deterministic shard(s).`;
   }
 
+  private ensureDynamicConfig(snapshot: SwarmScaleSnapshot): SwarmScaleSnapshot {
+    if (snapshot.dynamicConfig) {
+      return snapshot;
+    }
+    const executionMode = snapshot.workerPool.mode;
+    return {
+      ...snapshot,
+      dynamicConfig: {
+        revision: 1,
+        updatedAt: snapshot.updatedAt || snapshot.createdAt,
+        updatedBy: null,
+        sourceSurface: 'system',
+        maxConcurrency: snapshot.workerPool.maxConcurrency,
+        maxSteps: snapshot.ledger.maxSteps,
+        executionMode,
+        executionBackend: 'auto',
+        cloudSandboxEnabled: false,
+        deviceNodeRouting: false,
+        queuedWorkersOnly: true,
+        history: [],
+      },
+    };
+  }
+
+  private normalizeDynamicPatch(
+    snapshot: SwarmScaleSnapshot,
+    patch: SwarmScaleDynamicConfigPatch,
+  ): SwarmScaleNormalizedDynamicConfigPatch {
+    const requestedMaxSteps = patch.maxSteps === undefined || patch.maxSteps === null
+      ? snapshot.ledger.maxSteps
+      : Number(patch.maxSteps);
+    const maxSteps = Number.isFinite(requestedMaxSteps)
+      ? Math.max(snapshot.ledger.usedSteps, Math.trunc(requestedMaxSteps))
+      : snapshot.ledger.maxSteps;
+    const maxConcurrency = clampInt(
+      patch.maxConcurrency,
+      1,
+      Math.max(1, Math.min(MAX_SCALE_AGENTS, maxSteps || 1)),
+      snapshot.workerPool.maxConcurrency,
+    );
+    return {
+      maxConcurrency,
+      maxSteps,
+      executionMode: normalizeExecutionMode(patch.executionMode, snapshot.workerPool.mode),
+      executionBackend: normalizeExecutionBackend(patch.executionBackend ?? snapshot.dynamicConfig.executionBackend),
+      cloudSandboxEnabled: patch.cloudSandboxEnabled === undefined || patch.cloudSandboxEnabled === null
+        ? snapshot.dynamicConfig.cloudSandboxEnabled
+        : patch.cloudSandboxEnabled === true,
+      deviceNodeRouting: patch.deviceNodeRouting === undefined || patch.deviceNodeRouting === null
+        ? snapshot.dynamicConfig.deviceNodeRouting
+        : patch.deviceNodeRouting === true,
+    };
+  }
+
   private readState(): StoredState {
     if (!this.stateFilePath || !this.existsSyncImpl(this.stateFilePath)) {
       return { runs: [] };
@@ -1044,6 +1263,39 @@ function labelForLane(lane: SwarmScaleAgentTask['lane']): string {
 function normalizeNullable(value: unknown): string | null {
   const normalized = String(value || '').trim();
   return normalized || null;
+}
+
+function normalizeControlSurface(value: unknown): SwarmScaleControlSurface {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (['cli', 'tui', 'desktop', 'zavorthControl', 'api', 'agent', 'system'].includes(normalized)) {
+    return normalized as SwarmScaleControlSurface;
+  }
+  return 'api';
+}
+
+function normalizeExecutionMode(value: unknown, fallback: SwarmScaleExecutionMode): SwarmScaleExecutionMode {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'deterministic' || normalized === 'llm-live' || normalized === 'custom') {
+    return normalized;
+  }
+  return fallback;
+}
+
+function normalizeExecutionBackend(value: unknown): SwarmScaleExecutionBackendId {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (
+    normalized === 'local'
+    || normalized === 'docker'
+    || normalized === 'ssh'
+    || normalized === 'wsl'
+    || normalized === 'vercel-sandbox'
+    || normalized === 'modal'
+    || normalized === 'daytona'
+    || normalized === 'singularity'
+  ) {
+    return normalized;
+  }
+  return 'auto';
 }
 
 function normalizeOptionalPositiveInt(value: unknown): number | null {

@@ -97,8 +97,8 @@ export class ZavorthDoItWithMeService {
       projections: {
         capability: useCapability ? capability : null,
         mission: useCapability ? null : mission,
-        dashboardRoute: '/dashboard',
-        dashboardCanExecute: false,
+        zavorthControlRoute: '/zavorthControl',
+        zavorthControlCanExecute: false,
         zavorthControlRoute: '/control',
         zavorthControlCanExecute: false,
       },
@@ -332,7 +332,7 @@ function buildQuestions(
   if (capability && capability.friendlyStatus === 'needs_setup') {
     return [
       `Do you want to set up ${capability.title} now, or only see what is missing?`,
-      'Where should approvals appear: dashboard, satellite, Telegram or CLI?',
+      'Where should approvals appear: zavorthControl, satellite, Telegram or CLI?',
     ];
   }
   if (capability && capability.friendlyStatus === 'needs_test') {

@@ -14,7 +14,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
     {
       id: 'core-runtime',
       label: 'Core runtime',
-      description: 'Banco, runtime principal, dashboard local, Telegram, approvals e selfmod.',
+      description: 'Banco, runtime principal, zavorthControl local, Telegram, approvals e selfmod.',
       availability: 'core',
       activationMode: 'builtin',
       approvalRequired: false,
@@ -82,7 +82,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
     {
       id: 'zavorth-bridge-remote',
       label: 'ZavorthBridge Remote',
-      description: 'Sidecar remoto do ZavorthBridge para shell/dashboard UI auxiliar e integracoes visuais.',
+      description: 'Sidecar remoto do ZavorthBridge para shell/zavorthControl UI auxiliar e integracoes visuais.',
       availability: 'optional',
       activationMode: 'sidecar',
       approvalRequired: true,
@@ -282,7 +282,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
       idleTtlMs: null,
       estimatedFootprint: { ramIdleMb: 36, diskMb: 12, processCount: 0, notes: 'Gateway opcional por token/bridge.' },
       provisioningRecipe: null,
-      fallbackBehavior: 'Mantem Telegram e dashboard como superficies primarias.',
+      fallbackBehavior: 'Mantem Telegram e zavorthControl como superficies primarias.',
     },
     {
       id: 'whatsapp',

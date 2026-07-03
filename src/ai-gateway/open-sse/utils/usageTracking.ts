@@ -1,3 +1,3 @@
 export function invalidateBufferTokensCache(): void {
-  // Compatibility hook for the dashboard settings route.
+  // Compatibility hook for the zavorthControl settings route.
 }

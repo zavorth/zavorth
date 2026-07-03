@@ -17,7 +17,7 @@ type LocalAccessRouteDeps = {
 export class TrustedDeviceAccessRouteService {
   public constructor(
     private readonly localAccess: TrustedDeviceAccessService,
-    private readonly ownerSource: 'dashboard-token' | 'zavorthControl-token',
+    private readonly ownerSource: 'zavorthControl-token' | 'zavorthControl-token',
   ) {}
 
   public async handleRequest(

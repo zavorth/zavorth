@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 type CodexRemotePowerShellBrokerRuntime = {
   now?: () => Date;
@@ -13,7 +14,7 @@ type BrokerRequestEnvelope = {
   requestId: string;
   action: 'probe' | 'start-session' | 'inspect-session' | 'stop-session';
   createdAt: string;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
 };
 
 type BrokerResponseEnvelope<T> = {
@@ -100,12 +101,13 @@ export class CodexRemotePowerShellBrokerClientService {
         codexHome: String(input.codexHome || '').trim() || null,
         workspaceRoot: String(input.workspaceRoot || '').trim() || null,
       }, 10000);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       return {
         available: false,
         brokerReady: false,
         version: null,
-        note: String(error?.message || 'Falha ao consultar o broker PowerShell do Codex Remote.'),
+        note: message || 'Falha ao consultar o broker PowerShell do Codex Remote.',
       };
     }
   }
@@ -237,7 +239,7 @@ export class CodexRemotePowerShellBrokerClientService {
 
   private async request<T>(
     action: BrokerRequestEnvelope['action'],
-    payload: Record<string, any>,
+    payload: Record<string, unknown>,
     timeoutMs: number,
   ): Promise<T> {
     await this.ensureDirectories();
@@ -277,7 +279,7 @@ export class CodexRemotePowerShellBrokerClientService {
       try {
         const raw = await fs.promises.readFile(responsePath, 'utf8');
         return JSON.parse(raw) as BrokerResponseEnvelope<T>;
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       await this.sleep(250);
     }
 

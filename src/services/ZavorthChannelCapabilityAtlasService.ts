@@ -84,7 +84,7 @@ export class ZavorthChannelCapabilityAtlasService {
       `channels=${snapshot.summary.total} core=${snapshot.summary.coreNative} native_configurable=${snapshot.summary.nativeConfigurable}`,
       '',
       ...snapshot.channels.map((channel) =>
-        `${channel.id} | ${channel.level} | ${channel.state} | ${channel.adapterFamily} | ${channel.dashboardAction}`,
+        `${channel.id} | ${channel.level} | ${channel.state} | ${channel.adapterFamily} | ${channel.zavorthControlAction}`,
       ),
       '',
     ].join('\n');
@@ -150,7 +150,7 @@ export class ZavorthChannelCapabilityAtlasService {
         liveIoUsedByDefault: false,
         requiresExplicitConfirmation: true,
       },
-      dashboardAction: id === 'web' || state === 'configured' ? 'connect' : 'connect',
+      zavorthControlAction: id === 'web' || state === 'configured' ? 'connect' : 'connect',
       statusReason: state === 'configured'
         ? 'Route is present locally; live sends still use channel policy.'
         : 'Waiting for channel token, bridge, webhook or account configuration.',
@@ -185,7 +185,7 @@ export class ZavorthChannelCapabilityAtlasService {
         liveIoUsedByDefault: false,
         requiresExplicitConfirmation: true,
       },
-      dashboardAction: 'connect',
+      zavorthControlAction: 'connect',
       statusReason: 'Native configurable channel route; connect credentials or bridge to use it live.',
     };
   }

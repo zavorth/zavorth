@@ -3,6 +3,7 @@ import type { Browser, Page } from 'playwright-core';
 import { IZavorthTool, ToolCategory, ToolDangerLevel, ToolExecutionResult } from '../../types/IZavorthTool';
 import { EchoVisionAnalysisService } from '../../../domain/platform-ecosystem/infrastructure/EchoVisionAnalysisService.js';
 import {
+import { logger } from '../logger.js';
     isBlockedFilePath,
     resolveBrowserTargetPolicy,
     type BrowserTargetPolicy,
@@ -51,6 +52,21 @@ type BrowserRepairCandidate = {
     score: number;
 };
 
+interface BrowserToolArgs {
+    action: string;
+    url?: string;
+    selector?: string;
+    text?: string;
+}
+
+interface BrowserToolContext {
+    sessionId?: string;
+}
+
+interface CSSEscapeUtil {
+    escape(value: string): string;
+}
+
 export class PlaywrightActionTool implements IZavorthTool {
     public readonly name = 'playwright_browser';
     public readonly description = 'Executa interacoes autonomas em um navegador web fantasma (navigate, click, type, extract). Retorna um resumo da acao e um screenshot da pagina em base64 com a visao do estado atual.';
@@ -72,7 +88,7 @@ export class PlaywrightActionTool implements IZavorthTool {
         private readonly visionAnalyzer: Pick<EchoVisionAnalysisService, 'suggestBrowserRepair'> = new EchoVisionAnalysisService(),
     ) {}
 
-    public async execute(args: Record<string, any>, context?: Record<string, any>): Promise<ToolExecutionResult> {
+    public async execute(args: BrowserToolArgs, context?: BrowserToolContext): Promise<ToolExecutionResult> {
         const sessionId = String(context?.sessionId || 'default_tenant').trim() || 'default_tenant';
         const action = String(args.action || '').trim().toLowerCase();
 
@@ -110,10 +126,11 @@ export class PlaywrightActionTool implements IZavorthTool {
                             error: `Navegacao bloqueada por politica de arquivo: ${resolvedTargetPolicy.filePath}`,
                         };
                     }
-                } catch (error: any) {
+                } catch (error: unknown) {
+                    const errorMessage = error instanceof Error ? error.message : 'URL bloqueada por policy do browser.';
                     return {
                         success: false,
-                        error: error?.message || 'URL bloqueada por policy do browser.',
+                        error: errorMessage,
                     };
                 }
             }
@@ -182,11 +199,12 @@ export class PlaywrightActionTool implements IZavorthTool {
                 this.readSelfHealing(extraData?.selfHealing),
             );
             return await this.buildResponse(sessionId, page, actionMessage, extraData);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             return {
                 success: false,
-                message: `Erro ao interagir com o site: ${error.message}`,
-                error: error.message,
+                message: `Erro ao interagir com o site: ${errorMessage}`,
+                error: errorMessage,
             };
         }
     }
@@ -323,8 +341,8 @@ export class PlaywrightActionTool implements IZavorthTool {
                 : null,
         };
 
-        await session.page.close().catch(() => {});
-        await session.browser.close().catch(() => {});
+        await session.page.close().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+        await session.browser.close().catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
         PlaywrightActionTool.sessions.delete(sessionId);
         return lifecycle;
     }
@@ -348,7 +366,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                 extraData: direct.extraData,
                 selfHealing: null,
             };
-        } catch (directError: any) {
+        } catch (directError: unknown) {
             const heuristicCandidates = await this.buildRepairCandidates(
                 input.page,
                 input.selector,
@@ -644,8 +662,9 @@ export class PlaywrightActionTool implements IZavorthTool {
 
                 let selector = null;
                 if (idRaw) {
-                    const escapedId = (globalThis as any).CSS?.escape
-                        ? (globalThis as any).CSS.escape(idRaw)
+                    const cssUtil = globalThis as unknown as { CSS?: CSSEscapeUtil };
+                    const escapedId = cssUtil.CSS?.escape
+                        ? cssUtil.CSS.escape(idRaw)
                         : idRaw.replace(/[^a-zA-Z0-9_-]+/g, '\\$&');
                     selector = `#${escapedId}`;
                 } else if (testIdRaw) {

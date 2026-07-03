@@ -43,7 +43,7 @@ export type ZavorthAgentPracticalityCompletionSnapshot = {
     commands: string[];
     actionIds: string[];
   };
-  dashboardProjection: {
+  zavorthControlProjection: {
     available: boolean;
     operationalFieldsRequired: string[];
     actionsRequired: string[];

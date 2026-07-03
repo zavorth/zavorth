@@ -128,7 +128,7 @@ export class SharedSurfaceNaturalChannelCommandPack {
       if (result.loginQr?.dataUrl) {
         lines.push(
           '',
-          '- QR pronto: use a imagem no dashboard/API local para escanear com seguranca.',
+          '- QR pronto: use a imagem no zavorthControl/API local para escanear com seguranca.',
           `- Estado do QR: ${result.loginQr.state || 'ready'}.`,
         );
         if (result.loginQr.expiresAt) {

@@ -343,6 +343,22 @@ export class KanbanSQLiteDispatcherService {
     return lines.join('\n');
   }
 
+  public listCards(boardId: string): string {
+    const board = this.getBoardData(boardId);
+    if (!board) return `Error: board "${boardId}" not found.`;
+
+    const rawCards = this.db.prepare(
+      "SELECT * FROM cards WHERE board_id = ? ORDER BY column_name, CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END, created_at"
+    ).all(boardId) as Array<Record<string, unknown>>;
+    if (rawCards.length === 0) return `No cards on board "${boardId}".`;
+
+    const lines: string[] = [`Cards on board "${board.name}" (${rawCards.length}):`];
+    for (const card of rawCards) {
+      lines.push(`  ${String(card.id)} [${String(card.column_name)}] ${String(card.title)} (${String(card.priority)})`);
+    }
+    return lines.join('\n');
+  }
+
   public listBoards(): string {
     const rawBoards = this.db.prepare('SELECT * FROM boards').all() as DBKanbanBoard[];
     if (rawBoards.length === 0) return 'No boards.';

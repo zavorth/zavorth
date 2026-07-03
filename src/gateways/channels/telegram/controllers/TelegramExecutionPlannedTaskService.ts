@@ -1,9 +1,39 @@
-// @ts-nocheck
 import { Task } from '../../../../contracts/TaskContract.js';
 import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { LocalExecutor } from '../../../../execution/LocalExecutor.js';
 import type { ToolRuntimeService } from '../../../../services/tools/ToolRuntimeService.js';
+import { logger } from '../logger.js';
+
+interface PlannedToolStep {
+  type: 'tool';
+  tool: string;
+  args?: Record<string, unknown>;
+}
+
+interface PlannedShellStep {
+  type: 'shell';
+  command: string;
+}
+
+type PlannedStep = PlannedToolStep | PlannedShellStep;
+
+function isToolStep(step: unknown): step is PlannedToolStep {
+  return (
+    typeof step === 'object' &&
+    step !== null &&
+    (step as Record<string, unknown>).type === 'tool'
+  );
+}
+
+function isShellStep(step: unknown): step is PlannedShellStep {
+  return (
+    typeof step === 'object' &&
+    step !== null &&
+    (step as Record<string, unknown>).type === 'shell' &&
+    typeof (step as Record<string, unknown>).command === 'string'
+  );
+}
 
 type ToolRuntimeLike = Pick<ToolRuntimeService, 'executeTool'>;
 
@@ -22,7 +52,7 @@ export class TelegramExecutionPlannedTaskService {
     const policyEngine = this.deps.executionGateway.getPolicyEngine();
     let toolResults = '';
 
-    const toolSteps = task.actions_planned.filter((step: unknown) => step.type === 'tool');
+    const toolSteps = task.actions_planned.filter(isToolStep);
     for (const step of toolSteps) {
       if (step.tool && this.deps.toolRuntime) {
         const toolResult = await this.deps.toolRuntime.executeTool(
@@ -34,8 +64,8 @@ export class TelegramExecutionPlannedTaskService {
     }
 
     const shellCommands = task.actions_planned
-      .filter((step: unknown) => step.type === 'shell' && step.command)
-      .map((step: unknown) => step.command as string);
+      .filter(isShellStep)
+      .map((step) => step.command);
 
     if (shellCommands.length === 0) {
       return {
@@ -60,7 +90,7 @@ export class TelegramExecutionPlannedTaskService {
           task.task_id,
           `Comandos do plano bloqueados pela politica: ${blockedCommands.join(', ')}`,
         )
-        .catch(() => {});
+        .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
       if (allowedCommands.length === 0) {
         return {
@@ -92,16 +122,25 @@ export class TelegramExecutionPlannedTaskService {
       return args;
     }
 
+    const existingMetadata =
+      typeof args.metadata === 'object' && args.metadata !== null
+        ? (args.metadata as Record<string, unknown>)
+        : {};
+    const taskMetadata =
+      typeof task.metadata === 'object' && task.metadata !== null
+        ? (task.metadata as Record<string, unknown>)
+        : {};
+
     return {
       ...args,
       taskId: task.task_id || args.taskId || args.task_id,
       metadata: {
-        ...(args.metadata || {}),
+        ...existingMetadata,
         traceId:
-          args.metadata?.traceId ||
-          args.metadata?.trace_id ||
-          task.metadata?.traceId ||
-          task.metadata?.trace_id ||
+          existingMetadata.traceId ||
+          existingMetadata.trace_id ||
+          taskMetadata.traceId ||
+          taskMetadata.trace_id ||
           `task:${task.task_id}`,
       },
     };

@@ -17,7 +17,7 @@ export type ZavorthSemanticFunctionalClosureClaimKind =
   | 'closure-receipt-coverage'
   | 'priority-closure-policy'
   | 'decision-closure-policy'
-  | 'dashboard-policy'
+  | 'zavorthControl-policy'
   | 'ledger-update-policy'
   | 'release-gate-policy'
   | 'machine-readable-policy'
@@ -128,7 +128,7 @@ export type ZavorthSemanticFunctionalClosureCertificationSnapshot = {
     ledgerUpdatesPreviewOnlyByDefault: true;
     releaseGateBlocksP0Regression: true;
     releaseGateMustPass: true;
-    dashboardMustBeMachineReadable: true;
+    zavorthControlMustBeMachineReadable: true;
     noLiveIoInClosureCommand: true;
     artifactFirstReceipts: true;
     noSecretValuesSerialized: true;

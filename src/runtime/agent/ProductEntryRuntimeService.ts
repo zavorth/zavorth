@@ -36,7 +36,7 @@ export type ProductEntryRuntimeSurfaceId =
   | 'go'
   | 'chat'
   | 'control'
-  | 'dashboard-onboarding'
+  | 'zavorthControl-onboarding'
   | 'public-start'
   | 'api';
 
@@ -136,9 +136,9 @@ export type ProductEntryRuntimeSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     publicStartRoute: '/start';
-    dashboardOnboardingPath: '/dashboard?sector=config';
+    zavorthControlOnboardingPath: '/zavorthControl?sector=config';
     goCommand: 'zavorth go --dry-run';
   };
   nextSafeAction: string;
@@ -290,9 +290,9 @@ export class ProductEntryRuntimeService {
       },
       surface: {
         cliCommand: `zavorth product-entry run ${run.id} --json`,
-        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
         publicStartRoute: '/start',
-        dashboardOnboardingPath: '/dashboard?sector=config',
+        zavorthControlOnboardingPath: '/zavorthControl?sector=config',
         goCommand: 'zavorth go --dry-run',
       },
       nextSafeAction: this.resolveNextSafeAction(status, workspaceIdentity, personalization),
@@ -474,8 +474,8 @@ export class ProductEntryRuntimeService {
       ['cli', 'CLI', 'zavorth product-entry --json'],
       ['go', 'Go', 'zavorth go --dry-run'],
       ['chat', 'Chat', 'zavorth chat'],
-      ['control', 'Dashboard', '/dashboard?sector=config'],
-      ['dashboard-onboarding', 'Dashboard onboarding', '/dashboard?sector=config'],
+      ['control', 'ZavorthControl', '/zavorthControl?sector=config'],
+      ['zavorthControl-onboarding', 'ZavorthControl onboarding', '/zavorthControl?sector=config'],
       ['public-start', 'Public /start', '/start'],
       ['api', 'API', '/api/web/gateway/sessions/send'],
     ].map(([id, label, commandOrPath]) => ({

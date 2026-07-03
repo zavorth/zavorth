@@ -88,6 +88,14 @@ export type ZavorthSetupStudioPlan = {
   nextCommands: string[];
 };
 
+export type ZavorthSetupStudioApplyResult = {
+  written: boolean;
+  envFile: string;
+  keys: string[];
+  backupFile: string | null;
+  removedKeys: string[];
+};
+
 export type BuildZavorthSetupStudioPlanInput = {
   projectRoot: string;
   providerId: string;
@@ -454,13 +462,33 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
   };
 }
 
-export function applyZavorthSetupStudioEnvPlan(plan: ZavorthSetupStudioPlan): { written: boolean; envFile: string; keys: string[] } {
+export function applyZavorthSetupStudioEnvPlan(
+  plan: ZavorthSetupStudioPlan,
+  options: { resetManagedEnv?: boolean; backupStamp?: string } = {},
+): ZavorthSetupStudioApplyResult {
   const writtenKeys: string[] = [];
+  let backupFile: string | null = null;
+  let removedKeys: string[] = [];
   if (plan.envUpdates.length > 0) {
     const current = fs.existsSync(plan.envFile) ? fs.readFileSync(plan.envFile, 'utf8') : '';
-    const next = mergeEnvContent(current, plan.envUpdates);
+    const reset = options.resetManagedEnv === true
+      ? removeEnvKeys(current, getZavorthSetupStudioManagedEnvKeys())
+      : { content: current, removedKeys: [] };
+    removedKeys = reset.removedKeys;
+    if (options.resetManagedEnv === true && current.trim()) {
+      backupFile = writeEnvBackup(plan.envFile, current, options.backupStamp);
+    }
+    const next = mergeEnvContent(reset.content, plan.envUpdates);
     fs.writeFileSync(plan.envFile, next, 'utf8');
     writtenKeys.push(...plan.envUpdates.map((entry) => entry.key));
+  } else if (options.resetManagedEnv === true && fs.existsSync(plan.envFile)) {
+    const current = fs.readFileSync(plan.envFile, 'utf8');
+    const reset = removeEnvKeys(current, getZavorthSetupStudioManagedEnvKeys());
+    removedKeys = reset.removedKeys;
+    if (removedKeys.length > 0) {
+      backupFile = writeEnvBackup(plan.envFile, current, options.backupStamp);
+      fs.writeFileSync(plan.envFile, normalizeEnvContent(reset.content), 'utf8');
+    }
   }
   if (plan.hooks.enabled) {
     for (const hook of plan.hooks.templates) {
@@ -471,10 +499,89 @@ export function applyZavorthSetupStudioEnvPlan(plan: ZavorthSetupStudioPlan): { 
     }
   }
   return {
-    written: writtenKeys.length > 0 || plan.hooks.enabled,
+    written: writtenKeys.length > 0 || removedKeys.length > 0 || plan.hooks.enabled,
     envFile: plan.envFile,
     keys: writtenKeys,
+    backupFile,
+    removedKeys,
   };
+}
+
+export function getZavorthSetupStudioManagedEnvKeys(): string[] {
+  const providerKeys = ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS.flatMap((provider) => [
+    provider.modelEnvKey,
+    ...provider.secretEnvKeys,
+  ]);
+  return Array.from(new Set([
+    'ZAVORTH_HOME',
+    'ZAVORTH_DEFAULT_PROVIDER',
+    'DEFAULT_LLM_PROVIDER',
+    'ZAVORTH_DEFAULT_MODEL',
+    'ZAVORTH_SKILLS_GOVERNANCE_MODE',
+    'ZAVORTH_WAKE_TTL_SECONDS',
+    'ZAVORTH_WAKE_EMBEDDED',
+    'ZAVORTH_WAKE_COMMAND',
+    'ZAVORTH_WAKE_ARGS',
+    'TELEGRAM_BOT_TOKEN',
+    'TELEGRAM_ALLOWED_USER_IDS',
+    'DISCORD_BOT_TOKEN',
+    'SLACK_BOT_TOKEN',
+    'EMAIL_SMTP_URL',
+    'ZAVORTH_SEARCH_PROVIDER',
+    'BRAVE_SEARCH_API_KEY',
+    'GOOGLE_SEARCH_API_KEY',
+    'GOOGLE_API_KEY',
+    'GEMINI_API_KEY',
+    'XAI_API_KEY',
+    'KIMI_API_KEY',
+    'MOONSHOT_API_KEY',
+    'MINIMAX_API_KEY',
+    'MINIMAX_CODE_PLAN_KEY',
+    'MINIMAX_CODING_API_KEY',
+    'PERPLEXITY_API_KEY',
+    'TAVILY_API_KEY',
+    'FIRECRAWL_API_KEY',
+    'MNEMOS_SCAN_DIRS',
+    ...providerKeys.filter((key): key is string => Boolean(key)),
+  ])).sort();
+}
+
+export function removeEnvKeys(current: string, keys: string[]): { content: string; removedKeys: string[] } {
+  const managed = new Set(keys);
+  const removed = new Set<string>();
+  const lines = current.split(/\r?\n/).filter((line) => {
+    const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=/);
+    if (!match) {
+      return true;
+    }
+    const key = match[1];
+    if (!managed.has(key)) {
+      return true;
+    }
+    removed.add(key);
+    return false;
+  });
+  return {
+    content: normalizeEnvContent(lines.join('\n')),
+    removedKeys: Array.from(removed).sort(),
+  };
+}
+
+function writeEnvBackup(envFile: string, content: string, stamp?: string): string {
+  const backupRoot = path.join(path.dirname(envFile), '.zavorth', 'backups');
+  fs.mkdirSync(backupRoot, { recursive: true });
+  const safeStamp = String(stamp || new Date().toISOString()).replace(/[^0-9A-Za-z_-]/g, '-');
+  const backupFile = path.join(backupRoot, `env-reset-${safeStamp}.env`);
+  fs.writeFileSync(backupFile, normalizeEnvContent(content), 'utf8');
+  return backupFile;
+}
+
+function normalizeEnvContent(content: string): string {
+  const lines = String(content || '').split(/\r?\n/);
+  while (lines.length > 0 && lines[lines.length - 1] === '') {
+    lines.pop();
+  }
+  return lines.length > 0 ? `${lines.join('\n')}\n` : '';
 }
 
 export function mergeEnvContent(current: string, updates: ZavorthSetupStudioEnvUpdate[]): string {
@@ -726,7 +833,7 @@ function renderHookTemplate(filePath: string): string {
           type: 'notification.create',
           channel: 'local',
           title: 'Approval pending',
-          message: 'A governed action is waiting for review. Open zavorth approve or the Dashboard.',
+          message: 'A governed action is waiting for review. Open zavorth approve or the ZavorthControl.',
           requiresApproval: false,
         },
         {

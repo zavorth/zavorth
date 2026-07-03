@@ -156,6 +156,7 @@ export class SandboxPolicyService {
     language: SandboxLanguage,
     code: string,
     preferredLevel: 'auto' | 'local-jail' | 'wasm' | 'container' | 'microvm' = 'auto',
+    options: { allowTrustedLocalJail?: boolean } = {},
   ): CodeSandboxPolicy {
     // Se o usuario pediu explicitamente microvm, sempre respeita
     if (preferredLevel === 'microvm') {
@@ -211,10 +212,12 @@ export class SandboxPolicyService {
     // Regex e apenas heuristica de escalonamento, nunca barreira de seguranca.
     // Se o codigo nao foi reconhecido como perigoso, ainda assim permanece em
     // container por padrao. local-jail exige opt-in operacional explicito.
-    if (preferredLevel === 'local-jail' && this.canUseLocalJail()) {
+    if (preferredLevel === 'local-jail' && (this.canUseLocalJail() || options.allowTrustedLocalJail === true)) {
       return {
         securityLevel: 'local-jail',
-        reason: 'local-jail solicitado explicitamente e habilitado por politica local confiavel',
+        reason: options.allowTrustedLocalJail === true
+          ? 'local-jail autorizado por envelope governado de baixo risco'
+          : 'local-jail solicitado explicitamente e habilitado por politica local confiavel',
       };
     }
 

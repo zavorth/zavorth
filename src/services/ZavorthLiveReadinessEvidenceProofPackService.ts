@@ -122,7 +122,7 @@ export class ZavorthLiveReadinessEvidenceProofPackService {
         liveProviderProbeRequiresExplicitOperatorAction: true,
         liveChannelActionRequiresPolicyBroker: true,
         smokeProofDoesNotUseExternalIo: true,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         rawSecretsSerialized: false,
       },
       commands: {
@@ -259,7 +259,7 @@ function buildEntries(input: {
       evidence: [
         `providerPolicy=${input.providerMatrix.liveCompletion.defaultRoutingPolicy}`,
         `channelPolicy=${input.channelMesh.liveCompletion.defaultRoutingPolicy}`,
-        'dashboardCanExecute=false',
+        'zavorthControlCanExecute=false',
       ],
       operatorAction: 'Run explicit provider tests or channel doctors before making any route default.',
     }),

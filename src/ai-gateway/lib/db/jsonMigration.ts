@@ -4,7 +4,7 @@
  *
  * Used by:
  *  - db/core.ts (auto-migration at startup when db.json is found)
- *  - api/settings/import-json/route.ts (on-demand import via dashboard)
+ *  - api/settings/import-json/route.ts (on-demand import via zavorthControl)
  *
  * Security: the caller is responsible for stripping sensitive keys
  * (password, requireLogin) from `data.settings` before passing the object

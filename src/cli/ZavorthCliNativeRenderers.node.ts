@@ -6,6 +6,7 @@ import type { NodeInvokeService } from '../services/NodeInvokeService.js';
 import type { NodePairingService } from '../services/NodePairingService.js';
 import { formatAdditionalCount, formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
+import { logger } from '../logger.js';
 
 function formatNodeStatus(status: string | null | undefined): string {
   const normalized = String(status || '').trim().toLowerCase();
@@ -313,7 +314,7 @@ function formatNodeCapabilities(capabilities: ReturnType<NodeCapabilityService['
 
 function formatNodePairingDraft(draft: ReturnType<NodePairingService['createPairingDraft']>): string {
   const bootstrapCommand = draft.bootstrap?.command
-    || `npm run nodes:host -- --base-url <dashboard-url> --node-id ${draft.entry.id} --pairing-code ${draft.pairingCode} --capabilities ${draft.entry.capabilityIds.join(',') || 'system.run'}`;
+    || `npm run nodes:host -- --base-url <zavorthControl-url> --node-id ${draft.entry.id} --pairing-code ${draft.pairingCode} --capabilities ${draft.entry.capabilityIds.join(',') || 'system.run'}`;
   return renderCliScreen({
     eyebrow: 'Nodes',
     eyebrowTone: 'success',
@@ -482,7 +483,7 @@ function parseCliNodeInvokePayload(rawPayload: string): Record<string, unknown> 
 
   try {
     return JSON.parse(trimmed) as Record<string, unknown>;
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
   const keyValueEntries = trimmed
     .split(/\s+/)

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { CliHelpPage, CliHelpTopic } from '../ZavorthCliSurfaceHelpers.js';
 
 export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
@@ -45,7 +44,7 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
       {
         title: 'Use when',
         entries: [
-          { summary: 'You want the daily operating surface without opening the dashboard.' },
+          { summary: 'You want the daily operating surface without opening the zavorthControl.' },
           { summary: 'You want one clean terminal view for chat state, approvals, diff, runtime health and channels.' },
         ],
       },
@@ -69,7 +68,7 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
           { command: 'a', summary: 'Review approvals.' },
           { command: 'd', summary: 'Open diff previews.' },
           { command: 'c', summary: 'Check channel readiness.' },
-          { command: 'o', summary: 'Open Dashboard.' },
+          { command: 'o', summary: 'Open ZavorthControl.' },
           { command: 'r', summary: 'Refresh the TUI.' },
           { command: 'q', summary: 'Quit.' },
         ],
@@ -89,8 +88,8 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
       {
         title: 'Use when',
         entries: [
-          { summary: 'You want to start a real session without memorizing start, setup, approvals or dashboard commands.' },
-          { summary: 'You want to know whether to approve something, configure a provider or open the dashboard.' },
+          { summary: 'You want to start a real session without memorizing start, setup, approvals or zavorthControl commands.' },
+          { summary: 'You want to know whether to approve something, configure a provider or open the zavorthControl.' },
         ],
       },
       {
@@ -105,7 +104,7 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
         title: 'When ready',
         entries: [
           { command: 'zavorth ask "wake up and review this workspace"', summary: 'Suggested first natural request.' },
-          { command: 'zavorth open', summary: 'Open the visual dashboard.' },
+          { command: 'zavorth open', summary: 'Open the visual zavorthControl.' },
           { command: 'zavorth start', summary: 'Start or resume the local runtime.' },
         ],
       },
@@ -148,7 +147,8 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
     notesTitle: 'Safety',
     notes: [
       'QuickStart does not start runtime or run a live probe without explicit consent.',
-      'Use "zavorth setup" when you want full profile, memory and preference setup.',
+      'Use "zavorth setup --setup-mode safe" for stricter defaults in the same First Light flow.',
+      'Use "zavorth setup --setup-mode blank-slate" when you want a minimal opt-in start.',
     ],
   },
 
@@ -314,14 +314,14 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
         title: 'Use when',
         entries: [
           { summary: 'You want to start Zavorth without memorizing internal scripts.' },
-          { summary: 'You want to open the local dashboard and continue daily work.' },
+          { summary: 'You want to open the local zavorthControl and continue daily work.' },
         ],
       },
       {
         title: 'Commands',
         entries: [
-          { command: 'zavorth start', summary: 'Start or resume the local runtime and open the dashboard.' },
-          { command: 'zavorth open', summary: 'Open the local dashboard without rereading docs.' },
+          { command: 'zavorth start', summary: 'Start or resume the local runtime and open the zavorthControl.' },
+          { command: 'zavorth open', summary: 'Open the local zavorthControl without rereading docs.' },
           { command: 'zavorth ready', summary: 'Check provider, channels, approvals and readiness.' },
           { command: 'zavorth setup', summary: 'Run First Light when configuration is missing.' },
         ],
@@ -353,7 +353,7 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
           { command: 'zavorth demo browser', summary: 'Open the local visual demo in the browser.' },
           { command: 'zavorth demo doctor', summary: 'Show only what GitHub, Telegram and local demo still need.' },
           { command: 'zavorth demo --json', summary: 'Export the same truth for automation.' },
-          { command: 'zavorth go', summary: 'Open the visual Home at /dashboard.' },
+          { command: 'zavorth go', summary: 'Open the visual Home at /zavorthControl.' },
         ],
       },
       {
@@ -418,6 +418,19 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
         ],
       },
       {
+        title: 'Setup modes',
+        entries: [
+          { command: 'zavorth setup', summary: 'Guided First Light setup with QuickStart defaults.' },
+          { command: 'zavorth setup provider', summary: 'Start at provider, model and credential setup.' },
+          { command: 'zavorth setup channels', summary: 'Start at communication surfaces and channel credentials.' },
+          { command: 'zavorth setup tools', summary: 'Start at web/search, skills and automation templates.' },
+          { command: 'zavorth setup agent', summary: 'Start at memory, trust, runtime and first hatch controls.' },
+          { command: 'zavorth setup --setup-mode safe', summary: 'Governed defaults: stricter skills, local search and no wake detector.' },
+          { command: 'zavorth setup --setup-mode blank-slate', summary: 'Minimal opt-in setup with memory, web search and remote channels off.' },
+          { command: 'zavorth setup --config-handling reset', summary: 'Back up .env, remove setup-managed keys and write the new plan.' },
+        ],
+      },
+      {
         title: 'Preview',
         entries: [
           { command: 'zavorth setup --dry-run', summary: 'Shows the plan without writing files.' },
@@ -431,7 +444,7 @@ export const CLI_COMMAND_HELP_PAGES_PART1: Record<string, CliHelpPage> = {
         entries: [
           { command: 'zavorth ready', summary: 'Checks whether setup is ready for daily use.' },
           { command: 'zavorth start', summary: 'Starts or resumes the local runtime.' },
-          { command: 'zavorth open', summary: 'Opens the visual dashboard.' },
+          { command: 'zavorth open', summary: 'Opens the visual zavorthControl.' },
           { command: 'zavorth chat', summary: 'Chats in the terminal when you do not want the panel.' },
         ],
       },

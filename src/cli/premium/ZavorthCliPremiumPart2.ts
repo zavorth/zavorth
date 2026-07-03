@@ -405,9 +405,9 @@ export async function runNaturalRuntimeQuestions(rawArgs: string[] = []): Promis
   return 0;
 }
 
-export async function runDashboardExperienceHome(rawArgs: string[] = []): Promise<number> {
-  const { ZavorthDashboardExperienceHomeService } = await import('../../services/ZavorthDashboardExperienceHomeService.js');
-  const service = new ZavorthDashboardExperienceHomeService();
+export async function runZavorthControlExperienceHome(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthZavorthControlExperienceHomeService } = await import('../../services/ZavorthZavorthControlExperienceHomeService.js');
+  const service = new ZavorthZavorthControlExperienceHomeService();
   const snapshot = service.buildSnapshot();
 
   if (rawArgs.includes('--json')) {

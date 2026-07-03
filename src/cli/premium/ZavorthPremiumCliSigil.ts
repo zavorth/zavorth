@@ -35,7 +35,7 @@ export const ZAVORTH_ASCII_SIGIL = [
 
 export const ZAVORTH_COMPACT_SIGIL = [
   '\u001b[38;2;6;182;212m◇\u001b[0m ZAVORTH \u001b[38;2;6;182;212m◇\u001b[0m',
-  'Event-horizon agent dashboard',
+  'Event-horizon agent zavorthControl',
 ];
 
 export const ZAVORTH_WORDMARK = [

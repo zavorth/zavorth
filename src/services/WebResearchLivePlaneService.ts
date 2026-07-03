@@ -63,7 +63,7 @@ export class WebResearchLivePlaneService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION,
-      phase: 'Dashboard controls - Research, Web Extraction And Browser Live Plane',
+      phase: 'ZavorthControl controls - Research, Web Extraction And Browser Live Plane',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 7,
@@ -158,7 +158,7 @@ export class WebResearchLivePlaneService {
     const gates: WebResearchLiveGate[] = [];
     if (descriptor.capabilities.includes('search.query')) {
       gates.push(this.gate('provider-adapter', 'passed', 'SearchProviderLiveAdapter normalizes Brave, Exa, SearXNG and Tavily response shapes.', null));
-      gates.push(this.gate('citation-artifact', 'passed', 'Dashboard controls staging receipts include normalized search citations and redacted provider evidence.', null));
+      gates.push(this.gate('citation-artifact', 'passed', 'ZavorthControl controls staging receipts include normalized search citations and redacted provider evidence.', null));
       gates.push(this.gate('network-policy', 'passed', 'SearchQueryService evaluates network policy before provider invocation.', null));
     }
     if (descriptor.adapterFamily === 'firecrawl-extract') {

@@ -10,16 +10,24 @@ import type {
   WorkflowStageExecutorRecommendation,
 } from './types.js';
 
+type WorkspaceRoutingMemory = {
+  repeated_failures?: Array<{ executor: string }>;
+  task_kind_recommendations?: Array<{ kind: string; repeated_failure_executor: string }>;
+  task_subtype_recommendations?: Array<{ kind: string; subtype: string; repeated_failure_executor: string }>;
+  approval_friction_recommendations?: ApprovalFrictionRecommendation[];
+  [key: string]: unknown;
+};
+
 export function collectBlockedExecutors(
-  memory: Record<string, any>,
+  memory: WorkspaceRoutingMemory,
   kind: WorkspaceTaskKind,
   subtype: WorkspaceTaskSubtype,
-  approvedPolicies: any[] = [],
-  routeOutcomes: any[] = [],
-  findDominantApprovalFriction: (recommendations: any[], kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovalFrictionRecommendation,
+  approvedPolicies: ApprovedPolicyAggregate[] = [],
+  routeOutcomes: RouteOutcomeAggregate[] = [],
+  findDominantApprovalFriction: (recommendations: ApprovalFrictionRecommendation[], kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovalFrictionRecommendation,
   shouldBlockByApprovalFriction: (friction: ApprovalFrictionRecommendation) => boolean,
   findApprovedPolicyBoost: (
-    approvedPolicies: any[],
+    approvedPolicies: ApprovedPolicyAggregate[],
     executor: string,
     kind: WorkspaceTaskKind,
     subtype: WorkspaceTaskSubtype,
@@ -40,14 +48,14 @@ export function collectBlockedExecutors(
   }
 
   const kindFailureExecutor = normalizeExecutor(
-    taskKindRecommendations.find((entry: any) => String(entry?.kind || '').trim().toLowerCase() === kind)?.repeated_failure_executor,
+    taskKindRecommendations.find((entry) => String(entry?.kind || '').trim().toLowerCase() === kind)?.repeated_failure_executor,
   );
   if (kindFailureExecutor) {
     blocked.add(kindFailureExecutor);
   }
 
   const subtypeFailureExecutor = normalizeExecutor(
-    taskSubtypeRecommendations.find((entry: any) => {
+    taskSubtypeRecommendations.find((entry) => {
       return String(entry?.kind || '').trim().toLowerCase() === kind
         && String(entry?.subtype || '').trim().toLowerCase() === subtype;
     })?.repeated_failure_executor,
@@ -93,7 +101,7 @@ export function collectBlockedExecutors(
 }
 
 export function findApprovalFriction(
-  recommendations: any[],
+  recommendations: ApprovalFrictionRecommendation[],
   executor: string | null,
   kind: WorkspaceTaskKind,
   subtype: WorkspaceTaskSubtype,
@@ -103,7 +111,7 @@ export function findApprovalFriction(
     return null;
   }
 
-  return recommendations.find((entry: any) => {
+  return recommendations.find((entry) => {
     const entryExecutor = normalizeExecutor(entry?.executor);
     const entryKind = String(entry?.kind || '').trim().toLowerCase();
     const entrySubtype = String(entry?.subtype || '').trim().toLowerCase();
@@ -114,7 +122,7 @@ export function findApprovalFriction(
 }
 
 export function findRouteOutcome(
-  routeOutcomes: any[],
+  routeOutcomes: RouteOutcomeAggregate[],
   executor: string,
   kind: WorkspaceTaskKind,
   subtype: WorkspaceTaskSubtype,
@@ -122,7 +130,7 @@ export function findRouteOutcome(
 ): RouteOutcomeAggregate {
   const normalizedSurface = String(surfaceSource || '').trim().toLowerCase() || null;
   return routeOutcomes
-    .filter((entry: any) => {
+    .filter((entry) => {
       return normalizeExecutor(entry?.executor) === executor
         && String(entry?.task_kind || '').trim().toLowerCase() === kind
         && (
@@ -131,7 +139,7 @@ export function findRouteOutcome(
           || subtype === 'general'
         );
     })
-    .sort((left: any, right: any) => {
+    .sort((left, right) => {
       const leftSurface = String(left?.source_surface || '').trim().toLowerCase() || null;
       const rightSurface = String(right?.source_surface || '').trim().toLowerCase() || null;
       const leftSurfaceBoost = normalizedSurface && leftSurface === normalizedSurface ? 15 : 0;
@@ -170,12 +178,12 @@ export function findRouteOutcome(
 }
 
 export function findApprovedPolicyBoost(
-  approvedPolicies: any[],
+  approvedPolicies: ApprovedPolicyAggregate[],
   executor: string,
   kind: WorkspaceTaskKind,
   subtype: WorkspaceTaskSubtype,
 ): ApprovedPolicyAggregate {
-  return approvedPolicies.find((entry: any) => {
+  return approvedPolicies.find((entry) => {
     if (normalizeExecutor(entry?.executor) !== executor) {
       return false;
     }
@@ -201,12 +209,12 @@ export function findApprovedPolicyBoost(
 }
 
 export function findDominantApprovalFriction(
-  recommendations: any[],
+  recommendations: ApprovalFrictionRecommendation[],
   kind: WorkspaceTaskKind,
   subtype: WorkspaceTaskSubtype,
 ): ApprovalFrictionRecommendation {
   return recommendations
-    .filter((entry: any) => {
+    .filter((entry) => {
       const entryExecutor = normalizeExecutor(entry?.executor);
       const entryKind = String(entry?.kind || '').trim().toLowerCase();
       const entrySubtype = String(entry?.subtype || '').trim().toLowerCase();
@@ -214,7 +222,7 @@ export function findDominantApprovalFriction(
         && entryKind === kind
         && (entrySubtype === subtype || entrySubtype === 'general');
     })
-    .sort((left: any, right: any) => {
+    .sort((left, right) => {
       const leftWeight =
         Number(left?.rejected_count || 0) * 3
         + Number(left?.high_risk_count || 0) * 2
@@ -230,7 +238,7 @@ export function findDominantApprovalFriction(
 }
 
 export function findWorkflowFriction(
-  recommendations: any[],
+  recommendations: WorkflowFrictionRecommendation[],
   workflow: string | null,
 ): WorkflowFrictionRecommendation {
   const normalizedWorkflow = String(workflow || '').trim().toLowerCase();
@@ -238,13 +246,13 @@ export function findWorkflowFriction(
     return null;
   }
 
-  return recommendations.find((entry: any) => {
+  return recommendations.find((entry) => {
     return String(entry?.workflow || '').trim().toLowerCase() === normalizedWorkflow;
   }) || null;
 }
 
 export function findWorkflowStageExecutorRecommendation(
-  recommendations: any[],
+  recommendations: WorkflowStageExecutorRecommendation[],
   workflow: string | null,
   role: string | null,
 ): WorkflowStageExecutorRecommendation {
@@ -254,7 +262,7 @@ export function findWorkflowStageExecutorRecommendation(
     return null;
   }
 
-  return recommendations.find((entry: any) => {
+  return recommendations.find((entry) => {
     return String(entry?.workflow || '').trim().toLowerCase() === normalizedWorkflow
       && String(entry?.role || '').trim().toLowerCase() === normalizedRole;
   }) || null;

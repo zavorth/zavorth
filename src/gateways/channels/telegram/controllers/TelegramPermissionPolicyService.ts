@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Task } from '../../../../contracts/TaskContract.js';
 import {
   PermissionAccessLevel,
@@ -203,7 +202,8 @@ export class TelegramPermissionPolicyService {
   }
 
   public normalizePathPolicy(policy: unknown): TelegramPermissionPathPolicy | null {
-    const pathValue = String(policy?.path || policy?.resolved_value || policy?.requested_value || '').trim();
+    const p = policy as Record<string, any> | null | undefined;
+    const pathValue = String(p?.path || p?.resolved_value || p?.requested_value || '').trim();
     if (!pathValue) {
       return null;
     }
@@ -211,15 +211,16 @@ export class TelegramPermissionPolicyService {
     return {
       path: pathValue,
       access_level: this.normalizePermissionAccessLevel(
-        policy?.access_level || policy?.metadata?.access_level,
+        p?.access_level || p?.metadata?.access_level,
       ),
-      scope: this.normalizePermissionScope(policy?.scope || 'once'),
-      permission_id: policy?.permission_id || null,
+      scope: this.normalizePermissionScope(p?.scope || 'once'),
+      permission_id: p?.permission_id || null,
     };
   }
 
   public normalizeCommandPolicy(policy: unknown): TelegramPermissionCommandPolicy | null {
-    const commandValue = String(policy?.command || policy?.resolved_value || policy?.requested_value || '').trim();
+    const p = policy as Record<string, any> | null | undefined;
+    const commandValue = String(p?.command || p?.resolved_value || p?.requested_value || '').trim();
     if (!commandValue) {
       return null;
     }
@@ -227,10 +228,10 @@ export class TelegramPermissionPolicyService {
     return {
       command: commandValue,
       match_type: this.normalizePermissionCommandMatchType(
-        policy?.match_type || policy?.metadata?.match_type,
+        p?.match_type || p?.metadata?.match_type,
       ),
-      scope: this.normalizePermissionScope(policy?.scope || 'once'),
-      permission_id: policy?.permission_id || null,
+      scope: this.normalizePermissionScope(p?.scope || 'once'),
+      permission_id: p?.permission_id || null,
     };
   }
 

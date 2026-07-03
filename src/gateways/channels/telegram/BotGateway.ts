@@ -5,7 +5,7 @@ import type { ExecutionGateway } from '../../../execution/ExecutionGateway.js';
 import type { PermissionService } from '../../../services/PermissionService.js';
 import type { PermissionRequest } from '../../../contracts/PermissionRequest.js';
 import type { LiveChannelBroadcastGatewayContract } from '../../../contracts/PlatformContract.js';
-import type { ChannelIngressGateways } from '../../../services/DashboardService.js';
+import type { ChannelIngressGateways } from '../../../services/ZavorthControlService.js';
 import type { RuntimeCompositionService } from '../../../services/RuntimeCompositionService.js';
 import type { BroadcastCapableGateway } from '../../../services/ZavorthChannelActionService.js';
 import type { TelegramPermissionController } from '../../../gateways/channels/telegram/controllers/TelegramPermissionController.js';
@@ -127,8 +127,8 @@ export class BotGateway extends BotGatewayState implements LiveChannelBroadcastG
     await this.getBotGatewaySupportInstance().start();
   }
 
-  public async startDashboardSurface(): Promise<void> {
-    await this.getBotGatewaySupportInstance().startDashboardSurface();
+  public async startZavorthControlSurface(): Promise<void> {
+    await this.getBotGatewaySupportInstance().startZavorthControlSurface();
   }
 
   public getExecutionGateway(): ExecutionGateway {
@@ -177,7 +177,7 @@ export class BotGateway extends BotGatewayState implements LiveChannelBroadcastG
   public attachChannelBroadcastGateways(
     gateways: Partial<Record<string, BroadcastCapableGateway | null | undefined>>,
   ): void {
-    this.dashboardService.attachChannelBroadcastGateways(gateways);
+    this.zavorthControlService.attachChannelBroadcastGateways(gateways);
   }
 
   public attachSharedSurfaceCommandService(service: SurfaceCommandBoundary): void {
@@ -185,7 +185,7 @@ export class BotGateway extends BotGatewayState implements LiveChannelBroadcastG
   }
 
   public attachChannelIngressGateways(gateways: ChannelIngressGateways): void {
-    this.dashboardService.attachChannelIngressGateways(gateways);
+    this.zavorthControlService.attachChannelIngressGateways(gateways);
   }
 
   public formatPermissionCreatedMessage(permission: PermissionRequest): string {

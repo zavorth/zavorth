@@ -14,6 +14,7 @@
  */
 
 import { isIPv4, isIPv6 } from 'net';
+import dns from 'dns';
 
 export interface UrlSafetyOptions {
   blockPrivateRanges?: boolean;
@@ -81,7 +82,7 @@ async function resolveDns(
   hostname: string,
   timeoutMs: number,
 ): Promise<string[]> {
-  const dns = await import('dns');
+  // Resolved statically via import
 
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve([]), timeoutMs);
