@@ -128,7 +128,7 @@ export class DiffReviewService {
               totalOptions: 3,
               shownOptions: 3,
               hasOverflow: false,
-              dashboardCommand: 'zavorth open',
+              zavorthControlCommand: 'zavorth open',
             },
           },
         };

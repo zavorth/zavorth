@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import type { Dirent } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import type { ZavorthMemoryPlaneService, ZavorthMemoryPlaneSnapshot } from './ZavorthMemoryPlaneService.js';
@@ -256,7 +257,7 @@ export class ZavorthWorkspaceMemoryOsService {
     const limit = Math.max(1, Math.min(Number(input.limit || 24), 80));
     const [memoryPlane, procedures, learning, taskOs, preferences] = await Promise.all([
       this.buildMemoryPlane(input),
-      this.layeredMemoryService?.readProcedures({ workspaceHint: input.workspaceHint || null } as any)
+      this.layeredMemoryService?.readProcedures({ workspaceHint: input.workspaceHint || null })
         || Promise.resolve(this.emptyProcedures(generatedAt)),
       Promise.resolve(this.learningPlaneService?.buildSnapshot({ workspace: input.workspaceHint || null }) || this.emptyLearning(generatedAt)),
       this.taskOperatingSystemService?.buildSnapshot({
@@ -512,7 +513,7 @@ export class ZavorthWorkspaceMemoryOsService {
       chatId: input.chatId || null,
       sessionId: input.sessionId || null,
       workspaceHint: input.workspaceHint || null,
-    } as any);
+    });
   }
 
   private async readPreferences(userId: string | null): Promise<MemoryEntry[]> {
@@ -540,9 +541,9 @@ export class ZavorthWorkspaceMemoryOsService {
       : {};
     const stack = new Set<string>();
     const dependencies = {
-      ...(packageJson?.dependencies || {}),
-      ...(packageJson?.devDependencies || {}),
-    } as Record<string, unknown>;
+      ...((packageJson?.dependencies || {}) as Record<string, unknown>),
+      ...((packageJson?.devDependencies || {}) as Record<string, unknown>),
+    };
     for (const name of Object.keys(dependencies)) {
       const normalized = name.toLowerCase();
       if (normalized.includes('typescript') || normalized === 'ts-node' || normalized === 'tsx') stack.add('typescript');
@@ -809,7 +810,7 @@ export class ZavorthWorkspaceMemoryOsService {
     };
   }
 
-  private readPackageJson(workspace: string | null): Record<string, any> | null {
+  private readPackageJson(workspace: string | null): Record<string, unknown> | null {
     if (!workspace) {
       return null;
     }
@@ -818,7 +819,7 @@ export class ZavorthWorkspaceMemoryOsService {
       if (!this.existsSync(packagePath)) {
         return null;
       }
-      return JSON.parse(String(this.readFileSync(packagePath, 'utf8') || '{}'));
+      return JSON.parse(String(this.readFileSync(packagePath, 'utf8') || '{}')) as Record<string, unknown>;
     } catch {
       return null;
     }
@@ -845,9 +846,9 @@ export class ZavorthWorkspaceMemoryOsService {
       return fromKnown;
     }
     try {
-      return this.readdirSync(workspace, { withFileTypes: true } as any)
-        .filter((entry: any) => entry.isDirectory?.())
-        .map((entry: any) => String(entry.name))
+      return this.readdirSync(workspace, { withFileTypes: true })
+        .filter((entry: Dirent) => entry.isDirectory())
+        .map((entry: Dirent) => String(entry.name))
         .filter((name) => !name.startsWith('.') && name !== 'node_modules' && name !== 'dist')
         .slice(0, 8);
     } catch {
@@ -881,13 +882,13 @@ export class ZavorthWorkspaceMemoryOsService {
     return Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
   }
 
-  private inferCodeStyle(workspace: string | null, packageJson: Record<string, any> | null): string[] {
+  private inferCodeStyle(workspace: string | null, packageJson: Record<string, unknown> | null): string[] {
     const style = new Set<string>();
     if (packageJson?.type === 'module') style.add('esm');
     if (this.existsInWorkspace(workspace, 'tsconfig.json')) style.add('typescript-strict');
     if (this.existsInWorkspace(workspace, '.eslintrc') || this.existsInWorkspace(workspace, 'eslint.config.js')) style.add('eslint');
     if (this.existsInWorkspace(workspace, '.prettierrc') || packageJson?.prettier) style.add('prettier');
-    if (Object.keys(packageJson?.scripts || {}).some((script) => /jest/i.test(script))) style.add('jest-tests');
+    if (Object.keys((packageJson?.scripts || {}) as Record<string, unknown>).some((script) => /jest/i.test(script))) style.add('jest-tests');
     return Array.from(style).sort();
   }
 

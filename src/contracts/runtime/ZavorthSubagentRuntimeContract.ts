@@ -43,6 +43,32 @@ export type ZavorthSubagentRuntimeStatus =
   | 'blocked'
   | 'not-found';
 
+export type ZavorthSubagentMotionState =
+  | 'idle'
+  | 'running'
+  | 'completed'
+  | 'failed'
+  | 'blocked'
+  | 'approval-required';
+
+export type ZavorthSubagentVisualIdentity = {
+  id: string;
+  roleId: string;
+  sessionId: string;
+  label: string;
+  displayName: string;
+  glyph: string;
+  status: ZavorthSubagentRuntimeStatus | 'idle';
+  motionState: ZavorthSubagentMotionState;
+  animationSeed: number;
+  palette: {
+    accent: string;
+    muted: string;
+    glow: string;
+  };
+  iconFrames: string[];
+};
+
 export type ZavorthSubagentRuntimeLimits = {
   maxWallClockMs: number;
   maxPromptChars: number;
@@ -113,7 +139,9 @@ export type ZavorthSubagentRuntimeSession = {
   createdAt: string;
   updatedAt: string;
   roleIds: ZavorthGovernedSubagentProfileId[];
-  profileSummaries: Array<Pick<ZavorthGovernedSubagentProfile, 'id' | 'label' | 'objective'>>;
+  profileSummaries: Array<Pick<ZavorthGovernedSubagentProfile, 'id' | 'label' | 'objective'> & {
+    identity?: ZavorthSubagentVisualIdentity;
+  }>;
   messages: ZavorthSubagentRuntimeMessage[];
   runIds: string[];
 };
@@ -181,7 +209,7 @@ export type ZavorthSubagentRuntimeSnapshot = {
   autoInvocationTelemetry: {
     latest: ZavorthSubagentAutoInvocationTelemetry | null;
     decisions: ZavorthSubagentAutoInvocationTelemetry[];
-    dashboardProjection: {
+    zavorthControlProjection: {
       available: boolean;
       title: string;
       summary: string;

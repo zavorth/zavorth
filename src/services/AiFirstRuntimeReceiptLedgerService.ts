@@ -145,7 +145,7 @@ export class AiFirstRuntimeReceiptLedgerService {
 
   public renderMarkdown(snapshot: AiFirstRuntimeReceiptLedgerSnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Dashboard controls');
+    lines.push('# Zavorth AI-first Router ZavorthControl controls');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- ledgerId: ${snapshot.ledgerId}`);

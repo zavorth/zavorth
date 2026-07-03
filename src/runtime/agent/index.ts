@@ -394,20 +394,20 @@ export type {
   ToolRehearsalStatus,
 } from './ToolRehearsalService.js';
 export {
-  SELFING_DASHBOARD_CONTRACT_VERSION,
-  SelfingDashboardService,
-  SelfingDashboardService as SelfingZavorthControlService,
-} from './SelfingDashboardService.js';
+  SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION,
+  SelfingZavorthControlService,
+  SelfingZavorthControlService as SelfingZavorthControlService,
+} from './SelfingZavorthControlService.js';
 export type {
-  SelfingDashboardCard,
-  SelfingDashboardInput,
-  SelfingDashboardReceipt,
-  SelfingDashboardSectionId,
-  SelfingDashboardSnapshot,
-  SelfingDashboardSnapshot as SelfingZavorthControlSnapshot,
-  SelfingDashboardStatus,
-  SelfingDashboardSuggestion,
-} from './SelfingDashboardService.js';
+  SelfingZavorthControlCard,
+  SelfingZavorthControlInput,
+  SelfingZavorthControlReceipt,
+  SelfingZavorthControlSectionId,
+  SelfingZavorthControlSnapshot,
+  SelfingZavorthControlSnapshot as SelfingZavorthControlSnapshot,
+  SelfingZavorthControlStatus,
+  SelfingZavorthControlSuggestion,
+} from './SelfingZavorthControlService.js';
 export {
   ARTIFACT_MEMORY_CONTRACT_VERSION,
   ArtifactMemoryService,

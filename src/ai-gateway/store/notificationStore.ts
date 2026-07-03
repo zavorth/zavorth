@@ -3,7 +3,7 @@
 /**
  * Notification Store — FASE-07 UX & Microinteractions
  *
- * Zustand-based global notification system for the dashboard.
+ * Zustand-based global notification system for the zavorthControl.
  * Replaces ad-hoc feedback patterns with a centralized toast system.
  *
  * @module store/notificationStore

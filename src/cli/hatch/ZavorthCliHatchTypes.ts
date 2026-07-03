@@ -19,7 +19,7 @@ export type ZavorthCliHatchSnapshot = {
   launch: {
     recommended: string;
     terminal: string;
-    dashboard: string;
+    zavorthControl: string;
     setup: string;
     approve: string | null;
   };

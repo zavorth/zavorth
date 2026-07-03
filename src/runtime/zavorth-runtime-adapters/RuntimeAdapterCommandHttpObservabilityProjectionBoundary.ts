@@ -60,7 +60,7 @@ export type RuntimeAdapterCommandHttpObservabilityProjectionRow = {
   intentKind: RuntimeAdapterCommandHttpInvocationIntentKind;
   status: RuntimeAdapterCommandHttpObservabilityProjectionStatus;
   requestedTools: string[];
-  dashboard: {
+  zavorthControl: {
     rowKind: RuntimeAdapterCommandHttpObservabilityProjectionStatus;
     readOnly: true;
     executableControlExposed: false;
@@ -116,7 +116,7 @@ export type RuntimeAdapterCommandHttpObservabilityProjectionBoundaryNormalizatio
   approvalRequiredRows: string[];
   blockedRows: string[];
   unavailableSourceRuntimeRows: string[];
-  dashboard: {
+  zavorthControl: {
     readOnly: true;
     rows: RuntimeAdapterCommandHttpObservabilityProjectionRow[];
     executableActionsExposed: false;
@@ -197,7 +197,7 @@ export function normalizeRuntimeAdapterCommandHttpObservabilityProjection<TRunti
       intentKind: record.intentKind,
       status,
       requestedTools: record.requestedTools,
-      dashboard: {
+      zavorthControl: {
         rowKind: status,
         readOnly: true,
         executableControlExposed: false,
@@ -248,7 +248,7 @@ export function normalizeRuntimeAdapterCommandHttpObservabilityProjection<TRunti
     unavailableSourceRuntimeRows: rows
       .filter((row) => row.status === 'unavailable-source-runtime')
       .map((row) => row.id),
-    dashboard: {
+    zavorthControl: {
       readOnly: true,
       rows,
       executableActionsExposed: false,

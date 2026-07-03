@@ -22,7 +22,7 @@ export type ZavorthCapabilityAbsorptionCategory =
   | 'provider'
   | 'learning'
   | 'skill'
-  | 'dashboard'
+  | 'zavorthControl'
   | 'cli'
   | 'browser'
   | 'computer-use'
@@ -48,7 +48,7 @@ export type ZavorthCapabilityAbsorptionItem = {
   nextPhase:
     | 'phase-2-channel-deepening'
     | 'phase-3-learning-loop'
-    | 'phase-4-dashboard'
+    | 'phase-4-zavorthControl'
     | 'phase-5-browser-computer-use'
     | 'phase-6-execution-backends'
     | 'phase-7-satellite-apps'

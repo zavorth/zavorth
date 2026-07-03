@@ -10,13 +10,13 @@ import { GatewayHealthRenewalService } from '../../../../services/GatewayHealthR
 import { RuntimeAccessReadinessReportService } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessReportService.js';
 import { RuntimeAccessReadinessSnapshotReader } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessSnapshotReader.js';
 import type {
-  RuntimeAccessDashboardSnapshot,
+  RuntimeAccessZavorthControlSnapshot,
   RuntimeAccessReadinessInput,
   RuntimeAccessReadinessReport,
   RuntimeAccessResolvedInput,
 } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessTypes.js';
 
-export type { RuntimeAccessAuthStatus, RuntimeAccessChannelProviderDoctorSnapshot, RuntimeAccessDashboardSnapshot, RuntimeAccessDiscordBridgeSnapshot, RuntimeAccessLayeredMemorySnapshot, RuntimeAccessLearningSnapshot, RuntimeAccessLockSnapshot, RuntimeAccessMcpSnapshot, RuntimeAccessNodeMeshSmokeSnapshot, RuntimeAccessPlatformSnapshot, RuntimeAccessProviderSnapshot, RuntimeAccessReadinessInput, RuntimeAccessReadinessReport, RuntimeAccessReadinessStep, RuntimeAccessRemoteTransportDoctorSnapshot, RuntimeAccessResolvedInput, RuntimeAccessSystemOverlordSmokeSnapshot, RuntimeAccessTenantSnapshot } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessTypes.js';
+export type { RuntimeAccessAuthStatus, RuntimeAccessChannelProviderDoctorSnapshot, RuntimeAccessZavorthControlSnapshot, RuntimeAccessDiscordBridgeSnapshot, RuntimeAccessLayeredMemorySnapshot, RuntimeAccessLearningSnapshot, RuntimeAccessLockSnapshot, RuntimeAccessMcpSnapshot, RuntimeAccessNodeMeshSmokeSnapshot, RuntimeAccessPlatformSnapshot, RuntimeAccessProviderSnapshot, RuntimeAccessReadinessInput, RuntimeAccessReadinessReport, RuntimeAccessReadinessStep, RuntimeAccessRemoteTransportDoctorSnapshot, RuntimeAccessResolvedInput, RuntimeAccessSystemOverlordSmokeSnapshot, RuntimeAccessTenantSnapshot } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessTypes.js';
 
 type RuntimeAccessSurfaceProbe = { ok: boolean; targetUrl: string; statusCode: number | null; error: string | null };
 
@@ -31,7 +31,7 @@ type RuntimeAccessReadinessOptions = {
   workerLockFilePath?: string;
   discordBridgeStatusFile?: string;
   tenantRegistryFile?: string;
-  dashboardRuntimeFile?: string;
+  zavorthControlRuntimeFile?: string;
   nodeMeshSmokeReportFile?: string;
   nodeMeshSmokeMaxAgeMs?: number;
   systemOverlordSmokeReportFile?: string;
@@ -64,7 +64,7 @@ export class RuntimeAccessReadinessService {
   private readonly workerLockFilePath: string;
   private readonly discordBridgeStatusFile: string;
   private readonly tenantRegistryFile: string;
-  private readonly dashboardRuntimeFile: string;
+  private readonly zavorthControlRuntimeFile: string;
   private readonly nodeMeshSmokeReportFile: string;
   private readonly nodeMeshSmokeMaxAgeMs: number;
   private readonly systemOverlordSmokeReportFile: string;
@@ -98,9 +98,9 @@ export class RuntimeAccessReadinessService {
     this.workerLockFilePath = options.workerLockFilePath || config.telegramProcessLockFile;
     this.discordBridgeStatusFile = options.discordBridgeStatusFile || config.discordBridgeStatusFile;
     this.tenantRegistryFile = options.tenantRegistryFile || config.tenantRegistryStateFile;
-    this.dashboardRuntimeFile = this.resolveRuntimeArtifactPath(
-      options.dashboardRuntimeFile,
-      config.dashboardRuntimeStateFile,
+    this.zavorthControlRuntimeFile = this.resolveRuntimeArtifactPath(
+      options.zavorthControlRuntimeFile,
+      config.zavorthControlRuntimeStateFile,
     );
     this.nodeMeshSmokeReportFile = this.resolveRuntimeArtifactPath(
       options.nodeMeshSmokeReportFile,
@@ -156,7 +156,7 @@ export class RuntimeAccessReadinessService {
       readFileSync: this.readFileSync,
       kill: this.killFn,
       tenantRegistryFile: this.tenantRegistryFile,
-      dashboardRuntimeFile: this.dashboardRuntimeFile,
+      zavorthControlRuntimeFile: this.zavorthControlRuntimeFile,
       nodeMeshSmokeReportFile: this.nodeMeshSmokeReportFile,
       nodeMeshSmokeMaxAgeMs: this.nodeMeshSmokeMaxAgeMs,
       systemOverlordSmokeReportFile: this.systemOverlordSmokeReportFile,
@@ -189,13 +189,13 @@ export class RuntimeAccessReadinessService {
 
   public async inspectLive(input: RuntimeAccessReadinessInput = {}): Promise<RuntimeAccessReadinessReport> {
     const resolved = this.resolveInput(input);
-    const localProbe = await this.probeLocalSurface(this.buildLocalBaseUrl(resolved.dashboard));
+    const localProbe = await this.probeLocalSurface(this.buildLocalBaseUrl(resolved.zavorthControl));
     return this.reportService.buildReport(resolved, localProbe);
   }
 
-  private buildLocalBaseUrl(dashboard: RuntimeAccessDashboardSnapshot | null): string {
-    if (dashboard?.active && dashboard.url) {
-      return dashboard.url;
+  private buildLocalBaseUrl(zavorthControl: RuntimeAccessZavorthControlSnapshot | null): string {
+    if (zavorthControl?.active && zavorthControl.url) {
+      return zavorthControl.url;
     }
 
     const normalizedHost = ['0.0.0.0', '::', '[::]'].includes(this.webHost) ? '127.0.0.1' : this.webHost;
@@ -219,9 +219,9 @@ export class RuntimeAccessReadinessService {
           }
         : this.snapshotReader.readMcpSnapshot(),
       tenants: input.tenants || this.snapshotReader.readTenantSnapshot(),
-      dashboard: input.dashboard === undefined
-        ? this.snapshotReader.readDashboardSnapshot(telegramWorker)
-        : input.dashboard,
+      zavorthControl: input.zavorthControl === undefined
+        ? this.snapshotReader.readZavorthControlSnapshot(telegramWorker)
+        : input.zavorthControl,
       nodeMeshSmoke: input.nodeMeshSmoke || this.snapshotReader.readNodeMeshSmokeSnapshot(),
       systemOverlordSmoke: input.systemOverlordSmoke || this.snapshotReader.readSystemOverlordSmokeSnapshot(),
       channelProviderDoctor: input.channelProviderDoctor || this.snapshotReader.readChannelProviderDoctorSnapshot(),

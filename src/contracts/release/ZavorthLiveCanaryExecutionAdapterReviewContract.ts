@@ -101,7 +101,7 @@ export type ZavorthLiveCanaryAdapterReviewSafety = {
   executionDisabledUntilFinalTrigger: true;
   ownerApprovalRequired: true;
   rollbackRequiredBeforeLive: true;
-  noDashboardVisualMutation: true;
+  noZavorthControlVisualMutation: true;
   rawSecretsSerialized: false;
 };
 

@@ -16,7 +16,7 @@ const TEST_REFS = [
   'tests/runtime/actions/ZavorthActionHarness.test.ts',
   'tests/cli/ZavorthActionHarnessCommand.test.ts',
 ];
-const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'dashboard', 'tui', 'api', 'channel', 'llm'];
+const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 
 const outputSchema: ZavorthActionSchema = {
   type: 'object',

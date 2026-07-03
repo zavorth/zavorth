@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
 
 export type IntentType =
@@ -94,19 +93,20 @@ export class TelegramIntentClassifier {
 
   private isValidIntent(intent: unknown): intent is ClassifiedIntent {
     if (!intent || typeof (intent as ClassifiedIntent).type !== 'string') return false;
-    
+
     const validTypes = ['remote_mode', 'runtime_maintenance', 'zavorth_bridge_prompt', 'zavorth_bridge_control', 'unknown'];
     if (!validTypes.includes((intent as ClassifiedIntent).type)) return false;
 
-    switch (intent.type) {
+    const typed = intent as ClassifiedIntent;
+    switch (typed.type) {
       case 'remote_mode':
-        return ['activate', 'restore', 'status'].includes(intent.action);
+        return ['activate', 'restore', 'status'].includes(typed.action);
       case 'runtime_maintenance':
-        return ['changes', 'reload', 'autorepair'].includes(intent.action);
+        return ['changes', 'reload', 'autorepair'].includes(typed.action);
       case 'zavorth_bridge_prompt':
-        return typeof intent.model === 'string' && typeof intent.prompt === 'string';
+        return typeof typed.model === 'string' && typeof typed.prompt === 'string';
       case 'zavorth_bridge_control':
-        return typeof intent.action === 'string';
+        return typeof typed.action === 'string';
       case 'unknown':
         return true;
       default:

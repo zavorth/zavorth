@@ -1,7 +1,7 @@
 /**
  * Usage Stats — extracted from usageDb.js (T-15)
  *
- * Aggregates usage data into stats for the dashboard:
+ * Aggregates usage data into stats for the zavorthControl:
  * totals, by provider/model/account/apiKey, 10-minute buckets.
  *
  * @module lib/usage/usageStats
@@ -11,6 +11,7 @@ import { getDbInstance } from "../db/core";
 import { getPendingRequests } from "./usageHistory";
 import { getAccountDisplayName } from "@/lib/display/names";
 import { calculateCost } from "./costCalculator";
+import { logger } from '../logger.js';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -43,7 +44,7 @@ export async function getUsageStats() {
   try {
     const loadedConnections = await getProviderConnections();
     allConnections = Array.isArray(loadedConnections) ? loadedConnections : [];
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
   const connectionMap: Record<string, string> = {};
   for (const connRaw of allConnections) {

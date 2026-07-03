@@ -29,6 +29,7 @@ import type {
   TunnelServiceLike,
 } from './system-overlord-smoke/smokeTypes.js';
 import { runWslSmoke } from './system-overlord-smoke/wslSmoke.js';
+import { logger } from '../logger.js';
 
 export type {
   SystemOverlordSmokeItem,
@@ -154,14 +155,14 @@ export class SystemOverlordSmokeService {
       if (tunnelStartedBySmoke) {
         try {
           await this.publicTunnelService.stop();
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       }
       try {
         await probeServer?.close();
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       try {
         await this.browserTool.shutdown();
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
     }
   }
 

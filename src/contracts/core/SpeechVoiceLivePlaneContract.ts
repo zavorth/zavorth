@@ -155,6 +155,6 @@ export type SpeechVoiceLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run speech-voice-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Dashboard controls - Research, Web Extraction And Browser Live Plane';
+    nextStage: 'ZavorthControl controls - Research, Web Extraction And Browser Live Plane';
   };
 };

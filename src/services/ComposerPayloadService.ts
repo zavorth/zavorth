@@ -144,7 +144,7 @@ export class ComposerPayloadService {
     const id = String(attachment.id || '').trim() || `attachment:${index + 1}:${name}`;
     const text = String(attachment.text || '').trim();
     const content = this.normalizeAttachmentContent(attachment.content, type);
-    const source = String(attachment.source || '').trim() || 'dashboard';
+    const source = String(attachment.source || '').trim() || 'zavorthControl';
     const media = this.normalizeAttachmentMedia(attachment.media, type);
     const extraction = attachment.extraction && typeof attachment.extraction === 'object' && !Array.isArray(attachment.extraction)
       ? attachment.extraction as Record<string, unknown>

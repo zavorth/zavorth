@@ -100,7 +100,7 @@ export type ZavorthAgentCapabilityAssimilationSnapshot = {
     noExternalPromptsCopied: true;
     noRawChainOfThoughtPolicy: true;
     policyBrokerRequiredForRisk: true;
-    dashboardVisualChangesRequireOwnerApproval: true;
+    zavorthControlVisualChangesRequireOwnerApproval: true;
     importedCapabilitiesRemainGoverned: true;
   };
   commands: {

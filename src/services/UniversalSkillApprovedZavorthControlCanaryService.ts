@@ -5,8 +5,8 @@ import {
   ZAVORTH_UNIVERSAL_SKILL_APPROVED_ZAVORTH_CONTROL_CANARY_CONTRACT_VERSION,
   type ZavorthUniversalSkillApprovedZavorthControlCanarySnapshot,
   type ZavorthUniversalSkillApprovedZavorthControlCanaryStatus,
-  type ZavorthUniversalSkillCanaryMode,
-  type ZavorthUniversalSkillCanaryStatus,
+  type ZavorthUniversalSkillZavorthControlCanaryMode,
+  type ZavorthUniversalSkillZavorthControlCanaryStatus,
   type ZavorthUniversalSkillZavorthControlAction,
   type ZavorthUniversalSkillZavorthControlCard,
   type ZavorthUniversalSkillZavorthControlFilter,
@@ -33,7 +33,7 @@ type Runtime = {
 export type UniversalSkillApprovedZavorthControlCanaryInput = UniversalSkillScaleHardeningInput & {
   approvedZavorthControlItemIds?: string[] | null;
   selectedBatchId?: string | null;
-  canaryMode?: ZavorthUniversalSkillCanaryMode | null;
+  canaryMode?: ZavorthUniversalSkillZavorthControlCanaryMode | null;
   approvalId?: string | null;
   persistCanaryReport?: boolean;
   canaryReportPath?: string | null;
@@ -66,10 +66,10 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
     });
     const canaryMode = normalizeCanaryMode(input.canaryMode);
     const approvedItemIds = resolveApprovedItemIds(scale, input.approvedZavorthControlItemIds);
-    const pendingItemIds = scale.dashboardReview.items
+    const pendingItemIds = scale.zavorthControlReview.items
       .map((item: ZavorthUniversalSkillZavorthControlReviewItem) => item.id)
       .filter((id: string) => !approvedItemIds.includes(id));
-    const implementedItems = scale.dashboardReview.items
+    const implementedItems = scale.zavorthControlReview.items
       .filter((item: ZavorthUniversalSkillZavorthControlReviewItem) => approvedItemIds.includes(item.id)) as unknown as ZavorthUniversalSkillZavorthControlReviewItem[];
     const selectedBatch = this.selectBatch(scale.batches, input.selectedBatchId || null);
     const canary = this.buildCanary({
@@ -219,7 +219,7 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
   }
 
   private buildCanary(input: {
-    mode: ZavorthUniversalSkillCanaryMode;
+    mode: ZavorthUniversalSkillZavorthControlCanaryMode;
     scale: ZavorthUniversalSkillScaleHardeningSnapshot;
     selectedBatch: ZavorthUniversalSkillScaleBatch | null;
     approvalId: string | null;
@@ -464,7 +464,7 @@ function resolveApprovedItemIds(
   scale: ZavorthUniversalSkillScaleHardeningSnapshot,
   approvedZavorthControlItemIds: string[] | null | undefined,
 ): string[] {
-  const allIds = scale.dashboardReview.items.map((item: ZavorthUniversalSkillZavorthControlReviewItem) => item.id);
+  const allIds = scale.zavorthControlReview.items.map((item: ZavorthUniversalSkillZavorthControlReviewItem) => item.id);
   if (!approvedZavorthControlItemIds || approvedZavorthControlItemIds.length === 0 || approvedZavorthControlItemIds.includes('all')) {
     return allIds;
   }
@@ -546,8 +546,8 @@ function isAdvisoryPreviewCoverageBlock(input: {
 }
 
 function canary(input: {
-  mode: ZavorthUniversalSkillCanaryMode;
-  status: ZavorthUniversalSkillCanaryStatus;
+  mode: ZavorthUniversalSkillZavorthControlCanaryMode;
+  status: ZavorthUniversalSkillZavorthControlCanaryStatus;
   selectedBatch: ZavorthUniversalSkillScaleBatch | null;
   approvalId: string | null;
   receiptId: string;
@@ -595,7 +595,7 @@ function toneForStatus(status: ZavorthUniversalSkillApprovedZavorthControlCanary
   return 'success';
 }
 
-function normalizeCanaryMode(value: ZavorthUniversalSkillCanaryMode | null | undefined): ZavorthUniversalSkillCanaryMode {
+function normalizeCanaryMode(value: ZavorthUniversalSkillZavorthControlCanaryMode | null | undefined): ZavorthUniversalSkillZavorthControlCanaryMode {
   return value === 'dry-run' || value === 'live' || value === 'zavorthControl-only' ? value : 'zavorthControl-only';
 }
 

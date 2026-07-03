@@ -1,6 +1,9 @@
 import type {
+  ZavorthSubagentRuntimeRun,
+  ZavorthSubagentRuntimeSession,
   ZavorthSubagentRuntimeSnapshot,
 } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
+import { getSubagentScientistName } from './ZavorthSubagentIdentityService.js';
 
 export const AUTO_SUBAGENT_DECISION_LABEL = 'Auto subagent decision';
 
@@ -31,7 +34,7 @@ export function formatSubagentRuntimeSnapshotText(snapshot: ZavorthSubagentRunti
       `- session: ${selectedSession?.sessionId || snapshot.selectedSessionId || 'n/d'}`,
       `- run: ${selectedRun?.runId || snapshot.selectedRunId || 'n/d'}`,
       `- status: ${selectedSession?.status || selectedRun?.status || snapshot.status}`,
-      `- roles: ${(selectedSession?.roleIds || selectedRun?.roleIds || []).join(', ') || 'n/d'}`,
+      `- roles: ${formatRuntimeRoles(selectedSession, selectedRun)}`,
     );
     const selectedMessages = selectedSession?.messages || [];
     if (selectedMessages.length > 0) {
@@ -51,7 +54,7 @@ export function formatSubagentRuntimeSnapshotText(snapshot: ZavorthSubagentRunti
       `- ${session.sessionId}`,
       `${session.status}`,
       `${session.mode}/${session.executionMode || 'governed-in-process'}`,
-      `roles=${session.roleIds.join(', ') || 'auto'}`,
+      `roles=${formatSessionRoles(session)}`,
       `updated=${session.updatedAt}`,
     ].join(' | '));
   }
@@ -91,4 +94,26 @@ export function formatSubagentRuntimeSnapshotText(snapshot: ZavorthSubagentRunti
 function firstLine(value: string, maxLength = 240): string {
   const text = String(value || '').trim().replace(/\s+/g, ' ');
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
+}
+
+function formatRuntimeRoles(
+  selectedSession: ZavorthSubagentRuntimeSession | null,
+  selectedRun: ZavorthSubagentRuntimeRun | null,
+): string {
+  if (selectedSession) return formatSessionRoles(selectedSession);
+  const roleIds = selectedRun?.roleIds || [];
+  return roleIds
+    .map((roleId) => `${getSubagentScientistName(roleId, selectedRun?.sessionId || '')} (${roleId})`)
+    .join(', ') || 'n/d';
+}
+
+function formatSessionRoles(session: ZavorthSubagentRuntimeSession): string {
+  if (session.profileSummaries.length > 0) {
+    return session.profileSummaries
+      .map((profile) => profile.identity?.displayName || profile.label || profile.id)
+      .join(', ');
+  }
+  return session.roleIds
+    .map((roleId) => `${getSubagentScientistName(roleId, session.sessionId)} (${roleId})`)
+    .join(', ') || 'auto';
 }

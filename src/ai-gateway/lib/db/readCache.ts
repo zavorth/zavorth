@@ -48,7 +48,7 @@ class TTLCache<T> {
   }
 }
 
-// Cache with 5s TTL — short enough to pick up dashboard changes quickly,
+// Cache with 5s TTL — short enough to pick up zavorthControl changes quickly,
 // long enough to serve burst request bursts without hammering SQLite.
 const SETTINGS_TTL_MS = 5_000;
 const PRICING_TTL_MS = 30_000;

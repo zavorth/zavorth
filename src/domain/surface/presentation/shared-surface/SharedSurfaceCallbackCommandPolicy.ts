@@ -7,7 +7,7 @@ const CONTROL_CHAR_PATTERN = /[\u0000-\u001f\u007f]/;
 
 const SAFE_NO_ARG_COMMANDS = new Set([
   '/doctor',
-  '/dashboard',
+  '/zavorthControl',
   '/echoapprovals',
   '/fixes',
   '/gateway',

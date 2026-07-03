@@ -221,7 +221,7 @@ export class PublicRuntimeEventService {
       sessionId: this.resolveSessionId(event.payload),
       data,
       safety: {
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         policyBrokerRequiredForMutableActions: true,
         rawSecretsSerialized: false,
       },

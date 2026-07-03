@@ -16,7 +16,7 @@ export type AgentRunEvidenceStepId =
   | 'askBeforeAssumptionPolicy'
   | 'artifactMemory'
   | 'personalOpsAutopilot'
-  | 'selfingDashboard'
+  | 'selfingZavorthControl'
   | 'runArtifactReceiptReplay'
   | 'productizationEvidence'
   | 'productEntryRuntime'
@@ -135,7 +135,7 @@ const DEFAULT_COLLECTORS: AgentRunEvidenceCollector[] = [
     stepIds: [
       'agentTeamCompiler',
       'personalOpsAutopilot',
-      'selfingDashboard',
+      'selfingZavorthControl',
     ],
   },
   {
@@ -175,7 +175,7 @@ const INITIAL_STEP_IDS = flattenCollectors(DEFAULT_COLLECTORS, [
   'askBeforeAssumptionPolicy',
   'artifactMemory',
   'personalOpsAutopilot',
-  'selfingDashboard',
+  'selfingZavorthControl',
   'runArtifactReceiptReplay',
   'productizationEvidence',
   'productEntryRuntime',
@@ -200,7 +200,7 @@ const SECONDARY_STEP_IDS: AgentRunEvidenceStepId[] = [
   'askBeforeAssumptionPolicy',
   'artifactMemory',
   'personalOpsAutopilot',
-  'selfingDashboard',
+  'selfingZavorthControl',
   'runArtifactReceiptReplay',
   'productizationEvidence',
   'productEntryRuntime',

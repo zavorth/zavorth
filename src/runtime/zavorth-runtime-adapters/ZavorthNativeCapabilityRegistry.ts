@@ -1,6 +1,6 @@
 import {
-  normalizeRuntimeAdapterDashboardLiveAssimilationFixture,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 import {
   planZavorthExternalDryRunActionsFixture,
 } from './RuntimeAdapterControlledDryRunActionPlanner.js';
@@ -20,10 +20,10 @@ import {
   normalizeExternalExecutorRealCapabilitySnapshotReadOnlyFixture,
 } from './RuntimeAdapterExternalExecutorRealCapabilitySnapshotReadOnly.js';
 import type {
-  RuntimeAdapterDashboardAuthorityDisposition,
-  RuntimeAdapterDashboardLiveAssimilationNormalization,
-  RuntimeAdapterDashboardOperationalStatus,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  RuntimeAdapterZavorthControlAuthorityDisposition,
+  RuntimeAdapterZavorthControlLiveAssimilationNormalization,
+  RuntimeAdapterZavorthControlOperationalStatus,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 import type {
   ZavorthExternalDryRunActionPlannerNormalization,
 } from './RuntimeAdapterControlledDryRunActionPlanner.js';
@@ -79,7 +79,7 @@ export type ZavorthNativeCapabilityRegistryClassification =
   | 'unsupported';
 
 export type ZavorthNativeCapabilityRegistrySourceKind =
-  | 'dashboard-assimilation'
+  | 'zavorthControl-assimilation'
   | 'dry-run-planner'
   | 'event-stream-adapter'
   | 'live-observability-projection'
@@ -108,7 +108,7 @@ export type ZavorthNativeCapabilityRegistryEntry = {
   classification: ZavorthNativeCapabilityRegistryClassification;
   availability: 'available' | 'blocked' | 'degraded' | 'unavailable' | 'unknown';
   policyDisposition: 'approval-required' | 'blocked' | 'read-only';
-  dashboardVisible: boolean;
+  zavorthControlVisible: boolean;
   plannerConsumable: boolean;
   plannerDisposition: 'approval-required' | 'blocked' | 'dry-run-only' | 'read-only' | 'unsupported';
   toolNames: string[];
@@ -138,8 +138,8 @@ export type ZavorthNativeCapabilityRegistrySnapshot = {
     liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md';
     observabilityProjection: 'docs/external-executor-live-observability-projection.md';
     eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md';
-    dashboardAssimilation: 'docs/dashboard-live-assimilation.md';
-    dryRunPlanner: 'docs/dashboardled-dry-run-action-planner.md';
+    zavorthControlAssimilation: 'docs/zavorthControl-live-assimilation.md';
+    dryRunPlanner: 'docs/zavorthControlled-dry-run-action-planner.md';
     transportDiscovery: 'docs/real-message-transport-capability-discovery.md';
   };
   runtimeExternalExecutorRequiredForRegistryLookup: false;
@@ -158,15 +158,15 @@ export type ZavorthNativeCapabilityRegistryLookupResult = {
   sourceRuntimeAuthority: false;
 };
 
-export type ZavorthNativeCapabilityRegistryDashboardView = {
-  nativeContract: 'ZavorthNativeCapabilityRegistryDashboardView/v1';
+export type ZavorthNativeCapabilityRegistryZavorthControlView = {
+  nativeContract: 'ZavorthNativeCapabilityRegistryZavorthControlView/v1';
   id: string;
   registryEntryId: string;
   label: string;
   category: ZavorthNativeCapabilityRegistryEntry['category'];
   kind: ZavorthNativeCapabilityRegistryEntryKind;
-  status: RuntimeAdapterDashboardOperationalStatus;
-  authorityDisposition: RuntimeAdapterDashboardAuthorityDisposition;
+  status: RuntimeAdapterZavorthControlOperationalStatus;
+  authorityDisposition: RuntimeAdapterZavorthControlAuthorityDisposition;
   sourceIdentityPublic: false;
   sourceStructuresPublic: false;
   sourceIdsEvidenceOnly: true;
@@ -175,7 +175,7 @@ export type ZavorthNativeCapabilityRegistryDashboardView = {
 };
 
 // Alias for consumers that reference the ZavorthControl naming convention.
-export type ZavorthNativeCapabilityRegistryZavorthControlView = ZavorthNativeCapabilityRegistryDashboardView;
+export type ZavorthNativeCapabilityRegistryZavorthControlView = ZavorthNativeCapabilityRegistryZavorthControlView;
 
 export type ZavorthNativeCapabilityRegistryPlannerInput = {
   nativeContract: 'ZavorthNativeCapabilityRegistryPlannerInput/v1';
@@ -192,9 +192,9 @@ export type ZavorthNativeCapabilityRegistryPlannerInput = {
 
 export type ZavorthNativeCapabilityRegistryIntegration = {
   nativeContract: 'ZavorthNativeCapabilityRegistryIntegration/v1';
-  dashboardViews: ZavorthNativeCapabilityRegistryDashboardView[];
+  zavorthControlViews: ZavorthNativeCapabilityRegistryZavorthControlView[];
   plannerInputs: ZavorthNativeCapabilityRegistryPlannerInput[];
-  dashboardUsesZavorthNativeViewModels: true;
+  zavorthControlUsesZavorthNativeViewModels: true;
   plannerUsesRegistryInputOnly: true;
   liveExternalExecutorOptionalForRefreshOnly: true;
   runtimeExternalExecutorRequiredForLookup: false;
@@ -219,15 +219,15 @@ export type ZavorthNativeCapabilityRegistrySource = {
   liveReadOnlyBridge: ExternalExecutorLiveReadOnlyBridgeBoundaryNormalization;
   observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization;
   eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization;
-  dashboardAssimilation: RuntimeAdapterDashboardLiveAssimilationNormalization;
+  zavorthControlAssimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization;
   dryRunPlanner: ZavorthExternalDryRunActionPlannerNormalization;
   transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization;
   requestedSlice: 'capability-plugin-registry';
   routeAdjustmentFrom184: {
-    originallySelectedTarget: 'dashboard-view-models';
+    originallySelectedTarget: 'zavorthControl-view-models';
     promotedTargetFor185: 'capability-plugin-registry';
     explicitOperatorRequest: true;
-    dashboardRemainsConsumer: true;
+    zavorthControlRemainsConsumer: true;
   };
 };
 
@@ -243,7 +243,7 @@ export type ZavorthNativeCapabilityRegistryReplacementNormalization = {
     liveReadOnlyBridge: ExternalExecutorLiveReadOnlyBridgeBoundaryNormalization['decision'];
     observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization['decision'];
     eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization['decision'];
-    dashboardAssimilation: RuntimeAdapterDashboardLiveAssimilationNormalization['decision'];
+    zavorthControlAssimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization['decision'];
     dryRunPlanner: ZavorthExternalDryRunActionPlannerNormalization['decision'];
     transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization['decision'];
   };
@@ -253,7 +253,7 @@ export type ZavorthNativeCapabilityRegistryReplacementNormalization = {
     lookupWorksWithoutLiveExternalExecutor: true;
     listWorksWithoutLiveExternalExecutor: true;
     classifyWorksWithoutLiveExternalExecutor: true;
-    dashboardConsumerUsesRegistry: true;
+    zavorthControlConsumerUsesRegistry: true;
     plannerConsumerUsesRegistry: true;
     liveExternalExecutorOptionalForRefreshOnly: true;
   };
@@ -265,7 +265,7 @@ export type ZavorthNativeCapabilityRegistryReplacementNormalization = {
     provenanceInternalOnly: true;
     serializedOutputContainsSensitiveFixture: false;
   };
-  nextGateRecommended: 'future-native-registry-refresh-or-dashboard-registry-slice';
+  nextGateRecommended: 'future-native-registry-refresh-or-zavorthControl-registry-slice';
 };
 
 export type ZavorthNativeCapabilityRegistryOptions<TRuntimeId extends string = string> = {
@@ -436,9 +436,9 @@ function plannerDispositionForClassification(
   return 'read-only';
 }
 
-function dashboardStatusForClassification(
+function zavorthControlStatusForClassification(
   classification: ZavorthNativeCapabilityRegistryClassification,
-): RuntimeAdapterDashboardOperationalStatus {
+): RuntimeAdapterZavorthControlOperationalStatus {
   if (classification === 'blocked' || classification === 'send-capable-but-blocked' || classification === 'approval-required') {
     return 'blocked';
   }
@@ -485,7 +485,7 @@ function snapshotEntry(
     classification,
     availability: availabilityForClassification(classification),
     policyDisposition: policyDispositionForClassification(classification),
-    dashboardVisible: true,
+    zavorthControlVisible: true,
     plannerConsumable: true,
     plannerDisposition: plannerDispositionForClassification(classification),
     toolNames: row.toolNames,
@@ -543,7 +543,7 @@ function transportEntry(
     classification,
     availability: availabilityForClassification(classification),
     policyDisposition: policyDispositionForClassification(classification),
-    dashboardVisible: true,
+    zavorthControlVisible: true,
     plannerConsumable: true,
     plannerDisposition: plannerDispositionForClassification(classification),
     toolNames: capability.supportsSend ? ['external.channel.message.send'] : ['external.gateway.status.read'],
@@ -624,8 +624,8 @@ function buildRegistrySnapshot(
       liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md',
       observabilityProjection: 'docs/external-executor-live-observability-projection.md',
       eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md',
-      dashboardAssimilation: 'docs/dashboard-live-assimilation.md',
-      dryRunPlanner: 'docs/dashboardled-dry-run-action-planner.md',
+      zavorthControlAssimilation: 'docs/zavorthControl-live-assimilation.md',
+      dryRunPlanner: 'docs/zavorthControlled-dry-run-action-planner.md',
       transportDiscovery: 'docs/real-message-transport-capability-discovery.md',
     },
     runtimeExternalExecutorRequiredForRegistryLookup: false,
@@ -636,15 +636,15 @@ function buildRegistrySnapshot(
   };
 }
 
-function dashboardViewForEntry(entry: ZavorthNativeCapabilityRegistryEntry): ZavorthNativeCapabilityRegistryDashboardView {
+function zavorthControlViewForEntry(entry: ZavorthNativeCapabilityRegistryEntry): ZavorthNativeCapabilityRegistryZavorthControlView {
   return {
-    nativeContract: 'ZavorthNativeCapabilityRegistryDashboardView/v1',
-    id: `${entry.id}:dashboard-view`,
+    nativeContract: 'ZavorthNativeCapabilityRegistryZavorthControlView/v1',
+    id: `${entry.id}:zavorthControl-view`,
     registryEntryId: entry.id,
     label: entry.publicLabel,
     category: entry.category,
     kind: entry.kind,
-    status: dashboardStatusForClassification(entry.classification),
+    status: zavorthControlStatusForClassification(entry.classification),
     authorityDisposition: entry.policyDisposition,
     sourceIdentityPublic: false,
     sourceStructuresPublic: false,
@@ -674,13 +674,13 @@ function buildIntegration(
 ): ZavorthNativeCapabilityRegistryIntegration {
   return {
     nativeContract: 'ZavorthNativeCapabilityRegistryIntegration/v1',
-    dashboardViews: registry.entries
-      .filter((entry) => entry.dashboardVisible)
-      .map(dashboardViewForEntry),
+    zavorthControlViews: registry.entries
+      .filter((entry) => entry.zavorthControlVisible)
+      .map(zavorthControlViewForEntry),
     plannerInputs: registry.entries
       .filter((entry) => entry.plannerConsumable)
       .map(plannerInputForEntry),
-    dashboardUsesZavorthNativeViewModels: true,
+    zavorthControlUsesZavorthNativeViewModels: true,
     plannerUsesRegistryInputOnly: true,
     liveExternalExecutorOptionalForRefreshOnly: true,
     runtimeExternalExecutorRequiredForLookup: false,
@@ -694,7 +694,7 @@ function sourceReady(source: ZavorthNativeCapabilityRegistrySource): boolean {
     source.liveReadOnlyBridge.decision === 'external-executor-live-read-only-bridge-boundary-ready' &&
     source.observabilityProjection.decision === 'external-executor-live-observability-projection-ready' &&
     source.eventStreamAdapter.decision === 'external-executor-read-only-event-stream-adapter-ready' &&
-    source.dashboardAssimilation.decision === 'dashboard-live-assimilation-ready' &&
+    source.zavorthControlAssimilation.decision === 'zavorthControl-live-assimilation-ready' &&
     source.dryRunPlanner.decision === 'controlled-dry-run-action-planner-ready' &&
     source.transportDiscovery.decision === 'real-message-transport-capability-discovery-ready' &&
     source.requestedSlice === 'capability-plugin-registry'
@@ -749,15 +749,15 @@ export class ZavorthNativeCapabilityRegistry {
     return this.entriesById.get(id)?.classification ?? 'missing';
   }
 
-  public toDashboardViews(): ZavorthNativeCapabilityRegistryDashboardView[] {
+  public toZavorthControlViews(): ZavorthNativeCapabilityRegistryZavorthControlView[] {
     return this.snapshot.entries
-      .filter((entry) => entry.dashboardVisible)
-      .map(dashboardViewForEntry);
+      .filter((entry) => entry.zavorthControlVisible)
+      .map(zavorthControlViewForEntry);
   }
 
-  /** Alias for toDashboardViews — ZavorthControl naming convention. */
-  public toZavorthControlViews(): ZavorthNativeCapabilityRegistryDashboardView[] {
-    return this.toDashboardViews();
+  /** Alias for toZavorthControlViews — ZavorthControl naming convention. */
+  public toZavorthControlViews(): ZavorthNativeCapabilityRegistryZavorthControlView[] {
+    return this.toZavorthControlViews();
   }
 
   public toPlannerInputs(): ZavorthNativeCapabilityRegistryPlannerInput[] {
@@ -773,15 +773,15 @@ export function createZavorthNativeCapabilityRegistryFixtureSource(): ZavorthNat
     liveReadOnlyBridge: normalizeExternalExecutorLiveReadOnlyBridgeBoundaryFixture(),
     observabilityProjection: normalizeExternalExecutorLiveObservabilityProjectionFixture(),
     eventStreamAdapter: normalizeExternalExecutorReadOnlyEventStreamAdapterFixture(),
-    dashboardAssimilation: normalizeRuntimeAdapterDashboardLiveAssimilationFixture(),
+    zavorthControlAssimilation: normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture(),
     dryRunPlanner: planZavorthExternalDryRunActionsFixture(),
     transportDiscovery: normalizeMessageTransportCapabilityDiscoveryFixture(),
     requestedSlice: 'capability-plugin-registry',
     routeAdjustmentFrom184: {
-      originallySelectedTarget: 'dashboard-view-models',
+      originallySelectedTarget: 'zavorthControl-view-models',
       promotedTargetFor185: 'capability-plugin-registry',
       explicitOperatorRequest: true,
-      dashboardRemainsConsumer: true,
+      zavorthControlRemainsConsumer: true,
     },
   };
 }
@@ -796,7 +796,7 @@ export function normalizeZavorthNativeCapabilityRegistryReplacement<TRuntimeId e
     registry.entries.length > 0 &&
     registry.indexes.byKind.plugin > 0 &&
     registry.indexes.byKind['message-transport'] > 0 &&
-    integration.dashboardViews.length === registry.entries.length &&
+    integration.zavorthControlViews.length === registry.entries.length &&
     integration.plannerInputs.length === registry.entries.length;
 
   return {
@@ -811,7 +811,7 @@ export function normalizeZavorthNativeCapabilityRegistryReplacement<TRuntimeId e
       liveReadOnlyBridge: options.source.liveReadOnlyBridge.decision,
       observabilityProjection: options.source.observabilityProjection.decision,
       eventStreamAdapter: options.source.eventStreamAdapter.decision,
-      dashboardAssimilation: options.source.dashboardAssimilation.decision,
+      zavorthControlAssimilation: options.source.zavorthControlAssimilation.decision,
       dryRunPlanner: options.source.dryRunPlanner.decision,
       transportDiscovery: options.source.transportDiscovery.decision,
     },
@@ -821,7 +821,7 @@ export function normalizeZavorthNativeCapabilityRegistryReplacement<TRuntimeId e
       lookupWorksWithoutLiveExternalExecutor: true,
       listWorksWithoutLiveExternalExecutor: true,
       classifyWorksWithoutLiveExternalExecutor: true,
-      dashboardConsumerUsesRegistry: true,
+      zavorthControlConsumerUsesRegistry: true,
       plannerConsumerUsesRegistry: true,
       liveExternalExecutorOptionalForRefreshOnly: true,
     },
@@ -833,7 +833,7 @@ export function normalizeZavorthNativeCapabilityRegistryReplacement<TRuntimeId e
       provenanceInternalOnly: true,
       serializedOutputContainsSensitiveFixture: false,
     },
-    nextGateRecommended: 'future-native-registry-refresh-or-dashboard-registry-slice',
+    nextGateRecommended: 'future-native-registry-refresh-or-zavorthControl-registry-slice',
   };
 }
 
@@ -855,7 +855,7 @@ export function createZavorthNativeCapabilityRegistryFixture(): ZavorthNativeCap
 export function summarizeZavorthNativeCapabilityRegistryEventKinds(
   eventStream: ExternalExecutorReadOnlyEventStreamAdapterNormalization,
 ): ExternalExecutorReadOnlySourceEventKind[] {
-  return Array.from(new Set(eventStream.dashboardEvents.map((event) => event.kind)));
+  return Array.from(new Set(eventStream.zavorthControlEvents.map((event) => event.kind)));
 }
 
 export function summarizeZavorthNativeCapabilityRegistryBridgeSurfaceKinds(

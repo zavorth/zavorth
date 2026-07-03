@@ -71,7 +71,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
         evidenceOnly: true,
         noLiveActionExecuted: true,
         noZavorthControlVisualMutation: true,
-        noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         liveCanaryRequiresOwnerApproval: true,
         evidenceMustBeRedacted: true,
         evidenceNotPersistedByDefault: true,
@@ -83,7 +83,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
         report: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts',
         json: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts --json',
         check: 'node scripts/zavorth-ux-rollout-evidence-canary-check.mjs',
-        nextStage: 'Dashboard controls - Live Canary Execution Adapter Review',
+        nextStage: 'ZavorthControl controls - Live Canary Execution Adapter Review',
       },
       narrative: narrativeForStatus(status, canaryPlan, summary),
     };
@@ -311,7 +311,7 @@ function buildReceipts(
       id: 'checkpoint-7-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
-      summary: 'No dashboard visual mutation is performed by canary review.',
+      summary: 'No zavorthControl visual mutation is performed by canary review.',
     },
     {
       id: 'checkpoint-7-no-persistence-boundary',

@@ -48,7 +48,7 @@ export function buildRuntimeShellHtmlPart2(): string {
         <div class="system-overlord-action-form">
           <input id="watch-mode-target-window" class="auth-input" type="text" placeholder="Janela alvo, ex.: Chrome" autocomplete="off" />
           <input id="watch-mode-site-url" class="auth-input" type="text" placeholder="Site opcional, ex.: docs.example.com" autocomplete="off" />
-          <input id="watch-mode-objective" class="auth-input" type="text" placeholder="Objetivo natural, ex.: revisar o dashboard" autocomplete="off" />
+          <input id="watch-mode-objective" class="auth-input" type="text" placeholder="Objetivo natural, ex.: revisar o zavorthControl" autocomplete="off" />
           <label class="inline-check"><input id="watch-mode-strict-approval" type="checkbox" checked /> strict approval</label>
           <button id="watch-mode-start-action" type="button" class="action-button compact-action" hidden>Iniciar Watch Mode</button>
           <button id="watch-mode-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Watch Mode</button>

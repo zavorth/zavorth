@@ -67,6 +67,11 @@ import { ZavorthEchoService } from './ZavorthControlServiceDependencies.js';
 import type { ZavorthControlOperationsDepsBridgeSource } from '../ZavorthControlOperationsDepsBridgeService.js';
 import { WebAppOperationsDepsBridgeService } from './ZavorthControlServiceDependencies.js';
 import { ZavorthPackagePublisher } from './ZavorthControlServiceDependencies.js';
+import type { ZavorthControlFacadeCompat } from './ZavorthControlServiceHelpers.js';
+import type { TaskManager } from '../../../../../orchestrator/TaskManager.js';
+import type { PermissionService } from '../../../../../services/PermissionService.js';
+import type { TaskManagerLike } from '../../../../../services/product-observability/types.js';
+import type { PermissionServiceLike } from '../../../../../services/product-observability/types.js';
 import {
   attachChatRuntime,
   buildChannelActionService,
@@ -94,12 +99,78 @@ import {
   syncWebAppOperationsServices,
 } from './ZavorthControlServiceHelpers.js';
 
-export function initializeZavorthControlService(service: any, logRepo: LogRepository, deps: any = {}): void {
+interface ZavorthControlServiceDeps {
+  trustedDeviceAccess?: TrustedDeviceAccessService;
+  agentGateway?: unknown;
+  toolRuntime?: unknown;
+  webUserId?: string;
+  workflowRunService?: WorkflowRunService;
+  executionGateway?: { listActions: (...args: unknown[]) => unknown };
+  operationsActionService?: OperationsActionService;
+  operationsHealthService?: OperationsHealthService;
+  operationsCockpitService?: OperationsCockpitService;
+  operatorBriefService?: OperatorBriefService;
+  providerControlPlaneService?: ProviderControlPlaneService;
+  zavorthBridgeMobileAccessService?: ZavorthBridgeMobileAccessService;
+  AIGatewayGatewayService?: AIGatewayProxyService;
+  AIGatewayGatewayLauncherService?: ZavorthGatewayLauncherService;
+  GatewayCompatibilityDoctorService?: GatewayCompatibilityDoctorService;
+  GatewayUpstreamSyncService?: GatewayUpstreamSyncService;
+  integrationHubService?: IntegrationHubService;
+  workspaceExtensionRegistryService?: WorkspaceExtensionRegistryService;
+  mcpCapabilityControlPlaneService?: McpCapabilityControlPlaneService;
+  mcpRuntimeService?: unknown;
+  mcpBrowserDoctorService?: AutomaticBrowserDoctorService;
+  hookPipelineService?: ZavorthHookPipelineService;
+  capabilityCatalogService?: ZavorthCapabilityCatalogService;
+  runtimeModesService?: ZavorthRuntimeModesService;
+  securityMeshService?: ZavorthSecurityMeshService;
+  teamCatalogService?: ZavorthTeamCatalogService;
+  tenantGovernanceService?: ZavorthTenantGovernanceService;
+  codexRemoteControlPlaneService?: CodexRemoteControlPlaneService;
+  gatewayService?: unknown;
+  channelActionService?: unknown;
+  channelMeshService?: unknown;
+  hookPlaneService?: unknown;
+  memoryPlaneService?: unknown;
+  layeredMemoryService?: unknown;
+  learningPlaneService?: unknown;
+  nodeMeshService?: unknown;
+  nodeInvokeService?: unknown;
+  nodeHeartbeatService?: unknown;
+  nodePairingService?: unknown;
+  pluginActionService?: unknown;
+  platformActionService?: unknown;
+  pluginRegistryService?: unknown;
+  platformRegistryService?: unknown;
+  platformCatalogSyncService?: unknown;
+  remoteTransportDoctorService?: unknown;
+  remoteTransportActionService?: unknown;
+  remoteTransportService?: unknown;
+  sessionPlaneService?: unknown;
+  sessionToolsService?: unknown;
+  toolSurfaceService?: unknown;
+  platformPublisherService?: ZavorthPackagePublisher;
+  operationsReportService?: OperationsReportService;
+  productObservabilityService?: ProductObservabilityService;
+  taskManager?: TaskManager | null;
+  permissionService?: PermissionService | null;
+  parser?: unknown;
+  taskOrchestrationController?: unknown;
+  surfaceTaskDispatcher?: unknown;
+  legacyUnifiedGateway?: unknown;
+  echoOutputStage?: unknown;
+  permissionController?: unknown;
+  hostIdentityService?: unknown;
+  [key: string]: unknown;
+}
+
+export function initializeZavorthControlService(service: ZavorthControlFacadeCompat, logRepo: LogRepository, deps: ZavorthControlServiceDeps = {}): void {
   initializeSurfaceFields(service, logRepo, deps);
   initializeRuntimeComposition(service, deps);
 }
 
-function initializeSurfaceFields(service: any, logRepo: LogRepository, deps: any = {}): void {
+function initializeSurfaceFields(service: ZavorthControlFacadeCompat, logRepo: LogRepository, deps: ZavorthControlServiceDeps = {}): void {
   service.trustedDeviceAccess = deps.trustedDeviceAccess || new TrustedDeviceAccessService();
   service.authService = new ZavorthControlAuthService({
     trustedDevices: service.trustedDeviceAccess,
@@ -175,7 +246,7 @@ function initializeSurfaceFields(service: any, logRepo: LogRepository, deps: any
   service.accessManifest = new RuntimeAccessManifestService();
 }
 
-function initializeRuntimeComposition(service: any, deps: any): void {
+function initializeRuntimeComposition(service: ZavorthControlFacadeCompat, deps: ZavorthControlServiceDeps): void {
   const continuityUserId = deps.webUserId || config.allowedUserIds[0] || '1';
 
   service.workflowRuns = deps.workflowRunService || new WorkflowRunService();
@@ -302,14 +373,14 @@ function initializeRuntimeComposition(service: any, deps: any): void {
   service.reportTaskManager = deps.taskManager || null;
   service.reportPermissionService = deps.permissionService || null;
   service.sessionContinuity = deps.taskManager
-    ? new SessionContinuityService(deps.taskManager as any)
+    ? new SessionContinuityService(deps.taskManager as TaskManagerLike)
     : null;
   service.continuityUserId = continuityUserId;
   service.productObservability =
     deps.productObservabilityService ||
     new ProductObservabilityService(
-      (service.reportTaskManager as any) || null,
-      (service.reportPermissionService as any) || null,
+      (service.reportTaskManager as TaskManagerLike) || null,
+      (service.reportPermissionService as PermissionServiceLike) || null,
       { workflowRunService: service.workflowRuns },
     );
   service.operationsReport =
@@ -317,8 +388,8 @@ function initializeRuntimeComposition(service: any, deps: any): void {
     new OperationsReportService(
       service.operationsCockpit,
       null,
-      (service.reportTaskManager as any) || null,
-      (service.reportPermissionService as any) || null,
+      service.reportTaskManager || null,
+      service.reportPermissionService || null,
       service.operatorBrief,
       service.sessionContinuity,
       service.continuityUserId,
@@ -368,7 +439,7 @@ function initializeRuntimeComposition(service: any, deps: any): void {
     deps.codexRemoteActionService ||
     new CodexRemoteActionService({
       controlPlaneService: service.codexRemote,
-      permissionService: deps.permissionService as any,
+      permissionService: deps.permissionService as Pick<PermissionService, 'createRequest' | 'getRequest' | 'approveRequest' | 'rejectRequest'>,
       runtimeUserId: continuityUserId,
     });
 
@@ -382,15 +453,15 @@ function initializeRuntimeComposition(service: any, deps: any): void {
     deps.permissionController
   ) {
     attachChatRuntime(service, {
-      permissionService: deps.permissionService as any,
-      taskManager: deps.taskManager as any,
-      parser: deps.parser as any,
-      taskOrchestrationController: deps.taskOrchestrationController as any,
-      surfaceTaskDispatcher: deps.surfaceTaskDispatcher as any,
+      permissionService: deps.permissionService,
+      taskManager: deps.taskManager,
+      parser: deps.parser,
+      taskOrchestrationController: deps.taskOrchestrationController,
+      surfaceTaskDispatcher: deps.surfaceTaskDispatcher,
       legacyUnifiedGateway: deps.legacyUnifiedGateway || null,
       echoOutputStage: deps.echoOutputStage || null,
-      permissionController: deps.permissionController as any,
-      hostIdentityService: deps.hostIdentityService as any,
+      permissionController: deps.permissionController,
+      hostIdentityService: deps.hostIdentityService,
       webUserId: continuityUserId,
     });
   }

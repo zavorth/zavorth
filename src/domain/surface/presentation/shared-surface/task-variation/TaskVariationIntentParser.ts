@@ -289,7 +289,7 @@ export class TaskVariationIntentParser {
     if (/(telegram|whatsapp|signal|discord|slack)/.test(normalizedTarget)) {
       rationale =
         "para canal de chat, a melhor variacao costuma ser adaptar a entrega para a surface alvo em vez de so mudar o tom.";
-    } else if (/(app|web|site|dashboard)/.test(normalizedTarget)) {
+    } else if (/(app|web|site|zavorthControl)/.test(normalizedTarget)) {
       rationale =
         "para app ou web, manter a estrutura consistente costuma facilitar leitura, comparacao e iteracao visual.";
     } else if (/(executivo|gestao|diretoria)/.test(normalizedTarget)) {
@@ -344,7 +344,7 @@ export class TaskVariationIntentParser {
         baseOptions[2],
       ];
     }
-    if (/(app|web|site|dashboard)/.test(normalizedTarget)) {
+    if (/(app|web|site|zavorthControl)/.test(normalizedTarget)) {
       return [
         baseOptions[4],
         baseOptions[0],

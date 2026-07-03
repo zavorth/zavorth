@@ -25,7 +25,7 @@ export type ZavorthUxEvidenceKind =
   | 'channel_transcript'
   | 'cli_output'
   | 'api_payload'
-  | 'dashboard_snapshot';
+  | 'zavorthControl_snapshot';
 
 export type ZavorthUxRolloutEvidenceInput = {
   id: string;
@@ -110,7 +110,7 @@ export type ZavorthUxRolloutSafety = {
   evidenceOnly: true;
   noLiveActionExecuted: true;
   noZavorthControlVisualMutation: true;
-  noDashboardVisualMutation: true;
+  noZavorthControlVisualMutation: true;
   liveCanaryRequiresOwnerApproval: true;
   evidenceMustBeRedacted: true;
   evidenceNotPersistedByDefault: true;
@@ -144,7 +144,7 @@ export type ZavorthUxRolloutEvidenceCanarySnapshot = {
     report: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts';
     json: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts --json';
     check: 'node scripts/zavorth-ux-rollout-evidence-canary-check.mjs';
-    nextStage: 'Dashboard controls - Live Canary Execution Adapter Review';
+    nextStage: 'ZavorthControl controls - Live Canary Execution Adapter Review';
   };
   narrative: {
     headline: string;

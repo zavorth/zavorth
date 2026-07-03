@@ -1,7 +1,7 @@
 export type ZavorthProactivityChannel =
   | 'telegram'
   | 'discord'
-  | 'dashboard'
+  | 'zavorthControl'
   | 'email'
   | 'cli'
   | 'satellite';

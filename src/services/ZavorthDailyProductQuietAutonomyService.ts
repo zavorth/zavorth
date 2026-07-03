@@ -112,7 +112,7 @@ export class ZavorthDailyProductQuietAutonomyService {
           'Channels shows connected, needs setup and last activity, not policy lectures.',
           'Work shows current run, next useful action and health only.',
         ],
-        dashboardRule: 'Dashboard is an app surface: chat, current work, connected routes and decisions; technical detail moves into settings, history or collapsed diagnostics.',
+        zavorthControlRule: 'ZavorthControl is an app surface: chat, current work, connected routes and decisions; technical detail moves into settings, history or collapsed diagnostics.',
         tuiRule: 'TUI starts compact: Today, Chat, Approvals, Tasks, Memory, Providers, Channels and Logs; deep details stay one command away.',
         cliRule: 'CLI answers status in one screen and offers commands for detail instead of dumping every subsystem.',
       },

@@ -1,25 +1,31 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import type { NodeInvocationRecord, NodeMeshSnapshot } from '../../../../contracts/core/NodeMeshContract.js';
+
+declare function escapeHtml(value: unknown): string;
+declare function formatRelativeTime(value: unknown): string;
+
+type NodeMeshErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshNodes() {
-    function renderOperationsNodes(nodeMesh) {
+    function renderOperationsNodes(nodeMesh: NodeMeshSnapshot | NodeMeshErrorPayload | null | undefined) {
       const node = document.getElementById('operations-nodes');
       if (!node) return;
-      if (!nodeMesh || nodeMesh.error) {
+      if (!nodeMesh || 'error' in (nodeMesh as NodeMeshErrorPayload)) {
         node.innerHTML = '<div class="muted">Nao foi possivel carregar o Node Mesh.</div>';
         return;
       }
 
-      const summary = nodeMesh.summary || {};
-      const entries = Array.isArray(nodeMesh.entries) ? nodeMesh.entries : [];
-      const selected = nodeMesh.selected || entries[0] || null;
-      const selectedActivity = nodeMesh.selectedActivity || null;
+      const snapshot = nodeMesh as NodeMeshSnapshot;
+      const summary = snapshot.summary || ({} as NodeMeshSnapshot['summary']);
+      const entries = Array.isArray(snapshot.entries) ? snapshot.entries : [];
+      const selected = snapshot.selected || entries[0] || null;
+      const selectedActivity = snapshot.selectedActivity || null;
       const selectedMaintenance = (selected && selected.maintenance) || (selectedActivity && selectedActivity.maintenance) || null;
       const approvedCapabilityIds = Array.isArray(selected?.approvedCapabilityIds) ? selected.approvedCapabilityIds : [];
       const declaredCapabilityIds = Array.isArray(selected?.capabilityIds) ? selected.capabilityIds : [];
-      const deviceProfiles = Array.isArray(nodeMesh.deviceProfiles) ? nodeMesh.deviceProfiles : [];
-      const recommendedProfiles = Array.isArray(nodeMesh.recommendedProfiles) ? nodeMesh.recommendedProfiles : [];
-      const resolveProfile = (profileId) => {
+      const deviceProfiles = Array.isArray(snapshot.deviceProfiles) ? snapshot.deviceProfiles : [];
+      const recommendedProfiles = Array.isArray(snapshot.recommendedProfiles) ? snapshot.recommendedProfiles : [];
+      const resolveProfile = (profileId: string | null | undefined) => {
         const normalized = String(profileId || '').trim().toLowerCase();
         if (!normalized) {
           return null;
@@ -52,10 +58,14 @@ function zavorthControlClassicClientOverviewMeshNodes() {
       const recommendedProfileItems = recommendedProfiles.length
         ? recommendedProfiles.map((profile) => '<li>' + escapeHtml(profile.label + ': ' + (profile.operatorSummary || profile.summary || 'Sem resumo adicional.')) + '</li>').join('')
         : '<li>Sem perfis sugeridos carregados.</li>';
-      const activityItems = selectedActivity
-        ? []
-          .concat(Array.isArray(selectedActivity.activeInvocations) ? selectedActivity.activeInvocations : [])
-          .concat(Array.isArray(selectedActivity.recentInvocations) ? selectedActivity.recentInvocations : [])
+      const activityInvocations: NodeInvocationRecord[] = selectedActivity
+        ? [
+          ...(Array.isArray(selectedActivity.activeInvocations) ? selectedActivity.activeInvocations : []),
+          ...(Array.isArray(selectedActivity.recentInvocations) ? selectedActivity.recentInvocations : []),
+        ]
+        : [];
+      const activityItems = activityInvocations.length
+        ? activityInvocations
           .slice(0, 6)
           .map((entry) => '<li>' + escapeHtml((entry.capabilityId || 'capability') + ' (' + (entry.status || 'n/d') + ')')
             + (entry.resultSummary ? ' - ' + escapeHtml(entry.resultSummary) : '')
@@ -64,7 +74,7 @@ function zavorthControlClassicClientOverviewMeshNodes() {
 
       node.innerHTML = ''
         + '<h3 style="margin-top:0;">Node Mesh</h3>'
-        + '<p class="muted">' + escapeHtml((nodeMesh.narrative && nodeMesh.narrative.operatorSummary) || 'Registry e pairing de nodes headless, desktop e bridges remotos.') + '</p>'
+        + '<p class="muted">' + escapeHtml((snapshot.narrative && snapshot.narrative.operatorSummary) || 'Registry e pairing de nodes headless, desktop e bridges remotos.') + '</p>'
         + '<div class="metrics-grid">'
         + '<div class="metric-card"><strong>Nodes</strong><div>' + escapeHtml(String(summary.total || 0)) + '</div><small>Total visivel</small></div>'
         + '<div class="metric-card"><strong>Pareados</strong><div>' + escapeHtml(String(summary.paired || 0)) + '</div><small>Confianca pronta</small></div>'
@@ -112,4 +122,3 @@ function zavorthControlClassicClientOverviewMeshNodes() {
 export function getZavorthControlClassicClientOverviewMeshNodesScript(): string {
   return extractFunctionBody(zavorthControlClassicClientOverviewMeshNodes);
 }
-

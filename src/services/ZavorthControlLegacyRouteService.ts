@@ -4,7 +4,45 @@ import { SnippetService } from './SnippetService.js';
 
 type WriteHtml = (res: http.ServerResponse, body: string, statusCode?: number) => void;
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
-type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
+type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, unknown>>;
+
+interface SkillSelected {
+  name: string;
+  [key: string]: unknown;
+}
+
+interface SkillRecipe {
+  skillIds?: string[];
+  [key: string]: unknown;
+}
+
+interface SkillCatalogSnapshot {
+  selected: SkillSelected | null;
+  selectedRecipe: unknown;
+  recommendations: unknown[];
+  recipes: SkillRecipe[];
+  summary: unknown;
+}
+
+interface SkillLibrarySnapshot {
+  catalog?: {
+    selected: unknown;
+    selectedRecipe: unknown;
+  };
+  actions?: unknown[];
+}
+
+interface SkillBridgeSnapshot {
+  selected: unknown;
+  invocation: unknown;
+  actions?: unknown[];
+}
+
+interface SkillInstallPlanSnapshot {
+  focus: unknown;
+  steps: unknown[];
+  actions: unknown[];
+}
 
 export type ZavorthControlLegacyRouteDeps = {
   host: string;
@@ -12,29 +50,29 @@ export type ZavorthControlLegacyRouteDeps = {
   snippetUserId: string;
   getPublicBaseUrl: () => string | null;
   getClassicZavorthControlHtml: () => string;
-  getStats: () => any;
+  getStats: () => Record<string, unknown>;
   getSidecars: () => unknown;
   getRecentLogs: (limit: number) => unknown[];
-  getAuditLogs: (url: URL) => Promise<any>;
-  getAuditStats: () => Promise<any>;
+  getAuditLogs: (url: URL) => Promise<unknown[]>;
+  getAuditStats: () => Promise<Record<string, unknown>>;
   getSkillCatalogSnapshot: (input?: {
     selectedId?: string | null;
     recipeId?: string | null;
     query?: string | null;
     recommendFor?: string | null;
-  }) => any;
+  }) => SkillCatalogSnapshot;
   getSkillMcpSnapshot: (input?: {
     selectedId?: string | null;
     recipeId?: string | null;
     query?: string | null;
     recommendFor?: string | null;
-  }) => any;
+  }) => Record<string, unknown>;
   getSkillLibrarySnapshot: (input?: {
     selectedId?: string | null;
     recipeId?: string | null;
     query?: string | null;
     recommendFor?: string | null;
-  }) => any;
+  }) => SkillLibrarySnapshot;
   getSkillBridgeSnapshot: (input?: {
     selectedId?: string | null;
     query?: string | null;
@@ -45,13 +83,13 @@ export type ZavorthControlLegacyRouteDeps = {
     ownerApprovalId?: string | null;
     intent?: string | null;
     persistReceipt?: boolean;
-  }) => any | Promise<any>;
+  }) => SkillBridgeSnapshot | Promise<SkillBridgeSnapshot>;
   getSkillInstallPlanSnapshot: (input?: {
     selectedId?: string | null;
     recipeId?: string | null;
     query?: string | null;
     recommendFor?: string | null;
-  }) => any;
+  }) => SkillInstallPlanSnapshot;
   writeHtml: WriteHtml;
   writeJson: WriteJson;
   readJsonBody: ReadJsonBody;
@@ -198,9 +236,9 @@ export class ZavorthControlLegacyRouteService {
       deps.writeJson(res, {
         ok: true,
         skill: snapshot.selected,
-        recipes: snapshot.recipes.filter((recipe: any) =>
+        recipes: snapshot.recipes.filter((recipe: SkillRecipe) =>
           Array.isArray(recipe.skillIds)
-          && recipe.skillIds.some((skillId: string) => String(skillId || '').trim().toLowerCase() === snapshot.selected.name.toLowerCase())),
+          && recipe.skillIds.some((skillId: string) => String(skillId || '').trim().toLowerCase() === snapshot.selected!.name.toLowerCase())),
         recommendations: snapshot.recommendations,
       }, 200);
       return true;
@@ -219,12 +257,13 @@ export class ZavorthControlLegacyRouteService {
         const svc = new SnippetService();
         const snippet = await svc.save(
           deps.snippetUserId || config.allowedUserIds[0] || '1',
-          body.name,
-          body.content,
+          body.name as string,
+          body.content as string,
         );
         deps.writeJson(res, { ok: true, snippet }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || String(error) }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }
@@ -235,11 +274,12 @@ export class ZavorthControlLegacyRouteService {
         const svc = new SnippetService();
         const ok = await svc.delete(
           deps.snippetUserId || config.allowedUserIds[0] || '1',
-          body.name,
+          body.name as string,
         );
         deps.writeJson(res, { ok }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || String(error) }, 400);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
     }
@@ -265,8 +305,9 @@ export class ZavorthControlLegacyRouteService {
           },
           200,
         );
-      } catch (error: any) {
-        deps.writeJson(res, { error: error?.message || String(error) }, 500);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        deps.writeJson(res, { error: message }, 500);
       }
       return true;
     }

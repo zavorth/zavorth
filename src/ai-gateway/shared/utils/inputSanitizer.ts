@@ -2,7 +2,7 @@
  * Input Sanitizer — FASE-01 Security Hardening
  *
  * Detects prompt injection patterns and redacts PII from LLM requests.
- * Configurable via environment variables or dashboard settings.
+ * Configurable via environment variables or zavorthControl settings.
  *
  * @module inputSanitizer
  */

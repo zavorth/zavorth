@@ -1,0 +1,53 @@
+'yes': 예
+'no': 아니오
+ok: 확인
+cancel: 취소
+error: 오류
+success: 성공
+loading: 로딩 중...
+saving: 저장 중...
+confirm: 확인
+back: 뒤로
+next: 다음
+finish: 완료
+retry: 재시도
+skip: 건너뛰기
+close: 닫기
+create: 생성
+delete: 삭제
+edit: 편집
+update: 업데이트
+search: 검색
+none: 없음
+all: 모두
+enabled: 활성화
+disabled: 비활성화
+pending: 대기 중
+completed: 완료
+failed: 실패
+warning: 경고
+details: 세부 정보
+name: 이름
+type: 유형
+status: 상태
+path: 경로
+file: 파일
+folder: 폴더
+copied: 복사됨
+save: 저장
+discard: 버리기
+apply: 적용
+reset: 초기화
+refresh: 새로고침
+export: 내보내기
+import: 가져오기
+download: 다운로드
+upload: 업로드
+connect: 연결
+disconnect: 연결 해제
+start: 시작
+stop: 중지
+restart: 재시작
+unknown: 알 수 없음
+required: 필수
+optional: 선택

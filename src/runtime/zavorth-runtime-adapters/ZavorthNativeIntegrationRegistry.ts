@@ -3,12 +3,12 @@ import {
   normalizeZavorthNativeCapabilityRegistryReplacementFixture,
 } from './ZavorthNativeCapabilityRegistry.js';
 import {
-  createZavorthNativeDashboardViewModelRegistryFixture,
-  normalizeZavorthNativeDashboardViewModelRegistryFixture,
-} from './ZavorthNativeDashboardViewModelRegistry.js';
+  createZavorthNativeZavorthControlViewModelRegistryFixture,
+  normalizeZavorthNativeZavorthControlViewModelRegistryFixture,
+} from './ZavorthNativeZavorthControlViewModelRegistry.js';
 import {
-  normalizeRuntimeAdapterDashboardLiveAssimilationFixture,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 import {
   normalizeMessageTransportCapabilityDiscoveryFixture,
 } from './RuntimeAdapterRealMessageTransportCapabilityDiscovery.js';
@@ -33,13 +33,13 @@ import type {
   ZavorthNativeCapabilityRegistryReplacementNormalization,
 } from './ZavorthNativeCapabilityRegistry.js';
 import type {
-  ZavorthNativeDashboardViewModelRegistry,
-  ZavorthNativeDashboardViewModelRegistryNormalization,
-} from './ZavorthNativeDashboardViewModelRegistry.js';
+  ZavorthNativeZavorthControlViewModelRegistry,
+  ZavorthNativeZavorthControlViewModelRegistryNormalization,
+} from './ZavorthNativeZavorthControlViewModelRegistry.js';
 import type {
-  RuntimeAdapterDashboardLiveAssimilationNormalization,
-  RuntimeAdapterDashboardOperationalStatus,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  RuntimeAdapterZavorthControlLiveAssimilationNormalization,
+  RuntimeAdapterZavorthControlOperationalStatus,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 import type {
   ExternalExecutorLiveObservabilityProjectionNormalization,
 } from './RuntimeAdapterExternalExecutorLiveObservabilityProjection.js';
@@ -88,7 +88,7 @@ export type ZavorthNativeIntegrationStatus =
   | 'unknown';
 
 export type ZavorthNativeIntegrationProvenanceKind =
-  | 'dashboard-view-model-registry'
+  | 'zavorthControl-view-model-registry'
   | 'live-read-only-bridge'
   | 'native-capability-registry'
   | 'real-capability-snapshot'
@@ -134,7 +134,7 @@ export type ZavorthNativeIntegrationRecord = {
   ackModel: string;
   errorModel: string;
   capabilityRegistryEntryIds: string[];
-  dashboardViewModelIds: string[];
+  zavorthControlViewModelIds: string[];
   provenance: ZavorthNativeIntegrationProvenance;
   runtimeExternalExecutorRequiredForIntegrationLookup: false;
   runtimeExternalExecutorRequiredForTransportClassification: false;
@@ -173,24 +173,24 @@ export type ZavorthNativeIntegrationCapabilityCrossReference = {
   nativeContract: 'ZavorthNativeIntegrationCapabilityCrossReference/v1';
   integrationId: string;
   capabilityRegistryEntryIds: string[];
-  dashboardViewModelIds: string[];
+  zavorthControlViewModelIds: string[];
   capabilityRegistryLookupRequiredExternalExecutorLive: false;
-  dashboardLookupRequiredExternalExecutorLive: false;
+  zavorthControlLookupRequiredExternalExecutorLive: false;
   sourceAuthorityGranted: false;
 };
 
-export type ZavorthNativeIntegrationDashboardProjection = {
-  nativeContract: 'ZavorthNativeIntegrationDashboardProjection/v1';
+export type ZavorthNativeIntegrationZavorthControlProjection = {
+  nativeContract: 'ZavorthNativeIntegrationZavorthControlProjection/v1';
   id: string;
   integrationId: string;
   integrationKind: ZavorthNativeIntegrationKind;
   label: string;
-  status: RuntimeAdapterDashboardOperationalStatus;
+  status: RuntimeAdapterZavorthControlOperationalStatus;
   classification: ZavorthNativeIntegrationClassification;
   secretRefCount: number;
   supportsSend: boolean;
   sendPolicy: ZavorthNativeIntegrationRecord['sendPolicy'];
-  dashboardConsumable: true;
+  zavorthControlConsumable: true;
   sourceIdentityPublic: false;
   executionAuthority: false;
 };
@@ -213,10 +213,10 @@ export type ZavorthNativeIntegrationRegistrySnapshot = {
     observabilityProjection: 'docs/external-executor-live-observability-projection.md';
     eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md';
     sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md';
-    dashboardAssimilation: 'docs/dashboard-live-assimilation.md';
+    zavorthControlAssimilation: 'docs/zavorthControl-live-assimilation.md';
     transportDiscovery: 'docs/real-message-transport-capability-discovery.md';
     nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
-    dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md';
+    zavorthControlViewModelRegistry: 'docs/zavorthControl-view-model-registry-native-slice.md';
   };
   runtimeExternalExecutorRequiredForIntegrationLookup: false;
   runtimeExternalExecutorRequiredForTransportClassification: false;
@@ -246,7 +246,7 @@ export type ZavorthNativeIntegrationRegistryExecutionGate = {
 export type ZavorthNativeIntegrationRegistryIntegration = {
   nativeContract: 'ZavorthNativeIntegrationRegistryIntegration/v1';
   capabilityRegistryCrossReferenceReady: true;
-  dashboardProjectionReady: true;
+  zavorthControlProjectionReady: true;
   sendCapableTransportsBlocked: true;
   secretRefsMetadataOnly: true;
   liveExternalExecutorOptionalForRefreshOnly: true;
@@ -261,12 +261,12 @@ export type ZavorthNativeIntegrationRegistrySource = {
   observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization;
   eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization;
   sessionHistoryBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization;
-  dashboardAssimilation: RuntimeAdapterDashboardLiveAssimilationNormalization;
+  zavorthControlAssimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization;
   transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization;
   nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization;
   capabilityRegistry: ZavorthNativeCapabilityRegistry;
-  dashboardViewModelRegistry: ZavorthNativeDashboardViewModelRegistryNormalization;
-  dashboardRegistry: ZavorthNativeDashboardViewModelRegistry;
+  zavorthControlViewModelRegistry: ZavorthNativeZavorthControlViewModelRegistryNormalization;
+  zavorthControlRegistry: ZavorthNativeZavorthControlViewModelRegistry;
   gatewayLiveCalledDuringLookup: false;
   externalTransportOpened: false;
   providerExecuted: false;
@@ -284,14 +284,14 @@ export type ZavorthNativeIntegrationRegistryNormalization = {
     observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization['decision'];
     eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization['decision'];
     sessionHistoryBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization['decision'];
-    dashboardAssimilation: RuntimeAdapterDashboardLiveAssimilationNormalization['decision'];
+    zavorthControlAssimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization['decision'];
     transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization['decision'];
     nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization['decision'];
-    dashboardViewModelRegistry: ZavorthNativeDashboardViewModelRegistryNormalization['decision'];
+    zavorthControlViewModelRegistry: ZavorthNativeZavorthControlViewModelRegistryNormalization['decision'];
   };
   registry: ZavorthNativeIntegrationRegistrySnapshot;
   crossReferences: ZavorthNativeIntegrationCapabilityCrossReference[];
-  dashboardProjection: ZavorthNativeIntegrationDashboardProjection[];
+  zavorthControlProjection: ZavorthNativeIntegrationZavorthControlProjection[];
   integration: ZavorthNativeIntegrationRegistryIntegration;
   dependencyReductionProof: {
     lookupWorksWithoutLiveExternalExecutor: true;
@@ -299,7 +299,7 @@ export type ZavorthNativeIntegrationRegistryNormalization = {
     filterWorksWithoutLiveExternalExecutor: true;
     classifyWorksWithoutLiveExternalExecutor: true;
     capabilityRegistryCrossReferenceWorks: true;
-    dashboardProjectionConsumesNativeMetadata: true;
+    zavorthControlProjectionConsumesNativeMetadata: true;
   };
   executionGate: ZavorthNativeIntegrationRegistryExecutionGate;
   redaction: {
@@ -310,7 +310,7 @@ export type ZavorthNativeIntegrationRegistryNormalization = {
     provenanceInternalOnly: true;
     serializedOutputContainsSensitiveFixture: false;
   };
-  nextGateRecommended: 'future-native-integration-refresh-or-dashboard-consistency-gate';
+  nextGateRecommended: 'future-native-integration-refresh-or-zavorthControl-consistency-gate';
 };
 
 export type ZavorthNativeIntegrationRegistryOptions<TRuntimeId extends string = string> = {
@@ -403,11 +403,11 @@ function secretRef(
   };
 }
 
-function dashboardIdsForType(
-  dashboardRegistry: ZavorthNativeDashboardViewModelRegistry,
+function zavorthControlIdsForType(
+  zavorthControlRegistry: ZavorthNativeZavorthControlViewModelRegistry,
   viewType: 'channel' | 'provider' | 'transport-metadata',
 ): string[] {
-  return dashboardRegistry.list({ viewType }).map((view) => view.id);
+  return zavorthControlRegistry.list({ viewType }).map((view) => view.id);
 }
 
 function providerRecords(
@@ -439,7 +439,7 @@ function providerRecords(
     ackModel: 'metadata-only',
     errorModel: 'degraded-provider-metadata',
     capabilityRegistryEntryIds: [entry.id],
-    dashboardViewModelIds: dashboardIdsForType(source.dashboardRegistry, 'provider'),
+    zavorthControlViewModelIds: zavorthControlIdsForType(source.zavorthControlRegistry, 'provider'),
     provenance: provenance('native-capability-registry', [
       entry.id,
       'docs/real-capability-snapshot-read-only.md',
@@ -487,7 +487,7 @@ function channelRecords(
     ackModel: 'metadata-only',
     errorModel: 'degraded-channel-metadata',
     capabilityRegistryEntryIds: [entry.id],
-    dashboardViewModelIds: dashboardIdsForType(source.dashboardRegistry, 'channel'),
+    zavorthControlViewModelIds: zavorthControlIdsForType(source.zavorthControlRegistry, 'channel'),
     provenance: provenance('live-read-only-bridge', [
       entry.id,
       'docs/external-executor-live-read-only-bridge-boundary.md',
@@ -574,7 +574,7 @@ function transportRecords(
       ackModel: capability.ackModel,
       errorModel: capability.errorModel,
       capabilityRegistryEntryIds,
-      dashboardViewModelIds: dashboardIdsForType(source.dashboardRegistry, 'transport-metadata')
+      zavorthControlViewModelIds: zavorthControlIdsForType(source.zavorthControlRegistry, 'transport-metadata')
         .filter((id) => capabilityRegistryEntryIds.some((capabilityId) => id.includes(capabilityId.split(':').pop() || capability.transportKind))),
       provenance: provenance('transport-discovery', [
         capability.id,
@@ -626,7 +626,7 @@ function byClassificationIndex(
   return index;
 }
 
-function operationalStatus(status: ZavorthNativeIntegrationStatus): RuntimeAdapterDashboardOperationalStatus {
+function operationalStatus(status: ZavorthNativeIntegrationStatus): RuntimeAdapterZavorthControlOperationalStatus {
   if (status === 'ready') {
     return 'ready';
   }
@@ -671,10 +671,10 @@ function buildSnapshot(
       observabilityProjection: 'docs/external-executor-live-observability-projection.md',
       eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md',
       sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md',
-      dashboardAssimilation: 'docs/dashboard-live-assimilation.md',
+      zavorthControlAssimilation: 'docs/zavorthControl-live-assimilation.md',
       transportDiscovery: 'docs/real-message-transport-capability-discovery.md',
       nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
-      dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md',
+      zavorthControlViewModelRegistry: 'docs/zavorthControl-view-model-registry-native-slice.md',
     },
     runtimeExternalExecutorRequiredForIntegrationLookup: false,
     runtimeExternalExecutorRequiredForTransportClassification: false,
@@ -693,10 +693,10 @@ function sourceReady(source: ZavorthNativeIntegrationRegistrySource): boolean {
     source.observabilityProjection.decision === 'external-executor-live-observability-projection-ready' &&
     source.eventStreamAdapter.decision === 'external-executor-read-only-event-stream-adapter-ready' &&
     source.sessionHistoryBridge.decision === 'external-executor-session-history-read-only-bridge-ready' &&
-    source.dashboardAssimilation.decision === 'dashboard-live-assimilation-ready' &&
+    source.zavorthControlAssimilation.decision === 'zavorthControl-live-assimilation-ready' &&
     source.transportDiscovery.decision === 'real-message-transport-capability-discovery-ready' &&
     source.nativeCapabilityRegistry.decision === 'native-capability-registry-replacement-ready' &&
-    source.dashboardViewModelRegistry.decision === 'native-dashboard-view-model-registry-ready' &&
+    source.zavorthControlViewModelRegistry.decision === 'native-zavorthControl-view-model-registry-ready' &&
     !source.gatewayLiveCalledDuringLookup &&
     !source.externalTransportOpened &&
     !source.providerExecuted
@@ -726,17 +726,17 @@ function crossReferences(records: ZavorthNativeIntegrationRecord[]): ZavorthNati
     nativeContract: 'ZavorthNativeIntegrationCapabilityCrossReference/v1',
     integrationId: record.id,
     capabilityRegistryEntryIds: record.capabilityRegistryEntryIds,
-    dashboardViewModelIds: record.dashboardViewModelIds,
+    zavorthControlViewModelIds: record.zavorthControlViewModelIds,
     capabilityRegistryLookupRequiredExternalExecutorLive: false,
-    dashboardLookupRequiredExternalExecutorLive: false,
+    zavorthControlLookupRequiredExternalExecutorLive: false,
     sourceAuthorityGranted: false,
   }));
 }
 
-function dashboardProjection(records: ZavorthNativeIntegrationRecord[]): ZavorthNativeIntegrationDashboardProjection[] {
+function zavorthControlProjection(records: ZavorthNativeIntegrationRecord[]): ZavorthNativeIntegrationZavorthControlProjection[] {
   return records.map((record) => ({
-    nativeContract: 'ZavorthNativeIntegrationDashboardProjection/v1',
-    id: `${record.id}:dashboard-projection`,
+    nativeContract: 'ZavorthNativeIntegrationZavorthControlProjection/v1',
+    id: `${record.id}:zavorthControl-projection`,
     integrationId: record.id,
     integrationKind: record.integrationKind,
     label: `${record.integrationKind} integration: ${record.integrationType}`,
@@ -745,7 +745,7 @@ function dashboardProjection(records: ZavorthNativeIntegrationRecord[]): Zavorth
     secretRefCount: record.requiredSecretRefs.length,
     supportsSend: record.supportsSend,
     sendPolicy: record.sendPolicy,
-    dashboardConsumable: true,
+    zavorthControlConsumable: true,
     sourceIdentityPublic: false,
     executionAuthority: false,
   }));
@@ -802,8 +802,8 @@ export class ZavorthNativeIntegrationRegistry {
     return this.recordsById.get(id)?.classification ?? 'missing';
   }
 
-  public toDashboardProjection(): ZavorthNativeIntegrationDashboardProjection[] {
-    return dashboardProjection(this.snapshot.records);
+  public toZavorthControlProjection(): ZavorthNativeIntegrationZavorthControlProjection[] {
+    return zavorthControlProjection(this.snapshot.records);
   }
 }
 
@@ -814,12 +814,12 @@ export function createZavorthNativeIntegrationRegistryFixtureSource(): ZavorthNa
     observabilityProjection: normalizeExternalExecutorLiveObservabilityProjectionFixture(),
     eventStreamAdapter: normalizeExternalExecutorReadOnlyEventStreamAdapterFixture(),
     sessionHistoryBridge: normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture(),
-    dashboardAssimilation: normalizeRuntimeAdapterDashboardLiveAssimilationFixture(),
+    zavorthControlAssimilation: normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture(),
     transportDiscovery: normalizeMessageTransportCapabilityDiscoveryFixture(),
     nativeCapabilityRegistry: normalizeZavorthNativeCapabilityRegistryReplacementFixture(),
     capabilityRegistry: createZavorthNativeCapabilityRegistryFixture(),
-    dashboardViewModelRegistry: normalizeZavorthNativeDashboardViewModelRegistryFixture(),
-    dashboardRegistry: createZavorthNativeDashboardViewModelRegistryFixture(),
+    zavorthControlViewModelRegistry: normalizeZavorthNativeZavorthControlViewModelRegistryFixture(),
+    zavorthControlRegistry: createZavorthNativeZavorthControlViewModelRegistryFixture(),
     gatewayLiveCalledDuringLookup: false,
     externalTransportOpened: false,
     providerExecuted: false,
@@ -831,7 +831,7 @@ export function normalizeZavorthNativeIntegrationRegistry<TRuntimeId extends str
 ): ZavorthNativeIntegrationRegistryNormalization {
   const registry = buildSnapshot(options);
   const refs = crossReferences(registry.records);
-  const projection = dashboardProjection(registry.records);
+  const projection = zavorthControlProjection(registry.records);
   const gate = executionGate();
   const ready = sourceReady(options.source) &&
     registry.records.length > 0 &&
@@ -854,18 +854,18 @@ export function normalizeZavorthNativeIntegrationRegistry<TRuntimeId extends str
       observabilityProjection: options.source.observabilityProjection.decision,
       eventStreamAdapter: options.source.eventStreamAdapter.decision,
       sessionHistoryBridge: options.source.sessionHistoryBridge.decision,
-      dashboardAssimilation: options.source.dashboardAssimilation.decision,
+      zavorthControlAssimilation: options.source.zavorthControlAssimilation.decision,
       transportDiscovery: options.source.transportDiscovery.decision,
       nativeCapabilityRegistry: options.source.nativeCapabilityRegistry.decision,
-      dashboardViewModelRegistry: options.source.dashboardViewModelRegistry.decision,
+      zavorthControlViewModelRegistry: options.source.zavorthControlViewModelRegistry.decision,
     },
     registry,
     crossReferences: refs,
-    dashboardProjection: projection,
+    zavorthControlProjection: projection,
     integration: {
       nativeContract: 'ZavorthNativeIntegrationRegistryIntegration/v1',
       capabilityRegistryCrossReferenceReady: true,
-      dashboardProjectionReady: true,
+      zavorthControlProjectionReady: true,
       sendCapableTransportsBlocked: true,
       secretRefsMetadataOnly: true,
       liveExternalExecutorOptionalForRefreshOnly: true,
@@ -879,7 +879,7 @@ export function normalizeZavorthNativeIntegrationRegistry<TRuntimeId extends str
       filterWorksWithoutLiveExternalExecutor: true,
       classifyWorksWithoutLiveExternalExecutor: true,
       capabilityRegistryCrossReferenceWorks: true,
-      dashboardProjectionConsumesNativeMetadata: true,
+      zavorthControlProjectionConsumesNativeMetadata: true,
     },
     executionGate: gate,
     redaction: {
@@ -890,7 +890,7 @@ export function normalizeZavorthNativeIntegrationRegistry<TRuntimeId extends str
       provenanceInternalOnly: true,
       serializedOutputContainsSensitiveFixture: false,
     },
-    nextGateRecommended: 'future-native-integration-refresh-or-dashboard-consistency-gate',
+    nextGateRecommended: 'future-native-integration-refresh-or-zavorthControl-consistency-gate',
   };
 }
 

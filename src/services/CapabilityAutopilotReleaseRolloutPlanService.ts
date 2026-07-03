@@ -26,7 +26,7 @@ export type CapabilityAutopilotReleaseRolloutPlanOptions = {
   docsPublicationReady?: boolean;
   supportCommsReady?: boolean;
   statusPageDraftReady?: boolean;
-  telemetryDashboardsReady?: boolean;
+  telemetryZavorthControlsReady?: boolean;
   releaseOwnerAssigned?: boolean;
   releaseTrainSlotReserved?: boolean;
   artifactRetentionReady?: boolean;
@@ -45,7 +45,7 @@ export type CapabilityAutopilotReleaseRolloutPlanOptions = {
   installerSmokeReceiptId?: string | null;
   docsPublicationId?: string | null;
   commsPlanId?: string | null;
-  telemetryDashboardId?: string | null;
+  telemetryZavorthControlId?: string | null;
   releaseOwnerId?: string | null;
   releaseTrainSlotId?: string | null;
   artifactRetentionPolicyId?: string | null;
@@ -98,8 +98,8 @@ export type CapabilityAutopilotReleaseRolloutPlanSnapshot = {
     supportCommsReady: boolean;
     commsPlanId: string | null;
     statusPageDraftReady: boolean;
-    telemetryDashboardsReady: boolean;
-    telemetryDashboardId: string | null;
+    telemetryZavorthControlsReady: boolean;
+    telemetryZavorthControlId: string | null;
     releaseOwnerAssigned: boolean;
     releaseOwnerId: string | null;
     releaseTrainSlotReserved: boolean;
@@ -151,7 +151,7 @@ type ResolvedOptions = {
   docsPublicationReady: boolean;
   supportCommsReady: boolean;
   statusPageDraftReady: boolean;
-  telemetryDashboardsReady: boolean;
+  telemetryZavorthControlsReady: boolean;
   releaseOwnerAssigned: boolean;
   releaseTrainSlotReserved: boolean;
   artifactRetentionReady: boolean;
@@ -233,8 +233,8 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
         supportCommsReady: resolved.supportCommsReady,
         commsPlanId: options.commsPlanId || null,
         statusPageDraftReady: resolved.statusPageDraftReady,
-        telemetryDashboardsReady: resolved.telemetryDashboardsReady,
-        telemetryDashboardId: options.telemetryDashboardId || null,
+        telemetryZavorthControlsReady: resolved.telemetryZavorthControlsReady,
+        telemetryZavorthControlId: options.telemetryZavorthControlId || null,
         releaseOwnerAssigned: resolved.releaseOwnerAssigned,
         releaseOwnerId: options.releaseOwnerId || null,
         releaseTrainSlotReserved: resolved.releaseTrainSlotReserved,
@@ -324,7 +324,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
       docsPublicationReady: options.docsPublicationReady === true,
       supportCommsReady: options.supportCommsReady === true,
       statusPageDraftReady: options.statusPageDraftReady === true,
-      telemetryDashboardsReady: options.telemetryDashboardsReady === true,
+      telemetryZavorthControlsReady: options.telemetryZavorthControlsReady === true,
       releaseOwnerAssigned: options.releaseOwnerAssigned === true,
       releaseTrainSlotReserved: options.releaseTrainSlotReserved === true,
       artifactRetentionReady: options.artifactRetentionReady === true,
@@ -393,8 +393,8 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
     if (!options.statusPageDraftReady) {
       blockers.push('status_page_draft_required');
     }
-    if (!options.telemetryDashboardsReady) {
-      blockers.push('telemetry_dashboards_required');
+    if (!options.telemetryZavorthControlsReady) {
+      blockers.push('telemetry_zavorthControls_required');
     }
     if (!options.releaseOwnerAssigned) {
       blockers.push('release_owner_required');
@@ -485,20 +485,20 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
           options.rollbackRunbookReady &&
           options.supportCommsReady &&
           options.statusPageDraftReady &&
-          options.telemetryDashboardsReady &&
+          options.telemetryZavorthControlsReady &&
           options.releaseOwnerAssigned &&
           options.releaseTrainSlotReserved &&
           options.artifactRetentionReady
           ? 'pass'
           : 'fail',
-        'Plano de rollout exige janela de rollback, runbook, comms, status page, dashboards, owner, train slot e retencao.',
+        'Plano de rollout exige janela de rollback, runbook, comms, status page, zavorthControls, owner, train slot e retencao.',
         [
           `rollbackWindowHours=${options.rollbackWindowHours}`,
           `minRollbackWindowHours=${options.minRollbackWindowHours}`,
           `rollbackRunbookReady=${options.rollbackRunbookReady}`,
           `supportCommsReady=${options.supportCommsReady}`,
           `statusPageDraftReady=${options.statusPageDraftReady}`,
-          `telemetryDashboardsReady=${options.telemetryDashboardsReady}`,
+          `telemetryZavorthControlsReady=${options.telemetryZavorthControlsReady}`,
           `releaseOwnerAssigned=${options.releaseOwnerAssigned}`,
           `releaseTrainSlotReserved=${options.releaseTrainSlotReserved}`,
           `artifactRetentionReady=${options.artifactRetentionReady}`,

@@ -1,6 +1,6 @@
 export const LEGACY_SURFACE_CONTAINMENT_VERSION = 'legacy-surface-containment-v1' as const;
 
-export type LegacySurfaceId = 'dashboard' | 'app' | 'classic';
+export type LegacySurfaceId = 'zavorthControl' | 'app' | 'classic';
 
 export type LegacySurfaceRole = 'canonical' | 'retired';
 
@@ -30,12 +30,12 @@ export type LegacySurfaceFeatureDecision = {
   surface: LegacySurfaceDescriptor;
   allowed: boolean;
   reason: string;
-  requiredDestination: Array<'gateway contract' | 'control plane' | 'dashboard'>;
+  requiredDestination: Array<'gateway contract' | 'control plane' | 'zavorthControl'>;
 };
 
 export type LegacySurfaceContainmentSnapshot = {
   contractVersion: typeof LEGACY_SURFACE_CONTAINMENT_VERSION;
-  canonicalEntry: '/dashboard';
+  canonicalEntry: '/zavorthControl';
   frozenSurfaces: [];
   retiredSurfaces: ['/app', '/classic'];
   generatedAt: string;
@@ -47,7 +47,7 @@ export type LegacySurfaceContainmentSnapshot = {
   };
   surfaces: LegacySurfaceDescriptor[];
   policy: {
-    productFeaturesMustLandIn: Array<'gateway contract' | 'control plane' | 'dashboard'>;
+    productFeaturesMustLandIn: Array<'gateway contract' | 'control plane' | 'zavorthControl'>;
     legacyFeatureFreeze: false;
     legacyRoutesRetired: true;
     compatibilityPreserved: false;
@@ -55,11 +55,11 @@ export type LegacySurfaceContainmentSnapshot = {
   };
   links: {
     localControlUrl: string;
-    localDashboardUrl: string;
+    localZavorthControlUrl: string;
     localLegacyAppUrl: null;
     localClassicUrl: null;
     remoteControlUrl: string | null;
-    remoteDashboardUrl: string | null;
+    remoteZavorthControlUrl: string | null;
     remoteLegacyAppUrl: null;
     remoteClassicUrl: null;
   };

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { ZavorthAutomationActionService } from '@zavorth/services/ZavorthAutomationActionService.js';
 import { ZavorthAutomationControlPlaneService } from '@zavorth/services/ZavorthAutomationControlPlaneService.js';
@@ -72,7 +71,7 @@ export class TelegramSchedulerController {
         result.ok ? 'done' : 'failed',
       );
     } catch (error: unknown) {
-      await ctx.reply(t('scheduler.create_failed', { error: error.message }));
+      await ctx.reply(t('scheduler.create_failed', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
 

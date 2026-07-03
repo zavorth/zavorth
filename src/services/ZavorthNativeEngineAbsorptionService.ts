@@ -402,7 +402,7 @@ function feature(
     acceptanceGate,
     observability: {
       emitsReceipt: true,
-      dashboardProjection: `Dashboard${receiptKind}`,
+      zavorthControlProjection: `ZavorthControl${receiptKind}`,
       noSourceRuntimeDependency: true,
     },
   };

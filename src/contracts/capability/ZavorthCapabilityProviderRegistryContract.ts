@@ -132,7 +132,7 @@ export type ZavorthCapabilityProviderUnavailableReceipt = {
   };
 };
 
-export type ZavorthCapabilityProviderDashboardProjection = {
+export type ZavorthCapabilityProviderZavorthControlProjection = {
   title: 'Capability Provider Registry';
   status: ZavorthCapabilityProviderRegistryStatus;
   tone: 'ready' | 'attention' | 'blocked';
@@ -157,7 +157,7 @@ export type ZavorthCapabilityProviderRegistrySnapshot = {
   manifestImportReceipts: ZavorthCapabilityProviderManifestImportReceipt[];
   toolRiskReceipts: ZavorthCapabilityProviderToolRiskReceipt[];
   unavailableReceipts: ZavorthCapabilityProviderUnavailableReceipt[];
-  dashboardProjection: ZavorthCapabilityProviderDashboardProjection;
+  zavorthControlProjection: ZavorthCapabilityProviderZavorthControlProjection;
   acceptanceMatrix: Array<{
     requirementId: string;
     status: 'passed' | 'failed';

@@ -210,8 +210,8 @@ export class ZavorthTrustPanelService {
       },
       advanced: {
         policyBrokerAuthority: true,
-        dashboardRoute: '/dashboard',
-        dashboardCanExecute: false,
+        zavorthControlRoute: '/zavorthControl',
+        zavorthControlCanExecute: false,
         zavorthControlCanExecute: false,
         rawSecretsSerialized: false,
         approvalScope: ['action', 'arguments', 'user', 'surface', 'ttl', 'workspace', 'risk'],

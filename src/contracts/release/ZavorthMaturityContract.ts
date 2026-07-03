@@ -17,7 +17,7 @@ export type ZavorthMaturityDistinctions = {
   contractReady: boolean;
   dailyUseReady: boolean;
   productionLiveReady: boolean;
-  dashboardVisualQaClaimed: boolean;
+  zavorthControlVisualQaClaimed: boolean;
   stubsAndPartialsExplicit: boolean;
   hostLiveCertificationHonest: boolean;
   dataLifecycleComplete: boolean;
@@ -42,7 +42,7 @@ export type ZavorthMaturitySnapshot = {
     hostLiveReadyChannels: number;
     hostLiveTotalChannels: number;
     dataLifecycleReleaseReady: boolean;
-    dashboardVisualQaEvidenceReady: boolean;
+    zavorthControlVisualQaEvidenceReady: boolean;
     operationalMaturityOk: boolean;
     stubsOrPartials: number;
   };

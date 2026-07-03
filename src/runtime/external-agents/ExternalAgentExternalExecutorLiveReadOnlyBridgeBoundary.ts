@@ -64,7 +64,7 @@ export type ExternalExecutorLiveReadOnlyBridgeObservability = {
   nativeContract: 'ZavorthExternalExecutorLiveReadOnlyBridgeObservability/v1';
   sourceSnapshotDecision: ExternalExecutorRealCapabilitySnapshotReadOnlyNormalization['decision'];
   healthStatus: 'ready' | 'degraded';
-  dashboardProjectionRows: number;
+  zavorthControlProjectionRows: number;
   healthProbeAuthenticated: true;
   statusRpcOk: true;
   probeOk: true;
@@ -197,7 +197,7 @@ function buildObservability(
     nativeContract: 'ZavorthExternalExecutorLiveReadOnlyBridgeObservability/v1',
     sourceSnapshotDecision: snapshot.decision,
     healthStatus: snapshot.decision === 'real-capability-snapshot-read-only-ok' ? 'ready' : 'degraded',
-    dashboardProjectionRows: snapshot.dashboardProjection.rows.length,
+    zavorthControlProjectionRows: snapshot.zavorthControlProjection.rows.length,
     healthProbeAuthenticated: true,
     statusRpcOk: true,
     probeOk: true,

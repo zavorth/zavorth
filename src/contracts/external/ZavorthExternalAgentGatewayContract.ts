@@ -85,10 +85,10 @@ export type ZavorthExternalAgentGatewayRegistrySnapshot = {
   };
 };
 
-export type ZavorthExternalAgentGatewayDashboardSnapshot = {
+export type ZavorthExternalAgentGatewayZavorthControlSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_EXTERNAL_AGENT_GATEWAY_CONTRACT_VERSION;
-  surface: 'external-agent-dashboard';
+  surface: 'external-agent-zavorthControl';
   registry: ZavorthExternalAgentGatewayRegistrySnapshot;
   latestReceipt: ZavorthExternalAgentGatewayReceipt | null;
   summary: {
@@ -98,7 +98,7 @@ export type ZavorthExternalAgentGatewayDashboardSnapshot = {
     latestReceiptStatus: ZavorthExternalAgentInvocationStatus | 'none';
   };
   safety: {
-    noAgentUsedDuringDashboardRead: true;
+    noAgentUsedDuringZavorthControlRead: true;
     liveUseRequiresApproval: true;
     localCliDeclaredNonSandboxed: true;
     rawSecretsSerialized: false;

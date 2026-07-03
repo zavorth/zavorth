@@ -165,7 +165,7 @@ export class ZavorthProviderCapabilityMatrixService {
       `providers=${snapshot.summary.total} configured=${snapshot.summary.configured} needs_credential=${snapshot.summary.credentialRequired}`,
       '',
       ...snapshot.providers.map((provider) =>
-        `${provider.id} | ${provider.state} | ${provider.modalities.join(',') || 'unknown'} | ${provider.dashboardAction}`,
+        `${provider.id} | ${provider.state} | ${provider.modalities.join(',') || 'unknown'} | ${provider.zavorthControlAction}`,
       ),
       '',
     ].join('\n');
@@ -277,7 +277,7 @@ export class ZavorthProviderCapabilityMatrixService {
         liveNetworkUsedByDefault: false,
         requiresExplicitConfirmation: true,
       },
-      dashboardAction: state === 'configured' || state === 'active' ? 'use' : 'configure',
+      zavorthControlAction: state === 'configured' || state === 'active' ? 'use' : 'configure',
     };
   }
 

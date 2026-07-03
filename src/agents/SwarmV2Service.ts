@@ -8,7 +8,7 @@ import {
   type SwarmSnapshot,
   type SwarmTaskResult,
 } from '../runtime/sessions/v2/SwarmOrchestrator.js';
-import type { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
+import type { LlmRunOptions, LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import {
   createSubagentApprovalBoundary,
   createSubagentBudget,
@@ -19,7 +19,7 @@ import {
   type SubagentResultReceipt,
   type SubagentResultStatus,
 } from '../runtime/agent/subagents/index.js';
-import { CanonicalExecutionPipelineService } from '@zavorth/services/CanonicalExecutionPipelineService.js';
+import { CanonicalExecutionPipelineService } from '../services/CanonicalExecutionPipelineService.js';
 
 export const SWARM_V2_OFFICIAL_CONTRACT_VERSION = '2026-05-17.official-swarm-v2' as const;
 
@@ -296,6 +296,50 @@ type SwarmV2OfficialState = {
   strongIsolationWrapper: SwarmV2OfficialSurface['strongIsolation']['wrapper'];
 };
 
+interface SwarmOrchestratorRoleStartedEvent {
+  swarmId: string;
+  roleId: string;
+  label: string;
+}
+
+interface SwarmOrchestratorRoleDataEvent {
+  swarmId: string;
+  roleId: string;
+  data: string;
+}
+
+interface SwarmOrchestratorRoleFinishedEvent {
+  swarmId: string;
+  roleId: string;
+  status: string;
+  exitCode: number | null;
+}
+
+interface RawToolSpecInput {
+  id?: unknown;
+  command?: unknown;
+  label?: unknown;
+  args?: unknown;
+  cwd?: unknown;
+  risk?: unknown;
+  requiresApproval?: unknown;
+  [key: string]: unknown;
+}
+
+interface RawRoleLibraryEntry {
+  id?: unknown;
+  label?: unknown;
+  kind?: unknown;
+  systemPrompt?: unknown;
+  defaultTools?: unknown;
+  risk?: unknown;
+  scope?: unknown;
+  tags?: unknown;
+  createdAt?: unknown;
+  updatedAt?: unknown;
+  [key: string]: unknown;
+}
+
 export class SwarmV2Service {
   private readonly swarms = new Map<string, ManagedSwarm>();
 
@@ -417,7 +461,8 @@ export class SwarmV2Service {
         }, entry.subagentReceipts);
         return entry.lastSnapshot;
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error ?? '');
         const snapshot = orchestrator.getSnapshot();
         entry.subagentReceipts = this.resolveSubagentReceipts(entry.roles, {
           objective,
@@ -430,9 +475,9 @@ export class SwarmV2Service {
           swarmId,
           status: 'failed',
           finishedAt: new Date().toISOString(),
-          synthesizedOutput: error?.message || snapshot.synthesizedOutput,
+          synthesizedOutput: message || snapshot.synthesizedOutput,
         }, {
-          summary: error?.message || `Swarm ${swarmId} failed.`,
+          summary: message || `Swarm ${swarmId} failed.`,
         }, entry.subagentReceipts);
         return entry.lastSnapshot;
       });
@@ -547,6 +592,19 @@ export class SwarmV2Service {
     const swarmId = String(input.swarmId || '').trim() || randomUUID();
     const createdAt = new Date().toISOString();
     const roleLibrary = this.readRoleLibrary();
+    const defaultIsolation = ((): SwarmV2IsolationMode => {
+      const envVal = process.env.ZAVORTH_SWARM_DEFAULT_ISOLATION;
+      if (
+        envVal === 'direct' ||
+        envVal === 'temp-worktree' ||
+        envVal === 'docker' ||
+        envVal === 'wsl' ||
+        envVal === 'external-sandbox'
+      ) {
+        return envVal as SwarmV2IsolationMode;
+      }
+      return 'temp-worktree';
+    })();
     const autoSelection = input.roleSelectionOverride || this.resolveSyncRoleSelection({
       objective,
       library: roleLibrary,
@@ -570,7 +628,7 @@ export class SwarmV2Service {
     const roles = this.prepareOfficialRoles([...requestedRoles, ...libraryRoles], {
       objective,
       maxRoles: this.clampNumber(input.maxRoles, 1, 300, 300),
-      isolationMode: input.isolationMode || 'temp-worktree',
+      isolationMode: input.isolationMode || defaultIsolation,
       swarmId,
       toolSpecs: this.normalizeToolSpecs(input.toolSpecs),
       isolationImage: input.isolationImage,
@@ -613,7 +671,7 @@ export class SwarmV2Service {
       maxConcurrency,
       batches,
       replay: [],
-      isolationMode: input.isolationMode || 'temp-worktree',
+      isolationMode: input.isolationMode || defaultIsolation,
       workerRoots: roles.map((role) => ({
         roleId: role.id,
         cwd: role.cwd || process.cwd(),
@@ -633,8 +691,8 @@ export class SwarmV2Service {
       benchmarkEnabled: input.benchmark === true,
       tokenBudget,
       strongIsolationRequired: input.requireStrongIsolation === true,
-      strongIsolationSatisfied: this.isStrongIsolationMode(input.isolationMode || 'temp-worktree'),
-      strongIsolationWrapper: this.strongIsolationWrapper(input.isolationMode || 'temp-worktree'),
+      strongIsolationSatisfied: this.isStrongIsolationMode(input.isolationMode || defaultIsolation),
+      strongIsolationWrapper: this.strongIsolationWrapper(input.isolationMode || defaultIsolation),
     };
     if (state.strongIsolationRequired && !state.strongIsolationSatisfied) {
       throw new Error('Swarm v2 exige isolamento forte: use isolationMode docker, wsl ou external-sandbox.');
@@ -790,25 +848,25 @@ export class SwarmV2Service {
           surface: 'swarm-v2-official',
         });
       entry.orchestrator = orchestrator;
-      orchestrator.on('role:started', (event: any) => {
-        this.pushReplay(state, 'role.started', `Role ${String(event?.label || event?.roleId || 'unknown')} iniciado.`, {
+      orchestrator.on('role:started', (event: SwarmOrchestratorRoleStartedEvent) => {
+        this.pushReplay(state, 'role.started', `Role ${String(event.label || event.roleId || 'unknown')} iniciado.`, {
           batchId: batch.batchId,
-          roleId: event?.roleId,
+          roleId: event.roleId,
         });
       });
-      orchestrator.on('role:data', (event: any) => {
-        this.pushReplay(state, 'role.output', `Role ${String(event?.roleId || 'unknown')} emitiu output.`, {
+      orchestrator.on('role:data', (event: SwarmOrchestratorRoleDataEvent) => {
+        this.pushReplay(state, 'role.output', `Role ${String(event.roleId || 'unknown')} emitiu output.`, {
           batchId: batch.batchId,
-          roleId: event?.roleId,
-          bytes: Buffer.byteLength(String(event?.data || ''), 'utf8'),
+          roleId: event.roleId,
+          bytes: Buffer.byteLength(String(event.data || ''), 'utf8'),
         });
       });
-      orchestrator.on('role:finished', (event: any) => {
-        this.pushReplay(state, 'role.finished', `Role ${String(event?.roleId || 'unknown')} finalizado.`, {
+      orchestrator.on('role:finished', (event: SwarmOrchestratorRoleFinishedEvent) => {
+        this.pushReplay(state, 'role.finished', `Role ${String(event.roleId || 'unknown')} finalizado.`, {
           batchId: batch.batchId,
-          roleId: event?.roleId,
-          status: event?.status,
-          exitCode: event?.exitCode,
+          roleId: event.roleId,
+          status: event.status,
+          exitCode: event.exitCode,
         });
       });
 
@@ -1295,11 +1353,11 @@ export class SwarmV2Service {
           runId: state.swarmId,
           traceId: state.swarmId,
         },
-      } as any);
+      } satisfies LlmRunOptions);
       return response.content?.trim() || deterministic;
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
-        error: String(error?.message || error || 'unknown').slice(0, 240),
+        error: String(error instanceof Error ? error.message : String(error ?? 'unknown')).slice(0, 240),
       });
       state.synthesisMode = 'deterministic';
       return deterministic;
@@ -1351,7 +1409,7 @@ export class SwarmV2Service {
           runId: 'swarm-v2-role-selection',
           traceId: 'swarm-v2-role-selection',
         },
-      } as any);
+      } satisfies LlmRunOptions);
       const parsed = this.parseJsonObject(response.content);
       const libraryIds = new Set(input.library.map((role) => role.id));
       const selected = Array.isArray(parsed?.selectedRoleIds)
@@ -1446,23 +1504,24 @@ export class SwarmV2Service {
       return [];
     }
     return raw.map((entry, index): SwarmV2ToolSpec | null => {
-      const id = this.normalizeKey((entry as any)?.id, `tool-${index + 1}`);
-      const command = String((entry as any)?.command || '').trim();
+      const tool = entry as RawToolSpecInput;
+      const id = this.normalizeKey(tool.id, `tool-${index + 1}`);
+      const command = String(tool.command || '').trim();
       if (!command) {
         return null;
       }
-      const risk = ['safe', 'attention', 'danger'].includes((entry as any)?.risk)
-        ? (entry as any).risk
+      const risk = ['safe', 'attention', 'danger'].includes(String(tool.risk || ''))
+        ? (tool.risk as SwarmV2ToolSpec['risk'])
         : 'attention';
       return {
         id,
         kind: 'shell',
-        label: String((entry as any)?.label || id).trim(),
+        label: String(tool.label || id).trim(),
         command,
-        args: Array.isArray((entry as any)?.args) ? (entry as any).args.map((value: unknown) => String(value)) : [],
-        cwd: String((entry as any)?.cwd || '').trim() || null,
+        args: Array.isArray(tool.args) ? tool.args.map((value: unknown) => String(value)) : [],
+        cwd: String(tool.cwd || '').trim() || null,
         risk,
-        requiresApproval: (entry as any)?.requiresApproval === false ? false : true,
+        requiresApproval: tool.requiresApproval === false ? false : true,
       };
     }).filter(Boolean) as SwarmV2ToolSpec[];
   }
@@ -1478,7 +1537,7 @@ export class SwarmV2Service {
     return 'none';
   }
 
-  private parseJsonObject(raw: unknown): any {
+  private parseJsonObject(raw: unknown): Record<string, unknown> | null {
     const text = String(raw || '').trim();
     if (!text) return null;
     try {
@@ -1661,26 +1720,31 @@ export class SwarmV2Service {
     return this.options.roleLibraryPath || path.resolve(process.cwd(), 'data', 'runtime', 'swarm-role-library.json');
   }
 
-  private normalizeRoleLibraryEntry(raw: any): SwarmV2RoleLibraryEntry | null {
-    const id = this.normalizeKey(raw?.id, '');
-    const systemPrompt = String(raw?.systemPrompt || '').trim();
+  private normalizeRoleLibraryEntry(raw: unknown): SwarmV2RoleLibraryEntry | null {
+    const entry = raw as RawRoleLibraryEntry | undefined | null;
+    const id = this.normalizeKey(entry?.id, '');
+    const systemPrompt = String(entry?.systemPrompt || '').trim();
     if (!id || !systemPrompt) {
       return null;
     }
     const now = new Date().toISOString();
     return {
       id,
-      label: String(raw?.label || id).trim(),
-      kind: ['planner', 'researcher', 'implementer', 'verifier', 'critic', 'synthesizer', 'operator', 'custom'].includes(raw?.kind)
-        ? raw.kind
+      label: String(entry?.label || id).trim(),
+      kind: ['planner', 'researcher', 'implementer', 'verifier', 'critic', 'synthesizer', 'operator', 'custom'].includes(String(entry?.kind || ''))
+        ? (entry?.kind as SwarmV2RoleLibraryEntry['kind'])
         : 'custom',
       systemPrompt,
-      defaultTools: Array.isArray(raw?.defaultTools) ? raw.defaultTools.map(String) : [],
-      risk: ['safe', 'attention', 'danger', 'unknown'].includes(raw?.risk) ? raw.risk : 'unknown',
-      scope: ['read_only', 'tool_limited', 'workspace_patch'].includes(raw?.scope) ? raw.scope : 'tool_limited',
-      tags: Array.isArray(raw?.tags) ? raw.tags.map(String) : [],
-      createdAt: String(raw?.createdAt || now),
-      updatedAt: String(raw?.updatedAt || now),
+      defaultTools: Array.isArray(entry?.defaultTools) ? entry.defaultTools.map(String) : [],
+      risk: ['safe', 'attention', 'danger', 'unknown'].includes(String(entry?.risk || ''))
+        ? (entry?.risk as SwarmV2RoleLibraryEntry['risk'])
+        : 'unknown',
+      scope: ['read_only', 'tool_limited', 'workspace_patch'].includes(String(entry?.scope || ''))
+        ? (entry?.scope as SwarmV2RoleLibraryEntry['scope'])
+        : 'tool_limited',
+      tags: Array.isArray(entry?.tags) ? entry.tags.map(String) : [],
+      createdAt: String(entry?.createdAt || now),
+      updatedAt: String(entry?.updatedAt || now),
     };
   }
 

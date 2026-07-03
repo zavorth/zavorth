@@ -157,7 +157,7 @@ export type ZavorthScheduledTaskSafety = {
   approvalTtlRequired: true;
   budgetBoundariesRequired: true;
   noImplicitExecution: true;
-  noDashboardVisualMutation: true;
+  noZavorthControlVisualMutation: true;
   rawSecretsSerialized: false;
 };
 

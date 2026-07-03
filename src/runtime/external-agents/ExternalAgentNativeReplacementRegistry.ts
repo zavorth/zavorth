@@ -13,7 +13,7 @@ export type ExternalAgentNativeReplacementArea =
   | 'channel-bridge'
   | 'session-memory'
   | 'worker-delegation'
-  | 'dashboard';
+  | 'zavorthControl';
 
 export type ExternalAgentNativeReplacementContract =
   | 'NormalizedInboundMessage'
@@ -22,7 +22,7 @@ export type ExternalAgentNativeReplacementContract =
   | 'UniversalReplyPacket'
   | 'CanonicalSessionContextSnapshot'
   | 'UniversalAgentExecutorResult'
-  | 'ZavorthDashboardAssimilationSnapshot';
+  | 'ZavorthZavorthControlAssimilationSnapshot';
 
 export type ExternalAgentNativeReplacementConsistencyCase = {
   id: string;

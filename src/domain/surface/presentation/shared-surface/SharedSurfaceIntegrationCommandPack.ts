@@ -515,7 +515,7 @@ export class SharedSurfaceIntegrationCommandPack {
     const items = [
       `Estado do QR: ${result.loginQr.state || 'n/d'}.`,
       result.loginQr.dataUrl
-        ? 'QR pronto: use a imagem no dashboard/API local para escanear com seguranca.'
+        ? 'QR pronto: use a imagem no zavorthControl/API local para escanear com seguranca.'
         : `QR: ${result.loginQr.nextStep || 'sem proximo passo informado.'}`,
       result.loginQr.expiresAt ? `Expira em: ${result.loginQr.expiresAt}.` : null,
     ].filter(Boolean) as string[];

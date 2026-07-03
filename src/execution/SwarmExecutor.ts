@@ -19,27 +19,70 @@ export class SwarmExecutor implements IExecutor {
   public async execute(request: ExecutionRequest): Promise<ExecutionResult> {
     const startedAt = new Date().toISOString();
 
-    const zavorthCliPath = process.env.ZAVORTH_CLI_PATH || path.resolve(process.cwd(), 'dist/zavorth-cli.js');
+    const defaultIsolation = process.env.ZAVORTH_SWARM_DEFAULT_ISOLATION;
+    const isIsolated = defaultIsolation === 'docker' || (defaultIsolation === 'wsl' && process.platform === 'win32');
+
+    const zavorthCliPath = isIsolated
+      ? './dist/zavorth-cli.js'
+      : (process.env.ZAVORTH_CLI_PATH || path.resolve(process.cwd(), 'dist/zavorth-cli.js'));
+
+    const baseCommand = isIsolated ? 'node' : process.execPath;
 
     const objectiveText = `chat ${request.objective}\n${request.instructions.join('\n')}`.trim();
 
     // Define standard execution roles for the Swarm
-    const roles: SwarmRole[] = [
+    let roles: SwarmRole[] = [
       {
         id: 'swarm-researcher',
         label: 'Researcher',
         systemPrompt: 'Você é um Agente de Pesquisa Especialista. Seu foco é buscar, listar, extrair informações de APIs, ler arquivos do sistema ou pesquisar na internet para montar uma base sólida do objetivo.',
-        command: process.execPath,
+        command: baseCommand,
         args: [zavorthCliPath, '--platform', 'web', '--session', 'swarm-researcher', objectiveText],
       },
       {
         id: 'swarm-actor',
         label: 'Actor (Coder & Operator)',
         systemPrompt: 'Você é um Agente de Ação Especialista. Seu foco é escrever código, rodar scripts no shell local e alterar o sistema. Trabalhe a partir do objetivo e use as ferramentas ativamente.',
-        command: process.execPath,
+        command: baseCommand,
         args: [zavorthCliPath, '--platform', 'web', '--session', 'swarm-actor', objectiveText],
       }
     ];
+
+    if (defaultIsolation === 'docker') {
+      const cwd = process.cwd();
+      roles = roles.map(role => ({
+        ...role,
+        command: 'docker',
+        args: [
+          'run',
+          '--rm',
+          '--network',
+          'none',
+          '-v',
+          `${cwd}:/workspace`,
+          '-w',
+          '/workspace',
+          'node:22',
+          role.command,
+          ...(role.args || []),
+        ],
+        cwd,
+      }));
+    } else if (defaultIsolation === 'wsl' && process.platform === 'win32') {
+      const cwd = process.cwd();
+      roles = roles.map(role => ({
+        ...role,
+        command: 'wsl.exe',
+        args: [
+          '--cd',
+          cwd,
+          '--',
+          role.command,
+          ...(role.args || []),
+        ],
+        cwd,
+      }));
+    }
 
     const orchestrator = new SwarmOrchestrator(
       `Objetivo: "${request.objective}"\nInstruções Específicas:\n${request.instructions.join('\n')}`,

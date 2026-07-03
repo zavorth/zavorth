@@ -67,7 +67,7 @@ const UNAVAILABLE_VOICE_PROVIDER: EchoSpeechSynthesisProvider = {
 
 /**
  * Shared Gemini TTS pipeline for Echo surfaces.
- * Centralizing it here keeps dashboard, agent and IoT surfaces on the same
+ * Centralizing it here keeps zavorthControl, agent and IoT surfaces on the same
  * model, telemetry and failure semantics.
  */
 export class EchoSpeechSynthesisService {
@@ -85,7 +85,7 @@ export class EchoSpeechSynthesisService {
     input: EchoSpeechSynthesisInput,
   ): Promise<EchoSpeechSynthesisSuccess | EchoSpeechSynthesisFailure> {
     const cleanText = String(input.text || '').trim();
-    const surface = this.text(input.surface, 'dashboard');
+    const surface = this.text(input.surface, 'zavorthControl');
     const requestedBy = this.text(input.requestedBy, `${surface}-tts`);
     const sessionId = this.optionalText(input.sessionId);
     const traceId = `voice-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;

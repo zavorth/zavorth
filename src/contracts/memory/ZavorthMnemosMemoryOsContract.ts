@@ -223,7 +223,7 @@ export function buildZavorthMnemosMemoryOsContractSnapshot(now: Date = new Date(
       'Credential vault: mnemos:query with hybrid RRF',
       'Runtime gateway: mnemos:lint',
       'Surface controls: procedural memory',
-      'Dashboard controls: dashboard/CLI/Telegram UX',
+      'ZavorthControl controls: zavorthControl/CLI/Telegram UX',
       'Certification matrix: certification/security',
     ],
   };

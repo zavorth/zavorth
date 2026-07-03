@@ -97,7 +97,7 @@ export class CanaryMonitoringRollbackGateService {
         launchRehearsalReady: launchRehearsalSnapshot.summary.launchRehearsalReady,
         heldReleaseExecutionGateLinked: controls.some((control) => control.id === 'held-release-execution-gate' && control.status === 'linked'),
         observationWindowDefined: controls.some((control) => control.id === 'observation-window-monitor' && control.status === 'monitoring-ready'),
-        telemetryDashboardReady: controls.some((control) => control.id === 'telemetry-dashboard-monitor' && control.status === 'monitoring-ready'),
+        telemetryZavorthControlReady: controls.some((control) => control.id === 'telemetry-zavorthControl-monitor' && control.status === 'monitoring-ready'),
         healthBudgetReady: controls.some((control) => control.id === 'health-budget-monitor' && control.status === 'monitoring-ready'),
         errorRateThresholdReady: controls.some((control) => control.id === 'error-rate-threshold-monitor' && control.status === 'monitoring-ready'),
         latencyThresholdReady: controls.some((control) => control.id === 'latency-threshold-monitor' && control.status === 'monitoring-ready'),
@@ -249,10 +249,10 @@ export class CanaryMonitoringRollbackGateService {
         evidence: 'Observation window and cadence are defined without observing live traffic.',
       }),
       monitoringControl({
-        id: 'telemetry-dashboard-monitor',
+        id: 'telemetry-zavorthControl-monitor',
         surface: 'telemetry',
-        command: 'dry-run:prepare-canary-dashboard --no-live-attach --no-upload',
-        evidence: 'Telemetry dashboard handoff is prepared without live attachment.',
+        command: 'dry-run:prepare-canary-zavorthControl --no-live-attach --no-upload',
+        evidence: 'Telemetry zavorthControl handoff is prepared without live attachment.',
       }),
       monitoringControl({
         id: 'health-budget-monitor',
@@ -486,7 +486,7 @@ export class CanaryMonitoringRollbackGateService {
   private monitoringSignalsReady(controls: CanaryMonitoringRollbackControl[]): boolean {
     return [
       'observation-window-monitor',
-      'telemetry-dashboard-monitor',
+      'telemetry-zavorthControl-monitor',
       'health-budget-monitor',
       'error-rate-threshold-monitor',
       'latency-threshold-monitor',

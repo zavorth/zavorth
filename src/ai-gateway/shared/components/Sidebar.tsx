@@ -12,6 +12,7 @@ import { ConfirmModal } from "./Modal";
 import CloudSyncStatus from "./CloudSyncStatus";
 import { useTranslations } from "next-intl";
 import {
+import { logger } from '../logger.js';
   HIDDEN_SIDEBAR_ITEMS_SETTING_KEY,
   SIDEBAR_SETTINGS_UPDATED_EVENT,
   SIDEBAR_SECTIONS,
@@ -55,7 +56,7 @@ export default function Sidebar({
     fetch("/api/settings")
       .then((res) => res.json())
       .then((data) => applySettings(data))
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
     const handleSettingsUpdated = (event: Event) => {
       const detail = (event as CustomEvent<Record<string, unknown>>).detail || {};
@@ -246,7 +247,7 @@ export default function Sidebar({
 
         <div className={cn("py-4", collapsed ? "px-2" : "px-6")}>
           <Link
-            href="/dashboard"
+            href="/zavorthControl"
             className={cn("flex items-center", collapsed ? "justify-center" : "gap-3")}
           >
             <div className="flex items-center justify-center size-9 rounded bg-linear-to-br from-[#E54D5E] to-[#C93D4E] shrink-0">

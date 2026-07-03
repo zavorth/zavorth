@@ -350,15 +350,15 @@ export class ReleaseUxWizardService {
   }
 
   private checkWebMarkers(): ReleaseUxCheck {
-    const html = this.html !== null ? this.html : buildRuntimeShellHtml('/dashboard');
+    const html = this.html !== null ? this.html : buildRuntimeShellHtml('/zavorthControl');
     const missing = RELEASE_UX_WEB_MARKERS.filter((marker) => !html.includes(marker));
     return this.check(
       'web:release-ux-wizard',
-      'card de release UX no /dashboard',
+      'card de release UX no /zavorthControl',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Dashboard expoe readiness, diff, rollback e changelog do fluxo de release.'
-        : 'Dashboard perdeu marcadores do release wizard.',
+        ? 'ZavorthControl expoe readiness, diff, rollback e changelog do fluxo de release.'
+        : 'ZavorthControl perdeu marcadores do release wizard.',
       'web',
       missing.map((marker) => `faltando: ${marker}`),
     );

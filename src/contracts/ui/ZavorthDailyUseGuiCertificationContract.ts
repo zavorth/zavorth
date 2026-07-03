@@ -34,7 +34,7 @@ export type ZavorthDailyUseGuiCertificationSnapshot = {
   };
   checks: ZavorthDailyUseGuiCapabilityCheck[];
   safety: {
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     desktopCanBypassRuntime: false;
     policyBrokerRequiredForMutableActions: true;
     previewFirstChat: true;

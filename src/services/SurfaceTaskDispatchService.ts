@@ -110,7 +110,7 @@ export class SurfaceTaskDispatchService {
       case 'telegram':
         return 'telegram-auth-guard';
       case 'web':
-        return 'dashboard-auth';
+        return 'zavorthControl-auth';
       case 'discord':
         return 'discord-bridge-signature';
       case 'whatsapp':

@@ -5,6 +5,7 @@ import type {
   ShellSafetyReceipt,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import { ShellSafetyClassifier } from './ShellSafetyClassifier.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   now?: () => Date;
@@ -195,7 +196,7 @@ async function runShellCommand(input: {
     const timeout = setTimeout(() => {
       try {
         child.kill('SIGKILL');
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       finish({
         exitCode: null,
         stdout: stdout.trim() || null,

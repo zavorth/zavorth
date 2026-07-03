@@ -12,8 +12,8 @@ export default function InternalServerErrorPage() {
         "Check health telemetry and server logs for correlated request IDs.",
         "If persistent, report the issue with timestamp and request context.",
       ]}
-      primaryAction={{ href: "/dashboard/health", label: "Open Health Dashboard" }}
-      secondaryAction={{ href: "/dashboard/logs", label: "Open Logs" }}
+      primaryAction={{ href: "/zavorthControl/health", label: "Open Health ZavorthControl" }}
+      secondaryAction={{ href: "/zavorthControl/logs", label: "Open Logs" }}
     />
   );
 }

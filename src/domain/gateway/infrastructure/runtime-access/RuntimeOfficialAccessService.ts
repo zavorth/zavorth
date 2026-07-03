@@ -12,7 +12,7 @@ import {
   RuntimeInstallJourneyService,
   type RuntimeInstallJourneyReport,
 } from './RuntimeInstallJourneyService.js';
-import { isWeakDashboardToken } from '../../../../services/DashboardTokenService.js';
+import { isWeakZavorthControlToken } from '../../../../services/ZavorthControlTokenService.js';
 
 type AccessProbe = {
   ok: boolean;
@@ -125,7 +125,7 @@ export class RuntimeOfficialAccessService {
       manifest = this.accessManifestService.buildManifestFromReadiness(readiness);
     }
 
-    const remoteAppUrl = manifest.remote.appUrl || (manifest.remote.baseUrl ? `${manifest.remote.baseUrl.replace(/\/+$/, '')}/dashboard` : null);
+    const remoteAppUrl = manifest.remote.appUrl || (manifest.remote.baseUrl ? `${manifest.remote.baseUrl.replace(/\/+$/, '')}/zavorthControl` : null);
     const remoteAppProbe = await this.probeUrl(remoteAppUrl, { method: 'GET' });
     const remoteAuthProbe = manifest.remote.baseUrl
       ? await this.probeRemoteAuth(manifest.remote.baseUrl, tokenResolution.value)
@@ -174,7 +174,7 @@ export class RuntimeOfficialAccessService {
     source: 'env' | 'file' | 'missing';
     value: string;
   } {
-    if (this.webAuthToken && !isWeakDashboardToken(this.webAuthToken)) {
+    if (this.webAuthToken && !isWeakZavorthControlToken(this.webAuthToken)) {
       return {
         source: 'env',
         value: this.webAuthToken,
@@ -309,15 +309,15 @@ export class RuntimeOfficialAccessService {
     }
 
     if (manifest.remote.baseUrl && manifest.remote.requiresHttps) {
-      issues.push('A URL publica precisa usar HTTPS para a Dashboard remota.');
+      issues.push('A URL publica precisa usar HTTPS para a ZavorthControl remota.');
     }
 
     if (tokenSource === 'missing') {
-      issues.push('ZAVORTH_WEB_AUTH_TOKEN ainda nao foi configurado para a Dashboard remota.');
+      issues.push('ZAVORTH_WEB_AUTH_TOKEN ainda nao foi configurado para a ZavorthControl remota.');
     }
 
     if (manifest.remote.baseUrl && !manifest.remote.appUrl) {
-      issues.push('A URL publica atual nao gerou um /dashboard remoto valido.');
+      issues.push('A URL publica atual nao gerou um /zavorthControl remoto valido.');
     }
 
     if (remoteAppProbe && !remoteAppProbe.ok && !remoteProbeInconclusive) {

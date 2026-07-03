@@ -9,6 +9,7 @@ import { execFile } from "child_process";
 import { promisify } from "util";
 import { getChecksums, getReleaseByVersion } from "./releaseChecker.ts";
 import { safeFetch } from "../../../security/SafeFetchService.js";
+import { logger } from '../logger.js';
 
 const execFileAsync = promisify(execFile);
 const DEFAULT_DATA_DIR = process.env.DATA_DIR || path.join(os.homedir(), ".ZavorthGateway");
@@ -143,7 +144,7 @@ export async function downloadRelease(
     await extractTarGz(archivePath, versionDir);
   }
 
-  await fs.unlink(archivePath).catch(() => {});
+  await fs.unlink(archivePath).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
   const binary = findBinaryInDir(versionDir);
   if (!binary) throw new Error(`Binary not found in extracted archive`);
@@ -162,7 +163,7 @@ export async function installVersion(version: string, dataDir?: string): Promise
   const symlinkPath = path.join(binDir, "cliproxyapi");
   try {
     await fs.unlink(symlinkPath);
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
   if (process.platform === "win32") {
     await fs.copyFile(binary, symlinkPath);
   } else {
@@ -213,7 +214,7 @@ export async function rollbackVersion(dataDir?: string): Promise<string | null> 
   const symlinkPath = path.join(binDir, "cliproxyapi");
   try {
     await fs.unlink(symlinkPath);
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
   if (process.platform === "win32") {
     await fs.copyFile(oldBinary, symlinkPath);
   } else {

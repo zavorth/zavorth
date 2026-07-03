@@ -50,7 +50,7 @@ export const runtimeShellScriptPart1Seg2: string = [
     "    }",
     "    window.sessionStorage.setItem(AUTH_STORAGE_KEY, value);",
     "    window.localStorage.removeItem(AUTH_STORAGE_KEY);",
-    "  } catch {}",
+    "  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }",
     "}",
     "",
     "function applyExternalLinks() {",

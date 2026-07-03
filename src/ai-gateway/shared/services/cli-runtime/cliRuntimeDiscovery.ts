@@ -7,6 +7,7 @@ import {
 } from "./cliRuntimePathSecurity.ts";
 import { isWindows, runProcess } from "./cliRuntimeProcess.ts";
 import {
+import { logger } from '../logger.js';
   EXPECTED_PARENT_PATHS,
   getKnownToolPaths,
 } from "./cliRuntimeTools.ts";
@@ -91,7 +92,7 @@ export const checkKnownPath = async (commandPath: string) => {
           isWithinExpected = true;
           break;
         }
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
     }
 
     if (!isWithinExpected) {

@@ -132,7 +132,7 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
         inspectJson: 'npm run zavorth-qa-security-release-certification-pack:json --silent',
         check: 'npm run zavorth-qa-security-release-certification-pack:check --silent',
         qa: 'npm run qa:zavorth-qa-security-release-certification-pack --silent',
-        nextStage: 'Dashboard controls - Skill Ecosystem Pack',
+        nextStage: 'ZavorthControl controls - Skill Ecosystem Pack',
       },
     };
   }

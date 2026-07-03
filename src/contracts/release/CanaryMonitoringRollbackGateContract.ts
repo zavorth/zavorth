@@ -46,7 +46,7 @@ export type CanaryMonitoringRollbackControl = {
     | 'launch-rehearsal-input'
     | 'held-release-execution-gate'
     | 'observation-window-monitor'
-    | 'telemetry-dashboard-monitor'
+    | 'telemetry-zavorthControl-monitor'
     | 'health-budget-monitor'
     | 'error-rate-threshold-monitor'
     | 'latency-threshold-monitor'
@@ -159,7 +159,7 @@ export type CanaryMonitoringRollbackGateSnapshot = {
     launchRehearsalReady: boolean;
     heldReleaseExecutionGateLinked: boolean;
     observationWindowDefined: boolean;
-    telemetryDashboardReady: boolean;
+    telemetryZavorthControlReady: boolean;
     healthBudgetReady: boolean;
     errorRateThresholdReady: boolean;
     latencyThresholdReady: boolean;

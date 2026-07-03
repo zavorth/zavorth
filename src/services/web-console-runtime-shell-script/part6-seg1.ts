@@ -304,7 +304,7 @@ export const runtimeShellScriptPart6Seg1: string = [
     "    opsChannelsStatus,",
     "    operationalMeshExpanded.channels",
     "      ? 'Painel do Channel Mesh aberto com foco, policy, hints de promocao e acoes inline do canal selecionado.'",
-    "      : 'Abra o Channel Mesh para revisar policy, pairing e promocao dos canais no mesmo estilo do Dashboard.',",
+    "      : 'Abra o Channel Mesh para revisar policy, pairing e promocao dos canais no mesmo estilo do ZavorthControl.',",
     "  );",
     "  showOperationalAction(",
     "    opsChannelsAction,",

@@ -6,7 +6,7 @@ import { config } from '../config/index.js';
 import {
   ZAVORTH_EXTERNAL_AGENT_GATEWAY_CONTRACT_VERSION,
   type ZavorthExternalAgentAdapterKind,
-  type ZavorthExternalAgentGatewayDashboardSnapshot,
+  type ZavorthExternalAgentGatewayZavorthControlSnapshot,
   type ZavorthExternalAgentGatewayReceipt,
   type ZavorthExternalAgentGatewayRegistrySnapshot,
   type ZavorthExternalAgentIsolationKind,
@@ -144,13 +144,13 @@ export class ZavorthExternalAgentGatewayService {
     };
   }
 
-  public buildDashboardSnapshot(): ZavorthExternalAgentGatewayDashboardSnapshot {
+  public buildZavorthControlSnapshot(): ZavorthExternalAgentGatewayZavorthControlSnapshot {
     const registry = this.buildRegistrySnapshot();
     const latestReceipt = this.readLatestReceipt();
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_EXTERNAL_AGENT_GATEWAY_CONTRACT_VERSION,
-      surface: 'external-agent-dashboard',
+      surface: 'external-agent-zavorthControl',
       registry,
       latestReceipt,
       summary: {
@@ -160,7 +160,7 @@ export class ZavorthExternalAgentGatewayService {
         latestReceiptStatus: latestReceipt?.status || 'none',
       },
       safety: {
-        noAgentUsedDuringDashboardRead: true,
+        noAgentUsedDuringZavorthControlRead: true,
         liveUseRequiresApproval: true,
         localCliDeclaredNonSandboxed: true,
         rawSecretsSerialized: false,

@@ -183,6 +183,42 @@ export class LLMRouterService {
     this.routingRules.set(rule.task_pattern, rule);
   }
 
+  public getModelProfile(modelId: string): string {
+    const profile = this.modelProfiles.get(modelId);
+    if (!profile) return `Model "${modelId}" not found.`;
+    return [
+      `Model Profile: ${profile.id}`,
+      `  Provider: ${profile.provider}`,
+      `  Model: ${profile.model}`,
+      `  Capabilities: ${profile.capabilities.join(', ')}`,
+      `  Context: ${profile.max_context_tokens}`,
+      `  Quality: ${profile.quality_tier}`,
+      `  Latency: ${profile.latency_tier}`,
+    ].join('\n');
+  }
+
+  public recordUsage(modelId: string, inputTokens: number, outputTokens: number, cost: number): void {
+    const stats = this.usageStats.get(modelId) || { calls: 0, tokens: 0, cost: 0, errors: 0 };
+    stats.calls++;
+    stats.tokens += inputTokens + outputTokens;
+    stats.cost += cost;
+    this.usageStats.set(modelId, stats);
+    this.costUsedToday += cost;
+  }
+
+  public getStats(): string {
+    return this.getUsageStats();
+  }
+
+  public getDailyCostSummary(): string {
+    return [
+      'Daily LLM cost summary:',
+      `  Budget: $${this.costBudgetDaily.toFixed(2)}`,
+      `  Used: $${this.costUsedToday.toFixed(4)}`,
+      `  Remaining: $${Math.max(0, this.costBudgetDaily - this.costUsedToday).toFixed(4)}`,
+    ].join('\n');
+  }
+
   public getUsageStats(): string {
     const lines: string[] = [
       'LLM Router Usage Stats:',

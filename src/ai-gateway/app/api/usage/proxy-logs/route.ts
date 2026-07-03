@@ -1,5 +1,6 @@
 import { getProxyLogs, clearProxyLogs, getProxyLogStats } from "@/lib/proxyLogger";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { safeParseInt } from "@/shared/utils/safeParseInt";
 
 /**
  * GET /api/usage/proxy-logs — get proxy usage logs
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     if (searchParams.get("provider")) filters.provider = searchParams.get("provider");
     if (searchParams.get("level")) filters.level = searchParams.get("level");
     if (searchParams.get("search")) filters.search = searchParams.get("search");
-    if (searchParams.get("limit")) filters.limit = parseInt(searchParams.get("limit"), 10);
+    if (searchParams.get("limit")) filters.limit = safeParseInt(searchParams.get("limit"), 300);
 
     const logs = getProxyLogs(filters);
     return Response.json(logs);

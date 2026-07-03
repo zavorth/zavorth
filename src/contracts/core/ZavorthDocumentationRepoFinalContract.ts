@@ -33,14 +33,14 @@ export type ZavorthDocumentationRepoFinalSnapshot = {
   };
   checks: ZavorthDocumentationRepoFinalCheck[];
   guarantees: {
-    dashboardIsPrimarySurface: true;
+    zavorthControlIsPrimarySurface: true;
     satelliteAndCliRemainValidSurfaces: true;
     retiredVisualSurfacesAreNotUserFacing: true;
     docsDoNotPublishImplementationDiaries: true;
     publicIdentityIsZavorthNative: true;
     openSourceDistributionIsExplicit: true;
     liveCertificationRemainsWired: true;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
   };
   commands: {
     inspect: 'npm run zavorth:documentation-repo-final';

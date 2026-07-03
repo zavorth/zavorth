@@ -2,6 +2,9 @@ import { logger } from '../logger.js';
 import {
   Content,
   FunctionDeclaration,
+  GenerateContentCandidate,
+  GenerateContentResult,
+  GenerateContentStreamResult,
   GoogleGenerativeAI,
   RequestOptions,
   SchemaType,
@@ -18,6 +21,39 @@ import {
 } from './ILlmProvider.js';
 import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
 import { isProviderAbortError } from './ProviderAbort.js';
+
+interface GeminiGroundingChunk {
+  web?: { uri?: string; title?: string };
+}
+
+interface GeminiGroundingMetadata {
+  groundingChunks?: GeminiGroundingChunk[];
+}
+
+interface GeminiGatewayResponse {
+  candidates?: GenerateContentCandidate[];
+  error?: { message?: string };
+}
+
+interface GeminiNativeTool {
+  functionDeclarations?: Array<{ name: string; description: string; parameters: Record<string, unknown> }>;
+  googleSearch?: Record<string, unknown>;
+  codeExecution?: Record<string, unknown>;
+}
+
+interface GeminiRestNativeTool {
+  function_declarations?: Array<{ name: string; description: string; parameters: Record<string, unknown> }>;
+  google_search?: Record<string, unknown>;
+  code_execution?: Record<string, unknown>;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return String(error);
+}
 
 export class GeminiProvider implements ILlmProvider {
   public readonly name = 'gemini';
@@ -51,8 +87,8 @@ export class GeminiProvider implements ILlmProvider {
     const contents = this.convertMessages(messages.filter((message) => message.role !== 'system'));
     const modelName = options?.modelName || config.geminiModel;
 
-    let lastError: any;
-    let result: any;
+    let lastError: unknown;
+    let result: GenerateContentResult | undefined;
 
     for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
       const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
@@ -79,13 +115,13 @@ export class GeminiProvider implements ILlmProvider {
         }
         this.currentClientIndex = clientIndex;
         break;
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }
         lastError = error;
         logger.warn(
-          `[Gemini] Erro usando a chave ${clientIndex + 1}: ${error?.message || error}`,
+          `[Gemini] Erro usando a chave ${clientIndex + 1}: ${getErrorMessage(error)}`,
         );
       }
     }
@@ -144,7 +180,7 @@ export class GeminiProvider implements ILlmProvider {
       providerNativeTokenStreaming: true,
       providerNativeStreamSource: 'gemini-generate-content-stream',
     };
-    let lastError: any;
+    let lastError: unknown;
 
     for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
       const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
@@ -160,7 +196,7 @@ export class GeminiProvider implements ILlmProvider {
           contents,
           systemInstruction: systemInstruction || undefined,
         };
-        const result = await (model as any).generateContentStream(
+        const result: GenerateContentStreamResult = await (model as { generateContentStream: typeof model.generateContent }).generateContentStream(
           request,
           options?.signal ? { signal: options.signal } : undefined,
         );
@@ -185,7 +221,7 @@ export class GeminiProvider implements ILlmProvider {
         const toolCalls: ToolCall[] = [];
         let finalMetadata: Record<string, unknown> | undefined;
 
-        for await (const chunk of result.stream as AsyncIterable<any>) {
+        for await (const chunk of result.stream) {
           const candidate = chunk?.candidates?.[0];
           if (candidate?.finishReason) {
             finishReason = candidate.finishReason;
@@ -251,13 +287,13 @@ export class GeminiProvider implements ILlmProvider {
           },
         };
         return;
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }
         lastError = error;
         logger.warn(
-          `[Gemini] Erro de streaming usando a chave ${clientIndex + 1}: ${error?.message || error}`,
+          `[Gemini] Erro de streaming usando a chave ${clientIndex + 1}: ${getErrorMessage(error)}`,
         );
       }
     }
@@ -295,8 +331,6 @@ export class GeminiProvider implements ILlmProvider {
     };
 
     if (systemInstruction) {
-      // Cloudflare AI Gateway forwards the raw Gemini REST payload, which expects
-      // the REST field name instead of the SDK camelCase variant.
       payload.system_instruction = {
         parts: [{ text: systemInstruction }],
       };
@@ -332,12 +366,11 @@ export class GeminiProvider implements ILlmProvider {
           allowLoopback: true,
         });
 
-        const responseBody = await readSafeJsonResponse<any>(response, 'Gemini Cloudflare AI Gateway').catch(() => null);
+        const responseBody = await readSafeJsonResponse<GeminiGatewayResponse>(response, 'Gemini Cloudflare AI Gateway').catch(() => null);
 
         if (!response.ok) {
           const errorText =
             responseBody?.error?.message ||
-            responseBody?.message ||
             `HTTP ${response.status}`;
           throw new Error(`[Cloudflare AI Gateway] ${errorText}`);
         }
@@ -350,10 +383,10 @@ export class GeminiProvider implements ILlmProvider {
 
         this.currentClientIndex = keyIndex;
         return this.parseGatewayResponse(responseBody);
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error;
         logger.warn(
-          `[Gemini via Cloudflare AI Gateway] Erro usando a chave ${keyIndex + 1}: ${error?.message || error}`,
+          `[Gemini via Cloudflare AI Gateway] Erro usando a chave ${keyIndex + 1}: ${getErrorMessage(error)}`,
         );
       }
     }
@@ -361,7 +394,7 @@ export class GeminiProvider implements ILlmProvider {
     throw lastError || new Error('Falha desconhecida no Cloudflare AI Gateway para Gemini');
   }
 
-  private parseGatewayResponse(responseBody: any, options?: ProviderChatOptions): LlmResponse {
+  private parseGatewayResponse(responseBody: GeminiGatewayResponse | null, options?: ProviderChatOptions): LlmResponse {
     const candidate = responseBody?.candidates?.[0];
 
     if (!candidate) {
@@ -398,7 +431,7 @@ export class GeminiProvider implements ILlmProvider {
   }
 
   private async resolveGeminiStreamResponse(
-    result: any,
+    result: GenerateContentStreamResult,
     fallback: {
       accumulated: string;
       toolCalls: ToolCall[];
@@ -463,8 +496,8 @@ export class GeminiProvider implements ILlmProvider {
     }
   }
 
-  private buildGeminiTools(tools?: ToolDefinition[], options?: ProviderChatOptions): any[] | undefined {
-    const output: any[] = [];
+  private buildGeminiTools(tools?: ToolDefinition[], options?: ProviderChatOptions): GeminiNativeTool[] | undefined {
+    const output: GeminiNativeTool[] = [];
     if (tools && tools.length > 0) {
       output.push({ functionDeclarations: tools.map((tool) => this.convertTool(tool)) });
     }
@@ -477,8 +510,8 @@ export class GeminiProvider implements ILlmProvider {
     return output.length > 0 ? output : undefined;
   }
 
-  private buildGeminiRestNativeTools(tools?: ToolDefinition[], options?: ProviderChatOptions): any[] {
-    const output: any[] = [];
+  private buildGeminiRestNativeTools(tools?: ToolDefinition[], options?: ProviderChatOptions): GeminiRestNativeTool[] {
+    const output: GeminiRestNativeTool[] = [];
     if (tools && tools.length > 0) {
       output.push({ function_declarations: tools.map((tool) => this.convertTool(tool)) });
     }
@@ -499,7 +532,7 @@ export class GeminiProvider implements ILlmProvider {
     return Boolean(options?.providerNativeTools?.some((tool) => tool.name === 'code_execution' || tool.name === 'provider_code_execution'));
   }
 
-  private buildProviderNativeMetadata(candidate: any, options?: ProviderChatOptions): Record<string, unknown> | undefined {
+  private buildProviderNativeMetadata(candidate: GenerateContentCandidate | undefined, options?: ProviderChatOptions): Record<string, unknown> | undefined {
     const requested = options?.providerNativeTools || [];
     const activated = requested
       .filter((tool) => {
@@ -508,7 +541,7 @@ export class GeminiProvider implements ILlmProvider {
         return false;
       })
       .map((tool) => tool.name);
-    const groundingMetadata = candidate?.groundingMetadata;
+    const groundingMetadata = candidate?.groundingMetadata as GeminiGroundingMetadata | undefined;
     if (!groundingMetadata && requested.length === 0) {
       return undefined;
     }
@@ -534,14 +567,13 @@ export class GeminiProvider implements ILlmProvider {
     };
   }
 
-  private extractCitations(metadata: any): Array<{ title: string; url: string }> {
+  private extractCitations(metadata: GeminiGroundingMetadata): Array<{ title: string; url: string }> {
     const chunks = Array.isArray(metadata?.groundingChunks) ? metadata.groundingChunks : [];
     return chunks
-      .map((chunk: any) => chunk?.web)
-      .filter((web: any) => web?.uri)
-      .map((web: any) => ({
-        title: String(web.title || web.uri),
-        url: String(web.uri),
+      .filter((chunk): chunk is GeminiGroundingChunk & { web: NonNullable<GeminiGroundingChunk['web']> } => Boolean(chunk?.web?.uri))
+      .map((chunk) => ({
+        title: String(chunk.web.title || chunk.web.uri),
+        url: String(chunk.web.uri),
       }));
   }
 
@@ -565,11 +597,8 @@ export class GeminiProvider implements ILlmProvider {
             },
           ],
         });
-        // Dashboard controls: Se a tool response trouxer inlineData (screenshot/visão),
-        // emite como mensagem 'user' complementar imediatamente após para que
-        // o Gemini enxergue a imagem no contexto.
         if (message.inlineData && message.inlineData.length > 0) {
-          const visionParts: any[] = [
+          const visionParts: Content['parts'] = [
             { text: '[Imagem capturada pela ferramenta para analise visual]' },
           ];
           for (const media of message.inlineData) {
@@ -586,7 +615,7 @@ export class GeminiProvider implements ILlmProvider {
       }
 
       const role = message.role === 'assistant' ? 'model' : 'user';
-      const parts: any[] = [];
+      const parts: Content['parts'] = [];
 
       if (message.content) {
         parts.push({ text: message.content });
@@ -622,7 +651,7 @@ export class GeminiProvider implements ILlmProvider {
   }
 
   private convertTool(tool: ToolDefinition): FunctionDeclaration {
-    const properties: Record<string, any> = {};
+    const properties: Record<string, Record<string, unknown>> = {};
 
     for (const [key, param] of Object.entries(tool.parameters.properties)) {
       properties[key] = this.convertSchema(param as unknown as Record<string, unknown>);

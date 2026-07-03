@@ -47,7 +47,7 @@ export class ReasoningSummaryService {
       result: summarize(run?.summary || lastTimeline?.detail || '', 'Ainda sem resultado de execucao nesta sessao.'),
       nextAction: pendingApproval
         ? `Decida a aprovacao ${pendingApproval.id}.`
-        : input.trust?.actions?.[0]?.command || 'Envie um pedido natural ou abra /dashboard.',
+        : input.trust?.actions?.[0]?.command || 'Envie um pedido natural ou abra /zavorthControl.',
     };
   }
 

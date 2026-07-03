@@ -2,6 +2,24 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface QQWebhookPayload {
+  author?: {
+    id?: string;
+    user_openid?: string;
+  };
+  user_id?: string;
+  userId?: string;
+  group_openid?: string;
+  channel_id?: string;
+  guild_id?: string;
+  chatId?: string;
+  content?: string;
+  text?: string;
+  rawText?: string;
+  id?: string;
+  messageId?: string;
+}
+
 export class QQGateway extends WebhookGateway {
   public readonly id = 'qq';
   public readonly name = 'QQ Bot';
@@ -49,7 +67,7 @@ export class QQGateway extends WebhookGateway {
     return config.qqStatusFile;
   }
 
-  protected extractInboundPayload(webhookPayload: Record<string, unknown>): {
+  protected extractInboundPayload(webhookPayload: QQWebhookPayload): {
     userId: string;
     chatId: string;
     rawText: string;
@@ -58,35 +76,35 @@ export class QQGateway extends WebhookGateway {
     fields?: Record<string, unknown>;
   } | null {
     const author = webhookPayload.author && typeof webhookPayload.author === 'object'
-      ? webhookPayload.author as Record<string, unknown>
+      ? webhookPayload.author as { id?: string; user_openid?: string }
       : null;
     const userId = String(
       author?.id
       || author?.user_openid
-      || (webhookPayload as any).user_id
-      || (webhookPayload as any).userId
+      || webhookPayload.user_id
+      || webhookPayload.userId
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).group_openid
-      || (webhookPayload as any).channel_id
-      || (webhookPayload as any).guild_id
-      || (webhookPayload as any).chatId
+      webhookPayload.group_openid
+      || webhookPayload.channel_id
+      || webhookPayload.guild_id
+      || webhookPayload.chatId
       || 'qq',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).content
-      || (webhookPayload as any).text
-      || (webhookPayload as any).rawText
+      webhookPayload.content
+      || webhookPayload.text
+      || webhookPayload.rawText
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).id
-      || (webhookPayload as any).messageId
+      webhookPayload.id
+      || webhookPayload.messageId
       || '',
     ).trim() || null;
     const groupId = String(
-      (webhookPayload as any).group_openid
+      webhookPayload.group_openid
       || '',
     ).trim();
 
@@ -102,8 +120,8 @@ export class QQGateway extends WebhookGateway {
       isGroup: Boolean(groupId),
       fields: {
         qqGroupId: groupId || null,
-        qqChannelId: String((webhookPayload as any).channel_id || '').trim() || null,
-        qqGuildId: String((webhookPayload as any).guild_id || '').trim() || null,
+        qqChannelId: String(webhookPayload.channel_id || '').trim() || null,
+        qqGuildId: String(webhookPayload.guild_id || '').trim() || null,
       },
     };
   }
@@ -138,8 +156,8 @@ export class QQGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`QQ send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      this.recordError(`QQ send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }

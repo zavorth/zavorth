@@ -239,7 +239,7 @@ export class ZavorthCapabilityActionExposureService {
         verification.candidateId,
       ].map(clean).filter(Boolean),
       domains: ['capabilities', 'innovation', 'adapter', 'verification'],
-      surface: ['cli', 'dashboard', 'tui', 'api', 'channel', 'llm'],
+      surface: ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'],
       risk: 'attention',
       requiresPreview: true,
       requiresApproval: true,
@@ -335,7 +335,7 @@ export class ZavorthCapabilityActionExposureService {
         previewAll: 'npm run zavorth:capability-action-exposure --silent -- --preview --all-verified',
         exposeAll: 'npm run zavorth:capability-action-exposure --silent -- --expose --all-verified',
         exposeSelected: 'npm run zavorth:capability-action-exposure --silent -- --expose --verification <verification-id>',
-        nextStage: 'Show exposed capability actions in dashboard/TUI/setup with clear status, preview and receipts.',
+        nextStage: 'Show exposed capability actions in zavorthControl/TUI/setup with clear status, preview and receipts.',
       },
     };
   }
@@ -412,7 +412,7 @@ function normalizeManifest(
     description: redact(value?.description || `Governed candidate action generated from verified capability adapter ${fallback.adapterDraftId || actionId}.`),
     aliases: Array.isArray(value?.aliases) ? value.aliases.map(clean).filter(Boolean) : [actionId, title, clean(fallback.candidateId)].filter(Boolean),
     domains: Array.isArray(value?.domains) ? value.domains.map(clean).filter(Boolean) : ['capabilities', 'innovation', 'adapter', 'verification'],
-    surface: ['cli', 'dashboard', 'tui', 'api', 'channel', 'llm'],
+    surface: ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'],
     risk: 'attention',
     requiresPreview: true,
     requiresApproval: true,

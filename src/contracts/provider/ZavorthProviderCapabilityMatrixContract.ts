@@ -25,7 +25,7 @@ export type ZavorthProviderCapabilityMatrixCredentialKind =
   | 'oauth'
   | 'compatible';
 
-export type ZavorthProviderCapabilityMatrixDashboardAction =
+export type ZavorthProviderCapabilityMatrixZavorthControlAction =
   | 'use'
   | 'configure'
   | 'doctor'
@@ -52,7 +52,7 @@ export type ZavorthProviderCapabilityMatrixProvider = {
   statusReason: string;
   doctor: ZavorthProviderCapabilityMatrixProof;
   canary: ZavorthProviderCapabilityMatrixProof;
-  dashboardAction: ZavorthProviderCapabilityMatrixDashboardAction;
+  zavorthControlAction: ZavorthProviderCapabilityMatrixZavorthControlAction;
 };
 
 export type ZavorthProviderCapabilityMatrixSnapshot = {

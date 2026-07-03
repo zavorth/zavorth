@@ -146,7 +146,7 @@ export class WebAppPolishContractService {
 
   private readAsset(asset: WebAppPolishAsset): string {
     if (asset === 'html') {
-      return this.html !== null ? this.html : buildRuntimeShellHtml('/dashboard');
+      return this.html !== null ? this.html : buildRuntimeShellHtml('/zavorthControl');
     }
     if (asset === 'script') {
       return this.script !== null ? this.script : buildRuntimeShellScript();

@@ -78,7 +78,7 @@ export type RuntimeAdapterPluginCommandDescriptorBoundaryNormalization<TRuntimeI
   generatedAt: string;
   runtimeId: TRuntimeId;
   descriptors: RuntimeAdapterZavorthCommandDescriptor[];
-  dashboard: {
+  zavorthControl: {
     catalogRows: RuntimeAdapterCommandDescriptorCatalogRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
@@ -102,7 +102,7 @@ function commandLabel(index: number, fixtureCase: RuntimeAdapterPluginCommandDes
   return `Command descriptor ${index + 1}`;
 }
 
-function dashboardStatus(risk: UniversalToolRiskLevel): RuntimeAdapterCommandDescriptorCatalogRow['status'] {
+function zavorthControlStatus(risk: UniversalToolRiskLevel): RuntimeAdapterCommandDescriptorCatalogRow['status'] {
   return risk === 'danger' ? 'blocked' : 'available';
 }
 
@@ -140,12 +140,12 @@ export function normalizeRuntimeAdapterPluginCommandDescriptors<TRuntimeId exten
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     descriptors,
-    dashboard: {
+    zavorthControl: {
       catalogRows: descriptors.map((descriptor) => ({
         id: `${descriptor.id}:catalog-row`,
         commandId: descriptor.id,
         label: descriptor.label,
-        status: dashboardStatus(descriptor.risk),
+        status: zavorthControlStatus(descriptor.risk),
         policy: descriptor.risk === 'danger' ? 'blocked' : 'metadata-only',
       })),
     },

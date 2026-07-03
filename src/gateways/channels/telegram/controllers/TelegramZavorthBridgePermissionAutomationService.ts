@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { ZavorthBridgeCompanionBridge } from '../../../../agents/ZavorthBridgeCompanionBridge.js';
 import { ZavorthBridgeWindowAutomator } from '../../../../agents/ZavorthBridgeWindowAutomator.js';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
@@ -136,7 +135,7 @@ export class TelegramZavorthBridgePermissionAutomationService {
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
       } catch (error: unknown) {
-        lastError = error instanceof Error ? error : new Error(String(error?.message || error));
+        lastError = error instanceof Error ? error : new Error(String(error));
       }
     }
 
@@ -157,7 +156,7 @@ export class TelegramZavorthBridgePermissionAutomationService {
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
       } catch (error: unknown) {
-        lastError = error instanceof Error ? error : new Error(String(error?.message || error));
+        lastError = error instanceof Error ? error : new Error(String(error));
       }
     }
 

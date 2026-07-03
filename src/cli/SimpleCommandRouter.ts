@@ -25,7 +25,7 @@ const SIMPLE_COMMAND_ALIASES: Record<string, string[]> = {
   doctro: ['doctor'],
   docotr: ['doctor'],
   panel: ['open'],
-  dashboard: ['open'],
+  zavorthControl: ['open'],
   opne: ['open'],
   run: ['ask'],
   provders: ['providers'],

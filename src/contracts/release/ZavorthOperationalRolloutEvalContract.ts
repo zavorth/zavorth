@@ -46,7 +46,7 @@ export type ZavorthOperationalRolloutEvalFinding = {
     | 'required-action'
     | 'fallback-coverage'
     | 'api-projection'
-    | 'dashboard-boundary'
+    | 'zavorthControl-boundary'
     | 'no-live-action'
     | 'telegram-not-privileged'
     | 'scenario-contract';
@@ -75,7 +75,7 @@ export type ZavorthOperationalRolloutScenarioEval = {
     actionCount: number;
     fallbackSurfaces: number;
     buttonSurfaces: number;
-    dashboardVisualMutation: false;
+    zavorthControlVisualMutation: false;
     noLiveActionExecuted: true;
   };
 };
@@ -105,7 +105,7 @@ export type ZavorthOperationalRolloutReceipt = {
 
 export type ZavorthOperationalRolloutSafety = {
   noLiveActionExecuted: true;
-  noDashboardVisualMutation: true;
+  noZavorthControlVisualMutation: true;
   noZavorthControlVisualMutation: true;
   projectionsOnly: true;
   noExternalProviderRequired: true;
@@ -128,7 +128,7 @@ export type ZavorthOperationalRolloutEvalSnapshot = {
     scenarioId: string;
     projection: Pick<
       ZavorthCrossSurfaceRuntimeProjectionSnapshot,
-      'status' | 'summary' | 'safety' | 'dashboardProjection' | 'narrative'
+      'status' | 'summary' | 'safety' | 'zavorthControlProjection' | 'narrative'
     >;
   }>;
   receipts: ZavorthOperationalRolloutReceipt[];

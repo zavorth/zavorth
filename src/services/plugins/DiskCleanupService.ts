@@ -171,6 +171,19 @@ export class DiskCleanupService {
     return lines.join('\n');
   }
 
+  public getStats(): string {
+    const enabled = this.rules.filter((rule) => rule.enabled).length;
+    const dryRun = this.rules.filter((rule) => rule.dry_run).length;
+    return [
+      'Disk cleanup statistics:',
+      `  Rules: ${this.rules.length}`,
+      `  Enabled: ${enabled}`,
+      `  Dry run: ${dryRun}`,
+      '',
+      this.getUsage(),
+    ].join('\n');
+  }
+
   private listFiles(dir: string): string[] {
     const results: string[] = [];
     try {

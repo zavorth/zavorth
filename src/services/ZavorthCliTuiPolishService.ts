@@ -32,7 +32,7 @@ export type ZavorthCliTuiPolishProvider = {
 };
 
 export type ZavorthCliTuiPolishChannel = {
-  id: 'dashboard' | 'telegram' | 'approvals';
+  id: 'zavorthControl' | 'telegram' | 'approvals';
   label: string;
   status: ZavorthCliTuiPolishStatus;
   value: string;
@@ -57,7 +57,7 @@ export type ZavorthCliTuiPolishSnapshot = {
   operator: {
     activeProvider: string | null;
     activeModel: string | null;
-    dashboardUrl: string;
+    zavorthControlUrl: string;
     remoteReady: boolean;
     localReady: boolean;
   };
@@ -75,7 +75,7 @@ export type ZavorthCliTuiPolishSnapshot = {
     providers: 'zavorth providers';
     approvals: 'zavorth gateway approvals';
     receipts: 'zavorth receipts';
-    dashboard: 'zavorth open';
+    zavorthControl: 'zavorth open';
     fixes: 'zavorth readiness fixes';
     setup: 'zavorth setup';
     chat: 'zavorth chat';
@@ -152,7 +152,7 @@ export class ZavorthCliTuiPolishService {
       operator: {
         activeProvider: ready.provider.activeProvider || null,
         activeModel: ready.provider.activeModel || null,
-        dashboardUrl: ready.actions.dashboard || '/dashboard',
+        zavorthControlUrl: ready.actions.zavorthControl || '/zavorthControl',
         remoteReady: ready.remoteReady,
         localReady: ready.localReady,
       },
@@ -176,7 +176,7 @@ export class ZavorthCliTuiPolishService {
         providers: 'zavorth providers',
         approvals: 'zavorth gateway approvals',
         receipts: 'zavorth receipts',
-        dashboard: 'zavorth open',
+        zavorthControl: 'zavorth open',
         fixes: 'zavorth readiness fixes',
         setup: 'zavorth setup',
         chat: 'zavorth chat',
@@ -280,10 +280,10 @@ function buildCards(
       command: 'zavorth receipts',
     },
     {
-      id: 'dashboard',
-      label: 'Dashboard',
-      status: ready.channels.dashboard,
-      value: ready.channels.dashboard,
+      id: 'zavorthControl',
+      label: 'ZavorthControl',
+      status: ready.channels.zavorthControl,
+      value: ready.channels.zavorthControl,
       detail: 'Superficie visual sem autoridade direta de execucao.',
       command: 'zavorth open',
     },
@@ -293,10 +293,10 @@ function buildCards(
 function buildChannels(ready: ZavorthReadyToGoSnapshot): ZavorthCliTuiPolishChannel[] {
   return [
     {
-      id: 'dashboard',
-      label: 'Dashboard',
-      status: ready.channels.dashboard,
-      value: ready.actions.dashboard || '/dashboard',
+      id: 'zavorthControl',
+      label: 'ZavorthControl',
+      status: ready.channels.zavorthControl,
+      value: ready.actions.zavorthControl || '/zavorthControl',
       command: 'zavorth open',
     },
     {
@@ -349,7 +349,7 @@ function renderTopLine(snapshot: ZavorthCliTuiPolishSnapshot): string {
   return [
     paintCliTone('Operator', 'info'),
     `${paintCliBadge(scope, toneForStatus(snapshot.status))} provider ${provider} | model ${model}`,
-    `${paintCliBadge('dashboard', 'brand')} ${snapshot.operator.dashboardUrl}`,
+    `${paintCliBadge('zavorthControl', 'brand')} ${snapshot.operator.zavorthControlUrl}`,
     '',
   ].join('\n');
 }
@@ -426,7 +426,7 @@ function renderCommandDock(snapshot: ZavorthCliTuiPolishSnapshot): string {
   return [
     paintCliTone('Commands', 'info'),
     `${snapshot.commands.ask}     ${snapshot.commands.edit}`,
-    `${snapshot.commands.apply}     ${snapshot.commands.dashboard}     ${snapshot.commands.chat}`,
+    `${snapshot.commands.apply}     ${snapshot.commands.zavorthControl}     ${snapshot.commands.chat}`,
     `${snapshot.commands.readyOffline}     ${snapshot.commands.providers}     ${snapshot.commands.trust}`,
     '',
   ].join('\n');

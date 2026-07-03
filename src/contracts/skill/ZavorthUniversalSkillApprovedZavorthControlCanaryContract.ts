@@ -11,12 +11,12 @@ export const ZAVORTH_UNIVERSAL_SKILL_APPROVED_ZAVORTH_CONTROL_CANARY_CONTRACT_VE
 export type ZavorthUniversalSkillApprovedZavorthControlCanaryStatus =
   ZavorthUniversalSkillExpansionQaStatus;
 
-export type ZavorthUniversalSkillCanaryMode =
+export type ZavorthUniversalSkillZavorthControlCanaryMode =
   | 'zavorthControl-only'
   | 'dry-run'
   | 'live';
 
-export type ZavorthUniversalSkillCanaryStatus =
+export type ZavorthUniversalSkillZavorthControlCanaryStatus =
   | 'zavorthControl-ready'
   | 'dry-run-ready'
   | 'approval-required'
@@ -80,8 +80,8 @@ export type ZavorthUniversalSkillApprovedZavorthControlCanarySnapshot = {
     actions: ZavorthUniversalSkillZavorthControlAction[];
   };
   canary: {
-    mode: ZavorthUniversalSkillCanaryMode;
-    status: ZavorthUniversalSkillCanaryStatus;
+    mode: ZavorthUniversalSkillZavorthControlCanaryMode;
+    status: ZavorthUniversalSkillZavorthControlCanaryStatus;
     selectedBatch: ZavorthUniversalSkillScaleBatch | null;
     approvalId: string | null;
     dryRunPrepared: boolean;

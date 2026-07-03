@@ -1,7 +1,7 @@
 export {
   createZavorthNativeCapabilityRegistryFixture,
   createZavorthNativeConfigStateRegistryFixture,
-  createZavorthNativeDashboardViewModelRegistryFixture,
+  createZavorthNativeZavorthControlViewModelRegistryFixture,
   createZavorthNativeIntegrationRegistryFixture,
   createZavorthNativeSessionHistoryRegistryFixture,
 } from "../../runtime/zavorth-runtime-adapters/index.js";
@@ -16,8 +16,8 @@ export type {
   ZavorthNativeCapabilityRegistryEntry,
   ZavorthNativeConfigStateRecord,
   ZavorthNativeConfigStateRegistry,
-  ZavorthNativeDashboardViewModelRecord,
-  ZavorthNativeDashboardViewModelRegistry,
+  ZavorthNativeZavorthControlViewModelRecord,
+  ZavorthNativeZavorthControlViewModelRegistry,
   ZavorthNativeIntegrationRecord,
   ZavorthNativeIntegrationRegistry,
   ZavorthNativeSessionHistoryRegistry,

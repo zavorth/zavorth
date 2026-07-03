@@ -35,7 +35,7 @@ const SCOPE_SIGNALS: WeightedSignal[] = [
   },
   {
     id: 'many-surfaces',
-    pattern: /\b(dashboard|cli|terminal|api|runtime|provider|providers|canais|channels|memoria|memory|profile|profiles|swarm|sandbox)\b[\s\S]{0,160}\b(dashboard|cli|terminal|api|runtime|provider|providers|canais|channels|memoria|memory|profile|profiles|swarm|sandbox)\b/i,
+    pattern: /\b(zavorthControl|cli|terminal|api|runtime|provider|providers|canais|channels|memoria|memory|profile|profiles|swarm|sandbox)\b[\s\S]{0,160}\b(zavorthControl|cli|terminal|api|runtime|provider|providers|canais|channels|memoria|memory|profile|profiles|swarm|sandbox)\b/i,
     score: 3,
     reason: 'pedido cruza varias superficies do produto',
   },

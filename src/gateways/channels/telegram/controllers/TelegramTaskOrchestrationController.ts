@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { ParsedCommand } from '../../../../gateways/channels/telegram/CommandParser.js';
 import { Task } from '@zavorth/contracts/TaskContract.js';
@@ -31,6 +30,7 @@ import { TelegramTaskSurfaceSecurityService } from '../../../../gateways/channel
 import { TelegramTaskWorkflowRoutingService } from '../../../../gateways/channels/telegram/controllers/TelegramTaskWorkflowRoutingService.js';
 import { buildTaskEventSurfaceResponse } from '@zavorth/domain/surface/application/surface-response/index.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
+import { logger } from '../logger.js';
 
 type AttachRecentContextFn = (task: Task) => Promise<void>;
 type RouteIntentFn = (parsed: ParsedCommand) => RouteIntent;
@@ -165,13 +165,13 @@ export class TelegramTaskOrchestrationController {
 
     try {
       this.deps.taskManager.advanceState(task, 'parsed');
-      this.deps.auditLogger.logInput(task.task_id, userId, text, parsed.command_type).catch(() => {});
+      this.deps.auditLogger.logInput(task.task_id, userId, text, parsed.command_type).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
       const trustClassification = this.deps.classifyTrust(text, input);
       if (!trustClassification.can_generate_execution) {
         this.deps.auditLogger
           .logSecurityBlock(task.task_id, `Trusted Boundary: ${trustClassification.reason}`)
-          .catch(() => {});
+          .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
         this.deps.logRepo.log(
           'warn',
           'TrustedBoundary',
@@ -240,12 +240,13 @@ export class TelegramTaskOrchestrationController {
       });
       return task;
     } catch (error: unknown) {
-      this.deps.logRepo.log('error', 'BotGateway', `Error processing task: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.deps.logRepo.log('error', 'BotGateway', `Error processing task: ${errorMessage}`);
       if (!StateMachine.isTerminal(task.status)) {
         this.deps.taskManager.advanceState(task, 'failed');
       }
-      const userFacingText = UserFacingResponseService.formatPreparationFailure(error.message);
-      const operationalText = TaskResponseEnvelopeService.buildPreparationFailure(task, error.message);
+      const userFacingText = UserFacingResponseService.formatPreparationFailure(errorMessage);
+      const operationalText = TaskResponseEnvelopeService.buildPreparationFailure(task, errorMessage);
       TaskResponseEnvelopeService.capture(task, 'preparation_failure', userFacingText, operationalText);
       this.deps.persistTask(task);
       this.deps.logRepo.log('error', 'ResponseEnvelope', operationalText, {
@@ -255,10 +256,10 @@ export class TelegramTaskOrchestrationController {
       await this.replyTaskEvent(ctx, task, {
         event: 'preparation_failure',
         title: 'Failed to prepare task',
-        summary: error.message,
+        summary: errorMessage,
         text: userFacingText,
         status: 'failed',
-        reason: error.message,
+        reason: errorMessage,
         riskBlocked: false,
       });
       return task;

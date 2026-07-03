@@ -7,7 +7,7 @@
  *   migrations.js     — Legacy file + JSON→SQLite migration
  *   usageHistory.js   — Usage tracking, request log, pending requests
  *   costCalculator.js — Cost calculation (pure function)
- *   usageStats.js     — Aggregated stats for dashboard
+ *   usageStats.js     — Aggregated stats for zavorthControl
  *   callLogs.js       — Structured call log management
  *
  * Existing imports like `import { getUsageStats } from "@/lib/usageDb"`

@@ -144,7 +144,7 @@ export class ZavorthAutonomySliderService {
         'More autonomous never means raw secrets, destructive host changes or unscoped external actions are allowed.',
         'A stricter level can be applied as a safe preference, but live runtime changes still produce receipts.',
         'Business mode is not maximum freedom; it is maximum evidence and scoped governance.',
-        'This contract is projection-first and safe for Dashboard, CLI, Satellite and channel rendering.',
+        'This contract is projection-first and safe for ZavorthControl, CLI, Satellite and channel rendering.',
       ],
     };
   }

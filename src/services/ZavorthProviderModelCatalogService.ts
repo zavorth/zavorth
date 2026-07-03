@@ -113,8 +113,8 @@ export class ZavorthProviderModelCatalogService {
           liveNetworkUsedByDefault: true,
         },
       ],
-      dashboardProjection: {
-        route: '/dashboard',
+      zavorthControlProjection: {
+        route: '/zavorthControl',
         endpoint: '/api/providers/model-catalog',
         executionAuthority: false,
         normalRenderMakesNoNetworkCalls: true,
@@ -123,7 +123,7 @@ export class ZavorthProviderModelCatalogService {
         noRawProviderSecrets: true,
         catalogIsNotLiveProof: true,
         liveProbeRequiresExplicitOperatorAction: true,
-        dashboardCannotExecuteProviderCalls: true,
+        zavorthControlCannotExecuteProviderCalls: true,
         modelListingMayBeDynamicThroughAggregators: true,
       },
       nextAction: buildNextAction(matrix, providers),

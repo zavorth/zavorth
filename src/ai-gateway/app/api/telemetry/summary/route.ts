@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getTelemetrySummary } from "@/shared/utils/requestTelemetry";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { safeParseInt } from "@/shared/utils/safeParseInt";
 
 export async function GET(request) {
   const authError = await requireManagementAuth(request);
@@ -8,7 +9,7 @@ export async function GET(request) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const windowMs = parseInt(searchParams.get("windowMs") || "300000", 10);
+    const windowMs = safeParseInt(searchParams.get("windowMs"), 300000);
     const summary = getTelemetrySummary(windowMs);
     return NextResponse.json(summary);
   } catch (error) {

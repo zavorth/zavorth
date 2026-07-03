@@ -48,26 +48,48 @@ type SearchEngineResult = {
   description: string;
 };
 
+interface WebSearchArgs {
+  query?: string;
+  limit?: number;
+  domainProfile?: string;
+  domain_profile?: string;
+  deep?: boolean;
+  extractPages?: boolean;
+  extract_pages?: boolean;
+}
+
+/** Minimal shape matching duck-duck-scrape SearchResults results item */
+interface DuckDuckGoResult {
+  title: string;
+  url: string;
+  description: string;
+  [key: string]: unknown;
+}
+
+function toDuckDuckGoResults(results: SearchEngineResult[]): DuckDuckGoResult[] {
+  return results.map((r) => ({ ...r }));
+}
+
 /**
- * WebSearchTool â€” Permite ao agente pesquisar informaÃ§Ãµes na web em tempo real.
+ * WebSearchTool — Permite ao agente pesquisar informações na web em tempo real.
  */
 export class WebSearchTool extends BaseTool {
   private static duckDuckGoQueue: Promise<void> = Promise.resolve();
   private static nextDuckDuckGoAt = 0;
 
   public readonly name = 'web_search';
-  public readonly description = 'Pesquisa informaÃ§Ãµes atualizadas na internet (notÃ­cias, cotaÃ§Ãµes, dados gerais) via DuckDuckGo. Retorna os principais resultados com tÃ­tulo, URL e trecho da pÃ¡gina.';
+  public readonly description = 'Pesquisa informações atualizadas na internet (notícias, cotações, dados gerais) via DuckDuckGo. Retorna os principais resultados com título, URL e trecho da página.';
   
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       query: {
         type: 'string',
-        description: 'A consulta de busca (ex: "Ãºltimas notÃ­cias sobre inteligÃªncia artificial 2024", "cotaÃ§Ã£o do dÃ³lar hoje").',
+        description: 'A consulta de busca (ex: "últimas notícias sobre inteligência artificial 2024", "cotação do dólar hoje").',
       },
       limit: {
         type: 'number',
-        description: 'NÃºmero mÃ¡ximo de resultados a retornar (default: 3, max: 5).',
+        description: 'Número máximo de resultados a retornar (default: 3, max: 5).',
       },
       domainProfile: {
         type: 'string',
@@ -93,7 +115,7 @@ export class WebSearchTool extends BaseTool {
     required: ['query'],
   };
 
-  public async execute(args: any): Promise<string> {
+  public async execute(args: WebSearchArgs): Promise<string> {
     const query = this.sanitizeSearchQuery(String(args.query || '').trim());
     const effectiveLimit = Math.min(args.limit || 5, 8);
     const domain = this.resolveDomainProfile(args, query);
@@ -102,7 +124,7 @@ export class WebSearchTool extends BaseTool {
     const extractPages = args.extractPages !== false && args.extract_pages !== false && deep;
 
     if (!query || typeof query !== 'string') {
-      return 'Erro: O parÃ¢metro "query" Ã© obrigatÃ³rio e deve ser uma string.';
+      return 'Erro: O parâmetro "query" é obrigatório e deve ser uma string.';
     }
 
     const shouldUseFreshNewsFallback =
@@ -117,7 +139,7 @@ export class WebSearchTool extends BaseTool {
     }
 
     try {
-      console.log(`ðŸ” [WebSearchTool] Pesquisando: "${query}"`);
+      console.log(`🔍 [WebSearchTool] Pesquisando: "${query}"`);
       
       const rankedResults = await this.searchRankedResults(query, effectiveLimit, profile, {
         deep,
@@ -130,8 +152,9 @@ export class WebSearchTool extends BaseTool {
 
       return `Nenhum resultado encontrado para a busca: "${query}".`;
 
-    } catch (error: any) {
-      console.error(`âŒ [WebSearchTool] Erro na busca:`, error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`❌ [WebSearchTool] Erro na busca:`, errorMessage);
       const fallbackResult = this.shouldUseNewsRssFallback(query)
         ? await this.searchNewsFallback(query, effectiveLimit)
         : null;
@@ -140,20 +163,20 @@ export class WebSearchTool extends BaseTool {
         return [
           fallbackResult,
           '',
-          `Nota: a busca principal via DuckDuckGo falhou (${error.message}); estes resultados vieram de fallback RSS de noticias.`,
+          `Nota: a busca principal via DuckDuckGo falhou (${errorMessage}); estes resultados vieram de fallback RSS de noticias.`,
         ].join('\n');
       }
 
       return [
         'QUALITY_GATE: search_unavailable',
         `Consulta: "${query}"`,
-        `A busca principal falhou: ${error.message}`,
+        `A busca principal falhou: ${errorMessage}`,
         'Nao trate isto como informacao atual verificada. Se o pedido for conhecimento geral estavel, responda com conhecimento geral e avise que a verificacao online falhou. Se depender de informacao atual, diga que nao ha fontes suficientes agora.',
       ].join('\n');
     }
   }
 
-  private resolveDomainProfile(args: any, query: string): EvidenceSearchDomain {
+  private resolveDomainProfile(args: WebSearchArgs, query: string): EvidenceSearchDomain {
     const explicit = String(args.domainProfile || args.domain_profile || '').trim().toLowerCase();
     if (explicit && explicit !== 'auto') {
       return getEvidenceDomainProfile(explicit).domain;
@@ -238,8 +261,8 @@ export class WebSearchTool extends BaseTool {
             scoreReasons: [...score.reasons, ...weighted.reasons].slice(0, 8),
           });
         });
-      } catch (error: any) {
-        firstError ||= new Error(error?.message || String(error));
+      } catch (error: unknown) {
+        firstError ||= new Error(error instanceof Error ? error.message : String(error));
       }
     }
 
@@ -397,8 +420,8 @@ export class WebSearchTool extends BaseTool {
 
       try {
         return await runSearch();
-      } catch (error: any) {
-        const message = String(error?.message || error || '');
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
         if (!/too quickly|anomaly|rate|429/i.test(message)) {
           throw error;
         }
@@ -414,12 +437,12 @@ export class WebSearchTool extends BaseTool {
     try {
       const duckDuckGoResults = await this.searchDuckDuckGoWithBackoff(query);
       return duckDuckGoResults;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const bingResults = await this.searchBingWeb(query);
       if (bingResults.length > 0) {
         return {
           noResults: false,
-          results: bingResults as any,
+          results: toDuckDuckGoResults(bingResults),
         } as SearchResults;
       }
       throw error;
@@ -616,8 +639,8 @@ export class WebSearchTool extends BaseTool {
         return { title, publishedAt, error: 'empty extracted text' };
       }
       return { title, excerpt, publishedAt };
-    } catch (error: any) {
-      return { error: error?.name === 'AbortError' ? 'timeout' : error?.message || String(error) };
+    } catch (error: unknown) {
+      return { error: error instanceof Error ? (error.name === 'AbortError' ? 'timeout' : error.message) : String(error) };
     } finally {
       clearTimeout(timeout);
     }
@@ -688,14 +711,16 @@ export class WebSearchTool extends BaseTool {
       if (googleResult) {
         return googleResult;
       }
-    } catch (fallbackError: any) {
-      console.error(`[WebSearchTool] Fallback Google News falhou:`, fallbackError.message);
+    } catch (fallbackError: unknown) {
+      const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+      console.error(`[WebSearchTool] Fallback Google News falhou:`, errorMessage);
     }
 
     try {
       return await this.searchBingNewsFallback(query, limit);
-    } catch (fallbackError: any) {
-      console.error(`[WebSearchTool] Fallback Bing News falhou:`, fallbackError.message);
+    } catch (fallbackError: unknown) {
+      const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+      console.error(`[WebSearchTool] Fallback Bing News falhou:`, errorMessage);
       return null;
     }
   }
@@ -735,8 +760,9 @@ export class WebSearchTool extends BaseTool {
         if (result) {
           lastQualityGate = result;
         }
-      } catch (fallbackError: any) {
-        console.error(`[WebSearchTool] Fallback ${candidate.label} falhou:`, fallbackError.message);
+      } catch (fallbackError: unknown) {
+        const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+        console.error(`[WebSearchTool] Fallback ${candidate.label} falhou:`, errorMessage);
       }
     }
 
@@ -776,8 +802,9 @@ export class WebSearchTool extends BaseTool {
           ? await this.fetchGoogleNewsTopicRssXml(candidate.topic, candidate.locale)
           : await this.fetchGoogleNewsRssXml(String(candidate.query || ''), candidate.locale);
         itemBlocks.push(...Array.from(xml.matchAll(/<item\b[^>]*>[\s\S]*?<\/item>/gi)).map((match) => match[0]));
-      } catch (fallbackError: any) {
-        console.error(`[WebSearchTool] Fallback politica global falhou:`, fallbackError.message);
+      } catch (fallbackError: unknown) {
+        const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+        console.error(`[WebSearchTool] Fallback politica global falhou:`, errorMessage);
       }
     }
 
@@ -1014,7 +1041,7 @@ export class WebSearchTool extends BaseTool {
           publishedAt: Number.isFinite(publishedAt) ? publishedAt : null,
         };
       })
-      .filter((item) => !/feed nao esta disponivel|feed nÃ£o estÃ¡ disponÃ­vel/i.test(item.title))
+      .filter((item) => !/feed nao esta disponivel|feed não está disponível/i.test(item.title))
       .filter((item) => !broadNewsQuery || !this.isLowSignalBroadNewsItem(item.title, item.description))
       .filter((item) => !options.topic || this.isTopicalNewsItem(options.topic, item.title, item.description))
       .filter((item) => {

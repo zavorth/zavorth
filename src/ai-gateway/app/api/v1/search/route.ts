@@ -132,7 +132,7 @@ export async function POST(request: Request) {
     if (!credentials) {
       return errorResponse(
         HTTP_STATUS.BAD_REQUEST,
-        `No credentials configured for search provider: ${providerConfig.id}. Add an API key for "${providerConfig.id}" in the dashboard.`
+        `No credentials configured for search provider: ${providerConfig.id}. Add an API key for "${providerConfig.id}" in the zavorthControl.`
       );
     }
   } else {
@@ -160,7 +160,7 @@ export async function POST(request: Request) {
     if (!credentials) {
       return errorResponse(
         HTTP_STATUS.BAD_REQUEST,
-        `No credentials configured for any search provider. Add an API key for a search provider (${Object.keys(SEARCH_PROVIDERS).join(", ")}) in the dashboard.`
+        `No credentials configured for any search provider. Add an API key for a search provider (${Object.keys(SEARCH_PROVIDERS).join(", ")}) in the zavorthControl.`
       );
     }
 

@@ -10,12 +10,23 @@ import { ZavorthExternalAgentGatewayService } from '../../../../services/Zavorth
 import { ZavorthAgentReviewService } from '../../../../services/ZavorthAgentReviewService.js';
 import { ZavorthGitWorkflowService, type ZavorthGitWorkflowAction } from '../../../../services/ZavorthGitWorkflowService.js';
 import type { RuntimeOfficialRemoteAccessAction } from '../../../../runtime/access/RuntimeOfficialRemoteAccessService.js';
+import type { RuntimeAccessReadinessReport } from '../../../../runtime/access/RuntimeAccessReadinessService.js';
+import type { RuntimeInstallJourneyReport } from '../../../../runtime/access/RuntimeInstallJourneyService.js';
+import type { RuntimeBootstrapRepairReport } from '../../../../services/RuntimeBootstrapRepairService.js';
+import type { RuntimeStartupResult } from '../../../../services/RuntimeStartupService.js';
 import type {
   ZavorthExternalAgentAdapterKind,
   ZavorthExternalAgentIsolationKind,
   ZavorthExternalAgentNetworkMode,
 } from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
+
+type InstallJourneyActionBody = Record<string, unknown> & {
+  timeoutMs?: unknown;
+  pollIntervalMs?: unknown;
+};
+
+type InstallJourneyActionResult = RuntimeInstallJourneyReport | RuntimeBootstrapRepairReport | RuntimeStartupResult;
 
 export class WebAppHostRouteService {
   private readonly diskMutationGate = new DiskMutationGateService();
@@ -92,8 +103,8 @@ export class WebAppHostRouteService {
           ok: true,
           status: this.projectConstitutionImporter.buildStatus({ workspaceRoot }),
         }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao inspecionar constituicao do projeto.' }, 400);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao inspecionar constituicao do projeto.' }, 400);
       }
       return true;
     }
@@ -108,7 +119,7 @@ export class WebAppHostRouteService {
             workspaceRoot,
             previewId: String(body.previewId || '').trim(),
             approvalPhrase: String(body.approvalPhrase || '').trim(),
-            approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
+            approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'zavorthControl').trim() || 'zavorthControl',
           });
           deps.writeJson(res, { ok: true, result }, 200);
           return true;
@@ -119,8 +130,8 @@ export class WebAppHostRouteService {
           sourcePaths: Array.isArray(body.sourcePaths) ? body.sourcePaths.map((entry: unknown) => String(entry || '')) : null,
         });
         deps.writeJson(res, { ok: true, preview }, preview.status === 'preview_ready' ? 200 : 404);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao preparar importacao da constituicao.' }, 400);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao preparar importacao da constituicao.' }, 400);
       }
       return true;
     }
@@ -135,8 +146,8 @@ export class WebAppHostRouteService {
             limit: this.normalizePositiveInteger(url.searchParams.get('limit')),
           }),
         }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao inspecionar gate de mutacao em disco.' }, 400);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao inspecionar gate de mutacao em disco.' }, 400);
       }
       return true;
     }
@@ -151,7 +162,7 @@ export class WebAppHostRouteService {
             workspaceRoot,
             previewId: String(body.previewId || '').trim(),
             approvalPhrase: String(body.approvalPhrase || '').trim(),
-            approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
+            approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'zavorthControl').trim() || 'zavorthControl',
           });
           deps.writeJson(res, { ok: true, result }, 200);
           return true;
@@ -160,13 +171,13 @@ export class WebAppHostRouteService {
         const preview = this.diskMutationGate.createPreview({
           workspaceRoot,
           operations: Array.isArray(body.operations) ? body.operations : [],
-          requestedBy: String(body.requestedBy || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
-          sourceSurface: String(body.sourceSurface || 'dashboard').trim() || 'dashboard',
+          requestedBy: String(body.requestedBy || deps.runtime.webUserId || 'zavorthControl').trim() || 'zavorthControl',
+          sourceSurface: String(body.sourceSurface || 'zavorthControl').trim() || 'zavorthControl',
           reason: String(body.reason || '').trim() || null,
         });
         deps.writeJson(res, { ok: true, preview }, preview.status === 'blocked' ? 409 : 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao preparar gate de mutacao em disco.' }, 400);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao preparar gate de mutacao em disco.' }, 400);
       }
       return true;
     }
@@ -179,8 +190,8 @@ export class WebAppHostRouteService {
           workspaceRoot,
         });
         deps.writeJson(res, { ok: true, snapshot }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao inspecionar Git workflow.' }, 400);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao inspecionar Git workflow.' }, 400);
       }
       return true;
     }
@@ -197,11 +208,11 @@ export class WebAppHostRouteService {
           args: Array.isArray(body.args) ? body.args.map((entry: unknown) => String(entry || '')) : String(body.args || ''),
           apply: body.apply === true,
           approvalId: String(body.approvalId || '').trim() || null,
-          approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
+          approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'zavorthControl').trim() || 'zavorthControl',
         });
         deps.writeJson(res, { ok: snapshot.status !== 'failed' && snapshot.status !== 'blocked', snapshot }, snapshot.status === 'blocked' ? 409 : 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar Git workflow.' }, 400);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao executar Git workflow.' }, 400);
       }
       return true;
     }
@@ -226,12 +237,12 @@ export class WebAppHostRouteService {
           applyPatch: body.applyPatch === true,
           launchLiveAgents: body.launchLiveAgents === true,
           approvalId: String(body.approvalId || '').trim() || null,
-          userId: String(body.userId || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
-          sessionId: String(body.sessionId || '').trim() || 'dashboard-review',
+          userId: String(body.userId || deps.runtime.webUserId || 'zavorthControl').trim() || 'zavorthControl',
+          sessionId: String(body.sessionId || '').trim() || 'zavorthControl-review',
         });
         deps.writeJson(res, { ok: true, snapshot }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar review governado.' }, 400);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao executar review governado.' }, 400);
       }
       return true;
     }
@@ -261,8 +272,8 @@ export class WebAppHostRouteService {
               ? 200
               : 409,
         );
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao normalizar frame ACP generico.' }, 400);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao normalizar frame ACP generico.' }, 400);
       }
       return true;
     }
@@ -270,7 +281,7 @@ export class WebAppHostRouteService {
     if ((pathname === '/api/web/zavorth-runtime-adapters' || pathname === '/api/web/external-agents') && req.method === 'GET') {
       deps.writeJson(res, {
         ok: true,
-        snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+        snapshot: this.externalAgentGateway.buildZavorthControlSnapshot(),
       }, 200);
       return true;
     }
@@ -302,7 +313,7 @@ export class WebAppHostRouteService {
           network: this.normalizeExternalAgentNetwork(body.network),
           readOnlyRoot: body.readOnlyRoot !== false,
           requireStrongIsolation: body.requireStrongIsolation === true,
-          requestedBy: this.cleanOptionalString(body.requestedBy) || deps.runtime.webUserId || 'dashboard',
+          requestedBy: this.cleanOptionalString(body.requestedBy) || deps.runtime.webUserId || 'zavorthControl',
           approvalGranted: body.approvalGranted === true || body.approveRegistration === true,
           onboardingCandidateId: this.cleanOptionalString(body.onboardingCandidateId),
           source: 'api',
@@ -311,13 +322,13 @@ export class WebAppHostRouteService {
         deps.writeJson(res, {
           ok,
           receipt,
-          snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+          snapshot: this.externalAgentGateway.buildZavorthControlSnapshot(),
         }, ok ? 200 : 202);
-      } catch (error: any) {
+      } catch (error: unknown) {
         deps.writeJson(res, {
           ok: false,
-          error: error?.message || 'Falha ao registrar agente externo.',
-          snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+          error: this.extractErrorMessage(error) || 'Falha ao registrar agente externo.',
+          snapshot: this.externalAgentGateway.buildZavorthControlSnapshot(),
         }, 400);
       }
       return true;
@@ -329,7 +340,7 @@ export class WebAppHostRouteService {
         const receipt = await this.externalAgentGateway.invoke({
           profileId: String(body.profileId || body.id || '').trim(),
           prompt: String(body.prompt || body.text || '').trim(),
-          requestedBy: this.cleanOptionalString(body.requestedBy) || deps.runtime.webUserId || 'dashboard',
+          requestedBy: this.cleanOptionalString(body.requestedBy) || deps.runtime.webUserId || 'zavorthControl',
           approvalGranted: body.approvalGranted === true || body.approveExternalExecution === true,
           dryRun: body.dryRun === true,
           timeoutMs: this.normalizePositiveInteger(body.timeoutMs) || null,
@@ -339,13 +350,13 @@ export class WebAppHostRouteService {
         deps.writeJson(res, {
           ok,
           receipt,
-          snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+          snapshot: this.externalAgentGateway.buildZavorthControlSnapshot(),
         }, receipt.status === 'approval-required' ? 202 : ok ? 200 : receipt.status === 'failed' ? 500 : 409);
-      } catch (error: any) {
+      } catch (error: unknown) {
         deps.writeJson(res, {
           ok: false,
-          error: error?.message || 'Falha ao executar agente externo.',
-          snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+          error: this.extractErrorMessage(error) || 'Falha ao executar agente externo.',
+          snapshot: this.externalAgentGateway.buildZavorthControlSnapshot(),
         }, 400);
       }
       return true;
@@ -480,10 +491,10 @@ export class WebAppHostRouteService {
           },
           200,
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         deps.writeJson(
           res,
-          { ok: false, error: error?.message || 'Falha ao executar a jornada local do host.' },
+          { ok: false, error: this.extractErrorMessage(error) || 'Falha ao executar a jornada local do host.' },
           409,
         );
       }
@@ -708,6 +719,12 @@ export class WebAppHostRouteService {
     return workspaceRoot;
   }
 
+  private extractErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    if (typeof error === 'string') return error;
+    return String(error);
+  }
+
   private isInsidePath(parent: string, child: string): boolean {
     const relative = path.relative(path.resolve(parent), path.resolve(child));
     return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
@@ -716,9 +733,9 @@ export class WebAppHostRouteService {
   private async runInstallJourneyAction(
     action: 'go' | 'install' | 'start' | 'ready',
     dryRun: boolean,
-    body: Record<string, any>,
+    body: InstallJourneyActionBody,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<any> {
+  ): Promise<InstallJourneyActionResult> {
     switch (action) {
       case 'go':
       case 'ready': {
@@ -768,7 +785,7 @@ export class WebAppHostRouteService {
   private async inspectReadiness(
     hostIdentityStatus: HostIdentityStatus | null,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<any> {
+  ): Promise<RuntimeAccessReadinessReport> {
     const authStatus = deps.auth.getStatus();
     return deps.accessReadiness.inspectLive({
       hostIdentityStatus,

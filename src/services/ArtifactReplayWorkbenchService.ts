@@ -306,15 +306,15 @@ export class ArtifactReplayWorkbenchService {
   }
 
   private checkWebMarkers(): ArtifactReplayWorkbenchCheck {
-    const html = this.html !== null ? this.html : buildRuntimeShellHtml('/dashboard');
+    const html = this.html !== null ? this.html : buildRuntimeShellHtml('/zavorthControl');
     const missing = ARTIFACT_REPLAY_WORKBENCH_WEB_MARKERS.filter((marker) => !html.includes(marker));
     return this.check(
       'web:artifact-workbench-card',
-      'card da bancada no /dashboard',
+      'card da bancada no /zavorthControl',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Dashboard expoe indice, comparacao, redaction, learning e export controlado.'
-        : 'Dashboard perdeu marcadores da bancada de artifacts/replay.',
+        ? 'ZavorthControl expoe indice, comparacao, redaction, learning e export controlado.'
+        : 'ZavorthControl perdeu marcadores da bancada de artifacts/replay.',
       'web',
       missing.map((marker) => `faltando: ${marker}`),
     );

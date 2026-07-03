@@ -510,7 +510,7 @@ export function buildSharedSurfaceTelegramContext(
     },
     editMessage: async (targetMessageId: string, text: string) => {
       await ctx.api.editMessageText(
-        telegramChatId as any,
+        telegramChatId,
         Number.parseInt(String(targetMessageId), 10),
         text,
       );

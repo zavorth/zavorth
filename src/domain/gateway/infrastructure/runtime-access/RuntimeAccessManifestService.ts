@@ -18,7 +18,7 @@ export type RuntimeAccessManifest = {
     ready: boolean;
     baseUrl: string;
     appUrl: string;
-    dashboardUrl: string;
+    zavorthControlUrl: string;
     apiBaseUrl: string;
     controlUrl: string;
     legacyAppUrl: null;
@@ -161,9 +161,9 @@ export class RuntimeAccessManifestService {
     const discordRepair = this.discordGatewayRepairFlowService.inspect(readiness.runtime.discordBridge);
     const healthRenewal = this.gatewayHealthRenewalService.inspect(readiness);
     const productMode = buildZavorthProductModeSnapshot(config.zavorthProductMode, config.zavorthProfile);
-    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/dashboard');
+    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/zavorthControl');
     const remoteControlUrl = readiness.remote.baseUrl
-      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/dashboard')
+      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/zavorthControl')
       : null;
     const channelExperience = this.productChannelExperienceService.buildSnapshot({
       productMode,
@@ -205,7 +205,7 @@ export class RuntimeAccessManifestService {
         ready: readiness.local.ready,
         baseUrl: readiness.local.baseUrl,
         appUrl: localControlUrl,
-        dashboardUrl: localControlUrl,
+        zavorthControlUrl: localControlUrl,
         apiBaseUrl: `${readiness.local.baseUrl}/api/web`,
         controlUrl: localControlUrl,
         legacyAppUrl: null,
@@ -265,9 +265,9 @@ export class RuntimeAccessManifestService {
           label: recommendedPlan.primaryLabel || 'Melhor entrada agora',
           description: recommendedPlan.primarySummary
             || (readiness.local.ready
-              ? 'Abre o dashboard local. O terminal Zavorth continua disponivel como superficie rapida de operacao.'
+              ? 'Abre o zavorthControl local. O terminal Zavorth continua disponivel como superficie rapida de operacao.'
               : readiness.remote.ready
-                ? 'Abre o dashboard remoto enquanto o host local ainda fecha a prontidao.'
+                ? 'Abre o zavorthControl remoto enquanto o host local ainda fecha a prontidao.'
                 : 'Use o atalho oficial em um comando para preparar a melhor superficie.'),
           kind: recommendedPlan.primaryCommand ? 'command' : 'url',
           value: recommendedPlan.primaryCommand
@@ -280,8 +280,8 @@ export class RuntimeAccessManifestService {
         },
         {
           id: 'local-control',
-          label: 'Dashboard',
-          description: 'Abre o dashboard/gateway principal servido pelo runtime local.',
+          label: 'ZavorthControl',
+          description: 'Abre o zavorthControl/gateway principal servido pelo runtime local.',
           kind: 'url',
           value: localControlUrl,
           ready: readiness.local.ready,
@@ -289,10 +289,10 @@ export class RuntimeAccessManifestService {
         },
         {
           id: 'remote-control',
-          label: 'Dashboard remota',
+          label: 'ZavorthControl remota',
           description: readiness.remote.ready
-            ? 'Abre o dashboard remoto ja validado para este runtime.'
-            : 'Feche primeiro o rollout remoto oficial para abrir o dashboard remoto.',
+            ? 'Abre o zavorthControl remoto ja validado para este runtime.'
+            : 'Feche primeiro o rollout remoto oficial para abrir o zavorthControl remoto.',
           kind: remoteControlUrl ? 'url' : 'command',
           value: remoteControlUrl || productGoCommand,
           ready: readiness.remote.ready,
@@ -333,7 +333,7 @@ export class RuntimeAccessManifestService {
           id: 'go',
           title: 'Atalho oficial em um comando',
           description: readiness.local.ready
-            ? `O atalho oficial ja deixaria o dashboard pronto em ${localControlUrl}.`
+            ? `O atalho oficial ja deixaria o zavorthControl pronto em ${localControlUrl}.`
             : 'Use um unico comando para instalar, confiar no host, abrir a melhor superficie e validar o runtime.',
           command: readiness.local.ready ? null : 'zavorth go',
           status: readiness.local.ready ? 'ready' : 'action',
@@ -350,7 +350,7 @@ export class RuntimeAccessManifestService {
           title: 'Subir o runtime supervisionado',
           description: readiness.local.ready
             ? `Runtime local pronto em ${localControlUrl}.`
-            : 'Abre a melhor superficie oficial e espera o /dashboard responder de verdade.',
+            : 'Abre a melhor superficie oficial e espera o /zavorthControl responder de verdade.',
           command: readiness.local.ready ? null : productGoCommand,
           status: readiness.local.ready ? 'ready' : 'action',
         },
@@ -367,8 +367,8 @@ export class RuntimeAccessManifestService {
           id: 'remote',
           title: 'Conectar uma superficie remota',
           description: readiness.remote.ready
-            ? `Dashboard remoto pronto para usar ${remoteControlUrl || 'a URL publica atual'}.`
-            : 'Rode o atalho oficial em um comando para validar o remoto e abrir o melhor dashboard disponivel.',
+            ? `ZavorthControl remoto pronto para usar ${remoteControlUrl || 'a URL publica atual'}.`
+            : 'Rode o atalho oficial em um comando para validar o remoto e abrir o melhor zavorthControl disponivel.',
           command: readiness.remote.ready ? null : productGoCommand,
           status: readiness.remote.ready ? 'ready' : 'optional',
         },
@@ -376,8 +376,8 @@ export class RuntimeAccessManifestService {
           id: 'channels',
           title: 'Fechar a jornada web+telegram',
           description: channelExperience.recommendedJourney === 'web+telegram'
-            ? 'Dashboard e Telegram ja cobrem a jornada principal deste runtime. Os outros canais seguem sob demanda.'
-            : 'Comece pelo web-only no /dashboard. Quando quiser um canal externo, conecte Telegram antes dos demais.',
+            ? 'ZavorthControl e Telegram ja cobrem a jornada principal deste runtime. Os outros canais seguem sob demanda.'
+            : 'Comece pelo web-only no /zavorthControl. Quando quiser um canal externo, conecte Telegram antes dos demais.',
           command: 'npm run setup:channels',
           status: 'optional',
         },
@@ -385,7 +385,7 @@ export class RuntimeAccessManifestService {
       surfaces: [
         {
           id: 'control',
-          label: 'Dashboard',
+          label: 'ZavorthControl',
           surface: 'web',
           primary: true,
           ready: readiness.local.ready,
@@ -430,14 +430,14 @@ export class RuntimeAccessManifestService {
         local: [
           'Use zavorth go como caminho oficial mais curto para instalar, subir e abrir o Zavorth.',
           'Use npm run ops:journey para revisar a jornada oficial de instalacao e acesso.',
-          'Comece pela jornada web-only no /dashboard e trate Telegram como o primeiro canal externo recomendado.',
-          '/app e /classic foram removidas; use /dashboard e Runtime API para produto, manutencao e observabilidade.',
+          'Comece pela jornada web-only no /zavorthControl e trate Telegram como o primeiro canal externo recomendado.',
+          '/app e /classic foram removidas; use /zavorthControl e Runtime API para produto, manutencao e observabilidade.',
           'Use npm run setup:channels para fechar a jornada web+Telegram antes de pensar em Discord, Slack ou WhatsApp.',
           'Use npm run channels:install -- --json quando quiser inspecionar o panorama atual e os modos recomendados de cada canal.',
           'Se quiser o caminho completo com launcher, trust local e abertura automatica, use zavorth go.',
           `Use zavorth go para subir o runtime e abrir ${localControlUrl}.`,
           'No Windows, o Startup oficial e opcional e segue bloqueado por padrao; so habilite conscientemente se quiser login automatico.',
-          'Use o dashboard como superficie principal para conversar, aprovar e operar o Zavorth.',
+          'Use o zavorthControl como superficie principal para conversar, aprovar e operar o Zavorth.',
           'Use o terminal Zavorth como superficie rapida para diagnostico, automacao e fallback local.',
           readiness.runtime.discordBridge.enabled
             ? (discordRepair.status === 'attention'
@@ -452,11 +452,11 @@ export class RuntimeAccessManifestService {
             : 'Este host ja esta autorizado para execucoes mutaveis.',
         ],
         remote: [
-          'Use npm run ops:journey para revisar a sequencia oficial entre runtime local, trust e dashboard remoto.',
+          'Use npm run ops:journey para revisar a sequencia oficial entre runtime local, trust e zavorthControl remoto.',
           'Mantenha o fluxo remoto em web-first e adicione Telegram como primeiro canal externo recomendado.',
           'Use npm run setup:channels para preparar Telegram antes de abrir canais remotos secundarios no mesmo runtime.',
           'Use npm run channels:install -- --json para revisar modos, webhooks e proximos passos sem aplicar nada.',
-          'Use zavorth go para aplicar o rollout guiado, validar e abrir o melhor dashboard disponivel.',
+          'Use zavorth go para aplicar o rollout guiado, validar e abrir o melhor zavorthControl disponivel.',
           readiness.remote.baseUrl
             ? `Use ${readiness.remote.baseUrl} como URL publica do runtime Zavorth.`
             : 'Defina ZAVORTH_PUBLIC_BASE_URL para expor o runtime por uma URL publica HTTPS; depois rode zavorth go para validar.',
@@ -470,14 +470,14 @@ export class RuntimeAccessManifestService {
           healthRenewal.status === 'renewal_recommended'
             ? `${healthRenewal.summary} Comandos uteis: ${healthRenewal.commands.slice(0, 3).join(' | ')}.`
             : 'Os checks leves de health do gateway estao frescos.',
-          'Se quiser separar as etapas, use npm run ops:remote:official para validar, abrir e reconectar o dashboard remoto.',
+          'Se quiser separar as etapas, use npm run ops:remote:official para validar, abrir e reconectar o zavorthControl remoto.',
           readiness.auth.enabled
-            ? 'Ao conectar o dashboard remoto, informe a URL publica e o token web do runtime.'
+            ? 'Ao conectar o zavorthControl remoto, informe a URL publica e o token web do runtime.'
             : 'Configure ZAVORTH_WEB_AUTH_TOKEN antes de conectar o shell remoto.',
-          'Use npm run ops:manifest para revisar o caminho oficial de acesso antes de abrir o dashboard remoto.',
+          'Use npm run ops:manifest para revisar o caminho oficial de acesso antes de abrir o zavorthControl remoto.',
           remoteRequiresHttps
-            ? 'Troque a URL publica atual por uma URL HTTPS antes de usar o dashboard remoto.'
-            : 'A URL publica atual ja atende o requisito de HTTPS para o dashboard remoto.',
+            ? 'Troque a URL publica atual por uma URL HTTPS antes de usar o zavorthControl remoto.'
+            : 'A URL publica atual ja atende o requisito de HTTPS para o zavorthControl remoto.',
         ],
       },
       legacyContainment,
@@ -513,9 +513,9 @@ export class RuntimeAccessManifestService {
     const launcherCommand = 'npm run launcher:startup:install';
     const launcherSummary =
       'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.';
-    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/dashboard');
+    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/zavorthControl');
     const remoteControlUrl = readiness.remote.baseUrl
-      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/dashboard')
+      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/zavorthControl')
       : null;
     const remoteRecommendation = {
       ready: officialRemote.ready,
@@ -572,8 +572,8 @@ export class RuntimeAccessManifestService {
 
     return {
       primaryAction: 'open-local',
-      primaryLabel: 'Abrir Dashboard',
-      primarySummary: `Dashboard pronto em ${localControlUrl}.`,
+      primaryLabel: 'Abrir ZavorthControl',
+      primarySummary: `ZavorthControl pronto em ${localControlUrl}.`,
       primaryCommand: null,
       openTarget: localControlUrl,
       launcherRecommendation: {

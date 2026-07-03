@@ -3,9 +3,9 @@ import type {
 } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
 
-export function buildAutoInvocationDashboardProjection(
+export function buildAutoInvocationZavorthControlProjection(
   latest: ZavorthSubagentAutoInvocationTelemetry | null,
-): ZavorthSubagentRuntimeSnapshot['autoInvocationTelemetry']['dashboardProjection'] {
+): ZavorthSubagentRuntimeSnapshot['autoInvocationTelemetry']['zavorthControlProjection'] {
   if (!latest) {
     return {
       available: false,
@@ -20,13 +20,13 @@ export function buildAutoInvocationDashboardProjection(
   }
   return {
     available: true,
-    title: latest.dashboard.title,
+    title: latest.zavorthControl.title,
     summary: latest.operatorSummary,
     selectedBy: latest.selectedBy,
     roles: latest.roleIds,
     triggers: latest.triggers,
     riskSignals: latest.riskSignals,
-    nextSafeAction: latest.dashboard.nextSafeAction,
+    nextSafeAction: latest.zavorthControl.nextSafeAction,
   };
 }
 
@@ -50,11 +50,11 @@ export function normalizeAutoInvocation(
     })) : [],
     publicRationale: firstLine(telemetry.publicRationale, 640),
     operatorSummary: firstLine(telemetry.operatorSummary, 640),
-    dashboard: {
-      ...telemetry.dashboard,
-      title: firstLine(telemetry.dashboard?.title || 'Subagentes', 160),
-      badges: uniqueStrings(telemetry.dashboard?.badges || []).slice(0, 12),
-      nextSafeAction: firstLine(telemetry.dashboard?.nextSafeAction || 'Revisar decisao antes de agir.', 240),
+    zavorthControl: {
+      ...telemetry.zavorthControl,
+      title: firstLine(telemetry.zavorthControl?.title || 'Subagentes', 160),
+      badges: uniqueStrings(telemetry.zavorthControl?.badges || []).slice(0, 12),
+      nextSafeAction: firstLine(telemetry.zavorthControl?.nextSafeAction || 'Revisar decisao antes de agir.', 240),
     },
     cli: {
       headline: firstLine(telemetry.cli?.headline || 'Auto subagents', 160),

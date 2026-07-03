@@ -388,7 +388,7 @@ function buildEventViews(
   idPrefix: string,
   source: RuntimeAdapterZavorthControlLiveAssimilationSource,
 ): ZavorthControlEventView[] {
-  return source.eventStream.dashboardEvents.map((event, index) => ({
+  return source.eventStream.zavorthControlEvents.map((event, index) => ({
     nativeContract: 'ZavorthControlEventView/v1',
     id: `${idPrefix}:event-${index + 1}-${event.kind}`,
     kind: event.kind,
@@ -407,7 +407,7 @@ function buildSessionViews(
   idPrefix: string,
   source: RuntimeAdapterZavorthControlLiveAssimilationSource,
 ): ZavorthControlSessionView[] {
-  return source.sessionHistory.dashboardViews.map((session, index) => ({
+  return source.sessionHistory.zavorthControlViews.map((session, index) => ({
     nativeContract: 'ZavorthControlSessionView/v1',
     id: `${idPrefix}:session-${index + 1}`,
     label: `Read-only session metadata ${index + 1}`,

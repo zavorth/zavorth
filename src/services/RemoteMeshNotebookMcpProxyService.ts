@@ -81,7 +81,7 @@ export class RemoteMeshNotebookMcpProxyService {
         },
         body: JSON.stringify({
           jsonrpc: '2.0',
-          id: `dashboard-remote-mesh-${Date.now()}`,
+          id: `zavorthControl-remote-mesh-${Date.now()}`,
           method: 'tools/call',
           params: {
             name: toolName,
@@ -116,7 +116,7 @@ export class RemoteMeshNotebookMcpProxyService {
 
   private validateApplyRequest(input: RemoteMeshNotebookMcpProxyApplyRequest): string | null {
     if (!isApplyToolName(input.toolName)) {
-      return 'Only approved Remote Mesh apply tools can be called from Dashboard.';
+      return 'Only approved Remote Mesh apply tools can be called from ZavorthControl.';
     }
     const args = input.arguments;
     if (!args || typeof args !== 'object' || Array.isArray(args)) {

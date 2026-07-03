@@ -47,7 +47,7 @@ type GroupSafeCommand =
   | '/externalagent'
   | '/mnemos'
   | '/fixes'
-  | '/dashboard'
+  | '/zavorthControl'
   | '/demo'
   | '/echo'
   | '/echoapprovals';
@@ -73,7 +73,7 @@ export type TelegramCommandRoutingServiceDeps = {
     handleDisable: (ctx: Context, args: string) => Promise<void>;
     handleIntegrations: (ctx: Context, args: string) => Promise<void>;
     handleDemo: (ctx: Context, args: string) => Promise<void>;
-    handleDashboard: (ctx: Context) => Promise<void>;
+    handleZavorthControl: (ctx: Context) => Promise<void>;
     handleAccess: (ctx: Context, args: string) => Promise<void>;
     handleBootstrap: (ctx: Context) => Promise<void>;
     handleWslCommand: (ctx: Context, args: string) => Promise<void>;
@@ -261,8 +261,8 @@ export class TelegramCommandRoutingService {
       case '/fixes':
         await this.deps.opsController.handleReadinessFixes(ctx);
         return true;
-      case '/dashboard':
-        await this.deps.opsController.handleDashboard(ctx);
+      case '/zavorthControl':
+        await this.deps.opsController.handleZavorthControl(ctx);
         return true;
       case '/wsl':
         await this.deps.opsController.handleWslCommand(ctx, parsed.command_args);
@@ -542,8 +542,8 @@ export class TelegramCommandRoutingService {
         case '/echo':
           await this.handleEchoCommand(ctx, args);
           return true;
-        case '/dashboard':
-          await this.deps.opsController.handleDashboard(ctx);
+        case '/zavorthControl':
+          await this.deps.opsController.handleZavorthControl(ctx);
           return true;
       }
     }
@@ -592,7 +592,7 @@ export class TelegramCommandRoutingService {
       '/agentmigration',
       '/externalagent',
       '/fixes',
-      '/dashboard',
+      '/zavorthControl',
       '/demo',
       '/echo',
       '/echoapprovals',

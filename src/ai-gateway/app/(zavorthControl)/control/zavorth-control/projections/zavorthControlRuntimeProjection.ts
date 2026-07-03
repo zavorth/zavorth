@@ -1,7 +1,7 @@
 import {
   createZavorthNativeCapabilityRegistryFixture,
   createZavorthNativeConfigStateRegistryFixture,
-  createZavorthNativeDashboardViewModelRegistryFixture,
+  createZavorthNativeZavorthControlViewModelRegistryFixture,
   createZavorthNativeIntegrationRegistryFixture,
   createZavorthNativeSessionHistoryRegistryFixture,
 } from '../../../../../../contracts/CommandCenterRuntimeBoundaryContract.js';
@@ -93,7 +93,7 @@ function sessionsFromNativeRegistry(sessionHistoryRegistry: AnyRecord): AnyRecor
   }));
 }
 
-function healthFromNative(policy: AnyRecord, dashboardRegistry: AnyRecord): AnyRecord {
+function healthFromNative(policy: AnyRecord, zavorthControlRegistry: AnyRecord): AnyRecord {
   return {
     status: array(policy.blockedSurfaces).length > 0 ? 'degraded' : 'ready',
     summary: 'ZavorthControl usando registries Zavorth-native no caminho padrao.',
@@ -113,7 +113,7 @@ function healthFromNative(policy: AnyRecord, dashboardRegistry: AnyRecord): AnyR
       {
         id: 'zavorthControl-registry-degraded-rows',
         label: 'Estados degradados preservados',
-        status: dashboardRegistry.list({ degradedOrUnavailable: true }).length > 0 ? 'degraded' : 'ready',
+        status: zavorthControlRegistry.list({ degradedOrUnavailable: true }).length > 0 ? 'degraded' : 'ready',
         detail: 'Linhas degraded/unavailable continuam renderizaveis.',
       },
     ],
@@ -142,8 +142,8 @@ function integrationsFromNativeRegistries(integrationRegistry: AnyRecord, config
   return [...integrationRows, ...configRows];
 }
 
-function eventsFromNativeDashboardViews(dashboardRegistry: AnyRecord, policy: AnyRecord): AnyRecord[] {
-  const viewEvents = dashboardRegistry.list({ degradedOrUnavailable: true }).slice(0, 12).map((view: AnyRecord) => ({
+function eventsFromNativeZavorthControlViews(zavorthControlRegistry: AnyRecord, policy: AnyRecord): AnyRecord[] {
+  const viewEvents = zavorthControlRegistry.list({ degradedOrUnavailable: true }).slice(0, 12).map((view: AnyRecord) => ({
     id: `native-view:${view.id}`,
     kind: view.status === 'unavailable' ? 'error' : 'status',
     title: view.label,
@@ -165,8 +165,8 @@ function eventsFromNativeDashboardViews(dashboardRegistry: AnyRecord, policy: An
 function perceptionControlFromSource(source: AnyRecord): AnyRecord | null {
   const projection = source.perceptionControl
     || source.zavorthControlProjection
-    || source.dashboardProjection?.perceptionControl
-    || source.dashboardProjection
+    || source.zavorthControlProjection?.perceptionControl
+    || source.zavorthControlProjection
     || null;
   return projection && typeof projection === 'object' && !Array.isArray(projection)
     ? projection as AnyRecord
@@ -246,7 +246,7 @@ export function buildZavorthControlAdapterInputFromZavorthControlRuntimeProjecti
     toolRehearsal: projection.toolRehearsal,
     safetyNarrative: projection.safetyNarrative,
     memoryWithReceipts: projection.memoryWithReceipts,
-    selfingDashboard: projection.selfingDashboard,
+    selfingZavorthControl: projection.selfingZavorthControl,
     artifactMemory: projection.artifactMemory,
     personalOpsAutopilot: projection.personalOpsAutopilot,
     agentTeamCompiler: projection.agentTeamCompiler,
@@ -278,7 +278,7 @@ export function createZavorthControlNativeFirstConsumerIntegrationFixtureSource(
   return {
     nativeFirstPolicy: createPolicy(),
     capabilityRegistry: createZavorthNativeCapabilityRegistryFixture(),
-    dashboardRegistry: createZavorthNativeDashboardViewModelRegistryFixture(),
+    zavorthControlRegistry: createZavorthNativeZavorthControlViewModelRegistryFixture(),
     integrationRegistry: createZavorthNativeIntegrationRegistryFixture(),
     sessionHistoryRegistry: createZavorthNativeSessionHistoryRegistryFixture(),
     configStateRegistry: createZavorthNativeConfigStateRegistryFixture(),
@@ -298,7 +298,7 @@ export function buildZavorthControlNativeFirstRuntimeProjection(
 ): AnyRecord {
   const generatedAt = source.nativeFirstPolicy.generatedAt;
   const capabilities = source.capabilityRegistry.list().map(toolExposureFromCapability);
-  const health = healthFromNative(source.nativeFirstPolicy, source.dashboardRegistry);
+  const health = healthFromNative(source.nativeFirstPolicy, source.zavorthControlRegistry);
   const projection = {
     projectionVersion: 'zavorth-control-runtime-projection/v1',
     generatedAt,
@@ -325,7 +325,7 @@ export function buildZavorthControlNativeFirstRuntimeProjection(
     sessions: sessionsFromNativeRegistry(source.sessionHistoryRegistry),
     messages: messagesFromNativeRegistry(source.sessionHistoryRegistry),
     tasks: [],
-    events: eventsFromNativeDashboardViews(source.dashboardRegistry, source.nativeFirstPolicy),
+    events: eventsFromNativeZavorthControlViews(source.zavorthControlRegistry, source.nativeFirstPolicy),
     approvals: [],
     artifacts: [],
     memorySignals: [],

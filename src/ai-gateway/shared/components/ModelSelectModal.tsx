@@ -13,7 +13,7 @@ import {
   isAnthropicCompatibleProvider,
 } from "@/shared/constants/providers";
 
-// Provider order: OAuth first, then Free, then API Key (matches dashboard/providers)
+// Provider order: OAuth first, then Free, then API Key (matches zavorthControl/providers)
 const PROVIDER_ORDER = [
   ...Object.keys(OAUTH_PROVIDERS),
   ...Object.keys(FREE_PROVIDERS),

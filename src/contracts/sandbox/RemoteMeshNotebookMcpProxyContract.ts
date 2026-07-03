@@ -4,7 +4,7 @@ import type {
 import type { RemoteMeshJson } from './RemoteMeshSandboxContract.js';
 
 export const ZAVORTH_REMOTE_MESH_NOTEBOOK_MCP_PROXY_VERSION =
-  '2026-05-05.remote-mesh-dashboard-real-mcp-proxy' as const;
+  '2026-05-05.remote-mesh-zavorthControl-real-mcp-proxy' as const;
 
 export type RemoteMeshNotebookMcpApplyToolName =
   | 'notebook.docker.apply_control'

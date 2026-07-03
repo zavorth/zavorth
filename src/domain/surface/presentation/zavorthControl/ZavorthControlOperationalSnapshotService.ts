@@ -1,31 +1,60 @@
-import { ExecutionLifecycleReadModelService } from '../../../../services/ExecutionLifecycleReadModelService.js';
+import { ExecutionLifecycleReadModelService, type ExecutionLifecycleReadModelSnapshot } from '../../../../services/ExecutionLifecycleReadModelService.js';
+import type { SessionContinuitySnapshot } from '../../../../services/SessionContinuityService.js';
+import type { ZavorthMemoryPlaneSnapshot } from '../../../../services/ZavorthMemoryPlaneService.js';
+import type { SessionReplaySnapshot } from '../../../../services/SessionReplayService.js';
+import type { SessionHandoffSnapshot } from '../../../../services/SessionHandoffService.js';
+import type { WorkflowRunSnapshot } from '../../../../services/WorkflowRunService.js';
+import type { Task } from '../../../../contracts/TaskContract.js';
+import type { SystemOverlordActionRecord } from '../../../../contracts/core/SystemOverlordContract.js';
 
 type SessionContinuityLike = {
-  buildSnapshot: (sessionId: string, chatId: string, userId: string) => any;
+  buildSnapshot: (sessionId: string, chatId: string, userId: string) => SessionContinuitySnapshot;
+};
+
+type MemoryPlaneInput = {
+  userId?: string | null;
+  platform?: string | null;
+  chatId?: string | null;
+  sessionId?: string | null;
+  sourceUserId?: string | null;
+  workspaceHint?: string | null;
 };
 
 type MemoryPlaneLike = {
-  buildSnapshot: (input: any) => Promise<any>;
+  buildSnapshot: (input: MemoryPlaneInput) => Promise<ZavorthMemoryPlaneSnapshot>;
+};
+
+type SessionReplayInput = {
+  continuity?: SessionContinuitySnapshot | null;
+  tasks?: Array<SessionContinuitySnapshot['recentTasks'][number]> | null;
+  permissions?: Array<Record<string, unknown>> | null;
+  workflowRuns?: WorkflowRunSnapshot[] | null;
 };
 
 type SessionReplayLike = {
-  buildSnapshot: (input: any) => any;
+  buildSnapshot: (input: SessionReplayInput) => SessionReplaySnapshot;
+};
+
+type SessionHandoffInput = {
+  continuity?: SessionContinuitySnapshot | null;
+  replay?: SessionReplaySnapshot | null;
+  workflowRuns?: WorkflowRunSnapshot[] | null;
 };
 
 type SessionHandoffLike = {
-  buildSnapshot: (input: any) => any;
+  buildSnapshot: (input: SessionHandoffInput) => SessionHandoffSnapshot;
 };
 
 type WorkflowRunsLike = {
-  listRuns: (input: { workspace: string; limit: number }) => any[];
+  listRuns: (input: { workspace: string; limit: number }) => WorkflowRunSnapshot[];
 };
 
 type TaskManagerLike = {
-  getRecentTasks?: (limit?: number, userId?: string) => any[];
+  getRecentTasks?: (limit?: number, userId?: string) => Task[];
 };
 
 type HostActionSourceLike = {
-  listActions?: (limit?: number) => any[];
+  listActions?: (limit?: number) => SystemOverlordActionRecord[];
 };
 
 export type ZavorthControlOperationalSnapshotDeps = {
@@ -48,7 +77,7 @@ export class ZavorthControlOperationalSnapshotService {
 
   public readContinuitySnapshot(
     deps: ZavorthControlOperationalSnapshotDeps,
-  ): Record<string, any> {
+  ): { available: boolean; reason?: string } & Partial<SessionContinuitySnapshot> {
     const continuity = this.readContinuity(deps);
     if (!continuity) {
       return {
@@ -65,7 +94,7 @@ export class ZavorthControlOperationalSnapshotService {
 
   public async readMemoryPlaneSnapshot(
     deps: ZavorthControlOperationalSnapshotDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<{ available: boolean } & ZavorthMemoryPlaneSnapshot> {
     const snapshot = await deps.memoryPlane.buildSnapshot({
       userId: deps.continuityUserId,
       platform: 'web',
@@ -82,7 +111,7 @@ export class ZavorthControlOperationalSnapshotService {
 
   public readReplaySnapshot(
     deps: ZavorthControlOperationalSnapshotDeps,
-  ): Record<string, any> {
+  ): { available: boolean; reason?: string } & Partial<SessionReplaySnapshot> {
     const continuity = this.readContinuity(deps);
     if (!continuity) {
       return {
@@ -99,7 +128,7 @@ export class ZavorthControlOperationalSnapshotService {
 
   public readLifecycleSnapshot(
     deps: ZavorthControlOperationalSnapshotDeps,
-  ): Record<string, any> {
+  ): { available: boolean; reason?: string } & Partial<ExecutionLifecycleReadModelSnapshot> {
     const continuity = this.readContinuity(deps);
     if (!continuity) {
       return {
@@ -125,7 +154,7 @@ export class ZavorthControlOperationalSnapshotService {
 
   public readHandoffSnapshot(
     deps: ZavorthControlOperationalSnapshotDeps,
-  ): Record<string, any> {
+  ): { available: boolean; reason?: string } & Partial<SessionHandoffSnapshot> {
     const continuity = this.readContinuity(deps);
     if (!continuity) {
       return {
@@ -149,7 +178,7 @@ export class ZavorthControlOperationalSnapshotService {
 
   private readContinuity(
     deps: ZavorthControlOperationalSnapshotDeps,
-  ): any | null {
+  ): SessionContinuitySnapshot | null {
     if (!deps.sessionContinuity) {
       return null;
     }
@@ -162,10 +191,10 @@ export class ZavorthControlOperationalSnapshotService {
   }
 
   private buildReplaySnapshot(
-    continuity: any,
+    continuity: SessionContinuitySnapshot,
     deps: ZavorthControlOperationalSnapshotDeps,
-    workflowRuns: any[] | null = null,
-  ): any {
+    workflowRuns: WorkflowRunSnapshot[] | null = null,
+  ): SessionReplaySnapshot {
     return deps.sessionReplay.buildSnapshot({
       continuity,
       tasks: continuity.recentTasks,
@@ -175,9 +204,9 @@ export class ZavorthControlOperationalSnapshotService {
   }
 
   private resolveWorkflowRuns(
-    continuity: any,
+    continuity: SessionContinuitySnapshot,
     deps: ZavorthControlOperationalSnapshotDeps,
-  ): any[] {
+  ): WorkflowRunSnapshot[] {
     const workspaceHint = String(
       continuity.focusTask?.workspace
       || continuity.currentSurfaceTask?.workspace
@@ -192,12 +221,12 @@ export class ZavorthControlOperationalSnapshotService {
   }
 
   private resolveLifecycleTasks(
-    continuity: any,
+    continuity: SessionContinuitySnapshot,
     deps: ZavorthControlOperationalSnapshotDeps,
-  ): any[] {
+    ): Array<Record<string, unknown>> {
     const continuityTasks = Array.isArray(continuity?.recentTasks) ? continuity.recentTasks : [];
     const rawTasks = this.safeReadRecentTasks(deps);
-    const deduped = new Map<string, any>();
+    const deduped = new Map<string, Record<string, unknown>>();
     for (const task of rawTasks) {
       const taskId = this.readTaskId(task);
       if (!taskId) {
@@ -215,7 +244,7 @@ export class ZavorthControlOperationalSnapshotService {
     return Array.from(deduped.values());
   }
 
-  private safeReadRecentTasks(deps: ZavorthControlOperationalSnapshotDeps): any[] {
+  private safeReadRecentTasks(deps: ZavorthControlOperationalSnapshotDeps): Task[] {
     try {
       const tasks = deps.taskManager?.getRecentTasks?.(50, deps.continuityUserId);
       return Array.isArray(tasks) ? tasks : [];
@@ -224,7 +253,7 @@ export class ZavorthControlOperationalSnapshotService {
     }
   }
 
-  private safeReadHostActions(deps: ZavorthControlOperationalSnapshotDeps): any[] {
+  private safeReadHostActions(deps: ZavorthControlOperationalSnapshotDeps): SystemOverlordActionRecord[] {
     try {
       const actions = deps.hostActions?.listActions?.(50);
       return Array.isArray(actions) ? actions : [];
@@ -233,10 +262,8 @@ export class ZavorthControlOperationalSnapshotService {
     }
   }
 
-  private readTaskId(task: any): string | null {
-    const taskId = String(task?.task_id || task?.taskId || '').trim();
+  private readTaskId(task: Partial<Task> | Record<string, unknown>): string | null {
+    const taskId = String((task as Record<string, unknown>)?.task_id || (task as Record<string, unknown>)?.taskId || '').trim();
     return taskId || null;
   }
 }
-
-

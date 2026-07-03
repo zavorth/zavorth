@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
@@ -201,7 +200,8 @@ export class ZavorthApiBuilderTool extends BaseTool {
 
       if (args.response_body) {
         try {
-          endpoint.responses['200'] = {
+          const responses = endpoint.responses as Record<string, unknown>;
+          responses['200'] = {
             description: 'Successful response',
             content: { 'application/json': { schema: JSON.parse(String(args.response_body)) } },
           };

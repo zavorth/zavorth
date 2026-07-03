@@ -131,7 +131,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
         ledgerUpdatesPreviewOnlyByDefault: true,
         releaseGateBlocksP0Regression: true,
         releaseGateMustPass: true,
-        dashboardMustBeMachineReadable: true,
+        zavorthControlMustBeMachineReadable: true,
         noLiveIoInClosureCommand: true,
         artifactFirstReceipts: true,
         noSecretValuesSerialized: true,
@@ -199,7 +199,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       ...closure.receipts.map((receipt) => this.receiptClaim(receipt)),
       ...this.priorityPolicyClaims(closure),
       ...this.decisionPolicyClaims(closure),
-      this.dashboardClaim(closure),
+      this.zavorthControlClaim(closure),
       this.ledgerUpdateClaim(closure),
       this.releaseGateClaim(closure),
       this.machineReadableClaim(closure),
@@ -314,27 +314,27 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
     });
   }
 
-  private dashboardClaim(closure: ZavorthFunctionalClosureSnapshot): ZavorthSemanticFunctionalClosureClaim {
+  private zavorthControlClaim(closure: ZavorthFunctionalClosureSnapshot): ZavorthSemanticFunctionalClosureClaim {
     return this.claim({
-      kind: 'dashboard-policy',
-      status: closure.dashboard.status !== 'fail'
-        && closure.dashboard.categoryRows.length === closure.items.length
-        && closure.dashboard.receiptRows.length === closure.items.length
+      kind: 'zavorthControl-policy',
+      status: closure.zavorthControl.status !== 'fail'
+        && closure.zavorthControl.categoryRows.length === closure.items.length
+        && closure.zavorthControl.receiptRows.length === closure.items.length
           ? 'covered'
           : 'gap',
       priority: 'P1',
-      sourceStatus: closure.dashboard.status,
-      expectedBehavior: 'Functional closure dashboard exposes category, risk and receipt rows for every closure item.',
-      zavorthEquivalent: 'ZavorthFunctionalClosureDashboardSnapshot with report and machine-readable rows.',
+      sourceStatus: closure.zavorthControl.status,
+      expectedBehavior: 'Functional closure zavorthControl exposes category, risk and receipt rows for every closure item.',
+      zavorthEquivalent: 'ZavorthFunctionalClosureZavorthControlSnapshot with report and machine-readable rows.',
       evidence: [
-        `dashboardStatus=${closure.dashboard.status}`,
-        `categoryRows=${closure.dashboard.categoryRows.length}`,
-        `riskRows=${closure.dashboard.riskRows.length}`,
-        `receiptRows=${closure.dashboard.receiptRows.length}`,
-        `reportLength=${closure.dashboard.report.length}`,
+        `zavorthControlStatus=${closure.zavorthControl.status}`,
+        `categoryRows=${closure.zavorthControl.categoryRows.length}`,
+        `riskRows=${closure.zavorthControl.riskRows.length}`,
+        `receiptRows=${closure.zavorthControl.receiptRows.length}`,
+        `reportLength=${closure.zavorthControl.report.length}`,
       ],
-      receiptIds: [`${RECEIPT_PREFIX}.dashboard.${closure.generatedAt}`],
-      notes: ['Dashboard is a view over the closure ledger, not a separate source of truth.'],
+      receiptIds: [`${RECEIPT_PREFIX}.zavorthControl.${closure.generatedAt}`],
+      notes: ['ZavorthControl is a view over the closure ledger, not a separate source of truth.'],
     });
   }
 

@@ -68,7 +68,7 @@ export const SPECS: MemoryArtifactSpec[] = [
       contract: 'src/contracts/ArtifactContract.ts',
       service: 'src/services/ArtifactPipelineService.ts',
       storage: 'runtime artifact ledger',
-      surface: 'CLI, Telegram, Dashboard',
+      surface: 'CLI, Telegram, ZavorthControl',
       policy: 'src/security',
     },
     markers: [
@@ -208,7 +208,7 @@ export const SPECS: MemoryArtifactSpec[] = [
       contract: 'src/services/MemoryService.ts',
       service: 'src/services/ZavorthMemoryPlaneService.ts',
       storage: 'user_memory_history',
-      surface: '/dashboard memory plane',
+      surface: '/zavorthControl memory plane',
       policy: 'src/security',
     },
     markers: [
@@ -248,7 +248,7 @@ export const SPECS: MemoryArtifactSpec[] = [
       contract: 'src/runtime/context/WorkspaceOperationalMemoryService.ts',
       service: 'src/services/ZavorthMemoryPlaneService.ts',
       storage: 'workspace operational memory',
-      surface: '/dashboard memory plane',
+      surface: '/zavorthControl memory plane',
       policy: 'src/security',
     },
     markers: [
@@ -268,7 +268,7 @@ export const SPECS: MemoryArtifactSpec[] = [
       contract: 'src/services/SessionReplayService.ts',
       service: 'src/services/GatewaySessionService.ts',
       storage: 'GatewaySessionLedgerService',
-      surface: 'Dashboard and CLI',
+      surface: 'ZavorthControl and CLI',
       policy: 'src/security',
     },
     markers: [
@@ -288,7 +288,7 @@ export const SPECS: MemoryArtifactSpec[] = [
       contract: 'src/services/GatewaySessionService.ts',
       service: 'src/services/GatewaySessionService.ts',
       storage: 'GatewaySessionLedgerService',
-      surface: 'session list and Dashboard',
+      surface: 'session list and ZavorthControl',
       policy: 'src/security',
     },
     markers: [

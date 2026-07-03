@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type {
   CanonicalApprovalsDTO,
   CanonicalChannelMeshDTO,
@@ -8,8 +7,8 @@ import type {
   CanonicalReceiptsDTO,
   CanonicalRuntimeHealthDTO,
   CanonicalRuntimeStatusDTO,
-} from '../../public/rest/runtime-api-v1-dto.js';
-import type { PublicRuntimeEvent } from '../../public/events/sse.js';
+} from '../public/rest/runtime-api-v1-dto.js';
+import type { PublicRuntimeEvent } from '../public/events/sse.js';
 import type { ZavorthSchedulerPerceptionDeviceLiveCompletionSnapshot } from '../ZavorthSchedulerPerceptionDeviceLiveCompletionContract.js';
 import type { ZavorthSubagentSkillLiveCompletionSnapshot } from '../ZavorthSubagentSkillLiveCompletionContract.js';
 
@@ -25,7 +24,7 @@ export type ZavorthEndToEndMissionFlowCertificationEntry = {
   surface: 'runtime-api' | 'mission' | 'approval' | 'receipt' | 'provider' | 'channel' | 'subagent-skill' | 'scheduler-perception-device' | 'events' | 'safety';
   evidence: string[];
   userVisible: boolean;
-  dashboardCanExecute: false;
+  zavorthControlCanExecute: false;
   nextAction: string | null;
 };
 
@@ -55,7 +54,7 @@ export type ZavorthEndToEndMissionFlowPublicRuntimeCertificationSnapshot = {
         canonicalEventTypes: PublicRuntimeEvent['type'][];
       };
       safety: {
-        dashboardCanExecute: false;
+        zavorthControlCanExecute: false;
         policyBrokerRequiredForMutableActions: true;
         rawSecretsSerialized: false;
       };
@@ -78,7 +77,7 @@ export type ZavorthEndToEndMissionFlowPublicRuntimeCertificationSnapshot = {
     subagentSkillReady: boolean;
     schedulerPerceptionDeviceReady: boolean;
     publicRuntimeCanBypassPolicy: false;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     rawSecretsSerialized: false;
     workspaceMutationPerformed: false;
     externalIoPerformed: false;
@@ -90,7 +89,7 @@ export type ZavorthEndToEndMissionFlowPublicRuntimeCertificationSnapshot = {
     userGetsReceiptEvidence: boolean;
     userCanInspectProvidersAndChannels: boolean;
     liveMutationRequiresApprovalAndReadiness: true;
-    dashboardIsProjectionOnly: true;
+    zavorthControlIsProjectionOnly: true;
     cliAndApiShareRuntimeTruth: true;
   };
   safety: {

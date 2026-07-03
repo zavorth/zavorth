@@ -27,7 +27,7 @@ export function buildZavorthDoctorPremiumSnapshot(
     checkWorkspace(projectRoot),
     checkProvider(projectRoot, env),
     checkGateway(projectRoot, env),
-    checkDashboard(projectRoot),
+    checkZavorthControl(projectRoot),
     checkTelegram(env),
     checkSandboxAndEffectBoundary(projectRoot),
     checkTrustAndSecrets(projectRoot, env),
@@ -136,7 +136,7 @@ function checkNodeRuntime(): ZavorthDoctorPremiumCheck {
     title: 'Node runtime',
     status: ok ? 'pass' : 'fail',
     summary: ok ? `Node ${process.version} is supported.` : `Node ${process.version} is too old for Zavorth daily runtime.`,
-    impact: ok ? 'CLI, dashboard and local runtime can execute TypeScript/Node tooling.' : 'Setup, dashboard and provider tooling may fail before the agent starts.',
+    impact: ok ? 'CLI, zavorthControl and local runtime can execute TypeScript/Node tooling.' : 'Setup, zavorthControl and provider tooling may fail before the agent starts.',
     fixCommand: ok ? null : 'Install Node 22 LTS or newer, then rerun zavorth doctor.',
     canAutoFix: false,
     evidence: [`node=${process.version}`],
@@ -200,23 +200,23 @@ function checkGateway(projectRoot: string, env: Record<string, string>): Zavorth
     summary: hasGatewayCode
       ? hasToken ? 'Gateway code and local token source detected.' : 'Gateway code detected, but no local auth token was found.'
       : 'Gateway entrypoint was not found.',
-    impact: hasToken ? 'CLI and dashboard can authenticate against local runtime when it is running.' : 'Dashboard/API may ask for token or reject local requests.',
-    fixCommand: hasGatewayCode ? 'zavorth dashboard repair' : 'npm run runtime:check',
+    impact: hasToken ? 'CLI and zavorthControl can authenticate against local runtime when it is running.' : 'ZavorthControl/API may ask for token or reject local requests.',
+    fixCommand: hasGatewayCode ? 'zavorth zavorthControl repair' : 'npm run runtime:check',
     canAutoFix: false,
     evidence: [`token=${hasToken ? 'present' : 'missing'}`],
   };
 }
 
-function checkDashboard(projectRoot: string): ZavorthDoctorPremiumCheck {
-  const hasDashboard = fileExists(projectRoot, 'src/ai-gateway/app/(dashboard)/dashboard')
-    || fileExists(projectRoot, 'src/ai-gateway/app/(dashboard)/dashboard');
+function checkZavorthControl(projectRoot: string): ZavorthDoctorPremiumCheck {
+  const hasZavorthControl = fileExists(projectRoot, 'src/ai-gateway/app/(zavorthControl)/zavorthControl')
+    || fileExists(projectRoot, 'src/ai-gateway/app/(zavorthControl)/zavorthControl');
   return {
-    id: 'dashboard',
-    title: 'Dashboard',
-    status: hasDashboard ? 'pass' : 'warn',
-    summary: hasDashboard ? 'Dashboard source is present.' : 'Dashboard source was not found in the expected app path.',
-    impact: hasDashboard ? 'zavorth open can route the operator to the visual control plane.' : 'The CLI can work, but visual control may be unavailable.',
-    fixCommand: hasDashboard ? 'zavorth open' : 'npm run ai-gateway:check',
+    id: 'zavorthControl',
+    title: 'ZavorthControl',
+    status: hasZavorthControl ? 'pass' : 'warn',
+    summary: hasZavorthControl ? 'ZavorthControl source is present.' : 'ZavorthControl source was not found in the expected app path.',
+    impact: hasZavorthControl ? 'zavorth open can route the operator to the visual control plane.' : 'The CLI can work, but visual control may be unavailable.',
+    fixCommand: hasZavorthControl ? 'zavorth open' : 'npm run ai-gateway:check',
     canAutoFix: false,
   };
 }
@@ -289,6 +289,6 @@ function buildNextActions(checks: ZavorthDoctorPremiumCheck[]): ZavorthDoctorPre
     failing ? { label: `Fix ${failing.title}`, command: failing.fixCommand as string, detail: failing.impact } : null,
     warning ? { label: `Review ${warning.title}`, command: warning.fixCommand as string, detail: warning.impact } : null,
     { label: 'Run setup', command: 'zavorth setup', detail: 'guided provider/channel/trust setup' },
-    { label: 'Open Dashboard', command: 'zavorth open' },
+    { label: 'Open ZavorthControl', command: 'zavorth open' },
   ].filter(Boolean) as ZavorthDoctorPremiumSnapshot['nextActions'];
 }

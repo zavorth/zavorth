@@ -52,8 +52,8 @@ export class ZavorthVisualReceiptUxService {
         rawSecretsSerialized: false,
       },
       cards,
-      dashboardProjection: {
-        route: '/dashboard',
+      zavorthControlProjection: {
+        route: '/zavorthControl',
         renderMode: 'projection-only',
         executionAuthority: false,
         zavorthControlCanExecute: false,
@@ -115,7 +115,7 @@ export class ZavorthVisualReceiptUxService {
       safety: {
         rawSecretsSerialized: false,
         secretPolicy: receipt.redaction.policy,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         zavorthControlCanExecute: false,
         projectionOnly: true,
       },
@@ -154,7 +154,7 @@ function buildActions(receipt: ZavorthVisualReceiptContract): ZavorthVisualRecei
       kind: 'inspect',
       requiresApproval: false,
       mutatesState: false,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
       zavorthControlCanExecute: false,
     },
   ];
@@ -166,7 +166,7 @@ function buildActions(receipt: ZavorthVisualReceiptContract): ZavorthVisualRecei
       kind: 'approval',
       requiresApproval: false,
       mutatesState: false,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
       zavorthControlCanExecute: false,
     });
   }
@@ -178,7 +178,7 @@ function buildActions(receipt: ZavorthVisualReceiptContract): ZavorthVisualRecei
       kind: 'rollback',
       requiresApproval: true,
       mutatesState: true,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
       zavorthControlCanExecute: false,
     });
   }

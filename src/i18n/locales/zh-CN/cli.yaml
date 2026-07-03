@@ -1,0 +1,29 @@
+help: 显示帮助
+version: 显示版本
+commands: 命令
+options: 选项
+usage: 用法
+examples: 示例
+arguments: 参数
+flags: 标志
+verbose: 启用详细输出
+quiet: 启用静默模式
+debug: 启用调试模式
+no_color: 禁用彩色输出
+config: 配置文件路径
+output: 输出文件路径
+format: 输出格式
+json: 以 JSON 格式输出
+yaml: 以 YAML 格式输出
+table: 以表格格式输出
+list: 列出可用命令
+init: 初始化新项目
+build: 构建项目
+test: 运行测试
+lint: 运行代码检查
+clean: 清理构建产物
+deploy: 部署项目
+start_server: 启动服务器
+stop_server: 停止服务器
+status: 显示状态
+logs: 显示日志

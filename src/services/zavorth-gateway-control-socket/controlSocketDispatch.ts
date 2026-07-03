@@ -12,20 +12,20 @@ function parseGatewayControlSocketRequest(rawMessage: string): GatewayControlSoc
   return JSON.parse(rawMessage);
 }
 
-function getRequestParams(request: GatewayControlSocketRequest): Record<string, any> {
+function getRequestParams(request: GatewayControlSocketRequest): Record<string, unknown> {
   return request.params && typeof request.params === 'object'
     ? request.params
     : {};
 }
 
-function getTargetSessionId(params: Record<string, any>, state: GatewayConnectionState): string {
+function getTargetSessionId(params: Record<string, unknown>, state: GatewayConnectionState): string {
   return String(params.sessionId || '').trim() || state.sessionId;
 }
 
 async function buildRuntimeForSession(
   deps: GatewayControlSocketDeps,
   sessionId: string,
-): Promise<Record<string, any>> {
+): Promise<ZavorthGatewayRuntimeSnapshot> {
   return deps.buildRuntime({
     sessionId,
     chatId: deps.getChatId(sessionId),
@@ -370,11 +370,12 @@ export async function handleGatewayControlSocketMessage(input: {
       'unknown_method',
       `Metodo ${method || '(vazio)'} ainda nao existe neste gateway.`,
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Falha ao executar o metodo do gateway.';
     input.sendError(
       requestId,
       'request_failed',
-      error?.message || 'Falha ao executar o metodo do gateway.',
+      message,
     );
   }
 }

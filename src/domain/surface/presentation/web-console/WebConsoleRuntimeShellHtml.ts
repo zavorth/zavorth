@@ -5,7 +5,7 @@ import { buildRuntimeShellHtmlPart2 } from './web-console-runtime-shell-html/par
 import { buildRuntimeShellHtmlPart3 } from './web-console-runtime-shell-html/part3.js';
 import { buildRuntimeShellHtmlPart4 } from './web-console-runtime-shell-html/part4.js';
 
-export function buildRuntimeShellHtml(pathname: string = '/dashboard'): string {
+export function buildRuntimeShellHtml(pathname: string = '/zavorthControl'): string {
   const externalWebClientUrl = escapeHtml(config.zavorthExternalWebClientUrl || '');
   const externalDocsUrl = escapeHtml(config.zavorthExternalDocsUrl || '');
   const legacyBanner = renderLegacySurfaceBanner(pathname);
@@ -13,11 +13,11 @@ export function buildRuntimeShellHtml(pathname: string = '/dashboard'): string {
     ? `<section id="legacy-surface-banner" class="legacy-containment-banner" role="status">
         <strong>Legacy surface</strong>
         <span>${escapeHtml(legacyBanner)}</span>
-        <a href="/dashboard">Open dashboard</a>
+        <a href="/zavorthControl">Open zavorthControl</a>
       </section>`
     : `<section id="canonical-surface-banner" class="canonical-containment-banner" role="status">
-        <strong>Canonical dashboard</strong>
-        <span>/dashboard is the main web entry. Retired web shells are not served publicly anymore.</span>
+        <strong>Canonical zavorthControl</strong>
+        <span>/zavorthControl is the main web entry. Retired web shells are not served publicly anymore.</span>
       </section>`;
 
   return [

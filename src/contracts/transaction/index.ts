@@ -2,7 +2,7 @@ export * from './ZavorthTransactionApprovalContract.js';
 export * from './ZavorthTransactionCertificationContract.js';
 export * from './ZavorthTransactionConnectorContract.js';
 export * from './ZavorthTransactionCredentialContract.js';
-export * from './ZavorthTransactionDashboardContract.js';
+export * from './ZavorthTransactionZavorthControlContract.js';
 export * from './ZavorthTransactionIntentContract.js';
 export * from './ZavorthTransactionLiveActivationReviewContract.js';
 export * from './ZavorthTransactionLiveCandidateContract.js';

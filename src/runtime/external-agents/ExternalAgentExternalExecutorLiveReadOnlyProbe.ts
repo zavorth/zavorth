@@ -82,7 +82,7 @@ export type ExternalExecutorReadOnlyProbeNormalization<TRuntimeId extends string
     stdoutParsedAsEvidenceOnly: true;
     secretLikeOutputRedacted: true;
   };
-  observability: Pick<ZavorthSidecarObservabilityProjection, 'dashboard' | 'nativeContract'> & {
+  observability: Pick<ZavorthSidecarObservabilityProjection, 'zavorthControl' | 'nativeContract'> & {
     readOnlyProbeRows: Array<{
       id: string;
       kind: ExternalExecutorReadOnlyProbeCommandKind;
@@ -262,7 +262,7 @@ export function normalizeExternalExecutorLiveReadOnlyProbe<TRuntimeId extends st
         readOnly: true,
         status: command.status,
       })),
-      dashboard: {
+      zavorthControl: {
         readOnly: true,
         rows: [],
         executableControlsExposed: false,

@@ -124,7 +124,7 @@ export function formatSkillMcpQuarantineSnapshot(
   lines.push('- promocao exige acao explicita do operador');
 
   lines.push('', 'Superficies');
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Review: ${snapshot.surface.reviewHint}`);
 

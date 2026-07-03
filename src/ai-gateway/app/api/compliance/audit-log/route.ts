@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuditLog, logAuditEvent } from "@/lib/compliance/index";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { safeParseInt } from "@/shared/utils/safeParseInt";
 
 export async function GET(request) {
   const authError = await requireStrictManagementAuth(request);
@@ -10,8 +11,8 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get("action") || undefined;
     const actor = searchParams.get("actor") || undefined;
-    const limit = parseInt(searchParams.get("limit") || "50", 10);
-    const offset = parseInt(searchParams.get("offset") || "0", 10);
+    const limit = safeParseInt(searchParams.get("limit"), 50);
+    const offset = safeParseInt(searchParams.get("offset"), 0);
 
     const logs = getAuditLog({ action, actor, limit, offset });
     return NextResponse.json(logs);

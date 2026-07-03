@@ -12,7 +12,7 @@ export type ZavorthChannelCapabilityAtlasState =
   | 'configured'
   | 'needs-config';
 
-export type ZavorthChannelCapabilityAtlasDashboardAction =
+export type ZavorthChannelCapabilityAtlasZavorthControlAction =
   | 'open'
   | 'connect'
   | 'details';
@@ -45,7 +45,7 @@ export type ZavorthChannelCapabilityAtlasEntry = {
   };
   doctor: ZavorthChannelCapabilityAtlasProof;
   liveSmoke: ZavorthChannelCapabilityAtlasProof;
-  dashboardAction: ZavorthChannelCapabilityAtlasDashboardAction;
+  zavorthControlAction: ZavorthChannelCapabilityAtlasZavorthControlAction;
   statusReason: string;
 };
 

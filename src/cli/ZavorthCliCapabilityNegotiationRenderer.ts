@@ -90,7 +90,7 @@ export function formatCapabilityNegotiationSnapshot(
   lines.push('- approvals e preview continuam obrigatorios quando a policy exigir');
 
   lines.push('', 'Superficies');
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Hint: ${snapshot.surface.approvalHint}`);
 

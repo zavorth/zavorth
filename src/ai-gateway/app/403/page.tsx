@@ -14,7 +14,7 @@ export default function ForbiddenStatusPage() {
       ]}
       primaryAction={{ href: "/forbidden", label: "Open Access Help" }}
       secondaryAction={{
-        href: "/dashboard/settings?tab=security",
+        href: "/zavorthControl/settings?tab=security",
         label: "Open Security Settings",
       }}
     />

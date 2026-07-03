@@ -10,6 +10,7 @@ import {
   getProxyStatusStyle as getStatusStyle,
 } from "@/shared/constants/colors";
 import {
+import { logger } from '../logger.js';
   formatTime,
   formatDuration as formatLatency,
   truncateUrl,
@@ -66,7 +67,7 @@ export default function ProxyLogger() {
       const next = { ...prev, [key]: !prev[key] };
       try {
         localStorage.setItem("proxyLoggerVisibleColumns", JSON.stringify(next));
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       return next;
     });
   }, []);

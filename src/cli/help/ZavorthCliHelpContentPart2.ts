@@ -1,11 +1,10 @@
-// @ts-nocheck
 import type { CliHelpPage, CliHelpTopic } from '../ZavorthCliSurfaceHelpers.js';
 
 export const CLI_COMMAND_HELP_PAGES_PART2: Record<string, CliHelpPage> = {
   go: {
     topic: 'go',
     title: 'zavorth go',
-    summary: 'Open Zavorth Home at /dashboard or explain the exact blocker.',
+    summary: 'Open Zavorth Home at /zavorthControl or explain the exact blocker.',
     sections: [
       {
         title: 'Use when',
@@ -36,9 +35,9 @@ export const CLI_COMMAND_HELP_PAGES_PART2: Record<string, CliHelpPage> = {
     ],
   },
 
-  dashboard: {
-    topic: 'dashboard',
-    title: 'zavorth dashboard',
+  zavorthControl: {
+    topic: 'zavorthControl',
+    title: 'zavorth zavorthControl',
     summary: 'Open Zavorth Home with local access applied when possible.',
     sections: [
       {
@@ -51,21 +50,21 @@ export const CLI_COMMAND_HELP_PAGES_PART2: Record<string, CliHelpPage> = {
       {
         title: 'Commands',
         entries: [
-          { command: 'zavorth dashboard', summary: 'Open Home with the local token applied.' },
-          { command: 'zavorth dashboard url', summary: 'Show a local link you can paste into the browser.' },
-          { command: 'zavorth dashboard token', summary: 'Show the local token only when you truly need to copy it manually.' },
-          { command: 'zavorth dashboard status', summary: 'Show where local access comes from without revealing the token.' },
-          { command: 'zavorth dashboard doctor', summary: 'Diagnose a missing, stale or broken local token.' },
-          { command: 'zavorth dashboard repair', summary: 'Create or repair the local token when it comes from the runtime file.' },
-          { command: 'zavorth dashboard generate-token', summary: 'Generate a new local token when ZAVORTH_WEB_AUTH_TOKEN is not fixed.' },
+          { command: 'zavorth zavorthControl', summary: 'Open Home with the local token applied.' },
+          { command: 'zavorth zavorthControl url', summary: 'Show a local link you can paste into the browser.' },
+          { command: 'zavorth zavorthControl token', summary: 'Show the local token only when you truly need to copy it manually.' },
+          { command: 'zavorth zavorthControl status', summary: 'Show where local access comes from without revealing the token.' },
+          { command: 'zavorth zavorthControl doctor', summary: 'Diagnose a missing, stale or broken local token.' },
+          { command: 'zavorth zavorthControl repair', summary: 'Create or repair the local token when it comes from the runtime file.' },
+          { command: 'zavorth zavorthControl generate-token', summary: 'Generate a new local token when ZAVORTH_WEB_AUTH_TOKEN is not fixed.' },
         ],
       },
     ],
     notesTitle: 'Security',
     notes: [
       'The link/token is local to this install. Do not share it in chat, screenshots or public issues.',
-      'The dashboard stores the token only in the current browser tab.',
-      'If an old tab says the token is invalid, open a new one with "zavorth dashboard".',
+      'The zavorthControl stores the token only in the current browser tab.',
+      'If an old tab says the token is invalid, open a new one with "zavorth zavorthControl".',
     ],
   },
 
@@ -229,7 +228,8 @@ export const CLI_COMMAND_HELP_PAGES_PART2: Record<string, CliHelpPage> = {
           { command: 'zavorth security preset professional --apply', summary: 'Apply the recommended daily preset without manual env variables.' },
           { command: 'zavorth security continuous', summary: 'Check doctor, baseline, hooks, CI and continuous-security commands.' },
           { command: 'zavorth go', summary: 'Start the main entry point after fixing the environment.' },
-          { command: 'zavorth setup', summary: 'Review base configuration when the issue starts in setup.' },
+          { command: 'zavorth setup', summary: 'Guided First Light setup with QuickStart defaults.' },
+          { command: 'zavorth setup --setup-mode safe', summary: 'Guided setup with conservative defaults.' },
         ],
       },
     ],
@@ -502,16 +502,17 @@ export const CLI_COMMAND_HELP_PAGES_PART2: Record<string, CliHelpPage> = {
       {
         title: 'Main path',
         entries: [
-          { command: 'zavorth setup', summary: 'Official Zavorth setup.' },
+          { command: 'zavorth setup', summary: 'Guided First Light setup with QuickStart defaults.' },
+          { command: 'zavorth setup --setup-mode blank-slate', summary: 'Minimal opt-in setup with optional capabilities off.' },
           { command: 'zavorth go', summary: 'Start the supervised runtime and open the main surface.' },
-          { command: 'zavorth dashboard', summary: 'Open Home with local access applied.' },
+          { command: 'zavorth zavorthControl', summary: 'Open Home with local access applied.' },
           { command: 'zavorth chat', summary: 'Open the conversational terminal shell.' },
           { command: 'zavorth run "<request>"', summary: 'Send a natural-language request.' },
           { command: 'zavorth continue [context]', summary: 'Resume current work without slash commands.' },
           { command: 'zavorth history [sessionId]', summary: 'Show recent sessions or replay one session.' },
           { command: 'zavorth context', summary: 'Show the current CLI context.' },
           { command: 'zavorth status [--json] [--live]', summary: 'Summarize health, access, sessions and core abilities.' },
-          { command: 'zavorth productization [--json]', summary: 'Shows the productization contract shared by dashboard, CLI, onboarding, docs and website.' },
+          { command: 'zavorth productization [--json]', summary: 'Shows the productization contract shared by zavorthControl, CLI, onboarding, docs and website.' },
           { command: 'zavorth observatory [run|trace|session|status] [--json]', summary: 'Show runs, evidence, timeline and Run Observatory replay.' },
           { command: 'zavorth cockpit [--json] [--live]', summary: 'Unified cockpit for status, doctor, brief, operations and deliveries.' },
           { command: 'zavorth capabilities [list|route "<request>"] [--json]', summary: 'Show ability routing and explain routing decisions.' },
@@ -668,9 +669,9 @@ export const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   canais: 'connectors',
   canal: 'connectors',
   go: 'go',
-  dashboard: 'dashboard',
-  control: 'dashboard',
-  commandcenter: 'dashboard',
+  zavorthControl: 'zavorthControl',
+  control: 'zavorthControl',
+  commandcenter: 'zavorthControl',
   chat: 'chat',
   run: 'run',
   task: 'run',
@@ -712,4 +713,4 @@ export const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   full: 'reference',
   completo: 'reference',
   completa: 'reference',
-};;
+};

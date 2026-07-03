@@ -20,7 +20,7 @@ export type ZavorthVisualReceiptV2Action = {
   safeByDefault: boolean;
   requiresApproval: boolean;
   mutatesState: boolean;
-  dashboardCanExecute: false;
+  zavorthControlCanExecute: false;
   zavorthControlCanExecute: false;
 };
 
@@ -66,10 +66,10 @@ export type ZavorthVisualReceiptsV2Snapshot = {
   };
   sourceProjection: Pick<
     ZavorthVisualReceiptUxSnapshot,
-    'surface' | 'contractVersion' | 'dashboardProjection'
+    'surface' | 'contractVersion' | 'zavorthControlProjection'
   >;
-  dashboardProjection: {
-    route: '/dashboard';
+  zavorthControlProjection: {
+    route: '/zavorthControl';
     renderMode: 'product-cards';
     executionAuthority: false;
     advancedModeAvailable: true;
@@ -78,7 +78,7 @@ export type ZavorthVisualReceiptsV2Snapshot = {
   safety: {
     projectionOnly: true;
     rawSecretsSerialized: false;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     zavorthControlCanExecute: false;
     approvalActionsStayScoped: true;
     rollbackRequiresApproval: true;

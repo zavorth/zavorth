@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from '../logger.js';
 
 export interface ModelMapping {
   id: string;
@@ -36,7 +37,7 @@ export default function ModelRoutingSection({ combos = [] }: { combos?: Combo[] 
         const data = await res.json();
         return data.mappings || [];
       }
-    } catch {}
+    } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
     return [];
   };
 
@@ -86,7 +87,7 @@ export default function ModelRoutingSection({ combos = [] }: { combos?: Combo[] 
         });
         if (res.ok) await refetchMappings();
       }
-    } catch {}
+    } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
     resetForm();
   };
 
@@ -104,7 +105,7 @@ export default function ModelRoutingSection({ combos = [] }: { combos?: Combo[] 
     try {
       await fetch(`/api/model-combo-mappings/${id}`, { method: "DELETE" });
       setMappings((prev) => prev.filter((m) => m.id !== id));
-    } catch {}
+    } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
   };
 
   const handleToggle = async (m: ModelMapping) => {
@@ -117,7 +118,7 @@ export default function ModelRoutingSection({ combos = [] }: { combos?: Combo[] 
       if (res.ok) {
         setMappings((prev) => prev.map((x) => (x.id === m.id ? { ...x, enabled: !x.enabled } : x)));
       }
-    } catch {}
+    } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
   };
 
   return (

@@ -2,6 +2,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import crypto from "crypto";
+import { logger } from '../logger.js';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -123,7 +124,7 @@ export function deleteGatewayFile(id: string): boolean {
   if (!found) return false;
   try {
     if (found.path && fs.existsSync(found.path)) fs.unlinkSync(found.path);
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
   writeJson("files.json", files.filter((file) => file.id !== id));
   return true;
 }

@@ -151,7 +151,7 @@ const PROFILE_DEFINITIONS: ZavorthGovernedSubagentProfile[] = [
     id: 'qa',
     label: 'QA',
     objective: 'Verify behavior, tests, regressions, receipts, and release readiness.',
-    nativeSkillIds: ['code-review', 'incident-triage', 'dashboard-ops'],
+    nativeSkillIds: ['code-review', 'incident-triage', 'zavorthControl-ops'],
     permissionProfileId: 'workspace-read',
     riskLevel: 'medium',
     scopeMode: 'tool_limited',
@@ -173,13 +173,13 @@ const PROFILE_DEFINITIONS: ZavorthGovernedSubagentProfile[] = [
   profile({
     id: 'operator',
     label: 'Operator',
-    objective: 'Inspect providers, channels, dashboard state, and operational recovery steps.',
-    nativeSkillIds: ['provider-doctor', 'dashboard-ops', 'incident-triage', 'channel-response-design', 'user-onboarding'],
+    objective: 'Inspect providers, channels, zavorthControl state, and operational recovery steps.',
+    nativeSkillIds: ['provider-doctor', 'zavorthControl-ops', 'incident-triage', 'channel-response-design', 'user-onboarding'],
     permissionProfileId: 'connector-live-secretref',
     riskLevel: 'medium',
     scopeMode: 'tool_limited',
     allowedSurfaces: ['skill', 'provider', 'mcp', 'plugin'],
-    allowedToolIds: ['skill.invoke.native', 'provider.doctor', 'channel.status', 'dashboard.project'],
+    allowedToolIds: ['skill.invoke.native', 'provider.doctor', 'channel.status', 'zavorthControl.project'],
     requiresUserApproval: true,
     requiresAdminPolicy: false,
     maxToolCalls: 8,
@@ -390,7 +390,7 @@ export class ZavorthGovernedSubagentService {
     if (/\b(test|qa|valid|verific|regress|smoke)\b/.test(text)) {
       roles.push('qa');
     }
-    if (/\b(provider|canal|channel|dashboard|runtime|operac|whatsapp|telegram|discord|signal|imessage)\b/.test(text)) {
+    if (/\b(provider|canal|channel|zavorthControl|runtime|operac|whatsapp|telegram|discord|signal|imessage)\b/.test(text)) {
       roles.push('operator');
     }
     if (/\b(memoria|memory|retenc|forget|lembrar|contexto)\b/.test(text)) {

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
@@ -9,6 +8,8 @@ import { PresentationModeService } from '../../../../services/PresentationModeSe
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import { TaskResponseEnvelopeService } from '../../../../services/TaskResponseEnvelopeService.js';
 import { UserFacingResponseService } from '../../../../services/UserFacingResponseService.js';
+import type { PolicyViolation } from '../../../../security/PolicyEngine.js';
+import { logger } from '../logger.js';
 
 type PersistTaskFn = (task: Task) => void;
 
@@ -46,17 +47,17 @@ export class TelegramExecutionPlanningService {
         plan.risk_level,
         modeManager.getMode(),
         evaluation,
-      ).catch(() => {});
+      ).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
       if (!evaluation.allowed) {
         const userFacingText = UserFacingResponseService.formatPlanBlocked(
           task,
-          evaluation.violations.map((violation: unknown) => violation.detail),
+          evaluation.violations.map((violation: PolicyViolation) => violation.detail),
           { presentationMode: this.deps.presentationModeService.isEnabled() },
         );
         const operationalText = TaskResponseEnvelopeService.buildPlanBlocked(
           task,
-          evaluation.violations.map((violation: unknown) => violation.detail),
+          evaluation.violations.map((violation: PolicyViolation) => violation.detail),
         );
         TaskResponseEnvelopeService.capture(task, 'plan_blocked', userFacingText, operationalText);
         this.deps.persistTask(task);
@@ -70,7 +71,7 @@ export class TelegramExecutionPlanningService {
 
       const warningText =
         evaluation.warnings.length > 0
-          ? `\nAvisos de seguranca: ${evaluation.warnings.map((warning: unknown) => warning.detail).join('; ')}`
+          ? `\nAvisos de seguranca: ${evaluation.warnings.map((warning: PolicyViolation) => warning.detail).join('; ')}`
           : '';
 
       const normalizedWarningText = warningText ? warningText.replace(/^;\s*/, '') : '';
@@ -95,10 +96,11 @@ export class TelegramExecutionPlanningService {
       await SmartOutputService.reply(ctx, userFacingText);
     } catch (error: unknown) {
       this.deps.taskManager.advanceState(task, 'failed');
-      task.error_summary = error.message;
+      const message = error instanceof Error ? error.message : String(error);
+      task.error_summary = message;
       this.deps.persistTask(task);
-      const userFacingText = `Nao consegui montar um plano agora.\n\nMotivo: ${error.message}`;
-      const operationalText = TaskResponseEnvelopeService.buildPreparationFailure(task, error.message);
+      const userFacingText = `Nao consegui montar um plano agora.\n\nMotivo: ${message}`;
+      const operationalText = TaskResponseEnvelopeService.buildPreparationFailure(task, message);
       TaskResponseEnvelopeService.capture(task, 'preparation_failure', userFacingText, operationalText);
       this.deps.persistTask(task);
       this.deps.logRepo.log('error', 'ResponseEnvelope', operationalText, {

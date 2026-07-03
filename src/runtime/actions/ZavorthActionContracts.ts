@@ -58,7 +58,7 @@ export type ZavorthActionDefinition = {
   description: string;
   aliases: string[];
   domains: string[];
-  surface: Array<'cli' | 'dashboard' | 'tui' | 'api' | 'channel' | 'llm'>;
+  surface: Array<'cli' | 'zavorthControl' | 'tui' | 'api' | 'channel' | 'llm'>;
   risk: ZavorthActionRisk;
   mutationDomain?: string;
   mutationRisk?: ZavorthMutationRiskLevel;

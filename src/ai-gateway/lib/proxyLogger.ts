@@ -1,7 +1,7 @@
 /**
  * Proxy Logger — Hybrid in-memory + SQLite persistence
  *
- * Keeps a fast in-memory ring buffer for real-time dashboard AND
+ * Keeps a fast in-memory ring buffer for real-time zavorthControl AND
  * persists to SQLite so logs survive server restarts.
  *
  * Pattern follows callLogs.js (T-15 decomposition).

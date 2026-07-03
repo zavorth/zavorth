@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type {
   CanonicalApprovalsDTO,
   CanonicalChannelMeshDTO,
@@ -7,7 +6,7 @@ import type {
   CanonicalReceiptsDTO,
   CanonicalRuntimeHealthDTO,
   CanonicalRuntimeStatusDTO,
-} from '../../public/rest/runtime-api-v1-dto.js';
+} from '../public/rest/runtime-api-v1-dto.js';
 
 export const ZAVORTH_CONTROL_CONTRACT_ADAPTER_VERSION = 'zavorthControl-contract-adapter/v1' as const;
 

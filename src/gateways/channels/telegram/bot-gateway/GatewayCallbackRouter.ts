@@ -69,7 +69,7 @@ export class GatewayCallbackRouter {
           await this.deps.handleExperienceActionCardCallback(ctx, data);
           return;
         }
-        await ctx.answerCallbackQuery({ text: 'Action card recebido. Abra /dashboard ou use a CLI para decidir.' });
+        await ctx.answerCallbackQuery({ text: 'Action card recebido. Abra /zavorthControl ou use a CLI para decidir.' });
         return;
       }
 

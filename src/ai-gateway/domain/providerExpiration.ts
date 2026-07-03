@@ -33,7 +33,7 @@ export interface ProviderExpiration {
   lastChecked: string;
   /** Current status */
   status: ExpiryStatus;
-  /** Optional note (e.g., "Membership expired, needs re-auth on dashboard") */
+  /** Optional note (e.g., "Membership expired, needs re-auth on zavorthControl") */
   note: string | null;
 }
 

@@ -152,7 +152,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         id: 'checkpoint-12',
         title: 'ZavorthControl Chat-First Entry',
         command: 'zavorth zavorthControl-home',
-        surface: 'dashboard',
+        surface: 'zavorthControl',
         service: new ZavorthControlExperienceHomeService(),
         input: {},
         evidence: ['ZavorthControl opens as chat-first daily use while memory, skills, approvals, receipts and setup remain reachable as explicit surfaces.'],
@@ -165,7 +165,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         surface: 'cli',
         service: new ZavorthCliExperienceCertificationService(),
         input: {},
-        evidence: ['The CLI mirrors Dashboard Home with home areas, guided missions and runtime questions.'],
+        evidence: ['The CLI mirrors ZavorthControl Home with home areas, guided missions and runtime questions.'],
         riskBoundary: 'CLI convenience entrypoints do not skip preview, approval or receipts.',
       }),
     ];
@@ -194,7 +194,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
       invariants: [
         'The Experience Layer adapts complexity to the user without creating a second runtime.',
         'Every visible shortcut remains a prompt, projection or governed envelope.',
-        'No profile, dashboard card, CLI entrypoint or Satellite card grants extra authority.',
+        'No profile, zavorthControl card, CLI entrypoint or Satellite card grants extra authority.',
         'Daily-use simplicity must preserve Policy Broker, scoped approvals, receipts and SecretRefs.',
       ],
     };
@@ -296,7 +296,7 @@ function validateProjectionSafety(value: unknown): { ok: boolean; errors: string
     ['raw secrets serialized', /"rawSecretsSerialized"\s*:\s*true/],
     ['hidden execution authority', /"hiddenExecutionAuthority"\s*:\s*true/],
     ['generic execution authority', /"executionAuthority"\s*:\s*true/],
-    ['dashboard execution authority', /"dashboardCanExecute(?:TargetAction)?"\s*:\s*true/],
+    ['zavorthControl execution authority', /"zavorthControlCanExecute(?:TargetAction)?"\s*:\s*true/],
     ['zavorth control execution authority', /"zavorthControlCanExecute(?:TargetAction)?"\s*:\s*true/],
     ['satellite target execution authority', /"satelliteCanExecuteTargetAction"\s*:\s*true/],
     ['cli target execution authority', /"cliCanExecuteTargetAction"\s*:\s*true/],

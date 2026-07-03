@@ -16,7 +16,7 @@ type TelegramHubActionServiceDeps = {
   formatSystemStatusReply: (stats: Record<string, unknown>) => string;
   formatModelsReply: (currentModel: string, preferredModel: string | null) => string;
   formatPermissionList: (permissions: PermissionRequest[], status: PermissionStatus | 'all') => string;
-  handleDashboard: (ctx: Context) => Promise<void>;
+  handleZavorthControl: (ctx: Context) => Promise<void>;
   handleOperationalMode: (ctx: Context, args: string) => Promise<void>;
   handleWslCommand: (ctx: Context, args: string) => Promise<void>;
   handleAudit: (ctx: Context, args: string) => Promise<void>;
@@ -54,8 +54,8 @@ export class TelegramHubActionService {
         await ctx.reply(this.deps.formatModelsReply(currentModel, preferredZavorthBridgeModel));
         return;
       }
-      case 'dashboard':
-        await this.deps.handleDashboard(ctx);
+      case 'zavorthControl':
+        await this.deps.handleZavorthControl(ctx);
         return;
       case 'permissions': {
         const permissions = await this.deps.permissionService.listRequests('pending', 10);

@@ -2,8 +2,8 @@ import {
   GOVERNED_EXECUTOR_BOUNDARY,
 } from '../agent/executors/GovernedExecutorAdapter.js';
 import {
-  normalizeRuntimeAdapterDashboardLiveAssimilationFixture,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 import type {
   GovernedExecutorBoundary,
 } from '../agent/executors/GovernedExecutorAdapter.js';
@@ -14,9 +14,9 @@ import type {
   RuntimeAdapterLiveReadinessCapabilityRowKind,
 } from './RuntimeAdapterLiveReadinessAssimilationPack.js';
 import type {
-  ZavorthDashboardCapabilityView,
-  RuntimeAdapterDashboardLiveAssimilationNormalization,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  ZavorthZavorthControlCapabilityView,
+  RuntimeAdapterZavorthControlLiveAssimilationNormalization,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 
 export const RUNTIME_ADAPTER_CONTROLLED_ACTION_DISPATCH_DESIGN_NOW = '2026-04-28T22:00:00.000Z' as const;
 export const RUNTIME_ADAPTER_CONTROLLED_ACTION_DISPATCH_DESIGN_RUNTIME_ID = 'runtime-adapter-controlled-action-dispatch-design' as const;
@@ -195,7 +195,7 @@ export type ZavorthExternalActionDispatchDesignNormalization = {
   runtimeId: string;
   decision: ZavorthExternalActionDispatchDesignDecision;
   readOnlyDesignOnly: true;
-  dashboardAssimilationReady: boolean;
+  zavorthControlAssimilationReady: boolean;
   governedExecutorBoundary: GovernedExecutorBoundary;
   supportedControlLevels: ZavorthExternalActionControlLevel[];
   intents: ZavorthExternalActionIntent[];
@@ -217,19 +217,19 @@ export type ZavorthExternalActionDispatchDesignOptions<TRuntimeId extends string
   generatedAt: string;
   idPrefix: string;
   runtimeId: TRuntimeId;
-  dashboardAssimilation: RuntimeAdapterDashboardLiveAssimilationNormalization;
+  zavorthControlAssimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization;
   records: ZavorthExternalActionIntentSourceRecord[];
   executionGate: ZavorthExternalActionDispatchExecutionGate;
 };
 
 function findCapability(
-  assimilation: RuntimeAdapterDashboardLiveAssimilationNormalization,
+  assimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization,
   category: RuntimeAdapterLiveReadinessCapabilityRowKind,
-): ZavorthDashboardCapabilityView {
+): ZavorthZavorthControlCapabilityView {
   const capability = assimilation.viewModel.capabilities.find((row) => row.category === category);
 
   if (!capability) {
-    throw new Error(`Missing Dashboard capability category: ${category}`);
+    throw new Error(`Missing ZavorthControl capability category: ${category}`);
   }
 
   return capability;
@@ -241,7 +241,7 @@ function sourceEvidenceAlias(category: RuntimeAdapterLiveReadinessCapabilityRowK
 
 function buildIntent(
   idPrefix: string,
-  assimilation: RuntimeAdapterDashboardLiveAssimilationNormalization,
+  assimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization,
   record: ZavorthExternalActionIntentSourceRecord,
   index: number,
 ): ZavorthExternalActionIntent {
@@ -518,7 +518,7 @@ export function normalizeZavorthExternalActionDispatchDesign<TRuntimeId extends 
   options: ZavorthExternalActionDispatchDesignOptions<TRuntimeId>,
 ): ZavorthExternalActionDispatchDesignNormalization {
   const intents = options.records.map((record, index) => (
-    buildIntent(options.idPrefix, options.dashboardAssimilation, record, index)
+    buildIntent(options.idPrefix, options.zavorthControlAssimilation, record, index)
   ));
   const preflights = intents.map((intent, index) => buildPreflight(options.idPrefix, intent, index));
   const approvalRequests = intents.map((intent, index) => (
@@ -530,11 +530,11 @@ export function normalizeZavorthExternalActionDispatchDesign<TRuntimeId extends 
   const receipts = intents.map((intent, index) => (
     buildReceipt(options.idPrefix, intent, preflights[index], dispatchPlans[index], index)
   ));
-  const dashboardAssimilationReady =
-    options.dashboardAssimilation.decision === 'dashboard-live-assimilation-ready' &&
-    options.dashboardAssimilation.executionGate.executionAuthority === false &&
-    options.dashboardAssimilation.viewModel.sourceRuntimeNamePublic === false &&
-    options.dashboardAssimilation.viewModel.sourceStructuresPublic === false;
+  const zavorthControlAssimilationReady =
+    options.zavorthControlAssimilation.decision === 'zavorthControl-live-assimilation-ready' &&
+    options.zavorthControlAssimilation.executionGate.executionAuthority === false &&
+    options.zavorthControlAssimilation.viewModel.sourceRuntimeNamePublic === false &&
+    options.zavorthControlAssimilation.viewModel.sourceStructuresPublic === false;
   const noExecution =
     options.executionGate.executionActuallyPerformed === false &&
     options.executionGate.messageActuallySent === false &&
@@ -551,11 +551,11 @@ export function normalizeZavorthExternalActionDispatchDesign<TRuntimeId extends 
     nativeContract: 'ZavorthControlledActionDispatchDesign/v1',
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
-    decision: dashboardAssimilationReady && noExecution
+    decision: zavorthControlAssimilationReady && noExecution
       ? 'controlled-action-dispatch-design-ready'
       : 'blocked',
     readOnlyDesignOnly: true,
-    dashboardAssimilationReady,
+    zavorthControlAssimilationReady,
     governedExecutorBoundary: GOVERNED_EXECUTOR_BOUNDARY,
     supportedControlLevels: ['read-only', 'dry-run', 'approval-required', 'blocked', 'executable-future'],
     intents,
@@ -576,7 +576,7 @@ export function normalizeZavorthExternalActionDispatchDesign<TRuntimeId extends 
 
 export function normalizeZavorthExternalActionDispatchDesignFixture(): ZavorthExternalActionDispatchDesignNormalization {
   return normalizeZavorthExternalActionDispatchDesign({
-    dashboardAssimilation: normalizeRuntimeAdapterDashboardLiveAssimilationFixture(),
+    zavorthControlAssimilation: normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture(),
     records: createZavorthExternalActionDispatchDesignFixtureRecords(),
     executionGate: createZavorthExternalActionDispatchExecutionGate(),
     generatedAt: RUNTIME_ADAPTER_CONTROLLED_ACTION_DISPATCH_DESIGN_NOW,

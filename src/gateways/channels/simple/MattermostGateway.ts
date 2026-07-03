@@ -2,6 +2,20 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface MattermostWebhookPayload {
+  user_id?: string;
+  user_name?: string;
+  userId?: string;
+  channel_id?: string;
+  channel_name?: string;
+  chatId?: string;
+  text?: string;
+  rawText?: string;
+  post_id?: string;
+  messageId?: string;
+  team_id?: string;
+}
+
 export class MattermostGateway extends WebhookGateway {
   public readonly id = 'mattermost';
   public readonly name = 'Mattermost';
@@ -52,25 +66,25 @@ export class MattermostGateway extends WebhookGateway {
     fields?: Record<string, unknown>;
   } | null {
     const userId = String(
-      (webhookPayload as any).user_id
-      || (webhookPayload as any).user_name
-      || (webhookPayload as any).userId
+      (webhookPayload as MattermostWebhookPayload).user_id
+      || (webhookPayload as MattermostWebhookPayload).user_name
+      || (webhookPayload as MattermostWebhookPayload).userId
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).channel_id
-      || (webhookPayload as any).channel_name
-      || (webhookPayload as any).chatId
+      (webhookPayload as MattermostWebhookPayload).channel_id
+      || (webhookPayload as MattermostWebhookPayload).channel_name
+      || (webhookPayload as MattermostWebhookPayload).chatId
       || 'mattermost',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).text
-      || (webhookPayload as any).rawText
+      (webhookPayload as MattermostWebhookPayload).text
+      || (webhookPayload as MattermostWebhookPayload).rawText
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).post_id
-      || (webhookPayload as any).messageId
+      (webhookPayload as MattermostWebhookPayload).post_id
+      || (webhookPayload as MattermostWebhookPayload).messageId
       || '',
     ).trim() || null;
 
@@ -85,8 +99,8 @@ export class MattermostGateway extends WebhookGateway {
       messageId,
       isGroup: true,
       fields: {
-        channelName: String((webhookPayload as any).channel_name || ''),
-        teamId: String((webhookPayload as any).team_id || ''),
+        channelName: String((webhookPayload as MattermostWebhookPayload).channel_name || ''),
+        teamId: String((webhookPayload as MattermostWebhookPayload).team_id || ''),
       },
     };
   }
@@ -112,8 +126,9 @@ export class MattermostGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`Mattermost send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.recordError(`Mattermost send failed: ${message}`);
     }
   }
 }

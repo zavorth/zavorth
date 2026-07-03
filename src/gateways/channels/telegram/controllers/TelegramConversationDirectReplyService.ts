@@ -7,6 +7,7 @@ import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from '../../../../servic
 import type { AudioSynthesisOptions } from '../../../../gateways/channels/telegram/AudioHandler.js';
 import { logEchoTrace, resolveEchoTraceId } from '../../../../gateways/channels/telegram/EchoTrace.js';
 import { TelegramConversationStateService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationStateService.js';
+import { logger } from '../logger.js';
 
 type ContinuityContext = ReturnType<typeof buildWorkspaceContinuityContext>;
 
@@ -96,10 +97,10 @@ export class TelegramConversationDirectReplyService {
     await Promise.resolve(this.deps.recordAssistantMessage?.(task, finalText, 'reply'));
 
     if (summaryService && userId && chatId) {
-      await summaryService.recordExchange(userId, chatId, messageText, finalText).catch(() => {});
+      await summaryService.recordExchange(userId, chatId, messageText, finalText).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
     }
     if (memoryService && userId) {
-      await memoryService.autoExtract(userId, messageText, finalText).catch(() => {});
+      await memoryService.autoExtract(userId, messageText, finalText).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
     }
 
     return finalText;

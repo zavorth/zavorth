@@ -16,7 +16,7 @@ import {
 export class AuthGuard {
   private static readonly FUN_COMMANDS = ['/roll', '/coinflip', '/8ball', '/joke', '/roulette'];
   private static readonly READ_ONLY_ALLOWED_COMMANDS = new Set([
-    '/start', '/help', '/menu', '/zavorth', '/settings', '/status', '/dashboard',
+    '/start', '/help', '/menu', '/zavorth', '/settings', '/status', '/zavorthControl',
     '/tasks', '/logs', '/files', '/diff', '/research', '/deepresearch',
     '/memory', '/recall', '/snippets', '/snippet', '/remember', '/forget',
     '/hostauth', '/changes', '/access', '/bootstrap', '/doctor',

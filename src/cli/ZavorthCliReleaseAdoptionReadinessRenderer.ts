@@ -108,7 +108,7 @@ export function formatReleaseAdoptionReadinessSnapshot(
   lines.push(`- Pilot loop: ${snapshot.surface.pilotLoopCommand}`);
   lines.push(`- Feedback preview: ${snapshot.surface.feedbackPreviewCommand}`);
   lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');
@@ -147,12 +147,12 @@ function buildPilotReadySnapshot(run: UniversalAgentRun) {
     },
     adoptionLoop: {
       plannedPilotCount: 3,
-      dashboardAggregationOnly: true,
+      zavorthControlAggregationOnly: true,
       noPayloadPolicy: true,
     },
     policy: {
       noWorkspacePayloadStored: true,
-      dashboardAggregatedOnly: true,
+      zavorthControlAggregatedOnly: true,
     },
     surface: {
       qaCommand: 'npm run qa:public-adoption-pilot-loop',

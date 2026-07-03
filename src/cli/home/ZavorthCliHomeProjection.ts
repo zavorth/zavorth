@@ -32,7 +32,7 @@ export function buildZavorthCliHomeSnapshot(
     && fs.existsSync(path.join(projectRoot, 'scripts', 'effect-boundary-invariants-check.mjs'))
     ? 'ready'
     : 'missing';
-  const dashboard = fs.existsSync(path.join(projectRoot, 'src', 'ai-gateway', 'app', '(dashboard)', 'control'))
+  const zavorthControl = fs.existsSync(path.join(projectRoot, 'src', 'ai-gateway', 'app', '(zavorthControl)', 'control'))
     ? 'available'
     : 'missing';
   const gatewayToken = env.ZAVORTH_WEB_AUTH_TOKEN || env.ZAVORTH_GATEWAY_TOKEN || process.env.ZAVORTH_WEB_AUTH_TOKEN || process.env.ZAVORTH_GATEWAY_TOKEN
@@ -54,7 +54,7 @@ export function buildZavorthCliHomeSnapshot(
       node: process.version,
       packageVersion,
       gatewayToken,
-      dashboard,
+      zavorthControl,
     },
     provider: {
       id: providerId,
@@ -82,7 +82,7 @@ export function buildZavorthCliHomeSnapshot(
     nextActions: buildNextActions({
       providerConfigured,
       pendingPlans,
-      dashboard,
+      zavorthControl,
       telegram,
     }),
   };
@@ -166,7 +166,7 @@ function buildHeadline(status: ZavorthCliHomeStatus, providerConfigured: boolean
 function buildNextActions(input: {
   providerConfigured: boolean;
   pendingPlans: ZavorthMutationPlan[];
-  dashboard: 'available' | 'missing';
+  zavorthControl: 'available' | 'missing';
   telegram: 'ready' | 'needs-allowlist' | 'not-configured';
 }): ZavorthCliHomeSnapshot['nextActions'] {
   return [
@@ -176,9 +176,9 @@ function buildNextActions(input: {
     input.pendingPlans.length > 0
       ? { label: 'Review approvals', command: 'zavorth approve', detail: `${input.pendingPlans.length} pending` }
       : null,
-    input.dashboard === 'available'
-      ? { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual control plane' }
-      : { label: 'Check dashboard', command: 'zavorth doctor', detail: 'dashboard source missing' },
+    input.zavorthControl === 'available'
+      ? { label: 'Open ZavorthControl', command: 'zavorth open', detail: 'visual control plane' }
+      : { label: 'Check zavorthControl', command: 'zavorth doctor', detail: 'zavorthControl source missing' },
     input.telegram !== 'ready'
       ? { label: 'Configure Telegram', command: 'zavorth channels telegram', detail: input.telegram === 'needs-allowlist' ? 'add user allowlist' : 'optional remote ChatOps' }
       : null,

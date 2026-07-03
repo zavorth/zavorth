@@ -1,10 +1,7 @@
-// @ts-nocheck
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../logger.js';
-import {
-  ZavorthExternalAgentGatewayService,
-  type ZavorthExternalAgentGatewayReceipt,
-} from '../services/ZavorthExternalAgentGatewayService.js';
+import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';
+import type { ZavorthExternalAgentGatewayReceipt } from '../contracts/external/ZavorthExternalAgentGatewayContract.js';
 
 export type AgentChainStepKind = 'agent' | 'local' | 'transform';
 
@@ -269,7 +266,7 @@ export class AgentChainBuilder {
       }
     }
 
-    for (const group of groups.values()) {
+    for (const group of Array.from(groups.values())) {
       result.push(group);
     }
 
@@ -455,7 +452,7 @@ export class AgentChainBuilder {
 
   public resolveInputReferences(template: string, outputs: Map<string, string>): string {
     let resolved = template;
-    for (const [stepId, output] of outputs) {
+    for (const [stepId, output] of Array.from(outputs.entries())) {
       resolved = resolved.replace(new RegExp(`\\$\\{${stepId}\\.output\\}`, 'g'), output);
     }
     resolved = resolved.replace(/\$\{previous\.output\}/g, outputs.size > 0 ? Array.from(outputs.values()).pop() || '' : '');

@@ -10,23 +10,23 @@ function parsePort(value: string | undefined, fallback: number): number {
 export type RuntimePorts = {
   port: number;
   apiPort: number;
-  dashboardPort: number;
+  zavorthControlPort: number;
   apiPortExplicit: boolean;
-  dashboardPortExplicit: boolean;
+  zavorthControlPortExplicit: boolean;
 };
 
 export function getRuntimePorts(): RuntimePorts {
   // ZavorthGateway_PORT preserves the user's canonical PORT in wrapped runtimes
-  // where Next.js requires process.env.PORT to be the dashboard listener port.
+  // where Next.js requires process.env.PORT to be the zavorthControl listener port.
   const basePort = parsePort(process.env.ZavorthGateway_PORT || process.env.PORT, DEFAULT_PORT);
   const apiPortExplicit = !!process.env.API_PORT;
-  const dashboardPortExplicit = !!process.env.DASHBOARD_PORT;
+  const zavorthControlPortExplicit = !!process.env.ZAVORTH_CONTROL_PORT;
 
   return {
     port: basePort,
     apiPort: parsePort(process.env.API_PORT, basePort),
-    dashboardPort: parsePort(process.env.DASHBOARD_PORT, basePort),
+    zavorthControlPort: parsePort(process.env.ZAVORTH_CONTROL_PORT, basePort),
     apiPortExplicit,
-    dashboardPortExplicit,
+    zavorthControlPortExplicit,
   };
 }

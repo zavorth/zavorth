@@ -45,7 +45,7 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
       markCapabilityState: () => null,
     },
     dailyReportService: gateway.dailyReportService || { start: () => undefined },
-    dashboardService: gateway.dashboardService || { start: async () => undefined, getUrl: () => '' },
+    zavorthControlService: gateway.zavorthControlService || { start: async () => undefined, getUrl: () => '' },
     lifecycleController: gateway.lifecycleController || { start: async () => undefined },
     supervisedRuntimeNotificationService: gateway.supervisedRuntimeNotificationService || {
       flushPending: async () => ({ delivered: false, skipped: true }),
@@ -69,7 +69,7 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
     state: {
       supervisedRuntimeNotificationTimer: null,
       supervisedRuntimeNotificationFlushInFlight: false,
-      dashboardSurfaceStarted: false,
+      zavorthControlSurfaceStarted: false,
     },
     getSharedSurfaceCommandService: () => gateway.sharedSurfaceCommandService,
   });

@@ -1,16 +1,20 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import type { ZavorthRuntimeModesSnapshot } from '../../../../services/ZavorthRuntimeModesService.js';
+
+declare function escapeHtml(value: unknown): string;
+
+type RuntimeModesErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshRuntimeModes() {
-    function renderOperationsRuntimeModes(runtimeModes) {
+    function renderOperationsRuntimeModes(runtimeModes: ZavorthRuntimeModesSnapshot | RuntimeModesErrorPayload | null | undefined) {
       const node = document.getElementById('operations-runtime-modes');
       if (!node) return;
-      if (!runtimeModes || runtimeModes.error) {
+      if (!runtimeModes || 'error' in runtimeModes) {
         node.innerHTML = '<div class="muted">Nao foi possivel carregar os modos de runtime.</div>';
         return;
       }
 
-      const summary = runtimeModes.summary || {};
+      const summary: ZavorthRuntimeModesSnapshot['summary'] = runtimeModes.summary || {} as ZavorthRuntimeModesSnapshot['summary'];
       const entries = Array.isArray(runtimeModes.entries) ? runtimeModes.entries : [];
       const entryItems = entries.length
         ? entries.map((entry) =>

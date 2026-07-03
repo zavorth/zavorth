@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { config } from '@zavorth/config/index.js';
 import { Task } from '@zavorth/contracts/TaskContract.js';
@@ -128,7 +127,8 @@ export class TelegramZavorthBridgeSessionBridgeService {
       );
       await ctx.reply('Done. Restarted the visible ZavorthBridge conversation and confirmed the reset in the real UI.');
     } catch (error: unknown) {
-      await ctx.reply(`Could not clean or restart ZavorthBridge right now.\n\nReason: ${error.message}`);
+      const message = error instanceof Error ? error.message : String(error);
+      await ctx.reply(`Could not clean or restart ZavorthBridge right now.\n\nReason: ${message}`);
     }
   }
 

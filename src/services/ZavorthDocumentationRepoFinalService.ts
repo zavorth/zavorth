@@ -7,6 +7,7 @@ import {
   type ZavorthDocumentationRepoFinalSnapshot,
   type ZavorthDocumentationRepoFinalStatus,
 } from '../contracts/ZavorthDocumentationRepoFinalContract.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   now?: () => Date;
@@ -68,14 +69,14 @@ export class ZavorthDocumentationRepoFinalService {
       summary,
       checks,
       guarantees: {
-        dashboardIsPrimarySurface: true,
+        zavorthControlIsPrimarySurface: true,
         satelliteAndCliRemainValidSurfaces: true,
         retiredVisualSurfacesAreNotUserFacing: true,
         docsDoNotPublishImplementationDiaries: true,
         publicIdentityIsZavorthNative: true,
         openSourceDistributionIsExplicit: true,
         liveCertificationRemainsWired: true,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
       },
       commands: {
         inspect: 'npm run zavorth:documentation-repo-final',
@@ -105,7 +106,7 @@ export class ZavorthDocumentationRepoFinalService {
       for (const detail of check.details.slice(0, 8)) lines.push(`  - ${detail}`);
     }
     lines.push('', 'Guarantees:');
-    lines.push('- /dashboard is the final user web surface.');
+    lines.push('- /zavorthControl is the final user web surface.');
     lines.push('- /satellite and CLI remain valid user surfaces.');
     lines.push('- retired visual surfaces are not promoted to normal users.');
     lines.push('- public docs and repo identity are Zavorth-native with explicit MIT licensing.');
@@ -182,7 +183,7 @@ export class ZavorthDocumentationRepoFinalService {
       'README.md',
       'docs/README.md',
       'docs/overview.md',
-      'docs/web-dashboard.md',
+      'docs/web-zavorthControl.md',
       'docs/protocol/runtime-api-v1.md',
     ];
     const issues: string[] = [];
@@ -197,7 +198,7 @@ export class ZavorthDocumentationRepoFinalService {
     }
     const readme = this.read('README.md') || '';
     if (!readme.includes('assets/brand/zavorth-readme-banner.png')) issues.push('README.md: missing official banner');
-    if (!readme.includes('/dashboard')) issues.push('README.md: missing /dashboard as primary surface');
+    if (!readme.includes('/zavorthControl')) issues.push('README.md: missing /zavorthControl as primary surface');
     if (!readme.includes('npm install -g zavorth@latest')) issues.push('README.md: missing latest install path');
 
     return check(
@@ -205,27 +206,27 @@ export class ZavorthDocumentationRepoFinalService {
       'README and public docs are product-facing',
       issues.length === 0 ? 'passed' : 'failed',
       issues.length === 0 ? 'clean' : `${issues.length} issues`,
-      'English, current install path, dashboard-first, no phase diary',
+      'English, current install path, zavorthControl-first, no phase diary',
       issues,
     );
   }
 
   private checkSurfacePosture(): ZavorthDocumentationRepoFinalCheck {
-    const webDoc = this.read('docs/web-dashboard.md') || '';
+    const webDoc = this.read('docs/web-zavorthControl.md') || '';
     const apiDoc = this.read('docs/protocol/runtime-api-v1.md') || '';
     const issues = [];
-    if (!/\/dashboard/.test(webDoc)) issues.push('docs/web-dashboard.md: /dashboard is not named as final user surface');
-    if (!/\/satellite/.test(webDoc)) issues.push('docs/web-dashboard.md: satellite is not named as companion surface');
-    if (!/not final-user surfaces/i.test(webDoc)) issues.push('docs/web-dashboard.md: maintenance shell posture is unclear');
-    if (!/does not execute actions by itself/i.test(apiDoc)) issues.push('runtime-api-v1.md: dashboard display-only posture is unclear');
+    if (!/\/zavorthControl/.test(webDoc)) issues.push('docs/web-zavorthControl.md: /zavorthControl is not named as final user surface');
+    if (!/\/satellite/.test(webDoc)) issues.push('docs/web-zavorthControl.md: satellite is not named as companion surface');
+    if (!/not final-user surfaces/i.test(webDoc)) issues.push('docs/web-zavorthControl.md: maintenance shell posture is unclear');
+    if (!/does not execute actions by itself/i.test(apiDoc)) issues.push('runtime-api-v1.md: zavorthControl display-only posture is unclear');
     if (!/Policy Broker/i.test(apiDoc)) issues.push('runtime-api-v1.md: Policy Broker requirement is missing');
 
     return check(
       'surface-posture',
       'Surface posture is unambiguous',
       issues.length === 0 ? 'passed' : 'failed',
-      issues.length === 0 ? 'dashboard/satellite/CLI clear' : `${issues.length} issues`,
-      '/dashboard primary, /satellite companion, CLI power user, maintenance shells internal',
+      issues.length === 0 ? 'zavorthControl/satellite/CLI clear' : `${issues.length} issues`,
+      '/zavorthControl primary, /satellite companion, CLI power user, maintenance shells internal',
       issues,
     );
   }
@@ -292,7 +293,8 @@ export class ZavorthDocumentationRepoFinalService {
   private read(relativePath: string): string | null {
     try {
       return fs.readFileSync(path.join(this.root, relativePath), 'utf8');
-    } catch {
+    } catch (err) {
+      logger.warn(`[DocumentationRepoFinal] Falha ao ler arquivo: ${relativePath}`, { error: (err as Error).message });
       return null;
     }
   }
@@ -306,13 +308,15 @@ export class ZavorthDocumentationRepoFinalService {
   private parseJson<T>(text: string): T | null {
     try {
       return JSON.parse(text) as T;
-    } catch {
+    } catch (err) {
+      logger.warn('[DocumentationRepoFinal] Falha ao parsear JSON direto, tentando extrair objeto.', { error: (err as Error).message });
       const start = text.indexOf('{');
       const end = text.lastIndexOf('}');
       if (start >= 0 && end > start) {
         try {
           return JSON.parse(text.slice(start, end + 1)) as T;
-        } catch {
+        } catch (err) {
+          logger.warn('[DocumentationRepoFinal] Falha ao parsear JSON extraído do texto.', { error: (err as Error).message });
           return null;
         }
       }

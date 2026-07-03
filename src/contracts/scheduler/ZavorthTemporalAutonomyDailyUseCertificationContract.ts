@@ -59,7 +59,7 @@ export type ZavorthTemporalAutonomyDailyUseReceipt = {
     | 'channel-capability-consumed'
     | 'abuse-scenario'
     | 'consistency-matrix'
-    | 'no-dashboard-visual-mutation';
+    | 'no-zavorthControl-visual-mutation';
   status: 'recorded' | 'passed' | 'attention' | 'blocked';
   summary: string;
 };
@@ -104,7 +104,7 @@ export type ZavorthTemporalAutonomyDailyUseCertificationSnapshot = {
     noCompoundScheduling: boolean;
     expiredApprovalBlocksBeforeGateway: boolean;
     channelFallbackWithoutButtons: boolean;
-    noDashboardVisualMutation: true;
+    noZavorthControlVisualMutation: true;
     rawSecretsSerialized: false;
   };
   commands: {

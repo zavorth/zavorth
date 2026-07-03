@@ -13,7 +13,7 @@ import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
 import { defaultLlmRuntimeTelemetryService } from '../../../../../services/llm/LlmRuntimeTelemetryService.js';
 import { ZavorthActiveMissionUxService } from '../../../../../services/ZavorthActiveMissionUxService.js';
 import { ZavorthApprovalActionCardsUxService } from '../../../../../services/ZavorthApprovalActionCardsUxService.js';
-import { ZavorthDashboardProviderCockpitService } from '../../../../../services/ZavorthDashboardProviderCockpitService.js';
+import { ZavorthZavorthControlProviderCockpitService } from '../../../../../services/ZavorthZavorthControlProviderCockpitService.js';
 import { ZavorthProviderActivationService } from '../../../../../services/ZavorthProviderActivationService.js';
 import { ZavorthProviderModelCatalogService } from '../../../../../services/ZavorthProviderModelCatalogService.js';
 import { ZavorthProviderPreferencePersistenceService } from '../../../../../services/ZavorthProviderPreferencePersistenceService.js';
@@ -28,7 +28,7 @@ import { ZavorthExternalAgentOnboardingService } from '../../../../../services/Z
 import { ZavorthExternalAgentGatewayService } from '../../../../../services/ZavorthExternalAgentGatewayService.js';
 import { ZavorthCapabilityMeshService } from '../../../../../services/ZavorthCapabilityMeshService.js';
 import { ZavorthVisualReceiptUxService } from '../../../../../services/ZavorthVisualReceiptUxService.js';
-import { DashboardContractAdapterService } from '../../../../../services/DashboardContractAdapterService.js';
+import { ZavorthControlContractAdapterService } from '../../../../../services/ZavorthControlContractAdapterService.js';
 import { ZavorthDailyUseGuiCertificationService } from '../../../../../services/ZavorthDailyUseGuiCertificationService.js';
 import type { ZavorthSensitiveActionFlowDecision } from '../../../../../contracts/ZavorthSensitiveActionFlowContract.js';
 

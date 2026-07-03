@@ -1,7 +1,10 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { Task } from '../../../../contracts/TaskContract.js';
 import { StateMachine } from '../../../../orchestrator/StateMachine.js';
-import type { SurfaceTaskDispatcherLike } from '../../../../services/SurfaceRuntime.js';
+import type {
+  SurfaceControllerContext,
+  SurfaceTaskDispatcherLike,
+} from '../../../../services/SurfaceRuntime.js';
 import { RecentTaskResolver } from '../../../../services/RecentTaskResolver.js';
 import type { SharedSurfaceWorkflowGovernanceCommandPack } from './SharedSurfaceWorkflowGovernanceCommandPack.js';
 import {
@@ -15,28 +18,42 @@ import {
   type NaturalTaskControlIntent,
 } from './SharedSurfaceTaskNaturalLanguage.js';
 
+type TaskApprovalController = {
+  handleApproval: (ctx: SurfaceControllerContext, args: string) => Promise<void>;
+  handleRejection: (ctx: SurfaceControllerContext, taskId: string) => Promise<void>;
+};
+
+type TaskExecutionController = {
+  handleUndo: (ctx: SurfaceControllerContext, taskId: string) => Promise<void>;
+  resumeTaskExecution: (ctx: SurfaceControllerContext, task: Task) => Promise<void>;
+};
+
+type TaskAdvanceOptions = {
+  actor?: string | null;
+  reason?: string;
+};
+
+type TaskManager = {
+  getRecentTasks?: (limit?: number, userId?: string) => Task[];
+  getTask?: (taskId: string) => Task | undefined;
+  advanceState?: (task: Task, nextStatus: Task['status'], options?: TaskAdvanceOptions) => void;
+};
+
+type ErrorWithMessage = { message?: string };
+
+function getErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    return String((error as ErrorWithMessage).message || 'unknown error');
+  }
+  return 'unknown error';
+}
+
 export type SharedSurfaceTaskControlCommandPackDeps = {
   workflowGovernanceCommandPack: Pick<SharedSurfaceWorkflowGovernanceCommandPack, 'maybeHandleCommand'>;
-  taskApprovalController?:
-    | {
-        handleApproval: (ctx: any, args: string) => Promise<void>;
-        handleRejection: (ctx: any, taskId: string) => Promise<void>;
-      }
-    | null;
-  taskExecutionController?:
-    | {
-        handleUndo: (ctx: any, taskId: string) => Promise<void>;
-        resumeTaskExecution: (ctx: any, task: Task) => Promise<void>;
-      }
-    | null;
+  taskApprovalController?: TaskApprovalController | null;
+  taskExecutionController?: TaskExecutionController | null;
   surfaceTaskDispatcher?: SurfaceTaskDispatcherLike | null;
-  taskManager?:
-    | {
-        getRecentTasks?: (limit?: number, userId?: string) => Task[];
-        getTask?: (taskId: string) => Task | undefined;
-        advanceState?: (task: Task, nextStatus: Task['status'], options?: Record<string, any>) => void;
-      }
-    | null;
+  taskManager?: TaskManager | null;
 };
 
 export class SharedSurfaceTaskControlCommandPack {
@@ -87,11 +104,17 @@ export class SharedSurfaceTaskControlCommandPack {
       return;
     }
 
+    const surfaceCtx: SurfaceControllerContext = {
+      userId: String(ctx.userId || '').trim() || undefined,
+      chatId: ctx.chatId,
+      platform: ctx.platform,
+    };
+
     try {
-      await this.deps.taskApprovalController.handleApproval(ctx as any, args);
-    } catch (error: any) {
+      await this.deps.taskApprovalController.handleApproval(surfaceCtx, args);
+    } catch (error: unknown) {
       await ctx.reply(
-        `Nao consegui aprovar essa tarefa agora.\n\nMotivo: ${error?.message || 'erro desconhecido'}`,
+        `Nao consegui aprovar essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
       );
     }
   }
@@ -111,11 +134,17 @@ export class SharedSurfaceTaskControlCommandPack {
       return;
     }
 
+    const surfaceCtx: SurfaceControllerContext = {
+      userId: String(ctx.userId || '').trim() || undefined,
+      chatId: ctx.chatId,
+      platform: ctx.platform,
+    };
+
     try {
-      await this.deps.taskApprovalController.handleRejection(ctx as any, taskId);
-    } catch (error: any) {
+      await this.deps.taskApprovalController.handleRejection(surfaceCtx, taskId);
+    } catch (error: unknown) {
       await ctx.reply(
-        `Nao consegui rejeitar essa tarefa agora.\n\nMotivo: ${error?.message || 'erro desconhecido'}`,
+        `Nao consegui rejeitar essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
       );
     }
   }
@@ -140,11 +169,17 @@ export class SharedSurfaceTaskControlCommandPack {
       return;
     }
 
+    const surfaceCtx: SurfaceControllerContext = {
+      userId: String(ctx.userId || '').trim() || undefined,
+      chatId: ctx.chatId,
+      platform: ctx.platform,
+    };
+
     try {
-      await this.deps.taskExecutionController.handleUndo(ctx as any, task.task_id);
-    } catch (error: any) {
+      await this.deps.taskExecutionController.handleUndo(surfaceCtx, task.task_id);
+    } catch (error: unknown) {
       await ctx.reply(
-        `Nao consegui desfazer essa tarefa agora.\n\nMotivo: ${error?.message || 'erro desconhecido'}`,
+        `Nao consegui desfazer essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
       );
     }
   }
@@ -257,8 +292,14 @@ export class SharedSurfaceTaskControlCommandPack {
       return;
     }
 
+    const surfaceCtx: SurfaceControllerContext = {
+      userId: String(ctx.userId || '').trim() || undefined,
+      chatId: ctx.chatId,
+      platform: ctx.platform,
+    };
+
     const result = await this.deps.surfaceTaskDispatcher.dispatchTaskMessage({
-      ctx: ctx as any,
+      ctx: surfaceCtx,
       platform: ctx.platform,
       chatId: ctx.chatId,
       text: originalText,
@@ -666,7 +707,13 @@ export class SharedSurfaceTaskControlCommandPack {
       });
     }
 
-    await this.deps.taskExecutionController.resumeTaskExecution(ctx as any, task);
+    const surfaceCtx: SurfaceControllerContext = {
+      userId: String(ctx.userId || '').trim() || undefined,
+      chatId: ctx.chatId,
+      platform: ctx.platform,
+    };
+
+    await this.deps.taskExecutionController.resumeTaskExecution(surfaceCtx, task);
   }
 
 }

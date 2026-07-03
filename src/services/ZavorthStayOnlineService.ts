@@ -11,7 +11,7 @@ export type ZavorthStayOnlineStatus = 'ready' | 'attention' | 'blocked';
 export type ZavorthStayOnlineCheckId =
   | 'ready-to-go'
   | 'runtime-process'
-  | 'dashboard'
+  | 'zavorthControl'
   | 'telegram'
   | 'provider'
   | 'approvals'
@@ -89,7 +89,7 @@ export type ZavorthStayOnlineSnapshot = {
   projections: {
     cliCommand: 'zavorth stay-online';
     telegramCommand: '/stayonline';
-    dashboardEndpoint: '/api/runtime/stay-online';
+    zavorthControlEndpoint: '/api/runtime/stay-online';
     snapshotFile: string;
   };
   safety: {
@@ -200,7 +200,7 @@ export class ZavorthStayOnlineService {
       projections: {
         cliCommand: 'zavorth stay-online',
         telegramCommand: '/stayonline',
-        dashboardEndpoint: '/api/runtime/stay-online',
+        zavorthControlEndpoint: '/api/runtime/stay-online',
         snapshotFile: this.snapshotPath,
       },
       safety: {
@@ -405,15 +405,15 @@ export class ZavorthStayOnlineService {
         command: 'zavorth stay-online --watch',
       },
       {
-        id: 'dashboard',
-        label: 'Dashboard',
-        status: readyToGo.channels.dashboard === 'ready' ? 'ready' : 'blocked',
+        id: 'zavorthControl',
+        label: 'ZavorthControl',
+        status: readyToGo.channels.zavorthControl === 'ready' ? 'ready' : 'blocked',
         required: true,
-        summary: readyToGo.channels.dashboard === 'ready'
-          ? 'Dashboard segue disponivel para controle local.'
-          : 'Dashboard nao esta pronto.',
-        nextAction: readyToGo.channels.dashboard === 'ready' ? 'Continuar monitorando.' : 'Reabrir dashboard.',
-        command: readyToGo.channels.dashboard === 'ready' ? null : 'zavorth go',
+        summary: readyToGo.channels.zavorthControl === 'ready'
+          ? 'ZavorthControl segue disponivel para controle local.'
+          : 'ZavorthControl nao esta pronto.',
+        nextAction: readyToGo.channels.zavorthControl === 'ready' ? 'Continuar monitorando.' : 'Reabrir zavorthControl.',
+        command: readyToGo.channels.zavorthControl === 'ready' ? null : 'zavorth go',
       },
       {
         id: 'telegram',

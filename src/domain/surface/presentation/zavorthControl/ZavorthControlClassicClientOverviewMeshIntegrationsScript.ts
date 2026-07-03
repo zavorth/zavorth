@@ -1,28 +1,35 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import type { IntegrationCatalogSnapshot, IntegrationDetailSnapshot, IntegrationDoctorSnapshot } from '../../../../contracts/core/IntegrationHubContract.js';
+
+declare function escapeHtml(value: unknown): string;
+declare function formatRelativeTime(value: unknown): string;
+
+type IntegrationHubErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshIntegrations() {
-    function renderOperationsIntegrations(hub) {
+    function renderOperationsIntegrations(hub: IntegrationCatalogSnapshot | IntegrationHubErrorPayload | null | undefined) {
       const node = document.getElementById('operations-integrations');
       if (!node) return;
-      if (!hub || hub.error) {
+      if (!hub || 'error' in (hub as IntegrationHubErrorPayload)) {
         node.innerHTML = '<div class="muted">Nao foi possivel carregar o Integration Hub.</div>';
         return;
       }
 
-      const entries = Array.isArray(hub.entries) ? hub.entries : [];
+      const snapshot = hub as IntegrationCatalogSnapshot;
+      const entries = Array.isArray(snapshot.entries) ? snapshot.entries : [];
       const readyEntries = entries.filter((entry) => entry.readiness === 'ready');
       const templateEntries = entries.filter((entry) => entry.manifest?.category === 'template');
-      const selected = hub.selected || readyEntries[0] || entries[0] || null;
-      const selectedDoctor = selected?.doctor || {};
-      const selectedManifest = selected?.manifest || {};
-      const selectedInstalled = selected?.installed || null;
-      const selectedSecrets = Array.isArray(selected?.storedSecretKeys) ? selected.storedSecretKeys : [];
-      const selectedActionPlan = selected?.actionPlan || { actions: [] };
-      const selectedActionMonitor = selected?.actionMonitor || { latestAction: null, recentActions: [], logExcerpt: { lines: [] } };
+      const selected = snapshot.selected || readyEntries[0] || entries[0] || null;
+      const selectedDetail = snapshot.selected || null;
+      const selectedDoctor = selectedDetail?.doctor || ({} as IntegrationDetailSnapshot['doctor']);
+      const selectedManifest = selectedDetail?.manifest || selected?.manifest || ({} as IntegrationDetailSnapshot['manifest']);
+      const selectedInstalled = selectedDetail?.installed || selected?.installed || null;
+      const selectedSecrets = Array.isArray(selectedDetail?.storedSecretKeys) ? selectedDetail.storedSecretKeys : [];
+      const selectedActionPlan = selectedDetail?.actionPlan || ({ actions: [] } as unknown as IntegrationDetailSnapshot['actionPlan']);
+      const selectedActionMonitor = selectedDetail?.actionMonitor || ({ latestAction: null, recentActions: [], logExcerpt: { lines: [] } } as unknown as IntegrationDetailSnapshot['actionMonitor']);
       const selectedProbe = selectedDoctor.probe || null;
       const selectedPlaybook = selectedDoctor.playbook || { headline: '', summary: '', steps: [] };
-      const nextAction = selectedDoctor.nextAction || {};
+      const nextAction = selectedDoctor.nextAction || {} as IntegrationDoctorSnapshot['nextAction'];
       const featuredItems = entries.slice(0, 6).map((entry) =>
         '<div class="cockpit-action-card">'
         + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">'
@@ -143,4 +150,3 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
 export function getZavorthControlClassicClientOverviewMeshIntegrationsScript(): string {
   return extractFunctionBody(zavorthControlClassicClientOverviewMeshIntegrations);
 }
-

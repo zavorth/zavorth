@@ -352,7 +352,7 @@ export class ZavorthTrustApprovalUxFinalService {
       id: 'show-trust-json',
       label: 'Exportar snapshot de confianca',
       severity: 'info',
-      reason: 'Ajuda dashboard, Telegram e API a mostrar o mesmo estado.',
+      reason: 'Ajuda zavorthControl, Telegram e API a mostrar o mesmo estado.',
       command: 'zavorth trust --json',
     });
     return actions;

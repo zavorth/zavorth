@@ -328,7 +328,7 @@ export class ZavorthSelfHealingUxService {
   private runtimeIssue(): ProjectionBody {
     return {
       problem: 'The local runtime or gateway connection is unavailable or blocked.',
-      impact: 'The terminal can still guide setup, but live agent state, dashboard updates or channel delivery may be stale.',
+      impact: 'The terminal can still guide setup, but live agent state, zavorthControl updates or channel delivery may be stale.',
       nextSafeAction: 'I can restart the local runtime, pick a free port, or reconnect to the existing gateway.',
       canZavorthRepair: true,
       needsUserInput: false,

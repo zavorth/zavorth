@@ -1,17 +1,90 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 
-function zavorthControlClassicClientOverviewMeshChannels() {
-    const channelActionReceipts = {};
+declare function escapeHtml(value: unknown): string;
+declare function showToast(msg: string, isError?: boolean): void;
 
-    async function runChannelAction(channelId, actionId) {
+interface MeshChannelReceipt {
+  summary?: string;
+  details?: string[];
+  loginQr?: MeshChannelQrInfo | null;
+}
+
+interface MeshChannelQrInfo {
+  supported?: boolean;
+  state?: string;
+  nextStep?: string;
+  dataUrl?: string;
+  source?: string;
+}
+
+interface MeshChannelStatusRow {
+  label?: string;
+  value?: string;
+  tone?: string;
+}
+
+interface MeshChannelAction {
+  id?: string;
+  kind?: string;
+  label?: string;
+}
+
+interface MeshChannelSelected {
+  id?: string;
+  label?: string;
+  summary?: string;
+  actionHint?: string;
+  readiness?: string;
+  transport?: string;
+  configured?: boolean;
+  provider?: string;
+  loginQr?: MeshChannelQrInfo | null;
+  features?: { qrLogin?: boolean };
+  statusRows?: MeshChannelStatusRow[];
+  actions?: MeshChannelAction[];
+}
+
+interface MeshChannelEntry {
+  id?: string;
+  label?: string;
+  readiness?: string;
+  summary?: string;
+  operatorSummary?: string;
+}
+
+interface MeshChannelSummary {
+  total?: number;
+  ready?: number;
+  partial?: number;
+  sessionSendReady?: number;
+}
+
+interface MeshChannelMesh {
+  error?: string;
+  summary?: MeshChannelSummary;
+  selected?: MeshChannelSelected | null;
+  entries?: MeshChannelEntry[];
+  narrative?: { operatorSummary?: string };
+}
+
+interface MeshChannelActionResult {
+  ok?: boolean;
+  error?: string;
+  result?: MeshChannelReceipt;
+  channels?: MeshChannelMesh | null;
+}
+
+function zavorthControlClassicClientOverviewMeshChannels() {
+    const channelActionReceipts: Record<string, MeshChannelReceipt | null> = {};
+
+    async function runChannelAction(channelId: string, actionId: string) {
       try {
         const response = await fetch('/api/operations/channels/actions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ channelId, actionId }),
         });
-        const payload = await response.json();
+        const payload: MeshChannelActionResult = await response.json();
         if (!response.ok || payload.ok === false) {
           throw new Error(payload.error || 'Falha ao executar a acao do Channel Mesh.');
         }
@@ -22,15 +95,15 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         renderOperationsChannels(payload.channels || null);
         showToast(payload.result?.summary || ('Acao executada: ' + actionId + '.'));
       } catch (error) {
-        showToast(error.message || 'Falha ao executar a acao do Channel Mesh.');
+        showToast(error instanceof Error ? error.message : 'Falha ao executar a acao do Channel Mesh.');
       }
     }
 
-    function normalizeChannelId(value) {
+    function normalizeChannelId(value: unknown) {
       return String(value || '').trim().toLowerCase();
     }
 
-    function toneClass(tone, fallback) {
+    function toneClass(tone: unknown, fallback?: string) {
       const normalized = String(tone || fallback || '').trim().toLowerCase();
       if (normalized === 'success' || normalized === 'ready') return 'badge-allowed';
       if (normalized === 'warning' || normalized === 'partial') return 'badge-warning';
@@ -38,7 +111,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
       return 'badge-info';
     }
 
-    function renderStatusRows(selected) {
+    function renderStatusRows(selected: MeshChannelSelected) {
       const rows = Array.isArray(selected?.statusRows) && selected.statusRows.length
         ? selected.statusRows
         : [
@@ -47,7 +120,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
             { label: 'Configurado', value: selected?.configured ? 'sim' : 'nao', tone: selected?.configured ? 'success' : 'warning' },
           ];
       return '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin:10px 0;">'
-        + rows.slice(0, 8).map((row) =>
+        + rows.slice(0, 8).map((row: MeshChannelStatusRow) =>
           '<div class="cockpit-mini-card" style="min-height:auto;">'
           + '<strong>' + escapeHtml(row.label || 'Status') + '</strong>'
           + '<div style="font-size:1rem;">' + escapeHtml(row.value || 'n/d') + '</div>'
@@ -57,11 +130,11 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         + '</div>';
     }
 
-    function renderChannelActions(selected) {
+    function renderChannelActions(selected: MeshChannelSelected) {
       const actions = Array.isArray(selected?.actions) ? selected.actions : [];
       if (!actions.length) return '';
       return '<div style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;">'
-        + actions.map((action) => {
+        + actions.map((action: MeshChannelAction) => {
           const actionId = String(action?.id || '').trim().split(':').pop() || action?.kind || 'inspect';
           const label = action?.label || actionId || 'Acao';
           return '<button class="btn" type="button" onclick="runChannelAction('
@@ -71,7 +144,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         + '</div>';
     }
 
-    function renderLastAction(selected) {
+    function renderLastAction(selected: MeshChannelSelected) {
       const receipt = channelActionReceipts[normalizeChannelId(selected?.id)] || null;
       if (!receipt?.summary) return '';
       const details = Array.isArray(receipt.details) ? receipt.details.slice(0, 3) : [];
@@ -79,12 +152,12 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         + '<strong>Ultima acao</strong>'
         + '<p>' + escapeHtml(receipt.summary) + '</p>'
         + (details.length
-          ? '<ul class="cockpit-list">' + details.map((detail) => '<li>' + escapeHtml(detail) + '</li>').join('') + '</ul>'
+          ? '<ul class="cockpit-list">' + details.map((detail: string) => '<li>' + escapeHtml(detail) + '</li>').join('') + '</ul>'
           : '')
         + '</div>';
     }
 
-    function renderQrPanel(selected) {
+    function renderQrPanel(selected: MeshChannelSelected) {
       const receipt = channelActionReceipts[normalizeChannelId(selected?.id)] || null;
       const qr = receipt?.loginQr || selected?.loginQr || null;
       const supportsQr = Boolean(qr?.supported || selected?.features?.qrLogin);
@@ -108,7 +181,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         + '</div>';
     }
 
-    function renderOperationsChannels(channelMesh) {
+    function renderOperationsChannels(channelMesh: MeshChannelMesh | null) {
       const node = document.getElementById('operations-channels');
       if (!node) return;
       if (!channelMesh || channelMesh.error) {
@@ -116,11 +189,11 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         return;
       }
 
-      const summary = channelMesh.summary || {};
+      const summary = channelMesh.summary || ({} as MeshChannelSummary);
       const selected = channelMesh.selected || null;
       const entries = Array.isArray(channelMesh.entries) ? channelMesh.entries.slice(0, 5) : [];
       const entryItems = entries.length
-        ? entries.map((entry) =>
+        ? entries.map((entry: MeshChannelEntry) =>
             '<li><strong>' + escapeHtml(entry.label || entry.id || 'Canal') + '</strong> ['
             + escapeHtml(entry.readiness || 'n/d') + '] - '
             + escapeHtml(entry.operatorSummary || entry.summary || 'Sem resumo.') + '</li>'
@@ -171,4 +244,3 @@ function zavorthControlClassicClientOverviewMeshChannels() {
 export function getZavorthControlClassicClientOverviewMeshChannelsScript(): string {
   return extractFunctionBody(zavorthControlClassicClientOverviewMeshChannels);
 }
-

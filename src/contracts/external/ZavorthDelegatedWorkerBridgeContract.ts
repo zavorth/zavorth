@@ -180,7 +180,7 @@ export type ZavorthExecutorResultMappingReceipt = {
   };
 };
 
-export type ZavorthDelegatedWorkerDashboardProjection = {
+export type ZavorthDelegatedWorkerZavorthControlProjection = {
   title: 'Delegated Worker Bridge';
   status: ZavorthDelegatedWorkerBridgeStatus;
   tone: 'ready' | 'attention' | 'blocked';
@@ -207,7 +207,7 @@ export type ZavorthDelegatedWorkerBridgeSnapshot = {
   sourceWorkerLaunchGateReceipt: ZavorthSourceWorkerLaunchGateReceipt;
   lifecycleDryRunReceipt: ZavorthWorkerLifecycleDryRunReceipt;
   executorResultMappingReceipt: ZavorthExecutorResultMappingReceipt;
-  dashboardProjection: ZavorthDelegatedWorkerDashboardProjection;
+  zavorthControlProjection: ZavorthDelegatedWorkerZavorthControlProjection;
   acceptanceMatrix: Array<{
     requirementId: string;
     status: 'passed' | 'failed';
@@ -241,6 +241,6 @@ export type ZavorthDelegatedWorkerBridgeSnapshot = {
     inspect: 'npm run zavorth:delegated-worker-bridge';
     inspectJson: 'npm run zavorth:delegated-worker-bridge:json';
     check: 'npm run zavorth:delegated-worker-bridge:check --silent';
-    nextStage: '291 Dashboard controls - Native Replacement And Decommission';
+    nextStage: '291 ZavorthControl controls - Native Replacement And Decommission';
   };
 };

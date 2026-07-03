@@ -167,7 +167,7 @@ function buildTelemetry(input: {
     riskSignals: uniqueStrings(input.riskSignals),
     publicRationale,
     operatorSummary: `${status}: ${input.roleIds.join(', ') || 'sem roles'}; ${publicRationale}`,
-    dashboard: {
+    zavorthControl: {
       title: input.shouldInvoke ? 'Subagentes escolhidos automaticamente' : 'Subagentes nao escolhidos',
       status,
       badges: uniqueStrings(badges),

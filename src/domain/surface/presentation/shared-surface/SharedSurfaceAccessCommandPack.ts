@@ -44,7 +44,7 @@ export class SharedSurfaceAccessCommandPack {
         '',
         `Status: ${manifest.local.ready ? 'pronto' : 'pendente'}.`,
         `App: ${manifest.local.appUrl}`,
-        `Dashboard legado: ${manifest.local.dashboardUrl}`,
+        `ZavorthControl legado: ${manifest.local.zavorthControlUrl}`,
         `API web: ${manifest.local.apiBaseUrl}`,
         '',
         ...manifest.guides.local.slice(0, 4).map((line) => `- ${line}`),

@@ -124,7 +124,7 @@ export class CanonicalPublicApiService {
       runtime: {
         attached: Boolean(this.runtime.getRuntime()),
         localFirst: true,
-        dashboardRoute: '/dashboard',
+        zavorthControlRoute: '/zavorthControl',
         executionAuthority: false,
       },
       gateway,
@@ -148,7 +148,7 @@ export class CanonicalPublicApiService {
       health,
       safety: {
         policyBrokerRequired: true,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         publicApiCanBypassPolicy: false,
       },
     };
@@ -247,7 +247,7 @@ export class CanonicalPublicApiService {
       schemaVersion: 1,
       surface: 'channel-mesh-v1',
       safety: {
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         liveBridgeRequiresPolicyBroker: true,
         telegramPrivileged: false,
         catalogSupportIsNotLiveProof: true,
@@ -292,7 +292,7 @@ export class CanonicalPublicApiService {
       trustUx,
       safety: {
         approvalScopedToExactAction: true,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         approvalDoesNotExecuteTargetAction: true,
         receiptsRequiredForTrustDecisions: true,
       },
@@ -335,7 +335,7 @@ export class CanonicalPublicApiService {
       total: 1,
       data: [snapshot.mission],
       projection: {
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         approvalsRequiredForMutableActions: true,
         sourceOfTruth: 'runtime-api',
       },
@@ -467,7 +467,7 @@ export class CanonicalPublicApiService {
       canonicalEventTypes: PublicRuntimeEvent['type'][];
     };
     safety: {
-      dashboardCanExecute: false;
+      zavorthControlCanExecute: false;
       policyBrokerRequiredForMutableActions: true;
       rawSecretsSerialized: false;
     };
@@ -1098,7 +1098,7 @@ export class CanonicalPublicApiService {
         summary: input.summary,
         policyReceipt: input.policyReceipt,
         rawSecretsSerialized: false,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
       },
       nextAction: input.nextAction,
       safety: {
@@ -1113,14 +1113,14 @@ export class CanonicalPublicApiService {
     return {
       dryRunByDefault: true,
       liveRequiresExplicitFlag: true,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
       policyBrokerRequiredForTools: true,
     };
   }
 
   private buildEventSafety() {
     return {
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
       policyBrokerRequiredForMutableActions: true,
       rawSecretsSerialized: false,
     } as const;

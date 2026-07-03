@@ -9,8 +9,11 @@ export type AgentToolCapability =
   | 'browser'
   | 'configuration'
   | 'credential'
+  | 'credential_or_config'
   | 'desktop'
   | 'destructive'
+  | 'audit'
+  | 'encryption'
   | 'external-send'
   | 'filesystem'
   | 'local-observation'
@@ -37,6 +40,7 @@ export type AgentSecuritySurface =
   | 'plugin'
   | 'runtime-adapter'
   | 'runtime'
+  | 'service'
   | 'unknown';
 
 export type AgentRiskLevel = 'safe' | 'review' | 'dangerous' | 'forbidden';

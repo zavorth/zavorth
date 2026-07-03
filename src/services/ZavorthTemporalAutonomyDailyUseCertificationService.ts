@@ -114,7 +114,7 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
         noCompoundScheduling: scenarioPassed(abuseScenarios, 'cron_creates_cron'),
         expiredApprovalBlocksBeforeGateway: scenarioPassed(abuseScenarios, 'expired_approval'),
         channelFallbackWithoutButtons: scenarioPassed(abuseScenarios, 'channel_without_button_fallback'),
-        noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         rawSecretsSerialized: false,
       },
       commands: {
@@ -129,7 +129,7 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
 
   public renderReport(snapshot: ZavorthTemporalAutonomyDailyUseCertificationSnapshot): string {
     const lines = [
-      'Temporal Autonomy Daily-Use Certification - Dashboard controls',
+      'Temporal Autonomy Daily-Use Certification - ZavorthControl controls',
       '',
       `Status: ${snapshot.status}`,
       snapshot.narrative.operatorSummary,
@@ -267,7 +267,7 @@ function buildMatrix(input: {
       'mcp_governance',
       true,
       'MCP remains the governed tool/protocol plane and is evaluated by the central policy broker.',
-      ['SecurityPolicyBroker surface=mcp', 'MCP dashboard/proxy receipts', 'tool policy enforcement'],
+      ['SecurityPolicyBroker surface=mcp', 'MCP zavorthControl/proxy receipts', 'tool policy enforcement'],
       null,
     ),
     matrix(
@@ -351,7 +351,7 @@ function buildReceipts(
       id: 'checkpoint-8-daily-use-certification',
       kind: 'checkpoint-8-daily-use-certification',
       status: status === 'certified' ? 'passed' : status,
-      summary: `Dashboard controls daily-use certification status is ${status}.`,
+      summary: `ZavorthControl controls daily-use certification status is ${status}.`,
     },
     {
       id: 'checkpoint-8-scheduled-task-certification-consumed',
@@ -363,7 +363,7 @@ function buildReceipts(
       id: 'checkpoint-8-channel-capability-consumed',
       kind: 'channel-capability-consumed',
       status: matrix.find((entry) => entry.area === 'channel_ux')?.status === 'pass' ? 'passed' : 'blocked',
-      summary: 'Channel capability awareness was consumed without dashboard visual mutation.',
+      summary: 'Channel capability awareness was consumed without zavorthControl visual mutation.',
     },
     ...abuseScenarios.map((scenario): ZavorthTemporalAutonomyDailyUseReceipt => ({
       id: `checkpoint-8-${scenario.id}`,
@@ -378,10 +378,10 @@ function buildReceipts(
       summary: `${matrix.filter((entry) => entry.status === 'pass').length}/${matrix.length} daily-use matrix areas passed.`,
     },
     {
-      id: 'checkpoint-8-no-dashboard-visual-mutation',
-      kind: 'no-dashboard-visual-mutation',
+      id: 'checkpoint-8-no-zavorthControl-visual-mutation',
+      kind: 'no-zavorthControl-visual-mutation',
       status: 'recorded',
-      summary: 'Dashboard controls exposes certification data and does not add dashboard visual sections.',
+      summary: 'ZavorthControl controls exposes certification data and does not add zavorthControl visual sections.',
     },
   ];
 }
@@ -409,7 +409,7 @@ function narrativeForStatus(
     return {
       headline: 'Temporal autonomy is usable with attention notes.',
       operatorSummary: `${summary.passedMatrixAreas}/${summary.matrixAreas} matrix areas passed with warnings.`,
-      nextAction: 'Inspect warning matrix entries and rerun the Dashboard controls check after host-specific validation.',
+      nextAction: 'Inspect warning matrix entries and rerun the ZavorthControl controls check after host-specific validation.',
     };
   }
   return {

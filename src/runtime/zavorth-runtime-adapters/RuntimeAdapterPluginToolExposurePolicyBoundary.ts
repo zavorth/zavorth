@@ -84,7 +84,7 @@ export type RuntimeAdapterPluginToolExposurePolicyBoundaryNormalization<TRuntime
   generatedAt: string;
   runtimeId: TRuntimeId;
   policies: RuntimeAdapterZavorthToolExposurePolicySurface[];
-  dashboard: {
+  zavorthControl: {
     capabilityRows: RuntimeAdapterToolExposureCapabilityRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
@@ -153,7 +153,7 @@ export function normalizeRuntimeAdapterPluginToolExposurePolicy<TRuntimeId exten
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     policies,
-    dashboard: {
+    zavorthControl: {
       capabilityRows: policies.map((policy) => ({
         id: `${policy.id}:capability-row`,
         policyId: policy.id,

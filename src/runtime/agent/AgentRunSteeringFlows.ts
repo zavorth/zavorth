@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { AgentRunService, AgentRunSteeringInput, normalizeText } from './AgentRunService.js';
 import { UniversalAgentRun, UniversalAgentSteeringEntry } from './UniversalAgentRuntimeTypes.js';
 import { AgentRunSteeringStreamAction } from './AgentRunSteeringStream.js';
@@ -92,7 +91,7 @@ export class AgentRunSteeringFlows {
       runId: run.id,
       kind: 'steering',
       title: 'Steering cancelled',
-      detail: target.cancelReason,
+      detail: target.cancelReason ?? undefined,
       status: 'done',
       createdAt: now,
       metadata: {

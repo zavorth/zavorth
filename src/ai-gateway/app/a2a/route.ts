@@ -91,7 +91,7 @@ function safeEqual(left: string, right: string): boolean {
   return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
 }
 
-function isSameOriginDashboardRequest(req: NextRequest): boolean {
+function isSameOriginZavorthControlRequest(req: NextRequest): boolean {
   const origin = req.headers.get("origin");
   if (!origin) return false;
 
@@ -112,7 +112,7 @@ async function authenticate(req: NextRequest): Promise<boolean> {
 
   if (isExplicitUnauthenticatedA2AEnabled()) return true;
 
-  return isSameOriginDashboardRequest(req) && !(await isAuthRequired());
+  return isSameOriginZavorthControlRequest(req) && !(await isAuthRequired());
 }
 
 // ============ JSON-RPC Helpers ============

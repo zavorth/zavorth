@@ -70,6 +70,29 @@ export interface YouTubeCaptionTrack {
   isTranslatable?: boolean;
 }
 
+export interface YouTubeTranscriptEvent {
+  segs?: Array<{ utf8?: string }>;
+  tStartMs?: number;
+}
+
+export interface YouTubeTranscriptPayload {
+  events?: YouTubeTranscriptEvent[];
+}
+
+export interface YouTubePlayerResponse {
+  videoDetails?: {
+    title?: string;
+    author?: string;
+    shortDescription?: string;
+    lengthSeconds?: string | number;
+  };
+  captions?: {
+    playerCaptionsTracklistRenderer?: {
+      captionTracks?: YouTubeCaptionTrack[];
+    };
+  };
+}
+
 export interface YouTubeOEmbedResponse {
   title?: string;
   author_name?: string;

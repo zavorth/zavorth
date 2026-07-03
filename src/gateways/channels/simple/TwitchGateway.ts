@@ -2,6 +2,21 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface TwitchWebhookPayload {
+  user?: string;
+  chatter?: string;
+  userId?: string;
+  channel?: string;
+  room?: string;
+  chatId?: string;
+  message?: string;
+  text?: string;
+  rawText?: string;
+  messageId?: string;
+  id?: string;
+  badges?: string;
+}
+
 export class TwitchGateway extends WebhookGateway {
   public readonly id = 'twitch';
   public readonly name = 'Twitch';

@@ -5,7 +5,7 @@ import type {
   BootstrapSupervisor,
 } from './bootstrapTypes.js';
 
-export async function startDashboardSurface(
+export async function startZavorthControlSurface(
   foundation: BootstrapFoundation,
   supervisor: BootstrapSupervisor,
 ): Promise<BotGateway> {
@@ -27,7 +27,7 @@ export async function startDashboardSurface(
 
   supervisor.updateProgress('web-surface');
   console.log('[BOOT] web-surface');
-  await botGateway.startDashboardSurface();
+  await botGateway.startZavorthControlSurface();
   console.log('[BOOT] web-surface-ready');
 
   setTimeout(() => {

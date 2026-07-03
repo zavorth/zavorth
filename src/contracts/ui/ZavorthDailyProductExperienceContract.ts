@@ -58,7 +58,7 @@ export type ZavorthDailyProductExperienceLoopStep = {
   summary: string;
   quietByDefault: boolean;
   approvalAppearsFor: string[];
-  visibleInDashboard: boolean;
+  visibleInZavorthControl: boolean;
 };
 
 export type ZavorthDailyProductExperienceReviewItem = {
@@ -77,7 +77,7 @@ export type ZavorthDailyProductExperienceReviewItem = {
   userQuestion: string;
 };
 
-export type ZavorthDailyProductExperienceDashboardCard = {
+export type ZavorthDailyProductExperienceZavorthControlCard = {
   id:
     | 'daily-start'
     | 'setup-guide'
@@ -120,10 +120,10 @@ export type ZavorthDailyProductExperienceSnapshot = {
     summary: string;
     items: ZavorthDailyProductExperienceReviewItem[];
   };
-  dashboardProjection: {
+  zavorthControlProjection: {
     route: '/control';
     renderMode: 'daily-product-experience';
-    cards: ZavorthDailyProductExperienceDashboardCard[];
+    cards: ZavorthDailyProductExperienceZavorthControlCard[];
   };
   language: {
     publicTone: 'plain-product-language';

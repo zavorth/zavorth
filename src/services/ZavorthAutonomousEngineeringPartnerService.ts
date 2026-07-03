@@ -78,8 +78,30 @@ export type {
   ZavorthAutonomyLevel,
 } from '../contracts/AutonomousEngineeringPartnerContract.js';
 
+interface ControlPlaneSnapshot {
+  unavailable?: boolean;
+  error?: string;
+  summary?: {
+    posture?: string;
+    gateStatus?: string;
+    canProceed?: boolean;
+    untrustedExecutionReady?: boolean;
+    infrastructureState?: string;
+    emergencyStopActive?: boolean;
+  };
+  narrative?: {
+    operatorSummary?: string;
+    headline?: string;
+  };
+  regressionGate?: {
+    canProceed?: boolean;
+    rolloutBlocked?: boolean;
+  };
+  actions?: string[];
+}
+
 type SnapshotLike = {
-  buildSnapshot: (input?: any) => Promise<any> | any;
+  buildSnapshot: (input?: Record<string, unknown>) => ControlPlaneSnapshot | Promise<ControlPlaneSnapshot>;
 };
 
 type MutationPlaneLike = Pick<
@@ -110,15 +132,15 @@ type AutonomousPartnerRuntime = {
 };
 
 type AutonomousPartnerSources = {
-  rollout: any;
-  sandbox: any;
-  federatedMesh: any;
-  canvas: any;
-  automation: any;
-  evals: any;
-  replayLearning: any;
-  skillEvolution: any;
-  hardware: any;
+  rollout: ControlPlaneSnapshot | null;
+  sandbox: ControlPlaneSnapshot | null;
+  federatedMesh: ControlPlaneSnapshot | null;
+  canvas: ControlPlaneSnapshot | null;
+  automation: ControlPlaneSnapshot | null;
+  evals: ControlPlaneSnapshot | null;
+  replayLearning: ControlPlaneSnapshot | null;
+  skillEvolution: ControlPlaneSnapshot | null;
+  hardware: ControlPlaneSnapshot | null;
 };
 
 const DEFAULT_USAGE: AutonomousMissionUsage = {
@@ -646,7 +668,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
     };
   }
 
-  private async safeSnapshot(service: SnapshotLike | null, input: Record<string, unknown>): Promise<any> {
+  private async safeSnapshot(service: SnapshotLike | null, input: Record<string, unknown>): Promise<ControlPlaneSnapshot | null> {
     if (!service) {
       return null;
     }
@@ -940,7 +962,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
     ];
   }
 
-  private sourceHealth(plane: string, snapshot: any, command: string): AutonomousPartnerSourceHealth {
+  private sourceHealth(plane: string, snapshot: ControlPlaneSnapshot | null, command: string): AutonomousPartnerSourceHealth {
     if (!snapshot || snapshot.unavailable) {
       return {
         plane,

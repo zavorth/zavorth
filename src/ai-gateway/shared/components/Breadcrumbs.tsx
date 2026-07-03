@@ -3,7 +3,7 @@
 /**
  * Breadcrumbs — FASE-07 UX
  *
- * Dashboard breadcrumb navigation component. Automatically generates
+ * ZavorthControl breadcrumb navigation component. Automatically generates
  * breadcrumbs from the current path with friendly labels.
  * Uses usePathname() internally — no props needed.
  *
@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const PATH_LABELS = {
-  dashboard: "Dashboard",
+  zavorthControl: "ZavorthControl",
   providers: "Providers",
   combos: "Combos",
   settings: "Settings",
@@ -42,7 +42,7 @@ function getLabel(segment) {
 
 export default function Breadcrumbs() {
   const pathname = usePathname();
-  if (!pathname || pathname === "/dashboard" || pathname === "/dashboard") return null;
+  if (!pathname || pathname === "/zavorthControl" || pathname === "/zavorthControl") return null;
 
   const segments = pathname.split("/").filter(Boolean);
   const crumbs = segments.map((seg, idx) => ({

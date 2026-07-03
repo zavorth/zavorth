@@ -55,7 +55,7 @@ export class SpotifyPlayerTool extends BaseTool {
 
     const accessToken = process.env.SPOTIFY_ACCESS_TOKEN;
     if (!accessToken) {
-      return 'Error: SPOTIFY_ACCESS_TOKEN not configured. Get via OAuth at https://developer.spotify.com/dashboard';
+      return 'Error: SPOTIFY_ACCESS_TOKEN not configured. Get via OAuth at https://developer.spotify.com/zavorthControl';
     }
 
     const validActions = [

@@ -11,18 +11,18 @@ type WriteJsonResponse = (res: http.ServerResponse, body: unknown, statusCode?: 
 
 export class WebConsoleAssetService {
   private readonly previewFiles: WebConsolePreviewFileService;
-  private readonly dashboardReviewHtmlPath: string;
-  private readonly dashboardShellDir: string;
+  private readonly zavorthControlReviewHtmlPath: string;
+  private readonly zavorthControlShellDir: string;
 
   constructor(workspaceRoot: string = process.cwd()) {
     this.previewFiles = new WebConsolePreviewFileService(workspaceRoot);
-    this.dashboardReviewHtmlPath = path.resolve(
+    this.zavorthControlReviewHtmlPath = path.resolve(
       workspaceRoot,
       '.tmp',
-      'dashboard-browser-preview',
+      'zavorthControl-browser-preview',
       'index.html',
     );
-    this.dashboardShellDir = path.resolve(workspaceRoot, 'assets', 'dashboard');
+    this.zavorthControlShellDir = path.resolve(workspaceRoot, 'assets', 'zavorthControl');
   }
 
   public handleStaticRoute(
@@ -30,33 +30,33 @@ export class WebConsoleAssetService {
     res: http.ServerResponse,
     writeJson: WriteJsonResponse,
   ): boolean {
-    const isDashboardPath = pathname === '/' || pathname === '/dashboard' || pathname === '/dashboard/';
-    const isControlPath = pathname === '/dashboard' || pathname === '/dashboard/';
+    const isZavorthControlPath = pathname === '/' || pathname === '/zavorthControl' || pathname === '/zavorthControl/';
+    const isControlPath = pathname === '/zavorthControl' || pathname === '/zavorthControl/';
     const isRemovedSurfacePath = pathname === '/app'
       || pathname === '/app/'
       || pathname === '/classic'
       || pathname === '/classic/';
 
-    if (isDashboardPath || isControlPath) {
-      this.writeInline(res, this.readDashboardShellHtml(), 'text/html; charset=utf-8');
+    if (isZavorthControlPath || isControlPath) {
+      this.writeInline(res, this.readZavorthControlShellHtml(), 'text/html; charset=utf-8');
       return true;
     }
 
     if (isRemovedSurfacePath) {
       writeJson(res, {
         ok: false,
-        error: 'This web surface has been removed. Use /dashboard.',
-        dashboardUrl: '/dashboard',
+        error: 'This web surface has been removed. Use /zavorthControl.',
+        zavorthControlUrl: '/zavorthControl',
       }, 410);
       return true;
     }
 
-    if (pathname === '/dashboard/review' || pathname === '/dashboard/review/') {
-      if (!this.shouldServeDashboardReviewRoute()) {
+    if (pathname === '/zavorthControl/review' || pathname === '/zavorthControl/review/') {
+      if (!this.shouldServeZavorthControlReviewRoute()) {
         this.redirectToControl(res);
         return true;
       }
-      this.writeInline(res, this.readDashboardReviewHtml(), 'text/html; charset=utf-8');
+      this.writeInline(res, this.readZavorthControlReviewHtml(), 'text/html; charset=utf-8');
       return true;
     }
 
@@ -75,7 +75,7 @@ export class WebConsoleAssetService {
       || pathname.startsWith('/scripts/')
       || pathname.startsWith('/assets/')
     ) {
-      const staticAsset = this.readDashboardAsset(pathname);
+      const staticAsset = this.readZavorthControlAsset(pathname);
       if (staticAsset) {
         this.writeInline(res, staticAsset.content, staticAsset.contentType);
         return true;
@@ -103,7 +103,7 @@ export class WebConsoleAssetService {
     return this.previewFiles.readPreviewAsset(targetPath);
   }
 
-  private shouldServeDashboardReviewRoute(): boolean {
+  private shouldServeZavorthControlReviewRoute(): boolean {
     return this.isDevelopmentOrTestRuntime()
       && this.isTruthyFlag(process.env.ZAVORTH_COMMAND_CENTER_REVIEW_ENABLED);
   }
@@ -122,11 +122,11 @@ export class WebConsoleAssetService {
     return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
   }
 
-  private readDashboardReviewHtml(): string {
+  private readZavorthControlReviewHtml(): string {
     const explicitPath = String(process.env.ZAVORTH_COMMAND_CENTER_REVIEW_HTML || '').trim();
     const candidates = [
       explicitPath ? path.resolve(explicitPath) : null,
-      this.dashboardReviewHtmlPath,
+      this.zavorthControlReviewHtmlPath,
     ].filter((candidate): candidate is string => Boolean(candidate));
 
     for (const candidate of candidates) {
@@ -135,23 +135,23 @@ export class WebConsoleAssetService {
       }
     }
 
-    return this.buildDashboardReviewFallbackHtml();
+    return this.buildZavorthControlReviewFallbackHtml();
   }
 
-  private readDashboardShellHtml(): string {
-    const shellPath = path.join(this.dashboardShellDir, 'index.html');
+  private readZavorthControlShellHtml(): string {
+    const shellPath = path.join(this.zavorthControlShellDir, 'index.html');
     if (fs.existsSync(shellPath)) {
       return fs.readFileSync(shellPath, 'utf8');
     }
-    return this.readDashboardReviewHtml();
+    return this.readZavorthControlReviewHtml();
   }
 
-  private readDashboardAsset(
+  private readZavorthControlAsset(
     pathname: string,
   ): { content: string | Buffer; contentType: string } | null {
     const normalizedPath = pathname.replace(/^\/+/, '').replace(/\//g, path.sep);
-    const candidate = path.resolve(this.dashboardShellDir, normalizedPath);
-    if (!candidate.startsWith(this.dashboardShellDir + path.sep) || !fs.existsSync(candidate)) {
+    const candidate = path.resolve(this.zavorthControlShellDir, normalizedPath);
+    if (!candidate.startsWith(this.zavorthControlShellDir + path.sep) || !fs.existsSync(candidate)) {
       return null;
     }
     const stat = fs.statSync(candidate);
@@ -160,11 +160,11 @@ export class WebConsoleAssetService {
     }
     return {
       content: fs.readFileSync(candidate),
-      contentType: this.resolveDashboardAssetContentType(candidate),
+      contentType: this.resolveZavorthControlAssetContentType(candidate),
     };
   }
 
-  private resolveDashboardAssetContentType(filePath: string): string {
+  private resolveZavorthControlAssetContentType(filePath: string): string {
     const ext = path.extname(filePath).toLowerCase();
     if (ext === '.css') return 'text/css; charset=utf-8';
     if (ext === '.js') return 'application/javascript; charset=utf-8';
@@ -175,13 +175,13 @@ export class WebConsoleAssetService {
     return 'application/octet-stream';
   }
 
-  private buildDashboardReviewFallbackHtml(): string {
+  private buildZavorthControlReviewFallbackHtml(): string {
     return `<!doctype html>
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Zavorth Dashboard Review</title>
+    <title>Zavorth ZavorthControl Review</title>
     <style>
       :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: radial-gradient(circle at top, rgba(21, 158, 135, .18), transparent 36%), #050708; color: #edf8f6; }
@@ -193,10 +193,10 @@ export class WebConsoleAssetService {
   </head>
   <body>
     <main>
-      <span class="tag">Dashboard Review</span>
+      <span class="tag">ZavorthControl Review</span>
       <h1>The visual review bench has not been generated yet.</h1>
       <p>This route is internal and only reads HTML generated by the official fixture bench.</p>
-      <p>Run <code>npm run dashboard:preview -- --fixture=safe-run</code> and reload <code>/dashboard/review?fixture=awaiting-approval</code>.</p>
+      <p>Run <code>npm run zavorthControl:preview -- --fixture=safe-run</code> and reload <code>/zavorthControl/review?fixture=awaiting-approval</code>.</p>
     </main>
   </body>
 </html>`;
@@ -221,7 +221,7 @@ export class WebConsoleAssetService {
 
   private redirectToControl(res: http.ServerResponse): void {
     res.writeHead(302, {
-      Location: '/dashboard',
+      Location: '/zavorthControl',
       'Cache-Control': 'no-store',
     });
     res.end();

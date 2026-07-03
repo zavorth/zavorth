@@ -50,7 +50,7 @@ export type CanaryExecutionApprovalLedgerEntry = {
     | 'rollback-checkpoint-template'
     | 'audit-sink-template'
     | 'support-bridge-template'
-    | 'observability-dashboard-template'
+    | 'observability-zavorthControl-template'
     | 'execution-launch-hold'
     | 'publication-hold'
     | 'promotion-hold';
@@ -140,7 +140,7 @@ export type CanaryExecutionApprovalLedgerSnapshot = {
       'rollbackCheckpoint',
       'auditSink',
       'supportBridge',
-      'observabilityDashboard',
+      'observabilityZavorthControl',
     ];
     ledgerId: 'canary-execution-approval-ledger';
     canaryCohortId: CanaryPlanDryRunHoldSnapshot['plan']['canaryCohortId'];
@@ -166,7 +166,7 @@ export type CanaryExecutionApprovalLedgerSnapshot = {
     rollbackCheckpointReady: boolean;
     auditSinkReady: boolean;
     supportBridgeReady: boolean;
-    observabilityDashboardReady: boolean;
+    observabilityZavorthControlReady: boolean;
     approvalLedgerReady: boolean;
     signatureRecorded: false;
     launchAuthorized: false;
@@ -221,7 +221,7 @@ export type CanaryExecutionApprovalLedgerSnapshot = {
     rollbackCheckpointRequired: true;
     auditSinkRequired: true;
     supportBridgeRequired: true;
-    observabilityDashboardRequired: true;
+    observabilityZavorthControlRequired: true;
     noRemoteMutationByDefault: true;
     noNetworkRequiredByDefault: true;
     secretsSerialized: false;

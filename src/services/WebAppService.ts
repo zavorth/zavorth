@@ -1,6 +1,6 @@
 import * as http from 'http';
 import { configureCanonicalPublicApi } from '../api/public/endpoints.js';
-import { DashboardAuthService } from './DashboardAuthService.js';
+import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
 import { SharedSurfaceCommandService } from './SharedSurfaceCommandService.js';
 import type { SharedSurfaceRuntime } from './SurfaceRuntime.js';
 import { WebAppConversationService } from './WebAppConversationService.js';
@@ -48,7 +48,7 @@ export class WebAppService {
     this.glassBoxTrace,
   );
 
-  constructor(private auth: DashboardAuthService, options: WebAppServiceOptions = {}) {
+  constructor(private auth: ZavorthControlAuthService, options: WebAppServiceOptions = {}) {
     this.composition = createWebAppServiceComposition({
       auth: this.auth,
       operations: this.operations,
@@ -309,17 +309,17 @@ export class WebAppService {
           {
             ok: false,
             error: 'Token invalido ou antigo.',
-            code: 'dashboard_token_mismatch',
+            code: 'zavorthControl_token_mismatch',
             recovery: {
-              primaryCommand: 'zavorth dashboard',
+              primaryCommand: 'zavorth zavorthControl',
               commands: [
-                'zavorth dashboard',
-                'zavorth dashboard url',
-                'zavorth dashboard repair',
-                'zavorth dashboard generate-token',
-                'zavorth dashboard token',
+                'zavorth zavorthControl',
+                'zavorth zavorthControl url',
+                'zavorth zavorthControl repair',
+                'zavorth zavorthControl generate-token',
+                'zavorth zavorthControl token',
               ],
-              hint: 'Abra uma nova aba com `zavorth dashboard`. Se continuar falhando, rode `zavorth dashboard repair`.',
+              hint: 'Abra uma nova aba com `zavorth zavorthControl`. Se continuar falhando, rode `zavorth zavorthControl repair`.',
             },
           },
           401,
@@ -363,13 +363,13 @@ export class WebAppService {
       || (pathname === '/api/web/nodes/heartbeat' && req.method === 'POST');
 
     if (
-      pathname === '/api/web/dashboard'
+      pathname === '/api/web/zavorthControl'
       && req.method === 'GET'
       && !this.isAuthorized(req, url)
     ) {
       this.composition.runtimeContextBridge.writeJson(
         res,
-        this.buildPublicDashboardFallbackSnapshot(),
+        this.buildPublicZavorthControlFallbackSnapshot(),
         200,
       );
       return true;
@@ -473,7 +473,7 @@ export class WebAppService {
     return false;
   }
 
-  private buildPublicDashboardFallbackSnapshot(): Record<string, any> {
+  private buildPublicZavorthControlFallbackSnapshot(): Record<string, any> {
     const generatedAt = new Date().toISOString();
     return {
       ok: true,
@@ -491,7 +491,7 @@ export class WebAppService {
         workflowJobs: [],
         workflowQueue: {
           kind: 'memory',
-          label: 'Dashboard safe public fallback',
+          label: 'ZavorthControl safe public fallback',
           version: 'agent-workflow-queue-store/v1',
           capabilities: {
             durable: false,

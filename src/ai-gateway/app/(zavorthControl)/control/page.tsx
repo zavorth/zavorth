@@ -1,5 +1,5 @@
 import { ControlPageAssets, ControlPageScripts } from "./ControlPageAssets";
-import { LegacyDashboardShell } from "./LegacyDashboardShell";
+import { LegacyZavorthControlShell } from "./LegacyZavorthControlShell";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -11,7 +11,7 @@ export default function ControlPage() {
   return (
     <>
       <ControlPageAssets />
-      <LegacyDashboardShell />
+      <LegacyZavorthControlShell />
       <ControlPageScripts />
     </>
   );

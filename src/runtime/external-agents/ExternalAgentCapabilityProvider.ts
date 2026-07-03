@@ -70,7 +70,7 @@ export type ExternalAgentCapabilityInventoryItem = {
   nativeContract: 'ExternalAgentCapabilityInventoryItem/v1';
 };
 
-export type ExternalAgentCapabilityDashboardVisibility = {
+export type ExternalAgentCapabilityZavorthControlVisibility = {
   adapterSource: {
     kind: 'universal-agent-runtime';
     label: string;
@@ -113,7 +113,7 @@ export type ExternalAgentCapabilityInventorySnapshot = {
   failures: ExternalAgentCapabilityFailure[];
   toolExposurePolicyInput: ToolExposurePolicyInput;
   toolExposureProfile: UniversalToolExposureProfile;
-  dashboard: ExternalAgentCapabilityDashboardVisibility;
+  zavorthControl: ExternalAgentCapabilityZavorthControlVisibility;
 };
 
 export type ExternalAgentCapabilityProviderOptions = {
@@ -277,7 +277,7 @@ export class ExternalAgentCapabilityProvider {
       failures,
       toolExposurePolicyInput,
       toolExposureProfile,
-      dashboard: this.buildDashboardVisibility(
+      zavorthControl: this.buildZavorthControlVisibility(
         this.adapter.descriptor,
         items,
         toolExposureProfile,
@@ -288,10 +288,10 @@ export class ExternalAgentCapabilityProvider {
     return snapshot;
   }
 
-  public buildDashboardAdapterInput(
+  public buildZavorthControlAdapterInput(
     snapshot: ExternalAgentCapabilityInventorySnapshot,
-  ): ExternalAgentCapabilityDashboardVisibility {
-    return snapshot.dashboard;
+  ): ExternalAgentCapabilityZavorthControlVisibility {
+    return snapshot.zavorthControl;
   }
 
   private classifyCapability(capability: ExternalAgentCapabilityDescriptor): ExternalAgentCapabilityDescriptor {
@@ -386,12 +386,12 @@ export class ExternalAgentCapabilityProvider {
     });
   }
 
-  private buildDashboardVisibility(
+  private buildZavorthControlVisibility(
     runtime: ExternalAgentRuntimeDescriptor,
     items: ExternalAgentCapabilityInventoryItem[],
     toolExposureProfile: UniversalToolExposureProfile,
     failures: ExternalAgentCapabilityFailure[],
-  ): ExternalAgentCapabilityDashboardVisibility {
+  ): ExternalAgentCapabilityZavorthControlVisibility {
     return {
       adapterSource: {
         kind: 'universal-agent-runtime',

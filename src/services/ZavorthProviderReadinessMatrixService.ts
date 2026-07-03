@@ -151,14 +151,14 @@ export class ZavorthProviderReadinessMatrixService {
           liveNetworkUsedByDefault: true,
         },
       ],
-      dashboardProjection: {
-        route: '/dashboard',
+      zavorthControlProjection: {
+        route: '/zavorthControl',
         endpoint: '/api/providers/readiness',
         executionAuthority: false,
         canRenderTestButtons: true,
       },
       zavorthControlProjection: {
-        route: '/dashboard',
+        route: '/zavorthControl',
         endpoint: '/api/providers/readiness',
         executionAuthority: false,
         canRenderTestButtons: true,
@@ -180,9 +180,9 @@ export class ZavorthProviderReadinessMatrixService {
           detail: 'Connection testing is represented as an explicit operator action and is not hidden in normal rendering.',
         },
         {
-          id: 'dashboard-no-authority',
+          id: 'zavorthControl-no-authority',
           status: 'passed',
-          detail: 'Dashboard may render readiness and test buttons but cannot execute provider calls by itself.',
+          detail: 'ZavorthControl may render readiness and test buttons but cannot execute provider calls by itself.',
         },
       ],
       nextAction: buildNextAction(summary, entries),

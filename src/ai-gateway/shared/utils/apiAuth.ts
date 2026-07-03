@@ -1,7 +1,7 @@
 /**
  * API Authentication Guard — Shared utility for protecting management API routes.
  *
- * Provides dual-mode auth: JWT cookie (dashboard session) or Bearer API key.
+ * Provides dual-mode auth: JWT cookie (zavorthControl session) or Bearer API key.
  * Used by the middleware (proxy.ts) to guard /api/* management routes.
  *
  * @module shared/utils/apiAuth
@@ -54,7 +54,7 @@ const PUBLIC_API_PREFIX_ROUTES = [
  * @returns null if authenticated, error message string if not
  */
 export async function verifyAuth(request: any): Promise<string | null> {
-  // 1. Check JWT cookie (dashboard session)
+  // 1. Check JWT cookie (zavorthControl session)
   const token = request.cookies.get("auth_token")?.value;
   if (token && process.env.JWT_SECRET) {
     try {
@@ -123,7 +123,7 @@ export async function isStrictlyAuthenticated(request: Request): Promise<boolean
     }
   }
 
-  // 2. Check JWT cookie (for dashboard session)
+  // 2. Check JWT cookie (for zavorthControl session)
   if (process.env.JWT_SECRET) {
     try {
       const cookieStore = await cookies();
@@ -230,7 +230,7 @@ export async function isAuthRequired(): Promise<boolean> {
     // This covers two cases:
     //   1. Fresh installs (setupComplete=false) — first-run, no password yet
     //   2. setupComplete=true but password was skipped during onboarding (#256)
-    //      The user needs unauthenticated access to /dashboard/settings to set a password.
+    //      The user needs unauthenticated access to /zavorthControl/settings to set a password.
     // Note: this is safe because Bearer API key auth is still checked in verifyAuth().
     // The security concern from #151 (password row lost after being set) is handled by the
     // hasPassword flag — if a password WAS set and then somehow lost, the user can use the

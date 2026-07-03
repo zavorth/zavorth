@@ -155,7 +155,7 @@ export function formatFeedbackTelemetryProductLoopSnapshot(
   lines.push(`- Preview: ${snapshot.surface.previewCommand}`);
   lines.push(`- Revoke: ${snapshot.surface.revokeCommand}`);
   lines.push(`- Delete: ${snapshot.surface.deleteCommand}`);
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');

@@ -551,7 +551,7 @@ export function isConnectionRateLimited(connectionId: string): boolean {
 
 /**
  * T05: Get all connections for a provider that are currently rate-limited.
- * Returns an array of { id, rateLimitedUntil } for dashboard display.
+ * Returns an array of { id, rateLimitedUntil } for zavorthControl display.
  */
 export function getRateLimitedConnections(
   provider: string

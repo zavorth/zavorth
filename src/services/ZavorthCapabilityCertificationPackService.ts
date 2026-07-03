@@ -12,7 +12,7 @@ import {
 } from '../contracts/ZavorthCapabilityCertificationPackContract.js';
 import { ProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';
 import { ZavorthCliTuiPolishService } from './ZavorthCliTuiPolishService.js';
-import { ZavorthDashboardVisualQaService } from './ZavorthDashboardVisualQaService.js';
+import { ZavorthZavorthControlVisualQaService } from './ZavorthZavorthControlVisualQaService.js';
 import { ZavorthSkillCuratorLiveLoopService } from './ZavorthSkillCuratorLiveLoopService.js';
 import { ZavorthSkillEcosystemPackService } from './ZavorthSkillEcosystemPackService.js';
 import { ZavorthMaturityService } from './ZavorthMaturityService.js';
@@ -39,7 +39,7 @@ type Runtime = {
   cliTui?: ZavorthCliTuiPolishService;
   skillEcosystem?: ZavorthSkillEcosystemPackService;
   skillCurator?: ZavorthSkillCuratorLiveLoopService;
-  dashboardVisualQa?: ZavorthDashboardVisualQaService;
+  zavorthControlVisualQa?: ZavorthZavorthControlVisualQaService;
   maturity?: ZavorthMaturityService;
 };
 
@@ -55,7 +55,7 @@ export class ZavorthCapabilityCertificationPackService {
   private readonly cliTui: ZavorthCliTuiPolishService;
   private readonly skillEcosystem: ZavorthSkillEcosystemPackService;
   private readonly skillCurator: ZavorthSkillCuratorLiveLoopService;
-  private readonly dashboardVisualQa: ZavorthDashboardVisualQaService;
+  private readonly zavorthControlVisualQa: ZavorthZavorthControlVisualQaService;
   private readonly maturity: ZavorthMaturityService;
 
   public constructor(runtime: Runtime = {}) {
@@ -70,7 +70,7 @@ export class ZavorthCapabilityCertificationPackService {
     this.cliTui = runtime.cliTui || new ZavorthCliTuiPolishService();
     this.skillEcosystem = runtime.skillEcosystem || new ZavorthSkillEcosystemPackService({ rootDir: this.projectRoot });
     this.skillCurator = runtime.skillCurator || new ZavorthSkillCuratorLiveLoopService({ projectRoot: this.projectRoot });
-    this.dashboardVisualQa = runtime.dashboardVisualQa || new ZavorthDashboardVisualQaService({ projectRoot: this.projectRoot });
+    this.zavorthControlVisualQa = runtime.zavorthControlVisualQa || new ZavorthZavorthControlVisualQaService({ projectRoot: this.projectRoot });
     this.maturity = runtime.maturity || new ZavorthMaturityService({ projectRoot: this.projectRoot, now: this.now });
   }
 
@@ -78,11 +78,11 @@ export class ZavorthCapabilityCertificationPackService {
     const providerSnapshot = this.providerRegistry.buildSnapshot();
     const missingProviderRoutes = REQUIRED_PROVIDER_CERTIFICATION_ROUTES
       .filter((route) => !this.providerRegistry.resolveRoute(route));
-    const [cliTui, skillEcosystem, skillCurator, dashboardVisualQa, maturity] = await Promise.all([
+    const [cliTui, skillEcosystem, skillCurator, zavorthControlVisualQa, maturity] = await Promise.all([
       this.cliTui.buildSnapshot({ refreshProviders: false, workspaceHint: this.projectRoot }),
       Promise.resolve(this.skillEcosystem.buildSnapshot()),
       Promise.resolve(this.skillCurator.buildSnapshot({ includeImported: true, includeWorkspace: true })),
-      Promise.resolve(this.dashboardVisualQa.buildSnapshot()),
+      Promise.resolve(this.zavorthControlVisualQa.buildSnapshot()),
       Promise.resolve(this.maturity.buildSnapshot()),
     ]);
     const gatewayChannels = buildGatewayMatrix(this.env);
@@ -119,10 +119,10 @@ export class ZavorthCapabilityCertificationPackService {
         `status=${skillCurator.status}`,
         `proposals=${skillCurator.summary.proposals}`,
       ], 'zavorth skill-curator'),
-      phase('dashboard-polish', 'Dashboard polish', dashboardVisualQa.status === 'blocked' ? 'attention' : 'passed', [
-        `visualQa=${dashboardVisualQa.status}`,
-        `scenarios=${dashboardVisualQa.summary.scenarios}`,
-      ], 'npm run zavorth:dashboard-visual-qa --silent'),
+      phase('zavorthControl-polish', 'ZavorthControl polish', zavorthControlVisualQa.status === 'blocked' ? 'attention' : 'passed', [
+        `visualQa=${zavorthControlVisualQa.status}`,
+        `scenarios=${zavorthControlVisualQa.summary.scenarios}`,
+      ], 'npm run zavorth:zavorthControl-visual-qa --silent'),
     ];
     const finalStatus = resolveStatus(phases);
     phases.push(phase('final-certification', 'Certificacao final e hardening', finalStatus, [
@@ -199,7 +199,7 @@ export class ZavorthCapabilityCertificationPackService {
         noLiveProviderClaimWithoutProof: true,
         noSkillMutationWithoutApproval: true,
         noExternalBackendLiveWithoutExplicitConfig: true,
-        noDashboardStyleFork: true,
+        noZavorthControlStyleFork: true,
       },
     };
   }
@@ -280,7 +280,7 @@ function resolveStatus(phases: ZavorthCapabilityCertificationPhase[]): ZavorthCa
 function buildGatewayMatrix(env: Record<string, string | undefined>): ZavorthGatewayMatrixChannel[] {
   const channels: Array<[ZavorthGatewayMatrixChannel['id'], string, string[]]> = [
     ['cli', 'CLI/TUI', []],
-    ['web', 'Dashboard/API', []],
+    ['web', 'ZavorthControl/API', []],
     ['telegram', 'Telegram', ['TELEGRAM_BOT_TOKEN']],
     ['discord', 'Discord', ['DISCORD_BOT_TOKEN']],
     ['slack', 'Slack', ['SLACK_BOT_TOKEN', 'SLACK_APP_TOKEN']],

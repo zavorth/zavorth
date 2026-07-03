@@ -137,14 +137,14 @@ export type ZavorthProviderReadinessMatrixSnapshot = {
     summary: string;
     liveNetworkUsedByDefault: boolean;
   }>;
-  dashboardProjection: {
-    route: '/dashboard';
+  zavorthControlProjection: {
+    route: '/zavorthControl';
     endpoint: '/api/providers/readiness';
     executionAuthority: false;
     canRenderTestButtons: true;
   };
   zavorthControlProjection: {
-    route: '/dashboard';
+    route: '/zavorthControl';
     endpoint: '/api/providers/readiness';
     executionAuthority: false;
     canRenderTestButtons: true;

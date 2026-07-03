@@ -21,6 +21,18 @@ import type {
     HomeAssistantPhysicalEvent,
 } from './HomeAssistantBridgeTypes.js';
 
+interface HomeAssistantEntityState {
+    state: string;
+    [key: string]: unknown;
+}
+
+interface HomeAssistantStateChangedData {
+    entity_id: string;
+    new_state: HomeAssistantEntityState | null;
+    old_state: HomeAssistantEntityState | null;
+    [key: string]: unknown;
+}
+
 export class HomeAssistantBridge implements IZavorthTool {
     name = 'iot_home_assistant';
     description = 'Controla dispositivos inteligentes via Home Assistant. Pode ligar/desligar luzes, switches, ventiladores e ajustar temperatura ou brilho. Ex: "apague a luz da sala", "ligue o ventilador".';
@@ -153,7 +165,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                 console.log('[HomeAssistantBridge] Cortex WebSocket acoplado ao hub fisico (HA).');
             });
 
-            this.ws.on('message', async (data: any) => {
+            this.ws.on('message', async (data: WebSocket.Data) => {
                 const message = JSON.parse(data.toString());
                 this.updateState({
                     lastMessageType: String(message?.type || '').trim() || null,
@@ -179,7 +191,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                 }
             });
 
-            this.ws.on('error', (err: any) => {
+            this.ws.on('error', (err: Error) => {
                 this.updateState({
                     connected: false,
                     status: this.listening ? 'degraded' : 'idle',
@@ -218,7 +230,7 @@ export class HomeAssistantBridge implements IZavorthTool {
         }
     }
 
-    private async handlePhysicalEvent(data: any): Promise<void> {
+    private async handlePhysicalEvent(data: HomeAssistantStateChangedData): Promise<void> {
         const entityId = data.entity_id;
         const newState = data.new_state?.state;
         const oldState = data.old_state?.state;
@@ -254,8 +266,8 @@ export class HomeAssistantBridge implements IZavorthTool {
     async execute(params: {
         entity_id: string;
         action: string;
-        attributes?: Record<string, any>;
-    }, context?: Record<string, any>): Promise<ToolExecutionResult> {
+        attributes?: Record<string, unknown>;
+    }, context?: Record<string, unknown>): Promise<ToolExecutionResult> {
         const haUrl = process.env.HOME_ASSISTANT_URL || 'http://localhost:8123';
         const haToken = process.env.HOME_ASSISTANT_TOKEN;
         const endpointPolicy = this.resolveEndpointPolicy(haUrl);
@@ -302,12 +314,12 @@ export class HomeAssistantBridge implements IZavorthTool {
                 );
             }
 
-            const body: Record<string, any> = { entity_id: params.entity_id };
+            const body: Record<string, unknown> = { entity_id: params.entity_id };
             if (params.attributes) {
                 Object.assign(body, params.attributes);
             }
             if (params.action === 'set_brightness' && params.attributes?.brightness) {
-                body.brightness = Math.round((params.attributes.brightness / 100) * 255);
+                body.brightness = Math.round((Number(params.attributes.brightness) / 100) * 255);
             }
 
             this.updateState({
@@ -354,13 +366,14 @@ export class HomeAssistantBridge implements IZavorthTool {
                     correlation: this.extractCorrelation(context),
                 },
             };
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errMessage = error instanceof Error ? error.message : String(error);
             this.updateState({
                 status: this.listening ? 'degraded' : 'idle',
-                lastError: String(error?.message || 'erro desconhecido'),
+                lastError: errMessage || 'erro desconhecido',
             });
             return this.fail(
-                `Falha ao comunicar com HA REST: ${error.message}`,
+                `Falha ao comunicar com HA REST: ${errMessage}`,
                 endpointPolicy,
                 context,
                 this.state.status,
@@ -372,13 +385,13 @@ export class HomeAssistantBridge implements IZavorthTool {
         params: {
             entity_id: string;
             action: string;
-            attributes?: Record<string, any>;
+            attributes?: Record<string, unknown>;
         },
         input: {
             haUrl: string;
             haToken: string;
             endpointPolicy: HomeAssistantEndpointPolicy;
-            context?: Record<string, any>;
+            context?: Record<string, unknown>;
         },
     ): Promise<ToolExecutionResult> {
         const entityId = String(params.entity_id || '').trim();
@@ -453,7 +466,7 @@ export class HomeAssistantBridge implements IZavorthTool {
             ttlMs: this.resolveVoiceAssetTtlMs(params.attributes),
         });
 
-        const body: Record<string, any> = {
+        const body: Record<string, unknown> = {
             entity_id: entityId,
             media_content_id: asset.publicUrl,
             media_content_type: this.text(params.attributes?.media_content_type, 'music'),
@@ -519,14 +532,15 @@ export class HomeAssistantBridge implements IZavorthTool {
                     correlation: this.extractCorrelation(input.context),
                 },
             };
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errMessage = error instanceof Error ? error.message : String(error);
             this.voiceAssetStore.remove(asset.id);
             this.updateState({
                 status: this.listening ? 'degraded' : 'idle',
-                lastError: String(error?.message || 'erro desconhecido'),
+                lastError: errMessage || 'erro desconhecido',
             });
             return this.fail(
-                `Falha ao comunicar com HA REST: ${error.message}`,
+                `Falha ao comunicar com HA REST: ${errMessage}`,
                 input.endpointPolicy,
                 input.context,
                 this.state.status,
@@ -634,7 +648,7 @@ export class HomeAssistantBridge implements IZavorthTool {
     private buildArtifact(
         entityId: string,
         action: string,
-        context?: Record<string, any>,
+        context?: Record<string, unknown>,
         extra?: Record<string, unknown>,
     ): Record<string, unknown> {
         return {
@@ -647,7 +661,7 @@ export class HomeAssistantBridge implements IZavorthTool {
         };
     }
 
-    private extractCorrelation(context?: Record<string, any>): Record<string, unknown> | null {
+    private extractCorrelation(context?: Record<string, unknown>): Record<string, unknown> | null {
         const correlation = {
             traceId: String(context?.traceId || '').trim() || null,
             runId: String(context?.runId || '').trim() || null,
@@ -661,7 +675,7 @@ export class HomeAssistantBridge implements IZavorthTool {
     private fail(
         error: string,
         policy: HomeAssistantEndpointPolicy,
-        context?: Record<string, any>,
+        context?: Record<string, unknown>,
         status: HomeAssistantLifecycleStatus = this.state.status,
     ): ToolExecutionResult {
         return {
@@ -701,7 +715,7 @@ export class HomeAssistantBridge implements IZavorthTool {
         return normalized.length > 0 ? normalized : fallback;
     }
 
-    private resolveVoiceAssetTtlMs(attributes?: Record<string, any>): number | undefined {
+    private resolveVoiceAssetTtlMs(attributes?: Record<string, unknown>): number | undefined {
         const ttlSeconds = Number(attributes?.ttlSeconds);
         if (!Number.isFinite(ttlSeconds) || ttlSeconds <= 0) {
             return undefined;

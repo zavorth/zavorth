@@ -68,7 +68,7 @@ export class TelegramGroupEventController {
 
     // Deletar mensagem de servico se configurado
     if (config?.delete_service_messages && ctx.message?.message_id) {
-      await this.moderationService.deleteMessage(chatId, ctx.message.message_id).catch(() => {});
+      await this.moderationService.deleteMessage(chatId, ctx.message.message_id).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
     }
   }
 
@@ -101,7 +101,7 @@ export class TelegramGroupEventController {
 
     // Deletar mensagem de servico se configurado
     if (config?.delete_service_messages && ctx.message?.message_id) {
-      await this.moderationService.deleteMessage(chatId, ctx.message.message_id).catch(() => {});
+      await this.moderationService.deleteMessage(chatId, ctx.message.message_id).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
     }
   }
 
@@ -130,9 +130,9 @@ export class TelegramGroupEventController {
         try {
           const warnMsg = await ctx.reply(`⚠️ @${ctx.from?.username || ctx.from?.first_name}: ${result.reason}`);
           setTimeout(async () => {
-            try { await this.moderationService.deleteMessage(chatId, warnMsg.message_id); } catch {}
+            try { await this.moderationService.deleteMessage(chatId, warnMsg.message_id); } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
           }, 5000);
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         return true;
 
       case 'warn': {
@@ -145,7 +145,7 @@ export class TelegramGroupEventController {
           msg += `\n🚨 Limite atingido! Aplicando ${warnResult.limitAction}...`;
           await this.applyAutoAction(ctx, warnResult.limitAction, ctx.from!.id);
         }
-        try { await ctx.reply(msg); } catch {}
+        try { await ctx.reply(msg); } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         return true;
       }
 
@@ -154,12 +154,12 @@ export class TelegramGroupEventController {
         if (ctx.message?.message_id) {
           await this.moderationService.deleteMessage(chatId, ctx.message.message_id);
         }
-        try { await ctx.reply(`🔇 ${ctx.from?.first_name} silenciado por 5 minutos. Motivo: ${result.reason}`); } catch {}
+        try { await ctx.reply(`🔇 ${ctx.from?.first_name} silenciado por 5 minutos. Motivo: ${result.reason}`); } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         return true;
 
       case 'ban':
         await this.moderationService.banUser(ctx.chat!.id, ctx.from!.id, 'anti-spam');
-        try { await ctx.reply(`🔨 ${ctx.from?.first_name} banido automaticamente. Motivo: ${result.reason}`); } catch {}
+        try { await ctx.reply(`🔨 ${ctx.from?.first_name} banido automaticamente. Motivo: ${result.reason}`); } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         return true;
     }
 
@@ -213,7 +213,7 @@ export class TelegramGroupEventController {
     const userId = ctx.from?.id.toString() || '';
     if (!userId) return;
 
-    await this.statsService.trackMessage(chatId, userId).catch(() => {});
+    await this.statsService.trackMessage(chatId, userId).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
   }
 
   private async applyAutoAction(ctx: Context, action: string, userId: number): Promise<void> {

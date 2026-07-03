@@ -10,7 +10,7 @@ export type ZavorthExperienceLayerDailyUsePhase = {
   id: string;
   title: string;
   command: string;
-  surface: 'onboarding' | 'dashboard' | 'cli' | 'satellite' | 'runtime';
+  surface: 'onboarding' | 'zavorthControl' | 'cli' | 'satellite' | 'runtime';
   status: ZavorthExperienceLayerDailyUsePhaseStatus;
   evidence: string[];
   riskBoundary: string;

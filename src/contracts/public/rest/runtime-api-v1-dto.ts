@@ -45,7 +45,7 @@ export type CanonicalRuntimeStatusDTO = {
   runtime: {
     attached: boolean;
     localFirst: true;
-    dashboardRoute: '/dashboard';
+    zavorthControlRoute: '/zavorthControl';
     executionAuthority: false;
   };
   gateway: GatewayStatusDTO;
@@ -62,7 +62,7 @@ export type CanonicalRuntimeHealthDTO = {
   health: OpsHealthDTO;
   safety: {
     policyBrokerRequired: true;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     publicApiCanBypassPolicy: false;
   };
 };
@@ -98,7 +98,7 @@ export type CanonicalChannelMeshDTO = ChannelMeshSnapshot & {
   schemaVersion: 1;
   surface: 'channel-mesh-v1';
   safety: {
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     liveBridgeRequiresPolicyBroker: true;
     telegramPrivileged: false;
     catalogSupportIsNotLiveProof: true;
@@ -118,7 +118,7 @@ export type CanonicalApprovalsDTO = {
   trustUx: ZavorthApprovalReceiptTrustUxSnapshot;
   safety: {
     approvalScopedToExactAction: true;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     approvalDoesNotExecuteTargetAction: true;
     receiptsRequiredForTrustDecisions: true;
   };
@@ -136,7 +136,7 @@ export type CanonicalMissionsDTO = {
   total: number;
   data: ZavorthMissionContract[];
   projection: {
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     approvalsRequiredForMutableActions: true;
     sourceOfTruth: 'runtime-api';
   };
@@ -181,7 +181,7 @@ export type CanonicalChatPreviewDTO = {
   safety: {
     dryRunByDefault: true;
     liveRequiresExplicitFlag: true;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     policyBrokerRequiredForTools: true;
   };
 };
@@ -203,7 +203,7 @@ export type CanonicalGovernedActionReceiptDTO = {
   summary: string;
   policyReceipt: SecurityPolicyBrokerReceipt;
   rawSecretsSerialized: false;
-  dashboardCanExecute: false;
+  zavorthControlCanExecute: false;
 };
 
 export type CanonicalGovernedActionResultDTO<T = unknown> = {

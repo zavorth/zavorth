@@ -31,6 +31,8 @@ export type ZavorthUnifiedOnboardingCommandId =
   | 'templates'
   | 'missions'
   | 'receipts'
+  | 'migrate'
+  | 'migrate-auto'
   | 'gateway-status';
 
 export type ZavorthUnifiedOnboardingStep = {
@@ -86,8 +88,8 @@ export type ZavorthUnifiedOnboardingSnapshot = {
     readOnly: true;
     summary: string;
   };
-  dashboardProjection: {
-    route: '/dashboard';
+  zavorthControlProjection: {
+    route: '/zavorthControl';
     executionAuthority: false;
     visualBlocksRequireOwnerApproval: true;
     endpoint: '/api/onboarding/unified';

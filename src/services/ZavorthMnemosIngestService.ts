@@ -31,7 +31,7 @@ const PAGE_KEYWORDS: Record<ZavorthMnemosIngestTargetPage, RegExp[]> = {
   architecture: [/architecture|runtime|gateway|agent os|policy/i],
   dependencies: [/dependency|dependencies|package|provider sdk|typescript|node/i],
   memory: [/mnemos|memory|compaction|handoff|wiki|context/i],
-  operations: [/operator|readiness|approval|dashboard|telegram|remote|daily/i],
+  operations: [/operator|readiness|approval|zavorthControl|telegram|remote|daily/i],
   providers: [/provider|model|gemini|openai|routing|live proof|media/i],
   skills: [/skill|curator|capability|tool|workflow/i],
 };

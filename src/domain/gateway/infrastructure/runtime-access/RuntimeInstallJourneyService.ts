@@ -201,15 +201,15 @@ export class RuntimeInstallJourneyService {
       },
       {
         id: 'gateway-ui',
-        title: 'Gateway e Dashboard',
+        title: 'Gateway e ZavorthControl',
         status: manifest.local.ready ? 'ready' : 'action',
         summary: manifest.local.ready
-          ? 'Gateway local e Dashboard session-first prontos no /dashboard, com WebSocket como plano principal.'
-          : 'Suba o runtime para destravar o Gateway local, a Dashboard e o plano de controle em tempo real.',
+          ? 'Gateway local e ZavorthControl session-first prontos no /zavorthControl, com WebSocket como plano principal.'
+          : 'Suba o runtime para destravar o Gateway local, a ZavorthControl e o plano de controle em tempo real.',
         command: manifest.local.ready ? null : manifest.commands.go,
         details: [
           `Gateway local: ${manifest.local.apiBaseUrl || `${manifest.local.baseUrl}/api/web`}`,
-          `Dashboard: ${manifest.local.appUrl}`,
+          `ZavorthControl: ${manifest.local.appUrl}`,
           'O Gateway centraliza sessao, approvals, capabilities, artifacts, diffs e selfmod.',
         ],
       },
@@ -241,7 +241,7 @@ export class RuntimeInstallJourneyService {
         command: manifest.local.ready ? null : manifest.commands.access,
         details: [
           `Shell web do runtime: ${manifest.local.appUrl}`,
-          `Painel legado: ${manifest.local.dashboardUrl}`,
+          `Painel legado: ${manifest.local.zavorthControlUrl}`,
           ...localIssues.slice(0, 2),
         ],
       },
@@ -300,7 +300,7 @@ export class RuntimeInstallJourneyService {
         summary: partialChannels.length > 0
           ? `Jornada recomendada: ${channelExperience.recommendedJourney}. Ainda ha canais parciais: ${partialChannels.map((entry) => entry.label).join(', ')}.`
           : channelExperience.recommendedJourney === 'web+telegram'
-            ? 'Jornada recomendada pronta: web+telegram. O /dashboard segue como centro e Telegram vira o primeiro canal externo.'
+            ? 'Jornada recomendada pronta: web+telegram. O /zavorthControl segue como centro e Telegram vira o primeiro canal externo.'
             : 'Jornada recomendada agora: web-only. Quando quiser um canal externo, comece pelo Telegram.',
         command: partialChannels.length > 0 || channelExperience.recommendedJourney !== 'web+telegram'
           ? manifest.commands.channels

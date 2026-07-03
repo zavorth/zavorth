@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import * as http from 'http';
 import path from 'path';
 import fs from 'fs';
@@ -18,6 +18,7 @@ import { LogRepository } from '../storage/LogRepository.js';
 import { InternalBetaDiagnosticsService } from './InternalBetaDiagnosticsService.js';
 import { InternalBetaChecklistService } from './InternalBetaChecklistService.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
+import { logger } from '../logger.js';
 
 import { PtySessionService } from './PtySessionService.js';
 import { PtySessionApprovalService } from './PtySessionApprovalService.js';
@@ -93,6 +94,74 @@ type NodeHeartbeatLike = {
   receiveHeartbeat: (input: Record<string, unknown>) => unknown;
 };
 
+type A2UISurfaceSnapshot = {
+  generatedAt: string;
+  protocolVersion: string;
+  capabilities: string[];
+  allowedComponents: unknown[];
+  surfaceId: string | null;
+  surfaces: unknown[];
+  commands: Record<string, string>;
+};
+
+type A2UIStreamItem = {
+  generatedAt: string;
+  protocolVersion: string;
+  surfaceId: string | null;
+  items: unknown[];
+  commands: Record<string, string>;
+};
+
+type A2UIActionResult = {
+  ok: boolean;
+  status?: string;
+  [key: string]: unknown;
+};
+
+type A2UIServiceLike = {
+  readSnapshot?: (surfaceId?: string) => A2UISurfaceSnapshot;
+  listSurfaces?: () => unknown[];
+  listEvents?: (surfaceId?: string, limit?: number) => unknown[];
+  readStream?: (surfaceId?: string, limit?: number) => A2UIStreamItem;
+  listAssets?: (surfaceId?: string) => unknown[];
+  dispatchAction?: (input: {
+    surfaceId: string;
+    actionId: string;
+    requestedBy?: string;
+    payload?: Record<string, unknown>;
+    correlation?: Record<string, unknown> | null;
+  }) => Promise<A2UIActionResult>;
+  getSurfaceState?: (surfaceId: string) => unknown;
+};
+
+type ProactivePermissionsServiceLike = {
+  listPending?: () => unknown[];
+  resolve: (id: string, approved: boolean) => boolean;
+};
+
+type CommandApprovalRow = {
+  operation_id: string;
+  workspace_id: string;
+  command: string;
+  created_at: string;
+  expires_at: string;
+};
+
+type HostCommandProposalRow = {
+  operation_id: string;
+  workspace_id: string;
+  command_preview_redacted: string;
+  args_preview_redacted: string;
+  cwd_suffix: string;
+  shell: number;
+  risk_level: string;
+  reason_redacted: string;
+  created_at: string;
+  expires_at: string;
+  requires_strong_confirmation: number;
+  strong_confirmation_phrase: string;
+};
+
 export type SlackWebhookGatewayLike = {
   handleWebhookEvent: (input: {
     headers: http.IncomingHttpHeaders;
@@ -149,8 +218,8 @@ export type ZavorthControlCoreRouteDeps = {
   writeJson: WriteJson;
   writeText: WriteText;
   writeRedirect: WriteRedirect;
-  a2ui: any;
-  proactivePermissions: any;
+  a2ui: A2UIServiceLike;
+  proactivePermissions: ProactivePermissionsServiceLike;
   experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun' | 'dispatchRuntimeStateAction' | 'buildRuntimeCapabilities' | 'syncRuntimeOperationalState'> | null;
   authService?: Pick<ZavorthControlAuthService, 'validate' | 'resolveAuthenticatedIdentity'>;
   echo?: {
@@ -193,7 +262,9 @@ export class ZavorthControlCoreRouteService {
       if (WorkspaceResolver.isWorkspaceAllowed(resolved)) {
         return fs.realpathSync(resolved);
       }
-    } catch {}
+    } catch (err: unknown) {
+      logger.warn('WorkspaceResolver.resolve failed for hint "%s": %s', workspaceHint, (err as Error).message);
+    }
     try {
       const allowed = WorkspaceResolver.getAllowedRoots();
       for (const root of allowed) {
@@ -201,13 +272,17 @@ export class ZavorthControlCoreRouteService {
           return fs.realpathSync(root);
         }
       }
-    } catch {}
+    } catch (err: unknown) {
+      logger.warn('WorkspaceResolver.getAllowedRoots failed for hint "%s": %s', workspaceHint, (err as Error).message);
+    }
     try {
       const resolved = path.resolve(workspaceHint);
       if (fs.existsSync(resolved) && WorkspaceResolver.isWorkspaceAllowed(resolved)) {
         return fs.realpathSync(resolved);
       }
-    } catch {}
+    } catch (err: unknown) {
+      logger.warn('Path resolution fallback failed for hint "%s": %s', workspaceHint, (err as Error).message);
+    }
     return path.resolve(workspaceHint);
   }
 
@@ -223,7 +298,9 @@ export class ZavorthControlCoreRouteService {
       if (path.normalize(activeReal).toLowerCase() === path.normalize(candidateReal).toLowerCase()) {
         return true;
       }
-    } catch {}
+    } catch (err: unknown) {
+      logger.warn('validateWorkspaceSession: workspace comparison failed for "%s": %s', workspaceId, (err as Error).message);
+    }
 
     try {
       const activeWs = WorkspaceResolver.resolve(null);
@@ -236,7 +313,9 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
       }
-    } catch {}
+    } catch (err: unknown) {
+      logger.warn('validateWorkspaceSession: alias resolution failed for "%s": %s', workspaceId, (err as Error).message);
+    }
 
     return false;
   }
@@ -1389,14 +1468,14 @@ export class ZavorthControlCoreRouteService {
         const db = await Database.getInstance();
         const now = new Date().toISOString();
 
-        let rows: Record<string, any>[];
+        let rows: CommandApprovalRow[];
         if (workspaceId) {
-          rows = db.all<{ operation_id: string; workspace_id: string; command: string; created_at: string; expires_at: string }>(
+          rows = db.all<CommandApprovalRow>(
             'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ? AND workspace_id = ?',
             [now, workspaceId]
           );
         } else {
-          rows = db.all<{ operation_id: string; workspace_id: string; command: string; created_at: string; expires_at: string }>(
+          rows = db.all<CommandApprovalRow>(
             'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ?',
             [now]
           );
@@ -1846,7 +1925,7 @@ export class ZavorthControlCoreRouteService {
         }
 
         const currentConfig = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
-        const updatedConfig = { ...(currentConfig as Record<string, unknown>), ...body.config };
+        const updatedConfig = { ...(currentConfig as unknown as Record<string, unknown>), ...(body.config as Record<string, unknown> || {}) };
         await AgentWorkspaceConfigService.getInstance().updateConfig(workspaceId, updatedConfig);
 
         deps.writeJson(res, { ok: true });
@@ -2116,9 +2195,9 @@ export class ZavorthControlCoreRouteService {
         const db = await Database.getInstance();
         const now = new Date().toISOString();
 
-        let rows;
+        let rows: HostCommandProposalRow[];
         if (workspaceId) {
-          rows = db.all<unknown>(
+          rows = db.all<HostCommandProposalRow>(
             `SELECT operation_id, workspace_id, command_preview_redacted, args_preview_redacted,
                     cwd_suffix, shell, risk_level, reason_redacted, created_at, expires_at,
                     requires_strong_confirmation, strong_confirmation_phrase
@@ -2127,7 +2206,7 @@ export class ZavorthControlCoreRouteService {
             [now, workspaceId]
           );
         } else {
-          rows = db.all<Record<string, any>>(
+          rows = db.all<HostCommandProposalRow>(
             `SELECT operation_id, workspace_id, command_preview_redacted, args_preview_redacted,
                     cwd_suffix, shell, risk_level, reason_redacted, created_at, expires_at,
                     requires_strong_confirmation, strong_confirmation_phrase

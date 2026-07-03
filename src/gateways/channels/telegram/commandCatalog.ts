@@ -92,7 +92,7 @@ const STATIC_COMMAND_CATALOG: CommandCatalogEntry[] = [
   { command: 'agentonboarding', description: 'External Agent Onboarding: cadastra pistas consentidas de agentes externos.', section: 'monitoring', usage: '[path|approx|command|endpoint] <valor>', privateMenu: true, groupMenu: true },
   { command: 'externalagent', description: 'External Agent Gateway: lista, registra e invoca agentes externos com approval.', section: 'monitoring', usage: '[list|run <id> -- <prompt> approve-external-execution]', privateMenu: true, groupMenu: true },
   { command: 'readiness', description: 'Mostra pronto, atencao ou bloqueado para uso diario.', section: 'monitoring', privateMenu: true, groupMenu: true },
-  { command: 'dashboard', description: 'Abre ou mostra a URL do dashboard diario.', section: 'monitoring', privateMenu: true, groupMenu: true },
+  { command: 'zavorthControl', description: 'Abre ou mostra a URL do zavorthControl diario.', section: 'monitoring', privateMenu: true, groupMenu: true },
   { command: 'doctor', description: 'Diagnostico do desktop local, WSL, Docker e companions.', section: 'monitoring', usage: '[desktop]', privateMenu: true, groupMenu: false },
   { command: 'companion', description: 'Control plane supervisionado para WSL, Docker, ZavorthBridge e Codex.', section: 'monitoring', usage: '[list|inspect <id>|hibernate <id>|resume <id>|stop-idle <id>|trim <id>|restart-safe <id>|optimize <preset> [apply <planId>]]', privateMenu: true, groupMenu: false },
   { command: 'workspace', description: 'Doctor e preset leve para workspaces Zavorth em IDEs companheiras.', section: 'monitoring', usage: '[doctor|optimize <zavorthBridge|vscode|vscode-derivative> [apply <planId>]]', privateMenu: true, groupMenu: false },

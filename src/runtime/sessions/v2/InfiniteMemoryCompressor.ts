@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import type { LlmRuntimeService } from '../../../services/llm/LlmRuntimeService.js';
 import type { MemoryVectorStore } from '../../../storage/MemoryVectorStore.js';
+import { logger } from '../logger.js';
 
 /**
  * A compressed memory chunk stored in the vector plane.
@@ -67,7 +68,7 @@ const DEFAULT_CONFIG: MemoryCompressorConfig = {
  *    heavy tokenizer libraries at the infrastructure layer.
  *  - Memory storage is in-process (Map) for now but designed with a
  *    clean interface for future ChromaDB/Mem0/SQLite vector backends.
- *  - The compressor is an EventEmitter so the dashboard can visualize
+ *  - The compressor is an EventEmitter so the zavorthControl can visualize
  *    compression events and memory retrieval in real time.
  */
 export class InfiniteMemoryCompressor extends EventEmitter {
@@ -161,7 +162,7 @@ export class InfiniteMemoryCompressor extends EventEmitter {
   }
 
   /**
-   * Get the full memory store snapshot for the dashboard.
+   * Get the full memory store snapshot for the zavorthControl.
    */
   public getSnapshot(): {
     sessionId: string;
@@ -277,7 +278,7 @@ ${combined}`;
    * PTY Streams não devem usar isso, e sim depender do auto-pushMessage trigger.
    */
   public compressOldest(count?: number): void {
-     this.compressOldestAsync(count).catch(() => {});
+     this.compressOldestAsync(count).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
   }
 
   /**

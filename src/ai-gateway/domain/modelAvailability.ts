@@ -4,7 +4,7 @@
  * Tracks model availability per provider with TTL-based cooldowns.
  * When a model becomes unavailable (rate-limited, erroring), it is
  * marked with a cooldown period. The availability report powers
- * the dashboard health view.
+ * the zavorthControl health view.
  *
  * @module domain/modelAvailability
  */

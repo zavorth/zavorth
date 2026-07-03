@@ -80,7 +80,7 @@ export type ZavorthCliRuntimeTuiSnapshot = {
   connection: {
     gateway: ZavorthCliRuntimeTuiRow;
     daemon: ZavorthCliRuntimeTuiRow;
-    dashboard: ZavorthCliRuntimeTuiRow;
+    zavorthControl: ZavorthCliRuntimeTuiRow;
   };
   chat: {
     total: number;

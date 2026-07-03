@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { logger } from '../../../../logger.js';
 import { Context, InputFile } from 'grammy';
 import * as fs from 'fs';
@@ -18,7 +17,8 @@ export class TelegramHubHeroService {
         show_caption_above_media: true,
       });
     } catch (error: unknown) {
-      logger.warn(`Falha ao enviar hero do hub: ${error?.message || error}`);
+      const msg = error instanceof Error ? error.message : String(error);
+      logger.warn(`Falha ao enviar hero do hub: ${msg}`);
     }
   }
 

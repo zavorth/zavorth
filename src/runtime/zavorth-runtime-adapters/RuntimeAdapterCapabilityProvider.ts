@@ -70,7 +70,7 @@ export type RuntimeAdapterCapabilityInventoryItem = {
   nativeContract: 'RuntimeAdapterCapabilityInventoryItem/v1';
 };
 
-export type RuntimeAdapterCapabilityDashboardVisibility = {
+export type RuntimeAdapterCapabilityZavorthControlVisibility = {
   adapterSource: {
     kind: 'universal-agent-runtime';
     label: string;
@@ -113,7 +113,7 @@ export type RuntimeAdapterCapabilityInventorySnapshot = {
   failures: RuntimeAdapterCapabilityFailure[];
   toolExposurePolicyInput: ToolExposurePolicyInput;
   toolExposureProfile: UniversalToolExposureProfile;
-  dashboard: RuntimeAdapterCapabilityDashboardVisibility;
+  zavorthControl: RuntimeAdapterCapabilityZavorthControlVisibility;
 };
 
 export type RuntimeAdapterCapabilityProviderOptions = {
@@ -277,7 +277,7 @@ export class RuntimeAdapterCapabilityProvider {
       failures,
       toolExposurePolicyInput,
       toolExposureProfile,
-      dashboard: this.buildDashboardVisibility(
+      zavorthControl: this.buildZavorthControlVisibility(
         this.adapter.descriptor,
         items,
         toolExposureProfile,
@@ -288,10 +288,10 @@ export class RuntimeAdapterCapabilityProvider {
     return snapshot;
   }
 
-  public buildDashboardAdapterInput(
+  public buildZavorthControlAdapterInput(
     snapshot: RuntimeAdapterCapabilityInventorySnapshot,
-  ): RuntimeAdapterCapabilityDashboardVisibility {
-    return snapshot.dashboard;
+  ): RuntimeAdapterCapabilityZavorthControlVisibility {
+    return snapshot.zavorthControl;
   }
 
   private classifyCapability(capability: RuntimeAdapterCapabilityDescriptor): RuntimeAdapterCapabilityDescriptor {
@@ -386,12 +386,12 @@ export class RuntimeAdapterCapabilityProvider {
     });
   }
 
-  private buildDashboardVisibility(
+  private buildZavorthControlVisibility(
     runtime: RuntimeAdapterRuntimeDescriptor,
     items: RuntimeAdapterCapabilityInventoryItem[],
     toolExposureProfile: UniversalToolExposureProfile,
     failures: RuntimeAdapterCapabilityFailure[],
-  ): RuntimeAdapterCapabilityDashboardVisibility {
+  ): RuntimeAdapterCapabilityZavorthControlVisibility {
     return {
       adapterSource: {
         kind: 'universal-agent-runtime',

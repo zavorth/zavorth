@@ -188,9 +188,9 @@ const LEGACY_HOTSPOT_BASELINE: Record<string, number> = {
   'services/ZavorthSpeculativeAutonomyService.ts': 2179,
   'domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts': 2163,
   'services/SwarmV2Service.ts': 1922,
-  'ai-gateway/app/(dashboard)/control/command-center/projections/zavorthAgentGatewayRuntimeProjection.ts': 1662,
+  'ai-gateway/app/(zavorthControl)/control/command-center/projections/zavorthAgentGatewayRuntimeProjection.ts': 1662,
   'cli/ZavorthCliRegistry.ts': 1574,
-  'ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterControlShell.tsx': 1561,
+  'ai-gateway/app/(zavorthControl)/control/command-center/components/CommandCenterControlShell.tsx': 1561,
   'cli/ZavorthCliFlowHelpers.ts': 1519,
 };
 
@@ -203,7 +203,7 @@ const CRITICAL_FLOWS = [
   },
   {
     id: 'web-control-runtime',
-    label: 'Surfaces web /dashboard e runtime',
+    label: 'Surfaces web /zavorthControl e runtime',
     command: 'npm run test:web:smoke',
     notes: 'Control plane e runtime web continuam sendo fluxos operatoriais criticos.',
   },
@@ -856,7 +856,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'publish-architecture-onboarding-docs',
         label: 'Publicar onboarding arquitetural oficial',
         severity: 'warn',
-        reason: 'Novos contribuidores precisam de mapa oficial de dominios, regra de placement e guias de use case/dashboard plane/surface action.',
+        reason: 'Novos contribuidores precisam de mapa oficial de dominios, regra de placement e guias de use case/zavorthControl plane/surface action.',
         command: 'npm run ops:architecture:report',
       });
     }
@@ -892,7 +892,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'finish-presentation-boundary',
         label: 'Fechar boundary de presentation',
         severity: 'warn',
-        reason: 'Web UI, dashboard assets, ai-gateway dashboard e voice/companion devem depender de contratos, snapshots, actions, events, streams e assets.',
+        reason: 'Web UI, zavorthControl assets, ai-gateway zavorthControl e voice/companion devem depender de contratos, snapshots, actions, events, streams e assets.',
         command: 'npm run ops:architecture:json',
       });
     }

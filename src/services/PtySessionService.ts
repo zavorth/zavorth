@@ -1,12 +1,23 @@
-// @ts-nocheck
 import { logger } from '../logger.js';
 import { HostPowerModeService } from './HostPowerModeService';
 import { PtySessionApprovalService } from './PtySessionApprovalService';
 import { SecurityAuditLogger } from './SecurityAuditLogger';
 import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService';
+import { LogRepository } from '../storage/LogRepository.js';
 import fs from 'fs';
 import path from 'path';
 import { platform } from 'os';
+
+interface IPtyProcess {
+  onData(callback: (data: string) => void): void;
+  onExit(callback: () => void): void;
+  write(data: string): void;
+  kill(): void;
+}
+
+interface IPtyModule {
+  spawn(command: string, args: string[], options: { name: string; cols: number; rows: number; cwd: string; env: NodeJS.ProcessEnv }): IPtyProcess;
+}
 
 export interface PtyOutputChunk {
   seq: number;
@@ -17,12 +28,12 @@ export interface PtyOutputChunk {
 }
 
 export class PtySessionService {
-  private ptyModule: any = null;
+  private ptyModule: IPtyModule | null = null;
   private isAvailable: boolean = false;
 
   private pendingSessionData: Map<string, { cwd: string, shell: string }> = new Map();
   private workspaceActiveSessions: Map<string, Set<string>> = new Map();
-  private activeSessions: Map<string, any> = new Map();
+  private activeSessions: Map<string, IPtyProcess> = new Map();
   private sessionOutputBuffers: Map<string, PtyOutputChunk[]> = new Map();
   private sessionSequenceNumbers: Map<string, number> = new Map();
   private readonly MAX_CHUNK_LENGTH = 10000;
@@ -33,14 +44,15 @@ export class PtySessionService {
   constructor(
     private hostPowerModeService: HostPowerModeService = HostPowerModeService.getInstance(),
     private approvalService: PtySessionApprovalService = new PtySessionApprovalService(),
-    private logger: SecurityAuditLogger = new SecurityAuditLogger(new (require('../storage/LogRepository').LogRepository)()),
+    private logger: SecurityAuditLogger = new SecurityAuditLogger(new LogRepository()),
     private mandateService?: WorkspaceTaskMandateService
   ) {
     try {
-      this.ptyModule = require('node-pty');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      this.ptyModule = require('node-pty') as IPtyModule;
       this.isAvailable = true;
     } catch (e) {
-      logger.warn('node-pty is not available. PTY tools will fail-closed.');
+      console.warn('node-pty is not available. PTY tools will fail-closed.');
       this.isAvailable = false;
     }
 
@@ -106,7 +118,7 @@ export class PtySessionService {
     }
 
     // Spawn PTY
-    const ptyProcess = this.ptyModule.spawn(pendingData.shell, [], {
+    const ptyProcess = this.ptyModule!.spawn(pendingData.shell, [], {
       name: 'xterm-color',
       cols: 80,
       rows: 30,

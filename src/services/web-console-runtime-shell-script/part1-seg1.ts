@@ -483,7 +483,7 @@ export const runtimeShellScriptPart1Seg1: string = [
     "      await navigator.clipboard.writeText(text);",
     "      return true;",
     "    }",
-    "  } catch {}",
+    "  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }",
     "  window.prompt(promptLabel, text);",
     "  return false;",
     "}",

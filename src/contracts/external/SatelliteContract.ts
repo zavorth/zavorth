@@ -218,7 +218,7 @@ export interface SatelliteHeartbeatPongPayload {
 /** Payload de auth.challenge (Runtime → Satellite). */
 export interface SatelliteAuthChallengePayload {
   /** Tipo de autenticação esperado. */
-  authType: 'pairing-token' | 'dashboard-token';
+  authType: 'pairing-token' | 'zavorthControl-token';
 
   /** Nonce para evitar replay attacks. */
   nonce: string;

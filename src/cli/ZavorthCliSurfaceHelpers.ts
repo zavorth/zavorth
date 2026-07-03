@@ -47,7 +47,7 @@ export type CliHelpSnapshot = {
     | 'connectors'
     | 'onboard'
     | 'go'
-    | 'dashboard'
+    | 'zavorthControl'
     | 'chat'
     | 'run'
     | 'continue'
@@ -74,8 +74,8 @@ export type CliHelpSnapshot = {
   notes: string[];
 };
 
-type CliHelpTopic = CliHelpSnapshot['topic'];
-type CliHelpPage = Omit<CliHelpSnapshot, 'surface'>;
+export type CliHelpTopic = CliHelpSnapshot['topic'];
+export type CliHelpPage = Omit<CliHelpSnapshot, 'surface'>;
 
 export type CliContextSnapshot = {
   surface: 'zavorth-cli';
@@ -232,9 +232,9 @@ const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   canais: 'connectors',
   canal: 'connectors',
   go: 'go',
-  dashboard: 'dashboard',
-  control: 'dashboard',
-  commandcenter: 'dashboard',
+  zavorthControl: 'zavorthControl',
+  control: 'zavorthControl',
+  commandcenter: 'zavorthControl',
   chat: 'chat',
   run: 'run',
   task: 'run',
@@ -321,7 +321,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'Use when',
         entries: [
-          { summary: 'You want the daily operating surface without opening the dashboard.' },
+          { summary: 'You want the daily operating surface without opening the zavorthControl.' },
           { summary: 'You want one clean terminal view for chat state, approvals, diff, runtime health and channels.' },
         ],
       },
@@ -345,7 +345,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
           { command: 'a', summary: 'Review approvals.' },
           { command: 'd', summary: 'Open diff previews.' },
           { command: 'c', summary: 'Check channel readiness.' },
-          { command: 'o', summary: 'Open Dashboard.' },
+          { command: 'o', summary: 'Open ZavorthControl.' },
           { command: 'r', summary: 'Refresh the TUI.' },
           { command: 'q', summary: 'Quit.' },
         ],
@@ -364,8 +364,8 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'Use when',
         entries: [
-          { summary: 'You want to start a real session without memorizing start, setup, approvals or dashboard commands.' },
-          { summary: 'You want to know whether to approve something, configure a provider or open the dashboard.' },
+          { summary: 'You want to start a real session without memorizing start, setup, approvals or zavorthControl commands.' },
+          { summary: 'You want to know whether to approve something, configure a provider or open the zavorthControl.' },
         ],
       },
       {
@@ -380,7 +380,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         title: 'When ready',
         entries: [
           { command: 'zavorth ask "wake up and review this workspace"', summary: 'Suggested first natural request.' },
-          { command: 'zavorth open', summary: 'Open the visual dashboard.' },
+          { command: 'zavorth open', summary: 'Open the visual zavorthControl.' },
           { command: 'zavorth start', summary: 'Start or resume the local runtime.' },
         ],
       },
@@ -580,16 +580,17 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         title: 'Use when',
         entries: [
           { summary: 'You want to start Zavorth without memorizing internal scripts.' },
-          { summary: 'You want to open the local dashboard and continue daily work.' },
+          { summary: 'You want to open the local zavorthControl and continue daily work.' },
         ],
       },
       {
         title: 'Commands',
         entries: [
-          { command: 'zavorth start', summary: 'Start or resume the local runtime and open the dashboard.' },
-          { command: 'zavorth open', summary: 'Open the local dashboard without rereading docs.' },
+          { command: 'zavorth start', summary: 'Start or resume the local runtime and open the zavorthControl.' },
+          { command: 'zavorth open', summary: 'Open the local zavorthControl without rereading docs.' },
           { command: 'zavorth ready', summary: 'Check provider, channels, approvals and readiness.' },
-          { command: 'zavorth setup', summary: 'Run First Light when configuration is missing.' },
+          { command: 'zavorth setup', summary: 'Guided First Light setup with QuickStart defaults.' },
+          { command: 'zavorth setup --setup-mode safe', summary: 'Guided setup with conservative defaults.' },
         ],
       },
     ],
@@ -618,7 +619,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
           { command: 'zavorth demo browser', summary: 'Open the local visual demo in the browser.' },
           { command: 'zavorth demo doctor', summary: 'Show only what GitHub, Telegram and local demo still need.' },
           { command: 'zavorth demo --json', summary: 'Export the same truth for automation.' },
-          { command: 'zavorth go', summary: 'Open the visual Home at /dashboard.' },
+          { command: 'zavorth go', summary: 'Open the visual Home at /zavorthControl.' },
         ],
       },
       {
@@ -681,6 +682,19 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         ],
       },
       {
+        title: 'Setup modes',
+        entries: [
+          { command: 'zavorth setup', summary: 'Guided First Light setup with QuickStart defaults.' },
+          { command: 'zavorth setup provider', summary: 'Start at provider, model and credential setup.' },
+          { command: 'zavorth setup channels', summary: 'Start at communication surfaces and channel credentials.' },
+          { command: 'zavorth setup tools', summary: 'Start at web/search, skills and automation templates.' },
+          { command: 'zavorth setup agent', summary: 'Start at memory, trust, runtime and first hatch controls.' },
+          { command: 'zavorth setup --setup-mode safe', summary: 'Governed defaults: stricter skills, local search and no wake detector.' },
+          { command: 'zavorth setup --setup-mode blank-slate', summary: 'Minimal opt-in setup with memory, web search and remote channels off.' },
+          { command: 'zavorth setup --config-handling reset', summary: 'Back up .env, remove setup-managed keys and write the new plan.' },
+        ],
+      },
+      {
         title: 'Preview',
         entries: [
           { command: 'zavorth setup --dry-run', summary: 'Shows the plan without writing files.' },
@@ -694,7 +708,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         entries: [
           { command: 'zavorth ready', summary: 'Checks whether setup is ready for daily use.' },
           { command: 'zavorth start', summary: 'Starts or resumes the local runtime.' },
-          { command: 'zavorth open', summary: 'Opens the visual dashboard.' },
+          { command: 'zavorth open', summary: 'Opens the visual zavorthControl.' },
           { command: 'zavorth chat', summary: 'Chats in the terminal when you do not want the panel.' },
         ],
       },
@@ -707,7 +721,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   go: {
     topic: 'go',
     title: 'zavorth go',
-    summary: 'Open Zavorth Home at /dashboard or explain the exact blocker.',
+    summary: 'Open Zavorth Home at /zavorthControl or explain the exact blocker.',
     sections: [
       {
         title: 'Use when',
@@ -737,9 +751,9 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       'When it cannot open, the command should show the likely cause and next step, not a stack trace.',
     ],
   },
-  dashboard: {
-    topic: 'dashboard',
-    title: 'zavorth dashboard',
+  zavorthControl: {
+    topic: 'zavorthControl',
+    title: 'zavorth zavorthControl',
     summary: 'Open Zavorth Home with local access applied when possible.',
     sections: [
       {
@@ -752,21 +766,21 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'Commands',
         entries: [
-          { command: 'zavorth dashboard', summary: 'Open Home with the local token applied.' },
-          { command: 'zavorth dashboard url', summary: 'Show a local link you can paste into the browser.' },
-          { command: 'zavorth dashboard token', summary: 'Show the local token only when you truly need to copy it manually.' },
-          { command: 'zavorth dashboard status', summary: 'Show where local access comes from without revealing the token.' },
-          { command: 'zavorth dashboard doctor', summary: 'Diagnose a missing, stale or broken local token.' },
-          { command: 'zavorth dashboard repair', summary: 'Create or repair the local token when it comes from the runtime file.' },
-          { command: 'zavorth dashboard generate-token', summary: 'Generate a new local token when ZAVORTH_WEB_AUTH_TOKEN is not fixed.' },
+          { command: 'zavorth zavorthControl', summary: 'Open Home with the local token applied.' },
+          { command: 'zavorth zavorthControl url', summary: 'Show a local link you can paste into the browser.' },
+          { command: 'zavorth zavorthControl token', summary: 'Show the local token only when you truly need to copy it manually.' },
+          { command: 'zavorth zavorthControl status', summary: 'Show where local access comes from without revealing the token.' },
+          { command: 'zavorth zavorthControl doctor', summary: 'Diagnose a missing, stale or broken local token.' },
+          { command: 'zavorth zavorthControl repair', summary: 'Create or repair the local token when it comes from the runtime file.' },
+          { command: 'zavorth zavorthControl generate-token', summary: 'Generate a new local token when ZAVORTH_WEB_AUTH_TOKEN is not fixed.' },
         ],
       },
     ],
     notesTitle: 'Security',
     notes: [
       'The link/token is local to this install. Do not share it in chat, screenshots or public issues.',
-      'The dashboard stores the token only in the current browser tab.',
-      'If an old tab says the token is invalid, open a new one with "zavorth dashboard".',
+      'The zavorthControl stores the token only in the current browser tab.',
+      'If an old tab says the token is invalid, open a new one with "zavorth zavorthControl".',
     ],
   },
   chat: {
@@ -925,7 +939,8 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
           { command: 'zavorth security preset professional --apply', summary: 'Apply the recommended daily preset without manual env variables.' },
           { command: 'zavorth security continuous', summary: 'Check doctor, baseline, hooks, CI and continuous-security commands.' },
           { command: 'zavorth go', summary: 'Start the main entry point after fixing the environment.' },
-          { command: 'zavorth setup', summary: 'Review base configuration when the issue starts in setup.' },
+          { command: 'zavorth setup', summary: 'Guided First Light setup with QuickStart defaults.' },
+          { command: 'zavorth setup --setup-mode blank-slate', summary: 'Minimal opt-in setup with optional capabilities off.' },
         ],
       },
     ],
@@ -1192,14 +1207,14 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         entries: [
           { command: 'zavorth setup', summary: 'Official Zavorth setup.' },
           { command: 'zavorth go', summary: 'Start the supervised runtime and open the main surface.' },
-          { command: 'zavorth dashboard', summary: 'Open Home with local access applied.' },
+          { command: 'zavorth zavorthControl', summary: 'Open Home with local access applied.' },
           { command: 'zavorth chat', summary: 'Open the conversational terminal shell.' },
           { command: 'zavorth run "<request>"', summary: 'Send a natural-language request.' },
           { command: 'zavorth continue [context]', summary: 'Resume current work without slash commands.' },
           { command: 'zavorth history [sessionId]', summary: 'Show recent sessions or replay one session.' },
           { command: 'zavorth context', summary: 'Show the current CLI context.' },
           { command: 'zavorth status [--json] [--live]', summary: 'Summarize health, access, sessions and core abilities.' },
-          { command: 'zavorth productization [--json]', summary: 'Shows the productization contract shared by dashboard, CLI, onboarding, docs and website.' },
+          { command: 'zavorth productization [--json]', summary: 'Shows the productization contract shared by zavorthControl, CLI, onboarding, docs and website.' },
           { command: 'zavorth observatory [run|trace|session|status] [--json]', summary: 'Show runs, evidence, timeline and Run Observatory replay.' },
           { command: 'zavorth cockpit [--json] [--live]', summary: 'Unified cockpit for status, doctor, brief, operations and deliveries.' },
           { command: 'zavorth capabilities [list|route "<request>"] [--json]', summary: 'Show ability routing and explain routing decisions.' },
@@ -1347,7 +1362,7 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
           { command: 'zavorth home', summary: 'Show status, approvals and next steps.' },
           { command: 'zavorth setup', summary: 'Guided setup for provider, channels, Mnemos and trust.' },
           { command: 'zavorth inspect', summary: 'Provider, workspace, channels, hooks, MCP and evidence.' },
-          { command: 'zavorth open', summary: 'Open the visual Dashboard.' },
+          { command: 'zavorth open', summary: 'Open the visual ZavorthControl.' },
         ],
       },
       {
@@ -1670,7 +1685,7 @@ function formatPublicRootHelp(): string {
         formatCliHelpEntry({ command: 'zavorth start', summary: 'Start or resume the local runtime.' }),
         formatCliHelpEntry({ command: 'zavorth providers', summary: 'Inspect or configure model providers.' }),
         formatCliHelpEntry({ command: 'zavorth approve', summary: 'Review sensitive actions.' }),
-        formatCliHelpEntry({ command: 'zavorth open', summary: 'Open Dashboard.' }),
+        formatCliHelpEntry({ command: 'zavorth open', summary: 'Open ZavorthControl.' }),
       ],
     },
     {

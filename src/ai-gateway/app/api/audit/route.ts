@@ -7,6 +7,7 @@ import {
   AuditSource,
 } from "@/domain/configAudit";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { safeParseInt } from "@/shared/utils/safeParseInt";
 
 export async function GET(req: Request) {
   const authError = await requireStrictManagementAuth(req);
@@ -20,8 +21,8 @@ export async function GET(req: Request) {
       return NextResponse.json(getAuditSummary());
     }
 
-    const limit = parseInt(url.searchParams.get("limit") || "50", 10);
-    const offset = parseInt(url.searchParams.get("offset") || "0", 10);
+    const limit = safeParseInt(url.searchParams.get("limit"), 50);
+    const offset = safeParseInt(url.searchParams.get("offset"), 0);
     const target = url.searchParams.get("target") as AuditTarget | null;
     const action = url.searchParams.get("action") as AuditAction | null;
     const source = url.searchParams.get("source") as AuditSource | null;

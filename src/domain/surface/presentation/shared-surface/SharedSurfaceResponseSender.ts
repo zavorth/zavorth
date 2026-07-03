@@ -35,7 +35,7 @@ export function resolveSharedSurfaceRenderTarget(platform: unknown): SurfaceRend
     case 'terminal':
       return 'cli';
     case 'web':
-    case 'dashboard':
+    case 'zavorthControl':
       return 'web';
     default:
       return 'plain';

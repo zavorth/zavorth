@@ -45,6 +45,13 @@ type DockerProbeCacheEntry = {
   result: DockerSyncResult;
 };
 
+type DockerExecError = Error & {
+  status?: number | null;
+  stdout?: string | Buffer;
+  stderr?: string | Buffer;
+  code?: string;
+};
+
 export type DockerSandboxStatus = {
   enabled: boolean;
   language: SandboxLanguage;
@@ -530,7 +537,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
   }
 
   private isTimeoutResult(result: DockerSyncResult): boolean {
-    const error: any = result.error;
+    const error = result.error as DockerExecError | undefined;
     const errorCode = String(error?.code || '').toUpperCase();
     const errorMessage = String(error?.message || '').toUpperCase();
     return errorCode === 'ETIMEDOUT' || errorMessage.includes('ETIMEDOUT');
@@ -560,12 +567,13 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         stdout: String(output || ''),
         stderr: '',
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const execError = error as DockerExecError;
       return {
-        status: typeof error?.status === 'number' ? error.status : null,
-        stdout: String(error?.stdout || ''),
-        stderr: String(error?.stderr || ''),
-        error,
+        status: typeof execError?.status === 'number' ? execError.status : null,
+        stdout: String(execError?.stdout || ''),
+        stderr: String(execError?.stderr || ''),
+        error: execError as Error,
       };
     }
   }

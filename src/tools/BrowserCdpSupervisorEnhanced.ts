@@ -406,7 +406,7 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
    */
   async getFrameTree(): Promise<FrameTreeNode> {
     try {
-      const result = await this.send('Page.getFrameTree') as Record<string, unknown>;
+      const result = await this.send('Page.getFrameTree', {}) as Record<string, unknown>;
       const frameTree = result?.frameTree as Record<string, unknown>;
       return this.parseFrameTree(frameTree);
     } catch {

@@ -706,7 +706,7 @@ export class LiveReadinessService {
       return 'Runtime gateway - Media Understanding Live Activation';
     }
     if (primitiveId === 'search.query' || primitiveId === 'web.extract') {
-      return 'Dashboard controls - Research, Web, and Browser Live Activation';
+      return 'ZavorthControl controls - Research, Web, and Browser Live Activation';
     }
     if (primitiveId === 'speech.transcribe' || primitiveId === 'speech.synthesize' || primitiveId === 'voice.session') {
       return 'Surface controls - Speech, TTS, and Voice Live Activation';

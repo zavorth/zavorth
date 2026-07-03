@@ -370,7 +370,7 @@ function isEventKind(value: unknown): value is ZavorthCapabilityUsageEventKind {
 }
 
 function isSurface(value: unknown): value is ZavorthCapabilityUsageSurface {
-  return typeof value === 'string' && ['cli', 'dashboard', 'tui', 'setup', 'api', 'channel', 'llm'].includes(value);
+  return typeof value === 'string' && ['cli', 'zavorthControl', 'tui', 'setup', 'api', 'channel', 'llm'].includes(value);
 }
 
 function sanitizeMetadata(input: unknown): Record<string, string> {

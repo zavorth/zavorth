@@ -151,7 +151,7 @@ export class ZavorthCapabilityNaturalOperatorService {
     const ticketId = input.ticketId || this.extractTicketId(redactedText);
     const rawTargetItemId = input.targetItemId || selectedCapability?.id || null;
     const packId = input.packId || this.inferPackId(selectedCapability, rawTargetItemId);
-    const targetItemId = input.targetItemId || this.canonicalTargetForPack(packId, selectedCapability, rawTargetItemId);
+    const targetItemId = input.targetItemId || this.canonicalTargetForPack(packId, selectedCapability, rawTargetItemId, redactedText);
     if (this.matches(redactedText, [/\b(fila|ticket|tickets|pendente|status)\b/i, /\b(queue|pending|status)\b/i])) {
       return this.decision('show_queue', 0.86, 'Usuario pediu estado da fila.', targetItemId, packId, ticketId);
     }
@@ -272,8 +272,9 @@ export class ZavorthCapabilityNaturalOperatorService {
     packId: string | null,
     selectedCapability: CapabilityHubItem | null,
     fallback: string | null,
+    sourceText: string = '',
   ): string | null {
-    const value = `${fallback || ''}:${selectedCapability?.label || ''}:${selectedCapability?.tags.join(' ') || ''}`.toLowerCase();
+    const value = `${sourceText}:${fallback || ''}:${selectedCapability?.label || ''}:${selectedCapability?.tags.join(' ') || ''}`.toLowerCase();
     if (packId === 'official-communication-channels') {
       if (value.includes('slack')) {
         return 'channel:slack';

@@ -75,14 +75,14 @@ export class ProductChannelExperienceService {
     const isBasicMode = modeId === 'chat' || modeId === 'assistant';
     const telegramReady = input.telegramReady === true;
     const recommendedJourney: ProductChannelJourneyId = telegramReady ? 'web+telegram' : 'web-only';
-    const controlEntry = String(input.controlEntry || '/dashboard').trim() || '/dashboard';
+    const controlEntry = String(input.controlEntry || '/zavorthControl').trim() || '/zavorthControl';
     const cliEntry = String(input.cliEntry || 'npm run cli -- status').trim() || 'npm run cli -- status';
     const hiddenSecondaryChannels = isBasicMode ? [...SECONDARY_CHANNEL_LABELS] : [];
 
     const surfaces: ProductChannelSurfaceHint[] = [
       {
         id: 'control',
-        label: 'Dashboard',
+        label: 'ZavorthControl',
         kind: 'web',
         primary: true,
         recommended: true,
@@ -142,10 +142,10 @@ export class ProductChannelExperienceService {
       {
         id: 'web-only',
         label: 'Web only',
-        description: 'Comece pelo /dashboard e mantenha os canais extras desligados ate sentir necessidade real.',
+        description: 'Comece pelo /zavorthControl e mantenha os canais extras desligados ate sentir necessidade real.',
         recommended: !telegramReady,
         steps: [
-          'Abra o dashboard.',
+          'Abra o zavorthControl.',
           'Converse e aprove tudo por ela.',
           'Deixe outros canais dormindo por padrao.',
         ],
@@ -154,11 +154,11 @@ export class ProductChannelExperienceService {
         id: 'web+telegram',
         label: 'Web + Telegram',
         description: telegramReady
-          ? 'Mantenha o /dashboard como centro e use Telegram como primeira extensao de bolso.'
-          : 'Depois de estabilizar o /dashboard, conecte Telegram como primeiro canal externo recomendado.',
+          ? 'Mantenha o /zavorthControl como centro e use Telegram como primeira extensao de bolso.'
+          : 'Depois de estabilizar o /zavorthControl, conecte Telegram como primeiro canal externo recomendado.',
         recommended: telegramReady,
         steps: [
-          'Use o dashboard como superficie principal.',
+          'Use o zavorthControl como superficie principal.',
           'Conecte Telegram para retomar sessoes e approvals.',
           'Ligue canais secundarios so quando a tarefa pedir.',
         ],
@@ -166,7 +166,7 @@ export class ProductChannelExperienceService {
     ];
 
     const notes = [
-      'A experiencia oficial comeca em /dashboard.',
+      'A experiencia oficial comeca em /zavorthControl.',
       telegramReady
         ? 'Telegram ja esta pronto como primeiro canal externo.'
         : 'Telegram e o primeiro canal externo recomendado quando voce quiser sair do fluxo web-only.',

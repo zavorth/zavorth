@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { config } from '../../../../config/index.js';
 import { Task } from '../../../../contracts/TaskContract.js';
@@ -244,12 +243,13 @@ export class TelegramConversationAutonomousService {
         ),
       );
     } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
       this.deps.stateService.recordAgentGatewayRunException(task, actionPayload, err);
-      await SmartOutputService.reply(ctx, `Falha na execucao governada: ${err.message}`);
+      await SmartOutputService.reply(ctx, `Falha na execucao governada: ${errorMessage}`);
       await Promise.resolve(
         this.deps.recordAssistantMessage?.(
           task,
-          `Falha na execucao governada: ${err.message}`,
+          `Falha na execucao governada: ${errorMessage}`,
           'autonomous-exception',
         ),
       );

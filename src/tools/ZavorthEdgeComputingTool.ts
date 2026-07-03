@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
@@ -67,7 +66,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
   }
 
   private saveWorkers(): void {
-    fs.writeFileSync(path.join(this.storageDir, 'workers.json'), JSON.stringify(Object.fromEntries(this.workyers), null, 2), 'utf-8');
+    fs.writeFileSync(path.join(this.storageDir, 'workers.json'), JSON.stringify(Object.fromEntries(this.workers), null, 2), 'utf-8');
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
@@ -112,7 +111,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
           }).toString();
 
           const url = `https://${workerName}.workers.dev`;
-          this.workyers.set(id, { id, name: workerName, provider, route, status: 'deployed', url, created_at: new Date().toISOString() });
+          this.workers.set(id, { id, name: workerName, provider, route, status: 'deployed', url, created_at: new Date().toISOString() });
           this.saveWorkers();
 
           return `Worker deployed:\n  ID: ${id}\n  Name: ${workerName}\n  URL: ${url}\n  Provider: Cloudflare Workers`;
@@ -121,7 +120,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
         }
       }
 
-      this.workyers.set(id, { id, name: workerName, provider, route, status: 'deployed', url: `https://${workerName}.edge`, created_at: new Date().toISOString() });
+      this.workers.set(id, { id, name: workerName, provider, route, status: 'deployed', url: `https://${workerName}.edge`, created_at: new Date().toISOString() });
       this.saveWorkers();
 
       return `Edge function deployed:\n  ID: ${id}\n  Name: ${workerName}\n  Provider: ${provider}\n  Route: ${route}`;
@@ -144,7 +143,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
     const id = String(args.worker_id || '');
     if (!id) return 'Error: "worker_id" is required.';
 
-    const worker = this.workyers.get(id);
+    const worker = this.workers.get(id);
     if (!worker) return `Error: worker "${id}" not found.`;
 
     return `Worker ${worker.name}: ${worker.status} (${worker.provider}) → ${worker.url}`;
@@ -164,10 +163,10 @@ export class ZavorthEdgeComputingTool extends BaseTool {
     const id = String(args.worker_id || '');
     if (!id) return 'Error: "worker_id" is required.';
 
-    const worker = this.workyers.get(id);
+    const worker = this.workers.get(id);
     if (!worker) return `Error: worker "${id}" not found.`;
 
-    this.workyers.delete(id);
+    this.workers.delete(id);
     this.saveWorkers();
 
     const scriptFile = path.join(this.storageDir, `${id}.js`);
@@ -180,7 +179,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
     const id = String(args.worker_id || '');
     if (!id) return 'Error: "worker_id" is required.';
 
-    const worker = this.workyers.get(id);
+    const worker = this.workers.get(id);
     if (!worker) return `Error: worker "${id}" not found.`;
 
     try {

@@ -2,7 +2,7 @@ import { DiscordGatewayRepairFlowService } from '../../../../services/DiscordGat
 import { GatewayHealthRenewalService } from '../../../../services/GatewayHealthRenewalService.js';
 import type {
   RuntimeAccessChannelProviderDoctorSnapshot,
-  RuntimeAccessDashboardSnapshot,
+  RuntimeAccessZavorthControlSnapshot,
   RuntimeAccessReadinessReport,
   RuntimeAccessReadinessStep,
   RuntimeAccessResolvedInput,
@@ -19,7 +19,7 @@ type RuntimeAccessReportBuilderOptions = {
   now: () => Date;
   publicBaseUrl: string;
   highRiskApprovalPin: string;
-  buildLocalBaseUrl: (dashboard: RuntimeAccessDashboardSnapshot | null) => string;
+  buildLocalBaseUrl: (zavorthControl: RuntimeAccessZavorthControlSnapshot | null) => string;
   discordGatewayRepairFlowService: Pick<DiscordGatewayRepairFlowService, 'inspect'>;
   gatewayHealthRenewalService: Pick<GatewayHealthRenewalService, 'inspect'>;
 };
@@ -28,7 +28,7 @@ export class RuntimeAccessReadinessReportService {
   constructor(private readonly options: RuntimeAccessReportBuilderOptions) {}
 
   public buildReport(input: RuntimeAccessResolvedInput, localProbe: RuntimeAccessSurfaceProbe | null = null): RuntimeAccessReadinessReport {
-    const localBaseUrl = this.options.buildLocalBaseUrl(input.dashboard);
+    const localBaseUrl = this.options.buildLocalBaseUrl(input.zavorthControl);
     const localIssues = this.buildLocalIssues(input, localProbe);
     const remoteIssues = this.buildRemoteIssues(input);
     const localReady = this.buildLocalBlockingIssues(input, localProbe).length === 0;
@@ -46,14 +46,14 @@ export class RuntimeAccessReadinessReportService {
       auth: input.auth,
       local: {
         baseUrl: localBaseUrl,
-        dashboardUrl: `${localBaseUrl}/dashboard`,
-        appUrl: `${localBaseUrl}/dashboard`,
+        zavorthControlUrl: `${localBaseUrl}/zavorthControl`,
+        appUrl: `${localBaseUrl}/zavorthControl`,
         ready: localReady,
         issues: localIssues,
       },
       remote: {
         baseUrl: this.options.publicBaseUrl || null,
-        appUrl: this.options.publicBaseUrl ? `${this.options.publicBaseUrl}/dashboard` : null,
+        appUrl: this.options.publicBaseUrl ? `${this.options.publicBaseUrl}/zavorthControl` : null,
         ready: remoteReady,
         issues: remoteIssues,
       },
@@ -123,7 +123,7 @@ export class RuntimeAccessReadinessReportService {
         providers: input.providers,
         mcp: input.mcp,
         tenants: input.tenants,
-        dashboard: null,
+        zavorthControl: null,
         nodeMeshSmoke: input.nodeMeshSmoke,
         systemOverlordSmoke: input.systemOverlordSmoke,
         channelProviderDoctor: input.channelProviderDoctor,
@@ -135,14 +135,14 @@ export class RuntimeAccessReadinessReportService {
         firstRun: input.hostIdentity?.firstRun ?? null,
       },
       auth: input.auth,
-      local: { baseUrl: this.options.buildLocalBaseUrl(null), dashboardUrl: `${this.options.buildLocalBaseUrl(null)}/dashboard`, appUrl: `${this.options.buildLocalBaseUrl(null)}/dashboard`, ready: localReady, issues: [] },
-      remote: { baseUrl: this.options.publicBaseUrl || null, appUrl: this.options.publicBaseUrl ? `${this.options.publicBaseUrl.replace(/\/+$/u, '')}/dashboard` : null, ready: remoteReady, issues: [] },
+      local: { baseUrl: this.options.buildLocalBaseUrl(null), zavorthControlUrl: `${this.options.buildLocalBaseUrl(null)}/zavorthControl`, appUrl: `${this.options.buildLocalBaseUrl(null)}/zavorthControl`, ready: localReady, issues: [] },
+      remote: { baseUrl: this.options.publicBaseUrl || null, appUrl: this.options.publicBaseUrl ? `${this.options.publicBaseUrl.replace(/\/+$/u, '')}/zavorthControl` : null, ready: remoteReady, issues: [] },
       recommendations: [],
       nextSteps: [],
       summary: '',
     });
 
-    if (localReady) lines.push('Use o /dashboard local como superficie principal para operar e aprovar o Zavorth.');
+    if (localReady) lines.push('Use o /zavorthControl local como superficie principal para operar e aprovar o Zavorth.');
     if (input.learning.available) {
       if (input.learning.summary.pending > 0) lines.push(`O learning plane tem ${input.learning.summary.pending} candidato(s) pendente(s); use /learning candidates para revisar e promover so o que passou pelo gate.`);
       else if (input.learning.summary.total > 0) lines.push(`O learning plane ja consolidou ${input.learning.summary.total} candidato(s), com ${input.learning.summary.promoted} trusted local e ${input.learning.summary.quarantined} em quarentena.`);
@@ -207,19 +207,19 @@ export class RuntimeAccessReadinessReportService {
       checkedAt: this.options.now().toISOString(),
       runtime: {
         ...input,
-        dashboard: null,
+        zavorthControl: null,
         hostAuthorized: input.hostIdentity?.authorized ?? null,
         firstRun: null,
       },
       auth: input.auth,
-      local: { baseUrl: this.options.buildLocalBaseUrl(null), dashboardUrl: `${this.options.buildLocalBaseUrl(null)}/dashboard`, appUrl: `${this.options.buildLocalBaseUrl(null)}/dashboard`, ready: surfaceHealthy, issues: [] },
-      remote: { baseUrl: this.options.publicBaseUrl, appUrl: this.options.publicBaseUrl ? `${this.options.publicBaseUrl}/dashboard` : null, ready: remoteReady, issues: [] },
+      local: { baseUrl: this.options.buildLocalBaseUrl(null), zavorthControlUrl: `${this.options.buildLocalBaseUrl(null)}/zavorthControl`, appUrl: `${this.options.buildLocalBaseUrl(null)}/zavorthControl`, ready: surfaceHealthy, issues: [] },
+      remote: { baseUrl: this.options.publicBaseUrl, appUrl: this.options.publicBaseUrl ? `${this.options.publicBaseUrl}/zavorthControl` : null, ready: remoteReady, issues: [] },
       recommendations: [],
       nextSteps: [],
       summary: surfaceHealthy ? 'Runtime local com superficie pronta.' : 'Runtime local ainda pede reconciliacao de superficie.',
     });
 
-    if (!input.hostSupervisor.alive && !surfaceHealthy) steps.push({ id: 'start-supervised-host', title: 'Subir o host supervisionado', description: 'Rode npm run dev:supervised ou npm run start:supervised antes de abrir o /dashboard.', blocking: true });
+    if (!input.hostSupervisor.alive && !surfaceHealthy) steps.push({ id: 'start-supervised-host', title: 'Subir o host supervisionado', description: 'Rode npm run dev:supervised ou npm run start:supervised antes de abrir o /zavorthControl.', blocking: true });
     else if (localProbe && !localProbe.ok) steps.push({ id: 'recover-web-surface', title: 'Recuperar a superficie web', description: 'O host supervisor esta ativo, mas o endpoint de prontidao web nao respondeu. Reinicie o runtime supervisionado ou confira a porta anunciada antes de operar.', blocking: true });
     else if (!input.telegramWorker.alive && !surfaceHealthy) steps.push({ id: 'recover-worker', title: 'Recuperar o worker principal', description: 'Use /selfupdate ou reinicie o Zavorth supervisionado para recolocar o worker em linha.', blocking: true });
     if (input.hostIdentity && input.hostIdentity.authorized === false) steps.push({ id: 'trust-host', title: 'Autorizar este host', description: 'Valide /hostauth status e rode /hostauth trust se este host for confiavel para execucao mutavel.', blocking: true });
@@ -231,7 +231,7 @@ export class RuntimeAccessReadinessReportService {
     if (this.normalizeMcpSummary(input.mcp).enabled > 0 && this.normalizeMcpSummary(input.mcp).connected === 0) steps.push({ id: 'recover-mcp-runtime', title: 'Reconectar o runtime MCP', description: 'O manifesto MCP esta presente, mas nenhuma capability habilitada ficou conectada. Revise manifesto, binarios e bootstrap do runtime MCP.', blocking: false });
     if (input.tenants.pendingOnboardingCount > 0) steps.push({ id: 'finish-tenant-onboarding', title: 'Fechar onboarding dos tenants compartilhados', description: 'Configure owner IDs, canais allowlisted e policy dos tenants pendentes antes de abrir o runtime para multiplos servidores.', blocking: false });
     if (input.learning.available && input.learning.summary.pending > 0) steps.push({ id: 'review-learning-candidates', title: 'Revisar candidatos aprendidos', description: 'Use /learning candidates para aprovar, promover ou colocar em quarentena os drafts aprendidos antes de expor novas automacoes no runtime trusted.', blocking: false });
-    if (input.layeredMemory.available && input.layeredMemory.summary.procedural > 0) steps.push({ id: 'consult-procedural-memory', title: 'Consultar a memoria procedural', description: 'Use /memory procedures ou o card de memoria no /dashboard para reaproveitar procedimentos validados antes de repetir uma rotina manualmente.', blocking: false });
+    if (input.layeredMemory.available && input.layeredMemory.summary.procedural > 0) steps.push({ id: 'consult-procedural-memory', title: 'Consultar a memoria procedural', description: 'Use /memory procedures ou o card de memoria no /zavorthControl para reaproveitar procedimentos validados antes de repetir uma rotina manualmente.', blocking: false });
     if (input.platform.available && (input.platform.summary.reviewPending > 0 || input.platform.summary.quarantined > 0)) steps.push({ id: 'review-platform-governance', title: 'Fechar review e quarentena do platform plane', description: 'Revise os itens learned-local, os candidatos em review e qualquer quarentena antes de promover novos plugins, skills ou MCPs.', blocking: false });
     if (input.nodeMeshSmoke.status !== 'passed' || input.nodeMeshSmoke.stale) steps.push({ id: 'validate-node-mesh-smoke', title: 'Validar o Node Mesh com smoke real', description: input.nodeMeshSmoke.status === 'failed' ? 'O ultimo smoke real do Node Mesh falhou. Rode npm run test:nodes:smoke e revise o relatorio persistido antes de confiar em invokes pareados.' : input.nodeMeshSmoke.status === 'running' ? 'Existe um smoke real do Node Mesh em andamento. Aguarde o resultado persistido antes de liberar a malha como valida.' : input.nodeMeshSmoke.stale ? 'O ultimo smoke real do Node Mesh ficou velho. Rode npm run test:nodes:smoke para renovar a validacao de pairing, heartbeat e invoke end-to-end.' : 'Ainda nao existe um smoke real recente do Node Mesh. Rode npm run test:nodes:smoke para validar pairing, heartbeat e invoke end-to-end.', blocking: false });
     if (input.systemOverlordSmoke.status === 'failed' || input.systemOverlordSmoke.status === 'running' || input.systemOverlordSmoke.status === 'missing' || input.systemOverlordSmoke.status === 'skipped' || (input.systemOverlordSmoke.status === 'passed' && input.systemOverlordSmoke.stale)) {
@@ -260,7 +260,7 @@ export class RuntimeAccessReadinessReportService {
   }
 
   public describeLocalProbeFailure(localProbe: RuntimeAccessSurfaceProbe): string {
-    const targetUrl = localProbe.targetUrl || 'o /dashboard local';
+    const targetUrl = localProbe.targetUrl || 'o /zavorthControl local';
     if (localProbe.statusCode) return `A superficie web do Zavorth nao respondeu de forma saudavel em ${targetUrl} (status ${localProbe.statusCode}).`;
     if (localProbe.error) return `A superficie web do Zavorth nao respondeu em ${targetUrl}: ${localProbe.error}`;
     return `A superficie web do Zavorth nao respondeu em ${targetUrl}.`;

@@ -42,7 +42,7 @@ export type RuntimeAdapterLiveReadinessSubgateName =
   | 'audit-receipt-model'
   | 'capability-import-classification'
   | 'capability-snapshot-normalizer'
-  | 'dashboard-live-assimilation-projection'
+  | 'zavorthControl-live-assimilation-projection'
   | 'degraded-unavailable-state-handling'
   | 'event-bridge-read-only-contract'
   | 'no-execution-policy-invariants'
@@ -199,8 +199,8 @@ export type RuntimeAdapterLiveReadinessEventBridge = {
   noSecondEventBus: true;
 };
 
-export type RuntimeAdapterLiveReadinessDashboardRow = {
-  nativeContract: 'ZavorthRuntimeAdapterDashboardLiveAssimilationRow/v1';
+export type RuntimeAdapterLiveReadinessZavorthControlRow = {
+  nativeContract: 'ZavorthRuntimeAdapterZavorthControlLiveAssimilationRow/v1';
   id: string;
   label: string;
   rowKind: RuntimeAdapterLiveReadinessCapabilityRowKind;
@@ -216,12 +216,12 @@ export type RuntimeAdapterLiveReadinessDashboardRow = {
   sessionImportControlExposed: false;
 };
 
-export type RuntimeAdapterLiveReadinessDashboardProjection = {
-  nativeContract: 'ZavorthRuntimeAdapterDashboardLiveAssimilationProjection/v1';
+export type RuntimeAdapterLiveReadinessZavorthControlProjection = {
+  nativeContract: 'ZavorthRuntimeAdapterZavorthControlLiveAssimilationProjection/v1';
   id: string;
   readOnly: true;
   usesZavorthTerms: true;
-  rows: RuntimeAdapterLiveReadinessDashboardRow[];
+  rows: RuntimeAdapterLiveReadinessZavorthControlRow[];
   executableControlsExposed: false;
   providerExecutionControlsExposed: false;
   commandExecutionControlsExposed: false;
@@ -290,7 +290,7 @@ export type RuntimeAdapterLiveReadinessAssimilationPackNormalization<TRuntimeId 
   snapshot: RuntimeAdapterLiveReadinessCapabilitySnapshot;
   adapterInterface: RuntimeAdapterLiveReadinessReadOnlyAdapterInterface;
   eventBridge: RuntimeAdapterLiveReadinessEventBridge;
-  dashboardProjection: RuntimeAdapterLiveReadinessDashboardProjection;
+  zavorthControlProjection: RuntimeAdapterLiveReadinessZavorthControlProjection;
   capabilityImportClassification: RuntimeAdapterLiveReadinessClassification;
   degradedUnavailableStateHandling: RuntimeAdapterLiveReadinessDegradedUnavailableHandling;
   auditReceipts: RuntimeAdapterLiveReadinessAuditReceipt[];
@@ -304,7 +304,7 @@ const SUBGATES: RuntimeAdapterLiveReadinessSubgateName[] = [
   'capability-snapshot-normalizer',
   'read-only-adapter-interface',
   'event-bridge-read-only-contract',
-  'dashboard-live-assimilation-projection',
+  'zavorthControl-live-assimilation-projection',
   'capability-import-classification',
   'degraded-unavailable-state-handling',
   'audit-receipt-model',
@@ -373,9 +373,9 @@ function classificationReason(classification: RuntimeAdapterLiveReadinessImportC
   }
 }
 
-function dashboardStatus(
+function zavorthControlStatus(
   classification: RuntimeAdapterLiveReadinessImportClassification,
-): RuntimeAdapterLiveReadinessDashboardRow['status'] {
+): RuntimeAdapterLiveReadinessZavorthControlRow['status'] {
   if (classification === 'inventory-only') {
     return 'ready';
   }
@@ -570,16 +570,16 @@ function buildEventBridge<TRuntimeId extends string>(
   };
 }
 
-function buildDashboardProjection(
+function buildZavorthControlProjection(
   idPrefix: string,
   rows: RuntimeAdapterLiveReadinessCapabilityInventoryRow[],
-): RuntimeAdapterLiveReadinessDashboardProjection {
-  const dashboardRows = rows.map((row, index): RuntimeAdapterLiveReadinessDashboardRow => ({
-    nativeContract: 'ZavorthRuntimeAdapterDashboardLiveAssimilationRow/v1',
-    id: `${idPrefix}:dashboard-${index + 1}-${normalizeId(row.rowKind, 'row')}`,
-    label: `Zavorth ${row.rowKind} ${dashboardStatus(row.importClassification)}`,
+): RuntimeAdapterLiveReadinessZavorthControlProjection {
+  const zavorthControlRows = rows.map((row, index): RuntimeAdapterLiveReadinessZavorthControlRow => ({
+    nativeContract: 'ZavorthRuntimeAdapterZavorthControlLiveAssimilationRow/v1',
+    id: `${idPrefix}:zavorthControl-${index + 1}-${normalizeId(row.rowKind, 'row')}`,
+    label: `Zavorth ${row.rowKind} ${zavorthControlStatus(row.importClassification)}`,
     rowKind: row.rowKind,
-    status: dashboardStatus(row.importClassification),
+    status: zavorthControlStatus(row.importClassification),
     zavorthTerm: 'Zavorth capability inventory projection',
     readOnly: true,
     usesZavorthTerms: true,
@@ -592,11 +592,11 @@ function buildDashboardProjection(
   }));
 
   return {
-    nativeContract: 'ZavorthRuntimeAdapterDashboardLiveAssimilationProjection/v1',
-    id: `${idPrefix}:dashboard-live-assimilation`,
+    nativeContract: 'ZavorthRuntimeAdapterZavorthControlLiveAssimilationProjection/v1',
+    id: `${idPrefix}:zavorthControl-live-assimilation`,
     readOnly: true,
     usesZavorthTerms: true,
-    rows: dashboardRows,
+    rows: zavorthControlRows,
     executableControlsExposed: false,
     providerExecutionControlsExposed: false,
     commandExecutionControlsExposed: false,
@@ -805,7 +805,7 @@ export function normalizeRuntimeAdapterLiveReadinessAssimilationPack<TRuntimeId 
   const snapshot = buildSnapshot(options.idPrefix, inventoryRows);
   const adapterInterface = buildReadOnlyAdapterInterface(options.idPrefix);
   const eventBridge = buildEventBridge(options);
-  const dashboardProjection = buildDashboardProjection(options.idPrefix, inventoryRows);
+  const zavorthControlProjection = buildZavorthControlProjection(options.idPrefix, inventoryRows);
   const capabilityImportClassification = buildCapabilityImportClassification(inventoryRows);
   const degradedUnavailableStateHandling = buildDegradedUnavailableHandling(inventoryRows);
   const auditReceipts = buildAuditReceipts(options.idPrefix);
@@ -825,7 +825,7 @@ export function normalizeRuntimeAdapterLiveReadinessAssimilationPack<TRuntimeId 
     snapshot,
     adapterInterface,
     eventBridge,
-    dashboardProjection,
+    zavorthControlProjection,
     capabilityImportClassification,
     degradedUnavailableStateHandling,
     auditReceipts,

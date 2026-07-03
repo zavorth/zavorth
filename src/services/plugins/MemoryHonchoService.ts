@@ -143,6 +143,18 @@ export class MemoryHonchoService {
     return this.profiles.get(userId)!;
   }
 
+  public createProfile(userId: string, options: { name?: string; preferences?: Record<string, unknown> } = {}): string {
+    if (this.profiles.has(userId)) {
+      return `Profile "${userId}" already exists.`;
+    }
+    const profile = this.getOrCreateProfile(userId);
+    if (options.name) profile.name = options.name;
+    if (options.preferences) profile.preferences = { ...options.preferences };
+    profile.updated_at = new Date().toISOString();
+    this.saveData();
+    return `Profile "${userId}" created.`;
+  }
+
   public recordInteraction(userId: string, turn: DialecticTurn): string {
     const profile = this.getOrCreateProfile(userId);
 
@@ -173,19 +185,21 @@ export class MemoryHonchoService {
     return `Interacao registrada para usuario "${userId}". Total: ${profile.interaction_history.total_interactions}`;
   }
 
-  public learnFact(userId: string, fact: string, source: string, confidence: number = 0.8): string {
+  public learnFact(userId: string, fact: string, sourceOrConfidence: string | number = 'manual', confidence: number = 0.8): string {
     const profile = this.getOrCreateProfile(userId);
+    const source = typeof sourceOrConfidence === 'number' ? 'manual' : sourceOrConfidence;
+    const resolvedConfidence = typeof sourceOrConfidence === 'number' ? sourceOrConfidence : confidence;
 
     profile.learned_facts.push({
       fact,
-      confidence,
+      confidence: resolvedConfidence,
       source,
       learned_at: new Date().toISOString(),
     });
     profile.updated_at = new Date().toISOString();
 
     this.saveData();
-    return `Fact learned for user "${userId}": "${fact}" (confidence: ${confidence})`;
+    return `Fact learned for user "${userId}": "${fact}" (confidence: ${resolvedConfidence})`;
   }
 
   public addTrait(userId: string, trait: string): string {
@@ -228,7 +242,8 @@ export class MemoryHonchoService {
   }
 
   public getProfile(userId: string): string {
-    const profile = this.getOrCreateProfile(userId);
+    const profile = this.profiles.get(userId);
+    if (!profile) return `Profile "${userId}" not found.`;
     const lines: string[] = [
       `Profile: ${profile.id}`,
       `  - Nome: ${profile.name || 'nao definido'}`,
@@ -253,6 +268,56 @@ export class MemoryHonchoService {
     }
 
     return lines.join('\n');
+  }
+
+  public addTurn(userId: string, turn: Omit<DialecticTurn, 'timestamp'> & { timestamp?: string }): string {
+    this.recordInteraction(userId, {
+      ...turn,
+      timestamp: turn.timestamp || new Date().toISOString(),
+    });
+    return `Turn recorded for user "${userId}".`;
+  }
+
+  public getConversation(userId: string, limit: number = 10): string {
+    return this.getConversationHistory(userId, limit);
+  }
+
+  public updatePreferences(userId: string, preferences: Record<string, unknown>): string {
+    const profile = this.getOrCreateProfile(userId);
+    profile.preferences = {
+      ...profile.preferences,
+      ...preferences,
+    };
+    profile.updated_at = new Date().toISOString();
+    this.saveData();
+    return `Preferences updated for user "${userId}".`;
+  }
+
+  public addDialecticInsight(userId: string, insight: string, category: string = 'manual', confidence: number = 0.8): string {
+    const profile = this.getOrCreateProfile(userId);
+    profile.dialectic_insights.push({
+      insight,
+      category,
+      confidence,
+      derived_at: new Date().toISOString(),
+    });
+    profile.updated_at = new Date().toISOString();
+    this.saveData();
+    return `Dialectic insight added for user "${userId}".`;
+  }
+
+  public getStats(): string {
+    const interactions = Array.from(this.profiles.values())
+      .reduce((sum, profile) => sum + profile.interaction_history.total_interactions, 0);
+    const facts = Array.from(this.profiles.values())
+      .reduce((sum, profile) => sum + profile.learned_facts.length, 0);
+    return [
+      'Honcho memory statistics:',
+      `  Profiles: ${this.profiles.size}`,
+      `  Conversations: ${this.conversations.size}`,
+      `  Interactions: ${interactions}`,
+      `  Learned facts: ${facts}`,
+    ].join('\n');
   }
 
   public getInsights(userId: string, category?: string): string {

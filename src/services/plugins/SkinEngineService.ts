@@ -274,11 +274,16 @@ export class SkinEngineService {
     }
     this.activeSkinId = skinId;
     this.saveActiveSkin();
-    return `Active skin changed to "${skinId}".`;
+    return `active skin changed to "${skinId}".`;
   }
 
-  public getActiveSkin(): SkinDefinition {
+  private getActiveSkinDefinition(): SkinDefinition {
     return this.builtinSkins.get(this.activeSkinId) || this.userSkins.get(this.activeSkinId) || this.builtinSkins.get('default')!;
+  }
+
+  public getActiveSkin(): string {
+    const skin = this.getActiveSkinDefinition();
+    return `Active skin: ${skin.name} (${skin.id}) - ${skin.description}`;
   }
 
   public listSkins(): string {
@@ -337,6 +342,28 @@ export class SkinEngineService {
     return `Skin "${skin.name}" (${skin.id}) installed successfully.`;
   }
 
+  public createSkin(input: Partial<SkinDefinition> & Pick<SkinDefinition, 'id' | 'name'>): string {
+    const base = this.getActiveSkinDefinition();
+    const now = new Date().toISOString();
+    const skin: SkinDefinition = {
+      ...base,
+      ...input,
+      colors: { ...base.colors, ...(input.colors || {}) },
+      prompt: { ...base.prompt, ...(input.prompt || {}) },
+      typography: { ...base.typography, ...(input.typography || {}) },
+      layout: { ...base.layout, ...(input.layout || {}) },
+      metadata: {
+        created_at: input.metadata?.created_at || now,
+        updated_at: now,
+        tags: input.metadata?.tags || ['custom'],
+      },
+      author: input.author || 'user',
+      version: input.version || '1.0.0',
+      description: input.description || 'Custom skin',
+    };
+    return this.installSkin(JSON.stringify(skin)).replace('installed successfully', 'created');
+  }
+
   public removeSkin(skinId: string): string {
     if (!this.userSkins.has(skinId)) {
       return `Skin "${skinId}" not found or is built-in.`;
@@ -357,7 +384,7 @@ export class SkinEngineService {
   public getSkinPreview(skinId?: string): string {
     const skin = skinId
       ? (this.builtinSkins.get(skinId) || this.userSkins.get(skinId))
-      : this.getActiveSkin();
+      : this.getActiveSkinDefinition();
 
     if (!skin) return `Skin "${skinId}" not found.`;
 
@@ -383,5 +410,18 @@ export class SkinEngineService {
     const skin = this.builtinSkins.get(skinId) || this.userSkins.get(skinId);
     if (!skin) return `Skin "${skinId}" not found.`;
     return JSON.stringify(skin, null, 2);
+  }
+
+  public getSkinDefinition(skinId: string): string {
+    return this.exportSkin(skinId);
+  }
+
+  public getStats(): string {
+    return [
+      'Skin engine statistics:',
+      `  Built-in skins: ${this.builtinSkins.size}`,
+      `  User skins: ${this.userSkins.size}`,
+      `  Active skin: ${this.activeSkinId}`,
+    ].join('\n');
   }
 }

@@ -245,7 +245,7 @@ async function runCriticStep(
 }
 
 /**
- * Dashboard controls — Vision In The Loop.
+ * ZavorthControl controls — Vision In The Loop.
  *
  * Extrai referências de imagem do output textual de ferramentas e converte
  * em InlineData para o pipeline VLM do provedor (Gemini, etc.).
@@ -330,7 +330,7 @@ async function executeToolCall(
       toolName,
     };
 
-    // Dashboard controls: Injeção de visão computacional
+    // ZavorthControl controls: Injeção de visão computacional
     const visionPayload = extractVisionPayload(contentStr);
     if (visionPayload) {
       chatMsg.inlineData = [visionPayload];
@@ -368,7 +368,7 @@ function trimMessagesForContext(messages: ChatMessage[]): ChatMessage[] {
       64_000,
     )
   ) {
-    // Dashboard controls: Encontrar um par de mensagens para remover que NÃO contenha
+    // ZavorthControl controls: Encontrar um par de mensagens para remover que NÃO contenha
     // inlineData (screenshots), para não perder o payload visual.
     let spliceIndex = 1;
     while (spliceIndex < trimmed.length - 2) {

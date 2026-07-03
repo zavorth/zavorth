@@ -265,7 +265,7 @@ export type ZavorthSidecarObservabilityRow = {
   label: string;
   status: 'blocked' | 'degraded' | 'offline' | 'ready';
   readOnly: true;
-  dashboardVisible: true;
+  zavorthControlVisible: true;
   executableControlExposed: false;
   routeRegistrationControlExposed: false;
   gatewayDispatchControlExposed: false;
@@ -285,7 +285,7 @@ export type ZavorthSidecarObservabilityProjection = {
     source: 'zavorth';
     readOnly: true;
   }>;
-  dashboard: {
+  zavorthControl: {
     readOnly: true;
     rows: ZavorthSidecarObservabilityRow[];
     executableControlsExposed: false;
@@ -629,7 +629,7 @@ function buildObservability(
     label,
     status: status as ZavorthSidecarObservabilityRow['status'],
     readOnly: true,
-    dashboardVisible: true,
+    zavorthControlVisible: true,
     executableControlExposed: false,
     routeRegistrationControlExposed: false,
     gatewayDispatchControlExposed: false,
@@ -649,7 +649,7 @@ function buildObservability(
       source: 'zavorth',
       readOnly: true,
     })),
-    dashboard: {
+    zavorthControl: {
       readOnly: true,
       rows,
       executableControlsExposed: false,

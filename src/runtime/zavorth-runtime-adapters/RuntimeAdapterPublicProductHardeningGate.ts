@@ -5,7 +5,7 @@ export const RUNTIME_ADAPTER_PUBLIC_PRODUCT_HARDENING_RULES = {
   rejectedCapabilitiesRequireReason: true,
   releaseChecklistMustPass: true,
   securityReviewMustPass: true,
-  dashboardMustBePrimaryZavorthSurface: true,
+  zavorthControlMustBePrimaryZavorthSurface: true,
 } as const;
 
 export type RuntimeAdapterPublicSurfaceKind =
@@ -56,7 +56,7 @@ export type RuntimeAdapterPublicCapabilityMatrixItem = {
 export type RuntimeAdapterProductHardeningChecklistCategory =
   | 'docs'
   | 'env-config'
-  | 'dashboard'
+  | 'zavorthControl'
   | 'release'
   | 'security'
   | 'capability-matrix';
@@ -69,7 +69,7 @@ export type RuntimeAdapterProductHardeningChecklistItem = {
   evidence: string[];
 };
 
-export type RuntimeAdapterDashboardProductGate = {
+export type RuntimeAdapterZavorthControlProductGate = {
   primarySurface: boolean;
   workflowIds: string[];
   sourceIdentityLeakScanPassed: boolean;
@@ -107,7 +107,7 @@ export type RuntimeAdapterPublicProductHardeningReport = {
     blocked: number;
     missingCategories: RuntimeAdapterProductHardeningChecklistCategory[];
   };
-  dashboard: {
+  zavorthControl: {
     primarySurface: boolean;
     workflowCoveragePassed: boolean;
     identityLeakScanPassed: boolean;
@@ -118,14 +118,14 @@ export type RuntimeAdapterPublicProductHardeningReport = {
     everyAdoptedCapabilityHasCoverage: boolean;
     releaseChecklistComplete: boolean;
     securityReviewComplete: boolean;
-    dashboardIsPrimaryProductSurface: boolean;
+    zavorthControlIsPrimaryProductSurface: boolean;
   };
 };
 
 const REQUIRED_CHECKLIST_CATEGORIES: RuntimeAdapterProductHardeningChecklistCategory[] = [
   'docs',
   'env-config',
-  'dashboard',
+  'zavorthControl',
   'release',
   'security',
   'capability-matrix',
@@ -238,7 +238,7 @@ function missingChecklistCategories(
   return REQUIRED_CHECKLIST_CATEGORIES.filter((category) => !passingCategories.has(category));
 }
 
-function dashboardWorkflowCoveragePassed(gate: RuntimeAdapterDashboardProductGate): boolean {
+function zavorthControlWorkflowCoveragePassed(gate: RuntimeAdapterZavorthControlProductGate): boolean {
   const workflows = new Set(gate.workflowIds);
   return REQUIRED_COMMAND_CENTER_WORKFLOWS.every((workflowId) => workflows.has(workflowId));
 }
@@ -247,7 +247,7 @@ export function evaluateRuntimeAdapterPublicProductHardeningGate(input: {
   surfaces: RuntimeAdapterPublicSurface[];
   capabilityMatrix: RuntimeAdapterPublicCapabilityMatrixItem[];
   checklist: RuntimeAdapterProductHardeningChecklistItem[];
-  dashboard: RuntimeAdapterDashboardProductGate;
+  zavorthControl: RuntimeAdapterZavorthControlProductGate;
 }, options: RuntimeAdapterPublicProductHardeningOptions = {}): RuntimeAdapterPublicProductHardeningReport {
   const forbiddenTerms = options.forbiddenSourceTerms || [];
   const allMentions = input.surfaces.flatMap((surface) => findSurfaceIdentityMentions(surface, forbiddenTerms));
@@ -256,20 +256,20 @@ export function evaluateRuntimeAdapterPublicProductHardeningGate(input: {
   const capabilityFindings = evaluateCapabilityMatrix(input.capabilityMatrix);
   const missingCategories = missingChecklistCategories(input.checklist);
   const blockedChecklistItems = input.checklist.filter((item) => item.status === 'blocked').length;
-  const workflowCoveragePassed = dashboardWorkflowCoveragePassed(input.dashboard);
+  const workflowCoveragePassed = zavorthControlWorkflowCoveragePassed(input.zavorthControl);
   const releaseChecklistComplete = missingCategories.length === 0 && blockedChecklistItems === 0;
   const securityReviewComplete = input.checklist.some((item) => item.category === 'security' && item.status === 'pass')
     && blockedChecklistItems === 0;
-  const dashboardIsPrimaryProductSurface = input.dashboard.primarySurface
-    && input.dashboard.sourceIdentityLeakScanPassed
+  const zavorthControlIsPrimaryProductSurface = input.zavorthControl.primarySurface
+    && input.zavorthControl.sourceIdentityLeakScanPassed
     && workflowCoveragePassed
-    && input.dashboard.cloneIndicators.length === 0;
+    && input.zavorthControl.cloneIndicators.length === 0;
   const guarantee = {
     publicCanonicalSurfacesZavorthNative: canonicalLeaks.length === 0,
     everyAdoptedCapabilityHasCoverage: capabilityFindings.length === 0,
     releaseChecklistComplete,
     securityReviewComplete,
-    dashboardIsPrimaryProductSurface,
+    zavorthControlIsPrimaryProductSurface,
   };
   const status = Object.values(guarantee).every(Boolean) ? 'pass' : 'blocked';
 
@@ -293,11 +293,11 @@ export function evaluateRuntimeAdapterPublicProductHardeningGate(input: {
       blocked: blockedChecklistItems,
       missingCategories,
     },
-    dashboard: {
-      primarySurface: input.dashboard.primarySurface,
+    zavorthControl: {
+      primarySurface: input.zavorthControl.primarySurface,
       workflowCoveragePassed,
-      identityLeakScanPassed: input.dashboard.sourceIdentityLeakScanPassed,
-      cloneIndicators: input.dashboard.cloneIndicators,
+      identityLeakScanPassed: input.zavorthControl.sourceIdentityLeakScanPassed,
+      cloneIndicators: input.zavorthControl.cloneIndicators,
     },
     guarantee,
   };

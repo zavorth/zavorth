@@ -3,7 +3,7 @@
 /**
  * EmptyState — FASE-07 UX
  *
- * Reusable empty state component for dashboard sections when no data
+ * Reusable empty state component for zavorthControl sections when no data
  * is available. Provides visual feedback and optional action button.
  *
  * Usage:

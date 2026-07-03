@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type {
   AgentToolSecurityDefinition,
 } from './AgentSecurityPolicyEngine.js';
@@ -1246,14 +1245,6 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'Browser control via CDP WebSocket.',
-  },
-  {
-    toolName: 'mcp_oauth_manager',
-    surface: 'native-tool',
-    capabilities: ['network', 'credential_or_config'],
-    defaultRisk: 'review',
-    requiresConfirmation: true,
-    description: 'OAuth 2.1 token management for MCP servers.',
   },
   {
     toolName: 'rbac_engine',

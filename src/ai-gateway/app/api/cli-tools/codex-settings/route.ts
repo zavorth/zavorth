@@ -184,7 +184,7 @@ export async function POST(request: Request) {
     }
 
     // (#549) Resolve real key from DB if keyId was provided.
-    // The dashboard sends masked key strings — resolving by ID guarantees
+    // The zavorthControl sends masked key strings — resolving by ID guarantees
     // we always write the full key value to the config file.
     const keyId = typeof rawBody?.keyId === "string" ? rawBody.keyId.trim() : null;
     if (keyId) {

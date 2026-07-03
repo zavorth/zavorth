@@ -37,21 +37,21 @@ export class LegacySurfaceContainmentService {
 
     return {
       contractVersion: LEGACY_SURFACE_CONTAINMENT_VERSION,
-      canonicalEntry: '/dashboard',
+      canonicalEntry: '/zavorthControl',
       frozenSurfaces: [],
       retiredSurfaces: ['/app', '/classic'],
       generatedAt,
-      summary: 'Use /dashboard como a unica entrada web do Zavorth. /app e /classic foram removidas e nao recebem mais fallback, manutencao ou produto novo.',
+      summary: 'Use /zavorthControl como a unica entrada web do Zavorth. /app e /classic foram removidas e nao recebem mais fallback, manutencao ou produto novo.',
       consolidation: {
         phase: 'P3-003',
         canonicalDocs: [
-          'docs/web-dashboard.md',
+          'docs/web-zavorthControl.md',
           'docs/product-direction.md',
         ],
-        rule: 'Produto novo, manutencao, seguranca e observabilidade web entram em /dashboard, Runtime API, Gateway Contract ou control plane; /app e /classic nao sao mais surfaces publicas.',
+        rule: 'Produto novo, manutencao, seguranca e observabilidade web entram em /zavorthControl, Runtime API, Gateway Contract ou control plane; /app e /classic nao sao mais surfaces publicas.',
       },
       surfaces: [
-        this.surface('dashboard', 'canonical', '/dashboard', 'Dashboard', 'primary',
+        this.surface('zavorthControl', 'canonical', '/zavorthControl', 'ZavorthControl', 'primary',
           'Face principal para chat natural, approvals, receipts, providers, channels e status essencial do gateway.',
           [
             'produto novo',
@@ -68,8 +68,8 @@ export class LegacySurfaceContainmentService {
             'manutencao',
             'novas features',
           ]),
-        this.surface('classic', 'retired', '/classic', 'Removed classic dashboard', 'removed',
-          'Surface removida. Observabilidade e manutencao agora devem ir para /dashboard ou APIs oficiais.',
+        this.surface('classic', 'retired', '/classic', 'Removed classic zavorthControl', 'removed',
+          'Surface removida. Observabilidade e manutencao agora devem ir para /zavorthControl ou APIs oficiais.',
           [],
           [
             'qualquer trafego web',
@@ -79,19 +79,19 @@ export class LegacySurfaceContainmentService {
           ]),
       ],
       policy: {
-        productFeaturesMustLandIn: ['gateway contract', 'control plane', 'dashboard'],
+        productFeaturesMustLandIn: ['gateway contract', 'control plane', 'zavorthControl'],
         legacyFeatureFreeze: false,
         legacyRoutesRetired: true,
         compatibilityPreserved: false,
         fallbackPreserved: false,
       },
       links: {
-        localControlUrl: `${localBaseUrl}/dashboard`,
-        localDashboardUrl: `${localBaseUrl}/dashboard`,
+        localControlUrl: `${localBaseUrl}/zavorthControl`,
+        localZavorthControlUrl: `${localBaseUrl}/zavorthControl`,
         localLegacyAppUrl: null,
         localClassicUrl: null,
-        remoteControlUrl: remoteBaseUrl ? `${remoteBaseUrl}/dashboard` : null,
-        remoteDashboardUrl: remoteBaseUrl ? `${remoteBaseUrl}/dashboard` : null,
+        remoteControlUrl: remoteBaseUrl ? `${remoteBaseUrl}/zavorthControl` : null,
+        remoteZavorthControlUrl: remoteBaseUrl ? `${remoteBaseUrl}/zavorthControl` : null,
         remoteLegacyAppUrl: null,
         remoteClassicUrl: null,
       },
@@ -127,7 +127,7 @@ export class LegacySurfaceContainmentService {
         requestedPath,
         surface,
         allowed: false,
-        reason: `${surface.path} foi removida; use /dashboard, Runtime API, Gateway Contract ou control plane.`,
+        reason: `${surface.path} foi removida; use /zavorthControl, Runtime API, Gateway Contract ou control plane.`,
         requiredDestination: snapshot.policy.productFeaturesMustLandIn,
       };
     }
@@ -139,8 +139,8 @@ export class LegacySurfaceContainmentService {
       surface,
       allowed: true,
       reason: surface.status === 'primary'
-        ? '/dashboard e a unica surface web oficial.'
-        : `${surface.path} foi removida; use /dashboard.`,
+        ? '/zavorthControl e a unica surface web oficial.'
+        : `${surface.path} foi removida; use /zavorthControl.`,
       requiredDestination: snapshot.policy.productFeaturesMustLandIn,
     };
   }

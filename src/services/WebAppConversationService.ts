@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { ComposerActionService } from './ComposerActionService.js';
 import { ComposerCatalogService } from './ComposerCatalogService.js';
 import { ComposerContextService } from './ComposerContextService.js';
@@ -528,7 +527,7 @@ export class WebAppConversationService {
       : effortControl.budget.maxSubagents;
     const dynamicWorkflow = workflowIntent
       ? {
-          source: workflowIntent.source || 'dashboard',
+          source: workflowIntent.source || 'zavorthControl',
           kind: workflowIntent.kind || null,
           command: workflowIntent.command || null,
           recommended: Boolean(workflowIntent.dynamicWorkflow || effortControl.routing.dynamicWorkflowsRecommended),
@@ -967,7 +966,7 @@ export class WebAppConversationService {
     )).join('\n\n---\n\n');
 
     return [
-      'O usuario enviou anexos textuais pelo Dashboard.',
+      'O usuario enviou anexos textuais pelo ZavorthControl.',
       'Voce e o analista de arquivos do Zavorth. Responda com qualidade de produto: identifique formato, sinais estruturais, riscos e limites honestos.',
       'Responda ao pedido usando o conteudo e o perfil automatico dos anexos, em linguagem natural.',
       'Se o arquivo parecer token, chave, hash, Base64, Base64URL ou URL-encoded, diga isso claramente e cite os sinais observaveis.',

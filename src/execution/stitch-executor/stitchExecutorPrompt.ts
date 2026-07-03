@@ -59,7 +59,7 @@ export function buildStructuredStitchBrief(
   if (/\b(permiss|seguran|policy|trustedboundary|aprov)\b/.test(lower)) bullets.push('painel claro de permissoes e seguranca');
   if (/\b(memoria|memory|audit|auditoria|log)\b/.test(lower)) bullets.push('blocos para memoria, auditoria e historico');
   if (/\b(wsl|sistema|terminal|execu|automation|automacao|host supervisor|supervisionado)\b/.test(lower)) bullets.push('cards de automacao e controle do sistema');
-  if (/\b(dashboard|web|site|premium|glass|glassmorphism)\b/.test(lower)) bullets.push('visual premium, moderno e bem organizado');
+  if (/\b(zavorthControl|web|site|premium|glass|glassmorphism)\b/.test(lower)) bullets.push('visual premium, moderno e bem organizado');
 
   const uniqueBullets = Array.from(new Set(bullets)).slice(0, compact ? 4 : 6);
   const aesthetic = compact

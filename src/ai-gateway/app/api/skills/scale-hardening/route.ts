@@ -4,7 +4,7 @@ import {
   UniversalSkillApprovedZavorthControlCanaryService,
   type UniversalSkillApprovedZavorthControlCanaryInput,
 } from "../../../../../services/UniversalSkillApprovedZavorthControlCanaryService.js";
-import type { ZavorthUniversalSkillCanaryMode } from "../../../../../contracts/ZavorthUniversalSkillApprovedZavorthControlCanaryContract.js";
+import type { ZavorthUniversalSkillZavorthControlCanaryMode } from "../../../../../contracts/ZavorthUniversalSkillApprovedZavorthControlCanaryContract.js";
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   }
 }
 
-function normalizeCanaryMode(value: unknown): ZavorthUniversalSkillCanaryMode {
+function normalizeCanaryMode(value: unknown): ZavorthUniversalSkillZavorthControlCanaryMode {
   return value === "dry-run" || value === "live" || value === "zavorthControl-only"
     ? value
     : "zavorthControl-only";

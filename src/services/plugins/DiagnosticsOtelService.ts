@@ -131,13 +131,33 @@ export class DiagnosticsOtelService {
     return `Event "${eventName}" added to span "${span.name}".`;
   }
 
+  public addEvent(spanId: string, eventName: string, attributes: Record<string, unknown> = {}): string {
+    return this.addSpanEvent(spanId, eventName, attributes);
+  }
+
+  public recordMetric(name: string, value: number, type?: OtelMetric['type'], attributes?: Record<string, unknown>): void;
   public recordMetric(name: string, options?: {
     description?: string;
     unit?: string;
     type?: OtelMetric['type'];
     value?: number;
     attributes?: Record<string, unknown>;
-  }): void {
+  }): void;
+  public recordMetric(
+    name: string,
+    valueOrOptions?: number | {
+      description?: string;
+      unit?: string;
+      type?: OtelMetric['type'];
+      value?: number;
+      attributes?: Record<string, unknown>;
+    },
+    legacyType?: OtelMetric['type'],
+    legacyAttributes?: Record<string, unknown>,
+  ): void {
+    const options = typeof valueOrOptions === 'number'
+      ? { value: valueOrOptions, type: legacyType, attributes: legacyAttributes }
+      : valueOrOptions;
     const type = options?.type || 'counter';
 
     if (type === 'counter') {
@@ -173,6 +193,10 @@ export class DiagnosticsOtelService {
       span_id: options?.span_id || null,
     });
     if (this.logs.length > this.maxSize) this.logs.shift();
+  }
+
+  public recordLog(severity: OtelLogEntry['severity'], body: string, attributes: Record<string, unknown> = {}): void {
+    this.log(severity, body, { attributes });
   }
 
   public getActiveSpans(): string {
@@ -252,7 +276,7 @@ export class DiagnosticsOtelService {
 
   public getStats(): string {
     const lines: string[] = [
-      'Statistics OpenTelemetry:',
+      'OTEL Statistics:',
       `  Spans: ${this.spans.length} complete, ${this.activeSpans.size} active`,
       `  Metricas: ${this.metrics.length} registradas, ${this.counters.size} counters, ${this.gauges.size} gauges`,
       `  Logs: ${this.logs.length} entradas`,
@@ -279,6 +303,10 @@ export class DiagnosticsOtelService {
         scopeMetrics: [{ scope: { name: 'zavorth-otel' }, metrics: this.metrics }],
       }],
     }, null, 2);
+  }
+
+  public exportTraces(): string {
+    return this.exportToOtelFormat();
   }
 
   public flush(): string {

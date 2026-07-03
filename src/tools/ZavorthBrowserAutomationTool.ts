@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../cli/logger.js';
 
 export class ZavorthBrowserAutomationTool extends BaseTool {
   public readonly name = 'zavorth_browser_automation';
@@ -71,6 +71,15 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
     required: ['action'],
   };
 
+  private jsLiteral(value: unknown): string {
+    return JSON.stringify(value);
+  }
+
+  private positiveInteger(value: unknown, fallback: number): number {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? Math.trunc(parsed) : fallback;
+  }
+
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
     if (!action) return 'Error: "action" parameter is required.';
@@ -95,12 +104,15 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
     return `
 const { chromium } = require('playwright');
 (async () => {
-  const browser = await chromium.launch({ headless: ${String(args => args.headless !== false)} });
+  const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
   const page = await context.newPage();
   ${actions.join('\n  ')}
   await browser.close();
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((error) => {
+  logger.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});
 `;
   }
 
@@ -122,25 +134,29 @@ const { chromium } = require('playwright');
     if (!url) return 'Error: "url" is required for navigate.';
 
     const headless = args.headless !== false;
-    const width = Number(args.viewport_width || 1280);
-    const height = Number(args.viewport_height || 720);
+    const width = this.positiveInteger(args.viewport_width, 1280);
+    const height = this.positiveInteger(args.viewport_height, 720);
     const userAgent = String(args.user_agent || '');
 
-    const uaLine = userAgent ? `await page.setExtraHTTPHeaders({ 'User-Agent': '${userAgent.replace(/'/g, "\\'")}' });` : '';
+    const userAgentOption = userAgent ? `, userAgent: ${this.jsLiteral(userAgent)}` : '';
+    const urlLiteral = this.jsLiteral(url);
 
     const script = `
 const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch({ headless: ${headless} });
-  const context = await browser.newContext({ viewport: { width: ${width}, height: ${height} } });
+  const context = await browser.newContext({ viewport: { width: ${width}, height: ${height} }${userAgentOption} });
   const page = await context.newPage();
-  ${uaLine}
-  const response = await page.goto('${url.replace(/'/g, "\\'")}', { waitUntil: 'networkidle', timeout: 30000 });
+  const targetUrl = ${urlLiteral};
+  const response = await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: 30000 });
   const title = await page.title();
   const status = response ? response.status() : 'unknown';
-  console.log(JSON.stringify({ url: '${url.replace(/'/g, "\\'")}', title, status, loaded: true }));
+  console.log(JSON.stringify({ url: targetUrl, title, status, loaded: true }));
   await browser.close();
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((error) => {
+  logger.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});
 `;
 
     try {
@@ -166,16 +182,6 @@ const { chromium } = require('playwright');
     const selector = String(args.selector || '');
     if (!selector) return 'Error: "selector" is required for click.';
 
-    const script = `
-const { chromium } = require('playwright');
-(async () => {
-  const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage();
-  await page.goto('about:blank');
-  console.log('Click requires a prior navigate action. Use navigate first, then click in a script.');
-  await browser.close();
-})().catch(e => { console.error(e.message); process.exit(1); });
-`;
     return `Click action prepared for selector: ${selector}. For multi-step browser automation, use the 'evaluate' action with a full Playwright script.`;
   }
 
@@ -194,8 +200,10 @@ const { chromium } = require('playwright');
     if (!url) return 'Error: "url" is required for screenshot.';
 
     const headless = args.headless !== false;
-    const width = Number(args.viewport_width || 1280);
-    const height = Number(args.viewport_height || 720);
+    const width = this.positiveInteger(args.viewport_width, 1280);
+    const height = this.positiveInteger(args.viewport_height, 720);
+    const urlLiteral = this.jsLiteral(url);
+    const outputPathLiteral = this.jsLiteral(outputPath.replace(/\\/g, '/'));
 
     const script = `
 const { chromium } = require('playwright');
@@ -204,11 +212,16 @@ const path = require('path');
   const browser = await chromium.launch({ headless: ${headless} });
   const context = await browser.newContext({ viewport: { width: ${width}, height: ${height} } });
   const page = await context.newPage();
-  await page.goto('${url.replace(/'/g, "\\'")}', { waitUntil: 'networkidle', timeout: 30000 });
-  await page.screenshot({ path: '${outputPath.replace(/\\/g, '/').replace(/'/g, "\\'")}', fullPage: true });
-  console.log('Screenshot saved to: ${outputPath.replace(/\\/g, '/').replace(/'/g, "\\'")}');
+  const targetUrl = ${urlLiteral};
+  const outputPath = ${outputPathLiteral};
+  await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.screenshot({ path: outputPath, fullPage: true });
+  console.log('Screenshot saved to: ' + outputPath);
   await browser.close();
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((error) => {
+  logger.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});
 `;
 
     const result = await this.runWithPlaywright(script);
@@ -220,8 +233,10 @@ const path = require('path');
     const selector = String(args.selector || '');
     if (!url) return 'Error: "url" is required for extract.';
 
+    const selectorLiteral = this.jsLiteral(selector);
+    const urlLiteral = this.jsLiteral(url);
     const extractTarget = selector
-      ? `const elements = await page.$$eval('${selector.replace(/'/g, "\\'")}', els => els.map(el => el.textContent.trim())); console.log(JSON.stringify(elements, null, 2));`
+      ? `const elements = await page.$$eval(${selectorLiteral}, els => els.map(el => (el.textContent || '').trim())); console.log(JSON.stringify(elements, null, 2));`
       : `const text = await page.evaluate(() => document.body.innerText); console.log(text);`;
 
     const script = `
@@ -229,10 +244,14 @@ const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('${url.replace(/'/g, "\\'")}', { waitUntil: 'networkidle', timeout: 30000 });
+  const targetUrl = ${urlLiteral};
+  await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: 30000 });
   ${extractTarget}
   await browser.close();
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((error) => {
+  logger.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});
 `;
 
     const result = await this.runWithPlaywright(script);
@@ -268,17 +287,22 @@ const { chromium } = require('playwright');
     const cookieName = String(args.cookie_name || '');
     if (!url) return 'Error: "url" is required for cookies.';
 
+    const urlLiteral = this.jsLiteral(url);
     const script = `
 const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
   const page = await context.newPage();
-  await page.goto('${url.replace(/'/g, "\\'")}', { waitUntil: 'domcontentloaded', timeout: 30000 });
-  const cookies = await context.cookies('${url.replace(/'/g, "\\'")}');
+  const targetUrl = ${urlLiteral};
+  await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  const cookies = await context.cookies(targetUrl);
   console.log(JSON.stringify(cookies, null, 2));
   await browser.close();
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((error) => {
+  logger.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});
 `;
 
     const result = await this.runWithPlaywright(script);
@@ -302,16 +326,21 @@ const { chromium } = require('playwright');
     const url = String(args.url || '');
     if (!url) return 'Error: "url" is required for get_text.';
 
+    const urlLiteral = this.jsLiteral(url);
     const script = `
 const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('${url.replace(/'/g, "\\'")}', { waitUntil: 'networkidle', timeout: 30000 });
+  const targetUrl = ${urlLiteral};
+  await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: 30000 });
   const text = await page.evaluate(() => document.body.innerText);
   console.log(text);
   await browser.close();
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((error) => {
+  logger.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});
 `;
 
     const result = await this.runWithPlaywright(script);
@@ -323,16 +352,23 @@ const { chromium } = require('playwright');
     const outputPath = String(args.output_path || 'page.pdf');
     if (!url) return 'Error: "url" is required for pdf.';
 
+    const urlLiteral = this.jsLiteral(url);
+    const outputPathLiteral = this.jsLiteral(outputPath.replace(/\\/g, '/'));
     const script = `
 const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('${url.replace(/'/g, "\\'")}', { waitUntil: 'networkidle', timeout: 30000 });
-  await page.pdf({ path: '${outputPath.replace(/\\/g, '/').replace(/'/g, "\\'")}', format: 'A4', printBackground: true });
-  console.log('PDF saved to: ${outputPath.replace(/\\/g, '/').replace(/'/g, "\\'")}');
+  const targetUrl = ${urlLiteral};
+  const outputPath = ${outputPathLiteral};
+  await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.pdf({ path: outputPath, format: 'A4', printBackground: true });
+  console.log('PDF saved to: ' + outputPath);
   await browser.close();
-})().catch(e => { console.error(e.message); process.exit(1); });
+})().catch((error) => {
+  logger.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});
 `;
 
     const result = await this.runWithPlaywright(script);

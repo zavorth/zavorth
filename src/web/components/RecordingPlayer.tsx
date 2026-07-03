@@ -1,5 +1,5 @@
 /**
- * RecordingPlayer — Asciinema .cast file player for the Zavorth Dashboard.
+ * RecordingPlayer — Asciinema .cast file player for the Zavorth ZavorthControl.
  *
  * Loads a recording from the API and plays it back frame-by-frame,
  * respecting original timestamps. Features:

@@ -7,6 +7,7 @@ import { LocalExecutor } from '../../../../execution/LocalExecutor.js';
 import { ExternalExecutor } from '../../../../execution/ExternalExecutor.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import {
+import { logger } from '../logger.js';
   EXTERNAL_EXECUTOR_ID,
   EXTERNAL_EXECUTOR_LABEL,
   getExternalExecutorTimeoutSeconds,
@@ -134,7 +135,7 @@ export class TelegramExecutionDirectService {
     }
 
     if (!isDryRun && policyEngine.isCommandBlocked(command)) {
-      this.deps.auditLogger.logSecurityBlock(task.task_id, `Comando bloqueado pela politica: ${command}`).catch(() => {});
+      this.deps.auditLogger.logSecurityBlock(task.task_id, `Comando bloqueado pela politica: ${command}`).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
       return {
         output: `Comando bloqueado pela politica de seguranca.\nComando: ${command}\n\nEsse comando esta na lista de bloqueios do security-policy.json.`,
         success: false,

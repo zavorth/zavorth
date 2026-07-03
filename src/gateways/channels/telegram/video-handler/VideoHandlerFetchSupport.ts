@@ -161,7 +161,7 @@ export class VideoHandlerFetchSupport {
     };
   }
 
-  public static async fetchJson(url: string): Promise<any> {
+  public static async fetchJson(url: string): Promise<unknown> {
     const response = await this.fetchWithTimeout(url);
     if (!response.ok) {
       throw new Error(`Falha ao buscar JSON (${response.status}).`);
@@ -194,7 +194,7 @@ export class VideoHandlerFetchSupport {
     }
   }
 
-  public static parseJsonPayload(raw: string, sourceLabel: string): any {
+  public static parseJsonPayload(raw: string, sourceLabel: string): unknown {
     const sanitized = String(raw || "")
       .replace(/^\uFEFF/, "")
       .replace(/^\)\]\}'\s*/, "")
@@ -202,10 +202,11 @@ export class VideoHandlerFetchSupport {
 
     try {
       return JSON.parse(sanitized);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       const preview = sanitized.slice(0, 180).replace(/\s+/g, " ");
       throw new Error(
-        `Falha ao interpretar JSON de ${sourceLabel}: ${error.message}. Preview: ${preview}`,
+        `Falha ao interpretar JSON de ${sourceLabel}: ${message}. Preview: ${preview}`,
       );
     }
   }

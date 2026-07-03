@@ -6,7 +6,7 @@ import {
   ZavorthChannelActionService,
   type BroadcastCapableGateway,
 } from "../../../../services/ZavorthChannelActionService.js";
-import { DashboardService } from "../../../../services/DashboardService.js";
+import { ZavorthControlService } from "../../../../services/ZavorthControlService.js";
 import { DailyReportService } from "../../../../services/DailyReportService.js";
 import { OperationsCockpitService } from "../../../../services/OperationsCockpitService.js";
 import { OperationsHealthService } from "../../../../observability/OperationsHealthService.js";
@@ -61,7 +61,7 @@ export function initializeTelegramOperationsServices(
     config.allowedUserIds[0] || "1",
   );
 
-  gateway.dashboardService = new DashboardService(logRepo, {
+  gateway.zavorthControlService = new ZavorthControlService(logRepo, {
     operationsHealthService,
     operationsCockpitService,
     operatorBriefService,
@@ -93,7 +93,7 @@ export function initializeTelegramOperationsServices(
     {
       reportBuilder: operationsReportService,
       reportOverviewReaders:
-        gateway.dashboardService.getOperationsOverviewReaders(),
+        gateway.zavorthControlService.getOperationsOverviewReaders(),
     },
   );
 

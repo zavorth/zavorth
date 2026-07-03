@@ -28,7 +28,7 @@ export type ZavorthCapabilityActionSurfaceSnapshot = {
   items: ZavorthCapabilityActionSurfaceItem[];
   receipts: ZavorthCapabilityActionExposureReceipt[];
   placement: {
-    dashboard: {
+    zavorthControl: {
       visible: true;
       sectionId: 'operations-capabilities';
       apiPath: '/api/operations/capabilities';

@@ -1,9 +1,11 @@
 import type { ZavorthSetupStudioPlan } from '../ZavorthSetupStudioService.js';
 import type { ZavorthPremiumCliStep } from '../premium/index.js';
 
-export type ZavorthSetupStudioMode = 'quickstart' | 'safe' | 'advanced';
+export type ZavorthSetupStudioMode = 'quickstart' | 'safe' | 'advanced' | 'blank-slate';
 
 export type ZavorthSetupStudioConfigHandling = 'keep' | 'review' | 'reset';
+
+export type ZavorthSetupStudioSection = 'all' | 'provider' | 'channels' | 'tools' | 'agent';
 
 export type ZavorthSetupStudioStepId =
   | 'security'
@@ -23,6 +25,40 @@ export type ZavorthSetupStudioStepId =
 
 export type ZavorthSetupStudioStep = ZavorthPremiumCliStep & {
   id: ZavorthSetupStudioStepId;
+};
+
+export type ZavorthSetupWizardStepType =
+  | 'note'
+  | 'select'
+  | 'text'
+  | 'confirm'
+  | 'multiselect'
+  | 'progress'
+  | 'action';
+
+export type ZavorthSetupWizardStep = {
+  id: string;
+  section: Exclude<ZavorthSetupStudioSection, 'all'>;
+  type: ZavorthSetupWizardStepType;
+  title: string;
+  message?: string;
+  options?: Array<{
+    value: string;
+    label: string;
+    hint?: string;
+  }>;
+  initialValue?: string | boolean | string[] | null;
+  placeholder?: string;
+  sensitive?: boolean;
+  command?: string;
+};
+
+export type ZavorthSetupWizardContract = {
+  contractVersion: 'zavorth-setup-wizard-contract/1';
+  generatedAt: string;
+  locale: 'en';
+  section: ZavorthSetupStudioSection;
+  steps: ZavorthSetupWizardStep[];
 };
 
 export type ZavorthSetupStudioExistingConfig = {
@@ -121,6 +157,7 @@ export type ZavorthSetupStudioSnapshot = {
   projectRoot: string;
   mode: ZavorthSetupStudioMode;
   configHandling: ZavorthSetupStudioConfigHandling;
+  setupSection: ZavorthSetupStudioSection;
   existingConfig: ZavorthSetupStudioExistingConfig;
   home: ZavorthSetupStudioHomeReadiness;
   plan: ZavorthSetupStudioPlan;
@@ -133,6 +170,7 @@ export type ZavorthSetupStudioSnapshot = {
   hatch: ZavorthSetupStudioHatchPlan;
   capabilityActions: ZavorthSetupStudioCapabilityActionReadiness;
   steps: ZavorthSetupStudioStep[];
+  wizard: ZavorthSetupWizardContract;
   nextActions: Array<{
     label: string;
     command: string;

@@ -16,7 +16,7 @@ import { SkillFeedbackCollectorTool } from '../../../tools/SkillFeedbackCollecto
 import { VideoGenerationTool } from '../../../tools/VideoGenerationTool.js';
 import type { BaseTool } from '../../../tools/BaseTool.js';
 
-const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'dashboard', 'tui', 'api', 'channel', 'llm'];
+const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = [
   'tests/runtime/actions/ZavorthExtendedNativeToolActions.test.ts',
   'tests/tools/ExtendedToolRealExecution.test.ts',

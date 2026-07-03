@@ -4,6 +4,32 @@ import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 
+interface NovitaChatMessage {
+  role: string;
+  content: string;
+}
+
+interface NovitaUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
+
+interface NovitaChoice {
+  message?: NovitaChatMessage;
+  finish_reason?: string;
+}
+
+interface NovitaErrorResponse {
+  message?: string;
+}
+
+interface NovitaChatResponse {
+  choices?: NovitaChoice[];
+  usage?: NovitaUsage;
+  error?: NovitaErrorResponse;
+}
+
 export class ProviderNovitaTool extends BaseTool {
   public readonly name = 'zavorth_novita';
 
@@ -120,13 +146,13 @@ export class ProviderNovitaTool extends BaseTool {
     const maxTokens = typeof args.max_tokens === 'number' ? args.max_tokens : 2048;
     const temperature = typeof args.temperature === 'number' ? args.temperature : 0.7;
 
-    let messages: Array<{ role: string; content: string }> = [];
+    let messages: NovitaChatMessage[] = [];
     if (typeof args.messages === 'string') {
       try { messages = JSON.parse(args.messages); } catch {
         return 'Error: invalid JSON for "messages"..';
       }
     } else if (Array.isArray(args.messages)) {
-      messages = args.messages as Array<{ role: string; content: string }>;
+      messages = args.messages as NovitaChatMessage[];
     }
 
     if (messages.length === 0) return 'Error: "messages" is required. for chat.';
@@ -154,7 +180,7 @@ export class ProviderNovitaTool extends BaseTool {
 
       try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
-      const parsed = JSON.parse(result);
+      const parsed: NovitaChatResponse = JSON.parse(result);
       if (parsed.error) return `Novita error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
 
       const content = parsed.choices?.[0]?.message?.content || result;

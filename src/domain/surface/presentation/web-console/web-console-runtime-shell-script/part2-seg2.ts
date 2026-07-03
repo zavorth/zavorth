@@ -312,7 +312,7 @@ export const runtimeShellScriptPart2Seg2: string = [
     "  let urlSessionId = '';",
     "  try {",
     "    urlSessionId = normalizeText(new URL(window.location.href).searchParams.get('sessionId'));",
-    "  } catch {}",
+    "  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }",
     "  return pickFirstText([",
     "    urlSessionId,",
     "    sessionWorkspaceData.session?.sessionId,",

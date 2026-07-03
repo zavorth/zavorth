@@ -14,7 +14,7 @@ export function renderZavorthCliHome(snapshot: ZavorthCliHomeSnapshot): string {
     ? `${snapshot.provider.id || 'configured'}${snapshot.provider.model ? ` / ${snapshot.provider.model}` : ''}`
     : 'missing';
   const statusRows: ZavorthPremiumCliStatusRow[] = [
-    { label: 'Runtime', value: snapshot.runtime.dashboard, status: snapshot.status === 'offline' ? 'offline' : 'ready' },
+    { label: 'Runtime', value: snapshot.runtime.zavorthControl, status: snapshot.status === 'offline' ? 'offline' : 'ready' },
     { label: 'Provider', value: provider, status: snapshot.provider.configured ? 'ready' : 'warning' },
     { label: 'Approvals', value: `${snapshot.approvals.pending} pending`, status: snapshot.approvals.pending > 0 ? 'waiting' : 'ready' },
     { label: 'Safety', value: snapshot.safety.effectBoundary, status: snapshot.safety.effectBoundary === 'ready' ? 'ready' : 'blocked' },
@@ -36,7 +36,7 @@ export function renderZavorthCliHome(snapshot: ZavorthCliHomeSnapshot): string {
         { key: 'one request', value: 'zavorth ask "review this repo"', accent: 'cyan' },
         { key: 'setup', value: 'zavorth setup', accent: snapshot.provider.configured ? 'muted' : 'amber' },
         { key: 'approvals', value: 'zavorth approve', accent: snapshot.approvals.pending > 0 ? 'amber' : 'muted' },
-        { key: 'dashboard', value: 'zavorth open', accent: 'cyan' },
+        { key: 'zavorthControl', value: 'zavorth open', accent: 'cyan' },
       ]).split('\n'),
     },
   ];

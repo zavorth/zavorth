@@ -151,7 +151,7 @@ export class SandboxExecutionService {
       "const result = spawnSync('/bin/bash', ['-lc', command], { encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 });",
       "if (result.stdout) process.stdout.write(result.stdout);",
       "if (result.stderr) process.stderr.write(result.stderr);",
-      "process.exit(typeof result.status === 'number' ? result.status : 1);",
+      "process.exitCode = typeof result.status === 'number' ? result.status : 1;",
     ].join('\n');
     return this.executeCodeInMicrovm(script, 'javascript', timeoutMs);
   }
@@ -209,6 +209,7 @@ export class SandboxExecutionService {
         ZAVORTH_SANDBOX_AUDIT_ID: envelope.auditId,
         ZAVORTH_SANDBOX_TEMP_ONLY: 'true',
       },
+      allowTrustedLocalJail: envelope.sandboxProfile === 'process' && envelope.riskLevel === 'low',
     });
 
     return {
@@ -233,11 +234,13 @@ export class SandboxExecutionService {
     preferredLevel?: 'auto' | 'local-jail' | 'wasm' | 'container' | 'microvm';
     timeoutMs?: number;
     env?: Record<string, string>;
+    allowTrustedLocalJail?: boolean;
   }): Promise<SandboxResult> {
     const policy = this.policy.resolveCodeExecutionPolicy(
       input.language,
       input.code,
       input.preferredLevel || 'auto',
+      { allowTrustedLocalJail: input.allowTrustedLocalJail === true },
     );
     if (policy.securityLevel === 'local-jail') {
       return this.localJailRuntime.execute({

@@ -146,7 +146,7 @@ export interface EchoPhysicalSignalRecord {
 }
 
 /**
- * EchoSnapshot — Snapshot operacional do Echo para o Gateway e Dashboard.
+ * EchoSnapshot — Snapshot operacional do Echo para o Gateway e ZavorthControl.
  */
 export interface EchoSnapshot {
   generatedAt: string;

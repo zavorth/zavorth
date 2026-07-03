@@ -57,7 +57,7 @@ export class ContextRecoveryService {
       status: ambiguous ? 'needs-selection' : 'idle',
       question: ambiguous
         ? allOptions.length > options.length
-          ? `Encontrei ${allOptions.length} alvos possiveis. Mostro os ${options.length} mais relevantes aqui; veja todos no Dashboard.`
+          ? `Encontrei ${allOptions.length} alvos possiveis. Mostro os ${options.length} mais relevantes aqui; veja todos no ZavorthControl.`
           : 'Encontrei mais de um alvo possivel. Qual deles voce quer usar?'
         : 'Contexto suficiente para continuar sem pergunta extra.',
       options: ambiguous ? options : [],
@@ -65,7 +65,7 @@ export class ContextRecoveryService {
         totalOptions: allOptions.length,
         shownOptions: ambiguous ? options.length : 0,
         hasOverflow: ambiguous && allOptions.length > options.length,
-        dashboardCommand: 'zavorth open',
+        zavorthControlCommand: 'zavorth open',
       },
     };
   }

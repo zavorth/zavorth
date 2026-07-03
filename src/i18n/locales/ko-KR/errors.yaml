@@ -1,0 +1,19 @@
+not_found: 찾을 수 없음
+permission_denied: 권한 거부됨
+timeout: 작업 시간 초과
+invalid_input: 잘못된 입력
+file_exists: 파일이 이미 존재합니다
+file_not_found: 파일을 찾을 수 없습니다
+directory_not_found: 디렉토리를 찾을 수 없습니다
+access_denied: 접근 거부됨
+network_error: 네트워크 오류
+unknown_error: 알 수 없는 오류가 발생했습니다
+invalid_format: 잘못된 형식
+missing_required_field: 필수 필드가 누락되었습니다
+operation_failed: 작업 실패
+connection_refused: 연결 거부됨
+disk_full: 디스크가 가득 찼습니다
+out_of_memory: 메모리 부족
+syntax_error: 구문 오류
+type_error: 형식 오류
+reference_error: 참조 오류

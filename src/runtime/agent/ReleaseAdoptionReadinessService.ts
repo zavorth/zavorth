@@ -101,7 +101,7 @@ export type ReleaseAdoptionReadinessSnapshot = {
     supportPolicyCount: number;
     triageRuleCount: number;
     plannedPilotCount: number;
-    dashboardAggregatedOnly: boolean;
+    zavorthControlAggregatedOnly: boolean;
     noPayloadPolicy: boolean;
     metricsReady: boolean;
   };
@@ -134,7 +134,7 @@ export type ReleaseAdoptionReadinessSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     releaseRoute: '/release';
     feedbackRoute: '/feedback';
     docsRoute: '/docs';
@@ -234,15 +234,15 @@ export class ReleaseAdoptionReadinessService {
     const supportPolicyCount = numberOrZero(recordOrNull(pilotLoop?.pilot)?.supportPolicyCount);
     const triageRuleCount = numberOrZero(recordOrNull(pilotLoop?.pilot)?.triageRuleCount);
     const plannedPilotCount = numberOrZero(recordOrNull(pilotLoop?.adoptionLoop)?.plannedPilotCount);
-    const dashboardAggregatedOnly = recordOrNull(pilotLoop?.adoptionLoop)?.dashboardAggregationOnly === true
-      || recordOrNull(pilotLoop?.policy)?.dashboardAggregatedOnly === true;
+    const zavorthControlAggregatedOnly = recordOrNull(pilotLoop?.adoptionLoop)?.zavorthControlAggregationOnly === true
+      || recordOrNull(pilotLoop?.policy)?.zavorthControlAggregatedOnly === true;
     const noPayloadPolicy = recordOrNull(pilotLoop?.adoptionLoop)?.noPayloadPolicy === true
       || recordOrNull(pilotLoop?.policy)?.noWorkspacePayloadStored === true;
     const pilotLoopReady = pilotLoop?.status === 'pilot-ready';
     const feedbackPolicy = recordOrNull(feedbackLoop?.policy);
     const feedbackLoopReady = feedbackLoop?.status === 'opt-in-ready'
       || (feedbackPolicy?.noTelemetryEnabled === true && feedbackPolicy?.noFeedbackSent === true);
-    const feedbackMetricsReady = feedbackLoopReady && dashboardAggregatedOnly && noPayloadPolicy;
+    const feedbackMetricsReady = feedbackLoopReady && zavorthControlAggregatedOnly && noPayloadPolicy;
     const supportLoopReady = pilotLoopReady
       && feedbackLoopReady
       && supportPolicyCount >= 3
@@ -345,7 +345,7 @@ export class ReleaseAdoptionReadinessService {
         supportPolicyCount,
         triageRuleCount,
         plannedPilotCount,
-        dashboardAggregatedOnly,
+        zavorthControlAggregatedOnly,
         noPayloadPolicy,
         metricsReady: feedbackMetricsReady,
       },
@@ -392,7 +392,7 @@ export class ReleaseAdoptionReadinessService {
       },
       surface: {
         cliCommand: `zavorth release-adoption-readiness run ${run.id} --json`,
-        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
         releaseRoute: '/release',
         feedbackRoute: '/feedback',
         docsRoute: '/docs',
@@ -509,8 +509,8 @@ export class ReleaseAdoptionReadinessService {
         source: 'PublicAdoptionPilotLoopService',
         command: 'npm run qa:pilot-loop',
         detail: input.supportLoopReady
-          ? 'Pilotos, triagem, suporte e dashboard agregado estao disponiveis.'
-          : 'Suporte precisa ledger, triagem, pilotos planejados e dashboard agregado.',
+          ? 'Pilotos, triagem, suporte e zavorthControl agregado estao disponiveis.'
+          : 'Suporte precisa ledger, triagem, pilotos planejados e zavorthControl agregado.',
         critical: true,
       },
       {
@@ -566,8 +566,8 @@ export class ReleaseAdoptionReadinessService {
       },
       {
         id: 'control',
-        label: 'Dashboard',
-        routeOrCommand: '/dashboard?sector=config',
+        label: 'ZavorthControl',
+        routeOrCommand: '/zavorthControl?sector=config',
         status: 'ready',
         detail: 'Config mostra release train, adoption readiness e suporte.',
       },
@@ -587,8 +587,8 @@ export class ReleaseAdoptionReadinessService {
       },
       {
         id: 'support',
-        label: 'Support dashboard',
-        routeOrCommand: 'support-dashboard.json',
+        label: 'Support zavorthControl',
+        routeOrCommand: 'support-zavorthControl.json',
         status: input.supportLoopReady ? 'ready' : 'needs-action',
         detail: 'Suporte usa triagem e metricas agregadas.',
       },
@@ -683,7 +683,7 @@ export class ReleaseAdoptionReadinessService {
       return 'Anexar PublicAdoptionReadinessSnapshot ready com runbook, claims e riscos.';
     }
     if (status === 'needs-support-loop') {
-      return 'Fechar suporte com pilotos planejados, triagem, ledger e dashboard agregado.';
+      return 'Fechar suporte com pilotos planejados, triagem, ledger e zavorthControl agregado.';
     }
     if (status === 'needs-feedback-metrics') {
       return 'Manter feedback opt-in e publicar apenas metricas agregadas.';

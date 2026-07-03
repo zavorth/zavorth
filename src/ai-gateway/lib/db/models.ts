@@ -17,6 +17,23 @@ import {
 } from "./models/modelCompat";
 import { getKeyValue, type JsonRecord } from "./models/modelRowUtils";
 
+interface CustomModelRecord {
+  id?: string;
+  name?: string;
+  source?: string;
+  apiFormat?: string;
+  supportedEndpoints?: string[];
+  inputTokenLimit?: number;
+  outputTokenLimit?: number;
+  description?: string;
+  supportsThinking?: boolean;
+  normalizeToolCallId?: boolean;
+  preserveOpenAIDeveloperRole?: boolean;
+  compatByProtocol?: CompatByProtocolMap;
+  upstreamHeaders?: Record<string, unknown>;
+  isHidden?: boolean;
+}
+
 export {
   MODEL_COMPAT_PROTOCOL_KEYS,
   getModelCompatOverrides,
@@ -201,41 +218,41 @@ export async function replaceCustomModels(
       id: m.id,
       name: m.name || m.id,
       source: m.source || "auto-sync",
-      apiFormat: m.apiFormat || (prev as any)?.apiFormat || "chat-completions",
-      supportedEndpoints: m.supportedEndpoints || (prev as any)?.supportedEndpoints || ["chat"],
+      apiFormat: m.apiFormat || (prev as CustomModelRecord)?.apiFormat || "chat-completions",
+      supportedEndpoints: m.supportedEndpoints || (prev as CustomModelRecord)?.supportedEndpoints || ["chat"],
       // Preserve metadata from provider API (or previous sync)
       ...(m.inputTokenLimit != null
         ? { inputTokenLimit: m.inputTokenLimit }
-        : (prev as any)?.inputTokenLimit != null
-          ? { inputTokenLimit: (prev as any).inputTokenLimit }
+        : (prev as CustomModelRecord)?.inputTokenLimit != null
+          ? { inputTokenLimit: (prev as CustomModelRecord).inputTokenLimit }
           : {}),
       ...(m.outputTokenLimit != null
         ? { outputTokenLimit: m.outputTokenLimit }
-        : (prev as any)?.outputTokenLimit != null
-          ? { outputTokenLimit: (prev as any).outputTokenLimit }
+        : (prev as CustomModelRecord)?.outputTokenLimit != null
+          ? { outputTokenLimit: (prev as CustomModelRecord).outputTokenLimit }
           : {}),
       ...(m.description != null
         ? { description: m.description }
-        : (prev as any)?.description != null
-          ? { description: (prev as any).description }
+        : (prev as CustomModelRecord)?.description != null
+          ? { description: (prev as CustomModelRecord).description }
           : {}),
       ...(m.supportsThinking != null
         ? { supportsThinking: m.supportsThinking }
-        : (prev as any)?.supportsThinking != null
-          ? { supportsThinking: (prev as any).supportsThinking }
+        : (prev as CustomModelRecord)?.supportsThinking != null
+          ? { supportsThinking: (prev as CustomModelRecord).supportsThinking }
           : {}),
       // Preserve existing compat flags
-      ...(prev && (prev as any).normalizeToolCallId !== undefined
-        ? { normalizeToolCallId: (prev as any).normalizeToolCallId }
+      ...(prev && (prev as CustomModelRecord).normalizeToolCallId !== undefined
+        ? { normalizeToolCallId: (prev as CustomModelRecord).normalizeToolCallId }
         : {}),
-      ...(prev && (prev as any).preserveOpenAIDeveloperRole !== undefined
-        ? { preserveOpenAIDeveloperRole: (prev as any).preserveOpenAIDeveloperRole }
+      ...(prev && (prev as CustomModelRecord).preserveOpenAIDeveloperRole !== undefined
+        ? { preserveOpenAIDeveloperRole: (prev as CustomModelRecord).preserveOpenAIDeveloperRole }
         : {}),
-      ...(prev && (prev as any).compatByProtocol
-        ? { compatByProtocol: (prev as any).compatByProtocol }
+      ...(prev && (prev as CustomModelRecord).compatByProtocol
+        ? { compatByProtocol: (prev as CustomModelRecord).compatByProtocol }
         : {}),
-      ...(prev && (prev as any).upstreamHeaders
-        ? { upstreamHeaders: (prev as any).upstreamHeaders }
+      ...(prev && (prev as CustomModelRecord).upstreamHeaders
+        ? { upstreamHeaders: (prev as CustomModelRecord).upstreamHeaders }
         : {}),
     };
   });

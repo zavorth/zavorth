@@ -18,6 +18,9 @@ import { CompanionLifecyclePolicy } from './CompanionLifecyclePolicy.js';
 import { DesktopResourcePlaneService } from './DesktopResourcePlaneService.js';
 import { TaskResourcePlannerService } from './TaskResourcePlannerService.js';
 import { WslControlService } from './WslControlService.js';
+import { logger } from '../logger.js';
+
+type CompanionActionPayload = Record<string, unknown>;
 
 type ExecLike = (
   file: string,
@@ -57,7 +60,7 @@ export class CompanionControlService {
     this.lifecyclePolicy = runtime.lifecyclePolicy || new CompanionLifecyclePolicy();
     this.approvalPlanner = runtime.approvalPlanner || new CompanionApprovalPlanner();
     this.impactPlanner = runtime.impactPlanner || new TaskResourcePlannerService({
-      desktopResources: this.desktopResources as any,
+      desktopResources: this.desktopResources as Pick<DesktopResourcePlaneService, 'readLatest' | 'inspectLive'>,
     });
     this.wslControl = runtime.wslControl || new WslControlService();
     this.zavorthBridgeControl = runtime.zavorthBridgeControl || new ZavorthBridgeControlService();
@@ -294,7 +297,7 @@ export class CompanionControlService {
     ok: boolean;
     summary: string;
     reason: string;
-    payload: Record<string, any> | null;
+    payload: CompanionActionPayload | null;
   }> {
     switch (input.companionId) {
       case 'wsl':
@@ -323,7 +326,7 @@ export class CompanionControlService {
     ok: boolean;
     summary: string;
     reason: string;
-    payload: Record<string, any> | null;
+    payload: CompanionActionPayload | null;
   }> {
     if (input.actionId === 'resume') {
       const defaultDistro = input.desktop.signals.wsl.distros.find((entry) => entry.isDefault)?.name || undefined;
@@ -334,7 +337,7 @@ export class CompanionControlService {
         reason: defaultDistro
           ? `Tentei retomar a distro padrao ${defaultDistro}.`
           : 'Tentei retomar o WSL pela rota padrao.',
-        payload: result as any,
+        payload: result as unknown as CompanionActionPayload,
       };
     }
 
@@ -344,7 +347,7 @@ export class CompanionControlService {
         ok: result.ok,
         summary: result.message,
         reason: 'Desligamento supervisionado do WSL.',
-        payload: result as any,
+        payload: result as unknown as CompanionActionPayload,
       };
     }
 
@@ -376,7 +379,7 @@ export class CompanionControlService {
     ok: boolean;
     summary: string;
     reason: string;
-    payload: Record<string, any> | null;
+    payload: CompanionActionPayload | null;
   }> {
     if (input.actionId === 'resume') {
       const executable = this.resolveDockerExecutable(input.desktop);
@@ -458,7 +461,7 @@ export class CompanionControlService {
     ok: boolean;
     summary: string;
     reason: string;
-    payload: Record<string, any> | null;
+    payload: CompanionActionPayload | null;
   }> {
     if (input.actionId === 'restart-safe') {
       const result = await this.zavorthBridgeControl.restart();
@@ -466,7 +469,7 @@ export class CompanionControlService {
         ok: result.ok,
         summary: result.message || 'Restart supervisionado do ZavorthBridge executado.',
         reason: 'Restart via surface nativa do ZavorthBridge.',
-        payload: result as any,
+        payload: result as unknown as CompanionActionPayload,
       };
     }
 
@@ -476,7 +479,7 @@ export class CompanionControlService {
         ok: true,
         summary: 'ZavorthBridge revisado em modo leve.',
         reason: 'Nesta etapa o trim do ZavorthBridge entrega leitura guiada, nao kill cego.',
-        payload: result as any,
+        payload: result as unknown as CompanionActionPayload,
       };
     }
 
@@ -495,7 +498,7 @@ export class CompanionControlService {
     ok: boolean;
     summary: string;
     reason: string;
-    payload: Record<string, any> | null;
+    payload: CompanionActionPayload | null;
   }> {
     if (input.actionId === 'trim') {
       return {
@@ -620,11 +623,11 @@ export class CompanionControlService {
       `}`,
       `$orderedIds = $candidateIds.ToArray() | Sort-Object -Descending`,
       `foreach ($pid in $orderedIds) {`,
-      `  try { & taskkill.exe /PID $pid /T /F | Out-Null } catch {}`,
+      `  try { & taskkill.exe /PID $pid /T /F | Out-Null } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }`,
       `}`,
       `$leftovers = Get-CimInstance Win32_Process | Where-Object { (Test-DockerProcessPath ([string]$_.ExecutablePath)) -or ($dockerNames -contains $_.Name) }`,
       `foreach ($process in $leftovers) {`,
-      `  try { Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue } catch {}`,
+      `  try { Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }`,
       `}`,
     ].join('; ');
     await this.exec('powershell.exe', ['-NoProfile', '-Command', script], { timeoutMs: 30_000 });

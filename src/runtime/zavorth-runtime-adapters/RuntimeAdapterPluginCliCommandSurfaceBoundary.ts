@@ -91,7 +91,7 @@ export type RuntimeAdapterPluginCliCommandSurfaceBoundaryNormalization<TRuntimeI
   generatedAt: string;
   runtimeId: TRuntimeId;
   cliCommands: RuntimeAdapterZavorthCliCommandSurface[];
-  dashboard: {
+  zavorthControl: {
     catalogRows: RuntimeAdapterCliCommandCatalogRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
@@ -115,7 +115,7 @@ function cliCommandLabel(index: number, fixtureCase: RuntimeAdapterPluginCliComm
   return `CLI command surface ${index + 1}`;
 }
 
-function dashboardStatus(risk: UniversalToolRiskLevel): RuntimeAdapterCliCommandCatalogRow['status'] {
+function zavorthControlStatus(risk: UniversalToolRiskLevel): RuntimeAdapterCliCommandCatalogRow['status'] {
   return risk === 'danger' ? 'blocked' : 'available';
 }
 
@@ -159,12 +159,12 @@ export function normalizeRuntimeAdapterPluginCliCommandSurfaces<TRuntimeId exten
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     cliCommands,
-    dashboard: {
+    zavorthControl: {
       catalogRows: cliCommands.map((command) => ({
         id: `${command.id}:catalog-row`,
         commandId: command.id,
         label: command.label,
-        status: dashboardStatus(command.risk),
+        status: zavorthControlStatus(command.risk),
         policy: command.risk === 'danger' ? 'blocked' : 'metadata-only',
       })),
     },

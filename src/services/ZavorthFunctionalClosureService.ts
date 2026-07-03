@@ -17,7 +17,7 @@ import { SourceMemoryDocumentTerminalPackService } from './SourceMemoryDocumentT
 import { SourcePluginOsAbsorptionService } from './SourcePluginOsAbsorptionService.js';
 import { SourceProviderMeshExpansionService } from './SourceProviderMeshExpansionService.js';
 import { SourceSurfaceLedgerService } from './SourceSurfaceLedgerService.js';
-import { ZavorthFunctionalClosureDashboardService } from './ZavorthFunctionalClosureDashboardService.js';
+import { ZavorthFunctionalClosureZavorthControlService } from './ZavorthFunctionalClosureZavorthControlService.js';
 import { ZavorthFunctionalReleaseGateService } from './ZavorthFunctionalReleaseGateService.js';
 import { ZavorthLedgerDecisionUpdaterService } from './ZavorthLedgerDecisionUpdaterService.js';
 import { ZavorthNativeCompanionDevicePackService } from './ZavorthNativeCompanionDevicePackService.js';
@@ -44,7 +44,7 @@ type Runtime = {
   qaSecurityReleaseCertificationPackService?: Pick<ZavorthQaSecurityReleaseCertificationPackService, 'buildSnapshot'>;
   skillEcosystemPackService?: Pick<ZavorthSkillEcosystemPackService, 'buildSnapshot'>;
   finalAbsorptionCertificationService?: Pick<FinalAbsorptionCertificationService, 'buildSnapshot'>;
-  dashboardService?: ZavorthFunctionalClosureDashboardService;
+  zavorthControlService?: ZavorthFunctionalClosureZavorthControlService;
   ledgerDecisionUpdaterService?: ZavorthLedgerDecisionUpdaterService;
   releaseGateService?: ZavorthFunctionalReleaseGateService;
 };
@@ -77,7 +77,7 @@ export class ZavorthFunctionalClosureService {
   private readonly qaSecurityReleaseCertificationPackService: Pick<ZavorthQaSecurityReleaseCertificationPackService, 'buildSnapshot'>;
   private readonly skillEcosystemPackService: Pick<ZavorthSkillEcosystemPackService, 'buildSnapshot'>;
   private readonly finalAbsorptionCertificationService: Pick<FinalAbsorptionCertificationService, 'buildSnapshot'>;
-  private readonly dashboardService: ZavorthFunctionalClosureDashboardService;
+  private readonly zavorthControlService: ZavorthFunctionalClosureZavorthControlService;
   private readonly ledgerDecisionUpdaterService: ZavorthLedgerDecisionUpdaterService;
   private readonly releaseGateService: ZavorthFunctionalReleaseGateService;
 
@@ -122,7 +122,7 @@ export class ZavorthFunctionalClosureService {
     this.finalAbsorptionCertificationService = runtime.finalAbsorptionCertificationService || new FinalAbsorptionCertificationService({
       now: this.now,
     });
-    this.dashboardService = runtime.dashboardService || new ZavorthFunctionalClosureDashboardService({
+    this.zavorthControlService = runtime.zavorthControlService || new ZavorthFunctionalClosureZavorthControlService({
       now: this.now,
     });
     this.ledgerDecisionUpdaterService = runtime.ledgerDecisionUpdaterService || new ZavorthLedgerDecisionUpdaterService({
@@ -171,7 +171,7 @@ export class ZavorthFunctionalClosureService {
       finalAbsorptionCertification,
     });
     const receipts = items.map((item) => this.buildReceipt(generatedAt, item));
-    const dashboard = this.dashboardService.buildSnapshot(items);
+    const zavorthControl = this.zavorthControlService.buildSnapshot(items);
     const ledgerDecisionUpdater = this.ledgerDecisionUpdaterService.buildSnapshot(items);
     const releaseGate = this.releaseGateService.buildSnapshot(items);
     const failed = items.filter((item) => item.status === 'fail').length;
@@ -192,7 +192,7 @@ export class ZavorthFunctionalClosureService {
       },
       items,
       receipts,
-      dashboard,
+      zavorthControl,
       ledgerDecisionUpdater,
       releaseGate,
       summary: {

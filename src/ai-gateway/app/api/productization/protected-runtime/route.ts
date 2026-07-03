@@ -7,7 +7,7 @@ function buildProtectedRuntimeProjection() {
   return {
     firstRun: {
       status: "ready",
-      activeTemplateId: "dashboard-home",
+      activeTemplateId: "zavorthControl-home",
       steps: [],
     },
     templates: [],

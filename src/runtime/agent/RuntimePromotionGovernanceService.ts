@@ -113,14 +113,14 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
   },
   {
     itemId: 'replay-dvr',
-    label: 'Replay / DVR Dashboard',
-    experimentalComponent: 'SessionReplayService + dashboard replay views',
+    label: 'Replay / DVR ZavorthControl',
+    experimentalComponent: 'SessionReplayService + zavorthControl replay views',
     productAdapterId: null,
     featureFlag: 'ZAVORTH_ENABLE_SESSION_DVR',
     gates: [
       'session-recorder-product',
       'artifact-retention-policy',
-      'dashboard-replay-controls',
+      'zavorthControl-replay-controls',
       'privacy-review',
     ],
     productReason: 'Sem recorder oficial, DVR nao pode ser vendido como pronto.',

@@ -71,11 +71,11 @@ import {
   resolveToolRehearsalCliText,
 } from './ZavorthCliToolRehearsalRenderer.js';
 import {
-  buildSelfingDashboardCliSnapshot,
-  buildSelfingDashboardSnapshotFromRun,
-  formatSelfingDashboardSnapshot,
-  resolveSelfingDashboardCliText,
-} from './ZavorthCliSelfingDashboardRenderer.js';
+  buildSelfingZavorthControlCliSnapshot,
+  buildSelfingZavorthControlSnapshotFromRun,
+  formatSelfingZavorthControlSnapshot,
+  resolveSelfingZavorthControlCliText,
+} from './ZavorthCliSelfingZavorthControlRenderer.js';
 import {
   buildArtifactMemoryCliSnapshot,
   buildArtifactMemorySnapshotFromRun,
@@ -667,15 +667,15 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   if (commandName === 'selfing' || commandName === 'self') {
     const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
-      ? buildSelfingDashboardSnapshotFromRun(activeRun)
-      : buildSelfingDashboardCliSnapshot({
-        text: resolveSelfingDashboardCliText(args) || resolveSelfingDashboardCliText(String(effectiveFlags.commandText || '')),
+      ? buildSelfingZavorthControlSnapshotFromRun(activeRun)
+      : buildSelfingZavorthControlCliSnapshot({
+        text: resolveSelfingZavorthControlCliText(args) || resolveSelfingZavorthControlCliText(String(effectiveFlags.commandText || '')),
         userId: effectiveFlags.userId,
         sessionId: effectiveFlags.sessionId,
       });
     const body = effectiveFlags.json
       ? JSON.stringify(snapshot, null, 2)
-      : formatSelfingDashboardSnapshot(snapshot);
+      : formatSelfingZavorthControlSnapshot(snapshot);
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
   }

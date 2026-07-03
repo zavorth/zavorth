@@ -114,7 +114,7 @@ export type FeedbackTelemetryProductLoopSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     feedbackRoute: '/feedback';
     privacyRoute: '/privacy';
     docsAnchor: '/docs#feedback-loop';
@@ -315,7 +315,7 @@ export class FeedbackTelemetryProductLoopService {
       },
       surface: {
         cliCommand: `zavorth feedback-product-loop run ${run.id} --json`,
-        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
         feedbackRoute: '/feedback',
         privacyRoute: '/privacy',
         docsAnchor: '/docs#feedback-loop',
@@ -470,8 +470,8 @@ export class FeedbackTelemetryProductLoopService {
       },
       {
         id: 'control',
-        label: 'Dashboard',
-        routeOrCommand: '/dashboard?sector=config',
+        label: 'ZavorthControl',
+        routeOrCommand: '/zavorthControl?sector=config',
         status: 'ready',
         detail: 'Config mostra feedback, consentimento e telemetry policy.',
       },

@@ -116,7 +116,7 @@ export class ZavorthSkillEcosystemPackService {
 
   public formatSnapshotText(snapshot: ZavorthSkillEcosystemPackSnapshot): string {
     const lines = [
-      'Zavorth Skill Ecosystem Pack - Dashboard controls',
+      'Zavorth Skill Ecosystem Pack - ZavorthControl controls',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Manifests: ${snapshot.summary.manifests}`,

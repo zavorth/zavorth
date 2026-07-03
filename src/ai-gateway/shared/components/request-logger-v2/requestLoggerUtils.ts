@@ -6,6 +6,7 @@ import {
   REQUEST_LOGGER_LIMIT,
 } from "./requestLoggerConfig";
 import type {
+import { logger } from '../logger.js';
   ProviderNode,
   RequestLogEntry,
   RequestLoggerSortKey,
@@ -58,7 +59,7 @@ export function loadVisibleColumns(): RequestLoggerVisibleColumns {
 export function persistVisibleColumns(next: RequestLoggerVisibleColumns): void {
   try {
     localStorage.setItem(LOGGER_VISIBLE_COLUMNS_STORAGE_KEY, JSON.stringify(next));
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 }
 
 export function buildLogsQuery(params: {

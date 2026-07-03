@@ -122,12 +122,12 @@ export class AutoRepairService {
       dependencies.runtimeBootstrapService ||
       new RuntimeBootstrapService({
         projectRoot: this.projectRoot,
-        supervisedRuntimeService: this.supervisedRuntimeService as any,
+        supervisedRuntimeService: this.supervisedRuntimeService,
       });
     this.runtimeBootstrapRepairService =
       dependencies.runtimeBootstrapRepairService ||
       new RuntimeBootstrapRepairService({
-        bootstrapService: this.runtimeBootstrapService as any,
+        bootstrapService: this.runtimeBootstrapService,
         runCommand: dependencies.execCommandSync || execCommandSync,
         now: dependencies.now,
       });
@@ -458,7 +458,7 @@ export class AutoRepairService {
 
       const response = await this.getProvider().chat(messages);
       return parseAutoRepairPlannerResponse(response.content || '');
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         needsCodeChange: false,
         targetFile: null,

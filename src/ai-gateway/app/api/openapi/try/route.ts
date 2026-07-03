@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     delete forwardHeaders.Cookie;
     delete forwardHeaders.cookie;
 
-    // Forward auth from the dashboard session
+    // Forward auth from the zavorthControl session
     const cookie = request.headers.get("cookie");
     if (cookie && !forwardHeaders["Cookie"]) {
       forwardHeaders["Cookie"] = cookie;

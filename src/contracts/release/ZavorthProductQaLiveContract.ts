@@ -19,7 +19,7 @@ export type ZavorthProductQaLiveRowId =
   | 'real-telegram'
   | 'mutation-approval'
   | 'receipt'
-  | 'dashboard'
+  | 'zavorthControl'
   | 'cli'
   | 'llm-brain-session'
   | 'learning-candidate'
@@ -71,7 +71,7 @@ export type ZavorthProductQaLiveReadiness = {
   providerConfigured: boolean;
   telegramTokenConfigured: boolean;
   telegramAllowlistConfigured: boolean;
-  dashboardCovered: boolean;
+  zavorthControlCovered: boolean;
   cliCovered: boolean;
   sandboxCovered: boolean;
   receiptsCovered: boolean;

@@ -269,7 +269,7 @@ function renderZavorthCliRuntimeTechnicalTui(snapshot: ZavorthCliRuntimeTuiSnaps
       lines: renderPremiumKeyValueTable([
         row(snapshot.connection.gateway.label, snapshot.connection.gateway.value, snapshot.connection.gateway.status, snapshot.connection.gateway.detail),
         row(snapshot.connection.daemon.label, snapshot.connection.daemon.value, snapshot.connection.daemon.status, snapshot.connection.daemon.detail),
-        row(snapshot.connection.dashboard.label, snapshot.connection.dashboard.value, snapshot.connection.dashboard.status, snapshot.connection.dashboard.detail),
+        row(snapshot.connection.zavorthControl.label, snapshot.connection.zavorthControl.value, snapshot.connection.zavorthControl.status, snapshot.connection.zavorthControl.detail),
         row('Home', snapshot.home.isolated ? 'isolated' : 'compat', snapshot.home.isolated ? 'ready' : 'warning', `${snapshot.home.source}: ${snapshot.home.migrationStatus}`),
         row('Voice', snapshot.voice.mode, snapshot.voice.mode === 'off' ? 'warning' : 'ready', snapshot.voice.configured ? snapshot.voice.detector : 'no detector configured'),
       ]).split('\n'),

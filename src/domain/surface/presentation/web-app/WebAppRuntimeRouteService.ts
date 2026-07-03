@@ -1,7 +1,7 @@
 import * as http from 'http';
 import type { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.js';
-import { DashboardAuthService } from '../../../../services/DashboardAuthService.js';
+import { ZavorthControlAuthService } from '../../../../services/ZavorthControlAuthService.js';
 import { RuntimeAccessManifestService } from '../../../../runtime/access/RuntimeAccessManifestService.js';
 import { RuntimeAccessReadinessService } from '../../../../runtime/access/RuntimeAccessReadinessService.js';
 import { RuntimeInstallJourneyService } from '../../../../runtime/access/RuntimeInstallJourneyService.js';
@@ -71,41 +71,42 @@ import {
   buildWebAppRuntimeUiSurfaceHints,
   isWebAppRuntimeCanonicalSessionPlaneRoute,
   isWebAppRuntimeFullDetailRequested,
+  type WebAppRuntimeLightweightState,
 } from './web-app-runtime-route/WebAppRuntimeRouteHelpers.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
-type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
-type BuildSnapshot = (sessionId: string) => Promise<any>;
-type BuildStatusSnapshot = (sessionId: string) => Promise<any>;
-type BuildMetricsSnapshot = (sessionId: string) => Promise<any>;
+type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, unknown>>;
+type BuildSnapshot = (sessionId: string) => Promise<Record<string, unknown>>;
+type BuildStatusSnapshot = (sessionId: string) => Promise<Record<string, unknown>>;
+type BuildMetricsSnapshot = (sessionId: string) => Promise<Record<string, unknown>>;
 type ExecuteLearningAction = (input: {
   candidateId: string;
   actionId: 'approve' | 'reject' | 'promote' | 'forget' | 'promoteProcedure' | 'promoteSkill';
-}) => Promise<any> | any;
+}) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null;
 type SearchLayeredMemory = (input: {
   sessionId: string;
   query: string;
   limit?: number;
-}) => Promise<any>;
-type ReadLayeredMemoryProcedures = (sessionId: string) => Promise<any>;
-type ProcessChatSend = (body: Record<string, any>) => Promise<{
+}) => Promise<Record<string, unknown> | null>;
+type ReadLayeredMemoryProcedures = (sessionId: string) => Promise<Record<string, unknown> | null>;
+type ProcessChatSend = (body: Record<string, unknown>) => Promise<{
   sessionId: string;
   taskId: string | null;
-  snapshot: any;
+  snapshot: Record<string, unknown>;
   resourceImpact?: TaskResourceImpact | null;
   modeEscalation?: ModeEscalationSnapshot | null;
 }>;
 type ResolveSessionId = (url: URL) => string;
 type ResolveSessionIdFromPermission = (permission: PermissionRequest, requestedSessionId: string) => Promise<string>;
-type ResolveSessionIdFromTask = (task: any, requestedSessionId: string) => string;
-type CreateWebContext = (sessionId: string) => any;
+type ResolveSessionIdFromTask = (task: Record<string, unknown>, requestedSessionId: string) => string;
+type CreateWebContext = (sessionId: string) => unknown;
 type OpenEventStream = (req: http.IncomingMessage, res: http.ServerResponse, sessionId: string) => void;
 type GetComposerCatalog = () => {
-  getCatalog: (chatId: string | null) => Promise<any>;
+  getCatalog: (chatId: string | null) => Promise<Record<string, unknown>>;
 };
 
 export type WebAppRuntimeRouteDeps = {
-  auth: DashboardAuthService;
+  auth: ZavorthControlAuthService;
   accessReadiness: RuntimeAccessReadinessService;
   accessManifest: RuntimeAccessManifestService;
   installJourney: RuntimeInstallJourneyService;
@@ -211,7 +212,7 @@ export type WebAppRuntimeRouteDeps = {
   > | null;
   swarmScalePlane?: Pick<
     SwarmScalePlaneRuntimeService,
-    'launch' | 'resume' | 'listRuns' | 'getRun'
+    'launch' | 'resume' | 'configureRun' | 'listRuns' | 'getRun'
   > | null;
   experimentalSwarmV2?: Pick<
     SwarmV2Service,
@@ -236,9 +237,9 @@ export type WebAppRuntimeRouteDeps = {
     | 'resolveScreenshotPath'
   > | null;
   computerUseAgent?: {
-    run(config: any): Promise<any>;
+    run(config: Record<string, unknown>): Promise<Record<string, unknown>>;
     stop(): void;
-    getSnapshot(): any;
+    getSnapshot(): Record<string, unknown>;
   } | null;
   engineeringCore?: Pick<
     EngineeringCoreService,
@@ -341,7 +342,7 @@ export class WebAppRuntimeRouteService {
     options: {
       preferCachedWithinMs?: number;
     } = {},
-  ): Promise<Record<string, any> | null> {
+  ): Promise<Record<string, unknown> | null> {
     return this.runtimeOperationsRoutes.readDesktopResources(deps, options);
   }
 
@@ -354,10 +355,10 @@ export class WebAppRuntimeRouteService {
       previewGatewayMemoryRecall: (input) => this.gatewayControl.previewGatewayMemoryRecall(input, deps),
       listGatewayMemorySources: (input) => this.gatewayControl.listGatewayMemorySources(input, deps),
       buildRecallQueryFromSnapshot: (snapshot) => buildWebAppRuntimeRecallQueryFromSnapshot(snapshot),
-      buildLightweightStateResponse: (state) => buildWebAppRuntimeLightweightStateResponse(state as any),
+      buildLightweightStateResponse: (state) => buildWebAppRuntimeLightweightStateResponse(state as unknown as WebAppRuntimeLightweightState),
       buildProductMode: () => buildWebAppRuntimeProductMode(deps),
-      buildUiSurfaceHints: (productMode, input) => buildWebAppRuntimeUiSurfaceHints(productMode as any, input),
-      buildCanonicalStatePayload: (sessionId, options) => this.buildCanonicalStatePayload(sessionId, deps, options as any),
+      buildUiSurfaceHints: (productMode, input) => buildWebAppRuntimeUiSurfaceHints(productMode as unknown as GatewayCanonicalStatePayload['productMode'], input),
+      buildCanonicalStatePayload: (sessionId, options) => this.buildCanonicalStatePayload(sessionId, deps, options as unknown as Parameters<typeof this.buildCanonicalStatePayload>[2]),
       isCanonicalSessionPlaneRoute: (pathname) => isWebAppRuntimeCanonicalSessionPlaneRoute(pathname),
     };
   }
@@ -412,7 +413,7 @@ export class WebAppRuntimeRouteService {
       modelProfile?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     const sessionId = String(input.sessionId || '').trim();
     if (!sessionId) {
       throw new Error('sessionId obrigatorio para session.patch.');
@@ -450,7 +451,7 @@ export class WebAppRuntimeRouteService {
 
   public async getProductMode(
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     return this.runtimeOperationsRoutes.getProductMode(deps);
   }
 
@@ -460,14 +461,14 @@ export class WebAppRuntimeRouteService {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     return this.runtimeOperationsRoutes.setProductMode(input, deps);
   }
 
   public async getModeEscalation(
     sessionId: string,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     return this.runtimeOperationsRoutes.getModeEscalation(sessionId, deps);
   }
 
@@ -479,21 +480,21 @@ export class WebAppRuntimeRouteService {
       requestedBy?: string | null;
     },
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     return this.runtimeOperationsRoutes.resolveModeEscalation(input, deps);
   }
 
   public async executeCanonicalChatSend(
-    body: Record<string, any>,
+    body: Record<string, unknown>,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     return this.sessionMutations.executeCanonicalChatSend(body, deps, this.buildSessionMutationHelpers(deps));
   }
 
   public async executeCanonicalSpawn(
-    body: Record<string, any>,
+    body: Record<string, unknown>,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<Record<string, unknown>> {
     return this.sessionMutations.executeCanonicalSpawn(body, deps, this.buildSessionMutationHelpers(deps));
   }
 

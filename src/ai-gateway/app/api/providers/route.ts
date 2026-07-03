@@ -56,7 +56,7 @@ function toAccessRouteConnectionInput(connection: any): AccessRouteConnectionInp
   };
 }
 
-function resolveDashboardAccessRoutes(connections: AccessRouteConnectionInput[]) {
+function resolveZavorthControlAccessRoutes(connections: AccessRouteConnectionInput[]) {
   return connections.map((connection) => ({
     id: connection.id || connection.provider || "provider",
     provider: connection.provider,
@@ -87,7 +87,7 @@ export async function GET(request: Request) {
       idToken: undefined,
     }));
 
-    const accessRoutes = resolveDashboardAccessRoutes(connections.map(toAccessRouteConnectionInput));
+    const accessRoutes = resolveZavorthControlAccessRoutes(connections.map(toAccessRouteConnectionInput));
 
     return NextResponse.json({ connections: safeConnections, accessRoutes });
   } catch (error) {

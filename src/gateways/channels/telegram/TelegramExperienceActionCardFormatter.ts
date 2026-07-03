@@ -85,7 +85,7 @@ export class TelegramExperienceActionCardFormatter {
           lines.push(`  ${file.path}: +${file.addedLines}/-${file.removedLines}`);
         }
       }
-      lines.push('', 'Full details: use the Dashboard or `zavorth diff`.');
+      lines.push('', 'Full details: use the ZavorthControl or `zavorth diff`.');
     }
     return { text: lines.join('\n'), replyOptions: this.keyboardForUtility(options) };
   }
@@ -136,7 +136,7 @@ export class TelegramExperienceActionCardFormatter {
       }
       keyboard.row();
     }
-    keyboard.text('Status', '/status').text('Dashboard', '/dashboard');
+    keyboard.text('Status', '/status').text('ZavorthControl', '/zavorthControl');
     if ((snapshot.diffReviews || []).length > 0) {
       const callbackData = this.registry.register({
         cardId: 'utility:diff-summary',
@@ -153,7 +153,7 @@ export class TelegramExperienceActionCardFormatter {
   private keyboardForUtility(options: TelegramExperienceRenderOptions): TelegramExperienceCardMessage['replyOptions'] {
     const keyboard = new InlineKeyboard()
       .text('Status', '/status')
-      .text('Dashboard', '/dashboard');
+      .text('ZavorthControl', '/zavorthControl');
     const diffCallback = this.registry.register({
       cardId: 'utility:diff-summary',
       actionId: 'view-diff-summary',

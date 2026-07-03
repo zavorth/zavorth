@@ -12,7 +12,7 @@ export type ProductizationEvidenceGate = {
   source:
     | 'ZavorthProductizationContractService'
     | 'RunArtifactReceiptReplayService'
-    | 'Dashboard'
+    | 'ZavorthControl'
     | 'GatewayControlApi'
     | 'ReleaseReadiness'
     | 'ProductizationEvidenceService';
@@ -65,7 +65,7 @@ export type ProductizationEvidenceSnapshot = {
     releasePreviewReady: boolean;
     stableReleaseAllowed: boolean;
     replayLinked: boolean;
-    dashboardLinked: boolean;
+    zavorthControlLinked: boolean;
     docsLinked: boolean;
     websiteLinked: boolean;
   };
@@ -99,7 +99,7 @@ export type ProductizationEvidenceSnapshot = {
     providerMeshConsolidation: boolean;
     universalIntentTrustEnforcement: boolean;
     safetyNarrative: boolean;
-    dashboardProjection: boolean;
+    zavorthControlProjection: boolean;
     gatewayControlApi: boolean;
   };
   gates: ProductizationEvidenceGate[];
@@ -118,7 +118,7 @@ export type ProductizationEvidenceSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     releaseHint: string;
     docsHint: string;
   };
@@ -239,7 +239,7 @@ export class ProductizationEvidenceService {
       providerMeshConsolidation: hasRecord(run, 'providerMeshConsolidation'),
       universalIntentTrustEnforcement: hasRecord(run, 'universalIntentTrustEnforcement'),
       safetyNarrative: hasRecord(run, 'safetyNarrative'),
-      dashboardProjection: true,
+      zavorthControlProjection: true,
       gatewayControlApi: productization.controlReady || hasRecord(run, 'gatewayControlApi'),
     };
     const linkedRuntimeEvidenceCount = Object.values(runtimeEvidence).filter(Boolean).length;
@@ -274,7 +274,7 @@ export class ProductizationEvidenceService {
         releasePreviewReady: releaseStatus === 'preview-ready',
         stableReleaseAllowed: stableAllowed,
         replayLinked,
-        dashboardLinked: runtimeEvidence.dashboardProjection,
+        zavorthControlLinked: runtimeEvidence.zavorthControlProjection,
         docsLinked: surfaces.some((surface) => surface.id === 'docs' && surface.status === 'ready'),
         websiteLinked: productization.websiteReady,
       },
@@ -307,7 +307,7 @@ export class ProductizationEvidenceService {
       },
       surface: {
         cliCommand: `zavorth productization-evidence run ${run.id} --json`,
-        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
         releaseHint: 'Release readiness e preview-only ate haver release real, installer e rollback verificados.',
         docsHint: 'Docs devem citar gates, receipts e o contrato C9 antes de anunciar produto como stable.',
       },
@@ -369,10 +369,10 @@ export class ProductizationEvidenceService {
     return [
       {
         id: 'control',
-        label: '/dashboard',
-        status: runtimeEvidence.dashboardProjection ? 'ready' : 'missing',
-        path: '/dashboard?sector=config',
-        evidence: 'Dashboard projeta Productization Evidence junto de release/replay.',
+        label: '/zavorthControl',
+        status: runtimeEvidence.zavorthControlProjection ? 'ready' : 'missing',
+        path: '/zavorthControl?sector=config',
+        evidence: 'ZavorthControl projeta Productization Evidence junto de release/replay.',
       },
       {
         id: 'cli',
@@ -430,12 +430,12 @@ export class ProductizationEvidenceService {
         critical: true,
       },
       {
-        id: 'dashboard-projection',
-        label: 'Dashboard projection',
+        id: 'zavorthControl-projection',
+        label: 'ZavorthControl projection',
         status: criticalSurfaceMissing ? 'missing' : 'ready',
-        source: 'Dashboard',
+        source: 'ZavorthControl',
         command: 'npm run ai-gateway:check -- --pretty false',
-        detail: 'Productization Evidence aparece no /dashboard junto de release status.',
+        detail: 'Productization Evidence aparece no /zavorthControl junto de release status.',
         critical: true,
       },
       {
@@ -464,7 +464,7 @@ export class ProductizationEvidenceService {
         status: 'partial',
         source: 'GatewayControlApi',
         command: 'npm run surfaces:check -- --pretty false',
-        detail: 'Dashboard e CLI devem permanecer compilaveis.',
+        detail: 'ZavorthControl e CLI devem permanecer compilaveis.',
         critical: false,
       },
     ];

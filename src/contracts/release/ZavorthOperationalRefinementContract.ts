@@ -25,7 +25,7 @@ export type ZavorthOperationalA2UICanvas = {
   status: ZavorthOperationalRefinementStatus;
   surfaceId: string;
   routeReady: boolean;
-  dashboardHandlersReady: boolean;
+  zavorthControlHandlersReady: boolean;
   actionBridgeReady: boolean;
   riskSimulationReady: boolean;
   security: {

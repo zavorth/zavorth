@@ -157,7 +157,7 @@ export function formatPublicSiteDocsDemoSyncSnapshot(
   lines.push(`- Examples: ${snapshot.surface.examplesRoute}`);
   lines.push(`- Demo: ${snapshot.surface.demoRoute}`);
   lines.push(`- Release: ${snapshot.surface.releaseRoute}`);
-  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');

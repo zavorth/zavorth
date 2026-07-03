@@ -67,6 +67,6 @@ export type ZavorthSchedulerPerceptionDeviceLiveCompletionSnapshot = {
     inspect: 'npm run zavorth:scheduler-perception-device-live-completion';
     inspectJson: 'npm run zavorth:scheduler-perception-device-live-completion:json';
     check: 'npm run zavorth:scheduler-perception-device-live-completion:check --silent';
-    nextStage: 'Dashboard controls - End-to-End Mission Flow and Public Runtime Certification';
+    nextStage: 'ZavorthControl controls - End-to-End Mission Flow and Public Runtime Certification';
   };
 };

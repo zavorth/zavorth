@@ -13,10 +13,10 @@ export default function TooManyRequestsPage() {
         "Tune provider resilience/rate-limit profiles in settings.",
       ]}
       primaryAction={{
-        href: "/dashboard/settings?tab=resilience",
+        href: "/zavorthControl/settings?tab=resilience",
         label: "Open Resilience Settings",
       }}
-      secondaryAction={{ href: "/dashboard/combos", label: "Open Combos" }}
+      secondaryAction={{ href: "/zavorthControl/combos", label: "Open Combos" }}
     />
   );
 }

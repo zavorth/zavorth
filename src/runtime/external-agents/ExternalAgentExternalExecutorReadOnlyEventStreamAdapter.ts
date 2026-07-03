@@ -69,8 +69,8 @@ export type ExternalExecutorReadOnlyEventStreamState = {
   lastKnownStatus: 'degraded';
 };
 
-export type ExternalExecutorReadOnlyDashboardEventProjection = {
-  nativeContract: 'ZavorthExternalExecutorReadOnlyDashboardEventProjection/v1';
+export type ExternalExecutorReadOnlyZavorthControlEventProjection = {
+  nativeContract: 'ZavorthExternalExecutorReadOnlyZavorthControlEventProjection/v1';
   id: string;
   eventId: string;
   kind: ExternalExecutorReadOnlySourceEventKind;
@@ -78,7 +78,7 @@ export type ExternalExecutorReadOnlyDashboardEventProjection = {
   severity: 'danger' | 'info' | 'warning';
   title: string;
   readOnly: true;
-  dashboardConsumable: true;
+  zavorthControlConsumable: true;
   executionAuthority: false;
   actionDispatchAllowed: false;
   messageSendAllowed: false;
@@ -120,7 +120,7 @@ export type ExternalExecutorReadOnlyEventStreamAdapterNormalization = {
   sourceEventCount: number;
   projectedEventCount: number;
   envelopes: ExternalAgentEventEnvelope[];
-  dashboardEvents: ExternalExecutorReadOnlyDashboardEventProjection[];
+  zavorthControlEvents: ExternalExecutorReadOnlyZavorthControlEventProjection[];
   streamState: ExternalExecutorReadOnlyEventStreamState;
   redaction: ExternalExecutorReadOnlyEventStreamRedaction;
   executionGate: ExternalExecutorReadOnlyEventStreamExecutionGate;
@@ -240,21 +240,21 @@ function normalizeSourceEvent(
   };
 }
 
-function buildDashboardEvent(
+function buildZavorthControlEvent(
   idPrefix: string,
   envelope: ExternalAgentEventEnvelope,
   sourceEvent: ExternalExecutorReadOnlySourceEvent,
-): ExternalExecutorReadOnlyDashboardEventProjection {
+): ExternalExecutorReadOnlyZavorthControlEventProjection {
   return {
-    nativeContract: 'ZavorthExternalExecutorReadOnlyDashboardEventProjection/v1',
-    id: `${idPrefix}:dashboard-event-${sourceEvent.sequence}`,
+    nativeContract: 'ZavorthExternalExecutorReadOnlyZavorthControlEventProjection/v1',
+    id: `${idPrefix}:zavorthControl-event-${sourceEvent.sequence}`,
     eventId: envelope.id,
     kind: sourceEvent.kind,
     status: sourceEvent.status,
     severity: severityFor(sourceEvent.status, sourceEvent.kind),
     title: sanitizeText(sourceEvent.summary),
     readOnly: true,
-    dashboardConsumable: true,
+    zavorthControlConsumable: true,
     executionAuthority: false,
     actionDispatchAllowed: false,
     messageSendAllowed: false,
@@ -300,7 +300,7 @@ function createSourceEvent(
 
 export function createExternalExecutorReadOnlyEventStreamAdapterFixtureSource(): ExternalExecutorReadOnlyEventStreamAdapterSource {
   const observabilityProjection = normalizeExternalExecutorLiveObservabilityProjectionFixture();
-  const surfaceByKind = new Map(observabilityProjection.dashboardProjection.rows.map((row) => [row.surfaceKind, row]));
+  const surfaceByKind = new Map(observabilityProjection.zavorthControlProjection.rows.map((row) => [row.surfaceKind, row]));
   const sensitiveFixture = 'synthetic-external-executor-event-secret-that-must-not-appear';
 
   return {
@@ -358,7 +358,7 @@ export function createExternalExecutorReadOnlyEventStreamAdapterFixtureSource():
       createSourceEvent(14, 'retry', 'degraded', 'Read-only retry intent recorded as metadata only.', {
         retryAfterMs: 1000,
       }),
-      createSourceEvent(15, 'backpressure', 'degraded', 'Backpressure modeled as Dashboard warning metadata.', {
+      createSourceEvent(15, 'backpressure', 'degraded', 'Backpressure modeled as ZavorthControl warning metadata.', {
         queueDepth: 128,
       }),
     ],
@@ -397,8 +397,8 @@ export function normalizeExternalExecutorReadOnlyEventStreamAdapter<TRuntimeId e
     sourceEventCount: options.source.sourceEvents.length,
     projectedEventCount: envelopes.length,
     envelopes,
-    dashboardEvents: envelopes.map((envelope, index) => (
-      buildDashboardEvent(options.idPrefix, envelope, orderedEvents[index])
+    zavorthControlEvents: envelopes.map((envelope, index) => (
+      buildZavorthControlEvent(options.idPrefix, envelope, orderedEvents[index])
     )),
     streamState: buildStreamState(options.source),
     redaction: {

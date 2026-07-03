@@ -109,7 +109,7 @@ export class TelegramGatewayHandlerRegistrar {
 
       if (decision.shouldReply) {
         await ctx.reply(
-          'This Telegram chat is not allowed by the Channel Mesh policy. Update `ZAVORTH_CHANNEL_POLICY_TELEGRAM_ALLOWED` or open /dashboard to review channels.',
+          'This Telegram chat is not allowed by the Channel Mesh policy. Update `ZAVORTH_CHANNEL_POLICY_TELEGRAM_ALLOWED` or open /zavorthControl to review channels.',
           { parse_mode: 'Markdown' },
         );
       }

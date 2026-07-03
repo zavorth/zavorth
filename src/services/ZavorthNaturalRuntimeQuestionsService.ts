@@ -98,16 +98,16 @@ export class ZavorthNaturalRuntimeQuestionsService {
         ],
       },
       sources: [
-        source('providers', 'provider-readiness-matrix', 'zavorth providers', '/dashboard'),
-        source('channels', 'capability-store', 'zavorth capability-store --category communication', '/dashboard'),
+        source('providers', 'provider-readiness-matrix', 'zavorth providers', '/zavorthControl'),
+        source('channels', 'capability-store', 'zavorth capability-store --category communication', '/zavorthControl'),
         source('approvals', 'satellite-approval-companion', 'zavorth satellite-approvals', '/satellite'),
-        source('receipts', 'visual-receipts-v2', 'zavorth visual-receipts', '/dashboard'),
+        source('receipts', 'visual-receipts-v2', 'zavorth visual-receipts', '/zavorthControl'),
         source('execution-backends', 'terminal-backends', 'zavorth execution-backends', null),
-        source('trust', 'trust-panel', 'zavorth trust-panel', '/dashboard'),
-        source('gateway', 'gateway-spine', 'zavorth gateway status', '/dashboard'),
+        source('trust', 'trust-panel', 'zavorth trust-panel', '/zavorthControl'),
+        source('gateway', 'gateway-spine', 'zavorth gateway status', '/zavorthControl'),
       ],
       runtimeProjection: {
-        dashboardRoute: '/dashboard',
+        zavorthControlRoute: '/zavorthControl',
         satelliteRoute: '/satellite',
         cliCommand: 'zavorth ask-runtime',
         executionAuthority: false,
@@ -174,7 +174,7 @@ function buildCards(intent: ZavorthNaturalRuntimeQuestionIntent, data: Record<st
   ], 'Use `zavorth capability-store --category communication` or ask to configure a channel.');
   const approvalCard = card('approvals', 'Approvals', data.approvals.summary.pending > 0 ? 'attention' : 'ready', [
     `${data.approvals.summary.pending} pending approval card(s).`,
-    'Approving from Satellite or Dashboard only resolves the decision; runtime policy still controls execution.',
+    'Approving from Satellite or ZavorthControl only resolves the decision; runtime policy still controls execution.',
   ], 'Use `zavorth satellite-approvals` or open `/satellite`.');
   const receiptCard = card('receipts', 'Receipts', data.receipts.status, [
     `${data.receipts.summary.totalReceipts} receipt card(s), ${data.receipts.summary.needsReview} need review.`,
@@ -187,7 +187,7 @@ function buildCards(intent: ZavorthNaturalRuntimeQuestionIntent, data: Record<st
   const gatewayCard = card('gateway', 'Runtime summary', data.gateway.status, [
     `Gateway runtime: ${data.gateway.gatewayRuntime.lifecycleStatus}.`,
     `Channels: ${data.gateway.channels.summary.total}; approvals: ${data.gateway.approvals.pending}/${data.gateway.approvals.total}.`,
-  ], 'Open `/dashboard` for daily use.');
+  ], 'Open `/zavorthControl` for daily use.');
 
   if (intent === 'providers_ready') return [providerCard];
   if (intent === 'channels_ready') return [channelCard];

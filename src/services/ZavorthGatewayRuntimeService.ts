@@ -13,7 +13,7 @@ import type { ZavorthSecurityMeshService } from './ZavorthSecurityMeshService.js
 import type { ZavorthSessionPlaneService } from './ZavorthSessionPlaneService.js';
 import type { ZavorthTeamCatalogService } from './ZavorthTeamCatalogService.js';
 import type { ZavorthToolSurfaceService } from './ZavorthToolSurfaceService.js';
-import { DashboardAuthService } from './DashboardAuthService.js';
+import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
 import type { GatewayChannelRegistryService } from './GatewayChannelRegistryService.js';
 import type { GatewayChannelRouterService } from './GatewayChannelRouterService.js';
 import type { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
@@ -77,7 +77,7 @@ export type ZavorthGatewayRuntimeHealthSnapshot = {
 
 export type ZavorthGatewayRuntimeSnapshot = {
   generatedAt: string;
-  auth: ReturnType<DashboardAuthService['getStatus']>;
+  auth: ReturnType<ZavorthControlAuthService['getStatus']>;
   health: ZavorthGatewayRuntimeHealthSnapshot;
   gatewayControlApi: ZavorthGatewayControlApiSnapshot;
   controlPlane: {
@@ -267,7 +267,7 @@ export class ZavorthGatewayRuntimeService {
   private operations: ZavorthGatewayRuntimeOperations = {};
 
   constructor(
-    private readonly auth: DashboardAuthService,
+    private readonly auth: ZavorthControlAuthService,
     private readonly infrastructure: WebAppRuntimeInfrastructureService = new WebAppRuntimeInfrastructureService(),
   ) {}
 
@@ -391,7 +391,7 @@ export class ZavorthGatewayRuntimeService {
       gatewaySource,
       issues,
       summary: issues.length === 0
-        ? 'Gateway canÃ´nico pronto para servir a Dashboard do Zavorth.'
+        ? 'Gateway canÃ´nico pronto para servir a ZavorthControl do Zavorth.'
         : issues.join(' '),
     };
   }
@@ -540,7 +540,7 @@ export class ZavorthGatewayRuntimeService {
         doNotBypass: [
           'src/ai-gateway/app/api/* internals',
           'provider secrets',
-          'dashboard-only DTOs',
+          'zavorthControl-only DTOs',
         ],
       },
       health: {

@@ -11,7 +11,7 @@ export type ZavorthCapabilityCertificationPhaseId =
   | 'execution-backends'
   | 'skill-ecosystem'
   | 'skill-curator'
-  | 'dashboard-polish'
+  | 'zavorthControl-polish'
   | 'final-certification';
 
 export type ZavorthCapabilityCertificationPhase = {
@@ -134,6 +134,6 @@ export type ZavorthCapabilityCertificationSnapshot = {
     noLiveProviderClaimWithoutProof: true;
     noSkillMutationWithoutApproval: true;
     noExternalBackendLiveWithoutExplicitConfig: true;
-    noDashboardStyleFork: true;
+    noZavorthControlStyleFork: true;
   };
 };

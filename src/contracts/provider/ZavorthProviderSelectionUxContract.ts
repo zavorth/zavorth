@@ -67,7 +67,7 @@ export type ZavorthProviderSelectionUxSnapshot = {
     selectionDoesNotWriteConfig: true;
     liveProbeRequiresExplicitCommand: true;
     rawSecretsSerialized: false;
-    dashboardExecutionAuthority: false;
+    zavorthControlExecutionAuthority: false;
   };
   commands: Array<{
     id: string;

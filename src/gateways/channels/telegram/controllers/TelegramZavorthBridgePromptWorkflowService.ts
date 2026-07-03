@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { InlineKeyboard, type Context, Api } from 'grammy';
 import { config } from '@zavorth/config/index.js';
 import { PermissionRequest } from '@zavorth/contracts/PermissionRequest.js';
@@ -112,10 +111,11 @@ export class TelegramZavorthBridgePromptWorkflowService {
 
       void this.finishPrompt(task, startResult);
     } catch (error: unknown) {
-      task.error_summary = error.message;
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      task.error_summary = errorMsg;
       this.deps.persistTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
-      await ctx.reply(`Could not start this request in ZavorthBridge right now.\n\nReason: ${error.message}`);
+      await ctx.reply(`Could not start this request in ZavorthBridge right now.\n\nReason: ${errorMsg}`);
     }
   }
 
@@ -189,13 +189,14 @@ export class TelegramZavorthBridgePromptWorkflowService {
         this.formatPromptCompletion(task, completion),
       );
     } catch (error: unknown) {
-      task.error_summary = error.message;
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      task.error_summary = errorMsg;
       this.deps.persistTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
       await SmartOutputService.send(
         this.deps.botApi as any,
         task.chat_id as any,
-        `Nao consegui acompanhar a resposta final do ZavorthBridge nessa tarefa.\n\nMotivo: ${error.message}\nDetalhe tecnico: task=${task.task_id.substring(0, 8)}`,
+        `Nao consegui acompanhar a resposta final do ZavorthBridge nessa tarefa.\n\nMotivo: ${errorMsg}\nDetalhe tecnico: task=${task.task_id.substring(0, 8)}`,
       );
     }
   }

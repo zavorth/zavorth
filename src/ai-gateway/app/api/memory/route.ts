@@ -4,6 +4,7 @@ import { MemoryType } from "@/lib/memory/types";
 import { z } from "zod";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { safeParseInt } from "@/shared/utils/safeParseInt";
 
 const createMemorySchema = z.object({
   content: z.string().min(1),
@@ -31,8 +32,8 @@ export async function GET(request: Request) {
       apiKeyId,
       type,
       sessionId,
-      limit: limitParams ? parseInt(limitParams, 10) : undefined,
-      offset: offsetParams ? parseInt(offsetParams, 10) : undefined,
+      limit: limitParams ? safeParseInt(limitParams, 50) : undefined,
+      offset: offsetParams ? safeParseInt(offsetParams, 0) : undefined,
     });
     const stats = {
       total: memories.length,

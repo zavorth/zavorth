@@ -1,6 +1,6 @@
 import {
   AGENT_OS_CONTRACT_VERSION,
-  type AgentOsDashboardSnapshot,
+  type AgentOsZavorthControlSnapshot,
   type AgentOsSnapshot,
   type AgentOsWorkspaceWrite,
   type AgentOsZavorthControlProjection,
@@ -106,14 +106,14 @@ export class ZavorthAgentOsService {
         'Rollback ou approval explicito e exigido quando houver impacto real.',
       ],
     });
-    const dashboard = this.dashboard({
+    const zavorthControl = this.zavorthControl({
       transactionStatus: transaction.status,
       twinFiles: projectTwin.fileSummary.totalIndexed,
       immuneStatus: immuneSystem.status,
       reputationScores: reputation.scores.length,
       rollbackPrepared: transaction.rollbackPrepared,
     });
-    const zavorthControl = this.zavorthControlProjection(dashboard);
+    const zavorthControl = this.zavorthControlProjection(zavorthControl);
     return {
       contractVersion: AGENT_OS_CONTRACT_VERSION,
       generatedAt: this.now().toISOString(),
@@ -128,7 +128,7 @@ export class ZavorthAgentOsService {
       immuneSystem,
       reputation,
       architectureDecision,
-      dashboard,
+      zavorthControl,
       zavorthControl,
       safety: {
         thinkingBlocked: false,
@@ -158,16 +158,16 @@ export class ZavorthAgentOsService {
     }];
   }
 
-  private dashboard(input: {
+  private zavorthControl(input: {
     transactionStatus: string;
     twinFiles: number;
     immuneStatus: string;
     reputationScores: number;
     rollbackPrepared: boolean;
-  }): AgentOsDashboardSnapshot {
+  }): AgentOsZavorthControlSnapshot {
     const blocked = input.transactionStatus === 'blocked' || input.immuneStatus === 'blocked';
     return {
-      source: 'AgentOsDashboardProjection',
+      source: 'AgentOsZavorthControlProjection',
       title: 'Agent OS',
       status: blocked ? 'blocked' : input.immuneStatus === 'warning' ? 'warning' : 'passed',
       cards: [
@@ -184,15 +184,15 @@ export class ZavorthAgentOsService {
     };
   }
 
-  private zavorthControlProjection(dashboard: AgentOsDashboardSnapshot): AgentOsZavorthControlProjection {
+  private zavorthControlProjection(zavorthControl: AgentOsZavorthControlSnapshot): AgentOsZavorthControlProjection {
     return {
       source: 'AgentOsZavorthControlProjection',
       title: 'Agent OS details',
-      status: dashboard.status,
+      status: zavorthControl.status,
       detailsHiddenByDefault: true,
       liveActionApplied: false,
-      cards: dashboard.cards,
-      actions: dashboard.actions,
+      cards: zavorthControl.cards,
+      actions: zavorthControl.actions,
     };
   }
 }

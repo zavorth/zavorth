@@ -61,8 +61,8 @@ export type ZavorthProductizationProtectedRuntimeSnapshot = {
   templates: ZavorthGuidedMissionTemplate[];
   mission: ZavorthMissionContract;
   receipt: ZavorthVisualReceiptContract;
-  dashboardProjection: {
-    route: '/dashboard';
+  zavorthControlProjection: {
+    route: '/zavorthControl';
     executionAuthority: false;
     approvalRequiredForMutableActions: true;
     visualBlocksRequireOwnerApproval: true;
@@ -96,7 +96,7 @@ export type ZavorthProductizationProtectedRuntimeSnapshot = {
 };
 
 type SandboxHostReadinessLike = Pick<SandboxHostReadinessService, 'inspect'>;
-type ProtectedRuntimeProjectionRoute = '/dashboard' | '/control';
+type ProtectedRuntimeProjectionRoute = '/zavorthControl' | '/control';
 type ProtectedRuntimeProjection<Route extends ProtectedRuntimeProjectionRoute> = {
   route: Route;
   executionAuthority: false;
@@ -193,7 +193,7 @@ export class ZavorthProductizationProtectedRuntimeService {
       templates,
       mission,
       receipt,
-      dashboardProjection: buildProtectedRuntimeProjection('/dashboard'),
+      zavorthControlProjection: buildProtectedRuntimeProjection('/zavorthControl'),
       zavorthControlProjection: buildProtectedRuntimeProjection('/control'),
       cli: {
         commands: [
@@ -233,7 +233,7 @@ export class ZavorthProductizationProtectedRuntimeService {
           {
             id: 'mission-projection',
             status: 'passed',
-            summary: 'CLI and Dashboard consume a mission projection with timeline, risk and artifacts.',
+            summary: 'CLI and ZavorthControl consume a mission projection with timeline, risk and artifacts.',
           },
           {
             id: 'visual-receipt',
@@ -522,7 +522,7 @@ export class ZavorthProductizationProtectedRuntimeService {
       execution: {
         readOnly,
         mutationMode: input.template.requiresMutation ? input.sandbox.mutationMode : 'dry-run',
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         policyBrokerRequired: true,
       },
       timeline,
@@ -566,7 +566,7 @@ export class ZavorthProductizationProtectedRuntimeService {
       advanced: {
         policyBroker: 'required',
         trustPlane: 'active',
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         sandboxMutationMode: input.mission.execution.mutationMode,
         approvalOptions,
         artifacts: input.mission.artifacts.map((artifact) => artifact.id),

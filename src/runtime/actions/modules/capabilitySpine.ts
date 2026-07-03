@@ -13,7 +13,7 @@ import { ZavorthHiddenCapabilitySpineService } from '../../../services/ZavorthHi
 import { UniversalSkillExpansionService } from '../../../services/UniversalSkillExpansionService.js';
 import { ZavorthExternalAgentGatewayService } from '../../../services/ZavorthExternalAgentGatewayService.js';
 
-const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'dashboard', 'tui', 'api', 'channel', 'llm'];
+const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = [
   'tests/services/ZavorthHiddenCapabilitySpineService.test.ts',
   'tests/runtime/actions/ZavorthCapabilitySpineActions.test.ts',

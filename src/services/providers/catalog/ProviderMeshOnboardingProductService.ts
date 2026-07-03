@@ -279,7 +279,7 @@ export class ProviderMeshOnboardingProductService {
       explanation: [
         'Provider Mesh C7 monta onboarding por capacidade antes de marca/provider.',
         'Familia, vendor, provider, rota, modelo e credencial permanecem campos separados no contrato.',
-        'UI, CLI, onboarding, /dashboard e runtime continuam consumidores do ModelPickerContract.',
+        'UI, CLI, onboarding, /zavorthControl e runtime continuam consumidores do ModelPickerContract.',
       ],
     };
   }

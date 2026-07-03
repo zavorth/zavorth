@@ -10,14 +10,14 @@ export type UniversalApprovalIntentSource =
   | 'button'
   | 'text'
   | 'slash-command'
-  | 'dashboard'
+  | 'zavorthControl'
   | 'api'
   | 'callback'
   | 'unknown';
 
 export type UniversalApprovalIntentChannel =
   | UniversalAgentChannel
-  | 'dashboard'
+  | 'zavorthControl'
   | 'whatsapp'
   | 'slack'
   | 'teams'
@@ -327,7 +327,7 @@ function selectCandidates(input: {
     return sameUser;
   }
 
-  const sameChannel = input.channel && input.channel !== 'unknown' && input.channel !== 'dashboard'
+  const sameChannel = input.channel && input.channel !== 'unknown' && input.channel !== 'zavorthControl'
     ? input.pending.filter(({ run }) => run.channel === input.channel)
     : [];
   return sameChannel;
@@ -414,7 +414,7 @@ function isScopedBareTextApproval(input: {
 }): boolean {
   const sameSession = Boolean(input.sessionId && input.target.run.sessionId === input.sessionId);
   const sameUser = !input.userId || input.target.run.userId === input.userId;
-  const sameChannel = input.channel === 'dashboard'
+  const sameChannel = input.channel === 'zavorthControl'
     || input.channel === 'unknown'
     || input.target.run.channel === input.channel;
   return sameSession && sameUser && sameChannel;

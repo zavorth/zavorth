@@ -7,7 +7,7 @@ export async function GET() {
     runtimeReadinessUx: {
       status: "ready",
       title: "Runtime ready",
-      summary: "Dashboard runtime projection is available.",
+      summary: "ZavorthControl runtime projection is available.",
       actions: [],
     },
   });

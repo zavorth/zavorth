@@ -4,9 +4,9 @@ export type PresentationBoundaryPosture = 'healthy' | 'attention' | 'critical';
 
 export type PresentationSurfaceId =
   | 'web-runtime-components'
-  | 'classic-dashboard-assets'
+  | 'classic-zavorthControl-assets'
   | 'web-console-assets'
-  | 'ai-gateway-dashboard'
+  | 'ai-gateway-zavorthControl'
   | 'companion-voice-surface';
 
 export type PresentationSurfaceContract = {
@@ -92,11 +92,11 @@ export const PRESENTATION_SURFACE_CONTRACTS: PresentationSurfaceContract[] = [
     channels: ['snapshot', 'action', 'event', 'stream'],
   },
   {
-    id: 'classic-dashboard-assets',
-    label: 'Classic Dashboard Assets',
-    description: 'Legacy dashboard HTML/client assets, kept as presentation-only adapters over operations endpoints.',
-    roots: ['domain/surface/presentation/dashboard/DashboardClassic'],
-    allowedInternalPrefixes: ['domain/surface/presentation/dashboard/DashboardClassic', 'contracts/'],
+    id: 'classic-zavorthControl-assets',
+    label: 'Classic ZavorthControl Assets',
+    description: 'Legacy zavorthControl HTML/client assets, kept as presentation-only adapters over operations endpoints.',
+    roots: ['domain/surface/presentation/zavorthControl/ZavorthControlClassic'],
+    allowedInternalPrefixes: ['domain/surface/presentation/zavorthControl/ZavorthControlClassic', 'contracts/'],
     channels: ['snapshot', 'action', 'asset'],
   },
   {
@@ -115,12 +115,12 @@ export const PRESENTATION_SURFACE_CONTRACTS: PresentationSurfaceContract[] = [
     channels: ['asset', 'event', 'stream'],
   },
   {
-    id: 'ai-gateway-dashboard',
-    label: 'AI Gateway Dashboard',
-    description: 'Next dashboard screens that should use app APIs and local ai-gateway UI modules, not Zavorth core services.',
-    roots: ['ai-gateway/app/(dashboard)/'],
+    id: 'ai-gateway-zavorthControl',
+    label: 'AI Gateway ZavorthControl',
+    description: 'Next zavorthControl screens that should use app APIs and local ai-gateway UI modules, not Zavorth core services.',
+    roots: ['ai-gateway/app/(zavorthControl)/'],
     allowedInternalPrefixes: [
-      'ai-gateway/app/(dashboard)/',
+      'ai-gateway/app/(zavorthControl)/',
       'ai-gateway/shared/',
       'ai-gateway/store/',
       'ai-gateway/types/',

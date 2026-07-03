@@ -1,0 +1,29 @@
+help: Show help
+version: Show version
+commands: Commands
+options: Options
+usage: Usage
+examples: Examples
+arguments: Arguments
+flags: Flags
+verbose: Enable verbose output
+quiet: Enable quiet mode
+debug: Enable debug mode
+no_color: Disable colored output
+config: Path to config file
+output: Output file path
+format: Output format
+json: Output as JSON
+yaml: Output as YAML
+table: Output as table
+list: List available commands
+init: Initialize a new project
+build: Build the project
+test: Run tests
+lint: Run linter
+clean: Clean build artifacts
+deploy: Deploy the project
+start_server: Start the server
+stop_server: Stop the server
+status: Show status
+logs: Show logs

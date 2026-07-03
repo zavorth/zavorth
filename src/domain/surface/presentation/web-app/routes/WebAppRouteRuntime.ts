@@ -13,7 +13,7 @@ import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
 import { defaultLlmRuntimeTelemetryService } from '../../../../../services/llm/LlmRuntimeTelemetryService.js';
 import { ZavorthActiveMissionUxService } from '../../../../../services/ZavorthActiveMissionUxService.js';
 import { ZavorthApprovalActionCardsUxService } from '../../../../../services/ZavorthApprovalActionCardsUxService.js';
-import { ZavorthDashboardProviderCockpitService } from '../../../../../services/ZavorthDashboardProviderCockpitService.js';
+import { ZavorthZavorthControlProviderCockpitService } from '../../../../../services/ZavorthZavorthControlProviderCockpitService.js';
 import { ZavorthProviderActivationService } from '../../../../../services/ZavorthProviderActivationService.js';
 import { ZavorthProviderModelCatalogService } from '../../../../../services/ZavorthProviderModelCatalogService.js';
 import { ZavorthProviderPreferencePersistenceService } from '../../../../../services/ZavorthProviderPreferencePersistenceService.js';
@@ -28,7 +28,7 @@ import { ZavorthExternalAgentOnboardingService } from '../../../../../services/Z
 import { ZavorthExternalAgentGatewayService } from '../../../../../services/ZavorthExternalAgentGatewayService.js';
 import { ZavorthCapabilityMeshService } from '../../../../../services/ZavorthCapabilityMeshService.js';
 import { ZavorthVisualReceiptUxService } from '../../../../../services/ZavorthVisualReceiptUxService.js';
-import { DashboardContractAdapterService } from '../../../../../services/DashboardContractAdapterService.js';
+import { ZavorthControlContractAdapterService } from '../../../../../services/ZavorthControlContractAdapterService.js';
 import { ZavorthDailyUseGuiCertificationService } from '../../../../../services/ZavorthDailyUseGuiCertificationService.js';
 import type { ZavorthSensitiveActionFlowDecision } from '../../../../../contracts/ZavorthSensitiveActionFlowContract.js';
 
@@ -67,7 +67,7 @@ export async function handleRuntimeRoutes(
             live: false,
             generatedAt: approvalActionCardsUx.generatedAt,
             approvalActionCardsUx,
-            safety: approvalActionCardsUx.dashboardProjection,
+            safety: approvalActionCardsUx.zavorthControlProjection,
           },
           200,
         );
@@ -110,7 +110,7 @@ export async function handleRuntimeRoutes(
             generatedAt: sensitiveActionFlowUx.generatedAt,
             sensitiveActionFlowUx,
             safety: asRecord(asRecord(sensitiveActionFlowUx.card)?.safety) || {
-              dashboardCanExecute: false,
+              zavorthControlCanExecute: false,
               rawSecretsSerialized: false,
             },
           },
@@ -120,8 +120,8 @@ export async function handleRuntimeRoutes(
       }
   
       if (pathname === '/api/runtime/readiness' && req.method === 'GET') {
-        const userId = String(url.searchParams.get('userId') || 'dashboard-operator');
-        const sessionId = String(url.searchParams.get('sessionId') || 'dashboard-runtime-readiness');
+        const userId = String(url.searchParams.get('userId') || 'zavorthControl-operator');
+        const sessionId = String(url.searchParams.get('sessionId') || 'zavorthControl-runtime-readiness');
         const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
           userId,
           sessionId,
@@ -144,8 +144,8 @@ export async function handleRuntimeRoutes(
       }
   
       if (pathname === '/api/runtime/readiness/fixes' && req.method === 'GET') {
-        const userId = String(url.searchParams.get('userId') || 'dashboard-operator');
-        const sessionId = String(url.searchParams.get('sessionId') || 'dashboard-runtime-guided-fixes');
+        const userId = String(url.searchParams.get('userId') || 'zavorthControl-operator');
+        const sessionId = String(url.searchParams.get('sessionId') || 'zavorthControl-runtime-guided-fixes');
         const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
           userId,
           sessionId,
@@ -171,8 +171,8 @@ export async function handleRuntimeRoutes(
         const readyToGo = await new ZavorthReadyToGoService().buildSnapshot({
           refreshProviders,
           includeAdvancedProviders: url.searchParams.get('advanced') === 'true',
-          userId: String(url.searchParams.get('userId') || 'dashboard-operator'),
-          sessionId: String(url.searchParams.get('sessionId') || 'dashboard-ready-to-go'),
+          userId: String(url.searchParams.get('userId') || 'zavorthControl-operator'),
+          sessionId: String(url.searchParams.get('sessionId') || 'zavorthControl-ready-to-go'),
           workspaceHint: config.projectRoot,
         });
         deps.writeJson(
@@ -195,8 +195,8 @@ export async function handleRuntimeRoutes(
           refreshProviders,
           writeSnapshot: url.searchParams.get('write') === 'true',
           intervalMs: Number(url.searchParams.get('intervalMs') || 0) || undefined,
-          userId: String(url.searchParams.get('userId') || 'dashboard-operator'),
-          sessionId: String(url.searchParams.get('sessionId') || 'dashboard-stay-online'),
+          userId: String(url.searchParams.get('userId') || 'zavorthControl-operator'),
+          sessionId: String(url.searchParams.get('sessionId') || 'zavorthControl-stay-online'),
           workspaceHint: config.projectRoot,
         });
         deps.writeJson(
@@ -220,7 +220,7 @@ export async function handleRuntimeRoutes(
           approximatePathHint: url.searchParams.get('approxPath') || url.searchParams.get('approximatePath'),
           commandHint: url.searchParams.get('command') || url.searchParams.get('cli'),
           endpointHint: url.searchParams.get('endpoint') || url.searchParams.get('url'),
-          requestedBy: url.searchParams.get('requestedBy') || 'dashboard-operator',
+          requestedBy: url.searchParams.get('requestedBy') || 'zavorthControl-operator',
           maxDepth: Number(url.searchParams.get('maxDepth') || 0) || null,
           writeSnapshot: url.searchParams.get('write') === 'true',
         });
@@ -246,7 +246,7 @@ export async function handleRuntimeRoutes(
           approximatePathHint: String(body?.approxPath || body?.approximatePath || body?.approximatePathHint || '').trim() || null,
           commandHint: String(body?.command || body?.cli || body?.commandHint || '').trim() || null,
           endpointHint: String(body?.endpoint || body?.url || body?.endpointHint || '').trim() || null,
-          requestedBy: String(body?.requestedBy || 'dashboard-operator').trim(),
+          requestedBy: String(body?.requestedBy || 'zavorthControl-operator').trim(),
           maxDepth: Number(body?.maxDepth || 0) || null,
           writeSnapshot: body?.write === true,
         });
@@ -313,7 +313,7 @@ export async function handleRuntimeRoutes(
             readOnlyRoot: body?.readOnlyRoot === true,
             requireStrongIsolation: body?.requireStrongIsolation === true,
             approvalGranted: apiApprovalAccepted,
-            requestedBy: String(body?.requestedBy || 'dashboard-operator').trim(),
+            requestedBy: String(body?.requestedBy || 'zavorthControl-operator').trim(),
             source: 'api',
           });
           deps.writeJson(
@@ -335,7 +335,7 @@ export async function handleRuntimeRoutes(
             approvalGranted: apiApprovalAccepted,
             dryRun: body?.dryRun === true || !apiApprovalAccepted,
             timeoutMs: Number(body?.timeoutMs || 0) || null,
-            requestedBy: String(body?.requestedBy || 'dashboard-operator').trim(),
+            requestedBy: String(body?.requestedBy || 'zavorthControl-operator').trim(),
           });
           deps.writeJson(
             res,
@@ -357,8 +357,8 @@ export async function handleRuntimeRoutes(
         const mesh = new ZavorthCapabilityMeshService();
         const snapshot = mesh.buildSnapshot({
           requestText: url.searchParams.get('request') || url.searchParams.get('intent') || '',
-          requestedBy: url.searchParams.get('requestedBy') || 'dashboard-operator',
-          channel: 'dashboard',
+          requestedBy: url.searchParams.get('requestedBy') || 'zavorthControl-operator',
+          channel: 'zavorthControl',
           preferExternal: url.searchParams.get('preferExternal') === 'true',
           allowExternalAgents: url.searchParams.get('allowExternalAgents') !== 'false',
           allowSkillCreation: url.searchParams.get('allowSkillCreation') !== 'false',
@@ -374,8 +374,8 @@ export async function handleRuntimeRoutes(
         const mesh = new ZavorthCapabilityMeshService();
         const snapshot = mesh.buildSnapshot({
           requestText: String(body?.request || body?.intent || body?.prompt || '').trim(),
-          requestedBy: String(body?.requestedBy || 'dashboard-operator').trim(),
-          channel: String(body?.channel || 'dashboard').trim(),
+          requestedBy: String(body?.requestedBy || 'zavorthControl-operator').trim(),
+          channel: String(body?.channel || 'zavorthControl').trim(),
           preferExternal: body?.preferExternal === true,
           allowExternalAgents: body?.allowExternalAgents !== false,
           allowSkillCreation: body?.allowSkillCreation !== false,
@@ -393,7 +393,7 @@ export async function handleRuntimeRoutes(
             {
               ok: false,
               error: 'provider_live_probe_requires_explicit_operator_cli_or_approved_api',
-              detail: 'O Dashboard expõe readiness/projection only. Probe live de provider não roda por render normal do dashboard.',
+              detail: 'O ZavorthControl expõe readiness/projection only. Probe live de provider não roda por render normal do zavorthControl.',
             },
             403,
           );
@@ -421,7 +421,7 @@ export async function handleRuntimeRoutes(
             {
               ok: false,
               error: 'provider_model_catalog_live_probe_requires_explicit_operator_cli_or_approved_api',
-              detail: 'O dashboard renderiza o catalogo de providers/modelos sem chamada live oculta. Prova live precisa ser acionada explicitamente pelo operador.',
+              detail: 'O zavorthControl renderiza o catalogo de providers/modelos sem chamada live oculta. Prova live precisa ser acionada explicitamente pelo operador.',
             },
             403,
           );
@@ -449,7 +449,7 @@ export async function handleRuntimeRoutes(
             {
               ok: false,
               error: 'provider_activation_live_probe_requires_explicit_operator_cli_or_approved_api',
-              detail: 'O dashboard renderiza ativacao de providers sem chamada live oculta. Prova live deve ser acionada explicitamente pelo operador.',
+              detail: 'O zavorthControl renderiza ativacao de providers sem chamada live oculta. Prova live deve ser acionada explicitamente pelo operador.',
             },
             403,
           );

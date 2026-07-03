@@ -12,8 +12,8 @@ export default function BadGatewayPage() {
         "Check provider credentials and model availability.",
         "Inspect translator output if format conversion is involved.",
       ]}
-      primaryAction={{ href: "/dashboard/providers", label: "Open Providers" }}
-      secondaryAction={{ href: "/dashboard/translator", label: "Open Translator" }}
+      primaryAction={{ href: "/zavorthControl/providers", label: "Open Providers" }}
+      secondaryAction={{ href: "/zavorthControl/translator", label: "Open Translator" }}
     />
   );
 }

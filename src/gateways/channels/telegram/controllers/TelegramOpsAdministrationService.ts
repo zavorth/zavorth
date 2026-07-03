@@ -1,8 +1,8 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { OperationalMode } from '../../../../security/OperationalMode.js';
+import { logger } from '../logger.js';
 
 const VALID_OPERATIONAL_MODES = Object.values(OperationalMode);
 
@@ -45,7 +45,8 @@ export class TelegramOpsAdministrationService {
       lines.push('', `Modo operacional atual: ${modeManager.getMode()}`);
       await ctx.reply(lines.join('\n'));
     } catch (error: unknown) {
-      await ctx.reply(`Nao consegui ler o audit log agora.\n\nMotivo: ${error.message}`);
+      const msg = error instanceof Error ? error.message : String(error);
+      await ctx.reply(`Nao consegui ler o audit log agora.\n\nMotivo: ${msg}`);
     }
   }
 
@@ -92,7 +93,7 @@ export class TelegramOpsAdministrationService {
         execution_summary: `Modo alterado: ${previousMode} -> ${requestedMode}`,
         metadata: {},
       })
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
     await ctx.reply(`Modo operacional alterado.\n\nAnterior: ${previousMode}\nAtual: ${requestedMode}`);
   }

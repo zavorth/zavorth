@@ -10,8 +10,8 @@ export type ZavorthApprovalActionCardAction = {
   kind: 'allow_once' | 'deny' | 'view_preview' | 'view_rollback' | 'view_receipt';
   command: string;
   approvalId: string | null;
-  dashboardCanResolveApproval: boolean;
-  dashboardCanExecuteTargetAction: false;
+  zavorthControlCanResolveApproval: boolean;
+  zavorthControlCanExecuteTargetAction: false;
   zavorthControlCanExecuteTargetAction: false;
   requiresApproval: boolean;
 };
@@ -46,7 +46,7 @@ export type ZavorthApprovalActionCard = {
   actions: ZavorthApprovalActionCardAction[];
   safety: {
     policyBrokerRequired: true;
-    dashboardCanExecuteTargetAction: false;
+    zavorthControlCanExecuteTargetAction: false;
     zavorthControlCanExecuteTargetAction: false;
     rawSecretsSerialized: false;
     approvalScopeBound: true;
@@ -68,8 +68,8 @@ export type ZavorthApprovalActionCardsUxSnapshot = {
     rawSecretsSerialized: false;
   };
   cards: ZavorthApprovalActionCard[];
-  dashboardProjection: {
-    route: '/dashboard';
+  zavorthControlProjection: {
+    route: '/zavorthControl';
     renderMode: 'interactive-action-cards';
     executionAuthority: false;
     zavorthControlCanExecuteTargetAction: false;

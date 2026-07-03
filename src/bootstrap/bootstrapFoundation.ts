@@ -95,7 +95,7 @@ export function runCapabilityPreflight(): BootstrapPreflight {
       );
     }
 
-    process.exit(1);
+    throw new Error('No operational channel is ready. Configure at least one channel before starting the runtime.');
   }
 
   return {
@@ -278,16 +278,21 @@ export async function initializeBootstrapFoundation(
   if (config.userModelDaemonEnabled) {
     userModelDaemon = new UserModelReviewDaemonService({
       homeRoot: config.projectRoot,
+      turnCapture,
       config: {
         intervalMs: config.userModelDaemonIntervalMs,
         minTurnsForReview: config.userModelDaemonMinTurns,
+        enableLlmReasoning: config.userModelDaemonEnableLlmReasoning,
+        llmProvider: config.userModelDaemonLlmProvider,
+        llmModel: config.userModelDaemonLlmModel,
+        llmMaxPasses: config.userModelDaemonLlmMaxPasses,
       },
     });
     userModelDaemon.start();
     logRepo.log(
       'info',
       'UserModelDaemon',
-      `User model review daemon ativo: interval=${config.userModelDaemonIntervalMs}ms minTurns=${config.userModelDaemonMinTurns}.`,
+      `User model review daemon ativo: interval=${config.userModelDaemonIntervalMs}ms minTurns=${config.userModelDaemonMinTurns} llmReasoning=${config.userModelDaemonEnableLlmReasoning}.`,
     );
   } else {
     logRepo.log('info', 'UserModelDaemon', 'User model review daemon desativado por ZAVORTH_USER_MODEL_DAEMON_ENABLED=false.');

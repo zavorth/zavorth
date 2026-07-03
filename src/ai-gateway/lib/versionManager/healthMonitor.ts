@@ -1,5 +1,6 @@
 import { updateToolHealth } from "@/lib/db/versionManager";
 import { safeFetch } from "../../../security/SafeFetchService.js";
+import { logger } from '../logger.js';
 
 interface HealthResult {
   healthy: boolean;
@@ -55,7 +56,7 @@ export function startMonitoring(
   const doCheck = async () => {
     const result = await checkHealth(url, healthPath);
     const status = result.healthy ? "healthy" : "unhealthy";
-    await updateToolHealth(tool, status).catch(() => {});
+    await updateToolHealth(tool, status).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
   };
 
   doCheck();

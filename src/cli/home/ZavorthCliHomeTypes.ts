@@ -10,7 +10,7 @@ export type ZavorthCliHomeSnapshot = {
     node: string;
     packageVersion: string | null;
     gatewayToken: 'present' | 'missing';
-    dashboard: 'available' | 'missing';
+    zavorthControl: 'available' | 'missing';
   };
   provider: {
     id: string | null;

@@ -88,7 +88,7 @@ const messages = {
 
     'error.broadcast_failed': 'Error sending broadcast: {error}',
     'error.dm_failed': 'Error sending direct message to {chatId}: {error}',
-    'error.dashboard_failed': 'Failed to start web dashboard: {error}',
+    'error.zavorthControl_failed': 'Failed to start web zavorthControl: {error}',
     'error.startup_timeout': 'Timeout sending pending notification from supervised startup.',
 
     'video.gemini_skipped_long': 'Skipped native Gemini analysis by URL because the video is {duration} and this path tends to fail on very long videos.',
@@ -156,10 +156,10 @@ const messages = {
     'wsl.default_marker': ' (default)',
     'wsl.usage': 'Use /wsl on to start or /wsl off to stop.',
 
-    'dashboard.failed_to_start': 'Failed to start Dashboard: {error}',
-    'dashboard.public_url': 'Public URL configured:',
-    'dashboard.remote_bridge': 'Remote ZavorthBridge for mobile:',
-    'dashboard.warnings': 'Warnings:',
+    'zavorthControl.failed_to_start': 'Failed to start ZavorthControl: {error}',
+    'zavorthControl.public_url': 'Public URL configured:',
+    'zavorthControl.remote_bridge': 'Remote ZavorthBridge for mobile:',
+    'zavorthControl.warnings': 'Warnings:',
   },
   pt: {
     'auth.access_restricted': '⛔ **Acesso Restrito:**\n\nComo vice-dono(a), voce nao tem permissao para usar este comando de sistema/computador. Voce tem acesso a pesquisa, memoria, conversas e analises.',
@@ -234,7 +234,7 @@ const messages = {
 
     'error.broadcast_failed': 'Erro ao enviar broadcast: {error}',
     'error.dm_failed': 'Erro ao enviar mensagem direta para {chatId}: {error}',
-    'error.dashboard_failed': 'Falha ao iniciar dashboard web: {error}',
+    'error.zavorthControl_failed': 'Falha ao iniciar zavorthControl web: {error}',
     'error.startup_timeout': 'Timeout ao enviar notificacao pendente do startup supervisionado.',
 
     'video.gemini_skipped_long': 'Pulei a analise nativa do Gemini por URL porque o video tem {duration} e esse caminho tende a falhar em videos muito longos.',
@@ -302,10 +302,10 @@ const messages = {
     'wsl.default_marker': ' (padrao)',
     'wsl.usage': 'Use /wsl on para ligar ou /wsl off para desligar.',
 
-    'dashboard.failed_to_start': 'Falha ao iniciar Dashboard: {error}',
-    'dashboard.public_url': 'URL publica configurada:',
-    'dashboard.remote_bridge': 'ZavorthBridge remoto para celular:',
-    'dashboard.warnings': 'Avisos:',
+    'zavorthControl.failed_to_start': 'Falha ao iniciar ZavorthControl: {error}',
+    'zavorthControl.public_url': 'URL publica configurada:',
+    'zavorthControl.remote_bridge': 'ZavorthBridge remoto para celular:',
+    'zavorthControl.warnings': 'Avisos:',
   },
 } as const;
 

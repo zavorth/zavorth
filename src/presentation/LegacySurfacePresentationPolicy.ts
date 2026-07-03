@@ -14,7 +14,7 @@ export function renderLegacySurfaceBanner(pathname: string): string | null {
     return null;
   }
   const label = normalizePath(pathname) === '/app' ? '/app' : '/classic';
-  return `The ${label} surface has been removed. Use /dashboard as the only web entry; product work must land in the Runtime API, Gateway Contract and official dashboard.`;
+  return `The ${label} surface has been removed. Use /zavorthControl as the only web entry; product work must land in the Runtime API, Gateway Contract and official zavorthControl.`;
 }
 
 function normalizePath(value: string): string {

@@ -1327,9 +1327,9 @@ async function runNaturalRuntimeQuestions(rawArgs: string[] = []): Promise<numbe
   return 0;
 }
 
-async function runDashboardExperienceHome(rawArgs: string[] = []): Promise<number> {
-  const { ZavorthDashboardExperienceHomeService } = await import('./services/ZavorthDashboardExperienceHomeService.js');
-  const service = new ZavorthDashboardExperienceHomeService();
+async function runZavorthControlExperienceHome(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthZavorthControlExperienceHomeService } = await import('./services/ZavorthZavorthControlExperienceHomeService.js');
+  const service = new ZavorthZavorthControlExperienceHomeService();
   const snapshot = service.buildSnapshot();
 
   if (rawArgs.includes('--json')) {
@@ -1997,9 +1997,9 @@ async function runSensitiveActionFlow(rawArgs: string[] = []): Promise<number> {
 
 async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
   const action = String(rawArgs[0] || 'matrix').trim().toLowerCase();
-  if (action === 'cockpit' || action === 'dashboard') {
-    const { ZavorthDashboardProviderCockpitService } = await import('./services/ZavorthDashboardProviderCockpitService.js');
-    const service = new ZavorthDashboardProviderCockpitService();
+  if (action === 'cockpit' || action === 'zavorthControl') {
+    const { ZavorthZavorthControlProviderCockpitService } = await import('./services/ZavorthZavorthControlProviderCockpitService.js');
+    const service = new ZavorthZavorthControlProviderCockpitService();
     const projection = await service.buildProjection({
       includeAdvanced: rawArgs.includes('--advanced'),
       providerId: readFlexibleStringFlag(rawArgs, 'provider') || rawArgs[1],
@@ -2099,8 +2099,8 @@ async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
     return snapshot.status === 'denied' ? 2 : 0;
   }
   if (action === 'visual-approval' || action === 'visual-pack' || action === 'approval-pack') {
-    const { ZavorthDashboardVisualApprovalPackService } = await import('./services/ZavorthDashboardVisualApprovalPackService.js');
-    const service = new ZavorthDashboardVisualApprovalPackService();
+    const { ZavorthZavorthControlVisualApprovalPackService } = await import('./services/ZavorthZavorthControlVisualApprovalPackService.js');
+    const service = new ZavorthZavorthControlVisualApprovalPackService();
     const pack = await service.buildPack({
       includeAdvanced: rawArgs.includes('--advanced'),
       providerId: readFlexibleStringFlag(rawArgs, 'provider') || rawArgs[1],
@@ -2744,9 +2744,9 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runPromotedScript('ops-go', restArgs);
   }
 
-  if (command === 'open' || command === 'dashboard') {
+  if (command === 'open' || command === 'control') {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
-      return printBuiltinHelp('dashboard');
+      return printBuiltinHelp('control');
     }
     return runPromotedScript('ops-go', restArgs);
   }
@@ -2958,8 +2958,8 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runNaturalRuntimeQuestions(restArgs);
   }
 
-  if (command === 'dashboard-home' || command === 'experience-home' || command === 'zavorthControl-home') {
-    return runDashboardExperienceHome(restArgs);
+  if (command === 'zavorthControl-home' || command === 'experience-home' || command === 'zavorthControl-home') {
+    return runZavorthControlExperienceHome(restArgs);
   }
 
   if (command === 'status' || command === 'ready' || command === 'ready-to-go') {
@@ -4002,9 +4002,9 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'serve' || command === 'server' || command === 'api') {
     if (runningFromDist) {
-      return spawnInherited(process.execPath, [path.join(entryDir, 'echo-server.js')], projectRoot);
+      return spawnInherited(process.execPath, [path.join(entryDir, 'gateway', 'index.js')], projectRoot);
     }
-    return npmInherited(['exec', 'tsx', '--', 'src/echo-server.ts'], projectRoot);
+    return npmInherited(['exec', 'tsx', '--', 'src/gateway/index.ts'], projectRoot);
   }
 
   if (command === 'ui') {

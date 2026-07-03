@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { logger } from '../../../logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -15,15 +14,31 @@ import {
   type ProcessedVideoContext,
   type TelegramVideoDescriptor,
   type VideoMetadata,
+  type YouTubeCaptionTrack,
 } from '../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js';
 import {
   MAX_TRANSCRIPTION_BYTES,
   VideoTranscriptionPipeline,
 } from '../../../gateways/channels/telegram/video-handler/VideoTranscriptionPipeline.js';
 import { VideoYtDlpTranscriptSupport } from '../../../gateways/channels/telegram/video-handler/VideoYtDlpTranscriptSupport.js';
+import { VideoHandlerHelpers } from '../../../gateways/channels/telegram/video-handler/VideoHandlerHelpers.js';
 
 const SUPPORTED_VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.webm', '.m4v', '.mkv']);
 const MAX_NATIVE_YOUTUBE_GEMINI_DURATION_SECONDS = 30 * 60;
+
+type YouTubePlayerResponse = {
+  videoDetails?: {
+    title?: string;
+    author?: string;
+    shortDescription?: string;
+    lengthSeconds?: string | number;
+  };
+  captions?: {
+    playerCaptionsTracklistRenderer?: {
+      captionTracks?: YouTubeCaptionTrack[];
+    };
+  };
+};
 
 export interface PreparedVideoInput {
   messageText: string;
@@ -140,7 +155,7 @@ export class VideoHandler {
     }
 
     const watchHtml = await VideoHandlerHelpers.fetchText(`https://www.youtube.com/watch?v=${videoId}&hl=en-US&persist_hl=1`);
-    const playerResponse = VideoHandlerHelpers.extractYouTubePlayerResponse(watchHtml);
+    const playerResponse = VideoHandlerHelpers.extractYouTubePlayerResponse(watchHtml) as YouTubePlayerResponse | null;
     const oEmbed = await VideoHandlerHelpers.fetchYouTubeOEmbed(videoUrl);
 
     const videoDetails = playerResponse?.videoDetails ?? {};

@@ -4,6 +4,7 @@ import fsSync from "fs";
 import path from "path";
 import os from "os";
 import { setToolStatus, getVersionManagerTool } from "@/lib/db/versionManager";
+import { logger } from '../logger.js';
 
 const DEFAULT_PORT = 8317;
 const GRACEFUL_TIMEOUT_MS = 5000;
@@ -93,7 +94,7 @@ export function stopProcess(pid: number): Promise<void> {
     const timer = setTimeout(() => {
       try {
         process.kill(pid, "SIGKILL");
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       clearInterval(check);
       resolve();
     }, GRACEFUL_TIMEOUT_MS);

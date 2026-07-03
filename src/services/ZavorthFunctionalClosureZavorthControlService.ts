@@ -45,7 +45,7 @@ export class ZavorthFunctionalClosureZavorthControlService {
     return {
       status,
       generatedAt: this.now().toISOString(),
-      title: 'Zavorth Functional Closure Dashboard',
+      title: 'Zavorth Functional Closure ZavorthControl',
       categoryRows,
       riskRows,
       receiptRows,

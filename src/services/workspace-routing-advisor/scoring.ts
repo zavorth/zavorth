@@ -4,7 +4,9 @@ import type {
   ApprovalFrictionRecommendation,
   RouteOutcomeAggregate,
   RoutingCandidate,
+  WorkflowFrictionRecommendation,
 } from './types.js';
+import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from '../WorkspaceTaskKind.js';
 
 export function applyApprovalFrictionPenalty(baseConfidence: number, friction: ApprovalFrictionRecommendation): number {
   if (!friction) {
@@ -33,7 +35,7 @@ export function applyApprovalFrictionPenalty(baseConfidence: number, friction: A
   );
 }
 
-export function applyWorkflowFrictionPenalty(baseConfidence: number, friction: any): number {
+export function applyWorkflowFrictionPenalty(baseConfidence: number, friction: WorkflowFrictionRecommendation): number {
   if (!friction) {
     return baseConfidence;
   }
@@ -80,7 +82,7 @@ export function shouldUseCheckpointedStyle(friction: ApprovalFrictionRecommendat
   return weight >= 3;
 }
 
-export function shouldUseCheckpointedWorkflowStyle(friction: any): boolean {
+export function shouldUseCheckpointedWorkflowStyle(friction: WorkflowFrictionRecommendation): boolean {
   if (!friction) {
     return false;
   }
@@ -156,16 +158,16 @@ export function shouldBlockByRouteOutcome(routeOutcome: RouteOutcomeAggregate): 
 }
 
 export function buildBlockedExecutorReason(
-  routeOutcomes: any[],
-  approvalFrictionRecommendations: any[],
+  routeOutcomes: RouteOutcomeAggregate[],
+  approvalFrictionRecommendations: ApprovalFrictionRecommendation[],
   executor: string,
-  kind: string,
-  subtype: string,
+  kind: WorkspaceTaskKind,
+  subtype: WorkspaceTaskSubtype,
   surfaceSource: string | null,
-  findRouteOutcome: (routeOutcomes: any[], executor: string, kind: any, subtype: any, surfaceSource: string | null) => RouteOutcomeAggregate,
-  findApprovalFriction: (recommendations: any[], executor: string | null, kind: any, subtype: any) => ApprovalFrictionRecommendation,
+  findRouteOutcome: (routeOutcomes: RouteOutcomeAggregate[], executor: string, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype, surfaceSource: string | null) => RouteOutcomeAggregate,
+  findApprovalFriction: (recommendations: ApprovalFrictionRecommendation[], executor: string | null, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovalFrictionRecommendation,
 ): string | null {
-  const routeOutcome = findRouteOutcome(routeOutcomes, executor, kind as any, subtype as any, surfaceSource);
+  const routeOutcome = findRouteOutcome(routeOutcomes, executor, kind, subtype, surfaceSource);
   if (routeOutcome && shouldBlockByRouteOutcome(routeOutcome)) {
     return `Mantive ${executor} fora desta rota por rejeicoes recentes ou friccao acumulada (${routeOutcome.rationale}).`;
   }
@@ -173,8 +175,8 @@ export function buildBlockedExecutorReason(
   const approvalFriction = findApprovalFriction(
     approvalFrictionRecommendations,
     executor,
-    kind as any,
-    subtype as any,
+    kind,
+    subtype,
   );
   if (approvalFriction && shouldBlockByApprovalFriction(approvalFriction)) {
     return `Mantive ${executor} fora desta rota por friccao operacional forte (${approvalFriction.rationale}).`;
@@ -186,14 +188,14 @@ export function buildBlockedExecutorReason(
 export function enrichCandidate(
   candidate: RoutingCandidate,
   input: {
-    approvedPolicies: any[];
-    routeOutcomes: any[];
-    taskKind: any;
-    taskSubtype: any;
+    approvedPolicies: ApprovedPolicyAggregate[];
+    routeOutcomes: RouteOutcomeAggregate[];
+    taskKind: WorkspaceTaskKind;
+    taskSubtype: WorkspaceTaskSubtype;
     surfaceSource: string | null;
   },
-  findRouteOutcome: (routeOutcomes: any[], executor: string, kind: any, subtype: any, surfaceSource: string | null) => RouteOutcomeAggregate,
-  findApprovedPolicyBoost: (approvedPolicies: any[], executor: string, kind: any, subtype: any) => ApprovedPolicyAggregate,
+  findRouteOutcome: (routeOutcomes: RouteOutcomeAggregate[], executor: string, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype, surfaceSource: string | null) => RouteOutcomeAggregate,
+  findApprovedPolicyBoost: (approvedPolicies: ApprovedPolicyAggregate[], executor: string, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovedPolicyAggregate,
 ): RoutingCandidate {
   const routeOutcome = findRouteOutcome(
     input.routeOutcomes,

@@ -36,7 +36,7 @@ export function formatDurationMs(value: number): string {
   return `${days.toFixed(days >= 10 ? 0 : 1)}d`;
 }
 
-export function getProfileExecutor(preferredExecutors: Record<string, any>, kind: WorkspaceTaskKind): string | null {
+export function getProfileExecutor(preferredExecutors: Record<string, string | null | undefined>, kind: WorkspaceTaskKind): string | null {
   if (kind === 'code') {
     return normalizeExecutor(preferredExecutors.code_editing);
   }

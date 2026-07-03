@@ -16,8 +16,45 @@ import {
   isModelSyncInternalRequest,
 } from "@/shared/services/modelSyncScheduler";
 import { getModelsByProviderId } from "@/shared/constants/models";
+import { logger } from '../logger.js';
 
 type JsonRecord = Record<string, unknown>;
+
+interface SyncedModel {
+  id: string;
+  name: string;
+  source: string;
+  supportedEndpoints?: string[];
+  inputTokenLimit?: number;
+  outputTokenLimit?: number;
+  description?: string;
+  supportsThinking?: boolean;
+}
+
+interface FetchedModel {
+  id?: string;
+  name?: string;
+  displayName?: string;
+  model?: string;
+  supportedEndpoints?: string[];
+  inputTokenLimit?: number;
+  outputTokenLimit?: number;
+  description?: string;
+  supportsThinking?: boolean;
+}
+
+interface RegistryModel {
+  id: string;
+}
+
+interface ConnectionRecord {
+  providerSpecificData?: JsonRecord;
+  displayName?: string;
+  email?: string;
+  name?: string;
+  provider?: string;
+  id?: string | number;
+}
 
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonRecord) : {};
@@ -58,13 +95,13 @@ function summarizeModelChanges(previousModels: unknown, nextModels: unknown) {
 
   const previousMap = new Map(
     previousList
-      .map((model) => normalizeModelForComparison(model))
+      .map((model: unknown) => normalizeModelForComparison(model))
       .filter((model) => model.id)
       .map((model) => [model.id, JSON.stringify(model)])
   );
   const nextMap = new Map(
     nextList
-      .map((model) => normalizeModelForComparison(model))
+      .map((model: unknown) => normalizeModelForComparison(model))
       .filter((model) => model.id)
       .map((model) => [model.id, JSON.stringify(model)])
   );
@@ -146,10 +183,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     logProvider = toNonEmptyString(connection.provider) || "unknown";
     channelLabel = getModelSyncChannelLabel(connection);
 
-    // Fetch models from the existing /api/providers/[id]/models endpoint.
-    // Construct a safe localhost URL from the incoming request's origin.
-    // The route only accepts authenticated or internal-scheduler requests,
-    // and the path is hardcoded — no user-controlled URL components reach fetch.
     const SAFE_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "::1"]);
     const incomingUrl = new URL(request.url);
     const safeOrigin = SAFE_HOSTS.has(incomingUrl.hostname)
@@ -165,10 +198,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
 
     const duration = Date.now() - start;
-    const modelsData = await modelsRes.json();
+    const modelsData = (await modelsRes.json()) as Record<string, unknown>;
 
     if (!modelsRes.ok) {
-      // Log the failed attempt
       await saveCallLog({
         method: "GET",
         path: `/api/providers/${id}/models`,
@@ -178,7 +210,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         sourceFormat: "-",
         connectionId: id,
         duration,
-        error: modelsData.error || `HTTP ${modelsRes.status}`,
+        error: String(modelsData.error || `HTTP ${modelsRes.status}`),
         requestType: "model-sync",
       });
 
@@ -188,16 +220,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       );
     }
 
-    const fetchedModels = modelsData.models || [];
+    const fetchedModels: FetchedModel[] = Array.isArray(modelsData.models)
+      ? (modelsData.models as FetchedModel[])
+      : [];
 
-    // Filter out models already in the built-in registry
-    const registryIds = new Set(getModelsByProviderId(logProvider).map((m: any) => m.id));
+    const registryIds = new Set(
+      getModelsByProviderId(logProvider).map((m: RegistryModel) => m.id)
+    );
 
-    // Replace the full model list
-    const models = fetchedModels
-      .map((m: any) => ({
-        id: m.id || m.name || m.model,
-        name: m.name || m.displayName || m.id || m.model,
+    const models: SyncedModel[] = fetchedModels
+      .map((m: FetchedModel) => ({
+        id: m.id || m.name || m.model || "",
+        name: m.name || m.displayName || m.id || m.model || "",
         source: "auto-sync",
         ...(Array.isArray(m.supportedEndpoints) && m.supportedEndpoints.length > 0
           ? { supportedEndpoints: m.supportedEndpoints }
@@ -207,15 +241,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         ...(typeof m.description === "string" ? { description: m.description } : {}),
         ...(m.supportsThinking === true ? { supportsThinking: true } : {}),
       }))
-      .filter((m: any) => m.id && !registryIds.has(m.id));
+      .filter((m: SyncedModel) => m.id && !registryIds.has(m.id));
 
     const previousModels = await getCustomModels(logProvider);
     const replaced = await replaceCustomModels(logProvider, models);
 
-    // For Gemini: also write to syncedAvailableModels (unioned across API keys)
     if (logProvider === "gemini") {
       try {
-        const syncedModels = models.map((m: any) => ({
+        const syncedModels: SyncedModel[] = models.map((m: SyncedModel) => ({
           id: m.id,
           name: m.name || m.id,
           source: "api-sync" as const,
@@ -239,7 +272,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (usesManagedAvailableModels(logProvider)) {
       const aliasSync = await syncManagedAvailableModelAliases(
         logProvider,
-        models.map((model: any) => model.id)
+        models.map((model: SyncedModel) => model.id)
       );
       syncedAliases = aliasSync.assignedAliases.length;
     }
@@ -274,8 +307,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       logged: modelChanges.total > 0,
       models: replaced,
     });
-  } catch (error: any) {
-    // Log error
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Sync failed";
+
     await saveCallLog({
       method: "POST",
       path: `/api/providers/${id}/sync-models`,
@@ -285,7 +319,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       sourceFormat: "-",
       connectionId: id,
       duration: Date.now() - start,
-      error: error.message || "Sync failed",
+      error: errorMessage,
       requestType: "model-sync",
       ...(channelLabel
         ? {
@@ -294,8 +328,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             },
           }
         : {}),
-    }).catch(() => {});
+    }).catch((err: unknown) => { logger.warn("[auto-fix] Empty catch block", err); });
 
-    return NextResponse.json({ error: error.message || "Failed to sync models" }, { status: 500 });
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

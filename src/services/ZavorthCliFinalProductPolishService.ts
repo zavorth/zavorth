@@ -84,11 +84,11 @@ export class ZavorthCliFinalProductPolishService {
         attention,
         blocked,
         requiredCommands: [...REQUIRED_COMMANDS],
-        dashboardPath: '/dashboard',
+        zavorthControlPath: '/zavorthControl',
         zavorthControlPath: '/control',
         inkPreviewRendersOnce,
         inkInteractiveMode: files.inkIndex.includes('readline.createInterface')
-          && files.inkIndex.includes('/dashboard')
+          && files.inkIndex.includes('/zavorthControl')
           && files.inkIndex.includes('/exit'),
         zavorthNativeCommandIdentity: files.inkIndex.includes('Zavorth Agent OS / Command Runtime')
           && files.inkIndex.includes('FOX')
@@ -124,7 +124,7 @@ export class ZavorthCliFinalProductPolishService {
       `Ink renders once: ${snapshot.summary.inkPreviewRendersOnce}`,
       `Interactive mode: ${snapshot.summary.inkInteractiveMode}`,
       `No render loop: ${snapshot.summary.noInfiniteRenderLoop}`,
-      `Dashboard path: ${snapshot.summary.dashboardPath}`,
+      `ZavorthControl path: ${snapshot.summary.zavorthControlPath}`,
       '',
       'CLI polish matrix:',
     ];
@@ -170,10 +170,10 @@ export class ZavorthCliFinalProductPolishService {
         label: 'Root help exposes real daily commands',
         kind: 'command',
         passed: REQUIRED_COMMANDS.every((command) => files.helpers.includes(command))
-          && files.helpers.includes('/dashboard')
-          && files.helpers.includes('Open Dashboard.'),
+          && files.helpers.includes('/zavorthControl')
+          && files.helpers.includes('Open ZavorthControl.'),
         userVisible: true,
-        evidence: [...REQUIRED_COMMANDS, '/dashboard'],
+        evidence: [...REQUIRED_COMMANDS, '/zavorthControl'],
       }),
       this.entry({
         id: 'cli.ink-static-render',
@@ -198,14 +198,14 @@ export class ZavorthCliFinalProductPolishService {
         evidence: ['fox', 'wordmark', 'tools', 'skills', 'receipts'],
       }),
       this.entry({
-        id: 'cli.dashboard-path',
-        label: 'Dashboard is the main visual target',
+        id: 'cli.zavorthControl-path',
+        label: 'ZavorthControl is the main visual target',
         kind: 'surface',
-        passed: files.inkIndex.includes('/dashboard')
-          && files.helpers.includes('/dashboard')
+        passed: files.inkIndex.includes('/zavorthControl')
+          && files.helpers.includes('/zavorthControl')
           && !files.inkIndex.includes('/control'),
         userVisible: true,
-        evidence: ['/dashboard', 'no /control in Ink preview'],
+        evidence: ['/zavorthControl', 'no /control in Ink preview'],
       }),
       this.entry({
         id: 'cli.english-critical-path',

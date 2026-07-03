@@ -1,5 +1,24 @@
 const CACHE_TTL_MS = 5 * 60 * 1000;
-const releasesCache = new Map<string, { data: any; ts: number }>();
+
+interface GitHubReleaseAsset {
+  name: string;
+  browser_download_url: string;
+  size: number;
+}
+
+interface GitHubRelease {
+  tag_name: string;
+  assets: GitHubReleaseAsset[];
+  published_at: string;
+  body: string;
+}
+
+interface CacheEntry {
+  data: GitHubRelease | GitHubRelease[];
+  ts: number;
+}
+
+const releasesCache = new Map<string, CacheEntry>();
 
 function getGitHubHeaders(): Record<string, string> {
   const headers: Record<string, string> = { Accept: "application/vnd.github+json" };
@@ -8,7 +27,7 @@ function getGitHubHeaders(): Record<string, string> {
   return headers;
 }
 
-async function fetchJSON(url: string): Promise<any> {
+async function fetchJSON(url: string): Promise<GitHubRelease | GitHubRelease[]> {
   const res = await fetch(url, {
     headers: getGitHubHeaders(),
     signal: AbortSignal.timeout(15_000),
@@ -17,7 +36,7 @@ async function fetchJSON(url: string): Promise<any> {
   return res.json();
 }
 
-async function cachedFetch(url: string): Promise<any> {
+async function cachedFetch(url: string): Promise<GitHubRelease | GitHubRelease[]> {
   const cached = releasesCache.get(url);
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) return cached.data;
   const data = await fetchJSON(url);
@@ -33,11 +52,11 @@ interface ReleaseInfo {
   body: string;
 }
 
-function parseRelease(raw: any): ReleaseInfo {
+function parseRelease(raw: GitHubRelease): ReleaseInfo {
   return {
     tag: raw.tag_name,
     version: raw.tag_name.replace(/^v/, ""),
-    assets: (raw.assets || []).map((a: any) => ({
+    assets: (raw.assets || []).map((a: GitHubReleaseAsset) => ({
       name: a.name,
       url: a.browser_download_url,
       size: a.size,
@@ -70,7 +89,7 @@ export async function getAvailableVersions(): Promise<string[]> {
   const raw = await cachedFetch(
     "https://api.github.com/repos/router-for-me/CLIProxyAPI/releases?per_page=30"
   );
-  return (Array.isArray(raw) ? raw : []).map((r: any) => r.tag_name);
+  return (Array.isArray(raw) ? raw : []).map((r: GitHubRelease) => r.tag_name);
 }
 
 export async function getChecksums(version: string): Promise<Map<string, string>> {

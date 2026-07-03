@@ -129,6 +129,6 @@ export type ZavorthNativeLearningLoopSnapshot = {
     check: 'npm run zavorth:native-learning-loop:check --silent';
     search: 'npm run zavorth:native-learning-loop -- --query "<term>"';
     observe: 'npm run zavorth:native-learning-loop -- --observe "<successful workflow>"';
-    next: 'Phase 4 - Dashboard Learning UX';
+    next: 'Phase 4 - ZavorthControl Learning UX';
   };
 };

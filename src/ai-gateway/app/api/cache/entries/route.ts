@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/lib/db/core";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { safeParseIntBounded } from "@/shared/utils/safeParseInt";
 
 interface CacheEntry {
   id: string;
@@ -18,8 +19,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const { searchParams } = new URL(req.url);
-    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const page = safeParseIntBounded(searchParams.get("page"), 1, 1, Number.MAX_SAFE_INTEGER);
+    const limit = safeParseIntBounded(searchParams.get("limit"), 20, 1, 100);
     const search = searchParams.get("search") || "";
     const model = searchParams.get("model") || "";
     const sortBy = searchParams.get("sortBy") || "created_at";

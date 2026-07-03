@@ -74,9 +74,9 @@ export type ZavorthGuidedMissionsContract = {
   startProjection: {
     command: string;
     previewOnlyByDefault: true;
-    dashboardRoute: '/dashboard';
+    zavorthControlRoute: '/zavorthControl';
     policyBrokerRequired: true;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
   };
   safety: {
     guidedDoesNotBypassPolicy: true;

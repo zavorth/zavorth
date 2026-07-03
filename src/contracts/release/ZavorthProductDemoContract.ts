@@ -54,7 +54,7 @@ export type ZavorthProductDemoSnapshot = {
     steps: ZavorthProductDemoQuickstartStep[];
   };
   visualHome: {
-    route: '/dashboard';
+    route: '/zavorthControl';
     title: 'Zavorth Home';
     areas: Array<'Inbox' | 'Tasks' | 'Approvals' | 'Receipts' | 'Connectors'>;
     openCommand: 'zavorth go';

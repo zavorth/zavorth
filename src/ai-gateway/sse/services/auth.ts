@@ -139,7 +139,7 @@ export async function getProviderCredentials(
           lastErrorType: null,
           lastErrorSource: null,
           errorCode: null,
-        }).catch(() => {});
+        }).catch((e) => log.warn('AUTH', `Failed to reset provider connection backoff: ${e}`));
       }
     }
 

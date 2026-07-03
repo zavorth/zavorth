@@ -57,7 +57,7 @@ type BootIntegrityRuntimeConfig = {
   tmpDir?: string;
   dbPath?: string;
   telemetryEventsFile?: string;
-  dashboardRuntimeStateFile?: string;
+  zavorthControlRuntimeStateFile?: string;
   workflowRunDir?: string;
   gatewaySessionLedgerDir?: string;
   hostIdentityFile?: string;
@@ -138,7 +138,7 @@ export class BootIntegrityService {
   private buildSpecs(): BootIntegritySpec[] {
     const runtimeDir = this.dirname(
       this.runtimeConfig.telemetryEventsFile
-      || this.runtimeConfig.dashboardRuntimeStateFile
+      || this.runtimeConfig.zavorthControlRuntimeStateFile
       || path.join(this.runtimeConfig.dataDir || 'data', 'runtime', 'placeholder'),
     );
 
@@ -203,13 +203,13 @@ export class BootIntegrityService {
         noteWhenMissing: 'nenhum evento local foi registrado ainda',
       },
       {
-        id: 'dashboard-runtime-state',
-        label: 'estado runtime do dashboard',
+        id: 'zavorthControl-runtime-state',
+        label: 'estado runtime do zavorthControl',
         kind: 'runtime-file',
-        path: this.runtimeConfig.dashboardRuntimeStateFile || path.join(runtimeDir, 'dashboard-runtime.json'),
+        path: this.runtimeConfig.zavorthControlRuntimeStateFile || path.join(runtimeDir, 'zavorthControl-runtime.json'),
         required: false,
         parseJson: true,
-        noteWhenMissing: 'dashboard ainda nao publicou estado runtime neste host',
+        noteWhenMissing: 'zavorthControl ainda nao publicou estado runtime neste host',
       },
       {
         id: 'host-identity',

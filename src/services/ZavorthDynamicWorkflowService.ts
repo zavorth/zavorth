@@ -357,7 +357,7 @@ function buildBudget(input: {
 
 function isDynamicWorkflowSnapshot(value: unknown): value is ZavorthDynamicWorkflowSnapshot {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
-  const snapshot = value as Record<string, any>;
+  const snapshot = value as Record<string, unknown>;
   const scale = snapshot.scale;
   const materialization = snapshot.materialization;
   const approval = snapshot.approval;
@@ -369,6 +369,7 @@ function isDynamicWorkflowSnapshot(value: unknown): value is ZavorthDynamicWorkf
   return snapshot.contractVersion === ZAVORTH_DYNAMIC_WORKFLOW_CONTRACT_VERSION
     && typeof snapshot.generatedAt === 'string'
     && typeof snapshot.workflowId === 'string'
+    && typeof snapshot.status === 'string'
     && ['preview', 'needs-approval', 'blocked'].includes(snapshot.status)
     && typeof snapshot.objectivePreview === 'string'
     && isRecord(scale)
@@ -388,7 +389,9 @@ function isDynamicWorkflowSnapshot(value: unknown): value is ZavorthDynamicWorkf
     && isRecord(routing)
     && isRecord(routing.workers)
     && isRecord(routing.synthesis)
+    && typeof routing.workers.modelClass === 'string'
     && ['cheap', 'standard', 'premium'].includes(routing.workers.modelClass)
+    && typeof routing.synthesis.modelClass === 'string'
     && ['cheap', 'standard', 'premium'].includes(routing.synthesis.modelClass)
     && isRecord(budget)
     && isFiniteNumber(budget.maxCents)
@@ -403,7 +406,7 @@ function isDynamicWorkflowSnapshot(value: unknown): value is ZavorthDynamicWorkf
     && typeof surface.cliCommand === 'string';
 }
 
-function isRecord(value: unknown): value is Record<string, any> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 

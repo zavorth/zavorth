@@ -78,7 +78,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     naturalFirstRoute: 'capability-discovery',
     contract: 'ZavorthExternalCapabilityInventoryContract',
     service: 'ZavorthExternalCapabilityInventoryService',
-    projection: 'DashboardExternalCapabilityInventory',
+    projection: 'ZavorthControlExternalCapabilityInventory',
     approvalRequiredForLive: false,
     noAutonomousSkillMutation: true,
     gates: [
@@ -99,7 +99,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     naturalFirstRoute: 'capability-discovery',
     contract: 'ZavorthExternalRuntimeReadOnlyProbeContract',
     service: 'ZavorthExternalRuntimeReadOnlyProbeService',
-    projection: 'DashboardExternalRuntimeProbe',
+    projection: 'ZavorthControlExternalRuntimeProbe',
     approvalRequiredForLive: false,
     noAutonomousSkillMutation: true,
     gates: [
@@ -120,7 +120,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     naturalFirstRoute: 'governed-execution',
     contract: 'ZavorthErrorClassifierContract',
     service: 'ZavorthErrorClassifierService',
-    projection: 'DashboardErrorRecoveryStrategy',
+    projection: 'ZavorthControlErrorRecoveryStrategy',
     approvalRequiredForLive: false,
     noAutonomousSkillMutation: true,
     gates: [
@@ -141,7 +141,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     naturalFirstRoute: 'tool-preview',
     contract: 'ZavorthToolCallRepairContract',
     service: 'ZavorthToolCallRepairService',
-    projection: 'DashboardToolCallRepairReceipt',
+    projection: 'ZavorthControlToolCallRepairReceipt',
     approvalRequiredForLive: false,
     noAutonomousSkillMutation: true,
     gates: [
@@ -162,7 +162,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     naturalFirstRoute: 'governed-execution',
     contract: 'ZavorthSafeToolParallelismContract',
     service: 'ZavorthSafeToolParallelismService',
-    projection: 'DashboardSafeParallelismPlan',
+    projection: 'ZavorthControlSafeParallelismPlan',
     approvalRequiredForLive: false,
     noAutonomousSkillMutation: true,
     gates: [
@@ -183,7 +183,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     naturalFirstRoute: 'memory-recall',
     contract: 'ZavorthProceduralMemoryContract',
     service: 'ZavorthProceduralMemoryService',
-    projection: 'DashboardProceduralMemoryReceipts',
+    projection: 'ZavorthControlProceduralMemoryReceipts',
     approvalRequiredForLive: false,
     noAutonomousSkillMutation: true,
     gates: [
@@ -204,7 +204,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     naturalFirstRoute: 'approval-proposal',
     contract: 'ZavorthSkillCuratorContract',
     service: 'ZavorthSkillCuratorService',
-    projection: 'DashboardSkillCurationPlan',
+    projection: 'ZavorthControlSkillCurationPlan',
     approvalRequiredForLive: true,
     noAutonomousSkillMutation: true,
     gates: [
@@ -225,7 +225,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     naturalFirstRoute: 'capability-discovery',
     contract: 'ZavorthExternalChannelGatewayContract',
     service: 'ZavorthExternalChannelGatewayService',
-    projection: 'DashboardExternalChannelGateway',
+    projection: 'ZavorthControlExternalChannelGateway',
     approvalRequiredForLive: true,
     noAutonomousSkillMutation: true,
     gates: [
@@ -246,7 +246,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     naturalFirstRoute: 'governed-execution',
     contract: 'ZavorthDelegatedWorkerBridgeContract',
     service: 'ZavorthDelegatedWorkerBridgeService',
-    projection: 'DashboardDelegatedWorkerBridge',
+    projection: 'ZavorthControlDelegatedWorkerBridge',
     approvalRequiredForLive: true,
     noAutonomousSkillMutation: true,
     gates: [
@@ -302,7 +302,7 @@ export class ZavorthExternalRuntimeBridgeService {
         noDefaultExternalRuntimeBranding: true,
         compatibilityFixturesAreOptional: true,
         noSourceRuntimeCanonicalFields: true,
-        dashboardMayShowAdapterDetailsOnly: true,
+        zavorthControlMayShowAdapterDetailsOnly: true,
       },
       summary: buildSummary(candidates),
       nextActions: candidates.slice(0, 4).map((entry) => ({
@@ -322,7 +322,7 @@ export class ZavorthExternalRuntimeBridgeService {
         importedMemoryRequiresProvenance: true,
         importedSkillMutationRequiresApproval: true,
         readOnlyProbeBeforeLiveSidecar: true,
-        dashboardProjectionRequired: true,
+        zavorthControlProjectionRequired: true,
         noImplementationPerformedByBridge: true,
       },
       commands: {
@@ -415,7 +415,7 @@ function candidate(input: {
     zavorthOwner: {
       contract: input.contract,
       service: input.service,
-      dashboardProjection: input.projection,
+      zavorthControlProjection: input.projection,
     },
     safety: {
       dryRunFirst: true,

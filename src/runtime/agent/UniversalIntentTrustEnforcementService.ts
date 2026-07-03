@@ -147,7 +147,7 @@ export type UniversalIntentTrustEnforcementSnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     trustHint: string;
     permissionHint: string;
   };
@@ -292,7 +292,7 @@ export class UniversalIntentTrustEnforcementService {
       },
       surface: {
         cliCommand: `zavorth uni "${redactText(intentInput.text)}"`,
-        dashboardPath: '/dashboard?sector=config',
+        zavorthControlPath: '/zavorthControl?sector=config',
         trustHint: `${decision.trustSlider.level} -> ${decision.trustSlider.decision}`,
         permissionHint: permission.required
           ? permission.prompt || 'Permissao conversacional obrigatoria.'

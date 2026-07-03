@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type SkillSourceKind = 'workspace' | 'repository' | 'catalog' | 'vendor';
 export type SkillSourceTrust = 'trusted' | 'review' | 'blocked';
@@ -164,7 +165,11 @@ export class SkillSourceRegistryService {
         return DEFAULT_SOURCE_REGISTRY;
       }
       return JSON.parse(this.readFileSyncImpl(this.configFile, 'utf8')) as SkillSourceRegistryRawDocument;
-    } catch {
+    } catch (err) {
+      logger.warn('Failed to read skill source registry config, falling back to defaults', {
+        err,
+        configFile: this.configFile,
+      });
       return DEFAULT_SOURCE_REGISTRY;
     }
   }

@@ -260,7 +260,7 @@ function executeHudAction(input: {
     return { attempted: true, key: 'h', status: 'shown', command: 'zavorth', message: 'Home shortcut selected.' };
   }
   if (action === 'open') {
-    return { attempted: true, key: 'o', status: 'opened', command: 'zavorth open', message: 'Dashboard shortcut selected.' };
+    return { attempted: true, key: 'o', status: 'opened', command: 'zavorth open', message: 'ZavorthControl shortcut selected.' };
   }
   if (action === 'diff') {
     const planId = resolvePlanId(input.mutationPlane, input.targetPlanId, input.selectedIndex);

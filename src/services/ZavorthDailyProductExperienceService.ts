@@ -1,6 +1,6 @@
 import {
   ZAVORTH_DAILY_PRODUCT_EXPERIENCE_VERSION,
-  type ZavorthDailyProductExperienceDashboardCard,
+  type ZavorthDailyProductExperienceZavorthControlCard,
   type ZavorthDailyProductExperienceLoopStep,
   type ZavorthDailyProductExperienceReviewItem,
   type ZavorthDailyProductExperienceSetupStep,
@@ -8,17 +8,17 @@ import {
   type ZavorthDailyProductExperienceStatus,
   type ZavorthDailyProductExperienceStepStatus,
 } from '../contracts/ZavorthDailyProductExperienceContract.js';
-import type { DashboardSetupChecklistSnapshot } from '../contracts/DashboardSetupChecklistContract.js';
+import type { ZavorthControlSetupChecklistSnapshot } from '../contracts/ZavorthControlSetupChecklistContract.js';
 import type { ZavorthDailyCapabilityFlowSnapshot } from '../contracts/ZavorthDailyCapabilityFlowContract.js';
 import type { ZavorthExperienceProfileContract } from '../contracts/ZavorthExperienceProfileContract.js';
-import { DashboardSetupChecklistService } from './DashboardSetupChecklistService.js';
+import { ZavorthControlSetupChecklistService } from './ZavorthControlSetupChecklistService.js';
 import { ZavorthDailyCapabilityFlowService, type ZavorthDailyCapabilityFlowInput } from './ZavorthDailyCapabilityFlowService.js';
 import { ZavorthExperienceProfileService, type ZavorthExperienceProfileInput } from './ZavorthExperienceProfileService.js';
 
 type Runtime = {
   now?: () => Date;
   profiles?: Pick<ZavorthExperienceProfileService, 'buildContract'>;
-  setupChecklist?: Pick<DashboardSetupChecklistService, 'buildSnapshot'>;
+  setupChecklist?: Pick<ZavorthControlSetupChecklistService, 'buildSnapshot'>;
   capabilityFlow?: Pick<ZavorthDailyCapabilityFlowService, 'buildSnapshot'>;
 };
 
@@ -27,13 +27,13 @@ export type ZavorthDailyProductExperienceInput = ZavorthExperienceProfileInput &
 export class ZavorthDailyProductExperienceService {
   private readonly now: () => Date;
   private readonly profiles: Pick<ZavorthExperienceProfileService, 'buildContract'>;
-  private readonly setupChecklist: Pick<DashboardSetupChecklistService, 'buildSnapshot'>;
+  private readonly setupChecklist: Pick<ZavorthControlSetupChecklistService, 'buildSnapshot'>;
   private readonly capabilityFlow: Pick<ZavorthDailyCapabilityFlowService, 'buildSnapshot'>;
 
   constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
     this.profiles = runtime.profiles || new ZavorthExperienceProfileService();
-    this.setupChecklist = runtime.setupChecklist || new DashboardSetupChecklistService({ now: this.now });
+    this.setupChecklist = runtime.setupChecklist || new ZavorthControlSetupChecklistService({ now: this.now });
     this.capabilityFlow = runtime.capabilityFlow || new ZavorthDailyCapabilityFlowService({ now: this.now });
   }
 
@@ -72,10 +72,10 @@ export class ZavorthDailyProductExperienceService {
         summary: 'Everything useful and reversible should be easy to inspect: learned memory, skills, channels, backends, evals and receipts.',
         items: buildReviewItems(capability),
       },
-      dashboardProjection: {
+      zavorthControlProjection: {
         route: '/control',
         renderMode: 'daily-product-experience',
-        cards: buildDashboardCards(status, capability),
+        cards: buildZavorthControlCards(status, capability),
       },
       language: {
         publicTone: 'plain-product-language',
@@ -87,7 +87,7 @@ export class ZavorthDailyProductExperienceService {
         commands: [
           'npm run zavorth:daily-product-experience:check --silent',
           'npm run zavorth:daily-capability-flow:check --silent',
-          'npm run zavorth:dashboard-setup-checklist:check --silent',
+          'npm run zavorth:zavorthControl-setup-checklist:check --silent',
           'npm run zavorth-control-vite:check --silent',
           'npm run security:secrets --silent',
         ],
@@ -135,7 +135,7 @@ export class ZavorthDailyProductExperienceService {
   }
 }
 
-function buildSetupSteps(setup: DashboardSetupChecklistSnapshot): ZavorthDailyProductExperienceSetupStep[] {
+function buildSetupSteps(setup: ZavorthControlSetupChecklistSnapshot): ZavorthDailyProductExperienceSetupStep[] {
   const byId = new Map(setup.items.map((item) => [item.id, item]));
   const provider = byId.get('connect-provider');
   const channel = byId.get('connect-telegram');
@@ -171,7 +171,7 @@ function setupStep(
   id: ZavorthDailyProductExperienceSetupStep['id'],
   area: ZavorthDailyProductExperienceSetupStep['area'],
   label: string,
-  source: DashboardSetupChecklistSnapshot['items'][number] | undefined,
+  source: ZavorthControlSetupChecklistSnapshot['items'][number] | undefined,
 ): ZavorthDailyProductExperienceSetupStep {
   return {
     id,
@@ -180,7 +180,7 @@ function setupStep(
     status: mapStepStatus(source?.status),
     summary: source?.summary || 'Open this setup step and follow the next command.',
     nextAction: source?.nextAction || 'Open setup checklist.',
-    command: source?.command || 'npm run zavorth:dashboard-setup-checklist --silent',
+    command: source?.command || 'npm run zavorth:zavorthControl-setup-checklist --silent',
     href: source?.href || '/control?setup=checklist',
     proof: source?.proof || 'Projection-only setup step.',
   };
@@ -188,7 +188,7 @@ function setupStep(
 
 function buildDailyLoop(): ZavorthDailyProductExperienceLoopStep[] {
   return [
-    loop('ask', 'Ask', 'Use natural language from dashboard, CLI, API or a configured channel.', true, []),
+    loop('ask', 'Ask', 'Use natural language from zavorthControl, CLI, API or a configured channel.', true, []),
     loop('understand', 'Understand', 'Zavorth reads profile, context, readiness and risk before choosing a route.', true, []),
     loop('choose-route', 'Choose route', 'It decides whether to answer, use a skill, call a subagent, schedule work or ask for setup.', true, []),
     loop('work', 'Work', 'Low-risk reversible work can stay quiet; writes, shell, sends, provider changes and sensitive memory ask first.', false, [
@@ -218,7 +218,7 @@ function loop(
     summary,
     quietByDefault,
     approvalAppearsFor,
-    visibleInDashboard: true,
+    visibleInZavorthControl: true,
   };
 }
 
@@ -245,10 +245,10 @@ function reviewItem(
   return { id, label, status, summary, href, command, userQuestion };
 }
 
-function buildDashboardCards(
+function buildZavorthControlCards(
   status: ZavorthDailyProductExperienceStatus,
   capability: ZavorthDailyCapabilityFlowSnapshot,
-): ZavorthDailyProductExperienceDashboardCard[] {
+): ZavorthDailyProductExperienceZavorthControlCard[] {
   return [
     card('daily-start', 'Start here', 'Choose profile, test one provider, connect one channel and run one small mission.', '/control?daily=start', 'Start daily setup. Show profile, provider, channel, runtime and first mission as a guided checklist.', status),
     card('setup-guide', 'Setup guide', 'Providers, channels and execution backend show honest ready, preview, outbox or blocked state.', '/control/providers?daily=setup', 'Open setup guide. Show providers, channels, backends and the next useful command.', status),
@@ -259,13 +259,13 @@ function buildDashboardCards(
 }
 
 function card(
-  id: ZavorthDailyProductExperienceDashboardCard['id'],
+  id: ZavorthDailyProductExperienceZavorthControlCard['id'],
   title: string,
   summary: string,
   href: string,
   prompt: string,
   status: ZavorthDailyProductExperienceStatus,
-): ZavorthDailyProductExperienceDashboardCard {
+): ZavorthDailyProductExperienceZavorthControlCard {
   return {
     id,
     title,
@@ -278,7 +278,7 @@ function card(
   };
 }
 
-function resolveStatus(setup: DashboardSetupChecklistSnapshot, capability: ZavorthDailyCapabilityFlowSnapshot): ZavorthDailyProductExperienceStatus {
+function resolveStatus(setup: ZavorthControlSetupChecklistSnapshot, capability: ZavorthDailyCapabilityFlowSnapshot): ZavorthDailyProductExperienceStatus {
   if (setup.summary.blocked > 0 || capability.status === 'blocked') return 'blocked';
   if (setup.summary.needsSetup > 0) return 'needs-setup';
   if (setup.summary.next > 0 || capability.status === 'attention') return 'attention';
@@ -292,7 +292,7 @@ function headlineFor(status: ZavorthDailyProductExperienceStatus): string {
   return 'Zavorth is ready for daily use with reviewable memory, tools and history.';
 }
 
-function mapStepStatus(status: DashboardSetupChecklistSnapshot['items'][number]['status'] | undefined): ZavorthDailyProductExperienceStepStatus {
+function mapStepStatus(status: ZavorthControlSetupChecklistSnapshot['items'][number]['status'] | undefined): ZavorthDailyProductExperienceStepStatus {
   if (!status) return 'pending';
   if (status === 'done') return 'done';
   if (status === 'blocked') return 'blocked';

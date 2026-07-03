@@ -395,7 +395,7 @@ export class ZavorthToolCatalogService {
         readiness: 'partial',
         summary: 'Session bootstrap e control plane web ja ficam visiveis no produto.',
         command: null,
-        details: ['Surface web/dashboard ja existe, mas ainda pode ficar mais unificada.'],
+        details: ['Surface web/zavorthControl ja existe, mas ainda pode ficar mais unificada.'],
         searchText: '/api/web/session web control session bootstrap',
       },
       {
@@ -510,7 +510,7 @@ export class ZavorthToolCatalogService {
       case 'runtime':
         return 'Nenhuma tool do runtime foi ligada ao catalogo atual.';
       case 'web':
-        return 'Superficie web/dashboard ja existe, mas ainda pode ficar mais unificada.';
+        return 'Superficie web/zavorthControl ja existe, mas ainda pode ficar mais unificada.';
       case 'mcp':
         return 'Ainda nao existe uma surface MCP first-class unica no produto.';
       case 'lsp':

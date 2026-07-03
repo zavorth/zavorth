@@ -49,12 +49,12 @@ export type WebAppPolishSnapshot = {
 export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
   {
     id: 'canonical-control-entry',
-    title: 'entrada canonica /dashboard',
+    title: 'entrada canonica /zavorthControl',
     asset: 'html',
     requiredMarkers: [
       'id="canonical-surface-banner"',
-      'Dashboard canonica',
-      '/dashboard e a entrada web principal',
+      'ZavorthControl canonica',
+      '/zavorthControl e a entrada web principal',
     ],
     reason: 'a web/app precisa apontar para a superficie canonica e deixar /app e /classic fora da superficie publica.',
   },
@@ -73,7 +73,7 @@ export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
       'zavorth chat',
       'zavorth doctor',
     ],
-    reason: 'a Dashboard deve carregar a mesma jornada canonica da CLI.',
+    reason: 'a ZavorthControl deve carregar a mesma jornada canonica da CLI.',
   },
   {
     id: 'operator-cockpit',
@@ -189,7 +189,7 @@ export const WEB_APP_POLISH_PACKAGE_SCRIPTS = [
 ] as const;
 
 export const WEB_APP_POLISH_CONTRACTS = [
-  'A entrada web canonica e /dashboard; /app e /classic foram removidas da superficie publica.',
+  'A entrada web canonica e /zavorthControl; /app e /classic foram removidas da superficie publica.',
   'A web/app precisa expor a mesma jornada canonica da CLI: onboard, go, chat, status e doctor.',
   'Approvals, diffs, artifacts, memoria, recursos e health precisam estar no mesmo workspace operacional.',
   'Estados vazios autenticados devem explicar o caminho de liberacao sem stack trace ou inventario bruto.',

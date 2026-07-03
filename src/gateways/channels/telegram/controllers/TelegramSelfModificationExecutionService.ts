@@ -4,6 +4,7 @@ import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import {
+import { logger } from '../logger.js';
   SelfModificationApplyResult,
   SelfModificationCommandService,
   SelfModificationPreviewResult,
@@ -51,7 +52,7 @@ export class TelegramSelfModificationExecutionService {
         execution_summary: null,
         metadata: { target_file: filePath },
       })
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
     const result = await this.deps.selfModificationService.createPreview(filePath, instruction, userId);
     await this.finishPreviewTask(ctx, task, result, filePath);
@@ -82,7 +83,7 @@ export class TelegramSelfModificationExecutionService {
         execution_summary: null,
         metadata: { preview_id: previewId },
       })
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
     const result = await this.deps.selfModificationService.applyPreview(previewId, userId);
     task.metadata = {
@@ -117,7 +118,7 @@ export class TelegramSelfModificationExecutionService {
           relative_path: result.relativePath,
         },
       })
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
     await SmartOutputService.reply(ctx, this.formatApplyReply(result));
   }
@@ -147,7 +148,7 @@ export class TelegramSelfModificationExecutionService {
         execution_summary: null,
         metadata: { goal },
       })
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
     const result = await this.deps.selfModificationService.createGoalPreview(goal, userId);
     await this.finishPreviewTask(ctx, task, result, goal);
@@ -192,7 +193,7 @@ export class TelegramSelfModificationExecutionService {
           restored_files: result.restoredFiles,
         },
       })
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
     await SmartOutputService.reply(ctx, this.formatRollbackReply(result));
   }
@@ -238,7 +239,7 @@ export class TelegramSelfModificationExecutionService {
           relative_path: result.relativePath,
         },
       })
-      .catch(() => {});
+      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
     await SmartOutputService.reply(ctx, this.formatPreviewReply(result));
   }

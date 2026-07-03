@@ -62,7 +62,7 @@ const REFERENCE_BASELINE_BY_CHANNEL: Record<string, string[]> = {
   instagram: ['Meta webhook status', 'DM recipient policy', 'rich fallback', 'business account readiness'],
   teams: ['Graph/Bot status', 'slash-like commands', 'webhook status', 'operator buttons'],
   email: ['fallback delivery', 'recipient policy', 'approvals', 'plain rich fallback'],
-  web: ['dashboard status card', 'actions', 'operator command surface', 'rich web response'],
+  web: ['zavorthControl status card', 'actions', 'operator command surface', 'rich web response'],
 };
 
 export class ChannelExperienceCertificationService {
@@ -97,7 +97,7 @@ export class ChannelExperienceCertificationService {
       : null;
     const summary = this.buildSummary(entries);
     const smokePlan = this.buildSmokePlan(entries);
-    const dashboardEvidence = this.buildDashboardEvidence(entries);
+    const zavorthControlEvidence = this.buildZavorthControlEvidence(entries);
 
     return {
       generatedAt: this.now().toISOString(),
@@ -107,7 +107,7 @@ export class ChannelExperienceCertificationService {
       entries,
       selected,
       smokePlan,
-      dashboardEvidence,
+      zavorthControlEvidence,
       narrative: {
         headline: 'Certificacao de experiencia dos canais do Zavorth',
         operatorSummary:
@@ -142,7 +142,7 @@ export class ChannelExperienceCertificationService {
       'Smokes globais:',
       ...snapshot.smokePlan.globalCommands.map((command) => `- ${command}`),
       '',
-      `Dashboard: ${snapshot.dashboardEvidence.status} - ${snapshot.dashboardEvidence.note}`,
+      `ZavorthControl: ${snapshot.zavorthControlEvidence.status} - ${snapshot.zavorthControlEvidence.note}`,
       '',
       `Next: ${snapshot.narrative.nextAction}`,
     );
@@ -221,7 +221,7 @@ export class ChannelExperienceCertificationService {
       && meshEntry?.features.sessionHistory
       && (meshEntry?.features.sessionSend || actionKinds.has('send-test') || meshEntry?.readiness !== 'ready'),
     );
-    const dashboardReady = Boolean(meshEntry && statusReady && guidedActionsReady && (meshEntry.statusRows || []).length > 0);
+    const zavorthControlReady = Boolean(meshEntry && statusReady && guidedActionsReady && (meshEntry.statusRows || []).length > 0);
 
     return [
       this.check('adapter', 'Adapter/canal registrado', true, Boolean(meshEntry), 'canal precisa existir no Channel Mesh', [meshEntry?.summary || '']),
@@ -233,7 +233,7 @@ export class ChannelExperienceCertificationService {
       this.check('connection-state', 'Estado de conexao/login', true, Boolean(meshEntry?.connection || (meshEntry?.statusRows || []).length > 0 || typeof meshEntry?.configured === 'boolean'), 'operador precisa ver conectado/configurado/erro', this.statusEvidence(meshEntry)),
       this.check('governance', 'Policy e callbacks seguros', true, policyReady && safeCallbacksReady, 'mutacoes perigosas precisam exigir comando/confirmacao e policy visivel', [meshEntry?.policy?.summary || 'policy n/d']),
       this.check('session-continuity', 'Historico e envio por sessao', true, sessionContinuityReady, 'session list/history/send precisam estar modelados ou bloqueados por readiness', this.featureEvidence(meshEntry)),
-      this.check('dashboard-contract', 'Dashboard operavel por contrato', true, dashboardReady, 'dashboard precisa receber status rows e actions reais do mesh', [`rows=${meshEntry?.statusRows?.length || 0}`, `actions=${meshEntry?.actions?.length || 0}`]),
+      this.check('zavorthControl-contract', 'ZavorthControl operavel por contrato', true, zavorthControlReady, 'zavorthControl precisa receber status rows e actions reais do mesh', [`rows=${meshEntry?.statusRows?.length || 0}`, `actions=${meshEntry?.actions?.length || 0}`]),
       this.check('qr-login', 'QR/login WhatsApp', qrRequired, qrReady, 'WhatsApp local precisa expor QR/login/relink/logout', [meshEntry?.loginQr?.state || 'qr n/d']),
       this.check('webhook-status', 'Webhook/status publico', webhookRequired, webhookReady, 'canais webhook precisam expor path/status', [meshEntry?.webhookPath || 'webhook n/d']),
       this.check('local-bridge', 'Bridge local governada', bridgeRequired, bridgeReady, 'Signal/iMessage precisam mostrar bridge local e allowlist', this.featureEvidence(meshEntry)),
@@ -282,15 +282,15 @@ export class ChannelExperienceCertificationService {
     };
   }
 
-  private buildDashboardEvidence(entries: ChannelExperienceCertificationEntry[]): ChannelExperienceCertificationSnapshot['dashboardEvidence'] {
+  private buildZavorthControlEvidence(entries: ChannelExperienceCertificationEntry[]): ChannelExperienceCertificationSnapshot['zavorthControlEvidence'] {
     const requiredEntries = entries.filter((entry) => this.requiredChannelIds.includes(entry.channelId));
-    const hasDashboardContract = requiredEntries.every((entry) =>
-      entry.checks.some((check) => check.id === 'dashboard-contract' && check.status === 'pass'));
+    const hasZavorthControlContract = requiredEntries.every((entry) =>
+      entry.checks.some((check) => check.id === 'zavorthControl-contract' && check.status === 'pass'));
     return {
-      status: hasDashboardContract ? 'contract-ready' : 'blocked',
-      note: hasDashboardContract
-        ? 'O backend entrega status rows, actions e QR/login para o dashboard sem exigir terminal.'
-        : 'Algum canal essencial ainda nao entrega status/actions suficientes para o dashboard.',
+      status: hasZavorthControlContract ? 'contract-ready' : 'blocked',
+      note: hasZavorthControlContract
+        ? 'O backend entrega status rows, actions e QR/login para o zavorthControl sem exigir terminal.'
+        : 'Algum canal essencial ainda nao entrega status/actions suficientes para o zavorthControl.',
       routes: [
         '/api/web/channels',
         '/api/web/channels/actions',

@@ -253,14 +253,14 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
     title: 'Look at my phone',
     category: 'device-help',
     audience: ['personal', 'developer', 'power'],
-    summary: 'Use Android ADB observation/dashboard only when configured and approved.',
+    summary: 'Use Android ADB observation/zavorthControl only when configured and approved.',
     prompt: 'Look at my connected phone, explain what you see and ask before tapping or typing.',
     defaultRisk: 'medium',
     mutatesByDefault: false,
     requiresNetworkByDefault: false,
     likelyCapabilities: ['adb-observe', 'visual-artifact', 'policy-broker'],
     expectedArtifacts: ['phone-screenshot', 'diagnostic-summary', 'receipt'],
-    approvalSummary: 'ADB observe/dashboard requires explicit approval and host readiness.',
+    approvalSummary: 'ADB observe/zavorthControl requires explicit approval and host readiness.',
     safeFirstStep: 'Check ADB readiness and request observation approval before capturing.',
     steps: [
       { id: 'adb-readiness', label: 'ADB readiness', mode: 'read_only', summary: 'Check whether device bridge is configured.' },
@@ -311,9 +311,9 @@ export class ZavorthGuidedMissionsService {
       startProjection: {
         command: `zavorth missions start --template ${recommended.id} --preview`,
         previewOnlyByDefault: true,
-        dashboardRoute: '/dashboard',
+        zavorthControlRoute: '/zavorthControl',
         policyBrokerRequired: true,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
       },
       safety: {
         guidedDoesNotBypassPolicy: true,
@@ -322,7 +322,7 @@ export class ZavorthGuidedMissionsService {
         rawSecretsSerialized: false,
       },
       invariants: [
-        'Guided missions make the first action obvious without turning the dashboard into an execution authority.',
+        'Guided missions make the first action obvious without turning the zavorthControl into an execution authority.',
         'Every mission starts with a safe read-only or preview step unless the user approves a sensitive action.',
         'Mission cards explain risk, capabilities, artifacts and approvals before work begins.',
         'Personal, Developer and Business users see different recommendations over the same governed runtime.',

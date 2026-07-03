@@ -222,18 +222,19 @@ export class TrajectoryResearchService {
 
   public createReport(input: {
     title: string;
-    trajectory_ids: string[];
+    trajectory_ids?: string[];
     findings: string[];
     methodology: string;
     conclusions: string[];
+    confidence?: number;
   }): string {
     const id = `rpt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-    const validIds = input.trajectory_ids.filter((id) => this.trajectories.has(id));
+    const validIds = (input.trajectory_ids || []).filter((id) => this.trajectories.has(id));
     const trajs = validIds.map((id) => this.trajectories.get(id)!);
     const avgQuality = trajs.length > 0
       ? trajs.reduce((sum, t) => sum + t.quality_score, 0) / trajs.length
-      : 0;
+      : (input.confidence ?? 0);
 
     const report: ResearchReport = {
       id,
@@ -249,7 +250,7 @@ export class TrajectoryResearchService {
     this.reports.set(id, report);
     this.saveData();
 
-    return `Report created. ID: ${id}\n  Title: ${input.title}\n  Trajectories: ${validIds.length}\n  Confidence: ${avgQuality.toFixed(2)}`;
+    return `research report created. ID: ${id}\n  Title: ${input.title}\n  Trajectories: ${validIds.length}\n  Confidence: ${avgQuality.toFixed(2)}`;
   }
 
   public getReport(reportId: string): string {

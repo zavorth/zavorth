@@ -5,7 +5,7 @@ import {
   type ZavorthDailyCapabilityFlowStage,
   type ZavorthDailyCapabilityFlowStatus,
   type ZavorthDailyCapabilityFlowWizardStep,
-  type ZavorthDailyCapabilityFlowDashboardCard,
+  type ZavorthDailyCapabilityFlowZavorthControlCard,
 } from '../contracts/ZavorthDailyCapabilityFlowContract.js';
 import type { RuntimeDeploymentTarget } from '../contracts/RuntimeProfilePlaybookContract.js';
 import { McpEcosystemIntakeService } from './McpEcosystemIntakeService.js';
@@ -100,10 +100,10 @@ export class ZavorthDailyCapabilityFlowService {
         ],
         summary: `${evalSnapshot.summary.scenarios} scenarios, ${evalSnapshot.summary.failures} failures, ${evalSnapshot.summary.warnings} warnings.`,
       },
-      dashboardProjection: {
+      zavorthControlProjection: {
         route: '/control',
         renderMode: 'daily-capability-flow',
-        cards: dashboardCards({
+        cards: zavorthControlCards({
           selfImprovementStatus,
           runtimeStatus: runtime.status === 'blocked' ? 'blocked' : runtime.status === 'attention' ? 'attention' : 'ready',
           mcpStatus: mcpCatalog.status,
@@ -257,14 +257,14 @@ function redactText(value: string): string {
     .replace(/\bbearer\s+[^\s,;]+/gi, 'bearer [REDACTED]');
 }
 
-function dashboardCards(input: {
+function zavorthControlCards(input: {
   selfImprovementStatus: ZavorthDailyCapabilityFlowStatus;
   runtimeStatus: ZavorthDailyCapabilityFlowStatus;
   mcpStatus: ZavorthDailyCapabilityFlowStatus;
   evalStatus: ZavorthDailyCapabilityFlowStatus;
   runtimeTarget: RuntimeDeploymentTarget;
   runtimeProfile: string;
-}): ZavorthDailyCapabilityFlowDashboardCard[] {
+}): ZavorthDailyCapabilityFlowZavorthControlCard[] {
   return [
     card({
       id: 'improve-behavior',
@@ -365,7 +365,7 @@ function dashboardCards(input: {
   ];
 }
 
-function card(input: Omit<ZavorthDailyCapabilityFlowDashboardCard, 'mutatesState' | 'executionAuthority'>): ZavorthDailyCapabilityFlowDashboardCard {
+function card(input: Omit<ZavorthDailyCapabilityFlowZavorthControlCard, 'mutatesState' | 'executionAuthority'>): ZavorthDailyCapabilityFlowZavorthControlCard {
   return {
     ...input,
     mutatesState: false,

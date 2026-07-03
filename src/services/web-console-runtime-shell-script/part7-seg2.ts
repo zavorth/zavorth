@@ -387,7 +387,7 @@ export const runtimeShellScriptPart7Seg2: string = [
     "          report: payload?.assistant?.report || payload?.report || payload?.applyReport?.report || null,",
     "        };",
     "        operationalMeshData.channelAction = {",
-    "          summary: 'Canal ' + targetId + ' configurado em modo ' + selectedMode + ' pela Dashboard.',",
+    "          summary: 'Canal ' + targetId + ' configurado em modo ' + selectedMode + ' pela ZavorthControl.',",
     "          details: Array.isArray(payload?.applyReport?.nextSteps) ? payload.applyReport.nextSteps : [],",
     "        };",
     "        operationalMeshData.channelDoctor = await fetchProtectedJsonOptional(",

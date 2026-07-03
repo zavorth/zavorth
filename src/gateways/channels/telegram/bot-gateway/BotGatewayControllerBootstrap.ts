@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { DemoGuideService } from '../../../../services/DemoGuideService.js';
@@ -64,7 +63,7 @@ export function initializeBotGatewayControllers(
     gateway.auditLogger,
     gateway.executionGateway,
     gateway.zavorthBridgePreferenceStore,
-    gateway.dashboardService,
+    gateway.zavorthControlService,
     gateway.dailyReportService,
     gateway.demoModeService,
     gateway.demoGuideService,
@@ -134,7 +133,6 @@ export function initializeBotGatewayControllers(
   gateway.permissionController = new TelegramPermissionController({
     permissionService: gateway.permissionService,
     taskManager,
-    botApi: gateway.bot.api,
     persistTask: (task) => persistTask(taskManager, task),
     getZavorthBridgeController: () => gateway.zavorthBridgeController,
     resumeTaskExecution: (ctx, task) =>
@@ -309,7 +307,7 @@ export function initializeBotGatewayControllers(
       gateway.permissionController.formatPermissionList.bind(
         gateway.permissionController,
       ),
-    handleDashboard: gateway.opsController.handleDashboard.bind(
+    handleZavorthControl: gateway.opsController.handleZavorthControl.bind(
       gateway.opsController,
     ),
     handleOperationalMode: gateway.opsController.handleOperationalMode.bind(

@@ -81,6 +81,7 @@ export function buildChannelConfig(projectRoot: string) {
     instagramGraphApiVersion: getEnv('INSTAGRAM_GRAPH_API_VERSION', 'v20.0').trim() || 'v20.0',
     instagramBusinessAccountId: getEnv('INSTAGRAM_BUSINESS_ACCOUNT_ID'),
     instagramAccessToken: getEnv('INSTAGRAM_ACCESS_TOKEN'),
+    instagramWebhookUrl: getEnvUrl('INSTAGRAM_WEBHOOK_URL'),
     instagramWebhookVerifyToken: getEnv('INSTAGRAM_WEBHOOK_VERIFY_TOKEN'),
     instagramAllowedRecipientIds: parseList(getEnv('INSTAGRAM_ALLOWED_RECIPIENT_IDS')),
     instagramOutboxDir: getEnv('INSTAGRAM_OUTBOX_DIR', path.resolve(projectRoot, 'data', 'instagram-bridge', 'outbox')),

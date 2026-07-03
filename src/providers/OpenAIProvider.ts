@@ -132,7 +132,7 @@ export class OpenAIProvider implements ILlmProvider {
           tool_call_id: message.toolCallId || 'unknown',
         };
         result.push(toolMsg);
-        // Dashboard controls: Se a tool response trouxer inlineData (screenshot/visão),
+        // ZavorthControl controls: Se a tool response trouxer inlineData (screenshot/visão),
         // emite como mensagem 'user' complementar para que o modelo enxergue a imagem.
         if (message.inlineData && message.inlineData.length > 0) {
           const visionContent: Array<OpenAI.ChatCompletionContentPartText | OpenAI.ChatCompletionContentPartImage> = [

@@ -41,7 +41,7 @@ export type RunArtifactReceiptReplayReceiptStatus =
 export type RunArtifactReceiptReplayFeatureId =
   | 'capability-negotiation'
   | 'tool-rehearsal'
-  | 'selfing-dashboard'
+  | 'selfing-zavorthControl'
   | 'artifact-memory'
   | 'personal-ops-autopilot'
   | 'agent-team-compiler'
@@ -186,7 +186,7 @@ export type RunArtifactReceiptReplaySnapshot = {
   };
   surface: {
     cliCommand: string;
-    dashboardPath: string;
+    zavorthControlPath: string;
     replayHint: string;
     receiptHint: string;
   };
@@ -208,7 +208,7 @@ const FEATURE_DEFINITIONS: Array<{
 }> = [
   { featureId: 'capability-negotiation', metadataKey: 'capabilityNegotiation', label: 'Capability Negotiation' },
   { featureId: 'tool-rehearsal', metadataKey: 'toolRehearsal', label: 'Tool Rehearsal' },
-  { featureId: 'selfing-dashboard', metadataKey: 'selfingDashboard', label: 'Selfing Dashboard' },
+  { featureId: 'selfing-zavorthControl', metadataKey: 'selfingZavorthControl', label: 'Selfing ZavorthControl' },
   { featureId: 'artifact-memory', metadataKey: 'artifactMemory', label: 'Artifact Memory' },
   { featureId: 'personal-ops-autopilot', metadataKey: 'personalOpsAutopilot', label: 'Personal Ops Autopilot' },
   { featureId: 'agent-team-compiler', metadataKey: 'agentTeamCompiler', label: 'Agent Team Compiler' },
@@ -392,7 +392,7 @@ export class RunArtifactReceiptReplayService {
       },
       surface: {
         cliCommand: `zavorth replay run ${run.id} --json`,
-        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}`,
+        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}`,
         replayHint: 'Replay usa eventos, artifacts e receipts; nao reexecuta ferramentas.',
         receiptHint: 'Receipts citam origem de feature, artifact e observatory antes de reutilizar.',
       },

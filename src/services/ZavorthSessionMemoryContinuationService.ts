@@ -10,7 +10,7 @@ import {
   type ZavorthSessionHistoryBridgeInput,
   type ZavorthSessionHistoryBridgeReceipt,
   type ZavorthSessionHistoryItemInput,
-  type ZavorthSessionMemoryDashboardProjection,
+  type ZavorthSessionMemoryZavorthControlProjection,
   type ZavorthSessionMemoryContinuationSnapshot,
   type ZavorthSessionMemoryContinuationStatus,
 } from '../contracts/ZavorthSessionMemoryContinuationContract.js';
@@ -70,7 +70,7 @@ export class ZavorthSessionMemoryContinuationService {
       continuationRequest,
     );
     const status = resolveStatus(previousChannelMessagingStatus, acceptanceMatrix);
-    const dashboardProjection = this.buildDashboardProjection({
+    const zavorthControlProjection = this.buildZavorthControlProjection({
       status,
       historyBridgeReceipt,
       privacyFilteringReceipt,
@@ -91,7 +91,7 @@ export class ZavorthSessionMemoryContinuationService {
       memorySignalMappingReceipt,
       replayHandoffSnapshot,
       continuationRequest,
-      dashboardProjection,
+      zavorthControlProjection,
       acceptanceMatrix,
       summary: {
         transcriptItemsReceived: historyBridgeReceipt.receivedItems,
@@ -294,14 +294,14 @@ export class ZavorthSessionMemoryContinuationService {
     };
   }
 
-  public buildDashboardProjection(input: {
+  public buildZavorthControlProjection(input: {
     status: ZavorthSessionMemoryContinuationStatus;
     historyBridgeReceipt: ZavorthSessionHistoryBridgeReceipt;
     privacyFilteringReceipt: ZavorthPrivacyFilteringReceipt;
     memorySignalMappingReceipt: ZavorthMemorySignalMappingReceipt;
     replayHandoffSnapshot: ZavorthReplayHandoffSnapshot;
     continuationRequest: ZavorthContinuationRequest;
-  }): ZavorthSessionMemoryDashboardProjection {
+  }): ZavorthSessionMemoryZavorthControlProjection {
     return {
       title: 'Session Memory Continuation',
       status: input.status,
@@ -344,8 +344,8 @@ export class ZavorthSessionMemoryContinuationService {
       `Memory writes performed: ${snapshot.summary.memoryWritesPerformed}`,
       `Hidden memory authority created: ${snapshot.summary.hiddenMemoryAuthorityCreated}`,
       '',
-      'Dashboard:',
-      ...snapshot.dashboardProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
+      'ZavorthControl:',
+      ...snapshot.zavorthControlProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
       '',
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
@@ -466,6 +466,6 @@ function card(
   label: string,
   value: string,
   detail: string,
-): ZavorthSessionMemoryDashboardProjection['cards'][number] {
+): ZavorthSessionMemoryZavorthControlProjection['cards'][number] {
   return { id, label, value, detail };
 }

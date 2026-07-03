@@ -130,7 +130,7 @@ export class SpeechVoiceLivePlaneService {
         stagingLiveSmoke: 'npm run speech-voice-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/SpeechVoiceLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Dashboard controls - Research, Web Extraction And Browser Live Plane',
+        nextStage: 'ZavorthControl controls - Research, Web Extraction And Browser Live Plane',
       },
     };
   }

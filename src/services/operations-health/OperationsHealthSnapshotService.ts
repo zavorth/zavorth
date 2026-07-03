@@ -3,6 +3,27 @@ import type { SystemLog } from '../../storage/LogRepository.js';
 import { OperationsHealthChannelSnapshotSupport } from './OperationsHealthChannelSnapshotSupport.js';
 import { OperationsHealthDoctorSnapshotSupport } from './OperationsHealthDoctorSnapshotSupport.js';
 import { OperationsHealthOpsSnapshotSupport } from './OperationsHealthOpsSnapshotSupport.js';
+import type {
+  ChannelsSnapshot,
+  NodeMeshSmokeSnapshot,
+  DiscordBridgeSnapshot,
+  WhatsAppChannelSnapshot,
+  SlackChannelSnapshot,
+  PlannedChannelSnapshot,
+  ChannelProviderDoctorSnapshot,
+  RemoteTransportDoctorSnapshot,
+  MaintenanceSnapshot,
+  StorageSnapshot,
+  RecentErrorsSnapshot,
+  SecuritySnapshot,
+  PublishSnapshot,
+  PublishHistoryEntry,
+  MaintenanceAutomationSnapshot,
+  ZavorthBridgeMobileAccessSnapshot,
+  HotspotEntry,
+  MappedLog,
+  SecurityCheckSnapshot,
+} from './OperationsHealthSnapshotTypes.js';
 
 type OperationsHealthSnapshotReaderOptions = {
   now: () => Date;
@@ -55,87 +76,87 @@ export class OperationsHealthSnapshotService {
     });
   }
 
-  public readChannelsSnapshot(): any {
+  public readChannelsSnapshot(): ChannelsSnapshot {
     return this.channelSupport.readChannelsSnapshot();
   }
 
-  public readNodeMeshSmokeSnapshot(): any {
+  public readNodeMeshSmokeSnapshot(): NodeMeshSmokeSnapshot {
     return this.doctorSupport.readNodeMeshSmokeSnapshot();
   }
 
-  public readDiscordBridgeSnapshot(): any {
+  public readDiscordBridgeSnapshot(): DiscordBridgeSnapshot {
     return this.channelSupport.readDiscordBridgeSnapshot();
   }
 
-  public readWhatsAppChannelSnapshot(): any {
+  public readWhatsAppChannelSnapshot(): WhatsAppChannelSnapshot {
     return this.channelSupport.readWhatsAppChannelSnapshot();
   }
 
-  public readSlackChannelSnapshot(): any {
+  public readSlackChannelSnapshot(): SlackChannelSnapshot {
     return this.channelSupport.readSlackChannelSnapshot();
   }
 
-  public readSignalChannelSnapshot(): any {
+  public readSignalChannelSnapshot(): PlannedChannelSnapshot {
     return this.channelSupport.readSignalChannelSnapshot();
   }
 
-  public readIMessageChannelSnapshot(): any {
+  public readIMessageChannelSnapshot(): PlannedChannelSnapshot {
     return this.channelSupport.readIMessageChannelSnapshot();
   }
 
-  public readTeamsChannelSnapshot(): any {
+  public readTeamsChannelSnapshot(): PlannedChannelSnapshot {
     return this.channelSupport.readTeamsChannelSnapshot();
   }
 
-  public readEmailChannelSnapshot(): any {
+  public readEmailChannelSnapshot(): PlannedChannelSnapshot {
     return this.channelSupport.readEmailChannelSnapshot();
   }
 
-  public readPlannedChannelHealthSnapshot(input: { statusFile: string; fallback: any }): any {
+  public readPlannedChannelHealthSnapshot(input: { statusFile: string; fallback: PlannedChannelSnapshot }): PlannedChannelSnapshot {
     return this.channelSupport.readPlannedChannelHealthSnapshot(input);
   }
 
-  public readZavorthBridgeMobileAccessSnapshot(): any {
+  public readZavorthBridgeMobileAccessSnapshot(): ZavorthBridgeMobileAccessSnapshot {
     return this.channelSupport.readZavorthBridgeMobileAccessSnapshot();
   }
 
-  public readChannelProviderDoctorSnapshot(): any {
+  public readChannelProviderDoctorSnapshot(): ChannelProviderDoctorSnapshot {
     return this.doctorSupport.readChannelProviderDoctorSnapshot();
   }
 
-  public readRemoteTransportDoctorSnapshot(): any {
+  public readRemoteTransportDoctorSnapshot(): RemoteTransportDoctorSnapshot {
     return this.doctorSupport.readRemoteTransportDoctorSnapshot();
   }
 
-  public readMaintenanceSnapshot(): any {
+  public readMaintenanceSnapshot(): MaintenanceSnapshot {
     return this.opsSupport.readMaintenanceSnapshot();
   }
 
-  public readStorageSnapshot(cachedHotspotsOnly = false): any {
+  public readStorageSnapshot(cachedHotspotsOnly = false): StorageSnapshot {
     return this.opsSupport.readStorageSnapshot(cachedHotspotsOnly);
   }
 
-  public readRecentErrors(): any {
+  public readRecentErrors(): RecentErrorsSnapshot {
     return this.opsSupport.readRecentErrors();
   }
 
-  public buildEstimatedSecuritySnapshot(cachedSecurity?: any): any {
+  public buildEstimatedSecuritySnapshot(cachedSecurity?: SecuritySnapshot): SecuritySnapshot {
     return this.opsSupport.buildEstimatedSecuritySnapshot(cachedSecurity);
   }
 
-  public buildEstimatedErrors(cachedErrors?: any): any {
+  public buildEstimatedErrors(cachedErrors?: RecentErrorsSnapshot): RecentErrorsSnapshot {
     return this.opsSupport.buildEstimatedErrors(cachedErrors);
   }
 
-  public readPublishSnapshot(): any {
+  public readPublishSnapshot(): PublishSnapshot {
     return this.opsSupport.readPublishSnapshot();
   }
 
-  public readPublishHistory(): any {
+  public readPublishHistory(): PublishHistoryEntry[] {
     return this.opsSupport.readPublishHistory();
   }
 
-  public readMaintenanceAutomationSnapshot(): any {
+  public readMaintenanceAutomationSnapshot(): MaintenanceAutomationSnapshot {
     return this.opsSupport.readMaintenanceAutomationSnapshot();
   }
 
@@ -143,7 +164,7 @@ export class OperationsHealthSnapshotService {
     return this.opsSupport.computeNextMaintenanceAutomationAt(enabled, now, hour, minute);
   }
 
-  public readHotspots(cachedOnly = false): any[] {
+  public readHotspots(cachedOnly = false): HotspotEntry[] {
     return this.opsSupport.readHotspots(cachedOnly);
   }
 
@@ -155,11 +176,11 @@ export class OperationsHealthSnapshotService {
     return this.opsSupport.shouldIgnoreOperationalWarning(entry);
   }
 
-  public mapLog(entry: SystemLog): any {
+  public mapLog(entry: SystemLog): MappedLog {
     return this.opsSupport.mapLog(entry);
   }
 
-  public readEstimatedSecurityCheck(filePath: string): any {
+  public readEstimatedSecurityCheck(filePath: string): SecurityCheckSnapshot {
     return this.opsSupport.readEstimatedSecurityCheck(filePath);
   }
 }

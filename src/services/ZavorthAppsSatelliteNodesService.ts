@@ -372,7 +372,7 @@ export class ZavorthAppsSatelliteNodesService {
     return {
       status: enabled ? 'ready' : 'spec-ready',
       platforms: ['windows', 'macos', 'linux'],
-      capabilities: ['status indicator', 'approval notification', 'open Dashboard', 'pairing QR', 'offline queue status'],
+      capabilities: ['status indicator', 'approval notification', 'open ZavorthControl', 'pairing QR', 'offline queue status'],
       enabled,
       binaryClaimed: false,
       setupCommand: 'zavorth apps --action tray.spec',
@@ -407,7 +407,7 @@ export class ZavorthAppsSatelliteNodesService {
         label: 'Desktop tray',
         status: isTruthy(this.env.ZAVORTH_DESKTOP_TRAY_ENABLED) ? 'ready' : 'planned',
         liveClaim: isTruthy(this.env.ZAVORTH_DESKTOP_TRAY_ENABLED) ? 'configurable' : 'spec-ready',
-        capabilities: ['approval notifications', 'quick status', 'open Dashboard', 'pairing QR'],
+        capabilities: ['approval notifications', 'quick status', 'open ZavorthControl', 'pairing QR'],
         setupCommand: 'zavorth apps --action tray.spec',
         healthCommand: 'zavorth apps --action health',
         limitations: ['Native tray binary remains explicit and owner-gated.'],
@@ -585,5 +585,5 @@ function nextSafeAction(status: ZavorthAppsSatelliteStatus, action: ZavorthAppsS
   if (action === 'push.plan') {
     return 'Configure one push route and pass a consent id before live notification delivery.';
   }
-  return 'Pair a companion, inspect health, or open Dashboard for cross-surface approvals.';
+  return 'Pair a companion, inspect health, or open ZavorthControl for cross-surface approvals.';
 }

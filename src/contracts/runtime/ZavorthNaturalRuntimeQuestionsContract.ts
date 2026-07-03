@@ -44,7 +44,7 @@ export type ZavorthNaturalRuntimeQuestionsSnapshot = {
   };
   sources: ZavorthNaturalRuntimeQuestionSource[];
   runtimeProjection: {
-    dashboardRoute: '/dashboard';
+    zavorthControlRoute: '/zavorthControl';
     satelliteRoute: '/satellite';
     cliCommand: 'zavorth ask-runtime';
     executionAuthority: false;

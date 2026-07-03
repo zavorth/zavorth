@@ -300,7 +300,7 @@ export class RuntimeBootstrapService {
         id: 'prepare-operator-channels',
         title: 'Preparar canais opcionais',
         command: 'npm run setup:channels',
-        reason: 'Depois do /dashboard e da CLI, voce pode ligar os canais que quiser no mesmo runtime: Telegram, Discord, Slack e WhatsApp.',
+        reason: 'Depois do /zavorthControl e da CLI, voce pode ligar os canais que quiser no mesmo runtime: Telegram, Discord, Slack e WhatsApp.',
         blocking: false,
         autoFixCommand: null,
       });

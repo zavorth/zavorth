@@ -385,9 +385,9 @@ export async function runBuiltinLauncherPart3(command: string, restArgs: string[
 
   if (command === 'serve' || command === 'server' || command === 'api') {
     if (runningFromDist) {
-      return spawnInherited(process.execPath, [path.join(entryDir, 'echo-server.js')], projectRoot);
+      return spawnInherited(process.execPath, [path.join(entryDir, 'gateway', 'index.js')], projectRoot);
     }
-    return npmInherited(['exec', 'tsx', '--', 'src/echo-server.ts'], projectRoot);
+    return npmInherited(['exec', 'tsx', '--', 'src/gateway/index.ts'], projectRoot);
   }
 
   if (command === 'ui') {

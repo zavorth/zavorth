@@ -1,6 +1,6 @@
 export const ZAVORTH_MNEMOS_MEMORY_UX_VERSION = 'zavorth-mnemos-memory-ux-v1' as const;
 
-export type ZavorthMnemosMemoryUxSurface = 'dashboard' | 'cli' | 'telegram';
+export type ZavorthMnemosMemoryUxSurface = 'zavorthControl' | 'cli' | 'telegram';
 
 export type ZavorthMnemosMemoryUxCommand = {
   surface: ZavorthMnemosMemoryUxSurface;
@@ -36,7 +36,7 @@ export type ZavorthMnemosMemoryUxSnapshot = {
     providerCall: false;
     networkCall: false;
     durableMutation: false;
-    dashboardCanWriteMemory: false;
+    zavorthControlCanWriteMemory: false;
     cliWriteRequiresApproval: true;
     telegramWriteRequiresApproval: true;
     rawJsonHiddenByDefault: true;

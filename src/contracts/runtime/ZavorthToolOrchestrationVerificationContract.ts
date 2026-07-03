@@ -137,7 +137,7 @@ export type ZavorthToolOrchestrationVerificationSnapshot = {
     noLiveImpactWithoutApproval: true;
     verificationRequiredBeforeCompletion: true;
     untrustedToolOutputRequiresEvidenceBoundary: true;
-    noDashboardVisualMutation: true;
+    noZavorthControlVisualMutation: true;
     rawSecretsSerialized: false;
   };
   summary: {

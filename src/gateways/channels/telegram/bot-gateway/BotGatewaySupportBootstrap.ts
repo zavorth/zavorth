@@ -56,7 +56,7 @@ export function createBotGatewaySupport(
     dailyReportService: gateway.dailyReportService || {
       start: () => undefined,
     },
-    dashboardService: gateway.dashboardService || {
+    zavorthControlService: gateway.zavorthControlService || {
       start: async () => undefined,
       getUrl: () => "",
     },
@@ -85,7 +85,7 @@ export function createBotGatewaySupport(
     state: {
       supervisedRuntimeNotificationTimer: null,
       supervisedRuntimeNotificationFlushInFlight: false,
-      dashboardSurfaceStarted: false,
+      zavorthControlSurfaceStarted: false,
     },
     getSharedSurfaceCommandService: () => gateway.sharedSurfaceCommandService,
   });

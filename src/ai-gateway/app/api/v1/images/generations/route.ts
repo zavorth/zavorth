@@ -20,6 +20,29 @@ import { v1ImageGenerationSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 
 import { getAllCustomModels } from "@/lib/localDb";
+import { logger } from '../logger.js';
+
+interface CustomModel {
+  id: string;
+  name?: string;
+  source?: string;
+  apiFormat?: string;
+  supportedEndpoints?: string[];
+  [key: string]: unknown;
+}
+
+interface ImageGenerationSuccess {
+  success: true;
+  data: Record<string, unknown>;
+}
+
+interface ImageGenerationFailure {
+  success: false;
+  error: unknown;
+  status: number;
+}
+
+type ImageGenerationResult = ImageGenerationSuccess | ImageGenerationFailure;
 
 /**
  * Handle CORS preflight
@@ -55,7 +78,7 @@ export async function GET(request: Request) {
 
   // Include custom models tagged for images
   try {
-    const customModelsMap = (await getAllCustomModels()) as Record<string, any>;
+    const customModelsMap = (await getAllCustomModels()) as Record<string, CustomModel[]>;
     for (const [providerId, models] of Object.entries(customModelsMap)) {
       if (!Array.isArray(models)) continue;
       for (const model of models) {
@@ -73,7 +96,7 @@ export async function GET(request: Request) {
         });
       }
     }
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
   return new Response(JSON.stringify({ object: "list", data }), {
     headers: { "Content-Type": "application/json" },
@@ -83,7 +106,7 @@ export async function GET(request: Request) {
 /**
  * POST /v1/images/generations — generate images
  */
-export async function POST(request) {
+export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
@@ -121,7 +144,7 @@ export async function POST(request) {
   // If not in built-in registry, check custom models tagged for images
   if (!provider) {
     try {
-      const customModelsMap = (await getAllCustomModels()) as Record<string, any>;
+      const customModelsMap = (await getAllCustomModels()) as Record<string, CustomModel[]>;
       for (const [providerId, models] of Object.entries(customModelsMap)) {
         if (!Array.isArray(models)) continue;
         for (const model of models) {
@@ -136,7 +159,7 @@ export async function POST(request) {
         }
         if (provider) break;
       }
-    } catch {}
+    } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
   }
 
   if (!provider) {
@@ -190,19 +213,19 @@ export async function POST(request) {
     credentials,
     log,
     ...(isCustomModel && { resolvedProvider: provider }),
-  });
+  }) as ImageGenerationResult;
 
   if (result.success) {
     await clearRecoveredProviderState(credentials);
-    return new Response(JSON.stringify((result as any).data), {
+    return new Response(JSON.stringify(result.data), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  const errorPayload = toJsonErrorPayload((result as any).error, "Image generation provider error");
+  const errorPayload = toJsonErrorPayload(result.error, "Image generation provider error");
   return new Response(JSON.stringify(errorPayload), {
-    status: (result as any).status,
+    status: result.status,
     headers: { "Content-Type": "application/json" },
   });
 }

@@ -41,7 +41,7 @@ export class ZavorthControlService {
   private stopping: Promise<void> | null = null;
   private host = config.zavorthWebHost;
   private port = config.zavorthWebPort;
-  private readonly runtimeStateFile = config.dashboardRuntimeStateFile;
+  private readonly runtimeStateFile = config.zavorthControlRuntimeStateFile;
   private isRunning = false;
 
   constructor(

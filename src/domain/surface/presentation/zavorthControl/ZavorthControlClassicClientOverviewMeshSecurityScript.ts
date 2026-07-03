@@ -1,17 +1,21 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import type { ZavorthSecurityMeshSnapshot } from '../../../../services/ZavorthSecurityMeshService.js';
+
+declare function escapeHtml(value: unknown): string;
+
+type SecurityMeshErrorPayload = { error: unknown };
 
 function zavorthControlClassicClientOverviewMeshSecurity() {
-    function renderOperationsSecurityMesh(securityMesh) {
+    function renderOperationsSecurityMesh(securityMesh: ZavorthSecurityMeshSnapshot | SecurityMeshErrorPayload | null | undefined) {
       const node = document.getElementById('operations-security-mesh');
       if (!node) return;
-      if (!securityMesh || securityMesh.error) {
+      if (!securityMesh || 'error' in securityMesh) {
         node.innerHTML = '<div class="muted">Nao foi possivel carregar o Runtime & Security Mesh.</div>';
         return;
       }
 
-      const summary = securityMesh.summary || {};
-      const posture = securityMesh.posture || {};
+      const summary: ZavorthSecurityMeshSnapshot['summary'] = securityMesh.summary || {} as ZavorthSecurityMeshSnapshot['summary'];
+      const posture: ZavorthSecurityMeshSnapshot['posture'] = securityMesh.posture || {} as ZavorthSecurityMeshSnapshot['posture'];
       const coreModes = Array.isArray(securityMesh.modes?.core) ? securityMesh.modes.core : [];
       const extensionModes = Array.isArray(securityMesh.modes?.extensions) ? securityMesh.modes.extensions : [];
       const actions = Array.isArray(securityMesh.suggestedActions) ? securityMesh.suggestedActions : [];

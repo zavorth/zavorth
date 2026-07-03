@@ -70,7 +70,7 @@ export class ZavorthCapabilityStoreService {
       source: {
         hubContractVersion: hubSnapshot.contractVersion,
         hubItemsUsed: hubSnapshot.items.length,
-        dashboardRoute: '/dashboard',
+        zavorthControlRoute: '/zavorthControl',
         executionAuthority: false,
       },
       safety: {

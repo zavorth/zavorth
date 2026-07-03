@@ -179,7 +179,7 @@ export class ReleaseCertificationService {
         title: 'Operational snapshot is present',
         observed: operational.contractVersion,
         threshold: '2026-05-04.checkpoint-8',
-        reason: 'Certification consumes the Dashboard controls operational readiness snapshot.',
+        reason: 'Certification consumes the ZavorthControl controls operational readiness snapshot.',
         nextAction: 'keep consistency doctor current as certification input',
         sourceCommand: operational.commands.doctorJson,
         sourceGaps: [],

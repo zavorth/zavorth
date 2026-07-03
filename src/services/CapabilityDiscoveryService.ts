@@ -208,7 +208,7 @@ export class CapabilityDiscoveryService {
   private detectSurfaces(content: string): string[] {
     const surfaces: string[] = [];
     if (content.includes("'cli'") || content.includes('"cli"')) surfaces.push('cli');
-    if (content.includes("'dashboard'") || content.includes('"dashboard"')) surfaces.push('dashboard');
+    if (content.includes("'zavorthControl'") || content.includes('"zavorthControl"')) surfaces.push('zavorthControl');
     if (content.includes("'channel'") || content.includes('"channel"')) surfaces.push('channel');
     if (content.includes("'tui'") || content.includes('"tui"')) surfaces.push('tui');
     if (content.includes("'api'") || content.includes('"api"')) surfaces.push('api');
@@ -245,7 +245,7 @@ export class CapabilityDiscoveryService {
         description: 'Chain, parallel execute, fallback, and orchestrate multiple external AI agents',
         status: 'available',
         source: 'src/agents/AgentChainBuilder.ts',
-        surfaces: ['cli', 'dashboard', 'channel', 'api'],
+        surfaces: ['cli', 'zavorthControl', 'channel', 'api'],
         tags: ['agent', 'orchestration', 'parallel', 'fallback'],
         configRequired: [],
       },
@@ -256,7 +256,7 @@ export class CapabilityDiscoveryService {
         description: 'Register, manage, and invoke external agents through governed CLI, HTTP, or ACP adapters',
         status: 'available',
         source: 'src/services/ZavorthExternalAgentGatewayService.ts',
-        surfaces: ['cli', 'dashboard', 'channel'],
+        surfaces: ['cli', 'zavorthControl', 'channel'],
         tags: ['agent', 'external', 'governed'],
         configRequired: [],
       },
@@ -289,7 +289,7 @@ export class CapabilityDiscoveryService {
         description: 'Publish, search, install, rate, and verify agent configurations',
         status: 'available',
         source: 'src/agents/AgentMarketplace.ts',
-        surfaces: ['cli', 'dashboard'],
+        surfaces: ['cli', 'zavorthControl'],
         tags: ['marketplace', 'community'],
         configRequired: [],
       },
@@ -300,7 +300,7 @@ export class CapabilityDiscoveryService {
         description: 'Track cost per agent with token counting, pricing, and reporting',
         status: 'available',
         source: 'src/agents/AgentCostTracker.ts',
-        surfaces: ['cli', 'dashboard'],
+        surfaces: ['cli', 'zavorthControl'],
         tags: ['cost', 'analytics'],
         configRequired: [],
       },
@@ -344,7 +344,7 @@ export class CapabilityDiscoveryService {
         description: 'Multi-agent swarm with budgets, isolation, and coordination',
         status: 'available',
         source: 'src/agents/SwarmV2Service.ts',
-        surfaces: ['cli', 'dashboard'],
+        surfaces: ['cli', 'zavorthControl'],
         tags: ['agent', 'swarm', 'multi-agent'],
         configRequired: [],
       },
@@ -410,7 +410,7 @@ export class CapabilityDiscoveryService {
         description: 'Render interactive UI components in chat through the native live canvas surface',
         status: 'available',
         source: 'src/canvas/',
-        surfaces: ['dashboard', 'channel'],
+        surfaces: ['zavorthControl', 'channel'],
         tags: ['ui', 'canvas', 'interactive'],
         configRequired: [],
       },
@@ -421,7 +421,7 @@ export class CapabilityDiscoveryService {
         description: 'TTS, STT, Voice Mode, Local Dictation',
         status: 'available',
         source: 'src/voice/',
-        surfaces: ['cli', 'dashboard'],
+        surfaces: ['cli', 'zavorthControl'],
         tags: ['voice', 'tts', 'stt'],
         configRequired: [],
       },
@@ -443,7 +443,7 @@ export class CapabilityDiscoveryService {
         description: 'Multi-agent task board with dispatch and coordination',
         status: 'available',
         source: 'src/tools/KanbanTool.ts',
-        surfaces: ['cli', 'dashboard'],
+        surfaces: ['cli', 'zavorthControl'],
         tags: ['kanban', 'tasks', 'multi-agent'],
         configRequired: [],
       },

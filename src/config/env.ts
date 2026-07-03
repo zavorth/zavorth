@@ -98,13 +98,13 @@ const runtimeSchema = z.object({
   ZAVORTH_GRAPH_COST_BUDGET_USD: num(1),
 });
 
-// ── Dashboard / Web ───────────────────────────────────────────────────────────
+// ── ZavorthControl / Web ───────────────────────────────────────────────────────────
 const webSchema = z.object({
   ZAVORTH_WEB_HOST: str('127.0.0.1'),
   ZAVORTH_WEB_PORT: num(3000),
   ZAVORTH_WEB_AUTH_TOKEN: str(),
   ZAVORTH_BACKEND_URL: str('http://localhost:3000'),
-  ZAVORTH_DASHBOARD_URL: str('http://localhost:5173'),
+  ZAVORTH_CONTROL_URL: str('http://localhost:5173'),
   ZAVORTH_PUBLIC_BASE_URL: str(),
   ZAVORTH_HIGH_RISK_APPROVAL_PIN: str(),
   PORT: num(18789),

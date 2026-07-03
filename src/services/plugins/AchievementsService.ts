@@ -177,7 +177,7 @@ export class AchievementsService {
     this.markDirty();
 
     if (unlocked.length > 0) {
-      return `Achievement(s) unlocked: ${unlocked.join(', ')}!`;
+      return `Event "${metric}" recorded (${value}). Achievement(s) unlocked: ${unlocked.join(', ')}!`;
     }
     return `Event "${metric}" recorded (${value}).`;
   }

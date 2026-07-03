@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs';
 import path from 'path';
 
@@ -270,8 +269,8 @@ export class DataPipelineService {
     if (!Array.isArray(input)) return input;
 
     return [...input].sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
-      const va = a[field];
-      const vb = b[field];
+      const va = String(a[field] ?? '');
+      const vb = String(b[field] ?? '');
       const comparison = va < vb ? -1 : va > vb ? 1 : 0;
       return order === 'desc' ? -comparison : comparison;
     });

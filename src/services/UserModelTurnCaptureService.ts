@@ -51,7 +51,7 @@ export const KNOWN_SURFACES = [
   'weixin', 'yuanbao', 'sms', 'home-assistant', 'voice-call',
   'google-meet', 'twitch', 'nextcloud-talk', 'mattermost',
   'synology-chat', 'nostr', 'simple',
-  'dashboard', 'desktop', 'api', 'websocket', 'mcp',
+  'zavorthControl', 'desktop', 'api', 'websocket', 'mcp',
   'satellite', 'companion', 'bridge', 'cron',
 ] as const;
 

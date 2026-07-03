@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs';
 import { Task } from '../contracts/TaskContract.js';
 import { LogRepository } from '../storage/LogRepository.js';
@@ -14,11 +13,61 @@ import type {
   BroadcastClient,
   RealZavorthBridgeWatcherDeps,
   ScopedCompanionUiTarget,
+  RealZavorthBridgeWatcherWorkflowContext,
 } from './real-zavorth-bridge-watcher/RealZavorthBridgeWatcherWorkflowTypes.js';
 import type {
   ZavorthBridgeArtifact,
   ZavorthBridgeLogEvent,
 } from './real-zavorth-bridge-watcher/RealZavorthBridgeWatcherArtifactLogHelpers.js';
+import type { PermissionRequest } from '../contracts/core/PermissionRequest.js';
+import type { ZavorthBridgeUiSnapshot } from '../services/ZavorthBridgeUiCaptureService.js';
+
+type CompanionStatus = {
+  ok?: boolean;
+  extension?: string;
+  version?: string;
+  updatedAt?: string;
+  windowFocused?: boolean;
+  activeEditor?: string | null;
+  workspaceFolders?: string[];
+  hostname?: string;
+  instanceId?: string;
+  processId?: number;
+  bridgeCommands?: string[];
+  availableCommands?: string[];
+  capabilities?: Record<string, boolean>;
+  pendingHandoffs?: number;
+  latestPendingHandoff?: string | null;
+  lastOpenedHandoff?: string | null;
+  lastSyncedHandoff?: string | null;
+  lastRequest?: {
+    command?: string;
+    taskId?: string | null;
+    createdAt?: string;
+  } | null;
+};
+
+type RealZavorthBridgeWatcherWorkflowInternal = {
+  ctx: RealZavorthBridgeWatcherWorkflowContext;
+  taskSupport: {
+    host: {
+      logRepo: LogRepository;
+      deps: RealZavorthBridgeWatcherDeps;
+      bridgeManager: AgentBridgeManager;
+      formatter: FinalResponseFormattingService;
+    };
+  };
+  companionSupport: {
+    host: {
+      logRepo: LogRepository;
+      bridgeManager: AgentBridgeManager;
+      windowAutomator: ZavorthBridgeWindowAutomator;
+      companionBridge: ZavorthBridgeCompanionBridge;
+    };
+    [methodName: string]: unknown;
+  };
+  [methodName: string]: unknown;
+};
 
 export class RealZavorthBridgeWatcher {
   private responseDir = config.zavorthBridgeResponseDir;
@@ -71,13 +120,13 @@ export class RealZavorthBridgeWatcher {
     fs.mkdirSync(this.responseDir, { recursive: true });
     fs.mkdirSync(this.brainDir, { recursive: true });
 
-    this.processTick().catch((error) => {
-      this.logRepo.log('error', 'RealZavorthBridgeWatcher', error.message);
+    this.processTick().catch((error: unknown) => {
+      this.logRepo.log('error', 'RealZavorthBridgeWatcher', error instanceof Error ? error.message : String(error));
     });
 
     this.pollHandle = setInterval(() => {
-      this.processTick().catch((error) => {
-        this.logRepo.log('error', 'RealZavorthBridgeWatcher', error.message);
+      this.processTick().catch((error: unknown) => {
+        this.logRepo.log('error', 'RealZavorthBridgeWatcher', error instanceof Error ? error.message : String(error));
       });
     }, 3000);
     this.pollHandle.unref?.();
@@ -150,7 +199,9 @@ export class RealZavorthBridgeWatcher {
   }
 
   private syncWorkflowContext(): void {
-    Object.assign((this.workflow as any).ctx, {
+    const workflow = this.workflow as RealZavorthBridgeWatcherWorkflowInternal;
+
+    Object.assign(workflow.ctx, {
       logRepo: this.logRepo,
       broadcaster: this.broadcaster,
       deps: this.deps,
@@ -165,14 +216,14 @@ export class RealZavorthBridgeWatcher {
       processPendingDeliveries: () => this.processPendingDeliveries(),
     });
 
-    Object.assign((this.workflow as any).taskSupport.host, {
+    Object.assign(workflow.taskSupport.host, {
       logRepo: this.logRepo,
       deps: this.deps,
       bridgeManager: this.bridgeManager,
       formatter: this.formatter,
     });
 
-    Object.assign((this.workflow as any).companionSupport.host, {
+    Object.assign(workflow.companionSupport.host, {
       logRepo: this.logRepo,
       bridgeManager: this.bridgeManager,
       windowAutomator: this.windowAutomator,
@@ -192,9 +243,9 @@ export class RealZavorthBridgeWatcher {
 
     for (const methodName of overriddenMethodNames) {
       if (Object.prototype.hasOwnProperty.call(this, methodName)) {
-        const maybeOverride = (this as any)[methodName];
+        const maybeOverride = (this as Record<string, unknown>)[methodName];
         if (typeof maybeOverride === 'function') {
-          (this.workflow as any)[methodName] = maybeOverride.bind(this);
+          (workflow as Record<string, unknown>)[methodName] = maybeOverride.bind(this);
         }
       }
     }
@@ -208,17 +259,17 @@ export class RealZavorthBridgeWatcher {
 
     for (const methodName of companionSupportOverrideNames) {
       if (Object.prototype.hasOwnProperty.call(this, methodName)) {
-        const maybeOverride = (this as any)[methodName];
+        const maybeOverride = (this as Record<string, unknown>)[methodName];
         if (typeof maybeOverride === 'function') {
-          (this.workflow as any).companionSupport[methodName] = maybeOverride.bind(this);
+          (workflow.companionSupport as Record<string, unknown>)[methodName] = maybeOverride.bind(this);
         }
       }
     }
   }
 
-  private callWorkflow(methodName: string, args: any[]): any {
+  private callWorkflow<T>(methodName: string, args: unknown[]): T {
     this.syncWorkflowContext();
-    const method = (this.workflow as any)[methodName];
+    const method = (this.workflow as Record<string, (...methodArgs: unknown[]) => T>)[methodName];
     return method.apply(this.workflow, args);
   }
 
@@ -269,7 +320,7 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('tryAutomationRescue', [session, reason]);
   }
 
-    private getLiveCompanionStatus(targetInstanceId?: string): Promise<Record<string, any> | null> {
+    private getLiveCompanionStatus(targetInstanceId?: string): Promise<CompanionStatus | null> {
     return this.callWorkflow('getLiveCompanionStatus', [targetInstanceId]);
   }
 
@@ -288,7 +339,7 @@ export class RealZavorthBridgeWatcher {
     private tryCompanionRecovery(
     session: PendingZavorthBridgeSession,
     target: ScopedCompanionUiTarget,
-    liveStatus: Record<string, any> | null,
+    liveStatus: CompanionStatus | null,
     errorReason: string,
   ): Promise<boolean> {
     return this.callWorkflow('tryCompanionRecovery', [session, target, liveStatus, errorReason]);
@@ -297,7 +348,7 @@ export class RealZavorthBridgeWatcher {
     private buildCompanionRecoveryPrompt(
     session: PendingZavorthBridgeSession,
     target: ScopedCompanionUiTarget,
-    liveStatus: Record<string, any> | null,
+    liveStatus: CompanionStatus | null,
     errorReason: string,
   ): string {
     return this.callWorkflow('buildCompanionRecoveryPrompt', [session, target, liveStatus, errorReason]);
@@ -325,7 +376,7 @@ export class RealZavorthBridgeWatcher {
 
     private queueSessionDelivery(
     session: PendingZavorthBridgeSession,
-    deliverable: any,
+    deliverable: string,
     chatGatewayId: string | null,
   ): void {
     return this.callWorkflow('queueSessionDelivery', [session, deliverable, chatGatewayId]);
@@ -339,13 +390,13 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('tryQueueLocalDirectoryFallback', [session, workspace]);
   }
 
-    private describeStalledFailure(session: PendingZavorthBridgeSession, liveStatus: Record<string, any> | null): string {
+    private describeStalledFailure(session: PendingZavorthBridgeSession, liveStatus: CompanionStatus | null): string {
     return this.callWorkflow('describeStalledFailure', [session, liveStatus]);
   }
 
     private hasCompanionHandoffMismatch(
     session: PendingZavorthBridgeSession,
-    liveStatus: Record<string, any> | null,
+    liveStatus: CompanionStatus | null,
   ): boolean {
     return this.callWorkflow('hasCompanionHandoffMismatch', [session, liveStatus]);
   }
@@ -437,7 +488,7 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('maybeHandlePermissionPrompt', [session, trackingFile]);
   }
 
-    private findZavorthBridgeAutoApprovalPolicy(permission: PermissionRequest): Promise<any> {
+    private findZavorthBridgeAutoApprovalPolicy(permission: PermissionRequest): Promise<PermissionRequest | undefined> {
     return this.callWorkflow('findZavorthBridgeAutoApprovalPolicy', [permission]);
   }
 

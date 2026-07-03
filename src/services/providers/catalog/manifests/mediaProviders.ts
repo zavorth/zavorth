@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { ProviderIntegrationManifest } from '../ProviderIntegrationManifest.js';
 
 export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[] = [
@@ -166,7 +165,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
     website: 'https://elevenlabs.io',
     routeKind: 'official',
     authKind: 'api_key',
-    capabilities: ['tts', 'audio', 'streaming'],
+    capabilities: ['audio', 'streaming'],
     modalities: ['audio'],
     families: [
       {
@@ -178,7 +177,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
         defaultModelName: 'eleven_multilingual_v2',
         secondaryModelNames: ['eleven_flash_v2_5', 'scribe_v1'],
         fallbackModelNames: [],
-        capabilities: ['tts', 'audio', 'streaming'],
+        capabilities: ['audio', 'streaming'],
         modalities: ['audio'],
       },
     ],
@@ -195,7 +194,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
         aliases: ['elevenlabs', 'el'],
         authKind: 'api_key',
         credentialRefs: ['ELEVENLABS_API_KEY', 'XI_API_KEY'],
-        capabilities: ['tts', 'audio', 'streaming'],
+        capabilities: ['audio', 'streaming'],
         modalities: ['audio'],
         models: [
           { modelId: 'eleven_multilingual_v2', label: 'Multilingual v2', primary: true },
@@ -266,7 +265,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
     website: 'https://cartesia.ai',
     routeKind: 'official',
     authKind: 'api_key',
-    capabilities: ['tts', 'audio', 'streaming'],
+    capabilities: ['audio', 'streaming'],
     modalities: ['audio'],
     families: [
       {
@@ -278,7 +277,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
         defaultModelName: 'cartesia-tts',
         secondaryModelNames: [],
         fallbackModelNames: [],
-        capabilities: ['tts', 'audio', 'streaming'],
+        capabilities: ['audio', 'streaming'],
         modalities: ['audio'],
       },
     ],
@@ -295,7 +294,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
         aliases: ['cartesia'],
         authKind: 'api_key',
         credentialRefs: ['CARTESIA_API_KEY'],
-        capabilities: ['tts', 'audio', 'streaming'],
+        capabilities: ['audio', 'streaming'],
         modalities: ['audio'],
         models: [
           { modelId: 'cartesia-tts', label: 'Cartesia TTS', primary: true },
@@ -315,7 +314,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
     website: 'https://play.ht',
     routeKind: 'official',
     authKind: 'api_key',
-    capabilities: ['tts', 'audio', 'streaming'],
+    capabilities: ['audio', 'streaming'],
     modalities: ['audio'],
     families: [
       {
@@ -327,7 +326,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
         defaultModelName: 'playht-2.0-turbo',
         secondaryModelNames: ['playht-1.0-turbo'],
         fallbackModelNames: [],
-        capabilities: ['tts', 'audio', 'streaming'],
+        capabilities: ['audio', 'streaming'],
         modalities: ['audio'],
       },
     ],
@@ -344,7 +343,7 @@ export const MEDIA_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[]
         aliases: ['playht'],
         authKind: 'api_key',
         credentialRefs: ['PLAYHT_API_KEY', 'PLAYHT_USER_ID'],
-        capabilities: ['tts', 'audio', 'streaming'],
+        capabilities: ['audio', 'streaming'],
         modalities: ['audio'],
         models: [
           { modelId: 'playht-2.0-turbo', label: 'PlayHT 2.0 Turbo', primary: true },

@@ -28,7 +28,7 @@ const theme = {
   success: '#50FA7B',   // Verde (sucesso)
 };
 
-const Dashboard = () => {
+const ZavorthControl = () => {
   const [loadingBar, setLoadingBar] = useState(0);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const Dashboard = () => {
               <Text><Text color={theme.secondary}>trust-plane:  </Text>policy-broker, cognitive-firewall</Text>
               <Text><Text color={theme.secondary}>development:  </Text>coder, qa-auditor, repo-map</Text>
               <Text><Text color={theme.secondary}>security:     </Text>prompt-injection-defense, code-review</Text>
-              <Text><Text color={theme.secondary}>ops:          </Text>incident-triage, dashboard-ops</Text>
+              <Text><Text color={theme.secondary}>ops:          </Text>incident-triage, zavorthControl-ops</Text>
               <Text><Text color={theme.secondary}>research:     </Text>document-analysis, web-research-governed</Text>
             </Box>
           </Box>
@@ -122,7 +122,7 @@ const Dashboard = () => {
         <Box borderStyle="single" borderColor={theme.secondary} borderTop={false} borderLeft={false} borderRight={false} width={30} marginBottom={1} />
 
         <Text color={theme.primary}>⚡ Zavorth (Planner)</Text>
-        <Text>Understood. Spinning up the new TUI dashboard powered by Ink.</Text>
+        <Text>Understood. Spinning up the new TUI zavorthControl powered by Ink.</Text>
       </Box>
 
       {/* Status Bar */}
@@ -163,4 +163,4 @@ const Dashboard = () => {
 };
 
 console.clear();
-render(<Dashboard />);
+render(<ZavorthControl />);

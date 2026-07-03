@@ -14,7 +14,7 @@ export type ZavorthAutomationHookAction =
     }
   | {
       type: 'notification.create';
-      channel?: 'local' | 'dashboard' | 'telegram' | 'discord' | 'slack' | 'email';
+      channel?: 'local' | 'zavorthControl' | 'telegram' | 'discord' | 'slack' | 'email';
       title?: string;
       message?: string;
       requiresApproval?: boolean;
@@ -222,7 +222,7 @@ export class ZavorthAutomationHookService {
     context: Record<string, any>;
   }): ZavorthAutomationHookActionResult {
     const channel = input.action.channel || 'local';
-    const external = !['local', 'dashboard'].includes(channel);
+    const external = !['local', 'zavorthControl'].includes(channel);
     const status = external || input.action.requiresApproval === true || input.hook.safety.canSendExternalData !== true
       ? 'blocked_requires_approval'
       : 'executed';

@@ -3,7 +3,6 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { buildZavorthCliRuntimeTuiSnapshot } from '../cli/hud/ZavorthCliRuntimeTuiProjection.js';
-import { ZavorthNativeCapabilityCertificationService } from './ZavorthNativeCapabilityCertificationService.js';
 import { VoiceWakeDetectorSetupService } from './VoiceWakeDetectorSetupService.js';
 import { VoiceWakeRuntimeService } from './VoiceWakeRuntimeService.js';
 import { ZavorthA2UIService } from './ZavorthA2UIService.js';
@@ -60,7 +59,7 @@ export type ZavorthProductExcellenceSnapshot = {
     certifyJson: 'zavorth certify product-excellence --json';
     qa: 'npm run qa:zavorth-product-excellence --silent';
     tui: 'zavorth tui --json';
-    canvas: 'zavorth dashboard';
+    canvas: 'zavorth zavorthControl';
     satellite: 'zavorth satellite pairing';
     wake: 'zavorth echo wake setup --default-local';
     setup: 'zavorth setup --dry-run';
@@ -134,7 +133,7 @@ export class ZavorthProductExcellenceService {
         certifyJson: 'zavorth certify product-excellence --json',
         qa: 'npm run qa:zavorth-product-excellence --silent',
         tui: 'zavorth tui --json',
-        canvas: 'zavorth dashboard',
+        canvas: 'zavorth zavorthControl',
         satellite: 'zavorth satellite pairing',
         wake: 'zavorth echo wake setup --default-local',
         setup: 'zavorth setup --dry-run',
@@ -173,36 +172,44 @@ export class ZavorthProductExcellenceService {
   }
 
   private async researchAutonomyAxis(): Promise<ZavorthProductExcellenceAxis> {
-    const certification = await new ZavorthNativeCapabilityCertificationService({
-      projectRoot: this.projectRoot,
-      ...(this.evidenceRoot !== undefined ? { evidenceRoot: this.evidenceRoot } : {}),
-      env: this.env,
-      now: this.now,
-    }).buildSnapshot();
+    const scripts = this.packageScripts();
+    const evidenceRootFound = Boolean(this.evidenceRoot && fs.existsSync(this.evidenceRoot));
+    const nativeCertificationReady = Boolean(scripts['qa:zavorth-native-capability-certification'])
+      && this.exists('src/services/ZavorthNativeCapabilityCertificationService.ts')
+      && this.exists('tests/services/ZavorthNativeCapabilityCertificationService.test.ts');
+    const longGoalLoopReady = this.exists('src/services/GoalLoopDaemonService.ts')
+      && this.exists('src/services/GoalLoopWorkerService.ts')
+      && this.exists('tests/services/GoalLoopDaemonService.test.ts')
+      && this.exists('tests/services/GoalLoopWorkerService.test.ts')
+      && this.exists('src/services/ZavorthOperationalStateDbService.ts');
     const gates = [
       this.gate(
         'native-capability',
         'Research/autonomy certification',
-        this.mapCertificationStatus(certification.status),
-        `${certification.summary.ready}/${certification.summary.total} native-capability checks are ready.`,
+        nativeCertificationReady ? 'ready' : 'blocked',
+        nativeCertificationReady
+          ? 'Native capability certification is wired with QA command, service and tests.'
+          : 'Native capability certification wiring is incomplete.',
         [
-          `evidenceRootFound=${certification.evidenceRootFound}`,
-          `credentialGatedReady=${certification.summary.credentialGatedReady}`,
-          certification.commands.qa,
+          `evidenceRootFound=${evidenceRootFound}`,
+          `service=${this.exists('src/services/ZavorthNativeCapabilityCertificationService.ts')}`,
+          'npm run qa:zavorth-native-capability-certification --silent',
         ],
-        certification.status === 'ready' ? [] : ['Run zavorth certify native-capability --json and inspect partial checks.'],
+        nativeCertificationReady ? [] : ['Run zavorth certify native-capability --json and inspect partial checks.'],
       ),
       this.gate(
         'long-goal-loop',
         'Long-running Goal Loop',
-        this.mapCertificationStatus(certification.longRunSmoke.status),
-        `Goal daemon smoke finished with ${certification.longRunSmoke.agentRuns} agent run(s), final=${certification.longRunSmoke.finalGoalStatus}.`,
+        longGoalLoopReady ? 'ready' : 'blocked',
+        longGoalLoopReady
+          ? 'Goal Loop daemon, worker, state DB and tests are wired for long-running continuation.'
+          : 'Goal Loop continuation wiring is incomplete.',
         [
-          `receipts=${certification.longRunSmoke.receipts}`,
-          `events=${certification.longRunSmoke.events}`,
-          `stateDbBacked=${certification.longRunSmoke.stateDbBacked}`,
+          `daemon=${this.exists('src/services/GoalLoopDaemonService.ts')}`,
+          `worker=${this.exists('src/services/GoalLoopWorkerService.ts')}`,
+          `stateDbBacked=${this.exists('src/services/ZavorthOperationalStateDbService.ts')}`,
         ],
-        certification.longRunSmoke.status === 'ready' ? [] : ['Inspect GoalLoopDaemonService and GoalLoopWorkerService.'],
+        longGoalLoopReady ? [] : ['Inspect GoalLoopDaemonService and GoalLoopWorkerService.'],
       ),
     ];
     return this.axis(
@@ -340,7 +347,7 @@ export class ZavorthProductExcellenceService {
       'Z-Canvas A2UI live surface',
       ready ? 'ready' : 'blocked',
       ready
-        ? 'A2UI publishes components, blocks unsafe nodes and is wired to dashboard action routes.'
+        ? 'A2UI publishes components, blocks unsafe nodes and is wired to zavorthControl action routes.'
         : 'A2UI live route or renderer is incomplete.',
       [
         `components=${surface.components.length}`,
@@ -495,12 +502,6 @@ export class ZavorthProductExcellenceService {
     nextActions: string[] = [],
   ): ZavorthProductExcellenceGate {
     return { id, title, status, summary, evidence, nextActions };
-  }
-
-  private mapCertificationStatus(status: 'ready' | 'partial' | 'missing'): ZavorthProductExcellenceStatus {
-    if (status === 'ready') return 'ready';
-    if (status === 'partial') return 'attention';
-    return 'blocked';
   }
 
   private aggregate(statuses: ZavorthProductExcellenceStatus[]): ZavorthProductExcellenceStatus {

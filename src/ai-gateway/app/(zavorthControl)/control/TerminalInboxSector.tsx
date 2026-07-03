@@ -649,7 +649,7 @@ export function TerminalInboxSector() {
                 <strong data-inbox-approval-title>No pending approvals</strong>
                 <p data-inbox-approval-text>Zavorth will surface risky actions here before changing files, tools, or external state.</p>
               </div>
-              <button type="button" data-dashboard-sector="sales-os">Review</button>
+              <button type="button" data-zavorthControl-sector="sales-os">Review</button>
             </div>
 
             <div className="neural-stream" id="neural-stream">

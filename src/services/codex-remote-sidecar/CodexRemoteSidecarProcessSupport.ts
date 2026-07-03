@@ -2,6 +2,7 @@ import { execFile, type ChildProcess } from 'child_process';
 import { config } from '../../config/index.js';
 import type { CodexRemoteSessionRecord, CodexRemoteSessionStoreService } from '../CodexRemoteSessionStoreService.js';
 import type {
+import { logger } from '../logger.js';
   CodexRemoteRuntimeGuardrailMetadata,
   CodexRemoteRuntimePresenceMetadata,
 } from './CodexRemoteSidecarMetadataSupport.js';
@@ -213,7 +214,7 @@ export class CodexRemoteSidecarProcessSupport {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch {}
+        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
         finalize();
       }, 5000);
 
@@ -247,7 +248,7 @@ export class CodexRemoteSidecarProcessSupport {
       }
       try {
         process.kill(pid, 'SIGTERM');
-      } catch {}
+      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
       resolve();
     });
   }

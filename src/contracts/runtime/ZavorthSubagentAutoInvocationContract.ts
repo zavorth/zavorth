@@ -38,7 +38,7 @@ export type ZavorthSubagentAutoInvocationTelemetry = {
   riskSignals: string[];
   publicRationale: string;
   operatorSummary: string;
-  dashboard: {
+  zavorthControl: {
     title: string;
     status: 'auto-selected' | 'approval-required' | 'skipped';
     badges: string[];

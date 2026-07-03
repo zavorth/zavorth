@@ -128,7 +128,7 @@ export function formatSelfingZavorthControlSnapshot(
   lines.push('- mudancas sensiveis exigem preview, approval e versionamento');
 
   lines.push('', 'Superficies');
-  lines.push(`- ZavorthControl: ${snapshot.surface.dashboardPath}`);
+  lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Preview: ${snapshot.surface.previewHint}`);
 

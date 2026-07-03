@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   ZAVORTH_UNIFIED_ONBOARDING_CONTRACT_VERSION,
   type ZavorthUnifiedOnboardingProviderSummary,
@@ -17,7 +16,7 @@ import type { SandboxHostReadinessSnapshot } from './SandboxHostReadinessService
 
 type ProviderDoctorLike = Pick<ProviderDoctorService, 'inspect'>;
 type ProductizationLike = Pick<ZavorthProductizationProtectedRuntimeService, 'buildSnapshot'>;
-type UnifiedOnboardingProjectionRoute = '/dashboard' | '/control';
+type UnifiedOnboardingProjectionRoute = '/zavorthControl' | '/control';
 
 function buildUnifiedOnboardingProjection<Route extends UnifiedOnboardingProjectionRoute>(route: Route) {
   return {
@@ -157,7 +156,7 @@ export class ZavorthUnifiedOnboardingService {
         writesOnlyWithConfirmation: true,
       },
       safeDemo,
-      dashboardProjection: buildUnifiedOnboardingProjection('/dashboard'),
+      zavorthControlProjection: buildUnifiedOnboardingProjection('/zavorthControl'),
       zavorthControlProjection: buildUnifiedOnboardingProjection('/control'),
       invariants: [
         {
@@ -176,9 +175,9 @@ export class ZavorthUnifiedOnboardingService {
           detail: 'The first suggested mission is read-only and does not mutate the workspace.',
         },
         {
-          id: 'dashboard-read-only',
+          id: 'zavorthControl-read-only',
           status: 'passed',
-          detail: 'Dashboard consumes the projection without becoming an execution authority.',
+          detail: 'ZavorthControl consumes the projection without becoming an execution authority.',
         },
         {
           id: 'conversational-setup-preview-first',

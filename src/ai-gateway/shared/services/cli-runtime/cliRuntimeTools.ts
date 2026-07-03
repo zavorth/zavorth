@@ -7,6 +7,7 @@ import {
   validateEnvPath,
 } from "./cliRuntimePathSecurity.ts";
 import { isWindows } from "./cliRuntimeProcess.ts";
+import { logger } from '../logger.js';
 
 export const VALID_RUNTIME_MODES = new Set(["auto", "host", "container"]);
 export const FALSE_VALUES = new Set(["0", "false", "no", "off"]);
@@ -156,7 +157,7 @@ export const getNpmGlobalPrefix = (): string => {
       npmGlobalPrefix = prefix;
       return npmGlobalPrefix;
     }
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 
   npmGlobalPrefix = "";
   return npmGlobalPrefix;

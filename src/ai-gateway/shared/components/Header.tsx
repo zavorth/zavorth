@@ -31,7 +31,7 @@ function usePageInfo(pathname: string | null): {
 
   if (!pathname) return { title: "", description: "", breadcrumbs: [] };
 
-  // Provider detail page: /dashboard/providers/[id]
+  // Provider detail page: /zavorthControl/providers/[id]
   const providerMatch = pathname.match(/\/providers\/([^/]+)$/);
   if (providerMatch) {
     const providerId = providerMatch[1];
@@ -43,7 +43,7 @@ function usePageInfo(pathname: string | null): {
         title: providerInfo.name,
         description: "",
         breadcrumbs: [
-          { label: t("providers"), href: "/dashboard/providers" },
+          { label: t("providers"), href: "/zavorthControl/providers" },
           { label: providerInfo.name, providerId: providerInfo.id },
         ],
       };
@@ -54,7 +54,7 @@ function usePageInfo(pathname: string | null): {
         title: "CC Compatible",
         description: "",
         breadcrumbs: [
-          { label: t("providers"), href: "/dashboard/providers" },
+          { label: t("providers"), href: "/zavorthControl/providers" },
           { label: "CC Compatible", providerId: "claude" },
         ],
       };
@@ -65,7 +65,7 @@ function usePageInfo(pathname: string | null): {
         title: t("openaiCompatible"),
         description: "",
         breadcrumbs: [
-          { label: t("providers"), href: "/dashboard/providers" },
+          { label: t("providers"), href: "/zavorthControl/providers" },
           { label: t("openaiCompatible"), providerId: "oai-cc" },
         ],
       };
@@ -76,7 +76,7 @@ function usePageInfo(pathname: string | null): {
         title: t("anthropicCompatible"),
         description: "",
         breadcrumbs: [
-          { label: t("providers"), href: "/dashboard/providers" },
+          { label: t("providers"), href: "/zavorthControl/providers" },
           { label: t("anthropicCompatible"), providerId: "anthropic-m" },
         ],
       };
@@ -105,13 +105,13 @@ function usePageInfo(pathname: string | null): {
     };
   if (pathname.includes("/cli-tools"))
     return { title: t("cliTools"), description: t("cliToolsDescription"), breadcrumbs: [] };
-  if (pathname === "/dashboard")
+  if (pathname === "/zavorthControl")
     return {
-      title: "Dashboard",
+      title: "ZavorthControl",
       description: "Chat, sessions, approvals and runtime in one operator surface.",
       breadcrumbs: [],
     };
-  if (pathname === "/dashboard")
+  if (pathname === "/zavorthControl")
     return { title: t("home"), description: t("homeDescription"), breadcrumbs: [] };
   if (pathname.includes("/mcp"))
     return { title: t("mcp"), description: t("mcpDescription"), breadcrumbs: [] };

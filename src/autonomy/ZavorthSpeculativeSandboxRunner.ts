@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import { config } from '../config/index.js';
 import { spawnCommand } from '../core/CommandSpawn.js';
-import type { DockerSandboxStatus, DockerSandboxRuntime } from '@zavorth/services/sandbox/DockerSandboxRuntime.js';
+import type { DockerSandboxStatus, DockerSandboxRuntime } from '../services/sandbox/DockerSandboxRuntime.js';
 import type {
   ZavorthSpeculativeValidationResult,
   ZavorthSpeculativeCommandRunnerInput,

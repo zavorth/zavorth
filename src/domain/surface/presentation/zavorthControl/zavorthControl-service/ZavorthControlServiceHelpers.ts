@@ -44,16 +44,142 @@ import { WorkspaceOperationalMemoryService } from './ZavorthControlServiceDepend
 import { MemoryService } from './ZavorthControlServiceDependencies.js';
 import { SessionContinuityService } from './ZavorthControlServiceDependencies.js';
 import { WebRuntimeChannelAdapter, TelegramRuntimeChannelAdapter, DiscordRuntimeChannelAdapter, SlackRuntimeChannelAdapter, SignalRuntimeChannelAdapter, IMessageRuntimeChannelAdapter, TeamsRuntimeChannelAdapter, EmailRuntimeChannelAdapter, WhatsAppRuntimeChannelAdapter } from './ZavorthControlServiceDependencies.js';
+import type { TaskManager } from '../../../../../orchestrator/TaskManager.js';
+import type { PermissionService } from '../../../../../services/PermissionService.js';
+import type { LiveChannelGatewayContract } from '../../../../../contracts/PlatformContract.js';
+import type { ChannelAdapterContract } from '../../../../../contracts/ChannelMeshContract.js';
+import type { ZavorthControlEchoRouteService } from '../ZavorthControlEchoRouteService.js';
 
-type ZavorthControlFacadeCompat = any;
-type ZavorthControlRuntimeCompat = any;
-type ZavorthControlGatewayMapCompat = any;
-type ZavorthControlRouteDepsCompat = any;
+type RuntimeAwareChannelGateway = LiveChannelGatewayContract;
+type ChannelAdapterConstructor = new (gateway: RuntimeAwareChannelGateway, hasDispatcher: boolean) => ChannelAdapterContract;
+
+export interface ZavorthControlFacadeCompat {
+  reportTaskManager: TaskManager | null;
+  reportPermissionService: PermissionService | null;
+  channelBroadcastGateways: Partial<Record<string, RuntimeAwareChannelGateway | null>>;
+  channelMesh: ZavorthChannelMeshService;
+  continuityUserId: string | null;
+  productObservabilityInjected: boolean;
+  productObservability: import('./ZavorthControlServiceDependencies.js').ProductObservabilityService;
+  reportServiceInjected: boolean;
+  operationsReport: import('./ZavorthControlServiceDependencies.js').OperationsReportService;
+  operationsCockpit: import('./ZavorthControlServiceDependencies.js').OperationsCockpitService;
+  operatorBrief: import('./ZavorthControlServiceDependencies.js').OperatorBriefService;
+  sessionContinuity: SessionContinuityService | null;
+  workflowRuns: import('./ZavorthControlServiceDependencies.js').WorkflowRunService;
+  hookPlaneInjected: boolean;
+  hookPlane: ZavorthHookPlaneService;
+  memoryPlaneInjected: boolean;
+  memoryPlane: ZavorthMemoryPlaneService;
+  learningPlaneInjected: boolean;
+  learningPlane: ZavorthLearningPlaneService;
+  layeredMemoryInjected: boolean;
+  layeredMemory: ZavorthLayeredMemoryService;
+  channelMeshInjected: boolean;
+  channelActionsInjected: boolean;
+  channelActions: ZavorthChannelActionService;
+  nodeInvokeInjected: boolean;
+  nodeInvoke: import('./ZavorthControlServiceDependencies.js').NodeInvokeService;
+  nodeHeartbeatInjected: boolean;
+  nodeHeartbeat: import('./ZavorthControlServiceDependencies.js').NodeHeartbeatService;
+  nodeMeshInjected: boolean;
+  nodeMesh: ZavorthNodeMeshService;
+  remoteTransportsInjected: boolean;
+  remoteTransports: ZavorthRemoteTransportService;
+  remoteTransportDoctorInjected: boolean;
+  remoteTransportDoctor: RemoteTransportDoctorService;
+  remoteTransportActionsInjected: boolean;
+  remoteTransportActions: ZavorthRemoteTransportActionService;
+  nodePairingInjected: boolean;
+  nodePairing: import('./ZavorthControlServiceDependencies.js').NodePairingService;
+  pluginRegistryInjected: boolean;
+  pluginRegistry: ZavorthPluginRegistryService;
+  platformRegistryInjected: boolean;
+  platformRegistry: ZavorthPlatformRegistryService;
+  platformCatalogSyncInjected: boolean;
+  platformCatalogSync: ZavorthPlatformCatalogSyncService;
+  pluginActionsInjected: boolean;
+  pluginActions: ZavorthPluginActionService;
+  platformActionsInjected: boolean;
+  platformActions: ZavorthPlatformActionService;
+  sessionPlaneInjected: boolean;
+  sessionPlane: ZavorthSessionPlaneService;
+  sessionToolsInjected: boolean;
+  sessionTools: ZavorthSessionToolsService;
+  toolSurfaceInjected: boolean;
+  toolSurface: ZavorthToolSurfaceService;
+  gatewayInjected: boolean;
+  gateway: ZavorthGatewayService;
+  webApp: import('../../../../../services/WebAppService.js').WebAppService;
+  webAppOperationsDepsBridge: WebAppOperationsDepsBridgeService;
+  operationsDepsBridge: ZavorthControlOperationsDepsBridgeService;
+  host: string;
+  port: number;
+  getUrl(): string;
+  getPublicBaseUrl(): string | null;
+  httpSupport: ZavorthControlHttpSupportService;
+  presentationDepsBridge: ZavorthControlPresentationDepsBridgeService;
+  coreRoutes: ZavorthControlCoreRouteService;
+  classicAccess: ZavorthControlClassicAccessService;
+  classicAssets: ZavorthControlClassicAssetService;
+  legacyRoutes: ZavorthControlLegacyRouteService;
+  operationsRoutes: ZavorthControlOperationsRouteService;
+  echoRoutes: ZavorthControlEchoRouteService;
+  echoService: import('./ZavorthControlServiceDependencies.js').ZavorthEchoService;
+  responseWriter: ZavorthControlResponseWriterService;
+  agentGateway: unknown;
+  agentOperatingSystemActions: import('./ZavorthControlServiceDependencies.js').ZavorthAgentOperatingSystemActionService;
+  teamCatalog: import('./ZavorthControlServiceDependencies.js').ZavorthTeamCatalogService;
+  agentOperatingSystem: import('./ZavorthControlServiceDependencies.js').ZavorthAgentOperatingSystemService;
+  capabilityCatalog: import('./ZavorthControlServiceDependencies.js').ZavorthCapabilityCatalogService;
+  tenantGovernanceActions: import('./ZavorthControlServiceDependencies.js').ZavorthTenantGovernanceActionService;
+  tenantGovernance: import('./ZavorthControlServiceDependencies.js').ZavorthTenantGovernanceService;
+  runtimeModes: import('./ZavorthControlServiceDependencies.js').ZavorthRuntimeModesService;
+  securityMesh: import('./ZavorthControlServiceDependencies.js').ZavorthSecurityMeshService;
+  codexRemoteActions: import('./ZavorthControlServiceDependencies.js').CodexRemoteActionService;
+  codexRemote: import('./ZavorthControlServiceDependencies.js').CodexRemoteControlPlaneService;
+  slackIngressGateway: unknown;
+  teamsIngressGateway: unknown;
+  whatsappIngressGateway: unknown;
+  instagramIngressGateway: unknown;
+  workspaceExtensions: import('./ZavorthControlServiceDependencies.js').WorkspaceExtensionRegistryService;
+  hookPipeline: import('./ZavorthControlServiceDependencies.js').ZavorthHookPipelineService;
+  nodeRegistry: import('./ZavorthControlServiceDependencies.js').NodeRegistryService;
+  nodeCapabilities: import('./ZavorthControlServiceDependencies.js').NodeCapabilityService;
+  nodeInvocationStore: import('./ZavorthControlServiceDependencies.js').NodeInvocationStoreService;
+  nodeDeviceProfiles: import('./ZavorthControlServiceDependencies.js').NodeDeviceProfileService;
+  integrationHub: import('./ZavorthControlServiceDependencies.js').IntegrationHubService;
+  operationsHealthInjected: boolean;
+  operationsHealth: import('./ZavorthControlServiceDependencies.js').OperationsHealthService;
+  providerControlPlane: import('./ZavorthControlServiceDependencies.js').ProviderControlPlaneService;
+  [key: string]: unknown;
+}
+
+export interface ZavorthControlRuntimeCompat {
+  taskManager: TaskManager | null;
+  permissionService: PermissionService | null;
+  webUserId?: string;
+  workflowRunService?: import('./ZavorthControlServiceDependencies.js').WorkflowRunService;
+  agentGateway?: unknown;
+  workflowController?: unknown;
+  [key: string]: unknown;
+}
+
+type ZavorthControlGatewayMapCompat = Partial<Record<string, RuntimeAwareChannelGateway | null>>;
+
+interface ZavorthControlRouteDepsCompat {
+  host: string;
+  port: number;
+  snippetUserId: string;
+  localBaseUrl: string;
+  publicBaseUrl: string | null;
+  [key: string]: unknown;
+}
 
 export function buildRuntimeChannelAdapters(service: ZavorthControlFacadeCompat) {
   const hasRuntimeBackbone = Boolean(service.reportTaskManager && service.reportPermissionService);
-  const adapters: any[] = [new WebRuntimeChannelAdapter(hasRuntimeBackbone, hasRuntimeBackbone)];
-  const mapping: Array<[string, any]> = [
+  const adapters: ChannelAdapterContract[] = [new WebRuntimeChannelAdapter(hasRuntimeBackbone, hasRuntimeBackbone)];
+  const mapping: Array<[string, ChannelAdapterConstructor]> = [
     ['telegram', TelegramRuntimeChannelAdapter],
     ['discord', DiscordRuntimeChannelAdapter],
     ['slack', SlackRuntimeChannelAdapter],
@@ -104,12 +230,12 @@ export function buildChannelActionService(service: ZavorthControlFacadeCompat): 
 export function refreshRuntimeBackedReporting(service: ZavorthControlFacadeCompat, runtime: ZavorthControlRuntimeCompat): void {
   service.reportTaskManager = runtime.taskManager || null;
   service.reportPermissionService = runtime.permissionService || null;
-  service.sessionContinuity = runtime.taskManager ? new SessionContinuityService(runtime.taskManager as any) : null;
+  service.sessionContinuity = runtime.taskManager ? new SessionContinuityService(runtime.taskManager) : null;
   service.continuityUserId = runtime.webUserId || service.continuityUserId || config.allowedUserIds[0] || '1';
   if (!service.productObservabilityInjected) {
     service.productObservability = new (require('./ZavorthControlServiceDependencies.js').ProductObservabilityService)(
-      (service.reportTaskManager as any) || null,
-      (service.reportPermissionService as any) || null,
+      service.reportTaskManager || null,
+      service.reportPermissionService || null,
       { workflowRunService: service.workflowRuns },
     );
   }
@@ -117,8 +243,8 @@ export function refreshRuntimeBackedReporting(service: ZavorthControlFacadeCompa
     service.operationsReport = new (require('./ZavorthControlServiceDependencies.js').OperationsReportService)(
       service.operationsCockpit,
       null,
-      (service.reportTaskManager as any) || null,
-      (service.reportPermissionService as any) || null,
+      service.reportTaskManager || null,
+      service.reportPermissionService || null,
       service.operatorBrief,
       service.sessionContinuity,
       service.continuityUserId,
@@ -166,7 +292,7 @@ export function syncWebAppOperationsServices(service: ZavorthControlFacadeCompat
 
 export function buildZavorthControlOperationsRouteDeps(service: ZavorthControlFacadeCompat): ZavorthControlRouteDepsCompat {
   return service.operationsDepsBridge.buildRouteDeps(
-    service as any,
+    service,
     {
       workspaceRoot: config.projectRoot || process.cwd(),
       continuityUserId: service.continuityUserId || config.allowedUserIds[0] || '1',
@@ -212,7 +338,7 @@ export function attachChatRuntime(service: ZavorthControlFacadeCompat, runtime: 
   });
   service.codexRemoteActions = new (require('./ZavorthControlServiceDependencies.js').CodexRemoteActionService)({
     controlPlaneService: service.codexRemote,
-    permissionService: (service.reportPermissionService as any) || null,
+    permissionService: service.reportPermissionService || null,
     runtimeUserId: canonicalRuntime.webUserId || service.continuityUserId || config.allowedUserIds[0] || '1',
   });
   syncWebAppOperationsServices(service);
@@ -246,8 +372,8 @@ export function buildHookPlaneService(service: ZavorthControlFacadeCompat): Zavo
 export function buildMemoryPlaneService(service: ZavorthControlFacadeCompat): ZavorthMemoryPlaneService {
   const gatewayReadModel = (service.reportTaskManager || service.reportPermissionService)
     ? new GatewaySessionReadModelService(new GatewaySessionService({
-        taskManager: (service.reportTaskManager as any) || null,
-        permissionService: (service.reportPermissionService as any) || null,
+        taskManager: service.reportTaskManager || null,
+        permissionService: service.reportPermissionService || null,
         workflowRunService: service.workflowRuns,
       }))
     : null;
@@ -257,8 +383,8 @@ export function buildMemoryPlaneService(service: ZavorthControlFacadeCompat): Za
     workspaceOperationalMemoryService:
       service.reportTaskManager && service.reportPermissionService
         ? new WorkspaceOperationalMemoryService(
-            service.reportTaskManager as any,
-            service.reportPermissionService as any,
+            service.reportTaskManager,
+            service.reportPermissionService,
           )
         : undefined,
   });
@@ -340,7 +466,7 @@ export function buildLayeredMemoryService(service: ZavorthControlFacadeCompat): 
   return new ZavorthLayeredMemoryService({
     memoryPlaneService: service.memoryPlane,
     sessionPlaneService: service.sessionPlane,
-  } as any);
+  });
 }
 
 export function buildRemoteTransportActionService(service: ZavorthControlFacadeCompat): ZavorthRemoteTransportActionService {
@@ -352,7 +478,7 @@ export function buildRemoteTransportActionService(service: ZavorthControlFacadeC
 export function buildRemoteTransportService(service: ZavorthControlFacadeCompat): ZavorthRemoteTransportService {
   return new ZavorthRemoteTransportService({
     platformRegistryService: service.platformRegistry,
-  } as any);
+  });
 }
 
 export function buildRemoteTransportDoctorService(service: ZavorthControlFacadeCompat): RemoteTransportDoctorService {
@@ -367,8 +493,8 @@ export function buildSessionPlaneService(service: ZavorthControlFacadeCompat): Z
   }
   const sessionStore = new GatewaySessionStoreService();
   const sessionService = new GatewaySessionService({
-    taskManager: (service.reportTaskManager as any) || null,
-    permissionService: (service.reportPermissionService as any) || null,
+    taskManager: service.reportTaskManager || null,
+    permissionService: service.reportPermissionService || null,
     workflowRunService: service.workflowRuns,
   });
   const readModel = new GatewaySessionReadModelService(sessionService, {
@@ -387,7 +513,7 @@ export function buildSessionPlaneService(service: ZavorthControlFacadeCompat): Z
   });
   return new ZavorthSessionPlaneService({
     sessionToolsService: new ZavorthSessionToolsService({
-      taskManager: (service.reportTaskManager as any) || null,
+      taskManager: service.reportTaskManager || null,
       workflowRunService: service.workflowRuns,
       gatewaySessionReadModelService: readModel,
     }),
@@ -401,14 +527,14 @@ export function buildSessionToolsService(service: ZavorthControlFacadeCompat): Z
   const gatewayReadModel = (service.reportTaskManager || service.reportPermissionService)
     ? new GatewaySessionReadModelService(
         new GatewaySessionService({
-          taskManager: (service.reportTaskManager as any) || null,
-          permissionService: (service.reportPermissionService as any) || null,
+          taskManager: service.reportTaskManager || null,
+          permissionService: service.reportPermissionService || null,
           workflowRunService: service.workflowRuns,
         }),
       )
     : null;
   return new ZavorthSessionToolsService({
-    taskManager: (service.reportTaskManager as any) || null,
+    taskManager: service.reportTaskManager || null,
     workflowRunService: service.workflowRuns,
     gatewaySessionReadModelService: gatewayReadModel || undefined,
   });
@@ -450,7 +576,7 @@ export function routeRequest(service: ZavorthControlFacadeCompat, req: http.Inco
   const url = new URL(req.url || '/', service.getUrl());
   const pathname = service.httpSupport.normalizePath(url.pathname);
   const presentationInput = buildZavorthControlPresentationInput(service);
-  const presentationSource = service as any;
+  const presentationSource = service;
 
   service.httpSupport.applyCorsHeaders(
     req,
@@ -567,7 +693,7 @@ export function routeRequest(service: ZavorthControlFacadeCompat, req: http.Inco
         pathname,
         {
           echo: service.echoService,
-          writeJson: (r: any, body: any, status: number) => service.responseWriter.writeJson(r, body, status),
+          writeJson: (r: http.ServerResponse, body: unknown, status: number) => service.responseWriter.writeJson(r, body, status),
           agentGateway: service.agentGateway || null,
         },
       );
@@ -634,14 +760,14 @@ export function getClassicZavorthControlHtml(service: ZavorthControlFacadeCompat
   let auditReplaySummary: string | null = null;
 
   if (service.operationsHealthInjected) {
-    const operationsHealthSnapshot = service.operationsHealth.readSnapshot() as any;
+    const operationsHealthSnapshot = service.operationsHealth.readSnapshot() as Record<string, unknown>;
     const lastAudit = operationsHealthSnapshot?.security?.lastAudit || null;
     auditTrailSummary = Number(lastAudit?.totalEvents || 0) > 0
       ? `Trilha: ${String(lastAudit.totalEvents)} evento(s) | ultimo ${String(lastAudit.latestEventType || 'n/d')} | hash ${String(lastAudit.latestChainHash || '').slice(0, 10)}`
       : null;
     auditReplaySummary = Array.isArray(lastAudit?.recentChain) && lastAudit.recentChain.length
       ? `Replay: ${lastAudit.recentChain
-          .map((entry: any) => `${String(entry?.eventType || 'evento')} -> ${String(entry?.taskId || 'task')}`)
+          .map((entry: { eventType?: string; taskId?: string }) => `${String(entry?.eventType || 'evento')} -> ${String(entry?.taskId || 'task')}`)
           .join(' | ')}`
       : null;
   }

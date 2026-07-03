@@ -15,6 +15,7 @@ import { readFileSync, existsSync } from "fs";
 import { getAppLogFilePath } from "@/lib/logEnv";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { redactExportedLogRows } from "@/lib/logExportRedaction";
+import { safeParseIntBounded } from "@/shared/utils/safeParseInt";
 
 const LEVEL_ORDER: Record<string, number> = {
   trace: 5,
@@ -53,7 +54,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const levelFilter = searchParams.get("level") || "all";
-    const limit = Math.min(parseInt(searchParams.get("limit") || "500", 10), 2000);
+    const limit = safeParseIntBounded(searchParams.get("limit"), 500, 1, 2000);
     const componentFilter = searchParams.get("component") || "";
 
     const logPath = getLogFilePath();

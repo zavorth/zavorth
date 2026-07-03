@@ -145,8 +145,8 @@ export async function POST(request: Request) {
       const result = await curatorPlane.runCuratorReview({
         dryRun: body.dryRun === true,
         llmReview: body.llmReview === true || body.aiReview === true,
-        reason: body.dryRun === true ? "dashboard-dry-run" : "dashboard-run",
-        triggeredBy: "dashboard:skills",
+        reason: body.dryRun === true ? "zavorthControl-dry-run" : "zavorthControl-run",
+        triggeredBy: "zavorthControl:skills",
       });
       return NextResponse.json({
         ok: true,

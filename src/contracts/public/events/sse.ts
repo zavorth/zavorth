@@ -64,7 +64,7 @@ export interface PublicRuntimeEventEnvelope<TType extends PublicRuntimeEventType
   sessionId: string | null;
   data: TData;
   safety: {
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     policyBrokerRequiredForMutableActions: true;
     rawSecretsSerialized: false;
   };

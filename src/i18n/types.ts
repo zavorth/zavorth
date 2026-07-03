@@ -1,11 +1,10 @@
-// @ts-nocheck
 export type SupportedLocale = string;
 
 export type LocaleNamespace =
   | 'common'
   | 'cli'
   | 'errors'
-  | 'dashboard'
+  | 'zavorthControl'
   | 'desktop'
   | 'telegram'
   | 'services'
@@ -13,7 +12,9 @@ export type LocaleNamespace =
 
 export type InterpolationVars = Record<string, string | number>;
 
-export type NestedDict = Record<string, string | NestedDict>;
+export interface NestedDict {
+  [key: string]: string | NestedDict;
+}
 
 export type I18nRuntime = {
   locale?: string | null;
@@ -41,6 +42,6 @@ export const KNOWN_LOCALES: readonly string[] = [
 ] as const;
 
 export const NAMESPACE_LIST: readonly LocaleNamespace[] = [
-  'common', 'cli', 'errors', 'dashboard',
+  'common', 'cli', 'errors', 'zavorthControl',
   'desktop', 'telegram', 'services', 'onboarding',
 ] as const;

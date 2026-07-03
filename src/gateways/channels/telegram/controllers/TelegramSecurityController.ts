@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Bot, Context } from 'grammy';
 import { ChatCleanupService } from '@zavorth/services/ChatCleanupService.js';
 import { HostIdentityService } from '@zavorth/services/HostIdentityService.js';
@@ -45,7 +44,7 @@ export class TelegramSecurityController {
 
       await ctx.reply(reply);
     } catch (error: unknown) {
-      await ctx.reply(t('security.cleanup_error', { error: error.message }));
+      await ctx.reply(t('security.cleanup_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
 
@@ -63,7 +62,7 @@ export class TelegramSecurityController {
       const result = await this.chatCleanup.clearChat(this.bot, chatId);
       await ctx.reply(result.message);
     } catch (error: unknown) {
-      await ctx.reply(t('security.clear_error', { error: error.message }));
+      await ctx.reply(t('security.clear_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
 
@@ -95,7 +94,7 @@ export class TelegramSecurityController {
         `${t('security.lock_success', { lockedAt: state.lockedAt || '' })}`,
       );
     } catch (error: unknown) {
-      await ctx.reply(t('security.lock_error', { error: error.message }));
+      await ctx.reply(t('security.lock_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
 
@@ -128,7 +127,7 @@ export class TelegramSecurityController {
         await ctx.reply(t('security.wrong_password'));
       }
     } catch (error: unknown) {
-      await ctx.reply(t('security.unlock_error', { error: error.message }));
+      await ctx.reply(t('security.unlock_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
 

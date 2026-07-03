@@ -85,7 +85,7 @@ export class ZavorthActiveMissionUxService {
       timeline,
       actions,
       zavorthControlProjection: {
-        route: '/dashboard',
+        route: '/zavorthControl',
         renderMode: 'mission-timeline',
         executionAuthority: false,
       },
@@ -153,7 +153,7 @@ function buildTimeline(input: {
     events.push({
       id: 'system:idle',
       label: 'Ready',
-      summary: 'No live run selected; Dashboard is waiting for a mission.',
+      summary: 'No live run selected; ZavorthControl is waiting for a mission.',
       status: 'pending',
       tone: 'info',
       source: 'system',

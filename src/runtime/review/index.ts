@@ -31,8 +31,8 @@ export {
   defaultGovernedReviewGitHubCommandRunner,
 } from './GovernedReviewGitHubService.js';
 export {
-  buildGovernedReviewDashboardSnapshot,
-} from './GovernedReviewDashboardPresenter.js';
+  buildGovernedReviewZavorthControlSnapshot,
+} from './GovernedReviewZavorthControlPresenter.js';
 export {
   buildGovernedReviewZavorthControlSnapshot,
 } from './GovernedReviewZavorthControlPresenter.js';
@@ -53,9 +53,9 @@ export type {
   GovernedReviewGitHubRunInput,
 } from './GovernedReviewGitHubService.js';
 export type {
-  GovernedReviewDashboardLaneStatus,
-  GovernedReviewDashboardSnapshot,
-} from './GovernedReviewDashboardPresenter.js';
+  GovernedReviewZavorthControlLaneStatus,
+  GovernedReviewZavorthControlSnapshot,
+} from './GovernedReviewZavorthControlPresenter.js';
 export type {
   GovernedReviewZavorthControlLaneStatus,
   GovernedReviewZavorthControlSnapshot,

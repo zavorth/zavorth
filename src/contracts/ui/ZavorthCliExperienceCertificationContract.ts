@@ -7,7 +7,7 @@ export type ZavorthCliExperienceCertificationCommandKind =
   | 'trust'
   | 'receipt'
   | 'satellite'
-  | 'dashboard';
+  | 'zavorthControl';
 
 export type ZavorthCliExperienceCertificationCommand = {
   id: string;
@@ -16,7 +16,7 @@ export type ZavorthCliExperienceCertificationCommand = {
   description: string;
   kind: ZavorthCliExperienceCertificationCommandKind;
   risk: 'read_only' | 'approval_gated';
-  mirrorsDashboardHome: boolean;
+  mirrorsZavorthControlHome: boolean;
   cliCanExecuteTargetAction: false;
 };
 

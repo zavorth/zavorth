@@ -3,6 +3,12 @@ import { LogRepository } from '../storage/LogRepository.js';
 import crypto from 'crypto';
 import path from 'path';
 
+// Typed metadata for audit events: all values are primitives
+type AuditMetadata = Record<string, string | number | boolean | undefined>;
+
+// Generic record used by validation helpers that accept arbitrary input objects
+type ValidationRecord = Record<string, unknown>;
+
 export class SecurityAuditLogger {
   private readonly logRepo: LogRepository;
 
@@ -47,7 +53,7 @@ export class SecurityAuditLogger {
     return /^[A-Za-z0-9._-]+:[A-Za-z0-9._-]+$/.test(id);
   }
 
-  private validateKeys(obj: Record<string, any>, allowedKeys: string[]): void {
+  private validateKeys(obj: ValidationRecord, allowedKeys: string[]): void {
     const keys = Object.keys(obj);
     const forbiddenKeys = ['messageBody', 'prompt', 'env', 'envValue', 'toolArgs', 'schema', 'parameters'];
     
@@ -61,7 +67,7 @@ export class SecurityAuditLogger {
     }
   }
 
-  private validatePayloadValues(payload: Record<string, any>): void {
+  private validatePayloadValues(payload: ValidationRecord): void {
     for (const [key, val] of Object.entries(payload)) {
       if (typeof val === 'string') {
         // Enforce length limit
@@ -85,10 +91,10 @@ export class SecurityAuditLogger {
     }
   }
 
-  private safePersist(event: string, metadata: Record<string, any>): void {
+  private safePersist(event: string, metadata: AuditMetadata): void {
     try {
       this.logRepo.log('security', 'security_audit', event, metadata);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Minimal safe warning to stderr without leaking any sensitive metadata/payload.
       logger.error(`[SecurityAuditLogger] Failed to persist security audit event: DB error.`);
     }
@@ -131,7 +137,7 @@ export class SecurityAuditLogger {
       throw new Error(`Invalid trigger type: ${payload.triggerType}`);
     }
 
-    const metadata: Record<string, any> = {
+    const metadata: AuditMetadata = {
       event: payload.event,
       decision: payload.decision,
       channel: payload.channel,
@@ -201,7 +207,7 @@ export class SecurityAuditLogger {
       throw new Error(`Invalid tool exposure reason: ${payload.reason}`);
     }
 
-    const metadata: Record<string, any> = {
+    const metadata: AuditMetadata = {
       event: payload.event,
       decision: payload.decision,
       toolName: this.sanitizeString(payload.toolName),
@@ -260,7 +266,7 @@ export class SecurityAuditLogger {
       throw new Error(`Invalid namespacedToolId format: ${payload.namespacedToolId}`);
     }
 
-    const metadata: Record<string, any> = {
+    const metadata: AuditMetadata = {
       event: payload.event,
       serverId: this.sanitizeString(payload.serverId),
       toolName: this.sanitizeString(payload.toolName),
@@ -331,7 +337,7 @@ export class SecurityAuditLogger {
       throw new Error(`Invalid serverId format: ${payload.serverId}`);
     }
 
-    const metadata: Record<string, any> = {
+    const metadata: AuditMetadata = {
       event: payload.event,
       actor: payload.actor,
       source: payload.source,
@@ -373,7 +379,7 @@ export class SecurityAuditLogger {
 
   // 5. Workspace Events
   public logWorkspaceEvent(payload: {
-    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked' | 'workspace_trust_granted' | 'workspace_trust_revoked' | 'workspace_trust_loaded' | 'workspace_trust_rejected' | 'command_auto_approved_by_trusted_workspace' | 'workspace_task_mandate_requested' | 'workspace_task_mandate_approved' | 'workspace_task_mandate_denied' | 'workspace_task_mandate_revoked' | 'workspace_task_mandate_expired' | 'command_auto_approved_by_task_mandate' | 'filesystem_write_auto_approved_by_task_mandate' | 'task_mandate_scope_violation' | 'tmp_dir_trust_requested' | 'tmp_dir_trust_approved' | 'tmp_dir_trust_denied' | 'tmp_dir_trust_revoked' | 'tmp_dir_trust_expired' | 'tmp_dir_trust_auto_approved' | 'tmp_dir_trust_scope_block' | 'host_command_proposed' | 'host_command_approved' | 'host_command_denied' | 'host_command_executed' | 'host_power_mode_enabled' | 'host_power_mode_disabled' | 'host_power_mode_expired' | 'pty_session_requested' | 'pty_session_approved' | 'pty_session_denied' | 'pty_session_started' | 'pty_session_terminated' | 'pty_session_expired' | 'pty_session_terminated_due_to_host_power_disabled' | 'pty_input_requested' | 'pty_input_approved' | 'pty_input_blocked' | 'pty_input_sent' | 'pty_output_truncated' | 'pty_policy_violation' | 'critical_pty_input_strong_confirmation_required' | 'critical_pty_input_strong_confirmation_failed' | 'critical_pty_input_strong_confirmation_passed' | 'provider_invocation_started' | 'provider_invocation_succeeded' | 'provider_invocation_failed' | 'provider_runtime_fallback_attempted' | 'provider_runtime_fallback_succeeded' | 'provider_runtime_fallback_failed' | 'provider_route_attempt_started' | 'provider_route_attempt_failed' | 'provider_route_attempt_succeeded' | 'provider_route_fallback_succeeded' | 'provider_route_budget_blocked' | 'memory_mutation_receipt' | 'blocked_cross_workspace_config_access';
+    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked' | 'workspace_trust_granted' | 'workspace_trust_revoked' | 'workspace_trust_loaded' | 'workspace_trust_rejected' | 'command_auto_approved_by_trusted_workspace' | 'workspace_task_mandate_requested' | 'workspace_task_mandate_approved' | 'workspace_task_mandate_denied' | 'workspace_task_mandate_revoked' | 'workspace_task_mandate_expired' | 'command_auto_approved_by_task_mandate' | 'filesystem_write_auto_approved_by_task_mandate' | 'task_mandate_scope_violation' | 'tmp_dir_trust_requested' | 'tmp_dir_trust_approved' | 'tmp_dir_trust_denied' | 'tmp_dir_trust_revoked' | 'tmp_dir_trust_expired' | 'tmp_dir_trust_auto_approved' | 'tmp_dir_trust_scope_block' | 'host_command_proposed' | 'host_command_approved' | 'host_command_denied' | 'host_command_executed' | 'host_power_mode_enabled' | 'host_power_mode_disabled' | 'host_power_mode_expired' | 'pty_session_requested' | 'pty_session_approved' | 'pty_session_denied' | 'pty_session_started' | 'pty_session_terminated' | 'pty_session_expired' | 'pty_session_terminated_due_to_host_power_disabled' | 'pty_input_requested' | 'pty_input_approved' | 'pty_input_blocked' | 'pty_input_sent' | 'pty_output_truncated' | 'pty_policy_violation' | 'critical_pty_input_strong_confirmation_required' | 'critical_pty_input_strong_confirmation_failed' | 'critical_pty_input_strong_confirmation_passed' | 'provider_invocation_started' | 'provider_invocation_succeeded' | 'provider_invocation_failed' | 'provider_runtime_fallback_attempted' | 'provider_runtime_fallback_succeeded' | 'provider_runtime_fallback_failed' | 'provider_route_attempt_started' | 'provider_route_attempt_failed' | 'provider_route_attempt_succeeded' | 'provider_route_fallback_succeeded' | 'provider_route_budget_blocked' | 'memory_mutation_receipt';
     workspaceId: string;
     rootPath?: string;
     rootPathHash?: string;
@@ -392,7 +398,7 @@ export class SecurityAuditLogger {
     riskLevel?: string;
     commandHash?: string;
     redactedCommandPreview?: string;
-    metadata?: Record<string, any>;
+    metadata?: AuditMetadata;
   }): void {
     const allowedPayloadKeys = [
       'event', 'workspaceId', 'rootPath', 'rootPathHash', 'rootPathSuffix', 'toolName', 'providerId', 'decision', 'reason', 'path', 'operation',
@@ -498,7 +504,7 @@ export class SecurityAuditLogger {
       throw new Error(`Invalid workspace event: ${payload.event}`);
     }
 
-    const metadata: Record<string, any> = {
+    const metadata: AuditMetadata = {
       event: payload.event,
       workspaceId: this.sanitizeString(payload.workspaceId),
       timestamp: new Date().toISOString(),
@@ -540,5 +546,41 @@ export class SecurityAuditLogger {
 
     this.validateKeys(metadata, allowedKeys);
     this.safePersist(payload.event, metadata);
+  }
+
+  public async logInput(taskId: string, userId: string, text: string, commandType: string): Promise<void> {
+    const metadata: AuditMetadata = {
+      event: 'task_input_received',
+      taskIdHash: this.hashId(taskId),
+      channelUserIdHash: this.hashId(userId),
+      channelUserIdSuffix: this.sanitizeString(this.getSuffix(userId)),
+      commandType: this.sanitizeString(commandType),
+      textPreview: this.sanitizeString(text, 128),
+      timestamp: new Date().toISOString(),
+    };
+
+    const allowedKeys = [
+      'event', 'taskIdHash', 'channelUserIdHash', 'channelUserIdSuffix',
+      'commandType', 'textPreview', 'timestamp'
+    ];
+
+    this.validateKeys(metadata, allowedKeys);
+    this.safePersist('task_input_received', metadata);
+  }
+
+  public async logSecurityBlock(taskId: string, reason: string): Promise<void> {
+    const metadata: AuditMetadata = {
+      event: 'task_security_block',
+      taskIdHash: this.hashId(taskId),
+      reason: this.sanitizeString(reason, 256),
+      timestamp: new Date().toISOString(),
+    };
+
+    const allowedKeys = [
+      'event', 'taskIdHash', 'reason', 'timestamp'
+    ];
+
+    this.validateKeys(metadata, allowedKeys);
+    this.safePersist('task_security_block', metadata);
   }
 }

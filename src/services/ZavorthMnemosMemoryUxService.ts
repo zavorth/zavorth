@@ -61,13 +61,13 @@ export class ZavorthMnemosMemoryUxService {
         lintFindings: lint.summary.findings,
         proceduralRules: procedural.summary.total,
         activeProceduralRules,
-        surfaces: ['dashboard', 'cli', 'telegram'],
+        surfaces: ['zavorthControl', 'cli', 'telegram'],
       },
       safety: {
         providerCall: false,
         networkCall: false,
         durableMutation: false,
-        dashboardCanWriteMemory: false,
+        zavorthControlCanWriteMemory: false,
         cliWriteRequiresApproval: true,
         telegramWriteRequiresApproval: true,
         rawJsonHiddenByDefault: true,
@@ -128,7 +128,7 @@ export class ZavorthMnemosMemoryUxService {
         commands: [
           command('cli', 'Check memory health', 'zavorth memory mnemos', 'Show lint, procedural and query controls.', false),
           command('telegram', 'Check memory health', '/mnemos', 'Show memory status and safe commands.', false),
-          command('dashboard', 'Open memory panel', '/dashboard', 'Read-only memory controls on Home.', false),
+          command('zavorthControl', 'Open memory panel', '/zavorthControl', 'Read-only memory controls on Home.', false),
         ],
       },
       {

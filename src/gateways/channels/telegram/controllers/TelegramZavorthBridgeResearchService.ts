@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Context } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
@@ -38,7 +37,7 @@ export class TelegramZavorthBridgeResearchService {
       task,
       prompt,
       'O ZavorthBridge real nao abriu uma conversa confiavel para responder no chat. Vou fazer a pesquisa pela rota web do Zavorth para nao te deixar sem retorno.',
-      error,
+      error instanceof Error ? error : new Error(String(error)),
     );
   }
 
@@ -86,9 +85,10 @@ export class TelegramZavorthBridgeResearchService {
       this.deps.taskManager.advanceState(task, 'completed');
       return true;
     } catch (fallbackError: unknown) {
+      const fallbackMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
       task.error_summary = zavorthBridgeError
-        ? `ZavorthBridge: ${zavorthBridgeError.message}\nFallback web: ${fallbackError.message}`
-        : `Pesquisa web: ${fallbackError.message}`;
+        ? `ZavorthBridge: ${zavorthBridgeError.message}\nFallback web: ${fallbackMsg}`
+        : `Pesquisa web: ${fallbackMsg}`;
       task.metadata = {
         ...(task.metadata || {}),
         zavorthBridgeBypassed: !zavorthBridgeError,
@@ -105,12 +105,12 @@ export class TelegramZavorthBridgeResearchService {
               'O ZavorthBridge nao abriu uma conversa confiavel e a rota de pesquisa web tambem falhou.',
               '',
               `ZavorthBridge: ${zavorthBridgeError.message}`,
-              `Pesquisa web: ${fallbackError.message}`,
+              `Pesquisa web: ${fallbackMsg}`,
             ].join('\n')
           : [
               'A rota web do Zavorth falhou ao atender essa pesquisa.',
               '',
-              `Pesquisa web: ${fallbackError.message}`,
+              `Pesquisa web: ${fallbackMsg}`,
             ].join('\n'),
       );
       return true;
@@ -122,7 +122,10 @@ export class TelegramZavorthBridgeResearchService {
   }
 
   private isDirectChatUnavailableError(error: unknown): boolean {
-    return String(error?.code || '').trim().toLowerCase() === 'direct_chat_unavailable';
+    const code = error !== null && typeof error === 'object' && 'code' in error
+      ? String((error as Record<string, unknown>).code ?? '')
+      : '';
+    return code.trim().toLowerCase() === 'direct_chat_unavailable';
   }
 
   private shouldAutoFallbackToResearch(prompt: string): boolean {

@@ -36,7 +36,7 @@ export class TelegramHubKeyboardService {
         .text('Status', 'hub:action:status')
         .text('Modelos', 'hub:action:models')
         .row()
-        .text('Dashboard', 'hub:action:dashboard')
+        .text('ZavorthControl', 'hub:action:zavorthControl')
         .text('Pendencias', 'hub:action:permissions')
         .row()
         .text('Modo', 'hub:action:mode')
@@ -51,7 +51,7 @@ export class TelegramHubKeyboardService {
         .text('Ver modelos', 'hub:action:models')
         .row()
         .text('Alterar modo', 'hub:action:mode')
-        .text('Abrir dashboard', 'hub:action:dashboard');
+        .text('Abrir zavorthControl', 'hub:action:zavorthControl');
     } else if (section === 'permissions') {
       keyboard
         .row()

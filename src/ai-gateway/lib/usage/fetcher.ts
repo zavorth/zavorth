@@ -174,7 +174,7 @@ async function getClaudeUsage() {
 /**
  * Codex (OpenAI) Usage
  * Note: Actual quota tracking is handled by open-sse/services/usage.ts
- * This fallback returns a message directing users to the dashboard.
+ * This fallback returns a message directing users to the zavorthControl.
  */
 async function getCodexUsage(accessToken, providerSpecificData: Record<string, any> = {}) {
   try {
@@ -182,10 +182,10 @@ async function getCodexUsage(accessToken, providerSpecificData: Record<string, a
     const workspaceId = providerSpecificData?.workspaceId;
     if (workspaceId) {
       return {
-        message: `Codex connected (workspace: ${workspaceId.slice(0, 8)}...). Check dashboard for quota.`,
+        message: `Codex connected (workspace: ${workspaceId.slice(0, 8)}...). Check zavorthControl for quota.`,
       };
     }
-    return { message: "Codex connected. Check OpenAI dashboard for usage." };
+    return { message: "Codex connected. Check OpenAI zavorthControl for usage." };
   } catch (error) {
     return { message: "Unable to fetch Codex usage." };
   }
@@ -241,7 +241,7 @@ async function getKiroUsage(accessToken: string) {
       const errText = await response.text();
       // 401/403 = expired token, show user-friendly message
       if (response.status === 401 || response.status === 403) {
-        return { message: "Kiro token expired. Please reconnect in Dashboard → Providers → Kiro." };
+        return { message: "Kiro token expired. Please reconnect in ZavorthControl → Providers → Kiro." };
       }
       throw new Error(`Kiro credits API error (${response.status}): ${errText}`);
     }

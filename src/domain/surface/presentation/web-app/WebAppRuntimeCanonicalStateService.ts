@@ -15,6 +15,116 @@ import {
   readWebAppRuntimeChannelReadiness,
 } from './web-app-runtime-route/WebAppRuntimeRouteHelpers.js';
 
+interface AgentRunQuery {
+  activeRunId?: string | null;
+  activeTraceId?: string | null;
+  runStatus?: string | null;
+  [key: string]: unknown;
+}
+
+interface AgentRuntimeSnapshotOptions extends AgentRunQuery {
+  activeSessionId?: string | null;
+}
+
+interface ApprovalPlaneEntry {
+  status?: string;
+  [key: string]: unknown;
+}
+
+interface CapabilityPlan {
+  status?: string;
+  [key: string]: unknown;
+}
+
+interface CapabilityPlane {
+  pendingPlans?: CapabilityPlane[];
+  commands?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+interface SelfmodPlan {
+  status?: string;
+  [key: string]: unknown;
+}
+
+interface SelfmodPlane {
+  recentPlans?: SelfmodPlan[];
+  [key: string]: unknown;
+}
+
+interface ResourceRecommendedAction {
+  label?: string;
+  actionId?: string;
+  description?: string;
+  controlId?: string;
+  command?: string;
+  safety?: string;
+  requiresApproval?: boolean;
+  [key: string]: unknown;
+}
+
+interface ResourcePlane {
+  generatedAt?: string;
+  status?: string;
+  host?: Record<string, unknown> | null;
+  signals?: unknown;
+  totals?: unknown;
+  groups?: unknown[];
+  topConsumers?: unknown[];
+  recommendedActions?: ResourceRecommendedAction[];
+  warnings?: unknown[];
+  recommendations?: unknown[];
+  commands?: Record<string, string>;
+  [key: string]: unknown;
+}
+
+interface CompanionAction {
+  available?: boolean;
+  label?: string;
+  actionId?: string;
+  description?: string;
+  command?: string;
+  safety?: string;
+  requiresApproval?: boolean;
+  [key: string]: unknown;
+}
+
+interface CompanionEntry {
+  id?: string;
+  label?: string;
+  status?: string;
+  summary?: string;
+  actions?: CompanionAction[];
+  [key: string]: unknown;
+}
+
+interface CompanionPlane {
+  generatedAt?: string;
+  status?: string;
+  companions?: CompanionEntry[];
+  warnings?: unknown[];
+  recommendations?: unknown[];
+  commands?: Record<string, string>;
+  [key: string]: unknown;
+}
+
+interface ArtifactPlane {
+  commands?: Record<string, string>;
+  [key: string]: unknown;
+}
+
+interface ActionRecommendation {
+  plane?: string;
+  label?: string;
+  summary?: string;
+  actionId?: string | null;
+  controlId?: string | null;
+  command?: string | null;
+  safety?: string;
+  requiresApproval?: boolean;
+  [key: string]: unknown;
+}
+
 type CanonicalSessionBundleOptions = {
   includeSessionsList?: boolean;
   historyMode?: 'none' | 'fast' | 'full';
@@ -24,7 +134,7 @@ type CanonicalSessionBundleOptions = {
 type CanonicalStatePayloadOptions = CanonicalSessionBundleOptions & {
   sessionPlaneMode?: 'none' | 'summary' | 'full';
   snapshotMode?: 'cached' | 'resolved';
-  agentRunQuery?: Record<string, any> | null;
+  agentRunQuery?: AgentRunQuery | null;
   includeMemoryRecall?: boolean;
   includeApprovalPlane?: boolean;
   includeCapabilityPlane?: boolean;
@@ -141,7 +251,7 @@ export class WebAppRuntimeCanonicalStateService {
     });
     const productMode = buildWebAppRuntimeProductMode(deps);
     const uiSurfaceHints = buildWebAppRuntimeUiSurfaceHints(productMode, {
-      localControlEntry: '/dashboard',
+      localControlEntry: '/zavorthControl',
       localControlReady: true,
       telegramReady: readWebAppRuntimeChannelReadiness(companionPlane, resourcePlane, 'telegram'),
       discordReady: readWebAppRuntimeChannelReadiness(companionPlane, resourcePlane, 'discord'),
@@ -192,8 +302,8 @@ export class WebAppRuntimeCanonicalStateService {
 
   private buildAgentRuntimeSnapshotOptions(
     sessionId: string,
-    agentRunQuery: Record<string, any> | null | undefined,
-  ): Record<string, any> {
+    agentRunQuery: AgentRunQuery | null | undefined,
+  ): AgentRuntimeSnapshotOptions {
     const query = agentRunQuery || {};
     const hasDirectRunQuery = Boolean(
       query.activeRunId
@@ -210,14 +320,14 @@ export class WebAppRuntimeCanonicalStateService {
   private async buildApprovalPlane(
     sessionId: string,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<ApprovalPlaneEntry> {
     return this.gatewayControl.listGatewayApprovals(sessionId, deps, 20);
   }
 
   private async buildCapabilityPlane(
     sessionId: string,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<CapabilityPlane> {
     const payload = await this.gatewayControl.listGatewayCapabilities(deps);
     return {
       ...payload,
@@ -233,7 +343,7 @@ export class WebAppRuntimeCanonicalStateService {
   private async buildArtifactPlane(
     sessionId: string,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<ArtifactPlane> {
     const payload = await this.gatewayControl.listGatewayArtifacts(sessionId, deps);
     return {
       ...payload,
@@ -247,13 +357,13 @@ export class WebAppRuntimeCanonicalStateService {
   private async buildSelfmodPlane(
     sessionId: string,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any>> {
+  ): Promise<SelfmodPlane> {
     return this.gatewayControl.buildSelfmodPlane(sessionId, deps);
   }
 
   private async buildResourcePlane(
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any> | null> {
+  ): Promise<ResourcePlane | null> {
     const snapshot = await this.runtimeOperationsRoutes.readDesktopResources(deps, { preferCachedWithinMs: 15_000 });
     if (!snapshot) {
       return null;
@@ -278,7 +388,7 @@ export class WebAppRuntimeCanonicalStateService {
 
   private async buildCompanionPlane(
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any> | null> {
+  ): Promise<CompanionPlane | null> {
     if (!deps.companions) {
       return null;
     }
@@ -310,20 +420,20 @@ export class WebAppRuntimeCanonicalStateService {
   }
 
   private buildRuntimeWarnings(input: {
-    approvalPlane: Record<string, any> | null;
-    capabilityPlane: Record<string, any> | null;
-    resourcePlane: Record<string, any> | null;
-    companionPlane: Record<string, any> | null;
-    selfmodPlane: Record<string, any> | null;
+    approvalPlane: ApprovalPlaneEntry | null;
+    capabilityPlane: CapabilityPlane | null;
+    resourcePlane: ResourcePlane | null;
+    companionPlane: CompanionPlane | null;
+    selfmodPlane: SelfmodPlane | null;
     modeEscalation: ModeEscalationSnapshot | null;
   }): string[] {
     const warnings = new Set<string>();
     const pendingApprovals = Array.isArray(input.approvalPlane?.pending) ? input.approvalPlane.pending.length : 0;
     const pendingCapabilityPlans = Array.isArray(input.capabilityPlane?.pendingPlans)
-      ? input.capabilityPlane.pendingPlans.filter((plan: any) => String(plan?.status || '').trim() === 'waiting_approval').length
+      ? input.capabilityPlane.pendingPlans.filter((plan: CapabilityPlan) => String(plan?.status || '').trim() === 'waiting_approval').length
       : 0;
     const pendingSelfmods = Array.isArray(input.selfmodPlane?.recentPlans)
-      ? input.selfmodPlane.recentPlans.filter((plan: any) => ['draft', 'waiting_approval', 'approved'].includes(String(plan?.status || '').trim())).length
+      ? input.selfmodPlane.recentPlans.filter((plan: SelfmodPlan) => ['draft', 'waiting_approval', 'approved'].includes(String(plan?.status || '').trim())).length
       : 0;
 
     for (const warning of Array.isArray(input.resourcePlane?.warnings) ? input.resourcePlane.warnings : []) {
@@ -351,15 +461,15 @@ export class WebAppRuntimeCanonicalStateService {
   }
 
   private buildActionRecommendations(input: {
-    approvalPlane: Record<string, any> | null;
-    capabilityPlane: Record<string, any> | null;
-    resourcePlane: Record<string, any> | null;
-    companionPlane: Record<string, any> | null;
-    selfmodPlane: Record<string, any> | null;
+    approvalPlane: ApprovalPlaneEntry | null;
+    capabilityPlane: CapabilityPlane | null;
+    resourcePlane: ResourcePlane | null;
+    companionPlane: CompanionPlane | null;
+    selfmodPlane: SelfmodPlane | null;
     modeEscalation: ModeEscalationSnapshot | null;
-  }): Record<string, any>[] {
-    const recommendations: Record<string, any>[] = [];
-    const pushUnique = (entry: Record<string, any> | null) => {
+  }): ActionRecommendation[] {
+    const recommendations: ActionRecommendation[] = [];
+    const pushUnique = (entry: ActionRecommendation | null) => {
       if (!entry) {
         return;
       }

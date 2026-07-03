@@ -8,11 +8,13 @@ import {
   buildOutboundChannelEnvelope,
   persistChannelOutboxEnvelope,
 } from '../channels/contracts/ChannelMessageContract.js';
+import type { CanonicalChannelPlatform } from '../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../channels/policies/ChannelPolicyManager.js';
 import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import type { ChannelAdapterStatus, ChannelFeatureSet } from '../contracts/ChannelMeshContract.js';
 import type { PlatformReadiness, PlatformImplementationState, PlatformTransport, PlatformKey } from '../contracts/PlatformContract.js';
+import type { IMessageContext } from '../contracts/core/IMessageBroker.js';
 
 export type WebhookGatewayMode = 'webhook' | 'bot-http' | 'local-bridge' | 'matrix' | 'line';
 
@@ -48,6 +50,31 @@ export type WebhookGatewayOptions = {
   fetchImpl?: typeof fetch;
 };
 
+interface WebhookBroker {
+  processMessage(ctx: Pick<IMessageContext, 'platform' | 'userId' | 'chatId' | 'messageId' | 'isGroup' | 'rawText' | 'reply'>): Promise<void>;
+}
+
+interface OutboundPayload {
+  text?: string;
+  message?: string;
+  recipients?: string[];
+  chatId?: string;
+  to?: string;
+  [key: string]: unknown;
+}
+
+function isWebhookBroker(value: unknown): value is WebhookBroker {
+  return typeof value === 'object' && value !== null && typeof (value as WebhookBroker).processMessage === 'function';
+}
+
+function isOutboundPayload(value: unknown): value is OutboundPayload {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isValidPlatformTransport(mode: string): mode is PlatformTransport {
+  return ['native', 'webhook', 'local', 'stub', 'bridge', 'virtual', 'planned'].includes(mode);
+}
+
 export abstract class WebhookGateway implements GatewayChannelAdapter {
   public abstract readonly id: string;
   public abstract readonly name: string;
@@ -61,7 +88,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
   protected readonly outboxDir: string;
   protected readonly statusFile: string;
   protected readonly fetchImpl: typeof fetch | null;
-  protected broker: any = null;
+  protected broker: WebhookBroker | null = null;
 
   private started = false;
   private lastInboundAt: string | null = null;
@@ -76,7 +103,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     return this.outboxDir;
   }
 
-  constructor(options: WebhookGatewayOptions | any) {
+  constructor(options: WebhookGatewayOptions | Record<string, unknown>) {
     const isOptionsObj = options && typeof options === 'object' && 'eventBus' in options;
     const opts = isOptionsObj ? options as WebhookGatewayOptions : null;
 
@@ -88,7 +115,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     this.statusFile = path.resolve(opts?.statusFile || this.resolveStatusFile());
     this.fetchImpl = opts?.fetchImpl || globalThis.fetch || null;
 
-    if (!isOptionsObj && options) {
+    if (!isOptionsObj && isWebhookBroker(options)) {
       this.broker = options;
     }
   }
@@ -172,9 +199,9 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     this.lastError = null;
     this.writeStatus();
 
-    if (this.broker && typeof this.broker.processMessage === 'function') {
+    if (this.broker) {
       await this.broker.processMessage({
-        platform: this.id as any,
+        platform: this.id as CanonicalChannelPlatform,
         userId,
         chatId,
         messageId: extracted.messageId || null,
@@ -187,7 +214,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     }
 
     await this.eventBus.emit(buildInboundChannelEvent({
-      platform: this.id as any,
+      platform: this.id as CanonicalChannelPlatform,
       userId,
       chatId,
       rawText,
@@ -203,8 +230,8 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       ? outboundPayload
       : String(outboundPayload?.text || outboundPayload?.message || '').trim();
 
-    const recipients = Array.isArray((outboundPayload as any)?.recipients)
-      ? (outboundPayload as any).recipients
+    const recipients = isOutboundPayload(outboundPayload) && Array.isArray(outboundPayload.recipients)
+      ? outboundPayload.recipients
       : [];
 
     if (this.resolveConfigured() && this.fetchImpl) {
@@ -215,17 +242,16 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       }
       this.recordError(live.reason || `Channel delivery failed${live.httpStatus ? `: HTTP ${live.httpStatus}` : ''}.`);
 
-      // If it is transient, queue to outbox for retry
       if (this.isTransientError(live)) {
         const envelope = buildOutboundChannelEnvelope({
-          platform: this.id as any,
+          platform: this.id as CanonicalChannelPlatform,
           transport: `${this.mode}-configured`,
           recipients,
           message,
           payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload as Record<string, unknown> : null,
           now: this.now(),
           fields: {
-            chatId: String((outboundPayload as any)?.chatId || (outboundPayload as any)?.to || '').trim() || null,
+            chatId: String((outboundPayload as OutboundPayload)?.chatId || (outboundPayload as OutboundPayload)?.to || '').trim() || null,
           },
         });
         persistChannelOutboxEnvelope(this.outboxDir, envelope);
@@ -236,14 +262,14 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     }
 
     const envelope = buildOutboundChannelEnvelope({
-      platform: this.id as any,
+      platform: this.id as CanonicalChannelPlatform,
       transport: this.resolveConfigured() ? `${this.mode}-configured` : 'local-outbox',
       recipients,
       message,
       payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload as Record<string, unknown> : null,
       now: this.now(),
       fields: {
-        chatId: String((outboundPayload as any)?.chatId || (outboundPayload as any)?.to || '').trim() || null,
+        chatId: String((outboundPayload as OutboundPayload)?.chatId || (outboundPayload as OutboundPayload)?.to || '').trim() || null,
       },
     });
 
@@ -275,7 +301,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
   }
 
   private async dispatchLive(message: string, recipients: unknown[], rawPayload: Record<string, unknown> | string): Promise<ChannelGatewayDeliveryResult> {
-    const target = String((rawPayload as any)?.chatId || (rawPayload as any)?.to || recipients[0] || '').trim();
+    const target = String((rawPayload as OutboundPayload)?.chatId || (rawPayload as OutboundPayload)?.to || recipients[0] || '').trim();
     const request = async (url: string, init: RequestInit): Promise<ChannelGatewayDeliveryResult> => {
       try {
         const response = await this.fetchImpl!(url, init);
@@ -297,8 +323,8 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       return json('https://api.line.me/v2/bot/message/push', { to: target, messages: [{ type: 'text', text: message }] }, { authorization: `Bearer ${config.lineChannelAccessToken}` });
     }
     if (this.id === 'telegram') {
-      const token = String((config as any).telegramBotToken || '').trim();
-      const chatId = target || String((config as any).telegramDefaultChatId || '').trim();
+      const token = String(config.telegramBotToken || '').trim();
+      const chatId = target || String(config.telegramDefaultChatId || '').trim();
       if (!token || !chatId) return { ok: false, status: 'failed', transport: this.mode, reason: 'Telegram requires a bot token and chat id.' };
       return json(`https://api.telegram.org/bot${token}/sendMessage`, { chat_id: chatId, text: message });
     }
@@ -306,8 +332,8 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       'google-chat': String(config.googleChatWebhookUrl || ''), feishu: String(config.feishuWebhookUrl || ''), wecom: String(config.wecomWebhookUrl || ''),
       'home-assistant': String(config.homeAssistantWebhookUrl || ''), 'nextcloud-talk': String(config.nextcloudTalkWebhookUrl || ''), mattermost: String(config.mattermostWebhookUrl || ''),
       'synology-chat': String(config.synologyChatWebhookUrl || ''), clickclack: String(config.clickclackWebhookUrl || ''),
-      discord: String((config as any).discordWebhookUrl || ''), slack: String((config as any).slackWebhookUrl || ''), teams: String((config as any).teamsWebhookUrl || ''),
-      instagram: String((config as any).instagramWebhookUrl || ''),
+      discord: String(config.discordWebhookUrl || ''), slack: String(config.slackWebhookUrl || ''), teams: String(config.teamsWebhookUrl || ''),
+      instagram: String(config.instagramWebhookUrl || ''),
     };
     if (webhookUrls[this.id]) {
       const body = this.id === 'feishu' ? { msg_type: 'text', content: { text: message } }
@@ -325,7 +351,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     const bridgeUrls: Record<string, string> = {
       irc: String(config.ircBridgeUrl || ''), weixin: String(config.weixinBridgeUrl || ''), yuanbao: String(config.yuanbaoBridgeUrl || ''),
       'voice-call': String(config.voiceCallBridgeUrl || ''), 'google-meet': String(config.googleMeetBridgeUrl || ''), twitch: String(config.twitchBridgeUrl || ''), nostr: String(config.nostrBridgeUrl || ''),
-      whatsapp: String((config as any).whatsappBridgeUrl || ''), signal: String(config.signalJsonRpcUrl || ''), imessage: String((config as any).imessageBridgeUrl || ''),
+      whatsapp: String(config.whatsappBridgeUrl || ''), signal: String(config.signalJsonRpcUrl || ''), imessage: String(config.imessageBridgeUrl || ''),
       email: String(config.emailSmtpHost || ''),
     };
     if (bridgeUrls[this.id]) return json(`${bridgeUrls[this.id].replace(/\/+$/, '')}/send`, { channel: target || this.id, text: message, message });
@@ -358,7 +384,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       readiness: configured ? 'ready' : enabled ? 'partial' : 'planned',
       implementationState: configured ? 'full' : 'stub',
       configured,
-      transport: configured ? (this.mode as any) : 'planned',
+      transport: isValidPlatformTransport(this.mode) ? this.mode : 'planned',
       notes: configured
         ? [`${this.name} configurado e pronto.`]
         : [`Configure as variaveis de ambiente para ativar ${this.name}.`],

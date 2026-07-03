@@ -4,7 +4,7 @@ import {
   type ZavorthDelegatedTaskEnvelopeInput,
   type ZavorthDelegatedWorkerBridgeSnapshot,
   type ZavorthDelegatedWorkerBridgeStatus,
-  type ZavorthDelegatedWorkerDashboardProjection,
+  type ZavorthDelegatedWorkerZavorthControlProjection,
   type ZavorthExecutorResultInput,
   type ZavorthExecutorResultMappingReceipt,
   type ZavorthSourceWorkerLaunchGateReceipt,
@@ -93,7 +93,7 @@ export class ZavorthDelegatedWorkerBridgeService {
       executorResultMappingReceipt,
     );
     const status = resolveStatus(previousSessionMemoryStatus, acceptanceMatrix);
-    const dashboardProjection = this.buildDashboardProjection({
+    const zavorthControlProjection = this.buildZavorthControlProjection({
       status,
       workerDescriptors,
       delegatedTaskEnvelope,
@@ -116,7 +116,7 @@ export class ZavorthDelegatedWorkerBridgeService {
       sourceWorkerLaunchGateReceipt,
       lifecycleDryRunReceipt,
       executorResultMappingReceipt,
-      dashboardProjection,
+      zavorthControlProjection,
       acceptanceMatrix,
       summary: {
         workerDescriptors: workerDescriptors.length,
@@ -146,7 +146,7 @@ export class ZavorthDelegatedWorkerBridgeService {
         inspect: 'npm run zavorth:delegated-worker-bridge',
         inspectJson: 'npm run zavorth:delegated-worker-bridge:json',
         check: 'npm run zavorth:delegated-worker-bridge:check --silent',
-        nextStage: '291 Dashboard controls - Native Replacement And Decommission',
+        nextStage: '291 ZavorthControl controls - Native Replacement And Decommission',
       },
     };
   }
@@ -295,7 +295,7 @@ export class ZavorthDelegatedWorkerBridgeService {
     };
   }
 
-  public buildDashboardProjection(input: {
+  public buildZavorthControlProjection(input: {
     status: ZavorthDelegatedWorkerBridgeStatus;
     workerDescriptors: ZavorthWorkerDescriptor[];
     delegatedTaskEnvelope: ZavorthDelegatedTaskEnvelope;
@@ -303,7 +303,7 @@ export class ZavorthDelegatedWorkerBridgeService {
     sourceWorkerLaunchGateReceipt: ZavorthSourceWorkerLaunchGateReceipt;
     lifecycleDryRunReceipt: ZavorthWorkerLifecycleDryRunReceipt;
     executorResultMappingReceipt: ZavorthExecutorResultMappingReceipt;
-  }): ZavorthDelegatedWorkerDashboardProjection {
+  }): ZavorthDelegatedWorkerZavorthControlProjection {
     return {
       title: 'Delegated Worker Bridge',
       status: input.status,
@@ -326,7 +326,7 @@ export class ZavorthDelegatedWorkerBridgeService {
         'artifact/event/status mapping',
       ],
       nextSafeAction: input.status === 'delegated-worker-bridge-ready'
-        ? 'Proceed to 291 Dashboard controls - Native Replacement And Decommission.'
+        ? 'Proceed to 291 ZavorthControl controls - Native Replacement And Decommission.'
         : 'Fix failed worker delegation gates before native replacement.',
     };
   }
@@ -347,8 +347,8 @@ export class ZavorthDelegatedWorkerBridgeService {
       `Artifact events returned: ${snapshot.summary.artifactEventsReturned}`,
       `Live workers started: ${snapshot.summary.liveWorkersStarted}`,
       '',
-      'Dashboard:',
-      ...snapshot.dashboardProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
+      'ZavorthControl:',
+      ...snapshot.zavorthControlProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
       '',
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
@@ -433,6 +433,6 @@ function card(
   label: string,
   value: string,
   detail: string,
-): ZavorthDelegatedWorkerDashboardProjection['cards'][number] {
+): ZavorthDelegatedWorkerZavorthControlProjection['cards'][number] {
   return { id, label, value, detail };
 }

@@ -191,12 +191,12 @@ export class ZavorthOperationalRefinementService {
       '/api/v2/a2ui/snapshot',
       '/api/v2/a2ui/action',
       '/api/v2/a2ui/stream',
-    ]) || this.hasAllMarkers('src/services/DashboardCoreRouteService.ts', [
+    ]) || this.hasAllMarkers('src/services/ZavorthControlCoreRouteService.ts', [
       '/api/v2/a2ui/snapshot',
       '/api/v2/a2ui/action',
       '/api/v2/a2ui/stream',
     ]);
-    const dashboardHandlersReady = this.hasAllMarkers('apps/zavorth-control-vite-shell/src/runtime-engines-ui.ts', [
+    const zavorthControlHandlersReady = this.hasAllMarkers('apps/zavorth-control-vite-shell/src/runtime-engines-ui.ts', [
       'data-a2ui-refresh',
       'data-a2ui-action',
       '/api/v2/a2ui/action',
@@ -205,8 +205,8 @@ export class ZavorthOperationalRefinementService {
       evidence('snapshot', snapshot.surfaces.length > 0 ? 'ready' : 'blocked', `surfaces=${snapshot.surfaces.length}`),
       evidence('stream', stream.items.length >= 2 ? 'ready' : 'partial', `events=${stream.items.length}`),
       evidence('action', action.ok ? 'ready' : 'blocked', action.summary),
-      evidence('routes', routeReady ? 'ready' : 'blocked', 'Dashboard core exposes /api/v2/a2ui routes.'),
-      evidence('dashboard-handlers', dashboardHandlersReady ? 'ready' : 'blocked', 'Dashboard binds A2UI refresh, surface and action handlers.'),
+      evidence('routes', routeReady ? 'ready' : 'blocked', 'ZavorthControl core exposes /api/v2/a2ui routes.'),
+      evidence('zavorthControl-handlers', zavorthControlHandlersReady ? 'ready' : 'blocked', 'ZavorthControl binds A2UI refresh, surface and action handlers.'),
     ];
     const status = evidenceItems.some((item) => item.status === 'blocked')
       ? 'blocked'
@@ -218,7 +218,7 @@ export class ZavorthOperationalRefinementService {
       status,
       surfaceId,
       routeReady,
-      dashboardHandlersReady,
+      zavorthControlHandlersReady,
       actionBridgeReady: action.ok,
       riskSimulationReady: snapshot.capabilities.includes('risk-simulation'),
       security: {

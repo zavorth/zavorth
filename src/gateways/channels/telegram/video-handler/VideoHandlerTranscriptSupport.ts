@@ -1,12 +1,14 @@
 import {
   PREFERRED_CAPTION_LANGUAGES,
   type YouTubeCaptionTrack,
+  type YouTubePlayerResponse,
+  type YouTubeTranscriptPayload,
 } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
 import { VideoHandlerFetchSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFetchSupport.js";
 import { VideoHandlerFormatSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js";
 
 export class VideoHandlerTranscriptSupport {
-  public static extractYouTubePlayerResponse(html: string): any {
+  public static extractYouTubePlayerResponse(html: string): YouTubePlayerResponse | null {
     const markers = [
       "var ytInitialPlayerResponse = ",
       "ytInitialPlayerResponse = ",
@@ -23,7 +25,7 @@ export class VideoHandlerTranscriptSupport {
         return VideoHandlerFetchSupport.parseJsonPayload(
           jsonText,
           "YouTube player response",
-        );
+        ) as YouTubePlayerResponse;
       } catch {
         continue;
       }
@@ -113,26 +115,26 @@ export class VideoHandlerTranscriptSupport {
 
     try {
       const transcriptJson = await VideoHandlerFetchSupport.fetchJson(jsonUrl);
-      const text = this.parseYouTubeJsonTranscript(transcriptJson);
+      const text = this.parseYouTubeJsonTranscript(transcriptJson as YouTubeTranscriptPayload);
       if (text) {
         return text;
       }
     } catch {
-      // Fallback para XML abaixo.
+      // Fallback to XML below.
     }
 
     const xmlText = await VideoHandlerFetchSupport.fetchText(baseUrl);
     return this.parseYouTubeXmlTranscript(xmlText);
   }
 
-  public static parseYouTubeJsonTranscript(payload: any): string {
+  public static parseYouTubeJsonTranscript(payload: YouTubeTranscriptPayload): string {
     const events = Array.isArray(payload?.events) ? payload.events : [];
     const lines: string[] = [];
 
     for (const event of events) {
       const segs = Array.isArray(event?.segs) ? event.segs : [];
       const text = segs
-        .map((segment: any) => String(segment?.utf8 || ""))
+        .map((segment: { utf8?: string }) => String(segment?.utf8 || ""))
         .join("")
         .replace(/\s+/g, " ")
         .trim();

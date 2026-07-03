@@ -88,7 +88,7 @@ export type ExternalAgentCanonicalProviderIdentityCatalogNormalization = {
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_PROVIDER_RUNTIME_ID;
   providers: ExternalAgentCanonicalProviderCatalogRecord[];
-  dashboard: {
+  zavorthControl: {
     capabilities: Array<{
       id: string;
       providerId: string;

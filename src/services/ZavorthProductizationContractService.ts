@@ -78,7 +78,7 @@ export type ZavorthProductizationContractSnapshot = {
   activeRunId: string | null;
   activeSessionId: string | null;
   control: {
-    route: '/dashboard';
+    route: '/zavorthControl';
     status: ZavorthProductizationStatus;
     productMode: ZavorthProductModeSnapshot;
     items: ZavorthProductizationControlItem[];
@@ -165,7 +165,7 @@ const DEFAULT_DOC_PATHS = [
 ];
 
 const DEFAULT_DOC_TOPICS = [
-  '/dashboard mostra experiencia, trust, approvals, receipts, sandbox, provider e capabilities',
+  '/zavorthControl mostra experiencia, trust, approvals, receipts, sandbox, provider e capabilities',
   'CLI renderiza o mesmo ZavorthProductizationContractSnapshot',
   'onboarding configura host, providers, channels, workspace e safety posture',
   'website promete apenas feature estavel ou preview',
@@ -300,7 +300,7 @@ export class ZavorthProductizationContractService {
       activeRunId: activeRun?.id || null,
       activeSessionId: activeRun?.sessionId || input.runtimeSnapshot?.controlPlane?.sessionId || null,
       control: {
-        route: '/dashboard',
+        route: '/zavorthControl',
         status: controlStatus,
         productMode,
         items: controlItems,
@@ -319,7 +319,7 @@ export class ZavorthProductizationContractService {
       blockers,
       explanation: [
         'C9 transforma o runtime em produto auditavel por um unico contrato.',
-        '/dashboard, CLI, onboarding, docs e website leem o mesmo snapshot em vez de contar historias paralelas.',
+        '/zavorthControl, CLI, onboarding, docs e website leem o mesmo snapshot em vez de contar historias paralelas.',
         'A promessa publica fica limitada ao que esta estavel ou explicitamente marcado como preview.',
       ],
     };
@@ -683,9 +683,9 @@ export class ZavorthProductizationContractService {
       renderer: 'formatZavorthProductizationContractSnapshot',
       mirrorsControlItemIds: [...CONTROL_ITEM_IDS],
       evidence: sameContract
-        ? ['CLI usa ZavorthProductizationContractSnapshot e espelha todos os itens de /dashboard.']
+        ? ['CLI usa ZavorthProductizationContractSnapshot e espelha todos os itens de /zavorthControl.']
         : [],
-      blockers: sameContract ? [] : ['CLI nao espelha todos os itens obrigatorios do /dashboard.'],
+      blockers: sameContract ? [] : ['CLI nao espelha todos os itens obrigatorios do /zavorthControl.'],
     };
   }
 

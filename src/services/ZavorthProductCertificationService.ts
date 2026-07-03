@@ -125,7 +125,7 @@ export class ZavorthProductCertificationService {
         'long-session-smoke',
         'Long Session Smoke',
         this.longSessionSmokeReady() ? 'ready' : 'attention',
-        'Dashboard E2E covers provider-style streaming, partial tokens, steering during stream, memory/approval traces and receipts through the normal compose flow.',
+        'ZavorthControl E2E covers provider-style streaming, partial tokens, steering during stream, memory/approval traces and receipts through the normal compose flow.',
         [
           'qa:zavorthControl-streaming-e2e',
           'scripts/zavorth-control-streaming-e2e.ts',
@@ -133,7 +133,7 @@ export class ZavorthProductCertificationService {
         ],
         this.longSessionSmokeReady()
           ? null
-          : 'Restore the dashboard streaming E2E script before claiming long-session readiness.',
+          : 'Restore the zavorthControl streaming E2E script before claiming long-session readiness.',
       ),
       this.gate(
         'daily-tui',
@@ -253,7 +253,7 @@ export class ZavorthProductCertificationService {
       gates,
       userJourney: this.userJourney(),
       dailyUx: {
-        primarySurface: 'dashboard',
+        primarySurface: 'zavorthControl',
         terminalSurface: 'zavorth tui',
         readyCommand: 'zavorth ready --product',
         certificationCommand: 'npm run qa:zavorth-product-certification --silent',
@@ -317,9 +317,9 @@ export class ZavorthProductCertificationService {
       },
       {
         step: 3,
-        label: 'Open dashboard',
+        label: 'Open zavorthControl',
         command: 'zavorth open',
-        expectedResult: 'Dashboard shows chat, readiness, providers, channels, approvals and receipts.',
+        expectedResult: 'ZavorthControl shows chat, readiness, providers, channels, approvals and receipts.',
       },
       {
         step: 4,

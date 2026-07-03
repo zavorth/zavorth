@@ -1,6 +1,6 @@
 import {
-  normalizeRuntimeAdapterDashboardLiveAssimilationFixture,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 import {
   normalizeMessageSendLiveRehearsalTransportBlockedFixture,
 } from './RuntimeAdapterMessageSendLiveRehearsalTransportBlocked.js';
@@ -17,8 +17,8 @@ import {
   normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture,
 } from './RuntimeAdapterExternalExecutorSessionHistoryReadOnlyBridge.js';
 import type {
-  RuntimeAdapterDashboardLiveAssimilationNormalization,
-} from './RuntimeAdapterDashboardLiveAssimilation.js';
+  RuntimeAdapterZavorthControlLiveAssimilationNormalization,
+} from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 import type {
   ZavorthMessageSendLiveRehearsalTransportBlockedNormalization,
 } from './RuntimeAdapterMessageSendLiveRehearsalTransportBlocked.js';
@@ -202,7 +202,7 @@ export type ZavorthMessageTransportCapabilityDiscoveryNormalization = {
     bridge: ExternalExecutorLiveReadOnlyBridgeBoundaryNormalization['decision'];
     observability: ExternalExecutorLiveObservabilityProjectionNormalization['decision'];
     sessionHistory: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization['decision'];
-    dashboard: RuntimeAdapterDashboardLiveAssimilationNormalization['decision'];
+    zavorthControl: RuntimeAdapterZavorthControlLiveAssimilationNormalization['decision'];
     messageSendRehearsal: ZavorthMessageSendLiveRehearsalTransportBlockedNormalization['decision'];
   };
   discoveryEvidence: ZavorthMessageTransportLiveDiscoveryEvidence;
@@ -484,7 +484,7 @@ export function normalizeMessageTransportCapabilityDiscoveryFixture(): ZavorthMe
       bridge: normalizeExternalExecutorLiveReadOnlyBridgeBoundaryFixture().decision,
       observability: normalizeExternalExecutorLiveObservabilityProjectionFixture().decision,
       sessionHistory: normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture().decision,
-      dashboard: normalizeRuntimeAdapterDashboardLiveAssimilationFixture().decision,
+      zavorthControl: normalizeRuntimeAdapterZavorthControlLiveAssimilationFixture().decision,
       messageSendRehearsal: normalizeMessageSendLiveRehearsalTransportBlockedFixture().decision,
     },
     discoveryEvidence: createMessageTransportLiveDiscoveryEvidence(),

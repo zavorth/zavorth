@@ -1,8 +1,195 @@
-// @ts-nocheck
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 
+declare function escapeHtml(value: unknown): string;
+declare function formatRelativeTime(value: unknown): string;
+declare function formatBytes(value: unknown): string;
+
+interface DockerLanguages {
+  javascript?: { image?: string };
+  python?: { image?: string };
+}
+
+interface DockerStatus {
+  canRun?: boolean;
+  required?: boolean;
+  detail?: string;
+  languages?: DockerLanguages;
+}
+
+interface StorageHotspot {
+  label?: string;
+  bytes?: number;
+}
+
+interface StorageStatus {
+  freePercent?: number;
+  freeBytes?: number;
+  totalBytes?: number;
+  hotspots?: StorageHotspot[];
+}
+
+interface PublishHistoryEntry {
+  commit?: string;
+  branch?: string;
+  sourceArchiveId?: string;
+  archiveId?: string;
+  publishedAt?: string;
+  docsUrl?: string;
+  remoteConsoleUrl?: string;
+}
+
+interface PublishStatus {
+  available?: boolean;
+  publishedAt?: string;
+  docsUrl?: string;
+  remoteConsoleUrl?: string;
+  branch?: string;
+  history?: PublishHistoryEntry[];
+}
+
+interface MaintenanceStatus {
+  available?: boolean;
+  dryRun?: boolean;
+  finishedAt?: string;
+  startedAt?: string;
+  completedSteps?: number;
+  stepCount?: number;
+  withSoak?: boolean;
+  withPublish?: boolean;
+}
+
+interface MaintenanceAutomationStatus {
+  enabled?: boolean;
+  nextPlannedAt?: string;
+  lastTriggeredAt?: string;
+  lastTriggerSource?: string;
+  lastPriorityReason?: string;
+  lastReportFinishedAt?: string;
+  lastReportStepCount?: number;
+}
+
+interface NodeMeshSmokeStatus {
+  status?: string;
+  stale?: boolean;
+  summary?: string;
+  checkedAt?: string;
+  recentCapabilityId?: string;
+  command?: string;
+}
+
+interface ChannelProviderItem {
+  channelId?: string;
+  mode?: string;
+  status?: string;
+}
+
+interface ChannelProviderDoctorStatus {
+  status?: string;
+  stale?: boolean;
+  summary?: string;
+  checkedAt?: string;
+  command?: string;
+  items?: ChannelProviderItem[];
+}
+
+interface RemoteTransportItem {
+  transportId?: string;
+  id?: string;
+  status?: string;
+}
+
+interface RemoteTransportDoctorStatus {
+  status?: string;
+  stale?: boolean;
+  summary?: string;
+  checkedAt?: string;
+  command?: string;
+  items?: RemoteTransportItem[];
+}
+
+interface AuditChainEntry {
+  eventType?: string;
+  taskId?: string;
+}
+
+interface SecurityAudit {
+  available?: boolean;
+  ok?: boolean;
+  generatedAt?: string;
+  totalEvents?: number;
+  latestEventType?: string;
+  latestChainHash?: string;
+  recentChain?: AuditChainEntry[];
+}
+
+interface SecurityPreflight {
+  available?: boolean;
+  ok?: boolean;
+  generatedAt?: string;
+}
+
+interface SecurityAuthSource {
+  source?: string;
+  note?: string;
+}
+
+interface HostIdentityStatus {
+  exists?: boolean;
+}
+
+interface SecurityStatus {
+  needsAttention?: boolean;
+  zavorthControlAuth?: SecurityAuthSource;
+  mailboxSecret?: SecurityAuthSource;
+  dbEncryption?: SecurityAuthSource;
+  hostIdentity?: HostIdentityStatus;
+  lastAudit?: SecurityAudit;
+  lastPreflight?: SecurityPreflight;
+}
+
+interface ErrorEntry {
+  level?: string;
+  category?: string;
+  message?: string;
+  timestamp?: string;
+}
+
+interface OperationsErrors {
+  recent?: ErrorEntry[];
+}
+
+interface OperationsHealthData {
+  error?: string;
+  docker?: DockerStatus;
+  storage?: StorageStatus;
+  publish?: PublishStatus;
+  maintenance?: MaintenanceStatus;
+  maintenanceAutomation?: MaintenanceAutomationStatus;
+  nodeMeshSmoke?: NodeMeshSmokeStatus;
+  channelProviderDoctor?: ChannelProviderDoctorStatus;
+  remoteTransportDoctor?: RemoteTransportDoctorStatus;
+  security?: SecurityStatus;
+  errors?: OperationsErrors;
+}
+
+interface SidecarData {
+  name?: string;
+  enabled?: boolean;
+  ready?: boolean;
+  running?: boolean;
+  localUrl?: string;
+  baseUrl?: string;
+  pid?: string;
+  message?: string;
+}
+
+interface SidecarsData {
+  AIGateway?: SidecarData;
+  ZavorthTerminal?: SidecarData;
+}
+
 function zavorthControlClassicClientOverviewOperationsHost() {
-    function renderOperationsHealth(operations) {
+    function renderOperationsHealth(operations: OperationsHealthData) {
       const node = document.getElementById('operations-health');
       if (!node) return;
       if (!operations || operations.error) {
@@ -10,24 +197,24 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         return;
       }
 
-      const docker = operations.docker || {};
-      const storage = operations.storage || {};
-      const publish = operations.publish || {};
-      const maintenance = operations.maintenance || {};
-      const maintenanceAutomation = operations.maintenanceAutomation || {};
-      const nodeMeshSmoke = operations.nodeMeshSmoke || {};
-      const channelProviderDoctor = operations.channelProviderDoctor || {};
-      const remoteTransportDoctor = operations.remoteTransportDoctor || {};
-      const security = operations.security || {};
-      const zavorthControlAuth = security.zavorthControlAuth || {};
-      const mailboxSecret = security.mailboxSecret || {};
-      const dbEncryption = security.dbEncryption || {};
-      const hostIdentity = security.hostIdentity || {};
-      const lastAudit = security.lastAudit || {};
-      const lastPreflight = security.lastPreflight || {};
-      const errors = (operations.errors && operations.errors.recent) || [];
-      const hotspots = storage.hotspots || [];
-      const publishHistory = publish.history || [];
+      const docker: DockerStatus = operations.docker || {};
+      const storage: StorageStatus = operations.storage || {};
+      const publish: PublishStatus = operations.publish || {};
+      const maintenance: MaintenanceStatus = operations.maintenance || {};
+      const maintenanceAutomation: MaintenanceAutomationStatus = operations.maintenanceAutomation || {};
+      const nodeMeshSmoke: NodeMeshSmokeStatus = operations.nodeMeshSmoke || {};
+      const channelProviderDoctor: ChannelProviderDoctorStatus = operations.channelProviderDoctor || {};
+      const remoteTransportDoctor: RemoteTransportDoctorStatus = operations.remoteTransportDoctor || {};
+      const security: SecurityStatus = operations.security || {};
+      const zavorthControlAuth: SecurityAuthSource = security.zavorthControlAuth || {};
+      const mailboxSecret: SecurityAuthSource = security.mailboxSecret || {};
+      const dbEncryption: SecurityAuthSource = security.dbEncryption || {};
+      const hostIdentity: HostIdentityStatus = security.hostIdentity || {};
+      const lastAudit: SecurityAudit = security.lastAudit || {};
+      const lastPreflight: SecurityPreflight = security.lastPreflight || {};
+      const errors: ErrorEntry[] = (operations.errors && operations.errors.recent) || [];
+      const hotspots: StorageHotspot[] = storage.hotspots || [];
+      const publishHistory: PublishHistoryEntry[] = publish.history || [];
 
       const dockerBadgeClass = docker.canRun ? 'badge-allowed' : (docker.required ? 'badge-blocked' : 'badge-warning');
       const dockerBadgeLabel = docker.canRun ? 'pronto' : (docker.required ? 'bloqueado' : 'degradado');
@@ -92,7 +279,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
                 : 'Doctor dos canais nativos ainda nao foi executado neste host.'))));
       const channelProviderDoctorItems = Array.isArray(channelProviderDoctor.items)
         ? channelProviderDoctor.items
-          .map((item) => {
+          .map((item: ChannelProviderItem) => {
             const channelLabel = item.channelId === 'whatsapp'
               ? (item.mode === 'cloud-api' ? 'WhatsApp Cloud API' : (item.mode === 'baileys' ? 'WhatsApp Baileys' : 'WhatsApp'))
               : (item.mode === 'native' ? 'Slack native' : 'Slack');
@@ -130,7 +317,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
                   : 'Doctor dos transportes remotos ainda nao foi executado neste host.')))));
       const remoteTransportDoctorItems = Array.isArray(remoteTransportDoctor.items)
         ? remoteTransportDoctor.items
-          .map((item) => {
+          .map((item: RemoteTransportItem) => {
             const transportLabel = item.transportId || item.id || 'transporte';
             const statusLabel = item.status === 'passed'
               ? 'ok'
@@ -149,14 +336,14 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         : 'Trilha append-only ainda sem eventos.';
       const auditReplaySummary = Array.isArray(lastAudit.recentChain) && lastAudit.recentChain.length
         ? 'Replay: ' + lastAudit.recentChain
-          .map((entry) => String(entry.eventType || 'evento') + ' -> ' + String(entry.taskId || 'task'))
+          .map((entry: AuditChainEntry) => String(entry.eventType || 'evento') + ' -> ' + String(entry.taskId || 'task'))
           .join(' | ')
         : 'Replay recente indisponivel.';
       const preflightSummary = lastPreflight.available
         ? (lastPreflight.ok ? 'Preflight ok' : 'Preflight com bloqueios') + ' | ' + formatRelativeTime(lastPreflight.generatedAt)
         : 'Sem preflight registrado';
       const publishHistoryItems = publishHistory.length
-        ? publishHistory.map((entry) =>
+        ? publishHistory.map((entry: PublishHistoryEntry) =>
             '<div class="sidecar-card" style="padding:14px;">'
             + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">'
             + '<strong>' + escapeHtml(String(entry.commit || 'n/d').slice(0, 8)) + ' / ' + escapeHtml(entry.branch || 'n/d') + '</strong>'
@@ -169,7 +356,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
           ).join('')
         : '<div class="muted">Sem historico de publish ainda.</div>';
       const errorItems = errors.length
-        ? errors.map((entry) =>
+        ? errors.map((entry: ErrorEntry) =>
             '<div class="sidecar-card" style="padding:14px;">'
             + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">'
             + '<strong>' + escapeHtml((entry.level || '').toUpperCase()) + ' / ' + escapeHtml(entry.category || 'system') + '</strong>'
@@ -239,7 +426,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         + '<div class="sidecar-card">'
         + '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Espaco em disco</strong><span class="badge ' + ((storage.freePercent || 0) >= 20 ? 'badge-allowed' : ((storage.freePercent || 0) >= 10 ? 'badge-warning' : 'badge-blocked')) + '">' + escapeHtml(String(storage.freePercent || 0)) + '% livre</span></div>'
         + '<small>' + escapeHtml(formatBytes(storage.freeBytes)) + ' livres de ' + escapeHtml(formatBytes(storage.totalBytes)) + '</small>'
-        + '<small>' + hotspots.map((spot) => escapeHtml(spot.label + ': ' + formatBytes(spot.bytes))).join(' | ') + '</small>'
+        + '<small>' + hotspots.map((spot: StorageHotspot) => escapeHtml(spot.label + ': ' + formatBytes(spot.bytes))).join(' | ') + '</small>'
         + '</div>'
         + '</div>'
         + '<div style="margin-top:16px; display:grid; gap:12px;">'
@@ -252,11 +439,11 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         + '</div>';
     }
 
-    function renderSidecars(sidecars) {
+    function renderSidecars(sidecars: SidecarsData) {
       const node = document.getElementById('sidecar-links');
       if (!node) return;
 
-      const cards = [sidecars.AIGateway, sidecars.ZavorthTerminal].filter(Boolean);
+      const cards: SidecarData[] = [sidecars.AIGateway, sidecars.ZavorthTerminal].filter(Boolean) as SidecarData[];
       if (!cards.length) {
         node.innerHTML = '<div class="muted">Nenhum sidecar monitorado.</div>';
         return;
@@ -271,14 +458,14 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         + '</div>';
     }
 
-    function renderSidecarCard(sidecar) {
+    function renderSidecarCard(sidecar: SidecarData): string {
       const badgeClass = !sidecar.enabled ? 'badge-warning' : (sidecar.ready ? 'badge-allowed' : (sidecar.running ? 'badge-warning' : 'badge-blocked'));
       const badgeLabel = !sidecar.enabled ? 'desativado' : (sidecar.ready ? 'pronto' : (sidecar.running ? 'subindo' : 'offline'));
       const primaryUrl = sidecar.localUrl || sidecar.baseUrl || '';
       const urlBlock = primaryUrl
         ? '<a class="sidecar-link" href="' + escapeHtml(primaryUrl) + '" target="_blank">' + escapeHtml(primaryUrl) + '</a>'
         : '<span class="muted">Sem URL registrada.</span>';
-      const notes = [];
+      const notes: string[] = [];
       if (sidecar.baseUrl && sidecar.localUrl && sidecar.baseUrl !== sidecar.localUrl) {
         notes.push('Host: ' + escapeHtml(sidecar.baseUrl));
       }
@@ -300,4 +487,3 @@ function zavorthControlClassicClientOverviewOperationsHost() {
 export function getZavorthControlClassicClientOverviewOperationsHostScript(): string {
   return extractFunctionBody(zavorthControlClassicClientOverviewOperationsHost);
 }
-

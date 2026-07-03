@@ -17,7 +17,7 @@
 export type AuditTarget = "provider" | "combo" | "policy" | "connection" | "settings";
 
 /** How the change was triggered */
-export type AuditSource = "dashboard" | "api" | "sync" | "auto-healing" | "cli" | "mcp";
+export type AuditSource = "zavorthControl" | "api" | "sync" | "auto-healing" | "cli" | "mcp";
 
 /** Type of change */
 export type AuditAction = "create" | "update" | "delete" | "enable" | "disable";

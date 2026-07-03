@@ -61,7 +61,7 @@ export type ComputerUseSnapshot = {
  *  - Uses DesktopAutomationTool for all UI interactions
  *  - Screenshots are converted to base64 and sent inline to the LLM
  *  - The LLM responds with structured JSON actions
- *  - EventEmitter for real-time observability in the dashboard
+ *  - EventEmitter for real-time observability in the zavorthControl
  *  - Safety: max iterations, pause/stop flags, action logging
  */
 export class ComputerUseAgent extends EventEmitter {

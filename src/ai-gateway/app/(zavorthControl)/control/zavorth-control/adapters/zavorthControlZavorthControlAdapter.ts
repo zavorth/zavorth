@@ -434,7 +434,7 @@ export function buildAgentTeamCompiler(input: AnyRecord): ZavorthControlAgentTea
     },
     surface: {
       cliCommand: text(surface.cliCommand, 'zavorth agent-team'),
-      zavorthControlPath: text(surface.zavorthControlPath || surface.dashboardPath || surface.commandCenterPath, '/control?sector=agents'),
+      zavorthControlPath: text(surface.zavorthControlPath || surface.zavorthControlPath || surface.commandCenterPath, '/control?sector=agents'),
       previewHint: text(surface.previewHint, 'Revisar plano antes de aprovar.'),
       approvalHint: text(surface.approvalHint, 'Launch exige approval explicito.'),
     },
@@ -816,7 +816,7 @@ function normalizePublicAdoptionPilotLoop(value: unknown): AnyRecord | null {
   if (!Object.keys(snapshot).length) return null;
   return {
     ...snapshot,
-    status: snapshot.status === 'needs-dashboard' ? 'pilot-ready' : snapshot.status || 'pilot-ready',
+    status: snapshot.status === 'needs-zavorthControl' ? 'pilot-ready' : snapshot.status || 'pilot-ready',
     adoptionLoop: {
       ...record(snapshot.adoptionLoop),
       plannedPilotCount: snapshot.adoptionLoop?.plannedPilotCount ?? snapshot.pilot?.plannedPilotCount ?? 3,
@@ -1026,8 +1026,8 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
     toolRehearsal: input.toolRehearsal || input.runtime?.toolRehearsal || agentRun.metadata?.toolRehearsal || null,
     safetyNarrative: input.safetyNarrative || input.runtime?.safetyNarrative || agentRun.metadata?.safetyNarrative || null,
     memoryWithReceipts: input.memoryWithReceipts || input.runtime?.memoryWithReceipts || agentRun.metadata?.memoryWithReceipts || null,
-    selfingZavorthControl: normalizeSelfingZavorthControl(input.selfingZavorthControl || input.runtime?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl || agentRun.metadata?.selfingDashboard),
-    selfingDashboard: input.selfingDashboard || input.runtime?.selfingDashboard || agentRun.metadata?.selfingDashboard || agentRun.metadata?.selfingZavorthControl || null,
+    selfingZavorthControl: normalizeSelfingZavorthControl(input.selfingZavorthControl || input.runtime?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl),
+    selfingZavorthControl: input.selfingZavorthControl || input.runtime?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl || null,
     artifactMemory: input.artifactMemory || input.runtime?.artifactMemory || agentRun.metadata?.artifactMemory || null,
     personalOpsAutopilot: input.personalOpsAutopilot || input.runtime?.personalOpsAutopilot || agentRun.metadata?.personalOpsAutopilot || null,
     agentTeamCompiler: buildAgentTeamCompiler({ ...input, agentRun }),

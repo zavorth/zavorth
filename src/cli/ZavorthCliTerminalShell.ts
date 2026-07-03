@@ -225,6 +225,9 @@ const TERMINAL_COMMANDS: TerminalShellCommand[] = [
   command('zavorth.voice.toggle', 'Toggle voice wake', '/voice', ['/echo', 'v'], 'voice', 'preview'),
   command('zavorth.sandbox.status', 'Sandbox status', '/sandbox', ['/safe-run'], 'sandbox', 'read'),
   command('zavorth.swarm.plan', 'Plan parallel work', '/swarm', ['/parallel'], 'tasks', 'preview'),
+  command('zavorth.swarm.configure', 'Configure swarm run', '/swarm-config', ['/swarm configure', '/scale'], 'tasks', 'preview'),
+  command('zavorth.swarm.cloud-pool', 'Check swarm cloud pool', '/swarm-cloud', ['/cloud-pool'], 'sandbox', 'read'),
+  command('zavorth.satellite.foundation', 'Check device foundation', '/device-foundation', ['/satellite-foundation'], 'channels', 'read'),
   command('zavorth.ide.open', 'Open in editor', '/ide', ['/editor'], 'diffs', 'preview'),
 ];
 

@@ -23,7 +23,7 @@ async function testComboModel(modelStr, internalUrl) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Internal dashboard tests still use the normal /v1 pipeline but
+          // Internal zavorthControl tests still use the normal /v1 pipeline but
           // bypass REQUIRE_API_KEY so admins can test with local session auth.
           "X-Internal-Test": "combo-health-check",
           // Force a fresh execution path so combo tests cannot be satisfied by

@@ -48,43 +48,43 @@ export interface SidebarSectionDefinition {
 }
 
 const PRIMARY_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
-  { id: "home", href: "/dashboard", i18nKey: "home", icon: "home", exact: true },
-  { id: "providers", href: "/dashboard/providers", i18nKey: "providers", icon: "dns" },
-  { id: "skills", href: "/dashboard/skills", i18nKey: "skills", icon: "auto_fix_high" },
-  { id: "memory", href: "/dashboard/memory", i18nKey: "memory", icon: "psychology" },
+  { id: "home", href: "/zavorthControl", i18nKey: "home", icon: "home", exact: true },
+  { id: "providers", href: "/zavorthControl/providers", i18nKey: "providers", icon: "dns" },
+  { id: "skills", href: "/zavorthControl/skills", i18nKey: "skills", icon: "auto_fix_high" },
+  { id: "memory", href: "/zavorthControl/memory", i18nKey: "memory", icon: "psychology" },
 ];
 
 const CLI_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
-  { id: "cli-tools", href: "/dashboard/cli-tools", i18nKey: "cliToolsShort", icon: "terminal" },
-  { id: "agents", href: "/dashboard/agents", i18nKey: "agents", icon: "smart_toy" },
-  { id: "expressive" as any, href: "/dashboard/expressive", i18nKey: "expressive", icon: "blur_on" },
+  { id: "cli-tools", href: "/zavorthControl/cli-tools", i18nKey: "cliToolsShort", icon: "terminal" },
+  { id: "agents", href: "/zavorthControl/agents", i18nKey: "agents", icon: "smart_toy" },
+  { id: "expressive" as any, href: "/zavorthControl/expressive", i18nKey: "expressive", icon: "blur_on" },
 ];
 
 const DEBUG_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
-  { id: "endpoints", href: "/dashboard/endpoint", i18nKey: "endpoints", icon: "api" },
-  { id: "api-manager", href: "/dashboard/api-manager", i18nKey: "apiManager", icon: "vpn_key" },
-  { id: "combos", href: "/dashboard/combos", i18nKey: "combos", icon: "layers" },
-  { id: "auto-combo", href: "/dashboard/auto-combo", i18nKey: "autoCombo", icon: "auto_awesome" },
-  { id: "costs", href: "/dashboard/costs", i18nKey: "costs", icon: "account_balance_wallet" },
-  { id: "analytics", href: "/dashboard/analytics", i18nKey: "analytics", icon: "analytics" },
-  { id: "cache", href: "/dashboard/cache", i18nKey: "cache", icon: "cached" },
-  { id: "limits", href: "/dashboard/limits", i18nKey: "limits", icon: "tune" },
-  { id: "media", href: "/dashboard/cache/media", i18nKey: "media", icon: "perm_media" },
-  { id: "translator", href: "/dashboard/translator", i18nKey: "translator", icon: "translate" },
-  { id: "playground", href: "/dashboard/playground", i18nKey: "playground", icon: "science" },
+  { id: "endpoints", href: "/zavorthControl/endpoint", i18nKey: "endpoints", icon: "api" },
+  { id: "api-manager", href: "/zavorthControl/api-manager", i18nKey: "apiManager", icon: "vpn_key" },
+  { id: "combos", href: "/zavorthControl/combos", i18nKey: "combos", icon: "layers" },
+  { id: "auto-combo", href: "/zavorthControl/auto-combo", i18nKey: "autoCombo", icon: "auto_awesome" },
+  { id: "costs", href: "/zavorthControl/costs", i18nKey: "costs", icon: "account_balance_wallet" },
+  { id: "analytics", href: "/zavorthControl/analytics", i18nKey: "analytics", icon: "analytics" },
+  { id: "cache", href: "/zavorthControl/cache", i18nKey: "cache", icon: "cached" },
+  { id: "limits", href: "/zavorthControl/limits", i18nKey: "limits", icon: "tune" },
+  { id: "media", href: "/zavorthControl/cache/media", i18nKey: "media", icon: "perm_media" },
+  { id: "translator", href: "/zavorthControl/translator", i18nKey: "translator", icon: "translate" },
+  { id: "playground", href: "/zavorthControl/playground", i18nKey: "playground", icon: "science" },
   {
     id: "search-tools",
-    href: "/dashboard/search-tools",
+    href: "/zavorthControl/search-tools",
     i18nKey: "searchTools",
     icon: "manage_search",
   },
 ];
 
 const SYSTEM_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
-  { id: "logs", href: "/dashboard/logs", i18nKey: "logs", icon: "description" },
-  { id: "health", href: "/dashboard/health", i18nKey: "health", icon: "health_and_safety" },
-  { id: "audit", href: "/dashboard/audit", i18nKey: "auditLog", icon: "history" },
-  { id: "settings", href: "/dashboard/settings", i18nKey: "settings", icon: "settings" },
+  { id: "logs", href: "/zavorthControl/logs", i18nKey: "logs", icon: "description" },
+  { id: "health", href: "/zavorthControl/health", i18nKey: "health", icon: "health_and_safety" },
+  { id: "audit", href: "/zavorthControl/audit", i18nKey: "auditLog", icon: "history" },
+  { id: "settings", href: "/zavorthControl/settings", i18nKey: "settings", icon: "settings" },
 ];
 
 const HELP_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [

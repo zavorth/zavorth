@@ -420,7 +420,7 @@ export function extractNaturalChannelId(normalized: string): string | null {
     { id: 'imessage', patterns: [/\bimessage\b/, /\bi message\b/, /\bapple messages\b/, /\bmensagens da apple\b/] },
     { id: 'teams', patterns: [/\bmicrosoft teams\b/, /\bteams\b/] },
     { id: 'email', patterns: [/\be-mail\b/, /\bemail\b/, /\bmail\b/] },
-    { id: 'web', patterns: [/\bweb\b/, /\bsite\b/, /\bdashboard\b/, /\bapp\b/] },
+    { id: 'web', patterns: [/\bweb\b/, /\bsite\b/, /\bzavorthControl\b/, /\bapp\b/] },
   ];
 
   for (const entry of channelMatchers) {

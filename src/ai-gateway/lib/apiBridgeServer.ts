@@ -21,16 +21,16 @@ function isOpenAiCompatiblePath(pathname: string): boolean {
   return OPENAI_COMPAT_PATHS.some((pattern) => pattern.test(pathname));
 }
 
-function proxyRequest(req: IncomingMessage, res: ServerResponse, dashboardPort: number): void {
+function proxyRequest(req: IncomingMessage, res: ServerResponse, zavorthControlPort: number): void {
   const targetReq = http.request(
     {
       hostname: "127.0.0.1",
-      port: dashboardPort,
+      port: zavorthControlPort,
       method: req.method,
       path: req.url,
       headers: {
         ...req.headers,
-        host: `127.0.0.1:${dashboardPort}`,
+        host: `127.0.0.1:${zavorthControlPort}`,
       },
       timeout: API_BRIDGE_TIMEOUTS.proxyTimeoutMs,
     },
@@ -77,8 +77,8 @@ declare global {
 export function initApiBridgeServer(): void {
   if (globalThis.__ZavorthGatewayApiBridgeStarted) return;
 
-  const { apiPort, dashboardPort } = getRuntimePorts();
-  if (apiPort === dashboardPort) return;
+  const { apiPort, zavorthControlPort } = getRuntimePorts();
+  if (apiPort === zavorthControlPort) return;
 
   const host = process.env.API_HOST || "127.0.0.1";
 
@@ -97,7 +97,7 @@ export function initApiBridgeServer(): void {
       return;
     }
 
-    proxyRequest(req, res, dashboardPort);
+    proxyRequest(req, res, zavorthControlPort);
   });
   server.requestTimeout = API_BRIDGE_TIMEOUTS.serverRequestTimeoutMs;
   server.headersTimeout = API_BRIDGE_TIMEOUTS.serverHeadersTimeoutMs;
@@ -107,7 +107,7 @@ export function initApiBridgeServer(): void {
   server.on("error", (error: NodeJS.ErrnoException) => {
     if (error?.code === "EADDRINUSE") {
       console.log(
-        `[API Bridge] Port ${apiPort} is already in use; using the existing runtime. (dashboard: ${dashboardPort})`
+        `[API Bridge] Port ${apiPort} is already in use; using the existing runtime. (zavorthControl: ${zavorthControlPort})`
       );
       return;
     }
@@ -116,6 +116,6 @@ export function initApiBridgeServer(): void {
 
   server.listen(apiPort, host, () => {
     globalThis.__ZavorthGatewayApiBridgeStarted = true;
-    console.log(`[API Bridge] Listening on ${host}:${apiPort} -> dashboard:${dashboardPort}`);
+    console.log(`[API Bridge] Listening on ${host}:${apiPort} -> zavorthControl:${zavorthControlPort}`);
   });
 }

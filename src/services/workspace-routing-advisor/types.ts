@@ -130,7 +130,7 @@ export type AdviceInput = {
   route: RouteIntent;
   surface_source?: string | null;
   workspaceProfile?: WorkspaceProfile | null;
-  workspaceOperationalMemory?: WorkspaceOperationalMemory | Record<string, any> | null;
+  workspaceOperationalMemory?: WorkspaceOperationalMemory | Record<string, unknown> | null;
 };
 
 export type WorkspaceRoutingAdvice = {
