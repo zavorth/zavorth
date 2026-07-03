@@ -459,13 +459,13 @@ export class TaskManager {
     const durationMs = Number.isFinite(createdAt) && Number.isFinite(updatedAt)
       ? Math.max(0, updatedAt - createdAt)
       : Math.max(0, Number(previous.duration_ms || 0));
-    const approvalRejectedCount = approvalHistory.filter((entry: any) => String(entry?.action || '').trim() === 'reject').length;
-    const approvalGrantedCount = approvalHistory.filter((entry: any) => String(entry?.action || '').trim().toLowerCase() === 'approve').length;
-    const permissionGrantedCount = permissionHistory.filter((entry: any) => {
+    const approvalRejectedCount = approvalHistory.filter((entry: HistoryEntry) => String(entry?.action || '').trim() === 'reject').length;
+    const approvalGrantedCount = approvalHistory.filter((entry: HistoryEntry) => String(entry?.action || '').trim().toLowerCase() === 'approve').length;
+    const permissionGrantedCount = permissionHistory.filter((entry: HistoryEntry) => {
       const action = String(entry?.action || '').trim().toLowerCase();
       return action === 'grant' || action === 'approve';
     }).length;
-    const permissionRejectedCount = permissionHistory.filter((entry: any) => {
+    const permissionRejectedCount = permissionHistory.filter((entry: HistoryEntry) => {
       const action = String(entry?.action || '').trim().toLowerCase();
       return action === 'reject' || action === 'deny';
     }).length;
@@ -526,11 +526,11 @@ export class TaskManager {
     };
   }
 
-  private toRecord(value: unknown): Record<string, any> {
+  private toRecord(value: unknown): Record<string, unknown> {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return {};
     }
-    return value as Record<string, any>;
+    return value as Record<string, unknown>;
   }
 
   private normalizeNullableString(value: unknown): string | null {

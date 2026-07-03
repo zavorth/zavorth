@@ -1,13 +1,14 @@
 import * as http from 'http';
 import { isReservedSkillRouteSegment, readDecodedPathSuffix } from './WebAppSurfaceRouteParsing.js';
 import { buildCodexRemoteActionInput } from './WebAppSurfaceRouteActions.js';
+import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteTypes.js';
 
 export async function handleWebAppSurfaceSkillRoutes(
   req: http.IncomingMessage,
   res: http.ServerResponse,
   url: URL,
   pathname: string,
-  deps: any,
+  deps: WebAppSurfaceRouteDeps,
 ): Promise<boolean> {
   if (pathname === '/api/web/skills' && req.method === 'GET') {
     if (!deps.skillCatalogApi) {
@@ -178,7 +179,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
     const snapshot = deps.mcpCapabilityControlPlane.buildSnapshot();
     const entry = Array.isArray(snapshot?.entries)
-      ? snapshot.entries.find((item: any) => String(item?.id || '').trim().toLowerCase() === serverId.toLowerCase())
+      ? snapshot.entries.find((item: { id?: string; [key: string]: unknown }) => String(item?.id || '').trim().toLowerCase() === serverId.toLowerCase())
       : null;
     if (!entry) {
       deps.writeJson(res, { ok: false, error: `Servidor MCP nao encontrado: ${serverId}.` }, 404);
@@ -187,7 +188,7 @@ export async function handleWebAppSurfaceSkillRoutes(
 
     const runtimeSnapshot = deps.mcpRuntime?.readSnapshot() || null;
     const runtimeEntry = Array.isArray(runtimeSnapshot?.entries)
-      ? runtimeSnapshot.entries.find((item: any) => String(item?.id || '').trim().toLowerCase() === serverId.toLowerCase()) || null
+      ? runtimeSnapshot.entries.find((item: { id?: string; [key: string]: unknown }) => String(item?.id || '').trim().toLowerCase() === serverId.toLowerCase()) || null
       : null;
     deps.writeJson(res, { ok: true, server: entry, runtimeEntry }, 200);
     return true;
@@ -216,7 +217,7 @@ export async function handleWebAppSurfaceSkillRoutes(
       return true;
     }
 
-    let result: any;
+    let result: unknown;
     if (actionId === 'reload-server') {
       result = await deps.mcpRuntime.reloadServer(serverId);
     } else {
@@ -269,9 +270,9 @@ export async function handleWebAppSurfaceSkillRoutes(
       ok: true,
       skill: snapshot.selected,
       recommendations: snapshot.recommendations,
-      recipes: snapshot.recipes.filter((recipe: any) =>
+      recipes: snapshot.recipes.filter((recipe: { skillIds?: string[]; [key: string]: unknown }) =>
         Array.isArray(recipe.skillIds)
-        && recipe.skillIds.some((skillId: string) => String(skillId || '').trim().toLowerCase() === snapshot.selected.name.toLowerCase())),
+        && recipe.skillIds.some((skillId: string) => String(skillId || '').trim().toLowerCase() === (snapshot.selected as { name?: string })?.name?.toLowerCase())),
     }, 200);
     return true;
   }

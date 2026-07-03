@@ -23,7 +23,7 @@ function isActive(pathname: string | null, href: string, exact?: boolean) {
   return exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function ZavorthZavorthControlShell({ children }) {
+export default function ZavorthControlShell({ children }) {
   const pathname = usePathname();
 
   return (

@@ -25,6 +25,10 @@ export function formatSubagentRuntimeSnapshotText(snapshot: ZavorthSubagentRunti
     `Workers: liveRuns=${snapshot.summary.liveRuns} results=${snapshot.summary.workerResults} failed=${snapshot.summary.failedWorkerResults}`,
     `Receipts: policy=${snapshot.summary.policyReceipts} subagent=${snapshot.summary.subagentReceipts} invocation=${snapshot.summary.invocationReceipts}`,
     `Auto decisions: ${snapshot.summary.autoInvocationDecisions}`,
+    `Config: children=${snapshot.dynamicConfig.settings.maxConcurrentChildren} depth=${snapshot.dynamicConfig.settings.maxSpawnDepth} role=${snapshot.dynamicConfig.settings.defaultRoleMode} sandbox=${snapshot.dynamicConfig.settings.sandboxBackend}`,
+    `Workboard: queued=${snapshot.workboard.summary.queued} running=${snapshot.workboard.summary.running} completed=${snapshot.workboard.summary.completed} blocked=${snapshot.workboard.summary.blocked}`,
+    `Devices: approved=${snapshot.pairedDevices.summary.approved} pending=${snapshot.pairedDevices.summary.pending} revoked=${snapshot.pairedDevices.summary.revoked}`,
+    `Sandbox: selected=${snapshot.sandbox.selectedBackend} cloud=${snapshot.dynamicConfig.settings.cloudSandboxEnabled}`,
   ];
 
   if (selectedSession || selectedRun) {
@@ -83,6 +87,10 @@ export function formatSubagentRuntimeSnapshotText(snapshot: ZavorthSubagentRunti
   lines.push('', 'Useful commands:');
   lines.push('- /agents status');
   lines.push('- /agents spawn <task>');
+  lines.push('- /agents spawn-batch --tasks tasks.json');
+  lines.push('- /agents board status');
+  lines.push('- /agents devices list');
+  lines.push('- /agents config set maxConcurrentChildren 4');
   lines.push('- /agents read latest');
   lines.push('- /agents summarize latest');
   lines.push('- /agents cancel latest');

@@ -31,7 +31,7 @@ export * from '../services/FinalAbsorptionCertificationService.js';
 export * from '../services/FileDocumentDiffLivePlaneService.js';
 export * from '../services/LiveReadinessCertificationService.js';
 export * from '../services/LiveReadinessService.js';
-export * from '../services/ZavorthZavorthControlVisualQaService.js';
+export * from '../services/ZavorthControlVisualQaService.js';
 export * from '../services/ZavorthDataLifecyclePolicyService.js';
 export * from '../services/ZavorthHallucinationMitigationService.js';
 export * from '../services/ZavorthHostLiveCertificationService.js';

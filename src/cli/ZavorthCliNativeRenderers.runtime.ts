@@ -12,8 +12,17 @@ import type { OperatorBriefSnapshot } from '../observability/OperatorBriefServic
 import type { OpsQualityDTO } from '../contracts/public/rest/platform-ops-dto.js';
 import type { SupervisedReloadRequestResult } from '../services/SupervisedRuntimeService.js';
 import type { AutoRepairRunResult } from '../services/AutoRepairService.js';
+import type { CanonicalPublicApiRuntime } from '../api/public/canonical-public-api/types.js';
 import { formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
 import { renderCliScreen } from './ZavorthCliVisualSystem.js';
+
+interface PlatformRegistryWithFastStatus {
+  buildFastStatusSummarySnapshot: () => ZavorthPlatformRegistryStatusSummarySnapshot;
+}
+
+interface PlatformRegistryWithStatus {
+  buildStatusSummarySnapshot: () => ZavorthPlatformRegistryStatusSummarySnapshot;
+}
 
 type CliNodeMeshDoctorSnapshot = {
   checkedAt: string;
@@ -245,8 +254,8 @@ async function buildCliOperationsDoctorSnapshot(
     | ZavorthPlatformRegistrySnapshot
     | null = runtime.platformRegistryService
     ? ('buildFastStatusSummarySnapshot' in runtime.platformRegistryService
-      && typeof (runtime.platformRegistryService as any).buildFastStatusSummarySnapshot === 'function'
-        ? (runtime.platformRegistryService as any).buildFastStatusSummarySnapshot()
+      && typeof (runtime.platformRegistryService as PlatformRegistryWithFastStatus).buildFastStatusSummarySnapshot === 'function'
+        ? (runtime.platformRegistryService as PlatformRegistryWithFastStatus).buildFastStatusSummarySnapshot()
         : 'buildStatusSummarySnapshot' in runtime.platformRegistryService
       && typeof runtime.platformRegistryService.buildStatusSummarySnapshot === 'function'
         ? runtime.platformRegistryService.buildStatusSummarySnapshot()
@@ -291,7 +300,7 @@ async function buildCliOperationsDoctorSnapshot(
       ? {
           total: sessionSnapshot.summary.sessions,
           historyItems: sessionSnapshot.summary.historyItems,
-          pendingPermissions: Number((sessionSnapshot.summary as any).pendingPermissions || 0),
+          pendingPermissions: Number(sessionSnapshot.summary.pendingPermissions || 0),
           sendReady: sessionSnapshot.summary.sendReady,
           spawnReady: sessionSnapshot.summary.spawnReady,
         }
@@ -703,16 +712,16 @@ async function readCliOpsQualitySnapshot(
   }
 
   const publicApi = new CanonicalPublicApiService({
-    getRuntime: () => ({}) as any,
-    getGateway: () => runtime.gatewayService as any,
-    getSessionPlane: () => runtime.sessionPlaneService as any,
-    getNodeMesh: () => runtime.nodeMeshService as any,
-    getPlatformRegistry: () => runtime.platformRegistryService as any,
+    getRuntime: () => ({}),
+    getGateway: () => runtime.gatewayService,
+    getSessionPlane: () => runtime.sessionPlaneService,
+    getNodeMesh: () => runtime.nodeMeshService,
+    getPlatformRegistry: () => runtime.platformRegistryService,
     getRemoteTransports: () => null,
-    getOperationsHealth: () => runtime.operationsHealthService as any,
-    getLearningPlane: () => runtime.learningPlaneService as any,
-    getLayeredMemory: () => runtime.layeredMemoryService as any,
-  });
+    getOperationsHealth: () => runtime.operationsHealthService,
+    getLearningPlane: () => runtime.learningPlaneService,
+    getLayeredMemory: () => runtime.layeredMemoryService,
+  } as CanonicalPublicApiRuntime);
 
   return await publicApi.readOpsQuality({
     mode: flags.live ? 'live' : 'fast',
@@ -779,8 +788,8 @@ async function buildCliRuntimeAccessProbeInput(runtime: ZavorthCliRuntime): Prom
   }
   if (runtime.platformRegistryService) {
     input.platform = 'buildStatusSummarySnapshot' in runtime.platformRegistryService
-      && typeof (runtime.platformRegistryService as any).buildStatusSummarySnapshot === 'function'
-        ? (runtime.platformRegistryService as any).buildStatusSummarySnapshot()
+      && typeof (runtime.platformRegistryService as PlatformRegistryWithStatus).buildStatusSummarySnapshot === 'function'
+        ? (runtime.platformRegistryService as PlatformRegistryWithStatus).buildStatusSummarySnapshot()
         : 'buildSummarySnapshot' in runtime.platformRegistryService
           && typeof runtime.platformRegistryService.buildSummarySnapshot === 'function'
           ? runtime.platformRegistryService.buildSummarySnapshot()

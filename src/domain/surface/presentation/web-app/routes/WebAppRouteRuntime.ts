@@ -13,7 +13,7 @@ import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
 import { defaultLlmRuntimeTelemetryService } from '../../../../../services/llm/LlmRuntimeTelemetryService.js';
 import { ZavorthActiveMissionUxService } from '../../../../../services/ZavorthActiveMissionUxService.js';
 import { ZavorthApprovalActionCardsUxService } from '../../../../../services/ZavorthApprovalActionCardsUxService.js';
-import { ZavorthZavorthControlProviderCockpitService } from '../../../../../services/ZavorthZavorthControlProviderCockpitService.js';
+import { ZavorthControlProviderCockpitService } from '../../../../../services/ZavorthControlProviderCockpitService.js';
 import { ZavorthProviderActivationService } from '../../../../../services/ZavorthProviderActivationService.js';
 import { ZavorthProviderModelCatalogService } from '../../../../../services/ZavorthProviderModelCatalogService.js';
 import { ZavorthProviderPreferencePersistenceService } from '../../../../../services/ZavorthProviderPreferencePersistenceService.js';

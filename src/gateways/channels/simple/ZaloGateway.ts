@@ -2,6 +2,17 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface ZaloWebhookPayload extends Record<string, unknown> {
+  userId?: unknown;
+  chatId?: unknown;
+  text?: unknown;
+  rawText?: unknown;
+  messageId?: unknown;
+  msg_id?: unknown;
+  sender?: unknown;
+  message?: unknown;
+}
+
 export class ZaloGateway extends WebhookGateway {
   public readonly id = 'zalo';
   public readonly name = 'Zalo';
@@ -57,31 +68,32 @@ export class ZaloGateway extends WebhookGateway {
     isGroup?: boolean;
     fields?: Record<string, unknown>;
   } | null {
-    const sender = webhookPayload.sender && typeof webhookPayload.sender === 'object'
-      ? webhookPayload.sender as Record<string, unknown>
+    const payload = webhookPayload as ZaloWebhookPayload;
+    const sender = payload.sender && typeof payload.sender === 'object'
+      ? payload.sender as Record<string, unknown>
       : null;
     const userId = String(
       sender?.id
-      || (webhookPayload as any).userId
+      || payload.userId
       || '',
     ).trim();
     const chatId = String(
       sender?.id
-      || (webhookPayload as any).chatId
+      || payload.chatId
       || 'zalo',
     ).trim();
-    const message = webhookPayload.message && typeof webhookPayload.message === 'object'
-      ? webhookPayload.message as Record<string, unknown>
+    const message = payload.message && typeof payload.message === 'object'
+      ? payload.message as Record<string, unknown>
       : null;
     const rawText = String(
       message?.text
-      || (webhookPayload as any).text
-      || (webhookPayload as any).rawText
+      || payload.text
+      || payload.rawText
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).messageId
-      || (webhookPayload as any).msg_id
+      payload.messageId
+      || payload.msg_id
       || '',
     ).trim() || null;
 
@@ -127,8 +139,8 @@ export class ZaloGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`Zalo send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      this.recordError(`Zalo send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }

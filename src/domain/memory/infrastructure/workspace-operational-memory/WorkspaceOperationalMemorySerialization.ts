@@ -1,6 +1,57 @@
-import type { WorkspaceOperationalMemory } from './WorkspaceOperationalMemoryTypes.js';
+import type {
+  ApprovedPathAggregate,
+  ApprovedPolicyAggregate,
+  AutonomousModeRecommendation,
+  AutonomousOutcomeAggregate,
+  ContinuityRecommendation,
+  DirectResponseStyleRecommendation,
+  ExecutorAggregate,
+  FailureAggregate,
+  RecentArtifactAggregate,
+  RecentWorkflowRunAggregate,
+  RouteOutcomeAggregate,
+  TaskKindLlmRecommendation,
+  TaskKindRecommendation,
+  TaskSubtypeLlmRecommendation,
+  TaskSubtypeRecommendation,
+  WorkspaceLastSuccessfulTask,
+  WorkspaceOperationalMemory,
+  WorkflowExecutorRecommendationAggregate,
+  WorkflowFrictionRecommendationAggregate,
+  WorkflowRecommendationAggregate,
+  WorkflowStageExecutorRecommendationAggregate,
+} from './WorkspaceOperationalMemoryTypes.js';
 
-export function buildWorkspaceOperationalMemoryMetadata(memory: WorkspaceOperationalMemory): Record<string, any> {
+export interface WorkspaceOperationalMemoryMetadata {
+  workspace: string;
+  workspace_name: string;
+  successful_executors: ExecutorAggregate[];
+  repeated_failures: FailureAggregate[];
+  task_kind_recommendations: TaskKindRecommendation[];
+  task_subtype_recommendations: TaskSubtypeRecommendation[];
+  task_kind_llm_recommendations: TaskKindLlmRecommendation[];
+  task_subtype_llm_recommendations: TaskSubtypeLlmRecommendation[];
+  approved_paths: ApprovedPathAggregate[];
+  approved_policies: ApprovedPolicyAggregate[] | undefined;
+  active_focuses: import('./WorkspaceOperationalMemoryTypes.js').ActiveFocusAggregate[];
+  recent_artifacts: RecentArtifactAggregate[];
+  recent_workflow_runs: RecentWorkflowRunAggregate[];
+  workflow_recommendations: WorkflowRecommendationAggregate[];
+  workflow_executor_recommendations: WorkflowExecutorRecommendationAggregate[] | undefined;
+  workflow_stage_executor_recommendations: WorkflowStageExecutorRecommendationAggregate[] | undefined;
+  workflow_friction_recommendations: WorkflowFrictionRecommendationAggregate[] | undefined;
+  approval_friction_recommendations: import('./WorkspaceOperationalMemoryTypes.js').ApprovalFrictionAggregate[] | undefined;
+  route_outcomes: RouteOutcomeAggregate[] | undefined;
+  continuity_recommendations: ContinuityRecommendation[];
+  autonomous_outcomes: AutonomousOutcomeAggregate[];
+  autonomous_mode_recommendations: AutonomousModeRecommendation[];
+  direct_response_style_recommendations: DirectResponseStyleRecommendation[];
+  last_successful_task: WorkspaceLastSuccessfulTask | null;
+  summary: string;
+  last_refreshed: string;
+}
+
+export function buildWorkspaceOperationalMemoryMetadata(memory: WorkspaceOperationalMemory): WorkspaceOperationalMemoryMetadata {
   return {
     workspace: memory.workspace,
     workspace_name: memory.workspace_name,

@@ -474,8 +474,8 @@ export async function runSensitiveActionFlow(rawArgs: string[] = []): Promise<nu
 export async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
   const action = String(rawArgs[0] || 'matrix').trim().toLowerCase();
   if (action === 'cockpit' || action === 'zavorthControl') {
-    const { ZavorthZavorthControlProviderCockpitService } = await import('../../services/ZavorthZavorthControlProviderCockpitService.js');
-    const service = new ZavorthZavorthControlProviderCockpitService();
+    const { ZavorthControlProviderCockpitService } = await import('../../services/ZavorthControlProviderCockpitService.js');
+    const service = new ZavorthControlProviderCockpitService();
     const projection = await service.buildProjection({
       includeAdvanced: rawArgs.includes('--advanced'),
       providerId: readFlexibleStringFlag(rawArgs, 'provider') || rawArgs[1],
@@ -575,8 +575,8 @@ export async function runProviderReadiness(rawArgs: string[] = []): Promise<numb
     return snapshot.status === 'denied' ? 2 : 0;
   }
   if (action === 'visual-approval' || action === 'visual-pack' || action === 'approval-pack') {
-    const { ZavorthZavorthControlVisualApprovalPackService } = await import('../../services/ZavorthZavorthControlVisualApprovalPackService.js');
-    const service = new ZavorthZavorthControlVisualApprovalPackService();
+    const { ZavorthControlVisualApprovalPackService } = await import('../../services/ZavorthControlVisualApprovalPackService.js');
+    const service = new ZavorthControlVisualApprovalPackService();
     const pack = await service.buildPack({
       includeAdvanced: rawArgs.includes('--advanced'),
       providerId: readFlexibleStringFlag(rawArgs, 'provider') || rawArgs[1],

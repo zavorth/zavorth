@@ -96,7 +96,7 @@ export type ZavorthCrossSurfaceApiProjection = {
   };
 };
 
-export type ZavorthZavorthControlRuntimeProjection = {
+export type ZavorthControlRuntimeProjection = {
   projectionId: string;
   title: string;
   statusPill: ZavorthToolOrchestrationVerificationStatus;
@@ -106,7 +106,7 @@ export type ZavorthZavorthControlRuntimeProjection = {
   safeViewModelOnly: true;
 };
 
-export type ZavorthControlRuntimeProjection = ZavorthZavorthControlRuntimeProjection;
+export type ZavorthControlRuntimeProjection = ZavorthControlRuntimeProjection;
 
 export type ZavorthCrossSurfaceProjectionReceipt = {
   id: string;
@@ -150,7 +150,7 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
   surfaceCards: ZavorthCrossSurfaceProjectionCard[];
   apiProjection: ZavorthCrossSurfaceApiProjection;
   zavorthControlProjection: ZavorthControlRuntimeProjection;
-  zavorthControlProjection: ZavorthZavorthControlRuntimeProjection;
+  zavorthControlProjection: ZavorthControlRuntimeProjection;
   channelFallbacks: Record<ZavorthCrossSurfaceProjectionSurface, string>;
   receipts: ZavorthCrossSurfaceProjectionReceipt[];
   safety: ZavorthCrossSurfaceProjectionSafety;

@@ -14,7 +14,7 @@ import type {
   RuntimeAdapterLiveReadinessCapabilityRowKind,
 } from './RuntimeAdapterLiveReadinessAssimilationPack.js';
 import type {
-  ZavorthZavorthControlCapabilityView,
+  ZavorthControlCapabilityView,
   RuntimeAdapterZavorthControlLiveAssimilationNormalization,
 } from './RuntimeAdapterZavorthControlLiveAssimilation.js';
 
@@ -225,7 +225,7 @@ export type ZavorthExternalActionDispatchDesignOptions<TRuntimeId extends string
 function findCapability(
   assimilation: RuntimeAdapterZavorthControlLiveAssimilationNormalization,
   category: RuntimeAdapterLiveReadinessCapabilityRowKind,
-): ZavorthZavorthControlCapabilityView {
+): ZavorthControlCapabilityView {
   const capability = assimilation.viewModel.capabilities.find((row) => row.category === category);
 
   if (!capability) {

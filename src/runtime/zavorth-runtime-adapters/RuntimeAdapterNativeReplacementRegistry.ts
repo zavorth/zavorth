@@ -22,7 +22,7 @@ export type RuntimeAdapterNativeReplacementContract =
   | 'UniversalReplyPacket'
   | 'CanonicalSessionContextSnapshot'
   | 'UniversalAgentExecutorResult'
-  | 'ZavorthZavorthControlAssimilationSnapshot';
+  | 'ZavorthControlAssimilationSnapshot';
 
 export type RuntimeAdapterNativeReplacementConsistencyCase = {
   id: string;

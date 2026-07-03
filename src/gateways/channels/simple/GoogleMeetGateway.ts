@@ -55,24 +55,24 @@ export class GoogleMeetGateway extends WebhookGateway {
     fields?: Record<string, unknown>;
   } | null {
     const userId = String(
-      (webhookPayload as any).participant
-      || (webhookPayload as any).userId
+      webhookPayload['participant']
+      || webhookPayload['userId']
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).meetingId
-      || (webhookPayload as any).space
-      || (webhookPayload as any).chatId
+      webhookPayload['meetingId']
+      || webhookPayload['space']
+      || webhookPayload['chatId']
       || 'google-meet',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).text
-      || (webhookPayload as any).transcript
-      || (webhookPayload as any).rawText
+      webhookPayload['text']
+      || webhookPayload['transcript']
+      || webhookPayload['rawText']
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).messageId
+      webhookPayload['messageId']
       || '',
     ).trim() || null;
 

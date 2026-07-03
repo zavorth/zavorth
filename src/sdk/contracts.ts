@@ -24,7 +24,7 @@ export * from '../contracts/release/FinalAbsorptionCertificationContract.js';
 export * from '../contracts/memory/FileDocumentDiffLivePlaneContract.js';
 export * from '../contracts/core/LiveReadinessCertificationContract.js';
 export * from '../contracts/core/LiveReadinessContract.js';
-export * from '../contracts/ui/ZavorthZavorthControlVisualQaContract.js';
+export * from '../contracts/ui/ZavorthControlVisualQaContract.js';
 export * from '../contracts/memory/ZavorthDataLifecycleContract.js';
 export * from '../contracts/native/ZavorthHallucinationMitigationContract.js';
 export * from '../contracts/external/ZavorthHostLiveCertificationContract.js';

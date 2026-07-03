@@ -3,8 +3,181 @@ import path from 'path';
 import { config } from '../../config/index.js';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
 
+interface BridgeTaskMetadata {
+  pendingPermissionId?: string | null;
+  pendingPermissionNotifiedAt?: string | null;
+  pendingPermissionNotificationError?: string | null;
+  zavorthBridgeTrackingFile?: string | null;
+  zavorthBridgePreferredModel?: string | null;
+  zavorthBridgeDeliveryState?: string | null;
+  zavorthBridgeDeliveryError?: string | null;
+  zavorthBridgeResponseCapturedAt?: string | null;
+  zavorthBridgeResponseSource?: string | null;
+  [key: string]: unknown;
+}
+
+interface BridgeTask {
+  task_id: string;
+  status: string;
+  requires_approval?: boolean;
+  approval_status?: string;
+  error_summary?: string;
+  metadata?: BridgeTaskMetadata;
+}
+
+interface BridgeArtifact {
+  key: string;
+  content: string;
+  artifactType: string;
+  brainDir: string;
+  updatedAtMs: number;
+}
+
+interface LogEvent {
+  timestampMs: number;
+  timestampIso: string;
+  line: string;
+}
+
+interface PermissionRequest {
+  permission_id: string;
+  executor: string;
+  kind: string;
+  task_id?: string;
+  status: string;
+}
+
+interface PermissionService {
+  listRequests?(status: string, limit: number): Promise<PermissionRequest[]>;
+  getRequest(id: string): Promise<PermissionRequest | undefined>;
+  rejectRequest(id: string, system: string, reason: string): Promise<void>;
+}
+
+interface TaskManager {
+  getPendingTasks(): BridgeTask[];
+  saveTask(task: BridgeTask): void;
+  advanceState(task: BridgeTask, state: string): void;
+}
+
+interface BridgeManager {
+  listPendingSessions(): Promise<PendingZavorthBridgeSession[]>;
+  saveSession(session: PendingZavorthBridgeSession): Promise<void>;
+}
+
+interface LogRepo {
+  log(level: string, source: string, message: string, data?: Record<string, unknown>): void;
+}
+
+interface UiCaptureService {
+  captureLatestResponse(options: {
+    taskId: string;
+    processId: string;
+    windowTitle: string;
+    expectedModel?: string;
+  }): Promise<{
+    ok: boolean;
+    responseText: string;
+    hasPermissionPrompt: boolean;
+    confidence: number;
+  } | null>;
+}
+
+interface Broadcaster {
+  broadcast(message: string): Promise<void>;
+}
+
+interface RealZavorthBridgeWatcherHost {
+  deps: {
+    permissionService?: PermissionService;
+    taskManager?: TaskManager;
+  };
+  bridgeManager: BridgeManager;
+  logRepo: LogRepo;
+  broadcaster: Broadcaster;
+  uiCaptureService: UiCaptureService;
+  responseDir: string;
+  logsDir: string;
+  isZavorthBridgeTask(task: BridgeTask): boolean;
+  isSessionActive(session: PendingZavorthBridgeSession): boolean;
+  isTrackingFileCompleted(filePath: string): boolean;
+  clearPendingPermissionMetadata(task: BridgeTask): void;
+  getTask(taskId: string): BridgeTask | null;
+  isTaskTerminal(task: BridgeTask | null): boolean;
+  queueSessionDelivery(
+    session: PendingZavorthBridgeSession,
+    message: string,
+    content: string,
+    source: string,
+  ): void;
+  formatFinalResponseBroadcast(
+    session: PendingZavorthBridgeSession,
+    content: string,
+    source: string,
+  ): string;
+  truncate(text: string, maxLength: number): string;
+  processPendingDeliveries(): Promise<void>;
+  collectArtifacts(): Promise<BridgeArtifact[]>;
+  findBestArtifactForSession(
+    session: PendingZavorthBridgeSession,
+    artifacts: BridgeArtifact[],
+  ): BridgeArtifact | null;
+  formatArtifactCompletion(
+    session: PendingZavorthBridgeSession,
+    artifact: BridgeArtifact,
+  ): string;
+  humanizeArtifactType(type: string): string;
+  notifyPermissionRequest(
+    session: PendingZavorthBridgeSession,
+    permission: PermissionRequest,
+  ): Promise<void>;
+  wasPermissionRecentlyNotified(
+    session: PendingZavorthBridgeSession,
+    permissionId: string,
+    notifiedAt: string | null,
+  ): boolean;
+  tryQueuePromptContractDelivery(session: PendingZavorthBridgeSession): Promise<boolean>;
+  resolveScopedCompanionUiTarget(
+    session: PendingZavorthBridgeSession,
+  ): Promise<{ targetProcessId: string }>;
+  canCaptureScopedSessionUi(target: { targetProcessId: string }): boolean;
+  sanitizeVisibleResponse(responseText: string, prompt: string): string;
+  isVisibleResponseCaptureReady(
+    snapshot: { ok: boolean; responseText: string; hasPermissionPrompt: boolean; confidence: number },
+    visibleResponse: string,
+    prompt: string,
+  ): boolean;
+  normalizeVisibleResponse(response: string): string;
+  sendDeliveryToOriginChat(
+    session: PendingZavorthBridgeSession,
+    message: string,
+  ): Promise<void>;
+  markTaskDelivered(taskId: string, summary: string | null): Promise<void>;
+  collectRecentLogEvents(): Promise<LogEvent[]>;
+  maybeHandlePermissionPrompt(
+    session: PendingZavorthBridgeSession,
+    task: BridgeTask | null,
+    source: string,
+    snapshot?: { ok: boolean; responseText: string; hasPermissionPrompt: boolean; confidence: number },
+  ): Promise<boolean>;
+  isAutomationTriggerLogLine(line: string): boolean;
+  tryAutomationRescue(
+    session: PendingZavorthBridgeSession,
+    reason: string,
+  ): Promise<void>;
+  tryQueueLocalDirectoryFallback(
+    session: PendingZavorthBridgeSession,
+    task: BridgeTask | null,
+  ): Promise<boolean>;
+  failStalledSession(
+    session: PendingZavorthBridgeSession,
+    liveStatus: unknown,
+  ): Promise<void>;
+  resolveCompanionTargetInstanceId(session: PendingZavorthBridgeSession): string;
+  getLiveCompanionStatus(instanceId: string): Promise<unknown>;
+}
+
 export class RealZavorthBridgeWatcherTickHandlers {
-  constructor(private readonly host: any) {}
+  constructor(private readonly host: RealZavorthBridgeWatcherHost) {}
 
   public async reconcileZavorthBridgePermissionState(): Promise<void> {
     if (!this.host.deps.permissionService || !this.host.deps.taskManager) {
@@ -14,12 +187,12 @@ export class RealZavorthBridgeWatcherTickHandlers {
     const sessions = await this.host.bridgeManager.listPendingSessions() as PendingZavorthBridgeSession[];
     const sessionByTaskId = new Map(sessions.map((session: PendingZavorthBridgeSession) => [session.taskId, session]));
     const pendingPermissions =
-      typeof (this.host.deps.permissionService as any).listRequests === 'function'
-        ? await (this.host.deps.permissionService as any).listRequests('pending', 200).catch(() => [])
+      typeof this.host.deps.permissionService?.listRequests === 'function'
+        ? await this.host.deps.permissionService.listRequests('pending', 200).catch(() => [] as PermissionRequest[])
         : [];
     const tasks = this.host.deps.taskManager
       .getPendingTasks()
-      .filter((task: any) => this.host.isZavorthBridgeTask(task) && task.status === 'waiting_approval');
+      .filter((task) => this.host.isZavorthBridgeTask(task) && task.status === 'waiting_approval');
 
     for (const task of tasks) {
       const permissionId = String(task.metadata?.pendingPermissionId || '').trim();
@@ -181,14 +354,14 @@ export class RealZavorthBridgeWatcherTickHandlers {
     let queuedDelivery = false;
     for (const session of sessions) {
       const launchedAtMs = new Date(session.launchedAt).getTime();
-      let relevant = artifacts.filter((artifact: any) => artifact.updatedAtMs >= launchedAtMs - 2000);
+      let relevant = artifacts.filter((artifact) => artifact.updatedAtMs >= launchedAtMs - 2000);
       if (relevant.length === 0) {
         continue;
       }
 
       let sessionChanged = false;
       if (session.brainDir) {
-        relevant = relevant.filter((artifact: any) => artifact.brainDir === session.brainDir);
+        relevant = relevant.filter((artifact) => artifact.brainDir === session.brainDir);
       } else {
         const chosenArtifact = this.host.findBestArtifactForSession(session, relevant);
         if (!chosenArtifact) {
@@ -196,13 +369,13 @@ export class RealZavorthBridgeWatcherTickHandlers {
         }
 
         session.brainDir = chosenArtifact.brainDir;
-        relevant = relevant.filter((artifact: any) => artifact.brainDir === chosenArtifact.brainDir);
+        relevant = relevant.filter((artifact) => artifact.brainDir === chosenArtifact.brainDir);
         sessionChanged = true;
       }
 
       const newArtifacts = relevant
-        .filter((artifact: any) => !session.deliveredArtifactKeys.includes(artifact.key))
-        .sort((left: any, right: any) => left.updatedAtMs - right.updatedAtMs);
+        .filter((artifact) => !session.deliveredArtifactKeys.includes(artifact.key))
+        .sort((left, right) => left.updatedAtMs - right.updatedAtMs);
 
       if (newArtifacts.length === 0) {
         if (sessionChanged) {
@@ -215,7 +388,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
         session.deliveredArtifactKeys.push(artifact.key);
       }
 
-      const walkthrough = newArtifacts.find((artifact: any) => artifact.artifactType === 'ARTIFACT_TYPE_WALKTHROUGH');
+      const walkthrough = newArtifacts.find((artifact) => artifact.artifactType === 'ARTIFACT_TYPE_WALKTHROUGH');
       if (walkthrough && !session.deliveredResponse) {
         this.host.queueSessionDelivery(
           session,
@@ -296,16 +469,17 @@ export class RealZavorthBridgeWatcherTickHandlers {
           pendingPermissionNotificationError: null,
         };
         this.host.deps.taskManager?.saveTask(task);
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
         task.metadata = {
           ...(task.metadata || {}),
-          pendingPermissionNotificationError: error.message,
+          pendingPermissionNotificationError: errorMessage,
         };
         this.host.deps.taskManager?.saveTask(task);
         this.host.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',
-          `Falha ao reenviar pedido de permissao do ZavorthBridge: ${error.message}`,
+          `Falha ao reenviar pedido de permissao do ZavorthBridge: ${errorMessage}`,
           {
             taskId: session.taskId,
             permissionId,
@@ -440,9 +614,9 @@ export class RealZavorthBridgeWatcherTickHandlers {
         session.pendingDeliveryMessage = null;
         session.pendingDeliverySummary = null;
         await this.host.bridgeManager.saveSession(session);
-      } catch (error: any) {
+      } catch (error: unknown) {
         session.deliveryState = 'failed';
-        session.lastDeliveryError = error?.message || 'Falha desconhecida ao entregar resposta ao Telegram.';
+        session.lastDeliveryError = error instanceof Error ? error.message : 'Falha desconhecida ao entregar resposta ao Telegram.';
         const task = this.host.getTask(session.taskId);
         if (task && !this.host.isTaskTerminal(task)) {
           task.metadata = {
@@ -486,7 +660,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
       const task = this.host.getTask(session.taskId);
       const launchedAtMs = new Date(session.launchedAt).getTime();
       const lastDeliveredMs = session.lastDeliveredLogAt ? Date.parse(session.lastDeliveredLogAt) : launchedAtMs - 1;
-      const relevantEvents = events.filter((event: any) => event.timestampMs > lastDeliveredMs && event.timestampMs >= launchedAtMs);
+      const relevantEvents = events.filter((event) => event.timestampMs > lastDeliveredMs && event.timestampMs >= launchedAtMs);
       if (relevantEvents.length === 0) {
         continue;
       }
@@ -511,7 +685,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
         task?.status !== 'waiting_approval' &&
         session.automationEnabled !== false &&
         session.sessionKind !== 'prompt-panel' &&
-        relevantEvents.some((event: any) => this.host.isAutomationTriggerLogLine(event.line))
+        relevantEvents.some((event) => this.host.isAutomationTriggerLogLine(event.line))
       ) {
         await this.host.tryAutomationRescue(session, 'log_error');
       }

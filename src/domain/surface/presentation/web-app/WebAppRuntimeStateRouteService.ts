@@ -13,7 +13,7 @@ import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 import { defaultLlmRuntimeTelemetryService } from '../../../../services/llm/LlmRuntimeTelemetryService.js';
 import { ZavorthActiveMissionUxService } from '../../../../services/ZavorthActiveMissionUxService.js';
 import { ZavorthApprovalActionCardsUxService } from '../../../../services/ZavorthApprovalActionCardsUxService.js';
-import { ZavorthZavorthControlProviderCockpitService } from '../../../../services/ZavorthZavorthControlProviderCockpitService.js';
+import { ZavorthControlProviderCockpitService } from '../../../../services/ZavorthControlProviderCockpitService.js';
 import { ZavorthProviderActivationService } from '../../../../services/ZavorthProviderActivationService.js';
 import { ZavorthProviderModelCatalogService } from '../../../../services/ZavorthProviderModelCatalogService.js';
 import { ZavorthProviderPreferencePersistenceService } from '../../../../services/ZavorthProviderPreferencePersistenceService.js';
@@ -1146,7 +1146,7 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private async buildProviderCockpitProjection(url: URL): Promise<RuntimeRecord> {
-    const service = new ZavorthZavorthControlProviderCockpitService();
+    const service = new ZavorthControlProviderCockpitService();
     return service.buildProjection({
       includeAdvanced: this.readBooleanParam(url, 'advanced'),
       providerId: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,

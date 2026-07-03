@@ -12,7 +12,7 @@ import {
 } from '../contracts/ZavorthCapabilityCertificationPackContract.js';
 import { ProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';
 import { ZavorthCliTuiPolishService } from './ZavorthCliTuiPolishService.js';
-import { ZavorthZavorthControlVisualQaService } from './ZavorthZavorthControlVisualQaService.js';
+import { ZavorthControlVisualQaService } from './ZavorthControlVisualQaService.js';
 import { ZavorthSkillCuratorLiveLoopService } from './ZavorthSkillCuratorLiveLoopService.js';
 import { ZavorthSkillEcosystemPackService } from './ZavorthSkillEcosystemPackService.js';
 import { ZavorthMaturityService } from './ZavorthMaturityService.js';
@@ -39,7 +39,7 @@ type Runtime = {
   cliTui?: ZavorthCliTuiPolishService;
   skillEcosystem?: ZavorthSkillEcosystemPackService;
   skillCurator?: ZavorthSkillCuratorLiveLoopService;
-  zavorthControlVisualQa?: ZavorthZavorthControlVisualQaService;
+  zavorthControlVisualQa?: ZavorthControlVisualQaService;
   maturity?: ZavorthMaturityService;
 };
 
@@ -55,7 +55,7 @@ export class ZavorthCapabilityCertificationPackService {
   private readonly cliTui: ZavorthCliTuiPolishService;
   private readonly skillEcosystem: ZavorthSkillEcosystemPackService;
   private readonly skillCurator: ZavorthSkillCuratorLiveLoopService;
-  private readonly zavorthControlVisualQa: ZavorthZavorthControlVisualQaService;
+  private readonly zavorthControlVisualQa: ZavorthControlVisualQaService;
   private readonly maturity: ZavorthMaturityService;
 
   public constructor(runtime: Runtime = {}) {
@@ -70,7 +70,7 @@ export class ZavorthCapabilityCertificationPackService {
     this.cliTui = runtime.cliTui || new ZavorthCliTuiPolishService();
     this.skillEcosystem = runtime.skillEcosystem || new ZavorthSkillEcosystemPackService({ rootDir: this.projectRoot });
     this.skillCurator = runtime.skillCurator || new ZavorthSkillCuratorLiveLoopService({ projectRoot: this.projectRoot });
-    this.zavorthControlVisualQa = runtime.zavorthControlVisualQa || new ZavorthZavorthControlVisualQaService({ projectRoot: this.projectRoot });
+    this.zavorthControlVisualQa = runtime.zavorthControlVisualQa || new ZavorthControlVisualQaService({ projectRoot: this.projectRoot });
     this.maturity = runtime.maturity || new ZavorthMaturityService({ projectRoot: this.projectRoot, now: this.now });
   }
 
