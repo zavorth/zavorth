@@ -1,6 +1,7 @@
 import { NaturalSetupMutationPlannerService } from '../NaturalSetupMutationPlannerService.js';
+import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteTypes.js';
 
-export function buildNaturalSetupMutationPlanner(deps: any) {
+export function buildNaturalSetupMutationPlanner(deps: WebAppSurfaceRouteDeps) {
   return deps.naturalSetupMutationPlanner || new NaturalSetupMutationPlannerService({
     controlPlaneService: deps.naturalSetupControlPlane || undefined,
     channelSetupAssistant: deps.channelSetupAssistant || null,
@@ -21,7 +22,7 @@ export function getCodexRemoteRequireApproval(actionId: string): boolean {
   );
 }
 
-export function buildCodexRemoteActionInput(deps: any, body: Record<string, any>, actionId: string) {
+export function buildCodexRemoteActionInput(deps: WebAppSurfaceRouteDeps, body: Record<string, unknown>, actionId: string) {
   return {
     actionId,
     profileId: String(body.profileId || '').trim() || null,

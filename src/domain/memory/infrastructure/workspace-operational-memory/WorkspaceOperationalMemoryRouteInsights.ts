@@ -1,6 +1,8 @@
 import type { Task } from '../../../../contracts/TaskContract.js';
 import type {
+  ApprovalHistoryEntry,
   MutableRouteOutcomeAggregate,
+  PermissionHistoryEntry,
   RecentWorkflowRunAggregate,
   RouteOutcomeAggregate,
 } from './WorkspaceOperationalMemoryTypes.js';
@@ -257,13 +259,13 @@ export function buildRouteOutcomes(
     existing.total_count += 1;
     const finalStatus = String(outcome.final_status || task.status || '').trim().toLowerCase();
     const durationMs = Math.max(0, Number(outcome.duration_ms || 0));
-    const approvalGrantedCount = approvalHistory.filter((entry: any) => String(entry?.action || '').trim().toLowerCase() === 'approve').length;
-    const approvalRejectedCount = approvalHistory.filter((entry: any) => String(entry?.action || '').trim().toLowerCase() === 'reject').length;
-    const permissionGrantedCount = permissionHistory.filter((entry: any) => {
+    const approvalGrantedCount = approvalHistory.filter((entry: ApprovalHistoryEntry) => String(entry?.action || '').trim().toLowerCase() === 'approve').length;
+    const approvalRejectedCount = approvalHistory.filter((entry: ApprovalHistoryEntry) => String(entry?.action || '').trim().toLowerCase() === 'reject').length;
+    const permissionGrantedCount = permissionHistory.filter((entry: PermissionHistoryEntry) => {
       const action = String(entry?.action || '').trim().toLowerCase();
       return action === 'grant' || action === 'approve';
     }).length;
-    const permissionRejectedCount = permissionHistory.filter((entry: any) => {
+    const permissionRejectedCount = permissionHistory.filter((entry: PermissionHistoryEntry) => {
       const action = String(entry?.action || '').trim().toLowerCase();
       return action === 'reject' || action === 'deny';
     }).length;

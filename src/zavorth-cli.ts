@@ -1328,8 +1328,8 @@ async function runNaturalRuntimeQuestions(rawArgs: string[] = []): Promise<numbe
 }
 
 async function runZavorthControlExperienceHome(rawArgs: string[] = []): Promise<number> {
-  const { ZavorthZavorthControlExperienceHomeService } = await import('./services/ZavorthZavorthControlExperienceHomeService.js');
-  const service = new ZavorthZavorthControlExperienceHomeService();
+  const { ZavorthControlExperienceHomeService } = await import('./services/ZavorthControlExperienceHomeService.js');
+  const service = new ZavorthControlExperienceHomeService();
   const snapshot = service.buildSnapshot();
 
   if (rawArgs.includes('--json')) {
@@ -1998,8 +1998,8 @@ async function runSensitiveActionFlow(rawArgs: string[] = []): Promise<number> {
 async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
   const action = String(rawArgs[0] || 'matrix').trim().toLowerCase();
   if (action === 'cockpit' || action === 'zavorthControl') {
-    const { ZavorthZavorthControlProviderCockpitService } = await import('./services/ZavorthZavorthControlProviderCockpitService.js');
-    const service = new ZavorthZavorthControlProviderCockpitService();
+    const { ZavorthControlProviderCockpitService } = await import('./services/ZavorthControlProviderCockpitService.js');
+    const service = new ZavorthControlProviderCockpitService();
     const projection = await service.buildProjection({
       includeAdvanced: rawArgs.includes('--advanced'),
       providerId: readFlexibleStringFlag(rawArgs, 'provider') || rawArgs[1],
@@ -2099,8 +2099,8 @@ async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
     return snapshot.status === 'denied' ? 2 : 0;
   }
   if (action === 'visual-approval' || action === 'visual-pack' || action === 'approval-pack') {
-    const { ZavorthZavorthControlVisualApprovalPackService } = await import('./services/ZavorthZavorthControlVisualApprovalPackService.js');
-    const service = new ZavorthZavorthControlVisualApprovalPackService();
+    const { ZavorthControlVisualApprovalPackService } = await import('./services/ZavorthControlVisualApprovalPackService.js');
+    const service = new ZavorthControlVisualApprovalPackService();
     const pack = await service.buildPack({
       includeAdvanced: rawArgs.includes('--advanced'),
       providerId: readFlexibleStringFlag(rawArgs, 'provider') || rawArgs[1],

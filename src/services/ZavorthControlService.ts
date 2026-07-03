@@ -21,12 +21,19 @@ import {
   getClassicZavorthControlHtml as getClassicZavorthControlHtmlHelper,
   handleOperationsActionRequest as handleOperationsActionRequestHelper,
   routeRequest as routeRequestHelper,
+  type ZavorthControlFacadeCompat,
 } from '../domain/surface/presentation/zavorthControl/zavorthControl-service/ZavorthControlServiceHelpers.js';
 import { initializeZavorthControlService } from '../domain/surface/presentation/zavorthControl/zavorthControl-service/ZavorthControlServiceComposition.js';
 import {
   startZavorthControlService,
   stopZavorthControlService,
+  type ZavorthControlServerService,
 } from '../domain/surface/presentation/zavorthControl/zavorthControl-service/ZavorthControlServiceServerLifecycle.js';
+import type { ZavorthControlOperationsOverviewReaderBridgeService } from '../domain/surface/presentation/zavorthControl/ZavorthControlOperationsOverviewReaderBridgeService.js';
+
+type ZavorthControlServiceFacade = ZavorthControlFacadeCompat & {
+  operationsOverviewBridge: ZavorthControlOperationsOverviewReaderBridgeService;
+};
 
 export type ChannelIngressGateways = {
   slack?: SlackWebhookGatewayLike | null;
@@ -46,23 +53,23 @@ export class ZavorthControlService {
 
   constructor(
     private logRepo: LogRepository,
-    deps: any = {},
+    deps: Record<string, unknown> = {},
   ) {
-    initializeZavorthControlService(this as any, logRepo, deps);
+    initializeZavorthControlService(this as ZavorthControlFacadeCompat, logRepo, deps);
   }
 
   public attachChatRuntime(runtime: WebAppRuntime): void {
-    attachChatRuntimeHelper(this as any, runtime);
+    attachChatRuntimeHelper(this as ZavorthControlFacadeCompat, runtime);
   }
 
   public attachChannelBroadcastGateways(
     gateways: Partial<Record<string, BroadcastCapableGateway | null | undefined>>,
   ): void {
-    attachChannelBroadcastGatewaysHelper(this as any, gateways);
+    attachChannelBroadcastGatewaysHelper(this as ZavorthControlFacadeCompat, gateways);
   }
 
   public attachChannelIngressGateways(gateways: ChannelIngressGateways): void {
-    attachChannelIngressGatewaysHelper(this as any, gateways);
+    attachChannelIngressGatewaysHelper(this as ZavorthControlFacadeCompat, gateways);
   }
 
   public getUrl(): string {
@@ -75,15 +82,15 @@ export class ZavorthControlService {
   }
 
   public getPublicBaseUrl(): string | null {
-    return (this as any).httpSupport.normalizeUrl(config.zavorthPublicBaseUrl || '');
+    return (this as ZavorthControlFacadeCompat).httpSupport.normalizeUrl(config.zavorthPublicBaseUrl || '');
   }
 
   public getOperationsOverviewReaders(): OperationsReportOverviewReaders {
-    return (this as any).operationsOverviewBridge.buildReaders();
+    return (this as ZavorthControlServiceFacade).operationsOverviewBridge.buildReaders();
   }
 
   public async start(): Promise<string> {
-    return startZavorthControlService(this as any);
+    return startZavorthControlService(this as ZavorthControlServerService);
   }
 
   public stop(): void {
@@ -91,22 +98,22 @@ export class ZavorthControlService {
   }
 
   public async stopAsync(): Promise<void> {
-    return stopZavorthControlService(this as any);
+    return stopZavorthControlService(this as ZavorthControlServerService);
   }
 
   private async routeRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
-    await routeRequestHelper(this as any, req, res);
+    await routeRequestHelper(this as ZavorthControlFacadeCompat, req, res);
   }
 
   private async handleOperationsActionRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
   ): Promise<void> {
-    await handleOperationsActionRequestHelper(this as any, req, res);
+    await handleOperationsActionRequestHelper(this as ZavorthControlFacadeCompat, req, res);
   }
 
   private getClassicZavorthControlHtml(): string {
-    return getClassicZavorthControlHtmlHelper(this as any);
+    return getClassicZavorthControlHtmlHelper(this as ZavorthControlFacadeCompat);
   }
 }
 

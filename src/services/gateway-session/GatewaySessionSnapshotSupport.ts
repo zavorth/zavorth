@@ -1,5 +1,6 @@
 import type { PermissionRequest } from '../../contracts/PermissionRequest.js';
 import type { MessageChannel } from '../../contracts/PlatformContract.js';
+import type { Task } from '../../contracts/core/TaskContract.js';
 import type { SessionContinuitySnapshot } from '../../runtime/context/SessionContinuityService.js';
 import { mergeWorkflowRunIntoWorkspaceContinuityContext } from '../../runtime/context/WorkspaceContinuityContext.js';
 import type { WorkflowRunSnapshot } from '../../runtime/workflows/WorkflowRunService.js';
@@ -15,9 +16,9 @@ import type {
 } from '../GatewaySessionService.js';
 
 type TaskManagerLike = {
-  getRecentTasks?(limit?: number, userId?: string): any[];
-  getRecentTasksByChat(chatId: string, limit?: number): any[];
-  getRecentTasksByUsers?(userIds: string[], limit?: number): any[];
+  getRecentTasks?(limit?: number, userId?: string): Task[];
+  getRecentTasksByChat(chatId: string, limit?: number): Task[];
+  getRecentTasksByUsers?(userIds: string[], limit?: number): Task[];
 };
 
 type PermissionServiceLike = {
@@ -27,9 +28,15 @@ type PermissionServiceLike = {
   ): Promise<PermissionRequest[]>;
 };
 
+type WorkflowRunListInput = {
+  workspace?: string | null;
+  limit?: number;
+  statuses?: WorkflowRunSnapshot['status'][];
+};
+
 type WorkflowRunReader = {
   getRun(workflowRunId: string): WorkflowRunSnapshot | null;
-  listRuns(input?: any): WorkflowRunSnapshot[];
+  listRuns(input?: WorkflowRunListInput): WorkflowRunSnapshot[];
 };
 
 export type GatewaySessionSnapshotSupportDeps = {
@@ -48,13 +55,13 @@ export class GatewaySessionSnapshotSupport {
     limit?: number;
   }): {
     runtimeUserId: string;
-    grouped: Map<string, any[]>;
+    grouped: Map<string, Task[]>;
     orderedChatIds: string[];
   } {
     const runtimeUserId = String(input.userId || '').trim();
     const limit = Math.max(1, Math.min(Number(input.limit || 8), 24));
     const tasks = this.getRecentUserTasks(runtimeUserId, limit * 6);
-    const grouped = new Map<string, any[]>();
+    const grouped = new Map<string, Task[]>();
 
     for (const task of tasks) {
       const chatId = String(task?.chat_id || '').trim();
@@ -117,7 +124,7 @@ export class GatewaySessionSnapshotSupport {
   public buildListSnapshot(input: {
     generatedAt: string;
     runtimeUserId: string;
-    grouped: Map<string, any[]>;
+    grouped: Map<string, Task[]>;
     entries: GatewaySessionListEntry[];
   }): GatewaySessionListSnapshot {
     return {
@@ -270,7 +277,7 @@ export class GatewaySessionSnapshotSupport {
     return inferredFromChatId;
   }
 
-  public serializeTask(task: any): GatewaySessionTaskSnapshot {
+  public serializeTask(task: Task): GatewaySessionTaskSnapshot {
     return {
       task_id: String(task?.task_id || '').trim(),
       source: String(task?.source || '').trim() || null,
@@ -319,8 +326,8 @@ export class GatewaySessionSnapshotSupport {
   public collectArtifacts(
     tasks: GatewaySessionTaskSnapshot[],
     workflowRuns: WorkflowRunSnapshot[],
-  ): Array<Record<string, any>> {
-    const entries = new Map<string, Record<string, any>>();
+  ): Array<Record<string, unknown>> {
+    const entries = new Map<string, Record<string, unknown>>();
 
     for (const task of tasks) {
       for (const artifact of Array.isArray(task.artifacts) ? task.artifacts : []) {
@@ -400,7 +407,7 @@ export class GatewaySessionSnapshotSupport {
     };
   }
 
-  private getRecentUserTasks(runtimeUserId: string, limit: number): any[] {
+  private getRecentUserTasks(runtimeUserId: string, limit: number): Task[] {
     const principalIds = this.deps.surfaceIdentity.listPrincipalUserIds(runtimeUserId);
     const direct = this.deps.taskManager.getRecentTasksByUsers?.(principalIds, limit);
     if (Array.isArray(direct) && direct.length > 0) {
@@ -419,7 +426,7 @@ export class GatewaySessionSnapshotSupport {
       .slice(0, limit);
   }
 
-  private resolveTaskRuntimeUserId(task: any): string {
+  private resolveTaskRuntimeUserId(task: Task): string {
     return String(
       task?.metadata?.runtime_user_id
       || task?.metadata?.surface_identity?.runtime_user_id

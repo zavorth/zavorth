@@ -1,3 +1,3 @@
 // Layout Components - Export all
 export { default as AuthLayout } from "./AuthLayout";
-export { default as ZavorthZavorthControlShell } from "./ZavorthZavorthControlShell";
+export { default as ZavorthControlShell } from "./ZavorthControlShell";

@@ -126,8 +126,8 @@ export class IrcGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`IRC send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      this.recordError(`IRC send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }

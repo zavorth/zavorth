@@ -2,6 +2,14 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface GoogleChatWebhookPayload extends Record<string, unknown> {
+  userId?: unknown;
+  chatId?: unknown;
+  text?: unknown;
+  messageId?: unknown;
+  message?: unknown;
+}
+
 export class GoogleChatGateway extends WebhookGateway {
   public readonly id = 'google-chat';
   public readonly name = 'Google Chat';
@@ -61,10 +69,11 @@ export class GoogleChatGateway extends WebhookGateway {
     const sender = message.sender && typeof message.sender === 'object'
       ? message.sender as Record<string, unknown>
       : null;
+    const payload = webhookPayload as GoogleChatWebhookPayload;
     const userId = String(
       sender?.name
       || sender?.displayName
-      || (webhookPayload as any).userId
+      || payload.userId
       || '',
     ).trim();
     const space = message.space && typeof message.space === 'object'
@@ -73,11 +82,11 @@ export class GoogleChatGateway extends WebhookGateway {
     const chatId = String(
       space?.name
       || space?.displayName
-      || (webhookPayload as any).chatId
+      || payload.chatId
       || 'google-chat',
     ).trim();
-    const rawText = String(message.text || (webhookPayload as any).text || '').trim();
-    const messageId = String(message.name || (webhookPayload as any).messageId || '').trim() || null;
+    const rawText = String(message.text || payload.text || '').trim();
+    const messageId = String(message.name || payload.messageId || '').trim() || null;
 
     if (!rawText) {
       return null;
@@ -121,8 +130,8 @@ export class GoogleChatGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`Google Chat send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      this.recordError(`Google Chat send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }

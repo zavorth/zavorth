@@ -1,6 +1,6 @@
 import {
   ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION,
-  type ZavorthZavorthControlRuntimeProjection,
+  type ZavorthControlRuntimeProjection,
   type ZavorthCrossSurfaceActionKind,
   type ZavorthCrossSurfaceActionProjection,
   type ZavorthCrossSurfaceApiProjection,
@@ -280,7 +280,7 @@ function buildApiProjection(runtime: ZavorthToolOrchestrationVerificationSnapsho
   };
 }
 
-function buildZavorthControlProjection(runtime: ZavorthToolOrchestrationVerificationSnapshot): ZavorthZavorthControlRuntimeProjection {
+function buildZavorthControlProjection(runtime: ZavorthToolOrchestrationVerificationSnapshot): ZavorthControlRuntimeProjection {
   return {
     projectionId: 'checkpoint-5-zavorthControl-runtime-projection',
     title: 'Runtime projection',
@@ -295,7 +295,7 @@ function buildZavorthControlProjection(runtime: ZavorthToolOrchestrationVerifica
 function buildReceipts(
   cards: ZavorthCrossSurfaceProjectionCard[],
   apiProjection: ZavorthCrossSurfaceApiProjection,
-  zavorthControl: ZavorthZavorthControlRuntimeProjection,
+  zavorthControl: ZavorthControlRuntimeProjection,
   status: ZavorthToolOrchestrationVerificationStatus,
 ): ZavorthCrossSurfaceProjectionReceipt[] {
   const receipts: ZavorthCrossSurfaceProjectionReceipt[] = [
@@ -351,7 +351,7 @@ function buildSafety(): ZavorthCrossSurfaceProjectionSafety {
 
 function summarize(
   cards: ZavorthCrossSurfaceProjectionCard[],
-  zavorthControl: ZavorthZavorthControlRuntimeProjection,
+  zavorthControl: ZavorthControlRuntimeProjection,
 ): ZavorthCrossSurfaceRuntimeProjectionSnapshot['summary'] {
   const actions = cards.flatMap((card) => card.actions);
   return {
@@ -426,7 +426,7 @@ function receiptStatus(status: ZavorthToolOrchestrationVerificationStatus): Zavo
 function buildNarrative(
   status: ZavorthToolOrchestrationVerificationStatus,
   cards: ZavorthCrossSurfaceProjectionCard[],
-  zavorthControl: ZavorthZavorthControlRuntimeProjection,
+  zavorthControl: ZavorthControlRuntimeProjection,
 ): ZavorthCrossSurfaceRuntimeProjectionSnapshot['narrative'] {
   if (status === 'ready') {
     return {

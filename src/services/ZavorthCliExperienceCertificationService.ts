@@ -3,20 +3,20 @@ import {
   type ZavorthCliExperienceCertificationCommand,
   type ZavorthCliExperienceCertificationSnapshot,
 } from '../contracts/ZavorthCliExperienceCertificationContract.js';
-import { ZavorthZavorthControlExperienceHomeService } from './ZavorthZavorthControlExperienceHomeService.js';
+import { ZavorthControlExperienceHomeService } from './ZavorthControlExperienceHomeService.js';
 
 export type ZavorthCliExperienceCertificationRuntime = {
   now?: () => Date;
-  zavorthControlHome?: ZavorthZavorthControlExperienceHomeService;
+  zavorthControlHome?: ZavorthControlExperienceHomeService;
 };
 
 export class ZavorthCliExperienceCertificationService {
   private readonly now: () => Date;
-  private readonly zavorthControlHome: ZavorthZavorthControlExperienceHomeService;
+  private readonly zavorthControlHome: ZavorthControlExperienceHomeService;
 
   constructor(runtime: ZavorthCliExperienceCertificationRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.zavorthControlHome = runtime.zavorthControlHome || new ZavorthZavorthControlExperienceHomeService({ now: this.now });
+    this.zavorthControlHome = runtime.zavorthControlHome || new ZavorthControlExperienceHomeService({ now: this.now });
   }
 
   public buildSnapshot(): ZavorthCliExperienceCertificationSnapshot {

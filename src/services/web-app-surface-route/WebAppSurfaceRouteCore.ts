@@ -1,12 +1,13 @@
 import * as http from 'http';
 import { readLowerTrimmedSearchParam, readTrimmedSearchParam } from './WebAppSurfaceRouteParsing.js';
+import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteTypes.js';
 
 export async function handleWebAppSurfaceCoreRoutes(
   req: http.IncomingMessage,
   res: http.ServerResponse,
   url: URL,
   pathname: string,
-  deps: any,
+  deps: WebAppSurfaceRouteDeps,
 ): Promise<boolean> {
   if (pathname === '/api/web/capabilities' && req.method === 'GET') {
     if (!deps.capabilityCatalog) {

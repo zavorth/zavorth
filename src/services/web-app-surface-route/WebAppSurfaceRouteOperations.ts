@@ -5,13 +5,14 @@ import {
   readNumberSearchParam,
   readTrimmedSearchParam,
 } from './WebAppSurfaceRouteParsing.js';
+import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteTypes.js';
 
 export async function handleWebAppSurfaceOperationRoutes(
   req: http.IncomingMessage,
   res: http.ServerResponse,
   url: URL,
   pathname: string,
-  deps: any,
+  deps: WebAppSurfaceRouteDeps,
 ): Promise<boolean> {
   if (pathname === '/api/web/operations/product-observability' && req.method === 'GET') {
     if (!deps.productObservability) {
@@ -275,8 +276,9 @@ export async function handleWebAppSurfaceOperationRoutes(
         },
         202,
       );
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: error?.message || 'Falha no action seguro de Natural Setup.' }, 400);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Falha no action seguro de Natural Setup.';
+      deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }
     return true;
   }
@@ -308,7 +310,7 @@ export async function handleWebAppSurfaceOperationRoutes(
     }
 
     const body = await deps.readJsonBody(req);
-    const actionId = String(body?.actionId || '').trim() as any;
+    const actionId = String(body?.actionId || '').trim();
     if (!actionId) {
       deps.writeJson(res, { ok: false, error: 'actionId obrigatorio.' }, 400);
       return true;
@@ -408,8 +410,9 @@ export async function handleWebAppSurfaceOperationRoutes(
         },
         action.ok ? 200 : 409,
       );
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao agir no Hub + MCP.' }, 400);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Falha ao agir no Hub + MCP.';
+      deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }
     return true;
   }

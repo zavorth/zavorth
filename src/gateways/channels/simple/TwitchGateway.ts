@@ -69,29 +69,11 @@ export class TwitchGateway extends WebhookGateway {
     isGroup?: boolean;
     fields?: Record<string, unknown>;
   } | null {
-    const userId = String(
-      (webhookPayload as any).user
-      || (webhookPayload as any).chatter
-      || (webhookPayload as any).userId
-      || '',
-    ).trim();
-    const chatId = String(
-      (webhookPayload as any).channel
-      || (webhookPayload as any).room
-      || (webhookPayload as any).chatId
-      || 'twitch',
-    ).trim();
-    const rawText = String(
-      (webhookPayload as any).message
-      || (webhookPayload as any).text
-      || (webhookPayload as any).rawText
-      || '',
-    ).trim();
-    const messageId = String(
-      (webhookPayload as any).messageId
-      || (webhookPayload as any).id
-      || '',
-    ).trim() || null;
+    const p = webhookPayload as TwitchWebhookPayload;
+    const userId = String(p.user || p.chatter || p.userId || '').trim();
+    const chatId = String(p.channel || p.room || p.chatId || 'twitch').trim();
+    const rawText = String(p.message || p.text || p.rawText || '').trim();
+    const messageId = String(p.messageId || p.id || '').trim() || null;
 
     if (!rawText) {
       return null;
@@ -105,7 +87,7 @@ export class TwitchGateway extends WebhookGateway {
       isGroup: true,
       fields: {
         channel: chatId,
-        badges: String((webhookPayload as any).badges || ''),
+        badges: String(p.badges || ''),
       },
     };
   }

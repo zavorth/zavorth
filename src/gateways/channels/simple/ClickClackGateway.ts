@@ -52,25 +52,25 @@ export class ClickClackGateway extends WebhookGateway {
     fields?: Record<string, unknown>;
   } | null {
     const userId = String(
-      (webhookPayload as any).user_id
-      || (webhookPayload as any).sender
-      || (webhookPayload as any).userId
+      webhookPayload['user_id']
+      || webhookPayload['sender']
+      || webhookPayload['userId']
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).channel
-      || (webhookPayload as any).chatId
+      webhookPayload['channel']
+      || webhookPayload['chatId']
       || 'clickclack',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).text
-      || (webhookPayload as any).message
-      || (webhookPayload as any).rawText
+      webhookPayload['text']
+      || webhookPayload['message']
+      || webhookPayload['rawText']
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).messageId
-      || (webhookPayload as any).id
+      webhookPayload['messageId']
+      || webhookPayload['id']
       || '',
     ).trim() || null;
 
@@ -109,8 +109,9 @@ export class ClickClackGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`ClickClack send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.recordError(`ClickClack send failed: ${msg}`);
     }
   }
 }

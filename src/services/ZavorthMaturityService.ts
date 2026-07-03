@@ -8,7 +8,7 @@ import type {
 import { OperationalMaturityService } from '../domain/platform-ecosystem/application/OperationalMaturityService.js';
 import { ChannelExperienceCertificationService } from './ChannelExperienceCertificationService.js';
 import { LiveReadinessCertificationService } from './LiveReadinessCertificationService.js';
-import { ZavorthZavorthControlVisualQaService } from './ZavorthZavorthControlVisualQaService.js';
+import { ZavorthControlVisualQaService } from './ZavorthControlVisualQaService.js';
 import { ZavorthDataLifecyclePolicyService } from './ZavorthDataLifecyclePolicyService.js';
 import { ZavorthHostLiveCertificationService } from './ZavorthHostLiveCertificationService.js';
 
@@ -17,7 +17,7 @@ type LiveReadinessCertificationReader = Pick<LiveReadinessCertificationService, 
 type OperationalMaturityReader = Pick<OperationalMaturityService, 'validate'>;
 type ZavorthHostLiveCertificationReader = Pick<ZavorthHostLiveCertificationService, 'buildSnapshot'>;
 type ZavorthDataLifecyclePolicyReader = Pick<ZavorthDataLifecyclePolicyService, 'buildSnapshot'>;
-type ZavorthZavorthControlVisualQaReader = Pick<ZavorthZavorthControlVisualQaService, 'buildSnapshot'>;
+type ZavorthControlVisualQaReader = Pick<ZavorthControlVisualQaService, 'buildSnapshot'>;
 
 type ZavorthMaturityRuntime = {
   now?: () => Date;
@@ -27,7 +27,7 @@ type ZavorthMaturityRuntime = {
   operationalMaturityService?: OperationalMaturityReader;
   hostLiveCertificationService?: ZavorthHostLiveCertificationReader;
   dataLifecyclePolicyService?: ZavorthDataLifecyclePolicyReader;
-  zavorthControlVisualQaService?: ZavorthZavorthControlVisualQaReader;
+  zavorthControlVisualQaService?: ZavorthControlVisualQaReader;
   existsSync?: typeof fs.existsSync;
   readFileSync?: typeof fs.readFileSync;
 };
@@ -60,7 +60,7 @@ export class ZavorthMaturityService {
   private readonly operationalMaturity: OperationalMaturityReader;
   private readonly hostLive: ZavorthHostLiveCertificationReader;
   private readonly dataLifecycle: ZavorthDataLifecyclePolicyReader;
-  private readonly zavorthControlVisualQa: ZavorthZavorthControlVisualQaReader;
+  private readonly zavorthControlVisualQa: ZavorthControlVisualQaReader;
   private readonly readFileSync: typeof fs.readFileSync;
 
   public constructor(runtime: ZavorthMaturityRuntime = {}) {
@@ -78,7 +78,7 @@ export class ZavorthMaturityService {
       now: this.now,
       existsSync: runtime.existsSync,
     });
-    this.zavorthControlVisualQa = runtime.zavorthControlVisualQaService || new ZavorthZavorthControlVisualQaService({
+    this.zavorthControlVisualQa = runtime.zavorthControlVisualQaService || new ZavorthControlVisualQaService({
       projectRoot: this.projectRoot,
       now: this.now,
       existsSync: runtime.existsSync,
@@ -301,7 +301,7 @@ export class ZavorthMaturityService {
 
   private zavorthControlEvidenceGate(
     channel: ReturnType<ChannelExperienceCertificationService['buildSnapshot']>,
-    zavorthControl: ReturnType<ZavorthZavorthControlVisualQaService['buildSnapshot']>,
+    zavorthControl: ReturnType<ZavorthControlVisualQaService['buildSnapshot']>,
   ): ZavorthMaturityGate {
     const contractReady = channel.zavorthControlEvidence.status === 'contract-ready';
     const evidenceReady = zavorthControl.summary.evidenceReady;

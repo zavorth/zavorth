@@ -14,6 +14,25 @@ import { McpToolPolicyFileService } from '../services/McpToolPolicyFileService.j
 import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import { McpToolPolicy } from './McpToolPolicy.js';
 
+type McpSecurityDefinition = Record<string, unknown>;
+
+type McpPolicyToolEntry = {
+  status: 'approved' | 'pending_approval' | 'blocked';
+  fingerprint: string;
+  description: string;
+};
+
+type McpPolicyDocument = {
+  tools?: Record<string, McpPolicyToolEntry>;
+  [key: string]: unknown;
+};
+
+type ToolWithRemoteName = BaseTool & { remoteName?: string };
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
 
 /** Recursively stable JSON stringify with sorted object keys. */
 function canonicalStringify(val: unknown): string {
@@ -64,12 +83,12 @@ class NamespacedMcpTool extends BaseTool {
 class RegistryInterceptor extends ToolRegistry {
   constructor(
     private readonly actualRegistry: ToolRegistry,
-    private readonly onRegister: (tool: BaseTool, securityDef?: any) => void,
+    private readonly onRegister: (tool: BaseTool, securityDef?: McpSecurityDefinition) => void,
   ) {
     super();
   }
 
-  public override register(tool: BaseTool, securityDefinition?: any): void {
+  public override register(tool: BaseTool, securityDefinition?: McpSecurityDefinition): void {
     this.onRegister(tool, securityDefinition);
   }
 
@@ -125,7 +144,7 @@ export type McpRuntimeSnapshot = {
 /** Internal representation of a tool discovered during MCP server connection. */
 type DiscoveredMcpTool = {
   tool: BaseTool;
-  securityDefinition?: any;
+  securityDefinition?: McpSecurityDefinition;
   namespacedName: string;
   toolName: string;
   fingerprint: string;
@@ -190,7 +209,7 @@ export class McpRuntimeService {
       server: ResolvedMcpServerManifestEntry;
       discovered: DiscoveredMcpTool[];
       attemptedAt: string;
-      error?: any;
+      error?: unknown;
     };
 
     const perServerData = await Promise.all(
@@ -207,7 +226,7 @@ export class McpRuntimeService {
         try {
           const discovered = await this.collectDiscoveredTools(manager, server.id);
           return { manager, server, discovered, attemptedAt };
-        } catch (error: any) {
+        } catch (error: unknown) {
           return { manager, server, discovered: [], attemptedAt, error };
         }
       })
@@ -236,11 +255,11 @@ export class McpRuntimeService {
           args: [...server.args],
           lastAttemptedAt: attemptedAt,
           lastConnectedAt: null,
-          lastError: error?.message || String(error),
+          lastError: getErrorMessage(error),
         });
         this.logRepo.log(
           'warn', 'MCP',
-          `Falha ao conectar servidor MCP ${server.id}: ${error?.message || error}`,
+          `Falha ao conectar servidor MCP ${server.id}: ${getErrorMessage(error)}`,
         );
         this.writeSnapshot();
         continue;
@@ -286,11 +305,11 @@ export class McpRuntimeService {
 
       try {
         await manager.disconnect();
-      } catch (error: any) {
+      } catch (error: unknown) {
         this.logRepo.log(
           'warn',
           'MCP',
-          `Falha ao desconectar servidor MCP ${manager.name}: ${error?.message || error}`,
+          `Falha ao desconectar servidor MCP ${manager.name}: ${getErrorMessage(error)}`,
         );
       }
 
@@ -318,11 +337,11 @@ export class McpRuntimeService {
     const manager = this.managers[managerIndex];
     try {
       await manager.disconnect();
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logRepo.log(
         'warn',
         'MCP',
-        `Falha ao desconectar servidor MCP ${manager.name}: ${error?.message || error}`,
+        `Falha ao desconectar servidor MCP ${manager.name}: ${getErrorMessage(error)}`,
       );
     }
 
@@ -408,7 +427,7 @@ export class McpRuntimeService {
       );
 
       return { ok: true, toolCount: registeredToolNames.length, toolNames: registeredToolNames, error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.entries.set(serverId, {
         id: serverId,
         capability: String(serverEntry.capability || '').trim() || null,
@@ -420,17 +439,17 @@ export class McpRuntimeService {
         args: [...serverEntry.args],
         lastAttemptedAt: attemptedAt,
         lastConnectedAt: null,
-        lastError: error?.message || String(error),
+        lastError: getErrorMessage(error),
       });
 
       this.writeSnapshot();
       this.logRepo.log(
         'warn',
         'MCP',
-        `Falha ao (re)carregar servidor MCP ${serverId}: ${error?.message || error}`,
+        `Falha ao (re)carregar servidor MCP ${serverId}: ${getErrorMessage(error)}`,
       );
 
-      return { ok: false, toolCount: 0, toolNames: [], error: error?.message || String(error) };
+      return { ok: false, toolCount: 0, toolNames: [], error: getErrorMessage(error) };
     }
   }
 
@@ -454,7 +473,7 @@ export class McpRuntimeService {
   ): Promise<DiscoveredMcpTool[]> {
     const discovered: DiscoveredMcpTool[] = [];
     const interceptor = new RegistryInterceptor(this.registry, (tool, securityDefinition) => {
-      const toolName = (tool as any).remoteName as string | undefined || tool.name;
+      const toolName = (tool as ToolWithRemoteName).remoteName || tool.name;
       const namespacedName = `${serverId}:${toolName}`;
       const fingerprint = this.computeFingerprint(serverId, toolName, tool.parameters);
       discovered.push({
@@ -479,7 +498,7 @@ export class McpRuntimeService {
   private resolveDiscoveredTools(
     discovered: DiscoveredMcpTool[],
     allActiveNamespacedTools: string[],
-    policyDoc: any,
+    policyDoc: McpPolicyDocument,
     globalPolicy: McpToolPolicy,
     serverId: string,
   ): { registeredNames: string[]; changed: boolean } {

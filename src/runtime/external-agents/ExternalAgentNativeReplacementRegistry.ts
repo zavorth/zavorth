@@ -22,7 +22,7 @@ export type ExternalAgentNativeReplacementContract =
   | 'UniversalReplyPacket'
   | 'CanonicalSessionContextSnapshot'
   | 'UniversalAgentExecutorResult'
-  | 'ZavorthZavorthControlAssimilationSnapshot';
+  | 'ZavorthControlAssimilationSnapshot';
 
 export type ExternalAgentNativeReplacementConsistencyCase = {
   id: string;

@@ -59,24 +59,24 @@ export class HomeAssistantGateway extends WebhookGateway {
     fields?: Record<string, unknown>;
   } | null {
     const userId = String(
-      (webhookPayload as any).user_id
-      || (webhookPayload as any).userId
-      || (webhookPayload as any).entity_id
+      webhookPayload['user_id']
+      || webhookPayload['userId']
+      || webhookPayload['entity_id']
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).chatId
-      || (webhookPayload as any).source
+      webhookPayload['chatId']
+      || webhookPayload['source']
       || 'home-assistant',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).message
-      || (webhookPayload as any).text
-      || (webhookPayload as any).rawText
+      webhookPayload['message']
+      || webhookPayload['text']
+      || webhookPayload['rawText']
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).messageId
+      webhookPayload['messageId']
       || '',
     ).trim() || null;
 
@@ -91,7 +91,7 @@ export class HomeAssistantGateway extends WebhookGateway {
       messageId,
       isGroup: false,
       fields: {
-        eventType: String((webhookPayload as any).event_type || ''),
+        eventType: String(webhookPayload['event_type'] || ''),
       },
     };
   }
@@ -129,8 +129,9 @@ export class HomeAssistantGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`Home Assistant send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.recordError(`Home Assistant send failed: ${msg}`);
     }
   }
 }

@@ -1,7 +1,9 @@
 import type { Task } from '../../../../contracts/TaskContract.js';
 import type {
   ApprovalFrictionAggregate,
+  ApprovalHistoryEntry,
   MutableApprovalFrictionAggregate,
+  PermissionHistoryEntry,
 } from './WorkspaceOperationalMemoryTypes.js';
 import {
   computeWorkspaceApprovalWaitMs,
@@ -86,18 +88,18 @@ export function buildApprovalFrictionRecommendations(tasks: Task[]): ApprovalFri
       task.approval_status === 'pending' || task.status === 'waiting_approval'
         ? 1
         : 0;
-    const rejectedCount = approvalHistory.filter((entry: any) => String(entry?.action || '').trim() === 'reject').length
+    const rejectedCount = approvalHistory.filter((entry: ApprovalHistoryEntry) => String(entry?.action || '').trim() === 'reject').length
       + (task.approval_status === 'rejected' ? 1 : 0);
-    const approvalGrantedCount = approvalHistory.filter((entry: any) => {
+    const approvalGrantedCount = approvalHistory.filter((entry: ApprovalHistoryEntry) => {
       return String(entry?.action || '').trim().toLowerCase() === 'approve';
     }).length;
-    const permissionGrantedCount = permissionHistory.filter((entry: any) => {
+    const permissionGrantedCount = permissionHistory.filter((entry: PermissionHistoryEntry) => {
       const action = String(entry?.action || '').trim().toLowerCase();
       return action === 'grant' || action === 'approve';
     }).length;
     const highRiskCount =
       posture.high_risk_confirmation_required === true
-      || approvalHistory.some((entry: any) => entry?.required_high_risk_pin === true)
+      || approvalHistory.some((entry: ApprovalHistoryEntry) => entry?.required_high_risk_pin === true)
         ? 1
         : 0;
     const permissionCount =

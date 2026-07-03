@@ -52,24 +52,24 @@ export class WeComGateway extends WebhookGateway {
     fields?: Record<string, unknown>;
   } | null {
     const userId = String(
-      (webhookPayload as any).FromUserName
-      || (webhookPayload as any).userId
+      webhookPayload['FromUserName']
+      || webhookPayload['userId']
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).ChatId
-      || (webhookPayload as any).chatId
+      webhookPayload['ChatId']
+      || webhookPayload['chatId']
       || 'wecom',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).Content
-      || (webhookPayload as any).text
-      || (webhookPayload as any).rawText
+      webhookPayload['Content']
+      || webhookPayload['text']
+      || webhookPayload['rawText']
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).MsgId
-      || (webhookPayload as any).messageId
+      webhookPayload['MsgId']
+      || webhookPayload['messageId']
       || '',
     ).trim() || null;
 
@@ -111,8 +111,9 @@ export class WeComGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`WeCom send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.recordError(`WeCom send failed: ${msg}`);
     }
   }
 }

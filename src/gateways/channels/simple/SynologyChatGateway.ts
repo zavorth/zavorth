@@ -52,23 +52,23 @@ export class SynologyChatGateway extends WebhookGateway {
     fields?: Record<string, unknown>;
   } | null {
     const userId = String(
-      (webhookPayload as any).user_id
-      || (webhookPayload as any).username
-      || (webhookPayload as any).userId
+      webhookPayload['user_id']
+      || webhookPayload['username']
+      || webhookPayload['userId']
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).channel
-      || (webhookPayload as any).chatId
+      webhookPayload['channel']
+      || webhookPayload['chatId']
       || 'synology-chat',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).text
-      || (webhookPayload as any).rawText
+      webhookPayload['text']
+      || webhookPayload['rawText']
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).messageId
+      webhookPayload['messageId']
       || '',
     ).trim() || null;
 
@@ -107,8 +107,9 @@ export class SynologyChatGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`Synology Chat send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      this.recordError(`Synology Chat send failed: ${msg}`);
     }
   }
 }

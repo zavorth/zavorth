@@ -111,7 +111,7 @@ export type ZavorthGovernedReadOnlyCapabilityRefreshSnapshot = {
 };
 
 export type ZavorthGovernedReadOnlyCapabilityProjectionUpdate = {
-  nativeContract: 'ZavorthZavorthControlCapabilityProjectionUpdate/v1';
+  nativeContract: 'ZavorthControlCapabilityProjectionUpdate/v1';
   id: string;
   rows: Array<{
     id: string;
@@ -366,7 +366,7 @@ function buildProjectionUpdate(
   snapshot: ZavorthGovernedReadOnlyCapabilityRefreshSnapshot,
 ): ZavorthGovernedReadOnlyCapabilityProjectionUpdate {
   return {
-    nativeContract: 'ZavorthZavorthControlCapabilityProjectionUpdate/v1',
+    nativeContract: 'ZavorthControlCapabilityProjectionUpdate/v1',
     id: `${idPrefix}:projection-update`,
     rows: snapshot.rows.map((row) => ({
       id: `${row.id}:projection`,

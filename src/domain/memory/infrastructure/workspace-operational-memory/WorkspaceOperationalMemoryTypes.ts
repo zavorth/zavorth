@@ -10,7 +10,30 @@ import type {
   WorkspaceTaskSubtype,
 } from '../../../../services/WorkspaceTaskKind.js';
 
+export interface PermissionMetadataMatch {
+  [key: string]: string | number | boolean | null | undefined;
+}
+
 export type MemoryConfidence = 'low' | 'medium' | 'high';
+
+export interface ApprovalHistoryEntry {
+  action?: string;
+  required_high_risk_pin?: boolean;
+  [key: string]: unknown;
+}
+
+export interface PermissionHistoryEntry {
+  action?: string;
+  [key: string]: unknown;
+}
+
+export type WorkspaceOperationalMemoryRecord = {
+  [K in keyof WorkspaceOperationalMemory]?: WorkspaceOperationalMemory[K];
+};
+
+export type PartialWorkspaceOperationalMemory =
+  | WorkspaceOperationalMemory
+  | Record<string, unknown>;
 
 export type TaskManagerLike = {
   getRecentTasks(limit?: number, userId?: string): Task[];
@@ -21,7 +44,7 @@ export type PermissionServiceLike = {
     executor?: string,
     kind?: string,
     workspace?: string | null,
-    metadataMatch?: Record<string, any>,
+    metadataMatch?: Record<string, string | number | boolean | null>,
   ): Promise<PermissionRequest[]>;
 };
 

@@ -15,30 +15,51 @@
 
 // ── Types ──
 
+/** Request body parsed from incoming JSON payload */
+export type RequestBody = Record<string, unknown>;
+
+/** API key metadata attached to a request */
+export interface ApiKeyInfo {
+  /** Key identifier or label */
+  id: string;
+  /** Key prefix for display */
+  prefix?: string;
+  /** Associated scopes or permissions */
+  scopes?: string[];
+  /** Any additional key metadata */
+  extra?: Record<string, unknown>;
+}
+
+/** Generic response object returned by chat handlers or plugins */
+export type ChatResponse = Record<string, unknown>;
+
+/** Shared metadata bag that plugins can read and extend */
+export type PluginMetadata = Record<string, unknown>;
+
 export interface PluginContext {
   /** Unique request ID */
   requestId: string;
   /** Request body (parsed JSON) */
-  body: any;
+  body: RequestBody;
   /** Model string */
   model: string;
   /** Provider (if resolved) */
   provider?: string;
   /** API key info */
-  apiKeyInfo?: any;
+  apiKeyInfo?: ApiKeyInfo;
   /** Arbitrary metadata plugins can share */
-  metadata: Record<string, any>;
+  metadata: PluginMetadata;
 }
 
 export interface PluginResult {
   /** If true, stop processing further plugins and return immediately */
   blocked?: boolean;
   /** Optional response to return if blocked */
-  response?: any;
+  response?: ChatResponse;
   /** Modified body (if any) */
-  body?: any;
+  body?: RequestBody;
   /** Modified metadata */
-  metadata?: Record<string, any>;
+  metadata?: PluginMetadata;
 }
 
 export interface Plugin {
@@ -51,9 +72,9 @@ export interface Plugin {
   /** Called before the chat handler */
   onRequest?: (ctx: PluginContext) => Promise<PluginResult | void> | PluginResult | void;
   /** Called after the chat handler */
-  onResponse?: (ctx: PluginContext, response: any) => Promise<any | void> | any | void;
+  onResponse?: (ctx: PluginContext, response: ChatResponse) => Promise<ChatResponse | void> | ChatResponse | void;
   /** Called on handler error */
-  onError?: (ctx: PluginContext, error: Error) => Promise<any | void> | any | void;
+  onError?: (ctx: PluginContext, error: Error) => Promise<ChatResponse | void> | ChatResponse | void;
 }
 
 // ── Registry ──
@@ -129,7 +150,7 @@ export function listPlugins(): Array<{
  */
 export async function runOnRequest(
   ctx: PluginContext
-): Promise<{ blocked: boolean; response?: any; ctx: PluginContext }> {
+): Promise<{ blocked: boolean; response?: ChatResponse; ctx: PluginContext }> {
   let currentCtx = { ...ctx };
 
   for (const plugin of _plugins) {
@@ -147,8 +168,9 @@ export async function runOnRequest(
           currentCtx.metadata = { ...currentCtx.metadata, ...result.metadata };
         }
       }
-    } catch (err: any) {
-      console.error(`[Plugins] onRequest error in "${plugin.name}": ${err.message}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[Plugins] onRequest error in "${plugin.name}": ${message}`);
       // Plugin errors don't block the pipeline by default
     }
   }
@@ -159,7 +181,7 @@ export async function runOnRequest(
 /**
  * Run all onResponse hooks. Returns the (possibly modified) response.
  */
-export async function runOnResponse(ctx: PluginContext, response: any): Promise<any> {
+export async function runOnResponse(ctx: PluginContext, response: ChatResponse): Promise<ChatResponse> {
   let currentResponse = response;
 
   for (const plugin of _plugins) {
@@ -170,8 +192,9 @@ export async function runOnResponse(ctx: PluginContext, response: any): Promise<
       if (modified !== undefined && modified !== null) {
         currentResponse = modified;
       }
-    } catch (err: any) {
-      console.error(`[Plugins] onResponse error in "${plugin.name}": ${err.message}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[Plugins] onResponse error in "${plugin.name}": ${message}`);
     }
   }
 
@@ -182,7 +205,7 @@ export async function runOnResponse(ctx: PluginContext, response: any): Promise<
  * Run all onError hooks. Returns a recovery response if any plugin handles it,
  * or null to let the error propagate.
  */
-export async function runOnError(ctx: PluginContext, error: Error): Promise<any | null> {
+export async function runOnError(ctx: PluginContext, error: Error): Promise<ChatResponse | null> {
   for (const plugin of _plugins) {
     if (!plugin.enabled || !plugin.onError) continue;
 
@@ -192,8 +215,9 @@ export async function runOnError(ctx: PluginContext, error: Error): Promise<any 
         console.log(`[Plugins] Error recovered by "${plugin.name}"`);
         return recovery;
       }
-    } catch (err: any) {
-      console.error(`[Plugins] onError error in "${plugin.name}": ${err.message}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[Plugins] onError error in "${plugin.name}": ${message}`);
     }
   }
 

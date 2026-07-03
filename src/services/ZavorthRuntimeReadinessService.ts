@@ -3,13 +3,13 @@ import path from 'node:path';
 
 import { config } from '../config/index.js';
 import type { ZavorthProviderReadinessMatrixSnapshot } from '../contracts/ZavorthProviderReadinessMatrixContract.js';
-import type { ZavorthZavorthControlExperienceHomeSnapshot } from '../contracts/ZavorthZavorthControlExperienceHomeContract.js';
+import type { ZavorthControlExperienceHomeSnapshot } from '../contracts/ZavorthControlExperienceHomeContract.js';
 import type { ZavorthApprovalActionCardsUxSnapshot } from '../contracts/ZavorthApprovalActionCardsUxContract.js';
 import type { ZavorthTransactionLiveExecutorGateContractSnapshot } from '../contracts/ZavorthTransactionLiveExecutorGateContract.js';
 import type { ZavorthMemoryPlaneSnapshot } from './ZavorthMemoryPlaneService.js';
 import { NaturalFirstRunClassifier } from '../runtime/agent/NaturalFirstRunClassifier.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
-import { ZavorthZavorthControlExperienceHomeService } from './ZavorthZavorthControlExperienceHomeService.js';
+import { ZavorthControlExperienceHomeService } from './ZavorthControlExperienceHomeService.js';
 import { ZavorthApprovalActionCardsUxService } from './ZavorthApprovalActionCardsUxService.js';
 import { ZavorthTransactionLiveExecutorGateService } from './ZavorthTransactionLiveExecutorGateService.js';
 import { ZavorthMemoryPlaneService } from './ZavorthMemoryPlaneService.js';
@@ -82,7 +82,7 @@ export type ZavorthRuntimeReadinessSnapshot = {
 };
 
 type ProviderReadinessLike = Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
-type ZavorthControlHomeLike = Pick<ZavorthZavorthControlExperienceHomeService, 'buildSnapshot'>;
+type ZavorthControlHomeLike = Pick<ZavorthControlExperienceHomeService, 'buildSnapshot'>;
 type ApprovalCardsLike = Pick<ZavorthApprovalActionCardsUxService, 'buildSnapshot'>;
 type TransactionGateLike = Pick<ZavorthTransactionLiveExecutorGateService, 'buildSnapshot'>;
 type SkillSourcesLike = Pick<SkillSourceRegistryService, 'readConfig'>;
@@ -130,7 +130,7 @@ export class ZavorthRuntimeReadinessService {
     this.existsSyncImpl = runtime.existsSync || fs.existsSync.bind(fs);
     this.naturalClassifier = runtime.naturalClassifier || new NaturalFirstRunClassifier();
     this.providerReadiness = runtime.providerReadiness || new ZavorthProviderReadinessMatrixService({ now: this.now });
-    this.zavorthControlHome = runtime.zavorthControlHome || new ZavorthZavorthControlExperienceHomeService({ now: this.now });
+    this.zavorthControlHome = runtime.zavorthControlHome || new ZavorthControlExperienceHomeService({ now: this.now });
     this.approvalCards = runtime.approvalCards || new ZavorthApprovalActionCardsUxService({ now: this.now });
     this.transactionLiveExecutorGate = runtime.transactionLiveExecutorGate || new ZavorthTransactionLiveExecutorGateService({ now: this.now });
     this.skillSources = runtime.skillSources || new SkillSourceRegistryService({ projectRoot: this.projectRoot });
@@ -291,7 +291,7 @@ export class ZavorthRuntimeReadinessService {
 
   private buildZavorthControlCheck(): ZavorthRuntimeReadinessCheck {
     return this.safeCheck('zavorthControl', 'ZavorthControl', true, 'zavorth go', () => {
-      const snapshot = this.zavorthControlHome.buildSnapshot() as ZavorthZavorthControlExperienceHomeSnapshot;
+      const snapshot = this.zavorthControlHome.buildSnapshot() as ZavorthControlExperienceHomeSnapshot;
       const groupedPageExists = this.existsSyncImpl(path.join(this.projectRoot, 'src', 'ai-gateway', 'app', '(zavorthControl)', 'zavorthControl', 'page.tsx'));
       const rootPageExists = this.existsSyncImpl(path.join(this.projectRoot, 'src', 'ai-gateway', 'app', 'zavorthControl', 'page.tsx'));
       const viteShellExists = this.existsSyncImpl(path.join(this.projectRoot, 'apps', 'zavorth-control-vite-shell', 'index.html'))

@@ -2,6 +2,17 @@ import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
 
+interface FeishuWebhookPayload extends Record<string, unknown> {
+  userId?: unknown;
+  chatId?: unknown;
+  text?: unknown;
+  messageId?: unknown;
+  event?: unknown;
+  message?: unknown;
+  sender?: unknown;
+  chat?: unknown;
+}
+
 export class FeishuGateway extends WebhookGateway {
   public readonly id = 'feishu';
   public readonly name = 'Feishu / Lark';
@@ -64,10 +75,11 @@ export class FeishuGateway extends WebhookGateway {
     const sender = event.sender && typeof event.sender === 'object'
       ? event.sender as Record<string, unknown>
       : null;
+    const payload = webhookPayload as FeishuWebhookPayload;
     const userId = String(
       sender?.sender_id
       || sender?.open_id
-      || (webhookPayload as any).userId
+      || payload.userId
       || '',
     ).trim();
 
@@ -76,7 +88,7 @@ export class FeishuGateway extends WebhookGateway {
       : null;
     const chatId = String(
       chat?.chat_id
-      || (webhookPayload as any).chatId
+      || payload.chatId
       || 'feishu',
     ).trim();
 
@@ -91,14 +103,14 @@ export class FeishuGateway extends WebhookGateway {
     } catch {
       rawText = String(
         message?.content
-        || (webhookPayload as any).text
+        || payload.text
         || '',
       ).trim();
     }
 
     const messageId = String(
       message?.message_id
-      || (webhookPayload as any).messageId
+      || payload.messageId
       || '',
     ).trim() || null;
 
@@ -143,8 +155,8 @@ export class FeishuGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`Feishu send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      this.recordError(`Feishu send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }

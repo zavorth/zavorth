@@ -1,7 +1,12 @@
-import type { WorkspaceOperationalMemory } from './WorkspaceOperationalMemoryTypes.js';
+import type {
+  ApprovedPolicyAggregate,
+  PartialWorkspaceOperationalMemory,
+  RouteOutcomeAggregate,
+  WorkspaceOperationalMemory,
+} from './WorkspaceOperationalMemoryTypes.js';
 
 export class WorkspaceOperationalMemoryNotesBuilder {
-  public buildPlanNotes(memory: WorkspaceOperationalMemory | Record<string, any> | null | undefined): string[] {
+  public buildPlanNotes(memory: WorkspaceOperationalMemory | PartialWorkspaceOperationalMemory | null | undefined): string[] {
     if (!memory) {
       return [];
     }
@@ -17,7 +22,9 @@ export class WorkspaceOperationalMemoryNotesBuilder {
       ? memory.task_subtype_llm_recommendations
       : [];
     const approvedPaths = Array.isArray(memory.approved_paths) ? memory.approved_paths : [];
-    const approvedPolicies = Array.isArray((memory as any).approved_policies) ? (memory as any).approved_policies : [];
+    const approvedPolicies = Array.isArray((memory as PartialWorkspaceOperationalMemory).approved_policies)
+      ? (memory as PartialWorkspaceOperationalMemory).approved_policies as ApprovedPolicyAggregate[]
+      : [];
     const autonomousOutcomes = Array.isArray(memory.autonomous_outcomes) ? memory.autonomous_outcomes : [];
     const activeFocuses = Array.isArray(memory.active_focuses) ? memory.active_focuses : [];
     const recentArtifacts = Array.isArray(memory.recent_artifacts) ? memory.recent_artifacts : [];
@@ -35,7 +42,9 @@ export class WorkspaceOperationalMemoryNotesBuilder {
     const approvalFrictionRecommendations = Array.isArray(memory.approval_friction_recommendations)
       ? memory.approval_friction_recommendations
       : [];
-    const routeOutcomes = Array.isArray((memory as any).route_outcomes) ? (memory as any).route_outcomes : [];
+    const routeOutcomes = Array.isArray((memory as PartialWorkspaceOperationalMemory).route_outcomes)
+      ? (memory as PartialWorkspaceOperationalMemory).route_outcomes as RouteOutcomeAggregate[]
+      : [];
     const continuityRecommendations = Array.isArray(memory.continuity_recommendations)
       ? memory.continuity_recommendations
       : [];
@@ -119,7 +128,7 @@ export class WorkspaceOperationalMemoryNotesBuilder {
     }
     if (approvedPolicies.length > 0) {
       notes.push(
-        `Politicas aprovadas recentes: ${approvedPolicies.slice(0, 3).map((item: any) => `${item.executor}/${item.kind}`).join(', ')}.`,
+        `Politicas aprovadas recentes: ${approvedPolicies.slice(0, 3).map((item: ApprovedPolicyAggregate) => `${item.executor}/${item.kind}`).join(', ')}.`,
       );
     }
     if (activeFocuses[0]) {

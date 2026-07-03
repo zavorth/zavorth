@@ -136,8 +136,8 @@ export class MatrixGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) {
-      this.recordError(`Matrix send failed: ${error?.message || error}`);
+    } catch (error: unknown) {
+      this.recordError(`Matrix send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

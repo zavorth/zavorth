@@ -6,7 +6,10 @@ import { DndService } from './DndService.js';
 
 const SPLIT_THRESHOLD = 3800;
 
-type ReplyMarkup = InlineKeyboard | Record<string, any> | undefined;
+// Telegram reply markup types (ForceReply, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup)
+type TelegramReplyMarkup = Record<string, unknown>;
+
+type ReplyMarkup = InlineKeyboard | TelegramReplyMarkup | undefined;
 
 type SmartOutputOptions = {
   parse_mode?: 'Markdown' | 'HTML';
@@ -15,14 +18,30 @@ type SmartOutputOptions = {
   includeDeleteAction?: boolean;
 };
 
+type SendMessageOptions = {
+  parse_mode?: 'Markdown' | 'HTML';
+  reply_markup?: ReplyMarkup;
+  caption?: string;
+};
+
+type SendDocumentOptions = {
+  caption?: string;
+  reply_markup?: ReplyMarkup;
+};
+
 type BotApiLike = {
-  sendMessage(chatId: string | number, text: string, options?: Record<string, any>): Promise<unknown>;
-  sendDocument?(chatId: string | number, document: InputFile, options?: Record<string, any>): Promise<unknown>;
+  sendMessage(chatId: string | number, text: string, options?: SendMessageOptions): Promise<unknown>;
+  sendDocument?(chatId: string | number, document: InputFile, options?: SendDocumentOptions): Promise<unknown>;
 };
 
 type SendTarget = {
-  sendText(text: string, options?: Record<string, any>): Promise<unknown>;
-  sendDocument?: (filePath: string, fileName: string, options?: Record<string, any>) => Promise<unknown>;
+  sendText(text: string, options?: SendMessageOptions): Promise<unknown>;
+  sendDocument?: (filePath: string, fileName: string, options?: SendDocumentOptions) => Promise<unknown>;
+};
+
+// Extended Context that may have replyWithDocument (grammy bot context)
+type ExtendedContext = Context & {
+  replyWithDocument?: (document: InputFile, options?: SendDocumentOptions) => Promise<unknown>;
 };
 
 export class SmartOutputService {
@@ -33,7 +52,7 @@ export class SmartOutputService {
   ): Promise<void> {
     const fullText = options?.prefix ? `${options.prefix}\n\n${text}` : text;
     
-    // NOVO: Verifica DND (Modo Nao Perturbe) para mensagens do chatbot
+    // Check DND (Do Not Disturb) for chatbot messages
     if (ctx.chat?.id) {
        const isQueued = await DndService.queueMessageOrSend(null, ctx.chat.id, fullText);
        if (isQueued) return;
@@ -47,19 +66,21 @@ export class SmartOutputService {
         fullText,
         {
           parse_mode: options?.parse_mode,
-          reply_markup: replyMarkup as any,
+          reply_markup: replyMarkup as TelegramReplyMarkup,
         },
       );
       return;
     }
 
+    const extendedCtx = ctx as ExtendedContext;
+
     await this.sendLongText(
       {
         sendText: (nextText, sendOptions) => ctx.reply(nextText, sendOptions),
         sendDocument:
-          typeof (ctx as any).replyWithDocument === 'function'
+          typeof extendedCtx.replyWithDocument === 'function'
             ? (filePath, fileName, sendOptions) =>
-                (ctx as any).replyWithDocument(new InputFile(filePath, fileName), sendOptions)
+                extendedCtx.replyWithDocument!(new InputFile(filePath, fileName), sendOptions)
             : undefined,
       },
       fullText,
@@ -77,7 +98,7 @@ export class SmartOutputService {
   ): Promise<void> {
     const fullText = options?.prefix ? `${options.prefix}\n\n${text}` : text;
 
-    // NOVO: Verifica DND (Modo Nao Perturbe) para envio de background
+    // Check DND (Do Not Disturb) for background sending
     const isQueued = await DndService.queueMessageOrSend(botApi, chatId, fullText);
     if (isQueued) return;
 
@@ -130,14 +151,14 @@ export class SmartOutputService {
   }
 
   private static async sendTextWithFormattingFallback(
-    sendText: (text: string, options?: Record<string, any>) => Promise<unknown>,
+    sendText: (text: string, options?: SendMessageOptions) => Promise<unknown>,
     text: string,
-    options?: Record<string, any>,
+    options?: SendMessageOptions,
   ): Promise<void> {
     try {
       await sendText(text, options);
       return;
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (!this.shouldRetryWithoutParseMode(error, options)) {
         throw error;
       }
@@ -148,13 +169,14 @@ export class SmartOutputService {
     await sendText(text, fallbackOptions);
   }
 
-  private static shouldRetryWithoutParseMode(error: any, options?: Record<string, any>): boolean {
+  private static shouldRetryWithoutParseMode(error: unknown, options?: SendMessageOptions): boolean {
     const parseMode = String(options?.parse_mode || '').trim();
     if (!parseMode) {
       return false;
     }
 
-    const message = String(error?.message || error || '').toLowerCase();
+    const errorObj = error as { message?: string } | string;
+    const message = String(typeof errorObj === 'object' ? errorObj?.message : errorObj || '').toLowerCase();
     return message.includes("can't parse entities") || message.includes('cant parse entities');
   }
 

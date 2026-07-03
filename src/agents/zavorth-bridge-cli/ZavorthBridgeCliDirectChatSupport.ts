@@ -1,14 +1,57 @@
 import { config } from '../../config/index.js';
 import { normalizeZavorthBridgeUiText } from '../../services/ZavorthBridgeUiResponseHeuristics.js';
 
+interface UiStateSnapshot {
+  ok?: boolean;
+  status?: string;
+  responseText?: string;
+  hasPermissionPrompt?: boolean;
+}
+
+interface AutomationSurfaceDiagnostics {
+  homeScreenAfter?: boolean;
+  homeScreenBefore?: boolean;
+  hasInputBar?: boolean;
+  promptSurfaceReady?: boolean;
+}
+
+interface AutomationSurface {
+  ok?: boolean;
+  verified?: boolean;
+  diagnostics?: AutomationSurfaceDiagnostics;
+  message?: string;
+}
+
+interface CompanionBridge {
+  supports: (capability: string) => Promise<boolean>;
+  executeCommand: (command: string, args: string[], taskId: string, timeoutMs: number, targetInstanceId: string, tolerateMissing?: boolean) => Promise<unknown>;
+  sendAgentPrompt: (prompt: string, taskId: string, timeoutMs: number, targetInstanceId: string) => Promise<unknown>;
+  resetSession?: (taskId: string, timeoutMs: number, targetInstanceId: string) => Promise<unknown>;
+  startNewConversation?: (taskId: string, timeoutMs: number, targetInstanceId: string) => Promise<unknown>;
+  closeAllEditors?: (taskId: string, timeoutMs: number, targetInstanceId: string) => Promise<unknown>;
+}
+
+interface WindowAutomator {
+  focusWindow: (delayMs: number, processId: number) => Promise<unknown>;
+  ensureConversationSurface: (delayMs: number, processId: number) => Promise<AutomationSurface | null>;
+  pasteAndSubmit: (prompt: string, initialDelayMs: number, targetPid: number) => Promise<unknown>;
+  readLatestResponse?: (sessionId: number, targetPid: number) => Promise<UiStateSnapshot | null>;
+  rejectVisibleStep?: (sessionId: number, targetPid: number) => Promise<unknown>;
+  waitForPermissionPromptToClear?: (targetPid: number, maxAttempts: number, delayMs: number) => Promise<boolean>;
+}
+
+interface DirectChatError extends Error {
+  code: string;
+}
+
 export async function deliverPromptToLiveSession(input: {
   prompt: string;
   taskId: string;
   targetInstanceId: string;
   targetPid: number;
-  readUiStateSnapshot: (targetPid: number) => Promise<any>;
+  readUiStateSnapshot: (targetPid: number) => Promise<UiStateSnapshot>;
   tryDeliverPromptViaCompanionBridge: (prompt: string, taskId: string, targetInstanceId: string) => Promise<string | null>;
-  waitForPromptSubmissionEffect: (targetPid: number, baselineUiState: any) => Promise<boolean>;
+  waitForPromptSubmissionEffect: (targetPid: number, baselineUiState: UiStateSnapshot) => Promise<boolean>;
   prepareDirectChatSurface: (taskId: string, targetInstanceId: string, targetPid: number) => Promise<{ deliveryLabel: string; initialDelayMs: number }>;
   windowAutomator: {
     pasteAndSubmit: (prompt: string, initialDelayMs: number, targetPid: number) => Promise<unknown>;
@@ -37,11 +80,7 @@ export async function tryDeliverPromptViaCompanionBridge(input: {
   prompt: string;
   taskId: string;
   targetInstanceId: string;
-  companionBridge: {
-    supports: (capability: string) => Promise<boolean>;
-    executeCommand: (command: string, args: any[], taskId: string, timeoutMs: number, targetInstanceId: string, tolerateMissing?: boolean) => Promise<unknown>;
-    sendAgentPrompt: (prompt: string, taskId: string, timeoutMs: number, targetInstanceId: string) => Promise<unknown>;
-  };
+  companionBridge: CompanionBridge;
 }): Promise<string | null> {
   if (!(await input.companionBridge.supports('canSendAgentPrompt'))) {
     return null;
@@ -74,8 +113,8 @@ export function normalizeUiProbeStatus(value: string | null | undefined): string
 
 export async function waitForPromptSubmissionEffect(input: {
   targetPid: number;
-  baselineUiState: any;
-  readUiStateSnapshot: (targetPid: number) => Promise<any>;
+  baselineUiState: UiStateSnapshot;
+  readUiStateSnapshot: (targetPid: number) => Promise<UiStateSnapshot>;
 }): Promise<boolean> {
   if (!config.zavorthBridgeAutomationEnabled || input.targetPid <= 0) {
     return true;
@@ -120,8 +159,8 @@ export async function clearBlockingPermissionPrompt(input: {
   taskId: string;
   targetInstanceId: string;
   targetPid: number;
-  windowAutomator: any;
-  companionBridge: any;
+  windowAutomator: WindowAutomator;
+  companionBridge: CompanionBridge;
 }): Promise<string | null> {
   if (typeof input.windowAutomator.readLatestResponse !== 'function') {
     return null;
@@ -173,7 +212,7 @@ export async function clearBlockingArtifactEditor(input: {
   taskId: string;
   targetInstanceId: string;
   activeEditor: string | null | undefined;
-  companionBridge: any;
+  companionBridge: CompanionBridge;
 }): Promise<string | null> {
   if (!isArtifactEditorBlockingDirectChat(input.activeEditor)) {
     return null;
@@ -201,7 +240,7 @@ export async function prepareDirectChatSurface(input: {
   taskId: string;
   targetInstanceId: string;
   targetPid: number;
-  companionBridge: any;
+  companionBridge: CompanionBridge;
   tryPrepareAutomationSurface: (processId: number, focusDelayMs: number, surfaceDelayMs: number) => Promise<{ ready: boolean; failureMessage: string | null }>;
 }): Promise<{ deliveryLabel: string; initialDelayMs: number }> {
   if (!config.zavorthBridgeAutomationEnabled) {
@@ -293,7 +332,7 @@ export async function tryPrepareAutomationSurface(input: {
   processId: number;
   focusDelayMs: number;
   surfaceDelayMs: number;
-  windowAutomator: any;
+  windowAutomator: WindowAutomator;
 }): Promise<{ ready: boolean; failureMessage: string | null }> {
   await input.windowAutomator.focusWindow(input.focusDelayMs, input.processId).catch(() => undefined);
   const surface = await input.windowAutomator.ensureConversationSurface(input.surfaceDelayMs, input.processId).catch(() => null);
@@ -322,7 +361,7 @@ export async function tryPrepareAutomationSurface(input: {
   };
 }
 
-export function isAutomationSurfaceReady(surface: any): boolean {
+export function isAutomationSurfaceReady(surface: AutomationSurface | null): boolean {
   if (!surface?.ok || surface.verified === false) {
     return false;
   }
@@ -339,11 +378,11 @@ export function isAutomationSurfaceReady(surface: any): boolean {
   return true;
 }
 
-export function buildDirectChatUnavailableError(message: string): Error {
+export function buildDirectChatUnavailableError(message: string): DirectChatError {
   const error = new Error(
     `${message} Eu nao vou usar envio cego pela ponte nesse estado porque isso esta gerando respostas falsas ou contaminadas.`,
-  );
-  (error as any).code = 'direct_chat_unavailable';
+  ) as DirectChatError;
+  error.code = 'direct_chat_unavailable';
   error.name = 'ZavorthBridgeDirectChatUnavailableError';
   return error;
 }

@@ -1,5 +1,5 @@
-import type { ZavorthZavorthControlExperienceHomeSnapshot } from '../contracts/ZavorthZavorthControlExperienceHomeContract.js';
-import { ZavorthZavorthControlExperienceHomeService } from './ZavorthZavorthControlExperienceHomeService.js';
+import type { ZavorthControlExperienceHomeSnapshot } from '../contracts/ZavorthControlExperienceHomeContract.js';
+import { ZavorthControlExperienceHomeService } from './ZavorthControlExperienceHomeService.js';
 import { ZavorthDailyUseScenarioTestService, type ZavorthDailyUseScenarioTestSnapshot } from './ZavorthDailyUseScenarioTestService.js';
 import { ZavorthReadyToGoService, type ZavorthReadyToGoSnapshot, type ZavorthReadyToGoStatus } from './ZavorthReadyToGoService.js';
 import { ZavorthTrustApprovalUxFinalService, type ZavorthTrustApprovalUxFinalSnapshot } from './ZavorthTrustApprovalUxFinalService.js';
@@ -68,14 +68,14 @@ export type ZavorthOneCommandOperatorCheckSnapshot = {
   source: {
     readyToGo: Pick<ZavorthReadyToGoSnapshot, 'generatedAt' | 'status' | 'remoteReady' | 'localReady' | 'summary'>;
     dailyUse: Pick<ZavorthDailyUseScenarioTestSnapshot, 'generatedAt' | 'status' | 'summary'>;
-    zavorthControl: Pick<ZavorthZavorthControlExperienceHomeSnapshot, 'generatedAt' | 'surface' | 'permissionPanel' | 'safety'>;
+    zavorthControl: Pick<ZavorthControlExperienceHomeSnapshot, 'generatedAt' | 'surface' | 'permissionPanel' | 'safety'>;
     trust: Pick<ZavorthTrustApprovalUxFinalSnapshot, 'generatedAt' | 'status' | 'summary' | 'safety'>;
   };
 };
 
 type ReadyToGoLike = Pick<ZavorthReadyToGoService, 'buildSnapshot'>;
 type DailyUseLike = Pick<ZavorthDailyUseScenarioTestService, 'buildSnapshot'>;
-type ZavorthControlLike = Pick<ZavorthZavorthControlExperienceHomeService, 'buildSnapshot'>;
+type ZavorthControlLike = Pick<ZavorthControlExperienceHomeService, 'buildSnapshot'>;
 type TrustLike = Pick<ZavorthTrustApprovalUxFinalService, 'buildSnapshot'>;
 
 export type ZavorthOneCommandOperatorCheckRuntime = {
@@ -97,7 +97,7 @@ export class ZavorthOneCommandOperatorCheckService {
     this.now = runtime.now || (() => new Date());
     this.readyToGo = runtime.readyToGo || new ZavorthReadyToGoService({ now: this.now });
     this.dailyUse = runtime.dailyUse || new ZavorthDailyUseScenarioTestService({ now: this.now });
-    this.zavorthControl = runtime.zavorthControl || new ZavorthZavorthControlExperienceHomeService({ now: this.now });
+    this.zavorthControl = runtime.zavorthControl || new ZavorthControlExperienceHomeService({ now: this.now });
     this.trust = runtime.trust || new ZavorthTrustApprovalUxFinalService({ now: this.now });
   }
 
@@ -256,7 +256,7 @@ function buildDailyUseArea(snapshot: ZavorthDailyUseScenarioTestSnapshot): Zavor
   };
 }
 
-function buildZavorthControlPermissionArea(snapshot: ZavorthZavorthControlExperienceHomeSnapshot): ZavorthOneCommandOperatorCheckArea {
+function buildZavorthControlPermissionArea(snapshot: ZavorthControlExperienceHomeSnapshot): ZavorthOneCommandOperatorCheckArea {
   const permissionPanel = snapshot.permissionPanel;
   const itemIds = Array.isArray(permissionPanel?.items)
     ? permissionPanel.items.map((item) => item.id)
@@ -299,7 +299,7 @@ function buildTrustArea(snapshot: ZavorthTrustApprovalUxFinalSnapshot): ZavorthO
 function buildSafetyArea(input: {
   readyToGo: ZavorthReadyToGoSnapshot;
   dailyUse: ZavorthDailyUseScenarioTestSnapshot;
-  zavorthControl: ZavorthZavorthControlExperienceHomeSnapshot;
+  zavorthControl: ZavorthControlExperienceHomeSnapshot;
   trust: ZavorthTrustApprovalUxFinalSnapshot;
   live: boolean;
 }): ZavorthOneCommandOperatorCheckArea {

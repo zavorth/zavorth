@@ -14,7 +14,7 @@ import type {
   ExternalAgentLiveReadinessCapabilityRowKind,
 } from './ExternalAgentLiveReadinessAssimilationPack.js';
 import type {
-  ZavorthZavorthControlCapabilityView,
+  ZavorthControlCapabilityView,
   ExternalAgentZavorthControlLiveAssimilationNormalization,
 } from './ExternalAgentZavorthControlLiveAssimilation.js';
 
@@ -225,7 +225,7 @@ export type ZavorthExternalActionDispatchDesignOptions<TRuntimeId extends string
 function findCapability(
   assimilation: ExternalAgentZavorthControlLiveAssimilationNormalization,
   category: ExternalAgentLiveReadinessCapabilityRowKind,
-): ZavorthZavorthControlCapabilityView {
+): ZavorthControlCapabilityView {
   const capability = assimilation.viewModel.capabilities.find((row) => row.category === category);
 
   if (!capability) {

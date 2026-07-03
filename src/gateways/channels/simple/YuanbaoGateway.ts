@@ -55,24 +55,24 @@ export class YuanbaoGateway extends WebhookGateway {
     fields?: Record<string, unknown>;
   } | null {
     const userId = String(
-      (webhookPayload as any).userId
-      || (webhookPayload as any).sender
+      webhookPayload['userId']
+      || webhookPayload['sender']
       || '',
     ).trim();
     const chatId = String(
-      (webhookPayload as any).chatId
-      || (webhookPayload as any).conversationId
+      webhookPayload['chatId']
+      || webhookPayload['conversationId']
       || 'yuanbao',
     ).trim();
     const rawText = String(
-      (webhookPayload as any).text
-      || (webhookPayload as any).content
-      || (webhookPayload as any).rawText
+      webhookPayload['text']
+      || webhookPayload['content']
+      || webhookPayload['rawText']
       || '',
     ).trim();
     const messageId = String(
-      (webhookPayload as any).messageId
-      || (webhookPayload as any).msgId
+      webhookPayload['messageId']
+      || webhookPayload['msgId']
       || '',
     ).trim() || null;
 
