@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import type { WebAppSupervisionRouteHandler } from './types.js';
 import { getRequestedBy } from './helpers.js';
 import {
-import { logger } from '../logger.js';
   ZavorthMobileSupervisionService,
 } from '../../../../../services/ZavorthMobileSupervisionService.js';
 

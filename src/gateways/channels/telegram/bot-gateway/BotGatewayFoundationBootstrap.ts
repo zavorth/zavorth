@@ -43,9 +43,30 @@ import { SupervisedRuntimeNotificationService } from '../../../../services/Super
 import { TelegramChannelContractService } from '../../../../gateways/channels/telegram/TelegramChannelContractService.js';
 import { createTelegramHoneypotMonitor } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayHoneypotBootstrap.js';
 import type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayBootstrapTypes.js';
+import type { BotGatewaySupportRuntime } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js';
+import type { ContextEngine } from '../../../../context-engine/ContextEngine.js';
+
+interface BotGatewayFoundationHost extends Partial<BotGatewaySupportRuntime> {
+  remoteModeManager?: RemoteModeManager;
+  zavorthBridgeControlService?: ZavorthBridgeControlService;
+  zavorthBridgePromptService?: ZavorthBridgePromptService;
+  contextEngine?: ContextEngine | null;
+  executionGateway?: ExecutionGateway;
+  auditLogger?: AuditLogger;
+  wslControl?: WslControlService;
+  systemCleanup?: SystemCleanupService;
+  permissionService?: PermissionService;
+  honeypot?: { start: () => void };
+  funGamesService?: FunGamesService;
+  welcomeService?: WelcomeService;
+  antiSpamService?: AntiSpamService;
+  messageFilterService?: MessageFilterService;
+  warnService?: WarnService;
+  groupStatsService?: GroupStatsService;
+}
 
 export function initializeBotGatewayFoundation(
-  gateway: any,
+  gateway: BotGatewayFoundationHost,
   token: string,
   logRepo: LogRepository,
   runtimeComposition?: RuntimeCompositionService,
@@ -115,7 +136,7 @@ export function initializeBotGatewayFoundation(
   gateway.auditLogger = new AuditLogger();
   gateway.auditLogger
     .init()
-    .catch((error: any) =>
+    .catch((error: Error) =>
       logger.error('AuditLogger init error:', error.message),
     );
 

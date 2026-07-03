@@ -4,7 +4,6 @@ import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import {
-import { logger } from '../logger.js';
   SelfModificationApplyResult,
   SelfModificationCommandService,
   SelfModificationPreviewResult,

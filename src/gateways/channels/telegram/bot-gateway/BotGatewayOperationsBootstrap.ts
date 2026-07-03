@@ -17,16 +17,39 @@ import { SessionContinuityService } from "../../../../runtime/context/SessionCon
 import { WorkflowRunService } from "../../../../runtime/workflows/WorkflowRunService.js";
 import type { LegacyUnifiedGatewayAdapter } from "../../../../context-engine/LegacyUnifiedGatewayAdapter.js";
 import type { ZavorthAgentGateway } from "../../../../runtime/agent/index.js";
+import type { McpRuntimeService } from "../../../../mcp/McpRuntimeService.js";
+import type { McpCapabilityControlPlaneService } from "../../../../services/McpCapabilityControlPlaneService.js";
+import type { PermissionService } from "../../../../services/PermissionService.js";
+import type { RuntimeDiagnosticsService } from "../../../../services/RuntimeDiagnosticsService.js";
+import type { EchoOutputStageService } from "../../../../services/EchoOutputStageService.js";
+import type { SecurityLockService } from "../../../../services/SecurityLockService.js";
+import type { AuditLogger } from "../../../../monitoring/AuditLogger.js";
+import type { WslControlService } from "../../../../services/WslControlService.js";
+import type { ExecutionGateway } from "../../../../execution/ExecutionGateway.js";
+import type { ZavorthControlService } from "../../../../services/ZavorthControlService.js";
+import type { DailyReportService } from "../../../../services/DailyReportService.js";
 
 type TelegramOperationsRuntimeOptions = {
-  mcpRuntimeService?: any;
-  mcpCapabilityControlPlaneService?: any;
+  mcpRuntimeService?: McpRuntimeService;
+  mcpCapabilityControlPlaneService?: McpCapabilityControlPlaneService;
   legacyUnifiedGateway?: Pick<LegacyUnifiedGatewayAdapter, 'handleEvent'> | null;
   agentGateway?: Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot'> | null;
 };
 
+type BotGatewayOperationsTarget = {
+  permissionService: PermissionService;
+  runtimeDiagnostics: RuntimeDiagnosticsService;
+  echoOutputStage: EchoOutputStageService | null;
+  securityLock: SecurityLockService;
+  auditLogger: AuditLogger;
+  wslControl: WslControlService;
+  executionGateway: ExecutionGateway;
+  zavorthControlService: ZavorthControlService;
+  dailyReportService: DailyReportService;
+};
+
 export function initializeTelegramOperationsServices(
-  gateway: any,
+  gateway: BotGatewayOperationsTarget,
   taskManager: TaskManager,
   logRepo: LogRepository,
   runtimeOptions?: TelegramOperationsRuntimeOptions,

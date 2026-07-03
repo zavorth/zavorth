@@ -1,8 +1,8 @@
-import { buildNexusWorkbench } from './zavorthControlZavorthControlNexusWorkbenchAdapter';
-import { mapZavorthControlRunObservatory } from './zavorthControlZavorthControlRunObservatory';
+import { buildNexusWorkbench } from './ZavorthControlNexusWorkbenchAdapter';
+import { mapZavorthControlRunObservatory } from './ZavorthControlRunObservatory';
 import type {
   ZavorthControlAgentTeamCompilerSnapshot,
-} from '../contracts/zavorthControlZavorthControlContracts';
+} from '../contracts/ZavorthControlContracts';
 
 export const ZAVORTH_CONTROL_RUNTIME_CONTRACT_VERSION = 'zavorthControl-runtime-contract/v1' as const;
 

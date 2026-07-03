@@ -22,6 +22,50 @@ export type TelegramPermissionCommandPolicy = {
   permission_id?: string | null;
 };
 
+export interface PermissionPolicyAssignments {
+  kind?: string;
+  access_level?: PermissionAccessLevel | string;
+  access?: string;
+  mode?: string;
+  match_type?: PermissionCommandMatchType | string;
+  match?: string;
+  rule?: string;
+  [key: string]: unknown;
+}
+
+export interface PermissionPolicyPatch {
+  access_level?: PermissionAccessLevel | string;
+  access?: string;
+  mode?: string;
+  match_type?: PermissionCommandMatchType | string;
+  match?: string;
+  rule?: string;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface PermissionPolicyMetadata {
+  access_level?: PermissionAccessLevel;
+  match_type?: PermissionCommandMatchType;
+  [key: string]: unknown;
+}
+
+export interface RawPermissionPolicy {
+  path?: string;
+  command?: string;
+  resolved_value?: string;
+  requested_value?: string;
+  access_level?: PermissionAccessLevel | string;
+  match_type?: PermissionCommandMatchType | string;
+  scope?: string;
+  permission_id?: string | null;
+  metadata?: {
+    access_level?: PermissionAccessLevel | string;
+    match_type?: PermissionCommandMatchType | string;
+  };
+  [key: string]: unknown;
+}
+
 export class TelegramPermissionPolicyService {
   private readonly descriptorService: TelegramPermissionDescriptorService;
 
@@ -117,10 +161,10 @@ export class TelegramPermissionPolicyService {
   }
 
   public extractPermissionPolicyMetadata(
-    assignments: Record<string, any>,
+    assignments: PermissionPolicyAssignments,
     kind?: string | null,
-  ): Record<string, any> {
-    const metadata: Record<string, any> = {};
+  ): PermissionPolicyMetadata {
+    const metadata: PermissionPolicyMetadata = {};
     const normalizedKind = String(kind || assignments.kind || '').trim().toLowerCase();
 
     if (normalizedKind === 'workspace_access') {
@@ -140,8 +184,8 @@ export class TelegramPermissionPolicyService {
 
   public applyPermissionPolicyHints(
     permission: PermissionRequest,
-    patch: Record<string, any>,
-  ): Record<string, any> {
+    patch: PermissionPolicyPatch,
+  ): PermissionPolicyPatch {
     const nextPatch = { ...(patch || {}) };
     const metadata = { ...(nextPatch.metadata || {}) };
 
@@ -202,7 +246,7 @@ export class TelegramPermissionPolicyService {
   }
 
   public normalizePathPolicy(policy: unknown): TelegramPermissionPathPolicy | null {
-    const p = policy as Record<string, any> | null | undefined;
+    const p = policy as RawPermissionPolicy | null | undefined;
     const pathValue = String(p?.path || p?.resolved_value || p?.requested_value || '').trim();
     if (!pathValue) {
       return null;
@@ -219,7 +263,7 @@ export class TelegramPermissionPolicyService {
   }
 
   public normalizeCommandPolicy(policy: unknown): TelegramPermissionCommandPolicy | null {
-    const p = policy as Record<string, any> | null | undefined;
+    const p = policy as RawPermissionPolicy | null | undefined;
     const commandValue = String(p?.command || p?.resolved_value || p?.requested_value || '').trim();
     if (!commandValue) {
       return null;

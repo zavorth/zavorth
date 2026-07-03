@@ -73,8 +73,8 @@ export class SharedSurfaceSessionNodeCommandPack {
           ...this.resolveSessionTargetFromArgs(ctx, args),
         }),
       );
-    } catch (error: any) {
-      await ctx.reply(error?.message || 'Nao consegui montar o session plane agora.');
+    } catch (error: unknown) {
+      await ctx.reply(error instanceof Error ? error.message : 'Nao consegui montar o session plane agora.');
     }
   }
 
@@ -91,8 +91,8 @@ export class SharedSurfaceSessionNodeCommandPack {
           ...this.resolveSessionTargetFromArgs(ctx, args),
         }),
       );
-    } catch (error: any) {
-      await ctx.reply(error?.message || 'Nao consegui ler o historico dessa sessao agora.');
+    } catch (error: unknown) {
+      await ctx.reply(error instanceof Error ? error.message : 'Nao consegui ler o historico dessa sessao agora.');
     }
   }
 
@@ -131,8 +131,8 @@ export class SharedSurfaceSessionNodeCommandPack {
           result.snapshot?.handoff?.operatorSummary || result.snapshot?.replay?.operatorSummary || 'Sem resumo adicional apos o envio.',
         ].join('\n'),
       );
-    } catch (error: any) {
-      await ctx.reply(error?.message || 'Nao consegui despachar a mensagem para essa sessao agora.');
+    } catch (error: unknown) {
+      await ctx.reply(error instanceof Error ? error.message : 'Nao consegui despachar a mensagem para essa sessao agora.');
     }
   }
 
@@ -161,8 +161,8 @@ export class SharedSurfaceSessionNodeCommandPack {
           `Handoff: ${result.handoffCommand}.`,
         ].join('\n'),
       );
-    } catch (error: any) {
-      await ctx.reply(error?.message || 'Nao consegui abrir a sessao derivada agora.');
+    } catch (error: unknown) {
+      await ctx.reply(error instanceof Error ? error.message : 'Nao consegui abrir a sessao derivada agora.');
     }
   }
 

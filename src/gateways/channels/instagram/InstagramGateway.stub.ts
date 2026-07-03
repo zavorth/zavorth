@@ -47,6 +47,47 @@ export type InstagramGatewayStatusSnapshot = {
   updatedAt: string;
 };
 
+export interface InstagramApiResponse {
+  recipient_id?: string;
+  message_id?: string;
+  ok?: boolean;
+  error?: {
+    message?: string;
+    type?: string;
+    code?: number;
+  } | string;
+}
+
+export interface InstagramWebhookMessage {
+  sender?: { id?: string };
+  recipient?: { id?: string };
+  message?: {
+    mid?: string;
+    text?: string;
+    [key: string]: unknown;
+  };
+  postback?: {
+    title?: string;
+    payload?: string;
+    [key: string]: unknown;
+  };
+  timestamp?: number;
+  [key: string]: unknown;
+}
+
+export interface InstagramWebhookEntry {
+  id?: string;
+  time?: number;
+  messaging?: InstagramWebhookMessage[];
+  [key: string]: unknown;
+}
+
+export interface InstagramWebhookBody {
+  object?: string;
+  entry?: InstagramWebhookEntry[];
+  [key: string]: unknown;
+}
+
 export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
   public readonly platform: PlatformKey = 'instagram';
   public readonly supportsRoleAwareBroadcast = false;
@@ -328,7 +369,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     });
   }
 
-  private async sendMetaTextMessage(recipientId: string, text: string): Promise<Record<string, any>> {
+  private async sendMetaTextMessage(recipientId: string, text: string): Promise<InstagramApiResponse> {
     const businessAccountId = String(config.instagramBusinessAccountId || '').trim();
     const accessToken = String(config.instagramAccessToken || '').trim();
     const apiVersion = String(config.instagramGraphApiVersion || 'v20.0').trim() || 'v20.0';
@@ -362,9 +403,9 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
       },
     );
 
-    let responsePayload: Record<string, any> | null = null;
+    let responsePayload: InstagramApiResponse | null = null;
     try {
-      responsePayload = await response.json() as Record<string, any>;
+      responsePayload = await response.json() as InstagramApiResponse;
     } catch {
       responsePayload = null;
     }
@@ -376,47 +417,45 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     return responsePayload || { ok: response.ok };
   }
 
-  private extractInstagramMessages(body: Record<string, unknown>): Record<string, any>[] {
+  private extractInstagramMessages(body: InstagramWebhookBody): InstagramWebhookMessage[] {
     const entries = Array.isArray(body.entry) ? body.entry : [];
-    const messages: Record<string, any>[] = [];
+    const messages: InstagramWebhookMessage[] = [];
 
     for (const entry of entries) {
       if (!entry || typeof entry !== 'object') {
         continue;
       }
-      const messaging = Array.isArray((entry as Record<string, unknown>).messaging)
-        ? (entry as Record<string, unknown>).messaging as Array<Record<string, unknown>>
-        : [];
+      const messaging = Array.isArray(entry.messaging) ? entry.messaging : [];
       messages.push(...messaging);
     }
 
     return messages;
   }
 
-  private extractSenderId(message: Record<string, any>): string | null {
+  private extractSenderId(message: InstagramWebhookMessage): string | null {
     const sender = message.sender && typeof message.sender === 'object'
-      ? String((message.sender as Record<string, unknown>).id || '').trim()
+      ? String(message.sender.id || '').trim()
       : '';
     return sender || null;
   }
 
-  private extractMessageId(message: Record<string, any>): string | null {
+  private extractMessageId(message: InstagramWebhookMessage): string | null {
     const messageNode = message.message && typeof message.message === 'object'
-      ? message.message as Record<string, unknown>
+      ? message.message
       : null;
     return String(messageNode?.mid || message.mid || '').trim() || null;
   }
 
-  private extractTextFromInstagramMessage(message: Record<string, any>): string | null {
+  private extractTextFromInstagramMessage(message: InstagramWebhookMessage): string | null {
     const messageNode = message.message && typeof message.message === 'object'
-      ? message.message as Record<string, unknown>
+      ? message.message
       : null;
     const text = String(messageNode?.text || '').trim();
     if (text) {
       return text;
     }
     const postback = message.postback && typeof message.postback === 'object'
-      ? message.postback as Record<string, unknown>
+      ? message.postback
       : null;
     return String(postback?.title || postback?.payload || '').trim() || null;
   }

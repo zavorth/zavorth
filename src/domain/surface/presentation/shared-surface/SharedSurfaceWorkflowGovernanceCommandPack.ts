@@ -28,7 +28,7 @@ export type SharedSurfaceWorkflowGovernanceCommandPackDeps = {
   permissionService: PermissionService | null;
   selfModificationCommandService: SelfModificationCommandService | null;
   workflowController: {
-    handleWorkflow: (ctx: any, args: string) => Promise<void>;
+    handleWorkflow: (ctx: IMessageContext, args: string) => Promise<void>;
   } | null;
   taskManager: {
     getRecentTasks?: (limit?: number, userId?: string) => Task[];
@@ -181,8 +181,9 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
         Number.isFinite(limit) ? limit : 10,
       );
       await ctx.reply(formatPermissionListReply(permissions, status));
-    } catch (error: any) {
-      await ctx.reply(`Falha na operacao de permissao: ${error?.message || 'erro desconhecido'}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      await ctx.reply(`Falha na operacao de permissao: ${message}`);
     }
   }
 
@@ -193,9 +194,10 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
     }
 
     try {
-      await this.deps.workflowController.handleWorkflow(ctx as any, args);
-    } catch (error: any) {
-      await ctx.reply(`Nao consegui operar o workflow agora.\n\nMotivo: ${error?.message || 'erro desconhecido'}`);
+      await this.deps.workflowController.handleWorkflow(ctx, args);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      await ctx.reply(`Nao consegui operar o workflow agora.\n\nMotivo: ${message}`);
     }
   }
 
@@ -298,8 +300,9 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
         requestedBy,
       );
       await ctx.reply(formatSelfModificationRollbackReply(result));
-    } catch (error: any) {
-      await ctx.reply(`Nao consegui operar o selfmod agora.\n\nMotivo: ${error?.message || 'erro desconhecido'}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      await ctx.reply(`Nao consegui operar o selfmod agora.\n\nMotivo: ${message}`);
     }
   }
 

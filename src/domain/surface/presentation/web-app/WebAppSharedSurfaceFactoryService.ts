@@ -1,4 +1,7 @@
-import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.js';
+import type { SharedSurfaceRuntime, SurfaceControllerContext, PermissionControllerLike } from '../../../../services/SurfaceRuntime.js';
+import type { RuntimeDiagnosticsService } from '../../../../services/RuntimeDiagnosticsService.js';
+import type { PermissionService } from '../../../../services/PermissionService.js';
+import type { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { SharedSurfaceCommandService } from '../../../../services/SharedSurfaceCommandService.js';
 import { NaturalChannelSetupTurnService } from '../../../../services/NaturalChannelSetupTurnService.js';
 import { ZavorthTrustPlaneService } from '../../../../services/ZavorthTrustPlaneService.js';
@@ -165,7 +168,7 @@ export class WebAppSharedSurfaceFactoryService {
     const watchModeControlPlane = this.buildWatchModeControlPlane(source);
 
     return new SharedSurfaceCommandService({
-      runtimeDiagnostics: { writeSnapshot: () => ({}) } as any,
+      runtimeDiagnostics: { writeSnapshot: () => ({}) } as unknown as RuntimeDiagnosticsService,
       channelActionService: source.operations.channelActions || undefined,
       channelMeshService: source.operations.channelMesh || undefined,
       channelSetupAssistantService: source.channelSetupAssistant,
@@ -229,10 +232,10 @@ export class WebAppSharedSurfaceFactoryService {
       tenantGovernanceActionService: source.operations.tenantGovernanceActions || undefined,
       codexRemoteControlPlaneService: source.operations.codexRemote || undefined,
       codexRemoteActionService: source.operations.codexRemoteActions || undefined,
-      permissionService: runtime.permissionService as any,
+      permissionService: runtime.permissionService as unknown as PermissionService,
       selfModificationCommandService: source.selfModificationCommandService,
       surfaceTaskDispatcher: runtime.surfaceTaskDispatcher || null,
-      taskManager: runtime.taskManager as any,
+      taskManager: runtime.taskManager as unknown as TaskManager,
       taskApprovalController: this.buildTaskApprovalController(source),
       workflowController: runtime.workflowController || null,
       engineeringCoreService: source.engineeringCore,
@@ -382,10 +385,10 @@ export class WebAppSharedSurfaceFactoryService {
   }
 
   private buildTaskApprovalController(source: WebAppSharedSurfaceFactorySource): {
-    handleApproval: (ctx: any, args: string) => Promise<void>;
-    handleRejection: (ctx: any, taskId: string) => Promise<void>;
+    handleApproval: (ctx: SurfaceControllerContext, args: string) => Promise<void>;
+    handleRejection: (ctx: SurfaceControllerContext, taskId: string) => Promise<void>;
   } | null {
-    const permissionController = source.runtime?.permissionController as any;
+    const permissionController = source.runtime?.permissionController as unknown as PermissionControllerLike;
     if (
       permissionController
       && typeof permissionController.handleApproval === 'function'
@@ -393,11 +396,11 @@ export class WebAppSharedSurfaceFactoryService {
     ) {
       return {
         handleApproval: permissionController.handleApproval.bind(permissionController) as (
-          ctx: any,
+          ctx: SurfaceControllerContext,
           args: string,
         ) => Promise<void>,
         handleRejection: permissionController.handleRejection.bind(permissionController) as (
-          ctx: any,
+          ctx: SurfaceControllerContext,
           taskId: string,
         ) => Promise<void>,
       };

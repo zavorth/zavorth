@@ -88,16 +88,29 @@ export type ZavorthSubagentMotionState =
   | 'blocked'
   | 'approval-required';
 
+export type ZavorthSubagentIconMotion = {
+  active: boolean;
+  kind: 'none' | 'identicon-frames' | 'mascot-sprite';
+  frameCount: number;
+  intervalMs: number;
+  delayMs: number;
+  className: string;
+};
+
 export type ZavorthSubagentVisualIdentity = {
   id: string;
   roleId: string;
   sessionId: string;
   label: string;
   displayName: string;
+  identiconSeed: string;
   glyph: string;
+  iconSvg: string;
+  isMascot: boolean;
   status: ZavorthSubagentRuntimeStatus | 'idle';
   motionState: ZavorthSubagentMotionState;
   animationSeed: number;
+  motion: ZavorthSubagentIconMotion;
   palette: {
     accent: string;
     muted: string;

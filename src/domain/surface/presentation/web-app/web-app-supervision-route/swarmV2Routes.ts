@@ -1,5 +1,16 @@
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
 import { buildWebOperatorApprovalSafety } from './helpers.js';
+import type {
+  SwarmScalePlannerMode,
+  SwarmScaleExecutionMode,
+  SwarmScaleExecutionBackendId,
+  SwarmScaleControlSurface,
+} from '../../../../execution/infrastructure/SwarmScalePlaneService.js';
+import type {
+  SwarmV2IsolationMode,
+  SwarmV2ToolSpec,
+} from '../../../../agents/SwarmV2Service.js';
+import type { SwarmRole } from '../../../runtime/sessions/v2/SwarmOrchestrator.js';
 
 export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) => {
   const {
@@ -62,9 +73,9 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
       maxAgents: Number.isFinite(Number(body.maxAgents)) ? Number(body.maxAgents) : undefined,
       maxSteps: Number.isFinite(Number(body.maxSteps || body.steps)) ? Number(body.maxSteps || body.steps) : undefined,
       maxConcurrency: Number.isFinite(Number(body.maxConcurrency || body.concurrency)) ? Number(body.maxConcurrency || body.concurrency) : undefined,
-      plannerMode: String(body.plannerMode || '').trim() as any || undefined,
-      executionMode: executionMode as any || undefined,
-      executionBackend: optionalString(body.executionBackend || body.backend) as any || undefined,
+      plannerMode: String(body.plannerMode || '').trim() as SwarmScalePlannerMode || undefined,
+      executionMode: executionMode as SwarmScaleExecutionMode || undefined,
+      executionBackend: optionalString(body.executionBackend || body.backend) as SwarmScaleExecutionBackendId || undefined,
       cloudSandboxEnabled: optionalBoolean(body.cloudSandboxEnabled ?? body.cloudSandbox ?? body.cloud),
       deviceNodeRouting: optionalBoolean(body.deviceNodeRouting ?? body.deviceRouting ?? body.devices),
       stopAfterSteps: Number.isFinite(Number(body.stopAfterSteps)) ? Number(body.stopAfterSteps) : undefined,
@@ -94,15 +105,15 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
     }
     const snapshot = scaleService.configureRun({
       runId,
-      sourceSurface: normalizeSwarmScaleSurface(body.sourceSurface || body.surface || 'zavorthControl') as any,
+      sourceSurface: normalizeSwarmScaleSurface(body.sourceSurface || body.surface || 'zavorthControl') as SwarmScaleControlSurface,
       actorId: optionalString(body.actorId || body.actor || body.userId) || null,
       reason: optionalString(body.reason) || null,
       persistState: body.persistState !== false,
       patch: {
         maxConcurrency: optionalNumber(body.maxConcurrency ?? body.concurrency),
         maxSteps: optionalNumber(body.maxSteps ?? body.steps),
-        executionMode: optionalString(body.executionMode || body.mode) as any || undefined,
-        executionBackend: optionalString(body.executionBackend || body.backend) as any || undefined,
+        executionMode: optionalString(body.executionMode || body.mode) as SwarmScaleExecutionMode || undefined,
+        executionBackend: optionalString(body.executionBackend || body.backend) as SwarmScaleExecutionBackendId || undefined,
         cloudSandboxEnabled: optionalBoolean(body.cloudSandboxEnabled ?? body.cloudSandbox ?? body.cloud),
         deviceNodeRouting: optionalBoolean(body.deviceNodeRouting ?? body.deviceRouting ?? body.devices),
         pauseReason: body.pauseReason === null ? null : optionalString(body.pauseReason) || undefined,
@@ -190,7 +201,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
     const body = await deps.readJsonBody(req);
     const objective = String(body.objective || '').trim();
     const roles = Array.isArray(body.roles)
-      ? body.roles.map((role: any, index: number) => ({
+      ? body.roles.map((role: SwarmRole, index: number) => ({
         id: String(role?.id || `role-${index + 1}`),
         label: String(role?.label || `Role ${index + 1}`),
         systemPrompt: String(role?.systemPrompt || '').trim(),
@@ -200,10 +211,10 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
       }))
       : [];
     const requestedCommandRoles = Array.isArray(body.roles)
-      ? body.roles.some((role: any) => String(role?.command || '').trim() || (Array.isArray(role?.args) && role.args.length > 0))
+      ? body.roles.some((role: SwarmRole) => String(role?.command || '').trim() || (Array.isArray(role?.args) && role.args.length > 0))
       : false;
     const requestedToolSpecs = Array.isArray(body.toolSpecs)
-      ? body.toolSpecs.some((tool: any) => String(tool?.command || '').trim())
+      ? body.toolSpecs.some((tool: SwarmV2ToolSpec) => String(tool?.command || '').trim())
       : false;
     if (requestedCommandRoles || requestedToolSpecs) {
       deps.writeJson(res, {
@@ -223,7 +234,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
         maxRoles: Number.isFinite(Number(body.maxRoles)) ? Number(body.maxRoles) : undefined,
         maxConcurrency: Number.isFinite(Number(body.maxConcurrency)) ? Number(body.maxConcurrency) : undefined,
         batchSize: Number.isFinite(Number(body.batchSize)) ? Number(body.batchSize) : undefined,
-        isolationMode: String(body.isolationMode || '').trim() as any || undefined,
+        isolationMode: String(body.isolationMode || '').trim() as SwarmV2IsolationMode || undefined,
         isolationImage: String(body.isolationImage || '').trim() || undefined,
         wslDistro: String(body.wslDistro || '').trim() || undefined,
         requireStrongIsolation: body.requireStrongIsolation === true,

@@ -4,14 +4,27 @@ import type { Task } from '../contracts/TaskContract.js';
 import type { WebComposerMention } from '../contracts/WebComposer.js';
 import { RecentTaskResolver } from './RecentTaskResolver.js';
 
+type WebContext = Record<string, unknown>;
+
+type ResolvedSnapshot = {
+  sessionId: string;
+  baselineId?: string;
+  messages?: Array<{
+    role: string;
+    content: string;
+    timestamp?: number;
+  }>;
+  [key: string]: unknown;
+};
+
 type PermissionControllerLike = {
   resolvePermissionReference(ref: string): Promise<PermissionRequest>;
   shortPermissionId(permission: PermissionRequest): string;
-  handlePermissionCallback(ctx: any, data: string): Promise<void>;
+  handlePermissionCallback(ctx: WebContext, data: string): Promise<void>;
 };
 
 type WorkflowControllerLike = {
-  handleWorkflow(ctx: any, args: string): Promise<void>;
+  handleWorkflow(ctx: WebContext, args: string): Promise<void>;
 };
 
 type TaskManagerLike = {
@@ -20,20 +33,20 @@ type TaskManagerLike = {
 
 type WebRealtimeLike = {
   captureBaseline(sessionId: string): Promise<void>;
-  getResolvedSnapshot(sessionId: string): Promise<any>;
+  getResolvedSnapshot(sessionId: string): Promise<ResolvedSnapshot>;
   recordAssistantMessage(
     sessionId: string,
     content: string,
     taskId?: string | null,
     kind?: string | null,
     mentions?: WebComposerMention[],
-  ): any;
+  ): void;
 };
 
 export type ComposerActionResult = {
   handled: boolean;
   taskId: string | null;
-  snapshot?: any;
+  snapshot?: ResolvedSnapshot;
 };
 
 type ComposerActionServiceOptions = {
@@ -60,7 +73,7 @@ export class ComposerActionService {
   public async maybeHandle(input: {
     sessionId: string;
     mentions: WebComposerMention[];
-    webContext: any;
+    webContext: WebContext;
   }): Promise<ComposerActionResult> {
     const actionMentions = this.extractActionMentions(input.mentions);
     if (actionMentions.length !== 1) {
@@ -104,7 +117,7 @@ export class ComposerActionService {
   private async handleApprovePermission(
     sessionId: string,
     actionMention: WebComposerMention,
-    webContext: any,
+    webContext: WebContext,
   ): Promise<ComposerActionResult> {
     const permissionId = String(actionMention.payload?.permissionId || '').trim();
     const scope = this.normalizeScope(actionMention.payload?.scope);
@@ -184,7 +197,7 @@ export class ComposerActionService {
   private async handleResumeWorkflow(
     sessionId: string,
     actionMention: WebComposerMention,
-    webContext: any,
+    webContext: WebContext,
   ): Promise<ComposerActionResult> {
     const workflowRunId = String(actionMention.payload?.workflowRunId || actionMention.payload?.runId || '').trim();
     const resumeStageId = String(actionMention.payload?.resumeStageId || '').trim();
@@ -228,7 +241,7 @@ export class ComposerActionService {
   private async handleRestartWorkflowStage(
     sessionId: string,
     actionMention: WebComposerMention,
-    webContext: any,
+    webContext: WebContext,
   ): Promise<ComposerActionResult> {
     const workflowRunId = String(actionMention.payload?.workflowRunId || actionMention.payload?.runId || '').trim();
     const resumeStageId = String(actionMention.payload?.resumeStageId || '').trim();
@@ -271,7 +284,7 @@ export class ComposerActionService {
   private async handleCloseWorkflow(
     sessionId: string,
     actionMention: WebComposerMention,
-    webContext: any,
+    webContext: WebContext,
   ): Promise<ComposerActionResult> {
     const workflowRunId = String(actionMention.payload?.workflowRunId || actionMention.payload?.runId || '').trim();
     if (!workflowRunId) {

@@ -5,7 +5,7 @@ import {
   createZavorthNativeIntegrationRegistryFixture,
   createZavorthNativeSessionHistoryRegistryFixture,
 } from '../../../../../../contracts/CommandCenterRuntimeBoundaryContract.js';
-import type { ZavorthControlProviderCockpitSnapshot } from '../contracts/zavorthControlZavorthControlObservabilityContracts';
+import type { ZavorthControlProviderCockpitSnapshot } from '../contracts/ZavorthControlObservabilityContracts';
 
 export const ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_PROJECTION_VERSION = 'zavorth-control-native-first-runtime-projection/v1' as const;
 export const ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_NOW = '2026-05-19T00:00:00.000Z' as const;

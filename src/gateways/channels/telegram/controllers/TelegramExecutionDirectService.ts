@@ -7,7 +7,6 @@ import { LocalExecutor } from '../../../../execution/LocalExecutor.js';
 import { ExternalExecutor } from '../../../../execution/ExternalExecutor.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import {
-import { logger } from '../logger.js';
   EXTERNAL_EXECUTOR_ID,
   EXTERNAL_EXECUTOR_LABEL,
   getExternalExecutorTimeoutSeconds,

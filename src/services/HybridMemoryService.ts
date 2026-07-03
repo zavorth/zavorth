@@ -153,8 +153,9 @@ export class HybridMemoryService {
     if (vectorStore) {
       try {
         vectorCount = Number(vectorStore.count()) || 0;
-      } catch (error: any) {
-        warnings.push(`Vector store indisponivel para contagem: ${error?.message || 'erro desconhecido'}.`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'erro desconhecido';
+        warnings.push(`Vector store indisponivel para contagem: ${message}.`);
       }
     }
     inventory.push({
@@ -198,8 +199,9 @@ export class HybridMemoryService {
         for (const entry of Array.isArray(result?.data) ? result.data : []) {
           sources.push(this.fromLayeredMemory(entry));
         }
-      } catch (error: any) {
-        warnings.push(`Layered memory indisponivel: ${error?.message || 'erro desconhecido'}.`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'erro desconhecido';
+        warnings.push(`Layered memory indisponivel: ${message}.`);
       }
     }
 
@@ -225,9 +227,10 @@ export class HybridMemoryService {
       try {
         queryEmbedding = await embeddingService.generate(query);
         embeddingStatus = 'ready';
-      } catch (error: any) {
+      } catch (error: unknown) {
         embeddingStatus = 'failed';
-        warnings.push(`Embeddings indisponiveis; usando recall por palavras-chave: ${error?.message || 'erro desconhecido'}.`);
+        const message = error instanceof Error ? error.message : 'erro desconhecido';
+        warnings.push(`Embeddings indisponiveis; usando recall por palavras-chave: ${message}.`);
       }
     }
 
@@ -247,8 +250,9 @@ export class HybridMemoryService {
         embeddingStatus,
         sources: chunks.map((chunk) => this.fromMemoryChunk(chunk, query)),
       };
-    } catch (error: any) {
-      warnings.push(`Falha ao consultar MemoryVectorStore: ${error?.message || 'erro desconhecido'}.`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      warnings.push(`Falha ao consultar MemoryVectorStore: ${message}.`);
       return { embeddingStatus, sources: [] };
     }
   }
@@ -269,8 +273,9 @@ export class HybridMemoryService {
         sourceUserId: input.sessionId || null,
         workspaceHint: input.workspaceHint || null,
       });
-    } catch (error: any) {
-      warnings.push(`Memory plane indisponivel: ${error?.message || 'erro desconhecido'}.`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      warnings.push(`Memory plane indisponivel: ${message}.`);
       return null;
     }
   }
@@ -348,13 +353,13 @@ export class HybridMemoryService {
     }
 
     for (const artifact of snapshot.artifacts.recent || []) {
-      const label = this.normalizeText((artifact as any).label || (artifact as any).name || (artifact as any).path, 'artifact');
-      const summary = this.normalizeText((artifact as any).summary || (artifact as any).kind || (artifact as any).path, 'Artifact recente.');
+      const label = this.normalizeText(artifact.label || artifact.path, 'artifact');
+      const summary = this.normalizeText(artifact.summary || artifact.kind || artifact.path, 'Artifact recente.');
       if (!matches(`${label} ${summary}`)) {
         continue;
       }
       sources.push({
-        id: `ledger:artifact:${(artifact as any).id || label}`,
+        id: `ledger:artifact:${artifact.id || label}`,
         type: 'ledger',
         kind: 'artifact',
         label,
@@ -362,10 +367,10 @@ export class HybridMemoryService {
         source: 'session-replay',
         score: 0.76,
         reason: 'Lembrei porque este artifact foi produzido ou reutilizado na sessao.',
-        lastValidatedAt: this.normalizeText((artifact as any).createdAt || (artifact as any).updatedAt) || null,
+        lastValidatedAt: this.normalizeText(artifact.createdAt) || null,
         metadata: {
-          kind: (artifact as any).kind || null,
-          path: (artifact as any).path || null,
+          kind: artifact.kind || null,
+          path: artifact.path || null,
         },
       });
     }
@@ -472,8 +477,9 @@ export class HybridMemoryService {
     try {
       this.lazyVectorStore = this.createVectorStore();
       return this.lazyVectorStore;
-    } catch (error: any) {
-      warnings.push(`MemoryVectorStore nao inicializou: ${error?.message || 'erro desconhecido'}.`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      warnings.push(`MemoryVectorStore nao inicializou: ${message}.`);
       this.lazyVectorStore = null;
       return null;
     }

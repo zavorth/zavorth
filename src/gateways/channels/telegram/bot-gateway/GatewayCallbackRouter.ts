@@ -104,8 +104,9 @@ export class GatewayCallbackRouter {
         default:
           await ctx.answerCallbackQuery({ text: 'Comando nao reconhecido.' });
       }
-    } catch (error: any) {
-      this.deps.logError?.(error?.message || String(error));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.deps.logError?.(message);
       await ctx.answerCallbackQuery({ text: 'Erro ao processar.' });
     }
   }

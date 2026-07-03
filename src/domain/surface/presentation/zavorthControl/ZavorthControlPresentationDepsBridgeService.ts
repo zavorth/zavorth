@@ -2,7 +2,10 @@ import type { ZavorthControlClassicAccessDeps } from './ZavorthControlClassicAcc
 import type { ZavorthControlCoreRouteDeps } from './ZavorthControlCoreRouteService.js';
 import type { ZavorthControlHttpCorsDeps } from './ZavorthControlHttpSupportService.js';
 import type { ZavorthControlLegacyRouteDeps } from './ZavorthControlLegacyRouteService.js';
-import { ExperienceCoreService } from '../../../../services/experience/ExperienceCoreService.js';
+import {
+  ExperienceCoreService,
+  type ExperienceCoreRuntime,
+} from '../../../../services/experience/ExperienceCoreService.js';
 
 export type ZavorthControlPresentationDepsBridgeInput = {
   host: string;
@@ -33,10 +36,10 @@ export type ZavorthControlPresentationDepsBridgeSource = {
   a2ui: ZavorthControlCoreRouteDeps['a2ui'];
   proactivePermissions: ZavorthControlCoreRouteDeps['proactivePermissions'];
   experienceCoreService?: ZavorthControlCoreRouteDeps['experienceCore'];
-  agentGateway?: any;
-  memoryPlane?: any;
-  learningPlane?: any;
-  runtimeAccessReadiness?: any;
+  agentGateway?: ExperienceCoreRuntime['agentGateway'];
+  memoryPlane?: ExperienceCoreRuntime['memoryPlane'];
+  learningPlane?: ExperienceCoreRuntime['learningPlane'];
+  runtimeAccessReadiness?: ExperienceCoreRuntime['runtimeAccessReadiness'];
   echoService: ZavorthControlCoreRouteDeps['echo'];
   getPublicBaseUrl: ZavorthControlLegacyRouteDeps['getPublicBaseUrl'];
   getClassicZavorthControlHtml: ZavorthControlLegacyRouteDeps['getClassicZavorthControlHtml'];

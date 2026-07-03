@@ -10,10 +10,48 @@ import type { WebAppRealtimeTransportService } from './WebAppRealtimeTransportSe
 import type { WebRealtimeService } from '../../../../services/WebRealtimeService.js';
 import type { GatewaySessionToolsService } from '../../../../runtime/sessions/GatewaySessionToolsService.js';
 
+interface GatewaySessionStore {
+  resolveTarget(params: {
+    userId: string | null;
+    platform: string;
+    chatId: string | null;
+    sourceUserId: string | null;
+  }): { sessionId?: string } | null;
+}
+
+interface RuntimeTaskManager {
+  getTask(taskId: string): { chat_id?: string } | null;
+}
+
+interface WebAppRuntime {
+  webUserId: string;
+  taskManager: RuntimeTaskManager;
+}
+
+interface TaskWithChatId {
+  chat_id?: string;
+}
+
+interface RuntimeServices {
+  gatewaySessionTools?: GatewaySessionToolsService;
+  gatewaySessionStore?: GatewaySessionStore;
+  sessionPlane?: ZavorthSessionPlaneService;
+  memoryPlane?: ZavorthMemoryPlaneService;
+  layeredMemory?: ZavorthLayeredMemoryService;
+  learningPlane?: ZavorthLearningPlaneService;
+}
+
+interface Operations {
+  sessionPlane?: ZavorthSessionPlaneService;
+  memoryPlane?: ZavorthMemoryPlaneService;
+  layeredMemory?: ZavorthLayeredMemoryService;
+  learningPlane?: ZavorthLearningPlaneService;
+}
+
 type WebAppRuntimeContextBridgeOptions = {
-  operations: Record<string, any>;
-  runtimeServices: Record<string, any>;
-  getRuntime: () => any;
+  operations: Operations;
+  runtimeServices: RuntimeServices;
+  getRuntime: () => WebAppRuntime;
   getRealtime: () => WebRealtimeService | null;
   publicApi: CanonicalPublicApiService;
   realtimeTransport: WebAppRealtimeTransportService;
@@ -305,7 +343,7 @@ export class WebAppRuntimeContextBridge {
     return this.resolveSessionIdFromChatId(String(task?.chat_id || '').trim());
   }
 
-  public resolveSessionIdFromTask(task: any, requestedSessionId: string): string {
+  public resolveSessionIdFromTask(task: TaskWithChatId, requestedSessionId: string): string {
     const normalized = String(requestedSessionId || '').trim();
     if (normalized) {
       return normalized;
@@ -327,7 +365,7 @@ export class WebAppRuntimeContextBridge {
     );
   }
 
-  public async readJsonBody(req: http.IncomingMessage): Promise<Record<string, any>> {
+  public async readJsonBody(req: http.IncomingMessage): Promise<Record<string, unknown>> {
     let body = '';
     for await (const chunk of req) {
       body += chunk.toString();

@@ -1,7 +1,19 @@
 import { config } from '../config/index.js';
-import { ZavorthLayeredMemoryService } from './ZavorthLayeredMemoryService.js';
-import { ZavorthLearningPlaneService } from './ZavorthLearningPlaneService.js';
-import { ZavorthMemoryPlaneService } from './ZavorthMemoryPlaneService.js';
+import {
+  ZavorthLayeredMemoryService,
+  type LayeredMemoryStatusSnapshot,
+  type LayeredMemoryMetricsSnapshot,
+  type LayeredMemoryProcedureSnapshot,
+} from './ZavorthLayeredMemoryService.js';
+import {
+  ZavorthLearningPlaneService,
+  type LearningPlaneSnapshot,
+  type LearningPlaneMetricsSnapshot,
+} from './ZavorthLearningPlaneService.js';
+import {
+  ZavorthMemoryPlaneService,
+  type ZavorthMemoryPlaneSnapshot,
+} from './ZavorthMemoryPlaneService.js';
 import {
   WorkflowRunService,
   type WorkflowRunSnapshot,

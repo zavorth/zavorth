@@ -8,12 +8,12 @@ export class TelegramGateway extends WebhookGateway {
   public readonly type: 'async' = 'async';
   public readonly mode: WebhookGatewayMode = 'bot-http';
 
-  constructor(options: WebhookGatewayOptions | any) {
+  constructor(options: WebhookGatewayOptions | Record<string, unknown>) {
     const isOptionsObj = options && typeof options === 'object' && 'eventBus' in options;
     super(isOptionsObj ? {
       ...options,
-      outboxDir: options.outboxDir || (config as any).telegramOutboxDir,
-      statusFile: options.statusFile || (config as any).telegramStatusFile,
+      outboxDir: options.outboxDir || config.telegramOutboxDir,
+      statusFile: options.statusFile || config.telegramStatusFile,
     } : options);
   }
 
@@ -30,24 +30,24 @@ export class TelegramGateway extends WebhookGateway {
 
   public resolveConfigured(): boolean {
     return Boolean(
-      String((config as any).telegramBotToken || '').trim() &&
-      String((config as any).telegramDefaultChatId || '').trim()
+      String(config.telegramBotToken || '').trim() &&
+      String(config.telegramDefaultChatId || '').trim()
     );
   }
 
   public resolveEnabled(): boolean {
     return Boolean(
-      String((config as any).telegramBotToken || '').trim() ||
-      String((config as any).telegramDefaultChatId || '').trim()
+      String(config.telegramBotToken || '').trim() ||
+      String(config.telegramDefaultChatId || '').trim()
     );
   }
 
   protected resolveOutboxDir(): string {
-    return (config as any).telegramOutboxDir;
+    return config.telegramOutboxDir;
   }
 
   protected resolveStatusFile(): string {
-    return (config as any).telegramStatusFile;
+    return config.telegramStatusFile;
   }
 
   protected extractInboundPayload(webhookPayload: Record<string, unknown>): {

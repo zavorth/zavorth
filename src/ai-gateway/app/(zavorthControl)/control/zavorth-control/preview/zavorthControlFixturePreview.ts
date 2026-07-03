@@ -4,7 +4,7 @@ import {
   getZavorthControlZavorthControlFixture,
   listZavorthControlZavorthControlFixtures,
   type ZavorthControlZavorthControlFixtureId,
-} from '../fixtures/zavorthControlZavorthControlFixtures';
+} from '../fixtures/ZavorthControlFixtures';
 
 export const ZAVORTH_CONTROL_FIXTURE_PREVIEW_QUERY_PARAM = 'fixture' as const;
 

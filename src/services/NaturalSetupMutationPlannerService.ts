@@ -8,6 +8,21 @@ import type {
   ZavorthReadinessGate,
   ZavorthResourceImpact,
 } from '../contracts/ZavorthMutationPlaneContract.js';
+import type { ZavorthNaturalSetupControlPlaneSnapshot } from './ZavorthNaturalSetupControlPlaneService.js';
+import type { TrustDecision } from './TrustDecisionService.js';
+import type {
+  ChannelSetupAssistantApplyResult,
+  ChannelSetupAssistantDoctorResult,
+} from './ChannelSetupAssistantService.js';
+import type { ChannelMeshActionExecution } from '../contracts/channel/ChannelMeshContract.js';
+
+export type NaturalSetupActionResult = {
+  action: string;
+  result:
+    | ChannelSetupAssistantApplyResult
+    | ChannelSetupAssistantDoctorResult
+    | ChannelMeshActionExecution;
+};
 
 export type NaturalSetupPlanPayload = {
   intentText: string | null;
@@ -41,7 +56,7 @@ type NaturalSetupMutationPlannerRuntime = {
   >;
   trustDecisionService?: Pick<TrustDecisionService, 'evaluate'>;
   channelSetupAssistant?: Pick<ChannelSetupAssistantService, 'apply' | 'runDoctor'> | null;
-  channelActions?: { execute: (input: { channelId: string; actionId: string; requestedBy?: string | null }) => Promise<any> } | null;
+  channelActions?: { execute: (input: { channelId: string; actionId: string; requestedBy?: string | null }) => Promise<ChannelMeshActionExecution> } | null;
   permissionService?: Pick<PermissionService, 'getRequest'>;
 };
 
@@ -53,7 +68,7 @@ export class NaturalSetupMutationPlannerService {
   >;
   private readonly trustDecision: Pick<TrustDecisionService, 'evaluate'>;
   private readonly channelSetupAssistant: Pick<ChannelSetupAssistantService, 'apply' | 'runDoctor'> | null;
-  private readonly channelActions: { execute: (input: { channelId: string; actionId: string; requestedBy?: string | null }) => Promise<any> } | null;
+  private readonly channelActions: { execute: (input: { channelId: string; actionId: string; requestedBy?: string | null }) => Promise<ChannelMeshActionExecution> } | null;
   private readonly permissionService: Pick<PermissionService, 'getRequest'>;
 
   constructor(runtime: NaturalSetupMutationPlannerRuntime = {}) {
@@ -75,7 +90,7 @@ export class NaturalSetupMutationPlannerService {
     localOnly?: boolean;
     requestedBy?: string | null;
     sourceSurface?: string | null;
-  }): Promise<{ snapshot: any; mutationPlan: any; trustDecision: any }> {
+  }): Promise<{ snapshot: ZavorthNaturalSetupControlPlaneSnapshot; mutationPlan: NaturalSetupPlan; trustDecision: TrustDecision }> {
     const snapshot = await this.controlPlane.buildSnapshot({
       intentText: input.intentText || null,
       channelId: input.channelId || null,
@@ -166,9 +181,9 @@ export class NaturalSetupMutationPlannerService {
     ok: boolean;
     status: 'applied' | 'waiting_approval' | 'blocked';
     summary: string;
-    mutationPlan: any;
-    snapshot: any;
-    results: any[];
+    mutationPlan: ZavorthMutationPlan;
+    snapshot: ZavorthNaturalSetupControlPlaneSnapshot;
+    results: NaturalSetupActionResult[];
   }> {
     let plan = this.mutationPlane.readPlan(input.planId);
     if (!plan || plan.domain !== 'setup' || plan.actionId !== 'natural-setup') {
@@ -222,7 +237,7 @@ export class NaturalSetupMutationPlannerService {
     const channelId = String(payload.channelId || '').trim();
     const mode = String(payload.mode || '').trim() || null;
     const localOnly = actions.localOnly === true;
-    const results: any[] = [];
+    const results: NaturalSetupActionResult[] = [];
 
     if (!channelId) {
       const blocked = this.mutationPlane.markBlocked(plan.id, 'Plano sem channelId resolvido.');
@@ -317,7 +332,7 @@ export class NaturalSetupMutationPlannerService {
   }
 
   private buildReadinessGate(
-    snapshot: any,
+    snapshot: ZavorthNaturalSetupControlPlaneSnapshot,
     actions: NaturalSetupPlanPayload['actions'],
     selectedChannelId: string | null,
     capabilityId: string | null,

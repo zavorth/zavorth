@@ -15,6 +15,12 @@ import { ZavorthBridgeWindowAutomatorLike } from '../../../../gateways/channels/
 
 type BotApiLike = Api;
 
+// Bridge interface that matches SmartOutputService.send's expected botApi shape
+type SmartOutputCompatibleBotApi = {
+  sendMessage(chatId: string | number, text: string, options?: Record<string, unknown>): Promise<unknown>;
+  sendDocument?(chatId: string | number, document: unknown, options?: Record<string, unknown>): Promise<unknown>;
+};
+
 type ZavorthBridgePermissionFactory = (
   task: Task,
   startResult: ZavorthBridgePromptStartResult,
@@ -155,7 +161,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
           };
           this.deps.persistTask(task);
           await this.deps.botApi.sendMessage(
-            task.chat_id as any,
+            task.chat_id,
             `Politica persistente aplicada automaticamente para o ZavorthBridge (${this.deps.shortPermissionId(autoApprovalPolicy)}). Vou continuar o acompanhamento da resposta.`,
           );
           await this.finishPrompt(task, startResult);
@@ -172,7 +178,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
         this.deps.persistTask(task);
         this.deps.taskManager.advanceState(task, 'waiting_approval');
         await this.deps.botApi.sendMessage(
-          task.chat_id as any,
+          task.chat_id,
           this.deps.formatPermissionCreatedMessage(permission),
           { reply_markup: this.deps.buildPermissionKeyboard(permission) },
         );
@@ -184,8 +190,8 @@ export class TelegramZavorthBridgePromptWorkflowService {
       }
 
       await SmartOutputService.send(
-        this.deps.botApi as any,
-        task.chat_id as any,
+        this.deps.botApi as unknown as SmartOutputCompatibleBotApi,
+        task.chat_id,
         this.formatPromptCompletion(task, completion),
       );
     } catch (error: unknown) {
@@ -194,8 +200,8 @@ export class TelegramZavorthBridgePromptWorkflowService {
       this.deps.persistTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
       await SmartOutputService.send(
-        this.deps.botApi as any,
-        task.chat_id as any,
+        this.deps.botApi as unknown as SmartOutputCompatibleBotApi,
+        task.chat_id,
         `Nao consegui acompanhar a resposta final do ZavorthBridge nessa tarefa.\n\nMotivo: ${errorMsg}\nDetalhe tecnico: task=${task.task_id.substring(0, 8)}`,
       );
     }

@@ -39,6 +39,32 @@ export interface TranscriptionOptions {
 export type AudioTranscriptionProvider = 'gemini' | 'openai' | 'groq' | 'deepgram' | 'whisper.cpp';
 export type AudioSynthesisProvider = 'edge-tts' | 'gemini';
 
+export interface MsEdgeTTSInstance {
+  setMetadata(voice: string, outputFormat: string): Promise<void>;
+  toStream(text: string): { audioStream: NodeJS.ReadableStream };
+  close?(): void;
+}
+
+export interface MsEdgeTTSModule {
+  new (): MsEdgeTTSInstance;
+}
+
+export interface OpenAiTranscriptionResponse {
+  text?: string;
+  language?: string;
+}
+
+export interface DeepgramTranscriptionResponse {
+  results?: {
+    channels?: Array<{
+      alternatives?: Array<{ transcript?: string }>;
+      detected_language?: string;
+    }>;
+  };
+  metadata?: { detected_language?: string };
+  language?: string;
+}
+
 export interface AudioTranscriptionResult {
   text: string;
   provider: AudioTranscriptionProvider;
@@ -67,7 +93,7 @@ export interface AudioHandlerDeps {
   geminiAnalyzer?: Pick<GeminiVideoAnalyzer, 'isEnabled' | 'transcribeLocalAudio'>;
   geminiVoiceService?: Pick<GeminiVoiceService, 'isConfigured' | 'synthesize' | 'cleanup'> & Partial<Pick<GeminiVoiceService, 'synthesizeDetailed'>>;
   localVoiceDictation?: Pick<LocalVoiceDictation, 'transcribeFile'>;
-  loadEdgeTts?: () => Promise<{ MsEdgeTTS: new () => any }>;
+  loadEdgeTts?: () => Promise<{ MsEdgeTTS: MsEdgeTTSModule }>;
   voiceTelemetryService?: Pick<EchoVoiceTelemetryService, 'recordSuccess' | 'recordFailure'>;
   fetchImpl?: typeof fetch;
   audioTranscriptionService?: Pick<AudioTranscriptionService, 'transcribe'>;
@@ -80,7 +106,7 @@ export class AudioHandler {
   private geminiAnalyzer: Pick<GeminiVideoAnalyzer, 'isEnabled' | 'transcribeLocalAudio'>;
   private geminiVoiceService: Pick<GeminiVoiceService, 'isConfigured' | 'synthesize' | 'cleanup'> & Partial<Pick<GeminiVoiceService, 'synthesizeDetailed'>>;
   private localVoiceDictation: Pick<LocalVoiceDictation, 'transcribeFile'>;
-  private loadEdgeTts: () => Promise<{ MsEdgeTTS: new () => any }>;
+  private loadEdgeTts: () => Promise<{ MsEdgeTTS: MsEdgeTTSModule }>;
   private voiceTelemetryService: Pick<EchoVoiceTelemetryService, 'recordSuccess' | 'recordFailure'>;
   private fetchImpl: typeof fetch;
   private audioTranscriptionService: Pick<AudioTranscriptionService, 'transcribe'>;
@@ -376,14 +402,14 @@ export class AudioHandler {
       headers: {
         authorization: `Bearer ${input.apiKey}`,
       },
-      body: formData as any,
+      body: formData as unknown as BodyInit,
     });
 
     if (!response.ok) {
       throw new Error(`${input.provider} STT HTTP ${response.status}: ${await this.safeReadResponseText(response)}`);
     }
 
-    const payload = await response.json() as any;
+    const payload = await response.json() as OpenAiTranscriptionResponse;
     return {
       text: String(payload?.text || '').trim(),
       model: input.model,
@@ -400,14 +426,14 @@ export class AudioHandler {
         authorization: `Token ${config.deepgramApiKey}`,
         'content-type': this.resolveMimeType(filePath),
       },
-      body: fs.readFileSync(filePath) as any,
+      body: fs.readFileSync(filePath) as unknown as BodyInit,
     });
 
     if (!response.ok) {
       throw new Error(`deepgram STT HTTP ${response.status}: ${await this.safeReadResponseText(response)}`);
     }
 
-    const payload = await response.json() as any;
+    const payload = await response.json() as DeepgramTranscriptionResponse;
     const alternative = payload?.results?.channels?.[0]?.alternatives?.[0];
     return {
       text: String(alternative?.transcript || '').trim(),
@@ -856,8 +882,8 @@ export class AudioHandler {
   }
 }
 
-async function defaultEdgeTtsLoader(): Promise<{ MsEdgeTTS: new () => any }> {
-  return await loadOptionalDependency<any>(
+async function defaultEdgeTtsLoader(): Promise<{ MsEdgeTTS: MsEdgeTTSModule }> {
+  return await loadOptionalDependency<{ MsEdgeTTS: MsEdgeTTSModule }>(
     'msedge-tts',
     'media',
     'O sintetizador TTS opcional nao esta instalado neste host.',

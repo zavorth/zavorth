@@ -1,4 +1,5 @@
 import type { PermissionRequest } from '../../../../../contracts/PermissionRequest.js';
+import type { ZavorthMutationPlan } from '../../../../../contracts/ZavorthMutationPlaneContract.js';
 import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
 
 export type GatewayApprovalScope = 'once' | 'session' | 'host';
@@ -23,16 +24,16 @@ export function resolveMutationPlanIdFromPermission(permission: PermissionReques
   return null;
 }
 
-export function planTouchesSession(plan: Record<string, any> | null | undefined, sessionId: string): boolean {
+export function planTouchesSession(plan: ZavorthMutationPlan | null | undefined, sessionId: string): boolean {
   const normalizedSessionId = String(sessionId || '').trim();
   if (!normalizedSessionId || !plan || typeof plan !== 'object') {
     return false;
   }
-  const payloadSessionId = String((plan as any)?.payload?.sessionId || '').trim();
+  const payloadSessionId = String(plan.payload?.sessionId || '').trim();
   if (payloadSessionId && payloadSessionId === normalizedSessionId) {
     return true;
   }
-  const payloadChatId = String((plan as any)?.payload?.chatId || '').trim();
+  const payloadChatId = String(plan.payload?.chatId || '').trim();
   return payloadChatId === `web:${normalizedSessionId}`;
 }
 
@@ -41,7 +42,7 @@ export function findLatestPlanByPayload(
   domain: string,
   actionId: string,
   payloadMatch: Record<string, unknown>,
-): Record<string, any> | null {
+): ZavorthMutationPlan | null {
   if (!deps.mutationPlane) {
     return null;
   }
@@ -58,7 +59,7 @@ export function findLatestPlanByPayload(
       return String(payload[key] ?? '').trim() === String(expected ?? '').trim();
     });
     if (matches) {
-      return plan as unknown as Record<string, any>;
+      return plan;
     }
   }
   return null;

@@ -20,19 +20,65 @@ export type TelegramCommandToken = {
   commandArgs: string;
 };
 
+type PermissionMetadataValue = string | number | boolean | null;
+
+type CreatePermissionInput = {
+  task_id?: string | null;
+  executor: string;
+  kind: string;
+  scope?: string;
+  workspace?: string | null;
+  requested_value?: string | null;
+  resolved_value?: string | null;
+  reason: string;
+  requested_by?: string | null;
+  metadata?: Record<string, PermissionMetadataValue>;
+};
+
 type PermissionServiceLike = {
-  createRequest(input: Record<string, any>): Promise<PermissionRequest>;
+  createRequest(input: CreatePermissionInput): Promise<PermissionRequest>;
 };
 
 type TaskManagerLike = {
   advanceState(task: Task, state: string): void;
 };
 
+type ExternalExecutorMetadata = {
+  workspace_wsl?: string;
+  agent_id?: string;
+  requested_access_path_wsl?: string;
+  requested_access_reason?: string;
+};
+
+type ExternalExecutorResult = {
+  error_code?: string;
+  error_message?: string;
+  metadata?: ExternalExecutorMetadata;
+};
+
+type AiStudioMetadata = {
+  requested_services?: string[];
+  requested_services_display?: string;
+  service_request_reason?: string;
+  requested_tools?: string[];
+  requested_tools_display?: string;
+  suggested_scope?: string;
+  suggested_model?: string;
+  agent_id?: string;
+  workspace_wsl?: string;
+};
+
+type AiStudioResult = {
+  error_code?: string;
+  error_message?: string;
+  metadata?: AiStudioMetadata;
+};
+
 type ExternalExecutorPermissionDeps = {
   taskManager: TaskManagerLike;
   permissionService: PermissionServiceLike;
   resolveRuntimeAdapterRole(task: Task): string;
-  resolveApprovedExternalAccessPath(result: any): string;
+  resolveApprovedExternalAccessPath(result: ExternalExecutorResult): string;
   toWslPath(targetPath: string): string;
 };
 
@@ -110,7 +156,7 @@ export function truncateForTelegram(content: string, maxLength: number): string 
 export async function createExternalExecutorPermissionRequest(
   deps: ExternalExecutorPermissionDeps,
   task: Task,
-  result: any,
+  result: ExternalExecutorResult,
 ): Promise<PermissionRequest> {
   if (isExternalPathAccessRequiredError(result?.error_code)) {
     return createExternalPathAccessPermissionRequest(deps, task, result);
@@ -164,7 +210,7 @@ export async function createExternalExecutorPermissionRequest(
 async function createExternalPathAccessPermissionRequest(
   deps: ExternalExecutorPermissionDeps,
   task: Task,
-  result: any,
+  result: ExternalExecutorResult,
 ): Promise<PermissionRequest> {
   const workspace = task.workspace || config.defaultWorkspace;
   const requestedPath = deps.resolveApprovedExternalAccessPath(result);
@@ -209,7 +255,7 @@ async function createExternalPathAccessPermissionRequest(
 export async function createAiStudioPermissionRequest(
   deps: AiStudioPermissionDeps,
   task: Task,
-  result: any,
+  result: AiStudioResult,
 ): Promise<PermissionRequest> {
   const workspace = task.workspace || config.defaultWorkspace;
   const errorCode = String(result?.error_code || '').trim();

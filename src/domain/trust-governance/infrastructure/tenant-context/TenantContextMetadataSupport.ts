@@ -1,4 +1,10 @@
 import type { Task } from '../../../../contracts/TaskContract.js';
+import type {
+  TenantBoundary,
+  TenantIsolationMode,
+  TenantOnboardingStatus,
+  TenantType,
+} from '../../../../contracts/core/TenantContext.js';
 import type { TenantContext } from './TenantContextTypes.js';
 import {
   asTenantContextRecord,
@@ -8,6 +14,72 @@ import {
   normalizeTenantType,
   optionalTenantString,
 } from './TenantContextNormalizationSupport.js';
+
+interface TenantMetadataRecord {
+  tenant_id?: string;
+  tenant_type?: string;
+  boundary?: string;
+  isolation_mode?: string;
+  onboarding_status?: string;
+  platform?: string;
+  policy_profile?: string;
+  public_server_mode?: boolean;
+  scope_id?: string | null;
+  source_user_id?: string | null;
+  runtime_user_id?: string | null;
+  session_id?: string | null;
+  guild_id?: string | null;
+  channel_id?: string | null;
+  thread_id?: string | null;
+  chat_id?: string | null;
+  owner_user_ids?: string[];
+  allowed_guild_ids?: string[];
+  allowed_channel_ids?: string[];
+  metadata?: Record<string, unknown>;
+  tenant_context?: { tenant_id?: string; policy_profile?: string; [key: string]: unknown };
+  tenantContext?: { tenantId?: string; [key: string]: unknown };
+  traceId?: string;
+  trace_id?: string;
+  tenant_policy_profile?: string;
+  tenant_isolation_mode?: string;
+  [key: string]: unknown;
+}
+
+interface TenantMetadataOutput {
+  tenant_id: string;
+  tenant_type: TenantType;
+  boundary: TenantBoundary;
+  isolation_mode: TenantIsolationMode;
+  onboarding_status: TenantOnboardingStatus;
+  platform: string;
+  policy_profile: string;
+  public_server_mode: boolean;
+  scope_id: string | null;
+  source_user_id: string | null;
+  runtime_user_id: string | null;
+  session_id: string | null;
+  guild_id: string | null;
+  channel_id: string | null;
+  thread_id: string | null;
+  chat_id: string | null;
+  owner_user_ids: string[];
+  allowed_guild_ids: string[];
+  allowed_channel_ids: string[];
+  metadata: Record<string, unknown>;
+}
+
+interface PermissionMetadataMatch {
+  tenant_id: string;
+  tenant_policy_profile?: string;
+}
+
+interface TaskMetadataRecord {
+  tenant_id: string;
+  tenant_type: TenantType;
+  tenant_isolation_mode: TenantIsolationMode;
+  tenant_policy_profile: string;
+  tenant_context: TenantMetadataOutput | null;
+}
 
 export function normalizeTenantContextRecord(value: unknown): TenantContext | null {
   const record = asTenantContextRecord(value);
@@ -35,12 +107,12 @@ export function normalizeTenantContextRecord(value: unknown): TenantContext | nu
     publicServerMode: record.publicServerMode === true || record.public_server_mode === true,
     chatId: optionalTenantString(record.chatId || record.chat_id),
     metadata: asTenantContextRecord(record.metadata),
-    isolationMode: String(record.isolationMode || record.isolation_mode || '').trim().toLowerCase() as any,
-    onboardingStatus: String(record.onboardingStatus || record.onboarding_status || '').trim().toLowerCase() as any,
+    isolationMode: String(record.isolationMode || record.isolation_mode || '').trim().toLowerCase() as TenantIsolationMode,
+    onboardingStatus: String(record.onboardingStatus || record.onboarding_status || '').trim().toLowerCase() as TenantOnboardingStatus,
   });
 }
 
-export function toTenantMetadataRecord(context: TenantContext | null | undefined): Record<string, any> | null {
+export function toTenantMetadataRecord(context: TenantContext | null | undefined): TenantMetadataOutput | null {
   if (!context?.tenantId) {
     return null;
   }
@@ -52,7 +124,7 @@ export function toTenantMetadataRecord(context: TenantContext | null | undefined
     isolation_mode: context.isolationMode,
     onboarding_status: context.onboardingStatus,
     platform: context.platform,
-    policy_profile: context.policyProfile,
+    policy_profile: String(context.policyProfile),
     public_server_mode: context.publicServerMode,
     scope_id: context.scopeId,
     source_user_id: context.sourceUserId,
@@ -69,7 +141,7 @@ export function toTenantMetadataRecord(context: TenantContext | null | undefined
   };
 }
 
-export function extractTenantIdFromMetadata(metadata: Record<string, any> | null | undefined): string | null {
+export function extractTenantIdFromMetadata(metadata: TenantMetadataRecord | null | undefined): string | null {
   const direct = String(metadata?.tenant_id || '').trim();
   if (direct) {
     return direct;
@@ -80,8 +152,8 @@ export function extractTenantIdFromMetadata(metadata: Record<string, any> | null
 }
 
 export function buildTaskMetadataFromTenantContext(
-  context: TenantContext | Record<string, any> | null | undefined,
-): Record<string, any> {
+  context: TenantContext | TenantMetadataRecord | null | undefined,
+): TaskMetadataRecord | Record<string, never> {
   const normalizedContext =
     context && typeof context === 'object' && 'tenantId' in context
       ? (context as TenantContext)
@@ -94,7 +166,7 @@ export function buildTaskMetadataFromTenantContext(
     tenant_id: normalizedContext.tenantId,
     tenant_type: normalizedContext.tenantType,
     tenant_isolation_mode: normalizedContext.isolationMode,
-    tenant_policy_profile: normalizedContext.policyProfile,
+    tenant_policy_profile: String(normalizedContext.policyProfile),
     tenant_context: toTenantMetadataRecord(normalizedContext),
   };
 }
@@ -102,12 +174,12 @@ export function buildTaskMetadataFromTenantContext(
 export function buildPermissionMetadataFromResolvedTask(
   task: Task | null | undefined,
   context: TenantContext | null,
-): Record<string, any> {
+): Record<string, unknown> {
   if (!task || !context?.tenantId) {
     return {};
   }
 
-  const metadata = asTenantContextRecord(task.metadata);
+  const metadata = asTenantContextRecord(task.metadata) as TenantMetadataRecord;
   return {
     ...buildTaskMetadataFromTenantContext(context),
     task_id: task.task_id,
@@ -119,14 +191,14 @@ export function buildPermissionMetadataFromResolvedTask(
 }
 
 export function buildPermissionMetadataMatchFromTaskMetadata(
-  task: Task | { metadata?: Record<string, any> } | null | undefined,
+  task: Task | { metadata?: TenantMetadataRecord } | null | undefined,
   resolveFromTask?: (task: Task) => TenantContext | null,
-): Record<string, any> | undefined {
+): PermissionMetadataMatch | undefined {
   if (!task) {
     return undefined;
   }
 
-  const metadata = (task as { metadata?: Record<string, any> }).metadata;
+  const metadata = (task as { metadata?: TenantMetadataRecord }).metadata;
   const directTenantId = extractTenantIdFromMetadata(metadata);
   if (directTenantId) {
     return {
@@ -136,12 +208,12 @@ export function buildPermissionMetadataMatchFromTaskMetadata(
     };
   }
 
-  if (resolveFromTask && 'task_id' in (task as any)) {
+  if (resolveFromTask && 'task_id' in (task as Record<string, unknown>)) {
     const context = resolveFromTask(task as Task);
     if (context?.tenantId) {
       return {
         tenant_id: context.tenantId,
-        tenant_policy_profile: context.policyProfile,
+        tenant_policy_profile: String(context.policyProfile),
       };
     }
   }

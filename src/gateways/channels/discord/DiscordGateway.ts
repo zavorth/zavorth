@@ -8,12 +8,12 @@ export class DiscordGateway extends WebhookGateway {
   public readonly type: 'async' = 'async';
   public readonly mode: WebhookGatewayMode = 'webhook';
 
-  constructor(options: WebhookGatewayOptions | any) {
+  constructor(options: WebhookGatewayOptions) {
     const isOptionsObj = options && typeof options === 'object' && 'eventBus' in options;
     super(isOptionsObj ? {
       ...options,
-      outboxDir: options.outboxDir || (config as any).discordOutboxDir,
-      statusFile: options.statusFile || (config as any).discordStatusFile,
+      outboxDir: options.outboxDir || config.discordOutboxDir,
+      statusFile: options.statusFile || config.discordStatusFile,
     } : options);
   }
 
@@ -29,19 +29,19 @@ export class DiscordGateway extends WebhookGateway {
   }
 
   public resolveConfigured(): boolean {
-    return Boolean(String((config as any).discordWebhookUrl || '').trim());
+    return Boolean(String(config.discordWebhookUrl || '').trim());
   }
 
   public resolveEnabled(): boolean {
-    return Boolean(String((config as any).discordWebhookUrl || '').trim());
+    return Boolean(String(config.discordWebhookUrl || '').trim());
   }
 
   protected resolveOutboxDir(): string {
-    return (config as any).discordOutboxDir;
+    return config.discordOutboxDir;
   }
 
   protected resolveStatusFile(): string {
-    return (config as any).discordStatusFile;
+    return config.discordStatusFile;
   }
 
   protected extractInboundPayload(webhookPayload: Record<string, unknown>): {

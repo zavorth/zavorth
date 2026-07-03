@@ -8,7 +8,7 @@ export class InstagramGateway extends WebhookGateway {
   public readonly type: 'async' = 'async';
   public readonly mode: WebhookGatewayMode = 'webhook';
 
-  constructor(options: WebhookGatewayOptions | any) {
+  constructor(options: WebhookGatewayOptions | Record<string, unknown>) {
     const isOptionsObj = options && typeof options === 'object' && 'eventBus' in options;
     super(isOptionsObj ? {
       ...options,

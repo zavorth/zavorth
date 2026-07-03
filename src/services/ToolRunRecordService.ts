@@ -1,4 +1,5 @@
-import type { WorkflowRunSnapshot } from '../runtime/workflows/WorkflowRunService.js';
+import type { GatewaySessionTaskSnapshot } from './GatewaySessionService.js';
+import type { WorkflowRunStageSnapshot, WorkflowRunSnapshot } from '../runtime/workflows/WorkflowRunService.js';
 
 export type ToolRunDiffPatch = {
   path: string | null;
@@ -24,7 +25,7 @@ export type ToolRunRecord = {
   stderr: string | null;
   exitCode: number | null;
   filesTouched: string[];
-  artifacts: Array<Record<string, any>>;
+  artifacts: Array<Record<string, unknown>>;
   diff: {
     summary: string | null;
     patches: ToolRunDiffPatch[];
@@ -37,7 +38,7 @@ export type ToolRunRecord = {
 };
 
 type BuildToolRunsInput = {
-  tasks: any[];
+  tasks: GatewaySessionTaskSnapshot[];
   workflowRuns: WorkflowRunSnapshot[];
 };
 
@@ -66,14 +67,14 @@ export class ToolRunRecordService {
       .slice(0, 50);
   }
 
-  private buildTaskToolRuns(task: any): ToolRunRecord[] {
+  private buildTaskToolRuns(task: GatewaySessionTaskSnapshot): ToolRunRecord[] {
     const actions = Array.isArray(task?.actions_executed) && task.actions_executed.length > 0
       ? task.actions_executed
       : [this.buildSyntheticAction(task)];
-    return actions.map((action: any, index: number) => this.serializeTaskAction(task, action, index));
+    return actions.map((action: Record<string, unknown>, index: number) => this.serializeTaskAction(task, action, index));
   }
 
-  private buildSyntheticAction(task: any): Record<string, any> {
+  private buildSyntheticAction(task: GatewaySessionTaskSnapshot): Record<string, unknown> {
     return {
       name: task?.executor_used || task?.command_type || 'task',
       kind: task?.command_type || 'task',
@@ -87,7 +88,7 @@ export class ToolRunRecordService {
     };
   }
 
-  private serializeTaskAction(task: any, action: any, index: number): ToolRunRecord {
+  private serializeTaskAction(task: GatewaySessionTaskSnapshot, action: Record<string, unknown>, index: number): ToolRunRecord {
     const metadata = this.toRecord(task?.metadata);
     const actionRecord = this.toRecord(action);
     const taskId = String(task?.task_id || '').trim() || null;
@@ -165,7 +166,7 @@ export class ToolRunRecordService {
       return [];
     }
 
-    return workflowRun.phases.map((phase: any) => {
+    return workflowRun.phases.map((phase: WorkflowRunStageSnapshot) => {
       const runId = `workflow-${this.safeSegment(workflowRunId)}-${this.safeSegment(phase?.id || 'phase')}-${Number(phase?.attempt_count || 0)}`;
       const stageArtifacts = this.normalizeArtifacts(workflowRun.artifacts, {
         sourceTaskId: phase?.task_id || null,
@@ -215,14 +216,14 @@ export class ToolRunRecordService {
       workflowRunId: string | null;
       toolRunId: string;
     },
-  ): Array<Record<string, any>> {
+  ): Array<Record<string, unknown>> {
     if (!Array.isArray(artifacts)) {
       return [];
     }
     return artifacts
       .filter((artifact) => artifact && typeof artifact === 'object')
       .map((artifact) => ({
-        ...(artifact as Record<string, any>),
+        ...(artifact as Record<string, unknown>),
         sourceTaskId: extra.sourceTaskId,
         workflowRunId: extra.workflowRunId,
         toolRunId: extra.toolRunId,
@@ -276,7 +277,7 @@ export class ToolRunRecordService {
     return patches.slice(0, 20);
   }
 
-  private resolveDurationMs(action: Record<string, any>, startedAt: string | null, finishedAt: string | null): number | null {
+  private resolveDurationMs(action: Record<string, unknown>, startedAt: string | null, finishedAt: string | null): number | null {
     const explicit = this.normalizeNumber(action.durationMs ?? action.duration_ms);
     if (explicit !== null) {
       return explicit;
@@ -314,8 +315,8 @@ export class ToolRunRecordService {
     return `${text.slice(0, Math.max(0, maxLength - 16)).trimEnd()}\n...[truncated]`;
   }
 
-  private toRecord(value: unknown): Record<string, any> {
-    return value && typeof value === 'object' ? value as Record<string, any> : {};
+  private toRecord(value: unknown): Record<string, unknown> {
+    return value && typeof value === 'object' ? value as Record<string, unknown> : {};
   }
 
   private getTimestamp(value: unknown): number {

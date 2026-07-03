@@ -1,9 +1,14 @@
 import { LogRepository } from "../../../../storage/LogRepository.js";
 import { TelegramChannelContractService } from "../../../../gateways/channels/telegram/TelegramChannelContractService.js";
 import { BotGatewaySupport } from "../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupport.js";
+import type { BotGatewaySupportRuntime } from "../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js";
+
+type BotGatewayInput = Pick<BotGatewaySupportRuntime, 'bot' | 'parser' | 'hostIdentityService'> &
+  Required<Pick<BotGatewaySupportRuntime, 'processTextMessage' | 'processGroupCommand' | 'canUseInteractiveGroupAi'>> &
+  Partial<Omit<BotGatewaySupportRuntime, 'bot' | 'parser' | 'hostIdentityService' | 'processTextMessage' | 'processGroupCommand' | 'canUseInteractiveGroupAi'>>;
 
 export function createBotGatewaySupport(
-  gateway: any,
+  gateway: BotGatewayInput,
   logRepo: LogRepository,
 ): BotGatewaySupport {
   return new BotGatewaySupport({

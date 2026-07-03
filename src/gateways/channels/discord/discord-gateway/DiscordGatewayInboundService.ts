@@ -1,4 +1,5 @@
 import type { IMessageBroker, MessageAttachment } from '../../../../contracts/IMessageBroker.js';
+import type { DiscordGatewayReplyOptions } from './DiscordGatewayReplyService.js';
 import type { ZavorthAgentGateway } from '../../../../runtime/agent/index.js';
 import type { DiscordSurfacePolicyService } from '../../../../services/DiscordSurfacePolicyService.js';
 import {
@@ -26,6 +27,19 @@ type DiscordGatewayInboundServiceOptions = {
   discordSurfacePolicyService: DiscordSurfacePolicyService;
   persistence: DiscordGatewayPersistence;
   replyService: DiscordGatewayReplyService;
+};
+
+type DiscordComposerDiscordMeta = {
+  source: string;
+  channelId: string | null;
+  threadId: string | null;
+  guildId: string | null;
+  customId?: string;
+};
+
+type DiscordComposerPayload = {
+  attachments: MessageAttachment[];
+  discord: DiscordComposerDiscordMeta;
 };
 
 type DiscordInboundValidationInput = {
@@ -115,7 +129,7 @@ export class DiscordGatewayInboundService {
           guildId,
         },
       },
-      reply: async (text: string, options?: any) => {
+      reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
         await this.replyService.replyToMessage(message, text, options);
       },
     })) {
@@ -142,7 +156,7 @@ export class DiscordGatewayInboundService {
           guildId,
         },
       },
-      reply: async (text: string, options?: any) => {
+      reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
         await this.replyService.replyToMessage(message, text, options);
       },
       editMessage: async (messageId: string, text: string) => {
@@ -226,7 +240,7 @@ export class DiscordGatewayInboundService {
           guildId,
         },
       },
-      reply: async (text: string, options?: any) => {
+      reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
         await this.replyService.replyToInteraction(interaction, text, options);
       },
       editMessage: async (_messageId: string, text: string) => {
@@ -324,7 +338,7 @@ export class DiscordGatewayInboundService {
           guildId,
         },
       },
-      reply: async (text: string, options?: any) => {
+      reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
         await this.replyService.replyToInteraction(interaction, text, options);
       },
       editMessage: async (_messageId: string, text: string) => {
@@ -408,7 +422,7 @@ export class DiscordGatewayInboundService {
     guildId: string | null;
     messageId: string | null;
     attachments: MessageAttachment[];
-    composerPayload: Record<string, any>;
+    composerPayload: DiscordComposerPayload;
     reply: (text: string) => Promise<void>;
   }): Promise<boolean> {
     const text = String(input.rawText || '').trim();

@@ -12,6 +12,39 @@ import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyMa
 import { SecurityAuditLogger } from '../../../services/SecurityAuditLogger.js';
 import { LogRepository } from '../../../storage/LogRepository.js';
 
+interface WhatsAppWebhookPayload {
+  fromMe?: boolean | string;
+  isMe?: boolean;
+  sentByBot?: boolean;
+  fromNumber?: string;
+  from?: string;
+  userId?: string;
+  chatId?: string;
+  text?: string;
+  rawText?: string;
+  messageId?: string;
+  id?: string;
+  botId?: string;
+  myUserId?: string;
+  mentionedIds?: string[];
+  isMentioned?: boolean;
+  quotedMessage?: {
+    fromMe?: boolean | string;
+  };
+  isReplyToBot?: boolean;
+  botAliases?: string[];
+  botNames?: string[];
+}
+
+interface WhatsAppOutboundPayload {
+  recipients?: string[];
+  text?: string;
+  message?: string;
+  chatId?: string;
+  to?: string;
+  messageId?: string;
+}
+
 type WhatsAppChannelAdapterRuntime = {
   outboxDir?: string;
   now?: () => Date;
@@ -51,7 +84,7 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
     console.log('[ChannelMesh] WhatsApp bounds detached.');
   }
 
-  async onMessageReceived(webhookPayload: any): Promise<void> {
+  async onMessageReceived(webhookPayload: WhatsAppWebhookPayload): Promise<void> {
     // Discard messages from the bot itself to prevent loops
     if (webhookPayload?.fromMe === true || webhookPayload?.isMe === true || webhookPayload?.sentByBot === true) {
       return;
@@ -187,26 +220,28 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
     }));
   }
 
-  async sendMessage(outboundPayload: any): Promise<void> {
+  async sendMessage(outboundPayload: string | WhatsAppOutboundPayload): Promise<void> {
+    const objectPayload = typeof outboundPayload === 'object' ? outboundPayload : null;
+    const messageText = typeof outboundPayload === 'string'
+      ? outboundPayload
+      : String(outboundPayload.text || outboundPayload.message || '').trim();
     const envelope = buildOutboundChannelEnvelope({
       platform: 'whatsapp',
       transport: this.apiKey ? 'cloud-api-configured' : 'local-outbox',
-      recipients: Array.isArray(outboundPayload?.recipients) ? outboundPayload.recipients : [],
-      message: typeof outboundPayload === 'string'
-        ? outboundPayload
-        : String(outboundPayload?.text || outboundPayload?.message || '').trim(),
-      payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload : null,
+      recipients: Array.isArray(objectPayload?.recipients) ? objectPayload.recipients : [],
+      message: messageText,
+      payload: objectPayload,
       now: this.now(),
       fields: {
-        chatId: String(outboundPayload?.chatId || outboundPayload?.to || '').trim() || null,
-        messageId: String(outboundPayload?.messageId || '').trim() || null,
+        chatId: String(objectPayload?.chatId || objectPayload?.to || '').trim() || null,
+        messageId: String(objectPayload?.messageId || '').trim() || null,
       },
     });
     persistChannelOutboxEnvelope(this.outboxDir, envelope);
   }
 }
 
-function normalizeBotAliases(payload: any): string[] {
+function normalizeBotAliases(payload: WhatsAppWebhookPayload): string[] {
   const aliases = Array.isArray(payload?.botAliases)
     ? payload.botAliases
     : Array.isArray(payload?.botNames)
