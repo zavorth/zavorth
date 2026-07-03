@@ -61,7 +61,6 @@ export type ZavorthRuntimeReadinessUxSnapshot = {
   secondaryActions: ZavorthRuntimeReadinessUxAction[];
   cards: ZavorthRuntimeReadinessUxCard[];
   zavorthControlProjection: ZavorthRuntimeReadinessUxZavorthControlProjection;
-  zavorthControlProjection: ZavorthRuntimeReadinessUxZavorthControlProjection;
   cliProjection: {
     command: 'zavorth readiness';
     jsonCommand: 'zavorth readiness --json';
@@ -71,14 +70,9 @@ export type ZavorthRuntimeReadinessUxSnapshot = {
     executionAuthority: false;
   };
   telegramProjection: {
-    command: '/readiness';
-    renderMode: 'operator-summary';
-    showTechnicalDetailsByDefault: false;
-    executionAuthority: false;
     text: string;
     replyMarkup: {
       inline_keyboard: Array<Array<{
-        text: string;
         callback_data: string;
       }>>;
     };
@@ -86,7 +80,6 @@ export type ZavorthRuntimeReadinessUxSnapshot = {
   safety: {
     projectionOnly: true;
     noLiveProbe: true;
-    executionAuthority: false;
     approvalsRemainGatewayMediated: true;
     noRawSecretsSerialized: true;
   };
@@ -124,7 +117,6 @@ export class ZavorthRuntimeReadinessUxService {
       secondaryActions,
       cards,
       zavorthControlProjection: createRuntimeReadinessProjection(cards),
-      zavorthControlProjection: createRuntimeReadinessProjection(cards),
       cliProjection: {
         command: 'zavorth readiness',
         jsonCommand: 'zavorth readiness --json',
@@ -136,7 +128,6 @@ export class ZavorthRuntimeReadinessUxService {
       safety: {
         projectionOnly: true,
         noLiveProbe: true,
-        executionAuthority: false,
         approvalsRemainGatewayMediated: true,
         noRawSecretsSerialized: true,
       },
@@ -149,10 +140,6 @@ export class ZavorthRuntimeReadinessUxService {
     return {
       ...base,
       telegramProjection: {
-        command: '/readiness',
-        renderMode: 'operator-summary',
-        showTechnicalDetailsByDefault: false,
-        executionAuthority: false,
         text: this.renderTelegramFromParts(base),
         replyMarkup: {
           inline_keyboard: [
@@ -223,7 +210,6 @@ export class ZavorthRuntimeReadinessUxService {
     return {
       id: check.id,
       title: titleForCheck(check.id),
-      status: check.status,
       statusLabel: statusLabelFor(check.status),
       tone: check.status,
       required: check.required,
@@ -245,39 +231,26 @@ export class ZavorthRuntimeReadinessUxService {
 
     if (!target) {
       return {
-        id: 'open-zavorthControl',
         label: 'Abrir zavorthControl',
         kind: 'route',
         route: readiness.operator.zavorthControlRoute,
         primary: true,
-        executionAuthority: false,
-        summary: 'Abrir a superficie diaria do Zavorth.',
       };
     }
 
     return {
       ...target.action,
-      id: `${target.action.id}-primary`,
-      primary: true,
     };
   }
 
   private resolveSecondaryActions(
-    cards: ZavorthRuntimeReadinessUxCard[],
     primaryAction: ZavorthRuntimeReadinessUxAction,
   ): ZavorthRuntimeReadinessUxAction[] {
     const actions = cards
       .filter((card) => card.action.id !== primaryAction.id.replace(/-primary$/, ''))
       .map((card) => card.action);
     const zavorthControlAction: ZavorthRuntimeReadinessUxAction = {
-      id: 'open-zavorthControl',
-      label: 'Abrir zavorthControl',
-      kind: 'route',
-      route: '/zavorthControl',
       callbackData: '/zavorthControl',
-      primary: false,
-      executionAuthority: false,
-      summary: 'Abrir a superficie diaria do Zavorth.',
     };
     return uniqueActions([zavorthControlAction, ...actions]);
   }

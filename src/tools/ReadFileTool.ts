@@ -20,7 +20,7 @@ export class ReadFileTool extends BaseTool {
     required: ['filePath'],
   };
 
-  public async execute(args: any): Promise<string> {
+  public async execute(args: Record<string, unknown>): Promise<string> {
     const rawFilePath = String(args.filePath || '').trim();
     if (!rawFilePath) {
       return 'Erro: O parametro "filePath" e obrigatorio.';
@@ -56,9 +56,10 @@ export class ReadFileTool extends BaseTool {
       }
 
       return content.trim();
-    } catch (error: any) {
-      console.error(`❌ [ReadFile] Erro ao ler:`, error.message);
-      return `Erro ao ler o arquivo: ${error.message}`;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`❌ [ReadFile] Erro ao ler:`, message);
+      return `Erro ao ler o arquivo: ${message}`;
     }
   }
 }

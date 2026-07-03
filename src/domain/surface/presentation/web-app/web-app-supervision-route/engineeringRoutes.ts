@@ -35,7 +35,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
       rawText: objective,
       workspaceHint: String(body.workspaceRoot || body.workspace || '').trim() || null,
       dispatcher: dispatchTask ? deps.runtime.surfaceTaskDispatcher || null : null,
-      dispatchContext: dispatchTask ? (webCtx as any) : null,
+      dispatchContext: dispatchTask ? (webCtx as Record<string, unknown>) : null,
       autoDispatch: dispatchTask,
       startSession: body.startSession !== false,
     });
@@ -57,8 +57,8 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
       const replayRunId = runId.replace(/\/replay$/, '').trim();
       try {
         deps.writeJson(res, { ok: true, replay: service.getReplay(replayRunId) }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Replay indisponivel.' }, 404);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Replay indisponivel.' }, 404);
       }
       return true;
     }
@@ -175,15 +175,14 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
         res,
         {
           ok: true,
-          run: await service.continueRun(runId, deps.runtime.surfaceTaskDispatcher || null, webCtx as any),
+          run: await service.continueRun(runId, deps.runtime.surfaceTaskDispatcher || null, webCtx as Record<string, unknown>),
         },
         200,
       );
       return true;
-    } catch (error: any) {
-      const message = error?.message || 'Falha ao operar o run de engenharia.';
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Falha ao operar o run de engenharia.';
       deps.writeJson(res, { ok: false, error: message }, message.includes('nao encontrado') ? 404 : 409);
-      return true;
     }
   }
 

@@ -7,7 +7,7 @@ import {
 } from '../../orchestrator/graph/SupervisorGraph.js';
 import type { ChatMessage } from '../../providers/ILlmProvider.js';
 import { ExecutionIntentClassifierService } from '../ExecutionIntentClassifierService.js';
-import type { LlmRuntimeService } from '../llm/LlmRuntimeService.js';
+import type { LlmRunOptions, LlmRuntimeService } from '../llm/LlmRuntimeService.js';
 import { ProviderStrategyService } from '../ProviderStrategyService.js';
 import { SkillRoutingService } from '../SkillRoutingService.js';
 import { CostBudgetService } from '../telemetry/CostBudgetService.js';
@@ -140,7 +140,8 @@ export class GraphRuntimeService {
       });
 
       return runtimeResult;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       await this.telemetryRuntime.record({
         traceId,
         source: 'graph-runtime',
@@ -152,7 +153,7 @@ export class GraphRuntimeService {
           deliveryProfile: executionProfile.deliveryProfile,
           verificationProfile: executionProfile.verificationProfile,
           decisionTrace: buildDecisionTrace(executionProfile),
-          error: error?.message || String(error),
+          error: errorMessage,
         },
       });
       throw error;
@@ -202,9 +203,9 @@ export class GraphRuntimeService {
   private buildExecutionAwareLlmRuntime(executionProfile: GraphExecutionProfile): LlmRuntimeService {
     const baseRuntime = this.llmRuntime;
     return {
-      ...(baseRuntime as any),
-      chat: async (messages: ChatMessage[], tools?: any, options?: any) => {
-        return baseRuntime.chat(messages, tools, {
+      ...(baseRuntime as unknown as Record<string, unknown>),
+      chat: async (messages: ChatMessage[], tools?: never, options?: LlmRunOptions) => {
+        return baseRuntime.chat(messages, undefined, {
           providerName: options?.providerName || executionProfile.providerName,
           modelName: options?.modelName || executionProfile.modelName,
           allowFallback:
@@ -236,7 +237,7 @@ export class GraphRuntimeService {
   }
 
   private isProviderUsable(name: string): boolean {
-    const runtime = this.llmRuntime as any;
+    const runtime = this.llmRuntime as unknown as { isProviderAvailable?: (name: string) => boolean };
     if (typeof runtime.isProviderAvailable === 'function') {
       try {
         return runtime.isProviderAvailable(name);

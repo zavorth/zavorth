@@ -90,10 +90,7 @@ export type ZavorthSensitiveActionFlowSnapshot = {
   approval: ZavorthSensitiveActionApproval;
   execution: ZavorthSensitiveActionExecution;
   rollback: ZavorthSensitiveActionRollback;
-  receipt: ZavorthVisualReceiptContract;
   timeline: Array<{
-    id: string;
-    status: 'done' | 'pending' | 'blocked';
     summary: string;
   }>;
   zavorthControlProjection: {
@@ -102,15 +99,7 @@ export type ZavorthSensitiveActionFlowSnapshot = {
     executionAuthority: false;
     renderAsActionCard: true;
   };
-  zavorthControlProjection: {
-    route: '/control';
-    endpoint: '/api/sensitive-action-flow';
-    executionAuthority: false;
-    renderAsActionCard: true;
-  };
   invariants: Array<{
-    id: string;
-    status: 'passed';
     detail: string;
   }>;
   nextAction: string;

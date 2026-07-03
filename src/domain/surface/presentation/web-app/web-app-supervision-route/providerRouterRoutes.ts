@@ -1,9 +1,29 @@
+import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
 import type { WebAppSupervisionRouteHandler } from './types.js';
 import { getRequestedBy } from './helpers.js';
 
+interface ProviderRouterService {
+  buildSnapshot(): Record<string, unknown>;
+  getLastReceipt(): Record<string, unknown> | null;
+  route(params: {
+    prompt: string;
+    model: string | null;
+    preferredProvider: string | null;
+    maxTokens: number | null;
+    temperature: number | null;
+    systemPrompt: string | null;
+    conversationHistory: unknown;
+    requestedBy: string | null;
+    budgetPreference: string;
+  }): Promise<Record<string, unknown>>;
+  buildRouterCatalog(): Record<string, unknown>;
+}
+
+type ProviderRouterDeps = WebAppRuntimeRouteDeps & { providerRouter?: ProviderRouterService };
+
 export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (ctx) => {
   const { req, res, pathname, deps } = ctx;
-  const service = (deps as any).providerRouter;
+  const service = (deps as ProviderRouterDeps).providerRouter;
 
   if (pathname === '/api/web/provider-router/snapshot' && req.method === 'GET') {
     if (!service) {
@@ -52,10 +72,10 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
         budgetPreference: body.budgetPreference || 'auto',
       });
       deps.writeJson(res, { ok: true, receipt }, 200);
-    } catch (error: any) {
+    } catch (error: unknown) {
       deps.writeJson(
         res,
-        { ok: false, error: error?.message || 'Falha ao rotear a requisicao.' },
+        { ok: false, error: error instanceof Error ? error.message : 'Falha ao rotear a requisicao.' },
         400,
       );
     }

@@ -200,11 +200,7 @@ interface AutomationActions {
   }>;
   apply?: (options: {
     planId: string;
-    requestedBy: string;
   }) => Promise<{
-    ok: boolean;
-    status?: string;
-    snapshot?: unknown;
     [key: string]: unknown;
   }>;
 }
@@ -296,15 +292,11 @@ interface NaturalSetupMutationPlanner {
     channelId?: string | null;
     mode?: string | null;
     intentText?: string | null;
-    apply?: boolean;
     doctor?: boolean;
     test?: boolean;
     localOnly?: boolean;
-    requestedBy: string;
     sourceSurface: string;
   }) => Promise<{
-    snapshot?: unknown;
-    mutationPlan?: unknown;
     trustDecision?: unknown;
     [key: string]: unknown;
   }>;
@@ -353,9 +345,6 @@ export type WebAppSurfaceRouteDeps = {
     buildDomainSnapshot?: () => unknown;
   } | null;
   gateway: {
-    buildHydratedSnapshot: (input: GatewaySnapshotInput) => Promise<unknown>;
-    buildDomainSummarySnapshot?: () => unknown;
-    buildDomainSnapshot?: () => unknown;
   } | null;
   gatewayRuntime?: {
     buildCanonicalSnapshot: (input: GatewaySnapshotInput) => Promise<unknown>;
@@ -397,7 +386,6 @@ export type WebAppSurfaceRouteDeps = {
 
   // Other services
   naturalSetupMutationPlanner?: NaturalSetupMutationPlanner;
-  naturalSetupControlPlane?: NaturalSetupControlPlane;
   channelSetupAssistant?: unknown;
   channelActions?: unknown;
   capabilityCatalog?: CapabilityCatalog;

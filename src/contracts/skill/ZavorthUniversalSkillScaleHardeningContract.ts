@@ -78,13 +78,6 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
     items: ZavorthUniversalSkillZavorthControlReviewItem[];
     recommendedDataEndpoint: '/api/skills/scale-hardening';
   };
-  zavorthControlReview: {
-    contractOnly: true;
-    approvedVisualChangesApplied: false;
-    layoutMutationPerformed: false;
-    items: ZavorthUniversalSkillZavorthControlReviewItem[];
-    recommendedDataEndpoint: '/api/skills/scale-hardening';
-  };
   rollout: {
     readyForLargeLibraryUse: boolean;
     recommendedMode: 'preview' | 'limited-apply' | 'canary-apply' | 'hold';
@@ -97,11 +90,9 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
   };
   policy: {
     zavorthControlControlsOnboardingIsAuthority: true;
-    zavorthControlControlsOnboardingIsAuthority: true;
     previewFirstForLargeLibraries: true;
     batchApplyRequiresExplicitAllowlist: true;
     canaryBeforeBulkApply: true;
-    zavorthControlReviewDoesNotChangeVisuals: true;
     zavorthControlReviewDoesNotChangeVisuals: true;
     noVisualChangeWithoutOwnerApproval: true;
     noExecutionPerformed: true;

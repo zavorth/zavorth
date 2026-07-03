@@ -77,11 +77,9 @@ export type ZavorthScheduledTaskDailyOpsReadinessSnapshot = {
     certify: string;
   };
   summary: {
-    gates: number;
     passedGates: number;
     warningGates: number;
     failedGates: number;
-    surfaces: number;
     readySurfaces: number;
     dailyUseReady: boolean;
     hostTaskChecked: boolean;
@@ -91,7 +89,6 @@ export type ZavorthScheduledTaskDailyOpsReadinessSnapshot = {
     consumesStage6LiveTickCertification: true;
     allUserActionsGoThroughGovernedSurfaces: true;
     hostTaskCertificationIsExplicit: true;
-    noZavorthControlVisualMutation: true;
     noZavorthControlVisualMutation: true;
     noDirectDispatcherBypass: true;
     rawSecretsSerialized: false;

@@ -110,7 +110,6 @@ export type ZavorthUxRolloutSafety = {
   evidenceOnly: true;
   noLiveActionExecuted: true;
   noZavorthControlVisualMutation: true;
-  noZavorthControlVisualMutation: true;
   liveCanaryRequiresOwnerApproval: true;
   evidenceMustBeRedacted: true;
   evidenceNotPersistedByDefault: true;

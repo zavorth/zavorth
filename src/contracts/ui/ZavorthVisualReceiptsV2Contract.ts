@@ -21,7 +21,6 @@ export type ZavorthVisualReceiptV2Action = {
   requiresApproval: boolean;
   mutatesState: boolean;
   zavorthControlCanExecute: false;
-  zavorthControlCanExecute: false;
 };
 
 export type ZavorthVisualReceiptV2Card = {
@@ -77,8 +76,6 @@ export type ZavorthVisualReceiptsV2Snapshot = {
   exportFormats: Array<'markdown' | 'json' | 'audit-json'>;
   safety: {
     projectionOnly: true;
-    rawSecretsSerialized: false;
-    zavorthControlCanExecute: false;
     zavorthControlCanExecute: false;
     approvalActionsStayScoped: true;
     rollbackRequiresApproval: true;

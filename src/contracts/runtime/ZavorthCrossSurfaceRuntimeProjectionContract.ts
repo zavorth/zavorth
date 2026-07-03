@@ -71,7 +71,6 @@ export type ZavorthCrossSurfaceProjectionCard = {
   metrics: Array<{
     label: string;
     value: string;
-    tone: ZavorthCrossSurfaceProjectionTone;
   }>;
   lines: string[];
   actions: ZavorthCrossSurfaceActionProjection[];
@@ -125,8 +124,6 @@ export type ZavorthCrossSurfaceProjectionReceipt = {
 export type ZavorthCrossSurfaceProjectionSafety = {
   noZavorthControlVisualMutation: true;
   zavorthControlIsViewModelOnly: true;
-  noZavorthControlVisualMutation: true;
-  zavorthControlIsViewModelOnly: true;
   noLiveActionExecuted: true;
   sameSemanticsAcrossSurfaces: true;
   telegramNotPrivileged: true;
@@ -149,7 +146,6 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
   toolOrchestration: ZavorthToolOrchestrationVerificationSnapshot;
   surfaceCards: ZavorthCrossSurfaceProjectionCard[];
   apiProjection: ZavorthCrossSurfaceApiProjection;
-  zavorthControlProjection: ZavorthControlRuntimeProjection;
   zavorthControlProjection: ZavorthControlRuntimeProjection;
   channelFallbacks: Record<ZavorthCrossSurfaceProjectionSurface, string>;
   receipts: ZavorthCrossSurfaceProjectionReceipt[];

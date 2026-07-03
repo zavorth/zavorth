@@ -19,7 +19,7 @@ export class ListDirectoryTool extends BaseTool {
     },
   };
 
-  public async execute(args: any): Promise<string> {
+  public async execute(args: Record<string, unknown>): Promise<string> {
     const rawDirPath = typeof args?.dirPath === 'string' && args.dirPath.trim()
       ? args.dirPath
       : undefined;
@@ -44,8 +44,8 @@ export class ListDirectoryTool extends BaseTool {
       const items = fs.readdirSync(dirPath, { withFileTypes: true });
       
       let output = `Conteúdo do diretório: ${dirPath}\n\n`;
-      let folders = [];
-      let files = [];
+      let folders: string[] = [];
+      let files: string[] = [];
 
       for (const item of items) {
         if (item.isDirectory()) folders.push(`[DIR]  ${item.name}`);
@@ -60,9 +60,10 @@ export class ListDirectoryTool extends BaseTool {
       }
 
       return output.trim();
-    } catch (error: any) {
-      console.error(`❌ [ListDirectory] Erro ao listar:`, error.message);
-      return `Erro ao ler diretório: ${error.message}`;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`❌ [ListDirectory] Erro ao listar:`, message);
+      return `Erro ao ler diretório: ${message}`;
     }
   }
 }

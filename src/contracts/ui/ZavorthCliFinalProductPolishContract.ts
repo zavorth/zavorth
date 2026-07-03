@@ -35,13 +35,11 @@ export type ZavorthCliFinalProductPolishSnapshot = {
   };
   entries: ZavorthCliFinalProductPolishEntry[];
   summary: {
-    entries: number;
     passed: number;
     attention: number;
     blocked: number;
     requiredCommands: string[];
     zavorthControlPath: '/zavorthControl';
-    zavorthControlPath: '/control';
     inkPreviewRendersOnce: boolean;
     inkInteractiveMode: boolean;
     zavorthNativeCommandIdentity: boolean;
@@ -55,7 +53,6 @@ export type ZavorthCliFinalProductPolishSnapshot = {
     cliProjectionsAreReadOnly: true;
     mutableExecutionStaysInRuntime: true;
     approvalsRemainPolicyBrokerBound: true;
-    rawSecretsSerialized: false;
   };
   commands: {
     inspect: 'npm run zavorth:cli-final-product-polish';

@@ -101,8 +101,8 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
         return true;
       }
       deps.writeJson(res, { ok: true, policy: snapshot.policy, snapshot }, 200);
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao ajustar a policy do Watch Mode.' }, 400);
+    } catch (error: unknown) {
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Falha ao ajustar a policy do Watch Mode.' }, 400);
     }
     return true;
   }
@@ -187,8 +187,8 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
         delayBetweenActionsMs: Number(body.delayBetweenActionsMs || 0) || null,
       });
       deps.writeJson(res, { ok: true, run, snapshot: service.buildSnapshot(8) }, 200);
-    } catch (error: any) {
-      const message = error?.message || 'Falha ao iniciar o Watch Mode.';
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Falha ao iniciar o Watch Mode.';
       const statusCode = /bloqueado por seguranca/i.test(message) ? 403 : 409;
       deps.writeJson(res, { ok: false, error: message }, statusCode);
     }
@@ -261,8 +261,8 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
           note: String(body.note || '').trim() || null,
         });
         deps.writeJson(res, { ok: true, run, snapshot: service.buildSnapshot(8) }, 200);
-      } catch (error: any) {
-        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao decidir approval do Watch Mode.' }, 409);
+      } catch (error: unknown) {
+        deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Falha ao decidir approval do Watch Mode.' }, 409);
       }
       return true;
     }
@@ -286,8 +286,8 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
           ? service.resumeRun(runId, requestedBy)
           : service.stopRun(runId, requestedBy);
       deps.writeJson(res, { ok: true, run, snapshot: service.buildSnapshot(8) }, 200);
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao mutar o Watch Mode.' }, 409);
+    } catch (error: unknown) {
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Falha ao mutar o Watch Mode.' }, 409);
     }
     return true;
   }

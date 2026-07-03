@@ -12,7 +12,6 @@ export type ZavorthApprovalActionCardAction = {
   approvalId: string | null;
   zavorthControlCanResolveApproval: boolean;
   zavorthControlCanExecuteTargetAction: false;
-  zavorthControlCanExecuteTargetAction: false;
   requiresApproval: boolean;
 };
 
@@ -34,19 +33,12 @@ export type ZavorthApprovalActionCard = {
     messages: number;
   };
   rollback: {
-    available: boolean;
-    command: string | null;
-    summary: string;
   };
   receipt: {
-    available: boolean;
-    id: string | null;
-    command: string;
   };
   actions: ZavorthApprovalActionCardAction[];
   safety: {
     policyBrokerRequired: true;
-    zavorthControlCanExecuteTargetAction: false;
     zavorthControlCanExecuteTargetAction: false;
     rawSecretsSerialized: false;
     approvalScopeBound: true;

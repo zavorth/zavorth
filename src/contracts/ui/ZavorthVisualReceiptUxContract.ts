@@ -21,7 +21,6 @@ export type ZavorthVisualReceiptUxAction = {
   requiresApproval: boolean;
   mutatesState: boolean;
   zavorthControlCanExecute: false;
-  zavorthControlCanExecute: false;
 };
 
 export type ZavorthVisualReceiptUxCard = {
@@ -46,7 +45,6 @@ export type ZavorthVisualReceiptUxCard = {
     rawSecretsSerialized: false;
     secretPolicy: ZavorthVisualReceiptContract['redaction']['policy'];
     zavorthControlCanExecute: false;
-    zavorthControlCanExecute: false;
     projectionOnly: true;
   };
 };
@@ -67,13 +65,6 @@ export type ZavorthVisualReceiptUxSnapshot = {
   cards: ZavorthVisualReceiptUxCard[];
   zavorthControlProjection: {
     route: '/zavorthControl';
-    renderMode: 'projection-only';
-    executionAuthority: false;
-    zavorthControlCanExecute: false;
-    visualReceiptBlocksReady: true;
-  };
-  zavorthControlProjection: {
-    route: '/control';
     renderMode: 'projection-only';
     executionAuthority: false;
     zavorthControlCanExecute: false;

@@ -6,6 +6,11 @@ import {
   type ZavorthSelfHealingProjection,
   type ZavorthSelfHealingSetupContext,
 } from '../contracts/ZavorthSelfHealingUxContract.js';
+import type {
+  ZavorthProviderReadinessEntry,
+  ZavorthProviderReadinessMatrixSnapshot,
+} from '../contracts/provider/ZavorthProviderReadinessMatrixContract.js';
+import type { ExperienceSnapshot } from './experience/ExperienceContracts.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
 
 type ProjectionBody = Omit<
@@ -81,7 +86,7 @@ export class ZavorthSelfHealingUxService {
 
   private classify(input: {
     signalText: string;
-    snapshot: any;
+    snapshot: ExperienceSnapshot | null;
     resultOk: boolean;
     resultRequiresApproval: boolean;
   }): ZavorthSelfHealingIssueKind {
@@ -129,7 +134,7 @@ export class ZavorthSelfHealingUxService {
     issue: ZavorthSelfHealingIssueKind;
     attempted: string;
     signalText: string;
-    snapshot: any;
+    snapshot: ExperienceSnapshot | null;
     providerFallbacks: string[];
   }): ProjectionBody {
     switch (input.issue) {
@@ -364,17 +369,17 @@ export class ZavorthSelfHealingUxService {
     };
   }
 
-  private providerFallbacks(matrix: any): string[] {
+  private providerFallbacks(matrix: ZavorthProviderReadinessMatrixSnapshot | null): string[] {
     const entries = Array.isArray(matrix?.entries) ? matrix.entries : [];
     return entries
-      .filter((entry: any) => entry?.defaultRouteAllowed === true || entry?.liveReady === true || entry?.status === 'ready')
-      .filter((entry: any) => !entry?.defaultBlockReason)
-      .map((entry: any) => sanitize(entry?.id || entry?.label || ''))
+      .filter((entry: ZavorthProviderReadinessEntry) => entry?.defaultRouteAllowed === true || entry?.liveReady === true || entry?.status === 'ready')
+      .filter((entry: ZavorthProviderReadinessEntry) => !entry?.defaultBlockReason)
+      .map((entry: ZavorthProviderReadinessEntry) => sanitize(entry?.id || entry?.label || ''))
       .filter(Boolean)
       .slice(0, 4);
   }
 
-  private safeProviderMatrix(): any {
+  private safeProviderMatrix(): ZavorthProviderReadinessMatrixSnapshot | null {
     try {
       return new ZavorthProviderReadinessMatrixService().buildSnapshot({
         includeAdvanced: false,
