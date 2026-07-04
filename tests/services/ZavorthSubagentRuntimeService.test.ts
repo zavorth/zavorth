@@ -160,6 +160,61 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
+
+  it('projects the shared dispatcher workboard with canonical task states and details', async () => {
+    const fixture = createFixture();
+    try {
+      const service = new ZavorthSubagentRuntimeService({
+        now: () => new Date('2026-05-10T14:00:00.000Z'),
+        stateFilePath: fixture.stateFile,
+        boardDbPath: path.join(fixture.root, 'workboard.sqlite'),
+      });
+      const created = await service.execute({
+        action: 'subagents.board.create',
+        task: 'Coordinate runtime board',
+        tasks: ['Render runtime task in desktop'],
+        channel: 'dashboard',
+        persistState: false,
+      });
+      const claimed = await service.execute({
+        action: 'subagents.board.claim',
+        workerId: 'worker-runtime',
+        persistState: false,
+      });
+
+      await service.execute({
+        action: 'subagents.board.heartbeat',
+        taskId: claimed.workboard.selectedTaskId,
+        workerId: 'worker-runtime',
+        persistState: false,
+      });
+      const completed = await service.execute({
+        action: 'subagents.board.complete',
+        taskId: claimed.workboard.selectedTaskId,
+        workerId: 'worker-runtime',
+        message: 'Rendered through the shared projection.',
+        persistState: false,
+      });
+
+      expect(created.workboard.tasks[0]?.status).toBe('queued');
+      expect(claimed.workboard.selectedTask?.status).toBe('claimed');
+      expect(claimed.workboard.selectedTask).toEqual(expect.objectContaining({
+        attempts: 1,
+        maxRetries: 2,
+        claimedBy: 'worker-runtime',
+      }));
+      expect(completed.workboard.selectedTask).toEqual(expect.objectContaining({
+        status: 'completed',
+        artifactRefs: [],
+        comments: expect.arrayContaining([
+          expect.objectContaining({ author: 'worker-runtime', body: 'Rendered through the shared projection.' }),
+        ]),
+      }));
+      expect(completed.workboard.summary.completed).toBe(1);
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
 });
 
 function createFixture() {
