@@ -42,7 +42,7 @@ describe('ZavorthSubagentBoardService', () => {
     first.completeTask({
       taskId: task.taskId,
       workerId: 'worker-a',
-      status: 'done',
+      status: 'completed',
       evidenceRefs: ['receipt:worker-a'],
       summary: 'Read-only evidence collected.',
     });
@@ -58,7 +58,7 @@ describe('ZavorthSubagentBoardService', () => {
     expect(claim?.taskId).toBe(task.taskId);
     expect(snapshot.sessions).toHaveLength(1);
     expect(snapshot.tasks).toEqual(expect.arrayContaining([
-      expect.objectContaining({ taskId: task.taskId, status: 'done' }),
+      expect.objectContaining({ taskId: task.taskId, status: 'completed' }),
     ]));
     expect(snapshot.workers).toEqual(expect.arrayContaining([
       expect.objectContaining({ workerId: 'worker-a', status: 'idle' }),

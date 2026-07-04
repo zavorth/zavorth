@@ -474,4 +474,83 @@ describe('WorkboardPanel', () => {
       expect(screen.getByText('Priority Distribution')).toBeInTheDocument();
     });
 
-    it
+    it('displays cards per column section', async () => {
+      renderPanel();
+      await switchToStatsTab();
+
+      expect(screen.getByText('Cards per Column')).toBeInTheDocument();
+    });
+  });
+
+  describe('Handles empty board', () => {
+    it('shows empty state when no boards provided', () => {
+      renderPanel({ boards: [] });
+
+      expect(screen.getByText(/No boards available/)).toBeInTheDocument();
+    });
+
+    it('shows "No cards" in empty columns', async () => {
+      renderPanel({ boards: [EMPTY_BOARD] });
+      await switchToCardsTab();
+
+      const emptyTexts = screen.getAllByText('No cards');
+      expect(emptyTexts.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('shows empty state for cards tab with no board selected', async () => {
+      renderPanel({ boards: [] });
+      await switchToCardsTab();
+
+      expect(screen.getByText(/Select a board/)).toBeInTheDocument();
+    });
+
+    it('shows empty state for stats tab with no board selected', async () => {
+      renderPanel({ boards: [] });
+      await switchToStatsTab();
+
+      expect(screen.getByText(/Select a board/)).toBeInTheDocument();
+    });
+  });
+
+  describe('Column management', () => {
+    it('renders add column input in cards view', async () => {
+      renderPanel();
+      await switchToCardsTab();
+
+      expect(screen.getByPlaceholderText('Column name')).toBeInTheDocument();
+    });
+
+    it('calls onColumnCreate when adding a column', async () => {
+      const user = userEvent.setup();
+      const { onColumnCreate } = renderPanel();
+      await switchToCardsTab();
+
+      const columnInput = screen.getByPlaceholderText('Column name');
+      await user.type(columnInput, 'Testing');
+
+      const addButton = screen.getByTitle('Add column');
+      await user.click(addButton);
+
+      expect(onColumnCreate).toHaveBeenCalledWith('board-1', 'Testing');
+    });
+
+    it('adds column on Enter key', async () => {
+      const user = userEvent.setup();
+      const { onColumnCreate } = renderPanel();
+      await switchToCardsTab();
+
+      const columnInput = screen.getByPlaceholderText('Column name');
+      await user.type(columnInput, 'Review{Enter}');
+
+      expect(onColumnCreate).toHaveBeenCalledWith('board-1', 'Review');
+    });
+
+    it('disables add button when column name is empty', async () => {
+      renderPanel();
+      await switchToCardsTab();
+
+      const addButton = screen.getByTitle('Add column');
+      expect(addButton).toBeDisabled();
+    });
+  });
+});

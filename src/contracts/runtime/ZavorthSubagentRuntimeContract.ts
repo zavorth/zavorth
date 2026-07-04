@@ -263,10 +263,25 @@ export type ZavorthSubagentRuntimeWorkboardProjection = {
     parentTaskId: string | null;
     title: string;
     status: ZavorthSubagentBoardTaskStatus;
+    risk: string;
+    attempts: number;
+    failureCount: number;
+    maxRetries: number;
     claimedBy: string | null;
+    claimedAt: string | null;
     heartbeatAt: string | null;
+    heartbeatDeadlineAt: string | null;
     blockedReason: string | null;
+    artifactRefs: string[];
+    comments: Array<{
+      id: string;
+      author: string;
+      body: string;
+      createdAt: string;
+    }>;
     summary: string | null;
+    createdAt: string;
+    updatedAt: string;
   } | null;
   sessions: Array<{
     sessionId: string;
@@ -281,10 +296,25 @@ export type ZavorthSubagentRuntimeWorkboardProjection = {
     parentTaskId: string | null;
     title: string;
     status: ZavorthSubagentBoardTaskStatus;
+    risk: string;
+    attempts: number;
+    failureCount: number;
+    maxRetries: number;
     claimedBy: string | null;
+    claimedAt: string | null;
     heartbeatAt: string | null;
+    heartbeatDeadlineAt: string | null;
     blockedReason: string | null;
+    artifactRefs: string[];
+    comments: Array<{
+      id: string;
+      author: string;
+      body: string;
+      createdAt: string;
+    }>;
     summary: string | null;
+    createdAt: string;
+    updatedAt: string;
   }>;
   workers: Array<{
     workerId: string;

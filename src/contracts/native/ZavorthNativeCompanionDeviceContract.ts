@@ -1,3 +1,5 @@
+import type { NodeMeshCapabilityId, NodeMeshTransport } from '../NodeMeshContract.js';
+
 export const ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION = '2026-05-05.checkpoint-6' as const;
 
 export type ZavorthNativeRuntimeTarget =
@@ -57,6 +59,99 @@ export type ZavorthNativeCapabilityReceipt = {
   localProofPerformed: boolean;
   enabledByDefault: boolean;
   secretValuesSerialized: false;
+  reason: string;
+};
+
+export type ZavorthPairedDeviceStatus = 'pending' | 'approved' | 'revoked' | 'blocked';
+
+export type ZavorthPairedDeviceTransport =
+  | NodeMeshTransport
+  | 'mock-device-node'
+  | 'pwa'
+  | 'native-ios'
+  | 'native-android';
+
+export type ZavorthPairedDeviceScope =
+  | 'device:info'
+  | 'device:camera'
+  | 'device:location'
+  | 'device:notifications'
+  | 'device:confirm'
+  | 'device:haptics'
+  | 'device:screen'
+  | 'device:clipboard'
+  | string;
+
+export type ZavorthPairedDeviceTrustLevel =
+  | 'untrusted'
+  | 'trusted'
+  | 'restricted'
+  | 'revoked'
+  | 'blocked';
+
+export type ZavorthPairedDeviceTrustMetadata = {
+  level: ZavorthPairedDeviceTrustLevel;
+  approvedAt: string | null;
+  approvedBy: string | null;
+  revokedAt: string | null;
+  revokedBy: string | null;
+  blockedAt: string | null;
+  blockedBy: string | null;
+  keyRotatedAt: string | null;
+  trustReceiptId: string | null;
+};
+
+export type ZavorthPairedDeviceRecord = {
+  id: string;
+  label: string;
+  status: ZavorthPairedDeviceStatus;
+  publicKey: string;
+  transport: ZavorthPairedDeviceTransport;
+  scopes: ZavorthPairedDeviceScope[];
+  capabilities: NodeMeshCapabilityId[];
+  lastSeenAt: string | null;
+  trust: ZavorthPairedDeviceTrustMetadata;
+};
+
+export type ZavorthPairedDeviceAuditAction =
+  | 'approve'
+  | 'revoke'
+  | 'block'
+  | 'rotate-trust'
+  | 'trust';
+
+export type ZavorthPairedDeviceAuditReceipt = {
+  id: string;
+  action: ZavorthPairedDeviceAuditAction;
+  deviceId: string;
+  actor: string;
+  status: 'allowed' | 'denied';
+  previousStatus: ZavorthPairedDeviceStatus | null;
+  nextStatus: ZavorthPairedDeviceStatus | null;
+  reason: string;
+  createdAt: string;
+  auditTrail: 'paired-device-foundation';
+  secretValuesSerialized: false;
+};
+
+export type ZavorthPairedDeviceActionResult = {
+  ok: boolean;
+  device: ZavorthPairedDeviceRecord | null;
+  receipt: ZavorthPairedDeviceAuditReceipt;
+};
+
+export type ZavorthPairedDeviceCapabilityInspection = {
+  ok: boolean;
+  status:
+    | 'allowed'
+    | 'not-found'
+    | 'status-denied'
+    | 'capability-denied'
+    | 'scope-denied';
+  deviceId: string;
+  deviceStatus: ZavorthPairedDeviceStatus | null;
+  capabilityId: NodeMeshCapabilityId;
+  requiredScope: ZavorthPairedDeviceScope | null;
   reason: string;
 };
 

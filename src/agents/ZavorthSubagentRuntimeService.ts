@@ -655,18 +655,22 @@ export class ZavorthSubagentRuntimeService {
         const task = board.completeTask({
           taskId: selectedTaskId,
           workerId: normalizeText(input.workerId, 'worker'),
-          status: 'done',
+          status: 'completed',
           summary: normalizeText(input.message, 'Task completed.'),
+          comment: normalizeText(input.message, 'Task completed.'),
           evidenceRefs: [],
+          artifactRefs: [],
         });
         detail = `Completed workboard task ${task.taskId}.`;
       } else if (action === 'subagents.board.block' && selectedTaskId) {
         const task = board.completeTask({
           taskId: selectedTaskId,
           workerId: normalizeText(input.workerId, 'worker'),
-          status: 'failed',
+          status: 'blocked',
           summary: normalizeText(input.message, 'Task blocked.'),
+          comment: normalizeText(input.message, 'Task blocked.'),
           evidenceRefs: ['blocked'],
+          artifactRefs: ['blocked'],
         });
         detail = `Blocked workboard task ${task.taskId}.`;
       }
@@ -1612,7 +1616,8 @@ export class ZavorthSubagentRuntimeService {
       maxDepth: session.maxDepth,
       maxChildren: session.maxChildren,
     }));
-    const tasks = (snapshot?.tasks || []).map(mapWorkboardTask);
+    const receipts = snapshot?.receipts || [];
+    const tasks = (snapshot?.tasks || []).map((task) => mapWorkboardTask(task, receipts));
     const selectedTask = selectedTaskId
       ? tasks.find((task) => task.taskId === selectedTaskId) || null
       : null;
@@ -1626,7 +1631,7 @@ export class ZavorthSubagentRuntimeService {
         status: worker.status,
         currentTaskId: worker.currentTaskId,
       })),
-      receipts: (snapshot?.receipts || []).map((receipt) => ({
+      receipts: receipts.map((receipt) => ({
         receiptId: receipt.receiptId,
         action: receipt.action,
         taskId: receipt.taskId,

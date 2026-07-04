@@ -13,7 +13,9 @@ export type ZavorthSubagentBoardTaskRisk =
 
 export type ZavorthSubagentBoardTaskStatus =
   | 'queued'
+  | 'claimed'
   | 'running'
+  | 'completed'
   | 'done'
   | 'failed'
   | 'cancelled'
@@ -48,9 +50,18 @@ export type ZavorthSubagentBoardTask = {
   heartbeatDeadlineAt: string | null;
   blockedReason: string | null;
   evidenceRefs: string[];
+  artifactRefs: string[];
+  comments: ZavorthSubagentBoardTaskComment[];
   summary: string | null;
   createdAt: string;
   updatedAt: string;
+};
+
+export type ZavorthSubagentBoardTaskComment = {
+  id: string;
+  author: string;
+  body: string;
+  createdAt: string;
 };
 
 export type ZavorthSubagentBoardWorker = {
@@ -143,8 +154,10 @@ type ClaimInput = {
 type CompleteTaskInput = {
   taskId: string;
   workerId: string;
-  status: 'done' | 'failed' | 'cancelled';
+  status: 'completed' | 'done' | 'failed' | 'cancelled' | 'blocked';
   evidenceRefs?: string[];
+  artifactRefs?: string[];
+  comment?: string | null;
   summary?: string | null;
 };
 
@@ -182,6 +195,8 @@ type TaskRow = {
   heartbeat_deadline_at: string | null;
   blocked_reason: string | null;
   evidence_refs_json: string;
+  artifact_refs_json?: string;
+  comments_json?: string;
   summary: string | null;
   created_at: string;
   updated_at: string;
@@ -278,8 +293,8 @@ export class ZavorthSubagentBoardService {
       INSERT INTO subagent_board_tasks (
         task_id, session_id, parent_task_id, title, risk, status, depth, attempts, max_retries,
         claimed_by, claimed_at, heartbeat_at, heartbeat_deadline_at, blocked_reason,
-        evidence_refs_json, summary, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, NULL, NULL, NULL, NULL, ?, ?, NULL, ?, ?)
+        evidence_refs_json, artifact_refs_json, comments_json, summary, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, NULL, NULL, NULL, NULL, ?, ?, ?, ?, NULL, ?, ?)
     `).run(
       taskId,
       session.sessionId,
@@ -290,6 +305,8 @@ export class ZavorthSubagentBoardService {
       depth,
       maxRetries,
       blockedReason,
+      JSON.stringify([]),
+      JSON.stringify([]),
       JSON.stringify([]),
       now,
       now,
@@ -321,7 +338,7 @@ export class ZavorthSubagentBoardService {
       const deadline = new Date(this.now().getTime() + ttlMs).toISOString();
       this.db.prepare(`
         UPDATE subagent_board_tasks
-        SET status = 'running',
+        SET status = 'claimed',
             claimed_by = ?,
             claimed_at = ?,
             heartbeat_at = ?,
@@ -336,7 +353,7 @@ export class ZavorthSubagentBoardService {
         sessionId: row.session_id,
         taskId: row.task_id,
         workerId,
-        status: 'running',
+        status: 'claimed',
         summary: 'Task claimed by worker.',
         evidenceRefs: [`heartbeat-deadline:${deadline}`],
       });
@@ -355,7 +372,10 @@ export class ZavorthSubagentBoardService {
     if (taskId) {
       this.db.prepare(`
         UPDATE subagent_board_tasks
-        SET heartbeat_at = ?, heartbeat_deadline_at = ?, updated_at = ?
+        SET status = 'running',
+            heartbeat_at = ?,
+            heartbeat_deadline_at = ?,
+            updated_at = ?
         WHERE task_id = ? AND claimed_by = ?
       `).run(now, deadline, now, taskId, workerId);
     }
@@ -364,22 +384,40 @@ export class ZavorthSubagentBoardService {
   public completeTask(input: CompleteTaskInput): ZavorthSubagentBoardTask {
     const now = this.nowIso();
     const evidenceRefs = input.evidenceRefs || [];
+    const artifactRefs = input.artifactRefs || evidenceRefs;
+    const status = input.status === 'done' ? 'completed' : input.status;
+    const current = this.getTask(input.taskId);
+    const comments = [...current.comments];
+    const comment = normalizeNullable(input.comment);
+    if (comment) {
+      comments.push({
+        id: `comment:${randomUUID()}`,
+        author: normalizeText(input.workerId, 'worker'),
+        body: comment,
+        createdAt: now,
+      });
+    }
     this.db.prepare(`
       UPDATE subagent_board_tasks
-      SET status = ?, evidence_refs_json = ?, summary = ?, updated_at = ?,
+      SET status = ?,
+          evidence_refs_json = ?,
+          artifact_refs_json = ?,
+          comments_json = ?,
+          summary = ?,
+          updated_at = ?,
           claimed_by = NULL, heartbeat_at = NULL, heartbeat_deadline_at = NULL
       WHERE task_id = ? AND (claimed_by = ? OR claimed_by IS NULL)
-    `).run(input.status, JSON.stringify(evidenceRefs), input.summary || null, now, input.taskId, input.workerId);
+    `).run(status, JSON.stringify(evidenceRefs), JSON.stringify(artifactRefs), JSON.stringify(comments), input.summary || null, now, input.taskId, input.workerId);
     this.upsertWorker(input.workerId, 'idle', null, now);
     const task = this.getTask(input.taskId);
     this.recordReceipt({
-      action: 'task.completed',
+      action: status === 'blocked' ? 'task.blocked' : 'task.completed',
       sessionId: task.sessionId,
       taskId: task.taskId,
       workerId: input.workerId,
-      status: input.status,
-      summary: input.summary || `Task ${input.status}.`,
-      evidenceRefs,
+      status,
+      summary: input.summary || `Task ${status}.`,
+      evidenceRefs: artifactRefs,
     });
     return task;
   }
@@ -388,7 +426,7 @@ export class ZavorthSubagentBoardService {
     const now = this.nowIso();
     const expiredRows = this.db.prepare(`
       SELECT * FROM subagent_board_tasks
-      WHERE status = 'running'
+      WHERE status IN ('claimed', 'running')
         AND heartbeat_deadline_at IS NOT NULL
         AND heartbeat_deadline_at < ?
       ORDER BY heartbeat_deadline_at ASC
@@ -528,6 +566,8 @@ export class ZavorthSubagentBoardService {
         blocked_reason TEXT,
         evidence_refs_json TEXT NOT NULL,
         summary TEXT,
+        artifact_refs_json TEXT NOT NULL DEFAULT '[]',
+        comments_json TEXT NOT NULL DEFAULT '[]',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
@@ -557,6 +597,15 @@ export class ZavorthSubagentBoardService {
         evidence_refs_json TEXT NOT NULL
       );
     `);
+    this.ensureColumn('subagent_board_tasks', 'artifact_refs_json', "TEXT NOT NULL DEFAULT '[]'");
+    this.ensureColumn('subagent_board_tasks', 'comments_json', "TEXT NOT NULL DEFAULT '[]'");
+  }
+
+  private ensureColumn(tableName: string, columnName: string, definition: string): void {
+    const rows = this.db.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{ name: string }>;
+    if (!rows.some((row) => row.name === columnName)) {
+      this.db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+    }
   }
 
   private getSession(sessionId: string): ZavorthSubagentBoardSession {
@@ -659,6 +708,8 @@ function mapTaskRow(row: TaskRow): ZavorthSubagentBoardTask {
     heartbeatDeadlineAt: row.heartbeat_deadline_at,
     blockedReason: row.blocked_reason,
     evidenceRefs: parseStringArray(row.evidence_refs_json),
+    artifactRefs: parseStringArray(row.artifact_refs_json || row.evidence_refs_json),
+    comments: parseComments(row.comments_json || '[]'),
     summary: row.summary,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -715,6 +766,28 @@ function parseStringArray(value: string): string[] {
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed) ? parsed.map((entry) => String(entry)) : [];
+  } catch {
+    return [];
+  }
+}
+
+function parseComments(value: string): ZavorthSubagentBoardTaskComment[] {
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((entry) => {
+        const raw = entry && typeof entry === 'object'
+          ? entry as Partial<ZavorthSubagentBoardTaskComment>
+          : {};
+        return {
+          id: normalizeText(raw.id, `comment:${randomUUID()}`),
+          author: normalizeText(raw.author, 'worker'),
+          body: normalizeText(raw.body, ''),
+          createdAt: normalizeText(raw.createdAt, new Date(0).toISOString()),
+        };
+      })
+      .filter((entry) => entry.body);
   } catch {
     return [];
   }
