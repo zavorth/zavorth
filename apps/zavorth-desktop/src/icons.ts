@@ -29,7 +29,11 @@ import {
   IconTrash,
   IconUsers,
   IconX,
+  IconBuildingStore,
+  IconChartBar,
+  IconLayoutGrid,
 } from '@tabler/icons-react';
+
 
 export type IconComponent = TablerIcon;
 
@@ -63,3 +67,7 @@ export const Stop = IconSquareRoundedX;
 export const Terminal = IconTerminal2;
 export const Trash2 = IconTrash;
 export const X = IconX;
+export const Store = IconBuildingStore;
+export const ChartBar = IconChartBar;
+export const LayoutGrid = IconLayoutGrid;
+

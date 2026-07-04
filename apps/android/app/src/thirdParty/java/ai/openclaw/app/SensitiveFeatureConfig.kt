@@ -1,0 +1,7 @@
+﻿package dev.zavorth.companion
+
+object SensitiveFeatureConfig {
+  const val smsEnabled: Boolean = true
+  const val callLogEnabled: Boolean = true
+  const val photosEnabled: Boolean = true
+}

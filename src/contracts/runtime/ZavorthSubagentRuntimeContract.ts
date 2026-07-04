@@ -70,6 +70,8 @@ export type ZavorthSubagentBoardTaskStatus =
   | 'cancelled';
 
 export type ZavorthSubagentRuntimeStatus =
+  | 'queued'
+  | 'claimed'
   | 'ready'
   | 'running'
   | 'completed'
@@ -82,6 +84,7 @@ export type ZavorthSubagentRuntimeStatus =
 
 export type ZavorthSubagentMotionState =
   | 'idle'
+  | 'queued'
   | 'running'
   | 'completed'
   | 'failed'
@@ -90,11 +93,35 @@ export type ZavorthSubagentMotionState =
 
 export type ZavorthSubagentIconMotion = {
   active: boolean;
-  kind: 'none' | 'identicon-frames' | 'mascot-sprite';
+  kind:
+    | 'none'
+    | 'research-scan'
+    | 'audit-border'
+    | 'debug-cursor'
+    | 'orchestrator-ring'
+    | 'general-orbit'
+    | 'mascot-sprite';
   frameCount: number;
   intervalMs: number;
   delayMs: number;
   className: string;
+};
+
+export type ZavorthSubagentActivityMode =
+  | 'research'
+  | 'audit'
+  | 'debug'
+  | 'orchestrate'
+  | 'general'
+  | 'core';
+
+export type ZavorthSubagentIdentitySurface = {
+  className: string;
+  i18nKey: string;
+  ariaLabel: string;
+  title: string;
+  statusToken: string;
+  activityToken: string;
 };
 
 export type ZavorthSubagentVisualIdentity = {
@@ -107,10 +134,13 @@ export type ZavorthSubagentVisualIdentity = {
   glyph: string;
   iconSvg: string;
   isMascot: boolean;
+  activityMode: ZavorthSubagentActivityMode;
   status: ZavorthSubagentRuntimeStatus | 'idle';
   motionState: ZavorthSubagentMotionState;
   animationSeed: number;
   motion: ZavorthSubagentIconMotion;
+  statusGlyph: string;
+  surface: ZavorthSubagentIdentitySurface;
   palette: {
     accent: string;
     muted: string;
@@ -378,6 +408,7 @@ export type ZavorthSubagentRuntimeObservabilityEvent = {
   subagentId: string | null;
   roleId: string | null;
   motionState: ZavorthSubagentMotionState;
+  identity?: ZavorthSubagentVisualIdentity | null;
   receiptId: string | null;
   policyDecisionId: string | null;
   sandboxBackend: ZavorthSubagentSandboxBackendId;

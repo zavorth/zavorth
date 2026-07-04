@@ -1,0 +1,47 @@
+﻿{
+  "teamId": "FWJYW4S8P8",
+  "signingRepo": "git@github.com:zavorth/apps-signing.git",
+  "signingBranch": "main",
+  "profileType": "appstore",
+  "appGroupId": "group.dev.zavorth.companion.shared",
+  "targets": [
+    {
+      "target": "Zavorth",
+      "displayName": "Zavorth",
+      "bundleId": "dev.zavorth.companion",
+      "platform": "IOS",
+      "profileKey": "OPENCLAW_APP_PROFILE",
+      "profileName": "Zavorth App Store dev.zavorth.companion",
+      "capabilities": ["PUSH_NOTIFICATIONS", "APP_GROUPS", "APP_ATTEST"],
+      "appGroups": ["group.dev.zavorth.companion.shared"]
+    },
+    {
+      "target": "ZavorthShareExtension",
+      "displayName": "Zavorth Share",
+      "bundleId": "dev.zavorth.companion.share",
+      "platform": "IOS",
+      "profileKey": "OPENCLAW_SHARE_PROFILE",
+      "profileName": "Zavorth App Store dev.zavorth.companion.share",
+      "capabilities": ["APP_GROUPS"],
+      "appGroups": ["group.dev.zavorth.companion.shared"]
+    },
+    {
+      "target": "ZavorthActivityWidget",
+      "displayName": "Zavorth Activity Widget",
+      "bundleId": "dev.zavorth.companion.activitywidget",
+      "platform": "IOS",
+      "profileKey": "OPENCLAW_ACTIVITY_WIDGET_PROFILE",
+      "profileName": "Zavorth App Store dev.zavorth.companion.activitywidget",
+      "capabilities": []
+    },
+    {
+      "target": "ZavorthWatchApp",
+      "displayName": "Zavorth Watch App",
+      "bundleId": "dev.zavorth.companion.watchkitapp",
+      "platform": "IOS",
+      "profileKey": "OPENCLAW_WATCH_APP_PROFILE",
+      "profileName": "Zavorth App Store dev.zavorth.companion.watchkitapp",
+      "capabilities": []
+    }
+  ]
+}

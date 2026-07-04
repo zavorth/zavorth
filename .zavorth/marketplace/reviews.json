@@ -1,0 +1,42 @@
+[
+  {
+    "id": "rev_1782764879167_7epetq",
+    "pluginId": "test-plugin",
+    "userId": "local",
+    "rating": 5,
+    "comment": "Great plugin",
+    "createdAt": "2026-06-29T20:27:59.167Z"
+  },
+  {
+    "id": "rev_1782764879170_674dwv",
+    "pluginId": "test-plugin",
+    "userId": "local",
+    "rating": 5,
+    "comment": "Great",
+    "createdAt": "2026-06-29T20:27:59.170Z"
+  },
+  {
+    "id": "rev_1782764879171_llakaj",
+    "pluginId": "test-plugin",
+    "userId": "local",
+    "rating": 3,
+    "comment": "OK",
+    "createdAt": "2026-06-29T20:27:59.171Z"
+  },
+  {
+    "id": "rev_1782764879178_aic1f6",
+    "pluginId": "test-plugin",
+    "userId": "local",
+    "rating": 5,
+    "comment": "Great",
+    "createdAt": "2026-06-29T20:27:59.178Z"
+  },
+  {
+    "id": "rev_1782764879178_wh101k",
+    "pluginId": "test-plugin",
+    "userId": "local",
+    "rating": 3,
+    "comment": "OK",
+    "createdAt": "2026-06-29T20:27:59.178Z"
+  }
+]

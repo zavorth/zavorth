@@ -1,0 +1,226 @@
+.zvd-status-badge,
+.zvd-risk-badge {
+  align-items: center;
+  border: 1px solid var(--zvd-border-soft);
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 680;
+  min-height: 24px;
+  padding: 0 8px;
+}
+
+.zvd-status-badge--neutral {
+  color: var(--zvd-muted);
+  background: color-mix(in srgb, var(--zvd-surface) 72%, transparent);
+}
+
+.zvd-status-badge--success,
+.zvd-risk-badge--low {
+  color: var(--zvd-success);
+  background: var(--zvd-success-soft);
+}
+
+.zvd-status-badge--warning,
+.zvd-risk-badge--medium {
+  color: #a96815;
+  background: color-mix(in srgb, #d58a22 13%, transparent);
+}
+
+.zvd-status-badge--error,
+.zvd-risk-badge--high,
+.zvd-risk-badge--critical {
+  color: var(--zvd-danger);
+  background: var(--zvd-danger-soft);
+}
+
+.zvd-status-badge--info {
+  color: var(--zvd-accent);
+  background: var(--zvd-accent-soft);
+}
+
+.zvd-state-card {
+  border: 1px solid var(--zvd-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--zvd-surface) 90%, transparent);
+  box-shadow: 0 18px 44px rgba(20, 21, 26, 0.06);
+  padding: 18px;
+}
+
+.zvd-state-card-title,
+.zvd-premium-empty-state h4 {
+  color: var(--zvd-text);
+  font-size: 14px;
+  font-weight: 720;
+  margin: 0;
+}
+
+.zvd-premium-empty-state {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+  min-height: 180px;
+  text-align: center;
+}
+
+.zvd-premium-empty-state p {
+  color: var(--zvd-muted);
+  line-height: 1.55;
+  margin: 0;
+  max-width: 390px;
+}
+
+.zvd-state-orbit {
+  align-items: center;
+  border: 1px solid var(--zvd-border);
+  border-radius: 12px;
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.zvd-state-orbit-mark,
+.zvd-premium-alert-marker,
+.zvd-recovery-glyph {
+  background: var(--zvd-accent);
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.zvd-state-orbit-mark {
+  height: 12px;
+  width: 12px;
+}
+
+.zvd-premium-alert {
+  align-items: flex-start;
+  border: 1px solid var(--zvd-border);
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--zvd-surface) 86%, transparent);
+  color: var(--zvd-muted);
+}
+
+.zvd-premium-alert strong {
+  color: var(--zvd-text);
+  display: block;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.zvd-premium-alert-marker {
+  flex: 0 0 auto;
+  height: 9px;
+  margin-top: 5px;
+  width: 9px;
+}
+
+.zvd-premium-alert--warning .zvd-premium-alert-marker {
+  background: #d58a22;
+}
+
+.zvd-premium-alert--error .zvd-premium-alert-marker {
+  background: var(--zvd-danger);
+}
+
+.zvd-premium-alert--success .zvd-premium-alert-marker {
+  background: var(--zvd-success);
+}
+
+.zvd-section-header {
+  border-bottom: 1px solid var(--zvd-border);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+}
+
+.zvd-section-header h3 {
+  color: var(--zvd-text);
+  font-size: 16px;
+  margin: 0 0 4px;
+}
+
+.zvd-section-header p,
+.zvd-action-hint p {
+  color: var(--zvd-muted);
+  margin: 0;
+}
+
+.zvd-action-hint {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.zvd-action-hint span {
+  background: var(--zvd-accent);
+  border-radius: 999px;
+  height: 7px;
+  width: 7px;
+}
+
+.zvd-state-loader {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 18px;
+}
+
+.zvd-state-loader.is-centered {
+  min-height: 220px;
+}
+
+.zvd-state-loader.is-compact {
+  padding: 8px;
+}
+
+.zvd-recovery-overlay {
+  align-items: center;
+  background: color-mix(in srgb, var(--zvd-bg) 86%, #000 14%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 1000000;
+}
+
+.zvd-recovery-panel {
+  border: 1px solid var(--zvd-border);
+  border-radius: var(--zvd-radius-overlay);
+  background: color-mix(in srgb, var(--zvd-surface) 92%, transparent);
+  box-shadow: var(--zvd-shadow-overlay);
+  max-width: 430px;
+  padding: 26px;
+  text-align: center;
+}
+
+.zvd-recovery-glyph {
+  height: 12px;
+  margin-bottom: 14px;
+  width: 42px;
+}
+
+.zvd-recovery-panel h2 {
+  color: var(--zvd-text);
+  font-size: 20px;
+  margin: 0;
+}
+
+.zvd-recovery-panel p {
+  color: var(--zvd-muted);
+  line-height: 1.55;
+  margin: 10px 0 18px;
+}
+
+.zvd-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
