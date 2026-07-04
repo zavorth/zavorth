@@ -2164,24 +2164,38 @@ function mapBoardRisk(risk: RuntimeRisk): 'read-only' | 'mutation' | 'shell' | '
   return 'read-only';
 }
 
-function mapWorkboardTask(task: ZavorthSubagentBoardTask): ZavorthSubagentRuntimeWorkboardProjection['tasks'][number] {
+function mapWorkboardTask(
+  task: ZavorthSubagentBoardTask,
+  receipts: ZavorthSubagentBoardSnapshot['receipts'] = [],
+): ZavorthSubagentRuntimeWorkboardProjection['tasks'][number] {
+  const taskReceipts = receipts.filter((receipt) => receipt.taskId === task.taskId);
   return {
     taskId: task.taskId,
     sessionId: task.sessionId,
     parentTaskId: task.parentTaskId,
     title: task.title,
     status: mapWorkboardStatus(task.status),
+    risk: task.risk,
+    attempts: task.attempts,
+    failureCount: taskReceipts.filter((receipt) => receipt.status === 'failed' || receipt.status === 'blocked').length,
+    maxRetries: task.maxRetries,
     claimedBy: task.claimedBy,
+    claimedAt: task.claimedAt,
     heartbeatAt: task.heartbeatAt,
+    heartbeatDeadlineAt: task.heartbeatDeadlineAt,
     blockedReason: task.blockedReason,
+    artifactRefs: task.artifactRefs,
+    comments: task.comments,
     summary: task.summary,
+    createdAt: task.createdAt,
+    updatedAt: task.updatedAt,
   };
 }
 
 function mapWorkboardStatus(status: string): ZavorthSubagentRuntimeWorkboardProjection['tasks'][number]['status'] {
   if (status === 'done') return 'completed';
   if (status === 'approval-required') return 'blocked';
-  if (status === 'queued' || status === 'running' || status === 'failed' || status === 'cancelled' || status === 'blocked') {
+  if (status === 'queued' || status === 'claimed' || status === 'running' || status === 'completed' || status === 'failed' || status === 'cancelled' || status === 'blocked') {
     return status;
   }
   return 'blocked';
