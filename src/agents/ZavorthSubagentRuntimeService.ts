@@ -734,13 +734,13 @@ export class ZavorthSubagentRuntimeService {
   public async updateDynamicConfig(input: ZavorthSubagentRuntimeCommandInput): Promise<ZavorthSubagentRuntimeSnapshot> {
     const state = this.readState();
     const generatedAt = this.now().toISOString();
-    const patch = {
+    const patch: Partial<ZavorthSubagentDynamicConfigSettings> = {
       ...(input.configPatch || {}),
       ...(input.maxConcurrentChildren ? { maxConcurrentChildren: input.maxConcurrentChildren } : {}),
       ...(input.maxSpawnDepth ? { maxSpawnDepth: input.maxSpawnDepth } : {}),
       ...(input.childTimeoutMs ? { childTimeoutMs: input.childTimeoutMs } : {}),
-      ...(input.roleMode ? { defaultRoleMode: input.roleMode } : {}),
-      ...(input.sandboxBackend ? { sandboxBackend: input.sandboxBackend } : {}),
+      ...(input.roleMode ? { defaultRoleMode: normalizeRoleMode(input.roleMode, state.dynamicConfig.settings.defaultRoleMode) } : {}),
+      ...(input.sandboxBackend ? { sandboxBackend: normalizeSandboxBackend(input.sandboxBackend, state.dynamicConfig.settings.sandboxBackend) } : {}),
       ...(input.cloudSandboxEnabled !== null && input.cloudSandboxEnabled !== undefined
         ? { cloudSandboxEnabled: input.cloudSandboxEnabled }
         : {}),
@@ -833,26 +833,27 @@ export class ZavorthSubagentRuntimeService {
       const capabilities = normalizeStringList(input.deviceCapabilities).length > 0
         ? normalizeStringList(input.deviceCapabilities)
         : ['device.info'];
-      state.pairedDevices = [
-        {
-          deviceId,
-          label: normalizeText(input.deviceLabel, deviceId),
-          status: 'approved',
-          transport: 'mock',
-          capabilities,
-          approvedCapabilities: capabilities,
-          sensitiveCapabilitiesRequireApproval: true,
-          lastSeenAt: generatedAt,
-          trust: {
-            publicKeyFingerprint: `mock:${stableId(deviceId, capabilities.join(','))}`,
-            approvalId: normalizeNullable(input.approvalId),
-            revokedReason: null,
-          },
+      const approvedDevice: ZavorthSubagentRuntimePairedDevicesProjection['devices'][number] = {
+        deviceId,
+        label: normalizeText(input.deviceLabel, deviceId),
+        status: 'approved',
+        transport: 'mock',
+        capabilities,
+        approvedCapabilities: capabilities,
+        sensitiveCapabilitiesRequireApproval: true,
+        lastSeenAt: generatedAt,
+        trust: {
+          publicKeyFingerprint: `mock:${stableId(deviceId, capabilities.join(','))}`,
+          approvalId: normalizeNullable(input.approvalId),
+          revokedReason: null,
         },
+      };
+      state.pairedDevices = [
+        approvedDevice,
         ...state.pairedDevices.filter((device) => device.deviceId !== deviceId),
       ].slice(0, 50);
     } else if (action === 'subagents.device.revoke') {
-      state.pairedDevices = state.pairedDevices.map((device) => device.deviceId === deviceId
+      state.pairedDevices = state.pairedDevices.map((device): ZavorthSubagentRuntimePairedDevicesProjection['devices'][number] => device.deviceId === deviceId
         ? {
             ...device,
             status: 'revoked',
@@ -1663,6 +1664,14 @@ export class ZavorthSubagentRuntimeService {
       receiptId?: string | null;
     },
   ): void {
+    const identity = input.roleId
+      ? buildSubagentIdentity({
+        roleId: input.roleId,
+        sessionId: input.sessionId || input.taskId || 'subagent-observability',
+        status: input.status,
+      })
+      : null;
+
     state.observabilityEvents.push({
       id: `subagent-observable:${stableId(input.generatedAt, input.name, input.runId || input.taskId || input.detail)}`,
       generatedAt: input.generatedAt,
@@ -1675,6 +1684,7 @@ export class ZavorthSubagentRuntimeService {
       subagentId: input.sessionId || input.taskId || null,
       roleId: input.roleId || null,
       motionState: motionStateForStatus(input.status),
+      identity,
       receiptId: input.receiptId || null,
       policyDecisionId: input.receiptId || null,
       sandboxBackend: state.dynamicConfig.settings.sandboxBackend,
@@ -2228,6 +2238,7 @@ function buildPairedDevicesProjection(
 }
 
 function motionStateForStatus(status: ZavorthSubagentRuntimeStatus): ZavorthSubagentRuntimeObservabilityEvent['motionState'] {
+  if (status === 'queued' || status === 'claimed') return 'queued';
   if (status === 'running' || status === 'ready') return 'running';
   if (status === 'completed') return 'completed';
   if (status === 'approval-required') return 'approval-required';

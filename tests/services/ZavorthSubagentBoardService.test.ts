@@ -108,6 +108,69 @@ describe('ZavorthSubagentBoardService', () => {
     ]));
   });
 
+  it('keeps claimed work distinct from running work and projects dispatcher details', () => {
+    const board = new ZavorthSubagentBoardService({
+      dbPath,
+      now: () => new Date(nowMs),
+    });
+    const session = board.createSession({
+      objective: 'Dispatch shared work',
+      sourceSurface: 'desktop',
+      maxDepth: 2,
+      maxChildren: 4,
+      costCapUsd: 0.5,
+    });
+    const task = board.enqueueTask({
+      sessionId: session.sessionId,
+      title: 'Render runtime board task',
+      risk: 'read-only',
+      depth: 0,
+      maxRetries: 2,
+    });
+
+    const claimed = board.claimNextTask({ workerId: 'desktop-worker', heartbeatTtlMs: 30_000 });
+    const claimedSnapshot = board.snapshot();
+
+    nowMs += 1000;
+    board.recordHeartbeat({ workerId: 'desktop-worker', taskId: task.taskId });
+    const runningSnapshot = board.snapshot();
+
+    board.completeTask({
+      taskId: task.taskId,
+      workerId: 'desktop-worker',
+      status: 'completed',
+      artifactRefs: ['artifact:runtime-board'],
+      comment: 'Runtime task rendered on the shared board.',
+      summary: 'Runtime board rendered.',
+    });
+    const completedSnapshot = board.snapshot();
+    board.close();
+
+    expect(claimed?.status).toBe('claimed');
+    expect(claimedSnapshot.tasks).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        taskId: task.taskId,
+        status: 'claimed',
+        attempts: 1,
+        maxRetries: 2,
+        claimedBy: 'desktop-worker',
+      }),
+    ]));
+    expect(runningSnapshot.tasks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ taskId: task.taskId, status: 'running' }),
+    ]));
+    expect(completedSnapshot.tasks).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        taskId: task.taskId,
+        status: 'completed',
+        artifactRefs: ['artifact:runtime-board'],
+        comments: expect.arrayContaining([
+          expect.objectContaining({ author: 'desktop-worker', body: 'Runtime task rendered on the shared board.' }),
+        ]),
+      }),
+    ]));
+  });
+
   it('blocks mutating or runaway child tasks before enqueueing them', () => {
     const board = new ZavorthSubagentBoardService({
       dbPath,

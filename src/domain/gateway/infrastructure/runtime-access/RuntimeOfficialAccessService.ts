@@ -230,12 +230,13 @@ export class RuntimeOfficialAccessService {
         statusCode: response.status,
         error: response.ok ? null : `status ${response.status}`,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error ?? 'network failure');
       return {
         attempted: true,
         applied: false,
         statusCode: null,
-        error: String(error?.message || error || 'falha de rede'),
+        error: message,
       };
     }
   }
@@ -267,12 +268,13 @@ export class RuntimeOfficialAccessService {
         statusCode: response.status,
         error: response.ok ? null : `status ${response.status}`,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error ?? 'network failure');
       return {
         ok: false,
         targetUrl,
         statusCode: null,
-        error: String(error?.message || error || 'falha de rede'),
+        error: message,
       };
     }
   }

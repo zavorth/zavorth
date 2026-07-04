@@ -167,7 +167,8 @@ export class RuntimeAccessLaunchService {
         command: `${launchCommand.command} ${launchCommand.args.join(' ')}`,
         error: null,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error ?? 'failed to open surface');
       return {
         attempted: true,
         ok: false,
@@ -175,7 +176,7 @@ export class RuntimeAccessLaunchService {
         url: selection.url,
         reason: selection.reason,
         command: `${launchCommand.command} ${launchCommand.args.join(' ')}`,
-        error: String(error?.message || error || 'falha ao abrir a superficie'),
+        error: message,
       };
     }
   }

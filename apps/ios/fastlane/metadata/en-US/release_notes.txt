@@ -1,0 +1,3 @@
+﻿Maintenance update for the current Zavorth beta release.
+
+- Improved notification cleanup, Watch app compatibility, and native file input handling.

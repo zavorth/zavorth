@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zavorth Subagent Identicons - Animated Preview</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base: #080a0f;
+      --bg-card: #0d1017;
+      --bg-card-hover: #111520;
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(255,255,255,0.12);
+      --text-primary: #f0f0f4;
+      --text-secondary: #8b8fa8;
+      --text-muted: #4a4e67;
+      --accent-green: #00e88f;
+      --accent-green-dim: rgba(0,232,143,0.1);
+      --accent-green-border: rgba(0,232,143,0.2);
+    }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 48px 40px;
+      max-width: 640px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      line-height: 1.5;
+    }
+
+    .subtitle strong { color: var(--accent-green); font-weight: 600; }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      margin-top: 40px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0 0;
+    }
+
+    /* ── Agent list ── */
+    .agents-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .agent-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 16px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .agent-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+    }
+
+    /* ── Subagent icon wrapper ── */
+    .agent-icon {
+      --subagent-accent: #f16a21;
+      --subagent-muted: #7c3f20;
+      --subagent-glow: #ffb86b;
+      --subagent-motion-interval: 960ms;
+      --subagent-motion-delay: 0ms;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      flex: 0 0 auto;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      overflow: visible;
+      position: relative;
+    }
+
+    .agent-icon.is-mascot {
+      width: 40px;
+      height: 40px;
+      overflow: hidden;
+    }
+
+    /* SVG sizing */
+    .agent-icon svg {
+      display: block;
+      width: 36px;
+      height: 36px;
+      image-rendering: pixelated;
+    }
+
+    .agent-icon.is-mascot svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    /* ── IDENTICON MOTION (orbital snake, 8 frames) ── */
+    /* Uses visibility (not opacity) to avoid blur/compositing artifacts */
+
+    .zvd-identicon-motion-frame { visibility: hidden; }
+
+    .agent-icon.running .zvd-identicon-motion-frame.zvd-frame-0 {
+      animation: zvd-frame-0 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.running .zvd-identicon-motion-frame.zvd-frame-1 {
+      animation: zvd-frame-1 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.running .zvd-identicon-motion-frame.zvd-frame-2 {
+      animation: zvd-frame-2 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.running .zvd-identicon-motion-frame.zvd-frame-3 {
+      animation: zvd-frame-3 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.running .zvd-identicon-motion-frame.zvd-frame-4 {
+      animation: zvd-frame-4 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.running .zvd-identicon-motion-frame.zvd-frame-5 {
+      animation: zvd-frame-5 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.running .zvd-identicon-motion-frame.zvd-frame-6 {
+      animation: zvd-frame-6 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.running .zvd-identicon-motion-frame.zvd-frame-7 {
+      animation: zvd-frame-7 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+
+    @keyframes zvd-frame-0 {
+      0%,12.49%{visibility:visible}12.5%,100%{visibility:hidden}
+    }
+    @keyframes zvd-frame-1 {
+      0%,12.49%{visibility:hidden}12.5%,24.99%{visibility:visible}25%,100%{visibility:hidden}
+    }
+    @keyframes zvd-frame-2 {
+      0%,24.99%{visibility:hidden}25%,37.49%{visibility:visible}37.5%,100%{visibility:hidden}
+    }
+    @keyframes zvd-frame-3 {
+      0%,37.49%{visibility:hidden}37.5%,49.99%{visibility:visible}50%,100%{visibility:hidden}
+    }
+    @keyframes zvd-frame-4 {
+      0%,49.99%{visibility:hidden}50%,62.49%{visibility:visible}62.5%,100%{visibility:hidden}
+    }
+    @keyframes zvd-frame-5 {
+      0%,62.49%{visibility:hidden}62.5%,74.99%{visibility:visible}75%,100%{visibility:hidden}
+    }
+    @keyframes zvd-frame-6 {
+      0%,74.99%{visibility:hidden}75%,87.49%{visibility:visible}87.5%,100%{visibility:hidden}
+    }
+    @keyframes zvd-frame-7 {
+      0%,87.49%{visibility:hidden}87.5%,100%{visibility:visible}
+    }
+
+    /* ── MASCOT MOTION (bob/wave, 6 frames) ── */
+    /* Uses visibility (not opacity) to avoid blur/compositing artifacts */
+
+    .zvd-mascot-frame { visibility: hidden; }
+    .zvd-mascot-frame-0 { visibility: visible; }
+
+    .agent-icon.is-mascot.running .zvd-mascot-frame-0 {
+      animation: zvd-mascot-0 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.is-mascot.running .zvd-mascot-frame-1 {
+      animation: zvd-mascot-1 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.is-mascot.running .zvd-mascot-frame-2 {
+      animation: zvd-mascot-2 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.is-mascot.running .zvd-mascot-frame-3 {
+      animation: zvd-mascot-3 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.is-mascot.running .zvd-mascot-frame-4 {
+      animation: zvd-mascot-4 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+    .agent-icon.is-mascot.running .zvd-mascot-frame-5 {
+      animation: zvd-mascot-5 var(--subagent-motion-interval) steps(1, end) infinite;
+      animation-delay: var(--subagent-motion-delay);
+    }
+
+    @keyframes zvd-mascot-0 {
+      0%,16.66%{visibility:visible}16.67%,100%{visibility:hidden}
+    }
+    @keyframes zvd-mascot-1 {
+      0%,16.66%{visibility:hidden}16.67%,33.33%{visibility:visible}33.34%,100%{visibility:hidden}
+    }
+    @keyframes zvd-mascot-2 {
+      0%,33.33%{visibility:hidden}33.34%,50%{visibility:visible}50.01%,100%{visibility:hidden}
+    }
+    @keyframes zvd-mascot-3 {
+      0%,50%{visibility:hidden}50.01%,66.66%{visibility:visible}66.67%,100%{visibility:hidden}
+    }
+    @keyframes zvd-mascot-4 {
+      0%,66.66%{visibility:hidden}66.67%,83.33%{visibility:visible}83.34%,100%{visibility:hidden}
+    }
+    @keyframes zvd-mascot-5 {
+      0%,83.33%{visibility:hidden}83.34%,100%{visibility:visible}
+    }
+
+    /* ── Agent info ── */
+    .agent-info { min-width: 0; flex: 1; }
+
+    .agent-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .agent-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 3px;
+    }
+
+    .agent-type {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .status-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .status-idle      { background: rgba(113,113,122,0.12); color: #71717a; }
+    .status-queued    { background: rgba(234,179,8,0.12);    color: #facc15; }
+    .status-running   { background: rgba(251,146,60,0.12);  color: #fb923c; }
+    .status-blocked   { background: rgba(234,179,8,0.12);    color: #f59e0b; }
+    .status-completed { background: rgba(34,197,94,0.12);   color: #4ade80; }
+    .status-failed    { background: rgba(239,68,68,0.12);    color: #f87171; }
+
+    /* ── Live preview ── */
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      margin-bottom: 16px;
+    }
+
+    .input-row input {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      width: 260px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .input-row input:focus { border-color: var(--accent-green); }
+    .input-row input::placeholder { color: var(--text-muted); }
+
+    #live-preview {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      min-height: 68px;
+      max-width: 440px;
+    }
+
+    #live-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    #live-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 3px;
+    }
+
+    /* Zavorth badge */
+    .zavorth-badge {
+      font-size: 9.5px;
+      color: var(--accent-green);
+      background: var(--accent-green-dim);
+      border: 1px solid var(--accent-green-border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Grid ── */
+    .grid-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 12px;
+    }
+
+    .grid-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .grid-chip .agent-icon { display: flex; }
+
+    .grid-chip span {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Zavorth — Subagent Identicons</h1>
+<p class="subtitle">
+  <strong>zavorth</strong> uses a stable pixel mascot. All other names generate a deterministic
+  minidenticon with an orbital snake animation while running.
+</p>
+
+<div class="section-title">Live preview — type any name</div>
+<div class="input-row">
+  <input type="text" id="name-input" placeholder="Ex: zavorth, linnaeus…" value="zavorth" />
+</div>
+<div id="live-preview">
+  <span id="live-icon-container"></span>
+  <div>
+    <div id="live-name">zavorth</div>
+    <div id="live-sub"></div>
+  </div>
+</div>
+
+<hr />
+
+<div class="section-title">Sample subagents</div>
+<div class="agents-list" id="image-agents"></div>
+
+<hr />
+
+<div class="section-title">Default Zavorth subagents</div>
+<div class="agents-list" id="default-agents"></div>
+
+<hr />
+
+<div class="section-title">Grid — 20 scientist names</div>
+<div class="grid-row" id="scientists-grid"></div>
+
+<script>
+/* ================================================================
+   ZAVORTH IDENTICON SYSTEM
+   - "zavorth" and aliases → stable pixel mascot (neon green)
+   - All other names → deterministic 5×5 minidenticon + orbital
+     snake running animation (8 frames, faded trail)
+   ================================================================ */
+
+/* ── Helpers ──────────────────────────────────────────────────── */
+
+function hashCode(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) + h) ^ str.charCodeAt(i);
+  }
+  return h >>> 0;
+}
+
+function wrapTrack(value, length) {
+  return ((value % length) + length) % length;
+}
+
+/* ── Mascot ───────────────────────────────────────────────────── */
+
+const ZAVORTH_NAMES = new Set(['zavorth', 'zvd', 'zv', 'zavorthdesktop', 'zavorthagent']);
+
+function isZavorthName(name) {
+  const n = name.toLowerCase().trim();
+  const c = n.replace(/[^a-z0-9]/g, '');
+  return ZAVORTH_NAMES.has(n) || ZAVORTH_NAMES.has(c);
+}
+
+function buildMascotFrame(frame) {
+  const bob        = (frame === 1 || frame === 4) ? -8 : 0;
+  const armRightY  = 256 + bob + (frame === 1 ? -20 : frame === 5 ? 12 : 0);
+  const armLeftY   = 256 + bob + (frame === 4 ? -20 : frame === 2 ? 12 : 0);
+  const footLeftY  = 416 + (frame === 1 ? -16 : 0);
+  const footRightY = 416 + (frame === 4 ? -16 : 0);
+  const antennaY   = 64  + bob;
+  const bridgeY    = 192 + bob;
+  const bodyY      = 192 + bob;
+  const torsoY     = 320 + bob;
+  const eyeY       = 240 + bob;
+  const eyeH       = frame === 3 ? 14 : 64;
+
+  return `<rect x="128" y="${antennaY}"  width="64"  height="128" fill="url(#zvG)"/>
+    <rect x="320" y="${antennaY}"  width="64"  height="128" fill="url(#zvG)"/>
+    <rect x="192" y="${bridgeY}"   width="128" height="64"  fill="url(#zvG)"/>
+    <rect x="64"  y="${bodyY}"     width="384" height="128" fill="url(#zvG)"/>
+    <rect x="0"   y="${armLeftY}"  width="64"  height="64"  fill="url(#zvG)"/>
+    <rect x="448" y="${armRightY}" width="64"  height="64"  fill="url(#zvG)"/>
+    <rect x="64"  y="${torsoY}"    width="384" height="96"  fill="url(#zvG)"/>
+    <rect x="128" y="${footLeftY}" width="96"  height="64"  fill="url(#zvG)"/>
+    <rect x="288" y="${footRightY}"width="96"  height="64"  fill="url(#zvG)"/>
+    <rect x="160" y="${eyeY}"      width="32"  height="${eyeH}" fill="#000"/>
+    <rect x="320" y="${eyeY}"      width="32"  height="${eyeH}" fill="#000"/>`;
+}
+
+function buildMascotSVG() {
+  const frames = [0,1,2,3,4,5].map(f =>
+    `<g class="zvd-mascot-frame zvd-mascot-frame-${f}">${buildMascotFrame(f)}</g>`
+  ).join('\n  ');
+
+  return `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" class="zv-mascot-svg">
+  <defs>
+    <linearGradient id="zvG" x1="64" y1="64" x2="448" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#00e88f"/>
+      <stop offset="100%" stop-color="#00b86e"/>
+    </linearGradient>
+  </defs>
+  ${frames}
+</svg>`;
+}
+
+/* ── Minidenticon ─────────────────────────────────────────────── */
+
+function minidenticon(str, activityMode = 'general', status = 'idle') {
+  const s    = str.toLowerCase().trim();
+  const hash = hashCode(s);
+  const hue  = hash % 360;
+  const sat  = 70 + (hashCode(s + 'sat') % 20);  /* 70–90 % */
+  const lit  = 55 + (hashCode(s + 'lit') % 12);  /* 55–67 % */
+  const color = `hsl(${hue},${sat}%,${lit}%)`;
+
+  const cells = 5, cell = 6, pad = 3;
+  const total = cells * cell + pad * 2;
+
+  let rects = '';
+  for (let row = 0; row < cells; row++) {
+    for (let col = 0; col <= Math.floor(cells / 2); col++) {
+      if ((hash >> (row * 3 + col)) & 1) {
+        const x1 = pad + col * cell;
+        const x2 = pad + (cells - 1 - col) * cell;
+        const y  = pad + row * cell;
+        rects += `<rect x="${x1}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`;
+        if (x1 !== x2)
+          rects += `<rect x="${x2}" y="${y}" width="${cell}" height="${cell}" fill="${color}"/>`;
+      }
+    }
+  }
+
+  const motionFrames = buildMotionFrames(hash, cell, pad, color, activityMode);
+
+  return {
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges" class="zvd-identicon-svg zvd-activity-${activityMode} zvd-status-${status}">
+      <g class="zvd-identicon-core">${rects}</g>
+      ${buildActivityMark(activityMode, cell, pad, color)}
+      ${buildStatusMark(status, cell, pad, color)}
+      ${motionFrames}
+    </svg>`,
+    hash,
+  };
+}
+
+/* ── Orbital snake motion frames ──────────────────────────────── */
+
+function buildMotionFrames(seed, cell, pad, color, activityMode) {
+  const track = [
+    [0,0],[1,0],[2,0],[3,0],[4,0],
+    [4,1],[4,2],[4,3],[4,4],
+    [3,4],[2,4],[1,4],[0,4],
+    [0,3],[0,2],[0,1],
+  ];
+  const step      = Math.abs(seed) % 2 === 0 ? 2 : 3;
+  const direction = Math.abs(seed) % 3 === 0 ? -1 : 1;
+
+  return Array.from({ length: 8 }, (_, frame) => {
+    const rects = motionPointsForActivity(activityMode, frame, seed, track, step, direction).map(([col, row]) => {
+      return `<rect x="${pad + col * cell}" y="${pad + row * cell}" width="${cell}" height="${cell}" fill="${color}"/>`;
+    }).join('');
+    return `<g class="zvd-identicon-motion-frame zvd-frame-${frame}" visibility="hidden">${rects}</g>`;
+  }).join('');
+}
+
+function motionPointsForActivity(activityMode, frame, seed, track, step, direction) {
+  if (activityMode === 'research') {
+    const row = wrapTrack(Math.abs(seed) + frame, 5);
+    const start = frame % 3;
+    return [[start, row], [start + 1, row], [start + 2, row]];
+  }
+  if (activityMode === 'audit') {
+    const corners = [
+      [[0, 0], [1, 0], [0, 1]],
+      [[4, 0], [3, 0], [4, 1]],
+      [[4, 4], [3, 4], [4, 3]],
+      [[0, 4], [1, 4], [0, 3]],
+    ];
+    return corners[frame % corners.length];
+  }
+  if (activityMode === 'debug') {
+    const anchors = [[0, 0], [1, 1], [2, 2], [3, 3]];
+    const [col, row] = anchors[frame % anchors.length];
+    return [[col, row], [col + 1, row], [col + 1, Math.min(4, row + 1)]];
+  }
+  if (activityMode === 'orchestrate') {
+    const start = wrapTrack(Math.abs(seed) + frame * direction, track.length);
+    return [0, 4, 8, 12].map(shift => track[wrapTrack(start + shift, track.length)]);
+  }
+  const start = wrapTrack(Math.abs(seed) + frame * step * direction, track.length);
+  return [0, 1, 2].map(shift => track[wrapTrack(start - shift * direction, track.length)]);
+}
+
+function buildActivityMark(activityMode, cell, pad, color) {
+  const rect = (col, row) => `<rect x="${pad + col * cell}" y="${pad + row * cell}" width="${cell}" height="${cell}" fill="${color}"/>`;
+  const marks = {
+    research: rect(1, 0) + rect(2, 0) + rect(3, 0),
+    audit: rect(0, 0) + rect(4, 0) + rect(0, 4) + rect(4, 4),
+    debug: rect(0, 2) + rect(1, 2) + rect(1, 3) + rect(2, 3),
+    orchestrate: rect(2, 0) + rect(0, 2) + rect(2, 2) + rect(4, 2) + rect(2, 4),
+    general: rect(2, 1) + rect(1, 2) + rect(3, 2) + rect(2, 3),
+  };
+  return `<g class="zvd-activity-mark zvd-activity-${activityMode}">${marks[activityMode] || marks.general}</g>`;
+}
+
+function buildStatusMark(status, cell, pad, color) {
+  const rect = (col, row) => `<rect x="${pad + col * cell}" y="${pad + row * cell}" width="${cell}" height="${cell}" fill="${color}"/>`;
+  const state = status === 'queued' || status === 'blocked' || status === 'completed' || status === 'failed' || status === 'running'
+    ? status
+    : 'idle';
+  const marks = {
+    idle: rect(4, 4),
+    queued: rect(3, 3) + rect(4, 3) + rect(3, 4) + rect(4, 4),
+    running: rect(4, 2) + rect(3, 3) + rect(4, 4),
+    completed: rect(2, 4) + rect(3, 3) + rect(4, 2),
+    failed: rect(3, 3) + rect(4, 4) + rect(4, 3) + rect(3, 4),
+    blocked: rect(4, 2) + rect(4, 3) + rect(4, 4),
+  };
+  return `<g class="zvd-status-mark zvd-status-${state}">${marks[state] || marks.idle}</g>`;
+}
+
+/* ── Palettes & helpers ───────────────────────────────────────── */
+
+const PALETTES = [
+  { accent: '#f16a21', muted: '#7c3f20', glow: '#ffb86b' },
+  { accent: '#38bdf8', muted: '#155e75', glow: '#a5f3fc' },
+  { accent: '#a78bfa', muted: '#4c1d95', glow: '#ddd6fe' },
+  { accent: '#00e88f', muted: '#064e35', glow: '#6effd4' },
+  { accent: '#eab308', muted: '#713f12', glow: '#fef08a' },
+  { accent: '#fb7185', muted: '#881337', glow: '#ffe4e6' },
+];
+
+function getPalette(seed) {
+  return PALETTES[Math.abs(seed) % PALETTES.length];
+}
+
+function activityModeForRole(role, label = '') {
+  const text = `${role} ${label}`.toLowerCase();
+  if (/\b(research|docs?|knowledge|scan|read|discover|codebase)\b/.test(text)) return 'research';
+  if (/\b(audit\w*|security|secure|review|risk|policy|compliance|guard)\b/.test(text)) return 'audit';
+  if (/\b(debug\w*|test|qa|fix|runner|bug|trace|repair)\b/.test(text)) return 'debug';
+  if (/\b(orchestrat\w*|coordinat\w*|dispatch\w*|planner|swarm|board|manager|lead)\b/.test(text)) return 'orchestrate';
+  return 'general';
+}
+
+function motionClassForActivity(activityMode) {
+  if (activityMode === 'research') return 'zvd-motion-research-scan';
+  if (activityMode === 'audit') return 'zvd-motion-audit-border';
+  if (activityMode === 'debug') return 'zvd-motion-debug-cursor';
+  if (activityMode === 'orchestrate') return 'zvd-motion-orchestrator-ring';
+  return 'zvd-motion-general-orbit';
+}
+
+function buildIdenticon(name, role = name, status = 'idle') {
+  if (isZavorthName(name)) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = buildMascotSVG();
+    return { el: wrapper.firstElementChild, special: true, hash: 0, activityMode: 'core', motionClass: 'zvd-motion-mascot-sprite' };
+  }
+  const activityMode = activityModeForRole(role, name);
+  const { svg, hash } = minidenticon(name, activityMode, status);
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = svg;
+  return { el: wrapper.firstElementChild, special: false, hash, activityMode, motionClass: motionClassForActivity(activityMode) };
+}
+
+function applyIconMotionStyle(icon, seed, special) {
+  const interval = special ? 1320 : 960;
+  const delay    = Math.abs(seed) % interval;
+  icon.style.setProperty('--subagent-motion-interval', `${interval}ms`);
+  icon.style.setProperty('--subagent-motion-delay',    `${-delay}ms`);
+}
+
+/* ── Live input ───────────────────────────────────────────────── */
+
+const nameInput        = document.getElementById('name-input');
+const liveIconContainer = document.getElementById('live-icon-container');
+const liveName         = document.getElementById('live-name');
+const liveSub          = document.getElementById('live-sub');
+
+function updateLive(name) {
+  liveIconContainer.innerHTML = '';
+  if (!name) return;
+
+  const { el, special, hash, activityMode, motionClass } = buildIdenticon(name, name, 'running');
+  const palette = getPalette(hash);
+
+  const iconSpan = document.createElement('span');
+  iconSpan.className = `agent-icon running zvd-activity-${activityMode} zvd-status-running ${special ? 'is-mascot' : motionClass}`;
+  iconSpan.style.setProperty('--subagent-accent', palette.accent);
+  iconSpan.style.setProperty('--subagent-muted',  palette.muted);
+  iconSpan.style.setProperty('--subagent-glow',   palette.glow);
+  applyIconMotionStyle(iconSpan, hash, special);
+  iconSpan.appendChild(el);
+
+  liveIconContainer.appendChild(iconSpan);
+  liveName.textContent = name;
+  liveSub.textContent  = special
+    ? 'Stable Zavorth mascot marker'
+    : `${activityMode} running motion ("${name.toLowerCase()}")`;
+}
+
+updateLive('zavorth');
+nameInput.addEventListener('input', e => updateLive(e.target.value.trim()));
+
+/* ── Agent card builder ───────────────────────────────────────── */
+
+function appendAgentCard(container, seed, displayName, type, status) {
+  const card     = document.createElement('div');
+  card.className = 'agent-card';
+
+  const { el, special, hash, activityMode, motionClass } = buildIdenticon(seed, type, status);
+  const palette = getPalette(hash);
+
+  const iconWrap = document.createElement('span');
+  iconWrap.className = `agent-icon ${status === 'running' ? 'running' : ''} zvd-activity-${activityMode} zvd-status-${status} ${special ? 'is-mascot' : motionClass}`;
+  iconWrap.style.setProperty('--subagent-accent', palette.accent);
+  iconWrap.style.setProperty('--subagent-muted',  palette.muted);
+  iconWrap.style.setProperty('--subagent-glow',   palette.glow);
+  applyIconMotionStyle(iconWrap, hash, special);
+  iconWrap.appendChild(el);
+
+  const info = document.createElement('div');
+  info.className = 'agent-info';
+  const badge = special ? `<span class="zavorth-badge">zavorth</span>` : '';
+  info.innerHTML = `
+    <div class="agent-name">${displayName} ${badge}</div>
+    <div class="agent-meta">
+      <span class="agent-type">${type}</span>
+      <span class="status-badge status-${status}">${status}</span>
+    </div>`;
+
+  card.append(iconWrap, info);
+  container.appendChild(card);
+}
+
+/* ── Populate lists ───────────────────────────────────────────── */
+
+const imageAgents = [
+  { name: 'Linnaeus', type: 'research',  status: 'running'   },
+  { name: 'Locke',    type: 'auditor',   status: 'blocked'   },
+  { name: 'Popper',   type: 'debugger',  status: 'completed' },
+  { name: 'Hubble',   type: 'research',  status: 'running'   },
+  { name: 'Mencius',  type: 'auditor',   status: 'running'   },
+  { name: 'Ampere',   type: 'debugger',  status: 'running'   },
+  { name: 'Noether',  type: 'orchestrator', status: 'queued' },
+  { name: 'zavorth',  type: 'core',      status: 'running'   },
+];
+
+const imgList = document.getElementById('image-agents');
+imageAgents.forEach(a => appendAgentCard(imgList, a.name.toLowerCase(), a.name, a.type, a.status));
+
+const defaultAgents = [
+  { seed: 'agent_research_default', name: 'Codebase & Docs Researcher', type: 'research', status: 'running' },
+  { seed: 'agent_auditor_default',  name: 'Security Auditor',           type: 'auditor',  status: 'blocked' },
+  { seed: 'agent_debugger_default', name: 'Test Runner & Debugger',     type: 'debugger', status: 'running' },
+  { seed: 'agent_orchestrator_default', name: 'Task Orchestrator', type: 'orchestrator', status: 'queued' },
+];
+
+const defList = document.getElementById('default-agents');
+defaultAgents.forEach(a => appendAgentCard(defList, a.seed, a.name, a.type, a.status));
+
+/* ── Scientists grid ──────────────────────────────────────────── */
+
+const SCIENTISTS = [
+  'Ohm','Peirce','Boyle','Turing','Noether',
+  'Curie','Planck','Faraday','Tesla','Darwin',
+  'Euler','Gauss','Newton','Kepler','Hubble',
+  'Maxwell','Dirac','Feynman','Lovelace','Hopper',
+];
+
+const grid = document.getElementById('scientists-grid');
+SCIENTISTS.forEach(name => {
+  const chip = document.createElement('div');
+  chip.className = 'grid-chip';
+
+  const { el } = buildIdenticon(name.toLowerCase());
+  const iconWrap = document.createElement('span');
+  iconWrap.className = 'agent-icon';
+  iconWrap.appendChild(el);
+
+  chip.appendChild(iconWrap);
+  const label = document.createElement('span');
+  label.textContent = name;
+  chip.appendChild(label);
+  grid.appendChild(chip);
+});
+</script>
+</body>
+</html>

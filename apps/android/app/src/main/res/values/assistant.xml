@@ -1,0 +1,7 @@
+﻿<resources>
+    <string-array name="ask_zavorth_query_patterns">
+        <item>ask Zavorth $prompt</item>
+        <item>tell Zavorth to $prompt</item>
+        <item>open Zavorth and ask $prompt</item>
+    </string-array>
+</resources>
