@@ -5,6 +5,7 @@ import type { Context } from "grammy";
 import { config } from "../../../../config/index.js";
 import type { InlineData } from "../../../../providers/ILlmProvider.js";
 import { safeFetch } from "../../../../security/SafeFetchService.js";
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 import {
   DEFAULT_HEADERS,
   FETCH_TIMEOUT_MS,
@@ -127,7 +128,7 @@ export class VideoHandlerFetchSupport {
 
     const contentLengthHeader = response.headers.get("content-length");
     if (contentLengthHeader) {
-      const contentLength = parseInt(contentLengthHeader, 10);
+      const contentLength = safeParseInt(contentLengthHeader, 0);
       if (
         Number.isFinite(contentLength) &&
         contentLength > MAX_REMOTE_DOWNLOAD_BYTES

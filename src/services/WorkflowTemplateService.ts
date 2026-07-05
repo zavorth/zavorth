@@ -5,6 +5,7 @@ import type {
   ZavorthWorkflowTemplate,
   ZavorthWorkflowStep,
 } from '../contracts/WorkflowTemplateContract.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 type FileSystemLike = {
   existsSync: typeof fs.existsSync;
@@ -137,7 +138,7 @@ export class WorkflowTemplateService {
       for (const sl of stepLines) {
         const orderMatch = sl.match(/^(\d+)\.\s+(.+)/);
         if (!orderMatch) continue;
-        const order = parseInt(orderMatch[1], 10);
+        const order = safeParseInt(orderMatch[1], 0);
         let desc = orderMatch[2];
         const toolM = desc.match(/\[tool:([^\]]+)\]/);
         const cmdM = desc.match(/\[cmd:([^\]]+)\]/);

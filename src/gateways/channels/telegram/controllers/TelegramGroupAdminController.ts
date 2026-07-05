@@ -10,6 +10,7 @@ import {
   type TelegramGroupAdminTargetSelection,
 } from '../../../../gateways/channels/telegram/controllers/TelegramGroupAdminWarnFlowService.js';
 import { TelegramGroupAdminProtectionService } from '../../../../gateways/channels/telegram/controllers/TelegramGroupAdminProtectionService.js';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 
 interface GroupAdminDeps {
   warnService: WarnService;
@@ -56,7 +57,7 @@ export class TelegramGroupAdminController {
       };
     }
 
-    const parsed = parseInt(tokens[0] || '', 10);
+    const parsed = safeParseInt(tokens[0] || '', NaN);
     return {
       targetId: Number.isNaN(parsed) ? null : parsed,
       tokens,
@@ -70,13 +71,13 @@ export class TelegramGroupAdminController {
 
   public async handleBan(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
     const targetId = this.getTargetUserId(ctx, args);
     if (targetId === null) {
-      await ctx.reply('Aviso: responda a uma mensagem ou informe o ID do usuario. Ex: `/ban 123456`', {
+      await ctx.reply('Warning: reply to a message or provide the user ID. Example: `/ban 123456`', {
         parse_mode: 'Markdown',
       });
       return;
@@ -84,20 +85,20 @@ export class TelegramGroupAdminController {
 
     const result = await this.moderationService.banUser(ctx.chat!.id, targetId, ctx.from?.id.toString() || '');
     await ctx.reply(
-      result.success ? `Usuario ${targetId} foi **banido** do grupo.` : `Falha ao banir: ${result.error}`,
+      result.success ? `User ${targetId} was **banned** from the group.` : `Failed to ban: ${result.error}`,
       { parse_mode: 'Markdown' },
     );
   }
 
   public async handleKick(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
     const targetId = this.getTargetUserId(ctx, args);
     if (targetId === null) {
-      await ctx.reply('Aviso: responda a uma mensagem ou informe o ID do usuario. Ex: `/kick 123456`', {
+      await ctx.reply('Warning: reply to a message or provide the user ID. Example: `/kick 123456`', {
         parse_mode: 'Markdown',
       });
       return;
@@ -105,20 +106,20 @@ export class TelegramGroupAdminController {
 
     const result = await this.moderationService.kickUser(ctx.chat!.id, targetId, ctx.from?.id.toString() || '');
     await ctx.reply(
-      result.success ? `Usuario ${targetId} foi **expulso** do grupo.` : `Falha ao expulsar: ${result.error}`,
+      result.success ? `User ${targetId} was **kicked** from the group.` : `Failed to kick: ${result.error}`,
       { parse_mode: 'Markdown' },
     );
   }
 
   public async handleMute(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
     const { targetId, tokens, usedReply } = this.getTargetSelection(ctx, args);
     if (targetId === null) {
-      await ctx.reply('Aviso: responda a uma mensagem ou informe o ID do usuario. Ex: `/mute 123456 30m`', {
+      await ctx.reply('Warning: reply to a message or provide the user ID. Example: `/mute 123456 30m`', {
         parse_mode: 'Markdown',
       });
       return;
@@ -130,7 +131,7 @@ export class TelegramGroupAdminController {
 
     if (hasDurationToken && duration === null) {
       await ctx.reply(
-        'Aviso: Duracao invalida. Use formatos como `30m`, `2h`, `1d` ou responda sem tempo para mute permanente.',
+        'Warning: invalid duration. Use formats like `30m`, `2h`, `1d`, or reply without a duration for a permanent mute.',
         { parse_mode: 'Markdown' },
       );
       return;
@@ -142,38 +143,38 @@ export class TelegramGroupAdminController {
       ctx.from?.id.toString() || '',
       duration ?? undefined,
     );
-    const timeLabel = duration ? this.formatDuration(duration) : 'permanentemente';
+    const timeLabel = duration ? this.formatDuration(duration) : 'permanently';
 
     await ctx.reply(
       result.success
-        ? `Usuario ${targetId} foi **silenciado** ${timeLabel}.`
-        : `Falha ao silenciar: ${result.error}`,
+        ? `User ${targetId} was **muted** ${timeLabel}.`
+        : `Failed to mute: ${result.error}`,
       { parse_mode: 'Markdown' },
     );
   }
 
   public async handleUnmute(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
     const targetId = this.getTargetUserId(ctx, args);
     if (targetId === null) {
-      await ctx.reply('Aviso: responda a uma mensagem ou informe o ID do usuario.');
+      await ctx.reply('Warning: reply to a message or provide the user ID.');
       return;
     }
 
     const result = await this.moderationService.unmuteUser(ctx.chat!.id, targetId, ctx.from?.id.toString() || '');
     await ctx.reply(
-      result.success ? `Usuario ${targetId} foi **dessilenciado**.` : `Falha: ${result.error}`,
+      result.success ? `User ${targetId} was **unmuted**.` : `Failed: ${result.error}`,
       { parse_mode: 'Markdown' },
     );
   }
 
   public async handleWarn(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
@@ -188,7 +189,7 @@ export class TelegramGroupAdminController {
 
   public async handleWarns(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
@@ -197,7 +198,7 @@ export class TelegramGroupAdminController {
 
   public async handleClearWarns(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
@@ -206,31 +207,31 @@ export class TelegramGroupAdminController {
 
   public async handleRegras(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
     const chatId = ctx.chat!.id.toString();
     if (args.trim()) {
       await this.welcomeService.setGroupRules(chatId, args.trim());
-      await ctx.reply('Regras do grupo atualizadas com sucesso!');
+      await ctx.reply('Group rules updated successfully.');
       return;
     }
 
     const rules = await this.welcomeService.getGroupRules(chatId);
     if (!rules) {
-      await ctx.reply('Nenhuma regra definida. Use `/regras <texto>` para salvar as regras do grupo.', {
+      await ctx.reply('No rules have been defined. Use `/regras <text>` to save the group rules.', {
         parse_mode: 'Markdown',
       });
       return;
     }
 
-    await ctx.reply(`Regras do Grupo\n\n${rules}`);
+    await ctx.reply(`Group Rules\n\n${rules}`);
   }
 
   public async handleStats(ctx: Context): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
@@ -239,12 +240,12 @@ export class TelegramGroupAdminController {
     const total30 = await this.statsService.getTotalMessages(chatId, 30);
     const topMembers = await this.statsService.getTopMembers(chatId, 7, 5);
 
-    let message = `**Estatisticas do Grupo**\n\n`;
-    message += `Ultimos 7 dias: **${total7}** mensagens\n`;
-    message += `Ultimos 30 dias: **${total30}** mensagens\n\n`;
+    let message = `**Group Statistics**\n\n`;
+    message += `Last 7 days: **${total7}** messages\n`;
+    message += `Last 30 days: **${total30}** messages\n\n`;
 
     if (topMembers.length > 0) {
-      message += `**Top membros (7 dias):**\n`;
+      message += `**Top members (7 days):**\n`;
       topMembers.forEach((member, index) => {
         message += `${index + 1}. User ${member.user_id}: ${member.message_count} msgs\n`;
       });
@@ -255,7 +256,7 @@ export class TelegramGroupAdminController {
 
   public async handleSetWelcome(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
@@ -264,19 +265,19 @@ export class TelegramGroupAdminController {
       const config = await this.welcomeService.getConfig(chatId);
       const current = config?.welcome_message || this.welcomeService.getDefaultWelcomeMessage();
       await ctx.reply(
-        `Mensagem de boas-vindas atual:\n\n${current}\n\nUse \`/setwelcome <mensagem>\` para alterar.\nVariaveis: {name}, {username}, {group}`,
+        `Current welcome message:\n\n${current}\n\nUse \`/setwelcome <message>\` to change it.\nVariables: {name}, {username}, {group}`,
         { parse_mode: 'Markdown' },
       );
       return;
     }
 
     await this.welcomeService.setWelcomeMessage(chatId, args.trim());
-    await ctx.reply('Mensagem de boas-vindas atualizada!');
+    await ctx.reply('Welcome message updated.');
   }
 
   public async handleSetBye(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
@@ -285,19 +286,19 @@ export class TelegramGroupAdminController {
       const config = await this.welcomeService.getConfig(chatId);
       const current = config?.goodbye_message || this.welcomeService.getDefaultGoodbyeMessage();
       await ctx.reply(
-        `Mensagem de despedida atual:\n\n${current}\n\nUse \`/setbye <mensagem>\` para alterar.`,
+        `Current goodbye message:\n\n${current}\n\nUse \`/setbye <message>\` to change it.`,
         { parse_mode: 'Markdown' },
       );
       return;
     }
 
     await this.welcomeService.setGoodbyeMessage(chatId, args.trim());
-    await ctx.reply('Mensagem de despedida atualizada!');
+    await ctx.reply('Goodbye message updated.');
   }
 
   public async handleAntiSpam(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
@@ -306,7 +307,7 @@ export class TelegramGroupAdminController {
 
   public async handleFilter(ctx: Context, args: string): Promise<void> {
     if (!this.isGroupChat(ctx)) {
-      await ctx.reply('Aviso: este comando so funciona em grupos.');
+      await ctx.reply('Warning: this command only works in groups.');
       return;
     }
 
@@ -323,7 +324,7 @@ export class TelegramGroupAdminController {
       return null;
     }
 
-    const amount = parseInt(match[1], 10);
+    const amount = safeParseInt(match[1], 0);
     switch (match[2].toLowerCase()) {
       case 's':
         return amount;

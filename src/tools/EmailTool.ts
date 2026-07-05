@@ -2,6 +2,7 @@ import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import net from 'net';
 import tls from 'tls';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 interface EmailConfig {
   host: string;
@@ -74,9 +75,9 @@ export class EmailTool extends BaseTool {
     const rawCc = normalizeInput(args.cc);
     const rawBcc = normalizeInput(args.bcc);
 
-    if (!to) return 'Erro: o parametro "to" e obrigatorio.';
-    if (!subject) return 'Erro: o parametro "subject" e obrigatorio.';
-    if (!body) return 'Erro: o parametro "body" e obrigatorio.';
+    if (!to) return 'Error: the "to" parameter is required.';
+    if (!subject) return 'Error: the "subject" parameter is required.';
+    if (!body) return 'Error: the "body" parameter is required.';
 
     // SMTP Header Injection Protection (reject CRLF in headers)
     const headerSafeRegex = /[\r\n]/;
@@ -102,12 +103,12 @@ export class EmailTool extends BaseTool {
     }
 
     if (recipients.length === 0) {
-      return 'Erro: pelo menos um destinatario e necessario.';
+      return 'Error: at least one recipient is required.';
     }
 
     const config = this.loadConfig();
     if (!config) {
-      return 'Erro: configuracao SMTP nao encontrada. Configure ZAVORTH_SMTP_HOST, ZAVORTH_SMTP_PORT, ZAVORTH_SMTP_USER, ZAVORTH_SMTP_PASS.';
+      return 'Error: SMTP configuration not found. Configure ZAVORTH_SMTP_HOST, ZAVORTH_SMTP_PORT, ZAVORTH_SMTP_USER, ZAVORTH_SMTP_PASS.';
     }
     if (process.env.ZAVORTH_SMTP_ALLOW_LIVE_SEND !== 'true') {
       return 'Erro: envio real de email desabilitado. Defina ZAVORTH_SMTP_ALLOW_LIVE_SEND=true apos revisar SMTP, destinatarios e approval.';
@@ -181,7 +182,7 @@ export class EmailTool extends BaseTool {
 
     return {
       host,
-      port: port ? parseInt(port, 10) : 587,
+      port: safeParseInt(port, 587),
       secure: process.env.ZAVORTH_SMTP_SECURE === 'true',
       user,
       pass,
@@ -202,7 +203,7 @@ export class EmailTool extends BaseTool {
     },
   ): Promise<EmailResult> {
     if (email.attachments.length > 0) {
-      return { success: false, error: 'attachments ainda nao sao suportados pelo transporte SMTP nativo.' };
+      return { success: false, error: 'Attachments are not yet supported by the native SMTP transport.' };
     }
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).slice(2, 10)}@zavorth.local`;
     const headers = [
@@ -276,7 +277,7 @@ export class EmailTool extends BaseTool {
     const response = await new Promise<string>((resolve, reject) => {
       const timeout = setTimeout(() => {
         cleanup();
-        reject(new Error('timeout SMTP aguardando resposta.'));
+        reject(new Error('SMTP timeout while waiting for response.'));
       }, 15000);
       const chunks: Buffer[] = [];
       const onData = (chunk: Buffer) => {

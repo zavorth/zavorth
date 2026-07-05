@@ -174,10 +174,12 @@ export class StreamTracker {
   }
 }
 
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
+
 // ─── Active Stream Registry ─────────────────
 
 const activeStreams = new Map<string, StreamTracker>();
-const MAX_COMPLETED_HISTORY = parseInt(process.env.STREAM_HISTORY_MAX || "50", 10);
+const MAX_COMPLETED_HISTORY = safeParseInt(process.env.STREAM_HISTORY_MAX, 50);
 const completedStreams: ReturnType<StreamTracker["getSummary"]>[] = [];
 
 /**

@@ -5,6 +5,7 @@ import {
   getDefaultEchoVoiceAssetStore,
 } from '../domain/surface/infrastructure/EchoVoiceAssetStoreService.js';
 import type { ZavorthEchoService } from './ZavorthEchoService.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { NexusFacadeService } from './NexusFacadeService.js';
 import type {
   NormalizedInboundMessage,
@@ -161,7 +162,7 @@ export class ZavorthControlEchoRouteService {
     if (canonicalPathname === '/api/v2/echo/history' && req.method === 'GET') {
       const url = new URL(req.url || '', `http://${req.headers.host}`);
       const limitRaw = url.searchParams.get('limit');
-      const limit = limitRaw ? Number.parseInt(limitRaw, 10) : 20;
+      const limit = safeParseInt(limitRaw, 20);
       deps.writeJson(res, deps.echo.getHistory(Number.isFinite(limit) ? limit : 20), 200);
       return true;
     }

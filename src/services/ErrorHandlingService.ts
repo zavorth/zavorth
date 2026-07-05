@@ -6,6 +6,7 @@ import type {
   ZavorthErrorStrategy,
   ZavorthErrorHandlingRule,
 } from '../contracts/ErrorHandlingContract.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 type FileSystemLike = {
   existsSync: typeof fs.existsSync;
@@ -121,7 +122,7 @@ export class ErrorHandlingService {
     return {
       category: match[1] as ZavorthErrorCategory,
       strategy: match[2] as ZavorthErrorStrategy,
-      maxRetries: retryMatch ? parseInt(retryMatch[1], 10) : undefined,
+      maxRetries: retryMatch ? safeParseInt(retryMatch[1], 3) : undefined,
       fallbackStrategy: fallbackMatch ? (fallbackMatch[1] as ZavorthErrorStrategy) : undefined,
       addedAt: new Date().toISOString(),
     };

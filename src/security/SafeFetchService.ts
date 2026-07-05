@@ -1,5 +1,6 @@
 import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
 import { decideSecurityPolicy, formatSecurityPolicyReceipt } from './SecurityPolicyBroker.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 interface ReadableStreamLike {
   getReader(): ReadableStreamDefaultReader<Uint8Array>;
@@ -166,7 +167,7 @@ export async function readSafeJsonResponse<T>(
 ): Promise<T> {
   const contentLengthHeader = response.headers?.get?.('content-length');
   if (contentLengthHeader) {
-    const contentLength = parseInt(contentLengthHeader, 10);
+    const contentLength = safeParseInt(contentLengthHeader, 0);
     if (!isNaN(contentLength) && contentLength > maxBytes) {
       throw new Error(
         `Egress response size limit exceeded: ${serviceLabel} returned a content-length of ${contentLength} bytes, which exceeds the max allowed limit of ${maxBytes} bytes.`

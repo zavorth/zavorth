@@ -4,6 +4,7 @@ import os from 'os';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { getBestProvider, getAvailableProviders, callVisionProvider, listProviders } from './MultimodalProviderSelector.js';
+import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 
 export class ZavorthVideoAnalyzerService extends BaseTool {
   public readonly name = 'zavorth_video_analyzer';
@@ -139,7 +140,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
       const parsed = JSON.parse(probe) as { format?: { duration?: string; bit_rate?: string }; streams?: Array<{ codec_type: string; width?: number; height?: number; codec_name?: string; r_frame_rate?: string }> };
       if (parsed.format) {
         lines.push(`Duration: ${parseFloat(parsed.format.duration || '0').toFixed(1)}s`);
-        lines.push(`Bitrate: ${parseInt(parsed.format.bit_rate || '0') / 1000}kbps`);
+        lines.push(`Bitrate: ${safeParseInt(parsed.format.bit_rate, 0) / 1000}kbps`);
       }
       if (parsed.streams) {
         const video = parsed.streams.find((s) => s.codec_type === 'video');

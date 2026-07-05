@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { execCommandSync } from '../core/CommandSpawn.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import type { ILlmProvider } from '../providers/ILlmProvider.js';
 import {
@@ -530,7 +531,7 @@ export class AutoRepairService {
         if (stackMatch) {
           if (!file) {
             file = stackMatch[1].replace(/\\/g, '/');
-            line = parseInt(stackMatch[2], 10);
+            line = safeParseInt(stackMatch[2], 0);
           }
         }
 
@@ -548,7 +549,7 @@ export class AutoRepairService {
         const stackMatch = l.match(/at\s+(?:.+?\s+\()?([a-zA-Z0-9_\-\/\\\.]+?\.(?:ts|js)):(\d+):(\d+)\)?/);
         if (stackMatch) {
           file = stackMatch[1].replace(/\\/g, '/');
-          line = parseInt(stackMatch[2], 10);
+          line = safeParseInt(stackMatch[2], 0);
           break;
         }
       }

@@ -1,4 +1,5 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 import type { ZavorthPackagePublisher } from '../../../../platform/publish/ZavorthPackagePublisher.js';
 import type { ZavorthPlatformActionService } from '../../../../services/ZavorthPlatformActionService.js';
 import type { ZavorthPlatformCatalogSyncService } from '../../../../services/ZavorthPlatformCatalogSyncService.js';
@@ -1340,7 +1341,7 @@ function normalizeVisionTargetKind(value: string | undefined): ZavorthVisionCont
 }
 
 function parsePositive(value: string | undefined): number | null {
-  const parsed = Number.parseInt(String(value || ''), 10);
+  const parsed = safeParseInt(String(value || ''), NaN);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 

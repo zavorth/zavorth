@@ -54,6 +54,7 @@ import { ZavorthFirstBootDetectionService } from './ZavorthFirstBootDetectionSer
 import { ZavorthConversationalSetupService } from './ZavorthConversationalSetupService.js';
 import { ZavorthContextualTipsService, CONTEXTUAL_TIP_FLAGS } from './ZavorthContextualTipsService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 type RuntimeRecord = Record<string, unknown>;
 type ComposerCatalogOptions = NonNullable<ConstructorParameters<typeof ComposerCatalogService>[0]>;
@@ -90,8 +91,8 @@ export class WebAppConversationService {
     this.surfaceOperationalIntentService = deps.surfaceOperationalIntentService || new SurfaceOperationalIntentService();
   }
 
-  public createWebContext(sessionId: string): unknown {
-    const numericUserId = Number.parseInt(this.deps.runtime.webUserId || '1', 10) || 1;
+  public createWebContext(sessionId: string): Record<string, unknown> {
+    const numericUserId = safeParseInt(this.deps.runtime.webUserId, 1);
     return {
       from: { id: numericUserId, username: 'web' },
       chat: { id: 0, type: 'private' },

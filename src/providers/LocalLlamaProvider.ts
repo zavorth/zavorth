@@ -1,9 +1,10 @@
 import { spawn } from 'child_process';
 import { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider';
 import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 export interface LocalLlamaProviderOptions {
-    baseUrl?: string; // e.g. http://localhost:11434/v1 for Ollama, http://localhost:8080/v1 for llama.cpp server
+    baseUrl?: string;
     modelName?: string;
     keepAlive?: string;
     autoStart?: boolean;
@@ -69,13 +70,13 @@ export class LocalLlamaProvider implements ILlmProvider {
     private startTimeoutMs: number;
 
     constructor(options?: LocalLlamaProviderOptions) {
-        // Usa por padrao o Ollama local que serve a API da OpenAI. 
-        // Se usar LM Studio ou llama-server, basta alterar o port para 1234 ou 8080.
+        // Defaults to local Ollama serving the OpenAI-compatible API.
+        // For LM Studio or llama-server, change the port to 1234 or 8080.
         this.baseUrl = options?.baseUrl || 'http://localhost:11434/v1';
         this.defaultModel = options?.modelName || 'gemma2:2b';
         this.keepAlive = options?.keepAlive || process.env.OLLAMA_KEEP_ALIVE || '30s';
         this.autoStart = options?.autoStart ?? (String(process.env.OLLAMA_AUTO_START || 'true').toLowerCase() !== 'false');
-        this.startTimeoutMs = options?.startTimeoutMs || Number.parseInt(process.env.OLLAMA_START_TIMEOUT_MS || '15000', 10);
+        this.startTimeoutMs = options?.startTimeoutMs || safeParseInt(process.env.OLLAMA_START_TIMEOUT_MS, 15000);
     }
 
     public async chat(messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions): Promise<LlmResponse> {
@@ -83,22 +84,21 @@ export class LocalLlamaProvider implements ILlmProvider {
         const url = `${this.baseUrl}/chat/completions`;
         const modelInfo = options?.modelName || this.defaultModel;
 
-        // Estratégia de fallback: Se o modelo não suporta ferramentas nativas via API (como o gemma2:2b no Ollama)
-        // injetamos a definição das ferramentas diretamente no System Prompt para que ele responda em JSON.
-        let localMessages = [...messages];
+        // Fallback strategy: if the model does not support native API tools,
+        // inject the tool definitions directly into the system prompt and require JSON.
+        const localMessages = [...messages];
         if (tools && tools.length > 0) {
             const toolPrompt = `
-SISTEMA DE FERRAMENTAS (ECHO):
-Você é um assistente que chama funções. Se precisar usar uma ferramenta, responda APENAS um JSON válido.
-Nunca retorne a definição do esquema nos argumentos, apenas os VALORES.
+TOOL SYSTEM (ECHO):
+You are an assistant that calls functions. If you need to use a tool, respond ONLY with valid JSON.
+Never return the schema definition inside arguments; return only concrete values.
 
-EXEMPLO DE RESPOSTA ESPERADA:
+EXPECTED RESPONSE EXAMPLE:
 {"tool_calls": [{"id": "call_123", "name": "os_open_app", "arguments": {"appName": "spotify", "args": ["search", "Daft Punk"]}}]}
 
-FERRAMENTAS DISPONÍVEIS:
-${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.stringify(t.parameters)}`).join('\n')}
+AVAILABLE TOOLS:
+${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.stringify(t.parameters)}`).join('\n')}
 `;
-            // Encontra o system prompt ou cria um
             const systemIdx = localMessages.findIndex(m => m.role === 'system');
             if (systemIdx !== -1) {
                 localMessages[systemIdx].content += `\n\n${toolPrompt}`;
@@ -127,7 +127,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
                     if (m.inlineData.some(media => media.mimeType.startsWith('audio/'))) {
                         parts.push({
                             type: 'text',
-                            text: '[Audio anexado omitido no provider local: use Gemini/OpenAI-compatible multimodal para analise nativa de audio.]'
+                            text: '[Attached audio omitted in the local provider: use Gemini or an OpenAI-compatible multimodal provider for native audio analysis.]'
                         });
                     }
                     finalContent = parts;
@@ -137,24 +137,25 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
                     role: m.role,
                     content: finalContent,
                     ...(m.toolCallId && { tool_call_id: m.toolCallId }),
-                    ...(m.toolCalls && { tool_calls: m.toolCalls.map(tc => ({
-                        id: tc.id,
-                        type: 'function' as const,
-                        function: {
-                            name: tc.name,
-                            arguments: JSON.stringify(tc.arguments)
-                        }
-                    }))})
+                    ...(m.toolCalls && {
+                        tool_calls: m.toolCalls.map(tc => ({
+                            id: tc.id,
+                            type: 'function' as const,
+                            function: {
+                                name: tc.name,
+                                arguments: JSON.stringify(tc.arguments)
+                            }
+                        }))
+                    })
                 };
             }),
             temperature: 0.1,
             keep_alive: this.keepAlive,
-            format: 'json' // Forces the model to respond in JSON to ease tool call parsing
+            format: 'json'
         };
 
-        // We only send the "tools" field if we know the model supports it (prompt fallback is safer for 2B models)
-        // Mas para manter a compatibilidade com modelos que suportam (como llama3.1), podemos tentar.
-        // Se falhar (400), o código abaixo já lida com o erro ou podemos remover esta parte:
+        // Only send the "tools" field when native tool support is known to work.
+        // The prompt fallback is safer for small local models.
         // payload.tools = ...
 
         try {
@@ -177,29 +178,25 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
             const choice = data.choices[0];
             const message = choice.message;
 
-            let toolCalls = [];
-            
-            // 1. Tenta pegar tool_calls nativas
+            let toolCalls: Array<{ id: string; name: string; arguments: Record<string, unknown> }> = [];
+
             if (message.tool_calls) {
                 for (const tc of message.tool_calls) {
                     toolCalls.push({
                         id: tc.id,
                         name: tc.function.name,
-                        arguments: typeof tc.function.arguments === 'string' ? JSON.parse(tc.function.arguments) : tc.function.arguments
+                        arguments: JSON.parse(tc.function.arguments || '{}') as Record<string, unknown>
                     });
                 }
-            } 
-            // 2. Tenta fazer o parse manual do conteúdo se for um JSON (estratégia de fallback)
-            else if (message.content && message.content.includes('tool_calls')) {
+            } else if (message.content && message.content.includes('tool_calls')) {
                 try {
-                    // Limpa blocos de código markdown se existirem
-                    let cleanedContent = message.content.replace(/```json\n?|```/g, '').trim();
+                    const cleanedContent = message.content.replace(/```json\n?|```/g, '').trim();
                     const parsed = JSON.parse(cleanedContent);
                     if (parsed.tool_calls) {
                         toolCalls = parsed.tool_calls;
                     }
-                } catch (e) {
-                    // Não é um JSON válido ou não contém tool_calls
+                } catch {
+                    // Not valid JSON or does not contain tool_calls.
                 }
             }
 

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 export class ZavorthEdgeComputingTool extends BaseTool {
   public readonly name = 'zavorth_edge_computing';
@@ -188,7 +189,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
         timeout: 15000,
       }).toString();
 
-      const statusCode = parseInt(result, 10);
+      const statusCode = safeParseInt(result, 0);
       return `Test ${worker.name}: HTTP ${statusCode} ${statusCode >= 200 && statusCode < 400 ? '✅' : '❌'}`;
     } catch (error: unknown) {
       return `Test failed: ${error instanceof Error ? error.message : String(error)}`;

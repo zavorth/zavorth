@@ -14,6 +14,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { setQuotaCache } from "@/domain/quotaCache";
 import { getMachineId } from "@/shared/utils/machine";
 import { USAGE_SUPPORTED_PROVIDERS } from "@/shared/constants/providers";
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
 import { getExecutor } from "@ZavorthGateway/open-sse/executors/index.ts";
 import { getUsageForProvider } from "@ZavorthGateway/open-sse/services/usage.ts";
 import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
@@ -184,7 +185,7 @@ async function syncExpiredStatusIfNeeded(connection: ProviderConnectionLike, usa
 }
 
 export function getProviderLimitsSyncIntervalMinutes(): number {
-  const raw = Number.parseInt(process.env.PROVIDER_LIMITS_SYNC_INTERVAL_MINUTES ?? "", 10);
+  const raw = safeParseInt(process.env.PROVIDER_LIMITS_SYNC_INTERVAL_MINUTES, DEFAULT_PROVIDER_LIMITS_SYNC_INTERVAL_MINUTES);
   return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_PROVIDER_LIMITS_SYNC_INTERVAL_MINUTES;
 }
 

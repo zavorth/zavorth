@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 export class ZavorthFileSystemAdvancedTool extends BaseTool {
   public readonly name = 'zavorth_file_system_advanced';
@@ -407,7 +408,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
   private parseSize(size: string): number {
     const match = size.match(/^(\d+)(KB|MB|GB)$/i);
     if (!match) return 10 * 1024 * 1024;
-    const num = parseInt(match[1]);
+    const num = safeParseInt(match[1], 0);
     switch (match[2].toUpperCase()) {
       case 'KB': return num * 1024;
       case 'MB': return num * 1024 * 1024;

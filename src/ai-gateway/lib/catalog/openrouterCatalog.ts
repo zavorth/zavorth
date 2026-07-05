@@ -9,13 +9,14 @@
 
 import fs from "fs";
 import path from "path";
+import { safeParseInt } from "../../shared/utils/safeParseInt.js";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/models";
 const DEFAULT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 function getTTL(): number {
   const env = process.env.OPENROUTER_CATALOG_TTL_MS;
-  return env ? parseInt(env, 10) : DEFAULT_TTL_MS;
+  return safeParseInt(env, DEFAULT_TTL_MS);
 }
 
 function getCacheFilePath(): string {

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { execNativeCommandSync } from '../../core/CommandSpawn.js';
 import type { SandboxLanguage } from './ISandboxRuntime.js';
+import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 
 type FirecrackerPayloadHost = {
   getCodeFilename(language: SandboxLanguage): string;
@@ -86,7 +87,7 @@ export class FirecrackerSandboxPayloadSupport {
     const stdout = readFile('results/stdout.txt');
     const stderr = readFile('results/stderr.txt');
     const exitCodeStr = readFile('results/exitcode.txt').trim();
-    const exitCode = parseInt(exitCodeStr, 10);
+    const exitCode = safeParseInt(exitCodeStr, NaN);
 
     return {
       stdout,

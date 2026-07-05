@@ -13,6 +13,7 @@
 import { getDbInstance } from "./db/core";
 import { invalidateDbCache } from "./db/readCache";
 import { backupDbFile } from "./db/backup";
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -59,7 +60,7 @@ interface SyncResult {
 const SUPPORTED_SOURCES = ["litellm"] as const;
 type SupportedSource = (typeof SUPPORTED_SOURCES)[number];
 
-const parsedInterval = parseInt(process.env.PRICING_SYNC_INTERVAL || "86400", 10);
+const parsedInterval = safeParseInt(process.env.PRICING_SYNC_INTERVAL, 86400);
 const SYNC_INTERVAL_MS =
   Number.isFinite(parsedInterval) && parsedInterval > 0 ? parsedInterval * 1000 : 86400 * 1000;
 const SYNC_SOURCES = (process.env.PRICING_SYNC_SOURCES || "litellm")

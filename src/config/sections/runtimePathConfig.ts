@@ -102,8 +102,8 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
       process.env.ZAVORTH_BRIDGE_LOGS_DIR ||
       path.join(APPDATA_FALLBACK, 'ZavorthBridge', 'logs'),
     zavorthBridgeAutomationEnabled: (process.env.ZAVORTH_BRIDGE_AUTOMATION_ENABLED || 'true').toLowerCase() !== 'false',
-    zavorthBridgeAutomationDelaySeconds: parseInt(process.env.ZAVORTH_BRIDGE_AUTOMATION_DELAY_SECONDS || '18', 10),
-    zavorthBridgeAutomationMaxAttempts: parseInt(process.env.ZAVORTH_BRIDGE_AUTOMATION_MAX_ATTEMPTS || '2', 10),
+    zavorthBridgeAutomationDelaySeconds: parseEnvInt(process.env.ZAVORTH_BRIDGE_AUTOMATION_DELAY_SECONDS, 18),
+    zavorthBridgeAutomationMaxAttempts: parseEnvInt(process.env.ZAVORTH_BRIDGE_AUTOMATION_MAX_ATTEMPTS, 2),
     zavorthBridgeWindowTitle: process.env.ZAVORTH_BRIDGE_WINDOW_TITLE || 'ZavorthBridge',
     zavorthBridgeUiScriptPath: path.resolve(projectRoot, 'scripts', 'zavorth-bridge-window-automation-v2.ps1'),
     zavorthBridgeStartScriptPath: path.resolve(projectRoot, 'scripts', 'start-zavorth-bridge-debug.mjs'),
@@ -115,8 +115,8 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     zavorthBridgeCaptureScriptPath: path.resolve(projectRoot, 'scripts', 'zavorth-bridge-window-capture.ps1'),
     zavorthBridgeAllowedModelsPath: path.resolve(projectRoot, 'config', 'zavorth-bridge-allowed-models.json'),
     zavorthBridgeControlLogsDir: path.resolve(projectRoot, 'data', 'zavorth-bridge-control', 'logs'),
-    zavorthBridgePromptTimeoutSeconds: parseInt(process.env.ZAVORTH_BRIDGE_PROMPT_TIMEOUT_SECONDS || '150', 10),
-    zavorthBridgeWorkspaceBootstrapTimeoutSeconds: parseInt(process.env.ZAVORTH_BRIDGE_WORKSPACE_BOOTSTRAP_TIMEOUT_SECONDS || '20', 10),
+    zavorthBridgePromptTimeoutSeconds: parseEnvInt(process.env.ZAVORTH_BRIDGE_PROMPT_TIMEOUT_SECONDS, 150),
+    zavorthBridgeWorkspaceBootstrapTimeoutSeconds: parseEnvInt(process.env.ZAVORTH_BRIDGE_WORKSPACE_BOOTSTRAP_TIMEOUT_SECONDS, 20),
     zavorthBridgePromptCaptureDir: path.resolve(projectRoot, 'data', 'zavorth-bridge-prompt', 'captures'),
     zavorthBridgeStateDbPath:
       process.env.ZAVORTH_BRIDGE_STATE_DB_PATH ||
@@ -174,9 +174,9 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     integrationHubProbeStateFile:
       process.env.ZAVORTH_INTEGRATION_HUB_PROBE_STATE_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'integration-hub-probes.json'),
-    integrationHubProbeTimeoutMs: parseInt(
-      process.env.ZAVORTH_INTEGRATION_HUB_PROBE_TIMEOUT_MS || '6000',
-      10,
+    integrationHubProbeTimeoutMs: parseEnvInt(
+      process.env.ZAVORTH_INTEGRATION_HUB_PROBE_TIMEOUT_MS,
+      6000,
     ),
     securityAuditStatusFile:
       process.env.ZAVORTH_SECURITY_AUDIT_STATUS_FILE ||
@@ -220,30 +220,30 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     nodeMeshSmokeReportFile:
       process.env.ZAVORTH_NODE_MESH_SMOKE_REPORT_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'node-mesh-smoke-last.json'),
-    nodeMeshSmokeMaxAgeMs: parseInt(
-      process.env.ZAVORTH_NODE_MESH_SMOKE_MAX_AGE_MS || '43200000',
-      10,
+    nodeMeshSmokeMaxAgeMs: parseEnvInt(
+      process.env.ZAVORTH_NODE_MESH_SMOKE_MAX_AGE_MS,
+      43200000,
     ),
     systemOverlordSmokeReportFile:
       process.env.ZAVORTH_SYSTEM_OVERLORD_SMOKE_REPORT_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'system-overlord-smoke-last.json'),
-    systemOverlordSmokeMaxAgeMs: parseInt(
-      process.env.ZAVORTH_SYSTEM_OVERLORD_SMOKE_MAX_AGE_MS || '43200000',
-      10,
+    systemOverlordSmokeMaxAgeMs: parseEnvInt(
+      process.env.ZAVORTH_SYSTEM_OVERLORD_SMOKE_MAX_AGE_MS,
+      43200000,
     ),
     channelProviderDoctorReportFile:
       process.env.ZAVORTH_CHANNEL_PROVIDER_DOCTOR_REPORT_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'channel-provider-doctor-last.json'),
-    channelProviderDoctorMaxAgeMs: parseInt(
-      process.env.ZAVORTH_CHANNEL_PROVIDER_DOCTOR_MAX_AGE_MS || '43200000',
-      10,
+    channelProviderDoctorMaxAgeMs: parseEnvInt(
+      process.env.ZAVORTH_CHANNEL_PROVIDER_DOCTOR_MAX_AGE_MS,
+      43200000,
     ),
     remoteTransportDoctorReportFile:
       process.env.ZAVORTH_REMOTE_TRANSPORT_DOCTOR_REPORT_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'remote-transport-doctor-last.json'),
-    remoteTransportDoctorMaxAgeMs: parseInt(
-      process.env.ZAVORTH_REMOTE_TRANSPORT_DOCTOR_MAX_AGE_MS || '43200000',
-      10,
+    remoteTransportDoctorMaxAgeMs: parseEnvInt(
+      process.env.ZAVORTH_REMOTE_TRANSPORT_DOCTOR_MAX_AGE_MS,
+      43200000,
     ),
     supervisedReloadReportFile:
       process.env.ZAVORTH_SUPERVISED_RELOAD_REPORT_FILE ||
@@ -260,21 +260,21 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     zavorthBridgeRemoteDoctorHistoryFile:
       process.env.ZAVORTH_ZAVORTH_BRIDGE_REMOTE_DOCTOR_HISTORY_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'zavorth-bridge-remote-doctor-history.json'),
-    zavorthBridgeRemoteDoctorRepairCooldownMinutes: parseInt(
-      process.env.ZAVORTH_ZAVORTH_BRIDGE_REMOTE_DOCTOR_REPAIR_COOLDOWN_MINUTES || '10',
+    zavorthBridgeRemoteDoctorRepairCooldownMinutes: parseEnvInt(
+      process.env.ZAVORTH_ZAVORTH_BRIDGE_REMOTE_DOCTOR_REPAIR_COOLDOWN_MINUTES,
       10,
     ),
-    zavorthBridgeRemoteDoctorFlappingWindowMinutes: parseInt(
-      process.env.ZAVORTH_ZAVORTH_BRIDGE_REMOTE_DOCTOR_FLAPPING_WINDOW_MINUTES || '20',
-      10,
+    zavorthBridgeRemoteDoctorFlappingWindowMinutes: parseEnvInt(
+      process.env.ZAVORTH_ZAVORTH_BRIDGE_REMOTE_DOCTOR_FLAPPING_WINDOW_MINUTES,
+      20,
     ),
-    zavorthBridgeRemoteDoctorFlappingThreshold: parseInt(
-      process.env.ZAVORTH_ZAVORTH_BRIDGE_REMOTE_DOCTOR_FLAPPING_THRESHOLD || '3',
-      10,
+    zavorthBridgeRemoteDoctorFlappingThreshold: parseEnvInt(
+      process.env.ZAVORTH_ZAVORTH_BRIDGE_REMOTE_DOCTOR_FLAPPING_THRESHOLD,
+      3,
     ),
-    zavorthBridgeMobileLeaseTtlMs: parseInt(
-      process.env.ZAVORTH_ZAVORTH_BRIDGE_MOBILE_LEASE_TTL_MS || `${2 * 60 * 60 * 1000}`,
-      10,
+    zavorthBridgeMobileLeaseTtlMs: parseEnvInt(
+      process.env.ZAVORTH_ZAVORTH_BRIDGE_MOBILE_LEASE_TTL_MS,
+      2 * 60 * 60 * 1000,
     ),
     zavorthBridgeMobileLeaseFile:
       process.env.ZAVORTH_ZAVORTH_BRIDGE_MOBILE_LEASE_FILE ||
@@ -286,9 +286,9 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
       (process.env.ZAVORTH_ZAVORTH_BRIDGE_PUBLIC_TUNNEL_ENABLED || 'true').toLowerCase() !== 'false',
     zavorthBridgePublicTunnelCliPath:
       process.env.ZAVORTH_ZAVORTH_BRIDGE_PUBLIC_TUNNEL_CLI_PATH || 'cloudflared',
-    zavorthBridgePublicTunnelReadyTimeoutMs: parseInt(
-      process.env.ZAVORTH_ZAVORTH_BRIDGE_PUBLIC_TUNNEL_READY_TIMEOUT_MS || '15000',
-      10,
+    zavorthBridgePublicTunnelReadyTimeoutMs: parseEnvInt(
+      process.env.ZAVORTH_ZAVORTH_BRIDGE_PUBLIC_TUNNEL_READY_TIMEOUT_MS,
+      15000,
     ),
     zavorthBridgePublicTunnelStateFile:
       process.env.ZAVORTH_ZAVORTH_BRIDGE_PUBLIC_TUNNEL_STATE_FILE ||
@@ -303,9 +303,9 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
       (process.env.ZAVORTH_PUBLIC_TUNNEL_ENABLED || 'true').toLowerCase() !== 'false',
     zavorthPublicTunnelCliPath:
       process.env.ZAVORTH_PUBLIC_TUNNEL_CLI_PATH || 'cloudflared',
-    zavorthPublicTunnelReadyTimeoutMs: parseInt(
-      process.env.ZAVORTH_PUBLIC_TUNNEL_READY_TIMEOUT_MS || '15000',
-      10,
+    zavorthPublicTunnelReadyTimeoutMs: parseEnvInt(
+      process.env.ZAVORTH_PUBLIC_TUNNEL_READY_TIMEOUT_MS,
+      15000,
     ),
     zavorthPublicTunnelStateFile:
       process.env.ZAVORTH_PUBLIC_TUNNEL_STATE_FILE ||
@@ -316,9 +316,9 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     zavorthPublicTunnelHostScriptPath:
       process.env.ZAVORTH_PUBLIC_TUNNEL_HOST_SCRIPT_PATH ||
       path.resolve(projectRoot, 'scripts', 'public-tunnel-host.mjs'),
-    AIGatewayGatewayReadyTimeoutMs: parseInt(
-      process.env.ZAVORTH_AIGateway_GATEWAY_READY_TIMEOUT_MS || '15000',
-      10,
+    AIGatewayGatewayReadyTimeoutMs: parseEnvInt(
+      process.env.ZAVORTH_AIGateway_GATEWAY_READY_TIMEOUT_MS,
+      15000,
     ),
     AIGatewayGatewayStatusFile:
       process.env.ZAVORTH_AIGateway_GATEWAY_STATUS_FILE ||
@@ -340,15 +340,15 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
       path.resolve(projectRoot, 'scripts', 'start-ai-gateway-runtime.mjs'),
     maintenanceAutomationEnabled:
       (process.env.ZAVORTH_MAINTENANCE_AUTOMATION_ENABLED || 'true').toLowerCase() !== 'false',
-    maintenanceAutomationHour: parseInt(process.env.ZAVORTH_MAINTENANCE_AUTOMATION_HOUR || '4', 10),
-    maintenanceAutomationMinute: parseInt(process.env.ZAVORTH_MAINTENANCE_AUTOMATION_MINUTE || '30', 10),
-    maintenanceAutomationPriorityCooldownMs: parseInt(
-      process.env.ZAVORTH_MAINTENANCE_AUTOMATION_PRIORITY_COOLDOWN_MS || '3600000',
-      10,
+    maintenanceAutomationHour: parseEnvInt(process.env.ZAVORTH_MAINTENANCE_AUTOMATION_HOUR, 4),
+    maintenanceAutomationMinute: parseEnvInt(process.env.ZAVORTH_MAINTENANCE_AUTOMATION_MINUTE, 30),
+    maintenanceAutomationPriorityCooldownMs: parseEnvInt(
+      process.env.ZAVORTH_MAINTENANCE_AUTOMATION_PRIORITY_COOLDOWN_MS,
+      3600000,
     ),
     dailyReportEnabled: (process.env.ZAVORTH_DAILY_REPORT_ENABLED || 'true').toLowerCase() !== 'false',
-    dailyReportHour: parseInt(process.env.ZAVORTH_DAILY_REPORT_HOUR || '9', 10),
-    dailyReportMinute: parseInt(process.env.ZAVORTH_DAILY_REPORT_MINUTE || '0', 10),
+    dailyReportHour: parseEnvInt(process.env.ZAVORTH_DAILY_REPORT_HOUR, 9),
+    dailyReportMinute: parseEnvInt(process.env.ZAVORTH_DAILY_REPORT_MINUTE, 0),
     dailyReportRoles: parseList(process.env.ZAVORTH_DAILY_REPORT_ROLES || 'admin'),
     capabilityLifecycleStateFile:
       process.env.ZAVORTH_CAPABILITY_LIFECYCLE_STATE_FILE ||
@@ -362,7 +362,7 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     desktopResourceHistoryFile:
       process.env.ZAVORTH_DESKTOP_RESOURCE_HISTORY_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'desktop-resource-history.jsonl'),
-    desktopResourceHistoryMaxEntries: parseInt(process.env.ZAVORTH_DESKTOP_RESOURCE_HISTORY_MAX_ENTRIES || '60', 10),
+    desktopResourceHistoryMaxEntries: parseEnvInt(process.env.ZAVORTH_DESKTOP_RESOURCE_HISTORY_MAX_ENTRIES, 60),
     companionsStateFile:
       process.env.ZAVORTH_COMPANIONS_STATE_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'companions-state.json'),
@@ -422,35 +422,35 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     supervisedAutoRepairRequestScriptPath: path.resolve(projectRoot, 'scripts', 'request-supervised-autorepair.ps1'),
     windowsSessionStatusScriptPath: path.resolve(projectRoot, 'scripts', 'windows-session-status.ps1'),
     stitchArtifactsDir: path.resolve(projectRoot, 'data', 'artifacts', 'stitch'),
-    stitchTimeoutSeconds: parseInt(process.env.STITCH_TIMEOUT_SECONDS || '240', 10),
+    stitchTimeoutSeconds: parseEnvInt(process.env.STITCH_TIMEOUT_SECONDS, 240),
     stitchDefaultDeviceType: process.env.STITCH_DEFAULT_DEVICE_TYPE || 'AGNOSTIC',
     stitchDefaultModelId: process.env.STITCH_DEFAULT_MODEL_ID || '',
-    autoRepairMaxAttempts: parseInt(process.env.ZAVORTH_AUTOREPAIR_MAX_ATTEMPTS || '2', 10),
+    autoRepairMaxAttempts: parseEnvInt(process.env.ZAVORTH_AUTOREPAIR_MAX_ATTEMPTS, 2),
     autoRepairPlannerConfidenceThreshold: parseFloat(
       process.env.ZAVORTH_AUTOREPAIR_PLANNER_CONFIDENCE_THRESHOLD || '0.45',
     ),
-    backupRetentionDays: parseInt(process.env.ZAVORTH_BACKUP_RETENTION_DAYS || '7', 10),
-    backupRetentionCount: parseInt(process.env.ZAVORTH_BACKUP_RETENTION_COUNT || '3', 10),
-    runtimeMaintenanceIntervalMs: parseInt(
-      process.env.ZAVORTH_RUNTIME_MAINTENANCE_INTERVAL_MS || `${15 * 60 * 1000}`,
-      10,
+    backupRetentionDays: parseEnvInt(process.env.ZAVORTH_BACKUP_RETENTION_DAYS, 7),
+    backupRetentionCount: parseEnvInt(process.env.ZAVORTH_BACKUP_RETENTION_COUNT, 3),
+    runtimeMaintenanceIntervalMs: parseEnvInt(
+      process.env.ZAVORTH_RUNTIME_MAINTENANCE_INTERVAL_MS,
+      15 * 60 * 1000,
     ),
     goalLoopDaemonEnabled: (process.env.ZAVORTH_GOAL_LOOP_DAEMON_ENABLED || 'true').toLowerCase() !== 'false',
-    goalLoopDaemonIntervalMs: parseInt(process.env.ZAVORTH_GOAL_LOOP_DAEMON_INTERVAL_MS || '15000', 10),
-    goalLoopDaemonLeaseMs: parseInt(process.env.ZAVORTH_GOAL_LOOP_DAEMON_LEASE_MS || `${5 * 60 * 1000}`, 10),
-    goalLoopDaemonStaleAfterMs: parseInt(process.env.ZAVORTH_GOAL_LOOP_DAEMON_STALE_AFTER_MS || `${10 * 60 * 1000}`, 10),
-    goalLoopDaemonMaxItems: parseInt(process.env.ZAVORTH_GOAL_LOOP_DAEMON_MAX_ITEMS || '5', 10),
+    goalLoopDaemonIntervalMs: parseEnvInt(process.env.ZAVORTH_GOAL_LOOP_DAEMON_INTERVAL_MS, 15000),
+    goalLoopDaemonLeaseMs: parseEnvInt(process.env.ZAVORTH_GOAL_LOOP_DAEMON_LEASE_MS, 5 * 60 * 1000),
+    goalLoopDaemonStaleAfterMs: parseEnvInt(process.env.ZAVORTH_GOAL_LOOP_DAEMON_STALE_AFTER_MS, 10 * 60 * 1000),
+    goalLoopDaemonMaxItems: parseEnvInt(process.env.ZAVORTH_GOAL_LOOP_DAEMON_MAX_ITEMS, 5),
     userModelDaemonEnabled: (process.env.ZAVORTH_USER_MODEL_DAEMON_ENABLED || 'true').toLowerCase() !== 'false',
-    userModelDaemonIntervalMs: parseInt(process.env.ZAVORTH_USER_MODEL_DAEMON_INTERVAL_MS || `${5 * 60 * 1000}`, 10),
-    userModelDaemonMinTurns: parseInt(process.env.ZAVORTH_USER_MODEL_DAEMON_MIN_TURNS || '5', 10),
+    userModelDaemonIntervalMs: parseEnvInt(process.env.ZAVORTH_USER_MODEL_DAEMON_INTERVAL_MS, 5 * 60 * 1000),
+    userModelDaemonMinTurns: parseEnvInt(process.env.ZAVORTH_USER_MODEL_DAEMON_MIN_TURNS, 5),
     userModelDaemonEnableLlmReasoning: (process.env.ZAVORTH_USER_MODEL_DAEMON_ENABLE_LLM || 'true').toLowerCase() !== 'false',
     userModelDaemonLlmProvider: process.env.ZAVORTH_USER_MODEL_DAEMON_LLM_PROVIDER || undefined,
     userModelDaemonLlmModel: process.env.ZAVORTH_USER_MODEL_DAEMON_LLM_MODEL || undefined,
-    userModelDaemonLlmMaxPasses: parseInt(process.env.ZAVORTH_USER_MODEL_DAEMON_LLM_MAX_PASSES || '3', 10),
-    runtimeLogRotationMaxBytes: parseInt(process.env.ZAVORTH_RUNTIME_LOG_ROTATION_MAX_BYTES || `${25 * 1024 * 1024}`, 10),
-    runtimeLogRotationMaxFiles: parseInt(process.env.ZAVORTH_RUNTIME_LOG_ROTATION_MAX_FILES || '5', 10),
-    visualSmokeMaxBytes: parseInt(process.env.ZAVORTH_VISUAL_SMOKE_MAX_BYTES || `${1024 * 1024 * 1024}`, 10),
-    visualSmokeTtlMs: parseInt(process.env.ZAVORTH_VISUAL_SMOKE_TTL_MS || `${24 * 60 * 60 * 1000}`, 10),
+    userModelDaemonLlmMaxPasses: parseEnvInt(process.env.ZAVORTH_USER_MODEL_DAEMON_LLM_MAX_PASSES, 3),
+    runtimeLogRotationMaxBytes: parseEnvInt(process.env.ZAVORTH_RUNTIME_LOG_ROTATION_MAX_BYTES, 25 * 1024 * 1024),
+    runtimeLogRotationMaxFiles: parseEnvInt(process.env.ZAVORTH_RUNTIME_LOG_ROTATION_MAX_FILES, 5),
+    visualSmokeMaxBytes: parseEnvInt(process.env.ZAVORTH_VISUAL_SMOKE_MAX_BYTES, 1024 * 1024 * 1024),
+    visualSmokeTtlMs: parseEnvInt(process.env.ZAVORTH_VISUAL_SMOKE_TTL_MS, 24 * 60 * 60 * 1000),
 
     // Audio
     ttsVoice: process.env.TTS_VOICE || 'en-US-JennyNeural',

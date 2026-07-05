@@ -29,6 +29,7 @@ import {
 } from "../logPayloads";
 import { getCallLogMaxEntries, getCallLogRetentionDays } from "../logEnv";
 import { pickMaskedDisplayValue } from "@/shared/utils/maskEmail";
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -511,7 +512,7 @@ export async function getCallLogs(filter: any = {}) {
     } else if (filter.status === "ok") {
       conditions.push("status >= 200 AND status < 300");
     } else {
-      const statusCode = parseInt(filter.status, 10);
+      const statusCode = safeParseInt(filter.status, 0);
       if (!Number.isNaN(statusCode)) {
         conditions.push("status = @statusCode");
         params.statusCode = statusCode;
