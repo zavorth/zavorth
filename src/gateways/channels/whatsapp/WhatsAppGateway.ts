@@ -1,6 +1,7 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+import { hookMiddleware } from '../../../services/ZavorthMiddlewareHook.js';
 
 export class WhatsAppGateway extends WebhookGateway {
   public readonly id = 'whatsapp';
@@ -64,6 +65,35 @@ export class WhatsAppGateway extends WebhookGateway {
 
   protected resolveStatusFile(): string {
     return config.whatsappStatusFile;
+  }
+
+  /**
+   * Override to add commandless middleware before standard processing.
+   */
+  protected override async onMessageReceived(payload: Record<string, unknown>): Promise<boolean> {
+    const extracted = this.extractInboundPayload(payload);
+    if (!extracted) {
+      return false;
+    }
+
+    const { userId, chatId, rawText } = extracted;
+
+    // Commandless mode: try middleware before standard processing
+    const middlewareResult = await hookMiddleware({
+      text: rawText,
+      channelId: 'whatsapp',
+      userId,
+      reply: async (text: string) => {
+        await this.sendMessage({ chatId, text });
+      },
+    });
+
+    if (middlewareResult.handled) {
+      return true;
+    }
+
+    // Fall through to standard processing
+    return super.onMessageReceived(payload);
   }
 
   protected extractInboundPayload(webhookPayload: Record<string, unknown>): {

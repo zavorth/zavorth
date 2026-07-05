@@ -47,6 +47,8 @@ export interface HookInput {
   userId?: string;
   sessionId?: string;
   locale?: string;
+  /** Optional reply callback — if provided, middleware will send response directly */
+  reply?: (text: string) => Promise<void>;
 }
 
 export interface HookResult {
@@ -83,10 +85,18 @@ export async function hookMiddleware(input: HookInput): Promise<HookResult> {
     });
 
     if (result.handled && result.response) {
+      const responseText = typeof result.response === 'string' 
+        ? result.response 
+        : result.response.text;
+      
+      // Send reply directly if callback provided
+      if (input.reply && responseText) {
+        await input.reply(responseText);
+      }
       return {
         handled: true,
-        response: result.response.text,
-        buttons: result.response.buttons,
+        response: responseText,
+        buttons: typeof result.response === 'object' ? result.response.buttons : undefined,
       };
     }
 
