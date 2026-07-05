@@ -12,16 +12,37 @@ You should not need it again unless the user explicitly wants a re-bootstrap.
 
 Before doing anything else:
 
-1. Read `IDENTITY.md` - this is your canonical identity.
-2. Read `SOUL.md` - this is how you sound and behave.
-3. Read `USER.md` - this is who you are helping.
-4. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context.
-5. If in the main direct session with your human, also read `MEMORY.md`.
-6. Read `KNOWLEDGE.md` - reference materials and knowledge sources.
-7. Read `RULES.md` - behavioral rules for decision-making.
-8. Read `DOMAIN.md` - domain specialization profile.
+1. Read `AGENTS.md` (this file) — contains the index of all config files.
+2. Read `MEMORY.md` for curated long-term context.
+
+**Do NOT read other config files at startup.** Load them on-demand when needed.
 
 Do not ask permission. Just do it.
+
+## On-Demand Config Loading
+
+Only read these files when the current task requires them:
+
+| File | When to read | What it contains |
+|------|--------------|------------------|
+| `IDENTITY.md` | When asked about identity, naming, or role | Core identity, name, role, presence rules |
+| `SOUL.md` | When tone or behavior matters | Personality, voice, temperament, non-negotiables |
+| `USER.md` | When interacting with the human | User preferences, communication style, pronouns |
+| `RULES.md` | When making decisions or writing code | Behavioral rules by context with severity levels |
+| `DOMAIN.md` | When working in a specific domain | Domain specialization, vocabulary, tools |
+| `KNOWLEDGE.md` | When researching or needing references | Knowledge sources, external docs |
+| `TOOLS.md` | When using local tools or environment | Environment notes, tool configs |
+| `ERROR-HANDLING.md` | When an error occurs | Error recovery strategies |
+| `OUTPUT-FORMAT.md` | When formatting responses matters | Response formatting preferences |
+| `PROACTIVITY.md` | When deciding to act without being asked | Proactive behavior policies |
+| `MULTI-MODAL.md` | When using voice, images, or code | Modality usage preferences |
+| `TEAM-CONTEXT.md` | When collaborating with others | Team collaboration context |
+| `LEARNING-STYLE.md` | When explaining or teaching | Learning and explanation preferences |
+| `TIME-AUTOMATION.md` | When scheduling or time matters | Schedule and time-based behaviors |
+| `TOOL-POLICY.md` | When using tools that need permissions | User-configurable tool permissions |
+| `WORKFLOWS.md` | When executing recurring tasks | Workflow templates |
+
+**Rule:** Start light. Read config files only when the task context makes them relevant.
 
 ## Personalization Architecture
 
