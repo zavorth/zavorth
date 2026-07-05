@@ -8,6 +8,7 @@ import { SmartOutputService } from '@zavorth/services/SmartOutputService.js';
 import { PermissionService } from '@zavorth/services/PermissionService.js';
 import { InlineKeyboard } from 'grammy';
 import { TelegramInspectionPermissionService } from '../../../../gateways/channels/telegram/controllers/TelegramInspectionPermissionService.js';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 import { TelegramInspectionTaskViewService } from '../../../../gateways/channels/telegram/controllers/TelegramInspectionTaskViewService.js';
 import { t } from '../../../../gateways/channels/telegram/i18n.js';
 
@@ -41,8 +42,7 @@ export class TelegramInspectionController {
   }
 
   public async handleLogs(ctx: Context, args: string): Promise<void> {
-    const parsedLimit = Number.parseInt(String(args || '').trim(), 10);
-    const limit = Number.isFinite(parsedLimit) ? Math.max(1, Math.min(parsedLimit, 30)) : 12;
+    const limit = Math.max(1, Math.min(safeParseInt(args, 12), 30));
     const logs = this.logRepo.getRecentLogs(limit);
 
     if (logs.length === 0) {
