@@ -46,7 +46,7 @@ export type RunZavorthSetupStudioResult = {
 
 type SetupStudioCliAnswers = {
   mode: 'quickstart' | 'safe' | 'advanced' | 'blank-slate';
-  configHandling: 'keep' | 'review' | 'reset' | null;
+  configHandling: 'keep' | 'review' | 'reset' | undefined;
   setupSection: ZavorthSetupStudioSection;
   zavorthHome: string | null;
   skillsGovernanceMode: 'casual' | 'governed';
@@ -447,6 +447,7 @@ async function runLiveHatchConversation(snapshot: ZavorthSetupStudioSnapshot): P
       ].join('\n'),
     };
   } catch (error) {
+    logger.warn('[Zavorth Setup Studio Command] cache operation failed', error);
     return {
       ok: false,
       output: [
@@ -1321,7 +1322,7 @@ function collectArgsAnswers(args: string[], setupSection: ZavorthSetupStudioSect
     readFlag(args, 'config-handling')
     || readFlag(args, 'config')
     || (args.includes('--reset') ? 'reset' : null),
-    null,
+    undefined,
   );
   const providerId = readFlag(args, 'provider')
     || readFlag(args, 'provider-id')
@@ -1412,7 +1413,7 @@ function mergeAnswersWithProgress(
 function defaultAnswers(): SetupStudioCliAnswers {
   return {
     mode: 'quickstart',
-    configHandling: null,
+    configHandling: undefined,
     setupSection: 'all',
     zavorthHome: null,
     skillsGovernanceMode: normalizeSkillsGovernanceMode(process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual'),

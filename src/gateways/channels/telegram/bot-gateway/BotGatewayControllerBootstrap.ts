@@ -68,10 +68,7 @@ import type { WarnService } from '../../../../services/WarnService.js';
 import type { GroupStatsService } from '../../../../services/GroupStatsService.js';
 import type { ZavorthControlService } from '../../../../services/ZavorthControlService.js';
 import type { DailyReportService } from '../../../../services/DailyReportService.js';
-import type { DemoGuideService } from '../../../../services/DemoGuideService.js';
-import type { DemoModeService } from '../../../../services/DemoModeService.js';
-import type { OperatorModeService } from '../../../../services/OperatorModeService.js';
-import type { PresentationModeService } from '../../../../services/PresentationModeService.js';
+import type { CapabilityLifecycleService } from '../../../../services/CapabilityLifecycleService.js';
 import type { RuntimeDiagnosticsService } from '../../../../services/RuntimeDiagnosticsService.js';
 import type { RuntimeCompositionService } from '../../../../services/RuntimeCompositionService.js';
 import type { TelemetryRuntimeService } from '../../../../observability/telemetry/TelemetryRuntimeService.js';
@@ -336,7 +333,7 @@ export function initializeBotGatewayControllers(
               gateway.botGatewaySupport.toWslPath(targetPath),
           },
           task,
-          result,
+          result as any,
         ),
       createAiStudioPermissionRequest: (task, result) =>
         createAiStudioPermissionRequest(
@@ -345,7 +342,7 @@ export function initializeBotGatewayControllers(
             permissionService: gateway.permissionService,
           },
           task,
-          result,
+          result as any,
         ),
       presentationModeService: gateway.presentationModeService,
     },
@@ -409,7 +406,7 @@ export function initializeBotGatewayControllers(
     },
     formatSystemStatusReply: gateway.opsController.formatSystemStatusReply.bind(
       gateway.opsController,
-    ),
+    ) as any,
     formatModelsReply: gateway.opsController.formatModelsReply.bind(
       gateway.opsController,
     ),

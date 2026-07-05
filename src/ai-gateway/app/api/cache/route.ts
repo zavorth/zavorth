@@ -10,6 +10,7 @@ import {
 import { getIdempotencyStats } from "@/lib/idempotencyLayer";
 import { getCacheMetrics, getCacheTrend } from "@/lib/db/settings";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -36,6 +37,7 @@ export async function GET(req: NextRequest) {
       idempotency: idempotencyStats,
     });
   } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
   }
 }
@@ -89,6 +91,7 @@ export async function DELETE(req: NextRequest) {
     const expiredRemoved = cleanExpiredEntries();
     return NextResponse.json({ ok: true, expiredRemoved, scope: "all" });
   } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
   }
 }

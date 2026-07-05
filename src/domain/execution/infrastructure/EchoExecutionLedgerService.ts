@@ -1,6 +1,7 @@
 import type { EchoExecutionEntry } from '../../../echo/types/EchoTypes.js';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../../logger.js';
 
 type EchoExecutionLedgerOptions = {
   maxEntries?: number;
@@ -75,8 +76,6 @@ export class EchoExecutionLedgerService {
         JSON.stringify({ entries: this.entries.slice(-this.maxEntries) }, null, 2),
         'utf8',
       );
-    } catch {
-      // Persistence is best-effort; callers still receive the in-process ledger.
-    }
+    } catch (error) { // Persistence is best-effort; callers still receive the in-process ledger. logger.warn('[Execution Ledger] filesystem operation failed', error); }
   }
 }

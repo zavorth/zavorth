@@ -2,6 +2,7 @@ import type { IMessageContext } from '@zavorth/contracts/IMessageBroker.js';
 import { SwarmOrchestrator, type SwarmRole } from '@zavorth/runtime/sessions/v2/SwarmOrchestrator.js';
 import { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
 import path from 'path';
+import { logger } from '../../../../logger';
 
 type TelegramSwarmDeps = {
   botApi: {
@@ -173,9 +174,7 @@ export class TelegramSwarmController {
         `\`[Researcher]\` ${researcherStatus} ${status === 'running' && roleId.includes('researcher') ? 'Processing...' : ''}`,
         `\`[Actor]\`      ${actorStatus} ${status === 'running' && roleId.includes('actor') ? 'Processing...' : ''}`,
       ].join('\n'), { parse_mode: 'Markdown' });
-    } catch {
-      // edit may fail if message is unchanged or too fast — ignore
-    }
+    } catch (error) { // edit may fail if message is unchanged or too fast — ignore logger.warn('[Telegram Swarm] parsing failed', error); }
   }
 
   private calculateDuration(start: string | null, end: string | null): string {

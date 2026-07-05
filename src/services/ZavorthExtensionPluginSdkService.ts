@@ -21,6 +21,7 @@ import {
 } from '../contracts/ZavorthExtensionPluginSdkContract.js';
 import { ZavorthPluginRegistryService } from './ZavorthPluginRegistryService.js';
 import { PluginStateService } from './PluginStateService.js';
+import { logger } from '../logger.js';
 
 type ExtensionPluginSdkDeps = {
   now?: () => Date;
@@ -505,9 +506,7 @@ function normalizeId(value: unknown): string | null {
 function parseJson(value: string): ZavorthExtensionPluginManifest | null {
   try {
     return JSON.parse(value) as ZavorthExtensionPluginManifest;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Extension Plugin Sdk] JSON parse failed', error); return null; }
 }
 
 function sampleManifest(): ZavorthExtensionPluginManifest {

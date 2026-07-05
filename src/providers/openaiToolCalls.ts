@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import type { ToolCall } from './ILlmProvider.js';
+import { logger } from '../logger.js';
 
 type OpenAiFunctionToolCall = Extract<OpenAI.ChatCompletionMessageToolCall, { type: 'function' }>;
 
@@ -20,7 +21,8 @@ function parseToolArguments(rawValue: string): Record<string, unknown> {
     }
 
     return { value: parsed };
-  } catch {
+  } catch (error) {
+    logger.warn('[openai  Calls] JSON parse failed', error);
     return { raw: normalized };
   }
 }

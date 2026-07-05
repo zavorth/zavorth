@@ -1,11 +1,11 @@
 import { Task } from '../contracts/TaskContract.js';
-import { GeminiPlanner } from './GeminiPlanner.js';
+import { UniversalPlanner } from './UniversalPlanner.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { Plan } from '../contracts/PlanContract.js';
 
 export class FallbackRouter {
   public static async planWithRedundancy(task: Task, logRepo: LogRepository): Promise<Plan> {
-    const planner = new GeminiPlanner();
+    const planner = new UniversalPlanner();
     const retries = 2;
 
     for (let attempt = 1; attempt <= retries; attempt++) {

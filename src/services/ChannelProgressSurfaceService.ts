@@ -3,8 +3,9 @@ import path from 'path';
 import { randomUUID } from 'node:crypto';
 
 import type { CanonicalChannelPlatform } from '../channels/contracts/ChannelMessageContract.js';
+import { logger } from '../logger.js';
 import type {
-  ChannelProgressCapability,
+ChannelProgressCapability,
   ChannelProgressEvent,
   ChannelProgressReceipt,
   ChannelProgressSession,
@@ -362,9 +363,7 @@ export class ChannelProgressSurfaceService {
           this.receipts.push(receipt);
         }
       }
-    } catch {
-      // Corrupt progress state must not break channel delivery.
-    }
+    } catch (error) { // Corrupt progress state must not break channel delivery. logger.warn('[Channel Progress Surface] parsing failed', error); }
   }
 
   private persist(): void {
@@ -440,7 +439,5 @@ function createDefaultSender(env: NodeJS.ProcessEnv, fetchImpl: typeof fetch): C
 async function readTelegramResponse(response: Response): Promise<any> {
   try {
     return await response.json();
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Channel Progress Surface] filesystem check failed', error); return null; }
 }

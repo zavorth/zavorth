@@ -10,8 +10,9 @@ import type {
 } from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
 import { ZAVORTH_NATIVE_AUTONOMY_SPINE_VERSION } from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
 import { redactSensitiveText } from './ZavorthNativeAutonomyShared.js';
+import { logger } from '../logger.js';
 import {
-  WorkflowRunService,
+WorkflowRunService,
   type WorkflowRunSnapshot,
   type WorkflowRunStageSnapshot,
 } from './WorkflowRunService.js';
@@ -448,9 +449,7 @@ export class ZavorthLearningPlaneService {
       return this.nativeRunStore.loadRuns()
         .filter((run) => !workspace || this.normalizeValue(run.workspace || '') === workspace)
         .flatMap((run) => this.toNativeRunCandidates(run, stateEntries));
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Learning Plane] load operation failed', error); return []; }
   }
 
   private toNativeRunCandidates(
@@ -730,9 +729,7 @@ export class ZavorthLearningPlaneService {
         return fallback;
       }
       return JSON.parse(this.readFileSyncImpl(this.stateFile, 'utf8')) as T;
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Zavorth Learning Plane] JSON parse failed', error); return fallback; }
   }
 
   private normalizeValue(value: string | null | undefined): string {

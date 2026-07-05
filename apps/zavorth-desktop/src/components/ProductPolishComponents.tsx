@@ -40,9 +40,9 @@ export const RiskBadge: React.FC<{
 }> = ({ level }) => {
   const configs = {
     LOW: { bg: '#e6ffed', color: '#28a745', label: 'Risco Baixo' },
-    MEDIUM: { bg: '#fff9db', color: '#f59f00', label: 'Risco Médio' },
+    MEDIUM: { bg: '#fff9db', color: '#f59f00', label: 'Medium Risk' },
     HIGH: { bg: '#fff5f5', color: '#ff6b6b', label: 'Risco Alto' },
-    CRITICAL: { bg: '#fff0f6', color: '#e64980', label: 'Risco Crítico' },
+    CRITICAL: { bg: '#fff0f6', color: '#e64980', label: 'Critical Risk' },
   };
 
   const config = configs[level] || configs.LOW;

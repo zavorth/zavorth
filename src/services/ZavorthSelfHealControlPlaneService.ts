@@ -1,10 +1,11 @@
 import type { AutoRepairReport, AutoRepairRunResult, AutoRepairService } from './AutoRepairService.js';
 import type { OperationsHealthSnapshot, OperationsHealthService } from './OperationsHealthService.js';
+import { logger } from '../logger.js';
 
 interface AutoRepairRunInput {
   dryRun: boolean;
   force: boolean;
-  goal: string;
+  goal: 'auto' | 'repair' | 'improve';
   requestedBy: string;
   reason: string;
 }
@@ -531,9 +532,7 @@ export class ZavorthSelfHealControlPlaneService {
     }
     try {
       return this.autoRepairService.readLastReport();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Self Heal Control Plane] health check failed', error); return null; }
   }
 
   private buildProbes(
@@ -628,17 +627,17 @@ export class ZavorthSelfHealControlPlaneService {
     const cards = Array.isArray(sidecars)
       ? sidecars
       : Object.values(sidecars).filter((value) => value && typeof value === 'object');
-    const failing = cards.filter((card: SelfHealDynamic) =>
+    const failing = cards.filter((card: SidecarCard) =>
       card.enabled === true && (card.ready === false || card.running === false || /fail|down|erro|error/i.test(String(card.message || ''))));
     if (failing.length === 0) {
-      const unhealthy = Number((sidecars as SelfHealDynamic).down ?? (sidecars as SelfHealDynamic).unhealthy ?? (sidecars as SelfHealDynamic).failed ?? 0);
+      const unhealthy = Number((sidecars as SidecarsSnapshot).down ?? (sidecars as SidecarsSnapshot).unhealthy ?? (sidecars as SidecarsSnapshot).failed ?? 0);
       if (unhealthy <= 0) {
         return { issue: false, evidence: [] };
       }
     }
     const evidence = failing.length > 0
-      ? failing.map((card: SelfHealDynamic) => `${card.name || card.id || 'sidecar'}: ${card.message || 'nao esta pronto'}`)
-      : [`${Number((sidecars as SelfHealDynamic).down ?? (sidecars as SelfHealDynamic).unhealthy ?? (sidecars as SelfHealDynamic).failed ?? 0)} sidecar(s) reportaram falha.`];
+      ? failing.map((card: SidecarCard) => `${card.name || card.id || 'sidecar'}: ${card.message || 'nao esta pronto'}`)
+      : [`${Number((sidecars as SidecarsSnapshot).down ?? (sidecars as SidecarsSnapshot).unhealthy ?? (sidecars as SidecarsSnapshot).failed ?? 0)} sidecar(s) reportaram falha.`];
     return { issue: true, failed: true, severity: 'medium', evidence };
   }
 
@@ -725,12 +724,12 @@ export class ZavorthSelfHealControlPlaneService {
     evidence: string[];
   } {
     const storage = (snapshot as SelfHealDynamic).storage || {};
-    const hotspots = Array.isArray(storage.hotspots)
+    const hotspots = (Array.isArray(storage.hotspots)
       ? storage.hotspots
       : Array.isArray((snapshot as SelfHealDynamic).storageHotspots)
         ? (snapshot as SelfHealDynamic).storageHotspots
-        : [];
-    const bigHotspots = hotspots.filter((entry: SelfHealDynamic) => Number(entry.bytes || 0) >= 512 * 1024 * 1024);
+        : []) as StorageHotspot[];
+    const bigHotspots = hotspots.filter((entry: StorageHotspot) => Number(entry.bytes || 0) >= 512 * 1024 * 1024);
     const freePercent = Number(storage.freePercent ?? 100);
     if (bigHotspots.length > 0 || (Number.isFinite(freePercent) && freePercent < 12)) {
       return {
@@ -738,7 +737,7 @@ export class ZavorthSelfHealControlPlaneService {
         severity: freePercent < 8 ? 'high' : 'medium',
         evidence: [
           Number.isFinite(freePercent) ? `freePercent=${freePercent}` : null,
-          ...bigHotspots.slice(0, 3).map((entry: SelfHealDynamic) =>
+          ...bigHotspots.slice(0, 3).map((entry: StorageHotspot) =>
             `${entry.label || entry.id || 'hotspot'}=${this.formatBytes(Number(entry.bytes || 0))}`),
         ].filter(Boolean) as string[],
       };
@@ -758,7 +757,7 @@ export class ZavorthSelfHealControlPlaneService {
     const doctor = (snapshot as SelfHealDynamic).remoteTransportDoctor || {};
     const status = String(doctor.status || '').toLowerCase();
     const failedItems = Array.isArray(doctor.items)
-      ? doctor.items.filter((item: SelfHealDynamic) => /failed|missing|lost|expired/i.test(String(item.status || item.error || item.summary || '')))
+      ? doctor.items.filter((item: RemoteTransportItem) => /failed|missing|lost|expired/i.test(String(item.status || item.error || item.summary || '')))
       : [];
     if (status === 'failed' || failedItems.length > 0 || /\b(remote|executor|session|transport).*\b(lost|expired|falhou|failed)\b/i.test(lastErrorText)) {
       return {
@@ -767,7 +766,7 @@ export class ZavorthSelfHealControlPlaneService {
         severity: 'medium',
         evidence: [
           doctor.summary ? String(doctor.summary) : null,
-          ...failedItems.slice(0, 3).map((item: SelfHealDynamic) =>
+          ...failedItems.slice(0, 3).map((item: RemoteTransportItem) =>
             `${item.transportId || 'transport'}: ${item.error || item.summary || item.status}`),
           /\b(remote|executor|session|transport)/i.test(lastErrorText) ? this.compact(lastErrorText, 160) : null,
         ].filter(Boolean) as string[],
@@ -787,7 +786,7 @@ export class ZavorthSelfHealControlPlaneService {
   } {
     const channelDoctor = (snapshot as SelfHealDynamic).channelProviderDoctor || {};
     const failedConfigs = Array.isArray(channelDoctor.items)
-      ? channelDoctor.items.filter((item: SelfHealDynamic) => item.configured === false && item.status !== 'skipped')
+      ? channelDoctor.items.filter((item: ChannelConfigItem) => item.configured === false && item.status !== 'skipped')
       : [];
     if (
       failedConfigs.length > 0
@@ -798,7 +797,7 @@ export class ZavorthSelfHealControlPlaneService {
         failed: failedConfigs.length > 0,
         severity: 'high',
         evidence: failedConfigs.length > 0
-          ? failedConfigs.slice(0, 3).map((item: SelfHealDynamic) =>
+          ? failedConfigs.slice(0, 3).map((item: ChannelConfigItem) =>
               `${item.channelId || 'provider'}: ${item.error || item.summary || 'config ausente'}`)
           : [this.compact(snapshotText, 180)],
       };
@@ -1164,16 +1163,14 @@ export class ZavorthSelfHealControlPlaneService {
     return [
       last?.message,
       last?.category,
-      ...recent.map((entry: SelfHealDynamic) => `${entry.category || ''} ${entry.message || ''}`),
+      ...recent.map((entry: ErrorEntry) => `${entry.category || ''} ${entry.message || ''}`),
     ].filter(Boolean).join('\n');
   }
 
   private snapshotText(snapshot: Partial<OperationsHealthSnapshot>): string {
     try {
       return JSON.stringify(snapshot).slice(0, 20_000);
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Zavorth Self Heal Control Plane] health check failed', error); return ''; }
   }
 
   private compact(value: string | null | undefined, maxLength = 120): string {

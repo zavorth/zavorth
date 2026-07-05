@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type VendorReleaseIsolation = 'core-safe' | 'vendor-isolated';
 export type VendorCoreCopyPolicy = 'allow-with-attribution' | 'isolated-vendor-only';
@@ -109,9 +110,10 @@ export class VendorReleaseContractService {
         return { sources: [] };
       }
       return JSON.parse(this.readFileSyncImpl(this.manifestFile, 'utf8')) as VendorSourceRawDocument;
-    } catch {
-      return { sources: [] };
-    }
+    } catch (error) {
+    logger.warn('[Vendor Release Contract] JSON parse failed', error);
+    return { sources: [] };
+  }
   }
 
   private normalizeContract(entry: VendorSourceRawEntry): VendorReleaseContract {

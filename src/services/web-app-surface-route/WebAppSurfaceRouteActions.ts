@@ -1,7 +1,7 @@
 import { NaturalSetupMutationPlannerService } from '../NaturalSetupMutationPlannerService.js';
 import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteTypes.js';
 
-export function buildNaturalSetupMutationPlanner(deps: WebAppSurfaceRouteDeps) {
+export function buildNaturalSetupMutationPlanner(deps: any) {
   return deps.naturalSetupMutationPlanner || new NaturalSetupMutationPlannerService({
     controlPlaneService: deps.naturalSetupControlPlane || undefined,
     channelSetupAssistant: deps.channelSetupAssistant || null,

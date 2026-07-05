@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 export type ZavorthBridgeMobileAccessVerification = {
   checkedAt: string;
   targetUrl: string | null;
@@ -66,9 +67,10 @@ export class ZavorthBridgeMobileAccessVerificationService {
         }
 
         lastError = `HTTP ${response.status}`;
-      } catch (error: any) {
-        lastError = error?.message || String(error);
-      }
+      } catch (error) {
+    logger.warn('[Zavorth Bridge Mobile Access Verification] network request failed', error);
+    lastError = error?.message || String(error);
+  }
     }
 
     return this.buildResult({

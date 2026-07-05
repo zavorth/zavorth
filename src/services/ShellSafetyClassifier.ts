@@ -1,6 +1,7 @@
 import path from 'node:path';
+import { logger } from '../logger.js';
 import type {
-  ShellSafetyReceipt,
+ShellSafetyReceipt,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 
 type Runtime = {
@@ -106,9 +107,7 @@ function hasTreeSitter(): boolean {
     try {
       require.resolve('web-tree-sitter');
       return true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Shell Safety Classifier] lifecycle operation failed', error); return false; }
   }
 }
 

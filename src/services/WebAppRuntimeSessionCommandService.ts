@@ -350,9 +350,10 @@ export class WebAppRuntimeSessionCommandService {
       catalogSkills = this.arrayOfRecords(this.recordOrNull(catalog)?.skills)
         .map((skill) => this.compactItem(skill, 'skill'))
         .filter(Boolean);
-    } catch {
-      catalogSkills = [];
-    }
+    } catch (error) {
+    logger.warn('[Web App Runtime Session Command] array operation failed', error);
+    catalogSkills = [];
+  }
     const byId = new Map<string, RuntimeRecord>();
     for (const skill of [...capabilitySkills, ...catalogSkills]) {
       byId.set(String(skill.id || skill.title), skill);

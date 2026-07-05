@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 
 type ExternalizedWorkflowRunSnapshot = {
   workflow_run_id: string;
@@ -214,9 +215,7 @@ export class WorkflowExternalizedStateService {
         if (parsed?.run && typeof parsed.run === 'object') {
           return parsed.run;
         }
-      } catch {
-        // fallback below
-      }
+      } catch (error) { // fallback below logger.warn('[Workflow Externalized State] JSON parse failed', error); }
     }
 
     const compatibilityFile = this.getCompatibilityStateFilePath(workflowRunId);
@@ -226,9 +225,7 @@ export class WorkflowExternalizedStateService {
 
     try {
       return JSON.parse(fs.readFileSync(compatibilityFile, 'utf8')) as ExternalizedWorkflowRunSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Workflow Externalized State] JSON parse failed', error); return null; }
   }
 
   public readAllRuns(): ExternalizedWorkflowRunSnapshot[] {
@@ -259,9 +256,7 @@ export class WorkflowExternalizedStateService {
         if (workflowRunId && !merged.has(workflowRunId)) {
           merged.set(workflowRunId, parsed);
         }
-      } catch {
-        // ignore broken files during listing
-      }
+      } catch (error) { // ignore broken files during listing logger.warn('[Workflow Externalized State] JSON parse failed', error); }
     }
 
     return Array.from(merged.values());
@@ -292,9 +287,7 @@ export class WorkflowExternalizedStateService {
 
     try {
       return JSON.parse(fs.readFileSync(ledgerFile, 'utf8')) as WorkflowLedgerRecord;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Workflow Externalized State] JSON parse failed', error); return null; }
   }
 
   private readRecentCheckpoints(
@@ -324,9 +317,7 @@ export class WorkflowExternalizedStateService {
           chain_hash: checkpoint.chain_hash,
           previous_chain_hash: checkpoint.previous_chain_hash || null,
         }));
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Workflow Externalized State] filesystem check failed', error); return []; }
   }
 
   private getRunDirectory(workflowRunId: string): string {

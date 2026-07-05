@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthProactivityRule,
+ZavorthProactivityRule,
   ZavorthProactivityChannel,
   ZavorthProactivitySeverity,
 } from '../contracts/ProactivityPolicyContract.js';
@@ -216,9 +217,7 @@ export class ProactivityPolicyService {
     try {
       if (!this.fs.existsSync(filePath)) return fallback;
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Proactivity] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

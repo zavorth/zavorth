@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuditLog, logAuditEvent } from "@/lib/compliance/index";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request) {
   const authError = await requireStrictManagementAuth(request);
@@ -17,6 +18,7 @@ export async function GET(request) {
     const logs = getAuditLog({ action, actor, limit, offset });
     return NextResponse.json(logs);
   } catch (error) {
+    logger.warn('[route] parsing failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

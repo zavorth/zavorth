@@ -48,7 +48,7 @@ export class SupervisedSecretsReadAdapter implements SystemOverlordRuntimeAdapte
       return {
         ok: false,
         errorCode: 'secret_name_required',
-        errorMessage: 'secrets.read exige secretName em payload estruturado.',
+        errorMessage: 'secrets.read requires secretName in the structured payload.',
       };
     }
 
@@ -65,8 +65,8 @@ export class SupervisedSecretsReadAdapter implements SystemOverlordRuntimeAdapte
       maskedPreview,
       length: present ? String(rawValue || '').length : 0,
       summary: present
-        ? 'Secret presente e mascarado por policy supervisionada.'
-        : 'Secret nao encontrado na origem supervisionada.',
+        ? 'Secret is present and masked by the supervised policy.'
+        : 'Secret was not found in the supervised source.',
     };
 
     return {

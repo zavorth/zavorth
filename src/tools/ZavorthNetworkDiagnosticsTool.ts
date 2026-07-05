@@ -3,6 +3,7 @@ import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../logger.js';
 
 export class ZavorthNetworkDiagnosticsTool extends BaseTool {
   public readonly name = 'zavorth_network_diagnostics';
@@ -94,9 +95,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
         maxBuffer: 10 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: unknown) {
-      return `Command error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] process execution failed', error); return ''; }
   }
 
   private async traceroute(args: Record<string, unknown>): Promise<string> {
@@ -114,9 +113,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
         const result = execFileSync('traceroute', ['-n', '-m', String(maxHops), host], { timeout: 60000 }).toString();
         return `Traceroute to ${host}:\n${result.slice(0, 3000)}`;
       }
-    } catch (error: unknown) {
-      return `Traceroute error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] process execution failed', error); return ''; }
   }
 
   private async portScan(args: Record<string, unknown>): Promise<string> {
@@ -164,9 +161,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
         `Closed ports (${closedPorts.length}):`,
         ...closedPorts.map(p => `  ${p} ${serviceMap[p] || ''}`),
       ].join('\n');
-    } catch (error: unknown) {
-      return `Port scan error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] network request failed', error); return ''; }
   }
 
   private async dnsLookup(args: Record<string, unknown>): Promise<string> {
@@ -179,9 +174,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('nslookup', ['-type=' + recordType, domain], { timeout: 10000 }).toString();
       return `DNS lookup (${recordType}) for ${domain}:\n${result}`;
-    } catch (error: unknown) {
-      return `DNS error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] process execution failed', error); return ''; }
   }
 
   private async sslCheck(args: Record<string, unknown>): Promise<string> {
@@ -218,9 +211,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
         `  SANs: ${san.join(', ') || 'none detected'}`,
         daysLeft < 30 ? `  ⚠️ Certificate expires in ${daysLeft} days!` : '',
       ].filter(Boolean).join('\n');
-    } catch (error: unknown) {
-      return `SSL check error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] validation failed', error); return ''; }
   }
 
   private async speedTest(args: Record<string, unknown>): Promise<string> {
@@ -230,13 +221,12 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
         const result = execFileSync('curl', ['-s', '-o', '/dev/null', '-w', '%{speed_download}', '--max-time', '10', 'https://speed.cloudflare.com/__down?bytes=10000000'], { timeout: 15000 }).toString();
         const speedMbps = (parseFloat(result.trim()) * 8 / 1000000).toFixed(2);
         return `Download speed: ${speedMbps} Mbps (Cloudflare test)`;
-      } catch {
-        const result = execFileSync('curl', ['-s', '-o', '/dev/null', '-w', 'Speed: %{speed_download} bytes/sec\nTime: %{time_total}s\nSize: %{size_download} bytes', '--max-time', '10', 'https://speed.hetzner.de/100MB.bin'], { timeout: 15000 }).toString();
+      } catch (error) {
+    logger.warn('[Zavorth Network Diagnostics] network request failed', error);
+    const result = execFileSync('curl', ['-s', '-o', '/dev/null', '-w', 'Speed: %{speed_download} bytes/sec\nTime: %{time_total}s\nSize: %{size_download} bytes', '--max-time', '10', 'https://speed.hetzner.de/100MB.bin'], { timeout: 15000 }).toString();
         return `Speed test result:\n${result}`;
-      }
-    } catch (error: unknown) {
-      return `Speed test error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+  }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] network request failed', error); return ''; }
   }
 
   private async latencyTest(args: Record<string, unknown>): Promise<string> {
@@ -257,9 +247,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
       const avg = avgMatch ? avgMatch[1] : 'unknown';
 
       return `Latency test to ${host} (${count} packets):\n${result}\nAverage latency: ${avg}ms`;
-    } catch (error: unknown) {
-      return `Latency test error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] process execution failed', error); return ''; }
   }
 
   private async bandwidthMonitor(args: Record<string, unknown>): Promise<string> {
@@ -275,9 +263,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
         const result = execFileSync('ifstat', ['-b', '-n', '1', String(duration)], { timeout: (duration + 5) * 1000 }).toString();
         return `Bandwidth monitor (${duration}s):\n${result.slice(0, 2000)}`;
       }
-    } catch (error: unknown) {
-      return `Bandwidth monitor error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] process execution failed', error); return ''; }
   }
 
   private async mtr(args: Record<string, unknown>): Promise<string> {
@@ -290,9 +276,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('mtr', ['--report', '--report-cycles', String(count), host], { timeout: 60000 }).toString();
       return `MTR report for ${host}:\n${result.slice(0, 3000)}`;
-    } catch (error: unknown) {
-      return `MTR error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] process execution failed', error); return ''; }
   }
 
   private async dig(args: Record<string, unknown>): Promise<string> {
@@ -305,9 +289,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('dig', [domain, recordType, '+noall', '+answer', '+authority'], { timeout: 10000 }).toString();
       return `DIG ${recordType} ${domain}:\n${result}`;
-    } catch (error: unknown) {
-      return `DIG error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] process execution failed', error); return ''; }
   }
 
   private async curlDebug(args: Record<string, unknown>): Promise<string> {
@@ -321,9 +303,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
         maxBuffer: 10 * 1024 * 1024,
       }).toString();
       return `CURL debug for ${url}:\n${result.slice(0, 5000)}`;
-    } catch (error: unknown) {
-      return `CURL debug error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] process execution failed', error); return ''; }
   }
 
   private async tcpCheck(args: Record<string, unknown>): Promise<string> {
@@ -342,9 +322,7 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
         execFileSync('nc', ['-z', '-w', String(Math.ceil(timeout / 1000)), host, String(port)], { timeout: timeout + 1000 });
         return `TCP ${host}:${port} is OPEN`;
       }
-    } catch {
-      return `TCP ${host}:${port} is CLOSED or TIMEOUT`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] process execution failed', error); return ''; }
   }
 
   private async httpHeaders(args: Record<string, unknown>): Promise<string> {
@@ -355,8 +333,6 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('curl', ['-s', '-I', '-L', '--max-time', '15', url], { timeout: 20000 }).toString();
       return `HTTP headers for ${url}:\n${result}`;
-    } catch (error: unknown) {
-      return `HTTP headers error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Network Diagnostics] network request failed', error); return ''; }
   }
 }

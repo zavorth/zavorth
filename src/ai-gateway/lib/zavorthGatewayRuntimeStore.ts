@@ -22,9 +22,7 @@ function readJson<T>(fileName: string, fallback: T): T {
     const filePath = path.join(STORE_DIR, safeName(fileName));
     if (!fs.existsSync(filePath)) return fallback;
     return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
-  } catch {
-    return fallback;
-  }
+  } catch (error) { logger.warn('[zavorth way Runtime Store] JSON parse failed', error); return fallback; }
 }
 
 function writeJson(fileName: string, value: unknown) {

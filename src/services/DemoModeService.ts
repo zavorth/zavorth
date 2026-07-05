@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type DemoModeSnapshot = {
   enabled: boolean;
@@ -75,23 +76,22 @@ export class DemoModeService {
         note: parsed.note || null,
         autoPresentationEnabled: Boolean(parsed.autoPresentationEnabled),
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Demo Mode] JSON parse failed', error);
+    return {
         enabled: false,
         updatedAt: null,
         updatedBy: null,
         note: null,
         autoPresentationEnabled: false,
       };
-    }
+  }
   }
 
   private persist(): void {
     try {
       fs.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       fs.writeFileSync(this.stateFile, JSON.stringify(this.snapshot, null, 2), 'utf8');
-    } catch {
-      // Keep in-memory state even if persistence fails.
-    }
+    } catch (error) { // Keep in-memory state even if persistence fails. logger.warn('[Demo Mode] filesystem operation failed', error); }
   }
 }

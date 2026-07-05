@@ -20,6 +20,9 @@ import {
   tryDeliverPromptViaCompanionBridge as tryDeliverPromptViaCompanionBridgeSupport,
   tryPrepareAutomationSurface as tryPrepareAutomationSurfaceSupport,
   waitForPromptSubmissionEffect as waitForPromptSubmissionEffectSupport,
+  type CompanionBridge,
+  type WindowAutomator,
+  type UiStateSnapshot,
 } from './zavorth-bridge-cli/ZavorthBridgeCliDirectChatSupport.js';
 import {
   buildWorkspaceBootstrapArgs as buildWorkspaceBootstrapArgsSupport,
@@ -270,23 +273,35 @@ export class ZavorthBridgeCliAdapter {
     });
   }
 
-  private async readUiStateSnapshot(targetPid: number): Promise<Awaited<ReturnType<ZavorthBridgeWindowAutomator['readLatestResponse']>> | null> {
-    if (typeof (this.windowAutomator as any).readLatestResponse !== 'function') {
-      return null;
+  private async readUiStateSnapshot(targetPid: number): Promise<UiStateSnapshot> {
+    if (typeof (this.windowAutomator as unknown as WindowAutomator).readLatestResponse !== 'function') {
+      return { ok: false, status: 'unavailable' };
     }
 
-    return this.windowAutomator.readLatestResponse(0, targetPid).catch(() => null);
+    return this.windowAutomator.readLatestResponse(0, targetPid)
+      .then((snapshot): UiStateSnapshot => {
+        if (!snapshot) {
+          return { ok: false, status: 'empty' };
+        }
+        return {
+          ok: snapshot.ok,
+          status: snapshot.status,
+          responseText: snapshot.responseText ?? undefined,
+          hasPermissionPrompt: snapshot.hasPermissionPrompt,
+        };
+      })
+      .catch((): UiStateSnapshot => ({ ok: false, status: 'error' }));
   }
 
   private async waitForPromptSubmissionEffect(
     targetPid: number,
-    baselineUiState: Awaited<ReturnType<ZavorthBridgeWindowAutomator['readLatestResponse']>> | null,
+    baselineUiState: UiStateSnapshot,
   ): Promise<boolean> {
     if (!config.zavorthBridgeAutomationEnabled || targetPid <= 0) {
       return true;
     }
 
-    if (typeof (this.windowAutomator as any).readLatestResponse !== 'function') {
+    if (typeof (this.windowAutomator as unknown as WindowAutomator).readLatestResponse !== 'function') {
       return true;
     }
 
@@ -433,8 +448,8 @@ export class ZavorthBridgeCliAdapter {
       taskId,
       targetInstanceId,
       targetPid,
-      windowAutomator: this.windowAutomator as any,
-      companionBridge: this.companionBridge as any,
+      windowAutomator: this.windowAutomator as unknown as WindowAutomator,
+      companionBridge: this.companionBridge as unknown as CompanionBridge,
     });
   }
 
@@ -447,7 +462,7 @@ export class ZavorthBridgeCliAdapter {
       taskId,
       targetInstanceId,
       activeEditor,
-      companionBridge: this.companionBridge as any,
+      companionBridge: this.companionBridge as unknown as CompanionBridge,
     });
   }
 
@@ -460,7 +475,7 @@ export class ZavorthBridgeCliAdapter {
       taskId,
       targetInstanceId,
       targetPid,
-      companionBridge: this.companionBridge as any,
+      companionBridge: this.companionBridge as unknown as CompanionBridge,
       tryPrepareAutomationSurface: this.tryPrepareAutomationSurface.bind(this),
     });
   }
@@ -474,7 +489,7 @@ export class ZavorthBridgeCliAdapter {
       processId,
       focusDelayMs,
       surfaceDelayMs,
-      windowAutomator: this.windowAutomator as any,
+      windowAutomator: this.windowAutomator as unknown as WindowAutomator,
     });
   }
 

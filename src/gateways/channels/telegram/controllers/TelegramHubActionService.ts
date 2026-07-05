@@ -98,7 +98,7 @@ export class TelegramHubActionService {
         await this.deps.renderHelpCard(ctx);
         return;
       default:
-        await ctx.reply('Acao rapida do hub nao reconhecida.');
+        await ctx.reply('Hub quick action was not recognized.');
     }
   }
 }

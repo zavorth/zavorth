@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export function normalizeComparisonValue(rawValue: string | null | undefined): string {
   return String(rawValue || '')
@@ -201,15 +202,11 @@ export function pathTokensRoughlyMatch(left: string, right: string): boolean {
 export function isExistingDirectory(candidate: string): boolean {
   try {
     return fs.existsSync(candidate) && fs.statSync(candidate).isDirectory();
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return false; }
 }
 
 export function safeReadDirectory(candidate: string): fs.Dirent[] {
   try {
     return fs.readdirSync(candidate, { withFileTypes: true });
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return []; }
 }

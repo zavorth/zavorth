@@ -9,6 +9,7 @@ import { SkillCatalogService } from '../skills/SkillCatalogService.js';
 import type { SkillCatalogEntry } from '../skills/SkillCatalogContract.js';
 import { ZavorthProviderModelCatalogService } from './ZavorthProviderModelCatalogService.js';
 import type { ZavorthProviderModelCatalogSnapshot } from '../contracts/ZavorthProviderModelCatalogContract.js';
+import { logger } from '../logger.js';
 
 export type ZavorthSmartCommandSurfaceInput = {
   rawText?: string | null;
@@ -533,15 +534,11 @@ function extractSmartCommandInlineValue(rawText: string, name: string): string |
 function safeRead<T>(reader: () => T, fallback: T): T {
   try {
     return reader();
-  } catch {
-    return fallback;
-  }
+  } catch (error) { logger.warn('[Zavorth Smart Command Surface] string operation failed', error); return fallback; }
 }
 
 async function safeReadAsync<T>(reader: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await reader();
-  } catch {
-    return fallback;
-  }
+  } catch (error) { logger.warn('[Zavorth Smart Command Surface] string operation failed', error); return fallback; }
 }

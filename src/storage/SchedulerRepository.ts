@@ -25,7 +25,7 @@ export interface ScheduledTask {
 }
 
 /**
- * SchedulerRepository — Gerencia as tarefas agendadas no banco SQLite.
+ * SchedulerRepository - manages scheduled tasks in SQLite.
  */
 export class SchedulerRepository {
   constructor(private db: Database) {}

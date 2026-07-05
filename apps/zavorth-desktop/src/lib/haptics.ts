@@ -26,7 +26,7 @@ export function playTapSound() {
 
     osc.start();
     osc.stop(ctx.currentTime + 0.05);
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 }
 
 export function playDingSound() {
@@ -48,5 +48,5 @@ export function playDingSound() {
 
     osc.start();
     osc.stop(ctx.currentTime + 0.5);
-  } catch {}
+  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
 }

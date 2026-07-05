@@ -10,6 +10,7 @@ import type { ExecutionResult } from '../contracts/ExecutionContract.js';
 import { ArtifactPipelineService } from './ArtifactPipelineService.js';
 import { CodexRuntimePlaneService } from './CodexRuntimePlaneService.js';
 import { MemoryWikiService } from './MemoryWikiService.js';
+import type { MemoryWikiPageRef } from '../contracts/HybridMemoryContract.js';
 import { OpenShellRemoteSandboxService } from './OpenShellRemoteSandboxService.js';
 import { PluginRegistryService } from './PluginRegistryService.js';
 import { WorkflowRunService } from './WorkflowRunService.js';
@@ -220,11 +221,11 @@ export class MemoryArtifactsRuntimeLiveService {
       tags: ['checkpoint-12', 'runtime', 'memory'],
       sourceArtifactIds: ['artifact:intent-model2-wiki'],
     });
-    const persisted = this.readJson<any>(pagePath, null);
+    const persisted = this.readJson<(MemoryWikiPageRef & { body: string; tags: string[]; sourceArtifactIds: string[] }) | null>(pagePath, null);
     const reloaded = new MemoryWikiService({
       now: this.now,
       pages: persisted ? [persisted] : [],
-    } as any);
+    });
     const search = reloaded.searchPages({ query: 'runtime memory', limit: 3, sessionId: 'checkpoint-12' });
     return {
       ok: Boolean(persisted && search.ok && search.pages.length > 0),
@@ -555,9 +556,7 @@ export class MemoryArtifactsRuntimeLiveService {
         return fallback;
       }
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Memory  Runtime Live] JSON parse failed', error); return fallback; }
   }
 
   private sha256(value: string): string {

@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  WEBSITE_PUBLIC_FORBIDDEN_CLAIMS,
+WEBSITE_PUBLIC_FORBIDDEN_CLAIMS,
   WEBSITE_PUBLIC_REQUIRED_LINKS,
   WEBSITE_PUBLIC_REQUIRED_ROUTES,
   WEBSITE_PUBLIC_REQUIRED_SECTIONS,
@@ -474,9 +475,7 @@ export class WebsitePublicContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Website Public Contract] JSON parse failed', error); return null; }
   }
 
   private readCoreJson(relativePath: string): PackageLike | null {
@@ -486,9 +485,7 @@ export class WebsitePublicContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Website Public Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -572,9 +569,7 @@ export class WebsitePublicContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Website Public Contract] filesystem operation failed', error); return ''; }
   }
 
   private resolveInternalHref(href: string): { route: string; anchor: string } | null {

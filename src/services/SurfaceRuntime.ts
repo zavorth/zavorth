@@ -56,7 +56,7 @@ export type ParserLike = {
 };
 
 export type TaskOrchestrationControllerLike = {
-  handleTaskMessage(ctx: SurfaceControllerContext, input: ParsedSurfaceMessage): Promise<SurfaceTask>;
+  handleTaskMessage(ctx: SurfaceControllerContext, input: any): Promise<SurfaceTask>;
 };
 
 export type PermissionControllerLike = {

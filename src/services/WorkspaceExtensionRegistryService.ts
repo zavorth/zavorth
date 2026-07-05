@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { WorkspaceCommand, WorkspaceHook, WorkspaceProfile } from './WorkspaceProfileService.js';
+import { logger } from '../logger.js';
 
 type WorkspaceExtensionRegistryRuntime = {
   now?: () => Date;
@@ -137,9 +138,7 @@ export class WorkspaceExtensionRegistryService {
         return null;
       }
       return parsed as WorkspaceProfile;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Workspace Extension Registry] JSON parse failed', error); return null; }
   }
 
   private resolveSelectedEntry(

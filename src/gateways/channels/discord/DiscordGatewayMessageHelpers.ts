@@ -1,8 +1,9 @@
 import { ChannelType } from 'discord.js';
 
 import type { MessageAttachment } from '../../../contracts/IMessageBroker.js';
+import { logger } from '../../../logger.js';
 import {
-  MAX_DISCORD_MESSAGE_LENGTH,
+MAX_DISCORD_MESSAGE_LENGTH,
   MAX_RECENT_CHANNELS,
   type DiscordGatewayInteractionLike,
   type DiscordGatewayMessageLike,
@@ -70,9 +71,7 @@ export function toDiscordAttachmentValues(rawAttachments: unknown): unknown[] {
     if (typeof candidate.values === 'function') {
       try {
         return Array.from(candidate.values());
-      } catch {
-        return [];
-      }
+      } catch (error) { logger.warn('[Discord way Message Helpers] operation failed', error); return []; }
     }
     if ('url' in candidate || 'name' in candidate || 'contentType' in candidate) {
       return [candidate];
@@ -109,18 +108,18 @@ export function composeDiscordInboundText(content: string, attachments: MessageA
   }
 
   const attachmentLines = attachments.map((attachment) => {
-    const sizeLabel = attachment.size ? `${attachment.size} bytes` : 'tamanho desconhecido';
-    const typeLabel = attachment.contentType || 'tipo desconhecido';
+    const sizeLabel = attachment.size ? `${attachment.size} bytes` : 'unknown size';
+    const typeLabel = attachment.contentType || 'unknown type';
     const urlLabel = attachment.url ? ` | ${attachment.url}` : '';
-    return `- ${attachment.name || 'anexo'} (${typeLabel}, ${sizeLabel})${urlLabel}`;
+    return `- ${attachment.name || 'attachment'} (${typeLabel}, ${sizeLabel})${urlLabel}`;
   });
-  const attachmentSummary = ['Anexos do Discord:', ...attachmentLines].join('\n');
+  const attachmentSummary = ['Discord attachments:', ...attachmentLines].join('\n');
 
   if (normalizedContent) {
     return `${normalizedContent}\n\n${attachmentSummary}`;
   }
 
-  return `Analise os anexos enviados e responda considerando este contexto.\n\n${attachmentSummary}`;
+  return `Analyze the attached files and answer using this context.\n\n${attachmentSummary}`;
 }
 
 export function chunkDiscordMessage(text: string): string[] {

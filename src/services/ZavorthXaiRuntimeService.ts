@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 export type ZavorthXaiDoctorSnapshot = {
   contractVersion: 'xai-provider-doctor/1';
   generatedAt: string;
@@ -93,13 +94,14 @@ export class ZavorthXaiRuntimeService {
         ...(response.ok ? {} : { error: `http-${response.status}` }),
       };
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Xai Runtime] network request failed', error);
+    return {
         ...base,
         liveReady: false,
         status: 'live_failed',
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   public async search(input: { query: string; live?: boolean }): Promise<ZavorthXaiSearchSnapshot> {
@@ -137,8 +139,9 @@ export class ZavorthXaiRuntimeService {
       const text = extractText(payload);
       return this.searchSnapshot(query, true, 'ready', text ? [text] : ['xAI returned an empty search response.']);
     } catch (error) {
-      return this.searchSnapshot(query, true, 'failed', [error instanceof Error ? error.message : String(error)]);
-    }
+    logger.warn('[Zavorth Xai Runtime] network request failed', error);
+    return this.searchSnapshot(query, true, 'failed', [error instanceof Error ? error.message : String(error)]);
+  }
   }
 
   private searchSnapshot(

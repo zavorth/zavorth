@@ -12,8 +12,9 @@ import {
 } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityPathPolicy.js';
 import { ShellNodeHostCommandRunner } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityShellCommandRunner.js';
 import { detectSensitiveData, redactSensitiveText } from '../security/SensitiveDataGuard.js';
+import { logger } from '../logger.js';
 import type {
-  NodeHostAssignment,
+NodeHostAssignment,
   NodeHostCapabilityRuntime,
   NodeHostCommandRunner,
   NodeHostExecutionResult,
@@ -255,7 +256,8 @@ export class NodeHostCapabilityService {
         allowedRoots: this.allowedRoots,
       });
     } catch (error) {
-      return {
+    logger.warn('[Node Host Capability] load operation failed', error);
+    return {
         ok: false,
         result: buildScopeViolationResult({
           capabilityId: 'system.run',
@@ -265,7 +267,7 @@ export class NodeHostCapabilityService {
           allowedRoots: this.allowedRoots,
         }),
       };
-    }
+  }
 
     const policyError = this.validateSystemRunCommand(command);
     if (policyError) {

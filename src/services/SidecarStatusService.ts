@@ -4,6 +4,7 @@ import { config } from '../config/index.js';
 import type { TerminalSidecarSnapshot } from './TerminalSidecarService.js';
 import type { AIGatewaySidecarSnapshot } from './AIGatewaySidecarService.js';
 import type { AIGatewayProxyStatus } from './AIGatewayProxyService.js';
+import { logger } from '../logger.js';
 
 export type SidecarStatusCard = {
   id: 'AIGateway' | 'zavorth-terminal' | 'runtime-shell-sidecar' | 'browser-sidecar';
@@ -246,9 +247,7 @@ export class SidecarStatusService {
         ...fallback,
         ...parsed,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Sidecar Status] JSON parse failed', error); return fallback; }
   }
 
   private normalizeText(value: unknown): string | null {
@@ -278,8 +277,6 @@ export class SidecarStatusService {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error: any) {
-      return error?.code !== 'ESRCH';
-    }
+    } catch (error) { logger.warn('[Sidecar Status] filesystem check failed', error); return error?.code !== 'ESRCH'; }
   }
 }

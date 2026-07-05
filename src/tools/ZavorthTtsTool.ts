@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 function xmlEscape(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
@@ -19,7 +20,7 @@ export class ZavorthTtsTool extends BaseTool {
   public readonly name = 'zavorth_tts';
 
   public readonly description =
-    'Converts text to speech (Text-to-Speech) usando multiplos backends: local (macOS/Windows/Linux), Azure Speech, ElevenLabs, MLX (Apple Silicon), Gemini TTS, e Deepgram. Suporta selecao de voz, velocidade, idioma e salvamento em arquivo.';
+    'Converts text to speech using multiple backends: local (macOS/Windows/Linux), Azure Speech, ElevenLabs, MLX (Apple Silicon), Gemini TTS, and Deepgram. Supports voice selection, speed, language, and saving to file.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -97,10 +98,11 @@ export class ZavorthTtsTool extends BaseTool {
         case 'set_default': return this.setDefault(args);
         default: return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Tts] async operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `TTS error: ${message}`;
-    }
+  }
   }
 
   private ensureStorageDir(): void {
@@ -154,10 +156,11 @@ export class ZavorthTtsTool extends BaseTool {
         `  - Texto: "${text.slice(0, 60)}${text.length > 60 ? '...' : ''}"`,
       ];
       return lines.join('\n');
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Tts] creation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Audio generation error: ${message}`;
-    }
+  }
   }
 
   private listVoices(args: Record<string, unknown>): string {
@@ -340,7 +343,7 @@ export class ZavorthTtsTool extends BaseTool {
             '-o', options.outputPath,
           ], { timeout: 120000 });
         } finally {
-          try { fs.unlinkSync(tmpPayload); } catch { /* ignore */ }
+          try { fs.unlinkSync(tmpPayload); } catch (error) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
         }
         return options.outputPath;
       }
@@ -369,7 +372,7 @@ export class ZavorthTtsTool extends BaseTool {
             '-o', options.outputPath,
           ], { timeout: 120000 });
         } finally {
-          try { fs.unlinkSync(tmpSsml); } catch { /* ignore */ }
+          try { fs.unlinkSync(tmpSsml); } catch (error) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
         }
         return options.outputPath;
       }
@@ -393,7 +396,7 @@ export class ZavorthTtsTool extends BaseTool {
             '-o', `${options.outputPath}.json`,
           ], { timeout: 60000 });
         } finally {
-          try { fs.unlinkSync(tmpPayload); } catch { /* ignore */ }
+          try { fs.unlinkSync(tmpPayload); } catch (error) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
         }
         return `${options.outputPath}.json`;
       }
@@ -415,7 +418,7 @@ export class ZavorthTtsTool extends BaseTool {
             '-o', options.outputPath,
           ], { timeout: 120000 });
         } finally {
-          try { fs.unlinkSync(tmpPayload); } catch { /* ignore */ }
+          try { fs.unlinkSync(tmpPayload); } catch (error) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
         }
         return options.outputPath;
       }

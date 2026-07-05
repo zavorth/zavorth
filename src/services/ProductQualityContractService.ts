@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  PRODUCT_QUALITY_COMMANDS,
+PRODUCT_QUALITY_COMMANDS,
   PRODUCT_QUALITY_DOCS,
   PRODUCT_QUALITY_OFFICIAL_JOURNEY,
   PRODUCT_QUALITY_RULES,
@@ -300,9 +301,7 @@ export class ProductQualityContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Product Quality Contract] JSON parse failed', error); return null; }
   }
 
   private readText(relativePath: string): string | null {

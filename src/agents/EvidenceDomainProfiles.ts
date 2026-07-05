@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 export type EvidenceSearchDomain =
   | 'ai_news'
   | 'medical'
@@ -424,7 +425,8 @@ export function normalizeEvidenceText(value: string): string {
 export function normalizeHost(url: string): string {
   try {
     return new URL(url).hostname.toLowerCase().replace(/^www\./, '');
-  } catch {
+  } catch (error) {
+    logger.warn('[Evidence Domain Profiles] string operation failed', error);
     return String(url || '').toLowerCase().replace(/^https?:\/\//, '').split('/')[0].replace(/^www\./, '');
   }
 }

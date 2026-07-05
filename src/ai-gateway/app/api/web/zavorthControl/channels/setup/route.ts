@@ -6,6 +6,7 @@ import {
 } from "../../../runtime-engine-state";
 import { ChannelProviderDoctorService } from "../../../../../../../services/ChannelProviderDoctorService.js";
 import { ChannelSetupAssistantService } from "../../../../../../../services/ChannelSetupAssistantService.js";
+import { logger } from '@/shared/utils/logger';
 
 export const runtime = "nodejs";
 
@@ -35,6 +36,7 @@ export async function GET(request: Request) {
       channels: assistant.channels,
     }));
   } catch (error) {
+    logger.warn('[route] load operation failed', error);
     return NextResponse.json({
       ok: false,
       error: error instanceof Error ? error.message : "channel setup unavailable",
@@ -116,6 +118,7 @@ export async function POST(request: Request) {
       allowedActions: ["applyScaffold", "doctor", "testConnection"],
     }, { status: 400 });
   } catch (error) {
+    logger.warn('[route] connection failed', error);
     return NextResponse.json({
       ok: false,
       error: error instanceof Error ? error.message : "channel setup action failed",

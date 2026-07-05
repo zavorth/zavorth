@@ -13,6 +13,9 @@ import { CoreOrchestrator } from '../core/CoreOrchestrator.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { DiscordSurfacePolicyService } from '../services/DiscordSurfacePolicyService.js';
 import { buildCliRuntimeFromOverrides } from './ZavorthCliCommandHelpers.js';
+import { ContextEngine } from '../context-engine/ContextEngine.js';
+import type { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';
+import type { PlatformKey } from '../contracts/PlatformContract.js';
 
 function readStringFlag(args: string[], name: string): string | null {
   const direct = args.find((arg) => arg.startsWith(`--${name}=`));
@@ -65,16 +68,17 @@ export async function runZavorthMockGatewayCommand(rawArgs: string[]): Promise<n
     orchestrator.attachAgentGateway(runtime.agentGateway);
   }
   if (runtime.commandService) {
-    orchestrator.attachSharedSurfaceCommandService(runtime.commandService as any);
+    orchestrator.attachSharedSurfaceCommandService(runtime.commandService);
   }
   if (runtime.surfaceTaskDispatcher) {
     orchestrator.attachSurfaceTaskDispatcher(runtime.surfaceTaskDispatcher);
   }
-  if ((runtime as any).contextEngine) {
-    orchestrator.attachContextEngine((runtime as any).contextEngine);
+  const contextEngine = (runtime as Record<string, unknown>).contextEngine as ContextEngine | undefined;
+  if (contextEngine) {
+    orchestrator.attachContextEngine(contextEngine);
   }
   if (runtime.legacyUnifiedGateway) {
-    orchestrator.attachLegacyUnifiedGatewayAdapter(runtime.legacyUnifiedGateway as any);
+    orchestrator.attachLegacyUnifiedGatewayAdapter(runtime.legacyUnifiedGateway as unknown as Pick<LegacyUnifiedGatewayAdapter, 'recordEvent' | 'handleEvent'>);
   }
 
   let gateway: any;
@@ -96,7 +100,7 @@ export async function runZavorthMockGatewayCommand(rawArgs: string[]): Promise<n
     gateway = new DiscordGateway(orchestrator);
   }
 
-  orchestrator.registerGateway(channel as any, gateway);
+  orchestrator.registerGateway(channel as PlatformKey, gateway);
   await gateway.start();
 
   // Hook outbox to capture replies

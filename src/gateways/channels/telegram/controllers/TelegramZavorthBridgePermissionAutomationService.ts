@@ -2,6 +2,7 @@ import { ZavorthBridgeCompanionBridge } from '../../../../agents/ZavorthBridgeCo
 import { ZavorthBridgeWindowAutomator } from '../../../../agents/ZavorthBridgeWindowAutomator.js';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 import { Task } from '../../../../contracts/TaskContract.js';
+import { logger } from '../../../../logger';
 
 export type ZavorthBridgeCompanionBridgeLike = Pick<ZavorthBridgeCompanionBridge, 'readStatus' | 'isOnline'>;
 export type ZavorthBridgeWindowAutomatorLike = Pick<
@@ -116,7 +117,7 @@ export class TelegramZavorthBridgePermissionAutomationService {
   ): Promise<void> {
     const cleared = await automator.waitForPermissionPromptToClear(processId);
     if (!cleared) {
-      throw new Error('O prompt de permissao do ZavorthBridge continuou visivel depois da aprovacao.');
+      throw new Error('The ZavorthBridge permission prompt remained visible after approval.');
     }
   }
 
@@ -134,12 +135,13 @@ export class TelegramZavorthBridgePermissionAutomationService {
         const effectiveProcessId = Number(candidatePid || approvalResult.pid || 0);
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
-      } catch (error: unknown) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-      }
+      } catch (error) {
+    logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
+    lastError = error instanceof Error ? error : new Error(String(error));
+  }
     }
 
-    throw lastError || new Error('Nao consegui aplicar a permissao visivel do ZavorthBridge.');
+    throw lastError || new Error('I could not apply the visible ZavorthBridge permission.');
   }
 
   private async applyRejectionToTargets(
@@ -155,11 +157,12 @@ export class TelegramZavorthBridgePermissionAutomationService {
         const effectiveProcessId = Number(candidatePid || rejectionResult.pid || 0);
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
-      } catch (error: unknown) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-      }
+      } catch (error) {
+    logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
+    lastError = error instanceof Error ? error : new Error(String(error));
+  }
     }
 
-    throw lastError || new Error('Nao consegui rejeitar a permissao visivel do ZavorthBridge.');
+    throw lastError || new Error('I could not reject the visible ZavorthBridge permission.');
   }
 }

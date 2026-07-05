@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger';
 /**
  * Eval Runner — T-42
  *
@@ -143,7 +144,8 @@ export function evaluateCase(evalCase: any, actualOutput: string) {
       durationMs: Date.now() - start,
       details,
     };
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[eval Runner] lifecycle operation failed', error);
     return {
       caseId: evalCase.id,
       caseName: evalCase.name,

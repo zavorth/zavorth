@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
+import { logger } from '../../logger.js';
 import {
-  LAUNCHER_TOUCH_PATTERNS,
+LAUNCHER_TOUCH_PATTERNS,
   type SelfmodValidationReport,
   type StagedValidationChange,
 } from './SelfModificationCommandTypes.js';
@@ -72,17 +73,13 @@ export class SelfModificationValidationSupport {
             if (fs.existsSync(change.absolutePath)) {
               fs.rmSync(change.absolutePath, { force: true });
             }
-          } catch {
-            // Falhas na limpeza nao devem mascarar o resultado do build.
-          }
+          } catch (error) { // Falhas na limpeza nao devem mascarar o resultado do build. logger.warn('[Self Modification Validation] filesystem operation failed', error); }
           continue;
         }
 
         try {
           fs.writeFileSync(change.absolutePath, change.previousContent, 'utf8');
-        } catch {
-          // Falhas na limpeza nao devem mascarar o resultado do build.
-        }
+        } catch (error) { // Falhas na limpeza nao devem mascarar o resultado do build. logger.warn('[Self Modification Validation] filesystem operation failed', error); }
       }
 
       for (const parentDir of touchedParents) {
@@ -90,9 +87,7 @@ export class SelfModificationValidationSupport {
           if (fs.existsSync(parentDir) && fs.readdirSync(parentDir).length === 0) {
             fs.rmdirSync(parentDir);
           }
-        } catch {
-          // Ignora diretorios nao vazios ou races de limpeza.
-        }
+        } catch (error) { // Ignora diretorios nao vazios ou races de limpeza. logger.warn('[Self Modification Validation] filesystem operation failed', error); }
       }
     }
   }

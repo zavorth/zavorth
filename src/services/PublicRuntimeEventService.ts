@@ -240,7 +240,10 @@ export class PublicRuntimeEventService {
     if (phases.length === 0) {
       return null;
     }
-    const completed = phases.filter((phase: { status: string }) => String(phase?.status || '').toLowerCase() === 'completed').length;
+    const completed = phases.filter((phase) => {
+      const record = phase && typeof phase === 'object' ? phase as Record<string, unknown> : {};
+      return String(record.status || '').toLowerCase() === 'completed';
+    }).length;
     return Math.round((completed / phases.length) * 100);
   }
 

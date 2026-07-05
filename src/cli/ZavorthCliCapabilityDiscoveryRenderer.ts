@@ -14,27 +14,27 @@ export function formatNaturalCapabilityDiscoverySnapshot(
   const recommendations = snapshot.recommendations.slice(0, 6);
   const lines = [
     'Natural Capability Discovery - Capability Discovery',
-    `- contrato: ${snapshot.contractVersion}`,
-    `- intent: ${snapshot.intentCategory} | confianca ${confidence}%`,
-    `- tools: ${snapshot.recommendedToolNames.length > 0 ? snapshot.recommendedToolNames.join(', ') : 'nenhuma'}`,
-    `- grupos: ${snapshot.groups.length > 0 ? snapshot.groups.join(', ') : 'nenhum'}`,
-    `- risco: ${snapshot.safety.highestRisk} | approval=${String(snapshot.safety.requiresApproval)} | preview=${String(snapshot.safety.previewRequired)}`,
-    `- quarentena: ${snapshot.quarantine.warning || 'sem bloqueio importado'}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- contract: ${snapshot.contractVersion}`,
+    `- intent: ${snapshot.intentCategory} | confidence ${confidence}%`,
+    `- tools: ${snapshot.recommendedToolNames.length > 0 ? snapshot.recommendedToolNames.join(', ') : 'none'}`,
+    `- groups: ${snapshot.groups.length > 0 ? snapshot.groups.join(', ') : 'none'}`,
+    `- risk: ${snapshot.safety.highestRisk} | approval=${String(snapshot.safety.requiresApproval)} | preview=${String(snapshot.safety.previewRequired)}`,
+    `- quarantine: ${snapshot.quarantine.warning || 'no imported block'}`,
+    `- next step: ${snapshot.nextSafeAction}`,
   ];
 
   if (recommendations.length > 0) {
-    lines.push('', 'Recomendacoes');
+    lines.push('', 'Recommendations');
     for (const recommendation of recommendations) {
       lines.push(
         `- ${recommendation.label} [${recommendation.risk}]`,
-        `  tools=${recommendation.toolIds.join(', ') || 'nenhuma'} | approval=${String(recommendation.requiresApproval)} | preview=${String(recommendation.previewRequired)}`,
+        `  tools=${recommendation.toolIds.join(', ') || 'none'} | approval=${String(recommendation.requiresApproval)} | preview=${String(recommendation.previewRequired)}`,
         `  ${recommendation.reason}`,
       );
     }
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 

@@ -5,6 +5,11 @@ import {
   type PublicAdoptionPilotLoopSnapshot,
   type UniversalAgentRun,
 } from '../runtime/agent/index.js';
+import type {
+  ZavorthFirstRunBootstrapPlan,
+  ZavorthWorkspaceIdentityProfileSnapshot,
+  ZavorthFirstRunBootstrapPaths,
+} from '../contracts/FirstRunWorkspaceBootstrapContract.js';
 
 export function resolvePublicAdoptionPilotLoopCliText(args: string): string {
   return String(args || '')
@@ -42,8 +47,8 @@ export function buildPublicAdoptionPilotLoopCliSnapshot(input: {
           },
           questions: [],
           writes: [],
-          summary: ['Primeiro uso configurado para adoption pilot loop.'],
-        } as any),
+          summary: ['Primeiro uso configured para adoption pilot loop.'],
+        } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
           configured: true,
@@ -55,8 +60,8 @@ export function buildPublicAdoptionPilotLoopCliSnapshot(input: {
           memoryMode: 'local-metadata',
           safetyPosture: 'preview-first',
           providerStatus: 'deferred',
-        } as any),
-        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as any),
+        } as unknown as ZavorthWorkspaceIdentityProfileSnapshot),
+        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as unknown as ZavorthFirstRunBootstrapPaths),
       },
       personalizationService: {
         getStatus: () => ({
@@ -106,15 +111,15 @@ export function formatPublicAdoptionPilotLoopSnapshot(
 ): string {
   const lines = [
     'Public Adoption / Pilot Feedback Loop - Public Adoption Pilot',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- feedback opt-in: ${String(snapshot.feedbackProductLoop.optInReady)}`,
     `- pilot loop: ${snapshot.pilot.contractStatus}`,
     `- pilotos planejados: ${snapshot.adoptionLoop.plannedPilotCount}`,
     `- zavorthControl agregado: ${String(snapshot.adoptionLoop.zavorthControlAggregationOnly)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -141,10 +146,10 @@ export function formatPublicAdoptionPilotLoopSnapshot(
   lines.push(`- controlled pilot: ${String(snapshot.readiness.canStartControlledPilot)}`);
 
   lines.push('', 'Politica');
-  lines.push('- coleta implicita nao foi ligada');
-  lines.push('- telemetry nao foi ligada');
-  lines.push('- submissao externa nao foi feita');
-  lines.push('- payload de workspace nao foi armazenado');
+  lines.push('- implicit collection was not enabled');
+  lines.push('- telemetry was not enabled');
+  lines.push('- external submission was not made');
+  lines.push('- workspace payload was not stored');
   lines.push('- ledger permanece local');
   lines.push('- zavorthControl usa apenas agregados');
   lines.push('- piloto exige owner explicito');
@@ -192,7 +197,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
         { route: '/', label: 'landing principal' },
         { route: '/docs', label: 'documentacao publica' },
         { route: '/privacy', label: 'privacidade' },
-        { route: '/security', label: 'seguranca' },
+        { route: '/security', label: 'security' },
       ],
       forbiddenClaims: [],
       checks: [],
@@ -290,12 +295,12 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       templates: [
         { id: 'bug', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['tokens', 'secrets', 'paths pessoais'], safePrompt: 'Use dados redigidos.' },
         { id: 'docs', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['workspace privado', 'logs brutos', 'credenciais'], safePrompt: 'Use exemplo redigido.' },
-        { id: 'install', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['path pessoal', 'usuario', 'env vars'], safePrompt: 'Use ambiente redigido.' },
+        { id: 'install', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['path pessoal', 'usuario', 'env vars'], safePrompt: 'Use redacted environment.' },
         { id: 'feature', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['cliente', 'repo privado', 'documento interno'], safePrompt: 'Use contexto redigido.' },
       ],
       triageRules: [
         { id: 'install-high', area: 'install', severity: 'high', responseTarget: '1 business day', owner: 'runtime', nextAction: 'Reproduzir em fixture.' },
-        { id: 'bug-medium', area: 'bug', severity: 'medium', responseTarget: '2 business days', owner: 'runtime', nextAction: 'Triar comando publico.' },
+        { id: 'bug-medium', area: 'bug', severity: 'medium', responseTarget: '2 business days', owner: 'runtime', nextAction: 'Triar public command.' },
         { id: 'docs-low', area: 'docs', severity: 'low', responseTarget: '3 business days', owner: 'docs', nextAction: 'Atualizar docs.' },
         { id: 'release-high', area: 'release', severity: 'high', responseTarget: '1 business day', owner: 'release', nextAction: 'Validar rollback preview.' },
         { id: 'feature-low', area: 'feature', severity: 'low', responseTarget: 'next planning cycle', owner: 'product', nextAction: 'Registrar backlog publico.' },
@@ -307,14 +312,14 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       ],
       supportPolicy: [
         { id: 'privacy-first', channel: 'public issue or redacted feedback preview', responseWindow: 'best effort', boundaries: ['sem secrets', 'sem payload bruto', 'sem workspace privado'], escalation: 'Pedir preview redigido.' },
-        { id: 'install-runtime', channel: 'support issue', responseWindow: '1-2 business days', boundaries: ['comando publico', 'erro resumido', 'ambiente redigido'], escalation: 'Reproduzir via fixture local.' },
+        { id: 'install-runtime', channel: 'support issue', responseWindow: '1-2 business days', boundaries: ['public command', 'summarized error', 'redacted environment'], escalation: 'Reproduce through local fixture.' },
         { id: 'feature-planning', channel: 'feature request', responseWindow: 'next planning review', boundaries: ['sem promessa', 'sem dados privados', 'sem parceria implicita'], escalation: 'Converter para proposta.' },
       ],
       zavorthControlMetrics: [
         { id: 'feedback-count-by-area', label: 'Feedback por area', aggregateOnly: true, excludesPayload: true, source: 'redacted feedback preview' },
         { id: 'severity-mix', label: 'Distribuicao por severidade', aggregateOnly: true, excludesPayload: true, source: 'triage rules' },
         { id: 'pilot-status', label: 'Status dos pilotos', aggregateOnly: true, excludesPayload: true, source: 'local pilot ledger' },
-        { id: 'follow-up-aging', label: 'Follow-ups pendentes', aggregateOnly: true, excludesPayload: true, source: 'local pilot ledger' },
+        { id: 'follow-up-aging', label: 'Follow-ups pendings', aggregateOnly: true, excludesPayload: true, source: 'local pilot ledger' },
       ],
       checks: [
         { id: 'pilot-loop:feedback-preview', title: 'feedback preview redigido', status: 'pass', reason: 'preview redigido sem envio', evidence: ['feedback-preview-redacted.json'] },

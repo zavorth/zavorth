@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { BaseTool } from './BaseTool.js';
+import { logger } from '../logger.js';
 
 type ValidatedSkillArgs =
   | {
@@ -29,34 +30,34 @@ type SkillDraftScannerResult = {
 export class AutoSkillCreatorTool extends BaseTool {
   public readonly name = 'auto_skill_creator';
   public readonly description =
-    'Cria um draft governado de Skill declarativa. Nao materializa arquivos em skills nem habilita execucao sem scanner, smoke, approval e receipt.';
+    'Creates a governed draft for a declarative Skill. It does not materialize files into skills or enable execution without scanner, smoke, approval, and receipt.';
 
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       category: {
         type: 'string',
-        description: 'Categoria da skill (development, information, execution, filesystem etc.). Padrao: development.',
+        description: 'Skill category (development, information, execution, filesystem, etc.). Default: development.',
       },
       skillId: {
         type: 'string',
-        description: 'ID da skill em snake_case/kebab-case, ex: image_generator.',
+        description: 'Skill ID in snake_case/kebab-case, for example: image_generator.',
       },
       skillName: {
         type: 'string',
-        description: 'Nome legivel da skill, ex: Image Generator.',
+        description: 'Human-readable skill name, for example: Image Generator.',
       },
       description: {
         type: 'string',
-        description: 'Breve descricao da skill e suas ferramentas.',
+        description: 'Brief description of the skill and its tools.',
       },
       toolsJson: {
         type: 'string',
-        description: 'String JSON contendo array de definicoes de tools (name, description, parameters).',
+        description: 'JSON string containing an array of tool definitions (name, description, parameters).',
       },
       toolsMarkdown: {
         type: 'string',
-        description: 'Conteudo do TOOLS.md em Markdown com instrucoes de uso.',
+        description: 'TOOLS.md content in Markdown with usage instructions.',
       },
     },
     required: ['skillId', 'skillName', 'description', 'toolsJson', 'toolsMarkdown'],
@@ -73,25 +74,26 @@ export class AutoSkillCreatorTool extends BaseTool {
     const draftPath = path.resolve(draftRoot, category, skillId);
 
     if (!draftPath.startsWith(draftRoot + path.sep)) {
-      return 'Erro: category/skillId resolveram para fora da area governada de drafts. Operacao bloqueada.';
+      return 'Error: category/skillId resolved outside the governed draft area. Operation blocked.';
     }
 
     try {
       let parsedTools: Array<Record<string, unknown>>;
       try {
         parsedTools = JSON.parse(toolsJson);
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        return `Erro: toolsJson invalido. Deve ser uma string JSON valida de um array. Detalhe: ${message}`;
-      }
+      } catch (error) {
+    logger.warn('[Auto Skill Creator] JSON parse failed', error);
+    const message = error instanceof Error ? error.message : String(error);
+        return `Error: invalid toolsJson. It must be a valid JSON string containing an array. Detail: ${message}`;
+  }
 
       if (!Array.isArray(parsedTools) || parsedTools.length === 0) {
-        return 'Erro: toolsJson deve ser um array JSON nao vazio de definicoes de tool.';
+        return 'Error: toolsJson must be a non-empty JSON array of tool definitions.';
       }
 
       const invalidTool = parsedTools.find((tool) => !this.isValidToolDefinition(tool));
       if (invalidTool) {
-        return 'Erro: cada tool precisa ter name, description e parameters.type="object".';
+        return 'Error: each tool must have name, description, and parameters.type="object".';
       }
 
       const scanner = this.scanDraft({
@@ -103,10 +105,10 @@ export class AutoSkillCreatorTool extends BaseTool {
       });
       if (scanner.blocked) {
         return [
-          `Bloqueado: draft de skill '${skillId}' nao foi criado.`,
-          `Risco: ${scanner.risk}.`,
+          `Blocked: skill draft '${skillId}' was not created.`,
+          `Risk: ${scanner.risk}.`,
           ...scanner.issues.map((issue) => `- ${issue.code}: ${issue.evidence}`),
-          'Nenhum arquivo foi escrito. Recrie o draft como instruction-only, sem shell, rede interna, exfiltracao, bypass de policy ou acao destrutiva.',
+          'No file was written. Recreate the draft as instruction-only, without shell, internal network access, exfiltration, policy bypass, or destructive action.',
         ].join('\n');
       }
 
@@ -195,16 +197,16 @@ export class AutoSkillCreatorTool extends BaseTool {
       fs.writeFileSync(path.join(draftPath, 'receipt.json'), JSON.stringify(receipt, null, 2), 'utf8');
 
       return [
-        `Draft governado '${skillId}' criado.`,
+        `Governed draft '${skillId}' created.`,
         `Candidate: ${candidateId}.`,
         `Receipt: ${receiptId}.`,
-        `Preview salvo em ${draftPath}.`,
-        'Materializacao em skill live exige approval explicito, wrapper aprovado e smoke nao destrutivo.',
+        `Preview saved at ${draftPath}.`,
+        'Materialization into a live skill requires explicit approval, an approved wrapper, and non-destructive smoke checks.',
       ].join('\n');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error('[AutoSkillCreator] Erro ao criar draft de skill:', message);
-      return `Erro ao criar draft governado de skill: ${message}`;
+      console.error('[AutoSkillCreator] Failed to create skill draft:', message);
+      return `Failed to create governed skill draft: ${message}`;
     }
   }
 
@@ -217,10 +219,10 @@ export class AutoSkillCreatorTool extends BaseTool {
     const toolsMarkdown = String(args.toolsMarkdown || '').trim();
 
     if (!category || !skillId) {
-      return { ok: false, message: 'Erro: category e skillId devem conter apenas letras, numeros, _ ou -.' };
+      return { ok: false, message: 'Error: category and skillId must contain only letters, numbers, _ or -.' };
     }
     if (!skillName || !description || !toolsJson || !toolsMarkdown) {
-      return { ok: false, message: 'Erro: skillName, description, toolsJson e toolsMarkdown sao obrigatorios.' };
+      return { ok: false, message: 'Error: skillName, description, toolsJson, and toolsMarkdown are required.' };
     }
 
     return { ok: true, category, skillId, skillName, description, toolsJson, toolsMarkdown };
@@ -265,37 +267,37 @@ export class AutoSkillCreatorTool extends BaseTool {
         code: 'policy-bypass',
         severity: 'block',
         pattern: /\b(ignore|disable|bypass|skip)\s+(approval|policy|safety|firewall)\b/i,
-        evidence: 'Tenta ignorar approval, policy ou safety.',
+        evidence: 'Attempts to bypass approval, policy, or safety.',
       },
       {
         code: 'destructive-shell',
         severity: 'block',
         pattern: /\b(rm\s+-rf|remove-item\b[\s\S]{0,80}\b-recurse\b[\s\S]{0,80}\b-force|del\s+\/[qsf]|format\s+[a-z]:)\b/i,
-        evidence: 'Contem comando destrutivo.',
+        evidence: 'Contains a destructive command.',
       },
       {
         code: 'metadata-service-access',
         severity: 'block',
         pattern: /https?:\/\/(?:169\.254\.169\.254|metadata\.google\.internal|metadata\.azure\.com)\b/i,
-        evidence: 'Tenta acessar endpoint interno de metadata.',
+        evidence: 'Attempts to access an internal metadata endpoint.',
       },
       {
         code: 'internal-url-access',
         severity: 'block',
         pattern: /https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.)/i,
-        evidence: 'Tenta acessar URL interna/local.',
+        evidence: 'Attempts to access an internal/local URL.',
       },
       {
         code: 'secret-exfiltration',
         severity: 'block',
         pattern: /\b(exfiltrat|process\.env|env\s+vars?|dump\s+env|print\s+env|curl\b[\s\S]{0,120}\b(token|secret|env))\b/i,
-        evidence: 'Pode expor env vars, tokens ou segredos.',
+        evidence: 'May expose env vars, tokens, or secrets.',
       },
       {
         code: 'runtime-code-wrapper',
         severity: 'warn',
         pattern: /\b(child_process|execSync|spawnSync|eval\s*\(|new Function)\b/i,
-        evidence: 'Sugere codigo executavel que precisa de wrapper aprovado.',
+        evidence: 'Suggests executable code that requires an approved wrapper.',
       },
     ];
     const issues = checks

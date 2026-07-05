@@ -9,7 +9,7 @@ export class BackupManager {
     const resolvedWorkspace = WorkspaceResolver.validate(workspace);
     const safePath = WorkspaceResolver.ensurePathInsideWorkspace(resolvedWorkspace, targetPath);
     
-    // Se o arquivo não existe (será uma criação nova), o "backup" é anotar a deleção para o rollback.
+    // If the file does not exist, the rollback backup is a delete marker for the new file.
     let content = null;
     if (fs.existsSync(safePath)) {
       content = FileManager.readSafe(workspace, targetPath);
@@ -20,7 +20,7 @@ export class BackupManager {
       fs.mkdirSync(backupDir, { recursive: true });
     }
 
-    // Usamos base64 para o nome do arquivo para evitar conflitos de caminhos no backup
+    // Use base64 for the filename to avoid path conflicts in the backup folder.
     const safeName = Buffer.from(targetPath).toString('base64');
     const backupFile = path.join(backupDir, safeName + '.json');
 

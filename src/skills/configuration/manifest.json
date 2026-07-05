@@ -14,7 +14,7 @@
         "properties": {
           "action": {
             "type": "string",
-            "description": "Ação: list, set, suggest, negotiate.",
+            "description": "Action: list, set, suggest, negotiate.",
             "enum": ["list", "set", "suggest", "negotiate"]
           },
           "provider": {
@@ -23,7 +23,7 @@
           },
           "model": {
             "type": "string",
-            "description": "Nome do modelo específico."
+            "description": "Specific model name."
           }
         },
         "required": ["action"]

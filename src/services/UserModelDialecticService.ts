@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 
 export type DialecticQuestionCategory =
   | 'communication_style'
@@ -157,9 +158,7 @@ export class UserModelDialecticService {
       try {
         const data = JSON.parse(fs.readFileSync(fp, 'utf-8'));
         if (data && data.contractVersion) return data;
-      } catch {
-        // fall through
-      }
+      } catch (error) { // fall through logger.warn('[User Model Dialectic] JSON parse failed', error); }
     }
     return this.buildDefaultProfile();
   }

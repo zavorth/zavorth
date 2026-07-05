@@ -59,7 +59,7 @@ export class TelegramOpsInsightService {
       const snapshot = this.deps.capabilityLifecycleService.describeCapability(capabilityId);
       const manifest = this.deps.capabilityLifecycleService.getManifest(capabilityId);
       if (!snapshot || !manifest) {
-        await ctx.reply(`Nao reconheci a capability "${capabilityId}". Veja /capabilities.`);
+        await ctx.reply(`I did not recognize capability "${capabilityId}". See /capabilities.`);
         return;
       }
       await ctx.reply(this.presentationService.formatCapabilityDetailReply(manifest, snapshot));
@@ -83,7 +83,7 @@ export class TelegramOpsInsightService {
     await ctx.reply(
       this.presentationService.formatProfileReply(
         this.deps.capabilityLifecycleService.buildSnapshot(),
-        `Perfil alterado para ${nextProfile}. Reinicie os sidecars opcionais se quiser preaquecer a nova trilha.`,
+        `Profile changed to ${nextProfile}. Restart optional sidecars if you want to warm the new track.`,
       ),
     );
   }
@@ -96,7 +96,7 @@ export class TelegramOpsInsightService {
       ? requestedScope
       : 'once';
     if (!capabilityId) {
-      await ctx.reply('Use /enable <capability> [once|session|host]. Veja ids em /capabilities.');
+      await ctx.reply('Use /enable <capability> [once|session|host]. See IDs in /capabilities.');
       return;
     }
 
@@ -106,7 +106,7 @@ export class TelegramOpsInsightService {
       scope,
     );
     if (!updated) {
-      await ctx.reply(`Nao reconheci a capability "${capabilityId}". Veja /capabilities.`);
+      await ctx.reply(`I did not recognize capability "${capabilityId}". See /capabilities.`);
       return;
     }
 
@@ -114,7 +114,7 @@ export class TelegramOpsInsightService {
       ? this.deps.capabilityLifecycleService.buildApprovalRequest(
           capabilityId,
           ctx.from?.id?.toString() || 'unknown',
-          `Habilitacao manual via /enable ${capabilityId}.`,
+          `Manual enable through /enable ${capabilityId}.`,
         )
       : null;
 
@@ -124,7 +124,7 @@ export class TelegramOpsInsightService {
   public async handleDisable(ctx: Context, args: string): Promise<void> {
     const capabilityId = String(args || '').trim().toLowerCase();
     if (!capabilityId) {
-      await ctx.reply('Use /disable <capability>. Veja ids em /capabilities.');
+      await ctx.reply('Use /disable <capability>. See IDs in /capabilities.');
       return;
     }
 
@@ -133,7 +133,7 @@ export class TelegramOpsInsightService {
       ctx.from?.id?.toString() || 'unknown',
     );
     if (!updated) {
-      await ctx.reply(`Nao reconheci a capability "${capabilityId}". Veja /capabilities.`);
+      await ctx.reply(`I did not recognize capability "${capabilityId}". See /capabilities.`);
       return;
     }
 
@@ -152,7 +152,7 @@ export class TelegramOpsInsightService {
   public async handleConnect(ctx: Context, args: string): Promise<void> {
     const rawArgs = String(args || '').trim();
     if (!rawArgs) {
-      await ctx.reply('Use /connect <integracao>. Exemplos: /connect openrouter, /connect zerocloud.');
+      await ctx.reply('Use /connect <integration>. Examples: /connect openrouter, /connect zerocloud.');
       return;
     }
 

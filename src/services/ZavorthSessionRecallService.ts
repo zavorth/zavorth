@@ -3,6 +3,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 import { ZavorthOperationalStateDbService } from './ZavorthOperationalStateDbService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthSessionRecallMessage = {
   id: string;
@@ -275,9 +276,10 @@ export class ZavorthSessionRecallService {
           ? parsed.sessions.map(normalizeSession).filter((entry): entry is ZavorthSessionRecallSession => Boolean(entry))
           : [],
       };
-    } catch {
-      return { sessions: [] };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Session Recall] JSON parse failed', error);
+    return { sessions: [] };
+  }
   }
 
   private writeStore(store: Store): void {

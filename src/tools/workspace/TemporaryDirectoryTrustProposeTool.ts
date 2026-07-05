@@ -3,6 +3,7 @@ import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { TemporaryDirectoryTrustService } from '../../services/TemporaryDirectoryTrustService.js';
+import { logger } from '../../logger.js';
 
 /**
  * Agent tool: workspace.temp_dir_trust.propose
@@ -110,11 +111,12 @@ export class TemporaryDirectoryTrustProposeTool extends BaseTool {
           note: 'Awaiting user approval via desktop modal.',
         },
       });
-    } catch (err: any) {
-      return JSON.stringify({
+    } catch (error) {
+    logger.warn('[Temporary Directory Trust Propose] creation failed', error);
+    return JSON.stringify({
         success: false,
         error: `Failed to propose Temporary Directory Trust: ${err.message || err}`,
       });
-    }
+  }
   }
 }

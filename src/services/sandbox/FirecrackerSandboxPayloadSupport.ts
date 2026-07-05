@@ -3,6 +3,7 @@ import path from 'path';
 import { execNativeCommandSync } from '../../core/CommandSpawn.js';
 import type { SandboxLanguage } from './ISandboxRuntime.js';
 import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../../logger.js';
 
 type FirecrackerPayloadHost = {
   getCodeFilename(language: SandboxLanguage): string;
@@ -79,9 +80,7 @@ export class FirecrackerSandboxPayloadSupport {
           stdio: ['ignore', 'pipe', 'ignore'],
         });
         return String(output || '');
-      } catch {
-        return '';
-      }
+      } catch (error) { logger.warn('[Firecracker Sandbox Payload] filesystem operation failed', error); return ''; }
     };
 
     const stdout = readFile('results/stdout.txt');

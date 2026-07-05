@@ -1,7 +1,8 @@
 import fs from "fs/promises";
 import type { PersistedTunnelState } from "./cloudflaredTunnelTypes";
+import { logger } from '@/shared/utils/logger';
 import {
-  ensureTunnelDir,
+ensureTunnelDir,
   getCloudflaredRuntimeDirs,
   getLogFilePath,
   getPidFilePath,
@@ -12,9 +13,7 @@ export async function readStateFile(): Promise<PersistedTunnelState> {
   try {
     const content = await fs.readFile(getStateFilePath(), "utf8");
     return JSON.parse(content) as PersistedTunnelState;
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[cloudflared Tunnel State] JSON parse failed', error); return {}; }
 }
 
 export async function writeStateFile(state: PersistedTunnelState) {
@@ -30,9 +29,7 @@ export async function updateStateFile(patch: PersistedTunnelState) {
 export async function clearPidFile() {
   try {
     await fs.unlink(getPidFilePath());
-  } catch {
-    // Ignore missing/stale pid files.
-  }
+  } catch (error) { // Ignore missing/stale pid files. logger.warn('[cloudflared Tunnel State] file cleanup failed', error); }
 }
 
 export async function writePidFile(pid: number) {
@@ -45,9 +42,7 @@ export async function readPidFile() {
     const content = await fs.readFile(getPidFilePath(), "utf8");
     const pid = Number.parseInt(content.trim(), 10);
     return Number.isFinite(pid) ? pid : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[cloudflared Tunnel State] filesystem operation failed', error); return null; }
 }
 
 export function isProcessAlive(pid: number | null) {
@@ -55,9 +50,7 @@ export function isProcessAlive(pid: number | null) {
   try {
     process.kill(pid, 0);
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[cloudflared Tunnel State] filesystem operation failed', error); return false; }
 }
 
 export async function appendTunnelLog(source: "stdout" | "stderr", message: string) {

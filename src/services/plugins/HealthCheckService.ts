@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface HealthCheck {
   id: string;
@@ -29,7 +30,7 @@ export class HealthCheckService {
     try {
       const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
       if (Array.isArray(data)) for (const c of data) this.checks.set(c.id, c);
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Check] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

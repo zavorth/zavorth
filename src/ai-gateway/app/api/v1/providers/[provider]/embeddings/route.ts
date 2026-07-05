@@ -13,6 +13,7 @@ import * as log from "@/sse/utils/logger";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { v1EmbeddingsSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Handle CORS preflight
@@ -44,7 +45,8 @@ export async function POST(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
   const validation = validateBody(v1EmbeddingsSchema, rawBody);

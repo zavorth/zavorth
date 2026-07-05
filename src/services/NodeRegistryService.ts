@@ -17,6 +17,7 @@ import type {
 } from '../contracts/NodeMeshContract.js';
 import { SecureStorageService } from './SecureStorageService.js';
 import { NodeCapabilityService } from './NodeCapabilityService.js';
+import { logger } from '../logger.js';
 
 type NodeRegistryRuntime = {
   now?: () => Date;
@@ -605,9 +606,7 @@ export class NodeRegistryService {
       }
 
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Node Registry] JSON parse failed', error); return fallback; }
   }
 
   private writeJsonFile(filePath: string, payload: unknown): void {

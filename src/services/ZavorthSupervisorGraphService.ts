@@ -166,7 +166,7 @@ const NODE_LIBRARY: Record<ZavorthSupervisorGraphNodeId, Omit<ZavorthSupervisorG
   planner: {
     id: 'planner',
     label: 'Planner',
-    role: 'Divide tarefa complexa em passos e criterios de aceite.',
+    role: 'Splits complex tasks into steps and acceptance criteria.',
     mutates: false,
     evidenceRequired: true,
   },
@@ -187,7 +187,7 @@ const NODE_LIBRARY: Record<ZavorthSupervisorGraphNodeId, Omit<ZavorthSupervisorG
   researcher: {
     id: 'researcher',
     label: 'Researcher',
-    role: 'Coleta contexto quando a tarefa depende de informacao externa ou leitura ampla.',
+    role: 'Collects context when the task depends on external information or broad reading.',
     mutates: false,
     evidenceRequired: true,
   },
@@ -208,7 +208,7 @@ const NODE_LIBRARY: Record<ZavorthSupervisorGraphNodeId, Omit<ZavorthSupervisorG
   sandbox_runner: {
     id: 'sandbox_runner',
     label: 'Sandbox runner',
-    role: 'Valida codigo, comandos perigosos ou testes em ambiente controlado.',
+    role: 'Validates code, dangerous commands, or tests in a controlled environment.',
     mutates: false,
     evidenceRequired: true,
   },
@@ -387,8 +387,8 @@ export class ZavorthSupervisorGraphService {
       objective,
       task?.summary,
       task?.intent,
-      'planeje uma tarefa complexa com revisao, validacao e entrega auditavel',
-    ]) || 'planeje uma tarefa complexa com revisao, validacao e entrega auditavel';
+      'plan a complex task with review, validation, and auditable delivery',
+    ]) || 'plan a complex task with review, validation, and auditable delivery';
   }
 
   private classifyComplexity(
@@ -410,7 +410,7 @@ export class ZavorthSupervisorGraphService {
     }
     if (route?.decision.requiresApproval) {
       score += 0.22;
-      reasons.push('capability exige aprovacao');
+      reasons.push('capability requires approval');
     }
     if (route?.decision.riskLevel === 'high') {
       score += 0.22;
@@ -421,11 +421,11 @@ export class ZavorthSupervisorGraphService {
     }
     if (/\b(corrija|implemente|refatore|bug|codigo|teste|build|deploy|patch|arquivo|repo|workspace)\b/i.test(normalized)) {
       score += 0.22;
-      reasons.push('tarefa tecnica com possivel mudanca em workspace');
+      reasons.push('technical task with possible workspace change');
     }
     if (/\b(pesquise|investigue|compare|fontes|noticias|web|documentacao)\b/i.test(normalized)) {
       score += 0.12;
-      reasons.push('tarefa pode exigir pesquisa ou leitura ampla');
+      reasons.push('task may require research or broad reading');
     }
     if (/\b(e|depois|entao|tambem|multi|workflow|pipeline|valid(e|a)|rode|execute)\b/i.test(normalized)) {
       score += 0.12;
@@ -489,7 +489,7 @@ export class ZavorthSupervisorGraphService {
     const remainingCost = Number((input.maxCost - input.spentCost - input.estimatedCost).toFixed(2));
     const exceeded = remainingCost < 0 || (input.simulateTestFailure && input.maxRetries < 1);
     const retryPause = input.simulateTestFailure && input.maxRetries < 1
-      ? 'Falha simulada exige correcao, mas maxRetries esta em zero.'
+      ? 'Simulated failure requires correction, but maxRetries is zero.'
       : null;
     const costPause = remainingCost < 0
       ? `Budget insuficiente: estimativa ${input.estimatedCost} excede limite restante ${Number((input.maxCost - input.spentCost).toFixed(2))}.`
@@ -566,7 +566,7 @@ export class ZavorthSupervisorGraphService {
         attempt: 1,
         from: 'sandbox_runner',
         to: 'coder',
-        reason: 'Falha de teste volta uma vez para correcao antes de entrega.',
+        reason: 'Test failure returns once for correction before delivery.',
         retryBudgetRemaining: Math.max(0, input.maxRetries - 1),
       },
     ];
@@ -671,11 +671,11 @@ export class ZavorthSupervisorGraphService {
   ): ZavorthSupervisorGraphSnapshot['finalResponseContract'] {
     const testText = mode === 'graph'
       ? 'Resposta final deve citar plano, critica e validacao/sandbox.'
-      : 'Resposta linear deve citar validacao aplicavel ou dizer que nao houve teste.';
+      : 'Linear response must cite applicable validation or state that no test was run.';
     const pendingText = status === 'paused'
       ? `Pendente: ${budget.pauseReason || 'aprovar mais budget/retries.'}`
       : correctionLoop.length > 0
-        ? 'Pendente: informar que houve uma correcao apos falha de teste simulada.'
+        ? 'Pending: report that a correction occurred after simulated test failure.'
         : 'Pendente: listar limites conhecidos antes de encerrar.';
     return {
       includesTests: true,
@@ -692,10 +692,10 @@ export class ZavorthSupervisorGraphService {
     status: ZavorthSupervisorGraphStatus,
   ): string {
     if (status === 'paused') {
-      return 'Reflexion pausado porque o fluxo nao tem budget/retries suficientes.';
+      return 'Reflexion paused because the flow does not have enough budget/retries.';
     }
     if (mode === 'linear') {
-      return 'Fluxo simples nao ativa reflexion para evitar custo e latencia desnecessarios.';
+      return 'Simple flow does not activate reflexion to avoid unnecessary cost and latency.';
     }
     if (correctionLoop.length > 0) {
       return `Critico/sandbox devolvem para correcao uma vez; limite configurado: ${maxRetries}.`;
@@ -721,7 +721,7 @@ export class ZavorthSupervisorGraphService {
         ? `DAG supervisionada pronta com ${activeNodes.length} nodos ativos.`
         : 'Fluxo simples mantido linear.',
       operatorSummary: correctionLoop.length > 0
-        ? 'Falha de teste simulada retorna uma vez para correcao antes da entrega.'
+        ? 'Simulated test failure returns once for correction before delivery.'
         : 'Supervisor registra evidencias, escolhe executor autorizado e revisa antes de entregar quando ha risco.',
     };
   }
@@ -738,7 +738,7 @@ export class ZavorthSupervisorGraphService {
       return 'Saida passa por critica antes de validacao ou entrega.';
     }
     if (to === 'sandbox_runner') {
-      return 'Codigo/comando arriscado precisa de validacao em sandbox.';
+      return 'Risky code/command requires sandbox validation.';
     }
     if (to === 'delivery') {
       return 'Entrega so acontece depois dos guardrails aplicaveis.';

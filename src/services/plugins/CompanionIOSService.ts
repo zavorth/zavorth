@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface IOSDevice {
   id: string;
@@ -77,22 +78,22 @@ export class CompanionIOSService {
       try {
         const data = JSON.parse(fs.readFileSync(devicesPath, 'utf-8'));
         for (const [id, dev] of Object.entries(data as Record<string, IOSDevice>)) this.devices.set(id, dev);
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Companion I O S] JSON parse failed', error); }
     }
     if (fs.existsSync(notificationsPath)) {
-      try { this.notifications = JSON.parse(fs.readFileSync(notificationsPath, 'utf-8')); } catch { /* ignore */ }
+      try { this.notifications = JSON.parse(fs.readFileSync(notificationsPath, 'utf-8')); } catch (error) { /* ignore */ logger.warn('[Companion I O S] JSON parse failed', error); }
     }
     if (fs.existsSync(widgetsPath)) {
       try {
         const data = JSON.parse(fs.readFileSync(widgetsPath, 'utf-8'));
         for (const [id, w] of Object.entries(data as Record<string, WidgetData>)) this.widgets.set(id, w);
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Companion I O S] JSON parse failed', error); }
     }
     if (fs.existsSync(shortcutsPath)) {
       try {
         const data = JSON.parse(fs.readFileSync(shortcutsPath, 'utf-8'));
         for (const [id, s] of Object.entries(data as Record<string, ShortcutAction>)) this.shortcuts.set(id, s);
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Companion I O S] JSON parse failed', error); }
     }
   }
 

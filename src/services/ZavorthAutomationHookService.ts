@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 
 export type ZavorthAutomationHookAction =
   | {
@@ -337,9 +338,7 @@ export class ZavorthAutomationHookService {
       }
       const hook = this.normalizeHook(parsed);
       return hook;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Automation Hook] JSON parse failed', error); return null; }
   }
 
   private normalizeHook(raw: unknown): ZavorthAutomationHookDefinition | null {

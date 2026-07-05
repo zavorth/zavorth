@@ -56,7 +56,7 @@ export class XaiProvider implements ILlmProvider {
     const choice = response.choices[0];
 
     if (!choice) {
-      return { content: 'Sem resposta do modelo.', toolCalls: [], finishReason: 'error' };
+      return { content: 'No model response.', toolCalls: [], finishReason: 'error' };
     }
 
     const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);

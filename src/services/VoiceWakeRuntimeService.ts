@@ -2,8 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
+import { logger } from '../logger.js';
 import type {
-  VoiceWakeCommandEvent,
+VoiceWakeCommandEvent,
   VoiceWakeDetectorSnapshot,
   VoiceWakeMode,
   VoiceWakeReceipt,
@@ -141,9 +142,10 @@ export class VoiceWakeRuntimeService {
         safety: this.defaultSession().safety,
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.slice(-RECEIPT_LIMIT) : [],
       };
-    } catch {
-      return this.defaultSession();
-    }
+    } catch (error) {
+    logger.warn('[Voice Wake Runtime] JSON parse failed', error);
+    return this.defaultSession();
+  }
   }
 
   private writeSession(session: VoiceWakeSession): VoiceWakeSession {

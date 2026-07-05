@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface BackupEntry {
   id: string;
@@ -29,7 +30,7 @@ export class BackupService {
     if (!fs.existsSync(p)) return;
     try {
       this.backups = JSON.parse(fs.readFileSync(p, 'utf-8'));
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Backup] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {
@@ -111,9 +112,7 @@ export class BackupService {
         fs.copyFileSync(file, destPath);
       }
       return `Backup "${backup.name}" restored to "${targetPath}" (${files.length} files)`;
-    } catch (error: unknown) {
-      return `Restore failed: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Backup] filesystem operation failed', error); return ''; }
   }
 
   public deleteBackup(backupId: string): string {
@@ -122,7 +121,7 @@ export class BackupService {
     const backup = this.backups[index];
     try {
       if (fs.existsSync(backup.path)) fs.rmSync(backup.path, { recursive: true, force: true });
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Backup] filesystem operation failed', error); }
     this.backups.splice(index, 1);
     this.scheduleFlush();
     return `Backup "${backup.name}" deleted.`;
@@ -161,7 +160,7 @@ export class BackupService {
           files.push(fullPath);
         }
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Backup] filesystem operation failed', error); }
     return files;
   }
 }

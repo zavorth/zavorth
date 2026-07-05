@@ -10,8 +10,9 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateProviderConnectionSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 import {
-  AccessRouteResolutionService,
+AccessRouteResolutionService,
   type AccessRouteConnectionInput,
 } from "../../../../../services/providers/catalog/AccessRouteResolutionService.js";
 
@@ -110,7 +111,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {

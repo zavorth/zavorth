@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface CircuitState {
   id: string;
@@ -32,7 +33,7 @@ export class CircuitBreakerService {
     try {
       const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
       if (Array.isArray(data)) for (const c of data) this.circuits.set(c.id, c);
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Circuit Breaker] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

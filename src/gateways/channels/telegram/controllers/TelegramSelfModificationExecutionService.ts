@@ -2,6 +2,7 @@ import { Context } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
+import { logger } from '../../../../logger.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import {
   SelfModificationApplyResult,
@@ -246,47 +247,47 @@ export class TelegramSelfModificationExecutionService {
   private formatPreviewReply(result: SelfModificationPreviewResult): string {
     if (!result.success) {
       return result.validationOutput
-        ? `${result.summary}\n\nSaida da validacao:\n${result.validationOutput}`
+        ? `${result.summary}\n\nValidation output:\n${result.validationOutput}`
         : result.summary;
     }
 
     const lines = [
       result.mode === 'goal'
-        ? `Preview multi-arquivo pronto para ${result.changeCount || 0} change(s).`
-        : `Preview pronto para ${result.relativePath}.`,
+        ? `Multi-file preview ready for ${result.changeCount || 0} change(s).`
+        : `Preview ready for ${result.relativePath}.`,
       `Preview ID: ${result.previewId}`,
       '',
-      `Resumo: ${result.summary}`,
+      `Summary: ${result.summary}`,
     ];
 
     if (result.resourceImpact) {
-      lines.push(`Impacto estimado: ${result.resourceImpact}`);
+      lines.push(`Estimated impact: ${result.resourceImpact}`);
     }
 
     if (result.validationPlan?.length) {
-      lines.push('', 'Plano de validacao:', ...result.validationPlan.map((entry) => `- ${entry}`));
+      lines.push('', 'Validation plan:', ...result.validationPlan.map((entry) => `- ${entry}`));
     }
 
     if (result.diffSummary) {
-      lines.push('', 'Diff resumido:', result.diffSummary);
+      lines.push('', 'Diff summary:', result.diffSummary);
     }
 
-    lines.push('', `Para aplicar exatamente esta versao: /selfmod apply ${result.previewId}`);
+    lines.push('', `To apply this exact version: /selfmod apply ${result.previewId}`);
     return lines.join('\n');
   }
 
   private formatApplyReply(result: SelfModificationApplyResult): string {
     if (!result.success) {
       return result.diffSummary
-        ? `${result.summary}\n\nDiff resumido:\n${result.diffSummary}`
+        ? `${result.summary}\n\nDiff summary:\n${result.diffSummary}`
         : result.summary;
     }
 
     const lines = [
       result.mode === 'goal'
-        ? `ChangeSet aplicado em ${result.changeCount || 0} arquivo(s).`
-        : `Auto-modificacao aplicada em ${result.relativePath}.`,
-      `Preview usado: ${result.previewId}`,
+        ? `ChangeSet applied across ${result.changeCount || 0} file(s).`
+        : `Self-modification applied to ${result.relativePath}.`,
+      `Preview used: ${result.previewId}`,
       '',
       result.summary,
     ];

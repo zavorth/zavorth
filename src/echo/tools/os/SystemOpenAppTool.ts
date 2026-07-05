@@ -2,8 +2,9 @@ import { spawn } from 'child_process';
 import * as os from 'os';
 import { z } from 'zod';
 import { IZavorthTool, ToolExecutionResult } from '../../types/IZavorthTool';
+import { logger } from '../../../logger.js';
 import {
-    isBlockedSystemExecutable,
+isBlockedSystemExecutable,
     isWhitelistedSystemExecutable,
 } from '../../security/WhitelistConfig';
 
@@ -11,14 +12,14 @@ const UNSAFE_ARGUMENT_PATTERN = /[\0\r\n"`|<>^]/;
 
 export class SystemOpenAppTool implements IZavorthTool {
     name = 'os_open_app';
-    description = 'Abre um aplicativo local permitido. Pode receber argumentos simples como uma URL ou termo de busca.';
+    description = 'Opens an allowed local application. Can receive simple arguments such as a URL or search term.';
     category = 'OS' as const;
     dangerLevel = 'moderate' as const;
     requiresPermission = true;
 
     schema = z.object({
-        appName: z.string().min(1).max(80).describe('Nome do executavel ou app permitido (ex: brave, spotify).'),
-        args: z.array(z.string().max(500)).max(8).optional().describe('Argumentos opcionais seguros, como URL ou termo de busca.'),
+        appName: z.string().min(1).max(80).describe('Allowed executable or app name, for example brave or spotify.'),
+        args: z.array(z.string().max(500)).max(8).optional().describe('Optional safe arguments, such as a URL or search term.'),
     });
 
     async execute(params: { appName: string; args?: string[] }): Promise<ToolExecutionResult> {
@@ -27,13 +28,13 @@ export class SystemOpenAppTool implements IZavorthTool {
         if (!safeAppName || UNSAFE_ARGUMENT_PATTERN.test(safeAppName)) {
             return {
                 success: false,
-                error: 'Nome de aplicativo contem caracteres nao permitidos.',
+                error: 'Application name contains disallowed characters.',
             };
         }
         if (isBlockedSystemExecutable(safeAppName) || !isWhitelistedSystemExecutable(safeAppName)) {
             return {
                 success: false,
-                error: `Aplicativo '${safeAppName}' bloqueado pela politica de seguranca.`,
+                error: `Application '${safeAppName}' blocked by security policy.`,
             };
         }
 
@@ -50,14 +51,15 @@ export class SystemOpenAppTool implements IZavorthTool {
 
             return {
                 success: true,
-                message: `Aplicativo ${safeAppName} aberto com sucesso.`,
+                message: `Application ${safeAppName} opened successfully.`,
             };
-        } catch (error: any) {
-            return {
+        } catch (error) {
+    logger.warn('[System Open App] operation failed', error);
+    return {
                 success: false,
-                error: `Falha ao abrir ${safeAppName}: ${error.message}`,
+                error: `Failed to open ${safeAppName}: ${error.message}`,
             };
-        }
+  }
     }
 
     private sanitizeArgs(args: string[]): string[] {
@@ -67,7 +69,7 @@ export class SystemOpenAppTool implements IZavorthTool {
                 return '';
             }
             if (UNSAFE_ARGUMENT_PATTERN.test(trimmed)) {
-                throw new Error(`Argumento bloqueado por seguranca: ${trimmed}`);
+                throw new Error(`Argument blocked by security: ${trimmed}`);
             }
             return trimmed;
         }).filter(Boolean);

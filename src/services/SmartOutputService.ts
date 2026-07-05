@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { DndService } from './DndService.js';
+import { logger } from '../logger.js';
 
 const SPLIT_THRESHOLD = 3800;
 
@@ -62,7 +63,7 @@ export class SmartOutputService {
 
     if (fullText.length <= SPLIT_THRESHOLD) {
       await this.sendTextWithFormattingFallback(
-        (nextText, sendOptions) => ctx.reply(nextText, sendOptions),
+        (nextText, sendOptions) => ctx.reply(nextText, sendOptions as Parameters<Context['reply']>[1]),
         fullText,
         {
           parse_mode: options?.parse_mode,
@@ -76,7 +77,7 @@ export class SmartOutputService {
 
     await this.sendLongText(
       {
-        sendText: (nextText, sendOptions) => ctx.reply(nextText, sendOptions),
+        sendText: (nextText, sendOptions) => ctx.reply(nextText, sendOptions as Parameters<Context['reply']>[1]),
         sendDocument:
           typeof extendedCtx.replyWithDocument === 'function'
             ? (filePath, fileName, sendOptions) =>
@@ -141,10 +142,11 @@ export class SmartOutputService {
       try {
         await this.sendAsDocument(target, text, options);
         return;
-      } catch {
-        // Fall back to chunked messages when this context cannot upload documents
+      } catch (error) {
+    logger.warn('[Smart Output] filesystem check failed', error);
+    // Fall back to chunked messages when this context cannot upload documents
         // or when Telegram rejects the upload.
-      }
+  }
     }
 
     await this.sendAsChunks(target, text, options);
@@ -208,9 +210,7 @@ export class SmartOutputService {
         if (fs.existsSync(filepath)) {
           fs.unlinkSync(filepath);
         }
-      } catch {
-        // ignore cleanup errors
-      }
+      } catch (error) { // ignore cleanup errors logger.warn('[Smart Output] file cleanup failed', error); }
     }
   }
 

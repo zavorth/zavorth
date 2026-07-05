@@ -109,14 +109,14 @@ export function formatAgentTeamCompilerSnapshot(
 ): string {
   const lines = [
     'Agent Team Compiler - Channel mesh0',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,
-    `- objetivo: ${snapshot.objective}`,
+    `- objective: ${snapshot.objective}`,
     `- roles: ${snapshot.summary.roleCount}`,
     `- approvals: ${snapshot.summary.approvalRequiredCount}`,
     `- providers: ${snapshot.summary.providerAssignedCount}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Roles',
   ];
@@ -124,30 +124,30 @@ export function formatAgentTeamCompilerSnapshot(
   for (const role of snapshot.roles.slice(0, 8)) {
     lines.push(
       `- ${role.roleId}: ${role.label} [${role.kind}]`,
-      `  objetivo: ${role.objective}`,
+      `  objective: ${role.objective}`,
       `  provider: ${role.provider.providerLabel}/${role.provider.modelLabel} (${role.provider.source}, advisory)`,
-      `  scope: ${role.scope.mode}; tools: ${role.toolIds.join(', ') || 'nenhuma'}`,
-      `  budget: ${role.budget.maxToolCalls} calls; approval: ${role.approval.required ? 'sim' : 'nao'}`,
+      `  scope: ${role.scope.mode}; tools: ${role.toolIds.join(', ') || 'none'}`,
+      `  budget: ${role.budget.maxToolCalls} calls; approval: ${role.approval.required ? 'yes' : 'no'}`,
       `  preview: ${role.actions.previewCommand}`,
     );
   }
 
-  lines.push('', 'Topologia');
+  lines.push('', 'Topology');
   if (snapshot.topology.edges.length === 0) {
-    lines.push('- sem edges; plano unitario ou nao necessario');
+    lines.push('- no edges; unit plan or not necessary');
   } else {
     for (const edge of snapshot.topology.edges.slice(0, 8)) {
       lines.push(`- ${edge.from} -> ${edge.to}: ${edge.reason}`);
     }
   }
 
-  lines.push('', 'Politica');
-  lines.push('- nenhum subagente foi lancado');
-  lines.push('- lancamento exige approval explicito');
-  lines.push('- budgets iniciam em zero');
-  lines.push('- provider e modelo sao advisory ate approval');
+  lines.push('', 'Policy');
+  lines.push('- no subagent was launched');
+  lines.push('- launch requires explicit approval');
+  lines.push('- budgets start at zero');
+  lines.push('- provider and model are advisory until approval');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Approval: ${snapshot.surface.approvalHint}`);
@@ -188,24 +188,24 @@ export function buildAgentTeamCompilerLaunchResultFromRun(
 export function formatAgentTeamCompilerLaunchResult(result: AgentTeamCompilerLaunchResult): string {
   const lines = [
     'Agent Team Launch - governed review board',
-    `- contrato: ${result.contractVersion}`,
+    `- contract: ${result.contractVersion}`,
     `- status: ${result.status}`,
     `- team run: ${result.teamRunId}`,
-    `- approval: ${result.approval.matched ? 'conferido' : 'pendente'}`,
-    `- roles preparados: ${result.roles.filter((role: AgentTeamCompilerLaunchResult['roles'][number]) => role.status === 'prepared').length}`,
+    `- approval: ${result.approval.matched ? 'matched' : 'pending'}`,
+    `- prepared roles: ${result.roles.filter((role: AgentTeamCompilerLaunchResult['roles'][number]) => role.status === 'prepared').length}`,
     `- turns: ${result.turns.length}`,
-    `- sintese: ${result.synthesis.status}`,
-    `- proximo passo: ${result.nextSafeAction}`,
+    `- synthesis: ${result.synthesis.status}`,
+    `- next step: ${result.nextSafeAction}`,
   ];
   if (result.blockedReasons.length > 0) {
-    lines.push('', 'Bloqueios');
+    lines.push('', 'Blocks');
     for (const reason of result.blockedReasons) {
       lines.push(`- ${reason}`);
     }
   }
-  lines.push('', 'Politica');
-  lines.push('- launch nao executa ferramentas diretamente');
-  lines.push('- mutacao continua presa ao runtime de subagentes aprovado');
-  lines.push('- sintese final exige peer review e receipts');
+  lines.push('', 'Policy');
+  lines.push('- launch does not execute tools directly');
+  lines.push('- mutation remains bound to the approved subagent runtime');
+  lines.push('- final synthesis requires peer review and receipts');
   return lines.join('\n');
 }

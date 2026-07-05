@@ -51,8 +51,6 @@ export type ZavorthUniversalSkillZavorthControlReviewItem = {
   ownerApprovalRequired: true;
 };
 
-export type ZavorthUniversalSkillZavorthControlReviewItem = ZavorthUniversalSkillZavorthControlReviewItem;
-
 export type ZavorthUniversalSkillScaleHardeningSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_UNIVERSAL_SKILL_SCALE_HARDENING_CONTRACT_VERSION;

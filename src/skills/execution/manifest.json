@@ -2,13 +2,13 @@
   "id": "execution",
   "name": "Execution & Shell",
   "version": "1.0.0",
-  "description": "Ferramentas para executar comandos shell, scripts e código em sandbox seguro.",
+  "description": "Tools for running shell commands, scripts, and code in a secure sandbox.",
   "category": "execution",
   "dangerLevel": "high",
   "tools": [
     {
       "name": "sandbox_execution",
-      "description": "Executa código ou comandos em ambiente sandbox isolado com controles de segurança.",
+      "description": "Runs code or commands in an isolated sandbox environment with security controls.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -26,7 +26,7 @@
     },
     {
       "name": "remote_shell",
-      "description": "Executa comandos shell remotamente em nós conectados ao mesh.",
+      "description": "Runs shell commands remotely on nodes connected to the mesh.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -36,7 +36,7 @@
           },
           "nodeId": {
             "type": "string",
-            "description": "ID do nó remoto (opcional, padrão: nó local)."
+            "description": "Remote node ID (optional, defaults to local node)."
           }
         },
         "required": ["command"]

@@ -6,8 +6,9 @@ import {
   inspectTelegramChannel,
   inspectWhatsAppChannel,
 } from './channel-provider-doctor/ChannelProviderNativeInspectors.js';
+import { logger } from '../logger.js';
 import {
-  inspectEmailChannel,
+inspectEmailChannel,
   inspectIMessageChannel,
   inspectSignalChannel,
   inspectTeamsChannel,
@@ -184,9 +185,7 @@ export class ChannelProviderDoctorService {
         return null;
       }
       return JSON.parse(this.readFileSync(filePath, 'utf8')) as Record<string, any>;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Channel  Doctor] JSON parse failed', error); return null; }
   }
 
   private readCapabilityLifecycleHint(capabilityId: string): ChannelCapabilityLifecycleHint {

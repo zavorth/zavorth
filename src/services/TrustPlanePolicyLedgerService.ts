@@ -2,8 +2,9 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthApprovalScope,
+ZavorthApprovalScope,
   ZavorthMutationRiskLevel,
 } from '../contracts/ZavorthMutationPlaneContract.js';
 
@@ -199,9 +200,7 @@ export class TrustPlanePolicyLedgerService {
         },
         result: this.nullableText(raw.result),
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Trust Plane  Ledger] load operation failed', error); return null; }
   }
 
   private normalizeDiff(entry: TrustPlanePolicyDiffEntry): TrustPlanePolicyDiffEntry {

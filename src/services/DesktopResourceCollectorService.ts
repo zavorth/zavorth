@@ -7,6 +7,7 @@ import type {
   DesktopResourceWslDistroSample,
 } from '../contracts/DesktopResourceContract.js';
 import { WslControlService } from './WslControlService.js';
+import { logger } from '../logger.js';
 
 type ExecLike = (
   file: string,
@@ -199,13 +200,14 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
           : [],
       };
     } catch (error) {
-      return {
+    logger.warn('[Desktop Resource Collector] filesystem check failed', error);
+    return {
         ok: false,
         message: `Falha ao coletar WSL: ${error instanceof Error ? error.message : String(error)}`,
         warnings: [],
         distros: [],
       };
-    }
+  }
   }
 
   private async collectDocker(): Promise<DesktopDockerDesktopSample> {
@@ -227,7 +229,8 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
         warnings: [],
       };
     } catch (error) {
-      return {
+    logger.warn('[Desktop Resource Collector] filesystem check failed', error);
+    return {
         detected: false,
         status: 'unavailable',
         runningContainerCount: null,
@@ -238,7 +241,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
             : String(error),
         ],
       };
-    }
+  }
   }
 
   private normalizeProcess(input: RawProcessPayload): DesktopResourceProcessSample {

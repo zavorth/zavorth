@@ -12,6 +12,7 @@ import {
 import type { DesktopResourceSnapshot } from '../contracts/DesktopResourceContract.js';
 import { DesktopResourcePlaneService } from './DesktopResourcePlaneService.js';
 import { DeterministicQaMatrixService } from './DeterministicQaMatrixService.js';
+import { logger } from '../logger.js';
 
 type PackageLike = {
   scripts?: Record<string, string>;
@@ -272,9 +273,7 @@ export class RuntimeIdleBudgetService {
     }
     try {
       return this.desktopResourcePlane.readLatest();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Runtime Idle Budget] operation failed', error); return null; }
   }
 
   private readPackageJson(): PackageLike | null {
@@ -287,9 +286,7 @@ export class RuntimeIdleBudgetService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
   }
 
   private readAlphaBudget(): AlphaBudgetLike | null {
@@ -302,9 +299,7 @@ export class RuntimeIdleBudgetService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as AlphaBudgetLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
   }
 
   private check(

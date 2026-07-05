@@ -75,7 +75,7 @@ export type ZavorthOperationalRolloutScenarioEval = {
     actionCount: number;
     fallbackSurfaces: number;
     buttonSurfaces: number;
-    zavorthControlVisualMutation: false;
+    zavorthControlVisualMutation: boolean;
     noLiveActionExecuted: true;
   };
 };

@@ -52,7 +52,7 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
       return {
         ok: false,
         errorCode: 'desktop_windows_required',
-        errorMessage: 'DesktopAutomationTool supervisionado requer Windows UIAutomation.',
+        errorMessage: 'Supervised DesktopAutomationTool requires Windows UIAutomation.',
       };
     }
 
@@ -76,7 +76,7 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
       return {
         ok: false,
         errorCode: 'desktop_action_approval_required',
-        errorMessage: `A acao desktop "${action}" exige aprovacao explicita.`,
+        errorMessage: `Desktop action "${action}" requires explicit approval.`,
       };
     }
 
@@ -87,7 +87,7 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
       payload,
       processId: processId || undefined,
     });
-    const ok = !/^erro/i.test(String(result || '').trim());
+    const ok = !/^(error|erro)\b/i.test(String(result || '').trim());
 
     return {
       ok,
@@ -115,22 +115,22 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
     payload: string,
   ): string | null {
     if (!ALLOWED_DESKTOP_ACTIONS.has(action)) {
-      return `Acao desktop invalida ou nao supervisionada: "${action || 'n/d'}".`;
+      return `Invalid or unsupervised desktop action: "${action || 'n/a'}".`;
     }
     if (!windowTitle && !processId) {
-      return 'Informe windowTitle ou processId para limitar a automacao de desktop.';
+      return 'Provide windowTitle or processId to scope desktop automation.';
     }
     if (action === 'click-element' && !targetText) {
-      return 'click-element exige targetText.';
+      return 'click-element requires targetText.';
     }
     if ((action === 'type-text' || action === 'press-key') && !payload) {
-      return `${action} exige payload.`;
+      return `${action} requires payload.`;
     }
     if (action === 'type-text' && payload.length > 500) {
-      return 'type-text foi limitado a 500 caracteres por acao supervisionada.';
+      return 'type-text is limited to 500 characters per supervised action.';
     }
     if (action === 'press-key' && !/^[\^%+{}A-Za-z0-9_\-\s]+$/.test(payload)) {
-      return 'press-key recebeu payload fora do formato seguro de SendKeys.';
+      return 'press-key received a payload outside the safe SendKeys format.';
     }
     return null;
   }

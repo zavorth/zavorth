@@ -2,6 +2,7 @@ import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
+import { logger } from '../logger.js';
 
 export type ZavorthGitWorkflowAction = 'status' | 'branch' | 'commit' | 'pr';
 
@@ -339,9 +340,10 @@ export class ZavorthGitWorkflowService {
     try {
       const parsed = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
       current = Array.isArray(parsed?.receipts) ? parsed.receipts : [];
-    } catch {
-      current = [];
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Git Workflow] JSON parse failed', error);
+    current = [];
+  }
     fs.mkdirSync(path.dirname(receiptPath), { recursive: true });
     fs.writeFileSync(receiptPath, `${JSON.stringify({
       contractVersion: 'zavorth-git-workflow/v1',

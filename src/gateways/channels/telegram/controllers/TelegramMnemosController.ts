@@ -5,6 +5,7 @@ import {
   type MnemosToolInvoker,
 } from '@zavorth/services/MnemosHumanInTheLoopService.js';
 import type { LogRepository } from '@zavorth/storage/LogRepository.js';
+import { logger } from '../../../../logger';
 
 type TelegramMnemosControllerOptions = {
   logRepo: LogRepository;
@@ -39,9 +40,7 @@ export class TelegramMnemosController {
   private async answerCallback(ctx: Context): Promise<void> {
     try {
       await ctx.answerCallbackQuery();
-    } catch {
-      // Telegram may reject stale callbacks; the user-facing response still matters.
-    }
+    } catch (error) { // Telegram may reject stale callbacks; the user-facing response still matters. logger.warn('[Telegram Mnemos] connection failed', error); }
   }
 
   private async respond(ctx: Context, text: string): Promise<void> {

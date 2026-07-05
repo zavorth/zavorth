@@ -9,6 +9,7 @@ import { NextResponse } from "next/server";
 import { getModelComboMappings, createModelComboMapping } from "@/lib/localDb";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const createMappingSchema = z.object({
   pattern: z.string().min(1, "Pattern is required").max(500),
@@ -25,7 +26,8 @@ export async function GET(request: Request) {
   try {
     const mappings = await getModelComboMappings();
     return NextResponse.json({ mappings });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] health check failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to list model-combo mappings" },
       { status: 500 }
@@ -54,7 +56,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ mapping }, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] health check failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to create model-combo mapping" },
       { status: 500 }

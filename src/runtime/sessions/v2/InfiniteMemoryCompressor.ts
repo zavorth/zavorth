@@ -1,7 +1,7 @@
-import { EventEmitter } from 'events';
+﻿import { EventEmitter } from 'events';
 import type { LlmRuntimeService } from '../../../services/llm/LlmRuntimeService.js';
 import type { MemoryVectorStore } from '../../../storage/MemoryVectorStore.js';
-import { logger } from '../logger.js';
+import { logger } from '../../../logger.js';
 
 /**
  * A compressed memory chunk stored in the vector plane.
@@ -49,7 +49,7 @@ const DEFAULT_CONFIG: MemoryCompressorConfig = {
 };
 
 /**
- * InfiniteMemoryCompressor — Sliding-window context manager with vector recall.
+ * InfiniteMemoryCompressor â€” Sliding-window context manager with vector recall.
  *
  * As sessions grow beyond the LLM token limit, this module:
  *
@@ -96,7 +96,7 @@ export class InfiniteMemoryCompressor extends EventEmitter {
 
     const currentTokens = this.estimateTokens(this.activeMessages);
     if (currentTokens > this.config.compressionThreshold && !this.isCompressing) {
-      // Fire and forget assincrono para não bloquear o logger stream
+      // Fire and forget assincrono para nÃ£o bloquear o logger stream
       this.compressOldestAsync().catch((err) => {
         this.emit('memory:error', err);
       });
@@ -209,23 +209,22 @@ export class InfiniteMemoryCompressor extends EventEmitter {
 
       if (this.config.llmRuntime) {
          try {
-            const prompt = `Você é o Infinite Memory Compressor, o motor que garante que a IA lembrará do passado desta sessão PTY para sempre.
-Comprima o log abaixo. Extraia um JSON no seguinte schema OBRIGATORIAMENTE sem markdown em volta:
+            const prompt = `You are the Infinite Memory Compressor, the engine that keeps this PTY session history useful over time.
+Compress the log below. Return JSON only, with no surrounding Markdown, using this required schema:
 {
-  "summary": "Resumo narrativo denso dos fatos e contexto em portugues. Limite 500 caracteres.",
-  "keywords": ["tag1", "nome_arquivo_importante", "erro_X"] // Max 10 keywords unicas super relevantes para busca
+  "summary": "Dense narrative summary of the facts and context in English. Maximum 500 characters.",
+  "keywords": ["tag1", "important_file_name", "error_X"]
 }
 
-Logs para comprimir:
+Logs to compress:
 ${combined}`;
-
             const res = await this.config.llmRuntime.chat([{ role: 'user', content: prompt }]);
             const block = (res.content || '').replace(/```json/g, '').replace(/```/g, '').trim();
             const parsed = JSON.parse(block);
             summary = String(parsed.summary || '');
             keywords = Array.isArray(parsed.keywords) ? parsed.keywords.map(String) : [];
          } catch {
-             // Fallback para heurística caso LLM falhe
+             // Fallback to heuristics when the LLM fails
              summary = this.generateDenseSummary(combined);
              keywords = this.extractKeywords(combined);
          }
@@ -243,7 +242,7 @@ ${combined}`;
         sessionId: this.sessionId,
         createdAt: new Date().toISOString(),
         originalTokenCount: this.estimateTokens(messagesToCompress),
-        compressedSummary: `[Memoria Comprimida] ${summary}`,
+        compressedSummary: `[Compressed Memory] ${summary}`,
         keywords,
         relevanceScore: 1.0,
       };
@@ -274,8 +273,8 @@ ${combined}`;
   }
 
   /**
-   * Modificado para compatibilidade (mas delegando pra sub-rotina assincrona manual se quiser).
-   * PTY Streams não devem usar isso, e sim depender do auto-pushMessage trigger.
+   * Compatibility wrapper that delegates to the manual async subroutine when needed.
+   * PTY streams should not use this; they should rely on the auto-pushMessage trigger.
    */
   public compressOldest(count?: number): void {
      this.compressOldestAsync(count).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
@@ -309,7 +308,7 @@ ${combined}`;
       .sort((a, b) => text.indexOf(a.sentence) - text.indexOf(b.sentence))
       .map((s) => s.sentence);
 
-    return `[Memoria comprimida] ${selected.join('. ')}.`;
+    return `[Compressed Memory] ${selected.join('. ')}.`;
   }
 
   /**
@@ -324,7 +323,7 @@ ${combined}`;
 
     const words = text
       .toLowerCase()
-      .replace(/[^a-zA-Z0-9àáâãéêíóôõúç\s]/g, ' ')
+      .replace(/[^a-zA-Z0-9Ã Ã¡Ã¢Ã£Ã©ÃªÃ­Ã³Ã´ÃµÃºÃ§\s]/g, ' ')
       .split(/\s+/)
       .filter((w) => w.length > 2 && !stopwords.has(w));
 

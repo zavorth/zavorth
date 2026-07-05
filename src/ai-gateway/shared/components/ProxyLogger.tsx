@@ -9,9 +9,9 @@ import {
   PROVIDER_COLORS,
   getProxyStatusStyle as getStatusStyle,
 } from "@/shared/constants/colors";
-import {
 import { logger } from '../logger.js';
-  formatTime,
+import {
+formatTime,
   formatDuration as formatLatency,
   truncateUrl,
 } from "@/shared/utils/formatting";

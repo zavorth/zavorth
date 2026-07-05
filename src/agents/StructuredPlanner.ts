@@ -11,8 +11,9 @@ import {
   ProviderStrategyService,
   type ProviderStrategyDecision,
 } from '../services/ProviderStrategyService.js';
+import { logger } from '../logger.js';
 import {
-  SkillRoutingService,
+SkillRoutingService,
   type SkillRoutingDecision,
 } from '../services/SkillRoutingService.js';
 
@@ -93,7 +94,7 @@ export class StructuredPlanner {
 
         const cleaned = this.extractJson(response.content || '');
         if (!cleaned) {
-          throw new Error(`Resposta sem JSON valido retornada por ${providerName}.`);
+          throw new Error(`Provider ${providerName} returned a response without valid JSON.`);
         }
 
         return {
@@ -102,21 +103,22 @@ export class StructuredPlanner {
           fallbackUsed: providerName !== providerDecision.providerName,
           decisionTrace,
         };
-      } catch (error: any) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-      }
+      } catch (error) {
+    logger.warn('[Structured Planner] validation failed', error);
+    lastError = error instanceof Error ? error : new Error(String(error));
+  }
     }
 
-    throw lastError || new Error('Nenhum provider disponivel conseguiu gerar um plano valido.');
+    throw lastError || new Error('No available provider could generate a valid plan.');
   }
 
   private buildPlannerMessages(prompt: string, trace: PlannerDecisionTrace): Array<{ role: 'system' | 'user'; content: string }> {
     const systemLines = [
-      'Decisao operacional do planner:',
-      `- Rota: ${trace.intent.executionRoute}.`,
-      `- Tipo/subtipo inferidos: ${trace.intent.taskKind}/${trace.intent.taskSubtype}.`,
-      `- Provider preferencial: ${trace.provider.providerName}${trace.provider.modelName ? `/${trace.provider.modelName}` : ''}.`,
-      `- Fonte da estrategia de provider: ${trace.provider.selectionSource}.`,
+      'Planner operational decision:',
+      `- Route: ${trace.intent.executionRoute}.`,
+      `- Inferred type/subtype: ${trace.intent.taskKind}/${trace.intent.taskSubtype}.`,
+      `- Preferred provider: ${trace.provider.providerName}${trace.provider.modelName ? `/${trace.provider.modelName}` : ''}.`,
+      `- Provider strategy source: ${trace.provider.selectionSource}.`,
       trace.skills.primarySkill
         ? `- Skill sugerida: @${trace.skills.primarySkill.name} (${trace.skills.primarySkill.description}).`
         : '- Nenhuma skill teve aderencia alta o suficiente para guiar o plano.',
@@ -147,8 +149,8 @@ export class StructuredPlanner {
     return {
       plan_id: uuidv4(),
       task_id: task.task_id,
-      objective: cleaned.objective || 'Execucao de tarefa via Zavorth',
-      context: cleaned.context || 'Contexto inferido pelo planner',
+      objective: cleaned.objective || 'Task execution through Zavorth',
+      context: cleaned.context || 'Context inferred by the planner',
       assumptions: Array.isArray(cleaned.assumptions) ? cleaned.assumptions : [],
       executor_recommendation: cleaned.executor_recommendation || 'local_executor',
       workspace_recommendation: cleaned.workspace_recommendation || null,
@@ -188,9 +190,7 @@ export class StructuredPlanner {
         return JSON.parse(match[0]);
       }
       return JSON.parse(cleanText);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Structured Planner] JSON parse failed', error); return null; }
   }
 
   private isProviderAvailable(name: string): boolean {

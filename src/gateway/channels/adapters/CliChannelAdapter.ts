@@ -1,4 +1,4 @@
-import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
+﻿import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
 import { GatewayEventBus } from '../../events/GatewayEventBus';
 
 export class CliChannelAdapter implements GatewayChannelAdapter {
@@ -18,8 +18,7 @@ export class CliChannelAdapter implements GatewayChannelAdapter {
   }
 
   async onMessageReceived(payload: string): Promise<void> {
-    // Roteia entrada do terminal pro runtime canônico
-    // Sem bypassar o Gateway
+    // Routes terminal input to the canonical runtime without bypassing the Gateway.
     await this.eventBus.emit({
       type: 'public_ws', // Abusing ws format generically for local command transport internal
       payload: { id: 'cliloc', type: 'command', payload: { command: payload } }
@@ -27,7 +26,7 @@ export class CliChannelAdapter implements GatewayChannelAdapter {
   }
 
   async sendMessage(payload: string): Promise<void> {
-    // Imprime no terminal output canônico vindo do pipeline
+    // Prints canonical pipeline output to the terminal.
     process.stdout.write(`[Zavorth] ${payload}\n`);
   }
 }

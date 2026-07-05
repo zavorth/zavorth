@@ -9,8 +9,9 @@ import { DiscordGatewayRepairFlowService } from '../../../../services/DiscordGat
 import { GatewayHealthRenewalService } from '../../../../services/GatewayHealthRenewalService.js';
 import { RuntimeAccessReadinessReportService } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessReportService.js';
 import { RuntimeAccessReadinessSnapshotReader } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessSnapshotReader.js';
+import { logger } from '../../../../logger';
 import type {
-  RuntimeAccessZavorthControlSnapshot,
+RuntimeAccessZavorthControlSnapshot,
   RuntimeAccessReadinessInput,
   RuntimeAccessReadinessReport,
   RuntimeAccessResolvedInput,
@@ -315,9 +316,7 @@ export class RuntimeAccessReadinessService {
         });
         request.end();
       });
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness] resource cleanup failed', error); return null; }
   }
 
   private normalizeUrl(rawValue: string): string {

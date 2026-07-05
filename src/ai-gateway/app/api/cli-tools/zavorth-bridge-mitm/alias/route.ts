@@ -5,6 +5,7 @@ import { getMitmAlias, setMitmAliasAll } from "@/models";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { cliMitmAliasUpdateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 // GET - Get MITM aliases for a tool
 export async function GET(request) {
@@ -30,7 +31,8 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {

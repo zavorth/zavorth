@@ -276,9 +276,10 @@ export class ZavorthBridgeUiCaptureService {
         }
 
         lastError = `O provider ${providerName} respondeu, mas sem JSON interpretavel.`;
-      } catch (error: any) {
-        lastError = `Falha no provider ${providerName}: ${error.message}`;
-      }
+      } catch (error) {
+    logger.warn('[Zavorth Bridge Ui Capture] parsing failed', error);
+    lastError = `Falha no provider ${providerName}: ${error.message}`;
+  }
     }
 
     return {
@@ -424,9 +425,7 @@ export class ZavorthBridgeUiCaptureService {
   private tryParseJson(raw: string): VisionPayload | null {
     try {
       return JSON.parse(raw) as VisionPayload;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Ui Capture] JSON parse failed', error); return null; }
   }
 
   private normalizeStatus(status: string | undefined): ZavorthBridgeUiSnapshot['status'] {

@@ -21,7 +21,7 @@ export class LogRepository {
 
   public log(level: SystemLog['level'], category: string, message: string, metadata?: Record<string, any>): void {
     if (!this.db) {
-      const dbInstance = (Database as any).instance;
+      const dbInstance = Database.getActiveInstance();
       if (dbInstance) {
         this.db = dbInstance;
       } else {

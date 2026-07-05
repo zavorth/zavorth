@@ -4,6 +4,7 @@ import { config } from '../config/index.js';
 import path from 'path';
 import fs from 'fs';
 import { decideSecurityPolicy, formatSecurityPolicyReceipt } from '../security/SecurityPolicyBroker.js';
+import { logger } from '../logger.js';
 
 type DesktopAutomationResult = {
   ok: boolean;
@@ -38,30 +39,30 @@ const BLOCKED_PRESS_KEY_PATTERNS = [
 ];
 
 /**
- * DesktopAutomationTool — "Computer Use" nativo para Windows.
+ * Native Windows "Computer Use" desktop automation tool.
  *
- * Permite que o agente LLM controle qualquer aplicativo Desktop
- * usando a Windows UIAutomation API (System.Windows.Automation).
+ * Allows the LLM agent to control desktop applications through the
+ * Windows UIAutomation API (System.Windows.Automation).
  *
- * Capacidades:
- *  - Focar janelas por título ou PID
- *  - Clicar em botões, abas e elementos via texto visível na Accessibility Tree
- *  - Digitar texto (via clipboard injection)
- *  - Enviar teclas/atalhos (Enter, Tab, Ctrl+S, Alt+F4, etc.)
- *  - Capturar screenshots de janelas específicas
- *  - Listar elementos visíveis de uma janela (para reconhecimento)
+ * Capabilities:
+ *  - Focus windows by title or PID.
+ *  - Click buttons, tabs, and elements by visible Accessibility Tree text.
+ *  - Type text through clipboard injection.
+ *  - Send keys/shortcuts such as Enter, Tab, Ctrl+S, and Alt+F4.
+ *  - Capture screenshots of specific windows.
+ *  - List visible window elements for recognition.
  *
- * Segurança:
- *  - Herda as permissões do RemoteShellTool (mesmos IDs autorizados)
- *  - Não instala dependências externas (usa PowerShell + .NET nativo)
+ * Security:
+ *  - Inherits RemoteShellTool permission semantics.
+ *  - Does not install external dependencies; it uses PowerShell and native .NET.
  */
 export class DesktopAutomationTool extends BaseTool {
   public readonly name = 'desktop_automation';
   public readonly description =
-    'Controla aplicativos de Desktop no Windows usando a UI Automation API nativa. ' +
-    'Permite focar janelas, clicar em botões/abas por texto, digitar texto, enviar atalhos de teclado, ' +
-    'capturar screenshots de janelas e listar elementos visíveis. Use "list-elements" primeiro para descobrir ' +
-    'os nomes dos botões disponíveis antes de clicar. Use "screenshot" para verificar visualmente o estado.';
+    'Controls Windows desktop applications through the native UI Automation API. ' +
+    'Can focus windows, click buttons/tabs by text, type text, send keyboard shortcuts, ' +
+    'capture window screenshots, and list visible elements. Use "list-elements" first to discover ' +
+    'available button names before clicking. Use "screenshot" to visually verify state.';
 
   public readonly parameters = {
     type: 'object' as const,
@@ -70,34 +71,34 @@ export class DesktopAutomationTool extends BaseTool {
         type: 'string',
         enum: ['focus-window', 'click-element', 'type-text', 'press-key', 'screenshot', 'list-elements'],
         description:
-          'A ação a executar. ' +
-          '"focus-window": traz a janela para frente. ' +
-          '"click-element": clica em um elemento pelo texto visível (requer targetText). ' +
-          '"type-text": cola texto na janela ativa (requer payload). ' +
-          '"press-key": envia uma tecla/atalho (requer payload no formato SendKeys, ex: "{ENTER}", "^s", "%{F4}"). ' +
-          '"screenshot": captura uma foto da janela. ' +
-          '"list-elements": lista até 60 elementos visíveis da janela (para descobrir nomes de botões).',
+          'Action to execute. ' +
+          '"focus-window": brings the window forward. ' +
+          '"click-element": clicks an element by visible text (requires targetText). ' +
+          '"type-text": pastes text into the active window (requires payload). ' +
+          '"press-key": sends a key/shortcut (requires payload in SendKeys format, for example "{ENTER}", "^s", "%{F4}"). ' +
+          '"screenshot": captures a window screenshot. ' +
+          '"list-elements": lists up to 60 visible window elements to discover button names.',
       },
       windowTitle: {
         type: 'string',
         description:
-          'Título (ou parte do título) da janela alvo. Exemplos: "Calculadora", "Spotify", "Chrome", "Notepad".',
+          'Title, or part of the title, of the target window. Examples: "Calculator", "Spotify", "Chrome", "Notepad".',
       },
       targetText: {
         type: 'string',
         description:
-          'O texto visível do elemento a clicar (para action "click-element"). ' +
-          'Ex: "8", "Igual", "Arquivo", "Nova Aba". Use "list-elements" para descobrir os nomes.',
+          'Visible text of the element to click for action "click-element". ' +
+          'Examples: "8", "Equals", "File", "New Tab". Use "list-elements" to discover names.',
       },
       payload: {
         type: 'string',
         description:
-          'Para "type-text": o texto a colar. Para "press-key": a tecla no formato SendKeys ' +
-          '(ex: "{ENTER}", "{TAB}", "^s" para Ctrl+S, "%{F4}" para Alt+F4, "^c" para Ctrl+C).',
+          'For "type-text": text to paste. For "press-key": key in SendKeys format ' +
+          '(examples: "{ENTER}", "{TAB}", "^s" for Ctrl+S, "%{F4}" for Alt+F4, "^c" for Ctrl+C).',
       },
       processId: {
         type: 'number',
-        description: 'PID do processo alvo (opcional, alternativa ao windowTitle).',
+        description: 'Target process PID. Optional alternative to windowTitle.',
       },
     },
     required: ['action'],
@@ -122,23 +123,22 @@ export class DesktopAutomationTool extends BaseTool {
     const processId = Number(args.processId) || 0;
 
     if (!action) {
-      return 'Erro: O parâmetro "action" é obrigatório.';
+      return 'Error: the "action" parameter is required.';
     }
 
     if (!windowTitle && !processId) {
-      return 'Erro: Informe "windowTitle" ou "processId" para identificar a janela alvo.';
+      return 'Error: provide "windowTitle" or "processId" to identify the target window.';
     }
 
     const safetyError = this.validateUiSafety(action, windowTitle, payload);
     if (safetyError) {
-      return `Erro: ${safetyError}`;
+      return `Error: ${safetyError}`;
     }
 
     if (!fs.existsSync(this.scriptPath)) {
-      return `Erro: Script de automação não encontrado em "${this.scriptPath}".`;
+      return `Error: automation script not found at "${this.scriptPath}".`;
     }
 
-    // For screenshot, generate a default output path
     let outputPath = '';
     if (action === 'screenshot') {
       const captureDir = path.resolve(config.projectRoot, 'data', 'desktop-captures');
@@ -150,12 +150,11 @@ export class DesktopAutomationTool extends BaseTool {
       const result = await this.runScript(action, windowTitle, targetText, payload, processId, outputPath);
 
       if (!result.ok) {
-        return `Erro na automação: ${result.message || 'Falha desconhecida.'}`;
+        return `Automation error: ${result.message || 'Unknown failure.'}`;
       }
 
-      let response = result.message || 'Ação executada com sucesso.';
+      let response = result.message || 'Action executed successfully.';
 
-      // Enrich response based on action
       if (action === 'screenshot' && result.details) {
         const details = result.details as { screenshotPath?: string; width?: number; height?: number };
         response += `\nScreenshot: ${details.screenshotPath} (${details.width}x${details.height}px)`;
@@ -165,22 +164,23 @@ export class DesktopAutomationTool extends BaseTool {
         const details = result.details as { elementCount?: number; elements?: Array<{ name: string; type: string }> };
         if (details.elements && details.elements.length > 0) {
           const elementList = details.elements
-            .map((el) => `  • "${el.name}" (${el.type})`)
+            .map((el) => `  - "${el.name}" (${el.type})`)
             .join('\n');
-          response += `\nElementos encontrados:\n${elementList}`;
+          response += `\nFound elements:\n${elementList}`;
         }
       }
 
       if (action === 'click-element' && result.details) {
         const details = result.details as { elementName?: string; controlType?: string };
-        response += `\nElemento: "${details.elementName}" (${details.controlType})`;
+        response += `\nElement: "${details.elementName}" (${details.controlType})`;
       }
 
       return response;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      return `Erro ao executar automação de desktop: ${errorMessage}`;
-    }
+    logger.warn('[Desktop Automation] string operation failed', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+      return `Error while running desktop automation: ${errorMessage}`;
+  }
   }
 
   private runScript(
@@ -238,7 +238,7 @@ export class DesktopAutomationTool extends BaseTool {
             resolve(parsed);
           } catch (parseError: unknown) {
             const msg = parseError instanceof Error ? parseError.message : String(parseError);
-            reject(new Error(`Falha ao interpretar resposta do script: ${msg}`));
+            reject(new Error(`Failed to parse script response: ${msg}`));
           }
         },
       );
@@ -254,9 +254,9 @@ export class DesktopAutomationTool extends BaseTool {
         blocked: true,
         risk: 'forbidden',
         rule: 'DESKTOP_SENSITIVE_WINDOW_BLOCKED',
-        reasons: [`Janela sensivel ou console nao pode ser alvo ("${windowTitle}").`],
+        reasons: [`Sensitive window or console cannot be targeted ("${windowTitle}").`],
       });
-      return `Automacao de desktop bloqueada: janela sensivel ou console nao pode ser alvo ("${windowTitle}"). ${formatSecurityPolicyReceipt(decision.receipt)}`;
+      return `Desktop automation blocked: sensitive window or console cannot be targeted ("${windowTitle}"). ${formatSecurityPolicyReceipt(decision.receipt)}`;
     }
 
     if (action === 'press-key' && payload && BLOCKED_PRESS_KEY_PATTERNS.some((pattern) => pattern.test(payload))) {
@@ -267,9 +267,9 @@ export class DesktopAutomationTool extends BaseTool {
         blocked: true,
         risk: 'forbidden',
         rule: 'DESKTOP_SHELL_LAUNCHER_SHORTCUT_BLOCKED',
-        reasons: ['Atalho de launcher/shell nao permitido.'],
+        reasons: ['Launcher/shell shortcut is not allowed.'],
       });
-      return `Automacao de desktop bloqueada: atalho de launcher/shell nao permitido. ${formatSecurityPolicyReceipt(decision.receipt)}`;
+      return `Desktop automation blocked: launcher/shell shortcut is not allowed. ${formatSecurityPolicyReceipt(decision.receipt)}`;
     }
 
     decideSecurityPolicy({
@@ -277,7 +277,7 @@ export class DesktopAutomationTool extends BaseTool {
       operation: action,
       target: windowTitle || payload || 'active-window',
       rule: 'DESKTOP_UI_ACTION_ALLOWED',
-      reasons: ['A acao de automacao de desktop passou pelo filtro central de UI safety.'],
+      reasons: ['The desktop automation action passed the central UI safety filter.'],
     });
 
     return null;

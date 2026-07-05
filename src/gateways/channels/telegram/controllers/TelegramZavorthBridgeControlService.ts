@@ -137,7 +137,7 @@ export class TelegramZavorthBridgeControlService {
     if (!requestedModel) {
       const currentPreferredModel = await this.deps.zavorthBridgePreferenceStore.getPreferredModel();
       await ctx.reply(
-        `Para trocar o modelo do ZavorthBridge, use /agmodel <nome> ou /ag_model <nome>.\n\nModelo atual salvo: ${currentPreferredModel || 'nenhum'}\nModelos permitidos: gemini-2.5-pro, gemini-3.1-pro-low, gemini-3.1-flash.`,
+        `To change the ZavorthBridge model, use /agmodel <name> or /ag_model <name>.\n\nCurrent saved model: ${currentPreferredModel || 'none'}\nAllowed models: gemini-2.5-pro, gemini-3.1-pro-low, gemini-3.1-flash.`,
       );
       return;
     }

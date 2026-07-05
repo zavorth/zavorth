@@ -147,17 +147,17 @@ function buildLanes(projection: ZavorthTransactionSurfaceProjection): ZavorthTra
       ['canUse', String(runtime.credentialValidation?.canUseForConnectorRun ?? false)],
       ['rawSecretSerialized', 'false'],
     ]),
-    lane('connector', 'Typed Connector', 'Payload tipado fica em simulacao/paper e sem side effects.', cardSeverity(projection, 'connector'), runtime.connectorRun?.status ?? 'not-run', [
+    lane('connector', 'Typed Connector', 'Typed payload stays in simulation/paper mode with no side effects.', cardSeverity(projection, 'connector'), runtime.connectorRun?.status ?? 'not-run', [
       ['connector', runtime.connectorRun?.connector?.id ?? 'none'],
       ['method', runtime.connectorRun?.payload?.method ?? 'none'],
       ['externalSideEffects', String(runtime.connectorRun?.externalSideEffects ?? false)],
     ]),
-    lane('ledger', 'Ledger', 'Receipts de preview/approval ficam visiveis para auditoria.', projection.runtime.previewEntry || projection.runtime.approvalEntry ? 'success' : 'info', projection.runtime.previewEntry || projection.runtime.approvalEntry ? 'recorded' : 'not-recorded', [
+    lane('ledger', 'Ledger', 'Preview/approval receipts remain visible for audit.', projection.runtime.previewEntry || projection.runtime.approvalEntry ? 'success' : 'info', projection.runtime.previewEntry || projection.runtime.approvalEntry ? 'recorded' : 'not-recorded', [
       ['previewEntry', previewEntry?.id ?? 'none'],
       ['approvalEntry', approvalEntry?.id ?? 'none'],
       ['receiptCount', String(runtime.phaseReceipts.length)],
     ]),
-    lane('safety', 'Safety', 'ZavorthControl nao recebe autoridade de execucao live.', 'info', 'live-disabled', [
+    lane('safety', 'Safety', 'ZavorthControl does not receive live execution authority.', 'info', 'live-disabled', [
       ['externalSideEffects', String(projection.externalSideEffects)],
       ['liveExecutionAuthorized', String(projection.liveExecutionAuthorized)],
       ['executableNow', String(projection.executableNow)],
@@ -173,13 +173,13 @@ function buildTiles(
   const runtime = projection.runtime;
   return [
     tile('status', 'Status', projection.status, headlineForStatus(projection.status), tone),
-    tile('action', 'Acao', runtime.preview.intent.actionKind, 'Acao transacional interpretada pelo parser.', toneForRisk(runtime.preview.intent.riskLevel)),
-    tile('target', 'Alvo', `${runtime.preview.intent.target.kind}:${runtime.preview.intent.target.label}`, 'Alvo normalizado para preview e connector.', 'ready'),
-    tile('amount', 'Valor', quoteLabel(projection), 'Valor ou limite extraido para revisao.', runtime.preview.quote.amount ? 'attention' : 'ready'),
-    tile('approval', 'Approval', runtime.approvalEntry?.approvalStatus ?? runtime.preview.approval.status, 'Approval nunca executa transacao live nesta etapa.', runtime.preview.approval.required ? 'attention' : 'ready'),
-    tile('credential', 'Credential', runtime.credentialValidation?.status ?? 'not-provided', 'Somente credential refs entram no cockpit.', runtime.status === 'credential-required' ? 'attention' : 'ready'),
-    tile('connector', 'Connector', runtime.connectorRun?.status ?? 'not-run', 'Connector tipado roda apenas simulacao/paper.', runtime.connectorRun?.status === 'simulated' ? 'success' : 'ready'),
-    tile('safety', 'Live', 'disabled', 'Sem side effects externos ou live action.', 'ready'),
+    tile('action', 'Action', runtime.preview.intent.actionKind, 'Transactional action interpreted by the parser.', toneForRisk(runtime.preview.intent.riskLevel)),
+    tile('target', 'Target', `${runtime.preview.intent.target.kind}:${runtime.preview.intent.target.label}`, 'Target normalized for preview and connector.', 'ready'),
+    tile('amount', 'Amount', quoteLabel(projection), 'Amount or extra limit extracted for review.', runtime.preview.quote.amount ? 'attention' : 'ready'),
+    tile('approval', 'Approval', runtime.approvalEntry?.approvalStatus ?? runtime.preview.approval.status, 'Approval never executes a live transaction at this stage.', runtime.preview.approval.required ? 'attention' : 'ready'),
+    tile('credential', 'Credential', runtime.credentialValidation?.status ?? 'not-provided', 'Only credential refs enter the cockpit.', runtime.status === 'credential-required' ? 'attention' : 'ready'),
+    tile('connector', 'Connector', runtime.connectorRun?.status ?? 'not-run', 'Typed connector only runs simulation/paper mode.', runtime.connectorRun?.status === 'simulated' ? 'success' : 'ready'),
+    tile('safety', 'Live', 'disabled', 'No external side effects or live action.', 'ready'),
   ];
 }
 
@@ -225,7 +225,7 @@ function buildNotifications(
       id: `${projection.id}.notification.safety`,
       channel: projection.surface,
       title: 'Live execution disabled',
-      body: 'O cockpit pode pedir approval, rejeicao, credential ref ou simulacao; ele nao executa transacoes live.',
+      body: 'The cockpit can request approval, rejection, credential refs, or simulation; it does not execute live transactions.',
       tone: 'ready',
     },
   ];
@@ -291,19 +291,19 @@ function quoteLabel(projection: ZavorthTransactionSurfaceProjection): string {
 
 function headlineForStatus(status: ZavorthTransactionRuntimeStatus): string {
   if (status === 'simulated') {
-    return 'Simulacao transacional pronta';
+    return 'Transactional simulation ready';
   }
   if (status === 'approval-required') {
-    return 'Transacao aguardando approval';
+    return 'Transaction waiting for approval';
   }
   if (status === 'credential-required') {
-    return 'Credential ref obrigatoria';
+    return 'Credential ref required';
   }
   if (status === 'blocked') {
-    return 'Transacao bloqueada';
+    return 'Transaction blocked';
   }
   if (status === 'needs-clarification') {
-    return 'Transacao precisa de detalhes';
+    return 'Transaction needs details';
   }
   return 'Preview transacional pronto';
 }

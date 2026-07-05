@@ -1,5 +1,6 @@
 import enquirer from 'enquirer';
 import { TerminalTheme } from './TerminalTheme.js';
+import { logger } from '../../logger.js';
 
 const { prompt } = enquirer;
 
@@ -13,10 +14,11 @@ export class TerminalPrompt {
         initial,
       });
       return response.value;
-    } catch (e) {
-      // In case of Ctrl+C
+    } catch (error) {
+    logger.warn('[Terminal Prompt] filesystem check failed', error);
+    // In case of Ctrl+C
       return false;
-    }
+  }
   }
 
   static async input(message: string, initial = ''): Promise<string> {
@@ -28,9 +30,7 @@ export class TerminalPrompt {
         initial,
       });
       return response.value;
-    } catch (e) {
-      return '';
-    }
+    } catch (error) { logger.warn('[Terminal Prompt] filesystem check failed', error); return ''; }
   }
 
   static async select<T extends string>(message: string, choices: T[]): Promise<T | null> {
@@ -42,8 +42,6 @@ export class TerminalPrompt {
         choices: choices as unknown as string[],
       });
       return response.value;
-    } catch (e) {
-      return null;
-    }
+    } catch (error) { logger.warn('[Terminal Prompt] filesystem check failed', error); return null; }
   }
 }

@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import { logger } from '../logger.js';
 
 export type WslDistroInfo = {
   name: string;
@@ -36,15 +37,16 @@ export class WslControlService {
         : 'WSL parado. Nenhuma distro rodando.';
 
       return { ok: true, action: 'status', distros, message, warnings: [] };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Wsl Control] parsing failed', error);
+    return {
         ok: false,
         action: 'status',
         distros: [],
         message: `Falha ao consultar WSL: ${error.message}`,
         warnings: [],
       };
-    }
+  }
   }
 
   /**
@@ -132,15 +134,16 @@ export class WslControlService {
         message: `WSL iniciado e confirmado. ${runningDistros.length} distro(s) em execucao: ${runningDistros.map((entry) => entry.name).join(', ')}.`,
         warnings,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Wsl Control] process execution failed', error);
+    return {
         ok: false,
         action: 'start',
         distros: [],
         message: `Falha ao iniciar WSL: ${error.message}`,
         warnings: [],
       };
-    }
+  }
   }
 
   /**
@@ -172,15 +175,16 @@ export class WslControlService {
             : `O comando de desligamento foi enviado, mas ainda ha distros rodando: ${runningDistros.map((entry) => entry.name).join(', ')}.`,
         warnings: [],
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Wsl Control] filesystem check failed', error);
+    return {
         ok: false,
         action: 'shutdown',
         distros: [],
         message: `Falha ao desligar WSL: ${error.message}`,
         warnings: [],
       };
-    }
+  }
   }
 
   private parseDistroList(stdout: string): WslDistroInfo[] {

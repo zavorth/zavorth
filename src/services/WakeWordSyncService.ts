@@ -11,6 +11,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 
 export interface WakeWordConfig {
   wakeWords: string[];
@@ -107,9 +108,7 @@ export class WakeWordSyncService {
           updatedAt: data.updatedAt ?? new Date().toISOString(),
         };
       }
-    } catch {
-      // Ignore errors, return defaults
-    }
+    } catch (error) { // Ignore errors, return defaults logger.warn('[Wake Word] JSON parse failed', error); }
 
     return {
       wakeWords: ['zavorth'],

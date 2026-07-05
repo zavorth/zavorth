@@ -56,7 +56,7 @@ export type ZavorthDoItWithMeContract = {
   projections: {
     capability: ZavorthCapabilityStoreCard | null;
     mission: ZavorthGuidedMissionCard | null;
-    zavorthControlRoute: '/zavorthControl';
+    zavorthControlRoute: '/zavorthControl' | '/control';
     zavorthControlCanExecute: false;
   };
   safety: {

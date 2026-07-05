@@ -1,5 +1,4 @@
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
-import { logger } from '../logger.js';
 
 declare function loadLogs(): void;
 declare function loadAudit(): void;
@@ -156,7 +155,7 @@ function zavorthControlClassicClientCore() {
             <small>Heartbeat ON</small>
           </div>
         `;
-      } catch (_e) { logger.warn("[auto-fix] Empty catch block", _e); }
+      } catch (_e) { console.warn("[auto-fix] Empty catch block", _e); }
     }
 
     function formatBytes(bytes: unknown) {

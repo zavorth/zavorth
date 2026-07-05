@@ -4,120 +4,120 @@ import { commonCapabilityQuestion, mode, question, req, step } from './Integrati
 export const INTEGRATION_TEMPLATE_MANIFESTS: IntegrationManifest[] = [
   {
     id: 'custom-api',
-    label: 'Conector customizado por API',
+    label: 'Custom API connector',
     aliases: ['api-template'],
-    summary: 'Template para serviÃƒÂ§os com API oficial que ainda nÃƒÂ£o tÃƒÂªm conector nativo.',
-    description: 'Ãƒâ€° o caminho mais limpo para novos serviÃƒÂ§os remotos que tÃƒÂªm documentaÃƒÂ§ÃƒÂ£o prÃƒÂ³pria.',
+    summary: 'Template for services with an official API that do not have a native connector yet.',
+    description: 'The cleanest path for new remote services with their own documentation.',
     supportLevel: 'template',
     category: 'template',
     tags: ['template', 'api', 'custom'],
-    modes: [mode('api', 'API remota', 'Template genÃƒÂ©rico para novos conectores baseados em HTTP.')],
+    modes: [mode('api', 'Remote API', 'Generic template for new HTTP-based connectors.')],
     defaultMode: 'api',
     capabilities: ['chat', 'code', 'vision', 'browser', 'agents'],
     binding: {
       kind: 'planned',
       key: null,
       status: 'planned',
-      summary: 'Template aguardando implementaÃƒÂ§ÃƒÂ£o especÃƒÂ­fica.',
+      summary: 'Template awaiting a specific implementation.',
     },
     requirements: [
-      req('api_docs', 'DocumentaÃƒÂ§ÃƒÂ£o oficial', 'Sem docs confiÃƒÂ¡veis o conector nÃƒÂ£o deve ser automatizado.', {
+      req('api_docs', 'Official documentation', 'Without reliable docs, the connector should not be automated.', {
         type: 'manual',
       }),
-      req('credential', 'Credencial oficial', 'Chave, token ou OAuth legÃƒÂ­timo do serviÃƒÂ§o.', {
+      req('credential', 'Official credential', 'A legitimate key, token, or OAuth credential for the service.', {
         type: 'account',
       }),
     ],
     onboardingQuestions: [
-      question('service_name', 'Qual ÃƒÂ© o nome do serviÃƒÂ§o?', 'text', 'Exemplo: ZeroCloud, NanoCloud, MeuHubAI.', {
-        placeholder: 'Nome do serviÃƒÂ§o',
+      question('service_name', 'What is the service name?', 'text', 'Example: ZeroCloud, NanoCloud, MyHubAI.', {
+        placeholder: 'Service name',
       }),
       commonCapabilityQuestion,
     ],
     installSteps: [
-      step('review', 'Capturar detalhes da API', 'Listar autenticaÃƒÂ§ÃƒÂ£o, base URL e capacidades desejadas.', 'guided'),
-      step('scaffold', 'Criar receita especÃƒÂ­fica', 'Preparar o esqueleto do conector a partir deste template.', 'manual'),
+      step('review', 'Capture API details', 'List authentication, base URL, and desired capabilities.', 'guided'),
+      step('scaffold', 'Create specific recipe', 'Prepare the connector skeleton from this template.', 'manual'),
     ],
-    safetyNotes: ['Este template nÃƒÂ£o cria integraÃƒÂ§ÃƒÂ£o mÃƒÂ¡gica: ele abre um caminho limpo para um adapter real.'],
-    goodFor: ['Novos serviÃƒÂ§os com API oficial', 'Conectores prÃƒÂ³prios'],
+    safetyNotes: ['This template does not create a magical integration; it opens a clean path for a real adapter.'],
+    goodFor: ['New services with official APIs', 'Custom connectors'],
   },
   {
     id: 'custom-cli',
-    label: 'Conector customizado por CLI',
+    label: 'Custom CLI connector',
     aliases: ['cli-template'],
-    summary: 'Template para CLIs locais ou wrappers que o Zavorth ainda nÃƒÂ£o conhece.',
-    description: 'Bom para agentes locais, ferramentas de terminal e runtimes que expÃƒÂµem uma CLI estÃƒÂ¡vel.',
+    summary: 'Template for local CLIs or wrappers Zavorth does not know yet.',
+    description: 'Good for local agents, terminal tools, and runtimes that expose a stable CLI.',
     supportLevel: 'template',
     category: 'template',
     tags: ['template', 'cli', 'local'],
-    modes: [mode('cli', 'CLI local', 'Template para integraÃƒÂ§ÃƒÂ£o por binÃƒÂ¡rio e terminal.')],
+    modes: [mode('cli', 'Local CLI', 'Template for binary and terminal integration.')],
     defaultMode: 'cli',
     capabilities: ['chat', 'code', 'agents', 'automation'],
     binding: {
       kind: 'planned',
       key: null,
       status: 'planned',
-      summary: 'Template aguardando adaptaÃƒÂ§ÃƒÂ£o especÃƒÂ­fica do executor.',
+      summary: 'Template awaiting a specific executor adapter.',
     },
     requirements: [
-      req('binary', 'CLI instalada ou instalÃƒÂ¡vel', 'VocÃƒÂª precisa saber como instalar ou localizar o binÃƒÂ¡rio.', {
+      req('binary', 'Installed or installable CLI', 'You need to know how to install or locate the binary.', {
         type: 'binary',
       }),
-      req('invocation_contract', 'Contrato de uso conhecido', 'Sem saber entrada e saÃƒÂ­da da CLI, o adapter fica incompleto.', {
+      req('invocation_contract', 'Known invocation contract', 'Without input/output details for the CLI, the adapter remains incomplete.', {
         type: 'manual',
       }),
     ],
     onboardingQuestions: [
-      question('service_name', 'Qual CLI vocÃƒÂª quer conectar?', 'text', 'Exemplo: ZeroCloud CLI, MeuAssistenteLocal.', {
-        placeholder: 'Nome da CLI',
+      question('service_name', 'Which CLI do you want to connect?', 'text', 'Example: ZeroCloud CLI, MyLocalAssistant.', {
+        placeholder: 'CLI name',
       }),
       commonCapabilityQuestion,
     ],
     installSteps: [
-      step('review', 'Mapear a CLI', 'Capturar comando, argumentos, saÃƒÂ­da e autenticaÃƒÂ§ÃƒÂ£o.', 'guided'),
-      step('scaffold', 'Preparar adapter', 'Criar o esqueleto de execuÃƒÂ§ÃƒÂ£o e healthcheck.', 'manual'),
+      step('review', 'Map the CLI', 'Capture command, arguments, output, and authentication.', 'guided'),
+      step('scaffold', 'Prepare adapter', 'Create the execution and healthcheck skeleton.', 'manual'),
     ],
-    safetyNotes: ['Valide a CLI em sandbox ou workspace de teste antes de liberar em produÃƒÂ§ÃƒÂ£o.'],
-    goodFor: ['Agentes locais', 'Ferramentas de terminal'],
+    safetyNotes: ['Validate the CLI in a sandbox or test workspace before releasing it to production.'],
+    goodFor: ['Local agents', 'Terminal tools'],
   },
   {
     id: 'custom-docker-agent',
-    label: 'Conector customizado em Docker',
+    label: 'Custom Docker connector',
     aliases: ['docker-template', 'nanocloud', 'zerocloud', 'opencloud'],
-    summary: 'Template para agentes e serviÃƒÂ§os que vocÃƒÂª quer instalar em Docker antes de ligar ao Zavorth.',
-    description: 'Ãƒâ€° o melhor ponto de entrada para ideias como NanoCloud, ZeroCloud e sidecars prÃƒÂ³prios.',
+    summary: 'Template for agents and services you want to install in Docker before connecting them to Zavorth.',
+    description: 'The best entry point for ideas such as NanoCloud, ZeroCloud, and custom sidecars.',
     supportLevel: 'template',
     category: 'template',
     tags: ['template', 'docker', 'agent'],
-    modes: [mode('docker', 'Docker local', 'Template para serviÃƒÂ§os instalados em container.')],
+    modes: [mode('docker', 'Local Docker', 'Template for services installed in containers.')],
     defaultMode: 'docker',
     capabilities: ['chat', 'code', 'browser', 'agents', 'automation'],
     binding: {
       kind: 'planned',
       key: null,
       status: 'planned',
-      summary: 'Template aguardando manifesto especÃƒÂ­fico do serviÃƒÂ§o.',
+      summary: 'Template awaiting a service-specific manifest.',
     },
     requirements: [
-      req('docker', 'Docker funcional', 'O host precisa rodar Docker sem erro.', { type: 'docker' }),
-      req('image_recipe', 'Imagem ou compose conhecido', 'VocÃƒÂª precisa saber imagem, porta e variÃƒÂ¡veis do serviÃƒÂ§o.', {
+      req('docker', 'Working Docker', 'The host must run Docker without errors.', { type: 'docker' }),
+      req('image_recipe', 'Known image or compose file', 'You need to know the service image, port, and variables.', {
         type: 'manual',
       }),
     ],
     onboardingQuestions: [
-      question('service_name', 'Qual ÃƒÂ© o nome do agente/serviÃƒÂ§o?', 'text', 'Exemplo: ZeroCloud, NanoCloud, MeuAgenteDocker.', {
-        placeholder: 'Nome do serviÃƒÂ§o',
+      question('service_name', 'What is the agent/service name?', 'text', 'Example: ZeroCloud, NanoCloud, MyDockerAgent.', {
+        placeholder: 'Service name',
       }),
-      question('expose_port', 'Esse serviÃƒÂ§o precisa expor porta local?', 'boolean', 'Se ele expÃƒÂµe uma API local, o Zavorth pode monitorar depois.', {
+      question('expose_port', 'Does this service need to expose a local port?', 'boolean', 'If it exposes a local API, Zavorth can monitor it later.', {
         required: false,
       }),
       commonCapabilityQuestion,
     ],
     installSteps: [
-      step('review', 'Confirmar modelo Docker', 'Identificar se ÃƒÂ© container ÃƒÂºnico, compose ou sidecar complexo.', 'guided'),
-      step('scaffold', 'Gerar receita Docker', 'Preparar compose, env e doctor para esse agente.', 'manual'),
+      step('review', 'Confirm Docker model', 'Identify whether it is a single container, compose setup, or complex sidecar.', 'guided'),
+      step('scaffold', 'Generate Docker recipe', 'Prepare compose, env, and doctor checks for this agent.', 'manual'),
     ],
-    safetyNotes: ['Nunca exponha containers sensÃƒÂ­veis sem autenticaÃƒÂ§ÃƒÂ£o e escopo claro.'],
-    goodFor: ['Agentes em container', 'Novos sidecars', 'Provas de conceito locais'],
+    safetyNotes: ['Never expose sensitive containers without authentication and a clear scope.'],
+    goodFor: ['Container agents', 'New sidecars', 'Local proofs of concept'],
   },
 ];

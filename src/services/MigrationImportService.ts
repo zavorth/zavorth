@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 type MigrationImportServiceOptions = {
   artifactDir?: string;
@@ -190,7 +191,8 @@ export class MigrationImportService {
         error: null,
       });
     } catch (error) {
-      return this.result({
+    logger.warn('[Migration Import] creation failed', error);
+    return this.result({
         ok: false,
         status: 'failed',
         sourceId,
@@ -205,7 +207,7 @@ export class MigrationImportService {
         reportArtifactId: null,
         error: error instanceof Error ? error.message : String(error),
       });
-    }
+  }
   }
 
   private async readInventory(
@@ -251,9 +253,10 @@ export class MigrationImportService {
       try {
         redactedData = this.redactSecrets(JSON.parse(raw));
         kind = 'json';
-      } catch {
-        redactedData = this.redactText(raw);
-      }
+      } catch (error) {
+    logger.warn('[Migration Import] JSON parse failed', error);
+    redactedData = this.redactText(raw);
+  }
     } else {
       redactedData = this.redactText(raw);
     }

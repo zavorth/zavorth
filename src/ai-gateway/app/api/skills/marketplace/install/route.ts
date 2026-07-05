@@ -3,6 +3,7 @@ import { z } from "zod";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { skillRegistry } from "@/lib/skills/registry";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const marketplaceInstallSchema = z.object({
   name: z.string().min(1).max(64),
@@ -35,7 +36,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true, id: skill.id });
-  } catch (err: unknown) {
+  } catch (error) {
+    logger.warn('[route] string operation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
   }

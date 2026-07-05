@@ -32,13 +32,13 @@ export class TelegramOpsDemoCommandService {
         const scenario = this.demoFlowService.getScenarios()[session.currentIndex] || null;
         lines.push('');
         if (session.completed) {
-          lines.push('Sequencia guiada: concluida.');
-          lines.push('Use /demo reset para reiniciar ou /demo pitch para fechar a apresentacao.');
+          lines.push('Guided sequence: completed.');
+          lines.push('Use /demo reset to restart or /demo pitch to close the presentation.');
         } else {
           lines.push(
-            `Sequencia guiada em andamento: etapa ${session.currentIndex + 1}/${totalSteps}${scenario ? ` - ${scenario.title}` : ''}.`,
+            `Guided sequence in progress: step ${session.currentIndex + 1}/${totalSteps}${scenario ? ` - ${scenario.title}` : ''}.`,
           );
-          lines.push('Use /demo next para avancar ou /demo reset para reiniciar.');
+          lines.push('Use /demo next to advance or /demo reset to restart.');
         }
       }
 
@@ -49,9 +49,9 @@ export class TelegramOpsDemoCommandService {
     if (['on', 'ativar', 'ligar', 'enable'].includes(normalized)) {
       const autoPresentationEnabled = !this.deps.presentationModeService.isEnabled();
       if (autoPresentationEnabled) {
-        this.deps.presentationModeService.enable(userId, 'Ativado junto com modo demo.');
+        this.deps.presentationModeService.enable(userId, 'Enabled with demo mode.');
       }
-      const status = this.deps.demoModeService.enable(userId, 'Ativado via Telegram.', autoPresentationEnabled);
+      const status = this.deps.demoModeService.enable(userId, 'Enabled through Telegram.', autoPresentationEnabled);
       await ctx.reply(this.formatDemoModeReply(status, 'activate'));
       return;
     }
@@ -59,9 +59,9 @@ export class TelegramOpsDemoCommandService {
     if (['off', 'desativar', 'desligar', 'stop', 'disable'].includes(normalized)) {
       const previous = this.deps.demoModeService.getStatus();
       if (previous.autoPresentationEnabled && this.deps.presentationModeService.isEnabled()) {
-        this.deps.presentationModeService.disable(userId, 'Desativado junto com modo demo.');
+        this.deps.presentationModeService.disable(userId, 'Disabled with demo mode.');
       }
-      const status = this.deps.demoModeService.disable(userId, 'Desativado via Telegram.');
+      const status = this.deps.demoModeService.disable(userId, 'Disabled through Telegram.');
       await ctx.reply(this.formatDemoModeReply(status, 'deactivate'));
       return;
     }
@@ -91,20 +91,20 @@ export class TelegramOpsDemoCommandService {
       if (!this.deps.demoModeService.isEnabled()) {
         const autoPresentationEnabled = !this.deps.presentationModeService.isEnabled();
         if (autoPresentationEnabled) {
-          this.deps.presentationModeService.enable(userId, 'Ativado junto com sequencia guiada.');
+          this.deps.presentationModeService.enable(userId, 'Enabled with the guided sequence.');
         }
         this.deps.demoModeService.enable(
           userId,
-          'Ativado automaticamente pela sequencia guiada.',
+          'Automatically enabled by the guided sequence.',
           autoPresentationEnabled,
         );
-        lines.push('Modo demo ativado para esta sequencia.');
+        lines.push('Demo mode enabled for this sequence.');
       }
 
       this.deps.demoGuideService.start(userId);
       lines.push(this.demoFlowService.formatGuidedStart());
       lines.push('');
-      lines.push(this.demoFlowService.formatGuidedStep(0) || 'Nao encontrei etapas configuradas para esta demo.');
+      lines.push(this.demoFlowService.formatGuidedStep(0) || 'I could not find configured steps for this demo.');
       await ctx.reply(lines.join('\n'));
       return;
     }
@@ -112,7 +112,7 @@ export class TelegramOpsDemoCommandService {
     if (normalized === 'next') {
       const currentSession = this.deps.demoGuideService.getSession(userId);
       if (!currentSession) {
-        await ctx.reply('Ainda nao existe uma sequencia guiada ativa. Use /demo start para comecar.');
+        await ctx.reply('There is no active guided sequence yet. Use /demo start to begin.');
         return;
       }
 
@@ -123,7 +123,7 @@ export class TelegramOpsDemoCommandService {
       }
 
       await ctx.reply(
-        this.demoFlowService.formatGuidedStep(session.currentIndex) || 'Nao encontrei a proxima etapa da sequencia.',
+        this.demoFlowService.formatGuidedStep(session.currentIndex) || 'I could not find the next step in the sequence.',
       );
       return;
     }
@@ -132,8 +132,8 @@ export class TelegramOpsDemoCommandService {
       const removed = this.deps.demoGuideService.reset(userId);
       await ctx.reply(
         removed
-          ? 'Sequencia guiada reiniciada. Quando quiser recomecar, use /demo start.'
-          : 'Nao havia sequencia guiada ativa. Use /demo start para comecar.',
+          ? 'Guided sequence reset. Use /demo start when you want to begin again.'
+          : 'There was no active guided sequence. Use /demo start to begin.',
       );
       return;
     }
@@ -141,7 +141,7 @@ export class TelegramOpsDemoCommandService {
     const scenario = this.demoFlowService.formatScenario(normalized);
     if (!scenario) {
       await ctx.reply(
-        'Use /demo, /demo start, /demo next, /demo short, /demo research, /demo files, /demo workflow, /demo stitch ou /demo full.',
+        'Use /demo, /demo start, /demo next, /demo short, /demo research, /demo files, /demo workflow, /demo stitch, or /demo full.',
       );
       return;
     }
@@ -163,38 +163,38 @@ export class TelegramOpsDemoCommandService {
 
     if (mode === 'activate') {
       lines.push(
-        'Modo demo ativado.',
-        'Agora o Zavorth fica mais preparado para apresentacao, com respostas mais limpas e um roteiro pronto pelo /demo.',
+        'Demo mode enabled.',
+        'Zavorth is now better prepared for presentation, with cleaner responses and a ready script through /demo.',
       );
       if (status.autoPresentationEnabled) {
-        lines.push('O modo apresentacao tambem foi ativado automaticamente.');
+        lines.push('Presentation mode was also enabled automatically.');
       }
     } else if (mode === 'deactivate') {
-      lines.push('Modo demo desativado.');
+      lines.push('Demo mode disabled.');
       if (status.autoPresentationEnabled) {
-        lines.push('O modo apresentacao vinculado a esta demo tambem foi desligado.');
+        lines.push('The presentation mode linked to this demo was also disabled.');
       } else {
-        lines.push('O modo apresentacao independente foi preservado.');
+        lines.push('Independent presentation mode was preserved.');
       }
     } else {
-      lines.push(status.enabled ? 'O modo demo esta ativo.' : 'O modo demo esta inativo.');
-      lines.push('Atalhos: /demo pitch | /demo checklist | /demo full');
+      lines.push(status.enabled ? 'Demo mode is active.' : 'Demo mode is inactive.');
+      lines.push('Shortcuts: /demo pitch | /demo checklist | /demo full');
     }
 
     if (status.updatedAt) {
-      lines.push(`Ultima alteracao: ${status.updatedAt}`);
+      lines.push(`Last change: ${status.updatedAt}`);
     }
 
     if (status.updatedBy) {
-      lines.push(`Alterado por: ${status.updatedBy}`);
+      lines.push(`Changed by: ${status.updatedBy}`);
     }
 
     if (status.note) {
-      lines.push(`Observacao: ${status.note}`);
+      lines.push(`Note: ${status.note}`);
     }
 
     if (status.enabled) {
-      lines.push('Sugestao: rode /demo checklist antes de mostrar o Zavorth para outras pessoas.');
+      lines.push('Suggestion: run /demo checklist before showing Zavorth to other people.');
     }
 
     return lines.join('\n');

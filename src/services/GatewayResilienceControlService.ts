@@ -138,7 +138,7 @@ export class GatewayResilienceControlService {
         generatedAt: this.now().toISOString(),
         fallbackUsed: result.fallbackUsed === true,
         budgetDecision: result.budgetDecision || 'allowed',
-        attempts: (result.routingAttempts || []).map((attempt) => ({ ...attempt })),
+        attempts: (result.routingAttempts || []).map((attempt: any) => ({ ...attempt })),
       };
       receipts = [receipt, ...receipts].slice(0, 20);
       return {

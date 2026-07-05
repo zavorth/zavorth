@@ -1,6 +1,7 @@
 import type { IZavorthTool } from '../../../echo/types/IZavorthTool.js';
+import { logger } from '../../../logger.js';
 import type {
-  EchoCapabilityArtifactRecord,
+EchoCapabilityArtifactRecord,
   EchoCapabilityLifecycleRecord,
   EchoCapabilityPolicyRecord,
   EchoCapabilitySurfaceState,
@@ -58,9 +59,7 @@ export class EchoCapabilitySurfaceStateService {
     }
     try {
       return this.normalizeLifecycle(capableTool.getLifecycleSnapshot());
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Capability Surface State] module import failed', error); return null; }
   }
 
   private normalizeLifecycle(value: unknown): EchoCapabilityLifecycleRecord | null {

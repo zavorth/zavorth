@@ -61,6 +61,12 @@ import {
   quoteEnv,
   mergeSingleEnvValue
 } from './ZavorthCliSharedHelpers.js';
+import type { ZavorthCapabilityUsageEventKind, ZavorthCapabilityUsageSurface } from '../contracts/ZavorthCapabilityUsageSignalsContract.js';
+import type { ZavorthCapabilityAtlasCategory } from '../contracts/ZavorthCapabilityAtlasContract.js';
+import type { ZavorthAppsSatelliteAction, ZavorthAppsSatelliteNodeKind } from '../contracts/ZavorthAppsSatelliteNodesContract.js';
+import type { ZavorthTerminalBackendId } from '../contracts/runtime/ZavorthTerminalBackendsContract.js';
+import type { SwarmScaleExecutionMode, SwarmScaleExecutionBackendId } from '../domain/execution/infrastructure/SwarmScalePlaneService.js';
+import { logger } from '../logger.js';
 
 type JsonObject = Record<string, unknown>;
 const gzipAsync = promisify(gzip);
@@ -174,10 +180,10 @@ async function runActions(root: string, args: string[]) {
         actionId: readFlag(args, 'action') || readFlag(args, 'action-id') || firstUsageActionPosition(args),
         capabilityId: readFlag(args, 'capability') || undefined,
         title: readFlag(args, 'title') || undefined,
-        kind: (readFlag(args, 'event') || readFlag(args, 'kind') || 'shown') as any,
-        surface: (readFlag(args, 'surface') || 'cli') as any,
+        kind: (readFlag(args, 'event') || readFlag(args, 'kind') || 'shown') as ZavorthCapabilityUsageEventKind,
+        surface: (readFlag(args, 'surface') || 'cli') as ZavorthCapabilityUsageSurface,
         actor: readFlag(args, 'actor') || 'operator',
-        status: (readFlag(args, 'status') || 'ok') as any,
+        status: (readFlag(args, 'status') || 'ok') as 'ok' | 'attention' | 'blocked',
         durationMs: readNumberFlag(args, 'duration-ms'),
         receiptId: readFlag(args, 'receipt') || undefined,
         metadata: readFlag(args, 'title') ? { title: readFlag(args, 'title') } : {},
@@ -230,7 +236,7 @@ async function runCapabilityAtlas(root: string, args: string[]) {
   const service = new ZavorthCapabilityAtlasService({ projectRoot: root });
   const snapshot = service.buildSnapshot({
     query: readFlag(args, 'query') || args.filter((arg) => !arg.startsWith('--')).join(' '),
-    category: readFlag(args, 'category') as any || null,
+    category: (readFlag(args, 'category') as ZavorthCapabilityAtlasCategory | null) || null,
     limit: Number(readFlag(args, 'limit') || 200),
   });
   return render(args, 'Zavorth Capability Atlas', service.renderText(snapshot).split('\n'), snapshot as unknown as JsonObject);
@@ -764,7 +770,8 @@ function parseCliActionArgs(value: string): Record<string, unknown> {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : {};
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] JSON parse failed', error);
     return { query: textValue };
   }
 }
@@ -915,8 +922,8 @@ async function runSatellite(root: string, args: string[]) {
       ? 'push.plan'
       : 'status';
   const snapshot = service.execute({
-    action: satelliteAction as any,
-    nodeKind: (readFlag(args, 'kind') || readFlag(args, 'node-kind') || 'mobile') as any,
+    action: satelliteAction as ZavorthAppsSatelliteAction,
+    nodeKind: (readFlag(args, 'kind') || readFlag(args, 'node-kind') || 'mobile') as ZavorthAppsSatelliteNodeKind,
     label: readFlag(args, 'label') || null,
     actorId: readFlag(args, 'actor') || 'operator',
     workspace: root,
@@ -935,7 +942,7 @@ async function runSwarm(root: string, args: string[]) {
   if (action === 'cloud-pool' || action === 'cloud' || action === 'backends') {
     const { ZavorthCloudSandboxPoolService } = await import('../services/ZavorthCloudSandboxPoolService.js');
     const snapshot = new ZavorthCloudSandboxPoolService().buildSnapshot({
-      preferredBackend: (readFlag(args, 'backend') || readFlag(args, 'execution-backend') || null) as any,
+      preferredBackend: (readFlag(args, 'backend') || readFlag(args, 'execution-backend') || null) as ZavorthTerminalBackendId | null,
     });
     return render(args, 'Zavorth Swarm cloud pool', [
       `status: ${snapshot.status}`,
@@ -958,8 +965,8 @@ async function runSwarm(root: string, args: string[]) {
       patch: {
         maxConcurrency: readNumberFlag(args, 'concurrency') || readNumberFlag(args, 'max-concurrency') || undefined,
         maxSteps: readNumberFlag(args, 'max-steps') || readNumberFlag(args, 'steps') || undefined,
-        executionMode: (readFlag(args, 'execution-mode') || readFlag(args, 'mode') || undefined) as any,
-        executionBackend: (readFlag(args, 'execution-backend') || readFlag(args, 'backend') || undefined) as any,
+        executionMode: (readFlag(args, 'execution-mode') || readFlag(args, 'mode') || undefined) as SwarmScaleExecutionMode,
+        executionBackend: (readFlag(args, 'execution-backend') || readFlag(args, 'backend') || undefined) as SwarmScaleExecutionBackendId,
         cloudSandboxEnabled: readSwarmToggleFlag(args, 'cloud-sandbox') ?? readSwarmToggleFlag(args, 'cloud'),
         deviceNodeRouting: readSwarmToggleFlag(args, 'device-routing')
           ?? readSwarmToggleFlag(args, 'device-node-routing')
@@ -999,7 +1006,7 @@ async function runSwarm(root: string, args: string[]) {
     persistState: action !== 'plan' && !args.includes('--no-persist'),
     approvalId: readFlag(args, 'approval-id') || null,
     allowMutatingTools: args.includes('--allow-mutating-tools'),
-    executionBackend: (readFlag(args, 'execution-backend') || readFlag(args, 'backend') || undefined) as any,
+    executionBackend: (readFlag(args, 'execution-backend') || readFlag(args, 'backend') || undefined) as SwarmScaleExecutionBackendId,
     cloudSandboxEnabled: readSwarmToggleFlag(args, 'cloud-sandbox') ?? readSwarmToggleFlag(args, 'cloud'),
     deviceNodeRouting: readSwarmToggleFlag(args, 'device-routing')
       ?? readSwarmToggleFlag(args, 'device-node-routing')
@@ -1082,9 +1089,7 @@ async function cancelSwarmRun(stateFilePath: string, runId: string): Promise<boo
     await fs.mkdir(path.dirname(stateFilePath), { recursive: true });
     await fs.writeFile(stateFilePath, `${JSON.stringify({ runs }, null, 2)}\n`, 'utf8');
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] filesystem operation failed', error); return false; }
 }
 
 async function runBackup(root: string, args: string[]) {
@@ -1510,6 +1515,7 @@ async function loadManagedConfigSource(source: string): Promise<{ ok: boolean; c
     }
     return { ok: true, config: await readJson(source, {}) as JsonObject };
   } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] network request failed', error);
     return { ok: false, config: {}, reason: error instanceof Error ? error.message : String(error) };
   }
 }
@@ -1902,7 +1908,8 @@ async function acquireTaskLock(root: string, collection: string): Promise<{ ok: 
     await handle.writeFile(JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() }));
     await handle.close();
     return { ok: true, file, message: 'lock acquired' };
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] filesystem operation failed', error);
     return { ok: false, file, message: `Worker lock is active for ${collection}. Use logs/status or remove stale lock only after verifying no worker is running.` };
   }
 }
@@ -2044,6 +2051,7 @@ async function fetchDocsIndex(url: string, query: string): Promise<{ lines: stri
     const matches = terms.length ? lines.filter((line) => terms.some((term) => line.toLowerCase().includes(term))).slice(0, 12) : lines.slice(0, 12);
     return { lines: matches.length ? matches : ['Live docs fetched, no matching lines.'], payload: { ok: true, url: redactUrl(url), matches } };
   } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] network request failed', error);
     return { lines: [`Live docs fetch failed: ${error instanceof Error ? error.message : String(error)}`], payload: { ok: false } };
   }
 }
@@ -3287,9 +3295,7 @@ function isSkillAllowlisted(root: string, id: string): boolean {
     const file = path.join(stateDir(root), 'skills-allowlist.json');
     const raw = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : [];
     return Array.isArray(raw) && raw.includes(idFromSpec(id));
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] JSON parse failed', error); return false; }
 }
 
 function doctorSkill(root: string, skill: JsonObject): Array<{ id: string; ok: boolean; summary: string }> {
@@ -3536,18 +3542,14 @@ function isPidAlive(pid: number): boolean {
   try {
     process.kill(pid, 0);
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] creation failed', error); return false; }
 }
 
 function killPid(pid: number): boolean {
   try {
     process.kill(pid);
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] creation failed', error); return false; }
 }
 
 function sanitizeServiceState(value: unknown): JsonObject {
@@ -3837,7 +3839,8 @@ function redactUrl(value: string): string {
       if (/token|key|secret|auth|sig/iu.test(key)) url.searchParams.set(key, '***');
     }
     return url.toString();
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] search failed', error);
     return redact(value);
   }
 }
@@ -4118,6 +4121,7 @@ async function deliverMessage(
     }
     return { ok: false, reason: `missing-channel-config:${normalized}`, required: adapter.env };
   } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] filesystem check failed', error);
     return { ok: false, reason: error instanceof Error ? error.message : String(error) };
   }
 }
@@ -4166,6 +4170,7 @@ async function readChannelMessages(channel: string, args: string[]): Promise<{ l
     }
     return { lines: [`Live read is not available for ${channel} yet.`], payload: { ok: false, reason: `unsupported-live-read:${channel}` } };
   } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] load operation failed', error);
     return { lines: [`Live read failed: ${error instanceof Error ? error.message : String(error)}`], payload: { ok: false, reason: error instanceof Error ? error.message : String(error) } };
   }
 }
@@ -4238,6 +4243,7 @@ async function lookupChannelDirectory(channel: string, kind: 'self' | 'peers' | 
     }
     return { lines: [`Live directory lookup is not available for ${channel} yet. Use zavorth directory add to store trusted IDs locally.`], payload: { ok: false, reason: `unsupported-live-directory:${channel}` }, entries: [] };
   } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] load operation failed', error);
     return { lines: [`Live directory lookup failed: ${error instanceof Error ? error.message : String(error)}`], payload: { ok: false, reason: error instanceof Error ? error.message : String(error) }, entries: [] };
   }
 }
@@ -4276,9 +4282,7 @@ async function renderTerminalQr(value: string): Promise<string> {
     const toString = (module.toString || module.default?.toString) as ((text: string, options: JsonObject) => Promise<string>) | undefined;
     if (!toString) return '';
     return (await toString(value, { type: 'terminal', small: true, margin: 1 })).trim();
-  } catch {
-    return '';
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] load operation failed', error); return ''; }
 }
 
 function hashPairingCode(code: string): string {
@@ -4521,6 +4525,7 @@ async function inferText(provider: string, prompt: string, args: string[]): Prom
     const message = ((choices[0] as JsonObject | undefined)?.message || {}) as JsonObject;
     return { ok: response.ok, status: response.status, provider, model: openAiLike.model, text: String(message.content || data.error || '') };
   } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] filesystem check failed', error);
     return { ok: false, reason: error instanceof Error ? error.message : String(error) };
   }
 }
@@ -4575,6 +4580,7 @@ async function postJson(url: string, body: unknown): Promise<JsonObject> {
     });
     return { ok: response.ok, status: response.status };
   } catch (error) {
+    logger.warn('[Zavorth Cli Live Namespaces] network request failed', error);
     return { ok: false, reason: error instanceof Error ? error.message : String(error) };
   }
 }

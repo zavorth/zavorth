@@ -11,7 +11,7 @@ import { logger } from '../logger.js';
 function formatNodeStatus(status: string | null | undefined): string {
   const normalized = String(status || '').trim().toLowerCase();
   if (!normalized) {
-    return 'nao informado';
+    return 'not provided';
   }
   return normalized;
 }
@@ -88,7 +88,7 @@ function formatNodeKindLabel(kind: NodeMeshNodeKind | string | null | undefined)
   if (normalized === 'browser') {
     return 'navegador';
   }
-  return normalized || 'tipo nao informado';
+  return normalized || 'tipo not provided';
 }
 
 function formatNodeStatusHuman(status: string | null | undefined): string {
@@ -100,7 +100,7 @@ function formatNodeStatusHuman(status: string | null | undefined): string {
     return 'desconectado';
   }
   if (normalized === 'blocked') {
-    return 'bloqueado';
+    return 'blocked';
   }
   if (normalized === 'revoked') {
     return 'revogado';
@@ -142,7 +142,7 @@ function formatNodeCompactSummary(
 ): string {
   const pending = entry.pendingInvocations || 0;
   const claimed = entry.claimedInvocations || 0;
-  return `- ${entry.label} [${formatNodeKindLabel(entry.kind)}] ${formatNodeStatusHuman(entry.status)} / ${formatCliValue(entry.trustLabel)} | fila ${formatCount(pending, 'pendente', 'pendentes')}${claimed > 0 ? ` + ${formatCount(claimed, 'em processamento', 'em processamento')}` : ''}`;
+  return `- ${entry.label} [${formatNodeKindLabel(entry.kind)}] ${formatNodeStatusHuman(entry.status)} / ${formatCliValue(entry.trustLabel)} | queue ${formatCount(pending, 'pending', 'pendings')}${claimed > 0 ? ` + ${formatCount(claimed, 'processing', 'processing')}` : ''}`;
 }
 
 function formatNodeMeshSnapshot(
@@ -156,13 +156,13 @@ function formatNodeMeshSnapshot(
   const highlighted = !selected ? pickHighlightedNodes(snapshot.entries, 3) : [];
   const summaryLine = snapshot.summary.total > 0
     ? `${formatCount(snapshot.summary.paired, 'pareado', 'pareados')}, ${formatCount(snapshot.summary.online, 'online', 'online')}, ${formatCount(snapshot.summary.queued, 'item na fila', 'itens na fila')}.`
-    : 'Nenhum node registrado agora.';
+    : 'Nenhum node registrado now.';
   const panels: CliVisualPanel[] = [
     {
       title: 'Agora',
       lines: [
         `- nodes: ${formatCount(snapshot.summary.total, 'total', 'total')} | ${formatCount(snapshot.summary.online, 'online', 'online')} | ${formatCount(snapshot.summary.paired, 'pareado', 'pareados')}`,
-        `- fila: ${formatCount(snapshot.summary.queued, 'item', 'itens')}`,
+        `- queue: ${formatCount(snapshot.summary.queued, 'item', 'itens')}`,
         `- resumo: ${summaryLine}`,
       ],
       tone: snapshot.summary.online > 0 ? 'info' : 'muted',
@@ -175,12 +175,12 @@ function formatNodeMeshSnapshot(
       lines: [
         `- ${selected.label} (${formatNodeKindLabel(selected.kind)})`,
         `- status: ${formatCliValue(selected.trustLabel)} / ${formatNodeStatusHuman(selected.status)}`,
-        `- capabilities: ${selected.capabilityIds.join(', ') || 'nenhuma declarada'}`,
-        `- fila: ${formatCount(selected.pendingInvocations || 0, 'pendente', 'pendentes')} | ${formatCount(selected.claimedInvocations || 0, 'em processamento', 'em processamento')}`,
+        `- capabilities: ${selected.capabilityIds.join(', ') || 'none declared'}`,
+        `- queue: ${formatCount(selected.pendingInvocations || 0, 'pending', 'pendings')} | ${formatCount(selected.claimedInvocations || 0, 'processing', 'processing')}`,
         selected.recentInvocation
           ? `- ultima invocacao: ${selected.recentInvocation.capabilityId} (${formatNodeStatus(selected.recentInvocation.status)})`
-          : '- ultima invocacao: nenhuma registrada',
-        `- proximo passo: ${formatCliValue(selected.nextAction || selected.operatorSummary, 'acompanhar o proximo heartbeat')}`,
+          : '- ultima invocacao: none registered',
+        `- next step: ${formatCliValue(selected.nextAction || selected.operatorSummary, 'follow the next heartbeat')}`,
       ],
       tone: 'info',
     });
@@ -245,7 +245,7 @@ function formatNodeMeshActivity(
         lines: [
           `- node: ${label || activity.nodeId}`,
           mode === 'queue'
-            ? `- fila: ${formatCount(activity.summary.pending, 'pendente', 'pendentes')} | ${formatCount(activity.summary.claimed, 'em processamento', 'em processamento')}`
+            ? `- queue: ${formatCount(activity.summary.pending, 'pending', 'pendings')} | ${formatCount(activity.summary.claimed, 'processing', 'processing')}`
             : `- historico: ${formatCount(activity.summary.recent, 'recente', 'recentes')} | ${formatCount(activity.summary.completedRecently, 'concluida recentemente', 'concluidas recentemente')}`,
           `- resumo: ${sanitizeHumanCliText(activity.narrative.operatorSummary)}`,
         ],
@@ -257,8 +257,8 @@ function formatNodeMeshActivity(
           ? items.map((entry) =>
             `- ${entry.capabilityId} (${formatNodeStatus(entry.status)})${entry.resultSummary ? ` :: ${entry.resultSummary}` : ''}`)
           : [mode === 'queue'
-            ? '- nenhuma invocacao pendente ou em processamento agora'
-            : '- nenhuma invocacao recente registrada para este node'],
+            ? '- no pending or processing invocation right now'
+            : '- no recent invocation recorded for this node'],
         tone: 'neutral',
       },
       {
@@ -286,7 +286,7 @@ function formatNodeProfiles(profiles: ReturnType<NodeDeviceProfileService['listP
       {
         title: 'Catalogo',
         lines: profiles.map((profile) =>
-          `- ${profile.label} [${profile.id}] :: ${profile.summary} | kind ${profile.kind} | transporte ${profile.transport} | capabilities ${profile.defaultCapabilityIds.join(', ') || 'nenhuma'} | proximo passo zavorth nodes pair ${profile.kind}`),
+          `- ${profile.label} [${profile.id}] :: ${profile.summary} | kind ${profile.kind} | transport ${profile.transport} | capabilities ${profile.defaultCapabilityIds.join(', ') || 'none'} | next step zavorth nodes pair ${profile.kind}`),
         tone: 'info',
       },
     ],
@@ -305,7 +305,7 @@ function formatNodeCapabilities(capabilities: ReturnType<NodeCapabilityService['
       {
         title: 'Catalogo',
         lines: capabilities.map((capability) =>
-          `- ${capability.label} [${capability.id}] :: ${capability.summary} | categoria ${capability.category} | risco ${capability.risky ? 'alto' : 'baixo'} | proximo passo ${capability.actionHint || 'revisar antes de liberar no host'}`),
+          `- ${capability.label} [${capability.id}] :: ${capability.summary} | category ${capability.category} | risk ${capability.risky ? 'high' : 'low'} | next step ${capability.actionHint || 'review before enabling on the host'}`),
         tone: 'info',
       },
     ],
@@ -318,7 +318,7 @@ function formatNodePairingDraft(draft: ReturnType<NodePairingService['createPair
   return renderCliScreen({
     eyebrow: 'Nodes',
     eyebrowTone: 'success',
-    title: 'Node pronto para pareamento',
+    title: 'Node ready para pareamento',
     summary: `${draft.entry.label} ja pode entrar na malha com este draft inicial.`,
     mode: 'compact',
     showWordmark: false,
@@ -359,7 +359,7 @@ function formatNodeInvokeResult(result: ReturnType<NodeInvokeService['invoke']>)
   return renderCliScreen({
     eyebrow: 'Nodes',
     eyebrowTone: result.ok ? 'success' : 'danger',
-    title: result.ok ? 'Invocacao enviada ao Node Mesh' : 'Nao consegui enviar a invocacao ao Node Mesh',
+    title: result.ok ? 'Invocation Sent To Node Mesh' : 'Could Not Send Invocation To Node Mesh',
     summary: result.reason,
     mode: 'compact',
     showWordmark: false,

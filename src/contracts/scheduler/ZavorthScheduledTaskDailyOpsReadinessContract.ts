@@ -77,9 +77,11 @@ export type ZavorthScheduledTaskDailyOpsReadinessSnapshot = {
     certify: string;
   };
   summary: {
+    gates: number;
     passedGates: number;
     warningGates: number;
     failedGates: number;
+    surfaces: number;
     readySurfaces: number;
     dailyUseReady: boolean;
     hostTaskChecked: boolean;

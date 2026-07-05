@@ -59,7 +59,7 @@ export class StitchExecutor implements IExecutor {
     const prompt = request.instructions.join('\n').trim();
     if (!prompt) {
       result.error_code = 'STITCH_PROMPT_MISSING';
-      result.error_message = 'Nenhum prompt foi fornecido para o Stitch.';
+      result.error_message = 'No prompt was provided for Stitch.';
       result.finished_at = new Date().toISOString();
       return result;
     }
@@ -172,7 +172,7 @@ export class StitchExecutor implements IExecutor {
     return [
       'O Stitch esta integrado no Zavorth, mas ainda falta autenticacao para usa-lo neste host.',
       'Configure STITCH_API_KEY, ou STITCH_ACCESS_TOKEN + GOOGLE_CLOUD_PROJECT.',
-      'Voce tambem pode instalar o servidor MCP do Stitch com: /mcp install stitch npx -y @anthropic/stitch-mcp-server',
+      'You can also install the Stitch MCP server with: /mcp install stitch npx -y @anthropic/stitch-mcp-server',
       'Assim que isso estiver configurado, o Zavorth podera gerar screenshot, link e HTML pelo /stitch.',
     ].join(' ');
   }
@@ -180,7 +180,7 @@ export class StitchExecutor implements IExecutor {
   /**
    * Tenta executar a geracao via ferramentas MCP do Stitch, se houver
    * um servidor MCP conectado com capability 'design_generation'.
-   * Retorna null se o caminho MCP nao estiver disponivel, permitindo
+   * Returns null when the MCP path is unavailable, allowing
    * o fallback para o SDK direto.
    */
   private async tryMcpRoute(

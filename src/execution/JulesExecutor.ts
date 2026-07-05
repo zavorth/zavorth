@@ -7,8 +7,8 @@ import { safeFetch } from '../security/SafeFetchService.js';
 /**
  * JulesExecutor — Integra o Google Jules AI Agent via REST API.
  *
- * Cria sessões assíncronas no Jules, faz polling de status
- * e retorna o resultado (diff/PR) quando a sessão for concluída.
+ * Creates asynchronous Jules sessions, polls status,
+ * and returns the result (diff/PR) when the session completes.
  *
  * API Base: https://jules.googleapis.com/v1alpha
  * Auth: X-Goog-Api-Key header
@@ -50,7 +50,7 @@ export class JulesExecutor implements IExecutor {
 
     const prompt = request.instructions.join('\n').trim();
     if (!prompt) {
-      result.error_message = 'Nenhum prompt fornecido para o Jules.';
+      result.error_message = 'No prompt was provided for Jules.';
       result.finished_at = new Date().toISOString();
       return result;
     }
@@ -58,14 +58,14 @@ export class JulesExecutor implements IExecutor {
     const repoSource = request.metadata?.jules_repo_source || request.metadata?.task_metadata?.jules_repo_source || '';
 
     try {
-      // 1. Criar sessão
-      result.actions_executed.push('[Jules] Criando sessao...');
+      // 1. Create session.
+      result.actions_executed.push('[Jules] Creating session...');
       const session = await this.createSession(prompt, repoSource);
       const sessionId = session.name;
       result.metadata.jules_session_id = sessionId;
-      result.actions_executed.push(`[Jules] Sessao criada: ${sessionId}`);
+      result.actions_executed.push(`[Jules] Session created: ${sessionId}`);
 
-      // 2. Poll até conclusão
+      // 2. Poll until completion.
       let pollCount = 0;
       let sessionState: any = null;
       const maxSyncPollAttempts = this.resolveMaxSyncPollAttempts(request.timeout_seconds);
@@ -77,25 +77,25 @@ export class JulesExecutor implements IExecutor {
 
         if (state === 'COMPLETED' || state === 'SUCCEEDED') {
           result.success = true;
-          result.stdout = sessionState.result?.summary || sessionState.summary || 'Sessao Jules concluida.';
+          result.stdout = sessionState.result?.summary || sessionState.summary || 'Jules session completed.';
           result.diff_summary = sessionState.result?.diffUrl || sessionState.diffUrl || null;
-          result.actions_executed.push(`[Jules] Sessao concluida apos ${pollCount + 1} polls.`);
+          result.actions_executed.push(`[Jules] Session completed after ${pollCount + 1} polls.`);
           break;
         }
 
         if (state === 'FAILED' || state === 'CANCELLED') {
-          result.error_message = sessionState.error?.message || `Sessao Jules ${state.toLowerCase()}.`;
+          result.error_message = sessionState.error?.message || `Jules session ${state.toLowerCase()}.`;
           result.error_code = 'JULES_SESSION_FAILED';
-          result.actions_executed.push(`[Jules] Sessao ${state}: ${result.error_message}`);
+          result.actions_executed.push(`[Jules] Session ${state}: ${result.error_message}`);
           break;
         }
 
         if (state === 'AWAITING_USER_INPUT' || state === 'PLAN_REVIEW') {
-          // Pausar e aguardar aprovação externa
-          result.error_message = `Sessao Jules aguarda aprovacao do plano. SessionId: ${sessionId}`;
+          // Pause and wait for external approval.
+          result.error_message = `Jules session is waiting for plan approval. SessionId: ${sessionId}`;
           result.error_code = 'JULES_AWAITING_APPROVAL';
           result.metadata.jules_requires_approval = true;
-          result.actions_executed.push(`[Jules] Sessao aguardando aprovacao de plano.`);
+          result.actions_executed.push(`[Jules] Session waiting for plan approval.`);
           break;
         }
 
@@ -103,7 +103,7 @@ export class JulesExecutor implements IExecutor {
       }
 
       if (pollCount >= maxSyncPollAttempts && !result.success && !result.error_message) {
-        result.error_message = `Sessao Jules iniciada e ainda em andamento. SessionId: ${sessionId}`;
+        result.error_message = `Jules session started and is still running. SessionId: ${sessionId}`;
         result.error_code = 'JULES_PENDING';
         result.metadata.jules_pending = true;
       }
@@ -111,7 +111,7 @@ export class JulesExecutor implements IExecutor {
     } catch (error: any) {
       result.error_message = `Jules API error: ${error.message}`;
       result.error_code = 'JULES_API_ERROR';
-      result.actions_executed.push(`[Jules] Erro: ${error.message}`);
+      result.actions_executed.push(`[Jules] Error: ${error.message}`);
     }
 
     result.finished_at = new Date().toISOString();

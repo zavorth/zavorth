@@ -546,12 +546,13 @@ export class SandboxHostReadinessService {
           : 'Local-jail executou, mas a saida esperada nao apareceu.',
       );
     } catch (error) {
-      return {
+    logger.warn('[Sandbox Host Readiness] process execution failed', error);
+    return {
         id: 'local-jail:e2e',
         status: 'fail',
         reason: `Local-jail smoke falhou: ${this.errorMessage(error)}.`,
       };
-    }
+  }
   }
 
   private async runMicrovmSmoke(): Promise<SandboxHostSmokeResult> {
@@ -569,12 +570,13 @@ export class SandboxHostReadinessService {
           : 'MicroVM executou, mas a saida esperada nao apareceu.',
       );
     } catch (error) {
-      return {
+    logger.warn('[Sandbox Host Readiness] process execution failed', error);
+    return {
         id: 'firecracker:e2e',
         status: 'fail',
         reason: `MicroVM smoke falhou: ${this.errorMessage(error)}.`,
       };
-    }
+  }
   }
 
   private resultToSmoke(
@@ -691,7 +693,8 @@ export class SandboxHostReadinessService {
     try {
       return this.dockerRuntime.getStatus('javascript');
     } catch (error) {
-      return {
+    logger.warn('[Sandbox Host Readiness] filesystem check failed', error);
+    return {
         enabled: this.config.dockerSandboxEnabled,
         language: 'javascript',
         image: String(this.config.dockerSandboxJavascriptImage || this.config.dockerSandboxImage || 'node:22-bullseye'),
@@ -703,14 +706,15 @@ export class SandboxHostReadinessService {
         canRun: false,
         detail: `falha ao consultar Docker: ${this.errorMessage(error)}`,
       };
-    }
+  }
   }
 
   private getFirecrackerStatus(): FirecrackerSandboxStatus {
     try {
       return this.firecrackerRuntime.getStatus();
     } catch (error) {
-      return {
+    logger.warn('[Sandbox Host Readiness] filesystem check failed', error);
+    return {
         enabled: this.config.firecrackerEnabled,
         transport: this.config.firecrackerTransport === 'wsl' ? 'wsl' : 'direct',
         bridgeReady: false,
@@ -721,16 +725,14 @@ export class SandboxHostReadinessService {
         canRun: false,
         detail: `falha ao consultar Firecracker: ${this.errorMessage(error)}`,
       };
-    }
+  }
   }
 
   private canAccess(targetPath: string, mode: number): boolean {
     try {
       this.accessSync(targetPath, mode);
       return true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Sandbox Host Readiness] filesystem check failed', error); return false; }
   }
 
   private pathLooksPresent(targetPath: string): boolean {

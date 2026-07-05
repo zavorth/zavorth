@@ -97,8 +97,6 @@ export class ZavorthDoItWithMeService {
       projections: {
         capability: useCapability ? capability : null,
         mission: useCapability ? null : mission,
-        zavorthControlRoute: '/zavorthControl',
-        zavorthControlCanExecute: false,
         zavorthControlRoute: '/control',
         zavorthControlCanExecute: false,
       },

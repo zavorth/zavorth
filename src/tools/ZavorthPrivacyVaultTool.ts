@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export interface VaultEntry {
   id: string;
@@ -120,7 +121,7 @@ export class ZavorthPrivacyVaultTool extends BaseTool {
     try {
       const data = JSON.parse(fs.readFileSync(this.vaultPath, 'utf-8'));
       return data as VaultEntry[];
-    } catch { return []; }
+    } catch (error) { logger.warn('[Zavorth Privacy Vault] JSON parse failed', error); return []; }
   }
 
   private saveVault(entries: VaultEntry[]): void {
@@ -130,7 +131,7 @@ export class ZavorthPrivacyVaultTool extends BaseTool {
   private logAudit(action: string, entryId: string, details: string): void {
     let auditLog: Array<{ timestamp: string; action: string; entry_id: string; details: string }> = [];
     if (fs.existsSync(this.auditPath)) {
-      try { auditLog = JSON.parse(fs.readFileSync(this.auditPath, 'utf-8')); } catch { /* ignore */ }
+      try { auditLog = JSON.parse(fs.readFileSync(this.auditPath, 'utf-8')); } catch (error) { /* ignore */ logger.warn('[Zavorth Privacy Vault] JSON parse failed', error); }
     }
     auditLog.push({ timestamp: new Date().toISOString(), action, entry_id: entryId, details });
     fs.writeFileSync(this.auditPath, JSON.stringify(auditLog.slice(-500), null, 2), 'utf-8');
@@ -162,7 +163,7 @@ export class ZavorthPrivacyVaultTool extends BaseTool {
     const { encrypted, iv } = this.encrypt(value);
     const category = String(args.category || 'other') as VaultEntry['category'];
     let tags: string[] = [];
-    if (typeof args.tags === 'string') { try { tags = JSON.parse(args.tags); } catch { /* ignore */ } }
+    if (typeof args.tags === 'string') { try { tags = JSON.parse(args.tags); } catch (error) { /* ignore */ logger.warn('[Zavorth Privacy Vault] JSON parse failed', error); } }
 
     const expiresAt = typeof args.expires_in_days === 'number'
       ? new Date(Date.now() + args.expires_in_days * 86400000).toISOString()

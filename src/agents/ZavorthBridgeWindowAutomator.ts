@@ -112,7 +112,7 @@ export class ZavorthBridgeWindowAutomator {
     }
 
     if (!sawSuccessfulProbe) {
-      throw new Error('Nao consegui verificar se o ZavorthBridge realmente aceitou a permissao.');
+      throw new Error('Could not verify that ZavorthBridge actually accepted the permission.');
     }
 
     return false;

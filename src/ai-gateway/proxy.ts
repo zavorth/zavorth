@@ -6,6 +6,7 @@ import { isPublicRoute, verifyAuth, isAuthRequired, isLoopbackRequest } from "./
 import { checkBodySize, getBodySizeLimit } from "./shared/middleware/bodySizeGuard";
 import { isDraining } from "./lib/gracefulShutdown";
 import { isModelSyncInternalRequest } from "./shared/services/modelSyncScheduler";
+import { logger } from '@/shared/utils/logger';
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "");
 const AUTH_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60;
@@ -14,9 +15,7 @@ function isLocalZavorthControlRequest(request: any): boolean {
   try {
     const hostname = new URL(request.url).hostname.toLowerCase();
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[proxy] encoding failed', error); return false; }
 }
 
 export async function proxy(request: any) {

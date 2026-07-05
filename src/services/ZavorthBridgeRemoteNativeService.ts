@@ -5,6 +5,7 @@ import type { TerminalSidecarSnapshot } from './TerminalSidecarService.js';
 import { RemoteModeManager, type RemoteModeResult } from './RemoteModeManager.js';
 import { WindowsSessionService, type WindowsSessionStatus } from './WindowsSessionService.js';
 import { safeFetch } from '../security/SafeFetchService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthBridgeRemoteNativeStatus = {
   checkedAt: string;
@@ -164,9 +165,7 @@ export class ZavorthBridgeRemoteNativeService {
     try {
       const raw = await fs.promises.readFile(statusFile, 'utf8');
       return JSON.parse(raw) as TerminalSidecarSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Remote Native] JSON parse failed', error); return null; }
   }
 
   private async isSidecarHealthy(): Promise<{ ok: boolean; healthUrl: string }> {
@@ -184,12 +183,13 @@ export class ZavorthBridgeRemoteNativeService {
         ok: response.status > 0 && response.status < 500,
         healthUrl,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Bridge Remote Native] network request failed', error);
+    return {
         ok: false,
         healthUrl,
       };
-    }
+  }
   }
 
   private async readBridgeStatus(): Promise<{
@@ -214,24 +214,18 @@ export class ZavorthBridgeRemoteNativeService {
         lastSyncedHandoff: status?.lastSyncedHandoff || null,
         capabilities: status?.capabilities || {},
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Remote Native] filesystem check failed', error); return null; }
   }
 
   private async safeRemoteModeStatus(): Promise<RemoteModeResult | null> {
     try {
       return await this.remoteModeManager.status();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Remote Native] filesystem check failed', error); return null; }
   }
 
   private async safeSessionStatus(): Promise<WindowsSessionStatus | null> {
     try {
       return await this.windowsSessionService.status();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Remote Native] filesystem check failed', error); return null; }
   }
 }

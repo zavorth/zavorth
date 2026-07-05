@@ -63,14 +63,14 @@ export function formatToolRehearsalSnapshot(
 ): string {
   const lines = [
     'Tool Rehearsal - Tool Rehearsal',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,
     `- calls: ${snapshot.summary.callCount}`,
     `- calls danger: ${snapshot.summary.dangerousCallCount}`,
     `- scope aprovado: ${String(snapshot.summary.scopeApproved)}`,
     `- budget ok: ${String(snapshot.summary.budgetAllowed)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Calls',
   ];
@@ -80,7 +80,7 @@ export function formatToolRehearsalSnapshot(
       `- ${call.order}. ${call.toolId} [${call.risk}]`,
       `  args: ${JSON.stringify(call.approximateArguments)}`,
       `  esperado: ${call.expectedOutput}`,
-      `  escopo: ${call.allowedByScope ? 'permitido' : 'pendente'}; dry-run=${String(call.dryRunSupported)}`,
+      `  escopo: ${call.allowedByScope ? 'permitido' : 'pending'}; dry-run=${String(call.dryRunSupported)}`,
     );
   }
 
@@ -90,8 +90,8 @@ export function formatToolRehearsalSnapshot(
   }
 
   lines.push('', 'Politica');
-  lines.push('- rehearsal nao executa tools');
-  lines.push('- nao muda filesystem, nao spawna shell e nao chama rede');
+  lines.push('- rehearsal does not execute tools');
+  lines.push('- does not change the filesystem, spawn shell, or call the network');
   lines.push('- execucao real fica limitada ao escopo ensaiado');
 
   lines.push('', 'Superficies');

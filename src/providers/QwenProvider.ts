@@ -67,11 +67,11 @@ export class QwenProvider implements ILlmProvider {
 
       if (/auth|token|unauthorized|forbidden|401|403/i.test(message)) {
         throw new Error(
-          `Falha ao consultar o Qwen via Puter OpenAI-compatible API: autenticacao ou permissao invalida. Verifique o PUTER_AUTH_TOKEN. Detalhe: ${message}`,
+          `Failed to query Qwen through the Puter OpenAI-compatible API: invalid authentication or permission. Check PUTER_AUTH_TOKEN. Details: ${message}`,
         );
       }
 
-      throw new Error(`Falha ao consultar o Qwen via Puter OpenAI-compatible API: ${message}`);
+      throw new Error(`Failed to query Qwen through the Puter OpenAI-compatible API: ${message}`);
     }
   }
 
@@ -106,7 +106,7 @@ export class QwenProvider implements ILlmProvider {
           content: message.content || '',
           tool_call_id: message.toolCallId || 'unknown',
         });
-        // ZavorthControl controls: Vision passthrough para tool responses
+        // ZavorthControl controls: vision passthrough for tool responses.
         if (message.inlineData && message.inlineData.length > 0) {
           const visionContent: Array<OpenAI.ChatCompletionContentPartText | OpenAI.ChatCompletionContentPartImage> = [
             { type: 'text', text: '[Imagem capturada pela ferramenta para analise visual]' },

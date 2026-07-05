@@ -8,7 +8,8 @@ export async function GET(request: Request) {
   try {
     const executions = skillExecutor.listExecutions();
     return NextResponse.json({ executions });
-  } catch (err: unknown) {
+  } catch (error) {
+    logger.warn('[route] process execution failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
   }
@@ -17,6 +18,7 @@ export async function GET(request: Request) {
 import { z } from "zod";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
+import { logger } from '@/shared/utils/logger';
 
 const executionSchema = z.object({
   skillName: z.string().min(1),

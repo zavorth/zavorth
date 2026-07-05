@@ -462,7 +462,7 @@ async function executeZavorthCliCommandInner(params: {
       .trim();
 
     if (!taskDescription) {
-      const error = 'O comando loop exige a descrição de uma tarefa. Ex: loop "implementar calculadora"';
+      const error = 'The loop command requires a task description. Example: loop "implement calculator"';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -485,10 +485,10 @@ async function executeZavorthCliCommandInner(params: {
       workspace: effectiveFlags.workspaceHint || null,
     });
     const body = effectiveFlags.json
-      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core indisponivel.' }, null, 2)
+      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core unavailable.' }, null, 2)
       : snapshot
         ? formatExperienceHome(snapshot)
-        : 'Experience Core indisponivel neste runtime.';
+        : 'Experience Core unavailable neste runtime.';
     writer.line(body);
     return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
   }

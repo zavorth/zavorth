@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
+import { logger } from '../logger.js';
 
 type SecurityCheckSnapshot = {
   available: boolean;
@@ -169,21 +170,22 @@ export class OperationalSecurityService {
         };
       }
 
-      const parsed = JSON.parse(this.readFileSync(filePath, 'utf8')) as any;
+      const parsed = JSON.parse(this.readFileSync(filePath, 'utf8')) as Record<string, unknown>;
       return {
         available: true,
         generatedAt: typeof parsed.generatedAt === 'string' ? parsed.generatedAt : null,
         ok: typeof parsed.ok === 'boolean' ? parsed.ok : null,
         summary: typeof parsed.summary === 'string' ? parsed.summary : null,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Operational Security] JSON parse failed', error);
+    return {
         available: false,
         generatedAt: null,
         ok: null,
         summary: null,
       };
-    }
+  }
   }
 
   private readAuditSnapshot(): SecurityAuditSnapshot {
@@ -217,9 +219,7 @@ export class OperationalSecurityService {
       }
 
       return JSON.parse(this.readFileSync(filePath, 'utf8')) as Record<string, unknown>;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Operational Security] JSON parse failed', error); return null; }
   }
 
   private readRecentAuditRecords(filePath: string, limit: number): SecurityAuditReplayRecord[] {
@@ -247,9 +247,7 @@ export class OperationalSecurityService {
             typeof record.previous_chain_hash === 'string' ? record.previous_chain_hash : null,
         }))
         .filter((record) => record.chainHash);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Operational Security] operation failed', error); return []; }
   }
 
   private describeZavorthControlAuthSource(

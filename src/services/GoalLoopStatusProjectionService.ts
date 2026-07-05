@@ -4,8 +4,9 @@ import type { TaskPlaneItem } from '../contracts/TaskPlaneContract.js';
 import type { GoalPlaneItem } from './GoalPlaneService.js';
 import { GoalPlaneService } from './GoalPlaneService.js';
 import { TaskPlaneService } from './TaskPlaneService.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthOperationalStateDbService,
+ZavorthOperationalStateDbService,
   type ZavorthOperationalEvent,
   type ZavorthOperationalReceipt,
 } from './ZavorthOperationalStateDbService.js';
@@ -180,9 +181,7 @@ export class GoalLoopStatusProjectionService {
         stateDbPath: this.stateDbPath,
         now: this.now,
       }).snapshot().goals;
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Goal Loop Status Projection] creation failed', error); return []; }
   }
 
   private readContinuationTasks(): TaskPlaneItem[] {
@@ -199,9 +198,7 @@ export class GoalLoopStatusProjectionService {
       return tasks
         .filter((task) => task.source === 'goal-loop')
         .filter((task) => normalize((task.payload || {}).kind) === 'goal-loop-continuation');
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Goal Loop Status Projection] load operation failed', error); return []; }
   }
 
   private readHeartbeat(): StoredHeartbeat | null {

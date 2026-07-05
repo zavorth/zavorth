@@ -1,5 +1,6 @@
 import type { ModelCatalogProviderInput } from '../ModelCatalogAggregationService.js';
 import { assertProviderRequestTargetAllowed } from '../../../../ai-gateway/lib/security/egressGuard.js';
+import { logger } from '../../../../logger';
 
 export type AnthropicCompatibleModelDiscoveryInput = {
   providerId: string;
@@ -46,7 +47,8 @@ export class AnthropicCompatibleModelDiscoveryAdapter {
         },
       });
     } catch (error) {
-      return {
+    logger.warn('[Anthropic Compatible Model Discovery Adapter] network request failed', error);
+    return {
         source: 'fallback_catalog',
         status: null,
         warning: error instanceof Error ? error.message : 'Anthropic-compatible discovery blocked by egress policy.',
@@ -59,7 +61,7 @@ export class AnthropicCompatibleModelDiscoveryAdapter {
           models: [],
         },
       };
-    }
+  }
 
     if (!response.ok) {
       return {

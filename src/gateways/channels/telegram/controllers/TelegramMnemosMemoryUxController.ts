@@ -27,11 +27,11 @@ export class TelegramMnemosMemoryUxController {
       const snapshot = this.proceduralMemoryService.list();
       await ctx.reply([
         `Mnemos procedural: ${snapshot.status}`,
-        `Regras: ${snapshot.summary.active}/${snapshot.summary.total} ativa(s)`,
-        `Usuario: ${userId}`,
+        `Rules: ${snapshot.summary.active}/${snapshot.summary.total} active`,
+        `User: ${userId}`,
         '',
-        'Para criar regra: zavorth memory procedural preview <texto>',
-        'Para aplicar: zavorth memory procedural apply --approval-id <id> <texto>',
+        'To create a rule: zavorth memory procedural preview <text>',
+        'To apply it: zavorth memory procedural apply --approval-id <id> <text>',
       ].join('\n'));
       return;
     }
@@ -42,15 +42,15 @@ export class TelegramMnemosMemoryUxController {
       await ctx.reply([
         `Mnemos query: ${snapshot.status}`,
         `Hits: ${snapshot.summary.hits}/${snapshot.summary.pagesScanned}`,
-        hits || 'Nenhuma pagina encontrada.',
+        hits || 'No page found.',
       ].join('\n'));
       return;
     }
     if (first === 'revoke') {
       const ruleId = tokens[1] || '<rule-id>';
       await ctx.reply([
-        'Revogacao Mnemos exige approval governado.',
-        `Regra: ${ruleId}`,
+        'Mnemos revocation requires governed approval.',
+        `Rule: ${ruleId}`,
         '',
         `Use na CLI: zavorth memory procedural revoke --id ${ruleId} --approval-id <id>`,
       ].join('\n'));

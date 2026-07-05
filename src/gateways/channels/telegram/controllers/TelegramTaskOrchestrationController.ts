@@ -30,7 +30,7 @@ import { TelegramTaskSurfaceSecurityService } from '../../../../gateways/channel
 import { TelegramTaskWorkflowRoutingService } from '../../../../gateways/channels/telegram/controllers/TelegramTaskWorkflowRoutingService.js';
 import { buildTaskEventSurfaceResponse } from '@zavorth/domain/surface/application/surface-response/index.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
-import { logger } from '../logger.js';
+import { logger } from '../../../../logger.js';
 
 type AttachRecentContextFn = (task: Task) => Promise<void>;
 type RouteIntentFn = (parsed: ParsedCommand) => RouteIntent;
@@ -175,10 +175,10 @@ export class TelegramTaskOrchestrationController {
         this.deps.logRepo.log(
           'warn',
           'TrustedBoundary',
-          `Input bloqueado para execucao: ${trustClassification.reason}`,
+          `Input blocked for execution: ${trustClassification.reason}`,
         );
         task.error_summary = trustClassification.reason;
-        const userFacingText = `Preferi bloquear esse pedido por seguranca.\n\nMotivo: ${trustClassification.reason}`;
+        const userFacingText = `I blocked this request for security.\n\nReason: ${trustClassification.reason}`;
         TaskResponseEnvelopeService.capture(
           task,
           'security_block',
@@ -193,7 +193,7 @@ export class TelegramTaskOrchestrationController {
         });
         await this.replyTaskEvent(ctx, task, {
           event: 'security_block',
-          title: 'Pedido bloqueado por seguranca',
+          title: 'Request Blocked For Security',
           summary: trustClassification.reason,
           text: userFacingText,
           status: 'blocked',

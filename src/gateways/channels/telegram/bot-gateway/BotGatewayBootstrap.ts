@@ -21,7 +21,7 @@ export function initializeBotGateway(
   // Bootstrap phase: assign private properties via Object.assign
   Object.assign(gateway, { taskManager, logRepo });
   initializeBotGatewayFoundation(
-    gateway,
+    gateway as any,
     token,
     logRepo,
     runtimeComposition,
@@ -30,18 +30,18 @@ export function initializeBotGateway(
 
   const { workflowRunService, productObservabilityService } =
     initializeTelegramOperationsServices(
-      gateway,
+      gateway as any,
       taskManager,
       logRepo,
-      runtimeOptions,
+      runtimeOptions as any,
     );
   initializeBotGatewayControllers(
-    gateway,
+    gateway as any,
     taskManager,
     logRepo,
     workflowRunService,
     productObservabilityService,
-    runtimeOptions,
+    runtimeOptions as any,
   );
-  finalizeBotGatewayBootstrap(gateway, taskManager, logRepo, workflowRunService, runtimeOptions);
+  finalizeBotGatewayBootstrap(gateway as any, taskManager, logRepo, workflowRunService, runtimeOptions);
 }

@@ -24,8 +24,9 @@ type MemoryArtifactConsistencyRuntime = {
   files?: Partial<Record<MemoryArtifactSourceFileKey, string>>;
 };
 
+import { logger } from '../logger.js';
 import {
-  SOURCE_FILE_NAMES,
+SOURCE_FILE_NAMES,
   SPECS,
   type MemoryArtifactSourceFileKey,
   type MemoryArtifactSpec,
@@ -479,8 +480,6 @@ export class MemoryArtifactConsistencyService {
     const absolutePath = path.join(rootDir, SOURCE_FILE_NAMES[key]);
     try {
       return fs.readFileSync(absolutePath, 'utf8');
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Memory Artifact Consistency] filesystem operation failed', error); return ''; }
   }
 }

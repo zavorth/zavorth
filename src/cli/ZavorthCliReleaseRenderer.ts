@@ -5,7 +5,7 @@ import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.j
 function compact(value: string | null | undefined, maxLength = 96): string {
   const normalized = sanitizeHumanCliText(value || '').replace(/\s+/g, ' ').trim();
   if (!normalized) {
-    return 'nao informado';
+    return 'not provided';
   }
   if (normalized.length <= maxLength) {
     return normalized;
@@ -55,7 +55,7 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
       lines: [
         `- modo: ${snapshot.mode}`,
         `- status: ${snapshot.status}`,
-        `- canal: ${snapshot.release.channel}`,
+        `- channel: ${snapshot.release.channel}`,
         `- versao: ${snapshot.release.version || 'sem versao'}`,
         `- risco: ${snapshot.release.risk.level} | ${compact(snapshot.release.risk.reasons.join(' | '), 92)}`,
       ],
@@ -78,10 +78,10 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
           ? 'warning'
           : 'success',
       lines: [
-        `- target: ${snapshot.rollback.targetLabel || 'nao resolvido'}`,
-        `- executou: ${snapshot.rollback.executed ? 'sim' : 'nao'}`,
-        `- confirmacao: ${snapshot.rollback.confirmationRequired ? 'obrigatoria' : 'nao'}`,
-        `- comando: ${snapshot.rollback.command}`,
+        `- target: ${snapshot.rollback.targetLabel || 'unresolved'}`,
+        `- executed: ${snapshot.rollback.executed ? 'yes' : 'no'}`,
+        `- confirmation: ${snapshot.rollback.confirmationRequired ? 'required' : 'no'}`,
+        `- command: ${snapshot.rollback.command}`,
         ...rollbackChecks,
       ],
     },
@@ -93,9 +93,9 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
           ? 'warning'
           : 'neutral',
       lines: [
-        `- estado: ${snapshot.remotePresence.status}`,
+        `- state: ${snapshot.remotePresence.status}`,
         `- ready/total: ${snapshot.remotePresence.ready}/${snapshot.remotePresence.transportTotal}`,
-        `- credenciais soltas: ${snapshot.remotePresence.credentials.looseCredentialRequired ? 'sim' : 'nao'}`,
+        `- loose credentials: ${snapshot.remotePresence.credentials.looseCredentialRequired ? 'yes' : 'no'}`,
         ...(
           remoteLines.length > 0
             ? remoteLines
@@ -110,7 +110,7 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
         `- eventos: ${snapshot.costPanel.totalEvents}`,
         `- traces: ${snapshot.costPanel.traces}`,
         `- falhas/bloqueios: ${snapshot.costPanel.failures}/${snapshot.costPanel.blocked}`,
-        `- tokens: ${snapshot.costPanel.tokenAccounting.available ? snapshot.costPanel.tokenAccounting.totalTokens : 'indisponivel'}`,
+        `- tokens: ${snapshot.costPanel.tokenAccounting.available ? snapshot.costPanel.tokenAccounting.totalTokens : 'unavailable'}`,
         ...(taskCostLines.length > 0 ? taskCostLines : ['- sem traces recentes por task']),
       ],
     },
@@ -125,10 +125,10 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
       title: 'Contratos',
       tone: Object.values(snapshot.contracts).every(Boolean) ? 'success' : 'warning',
       lines: [
-        `- credencial solta: ${snapshot.contracts.remoteNeverRequiresLooseCredentialFirstLayer ? 'nao' : 'revisar'}`,
-        `- rollback com evidencia: ${snapshot.contracts.rollbackHasPreflightAndEvidence ? 'sim' : 'nao'}`,
-        `- publish com risco/diff/reversao: ${snapshot.contracts.publishRegistersVersionDiffRiskRollback ? 'sim' : 'nao'}`,
-        `- rollback preview read-only: ${snapshot.contracts.rollbackPreviewDoesNotExecute ? 'sim' : 'nao'}`,
+        `- loose credential: ${snapshot.contracts.remoteNeverRequiresLooseCredentialFirstLayer ? 'no' : 'review'}`,
+        `- rollback with evidence: ${snapshot.contracts.rollbackHasPreflightAndEvidence ? 'yes' : 'no'}`,
+        `- publish with risk/diff/reversal: ${snapshot.contracts.publishRegistersVersionDiffRiskRollback ? 'yes' : 'no'}`,
+        `- read-only rollback preview: ${snapshot.contracts.rollbackPreviewDoesNotExecute ? 'yes' : 'no'}`,
       ],
     },
   ];
@@ -137,7 +137,7 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
     eyebrow: 'Release',
     eyebrowTone: statusTone(snapshot),
     title: 'Release, remoto e produto',
-    summary: formatCliValue(snapshot.narrative.headline, 'Release presence pronto.'),
+    summary: formatCliValue(snapshot.narrative.headline, 'Release presence ready.'),
     mode: 'compact',
     showWordmark: false,
     panels,

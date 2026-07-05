@@ -2,6 +2,7 @@ import { execFile } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { logger } from '../logger.js';
 export type CleanupResult = {
   ok: boolean;
   killed: string[];
@@ -93,8 +94,9 @@ export class SystemCleanupService {
         : `Nenhum processo nao-essencial ou artefato encontrado.${wslShutdown ? ' WSL desligado.' : ''}`;
 
       return { ok: true, killed, skipped, wslShutdown, message, warnings };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[System Cleanup] operation failed', error);
+    return {
         ok: false,
         killed,
         skipped,
@@ -102,7 +104,7 @@ export class SystemCleanupService {
         message: `Erro na limpeza: ${error.message}`,
         warnings,
       };
-    }
+  }
   }
 
   private async cleanTempArtifacts(): Promise<number> {
@@ -122,14 +124,10 @@ export class SystemCleanupService {
             try {
               fs.unlinkSync(path.join(dir, file));
               removedCounts++;
-            } catch (e) {
-              // Ignore lock errors
-            }
+            } catch (error) { // Ignore lock errors logger.warn('[System Cleanup] file cleanup failed', error); }
           }
         }
-      } catch (e) {
-        // Ignorar erros de leitura de diretorio
-      }
+      } catch (error) { // Ignorar erros de leitura de diretorio logger.warn('[System Cleanup] file cleanup failed', error); }
     }
     return removedCounts;
   }

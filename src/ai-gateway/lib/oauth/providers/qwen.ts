@@ -1,5 +1,6 @@
 import { QWEN_CONFIG } from "../constants/oauth";
 import { decodeJwt } from "jose";
+import { logger } from '@/shared/utils/logger';
 
 export const qwen = {
   config: QWEN_CONFIG,
@@ -54,9 +55,7 @@ export const qwen = {
         const decoded = decodeJwt(tokens.id_token);
         email = decoded.email || decoded.preferred_username || null;
         displayName = decoded.name || email;
-      } catch (e) {
-        // Ignore
-      }
+      } catch (error) { // Ignore logger.warn('[qwen] encoding failed', error); }
     }
 
     if (!email && tokens.access_token) {
@@ -64,9 +63,7 @@ export const qwen = {
         const decodedToken = decodeJwt(tokens.access_token);
         email = decodedToken.email || decodedToken.preferred_username || decodedToken.sub || null;
         displayName = decodedToken.name || email;
-      } catch (e) {
-        // Ignore
-      }
+      } catch (error) { // Ignore logger.warn('[qwen] encoding failed', error); }
     }
 
     return {

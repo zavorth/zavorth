@@ -2,6 +2,7 @@ import { getDbInstance } from "@/lib/db/core";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { redactExportedLogRows } from "@/lib/logExportRedaction";
 import { safeParseIntBounded } from "@/shared/utils/safeParseInt";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * GET /api/logs/export — export logs as JSON
@@ -55,6 +56,7 @@ export async function GET(request: Request) {
       }
     );
   } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return Response.json(
       { error: { message: (error as Error).message, type: "server_error" } },
       { status: 500 }

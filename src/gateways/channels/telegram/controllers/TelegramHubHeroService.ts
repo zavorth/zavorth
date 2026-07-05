@@ -18,7 +18,7 @@ export class TelegramHubHeroService {
       });
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
-      logger.warn(`Falha ao enviar hero do hub: ${msg}`);
+      logger.warn(`Failed to send hub hero: ${msg}`);
     }
   }
 
@@ -30,12 +30,12 @@ export class TelegramHubHeroService {
     return [
       '*Zavorth Control*',
       '',
-      'Seu assistente para codigo, automacao, WSL, pesquisa e permissoes com controle.',
+      'Your assistant for code, automation, WSL, research, and governed permissions.',
       '',
       '- Codex local',
-      '- ExternalExecutor no WSL',
-      '- ZavorthBridge assistido',
-      '- Politicas, modos e aprovacoes',
+      '- ExternalExecutor in WSL',
+      '- Assisted ZavorthBridge',
+      '- Policies, modes, and approvals',
     ].join('\n');
   }
 }

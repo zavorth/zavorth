@@ -6,6 +6,7 @@ import {
   type ZavorthEndToEndMissionFlowPublicRuntimeCertificationSnapshot,
 } from '../contracts/ZavorthEndToEndMissionFlowPublicRuntimeCertificationContract.js';
 import type { CanonicalPublicApiRuntime } from '../api/public/canonical-public-api/types.js';
+import type { OperationsHealthSnapshot } from '../observability/OperationsHealthService.js';
 import { ZavorthSchedulerPerceptionDeviceLiveCompletionService } from './ZavorthSchedulerPerceptionDeviceLiveCompletionService.js';
 import { ZavorthSubagentSkillLiveCompletionService } from './ZavorthSubagentSkillLiveCompletionService.js';
 
@@ -368,15 +369,15 @@ function createDefaultPublicRuntime(): CanonicalPublicApiRuntime {
     },
   };
   return {
-    getRuntime: () => ({} as any),
+    getRuntime: () => null,
     getGateway: () => null,
     getSessionPlane: () => null,
     getNodeMesh: () => null,
     getPlatformRegistry: () => null,
     getRemoteTransports: () => null,
     getOperationsHealth: () => ({
-      readSnapshotFast: () => operationsSnapshot as any,
-      readSnapshotLive: () => operationsSnapshot as any,
+      readSnapshotFast: () => operationsSnapshot as unknown as OperationsHealthSnapshot,
+      readSnapshotLive: () => operationsSnapshot as unknown as OperationsHealthSnapshot,
     }),
     getLearningPlane: () => null,
     getLayeredMemory: () => null,

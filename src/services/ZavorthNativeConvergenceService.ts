@@ -20,6 +20,7 @@ import { ZavorthSandboxControlPlaneService } from './ZavorthSandboxControlPlaneS
 import { VoiceWakeRuntimeService } from './VoiceWakeRuntimeService.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import { SwarmScalePlaneService } from '../domain/execution/infrastructure/SwarmScalePlaneService.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -474,9 +475,7 @@ export class ZavorthNativeConvergenceService {
     try {
       const parsed = JSON.parse(fs.readFileSync(path.join(this.projectRoot, 'package.json'), 'utf8')) as PackageJson;
       return parsed.scripts || {};
-    } catch {
-      return {};
-    }
+    } catch (error) { logger.warn('[Zavorth Native Convergence] JSON parse failed', error); return {}; }
   }
 
   public static requiredPillars(): ConvergencePillarId[] {

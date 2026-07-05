@@ -16,30 +16,30 @@ export class TelegramPermissionDecisionPresentationService {
 
     if (permission.executor === 'external_executor' && permission.kind === 'workspace_access') {
       const resolvedPath = String(
-        permission.resolved_value || permission.requested_value || 'caminho nao informado',
+        permission.resolved_value || permission.requested_value || 'path not provided',
       ).trim();
       const accessLabel = this.policy.describePermissionAccessLevel(permission);
       if (action === 'approve') {
         return this.formatter.formatPermissionDecision({
-          title: 'Acesso do ExternalExecutor liberado.',
+          title: 'ExternalExecutor access approved.',
           shortId,
           summaryLines: [
-            `Pasta liberada: ${resolvedPath}`,
-            `Nivel: ${accessLabel}`,
-            `Escopo: ${scopeLabel}`,
+            `Allowed folder: ${resolvedPath}`,
+            `Level: ${accessLabel}`,
+            `Scope: ${scopeLabel}`,
           ],
-          nextStep: 'Perfeito. Vou retomar a mesma tarefa agora com esse caminho liberado.',
+          nextStep: 'Done. I will resume the same task now with this path allowed.',
         });
       }
 
       if (action === 'reject') {
         return this.formatter.formatPermissionDecision({
-          title: 'Pedido de acesso do ExternalExecutor recusado.',
+          title: 'ExternalExecutor access request rejected.',
           shortId,
           summaryLines: [
-            `Pasta recusada: ${resolvedPath}`,
-            `Nivel pedido: ${accessLabel}`,
-            `Escopo: ${scopeLabel}`,
+            `Rejected folder: ${resolvedPath}`,
+            `Requested level: ${accessLabel}`,
+            `Scope: ${scopeLabel}`,
           ],
         });
       }
@@ -47,33 +47,33 @@ export class TelegramPermissionDecisionPresentationService {
 
     if (permission.executor === 'file_delivery' && permission.kind === 'workspace_access') {
       const resolvedPath = String(
-        permission.resolved_value || permission.requested_value || 'caminho nao informado',
+        permission.resolved_value || permission.requested_value || 'path not provided',
       ).trim();
       const accessLabel = this.policy.describePermissionAccessLevel(permission);
       const isInspection = permission.metadata?.permission_source === 'file_inspection';
       if (action === 'approve') {
         return this.formatter.formatPermissionDecision({
-          title: isInspection ? 'Acesso local de inspecao liberado.' : 'Acesso local do Zavorth liberado.',
+          title: isInspection ? 'Local inspection access approved.' : 'Local Zavorth access approved.',
           shortId,
           summaryLines: [
-            `Pasta liberada: ${resolvedPath}`,
-            `Nivel: ${accessLabel}`,
-            `Escopo: ${scopeLabel}`,
+            `Allowed folder: ${resolvedPath}`,
+            `Level: ${accessLabel}`,
+            `Scope: ${scopeLabel}`,
           ],
           nextStep: isInspection
-            ? 'Perfeito. Vou retomar a comparacao ou inspecao agora.'
-            : 'Perfeito. Vou retomar o pedido de listagem ou envio agora.',
+            ? 'Done. I will resume the comparison or inspection now.'
+            : 'Done. I will resume the listing or delivery request now.',
         });
       }
 
       if (action === 'reject') {
         return this.formatter.formatPermissionDecision({
-          title: isInspection ? 'Pedido de acesso para inspecao recusado.' : 'Pedido de acesso local recusado.',
+          title: isInspection ? 'Inspection access request rejected.' : 'Local access request rejected.',
           shortId,
           summaryLines: [
-            `Pasta recusada: ${resolvedPath}`,
-            `Nivel pedido: ${accessLabel}`,
-            `Escopo: ${scopeLabel}`,
+            `Rejected folder: ${resolvedPath}`,
+            `Requested level: ${accessLabel}`,
+            `Scope: ${scopeLabel}`,
           ],
         });
       }
@@ -82,29 +82,29 @@ export class TelegramPermissionDecisionPresentationService {
     if (permission.executor === 'external_executor' && permission.kind === 'agent_binding') {
       const role = this.policy.getExternalExecutorAgentRole(permission);
       const resolvedAgentId = String(
-        permission.resolved_value || permission.requested_value || 'agent nao informado',
+        permission.resolved_value || permission.requested_value || 'agent not provided',
       ).trim();
       if (action === 'approve') {
         return this.formatter.formatPermissionDecision({
-          title: 'Agent do ExternalExecutor aprovado.',
+          title: 'ExternalExecutor agent approved.',
           shortId,
           summaryLines: [
             `Agent: ${resolvedAgentId}`,
-            `Papel: ${role}`,
-            `Escopo: ${scopeLabel}`,
+            `Role: ${role}`,
+            `Scope: ${scopeLabel}`,
           ],
-          nextStep: 'Perfeito. Vou retomar a mesma tarefa agora com esse agent.',
+          nextStep: 'Done. I will resume the same task now with this agent.',
         });
       }
 
       if (action === 'reject') {
         return this.formatter.formatPermissionDecision({
-          title: 'Pedido de agent do ExternalExecutor recusado.',
+          title: 'ExternalExecutor agent request rejected.',
           shortId,
           summaryLines: [
-            `Agent sugerido: ${resolvedAgentId}`,
-            `Papel: ${role}`,
-            `Escopo: ${scopeLabel}`,
+            `Suggested agent: ${resolvedAgentId}`,
+            `Role: ${role}`,
+            `Scope: ${scopeLabel}`,
           ],
         });
       }
@@ -112,9 +112,9 @@ export class TelegramPermissionDecisionPresentationService {
 
     if (permission.executor === 'zavorthBridge' && permission.kind === 'ui_permission') {
       return this.formatter.formatPermissionDecision({
-        title: action === 'approve' ? 'Permissao do ZavorthBridge aprovada.' : 'Permissao do ZavorthBridge rejeitada.',
+        title: action === 'approve' ? 'ZavorthBridge permission approved.' : 'ZavorthBridge permission rejected.',
         shortId,
-        summaryLines: [`Escopo: ${scopeLabel}`],
+        summaryLines: [`Scope: ${scopeLabel}`],
       });
     }
 
@@ -122,23 +122,23 @@ export class TelegramPermissionDecisionPresentationService {
       const tools = this.policy.describeAiStudioPermissionValues(permission);
       if (action === 'approve') {
         return this.formatter.formatPermissionDecision({
-          title: 'Tools do Google AI Studio liberadas.',
+          title: 'Google AI Studio tools approved.',
           shortId,
           summaryLines: [
             `Tools: ${tools}`,
-            `Escopo: ${scopeLabel}`,
+            `Scope: ${scopeLabel}`,
           ],
-          nextStep: 'Perfeito. Vou retomar a mesma tarefa agora com essas tools liberadas.',
+          nextStep: 'Done. I will resume the same task now with those tools allowed.',
         });
       }
 
       if (action === 'reject') {
         return this.formatter.formatPermissionDecision({
-          title: 'Pedido de tools do Google AI Studio recusado.',
+          title: 'Google AI Studio tools request rejected.',
           shortId,
           summaryLines: [
-            `Tools recusadas: ${tools}`,
-            `Escopo: ${scopeLabel}`,
+            `Rejected tools: ${tools}`,
+            `Scope: ${scopeLabel}`,
           ],
         });
       }
@@ -148,33 +148,33 @@ export class TelegramPermissionDecisionPresentationService {
       const services = this.policy.describeAiStudioPermissionValues(permission);
       if (action === 'approve') {
         return this.formatter.formatPermissionDecision({
-          title: 'Servico do Google AI Studio liberado.',
+          title: 'Google AI Studio service approved.',
           shortId,
           summaryLines: [
-            `Servico(s): ${services}`,
-            `Escopo: ${scopeLabel}`,
+            `Service(s): ${services}`,
+            `Scope: ${scopeLabel}`,
           ],
-          nextStep: 'Perfeito. Vou retomar a mesma tarefa agora com esse acesso liberado.',
+          nextStep: 'Done. I will resume the same task now with this access allowed.',
         });
       }
 
       if (action === 'reject') {
         return this.formatter.formatPermissionDecision({
-          title: 'Pedido de servico do Google AI Studio recusado.',
+          title: 'Google AI Studio service request rejected.',
           shortId,
           summaryLines: [
-            `Servico(s) recusados: ${services}`,
-            `Escopo: ${scopeLabel}`,
+            `Rejected service(s): ${services}`,
+            `Scope: ${scopeLabel}`,
           ],
         });
       }
     }
 
-    const prefix = action === 'approve' ? 'Aprovado' : action === 'reject' ? 'Rejeitado' : 'Atualizado';
+    const prefix = action === 'approve' ? 'Approved' : action === 'reject' ? 'Rejected' : 'Updated';
     return this.formatter.formatPermissionDecision({
       title: `${prefix}: ${this.policy.describePermissionSubject(permission)}.`,
       shortId,
-      summaryLines: [`Escopo atual: ${scopeLabel}`],
+      summaryLines: [`Current scope: ${scopeLabel}`],
     });
   }
 }

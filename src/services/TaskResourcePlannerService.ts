@@ -9,6 +9,7 @@ import type {
 } from '../contracts/TaskResourcePlannerContract.js';
 import { CapabilityImpactEstimatorService } from './CapabilityImpactEstimatorService.js';
 import { CompanionImpactEstimatorService } from './CompanionImpactEstimatorService.js';
+import { logger } from '../logger.js';
 
 type DesktopResourcePort = Pick<DesktopResourcePlaneService, 'readLatest' | 'inspectLive'>;
 type CapabilityLifecyclePort = Pick<CapabilityLifecycleService, 'getManifest'>;
@@ -290,9 +291,7 @@ export class TaskResourcePlannerService {
     try {
       const snapshot = await this.desktopResources.inspectLive?.({ preferCachedWithinMs });
       return snapshot?.host?.pressure || null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Task Resource Planner] cache operation failed', error); return null; }
   }
 
   private maxExposure(

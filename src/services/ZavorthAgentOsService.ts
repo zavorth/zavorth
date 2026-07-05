@@ -106,14 +106,14 @@ export class ZavorthAgentOsService {
         'Rollback ou approval explicito e exigido quando houver impacto real.',
       ],
     });
-    const zavorthControl = this.zavorthControl({
+    const controlData = this.zavorthControl({
       transactionStatus: transaction.status,
       twinFiles: projectTwin.fileSummary.totalIndexed,
       immuneStatus: immuneSystem.status,
       reputationScores: reputation.scores.length,
       rollbackPrepared: transaction.rollbackPrepared,
     });
-    const zavorthControl = this.zavorthControlProjection(zavorthControl);
+    const zavorthControl = this.zavorthControlProjection(controlData);
     return {
       contractVersion: AGENT_OS_CONTRACT_VERSION,
       generatedAt: this.now().toISOString(),
@@ -128,7 +128,6 @@ export class ZavorthAgentOsService {
       immuneSystem,
       reputation,
       architectureDecision,
-      zavorthControl,
       zavorthControl,
       safety: {
         thinkingBlocked: false,
@@ -171,15 +170,15 @@ export class ZavorthAgentOsService {
       title: 'Agent OS',
       status: blocked ? 'blocked' : input.immuneStatus === 'warning' ? 'warning' : 'passed',
       cards: [
-        { id: 'project-twin', label: 'Digital Twin', value: `${input.twinFiles} arquivo(s) indexados`, tone: input.twinFiles > 0 ? 'ok' : 'warn' },
-        { id: 'transaction', label: 'Transacao', value: input.transactionStatus, tone: blocked ? 'danger' : 'info' },
-        { id: 'immune', label: 'Sistema imune', value: input.immuneStatus, tone: input.immuneStatus === 'blocked' ? 'danger' : input.immuneStatus === 'warning' ? 'warn' : 'ok' },
-        { id: 'reputation', label: 'Reputacao', value: `${input.reputationScores} score(s)`, tone: 'info' },
+        { id: 'project-twin', label: 'Digital Twin', value: `${input.twinFiles} indexed file(s)`, tone: input.twinFiles > 0 ? 'ok' : 'warn' },
+        { id: 'transaction', label: 'Transaction', value: input.transactionStatus, tone: blocked ? 'danger' : 'info' },
+        { id: 'immune', label: 'Immune System', value: input.immuneStatus, tone: input.immuneStatus === 'blocked' ? 'danger' : input.immuneStatus === 'warning' ? 'warn' : 'ok' },
+        { id: 'reputation', label: 'Reputation', value: `${input.reputationScores} score(s)`, tone: 'info' },
       ],
       actions: [
-        { id: 'agent-os.refresh-twin', label: 'Atualizar mapa do projeto', enabled: true, reason: 'Somente leitura.' },
-        { id: 'agent-os.apply-transaction', label: 'Aplicar transacao', enabled: input.rollbackPrepared && !blocked, reason: input.rollbackPrepared ? 'Rollback preparado.' : 'Rollback ainda nao preparado.' },
-        { id: 'agent-os.rollback', label: 'Reverter transacao', enabled: input.rollbackPrepared, reason: 'Disponivel quando existir artifact de rollback.' },
+        { id: 'agent-os.refresh-twin', label: 'Refresh project map', enabled: true, reason: 'Read-only.' },
+        { id: 'agent-os.apply-transaction', label: 'Apply transaction', enabled: input.rollbackPrepared && !blocked, reason: input.rollbackPrepared ? 'Rollback prepared.' : 'Rollback is not prepared yet.' },
+        { id: 'agent-os.rollback', label: 'Revert transaction', enabled: input.rollbackPrepared, reason: 'Available when a rollback artifact exists.' },
       ],
     };
   }

@@ -11,6 +11,7 @@ import { testSingleConnection } from "../[id]/test/route";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { providersBatchTestSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 // Determine auth type group for a provider id
 function getAuthGroup(providerId) {
@@ -42,7 +43,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] connection failed', error);
     return NextResponse.json(
       {
         error: {
@@ -126,7 +128,8 @@ export async function POST(request) {
           testedAt: data.testedAt || new Date().toISOString(),
         };
       } catch (error) {
-        return {
+    logger.warn('[route] validation failed', error);
+    return {
           provider: conn.provider,
           connectionId: conn.id,
           connectionName: conn.name || conn.email || conn.provider,
@@ -138,7 +141,7 @@ export async function POST(request) {
           statusCode: null,
           testedAt: new Date().toISOString(),
         };
-      }
+  }
     };
 
     // Execute with concurrency limit

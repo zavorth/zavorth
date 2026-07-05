@@ -38,6 +38,7 @@ import {
 
 // Types
 import type { DiskMutationGateRequestedOperation } from '../../contracts/DiskMutationGateContract.js';
+import { logger } from '../../logger.js';
 
 type JsonObject = Record<string, unknown>;
 
@@ -231,7 +232,8 @@ export function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { 
   let current = '';
   try {
     current = existsSync(envFile) ? readFileSync(envFile, 'utf8') : '';
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Cli Premium Part1] filesystem operation failed', error);
     current = '';
   }
   const lines = current.split(/\r?\n/u);
@@ -636,7 +638,7 @@ export async function runSecurityOperationalPreset(rawArgs: string[]): Promise<n
 
   const preset = getSecurityOperationalPreset(action);
   if (!preset) {
-    await logCliError(`Preset de seguranca desconhecido: ${action}.`, 'Security Preset Error');
+    await logCliError(`Unknown security preset: ${action}.`, 'Security Preset Error');
     return 1;
   }
 

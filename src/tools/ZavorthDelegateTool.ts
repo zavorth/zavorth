@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 interface DelegatedTask {
   id: string;
@@ -104,10 +105,11 @@ export class ZavorthDelegateTool extends BaseTool {
         case 'cancel_batch': return this.cancelBatch(args);
       }
       return 'Internal error.';
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Delegate] filesystem check failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Delegate error: ${message}`;
-    }
+  }
   }
 
   private ensureStorageDir(): void {
@@ -167,7 +169,7 @@ export class ZavorthDelegateTool extends BaseTool {
 
     let context: Record<string, unknown> = {};
     if (typeof args.context === 'string') {
-      try { context = JSON.parse(args.context); } catch { /* ignore */ }
+      try { context = JSON.parse(args.context); } catch (error) { /* ignore */ logger.warn('[Zavorth Delegate] JSON parse failed', error); }
     } else if (typeof args.context === 'object' && args.context !== null) {
       context = args.context as Record<string, unknown>;
     }
@@ -221,9 +223,7 @@ export class ZavorthDelegateTool extends BaseTool {
     let tasks: Array<{ task_description: string; role?: string; context?: Record<string, unknown> }>;
     try {
       tasks = JSON.parse(tasksJson);
-    } catch {
-      return 'Error: invalid JSON for "tasks".';
-    }
+    } catch (error) { logger.warn('[Zavorth Delegate] JSON parse failed', error); return 'Error: invalid JSON for "tasks".'; }
 
     if (!Array.isArray(tasks) || tasks.length === 0) {
       return 'Error: "tasks" must be a non-empty array.';

@@ -37,7 +37,7 @@ export class TelegramPermissionRejectionService {
     }
 
     const rejectionSummary =
-      note || `Pedido de permissao ${rejectedPermission.permission_id} rejeitado pelo operador.`;
+      note || `Permission request ${rejectedPermission.permission_id} rejected by the operator.`;
 
     if (isZavorthBridgePermission) {
       this.deps.syncWorkflowApprovalDecision(existingTask, 'reject', rejectionSummary);

@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  DETERMINISTIC_QA_CONTRACTS,
+DETERMINISTIC_QA_CONTRACTS,
   DETERMINISTIC_QA_GATES,
   type DeterministicQaCheck,
   type DeterministicQaCheckStatus,
@@ -252,9 +253,7 @@ export class DeterministicQaMatrixService {
     }
     try {
       return JSON.parse(this.readFileSync(targetPath, 'utf8')) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Deterministic Qa Matrix] JSON parse failed', error); return null; }
   }
 
   private check(

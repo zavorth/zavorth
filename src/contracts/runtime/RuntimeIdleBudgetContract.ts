@@ -130,21 +130,21 @@ export const RUNTIME_IDLE_BACKGROUND_SCRIPTS: RuntimeIdleBudgetBackgroundScriptS
     expectedFragment: 'nodemon',
     category: 'dev',
     explicit: true,
-    reason: 'watcher de desenvolvimento, nunca gate default.',
+    reason: 'development watcher, never a default gate.',
   },
   {
     script: 'dev:supervised',
     expectedFragment: 'src/host.ts',
     category: 'dev',
     explicit: true,
-    reason: 'host supervisionado para desenvolvimento local.',
+    reason: 'supervised host for local development.',
   },
   {
     script: 'start',
     expectedFragment: 'dist/index.js',
     category: 'runtime',
     explicit: true,
-    reason: 'runtime principal, acionado manualmente.',
+    reason: 'main runtime, manually triggered.',
   },
   {
     script: 'start:supervised',
@@ -184,10 +184,10 @@ export const RUNTIME_IDLE_BACKGROUND_SCRIPTS: RuntimeIdleBudgetBackgroundScriptS
 ];
 
 export const RUNTIME_IDLE_CONTRACTS = [
-  'O perfil core nao inicia sidecar ou watcher por padrao.',
-  'Gates de idle/performance leem estado passivo e nao iniciam processo persistente.',
-  'Benchmarks de startup ficam em qa:bench:boot e nao rodam dentro do gate rapido.',
+  'The core profile does not start sidecars or watchers by default.',
+  'Idle/performance gates read passive state and do not start persistent processes.',
+  'Startup benchmarks live in qa:bench:boot and do not run inside the fast gate.',
   'Scripts de background precisam ser explicitos e rotulados.',
   'Budgets de CLI/status/doctor precisam vir de qa/budgets/alpha.json.',
-  'Leitura live de desktop resource e opcional; ausencia de cache gera aviso, nao falso bloqueio.',
+  'Live desktop resource reading is optional; missing cache generates a warning, not a false block.',
 ];

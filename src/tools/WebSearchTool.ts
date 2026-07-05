@@ -12,8 +12,9 @@ import {
   type EvidenceDomainProfile,
   type EvidenceSearchDomain,
 } from '../agents/EvidenceDomainProfiles.js';
+import { logger } from '../logger.js';
 import {
-  buildEvidenceSearchPlan,
+buildEvidenceSearchPlan,
   buildEvidenceTrackQueries,
   weighEvidenceSource,
   type EvidenceTrackQuery,
@@ -71,45 +72,45 @@ function toDuckDuckGoResults(results: SearchEngineResult[]): DuckDuckGoResult[] 
 }
 
 /**
- * WebSearchTool — Permite ao agente pesquisar informações na web em tempo real.
+ * WebSearchTool - allows the agent to search the web in real time.
  */
 export class WebSearchTool extends BaseTool {
   private static duckDuckGoQueue: Promise<void> = Promise.resolve();
   private static nextDuckDuckGoAt = 0;
 
   public readonly name = 'web_search';
-  public readonly description = 'Pesquisa informações atualizadas na internet (notícias, cotações, dados gerais) via DuckDuckGo. Retorna os principais resultados com título, URL e trecho da página.';
+  public readonly description = 'Searches current internet information such as news, quotes, and general data through DuckDuckGo. Returns top results with title, URL, and page snippet.';
   
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       query: {
         type: 'string',
-        description: 'A consulta de busca (ex: "últimas notícias sobre inteligência artificial 2024", "cotação do dólar hoje").',
+        description: 'Search query, for example "latest artificial intelligence news 2024" or "USD exchange rate today".',
       },
       limit: {
         type: 'number',
-        description: 'Número máximo de resultados a retornar (default: 3, max: 5).',
+        description: 'Maximum number of results to return (default: 3, max: 5).',
       },
       domainProfile: {
         type: 'string',
-        description: 'Perfil de evidencia opcional: auto, medical, legal, scientific, finance, consumer, technical, public_policy, ai_news ou general.',
+        description: 'Optional evidence profile: auto, medical, legal, scientific, finance, consumer, technical, public_policy, ai_news, or general.',
       },
       domain_profile: {
         type: 'string',
-        description: 'Alias de domainProfile para clientes que usam snake_case.',
+        description: 'Alias for domainProfile for clients using snake_case.',
       },
       deep: {
         type: 'boolean',
-        description: 'Quando true, roda buscas direcionadas por perfil e faz ranking de fontes.',
+        description: 'When true, runs profile-directed searches and ranks sources.',
       },
       extractPages: {
         type: 'boolean',
-        description: 'Quando true, tenta extrair trechos curtos das melhores paginas para reduzir alucinacao.',
+        description: 'When true, tries to extract short excerpts from top pages to reduce hallucination.',
       },
       extract_pages: {
         type: 'boolean',
-        description: 'Alias de extractPages para clientes que usam snake_case.',
+        description: 'Alias for extractPages for clients using snake_case.',
       },
     },
     required: ['query'],
@@ -124,7 +125,7 @@ export class WebSearchTool extends BaseTool {
     const extractPages = args.extractPages !== false && args.extract_pages !== false && deep;
 
     if (!query || typeof query !== 'string') {
-      return 'Erro: O parâmetro "query" é obrigatório e deve ser uma string.';
+      return 'Error: the "query" parameter is required and must be a string.';
     }
 
     const shouldUseFreshNewsFallback =
@@ -135,7 +136,7 @@ export class WebSearchTool extends BaseTool {
       if (newsResult) {
         return newsResult;
       }
-      return `QUALITY_GATE: insufficient_news_results\nNao encontrei resultados de noticias recentes suficientes para "${query}" dentro da janela de frescor solicitada. Nao produza briefing factual sem novas fontes.`;
+      return `QUALITY_GATE: insufficient_news_results\nI did not find enough recent news results for "${query}" inside the requested freshness window. Do not produce a factual briefing without new sources.`;
     }
 
     try {
@@ -150,7 +151,7 @@ export class WebSearchTool extends BaseTool {
         return this.formatRankedResults(query, rankedResults, profile, { deep, extractPages });
       }
 
-      return `Nenhum resultado encontrado para a busca: "${query}".`;
+      return `No results found for search: "${query}".`;
 
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -163,15 +164,15 @@ export class WebSearchTool extends BaseTool {
         return [
           fallbackResult,
           '',
-          `Nota: a busca principal via DuckDuckGo falhou (${errorMessage}); estes resultados vieram de fallback RSS de noticias.`,
+          `Note: the main DuckDuckGo search failed (${errorMessage}); these results came from the news RSS fallback.`,
         ].join('\n');
       }
 
       return [
         'QUALITY_GATE: search_unavailable',
-        `Consulta: "${query}"`,
-        `A busca principal falhou: ${errorMessage}`,
-        'Nao trate isto como informacao atual verificada. Se o pedido for conhecimento geral estavel, responda com conhecimento geral e avise que a verificacao online falhou. Se depender de informacao atual, diga que nao ha fontes suficientes agora.',
+        `Query: "${query}"`,
+        `Main search failed: ${errorMessage}`,
+        'Do not treat this as verified current information. If the request is stable general knowledge, answer from general knowledge and state that online verification failed. If it depends on current information, say there are not enough sources right now.',
       ].join('\n');
     }
   }
@@ -443,7 +444,7 @@ export class WebSearchTool extends BaseTool {
         return {
           noResults: false,
           results: toDuckDuckGoResults(bingResults),
-        } as SearchResults;
+        } as unknown as SearchResults;
       }
       throw error;
     }
@@ -481,7 +482,7 @@ export class WebSearchTool extends BaseTool {
         return {
           title: this.decodeRssText(linkMatch[2]),
           url: this.normalizeBingResultUrl(this.decodeRssText(linkMatch[1])),
-          description: descriptionMatch?.[1] ? this.decodeRssText(descriptionMatch[1]) : 'Trecho indisponivel.',
+          description: descriptionMatch?.[1] ? this.decodeRssText(descriptionMatch[1]) : 'Snippet unavailable.',
         };
       })
       .filter((result): result is SearchEngineResult => Boolean(result?.url && result.title))
@@ -510,9 +511,7 @@ export class WebSearchTool extends BaseTool {
         'base64',
       ).toString('utf8');
       return /^https?:\/\//i.test(decoded) ? decoded : raw;
-    } catch {
-      return raw;
-    }
+    } catch (error) { logger.warn('[Web Search] network request failed', error); return raw; }
   }
 
   private async enqueueDuckDuckGoSearch<T>(operation: () => Promise<T>): Promise<T> {
@@ -556,18 +555,18 @@ export class WebSearchTool extends BaseTool {
     const lines = [
       qualityGate,
       `EVIDENCE_PROFILE: ${profile.domain} (${profile.label})`,
-      `Consulta: "${query}"`,
-      `Fontes fortes encontradas: ${highSignalCount}/${Math.max(profile.minHighSignalResults, 0)}.`,
-      `Diversidade de hosts: ${hostDiversityCount}/${results.length}.`,
+      `Query: "${query}"`,
+      `Strong sources found: ${highSignalCount}/${Math.max(profile.minHighSignalResults, 0)}.`,
+      `Host diversity: ${hostDiversityCount}/${results.length}.`,
       options.deep
-        ? `Ranking aplicado: fontes preferenciais, dominios oficiais/academicos, termos de autoridade e diversidade de hosts.`
-        : `Ranking aplicado: ordem da busca com pontuacao leve de fonte.`,
+        ? 'Ranking applied: preferred sources, official/academic domains, authority terms, and host diversity.'
+        : 'Ranking applied: search order with light source scoring.',
       profile.guidance,
     ];
 
     if (qualityGate === 'QUALITY_GATE: weak_domain_sources') {
       lines.push(
-        'Aviso: as fontes retornadas nao atingiram o minimo de autoridade para este dominio. Nao apresente como resposta definitiva ou exaustiva.',
+        'Warning: returned sources did not meet the minimum authority threshold for this domain. Do not present this as a definitive or exhaustive answer.',
       );
     }
 
@@ -576,17 +575,17 @@ export class WebSearchTool extends BaseTool {
       lines.push(`${index + 1}. **${result.title}**`);
       lines.push(`   URL: ${result.url}`);
       lines.push(`   Host: ${normalizeHost(result.url)}`);
-      lines.push(`   Forca da fonte: ${result.highSignal ? 'alta' : result.evidenceScore >= 20 ? 'media' : 'baixa'} (${result.evidenceScore})`);
+      lines.push(`   Source strength: ${result.highSignal ? 'high' : result.evidenceScore >= 20 ? 'medium' : 'low'} (${result.evidenceScore})`);
       if (result.scoreReasons.length > 0) {
-        lines.push(`   Motivos do ranking: ${result.scoreReasons.join(', ')}`);
+        lines.push(`   Ranking reasons: ${result.scoreReasons.join(', ')}`);
       }
       if (result.sourceTrack) {
-        lines.push(`   Trilha da busca: ${result.sourceTrack} (${result.sourceRole || 'baseline'})`);
+        lines.push(`   Search track: ${result.sourceTrack} (${result.sourceRole || 'baseline'})`);
       }
-      lines.push(`   Trecho da busca: ${this.wrapUntrustedWebEvidence(result.description || 'Trecho indisponivel.', result.url, 'search_snippet')}`);
+      lines.push(`   Search snippet: ${this.wrapUntrustedWebEvidence(result.description || 'Snippet unavailable.', result.url, 'search_snippet')}`);
       if (result.extracted?.excerpt) {
         if (result.extracted.title && result.extracted.title !== result.title) {
-          lines.push(`   Titulo extraido: ${result.extracted.title}`);
+          lines.push(`   Extracted title: ${result.extracted.title}`);
         }
         if (result.extracted.publishedAt) {
           lines.push(`   Data extraida: ${result.extracted.publishedAt}`);
@@ -595,7 +594,7 @@ export class WebSearchTool extends BaseTool {
       } else if (result.extracted?.error) {
         lines.push(`   Extracao da pagina: indisponivel (${result.extracted.error})`);
       }
-      lines.push(`   Consulta usada: ${result.sourceQuery}`);
+      lines.push(`   Query used: ${result.sourceQuery}`);
       lines.push('');
     });
 
@@ -639,9 +638,10 @@ export class WebSearchTool extends BaseTool {
         return { title, publishedAt, error: 'empty extracted text' };
       }
       return { title, excerpt, publishedAt };
-    } catch (error: unknown) {
-      return { error: error instanceof Error ? (error.name === 'AbortError' ? 'timeout' : error.message) : String(error) };
-    } finally {
+    } catch (error) {
+    logger.warn('[Web Search] operation failed', error);
+    return { error: error instanceof Error ? (error.name === 'AbortError' ? 'timeout' : error.message) : String(error) };
+  } finally {
       clearTimeout(timeout);
     }
   }
@@ -768,9 +768,9 @@ export class WebSearchTool extends BaseTool {
 
     return lastQualityGate || [
       'QUALITY_GATE: insufficient_news_results',
-      `Consulta: "${query}"`,
-      'Nao encontrei resultados recentes suficientes sobre inteligencia artificial nas buscas globais.',
-      'Nao produza briefing factual de IA sem fontes recentes e diretamente relacionadas ao tema.',
+      `Query: "${query}"`,
+      'I did not find enough recent artificial intelligence results in global searches.',
+      'Do not produce a factual AI briefing without recent sources directly related to the topic.',
     ].join('\n');
   }
 
@@ -836,7 +836,7 @@ export class WebSearchTool extends BaseTool {
         const link = this.extractRssField(item, 'link') || 'URL indisponivel';
         const source = this.extractRssField(item, 'source');
         const sourceUrl = this.extractRssSourceUrl(item);
-        const description = this.extractRssField(item, 'description') || 'Trecho indisponivel';
+        const description = this.extractRssField(item, 'description') || 'Snippet unavailable';
         const pubDate = this.extractRssField(item, 'pubDate');
         const publishedAt = pubDate ? Date.parse(pubDate) : Number.NaN;
         return {
@@ -873,25 +873,25 @@ export class WebSearchTool extends BaseTool {
     if (items.length < minResults || hostDiversityCount < minHosts) {
       return [
         'QUALITY_GATE: insufficient_news_results',
-        `Consulta: "${query}"`,
-        `Resultados recentes encontrados: ${items.length}/${minResults}.`,
+        `Query: "${query}"`,
+        `Recent results found: ${items.length}/${minResults}.`,
         `Diversidade de hosts: ${hostDiversityCount}/${minHosts}.`,
         'Filtro temporal: resultados publicados recentemente conforme o pedido.',
-        'Nao produza um briefing amplo de politica global com estes dados; tente nova busca, tema mais especifico ou diga que as fontes foram insuficientes.',
+        'Do not produce a broad global politics briefing from this data; try a new search, a more specific topic, or say that sources were insufficient.',
         '',
         ...items.map((item, index) => [
           `${index + 1}. **${item.title}**`,
           `   URL: ${item.link}`,
-          item.source ? `   Fonte: ${item.source}` : '',
-          item.pubDate ? `   Publicado: ${item.pubDate}` : '',
-          `   Trecho: ${this.wrapUntrustedWebEvidence(item.description, item.link, 'rss_snippet')}`,
+          item.source ? `   Source: ${item.source}` : '',
+          item.pubDate ? `   Published: ${item.pubDate}` : '',
+          `   Snippet: ${this.wrapUntrustedWebEvidence(item.description, item.link, 'rss_snippet')}`,
         ].filter(Boolean).join('\n')),
       ].filter(Boolean).join('\n');
     }
 
     return [
       'QUALITY_GATE: fresh_news_results_ok',
-      `Resultados de politica global para "${query}" (fallback ${sourceLabel}):`,
+      `Global politics results for "${query}" (fallback ${sourceLabel}):`,
       '',
       'Filtro temporal: resultados publicados recentemente conforme o pedido.',
       `Diversidade de hosts: ${hostDiversityCount}/${items.length}.`,
@@ -899,9 +899,9 @@ export class WebSearchTool extends BaseTool {
       ...items.map((item, index) => [
         `${index + 1}. **${item.title}**`,
         `   URL: ${item.link}`,
-        item.source ? `   Fonte: ${item.source}` : '',
-        item.pubDate ? `   Publicado: ${item.pubDate}` : '',
-        `   Trecho: ${this.wrapUntrustedWebEvidence(item.description, item.link, 'rss_snippet')}`,
+        item.source ? `   Source: ${item.source}` : '',
+        item.pubDate ? `   Published: ${item.pubDate}` : '',
+        `   Snippet: ${this.wrapUntrustedWebEvidence(item.description, item.link, 'rss_snippet')}`,
       ].filter(Boolean).join('\n')),
     ].join('\n');
   }
@@ -1030,7 +1030,7 @@ export class WebSearchTool extends BaseTool {
         const item = match[1] || '';
         const title = this.extractRssField(item, 'title') || 'Sem titulo';
         const link = this.extractRssField(item, 'link') || 'URL indisponivel';
-        const description = this.extractRssField(item, 'description') || 'Trecho indisponivel';
+        const description = this.extractRssField(item, 'description') || 'Snippet unavailable';
         const pubDate = this.extractRssField(item, 'pubDate');
         const publishedAt = pubDate ? Date.parse(pubDate) : Number.NaN;
         return {
@@ -1064,31 +1064,31 @@ export class WebSearchTool extends BaseTool {
     if (freshnessWindowHours && items.length < minResults) {
       return [
         'QUALITY_GATE: insufficient_news_results',
-        `Consulta: "${query}"`,
-        `Resultados recentes encontrados: ${items.length}/${minResults}.`,
-        `Filtro temporal: resultados publicados recentemente conforme o pedido.`,
-        'Nao produza um briefing amplo com estes dados; peca nova busca, tema mais especifico ou diga que as fontes foram insuficientes.',
+        `Query: "${query}"`,
+        `Recent results found: ${items.length}/${minResults}.`,
+        'Temporal filter: results were published recently according to the request.',
+        'Do not produce a broad briefing from this data; request a new search, a more specific topic, or say that sources were insufficient.',
         '',
         ...items.map((item, index) => [
           `${index + 1}. **${item.title}**`,
           `   URL: ${item.link}`,
-          item.pubDate ? `   Publicado: ${item.pubDate}` : '',
-          `   Trecho: ${this.wrapUntrustedWebEvidence(item.description, item.link, 'rss_snippet')}`,
+          item.pubDate ? `   Published: ${item.pubDate}` : '',
+          `   Snippet: ${this.wrapUntrustedWebEvidence(item.description, item.link, 'rss_snippet')}`,
         ].filter(Boolean).join('\n')),
       ].join('\n');
     }
 
-    let formattedOutput = `QUALITY_GATE: fresh_news_results_ok\nResultados de noticias para "${query}" (fallback ${sourceLabel}):\n\n`;
+    let formattedOutput = `QUALITY_GATE: fresh_news_results_ok\nNews results for "${query}" (fallback ${sourceLabel}):\n\n`;
     if (freshnessWindowHours) {
-      formattedOutput += `Filtro temporal: resultados publicados recentemente conforme o pedido.\n\n`;
+      formattedOutput += 'Temporal filter: results were published recently according to the request.\n\n';
     }
     items.forEach((item, index) => {
       formattedOutput += `${index + 1}. **${item.title}**\n`;
       formattedOutput += `   URL: ${item.link}\n`;
       if (item.pubDate) {
-        formattedOutput += `   Publicado: ${item.pubDate}\n`;
+        formattedOutput += `   Published: ${item.pubDate}\n`;
       }
-      formattedOutput += `   Trecho: ${this.wrapUntrustedWebEvidence(item.description, item.link, 'rss_snippet')}\n\n`;
+      formattedOutput += `   Snippet: ${this.wrapUntrustedWebEvidence(item.description, item.link, 'rss_snippet')}\n\n`;
     });
 
     return formattedOutput.trim();

@@ -1,6 +1,7 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
 import { PROVIDER_MODELS } from "@/shared/constants/models";
 import { getAllCustomModels, getSyncedAvailableModels } from "@/lib/db/models";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Handle CORS preflight
@@ -87,9 +88,7 @@ export async function GET() {
           });
         }
       }
-    } catch {
-      // Custom models are optional — skip on error
-    }
+    } catch (error) { // Custom models are optional — skip on error logger.warn('[route] creation failed', error); }
 
     return Response.json({ models });
   } catch (error: any) {

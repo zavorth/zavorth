@@ -5,6 +5,7 @@ import path from 'node:path';
 import { config } from '../config/index.js';
 import type { ZavorthProviderReadinessEntry, ZavorthProviderReadinessMatrixSnapshot } from '../contracts/ZavorthProviderReadinessMatrixContract.js';
 import type { AccessRouteHealthInput } from './providers/catalog/AccessRouteResolutionService.js';
+import { logger } from '../logger.js';
 
 export const ZAVORTH_PROVIDER_LIVE_PROOF_STORE_VERSION = 'zavorth-provider-live-proof-store/1' as const;
 
@@ -75,9 +76,10 @@ export class ZavorthProviderLiveProofStoreService {
           .map(normalizeEntry)
           .filter((entry): entry is ZavorthProviderLiveProofEntry => Boolean(entry)),
       };
-    } catch {
-      return this.emptyDocument();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth  Live Proof Store] parsing failed', error);
+    return this.emptyDocument();
+  }
   }
 
   public readFreshHealthMap(): Record<string, AccessRouteHealthInput> {

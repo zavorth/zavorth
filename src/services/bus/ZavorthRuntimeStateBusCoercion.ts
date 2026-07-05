@@ -59,8 +59,9 @@ import {
   normalizeDomainOperation,
   uniqueStrings,
 } from './ZavorthRuntimeStateBusUtils.js';
+import { logger } from '../../logger.js';
 import {
-  DEFAULT_MODEL_SPECS,
+DEFAULT_MODEL_SPECS,
   buildDefaultPermissionsMatrix,
   buildDefaultPersonalConnectors,
 } from './ZavorthRuntimeStateBusDefaults.js';
@@ -343,7 +344,8 @@ export function evaluateNetworkTarget(providerId: string, targetUrl: string | nu
       return { ok: false, targetHost: host, localLoopback: false };
     }
     return { ok: true, targetHost: host, localLoopback: false };
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Runtime State Bus Coercion] lifecycle operation failed', error);
     return { ok: false, targetHost: null, localLoopback: false };
   }
 }

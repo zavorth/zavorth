@@ -1,6 +1,6 @@
 import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
 import type { WebAppSupervisionRouteHandler } from './types.js';
-import { getRequestedBy } from './helpers.js';
+import { asNullableString, getRequestedBy } from './helpers.js';
 
 interface ProviderRouterService {
   buildSnapshot(): Record<string, unknown>;
@@ -62,14 +62,14 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
       }
       const receipt = await service.route({
         prompt,
-        model: body.model || null,
-        preferredProvider: body.preferredProvider || null,
+        model: asNullableString(body.model),
+        preferredProvider: asNullableString(body.preferredProvider),
         maxTokens: body.maxTokens ? Number(body.maxTokens) : null,
         temperature: body.temperature != null ? Number(body.temperature) : null,
-        systemPrompt: body.systemPrompt || null,
+        systemPrompt: asNullableString(body.systemPrompt),
         conversationHistory: body.conversationHistory || null,
-        requestedBy: body.requestedBy || getRequestedBy(ctx),
-        budgetPreference: body.budgetPreference || 'auto',
+        requestedBy: asNullableString(body.requestedBy) || getRequestedBy(ctx),
+        budgetPreference: asNullableString(body.budgetPreference) || 'auto',
       });
       deps.writeJson(res, { ok: true, receipt }, 200);
     } catch (error: unknown) {

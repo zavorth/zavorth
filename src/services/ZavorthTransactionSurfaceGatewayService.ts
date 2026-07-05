@@ -296,17 +296,17 @@ function buildReplyText(
   const target = runtime.preview.intent.target.label;
   if (runtime.status === 'simulated') {
     return surface === 'telegram'
-      ? `Simulado: ${action} em ${target}. Nada live foi executado.`
+      ? `Simulated: ${action} on ${target}. Nothing live was executed.`
       : `Transaction runtime simulated ${action} for ${target}; no live transaction was executed.`;
   }
   if (runtime.status === 'approval-required') {
     return surface === 'telegram'
-      ? `Preciso de aprovacao para ${action} em ${target}.`
+      ? `I need approval for ${action} on ${target}.`
       : `Approval is required before simulating ${action} for ${target}.`;
   }
   if (runtime.status === 'credential-required') {
     return surface === 'telegram'
-      ? `Preciso de uma credential ref segura para ${action} em ${target}.`
+      ? `I need a secure credential ref for ${action} on ${target}.`
       : `A valid credential ref is required before simulating ${action} for ${target}.`;
   }
   if (runtime.status === 'needs-clarification') {

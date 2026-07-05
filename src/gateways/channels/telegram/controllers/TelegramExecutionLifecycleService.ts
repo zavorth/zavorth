@@ -8,7 +8,7 @@ import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import { TaskResponseEnvelopeService } from '../../../../services/TaskResponseEnvelopeService.js';
-import { logger } from '../logger.js';
+import { logger } from '../../../../logger.js';
 
 type ExecuteTaskFn = (task: Task, isDryRun: boolean) => Promise<{ output: string; success: boolean }>;
 type CaptureExecutionEnvelopeFn = (task: Task, userFacingText: string, success: boolean) => void;
@@ -92,8 +92,8 @@ export class TelegramExecutionLifecycleService {
       const message = error instanceof Error ? error.message : String(error);
       task.error_summary = message;
       this.deps.persistTask(task);
-      this.deps.auditLogger.logSecurityBlock(task.task_id, `Execucao falhou: ${message}`).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
-      const userFacingText = `Nao consegui executar essa tarefa agora.\n\nMotivo: ${message}`;
+      this.deps.auditLogger.logSecurityBlock(task.task_id, `Execution failed: ${message}`).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      const userFacingText = `I could not execute this task right now.\n\nReason: ${message}`;
       const operationalText = TaskResponseEnvelopeService.buildPreparationFailure(task, message);
       TaskResponseEnvelopeService.capture(task, 'preparation_failure', userFacingText, operationalText);
       this.deps.persistTask(task);

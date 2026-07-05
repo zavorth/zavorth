@@ -218,9 +218,7 @@ export class AgentMarketplace {
     try {
       if (!fs.existsSync(this.agentsFile)) return [];
       return JSON.parse(fs.readFileSync(this.agentsFile, 'utf-8')) as MarketplaceAgent[];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Agent Marketplace] JSON parse failed', error); return []; }
   }
 
   private writeAgents(agents: MarketplaceAgent[]): void {

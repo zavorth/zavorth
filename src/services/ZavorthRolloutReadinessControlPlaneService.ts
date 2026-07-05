@@ -6,6 +6,7 @@ import { KeepaliveStatusService, type KeepaliveStatusSnapshot } from './Keepaliv
 import { PublishHistoryService } from './PublishHistoryService.js';
 import { ZavorthRuntimeStabilityControlPlaneService } from './ZavorthRuntimeStabilityControlPlaneService.js';
 import type { ZavorthReadinessGate } from '../contracts/ZavorthMutationPlaneContract.js';
+import { logger } from '../logger.js';
 type RolloutDynamic = any;
 
 type RolloutPosture = 'healthy' | 'attention' | 'critical';
@@ -583,9 +584,7 @@ export class ZavorthRolloutReadinessControlPlaneService {
         return null;
       }
       return JSON.parse(this.readFileSync(this.maintenanceReportFilePath, 'utf8')) as Record<string, RolloutDynamic>;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Rollout Readiness Control Plane] JSON parse failed', error); return null; }
   }
 
   private isMaintenanceStale(timestamp: string | null): boolean {

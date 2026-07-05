@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger';
 /**
  * Clipboard utility with HTTP/HTTPS fallback.
  * navigator.clipboard.writeText() requires HTTPS (secure context).
@@ -21,9 +22,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     try {
       await navigator.clipboard.writeText(text);
       return true;
-    } catch {
-      // Fall through to execCommand fallback
-    }
+    } catch (error) { // Fall through to execCommand fallback logger.warn('[clipboard] network request failed', error); }
   }
 
   // Method 2: Legacy execCommand fallback (works on HTTP)
@@ -39,9 +38,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       textArea.focus();
       textArea.select();
       return document.execCommand("copy");
-    } catch {
-      return false;
-    } finally {
+    } catch (error) { logger.warn('[clipboard] process execution failed', error); return false; } finally {
       if (appended && document.body.contains(textArea)) {
         document.body.removeChild(textArea);
       }

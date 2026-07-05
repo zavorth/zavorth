@@ -6,52 +6,52 @@ export const INTEGRATION_CHANNEL_MANIFESTS: IntegrationManifest[] = [
     id: 'telegram',
     label: 'Telegram',
     aliases: ['telegram-bot', 'botfather'],
-    summary: 'Canal nativo leve para conversar, retomar fluxos e aprovar operacoes pelo Bot API.',
-    description: 'Usa o gateway nativo do Telegram do Zavorth com bot token e allowlist de operadores.',
+    summary: 'Lightweight native channel for chatting, resuming flows, and approving operations through the Bot API.',
+    description: 'Uses the native Zavorth Telegram gateway with a bot token and an operator allowlist.',
     supportLevel: 'native',
     category: 'remote',
     tags: ['channel', 'telegram', 'bot', 'operator'],
-    modes: [mode('api', 'Bot API', 'Usa token do @BotFather e operadores allowlisted.')],
+    modes: [mode('api', 'Bot API', 'Uses a @BotFather token and allowlisted operators.')],
     defaultMode: 'api',
     capabilities: ['chat', 'agents', 'automation'],
     binding: {
       kind: 'service',
       key: 'telegram',
       status: 'ready',
-      summary: 'Gateway nativo pronto quando TELEGRAM_BOT_TOKEN e operadores existem.',
+      summary: 'Native gateway is ready when TELEGRAM_BOT_TOKEN and operators are configured.',
     },
     requirements: [
-      req('telegram_bot_token', 'Telegram bot token', 'Token criado via @BotFather.', {
+      req('telegram_bot_token', 'Telegram bot token', 'Token created through @BotFather.', {
         type: 'env',
         secret: true,
         envKey: 'TELEGRAM_BOT_TOKEN',
       }),
-      req('telegram_allowed_user_ids', 'Operadores permitidos', 'User ids autorizados a operar o Zavorth no Telegram.', {
+      req('telegram_allowed_user_ids', 'Allowed operators', 'User ids authorized to operate Zavorth through Telegram.', {
         type: 'env',
         envKey: 'TELEGRAM_ALLOWED_USER_IDS',
       }),
-      req('telegram_user_roles', 'Roles por operador', 'Mapa opcional de roles por user id.', {
+      req('telegram_user_roles', 'Operator roles', 'Optional role map by user id.', {
         type: 'env',
         envKey: 'TELEGRAM_USER_ROLES',
         required: false,
       }),
     ],
     onboardingQuestions: [
-      question('telegram_bot_token', 'Qual e o token do bot do Telegram?', 'secret', 'Crie o bot via @BotFather e cole o token aqui.'),
+      question('telegram_bot_token', 'What is the Telegram bot token?', 'secret', 'Create the bot through @BotFather and paste the token here.'),
       question(
         'telegram_allowed_user_ids',
-        'Quais user ids vao operar esse bot?',
+        'Which user ids can operate this bot?',
         'text',
-        'Separe por virgula. Exemplo: 123456789,987654321.',
+        'Separate values with commas. Example: 123456789,987654321.',
         {
           placeholder: '123456789,987654321',
         },
       ),
       question(
         'telegram_user_roles',
-        'Quer registrar roles por operador?',
+        'Do you want to register operator roles?',
         'text',
-        'Opcional. Exemplo: 123:admin|operator;456:viewer',
+        'Optional. Example: 123:admin|operator;456:viewer',
         {
           required: false,
           placeholder: '123:admin|operator;456:viewer',
@@ -59,68 +59,68 @@ export const INTEGRATION_CHANNEL_MANIFESTS: IntegrationManifest[] = [
       ),
     ],
     installSteps: [
-      step('botfather', 'Criar ou revisar o bot', 'Confirmar o bot no @BotFather e copiar o token correto.', 'manual'),
-      step('operators', 'Definir operadores', 'Escolher quem pode operar o Zavorth pelo Telegram.', 'guided'),
-      step('doctor', 'Rodar doctor do canal', 'Validar o canal nativo do Telegram.', 'verification', 'npm run test:channels:smoke'),
+      step('botfather', 'Create or review the bot', 'Confirm the bot in @BotFather and copy the correct token.', 'manual'),
+      step('operators', 'Define operators', 'Choose who can operate Zavorth through Telegram.', 'guided'),
+      step('doctor', 'Run channel doctor', 'Validate the native Telegram channel.', 'verification', 'npm run test:channels:smoke'),
     ],
     safetyNotes: [
-      'Restrinja sempre TELEGRAM_ALLOWED_USER_IDS antes de expor o bot.',
-      'Nao compartilhe o token do bot fora do .env local ou do secret manager.',
+      'Always restrict TELEGRAM_ALLOWED_USER_IDS before exposing the bot.',
+      'Do not share the bot token outside the local .env file or secret manager.',
     ],
-    goodFor: ['Retomadas rapidas', 'Approvals', 'Operacao leve no celular'],
+    goodFor: ['Fast resume flows', 'Approvals', 'Light mobile operations'],
   },
   {
     id: 'discord',
     label: 'Discord',
     aliases: ['discord-bot', 'discord-gateway'],
-    summary: 'Canal nativo para operar o Zavorth em guilds privadas ou rollout publico controlado.',
-    description: 'Usa o gateway nativo do Discord do Zavorth com policy conservadora, owners e exposicao controlada.',
+    summary: 'Native channel for operating Zavorth in private guilds or controlled public rollouts.',
+    description: 'Uses the native Zavorth Discord gateway with conservative policy, owners, and controlled command exposure.',
     supportLevel: 'native',
     category: 'remote',
     tags: ['channel', 'discord', 'guild', 'operator'],
-    modes: [mode('api', 'Discord API', 'Usa bot token e policy explicita por guild/owner.')],
+    modes: [mode('api', 'Discord API', 'Uses a bot token and explicit policy by guild or owner.')],
     defaultMode: 'api',
     capabilities: ['chat', 'agents', 'automation'],
     binding: {
       kind: 'service',
       key: 'discord',
       status: 'ready',
-      summary: 'Gateway nativo pronto quando o bot token e a policy basica estao definidas.',
+      summary: 'Native gateway is ready when the bot token and basic policy are configured.',
     },
     requirements: [
-      req('discord_bot_token', 'Discord bot token', 'Token do bot para o gateway nativo.', {
+      req('discord_bot_token', 'Discord bot token', 'Bot token for the native gateway.', {
         type: 'env',
         secret: true,
         envKey: 'DISCORD_BOT_TOKEN',
       }),
-      req('discord_allowed_guild_ids', 'Guilds permitidas', 'Guilds autorizadas para rollout privado.', {
+      req('discord_allowed_guild_ids', 'Allowed guilds', 'Guilds authorized for private rollout.', {
         type: 'env',
         envKey: 'DISCORD_ALLOWED_GUILD_IDS',
         required: false,
       }),
-      req('discord_owner_user_ids', 'Owners permitidos', 'Owners do canal oficial do Discord.', {
+      req('discord_owner_user_ids', 'Allowed owners', 'Owners for the official Discord channel.', {
         type: 'env',
         envKey: 'DISCORD_OWNER_USER_IDS',
         required: false,
       }),
-      req('discord_public_server_mode', 'Modo publico', 'Ativa rollout publico controlado no Discord.', {
+      req('discord_public_server_mode', 'Public mode', 'Enables controlled public rollout in Discord.', {
         type: 'env',
         envKey: 'DISCORD_PUBLIC_SERVER_MODE',
         required: false,
       }),
-      req('discord_command_exposure', 'Exposicao de comandos', 'Define o nivel de comandos expostos no Discord.', {
+      req('discord_command_exposure', 'Command exposure', 'Defines the command exposure level in Discord.', {
         type: 'env',
         envKey: 'DISCORD_COMMAND_EXPOSURE',
         required: false,
       }),
     ],
     onboardingQuestions: [
-      question('discord_bot_token', 'Qual e o token do bot do Discord?', 'secret', 'Cole o bot token do canal oficial do Discord.'),
+      question('discord_bot_token', 'What is the Discord bot token?', 'secret', 'Paste the bot token for the official Discord channel.'),
       question(
         'discord_allowed_guild_ids',
-        'Quais guild ids vao entrar primeiro?',
+        'Which guild ids should be enabled first?',
         'text',
-        'Opcional, mas recomendado para rollout privado. Separe por virgula.',
+        'Optional, but recommended for a private rollout. Separate values with commas.',
         {
           required: false,
           placeholder: '123456789012345678,987654321098765432',
@@ -128,9 +128,9 @@ export const INTEGRATION_CHANNEL_MANIFESTS: IntegrationManifest[] = [
       ),
       question(
         'discord_owner_user_ids',
-        'Quais owners podem operar comandos sensiveis?',
+        'Which owners can run sensitive commands?',
         'text',
-        'Opcional, mas recomendado fora do modo publico. Separe por virgula.',
+        'Optional, but recommended outside public mode. Separate values with commas.',
         {
           required: false,
           placeholder: '123456789012345678',
@@ -138,230 +138,230 @@ export const INTEGRATION_CHANNEL_MANIFESTS: IntegrationManifest[] = [
       ),
       question(
         'discord_public_server_mode',
-        'Esse bot vai entrar primeiro em servidor publico?',
+        'Will this bot start in a public server?',
         'boolean',
-        'Se true, o Zavorth aplica guardrails mais conservadores por padrao.',
+        'When true, Zavorth applies more conservative guardrails by default.',
         {
           required: false,
         },
       ),
       question(
         'discord_command_exposure',
-        'Qual exposicao de comandos voce quer usar no Discord?',
+        'Which command exposure should Discord use?',
         'single_choice',
-        'Minimal e a escolha mais segura para rollout inicial.',
+        'Minimal is the safest choice for the initial rollout.',
         {
           required: false,
           choices: [
-            choice('none', 'Nenhuma', 'Nao expor slash commands por enquanto.'),
-            choice('minimal', 'Minimal', 'Expose so comandos basicos e seguros.'),
-            choice('operator', 'Operator', 'Expande comandos operacionais para operadores.'),
+            choice('none', 'None', 'Do not expose slash commands yet.'),
+            choice('minimal', 'Minimal', 'Expose only basic and safe commands.'),
+            choice('operator', 'Operator', 'Expand operational commands for operators.'),
           ],
         },
       ),
     ],
     installSteps: [
-      step('bot', 'Preparar o bot no Discord', 'Criar o bot, revisar intents e copiar o token.', 'manual'),
-      step('policy', 'Definir a policy inicial', 'Escolher guilds, owners e exposicao de comandos.', 'guided'),
-      step('doctor', 'Rodar doctor do canal', 'Validar o canal nativo do Discord.', 'verification', 'npm run test:channels:smoke'),
+      step('bot', 'Prepare the Discord bot', 'Create the bot, review intents, and copy the token.', 'manual'),
+      step('policy', 'Define the initial policy', 'Choose guilds, owners, and command exposure.', 'guided'),
+      step('doctor', 'Run channel doctor', 'Validate the native Discord channel.', 'verification', 'npm run test:channels:smoke'),
     ],
     safetyNotes: [
-      'Evite rollout sem allowlist ou com exposicao operator cedo demais.',
-      'Use minimal como exposicao inicial em servidores compartilhados.',
+      'Avoid rollout without an allowlist or with operator exposure too early.',
+      'Use minimal exposure first in shared servers.',
     ],
-    goodFor: ['Equipe interna', 'Servidor privado', 'Rollout publico controlado'],
+    goodFor: ['Internal teams', 'Private servers', 'Controlled public rollout'],
   },
   {
     id: 'slack',
     label: 'Slack',
     aliases: ['slack-native', 'slack-channel'],
-    summary: 'Canal para rollout em modo stub local ou em modo native com Web API e webhook oficial.',
-    description: 'O Zavorth suporta Slack em modo stub para testes locais e em modo native para outbound/webhook reais.',
+    summary: 'Channel for local stub rollout or native mode with the Slack Web API and official webhook.',
+    description: 'Zavorth supports Slack in stub mode for local tests and native mode for real outbound and webhook flows.',
     supportLevel: 'native',
     category: 'remote',
     tags: ['channel', 'slack', 'workspace', 'stub'],
-    modes: [mode('api', 'Slack Web API', 'Usa Slack native ou stub local conforme o transporte escolhido.')],
+    modes: [mode('api', 'Slack Web API', 'Uses native Slack or local stub transport according to the selected mode.')],
     defaultMode: 'api',
     capabilities: ['chat', 'automation'],
     binding: {
       kind: 'service',
       key: 'slack',
       status: 'ready',
-      summary: 'Slack entra no runtime por transport stub ou native, com doctor honesto nos dois caminhos.',
+      summary: 'Slack enters the runtime through stub or native transport, with honest doctor checks for both paths.',
     },
     requirements: [
-      req('slack_enabled', 'Slack habilitado', 'Ativa o canal Slack no runtime.', {
+      req('slack_enabled', 'Slack enabled', 'Enables the Slack channel in the runtime.', {
         type: 'env',
         envKey: 'SLACK_ENABLED',
       }),
-      req('slack_transport', 'Transporte do Slack', 'Define se o canal usa stub local ou native.', {
+      req('slack_transport', 'Slack transport', 'Defines whether the channel uses local stub or native mode.', {
         type: 'env',
         envKey: 'SLACK_TRANSPORT',
       }),
-      req('slack_bot_token', 'Slack bot token', 'Obrigatorio quando o transporte for native.', {
+      req('slack_bot_token', 'Slack bot token', 'Required when the transport is native.', {
         type: 'env',
         secret: true,
         envKey: 'SLACK_BOT_TOKEN',
         required: false,
       }),
-      req('slack_signing_secret', 'Slack signing secret', 'Obrigatorio quando o transporte for native.', {
+      req('slack_signing_secret', 'Slack signing secret', 'Required when the transport is native.', {
         type: 'env',
         secret: true,
         envKey: 'SLACK_SIGNING_SECRET',
         required: false,
       }),
-      req('slack_workspace_id', 'Workspace alvo', 'Workspace usado pelo stub local ou pelo rollout native.', {
+      req('slack_workspace_id', 'Target workspace', 'Workspace used by the local stub or native rollout.', {
         type: 'env',
         envKey: 'SLACK_WORKSPACE_ID',
         required: false,
       }),
-      req('slack_allowed_channel_ids', 'Canais permitidos', 'Canal ou canais permitidos para o rollout do Slack.', {
+      req('slack_allowed_channel_ids', 'Allowed channels', 'Channel or channels allowed for the Slack rollout.', {
         type: 'env',
         envKey: 'SLACK_ALLOWED_CHANNEL_IDS',
         required: false,
       }),
     ],
     onboardingQuestions: [
-      question('slack_enabled', 'Quer habilitar o canal Slack neste host?', 'boolean', 'O wizard marca true automaticamente quando voce escolhe configurar o Slack.', {
+      question('slack_enabled', 'Enable the Slack channel on this host?', 'boolean', 'The wizard sets this to true when you choose to configure Slack.', {
         required: false,
       }),
       question(
         'slack_transport',
-        'Qual transporte do Slack voce quer usar primeiro?',
+        'Which Slack transport should be used first?',
         'single_choice',
-        'Stub e ideal para preparar o host sem depender da Slack Web API logo de cara.',
+        'Stub is ideal for preparing the host before depending on the Slack Web API.',
         {
           choices: [
-            choice('stub', 'Stub local', 'Prepara outbox local e doctor honesto sem webhook real.'),
-            choice('native', 'Native', 'Usa Slack Web API e webhook real quando tokens existirem.'),
+            choice('stub', 'Local stub', 'Prepares a local outbox and honest doctor without a real webhook.'),
+            choice('native', 'Native', 'Uses Slack Web API and a real webhook when tokens exist.'),
           ],
         },
       ),
-      question('slack_workspace_id', 'Qual workspace do Slack sera o alvo?', 'text', 'Opcional no stub; util para identificar o alvo do rollout.', {
+      question('slack_workspace_id', 'Which Slack workspace is the target?', 'text', 'Optional in stub mode; useful to identify the rollout target.', {
         required: false,
         placeholder: 'T12345678',
       }),
-      question('slack_allowed_channel_ids', 'Quais canais vao entrar primeiro?', 'text', 'Opcional no stub; recomendado no native. Separe por virgula.', {
+      question('slack_allowed_channel_ids', 'Which channels should be enabled first?', 'text', 'Optional in stub mode; recommended in native mode. Separate values with commas.', {
         required: false,
         placeholder: 'C12345678,C98765432',
       }),
-      question('slack_bot_token', 'Qual e o bot token do Slack?', 'secret', 'Preencha quando quiser usar o transporte native.', {
+      question('slack_bot_token', 'What is the Slack bot token?', 'secret', 'Fill this when you want to use native transport.', {
         required: false,
       }),
-      question('slack_signing_secret', 'Qual e o signing secret do Slack?', 'secret', 'Preencha quando quiser validar webhook nativo.', {
+      question('slack_signing_secret', 'What is the Slack signing secret?', 'secret', 'Fill this when you want to validate the native webhook.', {
         required: false,
       }),
     ],
     installSteps: [
-      step('transport', 'Escolher o transporte', 'Decidir entre stub local e rollout native.', 'guided'),
-      step('credentials', 'Adicionar credenciais do Slack', 'Preencher bot token e signing secret quando o transporte for native.', 'manual'),
-      step('doctor', 'Rodar doctor do canal', 'Validar Slack stub/native no host atual.', 'verification', 'npm run test:channels:smoke'),
+      step('transport', 'Choose transport', 'Decide between local stub and native rollout.', 'guided'),
+      step('credentials', 'Add Slack credentials', 'Fill bot token and signing secret when transport is native.', 'manual'),
+      step('doctor', 'Run channel doctor', 'Validate Slack stub or native mode on the current host.', 'verification', 'npm run test:channels:smoke'),
     ],
     safetyNotes: [
-      'Use stub para preparar o host antes de abrir webhook real.',
-      'No modo native, mantenha allowlist de canais desde o primeiro rollout.',
+      'Use stub mode to prepare the host before opening a real webhook.',
+      'In native mode, keep an allowlist of channels from the first rollout.',
     ],
-    goodFor: ['Equipe interna', 'Smoke local', 'Rollout progressivo de canal'],
+    goodFor: ['Internal teams', 'Local smoke tests', 'Progressive channel rollout'],
   },
   {
     id: 'whatsapp',
     label: 'WhatsApp',
     aliases: ['whatsapp-cloud-api', 'whatsapp-baileys'],
-    summary: 'Canal com rollout por stub local, Cloud API oficial ou provider Baileys.',
-    description: 'O Zavorth consegue preparar o WhatsApp em modo stub, Cloud API ou Baileys, com doctor honesto para cada provider.',
+    summary: 'Channel rollout through local stub, official Cloud API, or Baileys provider.',
+    description: 'Zavorth can prepare WhatsApp in stub, Cloud API, or Baileys mode, with honest doctor checks for each provider.',
     supportLevel: 'native',
     category: 'remote',
     tags: ['channel', 'whatsapp', 'cloud-api', 'baileys', 'stub'],
-    modes: [mode('api', 'Provider do WhatsApp', 'Usa stub, Cloud API ou Baileys conforme o provider escolhido.')],
+    modes: [mode('api', 'WhatsApp provider', 'Uses stub, Cloud API, or Baileys according to the selected provider.')],
     defaultMode: 'api',
     capabilities: ['chat', 'automation'],
     binding: {
       kind: 'service',
       key: 'whatsapp',
       status: 'ready',
-      summary: 'WhatsApp entra no runtime por stub, Cloud API ou Baileys, com doctor honesto em cada caminho.',
+      summary: 'WhatsApp enters the runtime through stub, Cloud API, or Baileys, with honest doctor checks for each path.',
     },
     requirements: [
-      req('whatsapp_enabled', 'WhatsApp habilitado', 'Ativa o canal WhatsApp no runtime.', {
+      req('whatsapp_enabled', 'WhatsApp enabled', 'Enables the WhatsApp channel in the runtime.', {
         type: 'env',
         envKey: 'WHATSAPP_ENABLED',
       }),
-      req('whatsapp_provider', 'Provider do WhatsApp', 'Define o provider ativo: stub, cloud-api ou baileys.', {
+      req('whatsapp_provider', 'WhatsApp provider', 'Defines the active provider: stub, cloud-api, or baileys.', {
         type: 'env',
         envKey: 'WHATSAPP_PROVIDER',
       }),
-      req('whatsapp_allowed_chat_ids', 'Chats permitidos', 'Chats ou grupos permitidos para rollout operacional.', {
+      req('whatsapp_allowed_chat_ids', 'Allowed chats', 'Chats or groups allowed for operational rollout.', {
         type: 'env',
         envKey: 'WHATSAPP_ALLOWED_CHAT_IDS',
         required: false,
       }),
-      req('whatsapp_phone_number_id', 'Phone number id', 'Obrigatorio quando o provider for Cloud API.', {
+      req('whatsapp_phone_number_id', 'Phone number id', 'Required when the provider is Cloud API.', {
         type: 'env',
         envKey: 'WHATSAPP_PHONE_NUMBER_ID',
         required: false,
       }),
-      req('whatsapp_access_token', 'Access token', 'Obrigatorio quando o provider for Cloud API.', {
+      req('whatsapp_access_token', 'Access token', 'Required when the provider is Cloud API.', {
         type: 'env',
         secret: true,
         envKey: 'WHATSAPP_ACCESS_TOKEN',
         required: false,
       }),
-      req('whatsapp_webhook_verify_token', 'Webhook verify token', 'Obrigatorio quando o provider for Cloud API.', {
+      req('whatsapp_webhook_verify_token', 'Webhook verify token', 'Required when the provider is Cloud API.', {
         type: 'env',
         secret: true,
         envKey: 'WHATSAPP_WEBHOOK_VERIFY_TOKEN',
         required: false,
       }),
-      req('whatsapp_session_dir', 'Sessao persistente', 'Obrigatorio quando o provider for Baileys.', {
+      req('whatsapp_session_dir', 'Persistent session', 'Required when the provider is Baileys.', {
         type: 'env',
         envKey: 'WHATSAPP_SESSION_DIR',
         required: false,
       }),
     ],
     onboardingQuestions: [
-      question('whatsapp_enabled', 'Quer habilitar o canal WhatsApp neste host?', 'boolean', 'O wizard marca true automaticamente quando voce escolhe configurar o WhatsApp.', {
+      question('whatsapp_enabled', 'Enable the WhatsApp channel on this host?', 'boolean', 'The wizard sets this to true when you choose to configure WhatsApp.', {
         required: false,
       }),
       question(
         'whatsapp_provider',
-        'Qual provider do WhatsApp voce quer usar primeiro?',
+        'Which WhatsApp provider should be used first?',
         'single_choice',
-        'Stub e o caminho mais rapido para preparar o host; Cloud API e o caminho oficial; Baileys continua local.',
+        'Stub is fastest for preparing the host; Cloud API is the official path; Baileys stays local.',
         {
           choices: [
-            choice('stub', 'Stub local', 'Prepara o host sem depender de credencial externa logo de cara.'),
-            choice('cloud-api', 'Cloud API', 'Usa webhook e outbound reais da Meta/WhatsApp Cloud API.'),
-            choice('baileys', 'Baileys', 'Usa provider local com sessao persistente.'),
+            choice('stub', 'Local stub', 'Prepares the host without external credentials first.'),
+            choice('cloud-api', 'Cloud API', 'Uses real Meta/WhatsApp Cloud API webhooks and outbound messages.'),
+            choice('baileys', 'Baileys', 'Uses a local provider with a persistent session.'),
           ],
         },
       ),
-      question('whatsapp_allowed_chat_ids', 'Quais chats vao entrar primeiro?', 'text', 'Opcional no stub; recomendado quando houver rollout real. Separe por virgula.', {
+      question('whatsapp_allowed_chat_ids', 'Which chats should be enabled first?', 'text', 'Optional in stub mode; recommended for real rollout. Separate values with commas.', {
         required: false,
-        placeholder: '5511999999999,grupo-operacoes',
+        placeholder: '5511999999999,operations-group',
       }),
-      question('whatsapp_phone_number_id', 'Qual e o phone number id da Cloud API?', 'text', 'Preencha quando o provider escolhido for cloud-api.', {
-        required: false,
-      }),
-      question('whatsapp_access_token', 'Qual e o access token da Cloud API?', 'secret', 'Preencha quando o provider escolhido for cloud-api.', {
+      question('whatsapp_phone_number_id', 'What is the Cloud API phone number id?', 'text', 'Fill this when the selected provider is cloud-api.', {
         required: false,
       }),
-      question('whatsapp_webhook_verify_token', 'Qual e o webhook verify token?', 'secret', 'Preencha quando o provider escolhido for cloud-api.', {
+      question('whatsapp_access_token', 'What is the Cloud API access token?', 'secret', 'Fill this when the selected provider is cloud-api.', {
         required: false,
       }),
-      question('whatsapp_session_dir', 'Qual diretorio de sessao o Baileys deve usar?', 'text', 'Preencha quando o provider escolhido for Baileys.', {
+      question('whatsapp_webhook_verify_token', 'What is the webhook verify token?', 'secret', 'Fill this when the selected provider is cloud-api.', {
+        required: false,
+      }),
+      question('whatsapp_session_dir', 'Which session directory should Baileys use?', 'text', 'Fill this when the selected provider is Baileys.', {
         required: false,
         placeholder: 'data/whatsapp-baileys/session',
       }),
     ],
     installSteps: [
-      step('provider', 'Escolher o provider', 'Decidir entre stub, Cloud API ou Baileys.', 'guided'),
-      step('credentials', 'Adicionar credenciais do provider', 'Preencher credenciais ou sessao persistente quando necessario.', 'manual'),
-      step('doctor', 'Rodar doctor do canal', 'Validar o provider escolhido no host atual.', 'verification', 'npm run test:channels:smoke'),
+      step('provider', 'Choose provider', 'Decide between stub, Cloud API, or Baileys.', 'guided'),
+      step('credentials', 'Add provider credentials', 'Fill credentials or persistent session settings when required.', 'manual'),
+      step('doctor', 'Run channel doctor', 'Validate the selected provider on the current host.', 'verification', 'npm run test:channels:smoke'),
     ],
     safetyNotes: [
-      'Use stub para preparar o host antes de abrir webhook real da Cloud API.',
-      'Para Baileys, mantenha a sessao persistente fora de diretorios efemeros.',
+      'Use stub mode to prepare the host before opening a real Cloud API webhook.',
+      'For Baileys, keep the persistent session outside ephemeral directories.',
     ],
-    goodFor: ['Rollout progressivo', 'Chat operacional', 'Validacao local antes do provider oficial'],
+    goodFor: ['Progressive rollout', 'Operational chat', 'Local validation before an official provider'],
   },
 ];

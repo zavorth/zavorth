@@ -12,6 +12,7 @@ import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
 import { ZavorthRolloutReadinessControlPlaneService } from './ZavorthRolloutReadinessControlPlaneService.js';
 import { ZavorthSkillEvolutionService } from './ZavorthSkillEvolutionService.js';
 import { ZavorthWatchModeControlPlaneService } from './ZavorthWatchModeControlPlaneService.js';
+import { logger } from '../logger.js';
 
 export type CanvasEntityKind =
   | 'chat'
@@ -654,15 +655,16 @@ export class CanvasWorkspaceService {
         plan,
         snapshot: await this.buildSnapshot(),
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Canvas Workspace] creation failed', error);
+    return {
         generatedAt: this.now().toISOString(),
         ok: false,
         status: 'missing',
         plan: null,
         snapshot: await this.buildSnapshot(),
       };
-    }
+  }
   }
 
   private async readSources(limit: number): Promise<CanvasProjectionSources> {
@@ -1255,17 +1257,13 @@ export class CanvasWorkspaceService {
         return null;
       }
       return asCanvasRecord(await (service.buildSnapshot as (input?: unknown) => unknown | Promise<unknown>)(input));
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Canvas Workspace] creation failed', error); return null; }
   }
 
   private safeMutationPlans(limit: number): ZavorthMutationPlan[] {
     try {
       return this.mutationPlaneService.listPlans({ limit, includeExpired: false });
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Canvas Workspace] creation failed', error); return []; }
   }
 
   private readDocument(): CanvasWorkspaceDocument {
@@ -1275,9 +1273,10 @@ export class CanvasWorkspaceService {
       }
       const parsed = JSON.parse(this.readFileSync(this.stateFile, 'utf8')) as Partial<CanvasWorkspaceDocument>;
       return this.normalizeDocument(parsed);
-    } catch {
-      return this.emptyDocument();
-    }
+    } catch (error) {
+    logger.warn('[Canvas Workspace] JSON parse failed', error);
+    return this.emptyDocument();
+  }
   }
 
   private writeDocument(document: CanvasWorkspaceDocument): void {

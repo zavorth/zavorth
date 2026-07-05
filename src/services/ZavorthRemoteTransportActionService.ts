@@ -9,6 +9,7 @@ import { GatewayCompatibilityDoctorService } from './GatewayCompatibilityDoctorS
 import { AIGatewaySidecarService } from './AIGatewaySidecarService.js';
 import { RemoteTransportDoctorService } from './RemoteTransportDoctorService.js';
 import { ToolHookPipelineService } from './ToolHookPipelineService.js';
+import { logger } from '../logger.js';
 
 type RemoteTransportActionRuntime = {
   now?: () => Date;
@@ -376,9 +377,7 @@ export class ZavorthRemoteTransportActionService {
           requestedBy: String(entry.requestedBy || '').trim() || null,
         }))
         .filter((entry) => Boolean(entry.occurredAt && entry.transportId && entry.summary));
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Remote Transport Action] process execution failed', error); return []; }
   }
 
   private normalizeActionId(value: string | null | undefined): ZavorthRemoteTransportActionExecution['actionId'] | '' {

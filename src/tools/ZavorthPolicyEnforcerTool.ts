@@ -1,5 +1,6 @@
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 interface PolicyRule {
   id: string;
@@ -208,10 +209,11 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
         case 'test': return this.testPolicy(args);
       }
       return 'Internal error.';
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth  Enforcer] delete operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `PolicyEnforcer error: ${message}`;
-    }
+  }
   }
 
   private checkPolicy(args: Record<string, unknown>): string {
@@ -220,13 +222,13 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
 
     let toolArgs: Record<string, unknown> = {};
     if (typeof args.tool_args === 'string') {
-      try { toolArgs = JSON.parse(args.tool_args); } catch { /* ignore */ }
+      try { toolArgs = JSON.parse(args.tool_args); } catch (error) { /* ignore */ logger.warn('[Zavorth  Enforcer] JSON parse failed', error); }
     }
 
     const riskLevel = String(args.risk_level || 'medium');
     let context: Record<string, unknown> = {};
     if (typeof args.context === 'string') {
-      try { context = JSON.parse(args.context); } catch { /* ignore */ }
+      try { context = JSON.parse(args.context); } catch (error) { /* ignore */ logger.warn('[Zavorth  Enforcer] JSON parse failed', error); }
     }
 
     const results = this.evaluatePolicies(toolName, toolArgs, riskLevel, context);
@@ -481,7 +483,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
         const parsed = new URL(url);
         const trustedDomains = ['github.com', 'google.com', 'openai.com', 'localhost'];
         if (!trustedDomains.some((d) => parsed.hostname.endsWith(d))) return true;
-      } catch { return true; }
+      } catch (error) { logger.warn('[Zavorth  Enforcer] parsing failed', error); return true; }
     }
 
     if (cond.includes('hour')) {

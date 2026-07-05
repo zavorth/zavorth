@@ -1,6 +1,7 @@
 /** Version manager tool state persistence. */
 
 import { getDbInstance } from "./core";
+import { logger } from '@/shared/utils/logger';
 
 interface VersionManagerRow {
   id?: unknown;
@@ -34,18 +35,14 @@ function parseConfigOverrides(value: unknown): Record<string, unknown> | null {
   try {
     const parsed = JSON.parse(value);
     return typeof parsed === "object" && parsed !== null ? parsed : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[version Manager] JSON parse failed', error); return null; }
 }
 
 function stringifyConfigOverrides(value: Record<string, unknown> | null): string | null {
   if (value === null) return null;
   try {
     return JSON.stringify(value);
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[version Manager] JSON parse failed', error); return null; }
 }
 
 interface VersionManagerTool {

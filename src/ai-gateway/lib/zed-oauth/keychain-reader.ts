@@ -13,6 +13,7 @@
 import fs from "fs";
 import os from "os";
 import path from "path";
+import { logger } from '@/shared/utils/logger';
 
 /** Minimal keytar surface (CJS/native; typings may not expose `default`). */
 type KeytarModule = {
@@ -24,9 +25,7 @@ async function loadKeytar(): Promise<KeytarModule | null> {
   try {
     const mod = (await import("keytar")) as { default?: KeytarModule } & KeytarModule;
     return mod.default ?? mod;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[keychain-reader] load operation failed', error); return null; }
 }
 
 export interface ZedCredential {

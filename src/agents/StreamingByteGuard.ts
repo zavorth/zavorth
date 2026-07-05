@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 /**
  * StreamingByteGuard — Protection against unlimited provider response consumption.
  *
@@ -83,17 +84,15 @@ export class StreamingByteGuard {
     this.cancelled = true;
     try {
       await this.reader.cancel();
-    } catch {
-      // ignora erros de cancelamento
-    }
+    } catch (error) { // Ignore cancellation errors. logger.warn('[Streaming Byte Guard] operation failed', error); }
   }
 
-  /** Bytes acumulados até o momento. */
+  /** Bytes accumulated so far. */
   get totalBytes(): number {
     return this.accumulatedBytes;
   }
 
-  /** Se o stream foi cancelado manualmente. */
+  /** Whether the stream was manually cancelled. */
   get isCancelled(): boolean {
     return this.cancelled;
   }

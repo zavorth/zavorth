@@ -17,6 +17,7 @@ import {
   type ProviderProfile,
 } from './ProviderControlPlaneService.js';
 import type { ZavorthProviderLiveProofStoreService } from './ZavorthProviderLiveProofStoreService.js';
+import { logger } from '../logger.js';
 
 type ProviderControlPlaneLike = Pick<
   ProviderControlPlaneService,
@@ -152,13 +153,7 @@ export class ZavorthProviderReadinessMatrixService {
         },
       ],
       zavorthControlProjection: {
-        route: '/zavorthControl',
-        endpoint: '/api/providers/readiness',
-        executionAuthority: false,
-        canRenderTestButtons: true,
-      },
-      zavorthControlProjection: {
-        route: '/zavorthControl',
+        route: '/control',
         endpoint: '/api/providers/readiness',
         executionAuthority: false,
         canRenderTestButtons: true,
@@ -787,9 +782,7 @@ function countAnyModelArray(data: unknown): number | null {
 function parseJson(text: string): unknown | null {
   try {
     return JSON.parse(text);
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth  Readiness Matrix] JSON parse failed', error); return null; }
 }
 
 async function fetchProbe(fetchImpl: typeof fetch, probe: ProviderProbeConfig): Promise<ProviderHttpProbeResponse> {
@@ -857,9 +850,7 @@ function sanitizeProbeTarget(rawUrl: string): string {
   try {
     const url = new URL(rawUrl);
     return `${url.origin}${url.pathname}`;
-  } catch {
-    return 'unknown';
-  }
+  } catch (error) { logger.warn('[Zavorth  Readiness Matrix] creation failed', error); return 'unknown'; }
 }
 
 function normalizeBaseUrl(value: string): string {

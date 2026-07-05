@@ -39,7 +39,7 @@ export class DesktopRecoveryBoundary extends React.Component<
       return (
         <RecoveryOverlay
           title="A interface encontrou um problema"
-          message="O Zavorth isolou a falha visual para manter o desktop recuperavel. Reabra a interface ou revise os diagnosticos."
+          message="Zavorth isolated the visual failure to keep the desktop recoverable. Reopen the interface or review diagnostics."
           retryLabel="Reabrir interface"
           settingsLabel="Abrir diagnosticos"
           onRetry={this.handleRecover}

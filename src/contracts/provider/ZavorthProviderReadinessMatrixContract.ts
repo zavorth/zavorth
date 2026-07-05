@@ -64,6 +64,8 @@ export type ZavorthProviderReadinessEntry = {
   userAction: string;
   testCommand: string;
   probe: {
+    status: ZavorthProviderProbeStatus;
+    mode: ZavorthProviderLiveProbeMode;
     liveNetworkUsed: boolean;
     requestedAt: string | null;
     completedAt: string | null;
@@ -123,19 +125,26 @@ export type ZavorthProviderReadinessMatrixSnapshot = {
     defaultRoutingPolicy: 'ready-and-live-proof';
     counts: {
       catalogReady: number;
+      liveReady: number;
+      catalogReadyButNotLive: number;
+      defaultRouteAllowed: number;
     };
   };
   commands: Array<{
+    id: string;
     command: string;
+    summary: string;
     liveNetworkUsedByDefault: boolean;
   }>;
   zavorthControlProjection: {
-    route: '/zavorthControl';
+    route: '/zavorthControl' | '/control';
     endpoint: '/api/providers/readiness';
     executionAuthority: false;
     canRenderTestButtons: true;
   };
   invariants: Array<{
+    id: string;
+    status: 'passed' | 'failed';
     detail: string;
   }>;
   nextAction: string;

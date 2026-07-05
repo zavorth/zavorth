@@ -8,6 +8,7 @@ import os from "os";
 import { cloudSyncActionSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * GET /api/sync/cloud
@@ -51,10 +52,12 @@ export async function GET(request: Request) {
         connected: pingRes.ok,
         lastSync: new Date().toISOString(),
       });
-    } catch {
-      return NextResponse.json({ enabled: true, connected: false });
-    }
-  } catch (error: any) {
+    } catch (error) {
+    logger.warn('[route] connection failed', error);
+    return NextResponse.json({ enabled: true, connected: false });
+  }
+  } catch (error) {
+    logger.warn('[route] connection failed', error);
     return NextResponse.json({ enabled: false, error: error.message }, { status: 500 });
   }
 }
@@ -70,7 +73,8 @@ export async function POST(request: any) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       { error: { message: "Invalid request", details: [{ field: "body", message: "Invalid JSON body" }] } },
       { status: 400 }
@@ -177,9 +181,10 @@ async function syncAndVerify(machineId: string, createdKey: any, existingKeys: a
         });
       }
       lastVerifyError = `Ping failed: ${pingResponse.status}`;
-    } catch (error: any) {
-      lastVerifyError = error?.name === "AbortError" ? "Verify timeout" : error.message;
-    }
+    } catch (error) {
+    logger.warn('[route] health check failed', error);
+    lastVerifyError = error?.name === "AbortError" ? "Verify timeout" : error.message;
+  }
 
     // Wait before retry (except on last attempt)
     if (attempt < MAX_VERIFY_ATTEMPTS) {

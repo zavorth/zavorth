@@ -6,6 +6,7 @@ import { addDNSEntry, checkDNSEntry, removeDNSEntry } from "./dns/dnsConfig";
 import { generateCert } from "./cert/generate";
 import { installCert } from "./cert/install";
 import { redactSensitiveText } from "../../security/SensitiveDataGuard.js";
+import { logger } from '@/shared/utils/logger';
 
 // Store server process
 let serverProcess = null;
@@ -41,9 +42,7 @@ function isProcessAlive(pid) {
   try {
     process.kill(pid, 0);
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[manager] encoding failed', error); return false; }
 }
 
 /**
@@ -66,9 +65,7 @@ export async function getMitmStatus() {
           fs.unlinkSync(PID_FILE);
         }
       }
-    } catch {
-      // Ignore
-    }
+    } catch (error) { // Ignore logger.warn('[manager] file cleanup failed', error); }
   }
 
   // Check DNS configuration
@@ -142,9 +139,7 @@ export async function startMitm(apiKey, sudoPassword) {
     // Remove PID file
     try {
       fs.unlinkSync(PID_FILE);
-    } catch (error) {
-      // Ignore
-    }
+    } catch (error) { // Ignore logger.warn('[manager] file cleanup failed', error); }
   });
 
   // Wait and verify server actually started
@@ -218,9 +213,7 @@ export async function stopMitm(sudoPassword) {
           }
         }
       }
-    } catch {
-      // Ignore
-    }
+    } catch (error) { // Ignore logger.warn('[manager] operation failed', error); }
     serverProcess = null;
     serverPid = null;
   }
@@ -233,9 +226,7 @@ export async function stopMitm(sudoPassword) {
   clearCachedPassword(); // Clear password from memory when proxy stops
   try {
     fs.unlinkSync(PID_FILE);
-  } catch (error) {
-    // Ignore
-  }
+  } catch (error) { // Ignore logger.warn('[manager] file cleanup failed', error); }
 
   return {
     running: false,

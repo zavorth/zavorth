@@ -134,7 +134,7 @@ export class RemoteShellTool extends BaseTool {
     if (timeoutMs < 1000) timeoutMs = 1000;
 
     if (!command || typeof command !== 'string') {
-      return 'Erro: o parametro "command" e obrigatorio e deve ser uma string.';
+      return 'Error: the "command" parameter is required and must be a string.';
     }
 
     const parsed = this.parseCommand(command);
@@ -190,11 +190,11 @@ export class RemoteShellTool extends BaseTool {
       if (stderr) output += `[STDERR]\n${stderr}\n`;
 
       if (!output) {
-        return 'O comando foi executado com sucesso e nao retornou saida.';
+        return 'The command executed successfully and returned no output.';
       }
 
       if (output.length > 5000) {
-        output = `${output.substring(0, 5000)}...\n\n[AVISO: saida truncada; excedeu 5000 caracteres.]`;
+        output = `${output.substring(0, 5000)}...\n\n[WARNING: output truncated because it exceeded 5000 characters.]`;
       }
 
       return output.trim();
@@ -205,12 +205,12 @@ export class RemoteShellTool extends BaseTool {
         stderr?: unknown;
         killed?: unknown;
       };
-      let errorOutput = `Erro ao executar "${parsed.file}":\n`;
+      let errorOutput = `Error while executing "${parsed.file}":\n`;
       errorOutput += `Return Code: ${execError.code ?? 'unknown'}\n`;
-      if (execError.stdout) errorOutput += `\n[STDOUT PARCIAL]\n${String(execError.stdout)}`;
-      if (execError.stderr) errorOutput += `\n[STDERR PARCIAL]\n${String(execError.stderr)}`;
+      if (execError.stdout) errorOutput += `\n[PARTIAL STDOUT]\n${String(execError.stdout)}`;
+      if (execError.stderr) errorOutput += `\n[PARTIAL STDERR]\n${String(execError.stderr)}`;
       if (execError.killed) {
-        errorOutput += `\n\n[AVISO: comando encerrado por timeout (${timeoutMs}ms).]`;
+        errorOutput += `\n\n[WARNING: command stopped after timeout (${timeoutMs}ms).]`;
       }
       return errorOutput.trim();
     }
@@ -227,19 +227,19 @@ export class RemoteShellTool extends BaseTool {
     if (FORBIDDEN_SHELL_TOKENS.test(commandForTokenScan)) {
       return {
         ok: false,
-        error: 'Erro: remote_shell bloqueou metacaracteres de shell. Use uma tool estruturada ou comando allowlisted sem ;, &, |, <, >, ` ou $().',
+        error: 'Error: remote_shell blocked shell metacharacters. Use a structured tool or an allowlisted command without ;, &, |, <, >, `, or $().',
       };
     }
     if (FORBIDDEN_BINARIES.has(binary)) {
       return {
         ok: false,
-        error: `Erro: binario "${file}" bloqueado. Shells, downloaders e comandos destrutivos nao sao permitidos.`,
+        error: `Error: binary "${file}" is blocked. Shells, downloaders, and destructive commands are not allowed.`,
       };
     }
     if (!this.allowedBinaries().has(binary)) {
       return {
         ok: false,
-        error: `Erro: binario "${file}" nao esta na allowlist. Configure ZAVORTH_REMOTE_SHELL_ALLOWED_BINARIES para permitir explicitamente.`,
+        error: `Error: binary "${file}" is not in the allowlist. Configure ZAVORTH_REMOTE_SHELL_ALLOWED_BINARIES to allow it explicitly.`,
       };
     }
     if (
@@ -263,8 +263,8 @@ export class RemoteShellTool extends BaseTool {
       return {
         ok: false,
         error:
-          `Erro: "${file}" pode executar codigo ou scripts. Use isolationMode="sidecar" ` +
-          'ou a tool run_sandbox_code; execucao direta no host exige isolationMode="host" e ZAVORTH_REMOTE_SHELL_HOST_BREAK_GLASS=true.',
+          `Error: "${file}" can execute code or scripts. Use isolationMode="sidecar" ` +
+          'or the run_sandbox_code tool; direct host execution requires isolationMode="host" and ZAVORTH_REMOTE_SHELL_HOST_BREAK_GLASS=true.',
       };
     }
     if (args.some((arg) => arg.length > 2000)) {
@@ -374,13 +374,13 @@ export class RemoteShellTool extends BaseTool {
     }
 
     if (quote) {
-      return { ok: false, error: 'Erro: aspas nao fechadas no comando.' };
+      return { ok: false, error: 'Error: unclosed quote in command.' };
     }
     if (current) {
       tokens.push(current);
     }
     if (tokens.length === 0) {
-      return { ok: false, error: 'Erro: comando vazio.' };
+      return { ok: false, error: 'Error: empty command.' };
     }
 
     return {

@@ -2,8 +2,9 @@ import { PROVIDER_ID_TO_ALIAS } from "@ZavorthGateway/open-sse/config/providerMo
 import { backupDbFile } from "../backup";
 import { getDbInstance } from "../core";
 import { resolveProxyForConnectionFromRegistry } from "../proxies";
+import { logger } from '@/shared/utils/logger';
 import {
-  toProxyMap,
+toProxyMap,
   toProxyValue,
   toRecord,
   type JsonRecord,
@@ -191,9 +192,7 @@ export async function resolveProxyForConnection(connectionId: string) {
             if (usesProvider) {
               return { proxy: config.combos[comboId], level: "combo", levelId: comboId };
             }
-          } catch {
-            // Ignore malformed combo records during proxy resolution.
-          }
+          } catch (error) { // Ignore malformed combo records during proxy resolution. logger.warn('[proxy] JSON parse failed', error); }
         }
       }
     }

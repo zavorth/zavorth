@@ -3,6 +3,7 @@ import path from 'path';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
+import { logger } from '../../../logger.js';
 
 export interface IMessageGatewayStubMessage {
   sender: string;
@@ -68,9 +69,7 @@ export class IMessageGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.imessageStatusFile, 'utf8')) as IMessageGatewayStatusSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[I Message way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
@@ -95,14 +94,14 @@ export class IMessageGateway implements LiveChannelBroadcastGatewayContract {
 
   public async broadcast(message: string): Promise<void> {
     if (!this.started) {
-      this.lastError = 'iMessage bridge ainda nao foi iniciada.';
+      this.lastError = 'iMessage bridge has not started yet.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
 
     const recipients = this.resolveBroadcastRecipients();
     if (recipients.length === 0) {
-      this.lastError = 'iMessage bridge nao tem recipients permitidos configurados.';
+      this.lastError = 'iMessage bridge has no configured allowed recipients.';
       this.writeStatus();
       throw new Error(this.lastError);
     }

@@ -2,12 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { config } from '../config/index.js';
-import { SwarmV2Service } from './SwarmV2Service.js';
-import { ZavorthAgentReviewService } from './ZavorthAgentReviewService.js';
+import { SwarmV2Service, type SwarmV2TrackedSnapshot } from './SwarmV2Service.js';
+import { ZavorthAgentReviewService, type ZavorthAgentReviewSnapshot } from './ZavorthAgentReviewService.js';
 import { ZavorthProviderModelCatalogService } from './ZavorthProviderModelCatalogService.js';
 import { ZavorthSkillCuratorLiveLoopService } from './ZavorthSkillCuratorLiveLoopService.js';
 import { TelegramDailyAssistantService } from '../gateways/channels/telegram/TelegramDailyAssistantService.js';
-import type { UniversalAgentRun } from '../runtime/agent/index.js';
+import type { UniversalAgentRun, ZavorthAgentGateway } from '../runtime/agent/index.js';
 
 export const ZAVORTH_DAILY_USE_SCENARIO_TEST_CONTRACT_VERSION =
   'zavorth-daily-use-scenario-test/1' as const;
@@ -410,7 +410,7 @@ export class ZavorthDailyUseScenarioTestService {
       }),
     };
     return new TelegramDailyAssistantService({
-      agentGateway: gateway as any,
+      agentGateway: gateway as unknown as Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'resolveApprovalIntent'>,
       now: this.now,
     });
   }
@@ -429,7 +429,7 @@ function createAgentReviewSimulation(): Pick<ZavorthAgentReviewService, 'run'> {
       visual: {
         patchApplyMode: 'approval-gated',
       },
-    } as any),
+    } as unknown as ZavorthAgentReviewSnapshot),
   };
 }
 
@@ -449,7 +449,7 @@ function createSwarmSimulation(now: () => Date): Pick<SwarmV2Service, 'launchOff
         simulationOnly: true,
         noRuntimeAdapterStarted: true,
       },
-    } as any),
+    } as unknown as SwarmV2TrackedSnapshot),
   };
 }
 

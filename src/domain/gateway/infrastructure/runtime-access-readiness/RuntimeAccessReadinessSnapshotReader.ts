@@ -14,8 +14,9 @@ import {
 import type { RuntimeAccessReadinessSnapshotReaderOptions } from "./RuntimeAccessReadinessSnapshotReaderTypes.js";
 import { RuntimeAccessReadinessSmokeSnapshotReader } from "./RuntimeAccessReadinessSmokeSnapshotReader.js";
 import { isWeakZavorthControlToken } from "../../../../services/ZavorthControlTokenService.js";
+import { logger } from '../../../../logger';
 import type {
-  RuntimeAccessAuthStatus,
+RuntimeAccessAuthStatus,
   RuntimeAccessChannelProviderDoctorSnapshot,
   RuntimeAccessZavorthControlSnapshot,
   RuntimeAccessDiscordBridgeSnapshot,
@@ -97,8 +98,9 @@ export class RuntimeAccessReadinessSnapshotReader {
         capabilities: [...snapshot.capabilities],
         recommendations: [...snapshot.recommendations],
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Runtime Access Readiness Snapshot Reader] creation failed', error);
+    return {
         manifestPath: config.mcpServersManifestPath,
         summary: {
           total: 0,
@@ -113,7 +115,7 @@ export class RuntimeAccessReadinessSnapshotReader {
         capabilities: [],
         recommendations: [],
       };
-    }
+  }
   }
 
   public normalizeMcpSummary(
@@ -218,9 +220,7 @@ export class RuntimeAccessReadinessSnapshotReader {
         updatedAt:
           typeof parsed.updatedAt === "string" ? parsed.updatedAt : null,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readZavorthControlSnapshot(
@@ -265,9 +265,7 @@ export class RuntimeAccessReadinessSnapshotReader {
         updatedAt:
           typeof parsed.updatedAt === "string" ? parsed.updatedAt : null,
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] parsing failed', error); return null; }
   }
 
   public readNodeMeshSmokeSnapshot(): RuntimeAccessNodeMeshSmokeSnapshot {
@@ -303,9 +301,7 @@ export class RuntimeAccessReadinessSnapshotReader {
         currentFingerprint,
         storedFingerprint,
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] operation failed', error); return null; }
   }
 
   public readLockSnapshot(filePath: string): RuntimeAccessLockSnapshot {
@@ -332,15 +328,16 @@ export class RuntimeAccessReadinessSnapshotReader {
           typeof parsed.startedAt === "string" ? parsed.startedAt : null,
         alive: pid ? this.isProcessAlive(pid) : false,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Runtime Access Readiness Snapshot Reader] parsing failed', error);
+    return {
         active: true,
         pid: null,
         owner: null,
         startedAt: null,
         alive: false,
       };
-    }
+  }
   }
 
   private mapProviderReport(
@@ -376,9 +373,7 @@ export class RuntimeAccessReadinessSnapshotReader {
       return typeof parsed.fingerprint === "string" && parsed.fingerprint.trim()
         ? parsed.fingerprint.trim()
         : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] JSON parse failed', error); return null; }
   }
 
   private readTokenFile(filePath: string): string | null {
@@ -389,17 +384,13 @@ export class RuntimeAccessReadinessSnapshotReader {
 
       const token = this.options.readFileSync(filePath, "utf8").trim();
       return token || null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] filesystem operation failed', error); return null; }
   }
 
   private isProcessAlive(pid: number): boolean {
     try {
       this.options.kill(pid, 0);
       return true;
-    } catch (error: any) {
-      return error?.code !== "ESRCH";
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] filesystem operation failed', error); return error?.code !== "ESRCH"; }
   }
 }

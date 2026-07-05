@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  FIRST_RUN_FORBIDDEN_CLAIMS,
+FIRST_RUN_FORBIDDEN_CLAIMS,
   FIRST_RUN_REQUIRED_ARTIFACTS,
   FIRST_RUN_REQUIRED_COPY,
   FIRST_RUN_REQUIRED_STATES,
@@ -361,9 +362,7 @@ export class FirstRunOnboardingContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[First Run Onboarding Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -389,9 +388,7 @@ export class FirstRunOnboardingContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[First Run Onboarding Contract] filesystem operation failed', error); return ''; }
   }
 
   private check(

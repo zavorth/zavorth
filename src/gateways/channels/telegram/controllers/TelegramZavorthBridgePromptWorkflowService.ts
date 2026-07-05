@@ -53,7 +53,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
 
     if (!normalizedModel || !normalizedPrompt) {
       await ctx.reply(
-        'Use /ag_prompt <modelo> | <prompt>.\nExemplo: /ag_prompt gemini-3.1-flash | responda apenas com TESTE ZAVORTH OK',
+        'Use /ag_prompt <model> | <prompt>.\nExample: /ag_prompt gemini-3.1-flash | answer only with TEST ZAVORTH OK',
       );
       return;
     }
@@ -80,7 +80,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
     this.deps.taskManager.advanceState(task, 'parsed');
 
     await ctx.reply(
-      `Perfeito. Vou preparar o ZavorthBridge com o modelo ${normalizedModel} e mandar seu pedido por la.`,
+      `Perfect. I will prepare ZavorthBridge with model ${normalizedModel} and send your request there.`,
     );
 
     try {
@@ -137,7 +137,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
           'zavorthBridge',
           'ui_permission',
           task.workspace || config.defaultWorkspace,
-          TenantContextService.buildPermissionMetadataMatchFromTask(task),
+          TenantContextService.buildPermissionMetadataMatchFromTask(task) as any,
         );
         const alreadyAutoApproved = Boolean(task.metadata?.zavorthBridgeAutoPermissionApplied);
 
@@ -152,7 +152,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
           await automator.approveVisibleStep(0, approvalMode, targetProcessId);
           const cleared = await automator.waitForPermissionPromptToClear(targetProcessId);
           if (!cleared) {
-            throw new Error('O prompt de permissao do ZavorthBridge continuou visivel mesmo depois da politica automatica.');
+            throw new Error('The ZavorthBridge permission prompt remained visible after the automatic policy.');
           }
           task.metadata = {
             ...(task.metadata || {}),
@@ -162,7 +162,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
           this.deps.persistTask(task);
           await this.deps.botApi.sendMessage(
             task.chat_id,
-            `Politica persistente aplicada automaticamente para o ZavorthBridge (${this.deps.shortPermissionId(autoApprovalPolicy)}). Vou continuar o acompanhamento da resposta.`,
+            `Persistent policy automatically applied for ZavorthBridge (${this.deps.shortPermissionId(autoApprovalPolicy)}). I will continue tracking the response.`,
           );
           await this.finishPrompt(task, startResult);
           return;
@@ -184,7 +184,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
         );
         return;
       } else {
-        task.error_summary = completion.errorMessage || 'O ZavorthBridge nao devolveu uma resposta final dentro do tempo limite.';
+        task.error_summary = completion.errorMessage || 'ZavorthBridge did not return a final response within the time limit.';
         this.deps.persistTask(task);
         this.deps.taskManager.advanceState(task, 'failed');
       }
@@ -202,7 +202,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
       await SmartOutputService.send(
         this.deps.botApi as unknown as SmartOutputCompatibleBotApi,
         task.chat_id,
-        `Nao consegui acompanhar a resposta final do ZavorthBridge nessa tarefa.\n\nMotivo: ${errorMsg}\nDetalhe tecnico: task=${task.task_id.substring(0, 8)}`,
+        `I could not track the final ZavorthBridge response for this task.\n\nReason: ${errorMsg}\nTechnical detail: task=${task.task_id.substring(0, 8)}`,
       );
     }
   }
@@ -215,20 +215,20 @@ export class TelegramZavorthBridgePromptWorkflowService {
       return this.deps.createWindowAutomator();
     }
 
-    throw new Error('Automacao do ZavorthBridge indisponivel para autoaprovacao visual.');
+    throw new Error('ZavorthBridge automation is unavailable for visual auto-approval.');
   }
 
   private formatPromptStartFailure(result: ZavorthBridgePromptStartResult): string {
-    const lines = ['Nao consegui colocar esse pedido para rodar no ZavorthBridge.'];
-    lines.push(`Etapa em que parou: ${result.phase}`);
-    if (result.selectedModel) lines.push(`Modelo pedido: ${result.selectedModel}`);
-    if (typeof result.remoteModeActive === 'boolean') lines.push(`Modo remoto: ${result.remoteModeActive ? 'ativo' : 'inativo'}`);
-    if (typeof result.sessionAccessible === 'boolean') lines.push(`Sessao acessivel: ${result.sessionAccessible ? 'sim' : 'nao'}`);
-    if (result.desktopName) lines.push(`Desktop atual: ${result.desktopName}`);
+    const lines = ['I could not start this request in ZavorthBridge.'];
+    lines.push(`Stopped at phase: ${result.phase}`);
+    if (result.selectedModel) lines.push(`Requested model: ${result.selectedModel}`);
+    if (typeof result.remoteModeActive === 'boolean') lines.push(`Remote mode: ${result.remoteModeActive ? 'active' : 'inactive'}`);
+    if (typeof result.sessionAccessible === 'boolean') lines.push(`Session accessible: ${result.sessionAccessible ? 'yes' : 'no'}`);
+    if (result.desktopName) lines.push(`Current desktop: ${result.desktopName}`);
     if (result.sessionMessage) lines.push(result.sessionMessage);
     if (result.message) lines.push(result.message);
     if (result.errorMessage) lines.push(result.errorMessage);
-    if (result.errorCode) lines.push(`Detalhe tecnico: ${result.errorCode}`);
+    if (result.errorCode) lines.push(`Technical detail: ${result.errorCode}`);
     if (result.logFile) lines.push(`Log: ${result.logFile}`);
     return lines.join('\n');
   }
@@ -236,16 +236,16 @@ export class TelegramZavorthBridgePromptWorkflowService {
   private formatPromptCompletion(task: Task, completion: ZavorthBridgePromptCompletionResult): string {
     const lines = [
       completion.text
-        ? 'Pronto. Aqui esta a resposta do ZavorthBridge.'
-        : 'Nao consegui captar uma resposta final completa do ZavorthBridge.',
+        ? 'Done. Here is the ZavorthBridge response.'
+        : 'I could not capture a complete final ZavorthBridge response.',
     ];
-    lines.push(`Referencia curta: ${task.task_id.substring(0, 8)}`);
+    lines.push(`Short reference: ${task.task_id.substring(0, 8)}`);
 
     if (completion.selectedModel) {
-      lines.push(`Modelo usado: ${completion.selectedModel}`);
+      lines.push(`Model used: ${completion.selectedModel}`);
     }
     if (completion.partial) {
-      lines.push('Observacao: eu consegui captar uma resposta parcial, mas ainda nao confirmada como final.');
+      lines.push('Note: I could capture a partial response, but it is not confirmed as final yet.');
     }
     if (completion.errorMessage) {
       lines.push(completion.errorMessage);
@@ -255,14 +255,14 @@ export class TelegramZavorthBridgePromptWorkflowService {
     }
 
     const technicalParts: string[] = [
-      `etapa=${completion.phase}`,
-      `fonte=${completion.source}`,
-      `verificado=${completion.verified ? 'sim' : 'nao'}`,
+      `phase=${completion.phase}`,
+      `source=${completion.source}`,
+      `verified=${completion.verified ? 'yes' : 'no'}`,
     ];
-    if (completion.artifactType) technicalParts.push(`artefato=${completion.artifactType}`);
-    if (completion.errorCode) technicalParts.push(`erro=${completion.errorCode}`);
+    if (completion.artifactType) technicalParts.push(`artifact=${completion.artifactType}`);
+    if (completion.errorCode) technicalParts.push(`error=${completion.errorCode}`);
     if (technicalParts.length > 0) {
-      lines.push('', `Detalhes tecnicos: ${technicalParts.join(' | ')}`);
+      lines.push('', `Technical details: ${technicalParts.join(' | ')}`);
     }
 
     return lines.join('\n');

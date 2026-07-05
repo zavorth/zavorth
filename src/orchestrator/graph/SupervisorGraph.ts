@@ -12,6 +12,7 @@ import {
   withUntrustedInputMetadata,
 } from '../../security/UntrustedContent.js';
 import { wrapToolOutputForLlm } from '../../security/ToolOutputTrust.js';
+import { logger } from '../../logger.js';
 
 export type SupervisorGraphStatus = 'approved' | 'max_iterations' | 'failed';
 
@@ -290,9 +291,7 @@ export function extractVisionPayload(
 
     const buffer = fs.readFileSync(rawPath);
     return { mimeType, data: buffer.toString('base64') };
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Supervisor Graph] filesystem operation failed', error); return null; }
 }
 
 async function executeToolCall(
@@ -337,7 +336,8 @@ async function executeToolCall(
     }
 
     return chatMsg;
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[Supervisor Graph] load operation failed', error);
     return {
       role: 'tool',
       content: wrapToolOutputForLlm(toolName, `TOOL EXECUTION ERROR: ${error?.message || error}`, {
@@ -398,9 +398,10 @@ function resolveAllowedVisionRoots(): string[] {
   ])).flatMap((root) => {
     try {
       return [fs.realpathSync(root)];
-    } catch {
-      return [path.resolve(root)];
-    }
+    } catch (error) {
+    logger.warn('[Supervisor Graph] path resolution failed', error);
+    return [path.resolve(root)];
+  }
   });
 }
 
@@ -408,7 +409,8 @@ function isAllowedVisionPath(candidatePath: string): boolean {
   let resolvedCandidate = '';
   try {
     resolvedCandidate = fs.realpathSync(candidatePath);
-  } catch {
+  } catch (error) {
+    logger.warn('[Supervisor Graph] path resolution failed', error);
     resolvedCandidate = path.resolve(candidatePath);
   }
 

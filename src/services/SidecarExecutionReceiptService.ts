@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type SidecarExecutionKind = 'shell' | 'browser';
 export type SidecarExecutionStatus = 'succeeded' | 'failed' | 'blocked';
@@ -100,9 +101,7 @@ export class SidecarExecutionReceiptService {
         if (this.isReceipt(parsed)) {
           receipts.push(parsed);
         }
-      } catch {
-        // Ignore malformed historical lines; the ledger is append-only.
-      }
+      } catch (error) { // Ignore malformed historical lines; the ledger is append-only. logger.warn('[Sidecar Execution Receipt] JSON parse failed', error); }
     }
     return receipts
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))

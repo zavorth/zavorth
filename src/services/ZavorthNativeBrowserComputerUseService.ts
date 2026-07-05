@@ -11,6 +11,7 @@ import {
 } from '../contracts/ZavorthNativeBrowserComputerUseContract.js';
 import { RuntimeBrowserSidecarService, type RuntimeBrowserSidecarAction } from './RuntimeBrowserSidecarService.js';
 import { ZavorthComputerControlPlaneService } from './ZavorthComputerControlPlaneService.js';
+import { logger } from '../logger.js';
 
 type NativeBrowserComputerUseDeps = {
   sidecar?: Pick<RuntimeBrowserSidecarService, 'execute' | 'isConfigured'> | null;
@@ -203,11 +204,12 @@ export class ZavorthNativeBrowserComputerUseService {
       });
       return { used: true, error: null };
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Native Browser Computer Use] process execution failed', error);
+    return {
         used: false,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private async evaluateDomain(input: ZavorthNativeBrowserComputerUseInput): Promise<DomainDecision> {
@@ -245,14 +247,15 @@ export class ZavorthNativeBrowserComputerUseService {
         blocked: false,
       };
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Native Browser Computer Use] network request failed', error);
+    return {
         policy: 'blocked',
         decision: 'deny',
         reason: error instanceof Error ? error.message : String(error),
         origin: null,
         blocked: true,
       };
-    }
+  }
   }
 
   private resolveStatus(input: {

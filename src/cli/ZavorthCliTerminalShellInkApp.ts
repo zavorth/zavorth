@@ -21,6 +21,7 @@ import {
   type TerminalShellQueuedItem,
 } from './ZavorthCliTerminalShell.js';
 import { normalizeTerminalComposerInput } from './ZavorthCliTerminalComposer.js';
+import { logger } from '../logger.js';
 
 type InkModule = typeof import('ink');
 type ReactModule = typeof import('react');
@@ -282,9 +283,10 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
                 return;
               }
               steerFailureNotice = result.notice;
-            } catch (error: any) {
-              steerFailureNotice = `Live steering unavailable: ${error?.message || String(error)}`;
-            }
+            } catch (error) {
+    logger.warn('[Zavorth Cli Terminal Shell Ink App] filesystem check failed', error);
+    steerFailureNotice = `Live steering unavailable: ${error?.message || String(error)}`;
+  }
           }
           const queued = queueTerminalShellInput({
             activeRun: true,

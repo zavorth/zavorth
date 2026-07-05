@@ -7,10 +7,10 @@ import { ModelPickerDialog } from '../components/ModelPickerDialog';
 import { AtCompletions } from '../components/AtCompletions';
 
 const effortOptions = [
-  { value: 'low', label: 'Baixa', description: 'Respostas rápidas, menor custo.' },
-  { value: 'medium', label: 'Média', description: 'Equilíbrio para uso diário.' },
-  { value: 'high', label: 'Alta', description: 'Mais raciocínio para tarefas difíceis.' },
-  { value: 'ultra', label: 'Altíssimo', description: 'Máxima profundidade quando vale gastar mais.' },
+  { value: 'low', label: 'Low', description: 'Fast answers, lower cost.' },
+  { value: 'medium', label: 'Medium', description: 'Balanced for daily use.' },
+  { value: 'high', label: 'High', description: 'More reasoning for difficult tasks.' },
+  { value: 'ultra', label: 'Very High', description: 'Maximum depth when extra cost is worthwhile.' },
 ];
 
 export function DesktopCommandBar(props: {
@@ -159,7 +159,7 @@ export function DesktopCommandBar(props: {
         ref={textareaRef}
         value={props.value}
         onChange={event => props.onChange(event.target.value)}
-        placeholder="Faça o que quiser"
+        placeholder="Ask anything"
         rows={2}
         onKeyDown={onKeyDown}
         onPaste={onPaste}
@@ -170,16 +170,16 @@ export function DesktopCommandBar(props: {
           <button
             type="button"
             className="zvd-composer-icon-btn"
-            aria-label="Anexar contexto"
-            title="Anexar contexto"
+            aria-label="Attach context"
+            title="Attach context"
             onClick={props.onAttach}
           >
             <Plus aria-hidden="true" size={18} stroke={2} />
           </button>
 
-          <button type="button" className="zvd-composer-text-btn" title="Modo de execução">
+          <button type="button" className="zvd-composer-text-btn" title="Execution mode">
             <Sliders aria-hidden="true" size={16} stroke={1.8} />
-            Personalizado
+            Custom
             <ChevronDown aria-hidden="true" size={14} stroke={2} />
           </button>
         </div>
@@ -189,7 +189,7 @@ export function DesktopCommandBar(props: {
             <button
               type="button"
               className="zvd-model-trigger"
-              aria-label={`Selecionar modelo e inteligência. Atual: ${activeModel?.label || 'Zavorth Core'}, ${activeEffort.label}`}
+              aria-label={`Select model and intelligence. Current: ${activeModel?.label || 'Zavorth Core'}, ${activeEffort.label}`}
               aria-expanded={modelOpen}
               aria-haspopup="menu"
               onClick={() => setModelOpen(value => !value)}
@@ -208,15 +208,15 @@ export function DesktopCommandBar(props: {
             />
             {/* Hidden button to satisfy the check:shell script's requiredSkinMarkers check */}
             <button type="button" className="zvd-provider-add" style={{ display: 'none' }} onClick={props.onProviderSetup}>
-              Colocar mais providers
+              Add more providers
             </button>
           </div>
 
           <button
             type="button"
             className="zvd-composer-icon-btn"
-            aria-label="Entrada por voz"
-            title="Entrada por voz"
+            aria-label="Voice input"
+            title="Voice input"
             onClick={props.onVoice}
           >
             <Mic aria-hidden="true" size={17} stroke={1.75} />
@@ -227,8 +227,8 @@ export function DesktopCommandBar(props: {
             onClick={props.busy ? props.onStop : undefined}
             disabled={!props.busy && !canSend}
             className={`zvd-composer-send-btn ${props.busy ? 'is-stop' : ''}`}
-            aria-label={props.busy ? 'Parar resposta' : 'Enviar mensagem'}
-            title={props.busy ? 'Parar resposta' : 'Enviar mensagem'}
+            aria-label={props.busy ? 'Stop response' : 'Send message'}
+            title={props.busy ? 'Stop response' : 'Send message'}
           >
             {props.busy ? <Stop aria-hidden="true" size={18} stroke={2} /> : <Send aria-hidden="true" size={18} stroke={2} />}
           </button>
@@ -263,14 +263,14 @@ export function DesktopCommandBar(props: {
               >
                 <Folder aria-hidden="true" size={16} stroke={1.75} />
                 <span>{scope.label}</span>
-                <small>{scope.kind === 'chat' ? 'sem pasta' : scope.path || 'local'}</small>
+                <small>{scope.kind === 'chat' ? 'no folder' : scope.path || 'local'}</small>
               </button>
             ))}
             <div className="zvd-model-menu-divider" />
             <button type="button" onClick={() => void props.onWorkspaceFolder()}>
               <Plus aria-hidden="true" size={16} stroke={1.9} />
-              <span>Selecionar pasta...</span>
-              <small>requer permissão do usuário</small>
+              <span>Select folder...</span>
+              <small>requires user permission</small>
             </button>
           </div>
         )}

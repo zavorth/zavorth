@@ -8,6 +8,7 @@ import {
 import { SecurityLockService } from '@zavorth/services/SecurityLockService.js';
 import { SystemCleanupService } from '@zavorth/services/SystemCleanupService.js';
 import { t } from '../../../../gateways/channels/telegram/i18n.js';
+import { logger } from '../../../../logger';
 
 export class TelegramSecurityController {
   constructor(
@@ -119,9 +120,7 @@ export class TelegramSecurityController {
         setTimeout(async () => {
           try {
             await this.bot.api.deleteMessage(ctx.chat!.id, reply.message_id);
-          } catch {
-            // Ignore follow-up deletion failures.
-          }
+          } catch (error) { // Ignore follow-up deletion failures. logger.warn('[Telegram Security] delete operation failed', error); }
         }, 5000);
       } else {
         await ctx.reply(t('security.wrong_password'));
@@ -177,13 +176,13 @@ export class TelegramSecurityController {
     if (hostStatus) {
       lines.push(
         `First run: ${hostStatus.firstRun ? 'yes' : 'no'}`,
-        `Fingerprint atual: ${hostStatus.currentFingerprint}`,
-        `Fingerprint armazenado: ${hostStatus.storedFingerprint || 'nenhum'}`,
+        `Current fingerprint: ${hostStatus.currentFingerprint}`,
+        `Stored fingerprint: ${hostStatus.storedFingerprint || 'none'}`,
       );
     }
 
     lines.push('');
-    lines.push('Entradas recomendadas:');
+    lines.push('Recommended entries:');
     if (appSurface) {
       lines.push(`- ${appSurface.label}: ${appSurface.entry}`);
     }
@@ -214,8 +213,6 @@ export class TelegramSecurityController {
       if (ctx.chat && ctx.message) {
         await this.bot.api.deleteMessage(ctx.chat.id, ctx.message.message_id);
       }
-    } catch {
-      // Ignore missing permissions or messages already removed.
-    }
+    } catch (error) { // Ignore missing permissions or messages already removed. logger.warn('[Telegram Security] delete operation failed', error); }
   }
 }

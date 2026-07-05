@@ -13,6 +13,7 @@ import {
 } from '../contracts/ZavorthCapabilityUsageSignalsContract.js';
 import { ZavorthCapabilityActionSurfaceService } from './ZavorthCapabilityActionSurfaceService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -249,9 +250,10 @@ export class ZavorthCapabilityUsageSignalsService {
         updatedAt: normalizeDate(parsed.updatedAt || this.timestamp()),
         events: Array.isArray(parsed.events) ? parsed.events.map(normalizeEvent).filter(isEvent).slice(-MAX_EVENTS) : [],
       };
-    } catch {
-      return this.emptyStore();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Capability Usage Signals] JSON parse failed', error);
+    return this.emptyStore();
+  }
   }
 
   private writeStore(store: Store): void {

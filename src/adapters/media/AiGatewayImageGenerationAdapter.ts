@@ -1,17 +1,17 @@
 /**
- * AiGatewayImageGenerationAdapter — Adapter Zavorth-nativo para geração de imagens
+ * Zavorth-native adapter for image generation through AI Gateway.
  * via AI Gateway.
  *
- * Este adapter é responsável por:
+ * This adapter is responsible for:
  * - Converter o MediaGenerationRequest Zavorth para o formato da AI Gateway.
- * - Executar a chamada HTTP ao endpoint de geração.
+ * - Executing the HTTP call to the generation endpoint.
  * - Converter a resposta da AI Gateway para AdapterGenerationOutput.
- * - NUNCA expor detalhes do provedor ao domínio.
+ * - Never exposing provider details to the domain.
  *
- * O adapter é o único componente que sabe como falar com a AI Gateway.
+ * The adapter is the only component that knows how to talk to AI Gateway.
  * Todo o resto do stack (service, tool, capability) opera sobre contratos Zavorth.
  *
- * Referências arquiteturais:
+ * Architectural references:
  * - docs/native-absorption-execution-plan.md
  * - src/contracts/MediaGenerationContract.ts
  *
@@ -31,7 +31,7 @@ import { logger } from '../../logger.js';
 import { safeFetch } from '../../security/SafeFetchService.js';
 
 // ---------------------------------------------------------------------------
-// Tipos internos do adapter (nunca exportados ao domínio)
+// Internal adapter types; never exported to the domain.
 // ---------------------------------------------------------------------------
 
 interface AiGatewayImageRequestBody {
@@ -113,7 +113,7 @@ export class AiGatewayImageGenerationAdapter implements IMediaGenerationAdapter 
   }
 
   // -------------------------------------------------------------------------
-  // Métodos internos
+  // Internal methods.
   // -------------------------------------------------------------------------
 
   private buildRequestBody(request: MediaGenerationRequest): AiGatewayImageRequestBody {

@@ -2,6 +2,7 @@ import * as http from 'http';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
 import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
+import { logger } from '../logger.js';
 
 type UpgradeTicket = {
   expiresAt: number;
@@ -161,8 +162,6 @@ export class WebAppSecurityService {
     }
     try {
       return new URL(normalized).origin;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Web App Security] network request failed', error); return null; }
   }
 }

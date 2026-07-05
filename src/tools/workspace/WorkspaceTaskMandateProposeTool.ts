@@ -3,6 +3,7 @@ import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { WorkspacePathGuard } from '../../mcp/workspace/WorkspacePathGuard.js';
 import { WorkspaceTaskMandateService } from '../../services/WorkspaceTaskMandateService.js';
+import { logger } from '../../logger.js';
 
 export class WorkspaceTaskMandateProposeTool extends BaseTool {
   public readonly name = 'workspace.task_mandate.propose';
@@ -13,12 +14,12 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
     properties: {
       description: {
         type: 'string',
-        description: 'Justificativa e descrição do objetivo da tarefa.'
+        description: 'Justification and description of the task objective.'
       },
       targetDirectories: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Diretórios relativos ou absolutos permitidos (ex: ["src/components"]).'
+        description: 'Allowed relative or absolute directories, for example ["src/components"].'
       },
       allowedOperations: {
         type: 'array',
@@ -26,17 +27,17 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
           type: 'string',
           enum: ['filesystem.read', 'filesystem.write', 'filesystem.mkdir', 'filesystem.move', 'command.run']
         },
-        description: 'Operações de arquivos e comandos autorizadas.'
+        description: 'Authorized file and command operations.'
       },
       allowedBinaries: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Binários autorizados a executar (ex: ["git", "npm", "node", "pnpm", "yarn"]).'
+        description: 'Authorized binaries to execute, for example ["git", "npm", "node", "pnpm", "yarn"].'
       },
       maxRiskLevel: {
         type: 'string',
         enum: ['LOW', 'MEDIUM'],
-        description: 'Nível máximo de risco autorizado.'
+        description: 'Maximum authorized risk level.'
       },
       allowPackageInstall: {
         type: 'boolean',
@@ -48,7 +49,7 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
       },
       taskId: {
         type: 'string',
-        description: 'O ID opcional da tarefa atual vinculada ao mandato.'
+        description: 'Optional current task ID linked to the mandate.'
       }
     },
     required: [
@@ -91,12 +92,13 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
         try {
           const resolved = guard.resolveForWrite(dirInput);
           targetDirectories.push(resolved);
-        } catch (err: any) {
-          return JSON.stringify({
+        } catch (error) {
+    logger.warn('[Workspace Task Mandate Propose] validation failed', error);
+    return JSON.stringify({
             success: false,
-            error: `Diretório alvo inválido '${dirInput}': ${err.message || err}`
+            error: `Invalid target directory '${dirInput}': ${err.message || err}`
           });
-        }
+  }
       }
 
       const proposed = this.service.proposeMandate(workspaceId, {
@@ -133,11 +135,12 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
         }
       });
 
-    } catch (err: any) {
-      return JSON.stringify({
+    } catch (error) {
+    logger.warn('[Workspace Task Mandate Propose] creation failed', error);
+    return JSON.stringify({
         success: false,
-        error: `Erro ao propor mandato de tarefa: ${err.message || err}`
+        error: `Error while proposing task mandate: ${err.message || err}`
       });
-    }
+  }
   }
 }

@@ -84,14 +84,14 @@ export function createBotGatewaySupport(
     callbackController: gateway.callbackController || {
       handleCallback: async () => undefined,
     },
-    processTextMessage: (ctx, text) => gateway.processTextMessage(ctx, text),
-    processGroupCommand: (ctx, text) => gateway.processGroupCommand(ctx, text),
-    canUseInteractiveGroupAi: (ctx) => gateway.canUseInteractiveGroupAi(ctx),
+    processTextMessage: (ctx: any, text: any) => gateway.processTextMessage(ctx, text),
+    processGroupCommand: (ctx: any, text: any) => gateway.processGroupCommand(ctx, text),
+    canUseInteractiveGroupAi: (ctx: any) => gateway.canUseInteractiveGroupAi(ctx),
     state: {
       supervisedRuntimeNotificationTimer: null,
       supervisedRuntimeNotificationFlushInFlight: false,
       zavorthControlSurfaceStarted: false,
     },
-    getSharedSurfaceCommandService: () => gateway.sharedSurfaceCommandService,
-  });
+    getSharedSurfaceCommandService: () => gateway.getSharedSurfaceCommandService?.() ?? null,
+  } as any);
 }

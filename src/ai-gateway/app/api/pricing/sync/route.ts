@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { pricingSyncRequestSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 export async function POST(request: NextRequest) {
   const authError = await requireManagementAuth(request);
@@ -18,7 +19,8 @@ export async function POST(request: NextRequest) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -41,7 +43,8 @@ export async function POST(request: NextRequest) {
     const result = await syncPricingFromSources({ sources, dryRun });
 
     return NextResponse.json(result, { status: result.success ? 200 : 502 });
-  } catch (err) {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
@@ -54,7 +57,8 @@ export async function GET(request: NextRequest) {
   try {
     const { getSyncStatus } = await import("@/lib/pricingSync");
     return NextResponse.json(getSyncStatus());
-  } catch (err) {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
@@ -68,7 +72,8 @@ export async function DELETE(request: NextRequest) {
     const { clearSyncedPricing } = await import("@/lib/pricingSync");
     clearSyncedPricing();
     return NextResponse.json({ success: true, message: "Synced pricing data cleared" });
-  } catch (err) {
+  } catch (error) {
+    logger.warn('[route] delete operation failed', error);
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
   }

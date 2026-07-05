@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  DISTRIBUTION_POLICY_FORBIDDEN_CLAIMS,
+DISTRIBUTION_POLICY_FORBIDDEN_CLAIMS,
   DISTRIBUTION_POLICY_REQUIRED_COPY,
   DISTRIBUTION_POLICY_REQUIRED_EDITIONS,
   DISTRIBUTION_POLICY_REQUIRED_LINKS,
@@ -343,9 +344,7 @@ export class DistributionPolicyContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Distribution  Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -371,9 +370,7 @@ export class DistributionPolicyContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Distribution  Contract] filesystem operation failed', error); return ''; }
   }
 
   private check(

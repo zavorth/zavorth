@@ -4,6 +4,7 @@ import { getModelAliases, setModelAlias, getProviderConnections } from "@/models
 import { AI_MODELS, PROVIDER_ID_TO_ALIAS } from "@/shared/constants/models";
 import { updateModelAliasSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 // GET /api/models - Get models with aliases (only from active providers by default)
 export async function GET(request: Request) {
@@ -30,9 +31,7 @@ export async function GET(request: Request) {
           const alias = PROVIDER_ID_TO_ALIAS[pId];
           if (alias) activeProviders.add(alias);
         }
-      } catch {
-        // If DB unavailable, show all models
-      }
+      } catch (error) { // If DB unavailable, show all models logger.warn('[route] operation failed', error); }
     }
 
     const models = AI_MODELS.map((m: any) => {
@@ -61,7 +60,8 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {

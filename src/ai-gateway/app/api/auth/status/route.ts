@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
+import { logger } from '@/shared/utils/logger';
 
 const SECRET = process.env.JWT_SECRET ? new TextEncoder().encode(process.env.JWT_SECRET) : null;
 const AUTH_NO_STORE_HEADERS = {
@@ -30,7 +31,8 @@ export async function GET() {
 
     await jwtVerify(token, SECRET);
     return authJson({ authenticated: true });
-  } catch {
+  } catch (error) {
+    logger.warn('[route] string operation failed', error);
     return authJson({ authenticated: false });
   }
 }

@@ -2,19 +2,19 @@ import { z } from 'zod';
 import { IZavorthTool, ToolExecutionResult } from '../../types/IZavorthTool';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { logger } from '../../../logger.js';
 
 const execAsync = promisify(exec);
 
 /**
- * SystemMediaTool — Controla mídia e volume do Windows via nircmd.
+ * SystemMediaTool controls Windows media playback and volume through nircmd.
  *
- * Suporta play/pause, next/previous, volume up/down/set/mute.
- * Usa nircmd.exe para confiabilidade (sem dependência de foco de janela).
- * Fallback para PowerShell SendKeys caso nircmd não esteja instalado.
+ * Supports play/pause, next/previous, volume up/down/set, and mute.
+ * Uses nircmd.exe for reliability, with a PowerShell SendKeys fallback.
  */
 export class SystemMediaTool implements IZavorthTool {
     name = 'os_media_control';
-    description = 'Controla a reprodução de mídia e volume do sistema (pausar, próxima faixa, volume, mute). Útil para comandos como "pause a música" ou "aumenta o volume".';
+    description = 'Controls system media playback and volume: pause, next track, previous track, stop, volume, and mute. Useful for requests like pausing music or increasing volume.';
     category = 'OS' as const;
     dangerLevel = 'safe' as const;
     requiresPermission = false;
@@ -23,9 +23,9 @@ export class SystemMediaTool implements IZavorthTool {
         action: z.enum([
             'play_pause', 'next', 'previous', 'stop',
             'volume_up', 'volume_down', 'volume_set', 'mute'
-        ]).describe('Ação de mídia a executar'),
+        ]).describe('Media action to execute'),
         value: z.number().min(0).max(100).optional()
-            .describe('Volume de 0 a 100 (usado apenas com volume_set)')
+            .describe('Volume from 0 to 100. Used only with volume_set.')
     });
 
     async execute(params: { action: string; value?: number }): Promise<ToolExecutionResult> {
@@ -37,16 +37,17 @@ export class SystemMediaTool implements IZavorthTool {
             }
             return await this.executeViaPowerShell(params);
 
-        } catch (error: any) {
-            return {
+        } catch (error) {
+    logger.warn('[System Media] process execution failed', error);
+    return {
                 success: false,
-                error: `Falha no controle de mídia: ${error.message}`,
+                error: `Failed to control media: ${error.message}`,
             };
-        }
+  }
     }
 
     /**
-     * Executa via nircmd.exe (método preferido — mais confiável).
+     * Executes through nircmd.exe, the preferred and more reliable method.
      */
     private async executeViaNircmd(params: { action: string; value?: number }): Promise<ToolExecutionResult> {
         let command = '';
@@ -54,40 +55,40 @@ export class SystemMediaTool implements IZavorthTool {
 
         switch (params.action) {
             case 'play_pause':
-                command = 'nircmd.exe sendkeypress 0xB3'; // VK_MEDIA_PLAY_PAUSE
-                description = 'Play/Pause alternado.';
+                command = 'nircmd.exe sendkeypress 0xB3';
+                description = 'Play/pause toggled.';
                 break;
             case 'next':
-                command = 'nircmd.exe sendkeypress 0xB0'; // VK_MEDIA_NEXT_TRACK
-                description = 'Próxima faixa.';
+                command = 'nircmd.exe sendkeypress 0xB0';
+                description = 'Skipped to next track.';
                 break;
             case 'previous':
-                command = 'nircmd.exe sendkeypress 0xB1'; // VK_MEDIA_PREV_TRACK
-                description = 'Faixa anterior.';
+                command = 'nircmd.exe sendkeypress 0xB1';
+                description = 'Returned to previous track.';
                 break;
             case 'stop':
-                command = 'nircmd.exe sendkeypress 0xB2'; // VK_MEDIA_STOP
-                description = 'Mídia parada.';
+                command = 'nircmd.exe sendkeypress 0xB2';
+                description = 'Media stopped.';
                 break;
             case 'volume_up':
-                command = 'nircmd.exe changesysvolume 6553'; // ~10%
-                description = 'Volume aumentado em ~10%.';
+                command = 'nircmd.exe changesysvolume 6553';
+                description = 'Volume increased by about 10%.';
                 break;
             case 'volume_down':
-                command = 'nircmd.exe changesysvolume -6553'; // ~10%
-                description = 'Volume reduzido em ~10%.';
+                command = 'nircmd.exe changesysvolume -6553';
+                description = 'Volume reduced by about 10%.';
                 break;
             case 'volume_set':
                 const nircmdVolume = Math.round((params.value || 50) / 100 * 65535);
                 command = `nircmd.exe setsysvolume ${nircmdVolume}`;
-                description = `Volume definido para ${params.value || 50}%.`;
+                description = `Volume set to ${params.value || 50}%.`;
                 break;
             case 'mute':
-                command = 'nircmd.exe mutesysvolume 2'; // 2 = toggle
-                description = 'Mute alternado.';
+                command = 'nircmd.exe mutesysvolume 2';
+                description = 'Mute toggled.';
                 break;
             default:
-                return { success: false, error: `Ação desconhecida: ${params.action}` };
+                return { success: false, error: `Unknown action: ${params.action}` };
         }
 
         await execAsync(command);
@@ -95,7 +96,7 @@ export class SystemMediaTool implements IZavorthTool {
     }
 
     /**
-     * Fallback: executa via PowerShell SendKeys (menos confiável mas não requer nircmd).
+     * Fallback through PowerShell SendKeys. Less reliable, but does not require nircmd.
      */
     private async executeViaPowerShell(params: { action: string; value?: number }): Promise<ToolExecutionResult> {
         let psScript = '';
@@ -107,48 +108,47 @@ export class SystemMediaTool implements IZavorthTool {
                     Add-Type -AssemblyName System.Windows.Forms
                     [System.Windows.Forms.SendKeys]::SendWait("{MEDIA_PLAY_PAUSE}")
                 `;
-                description = 'Play/Pause alternado (via SendKeys).';
+                description = 'Play/pause toggled through SendKeys.';
                 break;
             case 'next':
                 psScript = `
                     Add-Type -AssemblyName System.Windows.Forms
                     [System.Windows.Forms.SendKeys]::SendWait("{MEDIA_NEXT_TRACK}")
                 `;
-                description = 'Próxima faixa (via SendKeys).';
+                description = 'Skipped to next track through SendKeys.';
                 break;
             case 'previous':
                 psScript = `
                     Add-Type -AssemblyName System.Windows.Forms
                     [System.Windows.Forms.SendKeys]::SendWait("{MEDIA_PREV_TRACK}")
                 `;
-                description = 'Faixa anterior (via SendKeys).';
+                description = 'Returned to previous track through SendKeys.';
                 break;
             case 'stop':
                 psScript = `
                     Add-Type -AssemblyName System.Windows.Forms
                     [System.Windows.Forms.SendKeys]::SendWait("{MEDIA_STOP}")
                 `;
-                description = 'Mídia parada (via SendKeys).';
+                description = 'Media stopped through SendKeys.';
                 break;
             case 'volume_up':
             case 'volume_down':
             case 'volume_set':
             case 'mute':
-                // Volume via PowerShell nativo (COM Object)
                 const volumeScript = params.action === 'mute'
                     ? `$wshShell = New-Object -ComObject WScript.Shell; $wshShell.SendKeys([char]173)`
                     : params.action === 'volume_up'
                     ? `$wshShell = New-Object -ComObject WScript.Shell; $wshShell.SendKeys([char]175)`
                     : params.action === 'volume_down'
                     ? `$wshShell = New-Object -ComObject WScript.Shell; $wshShell.SendKeys([char]174)`
-                    : `# volume_set não suportado sem nircmd. Instale nircmd.exe para controle preciso.`;
+                    : `# volume_set is not supported without nircmd. Install nircmd.exe for precise volume control.`;
                 psScript = volumeScript;
                 description = params.action === 'volume_set'
-                    ? 'Volume set requer nircmd.exe. Use volume_up/volume_down como alternativa.'
-                    : `${params.action} executado via PowerShell.`;
+                    ? 'volume_set requires nircmd.exe. Use volume_up or volume_down as an alternative.'
+                    : `${params.action} executed through PowerShell.`;
                 break;
             default:
-                return { success: false, error: `Ação desconhecida: ${params.action}` };
+                return { success: false, error: `Unknown action: ${params.action}` };
         }
 
         await execAsync(`powershell -NoProfile -Command "${psScript.replace(/"/g, '\\"').replace(/\n/g, ' ')}"`);
@@ -156,14 +156,12 @@ export class SystemMediaTool implements IZavorthTool {
     }
 
     /**
-     * Verifica se nircmd.exe está disponível no PATH.
+     * Checks whether nircmd.exe is available in PATH.
      */
     private async checkNircmd(): Promise<boolean> {
         try {
             await execAsync('where nircmd.exe');
             return true;
-        } catch {
-            return false;
-        }
+        } catch (error) { logger.warn('[System Media] process execution failed', error); return false; }
     }
 }

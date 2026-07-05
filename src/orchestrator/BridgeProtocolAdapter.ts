@@ -1,20 +1,21 @@
 /**
- * BridgeProtocolAdapter — Adaptador que converte entre o formato legado
- * MailboxProtocol (V1 text-based) e o novo BridgeProtocolSchema (V2 JSON-based).
+ * BridgeProtocolAdapter converts between the legacy MailboxProtocol
+ * format (V1 text-based) and the BridgeProtocolSchema (V2 JSON-based).
  *
- * Também provê helpers para:
- * - Criar envelopes V2 assinados
- * - Validar envelopes V2 recebidos
- * - Escrever respostas V2
- * - Converter V1 → V2 e vice-versa
+ * It also provides helpers for:
+ * - Creating signed V2 envelopes
+ * - Validating received V2 envelopes
+ * - Writing V2 responses
+ * - Converting V1 to V2 and back
  */
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { MailboxProtocol, MailboxEnvelope } from './MailboxProtocol.js';
+import { logger } from '../logger.js';
 import type {
-  BridgeAgent,
+BridgeAgent,
   BridgeAction,
   BridgePriority,
   BridgeRequestEnvelope,
@@ -97,41 +98,41 @@ export class BridgeProtocolAdapter {
   ): { valid: true } | { valid: false; reason: string } {
     // Protocol check
     if (envelope.protocol !== PROTOCOL_VERSION) {
-      return { valid: false, reason: `Protocolo invalido: ${envelope.protocol}` };
+      return { valid: false, reason: `Invalid protocol: ${envelope.protocol}` };
     }
 
     // Required fields
     if (!envelope.messageId || !envelope.timestamp || !envelope.sender) {
-      return { valid: false, reason: 'Campos obrigatorios ausentes (messageId, timestamp, sender).' };
+      return { valid: false, reason: 'Missing required fields (messageId, timestamp, sender).' };
     }
     if (!envelope.agent || !envelope.action || !envelope.correlationId) {
-      return { valid: false, reason: 'Campos obrigatorios ausentes (agent, action, correlationId).' };
+      return { valid: false, reason: 'Missing required fields (agent, action, correlationId).' };
     }
     if (!envelope.payload?.prompt) {
-      return { valid: false, reason: 'Payload sem prompt.' };
+      return { valid: false, reason: 'Payload has no prompt.' };
     }
 
     // Signature verification
     const expectedSignature = this.signRequest(envelope);
     if (!this.safeCompare(envelope.signature, expectedSignature)) {
-      return { valid: false, reason: 'Assinatura invalida.' };
+      return { valid: false, reason: 'Invalid signature.' };
     }
 
     // TTL check
     if (envelope.ttlSeconds) {
       const ageMs = Date.now() - Date.parse(envelope.timestamp);
       if (ageMs > envelope.ttlSeconds * 1000) {
-        return { valid: false, reason: 'Mensagem expirada (TTL excedido).' };
+        return { valid: false, reason: 'Message expired (TTL exceeded).' };
       }
     }
 
     // Timestamp sanity
     const timestampMs = Date.parse(envelope.timestamp);
     if (!Number.isFinite(timestampMs)) {
-      return { valid: false, reason: 'Timestamp invalido.' };
+      return { valid: false, reason: 'Invalid timestamp.' };
     }
     if (Date.now() - timestampMs < -60_000) {
-      return { valid: false, reason: 'Timestamp no futuro.' };
+      return { valid: false, reason: 'Timestamp is in the future.' };
     }
 
     return { valid: true };
@@ -230,9 +231,7 @@ export class BridgeProtocolAdapter {
         const parsed = JSON.parse(trimmed);
         if (parsed.protocol === PROTOCOL_VERSION) return 'V2';
         return 'UNKNOWN';
-      } catch {
-        return 'UNKNOWN';
-      }
+      } catch (error) { logger.warn('[Bridge Protocol Adapter] JSON parse failed', error); return 'UNKNOWN'; }
     }
     if (trimmed.includes('[PROTOCOL:') && trimmed.includes('[END_OF_MESSAGE]')) {
       return 'V1';
@@ -254,9 +253,10 @@ export class BridgeProtocolAdapter {
           return { accepted: false, reason: validation.reason };
         }
         return { accepted: true, envelope: parsed, originalVersion: 'V2' };
-      } catch (e: any) {
-        return { accepted: false, reason: `JSON parse error: ${e.message}` };
-      }
+      } catch (error) {
+    logger.warn('[Bridge Protocol Adapter] JSON parse failed', error);
+    return { accepted: false, reason: `JSON parse error: ${e.message}` };
+  }
     }
 
     if (version === 'V1') {
@@ -268,7 +268,7 @@ export class BridgeProtocolAdapter {
       return { accepted: true, envelope: v2Envelope, originalVersion: 'V1' };
     }
 
-    return { accepted: false, reason: 'Formato de mensagem nao reconhecido.' };
+    return { accepted: false, reason: 'Message format not recognized.' };
   }
 
   // ─── Signing ─────────────────────────────────────────────────────────────

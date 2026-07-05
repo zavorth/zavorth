@@ -123,9 +123,10 @@ export class SearchQueryService {
     let adapterOutput: AdapterSearchOutput;
     try {
       adapterOutput = await this.invokeAdapterWithFallback(effectiveRequest, mode);
-    } catch (err) {
-      return this.buildAdapterErrorResult(err, request, policyDecision, processedAt);
-    }
+    } catch (error) {
+    logger.warn('[Search Query] search failed', error);
+    return this.buildAdapterErrorResult(err, request, policyDecision, processedAt);
+  }
 
     // 5. Normaliza resultados com scoring de evidência.
     const limit = Math.min(request.limit || 5, MAX_RESULTS);
@@ -372,8 +373,8 @@ export class SearchQueryService {
   private async extractPageExcerpt(url: string): Promise<SearchResultItem['extractedContent']> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 6_000);
-    if (typeof (timeout as any).unref === 'function') {
-      (timeout as any).unref();
+    if (typeof (timeout as unknown as { unref?: () => void }).unref === 'function') {
+      (timeout as unknown as { unref: () => void }).unref();
     }
 
     try {
@@ -415,9 +416,10 @@ export class SearchQueryService {
         excerpt: this.wrapUntrustedWebEvidence(excerpt, url, 'page_excerpt'),
         publishedAt,
       };
-    } catch (err: any) {
-      return { error: err?.name === 'AbortError' ? 'timeout' : (err?.message || String(err)) };
-    } finally {
+    } catch (error) {
+    logger.warn('[Search Query] operation failed', error);
+    return { error: err?.name === 'AbortError' ? 'timeout' : (err?.message || String(err)) };
+  } finally {
       clearTimeout(timeout);
     }
   }
@@ -811,9 +813,7 @@ function titleFromUrl(url: string): string {
   try {
     const parsed = new URL(url);
     return parsed.hostname.replace(/^www\./, '');
-  } catch {
-    return url;
-  }
+  } catch (error) { logger.warn('[Search Query] parsing failed', error); return url; }
 }
 
 function readProviderError(payload: unknown, status: number): string {

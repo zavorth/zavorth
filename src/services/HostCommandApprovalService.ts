@@ -25,12 +25,12 @@ export interface HostProposalRow {
 }
 
 export class HostCommandApprovalService {
-  private readonly db: Database;
+  private readonly db: Database | null;
   private readonly auditLogger: SecurityAuditLogger;
   private readonly payloadCache: HostCommandPayloadCache;
 
   constructor(db?: Database, auditLogger?: SecurityAuditLogger, payloadCache?: HostCommandPayloadCache) {
-    this.db = db || (Database as any).instance || null;
+    this.db = db || Database.getActiveInstance() || null;
     this.auditLogger = auditLogger || new SecurityAuditLogger(new LogRepository());
     this.payloadCache = payloadCache || HostCommandPayloadCache.getInstance();
   }

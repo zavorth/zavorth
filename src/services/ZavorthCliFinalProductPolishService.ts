@@ -84,7 +84,6 @@ export class ZavorthCliFinalProductPolishService {
         attention,
         blocked,
         requiredCommands: [...REQUIRED_COMMANDS],
-        zavorthControlPath: '/zavorthControl',
         zavorthControlPath: '/control',
         inkPreviewRendersOnce,
         inkInteractiveMode: files.inkIndex.includes('readline.createInterface')
@@ -104,7 +103,6 @@ export class ZavorthCliFinalProductPolishService {
         cliProjectionsAreReadOnly: true,
         mutableExecutionStaysInRuntime: true,
         approvalsRemainPolicyBrokerBound: true,
-        rawSecretsSerialized: false,
       },
       commands: {
         inspect: 'npm run zavorth:cli-final-product-polish',

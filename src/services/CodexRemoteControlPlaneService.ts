@@ -121,8 +121,8 @@ export class CodexRemoteControlPlaneService {
   } = {}): Promise<CodexRemoteControlPlaneSnapshot> {
     const profileSnapshot = this.profiles.buildSnapshot();
     const activeProfile = this.profiles.resolveExecutionProfile(profileSnapshot.activeProfileId);
-    const registryHealthStatus = String((profileSnapshot as any)?.health?.status || 'unknown').trim() || 'unknown';
-    const registryRecommendedAction = String((profileSnapshot as any)?.readiness?.recommendedAction || '').trim();
+    const registryHealthStatus = String(profileSnapshot.health.status || 'unknown').trim() || 'unknown';
+    const registryRecommendedAction = String(profileSnapshot.readiness.recommendedAction || '').trim();
     const cliReady = process.platform === 'win32'
       ? (await this.powerShellBroker.probe({
           codexCliPath: activeProfile.codexCliPath,

@@ -64,21 +64,21 @@ export const FIRST_RUN_REQUIRED_ARTIFACTS = [
 ] as const;
 
 export const FIRST_RUN_REQUIRED_COPY = [
-  'Primeiro uso local',
+  'Local first run',
   'First run',
   'Checklist',
-  'Detector de requisitos',
-  'Preview de setup',
+  'Requirements detector',
+  'Setup preview',
   'Health check',
-  'Rollback e cleanup',
+  'Rollback and cleanup',
   'npm run go',
 ] as const;
 
 export const FIRST_RUN_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
-  'autonomo sem aprovacao',
-  'sem limites',
-  'inicia watcher persistente por padrao',
+  'autonomous without approval',
+  'without limits',
+  'starts persistent watcher by default',
 ] as const;
 
 export const FIRST_RUN_SCREENSHOTS: FirstRunOnboardingScreenshotSpec[] = [

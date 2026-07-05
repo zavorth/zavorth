@@ -64,7 +64,7 @@ export type ZavorthVisualReceiptUxSnapshot = {
   };
   cards: ZavorthVisualReceiptUxCard[];
   zavorthControlProjection: {
-    route: '/zavorthControl';
+    route: '/zavorthControl' | '/control';
     renderMode: 'projection-only';
     executionAuthority: false;
     zavorthControlCanExecute: false;

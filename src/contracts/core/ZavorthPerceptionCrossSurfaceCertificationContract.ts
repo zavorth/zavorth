@@ -72,6 +72,7 @@ export type ZavorthPerceptionZavorthControlProjection = {
   pendingPlans: Array<{
     id: string;
     targetId: string;
+    status: 'planned' | 'approval-required' | 'blocked';
     approvalRequired: boolean;
     commandHint: string;
   }>;
@@ -79,10 +80,13 @@ export type ZavorthPerceptionZavorthControlProjection = {
     reason: string;
   }>;
   artifacts: Array<{
+    id: string;
+    targetId: string;
     kind: 'screenshot' | 'ui-dump' | 'dom' | 'pdf' | 'vision' | 'receipt';
     redacted: true;
     rawContentStored: false;
     retentionTtlMs: number;
+    commandHint: string;
   }>;
   liveSafetyStatus: {
     liveCanaryDisabledByDefault: true;
@@ -102,10 +106,6 @@ export type ZavorthPerceptionZavorthControlProjection = {
     rawSecretSerialized: false;
   }>;
 };
-
-export interface ZavorthPerceptionZavorthControlTarget extends ZavorthPerceptionZavorthControlTarget {}
-
-export interface ZavorthPerceptionZavorthControlProjection extends ZavorthPerceptionZavorthControlProjection {}
 
 export type ZavorthPerceptionCertificationMatrixRow = {
   id: ZavorthPerceptionCertificationScenarioId;
@@ -140,4 +140,11 @@ export type ZavorthPerceptionCrossSurfaceCertificationSnapshot = {
     canaryLiveOnlyWithExplicitApproval: true;
   };
   nextSafeAction: string;
+  commands: {
+    report: 'npm run qa:perception-surface-certification --silent';
+    inspectJson: 'npm run qa:perception-surface-certification:json --silent';
+    check: 'npm run qa:perception-surface-certification:check --silent';
+    inspectTarget: 'npm run qa:perception-surface-certification:target --silent --id=<id>';
+    nextStep: 'Perception cross-surface certification matrix matches checkpoint-6';
+  };
 };

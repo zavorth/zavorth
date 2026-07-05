@@ -8,6 +8,7 @@ import {
   type ModelCatalogProviderInput,
 } from "../../../../../services/providers/catalog/ModelCatalogAggregationService.js";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * GET /api/models/catalog
@@ -105,6 +106,7 @@ export async function GET(request: Request) {
 
     return Response.json({ catalog });
   } catch (error) {
+    logger.warn('[route] operation failed', error);
     return Response.json(
       { error: { message: (error as any).message, type: "server_error" } },
       { status: 500 }

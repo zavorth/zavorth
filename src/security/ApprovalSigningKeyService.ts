@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { randomBytes } from 'node:crypto';
+import { logger } from '../logger.js';
 
 export type ApprovalSigningKeyResolution = {
   key: string;
@@ -217,9 +218,7 @@ function writeGeneratedKey(filePath: string, key: string): void {
   fs.mkdirSync(path.dirname(filePath), { recursive: true, mode: 0o700 });
   try {
     fs.chmodSync(path.dirname(filePath), 0o700);
-  } catch {
-    // Best effort on Windows and restricted filesystems.
-  }
+  } catch (error) { // Best effort on Windows and restricted filesystems. logger.warn('[Approval Signing Key] filesystem operation failed', error); }
   try {
     fs.writeFileSync(filePath, `${key}\n`, { encoding: 'utf8', flag: 'wx', mode: 0o600 });
   } catch (error: any) {
@@ -233,9 +232,7 @@ function writeGeneratedKey(filePath: string, key: string): void {
   }
   try {
     fs.chmodSync(filePath, 0o600);
-  } catch {
-    // Best effort on Windows and restricted filesystems.
-  }
+  } catch (error) { // Best effort on Windows and restricted filesystems. logger.warn('[Approval Signing Key] filesystem operation failed', error); }
 }
 
 function archiveInvalidKeyFile(filePath: string): void {

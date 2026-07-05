@@ -109,6 +109,17 @@ const MOBILE_RELEVANT_CAPABILITIES = new Set<NodeMeshCapabilityId>([
   'clipboard.write',
 ]);
 
+const KNOWN_DEVICE_SCOPES = new Set<ZavorthPairedDeviceScope>([
+  'device:info',
+  'device:camera',
+  'device:location',
+  'device:notifications',
+  'device:confirm',
+  'device:haptics',
+  'device:screen',
+  'device:clipboard',
+]);
+
 export class ZavorthPairedDeviceFoundationService {
   private readonly now: () => Date;
   private readonly devices = new Map<string, ZavorthPairedDeviceRecord>();
@@ -595,11 +606,13 @@ function clean(input: unknown): string {
 
 function normalizeScopes(input: Array<ZavorthPairedDeviceScope | null | undefined> | null | undefined): ZavorthPairedDeviceScope[] {
   return Array.from(new Set((input || []).map(clean).filter(Boolean)))
+    .filter((scope): scope is ZavorthPairedDeviceScope => KNOWN_DEVICE_SCOPES.has(scope as ZavorthPairedDeviceScope))
     .sort((left, right) => left.localeCompare(right, 'en-US'));
 }
 
 function normalizeCapabilities(input: Array<NodeMeshCapabilityId | null | undefined> | null | undefined): NodeMeshCapabilityId[] {
   return Array.from(new Set((input || []).map(clean).filter(Boolean) as NodeMeshCapabilityId[]))
+    .filter((capabilityId): capabilityId is NodeMeshCapabilityId => NODE_HOST_SUPPORTED_CAPABILITY_IDS.includes(capabilityId))
     .sort((left, right) => left.localeCompare(right, 'en-US'));
 }
 

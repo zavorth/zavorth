@@ -7,6 +7,7 @@ import { truncateSlackText } from '../../../utils/text.js';
 
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
+import { logger } from '../../../logger.js';
 
 export interface SlackGatewayStubMessage {
   userId: string;
@@ -85,9 +86,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
 
     try {
       return JSON.parse(fs.readFileSync(config.slackStatusFile, 'utf8')) as SlackGatewayStatusSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Slack way.stub] JSON parse failed', error); return null; }
   }
 
   public async simulateIncomingMessage(message: SlackGatewayStubMessage): Promise<void> {
@@ -205,14 +204,14 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
 
   public async broadcast(message: string): Promise<void> {
     if (!this.started) {
-      this.lastError = `Slack ${this.resolveModeLabel()} ainda nao foi iniciado.`;
+      this.lastError = `Slack ${this.resolveModeLabel()} has not started yet.`;
       this.writeStatus();
       throw new Error(this.lastError);
     }
 
     const recipients = this.resolveBroadcastRecipients();
     if (recipients.length === 0) {
-      this.lastError = `Slack ${this.resolveModeLabel()} nao tem canais permitidos configurados.`;
+      this.lastError = `Slack ${this.resolveModeLabel()} has no configured allowed channels.`;
       this.writeStatus();
       throw new Error(this.lastError);
     }
@@ -257,7 +256,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
   }
 
   private resolveModeLabel(): string {
-    return this.resolveMode() === 'native' ? 'nativo' : 'stub';
+    return this.resolveMode() === 'native' ? 'native' : 'stub';
   }
 
   private verifySlackSignature(
@@ -299,12 +298,12 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
   private async broadcastViaSlackApi(message: string, recipients: string[]): Promise<void> {
     const token = String(config.slackBotToken || '').trim();
     if (!token) {
-      this.lastError = 'Slack nativo exige SLACK_BOT_TOKEN configurado.';
+      this.lastError = 'Native Slack requires SLACK_BOT_TOKEN to be configured.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
     if (!this.fetchImpl) {
-      this.lastError = 'Slack nativo exige fetch disponivel no runtime.';
+      this.lastError = 'Native Slack requires fetch to be available in the runtime.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
@@ -327,7 +326,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
     }
 
     if (failures.length > 0) {
-      this.lastError = `Slack nativo falhou em ${failures.length} canal(is): ${failures.join(' | ')}`;
+      this.lastError = `Native Slack failed in ${failures.length} channel(s): ${failures.join(' | ')}`;
       this.writeStatus();
       throw new Error(this.lastError);
     }
@@ -346,7 +345,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
       });
       if (payload?.ok !== true) {
         const responseError = typeof payload?.error === 'string' ? payload.error : 'unknown_error';
-        this.lastError = `Slack nativo nao conseguiu responder no canal ${channelId}: ${responseError}`;
+        this.lastError = `Native Slack could not reply in channel ${channelId}: ${responseError}`;
         this.writeStatus();
         throw new Error(this.lastError);
       }
@@ -376,7 +375,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
       });
       if (payload?.ok !== true) {
         const responseError = typeof payload?.error === 'string' ? payload.error : 'unknown_error';
-        this.lastError = `Slack nativo nao conseguiu editar a mensagem ${messageId}: ${responseError}`;
+        this.lastError = `Native Slack could not edit message ${messageId}: ${responseError}`;
         this.writeStatus();
         throw new Error(this.lastError);
       }
@@ -423,9 +422,10 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
     let responsePayload: Record<string, unknown> | null = null;
     try {
       responsePayload = (await response.json()) as Record<string, unknown>;
-    } catch {
-      responsePayload = null;
-    }
+    } catch (error) {
+    logger.warn('[Slack way.stub] network request failed', error);
+    responsePayload = null;
+  }
 
     if (!response.ok && !responsePayload) {
       return { ok: false, error: `HTTP ${response.status}` };

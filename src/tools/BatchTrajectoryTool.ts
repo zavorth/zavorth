@@ -1,6 +1,7 @@
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
+import { logger } from '../logger.js';
 
 interface TrajectoryInput {
   prompt: string;
@@ -57,16 +58,14 @@ export class BatchTrajectoryTool extends BaseTool {
       } else {
         return 'Erro: "trajectories" deve ser um array JSON ou string JSON.';
       }
-    } catch {
-      return 'Erro: JSON de trajectories invalido.';
-    }
+    } catch (error) { logger.warn('[Batch Trajectory] JSON parse failed', error); return 'Erro: JSON de trajectories invalido.'; }
 
     if (!Array.isArray(trajectories) || trajectories.length === 0) {
       return 'Erro: pelo menos uma trajetoria e necessaria.';
     }
 
     if (trajectories.length > 10) {
-      return 'Erro: maximo de 10 trajetorias por execucao.';
+      return 'Error: maximum of 10 trajectories per execution.';
     }
 
     for (let i = 0; i < trajectories.length; i++) {
@@ -85,17 +84,18 @@ export class BatchTrajectoryTool extends BaseTool {
       ? Math.min(Math.max(args.max_concurrent, 1), 10)
       : 3;
     if (process.env.ZAVORTH_BATCH_TRAJECTORY_ALLOW_LIVE !== 'true') {
-      return 'Erro: execucao real de batch trajectories desabilitada. Defina ZAVORTH_BATCH_TRAJECTORY_ALLOW_LIVE=true para chamar providers reais.';
+      return 'Error: live batch trajectory execution is disabled. Set ZAVORTH_BATCH_TRAJECTORY_ALLOW_LIVE=true to call real providers.';
     }
 
     try {
       const results = await this.executeTrajectories(trajectories, maxConcurrent);
       this.scoreResults(results, comparisonMetric);
       return this.formatComparison(results, comparisonMetric);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      return `Erro na execucao em batch: ${message}`;
-    }
+    } catch (error) {
+    logger.warn('[Batch Trajectory] process execution failed', error);
+    const message = error instanceof Error ? error.message : String(error);
+      return `Batch execution error: ${message}`;
+  }
   }
 
   private async executeTrajectories(
@@ -140,8 +140,9 @@ export class BatchTrajectoryTool extends BaseTool {
         execution_time_ms: executionTime,
         status: 'success',
       };
-    } catch (error: unknown) {
-      return {
+    } catch (error) {
+    logger.warn('[Batch Trajectory] process execution failed', error);
+    return {
         index,
         prompt: trajectory.prompt,
         provider,
@@ -152,7 +153,7 @@ export class BatchTrajectoryTool extends BaseTool {
         status: 'error',
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private scoreResults(results: TrajectoryResult[], metric: string): void {

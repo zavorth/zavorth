@@ -4,29 +4,30 @@ import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { WorkspaceCommandRiskClassifier } from '../../services/WorkspaceCommandRiskClassifier.js';
 import { WorkspaceCommandApprovalService } from '../../services/WorkspaceCommandApprovalService.js';
 import { WorkspaceCommandRunnerService } from '../../services/WorkspaceCommandRunnerService.js';
+import { logger } from '../../logger.js';
 
 export class WorkspaceCommandRunTool extends BaseTool {
   public readonly name = 'workspace.command.run';
-  public readonly description = 'Executa um comando que foi previamente proposto e aprovado.';
+  public readonly description = 'Runs a command that was previously proposed and approved.';
 
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       command: {
         type: 'string',
-        description: 'O comando completo a ser executado (exatamente como proposto).',
+        description: 'Complete command to execute, exactly as proposed.',
       },
       operationId: {
         type: 'string',
-        description: 'O identificador de aprovação retornado por workspace.command.propose.',
+        description: 'Approval identifier returned by workspace.command.propose.',
       },
       cwd: {
         type: 'string',
-        description: 'Diretório de execução (relativo ou absoluto dentro do workspace). Default: "."',
+        description: 'Execution directory, relative or absolute inside the workspace. Default: "."',
       },
       timeoutMs: {
         type: 'number',
-        description: 'Timeout em milissegundos para execução do comando. Max: 60000. Default: 30000.',
+        description: 'Command execution timeout in milliseconds. Max: 60000. Default: 30000.',
       },
     },
     required: ['command', 'operationId'],
@@ -57,7 +58,7 @@ export class WorkspaceCommandRunTool extends BaseTool {
     if (timeoutMs < 1000) timeoutMs = 1000;
 
     if (!command || !operationId) {
-      return JSON.stringify({ success: false, error: '"command" e "operationId" são parâmetros obrigatórios.' });
+      return JSON.stringify({ success: false, error: '"command" and "operationId" are required parameters.' });
     }
 
     try {
@@ -76,7 +77,7 @@ export class WorkspaceCommandRunTool extends BaseTool {
         if (!loaded || !loaded.trusted) {
           return JSON.stringify({
             success: false,
-            error: 'Execução bloqueada: a confiança neste workspace foi revogada, expirou ou o caminho do root foi alterado.'
+            error: 'Execution blocked: trust for this workspace was revoked, expired, or the root path changed.'
           });
         }
       }
@@ -86,7 +87,7 @@ export class WorkspaceCommandRunTool extends BaseTool {
       if (isOutside) {
         return JSON.stringify({
           success: false,
-          error: 'Execução bloqueada: comando ou diretório fora do workspace.'
+          error: 'Execution blocked: command or directory is outside the workspace.'
         });
       }
 
@@ -99,7 +100,7 @@ export class WorkspaceCommandRunTool extends BaseTool {
         if (!checkResult.allowed) {
           return JSON.stringify({
             success: false,
-            error: `Execução bloqueada: comando viola o mandato de tarefa ativo (${checkResult.reason})`
+            error: `Execution blocked: command violates the active task mandate (${checkResult.reason})`
           });
         }
       }
@@ -109,7 +110,7 @@ export class WorkspaceCommandRunTool extends BaseTool {
       if (!isApproved) {
         return JSON.stringify({
           success: false,
-          error: 'Operação não autorizada. O operationId é inválido, expirou ou a aprovação não foi concedida.'
+          error: 'Unauthorized operation. The operationId is invalid, expired, or approval was not granted.'
         });
       }
 
@@ -125,12 +126,13 @@ export class WorkspaceCommandRunTool extends BaseTool {
         timeoutFlag: result.timeoutFlag,
         truncatedFlag: result.truncatedFlag
       });
-    } catch (error: any) {
-      return JSON.stringify({
+    } catch (error) {
+    logger.warn('[Workspace Command Run] process execution failed', error);
+    return JSON.stringify({
         success: false,
-        error: `Falha na execução do comando: ${error.message || error}`
+        error: `Command execution failed: ${error.message || error}`
       });
-    }
+  }
   }
 
   private isCommandOrCwdOutside(command: string, cwd: string, workspaceRoot: string): boolean {
@@ -159,9 +161,7 @@ export class WorkspaceCommandRunTool extends BaseTool {
           if (isPathOutside(resolved, resolvedRoot)) {
             return true;
           }
-        } catch {
-          // ignore parsing failures
-        }
+        } catch (error) { // ignore parsing failures logger.warn('[Workspace Command Run] lifecycle operation failed', error); }
       }
     }
 

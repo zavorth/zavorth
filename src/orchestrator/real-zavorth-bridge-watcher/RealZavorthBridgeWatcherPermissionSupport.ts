@@ -9,8 +9,9 @@ import type {
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
 import type { AgentBridgeManager } from '../AgentBridgeManager.js';
 import type { ZavorthBridgeWindowAutomator } from '../../agents/ZavorthBridgeWindowAutomator.js';
+import { logger } from '../../logger.js';
 import type {
-  RealZavorthBridgeWatcherDeps,
+RealZavorthBridgeWatcherDeps,
   ScopedCompanionUiTarget,
 } from './RealZavorthBridgeWatcherWorkflowTypes.js';
 
@@ -191,9 +192,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
         completedAt?: string | null;
       };
       return Boolean(tracking.completedAt);
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Real Zavorth Bridge Watcher Permission] JSON parse failed', error); return false; }
   }
 
   public isZavorthBridgeTask(task: Task | null | undefined): boolean {
@@ -386,7 +385,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
       reason:
         this.buildZavorthBridgePermissionReason(snapshot) ||
         snapshot.errorMessage ||
-        'O ZavorthBridge exibiu uma solicitacao de permissao na UI e o Zavorth precisa da sua confirmacao.',
+        'ZavorthBridge displayed a permission request in the UI and Zavorth needs your confirmation.',
       requested_by: task.user_id,
       metadata: {
         artifact_path: snapshot.screenshotPath,
@@ -460,7 +459,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
         this.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',
-          `Falha ao notificar pedido de permissao do ZavorthBridge: ${error.message}`,
+          `Failed to notify ZavorthBridge permission request: ${error.message}`,
           {
             taskId: session.taskId,
             permissionId: permission.permission_id,
@@ -525,7 +524,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
       return null;
     }
 
-    return `O ZavorthBridge pediu permissao na UI: ${summary}`;
+    return `ZavorthBridge requested permission in the UI: ${summary}`;
   }
 
   public async notifyPermissionRequest(
@@ -535,10 +534,10 @@ export class RealZavorthBridgeWatcherPermissionSupport {
     const text = this.deps.formatPermissionCreatedMessage
       ? this.deps.formatPermissionCreatedMessage(permission)
       : [
-          'O ZavorthBridge abriu um pedido de permissao e ficou aguardando sua confirmacao.',
+          'ZavorthBridge opened a permission request and is waiting for your confirmation.',
           `ID: ${permission.permission_id}`,
-          `Para aprovar: /perm approve ${permission.permission_id.substring(0, 8)}`,
-          `Para rejeitar: /perm reject ${permission.permission_id.substring(0, 8)}`,
+          `To approve: /perm approve ${permission.permission_id.substring(0, 8)}`,
+          `To reject: /perm reject ${permission.permission_id.substring(0, 8)}`,
         ].join('\n');
 
     session.lastPermissionNotificationAttemptAt = new Date().toISOString();
@@ -561,7 +560,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
         this.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',
-          `Falha ao enviar pedido de permissao inline para ${session.chatId}: ${error.message}`,
+          `Failed to send inline permission request to ${session.chatId}: ${error.message}`,
           {
             taskId: session.taskId,
             permissionId: permission.permission_id,

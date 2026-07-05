@@ -1,24 +1,24 @@
 import { z } from 'zod';
 
 /**
- * Categorias de ferramentas do Echo.
- * OS = controle do sistema operacional
- * IOT = dispositivos IoT e automação residencial
- * WEB = requisições HTTP e pesquisa
- * INTERNAL = ferramentas internas do Zavorth (memória, sessão)
+ * Echo tool categories.
+ * OS = operating system control
+ * IOT = IoT devices and home automation
+ * WEB = HTTP requests, browser actions, and search
+ * INTERNAL = internal Zavorth tools such as memory and session utilities
  */
 export type ToolCategory = 'OS' | 'IOT' | 'WEB' | 'INTERNAL';
 
 /**
- * Nível de perigo da ferramenta.
- * safe = não tem efeitos destrutivos
- * moderate = pode afetar estado externo
- * dangerous = pode causar danos ao sistema
+ * Tool danger level.
+ * safe = no destructive effects
+ * moderate = may affect external state
+ * dangerous = may damage the system or user data
  */
 export type ToolDangerLevel = 'safe' | 'moderate' | 'dangerous';
 
 /**
- * Resultado padronizado da execução de uma ferramenta.
+ * Standardized tool execution result.
  */
 export interface ToolExecutionResult {
   success: boolean;
@@ -28,9 +28,9 @@ export interface ToolExecutionResult {
 }
 
 /**
- * Contrato base para todas as ferramentas do Zavorth Echo.
- * Cada ferramenta declara seu schema Zod, categoria, nível de perigo
- * e se requer aprovação do usuário antes da execução.
+ * Base contract for all Zavorth Echo tools.
+ * Each tool declares its Zod schema, category, danger level,
+ * and whether it requires user approval before execution.
  */
 export interface IZavorthTool {
   name: string;

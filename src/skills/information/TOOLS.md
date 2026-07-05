@@ -1,21 +1,20 @@
-# Information & Web Search Skill
+# Information Tools
 
-Ferramentas para buscar informações na internet e obter dados temporais.
+Tools for searching the internet and obtaining temporal data.
 
-## Tools Disponíveis
+## Available Tools
 
 ### `web_search`
-Pesquisa na internet via DuckDuckGo com fallbacks para Google News RSS e Bing News RSS.
-- Retorna título, URL e trecho de cada resultado
-- Suporta buscas em português, inglês e espanhol
-- Gate de qualidade para notícias: verifica frescor e quantidade de resultados
-- Uso: Quando o usuário perguntar sobre notícias, preços, clima, placares ou qualquer dado atual
+Searches current information on the internet and returns ranked results.
+- Returns title, URL, and snippet for each result
+- Supports Portuguese, English, and Spanish queries
+- News quality gate: checks freshness and result count
+- Use when the user asks about news, prices, weather, scores, or other current data
 
 ### `get_datetime`
-Retorna a data e hora atuais do sistema com suporte a fusos horários.
-- Formato: data por extenso em português + ISO 8601
-- Uso: Quando o pedido depender de data/hora atual
+Returns the current system date and time with time zone support.
+- Format: English long date plus ISO 8601
 
-## Quando NÃO usar
-- Para ler arquivos locais → use a skill `filesystem`
-- Para executar comandos → use a skill `execution`
+## When Not To Use
+
+- For local file reads, use the `filesystem` skill

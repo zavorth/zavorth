@@ -26,8 +26,6 @@ import type { SecurityLockService } from "../../../../services/SecurityLockServi
 import type { AuditLogger } from "../../../../monitoring/AuditLogger.js";
 import type { WslControlService } from "../../../../services/WslControlService.js";
 import type { ExecutionGateway } from "../../../../execution/ExecutionGateway.js";
-import type { ZavorthControlService } from "../../../../services/ZavorthControlService.js";
-import type { DailyReportService } from "../../../../services/DailyReportService.js";
 
 type TelegramOperationsRuntimeOptions = {
   mcpRuntimeService?: McpRuntimeService;
@@ -70,7 +68,7 @@ export function initializeTelegramOperationsServices(
   );
   const channelActionService = new ZavorthChannelActionService({
     broadcastGateways: {
-      telegram: gateway as LiveChannelBroadcastGatewayContract &
+      telegram: gateway as unknown as LiveChannelBroadcastGatewayContract &
         BroadcastCapableGateway,
     },
   });

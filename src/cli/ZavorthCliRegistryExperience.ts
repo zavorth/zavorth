@@ -96,10 +96,10 @@ export async function handleZavorthCliRegistryExperienceCommand(params: Registry
       workspace: effectiveFlags.workspaceHint || null,
     });
     const body = effectiveFlags.json
-      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core indisponivel.' }, null, 2)
+      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core unavailable.' }, null, 2)
       : snapshot
         ? formatExperienceHome(snapshot)
-        : 'Experience Core indisponivel neste runtime.';
+        : 'Experience Core unavailable neste runtime.';
     writer.line(body);
     return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
   }
@@ -126,10 +126,10 @@ export async function handleZavorthCliRegistryExperienceCommand(params: Registry
       responseProfile,
     });
     const body = effectiveFlags.json
-      ? JSON.stringify(snapshot?.daily?.pulse || { ok: false, error: 'Zavorth Pulse indisponivel.' }, null, 2)
+      ? JSON.stringify(snapshot?.daily?.pulse || { ok: false, error: 'Zavorth Pulse unavailable.' }, null, 2)
       : snapshot
         ? formatExperiencePulse(snapshot)
-        : 'Zavorth Pulse indisponivel neste runtime.';
+        : 'Zavorth Pulse unavailable neste runtime.';
     writer.line(body);
     return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Zavorth Pulse unavailable.' };
   }
@@ -143,10 +143,10 @@ export async function handleZavorthCliRegistryExperienceCommand(params: Registry
       responseProfile: parseExperienceResponseProfile(args || normalized),
     });
     const body = effectiveFlags.json
-      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core indisponivel.' }, null, 2)
+      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core unavailable.' }, null, 2)
       : snapshot
         ? formatExperienceHud(snapshot)
-        : 'Experience Core indisponivel neste runtime.';
+        : 'Experience Core unavailable neste runtime.';
     writer.line(body);
     return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
   }

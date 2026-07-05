@@ -13,6 +13,7 @@ import {
 } from "@/lib/localDb";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const updateMappingSchema = z.object({
   pattern: z.string().min(1).max(500).optional(),
@@ -33,7 +34,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Mapping not found" }, { status: 404 });
     }
     return NextResponse.json({ mapping });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] health check failed', error);
     return NextResponse.json({ error: error.message || "Failed to get mapping" }, { status: 500 });
   }
 }
@@ -57,7 +59,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     return NextResponse.json({ mapping });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] health check failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to update mapping" },
       { status: 500 }
@@ -78,7 +81,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] health check failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to delete mapping" },
       { status: 500 }

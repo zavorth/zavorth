@@ -5,6 +5,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 import { cloudModelAliasUpdateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 // GET /api/models/alias - Get all aliases
 export async function GET(request) {
@@ -27,7 +28,8 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {

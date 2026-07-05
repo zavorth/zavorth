@@ -51,7 +51,7 @@ export class SupervisedWslExecAdapter implements SystemOverlordRuntimeAdapter {
       return {
         ok: false,
         errorCode: 'wsl_windows_required',
-        errorMessage: 'wsl.exec supervisionado requer host Windows com WSL instalado.',
+        errorMessage: 'Supervised wsl.exec requires a Windows host with WSL installed.',
       };
     }
 
@@ -93,14 +93,14 @@ export class SupervisedWslExecAdapter implements SystemOverlordRuntimeAdapter {
       return {
         ok: false,
         errorCode: 'wsl_action_rejected',
-        errorMessage: `Acao WSL invalida ou nao supervisionada: "${action}". Use inspect ou exec.`,
+        errorMessage: `Invalid or unsupervised WSL action: "${action}". Use inspect or exec.`,
       };
     }
     if (!execCommand) {
       return {
         ok: false,
         errorCode: 'wsl_command_required',
-        errorMessage: 'wsl.exec exige command em payload estruturado.',
+        errorMessage: 'wsl.exec requires command in the structured payload.',
       };
     }
 
@@ -156,14 +156,14 @@ export class SupervisedWslExecAdapter implements SystemOverlordRuntimeAdapter {
       return {
         ok: false,
         errorCode: 'wsl_cancel_unavailable',
-        errorMessage: 'Nenhum processo WSL supervisionado ativo foi encontrado para cancelamento.',
+        errorMessage: 'No active supervised WSL process was found for cancellation.',
       };
     }
     child.kill();
     this.activeProcesses.delete(normalized);
     return {
       ok: true,
-      stdout: 'wsl exec supervisionado cancelado.',
+      stdout: 'Supervised wsl exec cancelled.',
       rollbackAvailable: false,
       metadata: {
         adapterId: this.id,

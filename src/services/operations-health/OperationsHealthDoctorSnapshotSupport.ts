@@ -1,7 +1,12 @@
+import { logger } from '../../logger.js';
 import type {
-  NodeMeshSmokeSnapshot,
+NodeMeshSmokeSnapshot,
   ChannelProviderDoctorSnapshot,
   RemoteTransportDoctorSnapshot,
+  DoctorItem,
+  TransportDoctorItem,
+  ChannelMode,
+  TransportMode,
 } from './OperationsHealthSnapshotTypes.js';
 
 type OperationsHealthDoctorSnapshotSupportOptions = {
@@ -85,9 +90,7 @@ export class OperationsHealthDoctorSnapshotSupport {
         maxAgeMs: this.nodeMeshSmokeMaxAgeMs,
         recommendedAction: status === 'passed' && !stale ? null : (String(parsed.command || fallback.command).trim() || fallback.command),
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Operations  Doctor Snapshot] parsing failed', error); return fallback; }
   }
 
   public readChannelProviderDoctorSnapshot(): ChannelProviderDoctorSnapshot {
@@ -132,8 +135,7 @@ export class OperationsHealthDoctorSnapshotSupport {
                 || normalizedChannelId === 'email'
                   ? normalizedChannelId
                   : 'slack',
-              mode:
-                item.mode === 'native'
+              mode: (item.mode === 'native'
                 || item.mode === 'cloud-api'
                 || item.mode === 'stub'
                 || item.mode === 'baileys'
@@ -143,7 +145,7 @@ export class OperationsHealthDoctorSnapshotSupport {
                 || item.mode === 'graph-bot'
                 || item.mode === 'smtp-imap'
                   ? item.mode
-                  : 'unknown',
+                  : 'unknown') as ChannelMode,
               status: item.status === 'passed' || item.status === 'failed' || item.status === 'skipped' ? item.status : 'failed',
               configured: item.configured === true,
               summary: String(item.summary || '').trim(),
@@ -163,11 +165,9 @@ export class OperationsHealthDoctorSnapshotSupport {
         ageMs,
         maxAgeMs: this.channelProviderDoctorMaxAgeMs,
         recommendedAction: status === 'passed' && !stale ? null : (String(parsed.command || fallback.command).trim() || fallback.command),
-        items,
+        items: items as DoctorItem[],
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Operations  Doctor Snapshot] parsing failed', error); return fallback; }
   }
 
   public readRemoteTransportDoctorSnapshot(): RemoteTransportDoctorSnapshot {
@@ -201,8 +201,8 @@ export class OperationsHealthDoctorSnapshotSupport {
             const item = entry as Record<string, unknown>;
             return {
               transportId: String(item.transportId || item.id || '').trim() || 'unknown',
-              mode: item.mode === 'native' || item.mode === 'remote' || item.mode === 'local' || item.mode === 'stub' ? item.mode : 'unknown',
-              status: item.status === 'passed' || item.status === 'failed' || item.status === 'running' || item.status === 'skipped' ? item.status : 'failed',
+              mode: (item.mode === 'native' || item.mode === 'remote' || item.mode === 'local' || item.mode === 'stub' ? item.mode : 'stub') as TransportMode,
+              status: (item.status === 'passed' || item.status === 'failed' || item.status === 'running' || item.status === 'skipped' ? item.status : 'failed') as TransportDoctorItem['status'],
               configured: item.configured === true,
               summary: String(item.summary || '').trim(),
               error: String(item.error || '').trim() || null,
@@ -221,10 +221,8 @@ export class OperationsHealthDoctorSnapshotSupport {
         ageMs,
         maxAgeMs: this.remoteTransportDoctorMaxAgeMs,
         recommendedAction: status === 'passed' && !stale ? null : (String(parsed.command || fallback.command).trim() || fallback.command),
-        items,
+        items: items as TransportDoctorItem[],
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Operations  Doctor Snapshot] parsing failed', error); return fallback; }
   }
 }

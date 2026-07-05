@@ -16,6 +16,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { logger } from '../logger.js';
 
 export interface SupplyChainVerifierOptions {
   trustedKeysPath?: string;
@@ -108,9 +109,10 @@ export class SupplyChainVerifier {
         trustedKey = this.trustedKeys.has(keyFingerprint);
         try {
           signatureValid = this.verifySignature(skillPath, signature, keyFingerprint);
-        } catch {
-          signatureValid = false;
-        }
+        } catch (error) {
+    logger.warn('[Supply Chain Verifier] validation failed', error);
+    signatureValid = false;
+  }
       }
     }
 
@@ -219,9 +221,7 @@ export class SupplyChainVerifier {
 
     try {
       return verify.verify(keyData.publicKey, signature, 'hex');
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Supply Chain Verifier] creation failed', error); return false; }
   }
 
   private extractKeyFingerprint(signature: string): string | null {
@@ -340,9 +340,7 @@ export class SupplyChainVerifier {
           }
         }
       }
-    } catch {
-      // ignore load errors
-    }
+    } catch (error) { // ignore load errors logger.warn('[Supply Chain Verifier] JSON parse failed', error); }
 
     this.trustedKeysLoaded = true;
   }

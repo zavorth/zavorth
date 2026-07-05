@@ -6,6 +6,7 @@ import { getDbInstance } from "./core";
 import { backupDbFile } from "./backup";
 import { invalidateDbCache } from "./readCache";
 import { toRecord, type JsonRecord, type PricingByProvider, type PricingModels } from "./settings/settingsSupport";
+import { logger } from '@/shared/utils/logger';
 
 export {
   deleteProxyForLevel,
@@ -115,9 +116,7 @@ export async function getPricing() {
     if (!key || rawValue === null) continue;
     try {
       modelsDevPricing[key] = JSON.parse(rawValue) as PricingModels;
-    } catch {
-      // Corrupted data â€” skip silently, fallback to lower layers
-    }
+    } catch (error) { // Corrupted data â€” skip silently, fallback to lower layers logger.warn('[settings] JSON parse failed', error); }
   }
 
   // Layer 4: User overrides (highest priority)
@@ -272,9 +271,7 @@ export async function getLKGP(comboName: string, modelId: string): Promise<strin
   if (!row?.value) return null;
   try {
     return JSON.parse(row.value);
-  } catch {
-    return row.value;
-  }
+  } catch (error) { logger.warn('[settings] JSON parse failed', error); return row.value; }
 }
 
 export async function setLKGP(comboName: string, modelId: string, providerId: string) {

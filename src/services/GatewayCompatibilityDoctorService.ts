@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { AIGatewayProxyService } from './AIGatewayProxyService.js';
+import { logger } from '../logger.js';
 
 export type AIGatewayCompatibilityDoctorReport = {
   ok: boolean;
@@ -42,9 +43,7 @@ export class GatewayCompatibilityDoctorService {
         ...fallback,
         ...parsed,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[way Compatibility Doctor] JSON parse failed', error); return fallback; }
   }
 
   public async run(): Promise<AIGatewayCompatibilityDoctorReport> {
@@ -84,8 +83,9 @@ export class GatewayCompatibilityDoctorService {
         httpStatus: response.status,
         error: null,
       });
-    } catch (error: any) {
-      return this.persist({
+    } catch (error) {
+    logger.warn('[way Compatibility Doctor] network request failed', error);
+    return this.persist({
         ok: false,
         status: 'failed',
         checkedAt: new Date().toISOString(),
@@ -98,7 +98,7 @@ export class GatewayCompatibilityDoctorService {
         httpStatus: null,
         error: error?.message || String(error),
       });
-    }
+  }
   }
 
   private buildFallback(): AIGatewayCompatibilityDoctorReport {

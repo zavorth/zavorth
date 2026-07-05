@@ -42,9 +42,9 @@ export function formatZavorthProductizationContractSnapshot(
     `- ${area.label}: ${mark(area.status)} | ${firstLine(area.evidence, 'sem evidencia')}`,
   );
   const acceptanceLines = [
-    `- usuario comum entende: ${snapshot.acceptance.commonUserUnderstands ? 'sim' : 'nao'}`,
-    `- operador audita: ${snapshot.acceptance.operatorCanAudit ? 'sim' : 'nao'}`,
-    `- docs/UI/runtime concordam: ${snapshot.acceptance.docsUiRuntimeAgree ? 'sim' : 'nao'}`,
+    `- common user understands: ${snapshot.acceptance.commonUserUnderstands ? 'yes' : 'no'}`,
+    `- operator audits: ${snapshot.acceptance.operatorCanAudit ? 'yes' : 'no'}`,
+    `- docs/UI/runtime agree: ${snapshot.acceptance.docsUiRuntimeAgree ? 'yes' : 'no'}`,
   ];
   const panels: CliVisualPanel[] = [
     {
@@ -61,10 +61,10 @@ export function formatZavorthProductizationContractSnapshot(
       title: 'CLI e Docs',
       tone: snapshot.cli.sameContract && snapshot.docs.status !== 'blocked' ? 'success' : 'warning',
       lines: [
-        `- comando: ${snapshot.cli.command || PRODUCTIZATION_CLI_COMMAND}`,
+        `- command: ${snapshot.cli.command || PRODUCTIZATION_CLI_COMMAND}`,
         `- renderer: ${snapshot.cli.renderer}`,
-        `- mesmo contrato: ${snapshot.cli.sameContract ? 'sim' : 'nao'}`,
-        `- docs: ${snapshot.docs.status} | ${snapshot.docs.paths.length} arquivo(s)`,
+        `- same contract: ${snapshot.cli.sameContract ? 'yes' : 'no'}`,
+        `- docs: ${snapshot.docs.status} | ${snapshot.docs.paths.length} file(s)`,
         `- website: ${snapshot.website.status} | promises=${snapshot.website.promisePolicy}`,
       ],
     },
@@ -84,7 +84,7 @@ export function formatZavorthProductizationContractSnapshot(
         `- status: ${snapshot.status}`,
         `- run ativo: ${formatCliValue(snapshot.activeRunId, 'sem run ativo')}`,
         ...acceptanceLines,
-        ...(blocked.length > 0 ? blocked.map((blocker) => `- blocker: ${blocker}`) : ['- blockers: nenhum']),
+        ...(blocked.length > 0 ? blocked.map((blocker) => `- blocker: ${blocker}`) : ['- blockers: none']),
       ],
     },
   ];

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type BootIntegrityCheckKind =
   | 'directory'
@@ -254,7 +255,8 @@ export class BootIntegrityService {
         metadata.created = true;
         return this.buildCheck(spec, targetPath, 'pass', 'diretorio criado durante o smoke de boot', true, metadata);
       } catch (error) {
-        return this.buildCheck(
+    logger.warn('[Boot Integrity] filesystem operation failed', error);
+    return this.buildCheck(
           spec,
           targetPath,
           'fail',
@@ -262,7 +264,7 @@ export class BootIntegrityService {
           false,
           metadata,
         );
-      }
+  }
     }
 
     if (!exists) {
@@ -296,7 +298,8 @@ export class BootIntegrityService {
       this.accessSync(targetPath, fs.constants.R_OK | fs.constants.W_OK);
       return this.buildCheck(spec, targetPath, 'pass', 'diretorio acessivel para leitura e escrita', false, metadata);
     } catch (error) {
-      return this.buildCheck(
+    logger.warn('[Boot Integrity] creation failed', error);
+    return this.buildCheck(
         spec,
         targetPath,
         spec.required ? 'fail' : 'warn',
@@ -304,7 +307,7 @@ export class BootIntegrityService {
         false,
         metadata,
       );
-    }
+  }
   }
 
   private checkFile(
@@ -327,7 +330,8 @@ export class BootIntegrityService {
 
       return this.buildCheck(spec, targetPath, 'pass', 'arquivo presente e legivel', false, metadata);
     } catch (error) {
-      return this.buildCheck(
+    logger.warn('[Boot Integrity] parsing failed', error);
+    return this.buildCheck(
         spec,
         targetPath,
         spec.required ? 'fail' : 'warn',
@@ -335,7 +339,7 @@ export class BootIntegrityService {
         false,
         metadata,
       );
-    }
+  }
   }
 
   private assertValidJsonFile(filePath: string): void {

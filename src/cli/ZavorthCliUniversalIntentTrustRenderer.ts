@@ -59,15 +59,15 @@ export function formatUniversalIntentTrustSnapshot(
 ): string {
   const lines = [
     'UNI / Trust Slider Enforcement - Channel mesh4',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- intent: ${snapshot.summary.intent}`,
     `- risco: ${snapshot.summary.risk}`,
     `- trust: ${snapshot.summary.trustLevel} -> ${snapshot.summary.trustDecision}`,
     `- posture: ${snapshot.summary.posture}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Permissao',
   ];
@@ -76,12 +76,12 @@ export function formatUniversalIntentTrustSnapshot(
     lines.push(
       `- tipo: ${snapshot.permission.kind}`,
       `- escopo: ${snapshot.permission.scope}`,
-      `- preview: ${snapshot.permission.previewRequired ? 'sim' : 'nao'}`,
-      `- approval: ${snapshot.permission.approvalRequired ? 'sim' : 'nao'}`,
+      `- preview: ${snapshot.permission.previewRequired ? 'yes' : 'no'}`,
+      `- approval: ${snapshot.permission.approvalRequired ? 'yes' : 'no'}`,
       `- prompt: ${snapshot.permission.prompt || 'n/a'}`,
     );
   } else {
-    lines.push('- nenhuma permissao conversacional obrigatoria');
+    lines.push('- no conversational permission required');
   }
 
   lines.push('', 'Clarificacao');
@@ -91,7 +91,7 @@ export function formatUniversalIntentTrustSnapshot(
       `- falta: ${snapshot.clarification.missing.join(', ') || 'n/a'}`,
     );
   } else {
-    lines.push('- nenhuma pergunta obrigatoria');
+    lines.push('- no question required');
   }
 
   lines.push('', 'Gates');
@@ -102,11 +102,11 @@ export function formatUniversalIntentTrustSnapshot(
   lines.push('', 'Politica');
   lines.push('- UniversalIntentService e a fonte da classificacao');
   lines.push('- Trust Slider e aplicado antes do executor');
-  lines.push('- linguagem natural nao bypassa permissao, preview ou approval');
+  lines.push('- natural language does not bypass permission, preview, or approval');
   lines.push('- host inteiro exige Overlord com owner/operator e kill switch');
   lines.push('- workspace boundary continua enforcement global');
-  lines.push('- nenhuma ferramenta foi executada pelo snapshot');
-  lines.push('- secrets nao foram serializados');
+  lines.push('- no tool was executed by the snapshot');
+  lines.push('- secrets were not serialized');
 
   lines.push('', 'Superficies');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);

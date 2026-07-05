@@ -14,6 +14,7 @@ import { saveCliToolLastConfigured, deleteCliToolLastConfigured } from "@/lib/db
 import { cliSettingsEnvSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
+import { logger } from '@/shared/utils/logger';
 
 // Get claude settings path based on OS
 const getClaudeSettingsPath = () => getCliPrimaryConfigPath("claude");
@@ -100,7 +101,8 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -135,9 +137,7 @@ export async function POST(request: Request) {
         if (keyRecord?.key) {
           env.ANTHROPIC_AUTH_TOKEN = keyRecord.key as string;
         }
-      } catch {
-        // Non-critical: fall back to whatever value was in env (e.g. sk_ZavorthGateway)
-      }
+      } catch (error) { // Non-critical: fall back to whatever value was in env (e.g. sk_ZavorthGateway) logger.warn('[route] operation failed', error); }
     }
 
     const settingsPath = getClaudeSettingsPath();
@@ -182,9 +182,7 @@ export async function POST(request: Request) {
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("claude");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
@@ -255,9 +253,7 @@ export async function DELETE(request: Request) {
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("claude");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,

@@ -396,7 +396,6 @@ export type {
 export {
   SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION,
   SelfingZavorthControlService,
-  SelfingZavorthControlService as SelfingZavorthControlService,
 } from './SelfingZavorthControlService.js';
 export type {
   SelfingZavorthControlCard,
@@ -404,7 +403,6 @@ export type {
   SelfingZavorthControlReceipt,
   SelfingZavorthControlSectionId,
   SelfingZavorthControlSnapshot,
-  SelfingZavorthControlSnapshot as SelfingZavorthControlSnapshot,
   SelfingZavorthControlStatus,
   SelfingZavorthControlSuggestion,
 } from './SelfingZavorthControlService.js';

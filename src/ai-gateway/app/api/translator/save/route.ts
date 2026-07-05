@@ -4,6 +4,7 @@ import path from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { translatorSaveSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 export async function POST(request) {
   const authError = await requireManagementAuth(request);
@@ -12,7 +13,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
         success: false,

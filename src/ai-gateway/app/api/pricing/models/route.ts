@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { REGISTRY } from "@ZavorthGateway/open-sse/config/providerRegistry.ts";
 import { getAllCustomModels, getPricing } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -54,9 +55,7 @@ export async function GET(request: Request) {
     let customModelsMap: Record<string, unknown> = {};
     try {
       customModelsMap = asRecord(await getAllCustomModels());
-    } catch {
-      /* DB may not be ready */
-    }
+    } catch (error) { /* DB may not be ready */ logger.warn('[route] operation failed', error); }
 
     for (const [providerId, rawModels] of Object.entries(customModelsMap)) {
       const models = asModelArray(rawModels);
@@ -101,9 +100,7 @@ export async function GET(request: Request) {
     let pricingData: Record<string, any> = {};
     try {
       pricingData = await getPricing();
-    } catch {
-      /* DB may not be ready */
-    }
+    } catch (error) { /* DB may not be ready */ logger.warn('[route] operation failed', error); }
 
     for (const [providerAlias, models] of Object.entries(pricingData)) {
       if (!catalog[providerAlias]) {

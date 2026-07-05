@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export type ZavorthBridgeArtifact = {
   artifactType: string;
@@ -62,9 +63,7 @@ export async function collectArtifacts(brainDir: string): Promise<ZavorthBridgeA
           updatedAt,
           updatedAtMs,
         });
-      } catch {
-        // Ignore malformed metadata or content files and keep scanning.
-      }
+      } catch (error) { // Ignore malformed metadata or content files and keep scanning. logger.warn('[Real Zavorth Bridge Watcher Artifact Log Helpers] operation failed', error); }
     }
   }
 

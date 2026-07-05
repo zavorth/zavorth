@@ -23,6 +23,7 @@ import {
   type RuntimeBrowserSidecarResponse,
 } from './RuntimeBrowserSidecarService.js';
 import { ZavorthVisionControlPlaneService } from './ZavorthVisionControlPlaneService.js';
+import { logger } from '../logger.js';
 
 type BrowserSidecarLike = Pick<RuntimeBrowserSidecarService, 'execute' | 'isConfigured'>;
 
@@ -298,13 +299,14 @@ export class ZavorthBrowserVisionBridgeService {
       const evidence = extractTextFromSidecar(dom) || JSON.stringify(unwrapSidecarPayload(dom));
       return { used: true, title, evidence, error: null };
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Browser Vision Bridge] process execution failed', error);
+    return {
         used: false,
         title: null,
         evidence: null,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private async validateUrl(
@@ -319,12 +321,13 @@ export class ZavorthBrowserVisionBridgeService {
       const parsed = await this.egressGuard(value, allowPrivateEgress);
       return { status: 'allowed', url: parsed, reason: 'Public HTTP target allowed.' };
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Browser Vision Bridge] network request failed', error);
+    return {
         status: 'blocked',
         url: null,
         reason: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private resolveEvidence(input: ZavorthBrowserVisionInput, sidecarEvidence: string | null): EvidenceBundle {
@@ -675,7 +678,8 @@ function redactUrl(value: string | null): string | null {
     parsed.username = parsed.username ? '[redacted]' : '';
     parsed.password = parsed.password ? '[redacted]' : '';
     return parsed.toString();
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Browser Vision Bridge] parsing failed', error);
     return safePreview(value, 160);
   }
 }
@@ -683,9 +687,7 @@ function redactUrl(value: string | null): string | null {
 function safeOrigin(value: string | null | undefined): string | null {
   try {
     return new URL(String(value || '')).origin;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Browser Vision Bridge] parsing failed', error); return null; }
 }
 
 function makePlanId(input: ZavorthBrowserVisionInput, steps: ZavorthBrowserVisionPlanStep[]): string {

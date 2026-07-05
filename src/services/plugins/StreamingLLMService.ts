@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface StreamChunk {
   id: string;
@@ -95,7 +96,7 @@ export class StreamingLLMService {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Streaming L L M] file cleanup failed', error); }
 
       const lines = result.split('\n').filter((l) => l.startsWith('data: '));
       let fullContent = '';
@@ -121,7 +122,7 @@ export class StreamingLLMService {
             session.total_tokens += chunk.tokens;
             options?.onChunk?.(chunk);
           }
-        } catch { /* skip non-JSON lines */ }
+        } catch (error) { /* skip non-JSON lines */ logger.warn('[Streaming L L M] parsing failed', error); }
       }
 
       session.status = 'complete';

@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthLearningArtifact,
+ZavorthLearningArtifact,
   ZavorthMutationRiskLevel,
 } from '../contracts/ZavorthMutationPlaneContract.js';
 
@@ -89,9 +90,10 @@ export class ZavorthSkillEvolutionRegistryService {
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null,
         records: Array.isArray(parsed.records) ? parsed.records.map((entry) => this.normalizeRecord(entry)) : [],
       };
-    } catch {
-      return { version: 1, updatedAt: null, records: [] };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Skill Evolution Registry] JSON parse failed', error);
+    return { version: 1, updatedAt: null, records: [] };
+  }
   }
 
   public listRecords(options: { limit?: number } = {}): ZavorthEvolvedSkillRecord[] {

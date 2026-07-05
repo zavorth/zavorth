@@ -8,23 +8,23 @@ import {
 export class EchoHandsTool extends BaseTool {
   public readonly name = 'echo_hands';
   public readonly description =
-    'Executa ações declarativas e supervisionadas do Echo Hands: abrir apps allowlisted, buscar no navegador, abrir URLs aprovadas e rodar protocolos.';
+    'Runs supervised declarative Echo Hands actions: open allowlisted apps, search in the browser, open approved URLs, and run protocols.';
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
         enum: ['open_app', 'browser_search', 'open_url', 'protocol_run'],
-        description: 'Ação declarativa do Echo Hands.',
+        description: 'Declarative Echo Hands action.',
       },
       args: {
         type: 'object',
-        description: 'Argumentos da ação. Ex: { "app": "notepad" } ou { "engine": "youtube", "query": "ia" }.',
+        description: 'Action arguments. Example: { "app": "notepad" } or { "engine": "youtube", "query": "ai" }.',
       },
       risk: {
         type: 'string',
         enum: ['low', 'medium', 'high'],
-        description: 'Risco declarado pelo agente; o serviço sempre recalcula o risco mínimo real.',
+        description: 'Agent-declared risk; the service always recalculates the real minimum risk.',
       },
       requestId: {
         type: 'string',
@@ -32,7 +32,7 @@ export class EchoHandsTool extends BaseTool {
       },
       trusted: {
         type: 'boolean',
-        description: 'Somente true quando o runtime/approval já autorizou ações medium.',
+        description: 'Only true when runtime/approval already authorized medium actions.',
       },
     },
     required: ['action'],

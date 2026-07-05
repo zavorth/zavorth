@@ -9,6 +9,7 @@ import {
 import type { ZavorthBridgeArtifact } from './RealZavorthBridgeWatcherArtifactLogHelpers.js';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
 import type { ZavorthBridgeUiSnapshot } from '../../services/ZavorthBridgeUiCaptureService.js';
+import { logger } from '../../logger.js';
 
 export function normalizeVisibleResponse(value: string | null | undefined): string {
   return normalizeZavorthBridgeUiText(value);
@@ -135,7 +136,7 @@ export function tryFormatStructuredInventory(
     const item = extractInventoryItem(line);
     if (item) {
       if (!currentGroup) {
-        currentGroup = { heading: 'Itens encontrados', items: [] };
+        currentGroup = { heading: 'Found items', items: [] };
       }
       currentGroup.items.push(item);
       continue;
@@ -165,7 +166,7 @@ export function tryFormatStructuredInventory(
   if (prose.length > 0) {
     linesOut.push(...prose, '');
   } else if (inventoryHint) {
-    linesOut.push('Conteudo encontrado:', '');
+    linesOut.push('Found content:', '');
   }
 
   groups.forEach((group, index) => {
@@ -198,15 +199,15 @@ export function extractInventoryHeading(line: string): string | null {
   }
 
   if (normalized === 'arquivos de texto/log') {
-    return 'Arquivos de texto e log';
+    return 'Text and log files';
   }
 
   if (normalized === 'arquivos de texto e log') {
-    return 'Arquivos de texto e log';
+    return 'Text and log files';
   }
 
   if (normalized === 'pastas e scripts') {
-    return 'Pastas e scripts';
+    return 'Folders and scripts';
   }
 
   return candidate.charAt(0).toUpperCase() + candidate.slice(1);
@@ -218,7 +219,7 @@ export function extractInventoryItem(line: string): string | null {
     return null;
   }
 
-  const taggedMatch = trimmed.match(/^-\s+\[(DIR|FILE|OTHER)\]\s+(.+)$/i);
+  const taggedMatch = trimmed.match(/^[-*\u2022]\s+\[(DIR|FILE|OTHER)\]\s+(.+)$/i);
   if (taggedMatch) {
     return taggedMatch[2].trim();
   }
@@ -227,7 +228,7 @@ export function extractInventoryItem(line: string): string | null {
     return null;
   }
 
-  return trimmed.replace(/^[-*â€¢]\s+/, '').trim();
+  return trimmed.replace(/^[-*\u2022]\s+/, '').trim();
 }
 
 export function looksLikeInventoryItem(line: string): boolean {
@@ -236,7 +237,7 @@ export function looksLikeInventoryItem(line: string): boolean {
     return false;
   }
 
-  if (/^[-*â€¢]\s+\[(DIR|FILE|OTHER)\]\s+/i.test(trimmed)) {
+  if (/^[-*\u2022]\s+\[(DIR|FILE|OTHER)\]\s+/i.test(trimmed)) {
     return true;
   }
 
@@ -291,7 +292,6 @@ export function isDiscardableZavorthBridgeClosingLine(line: string): boolean {
     'if you need more details',
     'fico a disposicao',
     'estou a disposicao',
-    'estou a disposiÃ§Ã£o',
     'i am available',
   ].some((pattern) => normalized.startsWith(pattern));
 }
@@ -299,15 +299,13 @@ export function isDiscardableZavorthBridgeClosingLine(line: string): boolean {
 export function normalizeTelegramFriendlyText(value: string): string {
   let normalized = String(value || '').replace(/\r\n/g, '\n').trim();
 
-  if (/Ãƒ.|Ã‚./.test(normalized) && !/\uFFFD/.test(normalized)) {
+  if (/[\u00c3\u00c2]/.test(normalized) && !/\uFFFD/.test(normalized)) {
     try {
       const decoded = Buffer.from(normalized, 'latin1').toString('utf8');
-      if (decoded && decoded.includes(' ') && !decoded.includes('Ãƒ')) {
+      if (decoded && decoded.includes(' ') && !decoded.includes('\u00c3')) {
         normalized = decoded;
       }
-    } catch {
-      // Ignore decode failures and keep original text.
-    }
+    } catch (error) { // Ignore decode failures and keep original text. logger.warn('[Real Zavorth Bridge Watcher Formatting Helpers] encoding failed', error); }
   }
 
   return normalized;

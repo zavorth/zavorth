@@ -1,5 +1,6 @@
 /** Upstream proxy config persistence for upstream_proxy_config table. */
 import { getDbInstance } from "./core";
+import { logger } from '@/shared/utils/logger';
 
 interface UpstreamProxyConfig {
   id: number;
@@ -69,7 +70,8 @@ export function validateProxyUrl(
       };
     }
     return { valid: true, url };
-  } catch {
+  } catch (error) {
+    logger.warn('[upstream] network request failed', error);
     return { valid: false, error: `Invalid URL: "${url}"` };
   }
 }
@@ -79,9 +81,10 @@ function rowToConfig(record: Record<string, unknown>): UpstreamProxyConfig {
   if (record.cliproxyapi_model_mapping && typeof record.cliproxyapi_model_mapping === "string") {
     try {
       mapping = JSON.parse(record.cliproxyapi_model_mapping);
-    } catch {
-      mapping = null;
-    }
+    } catch (error) {
+    logger.warn('[upstream] JSON parse failed', error);
+    mapping = null;
+  }
   }
   return {
     id: record.id as number,

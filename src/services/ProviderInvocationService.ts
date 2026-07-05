@@ -35,7 +35,7 @@ export class ProviderInvocationService {
       const invoker = await factory.createInvoker(resolved);
 
       await auditLogger.logWorkspaceEvent({
-        event: 'provider_invocation_started' as any,
+        event: 'provider_invocation_started',
         workspaceId: wsId,
         providerId: resolved.providerId,
         metadata: {
@@ -49,7 +49,7 @@ export class ProviderInvocationService {
       
       const durationMs = Date.now() - startMs;
       await auditLogger.logWorkspaceEvent({
-        event: 'provider_invocation_succeeded' as any,
+        event: 'provider_invocation_succeeded',
         workspaceId: wsId,
         providerId: resolved.providerId,
         durationMs,
@@ -66,8 +66,8 @@ export class ProviderInvocationService {
       const normalized = ErrorNormalizationService.getInstance().normalize(error);
       const errorCode = normalized.code;
 
-        await auditLogger.logWorkspaceEvent({
-        event: 'provider_invocation_failed' as any,
+      await auditLogger.logWorkspaceEvent({
+        event: 'provider_invocation_failed',
         workspaceId: wsId,
         providerId: resolved?.providerId || request.providerId || 'unknown',
         durationMs,

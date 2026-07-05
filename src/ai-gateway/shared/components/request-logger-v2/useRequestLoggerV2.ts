@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { persistVisibleColumns, loadVisibleColumns, buildLogsQuery, filterLogs, sortLogs, getUniqueAccounts, getUniqueApiKeys, getUniqueModels, getUniqueProviders, getLoggerStats } from "./requestLoggerUtils";
 import { REQUEST_LOGGER_REFRESH_MS } from "./requestLoggerConfig";
-import type {
 import { logger } from '../logger.js';
-  ProviderNode,
+import type {
+ProviderNode,
   RequestLogEntry,
   RequestLoggerSortKey,
   RequestLoggerStatusFilter,

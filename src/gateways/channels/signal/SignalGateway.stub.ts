@@ -4,6 +4,7 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 import { SignalLiveClient } from '../../../adapters/channels/SignalLiveClient.js';
+import { logger } from '../../../logger.js';
 
 export interface SignalGatewayStubMessage {
   sender: string;
@@ -74,9 +75,7 @@ export class SignalGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.signalStatusFile, 'utf8')) as SignalGatewayStatusSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Signal way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
@@ -105,14 +104,14 @@ export class SignalGateway implements LiveChannelBroadcastGatewayContract {
 
   public async broadcast(message: string): Promise<void> {
     if (!this.started) {
-      this.lastError = 'Signal bridge ainda nao foi iniciado.';
+      this.lastError = 'Signal bridge has not started yet.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
 
     const recipients = this.resolveBroadcastRecipients();
     if (recipients.length === 0) {
-      this.lastError = 'Signal bridge nao tem recipients permitidos configurados.';
+      this.lastError = 'Signal bridge has no configured allowed recipients.';
       this.writeStatus();
       throw new Error(this.lastError);
     }

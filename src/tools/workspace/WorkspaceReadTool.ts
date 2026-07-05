@@ -4,7 +4,7 @@ import { ReadFileTool } from '../ReadFileTool.js';
 
 export class WorkspaceReadTool extends BaseTool {
   public readonly name = 'workspace.read';
-  public readonly description = 'Le arquivo de texto dentro do workspace usando a policy canonica.';
+  public readonly description = 'Reads a text file inside the workspace using the canonical policy.';
   public readonly parameters: ToolDefinition['parameters'];
   private readonly delegate: ReadFileTool;
 

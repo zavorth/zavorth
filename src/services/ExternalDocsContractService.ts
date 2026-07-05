@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  EXTERNAL_DOCS_FORBIDDEN_CLAIMS,
+EXTERNAL_DOCS_FORBIDDEN_CLAIMS,
   EXTERNAL_DOCS_REQUIRED_COMMANDS,
   EXTERNAL_DOCS_REQUIRED_COPY,
   EXTERNAL_DOCS_REQUIRED_LINKS,
@@ -422,9 +423,7 @@ export class ExternalDocsContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[External Docs Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -450,9 +449,7 @@ export class ExternalDocsContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[External Docs Contract] filesystem operation failed', error); return ''; }
   }
 
   private check(

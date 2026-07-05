@@ -3,19 +3,19 @@ import { IZavorthTool, ToolExecutionResult } from '../../types/IZavorthTool';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as os from 'os';
+import { logger } from '../../../logger.js';
 
 const execAsync = promisify(exec);
 
 /**
- * SystemInfoTool — Retorna métricas do sistema em tempo real.
+ * SystemInfoTool returns real-time system metrics.
  *
- * Responde perguntas como "Zavorth, meu PC está lento?" ou
- * "Quanta bateria eu tenho?". Combina dados do Node.js `os` module
- * com PowerShell para métricas avançadas (bateria, processos pesados).
+ * Answers questions such as whether the PC is slow or how much battery remains.
+ * Combines Node.js `os` data with PowerShell for advanced Windows metrics.
  */
 export class SystemInfoTool implements IZavorthTool {
     name = 'os_system_info';
-    description = 'Verifica informações do sistema como uso de CPU, memória RAM, espaço em disco, bateria e processos mais pesados. Responde perguntas como "meu PC está lento?" ou "quanta bateria tenho?".';
+    description = 'Checks system information such as CPU usage, RAM usage, disk space, battery, uptime, and heaviest processes.';
     category = 'OS' as const;
     dangerLevel = 'safe' as const;
     requiresPermission = false;
@@ -24,7 +24,7 @@ export class SystemInfoTool implements IZavorthTool {
         metrics: z.array(
             z.enum(['cpu', 'memory', 'disk', 'battery', 'processes', 'uptime'])
         ).default(['cpu', 'memory'])
-            .describe('Quais métricas retornar. Ex: ["cpu", "memory", "battery"]')
+            .describe('Metrics to return, for example ["cpu", "memory", "battery"].')
     });
 
     async execute(params: { metrics: string[] }): Promise<ToolExecutionResult> {
@@ -54,7 +54,6 @@ export class SystemInfoTool implements IZavorthTool {
                 }
             }
 
-            // Gerar resumo legível para o LLM verbalizar
             const summary = this.buildHumanSummary(data);
 
             return {
@@ -62,23 +61,23 @@ export class SystemInfoTool implements IZavorthTool {
                 message: summary,
                 data,
             };
-        } catch (error: any) {
-            return {
+        } catch (error) {
+    logger.warn('[System Info] creation failed', error);
+    return {
                 success: false,
-                error: `Falha ao obter informações do sistema: ${error.message}`,
+                error: `Failed to get system information: ${error.message}`,
             };
-        }
+  }
     }
 
     /**
-     * Uso de CPU via snapshot de os.cpus() (média entre 2 leituras).
+     * CPU usage through an os.cpus() snapshot.
      */
     private async getCpuInfo(): Promise<Record<string, any>> {
         const cpus = os.cpus();
-        const model = cpus[0]?.model || 'Desconhecido';
+        const model = cpus[0]?.model || 'Unknown';
         const cores = cpus.length;
 
-        // Calcular uso médio entre idle e total
         const usage = cpus.map(cpu => {
             const total = Object.values(cpu.times).reduce((a, b) => a + b, 0);
             const idle = cpu.times.idle;
@@ -94,7 +93,7 @@ export class SystemInfoTool implements IZavorthTool {
     }
 
     /**
-     * Info de memória RAM via os module.
+     * RAM information through the Node.js os module.
      */
     private getMemoryInfo(): Record<string, any> {
         const totalBytes = os.totalmem();
@@ -111,7 +110,7 @@ export class SystemInfoTool implements IZavorthTool {
     }
 
     /**
-     * Info de disco (Windows) via PowerShell Get-PSDrive.
+     * Windows disk information through PowerShell Get-PSDrive.
      */
     private async getDiskInfo(): Promise<Record<string, any>[]> {
         try {
@@ -120,13 +119,14 @@ export class SystemInfoTool implements IZavorthTool {
             );
             const drives = JSON.parse(stdout.trim());
             return Array.isArray(drives) ? drives : [drives];
-        } catch {
-            return [{ error: 'Não foi possível obter informação de disco.' }];
-        }
+        } catch (error) {
+    logger.warn('[System Info] JSON parse failed', error);
+    return [{ error: 'Could not get disk information.' }];
+  }
     }
 
     /**
-     * Info de bateria (Windows) via WMI.
+     * Windows battery information through WMI.
      */
     private async getBatteryInfo(): Promise<Record<string, any>> {
         try {
@@ -135,23 +135,23 @@ export class SystemInfoTool implements IZavorthTool {
             );
             const parsed = JSON.parse(stdout.trim());
             const charge = parsed.EstimatedChargeRemaining || 0;
-            // BatteryStatus: 1=Discharging 2=AC/Charging 3=FullyCharged
             const statusMap: Record<number, string> = {
-                1: 'descarregando',
-                2: 'carregando',
-                3: 'totalmente carregada',
+                1: 'discharging',
+                2: 'charging',
+                3: 'fully charged',
             };
             return {
                 charge_percent: charge,
-                status: statusMap[parsed.BatteryStatus] || 'desconhecido',
+                status: statusMap[parsed.BatteryStatus] || 'unknown',
             };
-        } catch {
-            return { charge_percent: null, status: 'sem bateria (desktop)' };
-        }
+        } catch (error) {
+    logger.warn('[System Info] parsing failed', error);
+    return { charge_percent: null, status: 'no battery detected' };
+  }
     }
 
     /**
-     * Top 5 processos por uso de CPU (Windows).
+     * Top 5 processes by CPU usage on Windows.
      */
     private async getTopProcesses(): Promise<Record<string, any>[]> {
         try {
@@ -160,13 +160,14 @@ export class SystemInfoTool implements IZavorthTool {
             );
             const procs = JSON.parse(stdout.trim());
             return Array.isArray(procs) ? procs : [procs];
-        } catch {
-            return [{ error: 'Não foi possível listar processos.' }];
-        }
+        } catch (error) {
+    logger.warn('[System Info] JSON parse failed', error);
+    return [{ error: 'Could not list processes.' }];
+  }
     }
 
     /**
-     * Uptime do sistema.
+     * System uptime.
      */
     private getUptimeInfo(): Record<string, any> {
         const uptimeSeconds = os.uptime();
@@ -179,37 +180,37 @@ export class SystemInfoTool implements IZavorthTool {
     }
 
     /**
-     * Gera uma frase resumida que o LLM pode falar para o usuário.
+     * Builds a concise sentence that the LLM can say to the user.
      */
     private buildHumanSummary(data: Record<string, any>): string {
         const parts: string[] = [];
 
         if (data.cpu) {
-            parts.push(`CPU em ${data.cpu.usage_percent}% (${data.cpu.model}, ${data.cpu.cores} núcleos)`);
+            parts.push(`CPU at ${data.cpu.usage_percent}% (${data.cpu.model}, ${data.cpu.cores} cores)`);
         }
         if (data.memory) {
-            parts.push(`RAM: ${data.memory.used_gb}GB de ${data.memory.total_gb}GB usados (${data.memory.usage_percent}%)`);
+            parts.push(`RAM: ${data.memory.used_gb}GB of ${data.memory.total_gb}GB used (${data.memory.usage_percent}%)`);
         }
         if (data.battery) {
             if (data.battery.charge_percent !== null) {
-                parts.push(`Bateria: ${data.battery.charge_percent}% (${data.battery.status})`);
+                parts.push(`Battery: ${data.battery.charge_percent}% (${data.battery.status})`);
             } else {
-                parts.push(`Bateria: ${data.battery.status}`);
+                parts.push(`Battery: ${data.battery.status}`);
             }
         }
         if (data.uptime) {
-            parts.push(`Sistema ligado há ${data.uptime.formatted}`);
+            parts.push(`System uptime: ${data.uptime.formatted}`);
         }
         if (data.disk && Array.isArray(data.disk)) {
             for (const d of data.disk) {
                 if (d.Name && d.Free_GB) {
-                    parts.push(`Disco ${d.Name}: ${d.Free_GB}GB livres`);
+                    parts.push(`Disk ${d.Name}: ${d.Free_GB}GB free`);
                 }
             }
         }
         if (data.processes && Array.isArray(data.processes)) {
             const top = data.processes.slice(0, 3).map((p: any) => `${p.Name} (${p.RAM_MB}MB)`).join(', ');
-            parts.push(`Processos mais pesados: ${top}`);
+            parts.push(`Heaviest processes: ${top}`);
         }
 
         return parts.join('. ') + '.';

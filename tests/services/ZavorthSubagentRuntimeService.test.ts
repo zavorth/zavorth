@@ -11,6 +11,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       const service = new ZavorthSubagentRuntimeService({
         now: () => new Date('2026-05-10T14:00:00.000Z'),
         stateFilePath: fixture.stateFile,
+        boardDbPath: fixture.boardDbFile,
       });
       const snapshot = await service.execute({
         action: 'subagents.spawn',
@@ -37,6 +38,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       const service = new ZavorthSubagentRuntimeService({
         now: () => new Date('2026-05-10T14:00:00.000Z'),
         stateFilePath: fixture.stateFile,
+        boardDbPath: fixture.boardDbFile,
       });
       const snapshot = await service.execute({
         action: 'subagents.spawn',
@@ -60,6 +62,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       const service = new ZavorthSubagentRuntimeService({
         now: () => new Date('2026-05-10T14:00:00.000Z'),
         stateFilePath: fixture.stateFile,
+        boardDbPath: fixture.boardDbFile,
       });
       const snapshot = await service.execute({
         action: 'subagents.spawn',
@@ -90,6 +93,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       const service = new ZavorthSubagentRuntimeService({
         now: () => new Date('2026-05-10T14:00:00.000Z'),
         stateFilePath: fixture.stateFile,
+        boardDbPath: fixture.boardDbFile,
       });
       const spawned = await service.execute({
         action: 'subagents.spawn',
@@ -136,6 +140,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       const service = new ZavorthSubagentRuntimeService({
         now: () => new Date('2026-05-10T14:00:00.000Z'),
         stateFilePath: fixture.stateFile,
+        boardDbPath: fixture.boardDbFile,
       });
       const snapshot = await service.execute({
         action: 'subagents.spawn',
@@ -167,7 +172,7 @@ describe('ZavorthSubagentRuntimeService Connector registry', () => {
       const service = new ZavorthSubagentRuntimeService({
         now: () => new Date('2026-05-10T14:00:00.000Z'),
         stateFilePath: fixture.stateFile,
-        boardDbPath: path.join(fixture.root, 'workboard.sqlite'),
+        boardDbPath: fixture.boardDbFile,
       });
       const created = await service.execute({
         action: 'subagents.board.create',
@@ -222,5 +227,6 @@ function createFixture() {
   return {
     root,
     stateFile: path.join(root, 'runtime-state.json'),
+    boardDbFile: path.join(root, 'workboard.sqlite'),
   };
 }

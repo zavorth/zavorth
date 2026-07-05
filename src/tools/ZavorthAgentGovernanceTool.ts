@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export interface GovernancePolicy {
   id: string;
@@ -112,7 +113,7 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
     if (!fs.existsSync(logPath)) return;
     try {
       this.auditLog = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Zavorth Agent Governance] JSON parse failed', error); }
   }
 
   private saveAuditLog(): void {

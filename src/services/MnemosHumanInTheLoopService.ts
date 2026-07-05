@@ -1,5 +1,6 @@
 import type { McpRuntimeService } from '../mcp/McpRuntimeService.js';
 import type { LogRepository } from '../storage/LogRepository.js';
+import { logger } from '../logger.js';
 
 /**
  * MnemosCallbackPayload — Estrutura do callback embutido nos botões inline.
@@ -167,14 +168,15 @@ export class MnemosHumanInTheLoopService {
     let filePath: string;
     try {
       filePath = Buffer.from(encodedPath, 'base64url').toString('utf-8');
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Mnemos Human In The Loop] encoding failed', error);
+    return {
         handled: true,
         responseText: '❌ Caminho do arquivo corrompido.',
         action: 'index_confirm',
         error: 'Base64 decode failure',
       };
-    }
+  }
 
     const fileName = filePath.split('/').pop() || filePath;
     this.logRepo.log('info', 'Mnemos', `Indexação confirmada pelo usuário: ${fileName}`);

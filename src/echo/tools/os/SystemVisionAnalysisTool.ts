@@ -13,20 +13,20 @@ type VisionAnalyzer = Pick<EchoVisionAnalysisService, 'analyzeScreenshot'>;
 export class SystemVisionAnalysisTool implements IZavorthTool {
   public readonly name = 'os_screen_vision';
   public readonly description =
-    'Captura a tela atual e usa um provider multimodal para descrever o que esta visivel, responder perguntas sobre a UI e sugerir o proximo passo. Requer aprovacao.';
+    'Captures the current screen and uses a multimodal provider to describe what is visible, answer UI questions, and suggest the next step. Requires approval.';
   public readonly category = 'OS' as const;
   public readonly dangerLevel = 'moderate' as const;
   public readonly requiresPermission = true;
 
   public readonly schema = z.object({
     question: z.string().min(3)
-      .describe('Pergunta ou instrucao sobre o que analisar na tela atual.'),
+      .describe('Question or instruction describing what to analyze on the current screen.'),
     mode: z.enum(['fullscreen', 'active_window']).default('active_window')
-      .describe('Modo de captura da tela.'),
+      .describe('Screen capture mode.'),
     returnBase64: z.boolean().default(false)
-      .describe('Se true, inclui a screenshot em base64 no payload de saida.'),
+      .describe('When true, includes the screenshot as base64 in the output payload.'),
     savePath: z.string().optional()
-      .describe('Caminho opcional para persistir a screenshot.'),
+      .describe('Optional path where the screenshot should be persisted.'),
   });
 
   constructor(
@@ -45,7 +45,7 @@ export class SystemVisionAnalysisTool implements IZavorthTool {
     if (!question) {
       return {
         success: false,
-        error: 'Pergunta de analise visual obrigatoria.',
+        error: 'Visual analysis question is required.',
       };
     }
 
@@ -57,7 +57,7 @@ export class SystemVisionAnalysisTool implements IZavorthTool {
     if (!captured.success) {
       return {
         success: false,
-        error: captured.error || captured.message || 'Falha ao capturar a tela para analise visual.',
+        error: captured.error || captured.message || 'Failed to capture the screen for visual analysis.',
       };
     }
 
@@ -66,7 +66,7 @@ export class SystemVisionAnalysisTool implements IZavorthTool {
     if (!base64) {
       return {
         success: false,
-        error: 'Screenshot capturado sem payload base64 para o provider multimodal.',
+        error: 'Screenshot was captured without a base64 payload for the multimodal provider.',
       };
     }
 

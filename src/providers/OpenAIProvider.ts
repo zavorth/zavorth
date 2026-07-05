@@ -23,8 +23,8 @@ export class OpenAIProvider implements ILlmProvider {
 
   constructor() {
     const keys =
-      Array.isArray((config as any).openaiApiKeys) && (config as any).openaiApiKeys.length > 0
-        ? (config as any).openaiApiKeys
+      Array.isArray(config.openaiApiKeys) && config.openaiApiKeys.length > 0
+        ? config.openaiApiKeys
         : [config.openaiApiKey].filter(Boolean);
 
     if (keys.length === 0) {
@@ -54,7 +54,7 @@ export class OpenAIProvider implements ILlmProvider {
           messages: convertChatMessagesToOpenAI(messages),
           tools: nativeToolPayload.tools,
           ...nativeToolPayload.extraBody,
-        } as any, buildProviderRequestOptions(options) as any);
+        } as OpenAI.ChatCompletionCreateParamsNonStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
         if (attempt > 0) {
           logger.info(`[OpenAI Failover] Request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
@@ -66,7 +66,7 @@ export class OpenAIProvider implements ILlmProvider {
         return {
           content: choice.message.content,
           toolCalls,
-          finishReason: choice.finish_reason as any,
+          finishReason: choice.finish_reason as LlmResponse['finishReason'],
           metadata: nativeToolPayload.metadata,
         };
       } catch (error: any) {
@@ -78,7 +78,7 @@ export class OpenAIProvider implements ILlmProvider {
       }
     }
 
-    throw lastError || new Error('Falha desconhecida no OpenAI');
+    throw lastError || new Error('Unknown OpenAI failure');
   }
 
   public async *streamChat(
@@ -102,13 +102,13 @@ export class OpenAIProvider implements ILlmProvider {
           tools: nativeToolPayload.tools,
           ...nativeToolPayload.extraBody,
           stream: true,
-        } as any, buildProviderRequestOptions(options) as any);
+        } as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
         if (attempt > 0) {
           logger.info(`[OpenAI Failover] Streaming request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
         }
         this.currentClientIndex = clientIndex;
-        yield* streamOpenAICompatibleCompletion(stream as any, nativeToolPayload.metadata);
+        yield* streamOpenAICompatibleCompletion(stream, nativeToolPayload.metadata);
         return;
       } catch (error: any) {
         if (isProviderAbortError(error, options?.signal)) {
@@ -119,7 +119,7 @@ export class OpenAIProvider implements ILlmProvider {
       }
     }
 
-    throw lastError || new Error('Falha desconhecida no OpenAI streaming');
+    throw lastError || new Error('Unknown OpenAI streaming failure');
   }
 
   private convertMessages(messages: ChatMessage[]): OpenAI.ChatCompletionMessageParam[] {
@@ -132,7 +132,7 @@ export class OpenAIProvider implements ILlmProvider {
           tool_call_id: message.toolCallId || 'unknown',
         };
         result.push(toolMsg);
-        // ZavorthControl controls: Se a tool response trouxer inlineData (screenshot/visão),
+        // ZavorthControl controls: If the tool response includes inlineData (screenshot/vision),
         // emite como mensagem 'user' complementar para que o modelo enxergue a imagem.
         if (message.inlineData && message.inlineData.length > 0) {
           const visionContent: Array<OpenAI.ChatCompletionContentPartText | OpenAI.ChatCompletionContentPartImage> = [

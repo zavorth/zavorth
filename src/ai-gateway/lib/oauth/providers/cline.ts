@@ -1,4 +1,5 @@
 import { CLINE_CONFIG } from "../constants/oauth";
+import { logger } from '@/shared/utils/logger';
 
 export const cline = {
   config: CLINE_CONFIG,
@@ -18,9 +19,7 @@ export const cline = {
       let base64 = code;
       try {
         base64 = decodeURIComponent(base64);
-      } catch {
-        /* already decoded */
-      }
+      } catch (error) { /* already decoded */ logger.warn('[cline] encoding failed', error); }
       const padding = 4 - (base64.length % 4);
       if (padding !== 4) {
         base64 += "=".repeat(padding);

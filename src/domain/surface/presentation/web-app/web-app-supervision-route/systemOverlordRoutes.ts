@@ -1,6 +1,8 @@
 import {
+  asLooseRecord,
   buildWebOperatorApprovalSafety,
   isSystemOverlordCapability,
+  normalizeSystemOverlordExecutionProfile,
   normalizeSystemOverlordAutonomyLevel,
 } from './helpers.js';
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
@@ -80,7 +82,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
       runId: String(body.runId || '').trim() || null,
       requestedBy: String(body.requestedBy || deps.runtime.webUserId || '').trim() || null,
       surface: String(body.surface || 'web-overlord').trim(),
-      profile: body.profile || null,
+      profile: normalizeSystemOverlordExecutionProfile(body.profile),
       autonomyLevel: normalizeSystemOverlordAutonomyLevel(body.autonomyLevel),
       capability,
       command: String(body.command || '').trim() || null,
@@ -89,7 +91,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
       approved: approvalSafety.operatorApprovalAccepted,
       dryRun: body.dryRun === true || approvalSafety.bodyApprovalIgnored,
       timeoutMs: Number(body.timeoutMs || 0) || null,
-      metadata: body.metadata && typeof body.metadata === 'object' ? body.metadata : null,
+      metadata: asLooseRecord(body.metadata),
     });
     deps.writeJson(res, { ok: true, ...result, safety: approvalSafety }, 200);
     return true;

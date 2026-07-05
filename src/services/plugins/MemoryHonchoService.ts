@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface UserProfile {
   id: string;
@@ -85,14 +86,14 @@ export class MemoryHonchoService {
       try {
         const data = this.sanitizeParsedData(JSON.parse(fs.readFileSync(profilesPath, 'utf-8'))) as Record<string, UserProfile>;
         this.profiles = new Map(Object.entries(data));
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Memory Honcho] JSON parse failed', error); }
     }
 
     if (fs.existsSync(conversationsPath)) {
       try {
         const data = this.sanitizeParsedData(JSON.parse(fs.readFileSync(conversationsPath, 'utf-8'))) as Record<string, DialecticTurn[]>;
         this.conversations = new Map(Object.entries(data));
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Memory Honcho] JSON parse failed', error); }
     }
   }
 

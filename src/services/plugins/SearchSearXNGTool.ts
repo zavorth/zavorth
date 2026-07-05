@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import { logger } from '../../logger.js';
 
 export class SearchSearXNGTool extends BaseTool {
   public readonly name = 'zavorth_searxng';
@@ -123,9 +124,7 @@ export class SearchSearXNGTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: unknown) {
-      return `SearXNG search error: ${error instanceof Error ? error.message : String(error)}. Check if the instance is running.`;
-    }
+    } catch (error) { logger.warn('[Search Sear X N G] parsing failed', error); return ''; }
   }
 
   private listInstances(): string {

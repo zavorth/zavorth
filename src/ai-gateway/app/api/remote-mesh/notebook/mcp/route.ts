@@ -5,6 +5,7 @@ import type {
   RemoteMeshNotebookMcpProxyApplyRequest,
 } from "../../../../../../contracts/RemoteMeshNotebookMcpProxyContract.js";
 import { RemoteMeshNotebookMcpProxyService } from "../../../../../../services/RemoteMeshNotebookMcpProxyService.js";
+import { logger } from '@/shared/utils/logger';
 
 export const runtime = "nodejs";
 
@@ -15,7 +16,8 @@ export async function POST(request: Request) {
   let payload: RemoteMeshNotebookMcpProxyApplyRequest;
   try {
     payload = await request.json() as RemoteMeshNotebookMcpProxyApplyRequest;
-  } catch {
+  } catch (error) {
+    logger.warn('[route] load operation failed', error);
     return NextResponse.json(
       { ok: false, error: "Invalid Remote Mesh MCP proxy JSON body." },
       { status: 400 },

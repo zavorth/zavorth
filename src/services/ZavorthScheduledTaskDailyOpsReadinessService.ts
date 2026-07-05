@@ -76,7 +76,6 @@ export class ZavorthScheduledTaskDailyOpsReadinessService {
         allUserActionsGoThroughGovernedSurfaces: true,
         hostTaskCertificationIsExplicit: true,
         noZavorthControlVisualMutation: true,
-        noZavorthControlVisualMutation: true,
         noDirectDispatcherBypass: true,
         rawSecretsSerialized: false,
       },

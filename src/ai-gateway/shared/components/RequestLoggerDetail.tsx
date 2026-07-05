@@ -8,8 +8,6 @@ import {
 } from "@/shared/constants/colors";
 import { formatDuration, formatApiKeyLabel } from "@/shared/utils/formatting";
 
-// â”€â”€â”€ Payload Code Block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 function PayloadSection({ title, json, onCopy }) {
   const [copied, setCopied] = useState(false);
 
@@ -43,10 +41,7 @@ function PayloadSection({ title, json, onCopy }) {
   );
 }
 
-// â”€â”€â”€ Detail Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 export default function RequestLoggerDetail({ log, detail, loading, onClose, onCopy }) {
-  // Close on Escape key
   useEffect(() => {
     const handler = (e) => {
       if (e.key === "Escape") onClose();
@@ -132,7 +127,6 @@ export default function RequestLoggerDetail({ log, detail, loading, onClose, onC
         className="relative bg-bg-primary border border-border rounded-xl w-full max-w-[900px] max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-border bg-bg-primary/95 backdrop-blur-sm rounded-t-xl">
           <div className="flex items-center gap-3">
             <span
@@ -154,7 +148,6 @@ export default function RequestLoggerDetail({ log, detail, loading, onClose, onC
         </div>
 
         <div className="p-6 flex flex-col gap-6">
-          {/* Metadata Grid */}
           <div
             className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-bg-subtle rounded-xl border border-border"
             data-testid="request-log-metadata-grid"
@@ -214,7 +207,7 @@ export default function RequestLoggerDetail({ log, detail, loading, onClose, onC
                     : "text-text-muted"
                 }`}
               >
-                {detail?.requestedModel || log.requestedModel || "â€”"}
+                {detail?.requestedModel || log.requestedModel || "-"}
               </div>
             </div>
             <div>
@@ -272,12 +265,11 @@ export default function RequestLoggerDetail({ log, detail, loading, onClose, onC
                   {detail?.comboName || log.comboName}
                 </span>
               ) : (
-                <div className="text-sm text-text-muted">â€”</div>
+                <div className="text-sm text-text-muted">-</div>
               )}
             </div>
           </div>
 
-          {/* Error Message */}
           {(detail?.error || log.error) && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30">
               <div className="text-[10px] text-red-600 dark:text-red-400 uppercase tracking-wider mb-1 font-bold">

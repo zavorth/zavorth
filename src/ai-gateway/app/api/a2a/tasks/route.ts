@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getTaskManager, type TaskState } from "@/lib/a2a/taskManager";
+import { logger } from '@/shared/utils/logger';
 
 const VALID_TASK_STATES = new Set<TaskState>([
   "submitted",
@@ -44,6 +45,7 @@ export async function GET(request: Request) {
       offset,
     });
   } catch (error) {
+    logger.warn('[route] validation failed', error);
     const message = error instanceof Error ? error.message : "Failed to list A2A tasks";
     return NextResponse.json({ error: message }, { status: 500 });
   }

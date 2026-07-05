@@ -20,6 +20,7 @@ import {
   type SubagentResultStatus,
 } from '../runtime/agent/subagents/index.js';
 import { CanonicalExecutionPipelineService } from '../services/CanonicalExecutionPipelineService.js';
+import { logger } from '../logger.js';
 
 export const SWARM_V2_OFFICIAL_CONTRACT_VERSION = '2026-05-17.official-swarm-v2' as const;
 
@@ -511,7 +512,7 @@ export class SwarmV2Service {
   public async waitForSwarm(swarmId: string): Promise<SwarmV2TrackedSnapshot> {
     const entry = this.swarms.get(String(swarmId || '').trim());
     if (!entry) {
-      throw new Error('Swarm v2 nao encontrado.');
+      throw new Error('Swarm v2 not found.');
     }
     const snapshot = await entry.execution;
     entry.lastSnapshot = snapshot;
@@ -679,7 +680,7 @@ export class SwarmV2Service {
       })),
       synthesisStatus: 'pending',
       synthesisMode: this.options.llmRuntime ? 'llm' : 'deterministic',
-      synthesisSummary: 'Sintese aguardando conclusao dos batches.',
+      synthesisSummary: 'Synthesis is waiting for batches to complete.',
       startedAt: createdAt,
       roleSelection: {
         ...autoSelection,
@@ -718,7 +719,7 @@ export class SwarmV2Service {
       });
     }
     for (const batch of batches) {
-      this.pushReplay(state, 'batch.queued', `Batch ${batch.index + 1} aguardando execucao.`, {
+      this.pushReplay(state, 'batch.queued', `Batch ${batch.index + 1} is waiting for execution.`, {
         batchId: batch.batchId,
         roleIds: batch.roleIds,
       });
@@ -756,20 +757,20 @@ export class SwarmV2Service {
   public cancelSwarm(swarmId: string): SwarmV2TrackedSnapshot {
     const entry = this.swarms.get(String(swarmId || '').trim());
     if (!entry) {
-      throw new Error('Swarm v2 nao encontrado.');
+      throw new Error('Swarm v2 not found.');
     }
     if (entry.officialState) {
       entry.orchestrator?.killAll();
       entry.officialState.queueStatus = 'cancelled';
       entry.officialState.synthesisStatus = 'failed';
-      entry.officialState.synthesisSummary = 'Swarm cancelado pelo operador.';
+      entry.officialState.synthesisSummary = 'Swarm cancelled by the operator.';
       for (const batch of entry.officialState.batches) {
         if (batch.status === 'queued' || batch.status === 'running') {
           batch.status = 'cancelled';
           batch.finishedAt = new Date().toISOString();
         }
       }
-      this.pushReplay(entry.officialState, 'swarm.cancelled', `Swarm ${entry.swarmId} cancelado pelo operador.`);
+      this.pushReplay(entry.officialState, 'swarm.cancelled', `Swarm ${entry.swarmId} cancelled by the operator.`);
       entry.lastSnapshot = this.withOfficialSurface({
         ...entry.lastSnapshot,
         status: 'cancelled',
@@ -783,7 +784,7 @@ export class SwarmV2Service {
       };
     }
     if (!entry.orchestrator) {
-      throw new Error('Swarm v2 nao possui orquestrador ativo.');
+      throw new Error('Swarm v2 has no active orchestrator.');
     }
     entry.orchestrator.killAll();
     const snapshot = entry.orchestrator.getSnapshot();
@@ -905,7 +906,7 @@ export class SwarmV2Service {
       ? state.synthesisSummary
       : await this.synthesizeOfficialOutput(state, allResults, finalStatus);
     state.synthesisSummary = finalStatus === 'cancelled'
-      ? 'Swarm cancelado pelo operador.'
+      ? 'Swarm cancelled by the operator.'
       : `Sintese oficial gerada com ${allResults.length}/${state.roles.length} role(s).`;
     this.pushReplay(state, 'swarm.synthesized', state.synthesisSummary, {
       outputChars: synthesizedOutput.length,
@@ -1428,9 +1429,7 @@ export class SwarmV2Service {
         availableRoleCount: input.library.length,
         rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Swarm V2] parsing failed', error); return fallback; }
   }
 
   private resolveSyncRoleSelection(input: {
@@ -1547,9 +1546,7 @@ export class SwarmV2Service {
       if (!match) return null;
       try {
         return JSON.parse(match[0]);
-      } catch {
-        return null;
-      }
+      } catch (error) { logger.warn('[Swarm V2] JSON parse failed', error); return null; }
     }
   }
 
@@ -1702,9 +1699,7 @@ export class SwarmV2Service {
       if (Array.isArray(parsed)) {
         return parsed.map((entry) => this.normalizeRoleLibraryEntry(entry)).filter(Boolean) as SwarmV2RoleLibraryEntry[];
       }
-    } catch {
-      // fall through to defaults
-    }
+    } catch (error) { // fall through to defaults logger.warn('[Swarm V2] JSON parse failed', error); }
     const seeded = this.defaultRoleLibrary();
     this.writeRoleLibrary(seeded);
     return seeded;
@@ -1752,11 +1747,11 @@ export class SwarmV2Service {
     const now = new Date().toISOString();
     return [
       ['planner', 'Planner', 'planner', 'Quebre a missao em etapas, riscos, dependencias, criterios de aceite e handoffs claros.'],
-      ['researcher', 'Researcher', 'researcher', 'Colete evidencias, arquivos, contexto e fatos. Trabalhe em modo read-only e cite lacunas.'],
+      ['researcher', 'Researcher', 'researcher', 'Collect evidence, files, context, and facts. Work in read-only mode and cite gaps.'],
       ['implementer', 'Implementer', 'implementer', 'Proponha ou execute a implementacao permitida, mantendo escopo, rollback e diffs pequenos.'],
-      ['verifier', 'Verifier', 'verifier', 'Valide testes, regressao, seguranca, criterios de aceite e riscos operacionais.'],
+      ['verifier', 'Verifier', 'verifier', 'Validate tests, regression risk, security, acceptance criteria, and operational risks.'],
       ['synthesizer', 'Synthesizer', 'synthesizer', 'Una os resultados dos demais agentes em uma resposta final objetiva, sem chain-of-thought bruto.'],
-      ['safety-reviewer', 'Safety Reviewer', 'critic', 'Procure riscos, permissao indevida, vazamento de segredo, prompt injection e acoes sem approval.'],
+      ['safety-reviewer', 'Safety Reviewer', 'critic', 'Look for risks, improper permission use, secret leaks, prompt injection, and actions without approval.'],
     ].map(([id, label, kind, systemPrompt]) => ({
       id,
       label,

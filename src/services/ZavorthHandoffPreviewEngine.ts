@@ -12,6 +12,7 @@ import {
   type ZavorthHandoffEnvelopeSectionId,
 } from '../contracts/ZavorthHandoffEnvelopeContract.js';
 import { ZavorthMnemosCompilerService } from './ZavorthMnemosCompilerService.js';
+import { logger } from '../logger.js';
 
 type HandoffFsRuntime = Pick<
   typeof fs,
@@ -80,9 +81,7 @@ export class ZavorthHandoffPreviewEngine {
               .map((line) => line.trim().replace(/^-\s*/, ''))
               .filter(Boolean);
           }
-        } catch {
-          // Fallback if read fails
-        }
+        } catch (error) { // Fallback if read fails logger.warn('[Zavorth Handoff Preview Engine] filesystem operation failed', error); }
       }
     }
     if (!architectureDecisions || architectureDecisions.length === 0) {
@@ -140,9 +139,7 @@ export class ZavorthHandoffPreviewEngine {
               .map((line) => line.trim().replace(/^-\s*/, ''))
               .filter(Boolean);
           }
-        } catch {
-          // Fallback if read fails
-        }
+        } catch (error) { // Fallback if read fails logger.warn('[Zavorth Handoff Preview Engine] filesystem operation failed', error); }
       }
     }
     if (!remainingTodos || remainingTodos.length === 0) {

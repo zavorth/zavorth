@@ -16,11 +16,11 @@ interface GatewaySessionStore {
     platform: string;
     chatId: string | null;
     sourceUserId: string | null;
-  }): { sessionId?: string } | null;
+  }): { sessionId?: string | null } | null;
 }
 
 interface RuntimeTaskManager {
-  getTask(taskId: string): { chat_id?: string } | null;
+  getTask(taskId: string): { chat_id?: string; chatId?: string } | null | undefined;
 }
 
 interface WebAppRuntime {
@@ -33,25 +33,25 @@ interface TaskWithChatId {
 }
 
 interface RuntimeServices {
-  gatewaySessionTools?: GatewaySessionToolsService;
-  gatewaySessionStore?: GatewaySessionStore;
-  sessionPlane?: ZavorthSessionPlaneService;
-  memoryPlane?: ZavorthMemoryPlaneService;
-  layeredMemory?: ZavorthLayeredMemoryService;
-  learningPlane?: ZavorthLearningPlaneService;
+  gatewaySessionTools?: GatewaySessionToolsService | null;
+  gatewaySessionStore?: GatewaySessionStore | null;
+  sessionPlane?: ZavorthSessionPlaneService | null;
+  memoryPlane?: ZavorthMemoryPlaneService | null;
+  layeredMemory?: ZavorthLayeredMemoryService | null;
+  learningPlane?: ZavorthLearningPlaneService | null;
 }
 
 interface Operations {
-  sessionPlane?: ZavorthSessionPlaneService;
-  memoryPlane?: ZavorthMemoryPlaneService;
-  layeredMemory?: ZavorthLayeredMemoryService;
-  learningPlane?: ZavorthLearningPlaneService;
+  sessionPlane?: ZavorthSessionPlaneService | null;
+  memoryPlane?: ZavorthMemoryPlaneService | null;
+  layeredMemory?: ZavorthLayeredMemoryService | null;
+  learningPlane?: ZavorthLearningPlaneService | null;
 }
 
 type WebAppRuntimeContextBridgeOptions = {
   operations: Operations;
   runtimeServices: RuntimeServices;
-  getRuntime: () => WebAppRuntime;
+  getRuntime: () => WebAppRuntime | null;
   getRealtime: () => WebRealtimeService | null;
   publicApi: CanonicalPublicApiService;
   realtimeTransport: WebAppRealtimeTransportService;
@@ -388,19 +388,19 @@ export class WebAppRuntimeContextBridge {
   }
 
   private getSessionPlaneService(): ZavorthSessionPlaneService | null {
-    return this.options.runtimeServices.sessionPlane || this.options.operations.sessionPlane;
+    return this.options.runtimeServices.sessionPlane || this.options.operations.sessionPlane || null;
   }
 
   private getMemoryPlaneService(): ZavorthMemoryPlaneService | null {
-    return this.options.operations.memoryPlane || this.options.runtimeServices.memoryPlane;
+    return this.options.operations.memoryPlane || this.options.runtimeServices.memoryPlane || null;
   }
 
   private getLayeredMemoryService(): ZavorthLayeredMemoryService | null {
-    return this.options.operations.layeredMemory || this.options.runtimeServices.layeredMemory;
+    return this.options.operations.layeredMemory || this.options.runtimeServices.layeredMemory || null;
   }
 
   private getLearningPlaneService(): ZavorthLearningPlaneService | null {
-    return this.options.operations.learningPlane || this.options.runtimeServices.learningPlane;
+    return this.options.operations.learningPlane || this.options.runtimeServices.learningPlane || null;
   }
 
   private buildHybridMemoryService(): HybridMemoryService | null {

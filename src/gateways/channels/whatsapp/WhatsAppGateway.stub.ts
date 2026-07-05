@@ -4,15 +4,16 @@ import { toDataURL } from 'qrcode';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
+import { logger } from '../../../logger.js';
 
-// Cloud API response when message is sent successfully
-interface CloudApiSendMessageSuccess {
-  messaging_product: string;
-  contacts: Array<{ input: string; wa_id: string }>;
-  messages: Array<{ id: string }>;
+interface CloudApiSendResult {
+  messaging_product?: string;
+  contacts?: Array<{ input: string; wa_id: string }>;
+  messages?: Array<{ id: string }>;
+  ok?: boolean;
+  error?: string | CloudApiErrorDetail;
 }
 
-// Cloud API error response structure
 interface CloudApiErrorDetail {
   message: string;
   type: string;
@@ -20,12 +21,6 @@ interface CloudApiErrorDetail {
   error_subcode?: number;
   fbtrace_id?: string;
 }
-
-// Unified result type for sendCloudApiTextMessage
-type CloudApiSendResult =
-  | CloudApiSendMessageSuccess
-  | { ok: false; error: string }
-  | { error: CloudApiErrorDetail };
 
 // Cloud API webhook message structure
 interface CloudApiWebhookMessage {
@@ -194,9 +189,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
 
     try {
       return JSON.parse(fs.readFileSync(config.whatsappStatusFile, 'utf8')) as WhatsAppGatewayStatusSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Whats App way.stub] JSON parse failed', error); return null; }
   }
 
   public async requestLoginQr(): Promise<WhatsAppLoginQrReceipt> {
@@ -209,8 +202,8 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
         ok: false,
         status: loginQr.state === 'connected' ? 'connected' : 'unsupported',
         summary: loginQr.state === 'connected'
-          ? 'WhatsApp ja esta conectado por Cloud API; este provider nao usa QR.'
-          : 'Este runtime do WhatsApp nao expoe login por QR.',
+          ? 'WhatsApp is already connected through Cloud API; this provider does not use QR.'
+          : 'This WhatsApp runtime does not expose QR login.',
         details: [loginQr.nextStep],
         loginQr,
       };
@@ -220,11 +213,11 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       return {
         ok: true,
         status: 'ready',
-        summary: 'QR de login do WhatsApp pronto para exibicao no operador.',
+        summary: 'WhatsApp login QR is ready for operator display.',
         details: [
-          'Mostre a imagem para o usuario autorizado escanear no WhatsApp.',
-          'O QR foi gerado a partir do runtime local/sessao configurada; nao foi enviado para provedores externos.',
-          loginQr.expiresAt ? `Expira em: ${loginQr.expiresAt}.` : 'Expiracao nao informada pelo provider atual.',
+          'Show the image to the authorized user for WhatsApp scanning.',
+          'The QR was generated from the configured local runtime/session; it was not sent to external providers.',
+          loginQr.expiresAt ? `Expires at: ${loginQr.expiresAt}.` : 'The current provider did not report an expiration time.',
         ],
         loginQr,
       };
@@ -233,10 +226,10 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     return {
       ok: false,
       status: loginQr.state === 'error' ? 'error' : 'pending',
-      summary: 'QR do WhatsApp ainda nao esta disponivel neste runtime.',
+      summary: 'WhatsApp QR is not available in this runtime yet.',
       details: [
         loginQr.nextStep,
-        'Defina WHATSAPP_QR_TEXT ou WHATSAPP_QR_TEXT_FILE em ambientes de teste, ou conecte uma bridge que publique qr.txt na sessao.',
+        'Set WHATSAPP_QR_TEXT or WHATSAPP_QR_TEXT_FILE in test environments, or connect a bridge that publishes qr.txt in the session.',
       ],
       loginQr,
     };
@@ -251,10 +244,10 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       return {
         ok: false,
         status: 'manual',
-        summary: 'WhatsApp Cloud API nao usa relink por QR neste runtime.',
+        summary: 'WhatsApp Cloud API does not use QR relink in this runtime.',
         details: [
-          'Rotacione WHATSAPP_ACCESS_TOKEN e webhook verify token no painel da Meta quando precisar religar o canal.',
-          'Depois da rotacao, valide /api/webhooks/whatsapp e rode /channels broadcast-test whatsapp.',
+          'Rotate WHATSAPP_ACCESS_TOKEN and the webhook verify token in Meta when you need to reconnect the channel.',
+          'After rotation, validate /api/webhooks/whatsapp and run /channels broadcast-test whatsapp.',
         ],
       };
     }
@@ -269,10 +262,10 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     return {
       ok: true,
       status: 'applied',
-      summary: 'Pareamento local do WhatsApp preparado com receipt auditavel.',
+      summary: 'Local WhatsApp pairing was prepared with an auditable receipt.',
       details: [
-        'O runtime local foi marcado como aguardando novo pareamento sem apagar credenciais persistentes automaticamente.',
-        'Solicite /channels login-qr whatsapp quando a bridge publicar um qr.txt atualizado na sessao.',
+        'The local runtime was marked as waiting for new pairing without automatically deleting persistent credentials.',
+        'Request /channels login-qr whatsapp when the bridge publishes an updated qr.txt in the session.',
         `Receipt: ${receiptFile}.`,
       ],
       receiptFile,
@@ -289,10 +282,10 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       return {
         ok: false,
         status: 'manual',
-        summary: 'WhatsApp Cloud API exige logout/revogacao no painel oficial da Meta.',
+        summary: 'WhatsApp Cloud API requires logout/revocation in the official Meta console.',
         details: [
-          'O runtime local foi parado, mas token e webhook devem ser revogados fora do Zavorth.',
-          'Mantenha allowlists e audit logs intactos ate concluir a investigacao ou migracao.',
+          'The local runtime was stopped, but the token and webhook must be revoked outside Zavorth.',
+          'Keep allowlists and audit logs intact until the investigation or migration is complete.',
         ],
       };
     }
@@ -306,10 +299,10 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     return {
       ok: true,
       status: 'applied',
-      summary: 'Sessao local do WhatsApp encerrada no runtime supervisionado.',
+      summary: 'Local WhatsApp session closed in the supervised runtime.',
       details: [
-        'O Zavorth parou o runtime local e registrou logout sem remover arquivos sensiveis da sessao automaticamente.',
-        'Remova ou rotacione credenciais persistentes somente apos confirmacao operacional.',
+        'Zavorth stopped the local runtime and recorded logout without automatically removing sensitive session files.',
+        'Remove or rotate persistent credentials only after operational confirmation.',
         `Receipt: ${receiptFile}.`,
       ],
       receiptFile,
@@ -330,17 +323,17 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     if (this.getProviderMode() !== 'cloud-api') {
       return {
         statusCode: 503,
-        textBody: 'WhatsApp Cloud API indisponivel neste runtime.',
+        textBody: 'WhatsApp Cloud API is unavailable in this runtime.',
       };
     }
 
     const verifyToken = String(config.whatsappWebhookVerifyToken || '').trim();
     if (!verifyToken) {
-      this.lastError = 'WhatsApp Cloud API exige WHATSAPP_WEBHOOK_VERIFY_TOKEN configurado.';
+      this.lastError = 'WhatsApp Cloud API requires WHATSAPP_WEBHOOK_VERIFY_TOKEN to be configured.';
       this.writeStatus();
       return {
         statusCode: 503,
-        textBody: 'WhatsApp webhook verify token ausente.',
+        textBody: 'WhatsApp webhook verify token is missing.',
       };
     }
 
@@ -349,7 +342,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     const challenge = String(url.searchParams.get('hub.challenge') || '').trim();
 
     if (mode !== 'subscribe' || token !== verifyToken) {
-      this.lastError = 'WhatsApp Cloud API rejeitou a verificacao do webhook.';
+      this.lastError = 'WhatsApp Cloud API rejected webhook verification.';
       this.writeStatus();
       return {
         statusCode: 403,
@@ -374,7 +367,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     if (this.getProviderMode() !== 'cloud-api') {
       return {
         statusCode: 503,
-        body: { ok: false, error: 'WhatsApp Cloud API indisponivel neste runtime.' },
+        body: { ok: false, error: 'WhatsApp Cloud API is unavailable in this runtime.' },
       };
     }
 
@@ -416,14 +409,14 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
 
   public async broadcast(message: string): Promise<void> {
     if (!this.started) {
-      this.lastError = `WhatsApp ${this.getProviderLabel()} ainda nao foi iniciado.`;
+      this.lastError = `WhatsApp ${this.getProviderLabel()} has not started yet.`;
       this.writeStatus();
       throw new Error(this.lastError);
     }
 
     const recipients = this.resolveBroadcastRecipients();
     if (recipients.length === 0) {
-      this.lastError = `WhatsApp ${this.getProviderLabel()} nao tem chats permitidos configurados.`;
+      this.lastError = `WhatsApp ${this.getProviderLabel()} has no configured allowed chats.`;
       this.writeStatus();
       throw new Error(this.lastError);
     }
@@ -529,7 +522,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
           return { value, source: candidate };
         }
       } catch (error) {
-        this.lastError = `Nao foi possivel ler o QR do WhatsApp em ${candidate}: ${error instanceof Error ? error.message : String(error)}`;
+        this.lastError = `Could not read the WhatsApp QR from ${candidate}: ${error instanceof Error ? error.message : String(error)}`;
         return null;
       }
     }
@@ -554,7 +547,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       return {
         ...status,
         state: 'pending',
-        nextStep: 'A bridge local ainda nao publicou um QR valido para leitura.',
+        nextStep: 'The local bridge has not published a valid readable QR yet.',
       };
     }
 
@@ -570,14 +563,15 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
         updatedAt: new Date().toISOString(),
       };
     } catch (error) {
-      return {
+    logger.warn('[Whats App way.stub] validation failed', error);
+    return {
         ...status,
         state: 'error',
         dataUrl: null,
         updatedAt: new Date().toISOString(),
-        nextStep: `Falha ao gerar imagem do QR do WhatsApp: ${error instanceof Error ? error.message : String(error)}`,
+        nextStep: `Failed to generate WhatsApp QR image: ${error instanceof Error ? error.message : String(error)}`,
       };
-    }
+  }
   }
 
   private buildLoginQrStatusSnapshot(): WhatsAppLoginQrSnapshot {
@@ -593,7 +587,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
         expiresAt: null,
         updatedAt,
         nextStep: this.isProviderConfigured(provider)
-          ? 'Cloud API usa webhook/token permanente; monitore /api/webhooks/whatsapp em vez de QR.'
+          ? 'Cloud API uses a persistent webhook/token; monitor /api/webhooks/whatsapp instead of QR.'
           : 'Complete WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_ACCESS_TOKEN e WHATSAPP_WEBHOOK_VERIFY_TOKEN.',
       };
     }
@@ -610,8 +604,8 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
         expiresAt,
         updatedAt,
         nextStep: expired
-          ? 'QR expirado; solicite relink ou reinicie a bridge local para publicar um qr.txt novo.'
-          : 'Exiba o QR para parear a sessao local supervisionada do WhatsApp.',
+          ? 'QR expired; request relink or restart the local bridge to publish a new qr.txt.'
+          : 'Display the QR to pair the supervised local WhatsApp session.',
       };
     }
 
@@ -623,8 +617,8 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       expiresAt: null,
       updatedAt,
       nextStep: String(config.whatsappSessionDir || '').trim()
-        ? 'Aguardando a bridge local publicar qr.txt dentro da sessao do WhatsApp.'
-        : 'Defina WHATSAPP_SESSION_DIR ou conecte uma bridge local antes de solicitar QR.',
+        ? 'Waiting for the local bridge to publish qr.txt inside the WhatsApp session.'
+        : 'Set WHATSAPP_SESSION_DIR or connect a local bridge before requesting QR.',
     };
   }
 
@@ -664,22 +658,15 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
 
     for (const recipient of recipients) {
       const payload = await this.sendCloudApiTextMessage(recipient, message);
-      const responseError = typeof payload?.error?.message === 'string'
-        ? payload.error.message
-        : typeof payload?.error === 'string'
-          ? payload.error
-          : null;
-      if (payload?.messages && Array.isArray(payload.messages) && payload.messages.length > 0) {
-        continue;
-      }
-      if (payload?.ok === true) {
+      const responseError = this.describeCloudApiSendError(payload);
+      if (this.isCloudApiSendSuccess(payload)) {
         continue;
       }
       failures.push(`${recipient}: ${responseError || 'unknown_error'}`);
     }
 
     if (failures.length > 0) {
-      this.lastError = `WhatsApp Cloud API falhou em ${failures.length} chat(s): ${failures.join(' | ')}`;
+      this.lastError = `WhatsApp Cloud API failed for ${failures.length} chat(s): ${failures.join(' | ')}`;
       this.writeStatus();
       throw new Error(this.lastError);
     }
@@ -694,13 +681,9 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       const payload = await this.sendCloudApiTextMessage(chatId, text, {
         contextMessageId: replyToMessageId,
       });
-      const responseError = typeof payload?.error?.message === 'string'
-        ? payload.error.message
-        : typeof payload?.error === 'string'
-          ? payload.error
-          : null;
-      if (!payload?.messages && payload?.ok !== true) {
-        this.lastError = `WhatsApp Cloud API nao conseguiu responder em ${chatId}: ${responseError || 'unknown_error'}`;
+      const responseError = this.describeCloudApiSendError(payload);
+      if (!this.isCloudApiSendSuccess(payload)) {
+        this.lastError = `WhatsApp Cloud API could not reply in ${chatId}: ${responseError || 'unknown_error'}`;
         this.writeStatus();
         throw new Error(this.lastError);
       }
@@ -726,13 +709,9 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       const payload = await this.sendCloudApiTextMessage(chatId, text, {
         contextMessageId: messageId,
       });
-      const responseError = typeof payload?.error?.message === 'string'
-        ? payload.error.message
-        : typeof payload?.error === 'string'
-          ? payload.error
-          : null;
-      if (!payload?.messages && payload?.ok !== true) {
-        this.lastError = `WhatsApp Cloud API nao conseguiu enviar a atualizacao da mensagem ${messageId}: ${responseError || 'unknown_error'}`;
+      const responseError = this.describeCloudApiSendError(payload);
+      if (!this.isCloudApiSendSuccess(payload)) {
+        this.lastError = `WhatsApp Cloud API could not send the message update ${messageId}: ${responseError || 'unknown_error'}`;
         this.writeStatus();
         throw new Error(this.lastError);
       }
@@ -758,12 +737,12 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     const accessToken = String(config.whatsappAccessToken || '').trim();
     const apiVersion = String(config.whatsappCloudApiVersion || 'v20.0').trim() || 'v20.0';
     if (!phoneNumberId || !accessToken) {
-      this.lastError = 'WhatsApp Cloud API exige WHATSAPP_PHONE_NUMBER_ID e WHATSAPP_ACCESS_TOKEN.';
+      this.lastError = 'WhatsApp Cloud API requires WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_ACCESS_TOKEN.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
     if (!this.fetchImpl) {
-      this.lastError = 'WhatsApp Cloud API exige fetch disponivel no runtime.';
+      this.lastError = 'WhatsApp Cloud API requires fetch to be available in the runtime.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
@@ -797,15 +776,37 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     let responsePayload: CloudApiSendResult | null = null;
     try {
       responsePayload = await response.json() as CloudApiSendResult;
-    } catch {
-      responsePayload = null;
-    }
+    } catch (error) {
+    logger.warn('[Whats App way.stub] load operation failed', error);
+    responsePayload = null;
+  }
 
     if (!response.ok && !responsePayload) {
       return { ok: false, error: `HTTP ${response.status}` };
     }
 
-    return responsePayload || { ok: response.ok };
+    return responsePayload || {
+      messaging_product: 'whatsapp',
+      ok: response.ok,
+    };
+  }
+
+  private isCloudApiSendSuccess(payload: CloudApiSendResult | null): boolean {
+    return Boolean(
+      payload?.ok === true
+      || (Array.isArray(payload?.messages) && payload.messages.length > 0),
+    );
+  }
+
+  private describeCloudApiSendError(payload: CloudApiSendResult | null): string | null {
+    const error = payload?.error;
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (error && typeof error.message === 'string') {
+      return error.message;
+    }
+    return null;
   }
 
   private extractCloudApiMessages(body: Record<string, unknown>): CloudApiWebhookMessage[] {
@@ -827,7 +828,8 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
           continue;
         }
         const valueMessages = Array.isArray(value.messages)
-          ? value.messages as Array<Record<string, unknown>>
+          ? value.messages.filter((message): message is CloudApiWebhookMessage =>
+              Boolean(message && typeof message === 'object'))
           : [];
         messages.push(...valueMessages);
       }
@@ -901,11 +903,11 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       qrFile: provider === 'cloud-api' ? null : this.defaultQrTextFile(),
       destructive: false,
       note: kind === 'relink'
-        ? 'Relink preparado sem apagar sessao persistente automaticamente.'
-        : 'Logout local registrado sem remover credenciais persistentes automaticamente.',
+        ? 'Relink prepared without automatically deleting the persistent session.'
+        : 'Local logout recorded without automatically removing persistent credentials.',
       nextStep: kind === 'relink'
-        ? 'Solicite /channels login-qr whatsapp apos a bridge publicar qr.txt.'
-        : 'Revogue/remova credenciais persistentes manualmente quando a operacao exigir.',
+        ? 'Request /channels login-qr whatsapp after the bridge publishes qr.txt.'
+        : 'Revoke/remove persistent credentials manually when the operation requires it.',
     };
     const receiptFile = path.join(
       config.whatsappOutboxDir,
@@ -920,9 +922,9 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       return 'Meta WhatsApp Cloud API';
     }
     if (provider === 'baileys') {
-      return 'Bridge local Baileys';
+      return 'Local Baileys bridge';
     }
-    return 'Outbox local supervisionado';
+    return 'Supervised local outbox';
   }
 
   private buildProviderDecision(
@@ -931,15 +933,15 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
   ): string {
     if (provider === 'cloud-api') {
       return providerConfigured
-        ? 'Cloud API conectada; webhook verification, inbound e outbound oficial estao ativos.'
-        : 'Cloud API escolhida como provider-alvo, mas ainda faltam credenciais minimas para ativar o runtime.';
+        ? 'Cloud API connected; webhook verification, official inbound, and official outbound are active.'
+        : 'Cloud API selected as the target provider, but minimum credentials are still missing to activate the runtime.';
     }
     if (provider === 'baileys') {
       return providerConfigured
-        ? 'Baileys escolhido como provider-alvo com sessao local supervisionada configurada.'
-        : 'Baileys escolhido como provider-alvo; falta configurar WHATSAPP_SESSION_DIR.';
+        ? 'Baileys selected as the target provider with a configured supervised local session.'
+        : 'Baileys selected as the target provider; WHATSAPP_SESSION_DIR still needs to be configured.';
     }
-    return 'Stub local mantido enquanto o provider oficial do WhatsApp nao e conectado.';
+    return 'Local stub is kept until the official WhatsApp provider is connected.';
   }
 
   private buildRecipientPolicy(recipients: string[]): WhatsAppRecipientPolicySnapshot {
@@ -949,8 +951,8 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
       allowedCount: count,
       allowlistConfigured: count > 0,
       summary: count > 0
-        ? `${count} chat(s) permitidos por WHATSAPP_ALLOWED_CHAT_IDS.`
-        : 'Nenhum chat permitido; outbound real fica bloqueado ate configurar allowlist.',
+        ? `${count} chat(s) allowed by WHATSAPP_ALLOWED_CHAT_IDS.`
+        : 'No allowed chats; real outbound remains blocked until an allowlist is configured.',
     };
   }
 

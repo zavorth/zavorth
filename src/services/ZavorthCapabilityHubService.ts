@@ -27,6 +27,7 @@ import { SkillCatalogService } from '../skills/SkillCatalogService.js';
 import type { SkillCatalogEntry } from '../skills/SkillCatalogContract.js';
 import { SkillRecipeService, type SkillRecipeSnapshot } from './SkillRecipeService.js';
 import { ZavorthCapabilityImportService } from './ZavorthCapabilityImportService.js';
+import { logger } from '../logger.js';
 
 type CapabilityRegistryLike = Pick<CapabilityRegistry, 'getAll'>;
 type ChannelRegistryLike = Pick<GatewayChannelRegistryService, 'buildSnapshot'>;
@@ -170,16 +171,15 @@ export class ZavorthCapabilityHubService {
   private safeChannelEntries(): GatewayChannelRegistryEntry[] {
     try {
       return this.channelRegistryService.buildSnapshot().channels;
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Capability Hub] creation failed', error); return []; }
   }
 
   private safeIntegrationSnapshot(): IntegrationCatalogSnapshot {
     try {
       return this.integrationHubService.buildCatalogSnapshot();
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Capability Hub] creation failed', error);
+    return {
         generatedAt: this.now().toISOString(),
         entries: [],
         featuredIds: [],
@@ -226,7 +226,7 @@ export class ZavorthCapabilityHubService {
         },
         selected: null,
       };
-    }
+  }
   }
 
   private providerEntries(snapshot: IntegrationCatalogSnapshot): IntegrationHubProviderEntry[] {
@@ -240,9 +240,7 @@ export class ZavorthCapabilityHubService {
   private safeImportedItems(): CapabilityHubItem[] {
     try {
       return this.capabilityImportService.listCapabilityHubItems();
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Capability Hub] module import failed', error); return []; }
   }
 
   private fromRuntimeCapability(entry: CapabilityDefinition): CapabilityHubItem {

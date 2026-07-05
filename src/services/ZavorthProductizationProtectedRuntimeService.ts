@@ -62,14 +62,7 @@ export type ZavorthProductizationProtectedRuntimeSnapshot = {
   mission: ZavorthMissionContract;
   receipt: ZavorthVisualReceiptContract;
   zavorthControlProjection: {
-    route: '/zavorthControl';
-    executionAuthority: false;
-    approvalRequiredForMutableActions: true;
-    visualBlocksRequireOwnerApproval: true;
-    endpoints: string[];
-  };
-  zavorthControlProjection: {
-    route: '/control';
+    route: '/zavorthControl' | '/control';
     executionAuthority: false;
     approvalRequiredForMutableActions: true;
     visualBlocksRequireOwnerApproval: true;
@@ -193,7 +186,6 @@ export class ZavorthProductizationProtectedRuntimeService {
       templates,
       mission,
       receipt,
-      zavorthControlProjection: buildProtectedRuntimeProjection('/zavorthControl'),
       zavorthControlProjection: buildProtectedRuntimeProjection('/control'),
       cli: {
         commands: [

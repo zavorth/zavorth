@@ -10,6 +10,7 @@
 
 import crypto from "crypto";
 import { safeParseInt } from "../shared/utils/safeParseInt.js";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * @typedef {Object} CacheEntry
@@ -132,9 +133,7 @@ export class LRUCache {
   #estimateSize(value: unknown): number {
     try {
       return JSON.stringify(value).length * 2;
-    } catch {
-      return 1024;
-    }
+    } catch (error) { logger.warn('[cache Layer] cache operation failed', error); return 1024; }
   }
 
   /**

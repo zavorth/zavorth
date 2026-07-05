@@ -9,8 +9,9 @@ import type {
 import type { ZavorthGovernedSubagentProfile } from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
 import { buildUntrustedContentFirewallInstruction } from '../security/UntrustedContent.js';
 import { wrapToolOutputForLlm } from '../security/ToolOutputTrust.js';
+import { logger } from '../logger.js';
 import {
-  decideSecurityPolicy,
+decideSecurityPolicy,
   type SecurityPolicyBrokerDecision,
 } from '../security/SecurityPolicyBroker.js';
 
@@ -269,9 +270,10 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
         try {
           toolResult = await this.toolRuntime.executeTool(toolCall.name, toolCall.arguments);
           toolStats.executed += 1;
-        } catch (error: unknown) {
-          toolResult = `Tool ${toolCall.name} failed: ${error instanceof Error ? error.message : String(error)}`;
-        }
+        } catch (error) {
+    logger.warn('[Zavorth Live Subagent Execution] process execution failed', error);
+    toolResult = `Tool ${toolCall.name} failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
         toolMessages.push({
           role: 'tool',
           toolCallId: toolCall.id,

@@ -7,6 +7,7 @@ import {
   type YouTubeOEmbedResponse,
 } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
 import { VideoHandlerFetchSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFetchSupport.js";
+import { logger } from '../../../../logger';
 
 export class VideoHandlerUrlSupport {
   public static extractInstructionFromText(text: string, url: string): string {
@@ -36,9 +37,7 @@ export class VideoHandlerUrlSupport {
       const parsed = new URL(url);
       const host = parsed.hostname.toLowerCase();
       return host.includes("youtube.com") || host.includes("youtu.be");
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Video  Url] parsing failed', error); return false; }
   }
 
   public static isDirectVideoUrl(url: string): boolean {
@@ -47,9 +46,7 @@ export class VideoHandlerUrlSupport {
       return SUPPORTED_VIDEO_EXTENSIONS.has(
         path.extname(parsed.pathname).toLowerCase(),
       );
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Video  Url] parsing failed', error); return false; }
   }
 
   public static extractYouTubeVideoId(url: string): string | null {
@@ -75,9 +72,7 @@ export class VideoHandlerUrlSupport {
       }
 
       return null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Video  Url] parsing failed', error); return null; }
   }
 
   public static async fetchYouTubeOEmbed(
@@ -89,8 +84,6 @@ export class VideoHandlerUrlSupport {
       return typeof response === "object" && response !== null
         ? (response as YouTubeOEmbedResponse)
         : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Video  Url] network request failed', error); return null; }
   }
 }

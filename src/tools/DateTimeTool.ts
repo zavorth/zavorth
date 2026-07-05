@@ -1,17 +1,18 @@
 import { BaseTool } from './BaseTool.js';
+import { logger } from '../logger.js';
 
 /**
- * DateTimeTool â€” Retorna a data e hora atuais do sistema.
+ * Returns the current system date and time.
  */
 export class DateTimeTool extends BaseTool {
   readonly name = 'get_datetime';
-  readonly description = 'Retorna a data e hora atuais do sistema local. Use quando o usuÃ¡rio perguntar que horas sÃ£o, que dia Ã© hoje, ou qualquer informaÃ§Ã£o temporal.';
+  readonly description = 'Returns the current date and time from the local system. Use it when the user asks what time it is, what day it is, or any temporal information.';
   readonly parameters = {
     type: 'object' as const,
     properties: {
       timezone: {
         type: 'string',
-        description: 'Fuso horÃ¡rio desejado (ex: America/Sao_Paulo). PadrÃ£o: fuso local do sistema.',
+        description: 'Desired time zone, for example America/Sao_Paulo. Defaults to the local system time zone.',
       },
     },
     required: [] as string[],
@@ -39,7 +40,8 @@ export class DateTimeTool extends BaseTool {
         timezone,
       });
     } catch (error) {
-      return JSON.stringify({ error: `Fuso horÃ¡rio invÃ¡lido: ${timezone}` });
-    }
+    logger.warn('[Date Time] serialization failed', error);
+    return JSON.stringify({ error: `Invalid time zone: ${timezone}` });
+  }
   }
 }

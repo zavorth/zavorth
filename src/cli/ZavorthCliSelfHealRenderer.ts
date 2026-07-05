@@ -9,7 +9,7 @@ import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.j
 function compact(value: string | null | undefined, maxLength = 96): string {
   const normalized = sanitizeHumanCliText(value || '').replace(/\s+/g, ' ').trim();
   if (!normalized) {
-    return 'nao informado';
+    return 'not provided';
   }
   if (normalized.length <= maxLength) {
     return normalized;
@@ -63,12 +63,12 @@ export function formatSelfHealPlan(snapshot: ZavorthSelfHealPlanSnapshot): strin
     {
       title: 'Plano',
       tone: snapshot.plan.length > 0 ? 'brand' : 'neutral',
-      lines: actionLines.length > 0 ? actionLines : ['- nenhuma recuperacao necessaria agora'],
+      lines: actionLines.length > 0 ? actionLines : ['- no recovery needed right now'],
     },
     {
       title: 'Outbox',
       tone: snapshot.outbox.length > 0 ? 'warning' : 'success',
-      lines: outboxLines.length > 0 ? outboxLines : ['- sem acao sensivel pendente'],
+      lines: outboxLines.length > 0 ? outboxLines : ['- sem acao sensivel pending'],
     },
     {
       title: 'Budgets',
@@ -88,11 +88,11 @@ export function formatSelfHealPlan(snapshot: ZavorthSelfHealPlanSnapshot): strin
       title: 'Contratos',
       tone: Object.values(snapshot.contracts).every(Boolean) ? 'success' : 'warning',
       lines: [
-        `- preview read-only: ${snapshot.contracts.previewDoesNotExecute ? 'sim' : 'nao'}`,
-        `- policy/trust: ${snapshot.contracts.applyRespectsTrustPolicy ? 'sim' : 'revisar'}`,
-        `- watchdog lazy: ${snapshot.contracts.nothingAlwaysOnWithoutExplicitConfig ? 'sim' : 'nao'}`,
-        `- budget obrigatorio: ${snapshot.contracts.everyAutomationHasBudget ? 'sim' : 'nao'}`,
-        `- pausa repeticao: ${snapshot.contracts.repeatedFailuresPause ? 'sim' : 'nao'}`,
+        `- preview read-only: ${snapshot.contracts.previewDoesNotExecute ? 'yes' : 'no'}`,
+        `- policy/trust: ${snapshot.contracts.applyRespectsTrustPolicy ? 'yes' : 'review'}`,
+        `- watchdog lazy: ${snapshot.contracts.nothingAlwaysOnWithoutExplicitConfig ? 'yes' : 'no'}`,
+        `- budget required: ${snapshot.contracts.everyAutomationHasBudget ? 'yes' : 'no'}`,
+        `- repeat pause: ${snapshot.contracts.repeatedFailuresPause ? 'yes' : 'no'}`,
       ],
     },
     {
@@ -114,7 +114,7 @@ export function formatSelfHealPlan(snapshot: ZavorthSelfHealPlanSnapshot): strin
         ? 'warning'
         : 'brand',
     title: 'Operacao continua supervisionada',
-    summary: formatCliValue(snapshot.narrative.headline, 'Self-Heal pronto.'),
+    summary: formatCliValue(snapshot.narrative.headline, 'Self-Heal ready.'),
     mode: 'compact',
     showWordmark: false,
     panels,

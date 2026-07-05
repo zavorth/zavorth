@@ -20,7 +20,7 @@ import { StatusBadge, SurfaceCard } from './ProductPolishComponents';
 
 export const WorkspaceRuntimeReadinessCard: React.FC<{ readiness: WorkspaceRuntimeReadiness | null }> = ({ readiness }) => {
   if (!readiness) {
-    return <div className="readiness-card loading">Carregando status de prontidão...</div>;
+    return <div className="readiness-card loading">Loading readiness status...</div>;
   }
 
   // Prevent leaking any sensitive info by filtering message text just in case (though it should be sanitized at API level)

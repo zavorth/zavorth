@@ -1,7 +1,8 @@
 import type { SkillCatalogEntry } from '../skills/SkillCatalogContract.js';
 import { SkillCatalogService } from '../skills/SkillCatalogService.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthSkillCapabilityTag,
+ZavorthSkillCapabilityTag,
   ZavorthSkillEcosystemImporterSnapshot,
   ZavorthSkillManifest,
   ZavorthSkillPermissionProfileId,
@@ -188,9 +189,7 @@ export class ZavorthSkillEcosystemImporterService {
     }
     try {
       return this.skillCatalogService.listEntries();
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Skill Ecosystem Importer] load operation failed', error); return []; }
   }
 
   private materializeManifest(spec: ManifestSpec): ZavorthSkillManifest {

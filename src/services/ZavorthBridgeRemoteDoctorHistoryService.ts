@@ -4,8 +4,9 @@ import type {
   ZavorthBridgeRemoteDoctorAction,
   ZavorthBridgeRemoteDoctorReport,
 } from './ZavorthBridgeRemoteDoctorService.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthBridgeRemoteIncidentCode,
+ZavorthBridgeRemoteIncidentCode,
   ZavorthBridgeRemoteIncidentSeverity,
   ZavorthBridgeRemoteIncidentSummary,
 } from './ZavorthBridgeRemoteIncidentService.js';
@@ -63,9 +64,7 @@ export class ZavorthBridgeRemoteDoctorHistoryService {
     try {
       const parsed = JSON.parse(fs.readFileSync(historyFilePath, 'utf8'));
       return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Remote Doctor History] JSON parse failed', error); return []; }
   }
 
   public async appendReport(

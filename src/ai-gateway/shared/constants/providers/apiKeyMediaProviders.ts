@@ -98,6 +98,6 @@ export const APIKEY_MEDIA_PROVIDERS = {
     textIcon: "HF",
     website: "https://huggingface.co",
     hasFree: true,
-    freeNote: "Free Inference API for thousands of models (Whisper, VITS, SDXLâ€¦)",
+    freeNote: "Free Inference API for thousands of models (Whisper, VITS, SDXL...)",
   },
 };

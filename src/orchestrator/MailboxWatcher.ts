@@ -79,9 +79,9 @@ export class MailboxWatcher {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    this.logRepo.log('info', 'MailboxWatcher', 'Realizando escaneamento inicial do inbox da mailbox...');
+    this.logRepo.log('info', 'MailboxWatcher', 'Running initial mailbox inbox scan...');
     await this.processInbox().catch((error) => {
-      this.logRepo.log('error', 'MailboxWatcher', `Erro no scan inicial: ${error.message}`);
+      this.logRepo.log('error', 'MailboxWatcher', `Initial scan error: ${error.message}`);
     });
 
     fs.watch(this.inboxDir, async () => {
@@ -97,7 +97,7 @@ export class MailboxWatcher {
       }
     });
 
-    this.logRepo.log('info', 'MailboxWatcher', `Vigiando inbox da mailbox (FS Watch): ${this.inboxDir}`);
+    this.logRepo.log('info', 'MailboxWatcher', `Watching mailbox inbox (FS Watch): ${this.inboxDir}`);
   }
 
   private async processInbox() {
@@ -116,7 +116,7 @@ export class MailboxWatcher {
   private async processMessageFile(messagePath: string): Promise<void> {
     const content = await fs.promises.readFile(messagePath, 'utf8');
 
-    // Usa o adapter universal V2 que aceita tanto V1 (.msg) quanto V2 (.json)
+    // Uses the universal V2 adapter that accepts both V1 (.msg) and V2 (.json).
     const parsed = this.bridgeAdapter.parseUniversal(content);
     if (!parsed.accepted) {
       const reason = parsed.reason;
@@ -129,7 +129,7 @@ export class MailboxWatcher {
     const envelope = parsed.envelope;
     const originalVersion = parsed.originalVersion;
     if (this.hasProcessedMessageId(envelope.messageId)) {
-      const replayReason = `Mensagem rejeitada: replay detectado para ${envelope.messageId}.`;
+      const replayReason = `Message rejected: replay detected for ${envelope.messageId}.`;
       this.logRepo.log('warn', 'MailboxWatcher', replayReason);
       await this.moveMessageFile(messagePath, this.rejectedDir, 'rejected');
       await this.writeMailboxStatus('REJECTED', replayReason);
@@ -140,9 +140,9 @@ export class MailboxWatcher {
     await this.moveMessageFile(messagePath, this.processedDir, 'processed');
     await this.writeMailboxStatus('CONSUMED', `message_id=${envelope.messageId}`);
 
-    this.logRepo.log('info', 'MailboxWatcher', `[${originalVersion}] Iniciando plano autonomo para: ${envelope.payload.prompt}`);
+    this.logRepo.log('info', 'MailboxWatcher', `[${originalVersion}] Starting autonomous plan for: ${envelope.payload.prompt}`);
     await this.broadcaster.broadcast(
-      `Motor autonomo acordou.\nEstou lendo o inbox da mailbox...\nComando capturado: ${envelope.payload.prompt}`,
+      `Autonomous engine woke up.\nReading the mailbox inbox...\nCaptured command: ${envelope.payload.prompt}`,
     );
 
     const task = this.taskManager.createPendingTask(
@@ -184,7 +184,7 @@ export class MailboxWatcher {
       this.taskManager.saveTask(task);
 
       await this.broadcaster.broadcast(
-        `Plano gerado (Risco ${plan.risk_level}).\nObjetivo: ${plan.objective}\nExecutor sugerido: ${plan.executor_recommendation}`,
+        `Plan generated (risk ${plan.risk_level}).\nObjective: ${plan.objective}\nSuggested executor: ${plan.executor_recommendation}`,
       );
 
       if (plan.risk_level >= 2) {
@@ -192,7 +192,7 @@ export class MailboxWatcher {
         task.requires_approval = true;
         this.taskManager.saveTask(task);
         await this.broadcaster.broadcast(
-          `Acao sensivel bloqueada no motor autonomo.\n\nO plano gerado envolve manipulacao consideravel de sistema (Risco ${plan.risk_level}).\nPara prosseguir, aprove manualmente digitando:\n/approve ${task.task_id}`,
+          `Sensitive action blocked in the autonomous engine.\n\nThe generated plan involves significant system manipulation (risk ${plan.risk_level}).\nTo continue, approve manually with:\n/approve ${task.task_id}`,
         );
         return;
       }
@@ -205,7 +205,7 @@ export class MailboxWatcher {
             toolStep.tool,
             this.enrichToolArgsWithTrace(toolStep.args || {}, task),
           );
-          await this.broadcaster.broadcast(`Resultado da tool [${toolStep.tool}]:\n${result}`);
+          await this.broadcaster.broadcast(`Tool result [${toolStep.tool}]:\n${result}`);
         }
       }
 
@@ -220,16 +220,16 @@ export class MailboxWatcher {
       await this.writeBridgeResponse(envelope, task, 'COMPLETED');
       await this.broadcaster.broadcast(
         toolSteps.length > 0
-          ? 'Tarefa de consulta finalizada.'
-          : 'Plano analisado e marcado como concluido (nenhuma instrucao executavel identificada).',
+          ? 'Query task finished.'
+          : 'Plan analyzed and marked as completed (no executable instruction identified).',
       );
     } catch (error: any) {
-      logger.error('[MailboxWatcher] Falha critica:', error.message);
+      logger.error('[MailboxWatcher] Critical failure:', error.message);
       task.error_summary = error.message;
       this.taskManager.advanceState(task, 'failed');
       this.taskManager.saveTask(task);
       await this.writeBridgeResponse(envelope, task, 'FAILED');
-      await this.broadcaster.broadcast(`Falha no motor autonomo:\n${error.message}`);
+      await this.broadcaster.broadcast(`Autonomous engine failed:\n${error.message}`);
     }
   }
 
@@ -243,7 +243,7 @@ export class MailboxWatcher {
       task.error_summary = executionDecision.reason;
       this.taskManager.saveTask(task);
       await this.broadcaster.broadcast(
-        `O plano autonomo precisa de aprovacao antes de executar.\nMotivo: ${executionDecision.reason}\n\nUse /approve ${task.task_id}`,
+        `The autonomous plan needs approval before execution.\nReason: ${executionDecision.reason}\n\nUse /approve ${task.task_id}`,
       );
       return;
     }
@@ -253,21 +253,21 @@ export class MailboxWatcher {
       task.error_summary = executionDecision.reason;
       this.taskManager.saveTask(task);
       await this.broadcaster.broadcast(
-        `O motor autonomo nao conseguiu executar pelo executor ${executorLabel}.\nMotivo: ${executionDecision.reason}`,
+        `The autonomous engine could not execute through executor ${executorLabel}.\nReason: ${executionDecision.reason}`,
       );
       return;
     }
 
     const result = executionDecision.execution_result;
     this.taskManager.advanceState(task, result.success ? 'completed' : 'failed');
-    task.result_summary = result.success ? (result.stdout || result.stderr || 'Execucao concluida.') : null;
-    task.error_summary = result.success ? null : (result.error_message || result.stderr || 'Execucao falhou.');
+    task.result_summary = result.success ? (result.stdout || result.stderr || 'Execution completed.') : null;
+    task.error_summary = result.success ? null : (result.error_message || result.stderr || 'Execution failed.');
     this.taskManager.saveTask(task);
 
     await this.broadcaster.broadcast(
       result.success
-        ? `Execucao autonoma concluida via ${executorLabel}.\n${result.stdout || result.stderr || 'Nenhum output visual'}`
-        : `Execucao autonoma falhou via ${executorLabel}.\n${result.error_message || result.stderr || 'Falha sem detalhes.'}`,
+        ? `Autonomous execution completed through ${executorLabel}.\n${result.stdout || result.stderr || 'No visible output'}`
+        : `Autonomous execution failed through ${executorLabel}.\n${result.error_message || result.stderr || 'Failure without details.'}`,
     );
   }
 
@@ -359,8 +359,8 @@ export class MailboxWatcher {
         status,
         payload: {
           summary: status === 'COMPLETED'
-            ? (task.result_summary || 'Tarefa concluida.')
-            : (task.error_summary || 'Tarefa falhou.'),
+            ? (task.result_summary || 'Task completed.')
+            : (task.error_summary || 'Task failed.'),
           taskId: task.task_id,
           executorUsed: task.executor_used || undefined,
           riskLevel: task.risk_level ?? undefined,
@@ -370,9 +370,9 @@ export class MailboxWatcher {
         },
       });
       await this.bridgeAdapter.writeResponse(response);
-      this.logRepo.log('info', 'MailboxWatcher', `[V2] Response escrita para correlationId=${requestEnvelope.correlationId}`);
+      this.logRepo.log('info', 'MailboxWatcher', `[V2] Response written for correlationId=${requestEnvelope.correlationId}`);
     } catch (e: any) {
-      this.logRepo.log('warn', 'MailboxWatcher', `Falha ao escrever BridgeResponse V2: ${e.message}`);
+      this.logRepo.log('warn', 'MailboxWatcher', `Failed to write BridgeResponse V2: ${e.message}`);
     }
   }
 

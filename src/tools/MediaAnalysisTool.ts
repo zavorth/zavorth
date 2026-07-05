@@ -85,13 +85,13 @@ export class MediaAnalysisTool extends BaseTool {
       lines.push(`- Duracao: ${meta.durationSeconds.toFixed(1)}s`);
     }
     if (meta.hasVisibleText) {
-      lines.push('- Texto visivel detectado: sim');
+      lines.push('- Visible text detected: yes');
     }
     if (meta.hasFaces) {
-      lines.push('- Rostos detectados: sim');
+      lines.push('- Faces detected: yes');
     }
     if (meta.sensitiveContent) {
-      lines.push(`- Conteudo sensivel: ${meta.sensitiveContentReason || 'sim'}`);
+      lines.push(`- Sensitive content: ${meta.sensitiveContentReason || 'yes'}`);
     }
     lines.push('');
 

@@ -19,6 +19,7 @@ import { logRoutingDecision } from "@/lib/a2a/routingLogger";
 import { createA2AStream, SSE_HEADERS } from "@/lib/a2a/streaming";
 import { executeA2ATaskWithState } from "@/lib/a2a/taskExecution";
 import { isAuthRequired, isStrictlyAuthenticated } from "@/shared/utils/apiAuth";
+import { logger } from '@/shared/utils/logger';
 
 export const runtime = "nodejs";
 
@@ -97,9 +98,7 @@ function isSameOriginZavorthControlRequest(req: NextRequest): boolean {
 
   try {
     return new URL(origin).origin === new URL(req.url).origin;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[route] operation failed', error); return false; }
 }
 
 async function authenticate(req: NextRequest): Promise<boolean> {
@@ -140,7 +139,8 @@ export async function POST(req: NextRequest) {
   let body: any;
   try {
     body = await req.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] parsing failed', error);
     return jsonRpcError(null, -32700, "Parse error: invalid JSON");
   }
 
@@ -256,10 +256,11 @@ export async function POST(req: NextRequest) {
       try {
         const task = tm.cancelTask(taskId);
         return jsonRpcResult(id, { task: { id: task.id, state: task.state } });
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
+      } catch (error) {
+    logger.warn('[route] validation failed', error);
+    const msg = err instanceof Error ? err.message : String(err);
         return jsonRpcError(id, -32603, msg);
-      }
+  }
     }
 
     default:

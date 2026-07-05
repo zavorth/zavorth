@@ -109,7 +109,7 @@ export const APIKEY_CORE_PROVIDERS = {
     website: "https://ai.google.dev",
     hasFree: true,
     freeNote:
-      "Free forever: 1,500 req/day for Gemini 2.5 Flash â€” no credit card, get key at aistudio.google.com",
+      "Free forever: 1,500 req/day for Gemini 2.5 Flash - no credit card, get key at aistudio.google.com",
   },
   deepseek: {
     id: "deepseek",
@@ -129,7 +129,7 @@ export const APIKEY_CORE_PROVIDERS = {
     textIcon: "GQ",
     website: "https://groq.com",
     hasFree: true,
-    freeNote: "Free tier: 30 RPM / 14.4K RPD â€” no credit card",
+    freeNote: "Free tier: 30 RPM / 14.4K RPD - no credit card",
   },
   blackbox: {
     id: "blackbox",
@@ -197,7 +197,7 @@ export const APIKEY_CORE_PROVIDERS = {
     textIcon: "CB",
     website: "https://inference.cerebras.ai",
     hasFree: true,
-    freeNote: "Free: 1M tokens/day, 60K TPM â€” world's fastest inference",
+    freeNote: "Free: 1M tokens/day, 60K TPM - world's fastest inference",
   },
   cohere: {
     id: "cohere",

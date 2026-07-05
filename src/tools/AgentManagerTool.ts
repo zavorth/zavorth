@@ -4,6 +4,7 @@ import { execSync } from 'child_process';
 import { BaseTool } from './BaseTool.js';
 import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';
 import type { ZavorthExternalAgentAdapterKind } from '../contracts/ZavorthExternalAgentGatewayContract.js';
+import { logger } from '../logger.js';
 
 type AgentDiscoveryResult = {
   found: boolean;
@@ -219,9 +220,10 @@ export class AgentManagerTool extends BaseTool {
           evidence: [`URL provided: ${target}`],
         });
         return { found: true, candidates, suggestion: null };
-      } catch {
-        return { found: false, candidates: [], suggestion: 'Invalid URL format.' };
-      }
+      } catch (error) {
+    logger.warn('[Agent Manager] network request failed', error);
+    return { found: false, candidates: [], suggestion: 'Invalid URL format.' };
+  }
     }
 
     const resolvedPath = path.resolve(target);
@@ -276,9 +278,7 @@ export class AgentManagerTool extends BaseTool {
             evidence: [`Found in package.json bin: ${binName}`],
           });
         }
-      } catch {
-        // ignore
-      }
+      } catch (error) { // ignore logger.warn('[Agent Manager] search failed', error); }
     }
 
     const indicatorFiles = [
@@ -335,9 +335,7 @@ export class AgentManagerTool extends BaseTool {
           evidence: [`Command "${cmd}" found in PATH`],
         });
         break;
-      } catch {
-        // not found, try next
-      }
+      } catch (error) { // not found, try next logger.warn('[Agent Manager] process execution failed', error); }
     }
 
     return candidates;

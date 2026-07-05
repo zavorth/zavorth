@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'path';
 import { config } from '../../../config/index.js';
 import { TelemetryRuntimeService } from '../../../services/telemetry/TelemetryRuntimeService.js';
+import { logger } from '../../../logger.js';
 
 export type EchoVoiceTelemetryInput = {
   surface: string;
@@ -290,9 +291,7 @@ export class EchoVoiceTelemetryService {
           status,
         },
       });
-    } catch {
-      // Observability must never break the calling surface.
-    }
+    } catch (error) { // Observability must never break the calling surface. logger.warn('[Voice Telemetry] operation failed', error); }
   }
 
   private readEvents(): VoiceTelemetryEvent[] {
@@ -305,16 +304,12 @@ export class EchoVoiceTelemetryService {
         .map((line) => {
           try {
             return JSON.parse(line) as VoiceTelemetryEvent;
-          } catch {
-            return null;
-          }
+          } catch (error) { logger.warn('[Voice Telemetry] JSON parse failed', error); return null; }
         })
         .filter((entry): entry is VoiceTelemetryEvent => Boolean(entry?.traceId))
         .filter((entry) => entry.source === VOICE_TELEMETRY_SOURCE)
         .filter((entry) => /^voice\.tts\./.test(this.normalizeText(entry.eventType)));
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Voice Telemetry] JSON parse failed', error); return []; }
   }
 
   private resolveTraceId(value?: string | null): string {

@@ -3,6 +3,7 @@ import { getSettings, updateSettings } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { z } from "zod";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 const cacheConfigUpdateSchema = z.object({
   semanticCacheEnabled: z.boolean().optional(),
@@ -46,6 +47,7 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json(config);
   } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
@@ -58,9 +60,10 @@ export async function PUT(request: NextRequest) {
     let rawBody: unknown;
     try {
       rawBody = await request.json();
-    } catch {
-      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-    }
+    } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
     const validation = validateBody(cacheConfigUpdateSchema, rawBody);
     if (isValidationFailure(validation)) {
@@ -95,6 +98,7 @@ export async function PUT(request: NextRequest) {
     await updateSettings(updates);
     return NextResponse.json({ ok: true });
   } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }

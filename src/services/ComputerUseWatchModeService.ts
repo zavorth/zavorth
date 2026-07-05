@@ -10,8 +10,9 @@ import type { ZavorthMutationPlan } from '../contracts/ZavorthMutationPlaneContr
 import { ComputerUseWatchModeLifecycleSupport } from './computer-use-watch-mode/ComputerUseWatchModeLifecycleSupport.js';
 import { ComputerUseWatchModeMutationSupport } from './computer-use-watch-mode/ComputerUseWatchModeMutationSupport.js';
 import { ComputerUseWatchModePolicySupport } from './computer-use-watch-mode/ComputerUseWatchModePolicySupport.js';
+import { logger } from '../logger.js';
 import type {
-  ComputerUseWatchModeState,
+ComputerUseWatchModeState,
   StartWatchModeRunInput,
   WatchModeApprovalDecision,
   WatchModeMutationPreview,
@@ -317,9 +318,7 @@ export class ComputerUseWatchModeService {
     try {
       const target = normalized.match(/^https?:\/\//i) ? normalized : `https://${normalized}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Computer Use Watch Mode] network request failed', error); return null; }
   }
 
   private normalizeOptional(value: unknown): string | null {

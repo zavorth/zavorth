@@ -13,6 +13,7 @@ import { ZavorthDailyProductQuietAutonomyService } from '../../services/ZavorthD
 import { ZavorthSandboxControlPlaneService } from '../../services/ZavorthSandboxControlPlaneService.js';
 import { ZavorthCapabilityActionSurfaceService } from '../../services/ZavorthCapabilityActionSurfaceService.js';
 import type { ZavorthCliRuntimeTuiItem, ZavorthCliRuntimeTuiRow, ZavorthCliRuntimeTuiSnapshot, ZavorthCliRuntimeTuiStatus } from './ZavorthCliRuntimeTuiTypes.js';
+import { logger } from '../../logger.js';
 
 type JsonObject = Record<string, unknown>;
 
@@ -375,9 +376,7 @@ function stateDir(root: string): string {
 function readJson(file: string, fallback: unknown): unknown {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8')) as unknown;
-  } catch {
-    return fallback;
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Runtime Tui Projection] JSON parse failed', error); return fallback; }
 }
 
 function readArray(file: string): unknown[] {
@@ -388,9 +387,7 @@ function readArray(file: string): unknown[] {
 function listJsonFiles(dir: string): string[] {
   try {
     return fs.readdirSync(dir).filter((file) => file.endsWith('.json')).sort();
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Runtime Tui Projection] JSON parse failed', error); return []; }
 }
 
 function redact(value: string): string {

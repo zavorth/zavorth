@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 import {
-  PublishComparisonService,
+PublishComparisonService,
   type PublishComparisonReport,
   type PublishSnapshotDescriptor,
 } from './PublishComparisonService.js';
@@ -50,9 +51,7 @@ export class PublishHistoryService {
     try {
       const parsed = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
       return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Publish History] JSON parse failed', error); return []; }
   }
 
   public resolveDescriptor(entry: PublishHistoryEntry): PublishSnapshotDescriptor | null {

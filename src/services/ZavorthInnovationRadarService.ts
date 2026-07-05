@@ -12,6 +12,7 @@ import {
 } from '../contracts/native/ZavorthInnovationRadarContract.js';
 import { ZavorthCapabilityPackCatalogService } from './ZavorthCapabilityPackCatalogService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+import { logger } from '../logger.js';
 
 type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 
@@ -164,8 +165,9 @@ export class ZavorthInnovationRadarService {
       const signals = this.normalizeSignals(extractSignals(JSON.parse(fs.readFileSync(locator, 'utf8')) as unknown), `file:${path.basename(locator)}`);
       return { receipt: this.receipt('json-file', locator, 'read', signals.length, 'Local JSON signals normalized.'), signals };
     } catch (error) {
-      return { receipt: this.receipt('json-file', locator, 'failed', 0, safeError(error)), signals: [] };
-    }
+    logger.warn('[Zavorth Innovation Radar] JSON parse failed', error);
+    return { receipt: this.receipt('json-file', locator, 'failed', 0, safeError(error)), signals: [] };
+  }
   }
 
   private async readJsonFeed(feedUrl: string, allowedHosts: Set<string>): Promise<{ receipt: ZavorthInnovationRadarSourceReceipt; signals: ZavorthInnovationRadarSignal[] }> {
@@ -196,8 +198,9 @@ export class ZavorthInnovationRadarService {
       const signals = this.normalizeSignals(extractSignals(JSON.parse(body) as unknown), `feed:${new URL(validation.url).hostname}`);
       return { receipt: this.receipt('json-feed', validation.url, 'read', signals.length, 'Allowlisted HTTPS feed signals normalized.'), signals };
     } catch (error) {
-      return { receipt: this.receipt('json-feed', validation.url, 'failed', 0, safeError(error)), signals: [] };
-    } finally {
+    logger.warn('[Zavorth Innovation Radar] JSON parse failed', error);
+    return { receipt: this.receipt('json-feed', validation.url, 'failed', 0, safeError(error)), signals: [] };
+  } finally {
       clearTimeout(timer);
     }
   }
@@ -312,7 +315,8 @@ function validateFeedUrl(feedUrl: string, allowedHosts: Set<string>): { ok: bool
     if (url.username || url.password || url.search) return { ok: false, url: null, reason: 'Feed URLs cannot carry credentials or query parameters.' };
     if (!allowedHosts.has(url.hostname.toLowerCase())) return { ok: false, url: null, reason: 'Feed host is not allowlisted.' };
     return { ok: true, url: url.toString(), reason: 'Allowlisted HTTPS feed.' };
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Innovation Radar] network request failed', error);
     return { ok: false, url: null, reason: 'Feed URL is invalid.' };
   }
 }
@@ -350,9 +354,7 @@ function safeEvidenceUrl(value: string | null | undefined): string | null {
     for (const key of keys) url.searchParams.set(key, '***');
     url.hash = '';
     return url.toString();
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Innovation Radar] search failed', error); return null; }
 }
 
 function redact(value: unknown): string {

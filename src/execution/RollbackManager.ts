@@ -14,13 +14,13 @@ export class RollbackManager {
   public async rollback(taskId: string, workspace: string): Promise<string[]> {
     const task = this.taskManager.getTask(taskId);
     if (!task) {
-      throw new Error('Tarefa não encontrada para rollback.');
+      throw new Error('Task not found for rollback.');
     }
 
     const resolvedWorkspace = WorkspaceResolver.validate(workspace);
     const backupDir = path.join(resolvedWorkspace, '.zavorth', 'backups', taskId);
     if (!fs.existsSync(backupDir)) {
-      throw new Error(`Nenhum backup encontrado para a tarefa ${taskId}.`);
+      throw new Error(`No backup found for task ${taskId}.`);
     }
 
     const files = fs.readdirSync(backupDir);
@@ -35,16 +35,16 @@ export class RollbackManager {
         restored.push(`Restaurado: ${backupData.original_path}`);
       } else {
         FileManager.deleteSafe(workspace, backupData.original_path);
-        restored.push(`Deletado (não existia): ${backupData.original_path}`);
+        restored.push(`Deleted (did not exist): ${backupData.original_path}`);
       }
     }
 
-    // Avança para estado de reverted
+    // Advance to reverted state.
     try {
       this.taskManager.advanceState(task, 'rollback_pending');
       this.taskManager.advanceState(task, 'reverted');
     } catch (e) {
-      // Ignora erro se estado não for compatível, força persistir manual
+      // Ignore error if the state is not compatible; force manual persistence.
       task.status = 'reverted';
     }
 

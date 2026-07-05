@@ -1,27 +1,21 @@
 /**
- * IntentEnrichedParser — Parser de Comandos com Enriquecimento de Intenção (Runtime gateway)
+ * IntentEnrichedParser - command parser with runtime intent enrichment.
  *
- * Wrapper em torno do CommandParser original que adiciona o resultado do
- * NaturalLanguageRouter ao ParsedCommand. Quando uma mensagem de texto
- * livre (sem /) chega, o parser original atribui command_type = "/task"
- * e ignora qualquer semântica. Este wrapper adiciona:
+ * Wraps the original CommandParser and adds the NaturalLanguageRouter result
+ * to ParsedCommand. When free text without "/" arrives, the original parser
+ * assigns command_type = "/task" and ignores semantics. This wrapper adds:
  *
- * - intentCategory: a categoria de intenção detectada pelo Cognitive Firewall
- * - useFastModel: se um modelo mais barato deve ser usado
- * - isTrivialChat: se é saudação/confirmação trivial
- * - firewallStats: estatísticas de filtragem
- *
- * O sistema pode então decidir:
- * 1. Se deve carregar modelo barato para chat trivial
- * 2. Quantas tools injetar no prompt
- * 3. Se pode pular o fluxo inteiro do ConversationalAgent (p.ex. resposta local)
+ * - intentCategory: intent category detected by Cognitive Firewall
+ * - useFastModel: whether a cheaper model should be used
+ * - isTrivialChat: whether this is trivial greeting or confirmation chat
+ * - firewallStats: filtering statistics
  */
 
 import { CommandParser, type ParsedCommand } from '../gateways/channels/telegram/CommandParser.js';
 import { NaturalLanguageRouter, type NaturalRouteDecision } from './NaturalLanguageRouter.js';
 
 export interface IntentEnrichedCommand extends ParsedCommand {
-  /** Resultado do roteamento natural (null se for comando /explícito) */
+  /** Natural routing result, or null for explicit slash commands. */
   naturalRoute: NaturalRouteDecision | null;
 }
 
@@ -30,15 +24,13 @@ export class IntentEnrichedParser {
   private readonly naturalRouter = new NaturalLanguageRouter();
 
   /**
-   * Faz o parsing da mensagem como o CommandParser original, mas
-   * enriquece com o resultado do NaturalLanguageRouter para texto livre.
+   * Parses like the original CommandParser, then enriches free text with
+   * NaturalLanguageRouter output.
    */
   public parse(rawMessage: string): IntentEnrichedCommand {
     const parsed = this.commandParser.parse(rawMessage);
     const text = rawMessage.trim();
 
-    // Apenas enriquecer mensagens de texto livre (sem /)
-    // Comandos explícitos mantêm o fluxo rígido intacto
     if (text.startsWith('/')) {
       return {
         ...parsed,
@@ -46,7 +38,6 @@ export class IntentEnrichedParser {
       };
     }
 
-    // Rotear a mensagem pelo NaturalLanguageRouter
     const naturalRoute = this.naturalRouter.route(text);
 
     return {
@@ -56,21 +47,21 @@ export class IntentEnrichedParser {
   }
 
   /**
-   * Retorna true se a mensagem é chat trivial e pode usar modelo barato.
+   * Returns true when the message is trivial chat and can use a cheap model.
    */
   public static isTrivialChat(enriched: IntentEnrichedCommand): boolean {
     return enriched.naturalRoute?.isTrivialChat === true;
   }
 
   /**
-   * Retorna true se a mensagem deve usar modelo rápido/barato.
+   * Returns true when the message should use a fast/cheap model.
    */
   public static shouldUseFastModel(enriched: IntentEnrichedCommand): boolean {
     return enriched.naturalRoute?.useFastModel === true;
   }
 
   /**
-   * Retorna a categoria de intenção ou 'full_toolset' para comandos explícitos.
+   * Returns the intent category or 'full_toolset' for explicit commands.
    */
   public static getIntentCategory(enriched: IntentEnrichedCommand): string {
     return enriched.naturalRoute?.intentCategory || 'full_toolset';

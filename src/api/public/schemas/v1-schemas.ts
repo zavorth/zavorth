@@ -26,7 +26,7 @@ export const CreateSessionRequestSchema = z.object({
 });
 
 export const SendMessageRequestSchema = z.object({
-  content: z.string().min(1, "O conteúdo não pode estar vazio")
+  content: z.string().min(1, "Content cannot be empty")
 });
 
 export const NodeAuthRequestSchema = z.object({

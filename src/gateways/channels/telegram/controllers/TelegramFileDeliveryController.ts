@@ -34,13 +34,13 @@ export class TelegramFileDeliveryController {
 
   private async handleRequest(ctx: Context, rawRequest: string, userId: string): Promise<void> {
     if (ctx.chat?.type !== 'private') {
-      await ctx.reply('Esse fluxo de envio de arquivos fica disponivel apenas no chat privado com o Zavorth.');
+      await ctx.reply('This file delivery flow is available only in private chat with Zavorth.');
       return;
     }
 
     const trimmedRequest = String(rawRequest || '').trim();
     if (!trimmedRequest) {
-      await ctx.reply('Diga o que voce quer receber. Exemplo: `/arquivo downloads relatorio.pdf`.', {
+      await ctx.reply('Tell me what you want to receive. Example: `/files downloads report.pdf`.', {
         parse_mode: 'Markdown',
       });
       return;
@@ -54,9 +54,9 @@ export class TelegramFileDeliveryController {
       await this.deliverPlan(ctx, plan);
     } catch (error: unknown) {
       await ctx.reply(
-        this.formatter.compose('Nao consegui preparar esse envio agora.', [
+        this.formatter.compose('I could not prepare this delivery right now.', [
           {
-            lines: [`Motivo: ${error instanceof Error ? error.message : String(error)}`],
+            lines: [`Reason: ${error instanceof Error ? error.message : String(error)}`],
           },
         ]),
       );
@@ -72,7 +72,7 @@ export class TelegramFileDeliveryController {
     const userId = String(permission.metadata?.requested_by || ctx.from?.id || '').trim();
     const allowedPath = String(permission.resolved_value || permission.requested_value || '').trim();
     if (!originalRequest || !allowedPath) {
-      await ctx.reply('A permissao foi aprovada, mas eu perdi o pedido original do envio de arquivo.');
+      await ctx.reply('The permission was approved, but I lost the original file delivery request.');
       return true;
     }
 
@@ -97,11 +97,11 @@ export class TelegramFileDeliveryController {
     if (plan.kind === 'permission') {
       if (!this.deps.permissionService) {
         await ctx.reply(
-          this.formatter.compose('Aprovacao necessaria', [
+          this.formatter.compose('Approval required', [
             {
               lines: [
-                'Preciso de permissao para acessar este caminho especifico.',
-                `Pasta: ${plan.previewPath}`,
+                'I need permission to access this specific path.',
+                `Folder: ${plan.previewPath}`,
               ],
             },
           ]),
@@ -127,9 +127,9 @@ export class TelegramFileDeliveryController {
       });
       const text =
         this.deps.formatPermissionCreatedMessage?.(permission) ||
-        this.formatter.compose('Aprovacao necessaria', [
+        this.formatter.compose('Approval required', [
           {
-            lines: [`O Zavorth precisa da sua decisao para acessar ${plan.previewPath}.`],
+            lines: [`Zavorth needs your decision before accessing ${plan.previewPath}.`],
           },
         ]);
       const keyboard = this.deps.buildPermissionKeyboard?.(permission);
@@ -151,9 +151,9 @@ export class TelegramFileDeliveryController {
       });
     } catch (error: unknown) {
       await ctx.reply(
-        this.formatter.compose('Nao consegui enviar esse arquivo agora.', [
+        this.formatter.compose('I could not send this file right now.', [
           {
-            lines: [`Motivo: ${error instanceof Error ? error.message : String(error)}`],
+            lines: [`Reason: ${error instanceof Error ? error.message : String(error)}`],
           },
         ]),
       );

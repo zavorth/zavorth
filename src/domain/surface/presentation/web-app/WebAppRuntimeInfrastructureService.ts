@@ -28,6 +28,10 @@ import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.j
 import { SurfaceTaskDispatchService } from '../../../../services/SurfaceTaskDispatchService.js';
 import { WebRealtimeService } from '../../../../services/WebRealtimeService.js';
 import { WorkspaceOperationalMemoryService } from '../../../../runtime/context/WorkspaceOperationalMemoryService.js';
+import { TaskManager } from '../../../../orchestrator/TaskManager.js';
+import { PermissionService } from '../../../../services/PermissionService.js';
+import { WorkflowRunService } from '../../../../runtime/workflows/WorkflowRunService.js';
+import { TaskManagerLike as SessionTaskManagerLike, PermissionServiceLike as SessionPermissionServiceLike } from '../../../../runtime/sessions/GatewaySessionService.js';
 
 export type WebAppRealtimeInfrastructure = {
   runtime: SharedSurfaceRuntime;
@@ -91,9 +95,9 @@ export class WebAppRuntimeInfrastructureService {
       createWebSession: () => realtime.createSession(),
     });
     const gatewaySessionService = new GatewaySessionService({
-      taskManager: runtime.taskManager as any,
-      permissionService: runtime.permissionService as any,
-      workflowRunService: runtime.workflowRunService as any,
+      taskManager: runtime.taskManager as unknown as SessionTaskManagerLike,
+      permissionService: runtime.permissionService as unknown as SessionPermissionServiceLike,
+      workflowRunService: runtime.workflowRunService as unknown as Pick<WorkflowRunService, 'getRun' | 'listRuns'>,
       sessionLedgerService: sessionLedger,
     });
     const gatewaySessionReadModel = new GatewaySessionReadModelService(
@@ -103,13 +107,13 @@ export class WebAppRuntimeInfrastructureService {
       },
     );
     realtime = new WebRealtimeService(
-      runtime.taskManager as any,
-      runtime.permissionService as any,
+      runtime.taskManager as unknown as TaskManager,
+      runtime.permissionService as unknown as PermissionService,
       runtime.permissionController.formatPermissionCreatedMessage.bind(runtime.permissionController),
       runtime.webUserId,
       {
         sessionReadModelService: gatewaySessionReadModel,
-        workflowRunService: runtime.workflowRunService as any,
+        workflowRunService: runtime.workflowRunService as unknown as WorkflowRunService,
         sessionLedgerService: sessionLedger,
       },
     );
@@ -139,7 +143,7 @@ export class WebAppRuntimeInfrastructureService {
     input: WebAppRuntimeGatewayInfrastructureInput,
   ): WebAppRuntimeGatewayInfrastructure {
     const sessionTools = new ZavorthSessionToolsService({
-      taskManager: input.runtime.taskManager as any,
+      taskManager: input.runtime.taskManager as unknown as Exclude<ConstructorParameters<typeof ZavorthSessionToolsService>[0], undefined>['taskManager'],
       gatewaySessionReadModelService: input.gatewaySessionReadModel,
     });
     const gatewaySessionTools = new GatewaySessionToolsService(input.gatewaySessionService, {
@@ -160,8 +164,8 @@ export class WebAppRuntimeInfrastructureService {
       workspaceOperationalMemoryService:
         input.runtime.taskManager && input.runtime.permissionService
           ? new WorkspaceOperationalMemoryService(
-              input.runtime.taskManager as any,
-              input.runtime.permissionService as any,
+              input.runtime.taskManager as unknown as Exclude<ConstructorParameters<typeof WorkspaceOperationalMemoryService>[0], undefined>,
+              input.runtime.permissionService as unknown as Exclude<ConstructorParameters<typeof WorkspaceOperationalMemoryService>[1], undefined>,
             )
           : undefined,
     });

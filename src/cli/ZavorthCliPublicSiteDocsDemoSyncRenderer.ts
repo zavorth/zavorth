@@ -5,6 +5,11 @@ import {
   type PublicSiteDocsDemoSyncSnapshot,
   type UniversalAgentRun,
 } from '../runtime/agent/index.js';
+import type {
+  ZavorthFirstRunBootstrapPlan,
+  ZavorthWorkspaceIdentityProfileSnapshot,
+  ZavorthFirstRunBootstrapPaths,
+} from '../contracts/FirstRunWorkspaceBootstrapContract.js';
 
 export function resolvePublicSiteDocsDemoSyncCliText(args: string): string {
   return String(args || '')
@@ -44,8 +49,8 @@ export function buildPublicSiteDocsDemoSyncCliSnapshot(input: {
           writes: [
             { path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' },
           ],
-          summary: ['Primeiro uso configurado para public sync.'],
-        } as any),
+          summary: ['Primeiro uso configured para public sync.'],
+        } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
           configured: true,
@@ -57,8 +62,8 @@ export function buildPublicSiteDocsDemoSyncCliSnapshot(input: {
           memoryMode: 'local-metadata',
           safetyPosture: 'preview-first',
           providerStatus: 'deferred',
-        } as any),
-        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as any),
+        } as unknown as ZavorthWorkspaceIdentityProfileSnapshot),
+        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as unknown as ZavorthFirstRunBootstrapPaths),
       },
       personalizationService: {
         getStatus: () => ({
@@ -108,16 +113,16 @@ export function formatPublicSiteDocsDemoSyncSnapshot(
 ): string {
   const lines = [
     'Public Site / Docs / Demo Sync - Channel mesh9',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- release path: ${snapshot.sync.releasePathStatus ?? 'ausente'}`,
     `- site: ${snapshot.publicSite.status}`,
     `- docs: ${snapshot.docs.status} (${snapshot.docs.recipeCount} recipes)`,
     `- demo: ${snapshot.demo.status}`,
-    `- stable claim: ${snapshot.readiness.canAnnounceStable ? 'liberado' : 'bloqueado'}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- stable claim: ${snapshot.readiness.canAnnounceStable ? 'released' : 'blocked'}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -144,12 +149,12 @@ export function formatPublicSiteDocsDemoSyncSnapshot(
   lines.push(`- canary: ${String(snapshot.readiness.canStartCanary)}`);
 
   lines.push('', 'Politica');
-  lines.push('- build publico nao foi executado');
-  lines.push('- deploy publico nao foi executado');
-  lines.push('- demo live nao foi executada');
-  lines.push('- telemetry externa nao foi ligada');
-  lines.push('- stable claim nao foi publicado');
-  lines.push('- secrets nao foram serializados');
+  lines.push('- public build was not executed');
+  lines.push('- public deploy was not executed');
+  lines.push('- live demo was not executed');
+  lines.push('- external telemetry was not enabled');
+  lines.push('- stable claim was not published');
+  lines.push('- secrets were not serialized');
 
   lines.push('', 'Rotas');
   lines.push(`- Website: ${snapshot.surface.websiteRoute}`);
@@ -192,7 +197,7 @@ function buildPublicSyncFixtureMetadata() {
         { route: '/', label: 'landing principal' },
         { route: '/docs', label: 'documentacao publica' },
         { route: '/changelog', label: 'changelog publico' },
-        { route: '/security', label: 'seguranca' },
+        { route: '/security', label: 'security' },
       ],
       forbiddenClaims: [],
       checks: [],

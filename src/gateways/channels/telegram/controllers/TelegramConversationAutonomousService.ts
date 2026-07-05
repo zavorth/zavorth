@@ -85,13 +85,13 @@ export class TelegramConversationAutonomousService {
     const userRoles = config.telegramUserRoles[String(userId || '')] || ['admin'];
     if (!userRoles.includes('admin')) {
       await ctx.reply(
-        `**Acesso Restrito:**\n\nO assistente sugeriu executar uma acao autonoma:\n\`${actionPayload}\`\n\nNo entanto, voce nao tem nivel de permissao.`,
+        `**Restricted Access:**\n\nThe assistant suggested running an autonomous action:\n\`${actionPayload}\`\n\nYour current role does not have permission for that.`,
         { parse_mode: 'Markdown' },
       );
       await Promise.resolve(
         this.deps.recordAssistantMessage?.(
           task,
-          `**Acesso Restrito:**\n\nO assistente sugeriu executar uma acao autonoma:\n\`${actionPayload}\`\n\nNo entanto, voce nao tem nivel de permissao.`,
+          `**Restricted Access:**\n\nThe assistant suggested running an autonomous action:\n\`${actionPayload}\`\n\nYour current role does not have permission for that.`,
           'autonomous-denied',
         ),
       );
@@ -128,7 +128,7 @@ export class TelegramConversationAutonomousService {
         responseText:
           String(
             fallbackResponse.text
-              || 'Posso responder isso diretamente sem acionar o modo autonomo, mas nao obtive uma resposta final utilizavel.',
+              || 'I can answer this directly without using autonomous mode, but I did not receive a usable final response.',
           ).trim(),
         taskKind: autonomyDecision.taskKind,
         taskSubtype: autonomyDecision.taskSubtype,
@@ -145,11 +145,11 @@ export class TelegramConversationAutonomousService {
     }
 
     const activationMessage = [
-      'Trabalho autonomo ativado no runtime governado.',
+      'Autonomous work activated in the governed runtime.',
       '',
-      `Objetivo: ${actionPayload}`,
+      `Objective: ${actionPayload}`,
       '',
-      'Abrindo uma run pelo Zavorth Agent Gateway...',
+      'Opening a run through the Zavorth Agent Gateway...',
     ].join('\n');
     await SmartOutputService.reply(ctx, activationMessage);
     await Promise.resolve(
@@ -245,11 +245,11 @@ export class TelegramConversationAutonomousService {
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       this.deps.stateService.recordAgentGatewayRunException(task, actionPayload, err);
-      await SmartOutputService.reply(ctx, `Falha na execucao governada: ${errorMessage}`);
+      await SmartOutputService.reply(ctx, `Governed execution failed: ${errorMessage}`);
       await Promise.resolve(
         this.deps.recordAssistantMessage?.(
           task,
-          `Falha na execucao governada: ${errorMessage}`,
+          `Governed execution failed: ${errorMessage}`,
           'autonomous-exception',
         ),
       );
@@ -259,21 +259,21 @@ export class TelegramConversationAutonomousService {
   private buildGatewayReplyText(result: UniversalAgentRunResult): string {
     return String(result.replies?.[0]?.text || '').trim()
       || String(result.run?.summary || '').trim()
-      || (result.ok ? 'Execucao registrada pelo runtime universal.' : 'A execucao governada falhou.');
+      || (result.ok ? 'Execution recorded by the universal runtime.' : 'Governed execution failed.');
   }
 
   private decorateGatewayResultMessage(result: UniversalAgentRunResult, finalText: string): string {
     const status = result.run?.status || (result.ok ? 'completed' : 'failed');
     if (status === 'completed') {
-      return `Tarefa autonoma concluida.\n\n${finalText}`;
+      return `Autonomous task completed.\n\n${finalText}`;
     }
     if (status === 'waiting_approval') {
       return finalText;
     }
     if (status === 'queued' || status === 'running' || status === 'thinking') {
-      return `Execucao governada registrada.\n\n${finalText}`;
+      return `Governed execution recorded.\n\n${finalText}`;
     }
-    return `A execucao governada falhou.\n\n${finalText}`;
+    return `Governed execution failed.\n\n${finalText}`;
   }
 
   private resolveGatewayAssistantMessageKind(result: UniversalAgentRunResult): string {

@@ -3,6 +3,7 @@ import { buildClientRawRequest, handleChat } from "@/sse/handlers/chat";
 import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
 import { v1betaGeminiGenerateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 let initialized = false;
 
@@ -40,7 +41,8 @@ export async function POST(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] creation failed', error);
     return Response.json(
       {
         error: {

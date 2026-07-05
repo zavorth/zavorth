@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 /**
  * ToolVersionRegistry — Versioned tool registry with independent updates.
  *
@@ -278,9 +279,7 @@ export class ToolVersionRegistry<T = unknown> {
       for (const callback of callbacks) {
         try {
           callback(version);
-        } catch {
-          // ignore callback errors
-        }
+        } catch (error) { // ignore callback errors logger.warn('[Version Registry] delete operation failed', error); }
       }
     }
   }

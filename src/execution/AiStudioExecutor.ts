@@ -91,7 +91,7 @@ export class AiStudioExecutor implements IExecutor {
     const rawPrompt = request.instructions.join('\n').trim();
     if (!rawPrompt) {
       result.error_code = 'AISTUDIO_PROMPT_MISSING';
-      result.error_message = 'Nenhum prompt foi fornecido para o Google AI Studio.';
+      result.error_message = 'No prompt was provided for Google AI Studio.';
       result.finished_at = new Date().toISOString();
       return result;
     }
@@ -111,7 +111,7 @@ export class AiStudioExecutor implements IExecutor {
 
     if (missingTools.length > 0) {
       result.error_code = 'AISTUDIO_BUILTIN_TOOL_PERMISSION_REQUIRED';
-      result.error_message = `O Google AI Studio precisa da sua aprovacao para usar tool(s): ${missingTools.join(', ')}.`;
+      result.error_message = `Google AI Studio needs your approval to use tool(s): ${missingTools.join(', ')}.`;
       result.metadata = {
         requested_tools: missingTools,
         requested_tools_display: missingTools.join(', '),
@@ -126,7 +126,7 @@ export class AiStudioExecutor implements IExecutor {
     const explicitServices = this.resolveRequestedServices(parsed, request);
     if (explicitServices.length > 0) {
       result.error_code = 'AISTUDIO_EXTERNAL_SERVICE_UNSUPPORTED';
-      result.error_message = `Este Zavorth suporta apenas tools nativas do Gemini API no /aistudio. Servicos externos como ${explicitServices.join(', ')} ainda nao estao habilitados aqui.`;
+      result.error_message = `This Zavorth supports only native Gemini API tools in /aistudio. External services such as ${explicitServices.join(', ')} are not enabled here yet.`;
       result.metadata = {
         requested_services: explicitServices,
         requested_services_display: explicitServices.join(', '),
@@ -201,12 +201,12 @@ export class AiStudioExecutor implements IExecutor {
         if (functionCalls.length > 0) {
           const requestedService = this.normalizeServiceName(functionCalls[0]?.args?.service);
           const serviceReason = String(
-            functionCalls[0]?.args?.purpose || functionCalls[0]?.args?.reason || 'Servico externo solicitado pelo modelo.',
+            functionCalls[0]?.args?.purpose || functionCalls[0]?.args?.reason || 'External service requested by the model.',
           ).trim();
           result.error_code = 'AISTUDIO_EXTERNAL_SERVICE_UNSUPPORTED';
           result.error_message = requestedService
-            ? `Este Zavorth suporta apenas tools nativas do Gemini API no /aistudio. O modelo pediu o servico ${requestedService}, que ainda nao esta habilitado aqui.`
-            : 'Este Zavorth suporta apenas tools nativas do Gemini API no /aistudio. O modelo pediu um servico externo que ainda nao esta habilitado aqui.';
+            ? `This Zavorth supports only native Gemini API tools in /aistudio. The model requested service ${requestedService}, which is not enabled here yet.`
+            : 'This Zavorth supports only native Gemini API tools in /aistudio. The model requested an external service that is not enabled here yet.';
           result.metadata = {
             requested_services: requestedService ? [requestedService] : [],
             requested_services_display: requestedService || '',
@@ -235,7 +235,7 @@ export class AiStudioExecutor implements IExecutor {
 
     if (!result.success) {
       result.error_code = 'AISTUDIO_NO_FINAL_RESPONSE';
-      result.error_message = 'O Google AI Studio nao concluiu uma resposta final nesta tentativa.';
+      result.error_message = 'Google AI Studio did not complete a final response in this attempt.';
       result.finished_at = new Date().toISOString();
       return result;
     }
@@ -256,7 +256,7 @@ export class AiStudioExecutor implements IExecutor {
       aistudio_approved_services: approvedServices,
       grounding_metadata: groundingMetadata,
     };
-    result.actions_executed.push(`[AIStudio] Modelo: ${modelName}`);
+    result.actions_executed.push(`[AIStudio] Model: ${modelName}`);
     if (requestedTools.length > 0) {
       result.actions_executed.push(`[AIStudio] Tools: ${requestedTools.join(', ')}`);
     }
@@ -287,7 +287,7 @@ export class AiStudioExecutor implements IExecutor {
         ok: /ok/i.test(text),
         message: /ok/i.test(text)
           ? 'Google AI Studio respondeu normalmente.'
-          : 'Google AI Studio autenticou, mas a resposta de probe nao foi a esperada.',
+          : 'Google AI Studio authenticated, but the probe response was not expected.',
       };
     } catch (error: unknown) {
       const classified = this.classifyError(error);
@@ -433,16 +433,16 @@ export class AiStudioExecutor implements IExecutor {
       request.metadata?.task_metadata?.aistudio_force_final_plain_response,
     );
     const lines = [
-      'Voce e o executor Google AI Studio do Zavorth.',
+      'You are Zavorth Google AI Studio executor.',
       'Responda de forma util, clara e objetiva.',
-      'Nao afirme ter usado busca, execucao de codigo ou servicos externos sem resultados de ferramenta na conversa.',
+      'Do not claim you used search, code execution, or external services without tool results in the conversation.',
       'Este host suporta apenas as tools nativas google_search e code_execution.',
-      'Nao tente usar servicos externos como Drive, BigQuery, Maps ou conectores proprietarios.',
+      'Do not try to use external services such as Drive, BigQuery, Maps, or proprietary connectors.',
       `Workspace de referencia: ${request.workspace || config.defaultWorkspace}`,
     ];
 
     if (tools.length > 0) {
-      lines.push(`Tools liberadas para esta tarefa: ${tools.join(', ')}.`);
+      lines.push(`Tools allowed for this task: ${tools.join(', ')}.`);
     }
 
     if (approvedServices.length > 0) {
@@ -453,7 +453,7 @@ export class AiStudioExecutor implements IExecutor {
       lines.push('Esta e uma tentativa de recuperacao. Feche a resposta em texto puro, em uma unica resposta final, sem deixar tool call aberta e sem pedir servicos externos.');
     }
 
-    lines.push('', 'Pedido do usuario:', prompt);
+    lines.push('', 'User request:', prompt);
     return lines.join('\n');
   }
 
@@ -507,8 +507,8 @@ export class AiStudioExecutor implements IExecutor {
     groundingMetadata: AiStudioGroundingMetadata | null;
   }): string {
     const lines = [
-      'Google AI Studio concluiu a tarefa.',
-      `Modelo: ${input.modelName}`,
+      'Google AI Studio completed the task.',
+      `Model: ${input.modelName}`,
     ];
 
     if (input.tools.length > 0) {
@@ -599,7 +599,7 @@ export class AiStudioExecutor implements IExecutor {
     if (normalized.includes('blocked') || normalized.includes('safety')) {
       return {
         code: 'AISTUDIO_SAFETY_BLOCK',
-        message: 'A resposta do Google AI Studio foi bloqueada pelas politicas de seguranca do modelo.',
+        message: 'The Google AI Studio response was blocked by the model safety policies.',
         stderr: rawMessage || null,
       };
     }

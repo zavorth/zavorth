@@ -2,7 +2,7 @@ import { Task, type TaskStatus } from '../../../../contracts/TaskContract.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { buildWorkspaceContinuityContext } from '../../../../runtime/context/WorkspaceContinuityContext.js';
 import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from '../../../../services/WorkspaceTaskKind.js';
-import { logger } from '../../../../cli/logger.js';
+import { logger } from '../../../../logger.js';
 
 type WorkspaceStrategySnapshotBuilder = (task: Task, taskGoal?: string) => Record<string, unknown>;
 
@@ -203,7 +203,7 @@ export class TelegramConversationStateService {
   public recordAgentGatewayRunException(task: Task, taskGoal: string, error: unknown): void {
     const message = error instanceof Error
       ? error.message
-      : String(error || 'Falha inesperada no runtime universal.');
+      : String(error || 'Unexpected failure in the universal runtime.');
     const continuityContext = buildWorkspaceContinuityContext(task, String(task.source || 'telegram').trim());
     task.planner_used = 'zavorth_agent_gateway';
     task.executor_used = 'agent_run_service';
@@ -296,7 +296,7 @@ export class TelegramConversationStateService {
     };
 
     if (result?.ok) {
-      task.result_summary = outcomeSummary || 'Tarefa autonoma concluida pelo God-Mode.';
+      task.result_summary = outcomeSummary || 'Autonomous task completed by God Mode.';
       task.error_summary = null;
       this.persistAutonomousTerminalState(task, 'completed', 'autonomous_graph_completed');
       return;
@@ -304,13 +304,13 @@ export class TelegramConversationStateService {
 
     if (result?.status === 'max_iterations') {
       task.result_summary = null;
-      task.error_summary = outcomeSummary || 'A tarefa autonoma atingiu o limite de iteracoes.';
+      task.error_summary = outcomeSummary || 'The autonomous task reached the iteration limit.';
       this.persistAutonomousTerminalState(task, 'failed', 'autonomous_graph_max_iterations');
       return;
     }
 
     task.result_summary = null;
-    task.error_summary = outcomeSummary || 'A orquestracao autonoma falhou.';
+    task.error_summary = outcomeSummary || 'Autonomous orchestration failed.';
     this.persistAutonomousTerminalState(task, 'failed', 'autonomous_graph_failed');
   }
 
@@ -321,7 +321,7 @@ export class TelegramConversationStateService {
     task.result_summary = null;
     task.error_summary = error instanceof Error
       ? error.message
-      : String(error || 'Falha inesperada na orquestracao autonoma.');
+      : String(error || 'Unexpected failure in autonomous orchestration.');
     task.metadata = {
       ...(task.metadata || {}),
       autonomous_graph_last_run: {

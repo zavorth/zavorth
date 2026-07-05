@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import { logger } from '../../logger.js';
 
 export class SpotifyPlayerTool extends BaseTool {
   public readonly name = 'zavorth_spotify';
@@ -84,9 +85,7 @@ export class SpotifyPlayerTool extends BaseTool {
         case 'repeat': return await this.setRepeat(args, accessToken);
         default: return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: unknown) {
-      return `Spotify error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Spotify Player] filesystem check failed', error); return ''; }
   }
 
   private async apiCall(accessToken: string, method: string, endpoint: string, body?: Record<string, unknown>): Promise<string> {
@@ -107,7 +106,7 @@ export class SpotifyPlayerTool extends BaseTool {
 
     const result = execFileSync('curl', args, { timeout: 15000, maxBuffer: 5 * 1024 * 1024 }).toString();
     if (body) {
-      try { fs.unlinkSync(path.join(os.tmpdir(), `spotify_${Date.now()}.json`)); } catch { /* ignore */ }
+      try { fs.unlinkSync(path.join(os.tmpdir(), `spotify_${Date.now()}.json`)); } catch (error) { /* ignore */ logger.warn('[Spotify Player] file cleanup failed', error); }
     }
     return result;
   }

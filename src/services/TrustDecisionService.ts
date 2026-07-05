@@ -8,7 +8,7 @@ import type {
   ZavorthResourceImpact,
 } from '../contracts/ZavorthMutationPlaneContract.js';
 import { CapabilityLifecycleService } from './CapabilityLifecycleService.js';
-import { PermissionService } from './PermissionService.js';
+import { PermissionService, type PermissionMetadataValue } from './PermissionService.js';
 import { ApprovalDecisionCacheService } from './ApprovalDecisionCacheService.js';
 import { RuntimeProfileService } from './RuntimeProfileService.js';
 
@@ -256,8 +256,8 @@ export class TrustDecisionService {
     ].filter(Boolean).join(':');
   }
 
-  private metadataMatch(input: TrustDecisionInput, scope: ZavorthApprovalScope): Record<string, unknown> {
-    const metadata: Record<string, unknown> = {
+  private metadataMatch(input: TrustDecisionInput, scope: ZavorthApprovalScope): Record<string, PermissionMetadataValue> {
+    const metadata: Record<string, PermissionMetadataValue> = {
       domain: input.domain,
       action_id: this.normalizeActionId(input.actionId),
       capability_id: this.nullableText(input.capabilityId),

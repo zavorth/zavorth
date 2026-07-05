@@ -22,7 +22,7 @@ export function buildSkillMcpQuarantineCliSnapshot(input: {
   const service = new AgentRunService({
     now: () => new Date('2026-05-03T23:45:00.000Z'),
   });
-  const text = input.text || 'revisar skill importada e MCP experimental';
+  const text = input.text || 'review skill importada e MCP experimental';
   const run = service.createRun({
     userId: input.userId,
     channel: 'cli',
@@ -92,7 +92,7 @@ export function formatSkillMcpQuarantineSnapshot(
 ): string {
   const lines = [
     'Skill/MCP Quarantine - Skill MCP Quarantine',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- total: ${snapshot.summary.total}`,
     `- trusted: ${snapshot.summary.trusted}`,
@@ -100,11 +100,11 @@ export function formatSkillMcpQuarantineSnapshot(
     `- quarantined: ${snapshot.summary.quarantined}`,
     `- tools bloqueadas: ${snapshot.summary.blockedToolCount}`,
     `- auto-trust externo: ${String(!snapshot.policy.externalImportsNeverTrustedAutomatically)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
   ];
 
   if (snapshot.entries.length > 0) {
-    lines.push('', 'Capabilities importadas');
+    lines.push('', 'Imported Capabilities');
     for (const entry of snapshot.entries.slice(0, 8)) {
       lines.push(
         `- ${entry.kind}:${entry.id} [${entry.trustState}/${entry.riskLevel}]`,
@@ -115,13 +115,13 @@ export function formatSkillMcpQuarantineSnapshot(
       );
     }
   } else {
-    lines.push('', 'Capabilities importadas', '- nenhuma skill/MCP importada apareceu neste run.');
+    lines.push('', 'Imported Capabilities', '- no imported skill/MCP appeared in this run.');
   }
 
   lines.push('', 'Politica');
-  lines.push('- imports externos nao viram trusted automaticamente');
-  lines.push('- quarentena nao pode ser removida por linguagem natural');
-  lines.push('- promocao exige acao explicita do operador');
+  lines.push('- external imports do not become trusted automatically');
+  lines.push('- quarantine cannot be removed by natural language');
+  lines.push('- promotion requires explicit operator action');
 
   lines.push('', 'Superficies');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);

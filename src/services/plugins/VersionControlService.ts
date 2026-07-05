@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface VersionEntry {
   id: string;
@@ -44,7 +45,7 @@ export class VersionControlService {
           this.versions.set(filePath, versions);
         }
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Version Control] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

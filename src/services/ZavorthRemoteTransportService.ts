@@ -1,8 +1,10 @@
 import fs from 'fs';
 import { config } from '../config/index.js';
 import { buildCapabilityManifests } from './capability-lifecycle/CapabilityLifecycleManifests.js';
+import type { ZavorthProfile } from '../config/configHelpers.js';
 import { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';
 import { SidecarStatusService, type SidecarStatusCard } from './SidecarStatusService.js';
+import { logger } from '../logger.js';
 
 type BridgeMode = 'bridge' | 'native' | 'unknown';
 
@@ -301,9 +303,7 @@ export class ZavorthRemoteTransportService {
         return new URL('models', normalized).toString().replace(/\/+$/u, '');
       }
       return new URL('health', normalized).toString().replace(/\/+$/u, '');
-    } catch {
-      return rawBase;
-    }
+    } catch (error) { logger.warn('[Zavorth Remote Transport] health check failed', error); return rawBase; }
   }
 
   private buildNodeHostEntry(nodeMesh: ReturnType<ZavorthNodeMeshService['buildSnapshot']>): ZavorthRemoteTransportEntry {
@@ -493,9 +493,7 @@ export class ZavorthRemoteTransportService {
         lastError: typeof raw.lastError === 'string' ? raw.lastError : null,
         updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : null,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Zavorth Remote Transport] lifecycle operation failed', error); return fallback; }
   }
 
   private readCapabilityLifecycleHint(capabilityId: string, fallbackCapabilityIds: string[] = []): CapabilityLifecycleHint {
@@ -522,7 +520,7 @@ export class ZavorthRemoteTransportService {
           return { dormant: false, notes: null };
         }
 
-        const enabledByDefault = manifest.enabledByDefaultProfiles.includes(profile as any);
+        const enabledByDefault = manifest.enabledByDefaultProfiles.includes(profile as ZavorthProfile);
         return {
           dormant: !enabledByDefault,
           notes: enabledByDefault
@@ -542,9 +540,10 @@ export class ZavorthRemoteTransportService {
         dormant: capability.state === 'dormant',
         notes: typeof capability.notes === 'string' ? capability.notes : null,
       };
-    } catch {
-      return { dormant: false, notes: null };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Remote Transport] filesystem check failed', error);
+    return { dormant: false, notes: null };
+  }
   }
 
   private buildActions(

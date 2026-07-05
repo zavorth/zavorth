@@ -77,16 +77,18 @@ export class TrustedWorkspaceService {
     let resolved: string;
     try {
       resolved = fs.realpathSync(path.resolve(rootPath));
-    } catch {
-      resolved = path.resolve(rootPath);
-    }
+    } catch (error) {
+    logger.warn('[Trusted Workspace] validation failed', error);
+    resolved = path.resolve(rootPath);
+  }
 
     let activeWorkspace: string;
     try {
       activeWorkspace = fs.realpathSync(WorkspaceResolver.resolve(null));
-    } catch {
-      activeWorkspace = path.resolve(WorkspaceResolver.resolve(null));
-    }
+    } catch (error) {
+    logger.warn('[Trusted Workspace] validation failed', error);
+    activeWorkspace = path.resolve(WorkspaceResolver.resolve(null));
+  }
 
     const normResolved = path.normalize(resolved).toLowerCase();
     const normActive = path.normalize(activeWorkspace).toLowerCase();
@@ -193,9 +195,10 @@ export class TrustedWorkspaceService {
       let resolvedCurrent: string;
       try {
         resolvedCurrent = fs.realpathSync(path.resolve(currentRootPath));
-      } catch {
-        resolvedCurrent = path.resolve(currentRootPath);
-      }
+      } catch (error) {
+    logger.warn('[Trusted Workspace] load operation failed', error);
+    resolvedCurrent = path.resolve(currentRootPath);
+  }
       const currentHash = this.computeHash(resolvedCurrent);
 
       if (currentHash !== entry.rootHash) {

@@ -10,6 +10,7 @@ import type { SchedulerTaskRuntimeDescriptor } from './SchedulerService.js';
 import { ZavorthScheduledTaskOperationalGuardService } from './ZavorthScheduledTaskOperationalGuardService.js';
 import type { ZavorthScheduledTaskOperationalGuardSnapshot } from '../contracts/ZavorthScheduledTaskOperationalGuardContract.js';
 import { LogRepository } from '../storage/LogRepository.js';
+import { logger } from '../logger.js';
 
 type AutomationPosture = 'healthy' | 'attention' | 'critical';
 type AutomationSeverity = 'info' | 'warn' | 'critical';
@@ -167,7 +168,7 @@ export class ZavorthAutomationControlPlaneService {
     const outbox = this.readOutboxStatus();
     const budgetBaseline = this.resolveBudgetBaseline(runtimeDescriptors);
     const operationalGuard = new ZavorthScheduledTaskOperationalGuardService({
-      schedulerService: scheduler as any,
+      schedulerService: scheduler as unknown as { listTasks: (includePaused?: boolean) => ScheduledTask[] },
       now: this.now,
     }).buildSnapshot();
     const basePosture = this.resolvePosture(tasks, maintenanceStatus);
@@ -405,9 +406,7 @@ export class ZavorthAutomationControlPlaneService {
       if (typeof scheduler.describeTaskRuntime === 'function') {
         return scheduler.describeTaskRuntime(task);
       }
-    } catch {
-      // Snapshot deve continuar legivel mesmo se a task antiga tiver JSON quebrado.
-    }
+    } catch (error) { // Snapshot deve continuar legivel mesmo se a task antiga tiver JSON quebrado. logger.warn('[Zavorth Automation Control Plane] search failed', error); }
     return this.defaultTaskRuntime(task);
   }
 
@@ -469,9 +468,7 @@ export class ZavorthAutomationControlPlaneService {
       if (typeof this.deliveryService.readOutboxStatus === 'function') {
         return this.deliveryService.readOutboxStatus();
       }
-    } catch {
-      // fallback abaixo
-    }
+    } catch (error) { // fallback abaixo logger.warn('[Zavorth Automation Control Plane] creation failed', error); }
     return {
       deliveryReportFile: config.automationDeliveryReportFile,
       webhookOutboxFile: config.automationWebhookOutboxFile,
@@ -501,9 +498,7 @@ export class ZavorthAutomationControlPlaneService {
     try {
       const parsed = JSON.parse(String(value || '{}'));
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-    } catch {
-      return {};
-    }
+    } catch (error) { logger.warn('[Zavorth Automation Control Plane] JSON parse failed', error); return {}; }
   }
 
   private toNumber(value: unknown, fallback: number): number {

@@ -5,8 +5,9 @@ import type {
 import type { ZavorthEvalHistorySnapshot } from './ZavorthEvalHistoryFileService.js';
 import type { ZavorthTelemetryLedgerSnapshot } from './ZavorthTelemetryLedgerService.js';
 import type { ZavorthReadinessGate } from '../contracts/ZavorthMutationPlaneContract.js';
+import { logger } from '../logger.js';
 import {
-  buildEvalComparisons,
+buildEvalComparisons,
   buildEvalCoverage,
   buildEvalDatasets,
   buildEvalFallbackHistory,
@@ -297,9 +298,7 @@ export class ZavorthEvalControlPlaneService {
       return typeof this.deps.operatorBriefService?.readSnapshot === 'function'
         ? this.deps.operatorBriefService.readSnapshot()
         : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Eval Control Plane] code compilation failed', error); return null; }
   }
 
   private readOperationsHealth(): any {
@@ -311,8 +310,6 @@ export class ZavorthEvalControlPlaneService {
         return this.deps.operationsHealthService.readSnapshot();
       }
       return null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Eval Control Plane] health check failed', error); return null; }
   }
 }

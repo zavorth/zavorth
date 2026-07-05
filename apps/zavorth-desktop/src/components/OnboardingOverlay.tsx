@@ -63,10 +63,10 @@ export function OnboardingOverlay({ isOpen, onCompleted }: OnboardingOverlayProp
         setTestResult({ ok: true, message: 'Google Personal Ops conectado!' });
         setStep(3);
       } else {
-        throw new Error(res?.error || 'Conexão falhou.');
+        throw new Error(res?.error || 'Connection failed.');
       }
     } catch (err: any) {
-      setError(err.message || 'Erro de autenticação Google.');
+      setError(err.message || 'Google authentication error.');
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export function OnboardingOverlay({ isOpen, onCompleted }: OnboardingOverlayProp
         
         setTimeout(() => setStep(3), 1000);
       } else {
-        throw new Error(testData.data?.message || testData.error || 'Conexão falhou.');
+        throw new Error(testData.data?.message || testData.error || 'Connection failed.');
       }
     } catch (err: any) {
       setError(err.message || 'Falha ao salvar ou testar.');
@@ -373,7 +373,7 @@ export function OnboardingOverlay({ isOpen, onCompleted }: OnboardingOverlayProp
         <div className="zvd-onboarding-header">
           <h1>Zavorth<span>Desktop</span></h1>
           <p>
-            {step === 1 && 'Bem-vindo! Vamos configurar seu primeiro provedor de inteligência artificial.'}
+            {step === 1 && 'Welcome. Let us configure your first artificial intelligence provider.'}
             {step === 2 && 'Insira suas credenciais para conectar.'}
             {step === 3 && 'Escolha o modelo principal e comece a produzir.'}
           </p>
@@ -471,7 +471,7 @@ export function OnboardingOverlay({ isOpen, onCompleted }: OnboardingOverlayProp
           {step === 3 && (
             <div className="zvd-onboarding-form">
               <div className="zvd-onboarding-form-group">
-                <label>Modelo Padrão</label>
+                <label>Default Model</label>
                 {models.length > 0 ? (
                   <select
                     className="zvd-onboarding-model-select"
@@ -486,7 +486,7 @@ export function OnboardingOverlay({ isOpen, onCompleted }: OnboardingOverlayProp
                   </select>
                 ) : (
                   <div className="text-sm text-gray-400 italic">
-                    Nenhum modelo detectado. O Zavorth configurará um modelo padrão de inteligência para você automaticamente.
+                    No model detected. Zavorth will configure a default intelligence model for you automatically.
                   </div>
                 )}
               </div>

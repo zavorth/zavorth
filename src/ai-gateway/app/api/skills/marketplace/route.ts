@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSettings } from "@/lib/db/settings";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request: Request) {
   if (!(await isAuthenticated(request))) {
@@ -34,7 +35,8 @@ export async function GET(request: Request) {
 
     const data = await res.json();
     return NextResponse.json({ skills: data.skills || [] });
-  } catch (err: unknown) {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
   }

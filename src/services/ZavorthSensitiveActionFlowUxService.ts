@@ -44,11 +44,6 @@ export class ZavorthSensitiveActionFlowUxService {
       card,
       source,
       zavorthControlProjection: {
-        route: '/zavorthControl',
-        renderMode: 'action-card',
-        executionAuthority: false,
-      },
-      zavorthControlProjection: {
         route: '/control',
         renderMode: 'action-card',
         executionAuthority: false,
@@ -120,7 +115,6 @@ function buildCard(source: ZavorthSensitiveActionFlowSnapshot): ZavorthSensitive
     steps: buildSteps(source),
     actions: buildActions(source),
     safety: {
-      zavorthControlCanExecute: false,
       zavorthControlCanExecute: false,
       policyBrokerRequired: true,
       previewBeforeApply: true,

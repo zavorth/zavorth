@@ -9,7 +9,7 @@ import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import { TaskResponseEnvelopeService } from '../../../../services/TaskResponseEnvelopeService.js';
 import { UserFacingResponseService } from '../../../../services/UserFacingResponseService.js';
 import type { PolicyViolation } from '../../../../security/PolicyEngine.js';
-import { logger } from '../logger.js';
+import { logger } from '../../../../logger.js';
 
 type PersistTaskFn = (task: Task) => void;
 
@@ -71,7 +71,7 @@ export class TelegramExecutionPlanningService {
 
       const warningText =
         evaluation.warnings.length > 0
-          ? `\nAvisos de seguranca: ${evaluation.warnings.map((warning: PolicyViolation) => warning.detail).join('; ')}`
+          ? `\nSecurity warnings: ${evaluation.warnings.map((warning: PolicyViolation) => warning.detail).join('; ')}`
           : '';
 
       const normalizedWarningText = warningText ? warningText.replace(/^;\s*/, '') : '';
@@ -99,7 +99,7 @@ export class TelegramExecutionPlanningService {
       const message = error instanceof Error ? error.message : String(error);
       task.error_summary = message;
       this.deps.persistTask(task);
-      const userFacingText = `Nao consegui montar um plano agora.\n\nMotivo: ${message}`;
+      const userFacingText = `I could not build a plan right now.\n\nReason: ${message}`;
       const operationalText = TaskResponseEnvelopeService.buildPreparationFailure(task, message);
       TaskResponseEnvelopeService.capture(task, 'preparation_failure', userFacingText, operationalText);
       this.deps.persistTask(task);

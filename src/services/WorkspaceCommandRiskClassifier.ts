@@ -1,4 +1,5 @@
 import path from 'path';
+import { logger } from '../logger.js';
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
@@ -200,9 +201,7 @@ export class WorkspaceCommandRiskClassifier {
     try {
       const resolved = path.resolve(cwd, arg);
       return this.isPathOutside(resolved, root);
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Workspace Command Risk Classifier] lifecycle operation failed', error); return false; }
   }
 
   private isDestructiveCommand(command: string): boolean {

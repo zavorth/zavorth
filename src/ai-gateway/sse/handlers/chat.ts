@@ -144,6 +144,7 @@ import {
   setCachedResponse,
 } from "@/lib/semanticCache";
 import { applyZavorthContextCompression } from "@/lib/zavorthContextCompression";
+import { logger } from '@/shared/utils/logger';
 // Register Codex quota fetcher at module load (once per server start).
 // This hooks into the quotaPreflight + quotaMonitor systems so that combos
 // can proactively switch accounts before the 5h or 7d quota is exhausted.
@@ -541,9 +542,7 @@ async function cacheChatResponseIfEligible(
       Number(usage?.total_tokens || 0) ||
       Math.ceil(Buffer.byteLength(JSON.stringify(payload), "utf8") / 4);
     setCachedResponse(signature, model, payload, tokensSaved);
-  } catch {
-    // Non-JSON or already consumed responses are simply not cached.
-  }
+  } catch (error) { // Non-JSON or already consumed responses are simply not cached. logger.warn('[chat] cache operation failed', error); }
 }
 
 export function buildClientRawRequest(request: Request, body: unknown) {

@@ -64,7 +64,7 @@ export const PUBLIC_DEMO_REQUIRED_ARTIFACTS = [
 ] as const;
 
 export const PUBLIC_DEMO_REQUIRED_COPY = [
-  'Build fix com aprovacao e replay',
+  'Build fix with approval and replay',
   'Public demo',
   'Guided story',
   'Um fluxo completo',
@@ -75,8 +75,8 @@ export const PUBLIC_DEMO_REQUIRED_COPY = [
 
 export const PUBLIC_DEMO_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
-  'autonomo sem aprovacao',
-  'sem limites',
+  'autonomous without approval',
+  'without limits',
   'sempre ligado por padrao',
 ] as const;
 

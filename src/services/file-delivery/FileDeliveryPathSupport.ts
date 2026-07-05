@@ -9,6 +9,7 @@ import type {
   SearchRoot,
 } from './FileDeliveryTypes.js';
 import { GENERATED_DIRECTORY_NAMES } from './FileDeliveryTypes.js';
+import { logger } from '../../logger.js';
 
 export class FileDeliveryPathSupport {
   constructor(
@@ -54,9 +55,7 @@ export class FileDeliveryPathSupport {
     try {
       const stats = fs.statSync(absolutePath);
       return stats.isDirectory() ? absolutePath : path.dirname(absolutePath);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[File Delivery Path] filesystem operation failed', error); return null; }
   }
 
   public makeEntry(absolutePath: string, root: SearchRoot, stats: FileDeliveryStats, score: number): FileDeliveryEntry {
@@ -151,9 +150,7 @@ export class FileDeliveryPathSupport {
       if (fs.statSync(absolutePath).isFile()) {
         rootPath = path.dirname(absolutePath);
       }
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[File Delivery Path] filesystem operation failed', error); return null; }
 
     return {
       key: `approved_root_${index}`,
@@ -187,8 +184,6 @@ export class FileDeliveryPathSupport {
   private safeIsDirectory(targetPath: string): boolean {
     try {
       return fs.statSync(targetPath).isDirectory();
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[File Delivery Path] filesystem operation failed', error); return false; }
   }
 }

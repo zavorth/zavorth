@@ -6,6 +6,7 @@
  */
 
 import type { A2ATask } from "./taskManager";
+import { logger } from '@/shared/utils/logger';
 
 export interface SSEChunkEvent {
   jsonrpc: "2.0";
@@ -107,9 +108,7 @@ export function createA2AStream(
       const heartbeatInterval = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(createHeartbeat(task.id)));
-        } catch {
-          /* stream closed */
-        }
+        } catch (error) { /* stream closed */ logger.warn('[streaming] encoding failed', error); }
       }, 15_000);
 
       try {

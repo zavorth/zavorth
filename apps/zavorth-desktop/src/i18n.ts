@@ -19,19 +19,19 @@ const translations: Record<string, Record<string, string>> = {
   pt: {
     chat: 'Conversa',
     files: 'Arquivos',
-    review: 'Revisão',
-    memory: 'Memória',
+    review: 'Review',
+    memory: 'Memory',
     plugins: 'Plugins',
     channels: 'Canais',
-    settings: 'Configurações',
+    settings: 'Settings',
     webPreview: 'Visualizador Web',
     'subagent.status.idle': 'ocioso',
     'subagent.status.queued': 'na fila',
-    'subagent.status.running': 'em execucao',
-    'subagent.status.completed': 'concluido',
-    'subagent.status.blocked': 'bloqueado',
+    'subagent.status.running': 'running',
+    'subagent.status.completed': 'completed',
+    'subagent.status.blocked': 'blocked',
     'subagent.status.failed': 'falhou',
-    'subagent.status.approval-required': 'aguardando aprovacao',
+    'subagent.status.approval-required': 'waiting for approval',
   }
 };
 

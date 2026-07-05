@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthPlatformCatalogSyncService,
+ZavorthPlatformCatalogSyncService,
   type ZavorthPlatformCatalogSyncStatus,
 } from './ZavorthPlatformCatalogSyncService.js';
 
@@ -112,9 +113,10 @@ export class ZavorthPlatformCatalogSourceService {
         collections: this.mergeById(localCatalog.collections, remoteCatalog.collections),
         recipes: this.mergeById(localCatalog.recipes, remoteCatalog.recipes),
       };
-    } catch {
-      return { entries: [], collections: [], recipes: [] };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Platform  Source] cache operation failed', error);
+    return { entries: [], collections: [], recipes: [] };
+  }
   }
 
   private readCatalogFile(
@@ -150,9 +152,10 @@ export class ZavorthPlatformCatalogSourceService {
           .filter((entry): entry is ZavorthPlatformCatalogRecipe => Boolean(entry))
         : [];
       return { entries, collections, recipes };
-    } catch {
-      return { entries: [], collections: [], recipes: [] };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Platform  Source] parsing failed', error);
+    return { entries: [], collections: [], recipes: [] };
+  }
   }
 
   private mergeById<T extends { id: string }>(localItems: T[], remoteItems: T[]): T[] {

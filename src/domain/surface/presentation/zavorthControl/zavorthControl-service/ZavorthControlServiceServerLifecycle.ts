@@ -30,8 +30,8 @@ export interface ZavorthControlServerService extends ZavorthControlFacadeCompat 
   runtimeStateFile: string;
   runtimeState: RuntimeStateWriter;
   logRepo: LogRepository;
-  responseWriter: ResponseWriter;
-  webApp: WebAppService;
+  responseWriter: any;
+  webApp: any;
   openSockets: Set<Socket>;
   routeRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void>;
 }

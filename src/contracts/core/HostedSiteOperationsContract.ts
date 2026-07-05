@@ -94,7 +94,7 @@ export const HOSTED_SITE_REQUIRED_WEBSITE_SCRIPTS = [
 export const HOSTED_SITE_REQUIRED_ROUTES: HostedSiteRouteSpec[] = [
   {
     route: '/',
-    label: 'landing publica',
+    label: 'public landing',
     sourcePaths: [
       'app/page.tsx',
       'components/Hero.tsx',
@@ -107,28 +107,28 @@ export const HOSTED_SITE_REQUIRED_ROUTES: HostedSiteRouteSpec[] = [
   },
   {
     route: '/demo',
-    label: 'demo publica guiada',
+    label: 'guided public demo',
     sourcePaths: ['app/demo/page.tsx', 'data/public-demo.ts'],
     outputCandidates: ['demo.html', 'demo/index.html'],
-    requiredPhrases: ['Public demo', 'Guided story', 'fixture', 'sem secrets'],
+    requiredPhrases: ['Public demo', 'Guided story', 'fixture', 'no secrets'],
   },
   {
     route: '/start',
-    label: 'first run publico',
+    label: 'public first run',
     sourcePaths: ['app/start/page.tsx', 'data/first-run.ts'],
     outputCandidates: ['start.html', 'start/index.html'],
     requiredPhrases: ['First run', 'preview', 'cleanup'],
   },
   {
     route: '/docs',
-    label: 'docs publicas',
+    label: 'public docs',
     sourcePaths: ['app/docs/page.tsx', 'data/external-docs.ts'],
     outputCandidates: ['docs.html', 'docs/index.html'],
     requiredPhrases: ['Quickstart', 'npm run go', 'release', 'feedback'],
   },
   {
     route: '/release',
-    label: 'release verificavel',
+    label: 'verifiable release',
     sourcePaths: ['app/release/page.tsx', 'data/release-bundle.ts'],
     outputCandidates: ['release.html', 'release/index.html'],
     requiredPhrases: ['Release', 'v1.0.0', 'sha256', 'rollback'],
@@ -160,21 +160,21 @@ export const HOSTED_SITE_SCREENSHOTS: HostedSiteScreenshotSpec[] = [
 export const HOSTED_SITE_DEPLOY_TARGETS: HostedSiteDeployTarget[] = [
   {
     id: 'local-static',
-    label: 'Export local estatico',
+    label: 'Local static export',
     command: 'npm run website:build',
-    guardrail: 'Roda com ZAVORTH_NEXT_DIST_DIR=.next-zavorth-qa e out/ limpo antes do smoke.',
+    guardrail: 'Runs with ZAVORTH_NEXT_DIST_DIR=.next-zavorth-qa and clean out/ before smoke.',
   },
   {
     id: 'preview',
-    label: 'Preview publicavel',
+    label: 'Publishable preview',
     command: 'vercel deploy --prebuilt',
-    guardrail: 'Preview fica separado de producao e exige smoke antes de promote.',
+    guardrail: 'Preview stays separate from production and requires smoke before promote.',
   },
   {
     id: 'production',
-    label: 'Promote controlado',
+    label: 'Controlled promote',
     command: 'vercel promote <preview-url>',
-    guardrail: 'Producao so recebe build ja validado e com rollback documentado.',
+    guardrail: 'Production only receives an already validated build with documented rollback.',
   },
 ];
 
@@ -183,37 +183,37 @@ export const HOSTED_SITE_ROLLBACK_RUNBOOK: HostedSiteRunbookStep[] = [
     id: 'preflight',
     label: 'Preflight local',
     command: 'npm run website:build',
-    proof: 'out/ gerado sem depender de next dev vivo.',
-    rollback: 'Apagar apenas out/ e .next-zavorth-qa se o build falhar.',
+    proof: 'out/ generated without depending on a live next dev process.',
+    rollback: 'Delete only out/ and .next-zavorth-qa if the build fails.',
   },
   {
     id: 'smoke',
-    label: 'Smoke estatico',
+    label: 'Static smoke',
     command: 'npm run hosted-site -- --smoke',
-    proof: 'Rotas /, /demo, /start, /docs, /release e /feedback retornam 200.',
-    rollback: 'Nao publicar preview se qualquer rota falhar.',
+    proof: 'Routes /, /demo, /start, /docs, /release, and /feedback return 200.',
+    rollback: 'Do not publish preview if any route fails.',
   },
   {
     id: 'preview',
     label: 'Deploy preview',
     command: 'vercel deploy --prebuilt',
-    proof: 'URL preview separada de producao e pronta para revisao.',
-    rollback: 'Abandonar preview e manter producao atual.',
+    proof: 'Preview URL separated from production and ready for review.',
+    rollback: 'Abandon preview and keep current production.',
   },
   {
     id: 'publish',
     label: 'Promote/publish',
     command: 'vercel promote <preview-url>',
-    proof: 'Promote acontece apenas depois do smoke e screenshots.',
-    rollback: 'Promover ultimo deployment bom ou reverter alias para release anterior.',
+    proof: 'Promote happens only after smoke and screenshots.',
+    rollback: 'Promote the last known-good deployment or revert alias to the previous release.',
   },
 ];
 
 export const HOSTED_SITE_FORBIDDEN_VISUAL_CLAIMS = [
   'C:\\TESTES DEV',
   '100% seguro',
-  'sem limites',
+  'without limits',
   'always-on',
-  'autonomo sem aprovacao',
+  'autonomous without approval',
   'production without rollback',
 ] as const;

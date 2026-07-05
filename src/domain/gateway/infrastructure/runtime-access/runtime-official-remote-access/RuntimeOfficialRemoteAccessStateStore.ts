@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../../../../logger';
 import {
-  EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE,
+EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE,
   type RuntimeOfficialRemotePersistedState,
 } from './RuntimeOfficialRemoteAccessTypes.js';
 
@@ -57,9 +58,10 @@ export class RuntimeOfficialRemoteAccessStateStore {
         ...EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE,
         ...(parsed as Partial<RuntimeOfficialRemotePersistedState>),
       });
-    } catch {
-      return { ...EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE };
-    }
+    } catch (error) {
+    logger.warn('[Runtime Official Remote Access State Store] JSON parse failed', error);
+    return { ...EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE };
+  }
   }
 
   public writeState(state: RuntimeOfficialRemotePersistedState): void {

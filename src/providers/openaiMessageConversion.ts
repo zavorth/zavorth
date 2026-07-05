@@ -20,7 +20,7 @@ export function convertChatMessagesToOpenAI(
       inlineData: pendingToolInlineData,
     });
     if (Array.isArray(content)) {
-      result.push({ role: 'user' as const, content: content as any });
+      result.push({ role: 'user' as const, content: content as OpenAI.ChatCompletionContentPart[] });
     }
     pendingToolInlineData = [];
   };
@@ -71,7 +71,7 @@ export function convertChatMessagesToOpenAI(
 
     result.push({
       role: 'user' as const,
-      content: buildOpenAIUserContent(message) as any,
+      content: buildOpenAIUserContent(message),
     });
   }
 
@@ -81,14 +81,14 @@ export function convertChatMessagesToOpenAI(
 
 export function buildOpenAIUserContent(
   message: ChatMessage,
-): string | OpenAIContentPart[] {
+): string | OpenAI.ChatCompletionContentPart[] {
   const textContent = message.content || '';
 
   if (!message.inlineData || message.inlineData.length === 0) {
     return textContent;
   }
 
-  const content: OpenAIContentPart[] = [];
+  const content: OpenAI.ChatCompletionContentPart[] = [];
 
   if (textContent) {
     content.push({
@@ -113,7 +113,7 @@ export function buildOpenAIUserContent(
         type: 'input_audio',
         input_audio: {
           data: item.data,
-          format: resolveAudioFormat(item.mimeType),
+          format: resolveAudioFormat(item.mimeType) as 'wav' | 'mp3',
         },
       });
     }

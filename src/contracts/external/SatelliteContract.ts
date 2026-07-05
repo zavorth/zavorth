@@ -1,22 +1,22 @@
 /**
- * SatelliteContract — Contrato Zavorth-nativo para o Zavorth Satellite PWA.
+ * SatelliteContract - Zavorth-native contract for the Zavorth Satellite PWA.
  *
- * Este contrato define a interface canônica para a comunicação entre
- * o Satellite PWA (cliente leve no browser) e o runtime principal do Zavorth.
+ * This contract defines the canonical communication interface between the
+ * Satellite PWA, a lightweight browser client, and the main Zavorth runtime.
  *
- * O Satellite é um nó do tipo 'browser-companion' no Node Mesh,
- * que se conecta via WebSocket ao runtime e troca mensagens
- * usando um protocolo de envelope padronizado.
+ * Satellite is a `browser-companion` node in the Node Mesh. It connects to the
+ * runtime through WebSocket and exchanges messages with a standardized
+ * envelope protocol.
  *
- * Princípios:
- * - Comunicação via WebSocket com envelope tipado.
- * - Autenticação via token de pairing do Node Mesh.
- * - O Satellite nunca executa lógica de domínio — apenas envia/recebe envelopes.
- * - Todo processamento ocorre no runtime principal.
+ * Principles:
+ * - WebSocket communication with typed envelopes.
+ * - Node Mesh pairing-token authentication.
+ * - Satellite never runs domain logic; it only sends and receives envelopes.
+ * - All processing happens in the main runtime.
  *
- * Capability canônica: `satellite.connect`
+ * Canonical capability: `satellite.connect`
  *
- * Referências arquiteturais:
+ * Architectural references:
  * - docs/product-direction.md (Channel mesh)
  * - src/contracts/NodeMeshContract.ts (transport base)
  *
@@ -34,11 +34,11 @@ export const SATELLITE_PWA_ROUTE_BASE = '/satellite' as const;
 export const SATELLITE_WS_PATH = '/api/web/satellite/ws' as const;
 
 // ---------------------------------------------------------------------------
-// Envelope de mensagem
+// Message envelope
 // ---------------------------------------------------------------------------
 
 /**
- * Tipo de mensagem do protocolo Satellite.
+ * Message type for the Satellite protocol.
  */
 export type SatelliteMessageType =
   | 'chat.send'
@@ -60,26 +60,26 @@ export type SatelliteMessageType =
   | 'error';
 
 /**
- * Envelope canônico de mensagem entre Satellite e Runtime.
- * Toda comunicação via WebSocket usa este formato.
+ * Canonical message envelope between Satellite and the runtime.
+ * All WebSocket communication uses this shape.
  */
 export interface SatelliteEnvelope<T = unknown> {
-  /** Tipo da mensagem. */
+  /** Message type. */
   type: SatelliteMessageType;
 
-  /** ID único da mensagem para correlação request/response. */
+  /** Unique message ID for request/response correlation. */
   messageId: string;
 
-  /** ID da mensagem original (para respostas). */
+  /** Original message ID for responses. */
   replyTo?: string | null;
 
-  /** Payload da mensagem (shape depende do type). */
+  /** Message payload; shape depends on the message type. */
   payload: T;
 
-  /** Timestamp ISO da criação da mensagem. */
+  /** Message creation timestamp in ISO format. */
   timestamp: string;
 
-  /** ID da sessão do Satellite. */
+  /** Satellite session ID. */
   sessionId?: string | null;
 }
 
@@ -87,57 +87,57 @@ export interface SatelliteEnvelope<T = unknown> {
 // Payloads
 // ---------------------------------------------------------------------------
 
-/** Payload de chat.send (Satellite → Runtime). */
+/** chat.send payload (Satellite -> Runtime). */
 export interface SatelliteChatSendPayload {
-  /** Mensagem textual do usuário. */
+  /** User text message. */
   text: string;
 
-  /** Anexos, se existirem. */
+  /** Optional attachments. */
   attachments?: SatelliteAttachment[] | null;
 }
 
-/** Payload de chat.response (Runtime → Satellite). */
+/** chat.response payload (Runtime -> Satellite). */
 export interface SatelliteChatResponsePayload {
-  /** Resposta textual do agente. */
+  /** Agent text response. */
   text: string;
 
-  /** Se a resposta é streaming (mais chunks virão). */
+  /** Whether the response is streaming and more chunks will follow. */
   streaming: boolean;
 
-  /** Artefatos gerados durante a resposta. */
+  /** Artifacts generated during the response. */
   artifacts?: SatelliteArtifactRef[] | null;
 }
 
-/** Payload de chat.stream_chunk (Runtime → Satellite). */
+/** chat.stream_chunk payload (Runtime -> Satellite). */
 export interface SatelliteStreamChunkPayload {
-  /** Trecho de texto incremental. */
+  /** Incremental text chunk. */
   delta: string;
 
-  /** Índice do chunk na sequência. */
+  /** Chunk index in the stream sequence. */
   index: number;
 }
 
-/** Payload de chat.stream_end (Runtime → Satellite). */
+/** chat.stream_end payload (Runtime -> Satellite). */
 export interface SatelliteStreamEndPayload {
-  /** Texto completo final (para reconciliação). */
+  /** Final full text for reconciliation. */
   fullText: string;
 
-  /** Artefatos gerados. */
+  /** Generated artifacts. */
   artifacts?: SatelliteArtifactRef[] | null;
 }
 
-/** Payload de status.response (Runtime → Satellite). */
+/** status.response payload (Runtime -> Satellite). */
 export interface SatelliteStatusPayload {
-  /** Se o runtime está operacional. */
+  /** Whether the runtime is operational. */
   online: boolean;
 
-  /** Nome do agente ativo. */
+  /** Active agent name. */
   agentName: string;
 
-  /** Capabilities disponíveis. */
+  /** Available capabilities. */
   capabilities: string[];
 
-  /** Informações do host. */
+  /** Host information. */
   host: {
     hostname: string;
     platform: string;
@@ -145,145 +145,145 @@ export interface SatelliteStatusPayload {
   };
 }
 
-/** Payload de capability.invoke (Satellite → Runtime). */
+/** capability.invoke payload (Satellite -> Runtime). */
 export interface SatelliteCapabilityInvokePayload {
-  /** ID da capability a invocar. */
+  /** Capability ID to invoke. */
   capabilityId: string;
 
-  /** Argumentos da invocação. */
+  /** Invocation arguments. */
   args: Record<string, unknown>;
 }
 
-/** Payload de capability.result (Runtime → Satellite). */
+/** capability.result payload (Runtime -> Satellite). */
 export interface SatelliteCapabilityResultPayload {
-  /** Se a invocação foi bem-sucedida. */
+  /** Whether the invocation succeeded. */
   ok: boolean;
 
-  /** ID do card quando o resultado veio de uma decisao interativa. */
+  /** Card ID when the result came from an interactive decision. */
   actionId?: string | null;
 
-  /** Decisao tomada pelo usuario em um card interativo. */
+  /** User decision from an interactive card. */
   decision?: 'approve' | 'reject' | string | null;
 
-  /** Resultado da invocação. */
+  /** Invocation result. */
   result: unknown;
 
-  /** Erro, se houve. */
+  /** Error, when present. */
   error?: string | null;
 }
 
-/** Payload de action.request / approval.request (Runtime -> Satellite). */
+/** action.request / approval.request payload (Runtime -> Satellite). */
 export interface SatelliteActionRequestPayload {
-  /** ID estavel da decisao para correlacionar com capability.result. */
+  /** Stable decision ID for correlation with capability.result. */
   actionId: string;
 
-  /** Titulo curto exibido no card. */
+  /** Short title displayed in the card. */
   title: string;
 
-  /** Descricao contextual da decisao. */
+  /** Contextual decision description. */
   description: string;
 
-  /** Badge visual, como CODE_CHANGE ou SECURITY. */
+  /** Visual badge, such as CODE_CHANGE or SECURITY. */
   badge?: string | null;
 
-  /** Risco ou severidade resumida. */
+  /** Summarized risk or severity. */
   risk?: string | null;
 
-  /** Diff, preview ou metadados para o botao Details. */
+  /** Diff, preview, or metadata for the Details button. */
   details?: unknown;
 }
 
-/** Payload de heartbeat.ping (Satellite -> Runtime). */
+/** heartbeat.ping payload (Satellite -> Runtime). */
 export interface SatelliteHeartbeatPingPayload {
-  /** Node Mesh id opcional quando o Satellite tambem atua como node pareado. */
+  /** Optional Node Mesh ID when Satellite also acts as a paired node. */
   nodeId?: string | null;
 
-  /** Segredo emitido pelo claim de pairing do Node Mesh. */
+  /** Secret issued by the Node Mesh pairing claim. */
   sharedSecret?: string | null;
 
-  /** Resultados de invocacoes concluidas pelo cliente, quando houver. */
+  /** Client-completed invocation results, when present. */
   completedInvocations?: unknown[] | null;
 
-  /** Capabilities locais reportadas pelo cliente. */
+  /** Local capabilities reported by the client. */
   capabilities?: string[] | null;
 }
 
-/** Payload de heartbeat.pong (Runtime -> Satellite). */
+/** heartbeat.pong payload (Runtime -> Satellite). */
 export interface SatelliteHeartbeatPongPayload {
   ok: boolean;
   serverTime: string;
   nodeMesh?: unknown;
 }
 
-/** Payload de auth.challenge (Runtime → Satellite). */
+/** auth.challenge payload (Runtime -> Satellite). */
 export interface SatelliteAuthChallengePayload {
-  /** Tipo de autenticação esperado. */
+  /** Expected authentication type. */
   authType: 'pairing-token' | 'zavorthControl-token';
 
-  /** Nonce para evitar replay attacks. */
+  /** Nonce for replay-attack prevention. */
   nonce: string;
 }
 
-/** Payload de auth.response (Satellite → Runtime). */
+/** auth.response payload (Satellite -> Runtime). */
 export interface SatelliteAuthResponsePayload {
-  /** Token de autenticação. */
+  /** Authentication token. */
   token: string;
 
-  /** Nonce recebido no challenge. */
+  /** Nonce received in the challenge. */
   nonce: string;
 }
 
-/** Payload de error (Runtime → Satellite). */
+/** error payload (Runtime -> Satellite). */
 export interface SatelliteErrorPayload {
-  /** Código de erro. */
+  /** Error code. */
   code: string;
 
-  /** Mensagem legível. */
+  /** Human-readable message. */
   message: string;
 }
 
 // ---------------------------------------------------------------------------
-// Referências de artefatos e anexos
+// Artifact and attachment references
 // ---------------------------------------------------------------------------
 
-/** Referência a um artefato para o Satellite. */
+/** Artifact reference for Satellite. */
 export interface SatelliteArtifactRef {
-  /** ID do artefato no Zavorth. */
+  /** Zavorth artifact ID. */
   artifactId: string;
 
-  /** Tipo MIME. */
+  /** MIME type. */
   contentType: string;
 
-  /** Nome de exibição. */
+  /** Display name. */
   displayName: string;
 
-  /** URL relativa para download via API. */
+  /** Relative download URL through the API. */
   downloadPath: string;
 
-  /** Tamanho em bytes. */
+  /** Size in bytes. */
   sizeBytes?: number | null;
 }
 
-/** Anexo enviado pelo Satellite. */
+/** Attachment sent by Satellite. */
 export interface SatelliteAttachment {
-  /** Nome do arquivo. */
+  /** File name. */
   fileName: string;
 
-  /** Tipo MIME. */
+  /** MIME type. */
   contentType: string;
 
-  /** Dados em base64. */
+  /** Base64-encoded data. */
   dataBase64: string;
 
-  /** Tamanho em bytes. */
+  /** Size in bytes. */
   sizeBytes: number;
 }
 
 // ---------------------------------------------------------------------------
-// Estado da conexão do Satellite
+// Satellite connection state
 // ---------------------------------------------------------------------------
 
-/** Estado da conexão entre Satellite e Runtime. */
+/** Connection state between Satellite and the runtime. */
 export type SatelliteConnectionState =
   | 'disconnected'
   | 'connecting'
@@ -292,21 +292,21 @@ export type SatelliteConnectionState =
   | 'reconnecting'
   | 'error';
 
-/** Configuração de conexão do Satellite. */
+/** Satellite connection configuration. */
 export interface SatelliteConnectionConfig {
-  /** URL do WebSocket do runtime. */
+  /** Runtime WebSocket URL. */
   wsUrl: string;
 
-  /** Token de autenticação. */
+  /** Authentication token. */
   authToken: string;
 
-  /** Intervalo de heartbeat em ms. Default: 30000. */
+  /** Heartbeat interval in ms. Default: 30000. */
   heartbeatInterval?: number;
 
-  /** Timeout de reconexão em ms. Default: 5000. */
+  /** Reconnection timeout in ms. Default: 5000. */
   reconnectTimeout?: number;
 
-  /** Máximo de tentativas de reconexão. Default: 10. */
+  /** Maximum reconnection attempts. Default: 10. */
   maxReconnectAttempts?: number;
 }
 
@@ -319,7 +319,7 @@ export function validateSatelliteEnvelope(value: unknown): SatelliteEnvelopeVali
     return {
       ok: false,
       code: 'INVALID_ENVELOPE',
-      message: 'Envelope deve ser um objeto JSON.',
+      message: 'Envelope must be a JSON object.',
     };
   }
 
@@ -328,7 +328,7 @@ export function validateSatelliteEnvelope(value: unknown): SatelliteEnvelopeVali
     return {
       ok: false,
       code: 'INVALID_MESSAGE_TYPE',
-      message: 'Envelope trouxe type invalido.',
+      message: 'Envelope contains an invalid type.',
     };
   }
 
@@ -336,7 +336,7 @@ export function validateSatelliteEnvelope(value: unknown): SatelliteEnvelopeVali
     return {
       ok: false,
       code: 'INVALID_MESSAGE_ID',
-      message: 'Envelope deve conter messageId.',
+      message: 'Envelope must contain messageId.',
     };
   }
 
@@ -344,7 +344,7 @@ export function validateSatelliteEnvelope(value: unknown): SatelliteEnvelopeVali
     return {
       ok: false,
       code: 'INVALID_TIMESTAMP',
-      message: 'Envelope deve conter timestamp.',
+      message: 'Envelope must contain timestamp.',
     };
   }
 

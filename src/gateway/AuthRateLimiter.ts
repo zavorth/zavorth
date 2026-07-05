@@ -103,8 +103,8 @@ export class AuthRateLimiter {
   }
 
   /**
-   * Registra uma tentativa falha. Incrementa o contador e aplica
-   * lockout se o limite for atingido.
+   * Records a failed attempt, increments the counter,
+   * and applies lockout when the limit is reached.
    */
   recordFailure(scope: string, identifier: string): void {
     if (this.exemptLoopback && this.isLoopback(identifier)) {
@@ -127,7 +127,7 @@ export class AuthRateLimiter {
   }
 
   /**
-   * Registra uma tentativa bem-sucedida. Reseta o contador.
+   * Records a successful attempt and resets the counter.
    */
   recordSuccess(scope: string, identifier: string): void {
     const k = this.key(scope, identifier);

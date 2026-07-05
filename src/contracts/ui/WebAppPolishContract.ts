@@ -49,18 +49,18 @@ export type WebAppPolishSnapshot = {
 export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
   {
     id: 'canonical-control-entry',
-    title: 'entrada canonica /zavorthControl',
+    title: 'canonical /zavorthControl entry',
     asset: 'html',
     requiredMarkers: [
       'id="canonical-surface-banner"',
-      'ZavorthControl canonica',
-      '/zavorthControl e a entrada web principal',
+      'Canonical ZavorthControl',
+      '/zavorthControl is the main web entry',
     ],
-    reason: 'a web/app precisa apontar para a superficie canonica e deixar /app e /classic fora da superficie publica.',
+    reason: 'the web/app must point to the canonical surface and keep /app and /classic out of the public surface.',
   },
   {
     id: 'product-command-rail',
-    title: 'trilha oficial da CLI na web',
+    title: 'official CLI path on the web',
     asset: 'html',
     requiredMarkers: [
       'id="product-command-rail-card"',
@@ -73,11 +73,11 @@ export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
       'zavorth chat',
       'zavorth doctor',
     ],
-    reason: 'a ZavorthControl deve carregar a mesma jornada canonica da CLI.',
+    reason: 'ZavorthControl must carry the same canonical journey as the CLI.',
   },
   {
     id: 'operator-cockpit',
-    title: 'cockpit do operador',
+    title: 'operator cockpit',
     asset: 'html',
     requiredMarkers: [
       'id="operator-cockpit-card"',
@@ -86,11 +86,11 @@ export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
       'id="cockpit-health-card"',
       'id="operator-action-rail"',
     ],
-    reason: 'o operador precisa de uma leitura rapida antes de abrir detalhes.',
+    reason: 'the operator needs a fast read before opening details.',
   },
   {
     id: 'session-workspace',
-    title: 'workspace operacional da sessao',
+    title: 'session operational workspace',
     asset: 'html',
     requiredMarkers: [
       'id="session-workspace-card"',
@@ -99,11 +99,11 @@ export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
       'id="session-workspace-resources-card"',
       'id="session-workspace-health-card"',
     ],
-    reason: 'approvals, diffs, recursos e health precisam aparecer juntos no fluxo de sessao.',
+    reason: 'approvals, diffs, resources, and health must appear together in the session flow.',
   },
   {
     id: 'artifact-replay-memory',
-    title: 'artifacts, replay e memoria',
+    title: 'artifacts, replay, and memory',
     asset: 'html',
     requiredMarkers: [
       'id="session-workspace-replay-card"',
@@ -112,36 +112,36 @@ export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
       'id="memory-layered-search-action"',
       'id="replay-learning-control-plane-card"',
     ],
-    reason: 'runs longos precisam ser recuperaveis, auditaveis e conectados a memoria.',
+    reason: 'long runs must be recoverable, auditable, and connected to memory.',
   },
   {
     id: 'doctor-next-actions',
-    title: 'doctor visual e proximas acoes',
+    title: 'visual doctor and next actions',
     asset: 'html',
     requiredMarkers: [
       'id="priority-next-steps"',
       'id="session-workspace-health"',
       'id="ops-quality-details"',
       'id="qa-control-plane-card"',
-      'Copiar doctor',
+      'Copy doctor',
     ],
-    reason: 'a web/app deve explicar o proximo passo sem depender do terminal.',
+    reason: 'the web/app must explain the next step without depending on the terminal.',
   },
   {
     id: 'protected-empty-states',
-    title: 'estados vazios protegidos',
+    title: 'protected empty states',
     asset: 'html',
     requiredMarkers: [
-      'Valide o token para',
-      'Valide o token para revisar',
-      'Valide o token para carregar',
-      'Valide o token para ver',
+      'Validate the token to',
+      'Validate the token to review',
+      'Validate the token to load',
+      'Validate the token to see',
     ],
-    reason: 'telas autenticadas precisam indicar estado vazio e caminho de liberacao.',
+    reason: 'authenticated screens must indicate empty state and release path.',
   },
   {
     id: 'rendering-refresh-loop',
-    title: 'renderizacao e refresh dos paineis',
+    title: 'panel rendering and refresh',
     asset: 'script',
     requiredMarkers: [
       'function renderOperatorCockpit',
@@ -150,11 +150,11 @@ export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
       'function renderList',
       'renderRuntimeStabilityControlPlanePanel',
     ],
-    reason: 'o shell precisa atualizar cockpit, workspace, memoria e estabilidade sem reload manual.',
+    reason: 'the shell must update cockpit, workspace, memory, and stability without manual reload.',
   },
   {
     id: 'interactive-actions',
-    title: 'acoes interativas seguras',
+    title: 'safe interactive actions',
     asset: 'script',
     requiredMarkers: [
       '[data-copy]',
@@ -163,11 +163,11 @@ export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
       'runLayeredMemorySearch',
       'runPriorityPrimaryAction',
     ],
-    reason: 'copiar comandos, aprovar, buscar memoria e executar o proximo passo devem ser interativos.',
+    reason: 'copying commands, approving, searching memory, and executing the next step must be interactive.',
   },
   {
     id: 'responsive-scannable-layout',
-    title: 'layout responsivo e escaneavel',
+    title: 'responsive and scannable layout',
     asset: 'styles',
     requiredMarkers: [
       'grid-template-columns: repeat(auto-fit',
@@ -176,7 +176,7 @@ export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
       '@media (max-width: 640px)',
       'flex-wrap: wrap',
     ],
-    reason: 'cards, acoes e grids precisam se manter legiveis em desktop e mobile.',
+    reason: 'cards, actions, and grids must remain readable on desktop and mobile.',
   },
 ];
 
@@ -189,9 +189,9 @@ export const WEB_APP_POLISH_PACKAGE_SCRIPTS = [
 ] as const;
 
 export const WEB_APP_POLISH_CONTRACTS = [
-  'A entrada web canonica e /zavorthControl; /app e /classic foram removidas da superficie publica.',
-  'A web/app precisa expor a mesma jornada canonica da CLI: onboard, go, chat, status e doctor.',
-  'Approvals, diffs, artifacts, memoria, recursos e health precisam estar no mesmo workspace operacional.',
-  'Estados vazios autenticados devem explicar o caminho de liberacao sem stack trace ou inventario bruto.',
-  'O gate da Etapa 40 valida fonte estatica e nao inicia servidor persistente.',
+  'The canonical web entry is /zavorthControl; /app and /classic were removed from the public surface.',
+  'The web/app must expose the same canonical journey as the CLI: onboard, go, chat, status, and doctor.',
+  'Approvals, diffs, artifacts, memory, resources, and health must be in the same operational workspace.',
+  'Authenticated empty states must explain the release path without stack trace or raw inventory.',
+  'Stage 40 gate validates static source and does not start a persistent server.',
 ];

@@ -186,7 +186,7 @@ export class SharedSurfaceTaskVariationCommandPack {
       `Ajuste adicional para esta nova variacao: ${adjustment}`,
     ].join("\n");
 
-    return this.deps.surfaceTaskDispatcher.dispatchTaskMessage({
+    const result = await this.deps.surfaceTaskDispatcher.dispatchTaskMessage({
       ctx: ctx as any,
       platform: ctx.platform,
       chatId: ctx.chatId,
@@ -199,6 +199,11 @@ export class SharedSurfaceTaskVariationCommandPack {
         transport: ctx.transport || null,
       },
     });
+    const taskLike = result.task as { task_id?: unknown; id?: unknown } | null | undefined;
+    const taskId = String(taskLike?.task_id || taskLike?.id || "").trim();
+    return {
+      task: taskId ? { task_id: taskId } : null,
+    };
   }
 
   private rememberTaskVariationConversation(

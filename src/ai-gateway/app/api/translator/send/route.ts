@@ -12,6 +12,7 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { translatorSendSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { assertProviderRequestTargetAllowed } from "@/lib/security/egressGuard";
+import { logger } from '@/shared/utils/logger';
 
 function getProviderBaseUrl(providerSpecificData: unknown): string | undefined {
   if (!providerSpecificData || typeof providerSpecificData !== "object") return undefined;
@@ -26,7 +27,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] string operation failed', error);
     return NextResponse.json(
       {
         success: false,

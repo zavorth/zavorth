@@ -72,6 +72,6 @@ export async function runExecutionGatewayRuntimeFailureHook(
   try {
     await runExecutionGatewayRuntimeHook(hookPipeline, 'runtime.exec_failed', workspace, context);
   } catch {
-    // hooks de observabilidade nao devem quebrar a decisao do gateway
+    // Observability hooks must not break the gateway decision.
   }
 }

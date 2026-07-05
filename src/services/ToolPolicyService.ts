@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthToolPolicyAction,
+ZavorthToolPolicyAction,
   ZavorthToolPolicyLevel,
   ZavorthToolPolicyEntry,
 } from '../contracts/ToolPolicyContract.js';
@@ -92,9 +93,7 @@ export class ToolPolicyService {
     try {
       const raw = String(this.fs.readFileSync(permPath, 'utf8') || '{}');
       perms = JSON.parse(raw);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[ToolPolicyService] JSON parse failed', error); return []; }
     const entries: ZavorthToolPolicyEntry[] = [];
     for (const [key, value] of Object.entries(perms)) {
       const action = key as ZavorthToolPolicyAction;
@@ -158,9 +157,7 @@ export class ToolPolicyService {
     try {
       if (!this.fs.existsSync(filePath)) return fallback;
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[ToolPolicyService] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

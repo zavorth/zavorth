@@ -1,4 +1,5 @@
 import type { CompiledPolicyRule, PolicyCompilerSnapshot } from '../contracts/PracticalAgencyContract.js';
+import { logger } from '../logger.js';
 
 export class ZavorthPolicyCompilerService {
   public compile(input: { source?: string | Record<string, unknown> | null } = {}): PolicyCompilerSnapshot {
@@ -14,15 +15,16 @@ export class ZavorthPolicyCompilerService {
         hardBlocksPreserved: true,
         error: null,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth  Compiler] parsing failed', error);
+    return {
         source: 'ZavorthPolicyCompilerService',
         status: 'blocked',
         rules: [],
         hardBlocksPreserved: true,
         error: redact(error?.message || 'Policy could not be compiled.'),
       };
-    }
+  }
   }
 }
 

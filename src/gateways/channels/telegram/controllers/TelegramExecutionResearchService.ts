@@ -24,10 +24,10 @@ export class TelegramExecutionResearchService {
   ): Promise<{ output: string; success: boolean }> {
     if (!query) {
       task.executor_used = 'web_research';
-      task.error_summary = 'Nenhuma pergunta foi recebida para a pesquisa web.';
+      task.error_summary = 'No question was received for web research.';
       this.deps.persistTask(task);
       return {
-        output: 'Nao consegui fazer a pesquisa web porque a pergunta veio vazia.',
+        output: 'I could not run web research because the question was empty.',
         success: false,
       };
     }
@@ -58,7 +58,7 @@ export class TelegramExecutionResearchService {
       };
     } catch (error: unknown) {
       const message = String(
-        (error instanceof Error ? error.message : null) ?? error ?? 'Falha desconhecida na pesquisa web.',
+        (error instanceof Error ? error.message : null) ?? error ?? 'Unknown web research failure.',
       ).trim();
       task.executor_used = 'web_research';
       task.error_summary = this.truncateSummary(message);

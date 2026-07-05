@@ -12,8 +12,9 @@ import {
   type ZavorthExternalAgentMigrationStatus,
 } from '../contracts/ZavorthExternalAgentMigrationPackContract.js';
 import type { ZavorthExternalAgentGatewayReceipt } from '../contracts/ZavorthExternalAgentGatewayContract.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthExternalAgentOnboardingService,
+ZavorthExternalAgentOnboardingService,
   type ZavorthExternalAgentOnboardingInput,
 } from './ZavorthExternalAgentOnboardingService.js';
 
@@ -264,9 +265,10 @@ export class ZavorthExternalAgentMigrationPackService {
         let entries: fs.Dirent[];
         try {
           entries = this.readdirSyncImpl(current, { withFileTypes: true }) as fs.Dirent[];
-        } catch {
-          return;
-        }
+        } catch (error) {
+    logger.warn('[Zavorth External Agent Migration Pack] filesystem operation failed', error);
+    return;
+  }
         for (const entry of entries.slice(0, 120)) {
           if (out.length >= maxFiles) return;
           if (shouldSkipName(entry.name)) continue;
@@ -291,9 +293,7 @@ export class ZavorthExternalAgentMigrationPackService {
               ext,
               size: stat.size,
             });
-          } catch {
-            // read-only best effort
-          }
+          } catch (error) { // read-only best effort logger.warn('[Zavorth External Agent Migration Pack] operation failed', error); }
         }
       };
       visit(base, 0);
@@ -363,9 +363,10 @@ export class ZavorthExternalAgentMigrationPackService {
         bytesRead: Buffer.byteLength(raw, 'utf8'),
         secretLikeContentDetected: containsSecretLike(raw),
       };
-    } catch {
-      return { text: '', bytesRead: 0, secretLikeContentDetected: false };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth External Agent Migration Pack] filesystem operation failed', error);
+    return { text: '', bytesRead: 0, secretLikeContentDetected: false };
+  }
   }
 
   private writeAssets(

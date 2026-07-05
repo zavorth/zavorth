@@ -5,6 +5,11 @@ import {
   type FeedbackTelemetryProductLoopSnapshot,
   type UniversalAgentRun,
 } from '../runtime/agent/index.js';
+import type {
+  ZavorthFirstRunBootstrapPlan,
+  ZavorthWorkspaceIdentityProfileSnapshot,
+  ZavorthFirstRunBootstrapPaths,
+} from '../contracts/FirstRunWorkspaceBootstrapContract.js';
 
 export function resolveFeedbackTelemetryProductLoopCliText(args: string): string {
   return String(args || '')
@@ -42,8 +47,8 @@ export function buildFeedbackTelemetryProductLoopCliSnapshot(input: {
           },
           questions: [],
           writes: [],
-          summary: ['Primeiro uso configurado para feedback loop.'],
-        } as any),
+          summary: ['Primeiro uso configured para feedback loop.'],
+        } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
           configured: true,
@@ -55,8 +60,8 @@ export function buildFeedbackTelemetryProductLoopCliSnapshot(input: {
           memoryMode: 'local-metadata',
           safetyPosture: 'preview-first',
           providerStatus: 'deferred',
-        } as any),
-        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as any),
+        } as unknown as ZavorthWorkspaceIdentityProfileSnapshot),
+        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as unknown as ZavorthFirstRunBootstrapPaths),
       },
       personalizationService: {
         getStatus: () => ({
@@ -106,15 +111,15 @@ export function formatFeedbackTelemetryProductLoopSnapshot(
 ): string {
   const lines = [
     'Feedback / Telemetry Opt-In / Product Loop - Feedback Telemetry',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- feedback: ${snapshot.feedback.contractStatus}`,
     `- preview redigido: ${String(snapshot.telemetry.redactedPreviewAvailable)}`,
     `- ledger: ${String(snapshot.productLoop.ledgerAvailable)}`,
     `- telemetry externa: ${String(snapshot.telemetry.externalTelemetryEnabled)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -140,13 +145,13 @@ export function formatFeedbackTelemetryProductLoopSnapshot(
   lines.push(`- enable telemetry: ${String(snapshot.readiness.canEnableTelemetry)}`);
 
   lines.push('', 'Politica');
-  lines.push('- telemetry nao foi ligada');
-  lines.push('- feedback nao foi enviado');
-  lines.push('- chamada externa nao foi feita');
-  lines.push('- payload bruto nao foi serializado');
-  lines.push('- consentimento nao foi assumido');
+  lines.push('- telemetry was not enabled');
+  lines.push('- feedback was not sent');
+  lines.push('- external call was not made');
+  lines.push('- raw payload was not serialized');
+  lines.push('- consent was not assumed');
   lines.push('- revoke/delete estao disponiveis');
-  lines.push('- opt-in explicito obrigatorio');
+  lines.push('- explicit opt-in required');
 
   lines.push('', 'Rotas e comandos');
   lines.push(`- Feedback: ${snapshot.surface.feedbackRoute}`);
@@ -190,7 +195,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
         { route: '/', label: 'landing principal' },
         { route: '/docs', label: 'documentacao publica' },
         { route: '/privacy', label: 'privacidade' },
-        { route: '/security', label: 'seguranca' },
+        { route: '/security', label: 'security' },
       ],
       forbiddenClaims: [],
       checks: [],

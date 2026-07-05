@@ -9,8 +9,9 @@ import type {
   OAuthModalProps,
   OAuthModalStep,
 } from "./oauthModalTypes";
+import { logger } from '@/shared/utils/logger';
 import {
-  buildGoogleRedirectMismatchMessage,
+buildGoogleRedirectMismatchMessage,
   buildRedirectUri,
   isAcceptedCallbackOrigin,
   isDeviceCodeProvider,
@@ -409,9 +410,7 @@ export function useOAuthModal({
           localStorage.removeItem("oauth_callback");
         }
       }
-    } catch {
-      // Ignore malformed or unavailable localStorage.
-    }
+    } catch (error) { // Ignore malformed or unavailable localStorage. logger.warn('[use O Auth Modal] JSON parse failed', error); }
 
     return () => {
       window.removeEventListener("message", handleMessage);
@@ -436,9 +435,7 @@ export function useOAuthModal({
           clearInterval(popupClosedInterval);
           setStep("input");
         }
-      } catch {
-        // Ignore cross-origin access errors.
-      }
+      } catch (error) { // Ignore cross-origin access errors. logger.warn('[use O Auth Modal] resource cleanup failed', error); }
     }, 1000);
 
     const safetyTimeout = setTimeout(() => {

@@ -1,5 +1,6 @@
+import { logger } from '@/shared/utils/logger';
 /**
- * Shared formatting utilities â€” DRY extraction from duplicated functions
+ * Shared formatting utilities - DRY extraction from duplicated functions
  * across RequestLoggerV2.js, UsageAnalytics.js, ProxyLogger.js
  *
  * Prevents copy-paste duplication and provides a single source of truth.
@@ -19,9 +20,7 @@ export function formatTime(isoString) {
       minute: "2-digit",
       second: "2-digit",
     });
-  } catch {
-    return "-";
-  }
+  } catch (error) { logger.warn('[formatting] string operation failed', error); return "-"; }
 }
 
 /**
@@ -44,9 +43,7 @@ export function formatDateTime(iso) {
   try {
     const d = new Date(iso);
     return d.toLocaleDateString("en-US") + ", " + d.toLocaleTimeString("en-US", { hour12: false });
-  } catch {
-    return iso;
-  }
+  } catch (error) { logger.warn('[formatting] string operation failed', error); return iso; }
 }
 
 /**
@@ -86,7 +83,7 @@ export function maskAccount(account) {
  * @returns {string}
  */
 export function formatApiKeyLabel(apiKeyName, apiKeyId) {
-  if (!apiKeyName && !apiKeyId) return "â€”";
+  if (!apiKeyName && !apiKeyId) return "-";
   const displayName = apiKeyName || "key";
   if (!apiKeyId) return displayName;
   return `${displayName} (${maskSegment(apiKeyId, 4, 4)})`;
@@ -143,9 +140,10 @@ export function truncateUrl(url, max = 50) {
   try {
     const parsed = new URL(url);
     const display = parsed.hostname + parsed.pathname;
-    return display.length > max ? display.slice(0, max) + "â€¦" : display;
-  } catch {
-    return url.length > max ? url.slice(0, max) + "â€¦" : url;
+    return display.length > max ? display.slice(0, max) + "..." : display;
+  } catch (error) {
+    logger.warn('[formatting] parsing failed', error);
+    return url.length > max ? url.slice(0, max) + "..." : url;
   }
 }
 

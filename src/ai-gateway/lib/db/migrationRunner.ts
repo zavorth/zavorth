@@ -13,8 +13,9 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import type Database from "better-sqlite3";
+import { logger } from '@/shared/utils/logger';
 import {
-  ensureZavorthMigrationLedger,
+ensureZavorthMigrationLedger,
   getAppliedZavorthMigrations,
   getZavorthMigrationRows,
   recordZavorthMigration,
@@ -32,9 +33,7 @@ function resolveMigrationsDir(): string {
       const __filename = fileURLToPath(metaUrl);
       return path.join(path.dirname(__filename), "migrations");
     }
-  } catch {
-    // fileURLToPath failed (e.g. Windows global install) — use fallback
-  }
+  } catch (error) { // fileURLToPath failed (e.g. Windows global install) — use fallback logger.warn('[migration Runner] lifecycle operation failed', error); }
   // Fallback: resolve relative to cwd (works for both dev and global installs)
   return path.join(process.cwd(), "src", "lib", "db", "migrations");
 }

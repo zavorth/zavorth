@@ -1,9 +1,10 @@
-import { execFile } from 'child_process';
+import { execFile, ExecException } from 'child_process';
 import crypto from 'crypto';
 import path from 'path';
 import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
+import { logger } from '../logger.js';
 
 export interface CommandExecutionResult {
   exitCode: number;
@@ -78,7 +79,7 @@ export class WorkspaceCommandRunnerService {
           maxBuffer: 1024 * 1024 * 5
         }, (error, childStdout, childStderr) => {
           if (error) {
-            const execError = error as any;
+            const execError = error as ExecException;
             if (execError.killed || execError.signal === 'SIGTERM') {
               timeoutFlag = true;
             }
@@ -101,10 +102,11 @@ export class WorkspaceCommandRunnerService {
       stdout = res.stdout;
       stderr = res.stderr;
       exitCode = res.code !== null ? res.code : 0;
-    } catch (err: any) {
-      exitCode = err.code !== undefined ? err.code : 1;
+    } catch (error) {
+    logger.warn('[Workspace Command Runner] process execution failed', error);
+    exitCode = err.code !== undefined ? err.code : 1;
       stderr = err.message || 'Unknown execution error';
-    }
+  }
 
     const durationMs = Date.now() - startTime;
 

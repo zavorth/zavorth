@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthTeamMember,
+ZavorthTeamMember,
   ZavorthTeamContext,
 } from '../contracts/TeamContextContract.js';
 
@@ -176,9 +177,7 @@ export class TeamContextService {
     try {
       if (!this.fs.existsSync(filePath)) return fallback;
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Team Context] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

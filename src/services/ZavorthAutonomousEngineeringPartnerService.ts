@@ -35,8 +35,9 @@ import type {
   ZavorthAutonomyBudget,
   ZavorthAutonomyLevel,
 } from '../contracts/AutonomousEngineeringPartnerContract.js';
+import { logger } from '../logger.js';
 import {
-  AUTONOMY_LEVELS,
+AUTONOMY_LEVELS,
   buildAuditId,
   buildEvidenceId,
   buildMissionId,
@@ -97,7 +98,7 @@ interface ControlPlaneSnapshot {
     canProceed?: boolean;
     rolloutBlocked?: boolean;
   };
-  actions?: string[];
+  actions?: any[];
 }
 
 type SnapshotLike = {
@@ -607,9 +608,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
     if (mission.mutationPlanId) {
       try {
         this.mutationPlane.markApplied(mission.mutationPlanId, mission.result.summary, ['mission.complete']);
-      } catch {
-        // Completion evidence should survive even if the mutation plan was already expired or applied.
-      }
+      } catch (error) { // Completion evidence should survive even if the mutation plan was already expired or applied. logger.warn('[Zavorth Autonomous Engineering Partner] creation failed', error); }
     }
     this.writeMission(state, mission, `Missao ${mission.id} concluida.`);
     this.appendLedger({
@@ -675,11 +674,12 @@ export class ZavorthAutonomousEngineeringPartnerService {
     try {
       return await Promise.resolve(service.buildSnapshot(input));
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Autonomous Engineering Partner] creation failed', error);
+    return {
         unavailable: true,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private buildMissionPolicy(input: {
@@ -985,9 +985,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
       return this.mutationPlane.listPlans({ limit: Math.max(limit, 20), includeExpired: false })
         .filter((entry) => entry.domain === 'autonomous-partner' && (entry.status === 'waiting_approval' || entry.status === 'approved' || entry.status === 'draft'))
         .slice(0, limit);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Autonomous Engineering Partner] filesystem check failed', error); return []; }
   }
 
   private describeAutonomyLevels(): AutonomousPartnerSnapshot['autonomyLevels'] {
@@ -1237,9 +1235,10 @@ export class ZavorthAutonomousEngineeringPartnerService {
     try {
       const parsed = JSON.parse(String(this.readFileSync(this.stateFile, 'utf8') || '{}')) as Partial<AutonomousPartnerState>;
       return this.normalizeState(parsed);
-    } catch {
-      return this.defaultState();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Autonomous Engineering Partner] JSON parse failed', error);
+    return this.defaultState();
+  }
   }
 
   private writeMission(state: AutonomousPartnerState, mission: AutonomousMissionRecord, summary: string): void {
@@ -1431,9 +1430,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
         },
         result: input.summary,
       });
-    } catch {
-      // O mission control nao deve falhar por indisponibilidade do ledger.
-    }
+    } catch (error) { // O mission control nao deve falhar por indisponibilidade do ledger. logger.warn('[Zavorth Autonomous Engineering Partner] operation failed', error); }
   }
 
   private progressBlocked(summary: string, mission: AutonomousMissionRecord | null): AutonomousMissionProgressResult {

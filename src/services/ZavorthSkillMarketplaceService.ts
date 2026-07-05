@@ -421,12 +421,13 @@ export class ZavorthSkillMarketplaceService {
       });
       return { installed: true, skillPath: path.relative(this.projectRoot, targetDir), warnings };
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Skill Marketplace] operation failed', error);
+    return {
         installed: false,
         skillPath: '',
         warnings: [`Installation failed: ${error instanceof Error ? error.message : String(error)}`],
       };
-    }
+  }
   }
 
   private copySelectedFiles(source: string, target: string, relativeFiles: string[]): void {

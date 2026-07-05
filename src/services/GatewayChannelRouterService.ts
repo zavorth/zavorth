@@ -1,4 +1,4 @@
-import type { MessageChannel } from '../contracts/PlatformContract.js';
+import type { MessageChannel, TaskSource } from '../contracts/PlatformContract.js';
 import type { SurfaceTaskDispatcherLike } from './SurfaceRuntime.js';
 import {
   GatewayChannelRegistryService,
@@ -121,7 +121,7 @@ export class GatewayChannelRouterService {
       text: String(input.text || '').trim(),
       sourceUserId: target.sourceUserId,
       fallbackRuntimeUserId: target.runtimeUserId,
-      source: target.platform as any,
+      source: target.platform as TaskSource,
       sessionId: target.sessionId,
       mentions: Array.isArray(input.mentions) ? input.mentions : [],
       composerPayload: input.composerPayload || null,

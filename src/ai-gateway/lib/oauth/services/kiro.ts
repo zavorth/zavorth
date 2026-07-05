@@ -1,4 +1,5 @@
 import { KIRO_CONFIG } from "../constants/oauth";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Kiro OAuth Service
@@ -279,8 +280,6 @@ export class KiroService {
 
       const decoded = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
       return decoded.email || decoded.preferred_username || decoded.sub;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[kiro] JSON parse failed', error); return null; }
   }
 }

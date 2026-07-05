@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { logger } from '../../cli/logger.js';
+import { logger } from '../../logger.js';
 
 export interface BrowserPage {
   url: string;
@@ -49,17 +49,13 @@ export class BrowserPlaywrightService {
         return `Error: unsupported URL protocol "${parsed.protocol}".`;
       }
       return null;
-    } catch {
-      return `Error: invalid URL "${url}".`;
-    }
+    } catch (error) { logger.warn('[Browser Playwright] network request failed', error); return ''; }
   }
 
   private cleanupTempScript(tmpScript: string): void {
     try {
       fs.unlinkSync(tmpScript);
-    } catch {
-      // Best-effort cleanup only; execution errors are reported separately.
-    }
+    } catch (error) { // Best-effort cleanup only; execution errors are reported separately. logger.warn('[Browser Playwright] file cleanup failed', error); }
   }
 
   public async navigate(url: string, options?: { wait_until?: 'load' | 'domcontentloaded' | 'networkidle'; timeout?: number }): Promise<string> {
@@ -107,9 +103,7 @@ export class BrowserPlaywrightService {
         this.cleanupTempScript(tmpScript);
         throw e;
       }
-    } catch (error: unknown) {
-      return `Error navigating: ${error instanceof Error ? error.message : String(error)}. Playwright installed? npm install playwright`;
-    }
+    } catch (error) { logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
   }
 
   public async screenshot(url: string, options?: { full_page?: boolean; selector?: string }): Promise<string> {
@@ -160,9 +154,7 @@ export class BrowserPlaywrightService {
         this.cleanupTempScript(tmpScript);
         throw e;
       }
-    } catch (error: unknown) {
-      return `Error in screenshot: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
   }
 
   public async extract(url: string, selectors: Record<string, string>): Promise<string> {
@@ -222,9 +214,7 @@ export class BrowserPlaywrightService {
         this.cleanupTempScript(tmpScript);
         throw e;
       }
-    } catch (error: unknown) {
-      return `Extraction error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Browser Playwright] parsing failed', error); return ''; }
   }
 
   public async pdf(url: string, outputPath?: string): Promise<string> {
@@ -267,9 +257,7 @@ export class BrowserPlaywrightService {
         this.cleanupTempScript(tmpScript);
         throw e;
       }
-    } catch (error: unknown) {
-      return `Error generating PDF: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
   }
 
   public getStats(): string {

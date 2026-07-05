@@ -14,6 +14,7 @@ import { ZavorthApprovalActionCardsUxService } from './ZavorthApprovalActionCard
 import { ZavorthTransactionLiveExecutorGateService } from './ZavorthTransactionLiveExecutorGateService.js';
 import { ZavorthMemoryPlaneService } from './ZavorthMemoryPlaneService.js';
 import { SkillSourceRegistryService, type SkillSourceRegistryDocument } from './SkillSourceRegistryService.js';
+import { logger } from '../logger.js';
 
 export const ZAVORTH_RUNTIME_READINESS_CONTRACT_VERSION = 'zavorth-runtime-readiness/1' as const;
 
@@ -66,8 +67,7 @@ export type ZavorthRuntimeReadinessSnapshot = {
     primaryCommand: 'zavorth readiness';
     jsonCommand: 'zavorth readiness --json';
     dailyCommand: 'zavorth daily';
-    zavorthControlRoute: '/zavorthControl';
-    zavorthControlRoute: '/zavorthControl';
+    zavorthControlRoute: '/zavorthControl' | '/control';
     safeStartupCommand: 'zavorth go';
   };
   safety: {
@@ -171,8 +171,7 @@ export class ZavorthRuntimeReadinessService {
         primaryCommand: 'zavorth readiness',
         jsonCommand: 'zavorth readiness --json',
         dailyCommand: 'zavorth daily',
-        zavorthControlRoute: '/zavorthControl',
-        zavorthControlRoute: '/zavorthControl',
+        zavorthControlRoute: '/control',
         safeStartupCommand: 'zavorth go',
       },
       safety: {
@@ -297,7 +296,7 @@ export class ZavorthRuntimeReadinessService {
       const viteShellExists = this.existsSyncImpl(path.join(this.projectRoot, 'apps', 'zavorth-control-vite-shell', 'index.html'))
         && this.existsSyncImpl(path.join(this.projectRoot, 'apps', 'zavorth-control-vite-shell', 'src', 'pages.ts'));
       const surfaceExists = groupedPageExists || rootPageExists || viteShellExists;
-      const ok = snapshot.route === '/zavorthControl'
+      const ok = ((snapshot.route as string) === '/zavorthControl' || (snapshot.route as string) === '/control')
         && snapshot.safety.projectionOnly === true
         && snapshot.safety.zavorthControlCanExecuteTargetAction === false
         && surfaceExists;
@@ -471,8 +470,9 @@ export class ZavorthRuntimeReadinessService {
         ...factory(),
       };
     } catch (error) {
-      return failedCheck(id, label, required, command, error);
-    }
+    logger.warn('[Zavorth Runtime Readiness] string operation failed', error);
+    return failedCheck(id, label, required, command, error);
+  }
   }
 
   private async safeCheckAsync(
@@ -491,8 +491,9 @@ export class ZavorthRuntimeReadinessService {
         ...(await factory()),
       };
     } catch (error) {
-      return failedCheck(id, label, required, command, error);
-    }
+    logger.warn('[Zavorth Runtime Readiness] string operation failed', error);
+    return failedCheck(id, label, required, command, error);
+  }
   }
 }
 

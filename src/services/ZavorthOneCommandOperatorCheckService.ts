@@ -262,7 +262,7 @@ function buildZavorthControlPermissionArea(snapshot: ZavorthControlExperienceHom
     ? permissionPanel.items.map((item) => item.id)
     : [];
   const complete = ['permissions', 'auto-approvals', 'extreme-mode', 'revoke', 'receipts']
-    .every((item) => itemIds.includes(item as any));
+    .every((item) => (itemIds as string[]).includes(item));
   const zavorthControlCanExecute = snapshot.safety?.zavorthControlCanExecuteTargetAction === false ? false : true;
   return {
     id: 'zavorthControl-permissions',

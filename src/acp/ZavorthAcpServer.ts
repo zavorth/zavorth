@@ -485,7 +485,7 @@ export class ZavorthAcpServer {
         }
         const approved = await this.requestElevatedApproval(
           'path_traversal',
-          'O agente está tentando ler/escrever em um arquivo fora do workspace.',
+          'The agent is trying to read/write a file outside the workspace.',
           { path: resolved }
         );
         if (approved) {
@@ -511,7 +511,7 @@ export class ZavorthAcpServer {
         if (size > limit) {
           if (args.bypassSizeLimit !== true) {
             const sizeInMB = (size / (1024 * 1024)).toFixed(2);
-            const msg = `O agente está tentando ler um arquivo de ${sizeInMB}MB. Isso pode causar lentidão ou estouro de memória.`;
+            const msg = `The agent is trying to read a ${sizeInMB}MB file. This may cause slowness or memory pressure.`;
             const approved = await this.requestElevatedApproval('file_size', msg, { path: filePath, size });
             if (approved) {
               args.bypassSizeLimit = true;

@@ -1,5 +1,6 @@
+import { logger } from '@/shared/utils/logger';
 import {
-  redactSensitiveData,
+redactSensitiveData,
   redactSensitiveText,
 } from "../../security/SensitiveDataGuard.js";
 
@@ -52,9 +53,7 @@ function redactString(value: string, seen: WeakSet<object>): string {
     try {
       const parsed = JSON.parse(value);
       return JSON.stringify(redactSensitiveData(redactValue(parsed, seen)));
-    } catch {
-      // Fall through to text redaction.
-    }
+    } catch (error) { // Fall through to text redaction. logger.warn('[log Export Redaction] JSON parse failed', error); }
   }
   return redactSensitiveText(value);
 }

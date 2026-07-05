@@ -8,7 +8,7 @@ import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.j
 function compact(value: string | null | undefined, maxLength = 96): string {
   const normalized = sanitizeHumanCliText(value || '').replace(/\s+/g, ' ').trim();
   if (!normalized) {
-    return 'nao informado';
+    return 'not provided';
   }
   if (normalized.length <= maxLength) {
     return normalized;
@@ -29,7 +29,7 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
   const correctionLines = snapshot.reflexion.correctionLoop.length > 0
     ? snapshot.reflexion.correctionLoop.map((attempt) =>
         `- tentativa ${attempt.attempt}: ${attempt.from} -> ${attempt.to} | retries restantes ${attempt.retryBudgetRemaining}`)
-    : ['- nenhuma correcao acionada nesta previa'];
+    : ['- no correction triggered in this preview'];
 
   const panels: CliVisualPanel[] = [
     {
@@ -39,7 +39,7 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
         `- modo: ${snapshot.mode}`,
         `- status: ${snapshot.status}`,
         `- score: ${snapshot.complexity.score}/${snapshot.complexity.threshold}`,
-        `- objetivo: ${compact(snapshot.objective.preview, 88)}`,
+        `- objective: ${compact(snapshot.objective.preview, 88)}`,
       ],
     },
     {
@@ -49,19 +49,19 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
         `- max retries: ${snapshot.budget.maxRetries}`,
         `- max cost: ${snapshot.budget.maxCost} | estimado: ${snapshot.budget.estimatedCost}`,
         `- restante: ${snapshot.budget.remainingCost}`,
-        `- pausa: ${snapshot.budget.pauseReason || 'nao'}`,
+        `- pause: ${snapshot.budget.pauseReason || 'no'}`,
       ],
     },
     {
       title: 'DAG',
       tone: snapshot.mode === 'graph' ? 'info' : 'neutral',
-      lines: activeNodes.length > 0 ? activeNodes.map(nodeLine) : ['- nenhum nodo ativo'],
+      lines: activeNodes.length > 0 ? activeNodes.map(nodeLine) : ['- no active node'],
     },
     {
       title: 'Reflexion',
       tone: snapshot.reflexion.attemptsUsed > 0 ? 'warning' : 'neutral',
       lines: [
-        `- ativo: ${snapshot.reflexion.enabled ? 'sim' : 'nao'}`,
+        `- active: ${snapshot.reflexion.enabled ? 'yes' : 'no'}`,
         `- tentativas usadas: ${snapshot.reflexion.attemptsUsed}`,
         ...correctionLines,
       ],
@@ -69,16 +69,16 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
     {
       title: 'Ledger',
       tone: snapshot.contracts.everyTransitionHasEvidence ? 'success' : 'warning',
-      lines: ledgerLines.length > 0 ? ledgerLines : ['- nenhum evento registrado'],
+      lines: ledgerLines.length > 0 ? ledgerLines : ['- no event recorded'],
     },
     {
       title: 'Contratos',
       tone: Object.values(snapshot.contracts).every(Boolean) ? 'success' : 'warning',
       lines: [
-        `- supervisor muta: ${snapshot.contracts.supervisorDoesNotMutate ? 'nao' : 'sim'}`,
-        `- critic antes delivery: ${snapshot.contracts.criticBeforeDelivery ? 'sim' : 'nao'}`,
-        `- sandbox antes risco: ${snapshot.contracts.sandboxBeforeRiskyDelivery ? 'sim' : 'nao'}`,
-        `- evidencias redigidas: ${snapshot.contracts.sensitiveDataRedacted ? 'sim' : 'nao'}`,
+        `- supervisor mutates: ${snapshot.contracts.supervisorDoesNotMutate ? 'no' : 'yes'}`,
+        `- critic before delivery: ${snapshot.contracts.criticBeforeDelivery ? 'yes' : 'no'}`,
+        `- sandbox before risk: ${snapshot.contracts.sandboxBeforeRiskyDelivery ? 'yes' : 'no'}`,
+        `- redacted evidence: ${snapshot.contracts.sensitiveDataRedacted ? 'yes' : 'no'}`,
       ],
     },
   ];
@@ -87,7 +87,7 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
     eyebrow: 'Supervisor',
     eyebrowTone: snapshot.status === 'paused' ? 'warning' : 'success',
     title: 'Supervisor Graph do Zavorth',
-    summary: formatCliValue(snapshot.narrative.headline, 'Grafo supervisor pronto.'),
+    summary: formatCliValue(snapshot.narrative.headline, 'Grafo supervisor ready.'),
     mode: 'compact',
     showWordmark: false,
     panels,

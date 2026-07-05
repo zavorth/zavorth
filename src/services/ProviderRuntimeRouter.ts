@@ -23,7 +23,7 @@ export class ProviderRuntimeRouter {
    */
   public async route(request: ProviderRuntimeRequest): Promise<ResolvedProviderRuntime> {
     const configService = AgentWorkspaceConfigService.getInstance();
-    const workspaceId = (request as any).workspaceId || 'global';
+    const workspaceId = request.workspaceId || 'global';
     const config = await configService.getConfig(workspaceId);
 
     // Provide defaults from config if not explicitly requested
@@ -54,7 +54,7 @@ export class ProviderRuntimeRouter {
 
     // Capability check against workspace policy
     if (request.capability) {
-      if (!config.allowedCapabilities.includes(request.capability as any)) {
+      if (!config.allowedCapabilities.includes(request.capability)) {
         throw new Error('capability_not_supported');
       }
     }
@@ -63,7 +63,7 @@ export class ProviderRuntimeRouter {
     if (resolved.providerId !== effectiveRequest.providerId) {
       const auditLogger = new SecurityAuditLogger(new LogRepository());
       await auditLogger.logWorkspaceEvent({
-        event: 'provider_runtime_fallback_succeeded' as any,
+        event: 'provider_runtime_fallback_succeeded',
         workspaceId,
         providerId: resolved.providerId,
         reason: `Fallback activated for model ${resolved.modelId}`,

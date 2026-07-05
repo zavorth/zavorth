@@ -10,6 +10,7 @@ import {
 } from '../contracts/AiFirstRuntimeReceiptLedgerContract.js';
 import type { AiFirstRuntimeEntrypointAdapterSnapshot } from '../contracts/AiFirstRuntimeEntrypointAdapterContract.js';
 import { redactSensitiveText } from './AiFirstRoutePlanContractService.js';
+import { logger } from '../logger.js';
 
 type AiFirstRuntimeReceiptLedgerRuntime = {
   now?: () => Date;
@@ -273,7 +274,8 @@ export class AiFirstRuntimeReceiptLedgerService {
         error: null,
       };
     } catch (error) {
-      return {
+    logger.warn('[Ai First Runtime Receipt Ledger] filesystem operation failed', error);
+    return {
         mode: 'jsonl-file',
         attempted: true,
         succeeded: false,
@@ -282,7 +284,7 @@ export class AiFirstRuntimeReceiptLedgerService {
         entriesWritten: 0,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 }
 

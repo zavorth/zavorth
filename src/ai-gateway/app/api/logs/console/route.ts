@@ -16,6 +16,7 @@ import { getAppLogFilePath } from "@/lib/logEnv";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { redactExportedLogRows } from "@/lib/logExportRedaction";
 import { safeParseIntBounded } from "@/shared/utils/safeParseInt";
+import { logger } from '@/shared/utils/logger';
 
 const LEVEL_ORDER: Record<string, number> = {
   trace: 5,
@@ -101,9 +102,7 @@ export async function GET(req: NextRequest) {
         }
 
         entries.push(entry);
-      } catch {
-        // Skip unparseable lines
-      }
+      } catch (error) { // Skip unparseable lines logger.warn('[route] operation failed', error); }
     }
 
     // Return last N entries (most recent)
@@ -115,7 +114,8 @@ export async function GET(req: NextRequest) {
         "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     });
-  } catch (err: any) {
+  } catch (error) {
+    logger.warn('[route] parsing failed', error);
     return NextResponse.json({ error: err.message || "Failed to read logs" }, { status: 500 });
   }
 }

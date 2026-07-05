@@ -34,7 +34,7 @@ export class IntegrationRegistryResolver {
         manifest: null,
         matchedBy: 'none',
         suggestion: this.getManifestById('custom-api'),
-        note: 'Nenhuma integraÃƒÂ§ÃƒÂ£o foi informada. O Zavorth sugere comeÃƒÂ§ar por um template guiado.',
+        note: 'No integration was provided. Zavorth suggests starting with a guided template.',
       };
     }
 
@@ -45,7 +45,7 @@ export class IntegrationRegistryResolver {
         manifest: exact,
         matchedBy: 'id',
         suggestion: exact,
-        note: 'IntegraÃƒÂ§ÃƒÂ£o encontrada diretamente pelo identificador principal.',
+        note: 'Integration found directly by primary identifier.',
       };
     }
 
@@ -56,7 +56,7 @@ export class IntegrationRegistryResolver {
         manifest: aliasMatch,
         matchedBy: 'alias',
         suggestion: aliasMatch,
-        note: `Resolvido por alias para "${aliasMatch.label}".`,
+        note: `Resolved by alias to "${aliasMatch.label}".`,
       };
     }
 
@@ -67,7 +67,7 @@ export class IntegrationRegistryResolver {
         manifest: fuzzy,
         matchedBy: 'suggested',
         suggestion: fuzzy,
-        note: `Nao encontrei "${requestedId}" exatamente, mas "${fuzzy.label}" parece ser o melhor encaixe.`,
+        note: `No exact match for "${requestedId}", but "${fuzzy.label}" looks like the best fit.`,
       };
     }
 
@@ -77,7 +77,7 @@ export class IntegrationRegistryResolver {
       manifest: template,
       matchedBy: 'template',
       suggestion: template,
-      note: `Ainda nao existe receita pronta para "${requestedId}". O Zavorth sugere um template seguro para comeÃƒÂ§ar.`,
+      note: `No ready-made recipe exists for "${requestedId}" yet. Zavorth suggests a safe template to start.`,
     };
   }
 

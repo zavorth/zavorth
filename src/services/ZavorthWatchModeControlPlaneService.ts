@@ -2,6 +2,7 @@ import { config } from '../config/index.js';
 import type { ComputerUseWatchModeService, WatchModeRunSnapshot, WatchModeSnapshot } from './ComputerUseWatchModeService.js';
 import { ComputerUseWatchModePolicyFileService } from './ComputerUseWatchModePolicyFileService.js';
 import { ComputerUseWatchModeStateFileService } from './ComputerUseWatchModeStateFileService.js';
+import { logger } from '../logger.js';
 
 type WatchModePosture = 'healthy' | 'attention' | 'critical';
 type WatchModeSeverity = 'info' | 'warn' | 'critical';
@@ -147,9 +148,9 @@ export class ZavorthWatchModeControlPlaneService {
       actions,
       watchMode,
       narrative: {
-        headline: 'Watch mode: Watch Mode supervisionado',
+        headline: 'Watch mode: supervised Watch Mode',
         operatorSummary: this.buildOperatorSummary(activeRun, summary, watchMode),
-        nextAction: actions[0]?.label || 'Ligar o Watch Mode somente quando existir um objetivo visual claro.',
+        nextAction: actions[0]?.label || 'Turn on Watch Mode only when there is a clear visual objective.',
       },
     };
   }
@@ -174,19 +175,19 @@ export class ZavorthWatchModeControlPlaneService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Suggested actions:',
         ...snapshot.actions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
     }
     lines.push(
       '',
-      'Comandos uteis:',
-      '- /watchmode para ler esta mesma postura no chat.',
-      '- /watchmode strict off para reduzir friccao quando o app/site ja for conhecido.',
-      '- /watchmode allow-app <janela> para promover a janela atual na allowlist.',
-      '- /watchmode allow-site <host> para promover o site atual na allowlist.',
-      '- npm run ops:watch-mode para revisar ou ajustar o Watch Mode pela CLI.',
+      'Useful commands:',
+      '- /watchmode to read this same posture in chat.',
+      '- /watchmode strict off to reduce friction when the app/site is already known.',
+      '- /watchmode allow-app <window> to promote the current window to the allowlist.',
+      '- /watchmode allow-site <host> to promote the current site to the allowlist.',
+      '- npm run ops:watch-mode to review or adjust Watch Mode through the CLI.',
     );
     return lines.join('\n');
   }
@@ -252,33 +253,33 @@ export class ZavorthWatchModeControlPlaneService {
             ? 'attention'
             : 'healthy'),
         summary: activeRun
-          ? `${this.text(activeRun.targetWindow, 'janela')} | ${this.text(activeRun.objective, 'objetivo nao informado')}.`
-          : 'Nenhum run visual ativo ou recente o bastante para o resumo curto.',
-        nextAction: activeRun?.nextOperatorStep || 'Inicie um run visual somente quando existir um objetivo claro.',
+          ? `${this.text(activeRun.targetWindow, 'window')} | ${this.text(activeRun.objective, 'objective not provided')}.`
+          : 'No visual run is active or recent enough for the short summary.',
+        nextAction: activeRun?.nextOperatorStep || 'Start a visual run only when there is a clear objective.',
         command: 'npm run ops:watch-mode',
       },
       {
         id: 'policy',
-        label: 'Policy e allowlists',
+        label: 'Policy and allowlists',
         posture: watchMode.policy.strictApprovalDefault === false && summary.allowedApps === 0 && summary.allowedSites === 0
           ? 'attention'
           : 'healthy',
         summary: `strict ${watchMode.policy.strictApprovalDefault === false ? 'off' : 'on'} | apps ${summary.allowedApps} | sites ${summary.allowedSites}.`,
         nextAction: activeRun?.allowlist?.mode === 'guarded'
-          ? 'Se o app/site for recorrente e seguro, promova-o para allowlist antes da proxima sessao.'
-          : 'Mantenha o default estrito e libere excecoes so quando fizer sentido operacional.',
+          ? 'If the app/site is recurring and safe, promote it to the allowlist before the next session.'
+          : 'Keep the strict default and release exceptions only when operationally sensible.',
         command: '/watchmode strict on',
       },
       {
         id: 'approvals',
-        label: 'Approvals e handoffs',
+        label: 'Approvals and handoffs',
         posture: approvalCount > 0 ? 'attention' : 'healthy',
         summary: approvalCount > 0
-          ? `${approvalCount} approval(s) aguardando decisao humana.`
-          : 'Nenhum approval pendente no momento.',
+          ? `${approvalCount} approval(s) waiting for a human decision.`
+          : 'No approval is pending right now.',
         nextAction: approvalCount > 0
-          ? 'Revise o screenshot atual e aprove ou negue a proxima acao mutavel.'
-          : 'A fila esta limpa; siga monitorando a timeline visual.',
+          ? 'Review the current screenshot and approve or deny the next mutable action.'
+          : 'The queue is clear; keep monitoring the visual timeline.',
         command: '/watchmode',
       },
       {
@@ -307,27 +308,27 @@ export class ZavorthWatchModeControlPlaneService {
     if (summary.pendingApprovals > 0) {
       actions.push({
         id: 'review-approvals',
-        label: 'Decidir approvals pendentes',
+        label: 'Decide pending approvals',
         severity: 'warn',
-        reason: `${summary.pendingApprovals} approval(s) ainda bloqueiam a proxima acao visual.`,
+        reason: `${summary.pendingApprovals} approval(s) still block the next visual action.`,
         command: '/watchmode',
       });
     }
     if (this.text(activeRun?.status) === 'failed') {
       actions.push({
         id: 'review-failure',
-        label: 'Revisar falha do ultimo run',
+        label: 'Review the latest run failure',
         severity: 'critical',
-        reason: this.text(activeRun?.lastError, 'O ultimo run terminou com falha visual.'),
+        reason: this.text(activeRun?.lastError, 'The latest run ended with a visual failure.'),
         command: 'npm run ops:watch-mode',
       });
     }
     if (activeRun?.allowlist?.mode === 'guarded' && this.text(activeRun?.targetWindow)) {
       actions.push({
         id: 'allow-current-app',
-        label: 'Promover a janela atual para allowlist',
+        label: 'Promote current window to allowlist',
         severity: 'info',
-        reason: `A janela ${this.text(activeRun.targetWindow, 'atual')} ainda roda em modo guarded.`,
+        reason: `Window ${this.text(activeRun.targetWindow, 'current')} is still running in guarded mode.`,
         command: `/watchmode allow-app ${this.text(activeRun.targetWindow, '')}`,
       });
     }
@@ -335,9 +336,9 @@ export class ZavorthWatchModeControlPlaneService {
     if (activeRun?.allowlist?.mode === 'guarded' && siteHost) {
       actions.push({
         id: 'allow-current-site',
-        label: 'Promover o site atual para allowlist',
+        label: 'Promote current site to allowlist',
         severity: 'info',
-        reason: `O host ${siteHost} ainda nao esta na allowlist do Watch Mode.`,
+        reason: `Host ${siteHost} is not in the Watch Mode allowlist yet.`,
         command: `/watchmode allow-site ${siteHost}`,
       });
     }
@@ -375,9 +376,9 @@ export class ZavorthWatchModeControlPlaneService {
     watchMode: WatchModeSnapshot,
   ): string {
     if (!activeRun) {
-      return `Watch Mode pronto para cold start supervisionado, com strict default ${watchMode.policy.strictApprovalDefault === false ? 'off' : 'on'} e ${summary.allowedApps + summary.allowedSites} item(ns) em allowlist.`;
+      return `Watch Mode is ready for supervised cold start, with strict default ${watchMode.policy.strictApprovalDefault === false ? 'off' : 'on'} and ${summary.allowedApps + summary.allowedSites} allowlist item(s).`;
     }
-    return `${this.text(activeRun.targetWindow, 'Janela')} esta em ${summary.activeStatus}, com ${summary.pendingApprovals} approval(s), ${summary.artifactEntries} artifact(s) e ${summary.throttledScreenshots} screenshot(s) compactados no buffer atual.`;
+    return `${this.text(activeRun.targetWindow, 'Window')} is ${summary.activeStatus}, with ${summary.pendingApprovals} approval(s), ${summary.artifactEntries} artifact(s), and ${summary.throttledScreenshots} screenshot(s) compacted in the current buffer.`;
   }
 
   private buildOperationalCost(
@@ -439,9 +440,7 @@ export class ZavorthWatchModeControlPlaneService {
     try {
       const target = raw.match(/^https?:\/\//i) ? raw : `https://${raw}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Watch Mode Control Plane] network request failed', error); return null; }
   }
 
   private text(value: unknown, fallback = ''): string {

@@ -6,6 +6,8 @@ import type { BotGatewaySupportRuntime } from '../../../../gateways/channels/tel
 
 export type BotGatewaySupportHost = Partial<BotGatewaySupportRuntime> & {
   botGatewaySupport?: BotGatewaySupport;
+  audioHandler?: BotGatewaySupportRuntime['echoAudioHandler'];
+  zavorthBridgePreferenceStore?: BotGatewaySupportRuntime['echoPreferenceStore'];
 };
 
 export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): BotGatewaySupport {
@@ -46,7 +48,7 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
       markCapabilityState: () => null,
     },
     dailyReportService: gateway.dailyReportService || { start: () => undefined },
-    zavorthControlService: gateway.zavorthControlService || { start: async () => undefined, getUrl: () => '' },
+    zavorthControlService: gateway.zavorthControlService || { start: async () => ({}), getUrl: () => '' },
     lifecycleController: gateway.lifecycleController || { start: async () => undefined },
     supervisedRuntimeNotificationService: gateway.supervisedRuntimeNotificationService || {
       flushPending: async () => ({ delivered: false, skipped: true }),
@@ -64,16 +66,16 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
       audioHandler: gateway.audioHandler || null,
       preferenceStore: gateway.zavorthBridgePreferenceStore || null,
     }),
-    processTextMessage: (ctx, text) => gateway.processTextMessage(ctx, text),
-    processGroupCommand: (ctx, text) => gateway.processGroupCommand(ctx, text),
-    canUseInteractiveGroupAi: (ctx) => gateway.canUseInteractiveGroupAi(ctx),
+    processTextMessage: (ctx: any, text: any) => gateway.processTextMessage?.(ctx, text) ?? Promise.resolve(),
+    processGroupCommand: (ctx: any, text: any) => gateway.processGroupCommand?.(ctx, text) ?? Promise.resolve(),
+    canUseInteractiveGroupAi: (ctx: any) => gateway.canUseInteractiveGroupAi?.(ctx) ?? Promise.resolve(false),
     state: {
       supervisedRuntimeNotificationTimer: null,
       supervisedRuntimeNotificationFlushInFlight: false,
       zavorthControlSurfaceStarted: false,
     },
-    getSharedSurfaceCommandService: () => gateway.sharedSurfaceCommandService,
-  });
+    getSharedSurfaceCommandService: () => gateway.getSharedSurfaceCommandService?.() ?? null,
+  } as any);
 
   gateway.botGatewaySupport = created;
   return created;

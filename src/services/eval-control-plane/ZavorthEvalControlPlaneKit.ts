@@ -2,8 +2,9 @@ import crypto from 'crypto';
 import type { ProductObservabilitySnapshot } from '../ProductObservabilityService.js';
 import type { ZavorthEvalHistorySnapshot } from '../ZavorthEvalHistoryFileService.js';
 import type { ZavorthTelemetryLedgerSnapshot } from '../ZavorthTelemetryLedgerService.js';
+import { logger } from '../../logger.js';
 import type {
-  ZavorthEvalControlPlaneSnapshot,
+ZavorthEvalControlPlaneSnapshot,
   ZavorthEvalDataset,
   ZavorthEvalRegression,
   ZavorthEvalRegressionSeverity,
@@ -668,7 +669,8 @@ export function readEvalTelemetrySnapshot(
       redaction: snapshot.redaction || buildEvalMissingTelemetry().redaction,
       recommendation: snapshot.recommendation,
     };
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Eval Control Plane Kit] creation failed', error);
     return {
       ...buildEvalMissingTelemetry(),
       recommendation: 'A leitura da telemetria falhou neste host.',
@@ -721,7 +723,8 @@ export function captureEvalHistorySnapshot(
       return buildEvalFallbackHistory(snapshot.summary.posture);
     }
     return evalHistoryService.capture(snapshot) || buildEvalFallbackHistory(snapshot.summary.posture);
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Eval Control Plane Kit] creation failed', error);
     return buildEvalFallbackHistory(snapshot.summary.posture);
   }
 }

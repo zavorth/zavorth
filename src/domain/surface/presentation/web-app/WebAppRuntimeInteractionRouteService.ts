@@ -9,11 +9,17 @@ import {
 } from './web-app-runtime-route/WebAppRuntimeRouteHelpers.js';
 import { config } from '../../../../config/index.js';
 import { shouldPersistZavorthArtifacts } from '../../../../contracts/ZavorthResponseDecisionContract.js';
+import type { RemoteMeshNotebookMcpApplyToolName } from '../../../../contracts/RemoteMeshNotebookMcpProxyContract.js';
 import { RemoteMeshNotebookMcpProxyService } from '../../../../services/RemoteMeshNotebookMcpProxyService.js';
+import type { SurfaceControllerContext } from '../../../../services/SurfaceRuntime.js';
 import { ZavorthMnemosQueryService } from '../../../../services/ZavorthMnemosQueryService.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
+import { logger } from '../../../../logger';
 
 type LooseRecord = Record<string, unknown>;
+type LearningState = LooseRecord & {
+  entries: Record<string, LooseRecord>;
+};
 
 interface MnemosLifecyclePayload {
   objective?: string;
@@ -146,7 +152,7 @@ export class WebAppRuntimeInteractionRouteService {
     if (pathname === '/api/web/tool-runs' && req.method === 'GET') {
       const sessionId = deps.resolveSessionId(url);
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
-      const toolRuns = Array.isArray((snapshot as LooseRecord).toolRuns) ? (snapshot as LooseRecord).toolRuns : [];
+      const toolRuns = asLooseRecordArray(asLooseRecord(snapshot)?.toolRuns);
       deps.writeJson(
         res,
         {
@@ -172,7 +178,7 @@ export class WebAppRuntimeInteractionRouteService {
       const sessionId = deps.resolveSessionId(url);
       const runId = decodeURIComponent(pathname.slice('/api/web/tool-runs/'.length, -'/diff'.length));
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
-      const toolRuns = Array.isArray((snapshot as LooseRecord).toolRuns) ? (snapshot as LooseRecord).toolRuns : [];
+      const toolRuns = asLooseRecordArray(asLooseRecord(snapshot)?.toolRuns);
       const toolRun = toolRuns.find((run: LooseRecord) => String(run?.runId || '').trim() === runId) || null;
       if (!toolRun) {
         deps.writeJson(res, { ok: false, error: 'Tool run nao encontrado para esta sessao.' }, 404);
@@ -216,9 +222,15 @@ export class WebAppRuntimeInteractionRouteService {
 
     if (pathname === '/api/web/remote-mesh/notebook/mcp' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
+      const toolName = normalizeRemoteMeshNotebookMcpApplyToolName(body.toolName);
+      const args = asRemoteMeshNotebookApplyArguments(body.arguments);
+      if (!toolName || !args) {
+        deps.writeJson(res, { ok: false, error: 'toolName, arguments e approval validos sao obrigatorios.' }, 400);
+        return true;
+      }
       const result = await RemoteMeshNotebookMcpProxyService.fromEnv().apply({
-        toolName: body.toolName,
-        arguments: body.arguments,
+        toolName,
+        arguments: args,
       });
       deps.writeJson(res, result, result.ok ? 200 : result.status === 'blocked' ? 400 : 502);
       return true;
@@ -341,11 +353,11 @@ export class WebAppRuntimeInteractionRouteService {
   ): Promise<boolean> {
     const sessionId = deps.resolveSessionId(url);
     const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
-    const toolRuns = Array.isArray((snapshot as LooseRecord).toolRuns) ? (snapshot as LooseRecord).toolRuns : [];
+    const toolRuns = asLooseRecordArray(asLooseRecord(snapshot)?.toolRuns);
     const agentSnapshot = deps.agentGateway?.buildSnapshot({
       activeSessionId: sessionId,
     }) || null;
-    const runs = Array.isArray(agentSnapshot?.runs) ? agentSnapshot.runs : [];
+    const runs = asLooseRecordArray(agentSnapshot?.runs);
     const artifacts = this.collectArtifactEntries({
       sessionId,
       toolRuns,
@@ -380,7 +392,7 @@ export class WebAppRuntimeInteractionRouteService {
     const agentSnapshot = deps.agentGateway?.buildSnapshot({
       activeSessionId: sessionId,
     }) || null;
-    const runs = Array.isArray(agentSnapshot?.runs) ? agentSnapshot.runs : [];
+    const runs = asLooseRecordArray(agentSnapshot?.runs);
     const runId = String(url.searchParams.get('runId') || '').trim();
     const traceId = String(url.searchParams.get('traceId') || '').trim();
     const events = this.buildZavorthControlEvents({
@@ -441,8 +453,8 @@ export class WebAppRuntimeInteractionRouteService {
     const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
     const agentSnapshot = deps.agentGateway?.buildSnapshot({ activeSessionId: sessionId }) || null;
     const runs = [
-      ...(Array.isArray(agentSnapshot?.runs) ? agentSnapshot.runs : []),
-      ...(Array.isArray((snapshot as LooseRecord)?.workflowRuns) ? (snapshot as LooseRecord).workflowRuns : []),
+      ...asLooseRecordArray(agentSnapshot?.runs),
+      ...asLooseRecordArray(asLooseRecord(snapshot)?.workflowRuns),
     ];
     const lifecycleEvents = this.readMnemosLifecycleEvents(sessionId);
     const runCandidates = runs
@@ -557,7 +569,7 @@ export class WebAppRuntimeInteractionRouteService {
       });
     };
 
-    const messages = Array.isArray(input.snapshot?.messages) ? input.snapshot.messages : [];
+    const messages = asLooseRecordArray(input.snapshot?.messages);
     for (const message of messages) {
       const messageId = String(message?.id || '').trim();
       const role = String(message?.role || '').trim().toLowerCase();
@@ -576,7 +588,7 @@ export class WebAppRuntimeInteractionRouteService {
       });
     }
 
-    const tasks = Array.isArray(input.snapshot?.tasks) ? input.snapshot.tasks : [];
+    const tasks = asLooseRecordArray(input.snapshot?.tasks);
     for (const task of tasks) {
       const taskId = String(task?.task_id || task?.id || '').trim();
       if (!taskId) continue;
@@ -642,7 +654,7 @@ export class WebAppRuntimeInteractionRouteService {
       });
     }
 
-    const workflowRuns = Array.isArray(input.snapshot?.workflowRuns) ? input.snapshot.workflowRuns : [];
+    const workflowRuns = asLooseRecordArray(input.snapshot?.workflowRuns);
     for (const workflow of workflowRuns) {
       const workflowId = String(workflow?.workflow_run_id || workflow?.id || '').trim();
       if (!workflowId) continue;
@@ -664,12 +676,13 @@ export class WebAppRuntimeInteractionRouteService {
       const runId = String(run?.id || run?.runId || '').trim();
       if (!runId) continue;
       const status = String(run?.status || 'running').trim();
+      const modelProfile = asLooseRecord(run?.modelProfile);
       pushEvent({
         id: `agent-run:${runId}:${status}`,
         type: this.isFailureStatus(status) ? 'error' : 'step',
         title: String(run?.title || run?.objective || 'Agent run').trim(),
         detail: String(run?.summary || run?.text || run?.objective || '').trim(),
-        meta: String(run?.modelProfile?.modelLabel || run?.model || 'agent-run').trim(),
+        meta: String(modelProfile?.modelLabel || run?.model || 'agent-run').trim(),
         status,
         time: run?.updatedAt || run?.createdAt || null,
         runId,
@@ -719,8 +732,9 @@ export class WebAppRuntimeInteractionRouteService {
     return Array.from(new Map(events.map((event) => [event.id, event])).values())
       .filter((event) => {
         if (!runFilter && !traceFilter) return true;
-        const eventRunId = String(event.runId || event.agentRunId || event.toolRunId || event.workflowRunId || event.replay?.runId || '').trim();
-        const eventTraceId = String(event.traceId || event.replay?.traceId || '').trim();
+        const replay = asLooseRecord(event.replay);
+        const eventRunId = String(event.runId || event.agentRunId || event.toolRunId || event.workflowRunId || replay?.runId || '').trim();
+        const eventTraceId = String(event.traceId || replay?.traceId || '').trim();
         return Boolean((runFilter && eventRunId === runFilter) || (traceFilter && eventTraceId === traceFilter));
       })
       .sort((a, b) => this.eventTimeMs(a) - this.eventTimeMs(b))
@@ -750,23 +764,26 @@ export class WebAppRuntimeInteractionRouteService {
         .filter((event): event is Record<string, unknown> => Boolean(event))
         .filter((event) => !sessionId || !event.sessionId || event.sessionId === sessionId)
         .slice(-120);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Web App Runtime Interaction] parsing failed', error); return []; }
   }
 
-  private readLearningState(): LooseRecord {
+  private readLearningState(): LearningState {
     try {
       const filePath = this.learningStatePath();
       if (!fs.existsSync(filePath)) return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
       const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      return parsed && typeof parsed === 'object' ? { version: 1, updatedAt: new Date(0).toISOString(), entries: {}, ...parsed } : { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
-    } catch {
-      return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
-    }
+      const record = asLooseRecord(parsed);
+      const entries = asLearningEntries(record?.entries);
+      return record
+        ? { version: 1, updatedAt: new Date(0).toISOString(), ...record, entries }
+        : { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
+    } catch (error) {
+    logger.warn('[Web App Runtime Interaction] JSON parse failed', error);
+    return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
+  }
   }
 
-  private writeLearningState(state: LooseRecord): void {
+  private writeLearningState(state: LearningState): void {
     const filePath = this.learningStatePath();
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, JSON.stringify(state, null, 2), 'utf8');
@@ -776,7 +793,7 @@ export class WebAppRuntimeInteractionRouteService {
     return path.resolve(config.projectRoot || process.cwd(), 'data', 'runtime', 'learning-plane-state.json');
   }
 
-  private buildLearningCandidateFromRun(run: LooseRecord, entries: Record<string, unknown>): Record<string, unknown> {
+  private buildLearningCandidateFromRun(run: LooseRecord, entries: Record<string, LooseRecord>): Record<string, unknown> {
     const id = String(run?.workflow_run_id || run?.id || run?.requestId || run?.runId || '').trim() || `run-${Date.now()}`;
     const entry = entries[id] || {};
     const artifactCount = Array.isArray(run?.artifacts) ? run.artifacts.length : 0;
@@ -802,7 +819,7 @@ export class WebAppRuntimeInteractionRouteService {
     };
   }
 
-  private buildLearningCandidateFromLifecycleEvent(event: Record<string, unknown>, entries: Record<string, unknown>): Record<string, unknown> {
+  private buildLearningCandidateFromLifecycleEvent(event: Record<string, unknown>, entries: Record<string, LooseRecord>): Record<string, unknown> {
     const id = `hook-${String(event.id || '').trim() || Date.now()}`;
     const entry = entries[id] || {};
     const payload: MnemosLifecyclePayload = event.payload && typeof event.payload === 'object' ? event.payload as MnemosLifecyclePayload : {};
@@ -896,7 +913,8 @@ export class WebAppRuntimeInteractionRouteService {
         });
       });
 
-      if (run?.diff && (Array.isArray(run.diff?.patches) || run.diff?.summary)) {
+      const diff = asLooseRecord(run.diff);
+      if (diff && (Array.isArray(diff.patches) || diff.summary)) {
         pushArtifact({
           id: `diff:${toolRunId || input.sessionId}`,
           source: 'tool-run',
@@ -904,8 +922,8 @@ export class WebAppRuntimeInteractionRouteService {
           toolRunId,
           kind: 'diff',
           title: `Diff ${toolRunId || 'da sessão'}`,
-          summary: run.diff.summary || `${Array.isArray(run.diff.patches) ? run.diff.patches.length : 0} patch(es)`,
-          diff: run.diff,
+          summary: diff.summary || `${Array.isArray(diff.patches) ? diff.patches.length : 0} patch(es)`,
+          diff,
         });
       }
     }
@@ -952,7 +970,7 @@ export class WebAppRuntimeInteractionRouteService {
   }
 
   private resolveArtifactPolicyMetadata(record: LooseRecord | null | undefined): Record<string, unknown> {
-    const metadata = record && typeof record.metadata === 'object' ? record.metadata : {};
+    const metadata = asLooseRecord(record?.metadata) || {};
     return {
       ...metadata,
       responseDecision: record?.responseDecision || metadata?.responseDecision,
@@ -973,16 +991,17 @@ export class WebAppRuntimeInteractionRouteService {
       );
       const sessionId = await deps.resolveSessionIdFromPermission(permission, String(body.sessionId || '').trim());
       const permissionId = deps.runtime.permissionController.shortPermissionId(permission);
+      const webCtx = toSurfaceControllerContext(deps.createWebContext(sessionId));
 
       if (decision === 'approve') {
         const scope = String(body.scope || 'once').trim().toLowerCase();
         await deps.runtime.permissionController.handlePermissionCallback(
-          deps.createWebContext(sessionId),
+          webCtx,
           `perm:approve:${permissionId}:${scope}`,
         );
       } else {
         await deps.runtime.permissionController.handlePermissionCallback(
-          deps.createWebContext(sessionId),
+          webCtx,
           `perm:reject:${permissionId}`,
         );
       }
@@ -1019,20 +1038,23 @@ export class WebAppRuntimeInteractionRouteService {
         return true;
       }
       const sessionId = deps.resolveSessionIdFromTask(task, String(body.sessionId || '').trim());
+      const webCtx = toSurfaceControllerContext(deps.createWebContext(sessionId));
 
       if (decision === 'approve') {
         const approvalCode = String(body.approvalCode || body.pin || '').trim();
+        const taskIdForDecision = String(task.task_id || task.id || taskId).trim();
         const approvalArgs = approvalCode
-          ? `${task.task_id} pin=${approvalCode}`
-          : task.task_id;
+          ? `${taskIdForDecision} pin=${approvalCode}`
+          : taskIdForDecision;
         await deps.runtime.permissionController.handleApproval(
-          deps.createWebContext(sessionId),
+          webCtx,
           approvalArgs,
         );
       } else {
+        const taskIdForDecision = String(task.task_id || task.id || taskId).trim();
         await deps.runtime.permissionController.handleRejection(
-          deps.createWebContext(sessionId),
-          task.task_id,
+          webCtx,
+          taskIdForDecision,
         );
       }
 
@@ -1324,6 +1346,52 @@ export class WebAppRuntimeInteractionRouteService {
     }
     return true;
   }
+}
+
+function asLooseRecord(value: unknown): LooseRecord | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as LooseRecord
+    : null;
+}
+
+function asLooseRecordArray(value: unknown): LooseRecord[] {
+  return Array.isArray(value)
+    ? value.map(asLooseRecord).filter((entry): entry is LooseRecord => Boolean(entry))
+    : [];
+}
+
+function asLearningEntries(value: unknown): Record<string, LooseRecord> {
+  const record = asLooseRecord(value);
+  if (!record) {
+    return {};
+  }
+  return Object.fromEntries(
+    Object.entries(record)
+      .map(([key, entry]) => [key, asLooseRecord(entry)])
+      .filter((entry): entry is [string, LooseRecord] => Boolean(entry[1])),
+  );
+}
+
+function normalizeRemoteMeshNotebookMcpApplyToolName(
+  value: unknown,
+): RemoteMeshNotebookMcpApplyToolName | null {
+  const toolName = String(value || '').trim();
+  return toolName === 'notebook.docker.apply_control' || toolName === 'notebook.project_files.apply_read'
+    ? toolName
+    : null;
+}
+
+function asRemoteMeshNotebookApplyArguments(
+  value: unknown,
+): { approvalId: string; approvalPhrase: string } | null {
+  const record = asLooseRecord(value);
+  const approvalId = String(record?.approvalId || '').trim();
+  const approvalPhrase = String(record?.approvalPhrase || '').trim();
+  return approvalId && approvalPhrase ? { approvalId, approvalPhrase } : null;
+}
+
+function toSurfaceControllerContext(value: unknown): SurfaceControllerContext {
+  return asLooseRecord(value) || {};
 }
 
 function normalizeLearningDreamActionId(value: unknown):

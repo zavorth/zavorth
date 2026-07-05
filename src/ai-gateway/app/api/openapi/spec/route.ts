@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
+import { logger } from '@/shared/utils/logger';
 
 let cachedSpec: { data: any; mtime: number } | null = null;
 
@@ -74,7 +75,8 @@ export async function GET() {
     cachedSpec = { data: catalog, mtime };
 
     return NextResponse.json(catalog);
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to parse OpenAPI spec" },
       { status: 500 }

@@ -30,44 +30,44 @@ export class TelegramHubContentService {
     switch (section) {
       case 'onboarding1':
         return [
-          '*Conhecendo o Zavorth (1/3)*',
+          '*Getting To Know Zavorth (1/3)*',
           '',
-          'O Zavorth e seu assistente para pesquisa, codigo, arquivos, automacao e operacao do ambiente.',
-          'Ele escolhe a melhor rota para cada pedido e tenta manter a experiencia simples para quem esta usando.',
+          'Zavorth is your assistant for research, code, files, automation, and environment operations.',
+          'It chooses the best route for each request and tries to keep the experience simple for the person using it.',
         ].join('\n');
       case 'onboarding2':
         return [
-          '*Como a seguranca funciona (2/3)*',
+          '*How Security Works (2/3)*',
           '',
-          'Quando um pedido passa por risco, permissao ou acesso extra, o Zavorth para e te mostra exatamente o que precisa ser liberado.',
-          'Isso ajuda a manter o sistema poderoso por dentro e previsivel por fora.',
+          'When a request crosses risk, permission, or extra access boundaries, Zavorth pauses and shows exactly what needs to be allowed.',
+          'That helps keep the system powerful internally and predictable externally.',
         ].join('\n');
       case 'onboarding3':
         return [
-          '*Como comecar bem (3/3)*',
+          '*How To Start Well (3/3)*',
           '',
-          'Comece escrevendo o pedido em linguagem natural. O Zavorth escolhe rota, ferramenta e proximo passo.',
-          'Use `Guia rapido` e `Receitas` apenas quando quiser exemplos ou navegacao manual.',
-          'Se quiser uma experiencia mais polida para mostrar, ligue `/presentation on` ou `/demo on`.',
+          'Start by writing the request in natural language. Zavorth chooses the route, tool, and next step.',
+          'Use `Quick guide` and `Recipes` only when you want examples or manual navigation.',
+          'For a more polished demo experience, turn on `/presentation on` or `/demo on`.',
         ].join('\n');
       case 'quickstart':
         return [
-          '*Guia rapido*',
+          '*Quick Guide*',
           '',
-          '1. Fale naturalmente quando quiser rapidez.',
-          '2. Use comandos apenas quando quiser controle de operador, como `/codex`, `/external`, `/ag`, `/research` ou `/stitch`.',
-          '3. Acompanhe diagnostico e permissoes em `/status` e `/perm list`.',
+          '1. Speak naturally when you want speed.',
+          '2. Use commands only when you want operator control, such as `/codex`, `/external`, `/ag`, `/research`, or `/stitch`.',
+          '3. Track diagnostics and permissions in `/status` and `/perm list`.',
         ].join('\n');
       case 'integrations':
         return [
-          '*Motores e integracoes*',
+          '*Engines And Integrations*',
           '',
-          'O Zavorth trabalha com rotas diferentes dependendo do pedido.',
+          'Zavorth works through different routes depending on the request.',
           '',
-          '- **Codex** para codigo local e automacao no host.',
-          '- **ExternalExecutor** para execucao e revisao no WSL.',
-          '- **ZavorthBridge** para fluxos guiados por interface.',
-          '- **AI Studio**, **Gemini**, **Jules** e **Stitch** para pesquisa, analise e geracao.',
+          '- **Codex** for local code and host automation.',
+          '- **ExternalExecutor** for execution and review in WSL.',
+          '- **ZavorthBridge** for interface-guided flows.',
+          '- **AI Studio**, **Gemini**, **Jules**, and **Stitch** for research, analysis, and generation.',
         ].join('\n');
       case 'skills': {
         const snapshot = this.skillLibraryPresentationService.buildSnapshot();
@@ -77,96 +77,96 @@ export class TelegramHubContentService {
           .map((entry) => `${entry.trust} ${entry.count}`)
           .join(' | ');
         return [
-          '*Biblioteca de skills*',
+          '*Skill Library*',
           '',
           snapshot.narrative.operatorSummary,
-          `Recipes prontas: ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes}.`,
-          `Trust atual: ${trustSummary || 'sem dados'}.`,
+          `Ready recipes: ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes}.`,
+          `Current trust: ${trustSummary || 'no data'}.`,
           topBundle
-            ? `Bundle mais forte agora: *${topBundle.tag}* com ${topBundle.skillCount} skill(s).`
-            : 'Nenhum bundle em destaque agora.',
+            ? `Strongest bundle now: *${topBundle.tag}* with ${topBundle.skillCount} skill(s).`
+            : 'No featured bundle right now.',
           topVendor
-            ? `Vendor observado: *${topVendor.displayName}* -> ${topVendor.summary}`
-            : 'Nenhum vendor de apoio registrado agora.',
+            ? `Observed vendor: *${topVendor.displayName}* -> ${topVendor.summary}`
+            : 'No support vendor registered right now.',
           '',
-          'Atalhos uteis:',
-          '- `/skills library` para abrir a biblioteca completa',
-          '- `/skills bridge` para ver skills prontas para bridge governado',
-          '- `/skills run <skill>` para preparar dry-run seguro',
-          '- `/skills plan recipe spec-driven-delivery` para um plano base',
-          '- `/skills mcp` para ver tools e resources do sidecar',
+          'Useful shortcuts:',
+          '- `/skills library` to open the full library',
+          '- `/skills bridge` to see skills ready for governed bridge use',
+          '- `/skills run <skill>` to prepare a safe dry-run',
+          '- `/skills plan recipe spec-driven-delivery` for a base plan',
+          '- `/skills mcp` to see sidecar tools and resources',
         ].join('\n');
       }
       case 'recipes':
         return [
-          '*Receitas prontas*',
+          '*Ready Recipes*',
           '',
-          'Use estes exemplos para mostrar o Zavorth de forma clara:',
+          'Use these examples to show Zavorth clearly:',
           '',
-          '- `/research pesquise as principais noticias de IA de hoje`',
-          '- `/arquivo me envie o index.html da pasta ...`',
-          '- `/workflow ship implemente a tela e revise o resultado`',
-          '- `/stitch crie uma landing page moderna para um app de tarefas`',
+          '- `/research search today main AI news`',
+          '- `/files send me the index.html from folder ...`',
+          '- `/workflow ship implement the screen and review the result`',
+          '- `/stitch create a modern landing page for a task app`',
           '',
-          'Se quiser um roteiro guiado, use `/demo`.',
+          'Use `/demo` if you want a guided script.',
         ].join('\n');
       case 'security':
         return [
-          '*Seguranca e controle*',
+          '*Security And Control*',
           '',
-          'O Zavorth nao executa acoes sensiveis no escuro.',
-          'Pedidos de risco, acesso extra a pastas e certos fluxos guiados passam por politica e aprovacao antes de continuar.',
+          'Zavorth does not execute sensitive actions blindly.',
+          'Risky requests, extra folder access, and certain guided flows go through policy and approval before continuing.',
           '',
-          'Se quiser endurecer o comportamento, use `/lock`, `/operator on` ou trabalhe em modo apresentacao/demo.',
+          'To harden behavior, use `/lock`, `/operator on`, or work in presentation/demo mode.',
         ].join('\n');
       case 'permissions':
         return [
-          '*Permissoes e aprovacoes*',
+          '*Permissions And Approvals*',
           '',
-          `Pendencias agora: *${pendingPermissions.length}*.`,
+          `Pending now: *${pendingPermissions.length}*.`,
           '',
-          'Quando uma aprovacao aparece, a ideia e simples: te mostrar o que vai acontecer antes de continuar.',
-          'Abra a fila de pendencias para aprovar, rejeitar ou revisar o contexto de cada pedido.',
+          'When an approval appears, the idea is simple: show what will happen before continuing.',
+          'Open the pending queue to approve, reject, or review the context for each request.',
         ].join('\n');
       case 'settings':
         return [
-          '*Ajustes do Zavorth*',
+          '*Zavorth Settings*',
           '',
-          `Workspace principal: \`${workspaceLabel}\``,
-          `Provider atual: \`${config.llmProvider}\``,
-          `Modelo preferido do ZavorthBridge: \`${preferredZavorthBridgeModel || 'ainda nao definido'}\``,
-          `Permissoes pendentes: \`${pendingPermissions.length}\``,
+          `Main workspace: \`${workspaceLabel}\``,
+          `Current provider: \`${config.llmProvider}\``,
+          `Preferred ZavorthBridge model: \`${preferredZavorthBridgeModel || 'not set yet'}\``,
+          `Pending permissions: \`${pendingPermissions.length}\``,
           '',
-          'Modos agora:',
-          `- Apresentacao: ${this.deps.isPresentationModeEnabled() ? 'ativo' : 'inativo'}`,
-          `- Demo: ${this.deps.isDemoModeEnabled() ? 'ativo' : 'inativo'}`,
-          `- Operador: ${this.deps.isOperatorModeEnabled() ? 'ativo' : 'inativo'}`,
+          'Current modes:',
+          `- Presentation: ${this.deps.isPresentationModeEnabled() ? 'active' : 'inactive'}`,
+          `- Demo: ${this.deps.isDemoModeEnabled() ? 'active' : 'inactive'}`,
+          `- Operator: ${this.deps.isOperatorModeEnabled() ? 'active' : 'inactive'}`,
           '',
-          'Atalhos uteis:',
-          '- `/models` para ver os modelos ativos',
-          '- `/presentation on|off` para ajustar o tom',
-          '- `/operator on|off` para exigir confirmacao antes de agir',
-          '- `/demo on|off` para preparar uma demonstracao',
-          '- `/zavorthControl` para abrir o painel web',
+          'Useful shortcuts:',
+          '- `/models` to see active models',
+          '- `/presentation on|off` to adjust tone',
+          '- `/operator on|off` to require confirmation before acting',
+          '- `/demo on|off` to prepare a demo',
+          '- `/zavorthControl` to open the web dashboard',
         ].join('\n');
       case 'actions':
         return [
-          '*Acoes rapidas*',
+          '*Quick Actions*',
           '',
-          'Estes atalhos sao apoio manual para diagnostico, permissoes e operacao. Para tarefas comuns, escreva o pedido em linguagem natural.',
+          'These shortcuts are manual support for diagnostics, permissions, and operations. For common tasks, write the request in natural language.',
         ].join('\n');
       case 'overview':
       default:
         return [
           '*Zavorth*',
           '',
-          'Seu assistente para pesquisa, arquivos, codigo, automacao e operacao do ambiente.',
+          'Your assistant for research, files, code, automation, and environment operations.',
           '',
-          `Provider atual: \`${config.llmProvider}\``,
-          `Workspace principal: \`${workspaceLabel}\``,
-          `Pendencias abertas: \`${pendingPermissions.length}\``,
+          `Current provider: \`${config.llmProvider}\``,
+          `Main workspace: \`${workspaceLabel}\``,
+          `Open pending items: \`${pendingPermissions.length}\``,
           '',
-          'Este hub e apoio manual para diagnostico, ajustes, permissoes e demo. A entrada principal continua sendo linguagem natural.',
+          'This hub is manual support for diagnostics, settings, permissions, and demo. The primary entry remains natural language.',
         ].join('\n');
     }
   }
@@ -175,32 +175,32 @@ export class TelegramHubContentService {
     switch (kind) {
       case 'codex':
         return [
-          '*Receita: Codex*',
+          '*Recipe: Codex*',
           '',
-          'Use o Codex quando quiser mexer em codigo local ou automatizar uma alteracao no host.',
-          '`/codex crie um painel Next.js para um app interno`',
-          '`/dryrun npm run build` para simular antes de agir',
+          'Use Codex when you want to change local code or automate a host change.',
+          '`/codex create a Next.js dashboard for an internal app`',
+          '`/dryrun npm run build` to simulate before acting',
         ].join('\n');
       case 'external_executor':
         return [
-          '*Receita: ExternalExecutor*',
+          '*Recipe: ExternalExecutor*',
           '',
-          'Use o ExternalExecutor para revisao, exploracao e execucao isolada no WSL.',
-          '`/external revise este modulo e me devolva os principais riscos`',
+          'Use ExternalExecutor for review, exploration, and isolated execution in WSL.',
+          '`/external review this module and return the main risks`',
         ].join('\n');
       case 'zavorthBridge':
         return [
-          '*Receita: ZavorthBridge*',
+          '*Recipe: ZavorthBridge*',
           '',
-          'Use o ZavorthBridge quando a tarefa depender da interface ou de um fluxo visual guiado.',
-          '`/ag leia esta tela e me diga o que esta acontecendo`',
+          'Use ZavorthBridge when the task depends on the interface or a guided visual flow.',
+          '`/ag read this screen and tell me what is happening`',
         ].join('\n');
       case 'permissions':
       default:
         return [
-          '*Receita: Permissoes*',
+          '*Recipe: Permissions*',
           '',
-          'Quando eu precisar passar de um limite seguro, eu paro e peco confirmacao.',
+          'When I need to cross a safety boundary, I pause and ask for confirmation.',
           '`/perm list pending`',
         ].join('\n');
     }

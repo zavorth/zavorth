@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import { logger } from '../../logger.js';
 
 export class ProviderReplicateTool extends BaseTool {
   public readonly name = 'zavorth_replicate';
@@ -97,7 +98,7 @@ export class ProviderReplicateTool extends BaseTool {
 
     let input: Record<string, unknown> = {};
     if (typeof args.input === 'string') {
-      try { input = JSON.parse(args.input); } catch { return 'Error: invalid JSON for "input"..'; }
+      try { input = JSON.parse(args.input); } catch (error) { logger.warn('[Replicate] JSON parse failed', error); return 'Error: invalid JSON for "input"..'; }
     }
 
     try {
@@ -114,7 +115,7 @@ export class ProviderReplicateTool extends BaseTool {
         `https://api.replicate.com/v1/predictions`,
       ], { timeout: 60000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Replicate] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.detail) return `Replicate error: ${parsed.detail}`;
@@ -132,9 +133,7 @@ export class ProviderReplicateTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: unknown) {
-      return `Error running model: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Replicate] parsing failed', error); return ''; }
   }
 
   private async getPrediction(args: Record<string, unknown>, apiKey: string): Promise<string> {
@@ -166,9 +165,7 @@ export class ProviderReplicateTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Replicate] parsing failed', error); return ''; }
   }
 
   private async checkStatus(apiKey: string): Promise<string> {
@@ -182,8 +179,6 @@ export class ProviderReplicateTool extends BaseTool {
       const parsed = JSON.parse(result);
       if (parsed.detail) return `Replicate: Erro ${parsed.detail}`;
       return `Replicate: Connected. Usuario: ${parsed.username || 'unknown'}`;
-    } catch (error: unknown) {
-      return `Replicate: Connection error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Replicate] JSON parse failed', error); return ''; }
   }
 }

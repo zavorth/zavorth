@@ -1,4 +1,5 @@
 import { GITHUB_CONFIG } from "../constants/oauth";
+import { logger } from '@/shared/utils/logger';
 
 export const github = {
   config: GITHUB_CONFIG,
@@ -40,10 +41,11 @@ export const github = {
     let data;
     try {
       data = await response.json();
-    } catch (e) {
-      const text = await response.text();
+    } catch (error) {
+    logger.warn('[github] encoding failed', error);
+    const text = await response.text();
       data = { error: "invalid_response", error_description: text };
-    }
+  }
 
     return {
       ok: response.ok,

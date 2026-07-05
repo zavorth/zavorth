@@ -37,12 +37,12 @@ export function formatUniversalPreviewModeSnapshot(
 ): string {
   const lines = [
     'Universal Preview Mode - Universal Preview',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- modo: ${snapshot.mode}`,
     `- risco: ${snapshot.risk.highestRisk} | approval=${String(snapshot.risk.requiresApproval)} | preview=${String(snapshot.risk.previewRequired)}`,
-    `- tools expostas: ${snapshot.toolExposure.exposedToolIds.length > 0 ? snapshot.toolExposure.exposedToolIds.join(', ') : 'nenhuma'}`,
+    `- exposed tools: ${snapshot.toolExposure.exposedToolIds.length > 0 ? snapshot.toolExposure.exposedToolIds.join(', ') : 'none'}`,
     `- chamadas reais: ${snapshot.safety.toolsActuallyCalled.length}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
   ];
 
   if (snapshot.planSteps.length > 0) {

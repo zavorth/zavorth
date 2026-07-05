@@ -162,7 +162,7 @@ interface ZavorthControlServiceDeps {
   echoOutputStage?: unknown;
   permissionController?: unknown;
   hostIdentityService?: unknown;
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 export function initializeZavorthControlService(service: ZavorthControlFacadeCompat, logRepo: LogRepository, deps: ZavorthControlServiceDeps = {}): void {
@@ -170,14 +170,14 @@ export function initializeZavorthControlService(service: ZavorthControlFacadeCom
   initializeRuntimeComposition(service, deps);
 }
 
-function initializeSurfaceFields(service: ZavorthControlFacadeCompat, logRepo: LogRepository, deps: ZavorthControlServiceDeps = {}): void {
+function initializeSurfaceFields(service: ZavorthControlFacadeCompat, logRepo: LogRepository, deps: any = {}): void {
   service.trustedDeviceAccess = deps.trustedDeviceAccess || new TrustedDeviceAccessService();
   service.authService = new ZavorthControlAuthService({
     trustedDevices: service.trustedDeviceAccess,
   });
   service.agentGateway = deps.agentGateway || null;
   service.webApp = new WebAppService(service.authService, {
-    agentGateway: service.agentGateway,
+    agentGateway: service.agentGateway as any,
     toolRuntime: deps.toolRuntime || null,
   });
   service.classicAccess = new ZavorthControlClassicAccessService();
@@ -224,7 +224,7 @@ function initializeSurfaceFields(service: ZavorthControlFacadeCompat, logRepo: L
   });
   service.operationsOverviewBridge = new ZavorthControlOperationsOverviewReaderBridgeService(
     () => service.operationsDepsBridge.buildOverviewSnapshotDeps(
-      service as ZavorthControlOperationsDepsBridgeSource,
+      service as any as ZavorthControlOperationsDepsBridgeSource,
       {
         workspaceRoot: config.projectRoot || process.cwd(),
         continuityUserId: service.continuityUserId || config.allowedUserIds[0] || '1',
@@ -246,7 +246,7 @@ function initializeSurfaceFields(service: ZavorthControlFacadeCompat, logRepo: L
   service.accessManifest = new RuntimeAccessManifestService();
 }
 
-function initializeRuntimeComposition(service: ZavorthControlFacadeCompat, deps: ZavorthControlServiceDeps): void {
+function initializeRuntimeComposition(service: ZavorthControlFacadeCompat, deps: any): void {
   const continuityUserId = deps.webUserId || config.allowedUserIds[0] || '1';
 
   service.workflowRuns = deps.workflowRunService || new WorkflowRunService();
@@ -397,33 +397,34 @@ function initializeRuntimeComposition(service: ZavorthControlFacadeCompat, deps:
       service.productObservability,
     );
 
-  service.channelMesh = deps.channelMeshService || buildChannelMeshService(service);
-  service.channelActions = deps.channelActionService || buildChannelActionService(service);
-  service.hookPlane = deps.hookPlaneService || buildHookPlaneService(service);
-  service.memoryPlane = deps.memoryPlaneService || buildMemoryPlaneService(service);
-  service.learningPlane = deps.learningPlaneService || buildLearningPlaneService(service);
-  service.layeredMemory = deps.layeredMemoryService || buildLayeredMemoryService(service);
-  service.nodeInvoke = deps.nodeInvokeService || buildNodeInvokeService(service);
-  service.nodePairing = deps.nodePairingService || buildNodePairingService(service);
-  service.nodeHeartbeat = deps.nodeHeartbeatService || buildNodeHeartbeatService(service);
-  service.nodeMesh = deps.nodeMeshService || buildNodeMeshService(service);
-  service.pluginRegistry = deps.pluginRegistryService || buildPluginRegistryService(service);
-  service.pluginActions = deps.pluginActionService || buildPluginActionService(service);
-  service.platformCatalogSync = deps.platformCatalogSyncService || buildPlatformCatalogSyncService();
-  service.platformRegistry = deps.platformRegistryService || buildPlatformRegistryService(service);
-  service.platformActions = deps.platformActionService || buildPlatformActionService(service);
-  service.platformPublisher = deps.platformPublisherService || new ZavorthPackagePublisher();
-  service.remoteTransports = deps.remoteTransportService || buildRemoteTransportService(service);
+  const anyDeps = deps as any;
+  service.channelMesh = anyDeps.channelMeshService || buildChannelMeshService(service);
+  service.channelActions = anyDeps.channelActionService || buildChannelActionService(service);
+  service.hookPlane = anyDeps.hookPlaneService || buildHookPlaneService(service);
+  service.memoryPlane = anyDeps.memoryPlaneService || buildMemoryPlaneService(service);
+  service.learningPlane = anyDeps.learningPlaneService || buildLearningPlaneService(service);
+  service.layeredMemory = anyDeps.layeredMemoryService || buildLayeredMemoryService(service);
+  service.nodeInvoke = anyDeps.nodeInvokeService || buildNodeInvokeService(service);
+  service.nodePairing = anyDeps.nodePairingService || buildNodePairingService(service);
+  service.nodeHeartbeat = anyDeps.nodeHeartbeatService || buildNodeHeartbeatService(service);
+  service.nodeMesh = anyDeps.nodeMeshService || buildNodeMeshService(service);
+  service.pluginRegistry = anyDeps.pluginRegistryService || buildPluginRegistryService(service);
+  service.pluginActions = anyDeps.pluginActionService || buildPluginActionService(service);
+  service.platformCatalogSync = anyDeps.platformCatalogSyncService || buildPlatformCatalogSyncService();
+  service.platformRegistry = anyDeps.platformRegistryService || buildPlatformRegistryService(service);
+  service.platformActions = anyDeps.platformActionService || buildPlatformActionService(service);
+  service.platformPublisher = anyDeps.platformPublisherService || new ZavorthPackagePublisher();
+  service.remoteTransports = anyDeps.remoteTransportService || buildRemoteTransportService(service);
   service.remoteTransportDoctor =
-    deps.remoteTransportDoctorService || buildRemoteTransportDoctorService(service);
+    anyDeps.remoteTransportDoctorService || buildRemoteTransportDoctorService(service);
   service.remoteTransportActions =
-    deps.remoteTransportActionService || buildRemoteTransportActionService(service);
-  service.sessionPlane = deps.sessionPlaneService || buildSessionPlaneService(service);
-  service.sessionTools = deps.sessionToolsService || buildSessionToolsService(service);
-  service.toolSurface = deps.toolSurfaceService || buildToolSurfaceService(service);
-  service.gateway = deps.gatewayService || buildGatewayService(service);
+    anyDeps.remoteTransportActionService || buildRemoteTransportActionService(service);
+  service.sessionPlane = anyDeps.sessionPlaneService || buildSessionPlaneService(service);
+  service.sessionTools = anyDeps.sessionToolsService || buildSessionToolsService(service);
+  service.toolSurface = anyDeps.toolSurfaceService || buildToolSurfaceService(service);
+  service.gateway = anyDeps.gatewayService || buildGatewayService(service);
   service.tenantGovernanceActions =
-    deps.tenantGovernanceActionService ||
+    anyDeps.tenantGovernanceActionService ||
     new ZavorthTenantGovernanceActionService({
       tenantGovernanceService: service.tenantGovernance,
       teamCatalogService: service.teamCatalog,
@@ -436,10 +437,10 @@ function initializeRuntimeComposition(service: ZavorthControlFacadeCompat, deps:
       runtimeUserId: continuityUserId,
     });
   service.codexRemoteActions =
-    deps.codexRemoteActionService ||
+    anyDeps.codexRemoteActionService ||
     new CodexRemoteActionService({
       controlPlaneService: service.codexRemote,
-      permissionService: deps.permissionService as Pick<PermissionService, 'createRequest' | 'getRequest' | 'approveRequest' | 'rejectRequest'>,
+      permissionService: anyDeps.permissionService as Pick<PermissionService, 'createRequest' | 'getRequest' | 'approveRequest' | 'rejectRequest'>,
       runtimeUserId: continuityUserId,
     });
 

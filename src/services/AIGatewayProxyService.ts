@@ -85,14 +85,14 @@ export class AIGatewayProxyService {
 
   public async start(): Promise<AIGatewayProxyStatus> {
     if (!config.zavorthAIGatewayGatewayEnabled) {
-      const status = this.buildStatus(false, false, 'Gateway proprio do AIGateway desativado.');
+      const status = this.buildStatus(false, false, 'AIGateway local gateway is disabled.');
       this.writeStatus(status);
       return status;
     }
 
     if (AIGatewayProxyService.server) {
       this.server = AIGatewayProxyService.server;
-      const status = await this.readLiveStatus('Gateway proprio do AIGateway ja estava ativo.');
+      const status = await this.readLiveStatus('AIGateway local gateway was already active.');
       this.writeStatus(status);
       return status;
     }
@@ -120,7 +120,7 @@ export class AIGatewayProxyService {
       this.server = null;
       const errObj = error && typeof error === 'object' ? error as { code?: string } : {};
       if (errObj.code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
-        const status = this.buildExternalGatewayStatus('Gateway proprio do AIGateway ja estava ativo em outro processo.');
+        const status = this.buildExternalGatewayStatus('AIGateway local gateway was already active in another process.');
         this.writeStatus(status);
         return status;
       }
@@ -129,7 +129,7 @@ export class AIGatewayProxyService {
 
     AIGatewayProxyService.server = server;
     AIGatewayProxyService.startedAt = new Date().toISOString();
-    const status = await this.readLiveStatus('Gateway proprio do AIGateway ativo.');
+    const status = await this.readLiveStatus('AIGateway local gateway is active.');
     this.writeStatus(status);
     return status;
   }
@@ -152,13 +152,13 @@ export class AIGatewayProxyService {
       try {
         client.close();
       } catch (err) {
-        logger.warn('Falha ao fechar cliente WebSocket durante shutdown do gateway.', { err });
+        logger.warn('Failed to close WebSocket client during gateway shutdown.', { err });
       }
     });
     AIGatewayProxyService.wss?.close();
     AIGatewayProxyService.wss = null;
     AIGatewayProxyService.startedAt = null;
-    const status = this.buildStatus(false, false, 'Gateway proprio do AIGateway encerrado.');
+    const status = this.buildStatus(false, false, 'AIGateway local gateway stopped.');
     this.writeStatus(status);
   }
 
@@ -168,8 +168,8 @@ export class AIGatewayProxyService {
 
   public readPersistedStatus(): AIGatewayProxyStatus {
     const fallback = this.buildStatus(false, false, config.zavorthAIGatewayGatewayEnabled
-      ? 'Gateway proprio do AIGateway ainda nao iniciou nesta sessao.'
-      : 'Gateway proprio do AIGateway desativado.');
+      ? 'AIGateway local gateway has not started in this session yet.'
+      : 'AIGateway local gateway is disabled.');
 
     try {
       if (!fs.existsSync(config.AIGatewayGatewayStatusFile)) {
@@ -181,7 +181,7 @@ export class AIGatewayProxyService {
         ...parsed,
       };
     } catch (err) {
-      logger.warn('Falha ao ler status persistido do gateway, usando fallback.', { err });
+      logger.warn('Failed to read persisted gateway status; using fallback.', { err });
       return fallback;
     }
   }
@@ -197,13 +197,13 @@ export class AIGatewayProxyService {
       this.writeJson(res, ready
         ? { ok: true, ready: true, upstreamBaseUrl: config.AIGatewayUpstreamBaseUrl }
         : { ok: false, ready: false, upstreamBaseUrl: config.AIGatewayUpstreamBaseUrl }, ready ? 200 : 503);
-      const status = this.buildStatus(true, ready, ready ? 'Gateway proprio do AIGateway saudavel.' : 'Gateway proprio do AIGateway sem upstream saudavel.');
+      const status = this.buildStatus(true, ready, ready ? 'AIGateway local gateway is healthy.' : 'AIGateway local gateway has no healthy upstream.');
       this.writeStatus(status);
       return;
     }
 
     if (!requestUrl.pathname.startsWith('/v1/')) {
-      this.writeJson(res, { ok: false, error: 'Rota invalida para o gateway AIGateway do Zavorth.' }, 404);
+      this.writeJson(res, { ok: false, error: 'Invalid route for the Zavorth AIGateway gateway.' }, 404);
       return;
     }
 
@@ -258,11 +258,11 @@ export class AIGatewayProxyService {
 
       res.writeHead(response.status, headerObject);
       res.end(bodyBuffer);
-      const status = this.buildStatus(true, response.ok, 'Gateway proprio do AIGateway respondeu ao upstream.');
+      const status = this.buildStatus(true, response.ok, 'AIGateway local gateway forwarded the upstream response.');
       this.writeStatus(status);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      const status = this.buildStatus(true, false, `Falha ao encaminhar request ao AIGateway upstream: ${errorMessage}`);
+      const status = this.buildStatus(true, false, `Failed to forward request to AIGateway upstream: ${errorMessage}`);
       this.writeStatus(status);
       this.writeJson(res, { ok: false, error: status.message }, 502);
     }
@@ -306,7 +306,7 @@ export class AIGatewayProxyService {
     try {
       message = JSON.parse(Buffer.isBuffer(raw) ? raw.toString('utf8') : raw.toString());
     } catch (err) {
-      logger.warn('Mensagem WebSocket recebida não é JSON válido.', { err });
+      logger.warn('Received WebSocket message is not valid JSON.', { err });
       this.sendWebSocketJson(ws, { type: 'error', error: 'Expected JSON message.' });
       return;
     }
@@ -362,7 +362,7 @@ export class AIGatewayProxyService {
 
   private async readLiveStatus(message: string): Promise<AIGatewayProxyStatus> {
     const ready = await this.isGatewayHealthy();
-    return this.buildStatus(true, ready, ready ? message : 'Gateway proprio do AIGateway subiu, mas ainda nao passou no health.');
+    return this.buildStatus(true, ready, ready ? message : 'AIGateway local gateway started but has not passed health checks yet.');
   }
 
   private async isGatewayHealthy(): Promise<boolean> {
@@ -373,7 +373,7 @@ export class AIGatewayProxyService {
       });
       return response.ok;
     } catch (err) {
-      logger.warn('Healthcheck do gateway proprio falhou.', { err });
+      logger.warn('Local gateway healthcheck failed.', { err });
       return false;
     }
   }
@@ -431,7 +431,7 @@ export class AIGatewayProxyService {
       });
     }
     this.writeJson(res, { object: 'list', data }, 200);
-    const status = this.buildStatus(true, true, 'Gateway proprio do AIGateway saudavel via Google AI Studio.');
+    const status = this.buildStatus(true, true, 'AIGateway local gateway is healthy through Google AI Studio.');
     this.writeStatus(status);
   }
 
@@ -486,13 +486,13 @@ export class AIGatewayProxyService {
           type: 'upstream_error',
         },
       }, response.status);
-      const status = this.buildStatus(true, false, 'Gateway proprio do AIGateway recebeu erro do Google AI Studio.');
+      const status = this.buildStatus(true, false, 'AIGateway local gateway received an error from Google AI Studio.');
       this.writeStatus(status);
       return;
     }
 
     this.writeJson(res, this.toOpenAiChatCompletion(body, model), 200);
-    const status = this.buildStatus(true, true, 'Gateway proprio do AIGateway respondeu via Google AI Studio.');
+    const status = this.buildStatus(true, true, 'AIGateway local gateway responded through Google AI Studio.');
     this.writeStatus(status);
   }
 
@@ -626,7 +626,7 @@ export class AIGatewayProxyService {
       }
       return JSON.parse(fs.readFileSync(config.AIGatewayOverlayFile, 'utf8')) as GatewayOverlay;
     } catch (err) {
-      logger.warn('Falha ao ler overlay do gateway, usando configuração padrão.', { err });
+      logger.warn('Failed to read gateway overlay; using default configuration.', { err });
       return {};
     }
   }

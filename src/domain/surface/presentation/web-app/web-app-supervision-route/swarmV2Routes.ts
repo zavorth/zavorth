@@ -7,10 +7,12 @@ import type {
   SwarmScaleControlSurface,
 } from '../../../../execution/infrastructure/SwarmScalePlaneService.js';
 import type {
+  SwarmV2CreateInput,
   SwarmV2IsolationMode,
-  SwarmV2ToolSpec,
-} from '../../../../agents/SwarmV2Service.js';
-import type { SwarmRole } from '../../../runtime/sessions/v2/SwarmOrchestrator.js';
+  SwarmV2RoleLibraryEntry,
+  SwarmV2TokenBudgetInput,
+} from '../../../../../agents/SwarmV2Service.js';
+import type { SwarmRole } from '../../../../../runtime/sessions/v2/SwarmOrchestrator.js';
 
 export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) => {
   const {
@@ -201,20 +203,26 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
     const body = await deps.readJsonBody(req);
     const objective = String(body.objective || '').trim();
     const roles = Array.isArray(body.roles)
-      ? body.roles.map((role: SwarmRole, index: number) => ({
+      ? body.roles.map((entry: unknown, index: number): SwarmRole => {
+        const role = asRecord(entry) || {};
+        return {
         id: String(role?.id || `role-${index + 1}`),
         label: String(role?.label || `Role ${index + 1}`),
         systemPrompt: String(role?.systemPrompt || '').trim(),
         stdinMode: role?.stdinMode === 'prompt' ? 'prompt' : role?.stdinMode === 'none' ? 'none' : undefined,
         cwd: String(role?.cwd || '').trim() || undefined,
         toolSpecId: String(role?.toolSpecId || '').trim() || undefined,
-      }))
+        };
+      })
       : [];
     const requestedCommandRoles = Array.isArray(body.roles)
-      ? body.roles.some((role: SwarmRole) => String(role?.command || '').trim() || (Array.isArray(role?.args) && role.args.length > 0))
+      ? body.roles.some((entry: unknown) => {
+        const role = asRecord(entry);
+        return String(role?.command || '').trim() || (Array.isArray(role?.args) && role.args.length > 0);
+      })
       : false;
     const requestedToolSpecs = Array.isArray(body.toolSpecs)
-      ? body.toolSpecs.some((tool: SwarmV2ToolSpec) => String(tool?.command || '').trim())
+      ? body.toolSpecs.some((entry: unknown) => String(asRecord(entry)?.command || '').trim())
       : false;
     if (requestedCommandRoles || requestedToolSpecs) {
       deps.writeJson(res, {
@@ -225,7 +233,8 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
       return true;
     }
     const canonicalOfficial = !experimentalAlias || body.official === true;
-    const officialInput = {
+    const tokenBudget = asRecord(body.tokenBudget);
+    const officialInput: SwarmV2CreateInput = {
         swarmId: String(body.swarmId || '').trim() || undefined,
         objective,
         roles,
@@ -234,22 +243,22 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
         maxRoles: Number.isFinite(Number(body.maxRoles)) ? Number(body.maxRoles) : undefined,
         maxConcurrency: Number.isFinite(Number(body.maxConcurrency)) ? Number(body.maxConcurrency) : undefined,
         batchSize: Number.isFinite(Number(body.batchSize)) ? Number(body.batchSize) : undefined,
-        isolationMode: String(body.isolationMode || '').trim() as SwarmV2IsolationMode || undefined,
+        isolationMode: normalizeSwarmV2IsolationMode(body.isolationMode),
         isolationImage: String(body.isolationImage || '').trim() || undefined,
         wslDistro: String(body.wslDistro || '').trim() || undefined,
         requireStrongIsolation: body.requireStrongIsolation === true,
         autoSelectRoles: body.autoSelectRoles === true,
         desiredRoleCount: Number.isFinite(Number(body.desiredRoleCount)) ? Number(body.desiredRoleCount) : undefined,
         benchmark: body.benchmark === true,
-        tokenBudget: body.tokenBudget && typeof body.tokenBudget === 'object'
+        tokenBudget: tokenBudget
           ? {
-            maxLlmCalls: Number.isFinite(Number(body.tokenBudget.maxLlmCalls)) ? Number(body.tokenBudget.maxLlmCalls) : undefined,
-            maxEstimatedTokens: Number.isFinite(Number(body.tokenBudget.maxEstimatedTokens)) ? Number(body.tokenBudget.maxEstimatedTokens) : undefined,
-            maxEstimatedUsd: Number.isFinite(Number(body.tokenBudget.maxEstimatedUsd)) ? Number(body.tokenBudget.maxEstimatedUsd) : undefined,
-            modelClass: body.tokenBudget.modelClass,
+            maxLlmCalls: Number.isFinite(Number(tokenBudget.maxLlmCalls)) ? Number(tokenBudget.maxLlmCalls) : undefined,
+            maxEstimatedTokens: Number.isFinite(Number(tokenBudget.maxEstimatedTokens)) ? Number(tokenBudget.maxEstimatedTokens) : undefined,
+            maxEstimatedUsd: Number.isFinite(Number(tokenBudget.maxEstimatedUsd)) ? Number(tokenBudget.maxEstimatedUsd) : undefined,
+            modelClass: normalizeTokenBudgetModelClass(tokenBudget.modelClass),
             approved: false,
             allowHighCost: false,
-          }
+          } satisfies SwarmV2TokenBudgetInput
           : undefined,
         toolSpecs: undefined,
       };
@@ -265,7 +274,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
     deps.writeJson(res, {
       ok: true,
       experimental: experimentalAlias,
-      official: !experimentalAlias || swarm.official === true,
+      official: !experimentalAlias || ('official' in swarm && swarm.official === true),
       surface: experimentalAlias ? 'swarm-v2-legacy-alias' : 'swarm-v2-official',
       swarm,
     }, 200);
@@ -295,11 +304,11 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
     const role = service.upsertRoleLibraryEntry({
       id: String(body.id || '').trim(),
       label: String(body.label || '').trim(),
-      kind: body.kind,
+      kind: normalizeRoleLibraryKind(body.kind),
       systemPrompt: String(body.systemPrompt || '').trim(),
       defaultTools: Array.isArray(body.defaultTools) ? body.defaultTools.map((value: unknown) => String(value)) : undefined,
-      risk: body.risk,
-      scope: body.scope,
+      risk: normalizeRoleLibraryRisk(body.risk),
+      scope: normalizeRoleLibraryScope(body.scope),
       tags: Array.isArray(body.tags) ? body.tags.map((value: unknown) => String(value)) : undefined,
     });
     deps.writeJson(res, {
@@ -350,7 +359,12 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
       deps.writeJson(res, { ok: false, error: `${swarmV2Label} nao encontrado.` }, 404);
       return true;
     }
-    deps.writeJson(res, { ok: true, experimental: experimentalAlias, official: !experimentalAlias || swarm.official === true, swarm }, 200);
+    deps.writeJson(res, {
+      ok: true,
+      experimental: experimentalAlias,
+      official: !experimentalAlias || ('official' in swarm && swarm.official === true),
+      swarm,
+    }, 200);
     return true;
   }
 
@@ -396,6 +410,49 @@ function optionalBoolean(value: unknown): boolean | undefined {
   if (['1', 'true', 'yes', 'y', 'on', 'enabled', 'enable'].includes(normalized)) return true;
   if (['0', 'false', 'no', 'n', 'off', 'disabled', 'disable'].includes(normalized)) return false;
   return undefined;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function normalizeSwarmV2IsolationMode(value: unknown): SwarmV2IsolationMode | undefined {
+  const normalized = String(value || '').trim();
+  return ['direct', 'temp-worktree', 'docker', 'wsl', 'external-sandbox'].includes(normalized)
+    ? normalized as SwarmV2IsolationMode
+    : undefined;
+}
+
+function normalizeTokenBudgetModelClass(
+  value: unknown,
+): NonNullable<SwarmV2TokenBudgetInput['modelClass']> | undefined {
+  const normalized = String(value || '').trim();
+  return ['cheap', 'standard', 'premium'].includes(normalized)
+    ? normalized as NonNullable<SwarmV2TokenBudgetInput['modelClass']>
+    : undefined;
+}
+
+function normalizeRoleLibraryKind(value: unknown): SwarmV2RoleLibraryEntry['kind'] | undefined {
+  const normalized = String(value || '').trim();
+  return ['planner', 'researcher', 'implementer', 'verifier', 'critic', 'synthesizer', 'operator', 'custom'].includes(normalized)
+    ? normalized as SwarmV2RoleLibraryEntry['kind']
+    : undefined;
+}
+
+function normalizeRoleLibraryRisk(value: unknown): SwarmV2RoleLibraryEntry['risk'] | undefined {
+  const normalized = String(value || '').trim();
+  return ['safe', 'attention', 'danger', 'unknown'].includes(normalized)
+    ? normalized as SwarmV2RoleLibraryEntry['risk']
+    : undefined;
+}
+
+function normalizeRoleLibraryScope(value: unknown): SwarmV2RoleLibraryEntry['scope'] | undefined {
+  const normalized = String(value || '').trim();
+  return ['read_only', 'tool_limited', 'workspace_patch'].includes(normalized)
+    ? normalized as SwarmV2RoleLibraryEntry['scope']
+    : undefined;
 }
 
 function normalizeSwarmScaleSurface(value: unknown): string {

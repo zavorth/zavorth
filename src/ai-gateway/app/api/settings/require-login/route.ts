@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateRequireLoginSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 // Node.js compatibility check — better-sqlite3 requires Node <24
 function getNodeCompatibility() {
@@ -40,7 +41,8 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {

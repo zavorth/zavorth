@@ -80,7 +80,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'conversation',
         confidence: 0.95,
-        reason: 'Mensagem conversacional simples detectada. Nenhuma tool necessaria.',
+        reason: 'Simple conversational message detected. No tool required.',
         isTrivialChat: true,
       }));
     }
@@ -90,7 +90,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'conversation',
         confidence: 0.62,
-        reason: 'Palavra-chave tecnica rebaixada por contexto conversacional.',
+        reason: 'Technical keyword downgraded by conversational context.',
         isTrivialChat: false,
         downgradedBy: negativeSignals,
       }));
@@ -103,8 +103,8 @@ export class IntentClassifier {
         category: 'file_operation',
         confidence: hasConcreteFileIntent ? 0.82 : 0.7,
         reason: hasConcreteFileIntent
-          ? 'Hint de arquivo com verbo e objeto tecnico concreto.'
-          : 'Referencia concreta a workspace/arquivo detectada como hint de tools.',
+          ? 'File hint with concrete verb and technical object.'
+          : 'Concrete workspace/file reference detected as tool hint.',
         isTrivialChat: false,
       }));
     }
@@ -113,7 +113,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'execution',
         confidence: 0.82,
-        reason: 'Hint de execucao com comando/script/teste concreto.',
+        reason: 'Execution hint with concrete command/script/test.',
         isTrivialChat: false,
       }));
     }
@@ -178,7 +178,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'conversation',
         confidence: 0.65,
-        reason: 'Mensagem parece conversacional. Nenhuma tool provavel.',
+        reason: 'Message appears conversational. No tool is likely needed.',
         isTrivialChat: false,
       }));
     }

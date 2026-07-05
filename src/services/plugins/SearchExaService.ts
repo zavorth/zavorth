@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface ExaSearchResult {
   id: string;
@@ -76,7 +77,7 @@ export class SearchExaService {
         `${this.baseUrl}/search`,
       ], { timeout: 30000, maxBuffer: 20 * 1024 * 1024 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Search Exa] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `Exa error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
@@ -113,9 +114,7 @@ export class SearchExaService {
       }
 
       return lines.join('\n');
-    } catch (error: unknown) {
-      return `Exa search error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Search Exa] operation failed', error); return ''; }
   }
 
   public async findSimilar(url: string, options?: { num_results?: number }): Promise<string> {
@@ -140,7 +139,7 @@ export class SearchExaService {
         `${this.baseUrl}/findSimilar`,
       ], { timeout: 30000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Search Exa] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `Exa error: ${parsed.error.message}`;
@@ -151,9 +150,7 @@ export class SearchExaService {
         lines.push(`  - ${r.title}: ${r.url}`);
       }
       return lines.join('\n');
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Search Exa] JSON parse failed', error); return ''; }
   }
 
   public async getContents(urls: string[], options?: { max_characters?: number }): Promise<string> {
@@ -180,7 +177,7 @@ export class SearchExaService {
         `${this.baseUrl}/contents`,
       ], { timeout: 30000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Search Exa] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       const results = parsed.results || [];
@@ -190,8 +187,6 @@ export class SearchExaService {
         lines.push((r.text || '').slice(0, 500));
       }
       return lines.join('\n');
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Search Exa] JSON parse failed', error); return ''; }
   }
 }

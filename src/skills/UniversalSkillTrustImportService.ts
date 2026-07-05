@@ -304,7 +304,7 @@ export class UniversalSkillTrustImportService {
         allowed: false,
         materialized: false,
         targetSkillDirPath: input.targetSkillDirPath,
-        reason: 'Preview obrigatorio concluido; reexecute com --apply e allowlist explicita para importar.',
+        reason: 'Required preview completed; rerun with --apply and an explicit allowlist to import.',
         sourceAllowed,
         skillAllowed,
         candidateBlocked,
@@ -315,16 +315,16 @@ export class UniversalSkillTrustImportService {
     }
 
     if (candidateBlocked || input.risk.level === 'blocked') {
-      return denied('Candidato bloqueado pelo preview, risco ou licenca.');
+      return denied('Candidate blocked by preview, risk, or license.');
     }
     if (!sourceAllowed) {
-      return denied('Fonte nao esta na allowlist explicita.');
+      return denied('Source is not in the explicit allowlist.');
     }
     if (!skillAllowed) {
-      return denied('Skill nao esta na allowlist explicita.');
+      return denied('Skill is not in the explicit allowlist.');
     }
     if (!input.licensePolicy.allowImport) {
-      return denied(`Licenca bloqueia import: ${input.licensePolicy.summary}`);
+      return denied(`License blocks import: ${input.licensePolicy.summary}`);
     }
     if (this.existsSyncImpl(input.targetSkillDirPath) && !input.overwrite) {
       return {
@@ -334,7 +334,7 @@ export class UniversalSkillTrustImportService {
         allowed: false,
         materialized: false,
         targetSkillDirPath: input.targetSkillDirPath,
-        reason: 'Destino ja existe; use --overwrite para substituir.',
+        reason: 'Destination already exists; use --overwrite to replace it.',
         sourceAllowed,
         skillAllowed,
         candidateBlocked,
@@ -351,7 +351,7 @@ export class UniversalSkillTrustImportService {
       allowed: true,
       materialized: false,
       targetSkillDirPath: input.targetSkillDirPath,
-      reason: 'Fonte e skill autorizadas; importacao materializavel no workspace importado.',
+      reason: 'Source and skill authorized; import can be materialized in the imported workspace.',
       sourceAllowed,
       skillAllowed,
       candidateBlocked,
@@ -732,33 +732,33 @@ export class UniversalSkillTrustImportService {
   }): SkillRiskAssessment {
     const reasons: string[] = [];
     if (input.candidate.status === 'blocked') {
-      reasons.push('Candidato bloqueado pelo preview universal.');
+      reasons.push('Candidate blocked by universal preview.');
       return blockedRisk(reasons);
     }
     if (!input.sourceAllowed) {
-      reasons.push('Fonte nao permitida pela allowlist.');
+      reasons.push('Source not allowed by allowlist.');
       return blockedRisk(reasons);
     }
     if (!input.skillAllowed) {
-      reasons.push('Skill nao permitida pela allowlist.');
+      reasons.push('Skill not allowed by allowlist.');
       return blockedRisk(reasons);
     }
     if (!input.licensePolicy.allowImport) {
-      reasons.push(`Licenca bloqueada: ${input.licensePolicy.summary}`);
+      reasons.push(`License blocked: ${input.licensePolicy.summary}`);
       return blockedRisk(reasons);
     }
 
     let score = 20;
-    reasons.push('Fonte universal exige revisao por padrao.');
+    reasons.push('Universal source requires review by default.');
     score += input.warnings * 10;
     if (input.licensePolicy.reviewRequired) {
       score += 15;
-      reasons.push('Licenca exige revisao antes de confiar.');
+      reasons.push('License requires review before trust.');
     }
 
     const permission = input.candidate.manifest.permissionProfileId;
     score += riskWeightForPermission(permission);
-    reasons.push(`Permission profile inferido: ${permission}.`);
+    reasons.push(`Inferred permission profile: ${permission}.`);
 
     const normalized = Math.max(0, Math.min(score, 100));
     return {

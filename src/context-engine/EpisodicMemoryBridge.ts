@@ -1,40 +1,28 @@
 /**
- * EpisodicMemoryBridge — Ponte entre Memória de Curto e Longo Prazo (Surface controls)
+ * EpisodicMemoryBridge - bridge between short-term and long-term memory.
  *
- * No Zavorth pré-merge:
- * - ContextEngine (short-term): sliding window de 12 turnos, compactação local
- * - MemoryService (long-term): SQLite + embeddings, recall por similaridade
- * Mas eles NÃO CONVERSAM ENTRE SI. O ContextEngine descarta turnos antigos
- * para sempre, e o MemoryService só é carregado via /remember|/recall explícito.
- *
- * Este Bridge faz:
- * 1. AUTO-PERSIST: Quando o ContextEngine compacta turnos, os episódios são
- *    persistidos automaticamente no MemoryService como memórias episódicas.
- * 2. AUTO-RECALL: Antes de cada chamada ao LLM, o Bridge consulta o
- *    MemoryService por memórias relevantes à mensagem atual e as injeta
- *    no contexto da conversação.
- * 3. CONSOLIDATION: Turnos compactados são transformados em "episódios"
- *    resumidos que o MemoryService indexa via embeddings.
- *
- * Resultado: O Zavorth "lembra" de conversas de semanas atrás,
- * não apenas dos últimos 12 turnos, e faz isso de forma transparente.
+ * ContextEngine keeps a compact short-term sliding window. MemoryService owns
+ * long-term storage, embeddings, and similarity recall. This bridge connects
+ * both layers so compacted turns can be persisted and relevant memories can be
+ * recalled before LLM calls.
  */
 
 import type { ContextEvent } from './ContextEngine.js';
 import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 import type { MemoryService } from '../services/MemoryService.js';
+import { logger } from '../logger.js';
 
-/** Configuração do Bridge */
+/** Bridge configuration. */
 export interface EpisodicMemoryBridgeConfig {
-  /** Máx de memórias relevantes a injetar por turno */
+  /** Max relevant memories to inject per turn. */
   maxRecallPerTurn: number;
-  /** Score mínimo de similaridade para recall */
+  /** Minimum similarity score for recall. */
   recallThreshold: number;
-  /** Se deve persistir episódios automaticamente */
+  /** Whether to automatically persist episodes. */
   autoPersist: boolean;
-  /** Se deve fazer recall automático no prepare() */
+  /** Whether to automatically recall memories in prepare(). */
   autoRecall: boolean;
-  /** Máx de tokens para o episódio consolidado */
+  /** Max tokens for the consolidated episode. */
   maxEpisodeLength: number;
 }
 
@@ -46,36 +34,36 @@ const DEFAULT_CONFIG: EpisodicMemoryBridgeConfig = {
   maxEpisodeLength: 500,
 };
 
-/** Episódio consolidado pronto para persistência */
+/** Consolidated episode ready for persistence. */
 export interface ConsolidatedEpisode {
-  /** Resumo do episódio */
+  /** Episode summary. */
   summary: string;
-  /** Superfície de origem */
+  /** Source surface. */
   surface: string;
-  /** Timestamp de início */
+  /** Start timestamp. */
   startedAt: string;
-  /** Timestamp de fim */
+  /** End timestamp. */
   endedAt: string;
-  /** Número de turnos consolidados */
+  /** Number of consolidated turns. */
   turnCount: number;
-  /** Tópicos principais detectados */
+  /** Main detected topics. */
   topics: string[];
 }
 
-/** Resultado do recall automático */
+/** Automatic recall result. */
 export interface RecallResult {
-  /** Memórias relevantes encontradas */
+  /** Relevant memories found. */
   memories: Array<{
     key: string;
     value: string;
     category: string;
     relevanceScore?: number;
   }>;
-  /** Texto formatado para injeção no prompt do LLM */
+  /** Formatted text for LLM prompt injection. */
   contextBlock: string;
-  /** Número de memórias consultadas */
+  /** Number of memories searched. */
   totalSearched: number;
-  /** Tempo de busca em ms */
+  /** Search time in milliseconds. */
   searchTimeMs: number;
 }
 
@@ -90,22 +78,20 @@ export class EpisodicMemoryBridge {
   }
 
   /**
-   * Conecta o Bridge ao MemoryService.
-   * Chamado durante o bootstrap quando o MemoryService está disponível.
+   * Connects the bridge to MemoryService.
+   * Called during bootstrap when MemoryService is available.
    */
   public attach(memoryService: MemoryService): void {
     this.memoryService = memoryService;
-    console.log('[EpisodicMemoryBridge] Conectado ao MemoryService.');
+    console.log('[EpisodicMemoryBridge] Connected to MemoryService.');
   }
 
   /**
-   * AUTO-PERSIST: Consolida um array de ContextEvents antigos em um
-   * episódio e persiste no MemoryService.
+   * AUTO-PERSIST: Consolidates old ContextEvents into an episode and persists it in MemoryService.
+   * Called by ContextEngine when the buffer exceeds its limit.
    *
-   * Chamado pelo ContextEngine quando o buffer excede o limite.
-   *
-   * @param events - Eventos compactados do ContextEngine
-   * @param userId - ID do usuário
+   * @param events - Compacted ContextEngine events.
+   * @param userId - User ID.
    */
   public async persistEpisode(events: ContextEvent[], userId: string): Promise<void> {
     if (!this.config.autoPersist || !this.memoryService || events.length === 0) {
@@ -114,34 +100,34 @@ export class EpisodicMemoryBridge {
 
     try {
       const episode = this.consolidateEvents(events);
-      const episodeKey = `episodio_${episode.startedAt.replace(/[^0-9]/g, '').slice(0, 12)}`;
+      const episodeKey = `episode_${episode.startedAt.replace(/[^0-9]/g, '').slice(0, 12)}`;
 
       await this.memoryService.remember(
         userId,
         episodeKey,
         episode.summary,
-        'episodio',
+        'episode',
       );
 
       this.persistedEpisodeCount++;
 
       console.log(
-        `[EpisodicMemoryBridge] Episódio persistido: ${episodeKey} (${episode.turnCount} turnos, tópicos: ${episode.topics.join(', ')})`,
+        `[EpisodicMemoryBridge] Episode persisted: ${episodeKey} (${episode.turnCount} turns, topics: ${episode.topics.join(', ')})`,
       );
     } catch (error) {
-      console.error('[EpisodicMemoryBridge] Erro ao persistir episódio:', error);
+      logger.error('[EpisodicMemoryBridge] Failed to persist episode:', error);
     }
   }
 
   /**
-   * AUTO-RECALL: Busca memórias relevantes à mensagem atual do usuário
-   * e retorna um bloco de contexto formatado para injeção no prompt.
+   * AUTO-RECALL: Finds memories relevant to the current user message.
+   * Returns a formatted context block for prompt injection.
    *
-   * Chamado pelo ContextEngine.prepare() antes de montar o payload LLM.
+   * Called by ContextEngine.prepareAsync() before assembling the LLM payload.
    *
-   * @param userMessage - Mensagem atual do usuário
-   * @param userId - ID do usuário
-   * @returns RecallResult com memórias e bloco de contexto
+   * @param userMessage - Current user message.
+   * @param userId - User ID.
+   * @returns RecallResult with memories and a context block.
    */
   public async recall(userMessage: string, userId: string): Promise<RecallResult> {
     const emptyResult: RecallResult = {
@@ -187,13 +173,13 @@ export class EpisodicMemoryBridge {
         searchTimeMs,
       };
     } catch (error) {
-      console.error('[EpisodicMemoryBridge] Erro no recall:', error);
+      logger.error('[EpisodicMemoryBridge] Recall failed:', error);
       return { ...emptyResult, searchTimeMs: Date.now() - startTime };
     }
   }
 
   /**
-   * Retorna estatísticas de uso do Bridge.
+   * Returns bridge usage stats.
    */
   public getStats(): {
     episodesPersisted: number;
@@ -210,7 +196,7 @@ export class EpisodicMemoryBridge {
   }
 
   /**
-   * Consolida um array de ContextEvents em um episódio resumido.
+   * Consolidates ContextEvents into a summarized episode.
    */
   private consolidateEvents(events: ContextEvent[]): ConsolidatedEpisode {
     const userMessages: string[] = [];
@@ -228,14 +214,14 @@ export class EpisodicMemoryBridge {
 
     const topics = this.extractTopics([...userMessages, ...assistantMessages]);
 
-    // Construir resumo compacto
+    // Build compact summary.
     const summaryParts: string[] = [];
 
     for (let i = 0; i < Math.min(userMessages.length, 5); i++) {
       const truncated = userMessages[i].length > 120
         ? userMessages[i].slice(0, 120) + '...'
         : userMessages[i];
-      summaryParts.push(`Usuário: ${truncated.replace(/\n/g, ' ')}`);
+      summaryParts.push(`User: ${truncated.replace(/\n/g, ' ')}`);
     }
 
     if (assistantMessages.length > 0) {
@@ -262,7 +248,7 @@ export class EpisodicMemoryBridge {
   }
 
   /**
-   * Extrai tópicos principais de um conjunto de mensagens por frequência de termos.
+   * Extracts main topics by term frequency.
    */
   private extractTopics(messages: string[]): string[] {
     const stopWords = new Set([
@@ -294,7 +280,7 @@ export class EpisodicMemoryBridge {
   }
 
   /**
-   * Formata memórias recall em bloco de contexto para injeção no prompt LLM.
+   * Formats recalled memories as a context block for LLM prompt injection.
    */
   private formatContextBlock(
     memories: Array<{ key: string; value: string; category: string }>,
@@ -306,7 +292,7 @@ export class EpisodicMemoryBridge {
     );
 
     return buildUntrustedContextBlock(
-      'MEMORIAS RELEVANTES RECUPERADAS DA MEMORIA DE LONGO PRAZO:',
+      'RELEVANT MEMORIES RETRIEVED FROM LONG-TERM MEMORY:',
       lines,
     );
   }

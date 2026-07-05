@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export class ZavorthDatabaseAdminTool extends BaseTool {
   public readonly name = 'zavorth_database_admin';
@@ -99,9 +100,7 @@ export class ZavorthDatabaseAdminTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: unknown) {
-      return `Command error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Database Admin] process execution failed', error); return ''; }
   }
 
   private getDbArgs(args: Record<string, unknown>): string[] {
@@ -270,9 +269,7 @@ export class ZavorthDatabaseAdminTool extends BaseTool {
       }
 
       return 'Error: No migration framework detected (tried Knex, Prisma, Drizzle).';
-    } catch (error: unknown) {
-      return `Migration error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Database Admin] filesystem operation failed', error); return ''; }
   }
 
   private async indexes(args: Record<string, unknown>): Promise<string> {

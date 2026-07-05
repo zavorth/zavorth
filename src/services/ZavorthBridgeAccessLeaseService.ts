@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type ZavorthBridgeAccessLeaseMode = 'public' | 'lan';
 export type ZavorthBridgeAccessLeaseStatus = 'active' | 'revoked' | 'expired' | 'missing';
@@ -206,9 +207,7 @@ export class ZavorthBridgeAccessLeaseService {
         startedPublicTunnel: parsed.startedPublicTunnel === true,
         note: String(parsed.note || '').trim() || null,
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Access Lease] parsing failed', error); return null; }
   }
 
   private persistLease(record: ZavorthBridgeAccessLeaseRecord): ZavorthBridgeAccessLeaseRecord {

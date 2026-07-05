@@ -9,6 +9,7 @@ import {
 } from '../contracts/ZavorthSubagentSkillLiveCompletionContract.js';
 import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
 import { ZavorthNaturalInvocationRouter } from './ZavorthNaturalInvocationRouter.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   now?: () => Date;
@@ -162,9 +163,7 @@ export class ZavorthSubagentSkillLiveCompletionService {
   private loadSkills(): SkillMetadata[] {
     try {
       return this.skillLoader.loadAll({ includeSupportFiles: false, quiet: true });
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Subagent Skill Live Completion] load operation failed', error); return []; }
   }
 
   private buildEntries(input: {

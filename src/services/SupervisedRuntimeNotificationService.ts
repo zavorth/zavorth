@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export interface PendingSupervisedRuntimeNotification {
   chatId: string;
@@ -42,9 +43,7 @@ export class SupervisedRuntimeNotificationService {
       }
 
       return parsed;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Supervised Runtime Notification] JSON parse failed', error); return null; }
   }
 
   public async flushPending(

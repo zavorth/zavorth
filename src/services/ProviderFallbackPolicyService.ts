@@ -1,8 +1,6 @@
 import { ProviderInvocationService } from './ProviderInvocationService.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
-import { ProviderRuntimeRequest } from './ModelSelectionService.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
-import { ProviderInvocationResult } from './ProviderRuntimeClientFactory.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
 import {
   ResilientRouteAttempt,
@@ -23,7 +21,7 @@ export class ProviderFallbackPolicyService {
     return ProviderFallbackPolicyService.instance;
   }
 
-  public async invokeWithFallback(request: ProviderRuntimeRequest, messages: unknown[]): Promise<ProviderInvocationResult> {
+  public async invokeWithFallback(request: any, messages: unknown[]): Promise<any> {
     const logger = new SecurityAuditLogger();
     const policyService = new ResilientRoutePolicyService();
     const policy = policyService.policyFromRequest(request);
@@ -41,7 +39,7 @@ export class ProviderFallbackPolicyService {
           routingReceiptId,
           budgetDecision: budget.decision,
           reason: budget.reason,
-          dailyBudgetCents: budget.dailyBudgetCents ?? null,
+          dailyBudgetCents: budget.dailyBudgetCents ?? undefined,
         },
       });
       throw new Error('budget_blocked');
@@ -94,11 +92,11 @@ export class ProviderFallbackPolicyService {
             metadata: {
               routingReceiptId,
               fallbackTo: target.providerId,
-              fallbackModelId: target.modelId || null,
-            }
+              fallbackModelId: target.modelId || undefined,
+            },
           });
           
-          const fallbackRequest: ProviderRuntimeRequest = {
+          const fallbackRequest: any = {
             ...request,
             providerId: target.providerId,
             modelId: target.modelId,
@@ -121,8 +119,8 @@ export class ProviderFallbackPolicyService {
             metadata: {
               routingReceiptId,
               fallbackUsed: target.providerId,
-              fallbackModelId: target.modelId || null,
-            }
+              fallbackModelId: target.modelId || undefined,
+            },
           });
 
           await logger.logWorkspaceEvent({
@@ -151,7 +149,7 @@ export class ProviderFallbackPolicyService {
               routingReceiptId,
               fallbackFailedOn: target.providerId,
               errorCode: fallbackNormalized.code,
-            }
+            },
           });
           if (!policyService.isRetryableError(fallbackNormalized.code, policy)) {
             break;
@@ -166,7 +164,7 @@ export class ProviderFallbackPolicyService {
   }
 
   private async invokeAttempt(input: {
-    request: ProviderRuntimeRequest;
+    request: any;
     messages: unknown[];
     attempts: ResilientRouteAttempt[];
     logger: SecurityAuditLogger;
@@ -174,7 +172,7 @@ export class ProviderFallbackPolicyService {
     routingReceiptId: string;
     isFallback: boolean;
     timeoutMs: number;
-  }): Promise<ProviderInvocationResult> {
+  }): Promise<any> {
     const startedAt = Date.now();
     const providerId = input.request.providerId || 'auto';
     const attempt: ResilientRouteAttempt = {
@@ -191,7 +189,7 @@ export class ProviderFallbackPolicyService {
       providerId,
       metadata: {
         routingReceiptId: input.routingReceiptId,
-        modelId: input.request.modelId || null,
+        modelId: input.request.modelId || undefined,
         isFallback: input.isFallback,
       },
     });
@@ -207,7 +205,7 @@ export class ProviderFallbackPolicyService {
         durationMs: attempt.durationMs,
         metadata: {
           routingReceiptId: input.routingReceiptId,
-          modelId: input.request.modelId || null,
+          modelId: input.request.modelId || undefined,
           isFallback: input.isFallback,
         },
       });
@@ -225,7 +223,7 @@ export class ProviderFallbackPolicyService {
         durationMs: attempt.durationMs,
         metadata: {
           routingReceiptId: input.routingReceiptId,
-          modelId: input.request.modelId || null,
+          modelId: input.request.modelId || undefined,
           isFallback: input.isFallback,
           errorCode: normalized.code,
           errorMessage: normalized.message,
@@ -236,10 +234,10 @@ export class ProviderFallbackPolicyService {
   }
 
   private async invokeProviderWithTimeout(
-    request: ProviderRuntimeRequest,
+    request: any,
     messages: unknown[],
     timeoutMs: number,
-  ): Promise<ProviderInvocationResult> {
+  ): Promise<any> {
     if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
       return ProviderInvocationService.getInstance().invoke(request, messages);
     }
@@ -248,7 +246,7 @@ export class ProviderFallbackPolicyService {
     try {
       return await Promise.race([
         ProviderInvocationService.getInstance().invoke(request, messages),
-        new Promise<ProviderInvocationResult>((_, reject) => {
+        new Promise<any>((_, reject) => {
           timeoutHandle = setTimeout(() => reject(new Error('timeout')), timeoutMs);
         }),
       ]);
@@ -282,14 +280,14 @@ export class ProviderFallbackPolicyService {
   }
 
   private withRoutingMetadata(
-    result: ProviderInvocationResult,
+    result: any,
     metadata: {
       routingReceiptId: string;
       attempts: ResilientRouteAttempt[];
       fallbackUsed: boolean;
-      budgetDecision: ProviderInvocationResult['budgetDecision'];
+      budgetDecision: any;
     },
-  ): ProviderInvocationResult {
+  ): any {
     return {
       ...result,
       routingReceiptId: metadata.routingReceiptId,

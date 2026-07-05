@@ -35,7 +35,8 @@ async function checkHealth(url: string, healthPath?: string): Promise<HealthResu
     const modelCount = Array.isArray(data.data) ? data.data.length : 0;
 
     return { healthy: true, latency, modelCount, error: null };
-  } catch (err) {
+  } catch (error) {
+    logger.warn('[health Monitor] network request failed', error);
     const latency = Date.now() - start;
     const message = err instanceof Error ? err.message : String(err);
     return { healthy: false, latency, modelCount: 0, error: message };

@@ -1,14 +1,14 @@
 /**
- * bootstrapContextEngine.ts — Inicialização do Context Engine + Cognitive Firewall
+ * bootstrapContextEngine.ts - Context Engine + Cognitive Firewall initialization.
  *
- * Este módulo é chamado durante o bootstrap do Zavorth para:
- * 1. Escanear skills dinâmicas via SkillScanner
- * 2. Iniciar o ContextEngine (memória de curto prazo)
- * 3. Iniciar o LegacyUnifiedGatewayAdapter (fallback conversacional legado)
- * 4. Criar o EpisodicMemoryBridge (ponte curto→longo prazo)
- * 5. Logar as estatísticas de skills descobertas
+ * Called during Zavorth bootstrap to:
+ * 1. Scan dynamic skills through SkillScanner.
+ * 2. Start the ContextEngine for short-term memory.
+ * 3. Start LegacyUnifiedGatewayAdapter as the legacy conversational fallback.
+ * 4. Create the EpisodicMemoryBridge from short-term to long-term memory.
+ * 5. Log discovered skill statistics.
  *
- * Chamado em bootstrapFoundation.ts após a criação do tool runtime.
+ * Called from bootstrapFoundation.ts after tool runtime creation.
  */
 
 import * as path from 'path';
@@ -44,7 +44,7 @@ export function createContextEngineRuntime(
 ): ContextEngineRuntime {
   const root = basePath || process.cwd();
 
-  // 1. Escanear skills dinâmicas
+  // 1. Scan dynamic skills.
   const skillLoader = new SkillLoader();
   const skillLoadResult = skillLoader.loadAll(root);
   GlobalContextReloadEvents.reloadSkills = () => skillLoader.reload(root);
@@ -52,31 +52,35 @@ export function createContextEngineRuntime(
   logRepo.log(
     'info',
     'ContextEngine',
-    `Skills descobertas: ${skillLoadResult.totalSkills} skills, ${skillLoadResult.totalTools} tools (${skillLoadResult.skillIds.join(', ')})`,
+    `Discovered skills: ${skillLoadResult.totalSkills} skills, ${skillLoadResult.totalTools} tools (${skillLoadResult.skillIds.join(', ')})`,
   );
 
   for (const [category, toolNames] of Object.entries(skillLoadResult.categoryMap)) {
     logRepo.log(
       'info',
       'ContextEngine',
-      `  Categoria [${category}]: ${toolNames.join(', ')}`,
+      `  Category [${category}]: ${toolNames.join(', ')}`,
     );
   }
 
-  // 2. Criar o ContextEngine
-  const contextEngine = new ContextEngine();
+  // 2. Create the ContextEngine with all cognitive firewall improvements enabled.
+  const contextEngine = new ContextEngine({
+    compactMode: true,    // Lazy tool definitions (~80% fewer tokens per tool)
+    clusterMode: true,    // Tool clustering (group related tools)
+    cacheEnabled: true,   // Tool result caching (avoid re-execution)
+  });
 
-  // 3. Criar o adapter legado de conversa (conectado ao ContextEngine)
+  // 3. Create the legacy conversational adapter connected to ContextEngine.
   const legacyUnifiedGateway = new LegacyUnifiedGatewayAdapter(contextEngine);
 
-  // 4. Criar o EpisodicMemoryBridge e conectar ao ContextEngine
+  // 4. Create the EpisodicMemoryBridge and attach it to ContextEngine.
   const episodicMemoryBridge = new EpisodicMemoryBridge();
   contextEngine.attachEpisodicBridge(episodicMemoryBridge);
 
   logRepo.log(
     'info',
     'ContextEngine',
-    'ContextEngine + LegacyUnifiedGatewayAdapter + SkillScanner + EpisodicMemoryBridge inicializados. Cognitive Firewall ativo.',
+    'ContextEngine + LegacyUnifiedGatewayAdapter + SkillScanner + EpisodicMemoryBridge initialized. Cognitive Firewall active.',
   );
 
   console.log('[BOOT] context-engine-ready');
@@ -141,7 +145,7 @@ export function wireLegacyUnifiedGatewayAgentCallback(input: {
       });
 
       return {
-        text: String(response.text || '').trim() || 'Sem resposta do agente.',
+        text: String(response.text || '').trim() || 'No agent response.',
         action: response.action,
       };
     },
@@ -150,7 +154,7 @@ export function wireLegacyUnifiedGatewayAgentCallback(input: {
   logRepo.log(
     'info',
     'ContextEngine',
-    'LegacyUnifiedGatewayAdapter agent callback conectado no bootstrap central.',
+    'LegacyUnifiedGatewayAdapter agent callback connected in central bootstrap.',
   );
 }
 

@@ -74,21 +74,21 @@ const AGENT_OS_ROLES: ZavorthAgentOperatingSystemRoleSnapshot[] = [
     label: 'Planner Agent',
     executor: 'codex',
     writeBoundary: 'plan.md + tasks.md',
-    responsibility: 'Traduz o spec em plano tecnico e tasks pequenas, validaveis e ordenadas.',
+    responsibility: 'Translates the spec into a technical plan and small, verifiable, ordered tasks.',
   },
   {
     id: 'execution',
     label: 'Execution Agent',
     executor: 'codex',
-    writeBoundary: 'tasks.md + arquivos referenciados da feature',
-    responsibility: 'Implementa a task ativa dentro do escopo aprovado da feature.',
+    writeBoundary: 'tasks.md + feature-referenced files',
+    responsibility: 'Implements the active task inside the approved feature scope.',
   },
   {
     id: 'review',
     label: 'Review Agent',
     executor: 'external_executor',
     writeBoundary: 'tasks.md + handoff.md + run-state.json',
-    responsibility: 'Valida coerencia entre spec, plan, tasks, testes e evidencias do run.',
+    responsibility: 'Validates consistency between spec, plan, tasks, tests, and run evidence.',
   },
 ];
 
@@ -124,13 +124,13 @@ export class ZavorthAgentOperatingSystemService {
       roles: AGENT_OS_ROLES,
       loops,
       narrative: {
-        headline: `Zavorth expoe um Agent OS limitado com ${summary.roles} papel(is) e ${summary.loops} loop(s) coordenados.`,
+        headline: `Zavorth exposes a limited Agent OS with ${summary.roles} role(s) and ${summary.loops} coordinated loop(s).`,
         operatorSummary: [
-          `${summary.activeLoops} loop(s) ativo(s).`,
-          `${summary.resumableLoops} loop(s) com retomada pronta.`,
+          `${summary.activeLoops} active loop(s).`,
+          `${summary.resumableLoops} resumable loop(s).`,
           summary.sddLoopReady
-            ? 'O loop SDD ja serve como nucleo do agent OS limitado.'
-            : 'O loop SDD ainda nao apareceu no catalogo operacional.',
+            ? 'The SDD loop already serves as the limited Agent OS core.'
+            : 'The SDD loop has not appeared in the operational catalog yet.',
         ].join(' '),
       },
     };

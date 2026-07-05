@@ -6,239 +6,239 @@ export const INTEGRATION_REMOTE_PROVIDER_MANIFESTS: IntegrationManifest[] = [
     id: 'gemini',
     label: 'Google Gemini / AI Studio',
     aliases: ['google', 'aistudio', 'google-ai-studio'],
-    summary: 'Conector nativo para chat, visÃƒÂ£o e pesquisa com modelos Gemini.',
-    description: 'Provider jÃƒÂ¡ existente no Zavorth. Ãƒâ€° um dos caminhos mais simples para comeÃƒÂ§ar.',
+    summary: 'Native connector for Gemini chat, vision, and search models.',
+    description: 'This provider already exists in Zavorth and is one of the simplest paths to get started.',
     supportLevel: 'native',
     category: 'remote',
     tags: ['provider', 'google', 'multimodal'],
-    modes: [mode('api', 'API remota', 'Usa chave do Google AI Studio.')],
+    modes: [mode('api', 'Remote API', 'Uses a Google AI Studio key.')],
     defaultMode: 'api',
     capabilities: ['chat', 'code', 'vision', 'search', 'agents'],
     binding: {
       kind: 'provider',
       key: 'gemini',
       status: 'ready',
-      summary: 'Provider nativo jÃƒÂ¡ presente no runtime.',
+      summary: 'Native provider already present in the runtime.',
     },
     requirements: [
-      req('gemini_api_key', 'Chave Gemini', 'NecessÃƒÂ¡ria para autenticar o provider.', {
+      req('gemini_api_key', 'Gemini key', 'Required to authenticate the provider.', {
         type: 'env',
         secret: true,
         envKey: 'GEMINI_API_KEY',
       }),
-      req('google_account', 'Conta Google', 'NecessÃƒÂ¡ria para gerar e gerenciar a chave.', {
+      req('google_account', 'Google account', 'Required to create and manage the key.', {
         type: 'account',
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'Como vocÃƒÂª quer usar o Gemini?', 'single_choice', 'API remota ÃƒÂ© o caminho padrÃƒÂ£o.', {
+      question('install_mode', 'How do you want to use Gemini?', 'single_choice', 'Remote API is the default path.', {
         required: false,
-        choices: [choice('api', 'API remota', 'Recomendado: nÃƒÂ£o instala nada localmente.')],
+        choices: [choice('api', 'Remote API', 'Recommended: nothing is installed locally.')],
       }),
       commonCapabilityQuestion,
     ],
     installSteps: [
-      step('review', 'Revisar escopo', 'Definir se vocÃƒÂª quer chat, cÃƒÂ³digo, visÃƒÂ£o ou pesquisa.', 'guided'),
-      step('configure-key', 'Adicionar a chave', 'Configurar GEMINI_API_KEY em local seguro.', 'manual', 'GEMINI_API_KEY=...'),
-      step('doctor', 'Rodar doctor', 'Validar se a integraÃƒÂ§ÃƒÂ£o ficou pronta.', 'verification', 'npm run integrations:doctor -- --id gemini'),
+      step('review', 'Review scope', 'Decide whether you need chat, code, vision, search, or agents.', 'guided'),
+      step('configure-key', 'Add the key', 'Configure GEMINI_API_KEY in a secure location.', 'manual', 'GEMINI_API_KEY=...'),
+      step('doctor', 'Run doctor', 'Validate that the integration is ready.', 'verification', 'npm run integrations:doctor -- --id gemini'),
     ],
     safetyNotes: [
-      'Esta integraÃƒÂ§ÃƒÂ£o envia prompts e arquivos para um serviÃƒÂ§o remoto.',
-      'Ative visÃƒÂ£o apenas quando vocÃƒÂª realmente precisar.',
+      'This integration sends prompts and files to a remote service.',
+      'Enable vision only when you actually need image understanding.',
     ],
-    goodFor: ['Pesquisa', 'AnÃƒÂ¡lise multimodal', 'Uso geral'],
+    goodFor: ['Research', 'Multimodal analysis', 'General use'],
   },
   {
     id: 'openai',
     label: 'OpenAI',
     aliases: ['chatgpt'],
-    summary: 'Conector nativo para modelos GPT com foco em chat, cÃƒÂ³digo e visÃƒÂ£o.',
-    description: 'Usa o provider OpenAI jÃƒÂ¡ embutido no Zavorth.',
+    summary: 'Native connector for GPT models focused on chat, code, and vision.',
+    description: 'Uses the OpenAI provider already embedded in Zavorth.',
     supportLevel: 'native',
     category: 'remote',
     tags: ['provider', 'openai', 'vision'],
-    modes: [mode('api', 'API remota', 'Usa OPENAI_API_KEY.')],
+    modes: [mode('api', 'Remote API', 'Uses OPENAI_API_KEY.')],
     defaultMode: 'api',
     capabilities: ['chat', 'code', 'vision', 'agents'],
     binding: {
       kind: 'provider',
       key: 'openai',
       status: 'ready',
-      summary: 'Provider nativo jÃƒÂ¡ presente no runtime.',
+      summary: 'Native provider already present in the runtime.',
     },
     requirements: [
-      req('openai_api_key', 'Chave OpenAI', 'NecessÃƒÂ¡ria para autenticar o provider.', {
+      req('openai_api_key', 'OpenAI key', 'Required to authenticate the provider.', {
         type: 'env',
         secret: true,
         envKey: 'OPENAI_API_KEY',
       }),
-      req('billing', 'Billing ativo', 'Sem billing a integraÃƒÂ§ÃƒÂ£o costuma falhar.', {
+      req('billing', 'Active billing', 'The integration usually fails without active billing.', {
         type: 'account',
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'Como vocÃƒÂª quer usar a OpenAI?', 'single_choice', 'API remota ÃƒÂ© o caminho padrÃƒÂ£o.', {
+      question('install_mode', 'How do you want to use OpenAI?', 'single_choice', 'Remote API is the default path.', {
         required: false,
-        choices: [choice('api', 'API remota', 'Recomendado e jÃƒÂ¡ suportado.')],
+        choices: [choice('api', 'Remote API', 'Recommended and already supported.')],
       }),
       commonCapabilityQuestion,
     ],
     installSteps: [
-      step('review', 'Confirmar objetivo', 'Definir se o foco serÃƒÂ¡ chat, cÃƒÂ³digo ou visÃƒÂ£o.', 'guided'),
-      step('configure-key', 'Adicionar OPENAI_API_KEY', 'Sem a chave o provider nÃƒÂ£o sobe.', 'manual', 'OPENAI_API_KEY=...'),
-      step('doctor', 'Rodar doctor', 'Validar se o provider ficou pronto.', 'verification', 'npm run integrations:doctor -- --id openai'),
+      step('review', 'Confirm goal', 'Decide whether the focus is chat, code, vision, or agents.', 'guided'),
+      step('configure-key', 'Add OPENAI_API_KEY', 'The provider cannot start without the key.', 'manual', 'OPENAI_API_KEY=...'),
+      step('doctor', 'Run doctor', 'Validate that the provider is ready.', 'verification', 'npm run integrations:doctor -- --id openai'),
     ],
-    safetyNotes: ['Custos variam por modelo.', 'Evite enviar segredos em prompts livres sem necessidade.'],
-    goodFor: ['Chat', 'CÃƒÂ³digo', 'VisÃƒÂ£o'],
+    safetyNotes: ['Costs vary by model.', 'Avoid sending secrets in free-form prompts unless necessary.'],
+    goodFor: ['Chat', 'Code', 'Vision'],
   },
   {
     id: 'minimax',
     label: 'MiniMax',
     aliases: ['minimax-direct', 'minimax-api'],
-    summary: 'Conector nativo direto para a API OpenAI-compatible do MiniMax.',
-    description: 'Permite usar MiniMax sem depender do OpenRouter, mantendo o provider principal padrao intacto.',
+    summary: 'Native direct connector for the MiniMax OpenAI-compatible API.',
+    description: 'Allows MiniMax usage without routing through an intermediate gateway while preserving the main provider profile.',
     supportLevel: 'native',
     category: 'remote',
     tags: ['provider', 'minimax', 'coding', 'agents'],
-    modes: [mode('api', 'API remota', 'Usa MINIMAX_API_KEY com endpoint OpenAI-compatible.')],
+    modes: [mode('api', 'Remote API', 'Uses MINIMAX_API_KEY with an OpenAI-compatible endpoint.')],
     defaultMode: 'api',
     capabilities: ['chat', 'code', 'vision', 'agents'],
     binding: {
       kind: 'provider',
       key: 'minimax',
       status: 'ready',
-      summary: 'Provider nativo opcional para MiniMax direto.',
+      summary: 'Optional native provider for direct MiniMax access.',
     },
     requirements: [
-      req('minimax_api_key', 'Chave MiniMax', 'Necessaria para autenticar o provider direto.', {
+      req('minimax_api_key', 'MiniMax key', 'Required to authenticate the direct provider.', {
         type: 'env',
         secret: true,
         envKey: 'MINIMAX_API_KEY',
       }),
-      req('minimax_model', 'Modelo MiniMax', 'O padrao recomendado e MiniMax-M2.7.', {
+      req('minimax_model', 'MiniMax model', 'The recommended default is MiniMax-M2.7.', {
         type: 'manual',
         required: false,
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'Como voce quer usar o MiniMax?', 'single_choice', 'API remota direta e o caminho suportado hoje.', {
+      question('install_mode', 'How do you want to use MiniMax?', 'single_choice', 'Direct remote API is the supported path today.', {
         required: false,
-        choices: [choice('api', 'API remota', 'Recomendado para usar MiniMax sem OpenRouter.')],
+        choices: [choice('api', 'Remote API', 'Recommended for direct MiniMax usage.')],
       }),
       commonCapabilityQuestion,
     ],
     installSteps: [
-      step('review', 'Definir papel do MiniMax', 'Escolher se ele sera complementar ou provider principal em momentos especificos.', 'guided'),
-      step('configure-key', 'Adicionar MINIMAX_API_KEY', 'Sem a chave o provider direto nao ativa.', 'manual', 'MINIMAX_API_KEY=...'),
-      step('doctor', 'Rodar doctor', 'Confirmar se a chave e o binding ficaram prontos.', 'verification', 'npm run integrations:doctor -- --id minimax'),
+      step('review', 'Define the MiniMax role', 'Choose whether it is a complementary provider or the primary provider for specific tasks.', 'guided'),
+      step('configure-key', 'Add MINIMAX_API_KEY', 'The direct provider cannot activate without the key.', 'manual', 'MINIMAX_API_KEY=...'),
+      step('doctor', 'Run doctor', 'Confirm that the key and binding are ready.', 'verification', 'npm run integrations:doctor -- --id minimax'),
     ],
-    safetyNotes: ['Use MiniMax direto quando quiser reduzir dependencia de gateways intermediarios.'],
-    goodFor: ['Coding', 'Agentic tasks', 'Uso direto sem OpenRouter'],
+    safetyNotes: ['Use direct MiniMax access when you want fewer intermediate routing dependencies.'],
+    goodFor: ['Coding', 'Agentic tasks', 'Direct API use'],
   },
   {
     id: 'openrouter',
     label: 'OpenRouter',
     aliases: ['router'],
-    summary: 'Gateway nativo para vÃƒÂ¡rios modelos remotos com um ponto ÃƒÂºnico de entrada.',
-    description: 'JÃƒÂ¡ existe no Zavorth e ÃƒÂ© excelente para testar vÃƒÂ¡rios modelos com menos atrito.',
+    summary: 'Native gateway for many remote models through a single entry point.',
+    description: 'Already available in Zavorth and useful for testing many models with less setup friction.',
     supportLevel: 'native',
     category: 'remote',
     tags: ['provider', 'gateway', 'routing'],
-    modes: [mode('api', 'API remota', 'Usa OPENROUTER_API_KEY.')],
+    modes: [mode('api', 'Remote API', 'Uses OPENROUTER_API_KEY.')],
     defaultMode: 'api',
     capabilities: ['chat', 'code', 'vision', 'agents', 'search'],
     binding: {
       kind: 'provider',
       key: 'openrouter',
       status: 'ready',
-      summary: 'Provider nativo jÃƒÂ¡ embutido.',
+      summary: 'Native provider already embedded in the runtime.',
     },
     requirements: [
-      req('openrouter_api_key', 'Chave OpenRouter', 'NecessÃƒÂ¡ria para autenticaÃƒÂ§ÃƒÂ£o.', {
+      req('openrouter_api_key', 'OpenRouter key', 'Required for authentication.', {
         type: 'env',
         secret: true,
         envKey: 'OPENROUTER_API_KEY',
       }),
-      req('model_strategy', 'EstratÃƒÂ©gia de modelo', 'VocÃƒÂª vai querer escolher um perfil padrÃƒÂ£o.', {
+      req('model_strategy', 'Model strategy', 'You will likely want to choose a default profile.', {
         type: 'manual',
         required: false,
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'Como vocÃƒÂª quer usar o OpenRouter?', 'single_choice', 'API remota ÃƒÂ© o caminho padrÃƒÂ£o.', {
+      question('install_mode', 'How do you want to use OpenRouter?', 'single_choice', 'Remote API is the default path.', {
         required: false,
-        choices: [choice('api', 'API remota', 'Recomendado e jÃƒÂ¡ suportado.')],
+        choices: [choice('api', 'Remote API', 'Recommended and already supported.')],
       }),
       commonCapabilityQuestion,
-      question('routing_goal', 'Qual serÃƒÂ¡ o uso principal?', 'single_choice', 'Isso ajuda o Zavorth a sugerir um perfil.', {
+      question('routing_goal', 'What is the main use case?', 'single_choice', 'This helps Zavorth suggest a profile.', {
         required: false,
         choices: [
-          choice('balanced', 'Uso geral', 'EquilÃƒÂ­brio entre chat, cÃƒÂ³digo e pesquisa.'),
-          choice('research', 'Pesquisa', 'Mais profundidade e evidÃƒÂªncia.'),
-          choice('code', 'CÃƒÂ³digo', 'ÃƒÅ netapa em revisÃƒÂ£o e implementaÃƒÂ§ÃƒÂ£o.'),
+          choice('balanced', 'General use', 'Balances chat, code, and research.'),
+          choice('research', 'Research', 'Prioritizes depth and evidence.'),
+          choice('code', 'Code', 'Focused on review and implementation.'),
         ],
       }),
     ],
     installSteps: [
-      step('review', 'Escolher papel do gateway', 'Definir se ele serÃƒÂ¡ principal ou complementar.', 'guided'),
-      step('configure-key', 'Adicionar OPENROUTER_API_KEY', 'Sem a chave o provider nÃƒÂ£o ativa.', 'manual', 'OPENROUTER_API_KEY=...'),
-      step('doctor', 'Rodar doctor', 'Confirmar se a chave e o binding estÃƒÂ£o prontos.', 'verification', 'npm run integrations:doctor -- --id openrouter'),
+      step('review', 'Choose gateway role', 'Decide whether it will be primary or complementary.', 'guided'),
+      step('configure-key', 'Add OPENROUTER_API_KEY', 'The provider cannot activate without the key.', 'manual', 'OPENROUTER_API_KEY=...'),
+      step('doctor', 'Run doctor', 'Confirm that the key and binding are ready.', 'verification', 'npm run integrations:doctor -- --id openrouter'),
     ],
-    safetyNotes: ['Comece com poucos modelos liberados para manter previsibilidade.'],
-    goodFor: ['ComparaÃƒÂ§ÃƒÂ£o de modelos', 'Roteamento flexÃƒÂ­vel', 'Pesquisa'],
+    safetyNotes: ['Start with a small set of enabled models to keep behavior predictable.'],
+    goodFor: ['Model comparison', 'Flexible routing', 'Research'],
   },
   {
     id: 'opencode',
     label: 'OpenCode',
     aliases: ['open-code'],
-    summary: 'Conector nativo para o provider OpenCode jÃƒÂ¡ suportado pelo Zavorth.',
-    description: 'ÃƒÅ¡til para ampliar opÃƒÂ§ÃƒÂµes de provider focadas em cÃƒÂ³digo sem depender de um sidecar novo.',
+    summary: 'Native connector for the OpenCode provider already supported by Zavorth.',
+    description: 'Useful for expanding code-focused provider options without adding another sidecar.',
     supportLevel: 'native',
     category: 'remote',
     tags: ['provider', 'code', 'api'],
-    modes: [mode('api', 'API remota', 'Usa OPENCODE_API_KEY.')],
+    modes: [mode('api', 'Remote API', 'Uses OPENCODE_API_KEY.')],
     defaultMode: 'api',
     capabilities: ['chat', 'code', 'agents'],
     binding: {
       kind: 'provider',
       key: 'opencode',
       status: 'ready',
-      summary: 'Provider nativo jÃƒÂ¡ disponÃƒÂ­vel.',
+      summary: 'Native provider already available.',
     },
     requirements: [
-      req('opencode_api_key', 'Chave OpenCode', 'NecessÃƒÂ¡ria para autenticar o provider.', {
+      req('opencode_api_key', 'OpenCode key', 'Required to authenticate the provider.', {
         type: 'env',
         secret: true,
         envKey: 'OPENCODE_API_KEY',
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'Como vocÃƒÂª quer usar o OpenCode?', 'single_choice', 'API remota ÃƒÂ© o caminho padrÃƒÂ£o.', {
+      question('install_mode', 'How do you want to use OpenCode?', 'single_choice', 'Remote API is the default path.', {
         required: false,
-        choices: [choice('api', 'API remota', 'Recomendado e jÃƒÂ¡ suportado.')],
+        choices: [choice('api', 'Remote API', 'Recommended and already supported.')],
       }),
       commonCapabilityQuestion,
     ],
     installSteps: [
-      step('configure-key', 'Adicionar OPENCODE_API_KEY', 'Sem a chave o provider nÃƒÂ£o ativa.', 'manual', 'OPENCODE_API_KEY=...'),
-      step('doctor', 'Rodar doctor', 'Confirmar se o provider ficou pronto.', 'verification', 'npm run integrations:doctor -- --id opencode'),
+      step('configure-key', 'Add OPENCODE_API_KEY', 'The provider cannot activate without the key.', 'manual', 'OPENCODE_API_KEY=...'),
+      step('doctor', 'Run doctor', 'Confirm that the provider is ready.', 'verification', 'npm run integrations:doctor -- --id opencode'),
     ],
-    safetyNotes: ['Como toda API remota, avalie bem o tipo de dado que vocÃƒÂª envia.'],
-    goodFor: ['CÃƒÂ³digo', 'Fallback de provider'],
+    safetyNotes: ['As with any remote API, review the type of data you send.'],
+    goodFor: ['Code', 'Provider fallback'],
   },
   {
     id: 'copilot',
     label: 'Microsoft Copilot',
     aliases: ['microsoft-copilot', 'github-copilot'],
-    summary: 'Receita experimental para orientar conexÃƒÂ£o com ecossistemas Copilot.',
-    description: 'Ainda nÃƒÂ£o existe binding nativo de produÃƒÂ§ÃƒÂ£o no Zavorth, mas o hub jÃƒÂ¡ consegue guiar o onboarding.',
+    summary: 'Experimental recipe for connecting to Copilot ecosystems.',
+    description: 'Zavorth does not have a production-native binding yet, but the hub can guide onboarding.',
     supportLevel: 'experimental',
     category: 'remote',
     tags: ['copilot', 'experimental', 'browser'],
     modes: [
-      mode('browser', 'Browser assistido', 'Fluxo experimental guiado por navegaÃƒÂ§ÃƒÂ£o.'),
-      mode('mcp', 'Conector MCP', 'Para quando houver adaptador MCP confiÃƒÂ¡vel.'),
-      mode('api', 'API oficial', 'Somente se existir endpoint estÃƒÂ¡vel e suportado.'),
+      mode('browser', 'Assisted browser', 'Experimental flow guided through browser navigation.'),
+      mode('mcp', 'MCP connector', 'For use when a trusted MCP adapter is available.'),
+      mode('api', 'Official API', 'Only when a stable supported endpoint exists.'),
     ],
     defaultMode: 'browser',
     capabilities: ['chat', 'code', 'agents'],
@@ -246,36 +246,36 @@ export const INTEGRATION_REMOTE_PROVIDER_MANIFESTS: IntegrationManifest[] = [
       kind: 'planned',
       key: null,
       status: 'planned',
-      summary: 'Ainda nÃƒÂ£o existe binding nativo de produÃƒÂ§ÃƒÂ£o.',
+      summary: 'There is no production-native binding yet.',
     },
     requirements: [
-      req('official_access', 'Acesso oficial', 'O Zavorth sÃƒÂ³ trabalha com fluxos permitidos e legÃƒÂ­timos.', {
+      req('official_access', 'Official access', 'Zavorth only uses permitted and legitimate flows.', {
         type: 'account',
       }),
-      req('supported_recipe', 'Receita suportada', 'Sem receita oficial a integraÃƒÂ§ÃƒÂ£o fica apenas exploratÃƒÂ³ria.', {
+      req('supported_recipe', 'Supported recipe', 'Without an official recipe, the integration stays exploratory.', {
         type: 'manual',
       }),
     ],
     onboardingQuestions: [
-      question('install_mode', 'Qual caminho vocÃƒÂª quer tentar primeiro?', 'single_choice', 'Browser assistido costuma ser o caminho menos invasivo.', {
+      question('install_mode', 'Which path should be tried first?', 'single_choice', 'Assisted browser mode is usually the least invasive path.', {
         required: false,
         choices: [
-          choice('browser', 'Browser assistido', 'ÃƒÅ¡til quando hÃƒÂ¡ acesso, mas ainda nÃƒÂ£o existe API integrada.'),
-          choice('mcp', 'Conector MCP', 'Melhor quando surgir um adaptador confiÃƒÂ¡vel.'),
-          choice('api', 'API oficial', 'Escolha isso apenas se vocÃƒÂª jÃƒÂ¡ souber que ela existe.'),
+          choice('browser', 'Assisted browser', 'Useful when access exists but no integrated API is available yet.'),
+          choice('mcp', 'MCP connector', 'Best when a trusted adapter becomes available.'),
+          choice('api', 'Official API', 'Choose this only when you know the endpoint exists.'),
         ],
       }),
       commonCapabilityQuestion,
     ],
     installSteps: [
-      step('review', 'Confirmar forma de acesso', 'Identificar se a integraÃƒÂ§ÃƒÂ£o serÃƒÂ¡ por browser, MCP ou API.', 'guided'),
-      step('recipe', 'Aplicar receita suportada', 'Seguir somente fluxos realmente suportados.', 'manual'),
-      step('doctor', 'Rodar doctor', 'Avaliar se a integraÃƒÂ§ÃƒÂ£o ficou pelo menos parcialmente operacional.', 'verification', 'npm run integrations:doctor -- --id copilot'),
+      step('review', 'Confirm access path', 'Identify whether the integration will use browser, MCP, or API access.', 'guided'),
+      step('recipe', 'Apply supported recipe', 'Follow only truly supported flows.', 'manual'),
+      step('doctor', 'Run doctor', 'Evaluate whether the integration is at least partially operational.', 'verification', 'npm run integrations:doctor -- --id copilot'),
     ],
     safetyNotes: [
-      'O Zavorth nÃƒÂ£o tenta driblar CAPTCHA, 2FA ou bloqueios proprietÃƒÂ¡rios.',
-      'IntegraÃƒÂ§ÃƒÂ£o experimental: nÃƒÂ£o presuma compatibilidade total.',
+      'Zavorth does not bypass CAPTCHA, 2FA, or proprietary access controls.',
+      'Experimental integration: do not assume full compatibility.',
     ],
-    goodFor: ['Benchmark', 'Planejamento de conectores futuros'],
+    goodFor: ['Benchmarking', 'Future connector planning'],
   },
 ];

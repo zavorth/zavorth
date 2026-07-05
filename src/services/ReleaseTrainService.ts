@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  HOTFIX_PLAYBOOK,
+HOTFIX_PLAYBOOK,
   RELEASE_CANDIDATE_CHECKLIST,
   RELEASE_TRAIN_CALENDAR,
   RELEASE_TRAIN_FORBIDDEN_CLAIMS,
@@ -571,9 +572,7 @@ export class ReleaseTrainService {
     }
     try {
       return this.parseJson(this.readFileSync(filePath, 'utf8'));
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Release Train] filesystem operation failed', error); return null; }
   }
 
   private readCoreText(relativePath: string): string | null {
@@ -598,18 +597,14 @@ export class ReleaseTrainService {
     }
     try {
       return this.readFileSync(targetPath, 'utf8');
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Release Train] filesystem operation failed', error); return null; }
   }
 
   private parseJson(raw: string): JsonRecord | null {
     try {
       const parsed = JSON.parse(raw);
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as JsonRecord : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Release Train] JSON parse failed', error); return null; }
   }
 
   private check(

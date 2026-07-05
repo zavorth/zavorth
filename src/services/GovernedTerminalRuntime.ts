@@ -101,7 +101,8 @@ export class GovernedTerminalRuntime {
           : 'Governed terminal command executed but returned a non-zero exit.',
       });
     } catch (error) {
-      return this.receipt({
+    logger.warn('[Governed Terminal Runtime] process execution failed', error);
+    return this.receipt({
         status: 'failed',
         command: input.command,
         cwd,
@@ -115,7 +116,7 @@ export class GovernedTerminalRuntime {
         stderr: truncate(error instanceof Error ? error.message : String(error)),
         reason: 'Governed terminal command failed during process execution.',
       });
-    }
+  }
   }
 
   private blockedReason(input: {
@@ -228,9 +229,7 @@ function hasPty(): boolean {
     try {
       require.resolve('@lydell/node-pty');
       return true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Governed Terminal Runtime] module import failed', error); return false; }
   }
 }
 

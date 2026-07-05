@@ -2,6 +2,7 @@ import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { ChatMessage, ILlmProvider } from '../providers/ILlmProvider.js';
 import { GeminiVideoAnalyzer } from '../gateways/channels/telegram/GeminiVideoAnalyzer.js';
+import { logger } from '../logger.js';
 
 export type ExternalAiRelayTask = 'chat' | 'youtube_transcription';
 type NormalizedRelayProvider = 'gemini' | 'openai' | 'deepseek' | 'qwen';
@@ -166,9 +167,7 @@ export class ExternalAiRelayService {
       const parsed = new URL(url);
       const host = parsed.hostname.toLowerCase();
       return host.includes('youtube.com') || host.includes('youtu.be');
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[External Ai Relay] parsing failed', error); return false; }
   }
 
   private createProvider(providerName: NormalizedRelayProvider): ILlmProvider {

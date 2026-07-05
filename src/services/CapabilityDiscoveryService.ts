@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { logger } from '../logger.js';
 
 export type CapabilityCategory =
   | 'tool'
@@ -192,9 +193,7 @@ export class CapabilityDiscoveryService {
           }
         }
       }
-    } catch {
-      // skip unreadable files
-    }
+    } catch (error) { // skip unreadable files logger.warn('[Capability Discovery] operation failed', error); }
   }
 
   private determineStatus(content: string, category: CapabilityCategory): CapabilityStatus {

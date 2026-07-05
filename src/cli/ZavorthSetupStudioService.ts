@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry.js';
 import type { ProviderIntegrationRouteManifest } from '../services/providers/catalog/ProviderIntegrationManifest.js';
+import { logger } from '../logger.js';
 
 export type ZavorthSetupStudioProviderId = string;
 export type ZavorthSetupStudioSearchProvider =
@@ -877,9 +878,7 @@ function shouldReplaceLegacyHookTemplate(filePath: string): boolean {
       && parsed?.enabled !== true
       && Array.isArray(parsed?.actions)
       && parsed.actions.length === 0;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Zavorth Setup Studio] JSON parse failed', error); return false; }
 }
 
 function quoteEnvValue(value: string): string {
@@ -910,7 +909,8 @@ function redactConnectionUrl(value: string): string {
       url.password = '[redacted]';
     }
     return url.toString();
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Setup Studio] connection failed', error);
     return redactSecret(value);
   }
 }

@@ -7,6 +7,7 @@ import {
   describeRemoteTransportBootstrapStatus,
 } from './AutoRepairReportNarrative.js';
 import type { AutoRepairReport } from './AutoRepairTypes.js';
+import { logger } from '../../logger.js';
 
 export function describeAutoRepairIncidentMemoryStatus(
   incidentMemoryService: Pick<AutoRepairIncidentMemoryService, 'summarizeForStatus'>,
@@ -16,9 +17,7 @@ export function describeAutoRepairIncidentMemoryStatus(
       return incidentMemoryService.summarizeForStatus();
     }
     return 'Memoria operacional: historico disponivel para o planejador.';
-  } catch {
-    return 'Memoria operacional: indisponivel neste momento.';
-  }
+  } catch (error) { logger.warn('[Auto Repair Summary] filesystem check failed', error); return 'Memoria operacional: indisponivel neste momento.'; }
 }
 
 export function summarizeLastAutoRepairRun(

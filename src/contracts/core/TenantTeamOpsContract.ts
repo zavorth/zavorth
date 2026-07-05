@@ -130,10 +130,10 @@ export const TENANT_TEAM_OPS_REQUIRED_SURFACES = [
 ] as const;
 
 export const TENANT_TEAM_OPS_CONTRACTS = [
-  'Tenant/team ops consolida identidade operacional por workspace, tenant, time e superficie sem iniciar watcher persistente.',
-  'Policy por escopo precisa estar visivel para tenants, channels, teams e workspace.',
-  'Permissoes segmentadas devem mostrar owners, guilds, channels e acoes guiadas por tenant.',
-  'Relatorios por projeto usam workspaceRoot e source snapshots de governance sem publicar dados sensiveis.',
-  'Memoria e artifacts ficam representados por escopos de tenant/contexto, sem misturar payloads entre clientes ou ambientes.',
-  'A ZavorthControl deve expor identidade, policy, permissoes e isolamento com comandos copiaveis.',
+  'Tenant/team ops consolidates operational identity by workspace, tenant, team, and surface without starting a persistent watcher.',
+  'Scoped policy must be visible for tenants, channels, teams, and workspace.',
+  'Segmented permissions must show owners, guilds, channels, and tenant-guided actions.',
+  'Per-project reports use workspaceRoot and governance source snapshots without publishing sensitive data.',
+  'Memory and artifacts are represented by tenant/context scopes without mixing payloads across customers or environments.',
+  'ZavorthControl must expose identity, policy, permissions, and isolation with copyable commands.',
 ];

@@ -3,8 +3,9 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { config } from '../config/index.js';
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthApprovalScope,
+ZavorthApprovalScope,
   ZavorthMutationDomain,
   ZavorthMutationRiskLevel,
 } from '../contracts/ZavorthMutationPlaneContract.js';
@@ -173,9 +174,10 @@ export class ApprovalDecisionCacheService {
         schemaVersion: 1,
         entries: Array.isArray(parsed.entries) ? parsed.entries.map(normalizeEntry).filter(Boolean) as ApprovalDecisionCacheEntry[] : [],
       };
-    } catch {
-      return { schemaVersion: 1, entries: [] };
-    }
+    } catch (error) {
+    logger.warn('[Approval Decision Cache] JSON parse failed', error);
+    return { schemaVersion: 1, entries: [] };
+  }
   }
 
   private writeDocument(document: ApprovalDecisionCacheDocument): void {

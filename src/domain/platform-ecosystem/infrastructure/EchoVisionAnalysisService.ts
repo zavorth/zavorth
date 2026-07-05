@@ -1,5 +1,6 @@
 import { LlmRuntimeService } from '../../../services/llm/LlmRuntimeService.js';
 import type { ChatMessage } from '../../../providers/ILlmProvider.js';
+import { logger } from '../../../logger.js';
 
 export type EchoVisionScreenAnalysis = {
   ok: boolean;
@@ -123,8 +124,9 @@ export class EchoVisionAnalysisService {
         rawResponse: result.response.content || null,
         error: null,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Vision Analysis] parsing failed', error);
+    return {
         ok: false,
         providerName: null,
         summary: 'Nenhum provider multimodal conseguiu analisar a tela.',
@@ -135,7 +137,7 @@ export class EchoVisionAnalysisService {
         rawResponse: null,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   public async suggestBrowserRepair(input: {
@@ -210,8 +212,9 @@ export class EchoVisionAnalysisService {
         rawResponse: result.response.content || null,
         error: null,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Vision Analysis] parsing failed', error);
+    return {
         ok: false,
         providerName: null,
         healed: false,
@@ -222,7 +225,7 @@ export class EchoVisionAnalysisService {
         rawResponse: null,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private parseVisionPayload(raw: string): VisionPayload | null {
@@ -269,9 +272,7 @@ export class EchoVisionAnalysisService {
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Vision Analysis] JSON parse failed', error); return null; }
   }
 
   private normalizeConfidence(value: unknown): number {

@@ -3,8 +3,9 @@ import { z } from "zod";
 import { getSettings, updateSettings } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 import {
-  invalidateMemorySettingsCache,
+invalidateMemorySettingsCache,
   normalizeMemorySettings,
   toMemorySettingsUpdates,
 } from "@/lib/memory/settings";
@@ -27,6 +28,7 @@ export async function GET(request: NextRequest) {
     const settings = (await getSettings()) as Record<string, unknown>;
     return NextResponse.json(normalizeMemorySettings(settings));
   } catch (error) {
+    logger.warn('[route] string operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
@@ -39,9 +41,10 @@ export async function PUT(request: NextRequest) {
     let rawBody: unknown;
     try {
       rawBody = await request.json();
-    } catch {
-      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-    }
+    } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
     const validation = validateBody(memorySettingsUpdateSchema, rawBody);
     if (isValidationFailure(validation)) {
@@ -54,6 +57,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(normalizeMemorySettings(settings));
   } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }

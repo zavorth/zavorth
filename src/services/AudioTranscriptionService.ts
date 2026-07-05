@@ -279,12 +279,12 @@ export class AudioTranscriptionService {
           headers: {
             authorization: `Bearer ${apiKey}`,
           },
-          body: formData as any,
+          body: formData as unknown as BodyInit,
         }, { serviceName: 'Audio transcription STT' });
         if (!response.ok) {
           throw new Error(`STT HTTP ${response.status}: ${await response.text()}`);
         }
-        const payload = await response.json() as any;
+        const payload = await response.json() as Record<string, unknown>;
         return String(payload?.text || payload?.transcript || '').trim() || null;
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -308,13 +308,17 @@ export class AudioTranscriptionService {
         authorization: `Token ${config.deepgramApiKey}`,
         'content-type': input.mimeType || 'audio/wav',
       },
-      body: input.audio as any,
+      body: input.audio as unknown as BodyInit,
     }, { serviceName: 'Deepgram audio transcription' });
     if (!response.ok) {
       throw new Error(`Deepgram STT HTTP ${response.status}: ${await response.text()}`);
     }
-    const payload = await response.json() as any;
-    const alternative = payload?.results?.channels?.[0]?.alternatives?.[0];
+    const payload = await response.json() as Record<string, unknown>;
+    const alternative = (payload?.results as Record<string, unknown>)?.channels
+      ? ((payload.results as Record<string, unknown>).channels as Array<Record<string, unknown>>)?.[0]?.alternatives
+        ? (((payload.results as Record<string, unknown>).channels as Array<Record<string, unknown>>)?.[0]?.alternatives as Array<Record<string, unknown>>)?.[0]
+        : null
+      : null;
     return String(alternative?.transcript || '').trim() || null;
   }
 

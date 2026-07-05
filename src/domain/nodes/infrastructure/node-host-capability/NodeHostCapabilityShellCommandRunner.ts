@@ -5,7 +5,7 @@ import type {
   NodeHostCommandRunner,
 } from './NodeHostCapabilityTypes.js';
 import { normalizeTimeout } from './NodeHostCapabilityExecutionHelpers.js';
-import { logger } from '../logger.js';
+import { logger } from '../../../../logger.js';
 
 export class ShellNodeHostCommandRunner implements NodeHostCommandRunner {
   public async run(

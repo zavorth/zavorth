@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 
 export type AgentCostEntry = {
   agentId: string;
@@ -196,9 +197,7 @@ export class AgentCostTracker {
     try {
       fs.mkdirSync(path.dirname(this.entriesFile), { recursive: true });
       fs.appendFileSync(this.entriesFile, JSON.stringify(entry) + '\n', 'utf-8');
-    } catch {
-      // silent fail
-    }
+    } catch (error) { // silent fail logger.warn('[Agent Cost Tracker] filesystem operation failed', error); }
   }
 
   private readEntries(): AgentCostEntry[] {
@@ -208,12 +207,8 @@ export class AgentCostTracker {
       return content.split('\n').filter(Boolean).map((line) => {
         try {
           return JSON.parse(line) as AgentCostEntry;
-        } catch {
-          return null;
-        }
+        } catch (error) { logger.warn('[Agent Cost Tracker] JSON parse failed', error); return null; }
       }).filter(Boolean) as AgentCostEntry[];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Agent Cost Tracker] JSON parse failed', error); return []; }
   }
 }

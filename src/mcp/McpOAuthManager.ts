@@ -104,7 +104,7 @@ export class McpOAuthManager {
         // Se refresh falhou com invalid_client, marcar como dead
         if (this.isInvalidClientError(error)) {
           this.deadClients.add(this.clientId);
-          throw new Error('Client ID inválido. Re-registro necessário.');
+          throw new Error('Invalid client ID. Re-registration required.');
         }
         // Se refresh falhou, tentar com client credentials
       }
@@ -208,7 +208,7 @@ export class McpOAuthManager {
   }
 
   /**
-   * Lê tokens do disco.
+   * Reads tokens from disk.
    */
   private async readStoredTokens(): Promise<TokenData | null> {
     try {
@@ -217,7 +217,7 @@ export class McpOAuthManager {
       const stat = fs.statSync(this.tokenPath);
       const currentMtime = stat.mtimeMs;
 
-      // Se o arquivo não mudou, usar cache
+      // If the file did not change, use cache.
       if (currentMtime === this.lastFileMtime && this.cachedTokens) {
         return this.cachedTokens;
       }

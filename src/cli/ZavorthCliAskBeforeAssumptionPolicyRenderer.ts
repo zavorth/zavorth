@@ -69,50 +69,50 @@ export function formatAskBeforeAssumptionPolicySnapshot(
 ): string {
   const lines = [
     'Ask Before Assumption Policy - Channel mesh2',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
-    `- assuncoes: ${snapshot.summary.assumptionCount}`,
-    `- perguntas: ${snapshot.summary.questionCount}`,
-    `- bloqueios: ${snapshot.summary.blockerCount}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- assumptions: ${snapshot.summary.assumptionCount}`,
+    `- questions: ${snapshot.summary.questionCount}`,
+    `- blockers: ${snapshot.summary.blockerCount}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
-    'Perguntas',
+    'Questions',
   ];
 
   if (snapshot.questions.length === 0) {
-    lines.push('- nenhuma pergunta obrigatoria');
+    lines.push('- no required question');
   } else {
     for (const question of snapshot.questions.slice(0, 8)) {
       lines.push(
         `- ${question.priority}: ${question.question}`,
-        `  motivo: ${question.reason}`,
-        `  acao padrao: ${question.defaultAction}; bloqueia mutacao: ${question.blocksMutation ? 'sim' : 'nao'}`,
+        `  reason: ${question.reason}`,
+        `  default action: ${question.defaultAction}; blocks mutation: ${question.blocksMutation ? 'yes' : 'no'}`,
       );
     }
   }
 
-  lines.push('', 'Assuncoes detectadas');
+  lines.push('', 'Detected assumptions');
   if (snapshot.assumptions.length === 0) {
-    lines.push('- nenhuma assuncao critica detectada');
+    lines.push('- no critical assumption detected');
   } else {
     for (const assumption of snapshot.assumptions.slice(0, 8)) {
       lines.push(
         `- ${assumption.severity}: ${assumption.title} [${assumption.category}]`,
-        `  falta: ${assumption.missingInput.join(', ') || 'n/a'}`,
-        `  afeta: ${assumption.affectedActions.join(', ') || 'nenhuma acao mutavel'}`,
+        `  missing: ${assumption.missingInput.join(', ') || 'n/a'}`,
+        `  affects: ${assumption.affectedActions.join(', ') || 'no mutable action'}`,
       );
     }
   }
 
-  lines.push('', 'Politica');
-  lines.push('- nenhuma assuncao foi executada');
-  lines.push('- nenhuma mutacao foi feita');
-  lines.push('- linguagem natural nao bypassa approval/tool policy');
-  lines.push('- preview vem antes de acao arriscada');
+  lines.push('', 'Policy');
+  lines.push('- no assumption was executed');
+  lines.push('- no mutation was made');
+  lines.push('- natural language does not bypass approval/tool policy');
+  lines.push('- preview comes before risky action');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Hint: ${snapshot.surface.askHint}`);

@@ -17,6 +17,7 @@ import {
 } from "@/lib/api/errorResponse";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import type { z } from "zod";
+import { logger } from '@/shared/utils/logger';
 
 const BASE_SUPPORTED_PROXY_TYPES = new Set(["http", "https"]);
 type UpdateProxyConfigInput = z.infer<typeof updateProxyConfigSchema>;
@@ -187,6 +188,7 @@ export async function GET(request: Request) {
     const config = await getProxyConfig();
     return Response.json(redactProxySecrets(config));
   } catch (error) {
+    logger.warn('[route] operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to load proxy config");
   }
 }
@@ -202,7 +204,8 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] load operation failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -259,6 +262,7 @@ export async function DELETE(request: Request) {
     clearDispatcherCache();
     return Response.json(updated);
   } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to delete proxy");
   }
 }

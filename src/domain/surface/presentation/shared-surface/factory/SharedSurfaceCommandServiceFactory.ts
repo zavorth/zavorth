@@ -90,6 +90,7 @@ import { SkillTrustPolicyService } from "../../../../../services/SkillTrustPolic
 import { McpToolPolicyFileService } from "../../../../../services/McpToolPolicyFileService.js";
 import { ComputerUseWatchModePolicyFileService } from "../../../../../services/ComputerUseWatchModePolicyFileService.js";
 import { ProductObservabilityService } from "../../../../../services/ProductObservabilityService.js";
+import type { TaskManagerLike as ProductObservabilityTaskManagerLike } from "../../../../../services/product-observability/types.js";
 import { CapabilityLifecycleService } from "../../../../../services/CapabilityLifecycleService.js";
 import type { DesktopResourcePlaneService } from "../../../../../services/DesktopResourcePlaneService.js";
 import type { CompanionControlService } from "../../../../../services/CompanionControlService.js";
@@ -297,13 +298,18 @@ export function buildSharedSurfaceCommandServiceComposition(
       platformCatalogSyncService,
       mcpBrowserDoctorService: deps.mcpBrowserDoctorService || undefined,
     });
+  const productObservabilityTaskManager: ProductObservabilityTaskManagerLike | undefined =
+    taskManager && typeof taskManager.getRecentTasks === "function"
+      ? {
+          getRecentTasks: (limit, userId) =>
+            taskManager.getRecentTasks?.(limit, userId) || [],
+        }
+      : undefined;
   const evalControlPlaneService =
     deps.evalControlPlaneService ||
     new ZavorthEvalControlPlaneService({
       productObservabilityService: new ProductObservabilityService(
-        (taskManager && typeof taskManager.getRecentTasks === "function"
-          ? taskManager
-          : undefined) as { getRecentTasks?: (limit?: number, userId?: string) => Task[] } | undefined,
+        productObservabilityTaskManager,
         permissionService || undefined,
       ),
       telemetryLedgerService: new ZavorthTelemetryLedgerService(),
@@ -466,6 +472,7 @@ export function buildSharedSurfaceCommandServiceComposition(
     });
   return buildSharedSurfaceCommandServiceAssembly(
     {
+      runtimeDiagnostics: deps.runtimeDiagnostics,
       parser,
       supervisedRuntimeService,
       autoRepairService,

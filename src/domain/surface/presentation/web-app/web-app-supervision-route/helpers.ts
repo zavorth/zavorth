@@ -1,7 +1,9 @@
 import crypto from 'crypto';
+import type { IMessageContext } from '../../../../../contracts/core/IMessageBroker.js';
 import type {
   SystemOverlordAutonomyLevel,
   SystemOverlordCapability,
+  SystemOverlordExecutionProfile,
 } from '../../../../../contracts/SystemOverlordContract.js';
 import type http from 'http';
 import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
@@ -32,8 +34,42 @@ const SYSTEM_OVERLORD_CAPABILITIES: readonly SystemOverlordCapability[] = [
   'computer_use.visual_action',
 ];
 
+const SYSTEM_OVERLORD_PROFILES: readonly SystemOverlordExecutionProfile[] = [
+  'safe',
+  'trusted',
+  'dangerous',
+  'owner',
+];
+
+export function asNullableString(value: unknown): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  return value.trim() || null;
+}
+
+export function asLooseRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
 export function isSystemOverlordCapability(value: string): value is SystemOverlordCapability {
   return SYSTEM_OVERLORD_CAPABILITIES.some((capability) => capability === value);
+}
+
+export function normalizeSystemOverlordCapability(value: unknown): SystemOverlordCapability | null {
+  const capability = String(value || '').trim();
+  return isSystemOverlordCapability(capability) ? capability : null;
+}
+
+export function normalizeSystemOverlordExecutionProfile(
+  value: unknown,
+): SystemOverlordExecutionProfile | null {
+  const profile = String(value || '').trim();
+  return SYSTEM_OVERLORD_PROFILES.some((candidate) => candidate === profile)
+    ? profile as SystemOverlordExecutionProfile
+    : null;
 }
 
 export function normalizeSystemOverlordAutonomyLevel(
@@ -71,16 +107,16 @@ export function getRequestedBy(ctx: WebAppSupervisionRouteContext, fallback: str
 export function buildEngineeringWebContext(
   ctx: WebAppSupervisionRouteContext,
   body: EngineeringWebBody,
-) {
+): { engineeringSessionId: string; webCtx: IMessageContext } {
   const engineeringSessionId = String(body.sessionId || '').trim() || `engineering-web-${Date.now()}`;
-  const baseCtx = ctx.deps.createWebContext(engineeringSessionId) || {};
+  const baseCtx = asLooseRecord(ctx.deps.createWebContext(engineeringSessionId)) || {};
   return {
     engineeringSessionId,
     webCtx: {
       ...baseCtx,
       platform: 'web',
-      userId: ctx.deps.runtime.webUserId,
-      chatId: baseCtx.chatId || `web:${engineeringSessionId}`,
+      userId: String(ctx.deps.runtime.webUserId || 'web-user'),
+      chatId: String(baseCtx.chatId || `web:${engineeringSessionId}`),
       isGroup: false,
       rawText: String(body.text || '').trim() || 'continue',
       threadId: engineeringSessionId,

@@ -110,8 +110,8 @@ export class ZavorthUserResponseRendererService {
         || normalized.includes('approval requerido')
       ) {
         return [
-          'Preciso da sua confirmacao para continuar com seguranca.',
-          'Nada foi executado ainda. Revise o pedido e aprove se quiser seguir.',
+          'I need your confirmation to continue safely.',
+          'Nothing has been executed yet. Review the request and approve if you want to proceed.',
         ].join('\n');
       }
     }
@@ -121,7 +121,7 @@ export class ZavorthUserResponseRendererService {
     }
 
     if (normalized.includes('runtime universal registrou a conversa')) {
-      return 'Recebi. Vou responder por aqui e so pedirei confirmacao se alguma acao real for necessaria.';
+      return 'Received. I will answer here and only ask for confirmation if a real action is necessary.';
     }
 
     return text;
@@ -156,10 +156,10 @@ export class ZavorthUserResponseRendererService {
     if (input.approvalId) {
       lines.push(`- approval: ${input.approvalId} (${input.approvalStatus || 'pending'})`);
       if ((input.approvalStatus || 'pending') === 'pending') {
-        lines.push('- responda "Aprovo" para liberar ou "Cancelar" para rejeitar.');
+        lines.push('- reply "Approve" to allow or "Cancel" to reject.');
       }
     } else {
-      lines.push('- approval: nao requerido');
+      lines.push('- approval: not required');
     }
     if (input.audience !== 'normal-user' && input.run?.id) {
       lines.push(`- run: ${input.run.id}`);

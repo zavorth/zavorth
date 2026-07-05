@@ -11,6 +11,7 @@
  */
 
 import { execSync } from "child_process";
+import { logger } from '@/shared/utils/logger';
 
 export interface CliAgentInfo {
   /** Agent identifier (e.g., "codex", "claude", "goose") */
@@ -224,9 +225,7 @@ function detectAgent(
     const versionMatch = output.match(/(\d+\.\d+\.\d+(?:-\w+)?)/);
     version = versionMatch ? versionMatch[1] : output.split("\n")[0];
     installed = true;
-  } catch {
-    // Not installed or not runnable
-  }
+  } catch (error) { // Not installed or not runnable logger.warn('[registry] process execution failed', error); }
 
   return { ...def, version, installed, isCustom };
 }

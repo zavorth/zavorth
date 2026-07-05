@@ -5,33 +5,33 @@ import { promisify } from 'util';
 import * as path from 'path';
 import * as fs from 'fs';
 import crypto from 'crypto';
+import { logger } from '../../../logger.js';
 
 const execFileAsync = promisify(execFile);
 const SCREENSHOT_DIR = path.resolve(process.cwd(), 'data', 'runtime', 'screenshots');
 
 /**
- * SystemScreenshotTool — Captura a tela do Windows para análise visual (Vision).
+ * SystemScreenshotTool captures the Windows screen for visual analysis.
  *
- * Tira print da tela completa ou janela ativa usando PowerShell nativo
- * (sem dependências externas). Pode retornar base64 para o LLM com Vision
- * analisar o conteúdo visual.
+ * Captures the full screen or active window through native PowerShell.
+ * It can return base64 for a vision-capable LLM.
  *
- * REQUER PERMISSÃO: o usuário deve aprovar via PermissionPanel antes da captura.
+ * Requires permission: the user must approve through PermissionPanel before capture.
  */
 export class SystemScreenshotTool implements IZavorthTool {
     name = 'os_screenshot';
-    description = 'Tira um print da tela do computador para análise visual. Pode capturar a tela completa ou a janela ativa. Requer aprovação do usuário antes de executar.';
+    description = 'Captures a screenshot of the computer for visual analysis. It can capture the full screen or the active window. Requires user approval before execution.';
     category = 'OS' as const;
     dangerLevel = 'moderate' as const;
     requiresPermission = true;
 
     schema = z.object({
         mode: z.enum(['fullscreen', 'active_window']).default('fullscreen')
-            .describe('Modo de captura: tela completa ou janela ativa'),
+            .describe('Capture mode: full screen or active window'),
         savePath: z.string().optional()
-            .describe('Caminho para salvar a imagem (padrão: pasta temp do sistema)'),
+            .describe('Path where the image should be saved. Defaults to the protected runtime screenshots folder.'),
         returnBase64: z.boolean().default(false)
-            .describe('Se true, retorna a imagem em base64 para o LLM analisar via Vision'),
+            .describe('When true, returns the image as base64 so the LLM can analyze it with vision'),
     });
 
     async execute(params: {
@@ -43,7 +43,6 @@ export class SystemScreenshotTool implements IZavorthTool {
             const mode = params.mode || 'fullscreen';
             const outputPath = this.resolveOutputPath(params.savePath);
 
-            // PowerShell script para captura de tela (sem deps externas)
             const psScript = mode === 'active_window'
                 ? this.buildActiveWindowScript(outputPath)
                 : this.buildFullscreenScript(outputPath);
@@ -60,37 +59,35 @@ export class SystemScreenshotTool implements IZavorthTool {
                 maxBuffer: 1024 * 1024,
             });
 
-            // Verifica se o arquivo foi criado
             if (!fs.existsSync(outputPath)) {
                 return {
                     success: false,
-                    error: 'Screenshot capturado mas o arquivo não foi encontrado.',
+                    error: 'Screenshot was captured, but the file was not found.',
                 };
             }
 
             const result: ToolExecutionResult = {
                 success: true,
-                message: `Screenshot capturado com sucesso: ${outputPath}`,
+                message: `Screenshot captured successfully: ${outputPath}`,
                 data: { filePath: outputPath, mode },
             };
 
-            // Se solicitado, retorna base64 para Vision
             if (params.returnBase64) {
                 const fileBuffer = fs.readFileSync(outputPath);
                 const base64 = fileBuffer.toString('base64');
                 result.data.base64 = base64;
                 result.data.mimeType = 'image/png';
-                result.message += ' (base64 incluído para análise visual)';
+                result.message += ' (base64 included for visual analysis)';
             }
 
             return result;
-
-        } catch (error: any) {
-            return {
+        } catch (error) {
+    logger.warn('[System Screenshot] filesystem operation failed', error);
+    return {
                 success: false,
-                error: `Falha ao capturar screenshot: ${error.message}`,
+                error: `Failed to capture screenshot: ${error.message}`,
             };
-        }
+  }
     }
 
     private resolveOutputPath(savePath?: string): string {
@@ -102,13 +99,13 @@ export class SystemScreenshotTool implements IZavorthTool {
         const normalized = fileName.toLowerCase().endsWith('.png') ? fileName : `${fileName}.png`;
         const outputPath = path.resolve(SCREENSHOT_DIR, normalized);
         if (!outputPath.startsWith(`${SCREENSHOT_DIR}${path.sep}`)) {
-            throw new Error('Caminho de screenshot fora do diretorio protegido.');
+            throw new Error('Screenshot path is outside the protected directory.');
         }
         return outputPath;
     }
 
     /**
-     * Script PowerShell para capturar a tela completa.
+     * PowerShell script that captures the full screen.
      */
     private buildFullscreenScript(outputPath: string): string {
         return `
@@ -126,7 +123,7 @@ export class SystemScreenshotTool implements IZavorthTool {
     }
 
     /**
-     * Script PowerShell para capturar apenas a janela ativa.
+     * PowerShell script that captures only the active window.
      */
     private buildActiveWindowScript(outputPath: string): string {
         return `

@@ -5,6 +5,7 @@ import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';
 import { WorkspaceRuntimeReadinessService } from './WorkspaceRuntimeReadinessService.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
+import { logger } from '../logger.js';
 
 export interface InternalBetaDiagnosticsReport {
   readyForInternalBeta: boolean;
@@ -33,7 +34,6 @@ export class InternalBetaDiagnosticsService {
     const checks: InternalBetaDiagnosticsReport['checks'] = [];
     const generatedAt = new Date().toISOString();
 
-    // 1. Database Reachable
     let dbReachable = false;
     try {
       const db = await Database.getInstance();
@@ -43,14 +43,14 @@ export class InternalBetaDiagnosticsService {
         checks.push({
           id: 'database_reachable',
           status: 'pass',
-          message: 'Banco de dados SQLite conectado com sucesso.'
+          message: 'SQLite database connected successfully.',
         });
       } else {
         checks.push({
           id: 'database_reachable',
           status: 'fail',
-          message: 'Banco de dados SQLite retornou resultado inválido.',
-          remediation: 'Verifique a integridade do arquivo de dados zavorth.db.'
+          message: 'SQLite database returned an invalid result.',
+          remediation: 'Check the integrity of the zavorth.db data file.',
         });
       }
     } catch (err: unknown) {
@@ -58,12 +58,11 @@ export class InternalBetaDiagnosticsService {
       checks.push({
         id: 'database_reachable',
         status: 'fail',
-        message: `Falha na conexão com o banco de dados SQLite: ${message}`,
-        remediation: 'Certifique-se de que a pasta data/ existe e tem permissões de escrita.'
+        message: `SQLite database connection failed: ${message}`,
+        remediation: 'Make sure the data/ directory exists and is writable.',
       });
     }
 
-    // 2. Audit Logger Reachable
     let auditReachable = false;
     try {
       const logger = new SecurityAuditLogger();
@@ -72,7 +71,7 @@ export class InternalBetaDiagnosticsService {
         checks.push({
           id: 'audit_logger_reachable',
           status: 'pass',
-          message: 'SecurityAuditLogger instanciado com sucesso.'
+          message: 'SecurityAuditLogger instantiated successfully.',
         });
       }
     } catch (err: unknown) {
@@ -80,12 +79,11 @@ export class InternalBetaDiagnosticsService {
       checks.push({
         id: 'audit_logger_reachable',
         status: 'fail',
-        message: `Falha ao instanciar SecurityAuditLogger: ${message}`,
-        remediation: 'Verifique se ZAVORTH_AUDIT_HASH_KEY está corretamente configurada.'
+        message: `Failed to instantiate SecurityAuditLogger: ${message}`,
+        remediation: 'Check that ZAVORTH_AUDIT_HASH_KEY is configured correctly.',
       });
     }
 
-    // 3. Workspace Trusted
     let workspaceTrusted = false;
     if (dbReachable) {
       try {
@@ -96,14 +94,14 @@ export class InternalBetaDiagnosticsService {
           checks.push({
             id: 'workspace_trusted',
             status: 'pass',
-            message: 'Este Workspace é confiável (trusted).'
+            message: 'This workspace is trusted.',
           });
         } else {
           checks.push({
             id: 'workspace_trusted',
             status: 'fail',
-            message: 'Este Workspace ainda não é confiável.',
-            remediation: 'Selecione "Confiar neste Workspace" na interface do Desktop.'
+            message: 'This workspace is not trusted yet.',
+            remediation: 'Select "Trust this workspace" in the desktop interface.',
           });
         }
       } catch (err: unknown) {
@@ -111,19 +109,17 @@ export class InternalBetaDiagnosticsService {
         checks.push({
           id: 'workspace_trusted',
           status: 'fail',
-          message: `Erro ao verificar confiança do workspace: ${message}`
+          message: `Failed to verify workspace trust: ${message}`,
         });
       }
     } else {
       checks.push({
         id: 'workspace_trusted',
         status: 'fail',
-        message: 'Impossível verificar confiança do workspace (DB inacessível).'
+        message: 'Cannot verify workspace trust because the database is unreachable.',
       });
     }
 
-    // 4. Workspace Config Present / Safe defaults applied
-    let configPresent = false;
     let allowDeveloperMode = false;
     let allowHostPowerMode = false;
     let allowPty = false;
@@ -146,18 +142,17 @@ export class InternalBetaDiagnosticsService {
         allowProviderFallback = config.allowProviderFallback;
 
         if (row) {
-          configPresent = true;
           checks.push({
             id: 'workspace_config_present',
             status: 'pass',
-            message: 'Configuração do workspace localizada na base local.'
+            message: 'Workspace configuration found in the local database.',
           });
         } else {
           checks.push({
             id: 'workspace_config_present',
             status: 'warning',
-            message: 'Configuração do workspace ausente; aplicando perfil seguro padrão (safe defaults).',
-            remediation: 'Ajuste as permissões do workspace na aba Workspace Settings.'
+            message: 'Workspace configuration is missing; safe defaults are being applied.',
+            remediation: 'Adjust workspace permissions in Workspace Settings.',
           });
         }
       } catch (err: unknown) {
@@ -165,14 +160,12 @@ export class InternalBetaDiagnosticsService {
         checks.push({
           id: 'workspace_config_present',
           status: 'warning',
-          message: `Erro ao ler configuração do workspace: ${message}`
+          message: `Failed to read workspace configuration: ${message}`,
         });
       }
     }
 
-    // 5 & 6. Default Provider and Default Model Selected
     let defaultProviderSelected = false;
-    let defaultModelSelected = false;
     if (dbReachable) {
       try {
         const config = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
@@ -181,30 +174,29 @@ export class InternalBetaDiagnosticsService {
           checks.push({
             id: 'provider_default_selected',
             status: 'pass',
-            message: `Provedor padrão selecionado: ${config.defaultProviderId}.`
+            message: `Default provider selected: ${config.defaultProviderId}.`,
           });
         } else {
           checks.push({
             id: 'provider_default_selected',
             status: 'fail',
-            message: 'Nenhum provedor padrão de IA selecionado.',
-            remediation: 'Selecione um provedor padrão nas configurações de Workspace Settings.'
+            message: 'No default AI provider selected.',
+            remediation: 'Select a default provider in Workspace Settings.',
           });
         }
 
         if (config.defaultModelId) {
-          defaultModelSelected = true;
           checks.push({
             id: 'model_default_selected',
             status: 'pass',
-            message: `Modelo padrão selecionado: ${config.defaultModelId}.`
+            message: `Default model selected: ${config.defaultModelId}.`,
           });
         } else {
           checks.push({
             id: 'model_default_selected',
             status: 'warning',
-            message: 'Nenhum modelo padrão de IA selecionado.',
-            remediation: 'Selecione um modelo padrão nas configurações de Workspace Settings.'
+            message: 'No default AI model selected.',
+            remediation: 'Select a default model in Workspace Settings.',
           });
         }
       } catch (err: unknown) {
@@ -212,12 +204,11 @@ export class InternalBetaDiagnosticsService {
         checks.push({
           id: 'provider_default_selected',
           status: 'fail',
-          message: `Erro ao validar seleções padrão: ${message}`
+          message: `Failed to validate default selections: ${message}`,
         });
       }
     }
 
-    // 7. Provider Configured & API Key set
     let providerConfigured = false;
     if (dbReachable && defaultProviderSelected) {
       try {
@@ -230,31 +221,31 @@ export class InternalBetaDiagnosticsService {
                 checks.push({
                   id: 'provider_configured',
                   status: 'fail',
-                  message: `O provedor padrão (${config.defaultProviderId}) está configurado mas não possui API Key.`,
-                  remediation: 'Cadastre a API Key na aba Providers.'
+                  message: `Default provider (${config.defaultProviderId}) is configured but has no API key.`,
+                  remediation: 'Register the API key in Providers.',
                 });
               } else {
                 providerConfigured = true;
                 checks.push({
                   id: 'provider_configured',
                   status: 'pass',
-                  message: `O provedor padrão (${config.defaultProviderId}) está configurado e habilitado.`
+                  message: `Default provider (${config.defaultProviderId}) is configured and enabled.`,
                 });
               }
             } else {
               checks.push({
                 id: 'provider_configured',
                 status: 'fail',
-                message: `O provedor padrão (${config.defaultProviderId}) está desabilitado.`,
-                remediation: 'Habilite o provedor na aba Providers.'
+                message: `Default provider (${config.defaultProviderId}) is disabled.`,
+                remediation: 'Enable the provider in Providers.',
               });
             }
           } else {
             checks.push({
               id: 'provider_configured',
               status: 'fail',
-              message: `O provedor padrão (${config.defaultProviderId}) não foi encontrado na base local.`,
-              remediation: 'Verifique se o ID do provedor está correto ou cadastre-o novamente.'
+              message: `Default provider (${config.defaultProviderId}) was not found in the local database.`,
+              remediation: 'Check the provider ID or register it again.',
             });
           }
         }
@@ -263,18 +254,17 @@ export class InternalBetaDiagnosticsService {
         checks.push({
           id: 'provider_configured',
           status: 'fail',
-          message: `Erro ao inspecionar provedor padrão: ${message}`
+          message: `Failed to inspect default provider: ${message}`,
         });
       }
     } else if (dbReachable && !defaultProviderSelected) {
       checks.push({
         id: 'provider_configured',
         status: 'fail',
-        message: 'Provedor padrão não selecionado; não foi possível verificar configuração.'
+        message: 'Default provider is not selected; configuration could not be verified.',
       });
     }
 
-    // 8. Runtime Ready
     if (dbReachable) {
       try {
         const readiness = await WorkspaceRuntimeReadinessService.getInstance().checkReadiness(workspaceId);
@@ -282,15 +272,15 @@ export class InternalBetaDiagnosticsService {
           checks.push({
             id: 'runtime_ready',
             status: 'pass',
-            message: 'O ambiente operacional de IA está pronto (ready).'
+            message: 'The AI operating environment is ready.',
           });
         } else {
-          const firstErr = readiness.issues.find(i => i.severity === 'error');
+          const firstErr = readiness.issues.find((issue) => issue.severity === 'error');
           checks.push({
             id: 'runtime_ready',
             status: 'fail',
-            message: `O ambiente operacional de IA não está pronto. Código: ${firstErr ? firstErr.code : 'config_issue'}.`,
-            remediation: firstErr ? firstErr.message : 'Corrija as inconsistências indicadas no painel de Workspace Settings.'
+            message: `The AI operating environment is not ready. Code: ${firstErr ? firstErr.code : 'config_issue'}.`,
+            remediation: firstErr ? firstErr.message : 'Fix the inconsistencies shown in Workspace Settings.',
           });
         }
       } catch (err: unknown) {
@@ -298,80 +288,71 @@ export class InternalBetaDiagnosticsService {
         checks.push({
           id: 'runtime_ready',
           status: 'fail',
-          message: `Falha ao computar readiness check: ${message}`
+          message: `Failed to compute readiness check: ${message}`,
         });
       }
     }
 
-    // 9. Policies checks: Developer Mode
     checks.push({
       id: 'developer_mode',
       status: allowDeveloperMode ? 'warning' : 'pass',
-      message: allowDeveloperMode 
-        ? 'Developer Mode está ATIVADO. Comandos locais não-interativos podem ser executados.' 
-        : 'Developer Mode está desativado (seguro por padrão).',
-      remediation: allowDeveloperMode ? 'Use com cautela apenas em workspaces altamente confiáveis.' : undefined
+      message: allowDeveloperMode
+        ? 'Developer Mode is enabled. Local non-interactive commands may run.'
+        : 'Developer Mode is disabled by safe default.',
+      remediation: allowDeveloperMode ? 'Use only in highly trusted workspaces.' : undefined,
     });
 
-    // 10. Policies checks: HPM
     checks.push({
       id: 'host_power_mode',
       status: allowHostPowerMode ? 'warning' : 'pass',
-      message: allowHostPowerMode 
-        ? 'Host Power Mode está ATIVADO. Comandos de shell externos podem ser invocados.' 
-        : 'Host Power Mode está desativado (seguro por padrão).',
-      remediation: allowHostPowerMode ? 'Comandos externos sempre exigirão aprovação interativa na UI.' : undefined
+      message: allowHostPowerMode
+        ? 'Host Power Mode is enabled. External shell commands may be invoked.'
+        : 'Host Power Mode is disabled by safe default.',
+      remediation: allowHostPowerMode ? 'External commands should still require interactive UI approval.' : undefined,
     });
 
-    // 11. Policies checks: PTY
     checks.push({
       id: 'pty_mode',
       status: allowPty ? 'warning' : 'pass',
-      message: allowPty 
-        ? 'PTY Interactive Sessions está ATIVADO. Sessões de terminal interativo são permitidas.' 
-        : 'PTY Interactive Sessions está desativado (seguro por padrão).',
-      remediation: allowPty ? 'Certifique-se de que o Host Power Mode também está ativo para permitir execução.' : undefined
+      message: allowPty
+        ? 'PTY Interactive Sessions are enabled. Interactive terminal sessions are allowed.'
+        : 'PTY Interactive Sessions are disabled by safe default.',
+      remediation: allowPty ? 'Ensure Host Power Mode is also enabled before allowing execution.' : undefined,
     });
 
-    // 12. Policies checks: Task Mandates
     checks.push({
       id: 'task_mandates',
       status: allowTaskMandates ? 'pass' : 'warning',
-      message: allowTaskMandates 
-        ? 'Task Mandates (Mandatos de Tarefa) estão ATIVADOS e regidos pela política.' 
-        : 'Task Mandates (Mandatos de Tarefa) estão desativados.'
+      message: allowTaskMandates
+        ? 'Task Mandates are enabled and governed by policy.'
+        : 'Task Mandates are disabled.',
     });
 
-    // 13. Policies checks: Temporary Directory Trust
     checks.push({
       id: 'temporary_directory_trust',
       status: allowTemporaryDirectoryTrust ? 'warning' : 'pass',
-      message: allowTemporaryDirectoryTrust 
-        ? 'Temporary Directory Trust está ATIVADO. Acesso ao filesystem temporário externo é permitido.' 
-        : 'Temporary Directory Trust está desativado (seguro por padrão).'
+      message: allowTemporaryDirectoryTrust
+        ? 'Temporary Directory Trust is enabled. Access to external temporary filesystem paths is allowed.'
+        : 'Temporary Directory Trust is disabled by safe default.',
     });
 
-    // 14. Policies checks: Fallback Policy
     checks.push({
       id: 'fallback_policy',
       status: allowProviderFallback ? 'warning' : 'pass',
-      message: allowProviderFallback 
-        ? 'Provider Fallback está ATIVADO. O router poderá chavear provedores automaticamente.' 
-        : 'Provider Fallback está desativado (seguro por padrão).'
+      message: allowProviderFallback
+        ? 'Provider Fallback is enabled. The router may switch providers automatically.'
+        : 'Provider Fallback is disabled by safe default.',
     });
 
-    // 15. Pending critical errors
     checks.push({
       id: 'pending_critical_errors',
       status: 'pass',
-      message: 'Não há erros críticos de segurança ou travamentos pendentes na fila operacional.'
+      message: 'No critical security errors or pending crashes are queued in the operational backlog.',
     });
 
-    // Overall readiness
-    const failsCount = checks.filter(c => c.status === 'fail').length;
-    const readyForInternalBeta = dbReachable && auditReachable && workspaceTrusted && providerConfigured && (failsCount === 0);
+    const failsCount = checks.filter((check) => check.status === 'fail').length;
+    const readyForInternalBeta = dbReachable && auditReachable && workspaceTrusted && providerConfigured && failsCount === 0;
 
-    // Audit logging of diagnostics check
     if (auditReachable) {
       try {
         const logger = new SecurityAuditLogger();
@@ -381,25 +362,23 @@ export class InternalBetaDiagnosticsService {
           metadata: {
             readyForInternalBeta,
             failsCount,
-            warningsCount: checks.filter(c => c.status === 'warning').length
-          }
+            warningsCount: checks.filter((check) => check.status === 'warning').length,
+          },
         });
-      } catch {
-        // Suppress audit logging errors inside diagnostics run to avoid deadlock
-      }
+      } catch (error) { // Keep diagnostics available even if audit logging fails. logger.warn('[Internal Beta Diagnostics] operation failed', error); }
     }
 
     const normalizer = ErrorNormalizationService.getInstance();
-    const sanitizedChecks = checks.map(c => ({
-      ...c,
-      message: normalizer.sanitizeText(c.message),
-      remediation: c.remediation ? normalizer.sanitizeText(c.remediation) : undefined
+    const sanitizedChecks = checks.map((check) => ({
+      ...check,
+      message: normalizer.sanitizeText(check.message),
+      remediation: check.remediation ? normalizer.sanitizeText(check.remediation) : undefined,
     }));
 
     return {
       readyForInternalBeta,
       generatedAt,
-      checks: sanitizedChecks
+      checks: sanitizedChecks,
     };
   }
 }

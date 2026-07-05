@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 
 import { config } from '../config/index.js';
 import type { ZavorthOperationalMnemosUnifiedMemory } from '../contracts/ZavorthOperationalRefinementContract.js';
+import { logger } from '../logger.js';
 
 type MnemosUnifiedSourceId = ZavorthOperationalMnemosUnifiedMemory['sources'][number]['id'];
 
@@ -125,9 +126,7 @@ export class ZavorthMnemosUnifiedMemoryService {
           body,
           hash: hash(body),
         }];
-      } catch {
-        return [];
-      }
+      } catch (error) { logger.warn('[Zavorth Mnemos Unified Memory] operation failed', error); return []; }
     });
   }
 

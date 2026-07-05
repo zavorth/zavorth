@@ -4,6 +4,7 @@ import type { ZavorthMutationPlan } from '../../contracts/ZavorthMutationPlaneCo
 import type { PermissionService } from '../PermissionService.js';
 import type { TrustDecisionService } from '../TrustDecisionService.js';
 import type { StartWatchModeRunInput, WatchModeMutationPreview, WatchModeRunSnapshot, WatchModeSnapshot } from './ComputerUseWatchModeSharedTypes.js';
+import { logger } from '../../logger.js';
 
 type ComputerUseWatchModeMutationSupportDeps = {
   mutationPlane: Pick<ZavorthMutationPlaneService, 'createPlan' | 'readPlan' | 'attachApproval' | 'approvePlan' | 'markApplied' | 'markBlocked'>;
@@ -281,9 +282,7 @@ export class ComputerUseWatchModeMutationSupport {
     try {
       const target = normalized.match(/^https?:\/\//i) ? normalized : `https://${normalized}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Computer Use Watch Mode] network request failed', error); return null; }
   }
 
   private positiveNumber(value: unknown, fallback: number): number {

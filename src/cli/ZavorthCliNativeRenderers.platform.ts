@@ -12,14 +12,12 @@ import { renderCliScreen } from './ZavorthCliVisualSystem.js';
 
 function compactPlatformLine(value: string | null | undefined, maxLength = 150): string {
   const sanitized = sanitizeHumanCliText(value || '')
-    .replace(/^Zavorth expõe (\d+) familias de tools no plano atual\.?$/i, 'O Zavorth tem $1 familias de ferramentas disponiveis.')
-    .replace(/^Zavorth expoe (\d+) familias de ferramentas no plano atual\.?$/i, 'O Zavorth tem $1 familias de ferramentas disponiveis.')
-    .replace(/\bSession tools\b/gi, 'Ferramentas de sessao')
-    .replace(/Ferramentas de sessao prontos/gi, 'Ferramentas de sessao prontas')
-    .replace(/\btask,\s*workflow\b/gi, 'tarefas e workflows')
-    .replace(/\bexpõe\b/gi, 'expoe')
-    .replace(/\bexpõem\b/gi, 'expoem')
-    .replace(/familias de tools/gi, 'familias de ferramentas')
+    .replace(/^Zavorth exp?e (\d+) familias de tools no plano atual\.?$/i, 'Zavorth exposes $1 available tool families.')
+    .replace(/^Zavorth exposes (\d+) familias de ferramentas no plano atual\.?$/i, 'Zavorth exposes $1 available tool families.')
+    .replace(/\btask,\s*workflow\b/gi, 'tasks and workflows')
+    .replace(/\bexp?e\b/gi, 'exposes')
+    .replace(/\bexp?em\b/gi, 'expose')
+    .replace(/familias de tools/gi, 'tool families')
     .replace(/\s+/g, ' ')
     .trim();
   if (!sanitized || sanitized.length <= maxLength) {
@@ -55,10 +53,10 @@ function formatToolFamilyLabel(label: string | null | undefined): string {
 
 function normalizeAIGatewayStatusLabel(status: AIGatewayProxyStatus): string {
   if (status.ready) {
-    return 'pronto';
+    return 'ready';
   }
   if (status.enabled) {
-    return 'pedindo atencao';
+    return 'needs attention';
   }
   return 'desligado';
 }
@@ -78,7 +76,7 @@ function formatPlatformActionExecution(result: ZavorthPlatformActionExecution): 
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
+        title: 'Summary',
         lines: [
           `- alvo: ${selectedLabel}`,
           `- acao: ${result.actionId}`,
@@ -105,7 +103,7 @@ function formatPlatformPublishResult(result: ZavorthPlatformPublishResult): stri
   return renderCliScreen({
     eyebrow: 'Plugins',
     eyebrowTone: publishTone,
-    title: 'Publish do platform pronto',
+    title: 'Publish do platform ready',
     summary: `${result.packageId}@${result.version} ficou preparado para release.`,
     mode: 'compact',
     showWordmark: false,
@@ -149,7 +147,7 @@ function formatAIGatewayGatewayStatus(
       {
         title: 'Em resumo',
         lines: [
-          `- estado: ${normalizeAIGatewayStatusLabel(status)}`,
+          `- state: ${normalizeAIGatewayStatusLabel(status)}`,
           `- rota local: ${status.baseUrl}`,
           `- upstream: ${status.upstreamBaseUrl}`,
           `- processo: ${status.running ? `ativo (pid ${formatCliValue(status.pid ? String(status.pid) : null)})` : 'inativo'}`,
@@ -196,7 +194,7 @@ function formatAIGatewayDoctorReport(report: AIGatewayCompatibilityDoctorReport)
       {
         title: 'Diagnostico tecnico',
         lines: [
-          `- http: ${report.httpStatus ?? 'nao informado'}`,
+          `- http: ${report.httpStatus ?? 'not provided'}`,
           `- overlay: ${formatCliValue(report.overlayFile)}`,
           report.error ? `- erro: ${report.error}` : null,
         ].filter(Boolean) as string[],
@@ -229,14 +227,14 @@ function formatAIGatewaySyncReport(report: AIGatewayUpstreamSyncReport): string 
         lines: [
           `- acao: ${report.action}`,
           `- status: ${report.status}`,
-          `- rollback automatico: ${report.rollbackApplied ? 'sim' : 'nao'}`,
+          `- automatic rollback: ${report.rollbackApplied ? 'yes' : 'no'}`,
           report.error ? `- erro: ${report.error}` : null,
         ].filter(Boolean) as string[],
         tone: syncTone,
       },
       {
         title: 'Compatibilidade',
-        lines: [`- ${report.compat ? `${report.compat.status} :: ${sanitizeHumanCliText(report.compat.summary)}` : 'nao informado'}`],
+        lines: [`- ${report.compat ? `${report.compat.status} :: ${sanitizeHumanCliText(report.compat.summary)}` : 'not provided'}`],
         tone: 'neutral',
       },
       {
@@ -244,7 +242,7 @@ function formatAIGatewaySyncReport(report: AIGatewayUpstreamSyncReport): string 
         lines: [
           `- status file: ${report.statusFile}`,
           `- compat file: ${report.compatFile}`,
-          `- comando: ${report.command}`,
+          `- command: ${report.command}`,
         ],
         tone: 'muted',
       },
@@ -259,10 +257,10 @@ function formatAIGatewaySyncReport(report: AIGatewayUpstreamSyncReport): string 
 
 function formatSessionSendResult(result: GatewaySessionSendResult): string {
   return renderCliScreen({
-    eyebrow: 'Sessoes',
+    eyebrow: 'Sessions',
     eyebrowTone: result.ok ? 'success' : 'danger',
-    title: 'Mensagem enviada para outra sessao',
-    summary: result.ok ? 'A mensagem foi encaminhada.' : 'Nao consegui encaminhar a mensagem.',
+    title: 'Message Sent To Another Session',
+    summary: result.ok ? 'The message was forwarded.' : 'Could not forward the message.',
     mode: 'compact',
     showWordmark: false,
     panels: [
@@ -288,17 +286,17 @@ function formatSessionSpawnResult(result: GatewaySessionSpawnSnapshot): string {
   return renderCliScreen({
     eyebrow: 'Sessoes',
     eyebrowTone: result.ok ? 'success' : 'warning',
-    title: 'Nova sessao pronta',
-    summary: result.ok ? 'A sessao derivada ja pode ser usada.' : 'A sessao foi aberta parcialmente e pode pedir revisao.',
+    title: 'New Session Ready',
+    summary: result.ok ? 'The derived session can now be used.' : 'The session was partially opened and may need review.',
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
         title: 'Em resumo',
         lines: [
-          `- status: ${result.ok ? 'aberta' : 'parcial'}`,
-          `- plataforma: ${result.platform}`,
-          `- sessao: ${formatCliValue(result.sessionId)}`,
+          `- status: ${result.ok ? 'open' : 'partial'}`,
+          `- platform: ${result.platform}`,
+          `- session: ${formatCliValue(result.sessionId)}`,
           `- chat: ${formatCliValue(result.chatId)}`,
         ],
         tone: result.ok ? 'success' : 'warning',
@@ -307,7 +305,7 @@ function formatSessionSpawnResult(result: GatewaySessionSpawnSnapshot): string {
         title: 'Faca agora',
         lines: [
           `- abrir agora: ${result.handoffCommand}`,
-          '- abra a sessao nova ou use o handoff acima',
+          '- open the new session or use the handoff above',
         ],
         tone: 'brand',
       },
@@ -329,7 +327,7 @@ function formatToolSurfaceSnapshot(snapshot: ZavorthToolSurfaceSnapshot): string
       {
         title: 'Agora',
         lines: [
-          `- familias: ${formatCount(snapshot.summary.families, 'total', 'total')} | ${formatCount(snapshot.summary.ready, 'pronta', 'prontas')} | ${formatCount(snapshot.summary.partial, 'parcial', 'parciais')}`,
+          `- familias: ${formatCount(snapshot.summary.families, 'total', 'total')} | ${formatCount(snapshot.summary.ready, 'pronta', 'prontas')} | ${formatCount(snapshot.summary.partial, 'partial', 'parciais')}`,
           `- resumo: ${compactPlatformLine(snapshot.narrative.operatorSummary)}`,
         ],
         tone: snapshot.summary.ready > 0 ? 'info' : 'muted',
@@ -340,9 +338,9 @@ function formatToolSurfaceSnapshot(snapshot: ZavorthToolSurfaceSnapshot): string
           ? [
             `- ${selected.label}`,
             `- familia: ${formatToolFamilyLabel(selected.familyLabel)}`,
-            `- estado: ${selected.readiness}`,
+            `- state: ${selected.readiness}`,
             `- resumo: ${compactPlatformLine(selected.summary)}`,
-            selected.command ? `- comando: ${selected.command}` : null,
+            selected.command ? `- command: ${selected.command}` : null,
           ].filter(Boolean) as string[]
           : highlighted.map((family) => `- ${formatToolFamilyLabel(family.label)}: ${compactPlatformLine(family.summary, 96)}`),
         tone: 'neutral',
@@ -379,7 +377,7 @@ function formatHookPlaneSnapshot(snapshot: ZavorthHookPlaneSnapshot): string {
         title: 'Eventos em foco',
         lines: events.length > 0
           ? events.map((event) => `- ${event.label}: ${formatCount(event.registeredHooks, 'hook', 'hooks')}`)
-          : ['- nenhum hook registrado ainda'],
+          : ['- no hook registered yet'],
         tone: 'neutral',
       },
       {

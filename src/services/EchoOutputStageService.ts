@@ -77,7 +77,7 @@ export class EchoOutputStageService {
   private async tryDeliverVoice(request: EchoOutputStageRequest, text: string): Promise<boolean> {
     const audioHandler = this.deps.audioHandler || null;
     const preferenceStore = this.deps.preferenceStore || null;
-    const hasInteractiveControls = Boolean((request.options as any)?.reply_markup);
+    const hasInteractiveControls = Boolean((request.options as Record<string, unknown> | undefined)?.reply_markup);
     const voiceAvailable = Boolean(request.sink.sendVoice);
     const explicitVoiceRequest =
       request.forceVoice === true ||

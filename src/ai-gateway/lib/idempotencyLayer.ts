@@ -11,6 +11,7 @@
  */
 
 import { getSettings } from "@/lib/localDb";
+import { logger } from '@/shared/utils/logger';
 
 const DEFAULT_WINDOW_MS = 5000;
 
@@ -88,9 +89,7 @@ export async function getIdempotencyStats() {
     if (typeof settings.idempotencyWindowMs === "number" && settings.idempotencyWindowMs > 0) {
       windowMs = settings.idempotencyWindowMs;
     }
-  } catch {
-    // Fallback to default if settings unavailable
-  }
+  } catch (error) { // Fallback to default if settings unavailable logger.warn('[idempotency Layer] operation failed', error); }
   return {
     activeKeys: idempotencyStore.size,
     windowMs,

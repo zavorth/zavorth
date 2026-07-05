@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type ZavorthPlatformCatalogSyncStatusKind =
   | 'disabled'
@@ -388,9 +389,7 @@ export class ZavorthPlatformCatalogSyncService {
       const httpAllowed = parsed.protocol === 'http:' && this.allowHttpHosts.includes(host);
       const hostAllowed = this.allowedHosts.length < 1 || this.allowedHosts.includes(host);
       return hostAllowed && (httpsAllowed || httpAllowed);
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Zavorth Platform] network request failed', error); return false; }
   }
 
   private normalizeCatalog(input: PlatformCatalogLike): Required<PlatformCatalogLike> {
@@ -416,9 +415,7 @@ export class ZavorthPlatformCatalogSyncService {
         return null;
       }
       return JSON.parse(this.readFileSync(this.statusFile, 'utf8')) as SyncStateFile;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Platform] JSON parse failed', error); return null; }
   }
 
   private writeJsonFile(targetFile: string, payload: unknown): void {

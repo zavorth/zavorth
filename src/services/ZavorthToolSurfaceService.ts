@@ -127,20 +127,20 @@ export class ZavorthToolSurfaceService {
         total: sessionSnapshot?.tools.length || 4,
         summary: sessionSnapshot
           ? sessionSnapshot.narrative.operatorSummary
-          : 'Listagem, historico, envio e spawn de sessao estao definidos para o gateway.',
+          : 'Listing, history, send, and session spawn are defined for the gateway.',
         examples: (sessionSnapshot?.tools || []).map((tool) => tool.id).slice(0, 4),
       },
       {
         id: 'task',
-        label: 'Tasks e workflows',
+        label: 'Tasks and workflows',
         status: capabilityGroups.workflow.length + capabilityGroups.executor.length > 0 ? 'ready' : 'planned',
         total: capabilityGroups.workflow.length + capabilityGroups.executor.length,
-        summary: 'Ferramentas que abrem task, workflow, execucao e automacoes centrais.',
+        summary: 'Tools that open tasks, workflows, execution, and core automation.',
         examples: this.extractExamples([...capabilityGroups.executor, ...capabilityGroups.workflow]),
       },
       {
         id: 'team',
-        label: 'Teams e subagentes',
+        label: 'Teams and subagents',
         status: teamSnapshot.summary.total > 0 ? 'ready' : 'planned',
         total: teamSnapshot.summary.total,
         summary: teamSnapshot.narrative.operatorSummary,
@@ -148,10 +148,10 @@ export class ZavorthToolSurfaceService {
       },
       {
         id: 'integration',
-        label: 'Integracoes e sidecars',
+        label: 'Integrations and sidecars',
         status: integrationSnapshot.entries.length > 0 ? 'ready' : 'planned',
         total: integrationSnapshot.entries.length,
-        summary: 'Conectores, templates e doctors do Integration Hub.',
+        summary: 'Connectors, templates, and Integration Hub doctors.',
         examples: integrationSnapshot.entries.slice(0, 4).map((entry) => entry.manifest.id),
       },
       {
@@ -161,13 +161,13 @@ export class ZavorthToolSurfaceService {
         total: workspaceSummary.commands + workspaceSummary.hooks,
         summary:
           workspaceSummary.workspaces > 0
-            ? `${workspaceSummary.commands} comando(s) e ${workspaceSummary.hooks} hook(s) carregados de ZAVORTH.md.`
-            : 'Ainda nao ha perfis de workspace cacheados para expor ZAVORTH.md como plano de tools.',
+            ? `${workspaceSummary.commands} command(s) and ${workspaceSummary.hooks} hook(s) loaded from ZAVORTH.md.`
+            : 'No cached workspace profiles exist yet to expose ZAVORTH.md as a tool plan.',
         examples: this.workspaceExtensions.listEntries().slice(0, 3).map((entry) => entry.workspaceName),
       },
       {
         id: 'plugin',
-        label: 'Plugins e skills',
+        label: 'Plugins and skills',
         status: pluginSnapshot.summary.total > 0 ? 'ready' : 'partial',
         total: pluginSnapshot.summary.total,
         summary: pluginSnapshot.narrative.operatorSummary,
@@ -207,10 +207,10 @@ export class ZavorthToolSurfaceService {
       },
       {
         id: 'lsp',
-        label: 'LSP e IDE',
+        label: 'LSP and IDE',
         status: 'planned',
         total: 0,
-        summary: 'Ainda nao ha um plano LSP first-class, mas a familia ja fica visivel no tool plane.',
+        summary: 'There is no first-class LSP plan yet, but the family is already visible in the tool plane.',
         examples: ['planned'],
       },
     ];
@@ -229,8 +229,8 @@ export class ZavorthToolSurfaceService {
       families,
       catalog,
       narrative: {
-        headline: `Zavorth expõe ${summary.families} familias de tools no plano atual.`,
-        operatorSummary: `${summary.ready} familia(s) prontas, ${summary.partial} parcial(is) e ${summary.planned} planejada(s).`,
+        headline: `Zavorth exposes ${summary.families} tool families in the current plan.`,
+        operatorSummary: `${summary.ready} ready family/families, ${summary.partial} partial, and ${summary.planned} planned.`,
       },
     };
   }

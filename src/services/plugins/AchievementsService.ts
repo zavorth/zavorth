@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface Achievement {
   id: string;
@@ -89,7 +90,7 @@ export class AchievementsService {
       try {
         const data = JSON.parse(fs.readFileSync(statesPath, 'utf-8'));
         this.userStates = new Map(Object.entries(data));
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Achievements] JSON parse failed', error); }
     }
   }
 

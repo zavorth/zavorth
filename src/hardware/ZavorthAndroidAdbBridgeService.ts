@@ -238,7 +238,7 @@ export class ZavorthAndroidAdbBridgeService {
           kind: 'list',
           title: 'Plano',
           items: snapshot.plan.steps.length > 0
-            ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'sim' : 'nao'} | blocked=${step.blockedByDefault ? 'sim' : 'nao'}`)
+            ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'} | blocked=${step.blockedByDefault ? 'yes' : 'no'}`)
             : ['Nenhum plano ativo. Use /device inspect, /device screenshot ou /device plan.'],
         },
         ...receipts.map((entry) => ({
@@ -610,13 +610,13 @@ function buildAndroidSetupBlocks(snapshot: ZavorthAndroidAdbSnapshot): SurfaceRe
     snapshot.status === 'adb-unavailable'
       ? [
           'O pedido natural ja tentou usar ADB read-only.',
-          'ADB nao esta disponivel neste host.',
+          'ADB is not available on this host.',
           'Instale Android Platform Tools ou coloque adb no PATH.',
           'Depois rode: /device android doctor',
         ]
       : snapshot.status === 'unauthorized'
         ? [
-            'O celular foi encontrado, mas ainda nao autorizou ADB.',
+            'The phone was found, but ADB has not been authorized yet.',
             'Desbloqueie o Android e aceite o prompt "Permitir depuracao USB".',
             'Depois rode: /device android doctor',
           ]
@@ -634,7 +634,7 @@ function buildAndroidSetupBlocks(snapshot: ZavorthAndroidAdbSnapshot): SurfaceRe
       tone: 'warning',
       items: [
         ...items,
-        'Quando ficar pronto, "olhe meu celular" usa screenshot/UI dump read-only automaticamente.',
+        'When ready, "look at my phone" automatically uses read-only screenshots/UI dumps.',
       ],
     },
   ];

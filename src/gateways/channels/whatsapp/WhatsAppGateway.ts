@@ -70,7 +70,7 @@ export class WhatsAppGateway extends WebhookGateway {
   /**
    * Override to add commandless middleware before standard processing.
    */
-  protected override async onMessageReceived(payload: Record<string, unknown>): Promise<boolean> {
+  public override async onMessageReceived(payload: Record<string, unknown>): Promise<boolean> {
     const extracted = this.extractInboundPayload(payload);
     if (!extracted) {
       return false;

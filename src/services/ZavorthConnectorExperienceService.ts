@@ -8,6 +8,7 @@ import type { ChannelInstallMode } from './ChannelInstallScaffoldService.js';
 import { ZavorthProductDemoService } from './ZavorthProductDemoService.js';
 import type { ZavorthProductDemoConnectorCheck } from '../contracts/ZavorthProductDemoContract.js';
 import { normalizePlatformKey, type PlatformKey } from '../contracts/PlatformContract.js';
+import { logger } from '../logger.js';
 
 export type ZavorthConnectorExperienceChannelId = 'github' | 'telegram' | 'discord';
 
@@ -167,9 +168,10 @@ export class ZavorthConnectorExperienceService {
     if (this.providerDoctor && (!selectedId || selectedId === 'telegram' || selectedId === 'discord')) {
       try {
         providerDoctor = await this.providerDoctor.run({ localOnly: input.localOnly === true });
-      } catch {
-        providerDoctor = null;
-      }
+      } catch (error) {
+    logger.warn('[Zavorth Connector Experience] connection failed', error);
+    providerDoctor = null;
+  }
     }
     const exactMissing = connectors
       .filter((connector) => !selectedId || connector.id === selectedId || connector.id === 'github-pr-comment' && selectedId === 'github')

@@ -119,7 +119,7 @@ export function copyWorkspace(sourceRoot: string, targetRoot: string, maxCopyFil
         return;
       }
       if (stats.files + 1 > maxCopyFiles || stats.bytes + stat.size > maxCopyBytes) {
-        throw new Error(`Copia especulativa excedeu limites (${stats.files} arquivos, ${stats.bytes} bytes).`);
+        throw new Error(`Speculative copy exceeded limits (${stats.files} files, ${stats.bytes} bytes).`);
       }
       fs.mkdirSync(path.dirname(targetPath), { recursive: true });
       fs.copyFileSync(sourcePath, targetPath);
@@ -177,22 +177,22 @@ export function applyPatch(input: {
         return { relativePath, blockedReason };
       }
       if (!fs.existsSync(targetPath)) {
-        return { relativePath, blockedReason: `Patch bloqueado porque o arquivo alvo nao existe: ${relativePath}.` };
+        return { relativePath, blockedReason: `Patch blocked because the target file does not exist: ${relativePath}.` };
       }
       const currentContent = fs.readFileSync(targetPath, 'utf8');
       let nextContent = currentContent;
       for (const [index, hunk] of input.patch.hunks.entries()) {
         const occurrences = countOccurrences(nextContent, hunk.search);
         if (occurrences === 0) {
-          return { relativePath, blockedReason: `Patch bloqueado porque o hunk ${index + 1} nao foi encontrado em ${relativePath}.` };
+          return { relativePath, blockedReason: `Patch blocked because hunk ${index + 1} was not found in ${relativePath}.` };
         }
         if (occurrences > 1) {
-          return { relativePath, blockedReason: `Patch bloqueado porque o hunk ${index + 1} aparece ${occurrences} vezes em ${relativePath}.` };
+          return { relativePath, blockedReason: `Patch blocked because hunk ${index + 1} appears ${occurrences} times in ${relativePath}.` };
         }
         nextContent = nextContent.replace(hunk.search, hunk.replace);
       }
       if (looksLikeSecret(nextContent)) {
-        return { relativePath, blockedReason: 'Patch bloqueado porque o conteudo resultante parece conter segredo.' };
+        return { relativePath, blockedReason: 'Patch blocked because the resulting content appears to contain a secret.' };
       }
       fs.writeFileSync(targetPath, nextContent, 'utf8');
       return { relativePath, blockedReason: null };
@@ -206,36 +206,36 @@ export function applyPatch(input: {
 
 export function validateWrite(write: ZavorthSpeculativeWorkspaceWrite, relativePath: string): string | null {
     if (!relativePath || relativePath.startsWith('../') || path.isAbsolute(relativePath)) {
-      return 'Caminho de escrita invalido ou fora do workspace.';
+      return 'Invalid write path or path outside the workspace.';
     }
     if (looksLikeSecret(relativePath) || looksLikeSecret(write.content)) {
-      return 'Escrita bloqueada porque o alvo ou conteudo parece conter segredo.';
+      return 'Write blocked because the target or content appears to contain a secret.';
     }
     if (Buffer.byteLength(write.content, 'utf8') > MAX_EDIT_BYTES) {
-      return 'Escrita bloqueada porque excede o limite de tamanho do ensaio especulativo.';
+      return 'Write blocked because it exceeds the speculative run size limit.';
     }
     return null;
   }
 
 export function validatePatch(patch: ZavorthSpeculativeWorkspacePatch, relativePath: string): string | null {
     if (!relativePath || relativePath.startsWith('../') || path.isAbsolute(relativePath)) {
-      return 'Caminho de patch invalido ou fora do workspace.';
+      return 'Invalid patch path or path outside the workspace.';
     }
     if (!Array.isArray(patch.hunks) || patch.hunks.length === 0) {
-      return 'Patch bloqueado porque nao ha hunks estruturados.';
+      return 'Patch blocked because no structured hunks were provided.';
     }
     if (patch.hunks.length > 12) {
-      return 'Patch bloqueado porque excede 12 hunks em um unico arquivo.';
+      return 'Patch blocked because a single file cannot exceed 12 hunks.';
     }
     for (const hunk of patch.hunks) {
       if (!hunk.search) {
-        return 'Patch bloqueado porque um hunk tem search vazio.';
+        return 'Patch blocked because a hunk has an empty search value.';
       }
       if (looksLikeSecret(relativePath) || looksLikeSecret(hunk.search) || looksLikeSecret(hunk.replace)) {
-        return 'Patch bloqueado porque o alvo ou conteudo parece conter segredo.';
+        return 'Patch blocked because the target or content appears to contain a secret.';
       }
       if (Buffer.byteLength(hunk.search, 'utf8') > MAX_EDIT_BYTES || Buffer.byteLength(hunk.replace, 'utf8') > MAX_EDIT_BYTES) {
-        return 'Patch bloqueado porque excede o limite de tamanho do ensaio especulativo.';
+        return 'Patch blocked because it exceeds the speculative run size limit.';
       }
     }
     return null;

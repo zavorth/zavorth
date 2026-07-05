@@ -40,8 +40,8 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
         ? 'policy-allowlist-required'
         : 'target-window-required';
       const summary = !request.policyAllowlisted
-        ? 'Watch Mode visual bloqueado: policy/allowlist explicita ausente.'
-        : 'Watch Mode visual bloqueado: targetWindow obrigatorio para acao visual.';
+        ? 'Visual Watch Mode blocked: explicit policy/allowlist is missing.'
+        : 'Visual Watch Mode blocked: targetWindow is required for visual action.';
 
       run.status = 'failed';
       run.summary = summary;
@@ -59,7 +59,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
         id: this.idFactory('agent-event'),
         runId: run.id,
         kind: 'planning',
-        title: 'Watch Mode visual bloqueado',
+        title: 'Visual Watch Mode Blocked',
         detail: summary,
         status: 'failed',
         createdAt: now,
@@ -87,14 +87,14 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
       id: this.idFactory('approval'),
       runId: run.id,
       title: 'Aprovar Watch Mode visual supervisionado',
-      reason: `Pedido visual para ${request.targetWindow} exige approval antes de iniciar Watch Mode/Computer Use.`,
+      reason: `Visual request for ${request.targetWindow} requires approval before starting Watch Mode/Computer Use.`,
       risk: 'danger',
       status: 'pending',
       createdAt: now,
     };
 
     run.status = 'waiting_approval';
-    run.summary = 'Proposta de Watch Mode visual aguardando aprovacao.';
+    run.summary = 'Visual Watch Mode proposal waiting for approval.';
     run.updatedAt = now;
     run.metadata = {
       ...run.metadata,
@@ -160,12 +160,12 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
     }
 
     const now = this.now().toISOString();
-    const targetWindow = normalizeText(proposal?.targetWindow, 'alvo visual nao informado');
+    const targetWindow = normalizeText(proposal?.targetWindow, 'visual target not provided');
     const objective = normalizeText(proposal?.objective, run.input);
     const siteUrl = normalizeText(proposal?.siteUrl) || null;
 
     if (!this.watchModeService) {
-      const summary = `Aprovacao de Watch Mode registrada para ${targetWindow}; startRun nao foi chamado pelo agent loop natural.`;
+      const summary = `Watch Mode approval registered for ${targetWindow}; startRun was not called by the natural agent loop.`;
       run.status = 'completed';
       run.summary = summary;
       run.updatedAt = now;
@@ -184,7 +184,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
         id: this.idFactory('agent-event'),
         runId: run.id,
         kind: 'approval',
-        title: 'Watch Mode aprovado sem execucao direta',
+        title: 'Watch Mode Approved Without Direct Execution',
         detail: summary,
         status: 'done',
         createdAt: now,
@@ -204,7 +204,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
         run,
         text: [
           summary,
-          'Use o fluxo Watch Mode owner/trusted existente para iniciar, pausar, retomar ou parar a execucao visual.',
+          'Use the existing owner/trusted Watch Mode flow to start, pause, resume, or stop visual execution.',
         ].join('\n'),
       });
     }
@@ -216,7 +216,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
       requestedBy: normalizeText(run.userId, 'operator'),
       strictApproval: true,
     });
-    const summary = `Watch Mode aprovado e iniciado pelo servico existente para ${targetWindow}.`;
+    const summary = `Watch Mode approved and started by the existing service for ${targetWindow}.`;
 
     run.status = 'completed';
     run.summary = summary;
@@ -293,7 +293,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
       '',
       `Alvo: ${request.targetWindow}`,
       `Objetivo: ${request.objective}`,
-      'Aguardando aprovacao. Computer Use nao foi iniciado pelo agent loop natural.',
+      'Waiting for approval. Computer Use was not started by the natural agent loop.',
       `Approval: ${approvalId}`,
     ].join('\n');
   };

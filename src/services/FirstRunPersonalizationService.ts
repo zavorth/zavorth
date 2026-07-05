@@ -454,9 +454,7 @@ export class FirstRunPersonalizationService {
         return fallback;
       }
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[First Run Personalization] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

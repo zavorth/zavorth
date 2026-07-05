@@ -2,6 +2,7 @@ import { SandboxPolicyService } from './sandbox/SandboxPolicyService.js';
 import { logger } from '../logger.js';
 import { ZavorthRuntimeModesService, type ZavorthRuntimeModeSnapshot } from './ZavorthRuntimeModesService.js';
 import { OperationsHealthService, type OperationsHealthSnapshot } from '../observability/OperationsHealthService.js';
+import type { LogRepository } from '../storage/LogRepository.js';
 
 type OperationsHealthLike = Pick<OperationsHealthService, 'readSnapshot'> &
   Partial<Pick<OperationsHealthService, 'readSnapshotFast'>>;
@@ -89,7 +90,7 @@ export class ZavorthSecurityMeshService {
     this.operationsHealth = runtime.operationsHealthService || new OperationsHealthService({
       log: () => undefined,
       getRecentLogs: () => [],
-    } as any);
+    } as unknown as LogRepository);
     this.runtimeModes = runtime.runtimeModesService || new ZavorthRuntimeModesService();
   }
 
@@ -302,7 +303,16 @@ export class ZavorthSecurityMeshService {
       latestTaskId: audit.latestTaskId || null,
       latestTimestamp: audit.latestTimestamp || null,
       latestChainHash: audit.latestChainHash || null,
-      recentChain: Array.isArray(audit.recentChain) ? audit.recentChain.slice(0, 4) : [],
+      recentChain: Array.isArray(audit.recentChain)
+        ? (audit.recentChain as Array<{
+            eventId: string;
+            eventType: string;
+            taskId: string;
+            timestamp: string | null;
+            chainHash: string;
+            previousChainHash: string | null;
+          }>).slice(0, 4)
+        : [],
     };
   }
 

@@ -19,9 +19,9 @@ export interface AgentWorkspaceConfig {
 
 type PanelStatus = 'loading' | 'ready' | 'error' | 'saving';
 
-/** Sanitizes an error before surfacing it in the UI — strips API keys and raw secrets. */
+/** Sanitizes an error before surfacing it in the UI; strips API keys and raw secrets. */
 function sanitizeErrorMessage(raw: unknown): string {
-  if (!raw) return 'Erro desconhecido.';
+  if (!raw) return 'Unknown error.';
   const msg = raw instanceof Error ? raw.message : String(raw);
   // Strip any accidental API key / bearer token from the message
   return msg
@@ -34,13 +34,13 @@ function sanitizeErrorMessage(raw: unknown): string {
 /** Maps normalized error codes to human-readable messages. */
 function describeProviderError(code: string): string {
   const map: Record<string, string> = {
-    missing_key:            'Chave de API não configurada para este provider.',
-    provider_not_found:     'Provider não encontrado. Verifique as configurações.',
-    capability_not_supported: 'Capacidade não suportada pelo workspace. Verifique allowedCapabilities.',
-    routing_error:          'Erro ao rotear requisição para o provider. Tente novamente.',
-    no_providers_enabled:   'Nenhum provider habilitado. Configure um provider primeiro.',
+    missing_key:            'API key is not configured for this provider.',
+    provider_not_found:     'Provider not found. Check the settings.',
+    capability_not_supported: 'Capability is not supported by the workspace. Check allowedCapabilities.',
+    routing_error:          'Failed to route request to the provider. Try again.',
+    no_providers_enabled:   'No provider enabled. Configure a provider first.',
   };
-  return map[code] || 'Erro ao conectar ao provider. Verifique as configurações.';
+  return map[code] || 'Failed to connect to the provider. Check the settings.';
 }
 
 export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({ workspaceId }) => {
@@ -112,7 +112,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
       const readinessResp = await fetch(`/api/v2/workspace/agent-config/readiness?workspaceId=${encodeURIComponent(workspaceId)}`);
       const readinessData = await readinessResp.json();
       setReadiness(readinessData.data || readinessData);
-      setSaveMessage('Configurações salvas com sucesso.');
+      setSaveMessage('Settings saved successfully.');
       setStatus('ready');
     } catch (e) {
       setErrorMessage(sanitizeErrorMessage(e));
@@ -124,7 +124,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
   if (status === 'loading') {
     return (
       <div className="agent-workspace-settings-panel loading" aria-busy="true">
-        <p>Carregando configurações do workspace...</p>
+        <p>Loading workspace settings...</p>
       </div>
     );
   }
@@ -133,9 +133,9 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
   if (status === 'error' && !config) {
     return (
       <div className="agent-workspace-settings-panel error">
-        <h2>Configurações do Workspace do Agente</h2>
+        <h2>Agent Workspace Settings</h2>
         <div className="error-message" role="alert">
-          <strong>Erro ao carregar configurações:</strong> {errorMessage || 'Tente reabrir o workspace.'}
+          <strong>Failed to load settings:</strong> {errorMessage || 'Try reopening the workspace.'}
         </div>
       </div>
     );
@@ -148,7 +148,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
 
   return (
     <div className="agent-workspace-settings-panel">
-      <h2>Configurações do Workspace do Agente</h2>
+      <h2>Agent Workspace Settings</h2>
 
       {/* Error banner (non-fatal) */}
       {errorMessage && (
@@ -167,50 +167,50 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
       {/* PTY requires HPM hint */}
       {ptyRequiresHpm && (
         <div className="warning-message" role="alert" data-testid="pty-requires-hpm-warning">
-          ⚠️ Sessões PTY requerem Host Power Mode habilitado para funcionar.
+          PTY sessions require Host Power Mode to be enabled.
         </div>
       )}
 
       <div className="form-group">
-        <label>Provider Padrão:</label>
+        <label>Default Provider:</label>
         <input
           type="text"
           value={config.defaultProviderId || ''}
-          placeholder={config.defaultProviderId ? undefined : 'Nenhum provider configurado'}
+          placeholder={config.defaultProviderId ? undefined : 'No provider configured'}
           onChange={e => setConfig({ ...config, defaultProviderId: e.target.value })}
           data-testid="input-provider-id"
         />
         {!config.defaultProviderId && (
           <span className="field-hint warning" data-testid="missing-provider-hint">
-            Nenhum provider configurado. Configure um provider nas Configurações de Provider.
+            No provider configured. Configure a provider in Provider Settings.
           </span>
         )}
       </div>
 
       <div className="form-group">
-        <label>Modelo Padrão:</label>
+        <label>Default Model:</label>
         <input
           type="text"
           value={config.defaultModelId || ''}
-          placeholder={config.defaultModelId ? undefined : 'Nenhum modelo configurado'}
+          placeholder={config.defaultModelId ? undefined : 'No model configured'}
           onChange={e => setConfig({ ...config, defaultModelId: e.target.value })}
           data-testid="input-model-id"
         />
         {!config.defaultModelId && (
           <span className="field-hint warning" data-testid="missing-model-hint">
-            Nenhum modelo configurado. O sistema usará o modelo padrão do provider.
+            No model configured. The system will use the provider default model.
           </span>
         )}
       </div>
 
       <div className="form-group">
-        <label>Autonomy Profile Padrão:</label>
+        <label>Default Autonomy Profile:</label>
         <select
           value={config.defaultAutonomyProfile}
           onChange={e => setConfig({ ...config, defaultAutonomyProfile: e.target.value as 'safe' | 'developer' })}
           data-testid="select-autonomy-profile"
         >
-          <option value="safe">Safe (Recomendado)</option>
+          <option value="safe">Safe (Recommended)</option>
           <option value="developer">Developer</option>
         </select>
       </div>
@@ -223,9 +223,9 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
               checked={config.allowDeveloperMode}
               onChange={e => setConfig({ ...config, allowDeveloperMode: e.target.checked })}
               data-testid="check-developer-mode"
-            /> Permitir Developer Mode
+            /> Allow Developer Mode
           </label>
-          <ActionHint message="Developer Mode está desativado. Ative apenas para fluxos avançados e auditáveis." />
+          <ActionHint message="Developer Mode is disabled. Enable it only for advanced, auditable flows." />
         </div>
         
         <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
@@ -235,9 +235,9 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
               checked={config.allowHostPowerMode}
               onChange={e => setConfig({ ...config, allowHostPowerMode: e.target.checked })}
               data-testid="check-host-power-mode"
-            /> Permitir Host Power Mode
+            /> Allow Host Power Mode
           </label>
-          <ActionHint message="Host Power Mode está desativado por padrão. Ative apenas se você realmente precisar executar ações fora do workspace." />
+          <ActionHint message="Host Power Mode is disabled by default. Enable it only if you really need to execute actions outside the workspace." />
         </div>
 
         <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
@@ -247,9 +247,9 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
               checked={config.allowPty}
               onChange={e => setConfig({ ...config, allowPty: e.target.checked })}
               data-testid="check-pty"
-            /> Permitir Sessões PTY
+            /> Allow PTY Sessions
           </label>
-          <ActionHint message="PTY requer Host Power Mode. Essa restrição impede sessões interativas fora do controle esperado." />
+          <ActionHint message="PTY requires Host Power Mode. This restriction prevents interactive sessions outside the expected control path." />
         </div>
 
         <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
@@ -259,7 +259,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
               checked={config.allowTaskMandates}
               onChange={e => setConfig({ ...config, allowTaskMandates: e.target.checked })}
               data-testid="check-task-mandates"
-            /> Permitir Task Mandates
+            /> Allow Task Mandates
           </label>
         </div>
 
@@ -270,7 +270,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
               checked={config.allowTemporaryDirectoryTrust}
               onChange={e => setConfig({ ...config, allowTemporaryDirectoryTrust: e.target.checked })}
               data-testid="check-tmp-dir-trust"
-            /> Permitir Temporary Directory Trust
+            /> Allow Temporary Directory Trust
           </label>
         </div>
 
@@ -281,7 +281,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
               checked={config.allowProviderFallback}
               onChange={e => setConfig({ ...config, allowProviderFallback: e.target.checked })}
               data-testid="check-provider-fallback"
-            /> Permitir Provider Fallback
+            /> Allow Provider Fallback
           </label>
         </div>
       </div>
@@ -293,7 +293,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
           Preview Policy
         </button>
         <button onClick={handleSave} disabled={status === 'saving'} data-testid="btn-save">
-          {status === 'saving' ? 'Salvando...' : 'Salvar Configurações'}
+          {status === 'saving' ? 'Saving...' : 'Save Settings'}
         </button>
       </div>
 

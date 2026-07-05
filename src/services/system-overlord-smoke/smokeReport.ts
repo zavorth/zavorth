@@ -1,4 +1,5 @@
 import path from 'path';
+import { logger } from '../../logger.js';
 import type {
   SystemOverlordSmokeItem,
   SystemOverlordSmokeReport,

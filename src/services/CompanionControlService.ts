@@ -104,9 +104,7 @@ export class CompanionControlService {
           ...descriptor.details,
           status.message || 'Status nativo do ZavorthBridge lido com sucesso.',
         ].slice(0, 6);
-      } catch {
-        // Keep the desktop-plane view even when the native status fails.
-      }
+      } catch (error) { // Keep the desktop-plane view even when the native status fails. logger.warn('[Companion Control] operation failed', error); }
     }
 
     return descriptor;
@@ -745,12 +743,13 @@ export class CompanionControlService {
         updatedAt: String(parsed.updatedAt || this.now().toISOString()),
         lastActions: parsed.lastActions || {},
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Companion Control] JSON parse failed', error);
+    return {
         updatedAt: this.now().toISOString(),
         lastActions: {},
       };
-    }
+  }
   }
 
   private recordActionState(input: {

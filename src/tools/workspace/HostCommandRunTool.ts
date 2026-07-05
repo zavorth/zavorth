@@ -6,26 +6,27 @@ import { HostPowerModeService } from '../../services/HostPowerModeService.js';
 import { HostCommandApprovalService } from '../../services/HostCommandApprovalService.js';
 import { HostCommandRunnerService } from '../../services/HostCommandRunnerService.js';
 import { HostCommandPayloadCache } from '../../services/HostCommandPayloadCache.js';
+import { logger } from '../../logger.js';
 
 export class HostCommandRunTool extends BaseTool {
   public readonly name = 'workspace.host_command.run';
-  public readonly description = 'Executa um comando de host previamente proposto e aprovado.';
+  public readonly description = 'Runs a previously proposed and approved host command.';
 
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       operationId: {
         type: 'string',
-        description: 'O identificador do comando retornado na proposição.',
+        description: 'Command identifier returned by the proposal.',
       },
       command: {
         type: 'string',
-        description: 'O binário ou comando executável (deve coincidir exatamente com o proposto).',
+        description: 'Executable binary or command; must exactly match the proposal.',
       },
       args: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Argumentos do comando (devem coincidir exatamente com os propostos).',
+        description: 'Command arguments; must exactly match the proposed arguments.',
       },
       cwd: {
         type: 'string',
@@ -93,7 +94,7 @@ export class HostCommandRunTool extends BaseTool {
     if (timeoutMs < 1000) timeoutMs = 1000;
 
     if (!operationId || !command || !cwdInput) {
-      return JSON.stringify({ success: false, error: 'operationId, command e cwd são obrigatórios.' });
+      return JSON.stringify({ success: false, error: 'operationId, command, and cwd are required.' });
     }
 
     try {
@@ -182,11 +183,12 @@ export class HostCommandRunTool extends BaseTool {
         timeoutFlag: runResult.timeoutFlag,
         truncatedFlag: runResult.truncatedFlag
       });
-    } catch (error: any) {
-      return JSON.stringify({
+    } catch (error) {
+    logger.warn('[Host Command Run] cache operation failed', error);
+    return JSON.stringify({
         success: false,
         error: `Host command execution failed: ${error.message || error}`
       });
-    }
+  }
   }
 }

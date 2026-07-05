@@ -2,8 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { createHash } from 'crypto';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  DISTRIBUTION_HARDENING_CHANNELS,
+DISTRIBUTION_HARDENING_CHANNELS,
   DISTRIBUTION_HARDENING_INSTALLER_PREVIEW_STEPS,
   DISTRIBUTION_HARDENING_MANIFEST_ITEMS,
   DISTRIBUTION_HARDENING_REQUIRED_CORE_SCRIPTS,
@@ -522,9 +523,7 @@ export class DistributionHardeningService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Distribution Hardening] JSON parse failed', error); return null; }
   }
 
   private readArtifactJson(filePath: string, artifactName: string): JsonRecord | null {
@@ -543,9 +542,7 @@ export class DistributionHardeningService {
     }
     try {
       return this.parseJson(this.readFileSync(filePath, 'utf8'));
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Distribution Hardening] filesystem operation failed', error); return null; }
   }
 
   private readCoreText(relativePath: string): string | null {
@@ -562,18 +559,14 @@ export class DistributionHardeningService {
     }
     try {
       return this.readFileSync(targetPath, 'utf8');
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Distribution Hardening] filesystem operation failed', error); return null; }
   }
 
   private parseJson(raw: string): JsonRecord | null {
     try {
       const parsed = JSON.parse(raw);
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as JsonRecord : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Distribution Hardening] JSON parse failed', error); return null; }
   }
 
   private isInside(root: string, target: string): boolean {

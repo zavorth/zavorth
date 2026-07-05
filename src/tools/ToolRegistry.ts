@@ -6,7 +6,7 @@ import { resolveDefaultAgentToolSecurityDefinition } from '../security/AgentTool
 
 /**
  * ToolRegistry — Registry pattern para ferramentas do agente.
- * Permite registro dinâmico e busca de tools por nome.
+ * Allows dynamic tool registration and lookup by name.
  */
 export class ToolRegistry {
   private tools: Map<string, BaseTool> = new Map();
@@ -17,7 +17,7 @@ export class ToolRegistry {
    */
   public register(tool: BaseTool, securityDefinition?: AgentToolSecurityDefinition): void {
     if (this.tools.has(tool.name)) {
-      console.warn(`⚠️ Tool "${tool.name}" já registrada. Substituindo.`);
+      console.warn(`Tool "${tool.name}" is already registered. Replacing it.`);
     }
     this.tools.set(tool.name, tool);
     this.toolSecurityDefinitions.set(
@@ -61,7 +61,7 @@ export class ToolRegistry {
   }
 
   /**
-   * Retorna as definições de todas as tools no formato JSON Schema para o LLM.
+   * Returns all tool definitions in JSON Schema format for the LLM.
    */
   public getSecurityCatalogAudit(): {
     totalTools: number;
@@ -99,7 +99,7 @@ export class ToolRegistry {
   }
 
   /**
-   * Número de tools registradas.
+   * Number of registered tools.
    */
   public get size(): number {
     return this.tools.size;

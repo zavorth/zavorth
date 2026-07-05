@@ -9,8 +9,9 @@
  * @module domain/costRules
  */
 
+import { logger } from '@/shared/utils/logger';
 import {
-  saveBudget,
+saveBudget,
   loadBudget,
   saveCostEntry,
   loadCostEntries,
@@ -79,9 +80,7 @@ export function setBudget(apiKeyId: string, config: BudgetConfig) {
   budgets.set(apiKeyId, normalized);
   try {
     saveBudget(apiKeyId, normalized);
-  } catch {
-    // Non-critical: in-memory still works
-  }
+  } catch (error) { // Non-critical: in-memory still works logger.warn('[cost Rules] operation failed', error); }
 }
 
 /**
@@ -102,9 +101,7 @@ export function getBudget(apiKeyId: string): BudgetConfig | null {
       budgets.set(apiKeyId, fromDb);
       return fromDb;
     }
-  } catch {
-    // DB may not be ready
-  }
+  } catch (error) { // DB may not be ready logger.warn('[cost Rules] cache operation failed', error); }
   return null;
 }
 
@@ -118,9 +115,7 @@ export function recordCost(apiKeyId: string, cost: number): void {
   const timestamp = Date.now();
   try {
     saveCostEntry(apiKeyId, cost, timestamp);
-  } catch {
-    // Non-critical
-  }
+  } catch (error) { // Non-critical logger.warn('[cost Rules] operation failed', error); }
 }
 
 /**
@@ -172,9 +167,7 @@ export function getDailyTotal(apiKeyId: string): number {
   try {
     const entries = toCostEntries(loadCostEntries(apiKeyId, startMs));
     return entries.reduce((sum, e) => sum + e.cost, 0);
-  } catch {
-    return 0;
-  }
+  } catch (error) { logger.warn('[cost Rules] lifecycle operation failed', error); return 0; }
 }
 
 /**
@@ -204,7 +197,8 @@ export function getCostSummary(apiKeyId: string) {
       totalEntries: monthlyEntries.length,
       budget: getBudget(apiKeyId),
     };
-  } catch {
+  } catch (error) {
+    logger.warn('[cost Rules] lifecycle operation failed', error);
     return {
       dailyTotal: 0,
       monthlyTotal: 0,
@@ -222,7 +216,5 @@ export function resetCostData() {
   _budgetsLoaded = false;
   try {
     deleteAllCostData();
-  } catch {
-    // Non-critical
-  }
+  } catch (error) { // Non-critical logger.warn('[cost Rules] delete operation failed', error); }
 }

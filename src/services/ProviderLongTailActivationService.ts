@@ -18,6 +18,7 @@ import { ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION } from '../contr
 import type { LiveReadinessEntry, LiveReadinessStatus } from '../contracts/LiveReadinessContract.js';
 import { LiveReadinessService } from './LiveReadinessService.js';
 import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
+import { logger } from '../logger.js';
 
 type ProviderLongTailActivationRuntime = {
   now?: () => Date;
@@ -304,7 +305,8 @@ export class ProviderLongTailActivationService {
         secretValuesSerialized: false,
       };
     } catch (error) {
-      return {
+    logger.warn('[Long Tail Activation] filesystem check failed', error);
+    return {
         id,
         providerId: descriptor.providerId,
         family: descriptor.adapterFamily,
@@ -316,7 +318,7 @@ export class ProviderLongTailActivationService {
         liveIoPerformed: false,
         secretValuesSerialized: false,
       };
-    }
+  }
   }
 
   private buildGates(

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type ZavorthLocalProfilePreferenceValue =
   | boolean
@@ -194,9 +195,10 @@ export class ZavorthLocalProfilePreferenceService {
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : this.now().toISOString(),
         scopes: this.normalizeScopes(scopes),
       };
-    } catch {
-      return this.emptyState();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Local Profile Preference] parsing failed', error);
+    return this.emptyState();
+  }
   }
 
   private normalizeScopes(scopes: Record<string, ZavorthLocalProfilePreferenceScopeState>): Record<string, ZavorthLocalProfilePreferenceScopeState> {

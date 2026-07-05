@@ -5,6 +5,11 @@ import {
   type IntegrationShowcasePartnerSurfaceSnapshot,
   type UniversalAgentRun,
 } from '../runtime/agent/index.js';
+import type {
+  ZavorthFirstRunBootstrapPlan,
+  ZavorthWorkspaceIdentityProfileSnapshot,
+  ZavorthFirstRunBootstrapPaths,
+} from '../contracts/FirstRunWorkspaceBootstrapContract.js';
 
 export function resolveIntegrationShowcasePartnerSurfaceCliText(args: string): string {
   return String(args || '')
@@ -42,8 +47,8 @@ export function buildIntegrationShowcasePartnerSurfaceCliSnapshot(input: {
           },
           questions: [],
           writes: [],
-          summary: ['Primeiro uso configurado para integration showcase.'],
-        } as any),
+          summary: ['Primeiro uso configured para integration showcase.'],
+        } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
           configured: true,
@@ -55,8 +60,8 @@ export function buildIntegrationShowcasePartnerSurfaceCliSnapshot(input: {
           memoryMode: 'local-metadata',
           safetyPosture: 'preview-first',
           providerStatus: 'deferred',
-        } as any),
-        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as any),
+        } as unknown as ZavorthWorkspaceIdentityProfileSnapshot),
+        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as unknown as ZavorthFirstRunBootstrapPaths),
       },
       personalizationService: {
         getStatus: () => ({
@@ -111,16 +116,16 @@ export function formatIntegrationShowcasePartnerSurfaceSnapshot(
 ): string {
   const lines = [
     'Integration Showcase / Partner Surface - Integration Showcase',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- pilot loop: ${snapshot.publicAdoptionPilotLoop.status}`,
     `- showcase: ${snapshot.showcase.contractStatus}`,
     `- vendors: ${snapshot.showcase.vendorCount}`,
-    `- fixtures prontos: ${snapshot.showcase.fixtureReadyCount}`,
-    `- claim formal permitido: ${String(snapshot.partnerSurface.canClaimFormalPartner)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- fixtures ready: ${snapshot.showcase.fixtureReadyCount}`,
+    `- formal claim allowed: ${String(snapshot.partnerSurface.canClaimFormalPartner)}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -132,7 +137,7 @@ export function formatIntegrationShowcasePartnerSurfaceSnapshot(
     );
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   for (const surface of snapshot.surfaces) {
     lines.push(`- ${surface.status}: ${surface.label} (${surface.routeOrCommand}) - ${surface.detail}`);
   }
@@ -144,17 +149,17 @@ export function formatIntegrationShowcasePartnerSurfaceSnapshot(
   lines.push(`- fixture modes ready: ${String(snapshot.readiness.fixtureModesReady)}`);
   lines.push(`- trust plane ready: ${String(snapshot.readiness.trustPlaneReady)}`);
   lines.push(`- artifacts ready: ${String(snapshot.readiness.artifactsReady)}`);
-  lines.push(`- preview publicavel: ${String(snapshot.readiness.canPublishShowcasePreview)}`);
+  lines.push(`- publishable preview: ${String(snapshot.readiness.canPublishShowcasePreview)}`);
 
-  lines.push('', 'Politica');
-  lines.push('- fixture nao exige credencial');
-  lines.push('- fixture nao chama rede');
-  lines.push('- nenhuma mutacao externa foi feita');
-  lines.push('- nenhum secret foi serializado');
-  lines.push('- compatibilidade tecnica nao vira parceria formal');
-  lines.push('- partner surface e auditavel');
+  lines.push('', 'Policy');
+  lines.push('- fixture does not require credentials');
+  lines.push('- fixture does not call the network');
+  lines.push('- no external mutation was made');
+  lines.push('- no secret was serialized');
+  lines.push('- technical compatibility does not become a formal partnership');
+  lines.push('- partner surface is auditable');
 
-  lines.push('', 'Rotas e comandos');
+  lines.push('', 'Routes and Commands');
   lines.push(`- Integrations: ${snapshot.surface.integrationsRoute}`);
   lines.push(`- Docs: ${snapshot.surface.docsAnchor}`);
   lines.push(`- Showcase: ${snapshot.surface.integrationShowcaseCommand}`);

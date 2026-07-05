@@ -8,6 +8,7 @@ import { resolveDataDir } from "@/lib/dataPaths";
 import { codexProfileIdSchema, codexProfileNameSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const PROFILES_DIR = path.join(resolveDataDir(), "codex-profiles");
 
@@ -47,9 +48,7 @@ function extractAuthLabel(authJson) {
     if (data.auth_mode) return data.auth_mode;
     if (data.OPENAI_API_KEY) return `API Key: ${data.OPENAI_API_KEY.slice(0, 8)}...`;
     return "unknown";
-  } catch {
-    return "unknown";
-  }
+  } catch (error) { logger.warn('[route] JSON parse failed', error); return "unknown"; }
 }
 
 // GET - List all saved profiles
@@ -63,9 +62,10 @@ export async function GET(request: Request) {
     let entries;
     try {
       entries = await fs.readdir(PROFILES_DIR);
-    } catch {
-      return NextResponse.json({ profiles: [] });
-    }
+    } catch (error) {
+    logger.warn('[route] filesystem operation failed', error);
+    return NextResponse.json({ profiles: [] });
+  }
 
     const profileFiles = entries.filter((e) => e.endsWith(".json"));
     const profiles = [];
@@ -82,9 +82,7 @@ export async function GET(request: Request) {
           hasConfig: !!profile.configToml,
           hasAuth: !!profile.authJson,
         });
-      } catch {
-        // Skip corrupt files
-      }
+      } catch (error) { // Skip corrupt files logger.warn('[route] JSON parse failed', error); }
     }
 
     // Sort by name
@@ -104,7 +102,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -139,15 +138,11 @@ export async function POST(request) {
 
     try {
       configToml = await fs.readFile(paths.config, "utf-8");
-    } catch {
-      // No config file
-    }
+    } catch (error) { // No config file logger.warn('[route] filesystem operation failed', error); }
 
     try {
       authJson = await fs.readFile(paths.auth, "utf-8");
-    } catch {
-      // No auth file
-    }
+    } catch (error) { // No auth file logger.warn('[route] filesystem operation failed', error); }
 
     if (!configToml && !authJson) {
       return NextResponse.json(
@@ -193,7 +188,8 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -222,9 +218,10 @@ export async function PUT(request) {
     try {
       const raw = await fs.readFile(profilePath, "utf-8");
       profile = JSON.parse(raw);
-    } catch {
-      return NextResponse.json({ error: `Profile "${profileId}" not found` }, { status: 404 });
-    }
+    } catch (error) {
+    logger.warn('[route] JSON parse failed', error);
+    return NextResponse.json({ error: `Profile "${profileId}" not found` }, { status: 404 });
+  }
 
     const paths = getCliConfigPaths("codex");
     if (!paths) {
@@ -267,7 +264,8 @@ export async function DELETE(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] delete operation failed', error);
     return NextResponse.json(
       {
         error: {

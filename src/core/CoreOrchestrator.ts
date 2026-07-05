@@ -1,7 +1,7 @@
 import { IMessageBroker, IMessageContext } from '../contracts/IMessageBroker.js';
-import { PlatformGatewayContract, PlatformKey } from '../contracts/PlatformContract.js';
+import { PlatformGatewayContract, PlatformKey, TaskSource } from '../contracts/PlatformContract.js';
 import { LogRepository } from '../storage/LogRepository.js';
-import type { SurfaceTaskDispatcherLike } from '../services/SurfaceRuntime.js';
+import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from '../services/SurfaceRuntime.js';
 import type { EchoOutputStageService } from '../services/EchoOutputStageService.js';
 import { CommandParser } from '../gateways/channels/telegram/CommandParser.js';
 import {
@@ -46,10 +46,8 @@ type CoreOrchestratorPipelineHandler = {
 
 /**
  * CoreOrchestrator
- * Esta classe visa substituir futuramente o BotGateway no sentido de ser
- * o "Coração" que processa todos os textos, independentemente de onde vieram.
- * As gateways (Telegram, WhatsApp, Discord) apenas repassarão o texto limpo para cá
- * e fornecerão o callback de "reply".
+ * Central message broker that processes clean text from every channel surface.
+ * Gateways only forward the message and provide the reply callback.
  */
 export class CoreOrchestrator implements IMessageBroker {
   private gateways: Map<PlatformKey, PlatformGatewayContract> = new Map();
@@ -75,7 +73,7 @@ export class CoreOrchestrator implements IMessageBroker {
 
   public registerGateway(platform: PlatformKey, gateway: PlatformGatewayContract): void {
     this.gateways.set(platform, gateway);
-    this.logRepo.log('info', 'CoreOrchestrator', `Gateway registrada: ${platform}`);
+    this.logRepo.log('info', 'CoreOrchestrator', `Gateway registered: ${platform}`);
   }
 
   public attachSurfaceTaskDispatcher(dispatcher: SurfaceTaskDispatcherLike): void {
@@ -87,29 +85,28 @@ export class CoreOrchestrator implements IMessageBroker {
   }
 
   /**
-   * Conecta o ContextEngine ao Orchestrador.
-   * Chamado durante o bootstrap para habilitar a memória conversacional unificada.
+   * Connects ContextEngine to the orchestrator during bootstrap.
    */
   public attachContextEngine(engine: ContextEngine): void {
     this.contextEngine = engine;
-    this.logRepo.log('info', 'CoreOrchestrator', 'ContextEngine conectado ao Orchestrador.');
+    this.logRepo.log('info', 'CoreOrchestrator', 'ContextEngine connected to CoreOrchestrator.');
   }
 
   public attachLegacyUnifiedGatewayAdapter(
     gateway: Pick<LegacyUnifiedGatewayAdapter, 'recordEvent' | 'handleEvent'>,
   ): void {
     this.legacyUnifiedGateway = gateway;
-    this.logRepo.log('info', 'CoreOrchestrator', 'LegacyUnifiedGatewayAdapter conectado como fallback de ingresso.');
+    this.logRepo.log('info', 'CoreOrchestrator', 'LegacyUnifiedGatewayAdapter connected as ingress fallback.');
   }
 
   public attachAgentGateway(gateway: Pick<ZavorthAgentGateway, 'handle'> | null): void {
     this.agentGateway = gateway;
-    this.logRepo.log('info', 'CoreOrchestrator', 'ZavorthAgentGateway conectado como ingresso natural canonico.');
+    this.logRepo.log('info', 'CoreOrchestrator', 'ZavorthAgentGateway connected as canonical natural ingress.');
   }
 
   public attachEchoOutputStage(stage: Pick<EchoOutputStageService, 'deliver'> | null): void {
     this.echoOutputStage = stage;
-    this.logRepo.log('info', 'CoreOrchestrator', 'EchoOutputStage conectado ao barramento de saida.');
+    this.logRepo.log('info', 'CoreOrchestrator', 'EchoOutputStage connected to the output bus.');
   }
 
   public async processMessage(ctx: IMessageContext): Promise<void> {
@@ -127,14 +124,14 @@ export class CoreOrchestrator implements IMessageBroker {
       }
     }
 
-    this.logRepo.log('info', 'CoreOrchestrator', `Processando mensagem de ${ctx.platform} (User: ${ctx.userId}): ${ctx.rawText.substring(0, 50)}`);
+    this.logRepo.log('info', 'CoreOrchestrator', `Processing message from ${ctx.platform} (User: ${ctx.userId}): ${ctx.rawText.substring(0, 50)}`);
     if (await this.tryHandleNaturalMessageThroughAgentGateway(ctx, rawText)) {
       return;
     }
 
     const shouldUseLegacyUnifiedGatewayIngress = this.shouldUseLegacyUnifiedGatewayIngress(ctx, rawText);
 
-    // === CONTEXT ENGINE: Alimentar memória conversacional ===
+    // === CONTEXT ENGINE: feed conversational memory ===
     if ((this.legacyUnifiedGateway || this.contextEngine) && rawText && !shouldUseLegacyUnifiedGatewayIngress) {
       const event = {
         id: randomUUID(),
@@ -154,7 +151,7 @@ export class CoreOrchestrator implements IMessageBroker {
     }
     // === END CONTEXT ENGINE ===
 
-    // === NATURAL LANGUAGE ROUTER: Classificação de intenção ===
+    // === NATURAL LANGUAGE ROUTER: intent classification ===
     if (rawText && !rawText.startsWith('/')) {
       const route = this.naturalRouter.route(rawText);
       this.logRepo.log(
@@ -163,13 +160,13 @@ export class CoreOrchestrator implements IMessageBroker {
         `[${ctx.platform}] Intent: ${route.intentCategory} | Trivial: ${route.isTrivialChat} | FastModel: ${route.useFastModel} | ${route.firewallStats}`,
       );
 
-      // Enriquecer o contexto com a classificação para uso downstream
-      (ctx as any).__naturalRoute = route;
+      // Enrich context with classification for downstream use
+      ctx.__naturalRoute = route;
     }
     // === END NATURAL LANGUAGE ROUTER ===
     
     if (ctx.rawText === '/ping') {
-      await ctx.reply(`Soberano respondendo via ${ctx.platform}! Pong!`);
+      await ctx.reply(`Sovereign responding through ${ctx.platform}! Pong!`);
       return;
     }
 
@@ -208,13 +205,13 @@ export class CoreOrchestrator implements IMessageBroker {
     }
 
     await this.surfaceTaskDispatcher.dispatchTaskMessage({
-      ctx,
+      ctx: ctx as unknown as SurfaceControllerContext,
       platform: ctx.platform,
       chatId: ctx.chatId,
       text: rawText || ctx.rawText,
       sourceUserId: ctx.userId,
       fallbackRuntimeUserId: ctx.userId,
-      source: ctx.platform as any,
+      source: ctx.platform as TaskSource,
       composerPayload: ctx.composerPayload || null,
       inlineData: ctx.inlineData,
       identity: this.resolveSurfaceIdentityHints(ctx.platform),
@@ -375,14 +372,14 @@ export class CoreOrchestrator implements IMessageBroker {
       return false;
     }
 
-    if (!(ctx as any).__naturalRoute) {
+    if (!ctx.__naturalRoute) {
       const route = this.naturalRouter.route(text);
       this.logRepo.log(
         'info',
         'NaturalRouter',
         `[${ctx.platform}] Intent: ${route.intentCategory} | Trivial: ${route.isTrivialChat} | FastModel: ${route.useFastModel} | ${route.firewallStats}`,
       );
-      (ctx as any).__naturalRoute = route;
+      ctx.__naturalRoute = route;
     }
 
     const channel = this.resolveUniversalAgentChannel(ctx.platform);
@@ -428,7 +425,7 @@ export class CoreOrchestrator implements IMessageBroker {
           inlineDataCount: ctx.inlineData?.length || 0,
           nativeCommand: ctx.nativeCommand || null,
           composerPayload: ctx.composerPayload || null,
-          naturalRoute: (ctx as any).__naturalRoute || null,
+          naturalRoute: ctx.__naturalRoute || null,
           responseDecision,
           artifactPolicy: responseDecision.artifactPolicy,
           legacyUnifiedGatewayAvailable: Boolean(this.legacyUnifiedGateway),
@@ -463,13 +460,13 @@ export class CoreOrchestrator implements IMessageBroker {
   ): UniversalAgentExecutor {
     return async ({ run }) => {
       const dispatchResult = await this.surfaceTaskDispatcher!.dispatchTaskMessage({
-        ctx,
+        ctx: ctx as unknown as SurfaceControllerContext,
         platform: ctx.platform,
         chatId: ctx.chatId,
         text,
         sourceUserId: ctx.userId,
         fallbackRuntimeUserId: ctx.userId,
-        source: ctx.platform as any,
+        source: ctx.platform as TaskSource,
         sessionId: this.resolveAgentSessionId(ctx),
         threadId: ctx.threadId || null,
         composerPayload: ctx.composerPayload || null,

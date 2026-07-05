@@ -7,6 +7,10 @@ import type { ModeEscalationSnapshot } from '../../../../contracts/ModeEscalatio
 import { WebAppGatewayControlService } from './WebAppGatewayControlService.js';
 import { WebAppRuntimeOperationsRouteService } from './WebAppRuntimeOperationsRouteService.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
+import type {
+  UniversalAgentRunStatus,
+  ZavorthAgentGatewaySnapshotOptions,
+} from '../../../../runtime/agent/index.js';
 import {
   buildWebAppRuntimeEmptyMemoryRecall,
   buildWebAppRuntimeProductMode,
@@ -25,6 +29,16 @@ interface AgentRunQuery {
 interface AgentRuntimeSnapshotOptions extends AgentRunQuery {
   activeSessionId?: string | null;
 }
+
+const AGENT_RUN_STATUSES = new Set<UniversalAgentRunStatus>([
+  'queued',
+  'thinking',
+  'running',
+  'waiting_approval',
+  'completed',
+  'failed',
+  'cancelled',
+]);
 
 interface ApprovalPlaneEntry {
   status?: string;
@@ -280,15 +294,15 @@ export class WebAppRuntimeCanonicalStateService {
       productMode,
       modeEscalation,
       uiSurfaceHints,
-      memoryPlane: bundle.gateway?.memoryPlane || await deps.buildMemoryPlaneSnapshot(sessionId),
+      memoryPlane: (bundle.gateway?.memoryPlane || await deps.buildMemoryPlaneSnapshot(sessionId)) as GatewayCanonicalStatePayload['memoryPlane'],
       memoryRecall,
       controlPlane: bundle.gateway?.controlPlane || null,
       sessionPlane:
         options.sessionPlaneMode === 'none'
           ? null
           : options.sessionPlaneMode === 'summary'
-            ? await deps.buildSessionPlaneStatusSummary(sessionId)
-            : await deps.buildSessionPlaneSnapshot(sessionId),
+            ? await deps.buildSessionPlaneStatusSummary(sessionId) as GatewayCanonicalStatePayload['sessionPlane']
+            : await deps.buildSessionPlaneSnapshot(sessionId) as GatewayCanonicalStatePayload['sessionPlane'],
       approvalPlane,
       capabilityPlane,
       artifactPlane,
@@ -303,7 +317,7 @@ export class WebAppRuntimeCanonicalStateService {
   private buildAgentRuntimeSnapshotOptions(
     sessionId: string,
     agentRunQuery: AgentRunQuery | null | undefined,
-  ): AgentRuntimeSnapshotOptions {
+  ): ZavorthAgentGatewaySnapshotOptions {
     const query = agentRunQuery || {};
     const hasDirectRunQuery = Boolean(
       query.activeRunId
@@ -312,7 +326,10 @@ export class WebAppRuntimeCanonicalStateService {
     );
 
     return {
-      ...query,
+      activeRunId: stringOrNull(query.activeRunId),
+      activeTraceId: stringOrNull(query.activeTraceId),
+      runStatus: normalizeAgentRunStatus(query.runStatus),
+      runLimit: numberOrNull(query.runLimit),
       activeSessionId: hasDirectRunQuery ? null : sessionId,
     };
   }
@@ -369,9 +386,9 @@ export class WebAppRuntimeCanonicalStateService {
       return null;
     }
     return {
-      generatedAt: snapshot.generatedAt,
-      status: snapshot.host?.pressure || 'unknown',
-      host: snapshot.host || null,
+      generatedAt: stringOrUndefined(snapshot.generatedAt),
+      status: String(asRecord(snapshot.host)?.pressure || 'unknown'),
+      host: asRecord(snapshot.host),
       signals: snapshot.signals || null,
       totals: snapshot.totals || null,
       groups: Array.isArray(snapshot.groups) ? snapshot.groups : [],
@@ -398,7 +415,9 @@ export class WebAppRuntimeCanonicalStateService {
       status: Array.isArray(snapshot.companions) && snapshot.companions.some((entry) => entry.status === 'running')
         ? 'active'
         : 'idle',
-      companions: Array.isArray(snapshot.companions) ? snapshot.companions : [],
+      companions: Array.isArray(snapshot.companions)
+        ? snapshot.companions.map(asCompanionEntry).filter((entry): entry is CompanionEntry => Boolean(entry))
+        : [],
       warnings: Array.isArray(snapshot.warnings) ? snapshot.warnings : [],
       recommendations: Array.isArray(snapshot.recommendations) ? snapshot.recommendations : [],
       commands: {
@@ -576,5 +595,36 @@ export class WebAppRuntimeCanonicalStateService {
 
     return recommendations.slice(0, 12);
   }
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function stringOrUndefined(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+function numberOrNull(value: unknown): number | null {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : null;
+}
+
+function normalizeAgentRunStatus(value: unknown): UniversalAgentRunStatus | undefined {
+  const status = stringOrNull(value);
+  return status && AGENT_RUN_STATUSES.has(status as UniversalAgentRunStatus)
+    ? status as UniversalAgentRunStatus
+    : undefined;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function asCompanionEntry(value: unknown): CompanionEntry | null {
+  const record = asRecord(value);
+  return record ? record as CompanionEntry : null;
 }
 

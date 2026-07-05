@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { config } from '@zavorth/config/index.js';
-import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { config } from '../config/index.js';
+import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import {
   ZAVORTH_SUBAGENT_RUNTIME_CONTRACT_VERSION,
   type ZavorthSubagentRuntimeAction,
@@ -24,55 +24,56 @@ import {
   type ZavorthSubagentRuntimeWorkerResult,
   type ZavorthSubagentDynamicConfigSettings,
   type ZavorthSubagentRuntimeWorkboardProjection,
-} from '@zavorth/contracts/runtime/ZavorthSubagentRuntimeContract.js';
-import type { ZavorthSubagentAutoInvocationTelemetry } from '@zavorth/contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
+} from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
+import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
 import {
   ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION,
   type ZavorthInvocationReceipt,
   type ZavorthInvocationReceiptKind,
   type ZavorthInvocationReceiptStatus,
-} from '@zavorth/contracts/runtime/ZavorthInvocationReceiptContract.js';
+} from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
 import type {
   ZavorthGovernedSubagentProfile,
   ZavorthGovernedSubagentProfileId,
-} from '@zavorth/contracts/runtime/ZavorthGovernedSubagentContract.js';
+} from '../contracts/runtime/ZavorthGovernedSubagentContract.js';
 import {
   decideSecurityPolicy,
   type SecurityPolicyBrokerDecision,
   type SecurityPolicyBrokerRequest,
-} from '@zavorth/security/SecurityPolicyBroker.js';
-import type { SecurityProfileId } from '@zavorth/security/SecurityProfile.js';
+} from '../security/SecurityPolicyBroker.js';
+import type { SecurityProfileId } from '../security/SecurityProfile.js';
 import {
   createSubagentApprovalBoundary,
   createSubagentBudget,
   createSubagentCapabilityScope,
   createSubagentResultReceipt,
   type SubagentResultReceipt,
-} from '@zavorth/runtime/agent/subagents/index.js';
-import { ZavorthGovernedSubagentService } from '@zavorth/services/ZavorthGovernedSubagentService.js';
+} from '../runtime/agent/subagents/index.js';
+import { ZavorthGovernedSubagentService } from '../services/ZavorthGovernedSubagentService.js';
 import {
   ZavorthLiveSubagentExecutionService,
   type ZavorthLiveSubagentExecutionResult,
-} from '@zavorth/services/ZavorthLiveSubagentExecutionService.js';
+} from '../services/ZavorthLiveSubagentExecutionService.js';
 import {
   buildAutoInvocationZavorthControlProjection,
   normalizeAutoInvocation,
-} from '@zavorth/services/ZavorthSubagentRuntimeTelemetrySupport.js';
+} from '../services/ZavorthSubagentRuntimeTelemetrySupport.js';
 import {
   AUTO_SUBAGENT_DECISION_LABEL,
   formatSubagentRuntimeSnapshotText,
-} from '@zavorth/services/ZavorthSubagentRuntimePresenter.js';
-import { buildSubagentIdentity } from '@zavorth/services/ZavorthSubagentIdentityService.js';
+} from '../services/ZavorthSubagentRuntimePresenter.js';
+import { buildSubagentIdentity } from '../services/ZavorthSubagentIdentityService.js';
 import {
   compareSubagentRunsByActivity,
   compareSubagentSessionsByActivity,
   isLatestSubagentReference,
-} from '@zavorth/services/ZavorthSubagentRuntimeStateSelectors.js';
+} from '../services/ZavorthSubagentRuntimeStateSelectors.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthSubagentBoardService,
+ZavorthSubagentBoardService,
   type ZavorthSubagentBoardSnapshot,
   type ZavorthSubagentBoardTask,
-} from '@zavorth/services/ZavorthSubagentBoardService.js';
+} from '../services/ZavorthSubagentBoardService.js';
 
 type DecideSecurityPolicy = (
   request: SecurityPolicyBrokerRequest,
@@ -1606,9 +1607,10 @@ export class ZavorthSubagentRuntimeService {
       } finally {
         board.close();
       }
-    } catch {
-      snapshot = null;
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Subagent Runtime] resource cleanup failed', error);
+    snapshot = null;
+  }
     const sessions = (snapshot?.sessions || []).map((session) => ({
       sessionId: session.sessionId,
       objective: session.objective,
@@ -1806,9 +1808,10 @@ export class ZavorthSubagentRuntimeService {
           : [],
         batchRuns: positiveInteger((parsed as Partial<StoredState>).batchRuns, 0),
       };
-    } catch {
-      return emptyState();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Subagent Runtime] parsing failed', error);
+    return emptyState();
+  }
   }
 
   private persistIfNeeded(state: StoredState, input: ZavorthSubagentRuntimeCommandInput): void {

@@ -2,24 +2,24 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import { WorkspaceFsPolicy } from './workspace/WorkspaceFsPolicy.js';
+import { logger } from '../logger.js';
 
 /**
- * CreateFileTool - Cria arquivos no filesystem local.
- * Valida que o path esta dentro de diretorios seguros.
+ * Creates files on the local filesystem inside safe directories.
  */
 export class CreateFileTool extends BaseTool {
   readonly name = 'create_file';
-  readonly description = 'Cria um arquivo no sistema de arquivos local com o conteudo especificado. Use para gerar documentos, specs, codigo ou qualquer arquivo de texto.';
+  readonly description = 'Creates a file on the local filesystem with the specified content. Use it to generate documents, specs, code, or any text file.';
   readonly parameters = {
     type: 'object' as const,
     properties: {
       filepath: {
         type: 'string',
-        description: 'Caminho relativo do arquivo a ser criado (ex: output/meu-documento.md)',
+        description: 'Relative path of the file to create, for example output/my-document.md.',
       },
       content: {
         type: 'string',
-        description: 'Conteudo do arquivo a ser criado',
+        description: 'Content of the file to create.',
       },
     },
     required: ['filepath', 'content'],
@@ -30,7 +30,7 @@ export class CreateFileTool extends BaseTool {
     const content = args.content as string;
 
     if (!filepath || content === undefined) {
-      return JSON.stringify({ error: 'Parametros "filepath" e "content" sao obrigatorios.' });
+      return JSON.stringify({ error: 'Parameters "filepath" and "content" are required.' });
     }
 
     const policy = new WorkspaceFsPolicy();
@@ -40,9 +40,10 @@ export class CreateFileTool extends BaseTool {
     try {
       resolvedPolicy = policy.resolveWritePath(filepath);
       fullPath = resolvedPolicy.absolutePath;
-    } catch {
-      return JSON.stringify({ error: 'Por seguranca, arquivos so podem ser criados dentro da pasta output/.' });
-    }
+    } catch (error) {
+    logger.warn('[Create File] serialization failed', error);
+    return JSON.stringify({ error: 'For security, files can only be created inside the output/ folder.' });
+  }
 
     try {
       const dir = path.dirname(fullPath);
@@ -54,7 +55,7 @@ export class CreateFileTool extends BaseTool {
 
       return JSON.stringify({
         success: true,
-        message: `Arquivo criado com sucesso: ${filepath}`,
+        message: `File created successfully: ${filepath}`,
         path: fullPath,
         size: `${Buffer.byteLength(content, 'utf-8')} bytes`,
         policy: {
@@ -63,8 +64,9 @@ export class CreateFileTool extends BaseTool {
         },
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      return JSON.stringify({ error: `Falha ao criar arquivo: ${errorMessage}` });
-    }
+    logger.warn('[Create File] filesystem operation failed', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+      return JSON.stringify({ error: `Failed to create file: ${errorMessage}` });
+  }
   }
 }

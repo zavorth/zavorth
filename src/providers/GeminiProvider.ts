@@ -8,6 +8,7 @@ import {
   GoogleGenerativeAI,
   RequestOptions,
   SchemaType,
+  type Schema,
 } from '@google/generative-ai';
 import { config } from '../config/index.js';
 import {
@@ -97,7 +98,7 @@ export class GeminiProvider implements ILlmProvider {
       try {
         const model = currentClient.getGenerativeModel({
           model: modelName,
-          tools: this.buildGeminiTools(tools, options),
+          tools: this.buildGeminiTools(tools, options) as any,
         }, this.requestOptions);
 
         const request = {
@@ -189,17 +190,17 @@ export class GeminiProvider implements ILlmProvider {
       try {
         const model = currentClient.getGenerativeModel({
           model: modelName,
-          tools: this.buildGeminiTools(tools, options),
+          tools: this.buildGeminiTools(tools, options) as any,
         }, this.requestOptions);
 
         const request = {
           contents,
           systemInstruction: systemInstruction || undefined,
         };
-        const result: GenerateContentStreamResult = await (model as { generateContentStream: typeof model.generateContent }).generateContentStream(
+        const result = await (model as any).generateContentStream(
           request,
           options?.signal ? { signal: options.signal } : undefined,
-        );
+        ) as GenerateContentStreamResult;
 
         if (attempt > 0) {
           logger.info(
@@ -482,8 +483,9 @@ export class GeminiProvider implements ILlmProvider {
           ...(this.buildProviderNativeMetadata(candidate, fallback.options) || {}),
         },
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Gemini] creation failed', error);
+    return {
         content: fallback.accumulated || null,
         toolCalls: fallback.toolCalls,
         finishReason: fallback.finishReason,
@@ -493,13 +495,13 @@ export class GeminiProvider implements ILlmProvider {
           ...(fallback.metadata || {}),
         },
       };
-    }
+  }
   }
 
   private buildGeminiTools(tools?: ToolDefinition[], options?: ProviderChatOptions): GeminiNativeTool[] | undefined {
     const output: GeminiNativeTool[] = [];
     if (tools && tools.length > 0) {
-      output.push({ functionDeclarations: tools.map((tool) => this.convertTool(tool)) });
+      output.push({ functionDeclarations: tools.map((tool) => this.convertTool(tool)) as any });
     }
     if (this.shouldEnableGoogleSearch(options)) {
       output.push({ googleSearch: {} });
@@ -513,7 +515,7 @@ export class GeminiProvider implements ILlmProvider {
   private buildGeminiRestNativeTools(tools?: ToolDefinition[], options?: ProviderChatOptions): GeminiRestNativeTool[] {
     const output: GeminiRestNativeTool[] = [];
     if (tools && tools.length > 0) {
-      output.push({ function_declarations: tools.map((tool) => this.convertTool(tool)) });
+      output.push({ function_declarations: tools.map((tool) => this.convertTool(tool)) as any });
     }
     if (this.shouldEnableGoogleSearch(options)) {
       output.push({ google_search: {} });
@@ -651,7 +653,7 @@ export class GeminiProvider implements ILlmProvider {
   }
 
   private convertTool(tool: ToolDefinition): FunctionDeclaration {
-    const properties: Record<string, Record<string, unknown>> = {};
+    const properties: Record<string, any> = {};
 
     for (const [key, param] of Object.entries(tool.parameters.properties)) {
       properties[key] = this.convertSchema(param as unknown as Record<string, unknown>);
@@ -668,9 +670,9 @@ export class GeminiProvider implements ILlmProvider {
     };
   }
 
-  private convertSchema(schema: Record<string, unknown>): Record<string, unknown> {
+  private convertSchema(schema: Record<string, unknown>): any {
     const type = String(schema.type || 'string');
-    const converted: Record<string, unknown> = {
+    const converted: any = {
       type: this.mapSchemaType(type),
     };
 

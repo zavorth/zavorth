@@ -12,6 +12,7 @@ import { ZavorthHubControlPlaneService } from '../../../../services/ZavorthHubCo
 import { ZavorthEcosystemControlPlaneService } from '../../../../services/ZavorthEcosystemControlPlaneService.js';
 import { ZavorthEvalControlPlaneService } from '../../../../services/ZavorthEvalControlPlaneService.js';
 import { ZavorthRolloutReadinessControlPlaneService } from '../../../../services/ZavorthRolloutReadinessControlPlaneService.js';
+import { logger } from '../../../../logger';
 
 export type ZavorthControlOperationsOverviewSnapshotDeps = {
   workspaceRoot: string;
@@ -396,18 +397,14 @@ export class ZavorthControlOperationsOverviewSnapshotService {
     try {
       const value = reader();
       return value === undefined || value === null ? fallback : value;
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Zavorth Control Operations Overview Snapshot] operation failed', error); return fallback; }
   }
 
   private async safeAsync<T>(reader: () => Promise<T> | T, fallback: T): Promise<T> {
     try {
       const value = await reader();
       return value === undefined || value === null ? fallback : value;
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Zavorth Control Operations Overview Snapshot] operation failed', error); return fallback; }
   }
 }
 

@@ -103,7 +103,7 @@ export function createGatewaySurfaceTemplate(input: GatewaySurfaceTemplateInput)
     },
     degradedMode: {
       supported: true,
-      summary: 'Sem credencial configurada, a gateway permanece disabled e nao aceita mutacoes.',
+      summary: 'Without a configured credential, the gateway remains disabled and does not accept mutations.',
     },
     docs: {
       operatorGuide: input.operatorGuide || 'docs/product-direction.md',

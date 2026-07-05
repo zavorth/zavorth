@@ -3,8 +3,9 @@ import type { ChildProcess } from 'child_process';
 import { config } from '../../../config/index.js';
 import { execNativeCommandSync, spawnNativeCommand } from '../../../core/CommandSpawn.js';
 import type { SandboxRequest, SandboxResult } from '../ISandboxRuntime.js';
+import { logger } from '../../../logger.js';
 import {
-  buildWslBaseArgs,
+buildWslBaseArgs,
   buildWslEnvParts,
   buildWslReadyStatus,
   buildWslUnavailableStatus,
@@ -81,7 +82,8 @@ export function getWslStatus(wslProjectRoot: string | null): FirecrackerSandboxS
       };
       return status;
     }
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[Firecracker Sandbox Wsl Bridge] cache operation failed', error);
     return buildWslUnavailableStatus(`[FirecrackerSandbox] Ponte WSL indisponivel: ${error.message}`);
   }
 
@@ -360,15 +362,11 @@ function resetWslBridgeIdleTimer(): void {
 
     try {
       current.child.stdin?.end();
-    } catch {
-      // ignore
-    }
+    } catch (error) { // ignore logger.warn('[Firecracker Sandbox Wsl Bridge] cache operation failed', error); }
 
     try {
       current.child.kill('SIGTERM');
-    } catch {
-      // ignore
-    }
+    } catch (error) { // ignore logger.warn('[Firecracker Sandbox Wsl Bridge] operation failed', error); }
 
     wslBridge = null;
   }, config.firecrackerWslBridgeIdleMs);

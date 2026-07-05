@@ -44,7 +44,7 @@ export class PtySessionService {
   constructor(
     private hostPowerModeService: HostPowerModeService = HostPowerModeService.getInstance(),
     private approvalService: PtySessionApprovalService = new PtySessionApprovalService(),
-    private logger: SecurityAuditLogger = new SecurityAuditLogger(new LogRepository()),
+    private auditLogger: SecurityAuditLogger = new SecurityAuditLogger(new LogRepository()),
     private mandateService?: WorkspaceTaskMandateService
   ) {
     try {
@@ -145,7 +145,7 @@ export class PtySessionService {
       this.terminateSession(sessionId, workspaceId);
     });
 
-    this.logger.logWorkspaceEvent({
+    this.auditLogger.logWorkspaceEvent({
       event: 'pty_session_started',
       workspaceId,
       metadata: { sessionId, shell: pendingData.shell }
@@ -184,7 +184,7 @@ export class PtySessionService {
     this.sessionSequenceNumbers.set(sessionId, seq);
 
     if (truncated) {
-      this.logger.logWorkspaceEvent({
+      this.auditLogger.logWorkspaceEvent({
         event: 'pty_output_truncated',
         workspaceId: 'system', // we might not easily have workspaceId here unless we store it
         metadata: { sessionId }
@@ -217,9 +217,7 @@ export class PtySessionService {
     if (ptyProcess) {
       try {
         ptyProcess.kill();
-      } catch (e) {
-        // ignore kill errors
-      }
+      } catch (error) { // ignore kill errors logger.warn('[Pty Session] operation failed', error); }
       this.activeSessions.delete(sessionId);
     }
     this.sessionOutputBuffers.delete(sessionId);
@@ -233,7 +231,7 @@ export class PtySessionService {
 
     await this.approvalService.updateSessionStatus(sessionId, 'terminated');
 
-    this.logger.logWorkspaceEvent({
+    this.auditLogger.logWorkspaceEvent({
       event: 'pty_session_terminated',
       workspaceId,
       metadata: { sessionId }
@@ -248,7 +246,7 @@ export class PtySessionService {
         await this.terminateSession(s, workspaceId);
       }
     }
-    this.logger.logWorkspaceEvent({
+    this.auditLogger.logWorkspaceEvent({
       event: 'pty_session_terminated_due_to_host_power_disabled',
       workspaceId
     });

@@ -17,6 +17,7 @@ import {
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 import { providerModelMutationSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 function normalizeRequestedModelIds(
   searchParams: URLSearchParams,
@@ -54,7 +55,8 @@ export async function GET(request) {
     const modelCompatOverrides = provider ? getModelCompatOverrides(provider) : [];
 
     return Response.json({ models, modelCompatOverrides });
-  } catch {
+  } catch (error) {
+    logger.warn('[route] search failed', error);
     return Response.json(
       { error: { message: "Failed to fetch provider models", type: "server_error" } },
       { status: 500 }
@@ -70,7 +72,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return Response.json(
       { error: { message: "Invalid JSON body", type: "validation_error" } },
       { status: 400 }
@@ -118,7 +121,8 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return Response.json(
       { error: { message: "Invalid JSON body", type: "validation_error" } },
       { status: 400 }
@@ -249,7 +253,8 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return Response.json(
       { error: { message: "Invalid JSON body", type: "validation_error" } },
       { status: 400 }

@@ -326,19 +326,18 @@ export class SwarmOrchestrator extends EventEmitter {
     }
 
     try {
-      const prompt = `Você é o Coordenador final de um Swarm (Enxame de Agentes).
-O objetivo original da missão era: "${this.objective}"
+      const prompt = `You are the final coordinator of a Swarm.
+The original mission objective was: "${this.objective}"
 
-Aqui estão os relatórios brutos de cada agente que trabalhou em paralelo:
+Here are the raw reports from each agent that worked in parallel:
 ${rawOutput}
 
-Sua tarefa é sintetizar esses resultados em uma única resposta coesa, de alta qualidade e focada em resolver o objetivo original. Remova ruídos de shell, una os fatos descobertos e os códigos produzidos. Se houver falhas relatadas, indique e sugira por que falharam. Retorne a resposta em Markdown formatado corretamente.`;
-
+Synthesize these results into a single cohesive, high-quality answer focused on resolving the original objective. Remove shell noise, merge discovered facts and produced code, and explain any reported failures with likely causes. Return a properly formatted Markdown response.`;
       const result = await this.options.llmRuntime.chat([{ role: 'user', content: prompt }]);
       return result.content?.trim() || rawOutput;
     } catch (err) {
       // Fallback in case of LLM failure
-      return `[Sumarização por LLM falhou, exibindo log bruto]:\n\n${rawOutput}`;
+      return `[LLM summarization failed; showing raw log]:\n\n${rawOutput}`;
     }
   }
 }

@@ -39,9 +39,7 @@ if (logToFile) {
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }
-  } catch {
-    // silently ignore — will retry on each write
-  }
+  } catch (error) { // silently ignore — will retry on each write logger.warn('[structured Logger] filesystem operation failed', error); }
 }
 
 /**
@@ -51,9 +49,7 @@ function writeToFile(entry: Record<string, unknown>) {
   if (!logToFile) return;
   try {
     appendFileSync(logFilePath, JSON.stringify(entry) + "\n");
-  } catch {
-    // Silently fail — file logging should never break the app
-  }
+  } catch (error) { // Silently fail — file logging should never break the app logger.warn('[structured Logger] filesystem operation failed', error); }
 }
 
 function formatEntry(

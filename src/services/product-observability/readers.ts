@@ -72,31 +72,58 @@ export function matchesWorkflowScope(run: WorkflowRunSnapshot, scope: ProductObs
   return true;
 }
 
+export interface ApprovalHistoryEntry {
+  action?: string;
+  at?: string;
+  required_high_risk_pin?: boolean;
+}
+
+export interface PermissionHistoryEntry {
+  action?: string;
+  at?: string;
+}
+
+export interface CheckpointEntry {
+  event?: string;
+}
+
+export interface ArtifactEntry {
+  created_at?: string;
+  createdAt?: string;
+}
+
 export function isHighRiskTask(task: Task): boolean {
   const metadata = toRecord(task.metadata);
   const posture = toRecord(metadata.security_posture);
   const approvalHistory = Array.isArray(metadata.approval_history) ? metadata.approval_history : [];
   return posture.high_risk_confirmation_required === true
-    || approvalHistory.some((entry: any) => entry?.required_high_risk_pin === true);
+    || approvalHistory.some((entry: ApprovalHistoryEntry) => entry?.required_high_risk_pin === true);
 }
 
-export function collectGateDecisionTimes(approvalHistory: any[], permissionHistory: any[]): number[] {
+export function collectGateDecisionTimes(
+  approvalHistory: ApprovalHistoryEntry[],
+  permissionHistory: PermissionHistoryEntry[],
+): number[] {
   return [
     ...approvalHistory
-      .filter((entry: any) => String(entry?.action || '').trim().toLowerCase() === 'approve')
-      .map((entry: any) => Date.parse(String(entry?.at || ''))),
+      .filter((entry: ApprovalHistoryEntry) => String(entry?.action || '').trim().toLowerCase() === 'approve')
+      .map((entry: ApprovalHistoryEntry) => Date.parse(String(entry?.at || ''))),
     ...permissionHistory
-      .filter((entry: any) => {
+      .filter((entry: PermissionHistoryEntry) => {
         const action = String(entry?.action || '').trim().toLowerCase();
         return action === 'grant' || action === 'approve';
       })
-      .map((entry: any) => Date.parse(String(entry?.at || ''))),
+      .map((entry: PermissionHistoryEntry) => Date.parse(String(entry?.at || ''))),
   ]
     .filter((value) => Number.isFinite(value))
     .sort((left, right) => left - right);
 }
 
-export function computeApprovalWaitMs(task: Task, approvalHistory: any[], permissionHistory: any[]): number {
+export function computeApprovalWaitMs(
+  task: Task,
+  approvalHistory: ApprovalHistoryEntry[],
+  permissionHistory: PermissionHistoryEntry[],
+): number {
   const createdAtMs = Date.parse(String(task.created_at || ''));
   if (!Number.isFinite(createdAtMs)) {
     return 0;
@@ -116,7 +143,11 @@ export function computeApprovalWaitMs(task: Task, approvalHistory: any[], permis
   return Math.max(0, Math.round(referenceMs - createdAtMs));
 }
 
-export function computePostApprovalRecoveryMs(task: Task, approvalHistory: any[], permissionHistory: any[]): number {
+export function computePostApprovalRecoveryMs(
+  task: Task,
+  approvalHistory: ApprovalHistoryEntry[],
+  permissionHistory: PermissionHistoryEntry[],
+): number {
   const gateTimes = collectGateDecisionTimes(approvalHistory, permissionHistory);
   const finalGateAt = gateTimes.length > 0 ? gateTimes[gateTimes.length - 1] : NaN;
   const finishedAtMs = Date.parse(String(task.updated_at || ''));
@@ -127,7 +158,11 @@ export function computePostApprovalRecoveryMs(task: Task, approvalHistory: any[]
   return Math.max(0, Math.round(finishedAtMs - finalGateAt));
 }
 
-export function computeArtifactDeliveryAfterApprovalMs(task: Task, approvalHistory: any[], permissionHistory: any[]): number {
+export function computeArtifactDeliveryAfterApprovalMs(
+  task: Task,
+  approvalHistory: ApprovalHistoryEntry[],
+  permissionHistory: PermissionHistoryEntry[],
+): number {
   const gateTimes = collectGateDecisionTimes(approvalHistory, permissionHistory);
   const finalGateAt = gateTimes.length > 0 ? gateTimes[gateTimes.length - 1] : NaN;
   if (!Number.isFinite(finalGateAt)) {
@@ -135,7 +170,7 @@ export function computeArtifactDeliveryAfterApprovalMs(task: Task, approvalHisto
   }
 
   const artifactTimes = (Array.isArray(task.artifacts) ? task.artifacts : [])
-    .map((artifact: any) => Date.parse(String(artifact?.created_at || artifact?.createdAt || '')))
+    .map((artifact: ArtifactEntry) => Date.parse(String(artifact?.created_at || artifact?.createdAt || '')))
     .filter((value) => Number.isFinite(value) && value >= finalGateAt)
     .sort((left, right) => left - right);
   if (artifactTimes.length > 0) {
@@ -149,5 +184,5 @@ export function isRecoveredWorkflow(run: WorkflowRunSnapshot): boolean {
   const checkpoints = Array.isArray(run.externalized_state?.recent_checkpoints)
     ? run.externalized_state?.recent_checkpoints
     : [];
-  return checkpoints.some((checkpoint: any) => String(checkpoint?.event || '').trim().toLowerCase() === 'stage_interrupted');
+  return checkpoints.some((checkpoint: CheckpointEntry) => String(checkpoint?.event || '').trim().toLowerCase() === 'stage_interrupted');
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { logger } from '@/shared/utils/logger';
 
 export type AgentState = "idle" | "thinking" | "streaming";
 
@@ -170,9 +171,7 @@ export function useAgentStream() {
                   }
                 }
               }
-            } catch {
-              // Ignore malformed SSE chunks
-            }
+            } catch (error) { // Ignore malformed SSE chunks logger.warn('[use Agent Stream] operation failed', error); }
           }
         }
       } catch (err: unknown) {

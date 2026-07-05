@@ -8,7 +8,7 @@ import type {
 } from './types.js';
 import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from '../WorkspaceTaskKind.js';
 
-export function applyApprovalFrictionPenalty(baseConfidence: number, friction: ApprovalFrictionRecommendation): number {
+export function applyApprovalFrictionPenalty(baseConfidence: number, friction: ApprovalFrictionRecommendation | null): number {
   if (!friction) {
     return baseConfidence;
   }
@@ -48,7 +48,7 @@ export function applyWorkflowFrictionPenalty(baseConfidence: number, friction: W
   return Math.max(0.24, Math.min(0.98, baseConfidence - Math.max(0, weight - recoveryOffset)));
 }
 
-export function appendApprovalFrictionRationale(base: string, friction: ApprovalFrictionRecommendation): string {
+export function appendApprovalFrictionRationale(base: string, friction: ApprovalFrictionRecommendation | null): string {
   if (!friction) {
     return base;
   }
@@ -67,7 +67,7 @@ export function appendApprovalFrictionRationale(base: string, friction: Approval
   return `${base} Ha friccao operacional recente com ${friction.executor} neste contexto (${details}).`;
 }
 
-export function shouldUseCheckpointedStyle(friction: ApprovalFrictionRecommendation): boolean {
+export function shouldUseCheckpointedStyle(friction: ApprovalFrictionRecommendation | null): boolean {
   if (!friction) {
     return false;
   }
@@ -95,7 +95,7 @@ export function shouldUseCheckpointedWorkflowStyle(friction: WorkflowFrictionRec
   return weight >= 2;
 }
 
-export function shouldBlockByApprovalFriction(friction: ApprovalFrictionRecommendation): boolean {
+export function shouldBlockByApprovalFriction(friction: ApprovalFrictionRecommendation | null): boolean {
   if (!friction) {
     return false;
   }
@@ -113,7 +113,7 @@ export function shouldBlockByApprovalFriction(friction: ApprovalFrictionRecommen
   return Number(friction.rejected_count || 0) >= 2 || weight >= 8;
 }
 
-export function shouldBlockByRouteOutcome(routeOutcome: RouteOutcomeAggregate): boolean {
+export function shouldBlockByRouteOutcome(routeOutcome: RouteOutcomeAggregate | null): boolean {
   if (!routeOutcome) {
     return false;
   }
@@ -164,8 +164,8 @@ export function buildBlockedExecutorReason(
   kind: WorkspaceTaskKind,
   subtype: WorkspaceTaskSubtype,
   surfaceSource: string | null,
-  findRouteOutcome: (routeOutcomes: RouteOutcomeAggregate[], executor: string, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype, surfaceSource: string | null) => RouteOutcomeAggregate,
-  findApprovalFriction: (recommendations: ApprovalFrictionRecommendation[], executor: string | null, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovalFrictionRecommendation,
+  findRouteOutcome: (routeOutcomes: RouteOutcomeAggregate[], executor: string, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype, surfaceSource: string | null) => RouteOutcomeAggregate | null,
+  findApprovalFriction: (recommendations: ApprovalFrictionRecommendation[], executor: string | null, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovalFrictionRecommendation | null,
 ): string | null {
   const routeOutcome = findRouteOutcome(routeOutcomes, executor, kind, subtype, surfaceSource);
   if (routeOutcome && shouldBlockByRouteOutcome(routeOutcome)) {
@@ -194,8 +194,8 @@ export function enrichCandidate(
     taskSubtype: WorkspaceTaskSubtype;
     surfaceSource: string | null;
   },
-  findRouteOutcome: (routeOutcomes: RouteOutcomeAggregate[], executor: string, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype, surfaceSource: string | null) => RouteOutcomeAggregate,
-  findApprovedPolicyBoost: (approvedPolicies: ApprovedPolicyAggregate[], executor: string, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovedPolicyAggregate,
+  findRouteOutcome: (routeOutcomes: RouteOutcomeAggregate[], executor: string, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype, surfaceSource: string | null) => RouteOutcomeAggregate | null,
+  findApprovedPolicyBoost: (approvedPolicies: ApprovedPolicyAggregate[], executor: string, kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovedPolicyAggregate | null,
 ): RoutingCandidate {
   const routeOutcome = findRouteOutcome(
     input.routeOutcomes,

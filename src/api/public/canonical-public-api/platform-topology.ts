@@ -74,7 +74,7 @@ export function readPlatformCatalog(
       generatedAt: new Date().toISOString(),
       sync: {
         status: 'disabled',
-        summary: 'Platform registry indisponivel neste runtime.',
+        summary: 'Platform registry unavailable in this runtime.',
         sourceTrusted: false,
         stale: false,
         entryCount: 0,
@@ -108,8 +108,8 @@ export function readPlatformCatalog(
       collections: [],
       recipes: [],
       narrative: {
-        headline: 'Platform registry indisponivel.',
-        operatorSummary: 'Nenhum item publico pode ser lido neste runtime.',
+        headline: 'Platform registry unavailable.',
+        operatorSummary: 'No public item can be read in this runtime.',
       },
     };
   }
@@ -193,7 +193,7 @@ export function readPlatformCatalog(
     })),
     narrative: {
       headline: snapshot.narrative?.headline || 'Platform catalog do Zavorth',
-      operatorSummary: snapshot.narrative?.operatorSummary || 'Catalogo publico pronto.',
+      operatorSummary: snapshot.narrative?.operatorSummary || 'Public catalog ready.',
     },
   };
 }

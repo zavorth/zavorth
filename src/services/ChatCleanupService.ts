@@ -1,4 +1,5 @@
 import { Bot, Context } from 'grammy';
+import { logger } from '../logger.js';
 
 export type ClearResult = {
   ok: boolean;
@@ -70,15 +71,13 @@ export class ChatCleanupService {
       // Tenta batch delete primeiro (funciona em grupos)
       if (batch.length > 1) {
         try {
-          await (bot.api as any).raw.deleteMessages({
+          await (bot.api.raw as unknown as { deleteMessages: (args: { chat_id: number; message_ids: number[] }) => Promise<unknown> }).deleteMessages({
             chat_id: Number(chatId),
             message_ids: batch,
           });
           deleted += batch.length;
           continue;
-        } catch {
-          // fallback para delete individual
-        }
+        } catch (error) { // fallback para delete individual logger.warn('[Chat Cleanup] delete operation failed', error); }
       }
 
       // Delete individual (para chats privados ou quando batch falha)

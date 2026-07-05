@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { ZavorthLlmRuntimeService } from './ZavorthLlmRuntimeService.js';
+import { logger } from '../logger.js';
 
 export type DialecticDepth = 1 | 2 | 3 | 4;
 
@@ -409,9 +410,7 @@ export class UserModelDialecticReasoningService {
     if (!fs.existsSync(fp)) return null;
     try {
       return JSON.parse(fs.readFileSync(fp, 'utf-8'));
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[User Model Dialectic Reasoning] JSON parse failed', error); return null; }
   }
 
   private getFilePath(): string {

@@ -41,6 +41,19 @@ export interface ToolDefinition {
   };
 }
 
+/**
+ * CompactToolDefinition — lightweight tool definition for initial LLM prompts.
+ * Contains only name + short description. Full parameters resolved on demand.
+ * Reduces per-tool token cost by ~80%.
+ */
+export interface CompactToolDefinition {
+  name: string;
+  description: string;
+  compact: true;
+  category?: string;
+  metadata?: ToolDefinition['metadata'];
+}
+
 export interface ToolCall {
   id: string;
   name: string;
@@ -103,9 +116,9 @@ export interface ILlmProvider {
 
   /**
    * Sends messages to the LLM and receives a response.
-   * @param messages - Histórico de mensagens
-   * @param tools - Ferramentas disponíveis (opcional)
-   * @returns Resposta do LLM com possíveis tool calls
+   * @param messages - Message history
+   * @param tools - Available tools (optional)
+   * @returns LLM response with possible tool calls
    */
   chat(messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions): Promise<LlmResponse>;
   streamChat?(

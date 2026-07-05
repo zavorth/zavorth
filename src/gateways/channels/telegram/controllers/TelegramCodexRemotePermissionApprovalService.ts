@@ -39,7 +39,7 @@ export class TelegramCodexRemotePermissionApprovalService {
     const lines = [
       result.action.note,
       result.permission?.permission_id
-        ? `Permissao: ${result.permission.permission_id} (${result.permission.status}).`
+        ? `Permission: ${result.permission.permission_id} (${result.permission.status}).`
         : null,
       result.session
         ? `${result.session.record.title} (${result.session.record.sessionId})`

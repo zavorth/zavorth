@@ -13,6 +13,7 @@ import { validateComboDAG } from "@ZavorthGateway/open-sse/services/combo.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateComboSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 // GET /api/combos/[id] - Get combo by ID
 export async function GET(request, { params }) {
@@ -42,7 +43,8 @@ export async function PUT(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {
@@ -79,9 +81,10 @@ export async function PUT(request, { params }) {
       if (comboName) {
         try {
           validateComboDAG(comboName, updatedCombos);
-        } catch (dagError) {
-          return NextResponse.json({ error: dagError.message }, { status: 400 });
-        }
+        } catch (error) {
+    logger.warn('[route] validation failed', error);
+    return NextResponse.json({ error: dagError.message }, { status: 400 });
+  }
       }
     }
 

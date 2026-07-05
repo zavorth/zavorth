@@ -30,6 +30,7 @@ export interface IMessageContext {
   } | null;
   reply: (text: string, options?: any) => Promise<void>;
   editMessage: (messageId: string, text: string) => Promise<void>;
+  __naturalRoute?: any;
 }
 
 export interface IMessageBroker {

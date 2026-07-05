@@ -10,8 +10,9 @@ import {
   type ProjectProcessRecord,
   type ResolvedProjectManifest,
 } from '../../../../project-workspace/index.js';
+import { logger } from '../../../../logger';
 import {
-  DEVELOPER_WORKSPACE_SURFACE_CONTRACT_VERSION,
+DEVELOPER_WORKSPACE_SURFACE_CONTRACT_VERSION,
   type DeveloperWorkspaceSurfaceActionInput,
   type DeveloperWorkspaceSurfaceActionResult,
   type DeveloperWorkspaceSurfaceAgent,
@@ -301,12 +302,13 @@ export class DeveloperWorkspaceSurfaceService {
           manifestPath: input.manifestPath || undefined,
         }),
       };
-    } catch (error: unknown) {
-      return {
+    } catch (error) {
+    logger.warn('[Developer Workspace Surface] load operation failed', error);
+    return {
         ok: false,
         error: error instanceof Error ? error : new Error(String(error || 'unknown manifest error')),
       };
-    }
+  }
   }
 
   private emptySnapshot(error: Error): DeveloperWorkspaceSurfaceSnapshot {

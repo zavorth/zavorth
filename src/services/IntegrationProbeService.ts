@@ -15,6 +15,7 @@ import { ChannelProviderDoctorService } from './ChannelProviderDoctorService.js'
 import { IntegrationConnectorMeshService } from './IntegrationConnectorMeshService.js';
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';
 import { SidecarStatusService } from './SidecarStatusService.js';
+import { logger } from '../logger.js';
 
 type ProbeFetch = typeof fetch;
 
@@ -91,7 +92,7 @@ export class IntegrationProbeService {
   public async runProbe(integrationId: string): Promise<IntegrationProbeSnapshot> {
     const manifest = this.registryService.getManifestById(integrationId);
     if (!manifest) {
-      throw new Error(`Integracao desconhecida: ${integrationId}`);
+      throw new Error(`Unknown integration: ${integrationId}`);
     }
 
     const snapshot = await this.runProbeForManifest(manifest);
@@ -137,7 +138,7 @@ export class IntegrationProbeService {
         status: 'unsupported',
         transport: manifest.category === 'remote' ? 'runtime' : 'unsupported',
         summary: 'Probe real ainda nao disponivel',
-        detail: `Esta integracao ainda depende apenas do doctor heuristico do hub. Revise a entrada canonica ${this.controlUiEntryPath}.`,
+        detail: `This integration still depends only on the hub heuristic doctor. Review the canonical entry ${this.controlUiEntryPath}.`,
         checkedTarget: null,
         httpStatus: null,
         latencyMs: null,
@@ -152,7 +153,7 @@ export class IntegrationProbeService {
         status: 'not_configured',
         transport: 'api',
         summary: 'Falta ativar a chave do runtime',
-        detail: 'Nao encontrei OPENROUTER_API_KEY ativa no runtime para testar a conectividade real.',
+        detail: 'No active OPENROUTER_API_KEY was found in the runtime for real connectivity testing.',
         checkedTarget: 'https://openrouter.ai/api/v1/models',
         httpStatus: null,
         latencyMs: null,
@@ -178,7 +179,7 @@ export class IntegrationProbeService {
         status: 'not_configured',
         transport: 'api',
         summary: 'Falta ativar a chave do runtime',
-        detail: 'Nao encontrei OPENAI_API_KEY ativa no runtime para testar a conectividade real.',
+        detail: 'No active OPENAI_API_KEY was found in the runtime for real connectivity testing.',
         checkedTarget: 'https://api.openai.com/v1/models',
         httpStatus: null,
         latencyMs: null,
@@ -204,7 +205,7 @@ export class IntegrationProbeService {
         status: 'not_configured',
         transport: 'api',
         summary: 'Falta ativar a chave do runtime',
-        detail: 'Nao encontrei MINIMAX_API_KEY ativa no runtime para testar a conectividade real.',
+        detail: 'No active MINIMAX_API_KEY was found in the runtime for real connectivity testing.',
         checkedTarget: 'https://api.minimax.io/v1/models',
         httpStatus: null,
         latencyMs: null,
@@ -232,7 +233,7 @@ export class IntegrationProbeService {
         status: 'not_configured',
         transport: 'api',
         summary: 'Falta ativar a chave do runtime',
-        detail: 'Nao encontrei GEMINI_API_KEY/AISTUDIO_API_KEY ativa no runtime para testar a conectividade real.',
+        detail: 'No active GEMINI_API_KEY/AISTUDIO_API_KEY was found in the runtime for real connectivity testing.',
         checkedTarget: 'https://generativelanguage.googleapis.com/v1beta/models',
         httpStatus: null,
         latencyMs: null,
@@ -295,7 +296,7 @@ export class IntegrationProbeService {
         status: 'not_configured',
         transport: 'runtime',
         summary: 'AIGateway desativado no runtime',
-        detail: 'Ative o sidecar AIGateway antes de tentar validar esta integracao.',
+        detail: 'Enable the AIGateway sidecar before trying to validate this integration.',
         checkedTarget: sidecar.baseUrl ? `${sidecar.baseUrl}/models` : null,
         httpStatus: null,
         latencyMs: null,
@@ -332,7 +333,7 @@ export class IntegrationProbeService {
         status: 'not_configured',
         transport: 'runtime',
         summary: 'ZavorthBridge Remote desativado no runtime',
-        detail: 'Ative o sidecar remoto do ZavorthBridge antes de tentar validar esta integracao.',
+        detail: 'Enable the ZavorthBridge remote sidecar before trying to validate this integration.',
         checkedTarget: sidecar.baseUrl ? this.joinUrl(sidecar.baseUrl, 'health') : null,
         httpStatus: null,
         latencyMs: null,
@@ -380,8 +381,9 @@ export class IntegrationProbeService {
         httpStatus: null,
         latencyMs,
       });
-    } catch (error: any) {
-      return this.createSnapshot(manifest, {
+    } catch (error) {
+    logger.warn('[Integration Probe] network request failed', error);
+    return this.createSnapshot(manifest, {
         status: 'failed',
         transport: 'cli',
         summary: 'Probe real do external runner falhou',
@@ -390,7 +392,7 @@ export class IntegrationProbeService {
         httpStatus: null,
         latencyMs: Math.max(1, Date.now() - startedAt),
       });
-    }
+  }
   }
 
   private async runChannelProviderProbe(manifest: IntegrationManifest): Promise<IntegrationProbeSnapshot> {
@@ -400,8 +402,8 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'unsupported',
         transport: 'unsupported',
-        summary: 'Doctor do canal nao encontrou este provider',
-        detail: 'O runtime atual nao expÃ´s esse canal no doctor do Channel Mesh.',
+        summary: 'Channel doctor did not find this provider',
+        detail: 'The current runtime did not expose this channel in the Channel Mesh doctor.',
         checkedTarget: null,
         httpStatus: null,
         latencyMs: null,
@@ -411,7 +413,7 @@ export class IntegrationProbeService {
     const transport = this.resolveChannelProbeTransport(item.mode);
     const detailParts = [...item.details];
     if (item.error) {
-      detailParts.push(`Erro: ${item.error}`);
+      detailParts.push(`Error: ${item.error}`);
     }
 
     return this.createSnapshot(manifest, {
@@ -454,8 +456,8 @@ export class IntegrationProbeService {
       return this.createSnapshot(manifest, {
         status: 'not_configured',
         transport: 'runtime',
-        summary: 'Host do Ollama ainda nao foi preparado',
-        detail: 'Defina OLLAMA_HOST ou OLLAMA_BASE_URL para validar a instalacao local do Ollama.',
+        summary: 'Ollama host has not been prepared yet',
+        detail: 'Set OLLAMA_HOST or OLLAMA_BASE_URL to validate the local Ollama installation.',
         checkedTarget: null,
         httpStatus: null,
         latencyMs: null,
@@ -512,7 +514,7 @@ export class IntegrationProbeService {
           status: 'ok',
           transport: input.transport,
           summary: 'Probe real respondeu com sucesso',
-          detail: `A integracao respondeu ao teste leve em ${latencyMs} ms.`,
+          detail: `The integration responded to the light test in ${latencyMs} ms.`,
           checkedTarget: input.checkedTarget,
           httpStatus: response.status,
           latencyMs,
@@ -562,9 +564,7 @@ export class IntegrationProbeService {
         return '';
       }
       return text.slice(0, 180);
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Integration Probe] network request failed', error); return ''; }
   }
 
   private describeFailure(status: number): string {
@@ -606,13 +606,14 @@ export class IntegrationProbeService {
         updatedAt: parsed.updatedAt || this.now().toISOString(),
         entries: parsed.entries || {},
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Integration Probe] JSON parse failed', error);
+    return {
         version: 1,
         updatedAt: this.now().toISOString(),
         entries: {},
       };
-    }
+  }
   }
 
   private resolveOllamaHost(): string | null {

@@ -17,8 +17,9 @@ import {
   type TenantTeamOpsSource,
 } from '../contracts/TenantTeamOpsContract.js';
 import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthGovernanceControlPlaneService,
+ZavorthGovernanceControlPlaneService,
   type ZavorthGovernanceControlPlaneSnapshot,
 } from './ZavorthGovernanceControlPlaneService.js';
 
@@ -428,9 +429,7 @@ export class TenantTeamOpsService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Tenant Team Ops] JSON parse failed', error); return null; }
   }
 
   private check(

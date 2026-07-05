@@ -8,6 +8,7 @@ import { mergeOpenCodeConfig } from "@/shared/services/opencodeConfig";
 import { guideSettingsSaveSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * POST /api/cli-tools/guide-settings/:toolId
@@ -22,7 +23,8 @@ export async function POST(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] encoding failed', error);
     return NextResponse.json(
       {
         error: {
@@ -56,6 +58,7 @@ export async function POST(request, { params }) {
         );
     }
   } catch (error) {
+    logger.warn('[route] encoding failed', error);
     return NextResponse.json({ error: (error as any).message }, { status: 500 });
   }
 }
@@ -77,9 +80,7 @@ async function saveContinueConfig({ baseUrl, apiKey, model }) {
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     existingConfig = JSON.parse(raw);
-  } catch {
-    // No existing config or invalid JSON — start fresh
-  }
+  } catch (error) { // No existing config or invalid JSON — start fresh logger.warn('[route] JSON parse failed', error); }
 
   // Build the ZavorthGateway model entry
   const normalizedBaseUrl = String(baseUrl || "")
@@ -159,9 +160,7 @@ async function saveOpenCodeConfig({ baseUrl, apiKey, model }) {
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     existingConfig = JSON.parse(raw);
-  } catch {
-    // File doesn't exist or invalid JSON — start fresh
-  }
+  } catch (error) { // File doesn't exist or invalid JSON — start fresh logger.warn('[route] JSON parse failed', error); }
 
   const nextConfig = mergeOpenCodeConfig(existingConfig, {
     baseUrl: normalizedBaseUrl,

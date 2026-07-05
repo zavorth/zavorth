@@ -150,7 +150,7 @@ export async function initializeBootstrapFoundation(
       reason: 'runtime-maintenance',
       triggeredBy: 'bootstrap-maintenance',
     }).catch((error: unknown) => {
-      logRepo.log('warn', 'SkillCurator', `Falha na manutencao de skills: ${errorMessage(error)}`);
+      logRepo.log('warn', 'SkillCurator', `Skill maintenance failed: ${errorMessage(error)}`);
     });
   };
 
@@ -199,7 +199,7 @@ export async function initializeBootstrapFoundation(
   );
   const agentGateway = new ZavorthAgentGateway({
     defaultProviderLabel: config.llmProvider || 'Zavorth',
-    defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || 'modelo atual',
+    defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || 'current model',
     modelPickerContractService: new ModelPickerContractService(),
     llmRuntime: new LlmRuntimeService(),
     toolRuntime: toolRuntimeServices.toolRuntime,
@@ -348,12 +348,12 @@ export async function startRemoteRuntimeServices(
       foundation.capabilityLifecycleService.markCapabilityState(
         'remote',
         'degraded',
-        `Falha ao subir AIGateway sidecar: ${message}`,
+        `Failed to start AIGateway sidecar: ${message}`,
       );
       foundation.logRepo.log(
         'warn',
         'AIGatewaySidecar',
-        `Falha ao subir o sidecar do AIGateway durante o bootstrap principal: ${message}`,
+        `Failed to start the AIGateway sidecar during main bootstrap: ${message}`,
       );
     });
   } else {
@@ -365,7 +365,7 @@ export async function startRemoteRuntimeServices(
     foundation.logRepo.log(
       'info',
       'AIGatewaySidecar',
-      `Perfil ${foundation.runtimeProfileService.getProfile()} nao sobe sidecars remotos no boot.`,
+      `Profile ${foundation.runtimeProfileService.getProfile()} does not start remote sidecars at boot.`,
     );
   }
 
@@ -382,12 +382,12 @@ export async function startRemoteRuntimeServices(
       foundation.capabilityLifecycleService.markCapabilityState(
         'remote',
         'ready',
-        'Gateway AIGateway nao estava online; sidecar remoto fica disponivel sob demanda.',
+        'AIGateway gateway was not online; the remote sidecar remains available on demand.',
       );
       foundation.logRepo.log(
         'warn',
         'AIGatewayGateway',
-        'Gateway proprio do AIGateway nao estava online durante o bootstrap principal; ele pode ser iniciado sob demanda pelo launcher operacional.',
+        'AIGateway own gateway was not online during main bootstrap; it can be started on demand by the operational launcher.',
       );
     }
 
@@ -396,12 +396,12 @@ export async function startRemoteRuntimeServices(
       foundation.capabilityLifecycleService.markCapabilityState(
         'remote',
         'degraded',
-        `Falha ao subir sidecar remoto do ZavorthBridge: ${message}`,
+        `Failed to start ZavorthBridge remote sidecar: ${message}`,
       );
       foundation.logRepo.log(
         'warn',
         'ZavorthTerminalSidecar',
-        `Falha ao subir o sidecar remoto do ZavorthBridge durante o bootstrap principal: ${message}`,
+        `Failed to start the ZavorthBridge remote sidecar during main bootstrap: ${message}`,
       );
     });
   }

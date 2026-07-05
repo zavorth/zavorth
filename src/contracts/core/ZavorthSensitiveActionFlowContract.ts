@@ -90,16 +90,21 @@ export type ZavorthSensitiveActionFlowSnapshot = {
   approval: ZavorthSensitiveActionApproval;
   execution: ZavorthSensitiveActionExecution;
   rollback: ZavorthSensitiveActionRollback;
+  receipt: ZavorthVisualReceiptContract;
   timeline: Array<{
+    id?: string;
+    status?: string;
     summary: string;
   }>;
   zavorthControlProjection: {
-    route: '/zavorthControl';
+    route: '/zavorthControl' | '/control';
     endpoint: '/api/sensitive-action-flow';
     executionAuthority: false;
     renderAsActionCard: true;
   };
   invariants: Array<{
+    id?: string;
+    status?: string;
     detail: string;
   }>;
   nextAction: string;

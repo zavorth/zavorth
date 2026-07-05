@@ -22,6 +22,7 @@ type GroupAdminCommand =
   | '/warn'
   | '/warns'
   | '/clearwarns'
+  | '/rules'
   | '/regras'
   | '/stats'
   | '/setwelcome'
@@ -455,6 +456,7 @@ export class TelegramCommandRoutingService {
         case '/clearwarns':
           await this.deps.groupAdminController.handleClearWarns(ctx, args);
           return true;
+        case '/rules':
         case '/regras':
           await this.deps.groupAdminController.handleRegras(ctx, args);
           return true;
@@ -564,6 +566,7 @@ export class TelegramCommandRoutingService {
       '/warn',
       '/warns',
       '/clearwarns',
+      '/rules',
       '/regras',
       '/stats',
       '/setwelcome',

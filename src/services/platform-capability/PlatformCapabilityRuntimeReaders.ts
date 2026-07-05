@@ -1,7 +1,8 @@
 import fs from 'fs';
 import { config } from '../../config/index.js';
+import { logger } from '../../logger.js';
 import type {
-  DiscordBridgeRuntimeStatus,
+DiscordBridgeRuntimeStatus,
   PlannedChannelRuntimeStatus,
   SlackRuntimeStatus,
   WhatsAppRuntimeStatus,
@@ -34,9 +35,7 @@ export function readDiscordBridgeRuntimeStatus(): DiscordBridgeRuntimeStatus | n
           ? parsed.lastError
           : null,
     };
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Platform Capability Runtime Readers] parsing failed', error); return null; }
 }
 
 export function readWhatsAppRuntimeStatus(): WhatsAppRuntimeStatus | null {
@@ -67,9 +66,7 @@ export function readWhatsAppRuntimeStatus(): WhatsAppRuntimeStatus | null {
       sessionDirConfigured: parsed.sessionDirConfigured === true,
       lastError: typeof parsed.lastError === 'string' ? parsed.lastError : null,
     };
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Platform Capability Runtime Readers] parsing failed', error); return null; }
 }
 
 export function readSlackRuntimeStatus(): SlackRuntimeStatus | null {
@@ -96,9 +93,7 @@ export function readSlackRuntimeStatus(): SlackRuntimeStatus | null {
       workspaceConfigured: parsed.workspaceConfigured === true,
       lastError: typeof parsed.lastError === 'string' ? parsed.lastError : null,
     };
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Platform Capability Runtime Readers] parsing failed', error); return null; }
 }
 
 export function readPlannedChannelRuntimeStatus(filePath: string): PlannedChannelRuntimeStatus | null {
@@ -131,9 +126,7 @@ export function readPlannedChannelRuntimeStatus(filePath: string): PlannedChanne
       platform: typeof parsed.platform === 'string' ? parsed.platform : null,
       lastError: typeof parsed.lastError === 'string' ? parsed.lastError : null,
     };
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Platform Capability Runtime Readers] parsing failed', error); return null; }
 }
 
 export function envValue(key: string): string {

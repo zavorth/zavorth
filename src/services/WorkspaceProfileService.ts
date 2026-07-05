@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
+import { logger } from '../logger.js';
 
 export interface WorkspaceProfile {
   workspace: string;
@@ -204,9 +205,7 @@ export class WorkspaceProfileService {
 
     try {
       return JSON.parse(await fs.promises.readFile(packageJsonPath, 'utf8')) as Record<string, any>;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Workspace Profile] JSON parse failed', error); return null; }
   }
 
   private async detectLockFiles(workspace: string): Promise<string[]> {
@@ -475,8 +474,9 @@ export class WorkspaceProfileService {
     try {
       const rawContent = await fs.promises.readFile(path.join(workspace, fileName), 'utf8');
       return this.parseWorkspaceInstructions(filePath, rawContent);
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Workspace Profile] filesystem operation failed', error);
+    return {
         filePath,
         sources: [filePath],
         summary: '',
@@ -485,7 +485,7 @@ export class WorkspaceProfileService {
         hooks: [],
         commands: [],
       };
-    }
+  }
   }
 
   private parseWorkspaceInstructions(filePath: string, rawContent: string): WorkspaceInstructionProfile {

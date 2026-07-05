@@ -1,5 +1,5 @@
 /**
- * MixtureOfAgents — Multi-model orchestration for consensus.
+ * MixtureOfAgents - multi-model orchestration for consensus.
  *
  * Runs N reference models in parallel, collects their responses,
  * and uses an aggregator model to synthesize the best result.
@@ -55,7 +55,7 @@ interface CacheEntry {
   timestamp: number;
 }
 
-// Simple hash for cache key
+// Simple hash for cache key.
 function simpleHash(str: string): string {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -83,7 +83,7 @@ export class MixtureOfAgents {
   }
 
   /**
-   * Executa o pipeline MoA com uma query.
+   * Runs the MoA pipeline for a query.
    */
   async run(
     query: string,
@@ -94,7 +94,7 @@ export class MixtureOfAgents {
   ): Promise<MoAResult> {
     const startTime = Date.now();
 
-    // Check cache
+    // Check cache.
     if (this.config.enableCache) {
       const cached = this.getFromCache(query);
       if (cached) {
@@ -102,10 +102,10 @@ export class MixtureOfAgents {
       }
     }
 
-    // Phase 1: Run reference models in parallel
+    // Phase 1: run reference models in parallel.
     const referenceResults = await this.runReferences(query, options);
 
-    // Phase 2: Synthesize with aggregator
+    // Phase 2: synthesize with aggregator.
     const aggregatorStart = Date.now();
     const finalResponse = await this.aggregate(query, referenceResults, options);
     const aggregatorLatencyMs = Date.now() - aggregatorStart;
@@ -118,7 +118,7 @@ export class MixtureOfAgents {
       cacheHit: false,
     };
 
-    // Armazenar no cache
+    // Store in cache.
     if (this.config.enableCache) {
       this.addToCache(query, result);
     }
@@ -127,7 +127,7 @@ export class MixtureOfAgents {
   }
 
   /**
-   * Executa todos os modelos de referência em paralelo (com concorrência limitada).
+   * Runs all reference models in parallel with limited concurrency.
    */
   private async runReferences(
     query: string,
@@ -155,7 +155,7 @@ export class MixtureOfAgents {
   }
 
   /**
-   * Executa um único modelo de referência.
+   * Runs a single reference model.
    */
   private async executeReference(
     ref: MoAReferenceConfig,
@@ -165,7 +165,7 @@ export class MixtureOfAgents {
     const startTime = Date.now();
 
     try {
-      // Chamar o provider via adaptador interno do Zavorth
+      // Call the provider through Zavorth's internal adapter.
       const response = await this.callProvider(ref, query, systemPrompt);
 
       return {
@@ -189,31 +189,29 @@ export class MixtureOfAgents {
   }
 
   /**
-   * Chama um provider de LLM.
-   * Nota: Em produção, isso usaria o LLMRouterService do Zavorth.
-   * Aqui está a interface abstrata.
+   * Calls an LLM provider.
+   * Note: in production, this would use Zavorth's LLMRouterService.
+   * This is the abstract interface.
    */
   private async callProvider(
     ref: MoAReferenceConfig,
     query: string,
     systemPrompt?: string,
   ): Promise<string> {
-    // Interface abstrata para chamada de provider
-    // Em integração real, conectaria ao LLMRouterService
     const messages = [
       ...(systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : []),
       { role: 'user' as const, content: query },
     ];
 
-    // Placeholder para chamada real do provider
-    // O Zavorth usaria seu provider registry aqui
+    void messages;
+
     throw new Error(
-      `Provider ${ref.provider}/${ref.model} precisa de integração com LLMRouterService`,
+      `Provider ${ref.provider}/${ref.model} requires LLMRouterService integration`,
     );
   }
 
   /**
-   * Sintetiza as respostas de referência usando o agregador.
+   * Synthesizes the reference responses through the aggregator.
    */
   private async aggregate(
     query: string,
@@ -223,28 +221,28 @@ export class MixtureOfAgents {
     const successfulResults = referenceResults.filter((r) => r.success);
 
     if (successfulResults.length === 0) {
-      throw new Error('Nenhum modelo de referência retornou sucesso');
+      throw new Error('No reference model returned a successful response');
     }
 
-    // Montar prompt de agregação
+    // Build aggregation prompt.
     const opinions = successfulResults
-      .map((r, i) => `## Opinião ${i + 1} (${r.model})\n${r.response}`)
+      .map((r, i) => `## Opinion ${i + 1} (${r.model})\n${r.response}`)
       .join('\n\n');
 
-    const aggregatorPrompt = `Você é um agregador de opiniões. Dada uma pergunta e várias opiniões de modelos diferentes, sintetize a melhor resposta possível.
+    const aggregatorPrompt = `You are an opinion aggregator. Given a question and several opinions from different models, synthesize the best possible answer.
 
-Pergunta: ${query}
+Question: ${query}
 
 ${opinions}
 
-Instruções:
-- Considere os pontos fortes de cada opinião
-- Resolva contradições usando evidências
-- Produza uma resposta coesa e completa
-- Seja conciso mas abrangente`;
+Instructions:
+- Consider the strengths of each opinion
+- Resolve contradictions using evidence
+- Produce a cohesive and complete answer
+- Be concise but comprehensive`;
 
-    // Chamar o agregador
-    return this.callProvider(this.config.aggregator, aggregatorPrompt);
+    // Call the aggregator.
+    return this.callProvider(this.config.aggregator, aggregatorPrompt, options.systemPrompt);
   }
 
   private getFromCache(query: string): MoAResult | null {

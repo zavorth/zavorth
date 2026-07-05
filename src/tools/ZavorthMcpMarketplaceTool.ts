@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export interface McpServerEntry {
   id: string;
@@ -84,7 +85,7 @@ export class ZavorthMcpMarketplaceTool extends BaseTool {
     try {
       const data = JSON.parse(fs.readFileSync(installedPath, 'utf-8'));
       this.installedServers = new Map(Object.entries(data));
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Zavorth Mcp Marketplace] JSON parse failed', error); }
   }
 
   private saveInstalled(): void {
@@ -138,7 +139,7 @@ export class ZavorthMcpMarketplaceTool extends BaseTool {
     const category = typeof args.category === 'string' ? args.category : undefined;
     let tags: string[] = [];
     if (typeof args.tags === 'string') {
-      try { tags = JSON.parse(args.tags); } catch { /* ignore */ }
+      try { tags = JSON.parse(args.tags); } catch (error) { /* ignore */ logger.warn('[Zavorth Mcp Marketplace] JSON parse failed', error); }
     }
 
     let results = this.getCatalog();
@@ -227,7 +228,7 @@ export class ZavorthMcpMarketplaceTool extends BaseTool {
 
     let config: Record<string, unknown> = {};
     if (typeof args.config === 'string') {
-      try { config = JSON.parse(args.config); } catch { return 'Error: invalid JSON for "config".'; }
+      try { config = JSON.parse(args.config); } catch (error) { logger.warn('[Zavorth Mcp Marketplace] JSON parse failed', error); return 'Error: invalid JSON for "config".'; }
     }
 
     this.installedServers.set(serverId, {

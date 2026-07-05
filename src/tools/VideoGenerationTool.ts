@@ -1,39 +1,40 @@
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { safeFetch } from '../security/SafeFetchService.js';
+import { logger } from '../logger.js';
 
 export class VideoGenerationTool extends BaseTool {
   public readonly name = 'generate_video';
 
   public readonly description =
-    'Gera vídeos a partir de um prompt textual ou imagem base.';
+    'Generates videos from a text prompt or base image.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       prompt: {
         type: 'string',
-        description: 'Descrição textual detalhada do vídeo a ser gerado.',
+        description: 'Detailed text description of the video to generate.',
       },
       duration: {
         type: 'number',
-        description: 'Duração do vídeo em segundos (1-60). Default: 5.',
+        description: 'Video duration in seconds (1-60). Default: 5.',
       },
       resolution: {
         type: 'string',
-        description: "Resolução do vídeo. Exemplos: '720p', '1080p', '4k'. Default: '1080p'.",
+        description: "Video resolution. Examples: '720p', '1080p', '4k'. Default: '1080p'.",
       },
       fps: {
         type: 'number',
-        description: 'Frames por segundo (12-60). Default: 24.',
+        description: 'Frames per second (12-60). Default: 24.',
       },
       style: {
         type: 'string',
-        description: "Estilo visual do vídeo. Exemplos: 'realistic', 'cinematic', 'animated', 'timelapse'.",
+        description: "Visual style of the video. Examples: 'realistic', 'cinematic', 'animated', 'timelapse'.",
       },
       reference_image: {
         type: 'string',
-        description: 'Caminho ou URL de uma imagem base para gerar o vídeo a partir dela.',
+        description: 'Path or URL of a base image to generate the video from.',
       },
     },
     required: ['prompt'],
@@ -42,7 +43,7 @@ export class VideoGenerationTool extends BaseTool {
   public async execute(args: Record<string, unknown>): Promise<string> {
     const prompt = String(args.prompt || '');
     if (!prompt) {
-      return 'Erro: o parametro "prompt" e obrigatorio.';
+      return 'Error: the "prompt" parameter is required.';
     }
 
     const duration = typeof args.duration === 'number' ? args.duration : 5;
@@ -52,21 +53,21 @@ export class VideoGenerationTool extends BaseTool {
     const referenceImage = typeof args.reference_image === 'string' ? args.reference_image : null;
 
     if (duration < 1 || duration > 60) {
-      return 'Erro: duracao deve estar entre 1 e 60 segundos.';
+      return 'Error: duration must be between 1 and 60 seconds.';
     }
     if (fps < 12 || fps > 60) {
-      return 'Erro: fps deve estar entre 12 e 60.';
+      return 'Error: fps must be between 12 and 60.';
     }
 
     const validResolutions = ['720p', '1080p', '4k'];
     if (!validResolutions.includes(resolution)) {
-      return `Erro: resolucao "${resolution}" nao suportada. Use: ${validResolutions.join(', ')}.`;
+      return `Error: resolution "${resolution}" is not supported. Use: ${validResolutions.join(', ')}.`;
     }
 
     const endpoint = String(process.env.ZAVORTH_VIDEO_GENERATION_ENDPOINT || '').trim();
     const apiKey = String(process.env.ZAVORTH_VIDEO_GENERATION_API_KEY || '').trim();
     if (!endpoint) {
-      return 'Erro: backend de video nao configurado. Configure ZAVORTH_VIDEO_GENERATION_ENDPOINT para executar geracao real.';
+      return 'Error: video backend is not configured. Configure ZAVORTH_VIDEO_GENERATION_ENDPOINT to run real generation.';
     }
 
     try {
@@ -91,11 +92,12 @@ export class VideoGenerationTool extends BaseTool {
       let payload: Record<string, unknown> = {};
       try {
         payload = text ? JSON.parse(text) : {};
-      } catch {
-        payload = { rawText: text.slice(0, 1000) };
-      }
+      } catch (error) {
+    logger.warn('[Video Generation] JSON parse failed', error);
+    payload = { rawText: text.slice(0, 1000) };
+  }
       if (!response.ok) {
-        return `Erro ao gerar video: backend retornou HTTP ${response.status}.`;
+        return `Video generation error: backend returned HTTP ${response.status}.`;
       }
 
       const videoId = String(payload.id || payload.videoId || payload.jobId || `video-${Date.now()}`);
@@ -103,19 +105,20 @@ export class VideoGenerationTool extends BaseTool {
       const outputUrl = String(payload.url || payload.outputUrl || payload.downloadUrl || '');
 
       return [
-        'Video enviado para geracao real com sucesso.',
+        'Video submitted for real generation successfully.',
         `  - Video ID: ${videoId}`,
         `  - Status: ${status}`,
         `  - Prompt: "${prompt}"`,
-        `  - Duracao: ${duration}s`,
-        `  - Resolucao: ${resolution}`,
+        `  - Duration: ${duration}s`,
+        `  - Resolution: ${resolution}`,
         `  - FPS: ${fps}`,
-        `  - Estilo: ${style}`,
-        outputUrl ? `  - URL: ${outputUrl}` : '  - URL: indisponivel no retorno do backend',
+        `  - Style: ${style}`,
+        outputUrl ? `  - URL: ${outputUrl}` : '  - URL: unavailable in backend response',
       ].join('\n');
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      return `Erro ao gerar video: ${message}`;
-    }
+    } catch (error) {
+    logger.warn('[Video Generation] creation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
+      return `Video generation error: ${message}`;
+  }
   }
 }

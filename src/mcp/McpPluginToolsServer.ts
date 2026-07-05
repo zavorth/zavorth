@@ -102,7 +102,7 @@ export class McpPluginToolsServer {
   }
 
   /**
-   * Processa uma requisição MCP.
+   * Processes an MCP request.
    */
   async handleRequest(request: McpRequest): Promise<McpResponse> {
     const { id, method, params } = request;
@@ -148,7 +148,7 @@ export class McpPluginToolsServer {
         return {
           jsonrpc: '2.0',
           id,
-          error: { code: -32601, message: `Método não suportado: ${method}` },
+          error: { code: -32601, message: `Unsupported method: ${method}` },
         };
     }
   }

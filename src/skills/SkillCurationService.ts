@@ -59,7 +59,7 @@ export class SkillCurationService {
     const skill = entries.find((entry) => entry.name === normalizedSkillId);
 
     if (!skill) {
-      throw new Error(`Skill com ID "${normalizedSkillId}" nao encontrada no catalogo de skills ativas.`);
+      throw new Error(`Skill with ID "${normalizedSkillId}" was not found in the active skills catalog.`);
     }
 
     if (skill.sourceId === 'zavorth-native') {
@@ -68,7 +68,7 @@ export class SkillCurationService {
 
     const sourceDir = path.resolve(skill.dirPath);
     if (!fs.existsSync(sourceDir)) {
-      throw new Error(`Diretorio de origem da skill nao existe: ${sourceDir}`);
+      throw new Error(`Skill source directory does not exist: ${sourceDir}`);
     }
     if (!isPathAllowedForSkillMutation(sourceDir)) {
       throw new Error(`Diretorio de origem da skill esta fora dos roots gerenciados pelo Zavorth: ${sourceDir}`);
@@ -112,7 +112,7 @@ export class SkillCurationService {
     const zipPath = this.archivePathForSkill(normalizedSkillId);
 
     if (!fs.existsSync(zipPath)) {
-      throw new Error(`Arquivo de skill compactada nao encontrado em: ${zipPath}`);
+      throw new Error(`Packaged skill file not found at: ${zipPath}`);
     }
 
     const manifest = this.readArchiveManifest(normalizedSkillId);
@@ -125,7 +125,7 @@ export class SkillCurationService {
       throw new Error(`Destino de restauracao da skill esta fora dos roots gerenciados pelo Zavorth: ${destDir}`);
     }
     if (fs.existsSync(destDir) && fs.readdirSync(destDir).length > 0) {
-      throw new Error(`Destino de restauracao ja existe e nao esta vazio: ${destDir}`);
+      throw new Error(`Restore destination already exists and is not empty: ${destDir}`);
     }
 
     logger.info(`[SkillCurationService] Restaurando skill "${normalizedSkillId}" extraindo ${zipPath} para ${destDir}...`);

@@ -398,7 +398,10 @@ export class OperatorBriefService {
 
     const passedItems = (doctor.items || [])
       .filter((item) => item.status === 'passed')
-      .map((item) => this.describeDoctorProvider(item.channelId, item.mode));
+      .map((item) => this.describeDoctorProvider(
+        item.channelId as 'slack' | 'whatsapp' | 'telegram' | 'discord' | 'signal' | 'imessage' | 'teams' | 'email',
+        item.mode as 'native' | 'cloud-api' | 'stub' | 'baileys' | 'bridge' | 'signal-cli' | 'mac-bridge' | 'graph-bot' | 'smtp-imap' | 'unknown'
+      ));
     const providerLabel = passedItems.length
       ? passedItems.join(' e ')
       : 'os providers configurados';
@@ -568,7 +571,7 @@ export class OperatorBriefService {
     return diffMs >= 0 ? `em ${absoluteDays} d` : `ha ${absoluteDays} d`;
   }
 
-  private describeDiscordChannel(mode: 'bridge' | 'native' | 'unknown' | undefined): string {
+  private describeDiscordChannel(mode: string | undefined): string {
     return mode === 'native' ? 'Gateway nativo do Discord' : 'Discord bridge';
   }
 

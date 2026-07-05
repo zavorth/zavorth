@@ -3,6 +3,7 @@ import http from 'http';
 import os from 'os';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from '../../logger.js';
 import { config } from '../../config/index.js';
 import { spawnNativeCommand } from '../../core/CommandSpawn.js';
 import { FirecrackerSandboxPayloadSupport } from './FirecrackerSandboxPayloadSupport.js';
@@ -272,24 +273,18 @@ export class FirecrackerSandboxRuntime implements ISandboxRuntime {
     try {
       this.firecrackerApiCall(socketPath, 'PUT', '/actions', {
         action_type: 'SendCtrlAltDel',
-      }).catch(() => {});
-    } catch {
-      // ignore
-    }
+      }).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+    } catch (error) { // ignore logger.warn('[Firecracker Sandbox Runtime] process execution failed', error); }
 
     if (firecrackerProcess) {
       try {
         firecrackerProcess.kill('SIGKILL');
-      } catch {
-        // ignore
-      }
+      } catch (error) { // ignore logger.warn('[Firecracker Sandbox Runtime] operation failed', error); }
     }
 
     try {
       fs.rmSync(vmDir, { recursive: true, force: true });
-    } catch {
-      // ignore
-    }
+    } catch (error) { // ignore logger.warn('[Firecracker Sandbox Runtime] operation failed', error); }
   }
 
   private usesWslBridge(): boolean {

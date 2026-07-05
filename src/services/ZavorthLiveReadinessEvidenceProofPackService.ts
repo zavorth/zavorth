@@ -13,6 +13,7 @@ import type { ZavorthTerminalBackendSnapshot } from '../contracts/ZavorthTermina
 import type { ZavorthProviderReadinessMatrixSnapshot } from '../contracts/ZavorthProviderReadinessMatrixContract.js';
 import { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
 import type { CanonicalPublicApiRuntime } from '../api/public/canonical-public-api/types.js';
+import type { OperationsHealthSnapshot } from '../observability/OperationsHealthService.js';
 import { ProviderChannelSmokeProofService } from './ProviderChannelSmokeProofService.js';
 import { ZavorthTerminalBackendsService } from './ZavorthTerminalBackendsService.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
@@ -399,15 +400,15 @@ function createDefaultPublicRuntime(): CanonicalPublicApiRuntime {
     },
   };
   return {
-    getRuntime: () => ({} as any),
+    getRuntime: () => null,
     getGateway: () => null,
     getSessionPlane: () => null,
     getNodeMesh: () => null,
     getPlatformRegistry: () => null,
     getRemoteTransports: () => null,
     getOperationsHealth: () => ({
-      readSnapshotFast: () => operationsSnapshot as any,
-      readSnapshotLive: () => operationsSnapshot as any,
+      readSnapshotFast: () => operationsSnapshot as unknown as OperationsHealthSnapshot,
+      readSnapshotLive: () => operationsSnapshot as unknown as OperationsHealthSnapshot,
     }),
     getLearningPlane: () => null,
     getLayeredMemory: () => null,

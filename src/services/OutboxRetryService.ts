@@ -3,6 +3,7 @@ import path from 'path';
 import type { ChannelGatewayRegistry } from '../gateways/ChannelGatewayRegistry.js';
 import type { WebhookGateway } from '../gateways/WebhookGateway.js';
 import type { CanonicalChannelOutboundEnvelope } from '../channels/contracts/ChannelMessageContract.js';
+import { logger } from '../logger.js';
 
 export class OutboxRetryService {
   private static instance: OutboxRetryService | null = null;
@@ -34,9 +35,7 @@ export class OutboxRetryService {
       if (!this.running) return;
       try {
         await this.processOutbox();
-      } catch (err) {
-        // Skip error logging in production daemon
-      }
+      } catch (error) { // Skip error logging in production daemon logger.warn('[Outbox Retry] lifecycle operation failed', error); }
       if (this.running) {
         this.timer = setTimeout(tick, intervalMs);
         if (this.timer && typeof this.timer.unref === 'function') {
@@ -135,9 +134,7 @@ export class OutboxRetryService {
               }, null, 2), 'utf8');
             }
           }
-        } catch {
-          // ignore parsing/reading errors for individual files
-        }
+        } catch (error) { // ignore parsing/reading errors for individual files logger.warn('[Outbox Retry] filesystem operation failed', error); }
       }
     }
   }

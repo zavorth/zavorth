@@ -33,57 +33,57 @@ export class ZavorthBridgeAdapter {
       if (this.logRepo) {
         this.logRepo.log('error', 'ZavorthBridgeAdapter', `Erro no planner: ${error.message}`);
       }
-      logger.error('[ZavorthBridgeAdapter] Erro no planner:', error.message);
-      throw new Error(`Erro do Planejador (${modelName}): ${error.message}`);
+      logger.error('[ZavorthBridgeAdapter] Planner error:', error.message);
+      throw new Error(`Planner error (${modelName}): ${error.message}`);
     }
   }
 
   private buildPrompt(task: Task): string {
     return `
-Voce atua agora no modo ZAVORTH_BRIDGE ADAPTER. Sua funcao estrita e de Planner / Orchestrator tecnico.
-Voce DEVE devolver a resposta UNICAMENTE em JSON valido respeitando o contrato abaixo, sem nenhum texto livre.
+You are now operating in ZAVORTH_BRIDGE ADAPTER mode. Your strict role is technical Planner / Orchestrator.
+You MUST return ONLY valid JSON matching the contract below, with no free-form text.
 
-CAPACIDADE ESPECIAL:
-Quando o provider permitir, use recursos de busca para responder com fatos atualizados antes de montar o plano.
-Se isso nao estiver disponivel, monte o melhor plano possivel com o contexto fornecido.
+SPECIAL CAPABILITY:
+When the provider supports it, use search capabilities to gather current facts before building the plan.
+If that is not available, build the best possible plan from the provided context.
 
-Contrato esperado (interface Plan do Zavorth V2):
+Expected contract (Zavorth V2 Plan interface):
 {
-  "objective": "string (o que voce entendeu que deve ser feito)",
-  "context": "string (contexto inferido com os dados reais encontrados)",
-  "assumptions": ["premissas tecnicas"],
+  "objective": "string (what you understood must be done)",
+  "context": "string (context inferred from real discovered data)",
+  "assumptions": ["technical assumptions"],
   "executor_recommendation": "local_executor | codex | external_executor | gemini_cli | jules",
-  "workspace_recommendation": "path ou nome da pasta",
-  "risk_level": 0|1|2|3 (0=leitura, 2=escrita, 3=delecao)",
+  "workspace_recommendation": "path or folder name",
+  "risk_level": 0|1|2|3 (0=read, 2=write, 3=delete)",
   "requires_approval": boolean,
   "steps": [
     {
       "step_id": "string",
       "type": "shell",
-      "description": "descricao do passo",
-      "command": "o comando terminal exato",
-      "file_targets": ["arquivos afetados"],
-      "expected_output": "esperado no stdout",
+      "description": "step description",
+      "command": "exact terminal command",
+      "file_targets": ["affected files"],
+      "expected_output": "expected stdout",
       "sensitive": boolean
     }
   ],
-  "validation_steps": ["comandos de teste"],
-  "success_condition": "condicao de sucesso",
-  "rollback_condition": "como desfazer",
-  "notes": ["fontes ou observacoes importantes"]
+  "validation_steps": ["test commands"],
+  "success_condition": "success condition",
+  "rollback_condition": "how to undo",
+  "notes": ["sources or important notes"]
 }
 
-Tarefa do Usuario: "${task.normalized_message}"
-Contexto Anterior: "${task.parent_task_id || 'Nenhum'}"
+User task: "${task.normalized_message}"
+Previous context: "${task.parent_task_id || 'None'}"
 
-Escolha de executor:
-- use "local_executor" para shell simples no host local
-- use "codex" para trabalho de codigo no workspace Windows
-- use "external_executor" para delegacao ao ExternalExecutor/WSL quando fizer sentido
-- use "gemini_cli" para analise/refatoracao com Gemini AI no terminal
-- use "jules" para tarefas assincronas em repos GitHub (fix bugs, criar PRs)
+Executor selection:
+- use "local_executor" for simple shell work on the local host
+- use "codex" for code work in the Windows workspace
+- use "external_executor" for delegation to ExternalExecutor/WSL when appropriate
+- use "gemini_cli" for analysis/refactoring with Gemini AI in the terminal
+- use "jules" for asynchronous GitHub repository tasks (bug fixes, PRs)
 
-Responda APENAS com o JSON. Comece com { e termine com }. Sem blocos markdown.
+Respond ONLY with JSON. Start with { and end with }. No Markdown blocks.
     `.trim();
   }
 }

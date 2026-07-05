@@ -13,8 +13,9 @@ import {
     EchoVoiceAssetStoreService,
     getDefaultEchoVoiceAssetStore,
 } from '../../../domain/surface/infrastructure/EchoVoiceAssetStoreService.js';
+import { logger } from '../../../logger.js';
 import type {
-    HomeAssistantBridgeRuntime,
+HomeAssistantBridgeRuntime,
     HomeAssistantBridgeState,
     HomeAssistantEndpointPolicy,
     HomeAssistantLifecycleStatus,
@@ -35,14 +36,14 @@ interface HomeAssistantStateChangedData {
 
 export class HomeAssistantBridge implements IZavorthTool {
     name = 'iot_home_assistant';
-    description = 'Controla dispositivos inteligentes via Home Assistant. Pode ligar/desligar luzes, switches, ventiladores e ajustar temperatura ou brilho. Ex: "apague a luz da sala", "ligue o ventilador".';
+    description = 'Controls smart devices through Home Assistant. Can turn lights, switches, and fans on or off, and adjust temperature, humidity, HVAC mode, fan mode, brightness, covers, media players, scenes, scripts, alarms, and voice playback.';
     category = 'IOT' as const;
     dangerLevel = 'moderate' as const;
     requiresPermission = false;
 
     schema = z.object({
         entity_id: z.string()
-            .describe('ID do dispositivo no Home Assistant (ex: light.sala, switch.ventilador, climate.quarto)'),
+            .describe('Home Assistant entity ID, for example light.living_room, switch.fan, or climate.bedroom'),
         action: z.enum([
             'turn_on', 'turn_off', 'toggle',
             'set_brightness', 'set_temperature', 'set_humidity', 'set_hvac_mode', 'set_fan_mode', 'set_preset_mode',
@@ -55,9 +56,9 @@ export class HomeAssistantBridge implements IZavorthTool {
             'activate_scene', 'run_script',
             'arm_away', 'arm_home', 'disarm',
         ])
-            .describe('Acao a executar no dispositivo'),
+            .describe('Action to execute on the device'),
         attributes: z.record(z.string(), z.unknown()).optional()
-            .describe('Atributos extras como { brightness: 80 } ou { temperature: 22 }'),
+            .describe('Extra attributes such as { brightness: 80 } or { temperature: 22 }'),
     });
 
     private ws: WebSocket | null = null;
@@ -102,7 +103,7 @@ export class HomeAssistantBridge implements IZavorthTool {
     }
 
     /**
-     * Ouve eventos fisicos do Home Assistant com reconnect progressivo.
+     * Listens to Home Assistant physical events with progressive reconnect.
      */
     public startListeningEvents(): void {
         const haUrl = process.env.HOME_ASSISTANT_URL || 'http://localhost:8123';
@@ -120,7 +121,7 @@ export class HomeAssistantBridge implements IZavorthTool {
             this.updateState({
                 listening: false,
                 status: 'disabled',
-                lastError: 'HOME_ASSISTANT_TOKEN nao configurado.',
+                lastError: 'HOME_ASSISTANT_TOKEN is not configured.',
             });
             return;
         }
@@ -162,7 +163,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                     status: 'connecting',
                     lastError: null,
                 });
-                console.log('[HomeAssistantBridge] Cortex WebSocket acoplado ao hub fisico (HA).');
+                console.log('[HomeAssistantBridge] WebSocket connected to the Home Assistant physical hub.');
             });
 
             this.ws.on('message', async (data: WebSocket.Data) => {
@@ -180,7 +181,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                         lastConnectedAt: new Date().toISOString(),
                         lastError: null,
                     });
-                    console.log('[HomeAssistantBridge] Autenticado com sucesso. Inscrevendo em anomalias fisicas...');
+                    console.log('[HomeAssistantBridge] Authenticated successfully. Subscribing to physical state changes...');
                     this.ws?.send(JSON.stringify({
                         id: this.messageId++,
                         type: 'subscribe_events',
@@ -195,9 +196,9 @@ export class HomeAssistantBridge implements IZavorthTool {
                 this.updateState({
                     connected: false,
                     status: this.listening ? 'degraded' : 'idle',
-                    lastError: String(err?.message || 'erro desconhecido'),
+                    lastError: String(err?.message || 'unknown error'),
                 });
-                console.error('[HomeAssistantBridge] Erro no event loop fisico:', err.message);
+                console.error('[HomeAssistantBridge] Physical event loop error:', err.message);
             });
 
             this.ws.on('close', () => {
@@ -217,16 +218,16 @@ export class HomeAssistantBridge implements IZavorthTool {
                     reconnectAttempts: this.reconnectAttempts,
                     status: 'degraded',
                 });
-                console.warn(`[HomeAssistantBridge] Conexao com mundo fisico perdida. Re-tentando em ${timeoutMs / 1000}s...`);
+                console.warn(`[HomeAssistantBridge] Physical-world connection lost. Retrying in ${timeoutMs / 1000}s...`);
                 setTimeout(() => this.connectWithBackoff(haUrl, haToken), timeoutMs);
             });
         } catch (err) {
             this.updateState({
                 connected: false,
                 status: this.listening ? 'degraded' : 'idle',
-                lastError: String((err as Error)?.message || err || 'erro desconhecido'),
+                lastError: String((err as Error)?.message || err || 'unknown error'),
             });
-            console.error('[HomeAssistantBridge] Falha sistemica ao montar WebSocket.', err);
+            console.error('[HomeAssistantBridge] System failure while creating WebSocket.', err);
         }
     }
 
@@ -253,13 +254,13 @@ export class HomeAssistantBridge implements IZavorthTool {
 
         if (entityId.startsWith('alarm_') || entityId.startsWith('lock.') || entityId.startsWith('climate.') || entityId.includes('presence')) {
             const insightKey = `iot_anomaly_${entityId}`;
-            const insightValue = `O dispositivo fisico ${entityId} mudou seu status para ${newState} agora.`;
+            const insightValue = `Physical device ${entityId} changed its state to ${newState} now.`;
             await this.memoryService.remember('system', insightKey, insightValue, 'iot_feedback');
-            console.log(`[IoT Fisico -> Echo Memoria] Registrar evento episodico: ${insightValue}`);
+            console.log(`[Physical IoT -> Echo Memory] Recording episodic event: ${insightValue}`);
         }
 
         if (physicalEvent) {
-            console.log(`[IoT Fisico -> Echo Surface] ${physicalEvent.feedback}`);
+            console.log(`[Physical IoT -> Echo Surface] ${physicalEvent.feedback}`);
         }
     }
 
@@ -275,7 +276,7 @@ export class HomeAssistantBridge implements IZavorthTool {
         try {
             if (endpointPolicy.scope === 'blocked') {
                 return this.fail(
-                    'HOME_ASSISTANT_URL deve apontar para localhost ou rede privada/local.',
+                    'HOME_ASSISTANT_URL must point to localhost or a private/local network.',
                     endpointPolicy,
                     context,
                     'blocked',
@@ -285,10 +286,10 @@ export class HomeAssistantBridge implements IZavorthTool {
             if (!haToken) {
                 this.updateState({
                     status: 'disabled',
-                    lastError: 'HOME_ASSISTANT_TOKEN nao configurado.',
+                    lastError: 'HOME_ASSISTANT_TOKEN is not configured.',
                 });
                 return this.fail(
-                    'HOME_ASSISTANT_TOKEN nao configurado.',
+                    'HOME_ASSISTANT_TOKEN is not configured.',
                     endpointPolicy,
                     context,
                     'disabled',
@@ -307,7 +308,7 @@ export class HomeAssistantBridge implements IZavorthTool {
             const serviceInfo = this.resolveService(params.action, params.entity_id);
             if (!serviceInfo) {
                 return this.fail(
-                    `Acao desconhecida: ${params.action}`,
+                    `Unknown action: ${params.action}`,
                     endpointPolicy,
                     context,
                     this.state.status,
@@ -347,7 +348,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                     lastError: `HTTP ${response.status}`,
                 });
                 return this.fail(
-                    `Home Assistant retornou erro ${response.status}: ${errorText}`,
+                    `Home Assistant returned error ${response.status}: ${errorText}`,
                     endpointPolicy,
                     context,
                     this.state.status,
@@ -356,7 +357,7 @@ export class HomeAssistantBridge implements IZavorthTool {
 
             return {
                 success: true,
-                message: `Sucesso ao controlar dispositivo: ${params.entity_id}.`,
+                message: `Successfully controlled device: ${params.entity_id}.`,
                 data: {
                     entity_id: params.entity_id,
                     action: params.action,
@@ -370,10 +371,10 @@ export class HomeAssistantBridge implements IZavorthTool {
             const errMessage = error instanceof Error ? error.message : String(error);
             this.updateState({
                 status: this.listening ? 'degraded' : 'idle',
-                lastError: errMessage || 'erro desconhecido',
+                lastError: errMessage || 'unknown error',
             });
             return this.fail(
-                `Falha ao comunicar com HA REST: ${errMessage}`,
+                `Failed to communicate with HA REST: ${errMessage}`,
                 endpointPolicy,
                 context,
                 this.state.status,
@@ -400,7 +401,7 @@ export class HomeAssistantBridge implements IZavorthTool {
 
         if (!entityId.startsWith('media_player.')) {
             return this.fail(
-                'A acao speak_text exige um entity_id do tipo media_player.*.',
+                'The speak_text action requires a media_player.* entity_id.',
                 input.endpointPolicy,
                 input.context,
                 this.state.status,
@@ -409,7 +410,7 @@ export class HomeAssistantBridge implements IZavorthTool {
 
         if (!text) {
             return this.fail(
-                'A acao speak_text exige attributes.text com o texto a ser falado.',
+                'The speak_text action requires attributes.text with the text to speak.',
                 input.endpointPolicy,
                 input.context,
                 this.state.status,
@@ -418,7 +419,7 @@ export class HomeAssistantBridge implements IZavorthTool {
 
         if (!publicBaseUrl) {
             return this.fail(
-                'Configure ZAVORTH_PUBLIC_BASE_URL ou ZAVORTH_HOME_ASSISTANT_AUDIO_BASE_URL para entregar audio Echo ao Home Assistant.',
+                'Configure ZAVORTH_PUBLIC_BASE_URL or ZAVORTH_HOME_ASSISTANT_AUDIO_BASE_URL to deliver Echo audio to Home Assistant.',
                 input.endpointPolicy,
                 input.context,
                 this.state.status,
@@ -497,7 +498,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                     lastError: `HTTP ${response.status}`,
                 });
                 return this.fail(
-                    `Home Assistant retornou erro ${response.status}: ${errorText}`,
+                    `Home Assistant returned error ${response.status}: ${errorText}`,
                     input.endpointPolicy,
                     input.context,
                     this.state.status,
@@ -506,7 +507,7 @@ export class HomeAssistantBridge implements IZavorthTool {
 
             return {
                 success: true,
-                message: `Audio Echo enviado para ${entityId} via Gemini 3.1 Flash TTS.`,
+                message: `Echo audio sent to ${entityId} through Gemini 3.1 Flash TTS.`,
                 data: {
                     entity_id: entityId,
                     action: params.action,
@@ -537,10 +538,10 @@ export class HomeAssistantBridge implements IZavorthTool {
             this.voiceAssetStore.remove(asset.id);
             this.updateState({
                 status: this.listening ? 'degraded' : 'idle',
-                lastError: errMessage || 'erro desconhecido',
+                lastError: errMessage || 'unknown error',
             });
             return this.fail(
-                `Falha ao comunicar com HA REST: ${errMessage}`,
+                `Failed to communicate with HA REST: ${errMessage}`,
                 input.endpointPolicy,
                 input.context,
                 this.state.status,
@@ -612,14 +613,15 @@ export class HomeAssistantBridge implements IZavorthTool {
                 hostname,
                 transport: 'rest+websocket',
             };
-        } catch {
-            return {
+        } catch (error) {
+    logger.warn('[Home Assistant Bridge] string operation failed', error);
+    return {
                 scope: 'blocked',
                 normalizedUrl: String(rawUrl || '').trim(),
                 hostname: null,
                 transport: 'rest+websocket',
             };
-        }
+  }
     }
 
     private buildLifecycleSnapshot(status: HomeAssistantLifecycleStatus): Record<string, unknown> {

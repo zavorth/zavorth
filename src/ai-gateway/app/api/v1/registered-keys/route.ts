@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { issueRegisteredKey, checkQuota, listRegisteredKeys } from "@/lib/db/registeredKeys";
+import { logger } from '@/shared/utils/logger';
 
 // ─── Validation ───────────────────────────────────────────────────────────────
 
@@ -55,7 +56,8 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 

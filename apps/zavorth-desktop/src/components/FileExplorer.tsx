@@ -152,7 +152,7 @@ export function FileExplorer({ onAttachFile, data }: FileExplorerProps) {
       </div>
       <div className="zavorth-file-tree">
         {sanitizedData.length === 0 ? (
-          <div className="zavorth-file-node-empty">Nenhum arquivo seguro no workspace.</div>
+          <div className="zavorth-file-node-empty">No safe file in the workspace.</div>
         ) : (
           sanitizedData.map(node => (
             <FileTreeNode
@@ -216,7 +216,7 @@ function FileTreeNode({
         </span>
         <button
           onClick={handleSelect}
-          title="Anexar referência ao chat"
+          title="Attach reference to chat"
           className="zavorth-file-node-action"
           type="button"
         >

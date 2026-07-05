@@ -115,36 +115,36 @@ export class ZavorthTenantGovernanceActionService {
     const tenantId = String(input.tenantId || '').trim();
     const actionId = String(input.actionId || '').trim().toLowerCase() as ZavorthTenantGovernanceGuidedActionId;
     if (!tenantId) {
-      throw new Error('tenantId obrigatorio para executar a acao do tenant.');
+      throw new Error('tenantId is required to execute the tenant action.');
     }
 
     const snapshot = this.tenantGovernance.buildSnapshot();
     const tenant = snapshot.tenants.find((entry) => String(entry.tenantId || '').trim() === tenantId) || null;
     if (!tenant) {
-      throw new Error(`Tenant ${tenantId} nao encontrado no plano de governanca.`);
+      throw new Error(`Tenant ${tenantId} was not found in the governance plan.`);
     }
 
     const descriptor = tenant.actions.find((entry) => String(entry.id || '').trim().toLowerCase() === actionId) || null;
     if (!descriptor) {
-      throw new Error(`Acao ${actionId} nao existe para o tenant ${tenantId}.`);
+      throw new Error(`Action ${actionId} does not exist for tenant ${tenantId}.`);
     }
     if (descriptor.actionKind !== 'guided') {
-      throw new Error(`Acao ${actionId} ainda depende de composicao manual.`);
+      throw new Error(`Action ${actionId} still depends on manual composition.`);
     }
 
     switch (actionId) {
       case 'inspect-tenant':
         return this.buildResponse(snapshot, descriptor, tenantId, {
-          note: `Tenant ${tenantId} carregado na governanca.`,
+          note: `Tenant ${tenantId} loaded into governance.`,
         });
       case 'review-teams':
         return this.buildResponse(snapshot, descriptor, tenantId, {
-          note: 'Catalogo de teams atualizado para esta superficie.',
+          note: 'Team catalog updated for this surface.',
           teams: this.teamCatalog.buildSnapshot({ workspace: input.workspace || null }),
         });
       case 'review-channels':
         return this.buildResponse(snapshot, descriptor, tenantId, {
-          note: 'Channel mesh atualizado para o tenant selecionado.',
+          note: 'Channel mesh updated for the selected tenant.',
           channels: this.channelMesh.buildSnapshot({
             selectedId: this.resolveChannelSelectionId(tenant.platform),
           }),
@@ -178,17 +178,17 @@ export class ZavorthTenantGovernanceActionService {
       case 'start-onboarding-review':
         return this.startWorkflowReview(snapshot, descriptor, tenantId, {
           objective: `Fechar onboarding do tenant ${tenantId}`,
-          note: `Workflow de onboarding iniciado para o tenant ${tenantId}.`,
+          note: `Onboarding workflow started for tenant ${tenantId}.`,
           workspace: input.workspace || null,
         });
       case 'start-tenant-audit':
         return this.startWorkflowReview(snapshot, descriptor, tenantId, {
-          objective: `Auditar governanca do tenant ${tenantId}`,
-          note: `Workflow de auditoria iniciado para o tenant ${tenantId}.`,
+          objective: `Audit governance for tenant ${tenantId}`,
+          note: `Audit workflow started for tenant ${tenantId}.`,
           workspace: input.workspace || null,
         });
       default:
-        throw new Error(`Acao ${actionId} nao e suportada pelo control plane guiado.`);
+        throw new Error(`Action ${actionId} is not supported by the guided control plane.`);
     }
   }
 
@@ -261,7 +261,7 @@ export class ZavorthTenantGovernanceActionService {
     sessionPlane: ZavorthSessionPlaneSnapshot | null;
   }> {
     if (!this.workflowController) {
-      throw new Error('Workflow controller indisponivel para a governanca guiada de tenants.');
+      throw new Error('Workflow controller is unavailable for guided tenant governance.');
     }
 
     const replies = await this.runWorkflowCommand(`review ${input.objective}`);
@@ -276,7 +276,7 @@ export class ZavorthTenantGovernanceActionService {
   private async runWorkflowCommand(args: string): Promise<string[]> {
     const controller = this.workflowController;
     if (!controller) {
-      throw new Error('Workflow controller indisponivel para a governanca guiada de tenants.');
+      throw new Error('Workflow controller is unavailable for guided tenant governance.');
     }
 
     const replies: string[] = [];

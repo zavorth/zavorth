@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import { logger } from '../../logger.js';
 
 export class VideoGenRunwayTool extends BaseTool {
   public readonly name = 'zavorth_runway';
@@ -119,7 +120,7 @@ export class VideoGenRunwayTool extends BaseTool {
         'https://api.dev.runwayml.com/v1/image_to_video',
       ], { timeout: 60000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Video Gen Runway] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `Runway error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
@@ -143,9 +144,7 @@ export class VideoGenRunwayTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Video Gen Runway] parsing failed', error); return ''; }
   }
 
   private async checkStatus(args: Record<string, unknown>, apiKey: string): Promise<string> {
@@ -178,8 +177,6 @@ export class VideoGenRunwayTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Video Gen Runway] parsing failed', error); return ''; }
   }
 }

@@ -7,7 +7,7 @@ export async function handleWebAppSurfaceCoreRoutes(
   res: http.ServerResponse,
   url: URL,
   pathname: string,
-  deps: WebAppSurfaceRouteDeps,
+  deps: any,
 ): Promise<boolean> {
   if (pathname === '/api/web/capabilities' && req.method === 'GET') {
     if (!deps.capabilityCatalog) {

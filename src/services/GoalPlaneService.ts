@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 
 import { TaskPlaneService } from './TaskPlaneService.js';
 import { ZavorthOperationalStateDbService } from './ZavorthOperationalStateDbService.js';
+import { logger } from '../logger.js';
 
 export type GoalPlaneStatus = 'active' | 'paused' | 'done' | 'cancelled';
 
@@ -184,9 +185,10 @@ export class GoalPlaneService {
           ? parsed.goals.map(normalizeGoal).filter((entry): entry is GoalPlaneItem => Boolean(entry))
           : [],
       };
-    } catch {
-      return { goals: [] };
-    }
+    } catch (error) {
+    logger.warn('[Goal Plane] JSON parse failed', error);
+    return { goals: [] };
+  }
   }
 
   private writeStore(store: { goals: GoalPlaneItem[] }): void {

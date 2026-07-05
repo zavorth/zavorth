@@ -10,6 +10,7 @@ import type {
   NodeMeshTransport,
 } from '../contracts/NodeMeshContract.js';
 import { CanonicalExecutionPipelineService } from './CanonicalExecutionPipelineService.js';
+import { logger } from '../logger.js';
 
 type NodeInvocationStoreRuntime = {
   now?: () => Date;
@@ -499,9 +500,7 @@ export class NodeInvocationStoreService {
         return fallback;
       }
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Node Invocation Store] JSON parse failed', error); return fallback; }
   }
 
   private writeState(payload: NodeInvocationStoreState): void {

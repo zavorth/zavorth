@@ -333,13 +333,13 @@ function objectiveForKind(kind: AgentTeamCompilerRoleKind, run: UniversalAgentRu
   const objective = redactText(run.input, 'pedido da run');
   switch (kind) {
     case 'researcher':
-      return `Levantar contexto e riscos para: ${objective}`;
+      return `Gather context and risks for: ${objective}`;
     case 'implementer':
       return `Preparar patch ou execucao governada para: ${objective}`;
     case 'verifier':
       return `Validar criterios, testes e regressao para: ${objective}`;
     case 'provider-specialist':
-      return 'Comparar provider/modelo usando Provider Arena antes de executar subagentes.';
+      return 'Compare provider/model using Provider Arena before running subagents.';
     case 'safety-reviewer':
       return 'Revisar policy, approval, budget e quarantine antes de liberar lancamento.';
     case 'memory-curator':
@@ -557,7 +557,7 @@ export class AgentTeamCompilerService {
         reviewerRoleIds,
         summary: status === 'prepared'
           ? 'Team run preparado com claims, peer review e entrada obrigatoria de sintese final.'
-          : 'Team run bloqueado antes de preparar claims/reviews.',
+          : 'Team run blocked before preparing claims/reviews.',
       },
       receipts: [
         ...snapshot.receipts,
@@ -567,7 +567,7 @@ export class AgentTeamCompilerService {
           source: 'AgentTeamCompilerService.launchApprovedTeam',
           detail: status === 'prepared'
             ? 'Approval conferido; team run preparado sem executar ferramentas diretamente.'
-            : 'Launch bloqueado por approval, roles ou estado do compiler.',
+            : 'Launch blocked by approval, roles, or compiler state.',
           status: status === 'prepared' ? 'ready' : 'needs-approval',
         },
       ],
@@ -581,7 +581,7 @@ export class AgentTeamCompilerService {
         secretsSerialized: false,
       },
       nextSafeAction: status === 'prepared'
-        ? 'Executar cada role pelo runtime de subagentes aprovado e sintetizar apenas depois dos reviews.'
+        ? 'Run each role through the approved subagent runtime and synthesize only after reviews.'
         : 'Revisar approval, roles e receipts antes de tentar launch novamente.',
     };
   }
@@ -730,7 +730,7 @@ export class AgentTeamCompilerService {
     const subagentReceipt = createSubagentResultReceipt({
       roleId,
       status: 'planned',
-      summary: `Role ${roleId} compilado para team plan e bloqueado ate approval.`,
+      summary: `Role ${roleId} compiled into the team plan and blocked until approval.`,
       scope,
       budget,
       approvalBoundary,
@@ -864,7 +864,7 @@ export class AgentTeamCompilerService {
         roleId: synthesisRole.roleId,
         targetRoleId: null,
         status: 'prepared',
-        prompt: 'Sintetize somente evidencias revisadas, liste bloqueios e nao declare conclusao sem receipts.',
+        prompt: 'Synthesize only reviewed evidence, list blockers, and do not declare completion without receipts.',
         evidenceRefs: turns.map((turn) => turn.id),
       });
     }
@@ -965,7 +965,7 @@ export class AgentTeamCompilerService {
         kind: 'provider-arena',
         source: 'ProviderArenaService',
         detail: providerArenaLinked
-          ? 'Provider Arena informado; escolha de provider/modelo permanece advisory.'
+          ? 'Provider Arena reported; provider/model selection remains advisory.'
           : 'Sem Provider Arena; modelProfile atual usado como fallback advisory.',
         status: providerArenaLinked ? 'ready' : 'missing',
       },
@@ -983,7 +983,7 @@ export class AgentTeamCompilerService {
         kind: 'swarm-escalation',
         source: 'AgentRunService',
         detail: requestedSwarm
-          ? 'Pedido sugere equipe/subagentes; compiler preparou plano sem launch.'
+          ? 'Request suggests team/subagents; compiler prepared the plan without launch.'
           : 'Sem intencao de equipe detectada.',
         status: requestedSwarm ? 'needs-approval' : 'missing',
       },
@@ -998,7 +998,7 @@ export class AgentTeamCompilerService {
         id: `agent-team-receipt:${run.id}:policy`,
         kind: 'policy',
         source: 'AgentTeamCompilerService',
-        detail: 'Compiler nao executa subagentes; launch depende de approval, budget e escopo.',
+        detail: 'Compiler does not execute subagents; launch depends on approval, budget, and scope.',
         status: 'ready',
       },
       {

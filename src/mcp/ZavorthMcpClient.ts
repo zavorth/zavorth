@@ -167,7 +167,7 @@ export class ZavorthMcpClient extends EventEmitter {
       return {
         serverId: 'unknown',
         toolName,
-        content: [{ type: 'text', text: `Ferramenta MCP "${toolName}" nao encontrada em nenhum servidor conectado.` }],
+        content: [{ type: 'text', text: `MCP tool "${toolName}" not found on any connected server.` }],
         isError: true,
       };
     }

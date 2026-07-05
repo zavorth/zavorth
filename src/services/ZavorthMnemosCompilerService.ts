@@ -4,6 +4,7 @@ import * as path from 'node:path';
 import { config } from '../config/index.js';
 import type { MnemosEventType, MnemosSessionEvent } from '../contracts/MnemosEventContract.js';
 import type { WebRealtimeEvent, WebChatMessage } from './WebRealtimeService.js';
+import { logger } from '../logger.js';
 
 
 type MnemosFsRuntime = Pick<
@@ -74,9 +75,7 @@ export class ZavorthMnemosCompilerService {
     try {
       const parsed = JSON.parse(String(this.fsRuntime.readFileSync(filePath, 'utf8') || '{}'));
       return Array.isArray(parsed?.events) ? parsed.events as MnemosSessionEvent[] : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Mnemos Compiler] JSON parse failed', error); return []; }
   }
 
   public clearEvents(workspaceRoot: string): void {
@@ -177,18 +176,18 @@ export class ZavorthMnemosCompilerService {
   private sanitizePayload<T>(value: T): T {
     if (value === null || value === undefined) return value;
     if (typeof value === 'string') {
-      return redactSecrets(value) as any;
+      return redactSecrets(value) as unknown as T;
     }
     if (Array.isArray(value)) {
-      return value.map((item) => this.sanitizePayload(item)) as any;
+      return value.map((item) => this.sanitizePayload(item)) as unknown as T;
     }
     if (typeof value === 'object') {
-      const result: Record<string, any> = {};
+      const result: Record<string, unknown> = {};
       for (const [key, val] of Object.entries(value)) {
         const sanitizedKey = redactSecrets(key);
         result[sanitizedKey] = this.sanitizePayload(val);
       }
-      return result as any;
+      return result as unknown as T;
     }
     return value;
   }

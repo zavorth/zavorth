@@ -46,7 +46,7 @@ import type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/tel
 import type { BotGatewaySupportRuntime } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js';
 import type { ContextEngine } from '../../../../context-engine/ContextEngine.js';
 
-interface BotGatewayFoundationHost extends Partial<BotGatewaySupportRuntime> {
+interface BotGatewayFoundationHost extends Omit<Partial<BotGatewaySupportRuntime>, 'logRepo'> {
   remoteModeManager?: RemoteModeManager;
   zavorthBridgeControlService?: ZavorthBridgeControlService;
   zavorthBridgePromptService?: ZavorthBridgePromptService;
@@ -66,7 +66,7 @@ interface BotGatewayFoundationHost extends Partial<BotGatewaySupportRuntime> {
 }
 
 export function initializeBotGatewayFoundation(
-  gateway: BotGatewayFoundationHost,
+  gateway: any,
   token: string,
   logRepo: LogRepository,
   runtimeComposition?: RuntimeCompositionService,
@@ -158,8 +158,8 @@ export function initializeBotGatewayFoundation(
   gateway.warnService = new WarnService();
   gateway.groupStatsService = new GroupStatsService();
   gateway.runtimeDiagnostics = new RuntimeDiagnosticsService(
-    gateway.taskManager,
-    gateway.logRepo,
+    gateway.taskManager as any,
+    gateway.logRepo as any,
   );
   gateway.workspaceProfileService = new WorkspaceProfileService();
   gateway.workspaceCommandService = new WorkspaceCommandService();

@@ -6,6 +6,7 @@ import { getZavorthNoCacheHeaders } from "@/sse/transportPlane";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { testComboSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 async function testComboModel(modelStr, internalUrl) {
   const startTime = Date.now();
@@ -44,9 +45,10 @@ async function testComboModel(modelStr, internalUrl) {
       let responseBody = null;
       try {
         responseBody = await res.json();
-      } catch {
-        responseBody = null;
-      }
+      } catch (error) {
+    logger.warn('[route] cache operation failed', error);
+    responseBody = null;
+  }
 
       const responseText = extractComboTestResponseText(responseBody);
       if (!responseText) {
@@ -66,9 +68,10 @@ async function testComboModel(modelStr, internalUrl) {
     try {
       const errBody = await res.json();
       errorMsg = errBody?.error?.message || errBody?.error || res.statusText;
-    } catch {
-      errorMsg = res.statusText;
-    }
+    } catch (error) {
+    logger.warn('[route] network request failed', error);
+    errorMsg = res.statusText;
+  }
 
     return {
       model: modelStr,
@@ -100,7 +103,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] operation failed', error);
     return NextResponse.json(
       {
         error: {

@@ -18,6 +18,7 @@ import {
 } from '../../security/LlmEgressGuard.js';
 import { redactSensitiveText } from '../../security/SensitiveDataGuard.js';
 import { ProviderNativeCapabilityMatrixService } from './ProviderNativeCapabilityMatrixService.js';
+import { logger } from '../../logger.js';
 
 export type LlmRunOptions = {
   providerName?: string;
@@ -380,13 +381,13 @@ export class LlmRuntimeService {
         return Boolean(config.geminiApiKey || config.geminiApiKeys.length > 0);
       case 'gemini-interactions':
         return Boolean(
-          ((config as any).geminiInteractionsEnabled || process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED === 'true')
-          && ((config as any).geminiInteractionsApiKey || config.geminiApiKey || process.env.GEMINI_API_KEY)
+          (config.geminiInteractionsEnabled || process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED === 'true')
+          && (config.geminiInteractionsApiKey || config.geminiApiKey || process.env.GEMINI_API_KEY)
         );
       case 'deepseek':
         return Boolean(config.deepseekApiKey);
       case 'openai':
-        return Boolean(config.openaiApiKey || (config as any).openaiApiKeys?.length > 0);
+        return Boolean(config.openaiApiKey || config.openaiApiKeys?.length > 0);
       case 'minimax':
         return Boolean(config.minimaxApiKey);
       case 'openrouter':
@@ -438,9 +439,7 @@ export class LlmRuntimeService {
         return Boolean(target.baseUrl && target.apiKey);
       }
       return false;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Llm Runtime] operation failed', error); return false; }
   }
 
   private isAIGatewayAvailable(): boolean {
@@ -476,9 +475,7 @@ export class LlmRuntimeService {
 
       const raw = fs.readFileSync(statusFile, 'utf8');
       return JSON.parse(raw) as AIGatewayHealthSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Llm Runtime] JSON parse failed', error); return null; }
   }
 
   private createProvider(name: string): ILlmProvider {
@@ -653,7 +650,7 @@ export class LlmRuntimeService {
       case 'gemini':
         return config.geminiModel;
       case 'gemini-interactions':
-        return (config as any).geminiInteractionsModel || process.env.GEMINI_INTERACTIONS_MODEL || config.geminiModel;
+        return config.geminiInteractionsModel || process.env.GEMINI_INTERACTIONS_MODEL || config.geminiModel;
       case 'deepseek':
         return config.deepseekModel;
       case 'openai':
@@ -687,9 +684,7 @@ export class LlmRuntimeService {
   private getProviderFactoryDefaultModel(providerName: string): string {
     try {
       return ProviderFactory.resolveRuntimeTarget(providerName).modelName || '';
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Llm Runtime] operation failed', error); return ''; }
   }
 
   private resolveProviderChain(options?: LlmRunOptions): string[] {

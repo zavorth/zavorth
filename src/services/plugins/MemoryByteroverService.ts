@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface ByteroverEntity {
   name: string;
@@ -63,7 +64,7 @@ export class MemoryByteroverService {
         for (const [id, mem] of Object.entries(data as Record<string, ByteroverMemory>)) {
           this.memories.set(id, mem);
         }
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Memory Byterover] JSON parse failed', error); }
     }
 
     if (fs.existsSync(entitiesPath)) {
@@ -72,13 +73,13 @@ export class MemoryByteroverService {
         for (const [name, ent] of Object.entries(data as Record<string, ByteroverEntity>)) {
           this.entities.set(name, ent);
         }
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Memory Byterover] JSON parse failed', error); }
     }
 
     if (fs.existsSync(relationsPath)) {
       try {
         this.relations = JSON.parse(fs.readFileSync(relationsPath, 'utf-8'));
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Memory Byterover] JSON parse failed', error); }
     }
   }
 

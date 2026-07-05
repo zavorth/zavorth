@@ -6,6 +6,7 @@ import type {
   ZavorthWorkflowStep,
 } from '../contracts/WorkflowTemplateContract.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../logger.js';
 
 type FileSystemLike = {
   existsSync: typeof fs.existsSync;
@@ -202,9 +203,7 @@ export class WorkflowTemplateService {
     try {
       if (!this.fs.existsSync(filePath)) return fallback;
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Workflow Template] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

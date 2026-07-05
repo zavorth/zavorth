@@ -10,6 +10,15 @@ import type { FirecrackerSandboxStatus } from './sandbox/FirecrackerSandboxRunti
 import { TenantRegistryService, type TenantRegistrySummary } from './TenantRegistryService.js';
 import { WasmSandboxCapabilityService, type WasmSandboxStatus } from './WasmSandboxCapabilityService.js';
 import { OperationsHealthSnapshotService } from './operations-health/OperationsHealthSnapshotService.js';
+import { logger } from '../logger.js';
+import type {
+ChannelsSnapshot,
+  NodeMeshSmokeSnapshot,
+  ChannelProviderDoctorSnapshot,
+  RemoteTransportDoctorSnapshot,
+  ZavorthBridgeMobileAccessSnapshot,
+  SecuritySnapshot,
+} from './operations-health/OperationsHealthSnapshotTypes.js';
 
 type StorageHotspot = {
   id: string;
@@ -66,182 +75,10 @@ type MaintenanceAutomationSnapshot = {
   lastReportStepCount: number;
 };
 
-type DiscordBridgeHealthSnapshot = {
-  mode: 'bridge' | 'native' | 'unknown';
-  enabled: boolean;
-  started: boolean;
-  allowDirectMessages: boolean;
-  allowedGuildIds: string[];
-  pendingInbox: number;
-  pendingOutbox: number;
-  lastError: string | null;
-  updatedAt: string | null;
-};
-
-type WhatsAppChannelHealthSnapshot = {
-  mode: 'stub' | 'cloud-api' | 'baileys' | 'unknown';
-  enabled: boolean;
-  started: boolean;
-  recipientsConfigured: number;
-  allowedChatIds: string[];
-  provider: 'stub' | 'cloud-api' | 'baileys' | 'unknown';
-  providerConfigured: boolean;
-  providerDecision: string | null;
-  sessionDir: string | null;
-  sessionDirConfigured: boolean;
-  phoneNumberId: string | null;
-  webhookConfigured: boolean;
-  lastInboundAt: string | null;
-  lastOutboundAt: string | null;
-  lastError: string | null;
-  updatedAt: string | null;
-};
-
-type SlackChannelHealthSnapshot = {
-  mode: 'stub' | 'native' | 'unknown';
-  enabled: boolean;
-  started: boolean;
-  recipientsConfigured: number;
-  allowedChannelIds: string[];
-  transport: 'native' | 'local' | 'stub' | 'unknown';
-  nativeConfigured: boolean;
-  apiBaseUrl: string | null;
-  workspaceId: string | null;
-  workspaceConfigured: boolean;
-  lastInboundAt: string | null;
-  lastOutboundAt: string | null;
-  lastError: string | null;
-  updatedAt: string | null;
-};
-
-type PlannedChannelHealthSnapshot = {
-  mode:
-    | 'signal-cli'
-    | 'mac-bridge'
-    | 'graph-bot'
-    | 'smtp-imap'
-    | 'bridge'
-    | 'native'
-    | 'stub'
-    | 'unknown';
-  enabled: boolean;
-  started: boolean;
-  recipientsConfigured: number;
-  allowedRecipients: string[];
-  providerConfigured: boolean;
-  transport: 'bridge' | 'webhook' | 'native' | 'local' | 'stub' | 'unknown';
-  lastInboundAt: string | null;
-  lastOutboundAt: string | null;
-  lastError: string | null;
-  updatedAt: string | null;
-  platform?: string | null;
-  readOnly?: boolean;
-  accountNumber?: string | null;
-  bridgeTarget?: string | null;
-  tenantId?: string | null;
-  appId?: string | null;
-  smtpConfigured?: boolean;
-  imapConfigured?: boolean;
-  webhookConfigured?: boolean;
-};
-
-type NodeMeshSmokeHealthSnapshot = {
-  available: boolean;
-  status: 'passed' | 'failed' | 'running' | 'missing';
-  checkedAt: string | null;
-  summary: string | null;
-  command: string;
-  file: string;
-  nodeId: string | null;
-  finalNodeStatus: string | null;
-  recentCapabilityId: string | null;
-  error: string | null;
-  stale: boolean;
-  ageMs: number | null;
-  maxAgeMs: number;
-  recommendedAction: string | null;
-};
-
-type ChannelProviderDoctorHealthSnapshot = {
-  available: boolean;
-  status: 'passed' | 'failed' | 'skipped' | 'missing';
-  checkedAt: string | null;
-  summary: string | null;
-  command: string;
-  file: string;
-  stale: boolean;
-  ageMs: number | null;
-  maxAgeMs: number;
-  recommendedAction: string | null;
-  items: Array<{
-    channelId: 'slack' | 'whatsapp' | 'telegram' | 'discord' | 'signal' | 'imessage' | 'teams' | 'email';
-    mode:
-      | 'native'
-      | 'cloud-api'
-      | 'stub'
-      | 'baileys'
-      | 'bridge'
-      | 'signal-cli'
-      | 'mac-bridge'
-      | 'graph-bot'
-      | 'smtp-imap'
-      | 'unknown';
-    status: 'passed' | 'failed' | 'skipped';
-    configured: boolean;
-    summary: string;
-    error: string | null;
-  }>;
-};
-
-type RemoteTransportDoctorHealthSnapshot = {
-  available: boolean;
-  status: 'passed' | 'failed' | 'running' | 'skipped' | 'missing';
-  checkedAt: string | null;
-  summary: string | null;
-  command: string;
-  file: string;
-  stale: boolean;
-  ageMs: number | null;
-  maxAgeMs: number;
-  recommendedAction: string | null;
-  items: Array<{
-    transportId: 'discord-transport' | 'AIGateway' | 'zavorth-terminal' | 'node-host' | string;
-    mode: 'native' | 'remote' | 'local' | 'stub' | 'unknown';
-    status: 'passed' | 'failed' | 'running' | 'skipped';
-    configured: boolean;
-    summary: string;
-    error: string | null;
-  }>;
-};
-
-type ZavorthBridgeMobileAccessHealthSnapshot = {
-  available: boolean;
-  status: 'active' | 'revoked' | 'expired' | 'missing';
-  checkedAt: string | null;
-  leaseId: string | null;
-  mode: 'public' | 'lan' | 'none';
-  accessUrl: string | null;
-  expiresAt: string | null;
-  remainingMs: number | null;
-  requiresPassword: boolean;
-  startedSidecar: boolean;
-  activatedRemoteMode: boolean;
-  summary: string | null;
-  recommendedAction: string | null;
-};
-
 export type OperationsHealthSnapshot = {
   generatedAt: string;
   sidecars: SidecarStatusSummary;
-  channels?: {
-    discordBridge: DiscordBridgeHealthSnapshot;
-    whatsapp: WhatsAppChannelHealthSnapshot;
-    slack: SlackChannelHealthSnapshot;
-    signal?: PlannedChannelHealthSnapshot;
-    imessage?: PlannedChannelHealthSnapshot;
-    teams?: PlannedChannelHealthSnapshot;
-    email?: PlannedChannelHealthSnapshot;
-  };
+  channels?: ChannelsSnapshot;
   tenants: TenantRegistrySummary & {
     file: string;
   };
@@ -276,10 +113,10 @@ export type OperationsHealthSnapshot = {
     rootfsPresent: boolean;
     recommendedAction: string | null;
   };
-  nodeMeshSmoke: NodeMeshSmokeHealthSnapshot;
-  channelProviderDoctor?: ChannelProviderDoctorHealthSnapshot;
-  remoteTransportDoctor: RemoteTransportDoctorHealthSnapshot;
-  zavorthBridgeMobileAccess: ZavorthBridgeMobileAccessHealthSnapshot;
+  nodeMeshSmoke: NodeMeshSmokeSnapshot;
+  channelProviderDoctor?: ChannelProviderDoctorSnapshot;
+  remoteTransportDoctor: RemoteTransportDoctorSnapshot;
+  zavorthBridgeMobileAccess: ZavorthBridgeMobileAccessSnapshot;
   wasm: WasmSandboxStatus;
   publish: PublishSnapshot;
   maintenance: MaintenanceSnapshot;
@@ -292,7 +129,7 @@ export type OperationsHealthSnapshot = {
     freePercent: number;
     hotspots: StorageHotspot[];
   };
-  security: OperationalSecuritySnapshot;
+  security: OperationalSecuritySnapshot | SecuritySnapshot;
   errors: {
     lastError: {
       timestamp: string | null;
@@ -377,10 +214,10 @@ export class OperationsHealthService {
       Number(runtime.channelProviderDoctorMaxAgeMs || config.channelProviderDoctorMaxAgeMs) || 43_200_000;
     this.remoteTransportDoctorReportFile =
       runtime.remoteTransportDoctorReportFile
-      || (config as any).remoteTransportDoctorReportFile
+      || config.remoteTransportDoctorReportFile
       || path.resolve(config.dataDir, 'runtime', 'remote-transport-doctor-last.json');
     this.remoteTransportDoctorMaxAgeMs =
-      Number(runtime.remoteTransportDoctorMaxAgeMs || (config as any).remoteTransportDoctorMaxAgeMs) || 43_200_000;
+      Number(runtime.remoteTransportDoctorMaxAgeMs || config.remoteTransportDoctorMaxAgeMs) || 43_200_000;
     this.tenantRegistry = new TenantRegistryService({
       filePath: this.tenantRegistryFile,
       now: this.now,
@@ -576,9 +413,7 @@ export class OperationsHealthService {
     try {
       fs.mkdirSync(path.dirname(this.operationsSnapshotCacheFile), { recursive: true });
       fs.writeFileSync(this.operationsSnapshotCacheFile, JSON.stringify(snapshot, null, 2), 'utf8');
-    } catch {
-      // Fast snapshot persistence must never break operational reads.
-    }
+    } catch (error) { // Fast snapshot persistence must never break operational reads. logger.warn('[Operations] filesystem operation failed', error); }
   }
 
   private readPersistedFastSnapshot(
@@ -607,14 +442,12 @@ export class OperationsHealthService {
         parsed.remoteTransportDoctor = this.snapshotService.readRemoteTransportDoctorSnapshot();
       }
 
-      if (!(parsed as any).zavorthBridgeMobileAccess) {
-        (parsed as any).zavorthBridgeMobileAccess = this.snapshotService.readZavorthBridgeMobileAccessSnapshot();
+      if (!parsed.zavorthBridgeMobileAccess) {
+        parsed.zavorthBridgeMobileAccess = this.snapshotService.readZavorthBridgeMobileAccessSnapshot();
       }
 
       return parsed;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Operations] parsing failed', error); return null; }
   }
 
   private buildEstimatedDockerStatus(

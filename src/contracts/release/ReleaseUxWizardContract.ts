@@ -127,10 +127,10 @@ export const RELEASE_UX_WEB_MARKERS = [
 ] as const;
 
 export const RELEASE_UX_CONTRACTS = [
-  'Release wizard e preview-first: diff, publish, rollback e changelog aparecem antes de qualquer acao destrutiva.',
-  'Publish alpha/beta continua comando explicito e aprovado pelo operador; o wizard nao publica sozinho.',
-  'Rollback sempre exige preflight, evidencia, risco e confirmacao; preview nunca executa troca de release.',
-  'Diff humano deve existir mesmo quando o historico real ainda estiver frio, com estado degradado em vez de falso sucesso.',
-  'Changelog operacional usa publish history e telemetry summaries; payload bruto, token e secret nao entram na primeira camada.',
-  'A ZavorthControl deve expor readiness, diff, rollback e changelog com comandos copiaveis.',
+  'Release wizard and preview-first flow: diff, publish, rollback, and changelog appear before any destructive action.',
+  'Alpha/beta publish remains an explicit operator-approved command; the wizard does not publish by itself.',
+  'Rollback always requires preflight, evidence, risk, and confirmation; preview never performs a release switch.',
+  'Human diff must exist even when real history is still cold, with degraded state instead of false success.',
+  'Operational changelog uses publish history and telemetry summaries; raw payload, token, and secret do not enter the first layer.',
+  'ZavorthControl must expose readiness, diff, rollback, and changelog with copyable commands.',
 ];

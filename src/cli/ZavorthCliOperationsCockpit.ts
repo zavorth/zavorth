@@ -11,6 +11,7 @@ import {
 } from './ZavorthCliNativeRenderers.runtime.js';
 import { formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
+import { logger } from '../logger.js';
 
 type CliStage25DoctorSnapshot = Awaited<ReturnType<typeof buildCliOperationsDoctorSnapshot>>;
 
@@ -66,14 +67,14 @@ export type CliOperationsCockpitSnapshot = OperationsCockpitSnapshot & {
   doctorSnapshot: CliStage25DoctorSnapshot | null;
 };
 
-function cleanHumanLine(value: string | null | undefined, fallback = 'nao informado'): string {
+function cleanHumanLine(value: string | null | undefined, fallback = 'not provided'): string {
   const sanitized = sanitizeHumanCliText(value || fallback)
     .replace(/\bzavorth ops run (dev:supervised|start:supervised|ops:start|ops:ready)\b/gi, 'zavorth go')
     .replace(/\bzavorth ops run recover-sidecars\b/gi, 'zavorth go')
     .replace(/\bzavorth ops run [a-z0-9:_-]+\b/gi, 'zavorth doctor')
     .replace(/\bnpm(?:\.cmd)?\s+run\s+[a-z0-9:_-]+\b/gi, 'zavorth doctor')
-    .replace(/\bsidecars?\b/gi, 'componentes locais')
-    .replace(/\bExiste componentes locais habilitado\b/gi, 'Existem componentes locais habilitados')
+    .replace(/\bsidecars?\b/gi, 'local components')
+    .replace(/\bExiste local components habilitado\b/gi, 'Existem local components habilitados')
     .replace(/\bruntime\b/gi, 'Zavorth')
     .replace(/\s+/g, ' ')
     .trim();
@@ -173,7 +174,7 @@ function pushAction(
     return;
   }
   const command = formatHumanCommand(candidate.command || null);
-  const label = cleanHumanLine(candidate.label || 'Abrir proximo passo');
+  const label = cleanHumanLine(candidate.label || 'Open next step');
   const id = candidate.id || `${candidate.source || 'ops'}:${label}:${command}`;
   const key = `${label.toLowerCase()}|${command.toLowerCase()}`;
   if (actions.some((action) => `${action.label.toLowerCase()}|${action.command.toLowerCase()}` === key)) {
@@ -233,7 +234,7 @@ function buildUnifiedActions(params: {
       id: step.id || 'doctor-next-step',
       label: step.title,
       command: step.command || (step.blocking ? 'zavorth go' : 'zavorth doctor'),
-      reason: step.description || params.doctor?.summary || 'Doctor recomenda revisar este ponto.',
+      reason: step.description || params.doctor?.summary || 'Doctor recomenda review este ponto.',
       priority: step.blocking ? 'high' : 'normal',
       source: 'doctor',
     });
@@ -280,7 +281,7 @@ function buildCards(params: {
   doctorError: string | null;
 }): CliOperationsCockpitCard[] {
   const { cockpit, status, brief, doctor, memory, doctorError } = params;
-  const operations = cockpit.operations as any;
+  const operations = cockpit.operations;
   const sessions = status?.sessions || null;
   const nodes = status?.nodes || null;
   const transports = status?.transports || null;
@@ -288,7 +289,7 @@ function buildCards(params: {
   const publish = operations?.publish || null;
   const maintenance = operations?.maintenance || null;
   const automation = operations?.maintenanceAutomation || null;
-  const security = operations?.security || null;
+  const security = (operations?.security || null) as Record<string, any> | null;
 
   return [
     {
@@ -296,7 +297,7 @@ function buildCards(params: {
       title: 'Estado agora',
       tone: resolveTone(cockpit.status),
       lines: [
-        `- estado: ${cockpit.status === 'healthy' ? 'pronto' : cockpit.status === 'degraded' ? 'degradado' : 'pedindo atencao'}`,
+        `- state: ${cockpit.status === 'healthy' ? 'ready' : cockpit.status === 'degraded' ? 'degraded' : 'needs attention'}`,
         `- status: ${compactLine(status?.headline || cockpit.headline)}`,
         `- brief: ${compactLine(brief?.headline || cockpit.highlights[0] || cockpit.headline)}`,
         doctor
@@ -306,48 +307,48 @@ function buildCards(params: {
     },
     {
       id: 'operations',
-      title: 'Operacao',
+      title: 'Operation',
       tone: resolveTone(cockpit.status),
       lines: [
-        `- componentes locais: ${cockpit.summary.readySidecars} de ${cockpit.summary.enabledSidecars} prontos`,
-        `- erros recentes: ${cockpit.summary.recentErrorCount}`,
-        `- manutencao: ${automation?.enabled ? 'automacao habilitada' : maintenance?.available ? 'manual disponivel' : 'sem retrato recente'}`,
-        `- publish: ${publish?.available === false ? 'sem publish recente' : cockpit.summary.publishAgeLabel || 'nao informado'}`,
-        `- rollback: ${(publish?.history || []).length > 0 ? 'historico disponivel para comparar' : 'sem historico no retrato atual'}`,
+        `- local components: ${cockpit.summary.readySidecars} of ${cockpit.summary.enabledSidecars} ready`,
+        `- recent errors: ${cockpit.summary.recentErrorCount}`,
+        `- maintenance: ${automation?.enabled ? 'automation enabled' : maintenance?.available ? 'manual available' : 'no recent snapshot'}`,
+        `- publish: ${publish?.available === false ? 'no recent publish' : cockpit.summary.publishAgeLabel || 'not provided'}`,
+        `- rollback: ${(publish?.history || []).length > 0 ? 'history available for comparison' : 'no history in the current snapshot'}`,
       ],
     },
     {
       id: 'work',
-      title: 'Trabalho e entregas',
+      title: 'Work and Deliveries',
       tone: sessions?.pendingPermissions ? 'warning' : 'neutral',
       lines: [
         sessions
-          ? `- conversas: ${formatCount(sessions.total, 'sessao', 'sessoes')} | ${formatCount(sessions.pendingPermissions, 'permissao pendente', 'permissoes pendentes')}`
-          : '- conversas: sem retrato de sessoes',
+          ? `- conversations: ${formatCount(sessions.total, 'session', 'sessions')} | ${formatCount(sessions.pendingPermissions, 'pending permission', 'pending permissions')}`
+          : '- conversations: no sessions snapshot',
         memory
-          ? `- replay: ${formatCount(memory.replayTasks, 'task', 'tasks')} | artefatos: ${memory.artifacts}`
-          : '- replay: sem retrato de memoria operacional',
+          ? `- replay: ${formatCount(memory.replayTasks, 'task', 'tasks')} | artifacts: ${memory.artifacts}`
+          : '- replay: no operational memory snapshot',
         memory?.recentArtifact
-          ? `- artefato recente: ${memory.recentArtifact}`
-          : '- artefato recente: nenhum no retrato atual',
+          ? `- recent artifact: ${memory.recentArtifact}`
+          : '- recent artifact: none in the current snapshot',
       ],
     },
     {
       id: 'trust',
-      title: 'Confianca e acesso',
+      title: 'Trust and Access',
       tone: transports?.status === 'failed' || security?.posture === 'critical' ? 'danger' : 'neutral',
       lines: [
         gateway
-          ? `- seguranca: ${cleanHumanLine(gateway.securityPosture)}`
+          ? `- security: ${cleanHumanLine(gateway.securityPosture)}`
           : security?.posture
-            ? `- seguranca: ${cleanHumanLine(security.posture)}`
-            : '- seguranca: nao informada',
+            ? `- security: ${cleanHumanLine(security.posture)}`
+            : '- security: not provided',
         transports
-          ? `- remoto: ${transports.healthy}/${transports.total} transportes prontos`
-          : '- remoto: sem transporte elegivel no retrato',
+          ? `- remote: ${transports.healthy}/${transports.total} transports ready`
+          : '- remote: no eligible transport in snapshot',
         nodes
-          ? `- malha: ${nodes.online}/${nodes.total} nodes online | fila ${nodes.queued}`
-          : '- malha: sem retrato de nodes',
+          ? `- mesh: ${nodes.online}/${nodes.total} nodes online | queue ${nodes.queued}`
+          : '- mesh: sem retrato of nodes',
       ],
     },
   ];
@@ -372,20 +373,22 @@ export async function buildCliOperationsCockpitSnapshot(
   if (runtime.runtimeAccessReadinessService) {
     try {
       const probeInput = await buildCliRuntimeAccessProbeInput(runtime);
-      const report = runtime.runtimeAccessReadinessService.inspect(probeInput as any);
+      const report = runtime.runtimeAccessReadinessService.inspect(probeInput);
       doctor = await buildCliOperationsDoctorSnapshot(report, runtime, flags);
-    } catch (error: any) {
-      doctorError = error?.message || String(error);
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Cli Operations] creation failed', error);
+    doctorError = error?.message || String(error);
+  }
   }
 
   let memory: CliStage25MemorySummary | null = null;
   if (runtime.memoryPlaneService) {
     try {
       memory = summarizeMemory(await runtime.memoryPlaneService.buildSnapshot());
-    } catch {
-      memory = null;
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Cli Operations] creation failed', error);
+    memory = null;
+  }
   }
 
   const actionDefinitions = runtime.operationsActionService
@@ -451,12 +454,12 @@ export function formatCliOperationsCockpitSnapshot(snapshot: CliOperationsCockpi
   panels.push({
     title: 'Fontes do retrato',
     lines: [
-      `- status: ${snapshot.unified.sourceHealth.status ? 'ok' : 'indisponivel'}`,
-      `- doctor: ${snapshot.unified.sourceHealth.doctor ? 'ok' : 'indisponivel'}`,
-      `- brief: ${snapshot.unified.sourceHealth.brief ? 'ok' : 'indisponivel'}`,
-      `- ops: ${snapshot.unified.sourceHealth.ops ? 'ok' : 'indisponivel'}`,
-      `- memoria: ${snapshot.unified.sourceHealth.memory ? 'ok' : 'indisponivel'}`,
-      `- acoes: ${snapshot.unified.sourceHealth.actions ? 'ok' : 'indisponivel'}`,
+      `- status: ${snapshot.unified.sourceHealth.status ? 'ok' : 'unavailable'}`,
+      `- doctor: ${snapshot.unified.sourceHealth.doctor ? 'ok' : 'unavailable'}`,
+      `- brief: ${snapshot.unified.sourceHealth.brief ? 'ok' : 'unavailable'}`,
+      `- ops: ${snapshot.unified.sourceHealth.ops ? 'ok' : 'unavailable'}`,
+      `- memory: ${snapshot.unified.sourceHealth.memory ? 'ok' : 'unavailable'}`,
+      `- acoes: ${snapshot.unified.sourceHealth.actions ? 'ok' : 'unavailable'}`,
     ],
     tone: 'muted',
   });
@@ -464,7 +467,7 @@ export function formatCliOperationsCockpitSnapshot(snapshot: CliOperationsCockpi
   return renderCliScreen({
     eyebrow: 'Ops',
     eyebrowTone: postureTone,
-    title: 'Operacao do Zavorth',
+    title: 'Operation do Zavorth',
     summary: formatCliValue(snapshot.unified.headline, 'Retrato operacional consolidado do Zavorth.'),
     mode: 'compact',
     showWordmark: false,

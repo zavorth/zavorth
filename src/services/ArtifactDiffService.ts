@@ -10,6 +10,7 @@ import type {
   ArtifactDiffSource,
 } from '../contracts/ArtifactDiffContract.js';
 import { ARTIFACT_DIFF_CONTRACT_VERSION } from '../contracts/ArtifactDiffContract.js';
+import { logger } from '../logger.js';
 
 type ArtifactDiffServiceOptions = {
   artifactDir?: string;
@@ -95,7 +96,8 @@ export class ArtifactDiffService {
         error: null,
       };
     } catch (error) {
-      return {
+    logger.warn('[Artifact Diff] operation failed', error);
+    return {
         ok: false,
         contractVersion: ARTIFACT_DIFF_CONTRACT_VERSION,
         artifact: null,
@@ -105,7 +107,7 @@ export class ArtifactDiffService {
         processedAt,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private policy(request: ArtifactDiffRequest, roots: string[]): ArtifactDiffPolicyDecision {

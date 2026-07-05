@@ -3,6 +3,7 @@ import path from 'path';
 import { randomUUID } from 'crypto';
 import { config } from '../config/index.js';
 import type { EngineeringRunSnapshot } from '../contracts/EngineeringCoreContract.js';
+import { logger } from '../logger.js';
 
 type EngineeringRunLedgerServiceOptions = {
   ledgerDir?: string;
@@ -55,9 +56,7 @@ export class EngineeringRunLedgerService {
   private readRun(filePath: string): EngineeringRunSnapshot | null {
     try {
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as EngineeringRunSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Engineering Run Ledger] JSON parse failed', error); return null; }
   }
 
   private resolveRunPath(runId: string): string {

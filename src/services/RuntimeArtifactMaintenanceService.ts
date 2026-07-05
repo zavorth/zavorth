@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type RuntimeArtifactCleanupSummary = {
   deletedEntries: number;
@@ -103,8 +104,6 @@ export class RuntimeArtifactMaintenanceService {
     try {
       fs.rmSync(targetPath, { recursive: true, force: true });
       return true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Runtime Artifact Maintenance] filesystem operation failed', error); return false; }
   }
 }

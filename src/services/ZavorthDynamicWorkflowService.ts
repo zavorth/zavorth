@@ -11,6 +11,7 @@ import {
   type ZavorthDynamicWorkflowWorkerGroup,
 } from '../contracts/ZavorthDynamicWorkflowContract.js';
 import { SwarmV2Service } from './SwarmV2Service.js';
+import { logger } from '../logger.js';
 
 type SwarmLauncher = Pick<SwarmV2Service, 'launchSwarm'>;
 
@@ -194,8 +195,9 @@ export class ZavorthDynamicWorkflowService {
         },
       });
     } catch (error) {
-      return this.blocked(snapshot, `swarm launch failed: ${errorMessage(error)}`);
-    }
+    logger.warn('[Zavorth Dynamic Workflow] number operation failed', error);
+    return this.blocked(snapshot, `swarm launch failed: ${errorMessage(error)}`);
+  }
 
     return {
       status: 'materialized',
@@ -249,9 +251,7 @@ export class ZavorthDynamicWorkflowService {
     try {
       const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       return isDynamicWorkflowSnapshot(parsed) ? parsed : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Dynamic Workflow] JSON parse failed', error); return null; }
   }
 
   public launchSavedWorkflow(

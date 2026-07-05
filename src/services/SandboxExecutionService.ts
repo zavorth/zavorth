@@ -270,7 +270,7 @@ export class SandboxExecutionService {
       return this.wasmRuntime.execute({
         moduleBase64: input.code,
         timeoutMs: input.timeoutMs,
-      } as any);
+      });
     }
     throw new Error(`Sandbox tier nao suportado: ${policy.securityLevel}.`);
   }

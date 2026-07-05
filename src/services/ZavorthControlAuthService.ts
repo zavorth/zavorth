@@ -3,8 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { generateZavorthControlToken, isWeakZavorthControlToken } from './ZavorthControlTokenService.js';
+import { logger } from '../logger.js';
 import {
-  TrustedDeviceAccessService,
+TrustedDeviceAccessService,
   type TrustedDeviceAccessScope,
   type TrustedDeviceIdentity,
 } from './TrustedDeviceAccessService.js';
@@ -194,9 +195,7 @@ export class ZavorthControlAuthService {
           'productModeId',
         ]),
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Control Auth] operation failed', error); return null; }
   }
 
   private readClaimString(claims: Record<string, unknown>, keys: string[]): string | null {
@@ -263,8 +262,6 @@ export class ZavorthControlAuthService {
 
       const token = fs.readFileSync(filePath, 'utf8').trim();
       return token || null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Control Auth] filesystem operation failed', error); return null; }
   }
 }

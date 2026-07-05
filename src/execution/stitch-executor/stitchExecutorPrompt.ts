@@ -51,12 +51,12 @@ export function buildStructuredStitchBrief(
   const explicitBrand = titleMatch?.[1]?.trim() || extractFirstStitchName(normalized) || 'Zavorth';
   const focus =
     extractStitchOpeningIntent(normalized) ||
-    'Crie uma interface de aplicativo inspirada no conceito descrito pelo usuario.';
+    'Create an application interface inspired by the concept described by the user.';
   const bullets: string[] = [];
 
   if (/\b(chat|conversa|telegram|mensagens?)\b/.test(lower)) bullets.push('chat principal para conversar com o assistente');
   if (/\b(orquestra|llm|modelos?|gemini|openai|claude|deepseek|external-executor|zavorthBridge)\b/.test(lower)) bullets.push('hub de orquestracao de agentes e modelos');
-  if (/\b(permiss|seguran|policy|trustedboundary|aprov)\b/.test(lower)) bullets.push('painel claro de permissoes e seguranca');
+  if (/\b(permiss|seguran|policy|trustedboundary|aprov)\b/.test(lower)) bullets.push('clear permissions and security panel');
   if (/\b(memoria|memory|audit|auditoria|log)\b/.test(lower)) bullets.push('blocos para memoria, auditoria e historico');
   if (/\b(wsl|sistema|terminal|execu|automation|automacao|host supervisor|supervisionado)\b/.test(lower)) bullets.push('cards de automacao e controle do sistema');
   if (/\b(zavorthControl|web|site|premium|glass|glassmorphism)\b/.test(lower)) bullets.push('visual premium, moderno e bem organizado');

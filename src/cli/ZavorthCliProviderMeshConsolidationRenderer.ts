@@ -65,22 +65,22 @@ export function formatProviderMeshConsolidationSnapshot(
 ): string {
   const lines = [
     'Provider Mesh / Model Picker Consolidation - Channel mesh3',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- manifests: ${snapshot.summary.manifestCount}`,
     `- familias: ${snapshot.summary.familyCount}`,
     `- rotas: ${snapshot.summary.readyRouteCount}/${snapshot.summary.routeCount} prontas`,
-    `- modelos: ${snapshot.summary.modelCount}`,
-    `- selected: ${snapshot.selected.providerLabel}/${snapshot.selected.modelLabel} (${snapshot.selected.ready ? 'ready' : 'pendente'})`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- models: ${snapshot.summary.modelCount}`,
+    `- selected: ${snapshot.selected.providerLabel}/${snapshot.selected.modelLabel} (${snapshot.selected.ready ? 'ready' : 'pending'})`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'P0-extra',
   ];
 
   for (const [key, value] of Object.entries(snapshot.p0ExtraCoverage)) {
-    lines.push(`- ${key}: ${value ? 'ok' : 'pendente'}`);
+    lines.push(`- ${key}: ${value ? 'ok' : 'pending'}`);
   }
 
   lines.push('', 'Familias');
@@ -94,8 +94,8 @@ export function formatProviderMeshConsolidationSnapshot(
   lines.push('', 'Rotas');
   for (const route of snapshot.routes.slice(0, 8)) {
     lines.push(
-      `- ${route.label}: ${route.readiness}${route.ready ? ' ready' : ' pendente'} [${route.runtime.adapterKind}]`,
-      `  modelos: ${route.modelCount}; factory: ${route.runtime.runtimeSupported ? 'suportado' : 'nao suportado'}; fallback: ${route.fallbackRouteIds.join(', ') || 'n/a'}`,
+      `- ${route.label}: ${route.readiness}${route.ready ? ' ready' : ' pending'} [${route.runtime.adapterKind}]`,
+      `  models: ${route.modelCount}; factory: ${route.runtime.runtimeSupported ? 'supported' : 'not supported'}; fallback: ${route.fallbackRouteIds.join(', ') || 'n/a'}`,
     );
   }
 
@@ -105,11 +105,11 @@ export function formatProviderMeshConsolidationSnapshot(
   lines.push(`- surfaces: ${snapshot.onboarding.consumers.join(', ')}`);
 
   lines.push('', 'Politica');
-  lines.push('- nenhum provider foi executado');
+  lines.push('- no provider was executed');
   lines.push('- ModelPickerContract e a fonte de verdade');
   lines.push('- ProviderFactory usa SelectedModelProfile');
-  lines.push('- nenhuma troca legada de provider foi feita');
-  lines.push('- secrets nao foram serializados');
+  lines.push('- no legacy provider switch was made');
+  lines.push('- secrets were not serialized');
 
   lines.push('', 'Superficies');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);

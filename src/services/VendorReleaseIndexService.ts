@@ -12,6 +12,7 @@ import type {
 import { SidecarStatusService, type SidecarStatusCard } from './SidecarStatusService.js';
 import { VendorDiffSummaryService } from './VendorDiffSummaryService.js';
 import { VendorLicenseGuardService } from './VendorLicenseGuardService.js';
+import { logger } from '../logger.js';
 
 type VendorManifestEntry = {
   id?: string;
@@ -306,9 +307,7 @@ export class VendorReleaseIndexService {
       const parsed = new URL(normalizedBaseUrl);
       const port = parsed.port ? safeParseInt(parsed.port, parsed.protocol === 'https:' ? 443 : 80) : (parsed.protocol === 'https:' ? 443 : 80);
       return Number.isFinite(port) && port > 0 ? port : fallback;
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Vendor Release] network request failed', error); return fallback; }
   }
 
   private normalizeSyncStatus(value: unknown): VendorReleaseIndexEntry['syncStatus'] {
@@ -326,9 +325,7 @@ export class VendorReleaseIndexService {
     }
     try {
       return this.normalizeNullableString(this.runGitImpl(['rev-parse', 'HEAD'], normalized));
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Vendor Release] parsing failed', error); return null; }
   }
 
   private existsGitRepo(repoPath: string | null | undefined): boolean {
@@ -345,9 +342,7 @@ export class VendorReleaseIndexService {
         return fallback;
       }
       return JSON.parse(this.readFileSyncImpl(filePath, 'utf8')) as T;
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Vendor Release] JSON parse failed', error); return fallback; }
   }
 
   private resolveProjectPath(relativeOrAbsolutePath: string): string {

@@ -13,6 +13,7 @@ import {
 } from './ZavorthProductizationProtectedRuntimeService.js';
 import { ZavorthConversationalSetupService } from './ZavorthConversationalSetupService.js';
 import type { SandboxHostReadinessSnapshot } from './SandboxHostReadinessService.js';
+import { logger } from '../logger.js';
 
 type ProviderDoctorLike = Pick<ProviderDoctorService, 'inspect'>;
 type ProductizationLike = Pick<ZavorthProductizationProtectedRuntimeService, 'buildSnapshot'>;
@@ -156,7 +157,6 @@ export class ZavorthUnifiedOnboardingService {
         writesOnlyWithConfirmation: true,
       },
       safeDemo,
-      zavorthControlProjection: buildUnifiedOnboardingProjection('/zavorthControl'),
       zavorthControlProjection: buildUnifiedOnboardingProjection('/control'),
       invariants: [
         {
@@ -232,8 +232,9 @@ export class ZavorthUnifiedOnboardingService {
       report = this.providerDoctor.inspect({
         includeAdvanced: input.includeAdvanced === true,
       });
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Unified Onboarding] operation failed', error);
+    return {
         status: 'attention',
         activeProvider: 'unknown',
         activeModel: 'unknown',
@@ -242,7 +243,7 @@ export class ZavorthUnifiedOnboardingService {
         needsProbe: 0,
         nextAction: 'Provider doctor could not run; use zavorth doctor --advanced.',
       };
-    }
+  }
 
     const ready = report.readyProviders.length;
     const missingAuth = report.pendingConfigProviders.length;

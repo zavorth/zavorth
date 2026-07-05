@@ -15,6 +15,7 @@ import {
 } from '../contracts/AcpLiveBridgeContract.js';
 import { AcpLiveBridgeService } from './AcpLiveBridgeService.js';
 import { SourceAgentRuntimeToolPolicyService } from './SourceAgentRuntimeToolPolicyService.js';
+import { logger } from '../logger.js';
 
 interface AcpElevatedApprovalRequest {
   id: string | number | null;
@@ -76,9 +77,7 @@ class AcpStreamInterceptor extends Transform {
           void this.onElevatedApproval(obj);
           continue;
         }
-      } catch (err) {
-        // Not JSON or parse error, let it pass
-      }
+      } catch (error) { // Not JSON or parse error, let it pass logger.warn('[Acp Live Session] JSON parse failed', error); }
       this.push(line + '\n');
     }
     callback();
@@ -740,9 +739,7 @@ class StdioAcpJsonRpcTransport implements AcpJsonRpcTransport {
           this.pending.get(response.id)?.resolve(response);
           this.pending.delete(response.id);
         }
-      } catch {
-        // Ignore non-JSON diagnostic output from third-party ACP servers.
-      }
+      } catch (error) { // Ignore non-JSON diagnostic output from third-party ACP servers. logger.warn('[Acp Live Session] delete operation failed', error); }
     }
   }
 

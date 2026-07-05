@@ -13,6 +13,7 @@ import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { v1RerankSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getProviderNodes } from "@/lib/localDb";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Handle CORS preflight
@@ -63,7 +64,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
 
@@ -91,21 +93,15 @@ export async function POST(request) {
             hostname === "127.0.0.1" ||
             /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)
           );
-        } catch {
-          return false;
-        }
+        } catch (error) { logger.warn('[route] operation failed', error); return false; }
       })
       .map((n) => {
         try {
           return buildDynamicRerankProvider(n);
-        } catch {
-          return null;
-        }
+        } catch (error) { logger.warn('[route] creation failed', error); return null; }
       })
       .filter((p): p is NonNullable<typeof p> => p !== null);
-  } catch {
-    // Non-critical — continue with cloud providers only
-  }
+  } catch (error) { // Non-critical — continue with cloud providers only logger.warn('[route] creation failed', error); }
 
   // Try cloud registry first
   const { provider, model: modelId } = parseRerankModel(body.model);
@@ -176,9 +172,10 @@ export async function POST(request) {
         return Response.json(data, {
           headers: { "Access-Control-Allow-Origin": CORS_ORIGIN },
         });
-      } catch (err: any) {
-        return errorResponse(500, `Rerank request failed: ${err.message}`);
-      }
+      } catch (error) {
+    logger.warn('[route] network request failed', error);
+    return errorResponse(500, `Rerank request failed: ${err.message}`);
+  }
     }
   }
 

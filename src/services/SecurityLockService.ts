@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { logger } from '../logger.js';
 
 const SALT = 'zavorth-vritra-soulfire-2026';
 
@@ -139,9 +140,7 @@ export class SecurityLockService {
           this.passwordHash = content;
         }
       }
-    } catch {
-      // Silencioso — sem hash configurado
-    }
+    } catch (error) { // Silencioso — sem hash configurado logger.warn('[Security Lock] filesystem operation failed', error); }
   }
 
   /**
@@ -154,8 +153,6 @@ export class SecurityLockService {
         fs.mkdirSync(dir, { recursive: true });
       }
       fs.writeFileSync(this.hashFilePath, this.passwordHash || '', 'utf-8');
-    } catch {
-      // Silencioso
-    }
+    } catch (error) { // Silencioso logger.warn('[Security Lock] filesystem operation failed', error); }
   }
 }

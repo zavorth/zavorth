@@ -2,8 +2,9 @@ import crypto from 'crypto';
 import fs from 'fs';
 import type { SafeModificationService } from '../SafeModificationService.js';
 import type { SelfmodPatternMemory } from '../SelfmodPatternMemory.js';
+import { logger } from '../../logger.js';
 import {
-  PREVIEW_TTL_MS,
+PREVIEW_TTL_MS,
   type AppliedChangeRecord,
   type AppliedChangeSetRecord,
   type ChangeSetManifest,
@@ -68,14 +69,15 @@ export class SelfModificationApplySupport {
       }
 
       return this.applyGoalPreview(artifact, requestedBy);
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Self Modification Apply] operation failed', error);
+    return {
         success: false,
         mode: 'file',
         previewId,
         summary: `Nao consegui aplicar esse preview.\n\nMotivo: ${error.message}`,
       };
-    }
+  }
   }
 
   public async rollbackChangeSet(
@@ -139,14 +141,15 @@ export class SelfModificationApplySupport {
         restoredFiles,
         summary: `Rollback concluido para ${restoredFiles} arquivo(s).`,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Self Modification Apply] array operation failed', error);
+    return {
         success: false,
         changeId,
         restoredFiles: 0,
         summary: `Nao consegui concluir o rollback.\n\nMotivo: ${error.message || error}`,
       };
-    }
+  }
   }
 
   private async applyFilePreview(

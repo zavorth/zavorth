@@ -14,6 +14,7 @@ import {
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 import { buildProviderRequestOptions } from './ProviderAbort.js';
 import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
+import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';
 
 export class OpenRouterProvider implements ILlmProvider {
   public readonly name = 'openrouter';
@@ -51,23 +52,11 @@ export class OpenRouterProvider implements ILlmProvider {
       });
       const response = await this.client.chat.completions.create({
         model: modelName,
-        messages: messages.map((message) => ({
-          role: message.role as any,
-          content: message.content as string,
-          tool_call_id: message.toolCallId,
-          tool_calls: message.toolCalls?.map((toolCall) => ({
-            id: toolCall.id,
-            type: 'function',
-            function: {
-              name: toolCall.name,
-              arguments: JSON.stringify(toolCall.arguments),
-            },
-          })),
-        })),
+        messages: convertChatMessagesToOpenAI(messages),
         max_tokens: config.maxTokens,
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
-      } as any, buildProviderRequestOptions(options) as any);
+      } as OpenAI.ChatCompletionCreateParamsNonStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
@@ -75,11 +64,11 @@ export class OpenRouterProvider implements ILlmProvider {
       return {
         content: choice.message.content,
         toolCalls,
-        finishReason: choice.finish_reason as any,
+        finishReason: choice.finish_reason as LlmResponse['finishReason'],
         metadata: nativeToolPayload.metadata,
       };
     } catch (error: any) {
-      logger.error('[OpenRouter] Erro na requisicao:', error?.message || error);
+      logger.error('[OpenRouter] Request error:', error?.message || error);
       throw error;
     }
   }
@@ -100,28 +89,16 @@ export class OpenRouterProvider implements ILlmProvider {
       });
       const stream = await this.client.chat.completions.create({
         model: modelName,
-        messages: messages.map((message) => ({
-          role: message.role as any,
-          content: message.content as string,
-          tool_call_id: message.toolCallId,
-          tool_calls: message.toolCalls?.map((toolCall) => ({
-            id: toolCall.id,
-            type: 'function',
-            function: {
-              name: toolCall.name,
-              arguments: JSON.stringify(toolCall.arguments),
-            },
-          })),
-        })),
+        messages: convertChatMessagesToOpenAI(messages),
         max_tokens: config.maxTokens,
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
         stream: true,
-      } as any, buildProviderRequestOptions(options) as any);
+      } as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
-      yield* streamOpenAICompatibleCompletion(stream as any, nativeToolPayload.metadata);
+      yield* streamOpenAICompatibleCompletion(stream, nativeToolPayload.metadata);
     } catch (error: any) {
-      logger.error('[OpenRouter] Erro no streaming:', error?.message || error);
+      logger.error('[OpenRouter] Streaming error:', error?.message || error);
       throw error;
     }
   }

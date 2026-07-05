@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type ZavorthPluginTrustLevel = 'review' | 'trusted' | 'blocked';
 
@@ -130,13 +131,14 @@ export class ZavorthPluginStateService {
         };
       }
       return JSON.parse(fs.readFileSync(this.stateFile, 'utf8')) as ZavorthPluginState;
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Plugin State] JSON parse failed', error);
+    return {
         version: 1,
         updatedAt: this.now().toISOString(),
         entries: {},
       };
-    }
+  }
   }
 
   private writeState(state: ZavorthPluginState): void {

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export class ZavorthWebhookReceiverTool extends BaseTool {
   public readonly name = 'zavorth_webhook_receiver';
@@ -117,9 +118,7 @@ export class ZavorthWebhookReceiverTool extends BaseTool {
       });
 
       return `Webhook receiver started:\n  ID: ${id}\n  URL: http://localhost:${port}${webhookPath}\n  Method: ${method}\n  Max requests: ${maxRequests}`;
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Webhook Receiver] network request failed', error); return ''; }
   }
 
   private stopWebhook(args: Record<string, unknown>): string {

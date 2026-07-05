@@ -12,6 +12,7 @@ import { MQTTPublisher } from '../echo/tools/iot/MQTTPublisher.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
 import { TrustDecisionService, type TrustDecision } from './TrustDecisionService.js';
 import { TrustPlanePolicyLedgerService } from './TrustPlanePolicyLedgerService.js';
+import { logger } from '../logger.js';
 
 export type HardwareProviderId =
   | 'home-assistant'
@@ -1038,9 +1039,7 @@ export class ZavorthHardwareActionPlaneService {
       return this.mutationPlane.listPlans({ limit: Math.max(limit, 20), includeExpired: false })
         .filter((entry) => entry.domain === 'hardware' && (entry.status === 'waiting_approval' || entry.status === 'approved' || entry.status === 'draft'))
         .slice(0, limit);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Hardware Action Plane] filesystem check failed', error); return []; }
   }
 
   private resolveAdapter(providerId: HardwareProviderId): HardwareProviderAdapter | null {
@@ -1114,9 +1113,10 @@ export class ZavorthHardwareActionPlaneService {
     try {
       const parsed = JSON.parse(String(this.readFileSync(this.stateFile, 'utf8') || '{}')) as Partial<HardwareActionPlaneState>;
       return this.normalizeState(parsed);
-    } catch {
-      return this.defaultState();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Hardware Action Plane] JSON parse failed', error);
+    return this.defaultState();
+  }
   }
 
   private writeState(state: HardwareActionPlaneState): void {
@@ -1307,9 +1307,7 @@ export class ZavorthHardwareActionPlaneService {
         },
         result: input.summary,
       });
-    } catch {
-      // O ledger nao deve impedir emergency stop ou bloqueio local.
-    }
+    } catch (error) { // O ledger nao deve impedir emergency stop ou bloqueio local. logger.warn('[Zavorth Hardware Action Plane] operation failed', error); }
   }
 
   private normalizeProviderId(value: unknown): HardwareProviderId {

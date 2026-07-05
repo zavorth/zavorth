@@ -61,6 +61,7 @@ import {
 } from '../domain/surface/presentation/web-app/WebAppRuntimeInfrastructureService.js';
 import type { WebRealtimeBusSnapshot } from './WebRealtimeService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthGatewayRuntimeHealthSnapshot = {
   status: 'ready' | 'partial' | 'degraded';
@@ -741,8 +742,9 @@ export class ZavorthGatewayRuntimeService {
     try {
       const status = this.operations.aiGatewayGateway?.readStatus();
       return status ? this.sanitizeControlPayload(status) : null;
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth way Runtime] health check failed', error);
+    return {
         enabled: false,
         ready: false,
         running: false,
@@ -756,7 +758,7 @@ export class ZavorthGatewayRuntimeService {
         checkedAt: new Date().toISOString(),
         message: `Falha ao ler status do AIGateway: ${error?.message || 'erro desconhecido'}.`,
       };
-    }
+  }
   }
 
   private async buildAIGatewayConvergenceSnapshot(
@@ -789,9 +791,7 @@ export class ZavorthGatewayRuntimeService {
         activeSessionId: context.sessionId,
         runLimit: 50,
       });
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth way Runtime] creation failed', error); return null; }
   }
 
   private async readAgentGatewayHandoff(
@@ -802,9 +802,7 @@ export class ZavorthGatewayRuntimeService {
     }
     try {
       return await this.operations.agentGatewayHandoff.buildHandoffSnapshot(context);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth way Runtime] creation failed', error); return null; }
   }
 
   private buildProductizationSnapshot(
@@ -830,9 +828,7 @@ export class ZavorthGatewayRuntimeService {
     }
     try {
       return this.operations.firstRunOnboardingContract.buildSnapshot();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth way Runtime] creation failed', error); return null; }
   }
 
   private readWebsitePublicSnapshot(): WebsitePublicContractSnapshot | null {
@@ -841,9 +837,7 @@ export class ZavorthGatewayRuntimeService {
     }
     try {
       return this.operations.websitePublicContract.buildSnapshot();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth way Runtime] creation failed', error); return null; }
   }
 
   private readSandboxControlPlaneSnapshot(): ZavorthSandboxControlPlaneSnapshot | null {
@@ -852,9 +846,7 @@ export class ZavorthGatewayRuntimeService {
     }
     try {
       return this.operations.sandboxControlPlane.buildSnapshot();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth way Runtime] creation failed', error); return null; }
   }
 
   private buildGatewayControlApiOperations(): GatewayControlApiOperationDescriptor[] {

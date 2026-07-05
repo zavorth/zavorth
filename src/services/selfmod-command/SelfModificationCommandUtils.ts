@@ -2,8 +2,9 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { DiffManager } from '../../execution/DiffManager.js';
+import { logger } from '../../logger.js';
 import {
-  ALLOWED_EXTENSIONS,
+ALLOWED_EXTENSIONS,
   ALLOWED_TOP_LEVEL_DIRS,
   type SelfmodResourceImpact,
 } from './SelfModificationCommandTypes.js';
@@ -26,9 +27,7 @@ export function tryGenerateSelfModificationDiff(
 ): string | undefined {
   try {
     return DiffManager.generateDiff(oldContent, newContent, fileName);
-  } catch {
-    return undefined;
-  }
+  } catch (error) { logger.warn('[Self Modification Command Utils] creation failed', error); return undefined; }
 }
 
 export function formatSelfModificationResourceImpact(resourceImpact: SelfmodResourceImpact): string {
@@ -55,9 +54,7 @@ export function tryParseSelfModificationJson(rawValue: string): Record<string, a
 
     try {
       return JSON.parse(String(fencedMatch[1] || '').trim()) as Record<string, any>;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Self Modification Command Utils] JSON parse failed', error); return null; }
   }
 }
 

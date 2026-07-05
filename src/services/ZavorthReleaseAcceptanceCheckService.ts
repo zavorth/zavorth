@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { logger } from '../logger.js';
 import type {
-  ZavorthQaSecurityReleaseCheckStatus,
+ZavorthQaSecurityReleaseCheckStatus,
   ZavorthQaSecurityReleaseEvidenceKind,
   ZavorthQaSecurityReleaseSeverity,
   ZavorthReleaseAcceptanceReceipt,
@@ -190,7 +191,5 @@ function readPackageManifest(rootDir: string): PackageManifest {
   }
   try {
     return JSON.parse(fs.readFileSync(packagePath, 'utf8')) as PackageManifest;
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[Zavorth Release Acceptance Check] JSON parse failed', error); return {}; }
 }

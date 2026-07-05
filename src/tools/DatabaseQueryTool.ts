@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 type QueryMode = 'read' | 'write';
 
@@ -24,7 +25,7 @@ export class DatabaseQueryTool extends BaseTool {
       },
       mode: {
         type: 'string',
-        description: "Modo de execucao: 'read' (SELECT apenas), 'write' (INSERT/UPDATE/DELETE). Default: 'read'.",
+        description: "Execution mode: 'read' (SELECT only), 'write' (INSERT/UPDATE/DELETE). Default: 'read'.",
       },
       max_rows: {
         type: 'number',
@@ -36,7 +37,7 @@ export class DatabaseQueryTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const query = String(args.query || '');
-    if (!query) return 'Erro: o parametro "query" e obrigatorio.';
+    if (!query) return 'Error: the "query" parameter is required.';
 
     const mode = String(args.mode || 'read') as QueryMode;
     if (mode !== 'read' && mode !== 'write') {
@@ -66,14 +67,14 @@ export class DatabaseQueryTool extends BaseTool {
       }
       // Remove mutable PRAGMA from read mode
       if (normalizedQuery.startsWith('PRAGMA') && normalizedQuery.includes('=')) {
-        return 'Erro: configuracao mutavel via PRAGMA nao e permitida no modo "read".';
+        return 'Error: mutable configuration through PRAGMA is not allowed in "read" mode.';
       }
     }
 
     if (mode === 'write') {
       const isDestructive = normalizedQuery.startsWith('DROP') || normalizedQuery.startsWith('TRUNCATE');
       if (isDestructive) {
-        return 'Erro: operacoes DROP e TRUNCATE nao sao permitidas. Remova manualmente se necessario.';
+        return 'Error: DROP and TRUNCATE operations are not allowed. Remove data manually if necessary.';
       }
       if (!normalizedQuery.startsWith('INSERT') && !normalizedQuery.startsWith('UPDATE') && !normalizedQuery.startsWith('DELETE') && !normalizedQuery.startsWith('CREATE') && !normalizedQuery.startsWith('ALTER')) {
         return 'Erro: modo "write" permite INSERT, UPDATE, DELETE, CREATE e ALTER.';
@@ -89,18 +90,19 @@ export class DatabaseQueryTool extends BaseTool {
       let sqlite3: { default: (dbPath: string, opts?: { readonly?: boolean }) => { prepare(query: string): { all(): unknown[]; run(): { changes: number; lastInsertRowid?: unknown } }; close(): void } };
       try {
         sqlite3 = await import('better-sqlite3');
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+      } catch (error) {
+    logger.warn('[Database Query] filesystem operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
         return `Erro: driver SQLite real better-sqlite3 indisponivel. Instale as dependencias nativas antes de executar database_query. Detalhe: ${message}`;
-      }
+  }
 
       const db = sqlite3.default(dbPath, { readonly: mode === 'read' });
 
       try {
         if (mode === 'read') {
           const rows = db.prepare(query).all();
-          const limited = rows.slice(0, maxRows);
-          return this.formatReadResult(limited, rows.length, maxRows, dbPath);
+           const limited = rows.slice(0, maxRows);
+           return this.formatReadResult(limited as Record<string, unknown>[], rows.length, maxRows, dbPath);
         } else {
           const result = db.prepare(query).run();
           return this.formatWriteResult(result, dbPath);
@@ -108,10 +110,11 @@ export class DatabaseQueryTool extends BaseTool {
       } finally {
         db.close();
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Database Query] resource cleanup failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Erro ao executar query: ${message}`;
-    }
+  }
   }
 
   private formatReadResult(rows: Record<string, unknown>[], totalRows: number, maxRows: number, dbPath: string): string {

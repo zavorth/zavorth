@@ -10,6 +10,7 @@ import type {
 import { GatewayCompatibilityDoctorService, type AIGatewayCompatibilityDoctorReport } from './GatewayCompatibilityDoctorService.js';
 import { AIGatewaySidecarService } from './AIGatewaySidecarService.js';
 import { VendorReleaseIndexService } from './VendorReleaseIndexService.js';
+import { logger } from '../logger.js';
 
 export type AIGatewayUpstreamSyncReport = {
   ok: boolean;
@@ -61,9 +62,7 @@ export class GatewayUpstreamSyncService {
         ...fallback,
         ...parsed,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[way Upstream] JSON parse failed', error); return fallback; }
   }
 
   public async sync(): Promise<AIGatewayUpstreamSyncReport> {
@@ -166,8 +165,9 @@ export class GatewayUpstreamSyncService {
         licenseDecision: null,
         error: compat && !compat.ok ? compat.error || compat.summary : null,
       }));
-    } catch (error: any) {
-      return this.persist(this.decorateVendorMetadata({
+    } catch (error) {
+    logger.warn('[way Upstream] filesystem check failed', error);
+    return this.persist(this.decorateVendorMetadata({
         ok: false,
         action,
         status: 'failed',
@@ -185,7 +185,7 @@ export class GatewayUpstreamSyncService {
         licenseDecision: null,
         error: error?.message || String(error),
       }));
-    }
+  }
   }
 
   private async runToolkit(args: string[]): Promise<string> {

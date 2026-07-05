@@ -98,7 +98,7 @@ export class TelegramPermissionMutationService {
       permission,
       this.parsePermissionPatch(rawPatch),
     );
-    const updated = await this.deps.permissionService.updateRequest(permission.permission_id, patch);
+    const updated = await this.deps.permissionService.updateRequest(permission.permission_id, patch as any);
     await replyWithTelegramSurfaceResponse(
       ctx,
       this.deps.permissionPresentation.buildPermissionDecisionSurfaceResponse(updated, 'edit'),

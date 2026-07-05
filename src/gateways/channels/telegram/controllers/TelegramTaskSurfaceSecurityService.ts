@@ -35,15 +35,15 @@ export class TelegramTaskSurfaceSecurityService {
       if (externalLinkCount > 0) {
         reasons.push(
           externalLinkCount === 1
-            ? 'Link externo vindo do Discord publico exige aprovacao manual.'
-            : `${externalLinkCount} links externos vindos do Discord publico exigem aprovacao manual.`,
+            ? 'External link from public Discord requires manual approval.'
+            : `${externalLinkCount} external links from public Discord require manual approval.`,
         );
       }
       if (attachmentCount > 0) {
         reasons.push(
           attachmentCount === 1
-            ? 'Anexo vindo do Discord publico exige aprovacao manual.'
-            : `${attachmentCount} anexos vindos do Discord publico exigem aprovacao manual.`,
+            ? 'Attachment from public Discord requires manual approval.'
+            : `${attachmentCount} attachments from public Discord require manual approval.`,
         );
       }
 

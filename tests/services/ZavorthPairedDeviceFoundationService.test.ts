@@ -150,4 +150,36 @@ describe('ZavorthPairedDeviceFoundationService', () => {
       deviceStatus: 'blocked',
     }));
   });
+
+  it('drops unknown scopes and capabilities from device foundation records', () => {
+    const service = new ZavorthPairedDeviceFoundationService({
+      now: () => new Date('2026-07-02T12:00:00.000Z'),
+      devices: [{
+        id: 'phone-3',
+        label: 'Unknown Scope Phone',
+        status: 'pending',
+        publicKey: 'zavorth-device-key-v3',
+        transport: 'mock-device-node',
+        scopes: ['device:info', 'device:root' as any],
+        capabilities: ['device.info', 'host.root' as any],
+        lastSeenAt: null,
+        trust: {
+          level: 'untrusted',
+          approvedAt: null,
+          approvedBy: null,
+          revokedAt: null,
+          revokedBy: null,
+          blockedAt: null,
+          blockedBy: null,
+          keyRotatedAt: null,
+          trustReceiptId: null,
+        },
+      }],
+    });
+
+    const device = service.listDevices()[0];
+
+    expect(device.scopes).toEqual(['device:info']);
+    expect(device.capabilities).toEqual(['device.info']);
+  });
 });

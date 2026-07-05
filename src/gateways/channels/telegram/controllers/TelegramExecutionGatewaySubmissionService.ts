@@ -77,7 +77,7 @@ export class TelegramExecutionGatewaySubmissionService {
         ? {
             ...plan,
             requires_approval: false,
-            notes: Array.from(new Set([...(plan.notes || []), 'Aprovacao explicita ja registrada no Telegram.'])),
+            notes: Array.from(new Set([...(plan.notes || []), 'Explicit approval already recorded in Telegram.'])),
           }
         : plan;
     const executor = this.deps.gatewayPlanService.resolveGatewayExecutorName(
@@ -133,17 +133,17 @@ export class TelegramExecutionGatewaySubmissionService {
     if (decision.requires_confirmation) {
       const followup =
         task.approval_status === 'approved'
-          ? 'Eu ja registrei a aprovacao anterior, entao isso indica que ainda existe outra confirmacao pendente no fluxo.'
-          : `Use /approve ${task.task_id} para liberar a execucao deste plano.`;
+          ? 'I already recorded the previous approval, so this indicates that another confirmation is still pending in the flow.'
+          : `Use /approve ${task.task_id} to allow this plan execution.`;
       return {
-        output: `Ainda falta uma confirmacao antes de executar.\nMotivo: ${decision.reason}\n${followup}`,
+        output: `One confirmation is still required before execution.\nReason: ${decision.reason}\n${followup}`,
         success: false,
       };
     }
 
     if (!decision.allowed || !decision.execution_result) {
       return {
-        output: `ExecutionGateway bloqueou a execucao.\nMotivo: ${decision.reason}`,
+        output: `ExecutionGateway blocked execution.\nReason: ${decision.reason}`,
         success: false,
       };
     }
@@ -161,8 +161,8 @@ export class TelegramExecutionGatewaySubmissionService {
       const permission = await this.deps.createExternalExecutorPermissionRequest(task, decision.execution_result);
       const intro =
         isExternalPathAccessRequiredError(decision.execution_result?.error_code)
-          ? `O ${EXTERNAL_EXECUTOR_LABEL} precisa de acesso extra a uma pasta ou caminho especifico antes de continuar.`
-          : `O ${EXTERNAL_EXECUTOR_LABEL} parou porque o agent atual esta preso a outro workspace.`;
+          ? `${EXTERNAL_EXECUTOR_LABEL} needs extra access to a specific folder or path before continuing.`
+          : `${EXTERNAL_EXECUTOR_LABEL} stopped because the current agent is pinned to another workspace.`;
       return {
         output: [intro, '', this.deps.formatPermissionCreatedMessage(permission)].join('\n'),
         success: false,
@@ -179,8 +179,8 @@ export class TelegramExecutionGatewaySubmissionService {
       const permission = await this.deps.createAiStudioPermissionRequest(task, decision.execution_result);
       const intro =
         decision.execution_result?.error_code === 'AISTUDIO_BUILTIN_TOOL_PERMISSION_REQUIRED'
-          ? 'O Google AI Studio quer usar tool(s) oficiais do Gemini API antes de continuar.'
-          : 'O Google AI Studio pediu acesso a um servico externo durante a geracao.';
+          ? 'Google AI Studio wants to use official Gemini API tool(s) before continuing.'
+          : 'Google AI Studio requested access to an external service during generation.';
       return {
         output: [intro, '', this.deps.formatPermissionCreatedMessage(permission)].join('\n'),
         success: false,
@@ -193,13 +193,13 @@ export class TelegramExecutionGatewaySubmissionService {
     ) {
       return {
         output: [
-          'O Google AI Studio pediu um servico externo, mas este Zavorth suporta apenas tools nativas do Gemini API no /aistudio.',
+          'Google AI Studio requested an external service, but this Zavorth supports only native Gemini API tools in /aistudio.',
           '',
-          'Tools suportadas hoje:',
+          'Supported tools today:',
           '- google_search',
           '- code_execution',
           '',
-          `Motivo: ${decision.execution_result?.error_message || 'Servico externo nao suportado neste host.'}`,
+          `Reason: ${decision.execution_result?.error_message || 'External service is not supported on this host.'}`,
         ].join('\n'),
         success: false,
       };
@@ -217,9 +217,9 @@ export class TelegramExecutionGatewaySubmissionService {
       this.deps.persistTask(task);
       return {
         output: [
-          'Jules iniciou a sessao, mas o plano dele ainda precisa de aprovacao externa.',
+          'Jules started the session, but its plan still needs external approval.',
           '',
-          decision.execution_result.error_message || 'Aguardando aprovacao do plano no Jules.',
+          decision.execution_result.error_message || 'Waiting for plan approval in Jules.',
           decision.execution_result.metadata?.jules_session_id
             ? `SessionId: ${decision.execution_result.metadata.jules_session_id}`
             : '',
@@ -239,9 +239,9 @@ export class TelegramExecutionGatewaySubmissionService {
       this.deps.persistTask(task);
       return {
         output: [
-          'Jules iniciou a sessao e ela segue em andamento no servico remoto.',
+          'Jules started the session and it is still running in the remote service.',
           '',
-          decision.execution_result.error_message || 'Sessao Jules em andamento.',
+          decision.execution_result.error_message || 'Jules session is running.',
           decision.execution_result.metadata?.jules_session_id
             ? `SessionId: ${decision.execution_result.metadata.jules_session_id}`
             : '',

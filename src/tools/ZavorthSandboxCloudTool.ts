@@ -1,14 +1,20 @@
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
+import {
+ZavorthCloudSandboxAdapterService,
+  type ZavorthCloudSandboxExecutionResult,
+} from '../services/ZavorthCloudSandboxAdapterService.js';
+
+type SandboxService = Pick<ZavorthCloudSandboxAdapterService, 'execute' | 'listProviders'>;
 
 export class ZavorthSandboxCloudTool extends BaseTool {
   public readonly name = 'zavorth_sandbox_cloud';
 
   public readonly description =
-    'Cloud sandbox — execute code in remote sandboxes (AWS Lambda, Fly.io, Railway, Docker remote). Isolated, ephemeral, secure.';
+    'Cloud sandbox - execute code in local, Docker, Daytona, Modal, or explicitly configured external sandboxes.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -19,7 +25,7 @@ export class ZavorthSandboxCloudTool extends BaseTool {
       },
       provider: {
         type: 'string',
-        description: "Provider: 'lambda', 'fly', 'railway', 'docker-remote', 'local-docker'. Default: 'local-docker'.",
+        description: "Provider: 'local', 'docker'/'local-docker', 'daytona', 'modal', or 'external'. Default: 'local-docker' unless configured.",
       },
       code: {
         type: 'string',
@@ -39,22 +45,32 @@ export class ZavorthSandboxCloudTool extends BaseTool {
       },
       env_vars: {
         type: 'string',
-        description: 'JSON of environment variables.',
+        description: 'JSON of environment variables. Secret-looking names are stripped before cloud execution.',
       },
       memory_mb: {
         type: 'number',
-        description: 'Memory limit in MB. Default: 256.',
+        description: 'Memory limit in MB. Default: 256 local, 512 cloud.',
+      },
+      ttl_ms: {
+        type: 'number',
+        description: 'Sandbox TTL in milliseconds. Default: 600000.',
+      },
+      network: {
+        type: 'string',
+        description: "Network policy: 'none' or 'egress'. Default: 'none'.",
       },
     },
     required: ['action'],
   };
 
   private readonly storageDir: string;
-  private sandboxes: Map<string, { id: string; provider: string; status: string; created_at: string; pid?: number }> = new Map();
+  private readonly sandboxService: SandboxService;
+  private sandboxes: Map<string, { id: string; provider: string; status: string; created_at: string }> = new Map();
 
-  constructor(options?: { storageDir?: string }) {
+  constructor(options?: { storageDir?: string; sandboxService?: SandboxService }) {
     super();
     this.storageDir = options?.storageDir || path.join(process.cwd(), 'data', 'runtime', 'cloud-sandbox');
+    this.sandboxService = options?.sandboxService || new ZavorthCloudSandboxAdapterService();
     if (!fs.existsSync(this.storageDir)) fs.mkdirSync(this.storageDir, { recursive: true });
   }
 
@@ -77,81 +93,36 @@ export class ZavorthSandboxCloudTool extends BaseTool {
     const code = String(args.code || '');
     if (!code) return 'Error: "code" is required.';
 
-    const provider = String(args.provider || 'local-docker');
-    const language = String(args.language || 'node');
-    const timeoutMs = typeof args.timeout_ms === 'number' ? args.timeout_ms : 30000;
-
     const id = `sandbox_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const requestedProvider = args.provider == null ? null : String(args.provider);
 
     try {
-      const { execFileSync } = await import('child_process');
-      const tmpDir = os.tmpdir();
-
-      let result = '';
-      const start = Date.now();
-
-      if (provider === 'local-docker') {
-        const imageMap: Record<string, string> = {
-          node: 'node:22-slim',
-          python: 'python:3.12-slim',
-          bash: 'bash:latest',
-          go: 'golang:1.22-alpine',
-        };
-        const image = imageMap[language] || 'node:22-slim';
-        const cmdMap: Record<string, string> = {
-          node: 'node -e',
-          python: 'python3 -c',
-          bash: 'bash -c',
-          go: 'echo "package main; func main() { println(\\"Hello\\") }" > /tmp/main.go && go run /tmp/main.go',
-        };
-
-        const scriptFile = path.join(tmpDir, `sandbox_${id}.${language === 'python' ? 'py' : language === 'go' ? 'go' : 'js'}`);
-        fs.writeFileSync(scriptFile, code);
-
-        try {
-          result = execFileSync('docker', [
-            'run', '--rm', '--memory', `${typeof args.memory_mb === 'number' ? args.memory_mb : 256}m`,
-            '--cpus', '0.5',
-            '-v', `${scriptFile}:/code/script${language === 'python' ? '.py' : language === 'go' ? '.go' : '.js'}`,
-            image,
-            'sh', '-c', `${cmdMap[language]?.split(' -c')[0] || 'node'} /code/script*`,
-          ], { timeout: timeoutMs, maxBuffer: 5 * 1024 * 1024 }).toString();
-        } finally {
-          try { fs.unlinkSync(scriptFile); } catch { /* ignore */ }
-        }
-      } else if (provider === 'local') {
-        const ext = { node: '.js', python: '.py', bash: '.sh', go: '.go' }[language] || '.js';
-        const scriptFile = path.join(tmpDir, `sandbox_${id}${ext}`);
-        fs.writeFileSync(scriptFile, code);
-
-        try {
-          const cmd = { node: 'node', python: 'python3', bash: 'bash', go: 'go run' }[language] || 'node';
-          result = execFileSync(cmd.split(' ')[0], [...cmd.split(' ').slice(1), scriptFile], {
-            timeout: timeoutMs,
-            maxBuffer: 5 * 1024 * 1024,
-          }).toString();
-        } finally {
-          try { fs.unlinkSync(scriptFile); } catch { /* ignore */ }
-        }
-      } else {
-        return `Provider "${provider}" not yet implemented. Use 'local-docker' or 'local'.`;
-      }
-
-      const duration = Date.now() - start;
-      this.sandboxes.set(id, { id, provider, status: 'completed', created_at: new Date().toISOString() });
-
-      return [
-        `Sandbox execution completed:`,
-        `  ID: ${id}`,
-        `  Provider: ${provider}`,
-        `  Language: ${language}`,
-        `  Duration: ${duration}ms`,
-        `  Output:`,
-        result.slice(0, 3000),
-      ].join('\n');
+      const result = await this.sandboxService.execute({
+        provider: requestedProvider,
+        code,
+        language: String(args.language || 'node'),
+        timeoutMs: numberArg(args.timeout_ms),
+        memoryMb: numberArg(args.memory_mb),
+        ttlMs: numberArg(args.ttl_ms),
+        network: args.network == null ? null : String(args.network),
+        env: parseEnvVars(args.env_vars),
+      });
+      this.sandboxes.set(id, {
+        id,
+        provider: result.provider,
+        status: result.status,
+        created_at: new Date().toISOString(),
+      });
+      this.writeLog(id, result);
+      return this.formatRunResult(id, result);
     } catch (error: unknown) {
-      this.sandboxes.set(id, { id, provider, status: 'failed', created_at: new Date().toISOString() });
-      return `Sandbox execution failed: ${error instanceof Error ? error.message : String(error)}`;
+      this.sandboxes.set(id, {
+        id,
+        provider: requestedProvider || 'local-docker',
+        status: 'failed',
+        created_at: new Date().toISOString(),
+      });
+      return `Sandbox execution failed: ${redactSecrets(error instanceof Error ? error.message : String(error))}`;
     }
   }
 
@@ -182,7 +153,7 @@ export class ZavorthSandboxCloudTool extends BaseTool {
     const logFile = path.join(this.storageDir, `${id}.log`);
     if (!fs.existsSync(logFile)) return `No logs for sandbox "${id}".`;
 
-    return fs.readFileSync(logFile, 'utf-8').slice(0, 3000);
+    return redactSecrets(fs.readFileSync(logFile, 'utf-8')).slice(0, 3000);
   }
 
   private terminate(args: Record<string, unknown>): string {
@@ -197,16 +168,93 @@ export class ZavorthSandboxCloudTool extends BaseTool {
   }
 
   private listProviders(): string {
+    const providers = this.sandboxService.listProviders();
     return [
       'Cloud Sandbox Providers:',
       '',
-      '  local-docker (default): Local Docker containers, isolated, ephemeral',
-      '  local: Direct local execution (less isolated)',
-      '  lambda: AWS Lambda (coming soon)',
-      '  fly: Fly.io Machines (coming soon)',
-      '  railway: Railway (coming soon)',
+      ...providers.map((provider) => [
+        `  ${provider.id}${provider.id === 'local-docker' ? ' (default)' : ''}: ${provider.label}`,
+        `    Enabled: ${provider.enabled}`,
+        `    Configured: ${provider.configured}`,
+        provider.sdkPackage ? `    SDK: ${provider.sdkPackage} (${provider.installCommand})` : null,
+        provider.disabledReason && !provider.enabled ? `    Status: ${provider.disabledReason}` : null,
+      ].filter(Boolean).join('\n')),
       '',
-      'Use "local-docker" for secure local execution.',
+      'Cloud providers are disabled unless explicitly enabled and credentialed.',
     ].join('\n');
   }
+
+  private formatRunResult(id: string, result: ZavorthCloudSandboxExecutionResult): string {
+    const title = result.status === 'completed'
+      ? 'Sandbox execution completed:'
+      : result.status === 'blocked'
+        ? 'Sandbox execution blocked:'
+        : 'Sandbox execution failed:';
+    return [
+      title,
+      `  ID: ${id}`,
+      `  Provider: ${result.provider}`,
+      `  Status: ${result.status}`,
+      `  Duration: ${result.durationMs}ms`,
+      `  Timeout: ${result.limits.timeoutMs}ms`,
+      `  Memory: ${result.limits.memoryMb}MB`,
+      `  TTL: ${result.limits.ttlMs}ms`,
+      `  Network: ${result.limits.network}`,
+      `  Message: ${result.message}`,
+      result.stdout ? `  Output:\n${redactSecrets(result.stdout).slice(0, 3000)}` : '',
+      result.stderr ? `  Error Output:\n${redactSecrets(result.stderr).slice(0, 3000)}` : '',
+    ].filter(Boolean).join('\n');
+  }
+
+  private writeLog(id: string, result: ZavorthCloudSandboxExecutionResult): void {
+    const logFile = path.join(this.storageDir, `${id}.log`);
+    const log = [
+      `provider=${result.provider}`,
+      `status=${result.status}`,
+      `message=${result.message}`,
+      '',
+      '[stdout]',
+      redactSecrets(result.stdout),
+      '',
+      '[stderr]',
+      redactSecrets(result.stderr),
+    ].join('\n');
+    fs.writeFileSync(logFile, log, 'utf8');
+  }
+}
+
+function redactSecrets(value: string): string {
+  return String(value || '')
+    .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
+    .replace(/\bsk-ant-[A-Za-z0-9_-]{20,}\b/g, '[redacted-secret]')
+    .replace(/\bhf_[A-Za-z0-9]{8,}\b/g, '[redacted-secret]')
+    .replace(/\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g, '[redacted-secret]')
+    .replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, '[redacted-secret]')
+    .replace(/\bAIza[0-9A-Za-z_-]{20,}\b/g, '[redacted-secret]')
+    .replace(/\bAKIA[0-9A-Z]{16}\b/g, '[redacted-secret]')
+    .replace(/\b[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\b/g, '[redacted-secret]');
+}
+
+function numberArg(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function parseEnvVars(value: unknown): Record<string, string> {
+  if (!value) return {};
+  if (typeof value === 'object' && !Array.isArray(value)) {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .map(([key, entry]) => [key, String(entry ?? '')]),
+    );
+  }
+  try {
+    const parsed = JSON.parse(String(value));
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return {};
+    }
+    return Object.fromEntries(
+      Object.entries(parsed as Record<string, unknown>)
+        .map(([key, entry]) => [key, String(entry ?? '')]),
+    );
+  } catch (error) { logger.warn('[Zavorth Sandbox Cloud] JSON parse failed', error); return {}; }
 }

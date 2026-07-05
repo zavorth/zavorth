@@ -374,8 +374,8 @@ export class ZavorthHardwareActionPlaneService {
         headline: 'Etapa 23: Hardware Awareness, IoT e Domotica',
         operatorSummary:
           `${summary.providers} provider(s), ${summary.devices} device(s), ${summary.allowlistedDevices} allowlisted, `
-          + `${summary.pendingHardwarePlans} plano(s) fisico(s) pendente(s), emergency stop=${summary.emergencyStopActive ? 'ativo' : 'inativo'}, `
-          + `runtime pesado iniciado=${summary.heavyRuntimesStarted ? 'sim' : 'nao'}.`,
+          + `${summary.pendingHardwarePlans} pending physical plan(s), emergency stop=${summary.emergencyStopActive ? 'active' : 'inactive'}, `
+          + `heavy runtime started=${summary.heavyRuntimesStarted ? 'yes' : 'no'}.`,
         nextAction: actions[0]?.label || 'Registrar devices explicitamente antes de permitir qualquer mutacao fisica.',
       },
     };
@@ -436,13 +436,13 @@ export class ZavorthHardwareActionPlaneService {
         action,
         requestedBy: input.requestedBy || null,
         planId: null,
-        summary: blockers[0] || 'Device nao encontrado.',
+        summary: blockers[0] || 'Device not found.',
       });
       return {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: blockers[0] || 'Device nao encontrado.',
+        summary: blockers[0] || 'Device not found.',
         blockers,
         device,
         mutationPlan: null,
@@ -477,7 +477,7 @@ export class ZavorthHardwareActionPlaneService {
           `provider=${device.providerId}`,
           `device=${device.id}`,
           `action=${action}`,
-          'providers nao sao conectados durante preview',
+          'providers are not connected during preview',
         ],
       },
       readinessGates,
@@ -590,7 +590,7 @@ export class ZavorthHardwareActionPlaneService {
     const plan = this.mutationPlane.readPlan(input.planId);
     const snapshot = await this.buildSnapshot({ includeHidden: true });
     if (!plan || plan.domain !== 'hardware') {
-      return this.blockedApply('MutationPlan de hardware nao encontrado.', null, null, snapshot, null);
+      return this.blockedApply('Hardware MutationPlan not found.', null, null, snapshot, null);
     }
     const payload = plan.payload || {};
     const deviceId = this.normalizeId(String(payload.deviceId || ''), 'device');
@@ -599,11 +599,11 @@ export class ZavorthHardwareActionPlaneService {
     const blockers = [
       ...this.resolveActionBlockers(device, action, snapshot),
       ...(plan.status === 'waiting_approval' ? ['Plano ainda aguarda approval.'] : []),
-      ...(plan.status === 'blocked' ? ['Plano ja esta bloqueado.'] : []),
+      ...(plan.status === 'blocked' ? ['Plan is already blocked.'] : []),
       ...(plan.status === 'expired' ? ['Plano expirou antes do apply.'] : []),
     ];
     if (!device || blockers.length > 0) {
-      this.mutationPlane.markBlocked(plan.id, blockers[0] || 'Apply bloqueado.');
+      this.mutationPlane.markBlocked(plan.id, blockers[0] || 'Apply blocked.');
       this.appendAudit({
         event: 'hardware.action.apply-blocked',
         status: 'blocked',
@@ -612,15 +612,15 @@ export class ZavorthHardwareActionPlaneService {
         action,
         requestedBy: input.requestedBy || null,
         planId: plan.id,
-        summary: blockers[0] || 'Apply bloqueado.',
+        summary: blockers[0] || 'Apply blocked.',
       });
-      return this.blockedApply(blockers[0] || 'Apply bloqueado.', device, plan, await this.buildSnapshot(), null, blockers);
+      return this.blockedApply(blockers[0] || 'Apply blocked.', device, plan, await this.buildSnapshot(), null, blockers);
     }
     if (input.dryRun === true) {
       const evidence = {
         ok: true,
         status: 'applied' as const,
-        summary: 'Dry-run de apply fisico: nenhuma chamada de provider foi executada.',
+        summary: 'Physical apply dry run: no provider call was executed.',
         data: { dryRun: true },
       };
       this.appendAudit({
@@ -649,7 +649,7 @@ export class ZavorthHardwareActionPlaneService {
     const provider = snapshot.providers.find((entry) => entry.id === device.providerId) || null;
     const adapter = provider ? this.resolveAdapter(provider.id) : null;
     if (!provider || !adapter) {
-      const summary = `Provider ${device.providerId} nao tem executor ativo neste runtime.`;
+      const summary = `Provider ${device.providerId} does not have an active executor in this runtime.`;
       this.mutationPlane.markBlocked(plan.id, summary);
       this.appendAudit({
         event: 'hardware.action.apply-blocked',
@@ -828,7 +828,7 @@ export class ZavorthHardwareActionPlaneService {
       const blocked = this.isProviderBlocked(entry.id);
       const status: HardwareProviderStatus = blocked ? 'blocked' : configured ? 'configured' : 'dormant';
       const blockers = blocked
-        ? [`Provider ${entry.id} bloqueado por policy/env.`]
+        ? [`Provider ${entry.id} blocked by policy/env.`]
         : configured ? [] : [`Provider ${entry.id} esta dormente; configure credenciais/endpoint antes de apply real.`];
       return {
         ...entry,
@@ -836,7 +836,7 @@ export class ZavorthHardwareActionPlaneService {
         configured,
         startsOnRead: false as const,
         summary: configured
-          ? `${entry.label} configurado para apply sob approval; leitura de status nao conecta.`
+          ? `${entry.label} configured for apply under approval; status reads do not connect.`
           : `${entry.label} dormente; disponivel como provider de plano sem boot automatico.`,
         blockers,
       };
@@ -870,9 +870,9 @@ export class ZavorthHardwareActionPlaneService {
       ? 'hidden'
       : device.allowlisted ? 'mutable' : 'read_only';
     const blockers = [
-      ...(device.allowlisted ? [] : ['Device nao allowlisted; mutacao bloqueada.']),
+      ...(device.allowlisted ? [] : ['Device not allowlisted; mutation blocked.']),
       ...(device.visibility === 'hidden' ? ['Device oculto para mutacao e snapshot default.'] : []),
-      ...(provider?.status === 'blocked' ? [`Provider ${device.providerId} bloqueado.`] : []),
+      ...(provider?.status === 'blocked' ? [`Provider ${device.providerId} is blocked.`] : []),
     ];
     return {
       ...device,
@@ -889,23 +889,23 @@ export class ZavorthHardwareActionPlaneService {
     snapshot: HardwareActionPlaneSnapshot,
   ): string[] {
     if (!device) {
-      return ['Device fisico nao encontrado.'];
+      return ['Physical device not found.'];
     }
     const blockers = [];
     if (snapshot.emergencyStop.active) {
       blockers.push(`Emergency stop ativo: ${snapshot.emergencyStop.reason || 'acoes fisicas bloqueadas'}.`);
     }
     if (device.visibility === 'hidden') {
-      blockers.push('Device esta oculto e nao aceita mutacao.');
+      blockers.push('Device is hidden and does not accept mutation.');
     }
     if (!device.allowlisted && !READ_ONLY_ACTIONS.has(action)) {
-      blockers.push('Device nao allowlisted fica read-only para mutacoes fisicas.');
+      blockers.push('Devices that are not allowlisted stay read-only for physical mutations.');
     }
     if (!device.allowedActions.includes(action) && !READ_ONLY_ACTIONS.has(action)) {
-      blockers.push(`Acao ${action} nao esta na allowlist do device.`);
+      blockers.push(`Action ${action} is not in the device allowlist.`);
     }
     if (device.providerStatus === 'blocked') {
-      blockers.push(`Provider ${device.providerId} esta bloqueado.`);
+      blockers.push(`Provider ${device.providerId} is blocked.`);
     }
     return blockers;
   }
@@ -936,9 +936,9 @@ export class ZavorthHardwareActionPlaneService {
         status: allowed ? 'passed' : 'blocked',
         canProceed: allowed,
         scope: `${device.id}:${action}`,
-        reasons: [allowed ? 'Acao consta na allowlist.' : `Acao ${action} nao permitida para o device.`],
+        reasons: [allowed ? 'Action is in the allowlist.' : `Action ${action} is not allowed for the device.`],
         warnings: [],
-        blockers: allowed ? [] : [`Acao ${action} nao permitida para o device.`],
+        blockers: allowed ? [] : [`Action ${action} is not allowed for the device.`],
         checkedAt: this.now().toISOString(),
       },
       {
@@ -956,7 +956,7 @@ export class ZavorthHardwareActionPlaneService {
         status: 'passed',
         canProceed: true,
         scope: device.providerId,
-        reasons: ['Preview nao conecta provider nem inicia runtime pesado.'],
+        reasons: ['Preview does not connect providers or start a heavy runtime.'],
         warnings: [],
         blockers: [],
         checkedAt: this.now().toISOString(),
@@ -1308,7 +1308,7 @@ export class ZavorthHardwareActionPlaneService {
         result: input.summary,
       });
     } catch {
-      // O ledger nao deve impedir emergency stop ou bloqueio local.
+      // The ledger must not block emergency stop or local blocking.
     }
   }
 

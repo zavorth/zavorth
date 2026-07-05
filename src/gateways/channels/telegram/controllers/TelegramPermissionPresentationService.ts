@@ -63,8 +63,8 @@ export class TelegramPermissionPresentationService {
     return createSurfaceResponse({
       id: `telegram-permission-list-${status}`,
       intent: 'approval',
-      title: `Permissoes (${statusLabel})`,
-      summary: `${permissions.length} item(ns) encontrados.`,
+      title: `Permissions (${statusLabel})`,
+      summary: `${permissions.length} item(s) found.`,
       tone: permissions.length > 0 ? 'warning' : 'success',
       blocks: [
         {
@@ -76,7 +76,7 @@ export class TelegramPermissionPresentationService {
       actions: [
         {
           id: 'perm-list-refresh',
-          label: 'Atualizar',
+          label: 'Refresh',
           kind: 'command',
           command: `/perm list ${status}`,
           style: 'secondary',
@@ -89,7 +89,7 @@ export class TelegramPermissionPresentationService {
     return createSurfaceResponse({
       id: `telegram-permission-details-${this.policy.shortPermissionId(permission)}`,
       intent: 'approval',
-      title: `Permissao ${this.policy.shortPermissionId(permission)}`,
+      title: `Permission ${this.policy.shortPermissionId(permission)}`,
       summary: `${this.policy.describePermissionSubject(permission)} - ${this.policy.describePermissionStatus(permission.status)}.`,
       tone: permission.status === 'pending' ? 'warning' : permission.status === 'approved' ? 'success' : 'danger',
       blocks: [
@@ -109,10 +109,10 @@ export class TelegramPermissionPresentationService {
   ): SurfaceResponse {
     const title =
       action === 'approve'
-        ? 'Permissao aprovada'
+        ? 'Permission approved'
         : action === 'reject'
-          ? 'Permissao rejeitada'
-          : 'Permissao atualizada';
+          ? 'Permission rejected'
+          : 'Permission updated';
     return createSurfaceResponse({
       id: `telegram-permission-decision-${this.policy.shortPermissionId(permission)}-${action}`,
       intent: 'receipt',
@@ -135,8 +135,8 @@ export class TelegramPermissionPresentationService {
     return createSurfaceResponse({
       id: `telegram-permission-created-${this.policy.shortPermissionId(permission)}`,
       intent: 'approval',
-      title: `Aprovacao necessaria - ${this.policy.describePermissionSubject(permission)}`,
-      summary: 'Decisao explicita exigida antes de continuar.',
+      title: `Approval required - ${this.policy.describePermissionSubject(permission)}`,
+      summary: 'Explicit decision required before continuing.',
       tone: 'warning',
       blocks: [
         {
@@ -157,7 +157,7 @@ export class TelegramPermissionPresentationService {
       id: permission.permission_id,
       title: this.policy.describePermissionSubject(permission),
       status: overrideStatus || this.mapPermissionStatus(permission.status),
-      reason: String(permission.reason || permission.decision_note || 'Sem motivo registrado.').trim(),
+      reason: String(permission.reason || permission.decision_note || 'No reason recorded.').trim(),
       policyProfile: String(permission.scope || 'once'),
       redacted: true,
       riskBlocked: permission.status === 'rejected',

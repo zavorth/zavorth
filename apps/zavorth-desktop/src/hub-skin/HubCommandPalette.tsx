@@ -112,13 +112,13 @@ export function HubCommandPalette(props: {
             value={query}
             onChange={event => setQuery(event.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Pesquisar chats, secoes e comandos"
+            placeholder="Search chats, sections, and commands"
           />
         </div>
 
         <div ref={listContainerRef} className="zvd-command-list">
           {allItems.length === 0 ? (
-            <div className="zvd-command-empty">Nenhum comando encontrado.</div>
+            <div className="zvd-command-empty">No command found.</div>
           ) : (
             <>
               {filteredPanels.length > 0 && (

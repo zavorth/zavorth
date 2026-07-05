@@ -4,6 +4,7 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/errorResponse";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { clearDispatcherCache } from "@ZavorthGateway/open-sse/utils/proxyDispatcher";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -30,6 +31,7 @@ export async function GET(request: Request) {
       : assignments;
     return Response.json({ items: filtered, total: filtered.length });
   } catch (error) {
+    logger.warn('[route] connection failed', error);
     return createErrorResponseFromUnknown(error, "Failed to load proxy assignments");
   }
 }
@@ -41,7 +43,8 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] load operation failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -65,6 +68,7 @@ export async function PUT(request: Request) {
     clearDispatcherCache();
     return Response.json({ success: true, assignment: assigned });
   } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to update assignment");
   }
 }

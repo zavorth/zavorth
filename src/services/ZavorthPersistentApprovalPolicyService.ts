@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export const ZAVORTH_PERSISTENT_APPROVAL_POLICY_CONTRACT_VERSION =
   'zavorth-persistent-approval-policy/1' as const;
@@ -317,14 +318,15 @@ export class ZavorthPersistentApprovalPolicyService {
         updatedAt: parsed.updatedAt || this.now().toISOString(),
         policies: Array.isArray(parsed.policies) ? parsed.policies.map(normalizePolicy).filter(Boolean) as ZavorthPersistentApprovalPolicy[] : [],
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Persistent Approval] parsing failed', error);
+    return {
         contractVersion: ZAVORTH_PERSISTENT_APPROVAL_POLICY_CONTRACT_VERSION,
         schemaVersion: 1,
         updatedAt: this.now().toISOString(),
         policies: [],
       };
-    }
+  }
   }
 
   private writeDocument(document: ZavorthPersistentApprovalPolicyDocument): void {

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../../../logger';
 
 type WarnLogger = (message: string) => void;
 
@@ -51,9 +52,7 @@ export class ZavorthControlRuntimeStateService {
       }
 
       fs.rmSync(filePath, { force: true });
-    } catch {
-      // Ignora limpeza falha de estado; o readiness vai filtrar snapshots mortos.
-    }
+    } catch (error) { // Ignora limpeza falha de estado; o readiness vai filtrar snapshots mortos. logger.warn('[Zavorth Control Runtime State] JSON parse failed', error); }
   }
 }
 

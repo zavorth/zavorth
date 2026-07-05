@@ -4,6 +4,7 @@
 
 import { getDbInstance } from "../db/core";
 import { Memory, MemoryType } from "./types";
+import { logger } from '@/shared/utils/logger';
 
 interface CacheEntry<T> {
   value: T;
@@ -38,9 +39,7 @@ function parseJSON(value: unknown): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value);
     return typeof parsed === "object" && parsed !== null ? parsed : {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[store] JSON parse failed', error); return {}; }
 }
 
 function invalidateMemoryCache(key: string) {

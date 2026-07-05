@@ -31,6 +31,12 @@ import { ZavorthVisualReceiptUxService } from '../../../../services/ZavorthVisua
 import { ZavorthControlContractAdapterService } from '../../../../services/ZavorthControlContractAdapterService.js';
 import { ZavorthDailyUseGuiCertificationService } from '../../../../services/ZavorthDailyUseGuiCertificationService.js';
 import type { ZavorthSensitiveActionFlowDecision } from '../../../../contracts/ZavorthSensitiveActionFlowContract.js';
+import { logger } from '../../../../logger';
+import type {
+ZavorthExternalAgentAdapterKind,
+  ZavorthExternalAgentIsolationKind,
+  ZavorthExternalAgentNetworkMode,
+} from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
 
 type RuntimeRecord = Record<string, unknown>;
 type WebSessionContext = RuntimeRecord & {
@@ -56,6 +62,20 @@ const AGENT_RUN_STATUS_VALUES = new Set([
   'completed',
   'failed',
   'cancelled',
+]);
+
+const EXTERNAL_AGENT_ADAPTERS = new Set<ZavorthExternalAgentAdapterKind>(['cli', 'http', 'acp', 'mcp']);
+const EXTERNAL_AGENT_PROMPT_MODES = new Set(['stdin', 'arg', 'json']);
+const EXTERNAL_AGENT_ISOLATION_KINDS = new Set<ZavorthExternalAgentIsolationKind | 'local'>([
+  'local',
+  'local-supervised',
+  'wsl',
+  'docker',
+]);
+const EXTERNAL_AGENT_NETWORK_MODES = new Set<ZavorthExternalAgentNetworkMode>([
+  'disabled',
+  'local-only',
+  'profile',
 ]);
 
 export type WebAppRuntimeStateRouteHelpers = {
@@ -211,7 +231,6 @@ export class WebAppRuntimeStateRouteService {
         safety: {
           projectionOnly: true,
           zavorthControlCanExecute: false,
-          zavorthControlCanExecute: false,
           policyBrokerRequiredForMutableActions: true,
           rawSecretsSerialized: false,
         },
@@ -240,7 +259,6 @@ export class WebAppRuntimeStateRouteService {
         }),
         safety: {
           projectionOnly: true,
-          zavorthControlCanExecute: false,
           zavorthControlCanExecute: false,
           desktopCanBypassRuntime: false,
           policyBrokerRequiredForMutableActions: true,
@@ -539,20 +557,20 @@ export class WebAppRuntimeStateRouteService {
         const receipt = gateway.registerProfile({
           id: String(body?.id || '').trim() || null,
           label: String(body?.label || '').trim() || null,
-          adapter: body?.adapter,
+          adapter: normalizeExternalAgentAdapter(body?.adapter),
           root: String(body?.root || body?.cwd || '').trim() || null,
           command: String(body?.command || body?.cmd || '').trim() || null,
           args: Array.isArray(body?.args) ? body.args.map((entry: unknown) => String(entry)) : [],
           endpoint: String(body?.endpoint || body?.url || '').trim() || null,
-          promptMode: body?.promptMode,
+          promptMode: normalizeExternalAgentPromptMode(body?.promptMode),
           enableLive: body?.enableLive === true && apiApprovalAccepted,
           allowRemoteNetwork: body?.allowRemoteNetwork === true && apiApprovalAccepted,
-          isolation: body?.isolation || body?.sandbox || null,
+          isolation: normalizeExternalAgentIsolation(body?.isolation || body?.sandbox),
           dockerImage: String(body?.dockerImage || body?.sandboxImage || '').trim() || null,
           wslDistro: String(body?.wslDistro || '').trim() || null,
           workspaceMount: String(body?.workspaceMount || body?.mount || '').trim() || null,
           sandboxWorkdir: String(body?.sandboxWorkdir || body?.containerWorkdir || '').trim() || null,
-          network: body?.network || null,
+          network: normalizeExternalAgentNetwork(body?.network),
           readOnlyRoot: body?.readOnlyRoot === true,
           requireStrongIsolation: body?.requireStrongIsolation === true,
           approvalGranted: apiApprovalAccepted,
@@ -1218,7 +1236,6 @@ export class WebAppRuntimeStateRouteService {
         rawSecretsSerialized: false,
         mutatesConfig: false,
         zavorthControlExecutionAuthority: false,
-        zavorthControlExecutionAuthority: false,
       },
       commands: {
         inspect: 'zavorth providers preference --json',
@@ -1458,7 +1475,6 @@ export class WebAppRuntimeStateRouteService {
           safety: {
             controllerMutatedDirectly: false,
             zavorthControlCanExecute: false,
-            zavorthControlCanExecute: false,
             policyBrokerRequiredForMutableActions: true,
           },
         }, 400);
@@ -1473,7 +1489,6 @@ export class WebAppRuntimeStateRouteService {
       safety: {
         controllerMutatedDirectly: false,
         delegatedToRuntimeApiV1: true,
-        zavorthControlCanExecute: false,
         zavorthControlCanExecute: false,
         policyBrokerRequiredForMutableActions: true,
         rawSecretsSerialized: false,
@@ -1537,7 +1552,6 @@ export class WebAppRuntimeStateRouteService {
         safety: {
           delegatedToCanonicalWebRuntime: true,
           zavorthControlCanExecute: false,
-          zavorthControlCanExecute: false,
           policyBrokerRequiredForTools: true,
           rawSecretsSerialized: false,
         },
@@ -1569,7 +1583,6 @@ export class WebAppRuntimeStateRouteService {
       mission: result.mission,
       safety: {
         delegatedToRuntimeApiV1: true,
-        zavorthControlCanExecute: false,
         zavorthControlCanExecute: false,
         dryRunByDefault: true,
         liveRequiresExplicitFlag: true,
@@ -2187,9 +2200,10 @@ export class WebAppRuntimeStateRouteService {
           }))
           .filter((fact) => fact.content),
       };
-    } catch {
-      return { facts: [] };
-    }
+    } catch (error) {
+    logger.warn('[Web App Runtime State] creation failed', error);
+    return { facts: [] };
+  }
   }
 
   private writeZavorthControlMemoryStore(state: { facts: RuntimeRecord[] }): void {
@@ -2212,6 +2226,34 @@ function asRecord(value: unknown): RuntimeRecord | null {
 
 function text(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function normalizeExternalAgentAdapter(value: unknown): ZavorthExternalAgentAdapterKind | null {
+  const adapter = text(value);
+  return EXTERNAL_AGENT_ADAPTERS.has(adapter as ZavorthExternalAgentAdapterKind)
+    ? adapter as ZavorthExternalAgentAdapterKind
+    : null;
+}
+
+function normalizeExternalAgentPromptMode(value: unknown): 'stdin' | 'arg' | 'json' | null {
+  const promptMode = text(value);
+  return EXTERNAL_AGENT_PROMPT_MODES.has(promptMode)
+    ? promptMode as 'stdin' | 'arg' | 'json'
+    : null;
+}
+
+function normalizeExternalAgentIsolation(value: unknown): ZavorthExternalAgentIsolationKind | 'local' | null {
+  const isolation = text(value);
+  return EXTERNAL_AGENT_ISOLATION_KINDS.has(isolation as ZavorthExternalAgentIsolationKind | 'local')
+    ? isolation as ZavorthExternalAgentIsolationKind | 'local'
+    : null;
+}
+
+function normalizeExternalAgentNetwork(value: unknown): ZavorthExternalAgentNetworkMode | null {
+  const network = text(value);
+  return EXTERNAL_AGENT_NETWORK_MODES.has(network as ZavorthExternalAgentNetworkMode)
+    ? network as ZavorthExternalAgentNetworkMode
+    : null;
 }
 
 function isExternalAgentApiApprovalRequested(body: RuntimeRecord | null | undefined): boolean {
@@ -2239,7 +2281,5 @@ function safeTokenEquals(provided: string, expected: string): boolean {
   if (left.length !== right.length) return false;
   try {
     return timingSafeEqual(left, right);
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Web App Runtime State] operation failed', error); return false; }
 }

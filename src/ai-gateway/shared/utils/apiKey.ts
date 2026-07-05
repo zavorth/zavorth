@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { logger } from '@/shared/utils/logger';
 
 // FASE-01: No hardcoded fallback — enforced by secretsValidator at startup
 if (!process.env.API_KEY_SECRET) {
@@ -72,9 +73,7 @@ export function parseApiKey(
     let expectedCrc;
     try {
       expectedCrc = generateCrc(machineId, keyId);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[api Key] lifecycle operation failed', error); return null; }
     if (crc !== expectedCrc) return null;
 
     return { machineId, keyId, isNewFormat: true };

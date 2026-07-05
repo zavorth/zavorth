@@ -1,4 +1,5 @@
 import { getDbInstance, rowToCamel } from "./core";
+import { logger } from '@/shared/utils/logger';
 
 export interface HandoffPayload {
   id?: string;
@@ -46,9 +47,7 @@ function parseJsonArray(value: unknown): string[] {
     return Array.isArray(parsed)
       ? parsed.map((item) => (typeof item === "string" ? item : String(item))).filter(Boolean)
       : [];
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[context Handoffs] JSON parse failed', error); return []; }
 }
 
 function toHandoffPayload(row: unknown): HandoffPayload | null {

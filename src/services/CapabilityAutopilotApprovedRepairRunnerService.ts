@@ -10,6 +10,7 @@ import type {
 } from '../contracts/CapabilityAutopilotContract.js';
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import { PermissionService } from './PermissionService.js';
+import { logger } from '../logger.js';
 
 type PermissionServiceLike = Pick<PermissionService, 'getRequest'>;
 
@@ -218,14 +219,15 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
         metadata: execution.metadata,
       });
     } catch (error) {
-      return this.stepResult({
+    logger.warn('[Capability Autopilot Approved Repair Runner] process execution failed', error);
+    return this.stepResult({
         step: input.step,
         startedAt,
         status: 'failed',
         summary: `${input.step.title} falhou durante execucao aprovada.`,
         detail: error instanceof Error ? error.message : String(error),
       });
-    }
+  }
   }
 
   private resolveStepPermissionStatus(

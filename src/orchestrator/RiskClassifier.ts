@@ -25,55 +25,55 @@ export class RiskClassifier {
     const inferredExecutor = (intent.executor_preference || '').toLowerCase();
 
     if (['/status', '/help', '/logs', '/tasks', '/diff'].includes(parsed.command_type)) {
-      return { risk_level: 0, reason: 'Consulta read-only', requires_approval: false };
+      return { risk_level: 0, reason: 'Read-only query', requires_approval: false };
     }
 
     for (const term of RiskClassifier.DANGEROUS_TERMS) {
       if (text.includes(term)) {
         return {
           risk_level: 3,
-          reason: `Comando contem palavra chave perigosa: ${term}`,
+          reason: `Command contains dangerous keyword: ${term}`,
           requires_approval: true,
         };
       }
     }
 
     if (parsed.command_type === '/codex') {
-      return { risk_level: 2, reason: 'Execucao via agente Codex local', requires_approval: false };
+      return { risk_level: 2, reason: 'Execution through local Codex agent', requires_approval: false };
     }
 
     if (parsed.command_type === '/external') {
-      return { risk_level: 2, reason: 'Execucao delegada ao ExternalExecutor local', requires_approval: false };
+      return { risk_level: 2, reason: 'Execution delegated to local ExternalExecutor', requires_approval: false };
     }
 
     if (parsed.command_type === '/gemini') {
-      return { risk_level: 1, reason: 'Execucao delegada ao Gemini CLI', requires_approval: false };
+      return { risk_level: 1, reason: 'Execution delegated to Gemini CLI', requires_approval: false };
     }
 
     if (parsed.command_type === '/aistudio') {
       return {
         risk_level: 1,
-        reason: 'Execucao delegada ao Google AI Studio com tools controladas pelo Zavorth',
+        reason: 'Execution delegated to Google AI Studio with tools controlled by Zavorth',
         requires_approval: false,
       };
     }
 
     if (parsed.command_type === '/jules') {
-      return { risk_level: 1, reason: 'Execucao assincrona delegada ao Jules', requires_approval: false };
+      return { risk_level: 1, reason: 'Asynchronous execution delegated to Jules', requires_approval: false };
     }
 
     if (parsed.command_type === '/stitch') {
-      return { risk_level: 1, reason: 'Geracao de UI e artefatos via Google Stitch', requires_approval: false };
+      return { risk_level: 1, reason: 'UI and artifact generation through Google Stitch', requires_approval: false };
     }
 
     if (parsed.command_type === '/run') {
       if (text.includes('build') || text.includes('npm') || text.includes('script')) {
-        return { risk_level: 2, reason: 'Desenvolvimento e build', requires_approval: false };
+        return { risk_level: 2, reason: 'Development and build', requires_approval: false };
       }
 
       return {
         risk_level: 3,
-        reason: 'Shell arbitrario inferido fora de build',
+        reason: 'Arbitrary shell inferred outside build flow',
         requires_approval: true,
       };
     }
@@ -83,35 +83,35 @@ export class RiskClassifier {
         case 'codex':
           return {
             risk_level: 2,
-            reason: 'Roteamento automatico para Codex com alteracao potencial de codigo',
+            reason: 'Automatic routing to Codex with potential code changes',
             requires_approval: false,
           };
         case 'external_executor':
           return {
             risk_level: 2,
-            reason: 'Roteamento automatico para ExternalExecutor com investigacao ou execucao no workspace',
+            reason: 'Automatic routing to ExternalExecutor for investigation or workspace execution',
             requires_approval: false,
           };
         case 'gemini_cli':
-          return { risk_level: 1, reason: 'Roteamento automatico para Gemini CLI', requires_approval: false };
+          return { risk_level: 1, reason: 'Automatic routing to Gemini CLI', requires_approval: false };
         case 'web_research':
           return {
             risk_level: 0,
-            reason: 'Roteamento automatico para pesquisa web estruturada e somente leitura',
+            reason: 'Automatic routing to structured read-only web research',
             requires_approval: false,
           };
         case 'aistudio':
           return {
             risk_level: 1,
-            reason: 'Roteamento automatico para Google AI Studio com tools controladas pelo Zavorth',
+            reason: 'Automatic routing to Google AI Studio with tools controlled by Zavorth',
             requires_approval: false,
           };
         case 'jules':
-          return { risk_level: 1, reason: 'Roteamento automatico para Jules', requires_approval: false };
+          return { risk_level: 1, reason: 'Automatic routing to Jules', requires_approval: false };
         case 'stitch':
-          return { risk_level: 1, reason: 'Roteamento automatico para Google Stitch', requires_approval: false };
+          return { risk_level: 1, reason: 'Automatic routing to Google Stitch', requires_approval: false };
         case 'zavorthBridge':
-          return { risk_level: 1, reason: 'Roteamento automatico para ZavorthBridge', requires_approval: false };
+          return { risk_level: 1, reason: 'Automatic routing to ZavorthBridge', requires_approval: false };
         default:
           break;
       }
@@ -120,14 +120,14 @@ export class RiskClassifier {
     if (['/plan', '/ag', '/bridge', '/task', '/auto'].includes(parsed.command_type)) {
       return {
         risk_level: 1,
-        reason: 'Planejamento e analise de escrita controlada',
+        reason: 'Planning and controlled write analysis',
         requires_approval: false,
       };
     }
 
     return {
       risk_level: 3,
-      reason: 'Seguranca por padrao: impossivel determinar intencao unicamente segura',
+      reason: 'Default safety: could not determine a uniquely safe intent',
       requires_approval: true,
     };
   }

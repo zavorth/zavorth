@@ -25,14 +25,14 @@ export class TelegramGroupAdminWarnFlowService {
   ): Promise<void> {
     if (!selection.targetId) {
       await ctx.reply(
-        'Aviso: responda a uma mensagem ou informe o ID. Ex: `/warn 123456 motivo`',
+        'Warning: reply to a message or provide the ID. Example: `/warn 123456 reason`',
         { parse_mode: 'Markdown' },
       );
       return;
     }
 
     const reasonParts = selection.usedReply ? selection.tokens : selection.tokens.slice(1);
-    const reason = reasonParts.join(' ') || 'Sem motivo especificado';
+    const reason = reasonParts.join(' ') || 'No reason specified';
     const result = await this.deps.warnService.warn(
       chatId,
       selection.targetId.toString(),
@@ -42,11 +42,11 @@ export class TelegramGroupAdminWarnFlowService {
     const limitConfig = await this.deps.warnService.getLimitConfig(chatId);
 
     let message =
-      `Usuario ${selection.targetId} recebeu uma advertencia ` +
-      `(${result.warnCount}/${limitConfig.max_warns}).\nMotivo: ${reason}`;
+      `User ${selection.targetId} received a warning ` +
+      `(${result.warnCount}/${limitConfig.max_warns}).\nReason: ${reason}`;
 
     if (result.limitReached) {
-      message += `\n\n**Limite atingido.** Aplicando ${result.limitAction}...`;
+      message += `\n\n**Limit reached.** Applying ${result.limitAction}...`;
       await this.applyLimitAction(telegramChatId, selection.targetId, performedBy, result.limitAction);
     }
 
@@ -55,13 +55,13 @@ export class TelegramGroupAdminWarnFlowService {
 
   public async handleWarns(ctx: Context, targetId: number | null, chatId: string): Promise<void> {
     if (!targetId) {
-      await ctx.reply('Aviso: responda a uma mensagem ou informe o ID.');
+      await ctx.reply('Warning: reply to a message or provide the ID.');
       return;
     }
 
     const warns = await this.deps.warnService.getWarns(chatId, targetId.toString());
     if (warns.length === 0) {
-      await ctx.reply(`Usuario ${targetId} nao tem advertencias.`);
+      await ctx.reply(`User ${targetId} has no warnings.`);
       return;
     }
 
@@ -71,19 +71,19 @@ export class TelegramGroupAdminWarnFlowService {
     });
 
     await ctx.reply(
-      `**Warns de ${targetId}** (${warns.length}/${config.max_warns}):\n${lines.join('\n')}`,
+      `**Warnings for ${targetId}** (${warns.length}/${config.max_warns}):\n${lines.join('\n')}`,
       { parse_mode: 'Markdown' },
     );
   }
 
   public async handleClearWarns(ctx: Context, targetId: number | null, chatId: string): Promise<void> {
     if (!targetId) {
-      await ctx.reply('Aviso: responda a uma mensagem ou informe o ID.');
+      await ctx.reply('Warning: reply to a message or provide the ID.');
       return;
     }
 
     const removed = await this.deps.warnService.clearWarns(chatId, targetId.toString());
-    await ctx.reply(`${removed} advertencia(s) removida(s) do usuario ${targetId}.`);
+    await ctx.reply(`${removed} warning(s) removed from user ${targetId}.`);
   }
 
   private async applyLimitAction(

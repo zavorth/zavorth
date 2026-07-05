@@ -17,6 +17,7 @@ import type {
   ZavorthWorkspaceIdentityProfileSnapshot,
 } from '../contracts/FirstRunWorkspaceBootstrapContract.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
+import { logger } from '../logger.js';
 
 type FileSystemLike = {
   existsSync: typeof fs.existsSync;
@@ -307,9 +308,7 @@ export class FirstRunWorkspaceBootstrapProfileService {
         return null;
       }
       return parsed as ZavorthFirstRunWorkspaceProfile;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[First Run Workspace  Profile] JSON parse failed', error); return null; }
   }
 
   public buildWorkspaceIdentitySnapshot(): ZavorthWorkspaceIdentityProfileSnapshot {
@@ -370,9 +369,7 @@ export class FirstRunWorkspaceBootstrapProfileService {
   private readModelPickerContract(): ModelPickerContract | null {
     try {
       return this.modelPickerContractService.buildContract({ includeAdvanced: true });
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[First Run Workspace  Profile] creation failed', error); return null; }
   }
 
   private buildWrites(

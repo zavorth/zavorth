@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 interface SkillMetric {
   skill_name: string;
@@ -24,7 +25,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
   public readonly name = 'skill_feedback';
 
   public readonly description =
-    'Coleta feedback de execucao de skills para auto-melhoria continua.';
+    'Collects skill execution feedback for continuous self-improvement.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -43,11 +44,11 @@ export class SkillFeedbackCollectorTool extends BaseTool {
       },
       notes: {
         type: 'string',
-        description: 'Notas sobre a execucao.',
+        description: 'Notes about execution.',
       },
       execution_time_ms: {
         type: 'number',
-        description: 'Tempo de execucao em milissegundos.',
+        description: 'Execution time in milliseconds.',
       },
     },
     required: ['skill_name'],
@@ -63,7 +64,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
   public async execute(args: Record<string, unknown>): Promise<string> {
     const skillName = String(args.skill_name || '');
     if (!skillName) {
-      return 'Erro: o parametro "skill_name" e obrigatorio.';
+      return 'Error: the "skill_name" parameter is required.';
     }
 
     const action = String(args.action || 'record');
@@ -83,12 +84,13 @@ export class SkillFeedbackCollectorTool extends BaseTool {
         case 'optimize':
           return this.optimizeSuggestion(skillName);
         default:
-          return `Erro: acao "${action}" nao implementada.`;
+          return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Skill Feedback Collector] operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Erro no skill feedback: ${message}`;
-    }
+  }
   }
 
   private ensureStorageDir(): void {
@@ -159,7 +161,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
     lines.push(`Metricas da skill: ${skillName}`);
     lines.push(`  - Total de execucoes: ${data.total_executions}`);
     lines.push(`  - Rating medio: ${data.average_rating.toFixed(2)}`);
-    lines.push(`  - Tempo medio de execucao: ${data.average_execution_time_ms.toFixed(0)}ms`);
+    lines.push(`  - Average execution time: ${data.average_execution_time_ms.toFixed(0)}ms`);
     lines.push(`  - Ultimo registro: ${data.last_updated}`);
 
     const recentMetrics = data.metrics.slice(-5);
@@ -190,9 +192,9 @@ export class SkillFeedbackCollectorTool extends BaseTool {
     }
 
     if (data.average_execution_time_ms > 10000) {
-      lines.push('- Tempo medio de execucao alto (>10s). Considerar cache ou otimizacao de I/O.');
+      lines.push('- High average execution time (>10s). Consider caching or I/O optimization.');
     } else if (data.average_execution_time_ms > 5000) {
-      lines.push('- Tempo medio de execucao moderado (>5s). Monitorar tendencia.');
+      lines.push('- Moderate average execution time (>5s). Monitor trend.');
     }
 
     const recentRatings = data.metrics.slice(-5).map((m) => m.rating);

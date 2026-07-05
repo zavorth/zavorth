@@ -1,11 +1,11 @@
 /**
- * TrustedBoundary — Classificação de origem e confiança de conteúdo.
- * 
- * Regra fundamental: conteúdo externo NUNCA pode se tornar instrução de execução.
- * Toda ação executável deve ter origem em:
- *   - Instrução direta do usuário
- *   - Política do sistema
- *   - Inferência válida da IA
+ * TrustedBoundary - source and content trust classification.
+ *
+ * Fundamental rule: external content must never become an execution instruction.
+ * Every executable action must originate from:
+ * - A direct user instruction
+ * - System policy
+ * - A valid AI inference
  */
 
 export type TrustLevel = 'trusted_instruction' | 'untrusted_content' | 'system_policy';
@@ -20,7 +20,7 @@ export interface TrustClassification {
 export class TrustedBoundary {
   private static URL_PATTERN = /https?:\/\/[^\s<>()]+/i;
 
-  // Extensões de arquivo que indicam conteúdo externo
+  // File extensions that indicate external content.
   private static UNTRUSTED_FILE_EXTENSIONS = [
     '.md', '.txt', '.log', '.json', '.yaml', '.yml',
     '.html', '.htm', '.xml', '.csv', '.tsv',
@@ -29,7 +29,7 @@ export class TrustedBoundary {
     '.env', '.cfg', '.conf', '.ini', '.toml',
   ];
 
-  // Padrões de conteúdo que indicam tentativa de injection
+  // Content patterns that indicate a prompt-injection attempt.
   private static INJECTION_PATTERNS = [
     /ignore\s+(all\s+)?previous\s+instructions/i,
     /forget\s+(all\s+)?previous/i,
@@ -44,20 +44,20 @@ export class TrustedBoundary {
   ];
 
   /**
-   * Classifica a origem de uma entrada.
+   * Classifies the origin of an input.
    */
   public static classify(content: string, source: string): TrustClassification {
-    // Instruções diretas do sistema
+    // Direct system instructions.
     if (source === 'system' || source === 'system_policy') {
       return {
         level: 'system_policy',
         source,
-        reason: 'Política do sistema — confiável implicitamente.',
+        reason: 'System policy is implicitly trusted.',
         can_generate_execution: true,
       };
     }
 
-    // Instruções diretas de superfícies autenticadas.
+    // Direct instructions from authenticated surfaces.
     if (
       source === 'telegram_user' ||
       source === 'user_direct' ||
@@ -67,12 +67,11 @@ export class TrustedBoundary {
       source === 'discord_owner_dm' ||
       source === 'web_user'
     ) {
-      // Mesmo sendo do usuário, verificar injection patterns
       if (this.containsInjectionPattern(content)) {
         return {
           level: 'untrusted_content',
           source,
-          reason: 'Conteúdo do usuário contém padrão de prompt injection.',
+          reason: 'User content contains a prompt-injection pattern.',
           can_generate_execution: false,
         };
       }
@@ -82,69 +81,68 @@ export class TrustedBoundary {
         source,
         reason:
           source === 'discord_public_user'
-            ? 'Instrucao direta de usuario em canal publico allowlisted do Discord.'
+            ? 'Direct user instruction in an allowlisted public Discord channel.'
             : source === 'discord_owner_dm'
-              ? 'Instrucao direta do owner em DM do Discord.'
+              ? 'Direct owner instruction in Discord DM.'
               : source === 'discord_dm_user'
-                ? 'Instrucao direta de usuario em DM do Discord.'
+                ? 'Direct user instruction in Discord DM.'
                 : source === 'web_user'
-                  ? 'Instrucao direta de usuario autenticado na web.'
-                  : 'Instrucao direta do usuario autenticado.',
+                  ? 'Direct authenticated user instruction on the web.'
+                  : 'Direct authenticated user instruction.',
         can_generate_execution: true,
       };
     }
 
-    // Conteúdo de arquivos
+    // File content.
     if (source === 'file_content' || source === 'file_read') {
       return {
         level: 'untrusted_content',
         source,
-        reason: 'Conteúdo de arquivo — sempre não-confiável.',
+        reason: 'File content is always untrusted.',
         can_generate_execution: false,
       };
     }
 
-    // Conteúdo da web
+    // Web content.
     if (source === 'web' || source === 'url' || source === 'scrape') {
       return {
         level: 'untrusted_content',
         source,
-        reason: 'Conteúdo da web — sempre não-confiável.',
+        reason: 'Web content is always untrusted.',
         can_generate_execution: false,
       };
     }
 
-    // Conteúdo de logs
+    // Logs.
     if (source === 'log' || source === 'stdout' || source === 'stderr') {
       return {
         level: 'untrusted_content',
         source,
-        reason: 'Conteúdo de log/output — sempre não-confiável.',
+        reason: 'Log/output content is always untrusted.',
         can_generate_execution: false,
       };
     }
 
-    // Conteúdo de documentos (PDF, etc.)
+    // Documents (PDF, etc.).
     if (source === 'document' || source === 'pdf') {
       return {
         level: 'untrusted_content',
         source,
-        reason: 'Conteúdo de documento — sempre não-confiável.',
+        reason: 'Document content is always untrusted.',
         can_generate_execution: false,
       };
     }
 
-    // Default: conservadorismo
     return {
       level: 'untrusted_content',
       source,
-      reason: `Origem desconhecida '${source}' — tratada como não-confiável por padrão.`,
+      reason: `Unknown origin '${source}' treated as untrusted by default.`,
       can_generate_execution: false,
     };
   }
 
   /**
-   * Verifica se conteúdo contém padrões de prompt injection.
+   * Checks whether content contains prompt-injection patterns.
    */
   public static containsInjectionPattern(content: string): boolean {
     for (const pattern of this.INJECTION_PATTERNS) {
@@ -160,28 +158,28 @@ export class TrustedBoundary {
   }
 
   /**
-   * Verifica se conteúdo de um arquivo pode ser tratado como instrução.
-   * A resposta é sempre NÃO — conteúdo de arquivo nunca é instrução.
+   * Checks whether file content can be treated as an instruction.
+   * The answer is always no: file content is never an instruction.
    */
   public static canFileContentBeInstruction(filePath: string): boolean {
-    return false; // Regra absolutamente rígida
+    return false;
   }
 
   /**
-   * Determina a trust level baseado na extensão do arquivo.
+   * Determines trust level based on file extension.
    */
   public static classifyFileContent(filePath: string): TrustClassification {
     return {
       level: 'untrusted_content',
       source: `file:${filePath}`,
-      reason: 'Todo conteúdo de arquivo é não-confiável por definição.',
+      reason: 'All file content is untrusted by definition.',
       can_generate_execution: false,
     };
   }
 
   /**
-   * Valida se um input pode gerar ações de execução.
-   * Retorna true se permitido, false se bloqueado.
+   * Validates whether an input can generate execution actions.
+   * Returns true when allowed, false when blocked.
    */
   public static validateExecutionOrigin(content: string, source: string): boolean {
     const classification = this.classify(content, source);

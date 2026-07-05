@@ -200,6 +200,10 @@ export class Database {
     return Database.initPromise;
   }
 
+  public static getActiveInstance(): Database | null {
+    return Database.instance;
+  }
+
   public getRawDb(): SQLiteDatabase {
     return this.db;
   }

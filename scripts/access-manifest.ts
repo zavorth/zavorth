@@ -16,8 +16,8 @@ async function main() {
   console.log('[zavorth-access] manifesto de acesso');
   console.log(`[zavorth-access] resumo: ${manifest.summary}`);
   console.log(`[zavorth-access] app local: ${manifest.local.appUrl}`);
-  console.log(`[zavorth-access] app remoto: ${manifest.remote.appUrl || 'nao configurado'}`);
-  console.log(`[zavorth-access] auth web: ${manifest.auth.required ? manifest.auth.source : 'ausente'} | host autorizado: ${manifest.auth.authorizedHost === false ? 'nao' : 'sim'}`);
+  console.log(`[zavorth-access] remote app: ${manifest.remote.appUrl || 'not configured'}`);
+  console.log(`[zavorth-access] web auth: ${manifest.auth.required ? manifest.auth.source : 'absent'} | host authorized: ${manifest.auth.authorizedHost === false ? 'no' : 'yes'}`);
   if (manifest.recommendedPlan) {
     console.log('[zavorth-access] proximo passo oficial:');
     console.log(`- ${manifest.recommendedPlan.primaryLabel}: ${manifest.recommendedPlan.primarySummary}`);
@@ -51,7 +51,7 @@ async function main() {
     for (const surface of manifest.surfaces) {
       console.log(
         `- ${surface.label}: ${surface.entry}${surface.remoteEntry ? ` | remoto: ${surface.remoteEntry}` : ''} | ${
-          surface.ready ? 'pronto' : 'pendente'
+          surface.ready ? 'ready' : 'pending'
         }`,
       );
     }
@@ -87,7 +87,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-access] falha ao montar o manifesto de acesso.');
+  console.error('[zavorth-access] failed to build access manifest.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

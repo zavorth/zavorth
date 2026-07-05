@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  PILOT_ZAVORTH_CONTROL_METRICS,
+PILOT_ZAVORTH_CONTROL_METRICS,
   PILOT_FEEDBACK_TEMPLATES,
   PILOT_LEDGER_ENTRIES,
   PILOT_LOOP_FORBIDDEN_CLAIMS,
@@ -593,9 +594,7 @@ export class PilotLoopService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Pilot Loop] JSON parse failed', error); return null; }
   }
 
   private readArtifactJson(filePath: string, artifactName: string): JsonRecord | null {
@@ -614,9 +613,7 @@ export class PilotLoopService {
     }
     try {
       return this.parseJson(this.readFileSync(filePath, 'utf8'));
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Pilot Loop] filesystem operation failed', error); return null; }
   }
 
   private readCoreText(relativePath: string): string | null {
@@ -641,18 +638,14 @@ export class PilotLoopService {
     }
     try {
       return this.readFileSync(targetPath, 'utf8');
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Pilot Loop] filesystem operation failed', error); return null; }
   }
 
   private parseJson(raw: string): JsonRecord | null {
     try {
       const parsed = JSON.parse(raw);
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as JsonRecord : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Pilot Loop] JSON parse failed', error); return null; }
   }
 
   private check(

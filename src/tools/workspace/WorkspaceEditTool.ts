@@ -4,6 +4,7 @@ import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { DiskMutationGateService } from '../../services/DiskMutationGateService.js';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceFsPolicy } from './WorkspaceFsPolicy.js';
+import { logger } from '../../logger.js';
 
 function readString(value: unknown): string {
   return String(value ?? '').trim();
@@ -23,7 +24,7 @@ function buildDiff(filePath: string, before: string, after: string): string {
 
 export class WorkspaceEditTool extends BaseTool {
   public readonly name = 'workspace.edit';
-  public readonly description = 'Prepara edicao de arquivo no workspace por substituicao exata via Disk Mutation Gate; apply exige approval e receipt.';
+  public readonly description = 'Prepares a workspace file edit through exact replacement via Disk Mutation Gate; apply requires approval and receipt.';
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
@@ -33,7 +34,7 @@ export class WorkspaceEditTool extends BaseTool {
       },
       search: {
         type: 'string',
-        description: 'Trecho exato que deve existir no arquivo.',
+        description: 'Exact snippet that must exist in the file.',
       },
       replace: {
         type: 'string',
@@ -79,14 +80,15 @@ export class WorkspaceEditTool extends BaseTool {
           preview: result.preview,
           receipt: result.receipt,
         });
-      } catch (error: any) {
-        return JSON.stringify({
+      } catch (error) {
+    logger.warn('[Workspace Edit] serialization failed', error);
+    return JSON.stringify({
           success: false,
           applied: false,
           approvalRequired: true,
           error: error?.message || 'Falha ao aplicar preview pelo Disk Mutation Gate.',
         });
-      }
+  }
     }
 
     const filepath = readString(args.filepath || args.filePath);
@@ -106,19 +108,20 @@ export class WorkspaceEditTool extends BaseTool {
     let resolved: ReturnType<WorkspaceFsPolicy['resolveEditPath']>;
     try {
       resolved = new WorkspaceFsPolicy().resolveEditPath(filepath);
-    } catch {
-      return JSON.stringify({
+    } catch (error) {
+    logger.warn('[Workspace Edit] search failed', error);
+    return JSON.stringify({
         success: false,
         applied: false,
-        error: 'Por seguranca, edicoes so podem alterar arquivos dentro do escopo output/ do workspace.',
+        error: 'For security, edits can only modify files inside the workspace output/ scope.',
       });
-    }
+  }
 
     if (!fs.existsSync(resolved.absolutePath) || !fs.statSync(resolved.absolutePath).isFile()) {
       return JSON.stringify({
         success: false,
         applied: false,
-        error: `Arquivo alvo nao encontrado: ${filepath}`,
+        error: `Target file not found: ${filepath}`,
         policy: {
           access: resolved.access,
           scope: resolved.scope,
@@ -131,7 +134,7 @@ export class WorkspaceEditTool extends BaseTool {
       return JSON.stringify({
         success: false,
         applied: false,
-        error: 'Trecho de busca nao encontrado. Nenhum arquivo foi alterado.',
+        error: 'Search snippet not found. No file was changed.',
         policy: {
           access: resolved.access,
           scope: resolved.scope,

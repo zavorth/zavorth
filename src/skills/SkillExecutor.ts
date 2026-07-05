@@ -20,7 +20,7 @@ export class SkillExecutor {
     const skill = skills.find((item) => item.name === skillName);
 
     if (!skill) {
-      logger.warn(`Skill "${skillName}" nao encontrada.`);
+      logger.warn(`Skill "${skillName}" not found.`);
       return '';
     }
 

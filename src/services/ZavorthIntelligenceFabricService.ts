@@ -30,6 +30,7 @@ import {
 import { ConversationalAgencyPresenter } from './ConversationalAgencyPresenter.js';
 import { ZavorthCapabilityHubApiService } from './ZavorthCapabilityHubApiService.js';
 import { ModelPickerService, type ModelPickerServiceResult } from './providers/catalog/ModelPickerService.js';
+import { logger } from '../logger.js';
 
 type FabricRuntime = {
   now?: () => Date;
@@ -505,9 +506,7 @@ export class ZavorthIntelligenceFabricService {
 function safeBuildPicker(modelPicker: Pick<ModelPickerService, 'buildPicker'>): ModelPickerServiceResult | null {
   try {
     return modelPicker.buildPicker({ includeAdvanced: true });
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Intelligence Fabric] creation failed', error); return null; }
 }
 
 function redactText(text: string): string {

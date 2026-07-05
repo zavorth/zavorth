@@ -56,6 +56,7 @@ import {
 import { modelOptions } from './modelCatalog';
 import { parseSlashCommand, slashCommands } from './slashCommands';
 import { workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
+import { logger } from './logger.js';
 
 import {
   $status, setStatus,
@@ -288,18 +289,18 @@ export function useDesktopAppState() {
         .then((wRes) => {
           setWorkspaceWriteApprovals(wRes);
         })
-        .catch(() => {});
+        .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
       if (activeWorkspaceScope.id && activeWorkspaceScope.kind === 'folder') {
         loadProposedMandate(activeWorkspaceScope.id)
           .then(setProposedMandate)
-          .catch(() => {});
+          .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
         loadActiveMandate(activeWorkspaceScope.id)
           .then(setActiveMandate)
-          .catch(() => {});
+          .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
         getPendingHostCommands(activeWorkspaceScope.id)
           .then(setPendingHostCommands)
-          .catch(() => {});
+          .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
       }
     }, 3000);
 
@@ -325,7 +326,7 @@ export function useDesktopAppState() {
             }
           }
         })
-        .catch(() => {});
+        .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
     } else {
       setShowTrustPrompt(false);
     }

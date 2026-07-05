@@ -833,9 +833,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     let rawBody: unknown = {};
     try {
       rawBody = await request.json();
-    } catch {
-      // Empty or non-JSON body — treat as {}
-    }
+    } catch (error) { // Empty or non-JSON body — treat as {} logger.warn('[route] connection failed', error); }
     const validation = validateBody(providerConnectionTestBodySchema, rawBody);
     if (isValidationFailure(validation)) {
       return NextResponse.json({ error: validation.error }, { status: 400 });

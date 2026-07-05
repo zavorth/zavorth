@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 type CompanionCommand =
   | 'accept-step'
@@ -97,9 +98,7 @@ export class ZavorthBridgeCompanionBridge {
     try {
       const raw = await fs.promises.readFile(this.getStatusFilePath(), 'utf8');
       return JSON.parse(raw) as CompanionStatus;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Companion Bridge] JSON parse failed', error); return null; }
   }
 
   public async isOnline(maxAgeMs = DEFAULT_STATUS_MAX_AGE_MS): Promise<boolean> {

@@ -56,6 +56,7 @@ export class TelegramPermissionCommandService {
           const statusToken = (restParts[0] || 'pending').toLowerCase();
           const status = this.deps.permissionPolicy.normalizePermissionStatus(statusToken);
           const limit = safeParseInt(restParts[1], 10);
+          const permissions = await this.deps.permissionService.listRequests(status, limit);
           await replyWithTelegramSurfaceResponse(
             ctx,
             this.deps.permissionPresentation.buildPermissionListSurfaceResponse(permissions, status),

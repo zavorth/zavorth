@@ -4,7 +4,7 @@ import { ListDirectoryTool } from '../ListDirectoryTool.js';
 
 export class WorkspaceListTool extends BaseTool {
   public readonly name = 'workspace.list';
-  public readonly description = 'Lista arquivos e diretorios dentro do workspace usando a policy canonica.';
+  public readonly description = 'Lists files and directories inside the workspace using the canonical policy.';
   public readonly parameters: ToolDefinition['parameters'];
   private readonly delegate: ListDirectoryTool;
 

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 interface SearchResult {
   session_id: string;
@@ -16,7 +17,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
   public readonly name = 'zavorth_session_search';
 
   public readonly description =
-    'Searches past conversations and sessions do Zavorth. Suporta busca full-text, filtragem por data, por canal, por tipo de mensagem e ranking por relevancia. Backed pelo Mnemos FTS Index e session logs.';
+    'Searches past Zavorth conversations and sessions. Supports full-text search, date filtering, channel filtering, message type filtering, and relevance ranking. Backed by the Mnemos FTS Index and session logs.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -39,7 +40,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
       },
       channel: {
         type: 'string',
-        description: 'Filtrar por canal (telegram, discord, cli, etc).',
+        description: 'Filter by channel (telegram, discord, cli, etc).',
       },
       message_type: {
         type: 'string',
@@ -119,10 +120,11 @@ export class ZavorthSessionSearchTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Session Search] operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Search error: ${message}`;
-    }
+  }
   }
 
   private performSearch(params: {
@@ -209,9 +211,10 @@ export class ZavorthSessionSearchTool extends BaseTool {
     if (mode === 'regex') {
       try {
         pattern = new RegExp(query, 'i');
-      } catch {
-        return { matchedLines: [], score: 0, contextSnippet: '' };
-      }
+      } catch (error) {
+    logger.warn('[Zavorth Session Search] search failed', error);
+    return { matchedLines: [], score: 0, contextSnippet: '' };
+  }
     }
 
     for (let i = 0; i < lines.length; i++) {
@@ -273,9 +276,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
           results.push(fullPath);
         }
       }
-    } catch {
-      // ignore permission errors
-    }
+    } catch (error) { // ignore permission errors logger.warn('[Zavorth Session Search] filesystem operation failed', error); }
     return results;
   }
 }

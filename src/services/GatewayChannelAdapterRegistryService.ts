@@ -5,12 +5,13 @@ import type {
   RuntimeChannelDescriptor,
   RuntimeChannelDescriptorContract,
 } from '../contracts/ChannelMeshContract.js';
-import type { PlatformCapability } from '../contracts/PlatformContract.js';
+import type { PlatformCapability, PlatformKey, PlatformTransport } from '../contracts/PlatformContract.js';
 import { PlatformCapabilityService } from './PlatformCapabilityService.js';
 import { WebRuntimeChannelAdapter } from './GatewayRuntimeChannelAdapters.js';
 import { ChannelLongTailActivationService } from './ChannelLongTailActivationService.js';
+import { logger } from '../logger.js';
 import type {
-  ChannelLongTailActivationEntry,
+ChannelLongTailActivationEntry,
   ChannelLongTailConfiguredDoctorReceipt,
 } from '../contracts/ChannelLongTailActivationContract.js';
 
@@ -318,14 +319,13 @@ export class GatewayChannelAdapterRegistryService {
         let doctor: ChannelLongTailConfiguredDoctorReceipt | null = null;
         try {
           doctor = channelLongTailActivation.runConfiguredDoctor({ channelId: entry.channelId });
-        } catch {
-          doctor = null;
-        }
+        } catch (error) {
+    logger.warn('[way Channel Adapter Registry] creation failed', error);
+    doctor = null;
+  }
         return this.fromLongTailActivationEntry(entry, doctor);
       });
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[way Channel Adapter Registry] creation failed', error); return []; }
   }
 
   private fromLongTailActivationEntry(
@@ -512,20 +512,20 @@ export class GatewayChannelAdapterRegistryService {
       features: this.mergeFeatureSet(this.emptyFeatureSet(), overlay.features),
       riskLevel: overlay.riskLevel || this.riskLevelFor(id),
       setupMode: overlay.setupMode ?? this.setupModeFor(id, {
-        platform: id as any,
+        platform: id as PlatformKey,
         readiness: overlay.readiness || 'partial',
         implementationState: overlay.implementationState || 'partial',
         configured: overlay.configured !== false,
-        transport: (overlay.transport || 'virtual') as any,
+        transport: (overlay.transport || 'virtual') as PlatformTransport,
         envKeys: [],
         notes: Array.isArray(overlay.notes) ? overlay.notes.slice() : [],
       }),
       provider: overlay.provider ?? this.providerFor(id, {
-        platform: id as any,
+        platform: id as PlatformKey,
         readiness: overlay.readiness || 'partial',
         implementationState: overlay.implementationState || 'partial',
         configured: overlay.configured !== false,
-        transport: (overlay.transport || 'virtual') as any,
+        transport: (overlay.transport || 'virtual') as PlatformTransport,
         envKeys: [],
         notes: Array.isArray(overlay.notes) ? overlay.notes.slice() : [],
       }),

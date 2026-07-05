@@ -44,6 +44,7 @@ export type ZavorthSensitiveActionFlowUxCard = {
   };
   approval: {
     required: boolean;
+    status: string;
     simpleText: string;
   };
   execution: {
@@ -57,7 +58,10 @@ export type ZavorthSensitiveActionFlowUxCard = {
     summary: string;
   };
   receipt: {
+    id: string;
+    simpleText: string;
     rollbackAvailable: boolean;
+    rawSecretsPresent: boolean;
   };
   steps: ZavorthSensitiveActionFlowUxStep[];
   actions: ZavorthSensitiveActionFlowUxAction[];
@@ -79,7 +83,7 @@ export type ZavorthSensitiveActionFlowUxSnapshot = {
   card: ZavorthSensitiveActionFlowUxCard;
   source: ZavorthSensitiveActionFlowSnapshot;
   zavorthControlProjection: {
-    route: '/zavorthControl';
+    route: '/zavorthControl' | '/control';
     renderMode: 'action-card';
     executionAuthority: false;
   };

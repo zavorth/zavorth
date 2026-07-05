@@ -91,7 +91,7 @@ export function ExpressivePromptBar({
     const ta = textareaRef.current;
     if (!ta) return;
     ta.style.height = "auto";
-    /* lineHeight 24px × 4 rows = 96px cap */
+    /* lineHeight 24px x 4 rows = 96px cap */
     ta.style.height = `${Math.min(ta.scrollHeight, 96)}px`;
   }, []);
 
@@ -195,7 +195,7 @@ export function ExpressivePromptBar({
             {isActive && <GradientBorder />}
           </AnimatePresence>
 
-          {/* ── Expand / collapse button (+/×) ── */}
+          {/* Expand / collapse button (+/X) */}
           <motion.button
             type="button"
             aria-label={expandOpen ? "Close actions" : "Open actions"}

@@ -3,6 +3,7 @@ import path from 'path';
 import { config } from '../config/index.js';
 import { spawnNativeCommand } from '../core/CommandSpawn.js';
 import { generateZavorthControlToken, isWeakZavorthControlToken } from './ZavorthControlTokenService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthControlAccessAction =
   | 'open'
@@ -312,9 +313,7 @@ export class ZavorthControlAccessService {
       }
       const token = fs.readFileSync(filePath, 'utf8').trim();
       return token || null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Control Access] filesystem operation failed', error); return null; }
   }
 
   private openUrl(url: string): boolean {
@@ -322,9 +321,7 @@ export class ZavorthControlAccessService {
       const child = this.spawnImpl(...this.buildOpenCommand(url));
       child.unref?.();
       return true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Zavorth Control Access] filesystem operation failed', error); return false; }
   }
 
   private buildOpenCommand(url: string): Parameters<typeof spawnNativeCommand> {

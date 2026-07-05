@@ -42,7 +42,7 @@ export class TelegramInspectionPermissionService {
     const originalRequest = String(permission.metadata?.original_request || '').trim();
     const allowedPath = String(permission.resolved_value || permission.requested_value || '').trim();
     if (!originalRequest || !allowedPath) {
-      await ctx.reply('A permissao foi aprovada, mas eu perdi a consulta original de inspecao.');
+      await ctx.reply('The permission was approved, but I lost the original inspection request.');
       return true;
     }
 
@@ -72,7 +72,7 @@ export class TelegramInspectionPermissionService {
     }
 
     if (!this.deps.permissionService) {
-      await ctx.reply(`Preciso de permissao para inspecionar este caminho especifico:\n${plan.previewPath}`);
+      await ctx.reply(`I need permission to inspect this specific path:\n${plan.previewPath}`);
       return;
     }
 
@@ -94,7 +94,7 @@ export class TelegramInspectionPermissionService {
     });
     const text =
       this.deps.formatPermissionCreatedMessage?.(permission) ||
-      `O Zavorth precisa da sua decisao para inspecionar ${plan.previewPath}.`;
+      `Zavorth needs your decision before inspecting ${plan.previewPath}.`;
     const keyboard = this.deps.buildPermissionKeyboard?.(permission);
     await ctx.reply(text, keyboard ? { reply_markup: keyboard } : undefined);
   }

@@ -51,8 +51,9 @@ import type {
   ZavorthEchoRuntime,
   EchoSurfaceOptions,
 } from './ZavorthEchoServiceTypes.js';
+import { logger } from '../logger.js';
 import {
-  asSpeechFailure,
+asSpeechFailure,
   asSpeechSuccess,
   extractCorrelation,
   normalizeResolverContext,
@@ -426,14 +427,15 @@ export class ZavorthEchoService {
         providerName,
         latencyMs: Date.now() - start,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth] network request failed', error);
+    return {
         online: false,
         model,
         providerName,
         latencyMs: Date.now() - start,
       };
-    }
+  }
   }
 
   public async buildSnapshot(): Promise<EchoSnapshot> {
@@ -634,9 +636,7 @@ export class ZavorthEchoService {
         return typeof tool.getRecentPhysicalEvents === 'function'
           ? tool.getRecentPhysicalEvents(6)
           : [];
-      } catch {
-        return [];
-      }
+      } catch (error) { logger.warn('[Zavorth] process signal failed', error); return []; }
     });
 
     return events

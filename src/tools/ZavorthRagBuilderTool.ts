@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export interface RagChunk {
   id: string;
@@ -89,7 +90,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
     if (!fs.existsSync(chunksPath)) return;
     try {
       this.chunks = JSON.parse(fs.readFileSync(chunksPath, 'utf-8'));
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Zavorth Rag Builder] JSON parse failed', error); }
   }
 
   private saveChunks(): void {
@@ -146,9 +147,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
           maxBuffer: 10 * 1024 * 1024,
         }).toString();
         source = sourceUrl;
-      } catch (error: unknown) {
-        return `Error fetching URL: ${error instanceof Error ? error.message : String(error)}`;
-      }
+      } catch (error) { logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); return ''; }
     }
 
     const chunks = this.chunkText(content, source, chunkSize, chunkOverlap);
@@ -321,7 +320,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
         if (entry.isDirectory()) results.push(...this.listFiles(fullPath));
         else if (entry.isFile()) results.push(fullPath);
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); }
     return results;
   }
 }

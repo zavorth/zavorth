@@ -11,6 +11,7 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildProviderRequestOptions } from './ProviderAbort.js';
+import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';
 
 export class OpenCodeProvider implements ILlmProvider {
   public readonly name = 'opencode';
@@ -42,19 +43,7 @@ export class OpenCodeProvider implements ILlmProvider {
       logger.info(`[OpenCode] Chamando modelo: ${modelName}`);
       const response = await this.client.chat.completions.create({
         model: modelName,
-        messages: messages.map((message) => ({
-          role: message.role as any,
-          content: message.content as string,
-          tool_call_id: message.toolCallId,
-          tool_calls: message.toolCalls?.map((toolCall) => ({
-            id: toolCall.id,
-            type: 'function',
-            function: {
-              name: toolCall.name,
-              arguments: JSON.stringify(toolCall.arguments),
-            },
-          })),
-        })),
+        messages: convertChatMessagesToOpenAI(messages),
         max_tokens: config.maxTokens,
         tools:
           tools && tools.length > 0
@@ -67,7 +56,7 @@ export class OpenCodeProvider implements ILlmProvider {
                 },
               }))
             : undefined,
-      }, buildProviderRequestOptions(options) as any);
+      } as OpenAI.ChatCompletionCreateParamsNonStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
@@ -75,10 +64,10 @@ export class OpenCodeProvider implements ILlmProvider {
       return {
         content: choice.message.content,
         toolCalls,
-        finishReason: choice.finish_reason as any,
+        finishReason: choice.finish_reason as LlmResponse['finishReason'],
       };
     } catch (error: any) {
-      logger.error('[OpenCode] Erro na requisicao:', error?.message || error);
+      logger.error('[OpenCode] Request error:', error?.message || error);
       throw error;
     }
   }

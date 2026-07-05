@@ -39,7 +39,7 @@ export function buildGeminiCliChildEnv(
 /**
  * GeminiCliExecutor - Executa prompts via Gemini CLI (google/gemini-cli).
  *
- * Spawna o processo `gemini` em modo nao-interativo, captura stdout/stderr,
+ * Spawns the `gemini` process in non-interactive mode, captures stdout/stderr,
  * respeita timeouts e confina execucao ao workspace da task.
  */
 export class GeminiCliExecutor implements IExecutor {
@@ -72,7 +72,7 @@ export class GeminiCliExecutor implements IExecutor {
 
     const prompt = request.instructions.join('\n').trim();
     if (!prompt) {
-      result.error_message = 'Nenhum prompt fornecido para o Gemini CLI.';
+      result.error_message = 'No prompt was provided for Gemini CLI.';
       result.finished_at = new Date().toISOString();
       return result;
     }
@@ -96,7 +96,7 @@ export class GeminiCliExecutor implements IExecutor {
         ...(result.metadata || {}),
         ...(classifiedError.metadata || {}),
       };
-      result.actions_executed.push(`[GeminiCLI] Falha: ${classifiedError.errorMessage}`);
+      result.actions_executed.push(`[GeminiCLI] Failure: ${classifiedError.errorMessage}`);
     }
 
     result.finished_at = new Date().toISOString();
@@ -180,7 +180,7 @@ export class GeminiCliExecutor implements IExecutor {
       return {
         errorCode: 'GEMINI_CLI_QUOTA_EXCEEDED',
         errorMessage:
-          'Gemini CLI indisponivel no momento porque a quota da API foi excedida. Aguarde a renovacao da cota ou troque a chave/modelo antes de tentar novamente.',
+          'Gemini CLI is unavailable right now because the API quota was exceeded. Wait for quota renewal or switch the key/model before trying again.',
         stderr: rawStderr || null,
         metadata: {
           gemini_failure_kind: 'quota_exceeded',

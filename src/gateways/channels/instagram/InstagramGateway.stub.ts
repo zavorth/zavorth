@@ -3,6 +3,7 @@ import path from 'path';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
+import { logger } from '../../../logger.js';
 
 export interface InstagramGatewayStubMessage {
   userId: string;
@@ -136,9 +137,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.instagramStatusFile, 'utf8')) as InstagramGatewayStatusSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Instagram way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
@@ -248,14 +247,14 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
 
   public async broadcast(message: string): Promise<void> {
     if (!this.started) {
-      this.lastError = `Instagram ${this.resolveModeLabel()} ainda nao foi iniciado.`;
+      this.lastError = `Instagram ${this.resolveModeLabel()} has not started yet.`;
       this.writeStatus();
       throw new Error(this.lastError);
     }
 
     const recipients = this.resolveBroadcastRecipients();
     if (recipients.length === 0) {
-      this.lastError = 'Instagram nao tem recipients permitidos configurados.';
+      this.lastError = 'Instagram has no configured allowed recipients.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
@@ -279,7 +278,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
   }
 
   private resolveModeLabel(): string {
-    return this.resolveMode() === 'meta-messaging' ? 'Meta Messaging API' : 'stub local';
+    return this.resolveMode() === 'meta-messaging' ? 'Meta Messaging API' : 'local stub';
   }
 
   private isProviderConfigured(): boolean {
@@ -322,11 +321,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     const failures: string[] = [];
     for (const recipient of recipients) {
       const payload = await this.sendMetaTextMessage(recipient, message);
-      const responseError = typeof payload?.error?.message === 'string'
-        ? payload.error.message
-        : typeof payload?.error === 'string'
-          ? payload.error
-          : null;
+      const responseError = this.describeMetaMessagingError(payload);
       if (payload?.recipient_id || payload?.message_id || payload?.ok === true) {
         continue;
       }
@@ -334,7 +329,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     }
 
     if (failures.length > 0) {
-      this.lastError = `Instagram Messaging API falhou em ${failures.length} recipient(s): ${failures.join(' | ')}`;
+      this.lastError = `Instagram Messaging API failed for ${failures.length} recipient(s): ${failures.join(' | ')}`;
       this.writeStatus();
       throw new Error(this.lastError);
     }
@@ -347,13 +342,9 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
   private async replyToRecipient(recipientId: string, text: string): Promise<void> {
     if (this.resolveMode() === 'meta-messaging') {
       const payload = await this.sendMetaTextMessage(recipientId, text);
-      const responseError = typeof payload?.error?.message === 'string'
-        ? payload.error.message
-        : typeof payload?.error === 'string'
-          ? payload.error
-          : null;
+      const responseError = this.describeMetaMessagingError(payload);
       if (!payload?.recipient_id && !payload?.message_id && payload?.ok !== true) {
-        this.lastError = `Instagram Messaging API nao conseguiu responder ${recipientId}: ${responseError || 'unknown_error'}`;
+        this.lastError = `Instagram Messaging API could not reply to ${recipientId}: ${responseError || 'unknown_error'}`;
         this.writeStatus();
         throw new Error(this.lastError);
       }
@@ -374,12 +365,12 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     const accessToken = String(config.instagramAccessToken || '').trim();
     const apiVersion = String(config.instagramGraphApiVersion || 'v20.0').trim() || 'v20.0';
     if (!businessAccountId || !accessToken) {
-      this.lastError = 'Instagram Messaging API exige INSTAGRAM_BUSINESS_ACCOUNT_ID e INSTAGRAM_ACCESS_TOKEN.';
+      this.lastError = 'Instagram Messaging API requires INSTAGRAM_BUSINESS_ACCOUNT_ID and INSTAGRAM_ACCESS_TOKEN.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
     if (!this.fetchImpl) {
-      this.lastError = 'Instagram Messaging API exige fetch disponivel no runtime.';
+      this.lastError = 'Instagram Messaging API requires fetch to be available in the runtime.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
@@ -406,15 +397,27 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     let responsePayload: InstagramApiResponse | null = null;
     try {
       responsePayload = await response.json() as InstagramApiResponse;
-    } catch {
-      responsePayload = null;
-    }
+    } catch (error) {
+    logger.warn('[Instagram way.stub] load operation failed', error);
+    responsePayload = null;
+  }
 
     if (!response.ok && !responsePayload) {
       return { ok: false, error: `HTTP ${response.status}` };
     }
 
     return responsePayload || { ok: response.ok };
+  }
+
+  private describeMetaMessagingError(payload: InstagramApiResponse | null): string | null {
+    const error = payload?.error;
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (error && typeof error.message === 'string') {
+      return error.message;
+    }
+    return null;
   }
 
   private extractInstagramMessages(body: InstagramWebhookBody): InstagramWebhookMessage[] {
@@ -498,8 +501,8 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
       allowedCount: count,
       allowlistConfigured: count > 0,
       summary: count > 0
-        ? `${count} recipient(s) permitidos por INSTAGRAM_ALLOWED_RECIPIENT_IDS.`
-        : 'Nenhum recipient permitido; outbound real fica bloqueado ate configurar allowlist.',
+        ? `${count} recipient(s) allowed by INSTAGRAM_ALLOWED_RECIPIENT_IDS.`
+        : 'No allowed recipients; real outbound remains blocked until an allowlist is configured.',
     };
   }
 

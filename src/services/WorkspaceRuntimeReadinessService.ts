@@ -1,6 +1,6 @@
 import { AgentWorkspaceConfigService, AgentWorkspaceConfig } from './AgentWorkspaceConfigService.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
-import { ProviderModelRegistry } from './ProviderModelRegistry.js';
+import { ProviderModelRegistry, type ProviderCapability } from './ProviderModelRegistry.js';
 
 export interface WorkspaceRuntimeReadinessIssue {
   code: string;
@@ -86,7 +86,7 @@ export class WorkspaceRuntimeReadinessService {
         // Verify capabilities
         const capabilities = ProviderModelRegistry.getCapabilities(providerInfo.type, config.defaultModelId);
         if (config.allowedCapabilities.length > 0) {
-          const unsupported = config.allowedCapabilities.filter(c => !ProviderModelRegistry.hasCapability(capabilities, c as any));
+          const unsupported = config.allowedCapabilities.filter(c => !ProviderModelRegistry.hasCapability(capabilities, c as ProviderCapability));
           if (unsupported.length > 0) {
             issues.push({
               code: 'capability_not_supported',

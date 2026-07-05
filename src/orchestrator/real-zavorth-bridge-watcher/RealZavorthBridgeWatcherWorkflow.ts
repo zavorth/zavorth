@@ -466,7 +466,7 @@ export class RealZavorthBridgeWatcherWorkflow {
     }
 
     if (session.chatId) {
-      throw new Error('Canal direto do Telegram indisponivel para a entrega final.');
+      throw new Error('Direct Telegram channel is unavailable for final delivery.');
     }
 
     await this.broadcaster.broadcast(message);
@@ -483,7 +483,7 @@ export class RealZavorthBridgeWatcherWorkflow {
         this.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',
-          `Falha ao enviar mensagem direta para ${session.chatId}: ${error.message}`,
+          `Failed to send direct message to ${session.chatId}: ${error.message}`,
           { taskId: session.taskId },
         );
       }
@@ -495,8 +495,8 @@ export class RealZavorthBridgeWatcherWorkflow {
       const broadcastError = error instanceof Error ? error : new Error(String(error?.message || error));
       throw new Error(
         directError
-          ? `Entrega direta falhou (${directError.message}) e o broadcast tambem falhou (${broadcastError.message}).`
-          : `Falha ao entregar resposta por broadcast: ${broadcastError.message}`,
+          ? `Direct delivery failed (${directError.message}) and broadcast also failed (${broadcastError.message}).`
+          : `Failed to deliver response by broadcast: ${broadcastError.message}`,
       );
     }
   }

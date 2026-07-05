@@ -3,7 +3,7 @@ title: "Creating skills"
 description: "Build your own skill — from scratch, from a workflow, or by teaching Zavorth on the fly."
 ---
 
-Skills are plain Markdown files. If Zavorth can read it, it can run it. Creating one is as simple as writing what you want it to do.
+Skills are plain Markdown files, but every new skill enters a governed preview first. Creating one starts with writing what you want it to do, then reviewing scanner results, provenance, and the approval receipt before it can run.
 
 ## The fastest way — teach Zavorth while you work
 
@@ -25,7 +25,7 @@ Here's the skill I drafted:
   Save this skill? [yes / edit / skip]
 ```
 
-Approve it and it is installed immediately.
+Approve it to create a governed draft. Runtime activation still requires scanner clearance, an explicit approval path, and a receipt.
 
 ## From the wizard
 
@@ -70,7 +70,7 @@ Summarizes the day's work.
    - Any blockers
 ```
 
-Save this file anywhere in `skill-library/native/` and Zavorth picks it up immediately.
+Save this file in a governed skill source, then run the preview/import flow so Zavorth can inspect it before runtime use.
 
 ## The SKILL.md format
 

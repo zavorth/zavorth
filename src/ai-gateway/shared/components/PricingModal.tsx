@@ -103,7 +103,7 @@ export default function PricingModal({ isOpen, onClose, onSave }) {
             onClick={onClose}
             className="text-text-muted hover:text-text text-2xl leading-none"
           >
-            ×
+            X
           </button>
         </div>
 

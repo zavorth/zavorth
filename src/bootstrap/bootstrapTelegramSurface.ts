@@ -32,7 +32,7 @@ export async function startZavorthControlSurface(
 
   setTimeout(() => {
     void foundation.configVersioningService.snapshot('bootstrap').catch((error: unknown) => {
-      foundation.logRepo.log('warn', 'ConfigVersioning', `Falha ao registrar snapshot de bootstrap: ${describeError(error)}`);
+      foundation.logRepo.log('warn', 'ConfigVersioning', `Failed to register bootstrap snapshot: ${describeError(error)}`);
     });
   }, 1_000).unref();
 

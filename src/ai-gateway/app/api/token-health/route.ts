@@ -7,6 +7,7 @@
 
 import { getProviderConnections } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -34,7 +35,8 @@ export async function GET(request: Request) {
       lastCheckAt: lastCheck,
       status: errored > 0 ? "error" : healthy < total ? "warning" : "healthy",
     });
-  } catch (err) {
+  } catch (error) {
+    logger.warn('[route] health check failed', error);
     return Response.json({ error: err.message, status: "unknown" }, { status: 500 });
   }
 }

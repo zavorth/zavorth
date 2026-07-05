@@ -50,7 +50,7 @@ function buildCliDomainsSnapshot(
 
 function formatCliDomainsSnapshot(snapshot: CliDomainsSnapshot): string {
   const headline = snapshot.summary.pending > 0
-    ? `Ainda ha ${formatCount(snapshot.summary.pending, 'dominio', 'dominios')} pedindo atencao.`
+    ? `Ainda ha ${formatCount(snapshot.summary.pending, 'dominio', 'dominios')} needs attention.`
     : 'Todos os dominios principais estao inicializados.';
   return renderCliScreen({
     eyebrow: 'Dominios',
@@ -64,14 +64,14 @@ function formatCliDomainsSnapshot(snapshot: CliDomainsSnapshot): string {
         title: 'Agora',
         lines: [
           `- inicializados: ${snapshot.summary.initialized}/${snapshot.summary.total}`,
-          `- pendentes: ${snapshot.summary.pending}`,
+          `- pendings: ${snapshot.summary.pending}`,
         ],
         tone: snapshot.summary.pending > 0 ? 'warning' : 'success',
       },
       {
         title: 'Mapa',
         lines: snapshot.domains.map((entry) =>
-          `- ${entry.label}: ${entry.initialized ? 'pronto' : 'pendente'}`
+          `- ${entry.label}: ${entry.initialized ? 'ready' : 'pending'}`
           + (entry.summary ? ` | ${entry.summary}` : '')
         ),
         tone: 'neutral',
@@ -112,7 +112,7 @@ function normalizeStatusActionCommand(command: string | null | undefined): strin
 function normalizeStatusHeadline(headline: string | null | undefined): string {
   const sanitized = sanitizeHumanCliText(headline || '').trim();
   if (!sanitized) {
-    return 'Zavorth pronto para uso.';
+    return 'Zavorth ready for use.';
   }
 
   return sanitized
@@ -126,24 +126,24 @@ function normalizeStatusAttentionItem(item: string): string {
     return normalized;
   }
 
-  if (/transportes remotos ainda nao estao prontos/i.test(normalized)) {
-    return 'A conexao remota ainda nao esta pronta.';
+  if (/remote transports are not ready yet/i.test(normalized)) {
+    return 'The remote connection is not ready yet.';
   }
 
-  if (/transporte remoto recomenda:/i.test(normalized)) {
+  if (/transport remoto recomenda:/i.test(normalized)) {
     return normalized.replace(/^Transporte remoto recomenda:/i, 'Para liberar o acesso remoto:');
   }
 
-  if (/sidecar habilitado fora do estado pronto/i.test(normalized)) {
+  if (/sidecar habilitado fora do estado ready/i.test(normalized)) {
     return 'Existe um componente local pedindo reconciliacao segura.';
   }
 
-  if (/postura de seguranca precisa de atencao/i.test(normalized)) {
-    return 'A seguranca basica ainda precisa de atencao.';
+  if (/security posture needs attention/i.test(normalized)) {
+    return 'Basic security still needs attention.';
   }
 
-  if (/nenhum transporte remoto elegivel para doctor/i.test(normalized)) {
-    return 'A conexao remota ainda nao tem um caminho pronto para validar.';
+  if (/no remote transport eligible for doctor/i.test(normalized)) {
+    return 'The remote connection does not have a ready validation path yet.';
   }
 
   return normalized
@@ -222,47 +222,47 @@ function resolveStatusPrimaryAction(
 
 function formatStatusRuntimeLine(snapshot: CliStatusSnapshot): string {
   if (!snapshot.gateway) {
-    return '- O Zavorth ainda nao conseguiu montar um retrato dos servicos.';
+    return '- Zavorth could not build a service snapshot yet.';
   }
 
   const { channelsReady, channelsTotal, runtimeModesReady, securityPosture } = snapshot.gateway;
   const readiness = channelsTotal > 0 && channelsReady === channelsTotal && runtimeModesReady > 0
-    ? 'pronto'
+    ? 'ready'
     : channelsReady > 0 || runtimeModesReady > 0
-      ? 'parcial'
-      : 'pendente';
+      ? 'partial'
+      : 'pending';
   void securityPosture;
 
   switch (readiness) {
-    case 'pronto':
-      return '- O Zavorth esta pronto para uso.';
-    case 'parcial':
-      return '- O Zavorth esta parcialmente pronto para uso.';
+    case 'ready':
+      return '- Zavorth is ready to use.';
+    case 'partial':
+      return '- Zavorth is partially ready to use.';
     default:
-      return '- O Zavorth ainda nao esta pronto para uso.';
+      return '- Zavorth is not ready to use yet.';
   }
 }
 
 function formatStatusConversationLine(snapshot: CliStatusSnapshot): string {
   if (!snapshot.sessions) {
-    return '- A conversa ainda nao pode ser avaliada neste retrato.';
+    return '- The conversation cannot be evaluated in this snapshot yet.';
   }
 
   const readiness = snapshot.sessions.sendReady && snapshot.sessions.spawnReady
-    ? 'pronta para continuar e abrir novas sessoes'
+    ? 'pronta para continuar e abrir novas sessions'
     : snapshot.sessions.sendReady || snapshot.sessions.spawnReady
-      ? 'parcial'
+      ? 'partial'
       : 'ainda limitada';
 
-  if (readiness === 'pronta para continuar e abrir novas sessoes') {
-    return '- A conversa esta pronta para continuar.';
+  if (readiness === 'pronta para continuar e abrir novas sessions') {
+    return '- The conversation is ready to continue.';
   }
 
-  if (readiness === 'parcial') {
-    return '- A conversa esta parcialmente pronta.';
+  if (readiness === 'partial') {
+    return '- The conversation is partially ready.';
   }
 
-  return '- A conversa ainda esta limitada.';
+  return '- The conversation is still limited.';
 }
 
 function formatStatusDomainsLine(snapshot: CliStatusSnapshot): string | null {
@@ -287,10 +287,10 @@ function formatStatusNodesLine(snapshot: CliStatusSnapshot): string | null {
   }
 
   if (snapshot.nodes.online === snapshot.nodes.total) {
-    return `- ${snapshot.nodes.total} dispositivo${snapshot.nodes.total === 1 ? '' : 's'} conectado${snapshot.nodes.total === 1 ? '' : 's'} agora.`;
+    return `- ${snapshot.nodes.total} dispositivo${snapshot.nodes.total === 1 ? '' : 's'} conectado${snapshot.nodes.total === 1 ? '' : 's'} now.`;
   }
 
-  return `- ${snapshot.nodes.online}/${snapshot.nodes.total} dispositivos estao online agora.`;
+  return `- ${snapshot.nodes.online}/${snapshot.nodes.total} dispositivos estao online now.`;
 }
 
 function formatStatusCatalogLine(snapshot: CliStatusSnapshot): string | null {
@@ -317,13 +317,13 @@ function buildStatusAttentionItems(snapshot: CliStatusSnapshot): string[] {
       items.add(normalizeStatusAttentionItem(
         snapshot.transports.summary
           ? snapshot.transports.summary
-          : 'Transportes remotos ainda nao estao prontos.',
+          : 'Remote transports are not ready yet.',
       ));
     }
   }
 
   if (snapshot.sessions?.pendingPermissions) {
-    items.add(`${formatCount(snapshot.sessions.pendingPermissions, 'aprovacao pendente', 'aprovacoes pendentes')} agora.`);
+    items.add(`${formatCount(snapshot.sessions.pendingPermissions, 'pending approval', 'pending approvals')} now.`);
   }
 
   if (snapshot.nodes && snapshot.nodes.staleQueued > 0) {
@@ -395,8 +395,8 @@ async function buildCliStatusSnapshot(
     | ZavorthPlatformRegistrySnapshot
     | null = runtime.platformRegistryService
     ? ('buildFastStatusSummarySnapshot' in runtime.platformRegistryService
-      && typeof (runtime.platformRegistryService as any).buildFastStatusSummarySnapshot === 'function'
-        ? (runtime.platformRegistryService as any).buildFastStatusSummarySnapshot()
+      && typeof (runtime.platformRegistryService as unknown as { buildFastStatusSummarySnapshot: () => ZavorthPlatformRegistryStatusSummarySnapshot }).buildFastStatusSummarySnapshot === 'function'
+        ? (runtime.platformRegistryService as unknown as { buildFastStatusSummarySnapshot: () => ZavorthPlatformRegistryStatusSummarySnapshot }).buildFastStatusSummarySnapshot()
         : 'buildStatusSummarySnapshot' in runtime.platformRegistryService
       && typeof runtime.platformRegistryService.buildStatusSummarySnapshot === 'function'
         ? runtime.platformRegistryService.buildStatusSummarySnapshot()
@@ -407,7 +407,15 @@ async function buildCliStatusSnapshot(
     : null;
   const sessions: ZavorthSessionPlaneSnapshot | ZavorthSessionPlaneStatusSummarySnapshot | null = runtime.sessionPlaneService
     ? ('buildStatusSummary' in runtime.sessionPlaneService && typeof runtime.sessionPlaneService.buildStatusSummary === 'function'
-      ? await (runtime.sessionPlaneService as any).buildStatusSummary({
+      ? await (runtime.sessionPlaneService as unknown as {
+          buildStatusSummary: (input: {
+            userId?: string | null;
+            platform?: string | null;
+            chatId?: string | null;
+            sessionId?: string | null;
+            sourceUserId?: string | null;
+          }) => Promise<ZavorthSessionPlaneStatusSummarySnapshot>;
+        }).buildStatusSummary({
           userId: flags.userId,
           platform: flags.platform,
           chatId: flags.chatId || null,
@@ -434,7 +442,7 @@ async function buildCliStatusSnapshot(
       brief?.headline
       || cockpit?.headline
       || gateway?.narrative?.headline
-      || 'Zavorth pronto para uso.',
+      || 'Zavorth ready for use.',
     nextAction: brief
       ? {
           label: brief.nextAction.label,
@@ -484,7 +492,7 @@ async function buildCliStatusSnapshot(
       ? {
           total: sessions.summary.sessions,
           historyItems: sessions.summary.historyItems,
-          pendingPermissions: Number((sessions.summary as any).pendingPermissions || 0),
+          pendingPermissions: Number((sessions.summary as Record<string, unknown>).pendingPermissions || 0),
           sendReady: sessions.summary.sendReady,
           spawnReady: sessions.summary.spawnReady,
         }

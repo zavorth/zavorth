@@ -15,6 +15,7 @@ import {
   parseStoredPayload,
 } from "../logPayloads";
 import { compactStructuredStreamPayload } from "@ZavorthGateway/open-sse/utils/streamPayloadCollector.ts";
+import { logger } from '@/shared/utils/logger';
 
 export interface RequestDetailLog {
   id?: string;
@@ -39,9 +40,7 @@ export async function isDetailedLoggingEnabled(): Promise<boolean> {
     const settings = await getSettings();
     const val = settings.call_log_pipeline_enabled;
     return val === true || val === "1" || val === "true";
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[detailed] pipe operation failed', error); return false; }
 }
 
 /** Save a detailed log entry — caller must verify isDetailedLoggingEnabled() first */

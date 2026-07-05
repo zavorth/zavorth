@@ -74,7 +74,7 @@ export class ZavorthGatewayService {
           resolve();
         });
       });
-    } catch (error: GatewayError) {
+    } catch (error: any) {
       server.removeAllListeners();
       this.server = null;
       if (error?.code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
@@ -124,8 +124,8 @@ export class ZavorthGatewayService {
 
   public readPersistedStatus(): ZavorthGatewayStatus {
     const fallback = this.buildStatus(false, false, config.zavorthAIGatewayGatewayEnabled
-      ? 'Gateway proprio do AIGateway ainda nao iniciou nesta sessao.'
-      : 'Gateway proprio do AIGateway desativado.');
+      ? 'AIGateway own gateway has not started in this session yet.'
+      : 'AIGateway own gateway disabled.');
 
     try {
       if (!fs.existsSync(config.AIGatewayGatewayStatusFile)) {
@@ -136,9 +136,7 @@ export class ZavorthGatewayService {
         ...fallback,
         ...parsed,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Zavorth A I way] JSON parse failed', error); return fallback; }
   }
 
   private async handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -152,13 +150,13 @@ export class ZavorthGatewayService {
       this.writeJson(res, ready
         ? { ok: true, ready: true, upstreamBaseUrl: config.AIGatewayUpstreamBaseUrl }
         : { ok: false, ready: false, upstreamBaseUrl: config.AIGatewayUpstreamBaseUrl }, ready ? 200 : 503);
-      const status = this.buildStatus(true, ready, ready ? 'Gateway proprio do AIGateway saudavel.' : 'Gateway proprio do AIGateway sem upstream saudavel.');
+      const status = this.buildStatus(true, ready, ready ? 'AIGateway own gateway is healthy.' : 'AIGateway own gateway has no healthy upstream.');
       this.writeStatus(status);
       return;
     }
 
     if (!requestUrl.pathname.startsWith('/v1/')) {
-      this.writeJson(res, { ok: false, error: 'Rota invalida para o gateway AIGateway do Zavorth.' }, 404);
+      this.writeJson(res, { ok: false, error: 'Invalid route for the Zavorth AIGateway gateway.' }, 404);
       return;
     }
 
@@ -205,11 +203,11 @@ export class ZavorthGatewayService {
 
       res.writeHead(response.status, headerObject);
       res.end(bodyBuffer);
-      const status = this.buildStatus(true, response.ok || response.status < 500, 'Gateway proprio do AIGateway respondeu ao upstream.');
+      const status = this.buildStatus(true, response.ok || response.status < 500, 'AIGateway own gateway responded to upstream.');
       this.writeStatus(status);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      const status = this.buildStatus(true, false, `Falha ao encaminhar request ao AIGateway upstream: ${errorMessage}`);
+      const status = this.buildStatus(true, false, `Failed to forward request to AIGateway upstream: ${errorMessage}`);
       this.writeStatus(status);
       this.writeJson(res, { ok: false, error: status.message }, 502);
     }
@@ -308,7 +306,7 @@ export class ZavorthGatewayService {
 
   private async readLiveStatus(message: string): Promise<ZavorthGatewayStatus> {
     const ready = await this.isGatewayHealthy();
-    return this.buildStatus(true, ready, ready ? message : 'Gateway proprio do AIGateway subiu, mas ainda nao passou no health.');
+    return this.buildStatus(true, ready, ready ? message : 'AIGateway own gateway started, but has not passed health yet.');
   }
 
   private async isGatewayHealthy(): Promise<boolean> {
@@ -318,9 +316,7 @@ export class ZavorthGatewayService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Zavorth A I way] network request failed', error); return false; }
   }
 
   private async isUpstreamHealthy(): Promise<boolean> {
@@ -340,9 +336,7 @@ export class ZavorthGatewayService {
         allowLoopback: true,
       });
       return response.status > 0 && response.status < 500;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Zavorth A I way] network request failed', error); return false; }
   }
 
   private readOverlay(): GatewayOverlay {
@@ -351,9 +345,7 @@ export class ZavorthGatewayService {
         return {};
       }
       return JSON.parse(fs.readFileSync(config.AIGatewayOverlayFile, 'utf8')) as GatewayOverlay;
-    } catch {
-      return {};
-    }
+    } catch (error) { logger.warn('[Zavorth A I way] JSON parse failed', error); return {}; }
   }
 
   private buildStatus(running: boolean, ready: boolean, message: string): ZavorthGatewayStatus {

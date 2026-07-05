@@ -6,6 +6,7 @@ import os from "os";
 import { getDbInstance, resetDbInstance, SQLITE_FILE } from "@/lib/db/core";
 import { backupDbFile } from "@/lib/db/backup";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const MAX_UPLOAD_SIZE = 100 * 1024 * 1024; // 100 MB
 
@@ -111,10 +112,11 @@ export async function POST(request: Request) {
 
       testDb.close();
       testDb = null;
-    } catch (e) {
-      if (testDb) testDb.close();
+    } catch (error) {
+    logger.warn('[route] resource cleanup failed', error);
+    if (testDb) testDb.close();
       return NextResponse.json({ error: `Invalid database file: ${e.message}` }, { status: 400 });
-    }
+  }
 
     // Create pre-import backup
     backupDbFile("pre-import");
@@ -168,9 +170,7 @@ export async function POST(request: Request) {
     if (tmpPath && fs.existsSync(tmpPath)) {
       try {
         fs.unlinkSync(tmpPath);
-      } catch {
-        /* best effort */
-      }
+      } catch (error) { /* best effort */ logger.warn('[route] file cleanup failed', error); }
     }
   }
 }

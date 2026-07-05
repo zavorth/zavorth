@@ -11,8 +11,9 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { validateProviderApiKeySchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+import { logger } from '@/shared/utils/logger';
 import {
-  AccessRouteResolutionService,
+AccessRouteResolutionService,
   type AccessRouteConfiguredProvider,
 } from "../../../../../services/providers/catalog/AccessRouteResolutionService.js";
 
@@ -62,7 +63,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
         error: {

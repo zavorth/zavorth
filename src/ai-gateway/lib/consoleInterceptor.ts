@@ -13,6 +13,7 @@
 import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { dirname, resolve } from "path";
 import { getAppLogFilePath, getAppLogToFile } from "./logEnv";
+import { logger } from '@/shared/utils/logger';
 
 const logToFile = getAppLogToFile();
 const logFilePath = resolve(getAppLogFilePath());
@@ -60,9 +61,10 @@ function argsToMessage(args: unknown[]): string {
       if (typeof arg === "object" && arg !== null) {
         try {
           return JSON.stringify(arg);
-        } catch {
-          return String(arg);
-        }
+        } catch (error) {
+    logger.warn('[console Interceptor] serialization failed', error);
+    return String(arg);
+  }
       }
       return String(arg);
     })
@@ -82,9 +84,7 @@ function writeEntry(level: string, args: unknown[]) {
       message,
     };
     appendFileSync(logFilePath, JSON.stringify(entry) + "\n");
-  } catch {
-    // Silently fail — never break the app over log writing
-  }
+  } catch (error) { // Silently fail — never break the app over log writing logger.warn('[console Interceptor] operation failed', error); }
 }
 
 /**
@@ -99,7 +99,8 @@ export function initConsoleInterceptor(): void {
 
   try {
     ensureDir();
-  } catch {
+  } catch (error) {
+    logger.warn('[console Interceptor] operation failed', error);
     // Can't create log dir — skip interception
     return;
   }

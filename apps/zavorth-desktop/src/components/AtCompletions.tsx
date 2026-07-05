@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback, memo } from 'react';
 import type { FileExplorerNode } from './FileExplorer';
+import { logger } from '../logger.js';
 
 interface AtCompletionsProps {
   value: string;
@@ -51,7 +52,7 @@ export const AtCompletions = memo(function AtCompletions({
         traverse(res.tree);
         setAllFiles(paths);
       }
-    }).catch(() => {});
+    }).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
   }, [workspacePath, workspaceId]);
 
   // Track cursor position and text before cursor to check for @ trigger

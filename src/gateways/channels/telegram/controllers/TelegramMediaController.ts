@@ -466,7 +466,7 @@ export class TelegramMediaController {
     const zip = await JSZip.loadAsync(buffer);
     const entry = zip.file(internalPath);
     if (!entry) {
-      throw new Error(`Estrutura interna nao encontrada: ${internalPath}`);
+      throw new Error(`Internal structure not found: ${internalPath}`);
     }
 
     const xml = await entry.async('string');
@@ -590,20 +590,16 @@ export class TelegramMediaController {
       return {
         accepted: false,
         maxChars,
-        reason: `palavras demais para ${roundedDuration}s (${wordCount}/${maxWords} palavras)`,
+        reason: `too many words for ${roundedDuration}s (${wordCount}/${maxWords} words)`,
       };
     }
 
-    const uncertainMarkers = (
-      normalizedTranscript.match(/\[(?:uncertain|inaudible|unclear)\]/gi)
-      || normalizedTranscript.match(/\[(?:incerto|inaudivel|inaudÃ­vel)\]/gi)
-      || []
-    ).length;
+    const uncertainMarkers = (normalizedTranscript.match(/\[(?:uncertain|inaudible|unclear)\]/gi) || []).length;
     if (uncertainMarkers > 0 && uncertainMarkers >= Math.max(1, Math.ceil(wordCount / 6))) {
       return {
         accepted: false,
         maxChars,
-        reason: 'transcricao com marcadores de incerteza demais',
+        reason: 'transcript contains too many uncertainty markers',
       };
     }
 
@@ -840,7 +836,7 @@ export class TelegramMediaController {
       return result.delivered === 'voice';
     } catch (error: unknown) {
       const message = getErrorMessage(error);
-      logger.warn(`[TelegramMedia] Falha no Echo de seguranca para audio sem confianca: ${message}`);
+      logger.warn(`[TelegramMedia] Security Echo failed for low-confidence audio: ${message}`);
       return false;
     }
   }

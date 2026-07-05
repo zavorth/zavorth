@@ -172,12 +172,12 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
   }
   const lines = [
     'Zavorth Governed Review - Connector registry',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- review: ${snapshot.reviewId}`,
     `- modo: ${snapshot.mode}`,
     `- status: ${snapshot.status}`,
-    `- objetivo: ${snapshot.objective}`,
-    `- contexto: ${snapshot.context.files.length} arquivo(s); ${snapshot.context.source}`,
+    `- objective: ${snapshot.objective}`,
+    `- context: ${snapshot.context.files.length} file(s); ${snapshot.context.source}`,
     `- agentes: ${snapshot.agentPlan.length}; subagent receipts: ${snapshot.agentRuntimePlan.subagentReceipts.length}`,
     `- findings: ${snapshot.verification.acceptedFindingCount} aceitos | ${snapshot.verification.needsHumanReviewFindingCount} revisao humana | ${snapshot.verification.discardedFindingCount} descartados`,
     `- threshold: aceito ${snapshot.verification.acceptedThreshold}; revisao humana ${snapshot.verification.humanReviewThreshold}`,
@@ -189,18 +189,18 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
     const runtimeLink = snapshot.agentRuntimePlan.roleLinks.find((link) => link.reviewRoleId === role.id);
     lines.push(
       `- ${role.id}: ${role.label} [${role.kind}]`,
-      `  scope: ${runtimeLink?.scopeMode || 'blocked'}; approval: ${runtimeLink?.approvalRequired ? 'sim' : 'nao'}; budget zero: ${runtimeLink?.budgetZero ? 'sim' : 'nao'}`,
+      `  scope: ${runtimeLink?.scopeMode || 'blocked'}; approval: ${runtimeLink?.approvalRequired ? 'yes' : 'no'}; budget zero: ${runtimeLink?.budgetZero ? 'yes' : 'no'}`,
     );
   }
 
   lines.push('', 'Findings aceitos');
   if (snapshot.findings.length === 0) {
-    lines.push('- nenhum finding aceito nesta previa; execute agentes/verificador real antes de comentar ou aplicar patch');
+    lines.push('- no finding accepted in this preview; run real agents/verifier before commenting or applying a patch');
   } else {
     for (const finding of snapshot.findings.slice(0, 8)) {
       lines.push(
         `- [${finding.severity}] ${finding.title} (${finding.confidence})`,
-        `  ${finding.file ? `${finding.file}${finding.line ? `:${finding.line}` : ''}` : 'sem arquivo'}`,
+        `  ${finding.file ? `${finding.file}${finding.line ? `:${finding.line}` : ''}` : 'no file'}`,
         `  recomendacao: ${finding.recommendation}`,
       );
     }
@@ -214,9 +214,9 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
   }
 
   lines.push('', 'Execution');
-  lines.push(`- status: ${snapshot.execution.status}; approval: ${snapshot.execution.approvalId || 'nao informado'}`);
+  lines.push(`- status: ${snapshot.execution.status}; approval: ${snapshot.execution.approvalId || 'not provided'}`);
   if (snapshot.execution.outcomes.length === 0) {
-    lines.push('- nenhuma acao approval-gated solicitada');
+    lines.push('- no approval-gated action requested');
   } else {
     for (const outcome of snapshot.execution.outcomes) {
       lines.push(`- ${outcome.action}: ${outcome.status}; allowed=${outcome.allowed}; ${outcome.summary}`);
@@ -380,8 +380,8 @@ function formatGitHubGovernedReviewSnapshot(snapshot: GovernedReviewGitHubResult
     `- repo: ${snapshot.repo.nameWithOwner || snapshot.repo.requestedRepo || 'current'} (${snapshot.repo.status})`,
     `- pr: ${snapshot.pullRequest.number ? `#${snapshot.pullRequest.number}` : snapshot.pullRequest.target} ${snapshot.pullRequest.title}`,
     `- refs: ${snapshot.pullRequest.baseRef || 'base'} <- ${snapshot.pullRequest.headRef || 'head'}`,
-    `- diff: ${snapshot.pullRequest.changedFiles.length} arquivo(s); +${snapshot.pullRequest.additions}/-${snapshot.pullRequest.deletions}; sha ${snapshot.pullRequest.diffSha.slice(0, 16)}`,
-    `- comentario: ${snapshot.review.execution.outcomes.find((outcome) => outcome.action === 'comment-on-pr')?.status || 'nao solicitado'}`,
+    `- diff: ${snapshot.pullRequest.changedFiles.length} file(s); +${snapshot.pullRequest.additions}/-${snapshot.pullRequest.deletions}; sha ${snapshot.pullRequest.diffSha.slice(0, 16)}`,
+    `- comment: ${snapshot.review.execution.outcomes.find((outcome) => outcome.action === 'comment-on-pr')?.status || 'not requested'}`,
     `- comandos gh: ${snapshot.commands.length}`,
     '',
     reviewText,

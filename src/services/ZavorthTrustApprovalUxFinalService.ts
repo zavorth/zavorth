@@ -216,7 +216,7 @@ export class ZavorthTrustApprovalUxFinalService {
         revoked,
         reason: revoked > 0
           ? `Revogadas ${revoked} permissao/permissoes persistentes ativas.`
-          : 'Nenhuma permissao persistente ativa para revogar.',
+          : 'No active persistent permission to revoke.',
       },
     };
   }
@@ -241,10 +241,10 @@ export class ZavorthTrustApprovalUxFinalService {
       ...snapshot.actions.map((action) => `- [${action.severity}] ${action.label}: ${action.command}`),
       '',
       'Garantias',
-      '- Texto natural pode pedir aprovacao, mas nao ignora policy.',
+      '- Natural text can request approval, but does not bypass policy.',
       '- Break glass exige dupla confirmacao e mantem hard stops.',
       '- Revogar tudo exige confirmacao explicita.',
-      '- Risco critico nao recebe auto-approval.',
+      '- Critical risk does not receive auto-approval.',
       '',
     ];
     return lines.join('\n');
@@ -324,7 +324,7 @@ export class ZavorthTrustApprovalUxFinalService {
     if (input.activeBreakGlassPolicies > 0) {
       actions.push({
         id: 'revoke-break-glass',
-        label: 'Revogar break glass quando nao for mais necessario',
+        label: 'Revoke break glass when it is no longer necessary',
         severity: 'danger',
         reason: 'Modo extremo reduz friccao e deve durar pouco.',
         command: 'zavorth trust revoke-all --confirm-revoke-all',

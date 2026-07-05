@@ -168,11 +168,11 @@ export class ZavorthToolCatalogService {
       query,
       narrative: {
         headline: query
-          ? `Tool surface com ${filteredEntries.length} item(ns) visivel(is) para "${query}".`
-          : `Surface explicita com ${summary.totalTools} tool(s) distribuidas em ${summary.totalFamilies} familia(s).`,
+          ? `Tool surface with ${filteredEntries.length} visible item(s) for "${query}".`
+          : `Explicit surface with ${summary.totalTools} tool(s) distributed across ${summary.totalFamilies} family/families.`,
         operatorSummary: query
-          ? `${summary.readyFamilies} familia(s) prontas no filtro atual; ${selected ? `item em foco: ${selected.label}.` : 'sem item selecionado.'}`
-          : `${summary.readyFamilies} familia(s) prontas, ${summary.partialFamilies} parciais e ${summary.plannedFamilies} ainda planejadas.`,
+          ? `${summary.readyFamilies} ready family/families in the current filter; ${selected ? `focused item: ${selected.label}.` : 'no selected item.'}`
+          : `${summary.readyFamilies} ready family/families, ${summary.partialFamilies} partial, and ${summary.plannedFamilies} still planned.`,
       },
     };
   }
@@ -389,26 +389,26 @@ export class ZavorthToolCatalogService {
         id: 'web-session',
         label: '/api/web/session',
         familyId: 'web',
-        familyLabel: 'Web e Control',
+        familyLabel: 'Web and Control',
         kind: 'surface',
         source: 'surface:web',
         readiness: 'partial',
-        summary: 'Session bootstrap e control plane web ja ficam visiveis no produto.',
+        summary: 'Session bootstrap and web control plane are already visible in the product.',
         command: null,
-        details: ['Surface web/zavorthControl ja existe, mas ainda pode ficar mais unificada.'],
+        details: ['The web/zavorthControl surface already exists, but can still become more unified.'],
         searchText: '/api/web/session web control session bootstrap',
       },
       {
         id: 'web-approvals',
         label: '/api/web/permissions',
         familyId: 'web',
-        familyLabel: 'Web e Control',
+        familyLabel: 'Web and Control',
         kind: 'surface',
         source: 'surface:web',
         readiness: 'partial',
-        summary: 'Aprovacoes e operacao web ja existem como surface first-class.',
+        summary: 'Approvals and web operation already exist as a first-class surface.',
         command: null,
-        details: ['Aprovacoes operacionais ja estao visiveis no app remoto.'],
+        details: ['Operational approvals are already visible in the remote app.'],
         searchText: '/api/web/permissions approvals web control',
       },
       {
@@ -419,9 +419,9 @@ export class ZavorthToolCatalogService {
         kind: 'surface',
         source: 'surface:planned',
         readiness: 'planned',
-        summary: 'Ainda nao existe uma surface MCP first-class unica no produto.',
+        summary: 'There is no single first-class MCP surface in the product yet.',
         command: null,
-        details: ['O runtime MCP existe, mas o plano de produto ainda pode ficar mais explicito.'],
+        details: ['The MCP runtime exists, but the product plan can still become more explicit.'],
         searchText: 'mcp planned runtime surface',
       },
       {
@@ -432,9 +432,9 @@ export class ZavorthToolCatalogService {
         kind: 'surface',
         source: 'surface:planned',
         readiness: 'planned',
-        summary: 'LSP ainda nao aparece como familia explicita de tools.',
+        summary: 'LSP does not appear as an explicit tool family yet.',
         command: null,
-        details: ['A familia ja fica visivel para o operador mesmo antes da implementacao completa.'],
+        details: ['The family remains visible to the operator before the full implementation.'],
         searchText: 'lsp planned ide language server',
       },
     ];
@@ -502,27 +502,27 @@ export class ZavorthToolCatalogService {
   private describeEmptyFamily(id: string): string {
     switch (id) {
       case 'session':
-        return 'Session tools ainda nao foram promovidas a familia explicita.';
+        return 'Session tools have not been promoted to an explicit family yet.';
       case 'team':
-        return 'Teams ainda nao foram expostos como familia de tools.';
+        return 'Teams have not been exposed as a tool family yet.';
       case 'integration':
-        return 'Nenhuma integracao catalogada no hub.';
+        return 'No integration is cataloged in the hub.';
       case 'runtime':
-        return 'Nenhuma tool do runtime foi ligada ao catalogo atual.';
+        return 'No runtime tool has been linked to the current catalog.';
       case 'web':
-        return 'Superficie web/zavorthControl ja existe, mas ainda pode ficar mais unificada.';
+        return 'The web/zavorthControl surface already exists, but can still become more unified.';
       case 'mcp':
-        return 'Ainda nao existe uma surface MCP first-class unica no produto.';
+        return 'There is no single first-class MCP surface in the product yet.';
       case 'lsp':
-        return 'LSP ainda nao aparece como familia explicita de tools.';
+        return 'LSP does not appear as an explicit tool family yet.';
       default:
-        return 'Familia ainda sem tools first-class catalogadas.';
+        return 'Family still has no cataloged first-class tools.';
     }
   }
 
   private summarizeFamily(label: string, entries: ZavorthToolCatalogEntrySnapshot[]): string {
     const ready = entries.filter((entry) => entry.readiness === 'ready').length;
-    return `${label} expõe ${entries.length} item(ns), com ${ready} pronto(s) no plano atual.`;
+    return `${label} exposes ${entries.length} item(s), with ${ready} ready in the current plan.`;
   }
 
   private matchesEntry(entry: ZavorthToolCatalogEntrySnapshot, query: string | null): boolean {

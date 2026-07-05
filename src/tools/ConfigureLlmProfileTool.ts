@@ -4,6 +4,7 @@ import { EnvFileService } from '../services/EnvFileService.js';
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import path from 'path';
+import { logger } from '../logger.js';
 
 type ConfigureLlmProfileToolRuntime = {
   envFilePath?: string;
@@ -33,15 +34,15 @@ export class ConfigureLlmProfileTool extends BaseTool {
       },
       providerName: {
         type: 'string',
-        description: 'Nome do provider. Ex: opencode, gemini, openai, qwen, minimax, openrouter, aigateway.',
+        description: 'Provider name. Examples: opencode, gemini, openai, qwen, minimax, openrouter, aigateway.',
       },
       modelName: {
         type: 'string',
-        description: 'Nome do modelo especifico. Obrigatorio para action=set.',
+        description: 'Specific model name. Required for action=set.',
       },
       allowUnavailable: {
         type: 'boolean',
-        description: 'Se true, permite gravar provider sem credencial pronta. Use apenas quando o usuario confirmar.',
+        description: 'When true, allows saving a provider before credentials are ready. Use only when the user confirms.',
       },
     },
     required: ['action'],
@@ -55,8 +56,8 @@ export class ConfigureLlmProfileTool extends BaseTool {
     return {
       name: this.name,
       description: `${this.description}
-Use "list" para descobrir provedores e modelos disponiveis se o usuario nao especificar.
-Use "set" para gravar a mudanca.`,
+Use "list" to discover available providers and models when the user does not specify one.
+Use "set" to save the change.`,
       parameters: this.parameters,
     };
   }
@@ -131,10 +132,10 @@ Use "set" para gravar a mudanca.`,
         aigateway: {
           enabled: isAvailable(config.AIGatewayBaseUrl),
           suggested_models: [config.AIGatewayModel || 'gpt-4o'],
-          note: 'Rota local/hibrida OpenAI-compatible.'
+          note: 'Local/hybrid OpenAI-compatible route.'
         }
       },
-      instructions_for_agent: 'Apresente os provedores e modelos de forma amigavel ao usuario se ele pediu para ver as opcoes. Lembre-se que OpenCode, OpenRouter e OpenAI aceitam outras strings se o usuario pedir.'
+      instructions_for_agent: 'Present providers and models in a friendly way if the user asked to see options. Remember that OpenCode, OpenRouter, and OpenAI accept other strings when the user asks.'
     };
   }
 
@@ -146,7 +147,7 @@ Use "set" para gravar a mudanca.`,
     const providerDefinition = this.resolveProviderDefinition(normalizedProvider);
     if (!providerDefinition) {
       throw new Error(
-        `Provider "${providerName}" nao reconhecido. Use configure_llm_profile list para ver as opcoes.`,
+        `Provider "${providerName}" is not recognized. Use configure_llm_profile list to see the options.`,
       );
     }
 
@@ -307,18 +308,16 @@ Use "set" para gravar a mudanca.`,
         enabled: missing.length === 0,
         requirement: missing.join(' + ') || 'ok',
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[ure Llm Profile] module import failed', error); return null; }
   }
 
   private buildShortNotice(provider: string, status: 'ready' | 'prepared' | 'blocked', requirement: string): string {
     if (status === 'ready') {
-      return `${provider}: conectado.`;
+      return `${provider}: connected.`;
     }
     if (status === 'prepared') {
-      return `${provider}: salvo, mas ainda falta ${requirement}.`;
+      return `${provider}: saved, but still missing ${requirement}.`;
     }
-    return `${provider}: nao conectou; falta ${requirement}.`;
+    return `${provider}: not connected; missing ${requirement}.`;
   }
 }

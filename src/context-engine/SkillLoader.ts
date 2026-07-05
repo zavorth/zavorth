@@ -1,10 +1,10 @@
 /**
  * SkillLoader — Ponte entre SkillScanner e Cognitive Firewall
  *
- * Este módulo:
- * 1. Usa o SkillScanner para descobrir skills nos diretórios configurados
- * 2. Lê os manifestos e extrai as categorias de firewall de cada skill
- * 3. Atualiza o ToolGatekeeper com o mapeamento dinâmico Intent => Tools
+ * This module:
+ * 1. Uses SkillScanner to discover skills in configured directories
+ * 2. Reads manifests and extracts firewall categories for each skill
+ * 3. Updates ToolGatekeeper with the dynamic Intent => Tools mapping
  *
  * No boot do Zavorth, basta chamar:
  *   const loader = new SkillLoader();
@@ -12,7 +12,7 @@
  *   console.log(stats);
  *
  * Resultado: O Cognitive Firewall agora sabe quais tools pertencem a cada
- * categoria de intenção, sem necessidade de hardcoding.
+ * intent category, without hardcoding.
  */
 
 import * as path from 'path';
@@ -32,10 +32,10 @@ export class SkillLoader {
   private loadedManifests: SkillManifest[] = [];
 
   /**
-   * Escaneia os diretórios padrão do Zavorth e carrega todos os manifestos.
+   * Scans Zavorth default directories and loads every manifest.
    *
    * @param basePath - Raiz do projeto Zavorth
-   * @returns Estatísticas do carregamento
+   * @returns Loading statistics
    */
   public loadAll(basePath?: string): SkillLoadResult {
     const root = basePath || process.cwd();
@@ -86,7 +86,7 @@ export class SkillLoader {
   }
 
   /**
-   * Recarrega todos os manifestos e atualiza o estado interno (útil ao criar uma skill dinamicamente).
+   * Reloads all manifests and updates internal state, useful when creating a skill dynamically.
    */
   public reload(basePath?: string): SkillLoadResult {
     console.log('[SkillLoader] Recarregando skills dinamicamente...');
@@ -117,7 +117,7 @@ export class SkillLoader {
   }
 
   /**
-   * Retorna conteúdo TOOLS.md para uma skill específica (para injetar no prompt do LLM).
+   * Returns TOOLS.md content for a specific skill, for LLM prompt injection.
    */
   public getToolsMarkdown(skillId: string): string | null {
     const manifest = this.loadedManifests.find((m) => m.id === skillId);

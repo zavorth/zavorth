@@ -8,6 +8,7 @@ import {
   type CloudflaredRuntimeDirs,
 } from "./cloudflaredTunnelTypes";
 import { getCloudflaredRuntimeDirs } from "./cloudflaredTunnelPaths";
+import { logger } from '@/shared/utils/logger';
 
 export function extractTryCloudflareUrl(text: string) {
   const match = text.match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com\b/i);
@@ -16,9 +17,7 @@ export function extractTryCloudflareUrl(text: string) {
   try {
     const hostname = new URL(match[0]).hostname.toLowerCase();
     if (hostname === "api.trycloudflare.com") return null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[cloudflared Tunnel Env] network request failed', error); return null; }
 
   return match[0];
 }

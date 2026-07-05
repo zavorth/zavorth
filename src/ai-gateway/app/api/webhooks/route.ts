@@ -9,6 +9,7 @@ import { NextResponse } from "next/server";
 import { getWebhooks, createWebhook } from "@/lib/localDb";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const createWebhookSchema = z.object({
   url: z.string().url("Invalid URL format").max(2000),
@@ -29,7 +30,8 @@ export async function GET(request: Request) {
       secret: w.secret ? `${w.secret.slice(0, 10)}...` : null,
     }));
     return NextResponse.json({ webhooks: masked });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] array operation failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to list webhooks" },
       { status: 500 }
@@ -57,7 +59,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ webhook }, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to create webhook" },
       { status: 500 }

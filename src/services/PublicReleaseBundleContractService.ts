@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  PUBLIC_RELEASE_BUNDLE_FORBIDDEN_CLAIMS,
+PUBLIC_RELEASE_BUNDLE_FORBIDDEN_CLAIMS,
   PUBLIC_RELEASE_BUNDLE_REQUIRED_COMMANDS,
   PUBLIC_RELEASE_BUNDLE_REQUIRED_COPY,
   PUBLIC_RELEASE_BUNDLE_REQUIRED_LINKS,
@@ -368,9 +369,7 @@ export class PublicReleaseBundleContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Public Release Bundle Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -396,9 +395,7 @@ export class PublicReleaseBundleContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Public Release Bundle Contract] filesystem operation failed', error); return ''; }
   }
 
   private check(

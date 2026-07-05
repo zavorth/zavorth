@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { logger } from '../logger.js';
 import {
-  ZAVORTH_AGENT_KERNEL_SNAPSHOT_VERSION,
+ZAVORTH_AGENT_KERNEL_SNAPSHOT_VERSION,
   type ZavorthPerformanceMemoryRouteStats,
   type ZavorthPerformanceMemorySnapshot,
 } from '../contracts/ZavorthAgentKernelSnapshotContract.js';
@@ -224,7 +225,5 @@ function clamp(value: number, min: number, max: number): number {
 function parseJson<T>(text: string, fallback: T): T {
   try {
     return JSON.parse(text) as T;
-  } catch {
-    return fallback;
-  }
+  } catch (error) { logger.warn('[Zavorth Performance Memory] JSON parse failed', error); return fallback; }
 }

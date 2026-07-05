@@ -9,6 +9,7 @@ import {
 import { ZavorthReadyToGoService, type ZavorthReadyToGoSnapshot } from './ZavorthReadyToGoService.js';
 import { ZavorthRuntimeReadinessService, type ZavorthRuntimeReadinessSnapshot } from './ZavorthRuntimeReadinessService.js';
 import { ZavorthRuntimeGuidedFixesService, type ZavorthRuntimeGuidedFix } from './ZavorthRuntimeGuidedFixesService.js';
+import { logger } from '../logger.js';
 
 export const ZAVORTH_CLI_TUI_POLISH_CONTRACT_VERSION = 'zavorth-cli-tui-polish/1' as const;
 
@@ -227,9 +228,9 @@ function resolveStatus(
 }
 
 function headlineFor(status: ZavorthCliTuiPolishStatus, ready: ZavorthReadyToGoSnapshot): string {
-  if (status === 'ready') return ready.remoteReady ? 'Pronto para operar agora.' : 'Pronto localmente, com aviso remoto.';
+  if (status === 'ready') return ready.remoteReady ? 'Ready to operate now.' : 'Ready locally, with remote warning.';
   if (status === 'attention') return 'Usavel, mas com pontos de atencao.';
-  return 'Ainda bloqueado para uso confiavel.';
+  return 'Still blocked for reliable use.';
 }
 
 function buildCards(
@@ -243,7 +244,7 @@ function buildCards(
       id: 'ready',
       label: 'Ready',
       status: ready.status,
-      value: ready.remoteReady ? 'remoto ok' : ready.localReady ? 'local ok' : 'bloqueado',
+      value: ready.remoteReady ? 'remote ok' : ready.localReady ? 'local ok' : 'blocked',
       detail: ready.actions.primary,
       command: 'zavorth ready',
     },
@@ -375,7 +376,7 @@ function renderProviders(providers: ZavorthCliTuiPolishProvider[], width: number
       const model = provider.model ? ` ${provider.model}` : '';
       return `${pad(label, 22)} ${pad(role, 10)} ${truncate(`${provider.summary}${model}`, width - 34)}`;
     })
-    : ['- Nenhum provider pronto encontrado.'];
+    : ['- No ready provider found.'];
   return [
     paintCliTone('Providers', 'info'),
     ...rows,
@@ -449,7 +450,8 @@ function safeFiglet(value: string): string {
       verticalLayout: 'default',
       width: 80,
     });
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Cli Tui Polish] string operation failed', error);
     return value.toUpperCase();
   }
 }

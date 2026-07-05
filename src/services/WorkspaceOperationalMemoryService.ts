@@ -10,7 +10,24 @@ import { buildWorkspaceOperationalMemoryMetadata } from '../domain/memory/infras
 import { buildApprovedPathsFromPolicies, collectApprovedPoliciesFromRequests } from '../domain/memory/infrastructure/workspace-operational-memory/WorkspaceOperationalMemoryInsights.js';
 import { buildWorkspaceOperationalMemorySnapshot } from '../domain/memory/infrastructure/workspace-operational-memory/WorkspaceOperationalMemorySnapshotBuilder.js';
 
-export type { WorkspaceOperationalMemory } from '../domain/memory/infrastructure/workspace-operational-memory/WorkspaceOperationalMemoryTypes.js';
+export type {
+  WorkspaceOperationalMemory,
+  TaskSubtypeRecommendation,
+  TaskKindRecommendation,
+  ActiveFocusAggregate,
+  DirectResponseStyleRecommendation,
+  TaskKindLlmRecommendation,
+  TaskSubtypeLlmRecommendation,
+  WorkflowExecutorRecommendationAggregate,
+  ContinuityRecommendation,
+  RecentArtifactAggregate,
+  RouteOutcomeAggregate,
+  ApprovedPolicyAggregate,
+  WorkflowRecommendationAggregate,
+  WorkflowFrictionRecommendationAggregate,
+  ApprovalFrictionAggregate,
+  WorkflowStageExecutorRecommendationAggregate,
+} from '../domain/memory/infrastructure/workspace-operational-memory/WorkspaceOperationalMemoryTypes.js';
 
 export class WorkspaceOperationalMemoryService {
   private readonly notesBuilder = new WorkspaceOperationalMemoryNotesBuilder();

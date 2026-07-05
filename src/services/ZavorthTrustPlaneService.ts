@@ -348,7 +348,7 @@ export class ZavorthTrustPlaneService {
 
     lines.push(
       '',
-      'Comandos uteis:',
+      'Useful commands:',
       '- /trust para ver esta leitura no chat.',
       '- /trust mcp trusted para promover o MCP somente quando fizer sentido operacional.',
       '- /trust mcp safe para endurecer o perfil MCP de volta ao baseline.',
@@ -461,7 +461,7 @@ export class ZavorthTrustPlaneService {
         id: 'plugins-awaiting-review',
         label: 'Plugins aguardando review',
         severity: 'warn',
-        summary: `${untrustedInstalledPlugins} plugin(s) instalado(s) ainda nao estao marcados como trusted.`,
+        summary: `${untrustedInstalledPlugins} installed plugin(s) are not marked as trusted yet.`,
       });
     }
     if (restrictedNodes > 0) {
@@ -477,7 +477,7 @@ export class ZavorthTrustPlaneService {
         id: 'runtime-baseline',
         label: 'Runtime ainda em baseline',
         severity: 'warn',
-        summary: 'O runtime ainda nao confirmou os tiers fortes de isolamento do mesh.',
+        summary: 'The runtime has not confirmed strong mesh isolation tiers yet.',
       });
     }
 

@@ -11,8 +11,9 @@ import {
   renderPlainSurfaceResponse,
   type SurfaceResponse,
 } from '../../../../domain/surface/application/surface-response/index.js';
+import { logger } from '../../../../logger';
 import type {
-  CapabilityApprovalRequest,
+CapabilityApprovalRequest,
   CapabilityManifest,
   CapabilityStateSnapshot,
 } from '../../../../services/CapabilityLifecycleService.js';
@@ -130,31 +131,31 @@ export class TelegramOpsInsightPresentationService {
         ZavorthTerminal?.localUrl || ZavorthTerminal?.baseUrl,
       )}`,
       '',
-      `Tarefas em andamento: ${activeCount}${activeSummary ? ` (${activeSummary})` : ''}.`,
+      `Tasks in progress: ${activeCount}${activeSummary ? ` (${activeSummary})` : ''}.`,
     ];
 
     if (staleCount > 0) {
-      lines.push(`Backlog antigo ainda visivel: ${staleCount}.`);
+      lines.push(`Old backlog still visible: ${staleCount}.`);
     }
 
-    lines.push('Atalhos uteis: /zavorth, /settings, /tasks, /zavorthControl, /presentation, /demo');
+    lines.push('Useful shortcuts: /zavorth, /settings, /tasks, /zavorthControl, /presentation, /demo');
 
     if (lastFailure) {
       lines.push(
         '',
-        `Ultimo alerta: ${lastFailure.executor || lastFailure.commandType || 'executor desconhecido'} | task ${lastFailure.taskId.substring(0, 8)}.`,
-        `Motivo: ${String(lastFailure.errorSummary || 'sem resumo').substring(0, 120)}`,
+        `Last alert: ${lastFailure.executor || lastFailure.commandType || 'unknown executor'} | task ${lastFailure.taskId.substring(0, 8)}.`,
+        `Reason: ${String(lastFailure.errorSummary || 'no summary').substring(0, 120)}`,
       );
     }
 
     const productLines = this.formatProductObservabilityLines(productObservability);
     if (productLines.length > 0) {
-      lines.push('', 'Produto', ...productLines);
+      lines.push('', 'Product', ...productLines);
     }
 
     const surfaceConsistencyLines = this.formatSurfaceConsistencyLines();
     if (surfaceConsistencyLines.length > 0) {
-      lines.push('', 'Superficies', ...surfaceConsistencyLines);
+      lines.push('', 'Surfaces', ...surfaceConsistencyLines);
     }
 
     const skillPlaneLines = this.formatSkillPlaneLines();
@@ -178,28 +179,28 @@ export class TelegramOpsInsightPresentationService {
     return createSurfaceResponse({
       id: 'telegram-models-surface',
       intent: 'models',
-      title: 'Modelos e providers do Zavorth',
-      summary: 'Selecao operacional compartilhada entre Telegram, CLI, Discord e fallback textual.',
+      title: 'Zavorth Models And Providers',
+      summary: 'Operational selection shared across Telegram, CLI, Discord, and text fallback.',
       tone: 'neutral',
       blocks: [
         {
           kind: 'table',
           table: {
-            title: 'Ativos agora',
+            title: 'Active Now',
             columns: [
               { key: 'item', label: 'Item' },
-              { key: 'value', label: 'Valor' },
+              { key: 'value', label: 'Value' },
             ],
             rows: [
-              { item: 'Provider principal atual', value: config.llmProvider },
-              { item: 'Modelo conversacional atual', value: currentModel },
-              { item: 'Modelo preferido do ZavorthBridge', value: preferredZavorthBridgeModel || 'ainda nao definido' },
+              { item: 'Current primary provider', value: config.llmProvider },
+              { item: 'Current conversational model', value: currentModel },
+              { item: 'Preferred ZavorthBridge model', value: preferredZavorthBridgeModel || 'not set yet' },
             ],
           },
         },
         {
           kind: 'list',
-          title: 'Providers disponiveis',
+          title: 'Available Providers',
           items: [
             'gemini',
             'gemma via Gemini API',
@@ -213,12 +214,12 @@ export class TelegramOpsInsightPresentationService {
         },
         {
           kind: 'list',
-          title: 'Atalhos uteis',
+          title: 'Useful Shortcuts',
           items: [
-            '/model <nome> para trocar o provider do Zavorth',
-            '/model gemma ou /model gemma-2-27b-it para usar Gemma 2 via Gemini API',
-            '/agmodel <nome> para trocar o modelo do ZavorthBridge',
-            '/agnudge <texto> para continuar a conversa visual atual',
+            '/model <name> to change the Zavorth provider',
+            '/model gemma or /model gemma-2-27b-it to use Gemma 2 through the Gemini API',
+            '/agmodel <name> to change the ZavorthBridge model',
+            '/agnudge <text> to continue the current visual conversation',
           ],
         },
       ],
@@ -252,31 +253,31 @@ export class TelegramOpsInsightPresentationService {
       .slice()
       .sort((left, right) => left.capabilityId.localeCompare(right.capabilityId));
     const lines = [
-      'Capabilities do Zavorth',
+      'Zavorth Capabilities',
       '',
-      `Perfil ativo: ${capabilityLifecycle.profile}.`,
-      `Lifecycle conhecido: ${capabilityLifecycle.summary.total} capability(s) | ${capabilityLifecycle.summary.active} pronta(s)/ativa(s) | ${capabilityLifecycle.summary.dormant} dormente(s).`,
-      `Base declarativa: ${capabilityLifecycle.summary.builtinCapabilities} capacidades de produto | ${capabilityLifecycle.summary.registeredCommands} comando(s) registrados.`,
+      `Active profile: ${capabilityLifecycle.profile}.`,
+      `Known lifecycle: ${capabilityLifecycle.summary.total} capability(s) | ${capabilityLifecycle.summary.active} ready/active | ${capabilityLifecycle.summary.dormant} dormant.`,
+      `Declarative base: ${capabilityLifecycle.summary.builtinCapabilities} product capabilities | ${capabilityLifecycle.summary.registeredCommands} registered command(s).`,
       '',
-      'Comandos:',
+      'Commands:',
       `- ${capabilityLifecycle.commands.profile}`,
       `- ${capabilityLifecycle.commands.capabilities}`,
       `- ${capabilityLifecycle.commands.enable}`,
       `- ${capabilityLifecycle.commands.disable}`,
       '',
-      'Capacidades sob demanda:',
+      'On-demand capabilities:',
     ];
 
     for (const capability of topCapabilities) {
       const approval = capability.approvalRequired ? ' approval' : '';
       const ttl = capability.idleTtlMs ? ` | ttl ${Math.round(capability.idleTtlMs / 60000)} min` : '';
-      const footprint = `${capability.estimatedFootprint.ramIdleMb} MB RAM | ${capability.estimatedFootprint.diskMb} MB disco | ${capability.estimatedFootprint.processCount} proc`;
+      const footprint = `${capability.estimatedFootprint.ramIdleMb} MB RAM | ${capability.estimatedFootprint.diskMb} MB disk | ${capability.estimatedFootprint.processCount} proc`;
       lines.push(
         `- ${capability.capabilityId}: ${capability.state} (${capability.activationMode}${approval}) | ${footprint}${ttl}`,
       );
       lines.push(`  fallback: ${capability.fallbackBehavior}`);
       if (capability.notes) {
-        lines.push(`  nota: ${capability.notes}`);
+        lines.push(`  note: ${capability.notes}`);
       }
     }
 
@@ -296,11 +297,11 @@ export class TelegramOpsInsightPresentationService {
       .map((entry) => entry.capabilityId)
       .slice(0, 8);
     const lines = [
-      'Perfil de runtime',
+      'Runtime Profile',
       '',
-      `Perfil atual: ${capabilityLifecycle.profile}.`,
-      `Capabilities prontas/ativas: ${capabilityLifecycle.summary.active} | dormentes: ${capabilityLifecycle.summary.dormant}.`,
-      `Preaquecidas agora: ${ready.length > 0 ? ready.join(', ') : 'somente core-runtime'}.`,
+      `Current profile: ${capabilityLifecycle.profile}.`,
+      `Ready/active capabilities: ${capabilityLifecycle.summary.active} | dormant: ${capabilityLifecycle.summary.dormant}.`,
+      `Warmed now: ${ready.length > 0 ? ready.join(', ') : 'core-runtime only'}.`,
     ];
 
     if (note) {
@@ -317,22 +318,22 @@ export class TelegramOpsInsightPresentationService {
   ): string {
     const lines = [
       mode === 'enable'
-        ? `Capability ${capability.capabilityId} habilitada.`
-        : `Capability ${capability.capabilityId} desabilitada.`,
+        ? `Capability ${capability.capabilityId} enabled.`
+        : `Capability ${capability.capabilityId} disabled.`,
       '',
-      `Estado: ${capability.state}.`,
-      `Ativacao: ${capability.activationMode}.`,
-      `Escopo ativo: ${capability.approvalScope || 'host/default'}.`,
-      `Footprint estimado: ${capability.estimatedFootprint.ramIdleMb} MB RAM | ${capability.estimatedFootprint.diskMb} MB disco | ${capability.estimatedFootprint.processCount} proc.`,
+      `State: ${capability.state}.`,
+      `Activation: ${capability.activationMode}.`,
+      `Active scope: ${capability.approvalScope || 'host/default'}.`,
+      `Estimated footprint: ${capability.estimatedFootprint.ramIdleMb} MB RAM | ${capability.estimatedFootprint.diskMb} MB disk | ${capability.estimatedFootprint.processCount} proc.`,
       `Fallback: ${capability.fallbackBehavior}`,
     ];
 
     if (approval) {
       lines.push(
         '',
-        `Approval padrao: ${approval.defaultScope}. Escopos: ${approval.availableScopes.join(', ')}.`,
-        `Motivo registrado: ${approval.reason}`,
-        `Provisionamento opcional: npm run capability:provision -- ${capability.capabilityId}`,
+        `Default approval: ${approval.defaultScope}. Scopes: ${approval.availableScopes.join(', ')}.`,
+        `Recorded reason: ${approval.reason}`,
+        `Optional provisioning: npm run capability:provision -- ${capability.capabilityId}`,
       );
     }
 
@@ -348,37 +349,37 @@ export class TelegramOpsInsightPresentationService {
       dependencyName?: string | null;
     },
   ): string {
-    const reason = String(options?.reason || approval?.reason || `Uso solicitado para ${capability.capabilityId}.`).trim();
+    const reason = String(options?.reason || approval?.reason || `Requested use for ${capability.capabilityId}.`).trim();
     const dependencyName = String(options?.dependencyName || '').trim() || null;
     const enableCommands = (approval?.availableScopes || ['once', 'session', 'host'])
       .map((scope) => `/enable ${capability.capabilityId} ${scope}`);
     const lines = [
-      `Esta acao precisa da capability ${capability.capabilityId}.`,
+      `This action needs capability ${capability.capabilityId}.`,
       '',
-      `Estado atual: ${capability.state}.`,
-      `Ativacao: ${capability.activationMode}.`,
-      `Motivo: ${reason}`,
-      `Footprint estimado: ${capability.estimatedFootprint.ramIdleMb} MB RAM | ${capability.estimatedFootprint.diskMb} MB disco | ${capability.estimatedFootprint.processCount} proc.`,
-      `Fallback atual: ${capability.fallbackBehavior}`,
+      `Current state: ${capability.state}.`,
+      `Activation: ${capability.activationMode}.`,
+      `Reason: ${reason}`,
+      `Estimated footprint: ${capability.estimatedFootprint.ramIdleMb} MB RAM | ${capability.estimatedFootprint.diskMb} MB disk | ${capability.estimatedFootprint.processCount} proc.`,
+      `Current fallback: ${capability.fallbackBehavior}`,
     ];
 
     if (dependencyName) {
-      lines.push(`Dependencia opcional ausente: ${dependencyName}.`);
+      lines.push(`Missing optional dependency: ${dependencyName}.`);
     }
 
     if (capability.notes) {
-      lines.push(`Ultima nota: ${capability.notes}`);
+      lines.push(`Last note: ${capability.notes}`);
     }
 
     lines.push(
       '',
-      'Se quiser autorizar agora:',
+      'To authorize now:',
       ...enableCommands.map((command) => `- ${command}`),
       `- npm run capability:provision -- ${capability.capabilityId}`,
     );
 
     if (options?.remediation) {
-      lines.push('', `Guia rapido: ${options.remediation}`);
+      lines.push('', `Quick guide: ${options.remediation}`);
     }
 
     return lines.join('\n');
@@ -389,26 +390,26 @@ export class TelegramOpsInsightPresentationService {
     capability: CapabilityStateSnapshot,
   ): string {
     const defaultProfiles = manifest.enabledByDefaultProfiles.join(', ');
-    const provisioningDeps = manifest.provisioningRecipe?.dependencies?.join(', ') || 'nenhuma';
-    const provisioningCommands = manifest.provisioningRecipe?.commands?.join(' | ') || 'nenhum';
+    const provisioningDeps = manifest.provisioningRecipe?.dependencies?.join(', ') || 'none';
+    const provisioningCommands = manifest.provisioningRecipe?.commands?.join(' | ') || 'none';
     const cleanupTargets = Array.isArray(manifest.cleanupPaths) && manifest.cleanupPaths.length > 0
       ? manifest.cleanupPaths.map((entry) => entry.replace(/\\/g, '/')).join(' | ')
-      : 'nenhum';
+      : 'none';
     const lines = [
       `Capability ${manifest.id}`,
       '',
       manifest.description,
       '',
-      `Estado: ${capability.state}.`,
-      `Ativacao: ${capability.activationMode}.`,
-      `Approval: ${manifest.approvalRequired ? 'necessario' : 'nao necessario'}${capability.approvalScope ? ` (${capability.approvalScope})` : ''}.`,
-      `Perfis default: ${defaultProfiles}.`,
-      `Footprint: ${capability.estimatedFootprint.ramIdleMb} MB RAM | ${capability.estimatedFootprint.diskMb} MB disco | ${capability.estimatedFootprint.processCount} proc.`,
+      `State: ${capability.state}.`,
+      `Activation: ${capability.activationMode}.`,
+      `Approval: ${manifest.approvalRequired ? 'required' : 'not required'}${capability.approvalScope ? ` (${capability.approvalScope})` : ''}.`,
+      `Default profiles: ${defaultProfiles}.`,
+      `Footprint: ${capability.estimatedFootprint.ramIdleMb} MB RAM | ${capability.estimatedFootprint.diskMb} MB disk | ${capability.estimatedFootprint.processCount} proc.`,
       `Fallback: ${manifest.fallbackBehavior}`,
       '',
-      `Deps opcionais: ${provisioningDeps}.`,
-      `Provisionamento: ${provisioningCommands}.`,
-      `Cleanup ao desligar: ${cleanupTargets}.`,
+      `Optional deps: ${provisioningDeps}.`,
+      `Provisioning: ${provisioningCommands}.`,
+      `Cleanup on shutdown: ${cleanupTargets}.`,
       '',
       `Atalhos: /enable ${manifest.id} [once|session|host] | /disable ${manifest.id}`,
       `Provisionar agora: npm run capability:provision -- ${manifest.id}`,
@@ -433,41 +434,41 @@ export class TelegramOpsInsightPresentationService {
     const pluginCapabilities = capabilities.filter((capability) => capability.source === 'plugin');
 
     const lines = [
-      'O que o Zavorth consegue fazer',
+      'What Zavorth Can Do',
       '',
-      `Base carregada: ${summary.total} capacidades (${summary.builtin} nativas e ${summary.plugin} plugins).`,
-      `Comandos diretos: ${summary.commands} | rotas automaticas: ${summary.implicitRoutes}.`,
+      `Loaded base: ${summary.total} capabilities (${summary.builtin} native and ${summary.plugin} plugins).`,
+      `Direct commands: ${summary.commands} | automatic routes: ${summary.implicitRoutes}.`,
       '',
-      'Frentes principais hoje:',
-      '- Pesquisa e sintese de informacao',
-      '- Leitura, comparacao e envio de arquivos',
-      '- Execucao e revisao com agentes especializados',
-      '- Workflows compostos e tarefas encadeadas',
-      '- Operacao, diagnostico e acompanhamento do runtime',
+      'Main fronts today:',
+      '- Research and information synthesis',
+      '- File reading, comparison, and delivery',
+      '- Execution and review with specialized agents',
+      '- Composed workflows and chained tasks',
+      '- Runtime operation, diagnostics, and monitoring',
     ];
 
     if (commandCapabilities.length > 0) {
-      lines.push('', 'Atalhos mais visiveis:');
+      lines.push('', 'Most visible shortcuts:');
       for (const capability of commandCapabilities.slice(0, 8)) {
         lines.push(`- ${capability.label}: ${capability.command?.command}`);
       }
     }
 
     if (implicitCapabilities.length > 0) {
-      lines.push('', 'Rotas automaticas em destaque:');
+      lines.push('', 'Featured automatic routes:');
       for (const capability of implicitCapabilities.slice(0, 6)) {
         lines.push(`- ${capability.label}: ${capability.routing_reason || capability.description}`);
       }
     }
 
     if (pluginCapabilities.length > 0) {
-      lines.push('', 'Plugins declarativos ativos:');
+      lines.push('', 'Active declarative plugins:');
       for (const capability of pluginCapabilities.slice(0, 8)) {
         const command = capability.command?.command ? ` (${capability.command.command})` : '';
         lines.push(`- ${capability.plugin_name || capability.id}: ${capability.label}${command}`);
       }
     } else {
-      lines.push('', 'Plugins declarativos ativos: nenhum alem da base nativa.');
+      lines.push('', 'Active declarative plugins: none beyond the native base.');
     }
 
     const skillPlaneLines = this.formatSkillPlaneLines();
@@ -480,7 +481,7 @@ export class TelegramOpsInsightPresentationService {
 
   private formatProductObservabilityLines(snapshot: ProductObservabilitySnapshot | null): string[] {
     if (!snapshot) {
-      return ['- Observabilidade de produto: indisponivel agora.'];
+      return ['- Product observability: unavailable right now.'];
     }
 
     const lines: string[] = [];
@@ -499,20 +500,20 @@ export class TelegramOpsInsightPresentationService {
     const topPolicy = snapshot.learning?.approvedPolicies?.[0] || null;
 
     lines.push(
-      `- Janela observada: ${snapshot.totals?.tasks || 0} pedido(s) | ${snapshot.totals?.workflowRuns || 0} workflow(s) | ${snapshot.totals?.artifacts || 0} entrega(s).`,
+      `- Observed window: ${snapshot.totals?.tasks || 0} request(s) | ${snapshot.totals?.workflowRuns || 0} workflow(s) | ${snapshot.totals?.artifacts || 0} delivery item(s).`,
     );
 
     if (primaryInsight) {
-      lines.push(`- Leitura principal: ${primaryInsight}`);
+      lines.push(`- Primary insight: ${primaryInsight}`);
     }
 
     if (topSurface) {
-      lines.push(`- Superficie mais ativa: ${topSurface.label} (${topSurface.count} pedido(s)).`);
+      lines.push(`- Most active surface: ${topSurface.label} (${topSurface.count} request(s)).`);
     }
 
     if (topRoute) {
       lines.push(
-        `- Melhor rota recente: ${topRoute.executor} em ${topRoute.kind}/${topRoute.subtype} (${topRoute.completed}/${topRoute.total} concluida(s)).`,
+        `- Best recent route: ${topRoute.executor} in ${topRoute.kind}/${topRoute.subtype} (${topRoute.completed}/${topRoute.total} completed).`,
       );
     }
 
@@ -527,32 +528,32 @@ export class TelegramOpsInsightPresentationService {
       const resumeStageId = String(
         (resumableWorkflow as any).resume_stage_id || (recentResumableWorkflow as any)?.resume_stage_id || '',
       ).trim();
-      lines.push(`- Workflow para retomar: ${workflowLabel}${stageLabel ? ` - ${stageLabel}` : ''}.`);
+      lines.push(`- Workflow to resume: ${workflowLabel}${stageLabel ? ` - ${stageLabel}` : ''}.`);
       if (workflowRunId) {
-        lines.push(`- Atalho de retomada: /workflow resume ${workflowRunId}${resumeStageId ? ` ${resumeStageId}` : ''}`);
+        lines.push(`- Resume shortcut: /workflow resume ${workflowRunId}${resumeStageId ? ` ${resumeStageId}` : ''}`);
       }
     }
 
     if (topExecutor) {
       lines.push(
-        `- Executor em destaque: ${topExecutor.executor} (${Math.round(Number(topExecutor.success_rate || 0) * 100)}% de sucesso).`,
+        `- Featured executor: ${topExecutor.executor} (${Math.round(Number(topExecutor.success_rate || 0) * 100)}% success).`,
       );
     }
 
     if (highestFriction) {
       lines.push(
-        `- Maior atrito recente: ${highestFriction.executor} em ${highestFriction.kind}/${highestFriction.subtype} (${highestFriction.failed} falha(s), ${highestFriction.waitingApproval} aguardando aprovacao).`,
+        `- Highest recent friction: ${highestFriction.executor} in ${highestFriction.kind}/${highestFriction.subtype} (${highestFriction.failed} failure(s), ${highestFriction.waitingApproval} awaiting approval).`,
       );
     }
 
     if (topPolicy) {
       lines.push(
-        `- Politica mais reaproveitada: ${topPolicy.executor}/${topPolicy.kind} (${topPolicy.count} liberacao(oes)).`,
+        `- Most reused policy: ${topPolicy.executor}/${topPolicy.kind} (${topPolicy.count} authorization(s)).`,
       );
     }
 
     if (lines.length === 0) {
-      lines.push('- Observabilidade de produto: aguardando sinais suficientes nesta janela.');
+      lines.push('- Product observability: waiting for sufficient signals in this window.');
     }
 
     return lines;
@@ -623,23 +624,21 @@ export class TelegramOpsInsightPresentationService {
       TelegramOpsInsightPresentationService.cachedSkillPlaneSnapshot =
         this.skillLibraryPresentationService.buildSnapshot();
       return TelegramOpsInsightPresentationService.cachedSkillPlaneSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Telegram Ops Insight Presentation] cache operation failed', error); return null; }
   }
 
   private describeRuntimeTaskStatus(status: string): string {
     switch (status) {
       case 'running':
-        return 'executando';
+        return 'running';
       case 'waiting_approval':
-        return 'aguardando aprovacao';
+        return 'awaiting approval';
       case 'delivery_pending':
-        return 'entregando';
+        return 'delivering';
       case 'planned':
-        return 'planejadas';
+        return 'planned';
       case 'approved':
-        return 'aprovadas';
+        return 'approved';
       default:
         return status.replace(/_/g, ' ');
     }
@@ -647,22 +646,22 @@ export class TelegramOpsInsightPresentationService {
 
   private formatSidecarStatusLine(sidecar: SidecarStatusCard | undefined, url: string | null | undefined): string {
     if (!sidecar) {
-      return 'sem dados ainda.';
+      return 'no data yet.';
     }
 
     if (!sidecar.enabled) {
-      return 'desativado.';
+      return 'disabled.';
     }
 
     if (sidecar.ready) {
-      return `pronto${url ? ` em ${url}` : ''}.`;
+      return `ready${url ? ` at ${url}` : ''}.`;
     }
 
     if (sidecar.running) {
-      return `subindo${url ? ` em ${url}` : ''}.`;
+      return `starting${url ? ` at ${url}` : ''}.`;
     }
 
-    return sidecar.message || 'ainda nao iniciado.';
+    return sidecar.message || 'not started yet.';
   }
 }
 

@@ -19,7 +19,7 @@ export function buildSelfingZavorthControlCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): SelfingZavorthControlSnapshot {
-  const text = input.text || 'revise minha identidade, memoria e ferramentas conhecidas';
+  const text = input.text || 'review my identity, memory, and known tools';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:37:00.000Z'),
   });
@@ -93,16 +93,16 @@ export function formatSelfingZavorthControlSnapshot(
 ): string {
   const lines = [
     'Selfing ZavorthControl - Selfing ZavorthControl',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,
     `- agente: ${snapshot.identity.agentName}`,
     `- usuario: ${snapshot.identity.userName}`,
     `- workspace: ${snapshot.identity.workspaceName}`,
-    `- memoria: ${snapshot.summary.memoryReceiptCount} receipt(s), ${snapshot.summary.lowConfidenceMemoryCount} baixa confianca`,
+    `- memory: ${snapshot.summary.memoryReceiptCount} receipt(s), ${snapshot.summary.lowConfidenceMemoryCount} baixa confianca`,
     `- editaveis: ${snapshot.summary.editableCardCount}; sensiveis: ${snapshot.summary.sensitiveCardCount}`,
     `- sugestoes: ${snapshot.summary.updateSuggestionCount}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Cards',
   ];
@@ -124,7 +124,7 @@ export function formatSelfingZavorthControlSnapshot(
 
   lines.push('', 'Politica');
   lines.push('- snapshot read-only');
-  lines.push('- identidade, memoria e config nao foram alteradas');
+  lines.push('- identity, memory, and config were not changed');
   lines.push('- mudancas sensiveis exigem preview, approval e versionamento');
 
   lines.push('', 'Superficies');

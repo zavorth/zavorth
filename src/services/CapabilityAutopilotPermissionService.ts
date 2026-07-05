@@ -5,9 +5,22 @@ import type {
   OriginalIntentEnvelope,
 } from '../contracts/CapabilityAutopilotContract.js';
 import type { PermissionRequest, PermissionScope } from '../contracts/PermissionRequest.js';
-import { PermissionService } from './PermissionService.js';
+import { PermissionService, type PermissionMetadataValue } from './PermissionService.js';
 
-type PermissionServiceLike = Pick<PermissionService, 'createRequest'>;
+type PermissionServiceLike = {
+  createRequest(input: {
+    task_id?: string | null;
+    executor: string;
+    kind: string;
+    scope?: any;
+    workspace?: string | null;
+    requested_value?: string | null;
+    resolved_value?: string | null;
+    reason: string;
+    requested_by?: string | null;
+    metadata?: Record<string, any>;
+  }): Promise<any>;
+};
 
 export type CapabilityAutopilotPermissionRequestInput = {
   repairPlan: CapabilityRepairPlan;
@@ -98,7 +111,7 @@ export class CapabilityAutopilotPermissionService {
           resumeIntent,
           mapping,
           generatedAt,
-        }),
+        }) as Record<string, PermissionMetadataValue>,
       });
       permissions.push(permission);
     }

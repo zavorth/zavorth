@@ -9,6 +9,7 @@ import {
 } from '../project-workspace/index.js';
 import { DeveloperWorkspaceSurfaceService } from '../domain/surface/application/developer-workspace/index.js';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 type WorkspaceCliAction =
   | 'help'
@@ -100,7 +101,7 @@ async function executeWorkspaceCliCommand(
   if (command.action === 'help') {
     return buildPayload(command, {
       ok: true,
-      message: 'Comandos do Developer Workspace prontos.',
+      message: 'Developer Workspace commands are ready.',
       plan: {
         commands: workspaceCommandReference(),
       },
@@ -119,7 +120,7 @@ async function executeWorkspaceCliCommand(
   if (resolved.ok === false) {
     return buildPayload(command, {
       ok: false,
-      message: 'Developer Workspace nao encontrou um manifesto valido.',
+      message: 'Developer Workspace did not find a valid manifest.',
       errors: [resolved.error.message],
       doctor: describeManifestError(resolved.error),
     });
@@ -169,7 +170,7 @@ async function executeWorkspaceCliCommand(
 
   return buildPayload(command, {
     ok: false,
-    message: 'Comando workspace nao suportado.',
+    message: 'Workspace command not supported.',
     errors: [`workspace ${command.action}`],
   });
 }
@@ -197,7 +198,7 @@ function executeWorkspaceInit(command: WorkspaceCliCommand): WorkspaceCliPayload
   return buildPayload(command, {
     ok: true,
     message: command.dryRun
-      ? 'Preview de zavorth.yml gerado sem gravar arquivo.'
+      ? 'zavorth.yml preview generated without writing a file.'
       : 'zavorth.yml criado para o Developer Workspace.',
     manifestPath,
     plan: {
@@ -372,7 +373,8 @@ function loadWorkspaceManifest(command: WorkspaceCliCommand): (
         manifestPath: command.manifestPath || undefined,
       }),
     };
-  } catch (error: unknown) {
+  } catch (error) {
+    logger.warn('[Zavorth Cli Registry Workspace] load operation failed', error);
     return {
       ok: false,
       error: error instanceof Error ? error : new Error(String(error || 'unknown manifest error')),
@@ -599,8 +601,8 @@ function formatWorkspaceCliPayload(payload: WorkspaceCliPayload): string {
     payload.message,
     '',
     `Acao: ${payload.action}`,
-    `Manifesto: ${payload.manifestPath || 'nao encontrado'}`,
-    `Approval: ${payload.approvalRequired ? (payload.approvalSatisfied ? 'satisfeito' : 'necessario') : 'nao requerido'}`,
+    `Manifesto: ${payload.manifestPath || 'not found'}`,
+    `Approval: ${payload.approvalRequired ? (payload.approvalSatisfied ? 'satisfeito' : 'necessario') : 'not required'}`,
   ];
   if (payload.snapshot) {
     const summary = asRecord(payload.snapshot.summary);
@@ -663,14 +665,15 @@ function validateWorkspaceExamples(): Record<string, unknown> {
           ok: true,
           error: null,
         };
-      } catch (error: unknown) {
-        return {
+      } catch (error) {
+    logger.warn('[Zavorth Cli Registry Workspace] filesystem operation failed', error);
+    return {
           id: entry.name,
           manifestPath,
           ok: false,
           error: error instanceof Error ? error.message : String(error || 'unknown error'),
         };
-      }
+  }
     });
   return {
     root: examplesRoot,

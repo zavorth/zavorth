@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { TenantBoundary, TenantContext } from './TenantContextService.js';
+import { logger } from '../logger.js';
 
 export type TenantRegistryRecord = {
   tenantId: string;
@@ -165,9 +166,10 @@ export class TenantRegistryService {
           }, {})
           : {},
       };
-    } catch {
-      return { tenants: {} };
-    }
+    } catch (error) {
+    logger.warn('[Tenant Registry] parsing failed', error);
+    return { tenants: {} };
+  }
   }
 
   private writeState(state: TenantRegistryState): void {

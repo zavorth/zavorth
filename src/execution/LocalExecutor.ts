@@ -119,7 +119,7 @@ export class LocalExecutor implements IExecutor {
       if (sandboxTier?.tier === 'microvm' && !firecrackerAvailable) {
         const sandboxError: Error & { code?: string } = new Error(
           'Execucao bloqueada: codigo de alto risco requer MicroVM (Firecracker), ' +
-          'mas o runtime maximo nao esta disponivel neste host.',
+          'but the maximum runtime is not available on this host.',
         );
         sandboxError.code = 'SANDBOX_REQUIRED_MICROVM_UNAVAILABLE';
         throw sandboxError;
@@ -135,7 +135,7 @@ export class LocalExecutor implements IExecutor {
         request.instructions.every((command) => this.canBypassDockerForSafeCommand(command, request));
       if (shouldSandbox && !dockerAvailable && !firecrackerAvailable && !canFallbackWithoutDocker) {
         const sandboxError: Error & { code?: string } = new Error(
-          'Docker sandbox requerido, mas o Docker nao esta disponivel neste host.',
+          'Docker sandbox is required, but Docker is not available on this host.',
         );
         sandboxError.code = 'SANDBOX_REQUIRED_DOCKER_UNAVAILABLE';
         throw sandboxError;
@@ -143,7 +143,7 @@ export class LocalExecutor implements IExecutor {
 
       if (canFallbackWithoutDocker) {
         result.actions_executed.push(
-          '[SANDBOX-FALLBACK] Docker indisponivel; executando comando diagnostico seguro no host local.',
+          '[SANDBOX-FALLBACK] Docker unavailable; running safe diagnostic command on the local host.',
         );
         result.metadata = {
           ...(result.metadata || {}),
@@ -213,7 +213,7 @@ export class LocalExecutor implements IExecutor {
               if (missingModuleMatchPy && retries < maxRetries && (cmd.startsWith('python') || cmd.startsWith('py '))) {
                 const pkg = missingModuleMatchPy[1];
                 result.actions_executed.push(
-                  `[Dependency Orchestrator] Python: modulo '${pkg}' faltando. Auto-install foi removido por policy zero-trust; gere uma proposta de instalacao para aprovacao humana.`,
+                  `[Dependency Orchestrator] Python: module '${pkg}' is missing. Auto-install was removed by zero-trust policy; generate an installation proposal for human approval.`,
                 );
                 result.success = false;
                 result.stderr = (result.stderr || '') + errMsg;
@@ -226,7 +226,7 @@ export class LocalExecutor implements IExecutor {
                 const pkg = missingModuleMatchNode[1];
                 if (!pkg.startsWith('.')) {
                   result.actions_executed.push(
-                    `[Dependency Orchestrator] Node.js: pacote '${pkg}' faltando. Auto-install foi removido por policy zero-trust; gere uma proposta de instalacao para aprovacao humana.`,
+                    `[Dependency Orchestrator] Node.js: package '${pkg}' is missing. Auto-install was removed by zero-trust policy; generate an installation proposal for human approval.`,
                   );
                   result.success = false;
                   result.stderr = (result.stderr || '') + errMsg;

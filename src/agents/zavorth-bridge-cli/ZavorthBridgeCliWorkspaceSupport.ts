@@ -150,14 +150,14 @@ export function describeWorkspaceBootstrapFailure(workspace: string, status: Bri
 
   const workspaceLabel = getWorkspaceWindowLabel(workspace);
   if (workspaceLabel) {
-    details.push(`titulo esperado: ${workspaceLabel}`);
+    details.push(`expected title: ${workspaceLabel}`);
   }
 
   if (missingCapabilities.length > 0) {
-    details.push(`capacidades ausentes: ${missingCapabilities.join(', ')}`);
+    details.push(`missing capabilities: ${missingCapabilities.join(', ')}`);
   }
 
-  return `O ZavorthBridge nao abriu uma sessao reutilizavel na workspace correta (${details.join(' | ')}).`;
+  return `ZavorthBridge did not open a reusable session in the correct workspace (${details.join(' | ')}).`;
 }
 
 export async function isWindowSurfaceCompatible(input: {

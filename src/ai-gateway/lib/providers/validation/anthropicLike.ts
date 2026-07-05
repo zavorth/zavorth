@@ -7,6 +7,7 @@ import {
   validationSuccess,
 } from "./validationResult.ts";
 import { normalizeAnthropicBaseUrl } from "./validationFamilies.ts";
+import { logger } from '@/shared/utils/logger';
 
 export async function validateAnthropicLikeProvider({
   apiKey,
@@ -53,9 +54,7 @@ export async function validateAnthropicLikeProvider({
     if (modelsRes.status === 401 || modelsRes.status === 403) {
       return invalidApiKey();
     }
-  } catch {
-    // Fall through to messages test.
-  }
+  } catch (error) { // Fall through to messages test. logger.warn('[anthropic Like] network request failed', error); }
 
   const testModelId = modelId || "claude-3-5-sonnet-20241022";
   try {
@@ -76,7 +75,8 @@ export async function validateAnthropicLikeProvider({
     }
 
     return validationSuccess();
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[anthropic Like] network request failed', error);
     return connectionFailed(error.message || "Connection failed");
   }
 }

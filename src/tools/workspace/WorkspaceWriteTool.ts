@@ -4,7 +4,7 @@ import { CreateFileTool } from '../CreateFileTool.js';
 
 export class WorkspaceWriteTool extends BaseTool {
   public readonly name = 'workspace.write';
-  public readonly description = 'Cria arquivo dentro do escopo de escrita do workspace usando a policy canonica.';
+  public readonly description = 'Creates a file inside the workspace write scope using the canonical policy.';
   public readonly parameters: ToolDefinition['parameters'];
   private readonly delegate: CreateFileTool;
 

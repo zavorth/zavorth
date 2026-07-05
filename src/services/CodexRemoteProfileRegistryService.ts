@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type CodexRemotePersistedProfile = {
   id: string;
@@ -492,8 +493,9 @@ export class CodexRemoteProfileRegistryService {
         stateFileExists,
         rawActiveProfileId,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Codex Remote Profile Registry] parsing failed', error);
+    return {
         state: { ...EMPTY_STATE },
         issues: [
           {
@@ -504,7 +506,7 @@ export class CodexRemoteProfileRegistryService {
           stateFileExists,
           rawActiveProfileId: null,
         };
-    }
+  }
   }
 
   private sanitizeStoredProfiles(

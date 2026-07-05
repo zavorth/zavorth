@@ -69,7 +69,7 @@ export async function downloadStitchArtifact(
     serviceName: 'Stitch artifact download',
   });
   if (!response.ok) {
-    throw new Error(`Falha ao baixar artefato do Stitch: ${response.status} ${response.statusText}`);
+    throw new Error(`Failed to download Stitch artifact: ${response.status} ${response.statusText}`);
   }
 
   const mimeType = String(response.headers.get('content-type') || 'application/octet-stream').split(';')[0].trim();

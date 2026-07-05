@@ -1,18 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { render, Box, Text, Newline } from 'ink';
+import React, { useEffect, useState } from 'react';
+import { Box, Newline, Text, render } from 'ink';
 
-// ASCII Art do ZAVORTH-OS
 const headerAscii = `
-  ███████╗ █████╗ ██╗   ██╗ ██████╗ ██████╗ ████████╗ ██╗  ██╗
-  ╚══███╔╝██╔══██╗██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝ ██║  ██║
-    ███╔╝ ███████║██║   ██║██║   ██║██████╔╝   ██║    ███████║
-   ███╔╝  ██╔══██║╚██╗ ██╔╝██║   ██║██╔══██╗   ██║    ██╔══██║
-  ███████╗██║  ██║ ╚████╔╝ ╚██████╔╝██║  ██║   ██║    ██║  ██║
-  ╚══════╝╚═╝  ╚═╝  ╚═══╝   ╚═════╝ ╚═╝  ╚═╝   ╚═╝    ╚═╝  ╚═╝
+  ZAVORTH-OS
+  ==========
 `;
 
-// ASCII Art da Raposa (Fox)
-const foxAscii = `
+const markAscii = `
         /\\   /\\
        //\\\\_//\\\\
        \\_     _/
@@ -22,10 +16,10 @@ const foxAscii = `
 `;
 
 const theme = {
-  primary: '#FFB86C',   // Amber/Laranja (principal)
-  secondary: '#6272A4', // Cinza/Azul (dim/bordas)
-  accent: '#8BE9FD',    // Ciano (destaques)
-  success: '#50FA7B',   // Verde (sucesso)
+  primary: '#FFB86C',
+  secondary: '#6272A4',
+  accent: '#8BE9FD',
+  success: '#50FA7B',
 };
 
 const ZavorthControl = () => {
@@ -33,31 +27,29 @@ const ZavorthControl = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setLoadingBar(prev => (prev >= 100 ? 0 : prev + 5));
+      setLoadingBar((prev) => (prev >= 100 ? 0 : prev + 5));
     }, 500);
     return () => clearInterval(timer);
   }, []);
 
   return (
     <Box flexDirection="column" padding={1}>
-      {/* Cabeçalho Zavorth */}
+      {/* Zavorth header */}
       <Box justifyContent="center">
         <Text color={theme.primary}>{headerAscii}</Text>
       </Box>
 
-      {/* Linha da Versão */}
+      {/* Version line */}
       <Box justifyContent="center" marginTop={1} marginBottom={1}>
-        <Text color={theme.secondary}>─────── </Text>
-        <Text color={theme.primary}> Zavorth OS v1.1.0 (2026.05.13) • upstream 8a9b2c3 </Text>
-        <Text color={theme.secondary}> ───────</Text>
+        <Text color={theme.secondary}>------- </Text>
+        <Text color={theme.primary}> Zavorth OS v1.1.0 (2026.05.13) - upstream 8a9b2c3 </Text>
+        <Text color={theme.secondary}> -------</Text>
       </Box>
 
-      {/* Main Grid: Escudo + Capabilities */}
       <Box flexDirection="row" justifyContent="space-between" width="100%" paddingX={2}>
-        
-        {/* Coluna Esquerda: Símbolo e Sessão */}
+        {/* Left column: symbol and session */}
         <Box flexDirection="column" width="40%">
-          <Text color={theme.primary}>{foxAscii}</Text>
+          <Text color={theme.primary}>{markAscii}</Text>
           <Box flexDirection="column" marginTop={1} marginLeft={4}>
             <Text>
               <Text color={theme.primary}>mode: </Text>
@@ -71,9 +63,8 @@ const ZavorthControl = () => {
           </Box>
         </Box>
 
-        {/* Coluna Direita: Tools e Skills */}
+        {/* Right column: tools and skills */}
         <Box flexDirection="column" width="60%">
-          
           <Box flexDirection="column" marginBottom={1}>
             <Text color={theme.primary} bold>Available Capabilities (Gateways)</Text>
             <Box flexDirection="column" marginLeft={2}>
@@ -97,67 +88,61 @@ const ZavorthControl = () => {
           </Box>
 
           <Box marginTop={1} marginLeft={2}>
-            <Text color={theme.secondary}>24 tools • 5 profiles • /help for commands</Text>
+            <Text color={theme.secondary}>24 tools - 5 profiles - /help for commands</Text>
           </Box>
-
         </Box>
       </Box>
 
-      {/* Linha Separadora */}
       <Box borderStyle="single" borderColor={theme.secondary} borderTop={false} borderLeft={false} borderRight={false} marginTop={1} marginBottom={1} />
 
-      {/* Terminal Area (Chat) */}
       <Box flexDirection="column" paddingX={2}>
         <Text color={theme.secondary}>Welcome to Zavorth OS! Type your command or /help.</Text>
-        <Text color={theme.accent}>✦ Tip: Run `zavorth doctor --advanced` to verify sandbox integrity.</Text>
-        
+        <Text color={theme.accent}>* Tip: Run `zavorth doctor --advanced` to verify sandbox integrity.</Text>
+
         <Box marginTop={1} marginBottom={1}>
-          <Text color={theme.primary}>▲ Policy Broker enabled: All mutating actions require visual receipts.</Text>
+          <Text color={theme.primary}>^ Policy Broker enabled: All mutating actions require visual receipts.</Text>
         </Box>
 
-        <Text color={theme.primary}>● user</Text>
+        <Text color={theme.primary}>* user</Text>
         <Text>Initialize the web-console terminal projection.</Text>
         <Newline />
-        
+
         <Box borderStyle="single" borderColor={theme.secondary} borderTop={false} borderLeft={false} borderRight={false} width={30} marginBottom={1} />
 
-        <Text color={theme.primary}>⚡ Zavorth (Planner)</Text>
+        <Text color={theme.primary}>* Zavorth (Planner)</Text>
         <Text>Understood. Spinning up the new TUI zavorthControl powered by Ink.</Text>
       </Box>
 
-      {/* Status Bar */}
-      <Box 
-        borderStyle="single" 
-        borderColor={theme.secondary} 
-        paddingX={1} 
+      <Box
+        borderStyle="single"
+        borderColor={theme.secondary}
+        paddingX={1}
         marginTop={2}
         flexDirection="row"
         justifyContent="space-between"
       >
         <Box>
-          <Text color={theme.primary}>⚡ zavorth-v1</Text>
-          <Text color={theme.secondary}> │ </Text>
+          <Text color={theme.primary}>* zavorth-v1</Text>
+          <Text color={theme.secondary}> | </Text>
           <Text color={theme.secondary}>budget: </Text>
           <Text color={theme.success}>$0.04/$5.00</Text>
         </Box>
         <Box>
           <Text color={theme.secondary}>[</Text>
-          <Text color={theme.primary}>{'█'.repeat(Math.floor(loadingBar / 10))}</Text>
+          <Text color={theme.primary}>{'#'.repeat(Math.floor(loadingBar / 10))}</Text>
           <Text color={theme.secondary}>{' '.repeat(10 - Math.floor(loadingBar / 10))}</Text>
           <Text color={theme.secondary}>] </Text>
           <Text color={theme.primary}>{loadingBar}%</Text>
-          <Text color={theme.secondary}> │ </Text>
+          <Text color={theme.secondary}> | </Text>
           <Text color={theme.secondary}>12s</Text>
-          <Text color={theme.secondary}> │ </Text>
+          <Text color={theme.secondary}> | </Text>
           <Text color={theme.secondary}>mem: 45MB</Text>
         </Box>
       </Box>
 
-      {/* Prompt Line */}
       <Box marginTop={1} marginLeft={1}>
-        <Text color={theme.primary}>❯ </Text>
+        <Text color={theme.primary}>{'> '}</Text>
       </Box>
-
     </Box>
   );
 };

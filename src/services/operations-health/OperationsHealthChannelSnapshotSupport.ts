@@ -1,12 +1,16 @@
 import { config } from '../../config/index.js';
 import { ZavorthBridgeAccessLeaseService } from '../ZavorthBridgeAccessLeaseService.js';
+import { logger } from '../../logger.js';
 import type {
-  ChannelsSnapshot,
+ChannelsSnapshot,
   DiscordBridgeSnapshot,
   WhatsAppChannelSnapshot,
   SlackChannelSnapshot,
   PlannedChannelSnapshot,
   ZavorthBridgeMobileAccessSnapshot,
+  ChannelMode,
+  TransportMode,
+  LeaseStatus,
 } from './OperationsHealthSnapshotTypes.js';
 
 type OperationsHealthChannelSnapshotSupportOptions = {
@@ -52,8 +56,8 @@ export class OperationsHealthChannelSnapshotSupport {
   }
 
   public readDiscordBridgeSnapshot(): DiscordBridgeSnapshot {
-    const fallback = {
-      mode: config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : 'unknown',
+    const fallback: DiscordBridgeSnapshot = {
+      mode: (config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : 'unknown') as ChannelMode,
       enabled: config.discordBridgeEnabled || Boolean(config.discordBotToken),
       started: false,
       allowDirectMessages: config.discordAllowDms,
@@ -70,11 +74,12 @@ export class OperationsHealthChannelSnapshotSupport {
       }
 
       const parsed = JSON.parse(this.readFileSync(this.discordBridgeStatusFile, 'utf8')) as Record<string, unknown>;
-      const mode =
+      const mode = (
         parsed.mode === 'native' || parsed.mode === 'bridge'
           ? parsed.mode
-          : fallback.mode;
-      const expectedMode = config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : mode;
+          : fallback.mode
+      ) as ChannelMode;
+      const expectedMode = (config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : mode) as ChannelMode;
       const modeMismatch = expectedMode !== 'unknown' && mode !== expectedMode;
       return {
         mode: expectedMode,
@@ -93,25 +98,25 @@ export class OperationsHealthChannelSnapshotSupport {
             : null,
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
   }
 
   public readWhatsAppChannelSnapshot(): WhatsAppChannelSnapshot {
-    const fallbackProvider =
+    const fallbackProvider = (
       config.whatsappProvider === 'cloud-api'
       || config.whatsappProvider === 'baileys'
       || config.whatsappProvider === 'stub'
         ? config.whatsappProvider
-        : 'stub';
-    const fallbackMode =
+        : 'stub'
+    ) as WhatsAppChannelSnapshot['provider'];
+    const fallbackMode = (
       fallbackProvider === 'cloud-api' || fallbackProvider === 'baileys'
         ? fallbackProvider
         : config.whatsappEnabled || Boolean(config.whatsappBotToken) || Boolean(config.whatsappSessionDir)
           ? 'stub'
-          : 'unknown';
-    const fallback = {
+          : 'unknown'
+    ) as ChannelMode;
+    const fallback: WhatsAppChannelSnapshot = {
       mode: fallbackMode,
       enabled: Boolean(
         config.whatsappEnabled
@@ -164,20 +169,22 @@ export class OperationsHealthChannelSnapshotSupport {
 
       const parsed = JSON.parse(this.readFileSync(this.whatsappStatusFile, 'utf8')) as Record<string, unknown>;
       return {
-        mode:
+        mode: (
           parsed.mode === 'stub' || parsed.mode === 'cloud-api' || parsed.mode === 'baileys'
             ? parsed.mode
-            : fallback.mode,
+            : fallback.mode
+        ) as ChannelMode,
         enabled: parsed.enabled === true,
         started: parsed.started === true,
         recipientsConfigured: Number(parsed.recipientsConfigured || 0) || 0,
         allowedChatIds: Array.isArray(parsed.allowedChatIds)
           ? parsed.allowedChatIds.map((entry) => String(entry || '').trim()).filter(Boolean)
           : [...config.whatsappAllowedChatIds],
-        provider:
+        provider: (
           parsed.provider === 'cloud-api' || parsed.provider === 'baileys' || parsed.provider === 'stub'
             ? parsed.provider
-            : fallback.provider,
+            : fallback.provider
+        ) as WhatsAppChannelSnapshot['provider'],
         providerConfigured: parsed.providerConfigured === true,
         providerDecision: typeof parsed.providerDecision === 'string' ? parsed.providerDecision : fallback.providerDecision,
         sessionDir: typeof parsed.sessionDir === 'string'
@@ -193,29 +200,29 @@ export class OperationsHealthChannelSnapshotSupport {
         lastError: typeof parsed.lastError === 'string' ? parsed.lastError : null,
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
   }
 
   public readSlackChannelSnapshot(): SlackChannelSnapshot {
-    const fallback = {
-      mode:
+    const fallback: SlackChannelSnapshot = {
+      mode: (
         String(config.slackBotToken || '').trim() && config.slackTransport !== 'stub'
           ? 'native'
           : config.slackEnabled || Boolean(config.slackWorkspaceId)
             ? 'stub'
-            : 'unknown',
+            : 'unknown'
+      ) as ChannelMode,
       enabled: Boolean(config.slackEnabled || config.slackBotToken || config.slackWorkspaceId),
       started: false,
       recipientsConfigured: config.slackAllowedChannelIds.length,
       allowedChannelIds: [...config.slackAllowedChannelIds],
-      transport:
+      transport: (
         String(config.slackBotToken || '').trim() && config.slackTransport !== 'stub'
           ? 'native'
           : config.slackEnabled || Boolean(config.slackWorkspaceId)
             ? 'local'
-            : 'unknown',
+            : 'unknown'
+      ) as TransportMode,
       nativeConfigured: Boolean(String(config.slackBotToken || '').trim()),
       apiBaseUrl: String(config.slackApiBaseUrl || '').trim() || null,
       workspaceId: String(config.slackWorkspaceId || '').trim() || null,
@@ -233,17 +240,18 @@ export class OperationsHealthChannelSnapshotSupport {
 
       const parsed = JSON.parse(this.readFileSync(this.slackStatusFile, 'utf8')) as Record<string, unknown>;
       return {
-        mode: parsed.mode === 'native' || parsed.mode === 'stub' ? parsed.mode : fallback.mode,
+        mode: (parsed.mode === 'native' || parsed.mode === 'stub' ? parsed.mode : fallback.mode) as ChannelMode,
         enabled: parsed.enabled === true,
         started: parsed.started === true,
         recipientsConfigured: Number(parsed.recipientsConfigured || 0) || 0,
         allowedChannelIds: Array.isArray(parsed.allowedChannelIds)
           ? parsed.allowedChannelIds.map((entry) => String(entry || '').trim()).filter(Boolean)
           : [...config.slackAllowedChannelIds],
-        transport:
+        transport: (
           parsed.transport === 'native' || parsed.transport === 'local' || parsed.transport === 'stub'
             ? parsed.transport
-            : fallback.transport,
+            : fallback.transport
+        ) as TransportMode,
         nativeConfigured: parsed.nativeConfigured === true,
         apiBaseUrl: typeof parsed.apiBaseUrl === 'string'
           ? String(parsed.apiBaseUrl || '').trim() || null
@@ -257,9 +265,7 @@ export class OperationsHealthChannelSnapshotSupport {
         lastError: typeof parsed.lastError === 'string' ? parsed.lastError : null,
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
   }
 
   public readSignalChannelSnapshot(): PlannedChannelSnapshot {
@@ -401,9 +407,7 @@ export class OperationsHealthChannelSnapshotSupport {
         imapConfigured: typeof parsed.imapConfigured === 'boolean' ? parsed.imapConfigured : fallback.imapConfigured,
         webhookConfigured: typeof parsed.webhookConfigured === 'boolean' ? parsed.webhookConfigured : fallback.webhookConfigured,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
   }
 
   public readZavorthBridgeMobileAccessSnapshot(): ZavorthBridgeMobileAccessSnapshot {
@@ -428,7 +432,7 @@ export class OperationsHealthChannelSnapshotSupport {
 
     return {
       available: lease.active,
-      status: lease.status,
+      status: (lease.status === 'revoked' ? 'closed' : lease.status) as LeaseStatus,
       checkedAt: lease.updatedAt,
       leaseId: lease.leaseId,
       mode: lease.mode,

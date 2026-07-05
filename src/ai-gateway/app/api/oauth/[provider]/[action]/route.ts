@@ -26,6 +26,7 @@ import {
 } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 // Shared interfaces for OAuth flow data in this route
 
@@ -154,9 +155,7 @@ function normalizeOAuthRedirectUri(value: string | null, request: Request): stri
   if (configuredBaseUrl) {
     try {
       allowedOrigins.add(new URL(configuredBaseUrl).origin);
-    } catch {
-      // Ignore invalid deployment base URL; it should not expand redirect allowances.
-    }
+    } catch (error) { // Ignore invalid deployment base URL; it should not expand redirect allowances. logger.warn('[route] network request failed', error); }
   }
 
   if (parsed.protocol !== "https:" || !allowedOrigins.has(parsed.origin)) {
@@ -256,9 +255,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
   if (globalThis.__codexCallbackState?.close) {
     try {
       globalThis.__codexCallbackState.close();
-    } catch (e) {
-      /* ignore */
-    }
+    } catch (error) { /* ignore */ logger.warn('[route] resource cleanup failed', error); }
   }
   globalThis.__codexCallbackState = null;
 
@@ -290,9 +287,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
       if (globalThis.__codexCallbackState?.startedAt === startedAt) {
         try {
           close();
-        } catch (e) {
-          /* ignore */
-        }
+        } catch (error) { /* ignore */ logger.warn('[route] resource cleanup failed', error); }
         globalThis.__codexCallbackState = null;
       }
     }, 300000);
@@ -304,6 +299,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
       serverPort: port,
     });
   } catch (error) {
+    logger.warn('[route] resource cleanup failed', error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }
@@ -570,9 +566,7 @@ export async function POST(
       // Clean up server
       try {
         close();
-      } catch (e) {
-        /* ignore */
-      }
+      } catch (error) { /* ignore */ logger.warn('[route] resource cleanup failed', error); }
       globalThis.__codexCallbackState = null;
 
       if (params.error) {
@@ -665,9 +659,10 @@ export async function POST(
             displayName: connection.displayName,
           },
         });
-      } catch (exchangeErr: unknown) {
-        return NextResponse.json({ success: false, error: exchangeErr instanceof Error ? exchangeErr.message : "Unknown exchange error" }, { status: 500 });
-      }
+      } catch (error) {
+    logger.warn('[route] connection failed', error);
+    return NextResponse.json({ success: false, error: exchangeErr instanceof Error ? exchangeErr.message : "Unknown exchange error" }, { status: 500 });
+  }
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });

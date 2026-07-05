@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type SecurityOperationalPresetId = 'personal' | 'professional' | 'enterprise';
 export type PresetSecurityProfileId = 'personal' | 'professional' | 'enterprise';
@@ -253,9 +254,7 @@ export function readSecurityOperationalPresetState(
         summary: typeof parsed.receipt?.summary === 'string' ? parsed.receipt.summary : preset.summary,
       },
     };
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Security Operational Preset] parsing failed', error); return null; }
 }
 
 export function inspectSecurityOperationalPreset(
@@ -508,9 +507,7 @@ function readJsonFile(
     }
     const parsed = JSON.parse(readFileSyncImpl(filePath, 'utf8') as string);
     return parsed && typeof parsed === 'object' ? parsed : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Security Operational Preset] JSON parse failed', error); return null; }
 }
 
 function sameStringSet(actual: unknown, expected: string[]): boolean {

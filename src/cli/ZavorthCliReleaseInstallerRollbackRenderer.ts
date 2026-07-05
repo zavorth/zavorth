@@ -5,6 +5,11 @@ import {
   type ReleaseInstallerRollbackPathSnapshot,
   type UniversalAgentRun,
 } from '../runtime/agent/index.js';
+import type {
+  ZavorthFirstRunBootstrapPlan,
+  ZavorthWorkspaceIdentityProfileSnapshot,
+  ZavorthFirstRunBootstrapPaths,
+} from '../contracts/FirstRunWorkspaceBootstrapContract.js';
 
 export function resolveReleaseInstallerRollbackCliText(args: string): string {
   return String(args || '')
@@ -45,12 +50,12 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
           existingProfile: {
             exists: true,
             path: 'data/runtime/first-run/profile.json',
-            summary: 'Zavorth configurado para fixture CLI.',
+            summary: 'Zavorth configured para fixture CLI.',
           },
           writes: [
             { path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' },
           ],
-          summary: ['Primeiro uso configurado para release path.'],
+          summary: ['Primeiro uso configured para release path.'],
           willNotWrite: ['tokens ou API keys'],
           nextCommands: ['zavorth doctor', 'zavorth go --dry-run', 'zavorth release-path'],
           redactedJson: '{}',
@@ -66,7 +71,7 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
             warnings: [],
             blockers: [],
           },
-        } as any),
+        } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
           configured: true,
@@ -78,8 +83,8 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
           memoryMode: 'local-metadata',
           safetyPosture: 'preview-first',
           providerStatus: 'deferred',
-        } as any),
-        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as any),
+        } as unknown as ZavorthWorkspaceIdentityProfileSnapshot),
+        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as unknown as ZavorthFirstRunBootstrapPaths),
       },
       personalizationService: {
         getStatus: () => ({
@@ -169,16 +174,16 @@ export function formatReleaseInstallerRollbackSnapshot(
 ): string {
   const lines = [
     'Release / Installer / Rollback Path - Channel mesh8',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
-    `- canal: ${snapshot.release.channel}`,
+    `- channel: ${snapshot.release.channel}`,
     `- bundle publico: ${snapshot.release.releaseBundleStatus}`,
-    `- installer preview: ${snapshot.installer.previewAvailable ? 'pronto' : 'pendente'}`,
-    `- rollback: ${snapshot.rollback.rollbackAvailable ? 'pronto' : 'pendente'}`,
-    `- canary: ${snapshot.readiness.canStartCanary ? 'liberado' : 'dormente'}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- installer preview: ${snapshot.installer.previewAvailable ? 'ready' : 'pending'}`,
+    `- rollback: ${snapshot.rollback.rollbackAvailable ? 'ready' : 'pending'}`,
+    `- canary: ${snapshot.readiness.canStartCanary ? 'released' : 'dormente'}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -203,12 +208,12 @@ export function formatReleaseInstallerRollbackSnapshot(
   lines.push(`- can start canary: ${String(snapshot.readiness.canStartCanary)}`);
 
   lines.push('', 'Politica');
-  lines.push('- release nao foi publicado');
-  lines.push('- installer nao foi executado');
-  lines.push('- rollback nao foi executado');
-  lines.push('- stable/latest tags nao foram movidas');
-  lines.push('- rollback exige comando explicito');
-  lines.push('- secrets nao foram serializados');
+  lines.push('- release was not published');
+  lines.push('- installer was not executed');
+  lines.push('- rollback was not executed');
+  lines.push('- stable/latest tags were not moved');
+  lines.push('- rollback requires an explicit command');
+  lines.push('- secrets were not serialized');
 
   lines.push('', 'Superficies de consumo');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);

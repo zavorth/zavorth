@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type DemoGuideSession = {
   currentIndex: number;
@@ -109,17 +110,16 @@ export class DemoGuideService {
       );
 
       return { sessions };
-    } catch {
-      return { sessions: {} };
-    }
+    } catch (error) {
+    logger.warn('[Demo Guide] lifecycle operation failed', error);
+    return { sessions: {} };
+  }
   }
 
   private persist(): void {
     try {
       fs.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       fs.writeFileSync(this.stateFile, JSON.stringify(this.state, null, 2), 'utf8');
-    } catch {
-      // Keep in-memory state even if persistence fails.
-    }
+    } catch (error) { // Keep in-memory state even if persistence fails. logger.warn('[Demo Guide] filesystem operation failed', error); }
   }
 }

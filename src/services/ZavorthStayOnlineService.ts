@@ -330,11 +330,11 @@ export class ZavorthStayOnlineService {
     lines.push(
       '',
       snapshot.status === 'ready'
-        ? 'Veredito: continua tudo ok para uso remoto.'
+        ? 'Verdict: everything remains OK for remote use.'
         : snapshot.status === 'attention'
-          ? 'Veredito: continua utilizavel, mas acompanhe os avisos.'
-          : 'Veredito: nao confie no uso remoto ate resolver os bloqueios.',
-      'Self-heal automatico nao executa acao alvo; ele propoe comandos seguros e mantem approvals no gateway.',
+          ? 'Verdict: still usable, but watch the warnings.'
+          : 'Verdict: do not trust remote use until blockers are resolved.',
+      'Automatic self-heal does not execute target actions; it proposes safe commands and keeps approvals in the gateway.',
       '',
     );
     return `${lines.join('\n')}`;
@@ -355,25 +355,25 @@ export class ZavorthStayOnlineService {
     const nextCommand = primaryAlert?.command
       || (snapshot.status === 'ready' ? null : snapshot.actions.fixes);
     const transition = previous
-      ? `Antes: ${previous.status}/${previous.remoteReady ? 'remoto online' : 'remoto off'}`
+      ? `Before: ${previous.status}/${previous.remoteReady ? 'remote online' : 'remote off'}`
       : null;
     const impact = snapshot.status === 'ready'
-      ? 'Pode usar remoto normalmente.'
+      ? 'Remote use is normal.'
       : snapshot.status === 'attention'
-        ? 'Pode usar, mas acompanhe o aviso.'
-        : 'Nao confie no uso remoto ate resolver.';
+        ? 'You can use it, but watch the warning.'
+        : 'Do not trust remote use until resolved.';
     const sections = [
       `Zavorth Stay Online - ${statusLine(snapshot).replace('Status: ', '')}`,
       snapshot.headline,
       transition,
-      `Motivo: ${reasonLabel(reason)}`,
+      `Reason: ${reasonLabel(reason)}`,
       '',
-      `Impacto: ${impact}`,
-      `Provider: ${snapshot.summary.providerLiveReady} live / ${snapshot.summary.providerLiveFailed} falha(s)`,
-      `Keepalive: ${snapshot.summary.keepaliveOk ? 'ok' : snapshot.summary.keepaliveActive ? 'atencao' : 'ausente'}`,
+      `Impact: ${impact}`,
+      `Provider: ${snapshot.summary.providerLiveReady} live / ${snapshot.summary.providerLiveFailed} failure(s)`,
+      `Keepalive: ${snapshot.summary.keepaliveOk ? 'ok' : snapshot.summary.keepaliveActive ? 'attention' : 'missing'}`,
       '',
-      primaryAlert ? `Aviso: ${primaryAlert.message}` : 'Aviso: nenhuma acao necessaria.',
-      `Proximo: ${nextCommand || 'continue usando.'}`,
+      primaryAlert ? `Warning: ${primaryAlert.message}` : 'Warning: no action needed.',
+      `Next: ${nextCommand || 'keep using it.'}`,
     ].filter(Boolean);
 
     return sections.join('\n');
@@ -392,12 +392,12 @@ export class ZavorthStayOnlineService {
         status: readyToGo.remoteReady ? 'ready' : readyToGo.localReady ? 'attention' : 'blocked',
         required: true,
         summary: readyToGo.headline,
-        nextAction: readyToGo.remoteReady ? 'Continuar monitorando.' : readyToGo.actions.fixes,
+        nextAction: readyToGo.remoteReady ? 'Keep monitoring.' : readyToGo.actions.fixes,
         command: readyToGo.remoteReady ? null : readyToGo.actions.fixes,
       },
       {
         id: 'runtime-process',
-        label: 'Processo atual',
+        label: 'Current process',
         status: 'ready',
         required: true,
         summary: `Monitor vivo neste processo (pid ${process.pid}).`,
@@ -410,9 +410,9 @@ export class ZavorthStayOnlineService {
         status: readyToGo.channels.zavorthControl === 'ready' ? 'ready' : 'blocked',
         required: true,
         summary: readyToGo.channels.zavorthControl === 'ready'
-          ? 'ZavorthControl segue disponivel para controle local.'
-          : 'ZavorthControl nao esta pronto.',
-        nextAction: readyToGo.channels.zavorthControl === 'ready' ? 'Continuar monitorando.' : 'Reabrir zavorthControl.',
+          ? 'ZavorthControl remains available for local control.'
+          : 'ZavorthControl is not ready.',
+        nextAction: readyToGo.channels.zavorthControl === 'ready' ? 'Keep monitoring.' : 'Reopen zavorthControl.',
         command: readyToGo.channels.zavorthControl === 'ready' ? null : 'zavorth go',
       },
       {
@@ -421,9 +421,9 @@ export class ZavorthStayOnlineService {
         status: readyToGo.channels.telegram === 'ready' ? 'ready' : 'attention',
         required: false,
         summary: readyToGo.channels.telegram === 'ready'
-          ? 'Telegram pronto para avisos e approvals remotos.'
-          : 'Telegram ainda precisa de configuracao ou doctor.',
-        nextAction: readyToGo.channels.telegram === 'ready' ? 'Continuar monitorando.' : 'Rodar doctor do Telegram.',
+          ? 'Telegram is ready for remote warnings and approvals.'
+          : 'Telegram still needs configuration or doctor.',
+        nextAction: readyToGo.channels.telegram === 'ready' ? 'Keep monitoring.' : 'Run Telegram doctor.',
         command: readyToGo.channels.telegram === 'ready' ? null : 'zavorth connectors doctor telegram',
       },
       {
@@ -431,8 +431,8 @@ export class ZavorthStayOnlineService {
         label: 'Provider',
         status: readyToGo.summary.providerDefaultRoutes > 0 ? 'ready' : 'blocked',
         required: true,
-        summary: `${readyToGo.summary.providerDefaultRoutes} rota(s) live pronta(s), ${readyToGo.summary.providerLiveFailed} falha(s).`,
-        nextAction: readyToGo.summary.providerDefaultRoutes > 0 ? 'Continuar monitorando provider.' : 'Renovar prova live do provider.',
+        summary: `${readyToGo.summary.providerDefaultRoutes} live route(s) ready, ${readyToGo.summary.providerLiveFailed} failure(s).`,
+        nextAction: readyToGo.summary.providerDefaultRoutes > 0 ? 'Keep monitoring provider.' : 'Renew provider live proof.',
         command: readyToGo.summary.providerDefaultRoutes > 0 ? null : 'zavorth ready --refresh-providers',
       },
       {
@@ -441,9 +441,9 @@ export class ZavorthStayOnlineService {
         status: readyToGo.channels.approvals === 'blocked' ? 'blocked' : readyToGo.channels.approvals,
         required: true,
         summary: readyToGo.channels.approvals === 'ready'
-          ? 'Approvals seguem mediados pelo gateway.'
-          : 'Approvals precisam de revisao.',
-        nextAction: readyToGo.channels.approvals === 'ready' ? 'Continuar monitorando.' : 'Revisar approvals.',
+          ? 'Approvals remain mediated by the gateway.'
+          : 'Approvals need review.',
+        nextAction: readyToGo.channels.approvals === 'ready' ? 'Keep monitoring.' : 'Review approvals.',
         command: readyToGo.channels.approvals === 'ready' ? null : 'zavorth gateway approvals',
       },
       {
@@ -453,8 +453,8 @@ export class ZavorthStayOnlineService {
         required: false,
         summary: keepalive
           ? `${keepalive.summary.ready}/${keepalive.summary.total} processo(s) ready${keepalive.stale ? ' | stale' : ''}.`
-          : 'Snapshot de keepalive ainda nao existe.',
-        nextAction: keepalive?.ok === true ? 'Continuar monitorando.' : 'Iniciar ou renovar keepalive supervisionado.',
+          : 'Keepalive snapshot does not exist yet.',
+        nextAction: keepalive?.ok === true ? 'Keep monitoring.' : 'Start or renew supervised keepalive.',
         command: keepalive?.ok === true ? null : 'npm run ops:remote:keepalive',
       },
       {
@@ -462,8 +462,8 @@ export class ZavorthStayOnlineService {
         label: 'Self-heal',
         status: 'ready',
         required: true,
-        summary: 'Quedas viram alertas e comandos propostos; nenhuma acao alvo executa sem governanca.',
-        nextAction: 'Usar comandos sugeridos quando houver alerta.',
+        summary: 'Drops become alerts and proposed commands; no target action executes without governance.',
+        nextAction: 'Use suggested commands when an alert exists.',
         command: null,
       },
     ];
@@ -528,10 +528,10 @@ function buildAlerts(checks: ZavorthStayOnlineCheck[]): ZavorthStayOnlineSnapsho
 }
 
 function headlineFor(status: ZavorthStayOnlineStatus, remoteReady: boolean): string {
-  if (status === 'ready' && remoteReady) return 'Tudo segue online para uso remoto.';
-  if (status === 'attention' && remoteReady) return 'Zavorth segue online, com aviso operacional.';
-  if (status === 'attention') return 'Zavorth segue parcialmente online; acompanhe os alertas.';
-  return 'Zavorth perdeu uma garantia necessaria para uso remoto.';
+  if (status === 'ready' && remoteReady) return 'Everything remains online for remote use.';
+  if (status === 'attention' && remoteReady) return 'Zavorth remains online with an operational warning.';
+  if (status === 'attention') return 'Zavorth is partially online; watch the alerts.';
+  return 'Zavorth lost a required guarantee for remote use.';
 }
 
 function checkStatus(snapshot: ZavorthStayOnlineSnapshot, id: ZavorthStayOnlineCheckId): string {
@@ -546,21 +546,21 @@ function alertSignature(snapshot: ZavorthStayOnlineSnapshot): string {
 
 function statusLine(snapshot: ZavorthStayOnlineSnapshot): string {
   if (snapshot.status === 'ready') {
-    return 'Status: PRONTO';
+    return 'Status: READY';
   }
   if (snapshot.status === 'attention') {
-    return 'Status: ATENCAO';
+    return 'Status: ATTENTION';
   }
-  return 'Status: BLOQUEADO';
+  return 'Status: BLOCKED';
 }
 
 function reasonLabel(reason: ZavorthStayOnlineNotification['reason'] | 'manual'): string {
-  if (reason === 'first-check') return 'primeira checagem relevante';
-  if (reason === 'status-change') return 'mudanca de estado';
-  if (reason === 'active-alert') return 'novo alerta ativo';
-  if (reason === 'periodic-ok') return 'confirmacao periodica solicitada';
-  if (reason === 'manual') return 'consulta manual';
-  return 'sem mudanca relevante';
+  if (reason === 'first-check') return 'first relevant check';
+  if (reason === 'status-change') return 'status change';
+  if (reason === 'active-alert') return 'new active alert';
+  if (reason === 'periodic-ok') return 'periodic confirmation requested';
+  if (reason === 'manual') return 'manual query';
+  return 'no relevant change';
 }
 
 function formatCompactLogLine(

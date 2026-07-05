@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { MessageChannel } from '../contracts/PlatformContract.js';
+import { logger } from '../logger.js';
 
 type SurfaceIdentityState = {
   links: Record<string, string | SurfaceIdentityLinkRecord>;
@@ -201,9 +202,10 @@ export class SurfaceIdentityService {
       return {
         links: parsed.links && typeof parsed.links === 'object' ? parsed.links : {},
       };
-    } catch {
-      return { links: {} };
-    }
+    } catch (error) {
+    logger.warn('[Surface Identity] JSON parse failed', error);
+    return { links: {} };
+  }
   }
 
   private writeState(state: SurfaceIdentityState): void {

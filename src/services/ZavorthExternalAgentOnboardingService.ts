@@ -16,6 +16,7 @@ import {
   type ZavorthExternalAgentGatewayReceipt,
 } from '../contracts/ZavorthExternalAgentGatewayContract.js';
 import { ZavorthExternalAgentGatewayService } from './ZavorthExternalAgentGatewayService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthExternalAgentOnboardingInput = {
   requestedBy?: string | null;
@@ -547,9 +548,10 @@ export class ZavorthExternalAgentOnboardingService {
       let dirents: fs.Dirent[];
       try {
         dirents = this.readdirSyncImpl(current, { withFileTypes: true }) as fs.Dirent[];
-      } catch {
-        return;
-      }
+      } catch (error) {
+    logger.warn('[Zavorth External Agent Onboarding] filesystem operation failed', error);
+    return;
+  }
       for (const dirent of dirents.slice(0, 80)) {
         if (entries.length >= MAX_SCAN_ENTRIES) {
           capped = true;
@@ -587,9 +589,7 @@ export class ZavorthExternalAgentOnboardingService {
         const text = String(raw).slice(0, MAX_MANIFEST_BYTES);
         manifests.set(entry.relativePath || path.relative(root, entry.path), text);
         filesRead.push(entry.path);
-      } catch {
-        // best-effort read-only manifest probe
-      }
+      } catch (error) { // best-effort read-only manifest probe logger.warn('[Zavorth External Agent Onboarding] filesystem operation failed', error); }
     }
     return manifests;
   }

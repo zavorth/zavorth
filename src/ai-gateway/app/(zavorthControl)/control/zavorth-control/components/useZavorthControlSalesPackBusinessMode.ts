@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { logger } from '@/shared/utils/logger';
 
 const BUSINESS_MODE_STORAGE_KEY = "zavorth.zavorthControl.businessMode.enabled";
 
@@ -342,9 +343,7 @@ async function readJsonResponse(response: Response): Promise<unknown> {
   }
   try {
     return JSON.parse(text);
-  } catch {
-    return text;
-  }
+  } catch (error) { logger.warn('[use Zavorth Control Sales Pack Business Mode] JSON parse failed', error); return text; }
 }
 
 function readErrorMessage(payload: unknown, fallback: string): string {

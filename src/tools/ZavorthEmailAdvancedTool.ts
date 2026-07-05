@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
-import { logger } from '../cli/logger.js';
+import { logger } from '../logger.js';
 
 export class ZavorthEmailAdvancedTool extends BaseTool {
   public readonly name = 'zavorth_email_advanced';
@@ -126,9 +126,7 @@ export class ZavorthEmailAdvancedTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: unknown) {
-      return `Command error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Email Advanced] process execution failed', error); return ''; }
   }
 
   private async runNodeScript(script: string, timeout = 30000): Promise<string> {
@@ -139,9 +137,7 @@ export class ZavorthEmailAdvancedTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: unknown) {
-      return `Script error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Email Advanced] process execution failed', error); return ''; }
   }
 
   private async readEmails(args: Record<string, unknown>): Promise<string> {
@@ -196,9 +192,7 @@ const { ImapFlow } = require('imapflow');
       try {
         const parsed = JSON.parse(l);
         return `  [${parsed.uid}] ${parsed.date} — ${parsed.from}: ${parsed.subject}`;
-      } catch {
-        return `  ${l}`;
-      }
+      } catch (error) { logger.warn('[Zavorth Email Advanced] JSON parse failed', error); return ''; }
     });
 
     return `Emails in ${folder} (${emails.length}):\n${emails.join('\n')}`;
@@ -266,7 +260,7 @@ const { ImapFlow } = require('imapflow');
       try {
         const p = JSON.parse(l);
         return `  [${p.uid}] ${p.date} — ${p.from}: ${p.subject}`;
-      } catch { return `  ${l}`; }
+      } catch (error) { logger.warn('[Zavorth Email Advanced] JSON parse failed', error); return ''; }
     }).join('\n')}`;
   }
 
@@ -319,9 +313,7 @@ const nodemailer = require('nodemailer');
     try {
       const parsed = JSON.parse(result);
       return `Email sent successfully:\n  Message ID: ${parsed.messageId}\n  Accepted: ${parsed.accepted?.join(', ')}`;
-    } catch {
-      return `Email sent:\n${result}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Email Advanced] JSON parse failed', error); return ''; }
   }
 
   private async sendTemplate(args: Record<string, unknown>): Promise<string> {
@@ -343,9 +335,7 @@ const nodemailer = require('nodemailer');
       args.body = template;
 
       return await this.sendEmail(args);
-    } catch (error: unknown) {
-      return `Template error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Email Advanced] JSON parse failed', error); return ''; }
   }
 
   private async listFolders(args: Record<string, unknown>): Promise<string> {

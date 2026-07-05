@@ -12,6 +12,7 @@ import path from "path";
 import { ZipFile } from "yazl";
 import { getDbInstance, isCloud, isBuildPhase, DATA_DIR } from "../db/core";
 import { getLegacyDotDataDir, isSamePath } from "../dataPaths";
+import { logger } from '@/shared/utils/logger';
 
 export const shouldPersistToDisk = !isCloud && !isBuildPhase;
 
@@ -75,9 +76,7 @@ function containsLegacyCallLogLayout(dirPath: string | null): boolean {
         }
       }
     }
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[migrations] filesystem operation failed', error); return false; }
 
   return false;
 }
@@ -355,7 +354,5 @@ if (shouldPersistToDisk) {
 
   try {
     migrateUsageJsonToSqlite();
-  } catch {
-    // Best-effort startup migration.
-  }
+  } catch (error) { // Best-effort startup migration. logger.warn('[migrations] operation failed', error); }
 }

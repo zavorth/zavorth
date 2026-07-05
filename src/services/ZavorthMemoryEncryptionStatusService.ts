@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { MemoryKnowledgeRecord } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import { SqliteVecMemoryBackend } from '../adapters/memory/SqliteVecMemoryBackend.js';
+import { logger } from '../logger.js';
 
 export type ZavorthMemoryEncryptionMode = 'off' | 'opportunistic' | 'required';
 export type ZavorthMemoryEncryptionAction = 'preview' | 'apply' | 'rollback';
@@ -131,14 +132,16 @@ export class ZavorthMemoryEncryptionStatusService {
     try {
       records = this.exportSourceRecords(store, dbPath, input).length;
     } catch (error) {
-      return this.migrationReceipt('preview', 'failed', dbPath, backupPath, 0, false, error instanceof Error ? error.message : 'Memory source preview failed.');
-    }
+    logger.warn('[Zavorth Memory Encryption Status] path resolution failed', error);
+    return this.migrationReceipt('preview', 'failed', dbPath, backupPath, 0, false, error instanceof Error ? error.message : 'Memory source preview failed.');
+  }
     let currentFullFileEncrypted = false;
     try {
       currentFullFileEncrypted = this.buildStatus(input).fullFileEncrypted;
-    } catch {
-      currentFullFileEncrypted = false;
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Memory Encryption Status] creation failed', error);
+    currentFullFileEncrypted = false;
+  }
     const target = this.probeFullFileTarget(input, dbPath);
     if (!target.fullFileEncrypted) {
       return this.migrationReceipt('preview', 'blocked', dbPath, backupPath, records, false, `Full-file encryption is ${target.fullFileEncryptionStatus}.`);
@@ -157,8 +160,9 @@ export class ZavorthMemoryEncryptionStatusService {
     try {
       records = this.exportSourceRecords(store, dbPath, input);
     } catch (error) {
-      return this.migrationReceipt('apply', 'failed', dbPath, null, 0, false, error instanceof Error ? error.message : 'Memory source export failed.');
-    }
+    logger.warn('[Zavorth Memory Encryption Status] path resolution failed', error);
+    return this.migrationReceipt('apply', 'failed', dbPath, null, 0, false, error instanceof Error ? error.message : 'Memory source export failed.');
+  }
 
     const backupPath = input.backupPath || defaultBackupPath(store.path, this.now);
     const tempPath = dbPath.replace(/\.sqlite$/i, `.migrating-${process.pid}-${Date.now()}.sqlite`);
@@ -328,8 +332,9 @@ export class ZavorthMemoryEncryptionStatusService {
         });
         return backend.exportRecords();
       } catch (error) {
-        lastError = error;
-      } finally {
+    logger.warn('[Zavorth Memory Encryption Status] creation failed', error);
+    lastError = error;
+  } finally {
         backend?.close();
       }
     }
@@ -353,12 +358,13 @@ export class ZavorthMemoryEncryptionStatusService {
         fullFileEncrypted: snapshot.fullFileEncrypted,
         fullFileEncryptionStatus: snapshot.fullFileEncryptionStatus,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Memory Encryption Status] creation failed', error);
+    return {
         fullFileEncrypted: false,
         fullFileEncryptionStatus: 'required-unavailable',
       };
-    } finally {
+  } finally {
       backend?.close();
       removeFileFamily(tempPath);
     }
@@ -467,9 +473,7 @@ function removeFileFamily(dbPath: string): void {
     if (fs.existsSync(parent) && fs.readdirSync(parent).length === 0 && path.basename(parent).startsWith('zavorth-memory-encryption-probe-')) {
       rmSyncWithRetry(parent);
     }
-  } catch {
-    // Best effort cleanup only.
-  }
+  } catch (error) { // Best effort cleanup only. logger.warn('[Zavorth Memory Encryption Status] filesystem operation failed', error); }
 }
 
 function rmSyncWithRetry(targetPath: string): void {

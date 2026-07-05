@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export class ZavorthCalendarAdvancedTool extends BaseTool {
   public readonly name = 'zavorth_calendar_advanced';
@@ -123,9 +124,7 @@ export class ZavorthCalendarAdvancedTool extends BaseTool {
         maxBuffer: 10 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: unknown) {
-      return `gcalcli error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Calendar Advanced] process execution failed', error); return ''; }
   }
 
   private async runNodeScript(script: string, timeout = 30000): Promise<string> {
@@ -136,9 +135,7 @@ export class ZavorthCalendarAdvancedTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: unknown) {
-      return `Script error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Calendar Advanced] process execution failed', error); return ''; }
   }
 
   private async listEvents(args: Record<string, unknown>): Promise<string> {
@@ -197,9 +194,7 @@ try {
       });
 
       return `ICS events from ${icsPath} (${events.length}):\n${events.join('\n')}`;
-    } catch (error: unknown) {
-      return `ICS parse error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Calendar Advanced] lifecycle operation failed', error); return ''; }
   }
 
   private async createEvent(args: Record<string, unknown>): Promise<string> {

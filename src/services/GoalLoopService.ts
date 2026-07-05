@@ -5,6 +5,7 @@ import type { TaskPlaneItem } from '../contracts/TaskPlaneContract.js';
 import { GoalPlaneService, type GoalPlaneItem } from './GoalPlaneService.js';
 import { TaskPlaneService } from './TaskPlaneService.js';
 import { ZavorthOperationalStateDbService, type ZavorthOperationalReceipt } from './ZavorthOperationalStateDbService.js';
+import { logger } from '../logger.js';
 
 export type GoalLoopVerdictStatus = 'continue' | 'done' | 'pause' | 'blocked';
 
@@ -469,8 +470,6 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Goal Loop] JSON parse failed', error); return null; }
   }
 }

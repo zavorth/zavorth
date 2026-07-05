@@ -18,6 +18,7 @@ import { CapabilityPolicyService } from './CapabilityPolicyService.js';
 import { HostActionLedgerService } from './HostActionLedgerService.js';
 import { SupervisedRuntimeAdapterRegistryService } from './SupervisedRuntimeAdapterRegistryService.js';
 import { SupervisedExecutionGatewayRecordBuilder } from './supervised-execution/SupervisedExecutionGatewayRecordBuilder.js';
+import { logger } from '../logger.js';
 
 type ExecutionRunner = (request: ExecutionRequest) => Promise<ExecutionResult>;
 type ActiveActionHandle = {
@@ -57,9 +58,7 @@ export class SupervisedExecutionGatewayService {
     this.recordBuilder = new SupervisedExecutionGatewayRecordBuilder((actionId) => {
       try {
         return this.ledger.find(actionId)?.metadata?.execution_lifecycle;
-      } catch {
-        return null;
-      }
+      } catch (error) { logger.warn('[Supervised Execution way] process execution failed', error); return null; }
     });
   }
 
@@ -330,8 +329,9 @@ export class SupervisedExecutionGatewayService {
           runtimeTarget: decision.runtimeTarget,
         },
       }));
-    } catch (error: any) {
-      return this.ledger.record(this.recordBuilder.buildRecord({
+    } catch (error) {
+    logger.warn('[Supervised Execution way] process execution failed', error);
+    return this.ledger.record(this.recordBuilder.buildRecord({
         actionId,
         createdAt,
         request,
@@ -342,7 +342,7 @@ export class SupervisedExecutionGatewayService {
         errorCode: 'gateway_exception',
         errorMessage: error?.message || String(error),
       }));
-    } finally {
+  } finally {
       this.activeActions.delete(actionId);
     }
   }
@@ -395,9 +395,7 @@ export class SupervisedExecutionGatewayService {
               reason: `Kill switch: ${reason}`,
             });
             affectedActions.push(cancelled);
-          } catch {
-            // Some actions may not expose canonical cancelation handles yet.
-          }
+          } catch (error) { // Some actions may not expose canonical cancelation handles yet. logger.warn('[Supervised Execution way] operation failed', error); }
         }
       }
     } else {

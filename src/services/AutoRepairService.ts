@@ -33,8 +33,9 @@ import {
   normalizeAutoRepairError,
   readOptionalAutoRepairText,
 } from './autorepair/AutoRepairTextUtils.js';
+import { logger } from '../logger.js';
 import type {
-  AutoRepairAttempt,
+AutoRepairAttempt,
   AutoRepairGoal,
   AutoRepairPlan,
   AutoRepairReport,
@@ -180,9 +181,7 @@ export class AutoRepairService {
 
     try {
       return JSON.parse(this.readFileSync(config.autoRepairReportFile, 'utf8')) as AutoRepairReport;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Auto Repair] JSON parse failed', error); return null; }
   }
 
   public summarizeLastRun(): string {
@@ -459,8 +458,9 @@ export class AutoRepairService {
 
       const response = await this.getProvider().chat(messages);
       return parseAutoRepairPlannerResponse(response.content || '');
-    } catch (error: unknown) {
-      return {
+    } catch (error) {
+    logger.warn('[Auto Repair] parsing failed', error);
+    return {
         needsCodeChange: false,
         targetFile: null,
         instruction: '',
@@ -469,7 +469,7 @@ export class AutoRepairService {
         warnings: ['Planejador indisponivel ou sem credencial valida neste momento.'],
         validationHints: [],
       };
-    }
+  }
   }
 
   private buildRunSummary(report: AutoRepairReport, needsReload: boolean): string {
@@ -489,9 +489,7 @@ export class AutoRepairService {
     this.persistReport(report);
     try {
       this.incidentMemoryService.recordRun(report, this.collectIncidentDomains(report));
-    } catch {
-      // A memoria operacional nao deve impedir o fluxo principal do autorepair.
-    }
+    } catch (error) { // A memoria operacional nao deve impedir o fluxo principal do autorepair. logger.warn('[Auto Repair] filesystem operation failed', error); }
   }
 
   private collectIncidentDomains(report: AutoRepairReport): string[] {

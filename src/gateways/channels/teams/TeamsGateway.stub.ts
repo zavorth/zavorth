@@ -5,6 +5,7 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 import { TeamsGraphBotClient } from '../../../adapters/channels/TeamsGraphBotClient.js';
+import { logger } from '../../../logger.js';
 
 export interface TeamsGatewayStubMessage {
   userId: string;
@@ -82,9 +83,7 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.teamsStatusFile, 'utf8')) as TeamsGatewayStatusSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Teams way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
@@ -146,14 +145,14 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
 
   public async broadcast(message: string): Promise<void> {
     if (!this.started) {
-      this.lastError = 'Teams gateway ainda nao foi iniciado.';
+      this.lastError = 'Teams gateway has not started yet.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
 
     const recipients = this.resolveBroadcastRecipients();
     if (recipients.length === 0) {
-      this.lastError = 'Teams nao tem conversation ids permitidos configurados.';
+      this.lastError = 'Teams has no configured allowed conversation ids.';
       this.writeStatus();
       throw new Error(this.lastError);
     }

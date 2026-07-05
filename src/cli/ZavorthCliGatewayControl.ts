@@ -237,14 +237,14 @@ export function formatGatewayControlProviders(payload: Record<string, unknown>):
   const providers = asCliRecord(payload.providers);
   const entries = Array.isArray(providers.entries) ? providers.entries : [];
   if (entries.length === 0) {
-    return ['- nenhum provider publicado pelo Gateway Control.'];
+    return ['- no provider published by Gateway Control.'];
   }
   return entries.map((entry) => {
     const item = asCliRecord(entry);
     return [
       `- ${String(item.id || 'provider')}`,
       `readiness=${String(item.readiness || 'unknown')}`,
-      `model=${String(item.currentModel || 'nao informado')}`,
+      `model=${String(item.currentModel || 'not provided')}`,
     ].join(' | ');
   });
 }
@@ -298,7 +298,7 @@ export function formatGatewayControlModels(payload: Record<string, unknown>): st
   const models = asCliRecord(payload.models);
   const entries = Array.isArray(models.entries) ? models.entries : [];
   if (entries.length === 0) {
-    return ['- nenhum modelo publicado pelo Gateway Control.'];
+    return ['- no model published by Gateway Control.'];
   }
   return entries.map((entry) => {
     const item = asCliRecord(entry);
@@ -323,7 +323,7 @@ export function formatGatewayControlCombos(payload: Record<string, unknown>): st
   ];
 
   if (entries.length === 0) {
-    lines.push('- nenhum combo publicado pelo Gateway Control.');
+    lines.push('- no combo published by Gateway Control.');
   } else {
     lines.push(...entries.map((entry) => formatGatewayControlComboEntry(entry)));
   }
@@ -340,13 +340,13 @@ export function formatGatewayControlComboTest(payload: Record<string, unknown>):
   const errors = Array.isArray(payload.errors) ? payload.errors.map(String) : [];
   const warnings = Array.isArray(payload.warnings) ? payload.warnings : [];
   const status = String(payload.status || 'unknown');
-  const comboName = String(payload.comboName || 'nao informado');
+  const comboName = String(payload.comboName || 'not provided');
 
   return [
     `- combo: ${comboName}`,
     `- status: ${status}`,
     `- operacao: ${String(operation.id || 'combos.validate')}`,
-    `- approval: ${approval.required === false ? 'nao requerido' : 'requerido'} | satisfied=${String(approval.satisfied === true)}`,
+    `- approval: ${approval.required === false ? 'not required' : 'required'} | satisfied=${String(approval.satisfied === true)}`,
     `- rota controlada: ${String(operation.path || '/api/gateway-control/combos/validate')}`,
     `- equivalente atual: ${formatGatewayControlRouteList(payload.equivalentRoutes)}`,
     ...errors.map((error) => `- erro: ${error}`),
@@ -363,7 +363,7 @@ export function formatGatewayControlCacheStats(payload: Record<string, unknown>)
   return [
     `- status: ${String(cache.status || 'unknown')}`,
     `- rotas equivalentes: ${formatGatewayControlRouteList(cache.sourceRoutes)}`,
-    `- semantic stats: ${semanticStats ? 'publicado' : 'nao publicado pelo snapshot'}`,
+    `- semantic stats: ${semanticStats ? 'published' : 'not published by the snapshot'}`,
     `- operacoes: ${formatGatewayControlOperationList(operations)}`,
     ...formatGatewayControlWarnings(warnings),
   ];
@@ -418,7 +418,7 @@ export function formatGatewayControlDoctor(payload: Record<string, unknown>): st
 
 export function formatGatewayControlRouteList(value: unknown): string {
   const entries = Array.isArray(value) ? value : [];
-  return entries.length > 0 ? entries.map(String).join(', ') : 'nenhuma';
+  return entries.length > 0 ? entries.map(String).join(', ') : 'none';
 }
 
 export function formatGatewayControlOperationList(value: unknown[]): string {
@@ -426,16 +426,16 @@ export function formatGatewayControlOperationList(value: unknown[]): string {
     .map((entry) => asCliRecord(entry).id)
     .filter(Boolean)
     .map(String);
-  return entries.length > 0 ? entries.join(', ') : 'nenhuma';
+  return entries.length > 0 ? entries.join(', ') : 'none';
 }
 
 export function formatGatewayControlComboEntry(value: unknown): string {
   const item = asCliRecord(value);
   const name = resolveGatewayControlComboName(item) || 'combo';
-  const strategy = item.strategy || item.routingStrategy || item.mode || 'estrategia nao informada';
+  const strategy = item.strategy || item.routingStrategy || item.mode || 'estrategia not provided';
   const providers = Array.isArray(item.providers)
     ? item.providers.map(String).join(',')
-    : String(item.provider || item.primaryProvider || 'provider nao informado');
+    : String(item.provider || item.primaryProvider || 'provider not provided');
   return `- ${name} | strategy=${String(strategy)} | providers=${providers}`;
 }
 

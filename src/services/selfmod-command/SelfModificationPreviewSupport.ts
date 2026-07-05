@@ -5,8 +5,9 @@ import type { SafeModificationService } from '../SafeModificationService.js';
 import type { SelfModificationService } from '../SelfModificationService.js';
 import type { SelfmodImpactAnalyzer } from '../SelfmodImpactAnalyzer.js';
 import type { SelfmodPatternMemory } from '../SelfmodPatternMemory.js';
+import { logger } from '../../logger.js';
 import type {
-  FilePreviewArtifact,
+FilePreviewArtifact,
   GoalPlannerResult,
   GoalPreviewChange,
   PreviewArtifact,
@@ -135,13 +136,14 @@ export class SelfModificationPreviewSupport {
         ),
         validationPlan: this.options.defaultValidationPlan([relativePath]),
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Self Modification Preview] validation failed', error);
+    return {
         success: false,
         mode: 'file',
         summary: `Nao consegui montar o preview de auto-modificacao.\n\nMotivo: ${error.message}`,
       };
-    }
+  }
   }
 
   public async createGoalPreview(
@@ -300,12 +302,13 @@ export class SelfModificationPreviewSupport {
         resourceImpact: this.options.formatResourceImpact(plan.resourceImpact),
         optimizationAnalysis,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Self Modification Preview] validation failed', error);
+    return {
         success: false,
         mode: 'goal',
         summary: `Nao consegui montar o changeset do objetivo.\n\nMotivo: ${error.message || error}`,
       };
-    }
+  }
   }
 }
