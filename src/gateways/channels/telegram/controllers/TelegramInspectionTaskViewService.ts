@@ -4,6 +4,7 @@ import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { StateMachine } from '../../../../orchestrator/StateMachine.js';
 import { ArtifactPipelineService } from '@zavorth/runtime/artifacts/ArtifactPipelineService.js';
 import { SmartOutputService } from '@zavorth/services/SmartOutputService.js';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 
 type TaskListFilter = 'recent' | 'active' | 'approval' | 'failed' | 'completed';
 
@@ -78,25 +79,25 @@ export class TelegramInspectionTaskViewService {
       .filter(Boolean);
 
     if (targetFiles.length === 0 && artifactLines.length === 0) {
-      await ctx.reply(`A tarefa ${task.task_id.substring(0, 8)} ainda nao registrou arquivos ou artefatos.`);
+      await ctx.reply(`Task ${task.task_id.substring(0, 8)} has not recorded files or artifacts yet.`);
       return;
     }
 
     const lines = [
-      `Arquivos e artefatos da tarefa ${task.task_id.substring(0, 8)}`,
+      `Files and artifacts for task ${task.task_id.substring(0, 8)}`,
       '',
     ];
 
     if (targetFiles.length > 0) {
-      lines.push('*Arquivos-alvo*');
+      lines.push('*Target files*');
       lines.push(...targetFiles.map((file) => `- ${file}`));
       lines.push('');
     }
 
     if (artifactLines.length > 0) {
-      lines.push('*Artefatos*');
+      lines.push('*Artifacts*');
       lines.push(
-        `Total: ${artifactManifest.total} | imagens: ${artifactManifest.photos} | arquivos: ${artifactManifest.documents} | links: ${artifactManifest.links}`,
+        `Total: ${artifactManifest.total} | images: ${artifactManifest.photos} | files: ${artifactManifest.documents} | links: ${artifactManifest.links}`,
       );
       lines.push(...artifactLines.map((artifact) => `- ${artifact}`));
     }
@@ -180,8 +181,8 @@ export class TelegramInspectionTaskViewService {
         filter = mapped;
         continue;
       }
-      const numeric = Number.parseInt(token, 10);
-      if (Number.isFinite(numeric)) {
+      const numeric = safeParseInt(token, 0);
+      if (numeric > 0) {
         limit = Math.max(1, Math.min(numeric, 20));
       }
     }
@@ -222,24 +223,24 @@ export class TelegramInspectionTaskViewService {
     const failed = (recentCounts.failed || 0) + (recentCounts.rejected || 0) + (recentCounts.cancelled || 0);
 
     return [
-      `Agora: ${activeTasks.length} ativas | ${waitingApproval} esperando voce | ${running} em execucao | ${validating} finalizando entrega`,
-      `No recorte: ${completed} concluidas | ${failed} com falha ou rejeicao | ${recentTasks.length} listadas`,
+      `Now: ${activeTasks.length} active | ${waitingApproval} waiting for you | ${running} running | ${validating} finishing delivery`,
+      `In scope: ${completed} completed | ${failed} failed or rejected | ${recentTasks.length} listed`,
     ].join('\n');
   }
 
   private getTaskListTitle(filter: TaskListFilter, count: number): string {
     switch (filter) {
       case 'active':
-        return `Painel de tarefas ativas (${count})`;
+        return `Active tasks panel (${count})`;
       case 'approval':
-        return `Painel de aprovacoes pendentes (${count})`;
+        return `Pending approvals panel (${count})`;
       case 'failed':
-        return `Painel de falhas recentes (${count})`;
+        return `Recent failures panel (${count})`;
       case 'completed':
-        return `Painel de tarefas concluidas (${count})`;
+        return `Completed tasks panel (${count})`;
       case 'recent':
       default:
-        return `Painel de tarefas recentes (${count})`;
+        return `Recent tasks panel (${count})`;
     }
   }
 
@@ -250,19 +251,19 @@ export class TelegramInspectionTaskViewService {
       task.diff_summary ||
       task.stdout_summary ||
       task.intent ||
-      'sem resumo';
+      'no summary';
     const actionHint = this.buildTaskActionHint(task);
     const lifecycle = task.metadata?.lifecycle;
-    const activeFlag = lifecycle?.is_active || StateMachine.isActive(task.status) ? 'ativa' : 'finalizada';
+    const activeFlag = lifecycle?.is_active || StateMachine.isActive(task.status) ? 'active' : 'finished';
     const statusLabel = this.describeTaskStatus(task.status);
     const commandLabel = this.describeTaskCommand(task.command_type);
     const executorLabel = task.executor_used ? this.describeExecutor(task.executor_used) : null;
 
     return [
       `- ${task.task_id.substring(0, 8)} | ${statusLabel} | ${commandLabel}`,
-      `  ${this.truncateForTelegram(detail, 140) || 'sem detalhe'}`,
-      `  contexto: ${executorLabel ? `${executorLabel} | ` : ''}${task.workspace || 'workspace nao informada'} | ${activeFlag}`,
-      `  proximo passo: ${actionHint}`,
+      `  ${this.truncateForTelegram(detail, 140) || 'no detail'}`,
+      `  context: ${executorLabel ? `${executorLabel} | ` : ''}${task.workspace || 'workspace not provided'} | ${activeFlag}`,
+      `  next step: ${actionHint}`,
     ].join('\n');
   }
 
@@ -272,45 +273,45 @@ export class TelegramInspectionTaskViewService {
     }
 
     if (task.status === 'failed') {
-      return `/diff ${task.task_id.substring(0, 8)} ou repetir o pedido`;
+      return `/diff ${task.task_id.substring(0, 8)} or repeat the request`;
     }
 
     if (task.status === 'completed' || task.status === 'reverted') {
       if (Array.isArray(task.artifacts) && task.artifacts.length > 0) {
         return `/files ${task.task_id.substring(0, 8)}`;
       }
-      return `inspecionar com /files ${task.task_id.substring(0, 8)}`;
+      return `inspect with /files ${task.task_id.substring(0, 8)}`;
     }
 
     if (task.status === 'delivery_pending' || task.status === 'validating') {
-      return 'aguarde a entrega final';
+      return 'wait for the final delivery';
     }
 
     if (task.status === 'running') {
-      return 'acompanhe a execucao ou volte em instantes';
+      return 'watch the execution or check again shortly';
     }
 
-    return 'acompanhe com /tasks ou /files <id>';
+    return 'track with /tasks or /files <id>';
   }
 
   private describeTaskStatus(status: string): string {
     switch (status) {
       case 'waiting_approval':
-        return 'aguardando aprovacao';
+        return 'waiting for approval';
       case 'running':
-        return 'em execucao';
+        return 'running';
       case 'delivery_pending':
-        return 'entregando';
+        return 'delivering';
       case 'validating':
-        return 'validando';
+        return 'validating';
       case 'completed':
-        return 'concluida';
+        return 'completed';
       case 'failed':
-        return 'falhou';
+        return 'failed';
       case 'rejected':
-        return 'rejeitada';
+        return 'rejected';
       case 'reverted':
-        return 'revertida';
+        return 'reverted';
       default:
         return status;
     }
@@ -319,26 +320,26 @@ export class TelegramInspectionTaskViewService {
   private describeTaskCommand(commandType: string): string {
     switch (String(commandType || '').trim()) {
       case '/codex':
-        return 'pedido de codigo';
+        return 'code request';
       case '/external':
-        return 'pedido ExternalExecutor';
+        return 'ExternalExecutor request';
       case '/gemini':
-        return 'pedido Gemini';
+        return 'Gemini request';
       case '/aistudio':
-        return 'pedido AI Studio';
+        return 'AI Studio request';
       case '/stitch':
-        return 'geracao visual';
+        return 'visual generation';
       case '/ag':
       case '/bridge':
-        return 'automacao ZavorthBridge';
+        return 'ZavorthBridge automation';
       case '/workflow':
-        return 'workflow composto';
+        return 'composed workflow';
       case '/task':
-        return 'tarefa geral';
+        return 'general task';
       case '/run':
-        return 'execucao local';
+        return 'local execution';
       default:
-        return commandType || 'tarefa';
+        return commandType || 'task';
     }
   }
 
@@ -358,10 +359,10 @@ export class TelegramInspectionTaskViewService {
       case 'zavorthBridge':
         return 'ZavorthBridge';
       case 'web_research':
-        return 'pesquisa web';
+        return 'web research';
       case 'local':
       case 'local_executor':
-        return 'shell local';
+        return 'local shell';
       default:
         return executor;
     }

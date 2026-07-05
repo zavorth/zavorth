@@ -1,5 +1,6 @@
 import { Context, Api } from 'grammy';
 import { FunGamesService } from '../../../../services/FunGamesService.js';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 
 type FunCommand = '/roll' | '/coinflip' | '/8ball' | '/joke' | '/roulette';
 
@@ -12,7 +13,7 @@ export class TelegramFunController {
   public async handle(ctx: Context, commandType: FunCommand, args?: string): Promise<void> {
     try {
       if (commandType === '/roll') {
-        const sides = parseInt((args || '').trim(), 10) || 6;
+        const sides = safeParseInt(args, 6);
         await ctx.reply(this.funGamesService.rollDice(sides), { parse_mode: 'Markdown' });
         return;
       }
