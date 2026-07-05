@@ -19,7 +19,7 @@ describe('ZavorthGatewayIntegrationService — End-to-end flow', () => {
       expect(result.action).toBe('read_file');
       expect(result.confidence).toBeGreaterThanOrEqual(0.7);
       expect(result.text).toBeDefined();
-      expect(result.locale).toBe('en');
+      expect(result.locale).toBe('en-US');
     });
 
     it('should process a greeting for WhatsApp', async () => {

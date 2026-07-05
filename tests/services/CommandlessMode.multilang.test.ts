@@ -227,8 +227,10 @@ describe('CommandlessMode — Cross-language intent detection', () => {
       'calendar', 'greeting', 'acknowledgment',
     ];
 
-    for (const pack of INTENT_I18N) {
-      test(`${pack.name} (${pack.code}) has all required intents`, () => {
+    const locales = listAvailableLocales();
+    for (const locale of locales) {
+      test(`${locale} has all required intents`, () => {
+        const pack = getLanguagePack(locale);
         for (const intent of requiredIntents) {
           expect(pack.intents[intent]).toBeDefined();
         }
