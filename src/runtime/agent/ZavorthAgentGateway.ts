@@ -39,6 +39,7 @@ import type {
   UniversalApprovalRequest,
   UniversalReplyPacket,
 } from './UniversalAgentRuntimeTypes.js';
+import { hookMiddleware } from '../../services/ZavorthMiddlewareHook.js';
 
 export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
   runStore?: AgentRunStore | null;
@@ -240,6 +241,22 @@ export class ZavorthAgentGateway {
       if (!request) {
         return;
       }
+
+      // Commandless mode: try middleware before agent gateway
+      // If middleware handles the message, skip the full agent run
+      const middlewareResult = await hookMiddleware({
+        text: request.text,
+        channelId: request.channel || 'unknown',
+        userId: request.userId,
+        locale: request.metadata?.preferredLanguageCode as string | undefined,
+      });
+
+      if (middlewareResult.handled && middlewareResult.response) {
+        // Middleware handled the message — log it but don't run the agent
+        // The actual reply would be sent through the channel adapter
+        return;
+      }
+
       await this.handle(this.decorateChannelMeshRequest(request), options);
     };
 
