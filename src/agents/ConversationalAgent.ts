@@ -14,6 +14,9 @@ import {
   type FirewallDecision,
   type ToolGatekeeperHintProfile,
 } from '../cognitive-firewall/index.js';
+import { ToolUsageTracker } from '../cognitive-firewall/ToolUsageTracker.js';
+import { ToolResultCache } from '../cognitive-firewall/ToolResultCache.js';
+import { ContextAwareInjector } from '../cognitive-firewall/ContextAwareInjector.js';
 import type { ContextEngine } from '../context-engine/ContextEngine.js';
 import type { MessageChannel } from '../contracts/PlatformContract.js';
 import {
@@ -113,6 +116,12 @@ export class ConversationalAgent {
   private readonly hallucinationMitigation = new ZavorthHallucinationMitigationService();
   private readonly subagentAutoInvocationPolicy: Pick<ZavorthSubagentAutoInvocationPolicyService, 'decide'> | null;
   private readonly subagentInvocationGateway: Pick<ZavorthSubagentInvocationGatewayService, 'invokeFromTask' | 'renderReport'> | null;
+
+  // Cognitive Firewall improvements
+  private readonly usageTracker = new ToolUsageTracker();
+  private readonly toolCache = new ToolResultCache();
+  private readonly toolInjector = new ContextAwareInjector();
+  private sessionId = '';
 
   constructor(runtime: LlmRuntimeService | ConversationalAgentRuntime = {}) {
     if (runtime instanceof LlmRuntimeService || typeof (runtime as any).chatDetailed === 'function') {
@@ -247,15 +256,23 @@ export class ConversationalAgent {
 
         let toolResult = '';
         try {
-          const influencedByUntrustedContent = Boolean(webSearchContext)
-            || containsUntrustedContentMarker(messages)
-            || containsUntrustedContentMarker(toolCall.arguments);
-          const toolArguments = influencedByUntrustedContent
-            ? withUntrustedInputMetadata(toolCall.arguments, 'conversation-contained-untrusted-evidence')
-            : toolCall.arguments;
-          toolResult = toolCall.name === 'web_search' && webSearchContext
-            ? webSearchContext
-            : await this.toolRuntime.executeTool(toolCall.name, toolArguments);
+          // Check cache first (Improvement E: Tool Result Caching)
+          const cachedResult = this.toolCache.get(toolCall.name, toolCall.arguments);
+          if (cachedResult !== null) {
+            toolResult = cachedResult;
+          } else {
+            const influencedByUntrustedContent = Boolean(webSearchContext)
+              || containsUntrustedContentMarker(messages)
+              || containsUntrustedContentMarker(toolCall.arguments);
+            const toolArguments = influencedByUntrustedContent
+              ? withUntrustedInputMetadata(toolCall.arguments, 'conversation-contained-untrusted-evidence')
+              : toolCall.arguments;
+            toolResult = toolCall.name === 'web_search' && webSearchContext
+              ? webSearchContext
+              : await this.toolRuntime.executeTool(toolCall.name, toolArguments);
+            // Store in cache (Improvement E)
+            this.toolCache.set(toolCall.name, toolCall.arguments, toolResult);
+          }
         } catch (error: unknown) {
           const message = error instanceof Error ? error.message : String(error);
           toolResult = `Tool ${toolCall.name} failed: ${message}`;
@@ -272,6 +289,17 @@ export class ConversationalAgent {
           toolCallId: toolCall.id,
           toolName: toolCall.name,
         });
+      }
+
+      // Record tool usage for predictive loading (Improvement A)
+      if (rawToolResults.length > 0) {
+        const toolNames = response.toolCalls
+          .slice(0, MAX_TOOL_CALLS_PER_ROUND)
+          .map((tc) => tc.name)
+          .filter((name) => knownToolNames.has(name));
+        if (toolNames.length > 0) {
+          this.usageTracker.recordTurn(this.sessionId || 'default', toolNames);
+        }
       }
 
       if (toolMessages.length === 0) {
@@ -355,59 +383,59 @@ export class ConversationalAgent {
     }).join('\n');
 
     const lines = [
-      'Voce e o **Zavorth**, um assistente pessoal inteligente, claro e confiavel.',
-      'Fale como um assistente util de produto, nao como um sistema interno. Priorize clareza, naturalidade e objetividade.',
-      'Quando a pergunta for simples, responda de forma simples. Quando for tecnica, seja tecnica so no nivel necessario.',
-      'Sua prioridade e parecer um assistente confiavel e agradavel de usar, nao um painel de diagnostico.',
+      'You are **Zavorth**, an intelligent, clear, and reliable personal assistant.',
+      'Speak like a useful product assistant, not like an internal system. Prioritize clarity, naturalness, and objectivity.',
+      'When the question is simple, answer simply. When it is technical, be technical only to the necessary level.',
+      'Your priority is to feel like a reliable and pleasant assistant, not a diagnostics panel.',
       '',
-      '**IDENTIDADE E TOM:**',
-      '- Responda como um assistente que ajuda de verdade no dia a dia.',
-      '- Evite despejar arquitetura, nomes de executores, risco, gateway, workflow ou jargao interno sem necessidade.',
-      '- Nao chame o usuario por um nome que veio apenas de transcricao automatica de audio; confirme antes ou use tratamento neutro.',
+      '**IDENTITY AND TONE:**',
+      '- Answer as an assistant that genuinely helps with everyday work.',
+      '- Avoid dumping architecture, executor names, risk labels, gateways, workflows, or internal jargon unless it is needed.',
+      '- Do not call the user by a name that came only from automatic audio transcription; confirm first or use neutral wording.',
       '- Respond in English by default. Do not switch UI or product-facing language unless an explicit task requires translating user-provided content.',
-      '- Nao recite a lista de comandos a menos que o usuario esteja pedindo ajuda, menu ou capacidades.',
-      '- Para perguntas comuns, entregue a resposta primeiro. So depois acrescente contexto extra se isso realmente ajudar.',
-      '- Se o usuario perguntar o que e o Zavorth, descreva-o como um assistente/orquestrador inteligente, de forma curta e amigavel.',
+      '- Do not recite the command list unless the user is asking for help, a menu, or capabilities.',
+      '- For common questions, provide the answer first. Add extra context only if it genuinely helps.',
+      '- If the user asks what Zavorth is, describe it briefly and warmly as an intelligent assistant/orchestrator.',
       '',
-      '**CONTEXTO DA MAQUINA:**',
-      `- Data atual: ${currentDate}`,
-      `- Workspace atual: ${workspace}`,
-      `- Plataforma: ${platform} (${arch})`,
+      '**MACHINE CONTEXT:**',
+      `- Current date: ${currentDate}`,
+      `- Current workspace: ${workspace}`,
+      `- Platform: ${platform} (${arch})`,
       '',
-      '**CAPACIDADES REAIS:**',
-      'Voce pode conversar, pesquisar, resumir, orientar e encaminhar tarefas para executores especializados quando isso fizer sentido.',
-      'O canal de entrada nao limita suas capacidades: pedidos por audio e por texto podem usar as mesmas ferramentas disponiveis.',
-      'Quando o usuario pedir para listar, trocar ou fixar provider/modelo LLM, use a ferramenta configure_llm_profile quando ela estiver disponivel.',
-      'Quando o usuario pedir para alterar configuracao, estado operacional ou governanca do Zavorth, use zavorth_action quando ela estiver disponivel: primeiro action.schema.lookup, depois action.preview, e action.apply apenas com approval/confirmacao estruturada.',
-      'Nao invente slash commands, comandos CLI ou shell para operacoes de primeira classe do Zavorth quando uma acao do Action Harness existir.',
-      'Quando o pedido depender de informacao atual, instavel ou verificavel na web, use web_search quando ela estiver disponivel; nao diga que nao tem acesso em tempo real sem tentar a ferramenta.',
-      'Use get_datetime quando a resposta depender da data/hora atual.',
-      'Use ferramentas por necessidade real, nao por palavra-chave fixa: receita comum pode ser respondida por conhecimento geral; receita viral, preco, cargo atual, noticias, versao de software ou tendencia pedem verificacao.',
-      'Para recomendacoes, comparacoes, compras, rankings, relatorios, pedidos com fontes e decisoes que dependem de contexto externo, use busca/ranking de fontes em vez de responder so pela memoria do modelo.',
-      'Para qualquer resultado de ferramenta, respeite evidencia: se vier QUALITY_GATE, erro, fonte fraca, resultado conflitante ou insuficiente, diga a limitacao e responda apenas a parte sustentada.',
+      '**REAL CAPABILITIES:**',
+      'You can converse, search, summarize, guide, and route tasks to specialized executors when that makes sense.',
+      'The input channel does not limit your capabilities: voice and text requests can use the same available tools.',
+      'When the user asks to list, switch, or pin an LLM provider/model, use the configure_llm_profile tool when available.',
+      'When the user asks to change Zavorth configuration, operational state, or governance, use zavorth_action when available: first action.schema.lookup, then action.preview, and action.apply only with structured approval/confirmation.',
+      'Do not invent slash commands, CLI commands, or shell commands for first-class Zavorth operations when an Action Harness action exists.',
+      'When the request depends on current, unstable, or web-verifiable information, use web_search when available; do not say you lack real-time access without trying the tool.',
+      'Use get_datetime when the answer depends on the current date/time.',
+      'Use tools because they are genuinely needed, not because of fixed keywords: common recipes can be answered from general knowledge; viral recipes, prices, current positions, news, software versions, or trends require verification.',
+      'For recommendations, comparisons, purchases, rankings, reports, sourced requests, and decisions that depend on external context, use source search/ranking instead of answering only from model memory.',
+      'For any tool result, respect the evidence: if QUALITY_GATE, errors, weak sources, conflicting results, or insufficient data appear, state the limitation and answer only the supported part.',
       buildUntrustedContentFirewallInstruction(),
       this.hallucinationMitigation.buildInstruction(),
-      'Para medicina/saude, direito, financas, pesquisa cientifica, mercado, politicas publicas e cargos atuais, trate a resposta como evidence-sensitive: procure fontes quando houver web_search e separe fato, interpretacao e cautela.',
-      'Para artigos cientificos, prefira resultados com DOI, PubMed, SciELO, arXiv, journal, universidade ou publisher; entregue links e nao invente metadados.',
-      'Para direito, prefira fontes oficiais, tribunais, legislacao, jurisprudencia, acordaos e datas; nao apresente como aconselhamento juridico personalizado.',
-      'Para saude, prefira fontes oficiais, guidelines, PubMed/clinical trials e revisoes; nao apresente como diagnostico ou orientacao medica individual.',
-      'Para pedidos complexos, como relatorios com pesquisa, analise, arquivos ou graficos, encadeie as ferramentas necessarias e entregue o melhor artefato possivel.',
-      'Se o usuario pedir subagentes, delegacao ou especialistas, decomponha a tarefa e use as ferramentas especializadas disponiveis, como busca web, consulta a IA externa, sandbox e criacao de arquivos, sintetizando tudo em uma resposta final coerente.',
-      'Acoes destrutivas, credenciais, compras, mensagens a terceiros, shell perigoso ou automacao de desktop sensivel exigem confirmacao clara ou approval antes de executar.',
-      'Se o pedido for cotidiano, nao precisa falar de executor, gateway, workflow, risco ou arquitetura interna.',
-      'So mencione o executor usado se isso realmente ajudar o usuario a entender o que aconteceu.',
+      'For medicine/health, law, finance, scientific research, markets, public policy, and current roles, treat the answer as evidence-sensitive: search sources when web_search is available and separate fact, interpretation, and caution.',
+      'For scientific papers, prefer results with DOI, PubMed, SciELO, arXiv, journals, universities, or publishers; provide links and do not invent metadata.',
+      'For law, prefer official sources, courts, legislation, case law, decisions, and dates; do not present the response as personalized legal advice.',
+      'For health, prefer official sources, guidelines, PubMed/clinical trials, and reviews; do not present the response as a diagnosis or individual medical guidance.',
+      'For complex requests such as reports with research, analysis, files, or charts, chain the required tools and deliver the best artifact possible.',
+      'If the user asks for subagents, delegation, or specialists, decompose the task and use available specialized tools such as web search, external AI consultation, sandboxing, and file creation, then synthesize everything into a coherent final response.',
+      'Destructive actions, credentials, purchases, third-party messages, dangerous shell commands, or sensitive desktop automation require clear confirmation or approval before execution.',
+      'If the request is everyday work, you do not need to mention executors, gateways, workflows, risk, or internal architecture.',
+      'Mention the executor used only if it genuinely helps the user understand what happened.',
       '',
-      '**COMANDOS CONHECIDOS (REFERENCIA INTERNA):**',
+      '**KNOWN COMMANDS (INTERNAL REFERENCE):**',
       commandsList,
       '',
-      '**REGRAS:**',
-      '1. Seja claro e humano. Evite jargao desnecessario.',
-      '2. Nao invente noticias, estados de arquivos ou comandos.',
-      '3. Se nao souber, diga isso diretamente.',
-      '4. Para perguntas sobre status de tarefa, responda de forma curta e util.',
-      '5. Nao transforme perguntas comuns em respostas excessivamente tecnicas.',
-      '6. Em pesquisas e explicacoes, prefira texto limpo, organizado e facil de mostrar para outras pessoas.',
-      '7. Evite listar detalhes internos do Zavorth se o usuario nao tiver pedido isso.',
+      '**RULES:**',
+      '1. Be clear and human. Avoid unnecessary jargon.',
+      '2. Do not invent news, file states, or commands.',
+      '3. If you do not know, say so directly.',
+      '4. For task status questions, answer briefly and usefully.',
+      '5. Do not turn ordinary questions into overly technical answers.',
+      '6. In research and explanations, prefer clean, organized text that is easy to show to others.',
+      '7. Avoid listing Zavorth internal details unless the user asked for them.',
       '',
     ];
 
@@ -421,21 +449,21 @@ export class ConversationalAgent {
       );
       lines.push(
         '',
-        '**MODO DIRETO:**',
-        '- Responda diretamente ao usuario sem delegar para o motor autonomo.',
+        '**DIRECT MODE:**',
+        '- Answer the user directly without delegating to the autonomous engine.',
       );
       if (normalizedStyleHints.length > 0) {
         lines.push(
           '',
-          '**FORMATO PREFERENCIAL DESTA RESPOSTA:**',
+          '**PREFERRED FORMAT FOR THIS RESPONSE:**',
           ...normalizedStyleHints.map((hint) => `- ${hint}`),
         );
       }
     } else {
       lines.push(
         '',
-        '**DELEGACAO AUTONOMA:**',
-        '- Responda ao usuario de forma natural; o roteamento operacional e decidido por politicas estruturadas fora da resposta textual.',
+        '**AUTONOMOUS DELEGATION:**',
+        '- Answer the user naturally; operational routing is decided by structured policies outside the textual response.',
       );
     }
 
@@ -493,7 +521,7 @@ export class ConversationalAgent {
         return null;
       }
       const message = error instanceof Error ? error.message : String(error);
-      const text = `Tentei acionar subagentes para essa tarefa, mas o runtime recusou a execucao: ${message}`;
+      const text = `I tried to start subagents for this task, but the runtime rejected execution: ${message}`;
       return {
         text,
         escalation: this.resolveExecutionEscalation(text, mode, options),
@@ -507,21 +535,21 @@ export class ConversationalAgent {
     routeReason: string,
   ): string {
     if (snapshot.status === 'approval-required') {
-      const reason = snapshot.receipts.at(-1)?.reasons.join(' ') || 'esta acao precisa de aprovacao governada';
+      const reason = snapshot.receipts.at(-1)?.reasons.join(' ') || 'this action requires governed approval';
       return [
-        'Posso acionar subagentes para isso, mas este pedido cruza uma fronteira que exige aprovacao.',
+        'I can start subagents for this, but this request crosses a boundary that requires approval.',
         '',
-        `Motivo: ${reason}`,
-        'Depois da aprovacao, eu continuo pelo mesmo fluxo com recibo e limites aplicados.',
+        `Reason: ${reason}`,
+        'After approval, I will continue through the same flow with receipts and limits applied.',
       ].join('\n');
     }
 
     if (snapshot.status === 'denied' || snapshot.status === 'blocked') {
-      const reason = snapshot.timeline.at(-1)?.detail || 'policy broker bloqueou a execucao';
+      const reason = snapshot.timeline.at(-1)?.detail || 'policy broker blocked execution';
       return [
-        'Nao acionei subagentes para esse pedido.',
+        'I did not start subagents for this request.',
         '',
-        `Motivo: ${reason}`,
+        `Reason: ${reason}`,
       ].join('\n');
     }
 
@@ -531,21 +559,21 @@ export class ConversationalAgent {
       .filter((worker) => worker.status === 'completed')
       .map((worker) => `- ${worker.roleId}: ${firstMeaningfulLine(worker.summary || worker.output)}`)
       .slice(0, 4);
-    const output = run?.output || run?.summary || snapshot.timeline.at(-1)?.detail || 'Subagentes concluidos.';
+    const output = run?.output || run?.summary || snapshot.timeline.at(-1)?.detail || 'Subagents completed.';
     const lines = [
-      'Acionei subagentes governados para essa tarefa.',
-      `Roteamento: ${routeReason}`,
+      'I started governed subagents for this task.',
+      `Routing: ${routeReason}`,
     ];
     if (autoTelemetry) {
       lines.push(
-        `Decisao: ${autoTelemetry.selectedBy}; confianca ${autoTelemetry.confidence}; modo ${autoTelemetry.mode}.`,
-        `Papeis: ${autoTelemetry.roles.map((role) => `${role.roleId} - ${role.whySelected}`).join('; ') || 'n/d'}.`,
+        `Decision: ${autoTelemetry.selectedBy}; confidence ${autoTelemetry.confidence}; mode ${autoTelemetry.mode}.`,
+        `Roles: ${autoTelemetry.roles.map((role) => `${role.roleId} - ${role.whySelected}`).join('; ') || 'n/a'}.`,
       );
     }
     if (workerOutputs.length > 0) {
-      lines.push('', 'Leitura dos subagentes:', ...workerOutputs);
+      lines.push('', 'Subagent readout:', ...workerOutputs);
     }
-    lines.push('', 'Sintese:', output);
+    lines.push('', 'Synthesis:', output);
     return lines.join('\n');
   }
 
@@ -765,7 +793,7 @@ export class ConversationalAgent {
     return [
       currentMessage,
       '',
-      'Contexto recente da conversa para resolver referencias como "essa noticia", "a noticia citada", "isso" ou "mais detalhes":',
+      'Recent conversation context for resolving references such as "that news", "the cited story", "that", or "more details":',
       recentContext.slice(-2600),
     ].join('\n');
   }
@@ -797,6 +825,35 @@ export class ConversationalAgent {
       .replace(/^\s*Use this transcript as an auditory draft[^\n.]*[\n.]?\s*/i, '')
       .replace(/^\s*Reply in the\s+same\s+language\s+as\s+the\s+transcript[^\n.]*[\n.]?\s*/i, '')
       .trim();
+  }
+
+  /**
+   * Set the session ID for tool usage tracking.
+   */
+  public setSessionId(sessionId: string): void {
+    this.sessionId = sessionId;
+  }
+
+  /**
+   * Get cache statistics for monitoring.
+   */
+  public getCacheStats() {
+    return this.toolCache.getStats();
+  }
+
+  /**
+   * Get predictive loading statistics.
+   */
+  public getUsageStats() {
+    return this.usageTracker.getStats();
+  }
+
+  /**
+   * Get predicted tools for the current session.
+   */
+  public getPredictedTools(): string[] {
+    if (!this.sessionId) return [];
+    return this.usageTracker.predictNextTools(this.sessionId);
   }
 }
 
