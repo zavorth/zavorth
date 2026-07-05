@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config as defaultConfig } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type ZavorthInspectStatus = 'ready' | 'attention' | 'offline';
 
@@ -138,7 +139,7 @@ export class ZavorthInspectService {
   }
 
   private modelForProvider(providerId: string): string {
-    const c = this.config as any;
+    const c = this.config;
     const map: Record<string, string> = {
       gemini: c.geminiModel,
       google: c.geminiModel,
@@ -272,7 +273,8 @@ export class ZavorthInspectService {
   private readPackageJson(): Record<string, any> {
     try {
       return JSON.parse(fs.readFileSync(path.join(this.projectRoot, 'package.json'), 'utf8'));
-    } catch {
+    } catch (error) {
+      logger.warn('[Inspect] Failed to read package.json:', error);
       return {};
     }
   }

@@ -1,6 +1,7 @@
 import type { GatewaySessionSnapshot } from '../runtime/sessions/GatewaySessionService.js';
 import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
 import { MemoryService, type MemoryEntry } from './MemoryService.js';
+import { logger } from '../logger.js';
 import type {
   SessionReplayArtifactSnapshot,
   SessionReplaySnapshot,
@@ -578,7 +579,7 @@ export class ZavorthMemoryPlaneService {
           kind: String(artifact?.kind || artifact?.type || 'artifact').trim() || 'artifact',
           summary: String(artifact?.summary || artifact?.description || artifact?.path || '').trim() || null,
           path: String(artifact?.path || '').trim() || null,
-          createdAt: String(artifact?.createdAt || artifact?.created_at || task.updated_at || '').trim() || null,
+          createdAt: String(artifact?.createdAt || (artifact as unknown as { created_at?: unknown })?.created_at || task.updated_at || '').trim() || null,
           sourceTaskId: task.task_id || null,
         });
       }
@@ -651,7 +652,8 @@ export class ZavorthMemoryPlaneService {
 
     try {
       return await this.memoryService.listAll(userId);
-    } catch {
+    } catch (error) {
+      logger.warn('[MemoryPlane] Failed to list memories:', error);
       return [];
     }
   }
@@ -663,7 +665,8 @@ export class ZavorthMemoryPlaneService {
 
     try {
       return await this.memoryService.listRelevant(userId, query, 5);
-    } catch {
+    } catch (error) {
+      logger.warn('[MemoryPlane] Failed to list relevant memories:', error);
       return [];
     }
   }
@@ -675,7 +678,8 @@ export class ZavorthMemoryPlaneService {
 
     try {
       return await this.memoryService.listHistoricalRelevant(userId, query, 5);
-    } catch {
+    } catch (error) {
+      logger.warn('[MemoryPlane] Failed to list historical memories:', error);
       return [];
     }
   }
@@ -687,7 +691,8 @@ export class ZavorthMemoryPlaneService {
 
     try {
       return await this.workspaceOperationalMemory.getMemory(workspace, userId || undefined);
-    } catch {
+    } catch (error) {
+      logger.warn('[MemoryPlane] Failed to read workspace memory:', error);
       return null;
     }
   }
