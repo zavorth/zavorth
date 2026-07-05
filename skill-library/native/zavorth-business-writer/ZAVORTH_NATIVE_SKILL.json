@@ -1,0 +1,31 @@
+{
+  "id": "zavorth-business-writer",
+  "name": "Business Writer",
+  "native": true,
+  "description": "Professional business writing — proposals, plans, executive summaries, correspondence",
+  "category": "business",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "writing",
+    "business",
+    "proposals",
+    "executive-summary"
+  ],
+  "presets": [
+    "professional",
+    "entrepreneur"
+  ],
+  "inputContract": [
+    "audience",
+    "document_type",
+    "key_points"
+  ],
+  "outputContract": [
+    "formatted_document",
+    "tone_analysis"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

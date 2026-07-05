@@ -1,0 +1,32 @@
+{
+  "id": "zavorth-resume-coach",
+  "name": "Resume Coach",
+  "native": true,
+  "description": "Career coaching — resume optimization, interview prep, career paths, cover letters",
+  "category": "career",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "resume",
+    "career",
+    "interview",
+    "job-search"
+  ],
+  "presets": [
+    "job-seeker",
+    "professional"
+  ],
+  "inputContract": [
+    "current_resume_or_background",
+    "target_role",
+    "job_description"
+  ],
+  "outputContract": [
+    "optimized_resume",
+    "interview_prep",
+    "career_analysis"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

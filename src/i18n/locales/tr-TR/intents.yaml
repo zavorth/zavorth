@@ -1,0 +1,32 @@
+# Niyet algılama anahtar kelimeleri — Türkçe
+
+read_file:
+  verbs: [oku, aç, göster, gör, izle]
+  nouns: [dosya, belge, kod, klasör, pdf]
+
+create_file:
+  verbs: [oluştur, yaz, kaydet, yeni, üret]
+  nouns: [dosya, belge, not, rapor]
+
+web_search:
+  verbs: [ara, bul, araştır, googla]
+  nouns: [bilgi, veri, sonuç, haber]
+
+email:
+  verbs: [gönder, yaz, hazırla, yanıtla, ilet]
+  nouns: [eposta, mesaj, yanıt, bildirim]
+
+calendar:
+  verbs: [planla, hatırlat, oluştur, rezerve et]
+  nouns: [alarm, takvim, randevu, toplantı, hatırlatıcı]
+  phrases: [bana hatırlat, unutma, toplantı planla]
+
+greeting:
+  verbs: []
+  nouns: []
+  phrases: [merhaba, selam, günaydın, iyi akşamlar, hey]
+
+acknowledgment:
+  verbs: []
+  nouns: []
+  phrases: [teşekkürler, sağ ol, thanks]

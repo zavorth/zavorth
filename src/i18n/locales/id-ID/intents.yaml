@@ -1,0 +1,32 @@
+# Kata kunci deteksi niat — Bahasa Indonesia
+
+read_file:
+  verbs: [baca, buka, tampilkan, lihat]
+  nouns: [file, dokumen, kode, folder]
+
+create_file:
+  verbs: [buat, tulis, simpan, baru, hasilkan]
+  nouns: [file, dokumen, catatan, laporan]
+
+web_search:
+  verbs: [cari, temukan, riset, googling]
+  nouns: [informasi, data, hasil, berita]
+
+email:
+  verbs: [kirim, tulis, buat, balas]
+  nouns: [email, pesan, balasan, notifikasi]
+
+calendar:
+  verbs: [jadwalkan, ingatkan, buat, pesan]
+  nouns: [alarm, kalender, janji, rapat, pengingat]
+  phrases: [ingatkan saya, jangan lupa, jadwalkan rapat]
+
+greeting:
+  verbs: []
+  nouns: []
+  phrases: [halo, hai, selamat pagi, selamat siang, selamat malam]
+
+acknowledgment:
+  verbs: []
+  nouns: []
+  phrases: [terima kasih, makasih, thanks]

@@ -1,0 +1,82 @@
+# 意图检测关键词 — 简体中文
+
+read_file:
+  verbs: [读, 打开, 显示, 查看]
+  nouns: [文件, 文档, 代码, 文件夹, pdf]
+
+create_file:
+  verbs: [创建, 写, 保存, 新建, 生成]
+  nouns: [文件, 文档, 笔记, 报告]
+
+list_directory:
+  verbs: [列出, 显示, 哪些]
+  nouns: [文件, 文档, 文件夹, 目录]
+
+web_search:
+  verbs: [搜索, 查找, 研究, 谷歌]
+  nouns: [信息, 数据, 结果, 新闻]
+
+web_fetch:
+  verbs: [打开, 访问, 加载, 获取]
+  nouns: [网站, 页面, URL, 链接]
+
+email:
+  verbs: [发送, 写, 起草, 回复, 转发]
+  nouns: [邮件, 电子邮件, 消息, 回复]
+
+channel_send:
+  verbs: [发送, 发布, 分享]
+  nouns: [消息, 通知, 更新]
+
+run_code:
+  verbs: [运行, 执行, 启动]
+  nouns: [代码, 脚本, 程序, 应用]
+
+code_review:
+  verbs: [审查, 检查, 分析, 审计]
+  nouns: [代码, PR, 拉取请求, 变更]
+
+explain_code:
+  verbs: [解释, 描述, 怎么]
+  nouns: [代码, 函数, 类, 文件, 模块]
+  phrases: [怎么运行, 做什么, 什么是]
+
+calendar:
+  verbs: [安排, 提醒, 创建, 预约, 设置]
+  nouns: [闹钟, 日历, 约会, 会议, 提醒, 事件]
+  phrases: [提醒我, 别忘了, 安排会议]
+
+data_analysis:
+  verbs: [分析, 处理, 解析, 评估]
+  nouns: [数据, CSV, JSON, 日志, 指标]
+
+chart:
+  verbs: [图表, 绘制, 可视化, 画]
+  nouns: [图表, 图形, 可视化, 表格]
+
+system_config:
+  verbs: [安装, 更新, 配置]
+  nouns: [系统, 包, 依赖, 服务, 服务器]
+
+diagnostics:
+  verbs: [检查, 诊断, 测试, 验证]
+  nouns: [状态, 健康, 诊断, 日志]
+
+help:
+  verbs: [帮助, 协助, 支持]
+  nouns: [帮助, 文档, 用法, 指南]
+  phrases: [你能做什么, 怎么做, 什么]
+
+greeting:
+  verbs: []
+  nouns: []
+  phrases: [你好, 嗨, 早上好, 下午好, 晚上好, 您好]
+
+acknowledgment:
+  verbs: []
+  nouns: []
+  phrases: [谢谢, 感谢, 多谢, Thanks]
+
+skill_invoke:
+  verbs: [使用, 运行, 激活, 调用, 应用]
+  nouns: [技能, 工具, 插件, 扩展]

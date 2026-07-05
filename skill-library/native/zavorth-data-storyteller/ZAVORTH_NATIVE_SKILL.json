@@ -1,0 +1,32 @@
+{
+  "id": "zavorth-data-storyteller",
+  "name": "Data Storyteller",
+  "native": true,
+  "description": "Transform data into narratives — insights, visualization, stakeholder summaries",
+  "category": "data",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "data",
+    "storytelling",
+    "visualization",
+    "analytics"
+  ],
+  "presets": [
+    "analyst",
+    "manager"
+  ],
+  "inputContract": [
+    "data_source",
+    "audience",
+    "business_question"
+  ],
+  "outputContract": [
+    "narrative",
+    "visualization_recommendations",
+    "executive_summary"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

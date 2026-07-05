@@ -1,0 +1,82 @@
+# Keywords de detección de intención — Español
+
+read_file:
+  verbs: [leer, abrir, mostrar, ver, visualizar]
+  nouns: [archivo, documento, código, carpeta, pdf]
+
+create_file:
+  verbs: [crear, escribir, guardar, nuevo, generar]
+  nouns: [archivo, documento, nota, reporte]
+
+list_directory:
+  verbs: [listar, mostrar, cuáles, exhibir]
+  nouns: [archivos, documentos, carpetas, directorio]
+
+web_search:
+  verbs: [buscar, encontrar, investigar, consultar, buscar en google]
+  nouns: [información, datos, resultados, noticias]
+
+web_fetch:
+  verbs: [abrir, acceder, cargar, visitar]
+  nouns: [sitio, página, url, enlace, web]
+
+email:
+  verbs: [enviar, escribir, redactar, responder, reenviar]
+  nouns: [correo, email, mensaje, respuesta]
+
+channel_send:
+  verbs: [enviar, publicar, compartir, mandar]
+  nouns: [mensaje, notificación, actualización]
+
+run_code:
+  verbs: [ejecutar, correr, iniciar, lanzar]
+  nouns: [código, programa, script, aplicación]
+
+code_review:
+  verbs: [revisar, verificar, analizar, inspeccionar]
+  nouns: [código, pr, solicitud, cambios]
+
+explain_code:
+  verbs: [explicar, describir, mostrar cómo]
+  nouns: [código, función, clase, archivo, módulo]
+  phrases: [cómo funciona, qué hace, qué es]
+
+calendar:
+  verbs: [programar, recordar, crear, agendar, establecer]
+  nouns: [alarma, calendario, cita, reunión, recordatorio, evento]
+  phrases: [recuérdame, no olvides, programar reunión]
+
+data_analysis:
+  verbs: [analizar, procesar, examinar, evaluar]
+  nouns: [datos, csv, json, registro, métricas]
+
+chart:
+  verbs: [gráfico, trazar, visualizar, dibujar]
+  nouns: [gráfico, diagrama, visualización, tabla]
+
+system_config:
+  verbs: [instalar, actualizar, configurar, actualización]
+  nouns: [sistema, paquete, dependencia, servicio, servidor]
+
+diagnostics:
+  verbs: [verificar, diagnosticar, probar, comprobar]
+  nouns: [estado, salud, diagnóstico, registros]
+
+help:
+  verbs: [ayudar, asistir, apoyo]
+  nouns: [ayuda, documentación, guía, tutorial]
+  phrases: [qué puedes, cómo hago, qué puedes hacer]
+
+greeting:
+  verbs: []
+  nouns: []
+  phrases: [hola, buenos días, buenas tardes, buenas noches, saludos]
+
+acknowledgment:
+  verbs: []
+  nouns: []
+  phrases: [gracias, agradezco, thanks]
+
+skill_invoke:
+  verbs: [usar, ejecutar, activar, invocar, aplicar]
+  nouns: [skill, herramienta, plugin, extensión]

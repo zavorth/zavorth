@@ -1,0 +1,32 @@
+{
+  "id": "zavorth-personal-finance",
+  "name": "Personal Finance",
+  "native": true,
+  "description": "Budgeting, expense analysis, investment simulation, financial health reports",
+  "category": "finance",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "budget",
+    "finance",
+    "savings",
+    "investment"
+  ],
+  "presets": [
+    "individual",
+    "financial-advisor"
+  ],
+  "inputContract": [
+    "income",
+    "expenses",
+    "financial_goals"
+  ],
+  "outputContract": [
+    "budget_breakdown",
+    "spending_analysis",
+    "financial_health_score"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

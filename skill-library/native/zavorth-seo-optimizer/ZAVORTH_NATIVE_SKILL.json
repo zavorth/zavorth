@@ -1,0 +1,32 @@
+{
+  "id": "zavorth-seo-optimizer",
+  "name": "SEO Optimizer",
+  "native": true,
+  "description": "Search engine optimization — keywords, on-page SEO, content structure, meta tags",
+  "category": "marketing",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "seo",
+    "keywords",
+    "content-marketing",
+    "organic-traffic"
+  ],
+  "presets": [
+    "marketer",
+    "content-creator"
+  ],
+  "inputContract": [
+    "content_url_or_text",
+    "target_audience",
+    "goals"
+  ],
+  "outputContract": [
+    "keyword_strategy",
+    "seo_recommendations",
+    "optimized_meta"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

@@ -1,0 +1,82 @@
+# Intent-Erkennungsschlüssel — Deutsch
+
+read_file:
+  verbs: [lesen, öffnen, anzeigen, ansehen, betrachten]
+  nouns: [Datei, Dokument, Code, Ordner, pdf]
+
+create_file:
+  verbs: [erstellen, schreiben, speichern, neu, generieren]
+  nouns: [Datei, Dokument, Notiz, Bericht]
+
+list_directory:
+  verbs: [auflisten, anzeigen, welche]
+  nouns: [Dateien, Dokumente, Ordner, Verzeichnis]
+
+web_search:
+  verbs: [suchen, finden, recherchieren, googeln]
+  nouns: [Information, Daten, Ergebnisse, Nachrichten]
+
+web_fetch:
+  verbs: [öffnen, besuchen, laden, abrufen]
+  nouns: [Webseite, Seite, URL, Link, Website]
+
+email:
+  verbs: [senden, schreiben, verfassen, antworten, weiterleiten]
+  nouns: [E-Mail, Nachricht, Antwort, Brief]
+
+channel_send:
+  verbs: [senden, veröffentlichen, teilen]
+  nouns: [Nachricht, Benachrichtigung, Aktualisierung]
+
+run_code:
+  verbs: [ausführen, starten, starten, lösen]
+  nouns: [Code, Skript, Programm, App, Anwendung]
+
+code_review:
+  verbs: [überprüfen, kontrollieren, analysieren, prüfen]
+  nouns: [Code, PR, Pull Request, Änderungen]
+
+explain_code:
+  verbs: [erklären, beschreiben, zeigen wie]
+  nouns: [Code, Funktion, Klasse, Datei, Modul]
+  phrases: [wie funktioniert, was macht, was ist]
+
+calendar:
+  verbs: [planen, erinnern, erstellen, organisieren, festlegen]
+  nouns: [Wecker, Kalender, Termin, Meeting, Erinnerung, Ereignis]
+  phrases: [erinnere mich, vergiss nicht, Meeting planen]
+
+data_analysis:
+  verbs: [analysieren, verarbeiten, prüfen, bewerten]
+  nouns: [Daten, CSV, JSON, Log, Metriken]
+
+chart:
+  verbs: [Diagramm, zeichnen, visualisieren, darstellen]
+  nouns: [Diagramm, Grafik, Visualisierung, Tabelle]
+
+system_config:
+  verbs: [installieren, aktualisieren, konfigurieren]
+  nouns: [System, Paket, Abhängigkeit, Dienst, Server]
+
+diagnostics:
+  verbs: [prüfen, diagnostizieren, testen, überprüfen]
+  nouns: [Status, Gesundheit, Diagnose, Protokolle]
+
+help:
+  verbs: [helfen, unterstützen]
+  nouns: [Hilfe, Dokumentation, Nutzung, Anleitung]
+  phrases: [was kannst du, wie kann ich, was]
+
+greeting:
+  verbs: []
+  nouns: []
+  phrases: [hallo, hi, guten Morgen, guten Tag, guten Abend, moin]
+
+acknowledgment:
+  verbs: []
+  nouns: []
+  phrases: [danke, vielen Dank, merci, thanks]
+
+skill_invoke:
+  verbs: [verwenden, ausführen, aktivieren, aufrufen, anwenden]
+  nouns: [Skill, Werkzeug, Plugin, Erweiterung]

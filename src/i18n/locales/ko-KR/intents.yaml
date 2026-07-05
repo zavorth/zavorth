@@ -1,0 +1,82 @@
+# 의도 감지 키워드 — 한국어
+
+read_file:
+  verbs: [읽기, 열기, 표시, 보기]
+  nouns: [파일, 문서, 코드, 폴더]
+
+create_file:
+  verbs: [생성, 쓰기, 저장, 새로운, 만들기]
+  nouns: [파일, 문서, 메모, 보고서]
+
+list_directory:
+  verbs: [목록, 표시, 어떤]
+  nouns: [파일, 문서, 폴더, 디렉토리]
+
+web_search:
+  verbs: [검색, 찾기, 조사, 구글]
+  nouns: [정보, 데이터, 결과, 뉴스]
+
+web_fetch:
+  verbs: [열기, 접근, 로드, 방문]
+  nouns: [사이트, 페이지, URL, 링크]
+
+email:
+  verbs: [보내기, 쓰기, 작성, 답장, 전달]
+  nouns: [이메일, 메시지, 답장, 알림]
+
+channel_send:
+  verbs: [보내기, 게시, 공유]
+  nouns: [메시지, 알림, 업데이트]
+
+run_code:
+  verbs: [실행, 시작, 가동]
+  nouns: [코드, 스크립트, 프로그램, 앱]
+
+code_review:
+  verbs: [검토, 확인, 분석, 감사]
+  nouns: [코드, PR, 풀 리퀘스트, 변경사항]
+
+explain_code:
+  verbs: [설명, 기술, 어떻게]
+  nouns: [코드, 함수, 클래스, 파일, 모듈]
+  phrases: [어떻게 작동, 뭐가 하는, 뭔지]
+
+calendar:
+  verbs: [일정, 알림, 생성, 예약, 설정]
+  nouns: [알람, 캘린더, 약속, 회의, 리마인더, 이벤트]
+  phrases: [알려줘, 잊지 마, 회의 예약]
+
+data_analysis:
+  verbs: [분석, 처리, 분석, 평가]
+  nouns: [데이터, CSV, JSON, 로그, 메트릭스]
+
+chart:
+  verbs: [차트, 그래프, 시각화, 그리기]
+  nouns: [차트, 그래프, 시각화, 표]
+
+system_config:
+  verbs: [설치, 업데이트, 구성]
+  nouns: [시스템, 패키지, 의존성, 서비스, 서버]
+
+diagnostics:
+  verbs: [확인, 진단, 테스트, 검증]
+  nouns: [상태, 건강, 진단, 로그]
+
+help:
+  verbs: [도움, 지원]
+  nouns: [도움말, 문서, 사용법, 가이드]
+  phrases: [뭘 할 수, 어떻게, 뭔지]
+
+greeting:
+  verbs: []
+  nouns: []
+  phrases: [안녕하세요, 안녕, 좋은 아침, 좋은 저녁, 반갑습니다]
+
+acknowledgment:
+  verbs: []
+  nouns: []
+  phrases: [감사합니다, 고마워, Thanks]
+
+skill_invoke:
+  verbs: [사용, 실행, 활성화, 호출, 적용]
+  nouns: [스킬, 도구, 플러그인, 확장]

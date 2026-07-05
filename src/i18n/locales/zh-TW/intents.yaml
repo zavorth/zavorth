@@ -1,0 +1,32 @@
+# 意圖偵測關鍵詞 — 繁體中文
+
+read_file:
+  verbs: [讀取, 開啟, 顯示, 查看]
+  nouns: [檔案, 文件, 程式碼, 資料夾, pdf]
+
+create_file:
+  verbs: [建立, 寫入, 儲存, 新增, 產生]
+  nouns: [檔案, 文件, 筆記, 報告]
+
+web_search:
+  verbs: [搜尋, 查找, 研究, 谷歌]
+  nouns: [資訊, 資料, 結果, 新聞]
+
+email:
+  verbs: [傳送, 寫, 起草, 回覆, 轉寄]
+  nouns: [郵件, 電子郵件, 訊息, 回覆]
+
+calendar:
+  verbs: [排程, 提醒, 建立, 預約, 設定]
+  nouns: [鬧鐘, 行事曆, 約會, 會議, 提醒, 事件]
+  phrases: [提醒我, 別忘了, 安排會議]
+
+greeting:
+  verbs: []
+  nouns: []
+  phrases: [你好, 嗨, 早安, 午安, 晚安, 您好]
+
+acknowledgment:
+  verbs: []
+  nouns: []
+  phrases: [謝謝, 感謝, 多謝, Thanks]
