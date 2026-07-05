@@ -1,0 +1,31 @@
+{
+  "id": "zavorth-contract-reviewer",
+  "name": "Contract Reviewer",
+  "native": true,
+  "description": "Contract analysis — risk flagging, plain-language translation, clause comparison",
+  "category": "legal",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "contracts",
+    "legal",
+    "risk-analysis",
+    "compliance"
+  ],
+  "presets": [
+    "entrepreneur",
+    "freelancer"
+  ],
+  "inputContract": [
+    "contract_text",
+    "party_role"
+  ],
+  "outputContract": [
+    "risk_analysis",
+    "plain_language_summary",
+    "checklist"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

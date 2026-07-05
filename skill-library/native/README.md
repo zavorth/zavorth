@@ -51,3 +51,16 @@ Current Zavorth-native promoted skills:
 - `zavorth-taskflow`: Coordinate durable, resumable jobs with waits and receipts.
 - `zavorth-transaction-safe-finance`: Approval-gated previews and simulations for transactional finance workflows.
 - `zavorth-workspace-scope`: Enforce selected project folder or chat-only scope.
+
+### General-Purpose Skills (added 2026-07-04)
+
+- `zavorth-business-writer`: Professional business writing — proposals, plans, executive summaries, correspondence.
+- `zavorth-presentation-builder`: Slide structure, content per slide, speaker notes, and narrative flow for presentations.
+- `zavorth-seo-optimizer`: Search engine optimization — keyword strategy, on-page SEO, content structure, meta tags.
+- `zavorth-resume-coach`: Career coaching — resume optimization, interview prep, career path planning, cover letters.
+- `zavorth-meeting-facilitator`: Meeting agendas, minutes, action items, decision frameworks, follow-up tracking.
+- `zavorth-contract-reviewer`: Contract analysis — risk flagging, plain-language translation, clause comparison.
+- `zavorth-personal-finance`: Budgeting, expense analysis, investment simulation, financial health reports.
+- `zavorth-content-calendar`: Editorial planning — content calendars, topic ideation, platform-specific scheduling.
+- `zavorth-data-storyteller`: Transform data into narratives — insight extraction, visualization recommendations, stakeholder summaries.
+- `zavorth-workflow-designer`: Process mapping, automation opportunities, SOP documentation, bottleneck analysis.

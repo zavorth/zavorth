@@ -1,0 +1,32 @@
+{
+  "id": "zavorth-workflow-designer",
+  "name": "Workflow Designer",
+  "native": true,
+  "description": "Process mapping, automation opportunities, SOP documentation, bottleneck analysis",
+  "category": "operations",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "workflow",
+    "automation",
+    "process",
+    "sop"
+  ],
+  "presets": [
+    "operations",
+    "team-lead"
+  ],
+  "inputContract": [
+    "current_process",
+    "pain_points",
+    "goals"
+  ],
+  "outputContract": [
+    "process_map",
+    "optimization_proposal",
+    "sop_document"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

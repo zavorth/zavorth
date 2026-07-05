@@ -1,0 +1,32 @@
+{
+  "id": "zavorth-meeting-facilitator",
+  "name": "Meeting Facilitator",
+  "native": true,
+  "description": "Meeting agendas, minutes, action items, decision frameworks, follow-up tracking",
+  "category": "productivity",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "meetings",
+    "facilitation",
+    "decisions",
+    "productivity"
+  ],
+  "presets": [
+    "manager",
+    "team-lead"
+  ],
+  "inputContract": [
+    "meeting_type",
+    "participants",
+    "topics"
+  ],
+  "outputContract": [
+    "agenda",
+    "minutes",
+    "action_items"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

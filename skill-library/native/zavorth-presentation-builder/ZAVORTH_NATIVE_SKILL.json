@@ -1,0 +1,31 @@
+{
+  "id": "zavorth-presentation-builder",
+  "name": "Presentation Builder",
+  "native": true,
+  "description": "Slide structure, content per slide, speaker notes, and narrative flow",
+  "category": "communication",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "presentation",
+    "slides",
+    "pitch-deck",
+    "public-speaking"
+  ],
+  "presets": [
+    "professional",
+    "educator"
+  ],
+  "inputContract": [
+    "topic",
+    "audience",
+    "format"
+  ],
+  "outputContract": [
+    "slide_outline",
+    "speaker_notes"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

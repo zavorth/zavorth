@@ -1,0 +1,32 @@
+{
+  "id": "zavorth-content-calendar",
+  "name": "Content Calendar",
+  "native": true,
+  "description": "Editorial planning — content calendars, topic ideation, platform scheduling",
+  "category": "marketing",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "content",
+    "calendar",
+    "social-media",
+    "editorial"
+  ],
+  "presets": [
+    "content-creator",
+    "social-media-manager"
+  ],
+  "inputContract": [
+    "platforms",
+    "audience",
+    "brand_voice"
+  ],
+  "outputContract": [
+    "editorial_calendar",
+    "topic_ideas",
+    "posting_schedule"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": false,
+  "receiptsRequired": false
+}

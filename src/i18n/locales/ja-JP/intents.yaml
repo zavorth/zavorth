@@ -1,0 +1,82 @@
+# 意図検出キーワード — 日本語
+
+read_file:
+  verbs: [読む, 開く, 表示, 見る]
+  nouns: [ファイル, ドキュメント, コード, フォルダ, pdf]
+
+create_file:
+  verbs: [作成, 書く, 保存, 新規, 生成]
+  nouns: [ファイル, ドキュメント, メモ, レポート]
+
+list_directory:
+  verbs: [一覧, 表示, どの]
+  nouns: [ファイル, ドキュメント, フォルダ, ディレクトリ]
+
+web_search:
+  verbs: [検索, 探す, 調べる, ググる]
+  nouns: [情報, データ, 結果, ニュース]
+
+web_fetch:
+  verbs: [開く, アクセス, 読み込む, 訪問]
+  nouns: [サイト, ページ, URL, リンク]
+
+email:
+  verbs: [送信, 書く, 作成, 返信, 転送]
+  nouns: [メール, メッセージ, 返信, 通知]
+
+channel_send:
+  verbs: [送信, 投稿, 共有]
+  nouns: [メッセージ, 通知, アップデート]
+
+run_code:
+  verbs: [実行, 起動, 開始]
+  nouns: [コード, スクリプト, プログラム, アプリ]
+
+code_review:
+  verbs: [レビュー, チェック, 分析, 監査]
+  nouns: [コード, PR, プルリクエスト, 変更]
+
+explain_code:
+  verbs: [説明, 記述, どうやって]
+  nouns: [コード, 関数, クラス, ファイル, モジュール]
+  phrases: [どう動く, 何をする, 何]
+
+calendar:
+  verbs: [スケジュール, リマインド, 作成, 予約]
+  nouns: [アラーム, カレンダー, 約束, 会議, リマインダー, イベント]
+  phrases: [リマインドして, 忘れないで, 会議を予約]
+
+data_analysis:
+  verbs: [分析, 処理, 解析, 評価]
+  nouns: [データ, CSV, JSON, ログ, メトリクス]
+
+chart:
+  verbs: [グラフ, プロット, 可視化, 描く]
+  nouns: [グラフ, ダイアグラム, 可視化, テーブル]
+
+system_config:
+  verbs: [インストール, 更新, 設定]
+  nouns: [システム, パッケージ, 依存関係, サービス, サーバー]
+
+diagnostics:
+  verbs: [確認, 診断, テスト, 検証]
+  nouns: [状態, 健康状態, ステータス, 診断, ログ]
+
+help:
+  verbs: [助ける, サポート]
+  nouns: [ヘルプ, ドキュメント, 使い方, ガイド]
+  phrases: [何ができる, どうやる, 何]
+
+greeting:
+  verbs: []
+  nouns: []
+  phrases: [こんにちは, おはよう, やあ, はじめまして, こんばんは]
+
+acknowledgment:
+  verbs: []
+  nouns: []
+  phrases: [ありがとう, Thanks, 感謝]
+
+skill_invoke:
+  verbs: [使う, 実行, 有効化, 呼び出す, 適用]
+  nouns: [スキル, ツール, プラグイン, 拡張]
