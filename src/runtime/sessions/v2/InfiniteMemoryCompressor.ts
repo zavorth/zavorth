@@ -1,4 +1,4 @@
-﻿import { EventEmitter } from 'events';
+import { EventEmitter } from 'events';
 import type { LlmRuntimeService } from '../../../services/llm/LlmRuntimeService.js';
 import type { MemoryVectorStore } from '../../../storage/MemoryVectorStore.js';
 import { logger } from '../../../logger.js';
@@ -90,19 +90,38 @@ export class InfiniteMemoryCompressor extends EventEmitter {
    * Push a new message into the active context. If the estimated token
    * count crosses the compression threshold, the oldest messages are
    * automatically compressed and stored.
+   *
+   * Messages tagged with [CONFIG:...] prefix are marked as critical
+   * and will not be compressed during mid-session compression.
    */
   public pushMessage(message: string): ActiveContext {
     this.activeMessages.push(message);
 
     const currentTokens = this.estimateTokens(this.activeMessages);
     if (currentTokens > this.config.compressionThreshold && !this.isCompressing) {
-      // Fire and forget assincrono para nÃ£o bloquear o logger stream
+      // Fire and forget async to avoid blocking the logger stream
       this.compressOldestAsync().catch((err) => {
         this.emit('memory:error', err);
       });
     }
 
     return this.buildActiveContext();
+  }
+
+  /**
+   * Push a config file content as a critical message.
+   * Critical messages are protected from compression.
+   */
+  public pushConfigMessage(configFile: string, content: string): ActiveContext {
+    const taggedMessage = `[CONFIG:${configFile}] ${content}`;
+    return this.pushMessage(taggedMessage);
+  }
+
+  /**
+   * Check if a message is a critical config message.
+   */
+  private isCriticalMessage(message: string): boolean {
+    return message.startsWith('[CONFIG:');
   }
 
   /**
@@ -136,7 +155,7 @@ export class InfiniteMemoryCompressor extends EventEmitter {
             scored.push({ chunk, score });
           }
         }
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Persistent store failure is non-fatal
       }
     }
@@ -196,11 +215,27 @@ export class InfiniteMemoryCompressor extends EventEmitter {
 
     this.isCompressing = true;
     try {
-      const messagesToCompress = count
-        ? this.activeMessages.splice(0, count)
-        : this.activeMessages.splice(0, Math.ceil(this.activeMessages.length / 2));
+      // Separate critical (config) messages from compressible messages
+      const criticalMessages: string[] = [];
+      const compressibleMessages: string[] = [];
 
-      if (messagesToCompress.length === 0) return null;
+      for (const msg of this.activeMessages) {
+        if (this.isCriticalMessage(msg)) {
+          criticalMessages.push(msg);
+        } else {
+          compressibleMessages.push(msg);
+        }
+      }
+
+      // Only compress non-critical messages
+      const messagesToCompress = count
+        ? compressibleMessages.splice(0, count)
+        : compressibleMessages.splice(0, Math.ceil(compressibleMessages.length / 2));
+
+      if (messagesToCompress.length === 0) {
+        this.activeMessages = [...criticalMessages, ...compressibleMessages];
+        return null;
+      }
 
       const combined = messagesToCompress.join('\n');
       
@@ -223,7 +258,7 @@ ${combined}`;
             const parsed = JSON.parse(block);
             summary = String(parsed.summary || '');
             keywords = Array.isArray(parsed.keywords) ? parsed.keywords.map(String) : [];
-         } catch {
+         } catch (error: any) { const err = error; const e = error;
              // Fallback to heuristics when the LLM fails
              summary = this.generateDenseSummary(combined);
              keywords = this.extractKeywords(combined);
@@ -253,7 +288,7 @@ ${combined}`;
       if (this.config.vectorStore) {
         try {
           await this.config.vectorStore.save(chunk);
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           // Persistence failure is non-fatal
         }
       }
@@ -265,6 +300,9 @@ ${combined}`;
         compressedTokens: this.estimateTokens([chunk.compressedSummary]),
         compressionRatio: chunk.originalTokenCount / Math.max(1, this.estimateTokens([chunk.compressedSummary])),
       });
+
+      // Reconstruct active messages: critical messages + compressed + remaining
+      this.activeMessages = [...criticalMessages, `[Compressed Memory] ${summary}`, ...compressibleMessages];
 
       return chunk;
     } finally {
