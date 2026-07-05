@@ -142,17 +142,17 @@ export class ZavorthGatewayIntegrationService {
     const pack = getLanguagePack(lang);
 
     const greetings: Record<string, string> = {
-      en: "Hi! I'm Zavorth. Ask me anything — no commands needed.",
-      pt: 'Oi! Sou o Zavorth. Pode me pedir qualquer coisa — sem comandos.',
-      es: '¡Hola! Soy Zavorth. Pide lo que necesites — sin comandos.',
-      fr: 'Bonjour ! Je suis Zavorth. Demandez-moi n\'importe quoi — sans commandes.',
-      de: 'Hallo! Ich bin Zavorth. Frag mich was du willst — ohne Befehle.',
-      ja: 'こんにちは！Zavorthです。何でも聞いてください — コマンド不要です。',
-      zh: '你好！我是Zavorth。随时问我 — 不需要命令。',
-      ko: '안녕하세요! Zavorth입니다. 뭐든 물어보세요 — 명령어 불필요.',
+      'en-US': "Hi! I'm Zavorth. Ask me anything — no commands needed.",
+      'pt-BR': 'Oi! Sou o Zavorth. Pode me pedir qualquer coisa — sem comandos.',
+      'es-ES': '¡Hola! Soy Zavorth. Pide lo que necesites — sin comandos.',
+      'fr-FR': 'Bonjour ! Je suis Zavorth. Demandez-moi n\'importe quoi — sans commandes.',
+      'de-DE': 'Hallo! Ich bin Zavorth. Frag mich was du willst — ohne Befehle.',
+      'ja-JP': 'こんにちは！Zavorthです。何でも聞いてください — コマンド不要です。',
+      'zh-CN': '你好！我是Zavorth。随时问我 — 不需要命令。',
+      'ko-KR': '안녕하세요! Zavorth입니다. 뭐든 물어보세요 — 명령어 불필요.',
     };
 
-    return greetings[pack.code] ?? greetings.en;
+    return greetings[pack.code] ?? greetings['en-US'];
   }
 
   /**
