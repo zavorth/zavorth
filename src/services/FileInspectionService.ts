@@ -4,6 +4,7 @@ import path from 'path';
 import { createPatch } from 'diff';
 import { config } from '../config/index.js';
 import { PolicyEngine } from '../security/PolicyEngine.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 type RootKey = string;
 type SearchRoot = {
@@ -236,7 +237,7 @@ export class FileInspectionService {
 
     const lastDaysMatch = loweredRequest.match(/\bultim(?:os|as)?\s+(\d+)\s+dias?\b/);
     if (lastDaysMatch) {
-      const days = Number.parseInt(lastDaysMatch[1], 10);
+      const days = safeParseInt(lastDaysMatch[1], 0);
       if (days > 0) {
         return {
           sinceMs: Date.now() - days * 24 * 60 * 60 * 1000,

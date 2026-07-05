@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 export class ZavorthNetworkDiagnosticsTool extends BaseTool {
   public readonly name = 'zavorth_network_diagnostics';
@@ -124,8 +125,8 @@ export class ZavorthNetworkDiagnosticsTool extends BaseTool {
 
     const portsStr = String(args.ports || '21,22,25,53,80,110,143,443,993,995,3306,3389,5432,6379,8080,8443,27017');
     const ports = portsStr.includes('-')
-      ? Array.from({ length: parseInt(portsStr.split('-')[1]) - parseInt(portsStr.split('-')[0]) + 1 }, (_, i) => parseInt(portsStr.split('-')[0]) + i)
-      : portsStr.split(',').map(p => parseInt(p.trim()));
+      ? Array.from({ length: safeParseInt(portsStr.split('-')[1], 0) - safeParseInt(portsStr.split('-')[0], 0) + 1 }, (_, i) => safeParseInt(portsStr.split('-')[0], 0) + i)
+      : portsStr.split(',').map(p => safeParseInt(p.trim(), 0));
 
     const timeout = Number(args.timeout_ms || 3000);
     const openPorts: number[] = [];

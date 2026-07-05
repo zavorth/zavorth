@@ -1,6 +1,7 @@
 import { logger } from '../../../../logger.js';
 import fs from "fs";
 import path from "path";
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 
 export class VideoHandlerFormatSupport {
   public static firstNonEmptyString(
@@ -22,7 +23,7 @@ export class VideoHandlerFormatSupport {
     }
 
     if (typeof value === "string" && value.trim()) {
-      const parsed = parseInt(value, 10);
+      const parsed = safeParseInt(value, NaN);
       return Number.isFinite(parsed) ? parsed : undefined;
     }
 

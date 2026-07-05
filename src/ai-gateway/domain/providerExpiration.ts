@@ -9,6 +9,8 @@
  * expires silently and requests start failing with 401/402 errors.
  */
 
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
+
 /** Types of expiration events */
 export type ExpiryType = "oauth_token" | "subscription" | "api_credits" | "free_tier_reset";
 
@@ -230,7 +232,7 @@ export function detectExpirationFromResponse(
     headers["x-ratelimit-reset"] || headers["x-ratelimit-reset-tokens"] || headers["retry-after"];
 
   if (resetHeader && status === 429) {
-    const resetTime = parseInt(resetHeader, 10);
+    const resetTime = safeParseInt(resetHeader, NaN);
     if (!isNaN(resetTime)) {
       // Could be epoch seconds or seconds-from-now
       const date =

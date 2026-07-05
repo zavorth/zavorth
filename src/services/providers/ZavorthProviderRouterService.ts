@@ -23,6 +23,7 @@ import type {
   ProviderIntegrationManifest,
   ProviderIntegrationRouteManifest,
 } from './catalog/ProviderIntegrationManifest.js';
+import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 
 // ---------------------------------------------------------------------------
 // Internal types
@@ -277,7 +278,7 @@ export class ZavorthProviderRouterService {
 
     for (const entry of sorted) {
       if (!entry.enabled) {
-        fallbacksAttempted.push({ providerId: entry.providerId, reason: 'desabilitado' });
+        fallbacksAttempted.push({ providerId: entry.providerId, reason: 'disabled' });
         continue;
       }
       if (entry.rateLimitState.isThrottled) {
@@ -285,7 +286,7 @@ export class ZavorthProviderRouterService {
         continue;
       }
       if (entry.healthState.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES_BEFORE_SKIP) {
-        fallbacksAttempted.push({ providerId: entry.providerId, reason: 'falhas consecutivas excedidas' });
+        fallbacksAttempted.push({ providerId: entry.providerId, reason: 'consecutive failures exceeded' });
         continue;
       }
 
@@ -325,8 +326,8 @@ export class ZavorthProviderRouterService {
         const reason = statusCode === 429
           ? 'rate-limit 429'
           : statusCode >= 500
-            ? `erro do servidor ${statusCode}`
-            : `erro: ${providerError?.message || 'desconhecido'}`;
+            ? `server error ${statusCode}`
+            : `error: ${providerError?.message || 'unknown'}`;
 
         if (statusCode === 429) {
           this.markThrottled(entry.providerId);
@@ -417,8 +418,8 @@ export class ZavorthProviderRouterService {
     const resetAt = normalize('x-ratelimit-reset') || normalize('x-ratelimit-reset-requests') || null;
     const retryAfter = normalize('retry-after') || null;
 
-    const requestsRemainingNum = remaining !== null ? parseInt(remaining, 10) : null;
-    const tokensRemainingNum = tokensRemaining !== null ? parseInt(tokensRemaining, 10) : null;
+    const requestsRemainingNum = remaining !== null ? safeParseInt(remaining, 0) : null;
+    const tokensRemainingNum = tokensRemaining !== null ? safeParseInt(tokensRemaining, 0) : null;
 
     let resetsAt: string | null = null;
     if (resetAt) {
@@ -426,7 +427,7 @@ export class ZavorthProviderRouterService {
       const epoch = Number(resetAt);
       resetsAt = isNaN(epoch) ? resetAt : new Date(epoch * 1000).toISOString();
     } else if (retryAfter) {
-      const seconds = parseInt(retryAfter, 10);
+      const seconds = safeParseInt(retryAfter, 0);
       if (!isNaN(seconds)) {
         resetsAt = new Date(Date.now() + seconds * 1000).toISOString();
       }
@@ -514,11 +515,11 @@ export class ZavorthProviderRouterService {
       return;
     }
 
-    // Último receipt
+    // Last receipt
     if (pathname === '/api/web/provider-router/receipt' && req.method === 'GET') {
       const receipt = this.getLastReceipt();
       if (!receipt) {
-        this.writeJson(res, { ok: false, error: 'Nenhum receipt disponivel.' }, 404);
+        this.writeJson(res, { ok: false, error: 'No receipt available.' }, 404);
         return;
       }
       this.writeJson(res, { ok: true, receipt }, 200);
@@ -536,7 +537,7 @@ export class ZavorthProviderRouterService {
         const err = error as Error;
         this.writeJson(
           res,
-          { ok: false, error: err?.message || 'Falha ao rotear a requisicao.' },
+          { ok: false, error: err?.message || 'Failed to route the request.' },
           400,
         );
       }
@@ -557,7 +558,7 @@ export class ZavorthProviderRouterService {
         const err = error as Error;
         this.writeJson(res, {
           error: {
-            message: err?.message || 'Erro interno do roteador.',
+            message: err?.message || 'Internal router error.',
             type: 'server_error',
             code: 'internal_error',
           },
@@ -582,7 +583,7 @@ export class ZavorthProviderRouterService {
     }
 
     // 404
-    this.writeJson(res, { error: { message: 'Rota nao encontrada.', type: 'invalid_request_error' } }, 404);
+    this.writeJson(res, { error: { message: 'Route not found.', type: 'invalid_request_error' } }, 404);
   }
 
   /**
@@ -590,20 +591,19 @@ export class ZavorthProviderRouterService {
    */
   public startOpenAiCompatServer(port?: number): http.Server {
     const resolvedPort = port
-      || parseInt(process.env[OPENAI_COMPAT_PORT_ENV] || '', 10)
-      || DEFAULT_OPENAI_COMPAT_PORT;
+      || safeParseInt(process.env[OPENAI_COMPAT_PORT_ENV], DEFAULT_OPENAI_COMPAT_PORT);
 
     const server = http.createServer((req, res) => {
       this.handleOpenAiCompatibleRequest(req, res).catch((err) => {
         if (!res.headersSent) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: { message: 'Erro interno.', type: 'server_error' } }));
+          res.end(JSON.stringify({ error: { message: 'Internal error.', type: 'server_error' } }));
         }
       });
     });
 
     server.listen(resolvedPort, () => {
-      logger.info(`[ZavorthProviderRouter] OpenAI-compatible endpoint iniciado na porta ${resolvedPort}`);
+      logger.info(`[ZavorthProviderRouter] OpenAI-compatible endpoint started on port ${resolvedPort}`);
     });
 
     this.httpServer = server;
@@ -752,7 +752,7 @@ export class ZavorthProviderRouterService {
     this.updateRateLimitState(entry.providerId, responseHeaders);
 
     if (!response.ok) {
-      const error: ProviderError = new Error(`Provider ${entry.providerId} retornou ${response.status}`) as ProviderError;
+      const error: ProviderError = new Error(`Provider ${entry.providerId} returned ${response.status}`) as ProviderError;
       error.status = response.status;
       error.statusCode = response.status;
       throw error;
@@ -951,7 +951,7 @@ export class ZavorthProviderRouterService {
           const raw = Buffer.concat(chunks).toString('utf-8');
           resolve(raw.length > 0 ? JSON.parse(raw) : {});
         } catch (error) {
-          reject(new Error('Corpo JSON invalido.'));
+          reject(new Error('Invalid JSON body.'));
         }
       });
       req.on('error', reject);
@@ -965,7 +965,7 @@ export class ZavorthProviderRouterService {
   private parseRouterRequest(body: RouterRequestInput): ZavorthProviderRouterRequest {
     const prompt = String(body.prompt || '').trim();
     if (!prompt) {
-      throw new Error('Campo "prompt" obrigatorio.');
+      throw new Error('"prompt" field is required.');
     }
     return {
       prompt,

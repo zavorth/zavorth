@@ -1,7 +1,8 @@
 import { fileURLToPath } from 'node:url';
+import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 
 // ============================================================================
-// WhitelistConfig - Configuracao de seguranca para o Zavorth Echo
+// WhitelistConfig - security configuration for Zavorth Echo
 // ============================================================================
 
 // --- OS: Executaveis permitidos para os_open_app ---
@@ -118,13 +119,13 @@ export function isLocalNetworkHostname(hostname: string | undefined): boolean {
     }
     const match172 = normalized.match(/^172\.(\d{1,2})\./);
     if (match172) {
-        const secondOctet = Number.parseInt(match172[1], 10);
+        const secondOctet = safeParseInt(match172[1], 0);
         return secondOctet >= 16 && secondOctet <= 31;
     }
     return false;
 }
 
-// --- OS: Paths de arquivo bloqueados para leitura ---
+// --- OS: File paths blocked for reading ---
 export const BLOCKED_FILE_PATHS = [
     'system32', 'C:\\Windows', 'C:\\Program Files',
     '/etc/passwd', '/etc/shadow', '/etc/sudoers',
@@ -151,7 +152,7 @@ export function resolveBrowserTargetPolicy(
 ): BrowserTargetPolicy {
     const candidate = String(rawUrl || '').trim();
     if (!candidate) {
-        throw new Error('SandboxBlock: url obrigatoria para navegacao Playwright.');
+        throw new Error('SandboxBlock: url is required for Playwright navigation.');
     }
 
     let parsed: URL;
@@ -164,7 +165,7 @@ export function resolveBrowserTargetPolicy(
     const protocol = String(parsed.protocol || '').toLowerCase();
     if (protocol === 'about:') {
         if (candidate !== 'about:blank') {
-            throw new Error(`SandboxBlock: URL '${candidate}' usa protocolo about nao permitido.`);
+            throw new Error(`SandboxBlock: URL '${candidate}' uses a disallowed about protocol.`);
         }
         return {
             scope: 'about',
@@ -186,12 +187,12 @@ export function resolveBrowserTargetPolicy(
     }
 
     if (protocol !== 'http:' && protocol !== 'https:') {
-        throw new Error(`SandboxBlock: protocolo '${protocol}' nao permitido para navegacao Playwright.`);
+        throw new Error(`SandboxBlock: protocol '${protocol}' not allowed for Playwright navigation.`);
     }
 
     const hostname = String(parsed.hostname || '').trim().toLowerCase();
     if (!hostname) {
-        throw new Error(`SandboxBlock: URL '${candidate}' nao informa hostname valido.`);
+        throw new Error(`SandboxBlock: URL '${candidate}' does not provide a valid hostname.`);
     }
 
     if (isLocalNetworkHostname(hostname)) {
@@ -216,7 +217,7 @@ export function resolveBrowserTargetPolicy(
     }
 
     throw new Error(
-        `SandboxBlock: URL '${candidate}' nao e local nem foi liberada em ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS.`,
+        `SandboxBlock: URL '${candidate}' is not local and was not allowlisted in ZAVORTH_PLAYWRIGHT_ALLOWED_HOSTS.`,
     );
 }
 

@@ -1,6 +1,7 @@
 import { config } from '../../../../config/index.js';
 import type { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 import type { Task } from '../../../../contracts/TaskContract.js';
 import type { PermissionService } from '../../../../services/PermissionService.js';
 import type { SelfModificationCommandService } from '../../../../services/SelfModificationCommandService.js';
@@ -175,7 +176,7 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
         ? (statusToken as 'pending' | 'approved' | 'rejected' | 'expired' | 'all')
         : 'pending';
       const limitCandidate = status === statusToken ? tokens[1] : tokens[0];
-      const limit = Number.parseInt(String(limitCandidate || '10'), 10);
+      const limit = safeParseInt(String(limitCandidate || '10'), 10);
       const permissions = await this.deps.permissionService.listRequests(
         status,
         Number.isFinite(limit) ? limit : 10,

@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 
 interface NovitaChatMessage {
   role: string;
@@ -116,7 +117,7 @@ export class ProviderNovitaTool extends BaseTool {
       ], { timeout: 10000 }).toString();
 
       const statusMatch = result.match(/__HTTP_STATUS__(\d+)/);
-      const statusCode = statusMatch ? parseInt(statusMatch[1], 10) : 0;
+      const statusCode = statusMatch ? safeParseInt(statusMatch[1], 0) : 0;
 
       if (statusCode === 200) {
         return 'Novita AI: Connected e funcionando.';

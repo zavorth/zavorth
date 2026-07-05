@@ -20,6 +20,7 @@
 import { getDbInstance } from "./db/core";
 import { invalidateDbCache } from "./db/readCache";
 import { backupDbFile } from "./db/backup";
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -138,7 +139,7 @@ type ModelsDevData = Record<string, ModelsDevProvider>;
 
 const MODELS_DEV_API_URL = "https://models.dev/api.json";
 
-const parsedInterval = parseInt(process.env.MODELS_DEV_SYNC_INTERVAL || "86400", 10);
+const parsedInterval = safeParseInt(process.env.MODELS_DEV_SYNC_INTERVAL, 86400);
 const SYNC_INTERVAL_MS =
   Number.isFinite(parsedInterval) && parsedInterval > 0 ? parsedInterval * 1000 : 86400 * 1000;
 

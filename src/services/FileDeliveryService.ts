@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { config } from '../config/index.js';
 import { PolicyEngine } from '../security/PolicyEngine.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import type {
   FileDeliveryPlan,
   FileDeliveryPrepareOptions,
@@ -181,7 +182,7 @@ export class FileDeliveryService {
       return null;
     }
 
-    const selectedIndex = Number.parseInt(match[1], 10) - 1;
+    const selectedIndex = safeParseInt(match[1], 1) - 1;
     if (selectedIndex < 0 || selectedIndex >= pending.entries.length) {
       return { kind: 'message', text: `Escolha invalida. Responda com um numero entre 1 e ${pending.entries.length}.` };
     }

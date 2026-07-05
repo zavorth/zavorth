@@ -13,7 +13,8 @@ import type {
   CliWriter,
 } from './ZavorthCliContract.js';
 import type { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';
-import type { SurfaceTaskDispatcherLike } from '../services/SurfaceRuntime.js';
+import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from '../services/SurfaceRuntime.js';
+import type { MessageChannel, TaskSource } from '../contracts/PlatformContract.js';
 import { config } from '../config/index.js';
 import {
   type UniversalAgentChannel,
@@ -38,6 +39,7 @@ import {
   formatCliSuccessEventCard,
 } from './ZavorthCliEventCards.js';
 import { formatTerminalComposerPrompt } from './ZavorthCliTerminalComposer.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 export function defaultWriter(): CliWriter {
   return {
@@ -623,7 +625,7 @@ export async function executeCliTaskDispatch(
 ): Promise<CliExecutionResult> {
   const replies: string[] = [];
   const target = buildCliDispatchTarget(flags);
-  const numericUserId = Number.parseInt(String(flags.userId || '').trim(), 10) || 1;
+    const numericUserId = safeParseInt(String(flags.userId || '').trim(), 1);
   const ctx = {
     platform: flags.platform,
     userId: flags.userId,
@@ -644,7 +646,7 @@ export async function executeCliTaskDispatch(
       return {};
     },
     editMessage: async () => undefined,
-  } as any;
+  } as SurfaceControllerContext;
 
   const trimmed = String(normalized || '').trim();
   const dispatchText = trimmed === 'task'
@@ -661,12 +663,12 @@ export async function executeCliTaskDispatch(
   try {
     const result = await dispatcher.dispatchTaskMessage({
       ctx,
-      platform: flags.platform as any,
+      platform: flags.platform as MessageChannel,
       chatId: target.chatId,
       text: dispatchText,
       sourceUserId: target.sourceUserId || flags.userId || 'cli-operator',
       fallbackRuntimeUserId: target.sourceUserId || flags.userId || 'cli-operator',
-      source: flags.platform as any,
+      source: flags.platform as TaskSource,
       sessionId: target.sessionId,
       chatHint: target.chatId,
       surfacePolicy: {
@@ -789,7 +791,7 @@ async function executeCliUniversalFallback(input: {
 
   if (runtime.surfaceTaskDispatcher) {
     const target = buildCliDispatchTarget(flags);
-    const numericUserId = Number.parseInt(String(flags.userId || '').trim(), 10) || 1;
+  const numericUserId = safeParseInt(String(flags.userId || '').trim(), 1);
     const dispatchText = trimmed === 'task'
       ? '/task'
       : trimmed.startsWith('task ')
@@ -815,16 +817,16 @@ async function executeCliUniversalFallback(input: {
         return {};
       },
       editMessage: async () => undefined,
-    } as any;
+    } as SurfaceControllerContext;
 
     const result = await runtime.surfaceTaskDispatcher.dispatchTaskMessage({
       ctx,
-      platform: flags.platform as any,
+      platform: flags.platform as MessageChannel,
       chatId: target.chatId,
       text: dispatchText,
       sourceUserId: target.sourceUserId || flags.userId || 'cli-operator',
       fallbackRuntimeUserId: target.sourceUserId || flags.userId || 'cli-operator',
-      source: flags.platform as any,
+      source: flags.platform as TaskSource,
       sessionId: target.sessionId,
       chatHint: target.chatId,
       surfacePolicy: {
@@ -958,13 +960,13 @@ function parseWorkflowQueueLimit(args: string): number | undefined {
     const token = tokens[index] || '';
     const inline = token.match(/^--limit=(\d+)$/i);
     if (inline) {
-      return Math.max(1, Number.parseInt(inline[1], 10) || 1);
+      return Math.max(1, safeParseInt(inline[1], 1));
     }
     if (token === '--limit' && tokens[index + 1]) {
-      return Math.max(1, Number.parseInt(tokens[index + 1], 10) || 1);
+      return Math.max(1, safeParseInt(tokens[index + 1], 1));
     }
     if (/^\d+$/.test(token)) {
-      return Math.max(1, Number.parseInt(token, 10) || 1);
+      return Math.max(1, safeParseInt(token, 1));
     }
   }
 

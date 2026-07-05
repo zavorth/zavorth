@@ -10,10 +10,11 @@
  */
 
 import { createConnection } from "node:net";
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
 
 // Configurable via env vars
-const FAST_FAIL_TIMEOUT_MS = parseInt(process.env.PROXY_FAST_FAIL_TIMEOUT_MS ?? "2000", 10);
-const HEALTH_CACHE_TTL_MS = parseInt(process.env.PROXY_HEALTH_CACHE_TTL_MS ?? "30000", 10);
+const FAST_FAIL_TIMEOUT_MS = safeParseInt(process.env.PROXY_FAST_FAIL_TIMEOUT_MS, 2000);
+const HEALTH_CACHE_TTL_MS = safeParseInt(process.env.PROXY_HEALTH_CACHE_TTL_MS, 30000);
 
 interface ProxyHealthEntry {
   healthy: boolean;
@@ -57,7 +58,7 @@ export async function isProxyReachable(
   }
 
   const host = url.hostname;
-  const port = parseInt(url.port || defaultPortForScheme(url.protocol), 10);
+  const port = safeParseInt(url.port || defaultPortForScheme(url.protocol), 8080);
 
   if (!host || isNaN(port)) {
     proxyHealthCache.set(proxyUrl, {

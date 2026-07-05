@@ -9,6 +9,7 @@
  */
 
 import crypto from "crypto";
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
 
 /**
  * @typedef {Object} CacheEntry
@@ -210,9 +211,9 @@ export function getPromptCache(
 ) {
   if (!promptCache) {
     promptCache = new LRUCache({
-      maxSize: parseInt(process.env.PROMPT_CACHE_MAX_SIZE || "50", 10),
-      maxBytes: parseInt(process.env.PROMPT_CACHE_MAX_BYTES || String(2 * 1024 * 1024), 10),
-      defaultTTL: parseInt(process.env.PROMPT_CACHE_TTL_MS || "300000", 10),
+      maxSize: safeParseInt(process.env.PROMPT_CACHE_MAX_SIZE, 50),
+      maxBytes: safeParseInt(process.env.PROMPT_CACHE_MAX_BYTES, 2 * 1024 * 1024),
+      defaultTTL: safeParseInt(process.env.PROMPT_CACHE_TTL_MS, 300000),
       ...options,
     });
   }

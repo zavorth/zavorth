@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 interface ExtractionResult {
   success: boolean;
@@ -202,7 +203,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
         case 'rtf':
           return this.extractPlainText(filePath, baseResult);
         default:
-          return { ...baseResult, error: `Extrator para "${ext}" nao implementado.` };
+          return { ...baseResult, error: `Extractor for "${ext}" is not implemented.` };
       }
     } catch (error: unknown) {
       return { ...baseResult, error: this.sanitizePath(error instanceof Error ? error.message : String(error)) };
@@ -242,7 +243,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
       try {
         const info = execFileSync('pdfinfo', [filePath], { timeout: 5000 }).toString();
         const match = info.match(/Pages:\s*(\d+)/);
-        if (match) pageCount = parseInt(match[1], 10);
+        if (match) pageCount = safeParseInt(match[1], 0) || undefined;
       } catch { /* ignore */ }
 
       let tables: string[][] | undefined;
@@ -277,13 +278,13 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
       const trimmed = part.trim();
       if (trimmed.includes('-')) {
         const [startStr, endStr] = trimmed.split('-');
-        const start = parseInt(startStr, 10);
-        const end = parseInt(endStr, 10);
+        const start = safeParseInt(startStr, 0);
+        const end = safeParseInt(endStr, 0);
         if (!isNaN(start) && !isNaN(end)) {
           for (let i = start; i <= end; i++) pages.push(i);
         }
       } else {
-        const num = parseInt(trimmed, 10);
+        const num = safeParseInt(trimmed, 0);
         if (!isNaN(num)) pages.push(num);
       }
     }

@@ -11,6 +11,7 @@
 import { randomUUID } from "node:crypto";
 import { getSettings, updateSettings } from "@/lib/localDb";
 import { getRuntimePorts } from "@/lib/runtime/ports";
+import { safeParseInt } from "../utils/safeParseInt.js";
 
 const DEFAULT_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const MODEL_SYNC_SETTING_KEY = "model_sync_last_run";
@@ -173,7 +174,7 @@ export function startModelSyncScheduler(
   }
 
   // Read MODEL_SYNC_INTERVAL_HOURS env override
-  const envHours = parseInt(process.env.MODEL_SYNC_INTERVAL_HOURS ?? "", 10);
+  const envHours = safeParseInt(process.env.MODEL_SYNC_INTERVAL_HOURS, 0);
   const effectiveIntervalMs =
     !isNaN(envHours) && envHours > 0 ? envHours * 60 * 60 * 1000 : intervalMs;
 

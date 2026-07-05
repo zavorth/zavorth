@@ -1,8 +1,10 @@
+import { safeParseInt } from "../../shared/utils/safeParseInt.js";
+
 const DEFAULT_PORT = 20128;
 
 function parsePort(value: string | undefined, fallback: number): number {
   if (!value) return fallback;
-  const parsed = Number.parseInt(String(value), 10);
+  const parsed = safeParseInt(String(value), fallback);
   if (!Number.isFinite(parsed) || parsed < 1 || parsed > 65535) return fallback;
   return parsed;
 }

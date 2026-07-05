@@ -1,3 +1,5 @@
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+
 export type ZavorthAutomationIntentPlan = {
   intentText: string;
   prompt: string;
@@ -26,8 +28,8 @@ export class ZavorthAutomationIntentService {
         delivery: defaultDelivery,
         deliveryTarget: null,
         posture: 'needs_prompt',
-        summary: 'Faltou descrever o que a automacao deve fazer.',
-        reasons: ['Diga a frequencia e a tarefa. Ex.: "todo dia as 9h verifique meus canais".'],
+        summary: 'Missing description of what the automation should do.',
+        reasons: ['Tell me the frequency and task. Example: "every day at 9am check my channels".'],
       };
     }
 
@@ -37,18 +39,18 @@ export class ZavorthAutomationIntentService {
     const reasons: string[] = [];
 
     if (!schedule.normalized) {
-      reasons.push('Nao achei a frequencia. Use algo como "todo dia as 9h" ou "a cada 2h".');
+      reasons.push('I could not find the frequency. Use something like "every day at 9am" or "every 2h".');
     }
     if (!prompt) {
-      reasons.push('Nao ficou claro o que deve ser executado em cada rodada.');
+      reasons.push('It was not clear what should run in each round.');
     }
 
     const posture =
       !prompt ? 'needs_prompt' : (!schedule.normalized ? 'needs_schedule' : 'ready');
     const summary =
       posture === 'ready'
-        ? `Automacao pronta: ${schedule.label} -> ${prompt}${delivery.delivery === 'app' ? ' no app' : ` via ${delivery.delivery}`}.`
-        : reasons[0] || 'Ainda faltam detalhes para criar a automacao.';
+        ? `Automation ready: ${schedule.label} -> ${prompt}${delivery.delivery === 'app' ? ' in app' : ` via ${delivery.delivery}`}.`
+        : reasons[0] || 'More details are still required to create the automation.';
 
     return {
       intentText: original,
@@ -117,8 +119,8 @@ export class ZavorthAutomationIntentService {
       /(?:todo\s+dia|todos\s+os\s+dias)\s*(?:as|às)?\s*(\d{1,2})(?::(\d{2}))?\s*h?/iu,
     );
     if (dailyMatch) {
-      const hour = Number.parseInt(dailyMatch[1], 10);
-      const minute = Number.parseInt(dailyMatch[2] || '0', 10);
+      const hour = safeParseInt(dailyMatch[1], 0);
+      const minute = safeParseInt(dailyMatch[2], 0);
       const hh = String(hour).padStart(2, '0');
       const mm = String(minute).padStart(2, '0');
       remainingText = remainingText.replace(dailyMatch[0], ' ').replace(/\s+/gu, ' ').trim();
@@ -131,7 +133,7 @@ export class ZavorthAutomationIntentService {
 
     const intervalPt = remainingText.match(/a\s+cada\s+(\d+)\s*([mh])/iu);
     if (intervalPt) {
-      const amount = Number.parseInt(intervalPt[1], 10);
+      const amount = safeParseInt(intervalPt[1], 1);
       const unit = intervalPt[2].toLowerCase();
       remainingText = remainingText.replace(intervalPt[0], ' ').replace(/\s+/gu, ' ').trim();
       return {
@@ -143,7 +145,7 @@ export class ZavorthAutomationIntentService {
 
     const intervalEn = remainingText.match(/every\s+(\d+)\s*([mh])/iu);
     if (intervalEn) {
-      const amount = Number.parseInt(intervalEn[1], 10);
+      const amount = safeParseInt(intervalEn[1], 1);
       const unit = intervalEn[2].toLowerCase();
       remainingText = remainingText.replace(intervalEn[0], ' ').replace(/\s+/gu, ' ').trim();
       return {

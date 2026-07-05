@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { config } from '../config/index.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import type {
   VendorDiffSummary,
   VendorLicenseDecision,
@@ -303,7 +304,7 @@ export class VendorReleaseIndexService {
     }
     try {
       const parsed = new URL(normalizedBaseUrl);
-      const port = parsed.port ? Number.parseInt(parsed.port, 10) : (parsed.protocol === 'https:' ? 443 : 80);
+      const port = parsed.port ? safeParseInt(parsed.port, parsed.protocol === 'https:' ? 443 : 80) : (parsed.protocol === 'https:' ? 443 : 80);
       return Number.isFinite(port) && port > 0 ? port : fallback;
     } catch {
       return fallback;

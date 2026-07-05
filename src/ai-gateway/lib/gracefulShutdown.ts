@@ -12,8 +12,10 @@
  * @module lib/gracefulShutdown
  */
 
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
+
 /** Grace period before forced exit (default 30s, configurable) */
-const SHUTDOWN_TIMEOUT_MS = parseInt(process.env.SHUTDOWN_TIMEOUT_MS || "30000", 10);
+const SHUTDOWN_TIMEOUT_MS = safeParseInt(process.env.SHUTDOWN_TIMEOUT_MS, 30000);
 
 declare global {
   var __ZavorthGatewayShutdown:

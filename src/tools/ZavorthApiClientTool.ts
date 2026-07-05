@@ -1,6 +1,7 @@
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 
 interface ApiResponse {
   success: boolean;
@@ -271,7 +272,7 @@ export class ZavorthApiClientTool extends BaseTool {
       }).toString();
 
       const statusMatch = rawOutput.match(/__HTTP_STATUS__(\d+)/);
-      const statusCode = statusMatch ? parseInt(statusMatch[1], 10) : 0;
+      const statusCode = statusMatch ? safeParseInt(statusMatch[1], 0) : 0;
       const responseBody = rawOutput.replace(/\n__HTTP_STATUS__\d+$/, '').trim();
 
       let bodyJson: unknown | null = null;

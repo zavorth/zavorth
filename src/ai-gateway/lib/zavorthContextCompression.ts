@@ -22,8 +22,10 @@ function boolEnv(name: string, fallback: boolean): boolean {
   return !["0", "false", "no", "off", "disabled"].includes(raw);
 }
 
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
+
 function numberEnv(name: string, fallback: number): number {
-  const parsed = Number.parseInt(String(process.env[name] ?? ""), 10);
+  const parsed = safeParseInt(process.env[name], fallback);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
