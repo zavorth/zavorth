@@ -15,6 +15,7 @@ import { EchoOutputStageService } from '../../../../../services/EchoOutputStageS
 import type { BotGatewaySupportRuntime } from '../../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js';
 import { telegramLegacySurfacePolicyService } from '../../../../../gateways/channels/telegram/controllers/TelegramLegacySurfacePolicyService.js';
 import { TelegramDailyAssistantService } from '../../../../../gateways/channels/telegram/TelegramDailyAssistantService.js';
+import { hookMiddleware } from '../../../../../services/ZavorthMiddlewareHook.js';
 
 export type NaturalConversationIngressMetadata = {
   traceId?: string | null;
@@ -167,6 +168,18 @@ export async function processTextMessage(
         parsed.command_type,
       ),
     );
+    return;
+  }
+
+  // Commandless mode: try to handle via middleware before agent gateway
+  const middlewareResult = await hookMiddleware({
+    text: effectiveText,
+    channelId: 'telegram',
+    userId,
+    locale: ingressMetadata?.preferredLanguageCode ?? undefined,
+  });
+  if (middlewareResult.handled && middlewareResult.response) {
+    await ctx.reply(middlewareResult.response);
     return;
   }
 
