@@ -3,6 +3,7 @@ import { deleteMemory, getMemory, listMemories, updateMemory } from "@/lib/memor
 import { MemoryType } from "@/lib/memory/types";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { SecurityAuditLogger } from "../../../../../../services/SecurityAuditLogger.js";
+import { safeParseInt } from "../../../../../../ai-gateway/shared/utils/safeParseInt.js";
 import {
   isUnsafeCrossSiteMutation,
   readJsonBody,
@@ -11,8 +12,7 @@ import {
 export const runtime = "nodejs";
 
 function normalizeLimit(value: string | null): number {
-  const parsed = Number.parseInt(String(value || ""), 10);
-  if (!Number.isFinite(parsed)) return 24;
+  const parsed = safeParseInt(value, 24);
   return Math.min(100, Math.max(1, parsed));
 }
 

@@ -2,7 +2,8 @@ import { Context } from 'grammy';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { OperationalMode } from '../../../../security/OperationalMode.js';
-import { logger } from '../logger.js';
+import { logger } from '../../../../logger.js';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 
 const VALID_OPERATIONAL_MODES = Object.values(OperationalMode);
 
@@ -16,15 +17,15 @@ export class TelegramOpsAdministrationService {
 
   public async handleAudit(ctx: Context, args: string): Promise<void> {
     try {
-      const limit = parseInt(args, 10) || 10;
+      const limit = safeParseInt(args, 10);
       const events = await this.deps.auditLogger.getRecentEvents(Math.min(limit, 30));
 
       if (events.length === 0) {
-        await ctx.reply('Nenhum evento de audit registrado ainda.');
+        await ctx.reply('No audit events have been recorded yet.');
         return;
       }
 
-      const lines: string[] = [`Ultimos ${events.length} eventos do audit log:`];
+      const lines: string[] = [`Latest ${events.length} audit log events:`];
       for (const event of events) {
         const time = event.timestamp.substring(11, 19);
         const emoji =
@@ -42,11 +43,11 @@ export class TelegramOpsAdministrationService {
       }
 
       const modeManager = this.deps.executionGateway.getModeManager();
-      lines.push('', `Modo operacional atual: ${modeManager.getMode()}`);
+      lines.push('', `Current operational mode: ${modeManager.getMode()}`);
       await ctx.reply(lines.join('\n'));
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
-      await ctx.reply(`Nao consegui ler o audit log agora.\n\nMotivo: ${msg}`);
+      await ctx.reply(`I could not read the audit log right now.\n\nReason: ${msg}`);
     }
   }
 
@@ -57,18 +58,18 @@ export class TelegramOpsAdministrationService {
       const currentMode = modeManager.getMode();
       const perms = modeManager.getPermissions();
       const permLines = Object.entries(perms)
-        .map(([key, val]) => `  ${key}: ${val ? 'sim' : 'nao'}`)
+        .map(([key, val]) => `  ${key}: ${val ? 'yes' : 'no'}`)
         .join('\n');
 
       await ctx.reply(
-        `Modo operacional atual: ${currentMode}\n\nPermissoes:\n${permLines}\n\nPara trocar, use /mode <READ_ONLY|WORKSPACE|BUILD|PRIVILEGED>.`,
+        `Current operational mode: ${currentMode}\n\nPermissions:\n${permLines}\n\nTo change it, use /mode <READ_ONLY|WORKSPACE|BUILD|PRIVILEGED>.`,
       );
       return;
     }
 
     const requestedMode = args.trim().toUpperCase();
     if (!VALID_OPERATIONAL_MODES.includes(requestedMode as OperationalMode)) {
-      await ctx.reply(`Modo invalido: ${args}\n\nModos disponiveis: ${VALID_OPERATIONAL_MODES.join(', ')}`);
+      await ctx.reply(`Invalid mode: ${args}\n\nAvailable modes: ${VALID_OPERATIONAL_MODES.join(', ')}`);
       return;
     }
 
@@ -90,11 +91,11 @@ export class TelegramOpsAdministrationService {
         operational_mode: requestedMode,
         executor: null,
         execution_success: true,
-        execution_summary: `Modo alterado: ${previousMode} -> ${requestedMode}`,
+        execution_summary: `Mode changed: ${previousMode} -> ${requestedMode}`,
         metadata: {},
       })
       .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
-    await ctx.reply(`Modo operacional alterado.\n\nAnterior: ${previousMode}\nAtual: ${requestedMode}`);
+    await ctx.reply(`Operational mode changed.\n\nPrevious: ${previousMode}\nCurrent: ${requestedMode}`);
   }
 }
