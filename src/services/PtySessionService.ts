@@ -52,7 +52,7 @@ export class PtySessionService {
       this.ptyModule = require('node-pty') as IPtyModule;
       this.isAvailable = true;
     } catch (e) {
-      console.warn('node-pty is not available. PTY tools will fail-closed.');
+      logger.warn('node-pty is not available. PTY tools will fail-closed.');
       this.isAvailable = false;
     }
 

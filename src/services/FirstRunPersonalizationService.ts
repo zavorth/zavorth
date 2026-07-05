@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { WakeWordSyncService } from './WakeWordSyncService.js';
+import { logger } from '../logger.js';
 
 export type FirstRunPersonalizationAnswers = {
   agentName?: string | null;
@@ -260,7 +261,7 @@ export class FirstRunPersonalizationService {
     // Sync agent name to wake words
     const wakeWordSync = new WakeWordSyncService();
     wakeWordSync.syncAgentNameToWakeWords(normalized.agentName).catch((err) => {
-      console.error('Failed to sync agent name to wake words:', err);
+      logger.error('Failed to sync agent name to wake words:', err);
     });
 
     const status = this.getStatus();

@@ -5,6 +5,7 @@ import { UserModelTurnCaptureService, type CapturedTurn } from './UserModelTurnC
 import { UserModelDialecticReasoningService, type DialecticSynthesis } from './UserModelDialecticReasoningService.js';
 import { UserModelDialecticService } from './UserModelDialecticService.js';
 import { ZavorthLlmRuntimeService } from './ZavorthLlmRuntimeService.js';
+import { logger } from '../logger.js';
 
 export type ReviewDaemonConfig = {
   enabled: boolean;
@@ -95,7 +96,7 @@ export class UserModelReviewDaemonService {
 
     this.intervalHandle = setInterval(() => {
       this.runReviewCycle().catch((err) => {
-        console.error('[ReviewDaemon] Review cycle failed:', err);
+        logger.error('[ReviewDaemon] Review cycle failed:', err);
       });
     }, this.config.intervalMs);
   }
