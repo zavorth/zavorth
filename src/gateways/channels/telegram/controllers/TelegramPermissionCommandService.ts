@@ -8,6 +8,7 @@ import { TelegramPermissionPolicyService } from '../../../../gateways/channels/t
 import { TelegramPermissionPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPresentationService.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 import { logger } from '../../../../logger.js';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 
 export type TelegramPermissionCommandServiceDeps = {
   permissionService: PermissionService;
@@ -54,11 +55,7 @@ export class TelegramPermissionCommandService {
         case 'list': {
           const statusToken = (restParts[0] || 'pending').toLowerCase();
           const status = this.deps.permissionPolicy.normalizePermissionStatus(statusToken);
-          const limit = Number.parseInt(restParts[1] || '10', 10);
-          const permissions = await this.permissionLookup.listPermissions(
-            status,
-            Number.isFinite(limit) ? limit : 10,
-          );
+          const limit = safeParseInt(restParts[1], 10);
           await replyWithTelegramSurfaceResponse(
             ctx,
             this.deps.permissionPresentation.buildPermissionListSurfaceResponse(permissions, status),
@@ -104,8 +101,8 @@ export class TelegramPermissionCommandService {
       }
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
-      logger.error(`[TelegramPermission] Falha na operacao de permissao (${subcommand}): ${msg}`, error);
-      await ctx.reply(`Falha na operacao de permissao: ${msg}`);
+      logger.error(`[TelegramPermission] Permission operation failed (${subcommand}): ${msg}`, error);
+      await ctx.reply(`Permission operation failed: ${msg}`);
     }
   }
 

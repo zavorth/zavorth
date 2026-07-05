@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 
 import {
   buildCloudflareAiGatewayBaseUrl,
@@ -18,8 +19,8 @@ function parseBooleanFlag(rawValue: string | undefined, fallback: boolean): bool
 }
 
 function parsePositiveInt(rawValue: string | undefined, fallback: number): number {
-  const parsed = Number.parseInt(String(rawValue || ''), 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  const parsed = safeParseInt(rawValue, fallback);
+  return parsed > 0 ? parsed : fallback;
 }
 
 function getEnv(key: string, fallback = ''): string {

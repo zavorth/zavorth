@@ -1,5 +1,6 @@
 import { Database } from '../../../../storage/Database.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
 
 type SidecarSummaryReader = () => unknown;
 
@@ -99,8 +100,8 @@ export class ZavorthControlObservabilityService {
   public async getAuditLogs(url: URL): Promise<AuditLogsResponse> {
     try {
       const db = await Database.getInstance();
-      const limit = Math.min(parseInt(url.searchParams.get('limit') || '100', 10), 500);
-      const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+      const limit = Math.min(safeParseInt(url.searchParams.get('limit'), 100), 500);
+      const offset = safeParseInt(url.searchParams.get('offset'), 0);
       const eventType = url.searchParams.get('event_type') || '';
       const policyDecision = url.searchParams.get('policy') || '';
 
@@ -119,7 +120,7 @@ export class ZavorthControlObservabilityService {
       sql += ' ORDER BY id DESC LIMIT ? OFFSET ?';
       params.push(limit, offset);
 
-      const rows = db.all(sql, params);
+      const rows = db.all<AuditLogEntry>(sql, params);
       const countRow = db.get<{ total: number }>('SELECT COUNT(*) as total FROM audit_log');
       return { logs: rows, total: countRow?.total || 0, limit, offset };
     } catch (error: unknown) {

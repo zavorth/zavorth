@@ -2,6 +2,7 @@
 import * as http from 'http';
 import path from 'path';
 import fs from 'fs';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.js';
 import { WorkspaceWriteApprovalPayloadCache } from './WorkspaceWriteApprovalPayloadCache.js';
 import { WorkspaceWriteApprovalService } from './WorkspaceWriteApprovalService.js';
@@ -19,6 +20,7 @@ import { InternalBetaDiagnosticsService } from './InternalBetaDiagnosticsService
 import { InternalBetaChecklistService } from './InternalBetaChecklistService.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
 import { logger } from '../logger.js';
+import { safeParseInt } from '../utils/number.js';
 
 import { PtySessionService } from './PtySessionService.js';
 import { PtySessionApprovalService } from './PtySessionApprovalService.js';
@@ -686,7 +688,7 @@ export class ZavorthControlCoreRouteService {
     if (pathname === '/api/v2/a2ui/events' && req.method === 'GET') {
       const surfaceId = url.searchParams.get('surfaceId') || undefined;
       const limitRaw = url.searchParams.get('limit');
-      const limit = limitRaw ? Number.parseInt(limitRaw, 10) : 20;
+      const limit = limitRaw ? safeParseInt(limitRaw, 20) : 20;
       const events = typeof deps.a2ui.listEvents === 'function'
         ? deps.a2ui.listEvents(surfaceId, Number.isFinite(limit) ? limit : 20)
         : [];
@@ -697,7 +699,7 @@ export class ZavorthControlCoreRouteService {
     if (pathname === '/api/v2/a2ui/stream' && req.method === 'GET') {
       const surfaceId = url.searchParams.get('surfaceId') || undefined;
       const limitRaw = url.searchParams.get('limit');
-      const limit = limitRaw ? Number.parseInt(limitRaw, 10) : 20;
+      const limit = limitRaw ? safeParseInt(limitRaw, 20) : 20;
       const stream = typeof deps.a2ui.readStream === 'function'
         ? deps.a2ui.readStream(surfaceId, Number.isFinite(limit) ? limit : 20)
         : {
@@ -745,8 +747,8 @@ export class ZavorthControlCoreRouteService {
         surfaceId: body['surfaceId'] as string,
         actionId: body.actionId,
         requestedBy: typeof body['requestedBy'] === 'string' ? body['requestedBy'] : 'zavorthControl',
-        payload: body.payload && typeof body.payload === 'object' ? body.payload : {},
-        correlation: body.correlation && typeof body.correlation === 'object' ? body.correlation : null,
+        payload: body.payload && typeof body.payload === 'object' ? (body.payload as Record<string, unknown>) : {},
+        correlation: body.correlation && typeof body.correlation === 'object' ? (body.correlation as Record<string, unknown>) : null,
       });
       deps.writeJson(res, result, result.ok ? 200 : result.status === 'not_found' ? 404 : 409);
       return true;
@@ -757,14 +759,14 @@ export class ZavorthControlCoreRouteService {
         ok: true,
         deprecated: true,
         canonical: '/api/v2/a2ui/snapshot',
-        data: deps.a2ui.listSurfaces(),
+        data: deps.a2ui?.listSurfaces ? deps.a2ui.listSurfaces() : [],
       });
       return true;
     }
 
     if (pathname.startsWith('/api/v2/a2ui/surface/') && req.method === 'GET') {
       const surfaceId = pathname.split('/').pop() || '';
-      const state = deps.a2ui.getSurfaceState(surfaceId);
+      const state = deps.a2ui?.getSurfaceState ? deps.a2ui.getSurfaceState(surfaceId) : null;
       deps.writeJson(res, {
         ok: !!state,
         deprecated: true,
@@ -1676,7 +1678,7 @@ export class ZavorthControlCoreRouteService {
           deps.writeJson(res, { ok: false, error: 'Missing parameters' }, 400);
           return true;
         }
-        const afterSeq = afterSeqStr ? parseInt(afterSeqStr, 10) : 0;
+        const afterSeq = safeParseInt(afterSeqStr, 0);
 
         const chunks = PtySessionService.getInstance().getOutput(sessionId, afterSeq);
         deps.writeJson(res, { ok: true, data: chunks });
