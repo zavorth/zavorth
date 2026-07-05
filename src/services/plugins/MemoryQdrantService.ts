@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface QdrantPoint {
   id: string;
@@ -41,7 +42,7 @@ export class MemoryQdrantService {
         for (const v of col.vectors || []) vectorsMap.set(v.id, v);
         this.collections.set(name, { name, vectors: vectorsMap, dimension: col.dimension, created_at: col.created_at });
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Memory Qdrant] creation failed', error); }
   }
 
   private scheduleFlush(): void {

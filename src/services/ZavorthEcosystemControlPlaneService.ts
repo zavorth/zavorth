@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { ZavorthPlatformRegistryService } from './ZavorthPlatformRegistryService.js';
+import { logger } from '../logger.js';
 
 type EcosystemRuntime = {
   now?: () => Date;
@@ -516,9 +517,7 @@ export class ZavorthEcosystemControlPlaneService {
         signature: this.nullableText(parsed.signature),
         validationWarnings: warnings,
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Ecosystem Control Plane] parsing failed', error); return null; }
   }
 
   private summarizeFileReadiness(files: Array<{ path: string; exists: boolean }>): FileReadinessSummary {

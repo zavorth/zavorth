@@ -77,23 +77,26 @@ export type ZavorthUnifiedOnboardingSnapshot = {
   commands: ZavorthUnifiedOnboardingCommand[];
   conversationalSetup: {
     command: 'zavorth onboard conversation';
+    status: string;
     uiLanguage: ZavorthConversationalSetupLanguage;
     selectedProfile: ZavorthExperienceProfileId;
     writesOnlyWithConfirmation: true;
   };
   safeDemo: {
+    command: string;
     templateId: string;
     readOnly: true;
     summary: string;
   };
   zavorthControlProjection: {
-    route: '/zavorthControl';
+    route: '/zavorthControl' | '/control';
     executionAuthority: false;
     visualBlocksRequireOwnerApproval: true;
     endpoint: '/api/onboarding/unified';
   };
   invariants: Array<{
     id: string;
+    status?: string;
     detail: string;
   }>;
   nextAction: string;

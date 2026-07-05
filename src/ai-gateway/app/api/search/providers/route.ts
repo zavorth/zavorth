@@ -5,6 +5,7 @@ import {
 } from "@ZavorthGateway/open-sse/config/searchRegistry.ts";
 import { getDbInstance } from "@/lib/db/core";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request: Request) {
   if (!(await isAuthenticated(request))) {
@@ -31,9 +32,7 @@ export async function GET(request: Request) {
                 .get(fallbackId)
             : null;
         if (cred || fallbackCred) status = "active";
-      } catch {
-        // DB error — report as no_credentials
-      }
+      } catch (error) { // DB error — report as no_credentials logger.warn('[route] connection failed', error); }
       return {
         id: p.id,
         name: p.name,
@@ -44,6 +43,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ providers });
   } catch (error) {
+    logger.warn('[route] connection failed', error);
     return NextResponse.json({ error: "Failed to list providers" }, { status: 500 });
   }
 }

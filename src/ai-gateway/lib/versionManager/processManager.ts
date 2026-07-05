@@ -72,9 +72,7 @@ export function isProcessRunning(pid: number): boolean {
   try {
     process.kill(pid, 0);
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[process Manager] lifecycle operation failed', error); return false; }
 }
 
 export function stopProcess(pid: number): Promise<void> {
@@ -150,7 +148,8 @@ export async function getProcessInfo(pid: number): Promise<{
       }
     }
     return { pid, alive: true };
-  } catch {
+  } catch (error) {
+    logger.warn('[process Manager] process execution failed', error);
     return { pid, alive: true };
   }
 }

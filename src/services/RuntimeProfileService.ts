@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { readZavorthEnv } from '../config/configHelpers.js';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type ZavorthProfile = 'core' | 'ops' | 'full';
 export type ZavorthCapabilityPolicy = 'ask-on-demand';
@@ -32,9 +33,7 @@ function resolvePersistedProfile(stateFilePath?: string | null): ZavorthProfile 
       return null;
     }
     return normalizeZavorthProfile(parsed.profile);
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Runtime Profile] JSON parse failed', error); return null; }
 }
 
 function resolveBootstrapProfile(

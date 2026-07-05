@@ -52,10 +52,10 @@ const PRESETS: ZavorthUniversalSkillExpansionPreset[] = [
   {
     id: 'workspace-skill-library',
     label: 'Workspace skill library',
-    description: 'Pasta local de skills que o usuario ja colocou no workspace.',
+    description: 'Local skill folder already placed in the workspace by the user.',
     defaultSourceKind: 'directory',
     defaultTrust: 'trusted-local',
-    recommendedUse: 'Use para bibliotecas locais pequenas ou medias que voce controla.',
+    recommendedUse: 'Use for small or medium local libraries you control.',
     allowAllCandidatesByDefault: false,
     requiresExplicitApply: true,
     noExecutionPerformed: true,
@@ -63,10 +63,10 @@ const PRESETS: ZavorthUniversalSkillExpansionPreset[] = [
   {
     id: 'downloaded-skill-archive',
     label: 'Downloaded skill archive',
-    description: 'Arquivo .zip baixado com muitas skills ou pacotes de skills.',
+    description: 'Downloaded .zip file with many skills or skill packages.',
     defaultSourceKind: 'zip',
     defaultTrust: 'review',
-    recommendedUse: 'Use para bundles externos; sempre comece em preview.',
+    recommendedUse: 'Use for external bundles; always start in preview.',
     allowAllCandidatesByDefault: false,
     requiresExplicitApply: true,
     noExecutionPerformed: true,
@@ -74,10 +74,10 @@ const PRESETS: ZavorthUniversalSkillExpansionPreset[] = [
   {
     id: 'codex-skill-root',
     label: 'Codex-compatible skill root',
-    description: 'Raiz de skills no formato SKILL.md compativel com Codex.',
+    description: 'Skill root using the SKILL.md-compatible format.',
     defaultSourceKind: 'directory',
     defaultTrust: 'review',
-    recommendedUse: 'Use para reaproveitar skills gerais sem acoplar a marca da fonte.',
+    recommendedUse: 'Use to reuse general skills without coupling to the source brand.',
     allowAllCandidatesByDefault: false,
     requiresExplicitApply: true,
     noExecutionPerformed: true,
@@ -85,10 +85,10 @@ const PRESETS: ZavorthUniversalSkillExpansionPreset[] = [
   {
     id: 'agent-skill-root',
     label: 'Agent skill root',
-    description: 'Biblioteca de skills de agentes com instrucoes, playbooks e arquivos auxiliares.',
+    description: 'Agent skill library with instructions, playbooks, and support files.',
     defaultSourceKind: 'directory',
     defaultTrust: 'review',
-    recommendedUse: 'Use quando a origem tiver muitas skills de automacao ou orquestracao.',
+    recommendedUse: 'Use when the origin has many automation or orchestration skills.',
     allowAllCandidatesByDefault: false,
     requiresExplicitApply: true,
     noExecutionPerformed: true,
@@ -96,10 +96,10 @@ const PRESETS: ZavorthUniversalSkillExpansionPreset[] = [
   {
     id: 'generic-skill-folder',
     label: 'Generic skill folder',
-    description: 'Pasta generica que pode conter SKILL.md, catalogos, markdown e manifests.',
+    description: 'Generic folder that may contain SKILL.md, catalogs, markdown, and manifests.',
     defaultSourceKind: 'auto',
     defaultTrust: 'review',
-    recommendedUse: 'Use como preset neutro para fontes desconhecidas.',
+    recommendedUse: 'Use as a neutral preset for unknown sources.',
     allowAllCandidatesByDefault: false,
     requiresExplicitApply: true,
     noExecutionPerformed: true,
@@ -107,10 +107,10 @@ const PRESETS: ZavorthUniversalSkillExpansionPreset[] = [
   {
     id: 'custom',
     label: 'Custom source',
-    description: 'Fonte personalizada declarada pelo operador.',
+    description: 'Custom source declared by the operator.',
     defaultSourceKind: 'auto',
     defaultTrust: 'review',
-    recommendedUse: 'Use quando nenhum preset descreve bem a fonte.',
+    recommendedUse: 'Use when no preset describes the source well.',
     allowAllCandidatesByDefault: false,
     requiresExplicitApply: true,
     noExecutionPerformed: true,
@@ -146,7 +146,7 @@ export class UniversalSkillExpansionService {
     const limitReasons: string[] = [];
 
     if (sources.length > maxSources) {
-      limitReasons.push(`Fontes acima do limite: ${sources.length}/${maxSources}.`);
+      limitReasons.push(`Sources above limit: ${sources.length}/${maxSources}.`);
     }
 
     const previewResults = await this.buildSourceResults({
@@ -166,7 +166,7 @@ export class UniversalSkillExpansionService {
     );
 
     if (previewCandidateCount > maxCandidates) {
-      limitReasons.push(`Candidatos acima do limite: ${previewCandidateCount}/${maxCandidates}.`);
+      limitReasons.push(`Candidates above limit: ${previewCandidateCount}/${maxCandidates}.`);
     }
 
     const sourceResults = apply && limitReasons.length === 0
@@ -412,24 +412,24 @@ export class UniversalSkillExpansionService {
     apply: boolean;
   }): string[] {
     const reasons = [
-      'Preview obrigatorio executado para cada fonte antes de qualquer materializacao.',
-      'Deny-by-default preservado: apply exige allow-source e allowlist de skill ou allow-all explicito.',
-      'Nenhum codigo upstream foi executado durante intake, import, registry ou activation.',
+      'Required preview executed for every source before any materialization.',
+      'Deny-by-default preserved: apply requires allow-source and a skill allowlist or explicit allow-all.',
+      'No upstream code was executed during intake, import, registry, or activation.',
     ];
     if (input.limitReasons.length > 0) {
       reasons.push(...input.limitReasons);
     }
     if (input.summary.blockedCandidates > 0) {
-      reasons.push(`${input.summary.blockedCandidates} candidato(s) hostil(is) permaneceram bloqueados.`);
+      reasons.push(`${input.summary.blockedCandidates} hostile candidate(s) remained blocked.`);
     }
     if (input.summary.materialized > 0) {
-      reasons.push(`${input.summary.materialized} skill(s) materializada(s) com provenance, attribution e receipts.`);
+      reasons.push(`${input.summary.materialized} skill(s) materialized with provenance, attribution, and receipts.`);
     }
     if (input.summary.bridgeReady > 0) {
-      reasons.push(`${input.summary.bridgeReady} skill(s) prontas para dry-run pelo bridge governado.`);
+      reasons.push(`${input.summary.bridgeReady} skill(s) ready for dry-run through the governed bridge.`);
     }
     if (!input.apply) {
-      reasons.push('Modo preview-only: nenhuma importacao foi realizada.');
+      reasons.push('Preview-only mode: no import was performed.');
     }
     return reasons;
   }

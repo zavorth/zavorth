@@ -140,7 +140,7 @@ export class SecurityAuditTrailService {
     this.writeStatusFile({
       generatedAt: timestamp,
       ok: true,
-      summary: `${sequence} evento(s) encadeado(s); ultimo ${record.event_type} em ${record.task_id}; cadeia ${record.chain_hash.slice(0, 10)}.`,
+      summary: `${sequence} chained event(s); latest ${record.event_type} on ${record.task_id}; chain ${record.chain_hash.slice(0, 10)}.`,
       totalEvents: sequence,
       latestEventType: record.event_type,
       latestTaskId: record.task_id,
@@ -170,7 +170,7 @@ export class SecurityAuditTrailService {
     this.writeStatusFile({
       generatedAt: timestamp,
       ok: false,
-      summary: `Falha ao persistir trilha de auditoria criptografica: ${error instanceof Error ? error.message : String(error)}`,
+      summary: `Failed to persist cryptographic audit trail: ${error instanceof Error ? error.message : String(error)}`,
     });
   }
 

@@ -17,6 +17,7 @@ import {
 } from '../contracts/ZavorthScheduledTaskPersistenceContract.js';
 import type { ZavorthScheduledTaskInput } from '../contracts/ZavorthScheduledTaskContract.js';
 import { ZavorthScheduledTaskExecutionGatewayRuntimeService } from './ZavorthScheduledTaskExecutionGatewayRuntimeService.js';
+import { logger } from '../logger.js';
 
 type SchedulerLike = {
   scheduleTask(
@@ -413,9 +414,7 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
     ) {
       return metadata as SchedulerGovernedScheduledTaskMetadata;
     }
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Scheduled Task Persistence] JSON parse failed', error); return null; }
   return null;
 }
 

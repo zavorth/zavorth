@@ -36,7 +36,7 @@ export class TelegramZavorthBridgeWindowBridgeService {
       action !== 'approve-visible-step' &&
       action !== 'paste-and-submit'
     ) {
-      await ctx.reply('Acao da janela do ZavorthBridge nao reconhecida.');
+      await ctx.reply('ZavorthBridge window action was not recognized.');
       return;
     }
 
@@ -65,35 +65,35 @@ export class TelegramZavorthBridgeWindowBridgeService {
           ? await automator.focusWindow()
           : action === 'approve-visible-step'
             ? await automator.approveVisibleStep()
-            : await automator.pasteAndSubmit(text || 'Continue a tarefa atual do Zavorth e conclua a resposta.');
+            : await automator.pasteAndSubmit(text || 'Continue the current Zavorth task and complete the answer.');
 
       await new Promise((resolve) => setTimeout(resolve, 1200));
       await automator.captureWindow(afterPath);
 
       if (!result.ok) {
         await ctx.reply(
-          `Nao consegui concluir ${this.describeWindowAction(action)} pela janela do ZavorthBridge.${result.message ? `\nMotivo: ${result.message}` : ''}`,
+          `I could not complete ${this.describeWindowAction(action)} through the ZavorthBridge window.${result.message ? `\nReason: ${result.message}` : ''}`,
         );
       } else {
         const confirmation = result.verified
-          ? `Pronto. ${this.describeWindowAction(action, true)} na janela real do ZavorthBridge.`
-          : `Executei ${this.describeWindowAction(action)} na janela do ZavorthBridge, mas a confirmacao final ficou parcial.`;
+          ? `Done. ${this.describeWindowAction(action, true)} in the real ZavorthBridge window.`
+          : `I executed ${this.describeWindowAction(action)} in the ZavorthBridge window, but final confirmation was partial.`;
         await ctx.reply(confirmation);
       }
 
       try {
         const mediaGroup: MediaGroupPhotoItem[] = [];
         if (fs.existsSync(beforePath)) {
-          mediaGroup.push({ type: 'photo', media: new InputFile(beforePath), caption: 'ANTES da acao' });
+          mediaGroup.push({ type: 'photo', media: new InputFile(beforePath), caption: 'BEFORE action' });
         }
         if (fs.existsSync(afterPath)) {
-          mediaGroup.push({ type: 'photo', media: new InputFile(afterPath), caption: 'DEPOIS da acao' });
+          mediaGroup.push({ type: 'photo', media: new InputFile(afterPath), caption: 'AFTER action' });
         }
         if (mediaGroup.length > 0) {
           await ctx.replyWithMediaGroup?.(mediaGroup);
         }
       } catch (sendError) {
-        logger.warn('[ZavorthBridge] Falha ao enviar snapshots via Telegram:', sendError);
+        logger.warn('[ZavorthBridge] Failed to send snapshots through Telegram:', sendError);
       } finally {
         try {
           if (fs.existsSync(beforePath)) {
@@ -108,7 +108,7 @@ export class TelegramZavorthBridgeWindowBridgeService {
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      await ctx.reply(`Falha na automacao da janela do ZavorthBridge: ${message}`);
+      await ctx.reply(`ZavorthBridge window automation failed: ${message}`);
     }
   }
 
@@ -122,17 +122,17 @@ export class TelegramZavorthBridgeWindowBridgeService {
       const commandModes = this.describeAdvancedCommandModes(status?.capabilities || {});
       await ctx.reply(
         [
-          `Ponte do ZavorthBridge: ${online ? 'online' : 'offline'}.`,
-          `Instancia: ${status?.instanceId || 'indisponivel'}`,
-          `Heartbeat: ${status?.updatedAt || 'indisponivel'}`,
-          `Modelo preferido: ${preferredModel || 'nao definido'}`,
-          `Comandos: ${commandModes.join(' | ') || 'nenhum comando avancado pronto'}`,
-          `Pendencias: ${status?.pendingHandoffs ?? 0}`,
+          `ZavorthBridge bridge: ${online ? 'online' : 'offline'}.`,
+          `Instance: ${status?.instanceId || 'unavailable'}`,
+          `Heartbeat: ${status?.updatedAt || 'unavailable'}`,
+          `Preferred model: ${preferredModel || 'not set'}`,
+          `Commands: ${commandModes.join(' | ') || 'no advanced command ready'}`,
+          `Pending: ${status?.pendingHandoffs ?? 0}`,
         ].join('\n'),
       );
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      await ctx.reply(`Nao consegui ler o estado da ponte interna do ZavorthBridge agora.\n\nMotivo: ${message}`);
+      await ctx.reply(`I could not read the internal ZavorthBridge bridge state right now.\n\nReason: ${message}`);
     }
   }
 
@@ -173,7 +173,7 @@ export class TelegramZavorthBridgeWindowBridgeService {
       }
 
       await bridge.executeCommand('zavorthBridge.openAgent', [], undefined, 5000, bridgeState.targetInstanceId);
-      return 'Pronto. Foquei o painel real do ZavorthBridge pela ponte.';
+      return 'Done. Focused the real ZavorthBridge panel through the bridge.';
     }
 
     if (action === 'approve-visible-step') {
@@ -182,16 +182,16 @@ export class TelegramZavorthBridgeWindowBridgeService {
       }
 
       await bridge.acceptStep(undefined, 8000, bridgeState.targetInstanceId);
-      return 'Pronto. Aceitei a etapa visivel do ZavorthBridge pela ponte.';
+      return 'Done. Accepted the visible ZavorthBridge step through the bridge.';
     }
 
     if (!bridgeState.capabilities.canSendAgentPrompt) {
       return null;
     }
 
-    const prompt = text || 'Continue a tarefa atual do Zavorth e conclua a resposta.';
+    const prompt = text || 'Continue the current Zavorth task and complete the answer.';
     await bridge.sendAgentPrompt(prompt, undefined, 8000, bridgeState.targetInstanceId);
-    return 'Pronto. Enviei esse texto para a conversa real do ZavorthBridge pela ponte.';
+    return 'Done. Sent this text to the real ZavorthBridge conversation through the bridge.';
   }
 
   private describeWindowAction(
@@ -200,17 +200,17 @@ export class TelegramZavorthBridgeWindowBridgeService {
   ): string {
     switch (action) {
       case 'focus':
-        return completed ? 'Foquei a conversa atual' : 'focar a conversa atual';
+        return completed ? 'Focused the current conversation' : 'focus the current conversation';
       case 'approve-visible-step':
-        return completed ? 'Aceitei a etapa visivel' : 'aceitar a etapa visivel';
+        return completed ? 'Accepted the visible step' : 'accept the visible step';
       default:
-        return completed ? 'Enviei o texto atual' : 'enviar o texto atual';
+        return completed ? 'Sent the current text' : 'send the current text';
     }
   }
 
   private describeAdvancedCommandModes(capabilities: Record<string, boolean>): string[] {
     const resolveMode = (bridgeReady: boolean, fallbackReady: boolean, label: string): string =>
-      `${label}=${bridgeReady ? 'ponte' : fallbackReady ? 'janela' : 'indisponivel'}`;
+      `${label}=${bridgeReady ? 'bridge' : fallbackReady ? 'window' : 'unavailable'}`;
 
     return [
       resolveMode(Boolean(capabilities.canOpenAgentPanel), true, '/agfocus'),
@@ -218,7 +218,7 @@ export class TelegramZavorthBridgeWindowBridgeService {
       resolveMode(Boolean(capabilities.canSendAgentPrompt), true, '/agnudge'),
       resolveMode(Boolean(capabilities.canCloseAllEditors), false, '/agclean'),
       resolveMode(Boolean(capabilities.canResetSession || capabilities.canStartNewConversation), false, '/agreset'),
-      '/agmodel=controle',
+      '/agmodel=control',
     ];
   }
 }

@@ -1,42 +1,36 @@
 /**
- * SkillScanner — Auto-Descoberta Dinâmica de Skills (Modelo ExternalExecutor TOOLS.md)
+ * SkillScanner - dynamic skill autodiscovery.
  *
- * No ExternalExecutor, cada Skill é uma pasta com um manifesto (TOOLS.md ou manifest.json).
- * O agente "descobre" as skills automaticamente sem registro manual no código.
+ * Each skill is a folder with a manifest (TOOLS.md or manifest.json).
+ * The scanner discovers skills automatically without manual registration in code.
  *
- * Este módulo escaneia o diretório `skill-library` e `src/skills` procurando:
- * - Arquivos `TOOLS.md` (descrição legível pelo LLM)
- * - Arquivos `manifest.json` (definições de tool em JSON Schema)
- * - Arquivos `*.skill.ts` (implementações executáveis)
- *
- * Ao adicionar uma nova skill, basta criar uma pasta com os arquivos acima.
- * O Scanner descobre tudo automaticamente no boot.
+ * It scans `skill-library` and `src/skills` looking for:
+ * - `TOOLS.md` files with an LLM-readable description
+ * - `manifest.json` files with JSON Schema tool definitions
+ * - `*.skill.ts` files with executable implementations
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 
 export interface SkillManifest {
-  /** ID único da skill (nome da pasta) */
+  /** Unique skill ID, usually the folder name. */
   id: string;
-  /** Caminho absoluto da pasta da skill */
+  /** Absolute path to the skill folder. */
   directory: string;
-  /** Conteúdo do TOOLS.md (para o LLM ler) */
+  /** TOOLS.md content for the LLM to read. */
   toolsMarkdown: string | null;
-  /** Definições de tools em JSON Schema (para injection no prompt) */
+  /** JSON Schema tool definitions for prompt injection. */
   toolDefinitions: any[];
-  /** Caminho do arquivo de implementação principal */
+  /** Main implementation file path. */
   entryPoint: string | null;
-  /** Metadata extra do manifesto */
+  /** Extra manifest metadata. */
   metadata: Record<string, unknown>;
 }
 
 export class SkillScanner {
   /**
-   * Escaneia um ou mais diretórios procurando skills com manifestos.
-   *
-   * @param directories - Lista de diretórios para escanear
-   * @returns Lista de manifestos descobertos
+   * Scans one or more directories for skills with manifests.
    */
   public scan(directories: string[]): SkillManifest[] {
     const manifests: SkillManifest[] = [];
@@ -58,12 +52,12 @@ export class SkillScanner {
       }
     }
 
-    console.log(`[SkillScanner] Descobertas ${manifests.length} skills em ${directories.length} diretório(s)`);
+    console.log(`[SkillScanner] Discovered ${manifests.length} skills in ${directories.length} directories`);
     return manifests;
   }
 
   /**
-   * Lê o manifesto de uma skill individual a partir da sua pasta.
+   * Reads a single skill manifest from its folder.
    */
   private readSkillManifest(id: string, directory: string): SkillManifest | null {
     const toolsMdPath = path.join(directory, 'TOOLS.md');
@@ -71,7 +65,6 @@ export class SkillScanner {
     const skillTsPath = path.join(directory, `${id}.skill.ts`);
     const indexTsPath = path.join(directory, 'index.ts');
 
-    // Precisa ter pelo menos um manifesto (TOOLS.md ou manifest.json)
     const hasToolsMd = fs.existsSync(toolsMdPath);
     const hasManifestJson = fs.existsSync(manifestJsonPath);
 
@@ -97,11 +90,10 @@ export class SkillScanner {
         toolDefinitions = raw.tools || raw.toolDefinitions || [];
         metadata = raw.metadata || raw;
       } catch {
-        // Manifesto inválido, ignorar
+        // Invalid manifest, ignore it.
       }
     }
 
-    // Descobrir o entry point
     let entryPoint: string | null = null;
     if (fs.existsSync(skillTsPath)) {
       entryPoint = skillTsPath;

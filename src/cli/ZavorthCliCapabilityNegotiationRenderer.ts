@@ -53,43 +53,43 @@ export function formatCapabilityNegotiationSnapshot(
 ): string {
   const lines = [
     'Capability Negotiation - Capability Negotiation',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,
-    `- fonte: ${snapshot.decisionSource}`,
-    `- risco: ${snapshot.summary.highestRisk}`,
-    `- approval requerido: ${String(snapshot.summary.approvalRequired)}`,
-    `- preview requerido: ${String(snapshot.summary.previewRequired)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- source: ${snapshot.decisionSource}`,
+    `- risk: ${snapshot.summary.highestRisk}`,
+    `- approval required: ${String(snapshot.summary.approvalRequired)}`,
+    `- preview required: ${String(snapshot.summary.previewRequired)}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
-    'Escopo',
-    `- tools permitidas: ${snapshot.scope.allowedToolIds.join(', ') || 'nenhuma'}`,
-    `- tools bloqueadas: ${snapshot.scope.blockedToolIds.join(', ') || 'nenhuma'}`,
-    `- paths: ${snapshot.scope.pathHints.join(', ') || 'nao declarados'}`,
-    `- superficies: ${snapshot.scope.surfaces.join(', ') || 'nao declaradas'}`,
+    'Scope',
+    `- allowed tools: ${snapshot.scope.allowedToolIds.join(', ') || 'none'}`,
+    `- blocked tools: ${snapshot.scope.blockedToolIds.join(', ') || 'none'}`,
+    `- paths: ${snapshot.scope.pathHints.join(', ') || 'not declared'}`,
+    `- surfaces: ${snapshot.scope.surfaces.join(', ') || 'not declared'}`,
   ];
 
   lines.push('', 'Capabilities');
   for (const capability of snapshot.capabilities.slice(0, 8)) {
     lines.push(
       `- ${capability.label} [${capability.risk}] ${capability.permission}`,
-      `  tools: ${capability.toolIds.join(', ') || 'nenhuma'}; ${capability.blocked ? 'bloqueada' : 'disponivel'}`,
-      `  motivo: ${capability.reason}`,
+      `  tools: ${capability.toolIds.join(', ') || 'none'}; ${capability.blocked ? 'blocked' : 'available'}`,
+      `  reason: ${capability.reason}`,
     );
   }
 
   if (snapshot.proposal) {
-    lines.push('', 'Proposta');
+    lines.push('', 'Proposal');
     lines.push(`- ${snapshot.proposal.summary}`);
-    lines.push(`- pergunta: ${snapshot.proposal.userQuestion}`);
+    lines.push(`- question: ${snapshot.proposal.userQuestion}`);
   }
 
-  lines.push('', 'Politica');
-  lines.push('- negotiation nao executa tools');
-  lines.push('- escopo aprovado limita tools e paths');
-  lines.push('- approvals e preview continuam obrigatorios quando a policy exigir');
+  lines.push('', 'Policy');
+  lines.push('- negotiation does not execute tools');
+  lines.push('- approved scope limits tools and paths');
+  lines.push('- approvals and preview remain required when policy demands them');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Hint: ${snapshot.surface.approvalHint}`);

@@ -35,11 +35,12 @@ export type ZavorthCliFinalProductPolishSnapshot = {
   };
   entries: ZavorthCliFinalProductPolishEntry[];
   summary: {
+    entries: number;
     passed: number;
     attention: number;
     blocked: number;
     requiredCommands: string[];
-    zavorthControlPath: '/zavorthControl';
+    zavorthControlPath: '/zavorthControl' | '/control';
     inkPreviewRendersOnce: boolean;
     inkInteractiveMode: boolean;
     zavorthNativeCommandIdentity: boolean;

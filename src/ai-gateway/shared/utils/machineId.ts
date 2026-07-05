@@ -1,5 +1,6 @@
 import { execSync, execFileSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Get raw machine ID using OS-specific methods.
@@ -30,9 +31,7 @@ function getMachineIdRaw(): string {
         ?.toLowerCase();
       if (id && id.length > 8) return id;
     }
-  } catch {
-    // Not Windows or REG.exe failed — continue
-  }
+  } catch (error) { // Not Windows or REG.exe failed — continue logger.warn('[machine Id] process execution failed', error); }
 
   // Strategy 2: macOS — ioreg IOPlatformUUID
   try {
@@ -51,9 +50,7 @@ function getMachineIdRaw(): string {
         ?.toLowerCase();
       if (id && id.length > 8) return id;
     }
-  } catch {
-    // Not macOS or ioreg not available — continue
-  }
+  } catch (error) { // Not macOS or ioreg not available — continue logger.warn('[machine Id] process execution failed', error); }
 
   // Strategy 3: Linux — read machine-id files directly (no `head` or pipe)
   try {
@@ -63,26 +60,20 @@ function getMachineIdRaw(): string {
         if (content.length > 8) return content;
       }
     }
-  } catch {
-    // Files not readable — continue
-  }
+  } catch (error) { // Files not readable — continue logger.warn('[machine Id] filesystem operation failed', error); }
 
   // Strategy 4: Hostname fallback (works on all platforms)
   try {
     const hostname = execSync("hostname", { encoding: "utf8", timeout: 5000 });
     const id = hostname.trim().toLowerCase();
     if (id) return id;
-  } catch {
-    // hostname failed — continue
-  }
+  } catch (error) { // hostname failed — continue logger.warn('[machine Id] process execution failed', error); }
 
   // Strategy 5: Node.js os.hostname() (no exec needed)
   try {
     const os = require("os");
     return os.hostname().toLowerCase();
-  } catch {
-    // Final fallback
-  }
+  } catch (error) { // Final fallback logger.warn('[machine Id] process execution failed', error); }
 
   return "unknown-machine";
 }
@@ -112,13 +103,14 @@ export async function getConsistentMachineId(salt = null) {
     try {
       const cryptoFallback = await import("crypto");
       return cryptoFallback.randomUUID();
-    } catch {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    } catch (error) {
+    logger.warn('[machine Id] string operation failed', error);
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0;
         const v = c == "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
       });
-    }
+  }
   }
 }
 
@@ -135,13 +127,14 @@ export async function getRawMachineId() {
     try {
       const cryptoFallback = await import("crypto");
       return cryptoFallback.randomUUID();
-    } catch {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    } catch (error) {
+    logger.warn('[machine Id] string operation failed', error);
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0;
         const v = c == "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
       });
-    }
+  }
   }
 }
 

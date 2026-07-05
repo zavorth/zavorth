@@ -1,4 +1,5 @@
 import { CURSOR_CONFIG } from "../constants/oauth";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Cursor IDE OAuth Service
@@ -147,9 +148,7 @@ export class CursorService {
           userId: decoded.sub || decoded.user_id,
         };
       }
-    } catch {
-      // Token is not a JWT, that's okay
-    }
+    } catch (error) { // Token is not a JWT, that's okay logger.warn('[cursor] JSON parse failed', error); }
 
     return null;
   }

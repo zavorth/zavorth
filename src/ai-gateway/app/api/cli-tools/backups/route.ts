@@ -6,6 +6,7 @@ import { listBackups, restoreBackup, deleteBackup } from "@/shared/services/back
 import { ensureCliConfigWriteAllowed } from "@/shared/services/cliRuntime";
 import { cliBackupMutationSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 const VALID_TOOLS = ["claude", "codex", "droid", "external-executor", "cline", "kilo"];
 const LEGACY_TOOL_ALIASES: Record<string, string> = {};
@@ -79,7 +80,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -133,7 +135,8 @@ export async function DELETE(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] delete operation failed', error);
     return NextResponse.json(
       {
         error: {

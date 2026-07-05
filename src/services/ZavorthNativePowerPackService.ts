@@ -186,7 +186,7 @@ export class ZavorthNativePowerPackService {
   }
 
   public extractDocument(input: { filePath?: string | null; maxChars?: number | null }): ZavorthNativePowerPackDocumentResult {
-    const resolved = this.resolveWorkspaceFile(input.filePath) as any;
+    const resolved = this.resolveWorkspaceFile(input.filePath);
     if (!resolved.ok) {
       return {
         ok: false,
@@ -290,7 +290,7 @@ export class ZavorthNativePowerPackService {
   }
 
   public analyzeImage(input: { filePath?: string | null }): ZavorthNativePowerPackImageAnalysis {
-    const resolved = this.resolveWorkspaceFile(input.filePath) as any;
+    const resolved = this.resolveWorkspaceFile(input.filePath);
     if (!resolved.ok) {
       return {
         ok: false,

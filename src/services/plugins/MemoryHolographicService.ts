@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface HolographicMemory {
   id: string;
@@ -53,7 +54,7 @@ export class MemoryHolographicService {
         this.memories.set(id, mem);
         this.indexMemory(mem);
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Memory Holographic] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

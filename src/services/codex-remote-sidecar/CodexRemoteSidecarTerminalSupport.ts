@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { logger } from '../../logger.js';
 
 export class CodexRemoteSidecarTerminalSupport {
   public async readTextFile(filePath: string | null): Promise<string> {
@@ -9,9 +10,7 @@ export class CodexRemoteSidecarTerminalSupport {
     try {
       const content = await fs.promises.readFile(normalized, 'utf8');
       return content.trim();
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Codex Remote Sidecar Terminal] filesystem operation failed', error); return ''; }
   }
 
   public async readTailFromFile(filePath: string | null, maxLines: number): Promise<string[]> {
@@ -22,9 +21,7 @@ export class CodexRemoteSidecarTerminalSupport {
     try {
       const content = await fs.promises.readFile(normalized, 'utf8');
       return content.split(/\r?\n/).map((line) => line.trimEnd()).filter(Boolean).slice(-maxLines);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Codex Remote Sidecar Terminal] filesystem operation failed', error); return []; }
   }
 
   public normalizeChunk(chunk: unknown): string {

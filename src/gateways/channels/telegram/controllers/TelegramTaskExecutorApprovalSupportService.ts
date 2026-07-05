@@ -4,7 +4,7 @@ import { Task } from '../../../../contracts/TaskContract.js';
 import { TaskSecurityPostureService } from '../../../../services/TaskSecurityPostureService.js';
 
 const WORKFLOW_APPROVAL_SUMMARY =
-  'Permissao aprovada. Workflow liberado para continuar nesta etapa.';
+  'Permission approved. Workflow released to continue this stage.';
 
 export type TelegramTaskExecutorApprovalSupportServiceDeps = {
   taskSecurityPosture: TaskSecurityPostureService;

@@ -26,6 +26,7 @@ import { NodeInvokeService } from './NodeInvokeService.js';
 import { NodePairingService } from './NodePairingService.js';
 import { NodeRegistryService } from './NodeRegistryService.js';
 import { TrustDecisionService, type TrustDecision } from './TrustDecisionService.js';
+import { logger } from '../logger.js';
 
 export type FederatedMeshProfile =
   | 'local'
@@ -290,7 +291,7 @@ export class ZavorthFederatedMeshControlPlaneService {
     this.capabilityService = runtime.capabilityService || new NodeCapabilityService();
     this.distributedRuntimeService = runtime.distributedRuntimeService || new ZavorthDistributedRuntimeControlPlaneService({
       now: this.now,
-      nodeMeshService: this.nodeMeshService as AsyncSnapshotLike,
+      nodeMeshService: this.nodeMeshService,
     });
     this.mutationPlaneService = runtime.mutationPlaneService || new ZavorthMutationPlaneService();
     this.trustDecisionService = runtime.trustDecisionService || new TrustDecisionService();
@@ -964,9 +965,7 @@ export class ZavorthFederatedMeshControlPlaneService {
   private async safeDistributedRuntimeSnapshot(): Promise<ZavorthDistributedRuntimeSnapshot | null> {
     try {
       return await this.distributedRuntimeService.buildSnapshot();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Federated Mesh Control Plane] creation failed', error); return null; }
   }
 
   private buildActions(

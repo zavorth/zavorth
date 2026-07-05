@@ -15,6 +15,7 @@ import {
   DATA_DIR,
 } from "./core";
 import { resetAllDbModuleState } from "./stateReset";
+import { logger } from '@/shared/utils/logger';
 
 type CountRow = { cnt?: number };
 
@@ -140,9 +141,7 @@ export function backupDbFile(reason = "auto") {
       }
       try {
         fs.unlinkSync(path.join(backupDir, files[smallestIdx]));
-      } catch {
-        /* gone */
-      }
+      } catch (error) { /* gone */ logger.warn('[backup] file cleanup failed', error); }
       files.splice(smallestIdx, 1);
     }
 
@@ -181,9 +180,7 @@ export async function listDbBackups() {
           | undefined;
         connectionCount = row?.cnt || 0;
         backupDb.close();
-      } catch {
-        /* ignore */
-      }
+      } catch (error) { /* ignore */ logger.warn('[backup] resource cleanup failed', error); }
 
       return {
         id: filename,
@@ -194,9 +191,7 @@ export async function listDbBackups() {
         connectionCount,
       };
     });
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[backup] resource cleanup failed', error); return []; }
 }
 
 // ──────────────── Restore Backup ────────────────

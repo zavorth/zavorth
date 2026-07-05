@@ -10,7 +10,7 @@ import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.j
 function compact(value: string | null | undefined, maxLength = 96): string {
   const normalized = sanitizeHumanCliText(value || '').replace(/\s+/g, ' ').trim();
   if (!normalized) {
-    return 'nao informado';
+    return 'not provided';
   }
   if (normalized.length <= maxLength) {
     return normalized;
@@ -30,20 +30,20 @@ export function formatWorkspaceMemoryReview(snapshot: ZavorthWorkspaceMemoryOsSn
       title: 'Workspace',
       tone: snapshot.workspaceProfile.workspace ? 'success' : 'neutral',
       lines: [
-        `- pasta: ${snapshot.workspaceProfile.workspace || 'nao informada'}`,
-        `- stack: ${snapshot.workspaceProfile.stack.join(', ') || 'nao inferida'}`,
-        `- build: ${snapshot.workspaceProfile.buildCommands.join(' | ') || 'nao inferido'}`,
-        `- test: ${snapshot.workspaceProfile.testCommands.join(' | ') || 'nao inferido'}`,
+        `- folder: ${snapshot.workspaceProfile.workspace || 'not provided'}`,
+        `- stack: ${snapshot.workspaceProfile.stack.join(', ') || 'not inferred'}`,
+        `- build: ${snapshot.workspaceProfile.buildCommands.join(' | ') || 'not inferred'}`,
+        `- test: ${snapshot.workspaceProfile.testCommands.join(' | ') || 'not inferred'}`,
       ],
     },
     {
       title: 'Follow-up',
       tone: snapshot.contracts.followUpsResolveReferences ? 'success' : 'warning',
       lines: [
-        `- task: ${snapshot.recentTaskResolver.taskId || 'nenhuma'}`,
-        `- estado: ${snapshot.recentTaskResolver.state || 'nao informado'}`,
-        `- workspace: ${snapshot.recentTaskResolver.workspace || snapshot.workspaceProfile.workspace || 'nao informado'}`,
-        `- comando: ${snapshot.recentTaskResolver.command || 'nao informado'}`,
+        `- task: ${snapshot.recentTaskResolver.taskId || 'none'}`,
+        `- state: ${snapshot.recentTaskResolver.state || 'not provided'}`,
+        `- workspace: ${snapshot.recentTaskResolver.workspace || snapshot.workspaceProfile.workspace || 'not provided'}`,
+        `- command: ${snapshot.recentTaskResolver.command || 'not provided'}`,
       ],
     },
     {
@@ -58,16 +58,16 @@ export function formatWorkspaceMemoryReview(snapshot: ZavorthWorkspaceMemoryOsSn
     {
       title: 'Review',
       tone: snapshot.contracts.secretsRedactedByDefault ? 'success' : 'warning',
-      lines: entries.length > 0 ? entries.map(entryLine) : ['- nenhuma memoria revisavel encontrada'],
+      lines: entries.length > 0 ? entries.map(entryLine) : ['- no reviewable memory found'],
     },
     {
       title: 'Contratos',
       tone: Object.values(snapshot.contracts).every(Boolean) ? 'success' : 'warning',
       lines: [
-        `- review: ${snapshot.contracts.reviewShowsLearnedMemory ? 'sim' : 'nao'}`,
-        `- apagar/corrigir: ${snapshot.contracts.userCanForgetOrCorrect ? 'sim' : 'parcial'}`,
-        `- comandos reutilizaveis: ${snapshot.contracts.workspaceCommandsReusable ? 'sim' : 'nao'}`,
-        `- secrets redigidos: ${snapshot.contracts.secretsRedactedByDefault ? 'sim' : 'nao'}`,
+        `- review: ${snapshot.contracts.reviewShowsLearnedMemory ? 'yes' : 'no'}`,
+        `- forget/correct: ${snapshot.contracts.userCanForgetOrCorrect ? 'yes' : 'partial'}`,
+        `- reusable commands: ${snapshot.contracts.workspaceCommandsReusable ? 'yes' : 'no'}`,
+        `- redacted secrets: ${snapshot.contracts.secretsRedactedByDefault ? 'yes' : 'no'}`,
       ],
     },
     {
@@ -100,7 +100,7 @@ export function formatWorkspaceMemoryResolution(resolution: ZavorthFollowUpResol
       lines: [
         `- entrada: ${compact(resolution.input, 88)}`,
         `- intent: ${resolution.intent}`,
-        `- resolvido: ${resolution.resolved ? 'sim' : 'parcial'}`,
+        `- resolved: ${resolution.resolved ? 'yes' : 'partial'}`,
         `- motivo: ${compact(resolution.reason, 100)}`,
       ],
     },
@@ -108,16 +108,16 @@ export function formatWorkspaceMemoryResolution(resolution: ZavorthFollowUpResol
       title: 'Alvo',
       tone: 'info',
       lines: [
-        `- task: ${resolution.target.taskId || 'nao informado'}`,
-        `- workspace: ${resolution.target.workspace || 'nao informado'}`,
-        `- artefato: ${resolution.target.artifactCommand || 'nao aplicavel'}`,
-        `- proximo: ${resolution.target.nextCommand || 'nao informado'}`,
+        `- task: ${resolution.target.taskId || 'not provided'}`,
+        `- workspace: ${resolution.target.workspace || 'not provided'}`,
+        `- artifact: ${resolution.target.artifactCommand || 'not applicable'}`,
+        `- next: ${resolution.target.nextCommand || 'not provided'}`,
       ],
     },
     {
       title: 'Evidencia',
       tone: 'neutral',
-      lines: resolution.evidence.length > 0 ? resolution.evidence.map((entry) => `- ${entry}`) : ['- nenhuma evidencia forte'],
+      lines: resolution.evidence.length > 0 ? resolution.evidence.map((entry) => `- ${entry}`) : ['- no strong evidence'],
     },
   ];
 

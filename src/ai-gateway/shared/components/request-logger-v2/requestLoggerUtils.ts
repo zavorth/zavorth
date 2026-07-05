@@ -5,9 +5,9 @@ import {
   LOGGER_VISIBLE_COLUMNS_STORAGE_KEY,
   REQUEST_LOGGER_LIMIT,
 } from "./requestLoggerConfig";
-import type {
 import { logger } from '../logger.js';
-  ProviderNode,
+import type {
+ProviderNode,
   RequestLogEntry,
   RequestLoggerSortKey,
   RequestLoggerStats,
@@ -51,9 +51,7 @@ export function loadVisibleColumns(): RequestLoggerVisibleColumns {
   try {
     const saved = localStorage.getItem(LOGGER_VISIBLE_COLUMNS_STORAGE_KEY);
     return saved ? { ...DEFAULT_VISIBLE, ...JSON.parse(saved) } : DEFAULT_VISIBLE;
-  } catch {
-    return DEFAULT_VISIBLE;
-  }
+  } catch (error) { logger.warn('[request Logger Utils] JSON parse failed', error); return DEFAULT_VISIBLE; }
 }
 
 export function persistVisibleColumns(next: RequestLoggerVisibleColumns): void {

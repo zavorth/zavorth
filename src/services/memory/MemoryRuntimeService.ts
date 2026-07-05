@@ -2,6 +2,7 @@ import { MemoryService, type MemoryEntry } from '../MemoryService.js';
 import type { IMemoryBackend } from './IMemoryBackend.js';
 import { LocalMemoryBackend } from './LocalMemoryBackend.js';
 import { Mem0MemoryBackend } from './Mem0MemoryBackend.js';
+import { logger } from '../../logger.js';
 
 type MemoryAddOptions = {
   backend?: 'auto' | 'local' | 'mem0';
@@ -48,9 +49,10 @@ export class MemoryRuntimeService {
       try {
         await this.mem0Backend.addMemory(userId, content);
         return '[MemoryRuntime] Fato guardado localmente e sincronizado com Mem0.';
-      } catch {
-        return '[MemoryRuntime] Fato guardado localmente. Sincronizacao com Mem0 indisponivel nesta sessao.';
-      }
+      } catch (error) {
+    logger.warn('[Memory Runtime] operation failed', error);
+    return '[MemoryRuntime] Fato guardado localmente. Sincronizacao com Mem0 indisponivel nesta sessao.';
+  }
     }
 
     return '[LocalMemory] Fato guardado na memoria local com sucesso.';
@@ -80,9 +82,7 @@ export class MemoryRuntimeService {
     try {
       const remoteResults = await this.mem0Backend.searchMemory(userId, query, limit);
       return Array.from(new Set([...localResults, ...remoteResults])).slice(0, limit);
-    } catch {
-      return localResults;
-    }
+    } catch (error) { logger.warn('[Memory Runtime] search failed', error); return localResults; }
   }
 
   public async isBackendAvailable(name: 'local' | 'mem0'): Promise<boolean> {

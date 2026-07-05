@@ -46,19 +46,14 @@ import {
 export type ZavorthReplayLearningPosture = 'healthy' | 'attention' | 'critical';
 export type ZavorthReplayLearningActionSeverity = 'info' | 'warn' | 'critical';
 
-type AsyncSnapshotLike = {
-  buildSnapshot: (input?: any) => any | Promise<any>;
-};
+type AsyncSnapshotLike = Pick<ZavorthMemoryPlaneService, 'buildSnapshot'>;
 
 type LayeredMemoryLike = Partial<Pick<
   ZavorthLayeredMemoryService,
   'buildStatus' | 'readMetrics' | 'readProcedures'
 >>;
 
-type LearningPlaneLike = Partial<Pick<
-  ZavorthLearningPlaneService,
-  'buildSnapshot' | 'readMetrics'
->>;
+type LearningPlaneLike = Pick<ZavorthLearningPlaneService, 'buildSnapshot' | 'readMetrics'>;
 
 type WorkflowRunLike = Pick<WorkflowRunService, 'listRuns'>;
 type HostActionLike = {
@@ -187,8 +182,8 @@ export class ZavorthReplayLearningControlPlaneService {
     this.memoryPlane = runtime.memoryPlaneService || new ZavorthMemoryPlaneService();
     this.learningPlane = runtime.learningPlaneService || new ZavorthLearningPlaneService();
     this.layeredMemory = runtime.layeredMemoryService || new ZavorthLayeredMemoryService({
-      memoryPlaneService: this.memoryPlane as any,
-      learningPlaneService: this.learningPlane as any,
+      memoryPlaneService: this.memoryPlane,
+      learningPlaneService: this.learningPlane,
     });
     this.workflowRuns = runtime.workflowRunService || new WorkflowRunService();
     this.hostActions = runtime.hostActionService || null;

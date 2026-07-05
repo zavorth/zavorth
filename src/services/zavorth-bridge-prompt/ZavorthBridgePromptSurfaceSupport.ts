@@ -6,6 +6,7 @@ import {
   sanitizeZavorthBridgeUiResponse,
 } from '../ZavorthBridgeUiResponseHeuristics.js';
 import type { ZavorthBridgePromptStartResult } from '../ZavorthBridgePromptService.js';
+import { logger } from '../../logger.js';
 
 export class ZavorthBridgePromptSurfaceSupport {
   constructor(private readonly host: any) {}
@@ -159,15 +160,16 @@ export class ZavorthBridgePromptSurfaceSupport {
           promptSurfaceReady: ready,
         },
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
+    return {
         ready: false,
         message: error.message,
         diagnostics: {
           probeError: error.message,
         },
       };
-    }
+  }
   }
 
   public async recoverConversationSurface(
@@ -198,15 +200,16 @@ export class ZavorthBridgePromptSurfaceSupport {
           recoveryAttempted: true,
         },
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
+    return {
         ready: false,
         message: error.message,
         diagnostics: {
           recoveryError: error.message,
         },
       };
-    }
+  }
   }
 
   public delay(ms: number): Promise<void> {

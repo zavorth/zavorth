@@ -102,31 +102,31 @@ export const DISTRIBUTION_HARDENING_MANIFEST_ITEMS = [
 export const DISTRIBUTION_HARDENING_CHANNELS: DistributionHardeningChannelPolicy[] = [
   {
     channel: 'alpha',
-    purpose: 'Validar empacotamento v1.x cedo, sem prometer estabilidade publica.',
+    purpose: 'Validate v1.x packaging early without promising public stability.',
     requiredGates: ['runtime:check', 'release-bundle'],
-    publishRule: 'Pode publicar somente como preview manual e reversivel.',
-    rollbackRule: 'Cancelar preview ou voltar ao ultimo bundle v1.x validado.',
+    publishRule: 'Can publish only as a manual and reversible preview.',
+    rollbackRule: 'Cancel preview or return to the last validated v1.x bundle.',
   },
   {
     channel: 'beta',
-    purpose: 'Abrir teste publico limitado com manifesto, policy e bundle verificaveis.',
+    purpose: 'Open limited public testing with verifiable manifest, policy, and bundle.',
     requiredGates: ['qa:distribution-policy', 'qa:release-bundle', 'qa:public-adoption'],
-    publishRule: 'Pode promover quando a experiencia publica estiver em fixture-safe mode.',
-    rollbackRule: 'Rebaixar para alpha se smoke ou feedback piloto indicar regressao.',
+    publishRule: 'Can promote when the public experience is in fixture-safe mode.',
+    rollbackRule: 'Demote to alpha if smoke or pilot feedback indicates regression.',
   },
   {
     channel: 'stable',
-    purpose: 'Distribuicao recomendada para pilotos e usuarios externos.',
+    purpose: 'Recommended distribution for pilots and external users.',
     requiredGates: ['qa:distribution-hardening', 'qa:hosted-site', 'qa:release-bundle', 'qa:architecture'],
-    publishRule: 'Somente promover depois de gates verdes, manifest digest e smoke local.',
-    rollbackRule: 'Voltar para ultimo stable com manifest e installer preview preservados.',
+    publishRule: 'Promote only after green gates, manifest digest, and local smoke.',
+    rollbackRule: 'Return to the last stable with manifest and installer preview preserved.',
   },
 ];
 
 export const DISTRIBUTION_HARDENING_INSTALLER_PREVIEW_STEPS: DistributionHardeningInstallerPreviewStep[] = [
   {
     id: 'target-plan',
-    title: 'Resolver destino local antes de escrever',
+    title: 'Resolve local target before writing',
     mutation: 'none',
     requiresConfirmation: true,
     reversible: true,
@@ -134,7 +134,7 @@ export const DISTRIBUTION_HARDENING_INSTALLER_PREVIEW_STEPS: DistributionHardeni
   },
   {
     id: 'manifest-plan',
-    title: 'Exibir arquivos, bytes e checksums esperados',
+    title: 'Show expected files, bytes, and checksums',
     mutation: 'none',
     requiresConfirmation: true,
     reversible: true,
@@ -142,7 +142,7 @@ export const DISTRIBUTION_HARDENING_INSTALLER_PREVIEW_STEPS: DistributionHardeni
   },
   {
     id: 'command-plan',
-    title: 'Mostrar comandos de install, health check e cleanup',
+    title: 'Show install, health check, and cleanup commands',
     mutation: 'none',
     requiresConfirmation: true,
     reversible: true,
@@ -150,7 +150,7 @@ export const DISTRIBUTION_HARDENING_INSTALLER_PREVIEW_STEPS: DistributionHardeni
   },
   {
     id: 'rollback-plan',
-    title: 'Preparar rollback antes de qualquer aplicacao',
+    title: 'Prepare rollback before any application',
     mutation: 'preview-only',
     requiresConfirmation: true,
     reversible: true,
@@ -158,7 +158,7 @@ export const DISTRIBUTION_HARDENING_INSTALLER_PREVIEW_STEPS: DistributionHardeni
   },
   {
     id: 'confirmation',
-    title: 'Exigir confirmacao explicita para aplicar',
+    title: 'Require explicit confirmation to apply',
     mutation: 'none',
     requiresConfirmation: true,
     reversible: true,
@@ -169,22 +169,22 @@ export const DISTRIBUTION_HARDENING_INSTALLER_PREVIEW_STEPS: DistributionHardeni
 export const DISTRIBUTION_HARDENING_SMOKE_STEPS: DistributionHardeningSmokeStep[] = [
   {
     id: 'install-preview',
-    title: 'Install preview em fixture local',
-    expected: 'Nao muta o host real e grava somente dentro de .qa/distribution-hardening.',
+    title: 'Install preview in local fixture',
+    expected: 'Does not mutate the real host and writes only inside .qa/distribution-hardening.',
   },
   {
     id: 'health-check',
-    title: 'Health check do fixture instalado',
-    expected: 'Manifesto, versao e digest ficam legiveis no alvo de teste.',
+    title: 'Installed fixture health check',
+    expected: 'Manifest, version, and digest remain readable in the test target.',
   },
   {
     id: 'uninstall-preview',
-    title: 'Uninstall preview antes de cleanup',
-    expected: 'Lista arquivos que seriam removidos e dados que serao preservados.',
+    title: 'Uninstall preview before cleanup',
+    expected: 'Lists files that would be removed and data that will be preserved.',
   },
   {
     id: 'cleanup',
-    title: 'Cleanup reversivel preservando user data',
-    expected: 'Remove somente artefatos gerados pelo installer e preserva dados de usuario.',
+    title: 'Reversible cleanup preserving user data',
+    expected: 'Removes only installer-generated artifacts and preserves user data.',
   },
 ];

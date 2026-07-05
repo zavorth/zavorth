@@ -201,9 +201,10 @@ export class AgentMeshOrchestrationService {
           driverStatus: 'available',
         };
       }
-    } catch {
-      return createFallbackCapabilities(bridge.primaryProtocol, 'failed');
-    }
+    } catch (error) {
+    logger.warn('[Agent Mesh Orchestration] filesystem check failed', error);
+    return createFallbackCapabilities(bridge.primaryProtocol, 'failed');
+  }
     return createFallbackCapabilities(bridge.primaryProtocol, 'unavailable');
   }
 
@@ -375,9 +376,7 @@ function redactConnection(raw: string, kind: AgentMeshConnectionKind): string {
     url.search = '';
     url.hash = '';
     return url.toString();
-  } catch {
-    // Non-URL values are reduced to a basename-like display value.
-  }
+  } catch (error) { // Non-URL values are reduced to a basename-like display value. logger.warn('[Agent Mesh Orchestration] connection failed', error); }
   const basename = raw.replace(/\\/g, '/').split('/').filter(Boolean).pop() || 'runtime-adapter';
   return `${kind}:${basename}`;
 }

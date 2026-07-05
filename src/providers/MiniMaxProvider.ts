@@ -49,7 +49,7 @@ export class MiniMaxProvider implements ILlmProvider {
         max_tokens: config.maxTokens,
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
-      } as any, buildProviderRequestOptions(options) as any);
+      } as OpenAI.ChatCompletionCreateParamsNonStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
@@ -57,11 +57,11 @@ export class MiniMaxProvider implements ILlmProvider {
       return {
         content: choice.message.content,
         toolCalls,
-        finishReason: choice.finish_reason as any,
+        finishReason: choice.finish_reason as LlmResponse['finishReason'],
         metadata: nativeToolPayload.metadata,
       };
     } catch (error: any) {
-      logger.error('[MiniMax] Erro na requisicao:', error?.message || error);
+      logger.error('[MiniMax] Request error:', error?.message || error);
       throw error;
     }
   }

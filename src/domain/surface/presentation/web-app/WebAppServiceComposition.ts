@@ -80,6 +80,7 @@ import {
   type WebAppSharedSurfaceFactorySource,
 } from './WebAppSharedSurfaceFactoryService.js';
 import type { WebAppOperationsState, WebAppRuntimeServiceState } from './WebAppServiceState.js';
+import { logger } from '../../../../logger';
 
 interface ConversationSnapshotMessage {
   role?: string | null;
@@ -100,8 +101,25 @@ interface ConversationSnapshot {
 }
 
 type SwarmScalePlaneRuntimeDeps = {
-  llmRuntime: { chatDetailed: (...args: unknown[]) => Promise<unknown> } | null;
-  toolRuntime: { executeTool: (toolName: string, args: unknown) => Promise<string>; getToolDefinitions?: () => unknown[] } | null;
+  llmRuntime: {
+    chatDetailed(
+      messages: Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string; toolCallId?: string | null }>,
+      tools: Array<{ name: string; description?: string; parameters?: unknown }>,
+      options: Record<string, unknown>,
+    ): Promise<{
+      response: {
+        content?: string | null;
+        toolCalls?: Array<{ id: string; name: string; arguments: unknown }> | null;
+      };
+      providerName?: string | null;
+      modelName?: string | null;
+      route?: { fallbackUsed?: boolean; attempts?: unknown[] } | null;
+    }>;
+  } | null;
+  toolRuntime: {
+    executeTool: (toolName: string, args: unknown) => Promise<string>;
+    getToolDefinitions: () => Array<{ name: string; description?: string; parameters?: unknown }>;
+  } | null;
 };
 
 type WebAppServiceCompositionOptions = {
@@ -180,7 +198,7 @@ async function invokeSatelliteCapability(
         nodeId,
         capabilityId: payload.capabilityId,
         action: String(args.action || 'invoke').trim() || 'invoke',
-        payload: args.payload && typeof args.payload === 'object' ? args.payload : args,
+        payload: asRecord(args.payload) || args,
         requestedBy: options.getRuntime()?.webUserId || `satellite:${sessionId}`,
       }),
       error: null,
@@ -196,6 +214,32 @@ async function invokeSatelliteCapability(
       capability,
     },
     error: 'Capability registrada, mas sem dispatcher direto nesta superficie. Envie args.nodeId para rotear via Node Mesh ou use chat.send.',
+  };
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function asSwarmScaleLlmRuntime(runtime: LlmRuntimeService): SwarmScalePlaneRuntimeDeps['llmRuntime'] {
+  return runtime as unknown as SwarmScalePlaneRuntimeDeps['llmRuntime'];
+}
+
+function asSwarmScaleToolRuntime(
+  runtime: UniversalAgentToolRuntime | null | undefined,
+): SwarmScalePlaneRuntimeDeps['toolRuntime'] {
+  if (!runtime) {
+    return null;
+  }
+  return {
+    executeTool: runtime.executeTool.bind(runtime),
+    getToolDefinitions: () => (runtime.getToolDefinitions?.() || []).map((tool) => ({
+      name: String(tool.name || '').trim(),
+      description: typeof tool.description === 'string' ? tool.description : undefined,
+      parameters: tool.parameters,
+    })).filter((tool) => tool.name),
   };
 }
 
@@ -384,8 +428,8 @@ export function createWebAppServiceComposition(
   const selfModificationCommandService = new SelfModificationCommandService();
   const gatewayLlmRuntime = new LlmRuntimeService();
   const swarmScalePlane = new SwarmScalePlaneRuntimeService({
-    llmRuntime: gatewayLlmRuntime as SwarmScalePlaneRuntimeDeps['llmRuntime'],
-    toolRuntime: (options.toolRuntime || null) as SwarmScalePlaneRuntimeDeps['toolRuntime'],
+    llmRuntime: asSwarmScaleLlmRuntime(gatewayLlmRuntime),
+    toolRuntime: asSwarmScaleToolRuntime(options.toolRuntime),
   });
   const agentGateway = options.agentGateway || new ZavorthAgentGateway({
     defaultProviderLabel: 'Zavorth Gateway',
@@ -495,9 +539,7 @@ export function createWebAppServiceComposition(
     getConversationService: () => {
       try {
         return options.getConversationService();
-      } catch {
-        return null;
-      }
+      } catch (error) { logger.warn('[Web App  Composition] operation failed', error); return null; }
     },
     getRealtime: () => options.getRealtime(),
     getChannelActions: () => options.operations.channelActions,

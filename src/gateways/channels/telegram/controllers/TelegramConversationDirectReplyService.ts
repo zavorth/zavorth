@@ -7,7 +7,7 @@ import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from '../../../../servic
 import type { AudioSynthesisOptions } from '../../../../gateways/channels/telegram/AudioHandler.js';
 import { logEchoTrace, resolveEchoTraceId } from '../../../../gateways/channels/telegram/EchoTrace.js';
 import { TelegramConversationStateService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationStateService.js';
-import { logger } from '../logger.js';
+import { logger } from '../../../../logger.js';
 
 type ContinuityContext = ReturnType<typeof buildWorkspaceContinuityContext>;
 

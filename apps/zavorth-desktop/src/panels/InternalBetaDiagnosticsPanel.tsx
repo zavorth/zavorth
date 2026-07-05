@@ -36,7 +36,7 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
       const checklistRes = await fetch(`/api/v2/workspace/agent-config/checklist?workspaceId=${encodeURIComponent(workspaceId)}`);
 
       if (!diagRes.ok || !checklistRes.ok) {
-        throw new Error('Falha ao consultar diagnÃ³sticos locais.');
+        throw new Error('Failed to query local diagnostics.');
       }
 
       const diagData = await diagRes.json();
@@ -64,7 +64,7 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
       setReport(sanitizedReport);
       setChecklist(sanitizedChecklist);
     } catch (err: any) {
-      setError(err.message || 'Erro ao carregar dados do painel.');
+      setError(err.message || 'Failed to load panel data.');
     } finally {
       setLoading(false);
     }
@@ -77,7 +77,7 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
   if (loading) {
     return (
       <div style={{ padding: '20px', color: '#888' }} data-testid="diagnostics-loading">
-        Carregando diagnÃ³sticos e checklist do Beta Interno...
+        Loading internal beta diagnostics and checklist...
       </div>
     );
   }
@@ -85,9 +85,9 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
   if (error) {
     return (
       <div style={{ padding: '20px', color: '#ff4d4f' }} data-testid="diagnostics-error">
-        <strong>Erro:</strong> {error}
+        <strong>Error:</strong> {error}
         <button onClick={fetchData} style={{ marginLeft: '10px', padding: '5px 10px', cursor: 'pointer' }}>
-          Tentar Novamente
+          Try Again
         </button>
       </div>
     );
@@ -112,10 +112,10 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
       >
         <div>
           <h2 style={{ margin: 0, fontSize: '20px' }}>
-            {report?.readyForInternalBeta ? 'Pronto para Beta Interno' : 'Necessita Ajustes para Beta Interno'}
+            {report?.readyForInternalBeta ? 'Ready for Internal Beta' : 'Needs Internal Beta Adjustments'}
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: '14px', opacity: 0.8 }}>
-            GeraÃ§Ã£o: {report ? new Date(report.generatedAt).toLocaleString() : ''}
+            Generated: {report ? new Date(report.generatedAt).toLocaleString() : ''}
           </p>
         </div>
         <button
@@ -131,7 +131,7 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
           }}
           data-testid="btn-re-run"
         >
-          Recalcular
+          Recalculate
         </button>
       </div>
 
@@ -139,7 +139,7 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
         {/* Left: Diagnostics Checks */}
         <div>
           <h3 style={{ margin: '0 0 12px 0', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-            Inspecionar VerificaÃ§Ãµes de SaÃºde
+            Inspect Health Checks
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} data-testid="diagnostics-checks-list">
             {report?.checks.map((check) => {
@@ -148,8 +148,8 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
                 check.status === 'warning' ? '#faad14' : '#ff4d4f';
 
               const statusSymbol =
-                check.status === 'pass' ? 'âœ“' :
-                check.status === 'warning' ? 'âš ' : 'âœ—';
+                check.status === 'pass' ? 'OK' :
+                check.status === 'warning' ? 'WARN' : 'FAIL';
 
               return (
                 <div
@@ -168,7 +168,7 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
                   </div>
                   {check.remediation && (
                     <div style={{ marginTop: '6px', fontSize: '12px', color: '#666' }}>
-                      <strong>RemediaÃ§Ã£o:</strong> {check.remediation}
+                      <strong>Remediation:</strong> {check.remediation}
                     </div>
                   )}
                 </div>
@@ -180,7 +180,7 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
         {/* Right: Onboarding Checklist */}
         <div>
           <h3 style={{ margin: '0 0 12px 0', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-            Checklist de Onboarding
+            Onboarding Checklist
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} data-testid="checklist-items-list">
             {checklist.map((item) => {
@@ -236,9 +236,9 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
         }}
       >
         <div>
-          <h4 style={{ margin: 0, fontSize: '15px' }}>NotificaÃ§Ãµes do Desktop</h4>
+          <h4 style={{ margin: 0, fontSize: '15px' }}>Desktop Notifications</h4>
           <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#8b949e' }}>
-            Teste o disparo de notificaÃ§Ãµes nativas do sistema a partir do agente.
+            Test native system notifications from the agent.
           </p>
         </div>
         <button
@@ -246,15 +246,15 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
             if (window.zavorthDesktop?.sendNotification) {
               const res = await window.zavorthDesktop.sendNotification({
                 title: 'Zavorth Desktop',
-                body: 'Sucesso! NotificaÃ§Ãµes nativas estÃ£o configuradas e funcionando corretamente.',
+                body: 'Success. Native notifications are configured and working correctly.',
               });
               if (res.ok) {
-                alert('NotificaÃ§Ã£o enviada com sucesso!');
+                alert('Notification sent successfully.');
               } else {
-                alert(`Falha ao enviar notificaÃ§Ã£o: ${res.error}`);
+                alert(`Failed to send notification: ${res.error}`);
               }
             } else {
-              alert('API de notificaÃ§Ã£o nÃ£o disponÃ­vel no navegador.');
+              alert('Notification API is not available in the browser.');
             }
           }}
           style={{
@@ -268,7 +268,7 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
           }}
           type="button"
         >
-          Disparar Teste
+          Send Test
         </button>
       </div>
     </div>

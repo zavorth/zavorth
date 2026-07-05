@@ -1,7 +1,7 @@
 import { AgentWorkspaceConfig } from './AgentWorkspaceConfigService.js';
 import { WorkspaceRuntimeReadinessIssue } from './WorkspaceRuntimeReadinessService.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
-import { ProviderModelRegistry } from './ProviderModelRegistry.js';
+import { ProviderModelRegistry, type ProviderCapability } from './ProviderModelRegistry.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 
@@ -56,7 +56,7 @@ export class WorkspacePolicyPreviewService {
           const capabilities = ProviderModelRegistry.getCapabilities(providerInfo.type, modelId);
           
           if (partialConfig.allowedCapabilities && partialConfig.allowedCapabilities.length > 0) {
-            const unsupported = partialConfig.allowedCapabilities.filter(c => !ProviderModelRegistry.hasCapability(capabilities, c as any));
+            const unsupported = partialConfig.allowedCapabilities.filter(c => !ProviderModelRegistry.hasCapability(capabilities, c as ProviderCapability));
             if (unsupported.length > 0) {
               warnings.push({
                 code: 'capability_not_supported',

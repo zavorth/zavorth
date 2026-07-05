@@ -1,4 +1,5 @@
 import { Database } from '../storage/Database.js';
+import { logger } from '../logger.js';
 
 export interface AgentWorkspaceConfig {
   workspaceId: string;
@@ -15,6 +16,32 @@ export interface AgentWorkspaceConfig {
   createdAt: string;
   updatedAt: string;
 }
+
+type AgentWorkspaceConfigRow = {
+  workspace_id: string;
+  default_provider_id?: string | null;
+  default_model_id?: string | null;
+  allowed_capabilities?: string | null;
+  default_autonomy_profile?: string | null;
+  allow_developer_mode?: number | null;
+  allow_host_power_mode?: number | null;
+  allow_pty?: number | null;
+  allow_task_mandates?: number | null;
+  allow_temporary_directory_trust?: number | null;
+  allow_provider_fallback?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+const capabilityValues = new Set<AgentWorkspaceConfig['allowedCapabilities'][number]>([
+  'chat',
+  'tool_calling',
+  'vision',
+  'audio',
+  'json',
+  'reasoning',
+  'embedding',
+]);
 
 export class AgentWorkspaceConfigService {
   private static instance: AgentWorkspaceConfigService;
@@ -46,26 +73,29 @@ export class AgentWorkspaceConfigService {
 
   public async getConfig(workspaceId: string): Promise<AgentWorkspaceConfig> {
     const db = await Database.getInstance();
-    const row = db.get('SELECT * FROM agent_workspace_config WHERE workspace_id = ?', [workspaceId]);
+    const row = db.get<AgentWorkspaceConfigRow>('SELECT * FROM agent_workspace_config WHERE workspace_id = ?', [workspaceId]);
 
     if (!row) {
       return AgentWorkspaceConfigService.getDefaultConfig(workspaceId);
     }
 
+    const parsedCapabilities = this.parseCapabilities(row.allowed_capabilities);
+    const defaultAutonomyProfile = row.default_autonomy_profile === 'developer' ? 'developer' : 'safe';
+
     return {
-      workspaceId: row.workspace_id,
+      workspaceId: String(row.workspace_id || workspaceId),
       defaultProviderId: row.default_provider_id || undefined,
       defaultModelId: row.default_model_id || undefined,
-      allowedCapabilities: JSON.parse(row.allowed_capabilities),
-      defaultAutonomyProfile: row.default_autonomy_profile as 'safe' | 'developer',
+      allowedCapabilities: parsedCapabilities.length > 0 ? parsedCapabilities : ['chat'],
+      defaultAutonomyProfile,
       allowDeveloperMode: row.allow_developer_mode === 1,
       allowHostPowerMode: row.allow_host_power_mode === 1,
       allowPty: row.allow_pty === 1,
       allowTaskMandates: row.allow_task_mandates === 1,
       allowTemporaryDirectoryTrust: row.allow_temporary_directory_trust === 1,
       allowProviderFallback: row.allow_provider_fallback === 1,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
+      createdAt: row.created_at || new Date().toISOString(),
+      updatedAt: row.updated_at || new Date().toISOString(),
     };
   }
 
@@ -119,5 +149,18 @@ export class AgentWorkspaceConfigService {
     ]);
 
     return merged;
+  }
+
+  private parseCapabilities(raw: string | null | undefined): AgentWorkspaceConfig['allowedCapabilities'] {
+    try {
+      const parsed = JSON.parse(String(raw || '[]')) as unknown;
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+      return parsed
+        .map((value) => String(value || '').trim())
+        .filter((value): value is AgentWorkspaceConfig['allowedCapabilities'][number] =>
+          capabilityValues.has(value as AgentWorkspaceConfig['allowedCapabilities'][number]));
+    } catch (error) { logger.warn('[Agent Workspace] JSON parse failed', error); return []; }
   }
 }

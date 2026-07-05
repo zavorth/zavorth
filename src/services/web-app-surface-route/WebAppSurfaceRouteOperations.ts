@@ -406,7 +406,7 @@ export async function handleWebAppSurfaceOperationRoutes(
         {
           ok: action.ok,
           action,
-          hub: action.hub || deps.hubControlPlane.buildSnapshot(),
+          hub: action.hub || deps.hubControlPlane?.buildSnapshot(),
         },
         action.ok ? 200 : 409,
       );

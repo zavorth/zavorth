@@ -3,6 +3,7 @@ import { homedir } from "os";
 import { join } from "path";
 import Database from "better-sqlite3";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * GET /api/oauth/cursor/auto-import
@@ -34,12 +35,13 @@ export async function GET(request: Request) {
     try {
       db = new Database(dbPath, { readonly: true, fileMustExist: true });
     } catch (error) {
-      return NextResponse.json({
+    logger.warn('[route] filesystem check failed', error);
+    return NextResponse.json({
         found: false,
         error:
           "Cursor database not found. Make sure Cursor IDE is installed and you are logged in.",
       });
-    }
+  }
 
     try {
       // Extract tokens from database

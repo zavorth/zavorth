@@ -54,7 +54,7 @@ export function buildProductizationEvidenceCliSnapshot(input: {
             id: 'productization-evidence:memory-receipt',
             kind: 'memory',
             source: 'MemoryWithReceiptsService',
-            detail: 'Fixture CLI cita o contrato C9 e mantem release em preview.',
+            detail: 'Fixture CLI cita o contract C9 e mantem release em preview.',
             status: 'ready',
           },
         ],
@@ -88,15 +88,15 @@ export function formatProductizationEvidenceSnapshot(
 ): string {
   const lines = [
     'Productization Evidence & Release Readiness - Channel mesh6',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- gates ready: ${snapshot.summary.readyGateCount}/${snapshot.gates.length}`,
-    `- C9 linkado: ${snapshot.summary.productizationContractLinked ? 'sim' : 'parcial'}`,
+    `- C9 linked: ${snapshot.summary.productizationContractLinked ? 'yes' : 'partial'}`,
     `- release: ${snapshot.releaseReadiness.status} / ${snapshot.releaseReadiness.channel}`,
-    `- stable permitido: ${snapshot.summary.stableReleaseAllowed ? 'sim' : 'nao'}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- stable allowed: ${snapshot.summary.stableReleaseAllowed ? 'yes' : 'no'}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -119,8 +119,8 @@ export function formatProductizationEvidenceSnapshot(
   lines.push(`- noCanaryStarted: ${String(snapshot.policy.noCanaryStarted)}`);
   lines.push('- preview-only ate release gates passarem');
   lines.push('- stable requer release real e rollback');
-  lines.push('- claims de produto precisam citar receipts');
-  lines.push('- secrets nao foram serializados');
+  lines.push('- product claims must cite receipts');
+  lines.push('- secrets were not serialized');
 
   lines.push('', 'Runtime evidence');
   lines.push(`- replay: ${String(snapshot.runtimeEvidence.runArtifactReceiptReplay)}`);

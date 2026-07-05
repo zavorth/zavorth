@@ -2,8 +2,9 @@ import type {
   ExecutionEngineId,
   TrustedWorkspaceState,
 } from "../../../../contracts/ExecutionEngineContract";
+import { logger } from '@/shared/utils/logger';
 import {
-  getRuntimeEngineApiState as getSharedRuntimeEngineApiState,
+getRuntimeEngineApiState as getSharedRuntimeEngineApiState,
   type RuntimeEngineApiState,
 } from "../../../../services/RuntimeEngineApiStateService";
 
@@ -26,7 +27,8 @@ export function isUnsafeCrossSiteMutation(request: Request): boolean {
   let requestOrigin = "";
   try {
     requestOrigin = new URL(request.url).origin;
-  } catch {
+  } catch (error) {
+    logger.warn('[runtime-engine-state] network request failed', error);
     requestOrigin = "";
   }
 
@@ -37,9 +39,7 @@ export function isUnsafeCrossSiteMutation(request: Request): boolean {
   if (referer && requestOrigin) {
     try {
       if (new URL(referer).origin !== requestOrigin) return true;
-    } catch {
-      return true;
-    }
+    } catch (error) { logger.warn('[runtime-engine-state] operation failed', error); return true; }
   }
 
   return false;
@@ -51,7 +51,5 @@ export async function readJsonBody(request: Request): Promise<Record<string, unk
     return value && typeof value === "object" && !Array.isArray(value)
       ? value as Record<string, unknown>
       : {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[runtime-engine-state] operation failed', error); return {}; }
 }

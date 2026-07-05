@@ -1,8 +1,9 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { logger } from '../logger.js';
 import {
-  PROJECT_CONSTITUTION_IMPORT_CONTRACT_VERSION,
+PROJECT_CONSTITUTION_IMPORT_CONTRACT_VERSION,
   type ProjectConstitutionImportApplyResult,
   type ProjectConstitutionImportFinding,
   type ProjectConstitutionImportPreview,
@@ -406,9 +407,7 @@ export class ProjectConstitutionImportService {
     try {
       const parsed = JSON.parse(String(this.fsRuntime.readFileSync(receiptPath, 'utf8') || '{}'));
       return Array.isArray(parsed?.receipts) ? parsed.receipts as ProjectConstitutionImportReceipt[] : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Project Constitution Import] JSON parse failed', error); return []; }
   }
 
   private ensureDir(dirPath: string): void {

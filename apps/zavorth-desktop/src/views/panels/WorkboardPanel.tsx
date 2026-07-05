@@ -3,6 +3,10 @@ import { atom } from 'nanostores';
 import { useStore } from '@nanostores/react';
 import { PageFrame, SearchBox, TextTabs } from './panelPrimitives';
 import {
+  mapRuntimeWorkboardToBoard,
+  type RuntimeWorkboardProjection,
+} from '../../workboard/runtimeWorkboardProjection';
+import {
   IconPlus,
   IconTrash,
   IconLayoutColumns,
@@ -59,6 +63,7 @@ export type WorkboardBoard = {
 
 export type WorkboardPanelProps = {
   boards: WorkboardBoard[];
+  runtimeWorkboard?: RuntimeWorkboardProjection | null;
   onBoardSelect?: (boardId: string) => void;
   onCardCreate?: (boardId: string, card: Omit<WorkboardCard, 'id' | 'createdAt'>) => void;
   onCardUpdate?: (boardId: string, card: WorkboardCard) => void;
@@ -722,9 +727,14 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
   const [newColumnName, setNewColumnName] = useState('');
 
+  const boards = useMemo(
+    () => props.runtimeWorkboard ? [mapRuntimeWorkboardToBoard(props.runtimeWorkboard)] : props.boards,
+    [props.runtimeWorkboard, props.boards]
+  );
+
   const board = useMemo(
-    () => props.boards.find(b => b.id === selectedBoardId) || props.boards[0] || null,
-    [props.boards, selectedBoardId]
+    () => boards.find(b => b.id === selectedBoardId) || boards[0] || null,
+    [boards, selectedBoardId]
   );
 
   const filteredCards = useMemo(() => {
@@ -1494,7 +1504,7 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
           value={tab}
           onChange={$selectedTab.set}
           items={[
-            { value: 'boards', label: 'Boards', count: props.boards.length },
+            { value: 'boards', label: 'Boards', count: boards.length },
             { value: 'cards', label: 'Cards', count: board?.cards.length || 0 },
             { value: 'stats', label: 'Stats' },
           ]}
@@ -1502,7 +1512,7 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
 
         {tab === 'boards' && (
           <BoardsListView
-            boards={props.boards}
+            boards={boards}
             selectedBoardId={selectedBoardId}
             onSelectBoard={handleSelectBoard}
           />

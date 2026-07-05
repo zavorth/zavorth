@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { createRequire } from 'module';
 import { IZavorthTool, ToolExecutionResult } from '../../types/IZavorthTool.js';
 import { isLocalNetworkHostname } from '../../security/WhitelistConfig.js';
+import { logger } from '../../../logger.js';
 
 const requireFromHere = createRequire(__filename);
 
@@ -34,22 +35,22 @@ type MqttPublisherState = {
 };
 
 /**
- * MQTTPublisher - Publica mensagens em brokers MQTT locais.
+ * MQTTPublisher publishes messages to local MQTT brokers.
  */
 export class MQTTPublisher implements IZavorthTool {
     name = 'iot_mqtt_publish';
-    description = 'Publica mensagens em brokers MQTT locais para controlar dispositivos IoT como ESP32, Arduino ou Shelly. Ex: "envie ON para casa/sala/luz".';
+    description = 'Publishes messages to local MQTT brokers to control IoT devices such as ESP32, Arduino, or Shelly devices.';
     category = 'IOT' as const;
     dangerLevel = 'moderate' as const;
     requiresPermission = false;
 
     schema = z.object({
         broker: z.string().default('mqtt://localhost:1883')
-            .describe('URL do broker MQTT (ex: mqtt://localhost:1883, mqtt://192.168.1.100:1883)'),
+            .describe('MQTT broker URL, for example mqtt://localhost:1883 or mqtt://192.168.1.100:1883'),
         topic: z.string()
-            .describe('Topico MQTT para publicar (ex: casa/sala/luz, home/bedroom/fan)'),
+            .describe('MQTT topic to publish to, for example home/living-room/light or home/bedroom/fan'),
         payload: z.string()
-            .describe('Mensagem a enviar (ex: ON, OFF, {"brightness": 80})'),
+            .describe('Message to send, for example ON, OFF, or {"brightness": 80}'),
         qos: z.number().min(0).max(2).default(0)
             .describe('Quality of Service: 0=fire-and-forget, 1=at-least-once, 2=exactly-once'),
     });
@@ -94,10 +95,10 @@ export class MQTTPublisher implements IZavorthTool {
         if (policy.scope === 'blocked') {
             this.updateState({
                 status: 'blocked',
-                lastError: `Broker MQTT bloqueado por seguranca: ${broker}. Use localhost ou rede privada.`,
+                lastError: `MQTT broker blocked by security: ${broker}. Use localhost or a private network.`,
             });
             return this.fail(
-                `Broker MQTT bloqueado por seguranca: ${broker}. Use localhost ou rede privada.`,
+                `MQTT broker blocked by security: ${broker}. Use localhost or a private network.`,
                 policy,
                 context,
                 'blocked',
@@ -111,10 +112,10 @@ export class MQTTPublisher implements IZavorthTool {
             } catch {
                 this.updateState({
                     status: 'failed',
-                    lastError: 'Package "mqtt" nao encontrado. Execute: npm install mqtt',
+                    lastError: 'Package "mqtt" not found. Run: npm install mqtt',
                 });
                 return this.fail(
-                    'Package "mqtt" nao encontrado. Execute: npm install mqtt',
+                    'Package "mqtt" not found. Run: npm install mqtt',
                     policy,
                     context,
                     'failed',
@@ -137,10 +138,10 @@ export class MQTTPublisher implements IZavorthTool {
                     client.end(true);
                     this.updateState({
                         status: 'failed',
-                        lastError: `Timeout: broker MQTT ${broker} nao respondeu em 5 segundos.`,
+                        lastError: `Timeout: MQTT broker ${broker} did not respond within 5 seconds.`,
                     });
                     finish(this.fail(
-                        `Timeout: broker MQTT ${broker} nao respondeu em 5 segundos.`,
+                        `Timeout: MQTT broker ${broker} did not respond within 5 seconds.`,
                         policy,
                         context,
                         'failed',
@@ -158,10 +159,10 @@ export class MQTTPublisher implements IZavorthTool {
                             if (err) {
                                 this.updateState({
                                     status: 'failed',
-                                    lastError: `Falha ao publicar: ${err.message}`,
+                                    lastError: `Failed to publish: ${err.message}`,
                                 });
                                 finish(this.fail(
-                                    `Falha ao publicar: ${err.message}`,
+                                    `Failed to publish: ${err.message}`,
                                     policy,
                                     context,
                                     'failed',
@@ -177,7 +178,7 @@ export class MQTTPublisher implements IZavorthTool {
                             });
                             finish({
                                 success: true,
-                                message: `Publicado "${params.payload}" no topico "${params.topic}" (QoS ${qos}).`,
+                                message: `Published "${params.payload}" to topic "${params.topic}" (QoS ${qos}).`,
                                 data: {
                                     broker: policy.normalizedBroker,
                                     topic: params.topic,
@@ -197,10 +198,10 @@ export class MQTTPublisher implements IZavorthTool {
                     client.end(true);
                     this.updateState({
                         status: 'failed',
-                        lastError: `Erro de conexao MQTT (${broker}): ${err.message}`,
+                        lastError: `MQTT connection error (${broker}): ${err.message}`,
                     });
                     finish(this.fail(
-                        `Erro de conexao MQTT (${broker}): ${err.message}`,
+                        `MQTT connection error (${broker}): ${err.message}`,
                         policy,
                         context,
                         'failed',
@@ -210,10 +211,10 @@ export class MQTTPublisher implements IZavorthTool {
         } catch (error: any) {
             this.updateState({
                 status: 'failed',
-                lastError: `Falha no MQTT Publisher: ${error.message}`,
+                lastError: `MQTT Publisher failure: ${error.message}`,
             });
             return this.fail(
-                `Falha no MQTT Publisher: ${error.message}`,
+                `MQTT Publisher failure: ${error.message}`,
                 policy,
                 context,
                 'failed',
@@ -248,15 +249,16 @@ export class MQTTPublisher implements IZavorthTool {
                 port,
                 transport: 'mqtt',
             };
-        } catch {
-            return {
+        } catch (error) {
+    logger.warn('[M Q T T Publisher] string operation failed', error);
+    return {
                 scope: 'blocked',
                 normalizedBroker: String(broker || '').trim(),
                 hostname: null,
                 port: null,
                 transport: 'mqtt',
             };
-        }
+  }
     }
 
     private buildLifecycleSnapshot(status: MqttLifecycleStatus): Record<string, unknown> {

@@ -10,6 +10,7 @@
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { getSettings } from "@/lib/localDb";
+import { logger } from '@/shared/utils/logger';
 
 // ──────────────── Public Routes (No Auth Required) ────────────────
 
@@ -61,9 +62,7 @@ export async function verifyAuth(request: any): Promise<string | null> {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       await jwtVerify(token, secret);
       return null; // ✔ Authenticated via cookie
-    } catch {
-      // Invalid/expired token — fall through to API key check
-    }
+    } catch (error) { // Invalid/expired token — fall through to API key check logger.warn('[api Auth] encoding failed', error); }
   }
 
   // 2. Check Bearer API key
@@ -75,9 +74,7 @@ export async function verifyAuth(request: any): Promise<string | null> {
       const { validateApiKey } = await import("@/lib/db/apiKeys");
       const isValid = await validateApiKey(apiKey);
       if (isValid) return null; // ✔ Authenticated via API key
-    } catch {
-      // DB not ready or import error — deny access
-    }
+    } catch (error) { // DB not ready or import error — deny access logger.warn('[api Auth] lifecycle operation failed', error); }
   }
 
   return "Authentication required";
@@ -118,9 +115,7 @@ export async function isStrictlyAuthenticated(request: Request): Promise<boolean
     try {
       const { validateApiKey } = await import("@/lib/db/apiKeys");
       if (await validateApiKey(apiKey)) return true;
-    } catch {
-      // DB not ready or import error
-    }
+    } catch (error) { // DB not ready or import error logger.warn('[api Auth] lifecycle operation failed', error); }
   }
 
   // 2. Check JWT cookie (for zavorthControl session)
@@ -133,9 +128,7 @@ export async function isStrictlyAuthenticated(request: Request): Promise<boolean
         await jwtVerify(token, secret);
         return true;
       }
-    } catch {
-      // Invalid/expired token or cookies not available
-    }
+    } catch (error) { // Invalid/expired token or cookies not available logger.warn('[api Auth] encoding failed', error); }
   }
 
   return false;
@@ -165,7 +158,8 @@ function normalizeRequestHostname(value: string | null | undefined): string {
       .hostname.toLowerCase()
       .replace(/^\[/, "")
       .replace(/\]$/, "");
-  } catch {
+  } catch (error) {
+    logger.warn('[api Auth] network request failed', error);
     return raw.replace(/^\[/, "").replace(/\]$/, "").split(":")[0] || "";
   }
 }
@@ -195,9 +189,7 @@ export function isLoopbackRequest(request: Request): boolean {
     (() => {
       try {
         return new URL(request.url).hostname;
-      } catch {
-        return "";
-      }
+      } catch (error) { logger.warn('[api Auth] operation failed', error); return ''; }
     })(),
     getHeader(request, "host"),
     getHeader(request, "x-forwarded-host"),

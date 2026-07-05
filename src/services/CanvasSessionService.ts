@@ -11,8 +11,9 @@ import type {
 } from '../contracts/ExecutionEngineContract';
 import { CanvasPreviewServer } from './CanvasPreviewServer';
 import { GlassBoxTraceService } from './GlassBoxTraceService';
+import { logger } from '../logger.js';
 import type {
-  ZavorthSpeculativeAttempt,
+ZavorthSpeculativeAttempt,
   ZavorthSpeculativeAutonomyResult,
 } from './ZavorthSpeculativeAutonomyService';
 
@@ -331,9 +332,7 @@ export class CanvasSessionService {
           content: fs.readFileSync(absolutePath, 'utf8'),
           mimeType: mimeForSnapshot(relativePath),
         });
-      } catch {
-        // The sandbox may report a touched file that was removed by a failed attempt.
-      }
+      } catch (error) { // The sandbox may report a touched file that was removed by a failed attempt. logger.warn('[Canvas Session] filesystem operation failed', error); }
     }
     return files.length > 0 ? files : defaultFiles();
   }

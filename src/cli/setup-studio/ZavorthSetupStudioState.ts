@@ -25,6 +25,7 @@ import type {
 } from './ZavorthSetupStudioSchema.js';
 import { buildZavorthSetupStudioSteps } from './steps/ZavorthSetupStudioSteps.js';
 import { buildZavorthSetupWizardContract, normalizeSetupSection } from './ZavorthSetupStudioWizardContract.js';
+import { logger } from '../../logger.js';
 
 export type BuildZavorthSetupStudioSnapshotInput = Partial<BuildZavorthSetupStudioPlanInput> & {
   projectRoot: string;
@@ -476,9 +477,7 @@ function readEnv(envPath: string): Record<string, string> {
 function readJson(filePath: string): unknown {
   try {
     return fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf8')) : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Setup Studio State] JSON parse failed', error); return null; }
 }
 
 function countTypeScriptFiles(dir: string): number {

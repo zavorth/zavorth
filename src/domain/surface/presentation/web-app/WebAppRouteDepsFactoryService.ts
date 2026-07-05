@@ -28,6 +28,18 @@ type SurfaceRuntime = SurfaceDynamic;
 type SurfaceFactory<T = SurfaceDependency> = () => T;
 type RealtimeEvent = SurfaceDynamic;
 type RequestBody = Record<string, SurfaceDynamic>;
+type RouteRecord = Record<string, unknown>;
+type RouteRecordBuilder = (sessionId: string) => Promise<unknown>;
+
+function toRouteRecord(value: unknown): RouteRecord {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as RouteRecord
+    : {};
+}
+
+function buildRouteRecord(builder: RouteRecordBuilder): (sessionId: string) => Promise<RouteRecord> {
+  return async (sessionId: string) => toRouteRecord(await builder(sessionId));
+}
 
 type WebAppRouteDepsFactoryOptions = {
   auth: SurfaceDependency;
@@ -139,7 +151,7 @@ export class WebAppRouteDepsFactoryService {
     return {
       operatorBrief: this.options.operations.operatorBrief,
       productObservability: this.options.operations.productObservability,
-      evalControlPlane,
+      evalControlPlane: evalControlPlane || undefined,
       qaControlPlane: this.options.buildQaControlPlane(),
       governanceControlPlane: this.options.buildGovernanceControlPlane(),
       replayLearningControlPlane: this.options.buildReplayLearningControlPlane(),
@@ -157,11 +169,12 @@ export class WebAppRouteDepsFactoryService {
       gatewayRuntime: this.options.gatewayRuntime,
       runtimeGateway: this.options.runtimeServices.gateway,
       gateway: this.options.operations.gateway,
-      gatewayChannelRegistry: this.options.runtimeServices.gatewayChannelRegistry,
       gatewayChannelRouter: this.options.runtimeServices.gatewayChannelRouter,
       runtime,
       realtime,
-      buildMemoryPlaneSnapshot: this.options.runtimeContext.buildMemoryPlaneSnapshot.bind(this.options.runtimeContext),
+      buildMemoryPlaneSnapshot: buildRouteRecord(
+        this.options.runtimeContext.buildMemoryPlaneSnapshot.bind(this.options.runtimeContext),
+      ),
       resolveSessionId: this.options.runtimeContext.resolveSessionId.bind(this.options.runtimeContext),
       channelMesh: this.options.operations.channelMesh,
       channelActions: this.options.operations.channelActions,
@@ -256,22 +269,40 @@ export class WebAppRouteDepsFactoryService {
       runtimeSessionTools: this.options.runtimeServices.sessionTools,
       sessionTools: this.options.operations.sessionTools,
       runtimeGatewaySessionTools: this.options.runtimeServices.gatewaySessionTools,
-      buildMemoryPlaneSnapshot: this.options.runtimeContext.buildMemoryPlaneSnapshot.bind(this.options.runtimeContext),
-      buildLayeredMemoryStatus: this.options.runtimeContext.buildLayeredMemoryStatus.bind(this.options.runtimeContext),
-      buildLearningPlaneStatus: this.options.runtimeContext.buildLearningPlaneStatus.bind(this.options.runtimeContext),
-      buildLearningPlaneSnapshot: this.options.runtimeContext.buildLearningPlaneSnapshot.bind(this.options.runtimeContext),
-      buildLearningPlaneMetrics: this.options.runtimeContext.buildLearningPlaneMetrics.bind(this.options.runtimeContext),
+      buildMemoryPlaneSnapshot: buildRouteRecord(
+        this.options.runtimeContext.buildMemoryPlaneSnapshot.bind(this.options.runtimeContext),
+      ),
+      buildLayeredMemoryStatus: buildRouteRecord(
+        this.options.runtimeContext.buildLayeredMemoryStatus.bind(this.options.runtimeContext),
+      ),
+      buildLearningPlaneStatus: buildRouteRecord(
+        this.options.runtimeContext.buildLearningPlaneStatus.bind(this.options.runtimeContext),
+      ),
+      buildLearningPlaneSnapshot: buildRouteRecord(
+        this.options.runtimeContext.buildLearningPlaneSnapshot.bind(this.options.runtimeContext),
+      ),
+      buildLearningPlaneMetrics: buildRouteRecord(
+        this.options.runtimeContext.buildLearningPlaneMetrics.bind(this.options.runtimeContext),
+      ),
       executeLearningAction: this.options.runtimeContext.executeLearningPlaneAction.bind(this.options.runtimeContext),
       searchLayeredMemory: this.options.runtimeContext.searchLayeredMemory.bind(this.options.runtimeContext),
       readLayeredMemoryProcedures: this.options.runtimeContext.readLayeredMemoryProcedures.bind(this.options.runtimeContext),
-      readLayeredMemoryMetrics: this.options.runtimeContext.readLayeredMemoryMetrics.bind(this.options.runtimeContext),
+      readLayeredMemoryMetrics: buildRouteRecord(
+        this.options.runtimeContext.readLayeredMemoryMetrics.bind(this.options.runtimeContext),
+      ),
       hybridMemory: {
         previewRecall: this.options.runtimeContext.previewHybridMemoryRecall.bind(this.options.runtimeContext),
         listSources: this.options.runtimeContext.listHybridMemorySources.bind(this.options.runtimeContext),
       },
-      buildOpsQuality: this.options.runtimeContext.buildOpsQuality.bind(this.options.runtimeContext),
-      buildSessionPlaneSnapshot: this.options.runtimeContext.buildSessionPlaneSnapshot.bind(this.options.runtimeContext),
-      buildSessionPlaneStatusSummary: this.options.runtimeContext.buildSessionPlaneStatusSummary.bind(this.options.runtimeContext),
+      buildOpsQuality: buildRouteRecord(
+        this.options.runtimeContext.buildOpsQuality.bind(this.options.runtimeContext),
+      ),
+      buildSessionPlaneSnapshot: buildRouteRecord(
+        this.options.runtimeContext.buildSessionPlaneSnapshot.bind(this.options.runtimeContext),
+      ),
+      buildSessionPlaneStatusSummary: buildRouteRecord(
+        this.options.runtimeContext.buildSessionPlaneStatusSummary.bind(this.options.runtimeContext),
+      ),
       processChatSend: conversation.processChatSend.bind(conversation),
       resolveSessionId: this.options.runtimeContext.resolveSessionId.bind(this.options.runtimeContext),
       resolveSessionIdFromPermission: this.options.runtimeContext.resolveSessionIdFromPermission.bind(this.options.runtimeContext),

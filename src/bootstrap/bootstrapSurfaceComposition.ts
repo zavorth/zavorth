@@ -49,6 +49,8 @@ import type {
   BootstrapFoundation,
   BootstrapSurfaceRuntime,
 } from './bootstrapTypes.js';
+import type { SharedSurfaceCommandServiceDeps } from '../domain/surface/presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
+import type { WebhookGatewayOptions } from '../gateways/WebhookGateway.js';
 
 export function composeSurfaceRuntime(
   foundation: BootstrapFoundation,
@@ -122,20 +124,20 @@ export function composeSurfaceRuntime(
   foundation.agentGateway.attachSelfModificationService(sharedSelfModificationCommandService);
   const sharedSurfaceCommandService = new SharedSurfaceCommandService({
     runtimeDiagnostics: sharedRuntimeDiagnostics,
-    taskManager: foundation.taskManager,
+    taskManager: foundation.taskManager as unknown as SharedSurfaceCommandServiceDeps['taskManager'],
     memoryPlaneService: sharedMemoryPlaneService,
     sessionPlaneService: sharedSessionPlaneService,
     toolSurfaceService: sharedToolSurfaceService,
     gatewayService: sharedGatewayService,
     discordSurfacePolicyService,
     permissionService: botGateway.getPermissionService(),
-    taskApprovalController: botGateway.getPermissionController(),
-    taskExecutionController: botGateway.getExecutionController(),
+    taskApprovalController: botGateway.getPermissionController() as unknown as SharedSurfaceCommandServiceDeps['taskApprovalController'],
+    taskExecutionController: botGateway.getExecutionController() as unknown as SharedSurfaceCommandServiceDeps['taskExecutionController'],
     surfaceTaskDispatcher: botGateway.getSurfaceTaskDispatcher(),
     selfModificationCommandService: sharedSelfModificationCommandService,
-    formatPermissionCreatedMessage: botGateway.formatPermissionCreatedMessage.bind(botGateway),
-    buildPermissionKeyboard: botGateway.buildPermissionKeyboard.bind(botGateway),
-    workflowController: botGateway.getWorkflowController(),
+    formatPermissionCreatedMessage: botGateway.formatPermissionCreatedMessage.bind(botGateway) as unknown as SharedSurfaceCommandServiceDeps['formatPermissionCreatedMessage'],
+    buildPermissionKeyboard: botGateway.buildPermissionKeyboard.bind(botGateway) as unknown as SharedSurfaceCommandServiceDeps['buildPermissionKeyboard'],
+    workflowController: botGateway.getWorkflowController() as unknown as SharedSurfaceCommandServiceDeps['workflowController'],
   });
   const sharedSurfaceApi = new InternalSurfaceApiService({
     commandService: sharedSurfaceCommandService,
@@ -166,14 +168,14 @@ export function composeSurfaceRuntime(
       agentGateway: foundation.agentGateway,
       logRepo: foundation.logRepo,
       discordSurfacePolicyService,
-    })
+    } as unknown as WebhookGatewayOptions)
     : new DiscordBridgeGateway({
       broker: coreOrchestrator,
       agentGateway: foundation.agentGateway,
       logRepo: foundation.logRepo,
     });
-  const whatsAppGateway = new WhatsAppGateway(coreOrchestrator);
-  const instagramGateway = new InstagramGateway(coreOrchestrator);
+  const whatsAppGateway = new WhatsAppGateway(coreOrchestrator as unknown as WebhookGatewayOptions);
+  const instagramGateway = new InstagramGateway(coreOrchestrator as unknown as WebhookGatewayOptions);
   const slackGateway = new SlackGateway(coreOrchestrator);
   const signalGateway = new SignalGateway(coreOrchestrator);
   const imessageGateway = new IMessageGateway(coreOrchestrator);

@@ -16,6 +16,7 @@ import {
   persistSchemaVersion,
 } from "./coreSchemaBootstrap";
 import type { CheckpointMode, SqliteDatabase } from "./coreTypes";
+import { logger } from '@/shared/utils/logger';
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -54,9 +55,10 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
         | { c: number }
         | undefined;
       hasData = Boolean(count && count.c > 0);
-    } catch {
-      hasData = false;
-    }
+    } catch (error) {
+    logger.warn('[core Runtime] resource cleanup failed', error);
+    hasData = false;
+  }
     probe.close();
 
     if (hasData) {
@@ -83,17 +85,13 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
         if (fs.existsSync(sqliteFile + ext)) {
           fs.unlinkSync(sqliteFile + ext);
         }
-      } catch {
-        // Ignore stale sidecar cleanup failures.
-      }
+      } catch (error) { // Ignore stale sidecar cleanup failures. logger.warn('[core Runtime] file cleanup failed', error); }
     }
   } catch (error: unknown) {
     console.warn("[DB] Could not probe existing DB, will create fresh:", getErrorMessage(error));
     try {
       fs.unlinkSync(sqliteFile);
-    } catch {
-      // Ignore best-effort cleanup failures.
-    }
+    } catch (error) { // Ignore best-effort cleanup failures. logger.warn('[core Runtime] file cleanup failed', error); }
   }
 }
 

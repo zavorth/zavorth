@@ -12,6 +12,7 @@ import { randomUUID } from "node:crypto";
 import { getSettings, updateSettings } from "@/lib/localDb";
 import { getRuntimePorts } from "@/lib/runtime/ports";
 import { safeParseInt } from "../utils/safeParseInt.js";
+import { logger } from '@/shared/utils/logger';
 
 const DEFAULT_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const MODEL_SYNC_SETTING_KEY = "model_sync_last_run";
@@ -151,9 +152,7 @@ async function runSyncCycle(apiBaseUrl: string): Promise<void> {
     // Record last sync time
     try {
       await updateSettings({ [MODEL_SYNC_SETTING_KEY]: new Date().toISOString() });
-    } catch {
-      // Non-critical
-    }
+    } catch (error) { // Non-critical logger.warn('[model] connection failed', error); }
   } finally {
     isRunning = false;
   }
@@ -207,7 +206,5 @@ export async function getLastModelSyncTime(): Promise<string | null> {
   try {
     const settings = await getSettings();
     return (settings as Record<string, string>)[MODEL_SYNC_SETTING_KEY] ?? null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[model] lifecycle operation failed', error); return null; }
 }

@@ -1,17 +1,18 @@
 import { z } from 'zod';
 import type { ToolDefinition, ToolParameter } from '../../providers/ILlmProvider';
 import type { IZavorthTool } from './IZavorthTool';
+import { logger } from '../../logger.js';
 
 /**
- * ToolSchemaHelper — Converte schemas Zod de IZavorthTool em ToolDefinition (JSON Schema)
- * compatíveis com a API de Function Calling do OpenAI/Ollama.
+ * ToolSchemaHelper converts IZavorthTool Zod schemas into OpenAI/Ollama-compatible
+ * function-calling ToolDefinition JSON Schema objects.
  *
- * Isso elimina o hardcode por nome de ferramenta no ZavorthEchoOrchestrator
- * e permite que qualquer nova tool seja automaticamente serializada.
+ * This removes tool-name hardcoding from ZavorthEchoOrchestrator and lets new
+ * tools be serialized automatically.
  */
 export class ToolSchemaHelper {
   /**
-   * Converte um IZavorthTool completo em ToolDefinition (formato OpenAI).
+   * Converts a full IZavorthTool into an OpenAI-style ToolDefinition.
    */
   public static toToolDefinition(tool: IZavorthTool): ToolDefinition {
     const properties: Record<string, ToolParameter> = {};
@@ -23,14 +24,11 @@ export class ToolSchemaHelper {
         const param = this.zodFieldToParameter(fieldSchema as z.ZodTypeAny);
         properties[key] = param;
 
-        // Verifica se o campo é obrigatório (não é optional nem tem default)
         if (!this.isOptionalField(fieldSchema as z.ZodTypeAny)) {
           required.push(key);
         }
       }
-    } catch {
-      // Se o schema não for ZodObject, retorna vazio (fallback seguro)
-    }
+    } catch (error) { // If the schema is not a ZodObject, return an empty safe fallback. logger.warn('[Schema Helper] operation failed', error); }
 
     return {
       name: tool.name,
@@ -47,19 +45,18 @@ export class ToolSchemaHelper {
   }
 
   /**
-   * Converte um array de tools para ToolDefinition[].
+   * Converts an array of tools into ToolDefinition[].
    */
   public static toToolDefinitions(tools: IZavorthTool[]): ToolDefinition[] {
     return tools.map((tool) => this.toToolDefinition(tool));
   }
 
   /**
-   * Extrai o shape de um ZodObject (ou unwrap de ZodEffects/ZodDefault/etc).
+   * Extracts the shape from a ZodObject, unwrapping ZodEffects/ZodDefault/etc.
    */
   private static extractShape(schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> {
     let current = schema;
 
-    // Unwrap ZodEffects, ZodOptional, ZodDefault até chegar no ZodObject
     while (current) {
       if (current instanceof z.ZodObject) {
         return current.shape;
@@ -82,13 +79,12 @@ export class ToolSchemaHelper {
   }
 
   /**
-   * Converte um campo Zod individual para ToolParameter (JSON Schema simplificado).
+   * Converts one Zod field into a simplified JSON Schema ToolParameter.
    */
   private static zodFieldToParameter(field: z.ZodTypeAny): ToolParameter {
     const description = field.description || '';
     const unwrapped = this.unwrapField(field);
 
-    // ZodEnum
     if (unwrapped instanceof z.ZodEnum) {
       const def = (unwrapped as any)._def;
       const enumValues = def.entries
@@ -101,7 +97,6 @@ export class ToolSchemaHelper {
       };
     }
 
-    // ZodArray
     if (unwrapped instanceof z.ZodArray) {
       return {
         type: 'array',
@@ -109,7 +104,6 @@ export class ToolSchemaHelper {
       };
     }
 
-    // ZodNumber
     if (unwrapped instanceof z.ZodNumber) {
       return {
         type: 'number',
@@ -117,7 +111,6 @@ export class ToolSchemaHelper {
       };
     }
 
-    // ZodBoolean
     if (unwrapped instanceof z.ZodBoolean) {
       return {
         type: 'boolean',
@@ -125,7 +118,6 @@ export class ToolSchemaHelper {
       };
     }
 
-    // ZodRecord / ZodObject aninhado
     if (unwrapped instanceof z.ZodRecord || unwrapped instanceof z.ZodObject) {
       return {
         type: 'object',
@@ -133,7 +125,6 @@ export class ToolSchemaHelper {
       };
     }
 
-    // Fallback: string
     return {
       type: 'string',
       description,
@@ -141,7 +132,7 @@ export class ToolSchemaHelper {
   }
 
   /**
-   * Remove wrappers como ZodOptional, ZodDefault, ZodNullable para chegar ao tipo base.
+   * Removes wrappers such as ZodOptional, ZodDefault, and ZodNullable.
    */
   private static unwrapField(field: z.ZodTypeAny): z.ZodTypeAny {
     let current = field;
@@ -160,7 +151,7 @@ export class ToolSchemaHelper {
   }
 
   /**
-   * Verifica se um campo é opcional (ZodOptional ou ZodDefault).
+   * Checks whether a field is optional.
    */
   private static isOptionalField(field: z.ZodTypeAny): boolean {
     if (field instanceof z.ZodOptional) return true;

@@ -168,7 +168,7 @@ export const ModelPickerDialog = memo(function ModelPickerDialog({
         <div className="zvd-model-dialog__body">
           {groupedModels.length === 0 ? (
             <div className="text-center text-gray-500 py-8 text-sm">
-              Nenhum modelo encontrado.
+              No model found.
             </div>
           ) : (
             groupedModels.map(([family, models]) => (

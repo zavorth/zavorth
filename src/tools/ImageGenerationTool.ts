@@ -1,21 +1,21 @@
 /**
- * ImageGenerationTool — Tool Zavorth-nativa para geração de imagens via LLM.
+ * ImageGenerationTool - Zavorth-native LLM image generation tool.
  *
- * Esta tool é a interface voltada ao agente/LLM para a capability `media.generate`.
- * Ela expõe a geração de imagens como uma ferramenta JSON Schema que o LLM pode invocar.
+ * This is the agent/LLM-facing interface for the `media.generate` capability.
+ * It exposes image generation as a JSON Schema tool the LLM can invoke.
  *
- * Responsabilidades:
- * - Definir o schema de parâmetros para o LLM.
- * - Converter os argumentos do LLM em um MediaGenerationRequest.
- * - Invocar o MediaGenerationService.
- * - Retornar um resumo legível para o LLM com referências aos artefatos.
+ * Responsibilities:
+ * - Define the parameter schema for the LLM.
+ * - Convert LLM arguments into a MediaGenerationRequest.
+ * - Invoke MediaGenerationService.
+ * - Return a readable summary for the LLM with artifact references.
  *
- * A tool NUNCA:
- * - Interage diretamente com provedores.
- * - Retorna URLs cruas como resultado canônico.
- * - Contorna políticas de segurança.
+ * The tool never:
+ * - Talks directly to providers.
+ * - Returns raw URLs as the canonical result.
+ * - Bypasses security policies.
  *
- * Referências arquiteturais:
+ * Architecture references:
  * - docs/native-absorption-execution-plan.md
  * - src/contracts/MediaGenerationContract.ts
  * - src/services/MediaGenerationService.ts
@@ -39,26 +39,26 @@ export class ImageGenerationTool extends BaseTool {
   public readonly name = 'generate_image';
 
   public readonly description =
-    'Gera imagens a partir de um prompt textual. Retorna referências aos artefatos de imagem gerados no storage local do Zavorth.';
+    'Generates images from a text prompt. Returns references to generated image artifacts stored locally by Zavorth.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       prompt: {
         type: 'string',
-        description: 'Descrição textual detalhada da imagem a ser gerada.',
+        description: 'Detailed text description of the image to generate.',
       },
       count: {
         type: 'number',
-        description: 'Quantidade de imagens a gerar (1-4). Default: 1.',
+        description: 'Number of images to generate (1-4). Default: 1.',
       },
       size: {
         type: 'string',
-        description: "Tamanho ou aspecto da imagem. Exemplos: '1024x1024', 'landscape', 'portrait', 'square', '16:9'.",
+        description: "Image size or aspect. Examples: '1024x1024', 'landscape', 'portrait', 'square', '16:9'.",
       },
       style: {
         type: 'string',
-        description: "Estilo visual da imagem. Exemplos: 'realistic', 'cartoon', 'watercolor', 'photographic', 'digital-art'.",
+        description: "Image visual style. Examples: 'realistic', 'cartoon', 'watercolor', 'photographic', 'digital-art'.",
       },
     },
     required: ['prompt'],
@@ -72,7 +72,7 @@ export class ImageGenerationTool extends BaseTool {
   }
 
   // -------------------------------------------------------------------------
-  // Execução
+  // Execution
   // -------------------------------------------------------------------------
 
   public async execute(args: Record<string, unknown>): Promise<string> {
@@ -87,7 +87,7 @@ export class ImageGenerationTool extends BaseTool {
   }
 
   // -------------------------------------------------------------------------
-  // Conversão de argumentos
+  // Argument conversion
   // -------------------------------------------------------------------------
 
   private buildRequest(args: Record<string, unknown>): MediaGenerationRequest {
@@ -101,26 +101,26 @@ export class ImageGenerationTool extends BaseTool {
   }
 
   // -------------------------------------------------------------------------
-  // Formatação de resposta
+  // Response formatting
   // -------------------------------------------------------------------------
 
   private formatSuccessResponse(result: import('../contracts/MediaGenerationContract.js').MediaGenerationResult): string {
     const lines: string[] = [];
-    lines.push(`✅ ${result.artifacts.length} imagem(ns) gerada(s) com sucesso.`);
+    lines.push(`${result.artifacts.length} image(s) generated successfully.`);
     lines.push('');
 
     for (let i = 0; i < result.artifacts.length; i++) {
       const artifact = result.artifacts[i];
-      lines.push(`📷 Imagem ${i + 1}:`);
+      lines.push(`Image ${i + 1}:`);
       lines.push(`  - Artifact ID: ${artifact.artifactId}`);
       lines.push(`  - Storage: ${artifact.storageRef}`);
-      lines.push(`  - Tipo: ${artifact.contentType}`);
+      lines.push(`  - Type: ${artifact.contentType}`);
       if (artifact.sizeBytes) {
-        lines.push(`  - Tamanho: ${(artifact.sizeBytes / 1024).toFixed(1)} KB`);
+        lines.push(`  - Size: ${(artifact.sizeBytes / 1024).toFixed(1)} KB`);
       }
-      lines.push(`  - Provedor: ${artifact.providerEvidence.providerId}`);
+      lines.push(`  - Provider: ${artifact.providerEvidence.providerId}`);
       if (artifact.providerEvidence.modelId) {
-        lines.push(`  - Modelo: ${artifact.providerEvidence.modelId}`);
+        lines.push(`  - Model: ${artifact.providerEvidence.modelId}`);
       }
       lines.push('');
     }
@@ -129,6 +129,6 @@ export class ImageGenerationTool extends BaseTool {
   }
 
   private formatErrorResponse(message: string): string {
-    return `❌ Geração de imagem falhou: ${message}`;
+    return `Image generation failed: ${message}`;
   }
 }

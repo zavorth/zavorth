@@ -10,6 +10,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { NextResponse } from "next/server";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const SYNC_HELPER_PATH = join(process.cwd(), "scripts/sync-env.mjs");
 
@@ -48,6 +49,7 @@ export async function GET(request: Request) {
       missingKeys: plan.missingEntries.map((entry: { key: string }) => entry.key),
     });
   } catch (error) {
+    logger.warn('[route] load operation failed', error);
     return NextResponse.json(
       { error: (error as Error)?.message || "Failed to inspect env defaults" },
       { status: 500 }
@@ -74,6 +76,7 @@ export async function POST(request: Request) {
       missingKeys: plan.missingEntries.map((entry: { key: string }) => entry.key),
     });
   } catch (error) {
+    logger.warn('[route] creation failed', error);
     return NextResponse.json(
       { error: (error as Error)?.message || "Failed to repair env defaults" },
       { status: 500 }

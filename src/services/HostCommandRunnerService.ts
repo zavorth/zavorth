@@ -1,7 +1,8 @@
-import { execFile } from 'child_process';
+import { execFile, type ExecException } from 'child_process';
 import crypto from 'crypto';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
+import { logger } from '../logger.js';
 
 export interface HostCommandExecutionResult {
   exitCode: number;
@@ -60,7 +61,7 @@ export class HostCommandRunnerService {
           },
           (error, childStdout, childStderr) => {
             if (error) {
-              const execError = error as any;
+              const execError = error as ExecException & { killed?: boolean };
               if (execError.killed || execError.signal === 'SIGTERM' || execError.signal === 'SIGKILL') {
                 timeoutFlag = true;
               }
@@ -84,10 +85,11 @@ export class HostCommandRunnerService {
       stdout = res.stdout;
       stderr = res.stderr;
       exitCode = res.code !== null ? res.code : 0;
-    } catch (err: any) {
-      exitCode = err.code !== undefined ? err.code : 1;
+    } catch (error) {
+    logger.warn('[Host Command Runner] process execution failed', error);
+    exitCode = err.code !== undefined ? err.code : 1;
       stderr = err.message || 'Unknown execution error';
-    }
+  }
 
     const durationMs = Date.now() - startTime;
 

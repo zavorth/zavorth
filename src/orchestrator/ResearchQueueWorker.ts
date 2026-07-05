@@ -5,7 +5,7 @@ import { SmartOutputService } from '../services/SmartOutputService.js';
 import { TaskManager } from './TaskManager.js';
 
 type BotApiLike = {
-  sendMessage: (...args: any[]) => Promise<any>;
+  sendMessage(chatId: string | number, text: string, options?: { parse_mode?: 'Markdown' | 'HTML' }): Promise<unknown>;
 };
 
 type WorkerDeps = {
@@ -63,7 +63,7 @@ export class ResearchQueueWorker {
 
       await this.execute(task);
     } catch (error: any) {
-      this.deps.log('error', 'ResearchQueueWorker', error.message || 'Falha no worker de pesquisa.');
+      this.deps.log('error', 'ResearchQueueWorker', error.message || 'Research worker failed.');
     } finally {
       this.running = false;
     }
@@ -97,7 +97,7 @@ export class ResearchQueueWorker {
       this.deps.taskManager.advanceState(task, 'delivery_pending');
       await this.deliver(task, false);
     } catch (error: any) {
-      task.error_summary = error.message || 'Falha ao executar a pesquisa enfileirada.';
+      task.error_summary = error.message || 'Failed to execute queued research.';
       task.metadata = {
         ...(task.metadata || {}),
         queue_lock: null,
@@ -116,21 +116,21 @@ export class ResearchQueueWorker {
   private async deliver(task: Task, retryOnly: boolean): Promise<void> {
     const chatId = String(task.chat_id || '').trim();
     if (!chatId) {
-      task.error_summary = task.error_summary || 'Task de pesquisa sem chat_id para entrega.';
+      task.error_summary = task.error_summary || 'Research task has no chat_id for delivery.';
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
       return;
     }
 
     const message = [
-      `${task.command_type === '/deepresearch' ? 'Deep Research' : 'Pesquisa'} concluida.`,
-      `Referencia curta: ${task.task_id.substring(0, 8)}`,
+      `${task.command_type === '/deepresearch' ? 'Deep Research' : 'Research'} completed.`,
+      `Short reference: ${task.task_id.substring(0, 8)}`,
       '',
-      task.result_summary || 'Sem resultado.',
+      task.result_summary || 'No result.',
     ].join('\n');
 
     try {
-      await SmartOutputService.send(this.deps.botApi as any, chatId, message, { parse_mode: 'Markdown' });
+      await SmartOutputService.send(this.deps.botApi, chatId, message, { parse_mode: 'Markdown' });
       task.metadata = {
         ...(task.metadata || {}),
         queue_lock: null,
@@ -148,14 +148,14 @@ export class ResearchQueueWorker {
         async_queue: {
           ...(task.metadata?.async_queue || {}),
           delivery_retries: Number(task.metadata?.async_queue?.delivery_retries || 0) + 1,
-          last_delivery_error: error.message || 'Falha ao entregar resposta.',
+          last_delivery_error: error.message || 'Failed to deliver response.',
         },
       };
       this.deps.taskManager.saveTask(task);
       if (task.status !== 'delivery_pending') {
         this.deps.taskManager.advanceState(task, 'delivery_pending');
       }
-      this.deps.log('warn', 'ResearchQueueWorker', 'Entrega pendente por falha no Telegram.', {
+      this.deps.log('warn', 'ResearchQueueWorker', 'Delivery pending due to Telegram failure.', {
         taskId: task.task_id,
         error: error.message || 'unknown',
       });
@@ -170,14 +170,12 @@ export class ResearchQueueWorker {
 
     try {
       await SmartOutputService.send(
-        this.deps.botApi as any,
+        this.deps.botApi,
         chatId,
-        `Pesquisa falhou.\nReferencia curta: ${task.task_id.substring(0, 8)}\n\nMotivo: ${task.error_summary || 'Erro desconhecido.'}`,
+        `Research failed.\nShort reference: ${task.task_id.substring(0, 8)}\n\nReason: ${task.error_summary || 'Unknown error.'}`,
       );
     } catch (error: any) {
-      this.deps.log('warn', 'ResearchQueueWorker', 'Falha ao entregar erro da pesquisa.', {
-        taskId: task.task_id,
-        error: error.message || 'unknown',
+      this.deps.log('warn', 'ResearchQueueWorker', 'Failed to deliver research error.', {
       });
     }
   }

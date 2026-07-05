@@ -7,6 +7,7 @@ import { LocalJailSandboxRuntime } from '../services/sandbox/LocalJailSandboxRun
 import { SandboxPolicyService } from '../services/sandbox/SandboxPolicyService.js';
 import { WasmSandboxRuntime } from '../services/sandbox/WasmSandboxRuntime.js';
 import { WasmSandboxCapabilityService } from '../services/WasmSandboxCapabilityService.js';
+import { logger } from '../logger.js';
 
 type SandboxToolLanguage = SandboxLanguage | 'wasm';
 
@@ -16,7 +17,7 @@ type SandboxToolLanguage = SandboxLanguage | 'wasm';
  *   1. wasm         -> modulo Wasm precompilado em runtime host restrito
  *   2. local-jail   -> Processo efemero local (rapido, para codigo confiavel)
  *   3. container    -> Docker + gVisor (codigo sensivel, shell, rede)
- *   4. microvm      -> Firecracker MicroVM (codigo de alto risco, usuarios nao-confiaveis)
+ *   4. microvm      -> Firecracker MicroVM for high-risk code and untrusted users
  */
 export class SandboxExecutionTool extends BaseTool {
   public readonly name = 'run_sandbox_code';
@@ -40,7 +41,7 @@ export class SandboxExecutionTool extends BaseTool {
       security_level: {
         type: 'string',
         description:
-          'Nivel desejado: auto escolhe pela politica, wasm roda modulo precompilado restrito, ' +
+          'Desired level: auto chooses by policy, wasm runs a restricted precompiled module, ' +
           'local-jail prioriza runtime leve, container exige Docker+gVisor, microvm exige Firecracker MicroVM.',
         enum: ['auto', 'wasm', 'local-jail', 'container', 'microvm'],
       },
@@ -54,7 +55,7 @@ export class SandboxExecutionTool extends BaseTool {
       },
       timeout_ms: {
         type: 'string',
-        description: 'Timeout opcional em milissegundos para a execucao.',
+        description: 'Optional execution timeout in milliseconds.',
       },
     },
     required: ['language', 'code'],
@@ -103,7 +104,7 @@ export class SandboxExecutionTool extends BaseTool {
       });
 
       let out = `Sandbox ${result.securityLevel} (${result.runtime}) - exit code ${result.exitCode} - ${result.executionTimeMs}ms\n`;
-      out += `Motivo da politica: ${policy.reason}\n`;
+      out += `Policy reason: ${policy.reason}\n`;
       if (result.stdout) {
         out += `--- STDOUT ---\n${result.stdout}\n`;
       }
@@ -112,9 +113,7 @@ export class SandboxExecutionTool extends BaseTool {
       }
 
       return out;
-    } catch (error: any) {
-      return `Sandbox failure (${policy.securityLevel}): ${error.message}`;
-    }
+    } catch (error) { logger.warn('[Sandbox Execution] process execution failed', error); return ''; }
   }
 
   private async executeWasmModule(
@@ -145,7 +144,7 @@ export class SandboxExecutionTool extends BaseTool {
     });
 
     let out = `Sandbox ${result.securityLevel} (${result.runtime}) - exit code ${result.exitCode} - ${result.executionTimeMs}ms\n`;
-    out += 'Motivo da politica: modulo Wasm precompilado em runtime restrito.\n';
+    out += 'Policy reason: precompiled Wasm module in a restricted runtime.\n';
     out += `Export selecionado: ${result.selectedExport || 'auto'}\n`;
     if (result.returnValue) {
       out += `Return value: ${result.returnValue}\n`;
@@ -160,10 +159,10 @@ export class SandboxExecutionTool extends BaseTool {
   }
 
   /**
-   * Resolve qual runtime usar com base no nivel de seguranca exigido.
+   * Resolves which runtime to use based on the required security level.
    * Implementa fallback automatico:
    *   microvm indisponivel -> tenta container
-   *   container indisponivel -> bloqueia execucao (nao rebaixa para local-jail)
+   *   container unavailable -> blocks execution and does not downgrade to local-jail
    */
   private resolveRuntime(
     securityLevel: 'local-jail' | 'container' | 'microvm' | 'wasm',
@@ -187,7 +186,7 @@ export class SandboxExecutionTool extends BaseTool {
 
       throw new Error(
         'Execucao bloqueada: codigo de alto risco requer MicroVM (Firecracker) ou container (Docker+gVisor), ' +
-        'mas nenhum dos dois esta disponivel neste host. ' +
+        'but neither is available on this host. ' +
         'Instale o Firecracker ou configure o Docker com gVisor.',
       );
     }
@@ -196,8 +195,8 @@ export class SandboxExecutionTool extends BaseTool {
       const dockerStatus = this.dockerSandbox.getStatus(language);
       if (!dockerStatus.daemonReachable && !dockerStatus.canRun) {
         throw new Error(
-          `Sandbox bloqueada: a politica exigiu container Docker (gVisor), ` +
-          `mas o runtime forte nao esta pronto neste host. Detalhe: ${dockerStatus.detail}`,
+          `Sandbox blocked: policy required a Docker container (gVisor), ` +
+          `but the strong runtime is not ready on this host. Detail: ${dockerStatus.detail}`,
         );
       }
       return this.dockerSandbox;
@@ -222,8 +221,9 @@ export class SandboxExecutionTool extends BaseTool {
         return { ok: false, error: 'args_json aceita apenas numeros finitos.' };
       }
       return { ok: true, value: numericArgs };
-    } catch (error: any) {
-      return { ok: false, error: `args_json invalido: ${error.message}` };
-    }
+    } catch (error) {
+    logger.warn('[Sandbox Execution] parsing failed', error);
+    return { ok: false, error: `args_json invalido: ${error.message}` };
+  }
   }
 }

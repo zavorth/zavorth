@@ -55,6 +55,7 @@ import { ZavorthConversationalSetupService } from './ZavorthConversationalSetupS
 import { ZavorthContextualTipsService, CONTEXTUAL_TIP_FLAGS } from './ZavorthContextualTipsService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../logger.js';
 
 type RuntimeRecord = Record<string, unknown>;
 type ComposerCatalogOptions = NonNullable<ConstructorParameters<typeof ComposerCatalogService>[0]>;
@@ -876,7 +877,8 @@ export class WebAppConversationService {
         error: result.error?.message || null,
       };
     } catch (error) {
-      return {
+    logger.warn('[Web App Conversation] string operation failed', error);
+    return {
         ok: false,
         name: attachment.name,
         type: media.mimeType,
@@ -884,7 +886,7 @@ export class WebAppConversationService {
         text: null,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private renderMediaUnderstandingReply(
@@ -1065,9 +1067,7 @@ export class WebAppConversationService {
         }),
       ]);
       return result;
-    } catch {
-      return null;
-    } finally {
+    } catch (error) { logger.warn('[Web App Conversation] cache operation failed', error); return null; } finally {
       if (timeoutHandle) {
         clearTimeout(timeoutHandle);
       }

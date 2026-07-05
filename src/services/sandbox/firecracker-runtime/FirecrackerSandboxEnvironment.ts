@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { execNativeCommandSync } from '../../../core/CommandSpawn.js';
+import { logger } from '../../../logger.js';
 
 export type FirecrackerSandboxStatus = {
   enabled: boolean;
@@ -149,9 +150,7 @@ export function checkKvmAccess(): boolean {
   try {
     fs.accessSync('/dev/kvm', fs.constants.R_OK | fs.constants.W_OK);
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Firecracker Sandbox Environment] creation failed', error); return false; }
 }
 
 export function checkFirecrackerBinary(binPath: string): boolean {
@@ -161,9 +160,7 @@ export function checkFirecrackerBinary(binPath: string): boolean {
       encoding: 'utf8',
     });
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Firecracker Sandbox Environment] process execution failed', error); return false; }
 }
 
 export function toWslPath(targetPath: string): string | null {

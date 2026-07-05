@@ -36,7 +36,7 @@ export class SupervisedComputerUseAdapter implements SystemOverlordRuntimeAdapte
       return {
         ok: false,
         errorCode: 'computer_use_agent_unavailable',
-        errorMessage: 'Computer Use Agent nao foi injetado no adapter supervisionado.',
+        errorMessage: 'Computer Use Agent was not injected into the supervised adapter.',
       };
     }
 
@@ -60,7 +60,7 @@ export class SupervisedComputerUseAdapter implements SystemOverlordRuntimeAdapte
       this.agent.stop();
       return {
         ok: true,
-        stdout: 'Computer Use stop solicitado.',
+        stdout: 'Computer Use stop requested.',
         rollbackAvailable: false,
         metadata: {
           adapterId: this.id,
@@ -74,7 +74,7 @@ export class SupervisedComputerUseAdapter implements SystemOverlordRuntimeAdapte
       return {
         ok: false,
         errorCode: 'computer_use_action_rejected',
-        errorMessage: `Acao Computer Use invalida: "${action}".`,
+        errorMessage: `Invalid Computer Use action: "${action}".`,
       };
     }
 
@@ -87,7 +87,7 @@ export class SupervisedComputerUseAdapter implements SystemOverlordRuntimeAdapte
       return {
         ok: false,
         errorCode: 'computer_use_missing_scope',
-        errorMessage: 'Computer Use exige targetWindow e objective para evitar acao visual sem escopo.',
+        errorMessage: 'Computer Use requires targetWindow and objective to avoid unscoped visual actions.',
       };
     }
 
@@ -95,7 +95,7 @@ export class SupervisedComputerUseAdapter implements SystemOverlordRuntimeAdapte
       return {
         ok: false,
         errorCode: 'computer_use_approval_required',
-        errorMessage: 'Computer Use visual exige aprovacao explicita antes de operar a UI.',
+        errorMessage: 'Visual Computer Use requires explicit approval before operating the UI.',
       };
     }
 

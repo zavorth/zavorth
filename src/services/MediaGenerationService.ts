@@ -37,6 +37,7 @@ import type {
   IMediaGenerationAdapter,
   AdapterGenerationOutput,
   MediaGenerationError,
+  MediaGenerationModality,
 } from '../contracts/MediaGenerationContract.js';
 import {
   AiGatewayImageGenerationAdapter,
@@ -129,9 +130,10 @@ export class MediaGenerationService {
         : request;
 
       adapterOutputs = await adapter.generate(effectiveRequest);
-    } catch (err) {
-      return this.buildAdapterErrorResult(err, processedAt, policyDecision);
-    }
+    } catch (error) {
+    logger.warn('[Media Generation] creation failed', error);
+    return this.buildAdapterErrorResult(err, processedAt, policyDecision);
+  }
 
     // 5. Converte outputs do adapter em artefatos Zavorth e persiste.
     const artifacts: GeneratedMediaArtifact[] = [];
@@ -225,9 +227,9 @@ export class MediaGenerationService {
   // Seleção de adapter
   // -------------------------------------------------------------------------
 
-  private selectAdapter(modality: string): IMediaGenerationAdapter | null {
+  private selectAdapter(modality: MediaGenerationModality): IMediaGenerationAdapter | null {
     for (const adapter of this.adapters.values()) {
-      if (adapter.supportedModalities.includes(modality as any)) {
+      if (adapter.supportedModalities.includes(modality)) {
         return adapter;
       }
     }
@@ -240,7 +242,7 @@ export class MediaGenerationService {
 
   private async storeAsArtifact(
     output: AdapterGenerationOutput,
-    modality: string,
+    modality: MediaGenerationModality,
     request: MediaGenerationRequest,
   ): Promise<GeneratedMediaArtifact> {
     const artifactId = randomUUID();
@@ -266,7 +268,7 @@ export class MediaGenerationService {
 
     return {
       artifactId,
-      modality: modality as any,
+      modality,
       contentType: output.contentType,
       storageRef: artifactPath,
       sizeBytes: stats.size,

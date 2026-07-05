@@ -4,6 +4,7 @@ import { Task } from '../../../../contracts/TaskContract.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import type { WorkflowRunService } from '../../../../runtime/workflows/WorkflowRunService.js';
+import { logger } from '../../../../logger';
 
 export type TelegramPermissionDecisionLifecycleServiceDeps = {
   taskManager: Pick<TaskManager, 'advanceState'>;
@@ -64,9 +65,7 @@ export class TelegramPermissionDecisionLifecycleService {
 
     try {
       await this.deps.auditLogger.logPermissionDecision(permission, action, userId, details);
-    } catch {
-      // audit should never block permission handling
-    }
+    } catch (error) { // audit should never block permission handling logger.warn('[Telegram Permission Decision Lifecycle] operation failed', error); }
   }
 
   private async tryResumeWorkflowExecution(ctx: Context, task: Task): Promise<boolean> {

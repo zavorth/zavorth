@@ -24,7 +24,7 @@ export class AuthGuard {
 
   private static readonly GROUP_ADMIN_COMMANDS = new Set([
     '/ban', '/kick', '/mute', '/unmute', '/warn', '/warns', '/clearwarns',
-    '/regras', '/stats', '/setwelcome', '/setbye', '/antispam', '/filter',
+    '/rules', '/regras', '/stats', '/setwelcome', '/setbye', '/antispam', '/filter',
   ]);
 
   private static readonly BLOCKED_COMMANDS_FOR_VICE_OWNER = new Set([
@@ -97,7 +97,7 @@ export class AuthGuard {
       const isGroupMessageUpdate = Boolean(ctx.message);
 
       if (!chat_id) {
-        logger.warn('[Security] Rejeitado: chat_id nulo.');
+        logger.warn('[Security] Rejected: chat_id is null.');
         return;
       }
 
@@ -106,7 +106,7 @@ export class AuthGuard {
           await next();
           return;
         }
-        logger.warn('[Security] Rejeitado: chat_id ou user_id nulo.');
+        logger.warn('[Security] Rejected: chat_id or user_id is null.');
         return;
       }
 
@@ -116,7 +116,7 @@ export class AuthGuard {
         AuthGuard.isMutableCommandWhileHostReadonly(normalizedCommand, text)
       ) {
         await ctx.reply(
-          'Host novo detectado. O Zavorth entrou em modo somente leitura ate reautorizacao.\nUse `/hostauth status` para inspecionar e `/hostauth trust` no host atual para liberar execucao.',
+          'New host detected. Zavorth entered read-only mode until reauthorization.\nUse `/hostauth status` to inspect and `/hostauth trust` on the current host to allow execution.',
           { parse_mode: 'Markdown' },
         );
         return;
@@ -135,7 +135,7 @@ export class AuthGuard {
           return;
         }
 
-        // Permitir comandos de administracao de grupo para admins do Telegram
+        // Allow Telegram group administration commands for Telegram admins.
         if (isGroup && text.startsWith('/')) {
           const commandType = normalizedCommand;
           if (AuthGuard.GROUP_ADMIN_COMMANDS.has(commandType)) {
@@ -145,28 +145,24 @@ export class AuthGuard {
                 await next();
                 return;
               }
-            } catch {
-              // Se falhar a verificacao, negar acesso
-            }
-            await ctx.reply('⚠️ Apenas administradores do grupo podem usar este comando.', { reply_to_message_id: ctx.message?.message_id });
+            } catch (error) { // Deny access if verification fails. logger.warn('[Auth Guard] operation failed', error); }
+            await ctx.reply('Only group administrators can use this command.', { reply_to_message_id: ctx.message?.message_id });
             return;
           }
         }
 
-        logger.warn(`[Security] Acesso nao autorizado de user_id: ${user_id} e chat_id: ${chat_id}`);
+        logger.warn(`[Security] Unauthorized access from user_id: ${user_id} and chat_id: ${chat_id}`);
 
         if (isGroup && text.startsWith('/')) {
           try {
             const sarcasms = [
-              'Quem te deu permissao para falar comigo, mortal? Tente `/roll` se quiser brincar.',
-              'Comandos de administrador nao funcionam para voce. Use `/8ball`.',
-              'Eu sirvo apenas ao meu Mestre. Para voce, sou apenas um bot de jogos. Tente `/joke`.',
+              'You are not authorized to use that command. Try `/roll` for group fun.',
+              'Administrator commands are not available to you. Use `/8ball`.',
+              'System access is restricted. You can still try `/joke`.',
             ];
             const response = sarcasms[Math.floor(Math.random() * sarcasms.length)];
             await ctx.reply(response, { reply_to_message_id: ctx.message?.message_id });
-          } catch {
-            // ignore reply errors for unauthorized group noise
-          }
+          } catch (error) { // ignore reply errors for unauthorized group noise logger.warn('[Auth Guard] operation failed', error); }
         }
         return;
       }
@@ -183,7 +179,7 @@ export class AuthGuard {
           AuthGuard.isHiddenPrivilegedInput(text)
         ) {
           await ctx.reply(
-            '⛔ **Acesso Restrito:**\n\nComo vice-dono(a), voce nao tem permissao para usar este comando de sistema/computador. Voce tem acesso a pesquisa, memoria, conversas e analises.',
+            '**Restricted Access:**\n\nYour current role cannot use this system/computer command. You still have access to search, memory, conversations, and analysis.',
             { parse_mode: 'Markdown' },
           );
           this.logSecurityBlock(user_id, commandType || '[natural-language]');
@@ -197,10 +193,8 @@ export class AuthGuard {
 
   private static logSecurityBlock(userId: string, command: string) {
     try {
-      logger.warn(`[Security] Vice-Owner bloqueado ao tentar executar: ${command}`);
-    } catch {
-      // ignore logging failures
-    }
+      logger.warn(`[Security] Non-admin role blocked while trying to execute: ${command}`);
+    } catch (error) { // ignore logging failures logger.warn('[Auth Guard] process execution failed', error); }
   }
 
   private static isGroupServiceMessage(ctx: Context): boolean {
@@ -270,7 +264,6 @@ export class AuthGuard {
       normalized.includes('tente se corrigir') ||
       normalized.includes('corrija o zavorth') ||
       normalized.includes('faca autoreparo') ||
-      normalized.includes('faça autoreparo') ||
       normalized.includes('se melhore') ||
       normalized.includes('melhore o zavorth') ||
       normalized.includes('se otimize') ||

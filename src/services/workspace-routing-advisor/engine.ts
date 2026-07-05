@@ -26,6 +26,7 @@ import {
   findRouteOutcome,
   findWorkflowFriction,
   findWorkflowStageExecutorRecommendation,
+  type WorkspaceRoutingMemory,
 } from './memory.js';
 import {
   applyApprovalFrictionPenalty,
@@ -111,7 +112,7 @@ export class WorkspaceRoutingAdvisor {
       ? mem.route_outcomes
       : [];
     const blockedExecutors = collectBlockedExecutors(
-      memory,
+      memory as WorkspaceRoutingMemory,
       taskProfile.kind,
       taskProfile.subtype,
       approvedPolicies,

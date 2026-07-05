@@ -14,6 +14,7 @@ import { saveCliToolLastConfigured, deleteCliToolLastConfigured } from "@/lib/db
 import { cliModelConfigSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
+import { logger } from '@/shared/utils/logger';
 
 const getCodexConfigPath = () => getCliConfigPaths("codex").config;
 const getCodexAuthPath = () => getCliConfigPaths("codex").auth;
@@ -152,7 +153,8 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -193,9 +195,7 @@ export async function POST(request: Request) {
         if (keyRecord?.key) {
           apiKey = keyRecord.key as string;
         }
-      } catch {
-        // Non-critical: fall back to whatever value was in apiKey
-      }
+      } catch (error) { // Non-critical: fall back to whatever value was in apiKey logger.warn('[route] operation failed', error); }
     }
 
     const codexDir = getCodexDir();
@@ -213,9 +213,7 @@ export async function POST(request: Request) {
     try {
       const existingConfig = await fs.readFile(configPath, "utf-8");
       parsed = parseToml(existingConfig);
-    } catch {
-      /* No existing config */
-    }
+    } catch (error) { /* No existing config */ logger.warn('[route] filesystem operation failed', error); }
 
     // Update only ZavorthGateway related fields (api_key goes to auth.json, not config.toml)
     parsed._root.model = model;
@@ -239,9 +237,7 @@ export async function POST(request: Request) {
     try {
       const existingAuth = await fs.readFile(authPath, "utf-8");
       authData = JSON.parse(existingAuth);
-    } catch {
-      /* No existing auth */
-    }
+    } catch (error) { /* No existing auth */ logger.warn('[route] JSON parse failed', error); }
 
     authData.OPENAI_API_KEY = apiKey;
     await fs.writeFile(authPath, JSON.stringify(authData, null, 2));
@@ -249,9 +245,7 @@ export async function POST(request: Request) {
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("codex");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       success: true,
@@ -321,16 +315,12 @@ export async function DELETE(request: Request) {
       } else {
         await fs.writeFile(authPath, JSON.stringify(authData, null, 2));
       }
-    } catch {
-      /* No auth file */
-    }
+    } catch (error) { /* No auth file */ logger.warn('[route] JSON parse failed', error); }
 
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("codex");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] file cleanup failed', error); }
 
     return NextResponse.json({
       success: true,

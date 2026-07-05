@@ -134,17 +134,17 @@ type SwarmState = {
 };
 
 const STATUS_CONFIG: Record<string, { color: string; label: string }> = {
-  idle: { color: '#64748b', label: 'Aguardando' },
-  IDLE: { color: '#64748b', label: 'Concluido' },
-  running: { color: '#2563eb', label: 'Executando' },
-  PROCESSING: { color: '#2563eb', label: 'Processando' },
-  completed: { color: '#059669', label: 'Concluido' },
-  failed: { color: '#dc2626', label: 'Falhou' },
-  ERROR: { color: '#dc2626', label: 'Erro' },
+  idle: { color: '#64748b', label: 'Waiting' },
+  IDLE: { color: '#64748b', label: 'Completed' },
+  running: { color: '#2563eb', label: 'Running' },
+  PROCESSING: { color: '#2563eb', label: 'Processing' },
+  completed: { color: '#059669', label: 'Completed' },
+  failed: { color: '#dc2626', label: 'Failed' },
+  ERROR: { color: '#dc2626', label: 'Error' },
   timed_out: { color: '#d97706', label: 'Timeout' },
   TIMEOUT: { color: '#d97706', label: 'Timeout' },
-  cancelled: { color: '#64748b', label: 'Cancelado' },
-  CANCELLED: { color: '#64748b', label: 'Cancelado' },
+  cancelled: { color: '#64748b', label: 'Cancelled' },
+  CANCELLED: { color: '#64748b', label: 'Cancelled' },
 };
 
 export function SwarmMonitor({
@@ -195,7 +195,7 @@ export function SwarmMonitor({
   }, [baseUrl, currentSwarmId, fetchList]);
 
   useEffect(() => {
-    fetchList().catch((err) => setError(err?.message || 'Falha ao carregar swarms.'));
+    fetchList().catch((err) => setError(err?.message || 'Failed to load swarms.'));
   }, [fetchList]);
 
   useEffect(() => {
@@ -250,7 +250,7 @@ export function SwarmMonitor({
       setObjective('');
       await fetchList();
     } catch (err: any) {
-      setError(err?.message || 'Falha ao lancar swarm.');
+      setError(err?.message || 'Failed to launch swarm.');
     } finally {
       setLaunching(false);
     }
@@ -270,7 +270,7 @@ export function SwarmMonitor({
         setSwarm(data.swarm);
       }
     } catch (err: any) {
-      setError(err?.message || 'Falha ao cancelar swarm.');
+      setError(err?.message || 'Failed to cancel swarm.');
     }
   };
 
@@ -309,7 +309,7 @@ export function SwarmMonitor({
           value={objective}
           onChange={(event) => setObjective(event.target.value)}
           onKeyDown={(event) => event.key === 'Enter' && launchSwarm()}
-          placeholder="Descreva o objetivo para o time de agentes..."
+          placeholder="Describe the objective for the agent team..."
           disabled={launching}
         />
         <button
@@ -426,7 +426,7 @@ export function SwarmMonitor({
                     <span style={styles.roleStatus(cfg.color)}>{cfg.label}</span>
                   </div>
                   <pre style={styles.rolePre}>
-                    {role.output.join('').slice(-1200) || '(aguardando output...)'}
+                    {role.output.join('').slice(-1200) || '(waiting for output...)'}
                   </pre>
                 </article>
               );

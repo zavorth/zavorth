@@ -10,54 +10,21 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const http = require('node:http');
 const https = require('node:https');
-const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { execFileSync, spawn } = require('node:child_process');
+const {
+  buildRuntimeBaseUrl,
+  resolveAccessToken,
+  resolveRepoRoot,
+  resolveRuntimePaths,
+  resolveZavorthHome,
+} = require('./runtime-access.cjs');
 
 let mainWindow = null;
 let runtimeProcess = null;
 let lastEvents = [];
 const trustedWorkspaceRoots = new Set();
-
-function resolveRepoRoot() {
-  const fromEnv = process.env.ZAVORTH_ROOT && path.resolve(process.env.ZAVORTH_ROOT);
-  if (fromEnv && fs.existsSync(path.join(fromEnv, 'package.json'))) {
-    return fromEnv;
-  }
-
-  const devRoot = path.resolve(__dirname, '..', '..', '..');
-  if (fs.existsSync(path.join(devRoot, 'package.json'))) {
-    return devRoot;
-  }
-
-  return process.resourcesPath || devRoot;
-}
-
-function resolveZavorthHome() {
-  if (process.env.ZAVORTH_HOME) {
-    return path.resolve(process.env.ZAVORTH_HOME);
-  }
-  if (process.platform === 'win32' && process.env.LOCALAPPDATA) {
-    return path.join(process.env.LOCALAPPDATA, 'Zavorth');
-  }
-  return path.join(os.homedir(), '.zavorth');
-}
-
-function resolveRuntimePaths() {
-  const repoRoot = resolveRepoRoot();
-  const runtimeDir = path.join(repoRoot, 'data', 'runtime');
-  const logsDir = path.join(runtimeDir);
-  return {
-    repoRoot,
-    zavorthHome: resolveZavorthHome(),
-    runtimeDir,
-    logsDir,
-    tokenFile: process.env.ZAVORTH_WEB_AUTH_TOKEN_FILE || path.join(runtimeDir, 'web-api-token.txt'),
-    hostLockFile: path.join(runtimeDir, 'host-supervisor.lock.json'),
-    cliBin: path.join(repoRoot, 'bin', 'zavorth.js'),
-  };
-}
 
 function nowIso() {
   return new Date().toISOString();
@@ -123,58 +90,6 @@ function repairStaleHostLock() {
     return true;
   }
   return false;
-}
-
-function isWeakToken(value) {
-  const text = String(value || '').trim();
-  return text.length < 32 || /^(changeme|password|token|dev|test)$/iu.test(text);
-}
-
-function generateToken() {
-  return crypto.randomBytes(36).toString('base64url');
-}
-
-function readTokenFile(tokenFile) {
-  try {
-    const value = fs.readFileSync(tokenFile, 'utf8').trim();
-    return value && !isWeakToken(value) ? value : null;
-  } catch {
-    return null;
-  }
-}
-
-function resolveAccessToken({ generate = false } = {}) {
-  const { tokenFile } = resolveRuntimePaths();
-  const envToken = String(process.env.ZAVORTH_WEB_AUTH_TOKEN || '').trim();
-  if (envToken && !isWeakToken(envToken)) {
-    return { token: envToken, source: 'env' };
-  }
-
-  const fileToken = readTokenFile(tokenFile);
-  if (fileToken) {
-    return { token: fileToken, source: 'file' };
-  }
-
-  if (!generate) {
-    return { token: '', source: 'missing' };
-  }
-
-  const token = generateToken();
-  fs.mkdirSync(path.dirname(tokenFile), { recursive: true });
-  fs.writeFileSync(tokenFile, `${token}\n`, { encoding: 'utf8', mode: 0o600 });
-  try {
-    fs.chmodSync(tokenFile, 0o600);
-  } catch {
-    // Windows may ignore POSIX permissions; the token still stays in the local runtime directory.
-  }
-  return { token, source: 'generated' };
-}
-
-function buildRuntimeBaseUrl() {
-  const rawHost = String(process.env.ZAVORTH_WEB_HOST || '127.0.0.1').trim();
-  const host = rawHost && rawHost !== '0.0.0.0' ? rawHost : '127.0.0.1';
-  const port = Number(process.env.ZAVORTH_WEB_PORT || process.env.PORT || 3000);
-  return `http://${host}:${Number.isFinite(port) ? port : 3000}`;
 }
 
 function normalizeResolvedPath(value) {
@@ -1070,7 +985,7 @@ ipcMain.handle('zavorth:check-updates', async () => {
     hasUpdate: false,
     version: app.getVersion(),
     latestVersion: app.getVersion(),
-    changelog: 'Nenhuma atualização disponível no momento.'
+    changelog: 'No update is available right now.'
   };
 });
 

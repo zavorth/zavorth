@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { resolveDataDir } from "@/lib/dataPaths";
+import { logger } from '@/shared/utils/logger';
 
 const BACKUP_DIR = path.join(resolveDataDir(), "backups");
 const MAX_BACKUPS_PER_TOOL = 5;
@@ -51,7 +52,8 @@ function makeBackupName(originalPath: string) {
 export async function createBackup(toolId: string, filePath: string) {
   try {
     await fs.access(filePath);
-  } catch {
+  } catch (error) {
+    logger.warn('[backup] creation failed', error);
     // Source file doesn't exist — nothing to back up
     return null;
   }
@@ -102,9 +104,7 @@ export async function listBackups(toolId: string) {
   let entries;
   try {
     entries = await fs.readdir(dir);
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[backup] filesystem operation failed', error); return []; }
 
   const metaFiles = entries.filter((e) => e.endsWith(".meta.json"));
   const backups: any[] = [];
@@ -134,9 +134,7 @@ export async function listBackups(toolId: string) {
         createdAt: meta.createdAt,
         size,
       });
-    } catch {
-      // Corrupt meta — skip
-    }
+    } catch (error) { // Corrupt meta — skip logger.warn('[backup] creation failed', error); }
   }
 
   // Sort newest first
@@ -194,14 +192,10 @@ export async function deleteBackup(toolId: string, backupId: string) {
 
   try {
     await fs.unlink(backupPath);
-  } catch {
-    // Already gone
-  }
+  } catch (error) { // Already gone logger.warn('[backup] file cleanup failed', error); }
   try {
     await fs.unlink(metaPath);
-  } catch {
-    // Already gone
-  }
+  } catch (error) { // Already gone logger.warn('[backup] file cleanup failed', error); }
 
   return { deleted: true, backupId };
 }

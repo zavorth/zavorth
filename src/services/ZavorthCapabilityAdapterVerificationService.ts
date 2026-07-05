@@ -15,6 +15,7 @@ import {
 } from '../contracts/ZavorthCapabilityAdapterVerificationContract.js';
 import { ZavorthCapabilityAdapterDraftService } from './ZavorthCapabilityAdapterDraftService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -272,8 +273,9 @@ export class ZavorthCapabilityAdapterVerificationService {
           digest === item.sha256 ? 'sha256 matched' : 'sha256 mismatch; adapter draft may have been modified after generation.',
         );
       } catch (error) {
-        return check(`eval.artifact.${kind}`, 'eval', 'blocked', `${kind} artifact path is unsafe.`, error instanceof Error ? error.message : String(error));
-      }
+    logger.warn('[Zavorth Capability Adapter Verification] filesystem operation failed', error);
+    return check(`eval.artifact.${kind}`, 'eval', 'blocked', `${kind} artifact path is unsafe.`, error instanceof Error ? error.message : String(error));
+  }
     });
   }
 
@@ -298,9 +300,7 @@ export class ZavorthCapabilityAdapterVerificationService {
         && policy.gates.canaryRequired === true
         && policy.gates.securityReviewRequired === true
         && policy.gates.ownerApprovalRequiredForActivation === true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Zavorth Capability Adapter Verification] module import failed', error); return false; }
   }
 
   private rawSecretCheck(adapter: ZavorthCapabilityAdapterDraftRecord, adapterRoot: string): ZavorthCapabilityAdapterVerificationCheck {
@@ -349,9 +349,10 @@ export class ZavorthCapabilityAdapterVerificationService {
         verifications: Array.isArray(parsed.verifications) ? parsed.verifications.map(normalizeVerification).filter(isVerification) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch {
-      return this.emptyStore();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Capability Adapter Verification] parsing failed', error);
+    return this.emptyStore();
+  }
   }
 
   private writeStore(store: Store): void {

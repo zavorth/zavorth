@@ -1,6 +1,7 @@
 import type {
   ChannelMeshSnapshot,
   ChannelMeshSnapshotEntry,
+  ChannelMeshActionKind,
 } from '../contracts/ChannelMeshContract.js';
 import type {
   ChannelExperienceCertificationCheck,
@@ -198,7 +199,7 @@ export class ChannelExperienceCertificationService {
     const richFallbackReady = ['whatsapp', 'instagram', 'teams', 'signal', 'imessage', 'email', 'web'].includes(channelId)
       && renderSmokeReady;
     const statusReady = Boolean(meshEntry?.interactiveSurface?.statusCard || (meshEntry?.statusRows || []).length > 0);
-    const guidedActionsReady = ['inspect', 'status', 'policy', 'doctor'].every((kind) => actionKinds.has(kind as any));
+    const guidedActionsReady = ['inspect', 'status', 'policy', 'doctor'].every((kind) => actionKinds.has(kind as ChannelMeshActionKind));
     const policyReady = Boolean(meshEntry?.policy || meshEntry?.features.groupPolicy || channelId === 'web');
     const safeCallbacksReady =
       isSharedSurfaceChannelCallbackAction('status')

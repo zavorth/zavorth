@@ -21,6 +21,7 @@ import type { ZavorthVisionPolicyDecision } from '../contracts/ZavorthVisionCont
 import type { ComputerUseWatchModeService } from './ComputerUseWatchModeService.js';
 import type { WatchModeSnapshot } from './computer-use-watch-mode/ComputerUseWatchModeSharedTypes.js';
 import { ZavorthVisionControlPlaneService } from './ZavorthVisionControlPlaneService.js';
+import { logger } from '../logger.js';
 
 type WatchModeLike = Pick<
   ComputerUseWatchModeService,
@@ -233,8 +234,8 @@ export class ZavorthComputerControlPlaneService {
           kind: 'list',
           title: 'Plano',
           items: snapshot.plan.steps.length > 0
-            ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'sim' : 'nao'}`)
-            : ['Nenhum plano ativo. Use /computer observe ou /computer plan.'],
+            ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'}`)
+            : ['No active plan. Use /computer observe or /computer plan.'],
         },
         ...receipts.map((entry) => ({
           kind: 'receipt' as const,
@@ -401,9 +402,7 @@ export class ZavorthComputerControlPlaneService {
     }
     try {
       return this.watchMode.buildSnapshot(6);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Computer Control Plane] connection failed', error); return null; }
   }
 
   private tryCancel(input: ZavorthComputerControlInput): { used: boolean; runId: string | null; reason: string } {
@@ -430,12 +429,13 @@ export class ZavorthComputerControlPlaneService {
         reason: `Watch Mode run ${run.runId} cancel requested.`,
       };
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Computer Control Plane] lifecycle operation failed', error);
+    return {
         used: false,
         runId,
         reason: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private buildActions(snapshot: ZavorthComputerControlSnapshot): SurfaceResponseAction[] {
@@ -471,10 +471,10 @@ function buildComputerSetupBlocks(snapshot: ZavorthComputerControlSnapshot): Sur
       tone: 'warning',
       items: [
         'O pedido natural ja foi roteado para desktop.',
-        'Sem Watch Mode anexado, o Zavorth retorna preview seguro e nao mexe na tela.',
+        'Without Watch Mode attached, Zavorth returns a safe preview and does not touch the screen.',
         'Rode: /watchmode',
         'Pela CLI, rode: npm run ops:watch-mode',
-        'Depois de aprovado/configurado, observacao supervisionada pode ser usada naturalmente.',
+        'After approval/configuration, supervised observation can be used naturally.',
       ],
     },
   ];

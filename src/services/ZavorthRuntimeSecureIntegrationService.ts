@@ -12,6 +12,7 @@ import { McpToolPolicyFileService } from './McpToolPolicyFileService.js';
 import { SecureStorageService } from './SecureStorageService.js';
 import { TrustedWorkspacePolicyService } from './TrustedWorkspacePolicyService.js';
 import { ZavorthRuntimeStateBusService } from './ZavorthRuntimeStateBusService.js';
+import { logger } from '../logger.js';
 
 type RuntimeStateBusLike = Pick<ZavorthRuntimeStateBusService, 'dispatch' | 'buildSnapshot' | 'appendReceipt'>;
 type SecureStorageLike = Pick<SecureStorageService, 'writeSecret' | 'readSecret'>;
@@ -422,7 +423,5 @@ function sanitizeRagSources(value: unknown): unknown[] {
 function safeResolve(value: string): string | null {
   try {
     return path.resolve(value);
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Runtime Secure Integration] operation failed', error); return null; }
 }

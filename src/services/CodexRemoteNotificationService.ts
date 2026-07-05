@@ -1,5 +1,6 @@
 import { config } from '../config/index.js';
 import type { CodexRemoteSessionRecord } from './CodexRemoteSessionStoreService.js';
+import { logger } from '../logger.js';
 
 type CodexRemoteNotificationRuntime = {
   fetchImpl?: typeof fetch;
@@ -85,13 +86,14 @@ export class CodexRemoteNotificationService {
         targetChatId,
         reason: response.ok ? 'delivered' : `http-${response.status}`,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Codex Remote Notification] network request failed', error);
+    return {
         delivered: false,
         targetChatId,
         reason: error?.message || 'notification-failed',
       };
-    }
+  }
   }
 
   public normalizeTelegramChatId(value: string | null | undefined): string | null {

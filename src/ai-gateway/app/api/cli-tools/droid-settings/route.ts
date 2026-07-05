@@ -14,6 +14,7 @@ import { saveCliToolLastConfigured, deleteCliToolLastConfigured } from "@/lib/db
 import { cliModelConfigSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
+import { logger } from '@/shared/utils/logger';
 
 const getDroidSettingsPath = () => getCliPrimaryConfigPath("droid");
 const getDroidDir = () => path.dirname(getDroidSettingsPath());
@@ -100,7 +101,8 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -133,9 +135,7 @@ export async function POST(request: Request) {
         if (keyRecord?.key) {
           apiKey = keyRecord.key as string;
         }
-      } catch {
-        // Non-critical: fall back to whatever value was in apiKey
-      }
+      } catch (error) { // Non-critical: fall back to whatever value was in apiKey logger.warn('[route] validation failed', error); }
     }
 
     const droidDir = getDroidDir();
@@ -152,9 +152,7 @@ export async function POST(request: Request) {
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
-    } catch {
-      /* No existing settings */
-    }
+    } catch (error) { /* No existing settings */ logger.warn('[route] JSON parse failed', error); }
 
     // Ensure customModels array exists
     if (!settings.customModels) {
@@ -188,9 +186,7 @@ export async function POST(request: Request) {
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("droid");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
@@ -250,9 +246,7 @@ export async function DELETE(request: Request) {
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("droid");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,

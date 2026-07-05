@@ -6,8 +6,8 @@ import type {
 import type { EchoVoiceMetricsSnapshot } from '../../domain/observability/infrastructure/EchoVoiceTelemetryService.js';
 
 /**
- * EchoExecutionEntry — Registro de uma execução completa do pipeline Echo.
- * Armazena desde o prompt original até o resultado final, passando por tool calls.
+ * EchoExecutionEntry records a complete Echo pipeline execution.
+ * It stores the original prompt, tool calls, final response, and execution metadata.
  */
 export interface EchoExecutionEntry {
   id: string;
@@ -24,7 +24,7 @@ export interface EchoExecutionEntry {
 }
 
 /**
- * EchoToolCall — Registro detalhado de uma chamada de ferramenta individual.
+ * EchoToolCall records an individual tool call.
  */
 export interface EchoToolCall {
   toolName: string;
@@ -67,7 +67,7 @@ export interface EchoCapabilitySurfaceState {
 }
 
 /**
- * EchoResult — Resposta retornada ao caller (API REST ou Agent de voz).
+ * EchoResult is returned to REST APIs or voice-agent callers.
  */
 export interface EchoResult {
   response: string;
@@ -146,7 +146,7 @@ export interface EchoPhysicalSignalRecord {
 }
 
 /**
- * EchoSnapshot — Snapshot operacional do Echo para o Gateway e ZavorthControl.
+ * EchoSnapshot is an operational Echo snapshot for the Gateway and ZavorthControl.
  */
 export interface EchoSnapshot {
   generatedAt: string;

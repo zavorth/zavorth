@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  HOSTED_SITE_DEPLOY_TARGETS,
+HOSTED_SITE_DEPLOY_TARGETS,
   HOSTED_SITE_FORBIDDEN_VISUAL_CLAIMS,
   HOSTED_SITE_REQUIRED_CORE_SCRIPTS,
   HOSTED_SITE_REQUIRED_ROUTES,
@@ -547,9 +548,7 @@ export class HostedSiteOperationsService {
     }
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Hosted Site Operations] filesystem operation failed', error); return null; }
   }
 
   private websiteRootExists(): boolean {
@@ -582,7 +581,5 @@ function resolveDefaultWebsiteRoot(projectRoot: string): string {
 function parseJson(raw: string): unknown | null {
   try {
     return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Hosted Site Operations] JSON parse failed', error); return null; }
 }

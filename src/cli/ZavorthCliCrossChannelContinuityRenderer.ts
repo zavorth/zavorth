@@ -19,7 +19,7 @@ export function buildCrossChannelContinuityCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): CrossChannelContinuitySnapshot {
-  const text = input.text || 'continue esta sessao entre zavorthControl e telegram';
+  const text = input.text || 'continue this session between zavorthControl and telegram';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:41:00.000Z'),
   });
@@ -81,46 +81,46 @@ export function formatCrossChannelContinuitySnapshot(
 ): string {
   const lines = [
     'Cross-Channel Continuity - Channel mesh1',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
-    `- canais: ${snapshot.summary.channelCount}`,
+    `- channels: ${snapshot.summary.channelCount}`,
     `- handoffs: ${snapshot.summary.handoffCount}`,
     `- bridge: ${String(snapshot.summary.bridgeDetected)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
-    'Canais',
+    'Channels',
   ];
 
   for (const channel of snapshot.channels.slice(0, 10)) {
     lines.push(
       `- ${channel.kind}: ${channel.label} [${channel.status}]${channel.primary ? ' primary' : ''}`,
-      `  origem: ${channel.source}; resume: ${channel.canResume ? 'sim' : 'nao'}; notify: ${channel.canNotify ? 'sim' : 'nao'}`,
-      `  continuidade: ${channel.continuityKey}`,
+      `  source: ${channel.source}; resume: ${channel.canResume ? 'yes' : 'no'}; notify: ${channel.canNotify ? 'yes' : 'no'}`,
+      `  continuity: ${channel.continuityKey}`,
     );
   }
 
   lines.push('', 'Handoffs');
   if (snapshot.handoffs.length === 0) {
-    lines.push('- nenhum handoff necessario');
+    lines.push('- no handoff necessary');
   } else {
     for (const handoff of snapshot.handoffs.slice(0, 8)) {
       lines.push(
         `- ${handoff.fromChannel} -> ${handoff.toChannel}: ${handoff.status}`,
-        `  motivo: ${handoff.reason}`,
-        `  comando: ${handoff.command}`,
+        `  reason: ${handoff.reason}`,
+        `  command: ${handoff.command}`,
       );
     }
   }
 
-  lines.push('', 'Politica');
-  lines.push('- nenhuma mensagem cross-channel foi enviada');
-  lines.push('- nenhuma sessao paralela foi criada');
-  lines.push('- mudanca de canal exige approval');
-  lines.push('- canal original preservado');
+  lines.push('', 'Policy');
+  lines.push('- no cross-channel message was sent');
+  lines.push('- no parallel session was created');
+  lines.push('- channel change requires approval');
+  lines.push('- original channel preserved');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Approval: ${snapshot.surface.approvalHint}`);

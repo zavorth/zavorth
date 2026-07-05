@@ -124,7 +124,7 @@ export async function runValidationCommands(input: {
     dockerRunner: ZavorthSpeculativeDockerValidationRunner;
   }): Promise<ZavorthSpeculativeValidationResult[]> {
     if (input.commands.length === 0) {
-      return [skippedValidation('Nenhum comando de validacao foi detectado para este workspace.')];
+      return [skippedValidation('No validation command was detected for this workspace.')];
     }
     const results: ZavorthSpeculativeValidationResult[] = [];
     for (const command of input.commands.slice(0, MAX_VALIDATION_COMMANDS)) {
@@ -135,7 +135,7 @@ export async function runValidationCommands(input: {
           status: 'blocked',
           exitCode: 126,
           stdout: '',
-          stderr: 'Comando de validacao bloqueado por conter shell avancado ou comando fora da allowlist.',
+          stderr: 'Validation command blocked because it contains advanced shell syntax or a command outside the allowlist.',
           durationMs: 0,
         });
         continue;
@@ -191,13 +191,13 @@ export function resolveSandboxBackend(input: {
     const requested = normalizeSandboxIsolation(input.requested);
     if (input.validationMode === 'skip') {
       return {
-        ...buildLocalSandboxReceipt(requested, 'Validacao explicitamente pulada; nenhum backend executou comandos.'),
+        ...buildLocalSandboxReceipt(requested, 'Validation was explicitly skipped; no backend executed commands.'),
         validationExecution: 'skipped',
       };
     }
 
     if (requested === 'local-copy') {
-      return buildLocalSandboxReceipt(requested, 'Sandbox especulativo usa copia local temporaria governada.');
+      return buildLocalSandboxReceipt(requested, 'The speculative sandbox uses a governed temporary local copy.');
     }
 
     if (requested === 'microvm') {
@@ -207,7 +207,7 @@ export function resolveSandboxBackend(input: {
         validationExecution: 'blocked',
         runtime: 'FirecrackerWorkspaceBackend',
         hardened: true,
-        detail: 'MicroVM foi solicitada, mas o backend de workspace especulativo em Firecracker ainda nao esta disponivel neste host. Use container ou local-copy.',
+        detail: 'A microVM was requested, but the Firecracker speculative workspace backend is not available on this host yet. Use container or local-copy.',
         fallbackFrom: null,
         docker: null,
       };
@@ -221,7 +221,7 @@ export function resolveSandboxBackend(input: {
         validationExecution: 'container',
         runtime: 'DockerSpeculativeSandboxBackend',
         hardened: true,
-        detail: `Validacao especulativa sera executada em container Docker endurecido (${dockerStatus.sandboxRuntime || 'runc'}), sem rede e com workspace temporario montado rw.`,
+        detail: `Speculative validation will run in a hardened Docker container (${dockerStatus.sandboxRuntime || 'runc'}), without network access, with a temporary workspace mounted rw.`,
         fallbackFrom: null,
         docker: {
           image: dockerStatus.image,
@@ -241,7 +241,7 @@ export function resolveSandboxBackend(input: {
         validationExecution: 'blocked',
         runtime: 'DockerSpeculativeSandboxBackend',
         hardened: true,
-        detail: dockerStatus?.detail || 'Docker indisponivel para validacao especulativa obrigatoria.',
+        detail: dockerStatus?.detail || 'Docker is unavailable for required speculative validation.',
         fallbackFrom: null,
         docker: dockerStatus
           ? {
@@ -257,7 +257,7 @@ export function resolveSandboxBackend(input: {
     }
 
     return {
-      ...buildLocalSandboxReceipt(requested, `Docker indisponivel para modo auto; fallback para copia local governada. ${dockerStatus?.detail || ''}`.trim()),
+      ...buildLocalSandboxReceipt(requested, `Docker is unavailable for auto mode; falling back to a governed local copy. ${dockerStatus?.detail || ''}`.trim()),
       fallbackFrom: 'container',
     };
   }
@@ -326,7 +326,7 @@ export function defaultCommandRunner(
       status: 'blocked',
       exitCode: 126,
       stdout: '',
-      stderr: 'Comando de validacao bloqueado antes do spawn.',
+      stderr: 'Validation command blocked before spawn.',
       durationMs: 0,
     });
   }

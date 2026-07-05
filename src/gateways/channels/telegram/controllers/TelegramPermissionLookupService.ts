@@ -25,7 +25,7 @@ export class TelegramPermissionLookupService {
     const all = await this.deps.permissionService.listRequests('all', 100);
     const fallback = all.find((permission) => permission.permission_id.startsWith(ref));
     if (!fallback) {
-      throw new Error(`Permissao ${ref} nao encontrada.`);
+      throw new Error(`Permission ${ref} was not found.`);
     }
 
     return fallback;

@@ -5,6 +5,7 @@ import { createPatch } from 'diff';
 import { config } from '../config/index.js';
 import { PolicyEngine } from '../security/PolicyEngine.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../logger.js';
 
 type RootKey = string;
 type SearchRoot = {
@@ -649,9 +650,7 @@ export class FileInspectionService {
   private safeIsDirectory(targetPath: string): boolean {
     try {
       return fs.statSync(targetPath).isDirectory();
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[File] filesystem operation failed', error); return false; }
   }
 
   private looksBinary(buffer: Buffer): boolean {

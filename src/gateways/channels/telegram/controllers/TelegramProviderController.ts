@@ -18,7 +18,7 @@ export class TelegramProviderController {
     const rawTarget = String(args || '').trim();
     if (!rawTarget) {
       await ctx.reply(
-        `Para trocar o provider conversacional do Zavorth, use \`/model <nome>\`.\n\nExemplos: \`${this.providerControlPlaneService.getUsageTargets().join('`, `')}\`.`,
+        `To change Zavorth's conversational provider, use \`/model <name>\`.\n\nExamples: \`${this.providerControlPlaneService.getUsageTargets().join('`, `')}\`.`,
       );
       return;
     }
@@ -26,7 +26,7 @@ export class TelegramProviderController {
     const selection = this.providerControlPlaneService.resolveSelection(rawTarget);
     if (!selection) {
       await ctx.reply(
-        `Nao reconheci esse provider/modelo: ${rawTarget}\n\nVoce pode usar: ${this.providerControlPlaneService.getUsageTargets().join(', ')} ou um modelo Gemini/Gemma direto, como \`gemma-2-27b-it\`.`,
+        `I did not recognize this provider/model: ${rawTarget}\n\nYou can use: ${this.providerControlPlaneService.getUsageTargets().join(', ')} or a direct Gemini/Gemma model, such as \`gemma-2-27b-it\`.`,
       );
       return;
     }
@@ -35,17 +35,17 @@ export class TelegramProviderController {
 
     if (selection.selectionKind === 'model') {
       await ctx.reply(
-        `Pronto. O Zavorth agora vai conversar usando **${selection.replyLabel}** via **Gemini API** nesta sessao.\n\nModelo ativo: \`${selection.modelName}\`\nProvider efetivo: \`gemini\`\n\nSe quiser deixar isso fixo, depois eu posso te orientar a ajustar o \`.env\`.`,
+        `Done. Zavorth will now chat using **${selection.replyLabel}** through **Gemini API** in this session.\n\nActive model: \`${selection.modelName}\`\nEffective provider: \`gemini\`\n\nTo make this persistent, update the \`.env\` later.`,
       );
       return;
     }
 
     const modelLine =
       selection.effectiveProviderName === 'gemini'
-        ? `\nModelo ativo: \`${config.geminiModel}\``
+        ? `\nActive model: \`${config.geminiModel}\``
         : '';
     await ctx.reply(
-      `Pronto. O Zavorth agora vai conversar usando **${selection.replyLabel}** nesta sessao.${modelLine}\n\nSe quiser deixar isso fixo, depois eu posso te orientar a ajustar o \`.env\`.`,
+      `Done. Zavorth will now chat using **${selection.replyLabel}** in this session.${modelLine}\n\nTo make this persistent, update the \`.env\` later.`,
     );
   }
 }

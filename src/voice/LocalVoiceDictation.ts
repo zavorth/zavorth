@@ -79,7 +79,7 @@ export class LocalVoiceDictation {
 
   public async transcribeBuffer(audioBinary: Buffer): Promise<string> {
     if (!Buffer.isBuffer(audioBinary) || audioBinary.length === 0) {
-      throw new Error('LocalVoiceDictation requer um buffer de audio WAV nao vazio para transcricao.');
+      throw new Error('LocalVoiceDictation requires a non-empty WAV audio buffer for transcription.');
     }
 
     const binaryPath = this.resolveWhisperBinaryPath();
@@ -95,7 +95,7 @@ export class LocalVoiceDictation {
     try {
       const transcript = await this.runWhisper(binaryPath, modelPath, audioPath, outputBase, outputTxtPath);
       if (!transcript) {
-        throw new Error('Whisper retornou uma transcricao vazia.');
+        throw new Error('Whisper returned an empty transcription.');
       }
       return transcript;
     } finally {
@@ -110,7 +110,7 @@ export class LocalVoiceDictation {
   public async transcribeFile(audioPath: string): Promise<string> {
     const normalizedPath = path.resolve(String(audioPath || '').trim());
     if (!normalizedPath || !this.existsSyncImpl(normalizedPath)) {
-      throw new Error(`Arquivo de audio nao encontrado para whisper local: ${normalizedPath}`);
+      throw new Error(`Audio file not found for local Whisper: ${normalizedPath}`);
     }
 
     const binaryPath = this.resolveWhisperBinaryPath();
@@ -123,7 +123,7 @@ export class LocalVoiceDictation {
     try {
       const transcript = await this.runWhisper(binaryPath, modelPath, normalizedPath, outputBase, outputTxtPath);
       if (!transcript) {
-        throw new Error('Whisper retornou uma transcricao vazia.');
+        throw new Error('Whisper returned an empty transcription.');
       }
       return transcript;
     } finally {
@@ -142,7 +142,7 @@ export class LocalVoiceDictation {
     const command = String(this.config.microphoneCommand || '').trim();
     if (!command) {
       throw new Error(
-        'Captura continua de voz requer ZAVORTH_VOICE_MIC_COMMAND configurado para um worker externo de microfone/transcricao.',
+        'Continuous voice capture requires ZAVORTH_VOICE_MIC_COMMAND configured for an external microphone/transcription worker.',
       );
     }
 
@@ -235,7 +235,7 @@ export class LocalVoiceDictation {
       child.once('error', (error) => {
         reject(
           new Error(
-            `Falha ao iniciar o whisper local em "${binaryPath}": ${error instanceof Error ? error.message : String(error)}`,
+            `Failed to start local Whisper at "${binaryPath}": ${error instanceof Error ? error.message : String(error)}`,
           ),
         );
       });
@@ -244,7 +244,7 @@ export class LocalVoiceDictation {
         if (code !== 0) {
           reject(
             new Error(
-              `Whisper local encerrou com codigo ${String(code)}.${stderr ? ` stderr: ${stderr.trim()}` : ''}`,
+              `Local Whisper exited with code ${String(code)}.${stderr ? ` stderr: ${stderr.trim()}` : ''}`,
             ),
           );
           return;
@@ -271,7 +271,7 @@ export class LocalVoiceDictation {
     const modelPath = path.resolve(this.config.modelPath);
     if (!this.existsSyncImpl(modelPath)) {
       throw new Error(
-        `Modelo Whisper nao encontrado em "${modelPath}". Configure ZAVORTH_WHISPER_MODEL_PATH com um modelo real, por exemplo ggml-tiny.bin.`,
+        `Whisper model not found at "${modelPath}". Configure ZAVORTH_WHISPER_MODEL_PATH with a real model, for example ggml-tiny.bin.`,
       );
     }
     return modelPath;
@@ -300,7 +300,7 @@ export class LocalVoiceDictation {
     }
 
     throw new Error(
-      'Binary do whisper local nao encontrado. Configure ZAVORTH_WHISPER_BINARY ou provisiona third_party/whisper.cpp com whisper-cli/main.',
+      'Local Whisper binary not found. Configure ZAVORTH_WHISPER_BINARY or provision third_party/whisper.cpp with whisper-cli/main.',
     );
   }
 

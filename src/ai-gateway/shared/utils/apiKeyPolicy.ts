@@ -14,6 +14,7 @@ import { checkBudget } from "@/domain/costRules";
 import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
 import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
 import * as log from "@/sse/utils/logger";
+import { logger } from '@/shared/utils/logger';
 
 interface AccessSchedule {
   enabled: boolean;
@@ -59,7 +60,8 @@ function isWithinSchedule(schedule: AccessSchedule): boolean {
       minute: "2-digit",
       hour12: false,
     }).format(now);
-  } catch {
+  } catch (error) {
+    logger.warn('[api Key] filesystem check failed', error);
     // Invalid timezone — fail open (don't block)
     return true;
   }
@@ -76,9 +78,7 @@ function isWithinSchedule(schedule: AccessSchedule): boolean {
       timeZone: schedule.tz,
       weekday: "short",
     }).format(now);
-  } catch {
-    return true;
-  }
+  } catch (error) { logger.warn('[api Key] operation failed', error); return true; }
 
   const dayMap: Record<string, number> = {
     Sun: 0,
@@ -183,7 +183,8 @@ function normalizeRequestHostname(value: string | null | undefined): string {
       .hostname.toLowerCase()
       .replace(/^\[/, "")
       .replace(/\]$/, "");
-  } catch {
+  } catch (error) {
+    logger.warn('[api Key] network request failed', error);
     return raw.replace(/^\[/, "").replace(/\]$/, "").split(":")[0] || "";
   }
 }
@@ -203,9 +204,7 @@ function isLoopbackGatewayRequest(request: Request): boolean {
     (() => {
       try {
         return new URL(request.url).hostname;
-      } catch {
-        return "";
-      }
+      } catch (error) { logger.warn('[api Key] operation failed', error); return ''; }
     })(),
     request.headers.get("host"),
     request.headers.get("x-forwarded-host"),

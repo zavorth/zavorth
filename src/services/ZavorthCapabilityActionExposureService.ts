@@ -16,6 +16,7 @@ import {
 import type { ZavorthCapabilityAdapterVerificationRecord } from '../contracts/ZavorthCapabilityAdapterVerificationContract.js';
 import { ZavorthCapabilityAdapterVerificationService } from './ZavorthCapabilityAdapterVerificationService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -275,9 +276,10 @@ export class ZavorthCapabilityActionExposureService {
         exposures: Array.isArray(parsed.exposures) ? parsed.exposures.map(normalizeExposure).filter(isExposure) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch {
-      return this.emptyStore();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Capability Action Exposure] parsing failed', error);
+    return this.emptyStore();
+  }
   }
 
   private writeStore(store: Store): void {

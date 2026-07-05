@@ -269,9 +269,10 @@ ${executionHistoryText}
 
     try {
       return ProactiveInferenceSchema.safeParse(JSON.parse(rawMatch[0]));
-    } catch {
-      return ProactiveInferenceSchema.safeParse(null);
-    }
+    } catch (error) {
+    logger.warn('[Proactive Inference Plane] JSON parse failed', error);
+    return ProactiveInferenceSchema.safeParse(null);
+  }
   }
 
   private normalizeActionArgs(

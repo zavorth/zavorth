@@ -68,7 +68,7 @@ export type ZavorthVisualReceiptsV2Snapshot = {
     'surface' | 'contractVersion' | 'zavorthControlProjection'
   >;
   zavorthControlProjection: {
-    route: '/zavorthControl';
+    route: '/zavorthControl' | '/control';
     renderMode: 'product-cards';
     executionAuthority: false;
     advancedModeAvailable: true;
@@ -79,6 +79,7 @@ export type ZavorthVisualReceiptsV2Snapshot = {
     zavorthControlCanExecute: false;
     approvalActionsStayScoped: true;
     rollbackRequiresApproval: true;
+    rawSecretsSerialized?: boolean;
   };
   nextAction: string;
   invariants: string[];

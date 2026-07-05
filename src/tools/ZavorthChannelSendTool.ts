@@ -1,5 +1,6 @@
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 interface ChannelTarget {
   channel: string;
@@ -11,7 +12,7 @@ export class ZavorthChannelSendTool extends BaseTool {
   public readonly name = 'zavorth_channel_send';
 
   public readonly description =
-    'Sends messages to any configured Zavorth channel (Telegram, Discord, Slack, WhatsApp, Email, Teams, Signal, Matrix, IRC, Line, etc). Suporta envio multi-canal, anexos, replies e formatacao adaptativa por plataforma.';
+    'Sends messages to any configured Zavorth channel (Telegram, Discord, Slack, WhatsApp, Email, Teams, Signal, Matrix, IRC, Line, etc). Supports multi-channel sending, attachments, replies, and platform-adaptive formatting.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -26,7 +27,7 @@ export class ZavorthChannelSendTool extends BaseTool {
       },
       message: {
         type: 'string',
-        description: 'Conteudo da mensagem.',
+        description: 'Message content.',
       },
       thread_id: {
         type: 'string',
@@ -34,11 +35,11 @@ export class ZavorthChannelSendTool extends BaseTool {
       },
       reply_to: {
         type: 'string',
-        description: 'ID da mensagem para responder (reply).',
+        description: 'Message ID to reply to.',
       },
       format: {
         type: 'string',
-        description: "Formato: 'auto' (detecta pelo canal), 'markdown', 'html', 'plain'. Default: 'auto'.",
+        description: "Format: 'auto' (detects from channel), 'markdown', 'html', 'plain'. Default: 'auto'.",
       },
       attachments: {
         type: 'string',
@@ -91,22 +92,21 @@ export class ZavorthChannelSendTool extends BaseTool {
         recipient,
         thread_id: typeof args.thread_id === 'string' ? args.thread_id : undefined,
       }, args);
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Channel Send] validation failed', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
       return `Error sending to ${channel}: ${errorMessage}`;
-    }
+  }
   }
 
   private async sendMultiChannel(multiChannelJson: string, args: Record<string, unknown>): Promise<string> {
     let targets: ChannelTarget[];
     try {
       targets = JSON.parse(multiChannelJson);
-    } catch {
-      return 'Error: invalid JSON for "multi_channel"..';
-    }
+    } catch (error) { logger.warn('[Zavorth Channel Send] JSON parse failed', error); return 'Error: invalid JSON for "multi_channel"..'; }
 
     if (!Array.isArray(targets) || targets.length === 0) {
-      return 'Error: "multi_channel" deve ser um array nao vazio.';
+      return 'Error: "multi_channel" must be a non-empty array.';
     }
 
     if (targets.length > 10) {
@@ -144,7 +144,7 @@ export class ZavorthChannelSendTool extends BaseTool {
 
     let attachments: Array<{ type: string; path_or_url: string; filename?: string }> = [];
     if (typeof args.attachments === 'string') {
-      try { attachments = JSON.parse(args.attachments); } catch { /* ignore */ }
+      try { attachments = JSON.parse(args.attachments); } catch (error) { /* ignore */ logger.warn('[Zavorth Channel Send] JSON parse failed', error); }
     }
 
     const formattedMessage = this.formatMessageForChannel(message, target.channel, format);

@@ -10,6 +10,7 @@
 import fs from "fs";
 import path from "path";
 import { safeParseInt } from "../../shared/utils/safeParseInt.js";
+import { logger } from '@/shared/utils/logger';
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/models";
 const DEFAULT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -63,9 +64,7 @@ function readCache(): CacheFile | null {
     if (!fs.existsSync(filePath)) return null;
     const raw = fs.readFileSync(filePath, "utf8");
     return JSON.parse(raw) as CacheFile;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[openrouter] JSON parse failed', error); return null; }
 }
 
 /** Write catalog to disk cache. */
@@ -168,7 +167,8 @@ export async function refreshOpenRouterCatalog(): Promise<{
     const data = await fetchFromAPI();
     writeCache(data);
     return { data, ok: true };
-  } catch (err) {
+  } catch (error) {
+    logger.warn('[openrouter] network request failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return { data: [], ok: false, error };
   }

@@ -9,6 +9,7 @@
 
 import { BaseTool } from './BaseTool.js';
 import { McpOAuthManager } from '../mcp/McpOAuthManager.js';
+import { logger } from '../logger.js';
 
 export class McpOAuthManagerTool extends BaseTool {
   public readonly name = 'mcp_oauth_manager';
@@ -87,10 +88,11 @@ export class McpOAuthManagerTool extends BaseTool {
           const token = await manager.getAccessToken();
           const expiresIn = Math.round((token.expiresAt - Date.now()) / 1000);
           return `Token obtained. Expires in ${expiresIn}s. Type: ${token.tokenType}`;
-        } catch (error: unknown) {
-          const message = error instanceof Error ? error.message : String(error);
+        } catch (error) {
+    logger.warn('[Mcp O Auth Manager] filesystem check failed', error);
+    const message = error instanceof Error ? error.message : String(error);
           return `Error obtaining token: ${message}`;
-        }
+  }
       }
 
       case 'clearTokens': {

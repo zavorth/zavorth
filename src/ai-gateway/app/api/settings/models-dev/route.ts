@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 import {
-  syncModelsDev,
+syncModelsDev,
   getModelsDevPricing,
   getSyncedCapabilities,
   getSyncStatus,
@@ -57,7 +58,8 @@ export async function POST(request: NextRequest) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 

@@ -57,7 +57,7 @@ export class TelegramChainController {
       const parsed = this.deps.parser.parse(segment);
       if (!allowedCommands.has(parsed.command_type)) {
         await ctx.reply(
-          `O comando \`${parsed.command_type}\` nao pode participar de chain por seguranca.\n\nPermitidos: ${Array.from(allowedCommands).join(', ')}`,
+          `Command \`${parsed.command_type}\` cannot participate in a chain for security reasons.\n\nAllowed: ${Array.from(allowedCommands).join(', ')}`,
           { parse_mode: 'Markdown' },
         );
         return;

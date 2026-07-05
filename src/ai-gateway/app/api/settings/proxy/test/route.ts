@@ -10,6 +10,7 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/errorResponse";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getProxyById } from "@/lib/localDb";
+import { logger } from '@/shared/utils/logger';
 
 const BASE_SUPPORTED_PROXY_TYPES = new Set(["http", "https"]);
 
@@ -43,7 +44,8 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] connection failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -125,13 +127,14 @@ export async function POST(request: Request) {
         });
       }
       proxyUrl = normalizedProxyUrl;
-    } catch (proxyError) {
-      return createErrorResponse({
+    } catch (error) {
+    logger.warn('[route] validation failed', error);
+    return createErrorResponse({
         status: 400,
         message: getErrorMessage(proxyError, "Invalid proxy configuration"),
         type: "invalid_request",
       });
-    }
+  }
 
     const publicProxyUrl = proxyUrlForLogs(proxyUrl);
 
@@ -158,9 +161,10 @@ export async function POST(request: Request) {
         } else {
           parsed = { ip: String(parsedJson) };
         }
-      } catch {
-        parsed = { ip: responseText.trim() };
-      }
+      } catch (error) {
+    logger.warn('[route] JSON parse failed', error);
+    parsed = { ip: responseText.trim() };
+  }
 
       return Response.json({
         success: true,
@@ -168,8 +172,9 @@ export async function POST(request: Request) {
         latencyMs: Date.now() - startTime,
         proxyUrl: publicProxyUrl,
       });
-    } catch (fetchError) {
-      return Response.json({
+    } catch (error) {
+    logger.warn('[route] parsing failed', error);
+    return Response.json({
         success: false,
         error:
           fetchError instanceof Error && fetchError.name === "AbortError"
@@ -178,10 +183,11 @@ export async function POST(request: Request) {
         latencyMs: Date.now() - startTime,
         proxyUrl: publicProxyUrl,
       });
-    } finally {
+  } finally {
       clearTimeout(timeout);
     }
   } catch (error) {
+    logger.warn('[route] network request failed', error);
     return createErrorResponseFromUnknown(error, "Unexpected server error");
   }
 }

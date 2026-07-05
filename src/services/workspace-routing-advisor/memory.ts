@@ -10,10 +10,10 @@ import type {
   WorkflowStageExecutorRecommendation,
 } from './types.js';
 
-type WorkspaceRoutingMemory = {
+export type WorkspaceRoutingMemory = {
   repeated_failures?: Array<{ executor: string }>;
-  task_kind_recommendations?: Array<{ kind: string; repeated_failure_executor: string }>;
-  task_subtype_recommendations?: Array<{ kind: string; subtype: string; repeated_failure_executor: string }>;
+  task_kind_recommendations?: Array<{ kind: string; repeated_failure_executor: string | null }>;
+  task_subtype_recommendations?: Array<{ kind: string; subtype: string; repeated_failure_executor: string | null }>;
   approval_friction_recommendations?: ApprovalFrictionRecommendation[];
   [key: string]: unknown;
 };
@@ -24,15 +24,15 @@ export function collectBlockedExecutors(
   subtype: WorkspaceTaskSubtype,
   approvedPolicies: ApprovedPolicyAggregate[] = [],
   routeOutcomes: RouteOutcomeAggregate[] = [],
-  findDominantApprovalFriction: (recommendations: ApprovalFrictionRecommendation[], kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovalFrictionRecommendation,
-  shouldBlockByApprovalFriction: (friction: ApprovalFrictionRecommendation) => boolean,
+  findDominantApprovalFriction: (recommendations: ApprovalFrictionRecommendation[], kind: WorkspaceTaskKind, subtype: WorkspaceTaskSubtype) => ApprovalFrictionRecommendation | null,
+  shouldBlockByApprovalFriction: (friction: ApprovalFrictionRecommendation | null) => boolean,
   findApprovedPolicyBoost: (
     approvedPolicies: ApprovedPolicyAggregate[],
     executor: string,
     kind: WorkspaceTaskKind,
     subtype: WorkspaceTaskSubtype,
-  ) => ApprovedPolicyAggregate,
-  shouldBlockByRouteOutcome: (routeOutcome: RouteOutcomeAggregate) => boolean,
+  ) => ApprovedPolicyAggregate | null,
+  shouldBlockByRouteOutcome: (routeOutcome: RouteOutcomeAggregate | null) => boolean,
 ): string[] {
   const repeatedFailures = Array.isArray(memory.repeated_failures) ? memory.repeated_failures : [];
   const taskKindRecommendations = Array.isArray(memory.task_kind_recommendations) ? memory.task_kind_recommendations : [];
@@ -105,7 +105,7 @@ export function findApprovalFriction(
   executor: string | null,
   kind: WorkspaceTaskKind,
   subtype: WorkspaceTaskSubtype,
-): ApprovalFrictionRecommendation {
+): ApprovalFrictionRecommendation | null {
   const normalizedExecutor = normalizeExecutor(executor);
   if (!normalizedExecutor) {
     return null;
@@ -182,7 +182,7 @@ export function findApprovedPolicyBoost(
   executor: string,
   kind: WorkspaceTaskKind,
   subtype: WorkspaceTaskSubtype,
-): ApprovedPolicyAggregate {
+): ApprovedPolicyAggregate | null {
   return approvedPolicies.find((entry) => {
     if (normalizeExecutor(entry?.executor) !== executor) {
       return false;
@@ -240,7 +240,7 @@ export function findDominantApprovalFriction(
 export function findWorkflowFriction(
   recommendations: WorkflowFrictionRecommendation[],
   workflow: string | null,
-): WorkflowFrictionRecommendation {
+): WorkflowFrictionRecommendation | null {
   const normalizedWorkflow = String(workflow || '').trim().toLowerCase();
   if (!normalizedWorkflow) {
     return null;
@@ -255,7 +255,7 @@ export function findWorkflowStageExecutorRecommendation(
   recommendations: WorkflowStageExecutorRecommendation[],
   workflow: string | null,
   role: string | null,
-): WorkflowStageExecutorRecommendation {
+): WorkflowStageExecutorRecommendation | null {
   const normalizedWorkflow = String(workflow || '').trim().toLowerCase();
   const normalizedRole = String(role || '').trim().toLowerCase();
   if (!normalizedWorkflow || !normalizedRole) {

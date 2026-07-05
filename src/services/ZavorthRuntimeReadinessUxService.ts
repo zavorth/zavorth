@@ -37,7 +37,7 @@ export type ZavorthRuntimeReadinessUxCard = {
 };
 
 export type ZavorthRuntimeReadinessUxZavorthControlProjection = {
-  route: '/zavorthControl';
+  route: '/zavorthControl' | '/control';
   endpoint: '/api/runtime/readiness';
   slot: 'runtime-readiness';
   renderMode: 'operator-cards';
@@ -73,6 +73,7 @@ export type ZavorthRuntimeReadinessUxSnapshot = {
     text: string;
     replyMarkup: {
       inline_keyboard: Array<Array<{
+        text: string;
         callback_data: string;
       }>>;
     };
@@ -210,6 +211,7 @@ export class ZavorthRuntimeReadinessUxService {
     return {
       id: check.id,
       title: titleForCheck(check.id),
+      status: check.status,
       statusLabel: statusLabelFor(check.status),
       tone: check.status,
       required: check.required,
@@ -231,10 +233,13 @@ export class ZavorthRuntimeReadinessUxService {
 
     if (!target) {
       return {
+        id: 'open-zavorthControl',
         label: 'Abrir zavorthControl',
         kind: 'route',
         route: readiness.operator.zavorthControlRoute,
         primary: true,
+        executionAuthority: false,
+        summary: 'Abrir a interface de controle do Zavorth.',
       };
     }
 
@@ -244,13 +249,21 @@ export class ZavorthRuntimeReadinessUxService {
   }
 
   private resolveSecondaryActions(
+    cards: ZavorthRuntimeReadinessUxCard[],
     primaryAction: ZavorthRuntimeReadinessUxAction,
   ): ZavorthRuntimeReadinessUxAction[] {
     const actions = cards
       .filter((card) => card.action.id !== primaryAction.id.replace(/-primary$/, ''))
       .map((card) => card.action);
     const zavorthControlAction: ZavorthRuntimeReadinessUxAction = {
-      callbackData: '/zavorthControl',
+      id: 'open-zavorthControl',
+      label: 'Abrir zavorthControl',
+      kind: 'route',
+      route: '/control',
+      callbackData: '/control',
+      primary: false,
+      executionAuthority: false,
+      summary: 'Abrir a interface de controle do Zavorth.',
     };
     return uniqueActions([zavorthControlAction, ...actions]);
   }
@@ -260,7 +273,7 @@ function createRuntimeReadinessProjection(
   cards: ZavorthRuntimeReadinessUxCard[],
 ): ZavorthRuntimeReadinessUxZavorthControlProjection {
   return {
-    route: '/zavorthControl',
+    route: '/control',
     endpoint: '/api/runtime/readiness',
     slot: 'runtime-readiness',
     renderMode: 'operator-cards',

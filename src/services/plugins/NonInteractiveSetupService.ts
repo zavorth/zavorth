@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface NonInteractiveConfig {
   provider: string;
@@ -134,9 +135,10 @@ export class NonInteractiveSetupService {
 
       fs.writeFileSync(envPath, content.trim() + '\n', 'utf-8');
       return { name: 'api-key', status: 'done', message: `API key saved to .env` };
-    } catch (error: unknown) {
-      return { name: 'api-key', status: 'error', message: `Failed to save API key: ${error instanceof Error ? error.message : String(error)}` };
-    }
+    } catch (error) {
+    logger.warn('[Non Interactive Setup] filesystem operation failed', error);
+    return { name: 'api-key', status: 'error', message: `Failed to save API key: ${error instanceof Error ? error.message : String(error)}` };
+  }
   }
 
   private createWorkspace(workspace: string): NonInteractiveResult['steps'][0] {
@@ -146,9 +148,10 @@ export class NonInteractiveSetupService {
         fs.mkdirSync(workspacePath, { recursive: true });
       }
       return { name: 'workspace', status: 'done', message: `Workspace: ${workspacePath}` };
-    } catch (error: unknown) {
-      return { name: 'workspace', status: 'error', message: `Failed to create workspace: ${error instanceof Error ? error.message : String(error)}` };
-    }
+    } catch (error) {
+    logger.warn('[Non Interactive Setup] filesystem operation failed', error);
+    return { name: 'workspace', status: 'error', message: `Failed to create workspace: ${error instanceof Error ? error.message : String(error)}` };
+  }
   }
 
   private configureChannels(channels: string[]): NonInteractiveResult['steps'][0] {
@@ -156,9 +159,10 @@ export class NonInteractiveSetupService {
       const configPath = path.join(this.storageDir, 'channels.json');
       fs.writeFileSync(configPath, JSON.stringify({ channels }, null, 2), 'utf-8');
       return { name: 'channels', status: 'done', message: `Channels: ${channels.join(', ')}` };
-    } catch (error: unknown) {
-      return { name: 'channels', status: 'error', message: `Failed to configure channels: ${error instanceof Error ? error.message : String(error)}` };
-    }
+    } catch (error) {
+    logger.warn('[Non Interactive Setup] filesystem operation failed', error);
+    return { name: 'channels', status: 'error', message: `Failed to configure channels: ${error instanceof Error ? error.message : String(error)}` };
+  }
   }
 
   private generateConfig(config: NonInteractiveConfig): string {

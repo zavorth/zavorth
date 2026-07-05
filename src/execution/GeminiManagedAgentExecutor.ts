@@ -14,6 +14,12 @@ export type GeminiManagedAgentExecutorOptions = {
   fetchImpl?: typeof fetch;
 };
 
+interface GeminiManagedAgentInteraction {
+  id?: string | null;
+  name?: string | null;
+  output_text?: string | null;
+}
+
 export class GeminiManagedAgentExecutor implements IExecutor {
   public readonly name = 'gemini_managed_agent';
 
@@ -24,12 +30,12 @@ export class GeminiManagedAgentExecutor implements IExecutor {
   private readonly fetchImpl?: typeof fetch;
 
   constructor(options: GeminiManagedAgentExecutorOptions = {}) {
-    this.apiKey = String(options.apiKey || (config as any).geminiInteractionsApiKey || config.geminiApiKey || '').trim();
-    this.baseUrl = String(options.baseUrl || (config as any).geminiManagedAgentsBaseUrl || 'https://generativelanguage.googleapis.com/v1beta')
+    this.apiKey = String(options.apiKey || config.geminiInteractionsApiKey || config.geminiApiKey || '').trim();
+    this.baseUrl = String(options.baseUrl || config.geminiManagedAgentsBaseUrl || 'https://generativelanguage.googleapis.com/v1beta')
       .trim()
       .replace(/\/+$/, '');
-    this.model = String(options.model || (config as any).geminiManagedAgentsModel || 'gemini-2.5-flash').trim();
-    this.agent = String(options.agent || (config as any).geminiManagedAgentsAgent || 'zavorth-managed-agent').trim();
+    this.model = String(options.model || config.geminiManagedAgentsModel || 'gemini-2.5-flash').trim();
+    this.agent = String(options.agent || config.geminiManagedAgentsAgent || 'zavorth-managed-agent').trim();
     this.fetchImpl = options.fetchImpl;
   }
 
@@ -38,7 +44,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
     const result = this.createResult(request, startedAt);
     const prompt = request.instructions.join('\n').trim() || request.objective;
 
-    if (!(config as any).geminiManagedAgentsEnabled && process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED !== 'true') {
+    if (!config.geminiManagedAgentsEnabled && process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED !== 'true') {
       result.error_code = 'GEMINI_MANAGED_AGENT_DISABLED';
       result.error_message = 'Gemini Managed Agents esta desabilitado. Defina ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED=true e aprove o uso antes de executar.';
       return this.finish(result);
@@ -64,7 +70,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
     try {
       result.actions_executed.push('[Gemini Managed Agent] Criando interaction governada...');
       const body = await this.createInteraction(prompt, request);
-      const receipt = mapGeminiInteractionToReceipt(body, this.model, null, Boolean((config as any).geminiManagedAgentsStore));
+      const receipt = mapGeminiInteractionToReceipt(body, this.model, null, Boolean(config.geminiManagedAgentsStore));
       result.success = true;
       result.stdout = body?.output_text
         || receipt.steps.filter((step) => step.kind === 'model_output' && step.text).map((step) => step.text).join('\n')
@@ -78,22 +84,22 @@ export class GeminiManagedAgentExecutor implements IExecutor {
           agent: this.agent,
           interactionId: body?.id || body?.name || null,
           steps: receipt.steps,
-          storedServerSide: Boolean((config as any).geminiManagedAgentsStore),
+          storedServerSide: Boolean(config.geminiManagedAgentsStore),
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       result.error_code = 'GEMINI_MANAGED_AGENT_API_ERROR';
-      result.error_message = `Gemini Managed Agent API error: ${error?.message || String(error)}`;
+      result.error_message = `Gemini Managed Agent API error: ${(error as Error)?.message || String(error)}`;
     }
 
     return this.finish(result);
   }
 
   public async isAvailable(): Promise<boolean> {
-    return Boolean((config as any).geminiManagedAgentsEnabled && this.apiKey);
+    return Boolean(config.geminiManagedAgentsEnabled && this.apiKey);
   }
 
-  private async createInteraction(prompt: string, request: ExecutionRequest): Promise<any> {
+  private async createInteraction(prompt: string, request: ExecutionRequest): Promise<GeminiManagedAgentInteraction> {
     const payload = {
       model: this.model,
       agent: this.agent,
@@ -113,7 +119,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
         },
       ],
       background: Boolean(request.metadata?.background),
-      store: Boolean((config as any).geminiManagedAgentsStore),
+      store: Boolean(config.geminiManagedAgentsStore),
       metadata: {
         execution_id: request.execution_id,
         task_id: request.task_id,

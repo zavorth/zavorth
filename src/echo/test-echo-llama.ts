@@ -3,63 +3,59 @@ import { ZavorthEchoOrchestrator } from './orchestrator/ZavorthEchoOrchestrator'
 import { ChatMessage } from '../providers/ILlmProvider';
 
 async function runTest() {
-    console.log("=== Iniciando Teste Manual: Llama.cpp + Zavorth Echo ===\n");
+    console.log('=== Starting manual test: llama.cpp + Zavorth Echo ===\n');
 
-    // 1. Instanciar o Provider e o Orquestrador
     const provider = new LocalLlamaProvider({
-        baseUrl: 'http://localhost:11434/v1', // Mude para http://localhost:8080/v1 se usar o llama-server nativo
-        modelName: 'gemma2:2b' // Configurado para a menor versão estável disponível (Gemma 2 2B)
+        baseUrl: 'http://localhost:11434/v1',
+        modelName: 'gemma2:2b',
     });
 
     const orchestrator = new ZavorthEchoOrchestrator();
 
-    // 2. Coletar Schemas para injetar (agora usando ToolSchemaHelper genérico)
     const osTools = orchestrator.getSchemasForCategory('OS');
-    console.log(`[SYSTEM]: ${osTools.length} ferramenta(s) OS registrada(s).`);
-    console.log(`[SCHEMAS]:`, JSON.stringify(osTools, null, 2));
-    
-    // 3. Simular Prompt do Usuário
-    const userPrompt = "Abra o navegador no site https://google.com";
+    console.log(`[SYSTEM]: ${osTools.length} OS tool(s) registered.`);
+    console.log('[SCHEMAS]:', JSON.stringify(osTools, null, 2));
+
+    const userPrompt = 'Open the browser at https://google.com';
     console.log(`\n[USER]: ${userPrompt}`);
-    console.log(`[SYSTEM]: Extraindo intenção... enviando para o LLM Local (${provider.name})...\n`);
+    console.log(`[SYSTEM]: Extracting intent and sending it to the local LLM (${provider.name})...\n`);
 
     const messages: ChatMessage[] = [
-        { role: 'system', content: 'Você é o Zavorth Echo, um assistente inteligente. Analise o que o usuário pedir e sinta-se à vontade para chamar ferramentas.' },
-        { role: 'user', content: userPrompt }
+        {
+            role: 'system',
+            content: 'You are Zavorth Echo, an intelligent assistant. Analyze the user request and call tools when useful.',
+        },
+        { role: 'user', content: userPrompt },
     ];
 
     try {
-        // 4. Bater no LLM local
         const response = await provider.chat(messages, osTools);
 
-        console.log(`[LLM RESPONSE]: ${response.content || '(Vazio - Focou na Tool)'}`);
-        console.log(`[TOOL CALLS DETECTADOS]:`, JSON.stringify(response.toolCalls, null, 2));
+        console.log(`[LLM RESPONSE]: ${response.content || '(Empty - focused on tool use)'}`);
+        console.log('[TOOL CALLS DETECTED]:', JSON.stringify(response.toolCalls, null, 2));
 
-        // 5. Executar as ferramentas capturadas
         if (response.toolCalls && response.toolCalls.length > 0) {
             for (const toolCall of response.toolCalls) {
-                console.log(`\n[ECHO]: Passando Tool Call '${toolCall.name}' para o Security Engine...`);
-                
+                console.log(`\n[ECHO]: Passing tool call '${toolCall.name}' to the security engine...`);
+
                 const executionLog = await orchestrator.executePipeline(
                     userPrompt,
                     toolCall.name,
-                    toolCall.arguments
+                    toolCall.arguments,
                 );
 
-                console.log(`[ECHO RESULT]: ${executionLog}`);
+                console.log('[ECHO RESULT]:', executionLog);
             }
         } else {
-            console.log("\nO LLM respondeu diretamente, mas não invocou nenhuma ferramenta.");
+            console.log('\nThe LLM responded directly and did not invoke any tool.');
         }
 
-        // 6. Exibir histórico de execuções
-        console.log(`\n[EXECUTION LOG]:`, JSON.stringify(orchestrator.getExecutionLog(), null, 2));
-
+        console.log('\n[EXECUTION LOG]:', JSON.stringify(orchestrator.getExecutionLog(), null, 2));
     } catch (error: any) {
-        console.error("\n[X] Falha no Teste:");
-        if (error.message.includes("fetch failed") || error.message.includes("ECONNREFUSED")) {
-            console.error("  -> O servidor local do Llama/Ollama não está rodando!");
-            console.error("  -> Certifique-se de que o Ollama está aberto ou o llama.cpp local (LM Studio) está na porta 11434/8080.");
+        console.error('\n[X] Test failed:');
+        if (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED')) {
+            console.error('  -> The local Llama/Ollama server is not running.');
+            console.error('  -> Make sure Ollama is open or the local llama.cpp server / LM Studio is on port 11434/8080.');
         } else {
             console.error(error);
         }

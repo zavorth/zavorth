@@ -20,6 +20,10 @@ import type {
   HostIdentityServiceLike,
 } from "../../../../services/SurfaceRuntime.js";
 import type { WorkflowRunService } from "../../../../services/WorkflowRunService.js";
+import type { SecurityAuditLogger } from "../../../../services/SecurityAuditLogger.js";
+import type { OperatorModeService } from "../../../../services/OperatorModeService.js";
+import type { PresentationModeService } from "../../../../services/PresentationModeService.js";
+import type { WorkspaceProfileService } from "../../../../services/WorkspaceProfileService.js";
 import {
   extractTaskPayload,
   getDefaultWorkspace,
@@ -58,21 +62,37 @@ type VoiceReplyCapableContext = Context & {
   replyWithVoice(audio: InputFile): Promise<unknown>;
 };
 
+type ExecutionControllerLike = {
+  handlePlan(ctx: Context, task: Task): Promise<void>;
+  executeImmediate(ctx: Context, task: Task, isDryRun: boolean): Promise<void>;
+};
+
+type ZavorthBridgeControllerLike = {
+  handleTaskExecution(ctx: Context, task: Task, payload: string): Promise<void>;
+};
+
+type VideoHandlerLike = {
+  containsSupportedVideoUrl(text: string): boolean;
+  prepareFromText(
+    text: string,
+  ): Promise<{ messageText: string; inlineData?: Array<{ mimeType: string; data: string }> } | null>;
+};
+
 type BotGatewayRuntimeTarget = {
   bot: { api: Record<string, unknown> };
   swarmController: unknown;
   taskOrchestrationController: TelegramTaskOrchestrationController;
   surfaceTaskDispatcher: SurfaceTaskDispatchService;
-  auditLogger: unknown;
-  operatorModeService: unknown;
-  presentationModeService: unknown;
-  workspaceProfileService: unknown;
+  auditLogger: SecurityAuditLogger;
+  operatorModeService: OperatorModeService;
+  presentationModeService: PresentationModeService;
+  workspaceProfileService: WorkspaceProfileService;
   permissionService: PermissionServiceLike;
-  executionController: unknown;
-  zavorthBridgeController: unknown;
+  executionController: ExecutionControllerLike;
+  zavorthBridgeController: ZavorthBridgeControllerLike;
   legacyUnifiedGateway?: TaskLegacyUnifiedGatewayAdapterLike | null;
   echoOutputStage?: EchoOutputStageService | null;
-  videoHandler: unknown;
+  videoHandler: VideoHandlerLike;
   pipelineController: WorkflowControllerLike;
   parser: ParserLike;
   surfaceIdentityService: unknown;
@@ -242,7 +262,7 @@ export function initializeTelegramTaskRuntime(
       workspaceProfileService: gateway.workspaceProfileService,
       workspaceOperationalMemoryService: new WorkspaceOperationalMemoryService(
         taskManager,
-        gateway.permissionService,
+        gateway.permissionService as any,
       ),
       executionController: gateway.executionController,
       zavorthBridgeController: gateway.zavorthBridgeController,
@@ -255,21 +275,21 @@ export function initializeTelegramTaskRuntime(
         taskManager,
       ),
       videoHandler: gateway.videoHandler,
-      workflowController: gateway.pipelineController,
+      workflowController: gateway.pipelineController as any,
     },
   );
   gateway.surfaceTaskDispatcher = new SurfaceTaskDispatchService({
     parser: gateway.parser,
-    taskOrchestrationController: gateway.taskOrchestrationController,
-    surfaceIdentityService: gateway.surfaceIdentityService,
+    taskOrchestrationController: gateway.taskOrchestrationController as any,
+    surfaceIdentityService: gateway.surfaceIdentityService as any,
   });
   gateway.zavorthControlService.attachChatRuntime({
     permissionService: gateway.permissionService,
-    taskManager: taskManager,
+    taskManager: taskManager as any,
     workflowRunService,
     parser: gateway.parser,
-    taskOrchestrationController: gateway.taskOrchestrationController,
-    workflowController: gateway.pipelineController,
+    taskOrchestrationController: gateway.taskOrchestrationController as any,
+    workflowController: gateway.pipelineController as any,
     surfaceTaskDispatcher: gateway.surfaceTaskDispatcher,
     legacyUnifiedGateway: gateway.legacyUnifiedGateway || null,
     echoOutputStage: gateway.echoOutputStage || null,

@@ -157,7 +157,7 @@ export class ZavorthTaskOperatingSystemService {
         redelivery: {
           available: false,
           command: null,
-          reason: 'Nenhuma task encontrada para listar artefatos.',
+          reason: 'No task found to list artifacts.',
         },
       };
     }
@@ -175,8 +175,8 @@ export class ZavorthTaskOperatingSystemService {
         available: artifacts.length > 0,
         command: artifacts.length > 0 ? `zavorth artifacts task ${task.task_id}` : null,
         reason: artifacts.length > 0
-          ? 'Artefatos persistidos no ledger da task e prontos para reenvio.'
-          : 'Task ainda nao possui artefatos estruturados.',
+          ? 'Artifacts persisted in the task ledger and ready for redelivery.'
+          : 'Task does not have structured artifacts yet.',
       },
     };
   }
@@ -197,7 +197,7 @@ export class ZavorthTaskOperatingSystemService {
         available: false,
         nextCommand: null,
         expectedState: null,
-        reason: 'Nenhuma task encontrada para retomar ou repetir.',
+        reason: 'No task found to resume or repeat.',
         preserves: this.emptyPreservation(),
       };
     }
@@ -224,7 +224,7 @@ export class ZavorthTaskOperatingSystemService {
       expectedState: available ? expectedState : null,
       reason: available
         ? this.buildContinuationReason(taskSnapshot, action)
-        : `Acao ${action} indisponivel para estado ${taskSnapshot.state.state}.`,
+        : `Action ${action} is unavailable for state ${taskSnapshot.state.state}.`,
       preserves: {
         conversation: Boolean(taskSnapshot.relation.conversation),
         workspace: Boolean(taskSnapshot.relation.workspace),
@@ -269,10 +269,10 @@ export class ZavorthTaskOperatingSystemService {
     action: ZavorthTaskContinuationAction,
   ): string {
     if (action === 'resume' && task.approval.resumesTask) {
-      return 'A aprovacao esta vinculada a esta task e retoma conversa, workspace e executor persistidos.';
+      return 'The approval is linked to this task and resumes persisted conversation, workspace, and executor.';
     }
     if (action === 'resume') {
-      return 'Resume preserva conversa, workspace, executor e artefatos conhecidos.';
+      return 'Resume preserves conversation, workspace, executor, and known artifacts.';
     }
     return 'Retry cria uma repeticao padronizada a partir da task terminal e preserva os artefatos anteriores para comparacao.';
   }

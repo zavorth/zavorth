@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export const ZAVORTH_SKILL_EXPANSION_PACK_CONTRACT_VERSION = 'zavorth-skill-expansion-pack/1' as const;
 
@@ -557,9 +558,7 @@ function safeListDirs(root: string): string[] {
     return fs.readdirSync(root, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => path.join(root, entry.name));
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[Zavorth Skill Expansion Pack] filesystem operation failed', error); return []; }
 }
 
 function findSkillFiles(root: string): string[] {
@@ -569,9 +568,10 @@ function findSkillFiles(root: string): string[] {
     let entries: fs.Dirent[];
     try {
       entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch {
-      return;
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Skill Expansion Pack] filesystem operation failed', error);
+    return;
+  }
     for (const entry of entries) {
       const next = path.join(dir, entry.name);
       if (entry.isDirectory()) {
@@ -637,9 +637,7 @@ function readLimited(filePath: string): string {
     } finally {
       fs.closeSync(fd);
     }
-  } catch {
-    return '';
-  }
+  } catch (error) { logger.warn('[Zavorth Skill Expansion Pack] filesystem operation failed', error); return ''; }
 }
 
 function readLicenseName(sourceRoot: string): string | null {

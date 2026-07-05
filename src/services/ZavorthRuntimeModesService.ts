@@ -4,6 +4,7 @@ import { IntegrationHubService } from './IntegrationHubService.js';
 import { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';
 import type { OperationsHealthSnapshot } from '../observability/OperationsHealthService.js';
 import { OperationsHealthService } from '../observability/OperationsHealthService.js';
+import type { LogRepository } from '../storage/LogRepository.js';
 
 type OperationsHealthLike = Pick<OperationsHealthService, 'readSnapshot'> &
   Partial<Pick<OperationsHealthService, 'readSnapshotFast'>>;
@@ -61,7 +62,7 @@ export class ZavorthRuntimeModesService {
     this.operationsHealth = runtime.operationsHealthService || new OperationsHealthService({
       log: () => undefined,
       getRecentLogs: () => [],
-    } as any);
+    } as unknown as LogRepository);
     this.integrationHub = runtime.integrationHubService || new IntegrationHubService();
     this.nodeMesh = runtime.nodeMeshService || new ZavorthNodeMeshService();
   }

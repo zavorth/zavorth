@@ -2,6 +2,7 @@ import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { PtySessionService } from '../../services/PtySessionService.js';
+import { logger } from '../../logger.js';
 
 export class PtyTerminateTool extends BaseTool {
   public readonly name = 'workspace.pty.terminate';
@@ -27,9 +28,10 @@ export class PtyTerminateTool extends BaseTool {
     try {
       await this.ptySessionService.terminateSession(sessionId, workspaceId);
       return JSON.stringify({ success: true });
-    } catch (err: any) {
-      return JSON.stringify({ success: false, error: err.message });
-    }
+    } catch (error) {
+    logger.warn('[Pty Terminate] process execution failed', error);
+    return JSON.stringify({ success: false, error: err.message });
+  }
   }
 }
 

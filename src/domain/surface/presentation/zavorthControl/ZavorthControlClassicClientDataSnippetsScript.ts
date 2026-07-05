@@ -1,6 +1,5 @@
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 import type { Snippet } from '../../../../services/SnippetService.js';
-import { logger } from '../logger.js';
 
 declare function showToast(msg: string, isError?: boolean): void;
 
@@ -13,7 +12,7 @@ function zavorthControlClassicClientDataSnippets() {
          const { snippets } = await res.json() as { snippets: Snippet[] };
          currentSnippets = snippets;
          renderSnippetList();
-      } catch (_e) { logger.warn("[auto-fix] Empty catch block", _e); }
+      } catch (_e) { console.warn("[auto-fix] Empty catch block", _e); }
     }
 
     function renderSnippetList() {

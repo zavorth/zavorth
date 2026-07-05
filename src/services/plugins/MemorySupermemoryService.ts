@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface SupermemoryEntry {
   id: string;
@@ -52,7 +53,7 @@ export class MemorySupermemoryService {
       for (const [id, entry] of Object.entries(data as Record<string, SupermemoryEntry>)) {
         this.entries.set(id, entry);
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Memory Supermemory] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

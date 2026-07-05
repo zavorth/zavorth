@@ -17,6 +17,7 @@ import {
   resolveDefaultRuntimeProfileForProductMode,
 } from './ProductModeService.js';
 import { buildCapabilityManifests } from './capability-lifecycle/CapabilityLifecycleManifests.js';
+import { logger } from '../logger.js';
 
 export type CapabilityLifecycleState =
   | 'declared'
@@ -589,9 +590,7 @@ export class CapabilityLifecycleService {
           fs.unlinkSync(absolutePath);
         }
         removed.push(relative.replace(/\\/g, '/'));
-      } catch {
-        // O Zavorth segue leve mesmo quando um artefato antigo esta travado por outro processo.
-      }
+      } catch (error) { // O Zavorth segue leve mesmo quando um artefato antigo esta travado por outro processo. logger.warn('[Capability Lifecycle] file cleanup failed', error); }
     }
     return removed;
   }
@@ -611,9 +610,7 @@ export class CapabilityLifecycleService {
           capabilities: parsed.capabilities && typeof parsed.capabilities === 'object' ? parsed.capabilities : {},
         };
       }
-    } catch {
-      // Se o estado estiver corrompido, o Zavorth volta para o baseline leve.
-    }
+    } catch (error) { // Se o estado estiver corrompido, o Zavorth volta para o baseline leve. logger.warn('[Capability Lifecycle] parsing failed', error); }
 
     return {
       version: 2,

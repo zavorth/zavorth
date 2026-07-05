@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 import type {
-  SelfmodOptimizationAnalysis,
+SelfmodOptimizationAnalysis,
   SelfmodPatternMemoryEntry,
   SelfmodPatternMemorySnapshot,
   SelfmodPatternSignal,
@@ -152,12 +153,13 @@ export class SelfmodPatternMemory {
 
     try {
       return JSON.parse(fs.readFileSync(this.filePath, 'utf8')) as SelfmodPatternMemorySnapshot;
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Selfmod Pattern Memory] JSON parse failed', error);
+    return {
         updatedAt: new Date().toISOString(),
         entries: [],
       };
-    }
+  }
   }
 
   private writeSnapshot(snapshot: SelfmodPatternMemorySnapshot): void {

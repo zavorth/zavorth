@@ -15,6 +15,8 @@ import {
   withCliConsoleSuppressed,
 } from './ZavorthCliNativeRenderers.js';
 import { withFilteredCliStartupLogs } from './ZavorthCliFlowHelpers.js';
+import type { RuntimeAccessReadinessInput } from '../runtime/access/RuntimeAccessReadinessService.js';
+import type { NodeMeshCapabilityId, NodeMeshNodeKind } from '../contracts/NodeMeshContract.js';
 
 type RegistryCommandParams = {
   runtime: ZavorthCliRuntime;
@@ -48,8 +50,8 @@ export async function handleZavorthCliRegistryNodesCommand(params: RegistryComma
     if (nodeIntent.mode === 'doctor' && runtime.runtimeAccessReadinessService) {
       const probeInput = await buildCliRuntimeAccessProbeInput(runtime);
       const report = effectiveFlags.live && typeof runtime.runtimeAccessReadinessService.inspectLive === 'function'
-        ? await runtime.runtimeAccessReadinessService.inspectLive(probeInput as any)
-        : runtime.runtimeAccessReadinessService.inspect(probeInput as any);
+        ? await runtime.runtimeAccessReadinessService.inspectLive(probeInput as RuntimeAccessReadinessInput)
+        : runtime.runtimeAccessReadinessService.inspect(probeInput as RuntimeAccessReadinessInput);
       const snapshot = buildCliNodeMeshDoctorSnapshot(report);
       const body = effectiveFlags.json
         ? JSON.stringify(snapshot, null, 2)
@@ -60,17 +62,17 @@ export async function handleZavorthCliRegistryNodesCommand(params: RegistryComma
     const readNodeSnapshot = () =>
       runtime.nodeMeshService!.buildSnapshot({
         selectedNodeId: nodeIntent.selectedNodeId,
-      } as any);
+      });
     const snapshot = effectiveFlags.json
       ? withCliConsoleSuppressed(readNodeSnapshot)
       : withFilteredCliStartupLogs(readNodeSnapshot);
     const body = effectiveFlags.json
       ? JSON.stringify(snapshot, null, 2)
       : nodeIntent.mode === 'queue'
-        ? formatNodeMeshActivity((snapshot as any).selectedActivity || null, 'queue', (snapshot as any).selected?.label || null)
+        ? formatNodeMeshActivity(snapshot.selectedActivity || null, 'queue', snapshot.selected?.label || null)
         : nodeIntent.mode === 'history'
-          ? formatNodeMeshActivity((snapshot as any).selectedActivity || null, 'history', (snapshot as any).selected?.label || null)
-          : formatNodeMeshSnapshot(snapshot as any, {
+          ? formatNodeMeshActivity(snapshot.selectedActivity || null, 'history', snapshot.selected?.label || null)
+          : formatNodeMeshSnapshot(snapshot, {
             focusExplicit: Boolean(nodeIntent.selectedNodeId),
           });
     writer.line(body);
@@ -80,13 +82,13 @@ export async function handleZavorthCliRegistryNodesCommand(params: RegistryComma
   if (commandName === 'nodepair' && runtime.nodePairingService) {
     const parsed = parseCliNodePairArgs(args);
     const profile = runtime.nodeDeviceProfileService
-      ? (runtime.nodeDeviceProfileService as any).resolveProfile(parsed.profileId, parsed.kind || undefined)
+      ? runtime.nodeDeviceProfileService.resolveProfile(parsed.profileId, (parsed.kind || null) as NodeMeshNodeKind | null)
       : null;
     const draft = runtime.nodePairingService.createPairingDraft({
       profileId: parsed.profileId,
       label: parsed.label || profile?.label || 'Node companion',
       requestedBy: effectiveFlags.userId,
-    } as any);
+    });
     const body = effectiveFlags.json
       ? JSON.stringify(draft, null, 2)
       : formatNodePairingDraft(draft);
@@ -103,16 +105,16 @@ export async function handleZavorthCliRegistryNodesCommand(params: RegistryComma
     }
     const result = runtime.nodeInvokeService.invoke({
       nodeId: parsed.nodeId,
-      capabilityId: parsed.capabilityId,
+      capabilityId: parsed.capabilityId as NodeMeshCapabilityId,
       action: parsed.action,
       payload: parsed.payload,
       requestedBy: effectiveFlags.userId,
-    } as any);
+    });
     const body = effectiveFlags.json
       ? JSON.stringify(result, null, 2)
       : formatNodeInvokeResult(result);
     writer.line(body);
-    return { ok: Boolean((result as any).ok ?? true), handled: true, output: [body], error: null };
+    return { ok: Boolean(result.ok ?? true), handled: true, output: [body], error: null };
   }
 
   return null;

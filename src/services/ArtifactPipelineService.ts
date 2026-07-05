@@ -3,6 +3,7 @@ import path from 'path';
 import { ArtifactDeliveryChannel, ArtifactRecord } from '../contracts/ArtifactContract.js';
 import type { ExecutionLifecycleRecord } from '../contracts/ExecutionLifecycleContract.js';
 import { ExecutionLifecycleLinkService } from './ExecutionLifecycleLinkService.js';
+import { logger } from '../logger.js';
 
 type ArtifactLifecycleContext = {
   traceId?: string | null;
@@ -253,9 +254,7 @@ export class ArtifactPipelineService {
       try {
         const parsed = new URL(rawUrl);
         return path.basename(parsed.pathname) || `artifact-${index + 1}`;
-      } catch {
-        return `artifact-${index + 1}`;
-      }
+      } catch (error) { logger.warn('[Artifact Pipeline] network request failed', error); return ''; }
     }
 
     return rawString || `artifact-${index + 1}`;

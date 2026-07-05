@@ -7,6 +7,7 @@ import { HostPowerModeService } from '../../services/HostPowerModeService.js';
 import { SecurityAuditLogger } from '../../services/SecurityAuditLogger.js';
 import { PtySessionService } from '../../services/PtySessionService.js';
 import { LogRepository } from '../../storage/LogRepository.js';
+import { logger } from '../../logger.js';
 
 export class PtySessionProposeTool extends BaseTool {
   public readonly name = 'workspace.pty.propose';
@@ -50,9 +51,10 @@ export class PtySessionProposeTool extends BaseTool {
       );
       this.ptySessionService.registerPendingSession(proposal.sessionId, args.cwd as string, args.shell as string);
       return JSON.stringify({ success: true, status: 'PTY_APPROVAL_REQUIRED', sessionId: proposal.sessionId });
-    } catch (err: any) {
-      return JSON.stringify({ success: false, error: err.message });
-    }
+    } catch (error) {
+    logger.warn('[Pty Session Propose] serialization failed', error);
+    return JSON.stringify({ success: false, error: err.message });
+  }
   }
 }
 

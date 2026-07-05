@@ -4,8 +4,9 @@ import {
   formatZavorthMascotBlock,
 } from './ZavorthCliMascot.js';
 import { paintCliTone } from './ZavorthCliVisualTheme.js';
+import { logger } from '../logger.js';
 import {
-  buildZavorthFailureExplanation,
+buildZavorthFailureExplanation,
   formatZavorthFailureExplanation,
   renderZavorthFailureExplanation,
 } from './ZavorthCliFailureExplanation.js';
@@ -54,7 +55,7 @@ export function formatZavorthGoReport(
   const ready = report.local.ready;
   const header = formatZavorthMascotBlock([
     paintCliTone(ZAVORTH_CLI_BRAND_NAME, 'brand'),
-    ready ? 'Entrada pronta' : 'Entrada ainda nao respondeu',
+    ready ? 'Input ready' : 'Input has not responded yet',
     options.dryRun
       ? paintCliTone('Dry-run concluido; nada foi alterado', 'muted')
       : (ready ? paintCliTone('Abrindo a melhor entrada disponivel', 'muted') : paintCliTone('Use o caminho seguro de diagnostico', 'muted')),
@@ -64,7 +65,7 @@ export function formatZavorthGoReport(
     ...header,
     '',
     ready
-      ? `${paintCliTone('*', 'success')} Zavorth pronto`
+      ? `${paintCliTone('*', 'success')} Zavorth ready`
       : `${paintCliTone('!', 'warning')} Ajuste necessario`,
     '',
     ...buildZavorthGoPrimaryLines(report, options),
@@ -200,7 +201,7 @@ function buildFirstRunLines(firstRun: ZavorthGoFirstRunSnapshot | null): string[
     return [];
   }
   return [
-    'Perfil local ainda nao configurado.',
+    'Local profile is not configured yet.',
     'zavorth setup --dry-run',
     'zavorth setup',
   ];
@@ -208,7 +209,7 @@ function buildFirstRunLines(firstRun: ZavorthGoFirstRunSnapshot | null): string[
 
 function buildShortBlockerLine(report: RuntimeOfficialAccessReport): string {
   if (!report.local.ready) {
-    return 'o host local ou o Home ainda nao respondeu.';
+    return 'the local host or Home has not responded yet.';
   }
   if (report.local.trust.applied === false) {
     return 'este computador ainda precisa de autorizacao.';
@@ -232,12 +233,12 @@ function buildLauncherLine(launcher: ZavorthGoLauncherSnapshot | null): string |
     return null;
   }
   if (launcher.applied) {
-    return `pronto (${launcher.mode})`;
+    return `ready (${launcher.mode})`;
   }
   if (launcher.error) {
-    return `nao aplicado (${launcher.error})`;
+    return `not applied (${launcher.error})`;
   }
-  return 'nao aplicado';
+  return 'not applied';
 }
 
 function normalizeHomeUrl(value: string | null): string {
@@ -253,7 +254,8 @@ function normalizeHomeUrl(value: string | null): string {
       url.hash = '';
       return url.toString();
     }
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Cli Go Renderer] search failed', error);
     return target.replace(/\/zavorthControl(?:[?#].*)?$/u, '/zavorthControl');
   }
   return target;

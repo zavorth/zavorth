@@ -18,6 +18,7 @@ import { safeParseInt } from "../shared/utils/safeParseInt.js";
 import { getExecutor } from "@ZavorthGateway/open-sse/executors/index.ts";
 import { getUsageForProvider } from "@ZavorthGateway/open-sse/services/usage.ts";
 import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+import { logger } from '@/shared/utils/logger';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -198,9 +199,7 @@ export async function getLastProviderLimitsAutoSyncTime(): Promise<string | null
     const settings = await getSettings();
     const value = settings[PROVIDER_LIMITS_AUTO_SYNC_SETTING_KEY];
     return typeof value === "string" && value.trim() ? value : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[provider] operation failed', error); return null; }
 }
 
 async function setLastProviderLimitsAutoSyncTime(timestamp: string): Promise<void> {

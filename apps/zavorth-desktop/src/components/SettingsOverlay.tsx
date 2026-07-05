@@ -74,7 +74,7 @@ export function SettingsOverlay({
       a.click();
       URL.revokeObjectURL(url);
     } catch (err: any) {
-      alert('Falha ao exportar configurações: ' + err.message);
+      alert('Failed to export settings: ' + err.message);
     }
   };
 
@@ -87,7 +87,7 @@ export function SettingsOverlay({
       try {
         const backup = JSON.parse(event.target?.result as string);
         if (!backup.version || !backup.settings) {
-          throw new Error('Formato de backup inválido.');
+          throw new Error('Invalid backup format.');
         }
 
         if (backup.settings.theme) props.onTheme(backup.settings.theme);
@@ -112,10 +112,10 @@ export function SettingsOverlay({
           }
         }
 
-        alert('Configurações importadas com sucesso!');
+        alert('Settings imported successfully.');
         window.location.reload();
       } catch (err: any) {
-        alert('Erro ao importar backup: ' + err.message);
+        alert('Failed to import backup: ' + err.message);
       }
     };
     reader.readAsText(file);
@@ -283,14 +283,14 @@ export function SettingsOverlay({
       `}</style>
       <div className="zvd-settings-window" onClick={e => e.stopPropagation()}>
         <div className="zvd-settings-sidebar">
-          <div className="zvd-settings-sidebar-title">Configurações</div>
+          <div className="zvd-settings-sidebar-title">Settings</div>
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'general' ? 'zvd-settings-tab-btn--active' : ''}`}
             onClick={() => { require('../lib/haptics').playTapSound(); setActiveTab('general'); }}
           >
             <IconSettings size={18} />
-            Geral
+            General
           </button>
           <button
             type="button"
@@ -306,7 +306,7 @@ export function SettingsOverlay({
             onClick={() => { require('../lib/haptics').playTapSound(); setActiveTab('permissions'); }}
           >
             <IconShield size={18} />
-            Permissões
+            Permissions
           </button>
           <button
             type="button"
@@ -330,21 +330,21 @@ export function SettingsOverlay({
             onClick={() => { require('../lib/haptics').playTapSound(); setActiveTab('diagnostics'); }}
           >
             <IconActivity size={18} />
-            Diagnósticos
+            Diagnostics
           </button>
         </div>
 
         <div className="zvd-settings-content">
           <div className="zvd-settings-header">
             <h2>
-              {activeTab === 'general' && 'Configurações Gerais'}
+              {activeTab === 'general' && 'General Settings'}
               {activeTab === 'providers' && 'AI Providers'}
-              {activeTab === 'permissions' && 'Controle de Permissões'}
+              {activeTab === 'permissions' && 'Permission Control'}
               {activeTab === 'mcp' && 'Model Context Protocol (MCP)'}
-              {activeTab === 'workspace' && 'Configurações do Workspace'}
-              {activeTab === 'diagnostics' && 'Painel de Diagnósticos' || activeTab === 'shortcuts' && 'Atalhos de Teclado' || activeTab === 'cron' && 'Rotinas Agendadas (Cron)' || activeTab === 'subagents' && 'Subagentes em Execução' || activeTab === 'artifacts' && 'Artefatos Gerados'}
+              {activeTab === 'workspace' && 'Workspace Settings'}
+              {activeTab === 'diagnostics' && 'Diagnostics Panel' || activeTab === 'shortcuts' && 'Keyboard Shortcuts' || activeTab === 'cron' && 'Scheduled Routines (Cron)' || activeTab === 'subagents' && 'Running Subagents' || activeTab === 'artifacts' && 'Generated Artifacts'}
             </h2>
-            <button className="zvd-settings-close" onClick={onClose} aria-label="Fechar">
+            <button className="zvd-settings-close" onClick={onClose} aria-label="Close">
               <IconX size={18} />
             </button>
           </div>
@@ -353,7 +353,7 @@ export function SettingsOverlay({
             {activeTab === 'general' && (
               <div className="flex flex-col gap-5">
                 <div className="zvd-settings-form-group">
-                  <label>Perfil de Experiência</label>
+                  <label>Experience Profile</label>
                   <select
                     className="zvd-settings-select"
                     value={props.profile}
@@ -364,12 +364,12 @@ export function SettingsOverlay({
                     ))}
                   </select>
                   <span className="text-xs text-gray-500">
-                    Ajusta o nível de detalhe e os prompts sugeridos.
+                    Adjusts detail level and suggested prompts.
                   </span>
                 </div>
 
                 <div className="zvd-settings-form-group">
-                  <label>Esforço de Raciocínio</label>
+                  <label>Reasoning Effort</label>
                   <select
                     className="zvd-settings-select"
                     value={props.effort}
@@ -380,37 +380,37 @@ export function SettingsOverlay({
                     ))}
                   </select>
                   <span className="text-xs text-gray-500">
-                    Controla a profundidade do raciocínio lógico.
+                    Controls logical reasoning depth.
                   </span>
                 </div>
 
                 <div className="zvd-settings-form-group">
-                  <label>Aparência</label>
+                  <label>Appearance</label>
                   <select
                     className="zvd-settings-select"
                     value={props.theme}
                     onChange={e => props.onTheme(e.target.value as any)}
                   >
-                    <option value="system">Sistema</option>
-                    <option value="light">Claro</option>
-                    <option value="dark">Escuro</option>
+                    <option value="system">System</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
                   </select>
                 </div>
 
                 <div className="zvd-settings-form-group">
-                  <label>Cor de Destaque</label>
+                  <label>Accent Color</label>
                   <select
                     className="zvd-settings-select"
                     value={props.accent}
                     onChange={e => props.onAccent(e.target.value as any)}
                   >
-                    <option value="orange">Laranja</option>
-                    <option value="purple">Roxo</option>
-                    <option value="navy">Azul Escuro</option>
+                    <option value="orange">Orange</option>
+                    <option value="purple">Purple</option>
+                    <option value="navy">Dark Blue</option>
                   </select>
                 </div>
                 <div className="zvd-settings-form-group">
-                  <label>Posição da Sidebar (Sidebar Flip)</label>
+                  <label>Sidebar Position</label>
                   <select
                     className="zvd-settings-select"
                     value={sidebarSide}
@@ -421,13 +421,13 @@ export function SettingsOverlay({
                       window.location.reload(); // Reload to apply layout class easily
                     }}
                   >
-                    <option value="left">Esquerda</option>
-                    <option value="right">Direita</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
                   </select>
                 </div>
 
                 <div className="zvd-settings-form-group">
-                  <label>Efeitos Sonoros e Haptics</label>
+                  <label>Sound Effects and Haptics</label>
                   <select
                     className="zvd-settings-select"
                     value={soundsEnabled ? 'true' : 'false'}
@@ -437,23 +437,23 @@ export function SettingsOverlay({
                       localStorage.setItem('zvd:sounds-enabled', val ? 'true' : 'false');
                     }}
                   >
-                    <option value="true">Ativados</option>
-                    <option value="false">Desativados</option>
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
                   </select>
                 </div>
 
                 <div className="zvd-settings-form-group" style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #27272a' }}>
-                  <label>Backup e Restauração</label>
+                  <label>Backup and Restore</label>
                   <div className="flex gap-3">
                     <button
                       type="button"
                       onClick={handleExport}
                       className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-md py-2 px-4 text-sm font-semibold transition-colors"
                     >
-                      Exportar Configurações
+                      Export Settings
                     </button>
                     <label className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-md py-2 px-4 text-sm font-semibold transition-colors cursor-pointer text-center">
-                      Importar Configurações
+                      Import Settings
                       <input
                         type="file"
                         accept=".json"
@@ -463,7 +463,7 @@ export function SettingsOverlay({
                     </label>
                   </div>
                   <span className="text-xs text-gray-500">
-                    Exporte suas chaves de API e preferências para um arquivo de backup seguro localmente.
+                    Export API keys and preferences to a local secure backup file.
                   </span>
                 </div>
 
@@ -477,12 +477,12 @@ export function SettingsOverlay({
             {activeTab === 'permissions' && (
               <div className="flex flex-col gap-3">
                 <div className="text-sm text-gray-400 mb-4">
-                  Permissões ativas e políticas de segurança gerenciadas pelo runtime local.
+                  Active permissions and security policies managed by the local runtime.
                 </div>
                 <div className="zvd-settings-card">
-                  <div className="zvd-settings-card-title">Resiliência de Rede</div>
+                  <div className="zvd-settings-card-title">Network Resilience</div>
                   <div className="zvd-settings-card-desc">
-                    Status: {props.gatewayResilience?.ok ? 'Ativo e Seguro' : 'Desconectado'}
+                    Status: {props.gatewayResilience?.ok ? 'Active and Secure' : 'Disconnected'}
                   </div>
                 </div>
               </div>
@@ -490,16 +490,16 @@ export function SettingsOverlay({
 
             {activeTab === 'mcp' && (
               <div className="flex flex-col gap-3 text-center py-12 text-gray-500">
-                Sem servidores MCP adicionais conectados no momento.
+                No additional MCP servers are connected right now.
               </div>
             )}
 
             {activeTab === 'workspace' && (
               <div className="flex flex-col gap-4">
                 <div className="zvd-settings-card">
-                  <div className="zvd-settings-card-title">Workspace Ativo</div>
+                  <div className="zvd-settings-card-title">Active Workspace</div>
                   <div className="zvd-settings-card-desc">
-                    Caminho: {capabilities?.workspace?.path || 'Nenhum diretório selecionado'}
+                    Path: {capabilities?.workspace?.path || 'No directory selected'}
                   </div>
                 </div>
               </div>
@@ -511,18 +511,18 @@ export function SettingsOverlay({
             
             {activeTab === 'cron' && (
               <div className="flex flex-col gap-4">
-                <p className="text-sm text-gray-400 mb-2">Configure e monitore rotinas agendadas executadas pelo supervisor em segundo plano.</p>
+                <p className="text-sm text-gray-400 mb-2">Configure and monitor scheduled routines executed by the background supervisor.</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {[
-                    { name: 'Backup de Configurações', expr: '0 0 * * *', status: 'Ativo', desc: 'Backup diário compactado local' },
-                    { name: 'Verificação de Atualizações', expr: '*/30 * * * *', status: 'Ativo', desc: 'Verificar novas versões a cada 30 min' },
-                    { name: 'Limpeza de Cache Temporário', expr: '0 2 * * 0', status: 'Inativo', desc: 'Otimiza armazenamento aos domingos' }
+                    { name: 'Settings Backup', expr: '0 0 * * *', status: 'Active', desc: 'Compressed local daily backup' },
+                    { name: 'Update Check', expr: '*/30 * * * *', status: 'Active', desc: 'Check for new versions every 30 minutes' },
+                    { name: 'Temporary Cache Cleanup', expr: '0 2 * * 0', status: 'Inactive', desc: 'Optimizes storage on Sundays' }
                   ].map((job, idx) => (
                     <div key={idx} className="zvd-settings-card flex justify-between items-center" style={{ margin: 0 }}>
                       <div>
                         <div className="zvd-settings-card-title flex items-center gap-2">
                           {job.name}
-                          <span style={{ fontSize: '10px', background: job.status === 'Ativo' ? 'rgba(16, 185, 129, 0.15)' : '#27272a', color: job.status === 'Ativo' ? '#10b981' : '#a1a1aa', padding: '2px 6px', borderRadius: '4px' }}>
+                          <span style={{ fontSize: '10px', background: job.status === 'Active' ? 'rgba(16, 185, 129, 0.15)' : '#27272a', color: job.status === 'Active' ? '#10b981' : '#a1a1aa', padding: '2px 6px', borderRadius: '4px' }}>
                             {job.status}
                           </span>
                         </div>
@@ -541,11 +541,11 @@ export function SettingsOverlay({
 
             {activeTab === 'subagents' && (
               <div className="flex flex-col gap-4">
-                <p className="text-sm text-gray-400 mb-2">Acompanhe tarefas distribuídas e executadas por subagentes especialistas.</p>
+                <p className="text-sm text-gray-400 mb-2">Track distributed tasks executed by specialist subagents.</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {[
-                    { role: 'Nanostores State Refactor', model: 'gpt-4o', status: 'Concluído', time: '1m 24s' },
-                    { role: 'Rich Markdown Renderer', model: 'claude-3-5-sonnet', status: 'Concluído', time: '2m 10s' }
+                    { role: 'Nanostores State Refactor', model: 'gpt-4o', status: 'Completed', time: '1m 24s' },
+                    { role: 'Rich Markdown Renderer', model: 'claude-3-5-sonnet', status: 'Completed', time: '2m 10s' }
                   ].map((agent, idx) => (
                     <div key={idx} className="zvd-settings-card flex justify-between items-center" style={{ margin: 0 }}>
                       <div>
@@ -555,7 +555,7 @@ export function SettingsOverlay({
                             {agent.status}
                           </span>
                         </div>
-                        <div className="zvd-settings-card-desc" style={{ fontSize: '12px' }}>Modelo: {agent.model} • Duração: {agent.time}</div>
+                        <div className="zvd-settings-card-desc" style={{ fontSize: '12px' }}>Model: {agent.model} - Duration: {agent.time}</div>
                       </div>
                       <button type="button" className="zvd-onboarding-button zvd-onboarding-button--secondary text-xs" style={{ padding: '6px 12px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
                         <IconTrash size={14} />
@@ -568,25 +568,25 @@ export function SettingsOverlay({
 
             {activeTab === 'artifacts' && (
               <div className="flex flex-col gap-4">
-                <p className="text-sm text-gray-400 mb-2">Arquivos e relatórios estáticos gerados sob demanda nas sessões de chat.</p>
+                <p className="text-sm text-gray-400 mb-2">Static files and reports generated on demand in chat sessions.</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {[
-                    { name: 'walkthrough.md', size: '1.2 KB', desc: 'Resumo executivo do redesenho visual' },
-                    { name: 'implementation_plan.md', size: '13.4 KB', desc: 'Cronograma de entrega das fases' }
+                    { name: 'walkthrough.md', size: '1.2 KB', desc: 'Executive summary of the visual redesign' },
+                    { name: 'implementation_plan.md', size: '13.4 KB', desc: 'Phase delivery timeline' }
                   ].map((file, idx) => (
                     <div key={idx} className="zvd-settings-card flex justify-between items-center" style={{ margin: 0 }}>
                       <div>
                         <div className="zvd-settings-card-title">{file.name}</div>
-                        <div className="zvd-settings-card-desc" style={{ fontSize: '12px' }}>{file.size} • {file.desc}</div>
+                        <div className="zvd-settings-card-desc" style={{ fontSize: '12px' }}>{file.size} - {file.desc}</div>
                       </div>
                       <div className="flex gap-2">
                         <button
                           type="button"
                           className="zvd-onboarding-button zvd-onboarding-button--secondary text-xs"
                           style={{ padding: '6px 12px' }}
-                          onClick={() => alert('Visualização de arquivos markdown está integrada ao chat. Use links markdown directos no chat para abri-los.')}
+                          onClick={() => alert('Markdown file preview is integrated into chat. Use direct markdown links in chat to open files.')}
                         >
-                          Visualizar
+                          Preview
                         </button>
                       </div>
                     </div>
@@ -596,34 +596,34 @@ export function SettingsOverlay({
             )}
 {activeTab === 'shortcuts' && (
               <div className="flex flex-col gap-4">
-                <p className="text-sm text-gray-400 mb-2">Use atalhos globais de teclado para agilizar seu fluxo de trabalho no Zavorth.</p>
+                <p className="text-sm text-gray-400 mb-2">Use global keyboard shortcuts to speed up your Zavorth workflow.</p>
                 <div style={{ border: '1px solid #27272a', borderRadius: '8px', overflow: 'hidden' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', textAlign: 'left' }}>
                     <thead>
                       <tr style={{ background: '#121214', borderBottom: '1px solid #27272a' }}>
-                        <th style={{ padding: '12px 16px', fontWeight: '600', color: '#a1a1aa' }}>Ação</th>
-                        <th style={{ padding: '12px 16px', fontWeight: '600', color: '#a1a1aa' }}>Atalho</th>
+                        <th style={{ padding: '12px 16px', fontWeight: '600', color: '#a1a1aa' }}>Action</th>
+                        <th style={{ padding: '12px 16px', fontWeight: '600', color: '#a1a1aa' }}>Shortcut</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr style={{ borderBottom: '1px solid #27272a' }}>
-                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Abrir Paleta de Comandos</td>
-                        <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / ⌘ + K</kbd></td>
+                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Open Command Palette</td>
+                        <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / Cmd + K</kbd></td>
                       </tr>
                       <tr style={{ borderBottom: '1px solid #27272a' }}>
-                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Mostrar / Ocultar Sidebar</td>
-                        <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / ⌘ + B</kbd></td>
+                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Show / Hide Sidebar</td>
+                        <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / Cmd + B</kbd></td>
                       </tr>
                       <tr style={{ borderBottom: '1px solid #27272a' }}>
-                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Mostrar / Ocultar Painel do Terminal</td>
-                        <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / ⌘ + J</kbd></td>
+                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Show / Hide Terminal Panel</td>
+                        <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / Cmd + J</kbd></td>
                       </tr>
                       <tr style={{ borderBottom: '1px solid #27272a' }}>
-                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Abrir Painel de Configurações</td>
-                        <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / ⌘ + ,</kbd></td>
+                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Open Settings Panel</td>
+                        <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / Cmd + ,</kbd></td>
                       </tr>
                       <tr>
-                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Fechar Modais / Painéis Ativos</td>
+                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Close Active Modals / Panels</td>
                         <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Esc</kbd></td>
                       </tr>
                     </tbody>

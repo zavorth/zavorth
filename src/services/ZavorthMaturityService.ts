@@ -11,6 +11,7 @@ import { LiveReadinessCertificationService } from './LiveReadinessCertificationS
 import { ZavorthControlVisualQaService } from './ZavorthControlVisualQaService.js';
 import { ZavorthDataLifecyclePolicyService } from './ZavorthDataLifecyclePolicyService.js';
 import { ZavorthHostLiveCertificationService } from './ZavorthHostLiveCertificationService.js';
+import { logger } from '../logger.js';
 
 type ChannelExperienceCertificationReader = Pick<ChannelExperienceCertificationService, 'buildSnapshot'>;
 type LiveReadinessCertificationReader = Pick<LiveReadinessCertificationService, 'buildSnapshot'>;
@@ -384,9 +385,10 @@ export class ZavorthMaturityService {
       return {
         scripts: parsed.scripts || {},
       };
-    } catch {
-      return { scripts: {} };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Maturity] JSON parse failed', error);
+    return { scripts: {} };
+  }
   }
 
   private resolveStatus(blocked: number, attention: number): ZavorthMaturityStatus {

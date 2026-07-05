@@ -57,9 +57,9 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
 ): string {
   const lines = [
     'Release Candidate / Pre-Canary Gate - Pre-Canary Gate',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- release/adoption: ${snapshot.releaseAdoption.status}`,
     `- evidence pack: ${snapshot.evidencePack.status} (${snapshot.evidencePack.passCount}/${snapshot.evidencePack.checkCount})`,
@@ -68,7 +68,7 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
     `- go/no-go: ${snapshot.goNoGo.decision}`,
     `- canary iniciado: ${String(snapshot.readiness.canStartCanary)}`,
     `- rollout iniciado: ${String(snapshot.readiness.rolloutStarted)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -95,12 +95,12 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
   lines.push(`- rollback: ${String(snapshot.readiness.rollbackReady)}`);
 
   lines.push('', 'Politica');
-  lines.push('- canary nao foi iniciado');
-  lines.push('- rollout nao foi iniciado');
-  lines.push('- deploy nao foi executado');
+  lines.push('- canary was not started');
+  lines.push('- rollout was not started');
+  lines.push('- deploy was not executed');
   lines.push('- global rollout e auto-promote ficam desligados');
-  lines.push('- go/no-go exige aprovacao explicita');
-  lines.push('- rollback preview e obrigatorio');
+  lines.push('- go/no-go requires explicit approval');
+  lines.push('- rollback preview is required');
   lines.push('- claims de ecossistema exigem evidencia');
 
   lines.push('', 'Rotas e comandos');
@@ -239,7 +239,7 @@ function buildGoNoGoDecisionSnapshot() {
     incidentOwner: 'incident-owner',
     reasons: [
       'Evidence pack local aprovado.',
-      'Autopilot RC pronto com governance default-off.',
+      'Autopilot RC ready with default-off governance.',
     ],
   };
 }

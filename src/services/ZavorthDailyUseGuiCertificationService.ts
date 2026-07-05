@@ -1,6 +1,7 @@
 import type { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthDailyUseGuiCapabilityCheck,
+ZavorthDailyUseGuiCapabilityCheck,
   ZavorthDailyUseGuiCapabilityId,
   ZavorthDailyUseGuiCertificationSnapshot,
 } from '../contracts/ZavorthDailyUseGuiCertificationContract.js';
@@ -85,8 +86,8 @@ export class ZavorthDailyUseGuiCertificationService {
         const channels = publicApi.readChannels();
         return ready('channels', 'Channel mesh', [
           `surface=${channels.surface}`,
-          `channels=${Array.isArray((channels as any).channels) ? (channels as any).channels.length : 0}`,
-          `telegramPrivileged=${(channels as any).safety?.telegramPrivileged}`,
+          `channels=${Array.isArray(channels.entries) ? channels.entries.length : 0}`,
+          `telegramPrivileged=${channels.safety.telegramPrivileged}`,
         ]);
       }),
       this.guard('approvals', 'Approvals inbox', async () => {
@@ -101,7 +102,7 @@ export class ZavorthDailyUseGuiCertificationService {
         const receipts = publicApi.readReceipts({ includeAdvanced: false });
         return ready('receipts', 'Visual receipts', [
           `surface=${receipts.apiSurface}`,
-          `cards=${Array.isArray((receipts as any).cards) ? (receipts as any).cards.length : 0}`,
+          `cards=${Array.isArray(receipts.cards) ? receipts.cards.length : 0}`,
           'projection=visual',
         ]);
       }),
@@ -171,8 +172,9 @@ export class ZavorthDailyUseGuiCertificationService {
         nextAction: 'Add stronger readiness evidence for this GUI surface.',
       };
     } catch (error) {
-      return blocked(id, label, error);
-    }
+    logger.warn('[Zavorth Daily Use Gui Certification] creation failed', error);
+    return blocked(id, label, error);
+  }
   }
 
   private async certifyGovernedActions(
@@ -185,7 +187,7 @@ export class ZavorthDailyUseGuiCertificationService {
       'testProvider',
       'executeChannelAction',
     ];
-    const missing = requiredMethods.filter((method) => typeof (publicApi as any)[method] !== 'function');
+    const missing = requiredMethods.filter((method) => typeof (publicApi as unknown as Record<string, unknown>)[method] !== 'function');
     return {
       id: 'actions',
       label: 'Governed actions',

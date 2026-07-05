@@ -62,7 +62,7 @@ export class ToolExecutor {
   }
 
   /**
-   * Executa uma ferramenta especifica do plano.
+   * Executes a specific tool from the plan.
    */
   public async executeTool(toolName: string, args: unknown): Promise<string> {
     const input = args && typeof args === 'object' && !Array.isArray(args)
@@ -102,7 +102,7 @@ export class ToolExecutor {
           reason: 'blocked_by_hook',
         },
       });
-      throw new Error('Um hook bloqueou a execucao do runtime para essa tool.');
+      throw new Error('A hook blocked runtime execution for this tool.');
     }
 
     const tool = this.registry.getTool(toolName);
@@ -122,7 +122,7 @@ export class ToolExecutor {
           argKeys,
         },
       });
-      throw new Error(`Ferramenta "${toolName}" nao encontrada no registro.`);
+      throw new Error(`Tool "${toolName}" not found in registry.`);
     }
 
     const securityDecision = this.evaluateSecurityPolicy(toolName, input, metadata, workspace);
@@ -235,7 +235,7 @@ export class ToolExecutor {
       return result;
     } catch (error: unknown) {
       const message = redactSensitiveText(error instanceof Error ? error.message : String(error));
-      this.logRepo.log('error', 'ToolExecutor', `Erro na tool ${toolName}: ${message}`);
+      this.logRepo.log('error', 'ToolExecutor', `Tool ${toolName} failed: ${message}`);
       await this.recordTelemetry(traceId, 'tool.failed', 'failed', {
         toolName,
         errorMessage: message,
@@ -402,7 +402,7 @@ export class ToolExecutor {
     if (decision.action === 'require_confirmation') {
       return [
         formatUserFacingSecurityApprovalMessage(decision),
-        `A tool "${decision.toolName}" exige confirmacao de seguranca antes da execucao.`,
+        `Tool "${decision.toolName}" requires security confirmation before execution.`,
         `Risco: ${decision.risk}.`,
         `Capacidades: ${decision.capabilities.join(', ')}.`,
         `Regra: ${decision.rule}.`,
@@ -411,7 +411,7 @@ export class ToolExecutor {
     }
 
     return [
-      `A tool "${decision.toolName}" foi bloqueada pela politica central de seguranca.`,
+      `Tool "${decision.toolName}" was blocked by the central security policy.`,
       `Regra: ${decision.rule}.`,
       `Motivos: ${decision.reasons.join(' ')}`,
       formatSecurityPolicyReceipt(brokerDecision.receipt),
@@ -429,7 +429,7 @@ export class ToolExecutor {
       .join(', ');
     return [
       `A tool "${toolName}" foi bloqueada pela politica de exfiltracao de dados sensiveis.`,
-      'Use SecretRef ou um canal de credenciais aprovado em vez de passar segredo bruto nos argumentos.',
+      'Use SecretRef or an approved credential channel instead of passing raw secrets in arguments.',
       `Regra: RAW_SECRET_EGRESS_BLOCKED.`,
       `Achados: ${summary}.`,
       formatSecurityPolicyReceipt(brokerDecision.receipt),

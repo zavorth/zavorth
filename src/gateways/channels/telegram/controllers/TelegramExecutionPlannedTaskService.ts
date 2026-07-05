@@ -3,7 +3,7 @@ import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { LocalExecutor } from '../../../../execution/LocalExecutor.js';
 import type { ToolRuntimeService } from '../../../../services/tools/ToolRuntimeService.js';
-import { logger } from '../logger.js';
+import { logger } from '../../../../logger.js';
 
 interface PlannedToolStep {
   type: 'tool';
@@ -69,7 +69,7 @@ export class TelegramExecutionPlannedTaskService {
 
     if (shellCommands.length === 0) {
       return {
-        output: toolResults.trim() || 'Plano executado sem comandos shell.',
+        output: toolResults.trim() || 'Plan executed without shell commands.',
         success: true,
       };
     }
@@ -88,13 +88,13 @@ export class TelegramExecutionPlannedTaskService {
       this.deps.auditLogger
         .logSecurityBlock(
           task.task_id,
-          `Comandos do plano bloqueados pela politica: ${blockedCommands.join(', ')}`,
+          `Plan commands blocked by policy: ${blockedCommands.join(', ')}`,
         )
         .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
       if (allowedCommands.length === 0) {
         return {
-          output: `Todos os comandos do plano foram bloqueados pela politica de seguranca.\n\nBloqueados:\n${blockedCommands.map((command) => `  - ${command}`).join('\n')}`,
+          output: `All plan commands were blocked by security policy.\n\nBlocked:\n${blockedCommands.map((command) => `  - ${command}`).join('\n')}`,
           success: false,
         };
       }
@@ -104,11 +104,11 @@ export class TelegramExecutionPlannedTaskService {
     const workspace = task.workspace || 'core';
     const result = await localExecutor.executeDirect(task, allowedCommands, workspace, false);
     this.deps.storeExecutionResult(task, result);
-    const shellOutput = this.deps.formatExecutionOutput('Plano local', workspace, result);
+    const shellOutput = this.deps.formatExecutionOutput('Local plan', workspace, result);
 
     const blockWarning =
       blockedCommands.length > 0
-        ? `\n\nAvisos: ${blockedCommands.length} comando(s) foram removidos do plano pela politica de seguranca.`
+        ? `\n\nWarnings: ${blockedCommands.length} command(s) were removed from the plan by security policy.`
         : '';
 
     return {

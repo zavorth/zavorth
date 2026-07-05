@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDbInstance } from "@/lib/db/core";
 import { getCallLogRetentionDays } from "@/lib/logEnv";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 export async function POST(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -13,7 +14,8 @@ export async function POST(request: Request) {
     const cutoff = new Date(Date.now() - retentionMs).toISOString();
     const result = db.prepare("DELETE FROM call_logs WHERE timestamp < ?").run(cutoff);
     return NextResponse.json({ deleted: result.changes });
-  } catch (err: unknown) {
+  } catch (error) {
+    logger.warn('[route] delete operation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
   }

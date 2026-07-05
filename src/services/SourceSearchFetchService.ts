@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
+import { logger } from '../logger.js';
 import type {
-  ProxyRoutingPolicyReceipt,
+ProxyRoutingPolicyReceipt,
   SearchFetchReceipt,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 
@@ -87,14 +88,15 @@ export class SourceSearchFetchService {
         reason: `HTTP ${response.status}`,
       });
     } catch (error) {
-      return this.fetchReceipt({
+    logger.warn('[Source Search] network request failed', error);
+    return this.fetchReceipt({
         status: 'failed',
         url,
         resultCount: 0,
         liveNetworkPerformed: true,
         reason: error instanceof Error ? error.message : String(error),
       });
-    } finally {
+  } finally {
       clearTimeout(timeout);
     }
   }

@@ -1,7 +1,7 @@
 import type { ZavorthLayeredMemoryService } from '../services/ZavorthLayeredMemoryService.js';
 import { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
 import type { ZavorthCliFlags, ZavorthCliRuntime } from './ZavorthCliContract.js';
-import type { RuntimeAccessReadinessReport } from '../runtime/access/RuntimeAccessReadinessService.js';
+import type { RuntimeAccessReadinessReport, RuntimeAccessReadinessInput } from '../runtime/access/RuntimeAccessReadinessService.js';
 import type { RuntimeBootstrapReport } from '../runtime/access/RuntimeBootstrapService.js';
 import type { RuntimeBootstrapRepairReport } from '../runtime/access/RuntimeBootstrapRepairService.js';
 import type { ZavorthPlatformRegistrySnapshot, ZavorthPlatformRegistryStatusSummarySnapshot, ZavorthPlatformRegistrySummarySnapshot } from '../services/ZavorthPlatformRegistryService.js';
@@ -721,7 +721,7 @@ async function readCliOpsQualitySnapshot(
     getOperationsHealth: () => runtime.operationsHealthService,
     getLearningPlane: () => runtime.learningPlaneService,
     getLayeredMemory: () => runtime.layeredMemoryService,
-  } as CanonicalPublicApiRuntime);
+  } as unknown as CanonicalPublicApiRuntime);
 
   return await publicApi.readOpsQuality({
     mode: flags.live ? 'live' : 'fast',
@@ -778,8 +778,8 @@ function withCliConsoleSuppressed<T>(fn: () => T): T {
   }
 }
 
-async function buildCliRuntimeAccessProbeInput(runtime: ZavorthCliRuntime): Promise<Record<string, unknown>> {
-  const input: Record<string, unknown> = {};
+async function buildCliRuntimeAccessProbeInput(runtime: ZavorthCliRuntime): Promise<RuntimeAccessReadinessInput> {
+  const input: RuntimeAccessReadinessInput = {};
   if (runtime.learningPlaneService) {
     input.learning = runtime.learningPlaneService.buildSnapshot();
   }
@@ -787,13 +787,13 @@ async function buildCliRuntimeAccessProbeInput(runtime: ZavorthCliRuntime): Prom
     input.layeredMemory = await runtime.layeredMemoryService.buildStatus();
   }
   if (runtime.platformRegistryService) {
-    input.platform = 'buildStatusSummarySnapshot' in runtime.platformRegistryService
+    input.platform = ('buildStatusSummarySnapshot' in runtime.platformRegistryService
       && typeof (runtime.platformRegistryService as PlatformRegistryWithStatus).buildStatusSummarySnapshot === 'function'
         ? (runtime.platformRegistryService as PlatformRegistryWithStatus).buildStatusSummarySnapshot()
         : 'buildSummarySnapshot' in runtime.platformRegistryService
           && typeof runtime.platformRegistryService.buildSummarySnapshot === 'function'
           ? runtime.platformRegistryService.buildSummarySnapshot()
-          : runtime.platformRegistryService.buildSnapshot({});
+          : runtime.platformRegistryService.buildSnapshot({})) as any;
   }
   return input;
 }

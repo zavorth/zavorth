@@ -2,13 +2,13 @@
   "id": "information",
   "name": "Information & Web Search",
   "version": "1.0.0",
-  "description": "Ferramentas para buscar informações na internet e obter data/hora atual.",
+  "description": "Tools for searching the internet and obtaining the current date/time.",
   "category": "information",
   "dangerLevel": "low",
   "tools": [
     {
       "name": "web_search",
-      "description": "Pesquisa informações atualizadas na internet via DuckDuckGo e fallbacks RSS.",
+      "description": "Searches current internet information through DuckDuckGo and RSS fallbacks.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -18,7 +18,7 @@
           },
           "limit": {
             "type": "number",
-            "description": "Número máximo de resultados (default: 3, max: 5)."
+            "description": "Maximum number of results (default: 3, max: 5)."
           }
         },
         "required": ["query"]
@@ -32,7 +32,7 @@
         "properties": {
           "timezone": {
             "type": "string",
-            "description": "Fuso horário (ex: America/Sao_Paulo). Padrão: local."
+            "description": "Time zone, for example America/Sao_Paulo. Default: local."
           }
         }
       }

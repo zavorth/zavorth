@@ -2,6 +2,7 @@ import fs from "fs";
 import crypto from "crypto";
 import { execFile } from "child_process";
 import { execElevatedWindowsScript, execWithPassword } from "../dns/dnsConfig";
+import { logger } from '@/shared/utils/logger';
 
 const IS_WIN = process.platform === "win32";
 const TARGET_HOST = "daily-cloudcode-pa.googleapis.com";
@@ -64,18 +65,14 @@ async function checkCertInstalledMac(certPath) {
       SYSTEM_KEYCHAIN,
     ]);
     return String(stdout).toUpperCase().includes(fingerprint);
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[install] process execution failed', error); return false; }
 }
 
 async function checkCertInstalledWindows() {
   try {
     await execFileCapture("certutil", ["-store", "Root", TARGET_HOST]);
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[install] process execution failed', error); return false; }
 }
 
 /**

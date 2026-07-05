@@ -36,7 +36,7 @@ export function formatStitchSuccessSummary(input: StitchSuccessSummaryInput): st
   ];
 
   if (input.modelId) {
-    lines.push(`Modelo: ${input.modelId}`);
+    lines.push(`Model: ${input.modelId}`);
   }
 
   lines.push('', 'Artefatos gerados:');
@@ -74,7 +74,7 @@ export function classifyStitchError(error: unknown): StitchClassifiedError {
     return {
       code: 'STITCH_OAUTH_REQUIRED',
       message:
-        'Este host ainda nao tem uma credencial OAuth valida para o Stitch. Configure STITCH_ACCESS_TOKEN + GOOGLE_CLOUD_PROJECT para usar /stitch aqui.',
+        'This host does not have a valid OAuth credential for Stitch yet. Configure STITCH_ACCESS_TOKEN + GOOGLE_CLOUD_PROJECT to use /stitch here.',
       stderr: message || null,
     };
   }
@@ -99,7 +99,7 @@ export function classifyStitchError(error: unknown): StitchClassifiedError {
       case 'NETWORK_ERROR':
         return {
           code: 'STITCH_NETWORK_ERROR',
-          message: 'Nao consegui falar com o Stitch pela rede neste momento.',
+          message: 'I could not reach Stitch over the network right now.',
           stderr: String(stitchErr.message || ''),
           suggestion: stitchSuggestion,
         };

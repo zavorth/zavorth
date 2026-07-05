@@ -97,36 +97,36 @@ const TEAM_TEMPLATES: TeamTemplate[] = [
   {
     id: 'review',
     label: 'Review Team',
-    summary: 'Fluxo em duas etapas para revisar codigo, encontrar riscos e devolver uma leitura mais confiavel.',
-    whenToUse: 'Use quando voce quer auditoria de modulo, revisao tecnica ou um segundo passe antes de confiar numa mudanca.',
-    entryCommand: '/workflow review <objetivo>',
+    summary: 'Two-step flow to review code, find risks, and return a more reliable reading.',
+    whenToUse: 'Use when you want module auditing, technical review, or a second pass before trusting a change.',
+    entryCommand: '/workflow review <objective>',
     members: [
       {
         role: 'maker',
         label: 'ExternalExecutor Maker',
         executor: 'external_executor',
-        responsibility: 'Explora o repo, junta contexto e faz a primeira passada da revisao.',
+        responsibility: 'Explores the repo, gathers context, and performs the first review pass.',
       },
       {
         role: 'reviewer',
         label: 'ExternalExecutor Reviewer',
         executor: 'external_executor',
-        responsibility: 'Audita o resultado, destaca riscos e aponta o que ainda merece atencao.',
+        responsibility: 'Audits the result, highlights risks, and points out what still deserves attention.',
       },
     ],
   },
   {
     id: 'ship',
     label: 'Ship Team',
-    summary: 'Time de entrega com implementacao primeiro e revisao cruzada antes do fechamento.',
-    whenToUse: 'Use quando a ideia ja esta relativamente clara e voce quer executar, revisar e fechar a entrega com menos retrabalho.',
-    entryCommand: '/workflow ship <objetivo>',
+    summary: 'Delivery team with implementation first and cross-review before closure.',
+    whenToUse: 'Use when the idea is already fairly clear and you want to execute, review, and close delivery with less rework.',
+    entryCommand: '/workflow ship <objective>',
     members: [
       {
         role: 'maker',
         label: 'Codex Maker',
         executor: 'codex',
-        responsibility: 'Implementa a mudanca direto no workspace e prepara a entrega.',
+        responsibility: 'Implements the change directly in the workspace and prepares delivery.',
       },
       {
         role: 'reviewer',
@@ -139,54 +139,54 @@ const TEAM_TEMPLATES: TeamTemplate[] = [
   {
     id: 'research',
     label: 'Research Team',
-    summary: 'Pesquisa estruturada seguida de sintese final para transformar contexto bruto em briefing acionavel.',
-    whenToUse: 'Use quando a tarefa pede descoberta, comparativo, investigacao externa ou consolidacao de contexto antes de agir.',
-    entryCommand: '/workflow research <objetivo>',
+    summary: 'Structured research followed by final synthesis to turn raw context into an actionable brief.',
+    whenToUse: 'Use when the task needs discovery, comparison, external investigation, or context consolidation before action.',
+    entryCommand: '/workflow research <objective>',
     members: [
       {
         role: 'researcher',
         label: 'AI Studio Researcher',
         executor: 'aistudio',
-        responsibility: 'Coleta sinais, organiza material bruto e amplia o contexto inicial.',
+        responsibility: 'Collects signals, organizes raw material, and expands the initial context.',
       },
       {
         role: 'synthesizer',
         label: 'Codex Synthesizer',
         executor: 'codex',
-        responsibility: 'Condensa a pesquisa em briefing final, resumo executivo ou plano curto.',
+        responsibility: 'Condenses research into a final brief, executive summary, or short plan.',
       },
     ],
   },
   {
     id: 'sdd',
     label: 'SDD Loop Team',
-    summary: 'Loop de spec-driven development com uma etapa por vez, orientado por papel e estado da feature.',
-    whenToUse: 'Use quando voce quer conduzir uma feature por spec, plano, execucao e revisao sem perder a trilha oficial do workflow.',
+    summary: 'Spec-driven development loop with one step at a time, guided by role and feature state.',
+    whenToUse: 'Use when you want to drive a feature through spec, plan, execution, and review without losing the official workflow trail.',
     entryCommand: '/workflow sdd <feature-id>',
     members: [
       {
         role: 'spec',
         label: 'Codex Spec Agent',
         executor: 'codex',
-        responsibility: 'Consolida o spec e fecha ambiguidades da feature.',
+        responsibility: 'Consolidates the spec and closes feature ambiguities.',
       },
       {
         role: 'planner',
         label: 'Codex Planner Agent',
         executor: 'codex',
-        responsibility: 'Traduz o spec em plano tecnico e tasks pequenas.',
+        responsibility: 'Translates the spec into a technical plan and small tasks.',
       },
       {
         role: 'execution',
         label: 'Codex Execution Agent',
         executor: 'codex',
-        responsibility: 'Executa a task ativa respeitando o escopo da feature.',
+        responsibility: 'Executes the active task while respecting the feature scope.',
       },
       {
         role: 'review',
         label: 'ExternalExecutor Review Agent',
         executor: 'external_executor',
-        responsibility: 'Valida coerencia entre spec, plan, tasks e evidencias da execucao.',
+        responsibility: 'Validates consistency between spec, plan, tasks, and execution evidence.',
       },
     ],
   },
@@ -216,7 +216,7 @@ export class ZavorthTeamCatalogService {
       summary,
       teams,
       narrative: {
-        headline: `Zavorth expõe ${summary.total} team(s) compostos para review, entrega, pesquisa e loops SDD.`,
+        headline: `Zavorth exposes ${summary.total} composed team(s) for review, delivery, research, and SDD loops.`,
         operatorSummary: this.buildOperatorSummary(summary),
       },
     };
@@ -281,15 +281,15 @@ export class ZavorthTeamCatalogService {
     },
   ): string {
     if (input.resumable > 0 && input.latestRun) {
-      return `Existe retomada pronta para ${template.label}: ${input.latestRun.workflow_run_id}${input.latestRun.resume_stage?.label ? ` em ${input.latestRun.resume_stage.label}` : ''}${this.buildExternalizedStateSuffix(input.latestRun)} ${this.buildSurfaceSuffix(input.surfaces)}`.trim();
+      return `Resume is ready for ${template.label}: ${input.latestRun.workflow_run_id}${input.latestRun.resume_stage?.label ? ` at ${input.latestRun.resume_stage.label}` : ''}${this.buildExternalizedStateSuffix(input.latestRun)} ${this.buildSurfaceSuffix(input.surfaces)}`.trim();
     }
     if (input.active > 0 && input.latestRun) {
-      return `${template.label} esta ativo agora em ${input.latestRun.workflow_run_id}${this.buildExternalizedStateSuffix(input.latestRun)} ${this.buildSurfaceSuffix(input.surfaces)}`.trim();
+      return `${template.label} is active now in ${input.latestRun.workflow_run_id}${this.buildExternalizedStateSuffix(input.latestRun)} ${this.buildSurfaceSuffix(input.surfaces)}`.trim();
     }
     if (input.total > 0 && input.latestRun) {
-      return `${template.label} ja rodou ${input.total} vez(es); ultima atividade em ${input.latestRun.workflow_run_id}${this.buildExternalizedStateSuffix(input.latestRun)} ${this.buildSurfaceSuffix(input.surfaces)}`.trim();
+      return `${template.label} has run ${input.total} time(s); latest activity in ${input.latestRun.workflow_run_id}${this.buildExternalizedStateSuffix(input.latestRun)} ${this.buildSurfaceSuffix(input.surfaces)}`.trim();
     }
-    return `${template.label} esta pronto para um novo pedido via ${template.entryCommand}. ${this.buildSurfaceSuffix(input.surfaces)}`.trim();
+    return `${template.label} is ready for a new request through ${template.entryCommand}. ${this.buildSurfaceSuffix(input.surfaces)}`.trim();
   }
 
   private buildExternalizedStateSuffix(run: WorkflowRunSnapshot | null): string {
@@ -318,13 +318,13 @@ export class ZavorthTeamCatalogService {
 
   private buildOperatorSummary(summary: ZavorthTeamCatalogSnapshot['summary']): string {
     const parts = [
-      `${summary.total} team(s) compostos`,
-      summary.resumable ? `${summary.resumable} com retomada pronta` : 'sem retomadas abertas',
-      summary.active ? `${summary.active} ativo(s)` : 'nenhum ativo agora',
-      summary.completedRecently ? `${summary.completedRecently} fechamento(s) recente(s)` : 'sem fechamentos recentes',
+      `${summary.total} composed team(s)`,
+      summary.resumable ? `${summary.resumable} ready to resume` : 'no open resumptions',
+      summary.active ? `${summary.active} active` : 'none active now',
+      summary.completedRecently ? `${summary.completedRecently} recent completion(s)` : 'no recent completions',
     ];
     if (summary.executors.length) {
-      parts.push(`executores visiveis: ${summary.executors.join(', ')}`);
+      parts.push(`visible executors: ${summary.executors.join(', ')}`);
     }
     return parts.join(' | ');
   }
@@ -361,15 +361,15 @@ export class ZavorthTeamCatalogService {
         surfaceId: 'telegram',
         label: 'Telegram',
         status: 'available',
-        summary: 'Disponivel no gateway principal por /workflow.',
-        actionHint: '/workflow <review|ship|research|sdd> <objetivo>',
+        summary: 'Available in the main gateway through /workflow.',
+        actionHint: '/workflow <review|ship|research|sdd> <objective>',
       },
       {
         surfaceId: 'web',
-        label: 'Web autenticada',
+        label: 'Authenticated Web',
         status: 'available',
-        summary: 'Disponivel no /app, no composer e no Agent OS limitado.',
-        actionHint: 'Use o /app autenticado para abrir ou retomar o fluxo.',
+        summary: 'Available in /app, the composer, and the limited Agent OS.',
+        actionHint: 'Use the authenticated /app to open or resume the flow.',
       },
       discordDm,
       discordChannel,
@@ -387,16 +387,16 @@ export class ZavorthTeamCatalogService {
           surfaceId: 'discord_dm',
           label: 'Discord owner DM',
           status: 'blocked',
-          summary: 'Modo publico ativo, mas ainda nao existe owner configurado para usar /workflow em DM.',
-          actionHint: 'Defina DISCORD_OWNER_USER_IDS antes de depender de workflows no Discord.',
+          summary: 'Public mode is active, but no owner is configured to use /workflow in DM.',
+          actionHint: 'Set DISCORD_OWNER_USER_IDS before depending on Discord workflows.',
         };
       }
       return {
         surfaceId: 'discord_dm',
         label: 'Discord owner DM',
         status: 'owner_only',
-        summary: 'No Discord publico, workflows compostos ficam restritos a DM owner-only.',
-        actionHint: 'Use DM com o bot para rodar /workflow com contexto operacional.',
+        summary: 'In public Discord mode, composed workflows are restricted to owner-only DMs.',
+        actionHint: 'Use DM with the bot to run /workflow with operational context.',
       };
     }
 
@@ -406,16 +406,16 @@ export class ZavorthTeamCatalogService {
           surfaceId: 'discord_dm',
           label: 'Discord owner DM',
           status: 'blocked',
-          summary: 'O runtime exige owner para comandos operacionais, mas nenhum owner foi configurado.',
-          actionHint: 'Defina DISCORD_OWNER_USER_IDS antes de abrir workflows no Discord.',
+          summary: 'The runtime requires an owner for operational commands, but no owner was configured.',
+          actionHint: 'Set DISCORD_OWNER_USER_IDS before opening workflows on Discord.',
         };
       }
       return {
         surfaceId: 'discord_dm',
         label: 'Discord owner DM',
         status: 'owner_only',
-        summary: 'Comandos operacionais do Discord pedem owner neste runtime.',
-        actionHint: 'Use uma DM owner-only quando quiser rodar /workflow pelo Discord.',
+        summary: 'Discord operational commands require an owner in this runtime.',
+        actionHint: 'Use an owner-only DM when you want to run /workflow through Discord.',
       };
     }
 
@@ -423,8 +423,8 @@ export class ZavorthTeamCatalogService {
       surfaceId: 'discord_dm',
       label: 'Discord DM',
       status: 'available',
-      summary: 'Disponivel em DM para owner/operator quando a surface do Discord estiver ativa.',
-      actionHint: 'Use DM para abrir ou retomar um workflow sem expor contexto em canal.',
+      summary: 'Available in DM for owner/operator when the Discord surface is active.',
+      actionHint: 'Use DM to open or resume a workflow without exposing context in a channel.',
     };
   }
 
@@ -440,8 +440,8 @@ export class ZavorthTeamCatalogService {
         surfaceId: 'discord_channel',
         label: 'Discord channel',
         status: 'restricted',
-        summary: 'Discord publico esta fail-closed ate configurar canais permitidos.',
-        actionHint: 'Preencha DISCORD_ALLOWED_CHANNEL_IDS antes de liberar trafego publico.',
+        summary: 'Public Discord is fail-closed until allowed channels are configured.',
+        actionHint: 'Fill DISCORD_ALLOWED_CHANNEL_IDS before allowing public traffic.',
       };
     }
 
@@ -450,8 +450,8 @@ export class ZavorthTeamCatalogService {
         surfaceId: 'discord_channel',
         label: 'Discord channel',
         status: 'blocked',
-        summary: 'Slash commands do Discord estao desabilitados por policy neste runtime.',
-        actionHint: 'Ajuste DISCORD_COMMAND_EXPOSURE se quiser expor slash commands no Discord.',
+        summary: 'Discord slash commands are disabled by policy in this runtime.',
+        actionHint: 'Adjust DISCORD_COMMAND_EXPOSURE if you want to expose slash commands on Discord.',
       };
     }
 
@@ -460,8 +460,8 @@ export class ZavorthTeamCatalogService {
         surfaceId: 'discord_channel',
         label: 'Discord public channel',
         status: 'blocked',
-        summary: 'Em servidor publico, /workflow nao fica exposto nos canais; use DM owner-only.',
-        actionHint: 'Mantenha workflows compostos fora dos canais publicos do servidor.',
+        summary: 'On a public server, /workflow is not exposed in channels; use owner-only DM.',
+        actionHint: 'Keep composed workflows out of public server channels.',
       };
     }
 
@@ -470,8 +470,8 @@ export class ZavorthTeamCatalogService {
         surfaceId: 'discord_channel',
         label: 'Discord channel',
         status: 'blocked',
-        summary: 'O runtime esta em exposure minimal, entao /workflow nao aparece em canais do Discord.',
-        actionHint: 'Suba para exposure operator se quiser slash /workflow em contexto operacional.',
+        summary: 'The runtime is in minimal exposure, so /workflow does not appear in Discord channels.',
+        actionHint: 'Move to operator exposure if you want slash /workflow in operational context.',
       };
     }
 
@@ -481,11 +481,11 @@ export class ZavorthTeamCatalogService {
         label: 'Discord channel',
         status: input.ownerCount > 0 ? 'owner_only' : 'blocked',
         summary: input.ownerCount > 0
-          ? 'Disponivel apenas para owner em contexto operacional do Discord.'
-          : 'O runtime exige owner para /workflow, mas nenhum owner foi configurado.',
+          ? 'Available only to owners in Discord operational context.'
+          : 'The runtime requires an owner for /workflow, but no owner was configured.',
         actionHint: input.ownerCount > 0
-          ? 'Use um canal operacional controlado ou prefira DM owner-only.'
-          : 'Defina owners antes de confiar em workflows compostos no Discord.',
+          ? 'Use a controlled operational channel or prefer owner-only DM.'
+          : 'Set owners before trusting composed workflows on Discord.',
       };
     }
 
@@ -493,8 +493,8 @@ export class ZavorthTeamCatalogService {
       surfaceId: 'discord_channel',
       label: 'Discord channel',
       status: 'available',
-      summary: 'Disponivel em contexto operacional do Discord quando slash operator estiver habilitado.',
-      actionHint: 'Use canais operacionais controlados para evitar expor contexto desnecessario.',
+      summary: 'Available in Discord operational context when slash operator exposure is enabled.',
+      actionHint: 'Use controlled operational channels to avoid exposing unnecessary context.',
     };
   }
 
@@ -505,13 +505,13 @@ export class ZavorthTeamCatalogService {
 
     const parts: string[] = [];
     if (available.length > 0) {
-      parts.push(`Disponivel em ${available.join(', ')}`);
+      parts.push(`Available in ${available.join(', ')}`);
     }
     if (ownerOnly.length > 0) {
-      parts.push(`owner-only em ${ownerOnly.join(', ')}`);
+      parts.push(`owner-only in ${ownerOnly.join(', ')}`);
     }
     if (blocked.length > 0) {
-      parts.push(`bloqueado/restrito em ${blocked.join(', ')}`);
+      parts.push(`blocked/restricted in ${blocked.join(', ')}`);
     }
     return parts.length > 0 ? `${parts.join(' | ')}.` : '';
   }

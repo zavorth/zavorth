@@ -80,7 +80,6 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
       surfaceCards,
       apiProjection,
       zavorthControlProjection: zavorthControlProjection,
-      zavorthControlProjection,
       channelFallbacks,
       receipts,
       safety,
@@ -140,15 +139,15 @@ function buildSurfaceCard(
   const summary = summaryForSurface(surface, runtime);
   const lines = [
     `Status: ${runtime.status}`,
-    `Rotas: ${runtime.summary.routes}; verificações bloqueantes: ${runtime.summary.blockingVerification}`,
-    `Resposta final permitida: ${runtime.finalAnswerGuard.canClaimCompletion ? 'sim' : 'não'}`,
+    `Routes: ${runtime.summary.routes}; blocking verifications: ${runtime.summary.blockingVerification}`,
+    `Final answer allowed: ${runtime.finalAnswerGuard.canClaimCompletion ? 'yes' : 'no'}`,
     ...routes.map((route) => `${route.title}: ${route.decision} (${route.surface})`),
   ];
   const metrics = [
     metric('rotas', String(runtime.summary.routes), toneForCount(runtime.summary.routes)),
-    metric('aprovações', String(runtime.summary.approvalRoutes), runtime.summary.approvalRoutes > 0 ? 'attention' : 'success'),
+    metric('approvals', String(runtime.summary.approvalRoutes), runtime.summary.approvalRoutes > 0 ? 'attention' : 'success'),
     metric('bloqueios', String(runtime.summary.deniedRoutes), runtime.summary.deniedRoutes > 0 ? 'blocked' : 'success'),
-    metric('verificação', `${runtime.summary.satisfiedVerification}/${runtime.summary.verificationItems}`, runtime.summary.blockingVerification > 0 ? 'attention' : 'success'),
+    metric('verification', `${runtime.summary.satisfiedVerification}/${runtime.summary.verificationItems}`, runtime.summary.blockingVerification > 0 ? 'attention' : 'success'),
   ];
 
   return {
@@ -183,27 +182,27 @@ function buildActions(
   const routeKinds = uniqueKinds(routes);
   const actions: ZavorthCrossSurfaceActionProjection[] = [];
   if (status === 'blocked') {
-    actions.push(action(surface, 'blocked', 'Explicar bloqueio', '/invoke explain-block', routeKinds, false, false, 'A política bloqueou a rota original.'));
-    actions.push(action(surface, 'secondary', 'Sugerir caminho seguro', '/invoke safe-alternative', routeKinds, true, false, 'O usuário pode receber alternativa sem impacto externo.'));
+    actions.push(action(surface, 'blocked', 'Explain Block', '/invoke explain-block', routeKinds, false, false, 'The policy blocked the original route.'));
+    actions.push(action(surface, 'secondary', 'Suggest Safe Path', '/invoke safe-alternative', routeKinds, true, false, 'The user can receive an alternative without external impact.'));
     return actions;
   }
   if (status === 'approval-required') {
-    actions.push(action(surface, 'approval', 'Pedir aprovação', '/approve pending-action', routeKinds, true, true, 'Há escrita, comando, envio externo ou impacto live.'));
-    actions.push(action(surface, 'secondary', 'Replanejar read-only', '/invoke readonly-plan', routeKinds, true, false, 'Mantém progresso sem mutação.'));
+    actions.push(action(surface, 'approval', 'Request Approval', '/approve pending-action', routeKinds, true, true, 'There is write, command, external send, or live impact.'));
+    actions.push(action(surface, 'secondary', 'Replan Read-Only', '/invoke readonly-plan', routeKinds, true, false, 'Keeps progress without mutation.'));
     return actions;
   }
   if (status === 'needs-setup') {
-    actions.push(action(surface, 'setup', 'Rodar doctor', '/doctor required-surface', routeKinds, true, false, 'A superfície necessária ainda não está configurada.'));
-    actions.push(action(surface, 'secondary', 'Usar fallback seguro', '/invoke fallback', routeKinds, true, false, 'Usa uma superfície alternativa quando existir.'));
+    actions.push(action(surface, 'setup', 'Run Doctor', '/doctor required-surface', routeKinds, true, false, 'The required surface is not configured yet.'));
+    actions.push(action(surface, 'secondary', 'Use Safe Fallback', '/invoke fallback', routeKinds, true, false, 'Uses an alternative surface when available.'));
     return actions;
   }
   if (status === 'verification-required') {
-    actions.push(action(surface, 'verification', 'Anexar evidência', '/verify attach-evidence', routeKinds, true, false, 'É preciso evidência antes de afirmar conclusão.'));
-    actions.push(action(surface, 'primary', 'Continuar observando', '/invoke continue-readonly', routeKinds, true, false, 'Ações read-only podem continuar sob política.'));
+    actions.push(action(surface, 'verification', 'Attach Evidence', '/verify attach-evidence', routeKinds, true, false, 'Evidence is required before claiming completion.'));
+    actions.push(action(surface, 'primary', 'Keep Observing', '/invoke continue-readonly', routeKinds, true, false, 'Read-only actions can continue under policy.'));
     return actions;
   }
-  actions.push(action(surface, 'primary', 'Responder com evidência', '/invoke answer-with-evidence', routeKinds, true, false, 'A verificação suficiente já foi registrada.'));
-  actions.push(action(surface, 'secondary', 'Mostrar recibos', '/receipts latest', routeKinds, true, false, 'Exibe a rastreabilidade da execução.'));
+  actions.push(action(surface, 'primary', 'Answer With Evidence', '/invoke answer-with-evidence', routeKinds, true, false, 'Sufficient verification has already been recorded.'));
+  actions.push(action(surface, 'secondary', 'Show Receipts', '/receipts latest', routeKinds, true, false, 'Shows execution traceability.'));
   return actions;
 }
 
@@ -242,7 +241,7 @@ function buildFallbacks(cards: ZavorthCrossSurfaceProjectionCard[]): Record<Zavo
   const fallback = {} as Record<ZavorthCrossSurfaceProjectionSurface, string>;
   for (const surface of DEFAULT_SURFACES) {
     const card = cards.find((item) => item.surface === surface);
-    fallback[surface] = card?.fallbackText || `${titleForSurface(surface)} sem projeção ativa.`;
+    fallback[surface] = card?.fallbackText || `${titleForSurface(surface)} has no active projection.`;
   }
   return fallback;
 }
@@ -255,19 +254,19 @@ function buildApiProjection(runtime: ZavorthToolOrchestrationVerificationSnapsho
       {
         method: 'GET',
         path: '/api/runtime/projection',
-        purpose: 'Ler projeção cross-surface atual.',
+        purpose: 'Read the current cross-surface projection.',
         requiresApproval: false,
       },
       {
         method: 'POST',
         path: '/api/runtime/invoke',
-        purpose: 'Solicitar execução governada da ação projetada.',
+        purpose: 'Request governed execution of the projected action.',
         requiresApproval: runtime.status === 'approval-required',
       },
       {
         method: 'POST',
         path: '/api/runtime/verify',
-        purpose: 'Anexar evidência e recibos de verificação.',
+        purpose: 'Attach evidence and verification receipts.',
         requiresApproval: false,
       },
     ],
@@ -304,7 +303,7 @@ function buildReceipts(
       kind: 'checkpoint-5-cross-surface-projection',
       surface: 'all',
       status: receiptStatus(status),
-      summary: `${cards.length} superfícies receberam a mesma decisão sem executar ação live.`,
+      summary: `${cards.length} surfaces received the same decision without executing a live action.`,
     },
     {
       id: 'checkpoint-5-api-projection-receipt',
@@ -319,8 +318,8 @@ function buildReceipts(
       surface: 'command_center',
       status: 'recorded',
       summary: zavorthControl.visualMutationApplied
-        ? 'Mutação visual aplicada.'
-        : 'ZavorthControl recebeu apenas view-model; mudança visual exige aprovação separada.',
+        ? 'Visual mutation applied.'
+        : 'ZavorthControl received only a view model; visual change requires separate approval.',
     },
   ];
   for (const card of cards) {
@@ -337,8 +336,6 @@ function buildReceipts(
 
 function buildSafety(): ZavorthCrossSurfaceProjectionSafety {
   return {
-    noZavorthControlVisualMutation: true,
-    zavorthControlIsViewModelOnly: true,
     noZavorthControlVisualMutation: true,
     zavorthControlIsViewModelOnly: true,
     noLiveActionExecuted: true,
@@ -369,10 +366,10 @@ function summaryForSurface(
   surface: ZavorthCrossSurfaceProjectionSurface,
   runtime: ZavorthToolOrchestrationVerificationSnapshot,
 ): string {
-  if (surface === 'cli') return `Tabela operacional pronta com ${runtime.summary.routes} rotas e ${runtime.summary.verificationItems} verificações.`;
+  if (surface === 'cli') return `Operational table ready with ${runtime.summary.routes} routes and ${runtime.summary.verificationItems} verifications.`;
   if (surface === 'api') return `Payload JSON pronto para status ${runtime.status}.`;
-  if (surface === 'command_center') return 'View-model seguro para o ZavorthControl, sem alteração visual automática.';
-  if (BUTTON_SURFACES.has(surface)) return `Menus e botões projetados para status ${runtime.status}.`;
+  if (surface === 'command_center') return 'Safe view model for ZavorthControl, with no automatic visual change.';
+  if (BUTTON_SURFACES.has(surface)) return `Menus and buttons projected for status ${runtime.status}.`;
   return `Fallback textual equivalente projetado para status ${runtime.status}.`;
 }
 
@@ -384,9 +381,9 @@ function fallbackForSurface(
   const primary = actions.find((item) => item.enabled)?.label || 'Ver status';
   if (surface === 'cli') return `Status ${status}. Use: ${actions.map((item) => item.command).join(' | ')}`;
   if (surface === 'api') return `GET /api/runtime/projection retorna status ${status}.`;
-  if (surface === 'command_center') return `ZavorthControl pode mostrar status ${status}, aguardando aprovação visual para novos cards.`;
-  if (BUTTON_SURFACES.has(surface)) return `${titleForSurface(surface)}: ${status}. Ação sugerida: ${primary}.`;
-  return `${titleForSurface(surface)}: ${status}. Responda com o comando textual "${actions[0]?.command || '/status'}" para continuar.`;
+  if (surface === 'command_center') return `ZavorthControl can show status ${status}, waiting for visual approval for new cards.`;
+  if (BUTTON_SURFACES.has(surface)) return `${titleForSurface(surface)}: ${status}. Suggested action: ${primary}.`;
+  return `${titleForSurface(surface)}: ${status}. Reply with the text command "${actions[0]?.command || '/status'}" to continue.`;
 }
 
 function titleForSurface(surface: ZavorthCrossSurfaceProjectionSurface): string {
@@ -430,35 +427,35 @@ function buildNarrative(
 ): ZavorthCrossSurfaceRuntimeProjectionSnapshot['narrative'] {
   if (status === 'ready') {
     return {
-      headline: 'Projeção pronta para resposta final com evidência.',
-      operatorSummary: `${cards.length} superfícies receberam ações equivalentes e o ZavorthControl ficou em modo view-model.`,
-      nextAction: 'Responder com evidência ou expor recibos.',
+      headline: 'Projection ready for final answer with evidence.',
+      operatorSummary: `${cards.length} surfaces received equivalent actions and ZavorthControl stayed in view-model mode.`,
+      nextAction: 'Answer with evidence or expose receipts.',
     };
   }
   if (status === 'approval-required') {
     return {
-      headline: 'Ação live precisa de aprovação antes de continuar.',
-      operatorSummary: 'As superfícies exibem a mesma fronteira de aprovação.',
-      nextAction: 'Pedir aprovação ou replanejar em modo read-only.',
+      headline: 'Live action needs approval before continuing.',
+      operatorSummary: 'Surfaces show the same approval boundary.',
+      nextAction: 'Request approval or replan in read-only mode.',
     };
   }
   if (status === 'needs-setup') {
     return {
-      headline: 'Uma superfície necessária precisa de setup.',
-      operatorSummary: 'Canais e CLI receberam ação de doctor/fallback sem tentar executar setup automaticamente.',
-      nextAction: 'Rodar doctor da superfície ausente.',
+      headline: 'A required surface needs setup.',
+      operatorSummary: 'Channels and CLI received doctor/fallback actions without attempting setup automatically.',
+      nextAction: 'Run doctor for the missing surface.',
     };
   }
   if (status === 'blocked') {
     return {
-      headline: 'Rota bloqueada pela política.',
-      operatorSummary: 'Todas as superfícies preservam o bloqueio e oferecem alternativa segura.',
+      headline: 'Route blocked by policy.',
+      operatorSummary: 'All surfaces preserve the block and offer a safe alternative.',
       nextAction: 'Explicar o bloqueio e sugerir uma rota permitida.',
     };
   }
   return {
-    headline: 'Verificação necessária antes de afirmar conclusão.',
-    operatorSummary: `${cards.length} superfícies mostram a necessidade de evidência. Mutação visual aplicada: ${zavorthControl.visualMutationApplied}.`,
-    nextAction: 'Anexar evidência, recibos ou screenshots antes da resposta final.',
+    headline: 'Verification required before claiming completion.',
+    operatorSummary: `${cards.length} surfaces show the need for evidence. Visual mutation applied: ${zavorthControl.visualMutationApplied}.`,
+    nextAction: 'Attach evidence, receipts, or screenshots before the final answer.',
   };
 }

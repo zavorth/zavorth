@@ -5,6 +5,7 @@ import { startTool } from "@/lib/versionManager";
 import { versionManagerToolSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 export async function POST(request: Request) {
   const authError = await requireStrictManagementAuth(request);
@@ -13,7 +14,8 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 

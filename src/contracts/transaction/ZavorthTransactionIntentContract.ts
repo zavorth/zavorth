@@ -181,13 +181,13 @@ export const ZAVORTH_TRANSACTION_INTENT_SUPPORTED_TARGETS: readonly ZavorthTrans
 
 export const ZAVORTH_TRANSACTION_INTENT_EXAMPLES: readonly ZavorthTransactionIntentExample[] = [
   {
-    text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
     expectedKind: 'execute-trade',
     expectedActionKind: 'trade-order',
     expectedRoute: 'approval-proposal',
   },
   {
-    text: 'Monitore notebook abaixo de R$3500 e me avise.',
+    text: 'Monitor notebook below R$3500 and notify me.',
     expectedKind: 'monitor-price',
     expectedActionKind: 'price-monitor',
     expectedRoute: 'tool-preview',

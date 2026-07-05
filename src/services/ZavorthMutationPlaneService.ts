@@ -2,8 +2,9 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthApprovalDescriptor,
+ZavorthApprovalDescriptor,
   ZavorthMutationDomain,
   ZavorthMutationPlan,
   ZavorthMutationRiskLevel,
@@ -141,9 +142,7 @@ export class ZavorthMutationPlaneService {
     try {
       const plan = JSON.parse(this.readFileSync(filePath, 'utf8')) as ZavorthMutationPlan;
       return this.expireIfNeeded(plan);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth  Plane] JSON parse failed', error); return null; }
   }
 
   public listPlans(options: ZavorthMutationPlanListOptions = {}): ZavorthMutationPlan[] {
@@ -264,9 +263,7 @@ export class ZavorthMutationPlaneService {
           this.unlinkSync(filePath);
           removed += 1;
         }
-      } catch {
-        // Arquivos quebrados nao podem travar o runtime; ficam para limpeza manual.
-      }
+      } catch (error) { // Arquivos quebrados nao podem travar o runtime; ficam para limpeza manual. logger.warn('[Zavorth  Plane] JSON parse failed', error); }
     }
     return removed;
   }

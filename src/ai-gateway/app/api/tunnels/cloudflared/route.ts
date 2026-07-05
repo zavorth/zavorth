@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireManagementAuth, requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 import {
-  getCloudflaredTunnelStatus,
+getCloudflaredTunnelStatus,
   startCloudflaredTunnel,
   stopCloudflaredTunnel,
 } from "@/lib/cloudflaredTunnel";
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
     const status = await getCloudflaredTunnelStatus();
     return NextResponse.json(status);
   } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : "Failed to load cloudflared tunnel status",
@@ -38,7 +40,8 @@ export async function POST(request: NextRequest) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] load operation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
@@ -59,6 +62,7 @@ export async function POST(request: NextRequest) {
       status,
     });
   } catch (error) {
+    logger.warn('[route] parsing failed', error);
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : "Failed to update cloudflared tunnel",

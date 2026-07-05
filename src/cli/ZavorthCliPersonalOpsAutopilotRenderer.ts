@@ -34,7 +34,7 @@ export function buildPersonalOpsAutopilotCliSnapshot(input: {
       runBudget: {
         source: 'RunBudgetPolicy',
         degraded: true,
-        reason: 'estimativa acima do budget configurado',
+        reason: 'estimativa acima do budget configured',
         estimatedCostUnits: 7,
         maxEstimatedCostUnits: 4,
       },
@@ -113,7 +113,7 @@ export function formatPersonalOpsAutopilotSnapshot(
 ): string {
   const lines = [
     'Personal Ops Autopilot - Personal Ops Autopilot',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,
     `- sugestoes: ${snapshot.summary.suggestionCount}`,
@@ -121,7 +121,7 @@ export function formatPersonalOpsAutopilotSnapshot(
     `- approval: ${snapshot.summary.approvalRequiredCount}`,
     `- preview: ${snapshot.summary.previewAvailableCount}`,
     `- mutaveis: ${snapshot.summary.mutableActionCount}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Sugestoes',
   ];
@@ -131,16 +131,16 @@ export function formatPersonalOpsAutopilotSnapshot(
       `- ${suggestion.category}: ${suggestion.title} [${suggestion.severity}]`,
       `  causa: ${suggestion.cause}`,
       `  impacto: ${suggestion.impact}`,
-      `  proximo: ${suggestion.nextStep}`,
+      `  next: ${suggestion.nextStep}`,
       `  preview: ${suggestion.actions.previewCommand}`,
     );
   }
 
   lines.push('', 'Politica');
-  lines.push('- nenhuma acao mutavel foi executada');
-  lines.push('- autorepair nao foi iniciado');
+  lines.push('- no mutable action was executed');
+  lines.push('- autorepair was not started');
   lines.push('- mutacoes exigem preview e approval');
-  lines.push('- sugestoes usam receipts e nao serializam secrets');
+  lines.push('- suggestions use receipts and do not serialize secrets');
 
   lines.push('', 'Superficies');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);

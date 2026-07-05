@@ -5,6 +5,7 @@ import type { DesktopResourceSnapshot } from '../contracts/DesktopResourceContra
 import { compactDesktopResourceHistoryEntries } from '../core/MinimalDesktopResourceHistoryCompactor.js';
 import { DesktopResourceClassifierService } from './DesktopResourceClassifierService.js';
 import { DesktopResourceCollectorService } from './DesktopResourceCollectorService.js';
+import { logger } from '../logger.js';
 
 type DesktopResourcePlaneRuntime = {
   latestFilePath?: string;
@@ -66,9 +67,7 @@ export class DesktopResourcePlaneService {
       const parsed = JSON.parse(fs.readFileSync(this.latestFilePath, 'utf8')) as DesktopResourceSnapshot;
       this.lastSnapshot = parsed;
       return parsed;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Desktop Resource Plane] JSON parse failed', error); return null; }
   }
 
   public renderReport(snapshot: DesktopResourceSnapshot): string {
@@ -147,9 +146,7 @@ export class DesktopResourcePlaneService {
       }
       try {
         entries.push(JSON.parse(trimmed));
-      } catch {
-        // Corrupted history lines are ignored on the next successful snapshot write.
-      }
+      } catch (error) { // Corrupted history lines are ignored on the next successful snapshot write. logger.warn('[Desktop Resource Plane] JSON parse failed', error); }
     }
     return entries;
   }

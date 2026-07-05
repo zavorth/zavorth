@@ -9,6 +9,7 @@ import {
   type ZavorthSettingsBackup,
 } from "@/lib/db/jsonBackupAdapters";
 import { runJsonMigration } from "@/lib/db/jsonMigration";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * POST /api/settings/import-json
@@ -46,12 +47,13 @@ export async function POST(request: Request) {
     let parsed: unknown;
     try {
       parsed = JSON.parse(rawText);
-    } catch {
-      return NextResponse.json(
+    } catch (error) {
+    logger.warn('[route] JSON parse failed', error);
+    return NextResponse.json(
         { error: "Invalid JSON: the file could not be parsed. Please upload a valid .json backup." },
         { status: 400 }
       );
-    }
+  }
 
     const validation = validateZavorthSettingsBackup(parsed);
     if (!validation.ok) {

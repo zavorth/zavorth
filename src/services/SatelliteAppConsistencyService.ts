@@ -12,6 +12,7 @@ import { ZAVORTH_SATELLITE_APP_CONSISTENCY_CONTRACT_VERSION } from '../contracts
 import type { NodeMeshCapabilityId } from '../contracts/NodeMeshContract.js';
 import type { ZavorthPluginManifest, ZavorthPluginPermission } from '../contracts/PluginManifestContract.js';
 import { ZAVORTH_PLUGIN_OS_API_VERSION } from '../contracts/PluginManifestContract.js';
+import { logger } from '../logger.js';
 
 type SatelliteAppConsistencyRuntime = {
   now?: () => Date;
@@ -559,9 +560,7 @@ export class SatelliteAppConsistencyService {
     const absolutePath = path.join(rootDir, SOURCE_FILE_NAMES[key]);
     try {
       return fs.readFileSync(absolutePath, 'utf8');
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Satellite App Consistency] filesystem operation failed', error); return ''; }
   }
 }
 

@@ -2,13 +2,15 @@ import { NextResponse } from "next/server";
 import { validateApiKey, getModelAliases } from "@/models";
 import { cloudResolveAliasSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 // Resolve model alias to provider/model
 export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json(
       { error: { message: "Invalid request", details: [{ field: "body", message: "Invalid JSON body" }] } },
       { status: 400 }

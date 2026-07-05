@@ -1,7 +1,7 @@
 import { config } from '../../config/index.js';
 import { normalizeZavorthBridgeUiText } from '../../services/ZavorthBridgeUiResponseHeuristics.js';
 
-interface UiStateSnapshot {
+export interface UiStateSnapshot {
   ok?: boolean;
   status?: string;
   responseText?: string;
@@ -22,7 +22,7 @@ interface AutomationSurface {
   message?: string;
 }
 
-interface CompanionBridge {
+export interface CompanionBridge {
   supports: (capability: string) => Promise<boolean>;
   executeCommand: (command: string, args: string[], taskId: string, timeoutMs: number, targetInstanceId: string, tolerateMissing?: boolean) => Promise<unknown>;
   sendAgentPrompt: (prompt: string, taskId: string, timeoutMs: number, targetInstanceId: string) => Promise<unknown>;
@@ -31,7 +31,7 @@ interface CompanionBridge {
   closeAllEditors?: (taskId: string, timeoutMs: number, targetInstanceId: string) => Promise<unknown>;
 }
 
-interface WindowAutomator {
+export interface WindowAutomator {
   focusWindow: (delayMs: number, processId: number) => Promise<unknown>;
   ensureConversationSurface: (delayMs: number, processId: number) => Promise<AutomationSurface | null>;
   pasteAndSubmit: (prompt: string, initialDelayMs: number, targetPid: number) => Promise<unknown>;
@@ -171,21 +171,20 @@ export async function clearBlockingPermissionPrompt(input: {
     return null;
   }
 
-  if (typeof input.windowAutomator.rejectVisibleStep === 'function') {
+  if (input.windowAutomator.rejectVisibleStep) {
     await input.windowAutomator.rejectVisibleStep(0, input.targetPid).catch(() => undefined);
   }
 
-  const canVerifyClear = typeof input.windowAutomator.waitForPermissionPromptToClear === 'function';
-  const clearedAfterReject = canVerifyClear
+  const clearedAfterReject = input.windowAutomator.waitForPermissionPromptToClear
     ? await input.windowAutomator.waitForPermissionPromptToClear(input.targetPid, 3, 250).catch(() => false)
     : false;
   if (clearedAfterReject) {
     return 'window-automation:reject-stale-permission-prompt';
   }
 
-  if (await input.companionBridge.supports('canResetSession')) {
+  if (await input.companionBridge.supports('canResetSession') && input.companionBridge.resetSession) {
     await input.companionBridge.resetSession(input.taskId, 12000, input.targetInstanceId).catch(() => undefined);
-    const clearedAfterReset = canVerifyClear
+    const clearedAfterReset = input.windowAutomator.waitForPermissionPromptToClear
       ? await input.windowAutomator.waitForPermissionPromptToClear(input.targetPid, 4, 400).catch(() => false)
       : false;
     if (clearedAfterReset) {
@@ -193,9 +192,9 @@ export async function clearBlockingPermissionPrompt(input: {
     }
   }
 
-  if (await input.companionBridge.supports('canStartNewConversation')) {
+  if (await input.companionBridge.supports('canStartNewConversation') && input.companionBridge.startNewConversation) {
     await input.companionBridge.startNewConversation(input.taskId, 8000, input.targetInstanceId).catch(() => undefined);
-    const clearedAfterRestart = canVerifyClear
+    const clearedAfterRestart = input.windowAutomator.waitForPermissionPromptToClear
       ? await input.windowAutomator.waitForPermissionPromptToClear(input.targetPid, 4, 400).catch(() => false)
       : false;
     if (clearedAfterRestart) {
@@ -220,15 +219,15 @@ export async function clearBlockingArtifactEditor(input: {
 
   const actions: string[] = [];
 
-  if (await input.companionBridge.supports('canCloseAllEditors')) {
+  if (await input.companionBridge.supports('canCloseAllEditors') && input.companionBridge.closeAllEditors) {
     await input.companionBridge.closeAllEditors(input.taskId, 8000, input.targetInstanceId).catch(() => undefined);
     actions.push('companion-bridge:close-all-editors-from-artifact-editor');
-  } else if (await input.companionBridge.supports('canResetSession')) {
+  } else if (await input.companionBridge.supports('canResetSession') && input.companionBridge.resetSession) {
     await input.companionBridge.resetSession(input.taskId, 12000, input.targetInstanceId).catch(() => undefined);
     actions.push('companion-bridge:reset-session-from-artifact-editor');
   }
 
-  if (await input.companionBridge.supports('canStartNewConversation')) {
+  if (await input.companionBridge.supports('canStartNewConversation') && input.companionBridge.startNewConversation) {
     await input.companionBridge.startNewConversation(input.taskId, 8000, input.targetInstanceId).catch(() => undefined);
     actions.push('companion-bridge:start-new-conversation-from-artifact-editor');
   }
@@ -300,7 +299,7 @@ export async function prepareDirectChatSurface(input: {
 
   for (const sequence of commandSequences) {
     if (sequence.startConversation) {
-      if (await input.companionBridge.supports('canStartNewConversation')) {
+      if (await input.companionBridge.supports('canStartNewConversation') && input.companionBridge.startNewConversation) {
         await input.companionBridge.startNewConversation(input.taskId, 8000, input.targetInstanceId).catch(() => undefined);
       } else {
         continue;

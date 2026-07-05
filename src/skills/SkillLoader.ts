@@ -90,8 +90,8 @@ type SkillLoaderRuntime = {
 };
 
 /**
- * SkillLoader - le skills aprovadas pelo registry/policy e agrega material auxiliar.
- * A resolucao de fontes deixa de ser hardcoded e passa a ser controlada pelos
+ * SkillLoader - reads skills approved by registry/policy and aggregates support material.
+ * Source resolution is no longer hardcoded; it is controlled by the
  * manifests `config/skill-sources.json` e `config/skill-allowlist.json`.
  */
 export class SkillLoader {
@@ -123,7 +123,7 @@ export class SkillLoader {
       if (!fs.existsSync(source.absolutePath)) {
         fs.mkdirSync(source.absolutePath, { recursive: true });
         if (!this.quiet) {
-          logger.info(`Diretorio de skills criado: ${source.absolutePath}`);
+          logger.info(`Skill directory created: ${source.absolutePath}`);
         }
       }
     }
@@ -142,7 +142,7 @@ export class SkillLoader {
       const sourceDecision = this.trustPolicy.evaluateSource(source.id);
       if (!sourceDecision.allowed) {
         if (!quiet) {
-          logger.warn(`Fonte de skill bloqueada antes da ingestao: ${source.id} (${sourceDecision.reason})`);
+          logger.warn(`Skill source blocked before intake: ${source.id} (${sourceDecision.reason})`);
         }
         continue;
       }
@@ -155,7 +155,7 @@ export class SkillLoader {
         const skillName = path.basename(skillDir);
         if (IGNORED_SKILL_NAMES.has(skillName)) {
           if (!quiet) {
-            logger.info(`Skill ignorada por configuracao: ${skillName}`);
+              logger.info(`Skill ignored by configuration: ${skillName}`);
           }
           continue;
         }
@@ -164,7 +164,7 @@ export class SkillLoader {
 
         if (!fs.existsSync(skillFile)) {
           if (!quiet) {
-            logger.warn(`Skill sem SKILL.md ignorada: ${skillName}`);
+            logger.warn(`Skill without SKILL.md ignored: ${skillName}`);
           }
           continue;
         }
@@ -178,31 +178,31 @@ export class SkillLoader {
           const skillDecision = this.trustPolicy.evaluateSkill(source.id, metadata.name);
           if (!skillDecision.allowed) {
             if (!quiet) {
-              logger.warn(`Skill bloqueada pela allowlist: ${metadata.name} (${skillDecision.reason})`);
+              logger.warn(`Skill blocked by allowlist: ${metadata.name} (${skillDecision.reason})`);
             }
             continue;
           }
 
           if (IGNORED_SKILL_NAMES.has(metadata.name)) {
             if (!quiet) {
-              logger.info(`Skill ignorada por configuracao: ${metadata.name}`);
+              logger.info(`Skill ignored by configuration: ${metadata.name}`);
             }
             continue;
           }
 
           if (skillMap.has(metadata.name)) {
             if (!quiet) {
-              logger.info(`Skill sobrescrita: ${metadata.name}`);
+              logger.info(`Skill overridden: ${metadata.name}`);
             }
           }
 
           skillMap.set(metadata.name, metadata);
           if (!quiet) {
-            logger.info(`Skill carregada: ${metadata.name}`);
+            logger.info(`Skill loaded: ${metadata.name}`);
           }
         } catch (error) {
           if (!quiet) {
-            logger.warn(`Erro ao carregar skill "${skillName}": ${error}`);
+            logger.warn(`Failed to load skill "${skillName}": ${error}`);
           }
         }
       }
@@ -213,7 +213,7 @@ export class SkillLoader {
     );
 
     if (!quiet) {
-      logger.info(`Total de skills carregadas: ${skills.length}`);
+      logger.info(`Total skills loaded: ${skills.length}`);
     }
     return skills;
   }

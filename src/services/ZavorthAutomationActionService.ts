@@ -152,11 +152,11 @@ export class ZavorthAutomationActionService {
       const snapshot = await this.controlPlaneService.buildSnapshot();
       const payload = plan.payload || {};
       return this.withExecutionLifecycle({
-        actionId: plan.actionId as any,
+        actionId: plan.actionId as AutomationActionId,
         intentText: String(payload.intentText || payload.prompt || ''),
         taskId: String(payload.taskId || ''),
         requestedBy: input.requestedBy || String(payload.requestedBy || ''),
-        sourceSurface: String(payload.sourceSurface || 'app') as any,
+        sourceSurface: String(payload.sourceSurface || 'app') as 'telegram' | 'app' | 'email' | 'webhook',
       }, {
         generatedAt: new Date().toISOString(),
         actionId: plan.actionId,
@@ -189,19 +189,19 @@ export class ZavorthAutomationActionService {
 
     const payload = plan.payload || {};
     const execution = await this.executeDirect({
-      actionId: plan.actionId as any,
+      actionId: plan.actionId as AutomationActionId,
       intentText: String(payload.intentText || payload.prompt || ''),
       taskId: String(payload.taskId || ''),
       requestedBy: input.requestedBy || String(payload.requestedBy || ''),
-      sourceSurface: String(payload.sourceSurface || 'app') as any,
+      sourceSurface: String(payload.sourceSurface || 'app') as 'telegram' | 'app' | 'email' | 'webhook',
     });
     const applied = this.mutationPlane.markApplied(plan.id, execution.summary, [execution.actionId]);
     return this.withExecutionLifecycle({
-      actionId: plan.actionId as any,
+      actionId: plan.actionId as AutomationActionId,
       intentText: String(payload.intentText || payload.prompt || ''),
       taskId: String(payload.taskId || ''),
       requestedBy: input.requestedBy || String(payload.requestedBy || ''),
-      sourceSurface: String(payload.sourceSurface || 'app') as any,
+      sourceSurface: String(payload.sourceSurface || 'app') as 'telegram' | 'app' | 'email' | 'webhook',
     }, {
       ...execution,
       mutationPlan: applied,
@@ -543,7 +543,7 @@ export class ZavorthAutomationActionService {
     if (input.actionId === 'create') {
       const plan = this.intentService.buildPlan({
         intentText: String(input.intentText || ''),
-        defaultDelivery: input.sourceSurface as any || 'app',
+        defaultDelivery: (input.sourceSurface || 'app') as 'telegram' | 'app' | 'email' | 'webhook',
       });
       return {
         intentText: plan.intentText,

@@ -4,8 +4,9 @@ import os from 'os';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { spawnCommand } from '../../core/CommandSpawn.js';
+import { logger } from '../../logger.js';
 import type {
-  ISandboxRuntime,
+ISandboxRuntime,
   SandboxLanguage,
   SandboxRequest,
   SandboxResult,
@@ -81,9 +82,7 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
     } finally {
       try {
         fs.rmSync(jailPath, { recursive: true, force: true });
-      } catch {
-        // ignore cleanup failures for ephemeral jails
-      }
+      } catch (error) { // ignore cleanup failures for ephemeral jails logger.warn('[Local Jail Sandbox Runtime] process execution failed', error); }
     }
   }
 
@@ -219,9 +218,7 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
           } else {
             child.kill('SIGKILL');
           }
-        } catch {
-          // ignore kill failures on timeout
-        }
+        } catch (error) { // ignore kill failures on timeout logger.warn('[Local Jail Sandbox Runtime] process execution failed', error); }
 
         resolve({
           stdout,

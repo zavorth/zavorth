@@ -22,10 +22,10 @@ async function main() {
   console.log('[zavorth-access] prontidao do runtime');
   console.log(`[zavorth-access] resumo: ${report.summary}`);
   console.log(
-    `[zavorth-access] local: ${report.local.ready ? 'pronto' : localConsoleUsable ? 'readonly' : 'pendente'} | ${report.local.appUrl}`,
+    `[zavorth-access] local: ${report.local.ready ? 'ready' : localConsoleUsable ? 'readonly' : 'pending'} | ${report.local.appUrl}`,
   );
   console.log(
-    `[zavorth-access] remoto: ${report.remote.ready ? 'pronto' : 'pendente'} | ${report.remote.baseUrl || 'nao configurado'}`,
+    `[zavorth-access] remote: ${report.remote.ready ? 'ready' : 'pending'} | ${report.remote.baseUrl || 'not configured'}`,
   );
   console.log(
     `[zavorth-access] host: ${report.runtime.hostSupervisor.alive || report.runtime.zavorthControl?.active ? 'online' : 'offline'} | worker: ${report.runtime.telegramWorker.alive ? 'online' : 'offline'}`,
@@ -37,13 +37,13 @@ async function main() {
       !report.runtime.discordBridge.enabled
         ? 'desabilitado'
         : report.runtime.discordBridge.started
-          ? 'pronto'
-          : 'pendente'
+          ? 'ready'
+          : 'pending'
     }`,
   );
   console.log(
     `[zavorth-access] auth web: ${report.auth.enabled ? report.auth.source : 'ausente'} | host autorizado: ${
-      report.runtime.hostAuthorized === false ? 'nao' : 'sim'
+      report.runtime.hostAuthorized === false ? 'no' : 'yes'
     }`,
   );
   console.log(
@@ -70,7 +70,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('[zavorth-access] falha ao inspecionar a prontidao do runtime.');
+  console.error('[zavorth-access] failed to inspect runtime readiness.');
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

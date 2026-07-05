@@ -141,4 +141,25 @@ describe('ZavorthCloudSandboxAdapterService', () => {
     expect(result.message).toContain('npm install @daytona/sdk');
     expect(JSON.stringify(result)).not.toContain('daytona-secret');
   });
+
+  it('blocks external sandbox endpoints that would send code over remote HTTP', async () => {
+    const service = new ZavorthCloudSandboxAdapterService({
+      env: {
+        ZAVORTH_EXTERNAL_SANDBOX_ENABLED: 'true',
+        ZAVORTH_EXTERNAL_SANDBOX_ENDPOINT: 'http://sandbox.example.com/run',
+      },
+      fetcher: async () => {
+        throw new Error('fetch should not run');
+      },
+    });
+
+    const result = await service.execute({
+      provider: 'external',
+      code: 'console.log("hello")',
+      language: 'node',
+    });
+
+    expect(result.status).toBe('blocked');
+    expect(result.message).toContain('HTTPS');
+  });
 });

@@ -15,8 +15,9 @@ import {
 import { AiFirstOwnerControlledDefaultActivationService } from './AiFirstOwnerControlledDefaultActivationService.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 import {
-  UserExperienceIntentRouter,
+UserExperienceIntentRouter,
   type UserExperienceIntentDecision,
 } from './UserExperienceIntentRouter.js';
 
@@ -323,9 +324,7 @@ export class SurfaceOperationalIntentService {
             || input.resourceImpact?.budget?.externalExposure === 'public',
         },
       });
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Surface Operational] module import failed', error); return null; }
   }
 
   private collectCapabilityIds(input: SurfaceOperationalIntent): string[] {
@@ -564,9 +563,7 @@ export class SurfaceOperationalIntentService {
     try {
       const state = this.ownerControlledDefaultActivationService?.status(1).state || null;
       return state?.status === 'active' && state.defaultRouter === 'ai-first';
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Surface Operational] filesystem check failed', error); return false; }
   }
 
   private async classifyAmbiguousIntent(input: SurfaceOperationalIntent): Promise<{
@@ -610,7 +607,7 @@ export class SurfaceOperationalIntentService {
       },
     ];
     const response = await this.withTimeout(
-      classifier.chat(messages, undefined, { allowFallback: true } as any),
+      classifier.chat(messages, undefined, { allowFallback: true }),
       this.semanticTimeoutMs,
     );
     return this.parseSemanticDecision(response.content || '');
@@ -636,9 +633,7 @@ export class SurfaceOperationalIntentService {
           ? parsed.requestedTools.map((tool: unknown) => String(tool || '').trim()).filter(Boolean).slice(0, 8)
           : [],
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Surface Operational] JSON parse failed', error); return null; }
   }
 
   private async withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {

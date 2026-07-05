@@ -268,7 +268,7 @@ export class DiscordGatewayInboundService {
     if (!decision.allowed) {
       await this.replyService.replyToInteraction(
         interaction,
-        `Essa acao interativa expirou ou exige comando explicito. ${decision.reason}`,
+        `This interactive action expired or requires an explicit command. ${decision.reason}`,
       );
       this.persistence.markRejected(decision.reason);
       return;

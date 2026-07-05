@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { logger } from '../logger.js';
 import {
-  buildOperationalSecurityDoctorReport,
+buildOperationalSecurityDoctorReport,
   REQUIRED_SECURITY_CONTROL_FILES,
   type OperationalSecurityDoctorReport,
 } from './OperationalSecurityDoctor.js';
@@ -298,9 +299,7 @@ function readContinuousSecurityBaseline(baselinePath: string): ContinuousSecurit
     }
     const parsed = JSON.parse(fs.readFileSync(baselinePath, 'utf8')) as ContinuousSecurityBaseline;
     return parsed.version === 1 && parsed.snapshot ? parsed : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
 }
 
 function compareContinuousSecurityBaseline(
@@ -630,9 +629,7 @@ function readJson(filePath: string): unknown {
       return null;
     }
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
 }
 
 function isLowFrictionDoctorAttention(doctor: OperationalSecurityDoctorReport): boolean {

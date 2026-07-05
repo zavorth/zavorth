@@ -3,6 +3,7 @@ import { getSettings, updateSettings } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateComboDefaultsSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * GET /api/settings/combo-defaults
@@ -48,7 +49,8 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {

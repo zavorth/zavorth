@@ -1,6 +1,7 @@
 import { DangerousCommandBlocker } from '../security/DangerousCommandBlocker.js';
+import { logger } from '../logger.js';
 import type {
-  SystemOverlordActionRequest,
+SystemOverlordActionRequest,
   SystemOverlordAutonomyLevel,
   SystemOverlordCapability,
   SystemOverlordCapabilityDecision,
@@ -212,9 +213,7 @@ export class CapabilityPolicyService {
     try {
       const parsed = JSON.parse(normalized);
       return Boolean(parsed && typeof parsed === 'object' && !Array.isArray(parsed));
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Capability] JSON parse failed', error); return false; }
   }
 
   private requiresExplicitApproval(capability: SystemOverlordCapability, mutating: boolean): boolean {

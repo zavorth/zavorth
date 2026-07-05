@@ -36,7 +36,7 @@ export class TelegramZavorthBridgeResearchService {
       ctx,
       task,
       prompt,
-      'O ZavorthBridge real nao abriu uma conversa confiavel para responder no chat. Vou fazer a pesquisa pela rota web do Zavorth para nao te deixar sem retorno.',
+      'The real ZavorthBridge did not open a reliable conversation to answer in chat. I will use Zavorth web research so you still get a response.',
       error instanceof Error ? error : new Error(String(error)),
     );
   }
@@ -50,7 +50,7 @@ export class TelegramZavorthBridgeResearchService {
       ctx,
       task,
       prompt,
-      'Esse pedido tem perfil de pesquisa web. Vou responder pela rota web estruturada do Zavorth em vez de abrir o ZavorthBridge.',
+      'This request looks like web research. I will answer through Zavorth structured web route instead of opening ZavorthBridge.',
     );
   }
 
@@ -88,7 +88,7 @@ export class TelegramZavorthBridgeResearchService {
       const fallbackMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
       task.error_summary = zavorthBridgeError
         ? `ZavorthBridge: ${zavorthBridgeError.message}\nFallback web: ${fallbackMsg}`
-        : `Pesquisa web: ${fallbackMsg}`;
+        : `Web research: ${fallbackMsg}`;
       task.metadata = {
         ...(task.metadata || {}),
         zavorthBridgeBypassed: !zavorthBridgeError,
@@ -102,15 +102,15 @@ export class TelegramZavorthBridgeResearchService {
       await ctx.reply(
         zavorthBridgeError
           ? [
-              'O ZavorthBridge nao abriu uma conversa confiavel e a rota de pesquisa web tambem falhou.',
+              'ZavorthBridge did not open a reliable conversation, and the web research route also failed.',
               '',
               `ZavorthBridge: ${zavorthBridgeError.message}`,
-              `Pesquisa web: ${fallbackMsg}`,
+              `Web research: ${fallbackMsg}`,
             ].join('\n')
           : [
-              'A rota web do Zavorth falhou ao atender essa pesquisa.',
+              'The Zavorth web route failed while handling this research request.',
               '',
-              `Pesquisa web: ${fallbackMsg}`,
+              `Web research: ${fallbackMsg}`,
             ].join('\n'),
       );
       return true;

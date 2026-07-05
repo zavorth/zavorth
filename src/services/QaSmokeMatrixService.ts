@@ -8,6 +8,7 @@ import type {
   QaSmokeMatrixStatus,
 } from '../contracts/QaSmokeMatrixContract.js';
 import { QA_SMOKE_MATRIX_CONTRACT_VERSION } from '../contracts/QaSmokeMatrixContract.js';
+import { logger } from '../logger.js';
 
 type PackageLike = {
   scripts?: Record<string, string>;
@@ -128,8 +129,6 @@ export class QaSmokeMatrixService {
     if (!fs.existsSync(packagePath)) return null;
     try {
       return JSON.parse(fs.readFileSync(packagePath, 'utf8')) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Qa Smoke Matrix] JSON parse failed', error); return null; }
   }
 }

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface MemoryEntry {
   id: string;
@@ -50,7 +51,7 @@ export class ActiveMemoryService {
       const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       const sanitized = this.sanitizeParsedData(data) as Record<string, MemoryEntry>;
       this.entries = new Map(Object.entries(sanitized));
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Active Memory] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

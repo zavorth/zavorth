@@ -179,9 +179,7 @@ export async function getCurrentBinaryPath(dataDir?: string): Promise<string | n
   try {
     const real = await fs.realpath(symlinkPath);
     return fsSync.existsSync(real) ? real : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[binary Manager] filesystem operation failed', error); return null; }
 }
 
 export async function getInstalledVersions(dataDir?: string): Promise<string[]> {
@@ -194,9 +192,7 @@ export async function getInstalledVersions(dataDir?: string): Promise<string[]> 
         (e) => e.startsWith("cliproxyapi-") && fsSync.statSync(path.join(binDir, e)).isDirectory()
       )
       .map((e) => e.replace("cliproxyapi-", ""));
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[binary Manager] filesystem operation failed', error); return []; }
 }
 
 export async function rollbackVersion(dataDir?: string): Promise<string | null> {
@@ -230,7 +226,5 @@ export async function removeVersion(version: string, dataDir?: string): Promise<
   try {
     await fs.rm(versionDir, { recursive: true, force: true });
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[binary Manager] delete operation failed', error); return false; }
 }

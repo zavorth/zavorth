@@ -19,7 +19,7 @@ async function main() {
   console.log(`[channels] status: ${report.status}`);
   for (const item of report.items) {
     console.log(
-      `[channels] ${item.channelId}: ${item.status} | mode=${item.mode} | configured=${item.configured ? 'sim' : 'nao'} | ${item.summary}`,
+      `[channels] ${item.channelId}: ${item.status} | mode=${item.mode} | configured=${item.configured ? 'yes' : 'no'} | ${item.summary}`,
     );
     if (item.error) {
       console.log(`[channels] ${item.channelId} erro: ${item.error}`);

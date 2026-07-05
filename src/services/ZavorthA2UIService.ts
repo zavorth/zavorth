@@ -1,4 +1,8 @@
-export type A2UIPropValue = string | number | boolean | null | A2UIPropValue[] | Record<string, A2UIPropValue>;
+export type A2UIPropValue = string | number | boolean | null | A2UIPropValueArray | A2UIPropObject;
+export interface A2UIPropValueArray extends Array<A2UIPropValue> {}
+export interface A2UIPropObject {
+  [key: string]: A2UIPropValue;
+}
 
 export interface A2UIComponent {
   type: string;
@@ -256,7 +260,7 @@ export class ZavorthA2UIService {
         surfaceId,
         actionId,
         status: 'not_found',
-        summary: `Surface "${surfaceId}" nao encontrada.`,
+        summary: `Surface "${surfaceId}" not found.`,
         event: null,
         data: null,
       };
@@ -273,7 +277,7 @@ export class ZavorthA2UIService {
         surfaceId,
         actionId,
         status: 'blocked',
-        summary: `Action "${actionId}" nao esta registrada para a surface "${surfaceId}".`,
+        summary: `Action "${actionId}" is not registered for surface "${surfaceId}".`,
         event,
         data: null,
       };
@@ -303,7 +307,7 @@ export class ZavorthA2UIService {
         surfaceId,
         actionId,
         status: 'accepted',
-        summary: `Action "${actionId}" aceita para a surface "${surfaceId}".`,
+        summary: `Action "${actionId}" accepted for surface "${surfaceId}".`,
         event: completionEvent,
         data: handlerResult ? this.clone(handlerResult) : null,
       };
@@ -318,7 +322,7 @@ export class ZavorthA2UIService {
         surfaceId,
         actionId,
         status: 'error',
-        summary: `Falha ao despachar action "${actionId}": ${message || 'erro desconhecido'}.`,
+        summary: `Failed to dispatch action "${actionId}": ${message || 'unknown error'}.`,
         event: event || dispatchedEvent,
         data: null,
       };

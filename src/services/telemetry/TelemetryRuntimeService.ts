@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import { redactSensitiveText } from '../../security/SensitiveDataGuard.js';
+import { logger } from '../../logger.js';
 
 export type TelemetryEvent = {
   timestamp: string;
@@ -69,17 +70,13 @@ export class TelemetryRuntimeService {
         }
       }
       await fs.promises.rename(this.outputFile, `${this.outputFile}.1`).catch(() => undefined);
-    } catch {
-      // Telemetria nao pode derrubar o runtime principal.
-    }
+    } catch (error) { // Telemetria nao pode derrubar o runtime principal. logger.warn('[Telemetry Runtime] operation failed', error); }
   }
 
   private async exists(filePath: string): Promise<boolean> {
     try {
       await fs.promises.access(filePath);
       return true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Telemetry Runtime] filesystem check failed', error); return false; }
   }
 }

@@ -3,6 +3,7 @@ import { getCacheStats } from "@ZavorthGateway/open-sse/services/searchCache.ts"
 import { SEARCH_PROVIDERS } from "@ZavorthGateway/open-sse/config/searchRegistry.ts";
 import { getDbInstance } from "@/lib/db/core";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request: Request) {
   if (!(await isAuthenticated(request))) {
@@ -59,9 +60,7 @@ export async function GET(request: Request) {
         query = body.query || "";
         const { query: _q, provider: _p, ...rest } = body;
         filters = rest;
-      } catch {
-        // Unparseable request_body
-      }
+      } catch (error) { // Unparseable request_body logger.warn('[route] JSON parse failed', error); }
       return {
         query,
         provider: row.provider,
@@ -72,6 +71,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ cache, providers, recent_searches });
   } catch (error) {
+    logger.warn('[route] parsing failed', error);
     return NextResponse.json({ error: "Failed to get stats" }, { status: 500 });
   }
 }

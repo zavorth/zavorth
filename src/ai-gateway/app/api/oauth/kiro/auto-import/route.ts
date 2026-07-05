@@ -3,6 +3,7 @@ import { readFile, readdir } from "fs/promises";
 import { homedir } from "os";
 import { join } from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * GET /api/oauth/kiro/auto-import
@@ -22,11 +23,12 @@ export async function GET(request: Request) {
     try {
       files = await readdir(cachePath);
     } catch (error) {
-      return NextResponse.json({
+    logger.warn('[route] filesystem operation failed', error);
+    return NextResponse.json({
         found: false,
         error: "AWS SSO cache not found. Please login to Kiro IDE first.",
       });
-    }
+  }
 
     // Look for kiro-auth-token.json or any .json file with refreshToken
     let refreshToken = null;
@@ -42,9 +44,7 @@ export async function GET(request: Request) {
           refreshToken = data.refreshToken;
           foundFile = kiroTokenFile;
         }
-      } catch (error) {
-        // Continue to search other files
-      }
+      } catch (error) { // Continue to search other files logger.warn('[route] JSON parse failed', error); }
     }
 
     // If not found, search all .json files

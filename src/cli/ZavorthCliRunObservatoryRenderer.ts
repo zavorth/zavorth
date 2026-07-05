@@ -38,7 +38,7 @@ export function resolveRunObservatoryCliQuery(
       index += 1;
       continue;
     }
-    if ((lower === 'session' || lower === 'sessao' || lower === '--session' || lower === '--session-id') && next) {
+    if ((lower === 'session' || lower === 'session' || lower === '--session' || lower === '--session-id') && next) {
       query.sessionId = next;
       index += 1;
       continue;
@@ -89,7 +89,7 @@ export function formatRunObservatorySnapshot(
     `Status: ${snapshot.health.status}`,
     `Runs: ${snapshot.matchedRuns}/${snapshot.totalRuns}`,
     `Receipts: ${snapshot.summary.receiptCount} | Eventos: ${snapshot.summary.eventCount} | Artifacts: ${snapshot.summary.artifactCount}`,
-    `Replay: ${snapshot.replay.available ? 'disponivel' : 'indisponivel'} - ${snapshot.replay.summary}`,
+    `Replay: ${snapshot.replay.available ? 'disponivel' : 'unavailable'} - ${snapshot.replay.summary}`,
     `Proximo passo: ${snapshot.health.nextSafeAction}`,
   ];
 
@@ -128,7 +128,7 @@ export function formatRunObservatorySnapshot(
   if (snapshot.sidecars.health.length > 0) {
     lines.push('', 'Sidecars:');
     for (const sidecar of snapshot.sidecars.health.slice(0, 6)) {
-      const status = sidecar.ready ? 'pronto' : sidecar.enabled ? 'atencao' : 'desativado';
+      const status = sidecar.ready ? 'ready' : sidecar.enabled ? 'atencao' : 'desativado';
       lines.push(`- ${sidecar.name} [${status}] ${sidecar.message || sidecar.baseUrl || 'sem detalhe'}`);
     }
     lines.push(

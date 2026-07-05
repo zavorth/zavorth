@@ -3,6 +3,7 @@ import path from 'path';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
+import { logger } from '../../../logger.js';
 
 export interface EmailGatewayStubMessage {
   from: string;
@@ -67,9 +68,7 @@ export class EmailGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.emailStatusFile, 'utf8')) as EmailGatewayStatusSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Email way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
@@ -95,14 +94,14 @@ export class EmailGateway implements LiveChannelBroadcastGatewayContract {
 
   public async broadcast(message: string): Promise<void> {
     if (!this.started) {
-      this.lastError = 'Email gateway ainda nao foi iniciado.';
+      this.lastError = 'Email gateway has not started yet.';
       this.writeStatus();
       throw new Error(this.lastError);
     }
 
     const recipients = this.resolveBroadcastRecipients();
     if (recipients.length === 0) {
-      this.lastError = 'Email nao tem destinatarios permitidos configurados.';
+      this.lastError = 'Email has no configured allowed recipients.';
       this.writeStatus();
       throw new Error(this.lastError);
     }

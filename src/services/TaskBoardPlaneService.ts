@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto';
 import type { TaskPlaneItem, TaskPlaneStatus } from '../contracts/TaskPlaneContract.js';
 import { TaskPlaneService } from './TaskPlaneService.js';
 import { ZavorthOperationalStateDbService } from './ZavorthOperationalStateDbService.js';
+import { logger } from '../logger.js';
 
 export type TaskBoardLane = 'backlog' | 'ready' | 'running' | 'review' | 'done' | 'blocked';
 
@@ -264,9 +265,10 @@ export class TaskBoardPlaneService {
           ? parsed.boards.map(normalizeBoard).filter((entry): entry is TaskBoard => Boolean(entry))
           : [],
       };
-    } catch {
-      return { boards: [] };
-    }
+    } catch (error) {
+    logger.warn('[Task Board Plane] JSON parse failed', error);
+    return { boards: [] };
+  }
   }
 
   private writeStore(store: { boards: TaskBoard[] }): void {

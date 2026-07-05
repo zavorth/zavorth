@@ -10,6 +10,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { updateKeyPermissionsSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth, requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 // GET /api/keys/[id] - Get single API key
 export async function GET(request, { params }) {
@@ -44,7 +45,8 @@ export async function PATCH(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {

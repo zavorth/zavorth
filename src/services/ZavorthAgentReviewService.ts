@@ -1,8 +1,9 @@
 import { execFile, spawn } from 'node:child_process';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { logger } from '../logger.js';
 import {
-  buildGovernedReviewZavorthControlSnapshot,
+buildGovernedReviewZavorthControlSnapshot,
   GovernedReviewGitHubService,
   GovernedReviewService,
   type GovernedReviewContextFile,
@@ -299,13 +300,14 @@ export class ZavorthAgentReviewService {
         diffText: diff.stdout,
         collectedFromGit: true,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Agent] parsing failed', error);
+    return {
         files: [],
         diffText: '',
         collectedFromGit: false,
       };
-    }
+  }
   }
 
   private snapshot(input: {

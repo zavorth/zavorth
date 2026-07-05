@@ -9,8 +9,9 @@ import {
 import { ConfigVersioningService } from './ConfigVersioningService.js';
 import { PermissionRepository } from '../storage/PermissionRepository.js';
 import { TelemetryRuntimeService } from './telemetry/TelemetryRuntimeService.js';
+import { logger } from '../logger.js';
 
-export type PermissionMetadataValue = string | number | boolean | null;
+export type PermissionMetadataValue = string | number | boolean | null | Record<string, unknown> | unknown[];
 
 type CreatePermissionInput = {
   task_id?: string | null;
@@ -428,9 +429,7 @@ export class PermissionService {
           decidedBy: permission.decided_by,
         },
       });
-    } catch {
-      // telemetry should never break permission flow
-    }
+    } catch (error) { // telemetry should never break permission flow logger.warn('[Permission] process execution failed', error); }
   }
 
   private resolveTraceId(permission: PermissionRequest): string {

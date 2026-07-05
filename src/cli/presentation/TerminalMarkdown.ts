@@ -1,6 +1,7 @@
 import { marked } from 'marked';
 import { markedTerminal } from 'marked-terminal';
 import { TerminalTheme } from './TerminalTheme.js';
+import { logger } from '../../logger.js';
 
 // Apply the terminal renderer
 marked.use(markedTerminal({
@@ -28,10 +29,11 @@ export class TerminalMarkdown {
     try {
       const parsed = marked.parse(markdownText) as string;
       return parsed.trim();
-    } catch (e) {
-      // Fallback to raw text if parsing fails
+    } catch (error) {
+    logger.warn('[Terminal Markdown] parsing failed', error);
+    // Fallback to raw text if parsing fails
       return markdownText;
-    }
+  }
   }
 
   static print(markdownText: string): void {

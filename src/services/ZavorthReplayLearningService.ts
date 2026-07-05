@@ -19,6 +19,7 @@ import {
 } from './ZavorthReplayLearningRegistryService.js';
 import { PermissionService } from './PermissionService.js';
 import { TrustDecisionService, type TrustDecision } from './TrustDecisionService.js';
+import { logger } from '../logger.js';
 
 type ReplayLearningRuntime = {
   now?: () => Date;
@@ -610,9 +611,7 @@ export class ZavorthReplayLearningService {
       if (parsed && typeof parsed === 'object' && typeof parsed.text === 'string') {
         return parsed.text;
       }
-    } catch {
-      // plain transcript line
-    }
+    } catch (error) { // plain transcript line logger.warn('[Zavorth Replay Learning] JSON parse failed', error); }
     return trimmed;
   }
 

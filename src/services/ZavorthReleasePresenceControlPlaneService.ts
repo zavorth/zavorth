@@ -7,6 +7,7 @@ import { PublishHistoryService, type PublishHistoryEntry } from './PublishHistor
 import type { OperationsHealthSnapshot, OperationsHealthService } from './OperationsHealthService.js';
 import { ZavorthRemoteTransportService, type ZavorthRemoteTransportSnapshot } from './ZavorthRemoteTransportService.js';
 import { ZavorthTelemetryLedgerService, type ZavorthTelemetryLedgerSnapshot } from './ZavorthTelemetryLedgerService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthReleasePresenceMode = 'status' | 'diff' | 'rollback-preview' | 'presence';
 export type ZavorthReleasePresenceStatus = 'ready' | 'degraded' | 'blocked';
@@ -330,9 +331,10 @@ export class ZavorthReleasePresenceControlPlaneService {
         name: String(parsed.name || 'zavorth'),
         version: typeof parsed.version === 'string' ? parsed.version : null,
       };
-    } catch {
-      return { name: 'zavorth', version: null };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Release Presence Control Plane] JSON parse failed', error);
+    return { name: 'zavorth', version: null };
+  }
   }
 
   private readHealthSnapshot(live: boolean): Partial<OperationsHealthSnapshot> | null {
@@ -343,25 +345,19 @@ export class ZavorthReleasePresenceControlPlaneService {
       return live
         ? this.operationsHealthService.readSnapshotLive()
         : this.operationsHealthService.readSnapshotFast();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Release Presence Control Plane] health check failed', error); return null; }
   }
 
   private readRemoteTransportSnapshot(): ZavorthRemoteTransportSnapshot | null {
     try {
       return this.remoteTransportService.buildSnapshot();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Release Presence Control Plane] health check failed', error); return null; }
   }
 
   private readTelemetrySnapshot(): ZavorthTelemetryLedgerSnapshot | null {
     try {
       return this.telemetryLedgerService.buildSnapshot();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Release Presence Control Plane] creation failed', error); return null; }
   }
 
   private buildDescriptorList(entries: PublishHistoryEntry[]): PublishSnapshotDescriptor[] {
@@ -391,11 +387,11 @@ export class ZavorthReleasePresenceControlPlaneService {
     health: Partial<OperationsHealthSnapshot> | null,
     history: ZavorthReleaseHistoryItem[],
   ): ZavorthReleaseHistoryItem | null {
-    const publish = (health as any)?.publish || null;
+    const publish = health?.publish || null;
     if (publish?.available || publish?.publishedAt || publish?.commit) {
       return {
-        id: publish.sourceArchiveId || publish.archiveId || history[0]?.id || 'current',
-        label: publish.sourceArchiveId || publish.archiveId || `current (${String(publish.commit || '').slice(0, 8) || 'sem-commit'})`,
+        id: publish.sourceArchiveId || history[0]?.id || 'current',
+        label: publish.sourceArchiveId || `current (${String(publish.commit || '').slice(0, 8) || 'sem-commit'})`,
         publishedAt: publish.publishedAt || null,
         branch: publish.branch || null,
         commit: publish.commit || null,
@@ -548,7 +544,7 @@ export class ZavorthReleasePresenceControlPlaneService {
     health: Partial<OperationsHealthSnapshot> | null,
   ): ZavorthReleaseRemotePresence {
     const summary = remoteTransport?.summary || null;
-    const healthRemote = (health as any)?.remoteTransportDoctor || null;
+    const healthRemote = health?.remoteTransportDoctor || null;
     const entries = (remoteTransport?.entries || []).map((entry) => ({
       id: entry.id,
       label: entry.label,
@@ -595,12 +591,12 @@ export class ZavorthReleasePresenceControlPlaneService {
     rollback: ZavorthReleaseRollbackPlan,
     diff: ZavorthReleasePresenceSnapshot['diff'],
   ): ZavorthReleasePresenceSnapshot['release']['risk'] {
-    const publish = (health as any)?.publish || {};
+    const publish = health?.publish;
     const reasons: string[] = [];
-    if (String(publish.smokeTest || '').toLowerCase() === 'failed') {
+    if (publish && String(publish.smokeTest || '').toLowerCase() === 'failed') {
       reasons.push('ultimo publish tem smoke falho');
     }
-    if (String(publish.gitPush || '').toLowerCase() === 'failed') {
+    if (publish && String(publish.gitPush || '').toLowerCase() === 'failed') {
       reasons.push('git push do publish falhou');
     }
     if (rollback.preflight.status === 'block') {
@@ -633,7 +629,7 @@ export class ZavorthReleasePresenceControlPlaneService {
     latest: ZavorthReleaseHistoryItem | null,
     health: Partial<OperationsHealthSnapshot> | null,
   ): ZavorthReleasePresenceSnapshot['release']['verification'] {
-    const publish = (health as any)?.publish || {};
+    const publish = health?.publish;
     const subject = [
       latest?.id,
       latest?.commit,
@@ -689,7 +685,7 @@ export class ZavorthReleasePresenceControlPlaneService {
     health: Partial<OperationsHealthSnapshot> | null,
     risk: ZavorthReleasePresenceSnapshot['release']['risk'],
   ): ZavorthReleaseChannel['id'] {
-    const branch = String((health as any)?.publish?.branch || '').toLowerCase();
+    const branch = String(health?.publish?.branch || '').toLowerCase();
     if (branch.includes('beta')) {
       return 'beta';
     }

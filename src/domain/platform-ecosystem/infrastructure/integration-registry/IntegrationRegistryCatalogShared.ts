@@ -68,18 +68,18 @@ export function step(
 }
 
 export const capabilityChoices = [
-  choice('chat', 'Chat', 'Conversas e suporte geral.'),
-  choice('code', 'CÃƒÂ³digo', 'ImplementaÃƒÂ§ÃƒÂ£o, revisÃƒÂ£o e ediÃƒÂ§ÃƒÂ£o.'),
-  choice('vision', 'VisÃƒÂ£o', 'Leitura de prints e imagens.'),
-  choice('browser', 'Browser', 'NavegaÃƒÂ§ÃƒÂ£o e automaÃƒÂ§ÃƒÂ£o web.'),
-  choice('agents', 'Agentes', 'Fluxos autÃƒÂ´nomos e delegaÃƒÂ§ÃƒÂ£o.'),
+  choice('chat', 'Chat', 'General conversation and support.'),
+  choice('code', 'Code', 'Implementation, review, and editing.'),
+  choice('vision', 'Vision', 'Screenshot and image understanding.'),
+  choice('browser', 'Browser', 'Navigation and web automation.'),
+  choice('agents', 'Agents', 'Autonomous flows and delegation.'),
 ];
 
 export const commonCapabilityQuestion = question(
   'capabilities',
-  'Quais capacidades vocÃƒÂª quer liberar primeiro?',
+  'Which capabilities should be enabled first?',
   'multi_choice',
-  'VocÃƒÂª pode comeÃƒÂ§ar pequeno e ampliar depois.',
+  'You can start small and expand later.',
   {
     required: false,
     choices: capabilityChoices,

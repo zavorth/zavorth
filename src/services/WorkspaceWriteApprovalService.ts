@@ -5,12 +5,12 @@ import { LogRepository } from '../storage/LogRepository.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 
 export class WorkspaceWriteApprovalService {
-  private readonly db: Database;
+  private readonly db: Database | null;
   private readonly auditLogger: SecurityAuditLogger;
 
   constructor(db?: Database, auditLogger?: SecurityAuditLogger) {
     // Lazy or injected initialization
-    this.db = db || (Database as any).instance || null;
+    this.db = db || Database.getActiveInstance() || null;
     this.auditLogger = auditLogger || new SecurityAuditLogger(new LogRepository());
   }
 

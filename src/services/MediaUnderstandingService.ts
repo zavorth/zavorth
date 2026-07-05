@@ -39,8 +39,9 @@ import type {
   AdapterAnalysisInput,
   AdapterAnalysisOutput,
 } from '../contracts/MediaUnderstandingContract.js';
+import { logger } from '../logger.js';
 import {
-  GeminiVisionAnalysisAdapter,
+GeminiVisionAnalysisAdapter,
   VisionAdapterError,
 } from '../adapters/media/GeminiVisionAnalysisAdapter.js';
 
@@ -179,9 +180,10 @@ export class MediaUnderstandingService {
         providerHints: request.providerHints,
       };
       adapterOutput = await adapter.analyze(adapterInput);
-    } catch (err) {
-      return this.buildAdapterErrorResult(err, analysisType, modality, policyDecision, processedAt);
-    }
+    } catch (error) {
+    logger.warn('[Media Understanding] path resolution failed', error);
+    return this.buildAdapterErrorResult(err, analysisType, modality, policyDecision, processedAt);
+  }
 
     // 6. Build structured analysis.
     const analysis = this.buildAnalysis(adapterOutput, analysisType, resolved);

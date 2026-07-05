@@ -1,4 +1,4 @@
-import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
+﻿import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
 import { GatewayEventBus } from '../../events/GatewayEventBus';
 import { PublicApiRouter } from '../../../api/public/PublicApiRouter';
 
@@ -14,7 +14,7 @@ export class WebChannelAdapter implements GatewayChannelAdapter {
 
   async initialize(): Promise<void> {
     console.log('[Gateway] Web Channel initialized (HTTP/WS endpoints routed).');
-    // Em Produção conectaria o server nativo HTTP do Node para disparar o this.apiRouter.route()
+    // In production this would connect the native Node HTTP server to this.apiRouter.route().
   }
 
   async shutdown(): Promise<void> {

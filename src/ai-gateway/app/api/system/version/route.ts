@@ -9,8 +9,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { execFile } from "child_process";
 import { promisify } from "util";
 import { requireManagementAuth, requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 import {
-  ensureGitTagExists,
+ensureGitTagExists,
   getAutoUpdateConfig,
   launchAutoUpdate,
   validateAutoUpdateRuntime,
@@ -27,9 +28,7 @@ async function getLatestNpmVersion(): Promise<string | null> {
     });
     const parsed = JSON.parse(stdout.trim());
     return typeof parsed === "string" ? parsed : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[route] JSON parse failed', error); return null; }
 }
 
 function getCurrentVersion(): string {
@@ -171,9 +170,7 @@ export async function POST(req: NextRequest) {
               timeout: 30_000,
               cwd: process.cwd(),
             });
-          } catch {
-            // No local changes to stash.
-          }
+          } catch (error) { // No local changes to stash. logger.warn('[route] process execution failed', error); }
 
           const shortHead = (
             await execFileAsync("git", ["rev-parse", "--short", "HEAD"], {
@@ -188,9 +185,7 @@ export async function POST(req: NextRequest) {
               timeout: 10_000,
               cwd: process.cwd(),
             });
-          } catch {
-            // Backup branch is best-effort only.
-          }
+          } catch (error) { // Backup branch is best-effort only. logger.warn('[route] process execution failed', error); }
 
           await execFileAsync("git", ["checkout", resolvedTargetTag], {
             timeout: 30_000,
@@ -214,9 +209,7 @@ export async function POST(req: NextRequest) {
               timeout: 15_000,
               cwd: process.cwd(),
             });
-          } catch {
-            // .env sync is non-fatal during update.
-          }
+          } catch (error) { // .env sync is non-fatal during update. logger.warn('[route] process execution failed', error); }
 
           send({
             step: "rebuild",

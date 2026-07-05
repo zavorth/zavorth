@@ -133,7 +133,7 @@ export class TelegramPermissionController {
   public async handleTaskCallback(ctx: Context, data: string): Promise<void> {
     const match = /^task:(approve|reject):([^:\s]{1,160})$/.exec(String(data || ''));
     if (!match) {
-      await ctx.answerCallbackQuery({ text: 'Acao invalida.' }).catch(() => undefined);
+      await ctx.answerCallbackQuery({ text: 'Invalid action.' }).catch(() => undefined);
       return;
     }
 
@@ -142,20 +142,20 @@ export class TelegramPermissionController {
     if (action === 'approve') {
       this.assertHostWritable();
       if (this.taskApproval.requiresHighRiskConfirmation(taskId)) {
-        await ctx.answerCallbackQuery({ text: 'TOTP necessario.' }).catch(() => undefined);
-        await ctx.reply('Essa tarefa e HIGH_RISK. Aprove com `/approve <task_id> <codigo TOTP>`.', {
+        await ctx.answerCallbackQuery({ text: 'TOTP required.' }).catch(() => undefined);
+        await ctx.reply('This task is HIGH_RISK. Approve it with `/approve <task_id> <TOTP code>`.', {
           parse_mode: 'Markdown',
         }).catch(() => undefined);
         return;
       }
-      await ctx.answerCallbackQuery({ text: 'Aprovando tarefa...' }).catch(() => undefined);
+      await ctx.answerCallbackQuery({ text: 'Approving task...' }).catch(() => undefined);
       await this.taskApproval.handleApproval(ctx, taskId);
     } else if (action === 'reject') {
       this.assertHostWritable();
-      await ctx.answerCallbackQuery({ text: 'Rejeitando tarefa...' }).catch(() => undefined);
+      await ctx.answerCallbackQuery({ text: 'Rejecting task...' }).catch(() => undefined);
       await this.taskApproval.handleRejection(ctx, taskId);
     } else {
-      await ctx.answerCallbackQuery({ text: 'Acao desconhecida.' }).catch(() => undefined);
+      await ctx.answerCallbackQuery({ text: 'Unknown action.' }).catch(() => undefined);
     }
     await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
   }

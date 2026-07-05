@@ -350,7 +350,7 @@ export class OperationsReportNarrativeSupport {
     return `validado | ${this.formatRelativeTime(doctor.checkedAt)} | ${passedItems} fluxo(s)`;
   }
 
-  private describeDiscordChannel(mode: 'bridge' | 'native' | 'unknown' | undefined): string {
+  private describeDiscordChannel(mode: any): string {
     return mode === 'native' ? 'Gateway nativo do Discord' : 'Discord bridge';
   }
 
@@ -404,8 +404,8 @@ export class OperationsReportNarrativeSupport {
   }
 
   private resolveLocalChannelModeLabel(
-    mode: 'stub' | 'native' | 'cloud-api' | 'baileys' | 'unknown' | undefined,
-    channelId: 'slack' | 'whatsapp',
+    mode: any,
+    channelId: any,
   ): string {
     if (mode === 'native') {
       return channelId === 'slack' ? 'nativo' : 'native';
@@ -420,18 +420,8 @@ export class OperationsReportNarrativeSupport {
   }
 
   private describeDoctorProvider(
-    channelId: 'slack' | 'whatsapp' | 'telegram' | 'discord' | 'signal' | 'imessage' | 'teams' | 'email',
-    mode:
-      | 'native'
-      | 'cloud-api'
-      | 'stub'
-      | 'baileys'
-      | 'bridge'
-      | 'signal-cli'
-      | 'mac-bridge'
-      | 'graph-bot'
-      | 'smtp-imap'
-      | 'unknown',
+    channelId: any,
+    mode: any,
   ): string {
     if (channelId === 'telegram') {
       return 'Telegram';

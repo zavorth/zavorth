@@ -415,7 +415,7 @@ export class TelegramOpsRuntimeCommandService {
 
       await ctx.reply(this.formatRemoteModeReply(result, mode));
     } catch (error: unknown) {
-      await ctx.reply(`Nao consegui ajustar o modo remoto agora.\n\nMotivo: ${error instanceof Error ? error.message : String(error)}`);
+      await ctx.reply(`I could not adjust remote mode right now.\n\nReason: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

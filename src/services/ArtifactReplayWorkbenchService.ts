@@ -20,8 +20,9 @@ import {
   ZavorthReplayLearningControlPlaneService,
   type ZavorthReplayLearningControlPlaneSnapshot,
 } from './ZavorthReplayLearningControlPlaneService.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthReplayLearningService,
+ZavorthReplayLearningService,
   type ZavorthReplayLearningSnapshot,
 } from './ZavorthReplayLearningService.js';
 
@@ -422,9 +423,7 @@ export class ArtifactReplayWorkbenchService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Artifact Replay Workbench] JSON parse failed', error); return null; }
   }
 
   private check(

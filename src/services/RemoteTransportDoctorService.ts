@@ -3,8 +3,9 @@ import path from 'path';
 import { config } from '../config/index.js';
 import { AIGatewaySidecarService } from './AIGatewaySidecarService.js';
 import { ZavorthGatewayLauncherService } from './ZavorthGatewayLauncherService.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthRemoteTransportService,
+ZavorthRemoteTransportService,
   type ZavorthRemoteTransportEntry,
 } from './ZavorthRemoteTransportService.js';
 
@@ -119,9 +120,7 @@ export class RemoteTransportDoctorService {
         status: this.resolveStatus(items),
         items,
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Remote Transport Doctor] parsing failed', error); return null; }
   }
 
   private async inspectEntry(entry: ZavorthRemoteTransportEntry): Promise<RemoteTransportDoctorItem> {
@@ -281,13 +280,14 @@ export class RemoteTransportDoctorService {
         httpStatus: response.status,
         detail: `Probe ativo confirmou reachability em ${endpoint} (HTTP ${response.status}).`,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Remote Transport Doctor] network request failed', error);
+    return {
         status: 'failed',
         httpStatus: null,
         detail: `Probe ativo falhou para ${endpoint}: ${error?.message || String(error)}`,
       };
-    }
+  }
   }
 
   private async ensureAIGatewayReachable(endpoint: string | null): Promise<string[]> {

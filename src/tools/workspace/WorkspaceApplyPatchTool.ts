@@ -5,6 +5,7 @@ import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { DiskMutationGateService } from '../../services/DiskMutationGateService.js';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceFsPolicy } from './WorkspaceFsPolicy.js';
+import { logger } from '../../logger.js';
 
 type WorkspacePatchAudit = {
   changed: boolean;
@@ -50,7 +51,7 @@ export class WorkspaceApplyPatchTool extends BaseTool {
       },
       patch: {
         type: 'string',
-        description: 'Patch unificado a aplicar ao arquivo.',
+        description: 'Unified patch to apply to the file.',
       },
       dryRun: {
         type: 'boolean',
@@ -88,14 +89,15 @@ export class WorkspaceApplyPatchTool extends BaseTool {
           preview: result.preview,
           receipt: result.receipt,
         });
-      } catch (error: any) {
-        return JSON.stringify({
+      } catch (error) {
+    logger.warn('[Workspace Apply Patch] serialization failed', error);
+    return JSON.stringify({
           success: false,
           applied: false,
           approvalRequired: true,
           error: error?.message || 'Falha ao aplicar preview pelo Disk Mutation Gate.',
         });
-      }
+  }
     }
 
     const filepath = readString(args.filepath || args.filePath);
@@ -113,19 +115,20 @@ export class WorkspaceApplyPatchTool extends BaseTool {
     let resolved: ReturnType<WorkspaceFsPolicy['resolveApplyPatchPath']>;
     try {
       resolved = new WorkspaceFsPolicy().resolveApplyPatchPath(filepath);
-    } catch {
-      return JSON.stringify({
+    } catch (error) {
+    logger.warn('[Workspace Apply Patch] serialization failed', error);
+    return JSON.stringify({
         success: false,
         applied: false,
-        error: 'Por seguranca, patches so podem alterar arquivos dentro do escopo output/ do workspace.',
+        error: 'For security, patches can only modify files inside the workspace output/ scope.',
       });
-    }
+  }
 
     if (!fs.existsSync(resolved.absolutePath) || !fs.statSync(resolved.absolutePath).isFile()) {
       return JSON.stringify({
         success: false,
         applied: false,
-        error: `Arquivo alvo nao encontrado: ${filepath}`,
+        error: `Target file not found: ${filepath}`,
         policy: {
           access: resolved.access,
           scope: resolved.scope,
@@ -137,14 +140,15 @@ export class WorkspaceApplyPatchTool extends BaseTool {
     let proposedContent: string | false;
     try {
       proposedContent = applyPatch(currentContent, patch);
-    } catch {
-      proposedContent = false;
-    }
+    } catch (error) {
+    logger.warn('[Workspace Apply Patch] filesystem operation failed', error);
+    proposedContent = false;
+  }
     if (proposedContent === false) {
       return JSON.stringify({
         success: false,
         applied: false,
-        error: 'Patch invalido ou incompativel com o conteudo atual. Nenhum arquivo foi alterado.',
+        error: 'Invalid patch or incompatible with current content. No file was changed.',
         policy: {
           access: resolved.access,
           scope: resolved.scope,

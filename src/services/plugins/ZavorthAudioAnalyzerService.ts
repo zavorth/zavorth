@@ -3,6 +3,7 @@ import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { getBestProvider, getAvailableProviders, callAudioProvider, listProviders } from './MultimodalProviderSelector.js';
+import { logger } from '../../logger.js';
 
 export class ZavorthAudioAnalyzerService extends BaseTool {
   public readonly name = 'zavorth_audio_analyzer';
@@ -89,9 +90,7 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
     try {
       const apiKey = process.env[provider.apiKeyEnv]!;
       return await callAudioProvider(provider, audioPath, language, apiKey);
-    } catch (error: unknown) {
-      return `Error with ${provider.name}: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Audio Analyzer] operation failed', error); return ''; }
   }
 
   private async detectSpeakers(audioPath: string): Promise<string> {

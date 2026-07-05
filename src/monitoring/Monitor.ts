@@ -4,7 +4,7 @@ import { LogRepository } from '../storage/LogRepository.js';
 export class Monitor {
   private logRepo: LogRepository;
   private intervalId: NodeJS.Timeout | null = null;
-  private static readonly HEARTBEAT_INTERVAL_MS = 60 * 60 * 1000; // 1 Hora
+  private static readonly HEARTBEAT_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
   constructor(logRepo: LogRepository) {
     this.logRepo = logRepo;
@@ -12,10 +12,10 @@ export class Monitor {
 
   public startHeartbeat(): void {
     if (this.intervalId) return;
-    this.logRepo.log('info', 'Monitor', 'Heartbeat e Watchdog ativados.');
+    this.logRepo.log('info', 'Monitor', 'Heartbeat and Watchdog enabled.');
     
     this.intervalId = setInterval(() => {
-      this.logRepo.log('info', 'Heartbeat', 'Serviço operacional. Monitorando filas...', this.getHealthStats());
+      this.logRepo.log('info', 'Heartbeat', 'Service operational. Monitoring queues...', this.getHealthStats());
     }, Monitor.HEARTBEAT_INTERVAL_MS);
   }
 

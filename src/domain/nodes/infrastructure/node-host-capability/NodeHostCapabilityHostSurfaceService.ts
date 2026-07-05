@@ -24,6 +24,7 @@ import {
 } from './NodeHostCapabilityPathPolicy.js';
 import { inferImageMimeType, normalizeTimeout } from './NodeHostCapabilityExecutionHelpers.js';
 import { ShellNodeHostCommandRunner } from './NodeHostCapabilityShellCommandRunner.js';
+import { logger } from '../../../../logger';
 
 export class NodeHostCapabilityHostSurfaceService {
   private readonly now: () => Date;
@@ -148,15 +149,16 @@ export class NodeHostCapabilityHostSurfaceService {
         now: this.now,
         resolveAllowedPath: (targetPath, capabilityId) => this.resolveAllowedPath(targetPath, capabilityId),
       });
-    } catch (error: unknown) {
-      return buildScopeViolationResult({
+    } catch (error) {
+    logger.warn('[Node Host Capability Host Surface] load operation failed', error);
+    return buildScopeViolationResult({
         capabilityId: 'screen.capture',
         targetPath: requestedOutputPath || path.resolve(this.tempRoot, 'captures'),
         error,
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    }
+  }
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     const attempts = buildNodeHostScreenCaptureCommands(this.platform, outputPath);
     const timeoutMs = normalizeTimeout(payload?.timeoutMs, 20000);
@@ -211,15 +213,16 @@ export class NodeHostCapabilityHostSurfaceService {
         capabilityId: 'camera.capture',
         prefix: 'camera',
       });
-    } catch (error: unknown) {
-      return buildScopeViolationResult({
+    } catch (error) {
+    logger.warn('[Node Host Capability Host Surface] load operation failed', error);
+    return buildScopeViolationResult({
         capabilityId: 'camera.capture',
         targetPath: requestedOutputPath || path.resolve(this.tempRoot, 'captures'),
         error,
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    }
+  }
 
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 
@@ -266,15 +269,16 @@ export class NodeHostCapabilityHostSurfaceService {
     let sourcePath: string;
     try {
       sourcePath = this.resolveAllowedPath(rawSourcePath, 'camera.capture');
-    } catch (error: unknown) {
-      return buildScopeViolationResult({
+    } catch (error) {
+    logger.warn('[Node Host Capability Host Surface] load operation failed', error);
+    return buildScopeViolationResult({
         capabilityId: 'camera.capture',
         targetPath: rawSourcePath,
         error,
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    }
+  }
 
     if (!fs.existsSync(sourcePath)) {
       return {
@@ -330,15 +334,16 @@ export class NodeHostCapabilityHostSurfaceService {
       let sourcePath: string;
       try {
         sourcePath = this.resolveAllowedPath(rawSourcePath, 'location.read');
-      } catch (error: unknown) {
-        return buildScopeViolationResult({
+      } catch (error) {
+    logger.warn('[Node Host Capability Host Surface] load operation failed', error);
+    return buildScopeViolationResult({
           capabilityId: 'location.read',
           targetPath: rawSourcePath,
           error,
           workspaceRoot: this.workspaceRoot,
           allowedRoots: this.allowedRoots,
         });
-      }
+  }
 
       if (!fs.existsSync(sourcePath)) {
         return {
@@ -356,8 +361,9 @@ export class NodeHostCapabilityHostSurfaceService {
       let parsedFile: Record<string, unknown> | null = null;
       try {
         parsedFile = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
-      } catch (error: unknown) {
-        return {
+      } catch (error) {
+    logger.warn('[Node Host Capability Host Surface] JSON parse failed', error);
+    return {
           ok: false,
           resultSummary: 'location.read nao conseguiu ler o arquivo de localizacao informado.',
           stdout: null,
@@ -367,7 +373,7 @@ export class NodeHostCapabilityHostSurfaceService {
             sourcePath,
           },
         };
-      }
+  }
 
       const parsed = normalizeNodeHostLocationPayload(parsedFile);
       if (!parsed) {

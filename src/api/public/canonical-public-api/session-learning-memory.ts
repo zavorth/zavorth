@@ -115,15 +115,15 @@ export function executeLearningAction(
 ): LearningActionResultDTO {
   const learningPlane = runtime.getLearningPlane();
   if (!learningPlane || typeof learningPlane.executeAction !== 'function') {
-    throw new Error('Learning plane indisponivel.');
+    throw new Error('Learning plane is unavailable.');
   }
   const candidateId = support.normalizeValue(input.candidateId);
   const actionId = normalizeLearningActionId(input.actionId);
   if (!candidateId) {
-    throw new Error('candidateId obrigatorio.');
+    throw new Error('candidateId is required.');
   }
   if (!actionId) {
-    throw new Error('actionId invalido para learning plane.');
+    throw new Error('Invalid actionId for learning plane.');
   }
 
   const execution = learningPlane.executeAction({

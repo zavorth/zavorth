@@ -3,8 +3,9 @@ import path from 'path';
 import { config } from '../../config/index.js';
 import type { SystemLog } from '../../storage/LogRepository.js';
 import { isWeakZavorthControlToken } from '../ZavorthControlTokenService.js';
+import { logger } from '../../logger.js';
 import type {
-  MaintenanceSnapshot,
+MaintenanceSnapshot,
   StorageSnapshot,
   HotspotEntry,
   RecentErrorsSnapshot,
@@ -23,6 +24,31 @@ type OperationsHealthOpsSnapshotSupportOptions = {
   readFileSync: typeof fs.readFileSync;
   logRepo: { getRecentLogs: (limit: number) => SystemLog[] };
 };
+
+interface ParsedPublishStatus {
+  publishedAt?: string;
+  branch?: string;
+  commit?: string;
+  sourceArchiveId?: string;
+  gitPush?: string;
+  smokeTest?: string;
+  targets?: {
+    docs?: {
+      productionUrl?: string;
+      deploymentUrl?: string;
+    };
+    remoteConsole?: {
+      productionUrl?: string;
+      deploymentUrl?: string;
+    };
+  };
+}
+
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
 
 export class OperationsHealthOpsSnapshotSupport {
   private readonly now: () => Date;
@@ -67,8 +93,9 @@ export class OperationsHealthOpsSnapshotSupport {
         withSoak: parsed.withSoak === true,
         withPublish: parsed.withPublish === true,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Operations  Ops Snapshot] parsing failed', error);
+    return {
         available: false,
         startedAt: null,
         finishedAt: null,
@@ -78,7 +105,7 @@ export class OperationsHealthOpsSnapshotSupport {
         withSoak: false,
         withPublish: false,
       };
-    }
+  }
   }
 
   public readStorageSnapshot(cachedHotspotsOnly = false): StorageSnapshot {
@@ -91,10 +118,11 @@ export class OperationsHealthOpsSnapshotSupport {
       const blockSize = Number(stats.bsize || 0);
       totalBytes = Number(stats.blocks || 0) * blockSize;
       freeBytes = Number(stats.bavail || 0) * blockSize;
-    } catch {
-      totalBytes = 0;
+    } catch (error) {
+    logger.warn('[Operations  Ops Snapshot] filesystem check failed', error);
+    totalBytes = 0;
       freeBytes = 0;
-    }
+  }
 
     const usedBytes = Math.max(0, totalBytes - freeBytes);
     const freePercent = totalBytes > 0 ? Math.round((freeBytes / totalBytes) * 1000) / 10 : 0;
@@ -220,7 +248,7 @@ export class OperationsHealthOpsSnapshotSupport {
         };
       }
 
-      const parsed = JSON.parse(this.readFileSync(config.lastPublishStatusFile, 'utf8')) as Record<string, unknown>;
+      const parsed = JSON.parse(this.readFileSync(config.lastPublishStatusFile, 'utf8')) as ParsedPublishStatus;
       return {
         available: true,
         publishedAt: typeof parsed.publishedAt === 'string' ? parsed.publishedAt : null,
@@ -243,8 +271,9 @@ export class OperationsHealthOpsSnapshotSupport {
         smokeTest: typeof parsed.smokeTest === 'string' ? parsed.smokeTest : null,
         history: this.readPublishHistory(),
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Operations  Ops Snapshot] parsing failed', error);
+    return {
         available: false,
         publishedAt: null,
         branch: null,
@@ -256,7 +285,7 @@ export class OperationsHealthOpsSnapshotSupport {
         smokeTest: null,
         history: this.readPublishHistory(),
       };
-    }
+  }
   }
 
   public readPublishHistory(): PublishHistoryEntry[] {
@@ -270,28 +299,32 @@ export class OperationsHealthOpsSnapshotSupport {
         return [];
       }
 
-      return parsed.slice(0, 4).map((entry: Record<string, unknown>) => ({
-        publishedAt: typeof entry.publishedAt === 'string' ? entry.publishedAt : null,
-        branch: typeof entry.branch === 'string' ? entry.branch : null,
-        commit: typeof entry.commit === 'string' ? entry.commit : null,
-        docsUrl:
-          typeof entry.targets?.docs?.productionUrl === 'string'
-            ? entry.targets.docs.productionUrl
-            : typeof entry.targets?.docs?.deploymentUrl === 'string'
-              ? entry.targets.docs.deploymentUrl
-              : null,
-        remoteConsoleUrl:
-          typeof entry.targets?.remoteConsole?.productionUrl === 'string'
-            ? entry.targets.remoteConsole.productionUrl
-            : typeof entry.targets?.remoteConsole?.deploymentUrl === 'string'
-              ? entry.targets.remoteConsole.deploymentUrl
-              : null,
-        archiveId: typeof entry.archive?.id === 'string' ? entry.archive.id : null,
-        sourceArchiveId: typeof entry.sourceArchiveId === 'string' ? entry.sourceArchiveId : null,
-      }));
-    } catch {
-      return [];
-    }
+      return parsed.slice(0, 4).map((entry: Record<string, unknown>) => {
+        const targets = record(entry.targets);
+        const docs = record(targets.docs);
+        const remoteConsole = record(targets.remoteConsole);
+        const archive = record(entry.archive);
+        return {
+          publishedAt: typeof entry.publishedAt === 'string' ? entry.publishedAt : null,
+          branch: typeof entry.branch === 'string' ? entry.branch : null,
+          commit: typeof entry.commit === 'string' ? entry.commit : null,
+          docsUrl:
+            typeof docs.productionUrl === 'string'
+              ? docs.productionUrl
+              : typeof docs.deploymentUrl === 'string'
+                ? docs.deploymentUrl
+                : null,
+          remoteConsoleUrl:
+            typeof remoteConsole.productionUrl === 'string'
+              ? remoteConsole.productionUrl
+              : typeof remoteConsole.deploymentUrl === 'string'
+                ? remoteConsole.deploymentUrl
+                : null,
+          archiveId: typeof archive.id === 'string' ? archive.id : null,
+          sourceArchiveId: typeof entry.sourceArchiveId === 'string' ? entry.sourceArchiveId : null,
+        };
+      });
+    } catch (error) { logger.warn('[Operations  Ops Snapshot] operation failed', error); return []; }
   }
 
   public readMaintenanceAutomationSnapshot(): MaintenanceAutomationSnapshot {
@@ -368,9 +401,7 @@ export class OperationsHealthOpsSnapshotSupport {
           lastReportStepCount: Array.isArray(report.steps) ? report.steps.length : 0,
         };
       }
-    } catch {
-      // Ignore report parsing failures and preserve state snapshot.
-    }
+    } catch (error) { // Ignore report parsing failures and preserve state snapshot. logger.warn('[Operations  Ops Snapshot] JSON parse failed', error); }
 
     return state;
   }
@@ -433,9 +464,7 @@ export class OperationsHealthOpsSnapshotSupport {
         total += this.safeDirectorySize(path.join(targetPath, entry.name));
       }
       return total;
-    } catch {
-      return 0;
-    }
+    } catch (error) { logger.warn('[Operations  Ops Snapshot] filesystem operation failed', error); return 0; }
   }
 
   public shouldIgnoreOperationalWarning(entry: SystemLog): boolean {
@@ -498,13 +527,14 @@ export class OperationsHealthOpsSnapshotSupport {
         ok: typeof parsed.ok === 'boolean' ? parsed.ok : null,
         summary: typeof parsed.summary === 'string' ? parsed.summary : null,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Operations  Ops Snapshot] JSON parse failed', error);
+    return {
         available: false,
         generatedAt: null,
         ok: null,
         summary: null,
       };
-    }
+  }
   }
 }

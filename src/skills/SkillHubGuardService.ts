@@ -50,13 +50,13 @@ export class SkillHubGuardService {
     const reasons: string[] = [];
 
     if (!scan.safeToImport) {
-      reasons.push('Conteudo bloqueado pelo scanner seletivo.');
+      reasons.push('Content blocked by the selective scanner.');
     }
     if (scan.skippedFiles.length > 0) {
       reasons.push('Arquivos fora do contrato de skill foram ignorados.');
     }
     if (scan.issues.some((issue) => issue.severity === 'warn')) {
-      reasons.push('Avisos de seguranca exigem revisao antes de promover a skill.');
+      reasons.push('Security warnings require review before promoting the skill.');
     }
     if (sourceTrust === 'community' || sourceTrust === 'agent-created' || sourceTrust === 'unknown') {
       reasons.push('Fonte sem confianca plena exige quarentena e revisao.');

@@ -112,10 +112,10 @@ async function main() {
   console.log('[channels:install] panorama');
   console.log(`[channels:install] .env: ${report.envFilePath}`);
   console.log(`[channels:install] local: ${report.localBaseUrl}`);
-  console.log(`[channels:install] publico: ${report.publicBaseUrl || 'nao configurado'}`);
+  console.log(`[channels:install] public: ${report.publicBaseUrl || 'not configured'}`);
   for (const channel of report.channels) {
     console.log(
-      `[channels:install] ${channel.channelId}: readiness=${channel.readiness} | configured=${channel.configured ? 'sim' : 'nao'} | current=${channel.currentMode || 'nao configurado'} | recomendado=${channel.recommendedMode}`,
+      `[channels:install] ${channel.channelId}: readiness=${channel.readiness} | configured=${channel.configured ? 'yes' : 'no'} | current=${channel.currentMode || 'not configured'} | recommended=${channel.recommendedMode}`,
     );
     console.log(`- ${channel.summary}`);
     if (channel.localWebhookUrl) {
@@ -135,6 +135,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`[channels:install] falha: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`[channels:install] failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });

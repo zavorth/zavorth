@@ -4,6 +4,7 @@ import { spawnSync } from 'child_process';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import { MemoryService } from './MemoryService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export interface LoopSessionState {
   sessionId: string;
@@ -30,6 +31,13 @@ export interface LoopSessionState {
   finalPlan?: string;
 }
 
+type JudgeResult = {
+  grades: Record<string, number>;
+  average: number;
+  weakPoint: string;
+  critique: string;
+};
+
 export class LoopEngineeringService {
   private readonly llm: LlmRuntimeService;
   private readonly memory: MemoryService;
@@ -53,9 +61,10 @@ export class LoopEngineeringService {
     try {
       const content = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(content);
-    } catch {
-      return { sessionId, status: 'IDLE', task: '' };
-    }
+    } catch (error) {
+    logger.warn('[Loop Engineering] JSON parse failed', error);
+    return { sessionId, status: 'IDLE', task: '' };
+  }
   }
 
   public async saveSessionState(state: LoopSessionState): Promise<void> {
@@ -70,9 +79,7 @@ export class LoopEngineeringService {
     if (fs.existsSync(filePath)) {
       try {
         fs.unlinkSync(filePath);
-      } catch {
-        // Ignorar erros na remoção
-      }
+      } catch (error) { // Best effort cleanup only. logger.warn('[Loop Engineering] file cleanup failed', error); }
     }
   }
 
@@ -89,7 +96,7 @@ export class LoopEngineeringService {
   public async initiateLoop(
     sessionId: string,
     task: string,
-    options: { auto?: boolean; grill?: boolean; userId?: string } = {}
+    options: { auto?: boolean; grill?: boolean; userId?: string } = {},
   ): Promise<string> {
     const state: LoopSessionState = {
       sessionId,
@@ -114,20 +121,19 @@ export class LoopEngineeringService {
         answers: [],
       };
       await this.saveSessionState(state);
-      return `[Modo Guiado] Iniciando perguntas para esclarecer a tarefa:\n\n1️⃣ Pergunta: ${questions[0]}`;
+      return `[Guided Mode] Starting clarification questions:\n\n1. Question: ${questions[0]}`;
     }
 
-    // Sem flags: menu interativo
     state.status = 'WAITING_FOR_LOOP_MODE';
     await this.saveSessionState(state);
 
-    return `Selecione o modo de execução para a tarefa:\n"${task}"\n\n1️⃣ Automático (--auto)\n2️⃣ Guiado (--grill)\n\nDigite 1 ou 2 para selecionar, ou 'exit' para cancelar.`;
+    return `Select the execution mode for this task:\n"${task}"\n\n1. Automatic (--auto)\n2. Guided (--grill)\n\nType 1 or 2 to select, or 'exit' to cancel.`;
   }
 
   public async processInput(sessionId: string, userId: string, userInput: string): Promise<string> {
     const state = await this.getSessionState(sessionId);
     if (state.status === 'IDLE') {
-      return 'Nenhum loop ativo. Use o comando /loop <tarefa> para iniciar.';
+      return 'No active loop. Use /loop <task> to start.';
     }
 
     const cleanInput = userInput.trim();
@@ -138,7 +144,8 @@ export class LoopEngineeringService {
         state.mode = 'auto';
         await this.saveSessionState(state);
         return this.runAutoLoop(sessionId, userId, state.task);
-      } else if (cleanInput === '2' || cleanInput.toLowerCase().includes('grill')) {
+      }
+      if (cleanInput === '2' || cleanInput.toLowerCase().includes('grill')) {
         state.status = 'GRILLING';
         state.mode = 'grill';
         const questions = await this.generateGrillQuestions(state.task);
@@ -148,17 +155,17 @@ export class LoopEngineeringService {
           answers: [],
         };
         await this.saveSessionState(state);
-        return `[Modo Guiado] Iniciando perguntas para esclarecer a tarefa:\n\n1️⃣ Pergunta: ${questions[0]}`;
-      } else {
-        return `Seleção inválida.\n\nSelecione o modo de execução para a tarefa:\n"${state.task}"\n\n1️⃣ Automático (--auto)\n2️⃣ Guiado (--grill)\n\nDigite 1 ou 2 para selecionar, ou 'exit' para cancelar.`;
+        return `[Guided Mode] Starting clarification questions:\n\n1. Question: ${questions[0]}`;
       }
+
+      return `Invalid selection.\n\nSelect the execution mode for this task:\n"${state.task}"\n\n1. Automatic (--auto)\n2. Guided (--grill)\n\nType 1 or 2 to select, or 'exit' to cancel.`;
     }
 
     if (state.status === 'GRILLING') {
       if (!state.grillState) {
         state.status = 'IDLE';
         await this.clearSessionState(sessionId);
-        return 'Estado inválido detectado. O loop foi resetado.';
+        return 'Invalid state detected. The loop was reset.';
       }
 
       state.grillState.answers.push(cleanInput);
@@ -168,23 +175,22 @@ export class LoopEngineeringService {
       if (nextIndex < state.grillState.questions.length) {
         await this.saveSessionState(state);
         return `Question ${nextIndex + 1}: ${state.grillState.questions[nextIndex]}`;
-      } else {
-        // Todas respondidas! Executar loop guiado
-        state.status = 'EXECUTING_LOOP';
-        await this.saveSessionState(state);
-        return this.runGrillLoop(sessionId, userId, state.task, state.grillState.answers);
       }
+
+      state.status = 'EXECUTING_LOOP';
+      await this.saveSessionState(state);
+      return this.runGrillLoop(sessionId, userId, state.task, state.grillState.answers);
     }
 
-    return 'O loop está executando, aguarde a conclusão.';
+    return 'The loop is running. Wait for it to finish.';
   }
 
   private async generateGrillQuestions(task: string): Promise<string[]> {
-    const prompt = `Você é um Engenheiro de Requisitos especialista. Analise a seguinte tarefa de engenharia e gere uma lista contendo entre 2 e 5 perguntas claras e diretas para esclarecer os critérios de sucesso técnico e os requisitos da tarefa.
-Responda APENAS com um array JSON de strings no formato:
-["Pergunta 1", "Pergunta 2", ...]
+    const prompt = `You are an expert requirements engineer. Analyze the following engineering task and generate 2 to 5 clear, direct questions that clarify technical success criteria and requirements.
+Respond ONLY with a JSON string array in this format:
+["Question 1", "Question 2", ...]
 
-Tarefa: "${task}"`;
+Task: "${task}"`;
 
     try {
       const response = await this.askLlm(prompt);
@@ -193,30 +199,28 @@ Tarefa: "${task}"`;
       if (Array.isArray(parsed) && parsed.length >= 2 && parsed.length <= 5) {
         return parsed.map(String);
       }
-    } catch {
-      // Ignorar erro e prosseguir para o fallback
-    }
+    } catch (error) { // Fall back to safe default questions. logger.warn('[Loop Engineering] JSON parse failed', error); }
 
     return [
-      'Qual é o comportamento esperado para cenários de erro ou entradas inválidas?',
-      'Há alguma restrição de desempenho ou limite de processamento necessário?',
-      'Quais são os formatos e tipos das principais saídas esperadas?',
+      'What behavior is expected for error scenarios or invalid inputs?',
+      'Are there any performance constraints or processing limits?',
+      'What are the formats and types of the main expected outputs?',
     ];
   }
 
   private async generateRubric(task: string, answersContext?: string): Promise<string[]> {
-    const prompt = `Você é um Engenheiro de QA especialista. Com base na tarefa de engenharia e nas informações fornecidas, gere uma Rubrica contendo exatamente 3 critérios técnicos de sucesso detalhados e mensuráveis para validar a implementação.
-Responda APENAS com um JSON no formato:
+    const prompt = `You are an expert QA engineer. Based on the engineering task and the provided information, generate a rubric with exactly 3 detailed, measurable technical success criteria for validating the implementation.
+Respond ONLY with JSON in this format:
 {
   "criteria": [
-    "Critério 1: descrição técnica...",
-    "Critério 2: descrição técnica...",
-    "Critério 3: descrição técnica..."
+    "Criterion 1: technical description...",
+    "Criterion 2: technical description...",
+    "Criterion 3: technical description..."
   ]
 }
 
-Tarefa: "${task}"
-${answersContext ? `Respostas fornecidas pelo usuário:\n${answersContext}` : ''}`;
+Task: "${task}"
+${answersContext ? `User-provided answers:\n${answersContext}` : ''}`;
 
     try {
       const response = await this.askLlm(prompt);
@@ -225,14 +229,12 @@ ${answersContext ? `Respostas fornecidas pelo usuário:\n${answersContext}` : ''
       if (parsed && Array.isArray(parsed.criteria) && parsed.criteria.length === 3) {
         return parsed.criteria.map(String);
       }
-    } catch {
-      // Fallback
-    }
+    } catch (error) { // Use deterministic fallback criteria. logger.warn('[Loop Engineering] JSON parse failed', error); }
 
     return [
-      'Critério 1: A sintaxe e estrutura do código devem ser válidas em Javascript.',
-      'Critério 2: O código deve implementar a lógica core da tarefa especificada.',
-      'Critério 3: O código deve retornar resultados consistentes sem falhas em tempo de execução.',
+      'Criterion 1: The JavaScript syntax and structure must be valid.',
+      'Criterion 2: The code must implement the core logic of the specified task.',
+      'Criterion 3: The code must return consistent results without runtime failures.',
     ];
   }
 
@@ -244,7 +246,7 @@ ${answersContext ? `Respostas fornecidas pelo usuário:\n${answersContext}` : ''
   public async runGrillLoop(sessionId: string, userId: string, task: string, answers: string[]): Promise<string> {
     const state = await this.getSessionState(sessionId);
     const questions = state.grillState?.questions || [];
-    const answersContext = questions.map((q, i) => `P: ${q}\nR: ${answers[i] || ''}`).join('\n\n');
+    const answersContext = questions.map((questionText, index) => `Q: ${questionText}\nA: ${answers[index] || ''}`).join('\n\n');
     const rubric = await this.generateRubric(task, answersContext);
     return this.executeEngine(sessionId, userId, task, rubric);
   }
@@ -270,29 +272,27 @@ ${answersContext ? `Respostas fornecidas pelo usuário:\n${answersContext}` : ''
     while (iterations < 5) {
       iterations++;
 
-      // 1. Executor LLM gera código
-      const executorPrompt = `Você é um Desenvolvedor de Software especialista.
-Implemente a solução em Javascript para a seguinte tarefa de engenharia.
+      const executorPrompt = `You are an expert software developer.
+Implement the JavaScript solution for the following engineering task.
 
-Tarefa: "${task}"
+Task: "${task}"
 
-Rubrica de Validação:
-- criterio1: ${rubric[0]}
-- criterio2: ${rubric[1]}
-- criterio3: ${rubric[2]}
+Validation rubric:
+- criterion1: ${rubric[0]}
+- criterion2: ${rubric[1]}
+- criterion3: ${rubric[2]}
 
 ${
   iterations > 1
-    ? `Esta é a iteração ${iterations}. O código gerado na iteração anterior foi:\n\`\`\`javascript\n${currentCode}\n\`\`\`\n\nA avaliação anterior identificou como ponto mais fraco: "${currentWeakPoint}".\nCrítica construtiva: ${currentCritique}\n\nAjuste e aprimore o código para corrigir essa falha e melhorar a nota.`
-    : 'Escreva a melhor implementação inicial possível.'
+    ? `This is iteration ${iterations}. The code generated in the previous iteration was:\n\`\`\`javascript\n${currentCode}\n\`\`\`\n\nThe previous evaluation identified the weakest point as: "${currentWeakPoint}".\nConstructive critique: ${currentCritique}\n\nAdjust and improve the code to fix that weakness and improve the score.`
+    : 'Write the best possible initial implementation.'
 }
 
-Forneça APENAS o código JavaScript funcional completo, sem explicações em markdown fora do código.`;
+Provide ONLY the complete functional JavaScript code, with no markdown explanations outside the code.`;
 
       const executorResponse = await this.askLlm(executorPrompt);
       currentCode = this.extractCode(executorResponse);
 
-      // 2. Execução no Sandbox (Syntax Check)
       const sandboxFile = path.join(sandboxDir, `sandbox_${sessionId}_iter_${iterations}.js`);
       fs.writeFileSync(sandboxFile, currentCode, 'utf8');
 
@@ -302,71 +302,78 @@ Forneça APENAS o código JavaScript funcional completo, sem explicações em ma
         ? 'Syntax check passed successfully.'
         : `Syntax check failed.\nError:\n${checkResult.stderr || checkResult.stdout}`;
 
-      // 3. Juiz LLM avalia a iteração
-      const judgePrompt = `Você é um Juiz de Código especialista. Avalie a seguinte implementação e o resultado da execução do sandbox com base nas 3 regras/critérios da Rubrica técnica.
-Atribua uma nota de 1 a 10 para cada critério. Calcule a média aritmética simples das 3 notas.
-Identifique o ponto mais fraco (a chave do critério com menor nota: "criterio1", "criterio2" ou "criterio3") e escreva uma crítica construtiva específica para guiar a melhora desse ponto na próxima iteração.
+      const judgePrompt = `You are an expert code judge. Evaluate the implementation and sandbox result against the 3 rules/criteria in the technical rubric.
+Assign a score from 1 to 10 for each criterion. Calculate the simple arithmetic average of the 3 scores.
+Identify the weakest point (the criterion key with the lowest score: "criterion1", "criterion2", or "criterion3") and write a specific constructive critique to guide the next iteration.
 
-Rubrica:
-- criterio1: ${rubric[0]}
-- criterio2: ${rubric[1]}
-- criterio3: ${rubric[2]}
+Rubric:
+- criterion1: ${rubric[0]}
+- criterion2: ${rubric[1]}
+- criterion3: ${rubric[2]}
 
-Implementação (código):
+Implementation:
 \`\`\`javascript
 ${currentCode}
 \`\`\`
 
-Resultado do Sandbox (Syntax/Compile Check):
+Sandbox result:
 ${sandboxOutput}
 
-Responda APENAS com um JSON no seguinte formato:
+Respond ONLY with JSON in this format:
 {
-  "notas": {
-    "criterio1": <nota 1 a 10>,
-    "criterio2": <nota 1 a 10>,
-    "criterio3": <nota 1 a 10>
+  "grades": {
+    "criterion1": <score 1 to 10>,
+    "criterion2": <score 1 to 10>,
+    "criterion3": <score 1 to 10>
   },
-  "media": <média aritmética>,
-  "ponto_mais_fraco": "criterio1" | "criterio2" | "criterio3",
-  "critica_construtiva": "<crítica detalhada>"
+  "average": <arithmetic average>,
+  "weakPoint": "criterion1" | "criterion2" | "criterion3",
+  "critique": "<detailed critique>"
 }`;
 
-      let judgeResult = {
-        notas: { criterio1: 5, criterio2: 5, criterio3: 5 },
-        media: 5,
-        ponto_mais_fraco: 'criterio2',
-        critica_construtiva: 'Melhore a consistência geral do código.',
+      let judgeResult: JudgeResult = {
+        grades: { criterion1: 5, criterion2: 5, criterion3: 5 },
+        average: 5,
+        weakPoint: 'criterion2',
+        critique: 'Improve the overall consistency of the code.',
       };
 
       try {
         const judgeResponse = await this.askLlm(judgePrompt);
         const cleanedJudge = judgeResponse.replace(/```json/g, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(cleanedJudge);
-        if (parsed && parsed.notas && typeof parsed.media === 'number' && parsed.ponto_mais_fraco) {
-          judgeResult = parsed;
+        const grades = parsed.grades || parsed.notas;
+        const parsedAverage = typeof parsed.average === 'number' ? parsed.average : parsed.media;
+        const parsedWeakPoint = parsed.weakPoint || parsed.ponto_mais_fraco;
+        const parsedCritique = parsed.critique || parsed.critica_construtiva;
+        if (grades && typeof parsedAverage === 'number' && parsedWeakPoint) {
+          judgeResult = {
+            grades,
+            average: parsedAverage,
+            weakPoint: String(parsedWeakPoint),
+            critique: String(parsedCritique || ''),
+          };
         }
       } catch {
-        // Fallback robusto se falhar parsing
-        const isSyntaxOk = ok ? 10 : 3;
+        const syntaxScore = ok ? 10 : 3;
         judgeResult = {
-          notas: { criterio1: isSyntaxOk, criterio2: 7, criterio3: 6 },
-          media: (isSyntaxOk + 7 + 6) / 3,
-          ponto_mais_fraco: ok ? 'criterio3' : 'criterio1',
-          critica_construtiva: ok
-            ? 'Aprimore a lógica operacional interna.'
-            : 'Corrija os erros de sintaxe identificados no sandbox.',
+          grades: { criterion1: syntaxScore, criterion2: 7, criterion3: 6 },
+          average: (syntaxScore + 7 + 6) / 3,
+          weakPoint: ok ? 'criterion3' : 'criterion1',
+          critique: ok
+            ? 'Improve the internal operational logic.'
+            : 'Fix the syntax errors identified by the sandbox.',
         };
       }
 
-      average = judgeResult.media;
-      currentCritique = judgeResult.critica_construtiva;
-      currentWeakPoint = judgeResult.ponto_mais_fraco;
+      average = judgeResult.average;
+      currentCritique = judgeResult.critique;
+      currentWeakPoint = judgeResult.weakPoint;
 
       state.history!.push({
         iteration: iterations,
         code: currentCode,
-        grades: judgeResult.notas,
+        grades: judgeResult.grades,
         average,
         weakPoint: currentWeakPoint,
         critique: currentCritique,
@@ -374,32 +381,27 @@ Responda APENAS com um JSON no seguinte formato:
       });
       await this.saveSessionState(state);
 
-      // Clean up sandbox file to respect file hygiene
       try {
         fs.unlinkSync(sandboxFile);
-      } catch {
-        // ignore
-      }
+      } catch (error) { // Best effort cleanup only. logger.warn('[Loop Engineering] file cleanup failed', error); }
 
       if (average >= 8.0) {
         break;
       }
     }
 
-    // 4. Mutation Plan & Diff Proposal
-    const mutationPrompt = `Você é um Engenheiro de Software. Com base no código final gerado para a tarefa, gere um Plano de Mutação (Mutation Plan) detalhando as alterações e arquivos propostos.
-Tarefa: "${task}"
-Código Final:
+    const mutationPrompt = `You are a software engineer. Based on the final code generated for the task, produce a Mutation Plan describing proposed changes and files.
+Task: "${task}"
+Final code:
 \`\`\`javascript
 ${currentCode}
 \`\`\`
-Gere um Mutation Plan limpo e conciso em formato de plano ou diff markdown.`;
+Generate a clean, concise Mutation Plan in plan or diff markdown format.`;
 
     const mutationPlan = await this.askLlm(mutationPrompt);
     state.finalPlan = mutationPlan;
     await this.saveSessionState(state);
 
-    // 5. Persistir em Memória de Longo Prazo
     const key = `loop_criteria_${this.slugify(task)}`;
     try {
       await this.memory.remember(
@@ -411,33 +413,30 @@ Gere um Mutation Plan limpo e conciso em formato de plano ou diff markdown.`;
           history: state.history,
           finalCode: currentCode,
         }),
-        'loop_engineering'
+        'loop_engineering',
       );
-    } catch {
-      // Ignora erro de BD em ambiente de teste
-    }
+    } catch (error) { // Memory persistence is best effort in test environments. logger.warn('[Loop Engineering] operation failed', error); }
 
-    // Formatar output final de apresentação
     const historyLines = state.history!.map(
-      (h) => `- Iteração ${h.iteration}: Média ${h.average.toFixed(2)} (Mais fraco: ${h.weakPoint})`
+      (entry) => `- Iteration ${entry.iteration}: Average ${entry.average.toFixed(2)} (weakest: ${entry.weakPoint})`,
     );
 
     const resultSummary = [
-      '🚀 **Loop de Engenharia Finalizado**',
-      `Tarefa: "${task}"`,
+      'Engineering loop finished',
+      `Task: "${task}"`,
       '',
-      '📋 **Critérios de Sucesso (Rubrica):**',
-      `- criterio1: ${rubric[0]}`,
-      `- criterio2: ${rubric[1]}`,
-      `- criterio3: ${rubric[2]}`,
+      'Success Criteria Rubric:',
+      `- criterion1: ${rubric[0]}`,
+      `- criterion2: ${rubric[1]}`,
+      `- criterion3: ${rubric[2]}`,
       '',
-      '📈 **Histórico de Notas:**',
+      'Grade History:',
       ...historyLines,
       '',
-      '🔍 **Plano de Mutação Proposto:**',
+      'Proposed Mutation Plan:',
       mutationPlan,
       '',
-      '💾 Resultados e critérios de sucesso salvos na memória persistente.',
+      'Results and success criteria were saved to persistent memory.',
     ].join('\n');
 
     await this.clearSessionState(sessionId);

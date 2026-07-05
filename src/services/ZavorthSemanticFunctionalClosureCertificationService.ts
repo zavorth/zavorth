@@ -98,8 +98,8 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
         priorityPoliciesCertified: claims.filter((claim) => claim.kind === 'priority-closure-policy').length,
         decisionPoliciesCertified: claims.filter((claim) => claim.kind === 'decision-closure-policy').length,
         scenariosPassed: scenarios.filter((scenario) => scenario.status === 'passed').length,
-        closureItems: closure.summary.items,
-        closureReceipts: closure.summary.receipts,
+        closureItems: closure.items.length,
+        closureReceipts: closure.receipts.length,
         p0Items: closure.summary.p0Items,
         p1Items: closure.summary.p1Items,
         p2Items: closure.summary.p2Items,
@@ -435,7 +435,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       kind: 'artifact-receipt-policy',
       status: closure.policy.artifactFirstReceipts
         && closure.receipts.every((receipt) => receipt.artifactFirst)
-        && closure.summary.receiptBackedItems === closure.summary.items
+        && closure.summary.receiptBackedItems === closure.items.length
           ? 'covered'
           : 'gap',
       priority: 'P0',
@@ -444,8 +444,8 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       evidence: [
         `artifactFirstReceipts=${closure.policy.artifactFirstReceipts}`,
         `receiptBackedItems=${closure.summary.receiptBackedItems}`,
-        `items=${closure.summary.items}`,
-        `receipts=${closure.summary.receipts}`,
+        `items=${closure.items.length}`,
+        `receipts=${closure.receipts.length}`,
       ],
       receiptIds: closure.receipts.map((receipt) => receipt.id),
       notes: ['No closure item is accepted without a receipt.'],
@@ -503,13 +503,13 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       }),
       this.claim({
         kind: 'unsafe-closure-policy',
-        status: closure.summary.receiptBackedItems === closure.summary.items ? 'rejected' : 'gap',
+        status: closure.summary.receiptBackedItems === closure.items.length ? 'rejected' : 'gap',
         priority: 'P0',
         expectedBehavior: 'The architecture must reject unreceipted functional closure items.',
         zavorthEquivalent: 'Receipt-backed items must equal all closure items.',
         evidence: [
           `receiptBackedItems=${closure.summary.receiptBackedItems}`,
-          `items=${closure.summary.items}`,
+          `items=${closure.items.length}`,
         ],
         receiptIds: [`${RECEIPT_PREFIX}.reject.unreceipted-closure-item`],
         notes: ['Rejected here means unreceipted closure is intentionally not accepted.'],

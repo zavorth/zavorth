@@ -1,18 +1,17 @@
 /**
- * DuckDuckGoSearchAdapter â€” Adapter Zavorth-nativo para busca web via DuckDuckGo.
+ * DuckDuckGoSearchAdapter - Zavorth-native web search adapter for DuckDuckGo.
  *
- * Este adapter encapsula a comunicaÃ§Ã£o com o motor de busca DuckDuckGo,
- * isolando todos os detalhes do provedor. TambÃ©m inclui um fallback
- * para Bing Web scraping quando o DuckDuckGo estÃ¡ indisponÃ­vel.
+ * Encapsulates DuckDuckGo search engine communication and isolates provider details.
+ * Includes a Bing web scraping fallback when DuckDuckGo is unavailable.
  *
- * O adapter Ã© responsÃ¡vel por:
- * - Executar a busca via duck-duck-scrape.
- * - Aplicar backoff/rate-limiting sequencial.
- * - Fazer fallback para Bing Web se DuckDuckGo falhar.
- * - Converter resultados para AdapterSearchOutput.
- * - NUNCA retornar dados como autoridade do domÃ­nio.
+ * Responsibilities:
+ * - Run searches through duck-duck-scrape.
+ * - Apply sequential backoff/rate limiting.
+ * - Fall back to Bing Web when DuckDuckGo fails.
+ * - Convert results into AdapterSearchOutput.
+ * - Never return data as domain authority.
  *
- * ReferÃªncias arquiteturais:
+ * Architecture references:
  * - docs/native-absorption-execution-plan.md
  * - src/contracts/SearchQueryContract.ts
  *
@@ -73,7 +72,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
       const items: AdapterSearchItem[] = results.results
         .slice(0, limit)
         .map((result: DuckDuckGoResultItem, index: number) => ({
-          title: String(result.title || 'Sem titulo').trim(),
+          title: String(result.title || 'Untitled').trim(),
           url: String(result.url || '').trim(),
           description: String(result.description || '').trim(),
           originalRank: index + 1,
@@ -94,7 +93,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
   }
 
   // -------------------------------------------------------------------------
-  // DuckDuckGo com backoff
+  // DuckDuckGo with backoff
   // -------------------------------------------------------------------------
 
   private async searchWithBackoff(query: string): Promise<DuckDuckGoSearchResponse> {
@@ -173,7 +172,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
         return {
           title: this.stripHtml(linkMatch[2]),
           url: this.normalizeBingUrl(this.stripHtml(linkMatch[1])),
-          description: descMatch?.[1] ? this.stripHtml(descMatch[1]) : 'Trecho indisponivel.',
+          description: descMatch?.[1] ? this.stripHtml(descMatch[1]) : 'Snippet unavailable.',
           originalRank: index + 1,
           sourceQuery,
         };
@@ -221,7 +220,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
 }
 
 // ---------------------------------------------------------------------------
-// Erros tipados
+// Typed errors
 // ---------------------------------------------------------------------------
 
 export class SearchAdapterError extends Error {

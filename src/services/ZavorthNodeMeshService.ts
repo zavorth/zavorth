@@ -81,7 +81,7 @@ export class ZavorthNodeMeshService {
       narrative: {
         headline: entries.length
           ? `Node Mesh expoe ${entries.length} node(s) registrados no control plane.`
-          : 'Node Mesh ainda nao tem nodes registrados no control plane.',
+          : 'Node Mesh does not have nodes registered in the control plane yet.',
         operatorSummary: entries.length
           ? `${summary.paired} pareado(s), ${summary.pending} pendente(s), ${summary.online} online, ${summary.queued} invocacao(oes) na fila, ${summary.expiredDrafts || 0} pairing(s) expirado(s), ${summary.staleQueued || 0} item(ns) antigo(s), ${maintenanceCapable} host(s) com node.maintenance e perfis ${desktopCount} desktop / ${mobileCount} mobile / ${browserCount} browser.${this.buildRecoveryNarrative(summary.expiredDrafts || 0, summary.staleQueued || 0, hasMaintenanceRecoverCandidate)}`
           : 'Crie o primeiro pairing para ligar um node headless, desktop ou bridge remoto ao Zavorth.',
@@ -127,7 +127,7 @@ export class ZavorthNodeMeshService {
       narrative: {
         headline: selected.capabilities.length
           ? `${selected.label || selected.id} anuncia ${selected.capabilities.length} capability(ies) no mesh.`
-          : `${selected.label || selected.id} ainda nao declarou capabilities para o mesh.`,
+          : `${selected.label || selected.id} has not declared capabilities for the mesh yet.`,
         operatorSummary: selected.capabilities.length
           ? `${risky} capability(ies) marcada(s) como sensivel(is) e categorias ${categories.join(', ') || 'misc'}.${maintenanceNarrative ? ` ${maintenanceNarrative}` : ''}`
           : 'Atualize o catalogo do node host antes de invocar a malha remota.',
@@ -183,7 +183,7 @@ export class ZavorthNodeMeshService {
               : `${queueSummary.stalePending} pendente(s) e ${queueSummary.staleClaimed} claimed antiga(s) precisam de revisao operacional. Use doctor/recover com release-stale-claims para higienizar a fila.`)
             : (latest
                 ? (maintenanceActivity || `Ultima activity: ${latest.capabilityId} em status ${latest.status}.`)
-                : 'Ainda nao existe historico recente de invocacoes para este node.'),
+                : 'There is no recent invocation history for this node yet.'),
         },
     };
   }
@@ -238,7 +238,7 @@ export class ZavorthNodeMeshService {
       return `Gerar um novo pairing draft para ${contextualProfileLabel}; o codigo anterior expirou e foi invalidado.`;
     }
     if ((entry.approvedCapabilityIds?.length || 0) > 0 && (entry.approvedCapabilityIds?.length || 0) < entry.capabilityIds.length) {
-      return `${contextualProfileLabel} opera com allowlist restrita (${entry.approvedCapabilityIds?.length || 0}/${entry.capabilityIds.length} capability(s) aprovada(s)).`;
+      return `${contextualProfileLabel} operates with a restricted allowlist (${entry.approvedCapabilityIds?.length || 0}/${entry.capabilityIds.length} approved capability(s)).`;
     }
     if (queueSummary.stalePending > 0 || queueSummary.staleClaimed > 0) {
       if (supportsMaintenance) {
@@ -295,7 +295,7 @@ export class ZavorthNodeMeshService {
           reason: `${staleQueue.stalePendingInvocations || 0} pendente(s) e ${staleQueue.staleClaimedInvocations || 0} claimed antiga(s) ficaram presas na malha.`,
           actionHint: supportsMaintenance
             ? 'Use o recover do Node Mesh com queue-node-host-maintenance para enfileirar node.maintenance/repair e acompanhe o proximo heartbeat do host.'
-            : 'Use o recover do Node Mesh com release-stale-claims e confira o ultimo heartbeat antes de continuar invocando.',
+            : 'Use Node Mesh recovery with release-stale-claims and check the latest heartbeat before continuing invocation.',
         },
       ];
     }

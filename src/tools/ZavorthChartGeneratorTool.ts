@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export class ZavorthChartGeneratorTool extends BaseTool {
   public readonly name = 'zavorth_chart_generator';
@@ -72,9 +73,7 @@ export class ZavorthChartGeneratorTool extends BaseTool {
     let data: Array<Record<string, unknown>>;
     try {
       data = JSON.parse(String(args.data || '[]'));
-    } catch {
-      return 'Error: invalid JSON for "data".';
-    }
+    } catch (error) { logger.warn('[Zavorth Chart Generator] JSON parse failed', error); return 'Error: invalid JSON for "data".'; }
 
     if (!Array.isArray(data) || data.length === 0) {
       return 'Error: "data" must be a non-empty array.';

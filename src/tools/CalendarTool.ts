@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 interface CalendarEvent {
   uid: string;
@@ -35,7 +36,7 @@ export class CalendarTool extends BaseTool {
       },
       start_time: {
         type: 'string',
-        description: 'Data/hora de inicio (ISO 8601).',
+        description: 'Start date/time (ISO 8601).',
       },
       end_time: {
         type: 'string',
@@ -70,7 +71,7 @@ export class CalendarTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
-    if (!action) return 'Erro: o parametro "action" e obrigatorio.';
+    if (!action) return 'Error: the "action" parameter is required.';
 
     const validActions = ['create', 'list', 'update', 'delete'];
     if (!validActions.includes(action)) {
@@ -90,12 +91,13 @@ export class CalendarTool extends BaseTool {
         case 'delete':
           return this.deleteEvent(args);
         default:
-          return `Erro: acao "${action}" nao implementada.`;
+          return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Calendar] delete operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Erro no calendario: ${message}`;
-    }
+  }
   }
 
   private ensureStorageDir(): void {
@@ -120,13 +122,13 @@ export class CalendarTool extends BaseTool {
 
   private createEvent(args: Record<string, unknown>): string {
     const title = String(args.title || '');
-    if (!title) return 'Erro: "title" e obrigatorio para create.';
+    if (!title) return 'Error: "title" is required for create.';
 
     const startTime = String(args.start_time || '');
-    if (!startTime) return 'Erro: "start_time" e obrigatorio para create.';
+    if (!startTime) return 'Error: "start_time" is required for create.';
 
     const endTime = String(args.end_time || '');
-    if (!endTime) return 'Erro: "end_time" e obrigatorio para create.';
+    if (!endTime) return 'Error: "end_time" is required for create.';
 
     if (isNaN(Date.parse(startTime))) return 'Erro: "start_time" invalido. Use formato ISO 8601.';
     if (isNaN(Date.parse(endTime))) return 'Erro: "end_time" invalido. Use formato ISO 8601.';
@@ -139,9 +141,7 @@ export class CalendarTool extends BaseTool {
     if (typeof args.attendees === 'string') {
       try {
         attendees = JSON.parse(args.attendees);
-      } catch {
-        return 'Erro: JSON de attendees invalido.';
-      }
+      } catch (error) { logger.warn('[Calendar] JSON parse failed', error); return 'Erro: JSON de attendees invalido.'; }
     }
 
     const event: CalendarEvent = {
@@ -200,7 +200,7 @@ export class CalendarTool extends BaseTool {
     const events = this.loadEvents();
 
     const event = events.find((e) => e.uid === uid || e.title === uid);
-    if (!event) return `Erro: evento "${uid}" nao encontrado.`;
+    if (!event) return `Error: event "${uid}" not found.`;
 
     if (typeof args.title === 'string' && args.title !== event.uid) event.title = args.title;
     if (typeof args.start_time === 'string') {
@@ -225,7 +225,7 @@ export class CalendarTool extends BaseTool {
     const events = this.loadEvents();
     const index = events.findIndex((e) => e.uid === uid || e.title === uid);
 
-    if (index === -1) return `Erro: evento "${uid}" nao encontrado.`;
+    if (index === -1) return `Error: event "${uid}" not found.`;
 
     const removed = events.splice(index, 1)[0];
     this.saveEvents(events);

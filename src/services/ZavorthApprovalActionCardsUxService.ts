@@ -141,7 +141,7 @@ function buildApprovalCard(input: {
     },
     rollback: {
       available: Boolean(rollback?.available || rollbackCommand),
-      command: rollbackCommand,
+      command: rollbackCommand || null,
       summary: text(rollback?.summary) || 'Rollback appears after a mutable plan prepares recovery metadata.',
     },
     receipt: {
@@ -152,7 +152,6 @@ function buildApprovalCard(input: {
     actions: [],
     safety: {
       policyBrokerRequired: true,
-      zavorthControlCanExecuteTargetAction: false,
       zavorthControlCanExecuteTargetAction: false,
       rawSecretsSerialized: false,
       approvalScopeBound: true,
@@ -172,7 +171,6 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
       approvalId: card.id,
       zavorthControlCanResolveApproval: false,
       zavorthControlCanExecuteTargetAction: false,
-      zavorthControlCanExecuteTargetAction: false,
       requiresApproval: false,
     },
   ];
@@ -186,7 +184,6 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
         approvalId: card.id,
         zavorthControlCanResolveApproval: true,
         zavorthControlCanExecuteTargetAction: false,
-        zavorthControlCanExecuteTargetAction: false,
         requiresApproval: false,
       },
       {
@@ -196,7 +193,6 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
         command: `zavorth approvals deny ${escapeCommandValue(card.id)}`,
         approvalId: card.id,
         zavorthControlCanResolveApproval: true,
-        zavorthControlCanExecuteTargetAction: false,
         zavorthControlCanExecuteTargetAction: false,
         requiresApproval: false,
       },
@@ -211,7 +207,6 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
       approvalId: card.id,
       zavorthControlCanResolveApproval: false,
       zavorthControlCanExecuteTargetAction: false,
-      zavorthControlCanExecuteTargetAction: false,
       requiresApproval: false,
     });
   }
@@ -222,7 +217,6 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
     command: card.receipt.command,
     approvalId: card.id,
     zavorthControlCanResolveApproval: false,
-    zavorthControlCanExecuteTargetAction: false,
     zavorthControlCanExecuteTargetAction: false,
     requiresApproval: false,
   });

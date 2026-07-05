@@ -16,6 +16,7 @@ import { SourceDocumentExtractionService } from './SourceDocumentExtractionServi
 import { SourceSearchFetchService } from './SourceSearchFetchService.js';
 import { ShellSafetyClassifier } from './ShellSafetyClassifier.js';
 import { resolveZavorthSourceRoot } from './ZavorthSourceRootResolver.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   now?: () => Date;
@@ -425,9 +426,7 @@ function dependencySectionNames(): Array<keyof PackageJsonShape> {
 function parseJson(text: string): PackageJsonShape | null {
   try {
     return JSON.parse(text) as PackageJsonShape;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Source Memory Document Terminal Pack] JSON parse failed', error); return null; }
 }
 
 function dedupeReferences(references: Reference[]): Reference[] {
@@ -441,9 +440,7 @@ function dedupeReferences(references: Reference[]): Reference[] {
 function readDir(absolutePath: string): fs.Dirent[] {
   try {
     return fs.readdirSync(absolutePath, { withFileTypes: true });
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[Source Memory Document Terminal Pack] filesystem operation failed', error); return []; }
 }
 
 function readText(absolutePath: string): string {
@@ -451,9 +448,7 @@ function readText(absolutePath: string): string {
     const stat = fs.statSync(absolutePath);
     if (stat.size > 25 * 1024 * 1024) return '';
     return fs.readFileSync(absolutePath, 'utf8');
-  } catch {
-    return '';
-  }
+  } catch (error) { logger.warn('[Source Memory Document Terminal Pack] filesystem operation failed', error); return ''; }
 }
 
 function normalizePath(input: string): string {

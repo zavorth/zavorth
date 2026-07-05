@@ -11,6 +11,7 @@ import {
   type PersistedTunnelState,
 } from "./cloudflaredTunnelTypes";
 import { ensureTunnelDir, getManagedBinaryPath, getTunnelDir } from "./cloudflaredTunnelPaths";
+import { logger } from '@/shared/utils/logger';
 
 const execFileAsync = promisify(execFile);
 
@@ -77,9 +78,7 @@ async function resolvePathCommand(command: string) {
       .map((line) => line.trim())
       .find(Boolean);
     return first || null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[cloudflared Tunnel Install] process execution failed', error); return null; }
 }
 
 export async function resolveBinary(): Promise<BinaryResolution> {
@@ -165,9 +164,7 @@ export async function installManagedBinary(input: {
     } finally {
       try {
         await fs.unlink(tempDownloadPath);
-      } catch {
-        // Ignore temp cleanup issues.
-      }
+      } catch (error) { // Ignore temp cleanup issues. logger.warn('[cloudflared Tunnel Install] file cleanup failed', error); }
       input.installPromiseRef.current = null;
     }
   })();

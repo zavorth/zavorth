@@ -3,6 +3,7 @@ import { TrustedWorkspaceService } from './TrustedWorkspaceService.js';
 import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
+import { logger } from '../logger.js';
 
 export interface BetaChecklistItem {
   id: string;
@@ -27,144 +28,120 @@ export class InternalBetaChecklistService {
   public async getChecklist(workspaceId: string): Promise<BetaChecklistItem[]> {
     const checklist: BetaChecklistItem[] = [];
 
-    // Check 1: Workspace Trust
     let workspaceTrusted = false;
     try {
       const trustService = await TrustedWorkspaceService.getInstance();
       const entry = trustService.getTrustEntry(workspaceId);
-      if (entry && entry.trusted) {
-        workspaceTrusted = true;
-      }
-    } catch {
-      // ignore
+      workspaceTrusted = Boolean(entry && entry.trusted);
+    } catch (error) { // Keep checklist rendering even when trust lookup fails.
+      logger.warn('[Internal Beta Checklist] operation failed', error);
     }
     checklist.push({
       id: 'step_trust_workspace',
       title: 'Trust Workspace',
       description: 'Mark the current workspace as trusted to authorize actions.',
       status: workspaceTrusted ? 'completed' : 'pending',
-      manual: false
+      manual: false,
     });
 
-    // Check 2: Provider Setup
     let providerConfigured = false;
     try {
       const providerService = ProviderConfigService.getInstance();
       const providers = await providerService.getProviders();
-      if (providers.length > 0) {
-        // Check if at least one enabled provider has api key configured (if remote)
-        const hasValid = providers.some((p: any) => p.enabled && (!p.requiresApiKey || p.secretRef));
-        if (hasValid) {
-          providerConfigured = true;
-        }
-      }
-    } catch {
-      // ignore
+      providerConfigured = providers.some((provider: any) => provider.enabled && (!provider.requiresApiKey || provider.secretRef));
+    } catch (error) { // Keep checklist rendering even when provider lookup fails.
+      logger.warn('[Internal Beta Checklist] operation failed', error);
     }
     checklist.push({
       id: 'step_setup_provider',
       title: 'Configure AI Provider',
-      description: 'Register at least one provider (OpenAI, Anthropic, Google) with a valid API key.',
+      description: 'Register at least one provider with any required API key.',
       status: providerConfigured ? 'completed' : 'pending',
-      manual: false
+      manual: false,
     });
 
-    // Check 3: Default Provider/Model Selected
     let defaultSelected = false;
     try {
       const config = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
-      if (config.defaultProviderId && config.defaultModelId) {
-        defaultSelected = true;
-      }
-    } catch {
-      // ignore
+      defaultSelected = Boolean(config.defaultProviderId && config.defaultModelId);
+    } catch (error) { // Keep checklist rendering even when config lookup fails.
+      logger.warn('[Internal Beta Checklist] operation failed', error);
     }
     checklist.push({
       id: 'step_select_defaults',
-      title: 'Selecionar Provider e Modelo Padrão',
-      description: 'Escolher qual IA e modelo serão a rota primária para as tarefas do workspace.',
+      title: 'Select Default Provider and Model',
+      description: 'Choose the primary AI provider and model for workspace tasks.',
       status: defaultSelected ? 'completed' : 'pending',
-      manual: false
+      manual: false,
     });
 
-    // Check 4: Workspace configuration customized
     let configCustomized = false;
     try {
       const db = await Database.getInstance();
       const row = db.get('SELECT 1 FROM agent_workspace_config WHERE workspace_id = ?', [workspaceId]);
-      if (row) {
-        configCustomized = true;
-      }
-    } catch {
-      // ignore
+      configCustomized = Boolean(row);
+    } catch (error) { // Keep checklist rendering even when the database lookup fails.
+      logger.warn('[Internal Beta Checklist] operation failed', error);
     }
     checklist.push({
       id: 'step_customize_config',
-      title: 'Customizar Configurações de Agente',
-      description: 'Salvar as preferências de execução (PTY, HPM, Autonomia) na aba Workspace Settings.',
+      title: 'Customize Agent Settings',
+      description: 'Save execution preferences such as PTY, Host Power Mode, and autonomy in Workspace Settings.',
       status: configCustomized ? 'completed' : 'pending',
-      manual: false
+      manual: false,
     });
 
-    // Check 5 (Manual): Test Connection (existing safe flow)
     checklist.push({
       id: 'step_test_connection',
-      title: 'Testar Conexão do Provedor',
-      description: 'Clicar no botão "Test Connection" no painel de provedores para validar conectividade e headers sem revelar segredos.',
-      status: 'pending', // Always manual check
-      manual: true
+      title: 'Test Provider Connection',
+      description: 'Use the provider panel Test Connection button to validate connectivity and headers without revealing secrets.',
+      status: 'pending',
+      manual: true,
     });
 
-    // Check 6 (Manual): Execute simple diagnostic reading task
     checklist.push({
       id: 'step_execute_diagnostic_task',
-      title: 'Executar Tarefa Simples de Leitura/Diagnóstico Seguro',
-      description: 'Instanciar o agente autônomo para ler um arquivo local e verificar se o plano de execução não vaza credenciais.',
+      title: 'Run a Safe Read-Only Diagnostic Task',
+      description: 'Start the autonomous agent on a local file-reading task and verify that the execution plan does not leak credentials.',
       status: 'pending',
-      manual: true
+      manual: true,
     });
 
-    // Check 7 (Manual): Validate locked defaults
     checklist.push({
       id: 'step_validate_locked_defaults',
-      title: 'Validar Host Power Mode e PTY Bloqueados por Default',
-      description: 'Verificar se, com HPM e PTY desativados nas políticas do workspace, comandos externos de shell e sessões interativas são impedidos pelo runner.',
+      title: 'Validate Host Power Mode and PTY Locked Defaults',
+      description: 'Verify that external shell commands and interactive sessions are blocked when HPM and PTY are disabled by workspace policy.',
       status: 'pending',
-      manual: true
+      manual: true,
     });
 
-    // Check 8 (Manual): Validate logs and audit trails
     checklist.push({
       id: 'step_validate_logs_redaction',
-      title: 'Validar Ocultação de Secrets em Logs',
-      description: 'Inspecionar a tabela de logs locais e saída do terminal para certificar que chaves, tokens ou referências confidenciais não estão expostos.',
+      title: 'Validate Secret Redaction in Logs',
+      description: 'Inspect local logs and terminal output to confirm that keys, tokens, and confidential references are not exposed.',
       status: 'pending',
-      manual: true
+      manual: true,
     });
 
-    // Check 9 (Manual): Test Workspace trust revocation
     checklist.push({
       id: 'step_test_revocation',
-      title: 'Testar Revogação e Reset de Confiança',
-      description: 'Revogar a confiança do workspace e validar que todas as sessões de concessão de comando associadas são invalidadas.',
+      title: 'Test Trust Revocation and Reset',
+      description: 'Revoke workspace trust and validate that all associated command-grant sessions are invalidated.',
       status: 'pending',
-      manual: true
+      manual: true,
     });
 
-    // Audit logging
     try {
       const logger = new SecurityAuditLogger();
       await logger.logWorkspaceEvent({
-        event: 'internal_beta_checklist_viewed' as any,
+        event: 'internal_beta_checklist_viewed',
         workspaceId,
         metadata: {
-          stepsCompleted: checklist.filter(s => s.status === 'completed').length,
-          totalSteps: checklist.length
-        }
+          stepsCompleted: checklist.filter((item) => item.status === 'completed').length,
+          totalSteps: checklist.length,
+        },
       });
-    } catch {
-      // ignore
-    }
+    } catch (error) { // Checklist rendering should not depend on audit logging availability. logger.warn('[Internal Beta Checklist] operation failed', error); }
 
     return checklist;
   }

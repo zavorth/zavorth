@@ -34,9 +34,6 @@ export {
   buildGovernedReviewZavorthControlSnapshot,
 } from './GovernedReviewZavorthControlPresenter.js';
 export {
-  buildGovernedReviewZavorthControlSnapshot,
-} from './GovernedReviewZavorthControlPresenter.js';
-export {
   GOVERNED_REVIEW_CONTRACT_VERSION,
 } from './GovernedReviewTypes.js';
 export type {
@@ -52,10 +49,6 @@ export type {
   GovernedReviewGitHubResult,
   GovernedReviewGitHubRunInput,
 } from './GovernedReviewGitHubService.js';
-export type {
-  GovernedReviewZavorthControlLaneStatus,
-  GovernedReviewZavorthControlSnapshot,
-} from './GovernedReviewZavorthControlPresenter.js';
 export type {
   GovernedReviewZavorthControlLaneStatus,
   GovernedReviewZavorthControlSnapshot,

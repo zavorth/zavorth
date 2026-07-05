@@ -21,8 +21,9 @@ import {
   sha256
 } from '../ZavorthCliSharedHelpers.js';
 
+import { logger } from '../../logger.js';
 import {
-  type ChannelAdapterMode,
+type ChannelAdapterMode,
   type ChannelAdapter,
   type MessageCompose,
   CHANNEL_ADAPTERS,
@@ -45,9 +46,7 @@ function redactUrl(value: string): string {
     if (url.searchParams.has('api_key')) url.searchParams.set('api_key', '***');
     if (url.searchParams.has('token')) url.searchParams.set('token', '***');
     return url.toString();
-  } catch {
-    return value;
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Message Namespace] search failed', error); return value; }
 }
 
 function redactMessageRecord(value: unknown): JsonObject {
@@ -128,9 +127,7 @@ async function resolveAttachments(files: string[]): Promise<Array<{ file: string
       const hashVal = sha256(content);
       const contentBase64 = stats.size < 5 * 1024 * 1024 ? content.toString('base64') : undefined;
       results.push({ file, bytes: stats.size, sha256: hashVal, contentBase64 });
-    } catch {
-      // Ignorar erros de leitura de arquivo
-    }
+    } catch (error) { // Ignore file read errors for optional attachments. logger.warn('[Zavorth Cli Message Namespace] filesystem operation failed', error); }
   }
   return results;
 }
@@ -195,7 +192,7 @@ async function deliverMessage(root: string, adapter: ChannelAdapter, target: str
 }
 
 async function readChannelMessages(channel: string, args: string[]): Promise<{ lines: string[]; payload: JsonObject }> {
-  // Mock ou implementação simples de leitura local de canal
+  // Mock or lightweight local channel reader.
   return { lines: ['Read channel messages bypassed: run in interactive shell mode.'], payload: { ok: true } };
 }
 

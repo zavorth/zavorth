@@ -14,6 +14,7 @@ import type { ZavorthExternalAgentGatewayRegistrySnapshot } from '../contracts/Z
 import { SkillCatalogService } from '../skills/SkillCatalogService.js';
 import type { SkillCatalogEntry } from '../skills/SkillCatalogContract.js';
 import { ZavorthExternalAgentGatewayService } from './ZavorthExternalAgentGatewayService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthCapabilityMeshInput = {
   requestText?: string | null;
@@ -511,9 +512,7 @@ function stableId(value: string): string {
 function safeRead<T>(reader: () => T, fallback: T): T {
   try {
     return reader();
-  } catch {
-    return fallback;
-  }
+  } catch (error) { logger.warn('[Zavorth Capability Mesh] creation failed', error); return fallback; }
 }
 
 function emptyExternalRegistry(generatedAt: string): ZavorthExternalAgentGatewayRegistrySnapshot {

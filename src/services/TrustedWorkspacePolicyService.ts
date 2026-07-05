@@ -2,8 +2,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { logger } from '../logger.js';
 import type {
-  TrustedWorkspacePolicy,
+TrustedWorkspacePolicy,
   TrustedWorkspaceState,
 } from '../contracts/ExecutionEngineContract';
 
@@ -109,9 +110,10 @@ export class TrustedWorkspacePolicyService {
       if (!stat.isDirectory()) {
         return { ok: false, path: normalized, reason: 'Trusted workspace path must be an existing directory.' };
       }
-    } catch {
-      return { ok: false, path: normalized, reason: 'Trusted workspace path must exist before it can be trusted.' };
-    }
+    } catch (error) {
+    logger.warn('[Trusted Workspace] filesystem operation failed', error);
+    return { ok: false, path: normalized, reason: 'Trusted workspace path must exist before it can be trusted.' };
+  }
     return { ok: true, path: normalized, reason: null };
   }
 

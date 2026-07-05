@@ -131,16 +131,16 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
       <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-md overflow-hidden flex flex-col border border-gray-700">
         <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-100">
-            {providerToEdit ? 'Editar Provider' : 'Novo Provider'}
+            {providerToEdit ? 'Edit Provider' : 'New Provider'}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-200">×</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-200">X</button>
         </div>
 
         <form onSubmit={handleSave} className="p-5 flex flex-col gap-4 overflow-y-auto max-h-[70vh]">
           {error && <div className="text-sm text-red-400 bg-red-400/10 p-2 rounded">{error}</div>}
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-400">Tipo de Provider</label>
+            <label className="text-xs font-semibold text-gray-400">Provider Type</label>
             <select
               value={formData.type}
               onChange={e => handleTypeChange(e.target.value as any)}
@@ -157,7 +157,7 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-400">Nome de Exibição</label>
+            <label className="text-xs font-semibold text-gray-400">Display Name</label>
             <input
               type="text"
               required
@@ -180,7 +180,7 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-400">Modelo Padrão (Opcional)</label>
+            <label className="text-xs font-semibold text-gray-400">Default Model (Optional)</label>
             <input
               type="text"
               value={formData.defaultModel || ''}
@@ -200,7 +200,7 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
               className="rounded bg-gray-900 border-gray-700 text-blue-500"
             />
             <label htmlFor="requiresApiKey" className={`text-sm ${isOllama ? 'text-gray-500' : 'text-gray-300'}`}>
-              Requer autenticação (API Key)
+              Requires authentication (API key)
             </label>
           </div>
 
@@ -212,7 +212,7 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
                 hasExistingSecret={!!formData.configured}
               />
               <span className="text-[11px] text-gray-500 mt-1 block">
-                🔒 As chaves são criptografadas localmente e nunca são exibidas novamente na tela.
+                Keys are encrypted locally and are never displayed again on screen.
               </span>
               {!!formData.configured && formData.providerId && (
                 <button
@@ -223,15 +223,15 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
                       const res = await fetch(`/api/v2/providers/${formData.providerId}/secret`, { method: 'DELETE' });
                       if (!res.ok) throw new Error('Falha ao remover a chave');
                       setFormData({ ...formData, configured: false, apiKey: '' });
-                      alert('Chave removida com sucesso. O status foi atualizado para Faltando.');
+                      alert('Key removed successfully. Status was updated to Missing.');
                     } catch (err: any) {
                       alert(err.message);
                     }
                   }}
                   className="absolute right-3 top-3 text-xs text-red-400 hover:text-red-300"
-                  title="Remover chave configurada"
+                  title="Remove configured key"
                 >
-                  Remover Chave
+                  Remove Key
                 </button>
               )}
             </div>
@@ -246,7 +246,7 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
               className="rounded bg-gray-900 border-gray-700 text-blue-500"
             />
             <label htmlFor="enabled" className="text-sm text-gray-300">
-              Provider Ativo
+              Provider Active
             </label>
           </div>
 
@@ -264,7 +264,7 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
               className="text-sm px-3 py-1.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-200 disabled:opacity-50 transition-colors"
               title={!formData.providerId ? 'Salve o provider antes de testar' : ''}
             >
-              {testing ? 'Testando...' : 'Testar Conexão'}
+              {testing ? 'Testing...' : 'Test Connection'}
             </button>
 
             <div className="flex gap-2">
@@ -273,14 +273,14 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
                 onClick={onClose}
                 className="text-sm px-4 py-2 rounded text-gray-300 hover:bg-gray-700 transition-colors"
               >
-                Cancelar
+                Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
                 className="text-sm px-4 py-2 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium disabled:opacity-50 transition-colors"
               >
-                {loading ? 'Salvando...' : 'Salvar'}
+                {loading ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

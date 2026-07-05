@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { MCP_TOOLS, MCP_TOOL_MAP } from "@ZavorthGateway/open-sse/mcp-server/schemas/tools";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
       })),
     });
   } catch (error) {
+    logger.warn('[route] array operation failed', error);
     const message = error instanceof Error ? error.message : "Failed to load MCP tools";
     return NextResponse.json({ error: message }, { status: 500 });
   }

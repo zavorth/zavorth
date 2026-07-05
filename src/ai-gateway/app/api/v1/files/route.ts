@@ -1,6 +1,7 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { createGatewayFile, listGatewayFiles } from "@/lib/zavorthGatewayRuntimeStore";
+import { logger } from '@/shared/utils/logger';
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -31,7 +32,8 @@ export async function POST(request: Request) {
       status: 201,
       headers: { "Access-Control-Allow-Origin": CORS_ORIGIN },
     });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] creation failed', error);
     return Response.json(
       { error: { message: error?.message || "Failed to store file", type: "invalid_request_error" } },
       { status: 400, headers: { "Access-Control-Allow-Origin": CORS_ORIGIN } }

@@ -9,7 +9,6 @@ import {
   type ZavorthUniversalSkillScaleGate,
   type ZavorthUniversalSkillScaleHardeningSnapshot,
   type ZavorthUniversalSkillScaleHardeningStatus,
-  type ZavorthUniversalSkillZavorthControlReviewItem,
 } from '../contracts/ZavorthUniversalSkillScaleHardeningContract.js';
 import {
   UniversalSkillRealSourceOnboardingService,
@@ -86,10 +85,6 @@ export class UniversalSkillScaleHardeningService {
       items: this.buildZavorthControlReviewItems({ onboarding, batches, capacity }),
       recommendedDataEndpoint: '/api/skills/scale-hardening' as const,
     };
-    const zavorthControlReview: ZavorthUniversalSkillScaleHardeningSnapshot['zavorthControlReview'] = {
-      ...zavorthControlReview,
-      items: zavorthControlReview.items,
-    };
     const gates = this.buildGates({ onboarding, batches, capacity, zavorthControlItems: zavorthControlReview.items });
     const status = resolveStatus(onboarding.status, gates);
     const reportPath = path.resolve(input.scaleReportPath || path.join(
@@ -106,7 +101,6 @@ export class UniversalSkillScaleHardeningService {
       capacity,
       gates,
       batches,
-      zavorthControlReview,
       zavorthControlReview,
       status,
       reportPersisted: false,
@@ -180,7 +174,6 @@ export class UniversalSkillScaleHardeningService {
     gates: ZavorthUniversalSkillScaleGate[];
     batches: ZavorthUniversalSkillScaleBatch[];
     zavorthControlReview: ZavorthUniversalSkillScaleHardeningSnapshot['zavorthControlReview'];
-    zavorthControlReview: ZavorthUniversalSkillScaleHardeningSnapshot['zavorthControlReview'];
     status: ZavorthUniversalSkillScaleHardeningStatus;
     reportPersisted: boolean;
     reportPath: string | null;
@@ -196,7 +189,6 @@ export class UniversalSkillScaleHardeningService {
       gates: input.gates,
       batches: input.batches,
       zavorthControlReview: input.zavorthControlReview,
-      zavorthControlReview: input.zavorthControlReview,
       rollout: this.buildRollout({ status: input.status, onboarding: input.onboarding, capacity: input.capacity }),
       report: {
         persisted: input.reportPersisted,
@@ -205,11 +197,9 @@ export class UniversalSkillScaleHardeningService {
       },
       policy: {
         zavorthControlControlsOnboardingIsAuthority: true,
-        zavorthControlControlsOnboardingIsAuthority: true,
         previewFirstForLargeLibraries: true,
         batchApplyRequiresExplicitAllowlist: true,
         canaryBeforeBulkApply: true,
-        zavorthControlReviewDoesNotChangeVisuals: true,
         zavorthControlReviewDoesNotChangeVisuals: true,
         noVisualChangeWithoutOwnerApproval: true,
         noExecutionPerformed: true,

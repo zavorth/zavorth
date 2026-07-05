@@ -23,6 +23,7 @@ import {
   type ModelSelectionServiceResult,
 } from './providers/catalog/ModelSelectionService.js';
 import { ZavorthProviderLiveProofStoreService } from './ZavorthProviderLiveProofStoreService.js';
+import { logger } from '../logger.js';
 
 export type ProviderCatalogMode = 'cloud' | 'local' | 'hybrid' | 'alias';
 export type ProviderCatalogVisibility = 'public' | 'advanced';
@@ -318,9 +319,9 @@ export class ProviderControlPlaneService {
     config.llmProvider = selection.effectiveProviderName;
     if (selection.effectiveProviderName === 'gemini') {
       if (selection.selectionKind === 'model' && selection.modelName) {
-        (config as any).geminiModel = selection.modelName;
+        config.geminiModel = selection.modelName;
       } else {
-        (config as any).geminiModel = config.geminiDefaultModel || config.geminiModel;
+        config.geminiModel = config.geminiDefaultModel || config.geminiModel;
       }
     }
   }
@@ -670,9 +671,9 @@ export class ProviderControlPlaneService {
         summary: 'Provider de uso geral para coding, revisao e automacao mais sensivel.',
         currentModel: String(config.openaiModel || '').trim() || null,
         requirements: ['OPENAI_API_KEY'],
-        readiness: (config.openaiApiKey || (config as any).openaiApiKeys?.length > 0) ? 'ready' : 'needs_config',
-        ready: Boolean(config.openaiApiKey || (config as any).openaiApiKeys?.length > 0),
-        issue: (config.openaiApiKey || (config as any).openaiApiKeys?.length > 0) ? null : 'Falta configurar OPENAI_API_KEY.',
+        readiness: (config.openaiApiKey || config.openaiApiKeys?.length > 0) ? 'ready' : 'needs_config',
+        ready: Boolean(config.openaiApiKey || config.openaiApiKeys?.length > 0),
+        issue: (config.openaiApiKey || config.openaiApiKeys?.length > 0) ? null : 'Falta configurar OPENAI_API_KEY.',
       },
       {
         id: 'minimax',
@@ -791,7 +792,7 @@ export class ProviderControlPlaneService {
     return {
       GEMINI_API_KEY: config.geminiApiKeys.length > 0 || Boolean(config.geminiApiKey),
       DEEPSEEK_API_KEY: Boolean(config.deepseekApiKey),
-      OPENAI_API_KEY: Boolean(config.openaiApiKey || (config as any).openaiApiKeys?.length > 0),
+      OPENAI_API_KEY: Boolean(config.openaiApiKey || config.openaiApiKeys?.length > 0),
       MINIMAX_API_KEY: Boolean(config.minimaxApiKey),
       PUTER_AUTH_TOKEN: Boolean(config.puterAuthToken),
       OPENROUTER_API_KEY: Boolean(config.openRouterApiKey),
@@ -973,8 +974,6 @@ export class ProviderControlPlaneService {
         checkedAt: String(parsed.checkedAt || '').trim(),
         message: String(parsed.message || '').trim(),
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Control Plane] parsing failed', error); return null; }
   }
 }

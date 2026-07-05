@@ -53,7 +53,7 @@ export class NodeMeshTransportRouteService {
     const heartbeat = deps.nodeHeartbeat.receiveHeartbeat({
       nodeId: String(body.nodeId || '').trim(),
       sharedSecret: String(body.sharedSecret || '').trim() || null,
-      status: String(body.status || '').trim() as any,
+      status: String(body.status || '').trim(),
       capabilityIds: Array.isArray(body.capabilityIds) ? body.capabilityIds : null,
       hostHints: body.hostHints && typeof body.hostHints === 'object' ? body.hostHints : null,
       results: Array.isArray(body.results)

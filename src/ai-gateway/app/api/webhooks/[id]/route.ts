@@ -10,6 +10,7 @@ import { NextResponse } from "next/server";
 import { getWebhook, updateWebhookRecord, deleteWebhook } from "@/lib/localDb";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const updateWebhookSchema = z
   .object({
@@ -32,7 +33,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
     }
     return NextResponse.json({ webhook });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -54,7 +56,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
     }
     return NextResponse.json({ webhook });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -70,7 +73,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
     }
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] delete operation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

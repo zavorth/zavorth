@@ -92,9 +92,7 @@ export class ZavorthDataScienceTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: unknown) {
-      return `Python error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Data Science] process execution failed', error); return ''; }
   }
 
   private loadScript(filePath: string, additional: string): string {
@@ -121,6 +119,7 @@ export class ZavorthDataScienceTool extends BaseTool {
     return `import pandas as pd
 import numpy as np
 import json
+import { logger } from '../logger.js';
 ${loader}
 ${additional}`;
   }

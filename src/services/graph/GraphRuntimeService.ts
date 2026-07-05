@@ -28,6 +28,7 @@ import type {
   ToolRuntimeLike,
 } from './GraphRuntimeTypes.js';
 import { buildWorkspaceStrategyMessage } from './GraphRuntimeWorkspaceStrategy.js';
+import { logger } from '../../logger.js';
 
 export type {
   GraphExecutionProfile,
@@ -241,9 +242,7 @@ export class GraphRuntimeService {
     if (typeof runtime.isProviderAvailable === 'function') {
       try {
         return runtime.isProviderAvailable(name);
-      } catch {
-        return true;
-      }
+      } catch (error) { logger.warn('[Graph Runtime] operation failed', error); return true; }
     }
 
     return true;

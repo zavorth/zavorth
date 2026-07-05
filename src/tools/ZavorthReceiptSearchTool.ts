@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 interface ReceiptEntry {
   id: string;
@@ -40,7 +41,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
   public readonly name = 'zavorth_receipt_search';
 
   public readonly description =
-    'Searches and audits receipts (provas auditaveis) de acoes executadas pelo Zavorth. Cada acao do agente gera um receipt imutavel. Permite buscar por acao, tool, session, data, nivel de risco, status de aprovacao e mais. Funcionalidade unica do Zavorth para rastreabilidade total.';
+    'Searches and audits receipts for actions executed by Zavorth. Each agent action generates an immutable receipt. Supports searching by action, tool, session, date, risk level, approval status, and more for full traceability.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -87,15 +88,15 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       approval_status: {
         type: 'string',
-        description: "Filtrar por status de aprovacao: 'auto_approved', 'pending', 'approved', 'denied'.",
+        description: "Filter by approval status: 'auto_approved', 'pending', 'approved', 'denied'.",
       },
       channel: {
         type: 'string',
-        description: 'Filtrar por canal de origem.',
+        description: 'Filter by origin channel.',
       },
       user: {
         type: 'string',
-        description: 'Filtrar por usuario.',
+        description: 'Filter by user.',
       },
       max_results: {
         type: 'number',
@@ -144,10 +145,11 @@ export class ZavorthReceiptSearchTool extends BaseTool {
         case 'list_sessions': return this.listSessions();
         default: return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Receipt Search] filesystem check failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `ReceiptSearch error: ${message}`;
-    }
+  }
   }
 
   private searchReceipts(args: Record<string, unknown>): string {
@@ -209,7 +211,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       `  - Acao: ${receipt.action}`,
       `  - Args: ${JSON.stringify(receipt.args).slice(0, 200)}`,
       `  - Resultado: ${receipt.result_summary}`,
-      `  - Sucesso: ${receipt.success ? 'Sim' : 'Nao'}`,
+      `  - Success: ${receipt.success ? 'Yes' : 'No'}`,
       `  - Risk level: ${receipt.risk_level}`,
       `  - Aprovacao: ${receipt.approval_status}`,
       `  - Session: ${receipt.session_id}`,
@@ -354,9 +356,9 @@ export class ZavorthReceiptSearchTool extends BaseTool {
 
     const validApprovalStatuses = ['auto_approved', 'pending', 'approved', 'denied'];
     if (validApprovalStatuses.includes(receipt.approval_status)) {
-      checks.push('✅ Status de aprovacao valido');
+      checks.push('[OK] Valid approval status');
     } else {
-      checks.push('❌ Status de aprovacao invalid');
+      checks.push('[FAIL] Invalid approval status');
       allValid = false;
     }
 
@@ -513,9 +515,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
           results.push(fullPath);
         }
       }
-    } catch {
-      // ignore
-    }
+    } catch (error) { // ignore logger.warn('[Zavorth Receipt Search] filesystem operation failed', error); }
     return results;
   }
 }

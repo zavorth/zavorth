@@ -56,6 +56,7 @@ import type {
   ZavorthSelfHealingProjection,
 } from '../../contracts/ZavorthSelfHealingUxContract.js';
 import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
+import type { UniversalAgentRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 import {
   ZavorthAgentMaturityService,
   type ZavorthAgentMaturitySnapshot,
@@ -290,7 +291,7 @@ export class ExperienceCoreService {
     });
     const activeRun = agentSnapshot?.activeRun || null;
     const runs = agentSnapshot?.runs || [];
-    const jitMap = ((global as any).globalPendingJitApprovals ??= new Map());
+    const jitMap = ((globalThis as unknown as { globalPendingJitApprovals: Map<string, unknown> }).globalPendingJitApprovals ??= new Map());
     const jitApprovals: UniversalApprovalRequest[] = Array.from(jitMap.values()).map((jit: any) => ({
       id: jit.id,
       runId: String(jit.runId || activeRun?.id || 'jit-elevation'),
@@ -323,7 +324,7 @@ export class ExperienceCoreService {
           text: activeRun.input || activeRun.title || '',
           workspace: workspace || activeRun.workspace || undefined,
           requestedTools: [],
-        } as any
+        } as UniversalAgentRequest
         : null,
       now: this.now(),
     }) as ZavorthAgentMaturitySnapshot;
@@ -1111,7 +1112,7 @@ export class ExperienceCoreService {
     if (runSignals.length > 0) return runSignals.slice(0, 8);
 
     try {
-      const snapshot = this.memoryPlane?.buildSnapshot({ workspace: workspace || undefined } as any);
+      const snapshot = this.memoryPlane?.buildSnapshot({ workspaceHint: workspace || undefined });
       const record = recordOrNull(snapshot);
       const summary = recordOrNull(record?.summary);
       const artifacts = Number(summary?.artifacts || summary?.memoryArtifacts || 0);

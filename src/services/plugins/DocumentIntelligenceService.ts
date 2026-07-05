@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface DocumentMetadata {
   filename: string;
@@ -74,9 +75,7 @@ export class DocumentIntelligenceService {
         default:
           return fs.readFileSync(filePath, 'utf-8');
       }
-    } catch (error: unknown) {
-      return `Error extracting text: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Document Intelligence] filesystem operation failed', error); return ''; }
   }
 
   public getMetadata(filePath: string): DocumentMetadata {
@@ -200,9 +199,10 @@ export class DocumentIntelligenceService {
       const { execFileSync } = require('child_process');
       const result = execFileSync('pdftotext', [filePath, '-'], { timeout: 30000 }).toString();
       return result;
-    } catch {
-      return '[PDF extraction requires pdftotext]';
-    }
+    } catch (error) {
+    logger.warn('[Document Intelligence] process execution failed', error);
+    return '[PDF extraction requires pdftotext]';
+  }
   }
 
   private extractDocxText(filePath: string): string {
@@ -212,9 +212,10 @@ export class DocumentIntelligenceService {
       const matches = text.match(/<w:t[^>]*>([^<]+)<\/w:t>/g);
       if (matches) return matches.map((m: string) => m.replace(/<[^>]+>/g, '')).join(' ');
       return '[DOCX extraction failed]';
-    } catch {
-      return '[DOCX extraction error]';
-    }
+    } catch (error) {
+    logger.warn('[Document Intelligence] filesystem operation failed', error);
+    return '[DOCX extraction error]';
+  }
   }
 
   private estimatePages(content: string, ext: string): number | null {
@@ -318,7 +319,7 @@ export class DocumentIntelligenceService {
           }
           
           if (langCode && langCode.length === 2) return langCode;
-        } finally { try { fs.unlinkSync(tmpFile); } catch { /* ignore */ } }
+        } finally { try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Document Intelligence] file cleanup failed', error); } }
       } catch { continue; }
     }
 

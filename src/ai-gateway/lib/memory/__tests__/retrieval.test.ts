@@ -1,4 +1,5 @@
 import { describe, test, expect } from "vitest";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Test that corrupt metadata in retrieval doesn't throw (returns {} instead).
@@ -15,9 +16,7 @@ describe("Memory Retrieval - corrupt metadata handling", () => {
       const result = (() => {
         try {
           return JSON.parse(String(corrupt));
-        } catch {
-          return {};
-        }
+        } catch (error) { logger.warn('[retrieval.test] JSON parse failed', error); return {}; }
       })();
       expect(result).toEqual({});
     }

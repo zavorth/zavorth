@@ -70,13 +70,13 @@ type RealZavorthBridgeWatcherWorkflowInternal = {
 };
 
 export class RealZavorthBridgeWatcher {
-  private responseDir = config.zavorthBridgeResponseDir;
+  public responseDir = config.zavorthBridgeResponseDir;
   private brainDir = config.zavorthBridgeBrainDir;
-  private logsDir = config.zavorthBridgeLogsDir;
-  private bridgeManager = new AgentBridgeManager();
+  public logsDir = config.zavorthBridgeLogsDir;
+  public bridgeManager = new AgentBridgeManager();
   private windowAutomator = new ZavorthBridgeWindowAutomator();
   private companionBridge = new ZavorthBridgeCompanionBridge();
-  private uiCaptureService = new ZavorthBridgeUiCaptureService();
+  public uiCaptureService = new ZavorthBridgeUiCaptureService();
   private formatter = new FinalResponseFormattingService();
   private processing = false;
   private pollHandle: NodeJS.Timeout | null = null;
@@ -84,9 +84,9 @@ export class RealZavorthBridgeWatcher {
   private tickHandlers: RealZavorthBridgeWatcherTickHandlers;
 
   constructor(
-    private logRepo: LogRepository,
-    private broadcaster: BroadcastClient,
-    private deps: RealZavorthBridgeWatcherDeps = {},
+    public logRepo: LogRepository,
+    public broadcaster: BroadcastClient,
+    public deps: RealZavorthBridgeWatcherDeps = {},
   ) {
     this.workflow = new RealZavorthBridgeWatcherWorkflow({
       logRepo: this.logRepo,
@@ -199,7 +199,7 @@ export class RealZavorthBridgeWatcher {
   }
 
   private syncWorkflowContext(): void {
-    const workflow = this.workflow as RealZavorthBridgeWatcherWorkflowInternal;
+    const workflow = this.workflow as unknown as RealZavorthBridgeWatcherWorkflowInternal;
 
     Object.assign(workflow.ctx, {
       logRepo: this.logRepo,
@@ -269,7 +269,7 @@ export class RealZavorthBridgeWatcher {
 
   private callWorkflow<T>(methodName: string, args: unknown[]): T {
     this.syncWorkflowContext();
-    const method = (this.workflow as Record<string, (...methodArgs: unknown[]) => T>)[methodName];
+    const method = (this.workflow as unknown as Record<string, (...methodArgs: unknown[]) => T>)[methodName];
     return method.apply(this.workflow, args);
   }
 
@@ -312,7 +312,7 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('matchesSession', [session, artifact]);
   }
 
-  private isSessionActive(session: PendingZavorthBridgeSession): boolean {
+  public isSessionActive(session: PendingZavorthBridgeSession): boolean {
     return this.callWorkflow('isSessionActive', [session]);
   }
 
@@ -354,11 +354,11 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('buildCompanionRecoveryPrompt', [session, target, liveStatus, errorReason]);
   }
 
-  private getTask(taskId: string): Task | null {
+  public getTask(taskId: string): Task | null {
     return this.callWorkflow('getTask', [taskId]);
   }
 
-  private isTaskTerminal(task: Task | null | undefined): boolean {
+  public isTaskTerminal(task: Task | null | undefined): boolean {
     return this.callWorkflow('isTaskTerminal', [task || null]);
   }
 
@@ -374,12 +374,13 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('resolvePendingPermissionForTerminalTask', [task, note]);
   }
 
-    private queueSessionDelivery(
+  public queueSessionDelivery(
     session: PendingZavorthBridgeSession,
-    deliverable: string,
-    chatGatewayId: string | null,
+    message: string,
+    summary: string | null,
+    source: string,
   ): void {
-    return this.callWorkflow('queueSessionDelivery', [session, deliverable, chatGatewayId]);
+    return this.callWorkflow('queueSessionDelivery', [session, message, summary, source]);
   }
 
     private failStalledSession(session: PendingZavorthBridgeSession, errorReason: string): Promise<void> {
@@ -468,15 +469,15 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('normalizePromptContractFileContent', [value]);
   }
 
-    private clearPendingPermissionMetadata(task: Task): void {
+  public clearPendingPermissionMetadata(task: Task): void {
     return this.callWorkflow('clearPendingPermissionMetadata', [task]);
   }
 
-    private isTrackingFileCompleted(trackingFile: string): boolean {
+  public isTrackingFileCompleted(trackingFile: string): boolean {
     return this.callWorkflow('isTrackingFileCompleted', [trackingFile]);
   }
 
-    private isZavorthBridgeTask(task: Task | null | undefined): boolean {
+  public isZavorthBridgeTask(task: Task | null | undefined): boolean {
     return this.callWorkflow('isZavorthBridgeTask', [task]);
   }
 
@@ -508,8 +509,12 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('isRecentTimestamp', [value, maxAgeMs]);
   }
 
-    private formatFinalResponseBroadcast(session: PendingZavorthBridgeSession, finalResponseText: string): string {
-    return this.callWorkflow('formatFinalResponseBroadcast', [session, finalResponseText]);
+  public formatFinalResponseBroadcast(
+    session: PendingZavorthBridgeSession,
+    finalResponseText: string,
+    source: string,
+  ): string {
+    return this.callWorkflow('formatFinalResponseBroadcast', [session, finalResponseText, source]);
   }
 
     private formatArtifactCompletion(session: PendingZavorthBridgeSession, artifact: ZavorthBridgeArtifact): string {

@@ -9,8 +9,9 @@ import {
   spawnCommand,
   spawnNativeCommand,
 } from '../../core/CommandSpawn.js';
+import { logger } from '../../logger.js';
 import type {
-  ISandboxRuntime,
+ISandboxRuntime,
   SandboxLanguage,
   SandboxRequest,
   SandboxResult,
@@ -137,9 +138,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         },
       );
       return result.status === 0;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Docker Sandbox Runtime] lifecycle operation failed', error); return false; }
   }
 
   /**
@@ -431,9 +430,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
     } finally {
       try {
         fs.rmSync(tempDir, { recursive: true, force: true });
-      } catch {
-        // ignore cleanup failures for ephemeral docker sandboxes
-      }
+      } catch (error) { // ignore cleanup failures for ephemeral docker sandboxes logger.warn('[Docker Sandbox Runtime] process execution failed', error); }
     }
   }
 
@@ -607,9 +604,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch {
-          // ignore timeout kill failures
-        }
+        } catch (error) { // ignore timeout kill failures logger.warn('[Docker Sandbox Runtime] operation failed', error); }
 
         resolve({
           stdout,

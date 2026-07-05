@@ -7,9 +7,9 @@ import { ToolCallBlock } from './ToolCallBlock';
 import { ScrollToBottomButton } from './ScrollToBottomButton';
 
 const quickActions = [
-  'Planeje uma entrega local com memória, skills e aprovação',
-  'Revise este projeto e proponha os próximos passos',
-  'Crie um fluxo com agentes, ferramentas e limites claros',
+  'Plan a local delivery with memory, skills, and approval',
+  'Review this project and propose next steps',
+  'Create a flow with agents, tools, and clear limits',
 ];
 
 export function ThreadView(props: {
@@ -50,9 +50,9 @@ export function ThreadView(props: {
     >
       {props.messages.length === 0 ? (
         <div className="zvd-empty-thread">
-          <h1>No que vamos trabalhar?</h1>
-          <p>Planeje, revise ou entregue uma tarefa com runtime local, memória e aprovações visíveis.</p>
-          <div className="zvd-suggestion-stack" aria-label="Sugestões iniciais">
+          <h1>What should we work on?</h1>
+          <p>Plan, review, or deliver a task with local runtime, memory, and visible approvals.</p>
+          <div className="zvd-suggestion-stack" aria-label="Initial suggestions">
             {quickActions.map(action => (
               <button disabled={props.busy} key={action} onClick={() => props.onSuggestion(action)} type="button">
                 <Sparkles aria-hidden="true" size={14} stroke={1.8} />
@@ -68,7 +68,7 @@ export function ThreadView(props: {
               return (
                 <ToolCallBlock
                   key={message.id}
-                  toolName={message.title || 'Ferramenta'}
+                  toolName={message.title || 'Tool'}
                   result={message.content}
                   status="success"
                 />
@@ -76,7 +76,7 @@ export function ThreadView(props: {
             }
             return (
               <article key={message.id} className={`zvd-message zvd-message--${message.role}`}>
-                <span className="zvd-message__role">{message.role === 'user' ? 'Você' : 'Zavorth'}</span>
+                <span className="zvd-message__role">{message.role === 'user' ? 'You' : 'Zavorth'}</span>
                 <div className="zvd-message__body">
                   <MarkdownContent content={message.content} />
                 </div>

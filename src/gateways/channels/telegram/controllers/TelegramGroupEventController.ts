@@ -17,8 +17,8 @@ interface GroupEventDeps {
 }
 
 /**
- * TelegramGroupEventController — middelware para eventos automaticos de grupo.
- * Trata: boas-vindas, despedida, anti-spam, filtro de tipo de mensagem e rastreamento de stats.
+ * TelegramGroupEventController - middleware for automatic group events.
+ * Handles welcome, goodbye, anti-spam, message type filtering, and stats tracking.
  */
 export class TelegramGroupEventController {
   private welcomeService: WelcomeService;
@@ -38,8 +38,8 @@ export class TelegramGroupEventController {
   }
 
   /**
-   * Handler para membros novos entrando no grupo.
-   * Deve ser registrado em: bot.on('message:new_chat_members')
+   * Handler for new members joining the group.
+   * Should be registered on: bot.on('message:new_chat_members')
    */
   public async handleNewMembers(ctx: Context): Promise<void> {
     if (!ctx.message?.new_chat_members || ctx.message.new_chat_members.length === 0) return;
@@ -54,27 +54,28 @@ export class TelegramGroupEventController {
     for (const member of ctx.message.new_chat_members) {
       if (member.is_bot) continue;
       const rendered = this.welcomeService.renderTemplate(template, {
-        name: member.first_name || 'Membro',
+        name: member.first_name || 'Member',
         username: member.username,
-        group: ctx.chat?.title || 'o grupo',
+        group: ctx.chat?.title || 'the group',
         id: member.id.toString(),
       });
       try {
         await ctx.reply(rendered);
       } catch (e) {
-        logger.error('[GroupEvent] Erro ao enviar boas-vindas:', e);
+        logger.error('[GroupEvent] Failed to send welcome message:', e);
       }
     }
 
-    // Deletar mensagem de servico se configurado
     if (config?.delete_service_messages && ctx.message?.message_id) {
-      await this.moderationService.deleteMessage(chatId, ctx.message.message_id).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      await this.moderationService.deleteMessage(chatId, ctx.message.message_id).catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
     }
   }
 
   /**
-   * Handler para membros saindo do grupo.
-   * Deve ser registrado em: bot.on('message:left_chat_member')
+   * Handler for members leaving the group.
+   * Should be registered on: bot.on('message:left_chat_member')
    */
   public async handleLeftMember(ctx: Context): Promise<void> {
     const leftMember = ctx.message?.left_chat_member;
@@ -87,27 +88,28 @@ export class TelegramGroupEventController {
 
     const template = config?.goodbye_message || this.welcomeService.getDefaultGoodbyeMessage();
     const rendered = this.welcomeService.renderTemplate(template, {
-      name: leftMember.first_name || 'Membro',
+      name: leftMember.first_name || 'Member',
       username: leftMember.username,
-      group: ctx.chat?.title || 'o grupo',
+      group: ctx.chat?.title || 'the group',
       id: leftMember.id.toString(),
     });
 
     try {
       await ctx.reply(rendered);
     } catch (e) {
-      logger.error('[GroupEvent] Erro ao enviar despedida:', e);
+      logger.error('[GroupEvent] Failed to send goodbye message:', e);
     }
 
-    // Deletar mensagem de servico se configurado
     if (config?.delete_service_messages && ctx.message?.message_id) {
-      await this.moderationService.deleteMessage(chatId, ctx.message.message_id).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      await this.moderationService.deleteMessage(chatId, ctx.message.message_id).catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
     }
   }
 
   /**
-   * Middleware de anti-spam. Retorna true se a mensagem foi tratada (bloqueada).
-   * Chamar ANTES do processamento de comandos normais.
+   * Anti-spam middleware. Returns true when the message was handled or blocked.
+   * Call this BEFORE regular command processing.
    */
   public async processAntiSpam(ctx: Context): Promise<boolean> {
     const chatType = ctx.chat?.type;
@@ -128,11 +130,17 @@ export class TelegramGroupEventController {
           await this.moderationService.deleteMessage(chatId, ctx.message.message_id);
         }
         try {
-          const warnMsg = await ctx.reply(`⚠️ @${ctx.from?.username || ctx.from?.first_name}: ${result.reason}`);
+          const warnMsg = await ctx.reply(`Warning @${ctx.from?.username || ctx.from?.first_name}: ${result.reason}`);
           setTimeout(async () => {
-            try { await this.moderationService.deleteMessage(chatId, warnMsg.message_id); } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+            try {
+              await this.moderationService.deleteMessage(chatId, warnMsg.message_id);
+            } catch (err) {
+              logger.warn('[auto-fix] Empty catch block', err);
+            }
           }, 5000);
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err) {
+          logger.warn('[auto-fix] Empty catch block', err);
+        }
         return true;
 
       case 'warn': {
@@ -140,26 +148,38 @@ export class TelegramGroupEventController {
           await this.moderationService.deleteMessage(chatId, ctx.message.message_id);
         }
         const warnResult = await this.warnService.warn(chatId, userId, result.reason, 'anti-spam');
-        let msg = `⚠️ Warn automatico para ${ctx.from?.first_name}: ${result.reason} (${warnResult.warnCount}/${(await this.warnService.getLimitConfig(chatId)).max_warns})`;
+        let msg = `Automatic warning for ${ctx.from?.first_name}: ${result.reason} (${warnResult.warnCount}/${(await this.warnService.getLimitConfig(chatId)).max_warns})`;
         if (warnResult.limitReached) {
-          msg += `\n🚨 Limite atingido! Aplicando ${warnResult.limitAction}...`;
+          msg += `\nLimit reached. Applying ${warnResult.limitAction}...`;
           await this.applyAutoAction(ctx, warnResult.limitAction, ctx.from!.id);
         }
-        try { await ctx.reply(msg); } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        try {
+          await ctx.reply(msg);
+        } catch (err) {
+          logger.warn('[auto-fix] Empty catch block', err);
+        }
         return true;
       }
 
       case 'mute':
-        await this.moderationService.muteUser(ctx.chat!.id, ctx.from!.id, 'anti-spam', 300); // 5 min
+        await this.moderationService.muteUser(ctx.chat!.id, ctx.from!.id, 'anti-spam', 300);
         if (ctx.message?.message_id) {
           await this.moderationService.deleteMessage(chatId, ctx.message.message_id);
         }
-        try { await ctx.reply(`🔇 ${ctx.from?.first_name} silenciado por 5 minutos. Motivo: ${result.reason}`); } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        try {
+          await ctx.reply(`${ctx.from?.first_name} was muted for 5 minutes. Reason: ${result.reason}`);
+        } catch (err) {
+          logger.warn('[auto-fix] Empty catch block', err);
+        }
         return true;
 
       case 'ban':
         await this.moderationService.banUser(ctx.chat!.id, ctx.from!.id, 'anti-spam');
-        try { await ctx.reply(`🔨 ${ctx.from?.first_name} banido automaticamente. Motivo: ${result.reason}`); } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        try {
+          await ctx.reply(`${ctx.from?.first_name} was banned automatically. Reason: ${result.reason}`);
+        } catch (err) {
+          logger.warn('[auto-fix] Empty catch block', err);
+        }
         return true;
     }
 
@@ -167,7 +187,7 @@ export class TelegramGroupEventController {
   }
 
   /**
-   * Middleware de filtro de tipo de mensagem. Retorna true se a mensagem foi bloqueada.
+   * Message type filter middleware. Returns true when the message was blocked.
    */
   public async processMessageFilter(ctx: Context): Promise<boolean> {
     const chatType = ctx.chat?.type;
@@ -203,7 +223,7 @@ export class TelegramGroupEventController {
   }
 
   /**
-   * Rastreia uma mensagem para estatisticas do grupo.
+   * Tracks a message for group statistics.
    */
   public async trackMessage(ctx: Context): Promise<void> {
     const chatType = ctx.chat?.type;
@@ -213,7 +233,9 @@ export class TelegramGroupEventController {
     const userId = ctx.from?.id.toString() || '';
     if (!userId) return;
 
-    await this.statsService.trackMessage(chatId, userId).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+    await this.statsService.trackMessage(chatId, userId).catch((err) => {
+      logger.warn('[auto-fix] Empty catch block', err);
+    });
   }
 
   private async applyAutoAction(ctx: Context, action: string, userId: number): Promise<void> {

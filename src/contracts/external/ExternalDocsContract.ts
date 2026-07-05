@@ -94,8 +94,8 @@ export const EXTERNAL_DOCS_REQUIRED_LINKS = [
 
 export const EXTERNAL_DOCS_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
-  'autonomo sem aprovacao',
-  'sem limites',
+  'autonomous without approval',
+  'without limits',
   'sempre ligado por padrao',
 ] as const;
 

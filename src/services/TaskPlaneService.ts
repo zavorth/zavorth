@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 
 import type { TaskPlaneItem, TaskPlaneSnapshot, TaskPlaneStatus } from '../contracts/TaskPlaneContract.js';
 import { ZavorthOperationalStateDbService } from './ZavorthOperationalStateDbService.js';
+import { logger } from '../logger.js';
 
 type TaskPlaneServiceOptions = {
   storePath: string;
@@ -215,9 +216,10 @@ export class TaskPlaneService {
     try {
       const parsed = JSON.parse(fs.readFileSync(this.storePath, 'utf8')) as { items?: TaskPlaneItem[] };
       return { items: Array.isArray(parsed.items) ? parsed.items : [] };
-    } catch {
-      return { items: [] };
-    }
+    } catch (error) {
+    logger.warn('[Task Plane] JSON parse failed', error);
+    return { items: [] };
+  }
   }
 
   private writeStore(store: { items: TaskPlaneItem[] }): void {

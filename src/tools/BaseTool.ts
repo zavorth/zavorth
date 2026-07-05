@@ -18,12 +18,12 @@ export abstract class BaseTool {
 
   /**
    * Executa a ferramenta com os argumentos fornecidos.
-   * @returns String com o resultado da execução
+   * @returns String with the execution result.
    */
   abstract execute(args: Record<string, unknown>): Promise<string>;
 
   /**
-   * Retorna a definição da tool no formato JSON Schema para o LLM.
+   * Returns the tool definition in JSON Schema format for the LLM.
    */
   public getDefinition(): ToolDefinition {
     return {

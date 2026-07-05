@@ -19,7 +19,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): ArtifactMemorySnapshot {
-  const text = input.text || 'indexe artifacts importantes da sessao atual para reuso com origem';
+  const text = input.text || 'index important artifacts from the current session for sourced reuse';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:38:00.000Z'),
   });
@@ -34,7 +34,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
       taskId: 'artifact-memory-index',
       artifactSummaries: {
         'artifact-memory-plan': {
-          summary: 'Plano para transformar artifacts em memoria pesquisavel com receipts.',
+          summary: 'Plan to turn artifacts into searchable memory with receipts.',
         },
         'artifact-memory-report': {
           summary: 'Relatorio de validacao de Artifact Memory com gates e testes focados.',
@@ -45,7 +45,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
       },
     },
   });
-  run.summary = 'Artifact Memory preparou artifacts para pesquisa e reuso citavel.';
+  run.summary = 'Artifact Memory prepared artifacts for searchable and citable reuse.';
   run.artifacts = [
     {
       id: 'artifact-memory-plan',
@@ -106,46 +106,46 @@ export function formatArtifactMemorySnapshot(
 ): string {
   const lines = [
     'Artifact Memory',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,
     `- artifacts: ${snapshot.summary.artifactCount}`,
-    `- entradas de memoria: ${snapshot.summary.memoryEntryCount}`,
-    `- reutilizaveis: ${snapshot.summary.reusableCount}`,
+    `- memory entries: ${snapshot.summary.memoryEntryCount}`,
+    `- reusable: ${snapshot.summary.reusableCount}`,
     `- receipts: ${snapshot.summary.receiptCount}; memory links: ${snapshot.summary.linkedMemoryReceiptCount}`,
-    `- busca pronta: ${String(snapshot.summary.searchReady)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- search ready: ${String(snapshot.summary.searchReady)}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
-    'Artifacts indexados',
+    'Indexed Artifacts',
   ];
 
   for (const entry of snapshot.entries.slice(0, 10)) {
     lines.push(
       `- ${entry.category}: ${entry.title}`,
       `  artifactId: ${entry.artifactId}; memoryId: ${entry.memoryId}`,
-      `  origem: run=${entry.runId}; observatory=${entry.receipt.observatoryReceiptId || 'pendente'}; memory=${entry.receipt.memoryReceiptId || 'pendente'}`,
-      `  reuso: ${entry.actions.reuseCommand}`,
-      `  citar: ${entry.actions.citeCommand}`,
+      `  source: run=${entry.runId}; observatory=${entry.receipt.observatoryReceiptId || 'pending'}; memory=${entry.receipt.memoryReceiptId || 'pending'}`,
+      `  reuse: ${entry.actions.reuseCommand}`,
+      `  cite: ${entry.actions.citeCommand}`,
     );
   }
 
   if (snapshot.search.facets.length > 0) {
-    lines.push('', 'Facetas');
+    lines.push('', 'Facets');
     for (const facet of snapshot.search.facets) {
       lines.push(`- ${facet.label}: ${facet.count}`);
     }
   }
 
-  lines.push('', 'Politica');
-  lines.push('- Artifact Memory e read-only');
-  lines.push('- nao le conteudo de arquivo e nao inventa conteudo de artifact');
-  lines.push('- nao muta artifacts e nao escreve memoria sem acao explicita');
-  lines.push('- todo reuso deve citar artifactId, runId e receipt de origem');
+  lines.push('', 'Policy');
+  lines.push('- Artifact Memory is read-only');
+  lines.push('- does not read file content and does not invent artifact content');
+  lines.push('- does not mutate artifacts and does not write memory without explicit action');
+  lines.push('- every reuse must cite artifactId, runId, and source receipt');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
-  lines.push(`- Busca: ${snapshot.search.commands.searchCommand}`);
+  lines.push(`- Search: ${snapshot.search.commands.searchCommand}`);
 
   return lines.join('\n');
 }

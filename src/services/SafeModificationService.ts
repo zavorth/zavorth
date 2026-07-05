@@ -58,12 +58,13 @@ export class SafeModificationService {
         success: true,
         reason: `Arquivo ${path.basename(absolutePath)} modificado com sucesso. Backup criado pelo Host.`,
       };
-    } catch (err: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Safe Modification] filesystem operation failed', error);
+    return {
         success: false,
         reason: `Falha ao escrever o arquivo: ${err.message}`,
       };
-    }
+  }
   }
 
   /**
@@ -84,12 +85,13 @@ export class SafeModificationService {
       try {
         JSON.parse(newContent);
         return { passes: true, output: '' };
-      } catch (error: any) {
-        return {
+      } catch (error) {
+    logger.warn('[Safe Modification] JSON parse failed', error);
+    return {
           passes: false,
           output: `JSON invalido: ${error.message}`,
         };
-      }
+  }
     }
 
     if (extension === '.ps1') {
@@ -155,9 +157,7 @@ export class SafeModificationService {
     } finally {
       try {
         fs.unlinkSync(tmpPath);
-      } catch {
-        // ignore cleanup failures
-      }
+      } catch (error) { // ignore cleanup failures logger.warn('[Safe Modification] file cleanup failed', error); }
     }
   }
 
@@ -214,18 +214,17 @@ export class SafeModificationService {
           passes: true,
           output: output.trim(),
         };
-      } catch (error: any) {
-        return {
+      } catch (error) {
+    logger.warn('[Safe Modification] validation failed', error);
+    return {
           passes: false,
           output: String(error?.stdout || error?.stderr || error?.message || '').trim() || 'Falha desconhecida ao validar o script PowerShell.',
         };
-      }
+  }
     } finally {
       try {
         fs.unlinkSync(tmpPath);
-      } catch {
-        // ignore cleanup failures
-      }
+      } catch (error) { // ignore cleanup failures logger.warn('[Safe Modification] file cleanup failed', error); }
     }
   }
 

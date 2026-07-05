@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import { logger } from '../../logger.js';
 
 export class ProviderHuggingFaceTool extends BaseTool {
   public readonly name = 'zavorth_huggingface';
@@ -103,9 +104,7 @@ export class ProviderHuggingFaceTool extends BaseTool {
       const parsed = JSON.parse(result);
       if (parsed.error) return `HuggingFace: Erro ${parsed.error}`;
       return `HuggingFace: Connected. Usuario: ${parsed.name || 'unknown'}, Plano: ${parsed.plan || 'free'}`;
-    } catch (error: unknown) {
-      return `HuggingFace: Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Hugging Face] JSON parse failed', error); return ''; }
   }
 
   private async textGeneration(args: Record<string, unknown>, apiKey: string): Promise<string> {
@@ -134,16 +133,14 @@ export class ProviderHuggingFaceTool extends BaseTool {
         `https://api-inference.huggingface.co/models/${model}`,
       ], { timeout: 120000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Hugging Face] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `HF error: ${parsed.error}`;
 
       const text = Array.isArray(parsed) ? parsed[0]?.generated_text : parsed.generated_text || result;
       return `Resposta (${model}):\n${text}`;
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Hugging Face] JSON parse failed', error); return ''; }
   }
 
   private async imageGeneration(args: Record<string, unknown>, apiKey: string): Promise<string> {
@@ -167,15 +164,13 @@ export class ProviderHuggingFaceTool extends BaseTool {
         `https://api-inference.huggingface.co/models/${model}`,
       ], { timeout: 120000 });
 
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Hugging Face] file cleanup failed', error); }
 
       if (fs.existsSync(outputPath)) {
         return `Imagem gerada: ${outputPath}`;
       }
       return 'Error: Image was not generated.';
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Hugging Face] file cleanup failed', error); return ''; }
   }
 
   private async audioTranscription(args: Record<string, unknown>, apiKey: string): Promise<string> {
@@ -196,8 +191,6 @@ export class ProviderHuggingFaceTool extends BaseTool {
       const parsed = JSON.parse(result);
       if (parsed.error) return `HF error: ${parsed.error}`;
       return `Transcricao: ${parsed.text || result}`;
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Hugging Face] JSON parse failed', error); return ''; }
   }
 }

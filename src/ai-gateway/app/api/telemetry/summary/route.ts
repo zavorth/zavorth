@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getTelemetrySummary } from "@/shared/utils/requestTelemetry";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request) {
   const authError = await requireManagementAuth(request);
@@ -13,6 +14,7 @@ export async function GET(request) {
     const summary = getTelemetrySummary(windowMs);
     return NextResponse.json(summary);
   } catch (error) {
+    logger.warn('[route] parsing failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

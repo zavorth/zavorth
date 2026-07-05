@@ -24,53 +24,53 @@ const TIP_MESSAGES: Record<ContextualTipFlag, ContextualTip> = {
   [CONTEXTUAL_TIP_FLAGS.FIRST_LOOP_USE]: {
     flag: CONTEXTUAL_TIP_FLAGS.FIRST_LOOP_USE,
     emoji: '💡',
-    message: 'Dica: use `/loop --grill` para que eu faça perguntas antes de executar, gerando resultados mais precisos.',
+    message: 'Tip: use `/loop --grill` so I ask questions before running, producing more precise results.',
   },
   [CONTEXTUAL_TIP_FLAGS.FIRST_LOOP_GRILL]: {
     flag: CONTEXTUAL_TIP_FLAGS.FIRST_LOOP_GRILL,
     emoji: '💡',
-    message: 'Dica: no modo --grill, quanto mais detalhadas suas respostas, melhores os critérios de avaliação.',
+    message: 'Tip: in --grill mode, more detailed answers produce better evaluation criteria.',
   },
   [CONTEXTUAL_TIP_FLAGS.FIRST_EXECUTION_ERROR]: {
     flag: CONTEXTUAL_TIP_FLAGS.FIRST_EXECUTION_ERROR,
     emoji: '🔧',
-    message: 'Dica: `zavorth doctor --simple` mostra exatamente o que está faltando no seu ambiente.',
+    message: 'Tip: `zavorth doctor --simple` shows exactly what is missing in your environment.',
   },
   [CONTEXTUAL_TIP_FLAGS.FIRST_DOCTOR_SUGGESTION]: {
     flag: CONTEXTUAL_TIP_FLAGS.FIRST_DOCTOR_SUGGESTION,
     emoji: '🩺',
-    message: 'Dica: use `zavorth doctor --advanced` para um diagnóstico completo incluindo sandbox e providers.',
+    message: 'Tip: use `zavorth doctor --advanced` for a complete diagnostic including sandbox and providers.',
   },
   [CONTEXTUAL_TIP_FLAGS.FIRST_LOW_LOOP_SCORE]: {
     flag: CONTEXTUAL_TIP_FLAGS.FIRST_LOW_LOOP_SCORE,
     emoji: '📈',
-    message: 'Dica: quando a nota fica abaixo de 8, o loop foca no ponto mais fraco automaticamente. Use `--grill` para refinar os critérios.',
+    message: 'Tip: when the score drops below 8, the loop focuses on the weakest point automatically. Use `--grill` to refine the criteria.',
   },
   [CONTEXTUAL_TIP_FLAGS.FIRST_LONG_SESSION]: {
     flag: CONTEXTUAL_TIP_FLAGS.FIRST_LONG_SESSION,
     emoji: '📋',
-    message: 'Dica: sessões longas podem perder contexto. Use `/reset` para iniciar uma sessão limpa mantendo sua memória persistente.',
+    message: 'Tip: long sessions can lose context. Use `/reset` to start a clean session while keeping persistent memory.',
   },
   [CONTEXTUAL_TIP_FLAGS.FIRST_TEMPLATE_USE]: {
     flag: CONTEXTUAL_TIP_FLAGS.FIRST_TEMPLATE_USE,
     emoji: '📦',
-    message: 'Dica: templates são missões guiadas. Use `zavorth templates` para ver todas as opções disponíveis.',
+    message: 'Tip: templates are guided missions. Use `zavorth templates` to see all available options.',
   },
   [CONTEXTUAL_TIP_FLAGS.FIRST_CHANNEL_SETUP]: {
     flag: CONTEXTUAL_TIP_FLAGS.FIRST_CHANNEL_SETUP,
     emoji: '🔗',
-    message: 'Dica: após conectar um canal, use `zavorth gateway status` para verificar a saúde da conexão.',
+    message: 'Tip: after connecting a channel, use `zavorth gateway status` to check connection health.',
   },
   [CONTEXTUAL_TIP_FLAGS.ONBOARDING_COMPLETED]: {
     flag: CONTEXTUAL_TIP_FLAGS.ONBOARDING_COMPLETED,
     emoji: '🎉',
-    message: 'Setup concluído! Use `zavorth templates` para escolher sua primeira missão guiada, ou simplesmente me diga o que precisa.',
+    message: 'Setup complete. Use `zavorth templates` to choose your first guided mission, or simply tell me what you need.',
   },
 };
 
 /**
- * ZavorthContextualTipsService — gerencia dicas contextuais exibidas uma única vez
- * durante a primeira interação do usuário com funcionalidades específicas.
+ * ZavorthContextualTipsService manages contextual tips shown once
+ * during the user's first interaction with specific features.
  */
 export class ZavorthContextualTipsService {
   private db!: Database;

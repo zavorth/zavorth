@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthBehavioralRule,
+ZavorthBehavioralRule,
   ZavorthRuleSeverity,
   ZavorthRuleContext,
 } from '../contracts/BehavioralRulesContract.js';
@@ -205,9 +206,7 @@ export class BehavioralRulesService {
     try {
       if (!this.fs.existsSync(filePath)) return fallback;
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Behavioral Rules] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

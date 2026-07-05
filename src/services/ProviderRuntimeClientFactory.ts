@@ -66,12 +66,12 @@ export class ProviderRuntimeClientFactory {
          throw new Error('missing_key'); // explicit openai needs key
        }
        // simulated fetch...
-       if (apiKey === 'invalid_key') {
-         // simulated API error
-         const err = new Error('HTTP 401 Unauthorized');
-         (err as any).status = 401;
-         throw err;
-       }
+        if (apiKey === 'invalid_key') {
+          // simulated API error
+          const err = new Error('HTTP 401 Unauthorized') as Error & { status?: number };
+          err.status = 401;
+          throw err;
+        }
     }
 
     return {
@@ -80,8 +80,10 @@ export class ProviderRuntimeClientFactory {
     };
   }
 
-  private sanitizeError(error: any): Error {
-    const message = error?.message || 'Unknown error';
+  private sanitizeError(error: unknown): Error {
+    const message = error instanceof Error
+      ? error.message
+      : (error && typeof error === 'object' && 'message' in error ? String((error as { message: unknown }).message) : String(error || 'Unknown error'));
     
     if (message.includes('401') || message.includes('Unauthorized') || message.includes('invalid_api_key')) {
       return new Error('invalid_key');

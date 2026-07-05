@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 const VALID_COLUMNS = ['backlog', 'todo', 'in_progress', 'review', 'done'] as const;
 type Column = typeof VALID_COLUMNS[number];
@@ -28,7 +29,7 @@ export class KanbanTool extends BaseTool {
   public readonly name = 'kanban_board';
 
   public readonly description =
-    'Gerencia um quadro Kanban para organizacao de tarefas do agente e do usuario.';
+    'Manages a Kanban board for organizing agent and user tasks.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -79,7 +80,7 @@ export class KanbanTool extends BaseTool {
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
     if (!action) {
-      return 'Erro: o parametro "action" e obrigatorio.';
+      return 'Error: the "action" parameter is required.';
     }
 
     const validActions = ['create_board', 'add_card', 'move_card', 'list_cards', 'assign_card', 'delete_card'];
@@ -104,12 +105,13 @@ export class KanbanTool extends BaseTool {
         case 'delete_card':
           return this.deleteCard(args);
         default:
-          return `Erro: acao "${action}" nao implementada.`;
+          return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Kanban] delete operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Erro no Kanban: ${message}`;
-    }
+  }
   }
 
   private ensureStorageDir(): void {
@@ -152,13 +154,13 @@ export class KanbanTool extends BaseTool {
 
   private addCard(args: Record<string, unknown>): string {
     const boardId = String(args.board_id || '');
-    if (!boardId) return 'Erro: "board_id" e obrigatorio para add_card.';
+    if (!boardId) return 'Error: "board_id" is required for add_card.';
 
     const board = this.loadBoard(boardId);
-    if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+    if (!board) return `Error: board "${boardId}" not found.`;
 
     const title = String(args.title || '');
-    if (!title) return 'Erro: "title" e obrigatorio para add_card.';
+    if (!title) return 'Error: "title" is required for add_card.';
 
     const column = String(args.column || 'backlog') as Column;
     if (!VALID_COLUMNS.includes(column)) {
@@ -193,17 +195,17 @@ export class KanbanTool extends BaseTool {
     const cardId = String(args.card_id || '');
     const column = String(args.column || '') as Column;
 
-    if (!boardId) return 'Erro: "board_id" e obrigatorio.';
-    if (!cardId) return 'Erro: "card_id" e obrigatorio.';
+    if (!boardId) return 'Error: "board_id" is required.';
+    if (!cardId) return 'Error: "card_id" is required.';
     if (!VALID_COLUMNS.includes(column)) {
       return `Erro: coluna "${column}" invalida. Use: ${VALID_COLUMNS.join(', ')}.`;
     }
 
     const board = this.loadBoard(boardId);
-    if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+    if (!board) return `Error: board "${boardId}" not found.`;
 
     const card = board.cards.find((c) => c.id === cardId);
-    if (!card) return `Erro: cartao "${cardId}" nao encontrado no quadro "${boardId}".`;
+    if (!card) return `Error: card "${cardId}" not found on board "${boardId}".`;
 
     const oldColumn = card.column;
     card.column = column;
@@ -214,10 +216,10 @@ export class KanbanTool extends BaseTool {
 
   private listCards(args: Record<string, unknown>): string {
     const boardId = String(args.board_id || '');
-    if (!boardId) return 'Erro: "board_id" e obrigatorio.';
+    if (!boardId) return 'Error: "board_id" is required.';
 
     const board = this.loadBoard(boardId);
-    if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+    if (!board) return `Error: board "${boardId}" not found.`;
 
     if (board.cards.length === 0) {
       return `Quadro "${board.name}" esta vazio.`;
@@ -242,15 +244,15 @@ export class KanbanTool extends BaseTool {
     const cardId = String(args.card_id || '');
     const assignee = typeof args.assignee === 'string' ? args.assignee : '';
 
-    if (!boardId) return 'Erro: "board_id" e obrigatorio.';
-    if (!cardId) return 'Erro: "card_id" e obrigatorio.';
-    if (!assignee) return 'Erro: "assignee" e obrigatorio.';
+    if (!boardId) return 'Error: "board_id" is required.';
+    if (!cardId) return 'Error: "card_id" is required.';
+    if (!assignee) return 'Error: "assignee" is required.';
 
     const board = this.loadBoard(boardId);
-    if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+    if (!board) return `Error: board "${boardId}" not found.`;
 
     const card = board.cards.find((c) => c.id === cardId);
-    if (!card) return `Erro: cartao "${cardId}" nao encontrado.`;
+    if (!card) return `Error: card "${cardId}" not found.`;
 
     card.assignee = assignee;
     card.updated_at = new Date().toISOString();
@@ -262,14 +264,14 @@ export class KanbanTool extends BaseTool {
     const boardId = String(args.board_id || '');
     const cardId = String(args.card_id || '');
 
-    if (!boardId) return 'Erro: "board_id" e obrigatorio.';
-    if (!cardId) return 'Erro: "card_id" e obrigatorio.';
+    if (!boardId) return 'Error: "board_id" is required.';
+    if (!cardId) return 'Error: "card_id" is required.';
 
     const board = this.loadBoard(boardId);
-    if (!board) return `Erro: quadro "${boardId}" nao encontrado.`;
+    if (!board) return `Error: board "${boardId}" not found.`;
 
     const index = board.cards.findIndex((c) => c.id === cardId);
-    if (index === -1) return `Erro: cartao "${cardId}" nao encontrado.`;
+    if (index === -1) return `Error: card "${cardId}" not found.`;
 
     const removed = board.cards.splice(index, 1)[0];
     this.saveBoard(board);

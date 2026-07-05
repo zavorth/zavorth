@@ -4,6 +4,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { Unicode11Addon } from '@xterm/addon-unicode11';
 import '@xterm/xterm/css/xterm.css';
 import { getPtyOutput, sendPtyInput } from '../apiClient';
+import { logger } from '../logger.js';
 
 interface PtyTerminalPanelProps {
   workspaceId: string;
@@ -77,7 +78,7 @@ export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
 
     term.onData((data) => {
       if (activeSession) {
-        sendPtyInput(workspaceId, activeSession.sessionId, data).catch(() => {});
+        sendPtyInput(workspaceId, activeSession.sessionId, data).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
       }
     });
 

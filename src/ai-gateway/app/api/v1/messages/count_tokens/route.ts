@@ -2,6 +2,7 @@ import { CORS_HEADERS } from "@/shared/utils/cors";
 import { v1CountTokensSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Handle CORS preflight
@@ -20,7 +21,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] operation failed', error);
     return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
       status: 400,
       headers: { "Content-Type": "application/json", ...CORS_HEADERS },

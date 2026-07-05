@@ -10,8 +10,9 @@ import {
   idWithTime,
   render
 } from '../ZavorthCliSharedHelpers.js';
+import { logger } from '../../logger.js';
 import {
-  type ChannelAdapter,
+type ChannelAdapter,
   type JsonObject,
   resolveChannelAdapter,
   mergeDirectoryEntries
@@ -45,9 +46,7 @@ async function renderTerminalQr(value: string): Promise<string> {
     const toString = (module.toString || module.default?.toString) as ((text: string, options: JsonObject) => Promise<string>) | undefined;
     if (!toString) return '';
     return (await toString(value, { type: 'terminal', small: true, margin: 1 })).trim();
-  } catch {
-    return '';
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Message Pairing] load operation failed', error); return ''; }
 }
 
 export async function createPairingDraft(root: string, input: { channel: string; target: string; label: string; ttlMinutes: number }): Promise<JsonObject> {

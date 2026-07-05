@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 export type ZavorthPersonalOpsOAuthProvider = 'google' | 'microsoft' | string;
 
 export type ZavorthPersonalOpsOAuthTokenResult = {
@@ -157,9 +158,7 @@ async function readJson(response: Response): Promise<Record<string, unknown>> {
     return json && typeof json === 'object' && !Array.isArray(json)
       ? json as Record<string, unknown>
       : {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[Zavorth Personal Ops O Auth] operation failed', error); return {}; }
 }
 
 function normalizeProvider(value: unknown): 'google' | 'microsoft' {

@@ -1,5 +1,6 @@
+import { logger } from '@/shared/utils/logger';
 import {
-  getProviderConnections,
+getProviderConnections,
   getModelAliases,
   getCombos,
   getApiKeys,
@@ -67,6 +68,7 @@ export async function syncToCloud(machineId, createdKey = null) {
       }),
     });
   } catch (error) {
+    logger.warn('[cloud] network request failed', error);
     const isTimeout = error?.name === "AbortError";
     return { error: isTimeout ? "Cloud sync timeout" : "Cloud sync request failed" };
   }

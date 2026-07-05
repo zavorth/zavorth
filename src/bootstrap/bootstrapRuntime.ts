@@ -28,7 +28,7 @@ export async function bootstrapZavorthRuntime(): Promise<void> {
     foundation.logRepo.log(
       'info',
       'Bootstrap',
-      'Rodando sob Host Supervisor. Sinalizando boot_success antes do startup dos gateways de canal.',
+      'Running under Host Supervisor. Signaling boot_success before channel gateway startup.',
     );
     supervisor.markBootReady();
   }

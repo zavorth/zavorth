@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -9,6 +9,7 @@ import { ZavorthA2UIService } from './ZavorthA2UIService.js';
 import { ZavorthAppsSatelliteNodesService } from './ZavorthAppsSatelliteNodesService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 import { ZavorthProductHardeningService } from './ZavorthProductHardeningService.js';
+import { logger } from '../logger.js';
 
 export const ZAVORTH_PRODUCT_EXCELLENCE_CONTRACT_VERSION = 'zavorth-product-excellence/1' as const;
 
@@ -517,9 +518,7 @@ export class ZavorthProductExcellenceService {
   private hasMarker(relativePath: string, marker: string): boolean {
     try {
       return fs.readFileSync(path.join(this.projectRoot, relativePath), 'utf8').includes(marker);
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Zavorth Product Excellence] filesystem operation failed', error); return false; }
   }
 
   private packageScripts(): Record<string, string> {
@@ -528,8 +527,6 @@ export class ZavorthProductExcellenceService {
         scripts?: Record<string, string>;
       };
       return packageJson.scripts || {};
-    } catch {
-      return {};
-    }
+    } catch (error) { logger.warn('[Zavorth Product Excellence] JSON parse failed', error); return {}; }
   }
 }

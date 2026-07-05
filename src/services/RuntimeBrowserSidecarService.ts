@@ -1,4 +1,5 @@
 import { SidecarExecutionReceiptService } from './SidecarExecutionReceiptService.js';
+import { logger } from '../logger.js';
 
 export type RuntimeBrowserSidecarAction =
   | 'browser_navigate'
@@ -170,25 +171,19 @@ export class RuntimeBrowserSidecarService {
           origin: this.safeOrigin(),
         },
       });
-    } catch {
-      // Receipts nao podem derrubar ou mascarar uma chamada ao sidecar remoto.
-    }
+    } catch (error) { // Receipts nao podem derrubar ou mascarar uma chamada ao sidecar remoto. logger.warn('[Runtime Browser Sidecar] operation failed', error); }
   }
 
   private safeOrigin(): string | null {
     try {
       return new URL(this.baseUrl).origin;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Runtime Browser Sidecar] operation failed', error); return null; }
   }
 
   private parseJson(value: string): unknown {
     try {
       return JSON.parse(value);
-    } catch {
-      return value;
-    }
+    } catch (error) { logger.warn('[Runtime Browser Sidecar] JSON parse failed', error); return value; }
   }
 
   private extractError(value: unknown): string | null {

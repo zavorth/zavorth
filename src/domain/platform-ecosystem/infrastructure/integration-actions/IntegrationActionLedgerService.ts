@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import type { IntegrationActionExecutionRecord } from '../../../../contracts/IntegrationHubContract.js';
+import { logger } from '../../../../logger';
 
 type IntegrationActionExecution = IntegrationActionExecutionRecord;
 
@@ -36,9 +37,7 @@ export class IntegrationActionLedgerService {
       const raw = fs.readFileSync(this.actionStatusFile, 'utf8');
       const parsed = JSON.parse(raw) as IntegrationActionExecution;
       return parsed.integrationId === integrationId ? parsed : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Integration Action Ledger] JSON parse failed', error); return null; }
   }
 
   public readActionHistory(integrationId: string, limit: number): IntegrationActionExecution[] {
@@ -66,9 +65,7 @@ export class IntegrationActionLedgerService {
         if (records.length >= limit) {
           break;
         }
-      } catch {
-        // Ignora linhas corrompidas no historico.
-      }
+      } catch (error) { // Ignora linhas corrompidas no historico. logger.warn('[Integration Action Ledger] process execution failed', error); }
     }
     return records;
   }

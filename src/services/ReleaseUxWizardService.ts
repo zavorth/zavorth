@@ -15,8 +15,9 @@ import {
   type ReleaseUxWizardStep,
 } from '../contracts/ReleaseUxWizardContract.js';
 import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthReleasePresenceControlPlaneService,
+ZavorthReleasePresenceControlPlaneService,
   type ZavorthReleaseDiffInput,
   type ZavorthReleasePresenceSnapshot,
   type ZavorthReleaseRollbackInput,
@@ -497,9 +498,7 @@ export class ReleaseUxWizardService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Release Ux Wizard] JSON parse failed', error); return null; }
   }
 
   private check(

@@ -48,11 +48,11 @@ export const PUBLIC_RELEASE_BUNDLE_REQUIRED_COPY = [
   'zavorth-v0.1-preview.zip',
   'sha256:faae33f9400fdaf6a75a359a883d887cd5079ceff9f0b1011bc63f9078f74f91',
   'Installer preview',
-  'Aprovacao explicita',
-  'Sem cloud obrigatoria',
-  'Cleanup limitado',
-  'sem rede externa obrigatoria',
-  'changelog publico',
+  'Explicit approval',
+  'No required cloud',
+  'Limited cleanup',
+  'no required external network',
+  'public changelog',
 ] as const;
 
 export const PUBLIC_RELEASE_BUNDLE_REQUIRED_COMMANDS = [
@@ -72,9 +72,9 @@ export const PUBLIC_RELEASE_BUNDLE_REQUIRED_LINKS = [
 export const PUBLIC_RELEASE_BUNDLE_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
   'instala automaticamente',
-  'cloud obrigatoria para usar',
+  'cloud required to use',
   'telemetry ligada por padrao',
-  'sem rollback',
+  'without rollback',
   'segredo real',
 ] as const;
 

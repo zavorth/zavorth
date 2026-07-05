@@ -4,6 +4,7 @@ import type {
 } from '../contracts/ExecutionEngineContract.js';
 import { getRuntimeEngineApiState } from './RuntimeEngineApiStateService.js';
 import type { ZavorthSpeculativeAutonomyResult } from './ZavorthSpeculativeAutonomyService.js';
+import { logger } from '../logger.js';
 
 export type CanvasSpeculativeAutonomySyncService = {
   createFromSpeculativeAutonomyResult(
@@ -56,6 +57,7 @@ export async function syncSpeculativeAutonomyToCanvas(input: {
       error: null,
     };
   } catch (error) {
+    logger.warn('[Canvas Runtime] creation failed', error);
     return {
       ok: false,
       engineId,

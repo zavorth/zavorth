@@ -3,6 +3,7 @@ import path from 'path';
 import { config } from '../config/index.js';
 import type { ZavorthLearningArtifact } from '../contracts/ZavorthMutationPlaneContract.js';
 import type { ZavorthEvalDatasetManifest } from './ZavorthEvalControlPlaneService.js';
+import { logger } from '../logger.js';
 
 export type ReplayLearningKind =
   | 'preference'
@@ -103,9 +104,10 @@ export class ZavorthReplayLearningRegistryService {
         records: Array.isArray(parsed.records) ? parsed.records.map((entry) => this.normalizeRecord(entry)) : [],
         profile: this.normalizeProfile(parsed.profile),
       };
-    } catch {
-      return this.emptyRegistry();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Replay Learning Registry] filesystem operation failed', error);
+    return this.emptyRegistry();
+  }
   }
 
   public listRecords(options: { limit?: number; includeRevoked?: boolean } = {}): ReplayLearningRecord[] {

@@ -235,11 +235,11 @@ export class SkillImportService {
 
   private assertSourceEnabled(source: SkillSourceRegistryEntry): void {
     if (!source.enabled) {
-      throw new Error(`Fonte de skill ${source.id} esta desabilitada e nao pode ser usada para import.`);
+      throw new Error(`Skill source ${source.id} is disabled and cannot be used for import.`);
     }
 
     if (source.kind !== 'workspace' && !source.pinnedRevision) {
-      throw new Error(`Fonte externa ${source.id} precisa declarar pinnedRevision antes de importar skills.`);
+      throw new Error(`External source ${source.id} must declare pinnedRevision before importing skills.`);
     }
   }
 
@@ -325,7 +325,7 @@ export class SkillImportService {
         '',
         '## Upstream attribution',
         '',
-        upstreamAttribution || upstreamOrigin || 'Nenhum attribution upstream foi encontrado no diretÃ³rio de origem.',
+        upstreamAttribution || upstreamOrigin || 'No upstream attribution was found in the source directory.',
       ].join('\n'),
       'utf8',
     );
@@ -451,7 +451,7 @@ export class SkillImportService {
   private requireSource(sourceId: string): SkillSourceRegistryEntry {
     const source = this.sourceRegistry.getSource(sourceId);
     if (!source) {
-      throw new Error(`Source de skill nao encontrada: ${sourceId}`);
+      throw new Error(`Skill source not found: ${sourceId}`);
     }
     return source;
   }

@@ -84,10 +84,10 @@ export class SkillImportPreviewService {
     sourceSkillDirPaths: string[];
   }): SkillImportDetailedPreview {
     if (!input.source.enabled) {
-      throw new Error(`Fonte de skill ${input.source.id} esta desabilitada e nao pode gerar preview de import.`);
+      throw new Error(`Skill source ${input.source.id} is disabled and cannot generate an import preview.`);
     }
     if (input.source.kind !== 'workspace' && !input.source.pinnedRevision) {
-      throw new Error(`Fonte externa ${input.source.id} precisa declarar pinnedRevision antes de gerar preview de import.`);
+      throw new Error(`External source ${input.source.id} must declare pinnedRevision before generating an import preview.`);
     }
 
     const sourceDecision = this.trustPolicy.evaluateSource(input.source.id);
@@ -154,10 +154,10 @@ export class SkillImportPreviewService {
             : scan.safeToImport
               ? licensePolicy.allowImport
                 ? risk.level === 'blocked'
-                  ? 'Skill bloqueada pelo score de risco.'
-                  : 'Skill aprovada para importacao seletiva.'
-                : `Skill bloqueada pela policy de licenca. ${licensePolicy.summary}`
-              : 'Skill bloqueada pelo scanner de conteudo.',
+                  ? 'Skill blocked by risk score.'
+                  : 'Skill approved for selective import.'
+                : `Skill blocked by license policy. ${licensePolicy.summary}`
+              : 'Skill blocked by content scanner.',
           alreadyImported: false,
           license: licenseClassification.license,
           licenseConfidence: licenseClassification.confidence,

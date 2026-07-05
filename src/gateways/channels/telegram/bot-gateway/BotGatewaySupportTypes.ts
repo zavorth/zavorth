@@ -1,4 +1,5 @@
 import type { Bot, Context } from 'grammy';
+import type { CapabilityDefinition } from '../../../../contracts/CapabilityContract.js';
 import type { SurfaceCommandBoundary } from '../../../../api/internal/InternalSurfaceApiCompat.js';
 import type { TelegramGatewayHandlerRegistrar } from '../../../../gateways/channels/telegram/TelegramGatewayHandlerRegistrar.js';
 import type { TelegramChannelContractService } from '../../../../gateways/channels/telegram/TelegramChannelContractService.js';
@@ -8,6 +9,8 @@ import type { LegacyUnifiedGatewayAdapter } from '../../../../context-engine/Leg
 import type { ZavorthAgentGateway } from '../../../../runtime/agent/index.js';
 import type { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
 import type { SurfaceOperationalIntentService } from '../../../../services/SurfaceOperationalIntentService.js';
+import type { HostIdentityService } from '../../../../services/HostIdentityService.js';
+import type { WorkspaceProfile as RuntimeWorkspaceProfile } from '../../../../services/WorkspaceProfileService.js';
 import type { NaturalConversationIngressMetadata } from '../../../../gateways/channels/telegram/bot-gateway/support/BotGatewayMessageProcessing.js';
 
 export type BotGatewaySupportState = {
@@ -20,63 +23,80 @@ export type BotGatewaySupportState = {
 
 export type LogFunction = (...args: unknown[]) => void;
 
-export type CapabilityType = string;
-
-export type SurfaceTaskDispatchResult = {
-  taskId: string;
-  status: 'pending' | 'completed' | 'failed';
-};
-
 export type SurfaceTaskDispatcher = {
-  dispatch: (task: string, options?: Record<string, unknown>) => Promise<SurfaceTaskDispatchResult>;
+  dispatchTaskMessage: (input: {
+    ctx: Context;
+    platform: 'telegram';
+    chatId: string;
+    text: string;
+    sourceUserId: string;
+    fallbackRuntimeUserId: string;
+    source: 'telegram';
+    chatHint?: string | null;
+    threadId?: string | null;
+    surfacePolicy?: Record<string, unknown>;
+    identity?: Record<string, unknown>;
+    inlineData?: Array<{ mimeType: string; data: string }>;
+  }) => Promise<unknown>;
 };
 
 export type SurfaceIdentity = {
-  id: string;
-  name: string;
-  type: string;
-  metadata?: Record<string, unknown>;
+  linkIdentity: (input: {
+    source: string;
+    sourceUserId: string;
+    runtimeUserId: string;
+    linkedBy?: string | null;
+    verificationMethod?: string | null;
+    chatId?: string | null;
+    sessionId?: string | null;
+  }) => void;
 };
 
-export type WorkspaceProfile = {
-  workspace: string;
-  name: string;
-  settings: Record<string, unknown>;
-  createdAt: Date;
-  updatedAt: Date;
-};
+export type WorkspaceProfile = RuntimeWorkspaceProfile;
 
 export type TelemetryRuntime = {
-  track: (event: string, properties?: Record<string, unknown>) => void;
-  flush: () => Promise<void>;
-  getMetrics: () => Record<string, unknown>;
+  record: (event: {
+    traceId: string;
+    source: string;
+    eventType: string;
+    status?: string;
+    payload?: Record<string, unknown>;
+  }) => Promise<void>;
 };
 
 export type RuntimeComposition = {
-  services: Map<string, unknown>;
-  compose: <T>(key: string, factory: () => T) => T;
-  resolve: <T>(key: string) => T | undefined;
+  getTelemetryRuntime: () => TelemetryRuntime;
+  getLlmRuntime?: () => unknown;
 };
 
-export type CapabilityLifecycleState = 'active' | 'inactive' | 'pending' | 'error';
+export type CapabilityLifecycleState =
+  | 'declared'
+  | 'dormant'
+  | 'provisioning'
+  | 'ready'
+  | 'active'
+  | 'degraded';
 
 export type CapabilityLifecycle = {
-  state: CapabilityLifecycleState;
-  activate: () => Promise<void>;
-  deactivate: () => Promise<void>;
-  getState: () => CapabilityLifecycleState;
+  shouldBootCapability: (capabilityId: string) => boolean;
+  markCapabilityState: (
+    capabilityId: string,
+    nextState: CapabilityLifecycleState,
+    notes?: string,
+  ) => unknown;
 };
 
 export type ZavorthControlStartResult = {
-  success: boolean;
-  message: string;
+  success?: boolean;
+  message?: string;
   controlUrl?: string;
 };
 
 export type FlushPendingResult = {
-  flushed: number;
-  failed: number;
-  errors: string[];
+  delivered: boolean;
+  skipped: boolean;
+  error?: string;
+  notification?: { chatId?: string | number | null } | null;
 };
 
 export type BotGatewaySupportRuntime = {
@@ -92,7 +112,7 @@ export type BotGatewaySupportRuntime = {
   hubController: { handleStartCommand: (ctx: Context, args: string) => Promise<void> };
   opsController: { handleStatus: (ctx: Context) => Promise<void> };
   capabilityController: {
-    handleCommand: (ctx: Context, capability: CapabilityType, args: string, userId: string) => Promise<boolean>;
+    handleCommand: (ctx: Context, capability: CapabilityDefinition | null, args: string, userId: string) => Promise<boolean>;
   };
   commandRoutingService: {
     dispatchPrivateCommand: (
@@ -121,7 +141,7 @@ export type BotGatewaySupportRuntime = {
   agentGateway?: Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'resolveApprovalIntent'> | null;
   surfaceIdentityService: SurfaceIdentity;
   workspaceProfileService: {
-    getProfile: (workspace: string) => Promise<WorkspaceProfile>;
+    getProfile: (workspace: string) => Promise<WorkspaceProfile | null>;
   };
   workspaceCommandService: {
     resolveInvocation: (
@@ -156,7 +176,7 @@ export type BotGatewaySupportRuntime = {
   researchQueueWorker: { start: () => void };
   julesQueueWorker: { start: () => void };
   chatCleanup: { trackMessage: (chatId: string, messageId: number) => void };
-  hostIdentityService: unknown;
+  hostIdentityService: HostIdentityService;
   telegramChannelContractService: TelegramChannelContractService;
   callbackController: { handleCallback: (ctx: Context, data: string) => Promise<void> };
   processTextMessage?: (

@@ -10,6 +10,7 @@ import type {
   RemoteMeshNotebookScopedMcpToolName,
 } from '../contracts/RemoteMeshNotebookScopedMcpServerContract.js';
 import type { RemoteMeshJson } from '../contracts/RemoteMeshSandboxContract.js';
+import { logger } from '../logger.js';
 
 type RemoteMeshNotebookMcpProxyRuntime = {
   now?: () => Date;
@@ -104,14 +105,15 @@ export class RemoteMeshNotebookMcpProxyService {
         liveNetworkCallPerformed: true,
       });
     } catch (error) {
-      return this.result({
+    logger.warn('[Remote Mesh Notebook Mcp] network request failed', error);
+    return this.result({
         ok: false,
         status: 'failed',
         toolName,
         error: error instanceof Error ? error.message : 'Unknown remote MCP proxy failure.',
         liveNetworkCallPerformed: true,
       });
-    }
+  }
   }
 
   private validateApplyRequest(input: RemoteMeshNotebookMcpProxyApplyRequest): string | null {
@@ -231,7 +233,8 @@ function parseEndpoint(value: string | null): { ok: true; url: URL } | { ok: fal
       return { ok: false, error: 'Remote Mesh notebook MCP endpoint must point to /mcp.' };
     }
     return { ok: true, url };
-  } catch {
+  } catch (error) {
+    logger.warn('[Remote Mesh Notebook Mcp] network request failed', error);
     return { ok: false, error: 'Remote Mesh notebook MCP endpoint is not a valid URL.' };
   }
 }
@@ -249,9 +252,7 @@ async function readJson(response: Response): Promise<JsonRecord> {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as JsonRecord
       : {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[Remote Mesh Notebook Mcp] parsing failed', error); return {}; }
 }
 
 function readJsonRpcError(value: JsonRecord): RemoteMeshNotebookMcpProxyResult['jsonRpcError'] {

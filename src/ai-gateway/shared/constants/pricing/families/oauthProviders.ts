@@ -191,7 +191,7 @@ export const OAUTH_PROVIDER_PRICING = {
       reasoning: 3.75,
       cache_creation: 0.3,
     },
-    // Gemini 2.5 Flash Lite â€” preco corrigido via ClawRouter: $0.10/$0.40 (era $0.15/$1.25)
+    // Gemini 2.5 Flash Lite - price corrected through ClawRouter: $0.10/$0.40 (was $0.15/$1.25)
     "gemini-2.5-flash-lite": {
       input: 0.1,
       output: 0.4,

@@ -12,8 +12,9 @@ import type {
 } from '../contracts/ModeEscalationContract.js';
 import type { TaskResourceImpact } from '../contracts/TaskResourcePlannerContract.js';
 import type { CapabilityLifecycleService } from './CapabilityLifecycleService.js';
+import { logger } from '../logger.js';
 import {
-  buildZavorthProductModeSnapshot,
+buildZavorthProductModeSnapshot,
   type ZavorthProductMode,
   type ZavorthProductModeSnapshot,
 } from './ProductModeService.js';
@@ -508,9 +509,7 @@ export class ModeEscalationService {
           requests: Array.isArray(parsed.requests) ? parsed.requests : [],
         };
       }
-    } catch {
-      // Keep runtime resilient even if the persisted file was corrupted.
-    }
+    } catch (error) { // Keep runtime resilient even if the persisted file was corrupted. logger.warn('[Mode Escalation] JSON parse failed', error); }
     return {
       version: 1,
       grants: [],

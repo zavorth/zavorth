@@ -1,4 +1,5 @@
 import { getDbInstance, isBuildPhase, isCloud } from "./core";
+import { logger } from '@/shared/utils/logger';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -31,9 +32,7 @@ const PROVIDER_LIMITS_CACHE_NAMESPACE = "providerLimitsCache";
 function parseJson(raw: string): unknown {
   try {
     return JSON.parse(raw) as unknown;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[provider] JSON parse failed', error); return null; }
 }
 
 function toRecord(value: unknown): JsonRecord | null {

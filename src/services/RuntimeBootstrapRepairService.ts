@@ -276,17 +276,17 @@ export class RuntimeBootstrapRepairService {
       return 'Falha desconhecida durante a correcao segura.';
     }
 
-    const stderr = String((error as any)?.stderr || '').trim();
+    const stderr = String((error as Record<string, unknown>)?.stderr || '').trim();
     if (stderr) {
       return stderr;
     }
 
-    const stdout = String((error as any)?.stdout || '').trim();
+    const stdout = String((error as Record<string, unknown>)?.stdout || '').trim();
     if (stdout) {
       return stdout;
     }
 
-    const message = String((error as any)?.message || '').trim();
+    const message = String((error as Record<string, unknown>)?.message || '').trim();
     return message || 'Falha desconhecida durante a correcao segura.';
   }
 }

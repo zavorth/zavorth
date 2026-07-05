@@ -3,8 +3,9 @@ import path from "path";
 import { getProviderConnectionById } from "@/lib/localDb";
 import { createBackup } from "@/shared/services/backupService";
 import { getCliConfigPaths } from "@/shared/services/cliRuntime";
+import { logger } from '@/shared/utils/logger';
 import {
-  TOKEN_EXPIRY_BUFFER_MS,
+TOKEN_EXPIRY_BUFFER_MS,
   getAccessToken,
   updateProviderCredentials,
 } from "@/sse/services/tokenRefresh";
@@ -106,9 +107,7 @@ function decodeJwtPayload(jwt: string): JsonRecord | null {
     if (parts.length !== 3) return null;
     const payload = Buffer.from(parts[1], "base64url").toString("utf8");
     return toRecord(JSON.parse(payload));
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[codex Auth File] JSON parse failed', error); return null; }
 }
 
 function extractCodexAccountId(idToken: string, providerSpecificData: unknown): string | null {
@@ -316,9 +315,7 @@ export async function writeCodexAuthFileToLocalCli(connectionId: string) {
 
   try {
     await fs.chmod(authPath, 0o600);
-  } catch {
-    // Best effort on platforms that ignore chmod semantics.
-  }
+  } catch (error) { // Best effort on platforms that ignore chmod semantics. logger.warn('[codex Auth File] filesystem operation failed', error); }
 
   return {
     ...built,

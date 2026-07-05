@@ -51,11 +51,11 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
   private readonly fetchImpl?: typeof fetch;
 
   constructor(options: GeminiInteractionsProviderAdapterOptions = {}) {
-    this.apiKey = String(options.apiKey || (config as any).geminiInteractionsApiKey || config.geminiApiKey || '').trim();
-    this.baseUrl = String(options.baseUrl || (config as any).geminiInteractionsBaseUrl || 'https://generativelanguage.googleapis.com/v1beta')
+    this.apiKey = String(options.apiKey || config.geminiInteractionsApiKey || config.geminiApiKey || '').trim();
+    this.baseUrl = String(options.baseUrl || config.geminiInteractionsBaseUrl || 'https://generativelanguage.googleapis.com/v1beta')
       .trim()
       .replace(/\/+$/, '');
-    this.defaultModelName = String(options.modelName || (config as any).geminiInteractionsModel || 'gemini-2.5-flash').trim();
+    this.defaultModelName = String(options.modelName || config.geminiInteractionsModel || 'gemini-2.5-flash').trim();
     this.fetchImpl = options.fetchImpl;
   }
 
@@ -64,11 +64,11 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions & { previousInteractionId?: string | null; store?: boolean },
   ): Promise<LlmResponse> {
-    if (!(config as any).geminiInteractionsEnabled && process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED !== 'true') {
-      throw new Error('Gemini Interactions API esta desabilitada. Defina ZAVORTH_GEMINI_INTERACTIONS_ENABLED=true para usar esta rota beta.');
+    if (!config.geminiInteractionsEnabled && process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED !== 'true') {
+      throw new Error('Gemini Interactions API is disabled. Set ZAVORTH_GEMINI_INTERACTIONS_ENABLED=true to use this beta route.');
     }
     if (!this.apiKey) {
-      throw new Error('Falta GEMINI_INTERACTIONS_API_KEY ou GEMINI_API_KEY para usar Gemini Interactions API.');
+      throw new Error('Missing GEMINI_INTERACTIONS_API_KEY or GEMINI_API_KEY for Gemini Interactions API.');
     }
 
     const modelName = options?.modelName || this.defaultModelName;

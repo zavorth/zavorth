@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export interface WorkflowNode {
   id: string;
@@ -104,7 +105,7 @@ export class ZavorthWorkflowBuilderTool extends BaseTool {
     try {
       const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       this.workflows = new Map(Object.entries(data));
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Zavorth Workflow Builder] JSON parse failed', error); }
   }
 
   private saveWorkflows(): void {
@@ -218,7 +219,7 @@ export class ZavorthWorkflowBuilderTool extends BaseTool {
 
     let config: Record<string, unknown> = {};
     if (typeof args.node_config === 'string') {
-      try { config = JSON.parse(args.node_config); } catch { return 'Error: invalid JSON for node_config.'; }
+      try { config = JSON.parse(args.node_config); } catch (error) { logger.warn('[Zavorth Workflow Builder] JSON parse failed', error); return 'Error: invalid JSON for node_config.'; }
     }
 
     const nodeId = `node_${Date.now()}_${Math.random().toString(36).slice(2, 4)}`;
@@ -357,8 +358,6 @@ export class ZavorthWorkflowBuilderTool extends BaseTool {
       this.saveWorkflows();
 
       return `Workflow "${wf.name}" imported with ID ${wf.id}.`;
-    } catch {
-      return 'Error: invalid JSON.';
-    }
+    } catch (error) { logger.warn('[Zavorth Workflow Builder] creation failed', error); return 'Error: invalid JSON.'; }
   }
 }

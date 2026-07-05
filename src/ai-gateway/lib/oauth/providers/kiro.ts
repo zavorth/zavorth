@@ -1,4 +1,5 @@
 import { KIRO_CONFIG } from "../constants/oauth";
+import { logger } from '@/shared/utils/logger';
 
 export const kiro = {
   config: KIRO_CONFIG,
@@ -77,10 +78,11 @@ export const kiro = {
     let data;
     try {
       data = await response.json();
-    } catch (e) {
-      const text = await response.text();
+    } catch (error) {
+    logger.warn('[kiro] serialization failed', error);
+    const text = await response.text();
       data = { error: "invalid_response", error_description: text };
-    }
+  }
 
     if (data.accessToken) {
       return {

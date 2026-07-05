@@ -2,6 +2,7 @@ import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { HostCommandApprovalService } from '../../services/HostCommandApprovalService.js';
+import { logger } from '../../logger.js';
 
 export class HostCommandProposeTool extends BaseTool {
   public readonly name = 'workspace.host_command.propose';
@@ -12,12 +13,12 @@ export class HostCommandProposeTool extends BaseTool {
     properties: {
       command: {
         type: 'string',
-        description: 'O binário ou comando executável a propor (ex: "npm", "git", "powershell").',
+        description: 'Executable binary or command to propose, for example "npm", "git", or "powershell".',
       },
       args: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Argumentos para o comando.',
+        description: 'Arguments for the command.',
       },
       cwd: {
         type: 'string',
@@ -25,11 +26,11 @@ export class HostCommandProposeTool extends BaseTool {
       },
       shell: {
         type: 'boolean',
-        description: 'Se deve executar o comando usando o shell do sistema. Default: false',
+        description: 'Whether to execute the command through the system shell. Default: false',
       },
       reason: {
         type: 'string',
-        description: 'Motivação clara para executar este comando no host.',
+        description: 'Clear motivation for running this command on the host.',
       }
     },
     required: ['command', 'args', 'reason'],
@@ -50,7 +51,7 @@ export class HostCommandProposeTool extends BaseTool {
     const reason = args.reason as string;
 
     if (!command || typeof command !== 'string') {
-      return JSON.stringify({ success: false, error: '"command" é obrigatório.' });
+      return JSON.stringify({ success: false, error: '"command" is required.' });
     }
 
     try {
@@ -79,11 +80,12 @@ export class HostCommandProposeTool extends BaseTool {
         status: 'HOST_COMMAND_APPROVAL_REQUIRED',
         message: 'Operator approval is required to execute host commands.'
       });
-    } catch (error: any) {
-      return JSON.stringify({
+    } catch (error) {
+    logger.warn('[Host Command Propose] process execution failed', error);
+    return JSON.stringify({
         success: false,
-        error: `Erro ao propor comando de host: ${error.message || error}`
+        error: `Failed to propose host command: ${error.message || error}`
       });
-    }
+  }
   }
 }

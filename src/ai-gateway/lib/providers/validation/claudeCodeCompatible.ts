@@ -13,6 +13,7 @@ import {
   validationSuccess,
 } from "./validationResult.ts";
 import { normalizeClaudeCodeCompatibleBaseUrl } from "./validationFamilies.ts";
+import { logger } from '@/shared/utils/logger';
 
 export async function validateClaudeCodeCompatibleProvider({
   apiKey,
@@ -45,9 +46,7 @@ export async function validateClaudeCodeCompatibleProvider({
     if (modelsRes.status === 401 || modelsRes.status === 403) {
       return invalidApiKey();
     }
-  } catch {
-    // Fall through to bridge request validation.
-  }
+  } catch (error) { // Fall through to bridge request validation. logger.warn('[claude Code Compatible] network request failed', error); }
 
   const payload = buildClaudeCodeCompatibleValidationPayload(
     providerSpecificData?.validationModelId || "claude-sonnet-4-6"
@@ -93,7 +92,8 @@ export async function validateClaudeCodeCompatibleProvider({
       error: messagesRes.ok ? null : `Validation failed: ${messagesRes.status}`,
       method: "cc_bridge_request",
     };
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[claude Code Compatible] load operation failed', error);
     return connectionFailed(error.message || "Connection failed");
   }
 }

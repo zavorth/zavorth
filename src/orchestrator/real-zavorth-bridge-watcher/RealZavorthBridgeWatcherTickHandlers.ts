@@ -21,8 +21,9 @@ interface BridgeTask {
   status: string;
   requires_approval?: boolean;
   approval_status?: string;
-  error_summary?: string;
+  error_summary?: string | null;
   metadata?: BridgeTaskMetadata;
+  [key: string]: any;
 }
 
 interface BridgeArtifact {
@@ -43,14 +44,15 @@ interface PermissionRequest {
   permission_id: string;
   executor: string;
   kind: string;
-  task_id?: string;
+  task_id?: string | null;
   status: string;
+  [key: string]: any;
 }
 
 interface PermissionService {
-  listRequests?(status: string, limit: number): Promise<PermissionRequest[]>;
-  getRequest(id: string): Promise<PermissionRequest | undefined>;
-  rejectRequest(id: string, system: string, reason: string): Promise<void>;
+  listRequests?(status?: any, limit?: number): Promise<any>;
+  getRequest(id: string): Promise<any>;
+  rejectRequest(id: string, system: string, reason: string): Promise<any>;
 }
 
 interface TaskManager {

@@ -57,7 +57,7 @@ export class SecurityEngine {
 
   public static validateFileAccess(filePath: string): void {
     if (isBlockedFilePath(filePath)) {
-      throw new Error(`SandboxBlock: acesso ao caminho '${filePath}' bloqueado por politica de seguranca.`);
+      throw new Error(`SandboxBlock: access to path '${filePath}' blocked by security policy.`);
     }
   }
 
@@ -75,15 +75,15 @@ export class SecurityEngine {
 
     const app = String(params.appName || '').toLowerCase().trim();
     if (!app || UNSAFE_OS_ARGUMENT_PATTERN.test(app)) {
-      throw new Error(`SandboxBlock: aplicativo '${app}' contem caracteres inseguros.`);
+      throw new Error(`SandboxBlock: application '${app}' contem caracteres inseguros.`);
     }
 
     if (isBlockedSystemExecutable(app)) {
-      throw new Error(`SandboxBlock: aplicativo '${app}' bloqueado por politica de seguranca.`);
+      throw new Error(`SandboxBlock: application '${app}' blocked by security policy.`);
     }
 
     if (!isWhitelistedSystemExecutable(app)) {
-      throw new Error(`SandboxBlock: o aplicativo '${app}' nao esta na whitelist de execucao segura.`);
+      throw new Error(`SandboxBlock: o application '${app}' is not in the safe execution whitelist.`);
     }
 
     const args = Array.isArray(params.args) ? params.args : [];
@@ -125,14 +125,14 @@ export class SecurityEngine {
 
   private static validateEntityId(entityId: string): void {
     if (!entityId) {
-      throw new Error('SandboxBlock: entity_id e obrigatorio para Home Assistant.');
+      throw new Error('SandboxBlock: entity_id is required for Home Assistant.');
     }
 
     const normalized = entityId.toLowerCase().trim();
     const isAllowed = ALLOWED_HA_ENTITY_PREFIXES.some((prefix) => normalized.startsWith(prefix));
     if (!isAllowed) {
       throw new Error(
-        `SandboxBlock: entity_id '${entityId}' nao possui prefixo permitido. `
+        `SandboxBlock: entity_id '${entityId}' does not have an allowed prefix. `
         + `Prefixos validos: ${ALLOWED_HA_ENTITY_PREFIXES.join(', ')}`,
       );
     }
@@ -148,7 +148,7 @@ export class SecurityEngine {
       hostname = new URL(broker).hostname;
     } catch {
       throw new Error(
-        `SandboxBlock: broker MQTT '${broker}' possui URL invalida.`,
+        `SandboxBlock: MQTT broker '${broker}' possui URL invalida.`,
       );
     }
 
@@ -163,7 +163,7 @@ export class SecurityEngine {
     }
 
     throw new Error(
-      `SandboxBlock: broker MQTT '${broker}' nao e local. `
+      `SandboxBlock: MQTT broker '${broker}' is not local. `
       + 'Apenas localhost e redes privadas sao permitidos.',
     );
   }

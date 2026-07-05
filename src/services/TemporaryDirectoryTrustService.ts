@@ -6,6 +6,7 @@ import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService.js';
+import { logger } from '../logger.js';
 
 export interface TemporaryDirectoryTrust {
   trustId: string;
@@ -97,9 +98,7 @@ export class TemporaryDirectoryTrustService {
             this.activeByWorkspace.get(wsId)!.set(trust.trustId, trust);
           }
         }
-      } catch {
-        // ignore
-      }
+      } catch (error) { // ignore logger.warn('[Temporary Directory Trust] JSON parse failed', error); }
     }
   }
 
@@ -148,9 +147,7 @@ export class TemporaryDirectoryTrustService {
     for (const candidate of candidates) {
       try {
         unique.add(path.resolve(candidate).toLowerCase());
-      } catch {
-        // ignore invalid entries
-      }
+      } catch (error) { // ignore invalid entries logger.warn('[Temporary Directory Trust] operation failed', error); }
     }
     return [...unique];
   }
@@ -175,16 +172,18 @@ export class TemporaryDirectoryTrustService {
     let realPath: string;
     try {
       realPath = fs.realpathSync(resolvedPath);
-    } catch {
-      realPath = path.resolve(resolvedPath);
-    }
+    } catch (error) {
+    logger.warn('[Temporary Directory Trust] lifecycle operation failed', error);
+    realPath = path.resolve(resolvedPath);
+  }
 
     let realWs: string;
     try {
       realWs = fs.realpathSync(workspaceRoot);
-    } catch {
-      realWs = path.resolve(workspaceRoot);
-    }
+    } catch (error) {
+    logger.warn('[Temporary Directory Trust] path resolution failed', error);
+    realWs = path.resolve(workspaceRoot);
+  }
 
     const normPath = path.normalize(realPath).toLowerCase();
     const normWs = path.normalize(realWs).toLowerCase();
@@ -260,9 +259,10 @@ export class TemporaryDirectoryTrustService {
     let resolved: string;
     try {
       resolved = fs.realpathSync(normalized);
-    } catch {
-      resolved = normalized;
-    }
+    } catch (error) {
+    logger.warn('[Temporary Directory Trust] validation failed', error);
+    resolved = normalized;
+  }
 
     const parts = resolved.replace(/\\/g, '/').toLowerCase().split('/');
     if (parts.includes('.git')) {
@@ -595,9 +595,10 @@ export class TemporaryDirectoryTrustService {
         const parent = path.dirname(absolutePath);
         const resolvedParent = this.resolveRealpath(parent);
         realTarget = path.join(resolvedParent, path.basename(absolutePath));
-      } catch {
-        realTarget = path.resolve(absolutePath);
-      }
+      } catch (error) {
+    logger.warn('[Temporary Directory Trust] path resolution failed', error);
+    realTarget = path.resolve(absolutePath);
+  }
     }
 
     const normTarget = path.normalize(realTarget).toLowerCase();
@@ -616,7 +617,7 @@ export class TemporaryDirectoryTrustService {
 
       if (isSyntacticallyContained && !isCanonicallyContained) {
         this.auditLogger.logWorkspaceEvent({
-          event: 'tmp_dir_trust_toctou_denial' as any,
+          event: 'tmp_dir_trust_toctou_denial',
           workspaceId,
           toolName: 'workspace.temp_dir_trust',
           operation,

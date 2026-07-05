@@ -247,7 +247,7 @@ export class AutomaticBrowserTool {
           moduleName,
           moduleAvailable: true,
           launchable: false,
-          error: 'Modulo Playwright carregado, mas chromium.launch nao esta disponivel.',
+          error: 'Playwright module loaded, but chromium.launch is not available.',
           recommendations: [
             'Revise a versao provisionada de playwright-core/playwright.',
             'Garanta que a stack de browser expose chromium.launch antes de habilitar o MCP browser.',
@@ -331,7 +331,7 @@ export class AutomaticBrowserTool {
     const engine = String(args?.engine || 'google').trim().toLowerCase();
     const query = String(args?.query || '').trim();
     if (!query) {
-      throw new Error('browser_search requer uma query nao vazia.');
+      throw new Error('browser_search requires a non-empty query.');
     }
 
     const url = this.buildSearchUrl(engine, query);
@@ -382,7 +382,7 @@ export class AutomaticBrowserTool {
   private async handleEvaluateJs(args: Record<string, unknown>): Promise<McpToolCallResponse> {
     const script = String(args?.script || '').trim();
     if (!script) {
-      throw new Error('evaluate_js requer um script JavaScript nao vazio.');
+      throw new Error('evaluate_js requires a non-empty JavaScript script.');
     }
     const isolationDecision = this.isolationGuard.guard({
       surface: 'browser',
@@ -401,7 +401,7 @@ export class AutomaticBrowserTool {
         return this.handleBrowserSidecar('evaluate_js', args);
       }
       throw new Error(
-        'evaluate_js nao aceita JavaScript arbitrario no browser local. Use uma receita read-only: document.title, location.href, document.body.innerText, document.body.textContent ou document.documentElement.outerHTML. Scripts arbitrarios exigem um browser sidecar isolado.',
+        'evaluate_js does not accept arbitrary JavaScript in the local browser. Use a read-only recipe: document.title, location.href, document.body.innerText, document.body.textContent, or document.documentElement.outerHTML. Arbitrary scripts require an isolated browser sidecar.',
       );
     }
 
@@ -443,7 +443,7 @@ export class AutomaticBrowserTool {
 
     const page = this.getActivePage();
     if (typeof page.screenshot !== 'function') {
-      throw new Error('browser_screenshot requer uma pagina Playwright com screenshot disponivel.');
+      throw new Error('browser_screenshot requires a Playwright page with screenshot support.');
     }
     const bytes = await page.screenshot({
       fullPage: args.fullPage === true,
@@ -650,7 +650,7 @@ export class AutomaticBrowserTool {
     const playwright = await this.loadPlaywright();
     if (!playwright?.chromium?.launch) {
       throw new Error(
-        'AutomaticBrowserTool requer playwright-core com chromium.launch disponivel.',
+        'AutomaticBrowserTool requires playwright-core with chromium.launch available.',
       );
     }
 
@@ -705,7 +705,7 @@ export class AutomaticBrowserTool {
     }
     if (normalized.includes('executable') || normalized.includes('browser') || normalized.includes('chromium')) {
       return [
-        'A dependencia JavaScript existe, mas o binario do browser ainda nao esta pronto para launch.',
+        'The JavaScript dependency exists, but the browser binary is not ready for launch yet.',
         'Provisionar o browser stack do Playwright no host deve resolver esse ponto.',
       ];
     }
@@ -757,7 +757,7 @@ export class AutomaticBrowserTool {
       case 'github':
         return `https://github.com/search?q=${encoded}`;
       default:
-        throw new Error(`browser_search nao suporta engine "${engine}".`);
+        throw new Error(`browser_search does not support engine "${engine}".`);
     }
   }
 

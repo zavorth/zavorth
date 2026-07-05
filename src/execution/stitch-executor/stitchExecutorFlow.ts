@@ -80,7 +80,7 @@ export async function executeStitchSdkRoute(
   const sdkModule = await input.loadSdk().catch(() => null);
   if (!sdkModule) {
     input.result.error_code = 'STITCH_SDK_UNAVAILABLE';
-    input.result.error_message = 'O SDK do Stitch nao carregou corretamente neste host.';
+    input.result.error_message = 'The Stitch SDK did not load correctly on this host.';
     input.result.finished_at = new Date().toISOString();
     return input.result;
   }
@@ -110,7 +110,7 @@ export async function executeStitchSdkRoute(
     const screenId = input.resolveScreenId(generatedScreen);
 
     if (!generatedScreen || !screenId) {
-      throw new Error('O Stitch nao retornou uma tela valida em generate_screen_from_text.');
+      throw new Error('Stitch did not return a valid screen in generate_screen_from_text.');
     }
 
     input.result.actions_executed.push(`[Stitch] Tela gerada: ${screenId}`);
@@ -169,7 +169,7 @@ export async function executeStitchSdkRoute(
       stitch_failure_kind: classified.code,
       suggestion: classified.suggestion || null,
     };
-    input.result.actions_executed.push(`[Stitch] Falha: ${classified.message}`);
+    input.result.actions_executed.push(`[Stitch] Failure: ${classified.message}`);
   } finally {
     await client.close().catch(() => undefined);
     input.result.finished_at = new Date().toISOString();
@@ -185,7 +185,7 @@ export async function probeStitchSdkConnection(
   if (!sdkModule) {
     return {
       ok: false,
-      message: 'O SDK do Stitch nao carregou corretamente neste host.',
+      message: 'The Stitch SDK did not load correctly on this host.',
     };
   }
 

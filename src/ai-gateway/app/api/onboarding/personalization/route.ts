@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 import {
-  FirstRunPersonalizationService,
+FirstRunPersonalizationService,
   type FirstRunPersonalizationAnswers,
 } from "../../../../../services/FirstRunPersonalizationService";
 
@@ -16,6 +17,7 @@ export async function GET(request: Request) {
   try {
     return NextResponse.json(createService().getStatus());
   } catch (error) {
+    logger.warn('[route] creation failed', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to inspect personalization" },
       { status: 500 }
@@ -34,6 +36,7 @@ export async function POST(request: Request) {
     const result = createService().applyAnswers(answers, { completeBootstrap });
     return NextResponse.json(result);
   } catch (error) {
+    logger.warn('[route] creation failed', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to save personalization" },
       { status: 500 }

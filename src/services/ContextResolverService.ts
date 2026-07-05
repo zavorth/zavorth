@@ -3,8 +3,9 @@ import {
   WorkspaceProfileService,
   type WorkspaceProfile,
 } from './WorkspaceProfileService.js';
+import { logger } from '../logger.js';
 import {
-  isMnemosAvailable,
+isMnemosAvailable,
   buildMnemosCognitiveInstruction,
 } from './MnemosCognitiveProtocol.js';
 
@@ -221,8 +222,6 @@ export class ContextResolverService {
 
     try {
       return await this.connectedToolNamesProvider();
-    } catch {
-      return this.connectedToolNames;
-    }
+    } catch (error) { logger.warn('[Context Resolver] connection failed', error); return this.connectedToolNames; }
   }
 }

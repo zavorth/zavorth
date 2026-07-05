@@ -2,6 +2,7 @@ import { ZavorthInspectService, type ZavorthInspectRuntimeOverlay, type ZavorthI
 import type { CliExecutionResult, CliWriter, ZavorthCliFlags, ZavorthCliRuntime } from '../ZavorthCliContract.js';
 import { renderCliScreen, type CliVisualPanel } from '../ZavorthCliVisualSystem.js';
 import { paintCliTone } from '../ZavorthCliVisualTheme.js';
+import { logger } from '../../logger.js';
 
 export async function handleZavorthInspectCommand(input: {
   commandName: string | null;
@@ -51,9 +52,7 @@ async function buildRuntimeOverlay(resolveRuntime?: () => Promise<ZavorthCliRunt
       .map((receipt: any) => String(receipt?.id || receipt || ''))
       .filter(Boolean);
     return { pendingApprovals, receiptIds };
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Inspect Command] filesystem check failed', error); return null; }
 }
 
 function renderInspectSnapshot(snapshot: ZavorthInspectSnapshot, options: { live: boolean }): string {

@@ -149,7 +149,7 @@ export class ZavorthAutomationDeliveryService {
       status: 'queued',
       createdAt,
       prompt: String(input.prompt || '').trim() || 'automation-system-notice',
-      summary: String(input.summary || '').trim() || 'Aviso operacional de automacao.',
+      summary: String(input.summary || '').trim() || 'Operational automation notice.',
       target: String(input.target || '').trim() || null,
     };
     this.ensureParentDir(config.automationDeliveryReportFile);
@@ -176,7 +176,7 @@ export class ZavorthAutomationDeliveryService {
         .slice(-Math.max(0, limit))
         .reverse();
     } catch (error) {
-      logger.warn('Falha ao ler registros recentes de entrega.', { err: error });
+      logger.warn('Failed to read recent delivery records.', { err: error });
       return [];
     }
   }
@@ -192,9 +192,7 @@ export class ZavorthAutomationDeliveryService {
       .map((line) => {
         try {
           return JSON.parse(line) as AutomationWebhookEnvelope;
-        } catch {
-          return null;
-        }
+        } catch (error) { logger.warn('[Zavorth Automation Delivery] JSON parse failed', error); return null; }
       })
       .filter((entry): entry is AutomationWebhookEnvelope => Boolean(entry));
   }
@@ -242,8 +240,8 @@ export class ZavorthAutomationDeliveryService {
       lastQueuedAt,
       recommendation:
         queuedDeliveries > 0
-          ? 'Outbox possui entregas pendentes; drenar bridges antes de aumentar recorrencia.'
-          : 'Outbox limitado e pronto para entregas sob demanda.',
+          ? 'Outbox has pending deliveries; drain bridges before increasing recurrence.'
+          : 'Outbox is bounded and ready for on-demand deliveries.',
     };
   }
 
@@ -328,9 +326,7 @@ export class ZavorthAutomationDeliveryService {
         }
       }
       fs.renameSync(filePath, `${filePath}.1`);
-    } catch {
-      // Entrega de automacao deve seguir mesmo se a rotacao encontrar arquivo travado.
-    }
+    } catch (error) { // Automation delivery should continue even if rotation finds a locked file. logger.warn('[Zavorth Automation Delivery] filesystem operation failed', error); }
   }
 
   private readDeliveryRecords(): AutomationDeliveryRecord[] {
@@ -354,13 +350,13 @@ export class ZavorthAutomationDeliveryService {
           try {
             return JSON.parse(line) as AutomationDeliveryRecord;
           } catch (error) {
-            logger.warn('Linha JSON invalida no arquivo de automacao.', { err: error });
+            logger.warn('Invalid JSON line in automation file.', { err: error });
             return null;
           }
         })
         .filter((entry): entry is AutomationDeliveryRecord => Boolean(entry));
     } catch (error) {
-      logger.warn('Falha ao ler registros JSONL de automacao.', { err: error });
+      logger.warn('Failed to read automation JSONL records.', { err: error });
       return [];
     }
   }
@@ -376,13 +372,13 @@ export class ZavorthAutomationDeliveryService {
           try {
             return JSON.parse(this.readFileSync(path.join(config.emailOutboxDir, entry), 'utf8')) as AutomationEmailEnvelope;
           } catch (error) {
-            logger.warn('Envelope de email invalido no outbox.', { err: error });
+            logger.warn('Invalid email envelope in outbox.', { err: error });
             return null;
           }
         })
         .filter((entry): entry is AutomationEmailEnvelope => Boolean(entry));
     } catch (error) {
-      logger.warn('Falha ao ler envelopes de email do outbox.', { err: error });
+      logger.warn('Failed to read email envelopes from outbox.', { err: error });
       return [];
     }
   }
@@ -411,9 +407,7 @@ export class ZavorthAutomationDeliveryService {
           this.unlinkSync(entry.filePath);
         }
       }
-    } catch {
-      // Retencao de outbox e best-effort para nao quebrar a entrega principal.
-    }
+    } catch (error) { // Outbox retention is best-effort so the main delivery path keeps working. logger.warn('[Zavorth Automation Delivery] file cleanup failed', error); }
   }
 
   private normalizeDelivery(value: ScheduledTask['delivery']): string {

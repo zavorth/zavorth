@@ -5,9 +5,9 @@ import { MnemosScopeConsentService } from '../services/MnemosScopeConsentService
 export class PlanMnemosScopeTool extends BaseTool {
   readonly name = 'plan_mnemos_scope';
   readonly description = [
-    'Use esta ferramenta antes de configurar o Mnemos quando o usuario disser em linguagem natural onde ele permite procurar.',
+    'Use this tool before configuring Mnemos when the user says in natural language where it may search.',
     'Ela transforma frases como "pode procurar no meu PC inteiro" ou "procure em Documentos" em um escopo explicito, com risco e aviso.',
-    'Nao execute enable_mnemos ate o usuario confirmar o escopo apresentado.',
+    'Do not run enable_mnemos until the user confirms the presented scope.',
   ].join(' ');
 
   readonly parameters: ToolDefinition['parameters'] = {
@@ -15,11 +15,11 @@ export class PlanMnemosScopeTool extends BaseTool {
     properties: {
       user_text: {
         type: 'string',
-        description: 'Texto natural do usuario descrevendo onde o Mnemos pode procurar.',
+        description: 'Natural user text describing where Mnemos may search.',
       },
       vault_dir: {
         type: 'string',
-        description: 'Opcional. Caminho do cofre Mnemos desejado pelo usuario. Se ausente, usa data/mnemos_vault no workspace.',
+        description: 'Optional. Desired Mnemos vault path. If absent, uses data/mnemos_vault in the workspace.',
       },
     },
     required: ['user_text'],

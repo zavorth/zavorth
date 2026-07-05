@@ -153,15 +153,15 @@ export function RecordingPlayer({
   const progressPercent = totalFrames > 0 ? (currentFrame / totalFrames) * 100 : 0;
 
   if (loading) {
-    return <div style={styles.container}><div style={styles.loading}>Carregando gravação...</div></div>;
+    return <div style={styles.container}><div style={styles.loading}>Loading recording...</div></div>;
   }
 
   if (error) {
-    return <div style={styles.container}><div style={styles.error}>Erro: {error}</div></div>;
+    return <div style={styles.container}><div style={styles.error}>Error: {error}</div></div>;
   }
 
   if (!recording) {
-    return <div style={styles.container}><div style={styles.loading}>Nenhuma gravação selecionada</div></div>;
+    return <div style={styles.container}><div style={styles.loading}>No recording selected</div></div>;
   }
 
   return (
@@ -169,7 +169,7 @@ export function RecordingPlayer({
       {/* Header */}
       <div style={styles.header}>
         <span style={styles.title}>
-          🎬 {recording.header.title || 'Gravação'}
+          Recording: {recording.header.title || 'Recording'}
         </span>
         <span style={styles.meta}>
           {totalFrames} frames · {totalDuration.toFixed(1)}s
@@ -178,7 +178,7 @@ export function RecordingPlayer({
 
       {/* Terminal Output */}
       <div ref={containerRef} style={styles.output}>
-        <pre style={styles.pre}>{output || '\n  Pressione ▶ para iniciar o replay...\n'}</pre>
+        <pre style={styles.pre}>{output || '\n  Press play to start the replay...\n'}</pre>
       </div>
 
       {/* Progress Bar */}

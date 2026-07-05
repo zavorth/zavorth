@@ -3,6 +3,7 @@ import { getUsageDb } from "@/lib/usageDb";
 import { computeAnalytics } from "@/lib/usageAnalytics";
 import { getDbInstance } from "@/lib/db/core";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 function getRangeStartIso(range: string): string | null {
   const end = new Date();
@@ -68,9 +69,7 @@ export async function GET(request) {
           connectionId;
         connectionMap[connectionId] = name;
       }
-    } catch {
-      /* ignore */
-    }
+    } catch (error) { /* ignore */ logger.warn('[route] connection failed', error); }
 
     const analytics: any = await computeAnalytics(history, range, connectionMap);
 

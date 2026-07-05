@@ -273,10 +273,11 @@ export class ConversationalAgent {
             // Store in cache (Improvement E)
             this.toolCache.set(toolCall.name, toolCall.arguments, toolResult);
           }
-        } catch (error: unknown) {
-          const message = error instanceof Error ? error.message : String(error);
+        } catch (error) {
+    logger.warn('[Conversational Agent] process execution failed', error);
+    const message = error instanceof Error ? error.message : String(error);
           toolResult = `Tool ${toolCall.name} failed: ${message}`;
-        }
+  }
         rawToolResults.push(toolResult);
         groundingEvidenceTexts.push(`${toolCall.name}:\n${toolResult}`);
         toolReceiptCount += 1;
@@ -845,15 +846,18 @@ export class ConversationalAgent {
    * Get predictive loading statistics.
    */
   public getUsageStats() {
-    return this.usageTracker.getStats();
+    return {
+      activeSessions: this.usageTracker.getActiveSessionCount(),
+      currentSessionTurns: this.sessionId ? this.usageTracker.getSessionTurnCount(this.sessionId) : 0,
+    };
   }
 
   /**
    * Get predicted tools for the current session.
    */
-  public getPredictedTools(): string[] {
+  public getPredictedTools(currentIntentTools: string[] = []): string[] {
     if (!this.sessionId) return [];
-    return this.usageTracker.predictNextTools(this.sessionId);
+    return this.usageTracker.predictNextTools(this.sessionId, currentIntentTools).predictedTools;
   }
 }
 

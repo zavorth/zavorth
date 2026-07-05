@@ -1,4 +1,5 @@
 import net from 'net';
+import { logger } from '../../logger.js';
 
 export type ZavorthChannelLiveValidationStatus = 'not-requested' | 'passed' | 'failed' | 'unsupported';
 
@@ -74,6 +75,7 @@ export async function validateZavorthChannelLive(
     }
     return result(input, channelId, 'unsupported', `${channelId || 'unknown'} does not have a live setup test yet.`, false);
   } catch (error) {
+    logger.warn('[Zavorth Channel Live Validation] connection failed', error);
     return result(
       input,
       channelId,

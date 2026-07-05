@@ -317,10 +317,10 @@ export class CanvasWorkspaceService {
       sourceHealth,
       narrative: {
         headline: 'Workspace canvas: Workspace Canvas Infinito',
-        operatorSummary: `${entities.length} entidade(s) projetada(s), ${summary.pendingApprovals} approval(s) pendente(s), ${summary.locks} lock(s) ativo(s), ${summary.attachments} anexo(s), sem iniciar Watch Mode, nodes ou automacoes.`,
+        operatorSummary: `${entities.length} projected entity/entities, ${summary.pendingApprovals} pending approval(s), ${summary.locks} active lock(s), ${summary.attachments} attachment(s), without starting Watch Mode, nodes, or automations.`,
         nextAction: pendingApprovals > 0
           ? 'Abrir entidade approval no canvas e aprovar pelo Mutation Plane quando fizer sentido.'
-          : 'Usar o canvas como mapa espacial; qualquer alteracao mutavel deve virar MutationPlan.',
+          : 'Use the canvas as a spatial map; any mutable change must become a MutationPlan.',
       },
     };
   }
@@ -343,7 +343,7 @@ export class CanvasWorkspaceService {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: 'Entidade do canvas nao encontrada.',
+        summary: 'Canvas entity not found.',
         mutationPlan: null,
         entity: null,
         snapshot,
@@ -391,7 +391,7 @@ export class CanvasWorkspaceService {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: 'Entidade do canvas nao encontrada para layout.',
+        summary: 'Canvas entity not found for layout.',
         mutationPlan: null,
         entity: null,
         snapshot,
@@ -451,7 +451,7 @@ export class CanvasWorkspaceService {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: existing ? `Entidade ja esta bloqueada por ${existing.owner}.` : 'Entidade do canvas nao encontrada para lock.',
+        summary: existing ? `Entity is already locked by ${existing.owner}.` : 'Canvas entity not found for lock.',
         mutationPlan: null,
         entity,
         snapshot,
@@ -513,7 +513,7 @@ export class CanvasWorkspaceService {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: 'Entidade do canvas nao encontrada para release lock.',
+        summary: 'Canvas entity not found for lock release.',
         mutationPlan: null,
         entity: null,
         snapshot,
@@ -565,7 +565,7 @@ export class CanvasWorkspaceService {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: 'Entidade do canvas nao encontrada para anexo.',
+        summary: 'Canvas entity not found for attachment.',
         mutationPlan: null,
         entity: null,
         snapshot,
@@ -576,7 +576,7 @@ export class CanvasWorkspaceService {
       entity,
       actionId: 'attach-source',
       title: `Anexar ${input.kind} a ${entity.title}`,
-      summary: 'Anexo sensivel de Watch Mode/artifact/replay fica pendente de approval.',
+      summary: 'Sensitive Watch Mode/artifact/replay attachment remains pending approval.',
       payload: {
         entityId,
         kind: input.kind,
@@ -604,7 +604,7 @@ export class CanvasWorkspaceService {
       actor: input.requestedBy || null,
       entityId,
       event: 'canvas.attach-source',
-      summary: `Anexo ${attachment.kind} pendente de approval em ${entity.title}.`,
+      summary: `${attachment.kind} attachment pending approval in ${entity.title}.`,
       mutationPlanId: plan.id,
     });
     this.writeDocument(document);
@@ -612,7 +612,7 @@ export class CanvasWorkspaceService {
       generatedAt: this.now().toISOString(),
       status: 'planned',
       ok: true,
-      summary: 'Anexo criado como pendente de approval.',
+      summary: 'Attachment created as pending approval.',
       mutationPlan: plan,
       entity,
       snapshot: await this.buildSnapshot(),
@@ -748,7 +748,7 @@ export class CanvasWorkspaceService {
         id: 'canvas-automations',
         kind: 'automation',
         title: 'Automations',
-        summary: `${Number(summary.activeTasks || 0)} ativa(s), ${Number(summary.pausedTasks || 0)} pausada(s), scheduler core ${summary.coreSchedulerDormant ? 'dormente' : 'disponivel'}.`,
+        summary: `${Number(summary.activeTasks || 0)} active, ${Number(summary.pausedTasks || 0)} paused, scheduler core ${summary.coreSchedulerDormant ? 'dormant' : 'available'}.`,
         status: this.statusFromPosture(summary.posture),
         sourceRef: this.sourceRef('automation', null, 'control-plane', 'npm run ops:automations'),
         position: this.positionFor(0, 1, document),
@@ -834,7 +834,7 @@ export class CanvasWorkspaceService {
         metadata: {
           activeStatus: summary.activeStatus,
           pendingApprovals: summary.pendingApprovals,
-          note: 'Canvas nao inicia Watch Mode; apenas projeta snapshots persistidos.',
+          note: 'Canvas does not start Watch Mode; it only projects persisted snapshots.',
         },
         mutable: true,
         document,
@@ -868,7 +868,7 @@ export class CanvasWorkspaceService {
           id: 'canvas-approvals',
           kind: 'approval',
           title: 'Approvals',
-          summary: 'Nenhum MutationPlan recente pendente no canvas.',
+          summary: 'No recent pending MutationPlan in the canvas.',
           status: 'idle',
           sourceRef: this.sourceRef('mutation-plane', null, 'plans', 'npm run ops:trust-plane'),
           position: this.positionFor(0, 4, document),
@@ -911,7 +911,7 @@ export class CanvasWorkspaceService {
       title: 'Eval e observability',
       summary: gate
         ? `Gate ${gate.status}; ${Number(summary.regressions || 0)} regressao(oes), ${Number(summary.scorecards || 0)} scorecard(s).`
-        : 'Eval plane nao carregado neste snapshot; fallback CLI continua disponivel.',
+        : 'Eval plane not loaded in this snapshot; CLI fallback remains available.',
       status: this.statusFromPosture(summary.posture || gate?.status),
       sourceRef: this.sourceRef('eval', null, 'control-plane', 'npm run ops:evals'),
       position: this.positionFor(0, 5, document),
@@ -946,7 +946,7 @@ export class CanvasWorkspaceService {
       id: 'canvas-skill-evolution',
       kind: 'task',
       title: 'Auto-Skill Evolution',
-      summary: `${Number(summary.total || 0)} record(s), ${Number(summary.waitingApproval || 0)} aguardando approval, heavy=${summary.heavyRuntimesStarted ? 'yes' : 'no'}.`,
+      summary: `${Number(summary.total || 0)} record(s), ${Number(summary.waitingApproval || 0)} waiting for approval, heavy=${summary.heavyRuntimesStarted ? 'yes' : 'no'}.`,
       status: this.statusFromPosture(summary.posture),
       sourceRef: this.sourceRef('skill-evolution', null, 'control-plane', 'npm run ops:skill-evolution'),
       position: this.positionFor(2, 5, document),
@@ -1004,7 +1004,7 @@ export class CanvasWorkspaceService {
   private buildSourceHealth(sources: CanvasProjectionSources): CanvasWorkspaceSnapshot['sourceHealth'] {
     return [
       this.health('automation', asCanvasRecord(sources.automation?.summary)?.posture, 'Automations control plane', 'npm run ops:automations'),
-      this.health('watch-mode', asCanvasRecord(sources.watch?.summary)?.posture, 'Watch Mode projection; nao inicia captura.', 'npm run ops:watch-mode'),
+      this.health('watch-mode', asCanvasRecord(sources.watch?.summary)?.posture, 'Watch Mode projection; does not start capture.', 'npm run ops:watch-mode'),
       this.health('federated-mesh', asCanvasRecord(sources.federatedMesh?.summary)?.posture, 'Federated Mesh projection.', 'npm run ops:federated-mesh'),
       this.health('eval', asCanvasRecord(sources.evals?.summary)?.posture, sources.evals ? 'Eval control plane carregado.' : 'Eval control plane indisponivel neste snapshot.', 'npm run ops:evals'),
       this.health('rollout', asCanvasRecord(sources.rollout?.summary)?.posture, 'Rollout readiness projection.', 'npm run ops:rollout-readiness'),
@@ -1141,7 +1141,7 @@ export class CanvasWorkspaceService {
           status: 'passed',
           canProceed: true,
           scope: input.entity.id,
-          reasons: ['Canvas state nao substitui fonte canonica.'],
+          reasons: ['Canvas state does not replace the canonical source.'],
           warnings: [],
           blockers: [],
           checkedAt: this.now().toISOString(),

@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import { BaseTool } from './BaseTool.js';
+import { logger } from '../logger.js';
 
 export type BackendType = 'local' | 'docker' | 'ssh' | 'wsl' | 'singularity' | 'modal';
 
@@ -121,10 +122,11 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
           config.options = options || {};
           return 'Modal connected.';
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Terminal Backends] process execution failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Error connecting to ${backend}: ${message}`;
-    }
+  }
   }
 
   public disconnect(backend: BackendType): string {
@@ -320,7 +322,7 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
       const result = execFileSync('modal', ['run', tmpFile], { timeout, windowsHide: true, maxBuffer: 5 * 1024 * 1024, encoding: 'utf-8' });
       return { stdout: String(result), stderr: '', exitCode: 0, backend: 'modal', duration_ms: 0 };
     } finally {
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Zavorth Terminal Backends] file cleanup failed', error); }
     }
   }
 
@@ -338,13 +340,13 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
   private getDockerVersion(): string {
     try {
       return execFileSync('docker', ['version', '--format', '{{.Server.Version}}'], { timeout: 5000, windowsHide: true, encoding: 'utf-8' }).trim();
-    } catch { return 'unknown'; }
+    } catch (error) { logger.warn('[Zavorth Terminal Backends] process execution failed', error); return 'unknown'; }
   }
 
   private getSingularityVersion(): string {
     try {
       return execFileSync('singularity', ['--version'], { timeout: 5000, windowsHide: true, encoding: 'utf-8' }).trim();
-    } catch { return 'unknown'; }
+    } catch (error) { logger.warn('[Zavorth Terminal Backends] process execution failed', error); return 'unknown'; }
   }
 
   private getBackendDetails(config: BackendConfig): string {

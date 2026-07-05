@@ -71,6 +71,7 @@ export type ZavorthCrossSurfaceProjectionCard = {
   metrics: Array<{
     label: string;
     value: string;
+    tone: ZavorthCrossSurfaceProjectionTone;
   }>;
   lines: string[];
   actions: ZavorthCrossSurfaceActionProjection[];
@@ -104,8 +105,6 @@ export type ZavorthControlRuntimeProjection = {
   suggestedSlots: Array<'header_summary' | 'route_table' | 'actions_panel' | 'receipts_timeline' | 'channel_fallbacks'>;
   safeViewModelOnly: true;
 };
-
-export type ZavorthControlRuntimeProjection = ZavorthControlRuntimeProjection;
 
 export type ZavorthCrossSurfaceProjectionReceipt = {
   id: string;
@@ -157,13 +156,13 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
     actionCount: number;
     approvalActions: number;
     disabledActions: number;
-    zavorthControlVisualMutation: false;
+    zavorthControlVisualMutation: boolean;
   };
   commands: {
-    report: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --text "<request>"';
-    json: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --json --text "<request>"';
-    check: 'node scripts/zavorth-cross-surface-runtime-projection-check.mjs';
-    nextStage: 'Runtime gateway - Operational Rollout And Continuous Eval Assimilation';
+    report: string;
+    json: string;
+    check: string;
+    nextStage: string;
   };
   narrative: {
     headline: string;

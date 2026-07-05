@@ -2,6 +2,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { BaseTool } from './BaseTool.js';
 import { WorkspaceWriteApprovalPayloadCache } from '../services/WorkspaceWriteApprovalPayloadCache.js';
+import { logger } from '../logger.js';
 
 type McpTextContent = {
   type: 'text';
@@ -46,9 +47,7 @@ export class McpToolWrapper extends BaseTool {
               content: args.content as string,
             });
           }
-        } catch {
-          // not a WRITE_APPROVAL_REQUIRED json error
-        }
+        } catch (error) { // not a WRITE_APPROVAL_REQUIRED json error logger.warn('[Mcp  Wrapper] parsing failed', error); }
 
         throw new Error(`[MCP Tool Error] ${errorMsg}`);
       }

@@ -4,6 +4,7 @@ import { SpawnSyncReturns, spawnSync } from 'child_process';
 import { config } from '../config/index.js';
 import { SecureStorageService } from './SecureStorageService.js';
 import { Database } from '../storage/Database.js';
+import { logger } from '../logger.js';
 
 export class ConfigVersioningService {
   private static readonly GIT_TIMEOUT_MS = 8_000;
@@ -99,9 +100,7 @@ export class ConfigVersioningService {
   private safeQuery(db: Database, sql: string): any[] {
     try {
       return db.all(sql);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Versioning] filesystem operation failed', error); return []; }
   }
 
   private runGit(

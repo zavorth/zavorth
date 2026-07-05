@@ -16,6 +16,7 @@ import type { ZavorthCapabilityCandidate } from '../contracts/ZavorthCapabilityC
 import { SandboxExecutionReceiptService } from './SandboxExecutionReceiptService.js';
 import { ZavorthCapabilityCandidateRegistryService } from './ZavorthCapabilityCandidateRegistryService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -227,9 +228,10 @@ export class ZavorthCapabilityPrototypeSandboxService {
         prototypes: Array.isArray(parsed.prototypes) ? parsed.prototypes.map(normalizePrototype).filter(isPrototype) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch {
-      return this.emptyStore();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Capability Prototype Sandbox] parsing failed', error);
+    return this.emptyStore();
+  }
   }
 
   private writeStore(store: Store): void {

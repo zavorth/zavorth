@@ -63,11 +63,11 @@ export const DISTRIBUTION_POLICY_REQUIRED_POLICIES = [
 export const DISTRIBUTION_POLICY_REQUIRED_COPY = [
   'Editions, plans and distribution policy',
   'local-first',
-  'Telemetry desligada por padrao',
-  'cloud obrigatoria',
+  'Telemetry disabled by default',
+  'cloud required',
   'opt-in',
-  'Sem cloud obrigatoria',
-  'Local-first continua funcional sem conta cloud',
+  'No required cloud',
+  'Local-first remains functional without a cloud account',
 ] as const;
 
 export const DISTRIBUTION_POLICY_REQUIRED_LINKS = [
@@ -78,10 +78,10 @@ export const DISTRIBUTION_POLICY_REQUIRED_LINKS = [
 
 export const DISTRIBUTION_POLICY_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
-  'autonomo sem aprovacao',
-  'sem limites',
-  'telemetry ligada por padrao',
-  'cloud obrigatoria para usar',
+  'autonomous without approval',
+  'without limits',
+  'telemetry enabled by default',
+  'cloud required to use',
 ] as const;
 
 export const DISTRIBUTION_POLICY_SCREENSHOTS: DistributionPolicyScreenshotSpec[] = [

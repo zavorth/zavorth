@@ -81,7 +81,7 @@ async function readJsonBody(req: { on: (event: string, listener: (...args: any[]
       try {
         resolve(JSON.parse(raw));
       } catch {
-        reject(new InvalidRequestError('JSON body invalido.'));
+        reject(new InvalidRequestError('Invalid JSON body.'));
       }
     });
     req.on('error', reject);

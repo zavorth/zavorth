@@ -9,10 +9,10 @@ export function formatRuntimeAccessReadinessReport(report: RuntimeAccessReadines
   return [
     'Access readiness do Zavorth',
     `- ${report.summary}`,
-    `- local: ${report.local.ready ? 'pronto' : 'pendente'} | remoto: ${report.remote.ready ? 'pronto' : 'pendente'}`,
+    `- local: ${report.local.ready ? 'ready' : 'pending'} | remoto: ${report.remote.ready ? 'ready' : 'pending'}`,
     `- base local: ${report.local.baseUrl}`,
     selectedModel ? `- modelo: ${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})` : null,
-    report.recommendations[0] ? `- recomendacao: ${report.recommendations[0]}` : '- recomendacao: nenhuma',
+    report.recommendations[0] ? `- recommendation: ${report.recommendations[0]}` : '- recommendation: none',
   ].filter(Boolean).join('\n');
 }
 
@@ -26,8 +26,8 @@ export function formatRuntimeBootstrapReport(report: RuntimeBootstrapReport): st
     `- ${report.summary}`,
     `- projeto: ${report.projectRoot}`,
     `- .env: ${report.env.envFilePresent ? 'presente' : 'ausente'} | provider: ${providerLine}`,
-    `- install: ${report.dependencies.installRequired ? 'pendente' : 'ok'} | build: ${report.dependencies.buildRequired ? 'pendente' : 'ok'}`,
-    report.actions[0] ? `- proxima acao: ${report.actions[0].title} (${report.actions[0].command})` : '- proxima acao: nenhuma',
+    `- install: ${report.dependencies.installRequired ? 'pending' : 'ok'} | build: ${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
+    report.actions[0] ? `- next action: ${report.actions[0].title} (${report.actions[0].command})` : '- next action: none',
   ].join('\n');
 }
 
@@ -38,7 +38,7 @@ export function formatRuntimeBootstrapRepairReport(report: RuntimeBootstrapRepai
   return [
     'Bootstrap repair do Zavorth',
     `- ${report.summary}`,
-    `- dry-run: ${report.dryRun ? 'sim' : 'nao'}`,
+    `- dry-run: ${report.dryRun ? 'yes' : 'no'}`,
     `- etapas: ${report.steps.length} | executadas: ${executed} | falhas: ${failed} | puladas: ${skipped}`,
   ].join('\n');
 }
@@ -56,7 +56,7 @@ export function formatAutoRepairRunResult(result: AutoRepairRunResult): string {
   return [
     'Autorepair do Zavorth',
     `- status: ${result.status}`,
-    `- sucesso: ${result.success ? 'sim' : 'nao'}`,
+    `- success: ${result.success ? 'yes' : 'no'}`,
     `- resumo: ${result.summary}`,
   ].join('\n');
 }

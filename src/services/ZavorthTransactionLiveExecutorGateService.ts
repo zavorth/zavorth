@@ -25,6 +25,7 @@ import type {
 import type { ZavorthTransactionActionKind } from '../contracts/ZavorthTransactionPlaneContract.js';
 import type { ZavorthTransactionConnectorKind } from '../contracts/ZavorthTransactionPreviewContract.js';
 import { ZavorthTransactionLiveMicroRolloutCertificationService } from './ZavorthTransactionLiveMicroRolloutCertificationService.js';
+import { logger } from '../logger.js';
 
 type LiveExecutorGateDeps = {
   now?: () => Date;
@@ -527,9 +528,7 @@ function endpointHostFromManifest(manifest: ZavorthTransactionLiveExecutorAdapte
   }
   try {
     return new URL(url).host;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Transaction Live Executor] process execution failed', error); return null; }
 }
 
 function buildResultId(text: string, now: Date): string {

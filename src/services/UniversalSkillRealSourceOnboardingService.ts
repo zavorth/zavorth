@@ -19,6 +19,7 @@ import {
   type UniversalSkillExpansionQaInput,
 } from './UniversalSkillExpansionQaService.js';
 import type { ZavorthUniversalSkillExpansionQaSnapshot } from '../contracts/ZavorthUniversalSkillExpansionQaContract.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   now?: () => Date;
@@ -507,9 +508,7 @@ export class UniversalSkillRealSourceOnboardingService {
       return Array.isArray(parsed.entries)
         ? parsed.entries.filter(isHistoryEntry)
         : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Universal Skill Real Source Onboarding] JSON parse failed', error); return []; }
   }
 
   private persistHistory(historyPath: string, history: HistoryFile): void {

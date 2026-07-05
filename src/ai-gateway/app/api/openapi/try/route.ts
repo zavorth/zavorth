@@ -7,6 +7,7 @@ import { z } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 const tryRequestSchema = z.object({
   method: z
@@ -98,7 +99,8 @@ export async function POST(request: NextRequest) {
       latencyMs,
       contentType,
     });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         status: 0,

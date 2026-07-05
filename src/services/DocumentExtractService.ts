@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import JSZip from 'jszip';
 import { config } from '../config/index.js';
 import { LocalDocumentTextExtractionAdapter } from '../adapters/files/FileDocumentDiffLiveAdapters.js';
+import { logger } from '../logger.js';
 
 type DocumentExtractServiceOptions = {
   artifactDir?: string;
@@ -156,7 +157,8 @@ export class DocumentExtractService {
         error: null,
       };
     } catch (error) {
-      return {
+    logger.warn('[Document Extract] operation failed', error);
+    return {
         ok: false,
         contractVersion: DOCUMENT_EXTRACT_CONTRACT_VERSION,
         text: '',
@@ -171,7 +173,7 @@ export class DocumentExtractService {
         processedAt,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private async extractByFormat(input: {

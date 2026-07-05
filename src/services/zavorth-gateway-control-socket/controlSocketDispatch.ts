@@ -7,6 +7,7 @@ import type {
   GatewayControlSocketSendError,
   GatewayControlSocketSendResponse,
 } from './controlSocketTypes.js';
+import type { ZavorthGatewayRuntimeSnapshot } from '../ZavorthGatewayRuntimeService.js';
 
 function parseGatewayControlSocketRequest(rawMessage: string): GatewayControlSocketRequest {
   return JSON.parse(rawMessage);
@@ -91,7 +92,7 @@ export async function handleGatewayControlSocketMessage(input: {
         message: String(params.message || '').trim() || undefined,
         platform: String(params.platform || '').trim() || 'web',
       });
-      const newSessionId = String(payload.sessionId || payload.spawn?.sessionId || '').trim();
+      const newSessionId = String((payload as { sessionId?: string; spawn?: { sessionId?: string } }).sessionId || (payload as { sessionId?: string; spawn?: { sessionId?: string } }).spawn?.sessionId || '').trim();
       if (newSessionId) {
         await input.activateSession(newSessionId, 'full');
       }
@@ -126,10 +127,10 @@ export async function handleGatewayControlSocketMessage(input: {
     if (method === 'session.patch') {
       const payload = await input.deps.patchSession({
         sessionId: targetSessionId,
-        label: params.label,
-        workspaceHint: params.workspaceHint,
+        label: typeof params.label === 'string' ? params.label : (params.label === null ? null : undefined),
+        workspaceHint: typeof params.workspaceHint === 'string' ? params.workspaceHint : (params.workspaceHint === null ? null : undefined),
         pinned: typeof params.pinned === 'boolean' ? params.pinned : undefined,
-        modelProfile: params.modelProfile,
+        modelProfile: typeof params.modelProfile === 'string' ? params.modelProfile : (params.modelProfile === null ? null : undefined),
       });
       input.sendResponse(requestId, payload);
       return;

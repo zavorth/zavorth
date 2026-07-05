@@ -230,7 +230,7 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
       transport: this.apiKey ? 'cloud-api-configured' : 'local-outbox',
       recipients: Array.isArray(objectPayload?.recipients) ? objectPayload.recipients : [],
       message: messageText,
-      payload: objectPayload,
+      payload: objectPayload as any,
       now: this.now(),
       fields: {
         chatId: String(objectPayload?.chatId || objectPayload?.to || '').trim() || null,

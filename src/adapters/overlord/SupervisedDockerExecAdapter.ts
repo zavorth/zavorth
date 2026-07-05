@@ -85,7 +85,7 @@ export class SupervisedDockerExecAdapter implements SystemOverlordRuntimeAdapter
         return {
           ok: false,
           errorCode: 'docker_image_required',
-          errorMessage: 'docker.exec com action=run exige image no payload estruturado.',
+          errorMessage: 'docker.exec with action=run requires image in the structured payload.',
         };
       }
 
@@ -142,7 +142,7 @@ export class SupervisedDockerExecAdapter implements SystemOverlordRuntimeAdapter
         return {
           ok: false,
           errorCode: 'docker_scope_required',
-          errorMessage: 'docker.exec com action=rm exige container no payload estruturado.',
+          errorMessage: 'docker.exec with action=rm requires container in the structured payload.',
         };
       }
 
@@ -173,14 +173,14 @@ export class SupervisedDockerExecAdapter implements SystemOverlordRuntimeAdapter
       return {
         ok: false,
         errorCode: 'docker_action_rejected',
-        errorMessage: `Acao docker invalida ou nao supervisionada: "${action}". Use inspect ou exec.`,
+        errorMessage: `Invalid or unsupervised Docker action: "${action}". Use inspect or exec.`,
       };
     }
     if (!container || !execCommand) {
       return {
         ok: false,
         errorCode: 'docker_scope_required',
-        errorMessage: 'docker.exec exige container e command em payload estruturado.',
+        errorMessage: 'docker.exec requires container and command in the structured payload.',
       };
     }
 
@@ -237,14 +237,14 @@ export class SupervisedDockerExecAdapter implements SystemOverlordRuntimeAdapter
       return {
         ok: false,
         errorCode: 'docker_cancel_unavailable',
-        errorMessage: 'Nenhum processo docker supervisionado ativo foi encontrado para cancelamento.',
+        errorMessage: 'No active supervised Docker process was found for cancellation.',
       };
     }
     child.kill();
     this.activeProcesses.delete(normalized);
     return {
       ok: true,
-      stdout: 'docker exec supervisionado cancelado.',
+      stdout: 'Supervised docker exec cancelled.',
       rollbackAvailable: false,
       metadata: {
         adapterId: this.id,

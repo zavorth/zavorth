@@ -1,24 +1,24 @@
-# Filesystem Skill
+# Filesystem Tools
 
-Ferramentas para manipulação de arquivos e diretórios locais na máquina host.
+Tools for working with local files and directories on the host machine.
 
-## Tools Disponíveis
+## Available Tools
 
 ### `read_file`
-Lê o conteúdo de um arquivo de texto. Aceita caminhos absolutos ou relativos.
-- Limite: 2MB por arquivo, truncado em 15k caracteres
-- Uso: Quando o usuário pedir para ver, abrir ou ler um arquivo
+Reads the contents of a text file. Accepts absolute or relative paths.
+- Limit: 2MB per file, truncated to 15k characters
+- Use when the user asks to view, open, or read a file
 
 ### `create_file`
-Cria um novo arquivo com conteúdo especificado.
-- Segurança: Arquivos são criados apenas dentro da pasta `output/`
-- Uso: Quando o usuário pedir para gerar, escrever ou salvar um arquivo
+Creates a new file with the specified content.
+- Security: files are created only inside the `output/` folder
+- Use when the user asks to generate, write, or save a file
 
 ### `list_directory`
-Lista o conteúdo de um diretório (arquivos e subpastas).
-- Uso: Quando o usuário pedir para ver o que tem numa pasta
-- Se nenhum caminho for passado, lista o diretório de trabalho atual
+Lists the contents of a directory, including files and subfolders.
+- Use when the user asks to see what is inside a folder
+- If no path is provided, lists the current working directory
 
-## Quando NÃO usar
-- Para executar scripts → use a skill `execution`
-- Para buscar informações na internet → use a skill `information`
+## When Not To Use
+
+- For internet searches, use the `information` skill

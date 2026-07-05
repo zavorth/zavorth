@@ -7,6 +7,7 @@ import { TelemetryRuntimeService } from '../../../../observability/telemetry/Tel
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { TaskSecurityPostureService } from '../../../../services/TaskSecurityPostureService.js';
 import type { WorkflowRunService } from '../../../../runtime/workflows/WorkflowRunService.js';
+import { logger } from '../../../../logger';
 
 export type TelegramTaskApprovalServiceDeps = {
   taskManager: TaskManager;
@@ -41,13 +42,13 @@ export class TelegramTaskApprovalService {
     try {
       const currentTask = this.deps.taskManager.getTask(taskId);
       if (!currentTask) {
-        throw new Error(`Tarefa ${taskId} nao encontrada.`);
+        throw new Error(`Task ${taskId} was not found.`);
       }
 
       if (this.highRiskConfirmation.requiresPin(currentTask)) {
         if (!this.highRiskConfirmation.isConfigured()) {
           throw new Error(
-            'Aprovacao HIGH_RISK exige PIN/TOTP, mas o host ainda nao foi configurado para isso.',
+            'HIGH_RISK approval requires PIN/TOTP, but this host has not been configured for it yet.',
           );
         }
         if (!this.highRiskConfirmation.validate(currentTask, approvalCode)) {
@@ -75,9 +76,9 @@ export class TelegramTaskApprovalService {
       await this.recordTaskApprovalAudit(task, 'approve', userId, {
         requiredHighRiskPin,
       });
-      this.syncWorkflowApprovalDecision(task, 'approve', 'Aprovacao registrada pelo operador.');
+      this.syncWorkflowApprovalDecision(task, 'approve', 'Approval recorded by the operator.');
       await ctx.reply(
-        `Aprovacao da tarefa registrada.\n\nReferencia curta: ${task.task_id.substring(0, 8)}\nVou retomar a execucao agora. Se o executor precisar de um acesso extra especifico, eu vou abrir outro pedido com botoes.`,
+        `Task approval recorded.\n\nShort reference: ${task.task_id.substring(0, 8)}\nI will resume execution now. If the executor needs specific extra access, I will open another request with buttons.`,
       );
       await this.recordTaskApprovalTelemetry(task, 'approve', 'approved', userId, {
         requiredHighRiskPin,
@@ -93,7 +94,7 @@ export class TelegramTaskApprovalService {
         taskId,
         errorMessage: message,
       });
-      await ctx.reply(`Nao consegui processar essa aprovacao.\n\nMotivo: ${message}`);
+      await ctx.reply(`I could not process this approval.\n\nReason: ${message}`);
     }
   }
 
@@ -112,16 +113,16 @@ export class TelegramTaskApprovalService {
       });
       this.deps.persistTask(task);
       await this.recordTaskApprovalAudit(task, 'reject', userId);
-      this.syncWorkflowApprovalDecision(task, 'reject', 'Aprovacao rejeitada pelo operador.');
+      this.syncWorkflowApprovalDecision(task, 'reject', 'Approval rejected by the operator.');
       await this.recordTaskApprovalTelemetry(task, 'reject', 'rejected', userId);
-      await ctx.reply(`Tudo certo. A tarefa ${taskId} foi rejeitada e nao vou seguir com ela.`);
+      await ctx.reply(`Done. Task ${taskId} was rejected and I will not continue it.`);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       await this.recordTaskApprovalTelemetry(undefined, 'reject', 'failed', userId, {
         taskId,
         errorMessage: message,
       });
-      await ctx.reply(`Nao consegui registrar essa rejeicao.\n\nMotivo: ${message}`);
+      await ctx.reply(`I could not record this rejection.\n\nReason: ${message}`);
     }
   }
 
@@ -169,9 +170,7 @@ export class TelegramTaskApprovalService {
           ...payload,
         },
       });
-    } catch {
-      // telemetry should never block approval handling
-    }
+    } catch (error) { // telemetry should never block approval handling logger.warn('[Telegram Task Approval] load operation failed', error); }
   }
 
   private async recordTaskApprovalAudit(
@@ -186,9 +185,7 @@ export class TelegramTaskApprovalService {
 
     try {
       await this.deps.auditLogger.logApprovalDecision(task, action, userId, details);
-    } catch {
-      // audit should never block approval handling
-    }
+    } catch (error) { // audit should never block approval handling logger.warn('[Telegram Task Approval] operation failed', error); }
   }
 
   private async resumeApprovedTaskOrWorkflow(ctx: Context, task: Task): Promise<void> {

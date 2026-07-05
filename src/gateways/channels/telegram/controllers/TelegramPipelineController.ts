@@ -15,7 +15,7 @@ export class TelegramPipelineController {
   ) {}
 
   public async handleExternalExecutorReview(ctx: Context, args: string): Promise<void> {
-    const objective = String(args || '').trim() || 'Sem objetivo';
+    const objective = String(args || '').trim() || 'No objective';
     const workspace = this.getDefaultWorkspace('/external_review');
     await this.createPipeline().runReviewPipeline(ctx, objective, workspace);
   }
@@ -25,18 +25,18 @@ export class TelegramPipelineController {
     if (!trimmed) {
       await ctx.reply(
         [
-          'Use /workflow <tipo> <objetivo>.',
+          'Use /workflow <type> <objective>.',
           '',
-          'Workflows disponiveis:',
-          '- review: executa, revisa e fecha com um parecer final',
-          '- ship: implementa, revisa e deixa pronto para entrega',
-          '- research: pesquisa, sintetiza e devolve um briefing claro',
-          '- sdd: roda o proximo papel do loop spec/plan/tasks de uma feature',
-          '- resume: retoma um workflow existente pelo run id e, se quiser, por uma etapa especifica',
-          '- restart-stage: reexecuta uma etapa especifica de um workflow existente',
-          '- close: encerra um workflow bloqueado ou com falha para ele deixar de aparecer como retomada',
+          'Available workflows:',
+          '- review: runs, reviews, and closes with a final assessment',
+          '- ship: implements, reviews, and prepares for delivery',
+          '- research: researches, synthesizes, and returns a clear briefing',
+          '- sdd: runs the next role in the feature spec/plan/tasks loop',
+          '- resume: resumes an existing workflow by run id and optionally by specific stage',
+          '- restart-stage: reruns a specific stage of an existing workflow',
+          '- close: closes a blocked or failed workflow so it no longer appears as resumable',
           '',
-          'Exemplo de retomada:',
+          'Resume example:',
           '/workflow resume wf-ship-abc123 review',
           '/workflow restart-stage wf-ship-abc123 draft',
         ].join('\n'),

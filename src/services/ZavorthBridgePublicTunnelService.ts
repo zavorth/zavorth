@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { spawnNativeCommand } from '../core/CommandSpawn.js';
+import { logger } from '../logger.js';
 
 export type ZavorthBridgePublicTunnelStatus = {
   enabled: boolean;
@@ -55,8 +56,8 @@ export class ZavorthBridgePublicTunnelService {
       running: false,
       ready: false,
       message: config.zavorthBridgePublicTunnelEnabled
-        ? 'Tunel publico do ZavorthBridge ainda nao foi iniciado.'
-        : 'Tunel publico automatico do ZavorthBridge desativado.',
+        ? 'ZavorthBridge public tunnel has not been started yet.'
+        : 'Automatic ZavorthBridge public tunnel is disabled.',
     });
 
     try {
@@ -70,9 +71,7 @@ export class ZavorthBridgePublicTunnelService {
         ...fallback,
         ...parsed,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Public Tunnel] JSON parse failed', error); return fallback; }
   }
 
   public async ensureStarted(input: {
@@ -86,7 +85,7 @@ export class ZavorthBridgePublicTunnelService {
         ready: false,
         running: false,
         targetUrl,
-        message: 'Tunel publico automatico do ZavorthBridge desativado por configuracao.',
+        message: 'Automatic ZavorthBridge public tunnel is disabled by configuration.',
         started: false,
       };
     }
@@ -97,7 +96,7 @@ export class ZavorthBridgePublicTunnelService {
         ready: false,
         running: false,
         targetUrl: null,
-        message: 'Nao recebi uma URL alvo valida para publicar o ZavorthBridge.',
+        message: 'I did not receive a valid target URL to publish ZavorthBridge.',
         started: false,
       };
     }
@@ -108,7 +107,7 @@ export class ZavorthBridgePublicTunnelService {
         ready: false,
         running: false,
         targetUrl: null,
-        message: 'O tunel publico do ZavorthBridge so pode publicar uma URL HTTP local.',
+        message: 'ZavorthBridge public tunnel can only publish a local HTTP URL.',
         started: false,
       };
     }
@@ -126,7 +125,7 @@ export class ZavorthBridgePublicTunnelService {
         ready: false,
         running: false,
         targetUrl,
-        message: `Host script do tunel publico ausente em ${config.zavorthBridgePublicTunnelHostScriptPath}.`,
+        message: `Public tunnel host script missing at ${config.zavorthBridgePublicTunnelHostScriptPath}.`,
         started: false,
       };
     }
@@ -144,7 +143,7 @@ export class ZavorthBridgePublicTunnelService {
         running: true,
         ready: false,
         targetUrl,
-        message: 'Solicitando a abertura do tunel publico do ZavorthBridge.',
+        message: 'Requesting ZavorthBridge public tunnel opening.',
       }),
     );
 
@@ -189,7 +188,7 @@ export class ZavorthBridgePublicTunnelService {
       publicUrl: null,
       pid: null,
       tunnelPid: null,
-      message: 'Tunel publico do ZavorthBridge encerrado.',
+      message: 'ZavorthBridge public tunnel closed.',
     });
     this.writeStatus(stopped);
     return stopped;
@@ -203,7 +202,7 @@ export class ZavorthBridgePublicTunnelService {
       if (status.ready && status.publicUrl) {
         return status;
       }
-      if (!status.running && status.message && !/ainda nao foi iniciado/i.test(status.message)) {
+      if (!status.running && status.message && !/has not been started yet/i.test(status.message)) {
         return status;
       }
     }
@@ -213,7 +212,7 @@ export class ZavorthBridgePublicTunnelService {
       ...latest,
       message:
         latest.message
-        || 'O tunel publico do ZavorthBridge foi acionado, mas ainda nao publicou uma URL externa.',
+        || 'The ZavorthBridge public tunnel was triggered, but has not published an external URL yet.',
     };
   }
 
@@ -255,9 +254,7 @@ export class ZavorthBridgePublicTunnelService {
     try {
       process.kill(pid, 0);
       return true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Public Tunnel] filesystem operation failed', error); return false; }
   }
 
   private tryKill(pid: number | null): void {
@@ -266,9 +263,7 @@ export class ZavorthBridgePublicTunnelService {
     }
     try {
       process.kill(pid);
-    } catch {
-      // Ignore stale or already-dead pids.
-    }
+    } catch (error) { // Ignore stale or already-dead pids. logger.warn('[Zavorth Bridge Public Tunnel] operation failed', error); }
   }
 }
 
@@ -280,9 +275,7 @@ function isLoopbackHttpUrl(value: string): boolean {
       parsed.protocol === 'http:' &&
       (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname === '[::1]')
     );
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Zavorth Bridge Public Tunnel] network request failed', error); return false; }
 }
 
 function buildTunnelChildEnv(): NodeJS.ProcessEnv {

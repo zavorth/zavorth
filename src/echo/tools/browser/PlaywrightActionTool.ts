@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '../../../logger.js';
 import type { Browser, Page } from 'playwright-core';
 import { IZavorthTool, ToolCategory, ToolDangerLevel, ToolExecutionResult } from '../../types/IZavorthTool';
 import { EchoVisionAnalysisService } from '../../../domain/platform-ecosystem/infrastructure/EchoVisionAnalysisService.js';
@@ -68,19 +69,19 @@ interface CSSEscapeUtil {
 
 export class PlaywrightActionTool implements IZavorthTool {
     public readonly name = 'playwright_browser';
-    public readonly description = 'Executa interacoes autonomas em um navegador web fantasma (navigate, click, type, extract). Retorna um resumo da acao e um screenshot da pagina em base64 com a visao do estado atual.';
+    public readonly description = 'Runs autonomous interactions in a headless web browser: navigate, click, type, extract, screenshot, and close. Returns an action summary and a base64 screenshot of the current page state.';
     public readonly category: ToolCategory = 'WEB';
     public readonly dangerLevel: ToolDangerLevel = 'moderate';
     public readonly requiresPermission = false;
 
     public readonly schema = z.object({
         action: z.enum(['navigate', 'click', 'type', 'extract', 'screenshot', 'close']),
-        url: z.string().optional().describe('URL para navegar (apenas na acao navigate)'),
-        selector: z.string().optional().describe('Seletor CSS para interagir (usado em click, type, extract)'),
-        text: z.string().optional().describe('Texto a ser digitado (usado na acao type)'),
+        url: z.string().optional().describe('URL to navigate to. Used only with the navigate action.'),
+        selector: z.string().optional().describe('CSS selector to interact with. Used by click, type, and extract.'),
+        text: z.string().optional().describe('Text to type. Used only with the type action.'),
     });
 
-    // Mapa para isolar instancias e garantir Seguranca Multi-Tenant.
+    // Session map isolates instances for multi-tenant safety.
     private static sessions: Map<string, BrowserSessionState> = new Map();
 
     constructor(
@@ -96,7 +97,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                 const lifecycle = await this.closeBrowser(sessionId);
                 return {
                     success: true,
-                    message: `Navegador do tenant '${sessionId}' encerrado.`,
+                    message: `Browser for tenant '${sessionId}' closed.`,
                     data: {
                         lifecycle: lifecycle || {
                             sessionId,
@@ -122,11 +123,11 @@ export class PlaywrightActionTool implements IZavorthTool {
                     if (resolvedTargetPolicy.filePath && isBlockedFilePath(resolvedTargetPolicy.filePath)) {
                         return {
                             success: false,
-                            error: `Navegacao bloqueada por politica de arquivo: ${resolvedTargetPolicy.filePath}`,
+                            error: `Navigation blocked by file policy: ${resolvedTargetPolicy.filePath}`,
                         };
                     }
                 } catch (error: unknown) {
-                    const errorMessage = error instanceof Error ? error.message : 'URL bloqueada por policy do browser.';
+                    const errorMessage = error instanceof Error ? error.message : 'URL blocked by browser policy.';
                     return {
                         success: false,
                         error: errorMessage,
@@ -142,7 +143,7 @@ export class PlaywrightActionTool implements IZavorthTool {
             switch (action) {
                 case 'navigate':
                     await page.goto(resolvedTargetPolicy!.normalizedUrl, { waitUntil: 'load', timeout: 30000 });
-                    actionMessage = `Navegacao concluida para ${resolvedTargetPolicy!.normalizedUrl}`;
+                    actionMessage = `Navigation completed to ${resolvedTargetPolicy!.normalizedUrl}`;
                     break;
                 case 'click':
                 case 'type':
@@ -151,16 +152,16 @@ export class PlaywrightActionTool implements IZavorthTool {
                         return {
                             success: false,
                             message: action === 'click'
-                                ? 'Falta o parametro selector.'
-                                : 'Faltam selector ou text.',
+                                ? 'Missing selector parameter.'
+                                : 'Missing selector or text.',
                         };
                     }
                     if (action === 'type' && !args.text) {
-                        return { success: false, message: 'Faltam selector ou text.' };
+                        return { success: false, message: 'Missing selector or text.' };
                     }
                     if (action === 'extract' && !args.selector) {
                         const bodyText = await page.evaluate(() => document.body.innerText);
-                        actionMessage = 'Texto de toda a pagina extraido.';
+                        actionMessage = 'Extracted text from the whole page.';
                         extraData = { extractedText: bodyText };
                         break;
                     }
@@ -174,7 +175,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                     if (!outcome.ok) {
                         return {
                             success: false,
-                            message: `Erro ao interagir com o site: ${outcome.error}`,
+                            message: `Error interacting with the site: ${outcome.error}`,
                             error: outcome.error,
                             data: outcome.data,
                         };
@@ -184,10 +185,10 @@ export class PlaywrightActionTool implements IZavorthTool {
                     break;
                 }
                 case 'screenshot':
-                    actionMessage = 'Screenshot passivo da pagina capturado.';
+                    actionMessage = 'Passive page screenshot captured.';
                     break;
                 default:
-                    return { success: false, error: `Acao Playwright desconhecida: ${action}` };
+                    return { success: false, error: `Unknown Playwright action: ${action}` };
             }
 
             await page.waitForTimeout(1500);
@@ -202,7 +203,7 @@ export class PlaywrightActionTool implements IZavorthTool {
             const errorMessage = error instanceof Error ? error.message : String(error);
             return {
                 success: false,
-                message: `Erro ao interagir com o site: ${errorMessage}`,
+                message: `Error interacting with the site: ${errorMessage}`,
                 error: errorMessage,
             };
         }
@@ -412,7 +413,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                 visionCandidates.push({
                     selector: repairSuggestion.selector,
                     textHint: repairSuggestion.textHint,
-                    reason: repairSuggestion.reason || 'reparo visual sugerido pelo provider multimodal',
+                    reason: repairSuggestion.reason || 'visual repair suggested by the multimodal provider',
                     score: Math.round(Math.max(0, Math.min(1, repairSuggestion.confidence)) * 10),
                 });
             }
@@ -443,7 +444,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                         originalSelector: input.selector,
                         resolvedSelector: repairSuggestion.selector || heuristicCandidates[0]?.selector || null,
                         textHint: repairSuggestion.textHint || heuristicCandidates[0]?.textHint || null,
-                        reason: repairSuggestion.reason || 'Nenhum fallback conseguiu localizar o alvo atual.',
+                        reason: repairSuggestion.reason || 'No fallback could locate the current target.',
                         confidence: repairSuggestion.confidence || 0,
                         providerName: repairSuggestion.providerName,
                     },
@@ -463,19 +464,19 @@ export class PlaywrightActionTool implements IZavorthTool {
             case 'click':
                 await page.click(selector, { timeout: 10000 });
                 return {
-                    message: `Elemento clicado: ${selector}`,
+                    message: `Element clicked: ${selector}`,
                     extraData: {},
                 };
             case 'type':
                 await page.fill(selector, String(text || ''), { timeout: 10000 });
                 return {
-                    message: `Texto "${String(text || '')}" inserido em ${selector}`,
+                    message: `Text "${String(text || '')}" inserted into ${selector}`,
                     extraData: {},
                 };
             case 'extract': {
                 const extractedText = await page.locator(selector).innerText({ timeout: 10000 });
                 return {
-                    message: `Texto do elemento ${selector} extraido.`,
+                    message: `Extracted text from element ${selector}.`,
                     extraData: { extractedText },
                 };
             }
@@ -499,14 +500,14 @@ export class PlaywrightActionTool implements IZavorthTool {
 
         const textHint = String(candidate.textHint || '').trim();
         if (!textHint) {
-            throw new Error('repair candidate sem selector ou text hint');
+            throw new Error('repair candidate has no selector or text hint');
         }
 
         switch (action) {
             case 'click':
                 await page.getByText(textHint, { exact: false }).first().click({ timeout: 10000 });
                 return {
-                    message: `Elemento clicado via texto visivel: ${textHint}`,
+                    message: `Element clicked through visible text: ${textHint}`,
                     extraData: {},
                     resolvedSelector: null,
                     textHint,
@@ -514,7 +515,7 @@ export class PlaywrightActionTool implements IZavorthTool {
             case 'extract': {
                 const extractedText = await page.getByText(textHint, { exact: false }).first().innerText({ timeout: 10000 });
                 return {
-                    message: `Texto extraido via texto visivel: ${textHint}`,
+                    message: `Text extracted through visible text: ${textHint}`,
                     extraData: { extractedText },
                     resolvedSelector: null,
                     textHint,
@@ -523,7 +524,7 @@ export class PlaywrightActionTool implements IZavorthTool {
             case 'type': {
                 const typed = await this.fillByTextHint(page, textHint, String(text || ''));
                 return {
-                    message: `Texto "${String(text || '')}" inserido via hint textual: ${typed}`,
+                    message: `Text "${String(text || '')}" inserted through text hint: ${typed}`,
                     extraData: {},
                     resolvedSelector: typed.startsWith('text=') ? null : typed,
                     textHint,
@@ -554,11 +555,12 @@ export class PlaywrightActionTool implements IZavorthTool {
             try {
                 return await attempt();
             } catch (error) {
-                lastError = error;
-            }
+    logger.warn('[Playwright Action] async operation failed', error);
+    lastError = error;
+  }
         }
 
-        throw lastError instanceof Error ? lastError : new Error(`Nao foi possivel encontrar campo para "${textHint}"`);
+        throw lastError instanceof Error ? lastError : new Error(`Could not find field for "${textHint}"`);
     }
 
     private async tryRepairCandidates(
@@ -605,9 +607,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                         providerName: meta.providerName,
                     },
                 };
-            } catch {
-                // Try the next fallback candidate.
-            }
+            } catch (error) { // Try the next fallback candidate. logger.warn('[Playwright Action] operation failed', error); }
         }
 
         return null;
@@ -680,7 +680,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                     selector,
                     textHint,
                     score,
-                    reason: reason || 'match textual local',
+                    reason: reason || 'local text match',
                 };
             }).filter((entry) => entry.score > 0)
                 .sort((left, right) => right.score - left.score)
@@ -694,7 +694,7 @@ export class PlaywrightActionTool implements IZavorthTool {
             ? candidates.map((entry) => ({
                 selector: this.optionalText((entry as Record<string, unknown>).selector),
                 textHint: this.optionalText((entry as Record<string, unknown>).textHint),
-                reason: this.optionalText((entry as Record<string, unknown>).reason) || 'match textual local',
+                reason: this.optionalText((entry as Record<string, unknown>).reason) || 'local text match',
                 score: Number((entry as Record<string, unknown>).score || 0),
             }))
             : [];
@@ -752,8 +752,6 @@ export class PlaywrightActionTool implements IZavorthTool {
         try {
             const currentUrl = String(page.url() || '').trim();
             return currentUrl.length > 0 ? currentUrl : null;
-        } catch {
-            return null;
-        }
+        } catch (error) { logger.warn('[Playwright Action] code compilation failed', error); return null; }
     }
 }

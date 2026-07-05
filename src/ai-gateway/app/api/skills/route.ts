@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { skillRegistry } from "@/lib/skills/registry";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -10,7 +11,8 @@ export async function GET(request: Request) {
     await skillRegistry.loadFromDatabase();
     const skills = skillRegistry.list();
     return NextResponse.json({ skills });
-  } catch (err: unknown) {
+  } catch (error) {
+    logger.warn('[route] load operation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
   }

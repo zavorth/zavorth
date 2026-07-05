@@ -2,8 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import type { Task } from '../../contracts/TaskContract.js';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
+import { logger } from '../../logger.js';
 import {
-  isLocalDirectoryInspectionPrompt as isLocalDirectoryInspectionPromptImpl,
+isLocalDirectoryInspectionPrompt as isLocalDirectoryInspectionPromptImpl,
   normalizeComparisonValue as normalizeComparisonValueImpl,
   resolveDirectoryListingTarget as resolveDirectoryListingTargetImpl,
 } from './RealZavorthBridgeWatcherDirectoryHelpers.js';
@@ -56,7 +57,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
 
     await this.host.resolvePendingPermissionForTerminalTask(
       task,
-      'Encerrado automaticamente porque a tarefa do ZavorthBridge ja foi concluida.',
+      'Automatically closed because the ZavorthBridge task had already completed.',
     );
 
     task.result_summary = summary ? this.host.truncate(summary, 800) : task.result_summary;
@@ -96,7 +97,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
 
     await this.host.resolvePendingPermissionForTerminalTask(
       task,
-      'Encerrado automaticamente porque a tarefa do ZavorthBridge falhou.',
+      'Automatically closed because the ZavorthBridge task failed.',
     );
 
     task.result_summary = null;
@@ -185,9 +186,9 @@ export class RealZavorthBridgeWatcherTaskSupport {
     await this.host.sendToSession(
       session,
       [
-        'ZavorthBridge falhou ao concluir a tarefa.',
-        `Referencia curta: ${session.taskId.substring(0, 8)}`,
-        `Motivo: ${reason}`,
+        'ZavorthBridge failed to complete the task.',
+        `Short reference: ${session.taskId.substring(0, 8)}`,
+        `Reason: ${reason}`,
       ].join('\n'),
     );
   }
@@ -216,9 +217,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
     let entries: fs.Dirent[] = [];
     try {
       entries = await fs.promises.readdir(directoryPath, { withFileTypes: true });
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Real Zavorth Bridge Watcher Task] filesystem operation failed', error); return false; }
 
     const folders = entries
       .filter((entry) => entry.isDirectory())
@@ -242,8 +241,8 @@ export class RealZavorthBridgeWatcherTaskSupport {
     const hiddenCount = Math.max(previewLines.length - preview.length, 0);
     const summary =
       entries.length === 0
-        ? `Pasta vazia em ${directoryPath}`
-        : `${folders.length} pasta(s), ${files.length} arquivo(s) e ${others.length} outro(s) item(ns) em ${directoryPath}`;
+        ? `Empty folder at ${directoryPath}`
+        : `${folders.length} folder(s), ${files.length} file(s), and ${others.length} other item(s) at ${directoryPath}`;
 
     task.fallback_used = true;
     task.metadata = {
@@ -262,7 +261,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
         hiddenCount,
       }),
       summary,
-      'fallback local de pasta',
+      'local folder fallback',
     );
     await this.host.bridgeManager.saveSession(session);
     await this.host.processPendingDeliveries();
@@ -283,7 +282,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
 
   public describeStalledFailure(session: PendingZavorthBridgeSession, liveStatus: Record<string, any> | null): string {
     if (this.hasCompanionHandoffMismatch(session, liveStatus)) {
-      return 'A sessao real foi desviada para outra handoff e ficou sem progresso na sua tarefa.';
+      return 'The real session was diverted to another handoff and stopped making progress on this task.';
     }
 
     if (
@@ -291,10 +290,10 @@ export class RealZavorthBridgeWatcherTaskSupport {
       liveStatus?.instanceId &&
       liveStatus.instanceId !== session.companionInstanceId
     ) {
-      return 'O companion do ZavorthBridge mudou de instancia durante a tarefa e a execucao perdeu o contexto.';
+      return 'The ZavorthBridge companion changed instance during the task and execution lost context.';
     }
 
-    return 'O ZavorthBridge nao concluiu, nao pediu aprovacao e ficou sem progresso visivel por tempo demais.';
+    return 'ZavorthBridge did not finish, did not ask for approval, and had no visible progress for too long.';
   }
 
   public hasCompanionHandoffMismatch(

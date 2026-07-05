@@ -10,6 +10,7 @@ import type {
   ZavorthUserModelUse,
 } from '../contracts/native/ZavorthAdaptiveLearningOsContract.js';
 import type { ZavorthLearningMemoryRisk } from '../contracts/ZavorthMemoryLearningLoopContract.js';
+import { logger } from '../logger.js';
 
 const STYLE_PATTERNS: RegExp[] = [
   /\b(direct|direto|direta|directo|directa|concise|conciso|breve|short|objetivo|objetiva)\b/i,
@@ -160,13 +161,14 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
         };
       }
       return this.providerClassification(parsed, local);
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Adaptive Semantic Classifier] parsing failed', error);
+    return {
         ...local,
         recommendedLane: local.recommendedLane === 'green' && local.confidence < 0.75 ? 'yellow' : local.recommendedLane,
         reasons: Array.from(new Set([...local.reasons, 'semantic-provider-timeout-or-error'])),
       };
-    }
+  }
   }
 
   private classification(input: Omit<ZavorthAdaptiveSemanticClassification, 'provider'>): ZavorthAdaptiveSemanticClassification {
@@ -259,9 +261,7 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Adaptive Semantic Classifier] JSON parse failed', error); return null; }
   }
 
   private validLane(value: unknown): ZavorthAdaptiveLearningLaneId | null {

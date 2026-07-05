@@ -10,6 +10,7 @@ import type {
   CapabilityReceipt,
 } from '../contracts/CapabilityAutopilotContract.js';
 import type { IntegrationManifest } from '../contracts/IntegrationHubContract.js';
+import { logger } from '../logger.js';
 
 export type CapabilityProviderExpansionTarget = {
   id: string;
@@ -202,9 +203,7 @@ export class CapabilityAutopilotProviderExpansionService {
   ): Promise<CapabilityReceipt | null> {
     try {
       return await this.receiptService.buildCapabilityReceipt(id, { surface, audience });
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Capability Autopilot  Expansion] creation failed', error); return null; }
   }
 
   private findManifestForCapability(

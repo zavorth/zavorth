@@ -59,7 +59,7 @@ export function sanitizeApproval(
     return null;
   }
 
-  const title = sanitizeText(rawTitle) || 'Revisão pendente';
+  const title = sanitizeText(rawTitle) || 'Pending review';
   const action = sanitizeText(rawAction);
   const risk: SafeApprovalRecord['risk'] = SAFE_RISK.has(String(item.risk))
     ? (item.risk as SafeApprovalRecord['risk'])
@@ -94,8 +94,8 @@ type ApprovalsPanelProps = {
 type TabValue = 'pending' | 'recent';
 
 const TAB_ITEMS: Array<{ value: TabValue; label: string }> = [
-  { value: 'pending', label: 'Pendentes' },
-  { value: 'recent', label: 'Recentes' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'recent', label: 'Recent' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -157,10 +157,10 @@ export function ApprovalsPanel(props: ApprovalsPanelProps) {
 
   return (
     <PageFrame
-      description="Operações aguardando revisão explícita antes de serem executadas."
-      meta={`${sanitizedPending.length} pendente${sanitizedPending.length !== 1 ? 's' : ''}`}
+      description="Operations waiting for explicit review before execution."
+      meta={`${sanitizedPending.length} pending`}
       title={panelLabels.approvals}
-      actions={<SearchBox value={query} onChange={setQuery} placeholder="Buscar aprovações" />}
+      actions={<SearchBox value={query} onChange={setQuery} placeholder="Search approvals" />}
     >
       <div className="zavorth-approvals-panel">
         <TextTabs value={tab} items={tabsWithCount} onChange={setTab} />
@@ -169,8 +169,8 @@ export function ApprovalsPanel(props: ApprovalsPanelProps) {
             rows={rows}
             empty={
               tab === 'pending'
-                ? 'Nenhuma aprovação pendente.'
-                : 'Nenhuma aprovação recente.'
+                ? 'No pending approvals.'
+                : 'No recent approvals.'
             }
           />
         </div>

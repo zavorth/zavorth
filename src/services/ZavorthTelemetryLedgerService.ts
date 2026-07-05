@@ -1,6 +1,7 @@
 import fs from 'fs';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type ZavorthTelemetryLedgerTopEntry = {
   label: string;
@@ -148,7 +149,7 @@ export class ZavorthTelemetryLedgerService {
           truncated: false,
         }),
         redaction,
-        recommendation: 'Telemetria local ainda nao foi gerada neste host.',
+        recommendation: 'Local telemetry has not been generated on this host yet.',
       };
     }
 
@@ -225,19 +226,18 @@ export class ZavorthTelemetryLedgerService {
         .map((line) => {
           try {
             return JSON.parse(line) as TelemetryEventLike;
-          } catch {
-            return null;
-          }
+          } catch (error) { logger.warn('[Zavorth Telemetry Ledger] JSON parse failed', error); return null; }
         })
           .filter((entry): entry is TelemetryEventLike => Boolean(entry?.traceId)),
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Telemetry Ledger] JSON parse failed', error);
+    return {
         events: [],
         scannedEvents: 0,
         truncated: false,
       };
-    }
+  }
   }
 
   private buildTraceSnapshots(events: TelemetryEventLike[]): ZavorthTelemetryTraceSnapshot[] {
@@ -368,9 +368,9 @@ export class ZavorthTelemetryLedgerService {
       traceIdsHashed: true,
       payloadsIncluded: false,
       notes: [
-        'Trace IDs sao hashes curtos para correlacao sem expor identificadores brutos.',
-        'Payloads de eventos nao entram no snapshot operacional.',
-        'Sinks externos permanecem opcionais e dormentes por padrao.',
+        'Trace IDs are short hashes for correlation without exposing raw identifiers.',
+        'Event payloads do not enter the operational snapshot.',
+        'External sinks remain optional and dormant by default.',
       ],
     };
   }
@@ -383,18 +383,18 @@ export class ZavorthTelemetryLedgerService {
     otelReady: boolean;
   }): string | null {
     if (input.totalEvents === 0) {
-      return 'Rode fluxos supervisionados reais para formar baseline e traces reutilizaveis.';
+      return 'Run real supervised flows to form a baseline and reusable traces.';
     }
     if (input.failureEvents > 0 || input.blockedEvents > 0) {
-      return 'Cruze traces falhas com scorecards e replay antes do proximo rollout.';
+      return 'Cross-check failed traces with scorecards and replay before the next rollout.';
     }
     if (!input.otelReady) {
-      return 'JSONL local ativo; configure OTEL/Langfuse apenas se quiser exportacao externa opcional.';
+      return 'Local JSONL is active; configure OTEL/Langfuse only if you want optional external export.';
     }
     if (input.traceCount < 3) {
-      return 'A baseline de traces ainda esta curta; gere mais execucoes comparaveis para consolidar a entrega.';
+      return 'The trace baseline is still short; generate more comparable executions to consolidate delivery.';
     }
-    return 'Telemetria operacional ativa e pronta para comparacao por fluxo.';
+    return 'Operational telemetry is active and ready for per-flow comparison.';
   }
 
   private isFailureEvent(event: TelemetryEventLike): boolean {

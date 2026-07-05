@@ -421,12 +421,12 @@ export class TelegramOpsController {
     const topPolicy = snapshot.learning?.approvedPolicies?.[0] || null;
 
     if (topSurface) {
-      lines.push(`- Superficie mais ativa: ${topSurface.label} (${topSurface.count} pedido(s)).`);
+      lines.push(`- Most active surface: ${topSurface.label} (${topSurface.count} request(s)).`);
     }
 
     if (topRoute) {
       lines.push(
-        `- Melhor rota recente: ${topRoute.executor} em ${topRoute.kind}/${topRoute.subtype} (${topRoute.completed}/${topRoute.total} concluida(s)).`,
+        `- Best recent route: ${topRoute.executor} in ${topRoute.kind}/${topRoute.subtype} (${topRoute.completed}/${topRoute.total} completed).`,
       );
     }
 
@@ -434,30 +434,30 @@ export class TelegramOpsController {
       const workflowLabel = String(resumableWorkflow.workflow || '').trim() || 'workflow';
       const stageLabel = String(('stage_label' in resumableWorkflow ? resumableWorkflow.stage_label : null) || ('resume_stage_label' in resumableWorkflow ? resumableWorkflow.resume_stage_label : null) || '').trim();
       lines.push(
-        `- Workflow para retomar: ${workflowLabel}${stageLabel ? ` · ${stageLabel}` : ''}.`,
+        `- Workflow to resume: ${workflowLabel}${stageLabel ? ` - ${stageLabel}` : ''}.`,
       );
     }
 
     if (topExecutor) {
       lines.push(
-        `- Executor em destaque: ${topExecutor.executor} (${Math.round(Number(topExecutor.success_rate || 0) * 100)}% de sucesso).`,
+        `- Featured executor: ${topExecutor.executor} (${Math.round(Number(topExecutor.success_rate || 0) * 100)}% success).`,
       );
     }
 
     if (highestFriction) {
       lines.push(
-        `- Maior atrito recente: ${highestFriction.executor} em ${highestFriction.kind}/${highestFriction.subtype} (${highestFriction.failed} falha(s), ${highestFriction.waitingApproval} aguardando aprovacao).`,
+        `- Highest recent friction: ${highestFriction.executor} in ${highestFriction.kind}/${highestFriction.subtype} (${highestFriction.failed} failure(s), ${highestFriction.waitingApproval} awaiting approval).`,
       );
     }
 
     if (topPolicy) {
       lines.push(
-        `- Politica mais reaproveitada: ${topPolicy.executor}/${topPolicy.kind} (${topPolicy.count} liberacao(oes)).`,
+        `- Most reused policy: ${topPolicy.executor}/${topPolicy.kind} (${topPolicy.count} authorization(s)).`,
       );
     }
 
     if (lines.length === 0) {
-      lines.push('- Observabilidade de produto: aguardando sinais suficientes nesta janela.');
+      lines.push('- Product observability: waiting for sufficient signals in this window.');
     }
 
     return lines;

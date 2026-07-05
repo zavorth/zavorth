@@ -7,6 +7,7 @@ import {
   type ZavorthSetupStudioProviderId,
 } from './ZavorthSetupStudioService.js';
 import { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry.js';
+import { logger } from '../logger.js';
 
 export type ZavorthProviderLiveValidationStatus =
   | 'not-requested'
@@ -140,6 +141,7 @@ export async function validateZavorthProviderLive(
       responsePreview: responsePreview || 'ok',
     });
   } catch (error) {
+    logger.warn('[Zavorth  Live Validation] health check failed', error);
     return result({
       input,
       checkedAt,
@@ -269,7 +271,8 @@ function readProofFile(proofPath: string): {
     return {
       results: Array.isArray(parsed.results) ? parsed.results : [],
     };
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth  Live Validation] JSON parse failed', error);
     return { results: [] };
   }
 }

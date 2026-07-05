@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { SystemOverlordActionRecord } from '../contracts/SystemOverlordContract.js';
+import { logger } from '../logger.js';
 
 export class HostActionLedgerService {
   private readonly ledgerFile: string;
@@ -42,8 +43,6 @@ export class HostActionLedgerService {
   private safeParse(line: string): SystemOverlordActionRecord | null {
     try {
       return JSON.parse(line) as SystemOverlordActionRecord;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Host Action Ledger] JSON parse failed', error); return null; }
   }
 }

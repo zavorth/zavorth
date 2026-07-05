@@ -47,7 +47,7 @@ export class LicensePolicyService {
         allowRuntimeUse: true,
         allowCoreCopy: false,
         reviewRequired: true,
-        summary: `Licenca nao identificada; requer revisao manual.${evidenceSuffix}`,
+        summary: `License not identified; manual review required.${evidenceSuffix}`,
       };
     }
 
@@ -58,7 +58,7 @@ export class LicensePolicyService {
         allowRuntimeUse: true,
         allowCoreCopy: false,
         reviewRequired: true,
-        summary: `Fonte classificada como "mixed"; import permitido apenas com revisao e atribuicao.${evidenceSuffix}`,
+        summary: `Source classified as "mixed"; import is allowed only with review and attribution.${evidenceSuffix}`,
       };
     }
 
@@ -69,7 +69,7 @@ export class LicensePolicyService {
         allowRuntimeUse: false,
         allowCoreCopy: false,
         reviewRequired: true,
-        summary: `Licenca ${normalizedLicense} restringe redistribuicao ou uso runtime.${evidenceSuffix}`,
+        summary: `License ${normalizedLicense} restricts redistribution or runtime use.${evidenceSuffix}`,
       };
     }
 
@@ -83,7 +83,7 @@ export class LicensePolicyService {
     return {
       ...baseDecision,
       reviewRequired: true,
-      summary: `${baseDecision.summary} Confianca ${confidence} exige revisao adicional.`,
+      summary: `${baseDecision.summary} Confidence ${confidence} requires additional review.`,
     };
   }
 
@@ -113,7 +113,7 @@ export class LicensePolicyService {
           allowRuntimeUse: true,
           allowCoreCopy: true,
           reviewRequired: false,
-          summary: `Licenca ${license} considerada permissiva para import e runtime.${evidenceSuffix}`,
+          summary: `License ${license} is considered permissive for import and runtime use.${evidenceSuffix}`,
         };
       case 'attribution':
         return {
@@ -122,7 +122,7 @@ export class LicensePolicyService {
           allowRuntimeUse: true,
           allowCoreCopy: false,
           reviewRequired: true,
-          summary: `Licenca ${license} exige atribuicao; import permitido com revisao.${evidenceSuffix}`,
+          summary: `License ${license} requires attribution; import is allowed with review.${evidenceSuffix}`,
         };
       case 'reciprocal':
         return {
@@ -131,7 +131,7 @@ export class LicensePolicyService {
           allowRuntimeUse: true,
           allowCoreCopy: false,
           reviewRequired: true,
-          summary: `Licenca ${license} e reciproca; import permitido, mas o core do Zavorth nao deve copiar codigo diretamente.${evidenceSuffix}`,
+          summary: `License ${license} is reciprocal; import is allowed, but Zavorth core must not copy code directly.${evidenceSuffix}`,
         };
       case 'review':
         return {
@@ -140,7 +140,7 @@ export class LicensePolicyService {
           allowRuntimeUse: true,
           allowCoreCopy: false,
           reviewRequired: true,
-          summary: `Licenca ${license} nao esta mapeada como permissiva; manter import sob revisao.${evidenceSuffix}`,
+          summary: `License ${license} is not mapped as permissive; keep the import under review.${evidenceSuffix}`,
         };
       case 'restricted':
       case 'unknown':
@@ -151,7 +151,7 @@ export class LicensePolicyService {
           allowRuntimeUse: false,
           allowCoreCopy: false,
           reviewRequired: true,
-          summary: `Licenca ${license || 'desconhecida'} bloqueada pela policy.${evidenceSuffix}`,
+          summary: `License ${license || 'unknown'} blocked by policy.${evidenceSuffix}`,
         };
     }
   }

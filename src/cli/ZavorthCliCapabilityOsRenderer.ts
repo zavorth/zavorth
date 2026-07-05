@@ -9,7 +9,7 @@ import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.j
 function compact(value: string | null | undefined, maxLength = 96): string {
   const normalized = sanitizeHumanCliText(value || '').replace(/\s+/g, ' ').trim();
   if (!normalized) {
-    return 'nao informado';
+    return 'not provided';
   }
   if (normalized.length <= maxLength) {
     return normalized;
@@ -17,7 +17,7 @@ function compact(value: string | null | undefined, maxLength = 96): string {
   return `${normalized.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
 }
 
-function joinList(values: Array<string | null | undefined>, fallback = 'nenhum'): string {
+function joinList(values: Array<string | null | undefined>, fallback = 'none'): string {
   const filtered = values
     .map((value) => String(value || '').trim())
     .filter(Boolean);
@@ -35,10 +35,10 @@ function toneForRisk(risk: string | null | undefined): CliVisualPanel['tone'] {
 }
 
 function formatManifestLine(manifest: ZavorthCapabilityOsManifest): string {
-  const executor = manifest.executorPreference || 'conversa';
+  const executor = manifest.executorPreference || 'conversation';
   const command = manifest.command ? ` | ${manifest.command}` : '';
-  const approval = manifest.permissions.requiresApproval ? 'aprova' : 'livre';
-  return `- ${manifest.label}: ${manifest.type}/${executor}${command} | risco ${manifest.risk.level} | ${approval}`;
+  const approval = manifest.permissions.requiresApproval ? 'approval' : 'free';
+  return `- ${manifest.label}: ${manifest.type}/${executor}${command} | risk ${manifest.risk.level} | ${approval}`;
 }
 
 export function formatCapabilityOsSnapshot(snapshot: ZavorthCapabilityOsSnapshot): string {
@@ -53,60 +53,60 @@ export function formatCapabilityOsSnapshot(snapshot: ZavorthCapabilityOsSnapshot
     .slice(0, 6);
 
   const routeExamples = snapshot.examples.slice(0, 4).map((example) => {
-    const selected = example.selected?.label || 'Conversa supervisionada';
+    const selected = example.selected?.label || 'Supervised conversation';
     const fallback = joinList(example.fallbackChain);
     return `- ${compact(example.input, 48)} -> ${selected} | fallback ${fallback}`;
   });
 
   const panels: CliVisualPanel[] = [
     {
-      title: 'Agora',
+      title: 'Now',
       tone: snapshot.summary.highRisk > 0 ? 'warning' : 'success',
       lines: [
-        `- ${formatCount(snapshot.summary.total, 'capability', 'capabilities')} registradas`,
-        `- comandos: ${snapshot.summary.commands} | rotas implicitas: ${snapshot.summary.implicitRoutes}`,
-        `- aprovacao: ${snapshot.summary.approvalRequired} | risco alto: ${snapshot.summary.highRisk}`,
+        `- ${formatCount(snapshot.summary.total, 'capability', 'capabilities')} registered`,
+        `- commands: ${snapshot.summary.commands} | implicit routes: ${snapshot.summary.implicitRoutes}`,
+        `- approval: ${snapshot.summary.approvalRequired} | high risk: ${snapshot.summary.highRisk}`,
         `- plugins: ${snapshot.summary.plugin} | MCP allowlist: ${snapshot.summary.mcpAllowlisted}`,
       ],
     },
     {
-      title: 'Tipos',
+      title: 'Types',
       tone: 'info',
       lines: [
-        `- executores: ${snapshot.summary.byType.executor}`,
+        `- executors: ${snapshot.summary.byType.executor}`,
         `- workflows: ${snapshot.summary.byType.workflow}`,
-        `- pesquisa: ${snapshot.summary.byType.research}`,
-        `- automacao: ${snapshot.summary.byType.automation}`,
-        `- integracoes: ${snapshot.summary.byType.integration}`,
+        `- research: ${snapshot.summary.byType.research}`,
+        `- automation: ${snapshot.summary.byType.automation}`,
+        `- integrations: ${snapshot.summary.byType.integration}`,
       ],
     },
     {
-      title: 'Rotas em foco',
+      title: 'Focused Routes',
       tone: highlighted.some((manifest) => manifest.risk.level === 'high') ? 'warning' : 'neutral',
       lines: highlighted.map((manifest) => formatManifestLine(manifest)),
     },
     {
-      title: 'MCP local',
+      title: 'Local MCP',
       tone: snapshot.mcpHost.serverAllowlist.length > 0 ? 'info' : 'neutral',
       lines: [
-        `- modo: ${snapshot.mcpHost.mode}`,
-        `- escopo: ${snapshot.mcpHost.folderScope} | secrets: ${snapshot.mcpHost.secrets}`,
-        `- servidores: ${joinList(snapshot.mcpHost.serverAllowlist, 'nenhum allowlisted')}`,
+        `- mode: ${snapshot.mcpHost.mode}`,
+        `- scope: ${snapshot.mcpHost.folderScope} | secrets: ${snapshot.mcpHost.secrets}`,
+        `- servers: ${joinList(snapshot.mcpHost.serverAllowlist, 'none allowlisted')}`,
       ],
     },
     {
-      title: 'Exemplos de decisao',
+      title: 'Decision Examples',
       tone: 'brand',
       lines: routeExamples.length > 0
         ? routeExamples
-        : ['- zavorth capabilities route "corrija um bug no projeto"'],
+        : ['- zavorth capabilities route "fix a bug in the project"'],
     },
     {
-      title: 'Faca agora',
+      title: 'Do Now',
       tone: 'brand',
       lines: [
         '- zavorth capabilities list --json',
-        '- zavorth capabilities route "pesquise noticias de IA na web"',
+        '- zavorth capabilities route "research AI news on the web"',
       ],
     },
   ];
@@ -114,8 +114,8 @@ export function formatCapabilityOsSnapshot(snapshot: ZavorthCapabilityOsSnapshot
   return renderCliScreen({
     eyebrow: 'Capabilities',
     eyebrowTone: snapshot.summary.highRisk > 0 ? 'warning' : 'success',
-    title: 'Capability OS do Zavorth',
-    summary: formatCliValue(snapshot.narrative.headline, 'Registry de capabilities pronto para roteamento.'),
+    title: 'Zavorth Capability OS',
+    summary: formatCliValue(snapshot.narrative.headline, 'Capability registry ready for routing.'),
     mode: 'compact',
     showWordmark: false,
     panels,
@@ -127,31 +127,31 @@ export function formatCapabilityOsRouteDecision(decision: ZavorthCapabilityOsRou
   const fallback = joinList(decision.fallbackChain);
   const panels: CliVisualPanel[] = [
     {
-      title: 'Escolha',
+      title: 'Choice',
       tone: toneForRisk(decision.decision.riskLevel),
       lines: [
-        `- entrada: ${compact(decision.input, 80)}`,
-        `- rota: ${selected?.label || 'Conversa supervisionada'}`,
+        `- input: ${compact(decision.input, 80)}`,
+        `- route: ${selected?.label || 'Supervised conversation'}`,
         `- intent: ${decision.decision.intent}`,
-        `- executor: ${decision.decision.executorPreference || 'conversa'}`,
+        `- executor: ${decision.decision.executorPreference || 'conversation'}`,
       ],
     },
     {
-      title: 'Porque',
+      title: 'Why',
       tone: 'info',
       lines: [
         `- ${compact(decision.decision.reason, 120)}`,
-        `- confianca: ${decision.decision.confidence}`,
-        `- risco: ${decision.decision.riskLevel}`,
-        `- aprovacao: ${decision.decision.requiresApproval ? 'necessaria' : 'nao necessaria'}`,
+        `- confidence: ${decision.decision.confidence}`,
+        `- risk: ${decision.decision.riskLevel}`,
+        `- approval: ${decision.decision.requiresApproval ? 'required' : 'not required'}`,
       ],
     },
     {
       title: 'Fallback',
       tone: 'brand',
       lines: [
-        `- cadeia: ${fallback}`,
-        `- artefatos: ${joinList(selected?.artifacts.kinds || [], 'relatorio')}`,
+        `- chain: ${fallback}`,
+        `- artifacts: ${joinList(selected?.artifacts.kinds || [], 'report')}`,
         `- ledger: ${decision.ledger.recorded ? decision.ledger.entryId : decision.ledger.reason}`,
       ],
     },
@@ -160,10 +160,10 @@ export function formatCapabilityOsRouteDecision(decision: ZavorthCapabilityOsRou
   return renderCliScreen({
     eyebrow: 'Router',
     eyebrowTone: toneForRisk(decision.decision.riskLevel),
-    title: 'Decisao de capability',
+    title: 'Capability Decision',
     summary: selected
-      ? `Escolhi ${selected.label} porque ${compact(decision.decision.reason, 80)}`
-      : 'Mantive em conversa supervisionada porque nenhuma capability passou do limiar.',
+      ? `Selected ${selected.label} because ${compact(decision.decision.reason, 80)}`
+      : 'Kept supervised conversation because no capability passed the threshold.',
     mode: 'compact',
     showWordmark: false,
     panels,

@@ -7,6 +7,7 @@ import { AutoRepairIncidentMemoryService } from './AutoRepairIncidentMemoryServi
 import { ContextResolverService } from './ContextResolverService.js';
 import { EngineeringFileSystemService } from './EngineeringFileSystemService.js';
 import { WorkspaceProfileService } from './WorkspaceProfileService.js';
+import { logger } from '../logger.js';
 
 type EngineeringContextServiceOptions = {
   workspaceProfileService?: WorkspaceProfileService;
@@ -75,9 +76,7 @@ export class EngineeringContextService {
         return null;
       }
       return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Engineering Context] JSON parse failed', error); return null; }
   }
 
   private readConnectedMcpToolNames(mcpRuntimeService: Pick<McpRuntimeService, 'readSnapshot'> | null): string[] {

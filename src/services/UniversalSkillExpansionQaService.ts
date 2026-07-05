@@ -103,12 +103,12 @@ export class UniversalSkillExpansionQaService {
       'Universal Skill Expansion QA - Surface controls',
       '',
       `Status: ${snapshot.status}`,
-      `Modo recomendado: ${snapshot.rollout.recommendedMode}`,
-      `Fontes: ${snapshot.expansion.summary.sources} | candidatos: ${snapshot.expansion.summary.candidates} | importadas: ${snapshot.expansion.summary.materialized}`,
-      `Bridge ready: ${snapshot.expansion.summary.bridgeReady} | bloqueadas: ${snapshot.expansion.summary.blockedCandidates} | denied: ${snapshot.expansion.summary.denied}`,
-      `Report: ${snapshot.report.persisted ? snapshot.report.path : 'nao persistido'}`,
+      `Recommended mode: ${snapshot.rollout.recommendedMode}`,
+      `Sources: ${snapshot.expansion.summary.sources} | candidates: ${snapshot.expansion.summary.candidates} | imported: ${snapshot.expansion.summary.materialized}`,
+      `Bridge ready: ${snapshot.expansion.summary.bridgeReady} | blocked: ${snapshot.expansion.summary.blockedCandidates} | denied: ${snapshot.expansion.summary.denied}`,
+      `Report: ${snapshot.report.persisted ? snapshot.report.path : 'not persisted'}`,
       '',
-      'Matriz:',
+      'Matrix:',
     ];
 
     for (const row of snapshot.matrix) {
@@ -122,7 +122,7 @@ export class UniversalSkillExpansionQaService {
       lines.push(`- ${phase.label}: ${phase.status} | ${phase.summary}`);
     }
 
-    lines.push('', 'Proximas acoes:');
+    lines.push('', 'Next actions:');
     for (const action of snapshot.rollout.nextActions) {
       lines.push(`- ${action}`);
     }
@@ -212,14 +212,14 @@ export class UniversalSkillExpansionQaService {
     const candidates = Math.max(1, expansion.summary.candidates);
     const materialized = Math.max(1, expansion.summary.materialized);
     return [
-      metric('sources', 'Fontes avaliadas', expansion.summary.sources, 'count', 'info', 'maior que zero quando ha fontes'),
-      metric('candidates', 'Candidatos encontrados', expansion.summary.candidates, 'count', 'info', 'inventario completo das fontes'),
-      metric('blocked-candidate-ratio', 'Razao de candidatos bloqueados', roundRatio(expansion.summary.blockedCandidates / candidates), 'ratio', expansion.summary.blockedCandidates > 0 ? 'warning' : 'info', '0 em fontes limpas; bloqueios devem ser explicitos'),
-      metric('materialization-rate', 'Taxa de materializacao', roundRatio(expansion.summary.materialized / candidates), 'ratio', expansion.apply ? 'info' : 'warning', 'maior que 0 somente em apply aprovado'),
-      metric('bridge-ready-rate', 'Taxa pronta para bridge', roundRatio(expansion.summary.bridgeReady / materialized), 'ratio', expansion.summary.materialized > 0 && expansion.summary.bridgeReady === 0 ? 'critical' : 'info', 'skills importadas devem aparecer no bridge'),
-      metric('reportable-sources', 'Linhas na matriz', matrix.length, 'count', 'info', 'uma linha por fonte'),
-      metric('no-execution', 'Nenhuma execucao upstream', expansion.summary.executionPerformed === false, 'boolean', expansion.summary.executionPerformed === false ? 'info' : 'critical', 'sempre false'),
-      metric('no-direct-upstream-runtime', 'Sem uso direto do runtime upstream', expansion.summary.directUpstreamRuntimeUse === false, 'boolean', expansion.summary.directUpstreamRuntimeUse === false ? 'info' : 'critical', 'sempre false'),
+      metric('sources', 'Evaluated sources', expansion.summary.sources, 'count', 'info', 'greater than zero when sources exist'),
+      metric('candidates', 'Candidates found', expansion.summary.candidates, 'count', 'info', 'complete source inventory'),
+      metric('blocked-candidate-ratio', 'Blocked candidate ratio', roundRatio(expansion.summary.blockedCandidates / candidates), 'ratio', expansion.summary.blockedCandidates > 0 ? 'warning' : 'info', '0 for clean sources; blocks must be explicit'),
+      metric('materialization-rate', 'Materialization rate', roundRatio(expansion.summary.materialized / candidates), 'ratio', expansion.apply ? 'info' : 'warning', 'greater than 0 only after approved apply'),
+      metric('bridge-ready-rate', 'Bridge-ready rate', roundRatio(expansion.summary.bridgeReady / materialized), 'ratio', expansion.summary.materialized > 0 && expansion.summary.bridgeReady === 0 ? 'critical' : 'info', 'imported skills should appear in the bridge'),
+      metric('reportable-sources', 'Matrix rows', matrix.length, 'count', 'info', 'one row per source'),
+      metric('no-execution', 'No upstream execution', expansion.summary.executionPerformed === false, 'boolean', expansion.summary.executionPerformed === false ? 'info' : 'critical', 'always false'),
+      metric('no-direct-upstream-runtime', 'No direct upstream runtime use', expansion.summary.directUpstreamRuntimeUse === false, 'boolean', expansion.summary.directUpstreamRuntimeUse === false ? 'info' : 'critical', 'always false'),
     ];
   }
 
@@ -232,14 +232,14 @@ export class UniversalSkillExpansionQaService {
     const phases: ZavorthUniversalSkillExpansionQaRolloutStage[] = [
       {
         id: 'preview',
-        label: 'Preview de fontes',
+        label: 'Source Preview',
         status: expansion.summary.sources > 0 ? 'passed' : 'blocked',
-        summary: `${expansion.summary.sources} fonte(s), ${expansion.summary.candidates} candidato(s).`,
-        nextAction: expansion.summary.sources > 0 ? 'Revisar matriz e allowlists.' : 'Adicionar pelo menos uma fonte.',
+        summary: `${expansion.summary.sources} source(s), ${expansion.summary.candidates} candidate(s).`,
+        nextAction: expansion.summary.sources > 0 ? 'Review matrix and allowlists.' : 'Add at least one source.',
       },
       {
         id: 'import',
-        label: 'Import governado',
+        label: 'Governed Import',
         status: !expansion.apply
           ? 'waiting'
           : expansion.status === 'passed'
@@ -248,11 +248,11 @@ export class UniversalSkillExpansionQaService {
               ? 'attention'
               : 'blocked',
         summary: expansion.apply
-          ? `${expansion.summary.materialized} importada(s), ${expansion.summary.denied} negada(s).`
-          : 'Aguardando apply explicito.',
+          ? `${expansion.summary.materialized} imported, ${expansion.summary.denied} denied.`
+          : 'Waiting for explicit apply.',
         nextAction: expansion.apply
-          ? 'Revisar negadas e provenance gerada.'
-          : 'Rodar apply limitado com allowlist explicita.',
+          ? 'Review denied entries and generated provenance.'
+          : 'Run limited apply with an explicit allowlist.',
       },
       {
         id: 'bridge-dry-run',
@@ -262,24 +262,24 @@ export class UniversalSkillExpansionQaService {
           : expansion.apply
             ? 'blocked'
             : 'waiting',
-        summary: `${expansion.summary.bridgeReady} skill(s) prontas para dry-run.`,
+        summary: `${expansion.summary.bridgeReady} skill(s) ready for dry-run.`,
         nextAction: expansion.summary.bridgeReady > 0
           ? '/skills run <skill>'
-          : 'Importar pelo menos uma skill permitida antes do dry-run.',
+          : 'Import at least one allowed skill before dry-run.',
       },
       {
         id: 'live-controlled',
-        label: 'Live controlado',
+        label: 'Controlled Live',
         status: expansion.summary.bridgeApprovalRequired > 0 ? 'waiting' : 'attention',
-        summary: `${expansion.summary.bridgeApprovalRequired} skill(s) exigem approval antes de live.`,
+        summary: `${expansion.summary.bridgeApprovalRequired} skill(s) require approval before live mode.`,
         nextAction: '/skills live <skill> --approval-id <approval-id>',
       },
       {
         id: 'monitoring',
-        label: 'Monitoramento',
+        label: 'Monitoring',
         status: input.status === 'blocked' ? 'blocked' : 'passed',
-        summary: 'Relatorio QA agregado disponivel para regressao.',
-        nextAction: 'Adicionar o check da Etapa 7 ao workspace:check.',
+        summary: 'Aggregated QA report available for regression.',
+        nextAction: 'Add the Stage 7 check to workspace:check.',
       },
     ];
     const recommendedMode = input.status === 'blocked'
@@ -304,22 +304,22 @@ export class UniversalSkillExpansionQaService {
   ): string[] {
     if (status === 'blocked') {
       return [
-        'Corrigir gates bloqueados antes de importar novas fontes.',
-        'Reduzir fontes/candidatos ou revisar candidatos hostis.',
+        'Fix blocked gates before importing new sources.',
+        'Reduce sources/candidates or review hostile candidates.',
       ];
     }
     if (!expansion.apply) {
       return [
-        'Revisar matriz de preview.',
-        'Executar apply limitado com --allow-source e --skills <nomes aprovados>.',
+        'Review the preview matrix.',
+        'Run limited apply with --allow-source and --skills <approved names>.',
       ];
     }
     const actions = [
-      'Executar dry-run das skills prontas com /skills run <skill>.',
-      'Manter live atras de approval explicito.',
+      'Run dry-run for ready skills with /skills run <skill>.',
+      'Keep live mode behind explicit approval.',
     ];
     if (expansion.summary.denied > 0 || expansion.summary.blockedCandidates > 0) {
-      actions.push('Revisar candidatos negados antes de repetir allow-all.');
+      actions.push('Review denied candidates before repeating allow-all.');
     }
     return actions;
   }
@@ -346,21 +346,21 @@ export class UniversalSkillExpansionQaService {
     gates: ZavorthUniversalSkillExpansionQaSnapshot['certification']['gates'],
   ): string[] {
     const reasons = [
-      'QA usou o snapshot da expansion como evidencia, sem executar skills diretamente.',
-      `${matrix.length} fonte(s) coberta(s) pela matriz operacional.`,
-      `Metricas: ${expansion.summary.candidates} candidato(s), ${expansion.summary.materialized} importada(s), ${expansion.summary.bridgeReady} pronta(s) para bridge.`,
+      'QA used the expansion snapshot as evidence without executing skills directly.',
+      `${matrix.length} source(s) covered by the operational matrix.`,
+      `Metrics: ${expansion.summary.candidates} candidate(s), ${expansion.summary.materialized} imported, ${expansion.summary.bridgeReady} ready for bridge.`,
     ];
     if (expansion.summary.blockedCandidates > 0) {
-      reasons.push(`${expansion.summary.blockedCandidates} candidato(s) hostil(is) permaneceram fora da importacao.`);
+      reasons.push(`${expansion.summary.blockedCandidates} hostile candidate(s) remained outside the import.`);
     }
     if (expansion.status === 'blocked') {
-      reasons.push('Expansion status blocked: gates exigem revisao antes de rollout.');
+      reasons.push('Expansion status blocked: gates require review before rollout.');
     }
     if (!gates.reportPersisted) {
-      reasons.push('Relatorio ainda nao foi persistido nesta chamada.');
+      reasons.push('Report was not persisted in this call.');
     }
     if (!Object.values(gates).every(Boolean)) {
-      reasons.push('Um ou mais gates exigem revisao antes de rollout amplo.');
+      reasons.push('One or more gates require review before broad rollout.');
     }
     return reasons;
   }

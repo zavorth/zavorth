@@ -62,7 +62,7 @@ export async function handleZavorthCliRegistryPlatformCommand(params: RegistryCo
       return { ok: result.ok, handled: true, output: [body], error: result.ok ? null : result.error };
     }
     if (platformIntent.mode === 'publish' && runtime.platformPublisherService) {
-      const result = await (runtime.platformPublisherService as any).publishDetailed({
+      const result = await runtime.platformPublisherService.publishDetailed({
         packagePath: platformIntent.entryId,
         signLocal: true,
         requestedBy: effectiveFlags.userId,
@@ -71,7 +71,7 @@ export async function handleZavorthCliRegistryPlatformCommand(params: RegistryCo
         ? JSON.stringify(result, null, 2)
         : formatPlatformPublishResult(result);
       writer.line(body);
-      return { ok: Boolean((result as any).ok ?? true), handled: true, output: [body], error: null };
+      return { ok: Boolean(result.ok ?? true), handled: true, output: [body], error: null };
     }
     if (platformIntent.mode === 'action' && runtime.platformActionService) {
       if (!platformIntent.entryId) {
@@ -172,7 +172,7 @@ export async function handleZavorthCliRegistryPlatformCommand(params: RegistryCo
         ? JSON.stringify(report, null, 2)
         : formatAIGatewayDoctorReport(report);
       writer.line(body);
-      return { ok: Boolean((report as any).ok ?? true), handled: true, output: [body], error: null };
+      return { ok: Boolean(report.ok ?? true), handled: true, output: [body], error: null };
     }
     if (first === 'sync' && runtime.GatewayUpstreamSyncService) {
       const report = await runtime.GatewayUpstreamSyncService.sync();
@@ -180,17 +180,17 @@ export async function handleZavorthCliRegistryPlatformCommand(params: RegistryCo
         ? JSON.stringify(report, null, 2)
         : formatAIGatewaySyncReport(report);
       writer.line(body);
-      return { ok: Boolean((report as any).ok ?? true), handled: true, output: [body], error: null };
+      return { ok: Boolean(report.ok ?? true), handled: true, output: [body], error: null };
     }
     if (first === 'promote' && runtime.GatewayUpstreamSyncService) {
       const report = await runtime.GatewayUpstreamSyncService.promote({
         autoRollback: !tokens.includes('--no-rollback'),
-      } as any);
+      });
       const body = effectiveFlags.json
         ? JSON.stringify(report, null, 2)
         : formatAIGatewaySyncReport(report);
       writer.line(body);
-      return { ok: Boolean((report as any).ok ?? true), handled: true, output: [body], error: null };
+      return { ok: Boolean(report.ok ?? true), handled: true, output: [body], error: null };
     }
     if (first === 'rollback' && runtime.GatewayUpstreamSyncService) {
       const report = await runtime.GatewayUpstreamSyncService.rollback();
@@ -198,7 +198,7 @@ export async function handleZavorthCliRegistryPlatformCommand(params: RegistryCo
         ? JSON.stringify(report, null, 2)
         : formatAIGatewaySyncReport(report);
       writer.line(body);
-      return { ok: Boolean((report as any).ok ?? true), handled: true, output: [body], error: null };
+      return { ok: Boolean(report.ok ?? true), handled: true, output: [body], error: null };
     }
   }
 

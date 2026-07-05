@@ -15,6 +15,8 @@ import {
   type ZavorthScheduledTaskSurfaceTaskCard,
 } from '../contracts/ZavorthScheduledTaskSurfaceContract.js';
 import { ZavorthScheduledTaskPersistenceService } from './ZavorthScheduledTaskPersistenceService.js';
+import type { ZavorthPersistedScheduledTask } from '../contracts/ZavorthScheduledTaskPersistenceContract.js';
+import { logger } from '../logger.js';
 
 type SchedulerSurfaceLike = {
   scheduleTask(
@@ -98,7 +100,7 @@ export class ZavorthScheduledTaskSurfaceService {
         ? `Agendamento governado criado: ${snapshot.task?.id?.split('-')[0] || 'n/d'}.`
         : `Agendamento governado bloqueado: ${snapshot.narrative.operatorSummary}`,
       details: this.detailsFromPersistence(snapshot),
-      task: snapshot.task ? this.toTaskCard(snapshot.task as any) : null,
+      task: snapshot.task ? this.toTaskCard(snapshot.task) : null,
       persistence: snapshot,
     });
   }
@@ -156,7 +158,7 @@ export class ZavorthScheduledTaskSurfaceService {
         ? `Lifecycle governado aplicado: ${snapshot.status}.`
         : `Lifecycle governado bloqueado: ${snapshot.narrative.operatorSummary}`,
       details: this.detailsFromPersistence(snapshot),
-      task: snapshot.task ? this.toTaskCard(snapshot.task as any) : this.toTaskCard(task),
+      task: snapshot.task ? this.toTaskCard(snapshot.task) : this.toTaskCard(task),
       persistence: snapshot,
     });
   }
@@ -263,7 +265,7 @@ export class ZavorthScheduledTaskSurfaceService {
       || null;
   }
 
-  private toTaskCard(task: ScheduledTask): ZavorthScheduledTaskSurfaceTaskCard {
+  private toTaskCard(task: ScheduledTask | ZavorthPersistedScheduledTask): ZavorthScheduledTaskSurfaceTaskCard {
     const metadata = readGovernedMetadata(task);
     return {
       id: task.id,
@@ -344,9 +346,7 @@ function readGovernedMetadata(task: ScheduledTask): SchedulerGovernedScheduledTa
     const parsed = task.guardrail_json ? JSON.parse(task.guardrail_json) : null;
     const metadata = parsed?.governedScheduledTask;
     return metadata?.phase === 'checkpoint-3-persisted-scheduled-task-registration' ? metadata : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Scheduled Task Surface] JSON parse failed', error); return null; }
 }
 
 function clean(value: unknown): string {

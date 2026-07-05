@@ -277,7 +277,7 @@ export class UniversalSkillBridgeRuntimeService {
       blocked: true,
       risk: 'forbidden',
       rule: 'SKILL_BRIDGE_SKILL_NOT_FOUND',
-      reasons: [`Skill ${input.skillName || 'n/d'} nao encontrada no loader governado.`],
+      reasons: [`Skill ${input.skillName || 'n/a'} not found in the governed loader.`],
     }, { now: this.now });
     const receipt = this.buildReceipt({
       generatedAt: input.generatedAt,
@@ -288,7 +288,7 @@ export class UniversalSkillBridgeRuntimeService {
       channel: input.channel,
       ownerApprovalId: input.ownerApprovalId,
       brokerDecision,
-      reasons: ['Skill nao encontrada.'],
+      reasons: ['Skill not found.'],
     });
     if (input.persistReceipt) {
       this.appendReceipt(receipt);
@@ -318,7 +318,7 @@ export class UniversalSkillBridgeRuntimeService {
       promptInjectionFindings: [],
       promptEnvelope: null,
       ownerApprovalId: input.ownerApprovalId,
-      reasons: ['Skill nao encontrada.'],
+      reasons: ['Skill not found.'],
       receipt,
     });
   }
@@ -363,25 +363,25 @@ export class UniversalSkillBridgeRuntimeService {
     const risk = input.skill.risk || input.skill.provenance?.risk || null;
 
     if (!input.trustDecision.allowed) {
-      reasons.push(input.trustDecision.reason || 'Skill negada pela trust policy.');
+      reasons.push(input.trustDecision.reason || 'Skill denied by trust policy.');
     }
     if (!imported && !input.allowLocalSkills) {
-      reasons.push('Etapa 3 aceita somente skills importadas por padrao; use allowLocalSkills apenas em testes controlados.');
+      reasons.push('Stage 3 accepts only imported skills by default; use allowLocalSkills only in controlled tests.');
     }
     if (input.contentScan.issues.some((issue) => issue.severity === 'error')) {
-      reasons.push('Scanner de conteudo encontrou issue bloqueante dentro da skill.');
+      reasons.push('Content scanner found a blocking issue inside the skill.');
     }
     if (input.promptInjectionFindings.length > 0) {
-      reasons.push('Indicadores de prompt injection foram detectados no conteudo da skill.');
+      reasons.push('Prompt injection indicators were detected in the skill content.');
     }
     if (licensePolicy?.allowRuntimeUse === false) {
-      reasons.push(`Licenca/policy nao permite uso runtime: ${licensePolicy.summary}`);
+      reasons.push(`License/policy does not allow runtime use: ${licensePolicy.summary}`);
     }
     if (risk?.level === 'blocked') {
-      reasons.push('Risk assessment da skill esta bloqueado.');
+      reasons.push('Skill risk assessment is blocked.');
     }
     if (input.mode === 'live' && !input.ownerApprovalId) {
-      reasons.push('Live bridge requer ownerApprovalId explicito antes de preparar contexto executavel.');
+      reasons.push('Live bridge requires an explicit ownerApprovalId before preparing executable context.');
     }
 
     return uniqueStrings(reasons);
@@ -393,12 +393,12 @@ export class UniversalSkillBridgeRuntimeService {
     ownerApprovalId: string | null;
   }): ZavorthUniversalSkillBridgeStatus {
     const approvalOnly = input.reasons.length === 1
-      && input.reasons[0].startsWith('Live bridge requer ownerApprovalId');
+      && input.reasons[0].startsWith('Live bridge requires an explicit ownerApprovalId');
     if (approvalOnly) {
       return 'approval-required';
     }
     if (input.reasons.length > 0) {
-      const onlyApproval = input.reasons.every((reason) => reason.startsWith('Live bridge requer ownerApprovalId'));
+      const onlyApproval = input.reasons.every((reason) => reason.startsWith('Live bridge requires an explicit ownerApprovalId'));
       return onlyApproval ? 'approval-required' : 'denied';
     }
     return input.mode === 'live' && input.ownerApprovalId ? 'prepared' : 'dry-run';
@@ -442,8 +442,8 @@ export class UniversalSkillBridgeRuntimeService {
         ? input.reasons
         : [
           input.mode === 'dry-run'
-            ? 'Dry-run de skill importada preparado com marcadores de conteudo nao confiavel.'
-            : 'Owner approval informado; contexto governado preparado sem executar runtime upstream.',
+            ? 'Imported skill dry-run prepared with untrusted-content markers.'
+            : 'Owner approval provided; governed context prepared without executing upstream runtime.',
         ],
       metadata: {
         channel: input.channel,

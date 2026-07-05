@@ -1,6 +1,7 @@
 import type { RuntimeAccessReadinessSnapshotReaderOptions } from "./RuntimeAccessReadinessSnapshotReaderTypes.js";
+import { logger } from '../../../../logger';
 import type {
-  RuntimeAccessChannelProviderDoctorSnapshot,
+RuntimeAccessChannelProviderDoctorSnapshot,
   RuntimeAccessNodeMeshSmokeSnapshot,
   RuntimeAccessRemoteTransportDoctorSnapshot,
   RuntimeAccessSystemOverlordSmokeSnapshot,
@@ -75,9 +76,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
         ageMs,
         maxAgeMs: this.options.nodeMeshSmokeMaxAgeMs,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readSystemOverlordSmokeSnapshot(): RuntimeAccessSystemOverlordSmokeSnapshot {
@@ -173,9 +172,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
         maxAgeMs: this.options.systemOverlordSmokeMaxAgeMs,
         items,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readChannelProviderDoctorSnapshot(): RuntimeAccessChannelProviderDoctorSnapshot {
@@ -285,9 +282,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
         maxAgeMs: this.options.channelProviderDoctorMaxAgeMs,
         items,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readRemoteTransportDoctorSnapshot(): RuntimeAccessRemoteTransportDoctorSnapshot {
@@ -390,9 +385,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
               fallback.command,
         items,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   private calculateAgeMs(checkedAt: string | null): number | null {

@@ -53,7 +53,7 @@ export class CodexExecutor implements IExecutor {
     }
 
     return this.composePrompt([
-      request.objective || 'Execute a tarefa solicitada no workspace indicado.',
+      request.objective || 'Execute the requested task in the indicated workspace.',
       '',
       ...request.instructions.map((instruction, index) => `${index + 1}. ${instruction}`),
     ].join('\n'), request.workspace, extraAllowedPaths, extraAllowedCommands, allowedPathPolicies);
@@ -80,9 +80,9 @@ export class CodexExecutor implements IExecutor {
     }
 
     if (writeScopePaths.length > 0) {
-      policyLines.push(`Workspace base aprovado: ${workspace}`);
+      policyLines.push(`Approved base workspace: ${workspace}`);
       policyLines.push('Regra de escrita do Zavorth: trate o restante do workspace como somente leitura.');
-      policyLines.push(`Write scope aprovado pelo Zavorth: ${writeScopePaths.join(', ')}`);
+      policyLines.push(`Write scope approved by Zavorth: ${writeScopePaths.join(', ')}`);
     }
 
     if (extraAllowedCommands.length > 0) {

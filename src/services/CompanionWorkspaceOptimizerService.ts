@@ -15,6 +15,7 @@ import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
 import { TrustDecisionService, type TrustDecision } from './TrustDecisionService.js';
 import { WorkspaceProfileService } from './WorkspaceProfileService.js';
+import { logger } from '../logger.js';
 
 type CompanionWorkspaceOptimizerRuntime = {
   now?: () => Date;
@@ -573,9 +574,7 @@ export class CompanionWorkspaceOptimizerService {
     try {
       const parsed = JSON.parse(await this.readFile(settingsFilePath, 'utf8')) as Record<string, unknown>;
       return this.normalizeObject(parsed);
-    } catch {
-      return {};
-    }
+    } catch (error) { logger.warn('[Companion Workspace Optimizer] JSON parse failed', error); return {}; }
   }
 
   private mergeSettings(currentSettings: Record<string, unknown>, preset: IDECompanionPreset): Record<string, unknown> {
@@ -642,12 +641,13 @@ export class CompanionWorkspaceOptimizerService {
         updatedAt: String(parsed.updatedAt || this.now().toISOString()),
         workspaces: Array.isArray(parsed.workspaces) ? parsed.workspaces : [],
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Companion Workspace Optimizer] JSON parse failed', error);
+    return {
         updatedAt: this.now().toISOString(),
         workspaces: [],
       };
-    }
+  }
   }
 
   private normalizeObject(value: unknown): Record<string, unknown> {

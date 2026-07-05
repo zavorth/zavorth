@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  FEEDBACK_TELEMETRY_FORBIDDEN_CLAIMS,
+FEEDBACK_TELEMETRY_FORBIDDEN_CLAIMS,
   FEEDBACK_TELEMETRY_REQUIRED_COMMANDS,
   FEEDBACK_TELEMETRY_REQUIRED_COPY,
   FEEDBACK_TELEMETRY_REQUIRED_LINKS,
@@ -375,9 +376,7 @@ export class FeedbackTelemetryContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Feedback Telemetry Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -403,9 +402,7 @@ export class FeedbackTelemetryContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Feedback Telemetry Contract] filesystem operation failed', error); return ''; }
   }
 
   private check(

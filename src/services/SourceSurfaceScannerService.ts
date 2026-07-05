@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { logger } from '../logger.js';
 import type {
-  SourceDiscoveredSurface,
+SourceDiscoveredSurface,
   SourceSurfaceCategory,
   SourceSurfaceEvidenceCounts,
 } from '../contracts/SourceSurfaceLedgerContract.js';
@@ -438,9 +439,7 @@ function readDir(absolutePath: string): fs.Dirent[] {
   try {
     return fs.readdirSync(absolutePath, { withFileTypes: true })
       .sort((left, right) => left.name.localeCompare(right.name));
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[Source Surface Scanner] filesystem operation failed', error); return []; }
 }
 
 function dedupeSurfaces(surfaces: SourceDiscoveredSurface[]): SourceDiscoveredSurface[] {

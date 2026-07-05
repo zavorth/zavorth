@@ -4,6 +4,7 @@ import { globalLiveNodeRegistry, LiveNodeRegistryService } from '../services/Liv
 import { NodeInvokeService } from '../services/NodeInvokeService.js';
 import { NodeRegistryService } from '../services/NodeRegistryService.js';
 import { ZavorthNodeMeshService } from '../services/ZavorthNodeMeshService.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   registryService?: NodeRegistryService;
@@ -42,9 +43,7 @@ function parseJsonObject(input: unknown): Record<string, unknown> | null {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Node Mesh] JSON parse failed', error); return null; }
 }
 
 function parsePayload(input: unknown): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string } {

@@ -24,6 +24,7 @@ import {
 } from '../contracts/ZavorthAndroidAdbBridgeContract.js';
 import type { ZavorthVisionPolicyDecision } from '../contracts/ZavorthVisionControlPlaneContract.js';
 import { ZavorthVisionControlPlaneService } from './ZavorthVisionControlPlaneService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthAdbRunOptions = {
   binary?: string;
@@ -236,10 +237,10 @@ export class ZavorthAndroidAdbBridgeService {
         ...buildAndroidSetupBlocks(snapshot),
         {
           kind: 'list',
-          title: 'Plano',
+          title: 'Plan',
           items: snapshot.plan.steps.length > 0
-            ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'sim' : 'nao'} | blocked=${step.blockedByDefault ? 'sim' : 'nao'}`)
-            : ['Nenhum plano ativo. Use /device inspect, /device screenshot ou /device plan.'],
+            ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'} | blocked=${step.blockedByDefault ? 'yes' : 'no'}`)
+            : ['No active plan. Use /device inspect, /device screenshot, or /device plan.'],
         },
         ...receipts.map((entry) => ({
           kind: 'receipt' as const,
@@ -401,7 +402,8 @@ export class ZavorthAndroidAdbBridgeService {
         encoding: options.encoding || 'utf8',
       });
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Android Adb Bridge] string operation failed', error);
+    return {
         ok: false,
         code: null,
         stdoutText: '',
@@ -409,7 +411,7 @@ export class ZavorthAndroidAdbBridgeService {
         stdoutBytes: null,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private buildSnapshot(input: {
@@ -609,21 +611,21 @@ function buildAndroidSetupBlocks(snapshot: ZavorthAndroidAdbSnapshot): SurfaceRe
   const items =
     snapshot.status === 'adb-unavailable'
       ? [
-          'O pedido natural ja tentou usar ADB read-only.',
-          'ADB nao esta disponivel neste host.',
-          'Instale Android Platform Tools ou coloque adb no PATH.',
-          'Depois rode: /device android doctor',
+          'The natural request already tried to use read-only ADB.',
+          'ADB is not available on this host.',
+          'Install Android Platform Tools or put adb on PATH.',
+          'Then run: /device android doctor',
         ]
       : snapshot.status === 'unauthorized'
         ? [
-            'O celular foi encontrado, mas ainda nao autorizou ADB.',
-            'Desbloqueie o Android e aceite o prompt "Permitir depuracao USB".',
-            'Depois rode: /device android doctor',
+            'The phone was found, but ADB is not authorized yet.',
+            'Unlock Android and accept the "Allow USB debugging" prompt.',
+            'Then run: /device android doctor',
           ]
         : [
-            'O pedido natural ja tentou procurar um Android autorizado.',
-            'Conecte o celular por USB.',
-            'Ative Opcoes do desenvolvedor e Depuracao USB.',
+            'The natural request already tried to find an authorized Android device.',
+            'Connect the phone over USB.',
+            'Enable Developer Options and USB Debugging.',
             'Aceite o prompt de autorizacao ADB no celular.',
             'Depois rode: /device android doctor',
           ];

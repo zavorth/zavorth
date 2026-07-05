@@ -150,7 +150,7 @@ export class ExecutionGateway {
     const policyResult = this.policyEngine.evaluate(plan);
     decision.policy_evaluation = policyResult;
     if (!policyResult.allowed) {
-      const reason = `Bloqueado pela politica de seguranca: ${policyResult.violations.map((v) => v.detail).join('; ')}`;
+      const reason = `Blocked by security policy: ${policyResult.violations.map((v) => v.detail).join('; ')}`;
       return this.blockDecision(decision, reason, 'warn', 'execution.blocked', 'policy_blocked', {
         taskId: task.task_id,
         planId: plan.plan_id,
@@ -289,7 +289,7 @@ export class ExecutionGateway {
       return null;
     }
 
-    return `Host nao autorizado para execucao mutavel. Fingerprint atual: ${hostStatus.currentFingerprint.substring(0, 12)}...`;
+    return `Host is not authorized for mutable execution. Current fingerprint: ${hostStatus.currentFingerprint.substring(0, 12)}...`;
   }
 
   private getModeBlockReason(plan: Plan): string | null {
@@ -307,7 +307,7 @@ export class ExecutionGateway {
       (task.approval_status === 'approved' || task.requires_approval === false);
 
     if (plan.requires_approval && !explicitApprovalSatisfied) {
-      return `Plano requer aprovacao explicita (risco nivel ${plan.risk_level}).`;
+      return `Plan requires explicit approval (risk level ${plan.risk_level}).`;
     }
 
     return null;
@@ -324,7 +324,7 @@ export class ExecutionGateway {
     const executor = this.executors.get(executorName);
 
     if (!executor) {
-      const reason = `Executor '${executorName}' nao registrado no gateway.`;
+      const reason = `Executor '${executorName}' is not registered in the gateway.`;
       return this.blockDecision(decision, reason, 'error', 'execution.failed', 'executor_missing', {
         taskId: task.task_id,
         planId: plan.plan_id,
@@ -370,7 +370,7 @@ export class ExecutionGateway {
         runtimeHookContext,
       );
       if (!beforeRuntime.ok) {
-        const reason = 'Um hook bloqueou a execucao do runtime.';
+        const reason = 'A hook blocked runtime execution.';
         await runExecutionGatewayRuntimeFailureHook(this.hookPipeline, hookWorkspace, {
           ...runtimeHookContext,
           reason: 'blocked_by_hook',
@@ -454,7 +454,7 @@ export class ExecutionGateway {
         plan.workspace_recommendation || task.workspace || '',
         this.defaultWorkspace,
       );
-      const reason = `Erro na execucao: ${e.message}`;
+      const reason = `Execution error: ${e.message}`;
       this.logRepo.log('error', 'ExecutionGateway', reason);
       await runExecutionGatewayRuntimeFailureHook(this.hookPipeline, workspace, {
         traceId,
@@ -531,13 +531,13 @@ export class ExecutionGateway {
 
       const fixCommand = await this.proposeSelfHealingFix(request, result);
       if (!fixCommand) {
-        this.logRepo.log('warn', 'ExecutionGateway', 'Auto-correcao nao conseguiu propor um patch seguro.');
+        this.logRepo.log('warn', 'ExecutionGateway', 'Auto-correction could not propose a safe patch.');
         break;
       }
 
       if (this.policyEngine.isCommandBlocked(fixCommand)) {
-        this.logRepo.log('warn', 'ExecutionGateway', `Patch de auto-correcao bloqueado pela politica: ${fixCommand}`);
-        result.actions_executed.push(`[SELF-HEALING] Patch bloqueado pela politica: ${fixCommand}`);
+        this.logRepo.log('warn', 'ExecutionGateway', `Auto-correction patch blocked by policy: ${fixCommand}`);
+        result.actions_executed.push(`[SELF-HEALING] Patch blocked by policy: ${fixCommand}`);
         break;
       }
 
@@ -554,13 +554,13 @@ export class ExecutionGateway {
       result.actions_executed.push(`[SELF-HEALING] Tentativa rapida de correcao: ${fixCommand}`);
 
       if (patchResult.success) {
-        this.logRepo.log('info', 'ExecutionGateway', 'Patch aplicado com sucesso, re-executando comando original...');
+        this.logRepo.log('info', 'ExecutionGateway', 'Patch applied successfully, re-running original command...');
         const retryResult = await executor.execute(request);
         retryResult.actions_executed = [...result.actions_executed, ...retryResult.actions_executed];
         result = retryResult;
       } else {
         this.logRepo.log('error', 'ExecutionGateway', 'Patch de auto-correcao tambem falhou.');
-        result.actions_executed.push(`[SELF-HEALING] Falha ao aplicar patch: ${patchResult.error_message}`);
+        result.actions_executed.push(`[SELF-HEALING] Failed to apply patch: ${patchResult.error_message}`);
       }
 
       retries += 1;
@@ -588,7 +588,7 @@ export class ExecutionGateway {
     plan: Plan,
   ): GatewayDecision {
     decision.allowed = true;
-    decision.reason = 'Dry run - plano validado com sucesso, execucao simulada.';
+    decision.reason = 'Dry run - plan validated successfully, execution simulated.';
     const dryRunStartedAt = new Date().toISOString();
     const dryRunFinishedAt = new Date().toISOString();
     const dryRunTiming = this.buildCanonicalExecutionTiming(dryRunStartedAt, dryRunFinishedAt);

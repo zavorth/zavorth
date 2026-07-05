@@ -5,7 +5,7 @@ export class DiffManager {
   public static generateDiff(oldContent: string, newContent: string, fileName: string): string {
     const patches = diff.createPatch(fileName, oldContent, newContent, 'old', 'new');
     
-    // Simplificar a saída para caber melhor no Telegram
+    // Simplify output so it fits better in Telegram.
     const lines = patches.split(/\r?\n/).filter(line => 
       !line.startsWith('---') && 
       !line.startsWith('+++') && 
@@ -14,7 +14,7 @@ export class DiffManager {
       !line.startsWith('===')
     );
     
-    // Retorna apenas até as primeiras ~15 linhas para não floodar
+    // Return only the first ~15 lines to avoid flooding.
     const maxLines = 15;
     const truncated = lines.slice(0, maxLines);
     if (lines.length > maxLines) {

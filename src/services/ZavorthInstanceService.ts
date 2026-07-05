@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 
 export type InstanceInfo = {
   name: string;
@@ -70,8 +71,8 @@ export function listInstances(homeRoot: string): InstanceInfo[] {
           results.push(buildInstanceInfo(path.join(instancesDir, entry.name), entry.name));
         }
       }
-    } catch {
-      // ignore read errors
+    } catch (error) {
+      logger.warn('[ZavorthInstance] Failed to read instances directory', error);
     }
   }
 
@@ -153,17 +154,13 @@ function buildInstanceInfo(instanceDir: string, name: string): InstanceInfo {
       try {
         const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
         createdAt = meta.createdAt || null;
-      } catch {
-        // ignore
-      }
+      } catch (error) { // ignore logger.warn('[Zavorth Instance] JSON parse failed', error); }
     }
     if (!createdAt) {
       try {
         const stat = fs.statSync(instanceDir);
         createdAt = stat.birthtime?.toISOString() || stat.mtime.toISOString();
-      } catch {
-        // ignore
-      }
+      } catch (error) { // ignore logger.warn('[Zavorth Instance] JSON parse failed', error); }
     }
   }
 

@@ -2,8 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { buildNodeHostIdentitySnapshot } from './NodeHostCapabilityHelpers.js';
 import { NODE_HOST_SUPPORTED_CAPABILITY_IDS } from './NodeHostCapabilityCatalog.js';
+import { logger } from '../../../../logger';
 import type {
-  NodeHostCapabilityRuntime,
+NodeHostCapabilityRuntime,
   NodeHostMaintenanceDoctorReport,
   NodeHostMaintenanceRepairReport,
 } from './NodeHostCapabilityTypes.js';
@@ -128,12 +129,13 @@ export class NodeHostCapabilityMaintenanceService {
         pendingResults: validEntries,
         invalidCount: rawEntries.length - validEntries.length,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Node Host Capability Maintenance] JSON parse failed', error);
+    return {
         pendingResults: [],
         invalidCount: 1,
       };
-    }
+  }
   }
 
   private isValidPendingResult(entry: unknown): entry is Record<string, unknown> {

@@ -35,14 +35,14 @@ export class SwarmExecutor implements IExecutor {
       {
         id: 'swarm-researcher',
         label: 'Researcher',
-        systemPrompt: 'Você é um Agente de Pesquisa Especialista. Seu foco é buscar, listar, extrair informações de APIs, ler arquivos do sistema ou pesquisar na internet para montar uma base sólida do objetivo.',
+        systemPrompt: 'You are a specialist Research Agent. Your focus is searching, listing, extracting API information, reading system files, or searching the internet to build a solid foundation for the objective.',
         command: baseCommand,
         args: [zavorthCliPath, '--platform', 'web', '--session', 'swarm-researcher', objectiveText],
       },
       {
         id: 'swarm-actor',
         label: 'Actor (Coder & Operator)',
-        systemPrompt: 'Você é um Agente de Ação Especialista. Seu foco é escrever código, rodar scripts no shell local e alterar o sistema. Trabalhe a partir do objetivo e use as ferramentas ativamente.',
+        systemPrompt: 'You are a specialist Action Agent. Your focus is writing code, running local shell scripts, and changing the system. Work from the objective and use tools actively.',
         command: baseCommand,
         args: [zavorthCliPath, '--platform', 'web', '--session', 'swarm-actor', objectiveText],
       }
@@ -63,7 +63,7 @@ export class SwarmExecutor implements IExecutor {
           '-w',
           '/workspace',
           'node:22',
-          role.command,
+          role.command || '',
           ...(role.args || []),
         ],
         cwd,
@@ -77,7 +77,7 @@ export class SwarmExecutor implements IExecutor {
           '--cd',
           cwd,
           '--',
-          role.command,
+          role.command || '',
           ...(role.args || []),
         ],
         cwd,
@@ -85,7 +85,7 @@ export class SwarmExecutor implements IExecutor {
     }
 
     const orchestrator = new SwarmOrchestrator(
-      `Objetivo: "${request.objective}"\nInstruções Específicas:\n${request.instructions.join('\n')}`,
+      `Objective: "${request.objective}"\nSpecific instructions:\n${request.instructions.join('\n')}`,
       roles,
       { llmRuntime: this.llmRuntime, roleTimeoutMs: 120000 }
     );
@@ -97,9 +97,9 @@ export class SwarmExecutor implements IExecutor {
     try {
       const snapshot = await orchestrator.execute();
       success = snapshot.status === 'completed';
-      outputSummary = snapshot.synthesizedOutput || 'Síntese não gerada devido a falha interna.';
+      outputSummary = snapshot.synthesizedOutput || 'Synthesis not generated due to internal failure.';
     } catch (err: any) {
-      outputSummary = `Falha crítica durante a execução do Swarm Orchestrator: ${err.message || err}`;
+      outputSummary = `Critical failure during Swarm Orchestrator execution: ${err.message || err}`;
       errorCode = 'SWARM_ORCHESTRATOR_FAULT';
     }
 
@@ -121,7 +121,7 @@ export class SwarmExecutor implements IExecutor {
       artifacts: [],
       rollback_available: false,
       error_code: success ? null : (errorCode || 'SWARM_FAILED'),
-      error_message: success ? null : 'A execução do swarm falhou ou pelo menos um agente reportou erro severo.',
+      error_message: success ? null : 'Swarm execution failed or at least one agent reported a severe error.',
       metadata: {
         roles_count: roles.length,
         orchestrationType: 'v2-isolated-subprocess',

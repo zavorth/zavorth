@@ -26,7 +26,7 @@ export function buildProviderArenaCliSnapshot(input: {
     userId: input.userId,
     channel: 'cli',
     sessionId: input.sessionId,
-    text: input.text || 'comparar provider para tarefa de codigo com fallback',
+    text: input.text || 'compare provider for code task with fallback',
     requestedTools: ['workspace.read'],
     modelProfile: {
       providerLabel: 'aigateway',
@@ -146,15 +146,15 @@ export function formatProviderArenaSnapshot(
 ): string {
   const lines = [
     'Provider Arena - Provider Arena',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- decisao: ${snapshot.summary.decisionSource}`,
+    `- decision: ${snapshot.summary.decisionSource}`,
     `- recomendado: ${snapshot.summary.recommendedProviderLabel}/${snapshot.summary.recommendedModelLabel}`,
     `- candidatos: ${snapshot.summary.candidateCount}`,
-    `- prontos: ${snapshot.summary.readyCandidateCount}`,
+    `- ready: ${snapshot.summary.readyCandidateCount}`,
     `- fallback usado: ${String(snapshot.summary.fallbackUsed)}`,
     `- receipts observatory: ${snapshot.summary.observatoryReceiptCount}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
   ];
 
   lines.push('', 'Candidatos');
@@ -172,9 +172,9 @@ export function formatProviderArenaSnapshot(
   }
 
   lines.push('', 'Politica');
-  lines.push('- arena read-only; nenhuma chamada de provider foi executada');
-  lines.push('- nao sobrescreve Model Picker automaticamente');
-  lines.push('- fallback e fonte da decisao ficam visiveis');
+  lines.push('- read-only arena; no provider call was executed');
+  lines.push('- does not automatically overwrite Model Picker');
+  lines.push('- fallback and decision source stay visible');
 
   lines.push('', 'Superficies');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);

@@ -4,6 +4,7 @@ import { config } from '../config/index.js';
 import type { IntegrationHubMcpSnapshot, IntegrationHubMcpServerEntry } from '../contracts/IntegrationHubContract.js';
 import { McpManifestLoader, type ResolvedMcpServerManifestEntry } from '../mcp/McpManifest.js';
 import type { McpRuntimeSnapshot } from '../mcp/McpRuntimeService.js';
+import { logger } from '../logger.js';
 
 type McpCapabilityControlPlaneRuntime = {
   now?: () => Date;
@@ -158,9 +159,7 @@ export class McpCapabilityControlPlaneService {
   private readManifestEntries(): ResolvedMcpServerManifestEntry[] {
     try {
       return this.manifestLoader.load();
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Mcp Capability Control Plane] load operation failed', error); return []; }
   }
 
   private readRuntimeSnapshot(): McpRuntimeSnapshot | null {
@@ -170,8 +169,6 @@ export class McpCapabilityControlPlaneService {
 
     try {
       return JSON.parse(fs.readFileSync(this.runtimeStateFile, 'utf8')) as McpRuntimeSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Mcp Capability Control Plane] JSON parse failed', error); return null; }
   }
 }

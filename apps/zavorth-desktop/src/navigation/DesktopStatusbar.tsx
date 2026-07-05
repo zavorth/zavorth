@@ -20,12 +20,12 @@ export function DesktopStatusbar(props: {
   const modelLabel = statusRecord.model ? String(statusRecord.model) : props.modelLabel;
   const versionLabel = statusRecord.version ? String(statusRecord.version) : 'Desktop local';
   const effortLabel = props.effort === 'ultra'
-    ? 'Altíssimo'
+    ? 'Very High'
     : props.effort === 'high'
       ? 'Alta'
       : props.effort === 'low'
         ? 'Baixa'
-        : 'Média';
+        : 'Medium';
   const scopeLabel = props.workspaceScope.shortLabel || props.workspaceScope.label;
   const operate = (domain: string, operation: string, metadata?: Record<string, unknown>) => {
     void props.onRuntimeStateAction({ domain, operation, metadata });

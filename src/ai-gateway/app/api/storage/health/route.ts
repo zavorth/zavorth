@@ -3,8 +3,9 @@ import path from "path";
 import fs from "fs";
 import { resolveDataDir } from "@/lib/dataPaths";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 import {
-  getAppLogRetentionDays,
+getAppLogRetentionDays,
   getCallLogRetentionDays,
   getCallLogsTableMaxRows,
   getProxyLogsTableMaxRows,
@@ -30,9 +31,7 @@ export async function GET(request: Request) {
         const stat = fs.statSync(dbFilePath);
         sizeBytes = stat.size;
       }
-    } catch {
-      /* ignore */
-    }
+    } catch (error) { /* ignore */ logger.warn('[route] filesystem operation failed', error); }
 
     // Get last backup info
     let lastBackupAt = null;
@@ -50,9 +49,7 @@ export async function GET(request: Request) {
           lastBackupAt = latestStat.mtime.toISOString();
         }
       }
-    } catch {
-      /* ignore */
-    }
+    } catch (error) { /* ignore */ logger.warn('[route] filesystem operation failed', error); }
 
     // Get the display path (abbreviated with ~)
     const homeDir = process.env.HOME || process.env.USERPROFILE || "";

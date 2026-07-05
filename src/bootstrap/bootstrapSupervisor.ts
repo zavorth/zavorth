@@ -39,7 +39,7 @@ export function createBootstrapSupervisor(): BootstrapSupervisor {
     try {
       process.send(message);
     } catch {
-      // O bootstrap principal nao deve falhar por um erro de IPC do supervisor.
+      // The main bootstrap should not fail because of a supervisor IPC error.
     }
   };
 

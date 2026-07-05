@@ -17,8 +17,9 @@
 
 import { existsSync, mkdirSync, statSync, renameSync, readdirSync, unlinkSync } from "fs";
 import { dirname, join, basename, extname } from "path";
+import { logger } from '@/shared/utils/logger';
 import {
-  getAppLogFilePath,
+getAppLogFilePath,
   getAppLogMaxFiles,
   getAppLogMaxFileSize,
   getAppLogRetentionDays,
@@ -67,9 +68,7 @@ export function rotateIfNeeded(logFilePath: string, maxFileSize: number): void {
 
     const rotatedPath = join(dir, `${base}.${ts}${ext}`);
     renameSync(logFilePath, rotatedPath);
-  } catch {
-    // If rotation fails, continue writing to the same file
-  }
+  } catch (error) { // If rotation fails, continue writing to the same file logger.warn('[log Rotation] lifecycle operation failed', error); }
 }
 
 /**
@@ -94,14 +93,10 @@ export function cleanupOldLogs(logFilePath: string, retentionDays: number): void
           if (stats.mtimeMs < cutoff) {
             unlinkSync(filePath);
           }
-        } catch {
-          // Skip files we can't stat
-        }
+        } catch (error) { // Skip files we can't stat logger.warn('[log Rotation] file cleanup failed', error); }
       }
     }
-  } catch {
-    // Cleanup is best-effort
-  }
+  } catch (error) { // Cleanup is best-effort logger.warn('[log Rotation] file cleanup failed', error); }
 }
 
 /**
@@ -123,9 +118,7 @@ export function cleanupOverflowLogs(logFilePath: string, maxFiles: number): void
         const filePath = join(dir, file);
         try {
           return { filePath, mtimeMs: statSync(filePath).mtimeMs };
-        } catch {
-          return null;
-        }
+        } catch (error) { logger.warn('[log Rotation] filesystem operation failed', error); return null; }
       })
       .filter((entry): entry is { filePath: string; mtimeMs: number } => !!entry)
       .sort((a, b) => b.mtimeMs - a.mtimeMs);
@@ -133,13 +126,9 @@ export function cleanupOverflowLogs(logFilePath: string, maxFiles: number): void
     for (const entry of rotatedFiles.slice(maxFiles)) {
       try {
         unlinkSync(entry.filePath);
-      } catch {
-        // Best effort only.
-      }
+      } catch (error) { // Best effort only. logger.warn('[log Rotation] file cleanup failed', error); }
     }
-  } catch {
-    // Cleanup is best-effort
-  }
+  } catch (error) { // Cleanup is best-effort logger.warn('[log Rotation] file cleanup failed', error); }
 }
 
 /**

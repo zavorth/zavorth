@@ -277,10 +277,11 @@ export class PluginMarketplaceService {
       await this.persistData();
 
       return { success: true, pluginId: id, message: 'Plugin installed successfully', path: installPath };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown installation error';
+    } catch (error) {
+    logger.warn('[Plugin Marketplace] load operation failed', error);
+    const message = err instanceof Error ? err.message : 'Unknown installation error';
       return { success: false, pluginId: id, message, path: installPath };
-    }
+  }
   }
 
   public async uninstallPlugin(id: string): Promise<InstallResult> {
@@ -306,10 +307,11 @@ export class PluginMarketplaceService {
       await this.persistData();
 
       return { success: true, pluginId: id, message: 'Plugin uninstalled successfully', path: installPath };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown uninstallation error';
+    } catch (error) {
+    logger.warn('[Plugin Marketplace] filesystem operation failed', error);
+    const message = err instanceof Error ? err.message : 'Unknown uninstallation error';
       return { success: false, pluginId: id, message, path: installPath };
-    }
+  }
   }
 
   public async ratePlugin(id: string, rating: number, comment?: string): Promise<PluginReview | null> {

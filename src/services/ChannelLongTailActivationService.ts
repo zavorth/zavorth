@@ -18,6 +18,7 @@ import type {
 import { ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION } from '../contracts/ChannelLongTailActivationContract.js';
 import type { LiveReadinessEntry } from '../contracts/LiveReadinessContract.js';
 import { LiveReadinessService } from './LiveReadinessService.js';
+import { logger } from '../logger.js';
 
 type ChannelLongTailActivationRuntime = {
   now?: () => Date;
@@ -251,7 +252,8 @@ export class ChannelLongTailActivationService {
         secretValuesSerialized: false,
       };
     } catch (error) {
-      return {
+    logger.warn('[Channel Long Tail Activation] filesystem check failed', error);
+    return {
         id,
         channelId: descriptor.channelId,
         family: descriptor.family,
@@ -263,7 +265,7 @@ export class ChannelLongTailActivationService {
         liveIoPerformed: false,
         secretValuesSerialized: false,
       };
-    }
+  }
   }
 
   private buildGates(

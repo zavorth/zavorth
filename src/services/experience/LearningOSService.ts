@@ -4,8 +4,9 @@ import {
   type ExperienceLearningCandidateState,
   type ExperienceLearningDecision,
 } from './ExperienceContracts.js';
+import { logger } from '../../logger.js';
 import type {
-  LearningPlaneActionExecution,
+LearningPlaneActionExecution,
   LearningPlaneSnapshot,
   ZavorthLearningPlaneService,
 } from '../ZavorthLearningPlaneService.js';
@@ -190,8 +191,9 @@ export class LearningOSService {
     }
     try {
       return this.learningPlane.buildSnapshot({ workspace: input.workspace || null });
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Learning O S] creation failed', error);
+    return {
         generatedAt: this.now().toISOString(),
         summary: {
           total: 0,
@@ -209,7 +211,7 @@ export class LearningOSService {
           operatorSummary: `Falha ao ler learning plane: ${error?.message || 'erro desconhecido'}.`,
         },
       };
-    }
+  }
   }
 
   private resolveState(reviewState: string, lifecycle: string): ExperienceLearningCandidateState {

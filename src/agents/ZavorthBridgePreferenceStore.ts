@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 type ZavorthBridgePreferences = {
   preferredModel: string | null;
@@ -34,13 +35,14 @@ export class ZavorthBridgePreferenceStore {
           ? parsed.updatedAt
           : null,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Bridge Preference Store] parsing failed', error);
+    return {
         preferredModel: config.zavorthBridgePreferredModelDefault || DEFAULT_PREFERENCES.preferredModel,
         echoMode: DEFAULT_PREFERENCES.echoMode,
         updatedAt: DEFAULT_PREFERENCES.updatedAt,
       };
-    }
+  }
   }
 
   public async getPreferredModel(): Promise<string | null> {

@@ -1,17 +1,17 @@
 /**
- * UnifiedSearchTool — Tool Zavorth-nativa para busca web unificada via LLM.
+ * UnifiedSearchTool - Zavorth-native unified web search tool for LLM use.
  *
- * Esta tool é a interface voltada ao agente/LLM para a capability `search.query`.
- * Ela substitui a necessidade de invocar diretamente WebSearchTool ou DeepSearchService,
- * centralizando toda busca sob um único ponto de entrada com modos configuráveis.
+ * This tool is the agent/LLM-facing interface for the `search.query` capability.
+ * It replaces direct WebSearchTool or DeepSearchService calls with one configurable
+ * search entry point.
  *
- * Responsabilidades:
- * - Definir o schema de parâmetros para o LLM.
- * - Converter os argumentos do LLM em um SearchQueryRequest.
- * - Invocar o SearchQueryService.
- * - Retornar resultados formatados com quality gate e citações.
+ * Responsibilities:
+ * - Define the parameter schema for the LLM.
+ * - Convert LLM arguments into a SearchQueryRequest.
+ * - Invoke SearchQueryService.
+ * - Return formatted results with quality gate and citations.
  *
- * Referências arquiteturais:
+ * Architecture references:
  * - docs/native-absorption-execution-plan.md
  * - src/contracts/SearchQueryContract.ts
  * - src/services/SearchQueryService.ts
@@ -27,7 +27,6 @@ import { SearchQueryService } from '../services/SearchQueryService.js';
 import type {
   SearchQueryRequest,
   SearchQueryResult,
-  SearchResultItem,
   SearchQueryMode,
   SearchEvidenceDomain,
 } from '../contracts/SearchQueryContract.js';
@@ -40,30 +39,30 @@ export class UnifiedSearchTool extends BaseTool {
   public readonly name = 'web_search';
 
   public readonly description =
-    'Pesquisa informações atualizadas na internet. Suporta busca rápida, busca profunda com ranking de evidência, e busca grounded com síntese e citações.';
+    'Searches current information on the internet. Supports quick search, deep search with evidence ranking, and grounded search with synthesis and citations.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       query: {
         type: 'string',
-        description: 'A consulta de busca (ex: "últimas notícias sobre inteligência artificial", "cotação do dólar hoje").',
+        description: 'Search query, for example "latest artificial intelligence news" or "USD exchange rate today".',
       },
       mode: {
         type: 'string',
-        description: "Modo de busca: 'quick' (rápida, sem síntese), 'deep' (com ranking de evidência e extração), 'grounded' (síntese via LLM com citações). Default: 'deep'.",
+        description: "Search mode: 'quick' (fast, no synthesis), 'deep' (with evidence ranking and extraction), 'grounded' (LLM synthesis with citations). Default: 'deep'.",
       },
       limit: {
         type: 'number',
-        description: 'Número máximo de resultados (1-10). Default: 5.',
+        description: 'Maximum number of results (1-10). Default: 5.',
       },
       evidence_domain: {
         type: 'string',
-        description: "Perfil de evidência: 'auto', 'general', 'medical', 'legal', 'scientific', 'finance', 'consumer', 'technical', 'public_policy', 'ai_news'. Default: 'auto'.",
+        description: "Evidence profile: 'auto', 'general', 'medical', 'legal', 'scientific', 'finance', 'consumer', 'technical', 'public_policy', 'ai_news'. Default: 'auto'.",
       },
       extract_pages: {
         type: 'boolean',
-        description: "Se true, extrai trechos das melhores páginas para reduzir alucinação. Default: true quando mode='deep'.",
+        description: "When true, extracts excerpts from top pages to reduce hallucination. Default: true when mode='deep'.",
       },
     },
     required: ['query'],
@@ -77,7 +76,7 @@ export class UnifiedSearchTool extends BaseTool {
   }
 
   // -------------------------------------------------------------------------
-  // Execução
+  // Execution
   // -------------------------------------------------------------------------
 
   public async execute(args: Record<string, unknown>): Promise<string> {
@@ -92,7 +91,7 @@ export class UnifiedSearchTool extends BaseTool {
   }
 
   // -------------------------------------------------------------------------
-  // Conversão de argumentos
+  // Argument conversion
   // -------------------------------------------------------------------------
 
   private buildRequest(args: Record<string, unknown>): SearchQueryRequest {
@@ -137,37 +136,35 @@ export class UnifiedSearchTool extends BaseTool {
   }
 
   // -------------------------------------------------------------------------
-  // Formatação de resposta
+  // Response formatting
   // -------------------------------------------------------------------------
 
   private formatSuccessResponse(result: SearchQueryResult): string {
     const lines: string[] = [];
 
-    // Quality gate header.
     lines.push(`QUALITY_GATE: ${result.qualityGate.status}`);
     lines.push(`EVIDENCE_PROFILE: ${result.evidenceDomain}`);
-    lines.push(`Consulta: "${result.items[0]?.providerEvidence.effectiveQuery || ''}"`);
-    lines.push(`Modo: ${result.mode}`);
-    lines.push(`Fontes fortes: ${result.qualityGate.highSignalCount}/${result.qualityGate.highSignalRequired}.`);
-    lines.push(`Diversidade de hosts: ${result.qualityGate.hostDiversity}/${result.items.length}.`);
+    lines.push(`Query: "${result.items[0]?.providerEvidence.effectiveQuery || ''}"`);
+    lines.push(`Mode: ${result.mode}`);
+    lines.push(`Strong sources: ${result.qualityGate.highSignalCount}/${result.qualityGate.highSignalRequired}.`);
+    lines.push(`Host diversity: ${result.qualityGate.hostDiversity}/${result.items.length}.`);
 
     if (result.qualityGate.guidance) {
       lines.push(result.qualityGate.guidance);
     }
 
     if (result.qualityGate.status === 'weak_domain_sources') {
-      lines.push('Aviso: as fontes retornadas não atingiram o mínimo de autoridade. Não apresente como resposta definitiva.');
+      lines.push('Warning: returned sources did not meet the minimum authority threshold. Do not present this as a definitive answer.');
     }
 
-    // Grounded synthesis (if available).
     if (result.groundedSynthesis?.synthesizedText) {
       lines.push('');
-      lines.push('--- Síntese Grounded ---');
+      lines.push('--- Grounded Synthesis ---');
       lines.push(result.groundedSynthesis.synthesizedText);
 
       if (result.groundedSynthesis.citations.length > 0) {
         lines.push('');
-        lines.push('📎 Fontes:');
+        lines.push('Sources:');
         result.groundedSynthesis.citations.forEach((citation, i) => {
           lines.push(`${i + 1}. ${citation.title}: ${citation.url}`);
         });
@@ -176,30 +173,29 @@ export class UnifiedSearchTool extends BaseTool {
       return lines.join('\n').trim();
     }
 
-    // Individual results.
     lines.push('');
     result.items.forEach((item, index) => {
       lines.push(`${index + 1}. **${item.title}**`);
       lines.push(`   URL: ${item.url}`);
       lines.push(`   Host: ${item.host}`);
-      lines.push(`   Força da fonte: ${item.highSignal ? 'alta' : item.evidenceScore >= 20 ? 'media' : 'baixa'} (${item.evidenceScore})`);
+      lines.push(`   Source strength: ${item.highSignal ? 'high' : item.evidenceScore >= 20 ? 'medium' : 'low'} (${item.evidenceScore})`);
 
       if (item.scoreReasons.length > 0) {
-        lines.push(`   Motivos do ranking: ${item.scoreReasons.join(', ')}`);
+        lines.push(`   Ranking reasons: ${item.scoreReasons.join(', ')}`);
       }
 
-      lines.push(`   Trecho: ${item.snippet || 'Trecho indisponível.'}`);
+      lines.push(`   Snippet: ${item.snippet || 'Snippet unavailable.'}`);
 
       if (item.extractedContent?.excerpt) {
         if (item.extractedContent.title && item.extractedContent.title !== item.title) {
-          lines.push(`   Título extraído: ${item.extractedContent.title}`);
+          lines.push(`   Extracted title: ${item.extractedContent.title}`);
         }
         if (item.extractedContent.publishedAt) {
-          lines.push(`   Data extraída: ${item.extractedContent.publishedAt}`);
+          lines.push(`   Extracted date: ${item.extractedContent.publishedAt}`);
         }
-        lines.push(`   Extrato da página: ${item.extractedContent.excerpt}`);
+        lines.push(`   Page excerpt: ${item.extractedContent.excerpt}`);
       } else if (item.extractedContent?.error) {
-        lines.push(`   Extração: indisponível (${item.extractedContent.error})`);
+        lines.push(`   Extraction: unavailable (${item.extractedContent.error})`);
       }
 
       lines.push('');
@@ -211,15 +207,15 @@ export class UnifiedSearchTool extends BaseTool {
   private formatErrorResponse(result: SearchQueryResult): string {
     const lines = [
       `QUALITY_GATE: ${result.qualityGate.status}`,
-      `Consulta: "${result.error?.message || ''}"`,
+      `Query: "${result.error?.message || ''}"`,
     ];
 
     if (result.error?.code === 'ALL_PROVIDERS_FAILED') {
-      lines.push('A busca principal falhou em todos os provedores.');
-      lines.push('Não trate isto como informação atual verificada.');
+      lines.push('The main search failed across all providers.');
+      lines.push('Do not treat this as verified current information.');
     }
 
-    lines.push(result.error?.message || 'Erro desconhecido na busca.');
+    lines.push(result.error?.message || 'Unknown search error.');
 
     return lines.join('\n');
   }

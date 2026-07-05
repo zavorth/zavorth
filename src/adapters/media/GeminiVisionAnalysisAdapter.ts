@@ -1,13 +1,13 @@
 /**
- * GeminiVisionAnalysisAdapter — Adapter Zavorth-nativo para análise de mídia via Gemini Vision.
+ * Zavorth-native adapter for media analysis through Gemini Vision.
  *
  * Este adapter usa modelos Gemini com capacidade multimodal para analisar
- * imagens, áudio e vídeo, retornando descrições, extrações e classificações.
+ * images, audio, and video, returning descriptions, extractions, and classifications.
  *
- * O adapter recebe APENAS dados binários (buffer) + metadados.
+ * The adapter receives only binary data (buffer) plus metadata.
  * Nunca recebe URLs externas como entrada.
  *
- * Referências arquiteturais:
+ * Architectural references:
  * - docs/native-absorption-execution-plan.md
  * - src/contracts/MediaUnderstandingContract.ts
  *
@@ -41,7 +41,7 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
       : [config.geminiApiKey].filter(Boolean);
 
     if (keys.length === 0) {
-      throw new VisionAdapterError(this.adapterId, 'Nenhuma chave Gemini configurada para análise de mídia.');
+      throw new VisionAdapterError(this.adapterId, 'No Gemini key configured for media analysis.');
     }
 
     for (const key of keys) {
@@ -52,11 +52,11 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
       }
     }
 
-    throw new VisionAdapterError(this.adapterId, 'Todas as chaves Gemini falharam na análise de mídia.');
+    throw new VisionAdapterError(this.adapterId, 'All Gemini keys failed during media analysis.');
   }
 
   // -------------------------------------------------------------------------
-  // Análise com uma chave específica
+  // Analysis with a specific key.
   // -------------------------------------------------------------------------
 
   private async analyzeWithKey(apiKey: string, input: AdapterAnalysisInput): Promise<AdapterAnalysisOutput> {
@@ -105,25 +105,25 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
       hasVisibleText,
       hasFaces,
       sensitiveContent,
-      sensitiveContentReason: sensitiveContent ? 'Conteúdo potencialmente sensível detectado pelo modelo.' : null,
+      sensitiveContentReason: sensitiveContent ? 'Potentially sensitive content detected by the model.' : null,
       tokensUsed: usage?.totalTokenCount || null,
       providerEvidence: evidence,
     };
   }
 
   // -------------------------------------------------------------------------
-  // Construção de prompt
+  // Prompt construction.
   // -------------------------------------------------------------------------
 
   private buildPrompt(input: AdapterAnalysisInput): string {
     const base = this.getBasePrompt(input.analysisType);
-    const userPrompt = input.prompt ? `\n\nInstrucao adicional do usuario: ${input.prompt}` : '';
+    const userPrompt = input.prompt ? `\n\nAdditional user instruction: ${input.prompt}` : '';
     const responseLanguage = typeof input.providerHints?.responseLanguage === 'string'
       ? input.providerHints.responseLanguage.trim()
       : '';
     const languageInstruction = responseLanguage
       ? `Responda em ${responseLanguage}.`
-      : 'Responda no mesmo idioma da instrucao do usuario.';
+      : 'Respond in the same language as the user instruction.';
 
     return `${base}${userPrompt}\n\n${languageInstruction} Seja detalhado mas conciso.`;
   }
@@ -132,36 +132,36 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
     switch (analysisType) {
       case 'extract':
         return [
-          'Analise esta mídia e extraia todo texto visível.',
-          'Se for uma imagem, faça OCR completo.',
-          'Se for áudio, transcreva o conteúdo falado.',
-          'Se for vídeo, transcreva falas e texto visível na tela.',
-          'Retorne o texto extraído de forma organizada.',
+          'Analyze this media and extract all visible text.',
+          'If it is an image, perform complete OCR.',
+          'If it is audio, transcribe spoken content.',
+          'If it is video, transcribe speech and visible on-screen text.',
+          'Return the extracted text in an organized way.',
         ].join('\n');
 
       case 'classify':
         return [
-          'Analise esta mídia e classifique-a em categorias relevantes.',
-          'Para cada categoria, indique o nível de confiança (alto/médio/baixo).',
-          'Considere: tipo de conteúdo, tema, estilo, público-alvo, e contexto.',
-          'Liste as classificações em formato estruturado.',
+          'Analyze this media and classify it into relevant categories.',
+          'For each category, indicate confidence level (high/medium/low).',
+          'Consider content type, theme, style, target audience, and context.',
+          'List classifications in a structured format.',
         ].join('\n');
 
       case 'qa':
         return [
-          'Analise esta mídia para responder à pergunta do usuário.',
-          'Baseie sua resposta exclusivamente no conteúdo visível/audível da mídia.',
-          'Se a resposta não puder ser determinada pelo conteúdo, diga isso claramente.',
+          'Analyze this media to answer the user question.',
+          'Base your answer exclusively on visible/audible media content.',
+          'If the answer cannot be determined from the content, say that clearly.',
         ].join('\n');
 
       case 'describe':
       default:
         return [
-          'Descreva detalhadamente o conteúdo desta mídia.',
-          'Inclua: elementos visuais principais, cores, composição, texto visível, pessoas, objetos.',
-          'Se for áudio, descreva sons, vozes, música, ambiente sonoro.',
-          'Se for vídeo, descreva cenas, ações, transições.',
-          'Mencione se há conteúdo sensível ou que merece atenção.',
+          'Describe this media content in detail.',
+          'Include main visual elements, colors, composition, visible text, people, and objects.',
+          'If it is audio, describe sounds, voices, music, and sound environment.',
+          'If it is video, describe scenes, actions, and transitions.',
+          'Mention whether there is sensitive content or content that deserves attention.',
         ].join('\n');
     }
   }

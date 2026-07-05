@@ -76,6 +76,7 @@ import {
 } from './RemoteMeshNotebookScopedMcpServerGuardHelpers.js';
 import { buildNotebookScopedMcpSelfTestReadiness } from './RemoteMeshNotebookScopedMcpSelfTestReadiness.js';
 import { safeFetch } from '../security/SafeFetchService.js';
+import { logger } from '../logger.js';
 
 export type RemoteMeshNotebookDockerObservabilityProvider = {
   listContainers: () => Promise<{
@@ -572,7 +573,8 @@ export class RemoteMeshNotebookScopedMcpServerService {
         body: toolResult(id, payload),
       };
     } catch (error) {
-      return {
+    logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
+    return {
         httpStatus: 200,
         body: toolErrorResult(id, {
           toolName: 'notebook.docker.list_containers',
@@ -580,7 +582,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
           error: error instanceof Error ? error.message : 'Docker container listing failed.',
         }),
       };
-    }
+  }
   }
 
   private async handleDockerGetLogs(
@@ -630,7 +632,8 @@ export class RemoteMeshNotebookScopedMcpServerService {
         body: toolResult(id, payload),
       };
     } catch (error) {
-      return {
+    logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
+    return {
         httpStatus: 200,
         body: toolErrorResult(id, {
           toolName: 'notebook.docker.get_logs',
@@ -640,7 +643,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
           error: error instanceof Error ? error.message : 'Docker logs read failed.',
         }),
       };
-    }
+  }
   }
 
   private async handleDockerPreviewControl(

@@ -87,7 +87,6 @@ export class ZavorthOperationalRolloutEvalService {
       safety: {
         noLiveActionExecuted: true,
         noZavorthControlVisualMutation: true,
-        noZavorthControlVisualMutation: true,
         projectionsOnly: true,
         noExternalProviderRequired: true,
         ownerApprovalRequiredForRolloutChange: true,
@@ -556,8 +555,6 @@ function scenarioEvalToSample(
       zavorthControlVisualMutation: false,
     },
     safety: {
-      noZavorthControlVisualMutation: true,
-      zavorthControlIsViewModelOnly: true,
       noZavorthControlVisualMutation: true,
       zavorthControlIsViewModelOnly: true,
       noLiveActionExecuted: true,

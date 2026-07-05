@@ -4,8 +4,9 @@ import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 import { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';
 import { ZavorthRemoteTransportService } from './ZavorthRemoteTransportService.js';
 import { ZavorthDistributedRuntimeSnapshotBuilder } from './distributed-runtime/ZavorthDistributedRuntimeSnapshotBuilder.js';
+import { logger } from '../logger.js';
 import type {
-  AsyncSnapshotLike,
+AsyncSnapshotLike,
   ZavorthDistributedRuntimeSnapshot,
   DistributedRuntimeDeps,
   RuntimeAccessManifestLike,
@@ -27,9 +28,9 @@ export type {
 export class ZavorthDistributedRuntimeControlPlaneService {
   private readonly now: () => Date;
   private readonly workspaceRoot: string;
-  private readonly channels: AsyncSnapshotLike;
-  private readonly nodes: AsyncSnapshotLike;
-  private readonly transports: AsyncSnapshotLike;
+  private readonly channels: Pick<ZavorthChannelMeshService, 'buildSnapshot'>;
+  private readonly nodes: Pick<ZavorthNodeMeshService, 'buildSnapshot'>;
+  private readonly transports: Pick<ZavorthRemoteTransportService, 'buildSnapshot'>;
   private readonly accessManifest: RuntimeAccessManifestLike;
   private readonly snapshotBuilder: ZavorthDistributedRuntimeSnapshotBuilder;
 
@@ -41,7 +42,7 @@ export class ZavorthDistributedRuntimeControlPlaneService {
     this.transports =
       runtime.remoteTransportService
       || new ZavorthRemoteTransportService({
-        nodeMeshService: this.nodes as any,
+        nodeMeshService: this.nodes,
       });
     this.accessManifest =
       runtime.runtimeAccessManifestService
@@ -62,13 +63,13 @@ export class ZavorthDistributedRuntimeControlPlaneService {
     const [channels, nodes, transports, manifest] = await Promise.all([
       this.safeAsync(() => this.channels.buildSnapshot({
         selectedId: focusId,
-      }), { entries: [], summary: {} }),
+      }), { entries: [], summary: {} }) as Promise<any>,
       this.safeAsync(() => this.nodes.buildSnapshot({
         selectedNodeId: focusId,
-      }), { entries: [], summary: {}, capabilityCatalog: [] }),
+      }), { entries: [], summary: {}, capabilityCatalog: [] }) as Promise<any>,
       this.safeAsync(() => this.transports.buildSnapshot({
         selectedId: focusId,
-      }), { entries: [], summary: {}, suggestedActions: [] }),
+      }), { entries: [], summary: {}, suggestedActions: [] }) as Promise<any>,
       this.safeAsync(() => this.accessManifest.buildManifest(), this.snapshotBuilder.buildFallbackManifest()),
     ]);
 
@@ -100,12 +101,10 @@ export class ZavorthDistributedRuntimeControlPlaneService {
     return normalized || null;
   }
 
-  private async safeAsync<T>(factory: () => Promise<T> | T, fallback: T): Promise<T> {
+  private async safeAsync<T>(factory: () => Promise<T> | T, fallback: any): Promise<T> {
     try {
-      return await factory();
-    } catch {
-      return fallback;
-    }
+      return await factory() as T;
+    } catch (error) { logger.warn('[Zavorth Distributed Runtime Control Plane] string operation failed', error); return fallback as T; }
   }
 }
 

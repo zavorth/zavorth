@@ -131,9 +131,9 @@ function updateMessage(input: {
   }
   switch (input.state) {
     case 'unconfigured':
-      return 'Canal de auto-update nao configurado nesta build; o desktop mostra release notes e orienta instalacao manual.';
+      return 'Auto-update channel is not configured in this build; the desktop shows release notes and guides manual installation.';
     case 'available':
-      return `Versao ${input.latestVersion} disponivel.`;
+      return `Version ${input.latestVersion} available.`;
     case 'deferred':
       return `Atualizacao adiada ate ${input.deferredUntil || 'mais tarde'}.`;
     case 'ready-to-install':
@@ -141,7 +141,7 @@ function updateMessage(input: {
     case 'installing':
       return 'Instalacao da atualizacao em andamento.';
     case 'rollback-available':
-      return `Rollback basico disponivel para ${input.rollbackVersion}.`;
+      return `Basic rollback available for ${input.rollbackVersion}.`;
     case 'error':
       return 'Falha ao verificar atualizacoes.';
     default:

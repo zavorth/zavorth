@@ -9,6 +9,7 @@ import {
   type ZavorthProductHardeningStatus,
 } from '../contracts/ZavorthProductHardeningContract.js';
 import { LegacySurfaceContainmentService } from './LegacySurfaceContainmentService.js';
+import { logger } from '../logger.js';
 
 type ProductHardeningRuntime = {
   projectRoot?: string;
@@ -401,9 +402,7 @@ export class ZavorthProductHardeningService {
     try {
       const packageJson = JSON.parse(this.read('package.json')) as PackageJson;
       return packageJson.scripts || {};
-    } catch {
-      return {};
-    }
+    } catch (error) { logger.warn('[Zavorth Product Hardening] JSON parse failed', error); return {}; }
   }
 
   private hasMarker(file: string, marker: string): boolean {

@@ -24,7 +24,8 @@ import { DependencyNegotiationService } from './DependencyNegotiationService.js'
 import { RepairPlannerService } from './RepairPlannerService.js';
 import { EngineeringRunLoopService } from './EngineeringRunLoopService.js';
 import { SupervisedExecutionGatewayService } from './SupervisedExecutionGatewayService.js';
-import type { SurfaceTaskDispatcherLike } from './SurfaceRuntime.js';
+import type { SurfaceTaskDispatcherLike, SurfaceControllerContext } from './SurfaceRuntime.js';
+import { TaskSource } from '../contracts/PlatformContract.js';
 import type {
   SelfModificationApplyResult,
   SelfModificationCommandService,
@@ -216,19 +217,19 @@ export class EngineeringCoreService {
       && requirementGaps.every((gap) => !gap.blocking || gap.operatorAction === 'approve_install')
     ) {
       const dispatchResult = await input.dispatcher.dispatchTaskMessage({
-        ctx: input.dispatchContext as any,
-        platform: input.dispatchContext.platform as any,
+        ctx: input.dispatchContext as unknown as SurfaceControllerContext,
+        platform: input.dispatchContext.platform,
         chatId: input.dispatchContext.chatId,
         text: input.rawText,
         sourceUserId: input.dispatchContext.userId,
         sessionId: input.dispatchContext.threadId || null,
         threadId: input.dispatchContext.threadId || null,
-        source: input.dispatchContext.platform as any,
+        source: input.dispatchContext.platform as TaskSource,
       });
       snapshot = {
         ...snapshot,
         status: 'dispatched',
-        linkedTaskId: dispatchResult.task?.task_id || null,
+        linkedTaskId: ((dispatchResult.task as Record<string, unknown>)?.id || (dispatchResult.task as Record<string, unknown>)?.task_id || null) as string | null,
         replySummary: `${replySummary}\n\nAbri a tarefa canonica ${dispatchResult.task?.task_id || 'n/d'} para seguir com esse run.`,
       };
     }
@@ -259,20 +260,20 @@ export class EngineeringCoreService {
     }
 
     const dispatchResult = await dispatcher.dispatchTaskMessage({
-      ctx: ctx as any,
-      platform: ctx.platform as any,
+      ctx: ctx as unknown as SurfaceControllerContext,
+      platform: ctx.platform,
       chatId: ctx.chatId,
       text: run.request.rawText,
       sourceUserId: ctx.userId,
       sessionId: ctx.threadId || null,
       threadId: ctx.threadId || null,
-      source: ctx.platform as any,
+      source: ctx.platform as TaskSource,
     });
 
     return this.ledgerService.saveRun({
       ...run,
       status: 'dispatched',
-      linkedTaskId: dispatchResult.task?.task_id || null,
+      linkedTaskId: ((dispatchResult.task as Record<string, unknown>)?.id || (dispatchResult.task as Record<string, unknown>)?.task_id || null) as string | null,
       replySummary: `${run.replySummary}\n\nSegui com o fluxo canonico e abri a tarefa ${dispatchResult.task?.task_id || 'n/d'}.`,
     });
   }

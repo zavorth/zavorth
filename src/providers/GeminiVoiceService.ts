@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { config } from '../config/index.js';
 import { readSafeJsonResponse } from '../security/SafeFetchService.js';
+import { logger } from '../logger.js';
 
 export type GeminiVoiceSynthesisOptions = {
   model?: string;
@@ -165,9 +166,7 @@ export class GeminiVoiceService {
       if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-    } catch {
-      // ignore
-    }
+    } catch (error) { // ignore logger.warn('[Gemini Voice] file cleanup failed', error); }
   }
 }
 

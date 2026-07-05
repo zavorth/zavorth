@@ -3,6 +3,7 @@ import path from 'path';
 import os from 'os';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export class ZavorthDockerComposeTool extends BaseTool {
   public readonly name = 'zavorth_docker_compose';
@@ -101,8 +102,6 @@ export class ZavorthDockerComposeTool extends BaseTool {
       }).toString();
 
       return `Docker Compose ${action}:\n${result.slice(0, 3000)}`;
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Docker Compose] process execution failed', error); return ''; }
   }
 }

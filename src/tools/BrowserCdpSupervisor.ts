@@ -14,6 +14,7 @@
  */
 
 import { EventEmitter } from 'events';
+import { logger } from '../logger.js';
 
 export interface BrowserCdpSupervisorOptions {
   browserWSEndpoint: string;
@@ -162,7 +163,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
     try {
       const msg = JSON.parse(data);
 
-      // Resposta a comando
+      // Command response
       if (msg.id !== undefined && this.pendingCommands.has(String(msg.id))) {
         const pending = this.pendingCommands.get(String(msg.id))!;
         clearTimeout(pending.timer);
@@ -180,9 +181,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
       if (msg.method) {
         this.handleEvent(msg.method, msg.params);
       }
-    } catch {
-      // ignora mensagens inválidas
-    }
+    } catch (error) { // Ignore invalid messages. logger.warn('[Browser Cdp Supervisor] delete operation failed', error); }
   }
 
   private handleEvent(method: string, params: Record<string, unknown>): void {
@@ -249,7 +248,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
   }
 
   /**
-   * Responde a um diálogo pendente.
+   * Responds to a pending dialog.
    */
   async respondToDialog(
     dialog: DialogInfo,
@@ -271,11 +270,11 @@ export class BrowserCdpSupervisor extends EventEmitter {
   }
 
   /**
-   * Envia comando CDP e aguarda resposta.
+   * Sends a CDP command and waits for a response.
    */
   async send(method: string, params: Record<string, unknown>): Promise<unknown> {
     if (!this.ws || !this.connected) {
-      throw new Error('Não conectado ao browser');
+      throw new Error('Not connected to browser');
     }
 
     const id = ++this.messageId;
@@ -283,7 +282,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pendingCommands.delete(String(id));
-        reject(new Error(`Timeout aguardando resposta de ${method}`));
+        reject(new Error(`Timed out waiting for ${method} response`));
       }, this.timeoutMs);
 
       this.pendingCommands.set(String(id), { resolve, reject, timer });

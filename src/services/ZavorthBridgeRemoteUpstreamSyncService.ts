@@ -5,8 +5,9 @@ import { config } from '../config/index.js';
 import { ZavorthBridgeRemoteDoctorService, type ZavorthBridgeRemoteDoctorReport } from './ZavorthBridgeRemoteDoctorService.js';
 import { TerminalSidecarService } from './TerminalSidecarService.js';
 import { VendorReleaseIndexService } from './VendorReleaseIndexService.js';
+import { logger } from '../logger.js';
 import type {
-  VendorDiffSummary,
+VendorDiffSummary,
   VendorLicenseDecision,
   VendorReleaseIndexEntry,
 } from '../contracts/VendorPlaneContract.js';
@@ -64,9 +65,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         ...fallback,
         ...parsed,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Remote Upstream] JSON parse failed', error); return fallback; }
   }
 
   public async sync(): Promise<ZavorthBridgeRemoteUpstreamSyncReport> {
@@ -165,8 +164,9 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         error: doctor && !doctor.readyAfter ? doctor.summary : null,
         ...this.buildMetadata(),
       });
-    } catch (error: any) {
-      return this.persist({
+    } catch (error) {
+    logger.warn('[Zavorth Bridge Remote Upstream] creation failed', error);
+    return this.persist({
         ok: false,
         action,
         status: 'failed',
@@ -182,7 +182,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         error: error?.message || String(error),
         ...this.buildMetadata(),
       });
-    }
+  }
   }
 
   private async runToolkit(args: string[]): Promise<string> {

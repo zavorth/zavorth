@@ -6,9 +6,9 @@ import {
   isSafePath,
 } from "./cliRuntimePathSecurity.ts";
 import { isWindows, runProcess } from "./cliRuntimeProcess.ts";
-import {
 import { logger } from '../logger.js';
-  EXPECTED_PARENT_PATHS,
+import {
+EXPECTED_PARENT_PATHS,
   getKnownToolPaths,
 } from "./cliRuntimeTools.ts";
 
@@ -19,14 +19,16 @@ export const checkExplicitPath = async (commandPath: string) => {
 
   try {
     await fs.access(commandPath, fs.constants.F_OK);
-  } catch {
+  } catch (error) {
+    logger.warn('[cli Runtime Discovery] filesystem check failed', error);
     return { installed: false, commandPath: null, reason: "not_found" };
   }
 
   try {
     await fs.access(commandPath, fs.constants.X_OK);
     return { installed: true, commandPath, reason: null };
-  } catch {
+  } catch (error) {
+    logger.warn('[cli Runtime Discovery] filesystem check failed', error);
     return { installed: true, commandPath, reason: "not_executable" };
   }
 };
@@ -121,7 +123,8 @@ export const checkKnownPath = async (commandPath: string) => {
   try {
     await fs.access(commandPath, fs.constants.X_OK);
     return { installed: true, commandPath, reason: null };
-  } catch {
+  } catch (error) {
+    logger.warn('[cli Runtime Discovery] validation failed', error);
     return { installed: true, commandPath, reason: "not_executable" };
   }
 };

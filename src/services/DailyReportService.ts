@@ -9,6 +9,7 @@ import type {
 import type { RuntimeDiagnosticsService, RuntimeDiagnosticsSnapshot } from './RuntimeDiagnosticsService.js';
 import type { TaskManager } from '../orchestrator/TaskManager.js';
 import type { Task } from '../contracts/TaskContract.js';
+import { logger } from '../logger.js';
 
 type ReportBroadcaster = (message: string, roles?: string[]) => Promise<void>;
 
@@ -302,8 +303,9 @@ export class DailyReportService {
         updatedBy: parsed.updatedBy || null,
         note: parsed.note || null,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Daily Report] JSON parse failed', error);
+    return {
         enabled: config.dailyReportEnabled,
         lastSentAt: null,
         lastSentDateKey: null,
@@ -311,15 +313,13 @@ export class DailyReportService {
         updatedBy: null,
         note: null,
       };
-    }
+  }
   }
 
   private persist(): void {
     try {
       this.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       this.writeFileSync(this.stateFile, JSON.stringify(this.state, null, 2), 'utf8');
-    } catch {
-      // Ignore persistence failures and keep the in-memory state.
-    }
+    } catch (error) { // Ignore persistence failures and keep the in-memory state. logger.warn('[Daily Report] filesystem operation failed', error); }
   }
 }

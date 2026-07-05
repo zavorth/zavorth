@@ -44,19 +44,19 @@ export class TelegramPermissionDescriptorService {
         : 'Local read for file delivery';
     }
     if (permission.executor === 'aistudio' && permission.kind === 'builtin_tool_access') {
-      return 'Tools do Google AI Studio';
+      return 'Google AI Studio tools';
     }
     if (permission.executor === 'aistudio' && permission.kind === 'service_access') {
-      return 'Servico externo do Google AI Studio';
+      return 'Google AI Studio external service';
     }
     if (permission.executor === 'zavorthBridge' && permission.kind === 'ui_permission') {
-      return 'Permissao visivel do ZavorthBridge';
+      return 'Visible ZavorthBridge permission';
     }
     if (permission.kind === 'command_access') {
-      return 'Comando sensivel';
+      return 'Sensitive command';
     }
     if (permission.kind === 'workspace_access') {
-      return 'Acesso a pasta';
+      return 'Folder access';
     }
     return `${permission.executor} / ${permission.kind}`;
   }
@@ -64,13 +64,13 @@ export class TelegramPermissionDescriptorService {
   public describePermissionScope(scope: PermissionScope): string {
     switch (scope) {
       case 'once':
-        return 'somente esta tarefa';
+        return 'this task only';
       case 'session':
-        return 'somente esta conversa';
+        return 'this conversation only';
       case 'workspace':
-        return 'neste projeto';
+        return 'this project';
       case 'persistent':
-        return 'persistente';
+        return 'persistent';
       default:
         return scope;
     }
@@ -116,7 +116,7 @@ export class TelegramPermissionDescriptorService {
 
   public describeAiStudioPermissionValues(permission: PermissionRequest): string {
     const values = this.extractAiStudioPermissionValues(permission);
-    return values.length > 0 ? values.join(', ') : 'nao informado';
+    return values.length > 0 ? values.join(', ') : 'not provided';
   }
 
   public getPermissionAccessLevel(permission: PermissionRequest): PermissionAccessLevel {
@@ -127,8 +127,8 @@ export class TelegramPermissionDescriptorService {
 
   public describePermissionAccessLevel(permission: PermissionRequest): string {
     return this.getPermissionAccessLevel(permission) === 'read_write'
-      ? 'leitura e escrita'
-      : 'somente leitura e listagem';
+      ? 'read and write'
+      : 'read and list only';
   }
 
   public getPermissionCommandMatchType(permission: PermissionRequest): PermissionCommandMatchType {
@@ -139,8 +139,8 @@ export class TelegramPermissionDescriptorService {
 
   public describePermissionCommandMatchType(permission: PermissionRequest): string {
     return this.getPermissionCommandMatchType(permission) === 'prefix'
-      ? 'prefixo de comando'
-      : 'comando exato';
+      ? 'command prefix'
+      : 'exact command';
   }
 
   public mergeNormalizedValues(...collections: Array<Iterable<string> | null | undefined>): string[] {

@@ -14,6 +14,7 @@ import { cliModelConfigSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const EXTERNAL_EXECUTOR_TOOL_ID = "external-executor";
 const DISPLAY_NAME = "External Executor";
@@ -90,7 +91,8 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[external Executor Settings] process execution failed', error);
     return NextResponse.json(
       {
         error: {
@@ -119,9 +121,7 @@ export async function POST(request: Request) {
       try {
         const keyRecord = await getApiKeyById(keyId);
         if (keyRecord?.key) apiKey = keyRecord.key as string;
-      } catch {
-        /* non-critical */
-      }
+      } catch (error) { /* non-critical */ logger.warn('[external Executor Settings] validation failed', error); }
     }
 
     const executorDir = getExternalExecutorDir();
@@ -134,9 +134,7 @@ export async function POST(request: Request) {
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
-    } catch {
-      /* No existing settings */
-    }
+    } catch (error) { /* No existing settings */ logger.warn('[external Executor Settings] JSON parse failed', error); }
 
     if (!settings.agents) settings.agents = {};
     if (!settings.agents.defaults) settings.agents.defaults = {};
@@ -163,9 +161,7 @@ export async function POST(request: Request) {
 
     try {
       saveCliToolLastConfigured(EXTERNAL_EXECUTOR_TOOL_ID);
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[external Executor Settings] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
@@ -225,9 +221,7 @@ export async function DELETE(request: Request) {
 
     try {
       deleteCliToolLastConfigured(EXTERNAL_EXECUTOR_TOOL_ID);
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[external Executor Settings] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export interface BudgetRule {
   id: string;
@@ -97,8 +98,8 @@ export class ZavorthTokenBudgetTool extends BaseTool {
   private loadData(): void {
     const budgetsPath = path.join(this.storageDir, 'budgets.json');
     const usagePath = path.join(this.storageDir, 'usage.json');
-    try { if (fs.existsSync(budgetsPath)) this.budgets = JSON.parse(fs.readFileSync(budgetsPath, 'utf-8')); } catch { /* ignore */ }
-    try { if (fs.existsSync(usagePath)) this.usage = JSON.parse(fs.readFileSync(usagePath, 'utf-8')); } catch { /* ignore */ }
+    try { if (fs.existsSync(budgetsPath)) this.budgets = JSON.parse(fs.readFileSync(budgetsPath, 'utf-8')); } catch (error) { /* ignore */ logger.warn('[Zavorth Token Budget] JSON parse failed', error); }
+    try { if (fs.existsSync(usagePath)) this.usage = JSON.parse(fs.readFileSync(usagePath, 'utf-8')); } catch (error) { /* ignore */ logger.warn('[Zavorth Token Budget] JSON parse failed', error); }
   }
 
   private saveData(): void {

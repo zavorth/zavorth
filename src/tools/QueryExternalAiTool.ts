@@ -45,11 +45,11 @@ export class QueryExternalAiTool extends BaseTool {
     const youtubeUrl = this.getOptionalStringArg(args.youtubeUrl);
 
     if (!provider) {
-      throw new Error('O parametro "provider" e obrigatorio.');
+      throw new Error('The "provider" parameter is required.');
     }
 
     if (!task) {
-      throw new Error('O parametro "task" e obrigatorio.');
+      throw new Error('The "task" parameter is required.');
     }
 
     const result = await this.relayService.execute({
@@ -63,17 +63,17 @@ export class QueryExternalAiTool extends BaseTool {
     const warningsBlock =
       result.warnings.length > 0
         ? `Avisos:\n${result.warnings.map((warning) => `- ${warning}`).join('\n')}`
-        : 'Avisos: nenhum';
+        : 'Warnings: none';
 
     return [
-      'Relay externo concluido.',
+      'External relay completed.',
       `Provedor solicitado: ${result.requestedProvider}`,
       `Provedor efetivo: ${result.normalizedProvider}`,
       `Tarefa: ${result.task}`,
       `Modelo usado: ${result.model}`,
       `Fonte: ${result.source}`,
       warningsBlock,
-      'IMPORTANTE: se o usuario pediu a resposta literal do provedor, devolva o bloco abaixo sem parafrasear.',
+      'IMPORTANT: if the user asked for the provider literal answer, return the block below without paraphrasing.',
       '--- RESPOSTA_LITERAL_DO_PROVEDOR_INICIO ---',
       result.rawResponse,
       '--- RESPOSTA_LITERAL_DO_PROVEDOR_FIM ---',

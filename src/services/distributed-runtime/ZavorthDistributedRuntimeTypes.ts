@@ -1,8 +1,10 @@
 import type { RuntimeAccessManifestService } from '../../runtime/access/RuntimeAccessManifestService.js';
 import type { ChannelMeshSnapshot } from '../../contracts/ChannelMeshContract.js';
 import type { NodeMeshSnapshot } from '../../contracts/NodeMeshContract.js';
-import type { ZavorthRemoteTransportSnapshot } from '../ZavorthRemoteTransportService.js';
+import type { ZavorthRemoteTransportSnapshot, ZavorthRemoteTransportService } from '../ZavorthRemoteTransportService.js';
 import type { RuntimeAccessManifest } from '../../domain/gateway/infrastructure/runtime-access/RuntimeAccessManifestService.js';
+import type { ZavorthChannelMeshService } from '../ZavorthChannelMeshService.js';
+import type { ZavorthNodeMeshService } from '../ZavorthNodeMeshService.js';
 
 export type { ChannelMeshSnapshot, NodeMeshSnapshot, ZavorthRemoteTransportSnapshot, RuntimeAccessManifest };
 
@@ -18,9 +20,9 @@ export type RuntimeAccessManifestLike = Pick<RuntimeAccessManifestService, 'buil
 export type DistributedRuntimeDeps = {
   now?: () => Date;
   workspaceRoot?: string | null;
-  channelMeshService?: AsyncSnapshotLike | null;
-  nodeMeshService?: AsyncSnapshotLike | null;
-  remoteTransportService?: AsyncSnapshotLike | null;
+  channelMeshService?: Pick<ZavorthChannelMeshService, 'buildSnapshot'> | null;
+  nodeMeshService?: Pick<ZavorthNodeMeshService, 'buildSnapshot'> | null;
+  remoteTransportService?: Pick<ZavorthRemoteTransportService, 'buildSnapshot'> | null;
   runtimeAccessManifestService?: RuntimeAccessManifestLike | null;
 };
 

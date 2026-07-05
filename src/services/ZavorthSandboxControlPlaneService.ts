@@ -11,6 +11,7 @@ import { FirecrackerSandboxRuntime, type FirecrackerSandboxStatus } from './sand
 import type { SandboxLanguage, SandboxSecurityLevel } from './sandbox/ISandboxRuntime.js';
 import { SandboxPolicyService } from './sandbox/SandboxPolicyService.js';
 import { WasmSandboxCapabilityService, type WasmSandboxStatus } from './WasmSandboxCapabilityService.js';
+import { logger } from '../logger.js';
 
 type SandboxPosture = 'healthy' | 'attention' | 'critical';
 type SandboxProfileStatus = 'ready' | 'dormant' | 'disabled' | 'not_installed' | 'unsupported' | 'degraded';
@@ -722,7 +723,8 @@ export class ZavorthSandboxControlPlaneService {
     try {
       return this.dockerRuntime.getStatus(language);
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
+    return {
         enabled: config.dockerSandboxEnabled,
         language,
         image: language === 'python'
@@ -738,14 +740,15 @@ export class ZavorthSandboxControlPlaneService {
         canRun: false,
         detail: `Falha ao ler Docker sandbox: ${error instanceof Error ? error.message : String(error)}`,
       };
-    }
+  }
   }
 
   private safeFirecrackerStatus(): FirecrackerSandboxStatus {
     try {
       return this.firecrackerRuntime.getStatus();
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
+    return {
         enabled: config.firecrackerEnabled,
         transport: this.platform === 'win32' ? 'wsl' : 'direct',
         firecrackerReachable: false,
@@ -755,14 +758,15 @@ export class ZavorthSandboxControlPlaneService {
         canRun: false,
         detail: `Falha ao ler Firecracker: ${error instanceof Error ? error.message : String(error)}`,
       };
-    }
+  }
   }
 
   private safeWasmStatus(): WasmSandboxStatus {
     try {
       return this.wasmCapability.getStatus('wasm');
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
+    return {
         enabled: config.wasmSandboxEnabled,
         available: false,
         canRun: false,
@@ -771,7 +775,7 @@ export class ZavorthSandboxControlPlaneService {
         supportedLanguages: ['wasm'],
         recommendedAction: 'npm run sandbox:wasm:smoke',
       };
-    }
+  }
   }
 
   private nullableText(value: unknown): string | null {

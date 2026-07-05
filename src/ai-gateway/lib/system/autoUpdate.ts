@@ -3,6 +3,7 @@ import { closeSync, mkdirSync, openSync, existsSync } from "node:fs";
 import { access } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
+import { logger } from '@/shared/utils/logger';
 
 const execFileAsync = promisify(execFile);
 
@@ -48,9 +49,7 @@ async function pathExists(targetPath: string): Promise<boolean> {
   try {
     await access(targetPath);
     return true;
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[auto Update] filesystem check failed', error); return false; }
 }
 
 function shellQuote(value: string): string {
@@ -99,16 +98,12 @@ export async function detectComposeCommand(
   try {
     await execFileImpl("docker", ["compose", "version"], { timeout: 10_000 });
     return "docker compose";
-  } catch {
-    // Fall through.
-  }
+  } catch (error) { // Fall through. logger.warn('[auto Update] process execution failed', error); }
 
   try {
     await execFileImpl("docker-compose", ["version"], { timeout: 10_000 });
     return "docker-compose";
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[auto Update] process execution failed', error); return null; }
 }
 
 export async function validateAutoUpdateRuntime(
@@ -128,13 +123,14 @@ export async function validateAutoUpdateRuntime(
 
     try {
       await execFileImpl("git", ["--version"], { timeout: 10_000 });
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[auto Update] process execution failed', error);
+    return {
         supported: false,
         reason: "git is not available. Install git to enable auto-update.",
         composeCommand: null,
       };
-    }
+  }
 
     return {
       supported: true,
@@ -173,7 +169,8 @@ export async function validateAutoUpdateRuntime(
 
   try {
     await execFileImpl("git", ["--version"], { timeout: 10_000 });
-  } catch {
+  } catch (error) {
+    logger.warn('[auto Update] process execution failed', error);
     return {
       supported: false,
       reason: "git is not available inside the ZavorthGateway container.",

@@ -63,7 +63,7 @@ export class WebAppSurfaceChannelTransportRouteService {
     res: http.ServerResponse,
     url: URL,
     pathname: string,
-    deps: WebAppSurfaceRouteDeps,
+    deps: any,
   ): Promise<boolean> {
     if (pathname === CHANNEL_MESH_ROUTE_PATHS.collection && req.method === 'GET') {
       if (!deps.channelMesh) {
@@ -469,7 +469,7 @@ export class WebAppSurfaceChannelTransportRouteService {
     res: http.ServerResponse,
     url: URL,
     pathname: string,
-    deps: WebAppSurfaceRouteDeps,
+    deps: any,
   ): Promise<boolean> {
     if (
       pathname.startsWith(`${CHANNEL_MESH_ROUTE_PATHS.collection}/`)
@@ -685,7 +685,7 @@ export class WebAppSurfaceChannelTransportRouteService {
     return false;
   }
 
-  private buildNaturalSetupMutationPlanner(deps: WebAppSurfaceRouteDeps): NaturalSetupMutationPlannerLike {
+  private buildNaturalSetupMutationPlanner(deps: any): NaturalSetupMutationPlannerLike {
     return deps.naturalSetupMutationPlanner || new NaturalSetupMutationPlannerService({
       controlPlaneService: deps.naturalSetupControlPlane || undefined,
       channelSetupAssistant: deps.channelSetupAssistant || null,

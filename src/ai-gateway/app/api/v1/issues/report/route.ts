@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 const reportSchema = z.object({
   title: z.string().min(1).max(300),
@@ -29,7 +30,8 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] operation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 

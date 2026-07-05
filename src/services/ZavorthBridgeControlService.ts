@@ -282,8 +282,9 @@ export class ZavorthBridgeControlService {
 
     try {
       await this.focusInteractiveWindow(effectiveResult.processId ?? preferredProcessId ?? undefined);
-    } catch (error: unknown) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Bridge Control] operation failed', error);
+    return {
         ok: false,
         action,
         remoteModeActive: remoteModeStatus?.active ?? null,
@@ -301,7 +302,7 @@ export class ZavorthBridgeControlService {
         errorMessage: error instanceof Error ? error.message : 'A janela do ZavorthBridge nao respondeu ao foco.',
         message: 'O ZavorthBridge foi encontrado, mas o Zavorth nao conseguiu trazer a janela para uma superficie operavel.',
       };
-    }
+  }
 
     return {
       ok: true,
@@ -453,9 +454,7 @@ export class ZavorthBridgeControlService {
           message: verifyResult.message || `Modelo confirmado: ${model.label}.`,
         };
       }
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Control] lifecycle operation failed', error); return null; }
 
     return null;
   }

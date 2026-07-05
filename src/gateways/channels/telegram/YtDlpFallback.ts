@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { CapabilityUnavailableError, buildCapabilityProvisionHint } from '../../../services/OptionalCapabilityGuard.js';
+import { logger } from '../../../logger.js';
 
 const YTDLP_TMP_DIR = path.join(os.tmpdir(), 'zavorth-ytdlp');
 const LOCAL_FFMPEG_PATH = path.join(YTDLP_TMP_DIR, 'ffmpeg.exe');
@@ -130,9 +131,7 @@ export class YtDlpFallback {
         subFormat: 'json3/vtt/srt/best',
         addHeader: ['referer:youtube.com'],
       });
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Yt Dlp Fallback] process execution failed', error); return null; }
 
     const subtitleFiles = fs.readdirSync(YTDLP_TMP_DIR)
       .filter((entry) => entry.startsWith(`${basename}.`))
@@ -161,9 +160,7 @@ export class YtDlpFallback {
           if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
           }
-        } catch {
-          // Ignora falhas na limpeza de caption temporaria.
-        }
+        } catch (error) { // Ignora falhas na limpeza de caption temporaria. logger.warn('[Yt Dlp Fallback] file cleanup failed', error); }
       }
     }
   }
@@ -228,9 +225,7 @@ export class YtDlpFallback {
       }
 
       return lines.join('\n').trim();
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Yt Dlp Fallback] lifecycle operation failed', error); return ''; }
   }
 
   private parseVttTranscript(content: string): string {

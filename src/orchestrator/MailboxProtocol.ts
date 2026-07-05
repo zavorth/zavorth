@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { Task } from '../contracts/TaskContract.js';
+import { logger } from '../logger.js';
 
 export type MailboxAgent = 'ZAVORTH_BRIDGE' | 'CODEX';
 
@@ -150,7 +151,7 @@ export class MailboxProtocol {
 
     const sender = this.readField(content, 'SENDER');
     if (sender !== 'TELEGRAM_USER') {
-      return { accepted: false, reason: 'Mensagem ignorada: sender nao reconhecido.' };
+      return { accepted: false, reason: 'Message ignored: sender not recognized.' };
     }
 
     const signature = this.readField(content, 'SIGNATURE');
@@ -224,31 +225,31 @@ export class MailboxProtocol {
     }
 
     if (protocol !== DEFAULT_PROTOCOL) {
-      return { accepted: false, reason: `Mensagem rejeitada: protocolo nao suportado (${protocol}).` };
+      return { accepted: false, reason: `Message rejected: unsupported protocol (${protocol}).` };
     }
     if (!SUPPORTED_AGENTS.includes(agent)) {
-      return { accepted: false, reason: `Mensagem rejeitada: agent nao suportado (${agent}).` };
+      return { accepted: false, reason: `Message rejected: unsupported agent (${agent}).` };
     }
     if (action !== SUPPORTED_ACTION) {
-      return { accepted: false, reason: `Mensagem rejeitada: action nao suportada (${action}).` };
+      return { accepted: false, reason: `Message rejected: unsupported action (${action}).` };
     }
 
     const timestampMs = Date.parse(timestamp);
     if (!Number.isFinite(timestampMs)) {
-      return { accepted: false, reason: 'Mensagem rejeitada: timestamp invalido.' };
+      return { accepted: false, reason: 'Message rejected: invalid timestamp.' };
     }
 
     const ageMs = Date.now() - timestampMs;
     if (ageMs < -60_000) {
-      return { accepted: false, reason: 'Mensagem rejeitada: timestamp no futuro.' };
+      return { accepted: false, reason: 'Message rejected: timestamp is in the future.' };
     }
     if (ageMs > this.maxAgeMs) {
-      return { accepted: false, reason: 'Mensagem rejeitada: payload expirado.' };
+      return { accepted: false, reason: 'Message rejected: payload expired.' };
     }
 
     const prompt = this.decodeBase64Field(promptBase64);
     if (!prompt) {
-      return { accepted: false, reason: 'Mensagem rejeitada: prompt invalido.' };
+      return { accepted: false, reason: 'Message rejected: invalid prompt.' };
     }
 
     const workspace = this.decodeBase64Field(workspaceBase64) || 'AUTO';
@@ -305,9 +306,7 @@ export class MailboxProtocol {
 
     try {
       return Buffer.from(value, 'base64').toString('utf8').trim();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Mailbox Protocol] encoding failed', error); return null; }
   }
 
   private safeCompare(left: string, right: string): boolean {

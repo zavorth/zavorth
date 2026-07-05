@@ -1,6 +1,6 @@
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
-import { logger } from '../cli/logger.js';
+import { logger } from '../logger.js';
 
 export class ZavorthBrowserAutomationTool extends BaseTool {
   public readonly name = 'zavorth_browser_automation';
@@ -124,9 +124,7 @@ const { chromium } = require('playwright');
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result;
-    } catch (error: unknown) {
-      return `Playwright error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Browser Automation] process execution failed', error); return ''; }
   }
 
   private async navigate(args: Record<string, unknown>): Promise<string> {
@@ -163,9 +161,10 @@ const { chromium } = require('playwright');
       const result = await this.runWithPlaywright(script);
       if (result.startsWith('Playwright error:')) return result;
       return `Navigation successful:\n${result.trim()}`;
-    } catch {
-      return await this.fallbackCurl(String(args.url || ''));
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Browser Automation] resource cleanup failed', error);
+    return await this.fallbackCurl(String(args.url || ''));
+  }
   }
 
   private async fallbackCurl(url: string): Promise<string> {
@@ -173,9 +172,7 @@ const { chromium } = require('playwright');
       const { execFileSync } = await import('child_process');
       const result = execFileSync('curl', ['-s', '-L', '-o', '/dev/null', '-w', 'HTTP %{http_code}\nURL: %{url_effective}\nRedirects: %{num_redirects}\nTime: %{time_total}s', '--max-time', '30', url], { timeout: 35000 }).toString();
       return `Fallback curl check:\n${result}`;
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Browser Automation] network request failed', error); return ''; }
   }
 
   private async click(args: Record<string, unknown>): Promise<string> {
@@ -269,9 +266,7 @@ const { chromium } = require('playwright');
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return `Script output:\n${result.trim().slice(0, 10000)}`;
-    } catch (error: unknown) {
-      return `Script error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Browser Automation] process execution failed', error); return ''; }
   }
 
   private async waitFor(args: Record<string, unknown>): Promise<string> {
@@ -317,9 +312,7 @@ const { chromium } = require('playwright');
       const { execFileSync } = await import('child_process');
       const result = execFileSync('curl', ['-s', '-L', '--max-time', '30', url], { timeout: 35000, maxBuffer: 10 * 1024 * 1024 }).toString();
       return `HTML from ${url} (first 10000 chars):\n${result.slice(0, 10000)}`;
-    } catch (error: unknown) {
-      return `Error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Browser Automation] process execution failed', error); return ''; }
   }
 
   private async getText(args: Record<string, unknown>): Promise<string> {

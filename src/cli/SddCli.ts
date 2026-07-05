@@ -79,7 +79,7 @@ export function parseSddCliFlags(argv: string[]): SddCliFlags {
 export async function runSddCli(argv: string[]): Promise<number> {
   const flags = parseSddCliFlags(argv);
   if (!flags.featureId) {
-    console.error('Uso: npm run sdd:loop -- --feature <dominio/feature> [--init --title "Titulo"] [--json]');
+    console.error('Usage: npm run sdd:loop -- --feature <domain/feature> [--init --title "Title"] [--json]');
     return 1;
   }
 
@@ -88,13 +88,13 @@ export async function runSddCli(argv: string[]): Promise<number> {
 
   if (flags.action === 'init') {
     if (!flags.title) {
-      console.error('Use --title junto com --init para scaffoldar a feature.');
+      console.error('Use --title with --init to scaffold the feature.');
       return 1;
     }
     result = orchestrator.scaffoldAndInspect(flags.featureId, flags.title);
   } else if (flags.action === 'handoff') {
     if (!flags.summary) {
-      console.error('Use --summary junto com --handoff para registrar a passagem.');
+      console.error('Use --summary with --handoff to record the handoff.');
       return 1;
     }
     result = orchestrator.handoff(flags.featureId, {
@@ -114,11 +114,11 @@ export async function runSddCli(argv: string[]): Promise<number> {
   }
 
   console.log(`[sdd] feature: ${result.featureId}`);
-  console.log(`[sdd] titulo: ${result.title}`);
+  console.log(`[sdd] title: ${result.title}`);
   console.log(`[sdd] lifecycle: ${result.lifecycle}`);
-  console.log(`[sdd] proximo papel: ${result.nextRole}`);
-  console.log(`[sdd] task atual: ${result.currentTask || 'nenhuma'}`);
-  console.log(`[sdd] tasks: ${result.completedTaskCount} concluida(s) | ${result.openTaskCount} aberta(s)`);
+  console.log(`[sdd] next role: ${result.nextRole}`);
+  console.log(`[sdd] current task: ${result.currentTask || 'none'}`);
+  console.log(`[sdd] tasks: ${result.completedTaskCount} completed | ${result.openTaskCount} open`);
   console.log(`[sdd] spec: ${result.paths.specFile}`);
   console.log(`[sdd] plan: ${result.paths.planFile}`);
   console.log(`[sdd] tasks: ${result.paths.tasksFile}`);

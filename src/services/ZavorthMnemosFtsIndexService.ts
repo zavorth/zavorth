@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 type WikiIndex = {
   pages?: Array<{ id: string; path: string; title?: string; tags?: string[] }>;
@@ -119,14 +120,13 @@ export class ZavorthMnemosFtsIndexService {
         fts5Available: true,
         safety: this.safety(),
       };
-    } catch (error: any) {
-      return this.unavailable(generatedAt, dbPath, pages.length, String(error?.message || error || 'sqlite failed'));
-    } finally {
+    } catch (error) {
+    logger.warn('[Zavorth Mnemos Fts] creation failed', error);
+    return this.unavailable(generatedAt, dbPath, pages.length, String(error?.message || error || 'sqlite failed'));
+  } finally {
       try {
         db?.close?.();
-      } catch {
-        // ignored
-      }
+      } catch (error) { // ignored logger.warn('[Zavorth Mnemos Fts] resource cleanup failed', error); }
     }
   }
 
@@ -162,14 +162,13 @@ export class ZavorthMnemosFtsIndexService {
         available: true,
         hits: rows.map((row, index) => ({ pageId: row.pageId, rank: index + 1 })),
       };
-    } catch {
-      return { available: false, hits: [] };
-    } finally {
+    } catch (error) {
+    logger.warn('[Zavorth Mnemos Fts] array operation failed', error);
+    return { available: false, hits: [] };
+  } finally {
       try {
         db?.close?.();
-      } catch {
-        // ignored
-      }
+      } catch (error) { // ignored logger.warn('[Zavorth Mnemos Fts] resource cleanup failed', error); }
     }
   }
 
@@ -207,9 +206,7 @@ export class ZavorthMnemosFtsIndexService {
   private loadBetterSqlite(): any | null {
     try {
       return this.require('better-sqlite3');
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Mnemos Fts] lifecycle operation failed', error); return null; }
   }
 
   private unavailable(

@@ -336,7 +336,7 @@ export class ZavorthSkillPreprocessorService {
           [key]
         );
         if (stateMetaRow && stateMetaRow.value_json) {
-          return JSON.parse(stateMetaRow.value_json);
+          return JSON.parse(String(stateMetaRow.value_json));
         }
       } catch (err) {
         logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in zavorth_state_meta:`, err);

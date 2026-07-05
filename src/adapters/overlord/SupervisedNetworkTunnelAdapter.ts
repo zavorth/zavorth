@@ -50,7 +50,7 @@ export class SupervisedNetworkTunnelAdapter implements SystemOverlordRuntimeAdap
       return {
         ok: false,
         errorCode: 'network_tunnel_action_rejected',
-        errorMessage: 'Acao de tunnel invalida. Use inspect, start, stop ou restart.',
+        errorMessage: 'Invalid tunnel action. Use inspect, start, stop, or restart.',
       };
     }
 
@@ -114,7 +114,7 @@ export class SupervisedNetworkTunnelAdapter implements SystemOverlordRuntimeAdap
       return {
         ok: false,
         errorCode: 'network_tunnel_rollback_unavailable',
-        errorMessage: 'Rollback supervisionado do tunnel so esta disponivel para acoes start/restart.',
+        errorMessage: 'Supervised tunnel rollback is only available for start/restart actions.',
       };
     }
     const status = await this.tunnelService.stop();

@@ -144,41 +144,41 @@ export class TelegramConversationDecisionService {
     switch (preferredStyle) {
       case 'summary_first':
         hints.push(
-          'Abra com um resumo executivo curto antes dos detalhes.',
-          'Depois do resumo, organize os pontos por prioridade e proximos passos.',
+          'Open with a short executive summary before the details.',
+          'After the summary, organize points by priority and next steps.',
         );
         break;
       case 'findings_first':
         hints.push(
-          'Comece pelos achados, riscos ou falhas mais importantes.',
-          'Deixe contexto secundario e explicacoes complementares depois dos achados principais.',
+          'Start with the most important findings, risks, or failures.',
+          'Place secondary context and supporting explanations after the main findings.',
         );
         break;
       case 'decision_brief':
         hints.push(
-          'Estruture a resposta como comparacao objetiva com criterios explicitos.',
-          'Termine com recomendacao final clara, tradeoffs e risco principal.',
+          'Structure the answer as an objective comparison with explicit criteria.',
+          'End with a clear final recommendation, tradeoffs, and the main risk.',
         );
         break;
       case 'checkpointed':
         hints.push(
-          'Estruture a resposta em passos ou checkpoints claros.',
-          'Deixe explicito o estado atual, o que ja foi feito e o proximo passo.',
+          'Structure the answer in clear steps or checkpoints.',
+          'Make the current state, completed work, and next step explicit.',
         );
         break;
       case 'diagnostic':
         hints.push(
-          'Responda como diagnostico: sintomas, causa provavel, evidencias e proximo teste recomendado.',
+          'Answer as a diagnostic: symptoms, likely cause, evidence, and recommended next test.',
         );
         break;
       case 'implementation_ready':
         hints.push(
-          'Responda de forma operacional e pronta para execucao.',
-          'Inclua proposta concreta, impacto esperado e proximos passos praticos.',
+          'Answer in an operational, execution-ready way.',
+          'Include a concrete proposal, expected impact, and practical next steps.',
         );
         break;
       default:
-        hints.push('Responda de forma direta, economica e facil de aplicar.');
+        hints.push('Answer directly, concisely, and in a way that is easy to apply.');
         break;
     }
 

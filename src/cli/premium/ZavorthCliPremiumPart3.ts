@@ -192,7 +192,7 @@ export async function runRuntimeReadinessFix(rawArgs: string[] = []): Promise<nu
   if (target === 'provider') {
     return runRuntimeReadinessFixProvider(rawArgs.slice(1));
   }
-  await logCliError('Fix desconhecido. Use: zavorth readiness fix provider --live-proof --provider <id>', 'Usage Error');
+  await logCliError('Unknown fix. Use: zavorth readiness fix provider --live-proof --provider <id>', 'Usage Error');
   return 1;
 }
 
@@ -245,8 +245,8 @@ export async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Pr
       `proof_store=${liveProofStore.filePath}`,
       '',
       passed
-        ? 'Provider validado com prova live persistida. Rode zavorth readiness para conferir o estado diario.'
-        : selected?.probe.summary || 'Probe live nao conseguiu validar o provider.',
+        ? 'Provider validated with persisted live proof. Run zavorth readiness to inspect the daily state.'
+        : selected?.probe.summary || 'Live probe could not validate the provider.',
     ], passed ? 'success' : 'warning');
   }
 

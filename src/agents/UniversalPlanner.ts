@@ -4,7 +4,7 @@ import { Task } from '../contracts/TaskContract.js';
 import { config } from '../config/index.js';
 import { StructuredPlanner } from './StructuredPlanner.js';
 
-export class GeminiPlanner {
+export class UniversalPlanner {
   private planner: StructuredPlanner;
 
   constructor() {
@@ -12,34 +12,35 @@ export class GeminiPlanner {
   }
 
   public async generatePlan(task: Task): Promise<Plan> {
-    const modelName = config.geminiModel || 'gemini-2.0-flash';
+    const providerName = config.llmProvider || 'gemini';
+    const modelName = providerName === 'gemini' ? (config.geminiModel || 'gemini-2.0-flash') : 'default';
     const prompt = this.buildPrompt(task);
 
     try {
       const result = await this.planner.generatePlan(task, prompt);
       return result.plan;
     } catch (err: any) {
-      logger.error('[GeminiPlanner] Erro ao planejar:', err.message);
-      throw new Error(`Erro do planejador (${modelName}): ${err.message}`);
+      logger.error('[UniversalPlanner] Planning error:', err.message);
+      throw new Error(`Planner error (${providerName}/${modelName}): ${err.message}`);
     }
   }
 
   private buildPrompt(task: Task): string {
     return `
-Voce atua no modo ZAVORTH PLANNER. Sua funcao e gerar um plano tecnico em JSON valido.
-Responda somente com JSON, sem markdown.
+You are operating in ZAVORTH PLANNER mode. Your job is to generate a valid technical plan in JSON.
+Respond only with JSON, without Markdown.
 
-Ferramentas disponiveis:
+Available tools:
 1. web_search
    - args: { "query": "string" }
 
-Contrato esperado:
+Expected contract:
 {
   "objective": "string",
   "context": "string",
   "assumptions": ["string"],
   "executor_recommendation": "local_executor | codex | external_executor | zavorthBridge | gemini_cli | jules",
-  "workspace_recommendation": "apelido ou path",
+  "workspace_recommendation": "alias or path",
   "risk_level": 0 | 1 | 2 | 3,
   "requires_approval": true,
   "steps": [
@@ -61,17 +62,17 @@ Contrato esperado:
   "notes": ["string"]
 }
 
-Tarefa do usuario: "${task.raw_message}"
-Mensagem normalizada: "${task.normalized_message}"
-Contexto anterior: "${task.parent_task_id || 'Nenhum'}"
+User task: "${task.raw_message}"
+Normalized message: "${task.normalized_message}"
+Previous context: "${task.parent_task_id || 'None'}"
 
-Escolha de executor:
-- "local_executor" para shell simples no host local
-- "codex" para codigo no workspace Windows
-- "external_executor" para delegacao ao ExternalExecutor/WSL
-- "zavorthBridge" para fluxos que precisam da interface real do ZavorthBridge
-- "gemini_cli" para analise/refatoracao de codebase com Gemini AI no terminal
-- "jules" para tarefas assincromas em repos GitHub (fix bugs, criar PRs, testes)
+Executor selection:
+- "local_executor" for simple shell work on the local host
+- "codex" for code work in the Windows workspace
+- "external_executor" for delegation to ExternalExecutor/WSL
+- "zavorthBridge" for flows that need the real ZavorthBridge interface
+- "gemini_cli" for codebase analysis/refactoring with Gemini AI in the terminal
+- "jules" for asynchronous GitHub repository tasks (bug fixes, PRs, tests)
     `.trim();
   }
 }

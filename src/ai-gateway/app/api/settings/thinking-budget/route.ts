@@ -8,6 +8,7 @@ import {
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateThinkingBudgetSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -29,7 +30,8 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {

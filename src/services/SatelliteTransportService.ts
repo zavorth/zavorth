@@ -141,9 +141,7 @@ export class SatelliteTransportService {
     this.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch {
-        // Ignore shutdown errors.
-      }
+      } catch (error) { // Ignore shutdown errors. logger.warn('[Satellite Transport] resource cleanup failed', error); }
     });
     this.wss?.close();
     this.wss = null;

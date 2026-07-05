@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import type {
-  WatchModeRunBudget,
+WatchModeRunBudget,
   WatchModeScreenshotRedactionMode,
   WatchModeSensitiveScreenPolicy,
 } from './computer-use-watch-mode/ComputerUseWatchModeSharedTypes.js';
@@ -78,9 +79,10 @@ export class ComputerUseWatchModePolicyFileService {
         return { ...DEFAULT_POLICY };
       }
       return this.normalizeDocument(JSON.parse(this.readFileSyncImpl(this.policyFile, 'utf8')) as Record<string, any>);
-    } catch {
-      return { ...DEFAULT_POLICY };
-    }
+    } catch (error) {
+    logger.warn('[Computer Use Watch Mode  File] JSON parse failed', error);
+    return { ...DEFAULT_POLICY };
+  }
   }
 
   public savePolicy(input: Partial<ComputerUseWatchModePolicyDocument>): ComputerUseWatchModePolicyDocument {
@@ -133,7 +135,7 @@ export class ComputerUseWatchModePolicyFileService {
 
   private normalizeBudget(value: unknown): WatchModeRunBudget {
     const raw = value && typeof value === 'object' ? value as Partial<WatchModeRunBudget> : {};
-    const screenshotTtlMs = this.positiveNumber(raw.screenshotTtlMs, this.positiveNumber((value as any)?.screenshotTtlMs, DEFAULT_POLICY.screenshotTtlMs));
+    const screenshotTtlMs = this.positiveNumber(raw.screenshotTtlMs, DEFAULT_POLICY.screenshotTtlMs);
     const maxScreenshotBytes = this.positiveNumber(raw.maxScreenshotBytes, DEFAULT_POLICY.maxScreenshotBytes);
     return {
       maxIterations: this.positiveNumber(raw.maxIterations, DEFAULT_POLICY.defaultBudget.maxIterations),
@@ -202,13 +204,14 @@ export class ComputerUseWatchModePolicyFileService {
     try {
       const target = raw.match(/^https?:\/\//i) ? raw : `https://${raw}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch {
-      return raw
+    } catch (error) {
+    logger.warn('[Computer Use Watch Mode  File] network request failed', error);
+    return raw
         .replace(/^https?:\/\//i, '')
         .replace(/\/.*$/u, '')
         .replace(/^\.+/u, '')
         .trim()
         .toLowerCase();
-    }
+  }
   }
 }

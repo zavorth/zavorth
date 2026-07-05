@@ -1,21 +1,22 @@
 import { BaseTool } from './BaseTool.js';
 import fs from 'fs';
 import { WorkspaceFsPolicy } from './workspace/WorkspaceFsPolicy.js';
+import { logger } from '../logger.js';
 
 /**
- * ListDirectoryTool — Permite ao agente listar arquivos e pastas num diretório local.
+ * Allows the agent to list files and folders in a local directory.
  */
 export class ListDirectoryTool extends BaseTool {
   public readonly name = 'list_directory';
-  public readonly description = 'Lista os arquivos e subdiretórios de um caminho local específico na máquina host. Retorna o conteúdo do diretório atual se o caminho estiver vazio.';
-  
+  public readonly description = 'Lists files and subdirectories for a specific local path on the host machine. Returns the current directory contents when the path is empty.';
+
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       dirPath: {
         type: 'string',
-        description: 'O caminho absoluto ou relativo do diretório para listar (ex: "./src", "C:\\Teste"). Deixe vazio para listar o diretório atual.',
-      }
+        description: 'Absolute or relative directory path to list, for example "./src" or "C:\\Test". Leave empty to list the current directory.',
+      },
     },
   };
 
@@ -26,26 +27,24 @@ export class ListDirectoryTool extends BaseTool {
     let dirPath: string;
     try {
       dirPath = new WorkspaceFsPolicy().resolveListPath(rawDirPath).absolutePath;
-    } catch {
-      return 'Erro: Por seguranca, diretorios so podem ser listados dentro do workspace atual.';
-    }
+    } catch (error) { logger.warn('[List Directory] process execution failed', error); return 'Error: for security, directories can only be listed inside the current workspace.'; }
 
     try {
       if (!fs.existsSync(dirPath)) {
-        return `Erro: O diretório "${dirPath}" não existe.`;
+        return `Error: directory "${dirPath}" does not exist.`;
       }
 
       const stats = fs.statSync(dirPath);
       if (!stats.isDirectory()) {
-        return `Erro: O caminho "${dirPath}" não é um diretório.`;
+        return `Error: path "${dirPath}" is not a directory.`;
       }
 
-      console.log(`📁 [ListDirectory] Listando: ${dirPath}`);
+      console.log(`[ListDirectory] Listing: ${dirPath}`);
       const items = fs.readdirSync(dirPath, { withFileTypes: true });
-      
-      let output = `Conteúdo do diretório: ${dirPath}\n\n`;
-      let folders: string[] = [];
-      let files: string[] = [];
+
+      let output = `Directory contents: ${dirPath}\n\n`;
+      const folders: string[] = [];
+      const files: string[] = [];
 
       for (const item of items) {
         if (item.isDirectory()) folders.push(`[DIR]  ${item.name}`);
@@ -56,14 +55,14 @@ export class ListDirectoryTool extends BaseTool {
       output += files.join('\n');
 
       if (items.length === 0) {
-        output += '(Diretório vazio)';
+        output += '(Empty directory)';
       }
 
       return output.trim();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`❌ [ListDirectory] Erro ao listar:`, message);
-      return `Erro ao ler diretório: ${message}`;
+      console.error('[ListDirectory] Error while listing:', message);
+      return `Error while reading directory: ${message}`;
     }
   }
 }

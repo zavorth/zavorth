@@ -41,14 +41,14 @@ export function formatSafetyNarrativeSnapshot(
 ): string {
   const lines = [
     'Safety Narrative - Safety Narrative',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- status: ${snapshot.status}`,
     `- high-risk: ${String(snapshot.highRiskBlockPresent)}`,
     `- approvals continuam: ${String(snapshot.policy.approvalsRemainRequired)}`,
     `- preview continua: ${String(snapshot.policy.previewRemainsRequired)}`,
     `- segredos redigidos: ${snapshot.redaction.secretCount}`,
     `- paths redigidos: ${snapshot.redaction.sensitivePathCount}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
   ];
 
   if (snapshot.reasons.length > 0) {

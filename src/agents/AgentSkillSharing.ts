@@ -178,9 +178,7 @@ export class AgentSkillSharing {
     try {
       if (!fs.existsSync(this.skillsFile)) return [];
       return JSON.parse(fs.readFileSync(this.skillsFile, 'utf-8')) as SharedSkill[];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Agent Skill Sharing] JSON parse failed', error); return []; }
   }
 
   private writeSkills(skills: SharedSkill[]): void {

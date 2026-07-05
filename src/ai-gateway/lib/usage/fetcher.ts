@@ -3,6 +3,7 @@
  */
 
 import { GITHUB_CONFIG, GEMINI_CONFIG, ZAVORTH_BRIDGE_CONFIG } from "@/lib/oauth/constants/oauth";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Get usage data for a provider connection
@@ -140,6 +141,7 @@ async function getGeminiUsage(accessToken) {
 
     return { message: "Gemini CLI connected. Usage tracked via Google Cloud Console." };
   } catch (error) {
+    logger.warn('[fetcher] connection failed', error);
     return { message: "Unable to fetch Gemini usage. Check Google Cloud Console." };
   }
 }
@@ -152,6 +154,7 @@ async function getZavorthBridgeUsage(accessToken) {
     // Similar to Gemini, uses Google Cloud
     return { message: "ZavorthBridge connected. Usage tracked via Google Cloud Console." };
   } catch (error) {
+    logger.warn('[fetcher] network request failed', error);
     return { message: "Unable to fetch ZavorthBridge usage." };
   }
 }
@@ -167,6 +170,7 @@ async function getClaudeUsage() {
         "Claude connected. Detailed quota windows are handled by the open-sse usage service.",
     };
   } catch (error) {
+    logger.warn('[fetcher] network request failed', error);
     return { message: "Unable to fetch Claude usage." };
   }
 }
@@ -187,6 +191,7 @@ async function getCodexUsage(accessToken, providerSpecificData: Record<string, a
     }
     return { message: "Codex connected. Check OpenAI zavorthControl for usage." };
   } catch (error) {
+    logger.warn('[fetcher] connection failed', error);
     return { message: "Unable to fetch Codex usage." };
   }
 }
@@ -204,6 +209,7 @@ async function getQwenUsage(accessToken, providerSpecificData) {
     // Qwen may have usage endpoint at resource URL
     return { message: "Qwen connected. Usage tracked per request." };
   } catch (error) {
+    logger.warn('[fetcher] connection failed', error);
     return { message: "Unable to fetch Qwen usage." };
   }
 }
@@ -216,6 +222,7 @@ async function getIflowUsage(accessToken) {
     // Qoder may have usage endpoint
     return { message: "Qoder connected. Usage tracked per request." };
   } catch (error) {
+    logger.warn('[fetcher] network request failed', error);
     return { message: "Unable to fetch Qoder usage." };
   }
 }
@@ -268,7 +275,8 @@ async function getKiroUsage(accessToken: string) {
         resetDate,
       },
     };
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[fetcher] connection failed', error);
     return { message: `Unable to fetch Kiro credits: ${error.message}` };
   }
 }

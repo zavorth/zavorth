@@ -1,4 +1,5 @@
 import type { SharedSurfaceRuntime, SurfaceControllerContext, PermissionControllerLike } from '../../../../services/SurfaceRuntime.js';
+import type { SharedSurfaceCommandServiceDeps } from '../shared-surface/factory/SharedSurfaceCommandServiceDeps.js';
 import type { RuntimeDiagnosticsService } from '../../../../services/RuntimeDiagnosticsService.js';
 import type { PermissionService } from '../../../../services/PermissionService.js';
 import type { TaskManager } from '../../../../orchestrator/TaskManager.js';
@@ -235,7 +236,7 @@ export class WebAppSharedSurfaceFactoryService {
       permissionService: runtime.permissionService as unknown as PermissionService,
       selfModificationCommandService: source.selfModificationCommandService,
       surfaceTaskDispatcher: runtime.surfaceTaskDispatcher || null,
-      taskManager: runtime.taskManager as unknown as TaskManager,
+      taskManager: this.buildTaskManagerAdapter(runtime.taskManager as unknown as TaskManager),
       taskApprovalController: this.buildTaskApprovalController(source),
       workflowController: runtime.workflowController || null,
       engineeringCoreService: source.engineeringCore,
@@ -252,6 +253,23 @@ export class WebAppSharedSurfaceFactoryService {
       mcpCapabilityControlPlaneService: source.operations.mcpCapabilityControlPlane || undefined,
       mcpRuntimeService: source.operations.mcpRuntime || undefined,
     });
+  }
+
+  private buildTaskManagerAdapter(taskManager: TaskManager): NonNullable<SharedSurfaceCommandServiceDeps['taskManager']> {
+    return {
+      getRecentTasks: taskManager.getRecentTasks.bind(taskManager),
+      getTask: taskManager.getTask.bind(taskManager),
+      advanceState: (task, nextStatus, options) => {
+        taskManager.advanceState(
+          task as Parameters<TaskManager['advanceState']>[0],
+          nextStatus as Parameters<TaskManager['advanceState']>[1],
+          {
+            ...options,
+            actor: options?.actor ?? undefined,
+          },
+        );
+      },
+    };
   }
 
   public buildHubActionService(source: WebAppSharedSurfaceFactorySource): ZavorthHubActionService {

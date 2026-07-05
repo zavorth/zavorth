@@ -8,7 +8,7 @@ interface GatewaySnapshotInput {
 }
 
 // Gateway channel router interface
-interface GatewayChannelRouter {
+export interface GatewayChannelRouter {
   getChannel: (id: string) => unknown;
   sendToSession: (...args: unknown[]) => Promise<unknown>;
   spawnSession: (...args: unknown[]) => unknown;
@@ -181,7 +181,7 @@ interface NaturalSetupControlPlane {
 
 // Automation control plane
 interface AutomationControlPlane {
-  buildSnapshot: (options: ControlPlaneSnapshotOptions) => Promise<unknown>;
+  buildSnapshot: (options?: ControlPlaneSnapshotOptions) => Promise<unknown>;
 }
 
 // Automation actions
@@ -200,6 +200,7 @@ interface AutomationActions {
   }>;
   apply?: (options: {
     planId: string;
+    requestedBy?: string;
   }) => Promise<{
     [key: string]: unknown;
   }>;
@@ -207,12 +208,12 @@ interface AutomationActions {
 
 // Watch mode control plane
 interface WatchModeControlPlane {
-  buildSnapshot: (options: ControlPlaneSnapshotOptions) => unknown;
+  buildSnapshot: (options?: ControlPlaneSnapshotOptions) => unknown;
 }
 
 // Hub control plane
 interface HubControlPlane {
-  buildSnapshot: (options: ControlPlaneSnapshotOptions) => unknown;
+  buildSnapshot: (options?: ControlPlaneSnapshotOptions) => unknown;
 }
 
 // Hub actions
@@ -391,4 +392,13 @@ export type WebAppSurfaceRouteDeps = {
   capabilityCatalog?: CapabilityCatalog;
   operatorBrief?: OperatorBrief;
   workspaceRoot?: string;
+  channelMesh?: any;
+  channelInstall?: any;
+  channelProviderDoctor?: any;
+  naturalChannelSetupTurn?: any;
+  remoteTransports?: any;
+  remoteTransportActions?: any;
+  remoteTransportDoctor?: any;
+  gatewayChannelRegistry?: any;
+  [key: string]: any;
 };

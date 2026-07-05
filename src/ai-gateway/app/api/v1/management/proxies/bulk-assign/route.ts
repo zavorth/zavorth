@@ -4,6 +4,7 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/errorResponse";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { clearDispatcherCache } from "@ZavorthGateway/open-sse/utils/proxyDispatcher";
+import { logger } from '@/shared/utils/logger';
 
 export async function PUT(request: Request) {
   const authError = await requireStrictManagementAuth(request);
@@ -12,7 +13,8 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -44,6 +46,7 @@ export async function PUT(request: Request) {
       failed: result.failed,
     });
   } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to run bulk assignment");
   }
 }

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 interface TranscriptionResult {
   success: boolean;
@@ -93,10 +94,11 @@ export class ZavorthSttTool extends BaseTool {
         case 'set_default': return this.setDefault(args);
         default: return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Stt] async operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `STT error: ${message}`;
-    }
+  }
   }
 
   private ensureStorageDir(): void {
@@ -166,10 +168,11 @@ export class ZavorthSttTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Stt] operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Transcription error: ${message}`;
-    }
+  }
   }
 
   private async detectLanguage(args: Record<string, unknown>): Promise<string> {
@@ -197,10 +200,11 @@ export class ZavorthSttTool extends BaseTool {
       }
 
       return `Idioma detectado: ${result.language || 'desconhecido'}. Texto: "${result.text.slice(0, 100)}..."`;
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Stt] process execution failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Language detection error: ${message}`;
-    }
+  }
   }
 
   private listBackends(): string {
@@ -246,9 +250,7 @@ export class ZavorthSttTool extends BaseTool {
           const { execFileSync } = require('child_process');
           execFileSync('whisper', ['--help'], { timeout: 3000 });
           return true;
-        } catch {
-          return false;
-        }
+        } catch (error) { logger.warn('[Zavorth Stt] process execution failed', error); return false; }
       }
       default: return false;
     }
@@ -311,9 +313,10 @@ export class ZavorthSttTool extends BaseTool {
             };
           }
           return { success: true, text: parsed.text || result, language: parsed.language, backend: 'whisper' };
-        } catch {
-          return { success: true, text: result, backend: 'whisper' };
-        }
+        } catch (error) {
+    logger.warn('[Zavorth Stt] parsing failed', error);
+    return { success: true, text: result, backend: 'whisper' };
+  }
       }
 
       case 'deepgram': {
@@ -349,9 +352,10 @@ export class ZavorthSttTool extends BaseTool {
             })),
             backend: 'deepgram',
           };
-        } catch {
-          return { success: true, text: result, backend: 'deepgram' };
-        }
+        } catch (error) {
+    logger.warn('[Zavorth Stt] parsing failed', error);
+    return { success: true, text: result, backend: 'deepgram' };
+  }
       }
 
       case 'gemini': {
@@ -390,11 +394,12 @@ export class ZavorthSttTool extends BaseTool {
               language: options.language,
               backend: 'gemini',
             };
-          } catch {
-            return { success: true, text: result, backend: 'gemini' };
-          }
+          } catch (error) {
+    logger.warn('[Zavorth Stt] JSON parse failed', error);
+    return { success: true, text: result, backend: 'gemini' };
+  }
         } finally {
-          try { fs.unlinkSync(tmpPayload); } catch { /* ignore */ }
+          try { fs.unlinkSync(tmpPayload); } catch (error) { /* ignore */ logger.warn('[Zavorth Stt] file cleanup failed', error); }
         }
       }
 
@@ -415,9 +420,10 @@ export class ZavorthSttTool extends BaseTool {
         try {
           const parsed = JSON.parse(result);
           return { success: true, text: parsed.DisplayText || result, language: locale, backend: 'azure' };
-        } catch {
-          return { success: true, text: result, backend: 'azure' };
-        }
+        } catch (error) {
+    logger.warn('[Zavorth Stt] JSON parse failed', error);
+    return { success: true, text: result, backend: 'azure' };
+  }
       }
 
       case 'local': {

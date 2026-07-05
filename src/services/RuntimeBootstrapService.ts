@@ -5,8 +5,9 @@ import type { ModelPickerContract, SelectedModelProfile } from '../contracts/Mod
 import type { PlatformCapability } from '../contracts/PlatformContract.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
 import { PlatformCapabilityService } from './PlatformCapabilityService.js';
+import { logger } from '../logger.js';
 import {
-  SupervisedRuntimeService,
+SupervisedRuntimeService,
   type SupervisedRuntimeInspection,
 } from './SupervisedRuntimeService.js';
 
@@ -237,9 +238,10 @@ export class RuntimeBootstrapService {
             }
           });
         }
-      } catch {
-        skillSourcesValid = false;
-      }
+      } catch (error) {
+    logger.warn('[Runtime] filesystem operation failed', error);
+    skillSourcesValid = false;
+  }
     }
 
     if (!skillSourcesValid) {
@@ -496,7 +498,7 @@ export class RuntimeBootstrapService {
       || config.aiStudioApiKey
       || config.deepseekApiKey
       || config.openaiApiKey
-      || ((config as any).openaiApiKeys?.length > 0)
+      || (config.openaiApiKeys?.length > 0)
       || config.AIGatewayApiKey
       || config.groqApiKey
       || config.openRouterApiKey

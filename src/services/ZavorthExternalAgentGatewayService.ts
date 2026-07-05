@@ -14,6 +14,7 @@ import {
   type ZavorthExternalAgentProfile,
 } from '../contracts/ZavorthExternalAgentGatewayContract.js';
 import { AcpLiveSessionService } from './AcpLiveSessionService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthExternalAgentRegisterInput = {
   id?: string | null;
@@ -173,9 +174,7 @@ export class ZavorthExternalAgentGatewayService {
     try {
       const parsed = JSON.parse(this.readFileSyncImpl(target, 'utf8') as string) as ZavorthExternalAgentGatewayReceipt;
       return sanitizeReceipt(parsed);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth External Agent way] JSON parse failed', error); return null; }
   }
 
   public registerProfile(input: ZavorthExternalAgentRegisterInput): ZavorthExternalAgentGatewayReceipt {
@@ -533,7 +532,8 @@ export class ZavorthExternalAgentGatewayService {
         nextCommand: null,
       });
     } catch (error) {
-      return this.buildReceipt({
+    logger.warn('[Zavorth External Agent way] network request failed', error);
+    return this.buildReceipt({
         kind: 'agent-invocation',
         status: 'failed',
         profile,
@@ -552,7 +552,7 @@ export class ZavorthExternalAgentGatewayService {
         nextLabel: 'Inspect network/endpoint configuration',
         nextCommand: null,
       });
-    } finally {
+  } finally {
       clearTimeout(timeout);
     }
   }
@@ -664,9 +664,7 @@ export class ZavorthExternalAgentGatewayService {
       return Array.isArray(parsed.profiles)
         ? parsed.profiles.map((entry) => sanitizeProfile(entry)).filter(Boolean) as ZavorthExternalAgentProfile[]
         : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth External Agent way] JSON parse failed', error); return []; }
   }
 
   private writeProfiles(profiles: ZavorthExternalAgentProfile[]): void {
@@ -1018,9 +1016,7 @@ function isLocalEndpoint(endpoint: string): boolean {
   try {
     const url = new URL(endpoint);
     return ['127.0.0.1', 'localhost', '::1'].includes(url.hostname);
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Zavorth External Agent way] operation failed', error); return false; }
 }
 
 function buildSafeEnv(): NodeJS.ProcessEnv {

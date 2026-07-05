@@ -10,7 +10,7 @@ import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.j
 function compact(value: string | null | undefined, maxLength = 96): string {
   const normalized = sanitizeHumanCliText(value || '').replace(/\s+/g, ' ').trim();
   if (!normalized) {
-    return 'nao informado';
+    return 'not provided';
   }
   if (normalized.length <= maxLength) {
     return normalized;
@@ -44,7 +44,7 @@ export function formatTaskOsSnapshot(snapshot: ZavorthTaskOsSnapshot): string {
       lines: [
         `- ${formatCount(snapshot.summary.tasks, 'task', 'tasks')} no ledger`,
         `- ativas: ${snapshot.summary.active} | permissao: ${snapshot.summary.awaitingPermission} | artefato: ${snapshot.summary.awaitingArtifact}`,
-        `- artefatos: ${snapshot.summary.artifacts} | permissoes: ${snapshot.summary.permissions}`,
+        `- artifacts: ${snapshot.summary.artifacts} | permissoes: ${snapshot.summary.permissions}`,
         `- revogaveis: ${snapshot.summary.revokablePermissions}`,
       ],
     },
@@ -64,16 +64,16 @@ export function formatTaskOsSnapshot(snapshot: ZavorthTaskOsSnapshot): string {
     {
       title: 'Tasks recentes',
       tone: tasks.some((task) => task.state.state === 'awaiting_permission') ? 'warning' : 'neutral',
-      lines: tasks.length > 0 ? tasks.map((task) => formatTaskLine(task)) : ['- nenhum registro recente'],
+      lines: tasks.length > 0 ? tasks.map((task) => formatTaskLine(task)) : ['- no recent record'],
     },
     {
       title: 'Contratos',
       tone: snapshot.contracts.approvalResumesCorrectTask && snapshot.contracts.artifactsSurviveRestart ? 'success' : 'warning',
       lines: [
-        `- estados ambiguos: ${snapshot.contracts.noAmbiguousTaskState ? 'nao' : 'sim'}`,
-        `- aprovacao retoma task certa: ${snapshot.contracts.approvalResumesCorrectTask ? 'sim' : 'precisa de vinculo pendente'}`,
-        `- artefatos sobrevivem restart: ${snapshot.contracts.artifactsSurviveRestart ? 'sim' : 'parcial'}`,
-        `- permissoes auditaveis: ${snapshot.contracts.permissionsRevokableAndAuditable ? 'sim' : 'parcial'}`,
+        `- ambiguous states: ${snapshot.contracts.noAmbiguousTaskState ? 'no' : 'yes'}`,
+        `- approval resumes correct task: ${snapshot.contracts.approvalResumesCorrectTask ? 'yes' : 'needs pending link'}`,
+        `- artifacts survive restart: ${snapshot.contracts.artifactsSurviveRestart ? 'yes' : 'partial'}`,
+        `- auditable permissions: ${snapshot.contracts.permissionsRevokableAndAuditable ? 'yes' : 'partial'}`,
       ],
     },
     {
@@ -91,7 +91,7 @@ export function formatTaskOsSnapshot(snapshot: ZavorthTaskOsSnapshot): string {
     eyebrow: 'Tasks',
     eyebrowTone: snapshot.summary.awaitingPermission > 0 ? 'warning' : 'success',
     title: 'Task OS do Zavorth',
-    summary: formatCliValue(snapshot.narrative.headline, 'Ledger operacional de tasks pronto.'),
+    summary: formatCliValue(snapshot.narrative.headline, 'Ledger operacional de tasks ready.'),
     mode: 'compact',
     showWordmark: false,
     panels,
@@ -106,10 +106,10 @@ export function formatTaskArtifactsSnapshot(snapshot: ZavorthTaskArtifactsSnapsh
       lines: snapshot.task
         ? [
             `- id: ${snapshot.task.taskId}`,
-            `- estado: ${snapshot.task.state.state}`,
+            `- state: ${snapshot.task.state.state}`,
             `- resumo: ${compact(snapshot.task.summary, 100)}`,
           ]
-        : ['- nenhuma task encontrada'],
+        : ['- no task found'],
     },
     {
       title: 'Artefatos',
@@ -117,14 +117,14 @@ export function formatTaskArtifactsSnapshot(snapshot: ZavorthTaskArtifactsSnapsh
       lines: snapshot.artifacts.length > 0
         ? snapshot.artifacts.slice(0, 8).map((artifact) =>
             `- ${artifact.name}: ${artifact.kind || artifact.type} | ${artifact.path || artifact.url || artifact.key}`)
-        : ['- nenhum artefato estruturado'],
+        : ['- no structured artifact'],
     },
     {
       title: 'Reenvio',
       tone: snapshot.redelivery.available ? 'brand' : 'neutral',
       lines: [
-        `- disponivel: ${snapshot.redelivery.available ? 'sim' : 'nao'}`,
-        `- comando: ${snapshot.redelivery.command || 'nao informado'}`,
+        `- available: ${snapshot.redelivery.available ? 'yes' : 'no'}`,
+        `- command: ${snapshot.redelivery.command || 'not provided'}`,
         `- motivo: ${compact(snapshot.redelivery.reason, 96)}`,
       ],
     },
@@ -150,20 +150,20 @@ export function formatTaskContinuationPlan(plan: ZavorthTaskContinuationPlan): s
       tone: plan.available ? 'success' : 'warning',
       lines: [
         `- acao: ${plan.action}`,
-        `- disponivel: ${plan.available ? 'sim' : 'nao'}`,
-        `- proximo comando: ${plan.nextCommand || 'nao informado'}`,
-        `- estado esperado: ${plan.expectedState || 'nao informado'}`,
+        `- available: ${plan.available ? 'yes' : 'no'}`,
+        `- next command: ${plan.nextCommand || 'not provided'}`,
+        `- estado esperado: ${plan.expectedState || 'not provided'}`,
       ],
     },
     {
       title: 'Preserva',
       tone: 'info',
       lines: [
-        `- conversa: ${plan.preserves.conversation ? 'sim' : 'nao'}`,
-        `- workspace: ${plan.preserves.workspace ? 'sim' : 'nao'}`,
-        `- executor: ${plan.preserves.executor ? 'sim' : 'nao'}`,
-        `- artefatos: ${plan.preserves.artifacts ? 'sim' : 'nao'}`,
-        `- aprovacoes: ${plan.preserves.approvals ? 'sim' : 'nao'}`,
+        `- conversation: ${plan.preserves.conversation ? 'yes' : 'no'}`,
+        `- workspace: ${plan.preserves.workspace ? 'yes' : 'no'}`,
+        `- executor: ${plan.preserves.executor ? 'yes' : 'no'}`,
+        `- artifacts: ${plan.preserves.artifacts ? 'yes' : 'no'}`,
+        `- approvals: ${plan.preserves.approvals ? 'yes' : 'no'}`,
       ],
     },
   ];

@@ -1,8 +1,9 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, type Tool } from '@google/generative-ai';
 import { search, SafeSearchType, type SearchResult } from 'duck-duck-scrape';
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { LogRepository } from '../storage/LogRepository.js';
+import { logger } from '../logger.js';
 
 const SEARCH_FALLBACK_ORDER = ['AIGateway', 'gemini', 'deepseek', 'qwen', 'openrouter', 'minimax', 'opencode', 'openai'];
 
@@ -71,9 +72,7 @@ export class DeepSearchService {
         if (subResult && subResult.length > 30) {
           subResults.push(`---\n**Sub-pergunta:** ${subQuestion}\n${subResult}`);
         }
-      } catch {
-        // Continua para as próximas sub-perguntas.
-      }
+      } catch (error) { // Continua para as próximas sub-perguntas. logger.warn('[Deep Search] search failed', error); }
     }
 
     return this.synthesize(query, subResults);
@@ -91,7 +90,7 @@ export class DeepSearchService {
         const genAI = new GoogleGenerativeAI(key);
         const model = genAI.getGenerativeModel({
           model: config.geminiModel,
-          tools: [{ googleSearch: {} } as GoogleSearchTool],
+          tools: [{ googleSearch: {} } as unknown as Tool],
         });
 
         const result = await model.generateContent({
@@ -243,7 +242,7 @@ export class DeepSearchService {
       case 'opencode':
         return !!config.openCodeApiKey;
       case 'openai':
-        return !!(config.openaiApiKey || (config as ConfigWithOpenaiKeys).openaiApiKeys?.length > 0);
+        return !!(config.openaiApiKey || ((config as ConfigWithOpenaiKeys).openaiApiKeys?.length ?? 0) > 0);
       default:
         return false;
     }

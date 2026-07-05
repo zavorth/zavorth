@@ -27,7 +27,7 @@ export async function startChannelGateways(
     capabilityId: 'discord',
     start: async () => {
       await Promise.resolve(surfaceRuntime.discordGateway.start?.()).catch((error: unknown) => {
-        const message = `Falha ao iniciar gateway do Discord: ${describeError(error)}`;
+        const message = `Failed to start Discord gateway: ${describeError(error)}`;
         if (
           foundation.discordBootPolicy.shouldFailClosed({
             requiredOnBoot: config.discordRequiredOnBoot,
@@ -35,15 +35,15 @@ export async function startChannelGateways(
             bridgeConfigured: config.discordBridgeEnabled,
           })
         ) {
-          foundation.logRepo.log('error', 'DiscordGateway', `${message} O boot esta em modo fail-closed.`);
+          foundation.logRepo.log('error', 'DiscordGateway', `${message} Boot is running in fail-closed mode.`);
           throw error;
         }
 
         foundation.logRepo.log('warn', 'DiscordGateway', message);
       });
     },
-    activeMessage: 'Gateway do Discord ativo no boot.',
-    dormantMessage: `Perfil ${foundation.runtimeProfileService.getProfile()} nao preaquece Discord.`,
+    activeMessage: 'Discord gateway active on boot.',
+    dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not prewarm Discord.`,
     foundation,
   });
 
@@ -51,56 +51,56 @@ export async function startChannelGateways(
     capabilityId: 'whatsapp',
     gatewayName: 'WhatsAppGateway',
     start: () => surfaceRuntime.whatsAppGateway.start?.(),
-    activeMessage: 'Gateway do WhatsApp ativo no boot.',
-    dormantMessage: `Perfil ${foundation.runtimeProfileService.getProfile()} nao preaquece WhatsApp.`,
+    activeMessage: 'WhatsApp gateway active on boot.',
+    dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not prewarm WhatsApp.`,
     foundation,
   });
   await startOptionalGateway({
     capabilityId: 'instagram',
     gatewayName: 'InstagramGateway',
     start: () => surfaceRuntime.instagramGateway.start?.(),
-    activeMessage: 'Gateway do Instagram ativo no boot.',
-    dormantMessage: `Perfil ${foundation.runtimeProfileService.getProfile()} nao preaquece Instagram.`,
+    activeMessage: 'Instagram gateway active on boot.',
+    dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not prewarm Instagram.`,
     foundation,
   });
   await startOptionalGateway({
     capabilityId: 'slack',
     gatewayName: 'SlackGateway',
     start: () => surfaceRuntime.slackGateway.start?.(),
-    activeMessage: 'Gateway do Slack ativo no boot.',
-    dormantMessage: `Perfil ${foundation.runtimeProfileService.getProfile()} nao preaquece Slack.`,
+    activeMessage: 'Slack gateway active on boot.',
+    dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not prewarm Slack.`,
     foundation,
   });
   await startOptionalGateway({
     capabilityId: 'signal',
     gatewayName: 'SignalGateway',
     start: () => surfaceRuntime.signalGateway.start?.(),
-    activeMessage: 'Gateway do Signal ativo no boot.',
-    dormantMessage: `Perfil ${foundation.runtimeProfileService.getProfile()} nao preaquece Signal.`,
+    activeMessage: 'Signal gateway active on boot.',
+    dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not prewarm Signal.`,
     foundation,
   });
   await startOptionalGateway({
     capabilityId: 'imessage',
     gatewayName: 'IMessageGateway',
     start: () => surfaceRuntime.imessageGateway.start?.(),
-    activeMessage: 'Gateway do iMessage ativo no boot.',
-    dormantMessage: `Perfil ${foundation.runtimeProfileService.getProfile()} nao preaquece iMessage.`,
+    activeMessage: 'iMessage gateway active on boot.',
+    dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not prewarm iMessage.`,
     foundation,
   });
   await startOptionalGateway({
     capabilityId: 'teams',
     gatewayName: 'TeamsGateway',
     start: () => surfaceRuntime.teamsGateway.start?.(),
-    activeMessage: 'Gateway do Teams ativo no boot.',
-    dormantMessage: `Perfil ${foundation.runtimeProfileService.getProfile()} nao preaquece Teams.`,
+    activeMessage: 'Teams gateway active on boot.',
+    dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not prewarm Teams.`,
     foundation,
   });
   await startOptionalGateway({
     capabilityId: 'email',
     gatewayName: 'EmailGateway',
     start: () => surfaceRuntime.emailGateway.start?.(),
-    activeMessage: 'Gateway do Email ativo no boot.',
-    dormantMessage: `Perfil ${foundation.runtimeProfileService.getProfile()} nao preaquece Email.`,
+    activeMessage: 'Email gateway active on boot.',
+    dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not prewarm Email.`,
     foundation,
   });
 
@@ -113,13 +113,13 @@ export async function startChannelGateways(
   foundation.logRepo.log(
     'info',
     'Bootstrap',
-    `Mesh operacional de canais: ${runtimeChannelSnapshot.summary.ready} pronto(s), ${runtimeChannelSnapshot.summary.partial} parcial(is), ${runtimeChannelSnapshot.summary.planned} planejado(s) e ${runtimeChannelSnapshot.summary.disabled} desabilitado(s).`,
+    `Operational channel mesh: ${runtimeChannelSnapshot.summary.ready} ready, ${runtimeChannelSnapshot.summary.partial} partial, ${runtimeChannelSnapshot.summary.planned} planned, and ${runtimeChannelSnapshot.summary.disabled} disabled.`,
   );
   for (const channel of runtimeChannelSnapshot.channels) {
     foundation.logRepo.log(
       channel.readiness === 'ready' ? 'info' : channel.readiness === 'partial' ? 'warn' : 'info',
       'Bootstrap',
-      `Mesh canal ${channel.id}: ${channel.readiness}/${channel.transport}. ${channel.notes.join(' ')}`,
+      `Mesh channel ${channel.id}: ${channel.readiness}/${channel.transport}. ${channel.notes.join(' ')}`,
     );
   }
 
@@ -129,15 +129,15 @@ export async function startChannelGateways(
       foundation.capabilityLifecycleService.markCapabilityState(
         'maintenance-automation',
         'active',
-        'Automacao recorrente iniciada apos o bootstrap principal.',
+        'Recurring automation started after the main bootstrap.',
       );
-      foundation.logRepo.log('info', 'MaintenanceAutomationService', 'Automacao recorrente iniciada apos o bootstrap principal.');
+      foundation.logRepo.log('info', 'MaintenanceAutomationService', 'Recurring automation started after the main bootstrap.');
     }, 30_000).unref();
   } else {
     foundation.capabilityLifecycleService.markCapabilityState(
       'maintenance-automation',
       'dormant',
-      `Perfil ${foundation.runtimeProfileService.getProfile()} manteve a manutencao recorrente desativada no boot.`,
+      `Profile ${foundation.runtimeProfileService.getProfile()} kept recurring maintenance disabled on boot.`,
     );
   }
 
@@ -177,7 +177,7 @@ async function startOptionalGateway(params: {
     params.foundation.logRepo.log(
       'warn',
       params.gatewayName ?? `${params.capabilityId}Gateway`,
-      `Falha ao iniciar gateway preparado de ${params.capabilityId}: ${describeError(error)}`,
+      `Failed to start prepared gateway for ${params.capabilityId}: ${describeError(error)}`,
     );
   });
   params.foundation.capabilityLifecycleService.markCapabilityState(params.capabilityId, 'active', params.activeMessage);

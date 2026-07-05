@@ -8,8 +8,9 @@ import {
   type GatewaySpineStatus,
   type GatewaySpineSurfaceProjection,
 } from '../contracts/GatewaySpineContract.js';
+import { logger } from '../logger.js';
 import type {
-  GatewayChannelRegistryEntry,
+GatewayChannelRegistryEntry,
   GatewayChannelRegistryService,
   GatewayChannelRegistrySnapshot,
 } from './GatewayChannelRegistryService.js';
@@ -227,9 +228,7 @@ export class GatewaySpineService {
 function readRuntimeSnapshot(source?: RuntimeSnapshotSource): unknown {
   try {
     return source && typeof source.buildSnapshot === 'function' ? source.buildSnapshot() : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[way Spine] creation failed', error); return null; }
 }
 
 function readChannelRegistrySnapshot(
@@ -237,9 +236,7 @@ function readChannelRegistrySnapshot(
 ): GatewayChannelRegistrySnapshot | null {
   try {
     return source && typeof source.buildSnapshot === 'function' ? source.buildSnapshot() : null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[way Spine] creation failed', error); return null; }
 }
 
 function normalizeGatewayRuntime(runtimeSnapshot: unknown): GatewaySpineSnapshot['gatewayRuntime'] {

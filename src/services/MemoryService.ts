@@ -2,6 +2,7 @@ import { Database } from '../storage/Database.js';
 import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 import { SecureStorageService } from './SecureStorageService.js';
 import { VectorEmbeddingService } from './VectorEmbeddingService.js';
+import { logger } from '../logger.js';
 
 const VECTOR_DIMENSIONS = 768; // text-embedding-04 utiliza 768 dimens??es
 
@@ -458,9 +459,10 @@ export class MemoryService {
 
     try {
       return await this.embeddingService.generate(text);
-    } catch {
-      return this.buildEmbedding(text);
-    }
+    } catch (error) {
+    logger.warn('[Memory] creation failed', error);
+    return this.buildEmbedding(text);
+  }
   }
 
   private serializeEmbedding(vector: number[]): string {
@@ -483,9 +485,7 @@ export class MemoryService {
         .map((item) => Number(item))
         .filter((item) => Number.isFinite(item));
       return vector.length === VECTOR_DIMENSIONS ? vector : null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Memory] JSON parse failed', error); return null; }
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {

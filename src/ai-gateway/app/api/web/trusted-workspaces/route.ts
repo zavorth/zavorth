@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { logger } from '@/shared/utils/logger';
 import {
-  getRuntimeEngineApiState,
+getRuntimeEngineApiState,
   isTrustedWorkspaceState,
   isUnsafeCrossSiteMutation,
   readJsonBody,
@@ -53,6 +54,7 @@ export async function POST(request: Request) {
       state: isTrustedWorkspaceState(body.state) ? body.state : "trusted",
     });
   } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json({
       ok: false,
       error: error instanceof Error ? error.message : "trusted workspace rejected",

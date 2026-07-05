@@ -1,7 +1,8 @@
 import Database from "better-sqlite3";
 import { redactExportedLogValue } from "../logExportRedaction";
+import { logger } from '@/shared/utils/logger';
 import {
-  redactSensitiveData,
+redactSensitiveData,
   redactSensitiveText,
 } from "../../../security/SensitiveDataGuard.js";
 
@@ -203,9 +204,7 @@ function redactMaybeJsonString(value: string): string {
   if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
     try {
       return JSON.stringify(redactSensitiveData(redactExportedLogValue(JSON.parse(value))));
-    } catch {
-      // Fall through to text redaction.
-    }
+    } catch (error) { // Fall through to text redaction. logger.warn('[backup Sanitizer] JSON parse failed', error); }
   }
   return redactSensitiveText(value);
 }

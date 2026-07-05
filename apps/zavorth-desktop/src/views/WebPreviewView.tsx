@@ -91,7 +91,7 @@ export function WebPreviewView() {
           <button type="button" className="zvd-preview-btn" onClick={() => window.history.back()} title="Voltar">
             <IconArrowLeft size={16} />
           </button>
-          <button type="button" className="zvd-preview-btn" onClick={() => window.history.forward()} title="Avançar">
+          <button type="button" className="zvd-preview-btn" onClick={() => window.history.forward()} title="Forward">
             <IconArrowRight size={16} />
           </button>
           <button type="button" className="zvd-preview-btn" onClick={handleRefresh} title="Atualizar">

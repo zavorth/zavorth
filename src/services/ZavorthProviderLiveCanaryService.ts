@@ -9,6 +9,7 @@ import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
 import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
+import { logger } from '../logger.js';
 
 type LlmRuntimeLike = Pick<LlmRuntimeService, 'isProviderAvailable' | 'getPreferredProviderName'>;
 type SubagentRuntimeLike = Pick<ZavorthSubagentRuntimeService, 'execute'>;
@@ -237,12 +238,13 @@ export class ZavorthProviderLiveCanaryService {
         return { status: 'failed', error: 'Provider answered, but the exact canary marker was not observed.' };
       }
       return { status: 'passed', error: null };
-    } catch (error: unknown) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth  Live Canary] filesystem check failed', error);
+    return {
         status: 'failed',
         error: error instanceof Error ? error.message : String(error),
       };
-    } finally {
+  } finally {
       ProviderFactory.clearCache();
     }
   }
@@ -272,10 +274,11 @@ export class ZavorthProviderLiveCanaryService {
       try {
         available = this.llmRuntime.isProviderAvailable(providerName);
         reason = available ? 'credential or endpoint presence detected' : 'credential or endpoint not detected';
-      } catch (error: unknown) {
-        available = false;
+      } catch (error) {
+    logger.warn('[Zavorth  Live Canary] array operation failed', error);
+    available = false;
         reason = error instanceof Error ? error.message : String(error);
-      }
+  }
       return {
         providerName,
         available,

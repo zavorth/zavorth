@@ -118,10 +118,10 @@ export const ARTIFACT_REPLAY_WORKBENCH_REQUIRED_CARDS = [
 ] as const;
 
 export const ARTIFACT_REPLAY_WORKBENCH_CONTRACTS = [
-  'A bancada indexa artifacts por workspace/run/task sem iniciar runtime persistente.',
-  'Comparacao entre runs deve existir como plano mesmo em cold start.',
-  'Replay learning permanece preview-first, redigido e revogavel.',
-  'Marcacao de sessoes boas para aprendizado vira learning mark, nao auto-aplicacao.',
-  'Export de evidencia usa referencias/resumos; payload bruto e secrets nao entram no bundle.',
-  'A ZavorthControl deve expor indice, comparacao, redaction, learning e export controlado.',
+  'The workbench indexes artifacts by workspace/run/task without starting a persistent runtime.',
+  'Run comparison must exist as a plan even in cold start.',
+  'Replay learning remains preview-first, redacted, and revocable.',
+  'Marking good sessions for learning becomes a learning mark, not auto-application.',
+  'Evidence export uses references/summaries; raw payload and secrets do not enter the bundle.',
+  'ZavorthControl must expose index, comparison, redaction, learning, and controlled export.',
 ];

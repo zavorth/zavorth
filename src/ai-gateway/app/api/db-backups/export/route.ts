@@ -4,8 +4,9 @@ import fs from "fs";
 import os from "os";
 import { getDbInstance, SQLITE_FILE } from "@/lib/db/core";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 import {
-  sanitizeSqliteBackupFile,
+sanitizeSqliteBackupFile,
   shouldIncludeSensitiveDatabaseExport,
 } from "@/lib/db/backupSanitizer";
 
@@ -42,9 +43,7 @@ export async function GET(request: Request) {
     // Cleanup temp file
     try {
       fs.unlinkSync(tmpPath);
-    } catch {
-      /* best effort */
-    }
+    } catch (error) { /* best effort */ logger.warn('[route] file cleanup failed', error); }
 
     return new Response(fileBuffer, {
       status: 200,

@@ -114,7 +114,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       ...surfaceProjections,
       zavorthControlProjection,
     ]);
-    const zavorthControlProjection = {
+    const finalProjection = {
       ...zavorthControlProjection,
       status,
     };
@@ -127,8 +127,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       naturalPlan,
       surfaceResponse,
       surfaceProjections,
-      zavorthControlProjection,
-      zavorthControlProjection: zavorthControlProjection,
+      zavorthControlProjection: finalProjection,
       certificationMatrix,
       liveCanary: {
         enabled: false,
@@ -143,6 +142,13 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
         visualChangesRequireOwnerApproval: true,
         mutationStillRequiresApproval: true,
         canaryLiveOnlyWithExplicitApproval: true,
+      },
+      commands: {
+        report: 'npm run qa:perception-surface-certification --silent',
+        inspectJson: 'npm run qa:perception-surface-certification:json --silent',
+        check: 'npm run qa:perception-surface-certification:check --silent',
+        inspectTarget: 'npm run qa:perception-surface-certification:target --silent --id=<id>',
+        nextStep: 'Perception cross-surface certification matrix matches checkpoint-6',
       },
       nextSafeAction: 'Use /vision, /computer ou /device em modo read-only; live canary exige flag e owner approval explicitos.',
     };

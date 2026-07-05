@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger';
 /**
  * Shared CORS configuration for all API routes.
  *
@@ -32,9 +33,7 @@ export function normalizeCorsOrigin(value: unknown): string {
       return "";
     }
     return parsed.origin;
-  } catch {
-    return "";
-  }
+  } catch (error) { logger.warn('[cors] network request failed', error); return ''; }
 }
 
 export const CORS_ORIGIN = normalizeCorsOrigin(CONFIGURED_CORS_ORIGIN);

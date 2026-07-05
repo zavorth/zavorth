@@ -152,7 +152,7 @@ export function LiveTerminal({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && sendInput()}
-          placeholder="Enviar comando..."
+          placeholder="Send command..."
           disabled={!connected}
         />
         <button style={styles.sendBtn} onClick={sendInput} disabled={!connected}>

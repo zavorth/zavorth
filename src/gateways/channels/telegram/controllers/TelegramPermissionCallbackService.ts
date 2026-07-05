@@ -25,7 +25,7 @@ export class TelegramPermissionCallbackService {
       const permission = await this.deps.resolvePermissionReference(reference || '');
 
       if (action === 'approve') {
-        await ctx.answerCallbackQuery({ text: 'Aprovando permissao...' });
+        await ctx.answerCallbackQuery({ text: 'Approving permission...' });
         callbackAnswered = true;
         const patch: TelegramPermissionApprovalPatch = {};
         if (scopeToken) {
@@ -38,27 +38,27 @@ export class TelegramPermissionCallbackService {
         }
         await this.deps.permissionDecision.applyPermissionApproval(ctx, permission, patch, userId);
       } else if (action === 'reject') {
-        await ctx.answerCallbackQuery({ text: 'Rejeitando permissao...' });
+        await ctx.answerCallbackQuery({ text: 'Rejecting permission...' });
         callbackAnswered = true;
         await this.deps.permissionDecision.applyPermissionRejection(
           ctx,
           permission,
           userId,
-          'Rejeicao inline pelo Telegram.',
+          'Inline rejection from Telegram.',
         );
       } else {
-        await ctx.answerCallbackQuery({ text: 'Acao inline desconhecida.' });
+        await ctx.answerCallbackQuery({ text: 'Unknown inline action.' });
         return;
       }
 
       await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Falha ao processar a permissao.';
+      const message = error instanceof Error ? error.message : 'Failed to process the permission.';
       if (!callbackAnswered) {
         await ctx.answerCallbackQuery({ text: message });
         return;
       }
-      await ctx.reply(`Falha ao processar a permissao: ${message}`);
+      await ctx.reply(`Failed to process the permission: ${message}`);
     }
   }
 }

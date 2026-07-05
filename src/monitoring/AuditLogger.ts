@@ -32,11 +32,11 @@ type AuditLoggerRuntime = {
 };
 
 /**
- * AuditLogger — Registra cada etapa da pipeline de contenção para rastreabilidade completa.
- * Armazena na tabela `audit_log` do SQLite.
+ * AuditLogger records every containment pipeline step for full traceability.
+ * Events are stored in the SQLite `audit_log` table.
  */
 export class AuditLogger {
-  private initialized: boolean = false;
+  private initialized = false;
   private readonly secureStorage: SecureStorageService;
   private readonly dbProvider: Pick<typeof Database, 'getInstance'>;
   private readonly trailService: SecurityAuditTrailService;
@@ -53,7 +53,7 @@ export class AuditLogger {
   }
 
   /**
-   * Inicializa a tabela de audit se ainda não existir.
+   * Initializes the audit table if it does not exist yet.
    */
   public async init(): Promise<void> {
     if (this.initialized) return;
@@ -80,16 +80,14 @@ export class AuditLogger {
       )
     `);
 
-    // Índice para consultas por task_id
     db.run(`CREATE INDEX IF NOT EXISTS idx_audit_task_id ON audit_log(task_id)`);
-    // Índice para consultas por timestamp
     db.run(`CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_log(timestamp)`);
 
     this.initialized = true;
   }
 
   /**
-   * Registra um evento de pipeline na tabela audit.
+   * Records a pipeline event in the audit table.
    */
   public async logEvent(event: AuditEvent): Promise<void> {
     await this.init();
@@ -117,7 +115,7 @@ export class AuditLogger {
         event.execution_success === null ? null : (event.execution_success ? 1 : 0),
         this.secureStorage.encryptString(event.execution_summary),
         this.secureStorage.encryptJson(event.metadata),
-      ]
+      ],
     );
 
     try {
@@ -128,7 +126,7 @@ export class AuditLogger {
   }
 
   /**
-   * Atalho: Registra recebimento de input do usuário.
+   * Shortcut: records user input reception.
    */
   public async logInput(taskId: string, userId: string, input: string, intent: string): Promise<void> {
     await this.logEvent({
@@ -136,7 +134,7 @@ export class AuditLogger {
       event_type: 'INPUT_RECEIVED',
       task_id: taskId,
       user_id: userId,
-      user_input: input.substring(0, 500), // Trunca para segurança
+      user_input: input.substring(0, 500),
       intent,
       plan_id: null,
       risk_level: 0,
@@ -151,7 +149,7 @@ export class AuditLogger {
   }
 
   /**
-   * Atalho: Registra avaliação de política.
+   * Shortcut: records a policy evaluation.
    */
   public async logPolicyEvaluation(
     taskId: string,
@@ -188,7 +186,7 @@ export class AuditLogger {
   }
 
   /**
-   * Atalho: Registra resultado de execução.
+   * Shortcut: records an execution result.
    */
   public async logExecution(
     taskId: string,
@@ -210,8 +208,8 @@ export class AuditLogger {
       executor,
       execution_success: result.success,
       execution_summary: result.success
-        ? `OK: ${result.actions_executed.length} ações executadas`
-        : `FALHA: ${result.error_message}`,
+        ? `OK: ${result.actions_executed.length} actions executed`
+        : `FAILED: ${result.error_message}`,
       metadata: {
         files_written: result.files_written.length,
         files_deleted: result.files_deleted.length,
@@ -222,7 +220,7 @@ export class AuditLogger {
   }
 
   /**
-   * Atalho: Registra bloqueio de segurança.
+   * Shortcut: records a security block.
    */
   public async logSecurityBlock(taskId: string, reason: string, details: Record<string, any> = {}): Promise<void> {
     await this.logEvent({
@@ -312,14 +310,14 @@ export class AuditLogger {
   }
 
   /**
-   * Consulta os últimos N eventos de audit.
+   * Reads the latest audit events.
    */
-  public async getRecentEvents(limit: number = 20): Promise<AuditEvent[]> {
+  public async getRecentEvents(limit = 20): Promise<AuditEvent[]> {
     await this.init();
     const db = await this.dbProvider.getInstance();
     const rows = db.all(
       'SELECT * FROM audit_log ORDER BY id DESC LIMIT ?',
-      [limit]
+      [limit],
     );
 
     return (rows || []).map((row: any) => ({
@@ -342,14 +340,14 @@ export class AuditLogger {
   }
 
   /**
-   * Consulta eventos de uma task específica.
+   * Reads events for a specific task.
    */
   public async getEventsByTask(taskId: string): Promise<AuditEvent[]> {
     await this.init();
     const db = await this.dbProvider.getInstance();
     const rows = db.all(
       'SELECT * FROM audit_log WHERE task_id = ? ORDER BY id ASC',
-      [taskId]
+      [taskId],
     );
 
     return (rows || []).map((row: any) => ({

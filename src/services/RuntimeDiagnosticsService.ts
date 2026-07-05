@@ -8,6 +8,7 @@ import { SidecarStatusService, type SidecarStatusSummary } from './SidecarStatus
 import { TenantRegistryService, type TenantRegistrySummary } from './TenantRegistryService.js';
 import { LogRepository, type SystemLog } from '../storage/LogRepository.js';
 import type { Task } from '../contracts/TaskContract.js';
+import { logger } from '../logger.js';
 
 type RuntimeDiagnosticsRuntime = {
   hostLockFilePath?: string;
@@ -228,8 +229,9 @@ export class RuntimeDiagnosticsService {
         alive,
         file: filePath,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Runtime Diagnostics] lifecycle operation failed', error);
+    return {
         active: true,
         pid: null,
         owner: null,
@@ -237,16 +239,14 @@ export class RuntimeDiagnosticsService {
         alive: false,
         file: filePath,
       };
-    }
+  }
   }
 
   private isProcessAlive(pid: number): boolean {
     try {
       this.killFn(pid, 0);
       return true;
-    } catch (error: any) {
-      return error?.code !== 'ESRCH';
-    }
+    } catch (error) { logger.warn('[Runtime Diagnostics] lifecycle operation failed', error); return error?.code !== 'ESRCH'; }
   }
 
   private readBridgeSnapshot(filePath: string): BridgeSnapshot {
@@ -289,8 +289,9 @@ export class RuntimeDiagnosticsService {
         updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : null,
         file: filePath,
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Runtime Diagnostics] filesystem check failed', error);
+    return {
         mode: config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : 'unknown',
         enabled: false,
         started: false,
@@ -300,7 +301,7 @@ export class RuntimeDiagnosticsService {
         updatedAt: null,
         file: filePath,
       };
-    }
+  }
   }
 
   private collectLatestBySource(tasks: Task[]): RuntimeDiagnosticsSnapshot['tasks']['latestBySource'] {

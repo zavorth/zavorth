@@ -3,6 +3,7 @@ import { validateApiKey, getProviderConnections, updateProviderConnection } from
 import { cloudCredentialUpdateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 // Update provider credentials (for cloud token refresh)
 export async function PUT(request: Request) {
@@ -12,7 +13,8 @@ export async function PUT(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json(
       { error: { message: "Invalid request", details: [{ field: "body", message: "Invalid JSON body" }] } },
       { status: 400 }

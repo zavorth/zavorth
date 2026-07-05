@@ -21,6 +21,8 @@ import { SharedSurfaceTaskVariationCommandPack } from '../SharedSurfaceTaskVaria
 import { SharedSurfaceTenantGovernanceCommandPack } from '../SharedSurfaceTenantGovernanceCommandPack.js';
 import { SharedSurfaceWatchModeCommandPack } from '../SharedSurfaceWatchModeCommandPack.js';
 import { SharedSurfaceWorkflowGovernanceCommandPack } from '../SharedSurfaceWorkflowGovernanceCommandPack.js';
+import type { IMessageContext } from '../../../../../contracts/IMessageBroker.js';
+import type { SurfaceControllerContext } from '../../../../../services/SurfaceRuntime.js';
 import type { SharedSurfaceCommandServiceDeps } from './SharedSurfaceCommandServiceDeps.js';
 
 type SharedSurfaceTaskVariationHelpers = {
@@ -29,10 +31,125 @@ type SharedSurfaceTaskVariationHelpers = {
   formatNaturalChannelLabel?: (channelId: string) => string;
 };
 
+type RequiredAssemblyDepKeys =
+  | 'supervisedRuntimeService'
+  | 'autoRepairService'
+  | 'zavorthBridgePreferenceStore'
+  | 'integrationHubService'
+  | 'gatewayService'
+  | 'channelActionService'
+  | 'channelMeshService'
+  | 'securityMeshService'
+  | 'pluginActionService'
+  | 'pluginRegistryService'
+  | 'platformActionService'
+  | 'platformRegistryService'
+  | 'platformCatalogSyncService'
+  | 'platformPublisherService'
+  | 'remoteTransportActionService'
+  | 'remoteTransportService'
+  | 'layeredMemoryService'
+  | 'learningPlaneService'
+  | 'hookPlaneService'
+  | 'toolSurfaceService'
+  | 'nodeMeshService'
+  | 'nodePairingService'
+  | 'nodeInvokeService'
+  | 'discordSurfacePolicyService'
+  | 'providerControlPlaneService'
+  | 'providerDoctorService'
+  | 'zavorthBridgeMobileAccessService'
+  | 'runtimeAccessManifestService'
+  | 'runtimeBootstrapService'
+  | 'runtimeInstallJourneyService'
+  | 'runtimeOfficialRemoteAccessService'
+  | 'sharedSurfaceConsistencyService'
+  | 'AIGatewayGatewayService'
+  | 'AIGatewayGatewayLauncherService'
+  | 'GatewayCompatibilityDoctorService'
+  | 'GatewayUpstreamSyncService'
+  | 'skillCatalogApiService'
+  | 'skillMcpSidecarService'
+  | 'skillLibraryPresentationService'
+  | 'skillInstallPlanPresentationService'
+  | 'skillBridgeActivationService'
+  | 'teamCatalogService'
+  | 'tenantGovernanceService'
+  | 'tenantGovernanceActionService'
+  | 'codexRemoteControlPlaneService'
+  | 'codexRemoteActionService'
+  | 'codexRemoteReadModelService'
+  | 'hubControlPlaneService'
+  | 'hubActionService'
+  | 'evalControlPlaneService'
+  | 'qaControlPlaneService'
+  | 'governanceControlPlaneService'
+  | 'replayLearningControlPlaneService'
+  | 'ecosystemControlPlaneService'
+  | 'distributedRuntimeControlPlaneService'
+  | 'runtimeStabilityControlPlaneService'
+  | 'rolloutReadinessControlPlaneService'
+  | 'naturalSetupControlPlaneService'
+  | 'automationControlPlaneService'
+  | 'automationActionService'
+  | 'watchModeControlPlaneService'
+  | 'watchModePolicyFileService'
+  | 'trustPlaneService'
+  | 'trustPlaneActionService';
+
+type NullableAssemblyDepKeys =
+  | 'memoryPlaneService'
+  | 'sessionPlaneService'
+  | 'capabilityLifecycleService'
+  | 'desktopResourcePlaneService'
+  | 'companionControlService'
+  | 'workspaceOptimizerService'
+  | 'taskResourcePlannerService'
+  | 'modeEscalationService'
+  | 'permissionService'
+  | 'selfModificationCommandService'
+  | 'surfaceTaskDispatcher'
+  | 'taskManager'
+  | 'workflowController'
+  | 'channelInstallService'
+  | 'channelSetupAssistantService'
+  | 'naturalChannelSetupTurnService';
+
+type RequiredAssemblyDeps = {
+  [Key in RequiredAssemblyDepKeys]-?: NonNullable<SharedSurfaceCommandServiceDeps[Key]>;
+};
+
+type NullableAssemblyDeps = {
+  [Key in NullableAssemblyDepKeys]-?: Exclude<SharedSurfaceCommandServiceDeps[Key], undefined> | null;
+};
+
+type SharedSurfaceCommandServiceAssemblyDeps = Omit<
+  SharedSurfaceCommandServiceDeps,
+  RequiredAssemblyDepKeys | NullableAssemblyDepKeys | 'nodeCapabilityService' | 'nodeDeviceProfileService'
+> &
+  RequiredAssemblyDeps &
+  NullableAssemblyDeps & {
+    nodeCapabilities: NonNullable<SharedSurfaceCommandServiceDeps['nodeCapabilityService']>;
+    nodeDeviceProfiles: NonNullable<SharedSurfaceCommandServiceDeps['nodeDeviceProfileService']>;
+  };
+
 export function buildSharedSurfaceCommandServiceAssembly(
-  deps: SharedSurfaceCommandServiceDeps,
+  deps: SharedSurfaceCommandServiceAssemblyDeps,
   helpers: SharedSurfaceTaskVariationHelpers = {},
 ) {
+  const workflowController = deps.workflowController;
+  const toSurfaceControllerContext = (ctx: IMessageContext): SurfaceControllerContext => ({
+    userId: ctx.userId,
+    chatId: ctx.chatId,
+    platform: ctx.platform,
+    threadId: ctx.threadId,
+    messageId: ctx.messageId,
+    channelId: ctx.channelId,
+    transport: ctx.transport,
+    attachments: ctx.attachments,
+    inlineData: ctx.inlineData,
+    composerPayload: ctx.composerPayload,
+  });
   const codexRemoteCommandPack = new SharedSurfaceCodexRemoteCommandPack({
     controlPlaneService: deps.codexRemoteControlPlaneService,
     actionService: deps.codexRemoteActionService,
@@ -140,7 +257,12 @@ export function buildSharedSurfaceCommandServiceAssembly(
   const workflowGovernanceCommandPack = new SharedSurfaceWorkflowGovernanceCommandPack({
     permissionService: deps.permissionService,
     selfModificationCommandService: deps.selfModificationCommandService,
-    workflowController: deps.workflowController,
+    workflowController: workflowController
+      ? {
+          handleWorkflow: (ctx: IMessageContext, args: string) =>
+            workflowController.handleWorkflow(toSurfaceControllerContext(ctx), args),
+        }
+      : null,
     taskManager: deps.taskManager,
   });
   const taskControlCommandPack = new SharedSurfaceTaskControlCommandPack({

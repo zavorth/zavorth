@@ -22,17 +22,17 @@ export class SkillRiskScoringService {
     const warningCount = input.scanIssues.filter((issue) => issue.severity === 'warn').length;
 
     if (!input.sourceAllowed || input.sourceTrust === 'blocked') {
-      reasons.push('Fonte bloqueada pela trust policy.');
+      reasons.push('Source blocked by trust policy.');
       return this.buildBlockedRisk(reasons);
     }
 
     if (!input.licensePolicy.allowImport) {
-      reasons.push(`Policy de licenca bloqueou o import: ${input.licensePolicy.summary}`);
+      reasons.push(`License policy blocked the import: ${input.licensePolicy.summary}`);
       return this.buildBlockedRisk(reasons);
     }
 
     if (errorCount > 0) {
-      reasons.push(`Scanner encontrou ${errorCount} issue(s) bloqueante(s).`);
+      reasons.push(`Scanner found ${errorCount} blocking issue(s).`);
       return this.buildBlockedRisk(reasons);
     }
 
@@ -40,41 +40,41 @@ export class SkillRiskScoringService {
 
     if (input.sourceTrust === 'review') {
       score += 25;
-      reasons.push('Fonte exige revisao manual.');
+      reasons.push('Source requires manual review.');
     }
 
     if (warningCount > 0) {
       score += warningCount * 10;
-      reasons.push(`Scanner encontrou ${warningCount} alerta(s) nao bloqueante(s).`);
+      reasons.push(`Scanner found ${warningCount} non-blocking warning(s).`);
     }
 
     if (!input.license) {
       score += 15;
-      reasons.push('Licenca nao identificada com clareza.');
+      reasons.push('License was not clearly identified.');
     }
 
     if (input.licenseConfidence === 'medium') {
       score += 4;
-      reasons.push('Classificacao de licenca com confianca media.');
+      reasons.push('License classification has medium confidence.');
     }
 
     if (input.licenseConfidence === 'low') {
       score += 8;
-      reasons.push('Classificacao de licenca com confianca baixa.');
+      reasons.push('License classification has low confidence.');
     }
 
     if (input.licensePolicy.reviewRequired) {
       score += 15;
-      reasons.push('Policy de licenca pede revisao antes de confiar na skill.');
+      reasons.push('License policy requires review before trusting the skill.');
     }
 
     if (input.skippedFileCount > 0) {
       score += input.skippedFileCount > input.importableFileCount ? 8 : 4;
-      reasons.push('Parte do conteudo original ficou fora do intake seletivo.');
+      reasons.push('Part of the original content was left out of selective intake.');
     }
 
     if (score <= 0) {
-      reasons.push('Nenhum sinal adicional de risco alem da policy baseline.');
+      reasons.push('No additional risk signal beyond the baseline policy.');
     }
 
     const normalizedScore = Math.max(0, Math.min(score, 100));

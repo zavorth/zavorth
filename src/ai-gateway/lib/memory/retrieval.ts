@@ -1,6 +1,7 @@
 import { getDbInstance } from "../db/core";
 import { Memory, MemoryConfig, MemoryType } from "./types";
 import { MemoryConfigSchema } from "./schemas";
+import { logger } from '@/shared/utils/logger';
 
 interface MemoryRow {
   id: string;
@@ -46,9 +47,7 @@ function parseMetadata(raw: unknown): Record<string, unknown> {
   try {
     const parsed = JSON.parse(raw);
     return typeof parsed === "object" && parsed !== null ? parsed : {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[retrieval] JSON parse failed', error); return {}; }
 }
 
 function rowToMemory(row: MemoryRow): Memory {

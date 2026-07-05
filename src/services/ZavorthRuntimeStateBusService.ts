@@ -26,6 +26,7 @@ import {
   type ZavorthRuntimeStateWorkspace,
 } from '../contracts/ZavorthRuntimeStateBusContract.js';
 import { ZavorthEffortControlService } from './ZavorthEffortControlService.js';
+import { logger } from '../logger.js';
 
 type RuntimeRecord = Record<string, unknown>;
 
@@ -892,9 +893,7 @@ export class ZavorthRuntimeStateBusService {
           };
         }
       }
-    } catch {
-      // Corrupt state falls back to a clean in-memory state; the next dispatch rewrites it.
-    }
+    } catch (error) { // Corrupt state falls back to a clean in-memory state; the next dispatch rewrites it. logger.warn('[Zavorth Runtime State Bus] parsing failed', error); }
     return {
       contractVersion: ZAVORTH_RUNTIME_STATE_BUS_CONTRACT_VERSION,
       updatedAt: this.now().toISOString(),
@@ -2001,7 +2000,8 @@ function evaluateNetworkTarget(providerId: string, targetUrl: string | null): {
       return { ok: false, targetHost: host, localLoopback: false };
     }
     return { ok: true, targetHost: host, localLoopback: false };
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Runtime State Bus] lifecycle operation failed', error);
     return { ok: false, targetHost: null, localLoopback: false };
   }
 }
@@ -2208,9 +2208,7 @@ function safeRealPath(value: string): string | null {
   } catch {
     try {
       return fs.realpathSync(value);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Runtime State Bus] operation failed', error); return null; }
   }
 }
 

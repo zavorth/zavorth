@@ -5,8 +5,9 @@ import { config } from '../../config/index.js';
 
 export interface PublishOptions {
   packagePath: string;
-  authToken: string;
+  authToken?: string;
   signLocal: boolean;
+  requestedBy?: string;
 }
 
 export type PublishResult = {

@@ -11,6 +11,7 @@ import { ZavorthMemoryPlaneService } from "../../../../services/ZavorthMemoryPla
 import { ZavorthNativeAutonomySpineService } from "../../../../services/ZavorthNativeAutonomySpineService";
 import { LlmRuntimeService } from "../../../../services/llm/LlmRuntimeService";
 import { config } from "../../../../config";
+import { logger } from '@/shared/utils/logger';
 
 let experienceCore: ExperienceCoreService | null = null;
 
@@ -62,9 +63,7 @@ export async function readJsonBody(request: Request): Promise<Record<string, unk
   try {
     const body = await request.json();
     return body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[experience] process execution failed', error); return {}; }
 }
 
 function parseResponseProfileText(value: unknown): ExperienceCommand["responseProfile"] {

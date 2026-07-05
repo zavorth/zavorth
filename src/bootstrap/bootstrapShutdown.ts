@@ -20,37 +20,37 @@ export function registerShutdownHandlers(
     foundation.maintenanceAutomation.stop();
 
     await runtimeServices.terminalSidecar.stop().catch((error) => {
-      foundation.logRepo.log('warn', 'ZavorthTerminalSidecar', `Falha ao encerrar sidecar remoto: ${error.message || error}`);
+      foundation.logRepo.log('warn', 'ZavorthTerminalSidecar', `Failed to shut down remote sidecar: ${error.message || error}`);
     });
     await runtimeServices.aiGatewayGateway.stop().catch((error) => {
-      foundation.logRepo.log('warn', 'AIGatewayGateway', `Falha ao encerrar gateway proprio: ${error.message || error}`);
+      foundation.logRepo.log('warn', 'AIGatewayGateway', `Failed to shut down own gateway: ${error.message || error}`);
     });
     await runtimeServices.aiGatewaySidecar.stop().catch((error) => {
-      foundation.logRepo.log('warn', 'AIGatewaySidecar', `Falha ao encerrar sidecar: ${error.message || error}`);
+      foundation.logRepo.log('warn', 'AIGatewaySidecar', `Failed to shut down sidecar: ${error.message || error}`);
     });
     await Promise.resolve(surfaceRuntime.discordGateway.stop?.()).catch((error: unknown) => {
-      foundation.logRepo.log('warn', 'DiscordGateway', `Falha ao encerrar gateway do Discord: ${describeError(error)}`);
+      foundation.logRepo.log('warn', 'DiscordGateway', `Failed to shut down Discord gateway: ${describeError(error)}`);
     });
     await Promise.resolve(surfaceRuntime.whatsAppGateway.stop?.()).catch((error: unknown) => {
-      foundation.logRepo.log('warn', 'WhatsAppGateway', `Falha ao encerrar gateway preparado de WhatsApp: ${describeError(error)}`);
+      foundation.logRepo.log('warn', 'WhatsAppGateway', `Failed to shut down prepared WhatsApp gateway: ${describeError(error)}`);
     });
     await Promise.resolve(surfaceRuntime.instagramGateway.stop?.()).catch((error: unknown) => {
-      foundation.logRepo.log('warn', 'InstagramGateway', `Falha ao encerrar gateway preparado de Instagram: ${describeError(error)}`);
+      foundation.logRepo.log('warn', 'InstagramGateway', `Failed to shut down prepared Instagram gateway: ${describeError(error)}`);
     });
     await Promise.resolve(surfaceRuntime.slackGateway.stop?.()).catch((error: unknown) => {
-      foundation.logRepo.log('warn', 'SlackGateway', `Falha ao encerrar gateway preparado de Slack: ${describeError(error)}`);
+      foundation.logRepo.log('warn', 'SlackGateway', `Failed to shut down prepared Slack gateway: ${describeError(error)}`);
     });
     await Promise.resolve(surfaceRuntime.signalGateway.stop?.()).catch((error: unknown) => {
-      foundation.logRepo.log('warn', 'SignalGateway', `Falha ao encerrar gateway preparado de Signal: ${describeError(error)}`);
+      foundation.logRepo.log('warn', 'SignalGateway', `Failed to shut down prepared Signal gateway: ${describeError(error)}`);
     });
     await Promise.resolve(surfaceRuntime.imessageGateway.stop?.()).catch((error: unknown) => {
-      foundation.logRepo.log('warn', 'IMessageGateway', `Falha ao encerrar gateway preparado de iMessage: ${describeError(error)}`);
+      foundation.logRepo.log('warn', 'IMessageGateway', `Failed to shut down prepared iMessage gateway: ${describeError(error)}`);
     });
     await Promise.resolve(surfaceRuntime.teamsGateway.stop?.()).catch((error: unknown) => {
-      foundation.logRepo.log('warn', 'TeamsGateway', `Falha ao encerrar gateway preparado de Teams: ${describeError(error)}`);
+      foundation.logRepo.log('warn', 'TeamsGateway', `Failed to shut down prepared Teams gateway: ${describeError(error)}`);
     });
     await Promise.resolve(surfaceRuntime.emailGateway.stop?.()).catch((error: unknown) => {
-      foundation.logRepo.log('warn', 'EmailGateway', `Falha ao encerrar gateway preparado de Email: ${describeError(error)}`);
+      foundation.logRepo.log('warn', 'EmailGateway', `Failed to shut down prepared Email gateway: ${describeError(error)}`);
     });
 
     await foundation.mcpRuntime.stop();

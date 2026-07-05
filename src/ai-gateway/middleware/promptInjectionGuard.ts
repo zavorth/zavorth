@@ -8,6 +8,7 @@
  */
 
 import { extractMessageContents, sanitizeRequest } from "../shared/utils/inputSanitizer";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * @typedef {Object} GuardOptions
@@ -204,9 +205,7 @@ export function withInjectionGuard(handler: any, options: any = {}) {
           request.headers.set("X-Injection-Detections", String(result.detections.length));
         }
       }
-    } catch {
-      // Don't block on guard errors — fail open
-    }
+    } catch (error) { // Don't block on guard errors — fail open logger.warn('[prompt Injection Guard] operation failed', error); }
 
     return handler(request, context);
   };

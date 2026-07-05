@@ -15,6 +15,7 @@ import {
   type DownloadedFile,
 } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
 import { VideoHandlerFormatSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js";
+import { logger } from '../../../../logger';
 
 export class VideoHandlerFetchSupport {
   public static async fetchThumbnailInlineData(
@@ -33,9 +34,7 @@ export class VideoHandlerFetchSupport {
       }
 
       return [{ mimeType: "image/jpeg", data: buffer.toString("base64") }];
-    } catch {
-      return undefined;
-    }
+    } catch (error) { logger.warn('[Video] network request failed', error); return undefined; }
   }
 
   public static async buildInlineData(

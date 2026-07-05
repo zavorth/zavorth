@@ -6,8 +6,9 @@ import {
   activateGatewayControlSession,
   initializeGatewayControlConnection,
 } from './zavorth-gateway-control-socket/controlSocketSession.js';
+import { logger } from '../logger.js';
 import type {
-  GatewayConnectionState,
+GatewayConnectionState,
   GatewayControlReplayMode,
   GatewayControlSocketDeps,
   GatewayControlSocketEvent,
@@ -68,9 +69,7 @@ export class ZavorthGatewayControlSocketService {
     this.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch {
-        // Ignore close failures while shutting down the gateway.
-      }
+      } catch (error) { // Ignore close failures while shutting down the gateway. logger.warn('[Zavorth way Control Socket] resource cleanup failed', error); }
     });
     this.wss?.close();
     this.wss = null;

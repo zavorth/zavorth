@@ -11,8 +11,9 @@ import type {
   TaskBoardLane,
   TaskBoardSnapshot,
 } from './TaskBoardPlaneService.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthSessionRecallHit,
+ZavorthSessionRecallHit,
   ZavorthSessionRecallSession,
   ZavorthSessionRecallSnapshot,
 } from './ZavorthSessionRecallService.js';
@@ -1324,9 +1325,7 @@ type EventRow = {
 function parseJson<T>(value: string, fallback: T): T {
   try {
     return JSON.parse(value) as T;
-  } catch {
-    return fallback;
-  }
+  } catch (error) { logger.warn('[Zavorth Operational State Db] JSON parse failed', error); return fallback; }
 }
 
 function normalize(value: unknown, fallback = ''): string {

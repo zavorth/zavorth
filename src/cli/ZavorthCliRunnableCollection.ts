@@ -18,8 +18,9 @@ import {
   render,
   splitList,
 } from './ZavorthCliSharedHelpers.js';
+import { logger } from '../logger.js';
 import {
-  redactCommand,
+redactCommand,
   runBackground,
   runTaskBoard,
   taskPlaneServiceForCli,
@@ -330,7 +331,8 @@ export async function acquireTaskLock(root: string, collection: string): Promise
     await handle.writeFile(JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() }));
     await handle.close();
     return { ok: true, file, message: 'lock acquired' };
-  } catch {
+  } catch (error) {
+    logger.warn('[Zavorth Cli Runnable Collection] filesystem operation failed', error);
     return { ok: false, file, message: `Worker lock is active for ${collection}. Use logs/status or remove stale lock only after verifying no worker is running.` };
   }
 }

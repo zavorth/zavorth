@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export class ZavorthGitAdvancedTool extends BaseTool {
   public readonly name = 'zavorth_git_advanced';
@@ -108,9 +109,7 @@ export class ZavorthGitAdvancedTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('git', gitArgs, { cwd: repoPath, timeout, maxBuffer: 10 * 1024 * 1024 }).toString();
       return result.trim() || '(no output)';
-    } catch (error: unknown) {
-      return `Git error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Git Advanced] process execution failed', error); return ''; }
   }
 
   private async blame(repoPath: string, args: Record<string, unknown>): Promise<string> {
@@ -140,9 +139,7 @@ export class ZavorthGitAdvancedTool extends BaseTool {
         .join('\n');
 
       return `Blame for ${filePath}:\n${summary}`;
-    } catch (error: unknown) {
-      return `Blame error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Git Advanced] lifecycle operation failed', error); return ''; }
   }
 
   private async stash(repoPath: string, args: Record<string, unknown>): Promise<string> {
@@ -160,9 +157,7 @@ export class ZavorthGitAdvancedTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('git', ['cherry-pick', commit], { cwd: repoPath, timeout: 30000 }).toString();
       return `Cherry-pick ${commit}:\n${result.trim() || 'Applied successfully'}`;
-    } catch (error: unknown) {
-      return `Cherry-pick error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Git Advanced] process execution failed', error); return ''; }
   }
 
   private async rebase(repoPath: string, args: Record<string, unknown>): Promise<string> {
@@ -190,9 +185,7 @@ export class ZavorthGitAdvancedTool extends BaseTool {
         timeout: 15000,
       }).toString();
       return `Reflog (last ${maxCount} entries):\n${result.trim()}`;
-    } catch (error: unknown) {
-      return `Reflog error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Git Advanced] process execution failed', error); return ''; }
   }
 
   private async worktreeAdd(repoPath: string, args: Record<string, unknown>): Promise<string> {
@@ -245,9 +238,7 @@ export class ZavorthGitAdvancedTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('git', gitArgs, { cwd: repoPath, timeout: 15000 }).toString();
       return `Git log:\n${result.trim() || 'No commits found.'}`;
-    } catch (error: unknown) {
-      return `Log error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Git Advanced] process execution failed', error); return ''; }
   }
 
   private async search(repoPath: string, args: Record<string, unknown>): Promise<string> {
@@ -262,9 +253,7 @@ export class ZavorthGitAdvancedTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('git', gitArgs, { cwd: repoPath, timeout: 30000 }).toString();
       return `Search for "${pattern}":\n${result.trim() || 'No matches found.'}`;
-    } catch (error: unknown) {
-      return `Search error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Git Advanced] process execution failed', error); return ''; }
   }
 
   private async sparseCheckout(repoPath: string, args: Record<string, unknown>): Promise<string> {
@@ -276,8 +265,6 @@ export class ZavorthGitAdvancedTool extends BaseTool {
       execFileSync('git', ['sparse-checkout', 'init', '--cone'], { cwd: repoPath, timeout: 15000 }).toString();
       execFileSync('git', ['sparse-checkout', 'set', filePath], { cwd: repoPath, timeout: 15000 }).toString();
       return `Sparse checkout set to: ${filePath}`;
-    } catch (error: unknown) {
-      return `Sparse checkout error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Git Advanced] process execution failed', error); return ''; }
   }
 }

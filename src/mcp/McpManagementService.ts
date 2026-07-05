@@ -50,7 +50,7 @@ type McpManagementRuntime = {
  * McpManagementService — Gerencia o ciclo de vida de servidores MCP:
  * instalacao, remocao, toggle e persistencia no manifesto JSON.
  *
- * Este servico nao inicia ou para processos diretamente; ele gerencia
+ * This service does not start or stop processes directly; it manages
  * o manifesto e delega operacoes de runtime ao McpRuntimeService.
  */
 export class McpManagementService {
@@ -65,7 +65,7 @@ export class McpManagementService {
   /**
    * Instala (ou atualiza) um servidor MCP no manifesto local.
    * Retorna o resultado da operacao sem iniciar o servidor — o chamador
-   * deve invocar McpRuntimeService.reloadServer() apos aprovacao.
+   * should invoke McpRuntimeService.reloadServer() after approval.
    */
   public install(request: McpInstallRequest): McpInstallResult {
     const id = this.normalizeId(request.id);
@@ -74,7 +74,7 @@ export class McpManagementService {
         success: false,
         serverId: request.id || '',
         action: 'failed',
-        message: 'O id do servidor MCP nao pode ser vazio.',
+        message: 'MCP server id cannot be empty.',
       };
     }
 
@@ -84,7 +84,7 @@ export class McpManagementService {
         success: false,
         serverId: id,
         action: 'failed',
-        message: 'O comando do servidor MCP nao pode ser vazio.',
+        message: 'MCP server command cannot be empty.',
       };
     }
 
@@ -132,7 +132,7 @@ export class McpManagementService {
         success: false,
         serverId: serverId || '',
         action: 'failed',
-        message: 'O id do servidor MCP nao pode ser vazio.',
+        message: 'MCP server id cannot be empty.',
       };
     }
 
@@ -143,7 +143,7 @@ export class McpManagementService {
         success: false,
         serverId: id,
         action: 'not_found',
-        message: `Servidor MCP "${id}" nao encontrado no manifesto.`,
+        message: `MCP server "${id}" not found in manifest.`,
       };
     }
 
@@ -171,7 +171,7 @@ export class McpManagementService {
         success: false,
         serverId: id,
         action: 'failed',
-        message: `Servidor MCP "${id}" nao encontrado no manifesto.`,
+        message: `MCP server "${id}" not found in manifest.`,
       };
     }
 
@@ -221,7 +221,7 @@ export class McpManagementService {
       const parsed = JSON.parse(raw);
       return Array.isArray(parsed) ? parsed : [];
     } catch {
-      this.log('warn', `Manifesto MCP em ${this.manifestPath} nao pode ser lido; usando lista vazia.`);
+      this.log('warn', `MCP manifest at ${this.manifestPath} cannot be read; using an empty list.`);
       return [];
     }
   }

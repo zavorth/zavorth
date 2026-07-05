@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 interface VoiceSession {
   id: string;
@@ -114,10 +115,11 @@ export class ZavorthVoiceModeTool extends BaseTool {
         case 'list_backends': return this.listBackends();
         default: return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Voice Mode] filesystem check failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `VoiceMode error: ${message}`;
-    }
+  }
   }
 
   private ensureStorageDir(): void {
@@ -269,10 +271,11 @@ export class ZavorthVoiceModeTool extends BaseTool {
     try {
       const text = await this.executeStt(audioPath, { backend: sttBackend, language });
       return `Transcricao (${sttBackend}): "${text}"`;
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Voice Mode] filesystem operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Transcription error: ${message}`;
-    }
+  }
   }
 
   private listSessions(): string {
@@ -361,7 +364,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
     if (!session) return `Error: session "${sessionId}" not found.`;
 
     if (session.status !== 'speaking' && session.status !== 'processing') {
-      return `Session "${sessionId}" nao esta falando ou processando (status: ${session.status}).`;
+      return `Session "${sessionId}" is not speaking or processing (status: ${session.status}).`;
     }
 
     session.status = 'idle';
@@ -436,7 +439,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
             '-o', outputPath,
           ], { timeout: 60000 });
         } finally {
-          try { require('fs').unlinkSync(tmpPayload); } catch { /* ignore */ }
+          try { require('fs').unlinkSync(tmpPayload); } catch (error) { /* ignore */ logger.warn('[Zavorth Voice Mode] file cleanup failed', error); }
         }
         return outputPath;
       }
@@ -458,7 +461,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
             '-o', outputPath,
           ], { timeout: 60000 });
         } finally {
-          try { require('fs').unlinkSync(tmpSsml); } catch { /* ignore */ }
+          try { require('fs').unlinkSync(tmpSsml); } catch (error) { /* ignore */ logger.warn('[Zavorth Voice Mode] file cleanup failed', error); }
         }
         return outputPath;
       }
@@ -488,9 +491,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
         try {
           const parsed = JSON.parse(result);
           return parsed.text || result;
-        } catch {
-          return result;
-        }
+        } catch (error) { logger.warn('[Zavorth Voice Mode] JSON parse failed', error); return result; }
       }
       case 'deepgram': {
         const apiKey = process.env.DEEPGRAM_API_KEY;
@@ -505,9 +506,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
         try {
           const parsed = JSON.parse(result);
           return parsed.results?.channels?.[0]?.alternatives?.[0]?.transcript || result;
-        } catch {
-          return result;
-        }
+        } catch (error) { logger.warn('[Zavorth Voice Mode] JSON parse failed', error); return result; }
       }
       case 'gemini': {
         const apiKey = process.env.GEMINI_API_KEY;
@@ -537,11 +536,9 @@ export class ZavorthVoiceModeTool extends BaseTool {
           try {
             const parsed = JSON.parse(result);
             return parsed.candidates?.[0]?.content?.parts?.[0]?.text || result;
-          } catch {
-            return result;
-          }
+          } catch (error) { logger.warn('[Zavorth Voice Mode] JSON parse failed', error); return result; }
         } finally {
-          try { fs.unlinkSync(tmpPayload); } catch { /* ignore */ }
+          try { fs.unlinkSync(tmpPayload); } catch (error) { /* ignore */ logger.warn('[Zavorth Voice Mode] JSON parse failed', error); }
         }
       }
       default:

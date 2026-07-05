@@ -6,6 +6,7 @@ import { CodexCliAdapter } from '../../../../agents/CodexCliAdapter.js';
 import { LocalExecutor } from '../../../../execution/LocalExecutor.js';
 import { ExternalExecutor } from '../../../../execution/ExternalExecutor.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
+import { logger } from '../../../../logger.js';
 import {
   EXTERNAL_EXECUTOR_ID,
   EXTERNAL_EXECUTOR_LABEL,
@@ -36,13 +37,13 @@ export class TelegramExecutionDirectService {
     const result = await adapter.executePrompt(task, payload, task.workspace);
     return {
       output: [
-        'ZavorthBridge real acionado.',
-        `Modo: ${result.metadata?.delivery_mode === 'companion-reuse' ? 'sessao ativa reaproveitada' : 'app aberto por CLI'}`,
+        'Real ZavorthBridge invoked.',
+        `Mode: ${result.metadata?.delivery_mode === 'companion-reuse' ? 'active session reused' : 'app opened by CLI'}`,
         `Workspace: ${task.workspace}`,
-        `Modelo preferido: ${result.metadata?.preferred_model || 'nao definido'}`,
+        `Preferred model: ${result.metadata?.preferred_model || 'not set'}`,
         `Handoff: ${result.metadata.handoff_file}`,
-        `Rastreio: ${result.metadata.tracking_file}`,
-        `O Zavorth vai acompanhar os artefatos reais do ZavorthBridge e usar ${result.metadata.response_file} apenas como fallback.`,
+        `Tracking: ${result.metadata.tracking_file}`,
+        `Zavorth will track real ZavorthBridge artifacts and use ${result.metadata.response_file} only as fallback.`,
       ].join('\n'),
       success: result.success,
     };
@@ -55,7 +56,7 @@ export class TelegramExecutionDirectService {
   ): Promise<{ output: string; success: boolean }> {
     if (!modeManager.isSufficientFor('exec')) {
       return {
-        output: `Modo operacional insuficiente para executar Codex.\nModo atual: ${modeManager.getMode()}\nMinimo necessario: BUILD\n\nUse /mode BUILD para habilitar.`,
+        output: `Insufficient operational mode to run Codex.\nCurrent mode: ${modeManager.getMode()}\nMinimum required: BUILD\n\nUse /mode BUILD to enable it.`,
         success: false,
       };
     }
@@ -76,7 +77,7 @@ export class TelegramExecutionDirectService {
   ): Promise<{ output: string; success: boolean }> {
     if (!modeManager.isSufficientFor('exec')) {
       return {
-        output: `Modo operacional insuficiente para executar ${EXTERNAL_EXECUTOR_LABEL}.\nModo atual: ${modeManager.getMode()}\nMinimo necessario: BUILD\n\nUse /mode BUILD para habilitar.`,
+        output: `Insufficient operational mode to run ${EXTERNAL_EXECUTOR_LABEL}.\nCurrent mode: ${modeManager.getMode()}\nMinimum required: BUILD\n\nUse /mode BUILD to enable it.`,
         success: false,
       };
     }
@@ -85,7 +86,7 @@ export class TelegramExecutionDirectService {
     const available = await executor.isAvailable();
     if (!available) {
       return {
-        output: `${EXTERNAL_EXECUTOR_LABEL} indisponivel neste host.\nVerifique o WSL, o PATH do executor externo e as variaveis de runtime antes de tentar novamente.`,
+        output: `${EXTERNAL_EXECUTOR_LABEL} is unavailable on this host.\nCheck WSL, the external executor PATH, and runtime variables before trying again.`,
         success: false,
       };
     }
@@ -96,7 +97,7 @@ export class TelegramExecutionDirectService {
       task_id: task.task_id,
       executor: EXTERNAL_EXECUTOR_ID,
       workspace,
-      objective: payload || task.normalized_message || 'Executar tarefa delegada pelo Zavorth.',
+      objective: payload || task.normalized_message || 'Execute the task delegated by Zavorth.',
       instructions: payload ? [payload] : [],
       allowed_paths: [workspace],
       blocked_paths: [],
@@ -128,15 +129,15 @@ export class TelegramExecutionDirectService {
   ): Promise<{ output: string; success: boolean }> {
     if (!isDryRun && !modeManager.isSufficientFor('exec')) {
       return {
-        output: `Modo operacional insuficiente para executar comandos shell.\nModo atual: ${modeManager.getMode()}\nMinimo necessario: BUILD\n\nUse /mode BUILD para habilitar.`,
+        output: `Insufficient operational mode to run shell commands.\nCurrent mode: ${modeManager.getMode()}\nMinimum required: BUILD\n\nUse /mode BUILD to enable it.`,
         success: false,
       };
     }
 
     if (!isDryRun && policyEngine.isCommandBlocked(command)) {
-      this.deps.auditLogger.logSecurityBlock(task.task_id, `Comando bloqueado pela politica: ${command}`).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      this.deps.auditLogger.logSecurityBlock(task.task_id, `Command blocked by policy: ${command}`).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
       return {
-        output: `Comando bloqueado pela politica de seguranca.\nComando: ${command}\n\nEsse comando esta na lista de bloqueios do security-policy.json.`,
+        output: `Command blocked by security policy.\nCommand: ${command}\n\nThis command is listed in security-policy.json block rules.`,
         success: false,
       };
     }
@@ -146,14 +147,14 @@ export class TelegramExecutionDirectService {
 
     if (isDryRun) {
       return {
-        output: `Simulacao concluida.\nWorkspace: ${workspace}\nComando: ${command}`,
+        output: `Simulation completed.\nWorkspace: ${workspace}\nCommand: ${command}`,
         success: true,
       };
     }
 
     this.deps.storeExecutionResult(task, result);
     return {
-      output: this.deps.formatExecutionOutput('Shell local', workspace, result),
+      output: this.deps.formatExecutionOutput('Local shell', workspace, result),
       success: result.success,
     };
   }

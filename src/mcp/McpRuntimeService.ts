@@ -12,20 +12,12 @@ import {
 } from './McpManifest.js';
 import { McpToolPolicyFileService } from '../services/McpToolPolicyFileService.js';
 import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
-import { McpToolPolicy } from './McpToolPolicy.js';
+import {
+  McpToolPolicy,
+  type McpToolPolicyDocument,
+} from './McpToolPolicy.js';
 
 type McpSecurityDefinition = Record<string, unknown>;
-
-type McpPolicyToolEntry = {
-  status: 'approved' | 'pending_approval' | 'blocked';
-  fingerprint: string;
-  description: string;
-};
-
-type McpPolicyDocument = {
-  tools?: Record<string, McpPolicyToolEntry>;
-  [key: string]: unknown;
-};
 
 type ToolWithRemoteName = BaseTool & { remoteName?: string };
 
@@ -359,7 +351,7 @@ export class McpRuntimeService {
 
   /**
    * Recarrega (ou inicia pela primeira vez) um servidor MCP individual.
-   * Se ja estiver rodando, para e reinicia. Util para hot-reload apos
+   * If it is already running, stop and restart it. Useful for hot reload after
    * alteracoes no manifesto via McpManagementService.
    */
   public async reloadServer(serverId: string): Promise<{
@@ -376,7 +368,7 @@ export class McpRuntimeService {
     const serverEntry = allEntries.find((entry) => entry.id === serverId);
 
     if (!serverEntry) {
-      return { ok: false, toolCount: 0, toolNames: [], error: `Servidor "${serverId}" nao encontrado no manifesto.` };
+      return { ok: false, toolCount: 0, toolNames: [], error: `Server "${serverId}" not found in manifest.` };
     }
 
     if (serverEntry.enabled === false) {
@@ -498,7 +490,7 @@ export class McpRuntimeService {
   private resolveDiscoveredTools(
     discovered: DiscoveredMcpTool[],
     allActiveNamespacedTools: string[],
-    policyDoc: McpPolicyDocument,
+    policyDoc: any,
     globalPolicy: McpToolPolicy,
     serverId: string,
   ): { registeredNames: string[]; changed: boolean } {
@@ -645,7 +637,7 @@ export class McpRuntimeService {
       const finalSecurityDef = securityDefinition
         ? { ...securityDefinition, toolName: namespacedName }
         : undefined;
-      this.registry.register(namespacedTool, finalSecurityDef);
+      this.registry.register(namespacedTool, finalSecurityDef as any);
       registeredNames.push(namespacedName);
       this.auditLogger.logMcpRuntimeEvent({
         event: 'mcp_tool_registered',

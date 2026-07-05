@@ -40,7 +40,7 @@ export function buildRunArtifactReceiptReplayCliSnapshot(input: {
             id: 'artifact-memory:cli-receipt',
             kind: 'artifact-ledger',
             source: 'ArtifactMemoryService',
-            detail: 'Fixture CLI de replay sem ler conteudo de arquivo.',
+            detail: 'Replay CLI fixture without reading file content.',
             status: 'ready',
           },
         ],
@@ -88,18 +88,18 @@ export function formatRunArtifactReceiptReplaySnapshot(
 ): string {
   const lines = [
     'Run / Artifact / Receipt Replay Hardening - Channel mesh5',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- frames: ${snapshot.summary.frameCount}`,
     `- artifacts: ${snapshot.summary.artifactLinkCount}`,
     `- receipts: ${snapshot.summary.observatoryReceiptCount + snapshot.summary.featureReceiptCount}`,
     `- features cobertas: ${snapshot.summary.coveredFeatureCount}/${snapshot.features.length}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Replay',
-    `- disponivel: ${snapshot.replay.available ? 'sim' : 'nao'}`,
+    `- available: ${snapshot.replay.available ? 'yes' : 'no'}`,
     `- anchors: ${snapshot.replay.anchors.length}`,
     `- resumo: ${snapshot.replay.summary}`,
     '',
@@ -115,28 +115,28 @@ export function formatRunArtifactReceiptReplaySnapshot(
 
   lines.push('', 'Artifacts');
   if (snapshot.artifactLinks.length === 0) {
-    lines.push('- nenhum artifact linkado');
+    lines.push('- no artifact linked');
   } else {
     for (const artifact of snapshot.artifactLinks.slice(0, 8)) {
       lines.push(
         `- ${artifact.artifactId}: ${artifact.title}`,
-        `  receipt: ${artifact.observatoryReceiptId || artifact.memoryReceiptId || 'pendente'}; comando: ${artifact.commands.replayCommand}`,
+        `  receipt: ${artifact.observatoryReceiptId || artifact.memoryReceiptId || 'pending'}; command: ${artifact.commands.replayCommand}`,
       );
     }
   }
 
   lines.push('', 'Features');
   for (const feature of snapshot.features.filter((entry) => entry.present).slice(0, 12)) {
-    lines.push(`- ${feature.label}: ${feature.receiptCount} receipt(s), contrato ${feature.contractVersion || 'n/a'}`);
+    lines.push(`- ${feature.label}: ${feature.receiptCount} receipt(s), contract ${feature.contractVersion || 'n/a'}`);
   }
 
   lines.push('', 'Politica');
-  lines.push('- replay nao executa tools');
-  lines.push('- nenhum arquivo/artifact foi lido do filesystem');
-  lines.push('- conteudo de artifact nao foi inventado');
-  lines.push('- artifacts reutilizados devem citar origem');
-  lines.push('- linguagem natural nao bypassa policy');
-  lines.push('- secrets nao foram serializados');
+  lines.push('- replay does not execute tools');
+  lines.push('- no file/artifact was read from the filesystem');
+  lines.push('- artifact content was not invented');
+  lines.push('- reused artifacts must cite their source');
+  lines.push('- natural language does not bypass policy');
+  lines.push('- secrets were not serialized');
 
   lines.push('', 'Superficies');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);

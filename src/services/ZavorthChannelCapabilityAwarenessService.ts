@@ -320,7 +320,7 @@ function inspectCapabilities(
   profile: ChannelCapabilityProfile,
   rendered: SurfaceRenderedResponse,
 ): ChannelCapabilityAdaptedResponse['capabilityUsed'] {
-  const native = rendered.native as any;
+  const native = rendered.native as { replyMarkup?: { inline_keyboard?: unknown[] }; components?: unknown[] } | null | undefined;
   const telegramButtons = Boolean(native?.replyMarkup?.inline_keyboard?.length);
   const discordComponents = Boolean(native?.components?.length);
   return {

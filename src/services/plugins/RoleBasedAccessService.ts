@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface Role {
   id: string;
@@ -39,14 +40,14 @@ export class RoleBasedAccessService {
         const data = JSON.parse(fs.readFileSync(r, 'utf-8'));
         if (Array.isArray(data)) for (const role of data) this.roles.set(role.id, role);
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Role Based Access] JSON parse failed', error); }
     try {
       const p = path.join(this.storageDir, 'policies.json');
       if (fs.existsSync(p)) {
         const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
         if (Array.isArray(data)) for (const policy of data) this.policies.set(policy.id, policy);
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Role Based Access] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

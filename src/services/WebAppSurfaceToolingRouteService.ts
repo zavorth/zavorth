@@ -8,7 +8,7 @@ export class WebAppSurfaceToolingRouteService {
     res: http.ServerResponse,
     url: URL,
     pathname: string,
-    deps: WebAppSurfaceRouteDeps,
+    deps: any,
   ): Promise<boolean> {
     if (pathname === '/api/web/tools' && req.method === 'GET') {
       const toolSurface = deps.runtimeToolSurface || deps.toolSurface;

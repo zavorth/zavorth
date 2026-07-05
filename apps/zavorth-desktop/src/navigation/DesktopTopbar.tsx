@@ -16,7 +16,7 @@ export function DesktopTopbar(props: {
     <header className="zvd-topbar">
       <div className="zvd-topbar-left">
         {/* Zavorth Core */}
-        <button className="zvd-topbar-title" type="button" onClick={props.onModel} title="Abrir configurações do workspace">
+        <button className="zvd-topbar-title" type="button" onClick={props.onModel} title="Open workspace settings">
           <span>Desktop</span>
           <small>local</small>
         </button>

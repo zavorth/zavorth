@@ -16,6 +16,7 @@ import type {
 } from '../contracts/IntegrationHubContract.js';
 import { SecureStorageService } from './SecureStorageService.js';
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';
+import { logger } from '../logger.js';
 
 type InstallerRuntime = {
   now?: () => Date;
@@ -74,7 +75,7 @@ export class IntegrationInstallerService {
   public buildDraft(input: BuildDraftInput): IntegrationInstallDraft {
     const resolution = this.registryService.resolveRequestedIntegration(input.requestedId);
     if (!resolution.manifest) {
-      throw new Error('Nao foi possivel resolver a integracao solicitada.');
+      throw new Error('Could not resolve the requested integration.');
     }
 
     const manifest = resolution.manifest;
@@ -354,7 +355,7 @@ export class IntegrationInstallerService {
     }
 
     if (manifest.safetyNotes.length > 0) {
-      notes.push(`Seguranca: ${manifest.safetyNotes[0]}`);
+      notes.push(`Security: ${manifest.safetyNotes[0]}`);
     }
 
     return notes.slice(0, 4);
@@ -367,25 +368,25 @@ export class IntegrationInstallerService {
   ): IntegrationInstallDraft['nextAction'] {
     if (unansweredQuestions.length > 0) {
       return {
-        label: 'Responder perguntas do onboarding',
+        label: 'Answer onboarding questions',
         command: `npm run integrations:show -- --id ${manifest.id}`,
-        reason: 'Ainda faltam escolhas bÃ¡sicas sobre modo, capacidades ou objetivo da integraÃ§Ã£o.',
+        reason: 'Basic choices about mode, capabilities, or integration goal are still missing.',
       };
     }
 
     if (missingRequirements.length > 0) {
       const firstRequirement = missingRequirements[0];
       return {
-        label: 'Fechar requisito principal',
+        label: 'Close main requirement',
         command: `npm run integrations:doctor -- --id ${manifest.id}`,
-        reason: `Ainda falta: ${firstRequirement.label}.`,
+        reason: `Still missing: ${firstRequirement.label}.`,
       };
     }
 
     return {
-      label: 'Validar integraÃ§Ã£o',
+      label: 'Validate integration',
       command: `npm run integrations:doctor -- --id ${manifest.id}`,
-      reason: 'O prÃ³ximo passo Ã© confirmar se o binding ficou realmente saudÃ¡vel.',
+      reason: 'The next step is to confirm that the binding is actually healthy.',
     };
   }
 
@@ -503,9 +504,7 @@ export class IntegrationInstallerService {
         return fallback;
       }
       return JSON.parse(fs.readFileSync(targetPath, 'utf8')) as T;
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Integration Installer] JSON parse failed', error); return fallback; }
   }
 
   private writeJsonFile(targetPath: string, value: unknown): void {

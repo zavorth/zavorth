@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import { getWebhook, recordWebhookDelivery } from "@/lib/localDb";
 import { deliverWebhook } from "@/lib/webhookDispatcher";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const authError = await requireManagementAuth(request);
@@ -40,7 +41,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       status: result.status,
       error: result.error || null,
     });
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -776,9 +776,7 @@ export class AudioHandler {
   private async safeReadResponseText(response: Response): Promise<string> {
     try {
       return (await response.text()).slice(0, 500);
-    } catch {
-      return response.statusText || 'sem corpo de erro';
-    }
+    } catch (error) { logger.warn('[Audio] string operation failed', error); return response.statusText || 'sem corpo de erro'; }
   }
 
   private buildTtsCacheKey(
@@ -822,9 +820,7 @@ export class AudioHandler {
         extension: extension || '.mp3',
         expiresAt: Date.now() + audioConfig.ttsCacheTtlMs,
       });
-    } catch {
-      // cache is an optimization only
-    }
+    } catch (error) { // cache is an optimization only logger.warn('[Audio] filesystem operation failed', error); }
   }
 
   private cleanTextForTTS(text: string): string {
@@ -868,17 +864,13 @@ export class AudioHandler {
   private async recordVoiceSuccess(input: Parameters<Pick<EchoVoiceTelemetryService, 'recordSuccess'>['recordSuccess']>[0]): Promise<void> {
     try {
       await this.voiceTelemetryService.recordSuccess(input);
-    } catch {
-      // observability should not break telegram audio delivery
-    }
+    } catch (error) { // observability should not break telegram audio delivery logger.warn('[Audio] delete operation failed', error); }
   }
 
   private async recordVoiceFailure(input: Parameters<Pick<EchoVoiceTelemetryService, 'recordFailure'>['recordFailure']>[0]): Promise<void> {
     try {
       await this.voiceTelemetryService.recordFailure(input);
-    } catch {
-      // observability should not break telegram audio delivery
-    }
+    } catch (error) { // observability should not break telegram audio delivery logger.warn('[Audio] operation failed', error); }
   }
 }
 

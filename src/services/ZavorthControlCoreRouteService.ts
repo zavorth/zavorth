@@ -20,7 +20,6 @@ import { InternalBetaDiagnosticsService } from './InternalBetaDiagnosticsService
 import { InternalBetaChecklistService } from './InternalBetaChecklistService.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
 import { logger } from '../logger.js';
-import { safeParseInt } from '../utils/number.js';
 
 import { PtySessionService } from './PtySessionService.js';
 import { PtySessionApprovalService } from './PtySessionApprovalService.js';
@@ -1110,16 +1109,18 @@ export class ZavorthControlCoreRouteService {
         let resolvedPath: string;
         try {
           resolvedPath = fs.realpathSync(path.resolve(rootPath));
-        } catch {
-          resolvedPath = path.resolve(rootPath);
-        }
+        } catch (error) {
+    logger.warn('[Zavorth Control Core] parsing failed', error);
+    resolvedPath = path.resolve(rootPath);
+  }
 
         let activeWorkspace: string;
         try {
           activeWorkspace = fs.realpathSync(WorkspaceResolver.resolve(null));
-        } catch {
-          activeWorkspace = path.resolve(WorkspaceResolver.resolve(null));
-        }
+        } catch (error) {
+    logger.warn('[Zavorth Control Core] path resolution failed', error);
+    activeWorkspace = path.resolve(WorkspaceResolver.resolve(null));
+  }
 
         const normResolved = path.normalize(resolvedPath).toLowerCase();
         const normActive = path.normalize(activeWorkspace).toLowerCase();

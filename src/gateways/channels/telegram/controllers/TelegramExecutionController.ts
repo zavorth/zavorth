@@ -140,11 +140,11 @@ export class TelegramExecutionController {
       const restored = await rollbackManager.rollback(taskId, config.defaultWorkspace);
       await SmartOutputService.reply(
         ctx,
-        `Pronto. Tentei desfazer a tarefa ${taskId}.\n\nItens restaurados:\n${restored.join('\n')}`,
+        `Done. I attempted to undo task ${taskId}.\n\nRestored items:\n${restored.join('\n')}`,
       );
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      await SmartOutputService.reply(ctx, `Nao consegui desfazer essa tarefa agora.\n\nMotivo: ${message}`);
+      await SmartOutputService.reply(ctx, `I could not undo this task right now.\n\nReason: ${message}`);
     }
   }
 

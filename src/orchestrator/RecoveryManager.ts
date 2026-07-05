@@ -3,6 +3,7 @@ import fs from 'fs';
 import { LogRepository } from '../storage/LogRepository.js';
 import { Database } from '../storage/Database.js';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export class RecoveryManager {
   private taskManager: TaskManager;
@@ -14,12 +15,12 @@ export class RecoveryManager {
   }
 
   public async runBootRecovery(): Promise<void> {
-    this.logRepo.log('info', 'Recovery', 'Iniciando varredura de auto-recuperacao (Boot State Recovery).');
+    this.logRepo.log('info', 'Recovery', 'Starting boot state recovery scan.');
 
     try {
       const db = await Database.getInstance();
 
-      // Busca tarefas zumbis que estavam rodando no momento de uma queda de forca/crash.
+      // Finds zombie tasks that were running during a power loss or crash.
       const runningTasksRaw = db.all<{ task_id: string }>(
         'SELECT * FROM system_tasks WHERE status = ?',
         ['running'],
@@ -91,7 +92,7 @@ export class RecoveryManager {
             'rejected',
             new Date().toISOString(),
             'system:recovery',
-            'Pedido fechado no boot recovery porque a tarefa vinculada nao estava mais ativa.',
+            'Request closed during boot recovery because the linked task was no longer active.',
             row.permission_id,
             'pending',
           ],
@@ -108,10 +109,10 @@ export class RecoveryManager {
       this.logRepo.log(
         'info',
         'Recovery',
-        `Recuperacao concluida. Zumbis falhados: ${zombiesCount}. Tarefas ZavorthBridge preservadas: ${preservedZavorthBridgeCount}. Tarefas ZavorthBridge reconciliadas: ${reconciledZavorthBridgeCount}. Permissoes pendentes fechadas: ${closedPendingPermissionCount}. Tarefas aguardando aprovacao: ${waitingCount}`,
+        `Recovery complete. Failed zombies: ${zombiesCount}. Preserved ZavorthBridge tasks: ${preservedZavorthBridgeCount}. Reconciled ZavorthBridge tasks: ${reconciledZavorthBridgeCount}. Closed pending permissions: ${closedPendingPermissionCount}. Tasks waiting for approval: ${waitingCount}`,
       );
     } catch (err: any) {
-      this.logRepo.log('error', 'Recovery', `Falha ao tentar executar o fluxo de Recovery: ${err.message}`);
+      this.logRepo.log('error', 'Recovery', `Failed to run recovery flow: ${err.message}`);
     }
   }
 
@@ -177,7 +178,7 @@ export class RecoveryManager {
 
     task.error_summary =
       task.error_summary ||
-      'Sessao ZavorthBridge anterior terminou sem concluir a entrega e o pedido de permissao ficou obsoleto.';
+      'Previous ZavorthBridge session ended without completing delivery, and the permission request became obsolete.';
 
     if (task.status === 'waiting_approval' || task.status === 'approved') {
       this.taskManager.advanceState(task, 'running');
@@ -212,9 +213,7 @@ export class RecoveryManager {
         pendingDeliverySummary?: string | null;
         lastDeliveryError?: string | null;
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Recovery Manager] JSON parse failed', error); return null; }
   }
 
   private closeZavorthBridgeTracking(task: any, reason: string): void {
@@ -231,9 +230,7 @@ export class RecoveryManager {
         tracking.lastDeliveryError = tracking.lastDeliveryError || reason;
       }
       fs.writeFileSync(trackingFile, JSON.stringify(tracking, null, 2), 'utf8');
-    } catch {
-      // Ignore tracking cleanup failures during boot recovery.
-    }
+    } catch (error) { // Ignore tracking cleanup failures during boot recovery. logger.warn('[Recovery Manager] filesystem operation failed', error); }
   }
 
   private isZavorthBridgeTask(task: any): boolean {

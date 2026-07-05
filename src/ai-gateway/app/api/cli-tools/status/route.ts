@@ -10,6 +10,7 @@ import {
 import { getAllCliToolLastConfigured } from "@/lib/db/cliToolState";
 import { getRuntimePorts } from "@/lib/runtime/ports";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { logger } from '@/shared/utils/logger';
 
 const { apiPort } = getRuntimePorts();
 
@@ -46,9 +47,7 @@ async function checkToolConfigStatus(toolId: string): Promise<string> {
       default:
         return "unknown";
     }
-  } catch {
-    return "not_configured";
-  }
+  } catch (error) { logger.warn('[route] serialization failed', error); return "not_configured"; }
 }
 
 /**
@@ -121,9 +120,7 @@ export async function GET(request: Request) {
           statuses[toolId].lastConfiguredAt = timestamp;
         }
       }
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] operation failed', error); }
 
     return NextResponse.json(statuses);
   } catch (error) {

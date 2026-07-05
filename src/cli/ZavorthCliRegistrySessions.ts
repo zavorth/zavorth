@@ -35,6 +35,8 @@ import {
 import { ZavorthMnemosMemoryUxService } from '../services/ZavorthMnemosMemoryUxService.js';
 import { ZavorthMnemosProceduralMemoryService } from '../services/ZavorthMnemosProceduralMemoryService.js';
 import { ZavorthMnemosQueryService } from '../services/ZavorthMnemosQueryService.js';
+import type { ZavorthAgentGateway } from '../runtime/agent/index.js';
+import type { LearningPlaneActionId } from '../services/ZavorthLearningPlaneService.js';
 
 type RegistryCommandParams = {
   runtime: ZavorthCliRuntime;
@@ -82,7 +84,7 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
       ? JSON.stringify(result, null, 2)
       : formatSessionSendResult(result);
     writer.line(body);
-    return { ok: result.ok, handled: true, output: [body], error: result.ok ? null : 'Falha ao enviar para a sessao.' };
+    return { ok: result.ok, handled: true, output: [body], error: result.ok ? null : 'Failed to send to the session.' };
   }
 
   if (commandName === 'sessionspawn' && runtime.sessionPlaneService) {
@@ -95,7 +97,7 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
       ? JSON.stringify(result, null, 2)
       : formatSessionSpawnResult(result);
     writer.line(body);
-    return { ok: result.ok, handled: true, output: [body], error: result.ok ? null : 'Falha ao abrir a sessao derivada.' };
+    return { ok: result.ok, handled: true, output: [body], error: result.ok ? null : 'Failed to open the derived session.' };
   }
 
   if (commandName === 'memoryplane' && runtime.memoryPlaneService) {
@@ -161,13 +163,13 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
     if (learningActionId && candidateId) {
       const result = await runtime.learningPlaneService.executeAction({
         candidateId,
-        actionId: learningActionId,
-      } as any);
+        actionId: learningActionId as LearningPlaneActionId,
+      });
       const body = effectiveFlags.json
         ? JSON.stringify(result, null, 2)
         : formatLearningActionExecution(result);
       writer.line(body);
-      return { ok: Boolean((result as any).ok ?? true), handled: true, output: [body], error: null };
+      return { ok: Boolean(result.ok ?? true), handled: true, output: [body], error: null };
     }
     const snapshot = runtime.learningPlaneService.buildSnapshot();
     const body = effectiveFlags.json
@@ -220,12 +222,13 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
       return { ok: snapshot.status !== 'blocked', handled: true, output: [body], error: snapshot.status === 'blocked' ? 'Mnemos procedural memory blocked.' : null };
     }
     if (first === 'receipts' || first === 'source' || first === 'sources' || first === 'origem') {
-      const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
+      const agentGateway = runtime.agentGateway as ZavorthAgentGateway | null | undefined;
+      const gatewaySnapshot = agentGateway?.buildSnapshot({
         activeSessionId: effectiveFlags.sessionId,
-      } as any) as any;
+      });
       const activeRun = gatewaySnapshot?.activeRun
         || (Array.isArray(gatewaySnapshot?.runs)
-          ? gatewaySnapshot.runs.find((run: any) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
+          ? gatewaySnapshot.runs.find((run) => run?.sessionId === effectiveFlags.sessionId) || gatewaySnapshot.runs[0]
           : null);
       const snapshot = activeRun
         ? buildMemoryWithReceiptsSnapshotFromRun(activeRun)
@@ -316,7 +319,7 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
         return { ok: true, handled: true, output: [body], error: null };
       }
       if (first === 'search') {
-        const snapshot = await runtime.layeredMemoryService.search({ query: rest } as any);
+        const snapshot = await runtime.layeredMemoryService.search({ query: rest });
         const body = effectiveFlags.json
           ? JSON.stringify(snapshot, null, 2)
           : formatLayeredMemorySearch(snapshot);

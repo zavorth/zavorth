@@ -56,16 +56,16 @@ export function formatReleaseAdoptionReadinessSnapshot(
 ): string {
   const lines = [
     'Release & Adoption Readiness - Release Adoption Readiness',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- showcase: ${snapshot.integrationShowcase.status}`,
     `- release train: ${snapshot.releaseTrain.status}`,
     `- adoption score: ${snapshot.publicAdoption.readinessScore}`,
     `- suporte: ${String(snapshot.readiness.supportLoopReady)}`,
     `- canary iniciado: ${String(snapshot.readiness.canStartCanary)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -91,13 +91,13 @@ export function formatReleaseAdoptionReadinessSnapshot(
   lines.push(`- LTS/hotfix: ${String(snapshot.readiness.ltsHotfixPolicyReady)}`);
 
   lines.push('', 'Politica');
-  lines.push('- deploy nao foi executado');
-  lines.push('- canary nao foi iniciado');
+  lines.push('- deploy was not executed');
+  lines.push('- canary was not started');
   lines.push('- telemetry implicita continua desligada');
-  lines.push('- feedback externo nao foi enviado');
+  lines.push('- external feedback was not sent');
   lines.push('- metricas sao agregadas');
   lines.push('- stable claim exige evidencia');
-  lines.push('- rollback preview e obrigatorio');
+  lines.push('- rollback preview is required');
 
   lines.push('', 'Rotas e comandos');
   lines.push(`- Release: ${snapshot.surface.releaseRoute}`);

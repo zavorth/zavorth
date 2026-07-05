@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  PUBLIC_ADOPTION_CLAIMS,
+PUBLIC_ADOPTION_CLAIMS,
   PUBLIC_ADOPTION_DEMO_RUNBOOK,
   PUBLIC_ADOPTION_REQUIRED_CORE_SCRIPTS,
   PUBLIC_ADOPTION_REQUIRED_DOCS,
@@ -305,9 +306,7 @@ export class PublicAdoptionReadinessService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Public Adoption Readiness] JSON parse failed', error); return null; }
   }
 
   private readCoreText(relativePath: string): string | null {
@@ -329,9 +328,7 @@ export class PublicAdoptionReadinessService {
     }
     try {
       return this.readFileSync(targetPath, 'utf8');
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Public Adoption Readiness] filesystem operation failed', error); return null; }
   }
 
   private pathExistsFromRoot(root: string, relativePath: string): boolean {

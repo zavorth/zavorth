@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export class ZavorthCodeFormatterTool extends BaseTool {
   public readonly name = 'zavorth_code_formatter';
@@ -121,7 +122,7 @@ export class ZavorthCodeFormatterTool extends BaseTool {
             fs.writeFileSync(tmpFile, code);
             args_list.push(tmpFile);
             const result = execFileSync('npx', ['prettier', ...args_list], { timeout: 30000 }).toString();
-            try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+            try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Zavorth Code Formatter] file cleanup failed', error); }
             return `Formatted with Prettier:\n${result.trim()}`;
           }
           const result = execFileSync('npx', ['prettier', ...args_list], { timeout: 60000, maxBuffer: 10 * 1024 * 1024 }).toString();
@@ -160,9 +161,7 @@ export class ZavorthCodeFormatterTool extends BaseTool {
         default:
           return `Error: Unknown formatter "${formatter}".`;
       }
-    } catch (error: unknown) {
-      return `Formatting error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Code Formatter] process execution failed', error); return ''; }
   }
 
   private async checkCode(args: Record<string, unknown>): Promise<string> {
@@ -191,9 +190,7 @@ export class ZavorthCodeFormatterTool extends BaseTool {
         default:
           return `Check not supported for formatter "${resolved}". Use format action instead.`;
       }
-    } catch (error: unknown) {
-      return `Check error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Code Formatter] process execution failed', error); return ''; }
   }
 
   private async fixCode(args: Record<string, unknown>): Promise<string> {
@@ -204,9 +201,7 @@ export class ZavorthCodeFormatterTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('npx', ['eslint', '--fix', filePath], { timeout: 60000 }).toString();
       return `ESLint fix:\n${result.trim() || 'No issues fixed'}`;
-    } catch (error: unknown) {
-      return `Fix error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Code Formatter] process execution failed', error); return ''; }
   }
 
   private listFormatters(): string {

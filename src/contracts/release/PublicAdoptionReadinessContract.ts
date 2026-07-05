@@ -96,29 +96,29 @@ export const PUBLIC_ADOPTION_REQUIRED_DOCS = [
   {
     path: 'README.md',
     phrase: 'Zavorth',
-    label: 'README publico do runtime',
+    label: 'public runtime README',
   },
   {
     path: 'docs/product-direction.md',
     phrase: 'Public Adoption And Release Operations 53-59',
-    label: 'roadmap aponta para o ciclo 53-59',
+    label: 'roadmap points to cycle 53-59',
   },
   {
     path: 'docs/product-direction.md',
     phrase: 'Readiness checkpoint 2',
-    label: 'baseline publica 46-52',
+    label: 'public baseline 46-52',
   },
   {
     path: 'docs/product-direction.md',
     phrase: 'Readiness checkpoint 3 - Public Adoption Readiness',
-    label: 'planejamento da Readiness checkpoint 3',
+    label: 'Readiness checkpoint 3 planning',
   },
 ] as const;
 
 export const PUBLIC_ADOPTION_CLAIMS: PublicAdoptionReadinessClaim[] = [
   {
     id: 'local-first-governed-runtime',
-    claim: 'Zavorth e um runtime local-first governado, nao apenas uma landing.',
+    claim: 'Zavorth is a governed local-first runtime, not just a landing page.',
     evidence: [
       { kind: 'doc', path: 'README.md', phrase: 'local-first' },
       { kind: 'doc', path: 'docs/product-direction.md', phrase: 'local-first' },
@@ -126,7 +126,7 @@ export const PUBLIC_ADOPTION_CLAIMS: PublicAdoptionReadinessClaim[] = [
   },
   {
     id: 'preview-approval-evidence',
-    claim: 'A jornada publica promete preview, aprovacao e evidencia.',
+    claim: 'The public journey promises preview, approval, and evidence.',
     evidence: [
       { kind: 'doc', path: 'docs/product-direction.md', phrase: 'preview' },
       { kind: 'service', path: 'src/services/WebsitePublicContractService.ts', phrase: 'forbiddenClaims' },
@@ -134,7 +134,7 @@ export const PUBLIC_ADOPTION_CLAIMS: PublicAdoptionReadinessClaim[] = [
   },
   {
     id: 'fixture-first-demo',
-    claim: 'A demo publica pode funcionar com fixture quando secrets reais faltarem.',
+    claim: 'The public demo can work with a fixture when real secrets are missing.',
     evidence: [
       { kind: 'service', path: 'src/services/PublicDemoContractService.ts', phrase: 'fixture' },
       { kind: 'script', path: 'scripts/public-demo.ts', phrase: 'PublicDemoContractService' },
@@ -142,7 +142,7 @@ export const PUBLIC_ADOPTION_CLAIMS: PublicAdoptionReadinessClaim[] = [
   },
   {
     id: 'telemetry-opt-in',
-    claim: 'Feedback e telemetry continuam opt-in e redigidos por padrao.',
+    claim: 'Feedback and telemetry remain opt-in and redacted by default.',
     evidence: [
       { kind: 'service', path: 'src/services/FeedbackTelemetryContractService.ts', phrase: 'opt' },
       { kind: 'script', path: 'scripts/feedback-loop.ts', phrase: 'disabled-by-default' },
@@ -150,7 +150,7 @@ export const PUBLIC_ADOPTION_CLAIMS: PublicAdoptionReadinessClaim[] = [
   },
   {
     id: 'verifiable-release',
-    claim: 'Releases publicos precisam de bundle verificavel e rollback preview.',
+    claim: 'Public releases need a verifiable bundle and rollback preview.',
     evidence: [
       { kind: 'service', path: 'src/services/PublicReleaseBundleContractService.ts', phrase: 'digest' },
       { kind: 'script', path: 'scripts/release-bundle.ts', phrase: 'PublicReleaseBundleContractService' },
@@ -158,7 +158,7 @@ export const PUBLIC_ADOPTION_CLAIMS: PublicAdoptionReadinessClaim[] = [
   },
   {
     id: 'v1-release-train',
-    claim: 'O proximo ciclo deve preservar v1.0.0 como baseline e planejar v1.x.',
+    claim: 'The next cycle must preserve v1.0.0 as the baseline and plan v1.x.',
     evidence: [
       { kind: 'doc', path: 'docs/product-direction.md', phrase: 'v1.x Release Train' },
       { kind: 'release', path: 'package.json', phrase: '"version": "1.0.0"' },
@@ -169,30 +169,30 @@ export const PUBLIC_ADOPTION_CLAIMS: PublicAdoptionReadinessClaim[] = [
 export const PUBLIC_ADOPTION_RISKS: PublicAdoptionReadinessRisk[] = [
   {
     id: 'website-not-present',
-    title: 'Site publico pode nao existir em uma workspace nova.',
+    title: 'The public site may not exist in a new workspace.',
     severity: 'medium',
-    mitigation: 'Usar ZAVORTH_WEBSITE_REPO_ROOT ou fixtures ate a Readiness checkpoint 4 fechar deploy/preview.',
+    mitigation: 'Use ZAVORTH_WEBSITE_REPO_ROOT or fixtures until Readiness checkpoint 4 closes deploy/preview.',
     evidencePath: 'scripts/website-public.ts',
   },
   {
     id: 'secrets-missing',
-    title: 'Usuario publico pode nao ter credenciais de integracao.',
+    title: 'A public user may not have integration credentials.',
     severity: 'medium',
-    mitigation: 'Demo e examples devem ter fixtures e degradacao explicita.',
+    mitigation: 'Demo and examples must have fixtures and explicit degradation.',
     evidencePath: 'src/services/PublicDemoContractService.ts',
   },
   {
     id: 'unsafe-feedback',
-    title: 'Feedback publico pode capturar payload sensivel se for mal desenhado.',
+    title: 'Public feedback can capture sensitive payload if poorly designed.',
     severity: 'high',
-    mitigation: 'Manter telemetry opt-in, preview redigido, revoke/delete e ledger local.',
+    mitigation: 'Keep telemetry opt-in, redacted preview, revoke/delete, and local ledger.',
     evidencePath: 'src/services/FeedbackTelemetryContractService.ts',
   },
   {
     id: 'release-drift',
-    title: 'Tag/release pode apontar para commit errado se o fluxo for manual.',
+    title: 'Tag/release can point to the wrong commit if the flow is manual.',
     severity: 'high',
-    mitigation: 'Readiness checkpoint 9 exige politica v1.x e tags apontando para commit final em main.',
+    mitigation: 'Readiness checkpoint 9 requires v1.x policy and tags pointing to the final commit on main.',
     evidencePath: 'docs/product-direction.md',
   },
 ];
@@ -200,44 +200,44 @@ export const PUBLIC_ADOPTION_RISKS: PublicAdoptionReadinessRisk[] = [
 export const PUBLIC_ADOPTION_DEMO_RUNBOOK: PublicAdoptionReadinessRunbookStep[] = [
   {
     minute: '0-1',
-    label: 'Abrir landing e explicar promessa local-first.',
+    label: 'Open landing and explain the local-first promise.',
     route: '/',
-    proof: 'Hero, runtime, governance e CTAs publicos.',
-    fallback: 'Usar contrato website-public quando o site nao estiver rodando.',
+    proof: 'Hero, runtime, governance, and public CTAs.',
+    fallback: 'Use the website-public contract when the site is not running.',
   },
   {
     minute: '1-3',
-    label: 'Mostrar demo fixture-first.',
+    label: 'Show fixture-first demo.',
     route: '/demo',
-    proof: 'Approval, artifact, replay, erro e rollback em fixture.',
-    fallback: 'Rodar public-demo sem secrets reais.',
+    proof: 'Approval, artifact, replay, error, and rollback in fixture.',
+    fallback: 'Run public-demo without real secrets.',
   },
   {
     minute: '3-5',
-    label: 'Mostrar first run.',
+    label: 'Show first run.',
     route: '/start',
-    proof: 'Requisitos, preview, primeira execucao e cleanup.',
-    fallback: 'Usar first-run contract e quickstart local.',
+    proof: 'Requirements, preview, first execution, and cleanup.',
+    fallback: 'Use first-run contract and local quickstart.',
   },
   {
     minute: '5-7',
-    label: 'Mostrar docs e examples.',
+    label: 'Show docs and examples.',
     route: '/docs',
-    proof: 'Quickstart, seguranca, troubleshooting, engenharia e recipes.',
-    fallback: 'Usar external-docs contract.',
+    proof: 'Quickstart, security, troubleshooting, engineering, and recipes.',
+    fallback: 'Use external-docs contract.',
   },
   {
     minute: '7-9',
-    label: 'Mostrar release verificavel.',
+    label: 'Show verifiable release.',
     route: '/release',
-    proof: 'Digest, installer preview, smoke e rollback preview.',
-    fallback: 'Rodar release-bundle em modo fixture.',
+    proof: 'Digest, installer preview, smoke, and rollback preview.',
+    fallback: 'Run release-bundle in fixture mode.',
   },
   {
     minute: '9-10',
-    label: 'Fechar com feedback opt-in.',
+    label: 'Close with opt-in feedback.',
     route: '/feedback',
-    proof: 'Preview redigido, revoke/delete e telemetry desligada por padrao.',
-    fallback: 'Rodar feedback-loop --preview.',
+    proof: 'Redacted preview, revoke/delete, and telemetry disabled by default.',
+    fallback: 'Run feedback-loop --preview.',
   },
 ];

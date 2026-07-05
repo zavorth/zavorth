@@ -1,17 +1,20 @@
 /**
  * ToolGatekeeper — Cognitive Firewall, Preview engine: Just-In-Time Tool Loading
  *
- * Este módulo recebe a classificação de intenção do IntentClassifier e filtra
+ * This module receives the intent classification from IntentClassifier and filters
  * as ToolDefinitions a serem injetadas no prompt do LLM. Em vez de enviar
  * TODAS as 16+ tools em toda chamada (como o ExternalExecutor faz), enviamos apenas
- * as tools que fazem sentido para a intenção detectada.
+ * the tools that make sense for the detected intent.
  *
  * RESULTADO: O prompt enviado ao LLM fica ~60-70% mais leve em tokens.
  */
 
 import type { IntentCategory } from './IntentClassifier.js';
-import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import type { ToolDefinition, CompactToolDefinition } from '../providers/ILlmProvider.js';
 import { PluginStateService } from '../services/PluginStateService.js';
+import { toCompact, toCompactBatch } from './LazyToolDefinition.js';
+import { ToolClusterRegistry, type ToolCluster } from './ToolClusterRegistry.js';
+import { ToolUsageTracker } from './ToolUsageTracker.js';
 
 export type IntentToolCategoryMap = Partial<Record<IntentCategory | string, string[]>>;
 export type ToolGatekeeperHintGroup =
@@ -37,12 +40,24 @@ export type ToolGatekeeperHintProfile = {
   toolExposureGatedByCognitiveFirewall: boolean;
   isHardGate: boolean;
   reason: string;
+  /** When compactMode is active, holds the compact tool definitions. */
+  compactTools?: CompactToolDefinition[];
+  /** Whether compact mode was active for this profile build. */
+  isCompactMode?: boolean;
+  /** Active cluster names when cluster mode is used. */
+  activeClusters?: string[];
+  /** Whether cluster mode was active for this profile build. */
+  isClusterMode?: boolean;
+  /** Tool names predicted by the usage tracker. */
+  predictedToolNames?: string[];
+  /** Whether predictive loading was active for this profile build. */
+  isPredictiveMode?: boolean;
 };
 
 /**
- * Mapa de intenção → nomes de tools permitidas.
- * 'conversation' = nenhuma tool (economia máxima).
- * 'full_toolset' = todas (fallback de segurança).
+ * Intent-to-allowed-tool-name map.
+ * 'conversation' = no tools, maximum savings.
+ * 'full_toolset' = all tools, safety fallback.
  */
 const DEFAULT_INTENT_TOOL_MAP: Record<IntentCategory, string[] | '*'> = {
   conversation: [],
@@ -95,17 +110,48 @@ export function getDynamicIntentToolMap(): Record<string, string[]> {
   );
 }
 
+export interface ToolGatekeeperOptions {
+  pluginState?: PluginStateService;
+  /** When true, buildHintProfile returns CompactToolDefinitions to save tokens. */
+  compactMode?: boolean;
+  /** When true, uses cluster-based tool selection instead of individual tools. */
+  clusterMode?: boolean;
+  /** Custom cluster registry for cluster mode. Uses built-in if not provided. */
+  clusterRegistry?: ToolClusterRegistry;
+  /** Tool usage tracker for predictive loading. */
+  usageTracker?: ToolUsageTracker;
+  /** Current session ID for predictive loading context. */
+  sessionId?: string;
+}
+
 export class ToolGatekeeper {
   private readonly pluginState: PluginStateService;
+  private readonly compactMode: boolean;
+  private readonly clusterMode: boolean;
+  private readonly clusterRegistry: ToolClusterRegistry;
+  private readonly usageTracker?: ToolUsageTracker;
+  private readonly sessionId?: string;
 
-  constructor(pluginState?: PluginStateService) {
-    this.pluginState = pluginState ?? new PluginStateService();
+  constructor(pluginStateOrOptions?: PluginStateService | ToolGatekeeperOptions) {
+    if (pluginStateOrOptions instanceof PluginStateService) {
+      this.pluginState = pluginStateOrOptions;
+      this.compactMode = false;
+      this.clusterMode = false;
+      this.clusterRegistry = new ToolClusterRegistry();
+    } else {
+      this.pluginState = pluginStateOrOptions?.pluginState ?? new PluginStateService();
+      this.compactMode = pluginStateOrOptions?.compactMode ?? false;
+      this.clusterMode = pluginStateOrOptions?.clusterMode ?? false;
+      this.clusterRegistry = pluginStateOrOptions?.clusterRegistry ?? new ToolClusterRegistry();
+      this.usageTracker = pluginStateOrOptions?.usageTracker;
+      this.sessionId = pluginStateOrOptions?.sessionId;
+    }
   }
 
   /**
-   * Aplica a política de quarentena de plugins do operador.
-   * Remove ferramentas cujo pluginId não está aprovado (trust !== 'trusted' ou sourceTrusted !== true).
-   * Ferramentas sem pluginId associado são sempre permitidas (tratadas como ferramentas nativas).
+   * Applies the operator plugin quarantine policy.
+   * Removes tools whose pluginId is not approved (trust !== 'trusted' or sourceTrusted !== true).
+   * Tools without an associated pluginId are always allowed as native tools.
    */
   private applyPluginQuarantine(tools: ToolDefinition[]): {
     approved: ToolDefinition[];
@@ -176,43 +222,93 @@ export class ToolGatekeeper {
         reason: pluginGateApplied
           ? `Intent hint recommends the full toolset; ${quarantinedToolNames.length} tool(s) blocked by operator plugin policy.`
           : 'Intent hint recommends the full available toolset; final exposure belongs to runtime policy.',
+        ...(this.compactMode ? { compactTools: toCompactBatch(approvedTools), isCompactMode: true } : {}),
       };
     }
 
-    // Step 2: apply intent filtering over the already approved pool.
-    const intendedToolNames = Array.from(
-      new Set([
-        ...(defaultAllowedNames || []),
-        ...(dynamicIntentToolMap[intentCategory] || []),
-      ]),
-    );
+    // Step 2: determine allowed tool names (cluster-aware or individual).
+    let intendedToolNames: string[];
+    let activeClusters: string[] | undefined;
+
+    if (this.clusterMode) {
+      // Cluster mode: get tools from clusters matching the intent.
+      const clusterTools = this.clusterRegistry.getToolsForIntent(intentCategory);
+      const clusters = this.clusterRegistry.getClustersForIntent(intentCategory);
+      activeClusters = clusters.map((c) => c.name);
+
+      // Merge with default and dynamic maps
+      intendedToolNames = Array.from(
+        new Set([
+          ...(defaultAllowedNames || []),
+          ...(dynamicIntentToolMap[intentCategory] || []),
+          ...clusterTools,
+        ]),
+      );
+    } else {
+      intendedToolNames = Array.from(
+        new Set([
+          ...(defaultAllowedNames || []),
+          ...(dynamicIntentToolMap[intentCategory] || []),
+        ]),
+      );
+    }
+
+    // Step 3: apply intent filtering over the already approved pool.
     const allowedSet = new Set(intendedToolNames);
     const tools = approvedTools.filter((tool) => allowedSet.has(tool.name));
     const selectedNames = new Set(tools.map((tool) => tool.name));
     const recommendedToolNames = tools.map((tool) => tool.name);
 
+    // Step 4: predictive loading — add tools predicted by usage history.
+    let predictedToolNames: string[] | undefined;
+    let finalTools = tools;
+
+    if (this.usageTracker && this.sessionId) {
+      const prediction = this.usageTracker.predictNextTools(
+        this.sessionId,
+        recommendedToolNames,
+      );
+
+      if (prediction.predictedTools.length > 0) {
+        predictedToolNames = prediction.predictedTools;
+
+        // Add predicted tools that aren't already in the set
+        const predictedSet = new Set(prediction.predictedTools);
+        const additionalTools = approvedTools.filter(
+          (tool) => predictedSet.has(tool.name) && !selectedNames.has(tool.name),
+        );
+
+        if (additionalTools.length > 0) {
+          finalTools = [...tools, ...additionalTools];
+        }
+      }
+    }
+
     return {
       intentCategory,
       groups: INTENT_HINT_GROUPS[intentCategory],
       recommendedToolNames,
-      tools,
+      tools: finalTools,
       omittedToolNames: approvedTools
         .map((tool) => tool.name)
-        .filter((name) => !selectedNames.has(name)),
+        .filter((name) => !finalTools.some((t) => t.name === name)),
       quarantinedToolNames,
       totalTools,
-      filteredTools: tools.length,
+      filteredTools: finalTools.length,
       toolExposureGatedByCognitiveFirewall: pluginGateApplied,
       isHardGate: pluginGateApplied,
       reason: pluginGateApplied
         ? `Intent classifier filtered by intent; ${quarantinedToolNames.length} tool(s) blocked by operator plugin policy.`
         : 'Intent classifier produced a tool hint only; final exposure belongs to runtime policy.',
+      ...(this.compactMode ? { compactTools: toCompactBatch(finalTools), isCompactMode: true } : {}),
+      ...(this.clusterMode ? { activeClusters, isClusterMode: true } : {}),
+      ...(predictedToolNames ? { predictedToolNames, isPredictiveMode: true } : {}),
     };
   }
 
   /**
-   * Filtra as tool definitions baseado na categoria de intenção detectada.
-   * Retorna somente as que o LLM realmente pode precisar.
+   * Filters tool definitions based on the detected intent category.
+   * Returns only the ones the LLM may actually need.
    *
    * @param allTools - Todas as tools registradas no ToolRegistry
    * @param intentCategory - Categoria detectada pelo IntentClassifier
@@ -223,17 +319,23 @@ export class ToolGatekeeper {
   }
 
   /**
-   * Retorna estatísticas de economia para logging.
+   * Returns savings statistics for logging.
    */
   public getFilterStats(
     totalTools: number,
     filteredTools: number,
     intentCategory: IntentCategory,
     quarantinedCount = 0,
+    compactMode = false,
+    clusterMode = false,
+    predictiveMode = false,
   ): string {
     const saved = totalTools - filteredTools;
     const percent = totalTools > 0 ? Math.round((saved / totalTools) * 100) : 0;
     const quarantineInfo = quarantinedCount > 0 ? ` | Quarantine: ${quarantinedCount} blocked` : '';
-    return `[Cognitive Firewall] Intent: ${intentCategory} | Tools: ${filteredTools}/${totalTools} recommended (${percent}% estimated savings${quarantineInfo})`;
+    const compactInfo = compactMode ? ' | Compact: active' : '';
+    const clusterInfo = clusterMode ? ' | Clusters: active' : '';
+    const predictiveInfo = predictiveMode ? ' | Predictive: active' : '';
+    return `[Cognitive Firewall] Intent: ${intentCategory} | Tools: ${filteredTools}/${totalTools} recommended (${percent}% estimated savings${quarantineInfo}${compactInfo}${clusterInfo}${predictiveInfo})`;
   }
 }

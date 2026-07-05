@@ -14,6 +14,7 @@
  */
 
 import { EventEmitter } from 'events';
+import { logger } from '../logger.js';
 
 export interface EnhancedSupervisorOptions {
   browserWSEndpoint: string;
@@ -245,9 +246,7 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
       if (msg.method) {
         this.handleEvent(msg.method, msg.params);
       }
-    } catch {
-      // ignore invalid messages
-    }
+    } catch (error) { // ignore invalid messages logger.warn('[Browser Cdp Supervisor Enhanced] delete operation failed', error); }
   }
 
   private handleEvent(method: string, params: Record<string, unknown>): void {
@@ -463,9 +462,7 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
 
       const context = result?.executionContextId as number | undefined;
       return context;
-    } catch {
-      return undefined;
-    }
+    } catch (error) { logger.warn('[Browser Cdp Supervisor Enhanced] process execution failed', error); return undefined; }
   }
 
   /**

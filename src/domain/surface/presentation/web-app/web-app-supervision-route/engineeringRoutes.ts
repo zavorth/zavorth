@@ -1,6 +1,8 @@
 import {
+  asLooseRecord,
   buildEngineeringWebContext,
   buildWebOperatorApprovalSafety,
+  normalizeSystemOverlordCapability,
 } from './helpers.js';
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
 
@@ -35,7 +37,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
       rawText: objective,
       workspaceHint: String(body.workspaceRoot || body.workspace || '').trim() || null,
       dispatcher: dispatchTask ? deps.runtime.surfaceTaskDispatcher || null : null,
-      dispatchContext: dispatchTask ? (webCtx as Record<string, unknown>) : null,
+      dispatchContext: dispatchTask ? webCtx : null,
       autoDispatch: dispatchTask,
       startSession: body.startSession !== false,
     });
@@ -138,8 +140,8 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
               approved: approvalSafety.operatorApprovalAccepted,
               dryRun: body.dryRun === true || approvalSafety.bodyApprovalIgnored,
               requestedBy: String(body.requestedBy || deps.runtime.webUserId || '').trim() || null,
-              capability: body.capability || null,
-              metadata: body.metadata && typeof body.metadata === 'object' ? body.metadata : null,
+              capability: normalizeSystemOverlordCapability(body.capability),
+              metadata: asLooseRecord(body.metadata),
             }),
             safety: approvalSafety,
           },
@@ -175,7 +177,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
         res,
         {
           ok: true,
-          run: await service.continueRun(runId, deps.runtime.surfaceTaskDispatcher || null, webCtx as Record<string, unknown>),
+          run: await service.continueRun(runId, deps.runtime.surfaceTaskDispatcher || null, webCtx),
         },
         200,
       );

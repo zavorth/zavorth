@@ -1,7 +1,8 @@
 import { buildBearerHeaders } from "../validationHttpSupport.ts";
 import { assertProviderValidationTargetAllowed } from "../../security/egressGuard.ts";
+import { logger } from '@/shared/utils/logger';
 import {
-  connectionFailed,
+connectionFailed,
   invalidApiKey,
   providerUnavailable,
   validationSuccess,
@@ -51,9 +52,7 @@ export async function validateRegisteredOpenAILikeProvider({
         warning: "Rate limited, but credentials are valid",
       };
     }
-  } catch {
-    // Fall through to chat test.
-  }
+  } catch (error) { // Fall through to chat test. logger.warn('[registered Openai Like] validation failed', error); }
 
   if (!validationModelId) {
     return {
@@ -115,9 +114,7 @@ export async function validateRegisteredOpenAILikeProvider({
     if (chatRes.status >= 500) {
       return providerUnavailable(chatRes.status);
     }
-  } catch {
-    // Chat test also failed â€” fall through to simple connectivity check.
-  }
+  } catch (error) { // Chat test also failed â€” fall through to simple connectivity check. logger.warn('[registered Openai Like] validation failed', error); }
 
   if (!modelsReachable) {
     return connectionFailed("Connection failed while testing /chat/completions");
@@ -136,7 +133,8 @@ export async function validateRegisteredOpenAILikeProvider({
     }
 
     return providerUnavailable(pingRes.status);
-  } catch (error: any) {
+  } catch (error) {
+    logger.warn('[registered Openai Like] network request failed', error);
     return connectionFailed(error.message || "Connection failed");
   }
 }

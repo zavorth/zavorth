@@ -171,12 +171,12 @@ export function DesktopSidebar(props: {
 
       <button className="zvd-new-session" onClick={props.onNewSession} type="button">
         <Pencil aria-hidden="true" size={16} stroke={1.9} />
-        <strong>Novo chat</strong>
+        <strong>New Chat</strong>
       </button>
 
       <button className="zvd-search-session" onClick={() => props.onPanel('chat')} type="button">
         <Search aria-hidden="true" size={16} stroke={1.9} />
-        <strong>Pesquisar</strong>
+        <strong>Search</strong>
       </button>
 
       <nav className="zvd-sidebar-nav" aria-label="Primary">
@@ -198,9 +198,9 @@ export function DesktopSidebar(props: {
         })}
       </nav>
 
-      <section className="zvd-sidebar-projects" aria-label="Projetos locais">
+      <section className="zvd-sidebar-projects" aria-label="Local projects">
         <div className="zvd-sidebar-section-header">
-          <p>Projetos</p>
+          <p>Projects</p>
           {!props.collapsed && (
             <button
               className="zvd-section-add-folder"
@@ -340,4 +340,4 @@ export function DesktopSidebar(props: {
   );
 }
 
-// Required markers for desktop-shell-check: Novo chat, Pesquisar, Projetos locais, Inteligência, Modelo
+// Required markers for desktop-shell-check: New Chat, Search, Local projects, Intelligence, Model

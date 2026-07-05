@@ -2,8 +2,9 @@ import crypto from 'crypto';
 import DatabaseLib, { type Database as SQLiteDatabase } from 'better-sqlite3';
 import { Database } from '../storage/Database.js';
 import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthLearningMemoryDecision,
+ZavorthLearningMemoryDecision,
   ZavorthLearningMemoryEntry,
   ZavorthLearningMemoryLayer,
   ZavorthLearningMemoryReceipt,
@@ -496,9 +497,10 @@ export class ZavorthMemoryLearningLoopService {
     let metadata: Record<string, unknown> = {};
     try {
       metadata = JSON.parse(String(row.metadata_json || '{}'));
-    } catch {
-      metadata = {};
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Memory Learning Loop] JSON parse failed', error);
+    metadata = {};
+  }
     return {
       id: String(row.id),
       layer: row.layer as ZavorthLearningMemoryLayer,

@@ -157,6 +157,6 @@ function renderAssistant(session: ReturnType<ChannelSetupAssistantService['build
 }
 
 main().catch((error) => {
-  console.error(`[channels:assistant] falha: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`[channels:assistant] failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });

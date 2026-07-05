@@ -13,8 +13,9 @@ import type {
   SpeechTranscribeResult,
 } from '../contracts/SpeechContract.js';
 import { SPEECH_CONTRACT_VERSION } from '../contracts/SpeechContract.js';
+import { logger } from '../logger.js';
 import type {
-  ISpeechSynthesisLiveAdapter,
+ISpeechSynthesisLiveAdapter,
   ISpeechTranscriptionLiveAdapter,
   SpeechSynthesisAdapterOutput,
 } from '../adapters/speech/SpeechVoiceLiveAdapters.js';
@@ -129,8 +130,9 @@ export class SpeechRuntimeService {
         error: null,
       };
     } catch (error) {
-      return this.transcribeError(error instanceof Error ? error.message : String(error), processedAt);
-    }
+    logger.warn('[Speech Runtime] operation failed', error);
+    return this.transcribeError(error instanceof Error ? error.message : String(error), processedAt);
+  }
   }
 
   public async synthesizeLive(request: SpeechSynthesizeRequest): Promise<SpeechSynthesizeResult> {
@@ -162,8 +164,9 @@ export class SpeechRuntimeService {
         error: null,
       };
     } catch (error) {
-      return this.synthesizeError(error instanceof Error ? error.message : String(error), processedAt);
-    }
+    logger.warn('[Speech Runtime] operation failed', error);
+    return this.synthesizeError(error instanceof Error ? error.message : String(error), processedAt);
+  }
   }
 
   private transcribeError(message: string, processedAt: string): SpeechTranscribeResult {

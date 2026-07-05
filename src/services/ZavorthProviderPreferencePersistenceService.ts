@@ -11,8 +11,9 @@ import {
 } from '../contracts/ZavorthProviderPreferencePersistenceContract.js';
 import type { ZavorthProviderSelectionUxSnapshot } from '../contracts/ZavorthProviderSelectionUxContract.js';
 import { findProjectRoot } from '../config/configHelpers.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthProviderSelectionUxService,
+ZavorthProviderSelectionUxService,
   type ZavorthProviderSelectionUxInput,
 } from './ZavorthProviderSelectionUxService.js';
 
@@ -139,9 +140,7 @@ export class ZavorthProviderPreferencePersistenceService {
         updatedAt: normalizeNullable(parsed.updatedAt) || new Date(0).toISOString(),
         receiptId: normalizeNullable(parsed.receiptId) || 'unknown',
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth  Preference Persistence] parsing failed', error); return null; }
   }
 
   public renderText(snapshot: ZavorthProviderPreferencePersistenceSnapshot): string {
@@ -345,9 +344,7 @@ export class ZavorthProviderPreferencePersistenceService {
           return parsed;
         }
       }
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth  Preference Persistence] JSON parse failed', error); return null; }
     return null;
   }
 }

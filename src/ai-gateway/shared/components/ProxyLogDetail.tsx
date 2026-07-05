@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   TYPE_COLORS,
   LEVEL_COLORS,
@@ -10,7 +10,7 @@ import {
 import { formatDuration as formatLatency } from "@/shared/utils/formatting";
 
 /**
- * Proxy log detail modal â€” shows full proxy event metadata, error info, and config.
+ * Proxy log detail modal - shows full proxy event metadata, error info, and config.
  * Extracted from ProxyLogger.js for maintainability.
  */
 export default function ProxyLogDetail({ log, onClose }) {
@@ -59,7 +59,6 @@ export default function ProxyLogDetail({ log, onClose }) {
         className="relative bg-bg-primary border border-border rounded-xl w-full max-w-[700px] max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-border bg-bg-primary/95 backdrop-blur-sm rounded-t-xl">
           <div className="flex items-center gap-3">
             <span
@@ -80,7 +79,6 @@ export default function ProxyLogDetail({ log, onClose }) {
         </div>
 
         <div className="p-6 flex flex-col gap-6">
-          {/* Metadata Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-bg-subtle rounded-xl border border-border">
             <div>
               <div className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Time</div>
@@ -97,7 +95,7 @@ export default function ProxyLogDetail({ log, onClose }) {
                 Public IP
               </div>
               <div className="text-sm font-medium font-mono text-emerald-400">
-                {log.publicIp || "â€”"}
+                {log.publicIp || "-"}
               </div>
             </div>
             <div>
@@ -136,7 +134,7 @@ export default function ProxyLogDetail({ log, onClose }) {
                   {providerColor.label}
                 </span>
               ) : (
-                <div className="text-sm text-text-muted">â€”</div>
+                <div className="text-sm text-text-muted">-</div>
               )}
             </div>
             <div>
@@ -148,7 +146,7 @@ export default function ProxyLogDetail({ log, onClose }) {
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold uppercase"
                   style={{ backgroundColor: "rgba(6, 182, 212, 0.15)", color: "#22d3ee" }}
                 >
-                  <span style={{ fontSize: "12px" }}>ðŸ”’</span> Chrome 124
+                  <span style={{ fontSize: "12px" }}>Lock</span> Chrome 124
                 </span>
               ) : (
                 <div className="text-sm text-text-muted">Direct (native)</div>
@@ -159,12 +157,11 @@ export default function ProxyLogDetail({ log, onClose }) {
                 Target URL
               </div>
               <div className="text-sm font-medium font-mono text-text-muted break-all">
-                {log.targetUrl || "â€”"}
+                {log.targetUrl || "-"}
               </div>
             </div>
           </div>
 
-          {/* Error */}
           {log.error && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30">
               <div className="text-[10px] text-red-400 uppercase tracking-wider mb-1 font-bold">
@@ -174,7 +171,6 @@ export default function ProxyLogDetail({ log, onClose }) {
             </div>
           )}
 
-          {/* Proxy Config Details */}
           {log.proxy && (
             <div className="p-4 rounded-xl bg-bg-subtle border border-border">
               <div className="text-[10px] text-text-muted uppercase tracking-wider mb-2 font-bold">

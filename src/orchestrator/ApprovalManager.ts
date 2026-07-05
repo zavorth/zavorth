@@ -14,11 +14,11 @@ export class ApprovalManager {
     const task = this.taskManager.getTask(task_id);
     
     if (!task) {
-      throw new Error(`Tarefa ${task_id} não encontrada.`);
+      throw new Error(`Task ${task_id} not found.`);
     }
 
     if (task.status !== 'waiting_approval') {
-      throw new Error(`A tarefa ${task_id} não está aguardando aprovação. Status atual: ${task.status}`);
+      throw new Error(`Task ${task_id} is not waiting for approval. Current status: ${task.status}`);
     }
 
     const existingLifecycle = Array.isArray(task.metadata?.execution_lifecycle)
@@ -51,7 +51,7 @@ export class ApprovalManager {
 
     this.taskManager.advanceState(task, action === 'approve' ? 'approved' : 'rejected', {
       actor: 'approval-manager',
-      reason: action === 'approve' ? 'Aprovacao concedida.' : 'Aprovacao rejeitada.',
+      reason: action === 'approve' ? 'Approval granted.' : 'Approval rejected.',
       metadataPatch: {
         execution_lifecycle: [...existingLifecycle, ...approvalLifecycle].slice(-50),
       },

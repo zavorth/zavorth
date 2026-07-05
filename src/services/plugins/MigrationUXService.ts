@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface AgentDetection {
   name: string;
@@ -172,7 +173,7 @@ export class MigrationUXService {
                 });
               }
             }
-          } catch { /* ignore permission errors */ }
+          } catch (error) { /* ignore permission errors */ logger.warn('[Migration U X] operation failed', error); }
         }
       }
     }
@@ -189,7 +190,7 @@ export class MigrationUXService {
               break;
             }
           }
-        } catch { /* ignore */ }
+        } catch (error) { /* ignore */ logger.warn('[Migration U X] filesystem operation failed', error); }
       }
     }
 

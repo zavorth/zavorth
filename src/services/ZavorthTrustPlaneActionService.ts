@@ -169,7 +169,7 @@ export class ZavorthTrustPlaneActionService {
       rollbackPlan: this.buildRollbackPlan(candidate, ledgerEntry),
       details: [
         ...execution.details,
-        `Diff preview: ${diffPreview.entries.length} mudanca(s) em ${diffPreview.domain}.`,
+        `Diff preview: ${diffPreview.entries.length} change(s) in ${diffPreview.domain}.`,
         `Ledger: ${ledgerEntry.id}.`,
       ],
     };
@@ -181,10 +181,10 @@ export class ZavorthTrustPlaneActionService {
   }): Promise<ZavorthTrustPlaneActionExecution> {
     let plan = this.mutationPlane.readPlan(input.planId);
     if (!plan || plan.domain !== 'trust') {
-      throw new Error(`Plano do Trust Plane nao encontrado: ${input.planId || 'n/d'}.`);
+      throw new Error(`Trust Plane plan not found: ${input.planId || 'n/a'}.`);
     }
     if (plan.status === 'expired' || plan.status === 'blocked') {
-      throw new Error(`Plano ${plan.id} nao pode ser aplicado porque esta ${plan.status}.`);
+      throw new Error(`Plan ${plan.id} cannot be applied because it is ${plan.status}.`);
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
       const permission = plan.approval.permissionId
@@ -199,7 +199,7 @@ export class ZavorthTrustPlaneActionService {
       }
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
-      throw new Error(`Plano ${plan.id} ainda aguarda approval.`);
+      throw new Error(`Plan ${plan.id} is still waiting for approval.`);
     }
 
     const payload = plan.payload || {};
@@ -256,10 +256,10 @@ export class ZavorthTrustPlaneActionService {
     const ledgerId = this.normalizeToken(input.ledgerId);
     const target = this.policyLedger.list({ limit: 500 }).find((entry) => entry.id === ledgerId);
     if (!target) {
-      return this.blockedRollback(`Entrada de ledger nao encontrada: ${ledgerId || 'n/d'}.`);
+      return this.blockedRollback(`Ledger entry not found: ${ledgerId || 'n/a'}.`);
     }
     if (!target.rollback.available || !target.rollback.payload) {
-      return this.blockedRollback(target.rollback.reason || `Ledger ${target.id} nao tem rollback tecnico.`);
+      return this.blockedRollback(target.rollback.reason || `Ledger ${target.id} has no technical rollback.`);
     }
 
     const rollbackPayload = target.rollback.payload;
@@ -268,7 +268,7 @@ export class ZavorthTrustPlaneActionService {
     } else if (rollbackPayload.domain === 'skills') {
       this.skillTrust.savePolicy(rollbackPayload.beforePolicy as SkillTrustPolicyDocument);
     } else {
-      return this.blockedRollback(`Rollback de dominio ${rollbackPayload.domain} nao e suportado.`);
+      return this.blockedRollback(`Rollback for domain ${rollbackPayload.domain} is not supported.`);
     }
 
     const reverseDiff = target.diff.map((entry) => ({
@@ -346,17 +346,17 @@ export class ZavorthTrustPlaneActionService {
         processCount: 0,
         externalExposure: actionId.includes('mcp') ? 'local' : 'none',
         recurring: false,
-        notes: ['Altera policy local; nao cria sidecar.'],
+        notes: ['Changes local policy; does not create a sidecar.'],
       },
       validationPlan: [
-        'Comparar policy antes/depois.',
-        'Exibir diff antes de aplicar.',
-        'Registrar ledger de preview/aplicacao/bloqueio.',
-        'Bloquear dangerous permanente sem approval explicitamente host-bound.',
+        'Compare policy before/after.',
+        'Show diff before applying.',
+        'Record preview/apply/block ledger.',
+        'Block permanent dangerous mode without explicit host-bound approval.',
       ],
       rollbackPlan: [
         candidate.rollback.available
-          ? 'Reaplicar policy anterior salva no payload do ledger.'
+          ? 'Reapply previous policy saved in the ledger payload.'
           : candidate.rollback.reason,
       ],
       payload: {
@@ -410,14 +410,14 @@ export class ZavorthTrustPlaneActionService {
       ok: false,
       summary: decision.decision === 'blocked'
         ? decision.reason
-        : `Preview criado para ${candidate.title}; aguardando approval antes de mutar policy.`,
+        : `Preview created for ${candidate.title}; waiting for approval before mutating policy.`,
       details: [
         ...candidate.details,
-        `Diff preview: ${diffPreview.entries.length} mudanca(s) em ${diffPreview.domain}.`,
+        `Diff preview: ${diffPreview.entries.length} change(s) in ${diffPreview.domain}.`,
         `Approval scope: ${approvalScope}.`,
         `Plan: ${effectivePlan.id}.`,
         `Ledger: ${ledgerEntry.id}.`,
-        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Permission pendente nao criada.',
+        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Pending permission was not created.',
       ],
       snapshot: before,
       mutationPlan: effectivePlan,
@@ -455,7 +455,7 @@ export class ZavorthTrustPlaneActionService {
           skillNames: input.skillNames || [],
         });
       default:
-        throw new Error(`Acao do Trust Plane desconhecida: ${actionId}.`);
+        throw new Error(`Unknown Trust Plane action: ${actionId}.`);
     }
   }
 
@@ -465,42 +465,42 @@ export class ZavorthTrustPlaneActionService {
     const after = this.mcpToolPolicyFile.setProfile(profile);
     const changed = before.profile !== after.profile;
     return this.finish('set-mcp-profile', changed ? 'applied' : 'noop', changed
-      ? `Perfil MCP alterado para ${after.profile}.`
-      : `Perfil MCP ja estava em ${after.profile}.`, [
-      `Allowlist MCP atual: ${after.allowlist.length} tool(s) explicita(s).`,
-      'Use MCP dangerous somente com approval forte e finalidade clara.',
+      ? `MCP profile changed to ${after.profile}.`
+      : `MCP profile was already ${after.profile}.`, [
+      `Current MCP allowlist: ${after.allowlist.length} explicit tool(s).`,
+      'Use MCP dangerous mode only with strong approval and a clear purpose.',
     ]);
   }
 
   private executeMcpAllowTool(toolNameInput: string | null | undefined): ZavorthTrustPlaneActionExecution {
     const toolName = this.normalizeToken(toolNameInput);
     if (!toolName) {
-      throw new Error('toolName obrigatorio para liberar uma tool MCP.');
+      throw new Error('toolName is required to allow an MCP tool.');
     }
     const before = this.mcpToolPolicyFile.readPolicy();
     const after = this.mcpToolPolicyFile.allowTool(toolName);
     const changed = before.allowlist.join(',') !== after.allowlist.join(',');
     return this.finish('allow-mcp-tool', changed ? 'applied' : 'noop', changed
-      ? `Tool MCP ${toolName} adicionada na allowlist explicita.`
-      : `Tool MCP ${toolName} ja estava liberada na allowlist.`, [
-      `Perfil MCP atual: ${after.profile}.`,
-      `Allowlist MCP agora tem ${after.allowlist.length} item(ns).`,
+      ? `MCP tool ${toolName} added to the explicit allowlist.`
+      : `MCP tool ${toolName} was already allowed.`, [
+      `Current MCP profile: ${after.profile}.`,
+      `MCP allowlist now has ${after.allowlist.length} item(s).`,
     ]);
   }
 
   private executeMcpRemoveTool(toolNameInput: string | null | undefined): ZavorthTrustPlaneActionExecution {
     const toolName = this.normalizeToken(toolNameInput);
     if (!toolName) {
-      throw new Error('toolName obrigatorio para remover uma tool MCP.');
+      throw new Error('toolName is required to remove an MCP tool.');
     }
     const before = this.mcpToolPolicyFile.readPolicy();
     const after = this.mcpToolPolicyFile.removeTool(toolName);
     const changed = before.allowlist.join(',') !== after.allowlist.join(',');
     return this.finish('remove-mcp-tool', changed ? 'applied' : 'noop', changed
-      ? `Tool MCP ${toolName} removida da allowlist explicita.`
-      : `Tool MCP ${toolName} nao estava na allowlist explicita.`, [
-      `Perfil MCP atual: ${after.profile}.`,
-      `Allowlist MCP agora tem ${after.allowlist.length} item(ns).`,
+      ? `MCP tool ${toolName} removed from the explicit allowlist.`
+      : `MCP tool ${toolName} was not in the explicit allowlist.`, [
+      `Current MCP profile: ${after.profile}.`,
+      `MCP allowlist now has ${after.allowlist.length} item(s).`,
     ]);
   }
 
@@ -510,10 +510,10 @@ export class ZavorthTrustPlaneActionService {
     const after = this.skillTrust.setDefaultPolicy(defaultPolicy);
     const changed = before.defaultPolicy !== after.defaultPolicy;
     return this.finish('set-skill-default', changed ? 'applied' : 'noop', changed
-      ? `Policy default de skills alterada para ${after.defaultPolicy}.`
-      : `Policy default de skills ja estava em ${after.defaultPolicy}.`, [
-      `Sources base liberadas: ${after.allowedSourceIds.length}.`,
-      'Mantenha deny por default sempre que a origem da skill ainda nao foi revisada.',
+      ? `Default skill policy changed to ${after.defaultPolicy}.`
+      : `Default skill policy was already ${after.defaultPolicy}.`, [
+      `Base sources allowed: ${after.allowedSourceIds.length}.`,
+      'Keep deny as the default whenever the skill origin has not been reviewed yet.',
     ]);
   }
 
@@ -524,7 +524,7 @@ export class ZavorthTrustPlaneActionService {
   }): ZavorthTrustPlaneActionExecution {
     const sourceId = this.normalizeToken(input.sourceId);
     if (!sourceId) {
-      throw new Error('sourceId obrigatorio para ajustar trust de skills.');
+      throw new Error('sourceId is required to adjust skill trust.');
     }
     const mode = this.normalizeSkillMode(input.mode);
     const before = this.skillTrust.readPolicy();
@@ -532,18 +532,18 @@ export class ZavorthTrustPlaneActionService {
       sourceId,
       mode,
       skillNames: Array.isArray(input.skillNames) ? input.skillNames : [],
-      reason: `Atualizado pelo Trust Plane para modo ${mode}.`,
+      reason: `Updated by Trust Plane to ${mode} mode.`,
     });
     const previousRule = before.rules.find((entry) => entry.sourceId === sourceId);
     const nextRule = after.rules.find((entry) => entry.sourceId === sourceId) || null;
     const changed = JSON.stringify(previousRule || null) !== JSON.stringify(nextRule);
     return this.finish('set-skill-source-mode', changed ? 'applied' : 'noop', changed
-      ? `Source ${sourceId} atualizada para modo ${mode}.`
-      : `Source ${sourceId} ja estava em modo ${mode}.`, [
+      ? `Source ${sourceId} updated to ${mode} mode.`
+      : `Source ${sourceId} was already in ${mode} mode.`, [
       nextRule?.skillNames?.length
-        ? `${nextRule.skillNames.length} skill(s) explicita(s) seguem liberadas para esta source.`
-        : 'Nenhuma skill explicita foi adicionada nesta alteracao.',
-      `Policy default atual: ${after.defaultPolicy}.`,
+        ? `${nextRule.skillNames.length} explicit skill(s) remain allowed for this source.`
+        : 'No explicit skill was added in this change.',
+      `Current default policy: ${after.defaultPolicy}.`,
     ]);
   }
 
@@ -573,7 +573,7 @@ export class ZavorthTrustPlaneActionService {
 
   private blockedRollback(summary: string): ZavorthTrustPlaneActionExecution {
     return this.finish('rollback-policy-mutation', 'blocked', summary, [
-      'Rollback nao alterou nenhuma policy.',
+      'Rollback did not change any policy.',
     ]);
   }
 
@@ -614,16 +614,16 @@ export class ZavorthTrustPlaneActionService {
     const riskLevel: ZavorthMutationRiskLevel = profile === 'dangerous' ? 'critical' : profile === 'trusted' ? 'high' : 'medium';
     return this.buildCandidate({
       domain: 'mcp',
-      title: `Alterar perfil MCP para ${profile}`,
-      summary: `Alterar MCP para ${profile} amplia ou reduz poder das tools locais.`,
+      title: `Change MCP profile to ${profile}`,
+      summary: `Changing MCP to ${profile} expands or reduces local tool power.`,
       payload: { profile },
       riskLevel,
       details: [
         profile === 'safe'
-          ? 'safe reduz risco e pode aplicar direto.'
-          : 'trusted/dangerous exigem approval por ampliar poder.',
+          ? 'safe reduces risk and can apply directly.'
+          : 'trusted/dangerous require approval because they expand power.',
       ],
-      diff: [this.diffEntry('mcp.profile', before.profile, after.profile, `Perfil MCP: ${before.profile} -> ${after.profile}.`, riskLevel)],
+      diff: [this.diffEntry('mcp.profile', before.profile, after.profile, `MCP profile: ${before.profile} -> ${after.profile}.`, riskLevel)],
       beforePolicy: before,
       afterPolicy: after,
       dangerousTemporary: profile === 'dangerous',
@@ -633,7 +633,7 @@ export class ZavorthTrustPlaneActionService {
   private buildMcpAllowToolCandidate(toolNameInput: string | null | undefined): TrustPlanePolicyCandidate {
     const toolName = this.normalizeToken(toolNameInput);
     if (!toolName) {
-      throw new Error('toolName obrigatorio para liberar uma tool MCP.');
+      throw new Error('toolName is required to allow an MCP tool.');
     }
     const before = this.mcpToolPolicyFile.readPolicy();
     const after = this.normalizeMcpDocument({
@@ -642,12 +642,12 @@ export class ZavorthTrustPlaneActionService {
     });
     return this.buildCandidate({
       domain: 'mcp',
-      title: `Liberar MCP tool ${toolName}`,
-      summary: `Adicionar ${toolName} a allowlist MCP amplia superficie executavel.`,
+      title: `Allow MCP tool ${toolName}`,
+      summary: `Adding ${toolName} to the MCP allowlist expands the executable surface.`,
       payload: { toolName },
       riskLevel: 'high',
-      details: ['Allowlist MCP so pode ampliar via mutation plan aprovado.'],
-      diff: [this.diffEntry('mcp.allowlist', before.allowlist, after.allowlist, `Allowlist MCP recebe ${toolName}.`, 'high')],
+      details: ['MCP allowlist expansion must go through an approved mutation plan.'],
+      diff: [this.diffEntry('mcp.allowlist', before.allowlist, after.allowlist, `MCP allowlist receives ${toolName}.`, 'high')],
       beforePolicy: before,
       afterPolicy: after,
       dangerousTemporary: false,
@@ -657,7 +657,7 @@ export class ZavorthTrustPlaneActionService {
   private buildMcpRemoveToolCandidate(toolNameInput: string | null | undefined): TrustPlanePolicyCandidate {
     const toolName = this.normalizeToken(toolNameInput);
     if (!toolName) {
-      throw new Error('toolName obrigatorio para remover uma tool MCP.');
+      throw new Error('toolName is required to remove an MCP tool.');
     }
     const before = this.mcpToolPolicyFile.readPolicy();
     const after = this.normalizeMcpDocument({
@@ -666,12 +666,12 @@ export class ZavorthTrustPlaneActionService {
     });
     return this.buildCandidate({
       domain: 'mcp',
-      title: `Remover MCP tool ${toolName}`,
-      summary: `Remover ${toolName} da allowlist MCP reduz risco.`,
+      title: `Remove MCP tool ${toolName}`,
+      summary: `Removing ${toolName} from the MCP allowlist reduces risk.`,
       payload: { toolName },
       riskLevel: 'medium',
-      details: ['Remocao de tool reduz risco e pode aplicar direto.'],
-      diff: [this.diffEntry('mcp.allowlist', before.allowlist, after.allowlist, `Allowlist MCP remove ${toolName}.`, 'medium')],
+      details: ['Tool removal reduces risk and can apply directly.'],
+      diff: [this.diffEntry('mcp.allowlist', before.allowlist, after.allowlist, `MCP allowlist removes ${toolName}.`, 'medium')],
       beforePolicy: before,
       afterPolicy: after,
       dangerousTemporary: false,
@@ -685,16 +685,16 @@ export class ZavorthTrustPlaneActionService {
     const riskLevel: ZavorthMutationRiskLevel = defaultPolicy === 'allow' ? 'high' : 'medium';
     return this.buildCandidate({
       domain: 'skills',
-      title: `Alterar default de skills para ${defaultPolicy}`,
-      summary: `Default ${defaultPolicy} altera trust global de skills.`,
+      title: `Change skill default to ${defaultPolicy}`,
+      summary: `Default ${defaultPolicy} changes global skill trust.`,
       payload: { defaultPolicy },
       riskLevel,
       details: [
         defaultPolicy === 'deny'
-          ? 'deny reduz risco e pode aplicar direto.'
-          : 'allow amplia poder e exige approval.',
+          ? 'deny reduces risk and can apply directly.'
+          : 'allow expands capability power and requires approval.',
       ],
-      diff: [this.diffEntry('skills.defaultPolicy', before.defaultPolicy, after.defaultPolicy, `Default de skills: ${before.defaultPolicy} -> ${after.defaultPolicy}.`, riskLevel)],
+      diff: [this.diffEntry('skills.defaultPolicy', before.defaultPolicy, after.defaultPolicy, `Skill default: ${before.defaultPolicy} -> ${after.defaultPolicy}.`, riskLevel)],
       beforePolicy: before,
       afterPolicy: after,
       dangerousTemporary: false,
@@ -709,7 +709,7 @@ export class ZavorthTrustPlaneActionService {
     const mode = this.normalizeSkillMode(input.mode);
     const sourceId = this.normalizeToken(input.sourceId);
     if (!sourceId) {
-      throw new Error('sourceId obrigatorio para ajustar trust de skills.');
+      throw new Error('sourceId is required to adjust skill trust.');
     }
     const before = this.skillTrust.readPolicy();
     const skillNames = Array.isArray(input.skillNames)
@@ -721,7 +721,7 @@ export class ZavorthTrustPlaneActionService {
       sourceId,
       mode,
       skillNames,
-      reason: `Atualizado pelo Trust Plane para modo ${mode}.`,
+      reason: `Updated by Trust Plane to ${mode} mode.`,
     });
     const allowedSourceIds = new Set(before.allowedSourceIds);
     if (mode === 'all') {
@@ -739,16 +739,16 @@ export class ZavorthTrustPlaneActionService {
     const riskLevel: ZavorthMutationRiskLevel = mode === 'all' ? 'high' : 'medium';
     return this.buildCandidate({
       domain: 'skills',
-      title: `Alterar source ${sourceId} para ${mode}`,
-      summary: `Alterar source ${sourceId} para ${mode} muda trust de skills.`,
+      title: `Change source ${sourceId} to ${mode}`,
+      summary: `Changing source ${sourceId} to ${mode} changes skill trust.`,
       payload: { sourceId, mode, skillNames },
       riskLevel,
       details: [
         mode === 'none'
-          ? 'none reduz risco e pode aplicar direto.'
-          : 'all/explicit ampliam acesso de skills e exigem approval.',
+          ? 'none reduces risk and can apply directly.'
+          : 'all/explicit expand skill access and require approval.',
       ],
-      diff: [this.diffEntry(`skills.rules.${sourceId}`, beforeRule, afterRule, `Source ${sourceId}: ${beforeRule?.mode || 'n/d'} -> ${afterRule?.mode || 'n/d'}.`, riskLevel)],
+      diff: [this.diffEntry(`skills.rules.${sourceId}`, beforeRule, afterRule, `Source ${sourceId}: ${beforeRule?.mode || 'n/a'} -> ${afterRule?.mode || 'n/a'}.`, riskLevel)],
       beforePolicy: before,
       afterPolicy: after,
       dangerousTemporary: false,
@@ -766,8 +766,8 @@ export class ZavorthTrustPlaneActionService {
       rollback: {
         available: this.hasPolicyChange(input.beforePolicy, input.afterPolicy),
         reason: this.hasPolicyChange(input.beforePolicy, input.afterPolicy)
-          ? 'Policy anterior salva para rollback tecnico.'
-          : 'Sem mudanca material; rollback nao e necessario.',
+          ? 'Previous policy saved for technical rollback.'
+          : 'No material change; rollback is not required.',
         payload: this.hasPolicyChange(input.beforePolicy, input.afterPolicy) ? rollbackPayload : null,
       },
     };
@@ -858,10 +858,10 @@ export class ZavorthTrustPlaneActionService {
       domain: this.actionDomain(actionId),
       actionId,
       approvalScope,
-      summary: String(raw.summary || '').trim() || `Diff preview para ${actionId}.`,
+      summary: String(raw.summary || '').trim() || `Diff preview for ${actionId}.`,
       dangerousTemporary: raw.dangerousTemporary === true,
       rollbackAvailable: raw.rollbackAvailable === true,
-      rollbackReason: String(raw.rollbackReason || '').trim() || 'Rollback indisponivel.',
+      rollbackReason: String(raw.rollbackReason || '').trim() || 'Rollback unavailable.',
       entries: raw.entries,
     };
   }
@@ -870,7 +870,7 @@ export class ZavorthTrustPlaneActionService {
     const rollbackPayload = payload.rollbackPayload as TrustPlanePolicyRollbackPayload | null | undefined;
     return {
       available: Boolean(rollbackPayload),
-      reason: rollbackPayload ? 'Policy anterior salva para rollback tecnico.' : 'Payload antigo sem rollback tecnico.',
+      reason: rollbackPayload ? 'Previous policy saved for technical rollback.' : 'Legacy payload has no technical rollback.',
       payload: rollbackPayload || null,
     };
   }
@@ -918,16 +918,16 @@ export class ZavorthTrustPlaneActionService {
     payload: Record<string, unknown>,
   ): string | null {
     if (actionId === 'set-mcp-profile' && payload.profile === 'safe') {
-      return 'MCP safe reduz risco.';
+      return 'MCP safe reduces risk.';
     }
     if (actionId === 'remove-mcp-tool') {
-      return 'Remover allowlist MCP reduz risco.';
+      return 'Removing an MCP allowlist entry reduces risk.';
     }
     if (actionId === 'set-skill-default' && payload.defaultPolicy === 'deny') {
-      return 'Skills deny reduz risco.';
+      return 'Skills deny reduces risk.';
     }
     if (actionId === 'set-skill-source-mode' && payload.mode === 'none') {
-      return 'Negar source de skills reduz risco.';
+      return 'Denying a skill source reduces risk.';
     }
     return null;
   }
@@ -943,7 +943,7 @@ export class ZavorthTrustPlaneActionService {
     ) {
       return normalized;
     }
-    throw new Error(`Acao do Trust Plane desconhecida: ${value || 'n/d'}.`);
+    throw new Error(`Unknown Trust Plane action: ${value || 'n/a'}.`);
   }
 
   private normalizeApprovalScope(
@@ -965,7 +965,7 @@ export class ZavorthTrustPlaneActionService {
     if (normalized === 'trusted' || normalized === 'dangerous' || normalized === 'safe') {
       return normalized;
     }
-    throw new Error('profile obrigatorio e deve ser safe, trusted ou dangerous.');
+    throw new Error('profile is required and must be safe, trusted, or dangerous.');
   }
 
   private normalizeDefaultPolicy(value: string | null | undefined): SkillTrustPolicyDefault {
@@ -973,7 +973,7 @@ export class ZavorthTrustPlaneActionService {
     if (normalized === 'allow' || normalized === 'deny') {
       return normalized;
     }
-    throw new Error('defaultPolicy obrigatorio e deve ser allow ou deny.');
+    throw new Error('defaultPolicy is required and must be allow or deny.');
   }
 
   private normalizeSkillMode(value: string | null | undefined): SkillAllowMode {
@@ -981,7 +981,7 @@ export class ZavorthTrustPlaneActionService {
     if (normalized === 'all' || normalized === 'explicit' || normalized === 'none') {
       return normalized;
     }
-    throw new Error('mode obrigatorio e deve ser all, explicit ou none.');
+    throw new Error('mode is required and must be all, explicit, or none.');
   }
 
   private normalizeToken(value: string | null | undefined): string {

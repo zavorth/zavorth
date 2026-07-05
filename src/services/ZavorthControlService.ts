@@ -22,6 +22,8 @@ import {
   handleOperationsActionRequest as handleOperationsActionRequestHelper,
   routeRequest as routeRequestHelper,
   type ZavorthControlFacadeCompat,
+  type ZavorthControlGatewayMapCompat,
+  type ZavorthControlRuntimeCompat,
 } from '../domain/surface/presentation/zavorthControl/zavorthControl-service/ZavorthControlServiceHelpers.js';
 import { initializeZavorthControlService } from '../domain/surface/presentation/zavorthControl/zavorthControl-service/ZavorthControlServiceComposition.js';
 import {
@@ -55,21 +57,21 @@ export class ZavorthControlService {
     private logRepo: LogRepository,
     deps: Record<string, unknown> = {},
   ) {
-    initializeZavorthControlService(this as ZavorthControlFacadeCompat, logRepo, deps);
+    initializeZavorthControlService(this as unknown as ZavorthControlFacadeCompat, logRepo, deps);
   }
 
   public attachChatRuntime(runtime: WebAppRuntime): void {
-    attachChatRuntimeHelper(this as ZavorthControlFacadeCompat, runtime);
+    attachChatRuntimeHelper(this as unknown as ZavorthControlFacadeCompat, runtime as unknown as ZavorthControlRuntimeCompat);
   }
 
   public attachChannelBroadcastGateways(
     gateways: Partial<Record<string, BroadcastCapableGateway | null | undefined>>,
   ): void {
-    attachChannelBroadcastGatewaysHelper(this as ZavorthControlFacadeCompat, gateways);
+    attachChannelBroadcastGatewaysHelper(this as unknown as ZavorthControlFacadeCompat, gateways as unknown as ZavorthControlGatewayMapCompat);
   }
 
   public attachChannelIngressGateways(gateways: ChannelIngressGateways): void {
-    attachChannelIngressGatewaysHelper(this as ZavorthControlFacadeCompat, gateways);
+    attachChannelIngressGatewaysHelper(this as unknown as ZavorthControlFacadeCompat, gateways as unknown as ZavorthControlGatewayMapCompat);
   }
 
   public getUrl(): string {
@@ -82,15 +84,15 @@ export class ZavorthControlService {
   }
 
   public getPublicBaseUrl(): string | null {
-    return (this as ZavorthControlFacadeCompat).httpSupport.normalizeUrl(config.zavorthPublicBaseUrl || '');
+    return (this as unknown as ZavorthControlFacadeCompat).httpSupport.normalizeUrl(config.zavorthPublicBaseUrl || '');
   }
 
   public getOperationsOverviewReaders(): OperationsReportOverviewReaders {
-    return (this as ZavorthControlServiceFacade).operationsOverviewBridge.buildReaders();
+    return (this as unknown as ZavorthControlServiceFacade).operationsOverviewBridge.buildReaders();
   }
 
   public async start(): Promise<string> {
-    return startZavorthControlService(this as ZavorthControlServerService);
+    return startZavorthControlService(this as unknown as ZavorthControlServerService);
   }
 
   public stop(): void {
@@ -98,22 +100,22 @@ export class ZavorthControlService {
   }
 
   public async stopAsync(): Promise<void> {
-    return stopZavorthControlService(this as ZavorthControlServerService);
+    return stopZavorthControlService(this as unknown as ZavorthControlServerService);
   }
 
   private async routeRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
-    await routeRequestHelper(this as ZavorthControlFacadeCompat, req, res);
+    await routeRequestHelper(this as unknown as ZavorthControlFacadeCompat, req, res);
   }
 
   private async handleOperationsActionRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
   ): Promise<void> {
-    await handleOperationsActionRequestHelper(this as ZavorthControlFacadeCompat, req, res);
+    await handleOperationsActionRequestHelper(this as unknown as ZavorthControlFacadeCompat, req, res);
   }
 
   private getClassicZavorthControlHtml(): string {
-    return getClassicZavorthControlHtmlHelper(this as ZavorthControlFacadeCompat);
+    return getClassicZavorthControlHtmlHelper(this as unknown as ZavorthControlFacadeCompat);
   }
 }
 

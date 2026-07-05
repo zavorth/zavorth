@@ -23,6 +23,7 @@ function boolEnv(name: string, fallback: boolean): boolean {
 }
 
 import { safeParseInt } from "../shared/utils/safeParseInt.js";
+import { logger } from '@/shared/utils/logger';
 
 function numberEnv(name: string, fallback: number): number {
   const parsed = safeParseInt(process.env[name], fallback);
@@ -33,7 +34,8 @@ function stringifyContent(value: unknown): string {
   if (typeof value === "string") return value;
   try {
     return JSON.stringify(value);
-  } catch {
+  } catch (error) {
+    logger.warn('[zavorth Context] parsing failed', error);
     return String(value ?? "");
   }
 }

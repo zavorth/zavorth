@@ -2,6 +2,7 @@ import { spawn } from 'child_process';
 import { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider';
 import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../logger.js';
 
 export interface LocalLlamaProviderOptions {
     baseUrl?: string;
@@ -195,9 +196,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                     if (parsed.tool_calls) {
                         toolCalls = parsed.tool_calls;
                     }
-                } catch {
-                    // Not valid JSON or does not contain tool_calls.
-                }
+                } catch (error) { // Not valid JSON or does not contain tool_calls. logger.warn('[Local Llama] JSON parse failed', error); }
             }
 
             return {
@@ -227,9 +226,10 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 windowsHide: true,
             });
             child.unref();
-        } catch {
-            return;
-        }
+        } catch (error) {
+    logger.warn('[Local Llama] process execution failed', error);
+    return;
+  }
 
         await this.waitForOllama();
     }
@@ -253,9 +253,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 allowLoopback: true,
             });
             return response.ok;
-        } catch {
-            return false;
-        }
+        } catch (error) { logger.warn('[Local Llama] network request failed', error); return false; }
     }
 
     private isLocalOllamaUrl(): boolean {
@@ -263,9 +261,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
             const url = new URL(this.baseUrl);
             const host = url.hostname.toLowerCase();
             return host === 'localhost' || host === '127.0.0.1' || host === '::1';
-        } catch {
-            return false;
-        }
+        } catch (error) { logger.warn('[Local Llama] operation failed', error); return false; }
     }
 
     private getNativeOllamaBaseUrl(): string {

@@ -4,8 +4,9 @@ import type { ChannelSetupAssistantService } from '../../../../services/ChannelS
 import type { NaturalChannelSetupTurnService } from '../../../../services/NaturalChannelSetupTurnService.js';
 import type { IntegrationHubService } from '../../../../services/IntegrationHubService.js';
 import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';
+import { logger } from '../../../../logger';
 import {
-  buildNaturalChannelPreviewReply,
+buildNaturalChannelPreviewReply,
   buildNaturalChannelRecommendationReply,
   formatNaturalChannelLabel,
   looksLikeChannelSetupConfigFollowup,
@@ -329,9 +330,7 @@ export class SharedSurfaceNaturalChannelCommandPack {
     }
     try {
       return this.deps.channelInstallService.buildPlanForChannel(channelId as any);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Shared Surface Natural Channel Command Pack] creation failed', error); return null; }
   }
 
   private normalizeChannelInstallMode(value: string | null | undefined): ChannelInstallMode | null {

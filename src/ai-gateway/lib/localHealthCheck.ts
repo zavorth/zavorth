@@ -85,9 +85,7 @@ function isLocalhostUrl(baseUrl: string): boolean {
       u.hostname === "127.0.0.1" ||
       /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(u.hostname)
     );
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[local  Check] network request failed', error); return false; }
 }
 
 function getNextInterval(failures: number): number {

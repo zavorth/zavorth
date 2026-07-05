@@ -2,19 +2,19 @@
   "id": "filesystem",
   "name": "File System Operations",
   "version": "1.0.0",
-  "description": "Ferramentas para ler, criar, listar e manipular arquivos e diretórios locais.",
+  "description": "Tools for reading, creating, listing, and manipulating local files and directories.",
   "category": "file_operation",
   "dangerLevel": "medium",
   "tools": [
     {
       "name": "read_file",
-      "description": "Lê o conteúdo completo de um arquivo de texto local.",
+      "description": "Reads the full contents of a local text file.",
       "parameters": {
         "type": "object",
         "properties": {
           "filePath": {
             "type": "string",
-            "description": "Caminho absoluto ou relativo do arquivo."
+            "description": "Absolute or relative file path."
           }
         },
         "required": ["filePath"]
@@ -22,17 +22,17 @@
     },
     {
       "name": "create_file",
-      "description": "Cria um arquivo no sistema local com o conteúdo especificado.",
+      "description": "Creates a file on the local system with the specified content.",
       "parameters": {
         "type": "object",
         "properties": {
           "filepath": {
             "type": "string",
-            "description": "Caminho relativo do arquivo a ser criado."
+            "description": "Relative path of the file to create."
           },
           "content": {
             "type": "string",
-            "description": "Conteúdo do arquivo."
+            "description": "File content."
           }
         },
         "required": ["filepath", "content"]
@@ -40,13 +40,13 @@
     },
     {
       "name": "list_directory",
-      "description": "Lista os arquivos e subdiretórios de um caminho local.",
+      "description": "Lists files and subdirectories for a local path.",
       "parameters": {
         "type": "object",
         "properties": {
           "dirPath": {
             "type": "string",
-            "description": "Caminho do diretório a listar. Vazio = diretório atual."
+            "description": "Directory path to list. Empty means the current directory."
           }
         }
       }

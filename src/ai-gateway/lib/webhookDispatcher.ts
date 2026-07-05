@@ -5,6 +5,7 @@
 
 import crypto from "crypto";
 import { assertPublicHttpTargetAllowed } from "./security/egressGuard.ts";
+import { logger } from '@/shared/utils/logger';
 
 export type WebhookEvent =
   | "request.completed"
@@ -69,6 +70,7 @@ export async function deliverWebhook(
   try {
     await assertWebhookTargetAllowed(url);
   } catch (error) {
+    logger.warn('[webhook Dispatcher] network request failed', error);
     return {
       success: false,
       status: 0,

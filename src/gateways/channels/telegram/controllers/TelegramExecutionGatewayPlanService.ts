@@ -21,7 +21,7 @@ export class TelegramExecutionGatewayPlanService {
     const workspaceProfile = task.metadata?.workspace_profile || null;
     const workspaceOperationalMemory = task.metadata?.workspace_operational_memory || null;
     const objective =
-      payload || task.raw_message || task.normalized_message || 'Executar tarefa explicitamente solicitada.';
+      payload || task.raw_message || task.normalized_message || 'Execute the explicitly requested task.';
     const resolvedExecutor = this.resolveGatewayExecutorName(
       String(task.executor_used || task.metadata?.auto_route_executor || task.metadata?.route_executor_preference || '').trim(),
     );
@@ -50,13 +50,13 @@ export class TelegramExecutionGatewayPlanService {
       task_id: task.task_id,
       objective,
       context: task.metadata?.auto_route_executor
-        ? `Fluxo auto-roteado do Telegram (${task.command_type})`
-        : `Fluxo explicito do Telegram (${task.command_type})`,
+        ? `Auto-routed Telegram flow (${task.command_type})`
+        : `Explicit Telegram flow (${task.command_type})`,
       assumptions: [
-        'O usuario pediu execucao explicita por comando.',
-        `O workspace aprovado para esta execucao e ${workspace}.`,
-        workspaceProfile?.summary ? `Resumo do workspace: ${workspaceProfile.summary}` : null,
-        workspaceOperationalMemory?.summary ? `Memoria operacional recente: ${workspaceOperationalMemory.summary}` : null,
+        'The user requested explicit execution through a command.',
+        `The approved workspace for this execution is ${workspace}.`,
+        workspaceProfile?.summary ? `Workspace summary: ${workspaceProfile.summary}` : null,
+        workspaceOperationalMemory?.summary ? `Recent operational memory: ${workspaceOperationalMemory.summary}` : null,
       ].filter(Boolean) as string[],
       executor_recommendation: executor,
       workspace_recommendation: workspace,
@@ -71,15 +71,15 @@ export class TelegramExecutionGatewayPlanService {
           args: null,
           command: objective,
           file_targets: [workspace],
-          expected_output: 'Resumo da execucao e artefatos gerados.',
+          expected_output: 'Execution summary and generated artifacts.',
           sensitive: task.risk_level >= 2,
         },
       ],
       validation_steps: [],
-      success_condition: 'Executor conclui a tarefa sem violar a politica.',
+      success_condition: 'Executor completes the task without violating policy.',
       rollback_condition: null,
       notes: [
-        `Origem: ${task.command_type}`,
+        `Source: ${task.command_type}`,
         ...this.workspaceProfileService.buildPlanNotes(workspaceProfile),
         ...this.workspaceOperationalMemoryService.buildPlanNotes(workspaceOperationalMemory),
       ],
@@ -89,7 +89,7 @@ export class TelegramExecutionGatewayPlanService {
   public getExecutionLabel(executor: string): string {
     switch (executor) {
       case 'web_research':
-        return 'Pesquisa web';
+        return 'Web research';
       case 'codex':
         return 'Codex CLI';
       case EXTERNAL_EXECUTOR_ID:

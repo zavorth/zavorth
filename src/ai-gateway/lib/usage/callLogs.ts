@@ -30,6 +30,7 @@ import {
 import { getCallLogMaxEntries, getCallLogRetentionDays } from "../logEnv";
 import { pickMaskedDisplayValue } from "@/shared/utils/maskEmail";
 import { safeParseInt } from "../shared/utils/safeParseInt.js";
+import { logger } from '@/shared/utils/logger';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -108,7 +109,8 @@ function toStoredErrorString(error: unknown): string | null {
   if (typeof sanitized === "string") return sanitized;
   try {
     return JSON.stringify(sanitized);
-  } catch {
+  } catch (error) {
+    logger.warn('[call] load operation failed', error);
     return String(sanitized);
   }
 }
@@ -163,9 +165,7 @@ async function resolveAccountName(connectionId: string | null | undefined) {
     if (conn) {
       account = pickMaskedDisplayValue([conn.name, conn.email], account);
     }
-  } catch {
-    // Best-effort lookup only.
-  }
+  } catch (error) { // Best-effort lookup only. logger.warn('[call] connection failed', error); }
 
   return account;
 }
@@ -329,9 +329,7 @@ function cleanupEmptyCallLogDirs() {
         fs.rmSync(entryPath, { recursive: true, force: true });
       }
     }
-  } catch {
-    // Best effort only.
-  }
+  } catch (error) { // Best effort only. logger.warn('[call] filesystem operation failed', error); }
 }
 
 export function cleanupOverflowCallLogFiles(baseDir = CALL_LOGS_DIR, maxEntries?: number) {
@@ -357,18 +355,14 @@ export function cleanupOverflowCallLogFiles(baseDir = CALL_LOGS_DIR, maxEntries?
               const fileStat = fs.statSync(filePath);
               return { filePath, mtimeMs: fileStat.mtimeMs };
             });
-        } catch {
-          return [];
-        }
+        } catch (error) { logger.warn('[call] filesystem operation failed', error); return []; }
       })
       .sort((a, b) => b.mtimeMs - a.mtimeMs);
 
     for (const file of files.slice(limit)) {
       try {
         fs.rmSync(file.filePath, { force: true });
-      } catch {
-        // Best effort only.
-      }
+      } catch (error) { // Best effort only. logger.warn('[call] filesystem operation failed', error); }
     }
 
     cleanupEmptyCallLogDirs();
@@ -495,9 +489,7 @@ export function rotateCallLogs() {
 if (shouldPersistToDisk) {
   try {
     rotateCallLogs();
-  } catch {
-    // Best-effort startup cleanup.
-  }
+  } catch (error) { // Best-effort startup cleanup. logger.warn('[call] operation failed', error); }
 }
 
 export async function getCallLogs(filter: any = {}) {

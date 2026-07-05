@@ -21,11 +21,11 @@ export const responseProfileByExperience: Record<string, string> = {
 
 export const panelLabels: Record<DesktopPanel, string> = {
   chat: 'Chat',
-  approvals: 'Revisão',
-  memory: 'Memória',
+  approvals: 'Review',
+  memory: 'Memory',
   skills: 'Skills',
   channels: 'Canais',
-  settings: 'Configurações',
+  settings: 'Settings',
 };
 
 export function asRecord(value: unknown): Record<string, unknown> {

@@ -4,6 +4,7 @@ import type { ProviderIntegrationManifest } from './ProviderIntegrationManifest.
 import { createMinimalProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { sanitizeModelId, sanitizeProviderId, sanitizeLabel } from './ModelIdSanitizer.js';
 import type { ModelCapabilityKind, ModelModality } from './ProviderCatalogContracts.js';
+import { logger } from '../../../logger.js';
 
 export type ExternalProviderFormat = 'auto' | 'json' | 'yaml' | 'env' | 'external-json' | 'generic';
 
@@ -85,9 +86,7 @@ function parseJsonConfig(content: string): ExternalProviderConfig[] {
       return [normalizeConfig(data)];
     }
     return [];
-  } catch {
-    return [];
-  }
+  } catch (error) { logger.warn('[External Import] JSON parse failed', error); return []; }
 }
 
 function parseEnvConfig(content: string): ExternalProviderConfig[] {
@@ -224,14 +223,15 @@ export class ProviderExternalImportService {
         content = readFileSync(filePath, 'utf-8');
       }
     } catch (error) {
-      return {
+    logger.warn('[External Import] filesystem operation failed', error);
+    return {
         success: false,
         providers: [],
         manifests: [],
         warnings,
         errors: [`Failed to read source: ${error instanceof Error ? error.message : 'Unknown error'}`],
       };
-    }
+  }
 
     try {
       switch (format) {

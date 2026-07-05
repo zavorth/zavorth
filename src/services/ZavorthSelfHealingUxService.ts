@@ -12,6 +12,7 @@ import type {
 } from '../contracts/provider/ZavorthProviderReadinessMatrixContract.js';
 import type { ExperienceSnapshot } from './experience/ExperienceContracts.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
+import { logger } from '../logger.js';
 
 type ProjectionBody = Omit<
   ZavorthSelfHealingProjection,
@@ -386,9 +387,7 @@ export class ZavorthSelfHealingUxService {
         probe: false,
         live: false,
       });
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Self Healing Ux] creation failed', error); return null; }
   }
 }
 

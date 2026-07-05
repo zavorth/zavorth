@@ -11,9 +11,9 @@ import Button from "./Button";
 import { ConfirmModal } from "./Modal";
 import CloudSyncStatus from "./CloudSyncStatus";
 import { useTranslations } from "next-intl";
-import {
 import { logger } from '../logger.js';
-  HIDDEN_SIDEBAR_ITEMS_SETTING_KEY,
+import {
+HIDDEN_SIDEBAR_ITEMS_SETTING_KEY,
   SIDEBAR_SETTINGS_UPDATED_EVENT,
   SIDEBAR_SECTIONS,
   normalizeHiddenSidebarItems,

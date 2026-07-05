@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface Decision {
   id: string;
@@ -55,13 +56,13 @@ export class MemoryHindsightService {
         for (const [id, dec] of Object.entries(data as Record<string, Decision>)) {
           this.decisions.set(id, dec);
         }
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Memory Hindsight] JSON parse failed', error); }
     }
 
     if (fs.existsSync(lessonsPath)) {
       try {
         this.lessons = JSON.parse(fs.readFileSync(lessonsPath, 'utf-8'));
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Memory Hindsight] JSON parse failed', error); }
     }
   }
 

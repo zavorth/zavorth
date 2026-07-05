@@ -2,8 +2,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  ZAVORTH_MNEMOS_PROMOTION_GATE_VERSION,
+ZAVORTH_MNEMOS_PROMOTION_GATE_VERSION,
   type ZavorthMnemosPromotionStatus,
   type ZavorthMnemosPromotionCandidate,
   type ZavorthMnemosPromotionConflict,
@@ -125,9 +126,7 @@ export class ZavorthMnemosPromotionGateService {
             recommendation: 'Manter a regra de seguranca transacional e rejeitar o bypass de aprovacao.',
           });
         }
-      } catch {
-        // Safe skip on read error
-      }
+      } catch (error) { // Safe skip on read error logger.warn('[Zavorth Mnemos Promotion] operation failed', error); }
     }
 
     return conflicts;
@@ -176,9 +175,7 @@ export class ZavorthMnemosPromotionGateService {
 
         this.fsRuntime.writeFileSync(pagePath, content, 'utf8');
         mutated.add(`.zavorth/wiki/${candidate.targetPage}.md`);
-      } catch {
-        // Safe skip on write error
-      }
+      } catch (error) { // Safe skip on write error logger.warn('[Zavorth Mnemos Promotion] filesystem operation failed', error); }
     }
 
     return Array.from(mutated);

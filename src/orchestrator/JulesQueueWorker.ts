@@ -5,7 +5,7 @@ import { SmartOutputService } from '../services/SmartOutputService.js';
 import { TaskManager } from './TaskManager.js';
 
 type BotApiLike = {
-  sendMessage: (...args: any[]) => Promise<any>;
+  sendMessage(chatId: string | number, text: string, options?: { parse_mode?: 'Markdown' | 'HTML' }): Promise<unknown>;
 };
 
 type JulesClientLike = {
@@ -70,7 +70,7 @@ export class JulesQueueWorker {
 
       await this.pollTask(task);
     } catch (error: any) {
-      this.deps.log('error', 'JulesQueueWorker', error.message || 'Falha no worker do Jules.');
+      this.deps.log('error', 'JulesQueueWorker', error.message || 'Jules worker failed.');
     } finally {
       this.running = false;
     }
@@ -79,7 +79,7 @@ export class JulesQueueWorker {
   private async pollTask(task: Task): Promise<void> {
     const sessionId = String(task.metadata?.jules_session_id || '').trim();
     if (!sessionId) {
-      task.error_summary = 'Task Jules sem sessionId para acompanhamento.';
+      task.error_summary = 'Jules task has no sessionId to track.';
       task.metadata = this.withQueueUnlocked(task.metadata);
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
@@ -100,7 +100,7 @@ export class JulesQueueWorker {
     };
 
     if (state === 'COMPLETED' || state === 'SUCCEEDED') {
-      task.result_summary = String(session?.result?.summary || session?.summary || 'Sessao Jules concluida.').trim();
+      task.result_summary = String(session?.result?.summary || session?.summary || 'Jules session completed.').trim();
       task.diff_summary = String(session?.result?.diffUrl || session?.diffUrl || '').trim() || null;
 
       if (task.status === 'waiting_approval') {
@@ -115,7 +115,7 @@ export class JulesQueueWorker {
     }
 
     if (state === 'FAILED' || state === 'CANCELLED') {
-      task.error_summary = String(session?.error?.message || `Sessao Jules ${state.toLowerCase()}.`).trim();
+      task.error_summary = String(session?.error?.message || `Jules session ${state.toLowerCase()}.`).trim();
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
       await this.deliverFailure(task);
@@ -147,7 +147,7 @@ export class JulesQueueWorker {
   private async deliver(task: Task, retryOnly: boolean): Promise<void> {
     const chatId = String(task.chat_id || '').trim();
     if (!chatId) {
-      task.error_summary = task.error_summary || 'Task Jules sem chat_id para entrega.';
+      task.error_summary = task.error_summary || 'Jules task has no chat_id for delivery.';
       task.metadata = this.withQueueUnlocked(task.metadata);
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
@@ -155,16 +155,16 @@ export class JulesQueueWorker {
     }
 
     const message = [
-      'Jules concluiu a sessao.',
-      `Referencia curta: ${task.task_id.substring(0, 8)}`,
+      'Jules completed the session.',
+      `Short reference: ${task.task_id.substring(0, 8)}`,
       task.metadata?.jules_session_id ? `SessionId: ${task.metadata.jules_session_id}` : '',
       task.diff_summary ? `Diff: ${task.diff_summary}` : '',
       '',
-      task.result_summary || 'Sem resultado.',
+      task.result_summary || 'No result.',
     ].filter(Boolean).join('\n');
 
     try {
-      await SmartOutputService.send(this.deps.botApi as any, chatId, message, { parse_mode: 'Markdown' });
+      await SmartOutputService.send(this.deps.botApi, chatId, message, { parse_mode: 'Markdown' });
       task.metadata = {
         ...this.withQueueUnlocked(task.metadata),
         jules_delivered_at: new Date().toISOString(),
@@ -176,13 +176,13 @@ export class JulesQueueWorker {
       task.metadata = {
         ...this.withQueueUnlocked(task.metadata),
         jules_delivery_retries: Number(task.metadata?.jules_delivery_retries || 0) + 1,
-        jules_last_delivery_error: error.message || 'Falha ao entregar resposta do Jules.',
+        jules_last_delivery_error: error.message || 'Failed to deliver Jules response.',
       };
       this.deps.taskManager.saveTask(task);
       if (task.status !== 'delivery_pending') {
         this.deps.taskManager.advanceState(task, 'delivery_pending');
       }
-      this.deps.log('warn', 'JulesQueueWorker', 'Entrega do Jules pendente por falha no Telegram.', {
+      this.deps.log('warn', 'JulesQueueWorker', 'Jules delivery pending due to Telegram failure.', {
         taskId: task.task_id,
         error: error.message || 'unknown',
       });
@@ -197,18 +197,18 @@ export class JulesQueueWorker {
 
     try {
       await SmartOutputService.send(
-        this.deps.botApi as any,
+        this.deps.botApi,
         chatId,
         [
-          'Sessao Jules falhou.',
-          `Referencia curta: ${task.task_id.substring(0, 8)}`,
+          'Jules session failed.',
+          `Short reference: ${task.task_id.substring(0, 8)}`,
           task.metadata?.jules_session_id ? `SessionId: ${task.metadata.jules_session_id}` : '',
           '',
-          `Motivo: ${task.error_summary || 'Erro desconhecido.'}`,
+          `Reason: ${task.error_summary || 'Unknown error.'}`,
         ].filter(Boolean).join('\n'),
       );
     } catch (error: any) {
-      this.deps.log('warn', 'JulesQueueWorker', 'Falha ao entregar erro do Jules.', {
+      this.deps.log('warn', 'JulesQueueWorker', 'Failed to deliver Jules error.', {
         taskId: task.task_id,
         error: error.message || 'unknown',
       });

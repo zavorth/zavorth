@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface CleanupRule {
   id: string;
@@ -77,7 +78,7 @@ export class DiskCleanupService {
               ruleSize += stat.size;
               ruleFiles++;
             }
-          } catch { /* ignore */ }
+          } catch (error) { /* ignore */ logger.warn('[Disk Cleanup] filesystem operation failed', error); }
         }
       }
 
@@ -193,7 +194,7 @@ export class DiskCleanupService {
         if (entry.isFile()) results.push(fullPath);
         else if (entry.isDirectory() && !entry.name.startsWith('.')) results.push(...this.listFiles(fullPath));
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Disk Cleanup] filesystem operation failed', error); }
     return results;
   }
 
@@ -206,7 +207,7 @@ export class DiskCleanupService {
         if (entry.isFile()) size += fs.statSync(fullPath).size;
         else if (entry.isDirectory()) size += this.getDirSize(fullPath);
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Disk Cleanup] filesystem operation failed', error); }
     return size;
   }
 

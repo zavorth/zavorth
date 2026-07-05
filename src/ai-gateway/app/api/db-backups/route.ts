@@ -3,6 +3,7 @@ import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { listDbBackups, restoreDbBackup, backupDbFile } from "@/lib/localDb";
 import { dbBackupRestoreSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * PUT /api/db-backups — Trigger a manual backup snapshot.
@@ -50,7 +51,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {

@@ -168,9 +168,7 @@ export class TerminalSidecarService {
         allowLoopback: true,
       });
       return response.status > 0 && response.status < 500;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Terminal Sidecar] network request failed', error); return false; }
   }
 
   private buildHealthUrl(): string {
@@ -183,9 +181,7 @@ export class TerminalSidecarService {
       const parsed = new URL(this.baseUrl);
       const port = parsed.port ? Number(parsed.port) : 80;
       return Number.isFinite(port) && port > 0 ? port : 4747;
-    } catch {
-      return 4747;
-    }
+    } catch (error) { logger.warn('[Terminal Sidecar] parsing failed', error); return 4747; }
   }
 
   private resolveLocalUrl(): string {
@@ -193,9 +189,7 @@ export class TerminalSidecarService {
       const parsed = new URL(this.baseUrl);
       const port = parsed.port || '4747';
       return `http://${this.getLocalIp()}:${port}`;
-    } catch {
-      return this.baseUrl;
-    }
+    } catch (error) { logger.warn('[Terminal Sidecar] network request failed', error); return this.baseUrl; }
   }
 
   private getLocalIp(): string {

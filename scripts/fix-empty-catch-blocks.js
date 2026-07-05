@@ -12,7 +12,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const SRC_DIR = path.join(__dirname, '..', 'src');
+const DIRS_TO_SCAN = [
+  path.join(__dirname, '..', 'src'),
+  path.join(__dirname, '..', 'apps'),
+  path.join(__dirname, '..', 'packages')
+];
 
 // Padrões de catch vazios
 const EMPTY_CATCH_PATTERNS = [
@@ -74,18 +78,21 @@ function countEmptyCatches(filePath) {
   }
 }
 
-/**
- * Encontra os top N arquivos com mais catchs vazios
- */
 function findTopFiles(n = 20) {
-  const files = getSourceFiles(SRC_DIR);
+  const files = [];
+  for (const dir of DIRS_TO_SCAN) {
+    if (fs.existsSync(dir)) {
+      files.push(...getSourceFiles(dir));
+    }
+  }
   const fileCounts = [];
+  const rootDir = path.join(__dirname, '..');
   
   for (const file of files) {
     const count = countEmptyCatches(file);
     if (count > 0) {
       fileCounts.push({
-        file: path.relative(SRC_DIR, file),
+        file: path.relative(rootDir, file),
         fullPath: file,
         count,
       });

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export interface CachedDoc {
   id: string;
@@ -103,7 +104,7 @@ export class ZavorthDocProviderTool extends BaseTool {
     try {
       const data = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
       this.cache = new Map(Object.entries(data));
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Zavorth Doc] JSON parse failed', error); }
   }
 
   private saveCache(): void {
@@ -171,9 +172,7 @@ export class ZavorthDocProviderTool extends BaseTool {
       this.saveCache();
 
       return `Docs for ${libInfo.name}${topic ? ` (${topic})` : ''}:\n${textContent.slice(0, 3000)}`;
-    } catch (error: unknown) {
-      return `Error fetching docs: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Doc] cache operation failed', error); return ''; }
   }
 
   private searchDocs(args: Record<string, unknown>): string {

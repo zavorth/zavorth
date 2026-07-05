@@ -6,6 +6,7 @@ import type { NodeCapabilityService } from '../../../../services/NodeCapabilityS
 import type { NodeDeviceProfileService } from '../../../../services/NodeDeviceProfileService.js';
 import type { NodeInvokeService } from '../../../../services/NodeInvokeService.js';
 import type { NodePairingService } from '../../../../services/NodePairingService.js';
+import { logger } from '../../../../logger';
 
 type SharedSurfaceSessionNodeCommandPackDeps = {
   sessionPlaneService?: Pick<
@@ -421,9 +422,10 @@ export class SharedSurfaceSessionNodeCommandPack {
       try {
         const parsed = JSON.parse(payloadRaw);
         payload = parsed && typeof parsed === 'object' ? parsed : null;
-      } catch {
-        payload = null;
-      }
+      } catch (error) {
+    logger.warn('[Shared Surface Session Node Command Pack] JSON parse failed', error);
+    payload = null;
+  }
     }
 
     return {

@@ -5,21 +5,22 @@ import { WorkspacePathGuard } from '../../mcp/workspace/WorkspacePathGuard.js';
 import { WorkspaceSessionGrantCache } from '../../services/WorkspaceSessionGrantCache.js';
 import { WorkspaceCommandRiskClassifier } from '../../services/WorkspaceCommandRiskClassifier.js';
 import { WorkspaceCommandApprovalService } from '../../services/WorkspaceCommandApprovalService.js';
+import { logger } from '../../logger.js';
 
 export class WorkspaceCommandProposeTool extends BaseTool {
   public readonly name = 'workspace.command.propose';
-  public readonly description = 'Propõe um comando a ser executado no workspace. Retorna se foi pré-aprovado ou se exige aprovação manual.';
+  public readonly description = 'Proposes a command to run in the workspace. Returns whether it was pre-approved or requires manual approval.';
 
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       command: {
         type: 'string',
-        description: 'O comando completo a ser executado (ex: "npm test" ou "git status"). Sem metacaracteres perigosos de shell.',
+        description: 'Complete command to execute, for example "npm test" or "git status". Dangerous shell metacharacters are not allowed.',
       },
       cwd: {
         type: 'string',
-        description: 'Diretório de execução (relativo ou absoluto dentro do workspace). Default: "."',
+        description: 'Execution directory, relative or absolute inside the workspace. Default: "."',
       },
     },
     required: ['command'],
@@ -45,7 +46,7 @@ export class WorkspaceCommandProposeTool extends BaseTool {
     const cwdInput = (args.cwd as string) || '.';
 
     if (!command || typeof command !== 'string') {
-      return JSON.stringify({ success: false, error: 'O parâmetro "command" é obrigatório e deve ser uma string.' });
+      return JSON.stringify({ success: false, error: 'The "command" parameter is required and must be a string.' });
     }
 
     try {
@@ -57,12 +58,13 @@ export class WorkspaceCommandProposeTool extends BaseTool {
       let resolvedCwd: string;
       try {
         resolvedCwd = guard.resolveForWrite(cwdInput);
-      } catch (err: any) {
-        return JSON.stringify({
+      } catch (error) {
+    logger.warn('[Workspace Command Propose] validation failed', error);
+    return JSON.stringify({
           success: false,
-          error: `Diretório inválido: ${err.message || err}`
+          error: `Invalid directory: ${err.message || err}`
         });
-      }
+  }
 
       // 2. Classify risk level
       const riskLevel = this.classifier.classify(command, resolvedCwd, workspaceRoot);
@@ -71,7 +73,7 @@ export class WorkspaceCommandProposeTool extends BaseTool {
       if (riskLevel === 'CRITICAL' && this.isCommandOrCwdOutside(command, resolvedCwd, workspaceRoot)) {
         return JSON.stringify({
           success: false,
-          error: 'Execução de comandos fora do workspace está bloqueada nesta fase.'
+          error: 'Command execution outside the workspace is blocked at this stage.'
         });
       }
 
@@ -155,12 +157,13 @@ export class WorkspaceCommandProposeTool extends BaseTool {
         riskLevel,
         reason
       });
-    } catch (error: any) {
-      return JSON.stringify({
+    } catch (error) {
+    logger.warn('[Workspace Command Propose] serialization failed', error);
+    return JSON.stringify({
         success: false,
-        error: `Erro ao propor comando: ${error.message || error}`
+        error: `Failed to propose command: ${error.message || error}`
       });
-    }
+  }
   }
 
   private isPackageInstallCommand(command: string): boolean {
@@ -205,9 +208,7 @@ export class WorkspaceCommandProposeTool extends BaseTool {
           if (isPathOutside(resolved, resolvedRoot)) {
             return true;
           }
-        } catch {
-          // ignore parsing failures
-        }
+        } catch (error) { // ignore parsing failures logger.warn('[Workspace Command Propose] lifecycle operation failed', error); }
       }
     }
 

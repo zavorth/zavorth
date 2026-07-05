@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { config as defaultConfig } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthManagedConfigStatus = 'ready' | 'attention' | 'blocked' | 'applied';
 
@@ -209,16 +210,18 @@ export class ZavorthManagedConfigService {
           return { ok: false, raw: null, error: `HTTP ${response.status} while reading managed config.` };
         }
         return { ok: true, raw: await response.text() };
-      } catch (error: any) {
-        return { ok: false, raw: null, error: String(error?.message || error) };
-      }
+      } catch (error) {
+    logger.warn('[Zavorth Managed] network request failed', error);
+    return { ok: false, raw: null, error: String(error?.message || error) };
+  }
     }
     const fullPath = path.isAbsolute(sourceRef) ? sourceRef : path.join(this.projectRoot, sourceRef);
     try {
       return { ok: true, raw: fs.readFileSync(fullPath, 'utf8') };
-    } catch (error: any) {
-      return { ok: false, raw: null, error: String(error?.message || error) };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Managed] filesystem operation failed', error);
+    return { ok: false, raw: null, error: String(error?.message || error) };
+  }
   }
 
   private defaultManagedConfigPath(): string {

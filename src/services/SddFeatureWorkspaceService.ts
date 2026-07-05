@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type SddAgentRole = 'spec' | 'planner' | 'execution' | 'review';
 export type SddRunLifecycle = 'bootstrapping' | 'active' | 'in_review' | 'blocked' | 'completed';
@@ -263,9 +264,7 @@ export class SddFeatureWorkspaceService {
         lastActor: String(parsed.lastActor || '').trim() || 'system',
         note: parsed.note ? String(parsed.note) : null,
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Sdd Feature Workspace] parsing failed', error); return null; }
   }
 
   private parseTasks(content: string): SddFeatureTask[] {

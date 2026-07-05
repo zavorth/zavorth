@@ -10,8 +10,9 @@ import type {
 } from '../contracts/CapabilityAutopilotContract.js';
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import { PermissionService } from './PermissionService.js';
+import { logger } from '../logger.js';
 import {
-  CapabilityAutopilotValidationResumeService,
+CapabilityAutopilotValidationResumeService,
   type CapabilityAutopilotPermissionGateStatus,
   type CapabilityAutopilotValidationResumeResult,
 } from './CapabilityAutopilotValidationResumeService.js';
@@ -242,12 +243,13 @@ export class CapabilityAutopilotRepairExecutionService {
         evidence: output.evidence || [],
         metadata: output.metadata || {},
       });
-    } catch (error: any) {
-      return this.stepResult(input.step, 'failed', input.startedAt, this.now().toISOString(), {
+    } catch (error) {
+    logger.warn('[Capability Autopilot Repair Execution] lifecycle operation failed', error);
+    return this.stepResult(input.step, 'failed', input.startedAt, this.now().toISOString(), {
         summary: 'Runner de repair falhou.',
         detail: error?.message || String(error),
       });
-    }
+  }
   }
 
   private stepResult(

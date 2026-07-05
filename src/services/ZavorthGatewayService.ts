@@ -6,6 +6,7 @@ import { GatewayFacade } from '../domain/gateway/GatewayFacade.js';
 import { MemoryFacade } from '../domain/memory/MemoryFacade.js';
 import { NodesFacade } from '../domain/nodes/NodesFacade.js';
 import { OpsFacade } from '../domain/ops/OpsFacade.js';
+import type { OperationsHealthPort } from '../domain/ops/domain/OpsDomainTypes.js';
 import { PlatformFacade } from '../domain/platform/PlatformFacade.js';
 import { ProvidersFacade } from '../domain/providers/ProvidersFacade.js';
 import { SecurityFacade } from '../domain/security/SecurityFacade.js';
@@ -36,6 +37,7 @@ import { OperationsHealthService } from '../observability/OperationsHealthServic
 import { ZavorthA2UIService } from './ZavorthA2UIService.js';
 import { ZavorthProactivePermissionService } from './ZavorthProactivePermissionService.js';
 import { GoalLoopStatusProjectionService, type GoalLoopStatusProjection } from './GoalLoopStatusProjectionService.js';
+import { logger } from '../logger.js';
 
 type ZavorthGatewayRuntime = {
   now?: () => Date;
@@ -257,7 +259,7 @@ export class ZavorthGatewayService {
       }),
       opsFacade: new OpsFacade({
         now: this.now,
-        operationsHealthService: this.operationsHealth || undefined,
+        operationsHealthService: (this.operationsHealth || undefined) as OperationsHealthPort | undefined,
       }),
       providersFacade: new ProvidersFacade({
         now: this.now,
@@ -501,9 +503,7 @@ export class ZavorthGatewayService {
   private safeBuildGoalLoopStatus(): GoalLoopStatusProjection | null {
     try {
       return this.goalLoopStatus?.buildSnapshot() || null;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth way] creation failed', error); return null; }
   }
 
   private buildControlPlane(input: {

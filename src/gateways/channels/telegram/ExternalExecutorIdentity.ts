@@ -153,12 +153,17 @@ export function getExternalPermissionIdsFromMetadata(
   };
 }
 
+type ExternalMetadataPatchValue = string | Record<string, string>;
+
 export function buildExternalMetadataPatch(
-  values: Partial<Record<ExternalMetadataKey, string>>,
-): Record<string, string> {
-  const patch: Record<string, string> = {};
+  values: Partial<Record<ExternalMetadataKey, ExternalMetadataPatchValue>>,
+): Record<string, ExternalMetadataPatchValue> {
+  const patch: Record<string, ExternalMetadataPatchValue> = {};
   for (const key of Object.keys(values) as ExternalMetadataKey[]) {
-    patch[EXTERNAL_METADATA_KEYS[key]] = values[key];
+    const value = values[key];
+    if (value !== undefined) {
+      patch[EXTERNAL_METADATA_KEYS[key]] = value;
+    }
   }
   return patch;
 }

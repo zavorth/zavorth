@@ -15,6 +15,7 @@ import { LogRepository } from '../storage/LogRepository.js';
 import type { ChannelAdapterStatus, ChannelFeatureSet } from '../contracts/ChannelMeshContract.js';
 import type { PlatformReadiness, PlatformImplementationState, PlatformTransport, PlatformKey } from '../contracts/PlatformContract.js';
 import type { IMessageContext } from '../contracts/core/IMessageBroker.js';
+import { logger } from '../logger.js';
 
 export type WebhookGatewayMode = 'webhook' | 'bot-http' | 'local-bridge' | 'matrix' | 'line';
 
@@ -142,9 +143,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     }
     try {
       return JSON.parse(fs.readFileSync(this.statusFile, 'utf8')) as WebhookGatewayStatusSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Webhook way] JSON parse failed', error); return null; }
   }
 
   public abstract describe(): ChannelAdapterStatus;
@@ -308,9 +307,10 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
         return response.ok
           ? { ok: true, status: 'delivered', transport: this.mode, httpStatus: response.status }
           : { ok: false, status: 'failed', transport: this.mode, httpStatus: response.status, reason: `HTTP ${response.status}` };
-      } catch (error: unknown) {
-        return { ok: false, status: 'failed', transport: this.mode, reason: error instanceof Error ? error.message : String(error) };
-      }
+      } catch (error) {
+    logger.warn('[Webhook way] network request failed', error);
+    return { ok: false, status: 'failed', transport: this.mode, reason: error instanceof Error ? error.message : String(error) };
+  }
     };
     const json = (url: string, body: Record<string, unknown>, headers: Record<string, string> = {}) => request(url, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body) });
     if (this.id === 'matrix') {
@@ -386,8 +386,8 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       configured,
       transport: isValidPlatformTransport(this.mode) ? this.mode : 'planned',
       notes: configured
-        ? [`${this.name} configurado e pronto.`]
-        : [`Configure as variaveis de ambiente para ativar ${this.name}.`],
+        ? [`${this.name} is configured and ready.`]
+        : [`Configure environment variables to enable ${this.name}.`],
       features: this.buildDefaultFeatures(),
       riskLevel: 'low',
       setupMode: this.mode,

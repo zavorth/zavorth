@@ -29,7 +29,7 @@ export function classifyRuntimeRecovery(input: RuntimeRecoveryInput): RuntimeRec
       visible: true,
       reason: 'bridge-unavailable',
       title: 'Desktop bridge indisponivel',
-      message: 'A ponte nativa do Zavorth Desktop nao respondeu. Reabra a interface ou verifique a instalacao.',
+      message: 'The Zavorth Desktop native bridge did not respond. Reopen the interface or check the installation.',
       retryLabel: 'Reabrir interface',
       settingsLabel: 'Abrir diagnosticos',
     };

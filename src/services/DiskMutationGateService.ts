@@ -15,6 +15,7 @@ import {
   type DiskMutationGateStatus,
 } from '../contracts/DiskMutationGateContract.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
+import { logger } from '../logger.js';
 
 const MAX_CONTENT_BYTES = 1_000_000;
 
@@ -427,7 +428,7 @@ export class DiskMutationGateService {
         this.fsRuntime.mkdirSync(operation.absolutePath, { recursive: true });
         return;
       default:
-        throw new Error(`Operacao de disco desconhecida: ${(operation as any).kind}`);
+        throw new Error(`Operacao de disco desconhecida: ${(operation as { kind: string }).kind}`);
     }
   }
 
@@ -613,9 +614,7 @@ export class DiskMutationGateService {
     try {
       const parsed = JSON.parse(String(this.fsRuntime.readFileSync(receiptPath, 'utf8') || '{}'));
       return Array.isArray(parsed?.receipts) ? parsed.receipts as DiskMutationGateReceipt[] : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Disk] JSON parse failed', error); return []; }
   }
 
   private resolveWorkspaceRoot(workspaceRoot: string): string {

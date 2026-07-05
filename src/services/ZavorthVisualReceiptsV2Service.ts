@@ -68,7 +68,7 @@ export class ZavorthVisualReceiptsV2Service {
         zavorthControlProjection: source.zavorthControlProjection,
       },
       zavorthControlProjection: {
-        route: '/zavorthControl',
+        route: '/control',
         renderMode: 'product-cards',
         executionAuthority: false,
         advancedModeAvailable: true,
@@ -77,7 +77,6 @@ export class ZavorthVisualReceiptsV2Service {
       safety: {
         projectionOnly: true,
         rawSecretsSerialized: false,
-        zavorthControlCanExecute: false,
         zavorthControlCanExecute: false,
         approvalActionsStayScoped: true,
         rollbackRequiresApproval: true,
@@ -196,7 +195,6 @@ function buildActions(source: ZavorthVisualReceiptUxCard): ZavorthVisualReceiptV
     requiresApproval: action.requiresApproval,
     mutatesState: action.mutatesState,
     zavorthControlCanExecute: false,
-    zavorthControlCanExecute: false,
   }));
   base.push({
     id: 'export-markdown',
@@ -206,7 +204,6 @@ function buildActions(source: ZavorthVisualReceiptUxCard): ZavorthVisualReceiptV
     safeByDefault: true,
     requiresApproval: false,
     mutatesState: false,
-    zavorthControlCanExecute: false,
     zavorthControlCanExecute: false,
   });
   return base;

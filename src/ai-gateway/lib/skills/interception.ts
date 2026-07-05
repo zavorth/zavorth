@@ -1,5 +1,6 @@
 import { skillExecutor } from "./executor";
 import { detectProvider } from "./injection";
+import { logger } from '@/shared/utils/logger';
 
 interface ToolCall {
   id: string;
@@ -41,12 +42,13 @@ export async function interceptToolCalls(
           id: call.id,
           result,
         };
-      } catch (err) {
-        return {
+      } catch (error) {
+    logger.warn('[interception] process execution failed', error);
+    return {
           id: call.id,
           result: { error: err instanceof Error ? err.message : String(err) },
         };
-      }
+  }
     })
   );
 
@@ -101,9 +103,7 @@ function parseArguments(args: string | Record<string, unknown>): Record<string, 
 
   try {
     return JSON.parse(args);
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[interception] JSON parse failed', error); return {}; }
 }
 
 export async function handleToolCallExecution(

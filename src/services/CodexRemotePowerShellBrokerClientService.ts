@@ -221,20 +221,22 @@ export class CodexRemotePowerShellBrokerClientService {
           pid,
           note: 'Broker PowerShell ativo.',
         };
-      } catch {
-        return {
+      } catch (error) {
+    logger.warn('[Codex Remote Power Shell Broker Client] validation failed', error);
+    return {
           running: false,
           pid,
           note: 'O broker PowerShell do Codex Remote ficou stale. Reinicie o launcher supervisionado.',
         };
-      }
-    } catch {
-      return {
+  }
+    } catch (error) {
+    logger.warn('[Codex Remote Power Shell Broker Client] operation failed', error);
+    return {
         running: false,
         pid: null,
         note: 'Nao foi possivel ler o lock do broker PowerShell do Codex Remote. Reinicie o launcher supervisionado.',
       };
-    }
+  }
   }
 
   private async request<T>(

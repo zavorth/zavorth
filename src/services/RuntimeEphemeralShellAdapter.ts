@@ -4,6 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { promisify } from 'util';
+import { logger } from '../logger.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -46,9 +47,10 @@ export class RuntimeEphemeralShellAdapter {
       try {
         fs.rmSync(workspace, { recursive: true, force: true });
         workspaceRemoved = true;
-      } catch {
-        workspaceRemoved = false;
-      }
+      } catch (error) {
+    logger.warn('[Runtime Ephemeral Shell Adapter] delete operation failed', error);
+    workspaceRemoved = false;
+  }
     }
 
     return {

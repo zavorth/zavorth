@@ -150,15 +150,15 @@ export class TelegramTaskWorkflowWorkspaceContextBuilder {
         : null,
       recent_artifact: recentArtifact
         ? {
-            name: String(recentArtifact.name || 'entrega-recente').trim(),
+            name: String(recentArtifact.name || 'recent-delivery').trim(),
             kind: recentArtifact.kind || null,
             summary: recentArtifact.summary || null,
           }
         : null,
       continuity_recommendation: continuityRecommendation
         ? {
-            label: String(continuityRecommendation.label || 'Continuar a partir do contexto atual').trim(),
-            reason: String(continuityRecommendation.reason || 'Contexto operacional recente encontrado.').trim(),
+            label: String(continuityRecommendation.label || 'Continue from the current context').trim(),
+            reason: String(continuityRecommendation.reason || 'Recent operational context found.').trim(),
             executor: continuityRecommendation.executor || null,
           }
         : null,

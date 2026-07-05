@@ -106,13 +106,13 @@ export class ApprovalLeaseFeedbackTriage {
       riskClass: feedback.riskClass,
       leaseDecisionStatus: feedback.leaseDecisionStatus,
       safeFailureReasonCode: feedback.safeFailureReasonCode,
-      severity: severity as any,
+      severity: severity as FeedbackTriageRecord['severity'],
       reproducibility: overrides.reproducibility || feedback.reproducibility || 'always',
-      followUpCategory: finalCategory as any,
+      followUpCategory: finalCategory as FeedbackTriageRecord['followUpCategory'],
       sanitizedSummary,
       sanitizedNotes,
       blocksRollout,
-      recommendedAction: recommendedAction as any,
+      recommendedAction: recommendedAction as FeedbackTriageRecord['recommendedAction'],
       createdAt: overrides.createdAt || new Date().toISOString(),
       monotonicSequence: overrides.monotonicSequence !== undefined ? overrides.monotonicSequence : this.sequenceCounter
     };

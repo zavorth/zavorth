@@ -79,14 +79,14 @@ export class EchoHandsService {
     const trusted = request.trusted === true || this.trustedMode;
 
     if (risk === 'high') {
-      return this.result(false, action, 'Ação Echo de alto risco bloqueada no V1.', {
+      return this.result(false, action, 'High-risk Echo action blocked in V1.', {
         risk,
         requestId: request.requestId || null,
       }, false);
     }
 
     if (risk === 'medium' && !trusted) {
-      return this.result(false, action, 'Ação Echo requer aprovação ou modo trusted.', {
+      return this.result(false, action, 'Echo action requires approval or trusted mode.', {
         risk,
         requestId: request.requestId || null,
       }, true);
@@ -119,7 +119,7 @@ export class EchoHandsService {
       case 'protocol_run':
         return this.runProtocol(request, risk, trusted);
       default:
-        return this.result(false, request.action, 'Ação Echo desconhecida.', { risk }, false);
+        return this.result(false, request.action, 'Unknown Echo action.', { risk }, false);
     }
   }
 
@@ -127,18 +127,18 @@ export class EchoHandsService {
     const app = String(request.args?.app || '').trim().toLowerCase();
     const command = APP_COMMANDS[app];
     if (!command) {
-      return this.result(false, 'open_app', `App não permitido no Echo V1: ${app || 'n/d'}.`, { risk }, false);
+      return this.result(false, 'open_app', `App not allowed in Echo V1: ${app || 'n/a'}.`, { risk }, false);
     }
 
     const output = await this.processLauncher(command.command, command.args);
-    return this.result(true, 'open_app', `App iniciado: ${app}.`, { app, output, risk }, false);
+    return this.result(true, 'open_app', `App started: ${app}.`, { app, output, risk }, false);
   }
 
   private async browserSearch(request: EchoHandsRequest, risk: EchoHandsRisk): Promise<EchoHandsResult> {
     const engine = String(request.args?.engine || 'google').trim().toLowerCase();
     const query = String(request.args?.query || '').trim();
     if (!query) {
-      return this.result(false, 'browser_search', 'browser_search requer query.', { risk }, false);
+      return this.result(false, 'browser_search', 'browser_search requires query.', { risk }, false);
     }
 
     const response = await this.browserTool.handleToolCall('browser_search', { engine, query });
@@ -146,7 +146,7 @@ export class EchoHandsService {
       return this.result(false, 'browser_search', this.readToolText(response), { engine, query, risk }, false);
     }
 
-    return this.result(true, 'browser_search', `Busca enviada para ${engine}.`, {
+    return this.result(true, 'browser_search', `Search sent to ${engine}.`, {
       engine,
       query,
       toolResult: this.readToolText(response),
@@ -161,7 +161,7 @@ export class EchoHandsService {
       return this.result(false, 'open_url', this.readToolText(response), { url, risk }, false);
     }
 
-    return this.result(true, 'open_url', `URL aberta: ${url}.`, {
+    return this.result(true, 'open_url', `URL opened: ${url}.`, {
       url,
       toolResult: this.readToolText(response),
       risk,
@@ -176,11 +176,11 @@ export class EchoHandsService {
     const name = String(request.args?.name || '').trim();
     const protocol = this.readProtocols().find((entry) => entry.name === name);
     if (!protocol) {
-      return this.result(false, 'protocol_run', `Protocolo Echo não encontrado: ${name || 'n/d'}.`, { risk }, false);
+      return this.result(false, 'protocol_run', `Echo protocol not found: ${name || 'n/a'}.`, { risk }, false);
     }
 
     if (protocol.actions.length > 1 && !trusted) {
-      return this.result(false, 'protocol_run', 'Protocolos com múltiplas ações requerem aprovação.', {
+      return this.result(false, 'protocol_run', 'Protocols with multiple actions require approval.', {
         protocol: name,
         risk: this.maxRisk(risk, protocol.risk),
       }, true);
@@ -195,14 +195,14 @@ export class EchoHandsService {
       });
       outcomes.push(outcome);
       if (!outcome.ok) {
-        return this.result(false, 'protocol_run', `Protocolo interrompido em ${action.action}.`, {
+        return this.result(false, 'protocol_run', `Protocol interrupted at ${action.action}.`, {
           protocol: name,
           outcomes,
         }, outcome.approvalRequired);
       }
     }
 
-    return this.result(true, 'protocol_run', `Protocolo Echo executado: ${name}.`, {
+    return this.result(true, 'protocol_run', `Echo protocol executed: ${name}.`, {
       protocol: name,
       outcomes,
       risk: this.maxRisk(risk, protocol.risk),
@@ -244,7 +244,7 @@ export class EchoHandsService {
     const raw = String(value || '').trim();
     const parsed = new URL(raw);
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-      throw new Error('Echo V1 aceita apenas URLs http/https.');
+      throw new Error('Echo V1 accepts only http/https URLs.');
     }
     return parsed.toString();
   }

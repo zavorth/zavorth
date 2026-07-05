@@ -90,9 +90,7 @@ export class AIGatewaySidecarService {
         ...fallback,
         ...parsed,
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[A I way Sidecar] JSON parse failed', error); return fallback; }
   }
 
   private resolveSourceDir(): string | null {
@@ -183,9 +181,7 @@ export class AIGatewaySidecarService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[A I way Sidecar] network request failed', error); return false; }
   }
 
   private buildModelsUrl(): string {
@@ -198,9 +194,7 @@ export class AIGatewaySidecarService {
       const parsed = new URL(this.upstreamBaseUrl);
       const port = parsed.port ? Number(parsed.port) : 80;
       return Number.isFinite(port) && port > 0 ? port : 20128;
-    } catch {
-      return 20128;
-    }
+    } catch (error) { logger.warn('[A I way Sidecar] parsing failed', error); return 20128; }
   }
 
   private buildSnapshot(

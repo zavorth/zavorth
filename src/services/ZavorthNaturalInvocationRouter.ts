@@ -36,6 +36,7 @@ import { ZavorthSubagentAutoInvocationPolicyService } from './ZavorthSubagentAut
 import { ZavorthSandboxLifecycleManager } from './ZavorthSandboxLifecycleManager.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import type { ILlmProvider, ChatMessage } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 type DecideSecurityPolicy = (
   request: SecurityPolicyBrokerRequest,
@@ -581,9 +582,7 @@ Examples:
       approvalReason: risky ? 'LLM-classified intent involves potentially risky operations.' : null,
       risky,
     });
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Natural Invocation r] parsing failed', error); return null; }
 }
 
 function base(input: {

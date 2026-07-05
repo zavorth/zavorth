@@ -65,15 +65,15 @@ export interface PlannedChannelSnapshot {
   lastOutboundAt: string | null;
   lastError: string | null;
   updatedAt: string | null;
-  platform: string | null;
-  readOnly: boolean;
-  accountNumber: string | null;
-  bridgeTarget: string | null;
-  tenantId: string | null;
-  appId: string | null;
-  smtpConfigured: boolean;
-  imapConfigured: boolean;
-  webhookConfigured: boolean;
+  platform?: string | null;
+  readOnly?: boolean;
+  accountNumber?: string | null;
+  bridgeTarget?: string | null;
+  tenantId?: string | null;
+  appId?: string | null;
+  smtpConfigured?: boolean;
+  imapConfigured?: boolean;
+  webhookConfigured?: boolean;
 }
 
 export interface ChannelsSnapshot {

@@ -1,5 +1,6 @@
+import { logger } from '@/shared/utils/logger';
 import {
-  DeveloperWorkspaceSurfacePresenter,
+DeveloperWorkspaceSurfacePresenter,
   DeveloperWorkspaceSurfaceService,
   type DeveloperWorkspaceSurfaceActionInput,
 } from "../../../../domain/surface/index.js";
@@ -58,7 +59,5 @@ async function readDeveloperWorkspaceJsonBody(request: Request): Promise<Record<
     return body && typeof body === "object" && !Array.isArray(body)
       ? body as Record<string, unknown>
       : {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[developer Workspace] network request failed', error); return {}; }
 }

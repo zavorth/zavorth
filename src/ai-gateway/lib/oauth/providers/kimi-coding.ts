@@ -1,6 +1,7 @@
 import { KIMI_CODING_CONFIG } from "../constants/oauth";
 import { randomUUID } from "crypto";
 import { hostname } from "os";
+import { logger } from '@/shared/utils/logger';
 
 // Generate device ID (persistent per installation)
 const DEVICE_ID = randomUUID();
@@ -65,10 +66,11 @@ export const kimiCoding = {
     let data;
     try {
       data = await response.json();
-    } catch (e) {
-      const text = await response.text();
+    } catch (error) {
+    logger.warn('[kimi-coding] network request failed', error);
+    const text = await response.text();
       data = { error: "invalid_response", error_description: text };
-    }
+  }
 
     return {
       ok: response.ok,

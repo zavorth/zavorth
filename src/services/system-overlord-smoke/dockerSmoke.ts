@@ -5,7 +5,8 @@ import {
   skipFromSmokeAction,
 } from './smokeActions.js';
 import type { ExecuteSmokeAction, SystemOverlordSmokeItem } from './smokeTypes.js';
-import { logger } from '../logger.js';
+import type { SystemOverlordActionRecord } from '../../contracts/SystemOverlordContract.js';
+import { logger } from '../../logger.js';
 
 async function inspectDockerRuntime(
   executeSmokeAction: ExecuteSmokeAction,
@@ -31,7 +32,7 @@ function shouldRetryDockerInspect(action: {
 }): boolean {
   return action.status !== 'completed'
     && (
-      shouldSkipOptionalSmokeRuntime('docker.exec', action as any)
+      shouldSkipOptionalSmokeRuntime('docker.exec', action as unknown as SystemOverlordActionRecord)
       || action.errorCode === 'action_timed_out'
     );
 }

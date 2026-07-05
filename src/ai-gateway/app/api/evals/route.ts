@@ -3,6 +3,7 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { listSuites, runSuite } from "@/lib/evals/evalRunner";
 import { evalRunSuiteSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -12,6 +13,7 @@ export async function GET(request: Request) {
     const suites = listSuites();
     return NextResponse.json(suites);
   } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -23,7 +25,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -44,6 +47,7 @@ export async function POST(request) {
     const result = runSuite(suiteId, outputs);
     return NextResponse.json(result);
   } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

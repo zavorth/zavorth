@@ -121,32 +121,32 @@ export class TelegramConversationContextService {
           .slice(0, 3)
       : [];
     if (approvedPaths.length > 0) {
-      sections.push(`PATHS JA APROVADOS RECENTEMENTE:\n- ${approvedPaths.join('\n- ')}`);
+      sections.push(`RECENTLY APPROVED PATHS:\n- ${approvedPaths.join('\n- ')}`);
     }
 
     const continuityLines = [
-      continuityContext?.titleHint ? `Contexto atual: ${continuityContext.titleHint}` : null,
+      continuityContext?.titleHint ? `Current context: ${continuityContext.titleHint}` : null,
       continuityContext?.workflowRecommendation?.label
-        ? `Workflow sugerido: ${continuityContext.workflowRecommendation.label}`
+        ? `Suggested workflow: ${continuityContext.workflowRecommendation.label}`
         : null,
       continuityContext?.activeFocus?.reason
-        ? `Foco em andamento: ${continuityContext.activeFocus.reason}`
+        ? `Active focus: ${continuityContext.activeFocus.reason}`
         : null,
       continuityContext?.recentArtifact?.name
-        ? `Entrega recente: ${continuityContext.recentArtifact.name}`
+        ? `Recent delivery: ${continuityContext.recentArtifact.name}`
         : null,
       continuityContext?.followupPrompt
-        ? `Proximo passo sugerido: ${continuityContext.followupPrompt}`
+        ? `Suggested next step: ${continuityContext.followupPrompt}`
         : null,
       Array.isArray(continuityContext?.nextActions) && continuityContext!.nextActions.length > 0
-        ? `Atalhos uteis: ${continuityContext!.nextActions
+        ? `Useful shortcuts: ${continuityContext!.nextActions
             .slice(0, 3)
             .map((entry) => `${entry.label} (${entry.command})`)
             .join(' | ')}`
         : null,
     ].filter(Boolean) as string[];
     if (continuityLines.length > 0) {
-      sections.push(`CONTINUIDADE RECOMENDADA:\n- ${continuityLines.join('\n- ')}`);
+      sections.push(`RECOMMENDED CONTINUITY:\n- ${continuityLines.join('\n- ')}`);
     }
 
     return sections.join('\n\n');
@@ -159,11 +159,11 @@ export class TelegramConversationContextService {
     }
 
     const lines = [
-      'RETOMADA SOLICITADA PELO USUARIO: ele quer continuar o contexto anterior, nao iniciar um assunto novo.',
-      continuityContext.titleHint ? `ASSUNTO EM FOCO: ${continuityContext.titleHint}` : null,
-      continuityContext.recentArtifact?.name ? `ENTREGA RECENTE: ${continuityContext.recentArtifact.name}` : null,
-      `SIGA ESTE PROXIMO PASSO SUGERIDO: ${continuityContext.followupPrompt}`,
-      `PEDIDO ORIGINAL DO USUARIO: ${normalized}`,
+      'RESUME REQUESTED BY THE USER: they want to continue the previous context, not start a new topic.',
+      continuityContext.titleHint ? `FOCUS TOPIC: ${continuityContext.titleHint}` : null,
+      continuityContext.recentArtifact?.name ? `RECENT DELIVERY: ${continuityContext.recentArtifact.name}` : null,
+      `FOLLOW THIS SUGGESTED NEXT STEP: ${continuityContext.followupPrompt}`,
+      `USER ORIGINAL REQUEST: ${normalized}`,
     ].filter(Boolean);
 
     return lines.join('\n');
@@ -175,12 +175,12 @@ export class TelegramConversationContextService {
     }
 
     return [
-      'ORIENTACAO DE RESPOSTA PARA RETOMADA:',
-      '- Comece deixando explicito o que esta sendo retomado.',
-      '- Em seguida diga qual e o proximo passo util.',
-      '- Mantenha a resposta natural, como continuidade da mesma conversa.',
+      'RESPONSE GUIDANCE FOR RESUME:',
+      '- Start by making explicit what is being resumed.',
+      '- Then state the useful next step.',
+      '- Keep the answer natural, as a continuation of the same conversation.',
       Array.isArray(continuityContext?.nextActions) && continuityContext.nextActions.length > 0
-        ? `- Quando fizer sentido, cite um atalho direto do operador: ${continuityContext.nextActions
+        ? `- When useful, mention a direct operator shortcut: ${continuityContext.nextActions
             .slice(0, 2)
             .map((entry) => entry.command)
             .join(' | ')}.`
@@ -201,9 +201,9 @@ export class TelegramConversationContextService {
       {
         role: 'system',
         content: [
-          'Contexto adicional para a tarefa autonoma.',
+          'Additional context for the autonomous task.',
           workspaceContext,
-          'Use esse contexto como guia operacional do workspace e evite repetir erros ja observados.',
+          'Use this context as the workspace operational guide and avoid repeating already observed errors.',
         ].join('\n\n'),
       },
     ];
@@ -220,7 +220,7 @@ export class TelegramConversationContextService {
       String(snapshot.replay?.operatorSummary || '').trim(),
     ].filter(Boolean);
     if (replayLines.length > 0) {
-      sections.push(`REPLAY CANONICO DA SESSAO:\n- ${replayLines.join('\n- ')}`);
+      sections.push(`CANONICAL SESSION REPLAY:\n- ${replayLines.join('\n- ')}`);
     }
 
     const handoffLines = [
@@ -229,7 +229,7 @@ export class TelegramConversationContextService {
       String(snapshot.handoff?.handoffCommand || '').trim(),
     ].filter(Boolean);
     if (handoffLines.length > 0) {
-      sections.push(`HANDOFF E PROXIMO PASSO:\n- ${handoffLines.join('\n- ')}`);
+      sections.push(`HANDOFF AND NEXT STEP:\n- ${handoffLines.join('\n- ')}`);
     }
 
     const continuityLines = [
@@ -238,7 +238,7 @@ export class TelegramConversationContextService {
       String(snapshot.continuity?.suggestedAction?.prompt || '').trim(),
     ].filter(Boolean);
     if (continuityLines.length > 0) {
-      sections.push(`SINAL DE CONTINUIDADE DA SESSAO:\n- ${continuityLines.join('\n- ')}`);
+      sections.push(`SESSION CONTINUITY SIGNAL:\n- ${continuityLines.join('\n- ')}`);
     }
 
     const transcriptLines = Array.isArray(snapshot.transcript)
@@ -247,8 +247,8 @@ export class TelegramConversationContextService {
           .map((entry) => {
             const roleLabel =
               entry.role === 'assistant'
-                ? 'Assistente'
-                : (entry.role === 'system' ? 'Sistema' : 'Usuario');
+                ? 'Assistant'
+                : (entry.role === 'system' ? 'System' : 'User');
             const content = String(entry.content || '')
               .replace(/\s+/g, ' ')
               .trim()
@@ -258,7 +258,7 @@ export class TelegramConversationContextService {
           .filter(Boolean)
       : [];
     if (transcriptLines.length > 0) {
-      sections.push(`TRANSCRIPT CANONICO RECENTE:\n- ${transcriptLines.join('\n- ')}`);
+      sections.push(`RECENT CANONICAL TRANSCRIPT:\n- ${transcriptLines.join('\n- ')}`);
     }
 
     const artifactLines = Array.isArray(snapshot.artifacts)

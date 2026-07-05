@@ -3,6 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 type StoredHostIdentity = {
   fingerprint: string;
@@ -81,8 +82,6 @@ export class HostIdentityService {
       }
 
       return JSON.parse(fs.readFileSync(this.stateFile, 'utf8')) as StoredHostIdentity;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Host Identity] JSON parse failed', error); return null; }
   }
 }

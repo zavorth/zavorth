@@ -1,9 +1,8 @@
 /**
  * LegacyUnifiedGatewayAdapter
  *
- * Adapter legado do antigo UnifiedGateway. Ele continua existindo apenas para
- * fallback de compatibilidade em surfaces que ainda nao anexaram o
- * ZavorthAgentGateway canonico.
+ * Legacy adapter for the old UnifiedGateway. It remains only as a compatibility
+ * fallback for surfaces that have not attached the canonical ZavorthAgentGateway yet.
  */
 
 import { randomUUID } from 'crypto';
@@ -12,34 +11,34 @@ import { ContextEngine, type ContextEvent } from './ContextEngine.js';
 import type { MessageChannel } from '../contracts/PlatformContract.js';
 
 export interface LegacyGatewayIncomingEvent {
-  /** Plataforma de origem */
+  /** Origin surface */
   surface: MessageChannel;
-  /** ID do chat na plataforma */
+  /** Platform chat ID */
   chatId: string;
-  /** ID do usuario */
+  /** User ID */
   userId: string;
-  /** Texto bruto da mensagem */
+  /** Raw message text */
   text: string;
-  /** Se e mensagem de grupo */
+  /** Whether this is a group message */
   isGroup: boolean;
-  /** Dados multimodais opcionais (imagem, audio base64) */
+  /** Optional multimodal data (image, base64 audio) */
   inlineData?: Array<{ mimeType: string; data: string }>;
-  /** Callback para responder na plataforma de origem */
+  /** Callback for replying on the origin platform */
   reply: (text: string) => Promise<void>;
-  /** Metadados extras da superficie */
+  /** Extra surface metadata */
   metadata?: Record<string, unknown>;
 }
 
 export interface LegacyGatewayResult {
-  /** Resposta textual gerada */
+  /** Generated text response */
   responseText: string;
-  /** Plataforma de origem */
+  /** Origin surface */
   surface: MessageChannel;
-  /** Categoria de intencao detectada pelo firewall */
+  /** Intent category detected by the firewall */
   intentCategory: string;
-  /** Stats do firewall */
+  /** Firewall stats */
   firewallStats: string;
-  /** Se um modelo mais barato foi sugerido */
+  /** Whether a cheaper model was suggested */
   fastModelSuggested: boolean;
 }
 
@@ -64,9 +63,9 @@ export class LegacyUnifiedGatewayAdapter {
   }
 
   /**
-   * Registra o callback do agente conversacional.
-   * O adapter e agnostico ao agente: so precisa de uma funcao que
-   * receba texto + tools e retorne resposta.
+   * Registers the conversational agent callback.
+   * The adapter is agent-agnostic: it only needs a function that
+   * receives text + tools and returns a response.
    */
   public setAgentCallback(callback: LegacyGatewayAgentCallback): void {
     this.agentCallback = callback;
@@ -77,14 +76,14 @@ export class LegacyUnifiedGatewayAdapter {
   }
 
   /**
-   * Ponto de entrada universal legado. Qualquer surface ainda nao migrada chama
-   * este metodo enquanto o ZavorthAgentGateway assume o caminho canonico.
+   * Legacy universal entry point. Any surface not migrated yet calls
+   * this method while ZavorthAgentGateway owns the canonical path.
    *
    * Fluxo:
-   * 1. Registra o evento no ContextEngine.
-   * 2. Chama o agente conversacional legado.
-   * 3. Registra a resposta no ContextEngine.
-   * 4. Responde via callback da superficie.
+   * 1. Records the event in ContextEngine.
+   * 2. Calls the legacy conversational agent.
+   * 3. Records the response in ContextEngine.
+   * 4. Replies through the surface callback.
    */
   public async handleEvent(event: LegacyGatewayIncomingEvent): Promise<LegacyGatewayResult> {
     const { surface, chatId, userId, text, inlineData, reply } = event;
@@ -102,7 +101,7 @@ export class LegacyUnifiedGatewayAdapter {
     this.contextEngine.pushEvent(userEvent);
 
     if (!this.agentCallback) {
-      const errorMsg = 'Gateway ativo mas sem agente registrado.';
+      const errorMsg = 'Gateway is active but no agent is registered.';
       await reply(errorMsg);
       return {
         responseText: errorMsg,
@@ -138,7 +137,7 @@ export class LegacyUnifiedGatewayAdapter {
   }
 
   /**
-   * Retorna o ContextEngine para acesso direto (debugging, stats).
+   * Returns ContextEngine for direct access (debugging, stats).
    */
   public getContextEngine(): ContextEngine {
     return this.contextEngine;
@@ -154,11 +153,11 @@ export class LegacyUnifiedGatewayAdapter {
   ): Promise<string> {
     try {
       const result = await this.agentCallback!(text, userId, chatId, surface, [], inlineData, metadata);
-      return result.text || 'Sem resposta do agente.';
+      return result.text || 'No response from the agent.';
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`[LegacyUnifiedGatewayAdapter] Agent error: ${message}`);
-      return `Erro ao processar sua mensagem: ${message}`;
+      return `Error while processing your message: ${message}`;
     }
   }
 }

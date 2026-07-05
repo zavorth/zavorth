@@ -33,8 +33,14 @@ export type ZavorthApprovalActionCard = {
     messages: number;
   };
   rollback: {
+    available: boolean;
+    command: string | null;
+    summary: string;
   };
   receipt: {
+    available: boolean;
+    id: string | null;
+    command: string;
   };
   actions: ZavorthApprovalActionCardAction[];
   safety: {

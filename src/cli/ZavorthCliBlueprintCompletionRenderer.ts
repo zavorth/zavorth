@@ -26,7 +26,7 @@ export function buildBlueprintCompletionCliSnapshot(input: {
     userId: input.userId,
     channel: 'cli',
     sessionId: input.sessionId,
-    text: input.text || 'fechar blueprint completo',
+    text: input.text || 'close complete blueprint',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read'],
     metadata: {},
@@ -54,15 +54,15 @@ export function buildBlueprintCompletionSnapshotFromRun(
 export function formatBlueprintCompletionSnapshot(snapshot: BlueprintCompletionGateSnapshot): string {
   const lines = [
     'Blueprint Completion Gate - Final',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- gates: ${snapshot.summary.completedGateCount}/${snapshot.summary.requiredGateCount}`,
-    `- decisao: ${snapshot.summary.releaseDecision}`,
-    `- canal: ${snapshot.summary.releaseChannel}`,
-    `- blueprint completo: ${String(snapshot.summary.blueprintComplete)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- decision: ${snapshot.summary.releaseDecision}`,
+    `- channel: ${snapshot.summary.releaseChannel}`,
+    `- blueprint complete: ${String(snapshot.summary.blueprintComplete)}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -82,16 +82,16 @@ export function formatBlueprintCompletionSnapshot(snapshot: BlueprintCompletionG
   lines.push(`- release decision: ${String(snapshot.readiness.releaseDecisionReady)}`);
   lines.push(`- safeguards: ${String(snapshot.readiness.safeguardsReady)}`);
 
-  lines.push('', 'Politica final');
-  lines.push('- sem deploy nao governado');
-  lines.push('- promocao manual obrigatoria');
-  lines.push('- sem auto-execute');
-  lines.push('- sem global rollout por default');
-  lines.push('- sem skip canary');
-  lines.push('- sem skip approval');
-  lines.push('- rollback e audit receipts obrigatorios');
+  lines.push('', 'Final Policy');
+  lines.push('- no ungoverned deploys');
+  lines.push('- manual promotion required');
+  lines.push('- no auto-execute');
+  lines.push('- no global rollout by default');
+  lines.push('- no canary skip');
+  lines.push('- no approval skip');
+  lines.push('- rollback and audit receipts required');
 
-  lines.push('', 'Comandos');
+  lines.push('', 'Commands');
   lines.push(`- Pre-canary: ${snapshot.surface.preCanaryCommand}`);
   lines.push(`- Rollout: ${snapshot.surface.rolloutCommand}`);
   lines.push(`- Execution: ${snapshot.surface.executionCommand}`);

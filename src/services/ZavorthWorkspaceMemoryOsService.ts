@@ -7,6 +7,7 @@ import type { ZavorthLayeredMemoryService, LayeredMemoryProcedureSnapshot } from
 import type { ZavorthLearningPlaneService, LearningPlaneSnapshot } from './ZavorthLearningPlaneService.js';
 import type { ZavorthTaskOperatingSystemService, ZavorthTaskOsSnapshot } from './ZavorthTaskOperatingSystemService.js';
 import type { MemoryEntry, MemoryService } from './MemoryService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthWorkspaceMemoryKind =
   | 'workspace_profile'
@@ -195,37 +196,37 @@ const RETENTION_POLICY: ZavorthWorkspaceMemoryOsSnapshot['retentionPolicy'] = {
   workspace_profile: {
     ttlDays: 90,
     defaultRemember: true,
-    reason: 'Perfil de projeto melhora comandos e rotas, mas deve ser revisavel por workspace.',
+    reason: 'Project profile improves commands and routes, but must remain reviewable per workspace.',
   },
   conversation_summary: {
     ttlDays: 14,
     defaultRemember: true,
-    reason: 'Resumo curto ajuda follow-ups sem guardar a conversa inteira.',
+    reason: 'Short summary helps follow-ups without storing the entire conversation.',
   },
   preference: {
     ttlDays: null,
     defaultRemember: true,
-    reason: 'Preferencias explicitas ficam ate o usuario apagar ou corrigir.',
+    reason: 'Explicit preferences remain until the user deletes or corrects them.',
   },
   procedure: {
     ttlDays: 180,
     defaultRemember: true,
-    reason: 'Procedimentos validados ajudam repeticao segura de tarefas tecnicas.',
+    reason: 'Validated procedures help safe repetition of technical tasks.',
   },
   task_reference: {
     ttlDays: 30,
     defaultRemember: true,
-    reason: 'Referencias recentes resolvem continua, retry e mesma pasta.',
+    reason: 'Recent references resolve continue, retry, and same-folder requests.',
   },
   artifact_reference: {
     ttlDays: 30,
     defaultRemember: true,
-    reason: 'Artefatos recentes podem ser reenviados sem reexecutar trabalho.',
+    reason: 'Recent artifacts can be resent without re-running work.',
   },
   follow_up: {
     ttlDays: 7,
     defaultRemember: true,
-    reason: 'Memoria curta resolve follow-ups e expira rapido.',
+    reason: 'Short memory resolves follow-ups and expires quickly.',
   },
 };
 
@@ -369,8 +370,8 @@ export class ZavorthWorkspaceMemoryOsService {
         },
         evidence: this.resolutionEvidence(review),
         reason: artifact
-          ? `Resolvi para o artefato recente ${artifact.label}.`
-          : 'Nao encontrei artefato recente; usei o fallback latest.',
+          ? `Resolved to recent artifact ${artifact.label}.`
+          : 'No recent artifact found; used latest fallback.',
       };
     }
 
@@ -392,8 +393,8 @@ export class ZavorthWorkspaceMemoryOsService {
         },
         evidence: this.resolutionEvidence(review),
         reason: review.workspaceProfile.workspace
-          ? 'Resolvi a referencia para o workspace do perfil operacional.'
-          : 'Nao havia workspace claro; mantive comando generico.',
+          ? 'Resolved the reference to the operational profile workspace.'
+          : 'No clear workspace existed; kept a generic command.',
       };
     }
 
@@ -430,7 +431,7 @@ export class ZavorthWorkspaceMemoryOsService {
         nextCommand: `zavorth memory search "${this.redactText(text, 80)}"`,
       },
       evidence: this.resolutionEvidence(review),
-      reason: 'Pedido nao parece follow-up padrao; resolvi como busca na memoria operacional.',
+      reason: 'Request does not look like a standard follow-up; resolved as operational memory search.',
     };
   }
 
@@ -450,34 +451,34 @@ export class ZavorthWorkspaceMemoryOsService {
     const generatedAt = this.now().toISOString();
     let ok = false;
     let status: ZavorthMemoryReviewActionResult['status'] = 'blocked';
-    let summary = 'Acao bloqueada.';
+    let summary = 'Action blocked.';
 
     if (!key || !userId) {
-      summary = 'Informe usuario e chave de memoria.';
+      summary = 'Provide user and memory key.';
     } else if (input.action === 'forget') {
       if (!this.memoryService?.forget) {
-        summary = 'MemoryService nao oferece forget neste runtime.';
+        summary = 'MemoryService does not offer forget in this runtime.';
       } else {
         ok = await this.memoryService.forget(userId, key);
         status = ok ? 'applied' : 'noop';
         summary = ok
-          ? `Memoria ${key} esquecida e arquivada.`
-          : `Memoria ${key} nao encontrada.`;
+          ? `Memory ${key} forgotten and archived.`
+          : `Memory ${key} not found.`;
       }
     } else if (input.action === 'correct') {
       if (!this.memoryService?.remember) {
-        summary = 'MemoryService nao oferece correct/remember neste runtime.';
+        summary = 'MemoryService does not offer correct/remember in this runtime.';
       } else {
         const value = String(input.value || '').trim();
         if (!value) {
-          summary = 'Informe o novo valor para corrigir a memoria.';
+          summary = 'Provide the new value to correct memory.';
         } else if (this.containsSecret(value)) {
-          summary = 'Valor bloqueado: parece conter secret/token/credencial.';
+          summary = 'Value blocked: it appears to contain a secret/token/credential.';
         } else {
-          await this.memoryService.remember(userId, key, this.redactText(value, 240), input.category || 'preferencia');
+          await this.memoryService.remember(userId, key, this.redactText(value, 240), input.category || 'preference');
           ok = true;
           status = 'applied';
-          summary = `Memoria ${key} corrigida.`;
+          summary = `Memory ${key} corrected.`;
         }
       }
     }
@@ -522,9 +523,7 @@ export class ZavorthWorkspaceMemoryOsService {
     }
     try {
       return await this.memoryService.listAll(userId);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Workspace Memory Os] operation failed', error); return []; }
   }
 
   private buildWorkspaceProfile(input: {
@@ -583,7 +582,7 @@ export class ZavorthWorkspaceMemoryOsService {
         executor: null,
         artifacts: [],
         command: null,
-        reason: 'Nenhuma task recente encontrada para resolver follow-up.',
+        reason: 'No recent task found to resolve follow-up.',
       };
     }
     return {
@@ -667,11 +666,11 @@ export class ZavorthWorkspaceMemoryOsService {
       },
       redaction: {
         applied: redacted !== entry.value,
-        reason: redacted !== entry.value ? 'Valor continha padrao sensivel.' : null,
+        reason: redacted !== entry.value ? 'Value contained a sensitive pattern.' : null,
       },
       actions: {
         forget: `zavorth memory forget ${entry.key}`,
-        correct: `zavorth memory correct ${entry.key} <novo valor>`,
+        correct: `zavorth memory correct ${entry.key} <new value>`,
       },
     };
   }
@@ -681,7 +680,7 @@ export class ZavorthWorkspaceMemoryOsService {
     if (profile.stack.length > 0) {
       entries.push(this.reviewEntry({
         key: 'workspace.stack',
-        label: 'Stack do projeto',
+        label: 'Project stack',
         kind: 'workspace_profile',
         layer: 'long',
         category: 'workspace',
@@ -693,7 +692,7 @@ export class ZavorthWorkspaceMemoryOsService {
     if (profile.buildCommands.length > 0 || profile.testCommands.length > 0) {
       entries.push(this.reviewEntry({
         key: 'workspace.commands',
-        label: 'Comandos de build/test',
+        label: 'Build/test commands',
         kind: 'workspace_profile',
         layer: 'long',
         category: 'workspace',
@@ -796,12 +795,12 @@ export class ZavorthWorkspaceMemoryOsService {
       },
       redaction: {
         applied: valuePreview !== input.value,
-        reason: valuePreview !== input.value ? 'Valor continha padrao sensivel ou excedeu preview.' : null,
+        reason: valuePreview !== input.value ? 'Value contained a sensitive pattern or exceeded preview.' : null,
       },
       actions: input.kind === 'preference'
         ? {
             forget: `zavorth memory forget ${input.key}`,
-            correct: `zavorth memory correct ${input.key} <novo valor>`,
+            correct: `zavorth memory correct ${input.key} <new value>`,
           }
         : {
             forget: null,
@@ -820,9 +819,7 @@ export class ZavorthWorkspaceMemoryOsService {
         return null;
       }
       return JSON.parse(String(this.readFileSync(packagePath, 'utf8') || '{}')) as Record<string, unknown>;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Workspace Memory Os] JSON parse failed', error); return null; }
   }
 
   private existsInWorkspace(workspace: string | null, target: string): boolean {
@@ -831,9 +828,7 @@ export class ZavorthWorkspaceMemoryOsService {
     }
     try {
       return this.existsSync(path.join(workspace, target));
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Zavorth Workspace Memory Os] JSON parse failed', error); return false; }
   }
 
   private findImportantDirectories(workspace: string | null): string[] {
@@ -851,9 +846,7 @@ export class ZavorthWorkspaceMemoryOsService {
         .map((entry: Dirent) => String(entry.name))
         .filter((name) => !name.startsWith('.') && name !== 'node_modules' && name !== 'dist')
         .slice(0, 8);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Workspace Memory Os] filesystem operation failed', error); return []; }
   }
 
   private pickScripts(scripts: Record<string, string>, preferred: string[]): string[] {
@@ -918,9 +911,7 @@ export class ZavorthWorkspaceMemoryOsService {
     }
     try {
       return path.resolve(normalized);
-    } catch {
-      return normalized;
-    }
+    } catch (error) { logger.warn('[Zavorth Workspace Memory Os] path resolution failed', error); return normalized; }
   }
 
   private buildNarrative(
@@ -929,10 +920,10 @@ export class ZavorthWorkspaceMemoryOsService {
     recentTask: ZavorthRecentTaskResolution,
   ): ZavorthWorkspaceMemoryOsSnapshot['narrative'] {
     return {
-      headline: `${entries.length} memoria(s) revisaveis para ${profile.slug}.`,
+      headline: `${entries.length} reviewable memory item(s) for ${profile.slug}.`,
       operatorSummary: recentTask.taskId
-        ? `Follow-ups podem retomar ${recentTask.taskId}; ${profile.buildCommands.length + profile.testCommands.length} comando(s) de workspace conhecidos.`
-        : `${profile.buildCommands.length + profile.testCommands.length} comando(s) de workspace conhecidos; nenhuma task recente vinculada.`,
+        ? `Follow-ups can resume ${recentTask.taskId}; ${profile.buildCommands.length + profile.testCommands.length} known workspace command(s).`
+        : `${profile.buildCommands.length + profile.testCommands.length} known workspace command(s); no recent task linked.`,
     };
   }
 
@@ -963,8 +954,8 @@ export class ZavorthWorkspaceMemoryOsService {
       },
       candidates: [],
       narrative: {
-        headline: 'Learning plane indisponivel.',
-        operatorSummary: 'Nenhum candidato carregado.',
+        headline: 'Learning plane unavailable.',
+        operatorSummary: 'No candidate loaded.',
       },
     };
   }

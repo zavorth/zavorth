@@ -513,7 +513,7 @@ export class ZavorthSpeculativeAutonomyService {
         id,
         workspaceRoot,
         round: 0,
-        reason: 'Nenhum write ou patch estruturado foi fornecido para ensaio especulativo.',
+        reason: 'No structured write or patch was provided for the speculative rehearsal.',
       });
       return this.resultFromAttempts({
         id,
@@ -746,7 +746,7 @@ export class ZavorthSpeculativeAutonomyService {
       sandboxWorkspace,
       status,
       summary: status === 'approved'
-        ? `Ensaio especulativo aprovado com ${uniqueTouchedFiles.length} arquivo(s) alterado(s).`
+        ? `Speculative rehearsal approved with ${uniqueTouchedFiles.length} changed file(s).`
         : 'Ensaio especulativo precisa de correcao antes de virar plano aprovavel.',
       touchedFiles: uniqueTouchedFiles,
       diffText,
@@ -806,7 +806,7 @@ export class ZavorthSpeculativeAutonomyService {
       : false;
     if (registryCancelled || callbackCancelled) {
       input.controlState.cancelRequested = true;
-      return 'Auto-healing cancelado pelo usuario antes de consumir mais budget.';
+      return 'Auto-healing cancelled by the user before consuming more budget.';
     }
     return null;
   }
@@ -937,7 +937,7 @@ export class ZavorthSpeculativeAutonomyService {
       sourceSurface: normalizeText(input.input.sourceSurface, 'agent-run-llm-runtime'),
       riskLevel: 'medium',
       approvalRequired: input.input.approvalRequired !== false,
-      approvalReason: 'Mudancas foram ensaiadas em sandbox temporario e precisam de aprovacao antes de tocar no workspace real.',
+      approvalReason: 'Changes were rehearsed in a temporary sandbox and need approval before touching the real workspace.',
       validationPlan: input.validationCommands,
       rollbackPlan: [
         'Nenhuma alteracao foi aplicada ao workspace real durante o ensaio.',
@@ -991,15 +991,15 @@ export class ZavorthSpeculativeAutonomyService {
     mutationPlan: ZavorthMutationPlan | null,
   ): string {
     if (!finalAttempt) {
-      return 'Super Zavorth nao conseguiu preparar um ensaio especulativo.';
+      return 'Super Zavorth could not prepare a speculative rehearsal.';
     }
     if (status === 'approved') {
       return mutationPlan
-        ? `Sandbox aprovado, diff final gerado e plano ${mutationPlan.id} criado para aprovacao.`
-        : 'Sandbox aprovado e diff final gerado sem aplicar no workspace real.';
+        ? `Sandbox approved, final diff generated, and plan ${mutationPlan.id} created for approval.`
+        : 'Sandbox approved and final diff generated without applying to the real workspace.';
     }
     if (status === 'blocked') {
-      return `Sandbox bloqueado: ${finalAttempt.blockedReasons.join('; ') || finalAttempt.summary}`;
+      return `Sandbox blocked: ${finalAttempt.blockedReasons.join('; ') || finalAttempt.summary}`;
     }
     return `${finalAttempt.summary} ${finalAttempt.critic.findings.map((finding) => finding.summary).join(' ')}`.trim();
   }
@@ -1017,7 +1017,7 @@ export class ZavorthSpeculativeAutonomyService {
       findings.push({
         id: 'empty-diff',
         severity: 'high',
-        summary: 'O executor nao produziu diff material que possa ser aprovado.',
+        summary: 'The executor did not produce a material diff that can be approved.',
       });
     }
     for (const result of input.validationResults) {
@@ -1045,7 +1045,7 @@ export class ZavorthSpeculativeAutonomyService {
       findings.push({
         id: 'ast-parse-errors',
         severity: 'warning',
-        summary: `${input.astGraph.summary.parseErrorCount} erro(s) de parse AST encontrados no contexto.`,
+        summary: `${input.astGraph.summary.parseErrorCount} AST parse error(s) found in context.`,
       });
     }
     if (input.copyStats.skipped.length > 0) {
@@ -1093,7 +1093,7 @@ export class ZavorthSpeculativeAutonomyService {
       scope: 'super-zavorth-speculative-autonomy',
       reasons: input.canProceed
         ? ['Diff final foi gerado em sandbox e o critico aprovou as evidencias.']
-        : ['Diff especulativo ainda nao esta pronto para aprovacao/aplicacao.'],
+        : ['Speculative diff is not ready for approval/application yet.'],
       warnings: input.warnings || [],
       blockers: input.blockers || [],
       checkedAt: this.now().toISOString(),
@@ -1102,13 +1102,13 @@ export class ZavorthSpeculativeAutonomyService {
         label: result.command,
         status: result.status,
         summary: result.status === 'passed'
-          ? 'Comando concluiu com sucesso.'
+          ? 'Command completed successfully.'
           : clampText(result.stderr || result.stdout || result.status, 360),
         command: result.command,
         updatedAt: this.now().toISOString(),
       })),
       nextActions: input.canProceed
-        ? ['Solicitar aprovacao do plano antes de aplicar no workspace real.']
+        ? ['Request plan approval before applying to the real workspace.']
         : ['Corrigir o executor/codigo no sandbox e repetir a validacao.'],
     };
   }
@@ -1161,7 +1161,7 @@ export class ZavorthSpeculativeAutonomyService {
     sandboxBackend?: ZavorthSpeculativeSandboxBackendReceipt;
   }): ZavorthSpeculativeAttempt {
     const attemptId = `${input.id}-round-${input.round + 1}`;
-    const sandboxBackend = input.sandboxBackend || this.buildLocalSandboxReceipt('local-copy', 'Ensaio bloqueado antes da selecao de backend forte.');
+    const sandboxBackend = input.sandboxBackend || this.buildLocalSandboxReceipt('local-copy', 'Rehearsal blocked before selecting a stronger backend.');
     const astGraph = this.buildAstContextGraph({
       workspaceRoot: input.workspaceRoot,
       entryFiles: [],

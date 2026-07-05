@@ -838,7 +838,7 @@ async function runSecurityOperationalPreset(rawArgs: string[]): Promise<number> 
 
   const preset = getSecurityOperationalPreset(action);
   if (!preset) {
-    await logCliError(`Preset de seguranca desconhecido: ${action}.`, 'Security Preset Error');
+    await logCliError(`Unknown security preset: ${action}.`, 'Security Preset Error');
     return 1;
   }
 
@@ -1769,7 +1769,7 @@ async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Promise<n
       '',
       passed
         ? 'Provider validado com prova live persistida. Rode zavorth readiness para conferir o estado diario.'
-        : selected?.probe.summary || 'Probe live nao conseguiu validar o provider.',
+        : selected?.probe.summary || 'Live probe could not validate the provider.',
     ], passed ? 'success' : 'warning');
   }
 
@@ -3318,7 +3318,6 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     const specializedDoctorTopics = new Set([
       'runtime',
       'security',
-      'seguranca',
       'capabilities',
       'capability-registry',
       'profiles',
@@ -3362,7 +3361,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (
     command === 'doctor'
-    && ['security', 'seguranca', 'seguranÃ§a'].includes(String(restArgs[0] || '').trim().toLowerCase())
+    && ['security'].includes(String(restArgs[0] || '').trim().toLowerCase())
   ) {
     return runOperationalSecurityDoctor(restArgs.slice(1));
   }

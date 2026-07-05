@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface User {
   id: string;
@@ -32,7 +33,7 @@ export class MultiUserService {
       if (Array.isArray(data)) {
         for (const u of data) this.users.set(u.id, u);
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Multi User] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

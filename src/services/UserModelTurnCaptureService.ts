@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 
 export type TurnKind = 'user_message' | 'assistant_response' | 'tool_result' | 'approval' | 'error';
 
@@ -143,9 +144,7 @@ export class UserModelTurnCaptureService {
     try {
       const lines = fs.readFileSync(fp, 'utf-8').split('\n').filter(Boolean);
       return lines.slice(-limit).map((line) => JSON.parse(line) as CapturedTurn);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[User Model Turn Capture] JSON parse failed', error); return []; }
   }
 
   getTurnsBySession(sessionId: string): CapturedTurn[] {
@@ -217,9 +216,7 @@ export class UserModelTurnCaptureService {
       try {
         const turn = JSON.parse(line) as CapturedTurn;
         return turn.timestamp >= cutoff;
-      } catch {
-        return false;
-      }
+      } catch (error) { logger.warn('[User Model Turn Capture] JSON parse failed', error); return false; }
     });
 
     fs.writeFileSync(fp, kept.join('\n') + (kept.length > 0 ? '\n' : ''), 'utf-8');
@@ -248,9 +245,7 @@ export class UserModelTurnCaptureService {
           }
         }
       }
-    } catch {
-      // ignore
-    }
+    } catch (error) { // ignore logger.warn('[User Model Turn Capture] JSON parse failed', error); }
   }
 
   private appendTurn(turn: CapturedTurn): void {

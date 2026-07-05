@@ -10,7 +10,7 @@ export const defaultWorkspaceScopes: DesktopWorkspaceScope[] = [
   {
     id: 'chat',
     label: 'Chats',
-    shortLabel: 'Sem pasta',
+    shortLabel: 'No Folder',
     kind: 'chat',
     path: null,
   },

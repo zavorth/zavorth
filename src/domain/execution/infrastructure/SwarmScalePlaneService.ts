@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../../logger.js';
 
 export const SWARM_SCALE_PLANE_CONTRACT_VERSION = '2026-06-01.swarm-scale-plane' as const;
 
@@ -370,6 +371,16 @@ export class SwarmScalePlaneService {
     const executionMode = normalizedPatch.executionMode;
     const maxConcurrency = normalizedPatch.maxConcurrency;
     const maxSteps = normalizedPatch.maxSteps;
+    const historyEntry: SwarmScaleDynamicConfigChange = {
+      revision,
+      changedAt,
+      sourceSurface,
+      actorId,
+      reason,
+      requestedPatch: { ...patch },
+      normalizedPatch,
+      appliedToQueuedWorkersOnly: true,
+    };
     const dynamicConfig: SwarmScaleDynamicConfig = {
       ...snapshot.dynamicConfig,
       revision,
@@ -383,16 +394,7 @@ export class SwarmScalePlaneService {
       cloudSandboxEnabled: normalizedPatch.cloudSandboxEnabled,
       deviceNodeRouting: normalizedPatch.deviceNodeRouting,
       history: [
-        {
-          revision,
-          changedAt,
-          sourceSurface,
-          actorId,
-          reason,
-          requestedPatch: { ...patch },
-          normalizedPatch,
-          appliedToQueuedWorkersOnly: true,
-        },
+        historyEntry,
         ...snapshot.dynamicConfig.history,
       ].slice(0, 25),
     };
@@ -593,9 +595,7 @@ export class SwarmScalePlaneService {
           instruction: `${template.instruction}\nShard: ${index + 1}/${input.desiredAgents}.`,
         });
       });
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Swarm Scale Plane] creation failed', error); return []; }
   }
 
   private normalizePlannerTasks(
@@ -789,7 +789,8 @@ export class SwarmScalePlaneService {
         },
       };
     } catch (error) {
-      return {
+    logger.warn('[Swarm Scale Plane] filesystem check failed', error);
+    return {
         ...task,
         status: 'failed',
         completedAt,
@@ -798,7 +799,7 @@ export class SwarmScalePlaneService {
         error: error instanceof Error ? error.message : String(error),
         digest: null,
       };
-    }
+  }
   }
 
   private async runDeterministicAgent(
@@ -1201,9 +1202,10 @@ export class SwarmScalePlaneService {
       return {
         runs: Array.isArray(parsed?.runs) ? parsed.runs : [],
       };
-    } catch {
-      return { runs: [] };
-    }
+    } catch (error) {
+    logger.warn('[Swarm Scale Plane] JSON parse failed', error);
+    return { runs: [] };
+  }
   }
 
   private persistSnapshot(snapshot: SwarmScaleSnapshot, persistState: boolean): void {
@@ -1243,9 +1245,7 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
     if (!match) return null;
     try {
       return JSON.parse(match[0]);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Swarm Scale Plane] JSON parse failed', error); return null; }
   }
 }
 

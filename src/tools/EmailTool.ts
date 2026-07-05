@@ -3,6 +3,7 @@ import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import net from 'net';
 import tls from 'tls';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../logger.js';
 
 interface EmailConfig {
   host: string;
@@ -134,9 +135,7 @@ export class EmailTool extends BaseTool {
     if (typeof args.attachments === 'string') {
       try {
         attachments = JSON.parse(args.attachments);
-      } catch {
-        return 'Erro: JSON de attachments invalido.';
-      }
+      } catch (error) { logger.warn('[Email] JSON parse failed', error); return 'Erro: JSON de attachments invalido.'; }
     }
 
     try {
@@ -166,10 +165,11 @@ export class EmailTool extends BaseTool {
       lines.push(`  - SMTP: ${config.host}:${config.port}`);
 
       return lines.join('\n');
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Email] operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Erro ao enviar email: ${message}`;
-    }
+  }
   }
 
   private loadConfig(): EmailConfig | null {

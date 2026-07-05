@@ -18,6 +18,7 @@ import type {
   ZavorthInnovationRadarSnapshot,
 } from '../contracts/native/ZavorthInnovationRadarContract.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+import { logger } from '../logger.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -247,9 +248,10 @@ export class ZavorthCapabilityCandidateRegistryService {
         candidates: Array.isArray(parsed.candidates) ? parsed.candidates.map(normalizeCandidate).filter(isCandidate) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch {
-      return this.emptyStore();
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Capability Candidate Registry] parsing failed', error);
+    return this.emptyStore();
+  }
   }
 
   private writeStore(store: Store): void {

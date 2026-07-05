@@ -57,15 +57,15 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       runId: run.id,
       title: scalePlan.enabled ? 'Aprovar Swarm Scale Plane' : 'Aprovar swarm estruturado',
       reason: scalePlan.enabled
-        ? 'Pedido natural pediu escala massiva; aprovacao e exigida antes de abrir o Swarm Scale Plane.'
-        : 'Pedido natural gerou proposta de subagentes; aprovacao e exigida antes de executar o Swarm.',
+        ? 'Natural request asked for massive scale; approval is required before opening the Swarm Scale Plane.'
+        : 'Natural request generated a subagent proposal; approval is required before executing the Swarm.',
       risk: 'attention',
       status: 'pending',
       createdAt: now,
     };
 
     run.status = 'waiting_approval';
-    run.summary = 'Proposta de swarm estruturado aguardando aprovacao.';
+    run.summary = 'Structured swarm proposal waiting for approval.';
     run.updatedAt = now;
     run.metadata = {
       ...run.metadata,
@@ -220,14 +220,14 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     return [
       'Proposta de Swarm Scale Plane preparada.',
       '',
-      `Objetivo: ${decision.taskGoal || 'objetivo nao informado'}`,
+      `Objective: ${decision.taskGoal || 'objective not provided'}`,
       `Agentes planejados: ${scalePlan.desiredAgents}.`,
       `Ledger global: ${scalePlan.maxSteps} step(s).`,
       `Concorrencia: ${scalePlan.maxConcurrency}.`,
       `Planner: ${scalePlan.plannerMode}.`,
       `Execucao: ${scalePlan.executionMode}.`,
       `Decisao: ${scalePlan.assessment.band} score=${scalePlan.assessment.score}.`,
-      'Aguardando aprovacao antes de iniciar a malha massiva.',
+      'Waiting for approval before starting the massive mesh.',
       `Approval: ${approvalId}`,
     ].join('\n');
   };
@@ -248,9 +248,9 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     return [
       'Proposta de swarm estruturado preparada.',
       '',
-      `Objetivo: ${decision.taskGoal || 'objetivo nao informado'}`,
+      `Objective: ${decision.taskGoal || 'objective not provided'}`,
       `Subagentes planejados: ${decision.subagentReceipts.length}.`,
-      'Aguardando aprovacao antes de executar subagentes ou abrir o Swarm.',
+      'Waiting for approval before running subagents or opening the Swarm.',
       `Approval: ${approvalId}`,
     ].join('\n');
   };
@@ -291,7 +291,7 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       : failed
         ? `finalizado com status ${snapshot.status}`
         : `iniciado com status ${snapshot.status}`;
-    const summary = `Swarm aprovado e ${statusText} pelo runtime existente.`;
+    const summary = `Swarm approved and ${statusText} by the existing runtime.`;
 
     run.status = failed ? 'failed' : 'completed';
     run.summary = summary;
@@ -360,8 +360,8 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     const failed = launchResult.status === 'failed' || launchResult.status === 'cancelled';
     const completed = launchResult.status === 'completed';
     const summary = completed
-      ? `Swarm Scale Plane aprovado e concluido com ${launchResult.metrics.completedAgents}/${launchResult.planner.plannedAgents} agente(s).`
-      : `Swarm Scale Plane aprovado e retornou status ${launchResult.status}.`;
+      ? `Swarm Scale Plane approved and completed with ${launchResult.metrics.completedAgents}/${launchResult.planner.plannedAgents} agent(s).`
+      : `Swarm Scale Plane approved and returned status ${launchResult.status}.`;
 
     run.status = failed ? 'failed' : completed ? 'completed' : 'running';
     run.summary = summary;

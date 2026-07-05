@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { AutoRepairReport } from './AutoRepairService.js';
+import { logger } from '../logger.js';
 
 export type AutoRepairIncidentMemoryEntry = {
   recordedAt: string;
@@ -51,9 +52,7 @@ export class AutoRepairIncidentMemoryService {
     try {
       const parsed = JSON.parse(this.readFileSync(this.filePath, 'utf8')) as AutoRepairIncidentMemoryEntry[];
       return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Auto Repair Incident Memory] JSON parse failed', error); return []; }
   }
 
   public recordRun(report: AutoRepairReport, domains: string[]): void {

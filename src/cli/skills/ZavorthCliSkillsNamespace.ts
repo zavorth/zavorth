@@ -17,8 +17,9 @@ import {
   render,
   splitList
 } from '../ZavorthCliSharedHelpers.js';
+import { logger } from '../../logger.js';
 import {
-  normalizeRequirements,
+normalizeRequirements,
   enforceRequirements,
   idFromSpec,
   resolveNpmCommand
@@ -375,9 +376,7 @@ function isSkillAllowlisted(root: string, id: string): boolean {
     const file = path.join(stateDir(root), 'skills-allowlist.json');
     const raw = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : [];
     return Array.isArray(raw) && raw.includes(idFromSpec(id));
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Skills Namespace] JSON parse failed', error); return false; }
 }
 
 function doctorSkill(root: string, skill: JsonObject): Array<{ id: string; ok: boolean; summary: string }> {

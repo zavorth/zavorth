@@ -125,7 +125,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     website: "https://longcat.chat",
     hasFree: true,
     freeNote:
-      "50M tokens/day (Flash-Lite) + 500K/day (Chat/Thinking) â€” 100% free while public beta",
+      "50M tokens/day (Flash-Lite) + 500K/day (Chat/Thinking) - 100% free while public beta",
   },
   pollinations: {
     id: "pollinations",
@@ -137,7 +137,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     website: "https://pollinations.ai",
     hasFree: true,
     freeNote:
-      "No API key needed â€” access GPT-5, Claude, Gemini, DeepSeek V3, Llama 4 free (1 req/15s)",
+      "No API key needed - access GPT-5, Claude, Gemini, DeepSeek V3, Llama 4 free (1 req/15s)",
   },
   puter: {
     id: "puter",
@@ -149,9 +149,9 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     website: "https://puter.com",
     hasFree: true,
     freeNote:
-      "500+ models (GPT-5, Claude Opus 4, Gemini 3 Pro, Grok 4, DeepSeek V3...) â€” Users pay via free Puter account",
+      "500+ models (GPT-5, Claude Opus 4, Gemini 3 Pro, Grok 4, DeepSeek V3...) - Users pay via free Puter account",
     passthroughModels: true,
-    authHint: "Get token at puter.com/zavorthControl â†’ Copy Auth Token",
+    authHint: "Get token at puter.com/zavorthControl -> Copy Auth Token",
   },
   "cloudflare-ai": {
     id: "cloudflare-ai",
@@ -163,7 +163,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     website: "https://developers.cloudflare.com/workers-ai/",
     hasFree: true,
     freeNote:
-      "Free 10K Neurons/day: ~150 LLM responses or 500s Whisper audio â€” edge inference globally",
+      "Free 10K Neurons/day: ~150 LLM responses or 500s Whisper audio - edge inference globally",
     authHint: "Requires API Token AND Account ID (found at dash.cloudflare.com)",
   },
   scaleway: {
@@ -175,7 +175,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     textIcon: "SCW",
     website: "https://www.scaleway.com/en/ai/generative-apis/",
     hasFree: true,
-    freeNote: "1M free tokens for new accounts â€” EU/GDPR compliant (Paris), Qwen3 235B & Llama 70B",
+    freeNote: "1M free tokens for new accounts - EU/GDPR compliant (Paris), Qwen3 235B & Llama 70B",
   },
   aimlapi: {
     id: "aimlapi",
@@ -187,7 +187,7 @@ export const APIKEY_ECOSYSTEM_PROVIDERS = {
     website: "https://aimlapi.com",
     hasFree: true,
     freeNote:
-      "$0.025/day free credits â€” 200+ models (GPT-4o, Claude, Gemini, Llama) via single endpoint",
+      "$0.025/day free credits - 200+ models (GPT-4o, Claude, Gemini, Llama) via single endpoint",
     passthroughModels: true,
   },
   novita: {

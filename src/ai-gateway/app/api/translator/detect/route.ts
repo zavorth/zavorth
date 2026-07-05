@@ -3,6 +3,7 @@ import { detectFormat } from "@ZavorthGateway/open-sse/services/provider.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { translatorDetectSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * POST /api/translator/detect
@@ -17,7 +18,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
         success: false,

@@ -2,6 +2,7 @@ import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../logger.js';
 
 interface ApiResponse {
   success: boolean;
@@ -117,9 +118,7 @@ export class ZavorthApiClientTool extends BaseTool {
     let parsedUrl: URL;
     try {
       parsedUrl = new URL(url);
-    } catch {
-      return `Error: invalid URL "${url}".`;
-    }
+    } catch (error) { logger.warn('[Zavorth Api Client] process execution failed', error); return ''; }
 
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
       return `Error: protocol "${parsedUrl.protocol}" not supported. Use http: or https:.`;
@@ -148,10 +147,11 @@ export class ZavorthApiClientTool extends BaseTool {
     try {
       const result = await this.executeRequest(parsedUrl, method, args);
       return this.formatResponse(result);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Api Client] process execution failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `HTTP request error: ${message}`;
-    }
+  }
   }
 
   private async executeRequest(url: URL, method: string, args: Record<string, unknown>): Promise<ApiResponse> {
@@ -167,14 +167,15 @@ export class ZavorthApiClientTool extends BaseTool {
       try {
         const customHeaders = JSON.parse(args.headers);
         headers = { ...headers, ...customHeaders };
-      } catch {
-        return {
+      } catch (error) {
+    logger.warn('[Zavorth Api Client] JSON parse failed', error);
+    return {
           success: false, status: 0, status_text: 'Bad Headers',
           headers: {}, body: '', body_json: null,
           duration_ms: Date.now() - startTime,
           error: 'Invalid headers JSON.',
         };
-      }
+  }
     }
 
     const authType = String(args.auth_type || 'none');
@@ -220,7 +221,7 @@ export class ZavorthApiClientTool extends BaseTool {
         for (const [key, value] of Object.entries(params)) {
           url.searchParams.set(key, String(value));
         }
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Zavorth Api Client] JSON parse failed', error); }
     }
 
     const curlArgs: string[] = [
@@ -277,7 +278,7 @@ export class ZavorthApiClientTool extends BaseTool {
 
       let bodyJson: unknown | null = null;
       if (String(args.response_format || 'auto') === 'json' || responseBody.startsWith('{') || responseBody.startsWith('[')) {
-        try { bodyJson = JSON.parse(responseBody); } catch { /* not json */ }
+        try { bodyJson = JSON.parse(responseBody); } catch (error) { /* not json */ logger.warn('[Zavorth Api Client] JSON parse failed', error); }
       }
 
       if (typeof args.save_response_to === 'string' && responseBody) {
@@ -305,8 +306,9 @@ export class ZavorthApiClientTool extends BaseTool {
         body_json: bodyJson,
         duration_ms: Date.now() - startTime,
       };
-    } catch (error: unknown) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Api Client] filesystem operation failed', error);
+    return {
         success: false,
         status: 0,
         status_text: 'Request Failed',
@@ -316,9 +318,9 @@ export class ZavorthApiClientTool extends BaseTool {
         duration_ms: Date.now() - startTime,
         error: error instanceof Error ? error.message : String(error),
       };
-    } finally {
+  } finally {
       if (tmpBodyFile) {
-        try { const fs = await import('fs'); fs.unlinkSync(tmpBodyFile); } catch { /* ignore */ }
+        try { const fs = await import('fs'); fs.unlinkSync(tmpBodyFile); } catch (error) { /* ignore */ logger.warn('[Zavorth Api Client] file cleanup failed', error); }
       }
     }
   }

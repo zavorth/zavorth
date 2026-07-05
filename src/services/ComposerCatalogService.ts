@@ -330,7 +330,7 @@ export class ComposerCatalogService {
       const workflowRunId = String(firstTask.payload?.workflowRunId || '').trim();
       if (workflowRunId) {
         const workflowRun = this.workflowRunService?.getRun(workflowRunId) || null;
-        const workflowClosed = String((workflowRun as any)?.operator_state || 'active').trim().toLowerCase() === 'closed';
+        const workflowClosed = String(workflowRun?.operator_state || 'active').trim().toLowerCase() === 'closed';
         const workflowFeatureId = String(
           workflowRun?.trigger?.feature_id || firstTask.payload?.workflowFeatureId || '',
         ).trim();

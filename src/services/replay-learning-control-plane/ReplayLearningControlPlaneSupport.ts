@@ -1,5 +1,6 @@
+import { logger } from '../../logger.js';
 import type {
-  ZavorthReplayLearningCard,
+ZavorthReplayLearningCard,
   ZavorthReplayLearningControlPlaneSnapshot,
   ZavorthReplayLearningPosture,
 } from '../ZavorthReplayLearningControlPlaneService.js';
@@ -8,18 +9,14 @@ export async function safeAsync<T>(fn: () => T | Promise<T>, fallback: T): Promi
   try {
     const value = await fn();
     return (value === undefined ? fallback : value) as T;
-  } catch {
-    return fallback;
-  }
+  } catch (error) { logger.warn('[Replay Learning Control Plane] operation failed', error); return fallback; }
 }
 
 export function safeSync<T>(fn: () => T, fallback: T): T {
   try {
     const value = fn();
     return value === undefined ? fallback : value;
-  } catch {
-    return fallback;
-  }
+  } catch (error) { logger.warn('[Replay Learning Control Plane] operation failed', error); return fallback; }
 }
 
 export function normalizeReplayLearningLimit(limit: number | null | undefined): number {

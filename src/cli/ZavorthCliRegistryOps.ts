@@ -226,8 +226,9 @@ const {
 
 const { formatGatewaySnapshot } = surfaceHelpers;
 
+import { logger } from '../logger.js';
 import {
-  buildGatewayControlCliPayload,
+buildGatewayControlCliPayload,
   formatGatewayControlCliPayload,
   resolveGatewayControlCliCommand,
 } from './ZavorthCliGatewayControl.js';
@@ -256,7 +257,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   if (commandName === 'domains') {
     const snapshot = buildCliDomainsSnapshot(runtime, /^\s*full\b/i.test(args));
     if (!snapshot) {
-      const error = 'Domain plane indisponivel neste runtime da CLI.';
+      const error = 'Domain plane unavailable neste runtime da CLI.';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -271,7 +272,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     const gatewayControlCommand = resolveGatewayControlCliCommand(args);
     if (gatewayControlCommand) {
       if (!runtime.gatewayControlService) {
-        const error = 'Gateway Control API indisponivel neste runtime da CLI.';
+        const error = 'Gateway Control API unavailable neste runtime da CLI.';
         writer.error(error);
         return { ok: false, handled: true, output: [], error };
       }
@@ -539,7 +540,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
 
   if (commandName === 'observatory' || commandName === 'runs') {
     if (!runtime.agentGateway) {
-      const error = 'Run Observatory indisponivel: agent gateway nao esta anexado a este runtime da CLI.';
+      const error = 'Run Observatory unavailable: agent gateway is not attached to this CLI runtime.';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -776,7 +777,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
       return { ok: true, handled: true, output: [body], error: null };
     }
     if (action === 'inspect' || action === 'synthesize') {
-      const error = `Acao "${action}" ainda nao foi implementada para agent-team.`;
+      const error = `Action "${action}" has not been implemented for agent-team yet.`;
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -899,7 +900,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   if (commandName === 'brief' && runtime.operatorBriefService) {
     const snapshot = readCliBriefSnapshot(runtime, effectiveFlags.live);
     if (!snapshot) {
-      const error = 'Briefing do operador indisponivel neste runtime da CLI.';
+      const error = 'Briefing do operador unavailable neste runtime da CLI.';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -971,7 +972,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
 
     const preset = getSecurityOperationalPreset(presetAction);
     if (!preset) {
-      const error = `Preset de seguranca desconhecido: ${presetAction}.`;
+      const error = `Unknown security preset: ${presetAction}.`;
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -1039,7 +1040,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     if (opsIntent.mode === 'brief' && runtime.operatorBriefService) {
       const snapshot = readCliBriefSnapshot(runtime, effectiveFlags.live, readCliCockpitSnapshot(runtime, effectiveFlags.live));
       if (!snapshot) {
-        const error = 'Briefing operacional indisponivel neste runtime da CLI.';
+        const error = 'Briefing operacional unavailable neste runtime da CLI.';
         writer.error(error);
         return { ok: false, handled: true, output: [], error };
       }
@@ -1064,7 +1065,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     if (opsIntent.mode === 'quality') {
       const snapshot = await readCliOpsQualitySnapshot(runtime, effectiveFlags);
       if (!snapshot) {
-        const error = 'Ops quality indisponivel neste runtime da CLI.';
+        const error = 'Ops quality unavailable neste runtime da CLI.';
         writer.error(error);
         return { ok: false, handled: true, output: [], error };
       }
@@ -1167,7 +1168,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     }
     const snapshot = await buildCliOperationsCockpitSnapshot(runtime, effectiveFlags);
     if (!snapshot) {
-      const error = 'Cockpit operacional indisponivel neste runtime da CLI.';
+      const error = 'Cockpit operacional unavailable neste runtime da CLI.';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -1264,7 +1265,5 @@ function buildCliProductizationContractSnapshot(
 function safeBuildSnapshot<T>(factory: () => T): T | null {
   try {
     return factory();
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Zavorth Cli Registry Ops] connection failed', error); return null; }
 }

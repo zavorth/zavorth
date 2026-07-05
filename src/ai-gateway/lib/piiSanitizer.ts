@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger';
 /**
  * Output PII Sanitization — L-3
  *
@@ -171,9 +172,7 @@ export function sanitizePIIResponse(response: any): any {
         choice.delta.content = result.text;
       }
     }
-  } catch {
-    // Fail open — don't break the response
-  }
+  } catch (error) { // Fail open — don't break the response logger.warn('[pii Sanitizer] operation failed', error); }
 
   return response;
 }

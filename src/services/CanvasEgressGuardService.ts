@@ -26,9 +26,10 @@ export class CanvasEgressGuardService {
     let parsed: URL;
     try {
       parsed = new URL(trimmed);
-    } catch {
-      return { allowed: true, reason: 'Relative canvas asset.', event: null };
-    }
+    } catch (error) {
+    logger.warn('[Canvas Egress Guard] parsing failed', error);
+    return { allowed: true, reason: 'Relative canvas asset.', event: null };
+  }
 
     const hostname = parsed.hostname.toLowerCase();
     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
@@ -69,9 +70,7 @@ export class CanvasEgressGuardService {
             if (/^(data|blob|about):/i.test(url)) return false;
             const parsed = new URL(url, window.location.href);
             return !['localhost', '127.0.0.1', '::1'].includes(parsed.hostname);
-          } catch {
-            return false;
-          }
+          } catch (error) { logger.warn('[Canvas Egress Guard] parsing failed', error); return false; }
         };
         const originalFetch = window.fetch?.bind(window);
         if (originalFetch) {

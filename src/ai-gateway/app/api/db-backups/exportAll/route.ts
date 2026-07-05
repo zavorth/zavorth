@@ -10,6 +10,7 @@ import {
   shouldIncludeSensitiveDatabaseExport,
 } from "@/lib/db/backupSanitizer";
 import { redactExportedLogValue } from "@/lib/logExportRedaction";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * GET /api/db-backups/exportAll
@@ -52,9 +53,7 @@ export async function GET(request: Request) {
         for (const row of rows) {
           settings[row.key] = row.value;
         }
-      } catch {
-        // key_value table might not exist
-      }
+      } catch (error) { // key_value table might not exist logger.warn('[route] operation failed', error); }
       fs.writeFileSync(path.join(tempDir, "settings.json"), JSON.stringify(redactExportedLogValue(settings), null, 2));
 
       // 3. Export combos summary
@@ -62,9 +61,7 @@ export async function GET(request: Request) {
       try {
         const rows = db.prepare("SELECT * FROM combos").all();
         combos.push(...rows);
-      } catch {
-        // combos table might not exist
-      }
+      } catch (error) { // combos table might not exist logger.warn('[route] filesystem operation failed', error); }
       fs.writeFileSync(path.join(tempDir, "combos.json"), JSON.stringify(redactExportedLogValue(combos), null, 2));
 
       // 4. Export provider connections (without sensitive credentials)
@@ -76,9 +73,7 @@ export async function GET(request: Request) {
           )
           .all();
         providers.push(...rows);
-      } catch {
-        // provider_connections table might not exist
-      }
+      } catch (error) { // provider_connections table might not exist logger.warn('[route] connection failed', error); }
       fs.writeFileSync(path.join(tempDir, "providers.json"), JSON.stringify(providers, null, 2));
 
       // 5. Export API keys summary (masked)
@@ -90,9 +85,7 @@ export async function GET(request: Request) {
           )
           .all();
         apiKeys.push(...rows);
-      } catch {
-        // api_keys table might not exist
-      }
+      } catch (error) { // api_keys table might not exist logger.warn('[route] creation failed', error); }
       fs.writeFileSync(path.join(tempDir, "api-keys.json"), JSON.stringify(apiKeys, null, 2));
 
       // 6. Export metadata
@@ -144,9 +137,7 @@ export async function GET(request: Request) {
       try {
         if (fs.existsSync(tempDir)) fs.rmSync(tempDir, { recursive: true, force: true });
         if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
-      } catch {
-        /* ignore cleanup errors */
-      }
+      } catch (error) { /* ignore cleanup errors */ logger.warn('[route] file cleanup failed', error); }
       throw innerError;
     }
   } catch (error: unknown) {

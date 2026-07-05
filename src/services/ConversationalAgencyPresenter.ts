@@ -80,7 +80,6 @@ export class ConversationalAgencyPresenter {
       nextAction: this.humanize(nextAction),
       detailsHiddenByDefault: true,
       zavorthControlDetailsAvailable: true,
-      zavorthControlDetailsAvailable: true,
       internalTermsSuppressed: TERM_MAP.map((entry) => entry.internal),
     };
   }

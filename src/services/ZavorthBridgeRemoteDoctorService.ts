@@ -17,8 +17,9 @@ import {
   type ZavorthBridgeRemoteIncidentSummary,
 } from './ZavorthBridgeRemoteIncidentService.js';
 import type { ZavorthBridgeRemoteDoctorRepairPolicy } from './ZavorthBridgeRemoteDoctorHistoryService.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthBridgeRemotePlaybookService,
+ZavorthBridgeRemotePlaybookService,
   type ZavorthBridgeRemotePlaybook,
 } from './ZavorthBridgeRemotePlaybookService.js';
 
@@ -102,9 +103,7 @@ export class ZavorthBridgeRemoteDoctorService {
         return null;
       }
       return JSON.parse(fs.readFileSync(this.reportFilePath, 'utf8')) as ZavorthBridgeRemoteDoctorReport;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Bridge Remote Doctor] JSON parse failed', error); return null; }
   }
 
   public async run(repairRequested = false, forceRepair = false): Promise<ZavorthBridgeRemoteDoctorReport> {
@@ -194,15 +193,16 @@ export class ZavorthBridgeRemoteDoctorService {
         ok: Boolean(result.ok),
         message: result.pid ? `${result.message} PID=${result.pid}` : result.message,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Bridge Remote Doctor] operation failed', error);
+    return {
         key: 'launch-zavorth-bridge-app',
         attempted: true,
         changed: false,
         ok: false,
         message: error?.message || String(error),
       };
-    }
+  }
   }
 
   private async tryStartSidecar(): Promise<ZavorthBridgeRemoteDoctorAction> {
@@ -215,15 +215,16 @@ export class ZavorthBridgeRemoteDoctorService {
         ok: Boolean(result.ready),
         message: result.message,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Bridge Remote Doctor] lifecycle operation failed', error);
+    return {
         key: 'start-sidecar',
         attempted: true,
         changed: false,
         ok: false,
         message: error?.message || String(error),
       };
-    }
+  }
   }
 
   private async tryActivateRemoteMode(): Promise<ZavorthBridgeRemoteDoctorAction> {
@@ -236,15 +237,16 @@ export class ZavorthBridgeRemoteDoctorService {
         ok: Boolean(result.ok && result.active),
         message: result.message,
       };
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Zavorth Bridge Remote Doctor] operation failed', error);
+    return {
         key: 'activate-remote-mode',
         attempted: true,
         changed: false,
         ok: false,
         message: error?.message || String(error),
       };
-    }
+  }
   }
 
   private buildSummary(
@@ -258,36 +260,36 @@ export class ZavorthBridgeRemoteDoctorService {
   ): string {
     if (!repairRequested) {
       return readyBefore
-        ? 'Remoto do ZavorthBridge ja esta pronto; nenhum reparo necessario.'
-        : 'Diagnostico concluido; existem pendencias para o remoto do ZavorthBridge.';
+        ? 'ZavorthBridge remote is already ready; no repair needed.'
+        : 'Diagnosis complete; there are pending items for ZavorthBridge remote.';
     }
 
     if (repairPolicy.cooldownActive && !forceRepair) {
-      return repairPolicy.reason || 'Reparo automatico suprimido por cooldown.';
+      return repairPolicy.reason || 'Automatic repair suppressed by cooldown.';
     }
 
     if (actions.length === 0) {
       return readyAfter
-        ? 'Reparo solicitado, mas nada precisou ser ajustado.'
-        : 'Reparo solicitado, mas nao havia ajuste automatico seguro disponivel.';
+        ? 'Repair requested, but nothing needed adjustment.'
+        : 'Repair requested, but no safe automatic adjustment was available.';
     }
 
     if (readyAfter) {
       return readyBefore
-        ? 'Reparo concluido; o remoto do ZavorthBridge permaneceu saudavel.'
-        : 'Reparo automatico concluiu e o remoto do ZavorthBridge ficou pronto.';
+        ? 'Repair complete; ZavorthBridge remote remained healthy.'
+        : 'Automatic repair completed and ZavorthBridge remote became ready.';
     }
 
     const failed = actions.filter((action) => !action.ok);
     if (failed.length > 0) {
-      return 'Reparo automatico parcial; ainda existem pendencias que exigem atencao manual.';
+      return 'Partial automatic repair; pending items still require manual attention.';
     }
 
     if (repairPolicy.flappingLikely) {
-      return `Reparo automatico executado, mas o remoto do ZavorthBridge segue instavel (${finalIncidents.primaryCode}).`;
+      return `Automatic repair executed, but ZavorthBridge remote remains unstable (${finalIncidents.primaryCode}).`;
     }
 
-    return `Reparo automatico executado, mas o remoto do ZavorthBridge ainda nao esta totalmente pronto (${finalIncidents.primaryCode}).`;
+    return `Automatic repair executed, but ZavorthBridge remote is still not fully ready (${finalIncidents.primaryCode}).`;
   }
 
   private async writeReport(report: ZavorthBridgeRemoteDoctorReport): Promise<void> {

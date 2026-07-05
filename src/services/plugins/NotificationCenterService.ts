@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface Notification {
   id: string;
@@ -41,14 +42,14 @@ export class NotificationCenterService {
     try {
       const n = path.join(this.storageDir, 'notifications.json');
       if (fs.existsSync(n)) this.notifications = JSON.parse(fs.readFileSync(n, 'utf-8'));
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Notification Center] JSON parse failed', error); }
     try {
       const c = path.join(this.storageDir, 'channels.json');
       if (fs.existsSync(c)) {
         const data = JSON.parse(fs.readFileSync(c, 'utf-8'));
         if (Array.isArray(data)) for (const ch of data) this.channels.set(ch.id, ch);
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Notification Center] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

@@ -1,7 +1,7 @@
 {
   "version": 2,
   "generatedAt": "2026-05-06T22:21:05.529Z",
-  "description": "Catalogo canonico de comandos Zavorth. Comandos historicos e experimentais nao fazem parte da superficie publica do produto.",
+  "description": "Canonical Zavorth command catalog. Historical and experimental commands are not part of the public product surface.",
   "usage": "npm run command -- <nome> [-- args]",
   "summary": {
     "packageScripts": 689,

@@ -4,8 +4,9 @@ import type { ComputerUseAction, ComputerUseAgent, ComputerUseConfig, ComputerUs
 import type { CapabilityLifecycleService } from '../CapabilityLifecycleService.js';
 import type { ZavorthRuntimeStabilityControlPlaneService } from '../ZavorthRuntimeStabilityControlPlaneService.js';
 import type { TrustDecisionService } from '../TrustDecisionService.js';
+import { logger } from '../../logger.js';
 import type {
-  ComputerUseWatchModeState,
+ComputerUseWatchModeState,
   InternalWatchModeRun,
   StartWatchModeRunInput,
   WatchModeArtifactEntry,
@@ -634,9 +635,7 @@ export class ComputerUseWatchModeLifecycleSupport {
     try {
       const target = normalized.match(/^https?:\/\//i) ? normalized : `https://${normalized}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Computer Use Watch Mode Lifecycle] network request failed', error); return null; }
   }
 
   private pushTimeline(
@@ -848,9 +847,7 @@ export class ComputerUseWatchModeLifecycleSupport {
       }
       fs.unlinkSync(screenshotPath);
       run.buffers.deletedScreenshotBytes += stats.size;
-    } catch {
-      // Artefatos travados nao podem quebrar stop/finalizacao.
-    }
+    } catch (error) { // Artefatos travados nao podem quebrar stop/finalizacao. logger.warn('[Computer Use Watch Mode Lifecycle] file cleanup failed', error); }
   }
 
   private screenshotSize(screenshotPath: string | null): number {
@@ -861,9 +858,7 @@ export class ComputerUseWatchModeLifecycleSupport {
     try {
       const stats = fs.statSync(normalized);
       return stats.isFile() ? stats.size : 0;
-    } catch {
-      return 0;
-    }
+    } catch (error) { logger.warn('[Computer Use Watch Mode Lifecycle] filesystem operation failed', error); return 0; }
   }
 
   private rejectPendingWaiters(run: InternalWatchModeRun): void {

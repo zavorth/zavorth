@@ -4,6 +4,7 @@ import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../../logger.js';
 
 interface NovitaChatMessage {
   role: string;
@@ -123,9 +124,7 @@ export class ProviderNovitaTool extends BaseTool {
         return 'Novita AI: Connected e funcionando.';
       }
       return `Novita AI: HTTP Error ${statusCode}`;
-    } catch (error: unknown) {
-      return `Novita AI: Connection error: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Novita] network request failed', error); return ''; }
   }
 
   private getPricing(): string {
@@ -149,9 +148,7 @@ export class ProviderNovitaTool extends BaseTool {
 
     let messages: NovitaChatMessage[] = [];
     if (typeof args.messages === 'string') {
-      try { messages = JSON.parse(args.messages); } catch {
-        return 'Error: invalid JSON for "messages"..';
-      }
+      try { messages = JSON.parse(args.messages); } catch (error) { logger.warn('[Novita] JSON parse failed', error); return 'Error: invalid JSON for "messages"..'; }
     } else if (Array.isArray(args.messages)) {
       messages = args.messages as NovitaChatMessage[];
     }
@@ -179,7 +176,7 @@ export class ProviderNovitaTool extends BaseTool {
         `${this.baseUrl}/chat/completions`,
       ], { timeout: 60000, maxBuffer: 5 * 1024 * 1024 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Novita] file cleanup failed', error); }
 
       const parsed: NovitaChatResponse = JSON.parse(result);
       if (parsed.error) return `Novita error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
@@ -194,8 +191,6 @@ export class ProviderNovitaTool extends BaseTool {
         lines.push(`\nTokens: ${usage.prompt_tokens} input + ${usage.completion_tokens} output = ${usage.total_tokens} total`);
       }
       return lines.join('\n');
-    } catch (error: unknown) {
-      return `Call error Novita: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Novita] parsing failed', error); return ''; }
   }
 }

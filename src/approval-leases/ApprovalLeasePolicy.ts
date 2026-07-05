@@ -6,7 +6,7 @@ export type ApprovalLeaseQuery = {
   channelId?: string;
   toolQualifiedName: string;
   toolFingerprint: string;
-  riskClass: string;
+  riskClass: 'safe' | 'low' | 'medium' | 'high' | 'critical' | 'unknown';
   operation: string;
   currentTime?: string;
 };

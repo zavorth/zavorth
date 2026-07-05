@@ -301,7 +301,7 @@ export class GatewaySessionSnapshotSupport {
       target_files: Array.isArray(task?.target_files) ? task.target_files : [],
       artifacts: Array.isArray(task?.artifacts) ? task.artifacts : [],
       metadata: task?.metadata && typeof task.metadata === 'object' ? { ...task.metadata } : {},
-      execution: this.deps.lifecycleLinks.buildTaskContextLink(task as Record<string, unknown>),
+      execution: this.deps.lifecycleLinks.buildTaskContextLink(task as unknown as Record<string, unknown>),
     };
   }
 

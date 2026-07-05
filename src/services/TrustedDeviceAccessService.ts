@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export const TRUSTED_DEVICE_ACCESS_SCOPES = [
   'chat:send',
@@ -451,15 +452,11 @@ export class TrustedDeviceAccessService {
     });
     try {
       fs.chmodSync(tmpPath, 0o600);
-    } catch {
-      // Some platforms ignore POSIX permissions; state still contains hashes, not raw secrets.
-    }
+    } catch (error) { // Some platforms ignore POSIX permissions; state still contains hashes, not raw secrets. logger.warn('[Trusted Device Access] filesystem operation failed', error); }
     fs.renameSync(tmpPath, this.stateFilePath);
     try {
       fs.chmodSync(this.stateFilePath, 0o600);
-    } catch {
-      // Best-effort hardening for Windows and filesystems without chmod support.
-    }
+    } catch (error) { // Best-effort hardening for Windows and filesystems without chmod support. logger.warn('[Trusted Device Access] filesystem operation failed', error); }
   }
 
   private emptyState(): TrustedDeviceAccessState {

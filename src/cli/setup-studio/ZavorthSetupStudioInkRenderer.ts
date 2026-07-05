@@ -1,4 +1,4 @@
-﻿import { createElement } from 'react';
+import { createElement } from 'react';
 
 // Premium gradient palette for the minimalist logo
 const GRADIENT_COLORS = [
@@ -14,8 +14,9 @@ const GRADIENT_COLORS = [
 import { ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS } from '../ZavorthSetupStudioService.js';
 import { buildZavorthSetupStudioSnapshot } from './ZavorthSetupStudioState.js';
 import { ZavorthSetupStudioProgressStore } from './ZavorthSetupStudioProgressStore.js';
+import { logger } from '../../logger.js';
 import type {
-  ZavorthSetupStudioChannelGuide,
+ZavorthSetupStudioChannelGuide,
   ZavorthSetupStudioSnapshot,
 } from './ZavorthSetupStudioSchema.js';
 
@@ -135,6 +136,7 @@ export async function renderZavorthSetupStudioInk(
       channelId: actionState.channelId,
     };
   } catch (error) {
+    logger.warn('[Zavorth Setup Studio Ink Renderer] filesystem check failed', error);
     return {
       rendered: false,
       output: `Ink setup renderer unavailable: ${error instanceof Error ? error.message : String(error)}\n`,

@@ -6,6 +6,7 @@ import type {
 } from '../../../../contracts/HybridMemoryContract.js';
 import { HYBRID_MEMORY_CONTRACT_VERSION } from '../../../../contracts/HybridMemoryContract.js';
 import { shouldPersistZavorthArtifacts } from '../../../../contracts/ZavorthResponseDecisionContract.js';
+import type { SurfaceControllerContext } from '../../../../services/SurfaceRuntime.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 import { buildWebAppRuntimeEmptyMemoryRecall } from './web-app-runtime-route/WebAppRuntimeRouteHelpers.js';
 import { WebAppGatewayCapabilitySupport } from './web-app-gateway-control/WebAppGatewayCapabilitySupport.js';
@@ -15,6 +16,7 @@ import {
   resolveMutationPlanIdFromPermission,
 } from './web-app-gateway-control/WebAppGatewayControlHelpers.js';
 import { WebAppGatewaySelfmodSupport } from './web-app-gateway-control/WebAppGatewaySelfmodSupport.js';
+import { logger } from '../../../../logger';
 
 export class WebAppGatewayControlService {
   private readonly capabilitySupport = new WebAppGatewayCapabilitySupport();
@@ -42,11 +44,12 @@ export class WebAppGatewayControlService {
         limit: input.limit,
         contextTokenBudget: input.contextTokenBudget,
       });
-    } catch (error: any) {
-      return buildWebAppRuntimeEmptyMemoryRecall(sessionId, query, [
+    } catch (error) {
+    logger.warn('[Web App way Control] search failed', error);
+    return buildWebAppRuntimeEmptyMemoryRecall(sessionId, query, [
         `Hybrid Memory indisponivel no momento: ${error?.message || 'erro desconhecido'}.`,
       ]);
-    }
+  }
   }
 
   public async listGatewayMemorySources(
@@ -73,8 +76,9 @@ export class WebAppGatewayControlService {
         chatId,
         workspaceHint: input.workspaceHint || null,
       });
-    } catch (error: any) {
-      return {
+    } catch (error) {
+    logger.warn('[Web App way Control] operation failed', error);
+    return {
         ok: true,
         contractVersion: HYBRID_MEMORY_CONTRACT_VERSION,
         generatedAt: new Date().toISOString(),
@@ -82,7 +86,7 @@ export class WebAppGatewayControlService {
         sources: [],
         warnings: [`Hybrid Memory indisponivel no momento: ${error?.message || 'erro desconhecido'}.`],
       };
-    }
+  }
   }
 
   public async buildSelfmodPlane(
@@ -191,14 +195,15 @@ export class WebAppGatewayControlService {
       }
 
       sessionId = sessionId || await deps.resolveSessionIdFromPermission(permission, sessionId || '');
+      const webCtx = toSurfaceControllerContext(deps.createWebContext(sessionId));
       if (decision === 'approve') {
         await deps.runtime.permissionController.handlePermissionCallback(
-          deps.createWebContext(sessionId),
+          webCtx,
           `perm:approve:${deps.runtime.permissionController.shortPermissionId(permission)}:${scope}`,
         );
       } else {
         await deps.runtime.permissionController.handlePermissionCallback(
-          deps.createWebContext(sessionId),
+          webCtx,
           `perm:reject:${deps.runtime.permissionController.shortPermissionId(permission)}`,
         );
       }
@@ -215,12 +220,13 @@ export class WebAppGatewayControlService {
         throw new Error('Approval nao encontrado como permissao nem task gate.');
       }
       sessionId = sessionId || deps.resolveSessionIdFromTask(task, sessionId || '');
+      const webCtx = toSurfaceControllerContext(deps.createWebContext(sessionId));
       if (decision === 'approve') {
         const approvalCode = String(input.approvalCode || '').trim();
         const args = approvalCode ? `${approvalId} pin=${approvalCode}` : approvalId;
-        await deps.runtime.permissionController.handleApproval(deps.createWebContext(sessionId), args);
+        await deps.runtime.permissionController.handleApproval(webCtx, args);
       } else {
-        await deps.runtime.permissionController.handleRejection(deps.createWebContext(sessionId), approvalId);
+        await deps.runtime.permissionController.handleRejection(webCtx, approvalId);
       }
       await deps.realtime.captureBaseline(sessionId);
       return {
@@ -434,5 +440,11 @@ export class WebAppGatewayControlService {
     });
   }
 
+}
+
+function toSurfaceControllerContext(value: unknown): SurfaceControllerContext {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as SurfaceControllerContext
+    : {};
 }
 

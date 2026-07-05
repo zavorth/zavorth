@@ -5,6 +5,7 @@ import { PtySessionService } from '../../services/PtySessionService.js';
 import { PtyInputPolicyService } from '../../services/PtyInputPolicyService.js';
 import { PtyInputApprovalService } from '../../services/PtyInputApprovalService.js';
 import { HostPowerModeService } from '../../services/HostPowerModeService.js';
+import { logger } from '../../logger.js';
 
 export class PtyWriteTool extends BaseTool {
   public readonly name = 'workspace.pty.write';
@@ -61,9 +62,10 @@ export class PtyWriteTool extends BaseTool {
     try {
       await this.ptySessionService.write(sessionId, workspaceId, input);
       return JSON.stringify({ success: true });
-    } catch (err: any) {
-      return JSON.stringify({ success: false, error: err.message });
-    }
+    } catch (error) {
+    logger.warn('[Pty Write] serialization failed', error);
+    return JSON.stringify({ success: false, error: err.message });
+  }
   }
 }
 

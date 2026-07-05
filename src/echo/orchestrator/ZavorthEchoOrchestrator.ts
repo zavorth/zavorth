@@ -49,7 +49,7 @@ export class ZavorthEchoOrchestrator {
         this.registerTool(new PlaywrightActionTool());
 
         // Register web/browser Action Harness tools.
-        // The LLM sees these as regular tools alongside OS/IOT — it decides
+        // The LLM sees these as regular tools alongside OS/IOT and decides
         // autonomously when to use them based on the user's natural language intent.
         try {
             for (const tool of buildVerifiedActionHarnessTools(options.actionGateway)) {
@@ -61,21 +61,21 @@ export class ZavorthEchoOrchestrator {
     }
 
     /**
-     * Registra uma ferramenta no catalogo do Echo.
+     * Registers a tool in the Echo catalog.
      */
     public registerTool(tool: IZavorthTool) {
         this.tools[tool.name] = tool;
     }
 
     /**
-     * Retorna uma ferramenta pelo nome.
+     * Returns a tool by name.
      */
     public getToolByName(name: string): IZavorthTool | null {
         return this.tools[name] || null;
     }
 
     /**
-     * Lista todas as ferramentas registradas.
+     * Lists all registered tools.
      */
     public listAllTools(): ToolDefinition[] {
         return ToolSchemaHelper.toToolDefinitions(Object.values(this.tools));
@@ -90,7 +90,7 @@ export class ZavorthEchoOrchestrator {
     }
 
     /**
-     * Retorna schemas filtrados por categoria.
+     * Returns schemas filtered by category.
      */
     public getSchemasForCategory(category: ToolCategory): ToolDefinition[] {
         const categoryTools = Object.values(this.tools).filter((tool) => tool.category === category);
@@ -98,7 +98,7 @@ export class ZavorthEchoOrchestrator {
     }
 
     /**
-     * Retorna o historico de execucoes capturado apenas em modo standalone.
+     * Returns captured execution history in standalone mode only.
      */
     public getExecutionLog(limit?: number): EchoExecutionEntry[] {
         if (!this.capturePipelineHistory) {
@@ -108,8 +108,8 @@ export class ZavorthEchoOrchestrator {
     }
 
     /**
-     * Registra eventos Echo fora da execucao direta da tool.
-     * No runtime principal o ledger canonico assume esse papel.
+     * Records Echo events outside direct tool execution.
+     * In the main runtime, the canonical ledger owns this role.
      */
     public recordExecution(entry: EchoExecutionEntry): void {
         if (!this.capturePipelineHistory) {
@@ -119,7 +119,7 @@ export class ZavorthEchoOrchestrator {
     }
 
     /**
-     * Pipeline de execucao de tool apos function calling.
+     * Tool execution pipeline after function calling.
      */
     public async executePipeline(
         originalPrompt: string,
@@ -140,9 +140,9 @@ export class ZavorthEchoOrchestrator {
             const tool = this.tools[functionName];
             if (!tool) {
                 toolCall.securityDecision = 'blocked';
-                toolCall.result = `Ferramenta ${functionName} nao existe.`;
+                toolCall.result = `Tool ${functionName} does not exist.`;
                 this.logExecution(originalPrompt, [toolCall], 'error', startTime);
-                return { response: `Erro: A ferramenta ${functionName} nao existe.` };
+                return { response: `Error: tool ${functionName} does not exist.` };
             }
 
             const safeParams = SecurityEngine.authorizeExecution(originalPrompt, tool, rawParams);
@@ -151,25 +151,25 @@ export class ZavorthEchoOrchestrator {
             toolCall.data = result.data;
 
             if (result.success) {
-                toolCall.result = result.message || 'Sucesso';
+                toolCall.result = result.message || 'Success';
                 this.logExecution(originalPrompt, [toolCall], 'success', startTime);
                 return { response: `OK: ${result.message}`, data: result.data };
             }
 
-            toolCall.result = result.error || 'Falha';
+            toolCall.result = result.error || 'Failure';
             this.logExecution(originalPrompt, [toolCall], 'error', startTime);
-            return { response: `FALHA NA FERRAMENTA: ${result.error}`, data: result.data };
+            return { response: `TOOL FAILURE: ${result.error}`, data: result.data };
         } catch (error: any) {
             toolCall.securityDecision = 'blocked';
             toolCall.result = error.message;
             toolCall.durationMs = Date.now() - startTime;
             this.logExecution(originalPrompt, [toolCall], 'blocked', startTime);
-            return { response: `BLOCO DE SEGURANCA. Responda ao usuario com esta justificativa: ${error.message}` };
+            return { response: `SECURITY BLOCK. Respond to the user with this justification: ${error.message}` };
         }
     }
 
     /**
-     * Registra execucao em historico de compatibilidade apenas no modo standalone.
+     * Records execution in compatibility history in standalone mode only.
      */
     private logExecution(
         prompt: string,

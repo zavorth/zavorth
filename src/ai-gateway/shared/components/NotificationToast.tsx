@@ -124,7 +124,7 @@ function Toast({ notification, onDismiss }) {
           onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.opacity = "1")}
           onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.opacity = "0.6")}
         >
-          ×
+          X
         </button>
       )}
     </div>

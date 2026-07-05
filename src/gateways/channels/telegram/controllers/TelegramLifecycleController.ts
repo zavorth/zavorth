@@ -12,16 +12,16 @@ export class TelegramLifecycleController {
   constructor(private deps: TelegramLifecycleControllerDeps) {}
 
   public async start(bot: Bot): Promise<void> {
-    this.deps.logRepo.log('info', 'BotGateway', 'Iniciando bot do Telegram (long polling)...');
+    this.deps.logRepo.log('info', 'BotGateway', 'Starting Telegram bot (long polling)...');
     try {
       await this.deps.menuController.registerTelegramMenu();
-      this.deps.logRepo.log('info', 'BotGateway', 'Menu de comandos do Telegram registrado com sucesso.');
+      this.deps.logRepo.log('info', 'BotGateway', 'Telegram command menu registered successfully.');
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
       this.deps.logRepo.log(
         'warn',
         'BotGateway',
-        `Falha ao registrar menu de comandos do Telegram: ${msg}`,
+        `Failed to register Telegram command menu: ${msg}`,
       );
     }
 
@@ -31,7 +31,7 @@ export class TelegramLifecycleController {
 
         void bot.start({
           onStart: () => {
-            logger.info('Zavorth Telegram gateway iniciado com sucesso.');
+            logger.info('Zavorth Telegram gateway started successfully.');
             startupResolved = true;
             resolve();
           },
@@ -40,7 +40,7 @@ export class TelegramLifecycleController {
           const description = String((errObj?.description || errObj?.message || ''));
           if (errObj?.error_code === 409 || description.includes('terminated by other getUpdates request')) {
             const friendlyMessage =
-              'Conflito de polling do Telegram detectado. Existe outra instancia do Zavorth usando este bot token. Deixe apenas uma instancia rodando antes de reiniciar.';
+              'Telegram polling conflict detected. Another Zavorth instance is using this bot token. Keep only one instance running before restarting.';
             this.deps.logRepo.log('error', 'BotGateway', friendlyMessage);
             reject(new Error(friendlyMessage));
             return;
@@ -54,7 +54,7 @@ export class TelegramLifecycleController {
           this.deps.logRepo.log(
             'error',
             'BotGateway',
-            `Long polling do Telegram foi interrompido apos o bootstrap: ${description || 'erro desconhecido'}`,
+            `Telegram long polling stopped after bootstrap: ${description || 'unknown error'}`,
           );
         });
       });

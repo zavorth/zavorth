@@ -1,9 +1,9 @@
 /**
- * SessionSearchFts5Tool — Busca full-text em sessões com zero custo LLM.
+ * SessionSearchFts5Tool - zero-LLM-cost full-text session search.
  *
  * Ferramenta unificada com 4 modos: discover, scroll, read, browse.
- * Indexa sessões localmente e permite busca por conteúdo, metadados
- * e período de tempo sem custo de tokens LLM.
+ * Indexes sessions locally and supports searches by content, metadata,
+ * and time period without spending LLM tokens.
  *
  * Uso via tool registry:
  *   const result = await tool.execute({
@@ -45,7 +45,7 @@ export interface SearchResult {
 
 export class SessionSearchFts5Tool extends BaseTool {
   public readonly name = 'session_search_fts5';
-  public readonly description = 'Busca full-text em sessões armazenadas. Modos: discover (buscar), scroll (navegar), read (ler sessão), browse (listar sessões).';
+  public readonly description = 'Full-text search across stored sessions. Modes: discover (search), scroll (navigate), read (read session), browse (list sessions).';
 
   public readonly parameters = {
     type: 'object' as const,
@@ -53,20 +53,20 @@ export class SessionSearchFts5Tool extends BaseTool {
       mode: {
         type: 'string',
         enum: ['discover', 'scroll', 'read', 'browse'],
-        description: 'Modo de busca: discover=buscar por texto, scroll=navegar resultados, read=ler sessão específica, browse=listar sessões.',
+        description: 'Search mode: discover=search by text, scroll=navigate results, read=read a specific session, browse=list sessions.',
       },
       query: {
         type: 'string',
-        description: 'Texto de busca (para modo discover).',
+        description: 'Search text (for discover mode).',
       },
       sessionId: {
         type: 'string',
-        description: 'ID da sessão (para modo read).',
+        description: 'Session ID for read mode.',
       },
       role: {
         type: 'string',
         enum: ['user', 'assistant', 'system', 'tool'],
-        description: 'Filtrar por papel da mensagem.',
+        description: 'Filter by message role.',
       },
       startDate: {
         type: 'string',
@@ -78,11 +78,11 @@ export class SessionSearchFts5Tool extends BaseTool {
       },
       limit: {
         type: 'number',
-        description: 'Número máximo de resultados (padrão: 20).',
+        description: 'Maximum number of results (default: 20).',
       },
       offset: {
         type: 'number',
-        description: 'Offset para paginação.',
+        description: 'Pagination offset.',
       },
     },
     required: ['mode'],
@@ -93,18 +93,18 @@ export class SessionSearchFts5Tool extends BaseTool {
   private invertedIndex = new Map<string, Set<number>>();
 
   /**
-   * Indexa uma entrada de sessão.
+   * Indexes a session entry.
    */
   indexEntry(entry: SessionEntry): void {
     const idx = this.entries.length;
     this.entries.push(entry);
 
-    // Indexar por sessão
+    // Index by session.
     const sessionEntries = this.sessionIndex.get(entry.sessionId) ?? [];
     sessionEntries.push(entry);
     this.sessionIndex.set(entry.sessionId, sessionEntries);
 
-    // Indexar palavras para busca full-text
+    // Index words for full-text search
     const words = this.tokenize(entry.content);
     for (const word of words) {
       const positions = this.invertedIndex.get(word) ?? new Set();
@@ -139,7 +139,7 @@ export class SessionSearchFts5Tool extends BaseTool {
   }
 
   /**
-   * Modo discover: busca por texto com scoring.
+   * Discover mode: text search with scoring.
    */
   private discover(query: string, options: SearchOptions): SearchResult {
     const limit = options.limit ?? 20;
@@ -167,7 +167,7 @@ export class SessionSearchFts5Tool extends BaseTool {
   }
 
   /**
-   * Modo scroll: navega por sessão com paginação cronológica.
+   * Scroll mode: navigate through a session with chronological pagination.
    */
   private scroll(options: SearchOptions): SearchResult {
     const limit = options.limit ?? 20;
@@ -187,7 +187,7 @@ export class SessionSearchFts5Tool extends BaseTool {
   }
 
   /**
-   * Modo read: retorna todas as entradas de uma sessão.
+   * Read mode: returns all entries for a session.
    */
   private read(sessionId: string): SearchResult {
     const entries = this.sessionIndex.get(sessionId) ?? [];
@@ -199,7 +199,7 @@ export class SessionSearchFts5Tool extends BaseTool {
   }
 
   /**
-   * Modo browse: lista sessões únicas com contagem.
+   * Browse mode: lists unique sessions with counts.
    */
   private browse(options: SearchOptions): SearchResult {
     const limit = options.limit ?? 20;
@@ -274,7 +274,7 @@ export class SessionSearchFts5Tool extends BaseTool {
 
     const lines: string[] = [
       `Resultados: ${result.total} total, ${result.entries.length} retornados`,
-      result.hasMore ? 'Mais resultados disponíveis (use offset)' : '',
+      result.hasMore ? 'More results available (use offset)' : '',
       '',
     ];
 

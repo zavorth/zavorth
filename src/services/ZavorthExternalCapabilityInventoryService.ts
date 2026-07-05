@@ -8,8 +8,9 @@ import {
   type ZavorthExternalRuntimeNaturalFirstRoute,
   type ZavorthExternalRuntimeSourceRuntimeId,
 } from '../contracts/ZavorthExternalRuntimeBridgeContract.js';
+import { logger } from '../logger.js';
 import {
-  ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION,
+ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION,
   type ZavorthExternalCapabilityInventoryItem,
   type ZavorthExternalCapabilityInventoryProbeRuntimeId,
   type ZavorthExternalCapabilityInventoryRisk,
@@ -648,9 +649,10 @@ export class ZavorthExternalCapabilityInventoryService {
         dirs: entries.filter((entry) => entry.isDirectory()).length,
         names,
       };
-    } catch {
-      return { files: 0, dirs: 0, names: [] };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth External Capability Inventory] filesystem operation failed', error);
+    return { files: 0, dirs: 0, names: [] };
+  }
   }
 
   private resolveStatus(

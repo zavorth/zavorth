@@ -3,7 +3,7 @@ import path from 'path';
 import type { NodeHostCapabilityRuntime, NodeHostExecutionResult } from './NodeHostCapabilityTypes.js';
 import { buildScopeViolationResult, resolveAllowedPath } from './NodeHostCapabilityPathPolicy.js';
 import { normalizeTimeout } from './NodeHostCapabilityExecutionHelpers.js';
-import { logger } from '../logger.js';
+import { logger } from '../../../../logger.js';
 
 export class NodeHostCapabilityFilesystemService {
   private readonly workspaceRoot: string;
@@ -42,15 +42,16 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: unknown) {
-      return buildScopeViolationResult({
+    } catch (error) {
+    logger.warn('[Node Host Capability Filesystem] load operation failed', error);
+    return buildScopeViolationResult({
         capabilityId: 'files.read',
         targetPath: rawTargetPath,
         error,
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    }
+  }
 
     if (!fs.existsSync(targetPath)) {
       return {
@@ -109,15 +110,16 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: unknown) {
-      return buildScopeViolationResult({
+    } catch (error) {
+    logger.warn('[Node Host Capability Filesystem] load operation failed', error);
+    return buildScopeViolationResult({
         capabilityId: 'files.write',
         targetPath: rawTargetPath,
         error,
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    }
+  }
     const requestedMode = String(
       payload?.mode || (payload?.append === true ? 'append' : (payload?.overwrite === true ? 'overwrite' : 'create')),
     )
@@ -254,15 +256,16 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: unknown) {
-      return buildScopeViolationResult({
+    } catch (error) {
+    logger.warn('[Node Host Capability Filesystem] load operation failed', error);
+    return buildScopeViolationResult({
         capabilityId: 'files.watch',
         targetPath: rawTargetPath,
         error,
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    }
+  }
 
     if (!fs.existsSync(targetPath)) {
       return {

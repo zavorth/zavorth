@@ -394,16 +394,18 @@ export async function handleWorkspaceApprovalsRequest(
       let resolvedPath: string;
       try {
         resolvedPath = fs.realpathSync(path.resolve(rootPath));
-      } catch {
-        resolvedPath = path.resolve(rootPath);
-      }
+      } catch (error) {
+    logger.warn('[Zavorth Control Workspace Approvals s] parsing failed', error);
+    resolvedPath = path.resolve(rootPath);
+  }
 
       let activeWorkspace: string;
       try {
         activeWorkspace = fs.realpathSync(WorkspaceResolver.resolve(null));
-      } catch {
-        activeWorkspace = path.resolve(WorkspaceResolver.resolve(null));
-      }
+      } catch (error) {
+    logger.warn('[Zavorth Control Workspace Approvals s] path resolution failed', error);
+    activeWorkspace = path.resolve(WorkspaceResolver.resolve(null));
+  }
 
       const normResolved = path.normalize(resolvedPath).toLowerCase();
       const normActive = path.normalize(activeWorkspace).toLowerCase();

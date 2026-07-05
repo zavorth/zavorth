@@ -125,8 +125,8 @@ export const DropOverlay = memo(function DropOverlay({ onFilesDropped }: DropOve
       `}</style>
       <div className="zvd-drop-overlay__card">
         <IconUpload size={48} stroke={1.5} className="zvd-drop-overlay__icon" />
-        <h3>Solte os arquivos aqui</h3>
-        <p>Eles serão adicionados como referências na sua conversa.</p>
+        <h3>Drop files here</h3>
+        <p>They will be added as references in your conversation.</p>
       </div>
     </div>
   );

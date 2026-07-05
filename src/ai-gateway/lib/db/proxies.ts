@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { getDbInstance } from "./core";
 import { backupDbFile } from "./backup";
+import { logger } from '@/shared/utils/logger';
 
 type JsonRecord = Record<string, unknown>;
 type ProxyScope = "global" | "provider" | "account" | "combo";
@@ -108,9 +109,7 @@ function coerceProxyPayload(value: unknown, fallbackName: string): ProxyPayload 
         password: parsed.password ? decodeURIComponent(parsed.password) : "",
         status: "active",
       };
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[proxies] network request failed', error); return null; }
   }
 
   if (typeof value !== "object" || Array.isArray(value)) return null;
@@ -448,9 +447,7 @@ export async function migrateLegacyProxyConfigToRegistry(options?: { force?: boo
     if (!row?.key || typeof row.value !== "string") continue;
     try {
       raw[row.key as keyof LegacyProxyConfig] = JSON.parse(row.value);
-    } catch {
-      // ignore malformed legacy entry
-    }
+    } catch (error) { // ignore malformed legacy entry logger.warn('[proxies] JSON parse failed', error); }
   }
 
   let migrated = 0;

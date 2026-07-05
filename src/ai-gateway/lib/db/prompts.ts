@@ -11,6 +11,7 @@
 
 import crypto from "crypto";
 import { getDbInstance } from "./core";
+import { logger } from '@/shared/utils/logger';
 
 interface StatementLike<TRow = unknown> {
   all: (...params: unknown[]) => TRow[];
@@ -62,9 +63,7 @@ function parseVariables(value: unknown): string[] | null {
     const parsed = JSON.parse(value) as unknown;
     if (!Array.isArray(parsed)) return null;
     return parsed.filter((item): item is string => typeof item === "string");
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[prompts] JSON parse failed', error); return null; }
 }
 
 // ── Schema (auto-created on first access) ──
@@ -95,9 +94,7 @@ function ensureSchema(): void {
     const db = getDbInstance() as unknown as DbLike;
     db.exec(PROMPT_SCHEMA);
     _initialized = true;
-  } catch {
-    // Schema creation is best-effort during build phase
-  }
+  } catch (error) { // Schema creation is best-effort during build phase logger.warn('[prompts] process execution failed', error); }
 }
 
 function hashContent(content: string): string {

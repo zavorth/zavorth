@@ -1,5 +1,6 @@
 import type { Context } from 'grammy';
 import { normalizeSharedSurfaceCommandCallback } from '../../../../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
+import { logger } from '../../../../logger';
 
 export type GatewayCallbackRouterDeps = {
   handleHubCallback: (ctx: Context, data: string) => Promise<void>;
@@ -27,9 +28,7 @@ export class GatewayCallbackRouter {
           if (ctx.msg?.message_id) {
             await ctx.deleteMessage();
           }
-        } catch {
-          // Delete callbacks should still acknowledge stale messages.
-        }
+        } catch (error) { // Delete callbacks should still acknowledge stale messages. logger.warn('[way Callback r] delete operation failed', error); }
 
         await ctx.answerCallbackQuery();
         return;

@@ -36,6 +36,7 @@ import { IMessageGateway } from './channels/imessage/IMessageGateway.js';
 import { TeamsGateway } from './channels/teams/TeamsGateway.js';
 import { EmailGateway } from './channels/email/EmailGateway.js';
 import { InstagramGateway } from './channels/instagram/InstagramGateway.js';
+import { logger } from '../logger.js';
 
 type GatewayClass = new (options: WebhookGatewayOptions) => WebhookGateway;
 
@@ -149,22 +150,22 @@ const GATEWAY_REGISTRATIONS: GatewayRegistration[] = [
   {
     id: 'telegram',
     GatewayClass: TelegramGateway,
-    isConfigured: () => Boolean(String((config as any).telegramBotToken || '').trim() && String((config as any).telegramDefaultChatId || '').trim()),
+    isConfigured: () => Boolean(String(config.telegramBotToken || '').trim() && String(config.telegramDefaultChatId || '').trim()),
   },
   {
     id: 'discord',
     GatewayClass: DiscordGateway,
-    isConfigured: () => Boolean(String((config as any).discordWebhookUrl || '').trim()),
+    isConfigured: () => Boolean(String(config.discordWebhookUrl || '').trim()),
   },
   {
     id: 'slack',
     GatewayClass: SlackGateway,
-    isConfigured: () => Boolean(String((config as any).slackWebhookUrl || '').trim()),
+    isConfigured: () => Boolean(String(config.slackWebhookUrl || '').trim()),
   },
   {
     id: 'whatsapp',
     GatewayClass: WhatsAppGateway,
-    isConfigured: () => Boolean(String((config as any).whatsappBridgeUrl || '').trim() || String((config as any).whatsappWebhookUrl || '').trim()),
+    isConfigured: () => Boolean(String(config.whatsappBridgeUrl || '').trim() || String(config.whatsappWebhookUrl || '').trim()),
   },
   {
     id: 'signal',
@@ -174,12 +175,12 @@ const GATEWAY_REGISTRATIONS: GatewayRegistration[] = [
   {
     id: 'imessage',
     GatewayClass: IMessageGateway,
-    isConfigured: () => Boolean(String((config as any).imessageBridgeUrl || '').trim() || String(config.imessageBridgeScript || '').trim()),
+    isConfigured: () => Boolean(String(config.imessageBridgeUrl || '').trim() || String(config.imessageBridgeScript || '').trim()),
   },
   {
     id: 'teams',
     GatewayClass: TeamsGateway,
-    isConfigured: () => Boolean(String((config as any).teamsWebhookUrl || '').trim()),
+    isConfigured: () => Boolean(String(config.teamsWebhookUrl || '').trim()),
   },
   {
     id: 'email',
@@ -212,9 +213,7 @@ export class ChannelGatewayFactory {
       try {
         const gateway = new registration.GatewayClass(baseOptions);
         registry.registerGateway(gateway);
-      } catch {
-        // Gateway construction failed; skip silently
-      }
+      } catch (error) { // Gateway construction failed; skip silently logger.warn('[Channel way Factory] creation failed', error); }
     }
 
     return registry;
@@ -231,9 +230,7 @@ export class ChannelGatewayFactory {
       try {
         const gateway = new registration.GatewayClass(baseOptions);
         registry.registerGateway(gateway);
-      } catch {
-        // Gateway construction failed; skip silently
-      }
+      } catch (error) { // Gateway construction failed; skip silently logger.warn('[Channel way Factory] creation failed', error); }
     }
 
     return registry;

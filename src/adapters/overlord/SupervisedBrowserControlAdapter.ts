@@ -47,7 +47,7 @@ export class SupervisedBrowserControlAdapter implements SystemOverlordRuntimeAda
       return {
         ok: false,
         errorCode: 'browser_action_rejected',
-        errorMessage: `Acao de browser invalida ou nao supervisionada: "${action || 'n/d'}".`,
+        errorMessage: `Invalid or unsupervised browser action: "${action || 'n/a'}".`,
       };
     }
 
@@ -70,7 +70,7 @@ export class SupervisedBrowserControlAdapter implements SystemOverlordRuntimeAda
         return {
           ok: false,
           errorCode: 'browser_selector_required',
-          errorMessage: 'inspect_dom_element exige selector.',
+          errorMessage: 'inspect_dom_element requires selector.',
         };
       }
       return this.callTool(toolName, { selector }, decision);
@@ -81,7 +81,7 @@ export class SupervisedBrowserControlAdapter implements SystemOverlordRuntimeAda
       return {
         ok: false,
         errorCode: 'browser_evaluate_js_blocked',
-        errorMessage: 'evaluate_js exige perfil owner, approved=true e metadata.allowEvaluateJs=true.',
+        errorMessage: 'evaluate_js requires owner profile, approved=true, and metadata.allowEvaluateJs=true.',
       };
     }
     return this.callTool(toolName, { script }, decision);
@@ -114,16 +114,16 @@ export class SupervisedBrowserControlAdapter implements SystemOverlordRuntimeAda
 
   private validateUrl(url: string): string | null {
     if (!url) {
-      return 'browser_navigate exige url.';
+      return 'browser_navigate requires url.';
     }
     try {
       const parsed = new URL(url);
       if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-        return 'browser_navigate aceita apenas URLs http/https.';
+        return 'browser_navigate accepts only http/https URLs.';
       }
       return null;
     } catch {
-      return `URL invalida para browser_navigate: "${url}".`;
+      return `Invalid URL for browser_navigate: "${url}".`;
     }
   }
 

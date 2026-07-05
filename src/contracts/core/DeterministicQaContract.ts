@@ -117,7 +117,7 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     requiresNetwork: false,
     startsPersistentProcess: false,
     producesJson: false,
-    reason: 'trava fluxos reais de comando, aprovacao, fallback e continuidade',
+    reason: 'locks real command, approval, fallback, and continuity flows',
   },
   {
     id: 'sandbox-host-readiness',
@@ -131,7 +131,7 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     requiresNetwork: false,
     startsPersistentProcess: false,
     producesJson: false,
-    reason: 'mantem sandbox forte honesto por host sem bloquear Windows local',
+    reason: 'keeps strong sandbox posture honest per host without blocking local Windows',
   },
   {
     id: 'product-experience',
@@ -145,7 +145,7 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     requiresNetwork: false,
     startsPersistentProcess: false,
     producesJson: true,
-    reason: 'valida modos, escalonamento, ZavorthControl, paridade e memoria',
+    reason: 'validates modes, escalation, ZavorthControl, parity, and memory',
   },
   {
     id: 'architecture-gate',
@@ -159,11 +159,11 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     requiresNetwork: false,
     startsPersistentProcess: false,
     producesJson: false,
-    reason: 'mantem fronteiras e postura arquitetural antes de release',
+    reason: 'keeps boundaries and architectural posture before release',
   },
   {
     id: 'full-build',
-    label: 'Build completo',
+    label: 'Full build',
     tier: 'release',
     layer: 'release',
     command: 'npm run build --silent',
@@ -173,15 +173,15 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     requiresNetwork: false,
     startsPersistentProcess: false,
     producesJson: false,
-    reason: 'fecha TypeScript, surface syntax e launchers',
+    reason: 'closes TypeScript, surface syntax, and launchers',
   },
 ];
 
 export const DETERMINISTIC_QA_CONTRACTS = [
-  'Todo gate required precisa de package script verificavel.',
-  'Nenhum gate da matriz default pode exigir rede externa.',
-  'Nenhum gate da matriz default pode deixar processo persistente.',
-  'Gates com JSON precisam declarar producesJson=true.',
-  'Quick deve ser subconjunto de Standard, e Standard deve ser subconjunto de Release.',
-  'Cada gate precisa ter budget maxDurationMs explicito.',
+  'Every required gate needs a verifiable package script.',
+  'No default matrix gate may require an external network.',
+  'No default matrix gate may leave a persistent process.',
+  'JSON gates must declare producesJson=true.',
+  'Quick must be a subset of Standard, and Standard must be a subset of Release.',
+  'Each gate needs an explicit maxDurationMs budget.',
 ];

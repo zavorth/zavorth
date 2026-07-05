@@ -12,6 +12,7 @@ import {
   type CodexRemoteExecutionProfile,
 } from '../services/CodexRemoteProfileRegistryService.js';
 import { CodexRemotePowerShellBrokerClientService } from '../services/CodexRemotePowerShellBrokerClientService.js';
+import { logger } from '../logger.js';
 
 type CodexExecOptions = {
   dryRun?: boolean;
@@ -51,9 +52,7 @@ export class CodexCliAdapter {
       }
       await this.runCodex(['--version'], config.defaultWorkspace, timeoutSeconds, profile);
       return true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Codex Cli Adapter] operation failed', error); return false; }
   }
 
   public async executeDirect(task: Task, instructions: string[], workspaceHint: string): Promise<ExecutionResult> {
@@ -173,9 +172,10 @@ export class CodexCliAdapter {
         },
         (error, stdout, stderr) => {
           if (error) {
-            (error as any).stdout = stdout;
-            (error as any).stderr = stderr;
-            reject(error);
+            const err = error as Error & { stdout?: string; stderr?: string };
+            err.stdout = stdout;
+            err.stderr = stderr;
+            reject(err);
             return;
           }
 
@@ -189,9 +189,7 @@ export class CodexCliAdapter {
     try {
       const content = await fs.promises.readFile(outputFile, 'utf8');
       return content.trim();
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Codex Cli Adapter] filesystem operation failed', error); return ''; }
   }
 
   private cleanOutput(value: unknown): string {

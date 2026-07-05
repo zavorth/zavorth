@@ -69,7 +69,10 @@ export class NodeOnboardingService {
     const pairingDraftReady = Boolean(selected && selected.pairingStatus === 'pending');
     const paired = Boolean(selected?.paired || selected?.pairingStatus === 'paired');
     const firstHeartbeat = Boolean(selected?.lastSeenAt || selected?.status === 'online');
-    const ready = Boolean((selected as any)?.canInvoke || (selected?.status === 'online' && paired));
+    const ready = Boolean(
+      (selected && 'canInvoke' in selected && selected.canInvoke) ||
+      (selected?.status === 'online' && paired)
+    );
     const blocked = Boolean(selected?.status === 'blocked' || selected?.pairingStatus === 'revoked');
     const declaredCapabilities = Array.isArray(selected?.capabilityIds) ? selected.capabilityIds.length : 0;
     const approvedCapabilities = Array.isArray(selected?.approvedCapabilityIds) ? selected.approvedCapabilityIds.length : 0;

@@ -20,13 +20,13 @@ export type TelegramCommandToken = {
   commandArgs: string;
 };
 
-type PermissionMetadataValue = string | number | boolean | null;
+type PermissionMetadataValue = any;
 
 type CreatePermissionInput = {
   task_id?: string | null;
   executor: string;
   kind: string;
-  scope?: string;
+  scope?: any;
   workspace?: string | null;
   requested_value?: string | null;
   resolved_value?: string | null;

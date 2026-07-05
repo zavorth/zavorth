@@ -30,7 +30,7 @@ export class HostPowerModeService {
   private readonly payloadCache: HostCommandPayloadCache;
 
   private constructor(db?: Database, auditLogger?: SecurityAuditLogger, payloadCache?: HostCommandPayloadCache) {
-    this.db = db || (Database as any).instance || null;
+    this.db = db || Database.getActiveInstance() || null;
     this.auditLogger = auditLogger || new SecurityAuditLogger(new LogRepository());
     this.payloadCache = payloadCache || HostCommandPayloadCache.getInstance();
   }

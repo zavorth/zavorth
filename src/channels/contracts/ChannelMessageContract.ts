@@ -109,7 +109,7 @@ export function buildNormalizedInboundMessageFromChannelMessage(
       kind: 'api',
       status: 'available',
       primary: true,
-      description: 'Canal nao-Telegram normalizado para o Zavorth Agent Gateway.',
+      description: 'Normalized non-Telegram channel for the Zavorth Agent Gateway.',
     },
     metadata: {
       source: 'channel-mesh',
@@ -164,7 +164,7 @@ function normalizePlatform(input: CanonicalChannelPlatform): CanonicalChannelPla
 function normalizeRequired(input: unknown, field: string): string {
   const normalized = String(input || '').trim();
   if (!normalized) {
-    throw new Error(`${field} obrigatorio para o contrato canonico de canais.`);
+    throw new Error(`${field} is required for the canonical channel contract.`);
   }
   return normalized;
 }

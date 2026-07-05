@@ -1,5 +1,6 @@
+import { logger } from '../logger.js';
 import type {
-  IntegrationConnectorDoctor,
+IntegrationConnectorDoctor,
   IntegrationConnectorExecutePreview,
   IntegrationConnectorId,
   IntegrationConnectorManifest,
@@ -44,9 +45,7 @@ function normalizeHttpUrl(value: string | null | undefined, trimTrailingSlash = 
     }
     const normalized = url.toString();
     return trimTrailingSlash ? trimSlash(normalized) : normalized;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Integration Connector Mesh] network request failed', error); return null; }
 }
 
 function joinUrl(baseUrl: string, suffix: string): string {
@@ -446,9 +445,7 @@ export class IntegrationConnectorMeshService {
     try {
       const url = new URL(target);
       return `${url.origin}/[${manifest.env.executeUrl}]`;
-    } catch {
-      return `[${manifest.env.executeUrl}]`;
-    }
+    } catch (error) { logger.warn('[Integration Connector Mesh] process execution failed', error); return ''; }
   }
 
   private missingConfigHint(manifest: IntegrationConnectorManifest): string {
@@ -550,15 +547,11 @@ export class IntegrationConnectorMeshService {
     if (contentType.includes('application/json')) {
       try {
         return await response.json();
-      } catch {
-        return null;
-      }
+      } catch (error) { logger.warn('[Integration Connector Mesh] operation failed', error); return null; }
     }
     try {
       return (await response.text()).slice(0, 1000);
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Integration Connector Mesh] operation failed', error); return null; }
   }
 
   private doctorSnapshot(

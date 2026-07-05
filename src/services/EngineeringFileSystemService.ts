@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../logger.js';
 
 type EngineeringFileSystemOptions = {
   readdirSync?: typeof fs.readdirSync;
@@ -179,9 +180,10 @@ export class EngineeringFileSystemService {
     let entries: fs.Dirent[] = [];
     try {
       entries = this.readdirSync(currentPath, { withFileTypes: true });
-    } catch {
-      return;
-    }
+    } catch (error) {
+    logger.warn('[Engineering File System] filesystem operation failed', error);
+    return;
+  }
 
     for (const entry of entries) {
       if (this.shouldIgnore(entry.name) || lines.length >= limit) {

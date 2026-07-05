@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+﻿import { v4 as uuidv4 } from 'uuid';
 import { ApprovalStatus, Task, TaskStatus } from '../contracts/TaskContract.js';
 import { TelegramResponse } from '../contracts/TelegramResponse.js';
 import { TaskRepository } from '../storage/TaskRepository.js';
@@ -185,7 +185,7 @@ export class TaskManager {
     };
 
     this.saveTask(task);
-    this.logRepo.log('info', 'TaskManager', `Tarefa criada: ${task.task_id}`);
+    this.logRepo.log('info', 'TaskManager', `Task created: ${task.task_id}`);
     return task;
   }
 
@@ -199,7 +199,7 @@ export class TaskManager {
     task.approval_status = this.resolveApprovalStatus(task, oldStatus, resolvedStatus);
     task.metadata = this.buildLifecycleMetadata(task, oldStatus, resolvedStatus, now, changed, options);
     this.saveTask(task);
-    const reasonSuffix = options.reason ? ` | motivo: ${options.reason}` : '';
+    const reasonSuffix = options.reason ? ` | reason: ${options.reason}` : '';
     this.logRepo.log('info', 'StateMachine', `Task ${task.task_id} transitioned: ${oldStatus} -> ${task.status}${reasonSuffix}`);
   }
 
@@ -209,8 +209,8 @@ export class TaskManager {
       task_id: null,
       chat_id: '',
       response_type: 'status',
-      title: 'Status do Sistema',
-      message: 'Zavorth V2 Online.\\nMódulos Core Operacionais.',
+      title: 'System Status',
+      message: 'Zavorth V2 Online.\\nCore modules operational.',
       short_summary: 'Online',
       attachments: [],
       requires_user_action: false,

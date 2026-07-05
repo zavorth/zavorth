@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -42,7 +43,7 @@ export class MultiBackendTerminalTool extends BaseTool {
       },
       working_directory: {
         type: 'string',
-        description: 'Diretorio de trabalho para execucao.',
+        description: 'Working directory for execution.',
       },
       timeout_ms: {
         type: 'number',
@@ -55,7 +56,7 @@ export class MultiBackendTerminalTool extends BaseTool {
   public async execute(args: Record<string, unknown>): Promise<string> {
     const command = String(args.command || '');
     if (!command) {
-      return 'Erro: o parametro "command" e obrigatorio.';
+      return 'Error: the "command" parameter is required.';
     }
 
     const backend = String(args.backend || this.detectDefaultShell()) as ShellBackend;
@@ -86,16 +87,17 @@ export class MultiBackendTerminalTool extends BaseTool {
       if (!isAvailable) {
         const fallback = this.detectDefaultShell();
         if (fallback === backend) {
-          return `Erro: shell "${backend}" nao esta disponivel no sistema e nenhum fallback foi encontrado.`;
+          return `Error: shell "${backend}" is not available on this system and no fallback was found.`;
         }
         return this.executeWithBackend(command, fallback, cwd, timeoutMs, backend);
       }
 
       return this.executeWithBackend(command, backend, cwd, timeoutMs);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      return `Erro ao executar comando no backend "${backend}": ${message}`;
-    }
+    } catch (error) {
+    logger.warn('[Multi Backend Terminal] process execution failed', error);
+    const message = error instanceof Error ? error.message : String(error);
+      return `Failed to run command on backend "${backend}": ${message}`;
+  }
   }
 
   private async executeWithBackend(
@@ -140,7 +142,7 @@ export class MultiBackendTerminalTool extends BaseTool {
       if (execError.stdout) errorOutput += `[STDOUT PARCIAL]\n${String(execError.stdout)}`;
       if (execError.stderr) errorOutput += `[STDERR PARCIAL]\n${String(execError.stderr)}`;
       if (execError.killed) {
-        errorOutput += `[AVISO: comando encerrado por timeout (${timeoutMs}ms).]`;
+        errorOutput += `[WARNING: command ended by timeout (${timeoutMs}ms).]`;
       }
       return errorOutput.trim();
     }
@@ -152,9 +154,7 @@ export class MultiBackendTerminalTool extends BaseTool {
       const checkArg = os.platform() === 'win32' ? binary : binary;
       await execFileAsync(checkCommand, [checkArg], { timeout: 5000, windowsHide: true });
       return true;
-    } catch {
-      return false;
-    }
+    } catch (error) { logger.warn('[Multi Backend Terminal] process execution failed', error); return false; }
   }
 
   private detectDefaultShell(): ShellBackend {

@@ -135,8 +135,8 @@ function readRuntimeNumber(canonicalKey: string, fallback: number): number {
 /**
  * ExternalExecutor - executor real para external runner (WSL/direct).
  *
- * O Zavorth delega uma tarefa ja validada pelo Gateway para um cliente ACP.
- * O agente deve respeitar o workspace aprovado e retornar um resumo curto da
+ * Zavorth delegates a task already validated by the Gateway to an ACP client.
+ * The agent must respect the approved workspace and return a short summary of the
  * execucao.
  */
 export class ExternalExecutor implements IExecutor {
@@ -187,7 +187,7 @@ export class ExternalExecutor implements IExecutor {
       artifacts: [],
       rollback_available: false,
       error_code: null,
-      error_message: 'External runner (WSL/direct) ainda nao esta instalado ou configurado. Use o executor local por enquanto.',
+      error_message: 'External runner (WSL/direct) is not installed or configured yet. Use the local executor for now.',
       metadata: {
         workspace,
         workspace_wsl: workspaceWsl,
@@ -208,7 +208,7 @@ export class ExternalExecutor implements IExecutor {
       result.finished_at = new Date().toISOString();
       result.stdout = [
         'Simulacao do external runner pronta.',
-        `Workspace aprovado: ${workspace}`,
+        `Approved workspace: ${workspace}`,
         `Workspace WSL esperado: ${workspaceWsl}`,
         '',
         prompt,
@@ -236,13 +236,13 @@ export class ExternalExecutor implements IExecutor {
       if ((result.stdout || '').includes('WORKSPACE_MISMATCH')) {
         result.success = false;
         result.error_code = `${EXTERNAL_EXECUTOR_ERROR_PREFIX}_WORKSPACE_MISMATCH`;
-        result.error_message = 'O cliente ACP esta preso a um workspace diferente do workspace aprovado pelo Zavorth.';
+        result.error_message = 'The ACP client is pinned to a workspace different from the workspace approved by Zavorth.';
       } else {
         const requestedPath = this.parsePathAccessRequest(result.stdout || '');
         if (requestedPath) {
           result.success = false;
           result.error_code = `${EXTERNAL_EXECUTOR_ERROR_PREFIX}_PATH_ACCESS_REQUIRED`;
-          result.error_message = `O external runner precisa de acesso adicional ao caminho ${requestedPath.windowsPath || requestedPath.rawPath} para concluir a tarefa atual.`;
+          result.error_message = `The external runner needs additional access to path ${requestedPath.windowsPath || requestedPath.rawPath} to complete the current task.`;
           result.metadata = {
             ...(result.metadata || {}),
             requested_access_path_raw: requestedPath.rawPath,
@@ -258,7 +258,7 @@ export class ExternalExecutor implements IExecutor {
       result.stdout = this.cleanOutput(executionError.stdout) || null;
       result.stderr = this.cleanOutput(executionError.stderr) || this.cleanOutput(executionError.message) || null;
       result.error_code = `${EXTERNAL_EXECUTOR_ERROR_PREFIX}_AGENT_FAILED`;
-      result.error_message = executionError.message || 'External runner CLI falhou ao executar a tarefa.';
+      result.error_message = executionError.message || 'External runner CLI failed to execute the task.';
     }
 
     result.finished_at = new Date().toISOString();
@@ -292,19 +292,19 @@ export class ExternalExecutor implements IExecutor {
     const allowedCommandPolicies = this.normalizeCommandPolicies(request.metadata?.allowed_command_policies);
     const instructions = request.instructions.length > 0
       ? request.instructions.map((instruction, index) => `${index + 1}. ${instruction}`)
-      : ['1. Execute a tarefa pedida sem ampliar o escopo.'];
+      : ['1. Execute the requested task without expanding scope.'];
     const allowedPaths = request.allowed_paths.length > 0
       ? request.allowed_paths.join(', ')
       : workspace;
     const blockedPaths = request.blocked_paths.length > 0
       ? request.blocked_paths.join(', ')
-      : 'nenhum informado';
+      : 'none provided';
     const allowedCommands = request.allowed_commands.length > 0
       ? request.allowed_commands.join(', ')
       : 'use apenas as ferramentas necessarias dentro do workspace';
     const blockedCommands = request.blocked_commands.length > 0
       ? request.blocked_commands.join(', ')
-      : 'nenhum informado';
+      : 'none provided';
     const allowedPathPolicyLines = allowedPathPolicies
       .map((policy) => {
         const accessLevel =
@@ -318,8 +318,8 @@ export class ExternalExecutor implements IExecutor {
       .map((policy) => {
         const matchType =
           policy.matchType === 'prefix'
-            ? 'prefixo aprovado'
-            : 'comando exato aprovado';
+            ? 'approved prefix'
+            : 'approved exact command';
         return `- ${policy.command} (${matchType})`;
       })
       .filter(Boolean);
@@ -329,21 +329,21 @@ export class ExternalExecutor implements IExecutor {
     const scopedWriteEnforced = writeScopePaths.length > 0;
 
     return [
-      'Voce esta executando uma tarefa delegada pelo Zavorth.',
-      `Workspace Windows aprovado: ${workspace}`,
+      'You are executing a task delegated by Zavorth.',
+      `Approved Windows workspace: ${workspace}`,
       `Workspace WSL esperado: ${workspaceWsl}`,
       'Se o agente atual estiver preso a outro workspace ou repositorio, pare e responda exatamente: WORKSPACE_MISMATCH.',
-      'Se precisar ler uma pasta ou arquivo fora de "Caminhos permitidos", pare e responda com a primeira linha exatamente neste formato: PATH_ACCESS_REQUIRED: <caminho absoluto>.',
+      'If you need to read a folder or file outside "Allowed paths", stop and reply with the first line exactly in this format: PATH_ACCESS_REQUIRED: <absolute path>.',
       'Use o caminho mais especifico possivel. Pode ser caminho Windows (C:/...) ou WSL (/mnt/c/...). Depois, em outra linha, explique brevemente o motivo em English.',
-      'Nao leia, escreva ou execute nada fora do workspace aprovado.',
+      'Do not read, write, or execute anything outside the approved workspace.',
       ...(scopedWriteEnforced
         ? [
-            'Dentro do workspace aprovado, trate todo o restante como somente leitura.',
+            'Inside the approved workspace, treat everything else as read-only.',
             'So escreva nos caminhos marcados como leitura e escrita nas permissoes extras aprovadas.',
           ]
         : []),
       '',
-      `Objetivo: ${request.objective || 'Executar a tarefa delegada.'}`,
+      `Objective: ${request.objective || 'Execute the delegated task.'}`,
       '',
       'Instrucoes:',
       ...instructions,
@@ -858,7 +858,7 @@ export class ExternalExecutor implements IExecutor {
 
     if (error && typeof error === 'object' && !Array.isArray(error)) {
       const record = error as Record<string, unknown>;
-      const normalized = new Error(String(record.message || 'External runner CLI falhou ao executar a tarefa.'));
+      const normalized = new Error(String(record.message || 'External runner CLI failed to execute the task.'));
       normalized.name = typeof record.name === 'string' ? record.name : normalized.name;
       return Object.assign(normalized, {
         stdout: stringifyProcessOutput(record.stdout) || undefined,
@@ -867,7 +867,7 @@ export class ExternalExecutor implements IExecutor {
       });
     }
 
-    return new Error(String(error || 'External runner CLI falhou ao executar a tarefa.'));
+    return new Error(String(error || 'External runner CLI failed to execute the task.'));
   }
 
   private async delay(ms: number): Promise<void> {

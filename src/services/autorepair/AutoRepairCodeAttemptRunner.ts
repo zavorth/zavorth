@@ -5,6 +5,7 @@ import type { SafeModificationService } from '../SafeModificationService.js';
 import type { AutoRepairValidationService } from './AutoRepairValidationService.js';
 import type { AutoRepairAttempt, AutoRepairPlan } from './AutoRepairTypes.js';
 import { normalizeAutoRepairError, trimAutoRepairOutput } from './AutoRepairTextUtils.js';
+import { logger } from '../../logger.js';
 
 export type AutoRepairCodeAttemptRunnerDependencies = {
   selfModificationService: Pick<SelfModificationService, 'previewModification'>;
@@ -134,12 +135,13 @@ export class AutoRepairCodeAttemptRunner {
           status: 'deleted-new-file',
           reason: 'Arquivo novo removido durante o rollback.',
         };
-      } catch (error: any) {
-        return {
+      } catch (error) {
+    logger.warn('[Auto Repair Code Attempt Runner] file cleanup failed', error);
+    return {
           status: 'failed',
           reason: `Falha ao remover o arquivo novo durante o rollback: ${normalizeAutoRepairError(error)}`,
         };
-      }
+  }
     }
 
     const rollbackResult = await this.dependencies.safeModificationService.safeApply(absolutePath, originalContent);

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface MarketplacePlugin {
   id: string;
@@ -49,11 +50,11 @@ export class ZavorthPluginMarketplaceService {
         const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
         if (Array.isArray(data)) for (const plugin of data) this.plugins.set(plugin.id, plugin);
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Zavorth Plugin Marketplace] JSON parse failed', error); }
     try {
       const r = path.join(this.storageDir, 'reviews.json');
       if (fs.existsSync(r)) this.reviews = JSON.parse(fs.readFileSync(r, 'utf-8'));
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Zavorth Plugin Marketplace] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

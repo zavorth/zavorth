@@ -67,7 +67,7 @@ export const API_KEY_PROVIDER_PRICING = {
       reasoning: 15.0,
       cache_creation: 3.0,
     },
-    // Claude 4.5 Haiku â€” modelo eco mais recente da Anthropic (2025-10)
+    // Claude 4.5 Haiku - Anthropic's latest eco model (2025-10)
     "claude-haiku-4-5-20251001": {
       input: 1.0,
       output: 5.0,
@@ -82,7 +82,7 @@ export const API_KEY_PROVIDER_PRICING = {
       reasoning: 7.5,
       cache_creation: 1.0,
     },
-    // Claude Sonnet 4.6 â€” maxOutput 64k tokens, $3/$15/M
+    // Claude Sonnet 4.6 - maxOutput 64k tokens, $3/$15/M
     "claude-sonnet-4-6-20251031": {
       input: 3.0,
       output: 15.0,
@@ -97,7 +97,7 @@ export const API_KEY_PROVIDER_PRICING = {
       reasoning: 22.5,
       cache_creation: 3.0,
     },
-    // Claude Opus 4.6 â€” mais barato que Opus 4 ($5/$25 vs $15/$75)
+    // Claude Opus 4.6 - cheaper than Opus 4 ($5/$25 vs $15/$75)
     "claude-opus-4-6-20251031": {
       input: 5.0,
       output: 25.0,
@@ -125,7 +125,7 @@ export const API_KEY_PROVIDER_PRICING = {
 
   // Gemini
   gemini: {
-    // Gemini 3.1 Pro â€” novo flagship Google (2026-03-17)
+    // Gemini 3.1 Pro - new Google flagship (2026-03-17)
     // Context: 1.050.000 tokens | Max Output: 65.536
     "gemini-3.1-pro": {
       input: 2.0,
@@ -169,7 +169,7 @@ export const API_KEY_PROVIDER_PRICING = {
       reasoning: 3.75,
       cache_creation: 0.3,
     },
-    // Gemini 2.5 Flash Lite â€” preco corrigido: $0.10/$0.40 (ClawRouter)
+    // Gemini 2.5 Flash Lite - corrected price: $0.10/$0.40 (ClawRouter)
     "gemini-2.5-flash-lite": {
       input: 0.1,
       output: 0.4,
@@ -179,7 +179,7 @@ export const API_KEY_PROVIDER_PRICING = {
     },
   },
 
-  // DeepSeek â€” API nativa (V3.2 Chat), separada de free providers
+  // DeepSeek - native API (V3.2 Chat), separate from free providers
   // Preco: $0.28/$0.42/M tokens (verificado via ClawRouter 2026-03-17)
   deepseek: {
     "deepseek-chat": {
@@ -313,7 +313,7 @@ export const API_KEY_PROVIDER_PRICING = {
       reasoning: 6.0,
       cache_creation: 1.0,
     },
-    // Kimi K2.5 â€” acesso direto via Moonshot API
+    // Kimi K2.5 - direct access through Moonshot API
     // Context: 262.144 tokens | Capabilities: reasoning, vision, agentic, tools
     "kimi-k2.5": {
       input: 0.6,
@@ -385,7 +385,7 @@ export const API_KEY_PROVIDER_PRICING = {
       reasoning: 3.0,
       cache_creation: 0.5,
     },
-    // MiniMax M2.5 â€” mais barato que M2.1, reasoning + tools
+    // MiniMax M2.5 - cheaper than M2.1, reasoning + tools
     // Context: 204.800 tokens | Max Output: 16.384 tokens
     "minimax-m2.5": {
       input: 0.27,

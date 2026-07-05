@@ -5,6 +5,7 @@ import type {
 import type { ToolCategory } from '../../../echo/types/IZavorthTool.js';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../../logger.js';
 
 export type EchoPendingExecutionKind = 'tool' | 'intent';
 
@@ -115,8 +116,6 @@ export class EchoPendingExecutionStoreService {
         JSON.stringify({ records: this.list() }, null, 2),
         'utf8',
       );
-    } catch {
-      // Persistence is best-effort; the in-memory boundary remains authoritative for this process.
-    }
+    } catch (error) { // Persistence is best-effort; the in-memory boundary remains authoritative for this process. logger.warn('[Pending Execution Store] filesystem operation failed', error); }
   }
 }

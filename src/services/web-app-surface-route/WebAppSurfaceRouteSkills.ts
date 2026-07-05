@@ -322,7 +322,7 @@ export async function handleWebAppSurfaceSkillRoutes(
     const sessionId = readDecodedPathSuffix(pathname, '/api/web/codex-remote/sessions/');
     const snapshot = await deps.codexRemote.buildSnapshot({
       runtimeUserId: deps.runtime?.webUserId || 'web',
-      selectedSessionId: sessionId,
+      selectedSessionId: sessionId || undefined,
     });
     if (!snapshot.sessionBroker.selected) {
       deps.writeJson(res, { ok: false, error: `Sessao Codex Remote nao encontrada: ${sessionId}.` }, 404);
@@ -341,7 +341,7 @@ export async function handleWebAppSurfaceSkillRoutes(
     const body = await deps.readJsonBody(req);
     const actionId = String(body?.actionId || '').trim();
     const action = await deps.codexRemoteActions.execute(buildCodexRemoteActionInput(deps, body, actionId));
-    deps.writeJson(res, { ok: true, ...action }, 200);
+    deps.writeJson(res, Object.assign({ ok: true }, action), 200);
     return true;
   }
 

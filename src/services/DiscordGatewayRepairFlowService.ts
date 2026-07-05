@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { config } from '../config/index.js';
 import type { RuntimeAccessDiscordBridgeSnapshot } from '../runtime/access/RuntimeAccessReadinessService.js';
+import { logger } from '../logger.js';
 
 export type DiscordGatewayRepairFlowReport = {
   status: 'not_applicable' | 'healthy' | 'attention';
@@ -105,9 +106,10 @@ export class DiscordGatewayRepairFlowService {
         dormant: capability.state === 'dormant',
         notes: typeof capability.notes === 'string' ? capability.notes : null,
       };
-    } catch {
-      return { dormant: false, notes: null };
-    }
+    } catch (error) {
+    logger.warn('[Discord way Repair Flow] filesystem check failed', error);
+    return { dormant: false, notes: null };
+  }
   }
 }
 

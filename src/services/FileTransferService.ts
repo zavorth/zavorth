@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
 import { LocalFileTransferAdapter } from '../adapters/files/FileDocumentDiffLiveAdapters.js';
+import { logger } from '../logger.js';
 
 type FileTransferServiceOptions = {
   artifactDir?: string;
@@ -113,7 +114,8 @@ export class FileTransferService {
         error: null,
       };
     } catch (error) {
-      return {
+    logger.warn('[File Transfer] filesystem check failed', error);
+    return {
         ok: false,
         contractVersion: FILE_TRANSFER_CONTRACT_VERSION,
         status: 'failed',
@@ -124,7 +126,7 @@ export class FileTransferService {
         processedAt,
         error: error instanceof Error ? error.message : String(error),
       };
-    }
+  }
   }
 
   private policy(request: FileTransferRequest): FileTransferPolicyDecision {

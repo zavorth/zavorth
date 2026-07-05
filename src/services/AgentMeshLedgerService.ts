@@ -64,9 +64,7 @@ export class AgentMeshLedgerService {
           if (isBlockedStatus(receipt.status)) {
             this.blockedExecutions++;
           }
-        } catch {
-          // Ignore malformed ledger lines.
-        }
+        } catch (error) { // Ignore malformed ledger lines. logger.warn('[Agent Mesh Ledger] JSON parse failed', error); }
       }
     } catch (error) {
       logger.error('Failed to load Agent Mesh Ledger:', error);

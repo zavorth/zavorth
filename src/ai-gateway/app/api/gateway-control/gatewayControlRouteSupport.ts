@@ -6,6 +6,7 @@ import { AIGatewayProxyService } from "../../../../services/AIGatewayProxyServic
 import { ProviderControlPlaneService } from "../../../../services/ProviderControlPlaneService.js";
 import { PermissionService } from "../../../../services/PermissionService.js";
 import type { PermissionRequest } from "../../../../contracts/PermissionRequest.js";
+import { logger } from '@/shared/utils/logger';
 
 export type GatewayControlReadResource =
   | "overview"
@@ -215,7 +216,8 @@ export function buildGatewayControlReadPayload(
 export async function readGatewayControlJsonBody(request: Request): Promise<{ ok: true; body: unknown } | { ok: false }> {
   try {
     return { ok: true, body: await request.json() };
-  } catch {
+  } catch (error) {
+    logger.warn('[gateway Control] cache operation failed', error);
     return { ok: true, body: {} };
   }
 }
@@ -657,9 +659,7 @@ async function readGatewayControlEquivalentJson(response: Response): Promise<Rec
   try {
     const value = await response.json();
     return asRecord(value);
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[gateway Control] operation failed', error); return null; }
 }
 
 function asRecord(value: unknown): Record<string, unknown> {

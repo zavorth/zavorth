@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import type { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { DesktopAutomationTool } from '../tools/DesktopAutomationTool.js';
 import fs from 'fs';
+import { logger } from '../logger.js';
 
 export type ComputerUseAction = {
   action: 'click-element' | 'type-text' | 'press-key' | 'focus-window' | 'screenshot' | 'list-elements' | 'done';
@@ -50,19 +51,18 @@ export type ComputerUseSnapshot = {
 };
 
 /**
- * ComputerUseAgent — Autonomous Desktop Control Loop via Vision LLM.
+ * ComputerUseAgent - autonomous desktop control loop through a vision LLM.
  *
  * The agent captures a screenshot of the target window, sends it to a
- * vision-capable LLM (Gemini Pro, Claude Sonnet, etc.), and the LLM
- * decides which UI action to perform next. This loop continues until
- * the LLM reports "done" or the iteration limit is reached.
+ * vision-capable LLM, and asks which UI action should be performed next.
+ * The loop continues until the LLM reports "done" or the iteration limit is reached.
  *
  * Architecture:
- *  - Uses DesktopAutomationTool for all UI interactions
- *  - Screenshots are converted to base64 and sent inline to the LLM
- *  - The LLM responds with structured JSON actions
- *  - EventEmitter for real-time observability in the zavorthControl
- *  - Safety: max iterations, pause/stop flags, action logging
+ *  - Uses DesktopAutomationTool for all UI interactions.
+ *  - Converts screenshots to base64 and sends them inline to the LLM.
+ *  - Expects structured JSON actions from the LLM.
+ *  - Emits events for real-time observability in Zavorth control surfaces.
+ *  - Applies safety guardrails through iteration limits, pause/stop flags, and action logs.
  */
 export class ComputerUseAgent extends EventEmitter {
   private status: ComputerUseSnapshot['status'] = 'idle';
@@ -110,8 +110,8 @@ export class ComputerUseAgent extends EventEmitter {
   public async run(taskConfig: ComputerUseConfig): Promise<ComputerUseSnapshot> {
     if (!this.isExecutionAllowed()) {
       throw new Error(
-        'Computer Use visual bloqueado por seguranca. Defina ZAVORTH_COMPUTER_USE_ENABLED=true '
-        + 'ou ZAVORTH_COMPUTER_USE_PROFILE=trusted|dangerous para liberar explicitamente.',
+        'Visual Computer Use is blocked for security. Set ZAVORTH_COMPUTER_USE_ENABLED=true '
+        + 'or ZAVORTH_COMPUTER_USE_PROFILE=trusted|dangerous to enable it explicitly.',
       );
     }
 
@@ -142,7 +142,7 @@ export class ComputerUseAgent extends EventEmitter {
         this.iteration++;
         this.emit('agent:iteration', { iteration: this.iteration });
 
-        // Step 1: Screenshot the target window
+        // Step 1: screenshot the target window.
         const screenshotResult = await this.desktopTool.execute({
           action: 'screenshot',
           windowTitle: this.targetWindow,
@@ -157,17 +157,17 @@ export class ComputerUseAgent extends EventEmitter {
           });
         }
 
-        // Step 2: Load screenshot as base64 for the LLM
+        // Step 2: load screenshot as base64 for the LLM.
         let base64Image = '';
         if (screenshotPath && fs.existsSync(screenshotPath)) {
           base64Image = fs.readFileSync(screenshotPath).toString('base64');
         }
 
         if (!base64Image) {
-          throw new Error('Screenshot indisponivel; interrompendo Computer Use para evitar acao sem visao.');
+          throw new Error('Screenshot unavailable; stopping Computer Use to avoid blind visual action.');
         }
 
-        // Step 3: Ask the LLM what to do next
+        // Step 3: ask the LLM what to do next.
         let nextAction = await this.askLlmForNextAction(base64Image);
         if (taskConfig.hooks?.onActionPlanned) {
           nextAction = await taskConfig.hooks.onActionPlanned({
@@ -179,12 +179,12 @@ export class ComputerUseAgent extends EventEmitter {
 
         if (nextAction.action === 'done') {
           this.status = 'completed';
-          this.history.push({ iteration: this.iteration, action: nextAction, result: 'Objetivo atingido.' });
+          this.history.push({ iteration: this.iteration, action: nextAction, result: 'Objective reached.' });
           this.emit('agent:action', { iteration: this.iteration, action: nextAction, result: 'done' });
           break;
         }
 
-        // Step 4: Execute the action
+        // Step 4: execute the action.
         const actionResult = await this.desktopTool.execute({
           action: nextAction.action,
           windowTitle: nextAction.windowTitle || this.targetWindow,
@@ -202,7 +202,7 @@ export class ComputerUseAgent extends EventEmitter {
         }
         this.emit('agent:action', { iteration: this.iteration, action: nextAction, result: actionResult });
 
-        // Step 5: Small delay between actions for UI stability
+        // Step 5: small delay between actions for UI stability.
         const delay = this.config.delayMs ?? taskConfig.delayBetweenActionsMs ?? 1500;
         await this.sleep(delay);
       }
@@ -275,28 +275,28 @@ export class ComputerUseAgent extends EventEmitter {
   private async askLlmForNextAction(base64Screenshot: string): Promise<ComputerUseAction> {
     const historyContext = this.history
       .slice(-5)
-      .map((h) => `  Iteração ${h.iteration}: ${h.action.action}(${h.action.targetText || h.action.payload || ''}) → ${h.result.slice(0, 100)}`)
+      .map((h) => `  Iteration ${h.iteration}: ${h.action.action}(${h.action.targetText || h.action.payload || ''}) -> ${h.result.slice(0, 100)}`)
       .join('\n');
 
-    const prompt = `Você é um Agente de Automação Desktop ("Computer Use Agent").
-Seu objetivo é: "${this.objective}"
-Janela alvo: "${this.targetWindow}"
-Iteração atual: ${this.iteration}/${this.maxIterations}
+    const prompt = `You are a Desktop Automation Agent ("Computer Use Agent").
+Your objective is: "${this.objective}"
+Target window: "${this.targetWindow}"
+Current iteration: ${this.iteration}/${this.maxIterations}
 
-Histórico recente de ações:
-${historyContext || '  (nenhuma ação anterior)'}
+Recent action history:
+${historyContext || '  (no previous action)'}
 
-Analise o screenshot da janela em anexo e decida a próxima ação.
-Responda APENAS com JSON puro (sem markdown, sem code fence), no formato:
+Analyze the attached window screenshot and decide the next action.
+Respond ONLY with raw JSON (no Markdown, no code fence), in this format:
 {
   "action": "click-element" | "type-text" | "press-key" | "focus-window" | "list-elements" | "done",
-  "windowTitle": "título da janela se diferente",
-  "targetText": "texto do botão para click-element",
-  "payload": "texto para type-text ou tecla para press-key",
-  "reasoning": "explicação curta do porquê desta ação"
+  "windowTitle": "window title if different",
+  "targetText": "button or element text for click-element",
+  "payload": "text for type-text or key for press-key",
+  "reasoning": "short explanation of why this action is appropriate"
 }
 
-Se o objetivo já foi atingido, retorne: {"action": "done", "reasoning": "..."}.`;
+If the objective has already been reached, return: {"action": "done", "reasoning": "..."}.`;
 
     const messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string; inlineData?: Array<{ mimeType: string; data: string }> }> = [];
 
@@ -309,7 +309,7 @@ Se o objetivo já foi atingido, retorne: {"action": "done", "reasoning": "..."}.
     } else {
       messages.push({
         role: 'user',
-        content: prompt + '\n\n[Screenshot indisponível — decida com base no histórico]',
+        content: prompt + '\n\n[Screenshot unavailable - decide based on the history]',
       });
     }
 
@@ -317,9 +317,10 @@ Se o objetivo já foi atingido, retorne: {"action": "done", "reasoning": "..."}.
       const response = await this.llmRuntime.chat(messages as any);
       const text = (response.content || '').replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(text) as ComputerUseAction;
-    } catch {
-      return { action: 'done', reasoning: 'Falha ao interpretar resposta do LLM, encerrando por segurança.' };
-    }
+    } catch (error) {
+    logger.warn('[Computer Use Agent] JSON parse failed', error);
+    return { action: 'done', reasoning: 'Failed to parse LLM response, stopping for safety.' };
+  }
   }
 
   private extractScreenshotPath(result: string): string | null {

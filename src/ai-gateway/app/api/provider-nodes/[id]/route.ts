@@ -11,6 +11,7 @@ import { isClaudeCodeCompatibleProvider } from "@/shared/constants/providers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateProviderNodeSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -40,7 +41,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] string operation failed', error);
     return NextResponse.json(
       {
         error: {

@@ -6,6 +6,7 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import type { ZavorthAgentGateway } from '../../../runtime/agent/index.js';
 import { LogRepository } from '../../../storage/LogRepository.js';
+import { logger } from '../../../logger.js';
 
 const DISCORD_BRIDGE_PROTOCOL = 'ZAVORTH_DISCORD_BRIDGE_V1' as const;
 const MAX_PROCESSED_MESSAGE_IDS = 300;
@@ -256,9 +257,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
 
     try {
       return JSON.parse(fs.readFileSync(this.statusFilePath, 'utf8')) as DiscordBridgeStatusSnapshot;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Discord Bridge way] JSON parse failed', error); return null; }
   }
 
   public async processInboxOnce(): Promise<void> {
@@ -666,8 +665,9 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
               .slice(0, MAX_PROCESSED_MESSAGE_IDS)
           : [],
       };
-    } catch {
-      return {
+    } catch (error) {
+    logger.warn('[Discord Bridge way] parsing failed', error);
+    return {
         startedAt: null,
         processedCount: 0,
         rejectedCount: 0,
@@ -677,7 +677,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
         lastError: null,
         processedMessageIds: [],
       };
-    }
+  }
   }
 
   private patchState(mutator: (state: DiscordBridgeState) => DiscordBridgeState): DiscordBridgeState {

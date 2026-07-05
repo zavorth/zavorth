@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  PUBLIC_DEMO_FORBIDDEN_CLAIMS,
+PUBLIC_DEMO_FORBIDDEN_CLAIMS,
   PUBLIC_DEMO_REQUIRED_ARTIFACTS,
   PUBLIC_DEMO_REQUIRED_COPY,
   PUBLIC_DEMO_REQUIRED_STATES,
@@ -356,9 +357,7 @@ export class PublicDemoContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Public Demo Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -384,9 +383,7 @@ export class PublicDemoContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch {
-      return '';
-    }
+    } catch (error) { logger.warn('[Public Demo Contract] filesystem operation failed', error); return ''; }
   }
 
   private check(

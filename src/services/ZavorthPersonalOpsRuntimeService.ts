@@ -6,8 +6,9 @@ import type {
 import { ZavorthRuntimeSecureIntegrationService } from './ZavorthRuntimeSecureIntegrationService.js';
 import { ZavorthRuntimeStateBusService } from './ZavorthRuntimeStateBusService.js';
 import { SecureStorageService } from './SecureStorageService.js';
+import { logger } from '../logger.js';
 import {
-  ZavorthPersonalOpsGoogleAdapter,
+ZavorthPersonalOpsGoogleAdapter,
   ZavorthPersonalOpsMicrosoftGraphAdapter,
 } from './ZavorthPersonalOpsLiveAdapters.js';
 
@@ -432,7 +433,8 @@ export class ZavorthPersonalOpsRuntimeService {
         error: null,
       });
     } catch (error) {
-      return this.operationResult({
+    logger.warn('[Zavorth Personal Ops Runtime] connection failed', error);
+    return this.operationResult({
         operation: input.operation,
         connectorId,
         connectorKind: connector.kind,
@@ -447,7 +449,7 @@ export class ZavorthPersonalOpsRuntimeService {
         profile,
         error: error instanceof Error ? error.message : 'personal_ops_adapter_failed',
       });
-    }
+  }
   }
 
   private hasVerifiedApproval(input: {

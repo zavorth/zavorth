@@ -6,6 +6,7 @@ import type {
 } from './ZavorthRuntimeReadinessService.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
 import type { ZavorthProviderReadinessMatrixSnapshot } from '../contracts/ZavorthProviderReadinessMatrixContract.js';
+import { logger } from '../logger.js';
 
 export const ZAVORTH_RUNTIME_GUIDED_FIXES_CONTRACT_VERSION = 'zavorth-runtime-guided-fixes/1' as const;
 
@@ -257,9 +258,7 @@ export class ZavorthRuntimeGuidedFixesService {
   private safeProviderSnapshot(): ZavorthProviderReadinessMatrixSnapshot | null {
     try {
       return this.providerReadiness.buildSnapshot({ includeAdvanced: false, probe: false });
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Runtime Guided es] creation failed', error); return null; }
   }
 
   private renderTelegramFromParts(snapshot: Omit<ZavorthRuntimeGuidedFixesSnapshot, 'telegramProjection'>): string {

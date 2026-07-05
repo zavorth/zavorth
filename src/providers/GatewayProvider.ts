@@ -47,7 +47,7 @@ export class GatewayProvider implements ILlmProvider {
         messages: convertChatMessagesToOpenAI(messages),
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
-      } as any, buildProviderRequestOptions(options) as any);
+      } as OpenAI.ChatCompletionCreateParamsNonStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
@@ -55,11 +55,11 @@ export class GatewayProvider implements ILlmProvider {
       return {
         content: choice.message.content,
         toolCalls,
-        finishReason: choice.finish_reason as any,
+        finishReason: choice.finish_reason as LlmResponse['finishReason'],
         metadata: nativeToolPayload.metadata,
       };
     } catch (error: any) {
-      logger.error('❌ [AIGateway] Erro na requisição:', error?.message || error);
+      logger.error('[AIGateway] Request error:', error?.message || error);
       throw error;
     }
   }
@@ -77,11 +77,11 @@ export class GatewayProvider implements ILlmProvider {
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
         stream: true,
-      } as any, buildProviderRequestOptions(options) as any);
+      } as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
-      yield* streamOpenAICompatibleCompletion(stream as any, nativeToolPayload.metadata);
+      yield* streamOpenAICompatibleCompletion(stream, nativeToolPayload.metadata);
     } catch (error: any) {
-      logger.error('❌ [AIGateway] Erro no streaming:', error?.message || error);
+      logger.error('❌ [AIGateway] Streaming error:', error?.message || error);
       throw error;
     }
   }

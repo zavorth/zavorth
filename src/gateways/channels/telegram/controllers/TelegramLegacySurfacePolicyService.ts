@@ -27,23 +27,23 @@ export class TelegramLegacySurfacePolicyService {
 
   public buildUnhandledOperatorCommandMessage(rawText: string, commandType: string): string {
     const commandLabel = parseTelegramCommand(rawText)?.commandType || commandType;
-    return `Comando operador ${commandLabel} nao foi tratado neste runtime.`;
+    return `Operator command ${commandLabel} was not handled in this runtime.`;
   }
 
   public buildCompatibilityTaskPrompt(commandType: string): string {
     if (commandType === '/auto') {
-      return 'O comando /auto fica como compatibilidade. Escreva o objetivo depois dele ou mande o pedido em linguagem natural para o agent loop canonico escolher o caminho.';
+      return 'The /auto command remains for compatibility. Write the objective after it or send the request in natural language so the canonical agent loop can choose the path.';
     }
 
-    return 'O comando /task fica como compatibilidade. Escreva o objetivo depois dele ou mande o pedido em linguagem natural para o agent loop canonico organizar a tarefa.';
+    return 'The /task command remains for compatibility. Write the objective after it or send the request in natural language so the canonical agent loop can organize the task.';
   }
 
   public buildTaskDispatchFallbackMessage(taskId: string): string {
     return [
-      'Organizei esse pedido e ele ja ficou registrado.',
+      'I organized this request and it has been recorded.',
       '',
-      `Referencia curta: ${String(taskId || '').substring(0, 8)}`,
-      'Para continuar, descreva o proximo objetivo em linguagem natural; o Telegram atua como adapter fino e o runtime canonico escolhe o caminho.',
+      `Short reference: ${String(taskId || '').substring(0, 8)}`,
+      'To continue, describe the next objective in natural language; Telegram acts as a thin adapter and the canonical runtime chooses the path.',
     ].join('\n');
   }
 

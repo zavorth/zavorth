@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
+import { logger } from '../../logger.js';
 
 export type WorkspaceFsAccess = 'read' | 'list' | 'write' | 'edit' | 'apply_patch';
 export type WorkspaceFsScope = 'workspace' | 'workspace_output';
@@ -143,7 +144,7 @@ function assertReadablePathIsNotSensitive(root: string, absolutePath: string): v
     || /\.(pem|key|p12|pfx|kubeconfig)$/i.test(basename)
     || /(^|[-_.])(secret|token|credential|private-key)([-_.]|$)/i.test(basename)
   ) {
-    throw new Error('Leitura bloqueada: o arquivo parece conter credenciais ou material sensivel.');
+    throw new Error('Read blocked: the file appears to contain credentials or sensitive material.');
   }
 }
 
@@ -171,7 +172,7 @@ function assertNoSymlinkEscape(
     const existingParent = findNearestExistingAncestor(path.dirname(absolutePath));
     const realParent = realpathIfExists(existingParent);
     if (!realParent) {
-      throw new Error('Filesystem policy error: nenhum ancestral existente foi encontrado para validar leitura.');
+      throw new Error('Filesystem policy error: no existing ancestor was found to validate read access.');
     }
     assertContainedAfterRealpath(realRoot || realWorkspaceRoot, realParent, access);
     assertContainedAfterRealpath(realWorkspaceRoot, realParent, access);
@@ -193,7 +194,7 @@ function assertNoSymlinkEscape(
     const existingParent = findNearestExistingAncestor(path.dirname(absolutePath));
     const realParent = realpathIfExists(existingParent);
     if (!realParent) {
-      throw new Error('Filesystem policy error: nenhum ancestral existente foi encontrado para validar escrita.');
+      throw new Error('Filesystem policy error: no existing ancestor was found to validate write access.');
     }
     assertContainedAfterRealpath(containmentRoot, realParent, access);
     assertContainedAfterRealpath(realWorkspaceRoot, realParent, access);
@@ -203,7 +204,7 @@ function assertNoSymlinkEscape(
 function assertContainedAfterRealpath(realRoot: string, realTarget: string, access: WorkspaceFsAccess): void {
   if (!isPathContained(realRoot, realTarget)) {
     throw new Error(
-      `[SECURITY] Symlink escape bloqueado. O caminho real de ${access} sairia do workspace permitido.`,
+      `[SECURITY] Symlink escape blocked. The real path for ${access} would leave the allowed workspace.`,
     );
   }
 }
@@ -214,9 +215,7 @@ function realpathIfExists(target: string): string | null {
       return null;
     }
     return normalizePath(fs.realpathSync.native(target));
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Workspace Fs] filesystem operation failed', error); return null; }
 }
 
 function findNearestExistingAncestor(startDir: string): string {

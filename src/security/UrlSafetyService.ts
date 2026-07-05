@@ -15,6 +15,7 @@
 
 import { isIPv4, isIPv6 } from 'net';
 import dns from 'dns';
+import { logger } from '../logger.js';
 
 export interface UrlSafetyOptions {
   blockPrivateRanges?: boolean;
@@ -120,9 +121,10 @@ export class UrlSafetyService {
     let parsed: URL;
     try {
       parsed = new URL(url);
-    } catch {
-      return { safe: false, reason: 'Invalid URL' };
-    }
+    } catch (error) {
+    logger.warn('[Url Safety] parsing failed', error);
+    return { safe: false, reason: 'Invalid URL' };
+  }
 
     // Block dangerous protocols
     const protocol = parsed.protocol.toLowerCase();

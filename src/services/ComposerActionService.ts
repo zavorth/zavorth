@@ -3,19 +3,12 @@ import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import type { Task } from '../contracts/TaskContract.js';
 import type { WebComposerMention } from '../contracts/WebComposer.js';
 import { RecentTaskResolver } from './RecentTaskResolver.js';
+import type { WebSessionSnapshot } from './WebRealtimeService.js';
+import { logger } from '../logger.js';
 
 type WebContext = Record<string, unknown>;
 
-type ResolvedSnapshot = {
-  sessionId: string;
-  baselineId?: string;
-  messages?: Array<{
-    role: string;
-    content: string;
-    timestamp?: number;
-  }>;
-  [key: string]: unknown;
-};
+
 
 type PermissionControllerLike = {
   resolvePermissionReference(ref: string): Promise<PermissionRequest>;
@@ -33,7 +26,7 @@ type TaskManagerLike = {
 
 type WebRealtimeLike = {
   captureBaseline(sessionId: string): Promise<void>;
-  getResolvedSnapshot(sessionId: string): Promise<ResolvedSnapshot>;
+  getResolvedSnapshot(sessionId: string): Promise<WebSessionSnapshot>;
   recordAssistantMessage(
     sessionId: string,
     content: string,
@@ -46,7 +39,7 @@ type WebRealtimeLike = {
 export type ComposerActionResult = {
   handled: boolean;
   taskId: string | null;
-  snapshot?: ResolvedSnapshot;
+  snapshot?: WebSessionSnapshot;
 };
 
 type ComposerActionServiceOptions = {
@@ -145,13 +138,14 @@ export class ComposerActionService {
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
     } catch (error) {
-      return this.finishWithError(
+    logger.warn('[Composer Action] path resolution failed', error);
+    return this.finishWithError(
         sessionId,
         error instanceof Error ? error.message : 'Falha ao aprovar a permissao selecionada.',
         null,
         actionMention,
       );
-    }
+  }
   }
 
   private async handleResumeTask(
@@ -229,13 +223,14 @@ export class ComposerActionService {
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
     } catch (error) {
-      return this.finishWithError(
+    logger.warn('[Composer Action] load operation failed', error);
+    return this.finishWithError(
         sessionId,
         error instanceof Error ? error.message : 'Falha ao retomar o workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
-    }
+  }
   }
 
   private async handleRestartWorkflowStage(
@@ -272,13 +267,14 @@ export class ComposerActionService {
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
     } catch (error) {
-      return this.finishWithError(
+    logger.warn('[Composer Action] lifecycle operation failed', error);
+    return this.finishWithError(
         sessionId,
         error instanceof Error ? error.message : 'Falha ao reiniciar a etapa do workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
-    }
+  }
   }
 
   private async handleCloseWorkflow(
@@ -314,13 +310,14 @@ export class ComposerActionService {
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
     } catch (error) {
-      return this.finishWithError(
+    logger.warn('[Composer Action] resource cleanup failed', error);
+    return this.finishWithError(
         sessionId,
         error instanceof Error ? error.message : 'Falha ao encerrar o workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
-    }
+  }
   }
 
   private async handleDescribeArtifact(

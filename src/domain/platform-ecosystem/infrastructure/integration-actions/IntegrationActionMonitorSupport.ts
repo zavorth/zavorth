@@ -8,8 +8,9 @@ import type { IntegrationHealthService } from '../../../../services/IntegrationH
 import type { IntegrationInstallerService } from '../../../../services/IntegrationInstallerService.js';
 import type { ToolHookPipelineService } from '../../../../services/ToolHookPipelineService.js';
 import type { IntegrationActionLedgerService } from './IntegrationActionLedgerService.js';
+import { logger } from '../../../../logger';
 import type {
-  IntegrationActionExecuteOptions,
+IntegrationActionExecuteOptions,
   IntegrationActionExecution,
   IntegrationActionExecutionContext,
 } from './IntegrationActionTypes.js';
@@ -164,9 +165,7 @@ export class IntegrationActionMonitorSupport {
           requestedBy: context.requestedBy,
         },
       });
-    } catch {
-      // hooks de observabilidade nunca devem quebrar a finalizacao da acao
-    }
+    } catch (error) { // hooks de observabilidade nunca devem quebrar a finalizacao da acao logger.warn('[Integration Action Monitor] lifecycle operation failed', error); }
   }
 
   private normalizeWorkspace(value: string | null | undefined): string | null {

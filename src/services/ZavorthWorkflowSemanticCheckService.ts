@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { logger } from '../logger.js';
 import type {
-  ZavorthQaSecurityReleaseCheckStatus,
+ZavorthQaSecurityReleaseCheckStatus,
   ZavorthQaSecurityReleaseSeverity,
   ZavorthWorkflowSemanticReceipt,
   ZavorthWorkflowSemanticSnapshot,
@@ -152,7 +153,5 @@ function readPackageScripts(rootDir: string): Record<string, string> {
   try {
     const parsed = JSON.parse(fs.readFileSync(packagePath, 'utf8')) as { scripts?: Record<string, string> };
     return parsed.scripts || {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[Zavorth Workflow Semantic Check] JSON parse failed', error); return {}; }
 }

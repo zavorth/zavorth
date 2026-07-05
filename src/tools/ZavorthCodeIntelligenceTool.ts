@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 export class ZavorthCodeIntelligenceTool extends BaseTool {
   public readonly name = 'zavorth_code_intelligence';
@@ -134,9 +135,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
 
       execFileSync(cmd, cmdArgs, { timeout: 60000 });
       return `Formatted ${filePath} with ${style}.`;
-    } catch (error: unknown) {
-      return `Error formatting: ${error instanceof Error ? error.message : String(error)}`;
-    }
+    } catch (error) { logger.warn('[Zavorth Code Intelligence] process execution failed', error); return ''; }
   }
 
   private async lintCode(filePath: string): Promise<string> {
@@ -295,9 +294,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
       const result = execFileSync('git', ['diff', '--stat', filePath], { timeout: 10000 }).toString();
       if (!result.trim()) return `No changes in ${filePath}.`;
       return `Diff for ${filePath}:\n${result}`;
-    } catch {
-      return `Error getting diff for ${filePath}.`;
-    }
+    } catch (error) { logger.warn('[Zavorth Code Intelligence] process execution failed', error); return ''; }
   }
 
   private detectLanguage(filePath: string): string {
@@ -325,7 +322,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
           }
         }
       }
-    } catch { /* ignore */ }
+    } catch (error) { /* ignore */ logger.warn('[Zavorth Code Intelligence] operation failed', error); }
     return results;
   }
 }

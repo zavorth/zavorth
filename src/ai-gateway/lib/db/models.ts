@@ -16,6 +16,7 @@ import {
   type ModelCompatPerProtocol,
 } from "./models/modelCompat";
 import { getKeyValue, type JsonRecord } from "./models/modelRowUtils";
+import { logger } from '@/shared/utils/logger';
 
 interface CustomModelRecord {
   id?: string;
@@ -523,9 +524,7 @@ function getCustomModelRow(providerId: string, modelId: string): JsonRecord | nu
       return (x as { id?: string }).id === modelId;
     }) as JsonRecord | undefined;
     return m ?? null;
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[models] JSON parse failed', error); return null; }
 }
 
 /**

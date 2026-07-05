@@ -17,7 +17,7 @@ import type {
 } from './types.js';
 
 export function resolveWorkflowStageRole(
-  workflow: 'review' | 'ship' | 'research',
+  workflow: string,
   taskKind: string,
   taskSubtype: string,
 ): 'maker' | 'reviewer' | 'researcher' | 'synthesizer' | null {
@@ -38,7 +38,7 @@ export function resolveWorkflowStageRole(
 
 export function applyWorkflowStagePerformanceBoost(
   baseConfidence: number,
-  recommendation: WorkflowStageExecutorRecommendation,
+  recommendation: WorkflowStageExecutorRecommendation | null,
 ): number {
   if (!recommendation) {
     return baseConfidence;
@@ -67,10 +67,10 @@ export function applyWorkflowExecutorPerformanceBoost(
 }
 
 export function shouldDeferWorkflowRecommendation(
-  workflowRecommendation: NonNullable<WorkflowRecommendation>,
-  workflowFriction: WorkflowFrictionRecommendation,
-  routeOutcome: RouteOutcomeAggregate,
-  approvedPolicy: ApprovedPolicyAggregate,
+  workflowRecommendation: WorkflowRecommendation | null,
+  workflowFriction: WorkflowFrictionRecommendation | null,
+  routeOutcome: RouteOutcomeAggregate | null,
+  approvedPolicy: ApprovedPolicyAggregate | null,
 ): boolean {
   if (!workflowRecommendation || !workflowFriction || !routeOutcome) {
     return false;
@@ -137,7 +137,7 @@ export function buildWorkflowRecommendation(input: {
   recentArtifacts: RecentArtifactAggregate[];
   continuityRecommendations: ContinuityRecommendation[];
   workflowRecommendations: WorkflowRecommendationAggregate[];
-}): WorkflowRecommendation {
+}): WorkflowRecommendation | null {
   const hasStrongContinuitySignal = Boolean(
     input.activeFocusMatch ||
       input.recentArtifacts.length > 0 ||

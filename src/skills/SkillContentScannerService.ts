@@ -49,27 +49,27 @@ const BLOCKING_PATTERNS: Array<{ code: SkillContentScanIssue['code']; regex: Reg
   {
     code: 'unsafe-pattern',
     regex: /\brm\s+-rf\s+\/(?:\s|$)/i,
-    message: 'Comando destrutivo de remocao total detectado.',
+    message: 'Destructive full-removal command detected.',
   },
   {
     code: 'unsafe-pattern',
     regex: /\bRemove-Item\s+-Recurse\s+-Force\s+(?:[A-Za-z]:\\|\/)/i,
-    message: 'Comando destrutivo de PowerShell detectado.',
+    message: 'Destructive PowerShell command detected.',
   },
   {
     code: 'unsafe-pattern',
     regex: /\b(?:steal|exfiltrat\w*|harvest|dump)\b[\s\S]{0,80}\b(?:credential|token|cookie|password|secret|api[_ -]?key)s?\b/i,
-    message: 'Padrao explicito de exfiltracao ou roubo de credenciais detectado.',
+    message: 'Explicit credential exfiltration or theft pattern detected.',
   },
   {
     code: 'unsafe-pattern',
     regex: /\b(?:keylogger|ransomware|credential\s+stuffing|phishing\s+kit)\b/i,
-    message: 'Conteudo ofensivo de alto risco detectado.',
+    message: 'High-risk offensive content detected.',
   },
   {
     code: 'unsafe-pattern',
     regex: /\b(?:disable|turn off)\b[\s\S]{0,40}\b(?:defender|antivirus|security)\b/i,
-    message: 'Instrucao para desabilitar controles de seguranca detectada.',
+    message: 'Instruction to disable security controls detected.',
   },
 ];
 
@@ -100,7 +100,7 @@ export class SkillContentScannerService {
         code: 'missing-entrypoint',
         filePath: skillFilePath,
         relativePath: 'SKILL.md',
-        message: 'Skill sem SKILL.md nao pode ser importada.',
+        message: 'Skill without SKILL.md cannot be imported.',
       });
       return {
         safeToImport: false,
@@ -124,7 +124,7 @@ export class SkillContentScannerService {
           code: 'symlink-file',
           filePath,
           relativePath,
-          message: 'Symlink ignorado para impedir leitura ou copia fora da skill.',
+          message: 'Symlink ignored to prevent reads or copies outside the skill.',
         });
         skippedFiles.push(relativePath);
         continue;
@@ -136,7 +136,7 @@ export class SkillContentScannerService {
           code: 'binary-like-file',
           filePath,
           relativePath,
-          message: 'Arquivo nao textual ignorado no intake seletivo.',
+          message: 'Non-text file ignored during selective intake.',
         });
         skippedFiles.push(relativePath);
         continue;

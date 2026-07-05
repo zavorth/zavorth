@@ -1,3 +1,4 @@
+import { logger } from '@/shared/utils/logger';
 /**
  * Stream Tracker — Unified SSE stream monitoring
  *
@@ -76,9 +77,10 @@ export class StreamTracker {
         }
         try {
           data = JSON.parse(payload);
-        } catch {
-          data = null;
-        }
+        } catch (error) {
+    logger.warn('[stream Tracker] JSON parse failed', error);
+    data = null;
+  }
       }
     }
 

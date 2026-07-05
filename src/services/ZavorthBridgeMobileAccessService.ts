@@ -161,7 +161,7 @@ export class ZavorthBridgeMobileAccessService {
       }
       this.leaseService.revoke({
         requestedBy: input.requestedBy,
-        reason: 'Acesso movel encerrado pelo operador.',
+        reason: 'Mobile access closed by the operator.',
       });
     }
 
@@ -170,8 +170,8 @@ export class ZavorthBridgeMobileAccessService {
     const lease = this.leaseService.readSnapshot();
     const guide = this.guideService.buildBlockedGuide({
       recommendations: currentLease.active
-        ? ['O acesso movel foi encerrado. Rode /agmobile start quando quiser reabrir.']
-        : ['Nao havia um lease ativo do acesso movel do ZavorthBridge para encerrar.'],
+        ? ['Mobile access was closed. Run /agmobile start when you want to reopen it.']
+        : ['There was no active ZavorthBridge mobile access lease to close.'],
       limitations: tunnel.limitations,
     });
 
@@ -190,8 +190,8 @@ export class ZavorthBridgeMobileAccessService {
       lease,
       verification: null,
       summary: currentLease.active
-        ? 'Acesso movel do ZavorthBridge encerrado.'
-        : 'Nenhum acesso movel ativo do ZavorthBridge foi encontrado.',
+        ? 'ZavorthBridge mobile access closed.'
+        : 'No active ZavorthBridge mobile access was found.',
       recommendations: nativeStatus.access.recommendations,
       guide,
       doctorSummary: null,
@@ -238,8 +238,8 @@ export class ZavorthBridgeMobileAccessService {
       lease,
       verification,
       summary: lease.active
-        ? `Acesso movel do ZavorthBridge ativo via ${tunnel.mode === 'public' ? 'URL publica' : 'LAN'}.`
-        : `Remoto do ZavorthBridge pronto para celular via ${tunnel.mode === 'public' ? 'URL publica' : 'LAN'}.`,
+        ? `ZavorthBridge mobile access active via ${tunnel.mode === 'public' ? 'public URL' : 'LAN'}.`
+        : `ZavorthBridge remote ready for mobile via ${tunnel.mode === 'public' ? 'public URL' : 'LAN'}.`,
       recommendations: nativeStatus.access.recommendations,
       guide,
       doctorSummary: report?.summary || null,
@@ -273,7 +273,7 @@ export class ZavorthBridgeMobileAccessService {
       secret: null,
       lease,
       verification: null,
-      summary: report?.summary || tunnel.summary || 'O remoto do ZavorthBridge ainda nao esta pronto para celular.',
+      summary: report?.summary || tunnel.summary || 'ZavorthBridge remote is not ready for mobile yet.',
       recommendations: nativeStatus.access.recommendations,
       guide,
       doctorSummary: report?.summary || null,

@@ -3,6 +3,7 @@ import fs from 'fs';
 
 import type { ProviderDoctorService } from './ProviderDoctorService.js';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -111,9 +112,7 @@ export class ZavorthFirstBootDetectionService {
             dbExists,
           });
         }
-      } catch {
-        // Provider doctor unavailable — continue detection heuristics.
-      }
+      } catch (error) { // Provider doctor unavailable — continue detection heuristics. logger.warn('[Zavorth First Boot Detection] creation failed', error); }
     }
 
     // 2. Env-var detection
@@ -230,12 +229,10 @@ export class ZavorthFirstBootDetectionService {
 
   private resolveDbPath(): string {
     try {
-      if (config && typeof (config as any).dataDir === 'string') {
-        return path.join((config as any).dataDir, 'zavorth.db');
+      if (config && typeof (config as Record<string, unknown>).dataDir === 'string') {
+        return path.join((config as Record<string, unknown>).dataDir as string, 'zavorth.db');
       }
-    } catch {
-      // config unavailable — use fallback
-    }
+    } catch (error) { // config unavailable — use fallback logger.warn('[Zavorth First Boot Detection] operation failed', error); }
     return path.join(this.cwd, 'data', 'zavorth.db');
   }
 

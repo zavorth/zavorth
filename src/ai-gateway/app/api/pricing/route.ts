@@ -3,6 +3,7 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getPricing, updatePricing, resetPricing, resetAllPricing } from "@/lib/localDb";
 import { updatePricingSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 /**
  * GET /api/pricing
@@ -33,7 +34,8 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] cache operation failed', error);
     return NextResponse.json(
       {
         error: {

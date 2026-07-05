@@ -83,7 +83,7 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
         writes: [
           { path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' },
         ],
-        summary: ['Primeiro uso configurado para fixture CLI.'],
+        summary: ['Primeiro uso configured para fixture CLI.'],
         willNotWrite: ['tokens ou API keys'],
         nextCommands: ['zavorth doctor', 'zavorth go --dry-run', 'zavorth chat'],
         redactedJson: '{}',
@@ -156,15 +156,15 @@ export function formatProductEntryRuntimeSnapshot(
 ): string {
   const lines = [
     'Product Entry Runtime / First Run - Channel mesh7',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- superficie: ${snapshot.entry.requestedSurface}`,
-    `- handoff: ${snapshot.entry.handoffAllowed ? 'liberado' : 'aguardando first-run'}`,
-    `- profile: ${snapshot.firstRun.profileConfigured ? 'configurado' : 'pendente'}`,
+    `- handoff: ${snapshot.entry.handoffAllowed ? 'released' : 'aguardando first-run'}`,
+    `- profile: ${snapshot.firstRun.profileConfigured ? 'configured' : 'pending'}`,
     `- onboarding: ${snapshot.firstRun.onboardingStatus}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
   ];
@@ -189,12 +189,12 @@ export function formatProductEntryRuntimeSnapshot(
   lines.push(`- handoff to AgentGateway: ${String(snapshot.readiness.handoffToAgentRuntime)}`);
 
   lines.push('', 'Politica');
-  lines.push('- snapshot nao grava profile');
-  lines.push('- nao inicia runtime persistente');
-  lines.push('- nao executa provider/tool');
-  lines.push('- nao envia mensagem externa');
-  lines.push('- first-run e estado compartilhado entre superficies');
-  lines.push('- secrets nao foram serializados');
+  lines.push('- snapshot does not write the profile');
+  lines.push('- does not start persistent runtime');
+  lines.push('- does not execute provider/tool');
+  lines.push('- does not send external messages');
+  lines.push('- first-run and state are shared across surfaces');
+  lines.push('- secrets were not serialized');
 
   lines.push('', 'Superficies de consumo');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);

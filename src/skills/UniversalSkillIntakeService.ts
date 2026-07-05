@@ -138,43 +138,43 @@ const UNSAFE_TEXT_PATTERNS: Array<{
   {
     code: 'script-auto-executable',
     regex: /\b(?:curl|wget|Invoke-WebRequest|iwr)\b[\s\S]{0,100}\|\s*(?:sh|bash|iex|Invoke-Expression)\b/i,
-    message: 'Instrucao de download e execucao encadeada detectada.',
+    message: 'Chained download and execution instruction detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
     regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})?\brm\s+-rf\s+\/(?:\s|$)/i,
-    message: 'Comando destrutivo de remocao total detectado.',
+    message: 'Destructive full-removal command detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
     regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})?\bRemove-Item\s+-Recurse\s+-Force\s+(?:[A-Za-z]:\\|\/)/i,
-    message: 'Comando destrutivo de PowerShell detectado.',
+    message: 'Destructive PowerShell command detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
     regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)?(?:(?:you\s+(?:must|should|will)\s+)?)?(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)?(?:steal|harvest|dump)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]?key)s?\b/i,
-    message: 'Padrao explicito de exfiltracao ou roubo de credenciais detectado.',
+    message: 'Explicit credential exfiltration or theft pattern detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
     regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)?(?:(?:you\s+(?:must|should|will)\s+)?)?(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)?exfiltrat(?:e|ed|ing)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]?key)s?\b/i,
-    message: 'Instrucao explicita para exfiltrar credenciais detectada.',
+    message: 'Explicit instruction to exfiltrate credentials detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
     regex: /\b(?:disable|turn off)\b[\s\S]{0,60}\b(?:defender|antivirus|security)\b/i,
-    message: 'Instrucao para desabilitar controles de seguranca detectada.',
+    message: 'Instruction to disable security controls detected.',
     severity: 'error',
   },
   {
     code: 'suspicious-external-link',
     regex: /https?:\/\/(?:localhost|127\.|0\.0\.0\.0|10\.|192\.168\.|169\.254\.|172\.(?:1[6-9]|2\d|3[0-1])\.)[^\s)"']*/i,
-    message: 'Link para alvo local ou privado detectado; qualquer rede futura deve exigir aprovacao.',
+    message: 'Link to a local or private target detected; any future network access must require approval.',
     severity: 'warn',
   },
 ];
@@ -337,7 +337,7 @@ export class UniversalSkillIntakeService {
         files: [],
         archiveBytes: null,
         exists: false,
-        issues: [issue('error', 'missing-entrypoint', 'Fonte de skills nao encontrada.', null, sourcePath)],
+        issues: [issue('error', 'missing-entrypoint', 'Skill source not found.', null, sourcePath)],
       };
     }
     if (sourceKind === 'zip') {
@@ -359,7 +359,7 @@ export class UniversalSkillIntakeService {
       try {
         entries = this.readdirSyncImpl(current, { withFileTypes: true });
       } catch {
-        issues.push(issue('warn', 'unsupported-file', 'Diretorio nao pode ser lido durante o preview.', relativeFromRoot(root, current), current));
+        issues.push(issue('warn', 'unsupported-file', 'Directory cannot be read during preview.', relativeFromRoot(root, current), current));
         continue;
       }
 
@@ -367,7 +367,7 @@ export class UniversalSkillIntakeService {
         const absolutePath = path.join(current, entry.name);
         const relativePath = relativeFromRoot(root, absolutePath);
         if (!isSafeRelativePath(relativePath)) {
-          issues.push(issue('error', 'path-traversal', 'Caminho escaparia do root da fonte.', relativePath, absolutePath));
+          issues.push(issue('error', 'path-traversal', 'Path would escape the source root.', relativePath, absolutePath));
           continue;
         }
 
@@ -375,12 +375,12 @@ export class UniversalSkillIntakeService {
         try {
           lstat = this.lstatSyncImpl(absolutePath);
         } catch {
-          issues.push(issue('warn', 'unsupported-file', 'Arquivo nao pode ser inspecionado.', relativePath, absolutePath));
+          issues.push(issue('warn', 'unsupported-file', 'File cannot be inspected.', relativePath, absolutePath));
           continue;
         }
 
         if (lstat.isSymbolicLink()) {
-          issues.push(issue('error', 'symlink-escape', 'Symlink ignorado para impedir leitura fora da fonte.', relativePath, absolutePath));
+          issues.push(issue('error', 'symlink-escape', 'Symlink ignored to prevent reads outside the source.', relativePath, absolutePath));
           continue;
         }
 
@@ -389,7 +389,7 @@ export class UniversalSkillIntakeService {
           continue;
         }
         if (!entry.isFile()) {
-          issues.push(issue('warn', 'unsupported-file', 'Entrada nao regular ignorada.', relativePath, absolutePath));
+          issues.push(issue('warn', 'unsupported-file', 'Non-regular entry ignored.', relativePath, absolutePath));
           continue;
         }
 
@@ -397,7 +397,7 @@ export class UniversalSkillIntakeService {
           issues.push(issue(
             'error',
             'zip-entry-limit',
-            `Chunk ${chunkKeyForRelativePath(relativePath)} excedeu o limite de ${limits.maxFiles} arquivos no preview.`,
+            `Chunk ${chunkKeyForRelativePath(relativePath)} exceeded the ${limits.maxFiles} file preview limit.`,
             relativePath,
             absolutePath,
           ));
@@ -430,7 +430,7 @@ export class UniversalSkillIntakeService {
     if (stat.size > limits.maxArchiveBytes) {
       return {
         files,
-        issues: [issue('error', 'archive-too-large', `Arquivo zip excede o limite de ${limits.maxArchiveBytes} bytes.`, null, sourcePath)],
+        issues: [issue('error', 'archive-too-large', `Zip archive exceeds the ${limits.maxArchiveBytes} byte limit.`, null, sourcePath)],
         archiveBytes: stat.size,
         exists: true,
       };
@@ -448,13 +448,13 @@ export class UniversalSkillIntakeService {
       }
       const originalName = String((entry as unknown as { unsafeOriginalName?: string }).unsafeOriginalName || entry.name);
       if (originalName !== entry.name && !normalizeZipEntryPath(originalName)) {
-        issues.push(issue('error', 'zip-slip', 'Entrada zip escaparia do root da fonte.', originalName, sourcePath));
+        issues.push(issue('error', 'zip-slip', 'Zip entry would escape the source root.', originalName, sourcePath));
         continue;
       }
 
       const relativePath = normalizeZipEntryPath(entry.name);
       if (!relativePath) {
-        issues.push(issue('error', 'zip-slip', 'Entrada zip escaparia do root da fonte.', entry.name, sourcePath));
+        issues.push(issue('error', 'zip-slip', 'Zip entry would escape the source root.', entry.name, sourcePath));
         continue;
       }
 
@@ -462,7 +462,7 @@ export class UniversalSkillIntakeService {
         issues.push(issue(
           'error',
           'zip-entry-limit',
-          `Chunk ${chunkKeyForRelativePath(relativePath)} excedeu o limite de ${limits.maxFiles} arquivos no preview.`,
+          `Chunk ${chunkKeyForRelativePath(relativePath)} exceeded the ${limits.maxFiles} file preview limit.`,
           relativePath,
           sourcePath,
         ));
@@ -479,28 +479,28 @@ export class UniversalSkillIntakeService {
       }
       if (!importable) {
         files.push(skippedVirtualFile(relativePath, null));
-        issues.push(issue('warn', 'unsupported-file', 'Arquivo fora do conjunto textual permitido foi ignorado.', relativePath, sourcePath));
+        issues.push(issue('warn', 'unsupported-file', 'File outside the allowed text set was ignored.', relativePath, sourcePath));
         continue;
       }
 
       const declaredSize = Number((entry as unknown as { _data?: { uncompressedSize?: number } })._data?.uncompressedSize || 0);
       if (declaredSize > limits.maxFileBytes) {
         files.push(skippedVirtualFile(relativePath, declaredSize));
-        issues.push(issue('error', 'file-too-large', `Arquivo excede ${limits.maxFileBytes} bytes.`, relativePath, sourcePath));
+        issues.push(issue('error', 'file-too-large', `File exceeds ${limits.maxFileBytes} bytes.`, relativePath, sourcePath));
         continue;
       }
 
       const content = await entry.async('nodebuffer');
       if (content.byteLength > limits.maxFileBytes) {
         files.push(skippedVirtualFile(relativePath, content.byteLength));
-        issues.push(issue('error', 'file-too-large', `Arquivo excede ${limits.maxFileBytes} bytes.`, relativePath, sourcePath));
+        issues.push(issue('error', 'file-too-large', `File exceeds ${limits.maxFileBytes} bytes.`, relativePath, sourcePath));
         continue;
       }
 
       const text = content.toString('utf8').replace(/^\uFEFF/, '');
       if (looksBinary(text)) {
         files.push(skippedVirtualFile(relativePath, content.byteLength));
-        issues.push(issue('error', 'binary-like-file', 'Arquivo textual contem bytes nulos ou conteudo binario.', relativePath, sourcePath));
+        issues.push(issue('error', 'binary-like-file', 'Text file contains null bytes or binary content.', relativePath, sourcePath));
         continue;
       }
 
@@ -539,17 +539,17 @@ export class UniversalSkillIntakeService {
       return skippedVirtualFile(input.relativePath, input.size, input.absolutePath);
     }
     if (!importable) {
-      input.issues.push(issue('warn', 'unsupported-file', 'Arquivo fora do conjunto textual permitido foi ignorado.', input.relativePath, input.absolutePath));
+      input.issues.push(issue('warn', 'unsupported-file', 'File outside the allowed text set was ignored.', input.relativePath, input.absolutePath));
       return skippedVirtualFile(input.relativePath, input.size, input.absolutePath);
     }
     if (input.size > input.limits.maxFileBytes) {
-      input.issues.push(issue('error', 'file-too-large', `Arquivo excede ${input.limits.maxFileBytes} bytes.`, input.relativePath, input.absolutePath));
+      input.issues.push(issue('error', 'file-too-large', `File exceeds ${input.limits.maxFileBytes} bytes.`, input.relativePath, input.absolutePath));
       return skippedVirtualFile(input.relativePath, input.size, input.absolutePath);
     }
 
     const text = this.readFileSyncImpl(input.absolutePath, 'utf8').replace(/^\uFEFF/, '');
     if (looksBinary(text)) {
-      input.issues.push(issue('error', 'binary-like-file', 'Arquivo textual contem bytes nulos ou conteudo binario.', input.relativePath, input.absolutePath));
+      input.issues.push(issue('error', 'binary-like-file', 'Text file contains null bytes or binary content.', input.relativePath, input.absolutePath));
       return skippedVirtualFile(input.relativePath, input.size, input.absolutePath);
     }
 
@@ -846,7 +846,7 @@ export class UniversalSkillIntakeService {
     ));
 
     if (!seed.entrypointPath && !seed.synthetic) {
-      issues.push(issue('error', 'missing-entrypoint', 'Candidato sem entrypoint inspecionavel.', seed.relativeSkillPath));
+      issues.push(issue('error', 'missing-entrypoint', 'Candidate has no inspectable entrypoint.', seed.relativeSkillPath));
     }
 
     for (const file of seed.files) {
@@ -859,7 +859,7 @@ export class UniversalSkillIntakeService {
     }
 
     if (seed.sourceProfileId === 'json-yaml-catalog' && !seed.synthetic?.name && !seed.synthetic?.title) {
-      issues.push(issue('warn', 'catalog-entry-invalid', 'Entrada de catalogo sem nome/titulo; um id seguro sera inferido.', seed.entrypointPath));
+      issues.push(issue('warn', 'catalog-entry-invalid', 'Catalog entry has no name/title; a safe id will be inferred.', seed.entrypointPath));
     }
 
     return dedupeIssues(issues);

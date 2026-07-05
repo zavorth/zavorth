@@ -20,6 +20,7 @@ import {
   type SubagentResultStatus,
 } from '../runtime/agent/subagents/index.js';
 import { CanonicalExecutionPipelineService } from '@zavorth/services/CanonicalExecutionPipelineService.js';
+import { logger } from '../logger.js';
 
 export const ZAVORTH_ENSEMBLE_OFFICIAL_CONTRACT_VERSION = '2026-05-17.official-zavorth-ensemble' as const;
 
@@ -453,6 +454,7 @@ export class ZavorthEnsembleService {
         return entry.lastSnapshot;
       })
       .catch((error: unknown) => {
+        const message = this.getErrorMessage(error);
         const snapshot = orchestrator.getSnapshot();
         entry.subagentReceipts = this.resolveSubagentReceipts(entry.roles, {
           objective,
@@ -465,9 +467,9 @@ export class ZavorthEnsembleService {
           swarmId,
           status: 'failed',
           finishedAt: new Date().toISOString(),
-          synthesizedOutput: error?.message || snapshot.synthesizedOutput,
+          synthesizedOutput: message || snapshot.synthesizedOutput,
         }, {
-          summary: error?.message || `Swarm ${swarmId} failed.`,
+          summary: message || `Swarm ${swarmId} failed.`,
         }, entry.subagentReceipts);
         return entry.lastSnapshot;
       });
@@ -501,7 +503,7 @@ export class ZavorthEnsembleService {
   public async waitForSwarm(swarmId: string): Promise<ZavorthEnsembleTrackedSnapshot> {
     const entry = this.swarms.get(String(swarmId || '').trim());
     if (!entry) {
-      throw new Error('Zavorth Ensemble nao encontrado.');
+      throw new Error('Zavorth Ensemble not found.');
     }
     const snapshot = await entry.execution;
     entry.lastSnapshot = snapshot;
@@ -656,7 +658,7 @@ export class ZavorthEnsembleService {
       })),
       synthesisStatus: 'pending',
       synthesisMode: this.options.llmRuntime ? 'llm' : 'deterministic',
-      synthesisSummary: 'Sintese aguardando conclusao dos batches.',
+      synthesisSummary: 'Synthesis is waiting for batches to complete.',
       startedAt: createdAt,
       roleSelection: {
         ...autoSelection,
@@ -695,7 +697,7 @@ export class ZavorthEnsembleService {
       });
     }
     for (const batch of batches) {
-      this.pushReplay(state, 'batch.queued', `Batch ${batch.index + 1} aguardando execucao.`, {
+      this.pushReplay(state, 'batch.queued', `Batch ${batch.index + 1} is waiting for execution.`, {
         batchId: batch.batchId,
         roleIds: batch.roleIds,
       });
@@ -733,20 +735,20 @@ export class ZavorthEnsembleService {
   public cancelSwarm(swarmId: string): ZavorthEnsembleTrackedSnapshot {
     const entry = this.swarms.get(String(swarmId || '').trim());
     if (!entry) {
-      throw new Error('Zavorth Ensemble nao encontrado.');
+      throw new Error('Zavorth Ensemble not found.');
     }
     if (entry.officialState) {
       entry.orchestrator?.killAll();
       entry.officialState.queueStatus = 'cancelled';
       entry.officialState.synthesisStatus = 'failed';
-      entry.officialState.synthesisSummary = 'Swarm cancelado pelo operador.';
+      entry.officialState.synthesisSummary = 'Swarm cancelled by the operator.';
       for (const batch of entry.officialState.batches) {
         if (batch.status === 'queued' || batch.status === 'running') {
           batch.status = 'cancelled';
           batch.finishedAt = new Date().toISOString();
         }
       }
-      this.pushReplay(entry.officialState, 'swarm.cancelled', `Swarm ${entry.swarmId} cancelado pelo operador.`);
+      this.pushReplay(entry.officialState, 'swarm.cancelled', `Swarm ${entry.swarmId} cancelled by the operator.`);
       entry.lastSnapshot = this.withOfficialSurface({
         ...entry.lastSnapshot,
         status: 'cancelled',
@@ -760,7 +762,7 @@ export class ZavorthEnsembleService {
       };
     }
     if (!entry.orchestrator) {
-      throw new Error('Zavorth Ensemble nao possui orquestrador ativo.');
+      throw new Error('Zavorth Ensemble has no active orchestrator.');
     }
     entry.orchestrator.killAll();
     const snapshot = entry.orchestrator.getSnapshot();
@@ -882,7 +884,7 @@ export class ZavorthEnsembleService {
       ? state.synthesisSummary
       : await this.synthesizeOfficialOutput(state, allResults, finalStatus);
     state.synthesisSummary = finalStatus === 'cancelled'
-      ? 'Swarm cancelado pelo operador.'
+      ? 'Swarm cancelled by the operator.'
       : `Sintese oficial gerada com ${allResults.length}/${state.roles.length} role(s).`;
     this.pushReplay(state, 'swarm.synthesized', state.synthesisSummary, {
       outputChars: synthesizedOutput.length,
@@ -1334,7 +1336,7 @@ export class ZavorthEnsembleService {
       return response.content?.trim() || deterministic;
     } catch (error: unknown) {
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
-        error: String(error?.message || error || 'unknown').slice(0, 240),
+        error: this.getErrorMessage(error).slice(0, 240),
       });
       state.synthesisMode = 'deterministic';
       return deterministic;
@@ -1405,9 +1407,7 @@ export class ZavorthEnsembleService {
         availableRoleCount: input.library.length,
         rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
       };
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Zavorth Ensemble] parsing failed', error); return fallback; }
   }
 
   private resolveSyncRoleSelection(input: {
@@ -1524,9 +1524,7 @@ export class ZavorthEnsembleService {
       if (!match) return null;
       try {
         return JSON.parse(match[0]);
-      } catch {
-        return null;
-      }
+      } catch (error) { logger.warn('[Zavorth Ensemble] JSON parse failed', error); return null; }
     }
   }
 
@@ -1679,9 +1677,7 @@ export class ZavorthEnsembleService {
       if (Array.isArray(parsed)) {
         return parsed.map((entry: unknown) => this.normalizeRoleLibraryEntry(entry as Record<string, unknown>)).filter(Boolean) as ZavorthEnsembleRoleLibraryEntry[];
       }
-    } catch {
-      // fall through to defaults
-    }
+    } catch (error) { // fall through to defaults logger.warn('[Zavorth Ensemble] JSON parse failed', error); }
     const seeded = this.defaultRoleLibrary();
     this.writeRoleLibrary(seeded);
     return seeded;
@@ -1704,31 +1700,44 @@ export class ZavorthEnsembleService {
       return null;
     }
     const now = new Date().toISOString();
+    const kind = String(raw?.kind || '');
+    const risk = String(raw?.risk || '');
+    const scope = String(raw?.scope || '');
     return {
       id,
       label: String(raw?.label || id).trim(),
-      kind: ['planner', 'researcher', 'implementer', 'verifier', 'critic', 'synthesizer', 'operator', 'custom'].includes(raw?.kind)
-        ? raw.kind
+      kind: ['planner', 'researcher', 'implementer', 'verifier', 'critic', 'synthesizer', 'operator', 'custom'].includes(kind)
+        ? kind as ZavorthEnsembleRoleLibraryEntry['kind']
         : 'custom',
       systemPrompt,
       defaultTools: Array.isArray(raw?.defaultTools) ? raw.defaultTools.map(String) : [],
-      risk: ['safe', 'attention', 'danger', 'unknown'].includes(raw?.risk) ? raw.risk : 'unknown',
-      scope: ['read_only', 'tool_limited', 'workspace_patch'].includes(raw?.scope) ? raw.scope : 'tool_limited',
+      risk: ['safe', 'attention', 'danger', 'unknown'].includes(risk)
+        ? risk as ZavorthEnsembleRoleLibraryEntry['risk']
+        : 'unknown',
+      scope: ['read_only', 'tool_limited', 'workspace_patch'].includes(scope)
+        ? scope as ZavorthEnsembleRoleLibraryEntry['scope']
+        : 'tool_limited',
       tags: Array.isArray(raw?.tags) ? raw.tags.map(String) : [],
       createdAt: String(raw?.createdAt || now),
       updatedAt: String(raw?.updatedAt || now),
     };
   }
 
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    if (typeof error === 'string') return error;
+    return String(error || 'unknown');
+  }
+
   private defaultRoleLibrary(): ZavorthEnsembleRoleLibraryEntry[] {
     const now = new Date().toISOString();
     return [
       ['planner', 'Planner', 'planner', 'Quebre a missao em etapas, riscos, dependencias, criterios de aceite e handoffs claros.'],
-      ['researcher', 'Researcher', 'researcher', 'Colete evidencias, arquivos, contexto e fatos. Trabalhe em modo read-only e cite lacunas.'],
+      ['researcher', 'Researcher', 'researcher', 'Collect evidence, files, context, and facts. Work in read-only mode and cite gaps.'],
       ['implementer', 'Implementer', 'implementer', 'Proponha ou execute a implementacao permitida, mantendo escopo, rollback e diffs pequenos.'],
-      ['verifier', 'Verifier', 'verifier', 'Valide testes, regressao, seguranca, criterios de aceite e riscos operacionais.'],
+      ['verifier', 'Verifier', 'verifier', 'Validate tests, regression risk, security, acceptance criteria, and operational risks.'],
       ['synthesizer', 'Synthesizer', 'synthesizer', 'Una os resultados dos demais agentes em uma resposta final objetiva, sem chain-of-thought bruto.'],
-      ['safety-reviewer', 'Safety Reviewer', 'critic', 'Procure riscos, permissao indevida, vazamento de segredo, prompt injection e acoes sem approval.'],
+      ['safety-reviewer', 'Safety Reviewer', 'critic', 'Look for risks, improper permission use, secret leaks, prompt injection, and actions without approval.'],
     ].map(([id, label, kind, systemPrompt]) => ({
       id,
       label,

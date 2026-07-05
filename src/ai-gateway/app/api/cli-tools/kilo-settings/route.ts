@@ -11,6 +11,7 @@ import { saveCliToolLastConfigured, deleteCliToolLastConfigured } from "@/lib/db
 import { cliModelConfigSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
+import { logger } from '@/shared/utils/logger';
 
 const KILO_DATA_DIR = path.join(os.homedir(), ".local", "share", "kilo");
 const AUTH_PATH = path.join(KILO_DATA_DIR, "auth.json");
@@ -87,9 +88,7 @@ export async function GET(request: Request) {
           extensionSettings[key] = value;
         }
       }
-    } catch {
-      /* VS Code settings not available */
-    }
+    } catch (error) { /* VS Code settings not available */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       installed: runtime.installed,
@@ -119,7 +118,8 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -152,9 +152,7 @@ export async function POST(request) {
         if (keyRecord?.key) {
           apiKey = keyRecord.key as string;
         }
-      } catch {
-        // Non-critical: fall back to whatever value was in apiKey
-      }
+      } catch (error) { // Non-critical: fall back to whatever value was in apiKey logger.warn('[route] validation failed', error); }
     }
 
     // Ensure directories exist
@@ -168,9 +166,7 @@ export async function POST(request) {
     try {
       const existing = await fs.readFile(AUTH_PATH, "utf-8");
       auth = JSON.parse(existing);
-    } catch {
-      /* No existing auth */
-    }
+    } catch (error) { /* No existing auth */ logger.warn('[route] JSON parse failed', error); }
 
     // Normalize baseUrl
     const normalizedBaseUrl = baseUrl.endsWith("/v1") ? baseUrl : `${baseUrl}/v1`;
@@ -198,9 +194,7 @@ export async function POST(request) {
       try {
         const raw = await fs.readFile(vscodeSettingsPath, "utf-8");
         vscodeSettings = JSON.parse(raw);
-      } catch {
-        /* no existing settings */
-      }
+      } catch (error) { /* no existing settings */ logger.warn('[route] JSON parse failed', error); }
 
       // Set custom provider config for the extension
       vscodeSettings["kilocode.customProvider"] = {
@@ -211,16 +205,12 @@ export async function POST(request) {
       vscodeSettings["kilocode.defaultModel"] = model;
 
       await fs.writeFile(vscodeSettingsPath, JSON.stringify(vscodeSettings, null, 2));
-    } catch {
-      // VS Code settings not writable — not a problem for CLI
-    }
+    } catch (error) { // VS Code settings not writable — not a problem for CLI logger.warn('[route] filesystem operation failed', error); }
 
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("kilo");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
@@ -279,16 +269,12 @@ export async function DELETE(request: Request) {
       delete vscodeSettings["kilocode.customProvider"];
       delete vscodeSettings["kilocode.defaultModel"];
       await fs.writeFile(vscodeSettingsPath, JSON.stringify(vscodeSettings, null, 2));
-    } catch {
-      /* ignore */
-    }
+    } catch (error) { /* ignore */ logger.warn('[route] JSON parse failed', error); }
 
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("kilo");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       success: true,

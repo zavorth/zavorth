@@ -121,7 +121,7 @@ export class TelegramZavorthBridgePermissionService {
     await this.rejectSiblingPermissions(
       originalPermission.task_id || existingTask.task_id,
       originalPermission.permission_id,
-      `Pedido substituido pela aprovacao ${originalPermission.permission_id}.`,
+      `Request replaced by approval ${originalPermission.permission_id}.`,
     );
     existingTask.approval_status = 'approved';
     existingTask.requires_approval = false;
@@ -204,7 +204,7 @@ export class TelegramZavorthBridgePermissionService {
       await this.rejectSiblingPermissions(
         permission.task_id,
         permission.permission_id,
-        `Pedido substituido pela rejeicao ${permission.permission_id}.`,
+        `Request replaced by rejection ${permission.permission_id}.`,
       );
     }
 
@@ -215,7 +215,7 @@ export class TelegramZavorthBridgePermissionService {
       existingTask.requires_approval = false;
       existingTask.approval_status = 'rejected';
       existingTask.error_summary =
-        note || `Pedido de permissao ${rejectedPermission.permission_id} rejeitado pelo operador.`;
+        note || `Permission request ${rejectedPermission.permission_id} rejected by the operator.`;
       existingTask.metadata = {
         ...this.deps.taskSecurityPosture.appendPermissionDecision(existingTask.metadata, {
           permission_id: rejectedPermission.permission_id,

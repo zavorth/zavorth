@@ -1,4 +1,5 @@
 import { logger } from '../logger.js';
+import { safeParseInt } from '../utils/number.js';
 import { v4 as uuidv4 } from 'uuid';
 import { SchedulerRepository, type ScheduledTask } from '../storage/SchedulerRepository.js';
 import type { ZavorthAutomationDeliveryService } from './ZavorthAutomationDeliveryService.js';
@@ -317,7 +318,7 @@ export class SchedulerService {
     const normalized = String(schedule || '').trim().toLowerCase();
     const intervalMatch = normalized.match(/^every\s+(\d+)([mh])$/);
     if (intervalMatch) {
-      const amount = Number.parseInt(intervalMatch[1], 10);
+      const amount = safeParseInt(intervalMatch[1], -1);
       const unit = intervalMatch[2];
       if (!Number.isFinite(amount) || amount <= 0) {
         return null;
@@ -331,8 +332,8 @@ export class SchedulerService {
 
     const dailyMatch = normalized.match(/^daily\s+(\d{1,2}):(\d{2})$/);
     if (dailyMatch) {
-      const hour = Number.parseInt(dailyMatch[1], 10);
-      const minute = Number.parseInt(dailyMatch[2], 10);
+      const hour = safeParseInt(dailyMatch[1], -1);
+      const minute = safeParseInt(dailyMatch[2], -1);
       if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
         return null;
       }
@@ -462,7 +463,7 @@ export class SchedulerService {
       if (!intervalMatch) {
         return null;
       }
-      const amount = Number.parseInt(intervalMatch[1], 10);
+      const amount = safeParseInt(intervalMatch[1], -1);
       const unit = intervalMatch[2];
       const next = new Date(fromDate);
       if (unit === 'm') {
@@ -477,8 +478,8 @@ export class SchedulerService {
     if (!dailyMatch) {
       return null;
     }
-    const hour = Number.parseInt(dailyMatch[1], 10);
-    const minute = Number.parseInt(dailyMatch[2], 10);
+    const hour = safeParseInt(dailyMatch[1], -1);
+    const minute = safeParseInt(dailyMatch[2], -1);
     const next = new Date(fromDate);
     next.setSeconds(0, 0);
     next.setHours(hour, minute, 0, 0);
@@ -626,9 +627,7 @@ export class SchedulerService {
     try {
       const parsed = JSON.parse(String(rawValue || '{}'));
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-    } catch {
-      return {};
-    }
+    } catch (error) { logger.warn('[SchedulerService] JSON parse failed', error); return {}; }
   }
 
   private toBoundedNumber(value: unknown, fallback: number, min: number, max: number): number {

@@ -7,6 +7,7 @@ import { TaskManager } from '../orchestrator/TaskManager.js';
 import { RuntimeDiagnosticsService } from './RuntimeDiagnosticsService.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 
 export type DiagnosticsExportReport = {
   contractVersion: 'zavorth-diagnostics-export/1';
@@ -92,9 +93,7 @@ export class DiagnosticsExporterService {
             }
           }
         }
-      } catch {
-        // Fallback or ignore
-      }
+      } catch (error) { // Fallback or ignore logger.warn('[Diagnostics Exporter] operation failed', error); }
     }
 
     // 2. Read from process.env (Zavorth related only)

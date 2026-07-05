@@ -176,7 +176,10 @@ export function collectWorkspaceGateDecisionTimes(approvalHistory: GateDecisionE
 
 export function collectWorkspaceArtifactTimes(task: Task): number[] {
   return (Array.isArray(task.artifacts) ? task.artifacts : [])
-    .map((artifact) => Date.parse(String(artifact?.created_at || artifact?.createdAt || '')))
+    .map((artifact) => {
+      const legacyCreatedAt = (artifact as { created_at?: unknown } | null | undefined)?.created_at;
+      return Date.parse(String(legacyCreatedAt || artifact?.createdAt || ''));
+    })
     .filter((value) => Number.isFinite(value));
 }
 

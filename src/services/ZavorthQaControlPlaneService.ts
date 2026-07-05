@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { ArchitectureRefactorScorecardService, type ArchitectureRefactorSnapshot } from '../observability/ArchitectureRefactorScorecardService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthQaProfile = 'alpha' | 'beta';
 export type ZavorthQaCheckStatus = 'healthy' | 'attention' | 'critical' | 'missing';
@@ -603,9 +604,7 @@ export class ZavorthQaControlPlaneService {
     }
     try {
       return JSON.parse(this.readFileSync(filePath, 'utf8')) as T;
-    } catch {
-      return null;
-    }
+    } catch (error) { logger.warn('[Zavorth Qa Control Plane] JSON parse failed', error); return null; }
   }
 
   private normalizeTimestamp(value: string | null | undefined): string | null {

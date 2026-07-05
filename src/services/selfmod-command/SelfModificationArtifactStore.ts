@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 import type {
-  ChangeSetManifest,
+ChangeSetManifest,
   FilePreviewArtifact,
   GoalPreviewChange,
   PreviewArtifact,
@@ -76,9 +77,7 @@ export class SelfModificationArtifactStore {
   public tryDeletePreviewArtifact(previewId: string, kind: 'file' | 'goal'): void {
     try {
       this.deletePreviewArtifact(previewId, kind);
-    } catch {
-      // Artefato residual nao deve invalidar o sucesso do apply.
-    }
+    } catch (error) { // Artefato residual nao deve invalidar o sucesso do apply. logger.warn('[Self Modification Artifact Store] file cleanup failed', error); }
   }
 
   public getPreviewArtifactPath(previewId: string, kind: 'file' | 'goal'): string {

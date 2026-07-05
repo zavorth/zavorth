@@ -71,14 +71,14 @@ export function formatMemoryWithReceiptsSnapshot(
 ): string {
   const lines = [
     'Memory With Receipts - Memory Receipts',
-    `- contrato: ${snapshot.contractVersion}`,
+    `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
-    `- memoria: ${snapshot.summary.memoryCount} item(ns) com ${snapshot.summary.receiptCount} receipt(s)`,
+    `- memory: ${snapshot.summary.memoryCount} item(ns) com ${snapshot.summary.receiptCount} receipt(s)`,
     `- confianca media: ${snapshot.summary.averageConfidence ?? 'n/a'}`,
     `- auditavel: ${String(snapshot.audit.allMemoryHasReceipt)}`,
     `- origem respondida: ${String(snapshot.audit.canAnswerSourceQuestion)}`,
     `- corrigir/esquecer: ${String(snapshot.audit.canForgetOrCorrect)}`,
-    `- proximo passo: ${snapshot.nextSafeAction}`,
+    `- next step: ${snapshot.nextSafeAction}`,
   ];
 
   if (snapshot.receipts.length > 0) {
@@ -93,7 +93,7 @@ export function formatMemoryWithReceiptsSnapshot(
       );
     }
   } else {
-    lines.push('', 'Receipts', '- nenhum sinal de memoria foi usado neste run.');
+    lines.push('', 'Receipts', '- no memory signal was used in this run.');
   }
 
   lines.push('', 'Superficies');

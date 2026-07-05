@@ -3,8 +3,9 @@ import {
   ZavorthPersonalOpsOAuthService,
   type ZavorthPersonalOpsOAuthProvider,
 } from './ZavorthPersonalOpsOAuthService.js';
+import { logger } from '../logger.js';
 import type {
-  ZavorthPersonalOpsAdapter,
+ZavorthPersonalOpsAdapter,
   ZavorthPersonalOpsAdapterInput,
   ZavorthPersonalOpsAdapterResult,
 } from './ZavorthPersonalOpsRuntimeService.js';
@@ -399,9 +400,7 @@ async function readJson(response: Response): Promise<Record<string, unknown>> {
     }
     const parsed = JSON.parse(text) as unknown;
     return record(parsed) || {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[Zavorth Personal Ops Live Adapters] JSON parse failed', error); return {}; }
 }
 
 function buildGmailRaw(payload: Record<string, unknown>): string {

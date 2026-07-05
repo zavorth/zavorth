@@ -173,7 +173,7 @@ export function DesktopP6Panel(props: {
         <section className="zvd-p6-section">
           <div className="zvd-p6-section-head">
             <strong>Hardening e confianca</strong>
-            <span>{trust?.remoteDisplay.reason || 'Carregando sinais de seguranca.'}</span>
+            <span>{trust?.remoteDisplay.reason || 'Loading security signals.'}</span>
           </div>
           {trust && (
             <>
@@ -207,7 +207,7 @@ export function DesktopP6Panel(props: {
         </div>
         <div className="zvd-p6-audit">
           {auditEntries.length === 0 ? (
-            <span>Nenhum evento de auditoria ainda.</span>
+            <span>No audit event yet.</span>
           ) : auditEntries.slice(-6).reverse().map(entry => (
             <div key={`${entry.at}-${entry.type}`}>
               <strong>{entry.type}</strong>

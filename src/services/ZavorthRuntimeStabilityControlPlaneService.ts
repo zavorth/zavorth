@@ -4,6 +4,7 @@ import { ZavorthRemoteTransportService } from './ZavorthRemoteTransportService.j
 import { KeepaliveStatusService, type KeepaliveStatusSnapshot } from './KeepaliveStatusService.js';
 import { NodeMeshRecoveryService } from './NodeMeshRecoveryService.js';
 import { RemoteTransportDoctorService } from './RemoteTransportDoctorService.js';
+import { logger } from '../logger.js';
 type RuntimeStabilityDynamic = any;
 
 type RuntimeStabilityPosture = 'healthy' | 'attention' | 'critical';
@@ -465,9 +466,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
   private safeSnapshot<T>(reader: () => T, fallback: T): T {
     try {
       return reader();
-    } catch {
-      return fallback;
-    }
+    } catch (error) { logger.warn('[Zavorth Runtime Stability Control Plane] array operation failed', error); return fallback; }
   }
 
   private text(value: unknown, fallback = ''): string {

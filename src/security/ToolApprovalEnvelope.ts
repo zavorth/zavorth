@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { resolveToolApprovalSigningKey } from './ApprovalSigningKeyService.js';
+import { logger } from '../logger.js';
 
 export type ToolSecurityApprovalEnvelope = {
   kind: 'tool-security-approval';
@@ -204,7 +205,5 @@ function safeEqualHex(left: string, right: string): boolean {
     const leftBuffer = Buffer.from(left, 'hex');
     const rightBuffer = Buffer.from(right, 'hex');
     return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
-  } catch {
-    return false;
-  }
+  } catch (error) { logger.warn('[Approval Envelope] operation failed', error); return false; }
 }

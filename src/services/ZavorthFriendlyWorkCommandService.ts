@@ -4,6 +4,7 @@ import path from 'node:path';
 import type { TaskPlaneItem, TaskPlaneSnapshot } from '../contracts/TaskPlaneContract.js';
 import { TaskPlaneService } from './TaskPlaneService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+import { logger } from '../logger.js';
 
 type FriendlyCommand = 'todo' | 'later' | 'work' | 'done' | 'retry' | 'cancel';
 
@@ -241,9 +242,7 @@ export class ZavorthFriendlyWorkCommandService {
     try {
       const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as unknown;
       return Array.isArray(parsed) ? parsed.filter(isFriendlyCronRecord) : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Friendly Work Command] JSON parse failed', error); return []; }
   }
 
   private writeScheduled(file: string, records: FriendlyCronRecord[]): void {

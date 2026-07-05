@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import { logger } from '../logger.js';
 
 type FocusArea = 'security' | 'performance' | 'style' | 'all';
 type Severity = 'info' | 'warning' | 'error' | 'critical';
@@ -24,7 +25,7 @@ export class CodeReviewTool extends BaseTool {
     properties: {
       target: {
         type: 'string',
-        description: 'Caminho do arquivo ou diff para analisar.',
+        description: 'Path to the file or diff to analyze.',
       },
       focus: {
         type: 'string',
@@ -40,7 +41,7 @@ export class CodeReviewTool extends BaseTool {
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const target = String(args.target || '');
-    if (!target) return 'Erro: o parametro "target" e obrigatorio.';
+    if (!target) return 'Error: the "target" parameter is required.';
 
     const focus = String(args.focus || 'all') as FocusArea;
     const validFocus: FocusArea[] = ['security', 'performance', 'style', 'all'];
@@ -66,18 +67,20 @@ export class CodeReviewTool extends BaseTool {
         } else {
           code = target;
         }
-      } catch {
-        code = target;
-      }
+      } catch (error) {
+    logger.warn('[Code] filesystem operation failed', error);
+    code = target;
+  }
     }
 
     try {
       const findings = this.analyzeCode(code, focus, severityThreshold);
       return this.formatFindings(findings, target, focus, severityThreshold);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Code] filesystem operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return `Erro na analise de codigo: ${message}`;
-    }
+  }
   }
 
   private analyzeCode(code: string, focus: FocusArea, threshold: Severity): ReviewFinding[] {
@@ -113,7 +116,7 @@ export class CodeReviewTool extends BaseTool {
 
       if (focus === 'performance' || focus === 'all') {
         if (/\.forEach\s*\(/.test(line) && lines[i + 1]?.includes('await')) {
-          addFinding({ severity: 'warning', category: 'performance', line: lineNum, message: 'forEach com await nao executa em paralelo.', suggestion: 'Use Promise.all com map ou for...of para sequencia.' });
+          addFinding({ severity: 'warning', category: 'performance', line: lineNum, message: 'forEach with await does not run in parallel.', suggestion: 'Use Promise.all with map or for...of for sequential execution.' });
         }
         if (/SELECT\s+\*\s+FROM/i.test(line)) {
           addFinding({ severity: 'warning', category: 'performance', line: lineNum, message: 'SELECT * detectado.', suggestion: 'Selecione apenas as colunas necessarias.' });
@@ -141,7 +144,7 @@ export class CodeReviewTool extends BaseTool {
 
   private formatFindings(findings: ReviewFinding[], target: string, focus: FocusArea, threshold: Severity): string {
     if (findings.length === 0) {
-      return `Review concluido para "${target}". Nenhum problema encontrado (foco: ${focus}, severidade minima: ${threshold}).`;
+      return `Review completed for "${target}". No problems found (focus: ${focus}, minimum severity: ${threshold}).`;
     }
 
     const lines: string[] = [];

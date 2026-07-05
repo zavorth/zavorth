@@ -22,6 +22,7 @@ import {
   isUnrecoverableRefreshError,
 } from "@ZavorthGateway/open-sse/services/tokenRefresh.ts";
 import { pickMaskedDisplayValue } from "@/shared/utils/maskEmail";
+import { logger } from '@/shared/utils/logger';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const TICK_MS = 60 * 1000; // sweep interval: every 60 seconds
@@ -94,9 +95,7 @@ async function shouldHideLogs(): Promise<boolean> {
       cachedHideLogs = settings.hideHealthCheckLogs === true;
       cacheTimestamp = now;
       return cachedHideLogs;
-    } catch {
-      return false;
-    } finally {
+    } catch (error) { logger.warn('[token  Check] health check failed', error); return false; } finally {
       pendingHideLogs = null;
     }
   })();

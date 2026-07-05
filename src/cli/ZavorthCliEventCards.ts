@@ -149,7 +149,7 @@ export function formatCliChatReplyEventCard(reply: string): string | null {
     });
   }
 
-  if (/\b(erro|falha|failed|error|travou|indisponivel|unavailable|nao consegui)\b/i.test(normalized)) {
+  if (/\b(erro|falha|failed|error|travou|unavailable|unavailable|nao consegui)\b/i.test(normalized)) {
     return formatCliRecoverableErrorEventCard({
       body: normalized,
       command: 'doctor',

@@ -35,9 +35,7 @@ export class VideoHandlerFormatSupport {
       const parsed = new URL(url);
       const candidate = path.basename(parsed.pathname) || "video-remoto.mp4";
       return candidate.includes(".") ? candidate : `${candidate}.mp4`;
-    } catch {
-      return "video-remoto.mp4";
-    }
+    } catch (error) { logger.warn('[Video  Format] parsing failed', error); return "video-remoto.mp4"; }
   }
 
   public static guessMimeTypeFromPath(filePath: string): string {

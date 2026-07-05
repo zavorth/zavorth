@@ -44,16 +44,16 @@ export type FeedbackTelemetryContractSnapshot = {
 
 export const FEEDBACK_TELEMETRY_REQUIRED_COPY = [
   'Feedback, telemetry opt-in and product loop',
-  'Telemetry desligada por padrao',
+  'Telemetry disabled by default',
   'Feedback opt-in',
-  'preview redigido',
+  'redacted preview',
   'revoke/delete local',
   'Product feedback ledger',
   'product-feedback-ledger.json',
   'feedback-preview-redacted.json',
   'issue/report template',
-  'agregador sem payload sensivel',
-  'sem depender de cloud obrigatoria',
+  'aggregator without sensitive payload',
+  'without depending on required cloud',
 ] as const;
 
 export const FEEDBACK_TELEMETRY_REQUIRED_COMMANDS = [
@@ -71,11 +71,11 @@ export const FEEDBACK_TELEMETRY_REQUIRED_LINKS = [
 
 export const FEEDBACK_TELEMETRY_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
-  'telemetry ligada por padrao',
-  'envio automatico',
-  'sem opt-in',
-  'sem redaction',
-  'payload bruto enviado',
+  'telemetry enabled by default',
+  'automatic sending',
+  'without opt-in',
+  'without redaction',
+  'raw payload sent',
 ] as const;
 
 export const FEEDBACK_TELEMETRY_SCREENSHOTS: FeedbackTelemetryScreenshotSpec[] = [

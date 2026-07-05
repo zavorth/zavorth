@@ -14,7 +14,7 @@ export const FRONTIER_PROVIDER_PRICING = {
       reasoning: 0.75,
       cache_creation: 0.3,
     },
-    // Grok-4 Fast Family â€” ultrabaratos ($0.20/$0.50/M)
+    // Grok-4 Fast Family - ultra-cheap ($0.20/$0.50/M)
     "grok-4-fast-non-reasoning": {
       input: 0.2,
       output: 0.5,
@@ -53,7 +53,7 @@ export const FRONTIER_PROVIDER_PRICING = {
   },
 
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // Z.AI / ZhipuAI â€” GLM-5 Family
+  // Z.AI / ZhipuAI - GLM-5 Family
   // Adicionados via ClawRouter 2026-03-17 | maxOutput: 128k tokens!
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   zai: {
@@ -131,7 +131,7 @@ export const FRONTIER_PROVIDER_PRICING = {
       reasoning: 8.0,
       cache_creation: 2.0,
     },
-    // Kiro "Auto" model â€” routes to best available
+    // Kiro "Auto" model - routes to best available
     auto: {
       input: 3.0,
       output: 15.0,

@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import { logger } from '../logger.js';
 import {
-  decideSecurityPolicy,
+decideSecurityPolicy,
   type SecurityPolicyBrokerAction,
   type SecurityPolicyBrokerReceipt,
 } from '../security/SecurityPolicyBroker.js';
@@ -69,12 +70,12 @@ const DEFAULT_POLICY: SkillTrustPolicyRawDocument = {
     {
       sourceId: 'workspace-agents',
       mode: 'all',
-      reason: 'Fonte principal de autoria local.',
+      reason: 'Primary locally authored source.',
     },
     {
       sourceId: 'workspace-library',
       mode: 'all',
-      reason: 'Biblioteca local curada.',
+      reason: 'Curated local library.',
     },
     {
       sourceId: 'workspace-imported-library',
@@ -178,7 +179,7 @@ export class SkillTrustPolicyService {
     const rule = this.findRule(policy, normalizedSourceId);
 
     if (rule?.mode === 'none') {
-      return this.deny(normalizedSourceId, null, 'none', rule.reason || `Fonte ${normalizedSourceId} bloqueada pela allowlist.`);
+      return this.deny(normalizedSourceId, null, 'none', rule.reason || `Source ${normalizedSourceId} blocked by allowlist.`);
     }
 
     if (rule?.mode === 'review') {
@@ -186,12 +187,12 @@ export class SkillTrustPolicyService {
         normalizedSourceId,
         null,
         'review',
-        rule.reason || `Fonte ${normalizedSourceId} visivel somente para revisao.`,
+        rule.reason || `Source ${normalizedSourceId} visible for review only.`,
       );
     }
 
     if (rule?.mode === 'all') {
-      return this.allow(normalizedSourceId, null, 'all', rule.reason || `Fonte ${normalizedSourceId} liberada integralmente.`);
+      return this.allow(normalizedSourceId, null, 'all', rule.reason || `Source ${normalizedSourceId} fully allowed.`);
     }
 
     if (rule?.mode === 'explicit') {
@@ -199,23 +200,23 @@ export class SkillTrustPolicyService {
         normalizedSourceId,
         null,
         'explicit',
-        rule.reason || `Fonte ${normalizedSourceId} liberada somente por allowlist explicita.`,
+        rule.reason || `Source ${normalizedSourceId} allowed only by explicit allowlist.`,
       );
     }
 
     if (policy.allowedSourceIds.includes(normalizedSourceId)) {
-      return this.allow(normalizedSourceId, null, 'implicit', `Fonte ${normalizedSourceId} permitida pela allowlist base.`);
+      return this.allow(normalizedSourceId, null, 'implicit', `Source ${normalizedSourceId} allowed by base allowlist.`);
     }
 
     if (policy.defaultPolicy === 'allow') {
-      return this.allow(normalizedSourceId, null, 'default', `Fonte ${normalizedSourceId} permitida pela policy default.`);
+      return this.allow(normalizedSourceId, null, 'default', `Source ${normalizedSourceId} allowed by default policy.`);
     }
 
     return this.deny(
       normalizedSourceId,
       null,
       'default',
-      `Fonte ${normalizedSourceId || 'desconhecida'} nao esta permitida pela allowlist.`,
+      `Source ${normalizedSourceId || 'unknown'} is not allowed by the allowlist.`,
     );
   }
 
@@ -246,7 +247,7 @@ export class SkillTrustPolicyService {
         normalizedSourceId,
         normalizedSkillName,
         'review',
-        rule.reason || `Skill ${normalizedSkillName || 'desconhecida'} exige revisao antes de execucao.`,
+        rule.reason || `Skill ${normalizedSkillName || 'unknown'} requires review before execution.`,
       );
     }
 
@@ -255,7 +256,7 @@ export class SkillTrustPolicyService {
         normalizedSourceId,
         normalizedSkillName,
         'all',
-        rule.reason || `Skill ${normalizedSkillName || 'desconhecida'} permitida pela source ${normalizedSourceId}.`,
+        rule.reason || `Skill ${normalizedSkillName || 'unknown'} allowed by source ${normalizedSourceId}.`,
       );
     }
 
@@ -265,7 +266,7 @@ export class SkillTrustPolicyService {
           normalizedSourceId,
           normalizedSkillName,
           'explicit',
-          rule.reason || `Skill ${normalizedSkillName} permitida pela allowlist explicita.`,
+          rule.reason || `Skill ${normalizedSkillName} allowed by explicit allowlist.`,
         );
       }
 
@@ -273,7 +274,7 @@ export class SkillTrustPolicyService {
         normalizedSourceId,
         normalizedSkillName,
         'explicit',
-        `Skill ${normalizedSkillName || 'desconhecida'} nao esta na allowlist explicita da source ${normalizedSourceId}.`,
+        `Skill ${normalizedSkillName || 'unknown'} is not in the explicit allowlist for source ${normalizedSourceId}.`,
       );
     }
 
@@ -282,7 +283,7 @@ export class SkillTrustPolicyService {
         normalizedSourceId,
         normalizedSkillName,
         'implicit',
-        `Skill ${normalizedSkillName || 'desconhecida'} permitida pela source ${normalizedSourceId}.`,
+        `Skill ${normalizedSkillName || 'unknown'} allowed by source ${normalizedSourceId}.`,
       );
     }
 
@@ -291,7 +292,7 @@ export class SkillTrustPolicyService {
         normalizedSourceId,
         normalizedSkillName,
         'default',
-        `Skill ${normalizedSkillName || 'desconhecida'} permitida pela policy default.`,
+        `Skill ${normalizedSkillName || 'unknown'} allowed by default policy.`,
       );
     }
 
@@ -299,7 +300,7 @@ export class SkillTrustPolicyService {
       normalizedSourceId,
       normalizedSkillName,
       'default',
-      `Skill ${normalizedSkillName || 'desconhecida'} nao esta permitida pela allowlist.`,
+      `Skill ${normalizedSkillName || 'unknown'} is not allowed by the allowlist.`,
     );
   }
 
@@ -316,9 +317,7 @@ export class SkillTrustPolicyService {
         return DEFAULT_POLICY;
       }
       return JSON.parse(this.readFileSyncImpl(this.policyFile, 'utf8')) as SkillTrustPolicyRawDocument;
-    } catch {
-      return DEFAULT_POLICY;
-    }
+    } catch (error) { logger.warn('[Skill Trust] JSON parse failed', error); return DEFAULT_POLICY; }
   }
 
   private normalizeDocument(raw: SkillTrustPolicyRawDocument): SkillTrustPolicyDocument {

@@ -58,7 +58,7 @@ export class TelegramEchoApprovalController {
   public async handleEchoCallback(ctx: Context, data: string): Promise<void> {
     const parsed = this.parseCallback(data);
     if (!parsed) {
-      await ctx.answerCallbackQuery({ text: 'Acao Echo desconhecida.' });
+      await ctx.answerCallbackQuery({ text: 'Unknown Echo action.' });
       return;
     }
 
@@ -71,7 +71,7 @@ export class TelegramEchoApprovalController {
       client.getSurfaceContext(),
     );
 
-    await ctx.answerCallbackQuery({ text: parsed.approved ? 'Approval Echo aprovado.' : 'Approval Echo negado.' });
+    await ctx.answerCallbackQuery({ text: parsed.approved ? 'Echo approval approved.' : 'Echo approval denied.' });
     await this.replaceOrReply(ctx, response);
   }
 
@@ -80,8 +80,8 @@ export class TelegramEchoApprovalController {
     permissions.slice(0, MAX_LISTED_APPROVALS).forEach((permission) => {
       const ref = this.shortPermissionId(permission);
       keyboard
-        .text(`Aprovar ${ref}`, `${ECHO_APPROVAL_PREFIX}approve:${ref}`)
-        .text(`Negar ${ref}`, `${ECHO_APPROVAL_PREFIX}reject:${ref}`)
+        .text(`Approve ${ref}`, `${ECHO_APPROVAL_PREFIX}approve:${ref}`)
+        .text(`Deny ${ref}`, `${ECHO_APPROVAL_PREFIX}reject:${ref}`)
         .row();
     });
     return keyboard;
@@ -90,7 +90,7 @@ export class TelegramEchoApprovalController {
   private async replyWithPendingApprovals(ctx: Context, client: TelegramEchoApprovalClient): Promise<void> {
     const permissions = await client.readPendingPermissions();
     if (permissions.length === 0) {
-      await ctx.reply('Echo nao tem approvals pendentes agora.');
+      await ctx.reply('Echo has no pending approvals right now.');
       return;
     }
 
@@ -141,7 +141,7 @@ export class TelegramEchoApprovalController {
     }
 
     if (matches.length > 1) {
-      throw new Error(`Referencia Echo "${normalized}" e ambigua.`);
+      throw new Error(`Echo reference "${normalized}" is ambiguous.`);
     }
 
     return normalized;
@@ -185,27 +185,27 @@ export class TelegramEchoApprovalController {
     context: TelegramEchoSurfaceContext,
   ): string {
     const lines = [
-      `Echo approvals pendentes (${permissions.length})`,
+      `Pending Echo approvals (${permissions.length})`,
       `Surface: ${context.surface} | session: ${context.sessionId}`,
       '',
     ];
 
     permissions.slice(0, MAX_LISTED_APPROVALS).forEach((permission, index) => {
       lines.push(
-        `${index + 1}. ${permission.action || 'acao desconhecida'}`,
+        `${index + 1}. ${permission.action || 'unknown action'}`,
         `id: ${permission.id}`,
-        `runId: ${permission.correlation?.runId || permission.runContext?.runId || 'n/d'}`,
-        `origem: ${permission.runContext?.surface || 'echo'}`,
-        `motivo: ${truncate(permission.reason || 'sem motivo informado', 140)}`,
+        `runId: ${permission.correlation?.runId || permission.runContext?.runId || 'n/a'}`,
+        `source: ${permission.runContext?.surface || 'echo'}`,
+        `reason: ${truncate(permission.reason || 'no reason provided', 140)}`,
         '',
       );
     });
 
     if (permissions.length > MAX_LISTED_APPROVALS) {
-      lines.push(`+${permissions.length - MAX_LISTED_APPROVALS} approval(s) adicionais nao exibidos.`);
+      lines.push(`+${permissions.length - MAX_LISTED_APPROVALS} additional approval(s) not shown.`);
     }
 
-    lines.push('Use os botoes abaixo ou /echoapprovals approve <id> / /echoapprovals reject <id>.');
+    lines.push('Use the buttons below or /echoapprovals approve <id> / /echoapprovals reject <id>.');
     return lines.join('\n').trim();
   }
 
@@ -215,9 +215,9 @@ export class TelegramEchoApprovalController {
     context: TelegramEchoSurfaceContext,
   ): string {
     const label = status === 'approved'
-      ? 'aprovado'
+      ? 'approved'
       : status === 'denied'
-        ? 'negado'
+        ? 'denied'
         : status;
     return [
       `Approval Echo ${label}.`,
@@ -234,7 +234,7 @@ export class TelegramEchoApprovalController {
     return createSurfaceResponse({
       id: `echo-approvals-${context.sessionId}`,
       intent: 'approval',
-      title: `Echo approvals pendentes (${permissions.length})`,
+      title: `Pending Echo approvals (${permissions.length})`,
       summary: `Surface: ${context.surface} | session: ${context.sessionId}`,
       tone: 'warning',
       blocks: [
@@ -245,9 +245,9 @@ export class TelegramEchoApprovalController {
       ],
       receipts: permissions.slice(0, MAX_LISTED_APPROVALS).map((permission) => ({
         id: permission.id,
-        title: permission.action || 'acao desconhecida',
+        title: permission.action || 'unknown action',
         status: 'require_user_confirmation',
-        reason: truncate(permission.reason || 'sem motivo informado', 180),
+        reason: truncate(permission.reason || 'no reason provided', 180),
         policyProfile: permission.runContext?.profile || null,
         redacted: true,
         riskBlocked: false,
@@ -262,7 +262,7 @@ export class TelegramEchoApprovalController {
         return [
           {
             id: `echo-approve-${ref}`,
-            label: `Aprovar ${ref}`,
+            label: `Approve ${ref}`,
             kind: 'callback' as const,
             callbackData: `${ECHO_APPROVAL_PREFIX}approve:${ref}`,
             style: 'success' as const,
@@ -270,7 +270,7 @@ export class TelegramEchoApprovalController {
           },
           {
             id: `echo-reject-${ref}`,
-            label: `Negar ${ref}`,
+            label: `Deny ${ref}`,
             kind: 'callback' as const,
             callbackData: `${ECHO_APPROVAL_PREFIX}reject:${ref}`,
             style: 'danger' as const,
@@ -291,7 +291,7 @@ export class TelegramEchoApprovalController {
     return createSurfaceResponse({
       id: `echo-approval-resolution-${id}`,
       intent: 'receipt',
-      title: approved ? 'Approval Echo aprovado' : denied ? 'Approval Echo negado' : 'Approval Echo atualizado',
+      title: approved ? 'Echo approval approved' : denied ? 'Echo approval denied' : 'Echo approval updated',
       summary: `surface: ${context.surface} | session: ${context.sessionId}`,
       tone: approved ? 'success' : denied ? 'danger' : 'info',
       blocks: [
@@ -305,7 +305,7 @@ export class TelegramEchoApprovalController {
           id,
           title: 'Echo approval',
           status: approved ? 'allowed' : denied ? 'denied' : 'done',
-          reason: `Decisao registrada via ${context.surface}.`,
+          reason: `Decision recorded via ${context.surface}.`,
           policyProfile: context.surface,
           redacted: true,
           riskBlocked: denied,

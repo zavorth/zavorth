@@ -1,6 +1,7 @@
 import { Database } from '../../../../storage/Database.js';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
+import { logger } from '../../../../logger';
 
 type SidecarSummaryReader = () => unknown;
 
@@ -69,9 +70,10 @@ export class ZavorthControlObservabilityService {
 
     try {
       stats = monitor.getHealthStats();
-    } catch {
-      stats = { error: 'Nao foi possivel carregar metricas' };
-    }
+    } catch (error) {
+    logger.warn('[Zavorth Control Observability] health check failed', error);
+    stats = { error: 'Nao foi possivel carregar metricas' };
+  }
 
     if (stats.error) {
       return stats;
@@ -123,10 +125,11 @@ export class ZavorthControlObservabilityService {
       const rows = db.all<AuditLogEntry>(sql, params);
       const countRow = db.get<{ total: number }>('SELECT COUNT(*) as total FROM audit_log');
       return { logs: rows, total: countRow?.total || 0, limit, offset };
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Control Observability] number operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return { logs: [], total: 0, limit: 0, offset: 0, error: message };
-    }
+  }
   }
 
   public async getAuditStats(): Promise<AuditStatsResponse | AuditStatsError> {
@@ -138,10 +141,11 @@ export class ZavorthControlObservabilityService {
       const byType = db.all<{ event_type: string; c: number }>('SELECT event_type, COUNT(*) as c FROM audit_log GROUP BY event_type ORDER BY c DESC LIMIT 10');
       const recent24h = db.get<{ c: number }>("SELECT COUNT(*) as c FROM audit_log WHERE timestamp >= datetime('now', '-1 day')")?.c || 0;
       return { total, allowed, blocked, recent24h, byType };
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+    } catch (error) {
+    logger.warn('[Zavorth Control Observability] string operation failed', error);
+    const message = error instanceof Error ? error.message : String(error);
       return { total: 0, error: message };
-    }
+  }
   }
 }
 

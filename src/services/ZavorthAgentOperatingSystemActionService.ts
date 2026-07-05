@@ -71,7 +71,7 @@ export class ZavorthAgentOperatingSystemActionService {
     capabilities: ZavorthCapabilityCatalogSnapshot | null;
   }> {
     if (!this.workflowController) {
-      throw new Error('Workflow controller indisponivel para o Agent OS.');
+      throw new Error('Workflow controller is unavailable for Agent OS.');
     }
 
     const actionId = input.actionId;
@@ -90,12 +90,12 @@ export class ZavorthAgentOperatingSystemActionService {
   }> {
     const teamId = String(input.teamId || '').trim().toLowerCase();
     if (!teamId) {
-      throw new Error('teamId obrigatorio para iniciar um loop.');
+      throw new Error('teamId is required to start a loop.');
     }
 
     const knownTeam = this.findTeam(teamId, input.workspace || null);
     if (!knownTeam) {
-      throw new Error(`Team ${teamId} ainda nao existe no agent OS limitado.`);
+      throw new Error(`Team ${teamId} does not exist in the limited Agent OS yet.`);
     }
 
     const objective = String(input.objective || '').trim();
@@ -103,15 +103,15 @@ export class ZavorthAgentOperatingSystemActionService {
     const loopTarget = teamId === 'sdd' ? (featureId || objective) : objective;
     if (!loopTarget) {
       throw new Error(teamId === 'sdd'
-        ? 'featureId obrigatorio para iniciar o loop SDD.'
-        : `Objetivo obrigatorio para iniciar o loop ${teamId}.`);
+        ? 'featureId is required to start the SDD loop.'
+        : `Objective is required to start the ${teamId} loop.`);
     }
 
     const args = `${teamId} ${loopTarget}`.trim();
     const replies = await this.runWorkflowCommand(args, input.runtimeUserId || null);
     const note = teamId === 'sdd'
-      ? `Loop SDD iniciado para ${loopTarget}.`
-      : `Loop ${teamId} iniciado com o objetivo informado.`;
+      ? `SDD loop started for ${loopTarget}.`
+      : `${teamId} loop started with the provided objective.`;
 
     return this.buildResponse({
       status: 'started',
@@ -132,7 +132,7 @@ export class ZavorthAgentOperatingSystemActionService {
   }> {
     const workflowRunId = String(input.workflowRunId || '').trim();
     if (!workflowRunId) {
-      throw new Error('workflowRunId obrigatorio para retomar um loop.');
+      throw new Error('workflowRunId is required to resume a loop.');
     }
 
     const resumeStageId = String(input.resumeStageId || '').trim();

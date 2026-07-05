@@ -22,6 +22,7 @@ import type {
 import { SmartOutputService } from '../SmartOutputService.js';
 import { WorkflowRunLifecycleSupport } from './WorkflowRunLifecycleSupport.js';
 import { WorkflowRunStageStateSupport } from './WorkflowRunStageStateSupport.js';
+import { logger } from '../../logger.js';
 
 type BotApiLike = {
   sendMessage(chatId: string | number, text: string, options?: Record<string, unknown>): Promise<unknown>;
@@ -440,7 +441,7 @@ export class WorkflowRunSupport {
       workflow_status: run.status,
       traceId: correlation.traceId,
       runId: correlation.runId,
-      sessionId: correlation.sessionId,
+      sessionId: correlation.sessionId || '',
       workflow_resume_stage_id: run.resume_stage?.id || null,
       workflow_resume_stage_label: run.resume_stage?.label || null,
       workflow_resume_stage_status: run.resume_stage?.status || null,
@@ -655,9 +656,7 @@ export class WorkflowRunSupport {
       .map((run) => {
         try {
           return this.normalizeRun(run as WorkflowRunSnapshot);
-        } catch {
-          return null;
-        }
+        } catch (error) { logger.warn('[Workflow Run] filesystem operation failed', error); return null; }
       })
       .filter((run): run is WorkflowRunSnapshot => Boolean(run));
 

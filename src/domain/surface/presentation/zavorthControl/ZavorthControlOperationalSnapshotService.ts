@@ -6,6 +6,7 @@ import type { SessionHandoffSnapshot } from '../../../../services/SessionHandoff
 import type { WorkflowRunSnapshot } from '../../../../services/WorkflowRunService.js';
 import type { Task } from '../../../../contracts/TaskContract.js';
 import type { SystemOverlordActionRecord } from '../../../../contracts/core/SystemOverlordContract.js';
+import { logger } from '../../../../logger';
 
 type SessionContinuityLike = {
   buildSnapshot: (sessionId: string, chatId: string, userId: string) => SessionContinuitySnapshot;
@@ -226,7 +227,7 @@ export class ZavorthControlOperationalSnapshotService {
     ): Array<Record<string, unknown>> {
     const continuityTasks = Array.isArray(continuity?.recentTasks) ? continuity.recentTasks : [];
     const rawTasks = this.safeReadRecentTasks(deps);
-    const deduped = new Map<string, Record<string, unknown>>();
+    const deduped = new Map<string, any>();
     for (const task of rawTasks) {
       const taskId = this.readTaskId(task);
       if (!taskId) {
@@ -248,22 +249,19 @@ export class ZavorthControlOperationalSnapshotService {
     try {
       const tasks = deps.taskManager?.getRecentTasks?.(50, deps.continuityUserId);
       return Array.isArray(tasks) ? tasks : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
   }
 
   private safeReadHostActions(deps: ZavorthControlOperationalSnapshotDeps): SystemOverlordActionRecord[] {
     try {
       const actions = deps.hostActions?.listActions?.(50);
       return Array.isArray(actions) ? actions : [];
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
   }
 
-  private readTaskId(task: Partial<Task> | Record<string, unknown>): string | null {
-    const taskId = String((task as Record<string, unknown>)?.task_id || (task as Record<string, unknown>)?.taskId || '').trim();
+  private readTaskId(task: unknown): string | null {
+    const record = task && typeof task === 'object' ? task as Record<string, unknown> : {};
+    const taskId = String(record.task_id || record.taskId || '').trim();
     return taskId || null;
   }
 }

@@ -6,6 +6,7 @@ import { validateComboDAG } from "@ZavorthGateway/open-sse/services/combo.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { createComboSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { logger } from '@/shared/utils/logger';
 
 // GET /api/combos - Get all combos
 export async function GET(request: Request) {
@@ -48,9 +49,10 @@ export async function POST(request) {
     const tempCombo = { name, models: models || [], strategy, config };
     try {
       validateComboDAG(name, [...allCombos, tempCombo]);
-    } catch (dagError) {
-      return NextResponse.json({ error: dagError.message }, { status: 400 });
-    }
+    } catch (error) {
+    logger.warn('[route] validation failed', error);
+    return NextResponse.json({ error: dagError.message }, { status: 400 });
+  }
 
     const combo = await createCombo({ name, models: models || [], strategy, config });
 

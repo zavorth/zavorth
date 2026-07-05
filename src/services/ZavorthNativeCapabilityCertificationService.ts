@@ -13,6 +13,7 @@ import { GoalPlaneService } from './GoalPlaneService.js';
 import { TaskPlaneService } from './TaskPlaneService.js';
 import { ZavorthOperationalStateDbService } from './ZavorthOperationalStateDbService.js';
 import { ZavorthXaiRuntimeService, type ZavorthXaiDoctorSnapshot } from './ZavorthXaiRuntimeService.js';
+import { logger } from '../logger.js';
 
 export type ZavorthNativeCapabilityCertificationStatus = 'ready' | 'partial' | 'missing';
 
@@ -418,7 +419,8 @@ export class ZavorthNativeCapabilityCertificationService {
         ],
       };
     } catch (error) {
-      return {
+    logger.warn('[Zavorth Native Capability Certification] creation failed', error);
+    return {
         id: 'goal-loop-long-session',
         status: 'missing',
         ticksRequested: 3,
@@ -431,7 +433,7 @@ export class ZavorthNativeCapabilityCertificationService {
         stateDbBacked: true,
         notes: [error instanceof Error ? error.message : String(error)],
       };
-    } finally {
+  } finally {
       stateDb.close();
       fs.rmSync(root, { recursive: true, force: true });
     }

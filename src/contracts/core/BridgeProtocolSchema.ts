@@ -1,15 +1,14 @@
 /**
- * BridgeProtocolSchema — Contrato JSON Schema padronizado para comunicação
- * entre agentes no ecossistema Zavorth.
+ * BridgeProtocolSchema - standardized JSON Schema contract for communication
+ * between agents in the Zavorth ecosystem.
  *
- * Qualquer software (ZavorthBridge, Codex, ferramentas externas) pode depositar
- * um arquivo JSON no diretório de inbox seguindo este contrato e receber
- * uma resposta estruturada no diretório de respostas.
+ * Any software can place a JSON file in the bridge inbox directory following
+ * this contract and receive a structured response in the response directory.
  *
- * Versão: ZAVORTH_BRIDGE_V2
+ * Version: ZAVORTH_BRIDGE_V2
  */
 
-// ─── Envelope Types ──────────────────────────────────────────────────────────
+// Envelope Types
 
 /** All supported agent identifiers */
 export type BridgeAgent = 'ZAVORTH_BRIDGE' | 'CODEX' | 'EXTERNAL_EXECUTOR' | 'GEMINI_CLI' | 'JULES' | 'EXTERNAL';
@@ -34,14 +33,14 @@ export type BridgeResponseStatus =
   | 'PENDING'
   | 'CANCELLED';
 
-// ─── Request Envelope ────────────────────────────────────────────────────────
+// Request Envelope
 
 /**
  * The universal request envelope that any external software can write
  * as a JSON file into the bridge inbox directory.
  */
 export interface BridgeRequestEnvelope {
-  /** Protocol version identifier — must be "ZAVORTH_BRIDGE_V2" */
+  /** Protocol version identifier - must be "ZAVORTH_BRIDGE_V2" */
   protocol: 'ZAVORTH_BRIDGE_V2';
 
   /** Unique message ID (UUIDv4 recommended) */
@@ -65,13 +64,13 @@ export interface BridgeRequestEnvelope {
   /** Correlation ID for linking request/response pairs */
   correlationId: string;
 
-  /** The actual payload — prompt text, query, etc. */
+  /** The actual payload: prompt text, query, etc. */
   payload: BridgeRequestPayload;
 
   /** HMAC-SHA256 signature of canonical fields (hex) */
   signature: string;
 
-  /** Optional: TTL in seconds — message expires after this duration */
+  /** Optional: TTL in seconds; message expires after this duration */
   ttlSeconds?: number;
 
   /** Optional: arbitrary key-value metadata */
@@ -95,14 +94,14 @@ export interface BridgeRequestPayload {
   context?: Record<string, unknown>;
 }
 
-// ─── Response Envelope ───────────────────────────────────────────────────────
+// Response Envelope
 
 /**
  * The universal response envelope that Zavorth writes back
  * into the bridge response directory.
  */
 export interface BridgeResponseEnvelope {
-  /** Protocol version — mirrors the request */
+  /** Protocol version; mirrors the request */
   protocol: 'ZAVORTH_BRIDGE_V2';
 
   /** Unique response message ID */
@@ -162,7 +161,7 @@ export interface BridgeResponsePayload {
   commandsExecuted?: string[];
 }
 
-// ─── Heartbeat ───────────────────────────────────────────────────────────────
+// Heartbeat
 
 /**
  * Lightweight heartbeat message for health monitoring.
@@ -182,7 +181,7 @@ export interface BridgeHeartbeatResponse {
   activeAgent: BridgeAgent | null;
 }
 
-// ─── JSON Schema Definitions (static) ────────────────────────────────────────
+// JSON Schema Definitions (static)
 
 /**
  * Machine-readable JSON Schema definitions for the request and response
@@ -193,7 +192,7 @@ export const BRIDGE_REQUEST_JSON_SCHEMA = {
   $id: 'https://zavorth.local/schemas/bridge-request-v2.json',
   title: 'Zavorth Bridge Request Envelope V2',
   description:
-    'Envelope JSON que qualquer software pode depositar no inbox do Zavorth Agent Bridge para solicitar uma ação.',
+    'JSON envelope that any software can place in the Zavorth Agent Bridge inbox to request an action.',
   type: 'object' as const,
   required: [
     'protocol',
@@ -211,12 +210,12 @@ export const BRIDGE_REQUEST_JSON_SCHEMA = {
     protocol: {
       type: 'string' as const,
       const: 'ZAVORTH_BRIDGE_V2',
-      description: 'Identificador fixo do protocolo.',
+      description: 'Fixed protocol identifier.',
     },
     messageId: {
       type: 'string' as const,
       format: 'uuid',
-      description: 'UUID v4 unico da mensagem.',
+      description: 'Unique UUID v4 for the message.',
     },
     timestamp: {
       type: 'string' as const,
@@ -226,27 +225,27 @@ export const BRIDGE_REQUEST_JSON_SCHEMA = {
     sender: {
       type: 'string' as const,
       minLength: 1,
-      description: 'Identificador do software remetente.',
+      description: 'Identifier of the sending software.',
     },
     agent: {
       type: 'string' as const,
       enum: ['ZAVORTH_BRIDGE', 'CODEX', 'EXTERNAL_EXECUTOR', 'GEMINI_CLI', 'JULES', 'EXTERNAL'],
-      description: 'Agente alvo.',
+      description: 'Target agent.',
     },
     action: {
       type: 'string' as const,
       enum: ['PLAN_AND_EXECUTE', 'QUERY', 'STATUS_CHECK', 'CANCEL', 'HEARTBEAT'],
-      description: 'Acao solicitada.',
+      description: 'Requested action.',
     },
     priority: {
       type: 'string' as const,
       enum: ['LOW', 'NORMAL', 'HIGH', 'CRITICAL'],
       default: 'NORMAL',
-      description: 'Prioridade de processamento.',
+      description: 'Processing priority.',
     },
     correlationId: {
       type: 'string' as const,
-      description: 'ID de correlacao para vincular request/response.',
+      description: 'Correlation ID for linking request/response pairs.',
     },
     payload: {
       type: 'object' as const,
@@ -261,12 +260,12 @@ export const BRIDGE_REQUEST_JSON_SCHEMA = {
     },
     signature: {
       type: 'string' as const,
-      description: 'HMAC-SHA256 hex da string canonica.',
+      description: 'HMAC-SHA256 hex of the canonical string.',
     },
     ttlSeconds: {
       type: 'integer' as const,
       minimum: 1,
-      description: 'Tempo de vida da mensagem em segundos.',
+      description: 'Message lifetime in seconds.',
     },
     metadata: {
       type: 'object' as const,
@@ -281,7 +280,7 @@ export const BRIDGE_RESPONSE_JSON_SCHEMA = {
   $id: 'https://zavorth.local/schemas/bridge-response-v2.json',
   title: 'Zavorth Bridge Response Envelope V2',
   description:
-    'Envelope JSON que o Zavorth deposita no diretório de respostas apos processar uma solicitação.',
+    'JSON envelope that Zavorth places in the response directory after processing a request.',
   type: 'object' as const,
   required: [
     'protocol',

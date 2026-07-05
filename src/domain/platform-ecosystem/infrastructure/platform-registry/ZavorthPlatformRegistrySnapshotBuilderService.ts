@@ -33,8 +33,9 @@ import type {
   PlatformRegistryCatalogState,
   PlatformRegistryResolvedGraph,
 } from './ZavorthPlatformRegistrySnapshotBuilderTypes.js';
+import { logger } from '../../../../logger';
 import type {
-  ZavorthPlatformRegistryEntry,
+ZavorthPlatformRegistryEntry,
   ZavorthPlatformRegistrySnapshot,
   ZavorthPlatformRegistryStatusSummarySnapshot,
   ZavorthPlatformRegistrySummarySnapshot,
@@ -258,17 +259,13 @@ export class ZavorthPlatformRegistrySnapshotBuilderService {
   private safeLoadSkills(options?: Parameters<SkillLoader['loadAll']>[0]): SkillMetadata[] {
     try {
       return this.skillLoader.loadAll(options);
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Platform Registry Snapshot Builder] load operation failed', error); return []; }
   }
 
   private safeLoadMcpEntries(): ResolvedMcpServerManifestEntry[] {
     try {
       return this.mcpManifestLoader.load();
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Platform Registry Snapshot Builder] load operation failed', error); return []; }
   }
 
   private safeDiscoverSkillIdsFast(): string[] {
@@ -291,9 +288,7 @@ export class ZavorthPlatformRegistrySnapshotBuilderService {
           ids.add(normalizePlatformValue(`skill:${entry.name}`));
         }
       }
-    } catch {
-      return [];
-    }
+    } catch (error) { logger.warn('[Zavorth Platform Registry Snapshot Builder] filesystem operation failed', error); return []; }
 
     return Array.from(ids.values());
   }

@@ -18,8 +18,9 @@ import {
   buildTerminalShellSnapshot,
   formatTerminalShellScreen,
 } from './ZavorthCliTerminalShell.js';
+import { logger } from '../logger.js';
 import {
-  runZavorthCliTerminalShellInk,
+runZavorthCliTerminalShellInk,
   type ZavorthTerminalShellRunResult,
   type ZavorthTerminalShellRunnerParams,
 } from './ZavorthCliTerminalShellInkApp.js';
@@ -74,20 +75,17 @@ export async function runZavorthCliRepl(params: {
   }
   const rl = readlineFactory();
   let interrupted = false;
-  if (typeof (rl as any).on === 'function') {
-    (rl as any).on('SIGINT', () => {
-      interrupted = true;
-      try {
-        rl.close();
-      } catch {
-        // readline may already be closing after Ctrl+C.
-      }
-    });
-  }
+  rl.on('SIGINT', () => {
+    interrupted = true;
+    try {
+      rl.close();
+    } catch (error) { // readline may already be closing after Ctrl+C. logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error); }
+  });
   writer.line(params.welcomeText || formatCliChatWelcome());
 
-  if ('history' in rl && Array.isArray((rl as any).history)) {
-    (rl as any).history = loadCliReplHistory();
+  const promptRl = rl as unknown as { history?: string[] };
+  if (Array.isArray(promptRl.history)) {
+    promptRl.history = loadCliReplHistory();
   }
 
   try {
@@ -152,8 +150,6 @@ export async function runZavorthCliRepl(params: {
   } finally {
     try {
       rl.close();
-    } catch {
-      // A piped/non-interactive stdin can close before the REPL loop asks again.
-    }
+    } catch (error) { // A piped/non-interactive stdin can close before the REPL loop asks again. logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error); }
   }
 }

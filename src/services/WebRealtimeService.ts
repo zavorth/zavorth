@@ -21,6 +21,7 @@ import { GatewaySessionStoreService } from '../runtime/sessions/GatewaySessionSt
 import { GatewaySessionLedgerService } from './GatewaySessionLedgerService.js';
 import { config } from '../config/index.js';
 import { ZavorthMnemosCompilerService } from './ZavorthMnemosCompilerService.js';
+import { logger } from '../logger.js';
 
 
 type MessageRole = 'user' | 'assistant' | 'system';
@@ -654,9 +655,7 @@ export class WebRealtimeService {
   private emit(sessionId: string, event: WebRealtimeEvent): void {
     try {
       this.mnemosCompiler.ingestEvent(config.projectRoot, sessionId, event);
-    } catch {
-      // Catch errors silently to not impact active sessions
-    }
+    } catch (error) { // Catch errors silently to not impact active sessions logger.warn('[Web Realtime] load operation failed', error); }
 
     const session = this.getSession(sessionId);
     for (const listener of session.listeners) {

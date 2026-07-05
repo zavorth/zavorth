@@ -3,6 +3,7 @@ import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/e
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { z } from "zod";
+import { logger } from '@/shared/utils/logger';
 
 const migrateLegacyProxySchema = z.object({
   force: z.boolean().optional(),
@@ -16,7 +17,8 @@ export async function POST(request: Request) {
 
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] validation failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -39,6 +41,7 @@ export async function POST(request: Request) {
     const result = await migrateLegacyProxyConfigToRegistry({ force });
     return Response.json(result);
   } catch (error) {
+    logger.warn('[route] validation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to migrate legacy proxy config");
   }
 }

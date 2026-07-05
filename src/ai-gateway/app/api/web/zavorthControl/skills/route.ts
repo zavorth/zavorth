@@ -7,6 +7,7 @@ import { SkillCurationService } from "../../../../../../skills/SkillCurationServ
 import { SkillCuratorPlaneService } from "../../../../../../skills/SkillCuratorPlaneService.js";
 import { SkillCatalogService } from "../../../../../../skills/SkillCatalogService.js";
 import { Database } from "../../../../../../storage/Database.js";
+import { logger } from '@/shared/utils/logger';
 
 export const runtime = "nodejs";
 
@@ -114,6 +115,7 @@ export async function GET(request: Request) {
   try {
     return NextResponse.json(await buildUnifiedSkillsResponse());
   } catch (error) {
+    logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,
       error: error instanceof Error ? error.message : "failed to fetch skills list",
@@ -219,6 +221,7 @@ export async function POST(request: Request) {
       data: await buildUnifiedSkillsResponse(),
     });
   } catch (error) {
+    logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,
       error: error instanceof Error ? error.message : "action failed",

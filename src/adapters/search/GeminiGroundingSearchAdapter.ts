@@ -1,12 +1,11 @@
 /**
- * GeminiGroundingSearchAdapter — Adapter Zavorth-nativo para busca via Gemini Grounding.
+ * GeminiGroundingSearchAdapter - Zavorth-native adapter for Gemini Grounding search.
  *
- * Este adapter usa a capacidade de Google Search Grounding do modelo Gemini
- * para executar buscas que retornam respostas sintetizadas com citações.
+ * Uses Google Search Grounding through Gemini to return synthesized answers with citations.
  *
- * Usado quando mode='grounded' no SearchQueryRequest.
+ * Used when mode='grounded' in SearchQueryRequest.
  *
- * Referências arquiteturais:
+ * Architecture references:
  * - docs/native-absorption-execution-plan.md
  * - src/contracts/SearchQueryContract.ts
  *
@@ -44,23 +43,22 @@ export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
       : [config.geminiApiKey].filter(Boolean);
 
     if (keys.length === 0) {
-      throw new GroundingAdapterError(this.adapterId, 'Nenhuma chave Gemini configurada para grounding search.');
+      throw new GroundingAdapterError(this.adapterId, 'No Gemini key is configured for grounding search.');
     }
 
     for (const key of keys) {
       try {
-        const result = await this.executeGroundedSearch(key, query);
-        return result;
+        return await this.executeGroundedSearch(key, query);
       } catch (err) {
         logger.warn(`[GeminiGroundingSearchAdapter] Key failed: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
 
-    throw new GroundingAdapterError(this.adapterId, 'Todas as chaves Gemini falharam no grounding search.');
+    throw new GroundingAdapterError(this.adapterId, 'All Gemini keys failed during grounding search.');
   }
 
   // -------------------------------------------------------------------------
-  // Execução com uma chave específica
+  // Execution with a specific key
   // -------------------------------------------------------------------------
 
   private async executeGroundedSearch(apiKey: string, query: string): Promise<AdapterSearchOutput> {
@@ -75,14 +73,14 @@ export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
         role: 'user',
         parts: [{
           text: [
-            `Pesquise e responda de forma completa e detalhada sobre: "${query}"`,
+            `Search and answer completely and in detail about: "${query}"`,
             '',
-            'Instrucoes:',
-            '- Use informacoes atualizadas da web',
-            '- Cite as fontes quando possivel',
-            '- Seja analitico e neutro',
-            '- Formate com marcadores Markdown',
-            '- Se houver dados contraditorios, aponte divergencias',
+            'Instructions:',
+            '- Use current information from the web',
+            '- Cite sources whenever possible',
+            '- Be analytical and neutral',
+            '- Format with Markdown bullets',
+            '- If data conflicts, point out the divergence',
           ].join('\n'),
         }],
       }],
@@ -91,7 +89,7 @@ export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
     const response = result.response;
     const text = response.text();
 
-    // Extrai citações do grounding metadata.
+    // Extract citations from grounding metadata.
     const groundingMetadata = (response.candidates?.[0] as any)?.groundingMetadata;
     const citations = this.extractCitations(groundingMetadata);
 
@@ -130,7 +128,7 @@ export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
 }
 
 // ---------------------------------------------------------------------------
-// Erros tipados
+// Typed errors
 // ---------------------------------------------------------------------------
 
 export class GroundingAdapterError extends Error {

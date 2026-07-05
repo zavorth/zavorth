@@ -46,11 +46,11 @@ export class ZavorthAgentSurfaceUxService {
         {
           kind: 'table',
           table: {
-            title: 'Sessoes recentes',
+            title: 'Recent Sessions',
             columns: [
-              { key: 'session', label: 'Sessao', width: 20 },
+              { key: 'session', label: 'Session', width: 20 },
               { key: 'status', label: 'Status', width: 12 },
-              { key: 'modo', label: 'Modo', width: 16 },
+              { key: 'modo', label: 'Mode', width: 16 },
               { key: 'roles', label: 'Roles', width: 28 },
             ],
             rows: sessions.slice(0, 6).map((session) => ({
@@ -59,7 +59,7 @@ export class ZavorthAgentSurfaceUxService {
               modo: `${session.mode}/${session.executionMode}`,
               roles: formatSubagentSessionRoles(session),
             })),
-            emptyText: 'Nenhuma sessao ainda. Use /agents spawn <tarefa>.',
+            emptyText: 'No session yet. Use /agents spawn <task>.',
           },
         },
         {
@@ -75,7 +75,7 @@ export class ZavorthAgentSurfaceUxService {
                 autoProjection.summary,
                 `selectedBy=${autoProjection.selectedBy}`,
                 `roles=${autoProjection.roles.join(', ') || 'auto'}`,
-                `proximo=${autoProjection.nextSafeAction}`,
+                `next=${autoProjection.nextSafeAction}`,
               ],
             }]
           : []),
@@ -100,8 +100,8 @@ export class ZavorthAgentSurfaceUxService {
     const execution = plan.execution?.subagentRuntime || null;
     const sandbox = plan.execution?.sandboxLifecycle || null;
     const executionSummary = execution
-      ? `Execucao: ${execution.status}; live=${numberValue(execution.summary?.liveRuns)}; resultados=${numberValue(execution.summary?.workerResults)}.`
-      : 'Execucao: ainda nao iniciada nesta resposta.';
+      ? `Execution: ${execution.status}; live=${numberValue(execution.summary?.liveRuns)}; results=${numberValue(execution.summary?.workerResults)}.`
+      : 'Execution: not started in this response yet.';
     const sandboxSummary = sandbox
       ? `Sandbox: ${sandbox.intent}; runtime=${sandbox.selectedRuntime}; status=${sandbox.status}; approval=${sandbox.approval.required ? 'required' : 'not-required'}.`
       : 'Sandbox: not selected.';
@@ -110,23 +110,23 @@ export class ZavorthAgentSurfaceUxService {
       id: `zavorth-natural-invoke-${safeId(plan.primaryAction)}-${safeId(plan.generatedAt)}`,
       intent: 'generic',
       title: 'Zavorth Natural Invoke',
-      summary: `${plan.narrative?.summary || 'Pedido roteado.'} Status ${plan.status}.`,
+      summary: `${plan.narrative?.summary || 'Request routed.'} Status ${plan.status}.`,
       tone: toneForNaturalStatus(plan.status),
       blocks: [
         {
           kind: 'text',
-          title: 'Plano escolhido',
+          title: 'Chosen Plan',
           text: [
             `Status: ${plan.status}`,
-            `Acao: ${plan.primaryAction}`,
-            `Confianca: ${plan.confidence}`,
-            `Canal: ${plan.channel}`,
-            `Pedido: ${plan.requestText}`,
-            `Skill: ${plan.selectedSkillName || 'nenhuma'}`,
-            `Agentes: ${plan.selectedSubagentMode || 'nenhum'} | roles=${plan.selectedRoleIds.join(', ') || 'auto'}`,
+            `Action: ${plan.primaryAction}`,
+            `Confidence: ${plan.confidence}`,
+            `Channel: ${plan.channel}`,
+            `Request: ${plan.requestText}`,
+            `Skill: ${plan.selectedSkillName || 'none'}`,
+            `Agents: ${plan.selectedSubagentMode || 'none'} | roles=${plan.selectedRoleIds.join(', ') || 'auto'}`,
             executionSummary,
             sandboxSummary,
-            `Proximo passo: ${plan.narrative?.nextAction || 'Use uma das acoes sugeridas.'}`,
+            `Next step: ${plan.narrative?.nextAction || 'Use one of the suggested actions.'}`,
           ].join('\n'),
         },
         {
@@ -143,14 +143,14 @@ export class ZavorthAgentSurfaceUxService {
               tipo: candidate.kind,
               nome: candidate.label,
               conf: candidate.confidence.toFixed(2),
-              approval: candidate.requiresApproval ? 'sim' : 'nao',
+              approval: candidate.requiresApproval ? 'yes' : 'no',
             })),
-            emptyText: 'Nenhum candidato adicional foi necessario.',
+            emptyText: 'No additional candidate was needed.',
           },
         },
         {
           kind: 'list',
-          title: 'Comandos equivalentes',
+          title: 'Equivalent Commands',
           items: safeArray(plan.surfaceCommands)
             .slice(0, 6)
             .map((command) => `${command.label}: ${command.command}`),
@@ -198,14 +198,14 @@ export class ZavorthAgentSurfaceUxService {
 
     lines.push(
       '',
-      'Comandos uteis:',
+      'Useful commands:',
       '- /agents status',
-      '- /agents spawn <tarefa>',
+      '- /agents spawn <task>',
       '- /agents read latest',
       '- /agents summarize latest',
       '- /agents cancel latest',
       '',
-      'Policy: subagentes read-only podem rodar quando pedidos; escrita, rede sensivel e I/O live exigem aprovacao.',
+      'Policy: read-only subagents can run when requested; write, sensitive network, and live I/O require approval.',
     );
     return lines.join('\n');
   }
@@ -236,13 +236,13 @@ export class ZavorthAgentSurfaceUxService {
       actions.push(commandAction('sandbox-plan-selected', 'Sandbox', `/sandbox "${request}"`, 'success'));
     }
     if (plan.selectedSkillName) {
-      actions.push(commandAction('skills-use-selected', 'Usar skill', `/skills use ${plan.selectedSkillName}`, 'success'));
+      actions.push(commandAction('skills-use-selected', 'Use skill', `/skills use ${plan.selectedSkillName}`, 'success'));
     }
     if (plan.approval?.required) {
       actions.push({
-        ...commandAction('approval-required', 'Aprovacao', '/perm pending', 'danger'),
+        ...commandAction('approval-required', 'Approval', '/perm pending', 'danger'),
         confirmationRequired: true,
-        description: plan.approval.reason || 'Aprovacao exigida pela policy.',
+        description: plan.approval.reason || 'Approval required by policy.',
       });
     }
 

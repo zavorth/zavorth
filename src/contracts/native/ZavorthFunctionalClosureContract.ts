@@ -57,6 +57,7 @@ export type ZavorthFunctionalClosureZavorthControlSnapshot = {
   categoryRows: Array<{
     category: string;
     phase: number;
+    status: ZavorthFunctionalClosureItemStatus;
     priority: ZavorthFunctionalClosurePriority;
     decision: ZavorthFunctionalClosureDecision;
     receipts: number;
@@ -64,9 +65,12 @@ export type ZavorthFunctionalClosureZavorthControlSnapshot = {
   }>;
   riskRows: Array<{
     itemId: string;
+    risk: ZavorthFunctionalClosureRiskLevel;
     reason: string;
   }>;
   receiptRows: Array<{
+    itemId: string;
+    receipts: number;
     command: string;
   }>;
   report: string;
@@ -107,8 +111,14 @@ export type ZavorthFunctionalReleaseGateSnapshot = {
     blocking: number;
   };
   p1: {
+    total: number;
+    closed: number;
+    blocking: number;
   };
   p2: {
+    total: number;
+    closed: number;
+    blocking: number;
   };
   blockers: string[];
   releaseAllowed: boolean;
@@ -138,12 +148,14 @@ export type ZavorthFunctionalClosureSnapshot = {
   ledgerDecisionUpdater: ZavorthLedgerDecisionUpdaterSnapshot;
   releaseGate: ZavorthFunctionalReleaseGateSnapshot;
   summary: {
+    items: number;
     p0Items: number;
     p1Items: number;
     p2Items: number;
     passed: number;
     warned: number;
     failed: number;
+    receipts: number;
     receiptBackedItems: number;
     implemented: number;
     replaced: number;
@@ -169,8 +181,8 @@ export type ZavorthFunctionalClosureSnapshot = {
     inspectJson: 'npm run zavorth-functional-closure:json --silent';
     check: 'npm run zavorth-functional-closure:check --silent';
     qa: 'npm run qa:zavorth-functional-closure --silent';
+    releaseGate: string;
     nextStep: 'Functional absorption closure complete';
   };
 };
 
-export type ZavorthFunctionalClosureZavorthControlSnapshot = ZavorthFunctionalClosureZavorthControlSnapshot;

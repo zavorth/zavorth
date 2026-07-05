@@ -52,24 +52,24 @@ export async function readOpsQuality(
   const warnings: string[] = [];
 
   if (!ops.healthy) {
-    blockers.push('Operations health degradado; revalide database/event bus antes de promover novas capacidades.');
+    blockers.push('Operations health is degraded; revalidate database/event bus before promoting new capabilities.');
   }
   if (memory.summary.pressure === 'critical') {
-    blockers.push('Layered memory em pressao critica; compacte ou rebalanceie as camadas antes de promover/publish.');
+    blockers.push('Layered memory is under critical pressure; compact or rebalance layers before promoting/publishing.');
   } else if (memory.summary.pressure === 'elevated') {
-    warnings.push('Layered memory com pressao elevada; monitore budgets antes de ampliar o learning loop.');
+    warnings.push('Layered memory is under elevated pressure; monitor budgets before expanding the learning loop.');
   }
   if ((platform.summary?.quarantined || 0) > 0 || learning.counts.quarantined > 0) {
-    blockers.push('Existem itens em quarentena no platform/learning plane; revise-os antes de promover ou publicar.');
+    blockers.push('There are quarantined items in the platform/learning plane; review them before promoting or publishing.');
   }
   if ((platform.summary?.reviewPending || 0) > 0) {
-    warnings.push('Ha itens aguardando review no platform plane; mantenha o trust pipeline em dia.');
+    warnings.push('There are items waiting for review in the platform plane; keep the trust pipeline up to date.');
   }
   if (learning.counts.pending > 0) {
-    warnings.push('Existem candidatos aprendidos pendentes; aprove ou rejeite antes de acumular backlog de aprendizado.');
+    warnings.push('There are pending learned candidates; approve or reject them before accumulating learning backlog.');
   }
   if (learning.summary.rejectedRate >= 0.4 && learning.summary.totalCandidates > 0) {
-    warnings.push('A taxa de rejeicao do learning plane esta alta; revise os criterios de sintese e promocao.');
+    warnings.push('The learning plane rejection rate is high; review synthesis and promotion criteria.');
   }
 
   const gateState: OpsQualityDTO['gate']['state'] =
@@ -85,7 +85,7 @@ export async function readOpsQuality(
   const nextStep = blockers[0]
     || warnings[0]
     || (gateState === 'pass'
-      ? 'Quality gate verde; voce pode promover capacidades aprendidas com seguranca.'
+      ? 'Quality gate is green; you can safely promote learned capabilities.'
       : null);
 
   return {

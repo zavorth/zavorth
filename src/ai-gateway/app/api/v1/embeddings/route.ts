@@ -136,9 +136,7 @@ export async function POST(request) {
             hostname === "127.0.0.1" ||
             /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)
           );
-        } catch {
-          return false;
-        }
+        } catch (error) { logger.warn('[route] operation failed', error); return false; }
       })
       .map((n) => {
         try {

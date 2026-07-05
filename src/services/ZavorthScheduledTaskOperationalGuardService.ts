@@ -3,8 +3,9 @@ import type {
   SchedulerGovernedScheduledTaskMetadata,
   SchedulerTaskRuntimeDescriptor,
 } from './SchedulerService.js';
+import { logger } from '../logger.js';
 import {
-  ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION,
+ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION,
   type ZavorthScheduledTaskOperationalGuardInput,
   type ZavorthScheduledTaskOperationalGuardReceipt,
   type ZavorthScheduledTaskOperationalGuardSnapshot,
@@ -322,9 +323,7 @@ function readGuardrails(task: ScheduledTask): Record<string, any> {
   try {
     const parsed = JSON.parse(String(task.guardrail_json || '{}'));
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-  } catch {
-    return {};
-  }
+  } catch (error) { logger.warn('[Zavorth Scheduled Task Operational Guard] JSON parse failed', error); return {}; }
 }
 
 function readGovernedMetadata(task: ScheduledTask): SchedulerGovernedScheduledTaskMetadata | null {

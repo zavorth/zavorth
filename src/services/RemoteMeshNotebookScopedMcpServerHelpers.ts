@@ -22,8 +22,9 @@ import type {
   RemoteMeshNotebookScopedMcpServerStatus,
   RemoteMeshNotebookScopedMcpToolName,
 } from '../contracts/RemoteMeshNotebookScopedMcpServerContract.js';
+import { logger } from '../logger.js';
 import type {
-  JsonRpcRequest,
+JsonRpcRequest,
   RemoteMeshNotebookDockerObservabilityProvider,
   RemoteMeshNotebookProjectFileReadProvider,
 } from './RemoteMeshNotebookScopedMcpServerService.js';
@@ -142,7 +143,8 @@ export function parseJsonRpc(rawBody: string): { ok: true; request: JsonRpcReque
   try {
     const parsed = JSON.parse(rawBody) as JsonRpcRequest;
     return { ok: true, request: parsed };
-  } catch {
+  } catch (error) {
+    logger.warn('[Remote Mesh Notebook Scoped Mcp Server Helpers] JSON parse failed', error);
     return { ok: false, error: 'Invalid JSON body.' };
   }
 }
@@ -541,7 +543,5 @@ export function parseDockerContainerLine(line: string): RemoteMeshNotebookDocker
       status: String(parsed.Status || ''),
       ports: parsed.Ports ? String(parsed.Ports) : null,
     };
-  } catch {
-    return null;
-  }
+  } catch (error) { logger.warn('[Remote Mesh Notebook Scoped Mcp Server Helpers] parsing failed', error); return null; }
 }

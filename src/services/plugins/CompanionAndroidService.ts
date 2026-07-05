@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../../logger.js';
 
 export interface AndroidDevice {
   id: string;
@@ -106,7 +107,7 @@ export class CompanionAndroidService {
             for (const [id, t] of Object.entries(data as Record<string, QuickSettingsTile>)) this.tiles.set(id, t);
             break;
         }
-      } catch { /* ignore */ }
+      } catch (error) { /* ignore */ logger.warn('[Companion Android] operation failed', error); }
     }
   }
 

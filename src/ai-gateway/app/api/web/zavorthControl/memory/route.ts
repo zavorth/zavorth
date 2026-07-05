@@ -4,8 +4,9 @@ import { MemoryType } from "@/lib/memory/types";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { SecurityAuditLogger } from "../../../../../../services/SecurityAuditLogger.js";
 import { safeParseInt } from "../../../../../../ai-gateway/shared/utils/safeParseInt.js";
+import { logger } from '@/shared/utils/logger';
 import {
-  isUnsafeCrossSiteMutation,
+isUnsafeCrossSiteMutation,
   readJsonBody,
 } from "../../runtime-engine-state";
 
@@ -79,6 +80,7 @@ export async function GET(request: Request) {
   try {
     return NextResponse.json(await listZavorthControlMemoryFacts(request));
   } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({
       ok: false,
       error: error instanceof Error ? error.message : "memory facts unavailable",
@@ -286,7 +288,5 @@ async function logMemoryMutationReceipt(receipt: ReturnType<typeof buildMemoryMu
         action: receipt.action,
       },
     });
-  } catch {
-    // Audit logging is best-effort here; the API response remains the proof.
-  }
+  } catch (error) { // Audit logging is best-effort here; the API response remains the proof. logger.warn('[route] operation failed', error); }
 }

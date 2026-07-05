@@ -4,6 +4,7 @@ import { getDbInstance } from "../db/core";
 import { getSettings } from "../db/settings";
 import { protectPayloadForLog } from "../logPayloads";
 import { randomUUID } from "crypto";
+import { logger } from '@/shared/utils/logger';
 
 class SkillExecutor {
   private static instance: SkillExecutor;
@@ -84,10 +85,11 @@ class SkillExecutor {
           handler(input, { apiKeyId: context.apiKeyId, sessionId: context.sessionId || "" })
         );
         output = result;
-      } catch (err) {
-        errorMessage = String(protectPayloadForLog(err instanceof Error ? err.message : String(err)));
+      } catch (error) {
+    logger.warn('[executor] process execution failed', error);
+    errorMessage = String(protectPayloadForLog(err instanceof Error ? err.message : String(err)));
         status = SkillStatus.ERROR;
-      }
+  }
 
       const durationMs = Date.now() - startTime;
       const storedOutput = output ? protectPayloadForLog(output) : null;

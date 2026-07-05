@@ -11,6 +11,7 @@ import { saveCliToolLastConfigured, deleteCliToolLastConfigured } from "@/lib/db
 import { cliModelConfigSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
+import { logger } from '@/shared/utils/logger';
 
 const CLINE_DATA_DIR = path.join(os.homedir(), ".cline", "data");
 const GLOBAL_STATE_PATH = path.join(CLINE_DATA_DIR, "globalState.json");
@@ -111,7 +112,8 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error) {
+    logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -141,9 +143,7 @@ export async function POST(request: Request) {
       try {
         const keyRecord = await getApiKeyById(keyId);
         if (keyRecord?.key) apiKey = keyRecord.key as string;
-      } catch {
-        /* non-critical */
-      }
+      } catch (error) { /* non-critical */ logger.warn('[route] validation failed', error); }
     }
 
     // Ensure directory exists
@@ -158,9 +158,7 @@ export async function POST(request: Request) {
     try {
       const existing = await fs.readFile(GLOBAL_STATE_PATH, "utf-8");
       globalState = JSON.parse(existing);
-    } catch {
-      /* No existing config */
-    }
+    } catch (error) { /* No existing config */ logger.warn('[route] JSON parse failed', error); }
 
     // Normalize baseUrl - Cline expects the base without /v1
     const normalizedBaseUrl = baseUrl.endsWith("/v1") ? baseUrl.slice(0, -3) : baseUrl;
@@ -180,9 +178,7 @@ export async function POST(request: Request) {
     try {
       const existing = await fs.readFile(SECRETS_PATH, "utf-8");
       secrets = JSON.parse(existing);
-    } catch {
-      /* No existing secrets */
-    }
+    } catch (error) { /* No existing secrets */ logger.warn('[route] JSON parse failed', error); }
 
     secrets.openAiApiKey = apiKey || "sk_ZavorthGateway";
 
@@ -191,9 +187,7 @@ export async function POST(request: Request) {
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("cline");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       success: true,
@@ -250,9 +244,7 @@ export async function DELETE(request: Request) {
     try {
       const existing = await fs.readFile(SECRETS_PATH, "utf-8");
       secrets = JSON.parse(existing);
-    } catch {
-      /* ignore */
-    }
+    } catch (error) { /* ignore */ logger.warn('[route] JSON parse failed', error); }
 
     delete secrets.openAiApiKey;
     await fs.writeFile(SECRETS_PATH, JSON.stringify(secrets, null, 2));
@@ -260,9 +252,7 @@ export async function DELETE(request: Request) {
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("cline");
-    } catch {
-      /* non-critical */
-    }
+    } catch (error) { /* non-critical */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       success: true,
