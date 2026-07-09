@@ -1,3 +1,6 @@
+/* Canonical token set used by desktop design contracts and theming. */
+@import url('./styles/design-system.css');
+
 :root {
   color-scheme: light;
   font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
@@ -521,6 +524,226 @@ button:disabled {
   height: 8px;
   border-radius: 999px;
   background: #a0a5ad;
+}
+
+.zvd-statusbar-item.is-warn .zvd-status-dot {
+  background: var(--zvd-warning, #d4a017);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--zvd-warning, #d4a017) 25%, transparent);
+}
+
+/* Quiet Code bridge checks panel (statusbar chip click) */
+.zvd-code-bridge-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 0 16px 42px;
+  background: rgba(8, 8, 10, 0.28);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.zvd-code-bridge-panel__frame {
+  width: min(360px, calc(100vw - 28px));
+  max-height: min(70vh, 520px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--zvd-border, #2a2a2e);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--zvd-panel, #141416) 96%, transparent);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+  color: #9aa0a6;
+}
+.zvd-code-bridge-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--zvd-border, #2a2a2e);
+}
+.zvd-code-bridge-panel__eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.zvd-code-bridge-panel__title {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e8eaed;
+}
+.zvd-code-bridge-panel__close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--zvd-border, #2a2a2e);
+  background: transparent;
+  color: #9aa0a6;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.zvd-code-bridge-panel__close:hover {
+  color: #e8eaed;
+}
+.zvd-code-bridge-panel__body {
+  padding: 12px 14px 14px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.zvd-code-bridge-panel__lead {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.zvd-code-bridge-panel__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8eaed;
+}
+.zvd-code-bridge-panel__detail {
+  font-size: 12px;
+  line-height: 1.4;
+}
+.zvd-code-bridge-panel__tone {
+  font-size: 10px;
+  opacity: 0.7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.zvd-code-bridge-panel__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  margin: 0;
+}
+.zvd-code-bridge-panel__meta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--zvd-border, #2a2a2e) 80%, transparent);
+  background: color-mix(in srgb, var(--zvd-surface, #111) 55%, transparent);
+}
+.zvd-code-bridge-panel__meta-wide {
+  grid-column: 1 / -1;
+}
+.zvd-code-bridge-panel__meta dt {
+  font-size: 10px;
+  opacity: 0.65;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.zvd-code-bridge-panel__meta dd {
+  margin: 0;
+  font-size: 12px;
+  color: #c9cdd3;
+  word-break: break-word;
+}
+.zvd-code-bridge-panel__section {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.zvd-code-bridge-panel__checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.zvd-code-bridge-panel__check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--zvd-border, #2a2a2e) 70%, transparent);
+}
+.zvd-code-bridge-panel__check-mark {
+  flex-shrink: 0;
+  width: 1em;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.zvd-code-bridge-panel__check.is-ok .zvd-code-bridge-panel__check-mark {
+  color: #3f7a42;
+}
+.zvd-code-bridge-panel__check.is-fail .zvd-code-bridge-panel__check-mark {
+  color: var(--zvd-warning, #d4a017);
+}
+.zvd-code-bridge-panel__check-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.zvd-code-bridge-panel__check-label {
+  font-size: 12px;
+  color: #c9cdd3;
+}
+.zvd-code-bridge-panel__check-detail {
+  font-size: 11px;
+  opacity: 0.7;
+  line-height: 1.35;
+}
+.zvd-code-bridge-panel__empty {
+  font-size: 12px;
+  opacity: 0.65;
+}
+.zvd-code-bridge-panel__next {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.zvd-code-bridge-panel__next-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+}
+.zvd-code-bridge-panel__next-row span {
+  font-size: 10px;
+  opacity: 0.65;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.zvd-code-bridge-panel__next-row strong {
+  font-weight: 500;
+  color: #c9cdd3;
+  line-height: 1.35;
+}
+.zvd-code-bridge-panel__path {
+  font-size: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  opacity: 0.55;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.theme-light .zvd-code-bridge-panel {
+  background: rgba(20, 22, 28, 0.18);
+}
+.theme-light .zvd-code-bridge-panel__frame {
+  background: #fff;
+  color: #5c6370;
+  box-shadow: 0 16px 36px rgba(31, 32, 39, 0.12);
+}
+.theme-light .zvd-code-bridge-panel__title,
+.theme-light .zvd-code-bridge-panel__label {
+  color: #25262d;
+}
+.theme-light .zvd-code-bridge-panel__meta dd,
+.theme-light .zvd-code-bridge-panel__check-label,
+.theme-light .zvd-code-bridge-panel__next-row strong {
+  color: #3a3f4a;
 }
 
 .is-live .zvd-status-dot,
