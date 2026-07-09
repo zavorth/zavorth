@@ -13,57 +13,57 @@ describe('MigrationUXService', () => {
 
   it('creates instance', () => { expect(svc).toBeDefined(); });
 
-  it('detects legacy Python-style agent workspace', () => {
+  it('detects config-centric agent workspace (yaml + agent dir)', () => {
     const agentDir = path.join(dir, 'legacy-python-agent');
     fs.mkdirSync(agentDir);
     fs.writeFileSync(path.join(agentDir, 'config.yaml'), 'test');
     fs.mkdirSync(path.join(agentDir, 'agent'));
     const detection = svc.detectAgent(agentDir);
     expect(detection).toBeTruthy();
-    expect(detection!.type).toBe('legacy-python');
+    expect(detection!.type).toBe('config-centric-home');
   });
 
-  it('detects legacy TypeScript-style agent workspace', () => {
+  it('detects opaque/empty TypeScript-style workspace without strong structural signals', () => {
     const agentDir = path.join(dir, 'legacy-typescript-agent');
     fs.mkdirSync(agentDir);
     fs.writeFileSync(path.join(agentDir, 'agent.json'), '{}');
     fs.mkdirSync(path.join(agentDir, 'src'));
     const detection = svc.detectAgent(agentDir);
     expect(detection).toBeTruthy();
-    expect(detection!.type).toBe('legacy-typescript');
+    expect(detection!.type).toBe('opaque-or-empty');
   });
 
-  it('detects zavorth agent', () => {
+  it('detects identity-markdown workspace (IDENTITY.md + SOUL.md)', () => {
     const agentDir = path.join(dir, 'zavorth');
     fs.mkdirSync(agentDir);
     fs.writeFileSync(path.join(agentDir, 'IDENTITY.md'), 'test');
     fs.writeFileSync(path.join(agentDir, 'SOUL.md'), 'test');
     const detection = svc.detectAgent(agentDir);
     expect(detection).toBeTruthy();
-    expect(detection!.type).toBe('zavorth');
+    expect(detection!.type).toBe('identity-markdown-home');
   });
 
-  it('detects claude agent', () => {
+  it('detects product-specific Claude layout as opaque (brand-agnostic profiles only)', () => {
     const agentDir = path.join(dir, 'claude');
     fs.mkdirSync(agentDir);
     fs.writeFileSync(path.join(agentDir, 'CLAUDE.md'), 'test');
     fs.mkdirSync(path.join(agentDir, '.claude'));
     const detection = svc.detectAgent(agentDir);
     expect(detection).toBeTruthy();
-    expect(detection!.type).toBe('claude');
+    expect(detection!.type).toBe('opaque-or-empty');
   });
 
-  it('detects cursor agent', () => {
+  it('detects product-specific Cursor layout as opaque (brand-agnostic profiles only)', () => {
     const agentDir = path.join(dir, 'cursor');
     fs.mkdirSync(agentDir);
     fs.writeFileSync(path.join(agentDir, '.cursorrules'), 'test');
     fs.mkdirSync(path.join(agentDir, '.cursor'));
     const detection = svc.detectAgent(agentDir);
     expect(detection).toBeTruthy();
-    expect(detection!.type).toBe('cursor');
+    expect(detection!.type).toBe('opaque-or-empty');
   });
 
-  it('detects community-agent workspace by structural patterns (SOUL.md + skills/ + memories/)', () => {
+  it('detects skill-centric workspace by structural patterns (SOUL.md + skills/ + memories/)', () => {
     const agentDir = path.join(dir, 'my-community-agent');
     fs.mkdirSync(agentDir);
     fs.writeFileSync(path.join(agentDir, 'SOUL.md'), 'identity content');
@@ -72,7 +72,7 @@ describe('MigrationUXService', () => {
     fs.mkdirSync(path.join(agentDir, 'memories'));
     const detection = svc.detectAgent(agentDir);
     expect(detection).toBeTruthy();
-    expect(detection!.type).toBe('community-agent');
+    expect(detection!.type).toBe('skill-centric-home');
   });
 
   it('returns null for non-existent path', () => {
@@ -125,6 +125,6 @@ describe('MigrationUXService', () => {
     const plan = svc.planMigration(detection!);
     const result = svc.executeMigration(plan, { dryRun: true });
     const report = svc.generateReport(plan, result);
-    expect(report).toContain('Migration Report');
+    expect(report).toMatch(/Migration Report|Universal Workspace Import Report/);
   });
 });

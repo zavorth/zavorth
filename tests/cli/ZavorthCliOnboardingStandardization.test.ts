@@ -34,7 +34,7 @@ describe('Zavorth onboarding standardization', () => {
     });
 
     expect(output).toContain('Primeiro uso');
-    expect(output).toContain('Perfil local ainda nao configurado.');
+    expect(output).toMatch(/Perfil local ainda nao configurado\.|Local profile is not configured yet\./i);
     expect(output).toContain('zavorth setup --dry-run');
     expect(output).toContain('zavorth setup');
   });

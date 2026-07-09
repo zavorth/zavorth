@@ -450,8 +450,12 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('sanitizeVisibleResponse', [value, promptText]);
   }
 
-    public isVisibleResponseCaptureReady(promptText: string, visibleResponse: string | null | undefined): boolean {
-    return this.callWorkflow('isVisibleResponseCaptureReady', [promptText, visibleResponse]);
+    public isVisibleResponseCaptureReady(
+    snapshot: ZavorthBridgeUiSnapshot,
+    visibleResponse: string,
+    promptText: string | null | undefined,
+  ): boolean {
+    return this.callWorkflow('isVisibleResponseCaptureReady', [snapshot, visibleResponse, promptText]);
   }
 
     public tryQueuePromptContractDelivery(session: PendingZavorthBridgeSession): Promise<boolean> {
@@ -485,12 +489,20 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('wasPermissionRecentlyNotified', [permissionId, minAgeMs]);
   }
 
-    public maybeHandlePermissionPrompt(session: PendingZavorthBridgeSession, trackingFile: string): Promise<boolean> {
-    return this.callWorkflow('maybeHandlePermissionPrompt', [session, trackingFile]);
+    public maybeHandlePermissionPrompt(
+    session: PendingZavorthBridgeSession,
+    task: Task | null,
+    trigger: 'log' | 'stalled' | 'visible' = 'log',
+    snapshotOverride?: ZavorthBridgeUiSnapshot | null,
+  ): Promise<boolean> {
+    return this.callWorkflow('maybeHandlePermissionPrompt', [session, task, trigger, snapshotOverride]);
   }
 
-    private findZavorthBridgeAutoApprovalPolicy(permission: PermissionRequest): Promise<PermissionRequest | undefined> {
-    return this.callWorkflow('findZavorthBridgeAutoApprovalPolicy', [permission]);
+    private findZavorthBridgeAutoApprovalPolicy(
+    workspace: string,
+    companionInstanceId?: string,
+  ): Promise<PermissionRequest | undefined> {
+    return this.callWorkflow('findZavorthBridgeAutoApprovalPolicy', [workspace, companionInstanceId]);
   }
 
     private resolveZavorthBridgeApprovalMode(permission: PermissionRequest): 'once' | 'conversation' {
@@ -501,8 +513,11 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('buildZavorthBridgePermissionReason', [snapshot]);
   }
 
-    public notifyPermissionRequest(permission: PermissionRequest, reason: string): Promise<void> {
-    return this.callWorkflow('notifyPermissionRequest', [permission, reason]);
+    public notifyPermissionRequest(
+    session: PendingZavorthBridgeSession,
+    permission: PermissionRequest,
+  ): Promise<void> {
+    return this.callWorkflow('notifyPermissionRequest', [session, permission]);
   }
 
     private isRecentTimestamp(value: string | null | undefined, maxAgeMs: number): boolean {

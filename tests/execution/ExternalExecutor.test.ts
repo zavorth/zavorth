@@ -291,9 +291,13 @@ describe('ExternalExecutor', () => {
     }));
 
     const prompt = runner.mock.calls[0][1][runner.mock.calls[0][1].length - 1];
-    expect(prompt).toContain('Dentro do workspace aprovado, trate todo o restante como somente leitura.');
-    expect(prompt).toContain('So escreva nos caminhos marcados como leitura e escrita nas permissoes extras aprovadas.');
-    expect(prompt).toContain('leitura e escrita');
+    expect(prompt).toMatch(
+      /Dentro do workspace aprovado, trate todo o restante como somente leitura|Inside the approved workspace, treat everything else as read-only/i,
+    );
+    expect(prompt).toMatch(
+      /So escreva nos caminhos marcados como leitura e escrita|Only write to paths marked as read and write/i,
+    );
+    expect(prompt).toMatch(/leitura e escrita|read and write|read\/write/i);
   });
 
   it('marks workspace mismatches as execution failures', async () => {
@@ -315,7 +319,7 @@ describe('ExternalExecutor', () => {
 
     expect(result.success).toBe(false);
     expect(result.error_code).toBe('EXTERNAL_EXECUTOR_WORKSPACE_MISMATCH');
-    expect(result.error_message).toContain('workspace diferente');
+    expect(result.error_message).toMatch(/workspace diferente|workspace different from the workspace approved/i);
   });
 
   it('marks path access requests as approval-needed failures with the requested path metadata', async () => {
@@ -395,7 +399,12 @@ describe('ExternalExecutor', () => {
         '-e',
         'bash',
         '-lc',
-        expect.stringContaining(`${workspaceRoot} (somente leitura e listagem)`),
+        expect.stringMatching(
+          new RegExp(
+            `${workspaceRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\((?:somente leitura e listagem|read-only listing|read only and listing)\\)`,
+            'i',
+          ),
+        ),
       ],
       expect.any(Object),
     );
@@ -407,7 +416,7 @@ describe('ExternalExecutor', () => {
         '-e',
         'bash',
         '-lc',
-        expect.stringContaining('npm run * (prefixo aprovado)'),
+        expect.stringMatching(/npm run \* \((?:prefixo aprovado|approved prefix)\)/i),
       ],
       expect.any(Object),
     );

@@ -40,8 +40,8 @@ describe('buildVerifiedActionHarnessTools', () => {
       'agents_external_invoke',
       'workflows_list',
       'workflows_run',
-      'capabilities_parity_hermes',
-      'capabilities_parity_openclaw',
+      'capabilities_reference_agent',
+      'capabilities_reference_workspace',
       'video_generate',
       'kanban_board',
       'skills_feedback',
@@ -90,15 +90,28 @@ describe('buildVerifiedActionHarnessTools', () => {
       'voice_synthesize_live',
       'interop_acp_codex_status',
       'packaging_nix_termux_status',
+      // expanded fabric / absorb surface
+      'plugins_absorb',
+      'mcp_intake',
+      'capabilities_absorb',
+      'workspace_import',
+      'reach_inventory',
+      'power_inventory',
+      'product_inventory',
+      'workspace_list_directory',
+      'workspace_write_file',
+      'browser_screenshot',
+      'sandbox_run_tests',
+      'mcp_list',
     ]));
-    expect(names).toHaveLength(86);
+    expect(names).toHaveLength(107);
     expect(new Set(names).size).toBe(names.length);
   });
 
   it('serializes all verified Action Harness tools with provider-compatible function names', () => {
     const definitions = ToolSchemaHelper.toToolDefinitions(buildVerifiedActionHarnessTools());
 
-    expect(definitions.length).toBe(86);
+    expect(definitions.length).toBe(107);
     for (const definition of definitions) {
       expect(definition.name).toMatch(/^[a-zA-Z0-9_-]+$/);
     }
@@ -128,8 +141,8 @@ describe('buildVerifiedActionHarnessTools', () => {
     expect(byName.agents_external_invoke.requiresPermission).toBe(true);
     expect(byName.workflows_list.requiresPermission).toBe(false);
     expect(byName.workflows_run.requiresPermission).toBe(true);
-    expect(byName.capabilities_parity_hermes.requiresPermission).toBe(false);
-    expect(byName.capabilities_parity_openclaw.requiresPermission).toBe(false);
+    expect(byName.capabilities_reference_agent.requiresPermission).toBe(false);
+    expect(byName.capabilities_reference_workspace.requiresPermission).toBe(false);
     expect(byName.video_generate.requiresPermission).toBe(true);
     expect(byName.kanban_board.requiresPermission).toBe(true);
     expect(byName.skills_feedback.requiresPermission).toBe(true);

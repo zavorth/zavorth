@@ -16,7 +16,7 @@ describe('SharedSurfaceCallbackCommandPolicy', () => {
     expect(normalizeSharedSurfaceCommandCallback('/ready')).toBe('/ready');
     expect(normalizeSharedSurfaceCommandCallback('/stayonline')).toBe('/stayonline');
     expect(normalizeSharedSurfaceCommandCallback('/fixes')).toBe('/fixes');
-    expect(normalizeSharedSurfaceCommandCallback('/dashboard')).toBe('/dashboard');
+    expect(normalizeSharedSurfaceCommandCallback('/zavorthControl')).toBe('/zavorthcontrol');
     expect(normalizeSharedSurfaceCommandCallback('/echoapprovals')).toBe('/echoapprovals');
   });
 

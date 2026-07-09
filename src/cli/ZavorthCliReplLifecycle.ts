@@ -76,14 +76,17 @@ export async function runZavorthCliRepl(params: {
   }
   const rl = readlineFactory();
   let interrupted = false;
-  rl.on('SIGINT', () => {
-    interrupted = true;
-    try {
-      rl.close();
-    } catch (error: unknown) {// readline may already be closing after Ctrl+C.
-      logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error);
-    }
-  });
+  if (typeof (rl as { on?: unknown }).on === 'function') {
+    rl.on('SIGINT', () => {
+      interrupted = true;
+      try {
+        rl.close();
+      } catch (error: unknown) {
+        // readline may already be closing after Ctrl+C.
+        logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error);
+      }
+    });
+  }
   writer.line(params.welcomeText || formatCliChatWelcome());
 
   const promptRl = rl as unknown as { history?: string[] };

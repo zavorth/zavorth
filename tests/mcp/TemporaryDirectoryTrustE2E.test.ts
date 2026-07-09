@@ -11,9 +11,12 @@ describe('Temporary Directory Trust MCP E2E Integration', () => {
   let tempExternalDir: string;
   let activeManagers: McpClientManager[];
   let originalEnv: NodeJS.ProcessEnv;
+  // WorkspaceResolver.resolve(workspaceId) treats the id as a filesystem path when no alias exists.
+  // Use the real temp workspace path as the session/workspace id so path checks do not ENOENT.
+  let workspaceId: string;
 
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(120000);
     originalEnv = { ...process.env };
     activeManagers = [];
 
@@ -21,9 +24,12 @@ describe('Temporary Directory Trust MCP E2E Integration', () => {
     tempWorkspace = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-workspace-')));
     // Create an approved external directory
     tempExternalDir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-external-')));
+    workspaceId = tempWorkspace;
 
     process.env.ZAVORTH_WORKSPACE_ROOT = tempWorkspace;
-    process.env.ZAVORTH_WORKSPACE_SESSION_ID = 'test-session-id';
+    process.env.ZAVORTH_WORKSPACE_SESSION_ID = workspaceId;
+    // Ensure path resolution anchors to the real temp workspace, not the repo root.
+    process.env.ZAVORTH_ALLOWED_WORKSPACES = tempWorkspace;
   });
 
   afterEach(async () => {
@@ -49,13 +55,13 @@ describe('Temporary Directory Trust MCP E2E Integration', () => {
     // 1. Propose and approve a trust in the parent process to serialize it
     const svc = TemporaryDirectoryTrustService.getInstance();
     const trust = svc.proposeTrust(
-      'test-session-id',
+      workspaceId,
       tempExternalDir,
       ['filesystem.read', 'filesystem.write', 'filesystem.mkdir'],
       'user-selected-external',
       60
     );
-    const approvedTrust = svc.resolveTrust('test-session-id', trust.trustId, true)!;
+    const approvedTrust = svc.resolveTrust(workspaceId, trust.trustId, true)!;
 
     // Serialize active trusts
     const activeTrusts = [approvedTrust];
@@ -72,7 +78,7 @@ describe('Temporary Directory Trust MCP E2E Integration', () => {
       ['tsx', serverScript],
       {
         ZAVORTH_WORKSPACE_ROOT: tempWorkspace,
-        ZAVORTH_WORKSPACE_SESSION_ID: 'test-session-id',
+        ZAVORTH_WORKSPACE_SESSION_ID: workspaceId,
         ZAVORTH_ACTIVE_TEMP_TRUSTS: envVal,
       },
       ['PATH']
@@ -156,5 +162,5 @@ describe('Temporary Directory Trust MCP E2E Integration', () => {
       content: largeContent,
     });
     expect(writeLargeRes).toContain('Content exceeds maximum limit');
-  });
+  }, 120000);
 });

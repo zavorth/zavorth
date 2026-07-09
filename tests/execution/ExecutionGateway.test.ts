@@ -196,7 +196,7 @@ describe('ExecutionGateway', () => {
     const decision = await gateway.submit(buildTask(), buildPlan());
 
     expect(decision.allowed).toBe(false);
-    expect(decision.reason).toContain('hook bloqueou');
+    expect(decision.reason).toMatch(/hook bloqueou|hook blocked/i);
     expect(executor.executeMock).not.toHaveBeenCalled();
     expect(run).toHaveBeenNthCalledWith(
       1,

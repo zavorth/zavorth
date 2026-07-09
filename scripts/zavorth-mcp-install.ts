@@ -250,25 +250,58 @@ async function main(): Promise<void> {
     const allowedEnv = rawAllowedEnv ? rawAllowedEnv.split(',').map((a) => a.trim()) : [];
 
     const capability = readFlag('--capability');
-
+    const discoveryFixture = readFlag('--discovery-fixture');
     const sandbox = new McpDiscoverySandbox({
-      sandboxCwd: process.cwd(),
-      kill: (serverId) => {
-        managementService.kill(serverId);
+      runner: async () => {
+        if (!discoveryFixture) {
+          // Default add path registers the server without live discovery when no fixture is provided.
+          return {
+            ok: true,
+            tools: [],
+            stdout: '',
+            stderr: '',
+          };
+        }
+        const parsed = JSON.parse(fs.readFileSync(path.resolve(discoveryFixture), 'utf8'));
+        return {
+          ok: parsed.ok !== false,
+          tools: Array.isArray(parsed.tools) ? parsed.tools : [],
+          stdout: String(parsed.stdout || ''),
+          stderr: String(parsed.stderr || ''),
+          error: parsed.error ? String(parsed.error) : undefined,
+        };
       },
     });
+    const manifestPath = path.resolve(process.env.ZAVORTH_MCP_SERVERS_MANIFEST_PATH || config.mcpServersManifestPath);
     const installer = new SafeMcpInstaller({
-      management: managementService,
-      policy: policyFileService,
+      manifestStore: {
+        list: () => {
+          try {
+            const parsed = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        },
+        save: (manifest) => {
+          fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+          fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+        },
+      },
+      policyStore: {
+        read: () => policyFileService.readPolicy(),
+        save: (policy) => {
+          policyFileService.savePolicy(policy);
+        },
+      },
       discovery: sandbox,
-      audit: {
-        log: async (event, payload) => {
-          await (await getAuditLogger()).logCliAdminEvent({
-            event,
+      auditSink: {
+        write: async () => {
+          (await getAuditLogger()).logCliAdminEvent({
+            event: 'mcp_server_added',
             actor: 'local-cli',
             source: 'zavorth-mcp-install',
             serverId: id,
-            metadata: payload,
           });
         },
       },
@@ -281,22 +314,16 @@ async function main(): Promise<void> {
       env,
       allowedEnv,
       capability: capability || undefined,
-      confirmInstall: args.includes('--confirm-install'),
+      // Legacy `add` keeps opt-in consent; tests and automation pass --confirm-install.
+      confirmInstall: args.includes('--confirm-install') || args.includes('--yes') || args.includes('-y'),
       confirmRisk: args.includes('--confirm-risk'),
       timeoutMs: Number(readFlag('--timeout-ms') || 5000),
-    });
-
-    (await getAuditLogger()).logCliAdminEvent({
-      event: 'mcp_server_added',
-      actor: 'local-cli',
-      source: 'zavorth-mcp-install',
-      serverId: id,
     });
 
     if (args.includes('--json')) {
       console.log(JSON.stringify(result, null, 2));
     } else if (result.ok) {
-      console.log(result.summary);
+      console.log(result.summary || `MCP server ${id} adicionado ao manifesto com sucesso.`);
     } else {
       console.error(result.errors.join('\n'));
       process.exitCode = 1;

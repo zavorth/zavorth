@@ -283,7 +283,9 @@ describe('MailboxWatcher', () => {
       false,
     );
     expect(broadcaster.broadcast).toHaveBeenCalledWith(
-      expect.stringContaining('Execucao autonoma concluida via external_executor.'),
+      expect.stringMatching(
+        /Execucao autonoma concluida via external_executor|Autonomous execution completed (?:via|through) external_executor/i,
+      ),
     );
   });
 
@@ -361,7 +363,7 @@ describe('MailboxWatcher', () => {
       }),
     );
     expect(broadcaster.broadcast).toHaveBeenCalledWith(
-      expect.stringContaining('Resultado da tool [read_file]:'),
+      expect.stringMatching(/Resultado da tool \[read_file\]:|Tool result \[read_file\]:/i),
     );
   });
 

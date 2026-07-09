@@ -71,7 +71,7 @@ describe('Zavorth CLI Provider Arena', () => {
 
     expect(text).toContain('Provider Arena - Provider Arena');
     expect(text).toContain('Candidatos');
-    expect(text).toContain('arena read-only');
-    expect(text).toContain('Dashboard: /dashboard?sector=config');
+    expect(text).toMatch(/arena read-only|read-only arena/i);
+    expect(text).toMatch(/Dashboard: \/dashboard\?sector=config|ZavorthControl: \/zavorthControl\?sector=config/i);
   });
 });

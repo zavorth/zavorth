@@ -63,9 +63,15 @@ export type AgentChainExecution = {
   skipCount: number;
 };
 
+export type AgentChainExecutor = {
+  executeAgent: (agentId: string, prompt: string) => Promise<string>;
+  executeLocal?: (command: string) => Promise<string>;
+};
+
 export type AgentChainBuilderRuntime = {
   now?: () => Date;
   externalAgentGateway?: ZavorthExternalAgentGatewayService;
+  executor?: AgentChainExecutor;
   logger?: typeof logger;
 };
 
@@ -76,11 +82,13 @@ const DEFAULT_MAX_CONCURRENCY = 5;
 export class AgentChainBuilder {
   private readonly now: () => Date;
   private readonly gateway: ZavorthExternalAgentGatewayService | null;
+  private readonly executor: AgentChainExecutor | null;
   private readonly log: typeof logger;
 
   constructor(runtime: AgentChainBuilderRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.gateway = runtime.externalAgentGateway || null;
+    this.executor = runtime.executor || null;
     this.log = runtime.logger || logger;
   }
 
@@ -98,6 +106,9 @@ export class AgentChainBuilder {
   }
 
   public resolveAgentForStep(step: AgentChainStepConfig): { resolved: boolean; agentId: string | null; error: string | null } {
+    if (this.executor) {
+      return { resolved: true, agentId: step.agent || 'default', error: null };
+    }
     if (step.kind !== 'agent') {
       return { resolved: true, agentId: null, error: null };
     }
@@ -413,8 +424,12 @@ export class AgentChainBuilder {
   }
 
   private async invokeAgent(agentId: string, prompt: string, timeoutMs: number): Promise<string> {
+    if (this.executor?.executeAgent) {
+      return this.executor.executeAgent(agentId, prompt);
+    }
+
     if (!this.gateway) {
-      throw new Error('No external agent gateway configured. Provide one in the constructor.');
+      throw new Error('AgentChainBuilder requires an executor or external agent gateway. Provide one in the constructor.');
     }
 
     const receipt = await this.gateway.invoke({
@@ -440,6 +455,10 @@ export class AgentChainBuilder {
   }
 
   private async executeLocal(command: string, timeoutMs: number): Promise<string> {
+    if (this.executor?.executeLocal) {
+      return this.executor.executeLocal(command);
+    }
+
     const { spawnSync } = await import('child_process');
     const result = spawnSync(command, [], {
       shell: true,

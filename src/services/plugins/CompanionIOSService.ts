@@ -102,12 +102,18 @@ export class CompanionIOSService {
     if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {
       this.flushTimer = null;
-      if (this.dirty) {
-        this.dirty = false;
+      if (!this.dirty) return;
+      this.dirty = false;
+      try {
+        if (!fs.existsSync(this.storageDir)) {
+          fs.mkdirSync(this.storageDir, { recursive: true });
+        }
         fs.writeFileSync(path.join(this.storageDir, 'devices.json'), JSON.stringify(Object.fromEntries(this.devices), null, 2), 'utf-8');
         fs.writeFileSync(path.join(this.storageDir, 'notifications.json'), JSON.stringify(this.notifications, null, 2), 'utf-8');
         fs.writeFileSync(path.join(this.storageDir, 'widgets.json'), JSON.stringify(Object.fromEntries(this.widgets), null, 2), 'utf-8');
         fs.writeFileSync(path.join(this.storageDir, 'shortcuts.json'), JSON.stringify(Object.fromEntries(this.shortcuts), null, 2), 'utf-8');
+      } catch (error: unknown) {
+        logger.warn('[DeferredFlush] deferred flush failed', error);
       }
     }, 2000);
     if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {

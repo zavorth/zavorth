@@ -24,6 +24,7 @@ function readManifestFile(filename: string): string {
 }
 
 const PROVIDER_FILES = [
+  'AI21Provider.ts',
   'ProviderFactory.ts',
   'ProviderRegistry.ts',
   'XaiProvider.ts',
@@ -35,6 +36,7 @@ const PROVIDER_FILES = [
   'MistralProvider.ts',
   'MiniMaxProvider.ts',
   'LocalLlamaProvider.ts',
+  'InflectionProvider.ts',
   'GroqProvider.ts',
   'GeminiVoiceService.ts',
   'GeminiProvider.ts',

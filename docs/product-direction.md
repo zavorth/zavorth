@@ -25,6 +25,18 @@ This page describes the user-facing direction of Zavorth.
 - External tool packs and MCP sources enter through preview and review hold before tool exposure.
 - Product surfaces should say setup, review, approve, undo, learned and history by default. Deeper runtime terms belong in developer, business or power detail modes.
 
+## Product surfaces
+
+Canonical three-way split (Code / Control / Desktop):
+
+| Product | Role |
+|---------|------|
+| **Zavorth Code** | Coding CLI/TUI — external monorepo `zavorth-code` (`zavorth` / `@zavorth/cli`) |
+| **Zavorth Control** | Dashboard / control plane — `/control` and control shell in this monorepo |
+| **Zavorth Desktop** | Operator desktop app — `apps/zavorth-desktop` |
+
+Full naming, freeze rules, and bridge policy: [product/surfaces-code-control-desktop.md](./product/surfaces-code-control-desktop.md).
+
 ## Stable User Surfaces
 
 - `zavorth` CLI for setup, status, doctors and automation.

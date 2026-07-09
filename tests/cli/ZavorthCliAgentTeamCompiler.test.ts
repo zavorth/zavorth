@@ -145,9 +145,9 @@ describe('Zavorth CLI Agent Team Compiler', () => {
       expect(result).toEqual(expect.objectContaining({
         ok: false,
         handled: true,
-        error: `Acao "${action}" ainda nao foi implementada para agent-team.`,
+        error: `Action "${action}" has not been implemented for agent-team yet.`,
       }));
-      expect(writes[0]).toBe(`Acao "${action}" ainda nao foi implementada para agent-team.`);
+      expect(writes[0]).toBe(`Action "${action}" has not been implemented for agent-team yet.`);
     }
   });
 
@@ -162,7 +162,7 @@ describe('Zavorth CLI Agent Team Compiler', () => {
 
     expect(text).toContain('Agent Team Compiler - Channel mesh0');
     expect(text).toContain('Roles');
-    expect(text).toContain('nenhum subagente foi lancado');
-    expect(text).toContain('Dashboard: /dashboard?sector=agents');
+    expect(text).toContain('no subagent was launched');
+    expect(text).toMatch(/\/(dashboard|zavorthControl)\?sector=agents/);
   });
 });

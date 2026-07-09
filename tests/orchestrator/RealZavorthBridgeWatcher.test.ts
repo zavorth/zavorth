@@ -263,7 +263,9 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(permissionService.createRequest).toHaveBeenCalledTimes(1);
     expect(permissionService.createRequest).toHaveBeenCalledWith(
       expect.objectContaining({
-        reason: 'O ZavorthBridge pediu permissao na UI: Allow command execution for npm test',
+        reason: expect.stringMatching(
+          /(?:O ZavorthBridge pediu permissao na UI|ZavorthBridge requested permission in the UI): Allow command execution for npm test/,
+        ),
         metadata: expect.objectContaining({
           permission_prompt_summary: 'Allow command execution for npm test',
         }),
@@ -1527,11 +1529,13 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(watcher.tryAutomationRescue).not.toHaveBeenCalled();
     expect(watcher.getLiveCompanionStatus).toHaveBeenCalledWith('bridge-1');
     expect(task.status).toBe('failed');
-    expect(task.error_summary).toContain('desviada para outra handoff');
+    expect(task.error_summary).toMatch(
+      /desviada para outra handoff|diverted to another handoff/i,
+    );
     expect(task.metadata.pendingPermissionId).toBeNull();
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
-      expect.stringContaining('ZavorthBridge falhou ao concluir a tarefa.'),
+      expect.stringMatching(/ZavorthBridge falhou ao concluir a tarefa|ZavorthBridge failed to complete the task/i),
     );
     expect(watcher.bridgeManager.saveSession).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1606,10 +1610,12 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(watcher.tryAutomationRescue).not.toHaveBeenCalled();
     expect(watcher.getLiveCompanionStatus).toHaveBeenCalledWith('bridge-1');
     expect(task.status).toBe('failed');
-    expect(task.error_summary).toContain('ficou sem progresso visivel por tempo demais');
+    expect(task.error_summary).toMatch(
+      /ficou sem progresso visivel por tempo demais|no visible progress for too long/i,
+    );
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
-      expect.stringContaining('ZavorthBridge falhou ao concluir a tarefa.'),
+      expect.stringMatching(/ZavorthBridge falhou ao concluir a tarefa|ZavorthBridge failed to complete the task/i),
     );
     expect(watcher.bridgeManager.saveSession).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1689,12 +1695,14 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(task.status).toBe('completed');
     expect(task.fallback_used).toBe(true);
     expect(task.metadata.zavorthBridgeLocalDirectoryFallbackPath).toBe(testDev);
-    expect(task.metadata.zavorthBridgeResponseSource).toBe('fallback local de pasta');
+    expect(task.metadata.zavorthBridgeResponseSource).toMatch(
+      /fallback local de pasta|local folder fallback/i,
+    );
     expect(task.metadata.zavorthBridgeDeliveryState).toBe('delivered');
     expect(session.deliveredResponse).toBe(true);
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
-      expect.stringContaining(`Pasta: ${testDev}`),
+      expect.stringMatching(new RegExp(`(?:Pasta|Folder|Directory):\\s*${testDev.replace(/[\\.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i')),
     );
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
@@ -1849,12 +1857,12 @@ describe('RealZavorthBridgeWatcher', () => {
       'captura da UI',
     );
 
-    expect(message).toContain('ZavorthBridge concluiu a tarefa.');
-    expect(message).toContain('Fonte: captura da UI');
-    expect(message).toContain('Conteudo encontrado:');
+    expect(message).toMatch(/ZavorthBridge concluiu a tarefa|ZavorthBridge completed the task/i);
+    expect(message).toMatch(/Fonte: captura da UI|Source: UI capture|Fonte: captura da UI/i);
+    expect(message).toMatch(/Conteudo encontrado:|Found content:/i);
     expect(message).toContain('- `.ps1`');
     expect(message).toContain('- `test_zavorthBridge.ps1`');
-    expect(message).toContain('Arquivos de texto e log:');
+    expect(message).toMatch(/Arquivos de texto e log:|Text and log files:/i);
     expect(message).toContain('- `debug.log`');
     expect(message).not.toContain('Se precisar de detalhes');
     expect(message).not.toContain('):');

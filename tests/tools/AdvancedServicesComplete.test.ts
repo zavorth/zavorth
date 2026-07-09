@@ -17,6 +17,7 @@ describe('Advanced Services Complete', () => {
   describe('DataPipelineService', () => {
     let svc: DataPipelineService;
     beforeEach(() => { svc = new DataPipelineService({ storageDir: dir }); });
+    afterEach(() => { svc?.dispose?.(); });
 
     it('creates pipeline', () => { expect(svc.createPipeline('test', 'desc')).toContain('created'); });
     it('lists pipelines', () => { svc.createPipeline('test', 'desc'); expect(svc.listPipelines()).toContain('test'); });

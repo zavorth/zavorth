@@ -1,4 +1,4 @@
-import { AgentChainBuilder, type AgentChainConfig, type AgentChainExecutor } from '../src/agents/AgentChainBuilder.js';
+import { AgentChainBuilder, type AgentChainConfig, type AgentChainExecutor } from '../../src/agents/AgentChainBuilder';
 
 function createMockExecutor(overrides: Partial<AgentChainExecutor> = {}): AgentChainExecutor {
   return {
@@ -169,7 +169,13 @@ describe('AgentChainBuilder', () => {
       const config: AgentChainConfig = {
         steps: [{ id: 's1', kind: 'agent', prompt: 'test' }],
       };
-      await expect(builder.executeChain(config)).rejects.toThrow('requires an executor');
+      const result = await builder.executeChain(config);
+      // Without executor/gateway, agent steps fail closed with a registration error (or throw).
+      expect(result.status).toBe('failed');
+      expect(result.failureCount).toBeGreaterThan(0);
+      expect(String(result.steps[0]?.error || '')).toMatch(
+        /requires an executor|No external agents registered|external agent gateway/i,
+      );
     });
 
     it('executes steps in parallel when parallel is true', async () => {

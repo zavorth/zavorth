@@ -296,6 +296,65 @@ const ECHO_ONLY_TOOLS = new Set([
   'playwright_browser',
 ]);
 
+export type ZavorthParityPackKind = 'agent' | 'workspace';
+
+export type ZavorthParityPackTool = {
+  sourceToolId: string;
+  zavorthActionId: string | null;
+  status: 'native' | 'planned' | 'echo-only' | 'unmapped';
+  surface: ZavorthParityPackKind;
+};
+
+export type ZavorthParityPack = {
+  kind: ZavorthParityPackKind;
+  generatedAt: string;
+  tools: ZavorthParityPackTool[];
+  summary: {
+    total: number;
+    native: number;
+    planned: number;
+    echoOnly: number;
+    unmapped: number;
+  };
+};
+
+type ParityToolTemplate = {
+  sourceToolId: string;
+  zavorthActionId: string | null;
+  surface: ZavorthParityPackKind;
+  echoOnly?: boolean;
+};
+
+const AGENT_PARITY_TOOLS: ParityToolTemplate[] = [
+  { sourceToolId: 'web_search', zavorthActionId: 'web.search', surface: 'agent' },
+  { sourceToolId: 'web_fetch', zavorthActionId: 'web.fetch_url', surface: 'agent' },
+  { sourceToolId: 'browser_open', zavorthActionId: 'browser.open', surface: 'agent' },
+  { sourceToolId: 'browser_click', zavorthActionId: 'browser.click', surface: 'agent' },
+  { sourceToolId: 'browser_screenshot', zavorthActionId: 'browser.screenshot', surface: 'agent' },
+  { sourceToolId: 'browser_extract', zavorthActionId: 'browser.extract', surface: 'agent' },
+  { sourceToolId: 'delegate_task', zavorthActionId: 'agents.external.invoke', surface: 'agent' },
+  { sourceToolId: 'list_agents', zavorthActionId: 'agents.external.list', surface: 'agent' },
+  { sourceToolId: 'run_workflow', zavorthActionId: 'workflows.run', surface: 'agent' },
+  { sourceToolId: 'list_workflows', zavorthActionId: 'workflows.list', surface: 'agent' },
+  { sourceToolId: 'os_open_app', zavorthActionId: null, surface: 'agent', echoOnly: true },
+  { sourceToolId: 'os_media_control', zavorthActionId: null, surface: 'agent', echoOnly: true },
+  { sourceToolId: 'os_system_info', zavorthActionId: null, surface: 'agent', echoOnly: true },
+  { sourceToolId: 'os_screenshot', zavorthActionId: null, surface: 'agent', echoOnly: true },
+  { sourceToolId: 'os_screen_vision', zavorthActionId: null, surface: 'agent', echoOnly: true },
+  { sourceToolId: 'iot_home_assistant', zavorthActionId: null, surface: 'agent', echoOnly: true },
+  { sourceToolId: 'iot_mqtt_publish', zavorthActionId: null, surface: 'agent', echoOnly: true },
+  { sourceToolId: 'playwright_browser', zavorthActionId: null, surface: 'agent', echoOnly: true },
+];
+
+const WORKSPACE_PARITY_TOOLS: ParityToolTemplate[] = [
+  { sourceToolId: 'file_fetch', zavorthActionId: 'workspace.read_file', surface: 'workspace' },
+  { sourceToolId: 'file_read', zavorthActionId: 'workspace.read_file', surface: 'workspace' },
+  { sourceToolId: 'file_write', zavorthActionId: 'workspace.write_file', surface: 'workspace' },
+  { sourceToolId: 'file_list', zavorthActionId: 'workspace.list', surface: 'workspace' },
+  { sourceToolId: 'file_search', zavorthActionId: 'workspace.search', surface: 'workspace' },
+  { sourceToolId: 'workspace_status', zavorthActionId: 'workspace.status', surface: 'workspace' },
+];
+
 export class ZavorthHiddenCapabilitySpineService {
   private readonly projectRoot: string;
   private readonly now: () => Date;
@@ -369,6 +428,44 @@ export class ZavorthHiddenCapabilitySpineService {
         runnable: script.startsWith('qa:') || script.endsWith(':check') || script === 'security:ci',
       }))
       .sort((left, right) => left.script.localeCompare(right.script));
+  }
+
+  public buildParityPack(kind: ZavorthParityPackKind): ZavorthParityPack {
+    const normalized: ZavorthParityPackKind = kind === 'workspace' ? 'workspace' : 'agent';
+    const actionIds = this.readManifestActionIds();
+    const templates = normalized === 'workspace' ? WORKSPACE_PARITY_TOOLS : AGENT_PARITY_TOOLS;
+    const tools = templates.map((template) => {
+      const echoOnly = Boolean(template.echoOnly) || ECHO_ONLY_TOOLS.has(template.sourceToolId);
+      const actionId = template.zavorthActionId;
+      let status: ZavorthParityPackTool['status'] = 'unmapped';
+      if (echoOnly) {
+        status = 'echo-only';
+      } else if (!actionId) {
+        status = 'unmapped';
+      } else if (actionIds.has(actionId)) {
+        status = 'native';
+      } else {
+        status = 'planned';
+      }
+      return {
+        sourceToolId: template.sourceToolId,
+        zavorthActionId: actionId,
+        status,
+        surface: template.surface,
+      };
+    });
+    return {
+      kind: normalized,
+      generatedAt: this.now().toISOString(),
+      tools,
+      summary: {
+        total: tools.length,
+        native: tools.filter((tool) => tool.status === 'native').length,
+        planned: tools.filter((tool) => tool.status === 'planned').length,
+        echoOnly: tools.filter((tool) => tool.status === 'echo-only').length,
+        unmapped: tools.filter((tool) => tool.status === 'unmapped').length,
+      },
+    };
   }
 
   private materializeCandidate(template: CandidateTemplate, actionIds: Set<string>): ZavorthHiddenCapabilityCandidate {

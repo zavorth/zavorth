@@ -64,9 +64,9 @@ function pendingPlan(): ZavorthMutationPlan {
 }
 
 describe('Zavorth CLI QuickStart', () => {
-  test('recommends provider setup without leaking secrets', () => {
+  test('recommends provider setup without leaking secrets', async () => {
     const root = createWorkspace();
-    const result = runZavorthCliQuickStart({
+    const result = await runZavorthCliQuickStart({
       projectRoot: root,
       mutationPlane: null,
       now: () => new Date('2026-05-22T12:00:00.000Z'),
@@ -79,10 +79,10 @@ describe('Zavorth CLI QuickStart', () => {
     expect(result.output).toContain('Preview-first setup');
   });
 
-  test('prioritizes pending approvals before setup changes', () => {
+  test('prioritizes pending approvals before setup changes', async () => {
     const root = createWorkspace();
     fs.writeFileSync(path.join(root, '.env'), 'ZAVORTH_DEFAULT_PROVIDER=local\nZAVORTH_DEFAULT_MODEL=llama\n');
-    const result = runZavorthCliQuickStart({
+    const result = await runZavorthCliQuickStart({
       projectRoot: root,
       mutationPlane: { listPlans: jest.fn(() => [pendingPlan()]) },
       now: () => new Date('2026-05-22T12:00:00.000Z'),
@@ -92,9 +92,9 @@ describe('Zavorth CLI QuickStart', () => {
     expect(result.snapshot.nextActions[0]?.command).toBe('zavorth approve');
   });
 
-  test('returns stable json output', () => {
+  test('returns stable json output', async () => {
     const root = createWorkspace();
-    const result = runZavorthCliQuickStart({
+    const result = await runZavorthCliQuickStart({
       projectRoot: root,
       json: true,
       mutationPlane: null,

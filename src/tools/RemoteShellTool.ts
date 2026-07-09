@@ -249,8 +249,8 @@ export class RemoteShellTool extends BaseTool {
       return {
         ok: false,
         error:
-          `Erro: "${file}" pode executar codigo ou scripts. Use isolationMode="sidecar" ` +
-          'ou a tool run_sandbox_code; ephemeral para codigo exige ZAVORTH_REMOTE_SHELL_ALLOW_EPHEMERAL_CODE=true.',
+          `Error: "${file}" can execute code or scripts. Use isolationMode="sidecar" ` +
+          'or the run_sandbox_code tool; ephemeral code requires ZAVORTH_REMOTE_SHELL_ALLOW_EPHEMERAL_CODE=true.',
       };
     }
     if (

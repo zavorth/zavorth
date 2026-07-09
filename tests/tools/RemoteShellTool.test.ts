@@ -104,8 +104,8 @@ describe('RemoteShellTool isolation slice', () => {
       isolationMode: 'ephemeral',
     });
 
-    expect(blocked).toContain('pode executar codigo ou scripts');
-    expect(isolated).toContain('ephemeral para codigo exige');
+    expect(blocked).toContain('can execute code or scripts');
+    expect(isolated).toContain('ephemeral code requires ZAVORTH_REMOTE_SHELL_ALLOW_EPHEMERAL_CODE=true');
     expect(explicitlyEphemeral).toContain('ephemeral-node-ok');
     expect(adapter.execute).toHaveBeenCalledTimes(1);
   });

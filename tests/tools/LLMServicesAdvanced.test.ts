@@ -153,10 +153,10 @@ describe('StreamingLLMService', () => {
   it('handles cancel for non-existent stream', () => { expect(svc.cancel('nonexistent')).toContain('cancelled'); });
   it('streamChat returns error without API key', async () => {
     const r = await svc.streamChat('test-model', [{ role: 'user', content: 'hi' }]);
-    expect(r).toContain('Error');
+    expect(r).toContain('API key not configured');
   });
   it('streamChat handles missing provider key', async () => {
     const r = await svc.streamChat('test-model', [{ role: 'user', content: 'hi' }], { provider: 'nonexistent' });
-    expect(r).toContain('Error');
+    expect(r).toContain('API key not configured');
   });
 });

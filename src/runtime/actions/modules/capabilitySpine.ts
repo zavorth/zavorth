@@ -444,6 +444,29 @@ async function workflowsRun(input: ZavorthActionHandlerInput): Promise<ZavorthAc
   });
 }
 
+function referencePack(input: ZavorthActionHandlerInput, kind: 'agent' | 'workspace'): ZavorthActionResult {
+  const pack = service(input.root).buildParityPack(kind);
+  return result({
+    ok: true,
+    actionId: input.actionId,
+    operation: input.operation,
+    status: 'ok',
+    summary: `${kind} parity pack: ${pack.summary.native} native / ${pack.summary.total} tools.`,
+    lines: pack.tools
+      .slice(0, 40)
+      .map((tool) => `${tool.status}: ${tool.sourceToolId} -> ${tool.zavorthActionId || 'unmapped'}`),
+    data: { pack, tools: pack.tools, kind: pack.kind },
+  });
+}
+
+function agentReference(input: ZavorthActionHandlerInput): ZavorthActionResult {
+  return referencePack(input, 'agent');
+}
+
+function workspaceReference(input: ZavorthActionHandlerInput): ZavorthActionResult {
+  return referencePack(input, 'workspace');
+}
+
 function action(capabilityId: string, input: Omit<ZavorthActionDefinition, 'capabilityId' | 'verificationStatus' | 'surface' | 'testRefs'>): ZavorthActionDefinition {
   return { ...input, capabilityId, verificationStatus: 'verified', surface: SURFACE, testRefs: TEST_REFS };
 }
@@ -467,6 +490,8 @@ export function createCapabilitySpineActionModule(): ZavorthActionModule {
       action('capability-spine', { id: 'agents.external.invoke', title: 'Invoke external agent', description: 'Preview or invoke an approved external agent profile as a governed arm.', aliases: ['invoke external agent', 'delegate task', 'external arm'], domains: ['agents'], risk: 'danger', mutationDomain: 'capability', mutationRisk: 'high', effects: ['external_send', 'shell'], scope: 'agents', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { profileId: { type: 'string' }, prompt: { type: 'string' } }, required: ['profileId', 'prompt'] }, outputSchema, handler: externalAgentInvoke }),
       action('capability-spine', { id: 'workflows.list', title: 'List workflows', description: 'List Zavorth package workflow scripts that can be surfaced as governed workflow actions.', aliases: ['workflow list', 'list workflows'], domains: ['workflows'], risk: 'safe', effects: ['read'], scope: 'workflows', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: {} }, outputSchema, handler: workflowsList }),
       action('capability-spine', { id: 'workflows.run', title: 'Run workflow', description: 'Preview or run an allowlisted Zavorth workflow script with approval and receipt.', aliases: ['run workflow', 'workflow run'], domains: ['workflows'], risk: 'attention', mutationDomain: 'sandbox', mutationRisk: 'medium', effects: ['shell'], scope: 'workflows', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { script: { type: 'string' } }, required: ['script'] }, outputSchema, handler: workflowsRun }),
+      action('capability-spine', { id: 'capabilities.reference.agent', title: 'Agent capability reference pack', description: 'Read the agent-facing parity map from external tool ids to verified Zavorth Action Harness routes.', aliases: ['agent reference', 'agent parity pack', 'delegate task map'], domains: ['capabilities', 'agents', 'atlas'], risk: 'safe', effects: ['read'], scope: 'capabilities', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: {} }, outputSchema, handler: agentReference }),
+      action('capability-spine', { id: 'capabilities.reference.workspace', title: 'Workspace capability reference pack', description: 'Read the workspace-facing parity map from external file tools to verified Zavorth Action Harness routes.', aliases: ['workspace reference', 'workspace parity pack', 'file fetch map'], domains: ['capabilities', 'workspace', 'atlas'], risk: 'safe', effects: ['read'], scope: 'capabilities', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: {} }, outputSchema, handler: workspaceReference }),
     ],
   };
 }

@@ -56,7 +56,7 @@ describe('RecoveryManager', () => {
     expect(logRepo.log).toHaveBeenCalledWith(
       'info',
       'Recovery',
-      expect.stringContaining('Zumbis falhados: 1'),
+      expect.stringMatching(/Zumbis falhados: 1|Failed zombies: 1/i),
     );
   });
 
@@ -124,7 +124,7 @@ describe('RecoveryManager', () => {
     expect(logRepo.log).toHaveBeenCalledWith(
       'info',
       'Recovery',
-      expect.stringContaining('Tarefas ZavorthBridge preservadas: 1'),
+      expect.stringMatching(/Tarefas ZavorthBridge preservadas: 1|Preserved ZavorthBridge tasks: 1/i),
     );
   });
 
@@ -198,7 +198,7 @@ describe('RecoveryManager', () => {
     expect(logRepo.log).toHaveBeenCalledWith(
       'info',
       'Recovery',
-      expect.stringContaining('Zumbis falhados: 1'),
+      expect.stringMatching(/Zumbis falhados: 1|Failed zombies: 1/i),
     );
   });
 
@@ -273,7 +273,7 @@ describe('RecoveryManager', () => {
     expect(taskManager.advanceState).toHaveBeenCalledWith(task, 'failed');
     expect(task.metadata.pendingPermissionId).toBeNull();
     expect(task.metadata.pendingPermissionNotifiedAt).toBeNull();
-    expect(task.error_summary).toContain('pedido de permissao');
+    expect(task.error_summary).toMatch(/pedido de permissao|permission request/i);
     expect(db.run).toHaveBeenCalledWith(
       'UPDATE permission_requests SET status = ?, updated_at = ?, decided_by = ?, decision_note = ? WHERE permission_id = ? AND status = ?',
       expect.arrayContaining(['rejected', 'system:recovery', 'perm-stale-1', 'pending']),

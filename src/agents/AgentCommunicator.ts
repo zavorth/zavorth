@@ -399,7 +399,7 @@ export class AgentCommunicator {
       topic: TOPIC_AGENT_COMM,
       type: 'status',
       sender: agentId,
-      payload: { event: 'agent:status_changed', agentId, oldStatus: agent.status, newStatus: status },
+      payload: { event: 'agent:status_changed', agentId, oldStatus: previousStatus, newStatus: status },
       priority: 'normal',
       ttlMs: 60_000,
       ackRequired: false,

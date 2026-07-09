@@ -1,4 +1,4 @@
-import { assertPublicHttpTargetAllowed } from '../../../ai-gateway/lib/security/egressGuard.js';
+import { assertPublicHttpTargetAllowed } from '../../../security/EgressGuard.js';
 import { safeFetch } from '../../../security/SafeFetchService.js';
 import { wrapUntrustedContent } from '../../../security/UntrustedContent.js';
 import { SearchQueryService } from '../../../services/SearchQueryService.js';

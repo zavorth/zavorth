@@ -50,13 +50,19 @@ export class MemoryQdrantService {
     if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {
       this.flushTimer = null;
-      if (this.dirty) {
-        this.dirty = false;
+      if (!this.dirty) return;
+      this.dirty = false;
+      try {
+        if (!fs.existsSync(this.storageDir)) {
+          fs.mkdirSync(this.storageDir, { recursive: true });
+        }
         const data: Record<string, unknown> = {};
         for (const [name, col] of this.collections) {
-          data[name] = { name, vectors: Array.from(col.vectors.values()), dimension: col.dimension, created_at: col.created_at };
+        data[name] = { name, vectors: Array.from(col.vectors.values()), dimension: col.dimension, created_at: col.created_at };
         }
         fs.writeFileSync(path.join(this.storageDir, 'collections.json'), JSON.stringify(data, null, 2), 'utf-8');
+      } catch (error: unknown) {
+        logger.warn('[DeferredFlush] deferred flush failed', error);
       }
     }, 2000);
   }
