@@ -59,6 +59,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
+      - name: Rebuild native modules
+        run: npm rebuild better-sqlite3 --silent || npm rebuild better-sqlite3
+
       - name: Security tests
         run: npm run test:ci:security --silent
 
@@ -92,6 +95,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
+
+      - name: Rebuild native modules
+        run: npm rebuild better-sqlite3 --silent || npm rebuild better-sqlite3
+
+      - name: Install desktop test dependencies
+        run: |
+          if [ -f apps/zavorth-desktop/package.json ]; then
+            npm install --prefix apps/zavorth-desktop --ignore-scripts --no-audit --no-fund --silent || true
+          fi
 
       - name: API tests
         run: npm run test:ci:api --silent
@@ -132,6 +144,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
+
+      - name: Rebuild native modules
+        run: npm rebuild better-sqlite3 --silent || npm rebuild better-sqlite3
 
       - name: Platform tests
         run: npm run test:ci:platform --silent

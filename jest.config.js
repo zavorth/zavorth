@@ -31,9 +31,16 @@ module.exports = {
     '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/zavorth-control/.*\\.js$': '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/zavorth-control/',
     '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/.*\\.js$': '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/',
     '^.*src/zavorth-control/(.*)\\.js$': '<rootDir>/src/ai-gateway/$1',
-    '^react$': '<rootDir>/apps/zavorth-desktop/node_modules/react',
-    '^react-dom$': '<rootDir>/apps/zavorth-desktop/node_modules/react-dom',
-    '^electron$': '<rootDir>/apps/zavorth-desktop/node_modules/electron',
+    // Prefer desktop-local deps when present; fall back to monorepo root for CI.
+    '^react$': '<rootDir>/node_modules/react',
+    '^react-dom$': '<rootDir>/node_modules/react-dom',
+    '^react-dom/client$': '<rootDir>/node_modules/react-dom/client',
+    '^electron$': '<rootDir>/node_modules/electron',
+    // Legacy absolute relative imports used by older desktop tests
+    '^.*/apps/zavorth-desktop/node_modules/react$': '<rootDir>/node_modules/react',
+    '^.*/apps/zavorth-desktop/node_modules/react-dom$': '<rootDir>/node_modules/react-dom',
+    '^.*/apps/zavorth-desktop/node_modules/react-dom/client$': '<rootDir>/node_modules/react-dom/client',
+    '^.*/apps/zavorth-desktop/node_modules/electron$': '<rootDir>/node_modules/electron',
     '^(\\.{1,2}/.*)\\.js$': '$1', // Mapeamento para imports com extensao .js no TypeScript
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],

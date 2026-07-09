@@ -76,7 +76,8 @@ describe('Workspace security', () => {
     expect(normalize(WorkspaceResolver.resolve('default'))).toBe(normalize(tempDefaultWorkspace));
     expect(normalize(WorkspaceResolver.resolve('root'))).toBe(normalize(tempWorkspaceRoot));
     expect(fs.existsSync(WorkspaceResolver.validate('core'))).toBe(true);
-    expect(normalize(WorkspaceResolver.resolve('meuprojeto'))).toContain('/meuprojeto');
+    // Alias path may preserve original casing (MeuProjeto) depending on host FS.
+    expect(normalize(WorkspaceResolver.resolve('meuprojeto')).toLowerCase()).toContain('/meuprojeto');
   });
 
   it('treats empty hints and AUTO as the default workspace', () => {

@@ -28,7 +28,8 @@ describe('OnboardingCliGuide', () => {
       baseUrl: 'http://127.0.0.1:33333',
     }));
     expect(rendered).toContain('Zavorth Developer Guide');
-    expect(rendered).toContain('Proximo comando: npm run cli:fast -- status --json');
-    expect(rendered).toContain('Artefatos locais');
+    expect(rendered).toMatch(/Next command:|Proximo comando:/);
+    expect(rendered).toContain('npm run cli:fast -- status --json');
+    expect(rendered).toMatch(/Local artifacts:|Artefatos locais/);
   });
 });

@@ -891,10 +891,25 @@ describe('ProviderFactory dedicated OpenAI-compatible providers', () => {
 describe('ProviderFactory mesh expansion providers', () => {
   PROVIDER_MESH_EXPANSION_PROVIDERS.forEach((provider) => {
     it(`provider ${provider} has plugin, adapter, or manifest entry`, () => {
-      const pluginPath = path.resolve(__dirname, `../../src/providers/plugins/${provider.replace(/-/g, '_')}.plugin.ts`);
-      const adapterPath = path.resolve(__dirname, `../../src/adapters/providers/${provider.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join('')}ProviderAdapter.ts`);
-      const hasPlugin = fs.existsSync(pluginPath);
-      const hasAdapter = fs.existsSync(adapterPath);
+      const pluginCandidates = [
+        path.resolve(__dirname, `../../src/providers/plugins/${provider.replace(/-/g, '_')}.plugin.ts`),
+        path.resolve(__dirname, `../../src/providers/plugins/${provider}.plugin.ts`),
+      ];
+      // google-genai -> GoogleGenAi (not GoogleGenai)
+      const pascal = provider
+        .split('-')
+        .map((segment) => {
+          if (segment.toLowerCase() === 'ai') return 'Ai';
+          if (segment.toLowerCase() === 'genai') return 'GenAi';
+          return segment.charAt(0).toUpperCase() + segment.slice(1);
+        })
+        .join('');
+      const adapterCandidates = [
+        path.resolve(__dirname, `../../src/adapters/providers/${pascal}ProviderAdapter.ts`),
+        path.resolve(__dirname, `../../src/adapters/providers/${provider.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join('')}ProviderAdapter.ts`),
+      ];
+      const hasPlugin = pluginCandidates.some((candidate) => fs.existsSync(candidate));
+      const hasAdapter = adapterCandidates.some((candidate) => fs.existsSync(candidate));
       const manifestDir = path.resolve(__dirname, '../../src/services/providers/catalog/manifests');
       let foundInManifest = false;
       try {

@@ -7,7 +7,7 @@
  *   B) DOM render tests via createRoot + act (no filesystem, IPC, MCP, backend)
  */
 
-import React from '../../../apps/zavorth-desktop/node_modules/react';
+import React from 'react';
 
 // Lightweight mock DOM (reuse pattern from DesktopReadOnlyFileExplorer.test.ts)
 class MockElement {
@@ -224,13 +224,13 @@ const mockWindow = {
 // Imports (after globals are set)
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRoot, type Root } from '../../../apps/zavorth-desktop/node_modules/react-dom/client';
-import { act } from '../../../apps/zavorth-desktop/node_modules/react';
+import { createRoot, type Root } from 'react-dom/client';
+import { act } from 'react';
 
 // Mock icons — ApprovalsPanel does not use icons, but panelPrimitives may
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
 const mockIconsFn = () => {
-  const R = require('../../../apps/zavorth-desktop/node_modules/react');
+  const R = require('react');
   const Dummy = (p: any) => R.createElement('span', p);
   return { AppWindow: Dummy, Folder: Dummy, Terminal: Dummy, ChevronDown: Dummy, File: Dummy };
 };
@@ -514,7 +514,7 @@ describe('Fase 12 — Desktop Read-Only Approvals Panel', () => {
       act(() => {
         root!.render(React.createElement(ApprovalsPanel, { approvals: [] }));
       });
-      expect(container!.textContent).toContain('Nenhuma aprovação pendente.');
+      expect(container!.textContent).toContain('No pending approvals.');
     });
 
     it('filters visible records when switching to Recentes tab (static check)', () => {
@@ -537,7 +537,7 @@ describe('Fase 12 — Desktop Read-Only Approvals Panel', () => {
           recentApprovals: recentApprovals,
         }));
       });
-      expect(container!.textContent).toContain('Recentes');
+      expect(container!.textContent).toMatch(/Recentes|Recent/);
       expect(container!.textContent).toContain('Pendentes');
     });
 

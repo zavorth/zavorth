@@ -412,7 +412,10 @@ describe('AgentCommunicator', () => {
       const { communicator, bus } = createSetup();
       const statusEvents: unknown[] = [];
       bus.on('message:published', (msg) => {
-        if (msg.type === 'agent:status_changed') statusEvents.push(msg.payload);
+        const payload = msg.payload as { event?: string } | undefined;
+        if (payload?.event === 'agent:status_changed' || msg.type === 'agent:status_changed') {
+          statusEvents.push(msg.payload);
+        }
       });
 
       communicator.registerAgent({ id: 'a', name: 'A', capabilities: [], status: 'online' });

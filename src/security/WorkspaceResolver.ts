@@ -121,8 +121,16 @@ export class WorkspaceResolver {
 
   public static ensurePathInsideWorkspace(baseDir: string, targetPath: string): string {
     const absoluteBase = normalizePath(baseDir);
-    const rawTarget = path.isAbsolute(targetPath)
-      ? targetPath
+    // Normalize mixed Windows/POSIX separators before deciding absolute vs relative.
+    // On Linux CI, a fixture like "\tmp\ws\nested\file.txt" must not be re-joined under base.
+    const posixCandidate = String(targetPath || '').replace(/\\/g, '/');
+    const looksAbsolute =
+      path.isAbsolute(targetPath)
+      || path.isAbsolute(posixCandidate)
+      || /^[A-Za-z]:\//.test(posixCandidate)
+      || posixCandidate.startsWith('//');
+    const rawTarget = looksAbsolute
+      ? posixCandidate
       : path.join(absoluteBase, targetPath);
     const absoluteTarget = normalizePath(rawTarget);
 
@@ -150,7 +158,7 @@ export class WorkspaceResolver {
     const allowedRoots = this.getAllowedRoots();
     const meuprojetoFallback = normalizePath(path.join(workspaceParent, 'MeuProjeto'));
     const meuprojeto =
-      findNamedRoot(allowedRoots, (entry) => entry.endsWith('/meuprojeto')) ||
+      findNamedRoot(allowedRoots, (entry) => entry.endsWith('/meuprojeto') || entry.endsWith('\\meuprojeto')) ||
       meuprojetoFallback;
     const core = workspaceRoot;
 
