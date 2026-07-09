@@ -19,8 +19,13 @@ function securityEnv(): Record<string, string> {
 }
 
 function withAlignedProfessionalPreset<T>(run: () => T): T {
-  const hadPreset = fs.existsSync(PRESET_PATH);
-  const original = hadPreset ? fs.readFileSync(PRESET_PATH) : null;
+  const mcpPath = path.join(ROOT, 'config', 'mcp-tool-policy.json');
+  const skillPath = path.join(ROOT, 'config', 'skill-allowlist.json');
+  const originals = {
+    preset: fs.existsSync(PRESET_PATH) ? fs.readFileSync(PRESET_PATH) : null,
+    mcp: fs.existsSync(mcpPath) ? fs.readFileSync(mcpPath) : null,
+    skill: fs.existsSync(skillPath) ? fs.readFileSync(skillPath) : null,
+  };
   fs.mkdirSync(path.dirname(PRESET_PATH), { recursive: true });
   fs.writeFileSync(
     PRESET_PATH,
@@ -31,7 +36,7 @@ function withAlignedProfessionalPreset<T>(run: () => T): T {
       appliedBy: 'ContinuousSecurityMonitor.test',
       securityProfile: 'professional',
       mcpProfile: 'safe',
-      mcpAllowlist: [],
+      mcpAllowlist: ['create_file'],
       skillDefaultPolicy: 'deny',
       skillAllowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library'],
       continuousSecurity: {
@@ -45,14 +50,39 @@ function withAlignedProfessionalPreset<T>(run: () => T): T {
     }, null, 2)}\n`,
     'utf8',
   );
+  fs.writeFileSync(
+    mcpPath,
+    `${JSON.stringify({
+      version: 1,
+      updatedAt: '2026-05-09T12:00:00.000Z',
+      profile: 'safe',
+      allowlist: ['create_file'],
+    }, null, 2)}\n`,
+    'utf8',
+  );
+  fs.writeFileSync(
+    skillPath,
+    `${JSON.stringify({
+      version: 1,
+      updatedAt: '2026-05-09T12:00:00.000Z',
+      defaultPolicy: 'deny',
+      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library'],
+      rules: [
+        { sourceId: 'zavorth-native', mode: 'all', reason: 'Official Zavorth-owned native intelligence pack.' },
+        { sourceId: 'workspace-agents', mode: 'all', reason: 'Fonte principal de autoria local.' },
+        { sourceId: 'workspace-library', mode: 'all', reason: 'Biblioteca local curada e mantida no proprio workspace.' },
+        { sourceId: 'workspace-imported-library', mode: 'review', reason: 'Imports permanecem em revisao ate promocao explicita para uma fonte nativa ou curada.' },
+      ],
+    }, null, 2)}\n`,
+    'utf8',
+  );
   try {
     return run();
   } finally {
-    if (original) {
-      fs.writeFileSync(PRESET_PATH, original);
-    } else if (hadPreset === false) {
-      fs.rmSync(PRESET_PATH, { force: true });
-    }
+    if (originals.preset) fs.writeFileSync(PRESET_PATH, originals.preset);
+    else fs.rmSync(PRESET_PATH, { force: true });
+    if (originals.mcp) fs.writeFileSync(mcpPath, originals.mcp);
+    if (originals.skill) fs.writeFileSync(skillPath, originals.skill);
   }
 }
 

@@ -115,7 +115,7 @@ describe('ZavorthBridgePublicTunnelService', () => {
     expect(spawn).not.toHaveBeenCalled();
     expect(result.started).toBe(false);
     expect(result.ready).toBe(false);
-    expect(result.message).toMatch(/HTTP local/);
+    expect(result.message).toMatch(/HTTP local|local HTTP URL/i);
   });
 
   it('starts cloudflared with a minimal environment that excludes secrets', async () => {
