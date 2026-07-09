@@ -1,8 +1,8 @@
 {
   "version": 1,
   "activePreset": "personal",
-  "appliedAt": "2026-07-06T00:00:00.000Z",
-  "appliedBy": "cursor-setup",
+  "appliedAt": "2026-07-09T23:12:16.741Z",
+  "appliedBy": "zavorth-security-preset",
   "securityProfile": "personal",
   "mcpProfile": "safe",
   "mcpAllowlist": [],
@@ -17,7 +17,7 @@
     "requireBaseline": false
   },
   "receipt": {
-    "id": "security-preset:personal:20260706T000000000Z",
-    "summary": "Preset personal aplicado: baixa friccao para uso local, MCP safe, skills locais."
+    "id": "security-preset:personal:20260709T231216741Z",
+    "summary": "Preset personal aplicado com perfil personal, MCP safe e skills deny."
   }
 }
