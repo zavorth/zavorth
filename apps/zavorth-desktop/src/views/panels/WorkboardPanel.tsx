@@ -23,8 +23,6 @@ import {
   IconLayoutKanban,
 } from '@tabler/icons-react';
 
-// --- Types ---
-
 export type CardPriority = 'low' | 'medium' | 'high' | 'critical';
 
 export type CardLabel = {
@@ -78,8 +76,6 @@ export type WorkboardPanelProps = {
   onSyncNow?: (boardId?: string) => void | Promise<boolean | void>;
 };
 
-// --- Local nanostores ---
-
 const $selectedTab = atom<'boards' | 'cards' | 'stats'>('boards');
 const $searchQuery = atom('');
 const $selectedBoard = atom<string | null>(null);
@@ -89,8 +85,6 @@ const $filterAssignee = atom<string | null>(null);
 const $filterLabels = atom<string[]>([]);
 const $showFilters = atom(false);
 
-// --- Constants ---
-
 const PRIORITY_COLORS: Record<CardPriority, { bg: string; text: string; label: string }> = {
   low: { bg: 'rgba(34, 197, 94, 0.15)', text: '#4ade80', label: 'Low' },
   medium: { bg: 'rgba(250, 204, 21, 0.15)', text: '#facc15', label: 'Medium' },
@@ -99,8 +93,6 @@ const PRIORITY_COLORS: Record<CardPriority, { bg: string; text: string; label: s
 };
 
 const COLUMN_COLORS = ['#60a5fa', '#a78bfa', '#f472b6', '#4ade80', '#facc15', '#22d3ee'];
-
-// --- Helpers ---
 
 function generateId(): string {
   return `card-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -119,8 +111,6 @@ function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
-
-// --- Sub-components ---
 
 function PriorityBadge({ priority }: { priority: CardPriority }) {
   const style = PRIORITY_COLORS[priority];
@@ -730,8 +720,6 @@ function BoardsListView({
     </div>
   );
 }
-
-// --- Main Panel ---
 
 export function WorkboardPanel(props: WorkboardPanelProps) {
   const tab = useStore($selectedTab);

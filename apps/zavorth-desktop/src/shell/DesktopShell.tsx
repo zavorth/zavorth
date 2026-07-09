@@ -36,6 +36,8 @@ import type { ModelOption } from '../modelCatalog';
 import { CommandPalette } from '../overlays/CommandPalette';
 import { CommandCenterOverlay } from '../command-center/CommandCenterOverlay';
 import type { CommandCenterAction, CommandCenterInput } from '../command-center/commandCenter';
+import { ConstellationOverlay } from '../constellation/ConstellationOverlay';
+import type { ConstellationDomain } from '../constellation/constellationLayout';
 import { buildSettingsModules } from '../settings/settingsModules';
 import {
   clampRightRailWidth,
@@ -61,7 +63,14 @@ import type { RuntimeWorkboardProjection } from '../workboard/runtimeWorkboardPr
 import { t } from '../i18n';
 import { useVoiceDictation } from '../voice/useVoiceDictation';
 import { RuntimeSetupBanner } from '../components/RuntimeSetupBanner';
+import { NextActionBanner } from '../components/NextActionBanner';
 import type { DesktopReceipt } from '../desktop-state/receiptsLedger';
+import {
+  loadTrustedOperator,
+  toggleTrustedOperator,
+} from '../trust/trustedOperator';
+import type { HunkReceipt } from '../trust/hunkApproval';
+import { appendReceipt } from '../desktop-state/receiptsLedger';
 
 type BottomTerminalTab = 'logs' | 'shell';
 
@@ -220,6 +229,10 @@ export function DesktopShell(props: {
   const [bottomPanelOpen, setBottomPanelOpen] = useState(false);
   const [bottomTab, setBottomTab] = useState<BottomTerminalTab>('logs');
   const [localCommandCenterOpen, setLocalCommandCenterOpen] = useState(false);
+  const [constellationOpen, setConstellationOpen] = useState(false);
+  const [trustedOperator, setTrustedOperator] = useState(() =>
+    loadTrustedOperator(typeof localStorage !== 'undefined' ? localStorage : null),
+  );
   const [composerQueue, setComposerQueue] = useState<QueuedPrompt[]>([]);
   const [justCompleted, setJustCompleted] = useState(false);
   const wasBusyRef = useRef(props.busy);
@@ -312,15 +325,23 @@ export function DesktopShell(props: {
       workspaceLabel: props.workspaceScope?.label,
       rightRailOpen: rightRail.open,
       rightRailTab: rightRail.tab,
+      tools: props.tools,
+      channels: props.channels,
+      agents: props.subagents,
+      approvalsPending: props.approvals?.length,
+      receiptsCount: props.receipts?.length,
     };
   }, [
     props.approvals?.length,
-    props.channels?.length,
+    props.channels,
     props.customProfiles?.length,
     props.kaelActive,
     props.memoryItems?.length,
+    props.receipts?.length,
     props.scheduledTasks?.length,
     props.status.running,
+    props.subagents,
+    props.tools,
     props.workspaceScope?.label,
     props.workspaceScope?.path,
     rightRail.open,
@@ -386,9 +407,29 @@ export function DesktopShell(props: {
     [rightRail.width, updateRightRail],
   );
 
+  const openConstellationDomain = useCallback(
+    (domain: ConstellationDomain) => {
+      setConstellationOpen(false);
+      const panelByDomain: Record<ConstellationDomain, DesktopPanel> = {
+        skills: 'skills',
+        channels: 'channels',
+        agents: 'agents',
+        power: 'analytics',
+        trust: 'approvals',
+        product: 'settings',
+      };
+      props.onPanel(panelByDomain[domain] || 'skills');
+    },
+    [props.onPanel],
+  );
+
   const handleCommandCenterAction = useCallback((action: CommandCenterAction) => {
     setCommandCenterOpen(false);
     if (action.type === 'close') {
+      return;
+    }
+    if (action.type === 'constellation') {
+      setConstellationOpen(true);
       return;
     }
     if (action.type === 'panel') {
@@ -457,6 +498,36 @@ export function DesktopShell(props: {
     document.documentElement.dataset.density = density;
     document.documentElement.dataset.accent = props.accent;
   }, [resolvedTheme, density, props.accent]);
+
+  useEffect(() => {
+    setTrustedOperator(
+      loadTrustedOperator(typeof localStorage !== 'undefined' ? localStorage : null),
+    );
+  }, []);
+
+  const handleToggleTrustedOperator = useCallback(() => {
+    const next = toggleTrustedOperator(
+      typeof localStorage !== 'undefined' ? localStorage : null,
+      trustedOperator,
+    );
+    setTrustedOperator(next);
+  }, [trustedOperator]);
+
+  const handleHunkReceipt = useCallback((receipt: HunkReceipt) => {
+    appendReceipt(Array.isArray(props.receipts) ? props.receipts : [], {
+      kind: 'approval',
+      title: receipt.summary,
+      summary: `${receipt.decision} · ${receipt.path}`,
+      status: receipt.decision === 'approve' ? 'ok' : 'info',
+      id: receipt.id,
+      at: receipt.at,
+      metadata: {
+        hunkId: receipt.hunkId,
+        path: receipt.path,
+        decision: receipt.decision,
+      },
+    });
+  }, [props.receipts]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -536,6 +607,8 @@ export function DesktopShell(props: {
           onModel={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
           onRefresh={props.onRefresh}
           onStop={() => void props.onSubmit('/stop')}
+          trustedOperator={trustedOperator}
+          onToggleTrustedOperator={handleToggleTrustedOperator}
         />
 
         <section id="zvd-main-content" className="zvd-content-stage" aria-label="Workspace content" tabIndex={-1}>
@@ -552,6 +625,15 @@ export function DesktopShell(props: {
           />
           {props.activePanel === 'chat' ? (
             <>
+              <NextActionBanner
+                approvalsCount={props.approvals.length}
+                busy={props.busy}
+                runtimeOnline={props.status.running}
+                onOpenReview={() => props.onPanel('approvals')}
+                onOpenChat={() => props.onPanel('chat')}
+                onOpenProof={() => props.onPanel('receipts')}
+                onDoctor={() => void props.onAccessRepair()}
+              />
               <ThreadView
                 approvals={props.approvals}
                 busy={props.busy}
@@ -564,6 +646,8 @@ export function DesktopShell(props: {
                 onOpenPath={handleOpenPath}
                 onApprovePlan={handleApprovePlan}
                 onRejectPlan={handleRejectPlan}
+                agents={props.subagents}
+                onHunkReceipt={handleHunkReceipt}
               />
 
               <DesktopCommandBar
@@ -825,6 +909,17 @@ export function DesktopShell(props: {
         onClose={() => setCommandCenterOpen(false)}
         onAction={handleCommandCenterAction}
         input={commandCenterInput}
+      />
+
+      <ConstellationOverlay
+        open={constellationOpen}
+        onClose={() => setConstellationOpen(false)}
+        tools={props.tools}
+        channels={props.channels}
+        agents={props.subagents}
+        approvalsPending={props.approvals?.length}
+        receiptsCount={props.receipts?.length}
+        onOpenDomain={openConstellationDomain}
       />
     </main>
   );

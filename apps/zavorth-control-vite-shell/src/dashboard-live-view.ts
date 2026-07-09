@@ -1,3 +1,4 @@
+import { computeNextAction, renderNextActionBar } from './next-action-ui';
 import { renderSessionTrustScore } from './session-trust-score';
 import { updateWorkboardLite } from './workboard-lite';
 
@@ -198,28 +199,59 @@ export function createDashboardLiveView({
     if (!nodes.length) return;
 
     const items: string[] = [];
+    const authRequired = Boolean(snapshot.liveSnapshot.authRequired);
+    const live = Boolean(snapshot.liveSnapshot.live);
+
+    if (authRequired) {
+      items.push(`
+        <article class="daily-attention-item daily-attention-item--warn">
+          <div>
+            <strong>Unlock runtime</strong>
+            <small>Auth required</small>
+          </div>
+          <button class="daily-button daily-button--primary" type="button" data-dashboard-doctor>Doctor</button>
+        </article>
+      `);
+    }
+
     if (snapshot.activeApprovals > 0) {
+      const pending = collectPendingApprovals(snapshot);
+      const first = pending[0];
       items.push(`
         <article class="daily-attention-item daily-attention-item--warn">
           <div>
             <strong>${snapshot.activeApprovals} approval${snapshot.activeApprovals === 1 ? '' : 's'}</strong>
-            <small>Pending decision</small>
+            <small>${escapeHtml(compactTraceText(first?.title || 'Pending decision', 48))}</small>
           </div>
-          <button class="daily-button" type="button" data-dashboard-sector="sales-os">Review</button>
+          <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="sales-os">Review</button>
         </article>
       `);
     }
+
     if (snapshot.errorEvents > 0) {
       items.push(`
         <article class="daily-attention-item daily-attention-item--danger">
           <div>
             <strong>${snapshot.errorEvents} error${snapshot.errorEvents === 1 ? '' : 's'}</strong>
-            <small>In recent trace</small>
+            <small>In recent trail</small>
           </div>
-          <button class="daily-button" type="button" data-dashboard-sector="instances">Receipts</button>
+          <button class="daily-button" type="button" data-dashboard-sector="instances">Proof</button>
         </article>
       `);
     }
+
+    if (!live && !authRequired) {
+      items.push(`
+        <article class="daily-attention-item daily-attention-item--warn">
+          <div>
+            <strong>Runtime offline</strong>
+            <small>Run doctor</small>
+          </div>
+          <button class="daily-button daily-button--primary" type="button" data-dashboard-doctor>Doctor</button>
+        </article>
+      `);
+    }
+
     if (snapshot.thinking || snapshot.liveSnapshot.active) {
       const title = compactTraceText(
         snapshot.liveSnapshot.activeRun?.title
@@ -244,6 +276,62 @@ export function createDashboardLiveView({
       : '<p class="daily-muted">Nothing needs you</p>';
     nodes.forEach((node) => {
       node.innerHTML = html;
+      node.dataset.attentionCount = String(items.length);
+    });
+
+    // Inbox banner stays aggressive when something needs the user
+    const approvalBanner = document.getElementById('approval-context-banner');
+    if (approvalBanner) {
+      const needsBanner = snapshot.activeApprovals > 0 || authRequired || (!live && !authRequired);
+      approvalBanner.hidden = !needsBanner;
+      if (snapshot.activeApprovals > 0) {
+        setDashboardText('[data-inbox-approval-title]', `${snapshot.activeApprovals} pending approval${snapshot.activeApprovals === 1 ? '' : 's'}`);
+        setDashboardText('[data-inbox-approval-text]', 'Review before risky work continues.');
+      } else if (authRequired) {
+        setDashboardText('[data-inbox-approval-title]', 'Unlock runtime');
+        setDashboardText('[data-inbox-approval-text]', 'Auth required.');
+      } else if (!live) {
+        setDashboardText('[data-inbox-approval-title]', 'Runtime offline');
+        setDashboardText('[data-inbox-approval-text]', 'Run doctor.');
+      }
+    }
+  };
+
+  const updateNextAction = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+    const model = computeNextAction({
+      pendingApprovals: snapshot.pendingApprovals,
+      activeApprovals: snapshot.activeApprovals,
+      errorEvents: snapshot.errorEvents,
+      thinking: snapshot.thinking,
+      runActive: snapshot.liveSnapshot.active,
+      runTitle: compactTraceText(
+        snapshot.liveSnapshot.activeRun?.title
+          || snapshot.liveSnapshot.activeRun?.summary
+          || snapshot.liveSnapshot.activeRun?.id
+          || '',
+        64,
+      ),
+      authRequired: Boolean(snapshot.liveSnapshot.authRequired),
+      live: Boolean(snapshot.liveSnapshot.live),
+      providerReady: null,
+    });
+    renderNextActionBar(model);
+
+    // Highlight Review dock when approvals pending
+    document.querySelectorAll<HTMLElement>('.dock-node[data-sector="sales-os"]').forEach((node) => {
+      node.classList.toggle('has-badge', snapshot.activeApprovals > 0);
+      let badge = node.querySelector<HTMLElement>('.dock-node__badge');
+      if (snapshot.activeApprovals > 0) {
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'dock-node__badge';
+          node.appendChild(badge);
+        }
+        badge.textContent = String(snapshot.activeApprovals);
+        badge.hidden = false;
+      } else if (badge) {
+        badge.hidden = true;
+      }
     });
   };
 
@@ -283,6 +371,43 @@ export function createDashboardLiveView({
         <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>
       </article>
     `).join('');
+  };
+
+  const updateTrustRail = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+    const pendingHost = document.getElementById('trust-pending-rail');
+    if (pendingHost) {
+      const pending = collectPendingApprovals(snapshot);
+      if (pending.length === 0 && snapshot.activeApprovals <= 0) {
+        pendingHost.innerHTML = '<p class="trust-rail__empty">None</p>';
+      } else if (pending.length === 0) {
+        pendingHost.innerHTML = `<p class="trust-rail__empty">${snapshot.activeApprovals} pending</p>`;
+      } else {
+        pendingHost.innerHTML = pending.slice(0, 4).map((item) => `
+          <article class="trust-rail__item">
+            <strong>${escapeHtml(compactTraceText(item.title, 42))}</strong>
+            <small>${escapeHtml(compactTraceText(item.detail, 56))}</small>
+          </article>
+        `).join('');
+      }
+    }
+
+    const receiptHost = document.getElementById('trust-receipt-rail');
+    if (receiptHost) {
+      const lastReceipt = getTraceEvents()
+        .slice()
+        .reverse()
+        .find((event) => traceEventClass(event.type) === 'receipt');
+      if (!lastReceipt) {
+        receiptHost.innerHTML = '<p class="trust-rail__empty">—</p>';
+      } else {
+        receiptHost.innerHTML = `
+          <article class="trust-rail__item">
+            <strong>${escapeHtml(compactTraceText(lastReceipt.title || 'Receipt', 48))}</strong>
+            <small>${escapeHtml(compactTraceText(lastReceipt.status || lastReceipt.time || 'recorded', 40))}</small>
+          </article>
+        `;
+      }
+    }
   };
 
   const applySessionSearchFilter = () => {
@@ -400,6 +525,8 @@ export function createDashboardLiveView({
     setDashboardText('[data-provider-picker="proof"]', snapshot.errorEvents > 0 ? 'needs review' : 'sanitized');
 
     updateAttentionList(snapshot);
+    updateNextAction(snapshot);
+    updateTrustRail(snapshot);
     updateApprovalsQueue(snapshot);
     applySessionSearchFilter();
 

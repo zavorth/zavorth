@@ -21,6 +21,7 @@ import { bindAttachmentTray, bindComposeInputEvents, bindComposerContextBar, bin
 import { exportConversation, getExportMenuHtml } from './conversation-export';
 import { createControlSheets } from './control-sheets';
 import { createDashboardLiveView } from './dashboard-live-view';
+import { initTrustRailMobile } from './trust-rail-mobile';
 import {
   buildExperienceProfilePayload,
   EXPERIENCE_PROFILE_CATALOG,
@@ -3806,6 +3807,7 @@ ${current}` : skillPrompt;
   const removeRemoteMeshApprovalCard = (card) => removeRemoteMeshApprovalCardNode(card, updateDashboardGlass);
 
   initDiffReviewRail();
+  initTrustRailMobile();
   window.ZavorthDiffReview = {
     initDiffReviewRail,
     setDiffReviewContent,

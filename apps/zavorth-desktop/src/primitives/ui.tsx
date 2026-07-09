@@ -10,10 +10,6 @@ function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(' ');
 }
 
-/* -------------------------------------------------------------------------- */
-/* Button                                                                     */
-/* -------------------------------------------------------------------------- */
-
 export type ButtonVariant =
   | 'default'
   | 'secondary'
@@ -64,10 +60,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   );
 });
 
-/* -------------------------------------------------------------------------- */
-/* IconButton                                                                 */
-/* -------------------------------------------------------------------------- */
-
 export type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   label: string;
   size?: 'sm' | 'default' | 'lg';
@@ -97,10 +89,6 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
     </button>
   );
 });
-
-/* -------------------------------------------------------------------------- */
-/* ListRow                                                                    */
-/* -------------------------------------------------------------------------- */
 
 export type ListRowProps = {
   label: ReactNode;
@@ -160,10 +148,6 @@ export function ListRow(props: ListRowProps) {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* SearchField                                                                */
-/* -------------------------------------------------------------------------- */
-
 export type SearchFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value' | 'type'> & {
   value: string;
   onChange(value: string): void;
@@ -215,10 +199,6 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
   );
 });
 
-/* -------------------------------------------------------------------------- */
-/* SegmentedControl                                                           */
-/* -------------------------------------------------------------------------- */
-
 export type SegmentedItem<T extends string = string> = {
   value: T;
   label: ReactNode;
@@ -264,10 +244,6 @@ export function SegmentedControl<T extends string = string>(props: SegmentedCont
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* EmptyState                                                                 */
-/* -------------------------------------------------------------------------- */
-
 export type EmptyStateProps = {
   title: string;
   description?: ReactNode;
@@ -289,10 +265,6 @@ export function EmptyState(props: EmptyStateProps) {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* ErrorState                                                                 */
-/* -------------------------------------------------------------------------- */
-
 export type ErrorStateProps = {
   title?: string;
   description?: ReactNode;
@@ -311,10 +283,6 @@ export function ErrorState(props: ErrorStateProps) {
     </div>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/* Loader                                                                     */
-/* -------------------------------------------------------------------------- */
 
 export type LoaderProps = {
   label?: string;
@@ -342,10 +310,6 @@ export function Loader(props: LoaderProps) {
     </div>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/* Badge / StatusBadge                                                        */
-/* -------------------------------------------------------------------------- */
 
 export type BadgeTone =
   | 'muted'
@@ -419,10 +383,6 @@ export function StatusBadge(props: StatusBadgeProps) {
     </Badge>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/* Kbd                                                                        */
-/* -------------------------------------------------------------------------- */
 
 export type KbdProps = HTMLAttributes<HTMLElement> & {
   children: ReactNode;

@@ -1,5 +1,5 @@
 /**
- * Sprint 3 — Vite HMR + Electron for daily desktop development.
+ * Vite HMR + Electron for daily desktop development.
  *
  * Starts Vite on a free localhost port, then launches Electron with
  * ZAVORTH_DESKTOP_RENDERER_URL pointing at the dev server.

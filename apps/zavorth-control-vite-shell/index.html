@@ -115,14 +115,18 @@
                 <div class="terminal-hero__greeting">
                   <span class="terminal-hero__hello">Inbox</span>
                 </div>
+                <div class="next-action-host next-action-host--inbox" data-next-action aria-label="Next action"></div>
               </div>
                 <div class="approval-context-banner" id="approval-context-banner" hidden>
                   <div>
-                    <span>Needs your approval</span>
+                    <span>Needs you</span>
                     <strong data-inbox-approval-title>No pending approvals</strong>
                     <p data-inbox-approval-text>No risky actions waiting.</p>
                   </div>
-                  <button type="button" data-dashboard-sector="sales-os">Review</button>
+                  <div class="approval-context-banner__actions">
+                    <button type="button" data-dashboard-sector="sales-os">Review</button>
+                    <button type="button" data-dashboard-doctor>Doctor</button>
+                  </div>
                 </div>
 
               <div class="neural-stream" id="neural-stream"><div class="neural-stream__inner" id="neural-feed"></div></div>
@@ -234,8 +238,9 @@
               <div class="trust-rail__section-head">
                 <span>Trust score</span>
               </div>
-              <div class="trust-rail__body" id="session-trust-score">
-                <p class="trust-rail__empty">—</p>
+              <div class="trust-rail__body session-trust-score" id="session-trust-score" data-session-trust-score>
+                <strong data-session-trust-value>—</strong>
+                <span data-session-trust-label></span>
               </div>
             </section>
             <div class="artifact-pane hidden" id="artifact-pane">

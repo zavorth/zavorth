@@ -202,6 +202,7 @@ button:disabled {
 .zvd-sidebar-nav button,
 .zvd-project-card,
 .zvd-thread-list button {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -267,6 +268,24 @@ button:disabled {
   background: var(--zvd-accent);
   font-size: 11px;
   text-align: center;
+}
+
+/* Collapsed / narrow: keep Review approvals count as a corner badge on the icon. */
+.zvd-sidebar.is-collapsed .zvd-sidebar-nav button[data-panel="approvals"] .zvd-nav-count {
+  display: inline-flex !important;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--zvd-surface, #0a0a0a) 88%, transparent);
 }
 
 .zvd-sidebar-more {
@@ -1470,6 +1489,24 @@ input:focus-visible {
     display: none;
   }
 
+  /* Keep Review count visible when icon-only (narrow). */
+  .zvd-sidebar-nav button[data-panel="approvals"] .zvd-nav-count {
+    display: inline-flex !important;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 1;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--zvd-surface, #0a0a0a) 88%, transparent);
+  }
+
   .zvd-window-menu,
   .zvd-sidebar-top,
   .zvd-sidebar-nav,
@@ -1747,6 +1784,24 @@ input:focus-visible {
 .theme-dark .zvd-sidebar.is-collapsed .zvd-project-root span,
 .theme-dark .zvd-sidebar.is-collapsed .zvd-thread-list {
   display: none;
+}
+
+/* Theme-dark: keep Review approvals count when icon-only. */
+.theme-dark .zvd-sidebar.is-collapsed .zvd-sidebar-nav button[data-panel="approvals"] .zvd-nav-count {
+  display: inline-flex !important;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 0 2px #0a0a0a;
 }
 
 .theme-dark .zvd-sidebar.is-collapsed .zvd-window-menu,
@@ -2485,7 +2540,6 @@ input:focus-visible {
     linear-gradient(180deg, #fbfaf8 0%, #f7f6f3 100%);
 }
 
-/* --- Workspace Write Approval Modal --- */
 .write-approval-overlay {
   position: fixed;
   top: 0;
@@ -2887,12 +2941,6 @@ input:focus-visible {
   padding: 4px 12px;
 }
 
-/* =========================================================================
-   Approvals panel
-   Namespaced: .zavorth-approvals-*
-   No global selectors (body / #root / * / button / input) are changed.
-   ========================================================================= */
-
 .zavorth-approvals-panel {
   display: flex;
   flex-direction: column;
@@ -3204,7 +3252,6 @@ input:focus-visible {
   color: #e0e0e0;
 }
 
-/* --- Premium Aesthetics Enhancements --- */
 button, select, input, textarea {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -3222,7 +3269,6 @@ input:focus, textarea:focus, select:focus {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
-/* --- Refined Sidebar Session Tree --- */
 .zvd-project-group {
   display: flex;
   flex-direction: column;

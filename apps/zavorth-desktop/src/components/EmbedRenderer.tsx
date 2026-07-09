@@ -7,9 +7,6 @@ import {
   IconLink,
 } from '@tabler/icons-react';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface EmbedRendererProps {
   url?: string;
@@ -23,9 +20,6 @@ interface EmbedRendererProps {
   className?: string;
 }
 
-// ---------------------------------------------------------------------------
-// URL helpers
-// ---------------------------------------------------------------------------
 
 function extractYouTubeId(url: string): string | null {
   const patterns = [
@@ -51,15 +45,9 @@ function extractDomain(url: string): string {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Language extensions for Mermaid detection
-// ---------------------------------------------------------------------------
 
 const MERMAID_LANGUAGES = new Set(['mermaid', 'mmd']);
 
-// ---------------------------------------------------------------------------
-// Lazy load hook (IntersectionObserver)
-// ---------------------------------------------------------------------------
 
 function useLazyLoad(enabled: boolean): { ref: React.RefObject<HTMLDivElement | null>; visible: boolean } {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -84,9 +72,6 @@ function useLazyLoad(enabled: boolean): { ref: React.RefObject<HTMLDivElement | 
   return { ref, visible };
 }
 
-// ---------------------------------------------------------------------------
-// Consent gate
-// ---------------------------------------------------------------------------
 
 const CONSENT_STORAGE_KEY = 'zvd-embed-consent-v1';
 
@@ -196,9 +181,6 @@ const ConsentGate = memo(function ConsentGate({
   );
 });
 
-// ---------------------------------------------------------------------------
-// Error boundary
-// ---------------------------------------------------------------------------
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -241,9 +223,6 @@ class EmbedErrorBoundary extends React.Component<
   }
 }
 
-// ---------------------------------------------------------------------------
-// YouTube embed
-// ---------------------------------------------------------------------------
 
 const YouTubeEmbed = memo(function YouTubeEmbed({
   videoId,
@@ -292,9 +271,6 @@ const YouTubeEmbed = memo(function YouTubeEmbed({
   );
 });
 
-// ---------------------------------------------------------------------------
-// Mermaid renderer (dynamic load, consent-gated)
-// ---------------------------------------------------------------------------
 
 let mermaidInstance: { default?: { initialize: (cfg: unknown) => void; render: (id: string, code: string) => Promise<{ svg: string }> } } | null = null;
 let mermaidLoading: Promise<typeof mermaidInstance> | null = null;
@@ -407,9 +383,6 @@ const MermaidRenderer = memo(function MermaidRenderer({
   );
 });
 
-// ---------------------------------------------------------------------------
-// SVG renderer
-// ---------------------------------------------------------------------------
 
 const SvgRenderer = memo(function SvgRenderer({
   code,
@@ -450,9 +423,6 @@ const SvgRenderer = memo(function SvgRenderer({
   );
 });
 
-// ---------------------------------------------------------------------------
-// URL preview card
-// ---------------------------------------------------------------------------
 
 const UrlPreviewCard = memo(function UrlPreviewCard({
   url,
@@ -576,9 +546,6 @@ const UrlPreviewCard = memo(function UrlPreviewCard({
   );
 });
 
-// ---------------------------------------------------------------------------
-// Image embed
-// ---------------------------------------------------------------------------
 
 const ImageEmbed = memo(function ImageEmbed({
   url,
@@ -614,9 +581,6 @@ const ImageEmbed = memo(function ImageEmbed({
   );
 });
 
-// ---------------------------------------------------------------------------
-// Code fence renderer (non-Mermaid, non-SVG)
-// ---------------------------------------------------------------------------
 
 const CodeFenceRenderer = memo(function CodeFenceRenderer({
   code,
@@ -714,9 +678,6 @@ const CodeFenceRenderer = memo(function CodeFenceRenderer({
   );
 });
 
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
 
 export default memo(function EmbedRenderer({
   url,

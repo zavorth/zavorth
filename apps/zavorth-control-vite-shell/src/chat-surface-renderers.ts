@@ -408,10 +408,12 @@ export function createChatSurfaceRenderers({
       || (Array.isArray(artifact.diff?.patches)
         ? artifact.diff.patches.map((entry: any) => String(entry?.diff || entry?.patch || '').trim()).filter(Boolean).join('\n\n')
         : '')
-      || (typeof artifact.content === 'string' && looksLikeUnifiedDiff(artifact.content) ? artifact.content : '')
+      || (typeof artifact.content === 'string' ? artifact.content : '')
+      || (typeof artifact.diff?.patch === 'string' ? artifact.diff.patch : '')
+      || (typeof artifact.diff?.text === 'string' ? artifact.diff.text : '')
       || '';
-    if (!isDiff && !looksLikeUnifiedDiff(String(raw))) return false;
     if (!String(raw).trim()) return false;
+    if (!isDiff && !looksLikeUnifiedDiff(raw)) return false;
     return openDiffInTrustRail(String(raw), {
       file: artifact.path || artifact.name || artifact.title,
       title: artifact.title || artifact.name || 'Diff review',

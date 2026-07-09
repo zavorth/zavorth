@@ -20,8 +20,6 @@ import {
   IconExternalLink,
 } from '@tabler/icons-react';
 
-// --- Types ---
-
 export type PluginCategory =
   | 'productivity'
   | 'development'
@@ -68,15 +66,11 @@ export type PluginMarketplacePanelProps = {
   onUpdate?: (pluginId: string) => void;
 };
 
-// --- Local nanostores ---
-
 const $selectedTab = atom<'featured' | 'all' | 'categories' | 'installed'>('featured');
 const $searchQuery = atom('');
 const $selectedCategory = atom<PluginCategory | 'all'>('all');
 const $selectedPlugin = atom<PluginItem | null>(null);
 const $viewMode = atom<'grid' | 'list'>('grid');
-
-// --- Category metadata ---
 
 const CATEGORY_META: Record<PluginCategory, { label: string; icon: React.ReactNode; color: string }> = {
   productivity: { label: 'Productivity', icon: <IconClock size={16} />, color: '#60a5fa' },
@@ -88,8 +82,6 @@ const CATEGORY_META: Record<PluginCategory, { label: string; icon: React.ReactNo
   automation: { label: 'Automation', icon: <IconRefresh size={16} />, color: '#22d3ee' },
   other: { label: 'Other', icon: <IconCategory size={16} />, color: '#71717a' },
 };
-
-// --- Helpers ---
 
 function formatDownloads(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -109,8 +101,6 @@ function statusBadge(status: PluginStatus): { label: string; tone: string } {
       return { label: 'Available', tone: 'muted' };
   }
 }
-
-// --- Sub-components ---
 
 function StarRating(props: { rating: number; size?: number; interactive?: boolean; onChange?: (rating: number) => void }) {
   const size = props.size || 14;
@@ -421,8 +411,6 @@ function ViewToggle(props: { mode: 'grid' | 'list'; onChange: (mode: 'grid' | 'l
     </div>
   );
 }
-
-// --- Main component ---
 
 export default function PluginMarketplacePanel(props: PluginMarketplacePanelProps) {
   const tab = useStore($selectedTab);

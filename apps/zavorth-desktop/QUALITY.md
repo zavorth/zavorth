@@ -82,15 +82,15 @@ Manual extras when shipping a heavy visual PR: light/dark, comfortable/compact s
 - [x] Session chrome rename/pin/archive (`sessionChrome` + sidebar menu)
 - [x] Review rail model + ship bar (`reviewRailModel` + git rail)
 - [x] Terminal multi-tab + agent activity (`terminalTabs` + `TerminalTabsPanel`)
+- [x] Capability constellation overlay (`constellationLayout` + `ConstellationOverlay`) — visual domain map; domain hubs stay overlays, not 20 nav pages
 
 ## Trust and review surfaces
 
-- [x] Trusted operator hint (onboarding storage + settings path)
-- [ ] Trusted operator topbar badge (always-visible chrome)
-- [ ] Hunk review card (per-hunk approve/reject depth)
-- [x] Run timeline (Proof timeline + inline activity strip baseline)
-- [ ] Agent strip (dedicated multi-agent strip beyond panel/activity banner)
-- [x] Domain wizards (Command Center domain cards + channel setup wizard)
+- [x] Trusted operator storage + topbar badge toggle (`trustedOperator` + `.zvd-trust-badge`)
+- [x] Hunk review card (`hunkApproval` + `HunkReviewCard`)
+- [x] Run timeline (`runTimeline` + `RunTimeline`)
+- [x] Agent strip (`agentStrip` + `AgentStrip`)
+- [x] Domain wizards (`domainWizards` + `DomainWizardOverlay`)
 
 ## Visual automation coverage
 

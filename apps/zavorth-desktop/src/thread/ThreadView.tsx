@@ -19,6 +19,16 @@ import {
 import { parsePlanFromText } from './planCard';
 import { PlanCardView } from './PlanCardView';
 import { sliceStreamingMessages } from './streamIsolation';
+import { HunkReviewCard } from './HunkReviewCard';
+import { RunTimeline } from './RunTimeline';
+import { AgentStrip } from './AgentStrip';
+import { looksLikeUnifiedDiff, type HunkReceipt } from '../trust/hunkApproval';
+import {
+  buildRunTimeline,
+  runTimelineHasActivity,
+} from './runTimeline';
+import type { AgentStripSource } from '../agents/agentStrip';
+import { agentStripVisible, buildAgentStrip } from '../agents/agentStrip';
 
 const NEAR_BOTTOM_PX = 120;
 
@@ -39,6 +49,10 @@ export function ThreadView(props: {
   onApprovePlan?(planId: string): void;
   /** Reject a structured plan card parsed from assistant text */
   onRejectPlan?(planId: string): void;
+  /** Optional multi-agent list for the strip */
+  agents?: AgentStripSource[] | null;
+  /** Optional hunk receipt sink */
+  onHunkReceipt?(receipt: HunkReceipt): void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
@@ -84,13 +98,11 @@ export function ThreadView(props: {
     setShowScrollBottom(false);
   }, []);
 
-  // Smart auto-scroll: only follow new content when user is already near bottom.
   useEffect(() => {
     if (!stickToBottomRef.current) return;
     scrollToBottom(props.messages.length <= 1 ? 'auto' : 'smooth');
   }, [props.messages.length, props.busy, scrollToBottom]);
 
-  // When user returns to chat empty → non-empty, pin to bottom once.
   useEffect(() => {
     if (props.messages.length === 0) {
       stickToBottomRef.current = true;
@@ -104,7 +116,6 @@ export function ThreadView(props: {
     [props.messages, messageWindowSize],
   );
 
-  // Stream isolation over the visible window — live assistant while busy.
   const streamSlice = useMemo(
     () =>
       sliceStreamingMessages(windowed.visible, {
@@ -118,7 +129,6 @@ export function ThreadView(props: {
     props.messages.length > 0 &&
     (props.recentReceiptCount ?? 0) > 0;
 
-  // Last assistant message id for placing proof chip after assistant turns.
   const lastAssistantId = (() => {
     for (let i = props.messages.length - 1; i >= 0; i -= 1) {
       if (props.messages[i].role === 'assistant') return props.messages[i].id;
@@ -133,6 +143,38 @@ export function ThreadView(props: {
     [props.onOpenPath],
   );
 
+  const agentItems = useMemo(
+    () => buildAgentStrip(props.agents || []),
+    [props.agents],
+  );
+  const showAgentStrip = agentStripVisible(agentItems);
+
+  const timelineItems = useMemo(
+    () =>
+      buildRunTimeline({
+        messages: props.messages.map(message => ({
+          id: message.id,
+          role: message.role,
+          content: message.content,
+          title: message.title,
+          at: message.at,
+        })),
+        approvals: props.approvals,
+        agents: (props.agents || []).map(agent => ({
+          id: agent.id,
+          role: agent.role,
+          status: agent.status,
+          task: agent.task || agent.assignedTask,
+        })),
+      }),
+    [props.messages, props.approvals, props.agents],
+  );
+
+  const hasTools = props.messages.some(message => message.role === 'tool');
+  const showTimeline =
+    timelineItems.length > 0 &&
+    (props.busy || props.approvals.length > 0 || hasTools || runTimelineHasActivity(timelineItems));
+
   return (
     <div
       ref={containerRef}
@@ -141,6 +183,8 @@ export function ThreadView(props: {
       onScroll={updateStickState}
       style={{ position: 'relative', overflowY: 'auto', height: '100%' }}
     >
+      {showAgentStrip ? <AgentStrip items={agentItems} /> : null}
+
       {props.messages.length === 0 ? (
         <div className="zvd-empty-thread zvd-empty" role="status">
           {celebrate ? (
@@ -186,14 +230,25 @@ export function ThreadView(props: {
               Boolean(streamSlice.streamingId) && streamSlice.streamingId === message.id;
 
             if (message.role === 'tool') {
+              const result = message.content || '';
+              const showHunks = looksLikeUnifiedDiff(result);
               return (
-                <ToolCallBlock
-                  key={message.id}
-                  toolName={message.title || 'Tool'}
-                  result={message.content}
-                  status="success"
-                  onOpenPath={props.onOpenPath ? handleToolOpenPath : undefined}
-                />
+                <div key={message.id} className="zvd-thread-tool-group">
+                  <ToolCallBlock
+                    toolName={message.title || 'Tool'}
+                    result={result}
+                    status="success"
+                    onOpenPath={props.onOpenPath ? handleToolOpenPath : undefined}
+                  />
+                  {showHunks ? (
+                    <HunkReviewCard
+                      diffText={result}
+                      reviewId={`tool-${message.id}`}
+                      busy={props.busy}
+                      onHunkReceipt={props.onHunkReceipt}
+                    />
+                  ) : null}
+                </div>
               );
             }
 
@@ -208,6 +263,10 @@ export function ThreadView(props: {
               message.role === 'assistant'
                 ? parsePlanFromText(message.content, `plan-${message.id}`)
                 : null;
+
+            const messageHasDiff =
+              (message.role === 'assistant' || message.role === 'system') &&
+              looksLikeUnifiedDiff(message.content || '');
 
             return (
               <article
@@ -234,6 +293,14 @@ export function ThreadView(props: {
                     />
                   ) : null}
                   <MarkdownContent content={message.content} />
+                  {messageHasDiff ? (
+                    <HunkReviewCard
+                      diffText={message.content}
+                      reviewId={`msg-${message.id}`}
+                      busy={props.busy}
+                      onHunkReceipt={props.onHunkReceipt}
+                    />
+                  ) : null}
                 </div>
                 {showProofChip &&
                 message.role === 'assistant' &&
@@ -251,6 +318,11 @@ export function ThreadView(props: {
           })}
         </div>
       )}
+
+      {showTimeline ? (
+        <RunTimeline items={timelineItems} busy={props.busy} compactLimit={8} />
+      ) : null}
+
       <InlineActivityStrip
         approvals={props.approvals}
         busy={props.busy}

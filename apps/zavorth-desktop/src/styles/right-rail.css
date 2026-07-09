@@ -189,6 +189,9 @@
 .zvd-rail-empty button,
 .zvd-pty-command-row button,
 .zvd-pty-terminal-tools button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   padding: 7px 10px;
@@ -196,6 +199,21 @@
   background: rgba(255, 255, 255, 0.06);
   font-size: 12px;
   font-weight: 620;
+}
+
+.zvd-rail-action-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  color: #0a0a0a;
+  background: var(--zvd-accent, #00e88f);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .zvd-rail-actions button:hover,
