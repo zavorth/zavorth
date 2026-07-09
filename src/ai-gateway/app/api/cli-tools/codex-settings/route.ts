@@ -87,7 +87,7 @@ const readConfig = async () => {
     const configPath = getCodexConfigPath();
     const content = await fs.readFile(configPath, "utf-8");
     return content;
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     if (error.code === "ENOENT") return null;
     throw error;
   }
@@ -139,8 +139,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGatewayConfig(config),
       configPath: getCodexConfigPath(),
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error checking codex settings:", error);
+  } catch (error: unknown) {console.log("Error checking codex settings:", error);
     return NextResponse.json({ error: "Failed to check codex settings" }, { status: 500 });
   }
 }
@@ -153,8 +152,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -195,8 +193,7 @@ export async function POST(request: Request) {
         if (keyRecord?.key) {
           apiKey = keyRecord.key as string;
         }
-      } catch (error: any) { const err = error; const e = error;
-      // Non-critical: fall back to whatever value was in apiKey
+      } catch (error: unknown) {// Non-critical: fall back to whatever value was in apiKey
       logger.warn('[route] operation failed', error);
     }
     }
@@ -216,7 +213,7 @@ export async function POST(request: Request) {
     try {
       const existingConfig = await fs.readFile(configPath, "utf-8");
       parsed = parseToml(existingConfig);
-    } catch (error: any) { const err = error; const e = error; /* No existing config */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: unknown) {/* No existing config */ logger.warn('[route] filesystem operation failed', error); }
 
     // Update only ZavorthGateway related fields (api_key goes to auth.json, not config.toml)
     parsed._root.model = model;
@@ -240,7 +237,7 @@ export async function POST(request: Request) {
     try {
       const existingAuth = await fs.readFile(authPath, "utf-8");
       authData = JSON.parse(existingAuth);
-    } catch (error: any) { const err = error; const e = error; /* No existing auth */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: unknown) {/* No existing auth */ logger.warn('[route] JSON parse failed', error); }
 
     authData.OPENAI_API_KEY = apiKey;
     await fs.writeFile(authPath, JSON.stringify(authData, null, 2));
@@ -248,15 +245,14 @@ export async function POST(request: Request) {
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("codex");
-    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: unknown) {/* non-critical */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "Codex settings applied successfully!",
       configPath,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating codex settings:", error);
+  } catch (error: unknown) {console.log("Error updating codex settings:", error);
     return NextResponse.json({ error: "Failed to update codex settings" }, { status: 500 });
   }
 }
@@ -282,7 +278,7 @@ export async function DELETE(request: Request) {
     try {
       const existingConfig = await fs.readFile(configPath, "utf-8");
       parsed = parseToml(existingConfig);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (error.code === "ENOENT") {
         return NextResponse.json({
           success: true,
@@ -318,19 +314,18 @@ export async function DELETE(request: Request) {
       } else {
         await fs.writeFile(authPath, JSON.stringify(authData, null, 2));
       }
-    } catch (error: any) { const err = error; const e = error; /* No auth file */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: unknown) {/* No auth file */ logger.warn('[route] JSON parse failed', error); }
 
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("codex");
-    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] file cleanup failed', error); }
+    } catch (error: unknown) {/* non-critical */ logger.warn('[route] file cleanup failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "ZavorthGateway settings removed successfully",
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error resetting codex settings:", error);
+  } catch (error: unknown) {console.log("Error resetting codex settings:", error);
     return NextResponse.json({ error: "Failed to reset codex settings" }, { status: 500 });
   }
 }

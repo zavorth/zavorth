@@ -51,8 +51,7 @@ export class PtySessionService {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       this.ptyModule = require('node-pty') as IPtyModule;
       this.isAvailable = true;
-    } catch (e: any) { const error = e; const err = e;
-      logger.warn('node-pty is not available. PTY tools will fail-closed.');
+    } catch (error: unknown) {logger.warn('node-pty is not available. PTY tools will fail-closed.');
       this.isAvailable = false;
     }
 
@@ -113,8 +112,7 @@ export class PtySessionService {
     let finalCwd = '';
     try {
       finalCwd = fs.realpathSync(pendingData.cwd);
-    } catch (err: any) { const error = err; const e = err;
-      throw new Error(`Invalid PTY CWD: path does not exist or cannot be resolved.`);
+    } catch (error: unknown) {throw new Error(`Invalid PTY CWD: path does not exist or cannot be resolved.`);
     }
 
     // Spawn PTY
@@ -217,8 +215,7 @@ export class PtySessionService {
     if (ptyProcess) {
       try {
         ptyProcess.kill();
-      } catch (error: any) {
-      // ignore kill errors
+      } catch (error: unknown) {// ignore kill errors
       logger.warn('[Pty Session] operation failed', error);
     }
       this.activeSessions.delete(sessionId);

@@ -1,7 +1,5 @@
 import type { MinimalRuntimeEvent, MinimalRuntimeEventBus } from './MinimalRuntimeEventBus.js';
-import type { MinimalRuntimeProfile } from './MinimalRuntimeProfileRegistry.js';
-
-export type MinimalRuntimeScheduleMode = 'event' | 'adaptive';
+import type { MinimalRuntimeProfile } from './MinimalRuntimeProfileRegistry.js';export type MinimalRuntimeScheduleMode = 'event' | 'adaptive';
 
 export type MinimalRuntimeScheduledTask = {
   id: string;
@@ -175,8 +173,7 @@ export class MinimalRuntimeScheduler {
     }
     try {
       await task.run(event);
-    } catch (error: any) { const err = error; const e = error;
-      task.failures += 1;
+    } catch (error: unknown) {task.failures += 1;
     }
   }
 

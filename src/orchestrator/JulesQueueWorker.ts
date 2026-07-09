@@ -3,7 +3,6 @@ import { Task } from '../contracts/TaskContract.js';
 import { JulesExecutor } from '../execution/JulesExecutor.js';
 import { SmartOutputService } from '../services/SmartOutputService.js';
 import { TaskManager } from './TaskManager.js';
-
 type BotApiLike = {
   sendMessage(chatId: string | number, text: string, options?: { parse_mode?: 'Markdown' | 'HTML' }): Promise<unknown>;
 };
@@ -69,7 +68,7 @@ export class JulesQueueWorker {
       }
 
       await this.pollTask(task);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.deps.log('error', 'JulesQueueWorker', error.message || 'Jules worker failed.');
     } finally {
       this.running = false;
@@ -172,7 +171,7 @@ export class JulesQueueWorker {
       };
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'completed');
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       task.metadata = {
         ...this.withQueueUnlocked(task.metadata),
         jules_delivery_retries: Number(task.metadata?.jules_delivery_retries || 0) + 1,
@@ -207,7 +206,7 @@ export class JulesQueueWorker {
           `Reason: ${task.error_summary || 'Unknown error.'}`,
         ].filter(Boolean).join('\n'),
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.deps.log('warn', 'JulesQueueWorker', 'Failed to deliver Jules error.', {
         taskId: task.task_id,
         error: error.message || 'unknown',

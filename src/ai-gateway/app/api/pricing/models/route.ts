@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { REGISTRY } from "@ZavorthGateway/open-sse/config/providerRegistry.ts";
 import { getAllCustomModels, getPricing } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';
-
-function asRecord(value: unknown): Record<string, unknown> {
+import { logger } from '@/shared/utils/logger';function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : {};
@@ -55,7 +53,7 @@ export async function GET(request: Request) {
     let customModelsMap: Record<string, unknown> = {};
     try {
       customModelsMap = asRecord(await getAllCustomModels());
-    } catch (error: any) { const err = error; const e = error; /* DB may not be ready */ logger.warn('[route] operation failed', error); }
+    } catch (error: unknown) {/* DB may not be ready */ logger.warn('[route] operation failed', error); }
 
     for (const [providerId, rawModels] of Object.entries(customModelsMap)) {
       const models = asModelArray(rawModels);
@@ -100,7 +98,7 @@ export async function GET(request: Request) {
     let pricingData: Record<string, any> = {};
     try {
       pricingData = await getPricing();
-    } catch (error: any) { const err = error; const e = error; /* DB may not be ready */ logger.warn('[route] operation failed', error); }
+    } catch (error: unknown) {/* DB may not be ready */ logger.warn('[route] operation failed', error); }
 
     for (const [providerAlias, models] of Object.entries(pricingData)) {
       if (!catalog[providerAlias]) {
@@ -133,8 +131,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(catalog);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error fetching model catalog:", error);
+  } catch (error: unknown) {console.error("Error fetching model catalog:", error);
     return NextResponse.json({ error: "Failed to fetch model catalog" }, { status: 500 });
   }
 }

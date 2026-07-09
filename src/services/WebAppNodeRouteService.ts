@@ -141,8 +141,7 @@ export class WebAppNodeRouteService {
           },
           200,
         );
-      } catch (error: any) {
-        deps.writeJson(
+      } catch (error: unknown) {deps.writeJson(
           res,
           {
             ok: false,
@@ -164,8 +163,7 @@ export class WebAppNodeRouteService {
           'X-Zavorth-Companion-SHA256': download.bundle.manifest.sha256,
         });
         res.end(download.body);
-      } catch (error: any) {
-        deps.writeJson(
+      } catch (error: unknown) {deps.writeJson(
           res,
           {
             ok: false,

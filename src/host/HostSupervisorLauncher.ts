@@ -2,7 +2,6 @@ import { spawn, type ChildProcess } from 'child_process';
 import fs from 'fs';
 import { config } from '../config/index.js';
 import { sanitizeWindowsEnv } from './HostEnvironment.js';
-
 export type ExternalLauncherReloadInput = {
   reason: string;
   requestedBy: string;
@@ -90,7 +89,7 @@ export function startExternalLauncherReload(
       accepted: true,
       summary: 'Launcher supervisionado externo preparado com sucesso.',
     };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     return {
       accepted: false,
       summary: error?.message || String(error),

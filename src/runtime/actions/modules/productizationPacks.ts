@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
-
 import type {
   ZavorthActionDefinition,
   ZavorthActionHandlerInput,
@@ -349,7 +348,7 @@ async function voiceBackends(input: ZavorthActionHandlerInput): Promise<ZavorthA
         lines: [`Backend: edge-tts`, `Voice: ${voiceName}`, `Artifact: ${artifactPath}`, `Size: ${stat.size} bytes`],
         data: { artifactPath, backend: 'edge', voice: voiceName, liveAudioGenerated: true, bytes: stat.size, rawSecretsSerialized: false },
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
       return block(input, `Edge TTS synthesis failed: ${msg}`, [
         'Ensure msedge-tts is installed: npm install msedge-tts',
@@ -365,7 +364,7 @@ async function voiceBackends(input: ZavorthActionHandlerInput): Promise<ZavorthA
       const synthesized = await service.synthesizeDetailed(speechText, { voiceName: text(input.args.voice, 'Kore') });
       if (!synthesized) return block(input, 'Gemini TTS did not return audio.', ['Check GEMINI_API_KEY and the configured Gemini voice model.']);
       return result({ ok: true, actionId: input.actionId, operation: input.operation, status: 'applied', summary: `Voice synthesized via Gemini (${synthesized.voiceName}).`, lines: [`Backend: gemini`, `Artifact: ${synthesized.filePath}`, `Size: ${synthesized.outputBytes} bytes`], data: { artifactPath: synthesized.filePath, backend: 'gemini', voice: synthesized.voiceName, liveAudioGenerated: true, bytes: synthesized.outputBytes, rawSecretsSerialized: false } });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return block(input, `Gemini TTS synthesis failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

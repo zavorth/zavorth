@@ -1,5 +1,4 @@
 import { createElement } from 'react';
-
 // Premium gradient palette for the minimalist logo
 const GRADIENT_COLORS = [
   '#c084fc', // purple/violet
@@ -135,7 +134,7 @@ export async function renderZavorthSetupStudioInk(
       snapshot: actionState.snapshot,
       channelId: actionState.channelId,
     };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[Zavorth Setup Studio Ink Renderer] filesystem check failed', error);
     return {
       rendered: false,

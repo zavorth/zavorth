@@ -1,7 +1,5 @@
 import { getDbInstance, isBuildPhase, isCloud } from "./core";
-import { logger } from '@/shared/utils/logger';
-
-type JsonRecord = Record<string, unknown>;
+import { logger } from '@/shared/utils/logger';type JsonRecord = Record<string, unknown>;
 
 interface StatementLike<TRow = unknown> {
   all: (...params: unknown[]) => TRow[];
@@ -32,7 +30,7 @@ const PROVIDER_LIMITS_CACHE_NAMESPACE = "providerLimitsCache";
 function parseJson(raw: string): unknown {
   try {
     return JSON.parse(raw) as unknown;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[provider] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[provider] JSON parse failed', error); return null; }
 }
 
 function toRecord(value: unknown): JsonRecord | null {

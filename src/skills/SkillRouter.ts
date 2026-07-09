@@ -1,8 +1,6 @@
 import { logger } from '../logger.js';
 import { ILlmProvider, ChatMessage } from '../providers/ILlmProvider.js';
-import { SkillMetadata } from './SkillLoader.js';
-
-export interface SkillSelection {
+import { SkillMetadata } from './SkillLoader.js';export interface SkillSelection {
   primarySkillName: string | null;
   supportSkillName: string | null;
 }
@@ -193,8 +191,7 @@ export class SkillRouter {
           use_count = use_count + 1,
           last_executed_at = datetime('now')
       `, [skillId]);
-    } catch (error: any) { const err = error; const e = error;
-      logger.warn(`[SkillRouter] Failed to record telemetry for skill ${skillId}:`, error);
+    } catch (error: unknown) {logger.warn(`[SkillRouter] Failed to record telemetry for skill ${skillId}:`, error);
     }
   }
 
@@ -258,8 +255,7 @@ export class SkillRouter {
       };
 
       return this.normalizeSelection(parsed, skills);
-    } catch (error: any) { const err = error; const e = error;
-      logger.warn(`routeSelection error: ${error}. Falling back to heuristics or free mode.`);
+    } catch (error: unknown) {logger.warn(`routeSelection error: ${error}. Falling back to heuristics or free mode.`);
       return { primarySkillName: null, supportSkillName: null };
     }
   }

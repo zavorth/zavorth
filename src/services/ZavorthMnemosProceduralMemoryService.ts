@@ -311,7 +311,7 @@ export class ZavorthMnemosProceduralMemoryService {
         sourceText: compact(rule.sourceText),
         secretFree: true,
       })) : [];
-    } catch (error: any) { logger.warn('[Zavorth Mnemos Procedural Memory] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Mnemos Procedural Memory] JSON parse failed', error); return []; }
   }
 
   private writeRules(rules: ZavorthMnemosProceduralRule[]): void {

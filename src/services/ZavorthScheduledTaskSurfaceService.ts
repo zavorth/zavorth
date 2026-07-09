@@ -346,7 +346,7 @@ function readGovernedMetadata(task: ScheduledTask): SchedulerGovernedScheduledTa
     const parsed = task.guardrail_json ? JSON.parse(task.guardrail_json) : null;
     const metadata = parsed?.governedScheduledTask;
     return metadata?.phase === 'checkpoint-3-persisted-scheduled-task-registration' ? metadata : null;
-  } catch (error: any) { logger.warn('[Zavorth Scheduled Task Surface] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth Scheduled Task Surface] JSON parse failed', error); return null; }
 }
 
 function clean(value: unknown): string {

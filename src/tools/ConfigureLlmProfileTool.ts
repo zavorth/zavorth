@@ -308,7 +308,7 @@ Use "set" to save the change.`,
         enabled: missing.length === 0,
         requirement: missing.join(' + ') || 'ok',
       };
-    } catch (error: any) { logger.warn('[ure Llm Profile] module import failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[ure Llm Profile] module import failed', error); return null; }
   }
 
   private buildShortNotice(provider: string, status: 'ready' | 'prepared' | 'blocked', requirement: string): string {

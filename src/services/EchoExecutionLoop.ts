@@ -269,7 +269,7 @@ export class EchoExecutionLoop {
           telemetry: this.buildTelemetry(input),
         });
         finalResponse = finalLlmResponse.content || finalResponse;
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         logger.warn('[Echo] ReAct loop failed, falling back to tool output', message);
       }

@@ -3,6 +3,7 @@ import { ProviderConfigService } from '../../src/services/ProviderConfigService'
 import { LocalEncryptedProviderSecretStore } from '../../src/services/ProviderSecretStore';
 import { SecurityAuditLogger } from '../../src/services/SecurityAuditLogger';
 import { LogRepository } from '../../src/storage/LogRepository';
+import { asErrorLike } from '../../src/utils/errorLike';
 
 describe('Logs/Audit/Console Leak Test (Phase 21H)', () => {
   const testSecret = 'sk-zavorth-audit-leak-test-21H';
@@ -40,8 +41,8 @@ describe('Logs/Audit/Console Leak Test (Phase 21H)', () => {
     let errorResult: any;
     try {
       errorResult = await connectionTestSvc.testConnection('fake-id');
-    } catch (e) {
-      errorResult = e;
+    } catch (error: unknown) { const err = asErrorLike(error);
+errorResult = e;
     }
 
     // Now check all spies

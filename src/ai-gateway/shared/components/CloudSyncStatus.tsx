@@ -44,8 +44,7 @@ export default function CloudSyncStatus({ collapsed = false }) {
         setStatus("connected");
         if (data.lastSync) setLastSync(new Date(data.lastSync));
       } else setStatus("disconnected");
-    } catch (error: any) { const err = error; const e = error;
-      if (mountedRef.current) setStatus("disconnected");
+    } catch (error: unknown) {if (mountedRef.current) setStatus("disconnected");
     }
   }, []);
 

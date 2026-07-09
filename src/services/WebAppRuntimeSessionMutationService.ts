@@ -223,8 +223,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalChatSend(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao enviar mensagem.') }, 400);
+    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao enviar mensagem.') }, 400);
     }
     return true;
   }
@@ -239,8 +238,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalSpawn(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao abrir sessao derivada.') }, 400);
+    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao abrir sessao derivada.') }, 400);
     }
     return true;
   }
@@ -255,8 +253,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalCompact(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: any) {
-      deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao compactar sessao.') }, 500);
+    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao compactar sessao.') }, 500);
     }
     return true;
   }

@@ -6,7 +6,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import crypto from 'crypto';
 import { logger } from '../../../logger.js';
-
 const execFileAsync = promisify(execFile);
 const SCREENSHOT_DIR = path.resolve(process.cwd(), 'data', 'runtime', 'screenshots');
 
@@ -81,8 +80,8 @@ export class SystemScreenshotTool implements IZavorthTool {
             }
 
             return result;
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[System Screenshot] filesystem operation failed', error);
+        } catch (error: unknown) {
+          logger.warn('[System Screenshot] filesystem operation failed', error);
     return {
                 success: false,
                 error: `Failed to capture screenshot: ${error.message}`,

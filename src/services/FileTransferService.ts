@@ -113,8 +113,8 @@ export class FileTransferService {
         processedAt,
         error: null,
       };
-    } catch (error: any) {
-    logger.warn('[File Transfer] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[File Transfer] filesystem check failed', error);
     return {
         ok: false,
         contractVersion: FILE_TRANSFER_CONTRACT_VERSION,

@@ -4,9 +4,7 @@ import { getAllCircuitBreakerStatuses } from "@/shared/utils/circuitBreaker";
 import { getLockedIdentifiers, forceUnlock } from "@/domain/lockoutPolicy";
 import { policyActionSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-export async function GET(request: Request) {
+import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -14,8 +12,7 @@ export async function GET(request: Request) {
     const circuitBreakers = getAllCircuitBreakerStatuses();
     const lockedIdentifiers = getLockedIdentifiers();
     return NextResponse.json({ circuitBreakers, lockedIdentifiers });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error loading policies:", error);
+  } catch (error: unknown) {console.error("Error loading policies:", error);
     return NextResponse.json({ error: "Failed to load policies" }, { status: 500 });
   }
 }
@@ -27,8 +24,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] load operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] load operation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -53,8 +49,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ error: "Unknown action. Supported: unlock" }, { status: 400 });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error updating policies:", error);
+  } catch (error: unknown) {console.error("Error updating policies:", error);
     return NextResponse.json({ error: "Failed to update policies" }, { status: 500 });
   }
 }

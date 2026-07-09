@@ -17,6 +17,7 @@ import {
   toProviderConnection,
   type RecoverableConnectionState,
 } from "./authConnectionSupport";
+import { asErrorLike } from '../../../utils/errorLike';
 
 const markMutexes = new Map<string, Promise<void>>();
 
@@ -199,8 +200,7 @@ export async function markAccountUnavailable(
             `Auto-disabled ${connectionId.slice(0, 8)} - permanent ban detected (autoDisableBannedAccounts=true)`
           );
         }
-      } catch (e: any) { const error = e; const err = e;
-        log.info("AUTH", `Auto-disable check failed (non-fatal): ${e}`);
+      } catch (error: unknown) { const err = asErrorLike(error); log.info("AUTH", `Auto-disable check failed (non-fatal): ${err}`);
       }
     }
 

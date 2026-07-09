@@ -2,7 +2,6 @@ import { Database } from '../storage/Database.js';
 import { logger } from '../logger.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import type { ILlmProvider } from '../providers/ILlmProvider.js';
-
 export interface PathNodeInfo {
   id: string;
   name: string;
@@ -135,7 +134,7 @@ Respond with ONLY a JSON array of strings:
         tokens = Array.from(new Set([...tokens, ...extractedTokens]));
         logger.info(`[MCC Pathfinder] Extracted tokens from LLM: ${JSON.stringify(extractedTokens)}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`[MCC Pathfinder] LLM concept extraction failed, using fallback tokens: ${error.message}`);
     }
 

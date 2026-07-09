@@ -13,9 +13,7 @@ import type {
 IntegrationActionExecuteOptions,
   IntegrationActionExecution,
   IntegrationActionExecutionContext,
-} from './IntegrationActionTypes.js';
-
-type IntegrationActionMonitorSupportRuntime = {
+} from './IntegrationActionTypes.js';type IntegrationActionMonitorSupportRuntime = {
   now: () => Date;
   defaultWorkspace?: string | null;
   hookPipeline: Pick<ToolHookPipelineService, 'run'>;
@@ -165,8 +163,7 @@ export class IntegrationActionMonitorSupport {
           requestedBy: context.requestedBy,
         },
       });
-    } catch (error: any) { const err = error; const e = error;
-      // hooks de observabilidade nunca devem quebrar a finalizacao da acao
+    } catch (error: unknown) {// hooks de observabilidade nunca devem quebrar a finalizacao da acao
       logger.warn('[Integration Action Monitor] lifecycle operation failed', error);
     }
   }

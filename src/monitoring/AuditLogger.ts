@@ -5,9 +5,7 @@ import { PolicyEvaluation } from '../security/PolicyEngine.js';
 import { SecureStorageService } from '../services/SecureStorageService.js';
 import { Database } from '../storage/Database.js';
 import { config } from '../config/index.js';
-import { SecurityAuditTrailService } from './SecurityAuditTrailService.js';
-
-export interface AuditEvent {
+import { SecurityAuditTrailService } from './SecurityAuditTrailService.js';export interface AuditEvent {
   timestamp: string;
   event_type: string;
   task_id: string;
@@ -120,8 +118,7 @@ export class AuditLogger {
 
     try {
       this.trailService.append(event);
-    } catch (error: any) { const err = error; const e = error;
-      this.trailService.recordFailure(error);
+    } catch (error: unknown) {this.trailService.recordFailure(error);
     }
   }
 

@@ -99,7 +99,7 @@ export class ZavorthMlOpsTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: any) { logger.warn('[Zavorth Ml Ops] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Ml Ops] process execution failed', error); return ''; }
   }
 
   private getModelCode(modelType: string, hyperparams: string): string {
@@ -416,7 +416,7 @@ print(f"  Std: {scores.std():.4f}")
       const dest = path.join(destDir, `${modelName}.pkl`);
       fs.copyFileSync(modelPath, dest);
       return `Model saved as "${modelName}" to ${dest}`;
-    } catch (error: any) { logger.warn('[Zavorth Ml Ops] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Ml Ops] filesystem operation failed', error); return ''; }
   }
 
   private async loadModel(args: Record<string, unknown>): Promise<string> {

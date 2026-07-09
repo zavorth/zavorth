@@ -3,9 +3,7 @@ import {
 DeveloperWorkspaceSurfacePresenter,
   DeveloperWorkspaceSurfaceService,
   type DeveloperWorkspaceSurfaceActionInput,
-} from "../../../../domain/surface/index.js";
-
-const developerWorkspaceService = new DeveloperWorkspaceSurfaceService();
+} from "../../../../domain/surface/index.js";const developerWorkspaceService = new DeveloperWorkspaceSurfaceService();
 const developerWorkspacePresenter = new DeveloperWorkspaceSurfacePresenter();
 
 export type DeveloperWorkspaceRouteOptions = {
@@ -59,5 +57,5 @@ async function readDeveloperWorkspaceJsonBody(request: Request): Promise<Record<
     return body && typeof body === "object" && !Array.isArray(body)
       ? body as Record<string, unknown>
       : {};
-  } catch (error: any) { const err = error; const e = error; logger.warn('[developer Workspace] network request failed', error); return {}; }
+  } catch (error: unknown) {logger.warn('[developer Workspace] network request failed', error); return {}; }
 }

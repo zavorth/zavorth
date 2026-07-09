@@ -1,6 +1,4 @@
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-
-export type CoreDietBaselineSnapshotRecord = {
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export type CoreDietBaselineSnapshotRecord = {
   key: string;
   status: 'built-attached' | 'built-skipped' | 'cache-hit';
 };
@@ -120,8 +118,7 @@ function recordOrNull(value: unknown): Record<string, unknown> | null {
 function measureJsonBytes(value: unknown): number {
   try {
     return Buffer.byteLength(JSON.stringify(value) || '', 'utf8');
-  } catch (error: any) { const err = error; const e = error;
-    return -1;
+  } catch (error: unknown) {return -1;
   }
 }
 

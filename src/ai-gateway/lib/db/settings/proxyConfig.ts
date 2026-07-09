@@ -10,9 +10,7 @@ toProxyMap,
   type JsonRecord,
   type ProxyConfig,
   type ProxyValue,
-} from "./settingsSupport";
-
-const DEFAULT_PROXY_CONFIG: ProxyConfig = { global: null, providers: {}, combos: {}, keys: {} };
+} from "./settingsSupport";const DEFAULT_PROXY_CONFIG: ProxyConfig = { global: null, providers: {}, combos: {}, keys: {} };
 const ALIAS_TO_PROVIDER_ID = Object.entries(PROVIDER_ID_TO_ALIAS).reduce(
   (acc, [providerId, alias]) => {
     if (alias) acc[alias] = providerId;
@@ -66,8 +64,7 @@ function migrateProxyEntry(value: unknown): JsonRecord | null {
       username: url.username ? decodeURIComponent(url.username) : "",
       password: url.password ? decodeURIComponent(url.password) : "",
     };
-  } catch (error: any) { const err = error; const e = error;
-    const parts = value.split(":");
+  } catch (error: unknown) {const parts = value.split(":");
     return {
       type: "http",
       host: parts[0] || value,
@@ -192,8 +189,7 @@ export async function resolveProxyForConnection(connectionId: string) {
             if (usesProvider) {
               return { proxy: config.combos[comboId], level: "combo", levelId: comboId };
             }
-          } catch (error: any) { const err = error; const e = error;
-      // Ignore malformed combo records during proxy resolution.
+          } catch (error: unknown) {// Ignore malformed combo records during proxy resolution.
       logger.warn('[proxy] JSON parse failed', error);
     }
         }

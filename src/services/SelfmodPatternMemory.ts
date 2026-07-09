@@ -153,8 +153,7 @@ export class SelfmodPatternMemory {
 
     try {
       return JSON.parse(fs.readFileSync(this.filePath, 'utf8')) as SelfmodPatternMemorySnapshot;
-    } catch (error: any) {
-    logger.warn('[Selfmod Pattern Memory] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Selfmod Pattern Memory] JSON parse failed', error);
     return {
         updatedAt: new Date().toISOString(),
         entries: [],

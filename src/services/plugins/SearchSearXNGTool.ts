@@ -124,7 +124,7 @@ export class SearchSearXNGTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: any) { logger.warn('[Search Sear X N G] parsing failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Search Sear X N G] parsing failed', error); return ''; }
   }
 
   private listInstances(): string {

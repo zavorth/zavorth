@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../logger.js';
-
-export enum OperationalMode {
+import { logger } from '../logger.js';export enum OperationalMode {
   READ_ONLY = 'READ_ONLY',
   WORKSPACE = 'WORKSPACE',
   BUILD = 'BUILD',
@@ -141,7 +139,7 @@ export class ModeManager {
       return this.isOperationalMode(persistedMode)
         ? (persistedMode as OperationalMode)
         : fallbackMode;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Operational Mode] JSON parse failed', error); return fallbackMode; }
+    } catch (error: unknown) {logger.warn('[Operational Mode] JSON parse failed', error); return fallbackMode; }
   }
 
   private persistMode(): void {
@@ -163,8 +161,7 @@ export class ModeManager {
         ),
         'utf8',
       );
-    } catch (error: any) { const err = error; const e = error;
-      // Ignore persistence failures and keep the in-memory mode active.
+    } catch (error: unknown) {// Ignore persistence failures and keep the in-memory mode active.
       logger.warn('[Operational Mode] filesystem operation failed', error);
     }
   }

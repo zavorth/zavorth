@@ -1,5 +1,4 @@
-import { logger } from '@/shared/utils/logger';
-/**
+import { logger } from '@/shared/utils/logger';/**
  * Normalize upstream error bodies to a JSON-safe payload.
  * Accepts unknown/object/string inputs and guarantees an { error: { ... } } shape.
  */
@@ -38,8 +37,7 @@ export function toJsonErrorPayload(rawError, fallbackMessage = "Upstream provide
     try {
       const parsed = JSON.parse(trimmed);
       return toJsonErrorPayload(parsed, fallbackMessage);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[upstream Error] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[upstream Error] JSON parse failed', error);
     return {
         error: {
           message: trimmed,

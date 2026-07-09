@@ -1,6 +1,4 @@
-import { execFile } from 'child_process';
-
-export type ChannelLongTailAdapterFamily =
+import { execFile } from 'child_process';export type ChannelLongTailAdapterFamily =
   | 'webhook'
   | 'bot-http'
   | 'relay-http'
@@ -196,8 +194,7 @@ export class BotHttpChannelLiveClient {
     let payload: Record<string, any> | null = null;
     try {
       payload = await response.json() as Record<string, any>;
-    } catch (error: any) { const err = error; const e = error;
-      payload = null;
+    } catch (error: unknown) {payload = null;
     }
     if (!response.ok) {
       const responseMessage = typeof payload?.error === 'string' ? payload.error : `HTTP ${response.status}`;

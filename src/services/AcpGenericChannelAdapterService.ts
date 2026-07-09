@@ -165,7 +165,7 @@ export class AcpGenericChannelAdapterService {
       this.seenIdempotencyKeys.set(idempotencyKey, receipt.id);
       this.record(receipt, options.receiptPath);
       return receipt;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const receipt = this.buildReceipt({
         status: 'failed',
         envelope: {},

@@ -88,8 +88,7 @@ export class ResponseProfilePreferenceService {
       if (parsed?.contractVersion === 'ExperienceResponseProfilePreferences/v1' && parsed.preferences && typeof parsed.preferences === 'object') {
         return parsed;
       }
-    } catch (error: any) {
-      // Missing or invalid state should not block Experience Core.
+    } catch (error: unknown) {// Missing or invalid state should not block Experience Core.
       logger.warn('[Response Profile Preference] JSON parse failed', error);
     }
     return {

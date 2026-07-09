@@ -121,7 +121,7 @@ export class ZavorthBatchRunnerService {
           };
           capture.captureTurn(turn);
           items[index] = { ...item, turn, success: true, error: null, durationMs: Date.now() - itemStart };
-        } catch (error: any) {
+        } catch (error: unknown) {
           const errorMessage = cleanText(error instanceof Error ? error.message : String(error));
           const turn: ZavorthTrajectoryCaptureTurn = {
             turnId: `turn-${runId}-${index}-${hash(item.prompt)}`,

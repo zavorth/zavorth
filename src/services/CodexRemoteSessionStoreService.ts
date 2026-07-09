@@ -294,8 +294,7 @@ export class CodexRemoteSessionStoreService {
             events: Array.isArray(entry.events) ? entry.events.slice(-40) : [],
           })),
       };
-    } catch (error: any) {
-    logger.warn('[Codex Remote Session Store] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Codex Remote Session Store] parsing failed', error);
     return { ...EMPTY_STATE };
   }
   }

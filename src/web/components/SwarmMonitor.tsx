@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { asErrorLike } from '../../utils/errorLike';
 
 type SwarmRoleStatus = {
   roleId: string;
@@ -249,7 +250,8 @@ export function SwarmMonitor({
       }
       setObjective('');
       await fetchList();
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError(err?.message || 'Failed to launch swarm.');
     } finally {
       setLaunching(false);
@@ -269,7 +271,8 @@ export function SwarmMonitor({
       if (data?.swarm) {
         setSwarm(data.swarm);
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError(err?.message || 'Failed to cancel swarm.');
     }
   };

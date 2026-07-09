@@ -191,8 +191,7 @@ export class LearningOSService {
     }
     try {
       return this.learningPlane.buildSnapshot({ workspace: input.workspace || null });
-    } catch (error: any) {
-    logger.warn('[Learning O S] creation failed', error);
+    } catch (error: unknown) {logger.warn('[Learning O S] creation failed', error);
     return {
         generatedAt: this.now().toISOString(),
         summary: {

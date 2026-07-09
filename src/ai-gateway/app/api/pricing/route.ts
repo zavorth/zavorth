@@ -3,9 +3,7 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getPricing, updatePricing, resetPricing, resetAllPricing } from "@/lib/localDb";
 import { updatePricingSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * GET /api/pricing
  * Get current pricing configuration (merged user + defaults)
  */
@@ -16,8 +14,7 @@ export async function GET(request: Request) {
   try {
     const pricing = await getPricing();
     return NextResponse.json(pricing);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error fetching pricing:", error);
+  } catch (error: unknown) {console.error("Error fetching pricing:", error);
     return NextResponse.json({ error: "Failed to fetch pricing" }, { status: 500 });
   }
 }
@@ -34,8 +31,7 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] cache operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] cache operation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -56,8 +52,7 @@ export async function PATCH(request) {
 
     const updatedPricing = await updatePricing(body);
     return NextResponse.json(updatedPricing);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error updating pricing:", error);
+  } catch (error: unknown) {console.error("Error updating pricing:", error);
     return NextResponse.json({ error: "Failed to update pricing" }, { status: 500 });
   }
 }
@@ -89,8 +84,7 @@ export async function DELETE(request) {
 
     const pricing = await getPricing();
     return NextResponse.json(pricing);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error resetting pricing:", error);
+  } catch (error: unknown) {console.error("Error resetting pricing:", error);
     return NextResponse.json({ error: "Failed to reset pricing" }, { status: 500 });
   }
 }

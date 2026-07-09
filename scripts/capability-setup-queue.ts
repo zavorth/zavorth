@@ -6,6 +6,7 @@ import type {
   CapabilitySetupQueueTicketStatus,
 } from '../src/contracts/CapabilitySetupQueueContract.js';
 import { ZavorthCapabilitySetupQueueApiService } from '../src/services/ZavorthCapabilitySetupQueueApiService.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 const args = process.argv.slice(2);
 const api = new ZavorthCapabilitySetupQueueApiService();
@@ -54,7 +55,8 @@ try {
       console.log(api.renderReport({ status: status || undefined }));
     }
   }
-} catch (error) {
+} catch (error: unknown) {
+  const err = asErrorLike(error);
   const message = error instanceof Error ? error.message : String(error);
   if (asJson) {
     console.log(JSON.stringify({ status: 'failed', error: message }, null, 2));

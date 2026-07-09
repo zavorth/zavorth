@@ -1,4 +1,5 @@
 import { ZAVORTH_BRIDGE_CONFIG } from "../constants/oauth";
+import { asErrorLike } from '../../../../utils/errorLike';
 
 const CODE_ASSIST_FALLBACK_TIER_ID = "legacy-tier";
 
@@ -84,8 +85,7 @@ export const zavorthBridge = {
           }
         }
       }
-    } catch (e: any) { const error = e; const err = e;
-      console.log("Failed to load code assist:", e);
+    } catch (error: unknown) { const err = asErrorLike(error); console.log("Failed to load code assist:", err);
     }
 
     if (projectId) {
@@ -111,8 +111,7 @@ export const zavorthBridge = {
           }
           await new Promise((resolve) => setTimeout(resolve, 5000));
         }
-      } catch (e: any) { const error = e; const err = e;
-        console.log("Failed to onboard user:", e);
+      } catch (error: unknown) { const err = asErrorLike(error); console.log("Failed to onboard user:", err);
       }
     }
 

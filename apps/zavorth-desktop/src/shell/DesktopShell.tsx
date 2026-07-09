@@ -9,6 +9,7 @@ import {
 } from 'react';
 import type {
   ApprovalItem,
+  ChannelItem,
   ChannelSetupSnapshot,
   ChatMessage,
   GatewayResilienceSnapshot,
@@ -17,6 +18,7 @@ import type {
   MemoryEncryptionStatus,
   MemoryItem,
   RuntimeCapabilitiesSnapshot,
+  TaskMandate,
   ToolItem,
 } from '../apiClient';
 import { DesktopCommandBar } from '../composer/DesktopCommandBar';
@@ -80,7 +82,7 @@ export function DesktopShell(props: {
   activePanel: DesktopPanel;
   approvals: ApprovalItem[];
   busy: boolean;
-  channels: any[];
+  channels: ChannelItem[];
   channelSetup: ChannelSetupSnapshot | null;
   commandPaletteOpen: boolean;
   commandCenterOpen?: boolean;
@@ -142,7 +144,7 @@ export function DesktopShell(props: {
   onTheme(value: 'light' | 'dark' | 'system'): void;
   onWorkspaceFolder(): void | Promise<void>;
   onWorkspaceScope(value: string): void;
-  activeMandate?: any;
+  activeMandate?: TaskMandate | null;
   onRevokeMandate?: () => Promise<void>;
   currentSessionId?: string;
   onSwitchSession?: (sessionId: string) => void;
@@ -161,7 +163,7 @@ export function DesktopShell(props: {
   onDeleteScheduledTask?: (id: string) => void;
   onToggleScheduledTask?: (id: string) => void;
   onRunScheduledTask?: (id: string) => void;
-  loadScheduledTaskLogs?: (sessionId: string) => Promise<any[]>;
+  loadScheduledTaskLogs?: (sessionId: string) => Promise<unknown[]>;
   boards?: WorkboardBoard[];
   runtimeWorkboard?: RuntimeWorkboardProjection | null;
   marketplacePlugins?: PluginItem[];

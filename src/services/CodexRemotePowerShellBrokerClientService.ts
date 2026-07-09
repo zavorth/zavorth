@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
@@ -101,7 +102,7 @@ export class CodexRemotePowerShellBrokerClientService {
         codexHome: String(input.codexHome || '').trim() || null,
         workspaceRoot: String(input.workspaceRoot || '').trim() || null,
       }, 10000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         available: false,
@@ -221,16 +222,14 @@ export class CodexRemotePowerShellBrokerClientService {
           pid,
           note: 'Broker PowerShell ativo.',
         };
-      } catch (error: any) {
-    logger.warn('[Codex Remote Power Shell Broker Client] validation failed', error);
+      } catch (error: unknown) {logger.warn('[Codex Remote Power Shell Broker Client] validation failed', error);
     return {
           running: false,
           pid,
           note: 'O broker PowerShell do Codex Remote ficou stale. Reinicie o launcher supervisionado.',
         };
   }
-    } catch (error: any) {
-    logger.warn('[Codex Remote Power Shell Broker Client] operation failed', error);
+    } catch (error: unknown) {logger.warn('[Codex Remote Power Shell Broker Client] operation failed', error);
     return {
         running: false,
         pid: null,
@@ -281,7 +280,9 @@ export class CodexRemotePowerShellBrokerClientService {
       try {
         const raw = await fs.promises.readFile(responsePath, 'utf8');
         return JSON.parse(raw) as BrokerResponseEnvelope<T>;
-      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn("[auto-fix] Empty catch block", err); }
       await this.sleep(250);
     }
 

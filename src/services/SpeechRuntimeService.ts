@@ -129,8 +129,8 @@ export class SpeechRuntimeService {
         processedAt,
         error: null,
       };
-    } catch (error: any) {
-    logger.warn('[Speech Runtime] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Speech Runtime] operation failed', error);
     return this.transcribeError(error instanceof Error ? error.message : String(error), processedAt);
   }
   }
@@ -163,8 +163,8 @@ export class SpeechRuntimeService {
         processedAt,
         error: null,
       };
-    } catch (error: any) {
-    logger.warn('[Speech Runtime] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Speech Runtime] operation failed', error);
     return this.synthesizeError(error instanceof Error ? error.message : String(error), processedAt);
   }
   }

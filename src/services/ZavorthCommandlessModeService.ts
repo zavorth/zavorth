@@ -27,10 +27,6 @@ import {
   mergeLanguagePacks,
 } from './ZavorthIntentI18n.js';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export interface CommandlessInput {
   /** Raw user message in natural language. */
   message: string;
@@ -67,10 +63,6 @@ export interface CommandlessResponse {
   /** Detected language used for matching. */
   detectedLanguage: string;
 }
-
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
 
 export class ZavorthCommandlessModeService {
   private readonly naturalRouter: ZavorthNaturalInvocationRouter;

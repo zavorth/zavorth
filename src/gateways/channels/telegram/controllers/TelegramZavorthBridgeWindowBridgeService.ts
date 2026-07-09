@@ -10,6 +10,7 @@ import {
   ZavorthBridgeWindowAutomatorLike,
   LiveBridgeSnapshot,
 } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeTypes.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 interface MediaGroupPhotoItem {
   type: 'photo';
@@ -92,21 +93,24 @@ export class TelegramZavorthBridgeWindowBridgeService {
         if (mediaGroup.length > 0) {
           await ctx.replyWithMediaGroup?.(mediaGroup);
         }
-      } catch (sendError: any) { const error = sendError; const err = sendError; const e = sendError;
-        logger.warn('[ZavorthBridge] Failed to send snapshots through Telegram:', sendError);
+      } catch (sendError: unknown) {logger.warn('[ZavorthBridge] Failed to send snapshots through Telegram:', sendError);
       } finally {
         try {
           if (fs.existsSync(beforePath)) {
             fs.unlinkSync(beforePath);
           }
-        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          logger.warn("[auto-fix] Empty catch block", err); }
         try {
           if (fs.existsSync(afterPath)) {
             fs.unlinkSync(afterPath);
           }
-        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          logger.warn("[auto-fix] Empty catch block", err); }
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       await ctx.reply(`ZavorthBridge window automation failed: ${message}`);
     }
@@ -130,7 +134,7 @@ export class TelegramZavorthBridgeWindowBridgeService {
           `Pending: ${status?.pendingHandoffs ?? 0}`,
         ].join('\n'),
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       await ctx.reply(`I could not read the internal ZavorthBridge bridge state right now.\n\nReason: ${message}`);
     }

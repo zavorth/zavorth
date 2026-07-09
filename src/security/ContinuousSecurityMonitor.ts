@@ -6,9 +6,7 @@ import {
 buildOperationalSecurityDoctorReport,
   REQUIRED_SECURITY_CONTROL_FILES,
   type OperationalSecurityDoctorReport,
-} from './OperationalSecurityDoctor.js';
-
-export type ContinuousSecurityMonitorStatus = 'healthy' | 'attention' | 'blocked';
+} from './OperationalSecurityDoctor.js';export type ContinuousSecurityMonitorStatus = 'healthy' | 'attention' | 'blocked';
 export type ContinuousSecurityMonitorCheckStatus = 'pass' | 'attention' | 'fail';
 export type ContinuousSecurityMonitorSeverity = 'info' | 'warn' | 'critical';
 
@@ -299,7 +297,7 @@ function readContinuousSecurityBaseline(baselinePath: string): ContinuousSecurit
     }
     const parsed = JSON.parse(fs.readFileSync(baselinePath, 'utf8')) as ContinuousSecurityBaseline;
     return parsed.version === 1 && parsed.snapshot ? parsed : null;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
 }
 
 function compareContinuousSecurityBaseline(
@@ -629,7 +627,7 @@ function readJson(filePath: string): unknown {
       return null;
     }
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
 }
 
 function isLowFrictionDoctorAttention(doctor: OperationalSecurityDoctorReport): boolean {

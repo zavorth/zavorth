@@ -46,8 +46,8 @@ export class AnthropicCompatibleModelDiscoveryAdapter {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-    } catch (error: any) {
-    logger.warn('[Anthropic Compatible Model Discovery Adapter] network request failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Anthropic Compatible Model Discovery Adapter] network request failed', error);
     return {
         source: 'fallback_catalog',
         status: null,

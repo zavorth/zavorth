@@ -14,6 +14,7 @@ import { v1RerankSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getProviderNodes } from "@/lib/localDb";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike';
 
 /**
  * Handle CORS preflight
@@ -64,8 +65,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
 
@@ -93,16 +93,15 @@ export async function POST(request) {
             hostname === "127.0.0.1" ||
             /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)
           );
-        } catch (error: any) { const err = error; const e = error; logger.warn('[route] operation failed', error); return false; }
+        } catch (error: unknown) {logger.warn('[route] operation failed', error); return false; }
       })
       .map((n) => {
         try {
           return buildDynamicRerankProvider(n);
-        } catch (error: any) { const err = error; const e = error; logger.warn('[route] creation failed', error); return null; }
+        } catch (error: unknown) {logger.warn('[route] creation failed', error); return null; }
       })
       .filter((p): p is NonNullable<typeof p> => p !== null);
-  } catch (error: any) { const err = error; const e = error;
-      // Non-critical — continue with cloud providers only
+  } catch (error: unknown) {// Non-critical — continue with cloud providers only
       logger.warn('[route] creation failed', error);
     }
 
@@ -175,8 +174,9 @@ export async function POST(request) {
         return Response.json(data, {
           headers: { "Access-Control-Allow-Origin": CORS_ORIGIN },
         });
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn('[route] network request failed', error);
     return errorResponse(500, `Rerank request failed: ${err.message}`);
   }
     }

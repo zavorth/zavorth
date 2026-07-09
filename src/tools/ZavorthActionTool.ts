@@ -30,8 +30,7 @@ function parseArgsJson(value: unknown): Record<string, unknown> {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : {};
-  } catch (error: any) {
-    throw new Error('argsJson must be valid JSON object text.');
+  } catch (error: unknown) {throw new Error('argsJson must be valid JSON object text.');
   }
 }
 

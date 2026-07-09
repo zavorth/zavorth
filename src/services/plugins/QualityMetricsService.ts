@@ -30,7 +30,7 @@ export class QualityMetricsService {
     if (!fs.existsSync(p)) return;
     try {
       this.metrics = JSON.parse(fs.readFileSync(p, 'utf-8'));
-    } catch (error: any) { /* ignore */ logger.warn('[Quality Metrics] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Quality Metrics] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

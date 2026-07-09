@@ -85,7 +85,7 @@ export class ZavorthPromptLibraryTool extends BaseTool {
   private loadTemplates(): void {
     const filePath = path.join(this.storageDir, 'templates.json');
     if (!fs.existsSync(filePath)) return;
-    try { this.templates = JSON.parse(fs.readFileSync(filePath, 'utf-8')); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Prompt Library] JSON parse failed', error); }
+    try { this.templates = JSON.parse(fs.readFileSync(filePath, 'utf-8')); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Prompt Library] JSON parse failed', error); }
   }
 
   private saveTemplates(): void {
@@ -170,7 +170,7 @@ export class ZavorthPromptLibraryTool extends BaseTool {
     if (matches) variables = [...new Set(matches.map((m) => m.slice(1, -1)))];
 
     let tags: string[] = [];
-    if (typeof args.tags === 'string') { try { tags = JSON.parse(args.tags); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Prompt Library] JSON parse failed', error); } }
+    if (typeof args.tags === 'string') { try { tags = JSON.parse(args.tags); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Prompt Library] JSON parse failed', error); } }
 
     this.templates.push({
       id, name,

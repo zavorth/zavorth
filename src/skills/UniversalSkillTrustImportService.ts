@@ -24,9 +24,7 @@ import type {
   SkillRiskAssessment,
 } from './SkillCatalogContract.js';
 import { LicensePolicyService } from './LicensePolicyService.js';
-import { UniversalSkillIntakeService } from './UniversalSkillIntakeService.js';
-
-type Runtime = {
+import { UniversalSkillIntakeService } from './UniversalSkillIntakeService.js';type Runtime = {
   now?: () => Date;
   projectRoot?: string;
   intakeService?: Pick<UniversalSkillIntakeService, 'previewSource'>;
@@ -793,8 +791,7 @@ export class UniversalSkillTrustImportService {
         }
         const parsed = JSON.parse(this.readFileSyncImpl(filePath, 'utf8'));
         return Array.isArray(parsed?.events) ? parsed.events : [];
-      } catch (error: any) { const err = error; const e = error;
-        return [];
+      } catch (error: unknown) {return [];
       }
     })();
     this.mkdirSyncImpl(path.dirname(filePath), { recursive: true });
@@ -875,8 +872,7 @@ function parseFrontmatter(text: string): Record<string, unknown> {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : {};
-  } catch (error: any) { const err = error; const e = error;
-    return {};
+  } catch (error: unknown) {return {};
   }
 }
 

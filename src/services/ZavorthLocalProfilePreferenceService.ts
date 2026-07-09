@@ -195,8 +195,7 @@ export class ZavorthLocalProfilePreferenceService {
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : this.now().toISOString(),
         scopes: this.normalizeScopes(scopes),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Local Profile Preference] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Local Profile Preference] parsing failed', error);
     return this.emptyState();
   }
   }

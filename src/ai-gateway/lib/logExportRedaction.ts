@@ -2,9 +2,7 @@ import { logger } from '@/shared/utils/logger';
 import {
 redactSensitiveData,
   redactSensitiveText,
-} from "../../security/SensitiveDataGuard.js";
-
-const SENSITIVE_EXPORT_KEY =
+} from "../../security/SensitiveDataGuard.js";const SENSITIVE_EXPORT_KEY =
   /(?:api[_-]?key|apiKey|access[_-]?token|accessToken|auth[_-]?token|authToken|authorization|client[_-]?secret|clientSecret|credential|password|private[_-]?key|privateKey|refresh[_-]?token|refreshToken|secret|senha|token|cookie|set-cookie)/i;
 
 export function redactExportedLogRows(rows: unknown[]): unknown[] {
@@ -53,8 +51,7 @@ function redactString(value: string, seen: WeakSet<object>): string {
     try {
       const parsed = JSON.parse(value);
       return JSON.stringify(redactSensitiveData(redactValue(parsed, seen)));
-    } catch (error: any) { const err = error; const e = error;
-      // Fall through to text redaction.
+    } catch (error: unknown) {// Fall through to text redaction.
       logger.warn('[log Export Redaction] JSON parse failed', error);
     }
   }

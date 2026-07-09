@@ -4,7 +4,6 @@ import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
 import { v1betaGeminiGenerateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
-
 let initialized = false;
 
 /**
@@ -41,8 +40,7 @@ export async function POST(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] creation failed', error);
+  } catch (error: unknown) {logger.warn('[route] creation failed', error);
     return Response.json(
       {
         error: {
@@ -90,7 +88,7 @@ export async function POST(request, { params }) {
     });
 
     return await handleChat(newRequest, buildClientRawRequest(request, rawBody));
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Error handling Gemini request:", error);
     return Response.json({ error: { message: error.message, code: 500 } }, { status: 500 });
   }

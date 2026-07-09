@@ -1,7 +1,5 @@
 import { logger } from '../../../../logger.js';
-import { HoneypotMonitor } from "../../../../monitoring/HoneypotMonitor.js";
-
-export function createTelegramHoneypotMonitor(gateway: any): HoneypotMonitor {
+import { HoneypotMonitor } from "../../../../monitoring/HoneypotMonitor.js";export function createTelegramHoneypotMonitor(gateway: any): HoneypotMonitor {
   return new HoneypotMonitor(gateway.securityLock, async (msg) => {
     const adminIds = process.env.TELEGRAM_ALLOWED_USER_IDS?.split(",") || [];
     for (const adminId of adminIds) {
@@ -11,8 +9,7 @@ export function createTelegramHoneypotMonitor(gateway: any): HoneypotMonitor {
           await gateway.bot.api.sendMessage(trimmed, msg, {
             parse_mode: "Markdown",
           });
-        } catch (error: any) { const err = error; const e = error;
-          logger.error(
+        } catch (error: unknown) {logger.error(
             `Falha ao alertar admin ${trimmed} sobre honeypot:`,
             error,
           );

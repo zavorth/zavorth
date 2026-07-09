@@ -5,7 +5,6 @@ import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 import { FinalResponseFormattingService } from '../../../../services/FinalResponseFormattingService.js';
 import { PermissionService } from '../../../../services/PermissionService.js';
 import { FileDeliveryPlan, FileDeliveryService } from '../../../../runtime/artifacts/FileDeliveryService.js';
-
 type TelegramFileDeliveryControllerDeps = {
   permissionService?: PermissionService;
   buildPermissionKeyboard?: (permission: PermissionRequest) => InlineKeyboard;
@@ -52,7 +51,7 @@ export class TelegramFileDeliveryController {
         extraAllowedPaths: allowedPaths,
       });
       await this.deliverPlan(ctx, plan);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(
         this.formatter.compose('I could not prepare this delivery right now.', [
           {
@@ -149,7 +148,7 @@ export class TelegramFileDeliveryController {
       await ctx.replyWithDocument(new InputFile(plan.sendPath, plan.fileName), {
         caption: plan.caption,
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(
         this.formatter.compose('I could not send this file right now.', [
           {

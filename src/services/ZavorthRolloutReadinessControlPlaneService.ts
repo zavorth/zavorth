@@ -584,7 +584,7 @@ export class ZavorthRolloutReadinessControlPlaneService {
         return null;
       }
       return JSON.parse(this.readFileSync(this.maintenanceReportFilePath, 'utf8')) as Record<string, RolloutDynamic>;
-    } catch (error: any) { logger.warn('[Zavorth Rollout Readiness Control Plane] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Rollout Readiness Control Plane] JSON parse failed', error); return null; }
   }
 
   private isMaintenanceStale(timestamp: string | null): boolean {

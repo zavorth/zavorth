@@ -1,7 +1,6 @@
 import { LocalLlamaProvider } from '../providers/LocalLlamaProvider';
 import { ZavorthEchoOrchestrator } from './orchestrator/ZavorthEchoOrchestrator';
 import { ChatMessage } from '../providers/ILlmProvider';
-
 async function runTest() {
     console.log('=== Starting manual test: llama.cpp + Zavorth Echo ===\n');
 
@@ -51,8 +50,8 @@ async function runTest() {
         }
 
         console.log('\n[EXECUTION LOG]:', JSON.stringify(orchestrator.getExecutionLog(), null, 2));
-    } catch (error: any) { const err = error; const e = error;
-        console.error('\n[X] Test failed:');
+    } catch (error: unknown) {
+      console.error('\n[X] Test failed:');
         if (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED')) {
             console.error('  -> The local Llama/Ollama server is not running.');
             console.error('  -> Make sure Ollama is open or the local llama.cpp server / LM Studio is on port 11434/8080.');

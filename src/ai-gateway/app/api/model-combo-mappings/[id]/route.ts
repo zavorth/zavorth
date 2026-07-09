@@ -34,7 +34,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Mapping not found" }, { status: 404 });
     }
     return NextResponse.json({ mapping });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] health check failed', error);
     return NextResponse.json({ error: error.message || "Failed to get mapping" }, { status: 500 });
   }
@@ -59,7 +59,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     return NextResponse.json({ mapping });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] health check failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to update mapping" },
@@ -81,7 +81,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] health check failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to delete mapping" },

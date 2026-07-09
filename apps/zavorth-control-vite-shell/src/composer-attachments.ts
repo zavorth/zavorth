@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../src/utils/errorLike';
 export type ComposerAttachment = {
   name: string;
   type: string;
@@ -94,7 +95,8 @@ export async function readAttachmentFile(file: File): Promise<ComposerAttachment
     } else if (VIDEO_MIME_PATTERN.test(file.type || '')) {
       await attachInlineMedia(file, attachment, 'video');
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     attachment.text = null;
     attachment.content = null;
     attachment.media = null;

@@ -4,7 +4,9 @@ import { FitAddon } from '@xterm/addon-fit';
 import { Unicode11Addon } from '@xterm/addon-unicode11';
 import '@xterm/xterm/css/xterm.css';
 import { getPtyOutput, sendPtyInput } from '../apiClient';
-import { logger } from '../logger.js';
+import { createLogger } from '../logger.js';
+
+const logger = createLogger('shell');
 
 interface PtyTerminalPanelProps {
   workspaceId: string;

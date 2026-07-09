@@ -9,10 +9,6 @@
  * automatically via the fallback chain.
  */
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export interface ChannelCapabilities {
   /** Channel identifier (e.g., 'telegram', 'whatsapp', 'discord'). */
   id: string;
@@ -75,10 +71,6 @@ export interface ChannelCapabilities {
   supportsPresence: boolean;
 }
 
-// ---------------------------------------------------------------------------
-// Default capabilities (most restrictive — plain text fallback)
-// ---------------------------------------------------------------------------
-
 const FALLBACK_CAPABILITIES: ChannelCapabilities = {
   id: 'unknown',
   label: 'Unknown Channel',
@@ -101,10 +93,6 @@ const FALLBACK_CAPABILITIES: ChannelCapabilities = {
   supportsTypingIndicator: false,
   supportsPresence: false,
 };
-
-// ---------------------------------------------------------------------------
-// Built-in channel profiles
-// ---------------------------------------------------------------------------
 
 const BUILTIN_CHANNELS: ChannelCapabilities[] = [
   {
@@ -306,10 +294,6 @@ const BUILTIN_CHANNELS: ChannelCapabilities[] = [
     supportsPresence: true,
   },
 ];
-
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
 
 export class ZavorthChannelCapabilitiesService {
   private readonly channels = new Map<string, ChannelCapabilities>();

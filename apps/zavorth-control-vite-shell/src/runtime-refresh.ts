@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../src/utils/errorLike';
 type RuntimeRefreshOptions = {
   applyRuntimeData: () => void;
   authHeaders: () => Record<string, string>;
@@ -24,7 +25,7 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
       const queryString = options.buildZavorthControlQueryString();
       const zavorthControl = canAttemptProtectedSnapshot
         ? await options.readJson(`/api/web/zavorthControl${queryString}`, { headers: options.authHeaders() })
-          .catch((error: any) => {
+          .catch((error: unknown) => {
             if (error?.status === 404) {
               return options.readJson(`/api/web/dashboard${queryString}`, { headers: options.authHeaders() });
             }
@@ -45,7 +46,7 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
           options.readJson('/api/v2/sales-pack/snapshot', { headers: options.authHeaders() }).catch(() => null),
           options.readJson('/api/v2/sales-pack/channel-io/snapshot', { headers: options.authHeaders() }).catch(() => null),
           options.readJson(`/api/web/zavorthControl/memory?sessionId=${encodeURIComponent(options.readSessionId() || '')}`, { headers: options.authHeaders() })
-            .catch((error: any) => error?.status === 404
+            .catch((error: unknown) => error?.status === 404
               ? options.readJson(`/api/web/dashboard/memory?sessionId=${encodeURIComponent(options.readSessionId() || '')}`, { headers: options.authHeaders() }).catch(() => null)
               : null),
           options.readJson('/api/web/zavorth-runtime-adapters', { headers: options.authHeaders() }).catch(() => null),
@@ -92,7 +93,9 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
       if (!refreshOptions.skipRealtime) {
         options.connectRealtime();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       options.state.lastError = error?.message || String(error);
       options.state.updatedAt = new Date().toISOString();
       options.updatePulse();

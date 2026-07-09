@@ -72,8 +72,7 @@ export async function executeZavorthBatchJsonl(input: {
         id: item.custom_id || `request-${index + 1}`,
         body: item.body || {},
       });
-    } catch (error: any) { const err = error; const e = error;
-      failed += 1;
+    } catch (error: unknown) {failed += 1;
       errorLines.push(JSON.stringify(errorRow(`request-${index + 1}`, error, 0)));
     }
   }
@@ -111,8 +110,7 @@ export async function executeZavorthBatchJsonl(input: {
           }
           lastError = null;
           break;
-        } catch (error: any) { const err = error; const e = error;
-          lastError = error;
+        } catch (error: unknown) {lastError = error;
           if (attempt < maxRetries) {
             await sleep(backoffMs * (attempt + 1));
           }

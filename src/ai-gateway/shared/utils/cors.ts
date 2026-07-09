@@ -1,5 +1,4 @@
-import { logger } from '@/shared/utils/logger';
-/**
+import { logger } from '@/shared/utils/logger';/**
  * Shared CORS configuration for all API routes.
  *
  * Centralizes the Access-Control-Allow-Origin header so it can be
@@ -33,7 +32,7 @@ export function normalizeCorsOrigin(value: unknown): string {
       return "";
     }
     return parsed.origin;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[cors] network request failed', error); return ''; }
+  } catch (error: unknown) {logger.warn('[cors] network request failed', error); return ''; }
 }
 
 export const CORS_ORIGIN = normalizeCorsOrigin(CONFIGURED_CORS_ORIGIN);

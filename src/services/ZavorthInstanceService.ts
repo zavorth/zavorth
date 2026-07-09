@@ -71,8 +71,7 @@ export function listInstances(homeRoot: string): InstanceInfo[] {
           results.push(buildInstanceInfo(path.join(instancesDir, entry.name), entry.name));
         }
       }
-    } catch (error: any) {
-      logger.warn('[ZavorthInstance] Failed to read instances directory', error);
+    } catch (error: unknown) {logger.warn('[ZavorthInstance] Failed to read instances directory', error);
     }
   }
 
@@ -154,8 +153,7 @@ function buildInstanceInfo(instanceDir: string, name: string): InstanceInfo {
       try {
         const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
         createdAt = meta.createdAt || null;
-      } catch (error: any) {
-      // ignore
+      } catch (error: unknown) {// ignore
       logger.warn('[Zavorth Instance] JSON parse failed', error);
     }
     }
@@ -163,8 +161,7 @@ function buildInstanceInfo(instanceDir: string, name: string): InstanceInfo {
       try {
         const stat = fs.statSync(instanceDir);
         createdAt = stat.birthtime?.toISOString() || stat.mtime.toISOString();
-      } catch (error: any) {
-      // ignore
+      } catch (error: unknown) {// ignore
       logger.warn('[Zavorth Instance] JSON parse failed', error);
     }
     }

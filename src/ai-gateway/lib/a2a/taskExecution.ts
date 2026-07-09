@@ -1,4 +1,5 @@
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../utils/errorLike';
 type TaskManagerLike = {
   updateTask: (
     taskId: string,
@@ -26,11 +27,11 @@ export async function executeA2ATaskWithState(
     const result = await handler(task);
     tm.updateTask(task.id, "completed", result.artifacts);
     return result;
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     const msg = err instanceof Error ? err.message : String(err);
     try {
       tm.updateTask(task.id, "failed", [{ type: "error", content: msg }], msg);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Task may already be terminal (e.g., cancelled). Preserve original error.
       logger.warn('[task Execution] operation failed', error);
     }

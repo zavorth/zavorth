@@ -130,7 +130,7 @@ export class ZavorthCapabilityNaturalOperatorService {
   private createOrReuseTicket(input: Parameters<ZavorthCapabilitySetupQueueService['createTicket']>[0]) {
     try {
       return this.queue.createTicket(input);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       const existingId = /already exists:\s*([^\s]+)/i.exec(message)?.[1] || null;
       if (existingId) {

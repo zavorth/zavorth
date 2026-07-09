@@ -4,7 +4,6 @@ import { listSuites, runSuite } from "@/lib/evals/evalRunner";
 import { evalRunSuiteSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
-
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -12,7 +11,7 @@ export async function GET(request: Request) {
   try {
     const suites = listSuites();
     return NextResponse.json(suites);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -25,8 +24,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -46,7 +44,7 @@ export async function POST(request) {
     const { suiteId, outputs } = validation.data;
     const result = runSuite(suiteId, outputs);
     return NextResponse.json(result);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

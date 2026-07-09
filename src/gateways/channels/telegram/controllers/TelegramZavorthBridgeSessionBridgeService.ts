@@ -17,7 +17,6 @@ import {
   ZavorthBridgeWindowAutomatorLike,
   LiveBridgeSnapshot,
 } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeTypes.js';
-
 type TelegramZavorthBridgeSessionBridgeServiceDeps = {
   taskManager: Pick<TaskManager, 'advanceState' | 'getTask'>;
   zavorthBridgeControlService: Pick<ZavorthBridgeControlService, 'restart'>;
@@ -126,7 +125,7 @@ export class TelegramZavorthBridgeSessionBridgeService {
         'Previous ZavorthBridge session terminated by /agreset to open a clean conversation.',
       );
       await ctx.reply('Done. Restarted the visible ZavorthBridge conversation and confirmed the reset in the real UI.');
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       await ctx.reply(`Could not clean or restart ZavorthBridge right now.\n\nReason: ${message}`);
     }

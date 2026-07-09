@@ -140,7 +140,7 @@ async function startInProcessServer(): Promise<{ server: http.Server; baseUrl: s
         res.statusCode = 404;
         res.end("not found");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       if (!res.headersSent) {
         res.statusCode = 500;
         res.setHeader("content-type", "application/json; charset=utf-8");

@@ -8,9 +8,7 @@ import {
 TOKEN_EXPIRY_BUFFER_MS,
   getAccessToken,
   updateProviderCredentials,
-} from "@/sse/services/tokenRefresh";
-
-type JsonRecord = Record<string, unknown>;
+} from "@/sse/services/tokenRefresh";type JsonRecord = Record<string, unknown>;
 
 interface CodexConnectionLike {
   id?: string;
@@ -107,7 +105,7 @@ function decodeJwtPayload(jwt: string): JsonRecord | null {
     if (parts.length !== 3) return null;
     const payload = Buffer.from(parts[1], "base64url").toString("utf8");
     return toRecord(JSON.parse(payload));
-  } catch (error: any) { const err = error; const e = error; logger.warn('[codex Auth File] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[codex Auth File] JSON parse failed', error); return null; }
 }
 
 function extractCodexAccountId(idToken: string, providerSpecificData: unknown): string | null {
@@ -315,8 +313,7 @@ export async function writeCodexAuthFileToLocalCli(connectionId: string) {
 
   try {
     await fs.chmod(authPath, 0o600);
-  } catch (error: any) { const err = error; const e = error;
-      // Best effort on platforms that ignore chmod semantics.
+  } catch (error: unknown) {// Best effort on platforms that ignore chmod semantics.
       logger.warn('[codex Auth File] filesystem operation failed', error);
     }
 

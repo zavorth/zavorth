@@ -4,6 +4,7 @@ import type { NodeHostCapabilityRuntime, NodeHostExecutionResult } from './NodeH
 import { buildScopeViolationResult, resolveAllowedPath } from './NodeHostCapabilityPathPolicy.js';
 import { normalizeTimeout } from './NodeHostCapabilityExecutionHelpers.js';
 import { logger } from '../../../../logger.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 export class NodeHostCapabilityFilesystemService {
   private readonly workspaceRoot: string;
@@ -42,8 +43,7 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Node Host Capability Filesystem] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Node Host Capability Filesystem] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'files.read',
         targetPath: rawTargetPath,
@@ -110,8 +110,7 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Node Host Capability Filesystem] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Node Host Capability Filesystem] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'files.write',
         targetPath: rawTargetPath,
@@ -256,8 +255,7 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Node Host Capability Filesystem] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Node Host Capability Filesystem] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'files.watch',
         targetPath: rawTargetPath,
@@ -296,7 +294,9 @@ export class NodeHostCapabilityFilesystemService {
         settled = true;
         try {
           watcher?.close();
-        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          logger.warn("[auto-fix] Empty catch block", err); }
         resolve(result);
       };
 
@@ -362,7 +362,7 @@ export class NodeHostCapabilityFilesystemService {
             },
           });
         });
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         cleanupAndFinish({
           ok: false,
           resultSummary: `Falha ao iniciar observacao em ${targetPath}.`,

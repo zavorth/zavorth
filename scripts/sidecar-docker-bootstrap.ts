@@ -4,6 +4,7 @@ import { config } from '../src/config/index.js';
 import { execCommandSync } from '../src/core/CommandSpawn.js';
 import { SandboxExecutionService } from '../src/services/SandboxExecutionService.js';
 import type { SandboxLanguage } from '../src/services/sandbox/ISandboxRuntime.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 const shouldPull = process.argv.includes('--pull');
 const shouldRequire = process.argv.includes('--require');
@@ -20,7 +21,9 @@ function pullImage(image: string): { ok: boolean; detail: string } {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     return { ok: true, detail: `Imagem ${image} baixada/atualizada.` };
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       ok: false,
       detail: error instanceof Error ? error.message : String(error),

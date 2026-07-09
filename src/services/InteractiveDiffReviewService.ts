@@ -272,7 +272,7 @@ export class InteractiveDiffReviewService {
         afterHash,
         events,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const event = this.trace.append({
         kind: 'diff',
         title: 'Interactive diff apply failed',

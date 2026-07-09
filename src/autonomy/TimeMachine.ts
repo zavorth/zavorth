@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import { asErrorLike } from '../utils/errorLike';
 
 function copyRecursive(src: string, dest: string, exclude: Set<string>): void {
   const stats = fs.statSync(src);
@@ -39,14 +40,12 @@ function deleteRecursive(dir: string, exclude: Set<string>): void {
       deleteRecursive(entryPath, new Set());
       try {
         fs.rmdirSync(entryPath);
-      } catch (error: any) { const err = error; const e = error;
-        // Best effort
+      } catch (error: unknown) {// Best effort
       }
     } else {
       try {
         fs.unlinkSync(entryPath);
-      } catch (error: any) { const err = error; const e = error;
-        // Best effort
+      } catch (error: unknown) {// Best effort
       }
     }
   }
@@ -75,8 +74,7 @@ export class TimeMachine {
         isGit = execSync('git rev-parse --is-inside-work-tree', { cwd: workspacePath, stdio: 'pipe' })
           .toString()
           .trim() === 'true';
-      } catch (error: any) { const err = error; const e = error;
-        // Git command failed or not a repo
+      } catch (error: unknown) {// Git command failed or not a repo
       }
     }
 
@@ -88,7 +86,8 @@ export class TimeMachine {
         // but now we have a record in the stash history.
         execSync('git stash apply stash@{0}', { cwd: workspacePath, stdio: 'pipe' });
         return snapshotId;
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         console.warn('Git stash failed, trying fallback local snapshot:', err);
       }
     }
@@ -98,7 +97,8 @@ export class TimeMachine {
       const snapshotDir = path.join(workspacePath, '.zavorth', 'snapshots', snapshotId);
       const exclude = new Set(['.git', 'node_modules', '.zavorth']);
       copyRecursive(workspacePath, snapshotDir, exclude);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error('Local backup snapshot creation failed:', err);
       throw new Error(`Failed to create local snapshot: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -128,8 +128,7 @@ export class TimeMachine {
         isGit = execSync('git rev-parse --is-inside-work-tree', { cwd: workspacePath, stdio: 'pipe' })
           .toString()
           .trim() === 'true';
-      } catch (error: any) { const err = error; const e = error;
-        // Git command failed or not a repo
+      } catch (error: unknown) {// Git command failed or not a repo
       }
     }
 
@@ -150,7 +149,8 @@ export class TimeMachine {
             return true;
           }
         }
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         console.error('Git rollback failed, trying fallback local restore:', err);
       }
     }
@@ -163,7 +163,8 @@ export class TimeMachine {
         deleteRecursive(workspacePath, exclude);
         copyRecursive(backupDir, workspacePath, exclude);
         return true;
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         console.error('Fallback rollback failed:', err);
       }
     }

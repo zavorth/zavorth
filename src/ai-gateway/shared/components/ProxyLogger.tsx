@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
@@ -57,8 +58,7 @@ export default function ProxyLogger() {
     try {
       const saved = localStorage.getItem("proxyLoggerVisibleColumns");
       return saved ? { ...DEFAULT_VISIBLE, ...JSON.parse(saved) } : DEFAULT_VISIBLE;
-    } catch (error: any) { const err = error; const e = error;
-      return DEFAULT_VISIBLE;
+    } catch (error: unknown) {return DEFAULT_VISIBLE;
     }
   });
 
@@ -67,7 +67,9 @@ export default function ProxyLogger() {
       const next = { ...prev, [key]: !prev[key] };
       try {
         localStorage.setItem("proxyLoggerVisibleColumns", JSON.stringify(next));
-      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn("[auto-fix] Empty catch block", err); }
       return next;
     });
   }, []);
@@ -91,8 +93,7 @@ export default function ProxyLogger() {
           const data = await res.json();
           setLogs(data);
         }
-      } catch (error: any) { const err = error; const e = error;
-        console.error("Failed to fetch proxy logs:", error);
+      } catch (error: unknown) {console.error("Failed to fetch proxy logs:", error);
       } finally {
         if (showLoading) setLoading(false);
       }

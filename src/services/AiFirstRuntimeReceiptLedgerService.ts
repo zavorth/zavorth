@@ -273,8 +273,8 @@ export class AiFirstRuntimeReceiptLedgerService {
         entriesWritten: input.entries.length,
         error: null,
       };
-    } catch (error: any) {
-    logger.warn('[Ai First Runtime Receipt Ledger] filesystem operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Ai First Runtime Receipt Ledger] filesystem operation failed', error);
     return {
         mode: 'jsonl-file',
         attempted: true,

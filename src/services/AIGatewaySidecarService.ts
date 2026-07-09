@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -91,7 +92,7 @@ export class AIGatewaySidecarService {
         ...fallback,
         ...parsed,
       };
-    } catch (error: any) { logger.warn('[A I way Sidecar] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[A I way Sidecar] JSON parse failed', error); return fallback; }
   }
 
   private resolveSourceDir(): string | null {
@@ -192,7 +193,7 @@ export class AIGatewaySidecarService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch (error: any) { logger.warn('[A I way Sidecar] network request failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[A I way Sidecar] network request failed', error); return false; }
   }
 
   private buildModelsUrl(): string {
@@ -205,7 +206,7 @@ export class AIGatewaySidecarService {
       const parsed = new URL(this.upstreamBaseUrl);
       const port = parsed.port ? Number(parsed.port) : 80;
       return Number.isFinite(port) && port > 0 ? port : 20128;
-    } catch (error: any) { logger.warn('[A I way Sidecar] parsing failed', error); return 20128; }
+    } catch (error: unknown) {logger.warn('[A I way Sidecar] parsing failed', error); return 20128; }
   }
 
   private buildSnapshot(
@@ -281,7 +282,9 @@ export class AIGatewaySidecarService {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          logger.warn("[auto-fix] Empty catch block", err); }
         finalize();
       }, 5000);
 
@@ -299,8 +302,7 @@ export class AIGatewaySidecarService {
 
       try {
         child.kill('SIGTERM');
-      } catch (error: any) {
-        clearTimeout(timeout);
+      } catch (error: unknown) {clearTimeout(timeout);
         finalize();
       }
     });
@@ -315,8 +317,7 @@ export class AIGatewaySidecarService {
 
       try {
         process.kill(pid, 'SIGTERM');
-      } catch (error: any) {
-        resolve();
+      } catch (error: unknown) {resolve();
         return;
       }
       resolve();

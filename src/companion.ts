@@ -2,9 +2,7 @@ import os from 'os';
 import process from 'process';
 import path from 'path';
 import { CompanionBootstrapper } from './nodes/companion/CompanionBootstrapper.js';
-import { NodePairingManager } from './nodes/pairing/NodePairingManager.js';
-
-export type CompanionCliOptions = {
+import { NodePairingManager } from './nodes/pairing/NodePairingManager.js';export type CompanionCliOptions = {
   passcode: string | null;
   once: boolean;
   baseUrl: string;
@@ -131,8 +129,7 @@ export async function runCompanionCli(argv: string[] = process.argv.slice(2)): P
       process.once('SIGTERM', () => resolve(0));
       process.once('uncaughtException', (error) => reject(error));
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error('[Companion] Falha ao iniciar o Zavorth Desktop Companion:', error?.message || error);
+  } catch (error: unknown) {console.error('[Companion] Falha ao iniciar o Zavorth Desktop Companion:', error?.message || error);
     return 1;
   }
 }

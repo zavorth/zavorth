@@ -113,7 +113,7 @@ export class SandboxExecutionTool extends BaseTool {
       }
 
       return out;
-    } catch (error: any) { logger.warn('[Sandbox Execution] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Sandbox Execution] process execution failed', error); return ''; }
   }
 
   private async executeWasmModule(
@@ -221,8 +221,8 @@ export class SandboxExecutionTool extends BaseTool {
         return { ok: false, error: 'args_json aceita apenas numeros finitos.' };
       }
       return { ok: true, value: numericArgs };
-    } catch (error: any) {
-    logger.warn('[Sandbox Execution] parsing failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Sandbox Execution] parsing failed', error);
     return { ok: false, error: `args_json invalido: ${error.message}` };
   }
   }

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 ﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
@@ -58,8 +59,9 @@ export class WorkspaceCommandProposeTool extends BaseTool {
       let resolvedCwd: string;
       try {
         resolvedCwd = guard.resolveForWrite(cwdInput);
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Workspace Command Propose] validation failed', error);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn('[Workspace Command Propose] validation failed', error);
     return JSON.stringify({
           success: false,
           error: `Invalid directory: ${err.message || err}`
@@ -157,8 +159,8 @@ export class WorkspaceCommandProposeTool extends BaseTool {
         riskLevel,
         reason
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Workspace Command Propose] serialization failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Workspace Command Propose] serialization failed', error);
     return JSON.stringify({
         success: false,
         error: `Failed to propose command: ${error.message || error}`
@@ -208,8 +210,7 @@ export class WorkspaceCommandProposeTool extends BaseTool {
           if (isPathOutside(resolved, resolvedRoot)) {
             return true;
           }
-        } catch (error: any) { const err = error; const e = error;
-      // ignore parsing failures
+        } catch (error: unknown) {// ignore parsing failures
       logger.warn('[Workspace Command Propose] lifecycle operation failed', error);
     }
       }

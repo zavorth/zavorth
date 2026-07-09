@@ -6,6 +6,7 @@ import { buildChildProcessEnv } from '../security/ChildProcessEnv.js';
 import { createMcpAgentToolSecurityDefinition } from '../security/AgentToolSecurityCatalog.js';
 import { McpToolWrapper } from '../tools/McpToolWrapper.js';
 import { ToolRegistry } from '../tools/ToolRegistry.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export function buildMcpChildEnv(
   explicitEnv: Record<string, string> = {},
@@ -139,8 +140,7 @@ export class McpClientManager {
     logger.info(`[MCP] Desconectando servidor ${this.name}...`);
     try {
       await this.transport.close();
-    } catch (e: any) { const error = e; const err = e;
-      logger.error(`[MCP] Erro desconectando transport: ${e.message}`);
+    } catch (error: unknown) { const err = asErrorLike(error); logger.error(`[MCP] Erro desconectando transport: ${err.message}`);
     }
   }
 }

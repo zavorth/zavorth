@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * Prompt Injection Guard — Express/Next.js middleware
  *
@@ -205,7 +206,7 @@ export function withInjectionGuard(handler: any, options: any = {}) {
           request.headers.set("X-Injection-Detections", String(result.detections.length));
         }
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Don't block on guard errors — fail open
       logger.warn('[prompt Injection Guard] operation failed', error);
     }

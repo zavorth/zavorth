@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 /**
  * Universal Workspace Import
  *
@@ -174,7 +175,8 @@ export class UniversalWorkspaceImportService {
         item.status = 'copied';
         copied += 1;
         receipts.push(this.receipt('import', item, `Imported ${item.kind} → ${item.targetPath}`));
-      } catch (error) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         item.status = 'error';
         item.reason = error instanceof Error ? error.message : String(error);
         denied += 1;

@@ -506,7 +506,7 @@ export class ZavorthIntelligenceFabricService {
 function safeBuildPicker(modelPicker: Pick<ModelPickerService, 'buildPicker'>): ModelPickerServiceResult | null {
   try {
     return modelPicker.buildPicker({ includeAdvanced: true });
-  } catch (error: any) { logger.warn('[Zavorth Intelligence Fabric] creation failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth Intelligence Fabric] creation failed', error); return null; }
 }
 
 function redactText(text: string): string {

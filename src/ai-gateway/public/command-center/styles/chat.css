@@ -39,7 +39,7 @@
   opacity: 0.74;
 }
 
-/* ═══ Hero Empty State (Gemini-style) ═══ */
+/* ═══ Hero Empty State ═══ */
 .terminal-hero {
   display: none;
   flex-direction: column;

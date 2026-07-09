@@ -22,9 +22,7 @@ import {
   type ProjectProcessStopInput,
   type ProjectProcessSupervisorSnapshot,
 } from './ProjectProcessContract.js';
-import type { SessionRegistryService } from '../runtime/sessions/v2/SessionRegistryService.js';
-
-export type ProjectProcessSpawn = (
+import type { SessionRegistryService } from '../runtime/sessions/v2/SessionRegistryService.js';export type ProjectProcessSpawn = (
   command: string,
   args: string[],
   options: SpawnOptionsWithoutStdio,
@@ -142,8 +140,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
 
     try {
       entry.runtime.child.kill((input.signal || 'SIGTERM') as NodeJS.Signals);
-    } catch (error: any) { const err = error; const e = error;
-      entry.record.status = 'failed';
+    } catch (error: unknown) {entry.record.status = 'failed';
       entry.record.lastError = errorMessage(error);
       this.appendLog(entry, 'system', `[process:stop:error] ${entry.record.lastError}`);
     }
@@ -225,8 +222,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
       if (entry.runtime.child) {
         try {
           entry.runtime.child.kill('SIGTERM');
-        } catch (error: any) { const err = error; const e = error;
-          // Best-effort cleanup for tests and short-lived CLI callers.
+        } catch (error: unknown) {// Best-effort cleanup for tests and short-lived CLI callers.
         }
         entry.runtime.child = null;
       }
@@ -282,8 +278,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
       entry.record.status = 'running';
       this.registerOwnership(entry);
       this.bindChild(entry, child);
-    } catch (error: any) { const err = error; const e = error;
-      entry.runtime.child = null;
+    } catch (error: unknown) {entry.runtime.child = null;
       entry.record.status = 'failed';
       entry.record.lastError = errorMessage(error);
       entry.record.stoppedAt = this.nowIso();

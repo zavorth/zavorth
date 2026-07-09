@@ -92,8 +92,8 @@ export class ZavorthChannelSendTool extends BaseTool {
         recipient,
         thread_id: typeof args.thread_id === 'string' ? args.thread_id : undefined,
       }, args);
-    } catch (error: any) {
-    logger.warn('[Zavorth Channel Send] validation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Channel Send] validation failed', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
       return `Error sending to ${channel}: ${errorMessage}`;
   }
@@ -103,7 +103,7 @@ export class ZavorthChannelSendTool extends BaseTool {
     let targets: ChannelTarget[];
     try {
       targets = JSON.parse(multiChannelJson);
-    } catch (error: any) { logger.warn('[Zavorth Channel Send] JSON parse failed', error); return 'Error: invalid JSON for "multi_channel"..'; }
+    } catch (error: unknown) {logger.warn('[Zavorth Channel Send] JSON parse failed', error); return 'Error: invalid JSON for "multi_channel"..'; }
 
     if (!Array.isArray(targets) || targets.length === 0) {
       return 'Error: "multi_channel" must be a non-empty array.';
@@ -122,7 +122,7 @@ export class ZavorthChannelSendTool extends BaseTool {
         const result = await this.sendToChannel(target, args);
         results.push(`✅ ${target.channel}:${target.recipient} — ${result}`);
         successCount++;
-      } catch (error: any) {
+      } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         results.push(`❌ ${target.channel}:${target.recipient} — ${errorMessage}`);
         failCount++;
@@ -144,7 +144,7 @@ export class ZavorthChannelSendTool extends BaseTool {
 
     let attachments: Array<{ type: string; path_or_url: string; filename?: string }> = [];
     if (typeof args.attachments === 'string') {
-      try { attachments = JSON.parse(args.attachments); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Channel Send] JSON parse failed', error); }
+      try { attachments = JSON.parse(args.attachments); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Channel Send] JSON parse failed', error); }
     }
 
     const formattedMessage = this.formatMessageForChannel(message, target.channel, format);

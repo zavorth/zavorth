@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveZavorthGatewayBaseUrl";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';
-
-const ZavorthGateway_BASE_URL = resolveZavorthGatewayBaseUrl();
+import { logger } from '@/shared/utils/logger';const ZavorthGateway_BASE_URL = resolveZavorthGatewayBaseUrl();
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -49,8 +47,7 @@ export async function GET(request: Request) {
       generated_at: new Date().toISOString(),
       source: "ZavorthGateway-auto-combo",
     });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] creation failed', error);
+  } catch (error: unknown) {logger.warn('[route] creation failed', error);
     return NextResponse.json({
       provider: {
         order: ["anthropic", "google", "openai"],

@@ -4,7 +4,6 @@ import { QODER_CONFIG } from "../constants/oauth";
 import { getServerCredentials } from "../config/index";
 import { startLocalServer } from "../utils/server";
 import { spinner as createSpinner } from "../utils/ui";
-
 /**
  * Qoder OAuth Service
  * Uses Authorization Code flow with Basic Auth
@@ -213,7 +212,7 @@ export class QoderService {
 
       spinner.succeed(`Qoder connected successfully! (${userInfo.email || userInfo.phone})`);
       return true;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

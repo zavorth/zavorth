@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import fs from 'fs';
 import path from 'path';
 import { execFile } from 'child_process';
@@ -244,17 +245,23 @@ export class ZavorthBridgeUiCaptureService {
     try {
       ProviderFactory.create('gemini');
       providerNames.push('gemini');
-    } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn("[auto-fix] Empty catch block", err); }
 
     try {
       ProviderFactory.create('openai');
       providerNames.push('openai');
-    } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn("[auto-fix] Empty catch block", err); }
 
     try {
       ProviderFactory.create('qwen');
       providerNames.push('qwen');
-    } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn("[auto-fix] Empty catch block", err); }
 
     let lastError: string | null = null;
     let lastRawResponse: string | null = null;
@@ -276,8 +283,8 @@ export class ZavorthBridgeUiCaptureService {
         }
 
         lastError = `O provider ${providerName} respondeu, mas sem JSON interpretavel.`;
-      } catch (error: any) {
-    logger.warn('[Zavorth Bridge Ui Capture] parsing failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Zavorth Bridge Ui Capture] parsing failed', error);
     lastError = `Falha no provider ${providerName}: ${error.message}`;
   }
     }
@@ -329,8 +336,7 @@ export class ZavorthBridgeUiCaptureService {
 
           try {
             resolve(JSON.parse(stdout.trim()) as CaptureScriptResult);
-          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
-            reject(new Error(`Falha ao interpretar a captura do ZavorthBridge: ${parseError.message}`));
+          } catch (parseError: unknown) {reject(new Error(`Falha ao interpretar a captura do ZavorthBridge: ${parseError.message}`));
           }
         },
       );
@@ -386,8 +392,7 @@ export class ZavorthBridgeUiCaptureService {
               uiDiagnostics:
                 parsed.diagnostics && typeof parsed.diagnostics === 'object' ? parsed.diagnostics : null,
             });
-          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
-            reject(new Error(`Falha ao interpretar a leitura local da UI do ZavorthBridge: ${parseError.message}`));
+          } catch (parseError: unknown) {reject(new Error(`Falha ao interpretar a leitura local da UI do ZavorthBridge: ${parseError.message}`));
           }
         },
       );
@@ -425,7 +430,7 @@ export class ZavorthBridgeUiCaptureService {
   private tryParseJson(raw: string): VisionPayload | null {
     try {
       return JSON.parse(raw) as VisionPayload;
-    } catch (error: any) { logger.warn('[Zavorth Bridge Ui Capture] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Bridge Ui Capture] JSON parse failed', error); return null; }
   }
 
   private normalizeStatus(status: string | undefined): ZavorthBridgeUiSnapshot['status'] {

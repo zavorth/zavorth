@@ -1,7 +1,5 @@
 import { execFile } from 'child_process';
-import { config } from '../config/index.js';
-
-export type WindowsSessionStatus = {
+import { config } from '../config/index.js';export type WindowsSessionStatus = {
   ok: boolean;
   accessible: boolean;
   lockedLikely: boolean;
@@ -39,8 +37,7 @@ export class WindowsSessionService {
 
           try {
             resolve(JSON.parse(stdout.trim()) as WindowsSessionStatus);
-          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
-            reject(new Error(`Failed to parse Windows session status: ${parseError.message}`));
+          } catch (parseError: unknown) {reject(new Error(`Failed to parse Windows session status: ${parseError.message}`));
           }
         },
       );

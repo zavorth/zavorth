@@ -3,9 +3,7 @@ import crypto from 'crypto';
 import type * as http from 'http';
 import path from 'path';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
-import { truncateSlackText } from '../../../utils/text.js';
-
-import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
+import { truncateSlackText } from '../../../utils/text.js';import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 import { logger } from '../../../logger.js';
 
@@ -86,7 +84,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
 
     try {
       return JSON.parse(fs.readFileSync(config.slackStatusFile, 'utf8')) as SlackGatewayStatusSnapshot;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Slack way.stub] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Slack way.stub] JSON parse failed', error); return null; }
   }
 
   public async simulateIncomingMessage(message: SlackGatewayStubMessage): Promise<void> {
@@ -422,8 +420,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
     let responsePayload: Record<string, unknown> | null = null;
     try {
       responsePayload = (await response.json()) as Record<string, unknown>;
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Slack way.stub] network request failed', error);
+    } catch (error: unknown) {logger.warn('[Slack way.stub] network request failed', error);
     responsePayload = null;
   }
 

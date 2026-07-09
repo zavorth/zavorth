@@ -1,7 +1,5 @@
 import { lookup } from "dns/promises";
-import { isIP } from "net";
-
-export interface EgressGuardOptions {
+import { isIP } from "net";export interface EgressGuardOptions {
   allowHttp?: boolean;
   allowPrivateEnvVar?: string;
   serviceName?: string;
@@ -71,8 +69,7 @@ export async function assertPublicHttpTargetAllowed(
   let parsed: URL;
   try {
     parsed = new URL(rawUrl);
-  } catch (error: any) { const err = error; const e = error;
-    throw new Error(`${serviceName} URL is invalid`);
+  } catch (error: unknown) {throw new Error(`${serviceName} URL is invalid`);
   }
 
   if (parsed.protocol !== "https:" && (!allowHttp || parsed.protocol !== "http:")) {
@@ -95,8 +92,7 @@ export async function assertPublicHttpTargetAllowed(
   let resolved;
   try {
     resolved = await lookup(hostname, { all: true });
-  } catch (error: any) { const err = error; const e = error;
-    throw new Error(`${serviceName} hostname could not be resolved`);
+  } catch (error: unknown) {throw new Error(`${serviceName} hostname could not be resolved`);
   }
 
   if (resolved.length === 0 || resolved.some((entry) => isPrivateNetworkAddress(entry.address))) {

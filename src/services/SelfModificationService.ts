@@ -293,7 +293,7 @@ export class SelfModificationService {
   private async readCurrentContent(absolutePath: string): Promise<string> {
     try {
       return await fs.promises.readFile(absolutePath, 'utf-8');
-    } catch (error: any) { logger.warn('[Self Modification] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Self Modification] filesystem operation failed', error); return ''; }
   }
 
   private resolveTargetPath(filePath: string): { allowed: boolean; reason: string; absolutePath: string } {
@@ -374,8 +374,7 @@ export class SelfModificationService {
     for (const candidate of candidates) {
       try {
         return JSON.parse(candidate);
-      } catch (error: any) {
-      // continue
+      } catch (error: unknown) {// continue
       logger.warn('[Self Modification] JSON parse failed', error);
     }
     }

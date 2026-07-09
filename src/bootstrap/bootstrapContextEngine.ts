@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 /**
  * bootstrapContextEngine.ts - Context Engine + Cognitive Firewall initialization.
  *
@@ -83,7 +84,7 @@ export function createContextEngineRuntime(
     'ContextEngine + LegacyUnifiedGatewayAdapter + SkillScanner + EpisodicMemoryBridge initialized. Cognitive Firewall active.',
   );
 
-  console.log('[BOOT] context-engine-ready');
+  logger.info('[BOOT] context-engine-ready');
 
   return {
     contextEngine,

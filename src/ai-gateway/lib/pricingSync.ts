@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * pricingSync.ts — External pricing sync engine.
  *
@@ -111,8 +112,7 @@ export async function fetchLiteLLMPricing(): Promise<Record<string, LiteLLMModel
   const text = await response.text();
   try {
     return JSON.parse(text) as Record<string, LiteLLMModelInfo>;
-  } catch (error: any) { const err = error; const e = error;
-    throw new Error(`LiteLLM returned invalid JSON (${text.slice(0, 100)}...)`);
+  } catch (error: unknown) {throw new Error(`LiteLLM returned invalid JSON (${text.slice(0, 100)}...)`);
   }
 }
 
@@ -194,8 +194,7 @@ export function getSyncedPricing(): PricingByProvider {
     if (!key || rawValue === null) continue;
     try {
       synced[key] = JSON.parse(rawValue) as PricingModels;
-    } catch (error: any) { const err = error; const e = error;
-      console.warn(`[PRICING_SYNC] Corrupted data for provider "${key}", skipping`);
+    } catch (error: unknown) {console.warn(`[PRICING_SYNC] Corrupted data for provider "${key}", skipping`);
     }
   }
   return synced;
@@ -300,7 +299,8 @@ export async function syncPricingFromSources(opts?: {
         : {}),
       ...(dryRun ? { data: aggregated } : {}),
     };
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const message = err instanceof Error ? err.message : String(err);
     console.warn("[PRICING_SYNC] Sync failed:", message);
     return {

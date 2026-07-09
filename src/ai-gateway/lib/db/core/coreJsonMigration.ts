@@ -2,9 +2,7 @@ import fs from "fs";
 import path from "path";
 import { asZavorthSettingsBackup } from "../jsonBackupAdapters";
 import { runJsonMigration } from "../jsonMigration";
-import type { SqliteDatabase } from "./coreTypes";
-
-function getErrorMessage(error: unknown): string {
+import type { SqliteDatabase } from "./coreTypes";function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
@@ -47,7 +45,6 @@ export function migrateFromJson(
         );
       }
     }
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[DB] Migration from db.json failed:", getErrorMessage(error));
+  } catch (error: unknown) {console.error("[DB] Migration from db.json failed:", getErrorMessage(error));
   }
 }

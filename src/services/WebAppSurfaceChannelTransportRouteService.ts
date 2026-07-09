@@ -210,7 +210,7 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           202,
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao aplicar setup assistido do canal.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
@@ -265,7 +265,7 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           202,
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao executar doctor assistido do canal.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
@@ -298,7 +298,7 @@ export class WebAppSurfaceChannelTransportRouteService {
             selectedId: result.assistant.selected?.channelId || result.channelId || null,
           }) || null,
         }, 200);
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao executar o fluxo natural de setup do canal.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
@@ -325,7 +325,7 @@ export class WebAppSurfaceChannelTransportRouteService {
           result,
           channels: deps.channelMesh.buildSnapshot({ selectedId: channelId }),
         }, 200);
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao executar a acao do Channel Mesh.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
@@ -425,7 +425,7 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           200,
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao aplicar o scaffold do canal.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
@@ -454,7 +454,7 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           200,
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao executar o doctor dos canais.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
@@ -535,7 +535,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         });
         deps.writeJson(res, { ok: true, result, channel, channels: snapshot }, 200);
         return true;
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao operar o canal.';
         deps.writeJson(res, { ok: false, error: message }, 400);
         return true;
@@ -581,7 +581,7 @@ export class WebAppSurfaceChannelTransportRouteService {
           result,
           transports: deps.remoteTransports.buildSnapshot({ selectedId: transportId }),
         }, 200);
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao executar a acao do plano remoto.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
@@ -644,7 +644,7 @@ export class WebAppSurfaceChannelTransportRouteService {
             },
             report.status === 'failed' ? 409 : 200,
           );
-        } catch (error: any) {
+        } catch (error: unknown) {
           const message = error instanceof Error ? error.message : 'Falha ao rodar o doctor remoto.';
           deps.writeJson(res, { ok: false, error: message }, 400);
         }
@@ -675,7 +675,7 @@ export class WebAppSurfaceChannelTransportRouteService {
           },
           result.ok ? 200 : 409,
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao recuperar o transporte remoto.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }

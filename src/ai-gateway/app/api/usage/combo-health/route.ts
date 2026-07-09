@@ -9,9 +9,7 @@ import type {
   ComboHealthResponse,
   QuotaSnapshotRow,
   UtilizationTimeRange,
-} from "@/shared/types/utilization";
-
-type ComboModelNode = string | { model?: string | null };
+} from "@/shared/types/utilization";type ComboModelNode = string | { model?: string | null };
 
 type ComboRecord = {
   id?: string;
@@ -363,8 +361,7 @@ export async function GET(request: Request) {
     };
 
     return NextResponse.json(response);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error fetching combo health:", error);
+  } catch (error: unknown) {console.error("Error fetching combo health:", error);
     return NextResponse.json({ error: "Failed to fetch combo health" }, { status: 500 });
   }
 }

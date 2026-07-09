@@ -1,6 +1,4 @@
-import { ZAVORTH_LEGACY_TRANSPORT_COMPAT } from "./compat/legacyTransportCompat";
-
-export const ZAVORTH_COMPATIBLE_API_SURFACE = {
+import { ZAVORTH_LEGACY_TRANSPORT_COMPAT } from "./compat/legacyTransportCompat";export const ZAVORTH_COMPATIBLE_API_SURFACE = {
   sessionHeaders: {
     canonical: "X-Zavorth-Session-Id",
     legacy: ZAVORTH_LEGACY_TRANSPORT_COMPAT.sessionHeaders.legacy,
@@ -86,8 +84,7 @@ export function withZavorthSessionHeader(response: Response, sessionId: string |
   try {
     applySessionHeaders(response.headers, sessionId);
     return response;
-  } catch (error: any) { const err = error; const e = error;
-    const cloned = new Response(response.body, {
+  } catch (error: unknown) {const cloned = new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: response.headers,

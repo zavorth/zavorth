@@ -113,7 +113,7 @@ export class ZavorthNotificationTool extends BaseTool {
         maxBuffer: 10 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: any) { logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
   }
 
   private resolveTemplate(args: Record<string, unknown>): { title: string; message: string } {
@@ -128,7 +128,7 @@ export class ZavorthNotificationTool extends BaseTool {
         for (const [key, value] of Object.entries(vars)) {
           template = template.replace(new RegExp(`{{\\s*${key}\\s*}}`, 'g'), String(value));
         }
-      } catch (error: any) { /* ignore parse errors */ logger.warn('[Zavorth Notification] JSON parse failed', error); }
+      } catch (error: unknown) {/* ignore parse errors */ logger.warn('[Zavorth Notification] JSON parse failed', error); }
       message = template;
     }
 
@@ -162,7 +162,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
         execFileSync('notify-send', [title, message.slice(0, 200)], { timeout: 5000 });
         return `Desktop notification sent: ${title}`;
       }
-    } catch (error: any) { logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
   }
 
   private async pushNotification(args: Record<string, unknown>): Promise<string> {
@@ -187,7 +187,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
       ], { timeout: 15000 }).toString();
 
       return `Email notification to ${to}:\n${result.slice(0, 500)}`;
-    } catch (error: any) { logger.warn('[Zavorth Notification] operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Notification] operation failed', error); return ''; }
   }
 
   private async smsNotification(args: Record<string, unknown>): Promise<string> {
@@ -207,7 +207,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
       ], { timeout: 15000 }).toString();
 
       return `SMS to ${to}:\n${result.slice(0, 500)}`;
-    } catch (error: any) { logger.warn('[Zavorth Notification] operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Notification] operation failed', error); return ''; }
   }
 
   private async slackNotification(args: Record<string, unknown>): Promise<string> {
@@ -241,7 +241,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
       ], { timeout: 10000 }).toString();
 
       return result === 'ok' ? `Slack notification sent: ${title}` : `Slack response: ${result}`;
-    } catch (error: any) { logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
   }
 
   private async discordNotification(args: Record<string, unknown>): Promise<string> {
@@ -275,7 +275,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
       ], { timeout: 10000 }).toString();
 
       return `Discord notification sent: ${title}`;
-    } catch (error: any) { logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
   }
 
   private async telegramNotification(args: Record<string, unknown>): Promise<string> {
@@ -300,8 +300,8 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
       try {
         const parsed = JSON.parse(result);
         return parsed.ok ? `Telegram notification sent to ${chatId}` : `Telegram error: ${parsed.description}`;
-      } catch (error: any) { logger.warn('[Zavorth Notification] JSON parse failed', error); return ''; }
-    } catch (error: any) { logger.warn('[Zavorth Notification] JSON parse failed', error); return ''; }
+      } catch (error: unknown) {logger.warn('[Zavorth Notification] JSON parse failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Notification] JSON parse failed', error); return ''; }
   }
 
   private async webhookNotification(args: Record<string, unknown>): Promise<string> {
@@ -330,7 +330,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
       ], { timeout: 15000 }).toString();
 
       return `Webhook notification sent to ${url}:\n${result.slice(0, 500)}`;
-    } catch (error: any) { logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
   }
 
   private async teamsNotification(args: Record<string, unknown>): Promise<string> {
@@ -364,7 +364,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
       ], { timeout: 10000 });
 
       return `Teams notification sent: ${title}`;
-    } catch (error: any) { logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Notification] process execution failed', error); return ''; }
   }
 
   private statusInfo(): string {

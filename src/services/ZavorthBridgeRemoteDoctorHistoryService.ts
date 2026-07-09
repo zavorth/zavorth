@@ -64,7 +64,7 @@ export class ZavorthBridgeRemoteDoctorHistoryService {
     try {
       const parsed = JSON.parse(fs.readFileSync(historyFilePath, 'utf8'));
       return Array.isArray(parsed) ? parsed : [];
-    } catch (error: any) { logger.warn('[Zavorth Bridge Remote Doctor History] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Bridge Remote Doctor History] JSON parse failed', error); return []; }
   }
 
   public async appendReport(

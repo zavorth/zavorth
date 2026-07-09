@@ -46,11 +46,11 @@ export class AutoSkillGeneratorService {
     try {
       const p = path.join(this.storageDir, 'patterns.json');
       if (fs.existsSync(p)) this.patterns = new Map(Object.entries(JSON.parse(fs.readFileSync(p, 'utf-8'))));
-    } catch (error: any) { /* ignore */ logger.warn('[Auto Skill Generator] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Auto Skill Generator] JSON parse failed', error); }
     try {
       const s = path.join(this.storageDir, 'skills.json');
       if (fs.existsSync(s)) this.generatedSkills = new Map(Object.entries(JSON.parse(fs.readFileSync(s, 'utf-8'))));
-    } catch (error: any) { /* ignore */ logger.warn('[Auto Skill Generator] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Auto Skill Generator] JSON parse failed', error); }
   }
 
   private saveData(): void {

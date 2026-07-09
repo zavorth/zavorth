@@ -254,8 +254,7 @@ export class BootIntegrityService {
         this.mkdirSync(targetPath, { recursive: true });
         metadata.created = true;
         return this.buildCheck(spec, targetPath, 'pass', 'diretorio criado durante o smoke de boot', true, metadata);
-      } catch (error: any) {
-    logger.warn('[Boot Integrity] filesystem operation failed', error);
+      } catch (error: unknown) {logger.warn('[Boot Integrity] filesystem operation failed', error);
     return this.buildCheck(
           spec,
           targetPath,
@@ -297,8 +296,7 @@ export class BootIntegrityService {
       }
       this.accessSync(targetPath, fs.constants.R_OK | fs.constants.W_OK);
       return this.buildCheck(spec, targetPath, 'pass', 'diretorio acessivel para leitura e escrita', false, metadata);
-    } catch (error: any) {
-    logger.warn('[Boot Integrity] creation failed', error);
+    } catch (error: unknown) {logger.warn('[Boot Integrity] creation failed', error);
     return this.buildCheck(
         spec,
         targetPath,
@@ -329,8 +327,7 @@ export class BootIntegrityService {
       }
 
       return this.buildCheck(spec, targetPath, 'pass', 'arquivo presente e legivel', false, metadata);
-    } catch (error: any) {
-    logger.warn('[Boot Integrity] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Boot Integrity] parsing failed', error);
     return this.buildCheck(
         spec,
         targetPath,

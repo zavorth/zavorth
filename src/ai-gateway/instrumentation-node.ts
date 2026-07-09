@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 /**
  * Node.js-only instrumentation logic.
  *
@@ -46,7 +47,8 @@ async function ensureSecrets(): Promise<void> {
 
   try {
     ({ getPersistedSecret, persistSecret } = await import("@/lib/db/secrets"));
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const msg = err instanceof Error ? err.message : String(err);
     console.warn(
       "[STARTUP] Secret persistence unavailable; falling back to process-local secrets:",
@@ -159,7 +161,8 @@ export async function registerNodejs(): Promise<void> {
         );
       }
     }
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const msg = err instanceof Error ? err.message : String(err);
     console.warn("[STARTUP] Could not restore runtime settings:", msg);
   }
@@ -180,7 +183,8 @@ export async function registerNodejs(): Promise<void> {
     ) {
       console.log("[COMPLIANCE] Expired log cleanup:", cleanup);
     }
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const msg = err instanceof Error ? err.message : String(err);
     console.warn("[COMPLIANCE] Could not initialize audit log:", msg);
   }

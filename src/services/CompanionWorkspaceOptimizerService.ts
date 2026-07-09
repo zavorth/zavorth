@@ -574,7 +574,7 @@ export class CompanionWorkspaceOptimizerService {
     try {
       const parsed = JSON.parse(await this.readFile(settingsFilePath, 'utf8')) as Record<string, unknown>;
       return this.normalizeObject(parsed);
-    } catch (error: any) { logger.warn('[Companion Workspace Optimizer] JSON parse failed', error); return {}; }
+    } catch (error: unknown) {logger.warn('[Companion Workspace Optimizer] JSON parse failed', error); return {}; }
   }
 
   private mergeSettings(currentSettings: Record<string, unknown>, preset: IDECompanionPreset): Record<string, unknown> {
@@ -641,8 +641,7 @@ export class CompanionWorkspaceOptimizerService {
         updatedAt: String(parsed.updatedAt || this.now().toISOString()),
         workspaces: Array.isArray(parsed.workspaces) ? parsed.workspaces : [],
       };
-    } catch (error: any) {
-    logger.warn('[Companion Workspace Optimizer] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Companion Workspace Optimizer] JSON parse failed', error);
     return {
         updatedAt: this.now().toISOString(),
         workspaces: [],

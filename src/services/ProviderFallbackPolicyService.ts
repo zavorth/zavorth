@@ -63,7 +63,7 @@ export class ProviderFallbackPolicyService {
         fallbackUsed: false,
         budgetDecision: budget.decision,
       });
-    } catch (originalError: any) { const error = originalError; const err = originalError; const e = originalError;
+    } catch ($1: unknown) { const error = originalError; const err = originalError; const e = originalError;
       if (!request.allowFallback) {
         throw originalError;
       }
@@ -140,7 +140,7 @@ export class ProviderFallbackPolicyService {
             fallbackUsed: true,
             budgetDecision: budget.decision,
           });
-        } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
+        } catch ($1: unknown) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
           const fallbackNormalized = ErrorNormalizationService.getInstance().normalize(fallbackError);
           await logger.logWorkspaceEvent({
             event: 'provider_runtime_fallback_failed',
@@ -210,7 +210,7 @@ export class ProviderFallbackPolicyService {
         },
       });
       return result;
-    } catch (error: any) {
+    } catch ($1: unknown) {
       const normalized = ErrorNormalizationService.getInstance().normalize(error);
       attempt.status = 'failed';
       attempt.durationMs = Date.now() - startedAt;

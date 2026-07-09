@@ -11,9 +11,7 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildProviderRequestOptions } from './ProviderAbort.js';
-import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';
-
-export class OpenCodeProvider implements ILlmProvider {
+import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';export class OpenCodeProvider implements ILlmProvider {
   public readonly name = 'opencode';
   private client: OpenAI;
 
@@ -66,8 +64,7 @@ export class OpenCodeProvider implements ILlmProvider {
         toolCalls,
         finishReason: choice.finish_reason as LlmResponse['finishReason'],
       };
-    } catch (error: any) { const err = error; const e = error;
-      logger.error('[OpenCode] Request error:', error?.message || error);
+    } catch (error: unknown) {logger.error('[OpenCode] Request error:', error?.message || error);
       throw error;
     }
   }

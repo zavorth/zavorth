@@ -1,5 +1,4 @@
-import { logger } from '@/shared/utils/logger';
-const CACHE_TTL_MS = 5 * 60 * 1000;
+import { logger } from '@/shared/utils/logger';const CACHE_TTL_MS = 5 * 60 * 1000;
 
 interface GitHubReleaseAsset {
   name: string;
@@ -81,7 +80,7 @@ export async function getReleaseByVersion(version: string): Promise<ReleaseInfo 
       `https://api.github.com/repos/router-for-me/CLIProxyAPI/releases/tags/${tag}`
     );
     return parseRelease(raw);
-  } catch (error: any) { const err = error; const e = error; logger.warn('[release Checker] network request failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[release Checker] network request failed', error); return null; }
 }
 
 export async function getAvailableVersions(): Promise<string[]> {
@@ -106,7 +105,7 @@ export async function getChecksums(version: string): Promise<Map<string, string>
       }
     }
     return map;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[release Checker] network request failed', error); return new Map(); }
+  } catch (error: unknown) {logger.warn('[release Checker] network request failed', error); return new Map(); }
 }
 
 export function clearCache(): void {

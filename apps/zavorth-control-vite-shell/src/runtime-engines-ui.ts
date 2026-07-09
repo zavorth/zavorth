@@ -287,7 +287,7 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
         ...(init?.headers || {}),
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     throw new TransportFallbackError(errorMessage(error, `Network request failed: ${url}`));
   }
   let payload: any = null;
@@ -515,7 +515,7 @@ function renderEngineCards(snapshot: EngineSnapshot) {
 async function loadEngines() {
   try {
     cachedEngineSnapshot = await fetchJson<EngineSnapshot>('/api/web/execution-engines');
-  } catch (error) {
+  } catch (error: unknown) {
     if (!isTransportFallbackError(error)) throw error;
     cachedEngineSnapshot = localFallbackJson<EngineSnapshot>('/api/web/execution-engines');
   }
@@ -532,7 +532,7 @@ async function selectEngine(engineId: EngineId) {
   };
   try {
     cachedEngineSnapshot = await fetchJson<EngineSnapshot>('/api/web/execution-engines', request);
-  } catch (error) {
+  } catch (error: unknown) {
     if (!isTransportFallbackError(error)) throw error;
     cachedEngineSnapshot = localFallbackJson<EngineSnapshot>('/api/web/execution-engines', request);
   }
@@ -558,7 +558,7 @@ async function decidePrompt(prompt: string, options: { operation?: string; targe
       method: 'POST',
       body,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     if (!isTransportFallbackError(error)) throw error;
     cachedEngineSnapshot = localFallbackJson<EngineSnapshot>('/api/web/execution-engines', {
       method: 'POST',

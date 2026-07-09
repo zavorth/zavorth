@@ -548,8 +548,7 @@ export class ZavorthExternalAgentOnboardingService {
       let dirents: fs.Dirent[];
       try {
         dirents = this.readdirSyncImpl(current, { withFileTypes: true }) as fs.Dirent[];
-      } catch (error: any) {
-    logger.warn('[Zavorth External Agent Onboarding] filesystem operation failed', error);
+      } catch (error: unknown) {logger.warn('[Zavorth External Agent Onboarding] filesystem operation failed', error);
     return;
   }
       for (const dirent of dirents.slice(0, 80)) {
@@ -589,8 +588,7 @@ export class ZavorthExternalAgentOnboardingService {
         const text = String(raw).slice(0, MAX_MANIFEST_BYTES);
         manifests.set(entry.relativePath || path.relative(root, entry.path), text);
         filesRead.push(entry.path);
-      } catch (error: any) {
-      // best-effort read-only manifest probe
+      } catch (error: unknown) {// best-effort read-only manifest probe
       logger.warn('[Zavorth External Agent Onboarding] filesystem operation failed', error);
     }
     }

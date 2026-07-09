@@ -215,7 +215,7 @@ function realpathIfExists(target: string): string | null {
       return null;
     }
     return normalizePath(fs.realpathSync.native(target));
-  } catch (error: any) { logger.warn('[Workspace Fs] filesystem operation failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Workspace Fs] filesystem operation failed', error); return null; }
 }
 
 function findNearestExistingAncestor(startDir: string): string {

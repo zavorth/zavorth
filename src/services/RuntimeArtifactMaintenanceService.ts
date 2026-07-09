@@ -104,6 +104,6 @@ export class RuntimeArtifactMaintenanceService {
     try {
       fs.rmSync(targetPath, { recursive: true, force: true });
       return true;
-    } catch (error: any) { logger.warn('[Runtime Artifact Maintenance] filesystem operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Runtime Artifact Maintenance] filesystem operation failed', error); return false; }
   }
 }

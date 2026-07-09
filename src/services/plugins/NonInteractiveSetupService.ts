@@ -135,8 +135,8 @@ export class NonInteractiveSetupService {
 
       fs.writeFileSync(envPath, content.trim() + '\n', 'utf-8');
       return { name: 'api-key', status: 'done', message: `API key saved to .env` };
-    } catch (error: any) {
-    logger.warn('[Non Interactive Setup] filesystem operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Non Interactive Setup] filesystem operation failed', error);
     return { name: 'api-key', status: 'error', message: `Failed to save API key: ${error instanceof Error ? error.message : String(error)}` };
   }
   }
@@ -148,8 +148,8 @@ export class NonInteractiveSetupService {
         fs.mkdirSync(workspacePath, { recursive: true });
       }
       return { name: 'workspace', status: 'done', message: `Workspace: ${workspacePath}` };
-    } catch (error: any) {
-    logger.warn('[Non Interactive Setup] filesystem operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Non Interactive Setup] filesystem operation failed', error);
     return { name: 'workspace', status: 'error', message: `Failed to create workspace: ${error instanceof Error ? error.message : String(error)}` };
   }
   }
@@ -159,8 +159,8 @@ export class NonInteractiveSetupService {
       const configPath = path.join(this.storageDir, 'channels.json');
       fs.writeFileSync(configPath, JSON.stringify({ channels }, null, 2), 'utf-8');
       return { name: 'channels', status: 'done', message: `Channels: ${channels.join(', ')}` };
-    } catch (error: any) {
-    logger.warn('[Non Interactive Setup] filesystem operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Non Interactive Setup] filesystem operation failed', error);
     return { name: 'channels', status: 'error', message: `Failed to configure channels: ${error instanceof Error ? error.message : String(error)}` };
   }
   }

@@ -1,4 +1,5 @@
 import { Button } from '../primitives';
+import { t } from '../i18n';
 
 export type NextActionBannerProps = {
   approvalsCount: number;
@@ -8,6 +9,7 @@ export type NextActionBannerProps = {
   onOpenChat?(): void;
   onOpenProof?(): void;
   onDoctor?(): void;
+  language?: string | null;
 };
 
 type NextActionModel = {
@@ -19,11 +21,14 @@ type NextActionModel = {
 
 function resolveNextAction(props: NextActionBannerProps): NextActionModel | null {
   const n = Math.max(0, Number(props.approvalsCount) || 0);
+  const lang = props.language;
 
   if (n > 0) {
     return {
-      title: n === 1 ? '1 approval waiting' : `${n} approvals waiting`,
-      cta: 'Review',
+      title: n === 1
+        ? t('nextAction.oneApproval', lang)
+        : t('nextAction.nApprovals', lang).replace('{n}', String(n)),
+      cta: t('nextAction.review', lang),
       onClick: props.onOpenReview,
       tone: 'warn',
     };
@@ -32,15 +37,15 @@ function resolveNextAction(props: NextActionBannerProps): NextActionModel | null
   if (props.runtimeOnline === false) {
     if (props.onDoctor) {
       return {
-        title: 'Runtime offline',
-        cta: 'Doctor',
+        title: t('nextAction.runtimeOffline', lang),
+        cta: t('nextAction.doctor', lang),
         onClick: props.onDoctor,
         tone: 'danger',
       };
     }
     return {
-      title: 'Runtime offline',
-      cta: 'Review',
+      title: t('nextAction.runtimeOffline', lang),
+      cta: t('nextAction.review', lang),
       onClick: props.onOpenReview,
       tone: 'danger',
     };
@@ -51,8 +56,8 @@ function resolveNextAction(props: NextActionBannerProps): NextActionModel | null
       return null;
     }
     return {
-      title: 'Task running',
-      cta: 'Open chat',
+      title: t('nextAction.taskRunning', lang),
+      cta: t('nextAction.openChat', lang),
       onClick: props.onOpenChat,
       tone: 'info',
     };
@@ -61,7 +66,7 @@ function resolveNextAction(props: NextActionBannerProps): NextActionModel | null
   return null;
 }
 
-/** One aggressive next action, no instructional essay. */
+/** Compact next-action banner. */
 export function NextActionBanner(props: NextActionBannerProps) {
   const model = resolveNextAction(props);
   if (!model) {
@@ -76,7 +81,7 @@ export function NextActionBanner(props: NextActionBannerProps) {
       data-next-action-tone={model.tone}
     >
       <div className="zvd-next-action__copy">
-        <span className="zvd-next-action__eyebrow">Next</span>
+        <span className="zvd-next-action__eyebrow">{t('nextAction.next', props.language)}</span>
         <strong className="zvd-next-action__title">{model.title}</strong>
       </div>
       <Button variant="default" size="sm" onClick={model.onClick}>

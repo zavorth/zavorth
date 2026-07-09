@@ -143,8 +143,7 @@ export class RemoteMeshSandboxLiveProbeExecutorService {
           status = 'failed';
           reason = 'Low-risk live probe transport reported failure.';
         }
-      } catch (error: any) {
-        result = this.failedTransportResult(error);
+      } catch (error: unknown) {result = this.failedTransportResult(error);
         guards = [
           ...guards,
           this.resultSafetyGuard(result),

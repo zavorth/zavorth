@@ -18,6 +18,7 @@ import { toJsonErrorPayload } from "@/shared/utils/upstreamError";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { v1ImageGenerationSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+import { asErrorLike } from '../../../../../../utils/errorLike';
 
 import { getAllCustomModels } from "@/lib/localDb";
 import { logger } from '../logger.js';
@@ -96,7 +97,9 @@ export async function GET(request: Request) {
         });
       }
     }
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
 
   return new Response(JSON.stringify({ object: "list", data }), {
     headers: { "Content-Type": "application/json" },
@@ -110,8 +113,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    log.warn("IMAGE", "Invalid JSON body");
+  } catch (error: unknown) {log.warn("IMAGE", "Invalid JSON body");
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
 
@@ -159,7 +161,9 @@ export async function POST(request: Request) {
         }
         if (provider) break;
       }
-    } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn("[auto-fix] Empty catch block", err); }
   }
 
   if (!provider) {

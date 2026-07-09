@@ -344,8 +344,7 @@ export function evaluateNetworkTarget(providerId: string, targetUrl: string | nu
       return { ok: false, targetHost: host, localLoopback: false };
     }
     return { ok: true, targetHost: host, localLoopback: false };
-  } catch (error: any) {
-    logger.warn('[Zavorth Runtime State Bus Coercion] lifecycle operation failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Runtime State Bus Coercion] lifecycle operation failed', error);
     return { ok: false, targetHost: null, localLoopback: false };
   }
 }

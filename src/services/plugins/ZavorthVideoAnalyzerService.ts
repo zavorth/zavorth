@@ -84,7 +84,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
       const base64 = videoBuffer.slice(0, 20 * 1024 * 1024).toString('base64');
       const analysis = await callVisionProvider(provider, base64, 'video/mp4', 'Analyze this video. Describe what happens, identify key scenes, objects, and any text visible.', apiKey);
       lines.push('', 'AI Analysis:', analysis);
-    } catch (error: any) {
+    } catch (error: unknown) {
       lines.push('', `Analysis error: ${error instanceof Error ? error.message : String(error)}`);
     }
 
@@ -111,7 +111,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
 
       const frames = fs.readdirSync(outputDir).filter((f) => f.endsWith('.png'));
       return `Extracted ${frames.length} frames to ${outputDir}`;
-    } catch (error: any) { logger.warn('[Zavorth Video Analyzer] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Video Analyzer] filesystem operation failed', error); return ''; }
   }
 
   private async getMetadata(videoPath: string): Promise<string> {
@@ -149,7 +149,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
           lines.push(`FPS: ${parseFloat(video.r_frame_rate || '0').toFixed(1)}`);
         }
       }
-    } catch (error: any) { /* ffprobe not available */ logger.warn('[Zavorth Video Analyzer] parsing failed', error); }
+    } catch (error: unknown) {/* ffprobe not available */ logger.warn('[Zavorth Video Analyzer] parsing failed', error); }
 
     return lines.join('\n');
   }
@@ -172,7 +172,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
       const parsed = JSON.parse(result) as { frames?: Array<{ pkt_pts_time?: string }> };
       const scenes = parsed.frames?.length || 0;
       return `Detected ${scenes} scene changes in video.`;
-    } catch (error: any) { logger.warn('[Zavorth Video Analyzer] JSON parse failed', error); return 'Scene detection requires ffmpeg with lavfi support.'; }
+    } catch (error: unknown) {logger.warn('[Zavorth Video Analyzer] JSON parse failed', error); return 'Scene detection requires ffmpeg with lavfi support.'; }
   }
 
   private async extractThumbnail(videoPath: string): Promise<string> {
@@ -183,7 +183,7 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
       const { execFileSync } = await import('child_process');
       execFileSync('ffmpeg', ['-i', videoPath, '-ss', '00:00:01', '-vframes', '1', outputPath], { timeout: 10000 });
       return `Thumbnail saved: ${outputPath}`;
-    } catch (error: any) { logger.warn('[Zavorth Video Analyzer] filesystem operation failed', error); return 'Thumbnail extraction requires ffmpeg.'; }
+    } catch (error: unknown) {logger.warn('[Zavorth Video Analyzer] filesystem operation failed', error); return 'Thumbnail extraction requires ffmpeg.'; }
   }
 
   private listCapabilities(): string {

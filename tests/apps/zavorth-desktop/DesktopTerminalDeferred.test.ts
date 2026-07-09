@@ -13,7 +13,7 @@ describe('Fase 15 — Terminal and HubNativeShell Defer/Hard-Disable', () => {
         .map(f => f.trim())
         .filter(Boolean)
         .map(f => path.resolve(f));
-    } catch (error) {
+    } catch (error: unknown) {
       console.warn('git ls-files failed, falling back to basic resolution', error);
       versionedFiles = [];
     }

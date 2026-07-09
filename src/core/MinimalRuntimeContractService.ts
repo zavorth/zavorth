@@ -14,7 +14,6 @@ import {
   type MinimalRuntimeProfile,
   type MinimalRuntimeProfileRegistrySnapshot,
 } from './MinimalRuntimeProfileRegistry.js';
-
 export type MinimalRuntimeContractSeverity = 'error' | 'warning' | 'info';
 
 export type MinimalRuntimeContractIssue = {
@@ -416,7 +415,7 @@ export class MinimalRuntimeContractService {
         const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as unknown;
         const items = Array.isArray(parsed) ? parsed : [parsed];
         items.forEach((item, index) => this.validateRawCapabilityManifest(filePath, item, index, issues));
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         this.pushIssue(issues, {
           id: 'capability-json-invalid',
           severity: 'error',
@@ -507,7 +506,7 @@ export class MinimalRuntimeContractService {
         const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as unknown;
         const items = Array.isArray(parsed) ? parsed : [parsed];
         items.forEach((item, index) => this.validateRawRuntimeProfile(filePath, item, index, issues));
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         this.pushIssue(issues, {
           id: 'runtime-profile-json-invalid',
           severity: 'error',

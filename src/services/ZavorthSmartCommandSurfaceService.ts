@@ -534,11 +534,11 @@ function extractSmartCommandInlineValue(rawText: string, name: string): string |
 function safeRead<T>(reader: () => T, fallback: T): T {
   try {
     return reader();
-  } catch (error: any) { logger.warn('[Zavorth Smart Command Surface] string operation failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[Zavorth Smart Command Surface] string operation failed', error); return fallback; }
 }
 
 async function safeReadAsync<T>(reader: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await reader();
-  } catch (error: any) { logger.warn('[Zavorth Smart Command Surface] string operation failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[Zavorth Smart Command Surface] string operation failed', error); return fallback; }
 }

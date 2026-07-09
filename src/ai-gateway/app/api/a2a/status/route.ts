@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getTaskManager } from "@/lib/a2a/taskManager";
 import { logger } from '@/shared/utils/logger';
-
 export async function GET() {
   try {
     const tm = getTaskManager();
@@ -12,8 +11,7 @@ export async function GET() {
       const agentModule = await import("@/app/.well-known/agent.json/route");
       const cardResponse = await agentModule.GET();
       agentCard = await cardResponse.json();
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+    } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     agentCard = null;
   }
 
@@ -31,7 +29,7 @@ export async function GET() {
       capabilities: agentCard?.capabilities || null,
       skills: Array.isArray(agentCard?.skills) ? agentCard.skills : [],
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] filesystem check failed', error);
     const message = error instanceof Error ? error.message : "Failed to load A2A status";
     return NextResponse.json({ error: message }, { status: 500 });

@@ -71,7 +71,7 @@ export class ZavorthBridgePublicTunnelService {
         ...fallback,
         ...parsed,
       };
-    } catch (error: any) { logger.warn('[Zavorth Bridge Public Tunnel] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Zavorth Bridge Public Tunnel] JSON parse failed', error); return fallback; }
   }
 
   public async ensureStarted(input: {
@@ -254,7 +254,7 @@ export class ZavorthBridgePublicTunnelService {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error: any) { logger.warn('[Zavorth Bridge Public Tunnel] filesystem operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Zavorth Bridge Public Tunnel] filesystem operation failed', error); return false; }
   }
 
   private tryKill(pid: number | null): void {
@@ -263,8 +263,7 @@ export class ZavorthBridgePublicTunnelService {
     }
     try {
       process.kill(pid);
-    } catch (error: any) {
-      // Ignore stale or already-dead pids.
+    } catch (error: unknown) {// Ignore stale or already-dead pids.
       logger.warn('[Zavorth Bridge Public Tunnel] operation failed', error);
     }
   }
@@ -278,7 +277,7 @@ function isLoopbackHttpUrl(value: string): boolean {
       parsed.protocol === 'http:' &&
       (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname === '[::1]')
     );
-  } catch (error: any) { logger.warn('[Zavorth Bridge Public Tunnel] network request failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[Zavorth Bridge Public Tunnel] network request failed', error); return false; }
 }
 
 function buildTunnelChildEnv(): NodeJS.ProcessEnv {

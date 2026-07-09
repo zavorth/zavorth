@@ -168,8 +168,7 @@ export class ZavorthConnectorExperienceService {
     if (this.providerDoctor && (!selectedId || selectedId === 'telegram' || selectedId === 'discord')) {
       try {
         providerDoctor = await this.providerDoctor.run({ localOnly: input.localOnly === true });
-      } catch (error: any) {
-    logger.warn('[Zavorth Connector Experience] connection failed', error);
+      } catch (error: unknown) {logger.warn('[Zavorth Connector Experience] connection failed', error);
     providerDoctor = null;
   }
     }

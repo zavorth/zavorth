@@ -23,9 +23,7 @@ normalizeRequirements,
   enforceRequirements,
   idFromSpec,
   resolveNpmCommand
-} from '../ZavorthCliLiveNamespaces.js';
-
-type JsonObject = Record<string, unknown>;
+} from '../ZavorthCliLiveNamespaces.js';type JsonObject = Record<string, unknown>;
 
 export async function runSkills(root: string, args: string[]) {
   const action = firstArg(args, 'list');
@@ -376,7 +374,7 @@ function isSkillAllowlisted(root: string, id: string): boolean {
     const file = path.join(stateDir(root), 'skills-allowlist.json');
     const raw = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : [];
     return Array.isArray(raw) && raw.includes(idFromSpec(id));
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Skills Namespace] JSON parse failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Skills Namespace] JSON parse failed', error); return false; }
 }
 
 function doctorSkill(root: string, skill: JsonObject): Array<{ id: string; ok: boolean; summary: string }> {

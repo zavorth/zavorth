@@ -106,7 +106,7 @@ export class ZavorthFileWatcherTool extends BaseTool {
       });
 
       return `File watcher started:\n  ID: ${id}\n  Directory: ${resolved}\n  Pattern: ${pattern}\n  Recursive: ${recursive}`;
-    } catch (error: any) { logger.warn('[Zavorth File Watcher] lifecycle operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File Watcher] lifecycle operation failed', error); return ''; }
   }
 
   private stopWatcher(args: Record<string, unknown>): string {

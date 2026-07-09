@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * Graceful Shutdown — E-2 Critical Fix
  *
@@ -102,7 +103,8 @@ async function cleanup(): Promise<void> {
     if (closeDbInstance()) {
       console.log("[Shutdown] SQLite database checkpointed and closed.");
     }
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const message = err instanceof Error ? err.message : String(err);
     console.error("[Shutdown] Error during cleanup:", message);
   }

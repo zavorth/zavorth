@@ -130,8 +130,7 @@ export class ZavorthSkillMarketplaceService {
     try {
       const raw = this.readFileSync(this.marketplaceIndexPath, 'utf8');
       return JSON.parse(raw) as ZavorthMarketplaceIndexDocument;
-    } catch (error: any) {
-      logger.warn('[Marketplace] Failed to parse marketplace index, returning defaults', { error });
+    } catch (error: unknown) {logger.warn('[Marketplace] Failed to parse marketplace index, returning defaults', { error });
       return { schemaVersion: 'zavorth.marketplace-index/v1', categories: [], remoteRegistry: null };
     }
   }
@@ -143,8 +142,7 @@ export class ZavorthSkillMarketplaceService {
     try {
       const raw = this.readFileSync(this.ratingsPath, 'utf8');
       return JSON.parse(raw) as Record<string, { total: number; count: number }>;
-    } catch (error: any) {
-      logger.warn('[Marketplace] Failed to parse ratings file, returning empty ratings', { error });
+    } catch (error: unknown) {logger.warn('[Marketplace] Failed to parse ratings file, returning empty ratings', { error });
       return {};
     }
   }
@@ -165,8 +163,7 @@ export class ZavorthSkillMarketplaceService {
     try {
       const raw = this.readFileSync(manifestPath, 'utf8');
       return JSON.parse(raw) as NativeSkillManifest;
-    } catch (error: any) {
-      logger.warn(`[Marketplace] Failed to parse native skill manifest at ${manifestPath}`, { error });
+    } catch (error: unknown) {logger.warn(`[Marketplace] Failed to parse native skill manifest at ${manifestPath}`, { error });
       return null;
     }
   }
@@ -420,8 +417,8 @@ export class ZavorthSkillMarketplaceService {
         warnings,
       });
       return { installed: true, skillPath: path.relative(this.projectRoot, targetDir), warnings };
-    } catch (error: any) {
-    logger.warn('[Zavorth Skill Marketplace] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Skill Marketplace] operation failed', error);
     return {
         installed: false,
         skillPath: '',
@@ -472,8 +469,7 @@ export class ZavorthSkillMarketplaceService {
     }
     try {
       return JSON.parse(this.readFileSync(this.lockPath, 'utf8')) as Record<string, unknown>;
-    } catch (error: any) {
-      logger.warn('[Marketplace] Failed to parse lock file, returning empty lock', { error });
+    } catch (error: unknown) {logger.warn('[Marketplace] Failed to parse lock file, returning empty lock', { error });
       return {};
     }
   }

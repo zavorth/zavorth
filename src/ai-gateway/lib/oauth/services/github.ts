@@ -1,7 +1,6 @@
 import { OAuthService } from "./oauth";
 import { GITHUB_CONFIG } from "../constants/oauth";
 import { spinner as createSpinner } from "../utils/ui";
-
 /**
  * GitHub Copilot OAuth Service
  * Uses Device Code Flow for authentication
@@ -49,8 +48,7 @@ export class GitHubService extends OAuthService {
     try {
       const open = (await import("open")).default;
       await open(verificationUri);
-    } catch (error: any) { const err = error; const e = error;
-      console.log("Could not open browser automatically. Please visit the URL above manually.");
+    } catch (error: unknown) {console.log("Could not open browser automatically. Please visit the URL above manually.");
     }
 
     // Poll for access token
@@ -177,7 +175,7 @@ export class GitHubService extends OAuthService {
         },
         copilotTokenInfo: copilotToken,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       throw new Error(`GitHub authentication failed: ${error.message}`);
     }
   }
@@ -218,7 +216,7 @@ export class GitHubService extends OAuthService {
 
       spinner.succeed("GitHub Copilot connected successfully!");
       console.log(`\nConnected as: ${authResult.userInfo.login}`);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const { error: showError } = await import("../utils/ui");
       showError(`GitHub connection failed: ${error.message}`);
       throw error;

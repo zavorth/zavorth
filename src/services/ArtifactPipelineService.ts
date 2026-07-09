@@ -254,7 +254,7 @@ export class ArtifactPipelineService {
       try {
         const parsed = new URL(rawUrl);
         return path.basename(parsed.pathname) || `artifact-${index + 1}`;
-      } catch (error: any) { logger.warn('[Artifact Pipeline] network request failed', error); return ''; }
+      } catch (error: unknown) {logger.warn('[Artifact Pipeline] network request failed', error); return ''; }
     }
 
     return rawString || `artifact-${index + 1}`;

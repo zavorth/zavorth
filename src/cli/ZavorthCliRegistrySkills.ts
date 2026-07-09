@@ -13,6 +13,7 @@ import { SkillUpdateChecker } from '../skills/marketplace/SkillUpdateChecker.js'
 import { detectConflicts } from '../skills/marketplace/SkillConflictDetector.js';
 import { SkillBundleManager } from '../skills/marketplace/SkillBundle.js';
 import { setAuthToken, removeAuthToken } from '../skills/marketplace/SkillAuth.js';
+import { asErrorLike } from '../utils/errorLike';
 
 function cleanup(dir: string): void {
   try { if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true }); } catch { /* ignore */ }
@@ -330,8 +331,7 @@ async function handleInstall(rest: string[], skillsDir: string, registry: SkillL
       const body = lines.join('\n');
       writer.line(body);
       return { ok: true, handled: true, output: [body], error: null };
-    } catch (e) {
-      const msg = `Git clone failed: ${e instanceof Error ? e.message : String(e)}`;
+    } catch (error: unknown) { const err = asErrorLike(error); const msg = `Git clone failed: ${err instanceof Error ? err.message : String(err)}`;
       writer.error(msg);
       return { ok: false, handled: true, output: [], error: msg };
     }

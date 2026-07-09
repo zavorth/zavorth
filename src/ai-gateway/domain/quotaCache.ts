@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * Quota Cache — Domain Layer
  *
@@ -211,8 +212,7 @@ export function setQuotaCache(
           window_duration_ms: entry.windowDurationMs ?? null,
           raw_data: null,
         });
-      } catch (error: any) { const err = error; const e = error;
-        console.error("[quotaCache] Failed to save snapshot:", error);
+      } catch (error: unknown) {console.error("[quotaCache] Failed to save snapshot:", error);
       }
     }
   }
@@ -330,7 +330,8 @@ async function refreshEntry(entry: QuotaCacheEntry) {
     if (usage?.quotas) {
       setQuotaCache(entry.connectionId, entry.provider, usage.quotas);
     }
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.warn(
       `[QuotaCache] Refresh failed for ${entry.connectionId.slice(0, 8)}:`,
       (err as any)?.message || err

@@ -17,9 +17,7 @@ import {
   type ZavorthUniversalSkillSourceProfile,
   type ZavorthUniversalSkillSourceProfileId,
 } from '../contracts/ZavorthUniversalSkillIntakeContract.js';
-import { SkillSourceProfileRegistry } from './SkillSourceProfileRegistry.js';
-
-type Runtime = {
+import { SkillSourceProfileRegistry } from './SkillSourceProfileRegistry.js';type Runtime = {
   now?: () => Date;
   profileRegistry?: Pick<SkillSourceProfileRegistry, 'listProfiles'>;
   existsSync?: typeof fs.existsSync;
@@ -358,8 +356,7 @@ export class UniversalSkillIntakeService {
       let entries: fs.Dirent[];
       try {
         entries = this.readdirSyncImpl(current, { withFileTypes: true });
-      } catch (error: any) { const err = error; const e = error;
-        issues.push(issue('warn', 'unsupported-file', 'Directory cannot be read during preview.', relativeFromRoot(root, current), current));
+      } catch (error: unknown) {issues.push(issue('warn', 'unsupported-file', 'Directory cannot be read during preview.', relativeFromRoot(root, current), current));
         continue;
       }
 
@@ -374,8 +371,7 @@ export class UniversalSkillIntakeService {
         let lstat: fs.Stats;
         try {
           lstat = this.lstatSyncImpl(absolutePath);
-        } catch (error: any) { const err = error; const e = error;
-          issues.push(issue('warn', 'unsupported-file', 'File cannot be inspected.', relativePath, absolutePath));
+        } catch (error: unknown) {issues.push(issue('warn', 'unsupported-file', 'File cannot be inspected.', relativePath, absolutePath));
           continue;
         }
 
@@ -1094,8 +1090,7 @@ function parseDataFile(text: string, relativePath: string): unknown {
     if (ext === '.json') {
       return JSON.parse(text);
     }
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
   return null;
 }
@@ -1118,8 +1113,7 @@ function parseFrontmatter(text: string): Record<string, unknown> {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : {};
-  } catch (error: any) { const err = error; const e = error;
-    return {};
+  } catch (error: unknown) {return {};
   }
 }
 

@@ -73,8 +73,7 @@ export class SelfModificationValidationSupport {
             if (fs.existsSync(change.absolutePath)) {
               fs.rmSync(change.absolutePath, { force: true });
             }
-          } catch (error: any) {
-      // Falhas na limpeza nao devem mascarar o resultado do build.
+          } catch (error: unknown) {// Falhas na limpeza nao devem mascarar o resultado do build.
       logger.warn('[Self Modification Validation] filesystem operation failed', error);
     }
           continue;
@@ -82,8 +81,7 @@ export class SelfModificationValidationSupport {
 
         try {
           fs.writeFileSync(change.absolutePath, change.previousContent, 'utf8');
-        } catch (error: any) {
-      // Falhas na limpeza nao devem mascarar o resultado do build.
+        } catch (error: unknown) {// Falhas na limpeza nao devem mascarar o resultado do build.
       logger.warn('[Self Modification Validation] filesystem operation failed', error);
     }
       }
@@ -93,8 +91,7 @@ export class SelfModificationValidationSupport {
           if (fs.existsSync(parentDir) && fs.readdirSync(parentDir).length === 0) {
             fs.rmdirSync(parentDir);
           }
-        } catch (error: any) {
-      // Ignora diretorios nao vazios ou races de limpeza.
+        } catch (error: unknown) {// Ignora diretorios nao vazios ou races de limpeza.
       logger.warn('[Self Modification Validation] filesystem operation failed', error);
     }
       }

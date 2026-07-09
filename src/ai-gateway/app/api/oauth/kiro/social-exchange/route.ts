@@ -7,7 +7,6 @@ import { kiroSocialExchangeSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-
 /**
  * POST /api/oauth/kiro/social-exchange
  * Exchange authorization code for tokens (Google/GitHub social login)
@@ -20,8 +19,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -75,7 +73,7 @@ export async function POST(request: Request) {
         email: connection.email,
       },
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Kiro social exchange error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -91,7 +89,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing to cloud after Kiro OAuth:", error);
+  } catch (error: unknown) {console.log("Error syncing to cloud after Kiro OAuth:", error);
   }
 }

@@ -15,9 +15,7 @@ import {
 } from './SkillImportPreviewService.js';
 import { SkillLicenseClassifierService } from './SkillLicenseClassifierService.js';
 import { ImportAuditTrailService } from './ImportAuditTrailService.js';
-import type { SkillImportAuditReference } from './SkillCatalogContract.js';
-
-type SkillImportServiceRuntime = {
+import type { SkillImportAuditReference } from './SkillCatalogContract.js';type SkillImportServiceRuntime = {
   now?: () => Date;
   sourceRegistryService?: Pick<SkillSourceRegistryService, 'getSource'>;
   skillTrustPolicyService?: Pick<SkillTrustPolicyService, 'evaluateSource' | 'evaluateSkill'>;
@@ -361,8 +359,7 @@ export class SkillImportService {
     }
     try {
       return this.lstatSyncImpl(normalizedFile).isFile();
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 
@@ -378,8 +375,7 @@ export class SkillImportService {
         return '';
       }
       return this.readFileSyncImpl(filePath, 'utf8').trim();
-    } catch (error: any) { const err = error; const e = error;
-      return '';
+    } catch (error: unknown) {return '';
     }
   }
 
@@ -419,8 +415,7 @@ export class SkillImportService {
             .map(([key, value]) => [key, String(value ?? '').trim()]),
         );
       }
-    } catch (error: any) { const err = error; const e = error;
-      // fallback abaixo
+    } catch (error: unknown) {// fallback abaixo
     }
 
     const fields: Record<string, string> = {};

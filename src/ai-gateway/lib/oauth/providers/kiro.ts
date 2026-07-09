@@ -1,7 +1,5 @@
 import { KIRO_CONFIG } from "../constants/oauth";
-import { logger } from '@/shared/utils/logger';
-
-export const kiro = {
+import { logger } from '@/shared/utils/logger';export const kiro = {
   config: KIRO_CONFIG,
   flowType: "device_code",
   requestDeviceCode: async (config) => {
@@ -78,8 +76,7 @@ export const kiro = {
     let data;
     try {
       data = await response.json();
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[kiro] serialization failed', error);
+    } catch (error: unknown) {logger.warn('[kiro] serialization failed', error);
     const text = await response.text();
       data = { error: "invalid_response", error_description: text };
   }

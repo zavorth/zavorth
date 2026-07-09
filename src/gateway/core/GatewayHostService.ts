@@ -2,6 +2,7 @@ import * as http from 'http';
 import type { Socket } from 'net';
 import { PublicApiRouter } from '../../api/public/PublicApiRouter.js';
 import { GatewayRuntime } from './GatewayRuntime.js';
+import { logger } from '../../logger.js';
 
 export type GatewayHostOptions = {
   host?: string;
@@ -54,7 +55,7 @@ export class GatewayHostService {
 
       this.server.listen(this.listeningPort, this.host, () => {
         if (this.host === '0.0.0.0' || this.host === '::') {
-          console.warn('[GatewayHost] non-local bind enabled explicitly. Ensure auth, firewall, and network exposure are intended.');
+          logger.warn('[GatewayHost] non-local bind enabled explicitly. Ensure auth, firewall, and network exposure are intended.');
         }
         const address = this.server?.address();
         if (address && typeof address === 'object') {

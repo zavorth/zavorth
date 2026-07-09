@@ -8,6 +8,7 @@ import {
 } from "./cliRuntimePathSecurity.ts";
 import { isWindows } from "./cliRuntimeProcess.ts";
 import { logger } from '../logger.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 export const VALID_RUNTIME_MODES = new Set(["auto", "host", "container"]);
 export const FALSE_VALUES = new Set(["0", "false", "no", "off"]);
@@ -157,7 +158,9 @@ export const getNpmGlobalPrefix = (): string => {
       npmGlobalPrefix = prefix;
       return npmGlobalPrefix;
     }
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
 
   npmGlobalPrefix = "";
   return npmGlobalPrefix;

@@ -282,7 +282,7 @@ export class ComputerUseWatchModeMutationSupport {
     try {
       const target = normalized.match(/^https?:\/\//i) ? normalized : `https://${normalized}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch (error: any) { logger.warn('[Computer Use Watch Mode] network request failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Computer Use Watch Mode] network request failed', error); return null; }
   }
 
   private positiveNumber(value: unknown, fallback: number): number {

@@ -7,9 +7,7 @@ import type {
 NodeHostCapabilityRuntime,
   NodeHostMaintenanceDoctorReport,
   NodeHostMaintenanceRepairReport,
-} from './NodeHostCapabilityTypes.js';
-
-type NodeHostMaintenanceState = {
+} from './NodeHostCapabilityTypes.js';type NodeHostMaintenanceState = {
   pendingResults: Array<Record<string, unknown>>;
   invalidCount: number;
 };
@@ -129,8 +127,7 @@ export class NodeHostCapabilityMaintenanceService {
         pendingResults: validEntries,
         invalidCount: rawEntries.length - validEntries.length,
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Node Host Capability Maintenance] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Node Host Capability Maintenance] JSON parse failed', error);
     return {
         pendingResults: [],
         invalidCount: 1,

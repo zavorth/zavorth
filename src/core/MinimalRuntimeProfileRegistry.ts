@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import type { RuntimeBudgetProfile } from '../services/RuntimeResourceBudgetService.js';
 import type { MinimalCapabilityBootMode } from './MinimalCapabilityRegistry.js';
-
 export type MinimalRuntimePollingMode = 'event-first' | 'adaptive' | 'dev-watch';
 export type MinimalRuntimeMaintenanceMode = 'off' | 'light' | 'normal';
 export type MinimalRuntimeResourcePosture = 'lean' | 'balanced' | 'expanded';
@@ -218,7 +217,7 @@ export class MinimalRuntimeProfileRegistry {
             const profile = this.normalizeProfile(item, filePath);
             profiles.set(profile.id, profile);
           }
-        } catch (error: any) { const err = error; const e = error;
+        } catch (error: unknown) {
           invalidProfiles.push({
             filePath,
             reason: error instanceof Error ? error.message : String(error),

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { WorkspaceRuntimeReadinessCard, WorkspaceRuntimeReadiness } from '../components/WorkspaceRuntimeReadinessCard';
 import { WorkspacePolicyPreview, WorkspacePolicyPreviewData } from '../components/WorkspacePolicyPreview';
 import { ActionHint } from '../components/ProductPolishComponents.js';
+import { asErrorLike } from '../lib/errors';
 
 export interface AgentWorkspaceConfig {
   workspaceId: string;
@@ -86,8 +87,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
       const data = await r.json();
       setPreview(data.data || data);
       setErrorMessage(null);
-    } catch (e) {
-      setErrorMessage(sanitizeErrorMessage(e));
+    } catch (error: unknown) { const err = asErrorLike(error); setErrorMessage(sanitizeErrorMessage(err));
     }
   };
 
@@ -114,8 +114,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
       setReadiness(readinessData.data || readinessData);
       setSaveMessage('Settings saved successfully.');
       setStatus('ready');
-    } catch (e) {
-      setErrorMessage(sanitizeErrorMessage(e));
+    } catch (error: unknown) { const err = asErrorLike(error); setErrorMessage(sanitizeErrorMessage(err));
       setStatus('ready');
     }
   };

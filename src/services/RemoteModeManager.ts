@@ -1,7 +1,5 @@
 import { execFile } from 'child_process';
-import { config } from '../config/index.js';
-
-export type RemoteModeCommand = 'status' | 'activate' | 'restore';
+import { config } from '../config/index.js';export type RemoteModeCommand = 'status' | 'activate' | 'restore';
 
 export type RemoteModeSnapshot = {
   schemeGuid: string | null;
@@ -63,8 +61,7 @@ export class RemoteModeManager {
           try {
             const parsed = JSON.parse(stdout.trim()) as RemoteModeResult;
             resolve(parsed);
-          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
-            reject(new Error(`Failed to parse remote mode result: ${parseError.message}`));
+          } catch (parseError: unknown) {reject(new Error(`Failed to parse remote mode result: ${parseError.message}`));
           }
         },
       );

@@ -89,8 +89,7 @@ export class WorkspaceApplyPatchTool extends BaseTool {
           preview: result.preview,
           receipt: result.receipt,
         });
-      } catch (error: any) {
-    logger.warn('[Workspace Apply Patch] serialization failed', error);
+      } catch (error: unknown) {logger.warn('[Workspace Apply Patch] serialization failed', error);
     return JSON.stringify({
           success: false,
           applied: false,
@@ -115,8 +114,7 @@ export class WorkspaceApplyPatchTool extends BaseTool {
     let resolved: ReturnType<WorkspaceFsPolicy['resolveApplyPatchPath']>;
     try {
       resolved = new WorkspaceFsPolicy().resolveApplyPatchPath(filepath);
-    } catch (error: any) {
-    logger.warn('[Workspace Apply Patch] serialization failed', error);
+    } catch (error: unknown) {logger.warn('[Workspace Apply Patch] serialization failed', error);
     return JSON.stringify({
         success: false,
         applied: false,
@@ -140,8 +138,7 @@ export class WorkspaceApplyPatchTool extends BaseTool {
     let proposedContent: string | false;
     try {
       proposedContent = applyPatch(currentContent, patch);
-    } catch (error: any) {
-    logger.warn('[Workspace Apply Patch] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Workspace Apply Patch] filesystem operation failed', error);
     proposedContent = false;
   }
     if (proposedContent === false) {

@@ -11,6 +11,7 @@ import {
 EXPECTED_PARENT_PATHS,
   getKnownToolPaths,
 } from "./cliRuntimeTools.ts";
+import { asErrorLike } from '../../../../utils/errorLike';
 
 export const checkExplicitPath = async (commandPath: string) => {
   if (!isSafePath(commandPath)) {
@@ -19,16 +20,14 @@ export const checkExplicitPath = async (commandPath: string) => {
 
   try {
     await fs.access(commandPath, fs.constants.F_OK);
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[cli Runtime Discovery] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[cli Runtime Discovery] filesystem check failed', error);
     return { installed: false, commandPath: null, reason: "not_found" };
   }
 
   try {
     await fs.access(commandPath, fs.constants.X_OK);
     return { installed: true, commandPath, reason: null };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[cli Runtime Discovery] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[cli Runtime Discovery] filesystem check failed', error);
     return { installed: true, commandPath, reason: "not_executable" };
   }
 };
@@ -94,7 +93,9 @@ export const checkKnownPath = async (commandPath: string) => {
           isWithinExpected = true;
           break;
         }
-      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn("[auto-fix] Empty catch block", err); }
     }
 
     if (!isWithinExpected) {
@@ -109,8 +110,7 @@ export const checkKnownPath = async (commandPath: string) => {
     if (stat.size < 30 || stat.size > 350 * 1024 * 1024) {
       return { installed: false, commandPath: null, reason: "suspicious_size" };
     }
-  } catch (error: any) { const err = error; const e = error;
-    const errorCode = (error as NodeJS.ErrnoException).code;
+  } catch (error: unknown) {const errorCode = (error as NodeJS.ErrnoException).code;
     if (errorCode === "ENOENT") {
       return { installed: false, commandPath: null, reason: "not_found" };
     }
@@ -123,8 +123,7 @@ export const checkKnownPath = async (commandPath: string) => {
   try {
     await fs.access(commandPath, fs.constants.X_OK);
     return { installed: true, commandPath, reason: null };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[cli Runtime Discovery] validation failed', error);
+  } catch (error: unknown) {logger.warn('[cli Runtime Discovery] validation failed', error);
     return { installed: true, commandPath, reason: "not_executable" };
   }
 };

@@ -1,7 +1,5 @@
 import { getDbInstance, rowToCamel } from "./core";
-import { logger } from '@/shared/utils/logger';
-
-export interface HandoffPayload {
+import { logger } from '@/shared/utils/logger';export interface HandoffPayload {
   id?: string;
   sessionId: string;
   comboName: string;
@@ -47,7 +45,7 @@ function parseJsonArray(value: unknown): string[] {
     return Array.isArray(parsed)
       ? parsed.map((item) => (typeof item === "string" ? item : String(item))).filter(Boolean)
       : [];
-  } catch (error: any) { const err = error; const e = error; logger.warn('[context Handoffs] JSON parse failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[context Handoffs] JSON parse failed', error); return []; }
 }
 
 function toHandoffPayload(row: unknown): HandoffPayload | null {

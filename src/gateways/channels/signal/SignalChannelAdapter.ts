@@ -9,6 +9,7 @@ import {
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
+import { logger } from '../../../logger.js';
 
 type SignalChannelAdapterRuntime = {
   outboxDir?: string;
@@ -35,12 +36,12 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
   async initialize(): Promise<void> {
     fs.mkdirSync(this.outboxDir, { recursive: true });
     if (!this.bridgeTarget) {
-      console.warn('[ChannelMesh] Signal bridge offline (missing signal-cli target).');
+      logger.warn('[ChannelMesh] Signal bridge offline (missing signal-cli target).');
     }
   }
 
   async shutdown(): Promise<void> {
-    console.log('[ChannelMesh] Signal bridge detached.');
+    logger.info('[ChannelMesh] Signal bridge detached.');
   }
 
   async onMessageReceived(payload: any): Promise<void> {
@@ -50,7 +51,7 @@ export class SignalChannelAdapter implements GatewayChannelAdapter {
     const messageId = String(payload?.messageId || payload?.id || payload?.timestamp || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('signal', userId);
     if (!isAllowed) {
-      console.warn(`[Security] Blocked unauthorized Signal interaction from ${userId}`);
+      logger.warn(`[Security] Blocked unauthorized Signal interaction from ${userId}`);
       return;
     }
 

@@ -606,7 +606,7 @@ export class NodeRegistryService {
       }
 
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
-    } catch (error: any) { logger.warn('[Node Registry] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Node Registry] JSON parse failed', error); return fallback; }
   }
 
   private writeJsonFile(filePath: string, payload: unknown): void {

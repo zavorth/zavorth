@@ -11,7 +11,6 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildProviderRequestOptions } from './ProviderAbort.js';
-
 export class QwenProvider implements ILlmProvider {
   public readonly name = 'qwen';
   private client: OpenAI;
@@ -62,7 +61,7 @@ export class QwenProvider implements ILlmProvider {
         toolCalls,
         finishReason: choice?.finish_reason || 'stop',
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
 
       if (/auth|token|unauthorized|forbidden|401|403/i.test(message)) {

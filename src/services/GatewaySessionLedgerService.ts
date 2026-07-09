@@ -271,7 +271,7 @@ export class GatewaySessionLedgerService {
         return null;
       }
       return parsed;
-    } catch (error: any) { logger.warn('[way Session Ledger] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[way Session Ledger] JSON parse failed', error); return null; }
   }
 
   private writeRecord(target: ReturnType<GatewaySessionLedgerService['normalizeTarget']>, record: GatewaySessionLedgerRecord): void {

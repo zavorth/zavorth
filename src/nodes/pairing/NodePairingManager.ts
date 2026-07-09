@@ -3,9 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { resolveZavorthLocalStateDir } from '../../config/localStatePaths.js';
 import { safeFetch } from '../../security/SafeFetchService.js';
-import { DeviceCapabilityPolicy } from '../policy/DeviceCapabilityPolicy.js';
-
-export interface NodeCredentials {
+import { DeviceCapabilityPolicy } from '../policy/DeviceCapabilityPolicy.js';export interface NodeCredentials {
   nodeId: string;
   sharedSecret: string;
   pairedAt: string;
@@ -208,8 +206,7 @@ export class NodePairingManager {
           ? data.hostHints as Record<string, unknown>
           : this.buildHostHints(),
       };
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 

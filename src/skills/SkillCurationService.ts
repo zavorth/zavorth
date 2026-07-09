@@ -6,9 +6,7 @@ import JSZip from 'jszip';
 import { config } from '../config/index.js';
 import { Database } from '../storage/Database.js';
 import type { SkillCatalogEntry } from './SkillCatalogContract.js';
-import { SkillCatalogService } from './SkillCatalogService.js';
-
-export interface ArchivedSkillInfo {
+import { SkillCatalogService } from './SkillCatalogService.js';export interface ArchivedSkillInfo {
   skillId: string;
   archivePath: string;
   archivedAt: string;
@@ -204,8 +202,7 @@ export class SkillCurationService {
       try {
         await this.archiveSkill(row.skill_id);
         archivedCount++;
-      } catch (error: any) { const err = error; const e = error;
-        logger.error(`[SkillCurationService] Falha ao arquivar automaticamente a skill "${row.skill_id}":`, error);
+      } catch (error: unknown) {logger.error(`[SkillCurationService] Falha ao arquivar automaticamente a skill "${row.skill_id}":`, error);
       }
     }
 
@@ -271,8 +268,7 @@ export class SkillCurationService {
       if (fs.existsSync(manifestPath)) {
         return parseArchiveManifest(JSON.parse(fs.readFileSync(manifestPath, 'utf8')));
       }
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
     return null;
   }

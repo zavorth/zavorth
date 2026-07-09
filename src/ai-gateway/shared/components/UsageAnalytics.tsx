@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -20,9 +21,7 @@ import {
   ProviderTable,
 } from "./analytics";
 
-// ============================================================================
 // Main Component
-// ============================================================================
 
 export default function UsageAnalytics() {
   const [range, setRange] = useState("30d");
@@ -38,7 +37,8 @@ export default function UsageAnalytics() {
       const data = await res.json();
       setAnalytics(data);
       setError(null);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError((err as any).message);
     } finally {
       setLoading(false);

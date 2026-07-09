@@ -34,6 +34,7 @@ import {
   requiresSensitiveDataEgressGuard,
   type SensitiveDataFinding,
 } from '../security/SensitiveDataGuard.js';
+import { asErrorLike } from '../utils/errorLike';
 
 type ToolExecutorRuntime = {
   defaultWorkspace?: string | null;
@@ -238,41 +239,36 @@ export class ToolExecutor {
         },
       });
       return result;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       try {
         if (process.env.NODE_ENV === 'production') {
           this.logRepo.log('warn', 'ToolExecutor', 'Auto-debugger disabled in production');
         } else {
-        const isSelfHealable =
-          error instanceof SyntaxError ||
-          error instanceof ReferenceError ||
-          error instanceof TypeError ||
-          error instanceof RangeError ||
-          (error && typeof error === 'object' && (
-            error.name === 'SyntaxError' ||
-            error.name === 'ReferenceError' ||
-            error.name === 'TypeError' ||
-            error.name === 'RangeError' ||
-            /SyntaxError|ReferenceError|TypeError|RangeError/.test(String(error.stack || error.message || ''))
-          ));
+          const isSelfHealable =
+            error instanceof SyntaxError ||
+            error instanceof ReferenceError ||
+            error instanceof TypeError ||
+            error instanceof RangeError ||
+            /SyntaxError|ReferenceError|TypeError|RangeError/.test(String(err.stack || err.message || ''));
 
-        if (isSelfHealable && tool) {
-          const className = tool.constructor.name.replace(/[^a-zA-Z0-9_]/g, '_');
-          if (className !== 'McpToolWrapper') {
-            const toolFilePath = this.findToolSourceFile(className);
-            if (toolFilePath) {
-              this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Tool "${toolName}" (Class: ${className}) failed with self-healable error. File: ${toolFilePath}`);
-              const sourceCode = fs.readFileSync(toolFilePath, 'utf-8')
-                .replace(/(^|\n).*(API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE_KEY|credential|authorization).*(\n|$)/gi, '[REDACTED]\n');
+          if (isSelfHealable && tool) {
+            const className = tool.constructor.name.replace(/[^a-zA-Z0-9_]/g, '_');
+            if (className !== 'McpToolWrapper') {
+              const toolFilePath = this.findToolSourceFile(className);
+              if (toolFilePath) {
+                this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Tool "${toolName}" (Class: ${className}) failed with self-healable error. File: ${toolFilePath}`);
+                const sourceCode = fs.readFileSync(toolFilePath, 'utf-8')
+                  .replace(/(^|\n).*(API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE_KEY|credential|authorization).*(\n|$)/gi, '[REDACTED]\n');
 
-              const relayService = new ExternalAiRelayService();
-              const systemPrompt = `You are the Auto-Debugger self-healing loop.
+                const relayService = new ExternalAiRelayService();
+                const systemPrompt = `You are the Auto-Debugger self-healing loop.
 Your task is to repair a TypeScript tool that failed with a syntax, runtime, or reference error.
 Analyze the provided source code, input arguments, and error trace.
 Return ONLY the complete corrected TypeScript code for the file.
 Do not include any explanation, markdown formatting, or HTML tags. Output only the raw TypeScript code.`;
 
-              const userPrompt = `Tool Class: ${className}
+                const userPrompt = `Tool Class: ${className}
 Tool File Path: ${toolFilePath}
 
 Original Source Code:
@@ -284,89 +280,90 @@ Input Arguments:
 ${JSON.stringify(input, null, 2)}
 
 Error Trace/Stack:
-${error.stack || error.message || String(error)}
+${err.stack || err.message || String(error)}
 
 Please repair the TypeScript code to resolve the error while maintaining the tool's original functionality and import structure.
 Return only the corrected TypeScript file content.`;
 
-              const relayResult = await relayService.execute({
-                provider: 'gemini',
-                task: 'chat',
-                prompt: userPrompt,
-                systemPrompt,
-              });
+                const relayResult = await relayService.execute({
+                  provider: 'gemini',
+                  task: 'chat',
+                  prompt: userPrompt,
+                  systemPrompt,
+                });
 
-              if (relayResult && relayResult.rawResponse) {
-                const correctedCode = this.cleanCode(relayResult.rawResponse);
-                if (correctedCode && correctedCode.length > 0) {
-                  const testPath = path.join(process.cwd(), 'tests', 'tools', `${className}.test.ts`);
-                  const applied = ZavorthSandboxDebuggerService.validateAndApply(toolFilePath, correctedCode, testPath);
+                if (relayResult && relayResult.rawResponse) {
+                  const correctedCode = this.cleanCode(relayResult.rawResponse);
+                  if (correctedCode && correctedCode.length > 0) {
+                    const testPath = path.join(process.cwd(), 'tests', 'tools', `${className}.test.ts`);
+                    const applied = ZavorthSandboxDebuggerService.validateAndApply(toolFilePath, correctedCode, testPath);
 
-                  if (!applied) {
-                    this.logRepo.log('error', 'ToolExecutor', `Auto-Debugger: Validation failed for corrected code. Change rejected and rolled back.`);
-                    throw new Error(`Auto-Debugger failed to repair tool: validation failed.`);
-                  }
-
-                  this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Corrected code successfully validated and applied.`);
-
-                  const resolvedPath = require.resolve(toolFilePath);
-                  delete require.cache[resolvedPath];
-
-                  let loadedModulePath = resolvedPath;
-                  const normalizedClassFilename = className.toLowerCase();
-                  for (const key of Object.keys(require.cache)) {
-                    const lowerKey = key.toLowerCase();
-                    if (
-                      lowerKey.endsWith(`${normalizedClassFilename}.js`) ||
-                      lowerKey.endsWith(`${normalizedClassFilename}.ts`) ||
-                      lowerKey.includes(path.join('tools', className).toLowerCase())
-                    ) {
-                      loadedModulePath = key;
-                      delete require.cache[key];
+                    if (!applied) {
+                      this.logRepo.log('error', 'ToolExecutor', `Auto-Debugger: Validation failed for corrected code. Change rejected and rolled back.`);
+                      throw new Error(`Auto-Debugger failed to repair tool: validation failed.`);
                     }
-                  }
 
-                  this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Reloading module for ${className}`);
-                  const moduleExports = require(loadedModulePath);
-                  const NewClass = moduleExports[className];
+                    this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Corrected code successfully validated and applied.`);
 
-                  if (NewClass) {
-                    const newToolInstance = new NewClass();
-                    this.registry.register(newToolInstance);
+                    const resolvedPath = require.resolve(toolFilePath);
+                    delete require.cache[resolvedPath];
 
-                    this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Attempting re-execution of healed tool "${toolName}"`);
-                    const healedResult = await newToolInstance.execute(input);
+                    let loadedModulePath = resolvedPath;
+                    const normalizedClassFilename = className.toLowerCase();
+                    for (const key of Object.keys(require.cache)) {
+                      const lowerKey = key.toLowerCase();
+                      if (
+                        lowerKey.endsWith(`${normalizedClassFilename}.js`) ||
+                        lowerKey.endsWith(`${normalizedClassFilename}.ts`) ||
+                        lowerKey.includes(path.join('tools', className).toLowerCase())
+                      ) {
+                        loadedModulePath = key;
+                        delete require.cache[key];
+                      }
+                    }
 
-                    await this.recordTelemetry(traceId, 'tool.completed', 'success', {
-                      toolName,
-                      resultLength: String(healedResult || '').length,
-                      selfHealed: true,
-                    });
+                    this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Reloading module for ${className}`);
+                    const moduleExports = require(loadedModulePath);
+                    const NewClass = moduleExports[className];
 
-                    await this.hookPipeline.run({
-                      event: 'runtime.after_execute',
-                      workspace,
-                      context: {
-                        traceId,
+                    if (NewClass) {
+                      const newToolInstance = new NewClass();
+                      this.registry.register(newToolInstance);
+
+                      this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Attempting re-execution of healed tool "${toolName}"`);
+                      const healedResult = await newToolInstance.execute(input);
+
+                      await this.recordTelemetry(traceId, 'tool.completed', 'success', {
                         toolName,
                         resultLength: String(healedResult || '').length,
                         selfHealed: true,
-                      },
-                    });
+                      });
 
-                    return healedResult;
+                      await this.hookPipeline.run({
+                        event: 'runtime.after_execute',
+                        workspace,
+                        context: {
+                          traceId,
+                          toolName,
+                          resultLength: String(healedResult || '').length,
+                          selfHealed: true,
+                        },
+                      });
+
+                      return healedResult;
+                    }
                   }
                 }
               }
             }
           }
         }
-        }
-      } catch (healError: any) {
-        this.logRepo.log('error', 'ToolExecutor', `Auto-Debugger self-healing failed: ${healError.stack || healError.message}`);
+      } catch (healError: unknown) {
+        const healErr = asErrorLike(healError);
+        this.logRepo.log('error', 'ToolExecutor', `Auto-Debugger self-healing failed: ${healErr.stack || healErr.message}`);
       }
 
-      const message = redactSensitiveText(error instanceof Error ? error.message : String(error));
+      const message = redactSensitiveText(err.message || String(error));
       this.logRepo.log('error', 'ToolExecutor', `Tool ${toolName} failed: ${message}`);
       await this.recordTelemetry(traceId, 'tool.failed', 'failed', {
         toolName,
@@ -641,8 +638,7 @@ Return only the corrected TypeScript file content.`;
         status,
         payload,
       });
-    } catch (error: any) { const err = error; const e = error;
-      // telemetry should never break tool execution
+    } catch (error: unknown) {// telemetry should never break tool execution
     }
   }
 }

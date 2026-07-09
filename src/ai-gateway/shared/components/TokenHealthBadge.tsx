@@ -31,8 +31,7 @@ export default function TokenHealthBadge() {
           const data = await res.json();
           setHealth(data);
         }
-      } catch (error: any) { const err = error; const e = error;
-        // silent
+      } catch (error: unknown) {// silent
       }
     };
 

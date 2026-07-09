@@ -184,7 +184,6 @@ export async function initializeBootstrapFoundation(
   const toolRuntimeServices = createBootstrapToolRuntime(logRepo);
   logRepo.log('info', 'Bootstrap', 'TaskManager unificado e tools registradas.');
 
-  // === CONTEXT ENGINE WIRING ===
   const contextEngineRuntime = createContextEngineRuntime(logRepo);
   wireLegacyUnifiedGatewayAgentCallback({
     logRepo,
@@ -208,7 +207,6 @@ export async function initializeBootstrapFoundation(
   });
   agentGateway.addRuntimeEventBus(new ChannelProgressRuntimeBridgeService());
 
-  // === USER MODEL TURN CAPTURE ===
   const turnCapture = new UserModelTurnCaptureService({ homeRoot: config.projectRoot });
   const patchedGateway = agentGateway as unknown as AgentGatewayRunCompletionPatch;
   const existingOnRunCompleted = patchedGateway.onRunCompleted;
@@ -224,7 +222,6 @@ export async function initializeBootstrapFoundation(
     }
   };
   logRepo.log('info', 'TurnCapture', 'User model turn capture ativo.');
-  // === END USER MODEL TURN CAPTURE ===
   let goalLoopDaemon: GoalLoopDaemonService | null = null;
   if (config.goalLoopDaemonEnabled) {
     const taskPlane = new TaskPlaneService({
@@ -271,9 +268,7 @@ export async function initializeBootstrapFoundation(
   } else {
     logRepo.log('info', 'GoalLoopDaemon', 'Goal Loop daemon desativado por ZAVORTH_GOAL_LOOP_DAEMON_ENABLED=false.');
   }
-  // === END CONTEXT ENGINE WIRING ===
 
-  // === USER MODEL REVIEW DAEMON ===
   let userModelDaemon: UserModelReviewDaemonService | null = null;
   if (config.userModelDaemonEnabled) {
     userModelDaemon = new UserModelReviewDaemonService({
@@ -297,7 +292,6 @@ export async function initializeBootstrapFoundation(
   } else {
     logRepo.log('info', 'UserModelDaemon', 'User model review daemon desativado por ZAVORTH_USER_MODEL_DAEMON_ENABLED=false.');
   }
-  // === END USER MODEL REVIEW DAEMON ===
 
   return {
     ...preflight,

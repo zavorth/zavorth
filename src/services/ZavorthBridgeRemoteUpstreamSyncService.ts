@@ -65,7 +65,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         ...fallback,
         ...parsed,
       };
-    } catch (error: any) { logger.warn('[Zavorth Bridge Remote Upstream] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Zavorth Bridge Remote Upstream] JSON parse failed', error); return fallback; }
   }
 
   public async sync(): Promise<ZavorthBridgeRemoteUpstreamSyncReport> {
@@ -164,8 +164,8 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         error: doctor && !doctor.readyAfter ? doctor.summary : null,
         ...this.buildMetadata(),
       });
-    } catch (error: any) {
-    logger.warn('[Zavorth Bridge Remote Upstream] creation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Bridge Remote Upstream] creation failed', error);
     return this.persist({
         ok: false,
         action,

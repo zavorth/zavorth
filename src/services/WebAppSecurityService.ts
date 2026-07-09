@@ -162,6 +162,6 @@ export class WebAppSecurityService {
     }
     try {
       return new URL(normalized).origin;
-    } catch (error: any) { logger.warn('[Web App Security] network request failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Web App Security] network request failed', error); return null; }
   }
 }

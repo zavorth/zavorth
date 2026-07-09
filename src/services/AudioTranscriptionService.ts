@@ -140,7 +140,7 @@ export class AudioTranscriptionService {
         const validated = this.requireTranscriptText(text);
         attempts.push(this.attempt(provider, readiness.model, 'succeeded', null, Date.now() - startedAt));
         return { text: validated, model: readiness.model };
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = this.normalizeErrorReason(provider, error instanceof Error ? error.message : String(error));
         attempts.push(this.attempt(provider, readiness.model, 'failed', lastError, Date.now() - startedAt));
         if (!this.isTransientError(lastError)) {
@@ -286,7 +286,7 @@ export class AudioTranscriptionService {
         }
         const payload = await response.json() as Record<string, unknown>;
         return String(payload?.text || payload?.transcript || '').trim() || null;
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error instanceof Error ? error.message : String(error);
         if (!this.isTransientError(lastError)) {
           throw new Error(lastError);

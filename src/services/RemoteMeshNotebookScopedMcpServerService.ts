@@ -572,8 +572,8 @@ export class RemoteMeshNotebookScopedMcpServerService {
         httpStatus: 200,
         body: toolResult(id, payload),
       };
-    } catch (error: any) {
-    logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
     return {
         httpStatus: 200,
         body: toolErrorResult(id, {
@@ -631,8 +631,8 @@ export class RemoteMeshNotebookScopedMcpServerService {
         httpStatus: 200,
         body: toolResult(id, payload),
       };
-    } catch (error: any) {
-    logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
     return {
         httpStatus: 200,
         body: toolErrorResult(id, {
@@ -1142,7 +1142,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1228,7 +1228,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1326,7 +1326,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1419,7 +1419,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;

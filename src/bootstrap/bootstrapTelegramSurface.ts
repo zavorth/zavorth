@@ -4,6 +4,7 @@ import type {
   BootstrapFoundation,
   BootstrapSupervisor,
 } from './bootstrapTypes.js';
+import { logger } from '../logger.js';
 
 export async function startZavorthControlSurface(
   foundation: BootstrapFoundation,
@@ -26,9 +27,9 @@ export async function startZavorthControlSurface(
   );
 
   supervisor.updateProgress('web-surface');
-  console.log('[BOOT] web-surface');
+  logger.info('[BOOT] web-surface');
   await botGateway.startZavorthControlSurface();
-  console.log('[BOOT] web-surface-ready');
+  logger.info('[BOOT] web-surface-ready');
 
   setTimeout(() => {
     void foundation.configVersioningService.snapshot('bootstrap').catch((error: unknown) => {

@@ -29,7 +29,6 @@ import {
   MinimalRuntimeScheduler,
   type MinimalRuntimeSchedulerSnapshot,
 } from './MinimalRuntimeScheduler.js';
-
 export type MinimalRuntimeKernelSnapshot = {
   version: 1;
   generatedAt: string;
@@ -228,7 +227,7 @@ export class MinimalRuntimeKernel {
     const shutdown = async (signal: string) => {
       try {
         await this.stop(signal);
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         this.writer.error(error instanceof Error ? error.message : String(error));
       } finally {
         process.exit(0);

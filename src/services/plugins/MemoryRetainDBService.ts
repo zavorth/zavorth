@@ -47,7 +47,7 @@ export class MemoryRetainDBService {
       for (const [id, mem] of Object.entries(data as Record<string, RetainedMemory>)) {
         this.memories.set(id, mem);
       }
-    } catch (error: any) { /* ignore */ logger.warn('[Memory Retain D B] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Memory Retain D B] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

@@ -42,8 +42,7 @@ export class CreateFileTool extends BaseTool {
     try {
       resolvedPolicy = policy.resolveWritePath(filepath);
       fullPath = resolvedPolicy.absolutePath;
-    } catch (error: any) {
-    logger.warn('[Create File] serialization failed', error);
+    } catch (error: unknown) {logger.warn('[Create File] serialization failed', error);
     return JSON.stringify({ error: 'For security, files can only be created inside the output/ folder.' });
   }
 
@@ -68,8 +67,8 @@ export class CreateFileTool extends BaseTool {
           scope: resolvedPolicy.scope,
         },
       });
-    } catch (error: any) {
-    logger.warn('[Create File] filesystem operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Create File] filesystem operation failed', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
       return JSON.stringify({ error: `Failed to create file: ${errorMessage}` });
   }

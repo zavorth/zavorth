@@ -722,8 +722,8 @@ export class ZavorthSandboxControlPlaneService {
   private safeDockerStatus(language: SandboxLanguage): DockerSandboxStatus {
     try {
       return this.dockerRuntime.getStatus(language);
-    } catch (error: any) {
-    logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
     return {
         enabled: config.dockerSandboxEnabled,
         language,
@@ -746,8 +746,8 @@ export class ZavorthSandboxControlPlaneService {
   private safeFirecrackerStatus(): FirecrackerSandboxStatus {
     try {
       return this.firecrackerRuntime.getStatus();
-    } catch (error: any) {
-    logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
     return {
         enabled: config.firecrackerEnabled,
         transport: this.platform === 'win32' ? 'wsl' : 'direct',
@@ -764,8 +764,8 @@ export class ZavorthSandboxControlPlaneService {
   private safeWasmStatus(): WasmSandboxStatus {
     try {
       return this.wasmCapability.getStatus('wasm');
-    } catch (error: any) {
-    logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
     return {
         enabled: config.wasmSandboxEnabled,
         available: false,

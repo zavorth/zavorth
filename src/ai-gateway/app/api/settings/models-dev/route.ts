@@ -10,9 +10,7 @@ syncModelsDev,
   getSyncStatus,
   startPeriodicSync,
   stopPeriodicSync,
-} from "@/lib/modelsDevSync";
-
-const modelsDevActionSchema = z.object({
+} from "@/lib/modelsDevSync";const modelsDevActionSchema = z.object({
   action: z.enum(["sync", "start", "stop"]),
   dryRun: z.boolean().optional(),
   syncCapabilities: z.boolean().optional(),
@@ -58,8 +56,7 @@ export async function POST(request: NextRequest) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 

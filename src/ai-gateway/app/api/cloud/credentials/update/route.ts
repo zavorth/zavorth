@@ -3,9 +3,7 @@ import { validateApiKey, getProviderConnections, updateProviderConnection } from
 import { cloudCredentialUpdateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';
-
-// Update provider credentials (for cloud token refresh)
+import { logger } from '@/shared/utils/logger';// Update provider credentials (for cloud token refresh)
 export async function PUT(request: Request) {
   const authError = await requireStrictManagementAuth(request);
   if (authError) return authError;
@@ -13,8 +11,7 @@ export async function PUT(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return NextResponse.json(
       { error: { message: "Invalid request", details: [{ field: "body", message: "Invalid JSON body" }] } },
       { status: 400 }
@@ -80,8 +77,7 @@ export async function PUT(request: Request) {
       success: true,
       message: `Credentials updated for provider: ${provider}`,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Update credentials error:", error);
+  } catch (error: unknown) {console.log("Update credentials error:", error);
     return NextResponse.json({ error: "Failed to update credentials" }, { status: 500 });
   }
 }

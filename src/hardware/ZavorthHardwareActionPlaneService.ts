@@ -11,9 +11,7 @@ import { HomeAssistantBridge } from '../echo/tools/iot/HomeAssistantBridge.js';
 import { MQTTPublisher } from '../echo/tools/iot/MQTTPublisher.js';
 import { ZavorthMutationPlaneService } from '@zavorth/services/ZavorthMutationPlaneService.js';
 import { TrustDecisionService, type TrustDecision } from '@zavorth/services/TrustDecisionService.js';
-import { TrustPlanePolicyLedgerService } from '@zavorth/services/TrustPlanePolicyLedgerService.js';
-
-export type HardwareProviderId =
+import { TrustPlanePolicyLedgerService } from '@zavorth/services/TrustPlanePolicyLedgerService.js';export type HardwareProviderId =
   | 'home-assistant'
   | 'mqtt'
   | 'webhook'
@@ -1038,8 +1036,7 @@ export class ZavorthHardwareActionPlaneService {
       return this.mutationPlane.listPlans({ limit: Math.max(limit, 20), includeExpired: false })
         .filter((entry) => entry.domain === 'hardware' && (entry.status === 'waiting_approval' || entry.status === 'approved' || entry.status === 'draft'))
         .slice(0, limit);
-    } catch (error: any) { const err = error; const e = error;
-      return [];
+    } catch (error: unknown) {return [];
     }
   }
 
@@ -1114,8 +1111,7 @@ export class ZavorthHardwareActionPlaneService {
     try {
       const parsed = JSON.parse(String(this.readFileSync(this.stateFile, 'utf8') || '{}')) as Partial<HardwareActionPlaneState>;
       return this.normalizeState(parsed);
-    } catch (error: any) { const err = error; const e = error;
-      return this.defaultState();
+    } catch (error: unknown) {return this.defaultState();
     }
   }
 
@@ -1307,8 +1303,7 @@ export class ZavorthHardwareActionPlaneService {
         },
         result: input.summary,
       });
-    } catch (error: any) { const err = error; const e = error;
-      // The ledger must not block emergency stop or local blocking.
+    } catch (error: unknown) {// The ledger must not block emergency stop or local blocking.
     }
   }
 

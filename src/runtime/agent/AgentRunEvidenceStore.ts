@@ -1,7 +1,5 @@
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-import { redactPrivacyValue } from '../../privacy/PrivacyRedactor.js';
-
-export type AgentRunEvidenceSnapshotRef = {
+import { redactPrivacyValue } from '../../privacy/PrivacyRedactor.js';export type AgentRunEvidenceSnapshotRef = {
   id: string;
   key: string;
   runId: string;
@@ -209,8 +207,7 @@ export class AgentRunEvidenceStore {
   private cloneSnapshot(snapshot: Record<string, unknown>): Record<string, unknown> {
     try {
       return structuredClone(snapshot) as Record<string, unknown>;
-    } catch (error: any) { const err = error; const e = error;
-      return { ...snapshot };
+    } catch (error: unknown) {return { ...snapshot };
     }
   }
 

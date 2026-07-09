@@ -16,6 +16,7 @@ import type {
   WorkflowStage,
 } from '../domain/execution/infrastructure/multi-agent-pipeline/MultiAgentPipelineTypes.js';
 import { MultiAgentWorkflowPlannerService } from '../domain/execution/infrastructure/multi-agent-pipeline/MultiAgentWorkflowPlannerService.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export class MultiAgentPipeline {
   private readonly executionGateway: PipelineGateway;
@@ -112,8 +113,7 @@ export class MultiAgentPipeline {
       const run = this.workflowRuns.createRun(workflow, objective, workspace, phases, workspaceContext, options);
       await ctx.reply(this.presentation.formatWorkflowIntro(workflow, objective, workspace, phases, run, workspaceContext));
       await this.runner.continueWorkflow(ctx, run, phases, 0, [], workspaceContext);
-    } catch (e: any) { const error = e; const err = e;
-      await ctx.reply(`Workflow interrompido.\n\nMotivo: ${e.message}`);
+    } catch (error: unknown) { const err = asErrorLike(error); await ctx.reply(`Workflow interrompido.\n\nMotivo: ${err.message}`);
     }
   }
 

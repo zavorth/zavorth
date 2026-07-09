@@ -72,19 +72,20 @@
   z-index: 0;
   pointer-events: none;
 }
+/* Calm brand wash. */
 .core-frame::before {
   background: var(--b-aurora-layer);
-  background-size: 160% 160%;
-  filter: blur(34px);
-  opacity: 0.72;
+  background-size: 100% 100%;
+  filter: blur(48px);
+  opacity: 0.28;
   transform: translateZ(0);
-  animation: b-aurora-drift 16s var(--b-ease-in-out) infinite;
+  animation: none;
 }
 .core-frame::after {
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--b-surface) 20%, transparent) 0%, transparent 24%),
-    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 7%, transparent) 52%, transparent 100%);
-  opacity: 0.68;
+    linear-gradient(180deg, color-mix(in srgb, var(--b-surface) 12%, transparent) 0%, transparent 20%),
+    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 3%, transparent) 50%, transparent 100%);
+  opacity: 0.32;
 }
 @supports (height: 100dvh) {
   .core-frame { height: 100dvh; }
@@ -377,6 +378,63 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.dock-more {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dock-more__trigger {
+  border: none;
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.dock-more__panel {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 240px;
+  max-width: min(360px, 80vw);
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--b-glass-border) 80%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--b-glass-strong) 94%, transparent);
+  box-shadow: var(--b-glass-shadow);
+  backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+}
+
+.dock-more__panel[hidden] {
+  display: none !important;
+}
+
+.dock-more.is-open .dock-more__panel {
+  display: grid;
+}
+
+.dock-more__item {
+  min-width: 0;
+  padding: 8px 6px;
+}
+
+.dock-more__item .dock-node__label {
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.dock-more.has-active .dock-more__trigger,
+.dock-more__trigger.active {
+  color: var(--b-signal-strong);
 }
 
 .dock-divider {
@@ -692,10 +750,47 @@
     padding: 0 10px 4px;
   }
 
-  .dock-group:nth-of-type(1)::before { content: "Operate"; }
-  .dock-group:nth-of-type(2)::before { content: "Agent"; }
+  .dock-group:nth-of-type(1)::before,
+  .dock-group--primary::before { content: "Navigate"; }
+  .dock-group:nth-of-type(2)::before { content: "More"; }
   .dock-group:nth-of-type(3)::before { content: "System"; }
   .dock-divider { display: none; }
+
+  .dock-more {
+    display: contents;
+  }
+
+  .dock-more__trigger {
+    display: none;
+  }
+
+  .dock-more__panel,
+  .dock-more.is-open .dock-more__panel {
+    position: static;
+    transform: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    min-width: 0;
+    max-width: none;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .dock-more__panel[hidden] {
+    display: grid !important;
+  }
+
+  .dock-more__item {
+    width: 100%;
+    min-height: 44px;
+    justify-content: flex-start;
+    padding: 0 12px;
+  }
 
   .dock-node {
     flex-direction: row;
@@ -882,26 +977,22 @@
 
 .core-frame {
   background:
-    radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--b-pulse) 10%, transparent) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 76% 22%, rgba(255, 255, 255, 0.08) 0 1px, transparent 1.7px),
-    radial-gradient(circle at 38% 78%, color-mix(in srgb, var(--b-warn) 10%, transparent) 0 1px, transparent 1.8px),
-    linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 10%, transparent), transparent 34%),
-    linear-gradient(220deg, color-mix(in srgb, var(--b-warn) 7%, transparent), transparent 42%),
-    linear-gradient(180deg, #050708 0%, #070d11 54%, #040607 100%);
-  background-size: 190px 190px, 260px 260px, 230px 230px, auto, auto, auto;
+    radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--b-pulse) 7%, transparent), transparent 32rem),
+    linear-gradient(180deg, #080b0c 0%, #060809 100%);
+  background-size: auto;
 }
 
 .core-frame::before {
-  opacity: 0.46;
-  filter: blur(42px);
+  opacity: 0.22;
+  filter: blur(56px);
+  animation: none;
 }
 
 .core-frame::after {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, transparent 18%),
-    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 5%, transparent) 50%, transparent 100%),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 112px);
-  opacity: 0.52;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 16%),
+    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 3%, transparent) 50%, transparent 100%);
+  opacity: 0.28;
 }
 
 .bridge {
@@ -954,46 +1045,45 @@
 
 [data-theme="light"] .core-frame {
   background:
-    radial-gradient(circle at 18% 18%, rgba(5, 150, 105, 0.10) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 76% 22%, rgba(15, 23, 42, 0.08) 0 1px, transparent 1.7px),
-    linear-gradient(180deg, #ffffff 0%, #f7fbfa 54%, #f8fafc 100%);
-  background-size: 190px 190px, 260px 260px, auto;
+    radial-gradient(circle at 50% 30%, rgba(5, 150, 105, 0.06), transparent 28rem),
+    linear-gradient(180deg, #ffffff 0%, #f4faf7 54%, #f8fafc 100%);
+  background-size: auto;
 }
 
 /* ==========================================================================
    Operator Workbench Shell
-   Removes the landing-page glow and keeps the dashboard visually quiet.
+   Quiet dark surface with brand green wash — no gold / grid noise.
    ========================================================================== */
 
 .core-frame {
   background:
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px),
-    radial-gradient(circle at 72% 18%, rgba(197, 154, 74, 0.035), transparent 34%),
-    linear-gradient(180deg, #090a0c 0%, #0b0d10 50%, #08090b 100%);
-  background-size: 48px 48px, 48px 48px, auto, auto;
+    radial-gradient(circle at 50% 26%, rgba(0, 232, 143, 0.055), transparent 30rem),
+    linear-gradient(180deg, #080b0c 0%, #060809 100%);
+  background-size: auto;
 }
 
 .core-frame::before {
-  opacity: 0.16;
-  filter: blur(54px);
-  background: radial-gradient(circle at 50% 18%, rgba(197, 154, 74, 0.16), transparent 46%);
+  opacity: 0.18;
+  filter: blur(60px);
+  animation: none;
+  background: radial-gradient(circle at 50% 16%, rgba(0, 232, 143, 0.07), transparent 48%);
 }
 
 .core-frame::after {
-  opacity: 0.18;
+  opacity: 0.14;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 22%),
-    repeating-linear-gradient(90deg, transparent 0 111px, rgba(255, 255, 255, 0.018) 112px);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 20%);
 }
 
 .bridge {
   min-height: 56px;
-  border-bottom-color: rgba(225, 232, 240, 0.07);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
-    rgba(10, 12, 15, 0.94);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent),
+    rgba(6, 8, 9, 0.94);
   box-shadow: none;
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
 }
 
 .bridge__logo {
@@ -1033,52 +1123,51 @@
 
 .bridge__search:hover,
 .bridge__action-btn:hover {
-  border-color: rgba(197, 154, 74, 0.28);
-  background: rgba(22, 26, 32, 0.9);
+  border-color: rgba(0, 232, 143, 0.28);
+  background: rgba(16, 20, 24, 0.92);
 }
 
 @media (min-width: 981px) {
   .nexus-dock {
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.026), transparent 20%),
-      rgba(8, 9, 11, 0.98);
-    border-right-color: rgba(225, 232, 240, 0.065);
+      rgba(6, 8, 9, 0.98);
+    border-right-color: rgba(255, 255, 255, 0.08);
   }
 
   .nexus-dock::before {
-    border-bottom-color: rgba(225, 232, 240, 0.07);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
   }
 
   .dock-node {
-    color: #818997;
+    color: #9aa6a0;
     border-color: transparent;
     background: transparent;
   }
 
   .dock-node:hover {
-    color: #d7dbe2;
+    color: #eef2f0;
     background: rgba(255, 255, 255, 0.045);
   }
 
   .dock-node.active {
-    color: #f2f4f7;
-    border-color: rgba(197, 154, 74, 0.20);
-    background: rgba(197, 154, 74, 0.075);
-    box-shadow: inset 0 0 0 1px rgba(197, 154, 74, 0.09);
+    color: #f5f7f6;
+    border-color: rgba(0, 232, 143, 0.22);
+    background: rgba(0, 232, 143, 0.10);
+    box-shadow: inset 0 0 0 1px rgba(0, 232, 143, 0.12);
   }
 
   .dock-sys-info {
-    border-color: rgba(225, 232, 240, 0.07);
+    border-color: rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.035);
   }
 }
 
 [data-theme="light"] .core-frame {
   background:
-    linear-gradient(rgba(15, 23, 42, 0.042) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.032) 1px, transparent 1px),
-    linear-gradient(180deg, #f8fafc 0%, #f3f5f8 50%, #f8fafc 100%);
-  background-size: 48px 48px, 48px 48px, auto;
+    radial-gradient(circle at 50% 30%, rgba(5, 150, 105, 0.05), transparent 28rem),
+    linear-gradient(180deg, #ffffff 0%, #f4faf7 50%, #f8fafc 100%);
+  background-size: auto;
 }
 
 /* Sidebar collapse control */
@@ -1102,9 +1191,9 @@
 }
 
 .bridge__sidebar-toggle:hover {
-  color: #f2f4f7;
-  border-color: rgba(197, 154, 74, 0.34);
-  background: rgba(22, 26, 32, 0.92);
+  color: #f5f7f6;
+  border-color: rgba(0, 232, 143, 0.32);
+  background: rgba(16, 20, 24, 0.92);
 }
 
 [data-theme="light"] .bridge__sidebar-toggle {
@@ -1115,7 +1204,7 @@
 
 [data-theme="light"] .bridge__sidebar-toggle:hover {
   color: #0f172a;
-  border-color: rgba(197, 154, 74, 0.42);
+  border-color: rgba(5, 150, 105, 0.42);
   background: #fff;
 }
 
@@ -1124,7 +1213,7 @@
 }
 
 .bridge__sidebar-toggle:focus-visible {
-  outline: 2px solid rgba(197, 154, 74, 0.56);
+  outline: 2px solid rgba(0, 232, 143, 0.55);
   outline-offset: 2px;
 }
 
@@ -1202,6 +1291,51 @@
   .core-frame.is-sidebar-collapsed .dock-node__label,
   .core-frame.is-sidebar-collapsed .dock-sys-info__version {
     display: none;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more {
+    display: flex;
+    position: relative;
+    justify-content: center;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__trigger {
+    display: flex;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__panel,
+  .core-frame.is-sidebar-collapsed .dock-more.is-open .dock-more__panel {
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 0;
+    bottom: auto;
+    transform: none;
+    grid-template-columns: 1fr;
+    min-width: 160px;
+    padding: 8px;
+    border: 1px solid color-mix(in srgb, var(--b-glass-border) 80%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--b-glass-strong) 94%, transparent);
+    box-shadow: var(--b-glass-shadow);
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__panel[hidden] {
+    display: none !important;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more.is-open .dock-more__panel {
+    display: grid;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__item {
+    width: 100%;
+    min-height: 36px;
+    justify-content: flex-start;
+    padding: 0 10px;
+  }
+
+  .core-frame.is-sidebar-collapsed .dock-more__item .dock-node__label {
+    display: inline;
   }
 
   .core-frame.is-sidebar-collapsed .dock-node {

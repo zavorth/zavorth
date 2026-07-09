@@ -7,9 +7,7 @@ import type {
   SystemOverlordActionRequest,
   SystemOverlordCapabilityDecision,
 } from '../../contracts/SystemOverlordContract.js';
-import { readStructuredInput, stringField } from './SupervisedAdapterInput.js';
-
-type BrowserToolLike = Pick<AutomaticBrowserTool, 'handleToolCall'>;
+import { readStructuredInput, stringField } from './SupervisedAdapterInput.js';type BrowserToolLike = Pick<AutomaticBrowserTool, 'handleToolCall'>;
 
 const BROWSER_ACTION_TO_TOOL: Record<string, string> = {
   navigate: 'browser_navigate',
@@ -122,8 +120,7 @@ export class SupervisedBrowserControlAdapter implements SystemOverlordRuntimeAda
         return 'browser_navigate accepts only http/https URLs.';
       }
       return null;
-    } catch (error: any) { const err = error; const e = error;
-      return `Invalid URL for browser_navigate: "${url}".`;
+    } catch (error: unknown) {return `Invalid URL for browser_navigate: "${url}".`;
     }
   }
 

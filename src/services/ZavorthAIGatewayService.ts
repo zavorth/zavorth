@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import fs from 'fs';
 import http from 'http';
 import path from 'path';
@@ -74,8 +75,7 @@ export class ZavorthGatewayService {
           resolve();
         });
       });
-    } catch (error: any) {
-      server.removeAllListeners();
+    } catch (error: unknown) {server.removeAllListeners();
       this.server = null;
       if (error?.code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
         const status = this.buildExternalGatewayStatus('Gateway proprio do AIGateway ja estava ativo em outro processo.');
@@ -109,7 +109,9 @@ export class ZavorthGatewayService {
     ZavorthGatewayService.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn("[auto-fix] Empty catch block", err); }
     });
     ZavorthGatewayService.wss?.close();
     ZavorthGatewayService.wss = null;
@@ -136,7 +138,7 @@ export class ZavorthGatewayService {
         ...fallback,
         ...parsed,
       };
-    } catch (error: any) { logger.warn('[Zavorth A I way] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Zavorth A I way] JSON parse failed', error); return fallback; }
   }
 
   private async handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -205,7 +207,7 @@ export class ZavorthGatewayService {
       res.end(bodyBuffer);
       const status = this.buildStatus(true, response.ok || response.status < 500, 'AIGateway own gateway responded to upstream.');
       this.writeStatus(status);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const status = this.buildStatus(true, false, `Failed to forward request to AIGateway upstream: ${errorMessage}`);
       this.writeStatus(status);
@@ -250,8 +252,7 @@ export class ZavorthGatewayService {
     let message: GatewayWebSocketMessage;
     try {
       message = JSON.parse(Buffer.isBuffer(raw) ? raw.toString('utf8') : raw.toString());
-    } catch (error: any) {
-      this.sendWebSocketJson(ws, { type: 'error', error: 'Expected JSON message.' });
+    } catch (error: unknown) {this.sendWebSocketJson(ws, { type: 'error', error: 'Expected JSON message.' });
       return;
     }
     const id = typeof message?.id === 'string' ? message.id : null;
@@ -288,7 +289,7 @@ export class ZavorthGatewayService {
         ok: response.ok,
         body,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.sendWebSocketJson(ws, {
         id,
         type: 'chat.completions.error',
@@ -316,7 +317,7 @@ export class ZavorthGatewayService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch (error: any) { logger.warn('[Zavorth A I way] network request failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Zavorth A I way] network request failed', error); return false; }
   }
 
   private async isUpstreamHealthy(): Promise<boolean> {
@@ -336,7 +337,7 @@ export class ZavorthGatewayService {
         allowLoopback: true,
       });
       return response.status > 0 && response.status < 500;
-    } catch (error: any) { logger.warn('[Zavorth A I way] network request failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Zavorth A I way] network request failed', error); return false; }
   }
 
   private readOverlay(): GatewayOverlay {
@@ -345,7 +346,7 @@ export class ZavorthGatewayService {
         return {};
       }
       return JSON.parse(fs.readFileSync(config.AIGatewayOverlayFile, 'utf8')) as GatewayOverlay;
-    } catch (error: any) { logger.warn('[Zavorth A I way] JSON parse failed', error); return {}; }
+    } catch (error: unknown) {logger.warn('[Zavorth A I way] JSON parse failed', error); return {}; }
   }
 
   private buildStatus(running: boolean, ready: boolean, message: string): ZavorthGatewayStatus {

@@ -2,6 +2,7 @@ import { spawn, type ChildProcess } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
+import { asErrorLike } from '../src/utils/errorLike';
 
 type ConfigLike = {
   zavorthWebHost: string;
@@ -373,7 +374,9 @@ async function run(): Promise<void> {
   let results: VisualResult[];
   try {
     results = await smokeVisual(baseUrl, waitMs);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     results = [
       makeResult(
         'Smoke visual',

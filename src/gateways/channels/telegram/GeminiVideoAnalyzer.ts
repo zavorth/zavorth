@@ -2,9 +2,7 @@ import { logger } from '../../../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../../../config/index.js';
-import { safeFetch } from '../../../security/SafeFetchService.js';
-
-const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+import { safeFetch } from '../../../security/SafeFetchService.js';const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const INLINE_MEDIA_LIMIT_BYTES = 20 * 1024 * 1024;
 const FILE_ACTIVE_POLL_INTERVAL_MS = 5000;
 const FILE_ACTIVE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -543,8 +541,7 @@ export class GeminiVideoAnalyzer {
       }, {
         serviceName: 'Gemini video file cleanup',
       });
-    } catch (error: any) { const err = error; const e = error;
-      logger.warn(`[GeminiVideoAnalyzer] Falha ao remover arquivo temporario do Gemini: ${error}`);
+    } catch (error: unknown) {logger.warn(`[GeminiVideoAnalyzer] Falha ao remover arquivo temporario do Gemini: ${error}`);
     }
   }
 

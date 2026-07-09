@@ -228,8 +228,7 @@ export class ZavorthCapabilityPrototypeSandboxService {
         prototypes: Array.isArray(parsed.prototypes) ? parsed.prototypes.map(normalizePrototype).filter(isPrototype) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Capability Prototype Sandbox] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Capability Prototype Sandbox] parsing failed', error);
     return this.emptyStore();
   }
   }

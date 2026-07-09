@@ -764,11 +764,11 @@ export class ZavorthOperationalStateDbService {
     try {
       const row = this.db.pragma('journal_mode = WAL', { simple: true });
       this.journalMode = String(row || 'wal').toLowerCase();
-    } catch (error: any) {
+    } catch {
       try {
         const row = this.db.pragma('journal_mode = DELETE', { simple: true });
         this.journalMode = String(row || 'delete').toLowerCase();
-      } catch (error: any) {
+      } catch {
         this.journalMode = 'unknown';
       }
     }
@@ -931,8 +931,7 @@ export class ZavorthOperationalStateDbService {
         USING fts5(message_id UNINDEXED, session_id UNINDEXED, title, content);
       `);
       this.ftsAvailable = true;
-    } catch (error: any) {
-      this.ftsAvailable = false;
+    } catch (error: unknown) {this.ftsAvailable = false;
     }
   }
 
@@ -1325,7 +1324,7 @@ type EventRow = {
 function parseJson<T>(value: string, fallback: T): T {
   try {
     return JSON.parse(value) as T;
-  } catch (error: any) { logger.warn('[Zavorth Operational State Db] JSON parse failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[Zavorth Operational State Db] JSON parse failed', error); return fallback; }
 }
 
 function normalize(value: unknown, fallback = ''): string {

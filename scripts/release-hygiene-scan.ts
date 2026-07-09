@@ -108,7 +108,7 @@ function readTextFile(fullPath: string): string | null {
     }
 
     return buffer.toString('utf8');
-  } catch (error) {
+  } catch (error: unknown) {
     if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
       return null;
     }
@@ -147,7 +147,7 @@ function runPublicIdentityGate(repoRoot: string): string | null {
       stdio: 'pipe',
     });
     return null;
-  } catch (error) {
+  } catch (error: unknown) {
     const typed = error as Error & { stdout?: string; stderr?: string };
     return `${typed.stdout || ''}${typed.stderr || ''}`.trim() || typed.message;
   }

@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import type { PremiumTheme } from '../theme/premiumThemes';
 import { exportPremiumThemeState, premiumThemeFonts, premiumThemeMarketplace, type PremiumThemeState } from '../theme/premiumThemes';
 import { t } from '../i18n';
+import { asErrorLike } from '../lib/errors';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type AccentPreset = 'orange' | 'purple' | 'navy';
@@ -57,7 +58,8 @@ export function ThemeStudioPanel(props: {
         setImportError('');
         setSelectedThemeId(imported.id);
         props.onPremiumThemePreview(imported.id);
-      } catch (error) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         setImportError(error instanceof Error ? error.message : t('invalidTheme'));
       } finally {
         event.target.value = '';

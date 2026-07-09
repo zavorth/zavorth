@@ -15,7 +15,6 @@ import type { SurfaceControllerContext } from '../../../../services/SurfaceRunti
 import { ZavorthMnemosQueryService } from '../../../../services/ZavorthMnemosQueryService.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 import { logger } from '../../../../logger';
-
 type LooseRecord = Record<string, unknown>;
 type LearningState = LooseRecord & {
   entries: Record<string, LooseRecord>;
@@ -98,7 +97,7 @@ export class WebAppRuntimeInteractionRouteService {
 
         const preview = deps.consoleAssets.readPreviewFile(targetPath);
         deps.writeJson(res, { ok: true, preview }, 200);
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         deps.writeJson(res, { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao carregar preview.' }, 400);
       }
       return true;
@@ -340,7 +339,7 @@ export class WebAppRuntimeInteractionRouteService {
       res.setHeader('Cache-Control', 'no-store');
       res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(asset.filename)}"`);
       res.end(asset.content);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       deps.writeJson(res, { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao carregar asset.' }, 400);
     }
     return true;
@@ -437,7 +436,7 @@ export class WebAppRuntimeInteractionRouteService {
         projectRoot: config.projectRoot || process.cwd(),
       }).query({ query, topK });
       deps.writeJson(res, { ok: true, recall: snapshot }, 200);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       deps.writeJson(res, { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Mnemos recall failed.' }, 500);
     }
     return true;
@@ -764,7 +763,7 @@ export class WebAppRuntimeInteractionRouteService {
         .filter((event): event is Record<string, unknown> => Boolean(event))
         .filter((event) => !sessionId || !event.sessionId || event.sessionId === sessionId)
         .slice(-120);
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Web App Runtime Interaction] parsing failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Web App Runtime Interaction] parsing failed', error); return []; }
   }
 
   private readLearningState(): LearningState {
@@ -777,8 +776,7 @@ export class WebAppRuntimeInteractionRouteService {
       return record
         ? { version: 1, updatedAt: new Date(0).toISOString(), ...record, entries }
         : { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Web App Runtime Interaction] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Web App Runtime Interaction] JSON parse failed', error);
     return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
   }
   }
@@ -1009,7 +1007,7 @@ export class WebAppRuntimeInteractionRouteService {
       await deps.realtime.captureBaseline(sessionId);
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
       deps.writeJson(res, { ok: true, snapshot }, 200);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       deps.writeJson(
         res,
         { ok: false, error: (error instanceof Error ? error.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar permissao.' : 'Falha ao rejeitar permissao.') },
@@ -1061,7 +1059,7 @@ export class WebAppRuntimeInteractionRouteService {
       await deps.realtime.captureBaseline(sessionId);
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
       deps.writeJson(res, { ok: true, snapshot }, 200);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       deps.writeJson(
         res,
         { ok: false, error: (error instanceof Error ? error.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar task gate.' : 'Falha ao rejeitar task gate.') },
@@ -1147,7 +1145,7 @@ export class WebAppRuntimeInteractionRouteService {
         },
         200,
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       deps.writeJson(
         res,
         { ok: false, error: (error instanceof Error ? error.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar run universal.' : 'Falha ao rejeitar run universal.') },
@@ -1241,7 +1239,7 @@ export class WebAppRuntimeInteractionRouteService {
         },
         result.ok ? 200 : 409,
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       deps.writeJson(
         res,
         { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao aplicar rascunho do Intelligence Fabric.' },
@@ -1337,7 +1335,7 @@ export class WebAppRuntimeInteractionRouteService {
         },
         result.ok ? 200 : 409,
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       deps.writeJson(
         res,
         { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao aplicar demote controlado do Intelligence Fabric.' },

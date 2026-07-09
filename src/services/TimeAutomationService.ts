@@ -196,7 +196,7 @@ export class TimeAutomationService {
     try {
       if (!this.fs.existsSync(filePath)) return fallback;
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch (error: any) { logger.warn('[Time Automation] filesystem operation failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Time Automation] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

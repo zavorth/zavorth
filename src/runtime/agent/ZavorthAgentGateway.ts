@@ -39,9 +39,7 @@ import type {
   UniversalApprovalRequest,
   UniversalReplyPacket,
 } from './UniversalAgentRuntimeTypes.js';
-import { hookMiddleware } from '../../services/ZavorthMiddlewareHook.js';
-
-export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
+import { hookMiddleware } from '../../services/ZavorthMiddlewareHook.js';export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
   runStore?: AgentRunStore | null;
   workflowQueueStore?: AgentWorkflowQueueStore | null;
   workflowWorkerId?: string;
@@ -132,8 +130,7 @@ function toSerializableRecord(value: unknown): Record<string, unknown> {
   try {
     const parsed = JSON.parse(JSON.stringify(value));
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-  } catch (error: any) { const err = error; const e = error;
-    return {};
+  } catch (error: unknown) {return {};
   }
 }
 
@@ -762,8 +759,7 @@ export class ZavorthAgentGateway {
       this.workflowJobs.set(job.id, job);
       this.persistWorkflowJob(job);
       return result;
-    } catch (error: any) { const err = error; const e = error;
-      const failedAt = this.nowIso();
+    } catch (error: unknown) {const failedAt = this.nowIso();
       const message = normalizeText(error?.message, 'Executor duravel falhou ao retomar a execucao.');
       this.applyWorkflowFailure(job, run, message, failedAt);
       const retryScheduled = String(job.status) === 'queued';

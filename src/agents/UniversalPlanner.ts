@@ -3,6 +3,7 @@ import { Plan } from '../contracts/PlanContract.js';
 import { Task } from '../contracts/TaskContract.js';
 import { config } from '../config/index.js';
 import { StructuredPlanner } from './StructuredPlanner.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export class UniversalPlanner {
   private planner: StructuredPlanner;
@@ -19,7 +20,8 @@ export class UniversalPlanner {
     try {
       const result = await this.planner.generatePlan(task, prompt);
       return result.plan;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.error('[UniversalPlanner] Planning error:', err.message);
       throw new Error(`Planner error (${providerName}/${modelName}): ${err.message}`);
     }

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../src/utils/errorLike';
 ﻿// Android Pin Version script supports Zavorth repository automation.
 import path from "node:path";
 import {
@@ -188,7 +189,8 @@ export async function main(argv: string[]): Promise<number> {
       }
     }
     return 0;
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     return 1;
   }

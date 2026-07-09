@@ -10,7 +10,6 @@ import {
   VideoTranscriptionPipeline,
   type VideoTranscriptResult,
 } from '../../../../gateways/channels/telegram/video-handler/VideoTranscriptionPipeline.js';
-
 export class VideoYtDlpTranscriptSupport {
   public constructor(
     private readonly ytDlpFallback: YtDlpFallback,
@@ -37,7 +36,7 @@ export class VideoYtDlpTranscriptSupport {
         source: captions.source,
         warnings: ['Encontrei legendas via yt-dlp e evitei baixar o audio completo do video.'],
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (isCapabilityUnavailableError(error)) {
         return {
           transcript: '',
@@ -87,7 +86,7 @@ export class VideoYtDlpTranscriptSupport {
             source: `${downloaded.source} + OpenAI transcription`,
             warnings,
           };
-        } catch (error: any) { const err = error; const e = error;
+        } catch (error: unknown) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           warnings.push(`O fallback de transcricao literal com OpenAI falhou: ${errorMessage}`);
         }
@@ -148,7 +147,7 @@ export class VideoYtDlpTranscriptSupport {
           ? warnings
           : ['O fallback com yt-dlp conseguiu extrair o audio, mas nenhuma etapa posterior produziu conteudo textual util.'],
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (isCapabilityUnavailableError(error)) {
         return {
           transcript: '',

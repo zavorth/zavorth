@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { asErrorLike } from '../../utils/errorLike';
 function safeExec(cmd: string, args: string[], opts: { stdio?: string; timeout?: number } = {}): void {
   const cleanArgs = args.map((a) => a.replace(/[;&|`$(){}[\]<>]/g, ''));
   execFileSync(cmd, cleanArgs, { stdio: (opts.stdio as any) || 'pipe', timeout: opts.timeout || 30000 });
@@ -97,8 +98,7 @@ export class SkillGitRegistry {
       }, dataDir);
 
       return { success: true, skillId, installedPath: targetDir, message: `Installed "${skillId}" v${validation.manifest!.version} from ${repoUrl}` };
-    } catch (e) {
-      return { success: false, skillId: '', installedPath: '', message: `Install failed: ${e instanceof Error ? e.message : String(e)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Install failed: ${err instanceof Error ? err.message : String(err)}` };
     }
   }
 
@@ -140,8 +140,7 @@ export class SkillGitRegistry {
 
       const skillDir = targetName ? skills.find((s) => s.name === targetName)?.dir || skills[0].dir : skills[0].dir;
       return this.installSkillFromDir(skillDir, repoUrl, targetName);
-    } catch (e) {
-      return { success: false, skillId: '', installedPath: '', message: `Git clone failed: ${e instanceof Error ? e.message : String(e)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Git clone failed: ${err instanceof Error ? err.message : String(err)}` };
     } finally {
       if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -262,8 +261,7 @@ export class SkillGitRegistry {
 
       const skillDir = targetName ? skills.find((s) => s.name === targetName)?.dir || skills[0].dir : skills[0].dir;
       return this.installSkillFromDir(skillDir, packageName, targetName);
-    } catch (e) {
-      return { success: false, skillId: '', installedPath: '', message: `npm install failed: ${e instanceof Error ? e.message : String(e)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `npm install failed: ${err instanceof Error ? err.message : String(err)}` };
     } finally {
       if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -302,8 +300,7 @@ export class SkillGitRegistry {
       const skillDir = skills[0].dir;
       const r = this.installSkillFromDir(skillDir, url);
       return r;
-    } catch (e) {
-      return { success: false, skillId: '', installedPath: '', message: `Download failed: ${e instanceof Error ? e.message : String(e)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Download failed: ${err instanceof Error ? err.message : String(err)}` };
     } finally {
       if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -336,8 +333,7 @@ export class SkillGitRegistry {
       fs.rmSync(tmpDir, { recursive: true, force: true });
 
       return { success: true, skillId, version: validation.manifest.version, location: 'git', message: `Published "${skillId}" v${validation.manifest.version} to ${repoUrl}` };
-    } catch (e) {
-      return { success: false, skillId: '', version: '', location: 'git', message: `Publish failed: ${e instanceof Error ? e.message : String(e)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', version: '', location: 'git', message: `Publish failed: ${err instanceof Error ? err.message : String(err)}` };
     }
   }
 

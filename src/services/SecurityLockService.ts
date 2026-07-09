@@ -140,8 +140,7 @@ export class SecurityLockService {
           this.passwordHash = content;
         }
       }
-    } catch (error: any) {
-      // Silencioso — sem hash configurado
+    } catch (error: unknown) {// Silencioso — sem hash configurado
       logger.warn('[Security Lock] filesystem operation failed', error);
     }
   }
@@ -156,8 +155,7 @@ export class SecurityLockService {
         fs.mkdirSync(dir, { recursive: true });
       }
       fs.writeFileSync(this.hashFilePath, this.passwordHash || '', 'utf-8');
-    } catch (error: any) {
-      // Silencioso
+    } catch (error: unknown) {// Silencioso
       logger.warn('[Security Lock] filesystem operation failed', error);
     }
   }

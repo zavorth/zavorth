@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import fs from 'fs';
 import path from 'path';
 import { execFile } from 'child_process';
@@ -104,8 +105,7 @@ export class CompanionControlService {
           ...descriptor.details,
           status.message || 'Status nativo do ZavorthBridge lido com sucesso.',
         ].slice(0, 6);
-      } catch (error: any) {
-      // Keep the desktop-plane view even when the native status fails.
+      } catch (error: unknown) {// Keep the desktop-plane view even when the native status fails.
       logger.warn('[Companion Control] operation failed', error);
     }
     }
@@ -624,11 +624,15 @@ export class CompanionControlService {
       `}`,
       `$orderedIds = $candidateIds.ToArray() | Sort-Object -Descending`,
       `foreach ($pid in $orderedIds) {`,
-      `  try { & taskkill.exe /PID $pid /T /F | Out-Null } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }`,
+      `  try { & taskkill.exe /PID $pid /T /F | Out-Null } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn("[auto-fix] Empty catch block", err); }`,
       `}`,
       `$leftovers = Get-CimInstance Win32_Process | Where-Object { (Test-DockerProcessPath ([string]$_.ExecutablePath)) -or ($dockerNames -contains $_.Name) }`,
       `foreach ($process in $leftovers) {`,
-      `  try { Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }`,
+      `  try { Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn("[auto-fix] Empty catch block", err); }`,
       `}`,
     ].join('; ');
     await this.exec('powershell.exe', ['-NoProfile', '-Command', script], { timeoutMs: 30_000 });
@@ -746,8 +750,7 @@ export class CompanionControlService {
         updatedAt: String(parsed.updatedAt || this.now().toISOString()),
         lastActions: parsed.lastActions || {},
       };
-    } catch (error: any) {
-    logger.warn('[Companion Control] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Companion Control] JSON parse failed', error);
     return {
         updatedAt: this.now().toISOString(),
         lastActions: {},

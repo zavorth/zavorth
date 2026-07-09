@@ -126,8 +126,8 @@ export class WorkspaceCommandRunTool extends BaseTool {
         timeoutFlag: result.timeoutFlag,
         truncatedFlag: result.truncatedFlag
       });
-    } catch (error: any) {
-    logger.warn('[Workspace Command Run] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Workspace Command Run] process execution failed', error);
     return JSON.stringify({
         success: false,
         error: `Command execution failed: ${error.message || error}`
@@ -161,8 +161,7 @@ export class WorkspaceCommandRunTool extends BaseTool {
           if (isPathOutside(resolved, resolvedRoot)) {
             return true;
           }
-        } catch (error: any) {
-      // ignore parsing failures
+        } catch (error: unknown) {// ignore parsing failures
       logger.warn('[Workspace Command Run] lifecycle operation failed', error);
     }
       }

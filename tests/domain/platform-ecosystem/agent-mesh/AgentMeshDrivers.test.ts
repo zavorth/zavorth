@@ -23,7 +23,7 @@ function readJson(req: IncomingMessage): Promise<any> {
     req.on('end', () => {
       try {
         resolve(JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'));
-      } catch (error) {
+      } catch (error: unknown) {
         reject(error);
       }
     });

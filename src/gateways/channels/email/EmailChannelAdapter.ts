@@ -9,6 +9,7 @@ import {
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
+import { logger } from '../../../logger.js';
 
 type EmailChannelAdapterRuntime = {
   outboxDir?: string;
@@ -35,12 +36,12 @@ export class EmailChannelAdapter implements GatewayChannelAdapter {
   async initialize(): Promise<void> {
     fs.mkdirSync(this.outboxDir, { recursive: true });
     if (!this.providerHint && !config.emailSmtpHost) {
-      console.warn('[ChannelMesh] Email bridge offline (missing SMTP configuration).');
+      logger.warn('[ChannelMesh] Email bridge offline (missing SMTP configuration).');
     }
   }
 
   async shutdown(): Promise<void> {
-    console.log('[ChannelMesh] Email bridge detached.');
+    logger.info('[ChannelMesh] Email bridge detached.');
   }
 
   async onMessageReceived(payload: any): Promise<void> {
@@ -51,7 +52,7 @@ export class EmailChannelAdapter implements GatewayChannelAdapter {
     const subject = String(payload?.subject || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('email', userId);
     if (!isAllowed) {
-      console.warn(`[Security] Blocked unauthorized Email interaction from ${userId}`);
+      logger.warn(`[Security] Blocked unauthorized Email interaction from ${userId}`);
       return;
     }
 

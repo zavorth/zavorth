@@ -319,13 +319,12 @@ export class GatewayChannelAdapterRegistryService {
         let doctor: ChannelLongTailConfiguredDoctorReceipt | null = null;
         try {
           doctor = channelLongTailActivation.runConfiguredDoctor({ channelId: entry.channelId });
-        } catch (error: any) {
-    logger.warn('[way Channel Adapter Registry] creation failed', error);
+        } catch (error: unknown) {logger.warn('[way Channel Adapter Registry] creation failed', error);
     doctor = null;
   }
         return this.fromLongTailActivationEntry(entry, doctor);
       });
-    } catch (error: any) { logger.warn('[way Channel Adapter Registry] creation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[way Channel Adapter Registry] creation failed', error); return []; }
   }
 
   private fromLongTailActivationEntry(

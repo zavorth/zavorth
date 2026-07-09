@@ -101,8 +101,7 @@ export class SidecarExecutionReceiptService {
         if (this.isReceipt(parsed)) {
           receipts.push(parsed);
         }
-      } catch (error: any) {
-      // Ignore malformed historical lines; the ledger is append-only.
+      } catch (error: unknown) {// Ignore malformed historical lines; the ledger is append-only.
       logger.warn('[Sidecar Execution Receipt] JSON parse failed', error);
     }
     }

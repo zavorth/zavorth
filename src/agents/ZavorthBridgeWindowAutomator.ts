@@ -1,6 +1,7 @@
 import { execFile } from 'child_process';
 import { config } from '../config/index.js';
 import { PendingZavorthBridgeSession } from '../orchestrator/AgentBridgeManager.js';
+import { asErrorLike } from '../utils/errorLike';
 
 type AutomationMode =
   | 'focus'
@@ -83,7 +84,7 @@ export class ZavorthBridgeWindowAutomator {
     const result = await this.run('read-latest-response', '', initialDelayMs, processId);
     try {
       return JSON.parse(String(result.message || '').trim()) as ZavorthBridgeUiReadState;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       throw new Error(`Failed to parse ZavorthBridge UI state: ${error.message}`);
     }
   }
@@ -207,8 +208,9 @@ export class ZavorthBridgeWindowAutomator {
           try {
             const parsed = JSON.parse(stdout.trim()) as AutomationResult;
             resolve(parsed);
-          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
-            reject(new Error(`Failed to parse ZavorthBridge automation result: ${parseError.message}`));
+          } catch (parseError: unknown) {
+            const err = asErrorLike(parseError);
+            reject(new Error(`Failed to parse ZavorthBridge automation result: ${err.message || String(parseError)}`));
           }
         },
       );
@@ -237,8 +239,7 @@ export class ZavorthBridgeWindowAutomator {
         try {
           const parsed = JSON.parse(stdout.trim());
           resolve(parsed.ok === true);
-        } catch (e: any) { const error = e; const err = e;
-          resolve(false);
+        } catch (error: unknown) {resolve(false);
         }
       });
     });

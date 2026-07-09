@@ -572,7 +572,7 @@ export class ReleaseTrainService {
     }
     try {
       return this.parseJson(this.readFileSync(filePath, 'utf8'));
-    } catch (error: any) { logger.warn('[Release Train] filesystem operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Release Train] filesystem operation failed', error); return null; }
   }
 
   private readCoreText(relativePath: string): string | null {
@@ -597,14 +597,14 @@ export class ReleaseTrainService {
     }
     try {
       return this.readFileSync(targetPath, 'utf8');
-    } catch (error: any) { logger.warn('[Release Train] filesystem operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Release Train] filesystem operation failed', error); return null; }
   }
 
   private parseJson(raw: string): JsonRecord | null {
     try {
       const parsed = JSON.parse(raw);
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as JsonRecord : null;
-    } catch (error: any) { logger.warn('[Release Train] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Release Train] JSON parse failed', error); return null; }
   }
 
   private check(

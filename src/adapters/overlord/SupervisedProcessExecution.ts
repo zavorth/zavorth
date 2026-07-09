@@ -1,6 +1,4 @@
-import { spawn, type ChildProcess } from 'child_process';
-
-export type SupervisedProcessExecutionResult = {
+import { spawn, type ChildProcess } from 'child_process';export type SupervisedProcessExecutionResult = {
   ok: boolean;
   exitCode: number | null;
   stdout: string;
@@ -31,8 +29,7 @@ export async function executeSupervisedProcess(input: {
     });
     try {
       input.onSpawn?.(child);
-    } catch (error: any) { const err = error; const e = error;
-      // Best-effort hook for supervised cancelation handles.
+    } catch (error: unknown) {// Best-effort hook for supervised cancelation handles.
     }
 
     const finish = (result: SupervisedProcessExecutionResult) => {

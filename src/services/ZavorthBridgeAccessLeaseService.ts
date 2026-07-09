@@ -207,7 +207,7 @@ export class ZavorthBridgeAccessLeaseService {
         startedPublicTunnel: parsed.startedPublicTunnel === true,
         note: String(parsed.note || '').trim() || null,
       };
-    } catch (error: any) { logger.warn('[Zavorth Bridge Access Lease] parsing failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Bridge Access Lease] parsing failed', error); return null; }
   }
 
   private persistLease(record: ZavorthBridgeAccessLeaseRecord): ZavorthBridgeAccessLeaseRecord {

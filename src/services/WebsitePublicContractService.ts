@@ -475,7 +475,7 @@ export class WebsitePublicContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch (error: any) { logger.warn('[Website Public Contract] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Website Public Contract] JSON parse failed', error); return null; }
   }
 
   private readCoreJson(relativePath: string): PackageLike | null {
@@ -485,7 +485,7 @@ export class WebsitePublicContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch (error: any) { logger.warn('[Website Public Contract] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Website Public Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -569,7 +569,7 @@ export class WebsitePublicContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch (error: any) { logger.warn('[Website Public Contract] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Website Public Contract] filesystem operation failed', error); return ''; }
   }
 
   private resolveInternalHref(href: string): { route: string; anchor: string } | null {

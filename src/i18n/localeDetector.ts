@@ -1,9 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { DEFAULT_LOCALE, KNOWN_LOCALES } from './types.js';
-import type { LocaleSource } from './types.js';
-
-const ENV_PRIORITY = [
+import type { LocaleSource } from './types.js';const ENV_PRIORITY = [
   'ZAVORTH_LANG',
   'LC_ALL',
   'LC_MESSAGES',
@@ -123,8 +121,7 @@ export function getAvailableLocales(localesDir: string): string[] {
         }
       }
     }
-  } catch (error: any) { const err = error; const e = error;
-    // ignore
+  } catch (error: unknown) {// ignore
   }
   return locales.sort();
 }

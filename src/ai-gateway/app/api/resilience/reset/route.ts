@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { asErrorLike } from '../../../../../utils/errorLike';
 
 /**
  * POST /api/resilience/reset — Reset all circuit breakers and clear cooldowns
@@ -27,7 +28,8 @@ export async function POST(request: Request) {
       resetCount,
       message: `Reset ${resetCount} circuit breaker(s)`,
     });
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const message = err instanceof Error ? err.message : "Failed to reset resilience state";
     console.error("[API] POST /api/resilience/reset error:", err);
     return NextResponse.json({ error: message }, { status: 500 });

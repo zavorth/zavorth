@@ -9,9 +9,7 @@ import {
   StitchRetryInput,
   StitchSdkModule,
   StitchSuccessSummaryInput,
-} from './stitchExecutorTypes.js';
-
-type ExecuteStitchSdkRouteInput = {
+} from './stitchExecutorTypes.js';type ExecuteStitchSdkRouteInput = {
   request: ExecutionRequest;
   result: ExecutionResult;
   prompt: string;
@@ -159,8 +157,7 @@ export async function executeStitchSdkRoute(
       downloadedImagePath: persisted.downloadedImage?.path || null,
       downloadedHtmlPath: persisted.downloadedHtml?.path || null,
     });
-  } catch (error: any) { const err = error; const e = error;
-    const classified = input.classifyError(error);
+  } catch (error: unknown) {const classified = input.classifyError(error);
     input.result.error_code = classified.code;
     input.result.error_message = classified.message;
     input.result.stderr = classified.stderr;
@@ -201,8 +198,7 @@ export async function probeStitchSdkConnection(
       ok: true,
       message: 'SDK carregado e autenticacao validada com o Stitch.',
     };
-  } catch (error: any) { const err = error; const e = error;
-    const classified = input.classifyError(error);
+  } catch (error: unknown) {const classified = input.classifyError(error);
     return {
       ok: false,
       message: classified.message,
@@ -224,8 +220,7 @@ export async function generateStitchScreenWithRetry(
 
   try {
     return await input.client.callTool('generate_screen_from_text', primaryPayload);
-  } catch (error: any) { const err = error; const e = error;
-    if (!input.isRetriableGenerationError(error)) {
+  } catch (error: unknown) {if (!input.isRetriableGenerationError(error)) {
       throw error;
     }
 

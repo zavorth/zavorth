@@ -24,9 +24,7 @@ import { NodeCapabilityService } from '@zavorth/services/NodeCapabilityService.j
 import { NodeInvokeService } from '@zavorth/services/NodeInvokeService.js';
 import { NodePairingService } from '@zavorth/services/NodePairingService.js';
 import { NodeRegistryService } from '@zavorth/services/NodeRegistryService.js';
-import { TrustDecisionService, type TrustDecision } from '@zavorth/services/TrustDecisionService.js';
-
-export type FederatedMeshProfile =
+import { TrustDecisionService, type TrustDecision } from '@zavorth/services/TrustDecisionService.js';export type FederatedMeshProfile =
   | 'local'
   | 'lan'
   | 'private-tunnel'
@@ -963,8 +961,7 @@ export class ZavorthFederatedMeshControlPlaneService {
   private async safeDistributedRuntimeSnapshot(): Promise<ZavorthDistributedRuntimeSnapshot | null> {
     try {
       return await this.distributedRuntimeService.buildSnapshot();
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 

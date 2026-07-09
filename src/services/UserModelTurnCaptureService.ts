@@ -144,7 +144,7 @@ export class UserModelTurnCaptureService {
     try {
       const lines = fs.readFileSync(fp, 'utf-8').split('\n').filter(Boolean);
       return lines.slice(-limit).map((line) => JSON.parse(line) as CapturedTurn);
-    } catch (error: any) { logger.warn('[User Model Turn Capture] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[User Model Turn Capture] JSON parse failed', error); return []; }
   }
 
   getTurnsBySession(sessionId: string): CapturedTurn[] {
@@ -216,7 +216,7 @@ export class UserModelTurnCaptureService {
       try {
         const turn = JSON.parse(line) as CapturedTurn;
         return turn.timestamp >= cutoff;
-      } catch (error: any) { logger.warn('[User Model Turn Capture] JSON parse failed', error); return false; }
+      } catch (error: unknown) {logger.warn('[User Model Turn Capture] JSON parse failed', error); return false; }
     });
 
     fs.writeFileSync(fp, kept.join('\n') + (kept.length > 0 ? '\n' : ''), 'utf-8');
@@ -245,8 +245,7 @@ export class UserModelTurnCaptureService {
           }
         }
       }
-    } catch (error: any) {
-      // ignore
+    } catch (error: unknown) {// ignore
       logger.warn('[User Model Turn Capture] JSON parse failed', error);
     }
   }

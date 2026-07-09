@@ -1,7 +1,6 @@
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { ZavorthLearningPlaneService } from "../../../../../services/ZavorthLearningPlaneService";
 import { getExperienceCoreService, readExperienceQuery } from "../experienceRouteSupport";
-
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -17,7 +16,7 @@ export async function GET(request: Request) {
       generatedAt: snapshot.generatedAt,
       learning: snapshot.learning,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const learningPlane = new ZavorthLearningPlaneService();
     const snapshot = learningPlane.buildSnapshot({
       workspace: query.workspace,

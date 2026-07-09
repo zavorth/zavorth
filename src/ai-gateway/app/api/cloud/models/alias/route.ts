@@ -4,15 +4,12 @@ import { getConsistentMachineId } from "@/shared/utils/machineId";
 import { syncToCloud } from "@/lib/cloudSync";
 import { cloudModelAliasUpdateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-// PUT /api/cloud/models/alias - Set model alias (for cloud/CLI)
+import { logger } from '@/shared/utils/logger';// PUT /api/cloud/models/alias - Set model alias (for cloud/CLI)
 export async function PUT(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return NextResponse.json(
       { error: { message: "Invalid request", details: [{ field: "body", message: "Invalid JSON body" }] } },
       { status: 400 }
@@ -62,8 +59,7 @@ export async function PUT(request: Request) {
       alias,
       message: `Alias '${alias}' set for model '${model}'`,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating alias:", error);
+  } catch (error: unknown) {console.log("Error updating alias:", error);
     return NextResponse.json({ error: "Failed to update alias" }, { status: 500 });
   }
 }
@@ -78,8 +74,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing aliases to cloud:", error);
+  } catch (error: unknown) {console.log("Error syncing aliases to cloud:", error);
   }
 }
 
@@ -101,8 +96,7 @@ export async function GET(request) {
     const aliases = await getModelAliases();
 
     return NextResponse.json({ aliases });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching aliases:", error);
+  } catch (error: unknown) {console.log("Error fetching aliases:", error);
     return NextResponse.json({ error: "Failed to fetch aliases" }, { status: 500 });
   }
 }

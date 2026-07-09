@@ -108,8 +108,7 @@ export async function updateProviderCredentials(connectionId: string, newCredent
       success: !!result,
     });
     return !!result;
-  } catch (error: any) { const err = error; const e = error;
-    log.error("TOKEN_REFRESH", "Error updating credentials in localDb", {
+  } catch (error: unknown) {log.error("TOKEN_REFRESH", "Error updating credentials in localDb", {
       connectionId,
       error: (error as any).message,
     });

@@ -171,8 +171,7 @@ export class ZavorthDailyUseGuiCertificationService {
         status: 'attention',
         nextAction: 'Add stronger readiness evidence for this GUI surface.',
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Daily Use Gui Certification] creation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Daily Use Gui Certification] creation failed', error);
     return blocked(id, label, error);
   }
   }

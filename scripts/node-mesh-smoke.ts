@@ -4,6 +4,7 @@ import path from 'path';
 import { config } from '../src/config/index.js';
 import { ZavorthControlService } from '../src/services/ZavorthControlService.js';
 import { runNodeMeshHost } from './node-mesh-host.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 type ConfigSnapshot = {
   zavorthWebHost: string;
@@ -468,7 +469,9 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
     };
     writeSmokeReport(report);
     return report;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     preservedArtifacts = true;
     console.error(`[node-mesh-smoke] FALHOU: ${error?.message || String(error)}`);
     console.error(`[node-mesh-smoke] artefatos preservados em ${smokeRoot}`);
@@ -608,7 +611,7 @@ async function waitFor<T>(
       if (result) {
         return result;
       }
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error;
     }
 

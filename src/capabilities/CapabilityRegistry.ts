@@ -7,9 +7,7 @@ import {
   CapabilityMatcher,
   CapabilitySummary,
 } from '../contracts/CapabilityContract.js';
-import { BUILTIN_CAPABILITIES } from './BuiltinCapabilities.js';
-
-type RegistryOptions = {
+import { BUILTIN_CAPABILITIES } from './BuiltinCapabilities.js';type RegistryOptions = {
   pluginDir?: string;
   builtins?: CapabilityDefinition[];
 };
@@ -190,8 +188,7 @@ export class CapabilityRegistry {
             ),
           );
         }
-      } catch (error: any) { const err = error; const e = error;
-        // Ignore malformed plugin manifests to avoid breaking the runtime.
+      } catch (error: unknown) {// Ignore malformed plugin manifests to avoid breaking the runtime.
       }
     }
 
@@ -272,8 +269,7 @@ export class CapabilityRegistry {
       const matchedPatterns = patterns.filter((pattern) => {
         try {
           return new RegExp(pattern, 'i').test(normalizedText);
-        } catch (error: any) { const err = error; const e = error;
-          return false;
+        } catch (error: unknown) {return false;
         }
       });
 

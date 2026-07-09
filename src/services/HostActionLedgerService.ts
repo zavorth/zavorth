@@ -43,6 +43,6 @@ export class HostActionLedgerService {
   private safeParse(line: string): SystemOverlordActionRecord | null {
     try {
       return JSON.parse(line) as SystemOverlordActionRecord;
-    } catch (error: any) { logger.warn('[Host Action Ledger] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Host Action Ledger] JSON parse failed', error); return null; }
   }
 }

@@ -83,8 +83,7 @@ export class OpenAiCompatibleModelDiscoveryAdapter {
         if (response.status === 401 || response.status === 403) {
           break;
         }
-      } catch (error: any) {
-      // Try the next compatible endpoint.
+      } catch (error: unknown) {// Try the next compatible endpoint.
       logger.warn('[Open Ai Compatible Model Discovery Adapter] operation failed', error);
     }
     }

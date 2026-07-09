@@ -104,7 +104,7 @@ export class ZavorthDistributedRuntimeControlPlaneService {
   private async safeAsync<T>(factory: () => Promise<T> | T, fallback: any): Promise<T> {
     try {
       return await factory() as T;
-    } catch (error: any) { logger.warn('[Zavorth Distributed Runtime Control Plane] string operation failed', error); return fallback as T; }
+    } catch (error: unknown) {logger.warn('[Zavorth Distributed Runtime Control Plane] string operation failed', error); return fallback as T; }
   }
 }
 

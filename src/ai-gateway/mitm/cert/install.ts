@@ -3,7 +3,6 @@ import crypto from "crypto";
 import { execFile } from "child_process";
 import { execElevatedWindowsScript, execWithPassword } from "../dns/dnsConfig";
 import { logger } from '@/shared/utils/logger';
-
 const IS_WIN = process.platform === "win32";
 const TARGET_HOST = "daily-cloudcode-pa.googleapis.com";
 const SYSTEM_KEYCHAIN = "/Library/Keychains/System.keychain";
@@ -65,14 +64,14 @@ async function checkCertInstalledMac(certPath) {
       SYSTEM_KEYCHAIN,
     ]);
     return String(stdout).toUpperCase().includes(fingerprint);
-  } catch (error: any) { const err = error; const e = error; logger.warn('[install] process execution failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[install] process execution failed', error); return false; }
 }
 
 async function checkCertInstalledWindows() {
   try {
     await execFileCapture("certutil", ["-store", "Root", TARGET_HOST]);
     return true;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[install] process execution failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[install] process execution failed', error); return false; }
 }
 
 /**
@@ -114,7 +113,7 @@ async function installCertMac(sudoPassword, certPath) {
       sudoPassword
     );
     console.log(`Installed certificate to system keychain: ${certPath}`);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const msg = error.message?.includes("canceled")
       ? "User canceled authorization"
       : "Certificate install failed";
@@ -156,8 +155,7 @@ async function uninstallCertMac(sudoPassword, certPath) {
       sudoPassword
     );
     console.log("Uninstalled certificate from system keychain");
-  } catch (error: any) { const err = error; const e = error;
-    throw new Error("Failed to uninstall certificate");
+  } catch (error: unknown) {throw new Error("Failed to uninstall certificate");
   }
 }
 

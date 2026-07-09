@@ -200,7 +200,7 @@ export class TrustPlanePolicyLedgerService {
         },
         result: this.nullableText(raw.result),
       };
-    } catch (error: any) { logger.warn('[Trust Plane  Ledger] load operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Trust Plane  Ledger] load operation failed', error); return null; }
   }
 
   private normalizeDiff(entry: TrustPlanePolicyDiffEntry): TrustPlanePolicyDiffEntry {

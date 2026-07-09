@@ -3,17 +3,14 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getAllFallbackChains, registerFallback, removeFallback } from "@/domain/fallbackPolicy";
 import { registerFallbackSchema, removeFallbackSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-export async function GET(request: Request) {
+import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
   try {
     const chains = getAllFallbackChains();
     return NextResponse.json(chains);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error fetching fallback chains:", error);
+  } catch (error: unknown) {console.error("Error fetching fallback chains:", error);
     return NextResponse.json({ error: "Failed to fetch fallback chains" }, { status: 500 });
   }
 }
@@ -25,8 +22,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {
@@ -47,8 +43,7 @@ export async function POST(request) {
 
     registerFallback(model, chain);
     return NextResponse.json({ success: true, model });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error registering fallback chain:", error);
+  } catch (error: unknown) {console.error("Error registering fallback chain:", error);
     return NextResponse.json({ error: "Failed to register fallback chain" }, { status: 500 });
   }
 }
@@ -60,8 +55,7 @@ export async function DELETE(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] delete operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] delete operation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -81,8 +75,7 @@ export async function DELETE(request) {
     const { model } = validation.data;
     const removed = removeFallback(model);
     return NextResponse.json({ success: true, removed });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error removing fallback chain:", error);
+  } catch (error: unknown) {console.error("Error removing fallback chain:", error);
     return NextResponse.json({ error: "Failed to remove fallback chain" }, { status: 500 });
   }
 }

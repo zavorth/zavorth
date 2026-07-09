@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../src/utils/errorLike';
 /**
  * Fase 21K-A — Agent Runtime Workspace Smoke Tests
  *
@@ -46,9 +47,7 @@ describe('AgentRuntimeWorkspaceSmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 1. Safe defaults when no config persisted
-  // -----------------------------------------------------------------------
   describe('safe defaults when workspace config absent', () => {
     it('returns safe default config (all risky flags false)', async () => {
       const config = AgentWorkspaceConfigService.getDefaultConfig(WS_ID);
@@ -96,9 +95,7 @@ describe('AgentRuntimeWorkspaceSmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 2. Router respects workspace config
-  // -----------------------------------------------------------------------
   describe('ProviderRuntimeRouter respects workspace config', () => {
     it('routes to workspace default provider if none specified in request', async () => {
       const resolved = { providerId: 'ws-provider', modelId: 'gpt-4', runtimeReady: true, capabilities: ['chat'] };
@@ -138,9 +135,7 @@ describe('AgentRuntimeWorkspaceSmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 3. Error sanitization
-  // -----------------------------------------------------------------------
   describe('error sanitization', () => {
     it('router throws normalized error codes, not raw messages', async () => {
       mockSelectProvider.mockRejectedValue(new Error('missing_key'));
@@ -148,8 +143,8 @@ describe('AgentRuntimeWorkspaceSmoke — Fase 21K-A', () => {
       let caught: Error | null = null;
       try {
         await router.route({ workspaceId: WS_ID } as any);
-      } catch (e: any) {
-        caught = e;
+      } catch (error: unknown) { const err = asErrorLike(error);
+caught = e;
       }
       expect(caught).not.toBeNull();
       // Error message must be a normalized code, not containing raw provider data
@@ -166,9 +161,7 @@ describe('AgentRuntimeWorkspaceSmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 4. AgentWorkspaceConfig remains narrowing policy
-  // -----------------------------------------------------------------------
   describe('AgentWorkspaceConfig is narrowing policy only', () => {
     it('allowDeveloperMode=true does not auto-execute anything', () => {
       const config = { ...AgentWorkspaceConfigService.getDefaultConfig(WS_ID), allowDeveloperMode: true };

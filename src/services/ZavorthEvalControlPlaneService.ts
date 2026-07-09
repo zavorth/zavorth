@@ -298,7 +298,7 @@ export class ZavorthEvalControlPlaneService {
       return typeof this.deps.operatorBriefService?.readSnapshot === 'function'
         ? this.deps.operatorBriefService.readSnapshot()
         : null;
-    } catch (error: any) { logger.warn('[Zavorth Eval Control Plane] code compilation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Eval Control Plane] code compilation failed', error); return null; }
   }
 
   private readOperationsHealth(): any {
@@ -310,6 +310,6 @@ export class ZavorthEvalControlPlaneService {
         return this.deps.operationsHealthService.readSnapshot();
       }
       return null;
-    } catch (error: any) { logger.warn('[Zavorth Eval Control Plane] health check failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Eval Control Plane] health check failed', error); return null; }
   }
 }

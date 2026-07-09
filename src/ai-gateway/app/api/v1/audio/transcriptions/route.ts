@@ -1,6 +1,4 @@
-import { CORS_ORIGIN } from "@/shared/utils/cors";
-
-// Allow large audio/video file uploads — 5min for processing large files (up to 2GB)
+import { CORS_ORIGIN } from "@/shared/utils/cors";// Allow large audio/video file uploads — 5min for processing large files (up to 2GB)
 export const maxDuration = 300;
 import { handleAudioTranscription } from "@ZavorthGateway/open-sse/handlers/audioTranscription.ts";
 import {
@@ -50,8 +48,7 @@ export async function POST(request) {
   let formData;
   try {
     formData = await request.formData();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid multipart form data");
   }
 
@@ -79,11 +76,10 @@ export async function POST(request) {
             hostname === "127.0.0.1" ||
             /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)
           );
-        } catch (error: any) { const err = error; const e = error; logger.warn('[route] operation failed', error); return false; }
+        } catch (error: unknown) {logger.warn('[route] operation failed', error); return false; }
       })
       .map((n) => buildDynamicAudioProvider(n, "/audio/transcriptions"));
-  } catch (error: any) { const err = error; const e = error;
-      // DB error — fall back to hardcoded providers only
+  } catch (error: unknown) {// DB error — fall back to hardcoded providers only
       logger.warn('[route] creation failed', error);
     }
 

@@ -76,7 +76,7 @@ function containsLegacyCallLogLayout(dirPath: string | null): boolean {
         }
       }
     }
-  } catch (error: any) { const err = error; const e = error; logger.warn('[migrations] filesystem operation failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[migrations] filesystem operation failed', error); return false; }
 
   return false;
 }
@@ -161,8 +161,7 @@ function createLegacyArchive(targets: ArchiveTarget[]): Promise<string> {
         addPathToZip(zipFile, target.sourcePath, target.archiveRoot);
       }
       zipFile.end();
-    } catch (error: any) { const err = error; const e = error;
-      fs.rmSync(archivePath, { force: true });
+    } catch (error: unknown) {fs.rmSync(archivePath, { force: true });
       zipFile.end();
       reject(error);
     }
@@ -207,8 +206,7 @@ export function migrateLegacyUsageFiles() {
   try {
     copyIfMissing(LEGACY_DB_FILE, USAGE_JSON_FILE, "usage history");
     copyIfMissing(LEGACY_CALL_LOGS_DB_FILE, CALL_LOGS_JSON_FILE, "call log index");
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[usageDb] Legacy migration failed:", (error as Error).message);
+  } catch (error: unknown) {console.error("[usageDb] Legacy migration failed:", (error as Error).message);
   }
 }
 
@@ -281,8 +279,7 @@ export function migrateUsageJsonToSqlite() {
       }
 
       fs.renameSync(USAGE_JSON_FILE, `${USAGE_JSON_FILE}.migrated`);
-    } catch (error: any) { const err = error; const e = error;
-      console.error("[usageDb] Failed to migrate usage.json:", (error as Error).message);
+    } catch (error: unknown) {console.error("[usageDb] Failed to migrate usage.json:", (error as Error).message);
     }
   }
 
@@ -337,8 +334,7 @@ export function migrateUsageJsonToSqlite() {
       }
 
       fs.renameSync(CALL_LOGS_JSON_FILE, `${CALL_LOGS_JSON_FILE}.migrated`);
-    } catch (error: any) { const err = error; const e = error;
-      console.error("[usageDb] Failed to migrate call_logs.json:", (error as Error).message);
+    } catch (error: unknown) {console.error("[usageDb] Failed to migrate call_logs.json:", (error as Error).message);
     }
   }
 }
@@ -348,14 +344,12 @@ migrateLegacyUsageFiles();
 if (shouldPersistToDisk) {
   try {
     await archiveLegacyRequestLogs();
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[usageDb] Failed to archive legacy request logs:", (error as Error).message);
+  } catch (error: unknown) {console.error("[usageDb] Failed to archive legacy request logs:", (error as Error).message);
   }
 
   try {
     migrateUsageJsonToSqlite();
-  } catch (error: any) { const err = error; const e = error;
-      // Best-effort startup migration.
+  } catch (error: unknown) {// Best-effort startup migration.
       logger.warn('[migrations] operation failed', error);
     }
 }

@@ -1,7 +1,5 @@
 import fs from 'fs';
-import path from 'path';
-
-import type { DiscordSurfacePolicyService } from '../../../../services/DiscordSurfacePolicyService.js';
+import path from 'path';import type { DiscordSurfacePolicyService } from '../../../../services/DiscordSurfacePolicyService.js';
 import { rememberDiscordRecentChannel } from '../DiscordGatewayMessageHelpers.js';
 import { logger } from '../../../../logger';
 import type {
@@ -73,7 +71,7 @@ export class DiscordGatewayPersistence {
 
     try {
       return JSON.parse(fs.readFileSync(this.statusFilePath, 'utf8')) as DiscordGatewayStatusSnapshot;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Discord way Persistence] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Discord way Persistence] JSON parse failed', error); return null; }
   }
 
   public readState(): DiscordGatewayState {
@@ -105,8 +103,7 @@ export class DiscordGatewayPersistence {
             .filter((entry) => entry.channelId)
           : [],
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Discord way Persistence] array operation failed', error);
+    } catch (error: unknown) {logger.warn('[Discord way Persistence] array operation failed', error);
     return createEmptyState();
   }
   }

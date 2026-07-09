@@ -61,8 +61,7 @@ export class ProviderInvocationService {
       });
       
       return result;
-    } catch (error: any) {
-      const durationMs = Date.now() - startMs;
+    } catch (error: unknown) {const durationMs = Date.now() - startMs;
       const normalized = ErrorNormalizationService.getInstance().normalize(error);
       const errorCode = normalized.code;
 

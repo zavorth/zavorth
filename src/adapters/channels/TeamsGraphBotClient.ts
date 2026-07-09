@@ -1,6 +1,4 @@
-import { config } from '../../config/index.js';
-
-export type TeamsGraphBotClientConfig = {
+import { config } from '../../config/index.js';export type TeamsGraphBotClientConfig = {
   tenantId: string;
   appId: string;
   appSecret: string;
@@ -207,8 +205,7 @@ export class TeamsGraphBotClient {
     let payload: Record<string, any> | null = null;
     try {
       payload = await response.json() as Record<string, any>;
-    } catch (error: any) { const err = error; const e = error;
-      payload = null;
+    } catch (error: unknown) {payload = null;
     }
 
     if (!response.ok) {
@@ -249,8 +246,7 @@ export class TeamsGraphBotClient {
     let payload: Record<string, any> | null = null;
     try {
       payload = await response.json() as Record<string, any>;
-    } catch (error: any) { const err = error; const e = error;
-      payload = null;
+    } catch (error: unknown) {payload = null;
     }
 
     if (!response.ok || typeof payload?.access_token !== 'string') {

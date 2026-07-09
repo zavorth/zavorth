@@ -183,8 +183,8 @@ export class HostCommandRunTool extends BaseTool {
         timeoutFlag: runResult.timeoutFlag,
         truncatedFlag: runResult.truncatedFlag
       });
-    } catch (error: any) {
-    logger.warn('[Host Command Run] cache operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Host Command Run] cache operation failed', error);
     return JSON.stringify({
         success: false,
         error: `Host command execution failed: ${error.message || error}`

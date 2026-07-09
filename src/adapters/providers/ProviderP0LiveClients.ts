@@ -300,8 +300,7 @@ function normalizeMessages(messages: ProviderP0ChatMessage[]): ProviderP0ChatMes
 async function readJson(response: Response): Promise<any> {
   try {
     return await response.json();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

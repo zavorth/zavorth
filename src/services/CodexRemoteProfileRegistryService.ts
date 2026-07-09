@@ -493,8 +493,7 @@ export class CodexRemoteProfileRegistryService {
         stateFileExists,
         rawActiveProfileId,
       };
-    } catch (error: any) {
-    logger.warn('[Codex Remote Profile Registry] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Codex Remote Profile Registry] parsing failed', error);
     return {
         state: { ...EMPTY_STATE },
         issues: [
@@ -607,7 +606,7 @@ export class CodexRemoteProfileRegistryService {
     try {
       this.mkdirSync(path.dirname(this.stateFilePath), { recursive: true });
       this.writeFileSync(this.stateFilePath, JSON.stringify(normalizedState, null, 2), 'utf8');
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       throw new Error(`Falha ao persistir o registry de perfis do Codex Remote: ${message}`);
     }

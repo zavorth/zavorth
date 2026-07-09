@@ -140,7 +140,7 @@ export class ZavorthProviderPreferencePersistenceService {
         updatedAt: normalizeNullable(parsed.updatedAt) || new Date(0).toISOString(),
         receiptId: normalizeNullable(parsed.receiptId) || 'unknown',
       };
-    } catch (error: any) { logger.warn('[Zavorth  Preference Persistence] parsing failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth  Preference Persistence] parsing failed', error); return null; }
   }
 
   public renderText(snapshot: ZavorthProviderPreferencePersistenceSnapshot): string {
@@ -344,7 +344,7 @@ export class ZavorthProviderPreferencePersistenceService {
           return parsed;
         }
       }
-    } catch (error: any) { logger.warn('[Zavorth  Preference Persistence] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth  Preference Persistence] JSON parse failed', error); return null; }
     return null;
   }
 }

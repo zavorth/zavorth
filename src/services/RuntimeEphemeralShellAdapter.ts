@@ -47,8 +47,7 @@ export class RuntimeEphemeralShellAdapter {
       try {
         fs.rmSync(workspace, { recursive: true, force: true });
         workspaceRemoved = true;
-      } catch (error: any) {
-    logger.warn('[Runtime Ephemeral Shell Adapter] delete operation failed', error);
+      } catch (error: unknown) {logger.warn('[Runtime Ephemeral Shell Adapter] delete operation failed', error);
     workspaceRemoved = false;
   }
     }

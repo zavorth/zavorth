@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import initializeCloudSync from "@/shared/services/initializeCloudSync";
 import { startModelSyncScheduler } from "@/shared/services/modelSyncScheduler";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveZavorthGatewayBaseUrl";
-
-let syncInitialized = false;
+import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveZavorthGatewayBaseUrl";let syncInitialized = false;
 let modelSyncInitialized = false;
 
 // POST /api/sync/initialize - Initialize cloud sync scheduler
@@ -34,8 +32,7 @@ export async function POST(request) {
       message: "Cloud sync initialized successfully",
       modelSyncEnabled: true,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error initializing cloud sync:", error);
+  } catch (error: unknown) {console.log("Error initializing cloud sync:", error);
     return NextResponse.json(
       {
         error: "Failed to initialize cloud sync",

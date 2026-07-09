@@ -232,8 +232,7 @@ export class ZavorthUnifiedOnboardingService {
       report = this.providerDoctor.inspect({
         includeAdvanced: input.includeAdvanced === true,
       });
-    } catch (error: any) {
-    logger.warn('[Zavorth Unified Onboarding] operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Unified Onboarding] operation failed', error);
     return {
         status: 'attention',
         activeProvider: 'unknown',

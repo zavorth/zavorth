@@ -12,6 +12,7 @@ import { MemoryRuntimeService } from '../src/services/memory/MemoryRuntimeServic
 import { SandboxExecutionService } from '../src/services/SandboxExecutionService.js';
 import { PermissionService } from '../src/services/PermissionService.js';
 import { runNodeMeshSmoke } from './node-mesh-smoke.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 type SmokeStatus = 'PASSOU' | 'FALHOU' | 'PULADO' | 'AVISO';
 
@@ -75,7 +76,9 @@ async function smokeMcpManifest(): Promise<SmokeResult> {
       detail: `${entries.length} servidor(es) habilitado(s); filesystem ativo.`,
       required: true,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'God-Mode MCP',
       status: 'FALHOU',
@@ -174,7 +177,9 @@ async function smokeGraphRuntime(): Promise<SmokeResult> {
       detail: `fluxo autonomo aprovado com trace ${result.traceId.slice(0, 8)}.`,
       required: true,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'God-Mode Graph',
       status: 'FALHOU',
@@ -221,7 +226,9 @@ async function smokeMemoryFallback(): Promise<SmokeResult> {
       detail: 'fallback local-first validado sem depender de Mem0.',
       required: true,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'God-Mode Memory',
       status: 'FALHOU',
@@ -250,7 +257,9 @@ async function smokeSandboxPolicy(): Promise<SmokeResult> {
       detail: 'policy de sandbox marcou execucao sensivel corretamente.',
       required: true,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'God-Mode Sandbox',
       status: 'FALHOU',
@@ -289,7 +298,9 @@ async function smokeDockerSandboxRuntime(): Promise<SmokeResult> {
       detail: status.detail,
       required: Boolean(config.dockerSandboxRequired),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'God-Mode Container',
       status: config.dockerSandboxRequired ? 'FALHOU' : 'AVISO',
@@ -317,7 +328,9 @@ async function smokeNodeMesh(): Promise<SmokeResult> {
       detail: report.error || report.summary,
       required: true,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'God-Mode NodeMesh',
       status: 'FALHOU',
@@ -354,7 +367,9 @@ async function smokeChannelProviders(): Promise<SmokeResult> {
       detail: report.summary,
       required: false,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'God-Mode Channels',
       status: 'AVISO',
@@ -411,7 +426,9 @@ async function smokePermissionTelemetry(): Promise<SmokeResult> {
       detail: 'approval plane gravou evento estruturado com trace da task.',
       required: true,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'God-Mode Approval',
       status: 'FALHOU',
@@ -452,7 +469,9 @@ async function smokeTelegramIntegration(): Promise<SmokeResult> {
       detail: `autenticado como @${me.username} (ID ${me.id}).`,
       required: true,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'Telegram',
       status: 'FALHOU',
@@ -482,7 +501,9 @@ async function smokeStitchIntegration(): Promise<SmokeResult> {
       detail: probe.message,
       required: false,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'Google Stitch',
       status: 'AVISO',
@@ -512,7 +533,9 @@ async function smokeAiStudioIntegration(): Promise<SmokeResult> {
       detail: probe.message,
       required: false,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'Google AI Studio',
       status: 'AVISO',
@@ -541,7 +564,9 @@ async function smokeExternalExecutorIntegration(): Promise<SmokeResult> {
       detail: 'CLI disponivel e respondendo.',
       required: false,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'External Executor',
       status: 'AVISO',
@@ -588,7 +613,9 @@ async function smokeZavorthBridgeIntegration(): Promise<SmokeResult> {
       detail: status.errorMessage || status.message || 'servico indisponivel neste host.',
       required: false,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       name: 'ZavorthBridge',
       status: 'AVISO',

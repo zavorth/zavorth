@@ -104,7 +104,7 @@ processes:
     expect(() => new ProjectManifestLoader().loadFromFile(manifestPath)).toThrow(ProjectManifestError);
     try {
       new ProjectManifestLoader().loadFromFile(manifestPath);
-    } catch (error) {
+    } catch (error: unknown) {
       expect(error).toBeInstanceOf(ProjectManifestError);
       expect(String((error as Error).message)).toContain('version: expected 1');
       expect(String((error as Error).message)).toContain('project.name: required non-empty string');

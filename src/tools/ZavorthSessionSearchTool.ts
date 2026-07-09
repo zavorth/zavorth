@@ -120,8 +120,8 @@ export class ZavorthSessionSearchTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: any) {
-    logger.warn('[Zavorth Session Search] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Session Search] operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Search error: ${message}`;
   }
@@ -180,8 +180,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
               context: matchResult.contextSnippet,
             });
           }
-        } catch (error: any) {
-          continue;
+        } catch (error: unknown) {continue;
         }
       }
     }
@@ -211,8 +210,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
     if (mode === 'regex') {
       try {
         pattern = new RegExp(query, 'i');
-      } catch (error: any) {
-    logger.warn('[Zavorth Session Search] search failed', error);
+      } catch (error: unknown) {logger.warn('[Zavorth Session Search] search failed', error);
     return { matchedLines: [], score: 0, contextSnippet: '' };
   }
     }
@@ -276,8 +274,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
           results.push(fullPath);
         }
       }
-    } catch (error: any) {
-      // ignore permission errors
+    } catch (error: unknown) {// ignore permission errors
       logger.warn('[Zavorth Session Search] filesystem operation failed', error);
     }
     return results;

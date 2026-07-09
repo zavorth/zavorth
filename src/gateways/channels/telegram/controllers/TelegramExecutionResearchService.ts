@@ -3,7 +3,6 @@ import { LogRepository } from '../../../../storage/LogRepository.js';
 import { DeepSearchService } from '../../../../services/DeepSearchService.js';
 import { TaskResponseEnvelopeService } from '../../../../services/TaskResponseEnvelopeService.js';
 import { UserFacingResponseService } from '../../../../services/UserFacingResponseService.js';
-
 type PersistTaskFn = (task: Task) => void;
 
 export type TelegramExecutionResearchServiceDeps = {
@@ -56,7 +55,7 @@ export class TelegramExecutionResearchService {
         output: userFacingText,
         success: true,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = String(
         (error instanceof Error ? error.message : null) ?? error ?? 'Unknown web research failure.',
       ).trim();

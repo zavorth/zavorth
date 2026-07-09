@@ -43,7 +43,7 @@ export class SupervisedRuntimeNotificationService {
       }
 
       return parsed;
-    } catch (error: any) { logger.warn('[Supervised Runtime Notification] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Supervised Runtime Notification] JSON parse failed', error); return null; }
   }
 
   public async flushPending(
@@ -58,8 +58,7 @@ export class SupervisedRuntimeNotificationService {
       await sendMessage(pending.chatId, pending.message);
       this.clearPending();
       return { delivered: true, skipped: false, notification: pending };
-    } catch (error: any) {
-      this.persistFailure(pending, error?.message || String(error || 'Falha ao enviar notificacao pendente.'));
+    } catch (error: unknown) {this.persistFailure(pending, error?.message || String(error || 'Falha ao enviar notificacao pendente.'));
       return {
         delivered: false,
         skipped: false,

@@ -4,7 +4,6 @@ import type {
   UniversalAgentRun,
 } from './UniversalAgentRuntimeTypes.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
-
 export type UniversalAgentToolRuntime = {
   executeTool(toolName: string, args: unknown): Promise<string>;
   getToolDefinitions?: () => ToolDefinition[];
@@ -94,7 +93,7 @@ export class AgentRunEchoHandsExecutor {
           },
         },
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = normalizeText(error instanceof Error ? error.message : String(error), 'Echo Hands falhou no tool runtime.');
       return this.buildDegradedResult(`Echo Hands nao executado: ${message}`, {
         reason: 'echo-hands-execution-failed',

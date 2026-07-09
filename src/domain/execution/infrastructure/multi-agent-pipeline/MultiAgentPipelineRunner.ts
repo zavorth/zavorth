@@ -17,6 +17,7 @@ import {
   replyWorkflowStageSurfaceResponse,
   type TelegramWorkflowSurfaceReceiptStatus,
 } from '../../../../gateways/channels/telegram/TelegramWorkflowSurfaceResponses.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 type MultiAgentPipelineRunnerDeps = {
   executionGateway: PipelineGateway;
@@ -206,7 +207,8 @@ export class MultiAgentPipelineRunner {
     try {
       const decision = await this.deps.executionGateway.submit(task, plan, false);
       return this.handleDecision(ctx, decision, stage, run, task);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       task.error_summary = err.message;
       task.result_summary = null;
       this.deps.taskManager?.advanceState(task, 'failed', {

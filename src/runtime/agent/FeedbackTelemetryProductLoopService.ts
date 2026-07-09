@@ -1,8 +1,6 @@
 import type { FeedbackTelemetryContractSnapshot } from '../../contracts/FeedbackTelemetryContract.js';
 import type { PublicSiteDocsDemoSyncSnapshot } from './PublicSiteDocsDemoSyncService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-
-export const FEEDBACK_TELEMETRY_PRODUCT_LOOP_CONTRACT_VERSION = '2026-05-04.feedback-telemetry' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const FEEDBACK_TELEMETRY_PRODUCT_LOOP_CONTRACT_VERSION = '2026-05-04.feedback-telemetry' as const;
 export const FEEDBACK_TELEMETRY_PRODUCT_LOOP_METADATA_KEY = 'feedbackTelemetryProductLoop' as const;
 
 export type FeedbackTelemetryProductLoopStatus =
@@ -155,8 +153,7 @@ function arrayOrEmpty<T = unknown>(value: unknown): T[] {
 function safeCall<T>(factory: () => T): T | null {
   try {
     return factory();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

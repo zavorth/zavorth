@@ -203,7 +203,7 @@ export class GoalLoopWorkerService {
         loop,
         receipt,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const failedTask = this.taskPlane.updateStatus(
         running.id,
         'failed',

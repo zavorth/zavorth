@@ -6,7 +6,6 @@ import {
 } from "../../web/runtime-engine-state";
 import { GatewayResilienceControlService } from "../../../../../services/GatewayResilienceControlService.js";
 import { logger } from '@/shared/utils/logger';
-
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
@@ -16,7 +15,7 @@ export async function GET(request: Request) {
   try {
     const service = new GatewayResilienceControlService();
     return NextResponse.json(await service.buildSnapshot());
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,
@@ -39,7 +38,7 @@ export async function POST(request: Request) {
     const service = new GatewayResilienceControlService();
     const body = await readJsonBody(request);
     return NextResponse.json(await service.applyAction(body));
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({
       ok: false,

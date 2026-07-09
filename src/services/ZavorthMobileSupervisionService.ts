@@ -2,10 +2,6 @@
 import * as http from 'node:http';
 import { logger } from '../logger.js';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export type ZavorthMobileSupervisionEvent = {
   id: string;
   type:
@@ -47,10 +43,6 @@ export type ZavorthMobileSupervisionSnapshot = {
   };
 };
 
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
 const SECRET_PATTERNS = [
   /api[-_]?key/i,
   /secret/i,
@@ -81,10 +73,6 @@ function redactSensitiveFields(
   return { redactedData, wasRedacted };
 }
 
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
-
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 h
 const MAX_RECENT_EVENTS = 100;
 
@@ -108,18 +96,13 @@ export class ZavorthMobileSupervisionService {
   };
   private pendingApprovals: ZavorthMobileSupervisionSnapshot['pendingApprovals'] = [];
 
-  // -----------------------------------------------------------------------
-  // SSE client management
-  // -----------------------------------------------------------------------
-
   public addClient(clientId: string, res: http.ServerResponse): void {
     // Remove previous connection for the same clientId, if any
     const existing = this.clients.get(clientId);
     if (existing && !existing.writableEnded) {
       try {
         existing.end();
-      } catch (error: any) {
-      // noop – client may already be dead
+      } catch (error: unknown) {// noop – client may already be dead
       logger.warn('[Zavorth Mobile Supervision] network request failed', error);
     }
     }
@@ -135,8 +118,7 @@ export class ZavorthMobileSupervisionService {
     if (res && !res.writableEnded) {
       try {
         res.end();
-      } catch (error: any) {
-      // noop
+      } catch (error: unknown) {// noop
       logger.warn('[Zavorth Mobile Supervision] resource cleanup failed', error);
     }
     }
@@ -146,10 +128,6 @@ export class ZavorthMobileSupervisionService {
   public getConnectedClients(): number {
     return this.clients.size;
   }
-
-  // -----------------------------------------------------------------------
-  // Broadcasting
-  // -----------------------------------------------------------------------
 
   public broadcast(event: ZavorthMobileSupervisionEvent): void {
     const { redactedData, wasRedacted } = redactSensitiveFields(event.data);
@@ -174,15 +152,10 @@ export class ZavorthMobileSupervisionService {
       }
       try {
         res.write(payload);
-      } catch (error: any) {
-        this.clients.delete(clientId);
+      } catch (error: unknown) {this.clients.delete(clientId);
       }
     }
   }
-
-  // -----------------------------------------------------------------------
-  // Snapshot
-  // -----------------------------------------------------------------------
 
   public buildSnapshot(): ZavorthMobileSupervisionSnapshot {
     return {
@@ -201,10 +174,6 @@ export class ZavorthMobileSupervisionService {
       },
     };
   }
-
-  // -----------------------------------------------------------------------
-  // Session token management
-  // -----------------------------------------------------------------------
 
   public generateSessionToken(): string {
     const token = crypto.randomBytes(32).toString('hex');
@@ -233,10 +202,6 @@ export class ZavorthMobileSupervisionService {
     }
     return true;
   }
-
-  // -----------------------------------------------------------------------
-  // Mutators (for external services to push state)
-  // -----------------------------------------------------------------------
 
   public setStatus(status: ZavorthMobileSupervisionSnapshot['status']): void {
     this.currentStatus = status;
@@ -292,10 +257,6 @@ export class ZavorthMobileSupervisionService {
     });
     return true;
   }
-
-  // -----------------------------------------------------------------------
-  // Private helpers
-  // -----------------------------------------------------------------------
 
   private purgeExpiredSessions(): void {
     const now = Date.now();

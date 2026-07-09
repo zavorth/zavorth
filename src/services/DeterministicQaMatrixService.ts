@@ -253,7 +253,7 @@ export class DeterministicQaMatrixService {
     }
     try {
       return JSON.parse(this.readFileSync(targetPath, 'utf8')) as PackageLike;
-    } catch (error: any) { logger.warn('[Deterministic Qa Matrix] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Deterministic Qa Matrix] JSON parse failed', error); return null; }
   }
 
   private check(

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * Proxy Logger — Hybrid in-memory + SQLite persistence
  *
@@ -83,7 +84,8 @@ function loadFromDb() {
     if (proxyLogs.length > 0) {
       console.log(`[proxyLogger] Loaded ${proxyLogs.length} proxy logs from SQLite`);
     }
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.warn("[proxyLogger] Failed to load from DB:", err.message);
   }
 }
@@ -147,7 +149,8 @@ export function logProxyEvent(entry: Partial<ProxyLogEntry>) {
         account: log.account,
         tlsFingerprint: log.tlsFingerprint ? 1 : 0,
       });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.warn("[proxyLogger] Failed to persist:", err.message);
     }
   }
@@ -211,7 +214,8 @@ export function clearProxyLogs() {
     try {
       const db = getDbInstance();
       db.prepare("DELETE FROM proxy_logs").run();
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.warn("[proxyLogger] Failed to clear DB:", err.message);
     }
   }

@@ -4,9 +4,7 @@ import { execFileSync } from 'child_process';
 import { BaseTool } from './BaseTool.js';
 import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';
 import type { ZavorthExternalAgentAdapterKind } from '../contracts/ZavorthExternalAgentGatewayContract.js';
-import { logger } from '../logger.js';
-
-type AgentDiscoveryResult = {
+import { logger } from '../logger.js';type AgentDiscoveryResult = {
   found: boolean;
   candidates: Array<{
     id: string;
@@ -220,8 +218,7 @@ export class AgentManagerTool extends BaseTool {
           evidence: [`URL provided: ${target}`],
         });
         return { found: true, candidates, suggestion: null };
-      } catch (error: any) {
-    logger.warn('[Agent Manager] network request failed', error);
+      } catch (error: unknown) {logger.warn('[Agent Manager] network request failed', error);
     return { found: false, candidates: [], suggestion: 'Invalid URL format.' };
   }
     }
@@ -278,8 +275,7 @@ export class AgentManagerTool extends BaseTool {
             evidence: [`Found in package.json bin: ${binName}`],
           });
         }
-      } catch (error: any) {
-      // ignore
+      } catch (error: unknown) {// ignore
       logger.warn('[Agent Manager] search failed', error);
     }
     }
@@ -338,8 +334,7 @@ export class AgentManagerTool extends BaseTool {
           evidence: [`Command "${cmd}" found in PATH`],
         });
         break;
-      } catch (error: any) {
-      // not found, try next
+      } catch (error: unknown) {// not found, try next
       logger.warn('[Agent Manager] process execution failed', error);
     }
     }
@@ -374,8 +369,7 @@ export class AgentManagerTool extends BaseTool {
             evidence: [`Command "${pattern.command}" found in PATH (regex matched)`],
           });
           break;
-        } catch (error: any) {
-        }
+        } catch (error: unknown) {}
         break;
       }
     }

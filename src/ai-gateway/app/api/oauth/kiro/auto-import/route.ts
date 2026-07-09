@@ -4,7 +4,6 @@ import { homedir } from "os";
 import { join } from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-
 /**
  * GET /api/oauth/kiro/auto-import
  * Auto-detect and extract Kiro refresh token from AWS SSO cache.
@@ -22,8 +21,7 @@ export async function GET(request: Request) {
     let files;
     try {
       files = await readdir(cachePath);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[route] filesystem operation failed', error);
     return NextResponse.json({
         found: false,
         error: "AWS SSO cache not found. Please login to Kiro IDE first.",
@@ -44,8 +42,7 @@ export async function GET(request: Request) {
           refreshToken = data.refreshToken;
           foundFile = kiroTokenFile;
         }
-      } catch (error: any) { const err = error; const e = error;
-      // Continue to search other files
+      } catch (error: unknown) {// Continue to search other files
       logger.warn('[route] JSON parse failed', error);
     }
     }
@@ -65,8 +62,7 @@ export async function GET(request: Request) {
             foundFile = file;
             break;
           }
-        } catch (error: any) { const err = error; const e = error;
-          // Skip invalid JSON files
+        } catch (error: unknown) {// Skip invalid JSON files
           continue;
         }
       }
@@ -84,7 +80,7 @@ export async function GET(request: Request) {
       refreshToken,
       source: foundFile,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Kiro auto-import error:", error);
     return NextResponse.json({ found: false, error: error.message }, { status: 500 });
   }

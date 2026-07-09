@@ -1,7 +1,5 @@
 import fs from 'fs';
-import path from 'path';
-
-export type SkillContentScanIssue = {
+import path from 'path';export type SkillContentScanIssue = {
   severity: 'error' | 'warn';
   code:
     | 'unsupported-file'
@@ -211,16 +209,14 @@ export class SkillContentScannerService {
       }
       const ext = path.extname(filePath).toLowerCase();
       return IMPORTABLE_TEXT_EXTENSIONS.has(ext);
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 
   private isSymbolicLink(filePath: string): boolean {
     try {
       return this.lstatSyncImpl(filePath).isSymbolicLink();
-    } catch (error: any) { const err = error; const e = error;
-      return true;
+    } catch (error: unknown) {return true;
     }
   }
 }

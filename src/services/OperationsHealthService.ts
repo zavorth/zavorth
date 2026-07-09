@@ -413,8 +413,7 @@ export class OperationsHealthService {
     try {
       fs.mkdirSync(path.dirname(this.operationsSnapshotCacheFile), { recursive: true });
       fs.writeFileSync(this.operationsSnapshotCacheFile, JSON.stringify(snapshot, null, 2), 'utf8');
-    } catch (error: any) {
-      // Fast snapshot persistence must never break operational reads.
+    } catch (error: unknown) {// Fast snapshot persistence must never break operational reads.
       logger.warn('[Operations] filesystem operation failed', error);
     }
   }
@@ -450,7 +449,7 @@ export class OperationsHealthService {
       }
 
       return parsed;
-    } catch (error: any) { logger.warn('[Operations] parsing failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Operations] parsing failed', error); return null; }
   }
 
   private buildEstimatedDockerStatus(

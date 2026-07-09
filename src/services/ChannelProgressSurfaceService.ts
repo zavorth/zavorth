@@ -267,7 +267,7 @@ export class ChannelProgressSurfaceService {
       const receipt = this.receipt(event, transport, 'sent', session.anchorMessageId, 'Progress status sent.');
       this.record(receipt);
       return receipt;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       const session = this.upsertSession(event, text, current?.anchorMessageId ?? event.messageId ?? null, current?.transport || 'send', message);
       const receipt = this.receipt(event, session.transport, 'failed', session.anchorMessageId, message);
@@ -363,8 +363,7 @@ export class ChannelProgressSurfaceService {
           this.receipts.push(receipt);
         }
       }
-    } catch (error: any) {
-      // Corrupt progress state must not break channel delivery.
+    } catch (error: unknown) {// Corrupt progress state must not break channel delivery.
       logger.warn('[Channel Progress Surface] parsing failed', error);
     }
   }
@@ -442,5 +441,5 @@ function createDefaultSender(env: NodeJS.ProcessEnv, fetchImpl: typeof fetch): C
 async function readTelegramResponse(response: Response): Promise<any> {
   try {
     return await response.json();
-  } catch (error: any) { logger.warn('[Channel Progress Surface] filesystem check failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Channel Progress Surface] filesystem check failed', error); return null; }
 }

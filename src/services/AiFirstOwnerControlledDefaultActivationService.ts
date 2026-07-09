@@ -462,7 +462,7 @@ export class AiFirstOwnerControlledDefaultActivationService {
           throw new Error('Invalid receipt shape.');
         }
         receipts.push(parsed);
-      } catch (error: any) {
+      } catch (error: unknown) {
         errors.push({
           line: index + 1,
           reason: error instanceof Error ? error.message : String(error),

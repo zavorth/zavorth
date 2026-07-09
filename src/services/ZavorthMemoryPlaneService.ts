@@ -652,8 +652,7 @@ export class ZavorthMemoryPlaneService {
 
     try {
       return await this.memoryService.listAll(userId);
-    } catch (error: any) {
-      logger.warn('[MemoryPlane] Failed to list memories:', error);
+    } catch (error: unknown) {logger.warn('[MemoryPlane] Failed to list memories:', error);
       return [];
     }
   }
@@ -665,8 +664,7 @@ export class ZavorthMemoryPlaneService {
 
     try {
       return await this.memoryService.listRelevant(userId, query, 5);
-    } catch (error: any) {
-      logger.warn('[MemoryPlane] Failed to list relevant memories:', error);
+    } catch (error: unknown) {logger.warn('[MemoryPlane] Failed to list relevant memories:', error);
       return [];
     }
   }
@@ -678,8 +676,7 @@ export class ZavorthMemoryPlaneService {
 
     try {
       return await this.memoryService.listHistoricalRelevant(userId, query, 5);
-    } catch (error: any) {
-      logger.warn('[MemoryPlane] Failed to list historical memories:', error);
+    } catch (error: unknown) {logger.warn('[MemoryPlane] Failed to list historical memories:', error);
       return [];
     }
   }
@@ -691,8 +688,7 @@ export class ZavorthMemoryPlaneService {
 
     try {
       return await this.workspaceOperationalMemory.getMemory(workspace, userId || undefined);
-    } catch (error: any) {
-      logger.warn('[MemoryPlane] Failed to read workspace memory:', error);
+    } catch (error: unknown) {logger.warn('[MemoryPlane] Failed to read workspace memory:', error);
       return null;
     }
   }

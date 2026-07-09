@@ -1,6 +1,4 @@
-import { getEncoding } from 'js-tiktoken';
-
-/**
+import { getEncoding } from 'js-tiktoken';/**
  * TokenCounter - preventive context budget guard.
  * Measures the semantic weight of conversations and Agentic RAG history
  * before sending them to paid APIs.
@@ -11,8 +9,7 @@ export class TokenCounter {
       const encoding = getEncoding('cl100k_base');
       const tokens = encoding.encode(text);
       return tokens.length;
-    } catch (error: any) { const err = error; const e = error;
-      return Math.ceil(text.length / 4);
+    } catch (error: unknown) {return Math.ceil(text.length / 4);
     }
   }
 

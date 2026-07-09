@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 /**
  * Usage Stats — extracted from usageDb.js (T-15)
  *
@@ -44,7 +45,9 @@ export async function getUsageStats() {
   try {
     const loadedConnections = await getProviderConnections();
     allConnections = Array.isArray(loadedConnections) ? loadedConnections : [];
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
 
   const connectionMap: Record<string, string> = {};
   for (const connRaw of allConnections) {

@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import * as http from 'http';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 const MARKER = 'ZAVORTH_9F_SMOKE_CONTENT_DO_NOT_PERSIST_2026';
 
@@ -104,7 +105,9 @@ async function runSmokeTest() {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
       }
-    } catch (err: any) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       res.writeHead(500, { 'Content-Type': 'text/plain' });
       res.end(err.message);
     }
@@ -479,7 +482,9 @@ async function runSmokeTest() {
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
       console.log('🧹 Cleaned up temporary test directory.');
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       console.warn('⚠️ Warning: Failed to clean up temp files:', err);
     }
   }

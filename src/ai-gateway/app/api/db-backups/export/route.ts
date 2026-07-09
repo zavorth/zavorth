@@ -9,7 +9,6 @@ import {
 sanitizeSqliteBackupFile,
   shouldIncludeSensitiveDatabaseExport,
 } from "@/lib/db/backupSanitizer";
-
 /**
  * GET /api/db-backups/export — Download the current database as a .sqlite file.
  *
@@ -43,7 +42,7 @@ export async function GET(request: Request) {
     // Cleanup temp file
     try {
       fs.unlinkSync(tmpPath);
-    } catch (error: any) { const err = error; const e = error; /* best effort */ logger.warn('[route] file cleanup failed', error); }
+    } catch (error: unknown) {/* best effort */ logger.warn('[route] file cleanup failed', error); }
 
     return new Response(fileBuffer, {
       status: 200,
@@ -59,7 +58,7 @@ export async function GET(request: Request) {
           : {}),
       },
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.error("[API] Error exporting database:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

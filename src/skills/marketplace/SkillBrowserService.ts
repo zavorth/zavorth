@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * SkillBrowserService - Generic, dynamic, intelligent skill browsing.
  *
@@ -18,9 +19,7 @@ import { logger } from '../../logger.js';
 import type { ILlmProvider, ChatMessage } from '../../providers/ILlmProvider.js';
 import { ProviderFactory } from '../../providers/ProviderFactory.js';
 
-// ============================================================================
 // Types
-// ============================================================================
 
 export interface SkillSourceConfig {
   /** Unique identifier for this source */
@@ -126,9 +125,7 @@ interface CacheEntry {
   timestamp: number;
 }
 
-// ============================================================================
 // Source Fetchers
-// ============================================================================
 
 /**
  * Fetches skills from a Git repository by scanning for SKILL.md files.
@@ -205,7 +202,7 @@ async function fetchFromGitRepo(
 
     // Cleanup
     fs.rmSync(tmpDir, { recursive: true, force: true });
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn(`[SkillBrowser] Git repo fetch failed for ${source.id}:`, error);
   }
 
@@ -251,7 +248,7 @@ async function fetchFromNpmRegistry(
         license: (pkg as Record<string, unknown>).license as string || 'unknown',
       });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn(`[SkillBrowser] npm registry fetch failed for ${source.id}:`, error);
   }
 
@@ -306,7 +303,7 @@ async function fetchFromGitHubTopic(
         license: repo.license?.spdx_id || 'unknown',
       });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn(`[SkillBrowser] GitHub topic fetch failed for ${source.id}:`, error);
   }
 
@@ -364,16 +361,14 @@ async function fetchFromCustomApi(
         license: skill.license || 'unknown',
       });
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.warn(`[SkillBrowser] Custom API fetch failed for ${source.id}:`, error);
   }
 
   return entries;
 }
 
-// ============================================================================
 // Main Service
-// ============================================================================
 
 export class SkillBrowserService {
   private readonly sources: Map<string, SkillSourceConfig> = new Map();
@@ -398,9 +393,7 @@ export class SkillBrowserService {
     }
   }
 
-  // -------------------------------------------------------------------------
   // Source Management
-  // -------------------------------------------------------------------------
 
   /**
    * Register a new skill source.
@@ -439,9 +432,7 @@ export class SkillBrowserService {
     }
   }
 
-  // -------------------------------------------------------------------------
   // Capability 1: Browse
-  // -------------------------------------------------------------------------
 
   /**
    * Fetch all skills from a specific source.
@@ -503,9 +494,7 @@ export class SkillBrowserService {
     return allEntries;
   }
 
-  // -------------------------------------------------------------------------
   // Capability 2: Multi-source Search
-  // -------------------------------------------------------------------------
 
   /**
    * Search across multiple sources in parallel.
@@ -564,7 +553,8 @@ export class SkillBrowserService {
         }
 
         return tagFiltered.slice(0, input.limitPerSource || 50);
-      } catch (error) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         sourcesFailed.push({
           sourceId: source.id,
           error: error instanceof Error ? error.message : String(error),
@@ -607,9 +597,7 @@ export class SkillBrowserService {
     };
   }
 
-  // -------------------------------------------------------------------------
   // Capability 3: Semantic Matching
-  // -------------------------------------------------------------------------
 
   /**
    * Check if a query is generic (needs semantic matching).
@@ -662,7 +650,7 @@ Examples:
           return terms.filter((t): t is string => typeof t === 'string').slice(0, 5);
         }
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('[SkillBrowser] Semantic term extraction failed:', error);
     }
 
@@ -679,9 +667,7 @@ Examples:
     return this.llmProvider;
   }
 
-  // -------------------------------------------------------------------------
   // Capability 4: Catalog Cache
-  // -------------------------------------------------------------------------
 
   /**
    * Invalidate cache for a specific source.
@@ -738,7 +724,7 @@ Examples:
         entries,
         timestamp: Date.now(),
       }, null, 2), 'utf-8');
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn(`[SkillBrowser] Failed to persist cache for ${sourceId}:`, error);
     }
   }

@@ -203,8 +203,8 @@ export class ZavorthNativeBrowserComputerUseService {
         timeoutMs: input.timeoutMs || 30_000,
       });
       return { used: true, error: null };
-    } catch (error: any) {
-    logger.warn('[Zavorth Native Browser Computer Use] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Native Browser Computer Use] process execution failed', error);
     return {
         used: false,
         error: error instanceof Error ? error.message : String(error),
@@ -246,8 +246,8 @@ export class ZavorthNativeBrowserComputerUseService {
         origin: parsed.origin,
         blocked: false,
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Native Browser Computer Use] network request failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Native Browser Computer Use] network request failed', error);
     return {
         policy: 'blocked',
         decision: 'deny',

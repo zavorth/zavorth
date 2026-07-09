@@ -22,7 +22,6 @@ import {
 } from './ZavorthCliTerminalShell.js';
 import { normalizeTerminalComposerInput } from './ZavorthCliTerminalComposer.js';
 import { logger } from '../logger.js';
-
 type InkModule = typeof import('ink');
 type ReactModule = typeof import('react');
 type InkKey = import('ink').Key;
@@ -175,7 +174,7 @@ export async function runZavorthCliTerminalShellInk(
     );
     await instance.waitUntilExit();
     return { rendered: true, exitCode: actionState.exitCode };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     if (process.env.ZAVORTH_TERMINAL_INK_DEBUG === '1') {
       console.error(error?.stack || error?.message || String(error));
     }
@@ -283,8 +282,8 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
                 return;
               }
               steerFailureNotice = result.notice;
-            } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Cli Terminal Shell Ink App] filesystem check failed', error);
+            } catch (error: unknown) {
+              logger.warn('[Zavorth Cli Terminal Shell Ink App] filesystem check failed', error);
     steerFailureNotice = `Live steering unavailable: ${error?.message || String(error)}`;
   }
           }
@@ -419,7 +418,7 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
         },
       ]);
       setNotice(result.ok ? 'Ready.' : 'Review the message above before continuing.');
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error?.message || String(error);
       setMessages((current) => [...current.slice(-6), { role: 'system', text: message }]);
       setCards((current) => [...current.slice(-4), {
@@ -477,7 +476,7 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
         result.card,
       ]);
       setNotice(result.notice);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error?.message || String(error);
       setMessages((current) => [...current.slice(-6), { role: 'system', text: message }]);
       setCards((current) => [...current.slice(-4), {

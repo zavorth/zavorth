@@ -142,7 +142,7 @@ export class ZavorthMutationPlaneService {
     try {
       const plan = JSON.parse(this.readFileSync(filePath, 'utf8')) as ZavorthMutationPlan;
       return this.expireIfNeeded(plan);
-    } catch (error: any) { logger.warn('[Zavorth  Plane] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth  Plane] JSON parse failed', error); return null; }
   }
 
   public listPlans(options: ZavorthMutationPlanListOptions = {}): ZavorthMutationPlan[] {
@@ -263,8 +263,7 @@ export class ZavorthMutationPlaneService {
           this.unlinkSync(filePath);
           removed += 1;
         }
-      } catch (error: any) {
-      // Arquivos quebrados nao podem travar o runtime; ficam para limpeza manual.
+      } catch (error: unknown) {// Arquivos quebrados nao podem travar o runtime; ficam para limpeza manual.
       logger.warn('[Zavorth  Plane] JSON parse failed', error);
     }
     }

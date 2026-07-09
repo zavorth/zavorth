@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 "use client";
 
 import { useState } from "react";
@@ -31,7 +32,8 @@ export default function ManualConfigModal({
       }
       setCopiedIndex(index);
       setTimeout(() => setCopiedIndex(null), 2000);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.log("Failed to copy:", err);
     }
   };

@@ -199,7 +199,7 @@ export class ZavorthCloudSandboxAdapterService {
           ? `${descriptor.label} sandbox execution completed.`
           : `${descriptor.label} sandbox execution exited non-zero.`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = redactSecrets(error instanceof Error ? error.message : String(error));
       return this.result('blocked', provider, startedAt, limits, {
         stdout: '',
@@ -340,7 +340,7 @@ export class ZavorthCloudSandboxAdapterService {
   private async importSdk(moduleName: string, installCommand: string): Promise<any> {
     try {
       return await this.importer(moduleName);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const code = (error as NodeJS.ErrnoException)?.code;
       const message = error instanceof Error ? error.message : String(error);
       if (code === 'ERR_MODULE_NOT_FOUND' || code === 'MODULE_NOT_FOUND' || /cannot find module/i.test(message)) {
@@ -540,8 +540,7 @@ function validateExternalSandboxEndpoint(endpoint: string): void {
   let url: URL;
   try {
     url = new URL(endpoint);
-  } catch (error: any) {
-    throw new Error('External sandbox endpoint must be a valid URL.');
+  } catch (error: unknown) {throw new Error('External sandbox endpoint must be a valid URL.');
   }
 
   const host = url.hostname.toLowerCase();
@@ -616,8 +615,7 @@ async function defaultLocalExecutor(
   } finally {
     try {
       fs.unlinkSync(scriptFile);
-    } catch (error: any) {
-      // ignore cleanup failures for temporary sandbox files
+    } catch (error: unknown) {// ignore cleanup failures for temporary sandbox files
       logger.warn('[Zavorth Cloud Sandbox Adapter] file cleanup failed', error);
     }
   }
@@ -655,8 +653,7 @@ async function defaultLocalDockerExecutor(
   } finally {
     try {
       fs.unlinkSync(scriptFile);
-    } catch (error: any) {
-      // ignore cleanup failures for temporary sandbox files
+    } catch (error: unknown) {// ignore cleanup failures for temporary sandbox files
       logger.warn('[Zavorth Cloud Sandbox Adapter] file cleanup failed', error);
     }
   }

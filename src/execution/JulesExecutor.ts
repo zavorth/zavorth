@@ -3,7 +3,6 @@ import { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionContrac
 import { IExecutor } from '../contracts/IExecutor.js';
 import { config } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';
-
 /**
  * JulesExecutor — Integra o Google Jules AI Agent via REST API.
  *
@@ -108,7 +107,7 @@ export class JulesExecutor implements IExecutor {
         result.metadata.jules_pending = true;
       }
 
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       result.error_message = `Jules API error: ${error.message}`;
       result.error_code = 'JULES_API_ERROR';
       result.actions_executed.push(`[Jules] Error: ${error.message}`);
@@ -127,8 +126,7 @@ export class JulesExecutor implements IExecutor {
         serviceName: 'Jules availability check',
       });
       return res.ok || res.status === 200;
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 

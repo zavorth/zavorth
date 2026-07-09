@@ -6,9 +6,7 @@ import { validateComboDAG } from "@ZavorthGateway/open-sse/services/combo.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { createComboSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-// GET /api/combos - Get all combos
+import { logger } from '@/shared/utils/logger';// GET /api/combos - Get all combos
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -16,8 +14,7 @@ export async function GET(request: Request) {
   try {
     const combos = await getCombos();
     return NextResponse.json({ combos });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching combos:", error);
+  } catch (error: unknown) {console.log("Error fetching combos:", error);
     return NextResponse.json({ error: "Failed to fetch combos" }, { status: 500 });
   }
 }
@@ -49,8 +46,7 @@ export async function POST(request) {
     const tempCombo = { name, models: models || [], strategy, config };
     try {
       validateComboDAG(name, [...allCombos, tempCombo]);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+    } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: dagError.message }, { status: 400 });
   }
 
@@ -60,8 +56,7 @@ export async function POST(request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json(combo, { status: 201 });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error creating combo:", error);
+  } catch (error: unknown) {console.log("Error creating combo:", error);
     return NextResponse.json({ error: "Failed to create combo" }, { status: 500 });
   }
 }
@@ -76,7 +71,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing to cloud:", error);
+  } catch (error: unknown) {console.log("Error syncing to cloud:", error);
   }
 }

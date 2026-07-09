@@ -265,8 +265,7 @@ export class TaskBoardPlaneService {
           ? parsed.boards.map(normalizeBoard).filter((entry): entry is TaskBoard => Boolean(entry))
           : [],
       };
-    } catch (error: any) {
-    logger.warn('[Task Board Plane] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Task Board Plane] JSON parse failed', error);
     return { boards: [] };
   }
   }

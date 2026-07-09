@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * GeminiGroundingSearchAdapter - Zavorth-native adapter for Gemini Grounding search.
  *
@@ -26,10 +27,6 @@ import type {
   SearchCitation,
 } from '../../contracts/SearchQueryContract.js';
 
-// ---------------------------------------------------------------------------
-// Adapter
-// ---------------------------------------------------------------------------
-
 export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
   public readonly adapterId = 'gemini-grounding';
   public readonly supportedModes: SearchQueryMode[] = ['grounded'];
@@ -49,7 +46,8 @@ export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
     for (const key of keys) {
       try {
         return await this.executeGroundedSearch(key, query);
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn(`[GeminiGroundingSearchAdapter] Key failed: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
@@ -57,9 +55,7 @@ export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
     throw new GroundingAdapterError(this.adapterId, 'All Gemini keys failed during grounding search.');
   }
 
-  // -------------------------------------------------------------------------
   // Execution with a specific key
-  // -------------------------------------------------------------------------
 
   private async executeGroundedSearch(apiKey: string, query: string): Promise<AdapterSearchOutput> {
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -126,10 +122,6 @@ export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
       }));
   }
 }
-
-// ---------------------------------------------------------------------------
-// Typed errors
-// ---------------------------------------------------------------------------
 
 export class GroundingAdapterError extends Error {
   public readonly adapterId: string;

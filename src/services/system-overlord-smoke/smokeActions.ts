@@ -108,5 +108,5 @@ export function parseSmokeJson(rawValue: string | null): Record<string, unknown>
   }
   try {
     return JSON.parse(normalized) as Record<string, unknown>;
-  } catch (error: any) { logger.warn('[smoke Actions] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[smoke Actions] JSON parse failed', error); return null; }
 }

@@ -54,8 +54,7 @@ export class WebAppRuntimeSessionCommandService {
         clientContext: this.recordOrNull(body.clientContext),
       }, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: any) {
-      logger.error('[WebAppRuntimeSessionCommandService] command failed', error);
+    } catch (error: unknown) {logger.error('[WebAppRuntimeSessionCommandService] command failed', error);
       deps.writeJson(res, {
         ok: false,
         error: 'Falha ao executar comando de sessao.',
@@ -350,8 +349,7 @@ export class WebAppRuntimeSessionCommandService {
       catalogSkills = this.arrayOfRecords(this.recordOrNull(catalog)?.skills)
         .map((skill) => this.compactItem(skill, 'skill'))
         .filter(Boolean);
-    } catch (error: any) {
-    logger.warn('[Web App Runtime Session Command] array operation failed', error);
+    } catch (error: unknown) {logger.warn('[Web App Runtime Session Command] array operation failed', error);
     catalogSkills = [];
   }
     const byId = new Map<string, RuntimeRecord>();

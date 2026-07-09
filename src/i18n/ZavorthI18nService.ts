@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import yaml from 'js-yaml';
-
-import type {
+import yaml from 'js-yaml';import type {
   SupportedLocale,
   LocaleNamespace,
   NestedDict,
@@ -126,8 +124,7 @@ export class ZavorthI18nService {
       try {
         const content = fs.readFileSync(fp, 'utf-8');
         dict = (yaml.load(content) as NestedDict) ?? {};
-      } catch (error: any) { const err = error; const e = error;
-        dict = {};
+      } catch (error: unknown) {dict = {};
       }
     }
     this.cache.set(cacheKey, dict);

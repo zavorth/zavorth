@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../../../../logger';
-
-type WarnLogger = (message: string) => void;
+import { logger } from '../../../../logger';type WarnLogger = (message: string) => void;
 
 export type ZavorthControlRuntimeStateWriteInput = {
   filePath: string;
@@ -34,8 +32,7 @@ export class ZavorthControlRuntimeStateService {
         ),
         'utf8',
       );
-    } catch (error: any) { const err = error; const e = error;
-      this.warn(`Nao consegui persistir o estado do zavorthControl: ${error?.message || error}`);
+    } catch (error: unknown) {this.warn(`Nao consegui persistir o estado do zavorthControl: ${error?.message || error}`);
     }
   }
 
@@ -52,8 +49,7 @@ export class ZavorthControlRuntimeStateService {
       }
 
       fs.rmSync(filePath, { force: true });
-    } catch (error: any) { const err = error; const e = error;
-      // Ignora limpeza falha de estado; o readiness vai filtrar snapshots mortos.
+    } catch (error: unknown) {// Ignora limpeza falha de estado; o readiness vai filtrar snapshots mortos.
       logger.warn('[Zavorth Control Runtime State] JSON parse failed', error);
     }
   }

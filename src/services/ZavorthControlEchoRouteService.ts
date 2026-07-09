@@ -146,8 +146,7 @@ export class ZavorthControlEchoRouteService {
           surface,
         });
         deps.writeJson(res, result, 200);
-      } catch (error: any) {
-        this.writeRouteError(res, deps, error, 'Erro no Echo');
+      } catch (error: unknown) {this.writeRouteError(res, deps, error, 'Erro no Echo');
       }
       return true;
     }
@@ -249,8 +248,7 @@ export class ZavorthControlEchoRouteService {
         }
         res.setHeader('X-Zavorth-Voice-Latency-Ms', String(synthesis.latencyMs));
         res.end(synthesis.audio);
-      } catch (error: any) {
-        this.writeRouteError(res, deps, error, 'Erro no audio Echo');
+      } catch (error: unknown) {this.writeRouteError(res, deps, error, 'Erro no audio Echo');
       }
       return true;
     }
@@ -290,8 +288,7 @@ export class ZavorthControlEchoRouteService {
         }
 
         deps.writeJson(res, result, 200);
-      } catch (error: any) {
-        this.writeRouteError(res, deps, error, 'Erro');
+      } catch (error: unknown) {this.writeRouteError(res, deps, error, 'Erro');
       }
       return true;
     }
@@ -316,7 +313,7 @@ export class ZavorthControlEchoRouteService {
     }
     try {
       return JSON.parse(raw);
-    } catch (err: any) { const e = err;
+    } catch (error: unknown) {
       const error = new Error('Payload JSON invalido.') as RequestBodyTooLargeError;
       error.statusCode = 400;
       error.code = 'invalid_json';

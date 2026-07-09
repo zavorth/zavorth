@@ -7,9 +7,7 @@ import type {
   SpeechArtifactRef,
   SpeechProviderEvidence,
   SpeechTranscriptSegment,
-} from '../../contracts/SpeechContract.js';
-
-type FetchRuntime = {
+} from '../../contracts/SpeechContract.js';type FetchRuntime = {
   fetchImpl?: typeof fetch;
   now?: () => Date;
 };
@@ -381,8 +379,7 @@ export class LocalCliSpeechSynthesisLiveAdapter implements ISpeechSynthesisLiveA
       const timer = setTimeout(() => {
         try {
           child.kill();
-        } catch (error: any) { const err = error; const e = error;
-          // noop
+        } catch (error: unknown) {// noop
         }
         reject(new Error(`${this.adapterId} local TTS command timed out.`));
       }, this.config.timeoutMs);
@@ -422,8 +419,7 @@ export class LocalCliSpeechSynthesisLiveAdapter implements ISpeechSynthesisLiveA
 async function readJson(response: Response): Promise<unknown> {
   try {
     return await response.json();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

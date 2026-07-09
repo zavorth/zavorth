@@ -1,8 +1,6 @@
 import { sanitizePII } from "./piiSanitizer";
 import { redactSensitiveText } from "../../security/SensitiveDataGuard.js";
-import { logger } from '@/shared/utils/logger';
-
-const SENSITIVE_KEYS = new Set([
+import { logger } from '@/shared/utils/logger';const SENSITIVE_KEYS = new Set([
   "api_key",
   "apiKey",
   "api-key",
@@ -48,8 +46,7 @@ export function normalizePayloadForLog(payload: unknown): unknown {
 
   try {
     return JSON.parse(trimmed);
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[log Payloads] JSON parse failed', error);
+  } catch (error: unknown) {logger.warn('[log Payloads] JSON parse failed', error);
     return { _rawText: payload };
   }
 }
@@ -120,8 +117,7 @@ export function parseStoredPayload(value: unknown): unknown | null {
   if (typeof value !== "string" || value.trim().length === 0) return null;
   try {
     return JSON.parse(value);
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[log Payloads] JSON parse failed', error);
+  } catch (error: unknown) {logger.warn('[log Payloads] JSON parse failed', error);
     return { _rawText: value };
   }
 }

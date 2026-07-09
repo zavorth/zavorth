@@ -3,6 +3,7 @@ import type { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { DesktopAutomationTool } from '../tools/DesktopAutomationTool.js';
 import fs from 'fs';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export type ComputerUseAction = {
   action: 'click-element' | 'type-text' | 'press-key' | 'focus-window' | 'screenshot' | 'list-elements' | 'done';
@@ -212,7 +213,8 @@ export class ComputerUseAgent extends EventEmitter {
       } else if (this.status !== 'completed') {
         this.status = 'completed';
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.status = this.stopRequested ? 'cancelled' : 'failed';
       this.error = err.message || String(err);
       this.emit('agent:error', { error: this.error });
@@ -317,8 +319,7 @@ If the objective has already been reached, return: {"action": "done", "reasoning
       const response = await this.llmRuntime.chat(messages as any);
       const text = (response.content || '').replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(text) as ComputerUseAction;
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Computer Use Agent] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Computer Use Agent] JSON parse failed', error);
     return { action: 'done', reasoning: 'Failed to parse LLM response, stopping for safety.' };
   }
   }

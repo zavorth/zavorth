@@ -12,6 +12,7 @@ import {
 import type { DesktopAuditEntry, DesktopTrustSnapshot } from '../global';
 import type { DesktopUpdateStatus } from '../desktop-state/desktopUpdate';
 import type { RuntimeDoctorSnapshot } from '../desktop-state/runtimeDoctor';
+import { asErrorLike } from '../lib/errors';
 
 export function DesktopP6Panel(props: {
   section?: 'doctor' | 'updates' | 'trust';
@@ -40,7 +41,8 @@ export function DesktopP6Panel(props: {
       if (nextUpdate) setUpdateStatus(nextUpdate);
       if (nextTrust) setTrust(nextTrust);
       if (nextAudit?.entries) setAuditEntries(nextAudit.entries);
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError(err instanceof Error ? err.message : 'Could not load desktop health.');
     } finally {
       setLoading(false);
@@ -69,7 +71,8 @@ export function DesktopP6Panel(props: {
       setUpdateStatus(next);
       const audit = await getAuditLog().catch(() => null);
       if (audit?.entries) setAuditEntries(audit.entries);
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError(err instanceof Error ? err.message : 'Update action failed.');
     } finally {
       setLoading(false);
@@ -84,7 +87,8 @@ export function DesktopP6Panel(props: {
       setTrust(next);
       const audit = await getAuditLog().catch(() => null);
       if (audit?.entries) setAuditEntries(audit.entries);
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError(err instanceof Error ? err.message : 'Safe mode action failed.');
     } finally {
       setLoading(false);

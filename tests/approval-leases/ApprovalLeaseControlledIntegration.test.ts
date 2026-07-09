@@ -86,8 +86,6 @@ describe('ApprovalLeaseControlledIntegration', () => {
     });
   }
 
-  // ---- Gate receipt ordering invariants ----
-
   test('upstream gate must be a complete ApprovalLeaseGateReceipt before lease satisfaction', () => {
     const { sink } = makeSink();
     grantStandardLease();
@@ -142,8 +140,6 @@ describe('ApprovalLeaseControlledIntegration', () => {
     expect(result.upstreamGatesConfirmed).toBe(true);
   });
 
-  // ---- Invariant: critical/unknown never activated ----
-
   test('critical tools are never activated by a lease', () => {
     const { sink } = makeSink();
     const adapter = new ApprovalLeaseDecisionAdapter(sink);
@@ -191,8 +187,6 @@ describe('ApprovalLeaseControlledIntegration', () => {
     expect(result.status).toBe('lease_rejected');
   });
 
-  // ---- Invariant: lease does not execute tools ----
-
   test('lease_satisfied result is advisory-only; it carries no execution properties', () => {
     const { sink } = makeSink();
     grantStandardLease();
@@ -205,8 +199,6 @@ describe('ApprovalLeaseControlledIntegration', () => {
     expect(result).not.toHaveProperty('executeNow');
     expect(result).not.toHaveProperty('bypass');
   });
-
-  // ---- Invariant: ToolExposurePolicy not imported ----
 
   test('ToolExposurePolicy module is not imported by the lease adapter', () => {
     const adapterSource = require('fs').readFileSync(
@@ -232,8 +224,6 @@ describe('ApprovalLeaseControlledIntegration', () => {
     expect(adapterSource).not.toContain('ApprovalDecisionCacheService');
   });
 
-  // ---- Gate receipt validated via validateGateReceipt ----
-
   test('adapter imports validateGateReceipt from ApprovalLeaseIntegrationPolicy', () => {
     const adapterSource = require('fs').readFileSync(
       require('path').resolve('src/approval-leases/ApprovalLeaseDecisionAdapter.ts'),
@@ -241,8 +231,6 @@ describe('ApprovalLeaseControlledIntegration', () => {
     );
     expect(adapterSource).toContain('validateGateReceipt');
   });
-
-  // ---- Invariant: fallback on invalid lease ----
 
   test('fallback to requires_approval when no valid lease exists', () => {
     const { sink } = makeSink();
@@ -259,8 +247,6 @@ describe('ApprovalLeaseControlledIntegration', () => {
     const result = adapter.evaluate(baseContext({ requestedOperation: 'write' }));
     expect(result.status).toBe('lease_rejected');
   });
-
-  // ---- ApprovalLeaseIntegrationPolicy invariants ----
 
   test('APPROVAL_LEASE_INTEGRATION_INVARIANTS are all true', () => {
     for (const [, value] of Object.entries(APPROVAL_LEASE_INTEGRATION_INVARIANTS)) {

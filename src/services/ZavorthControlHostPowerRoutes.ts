@@ -2,6 +2,7 @@ import * as http from 'http';
 import { HostPowerModeService } from './HostPowerModeService.js';
 import * as schemas from '../domain/validation/controlSchemas.js';
 import type { ZavorthControlCoreRouteDeps } from './ZavorthControlCoreRouteService.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export async function handleHostPowerRequest(
   req: http.IncomingMessage,
@@ -23,7 +24,8 @@ export async function handleHostPowerRequest(
       }
       const state = HostPowerModeService.getInstance().getState(workspaceId);
       deps.writeJson(res, { ok: true, data: state });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -45,7 +47,8 @@ export async function handleHostPowerRequest(
 
       await HostPowerModeService.getInstance().enable(workspaceId, durationMinutes);
       deps.writeJson(res, { ok: true });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -67,7 +70,8 @@ export async function handleHostPowerRequest(
 
       await HostPowerModeService.getInstance().disable(workspaceId);
       deps.writeJson(res, { ok: true });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;

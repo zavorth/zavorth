@@ -36,9 +36,7 @@ import type {
 ZavorthExternalAgentAdapterKind,
   ZavorthExternalAgentIsolationKind,
   ZavorthExternalAgentNetworkMode,
-} from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
-
-type RuntimeRecord = Record<string, unknown>;
+} from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';type RuntimeRecord = Record<string, unknown>;
 type WebSessionContext = RuntimeRecord & {
   userId: string;
   sessionId: string;
@@ -2200,8 +2198,7 @@ export class WebAppRuntimeStateRouteService {
           }))
           .filter((fact) => fact.content),
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Web App Runtime State] creation failed', error);
+    } catch (error: unknown) {logger.warn('[Web App Runtime State] creation failed', error);
     return { facts: [] };
   }
   }
@@ -2281,5 +2278,5 @@ function safeTokenEquals(provided: string, expected: string): boolean {
   if (left.length !== right.length) return false;
   try {
     return timingSafeEqual(left, right);
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Web App Runtime State] operation failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[Web App Runtime State] operation failed', error); return false; }
 }

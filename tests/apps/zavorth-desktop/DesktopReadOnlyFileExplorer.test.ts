@@ -1,4 +1,5 @@
 import React from '../../../apps/zavorth-desktop/node_modules/react';
+import { asErrorLike } from '../../../apps/zavorth-desktop/src/lib/errors';
 
 // Setup custom lightweight mock DOM to run React DOM rendering in Node without ESM-only JSDOM package dependencies
 class MockElement {
@@ -82,14 +83,18 @@ class MockElement {
       if (current.listeners && current.listeners.click) {
         try {
           current.listeners.click(event);
-        } catch (err: any) {
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+
           console.error('Error on click listener:', err);
         }
       }
       if (current.onclick) {
         try {
           current.onclick(event);
-        } catch (err: any) {
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+
           console.error('Error on onclick property:', err);
         }
       }
@@ -99,7 +104,9 @@ class MockElement {
         if (props && props.onClick) {
           try {
             props.onClick(event);
-          } catch (err: any) {
+          } catch (error: unknown) {
+            const err = asErrorLike(error);
+
             console.error('Error on react onClick:', err);
           }
         }
@@ -112,7 +119,9 @@ class MockElement {
       if (mockDocument.listeners && mockDocument.listeners.click) {
         try {
           mockDocument.listeners.click(event);
-        } catch (err: any) {
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+
           console.error('Error on Document listener:', err.message, err.stack);
         }
       }
@@ -122,7 +131,9 @@ class MockElement {
       if (mockWindow.listeners && mockWindow.listeners.click) {
         try {
           mockWindow.listeners.click(event);
-        } catch (err: any) {
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+
           console.error('Error on Window listener:', err.message, err.stack);
         }
       }

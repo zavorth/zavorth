@@ -25,7 +25,7 @@ const readSettings = async () => {
     const settingsPath = getDroidSettingsPath();
     const content = await fs.readFile(settingsPath, "utf-8");
     return JSON.parse(content);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     if (error.code === "ENOENT") return null;
     throw error;
   }
@@ -87,8 +87,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGatewayConfig(settings),
       settingsPath: getDroidSettingsPath(),
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error checking droid settings:", error);
+  } catch (error: unknown) {console.log("Error checking droid settings:", error);
     return NextResponse.json({ error: "Failed to check droid settings" }, { status: 500 });
   }
 }
@@ -101,8 +100,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -135,8 +133,7 @@ export async function POST(request: Request) {
         if (keyRecord?.key) {
           apiKey = keyRecord.key as string;
         }
-      } catch (error: any) { const err = error; const e = error;
-      // Non-critical: fall back to whatever value was in apiKey
+      } catch (error: unknown) {// Non-critical: fall back to whatever value was in apiKey
       logger.warn('[route] validation failed', error);
     }
     }
@@ -155,7 +152,7 @@ export async function POST(request: Request) {
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
-    } catch (error: any) { const err = error; const e = error; /* No existing settings */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: unknown) {/* No existing settings */ logger.warn('[route] JSON parse failed', error); }
 
     // Ensure customModels array exists
     if (!settings.customModels) {
@@ -189,15 +186,14 @@ export async function POST(request: Request) {
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("droid");
-    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: unknown) {/* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "Factory Droid settings applied successfully!",
       settingsPath,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating droid settings:", error);
+  } catch (error: unknown) {console.log("Error updating droid settings:", error);
     return NextResponse.json({ error: "Failed to update droid settings" }, { status: 500 });
   }
 }
@@ -223,7 +219,7 @@ export async function DELETE(request: Request) {
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (error.code === "ENOENT") {
         return NextResponse.json({
           success: true,
@@ -249,14 +245,13 @@ export async function DELETE(request: Request) {
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("droid");
-    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: unknown) {/* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "ZavorthGateway settings removed successfully",
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error resetting droid settings:", error);
+  } catch (error: unknown) {console.log("Error resetting droid settings:", error);
     return NextResponse.json({ error: "Failed to reset droid settings" }, { status: 500 });
   }
 }

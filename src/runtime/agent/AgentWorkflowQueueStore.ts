@@ -1,8 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import type { UniversalAgentWorkflowJob } from './UniversalAgentRuntimeTypes.js';
-
-export type AgentWorkflowQueueAdapterKind =
+import type { UniversalAgentWorkflowJob } from './UniversalAgentRuntimeTypes.js';export type AgentWorkflowQueueAdapterKind =
   | 'memory'
   | 'json-local'
   | 'postgres'
@@ -433,8 +431,7 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
           && typeof (job as { id?: unknown }).id === 'string'
         ))
         .slice(0, this.maxJobs);
-    } catch (error: any) { const err = error; const e = error;
-      return [];
+    } catch (error: unknown) {return [];
     }
   }
 
@@ -462,8 +459,7 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
     while (lockFd === null) {
       try {
         lockFd = fs.openSync(lockPath, 'wx');
-      } catch (error: any) { const err = error; const e = error;
-        this.removeStaleLock(lockPath);
+      } catch (error: unknown) {this.removeStaleLock(lockPath);
         if (Date.now() - startedAt > this.lockTimeoutMs) {
           throw new Error(`Could not acquire local queue lock: ${lockPath}`);
         }
@@ -479,13 +475,11 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
     } finally {
       try {
         fs.closeSync(lockFd);
-      } catch (error: any) { const err = error; const e = error;
-        // ignore close failure
+      } catch (error: unknown) {// ignore close failure
       }
       try {
         fs.unlinkSync(lockPath);
-      } catch (error: any) { const err = error; const e = error;
-        // ignore stale lock cleanup failure
+      } catch (error: unknown) {// ignore stale lock cleanup failure
       }
     }
   }
@@ -496,8 +490,7 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
       if (Date.now() - stat.mtimeMs > this.lockTimeoutMs * 5) {
         fs.unlinkSync(lockPath);
       }
-    } catch (error: any) { const err = error; const e = error;
-      // ignore missing/inaccessible lock
+    } catch (error: unknown) {// ignore missing/inaccessible lock
     }
   }
 

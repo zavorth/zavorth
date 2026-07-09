@@ -52,7 +52,7 @@ export class AutoRepairIncidentMemoryService {
     try {
       const parsed = JSON.parse(this.readFileSync(this.filePath, 'utf8')) as AutoRepairIncidentMemoryEntry[];
       return Array.isArray(parsed) ? parsed : [];
-    } catch (error: any) { logger.warn('[Auto Repair Incident Memory] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Auto Repair Incident Memory] JSON parse failed', error); return []; }
   }
 
   public recordRun(report: AutoRepairReport, domains: string[]): void {

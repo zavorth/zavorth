@@ -11,7 +11,6 @@ import {
   EXTERNAL_EXECUTOR_LABEL,
   getRuntimeAdapterRoleFromMetadata,
 } from '../../../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
-
 interface TelegramApi {
   sendMessage(
     chatId: string | number,
@@ -56,7 +55,7 @@ export async function broadcast(
   for (const userId of recipients) {
     try {
       await SmartOutputService.send(runtime.bot.api as TelegramApi, userId, message);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message_ = error instanceof Error ? error.message : String(error);
       runtime.logRepo.log(
         'error',
@@ -74,7 +73,7 @@ export async function sendToChat(
 ): Promise<void> {
   try {
     await SmartOutputService.send(runtime.bot.api as TelegramApi, chatId, message);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const message_ = error instanceof Error ? error.message : String(error);
     runtime.logRepo.log(
       'error',
@@ -100,7 +99,7 @@ export async function startZavorthControlSurface(
       'ZavorthControlService',
       `ZavorthControl web online em ${runtime.zavorthControlService.getUrl()}`,
     );
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : String(error);
     runtime.logRepo.log(
       'error',

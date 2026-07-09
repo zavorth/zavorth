@@ -143,7 +143,7 @@ export class GoalLoopDaemonService {
       this.heartbeat(daemonId, config, 'tick.completed');
       this.state.status = this.timer ? 'running' : 'idle';
       return this.buildSnapshot(daemonId, config, receipt);
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.state.consecutiveFailures += 1;
       this.state.backoffMs = Math.min(
         config.maxBackoffMs,

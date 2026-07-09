@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { asErrorLike } from '../utils/errorLike';
 
 import { config } from '../config/index.js';
 import { ZavorthSandboxControlPlaneService } from './ZavorthSandboxControlPlaneService.js';
@@ -313,7 +314,8 @@ export class ZavorthSkillLifecycleService {
     const file = this.snapshotPath(skillId);
     try {
       return JSON.parse(fs.readFileSync(file, 'utf8')) as ZavorthSkillLifecycleSnapshot;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn(`[ZavorthSkillLifecycle] Failed to read snapshot for ${skillId}:`, err);
       return null;
     }
@@ -332,7 +334,8 @@ export class ZavorthSkillLifecycleService {
     try {
       const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
       existing = Array.isArray(parsed) ? parsed : [];
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn(`[ZavorthSkillLifecycle] Failed to read existing receipts, starting fresh:`, err);
       existing = [];
     }

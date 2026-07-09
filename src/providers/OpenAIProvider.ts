@@ -14,9 +14,7 @@ import {
 } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 import { buildProviderRequestOptions, isProviderAbortError } from './ProviderAbort.js';
-import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
-
-export class OpenAIProvider implements ILlmProvider {
+import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';export class OpenAIProvider implements ILlmProvider {
   public readonly name = 'openai';
   private clients: OpenAI[];
   private currentClientIndex = 0;
@@ -69,8 +67,7 @@ export class OpenAIProvider implements ILlmProvider {
           finishReason: choice.finish_reason as LlmResponse['finishReason'],
           metadata: nativeToolPayload.metadata,
         };
-      } catch (error: any) { const err = error; const e = error;
-        if (isProviderAbortError(error, options?.signal)) {
+      } catch (error: unknown) {if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }
         lastError = error;
@@ -110,8 +107,7 @@ export class OpenAIProvider implements ILlmProvider {
         this.currentClientIndex = clientIndex;
         yield* streamOpenAICompatibleCompletion(stream, nativeToolPayload.metadata);
         return;
-      } catch (error: any) { const err = error; const e = error;
-        if (isProviderAbortError(error, options?.signal)) {
+      } catch (error: unknown) {if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }
         lastError = error;

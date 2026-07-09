@@ -150,7 +150,7 @@ async function main() {
   throw new Error(`Comando desconhecido: ${command}`);
 }
 
-main().catch((error: any) => {
+main().catch((error: unknown) => {
   console.error(`[integration-hub] erro: ${error?.message || String(error)}`);
   process.exitCode = 1;
 });

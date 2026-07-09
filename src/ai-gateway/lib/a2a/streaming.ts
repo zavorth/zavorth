@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 /**
  * A2A SSE Streaming Support
  *
@@ -108,7 +109,7 @@ export function createA2AStream(
       const heartbeatInterval = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(createHeartbeat(task.id)));
-        } catch (error: any) { const err = error; const e = error; /* stream closed */ logger.warn('[streaming] encoding failed', error); }
+        } catch (error: unknown) {/* stream closed */ logger.warn('[streaming] encoding failed', error); }
       }, 15_000);
 
       try {
@@ -135,7 +136,8 @@ export function createA2AStream(
 
         // Emit completion with metadata
         controller.enqueue(encoder.encode(createCompletionEvent(task.id, result.metadata)));
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         const msg = err instanceof Error ? err.message : String(err);
         controller.enqueue(encoder.encode(createFailureEvent(task.id, msg)));
       } finally {

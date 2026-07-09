@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 /**
  * API Authentication Guard — Shared utility for protecting management API routes.
  *
@@ -62,7 +63,7 @@ export async function verifyAuth(request: any): Promise<string | null> {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       await jwtVerify(token, secret);
       return null; // ✔ Authenticated via cookie
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Invalid/expired token — fall through to API key check
       logger.warn('[api Auth] encoding failed', error);
     }
@@ -77,7 +78,7 @@ export async function verifyAuth(request: any): Promise<string | null> {
       const { validateApiKey } = await import("@/lib/db/apiKeys");
       const isValid = await validateApiKey(apiKey);
       if (isValid) return null; // ✔ Authenticated via API key
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // DB not ready or import error — deny access
       logger.warn('[api Auth] lifecycle operation failed', error);
     }
@@ -121,7 +122,7 @@ export async function isStrictlyAuthenticated(request: Request): Promise<boolean
     try {
       const { validateApiKey } = await import("@/lib/db/apiKeys");
       if (await validateApiKey(apiKey)) return true;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // DB not ready or import error
       logger.warn('[api Auth] lifecycle operation failed', error);
     }
@@ -137,7 +138,7 @@ export async function isStrictlyAuthenticated(request: Request): Promise<boolean
         await jwtVerify(token, secret);
         return true;
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Invalid/expired token or cookies not available
       logger.warn('[api Auth] encoding failed', error);
     }
@@ -170,7 +171,7 @@ function normalizeRequestHostname(value: string | null | undefined): string {
       .hostname.toLowerCase()
       .replace(/^\[/, "")
       .replace(/\]$/, "");
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     logger.warn('[api Auth] network request failed', error);
     return raw.replace(/^\[/, "").replace(/\]$/, "").split(":")[0] || "";
   }
@@ -201,7 +202,7 @@ export function isLoopbackRequest(request: Request): boolean {
     (() => {
       try {
         return new URL(request.url).hostname;
-      } catch (error: any) { const err = error; const e = error; logger.warn('[api Auth] operation failed', error); return ''; }
+      } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[api Auth] operation failed', error); return ''; }
     })(),
     getHeader(request, "host"),
     getHeader(request, "x-forwarded-host"),
@@ -241,7 +242,7 @@ export async function isAuthRequired(): Promise<boolean> {
     // reset-password CLI tool (bin/reset-password.mjs).
     if (!settings.password && !process.env.INITIAL_PASSWORD) return false;
     return true;
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     // On error, require auth (secure by default)
     // Log the error so failures (e.g., SQLITE_BUSY) aren't silent 401s
     console.error(

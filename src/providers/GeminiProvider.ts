@@ -21,9 +21,7 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
-import { isProviderAbortError } from './ProviderAbort.js';
-
-interface GeminiGroundingChunk {
+import { isProviderAbortError } from './ProviderAbort.js';interface GeminiGroundingChunk {
   web?: { uri?: string; title?: string };
 }
 
@@ -116,8 +114,7 @@ export class GeminiProvider implements ILlmProvider {
         }
         this.currentClientIndex = clientIndex;
         break;
-      } catch (error: any) { const err = error; const e = error;
-        if (isProviderAbortError(error, options?.signal)) {
+      } catch (error: unknown) {if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }
         lastError = error;
@@ -288,8 +285,7 @@ export class GeminiProvider implements ILlmProvider {
           },
         };
         return;
-      } catch (error: any) { const err = error; const e = error;
-        if (isProviderAbortError(error, options?.signal)) {
+      } catch (error: unknown) {if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }
         lastError = error;
@@ -384,8 +380,7 @@ export class GeminiProvider implements ILlmProvider {
 
         this.currentClientIndex = keyIndex;
         return this.parseGatewayResponse(responseBody);
-      } catch (error: any) { const err = error; const e = error;
-        lastError = error;
+      } catch (error: unknown) {lastError = error;
         logger.warn(
           `[Gemini via Cloudflare AI Gateway] Erro usando a chave ${keyIndex + 1}: ${getErrorMessage(error)}`,
         );
@@ -483,8 +478,7 @@ export class GeminiProvider implements ILlmProvider {
           ...(this.buildProviderNativeMetadata(candidate, fallback.options) || {}),
         },
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Gemini] creation failed', error);
+    } catch (error: unknown) {logger.warn('[Gemini] creation failed', error);
     return {
         content: fallback.accumulated || null,
         toolCalls: fallback.toolCalls,

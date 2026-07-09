@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../utils/errorLike';
 /**
  * Console Log API — GET /api/logs/console
  *
@@ -102,8 +103,7 @@ export async function GET(req: NextRequest) {
         }
 
         entries.push(entry);
-      } catch (error: any) { const err = error; const e = error;
-      // Skip unparseable lines
+      } catch (error: unknown) {// Skip unparseable lines
       logger.warn('[route] operation failed', error);
     }
     }
@@ -117,7 +117,8 @@ export async function GET(req: NextRequest) {
         "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] parsing failed', error);
     return NextResponse.json({ error: err.message || "Failed to read logs" }, { status: 500 });
   }

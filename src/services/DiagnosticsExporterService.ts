@@ -93,8 +93,7 @@ export class DiagnosticsExporterService {
             }
           }
         }
-      } catch (error: any) {
-      // Fallback or ignore
+      } catch (error: unknown) {// Fallback or ignore
       logger.warn('[Diagnostics Exporter] operation failed', error);
     }
     }

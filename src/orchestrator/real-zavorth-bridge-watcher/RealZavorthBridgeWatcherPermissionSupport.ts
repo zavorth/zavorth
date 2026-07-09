@@ -14,7 +14,6 @@ import type {
 RealZavorthBridgeWatcherDeps,
   ScopedCompanionUiTarget,
 } from './RealZavorthBridgeWatcherWorkflowTypes.js';
-
 const PERMISSION_NOTIFICATION_COOLDOWN_MS = 60_000;
 
 type RealZavorthBridgeWatcherPermissionSupportOptions = {
@@ -192,7 +191,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
         completedAt?: string | null;
       };
       return Boolean(tracking.completedAt);
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Real Zavorth Bridge Watcher Permission] JSON parse failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Real Zavorth Bridge Watcher Permission] JSON parse failed', error); return false; }
   }
 
   public isZavorthBridgeTask(task: Task | null | undefined): boolean {
@@ -316,7 +315,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
             pendingPermissionNotificationError: null,
           };
           this.deps.taskManager?.saveTask(task);
-        } catch (error: any) { const err = error; const e = error;
+        } catch (error: unknown) {
           task.metadata = {
             ...(task.metadata || {}),
             pendingPermissionNotificationError: error.message,
@@ -448,7 +447,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
           pendingPermissionNotificationError: null,
         };
         this.deps.taskManager?.saveTask(task);
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         task.metadata = {
           ...(task.metadata || {}),
           pendingPermissionId: permission.permission_id,
@@ -556,7 +555,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
         session.lastNotifiedPermissionId = permission.permission_id;
         await this.bridgeManager.saveSession(session);
         return;
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         this.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',

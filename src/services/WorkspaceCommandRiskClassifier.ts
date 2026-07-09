@@ -201,7 +201,7 @@ export class WorkspaceCommandRiskClassifier {
     try {
       const resolved = path.resolve(cwd, arg);
       return this.isPathOutside(resolved, root);
-    } catch (error: any) { logger.warn('[Workspace Command Risk Classifier] lifecycle operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Workspace Command Risk Classifier] lifecycle operation failed', error); return false; }
   }
 
   private isDestructiveCommand(command: string): boolean {

@@ -297,7 +297,7 @@ function readJsonBody(req: http.IncomingMessage): Promise<Record<string, unknown
       try {
         const parsed = JSON.parse(raw);
         resolve(isRecord(parsed) ? parsed : {});
-      } catch (error) {
+      } catch (error: unknown) {
         reject(error);
       }
     });

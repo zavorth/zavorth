@@ -82,14 +82,30 @@ desktop.ini
 src/ai-gateway/.next/
 *.js.map
 coverage/
+coverage-*/
+.nyc_output/
 output/
 remote-dist/
 dist-*/
 dist-smoke/
 dist-remote-transport/
 dist-visual-smoke/
+dist-standalone/
 tmp-jest-artifacts/
+apps/**/dist/
+apps/**/release/
+apps/**/node_modules/
+agent/node_modules/
+
+# === Local runtime / QA residue ===
+.qa/
+.tmp_*/
+vite-preview*.log
+*.err.log
+apps/**/vite-preview*.log
 scripts/out_*.html
+scripts/_tmp_*
+scripts/tmp_*
 site/build-*/
 site/.env.vercel.production
 src/**/*.js
@@ -102,3 +118,50 @@ tests/**/*.js
 .qa/
 ops/artifacts/generated/
 !ops/artifacts/README.md
+
+# === Local tooling residue ===
+*.lcov
+.turbo/
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.pid
+*.seed
+*.swp
+*.swo
+*~
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# === Desktop / electron packaging local ===
+apps/**/out/
+apps/**/*.exe
+apps/**/*.dmg
+apps/**/*.AppImage
+apps/**/latest.yml
+apps/**/builder-effective-config.yaml
+apps/**/builder-debug.yml
+
+# === Generated control assets (rebuild via sync scripts) ===
+# Keep GENERATED.md tracked if present; hashed bundles are regenerated.
+assets/**/assets/index-*.js
+assets/**/assets/jszip*.js
+assets/**/assets/pdf-*.js
+
+# === Scratch / agent local notes ===
+AUDIT_FIX_LOG.md
+.superpowers/
+**/__pycache__/
+*.pyc
+
+# === Coverage & reports (extra) ===
+htmlcov/
+.coverage
+coverage-final.json
+test-results/
+playwright-report/
+blob-report/

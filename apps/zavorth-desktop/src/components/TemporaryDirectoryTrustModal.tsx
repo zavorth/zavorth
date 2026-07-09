@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiRequest } from '../apiClient';
+import { errorMessage } from '../lib/errors';
 
 interface TempDirTrustProposed {
   trustId: string;
@@ -65,8 +66,8 @@ export function TemporaryDirectoryTrustModal({ workspaceId }: TemporaryDirectory
       } else {
         setError(result.error || result.data?.error || 'Failed to resolve trust.');
       }
-    } catch (err: any) {
-      setError(err.message ?? 'Network error.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Network error.'));
     } finally {
       setLoading(false);
     }

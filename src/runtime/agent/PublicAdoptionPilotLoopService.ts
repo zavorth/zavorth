@@ -1,8 +1,6 @@
 import type { PilotLoopSnapshot } from '../../contracts/PilotLoopContract.js';
 import type { FeedbackTelemetryProductLoopSnapshot } from './FeedbackTelemetryProductLoopService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-
-export const PUBLIC_ADOPTION_PILOT_LOOP_CONTRACT_VERSION = '2026-05-04.adoption-pilot' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const PUBLIC_ADOPTION_PILOT_LOOP_CONTRACT_VERSION = '2026-05-04.adoption-pilot' as const;
 export const PUBLIC_ADOPTION_PILOT_LOOP_METADATA_KEY = 'publicAdoptionPilotLoop' as const;
 
 export type PublicAdoptionPilotLoopStatus =
@@ -165,8 +163,7 @@ function arrayOrEmpty<T = unknown>(value: unknown): T[] {
 function safeCall<T>(factory: () => T): T | null {
   try {
     return factory();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

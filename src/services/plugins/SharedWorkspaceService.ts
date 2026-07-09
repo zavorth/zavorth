@@ -34,7 +34,7 @@ export class SharedWorkspaceService {
       if (Array.isArray(data)) {
         for (const w of data) this.workspaces.set(w.id, w);
       }
-    } catch (error: any) { /* ignore */ logger.warn('[Shared Workspace] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Shared Workspace] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

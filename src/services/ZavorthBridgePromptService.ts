@@ -266,8 +266,7 @@ export class ZavorthBridgePromptService {
 
     try {
       await this.automator.pasteAndSubmit(promptEnvelope, 400, activeProcessId || 0);
-    } catch (error: any) {
-      await this.ensureConversationSurfaceVisible({
+    } catch (error: unknown) {await this.ensureConversationSurfaceVisible({
         taskId: task.task_id,
         targetInstanceId,
         processId: activeProcessId,

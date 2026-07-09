@@ -1,9 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { logger } from '../logger.js';
-
-export type SharedMemoryEntry = {
+import { logger } from '../logger.js';export type SharedMemoryEntry = {
   id: string;
   key: string;
   value: string;
@@ -197,7 +195,7 @@ export class AgentSharedMemory {
     try {
       if (!fs.existsSync(this.memoryFile)) return [];
       return JSON.parse(fs.readFileSync(this.memoryFile, 'utf-8')) as SharedMemoryEntry[];
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Agent Shared Memory] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Agent Shared Memory] JSON parse failed', error); return []; }
   }
 
   private writeEntries(entries: SharedMemoryEntry[]): void {

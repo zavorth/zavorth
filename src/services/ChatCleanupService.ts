@@ -77,8 +77,7 @@ export class ChatCleanupService {
           });
           deleted += batch.length;
           continue;
-        } catch (error: any) {
-      // fallback para delete individual
+        } catch (error: unknown) {// fallback para delete individual
       logger.warn('[Chat Cleanup] delete operation failed', error);
     }
       }
@@ -88,8 +87,7 @@ export class ChatCleanupService {
         try {
           await bot.api.deleteMessage(Number(chatId), messageId);
           deleted++;
-        } catch (error: any) {
-          failed++;
+        } catch (error: unknown) {failed++;
         }
       }
 

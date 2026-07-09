@@ -322,10 +322,10 @@ export function safeResolve(value: unknown): string | null {
 export function safeRealPath(value: string): string | null {
   try {
     return fs.realpathSync.native(value);
-  } catch (error: any) {
+  } catch ($1: unknown) {
     try {
       return fs.realpathSync(value);
-    } catch (error: any) { logger.warn('[Zavorth Runtime State Bus Utils] operation failed', error); return null; }
+    } catch ($1: unknown) { logger.warn('[Zavorth Runtime State Bus Utils] operation failed', error); return null; }
   }
 }
 

@@ -1,4 +1,5 @@
 import { AiFirstOwnerControlledDefaultActivationService } from '../src/services/AiFirstOwnerControlledDefaultActivationService.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 const args = process.argv.slice(2);
 const action = String(args[0] || 'status').trim().toLowerCase();
@@ -20,7 +21,8 @@ try {
   if (requirePass && ['blocked', 'missing'].includes(result.status)) {
     process.exitCode = 1;
   }
-} catch (error) {
+} catch (error: unknown) {
+  const err = asErrorLike(error);
   console.error('[ai-first-router-default-activation] falhou:', error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 }

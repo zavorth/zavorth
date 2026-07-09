@@ -18,7 +18,6 @@ import type {
   IntegrationActionExecutionContext,
   IntegrationActionManifestResolver,
 } from './IntegrationActionTypes.js';
-
 type IntegrationActionExecutionSupportRuntime = {
   now: () => Date;
   spawn: typeof spawnCommand;
@@ -233,7 +232,7 @@ export class IntegrationActionExecutionSupport {
       this.ledgerService.persistRecord(record);
       this.monitorSupport.trackBackgroundAction(record, child, context);
       return record;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.writeFileSyncImpl(
         logFd,
         `[${this.now().toISOString()}] Falha ao iniciar acao: ${error?.message || error}${lineBreak}`,

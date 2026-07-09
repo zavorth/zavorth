@@ -64,8 +64,7 @@ export class ModelSelectionService {
         if (resolved.runtimeReady) {
           return resolved;
         }
-      } catch (error: any) {
-      // Ignore capability mismatches when searching for a default
+      } catch (error: unknown) {// Ignore capability mismatches when searching for a default
       logger.warn('[Model Selection] operation failed', error);
     }
     }

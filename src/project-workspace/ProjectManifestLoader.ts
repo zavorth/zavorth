@@ -16,7 +16,6 @@ import {
   type ProjectManifestRestartPolicy,
   type ResolvedProjectManifest,
 } from './ProjectManifestContract.js';
-
 export type ProjectManifestLoaderOptions = {
   cwd?: string | null;
   manifestPath?: string | null;
@@ -52,7 +51,7 @@ export class ProjectManifestLoader {
     let parsed: unknown;
     try {
       parsed = loadYaml(fs.readFileSync(resolvedManifestPath, 'utf8'));
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       throw new ProjectManifestError([{
         path: resolvedManifestPath,

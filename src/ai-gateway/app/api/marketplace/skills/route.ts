@@ -8,7 +8,6 @@ import { SkillDependencyResolver } from "../../../../../../skills/marketplace/Sk
 import { SkillRollback } from "../../../../../../skills/marketplace/SkillRollback.js";
 import { searchGitHubReposBroad } from "../../../../../../skills/marketplace/SkillGitHubSearch.js";
 import { logger } from "@/shared/utils/logger";
-
 export const runtime = "nodejs";
 
 function buildMarketplaceResponse(registry: SkillLocalRegistry) {
@@ -102,8 +101,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(buildMarketplaceResponse(registry));
-  } catch (error: any) {
-    logger.warn("[marketplace] error", error);
+  } catch (error: unknown) {logger.warn("[marketplace] error", error);
     return NextResponse.json({ ok: false, error: error?.message || "marketplace error" }, { status: 500 });
   }
 }
@@ -163,8 +161,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ok: false, error: "unsupported action" }, { status: 400 });
-  } catch (error: any) {
-    logger.warn("[marketplace] error", error);
+  } catch (error: unknown) {logger.warn("[marketplace] error", error);
     return NextResponse.json({ ok: false, error: error?.message || "marketplace error" }, { status: 500 });
   }
 }

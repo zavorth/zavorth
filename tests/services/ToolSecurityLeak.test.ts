@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { asErrorLike } from '../../src/utils/errorLike';
 
 describe('Tool Security Leak Test (Phase 21H)', () => {
   it('ensures no tool imports ProviderSecretStore or accesses secrets directly', () => {
@@ -37,7 +38,9 @@ describe('Tool Security Leak Test (Phase 21H)', () => {
         const dirFile = path.join(dir, file);
         try {
           filelist = fs.statSync(dirFile).isDirectory() ? walkSync(dirFile, filelist) : filelist.concat(dirFile);
-        } catch (err) {
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+
           if ((err as any).code === 'ENOENT' || (err as any).code === 'EPERM') return;
           throw err;
         }

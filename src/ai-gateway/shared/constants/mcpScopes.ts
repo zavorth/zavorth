@@ -5,8 +5,6 @@
  * with a subset of scopes to limit tool access (least-privilege).
  */
 
-// ============ Scope Definitions ============
-
 /** All available MCP scopes */
 export const MCP_SCOPE_LIST = [
   "read:health",
@@ -22,8 +20,6 @@ export const MCP_SCOPE_LIST = [
 ] as const;
 
 export type McpScope = (typeof MCP_SCOPE_LIST)[number];
-
-// ============ Tool → Scope Mapping ============
 
 /** Maps each MCP tool to its required scopes */
 export const MCP_TOOL_SCOPES: Record<string, readonly McpScope[]> = {
@@ -48,8 +44,6 @@ export const MCP_TOOL_SCOPES: Record<string, readonly McpScope[]> = {
   ZavorthGateway_explain_route: ["read:health", "read:usage"],
   ZavorthGateway_get_session_snapshot: ["read:usage"],
 } as const;
-
-// ============ Scope Groups ============
 
 /** Preset scope bundles for common use cases */
 export const MCP_SCOPE_PRESETS = {
@@ -79,8 +73,6 @@ export const MCP_SCOPE_PRESETS = {
     "execute:search",
   ] as const satisfies readonly McpScope[],
 } as const;
-
-// ============ Helpers ============
 
 /**
  * Check if a set of granted scopes satisfies the required scopes for a tool.

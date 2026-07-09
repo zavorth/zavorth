@@ -198,8 +198,7 @@ export class RemoteShellTool extends BaseTool {
       }
 
       return output.trim();
-    } catch (error: any) {
-      const execError = error as {
+    } catch (error: unknown) {const execError = error as {
         code?: unknown;
         stdout?: unknown;
         stderr?: unknown;

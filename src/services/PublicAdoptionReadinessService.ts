@@ -306,7 +306,7 @@ export class PublicAdoptionReadinessService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch (error: any) { logger.warn('[Public Adoption Readiness] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Public Adoption Readiness] JSON parse failed', error); return null; }
   }
 
   private readCoreText(relativePath: string): string | null {
@@ -328,7 +328,7 @@ export class PublicAdoptionReadinessService {
     }
     try {
       return this.readFileSync(targetPath, 'utf8');
-    } catch (error: any) { logger.warn('[Public Adoption Readiness] filesystem operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Public Adoption Readiness] filesystem operation failed', error); return null; }
   }
 
   private pathExistsFromRoot(root: string, relativePath: string): boolean {

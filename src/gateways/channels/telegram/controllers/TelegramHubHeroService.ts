@@ -2,7 +2,6 @@ import { logger } from '../../../../logger.js';
 import { Context, InputFile } from 'grammy';
 import * as fs from 'fs';
 import * as path from 'path';
-
 export class TelegramHubHeroService {
   public async sendHubHero(ctx: Context): Promise<void> {
     const heroPath = this.getHubHeroAssetPath();
@@ -16,7 +15,7 @@ export class TelegramHubHeroService {
         parse_mode: 'Markdown',
         show_caption_above_media: true,
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
       logger.warn(`Failed to send hub hero: ${msg}`);
     }

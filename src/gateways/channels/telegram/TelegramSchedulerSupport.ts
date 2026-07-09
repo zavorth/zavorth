@@ -3,9 +3,7 @@ import { config } from '../../../config/index.js';
 import { SchedulerService } from '../../../services/SchedulerService.js';
 import { RuntimeProfileService } from '../../../services/RuntimeProfileService.js';
 import { Database } from '../../../storage/Database.js';
-import { SchedulerRepository } from '../../../storage/SchedulerRepository.js';
-
-type BotApiLike = {
+import { SchedulerRepository } from '../../../storage/SchedulerRepository.js';type BotApiLike = {
   sendMessage(chatId: string | number, text: string, options?: Record<string, unknown>): Promise<unknown>;
   sendDocument?(
     chatId: string | number,
@@ -53,16 +51,14 @@ export class TelegramSchedulerBootstrap {
       schedulerService.start(async (command: string, userId: string) => {
         await this.dispatchScheduledCommand(command, userId);
       });
-    } catch (error: any) { const err = error; const e = error;
-      this.logger.error('Erro ao inicializar SchedulerService:', error);
+    } catch (error: unknown) {this.logger.error('Erro ao inicializar SchedulerService:', error);
     }
   }
 
   private async dispatchScheduledCommand(command: string, userId: string): Promise<void> {
     try {
       await this.deps.processTextMessage(this.createScheduledContext(userId), command);
-    } catch (error: any) { const err = error; const e = error;
-      this.logger.error('Falha ao processar task agendada:', error);
+    } catch (error: unknown) {this.logger.error('Falha ao processar task agendada:', error);
     }
   }
 
@@ -80,8 +76,7 @@ export class TelegramSchedulerBootstrap {
               parse_mode: 'Markdown',
             });
           }
-        } catch (error: any) { const err = error; const e = error;
-          this.logger.error('Falha ao enviar resposta de task agendada', error);
+        } catch (error: unknown) {this.logger.error('Falha ao enviar resposta de task agendada', error);
         }
       },
       replyWithDocument: async (document: InputFile, options?: Record<string, unknown>) => {
@@ -90,8 +85,7 @@ export class TelegramSchedulerBootstrap {
           if (targetId && typeof this.deps.botApi.sendDocument === 'function') {
             await this.deps.botApi.sendDocument(targetId, document, options);
           }
-        } catch (error: any) { const err = error; const e = error;
-          this.logger.error('Falha ao enviar documento de task agendada', error);
+        } catch (error: unknown) {this.logger.error('Falha ao enviar documento de task agendada', error);
         }
       },
     } as unknown as Context;

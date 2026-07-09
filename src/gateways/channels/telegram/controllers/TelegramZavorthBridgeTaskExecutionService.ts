@@ -4,7 +4,6 @@ import { Task } from '../../../../contracts/TaskContract.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { ZavorthBridgeCliAdapter } from '../../../../agents/ZavorthBridgeCliAdapter.js';
 import { ZavorthBridgeCompanionBridgeLike } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeService.js';
-
 type TelegramZavorthBridgeTaskExecutionServiceDeps = {
   taskManager: Pick<TaskManager, 'advanceState'>;
   persistTask: (task: Task) => void;
@@ -63,7 +62,7 @@ export class TelegramZavorthBridgeTaskExecutionService {
           'I only come back here if it finishes, fails, or requests your approval.',
         ].join('\n'),
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const fallbackApplied = await this.deps.tryResearchFallback(ctx, task, prompt, error);
       if (fallbackApplied) {
         return;

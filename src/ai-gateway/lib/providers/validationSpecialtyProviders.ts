@@ -6,9 +6,7 @@ import {
   withCustomUserAgent,
 } from "./validationHttpSupport.ts";
 import { assertProviderValidationTargetAllowed } from "../security/egressGuard.ts";
-import { logger } from '@/shared/utils/logger';
-
-interface SpecialtyProviderInput {
+import { logger } from '@/shared/utils/logger';interface SpecialtyProviderInput {
   apiKey: string;
   providerSpecificData?: Record<string, unknown>;
 }
@@ -61,8 +59,7 @@ async function validateDeepgramProvider({
       return { valid: false, error: "Invalid API key" };
     }
     return { valid: false, error: `Validation failed: ${response.status}` };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[validation Specialty s] validation failed', error);
+  } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) };
   }
 }
@@ -90,8 +87,7 @@ async function validateAssemblyAIProvider({
       return { valid: false, error: "Invalid API key" };
     }
     return { valid: false, error: `Validation failed: ${response.status}` };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[validation Specialty s] validation failed', error);
+  } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) };
   }
 }
@@ -122,8 +118,7 @@ async function validateNanoBananaProvider({
       return { valid: false, error: "Invalid API key" };
     }
     return { valid: true, error: null };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[validation Specialty s] validation failed', error);
+  } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) };
   }
 }
@@ -150,8 +145,7 @@ async function validateElevenLabsProvider({
     }
 
     return { valid: false, error: `Validation failed: ${response.status}` };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[validation Specialty s] validation failed', error);
+  } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) };
   }
 }
@@ -182,8 +176,7 @@ async function validateInworldProvider({
     }
 
     return { valid: true, error: null };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[validation Specialty s] validation failed', error);
+  } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) };
   }
 }
@@ -232,8 +225,7 @@ async function validateBailianCodingPlanProvider({
     }
 
     return { valid: false, error: `Validation failed: ${response.status}` };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[validation Specialty s] validation failed', error);
+  } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) };
   }
 }
@@ -259,8 +251,7 @@ async function validateLongCatProvider({
       return { valid: false, error: "Invalid API key" };
     }
     return { valid: true, error: null };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[validation Specialty s] validation failed', error);
+  } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) || "Connection failed" };
   }
 }
@@ -289,8 +280,7 @@ async function validateSearchProvider(
       error: `Validation failed: ${response.status}`,
       unsupported: false,
     };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[validation Specialty s] validation failed', error);
+  } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return {
       valid: false,
       error: extractErrorMessage(error),
@@ -395,8 +385,7 @@ export async function validateSpecialtyProvider({
 
   try {
     return await validator({ apiKey, providerSpecificData });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[validation Specialty s] validation failed', error);
+  } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return {
       valid: false,
       error: extractErrorMessage(error),

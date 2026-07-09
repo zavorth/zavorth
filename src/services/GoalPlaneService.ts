@@ -185,8 +185,7 @@ export class GoalPlaneService {
           ? parsed.goals.map(normalizeGoal).filter((entry): entry is GoalPlaneItem => Boolean(entry))
           : [],
       };
-    } catch (error: any) {
-    logger.warn('[Goal Plane] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Goal Plane] JSON parse failed', error);
     return { goals: [] };
   }
   }

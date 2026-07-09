@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 // Zavorth model plane with localDb integration.
 import {
   getModelAliases,
@@ -38,7 +39,7 @@ async function lookupCustomModelApiFormat(
     if (!Array.isArray(models)) return undefined;
     const match = models.find((m: any) => m.id === modelId);
     return match?.apiFormat === "responses" ? "responses" : undefined;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[model] operation failed', error); return undefined; }
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[model] operation failed', error); return undefined; }
 }
 
 /**
@@ -93,7 +94,7 @@ export async function getModelInfo(modelStr) {
         const strippedResult = await getModelInfoCore(parsed.model, getModelAliases);
         return { ...strippedResult, extendedContext };
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // If settings read fails, fall through to normal resolution
       logger.warn('[model] parsing failed', error);
     }
@@ -146,7 +147,7 @@ export async function getComboForModel(modelStr) {
     if (mapped && (mapped as any).models?.length > 0) {
       return normalizeZavorthComboStrategy(mapped);
     }
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // If the mappings table doesn't exist yet (pre-migration), continue gracefully
       logger.warn('[model] health check failed', error);
     }
@@ -195,7 +196,7 @@ async function buildZavorthAutoCombo(name: string) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-  } catch (error: any) { const err = error; const e = error; logger.warn('[model] connection failed', error); return null; }
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[model] connection failed', error); return null; }
 }
 
 function normalizeZavorthComboStrategy(combo: any) {

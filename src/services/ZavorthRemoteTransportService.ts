@@ -303,7 +303,7 @@ export class ZavorthRemoteTransportService {
         return new URL('models', normalized).toString().replace(/\/+$/u, '');
       }
       return new URL('health', normalized).toString().replace(/\/+$/u, '');
-    } catch (error: any) { logger.warn('[Zavorth Remote Transport] health check failed', error); return rawBase; }
+    } catch (error: unknown) {logger.warn('[Zavorth Remote Transport] health check failed', error); return rawBase; }
   }
 
   private buildNodeHostEntry(nodeMesh: ReturnType<ZavorthNodeMeshService['buildSnapshot']>): ZavorthRemoteTransportEntry {
@@ -493,7 +493,7 @@ export class ZavorthRemoteTransportService {
         lastError: typeof raw.lastError === 'string' ? raw.lastError : null,
         updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : null,
       };
-    } catch (error: any) { logger.warn('[Zavorth Remote Transport] lifecycle operation failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Zavorth Remote Transport] lifecycle operation failed', error); return fallback; }
   }
 
   private readCapabilityLifecycleHint(capabilityId: string, fallbackCapabilityIds: string[] = []): CapabilityLifecycleHint {
@@ -540,8 +540,7 @@ export class ZavorthRemoteTransportService {
         dormant: capability.state === 'dormant',
         notes: typeof capability.notes === 'string' ? capability.notes : null,
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Remote Transport] filesystem check failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Remote Transport] filesystem check failed', error);
     return { dormant: false, notes: null };
   }
   }

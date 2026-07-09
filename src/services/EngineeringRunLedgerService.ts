@@ -56,7 +56,7 @@ export class EngineeringRunLedgerService {
   private readRun(filePath: string): EngineeringRunSnapshot | null {
     try {
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as EngineeringRunSnapshot;
-    } catch (error: any) { logger.warn('[Engineering Run Ledger] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Engineering Run Ledger] JSON parse failed', error); return null; }
   }
 
   private resolveRunPath(runId: string): string {

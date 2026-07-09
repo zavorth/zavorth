@@ -10,6 +10,7 @@ import {
 import { DangerousCommandBlocker } from '../security/DangerousCommandBlocker.js';
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { SandboxExecutionService } from '../services/SandboxExecutionService.js';
+import { asErrorLike } from '../utils/errorLike';
 
 type ShellRunner = (
   executionCommand: string,
@@ -206,7 +207,9 @@ export class LocalExecutor implements IExecutor {
               result.stderr = (result.stderr || '') + stderr;
               result.actions_executed.push(`Ran shell: ${executionCommand}`);
               success = true;
-            } catch (execErr: any) { const error = execErr; const err = execErr; const e = execErr;
+            } catch (execErr: unknown) {
+              const err = asErrorLike(execErr);
+              const error = err;
               const errMsg = execErr instanceof Error ? execErr.message : String(execErr || '');
 
               const missingModuleMatchPy = errMsg.match(/ModuleNotFoundError: No module named '([^']+)'/);
@@ -247,8 +250,7 @@ export class LocalExecutor implements IExecutor {
           }
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      const executionError = error as { message?: unknown; code?: unknown };
+    } catch (error: unknown) {const executionError = error as { message?: unknown; code?: unknown };
       result.success = false;
       result.error_message = String(executionError.message || error || 'Execution failed');
       result.error_code = String(executionError.code || 'EXECUTION_FAILED');
@@ -322,8 +324,7 @@ export class LocalExecutor implements IExecutor {
           } else {
             child.kill('SIGKILL');
           }
-        } catch (error: any) { const err = error; const e = error;
-          // ignore timeout kill errors
+        } catch (error: unknown) {// ignore timeout kill errors
         }
         reject(new Error(`Command timed out after ${timeoutMs}ms: ${originalCommand}`));
       }, timeoutMs);
@@ -376,8 +377,7 @@ export class LocalExecutor implements IExecutor {
           } else {
             child.kill('SIGKILL');
           }
-        } catch (error: any) { const err = error; const e = error;
-          // ignore timeout kill errors
+        } catch (error: unknown) {// ignore timeout kill errors
         }
         reject(new Error(`Command timed out after ${timeoutMs}ms: ${displayCommand}`));
       }, timeoutMs);

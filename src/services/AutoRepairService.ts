@@ -181,7 +181,7 @@ export class AutoRepairService {
 
     try {
       return JSON.parse(this.readFileSync(config.autoRepairReportFile, 'utf8')) as AutoRepairReport;
-    } catch (error: any) { logger.warn('[Auto Repair] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Auto Repair] JSON parse failed', error); return null; }
   }
 
   public summarizeLastRun(): string {
@@ -458,8 +458,7 @@ export class AutoRepairService {
 
       const response = await this.getProvider().chat(messages);
       return parseAutoRepairPlannerResponse(response.content || '');
-    } catch (error: any) {
-    logger.warn('[Auto Repair] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Auto Repair] parsing failed', error);
     return {
         needsCodeChange: false,
         targetFile: null,
@@ -489,8 +488,7 @@ export class AutoRepairService {
     this.persistReport(report);
     try {
       this.incidentMemoryService.recordRun(report, this.collectIncidentDomains(report));
-    } catch (error: any) {
-      // A memoria operacional nao deve impedir o fluxo principal do autorepair.
+    } catch (error: unknown) {// A memoria operacional nao deve impedir o fluxo principal do autorepair.
       logger.warn('[Auto Repair] filesystem operation failed', error);
     }
   }

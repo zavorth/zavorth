@@ -54,7 +54,7 @@ export class MemoryHolographicService {
         this.memories.set(id, mem);
         this.indexMemory(mem);
       }
-    } catch (error: any) { /* ignore */ logger.warn('[Memory Holographic] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Memory Holographic] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

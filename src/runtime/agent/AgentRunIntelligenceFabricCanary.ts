@@ -3,8 +3,7 @@ import type { ZavorthIntelligenceFabricLearningService } from '../../services/Za
 import { ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligenceFabricService.js';
 import { AgentRunIntelligenceFabricDraftMutation } from './AgentRunIntelligenceFabricDraftMutation.js';
 import type { AgentRunIntelligenceFabricDraftApplyResult, AgentRunIntelligenceFabricDraftMutationRuntime } from './AgentRunIntelligenceFabricDraftMutation.js';
-import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-export type { AgentRunIntelligenceFabricDraftApplyResult, AgentRunIntelligenceFabricDraftGuidance } from './AgentRunIntelligenceFabricDraftMutation.js';
+import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export type { AgentRunIntelligenceFabricDraftApplyResult, AgentRunIntelligenceFabricDraftGuidance } from './AgentRunIntelligenceFabricDraftMutation.js';
 export type AgentRunIntelligenceFabricMode = 'disabled' | 'shadow' | 'canary' | 'default';
 export type AgentRunIntelligenceFabricCanaryMetadata = {
   source: 'AgentRunIntelligenceFabricCanary';
@@ -187,8 +186,7 @@ export class AgentRunIntelligenceFabricCanary {
       });
       this.writeMetadata(input.run, metadata);
       return metadata;
-    } catch (error: any) { const err = error; const e = error;
-      const metadata = this.fallbackMetadata(error);
+    } catch (error: unknown) {const metadata = this.fallbackMetadata(error);
       this.writeMetadata(input.run, metadata);
       return metadata;
     }

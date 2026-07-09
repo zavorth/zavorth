@@ -1,7 +1,5 @@
 import { CLINE_CONFIG } from "../constants/oauth";
-import { logger } from '@/shared/utils/logger';
-
-export const cline = {
+import { logger } from '@/shared/utils/logger';export const cline = {
   config: CLINE_CONFIG,
   flowType: "authorization_code",
   buildAuthUrl: (config, redirectUri) => {
@@ -19,7 +17,7 @@ export const cline = {
       let base64 = code;
       try {
         base64 = decodeURIComponent(base64);
-      } catch (error: any) { const err = error; const e = error; /* already decoded */ logger.warn('[cline] encoding failed', error); }
+      } catch (error: unknown) {/* already decoded */ logger.warn('[cline] encoding failed', error); }
       const padding = 4 - (base64.length % 4);
       if (padding !== 4) {
         base64 += "=".repeat(padding);
@@ -39,8 +37,7 @@ export const cline = {
         lastName: tokenData.lastName,
         expires_at: tokenData.expiresAt,
       };
-    } catch (e: any) { const error = e; const err = e;
-      const response = await fetch(config.tokenExchangeUrl, {
+    } catch (error: unknown) {const response = await fetch(config.tokenExchangeUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

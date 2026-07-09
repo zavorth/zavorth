@@ -655,8 +655,7 @@ export class CanvasWorkspaceService {
         plan,
         snapshot: await this.buildSnapshot(),
       };
-    } catch (error: any) {
-    logger.warn('[Canvas Workspace] creation failed', error);
+    } catch (error: unknown) {logger.warn('[Canvas Workspace] creation failed', error);
     return {
         generatedAt: this.now().toISOString(),
         ok: false,
@@ -1257,13 +1256,13 @@ export class CanvasWorkspaceService {
         return null;
       }
       return asCanvasRecord(await (service.buildSnapshot as (input?: unknown) => unknown | Promise<unknown>)(input));
-    } catch (error: any) { logger.warn('[Canvas Workspace] creation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Canvas Workspace] creation failed', error); return null; }
   }
 
   private safeMutationPlans(limit: number): ZavorthMutationPlan[] {
     try {
       return this.mutationPlaneService.listPlans({ limit, includeExpired: false });
-    } catch (error: any) { logger.warn('[Canvas Workspace] creation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Canvas Workspace] creation failed', error); return []; }
   }
 
   private readDocument(): CanvasWorkspaceDocument {
@@ -1273,8 +1272,7 @@ export class CanvasWorkspaceService {
       }
       const parsed = JSON.parse(this.readFileSync(this.stateFile, 'utf8')) as Partial<CanvasWorkspaceDocument>;
       return this.normalizeDocument(parsed);
-    } catch (error: any) {
-    logger.warn('[Canvas Workspace] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Canvas Workspace] JSON parse failed', error);
     return this.emptyDocument();
   }
   }

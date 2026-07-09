@@ -184,8 +184,7 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
       timeZoneName: 'short',
     }).format(now);
     return `Agora em ${timeZone} é ${formatted}.`;
-  } catch (error: any) {
-    logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
+  } catch (error: unknown) {logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
     return `Agora são ${now.toLocaleString('pt-BR')} no fuso local do sistema.`;
   }
 }
@@ -722,8 +721,7 @@ export class ExperienceCoreService {
         receipts: snapshot.receipts,
         error: runResult?.ok === false ? snapshot.agent.summary : null,
       });
-    } catch (error: any) {
-      const snapshot = this.buildHome(command);
+    } catch (error: unknown) {const snapshot = this.buildHome(command);
       const message = `Experience Core failed: ${error?.message || 'unknown error'}.`;
       return this.finalizeCommandResult(command, {
         ok: false,
@@ -749,8 +747,7 @@ export class ExperienceCoreService {
   public dispatchRuntimeStateAction(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeSecureIntegration?.dispatch(input) || this.runtimeStateBus?.dispatch(input) || null;
-    } catch (error: any) {
-      logger.warn('[ExperienceCore] dispatchRuntimeStateAction failed:', error);
+    } catch (error: unknown) {logger.warn('[ExperienceCore] dispatchRuntimeStateAction failed:', error);
       return null;
     }
   }
@@ -764,8 +761,7 @@ export class ExperienceCoreService {
         now: this.now,
         runtimeStateBus: this.runtimeStateBus,
       }).buildSnapshot();
-    } catch (error: any) {
-      logger.warn('[ExperienceCore] buildRuntimeCapabilities failed:', error);
+    } catch (error: unknown) {logger.warn('[ExperienceCore] buildRuntimeCapabilities failed:', error);
       return null;
     }
   }
@@ -775,8 +771,7 @@ export class ExperienceCoreService {
   ): Promise<ZavorthRuntimeOperationalSpineSyncResult | null> {
     try {
       return await this.runtimeOperationalSpine?.syncOperationalState(input) || null;
-    } catch (error: any) {
-      logger.warn('[ExperienceCore] syncRuntimeOperationalState failed:', error);
+    } catch (error: unknown) {logger.warn('[ExperienceCore] syncRuntimeOperationalState failed:', error);
       return null;
     }
   }
@@ -1021,8 +1016,7 @@ export class ExperienceCoreService {
   private safeDispatchRuntimeState(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeStateBus?.dispatch(input) || null;
-    } catch (error: any) {
-      logger.warn('[ExperienceCore] safeDispatchRuntimeState failed:', error);
+    } catch (error: unknown) {logger.warn('[ExperienceCore] safeDispatchRuntimeState failed:', error);
       return null;
     }
   }
@@ -1030,8 +1024,7 @@ export class ExperienceCoreService {
   private safeAgentSnapshot(input: ZavorthAgentGatewaySnapshotOptions): ZavorthAgentGatewaySnapshot | null {
     try {
       return this.agentGateway?.buildSnapshot(input) || null;
-    } catch (error: any) {
-      logger.warn('[ExperienceCore] safeAgentSnapshot failed:', error);
+    } catch (error: unknown) {logger.warn('[ExperienceCore] safeAgentSnapshot failed:', error);
       return null;
     }
   }
@@ -1128,8 +1121,7 @@ export class ExperienceCoreService {
           confidence: 0.7,
         }];
       }
-    } catch (error: any) {
-      logger.warn('[ExperienceCore] buildMemorySignals memoryPlane fallback failed:', error);
+    } catch (error: unknown) {logger.warn('[ExperienceCore] buildMemorySignals memoryPlane fallback failed:', error);
     }
     return [];
   }
@@ -1174,8 +1166,7 @@ export class ExperienceCoreService {
   private safeRuntimeStateSnapshot(): ZavorthRuntimeStateBusSnapshot | null {
     try {
       return this.runtimeStateBus?.buildSnapshot() || null;
-    } catch (error: any) {
-      logger.warn('[ExperienceCore] safeRuntimeStateSnapshot failed:', error);
+    } catch (error: unknown) {logger.warn('[ExperienceCore] safeRuntimeStateSnapshot failed:', error);
       return null;
     }
   }
@@ -1208,8 +1199,7 @@ export class ExperienceCoreService {
         responseProfile: command.responseProfile || null,
         metadata: command.metadata || {},
       }) || null;
-    } catch (error: any) {
-      logger.warn('[ExperienceCore] safeRuntimeStateSync failed, falling back to snapshot:', error);
+    } catch (error: unknown) {logger.warn('[ExperienceCore] safeRuntimeStateSync failed, falling back to snapshot:', error);
       return this.safeRuntimeStateSnapshot();
     }
   }
@@ -1702,7 +1692,7 @@ export class ExperienceCoreService {
           : `Provider fallback through ${fallbackProvider} was attempted but still failed.`,
       });
       return retryResult.ok ? retryResult : firstResult;
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.selfHealingReceipts.append({
         projection,
         action: projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
@@ -1954,8 +1944,7 @@ export class ExperienceCoreService {
         probe: false,
         live: false,
       });
-    } catch (error: any) {
-      logger.warn('[ExperienceCore] safeProviderReadinessMatrix failed:', error);
+    } catch (error: unknown) {logger.warn('[ExperienceCore] safeProviderReadinessMatrix failed:', error);
       return null;
     }
   }

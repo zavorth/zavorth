@@ -4,9 +4,7 @@ import { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlane
 import type { ZavorthMutationPlan } from '../../contracts/ZavorthMutationPlaneContract.js';
 import { readEnvFile } from '../doctor/checks/ZavorthDoctorCheckUtils.js';
 import type { ZavorthCliHomeSnapshot, ZavorthCliHomeStatus } from './ZavorthCliHomeTypes.js';
-import { logger } from '../../logger.js';
-
-export type BuildZavorthCliHomeSnapshotInput = {
+import { logger } from '../../logger.js';export type BuildZavorthCliHomeSnapshotInput = {
   projectRoot: string;
   now?: () => Date;
   mutationPlane?: Pick<ZavorthMutationPlaneService, 'listPlans'> | null;
@@ -98,7 +96,7 @@ function safePendingPlans(
   try {
     return mutationPlane.listPlans({ limit: 20 })
       .filter((plan) => plan.status === 'waiting_approval' || plan.approval.status === 'pending');
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Home Projection] filesystem check failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Home Projection] filesystem check failed', error); return []; }
 }
 
 function readPackageVersion(projectRoot: string): string | null {
@@ -106,7 +104,7 @@ function readPackageVersion(projectRoot: string): string | null {
     const raw = fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8');
     const parsed = JSON.parse(raw) as { version?: string };
     return parsed.version || null;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Home Projection] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Home Projection] JSON parse failed', error); return null; }
 }
 
 function resolveProviderModel(env: Record<string, string>, providerId: string | null): string | null {

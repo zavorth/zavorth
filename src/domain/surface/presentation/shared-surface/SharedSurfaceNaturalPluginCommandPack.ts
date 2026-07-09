@@ -1,8 +1,6 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ZavorthPluginRegistryService } from '../../../../services/ZavorthPluginRegistryService.js';
-import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';
-
-type NaturalPluginIntent = {
+import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';type NaturalPluginIntent = {
   pluginId?: string;
   pluginIds?: string[];
   actionId?: 'open' | 'doctor' | 'trust' | 'review' | 'install' | 'update' | 'remove';
@@ -231,8 +229,7 @@ export class SharedSurfaceNaturalPluginCommandPack {
         '',
         `Comandos uteis agora: /plugins ${intent.pluginId} | /plugins doctor ${intent.pluginId} | /plugins open ${intent.pluginId}.`,
       ].join('\n'));
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse plugin agora.');
+    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse plugin agora.');
     }
   }
 

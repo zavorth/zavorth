@@ -1,6 +1,4 @@
-import type { ChatMessage, ToolDefinition } from '../../providers/ILlmProvider.js';
-
-export function normalizeText(value: unknown, fallback = ''): string {
+import type { ChatMessage, ToolDefinition } from '../../providers/ILlmProvider.js';export function normalizeText(value: unknown, fallback = ''): string {
   const text = String(value ?? '').trim();
   return text || fallback;
 }
@@ -109,8 +107,7 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : null;
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

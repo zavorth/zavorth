@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from './utils/errorLike';
 import { spawn } from 'child_process';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
@@ -350,8 +351,9 @@ async function runDiagnosticsExport(rawArgs: string[]): Promise<number> {
       ], 'success');
     }
     return 0;
-  } catch (error: any) { const err = error; const e = error;
-    await logCliError(`Failed to export diagnostics: ${error?.message || String(error)}`, 'Export Failed');
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    await logCliError(`Failed to export diagnostics: ${err.message || String(error)}`, 'Export Failed');
     return 1;
   }
 }
@@ -438,7 +440,7 @@ function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { written
   let current = '';
   try {
     current = existsSync(envFile) ? readFileSync(envFile, 'utf8') : '';
-  } catch (error: any) { const err = error; const e = error;
+  } catch {
     current = '';
   }
   const lines = current.split(/\r?\n/u);
@@ -718,9 +720,10 @@ async function runPremiumSetupStudio(rawArgs: string[]): Promise<number> {
     });
     process.stdout.write(result.output);
     return result.exitCode;
-  } catch (error: any) {
-    process.stderr.write(`[setup-studio] Error: ${error?.message || error}\n`);
-    if (error?.stack) process.stderr.write(`${error.stack}\n`);
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    process.stderr.write(`[setup-studio] Error: ${err.message || error}\n`);
+    if (err.stack) process.stderr.write(`${err.stack}\n`);
     return 1;
   }
 }
@@ -2375,7 +2378,8 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
         process.stdout.write(`${tCli('instance.use_hint', { name })}\n`);
       }
       return 0;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       await logCliError(err.message || String(err), 'Instance Error');
       return 1;
     }
@@ -2398,7 +2402,8 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
         process.stdout.write(`${tCli('instance.deleted', { name })}\n`);
       }
       return 0;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       await logCliError(err.message || String(err), 'Instance Error');
       return 1;
     }
@@ -2447,7 +2452,7 @@ function writeInstanceEnv(root: string, instanceName: string): { written: boolea
   let current = '';
   try {
     current = existsSync(envFile) ? readFileSync(envFile, 'utf8') : '';
-  } catch (error: any) { const err = error; const e = error;
+  } catch {
     current = '';
   }
   const lines = current.split(/\r?\n/u);
@@ -4101,7 +4106,7 @@ function readPackageVersion(): string {
   try {
     const parsed = JSON.parse(readFileSync(path.join(projectRoot, 'package.json'), 'utf8')) as { version?: string };
     return String(parsed.version || 'local');
-  } catch (error: any) { const err = error; const e = error;
+  } catch {
     return 'local';
   }
 }
@@ -4203,7 +4208,7 @@ void runSimpleCommandPlan(simpleCommandPlan)
         if (isDebug && error instanceof Error && error.stack) {
           process.stderr.write(`\nDebug Stack Trace:\n${error.stack}\n`);
         }
-      } catch (e: any) { const error = e; const err = e;
+      } catch {
         console.error([
           'Zavorth could not finish this command.',
           `Cause: ${message}`,

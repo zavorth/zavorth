@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+import { asErrorLike } from '../src/utils/errorLike';
 import { ZavorthSandboxLifecycleManager } from '../src/services/ZavorthSandboxLifecycleManager.js';
 
 type Args = {
@@ -31,7 +32,8 @@ try {
   if (plan.status === 'blocked') {
     process.exitCode = 1;
   }
-} catch (error) {
+} catch (error: unknown) {
+  const err = asErrorLike(error);
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 }

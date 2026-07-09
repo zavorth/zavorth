@@ -60,9 +60,7 @@ function buildWorkspaceMeta(overrides: Partial<{
 describe('AgentWorkspaceToolPolicySmoke — Fase 21K-A', () => {
   const policy = new ToolExposurePolicy();
 
-  // -----------------------------------------------------------------------
   // 1. Safe defaults block risky tools
-  // -----------------------------------------------------------------------
   describe('safe default config blocks all risky tools', () => {
     it('PTY tool is blocked when allowPty=false (default)', () => {
       const workspace = buildWorkspaceMeta();
@@ -121,9 +119,7 @@ describe('AgentWorkspaceToolPolicySmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 2. PTY requires BOTH allowPty=true AND allowHostPowerMode=true
-  // -----------------------------------------------------------------------
   describe('PTY requires both allowPty and allowHostPowerMode', () => {
     it('PTY tool blocked when only allowPty=true but allowHostPowerMode=false', () => {
       const workspace = buildWorkspaceMeta({ allowPty: true, allowHostPowerMode: false });
@@ -162,9 +158,7 @@ describe('AgentWorkspaceToolPolicySmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 3. Developer Mode — gating only
-  // -----------------------------------------------------------------------
   describe('developer mode is gating only', () => {
     it('allowDeveloperMode=true removes the workspace-config-denied-developer-mode block', () => {
       const workspace = buildWorkspaceMeta({ allowDeveloperMode: true });
@@ -180,9 +174,7 @@ describe('AgentWorkspaceToolPolicySmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 4. Task mandates and temp directory trust
-  // -----------------------------------------------------------------------
   describe('task mandates and temporary directory trust', () => {
     it('mandate tool allowed when allowTaskMandates=true (default)', () => {
       const workspace = buildWorkspaceMeta({ allowTaskMandates: true });
@@ -209,9 +201,7 @@ describe('AgentWorkspaceToolPolicySmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 5. Profile output never contains smoke marker
-  // -----------------------------------------------------------------------
   describe('tool profile output security', () => {
     it('profile summary never contains the smoke security marker', () => {
       const workspace = buildWorkspaceMeta();

@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export type MessageType = 'task' | 'result' | 'error' | 'heartbeat' | 'status' | 'custom';
 
@@ -408,7 +409,8 @@ export class MessageBus extends EventEmitter {
           this.log.error(`[MessageBus] Callback error for message ${message.id}: ${err}`);
         });
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.log.error(`[MessageBus] Callback error for message ${message.id}: ${err}`);
     }
   }

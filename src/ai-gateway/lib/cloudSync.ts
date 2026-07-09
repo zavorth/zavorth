@@ -5,9 +5,7 @@ getProviderConnections,
   getCombos,
   getApiKeys,
   updateProviderConnection,
-} from "@/lib/localDb";
-
-const CLOUD_URL = process.env.CLOUD_URL || process.env.NEXT_PUBLIC_CLOUD_URL;
+} from "@/lib/localDb";const CLOUD_URL = process.env.CLOUD_URL || process.env.NEXT_PUBLIC_CLOUD_URL;
 const CLOUD_SYNC_TIMEOUT_MS = Number(process.env.CLOUD_SYNC_TIMEOUT_MS || 12000);
 
 type JsonRecord = Record<string, unknown>;
@@ -67,8 +65,7 @@ export async function syncToCloud(machineId, createdKey = null) {
         apiKeys,
       }),
     });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[cloud] network request failed', error);
+  } catch (error: unknown) {logger.warn('[cloud] network request failed', error);
     const isTimeout = error?.name === "AbortError";
     return { error: isTimeout ? "Cloud sync timeout" : "Cloud sync request failed" };
   }

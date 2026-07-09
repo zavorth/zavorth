@@ -2,7 +2,6 @@ import { execFile } from "child_process";
 import fs from "fs";
 import path from "path";
 import { logger } from '@/shared/utils/logger';
-
 const TARGET_HOST = "daily-cloudcode-pa.googleapis.com";
 const IS_WIN = process.platform === "win32";
 const HOSTS_FILE = IS_WIN
@@ -121,7 +120,7 @@ export function checkDNSEntry() {
       const parts = line.trim().split(/\s+/);
       return parts.length >= 2 && parts[0] === "127.0.0.1" && parts.some((p) => p === TARGET_HOST);
     });
-  } catch (error: any) { const err = error; const e = error; logger.warn('[dns] filesystem operation failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[dns] filesystem operation failed', error); return false; }
 }
 
 /**
@@ -164,7 +163,7 @@ if (-not $exists) {
       );
     }
     console.log(`Added DNS entry: ${entry}`);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     throw new Error(`Failed to add DNS entry: ${error.message}`);
   }
 }
@@ -200,7 +199,7 @@ Set-Content -LiteralPath $hostsPath -Value $next -Encoding ASCII
       );
     }
     console.log(`Removed DNS entry for ${TARGET_HOST}`);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     throw new Error(`Failed to remove DNS entry: ${error.message}`);
   }
 }

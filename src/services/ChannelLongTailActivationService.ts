@@ -251,8 +251,8 @@ export class ChannelLongTailActivationService {
         liveIoPerformed: true,
         secretValuesSerialized: false,
       };
-    } catch (error: any) {
-    logger.warn('[Channel Long Tail Activation] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Channel Long Tail Activation] filesystem check failed', error);
     return {
         id,
         channelId: descriptor.channelId,

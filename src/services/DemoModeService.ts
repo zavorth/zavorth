@@ -76,8 +76,7 @@ export class DemoModeService {
         note: parsed.note || null,
         autoPresentationEnabled: Boolean(parsed.autoPresentationEnabled),
       };
-    } catch (error: any) {
-    logger.warn('[Demo Mode] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Demo Mode] JSON parse failed', error);
     return {
         enabled: false,
         updatedAt: null,
@@ -92,8 +91,7 @@ export class DemoModeService {
     try {
       fs.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       fs.writeFileSync(this.stateFile, JSON.stringify(this.snapshot, null, 2), 'utf8');
-    } catch (error: any) {
-      // Keep in-memory state even if persistence fails.
+    } catch (error: unknown) {// Keep in-memory state even if persistence fails.
       logger.warn('[Demo Mode] filesystem operation failed', error);
     }
   }

@@ -64,7 +64,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
       if (data && typeof data === 'object' && !Array.isArray(data)) {
         this.workers = new Map(Object.entries(data));
       }
-    } catch (error: any) { /* ignore */ logger.warn('[Zavorth Edge Computing] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Edge Computing] JSON parse failed', error); }
   }
 
   private saveWorkers(): void {
@@ -118,7 +118,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
 
           return `Worker deployed:\n  ID: ${id}\n  Name: ${workerName}\n  URL: ${url}\n  Provider: Cloudflare Workers`;
         } finally {
-          try { fs.unlinkSync(wranglerToml); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Edge Computing] file cleanup failed', error); }
+          try { fs.unlinkSync(wranglerToml); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Edge Computing] file cleanup failed', error); }
         }
       }
 
@@ -126,7 +126,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
       this.saveWorkers();
 
       return `Edge function deployed:\n  ID: ${id}\n  Name: ${workerName}\n  Provider: ${provider}\n  Route: ${route}`;
-    } catch (error: any) { logger.warn('[Zavorth Edge Computing] network request failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Edge Computing] network request failed', error); return ''; }
   }
 
   private listWorkers(): string {
@@ -190,7 +190,7 @@ export class ZavorthEdgeComputingTool extends BaseTool {
 
       const statusCode = safeParseInt(result, 0);
       return `Test ${worker.name}: HTTP ${statusCode} ${statusCode >= 200 && statusCode < 400 ? '✅' : '❌'}`;
-    } catch (error: any) { logger.warn('[Zavorth Edge Computing] network request failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Edge Computing] network request failed', error); return ''; }
   }
 
   private listProviders(): string {

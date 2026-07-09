@@ -1,5 +1,4 @@
-import { logger } from '@/shared/utils/logger';
-/**
+import { logger } from '@/shared/utils/logger';/**
  * Stream Tracker — Unified SSE stream monitoring
  *
  * Tracks token counts, latency, and errors during streaming responses.
@@ -77,8 +76,7 @@ export class StreamTracker {
         }
         try {
           data = JSON.parse(payload);
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[stream Tracker] JSON parse failed', error);
+        } catch (error: unknown) {logger.warn('[stream Tracker] JSON parse failed', error);
     data = null;
   }
       }

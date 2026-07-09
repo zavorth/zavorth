@@ -90,8 +90,8 @@ export class DatabaseQueryTool extends BaseTool {
       let sqlite3: { default: (dbPath: string, opts?: { readonly?: boolean }) => { prepare(query: string): { all(): unknown[]; run(): { changes: number; lastInsertRowid?: unknown } }; close(): void } };
       try {
         sqlite3 = await import('better-sqlite3');
-      } catch (error: any) {
-    logger.warn('[Database Query] filesystem operation failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Database Query] filesystem operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
         return `Erro: driver SQLite real better-sqlite3 indisponivel. Instale as dependencias nativas antes de executar database_query. Detalhe: ${message}`;
   }
@@ -110,8 +110,8 @@ export class DatabaseQueryTool extends BaseTool {
       } finally {
         db.close();
       }
-    } catch (error: any) {
-    logger.warn('[Database Query] resource cleanup failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Database Query] resource cleanup failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Erro ao executar query: ${message}`;
   }

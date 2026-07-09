@@ -2,9 +2,7 @@ import {
   OpenAICompatibleProviderLiveClient,
   type ProviderP0ChatSmokeInput,
   type ProviderP0ChatSmokeReceipt,
-} from './ProviderP0LiveClients.js';
-
-export type ProviderLongTailAdapterFamily =
+} from './ProviderP0LiveClients.js';export type ProviderLongTailAdapterFamily =
   | 'openai-compatible'
   | 'managed-gateway-compatible'
   | 'local-openai-compatible'
@@ -150,8 +148,7 @@ export class ProviderLongTailEmbeddingLiveClient {
 async function readJson(response: Response): Promise<any> {
   try {
     return await response.json();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

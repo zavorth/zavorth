@@ -16,7 +16,6 @@ import {
 SkillRoutingService,
   type SkillRoutingDecision,
 } from '../services/SkillRoutingService.js';
-
 export type PlannerDecisionTrace = {
   intent: ExecutionIntentClassification;
   provider: ProviderStrategyDecision;
@@ -103,8 +102,8 @@ export class StructuredPlanner {
           fallbackUsed: providerName !== providerDecision.providerName,
           decisionTrace,
         };
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Structured Planner] validation failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Structured Planner] validation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }
     }
@@ -190,7 +189,7 @@ export class StructuredPlanner {
         return JSON.parse(match[0]);
       }
       return JSON.parse(cleanText);
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Structured Planner] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Structured Planner] JSON parse failed', error); return null; }
   }
 
   private isProviderAvailable(name: string): boolean {

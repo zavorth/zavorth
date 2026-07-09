@@ -306,9 +306,7 @@ import type {
   ZavorthCliRuntime,
   CliExecutionResult,
   CliWriter,
-} from './ZavorthCliContract.js';
-
-export type {
+} from './ZavorthCliContract.js';export type {
   ZavorthCliDeps,
   ZavorthCliFlags,
   ZavorthCliIo,
@@ -401,8 +399,7 @@ export async function executeZavorthCliCommand(params: {
       spinnerActive = false;
     }
     return result;
-  } catch (error: any) { const err = error; const e = error;
-    if (spinnerActive) {
+  } catch (error: unknown) {if (spinnerActive) {
       globalSpinner.fail(`Failed to run '${commandName}'`);
       spinnerActive = false;
     }

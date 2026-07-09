@@ -100,7 +100,7 @@ export class ZavorthDatabaseAdminTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: any) { logger.warn('[Zavorth Database Admin] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Database Admin] process execution failed', error); return ''; }
   }
 
   private getDbArgs(args: Record<string, unknown>): string[] {
@@ -269,7 +269,7 @@ export class ZavorthDatabaseAdminTool extends BaseTool {
       }
 
       return 'Error: No migration framework detected (tried Knex, Prisma, Drizzle).';
-    } catch (error: any) { logger.warn('[Zavorth Database Admin] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Database Admin] filesystem operation failed', error); return ''; }
   }
 
   private async indexes(args: Record<string, unknown>): Promise<string> {

@@ -2,7 +2,6 @@ import { logger } from '../../../../logger.js';
 import { Bot } from 'grammy';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { TelegramMenuController } from '../../../../gateways/channels/telegram/controllers/TelegramMenuController.js';
-
 export type TelegramLifecycleControllerDeps = {
   logRepo: LogRepository;
   menuController: TelegramMenuController;
@@ -16,7 +15,7 @@ export class TelegramLifecycleController {
     try {
       await this.deps.menuController.registerTelegramMenu();
       this.deps.logRepo.log('info', 'BotGateway', 'Telegram command menu registered successfully.');
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
       this.deps.logRepo.log(
         'warn',
@@ -58,8 +57,7 @@ export class TelegramLifecycleController {
           );
         });
       });
-    } catch (error: any) { const err = error; const e = error;
-      throw error;
+    } catch (error: unknown) {throw error;
     }
   }
 }

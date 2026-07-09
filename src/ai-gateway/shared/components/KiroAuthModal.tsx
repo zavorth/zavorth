@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 "use client";
 
 import { useState, useEffect } from "react";
@@ -39,8 +40,7 @@ export default function KiroAuthModal({ isOpen, onMethodSelect, onClose }) {
         } else {
           setError(data.error || "Could not auto-detect token");
         }
-      } catch (err: any) { const error = err; const e = err;
-        setError("Failed to auto-detect token");
+      } catch (error: unknown) {setError("Failed to auto-detect token");
       } finally {
         setAutoDetecting(false);
       }
@@ -83,7 +83,8 @@ export default function KiroAuthModal({ isOpen, onMethodSelect, onClose }) {
 
       // Success - close modal
       onClose();
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError(err.message);
     } finally {
       setImporting(false);

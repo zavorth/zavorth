@@ -21,6 +21,7 @@ import { getCircuitBreaker, CircuitBreakerOpenError } from "../../shared/utils/c
 import { isModelAvailable } from "../../domain/modelAvailability";
 import { logProxyEvent } from "../../lib/proxyLogger";
 import { logTranslationEvent } from "../../lib/translatorEvents";
+import { asErrorLike } from '../../../utils/errorLike';
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -166,7 +167,9 @@ export async function executeChatWithBreaker({
 
     const result = await breaker.execute(chatFn);
     return { result, tlsFingerprintUsed: false };
-  } catch (cbErr: any) { const error = cbErr; const err = cbErr; const e = cbErr;
+  } catch (cbErr: unknown) {
+    const err = asErrorLike(cbErr);
+    const error = err;
     if (cbErr instanceof CircuitBreakerOpenError) {
       log.warn("CIRCUIT", `${provider} circuit open during retry: ${cbErr.message}`);
       return {
@@ -235,8 +238,7 @@ export function handleNoCredentials(
 export async function safeResolveProxy(connectionId: string) {
   try {
     return await resolveProxyForConnection(connectionId);
-  } catch (proxyErr: any) { const error = proxyErr; const err = proxyErr; const e = proxyErr;
-    log.debug("PROXY", `Failed to resolve proxy: ${proxyErr.message}`);
+  } catch (proxyErr: unknown) {log.debug("PROXY", `Failed to resolve proxy: ${proxyErr.message}`);
     return null;
   }
 }
@@ -273,8 +275,7 @@ export function safeLogEvents({
       account: credentials.connectionId?.slice(0, 8) || null,
       tlsFingerprint: tlsFingerprintUsed,
     });
-  } catch (error: any) { const err = error; const e = error;
-    log.warn("CHAT", "Failed to record proxy event", { error: errorMessage(error), provider, model });
+  } catch (error: unknown) {log.warn("CHAT", "Failed to record proxy event", { error: errorMessage(error), provider, model });
   }
 
   try {
@@ -290,8 +291,7 @@ export function safeLogEvents({
       connectionId: credentials.connectionId || null,
       comboName: comboName || null,
     });
-  } catch (error: any) { const err = error; const e = error;
-    log.warn("CHAT", "Failed to record translation event", { error: errorMessage(error), provider, model });
+  } catch (error: unknown) {log.warn("CHAT", "Failed to record translation event", { error: errorMessage(error), provider, model });
   }
 }
 

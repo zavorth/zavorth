@@ -1,6 +1,4 @@
-import { getEncoding } from 'js-tiktoken';
-
-let encodingInstance: any = null;
+import { getEncoding } from 'js-tiktoken';let encodingInstance: any = null;
 
 function getEncodingInstance() {
   if (!encodingInstance) {
@@ -18,8 +16,7 @@ export function countTokens(text: string): number {
   }
   try {
     return getEncodingInstance().encode(text).length;
-  } catch (err: any) { const error = err; const e = err;
-    // Fallback to rough estimation in case of error
+  } catch (error: unknown) {// Fallback to rough estimation in case of error
     return Math.ceil(text.length / 4);
   }
 }

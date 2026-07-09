@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { asErrorLike } from '../../utils/errorLike';
 
 export interface SupervisorTask {
   id: string;
@@ -108,8 +109,8 @@ export class CodexSupervisorService {
       task.stdout = result.toString().slice(0, 50000);
       task.exit_code = 0;
       task.status = 'completed';
-    } catch (error: any) { const e = error;
-      const err = error as { code?: number; stdout?: Buffer | string; stderr?: Buffer | string; message?: string };
+    } catch (error: unknown) {
+      const err = asErrorLike(error) as { code?: number; stdout?: Buffer | string; stderr?: Buffer | string; message?: string };
       task.exit_code = err.code || 1;
       task.stdout = (err.stdout?.toString() || '').slice(0, 50000);
       task.stderr = (err.stderr?.toString() || err.message || '').slice(0, 50000);

@@ -238,7 +238,6 @@ export class AgentSecurityPolicyEngine {
     });
     const definition = this.getToolDefinition(toolName);
     
-    // Phase 7.1: Predictive Risk-Based Auto-Approval
     let isPredictiveSafe = false;
     const command = (invocation.metadata?.command || invocation.metadata?.args || '') as string;
     if (command) {

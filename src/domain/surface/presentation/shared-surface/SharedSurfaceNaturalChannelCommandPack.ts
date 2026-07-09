@@ -15,9 +15,7 @@ buildNaturalChannelPreviewReply,
   normalizeNaturalChannelText,
   SharedSurfaceNaturalChannelConversation,
   type NaturalChannelIntent,
-} from './SharedSurfaceNaturalChannelLanguage.js';
-
-export type SharedSurfaceNaturalChannelCommandPackDeps = {
+} from './SharedSurfaceNaturalChannelLanguage.js';export type SharedSurfaceNaturalChannelCommandPackDeps = {
   channelInstallService: Pick<ChannelInstallScaffoldService, 'applyScaffold' | 'buildPlanForChannel'> | null;
   channelSetupAssistantService: Pick<ChannelSetupAssistantService, 'apply' | 'buildSession'> | null;
   naturalChannelSetupTurnService: Pick<NaturalChannelSetupTurnService, 'buildTurn'> | null;
@@ -168,8 +166,7 @@ export class SharedSurfaceNaturalChannelCommandPack {
       );
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse canal agora.');
+    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse canal agora.');
     }
   }
 
@@ -330,7 +327,7 @@ export class SharedSurfaceNaturalChannelCommandPack {
     }
     try {
       return this.deps.channelInstallService.buildPlanForChannel(channelId as any);
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Shared Surface Natural Channel Command Pack] creation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Shared Surface Natural Channel Command Pack] creation failed', error); return null; }
   }
 
   private normalizeChannelInstallMode(value: string | null | undefined): ChannelInstallMode | null {

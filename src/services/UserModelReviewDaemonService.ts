@@ -210,8 +210,7 @@ export class UserModelReviewDaemonService {
     if (fs.existsSync(fp)) {
       try {
         return JSON.parse(fs.readFileSync(fp, 'utf-8'));
-      } catch (error: any) {
-      // ignore
+      } catch (error: unknown) {// ignore
       logger.warn('[User Model] JSON parse failed', error);
     }
     }

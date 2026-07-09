@@ -498,7 +498,7 @@ function dependencySectionNames(): Array<keyof PackageJsonShape> {
 function parseJson(text: string): PackageJsonShape | null {
   try {
     return JSON.parse(text) as PackageJsonShape;
-  } catch (error: any) { logger.warn('[Source Channel Mesh Expansion] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Source Channel Mesh Expansion] JSON parse failed', error); return null; }
 }
 
 function dedupeReferences(references: Reference[]): Reference[] {
@@ -512,7 +512,7 @@ function dedupeReferences(references: Reference[]): Reference[] {
 function readDir(absolutePath: string): fs.Dirent[] {
   try {
     return fs.readdirSync(absolutePath, { withFileTypes: true });
-  } catch (error: any) { logger.warn('[Source Channel Mesh Expansion] filesystem operation failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[Source Channel Mesh Expansion] filesystem operation failed', error); return []; }
 }
 
 function readText(absolutePath: string): string {
@@ -520,7 +520,7 @@ function readText(absolutePath: string): string {
     const stat = fs.statSync(absolutePath);
     if (stat.size > 25 * 1024 * 1024) return '';
     return fs.readFileSync(absolutePath, 'utf8');
-  } catch (error: any) { logger.warn('[Source Channel Mesh Expansion] filesystem operation failed', error); return ''; }
+  } catch (error: unknown) {logger.warn('[Source Channel Mesh Expansion] filesystem operation failed', error); return ''; }
 }
 
 function normalizePath(input: string): string {

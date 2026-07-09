@@ -7,6 +7,7 @@ import { checkBodySize, getBodySizeLimit } from "./shared/middleware/bodySizeGua
 import { isDraining } from "./lib/gracefulShutdown";
 import { isModelSyncInternalRequest } from "./shared/services/modelSyncScheduler";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../utils/errorLike';
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "");
 const AUTH_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60;
@@ -15,7 +16,7 @@ function isLocalZavorthControlRequest(request: any): boolean {
   try {
     const hostname = new URL(request.url).hostname.toLowerCase();
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
-  } catch (error: any) { const err = error; const e = error; logger.warn('[proxy] encoding failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[proxy] encoding failed', error); return false; }
 }
 
 export async function proxy(request: any) {
@@ -111,7 +112,8 @@ export async function proxy(request: any) {
       ) {
         return response;
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       // FASE-01: Log settings fetch errors instead of silencing them
       console.error("[Middleware] settings_error: Settings read failed:", err.message, {
         path: pathname,
@@ -155,14 +157,17 @@ export async function proxy(request: any) {
             console.log(
               `[Middleware] JWT auto-refreshed for ${pathname} (was expiring in ${Math.round((exp - now) / 3600)}h)`
             );
-          } catch (refreshErr: any) { const error = refreshErr; const err = refreshErr; const e = refreshErr;
+          } catch (refreshErr: unknown) {
+            const err = asErrorLike(refreshErr);
+            const error = err;
             // Refresh failed — continue with existing valid token
             console.error("[Middleware] JWT auto-refresh failed:", refreshErr.message);
           }
         }
 
         return response;
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         // FASE-01: Log auth errors instead of silently redirecting
         console.error("[Middleware] auth_error: JWT verification failed:", err.message, {
           path: pathname,

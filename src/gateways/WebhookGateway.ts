@@ -16,7 +16,6 @@ import type { ChannelAdapterStatus, ChannelFeatureSet } from '../contracts/Chann
 import type { PlatformReadiness, PlatformImplementationState, PlatformTransport, PlatformKey } from '../contracts/PlatformContract.js';
 import type { IMessageContext } from '../contracts/core/IMessageBroker.js';
 import { logger } from '../logger.js';
-
 export type WebhookGatewayMode = 'webhook' | 'bot-http' | 'local-bridge' | 'matrix' | 'line';
 
 export type WebhookGatewayStatusSnapshot = {
@@ -143,7 +142,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     }
     try {
       return JSON.parse(fs.readFileSync(this.statusFile, 'utf8')) as WebhookGatewayStatusSnapshot;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Webhook way] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Webhook way] JSON parse failed', error); return null; }
   }
 
   public abstract describe(): ChannelAdapterStatus;
@@ -320,8 +319,8 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
         return response.ok
           ? { ok: true, status: 'delivered', transport: this.mode, httpStatus: response.status }
           : { ok: false, status: 'failed', transport: this.mode, httpStatus: response.status, reason: `HTTP ${response.status}` };
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Webhook way] network request failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Webhook way] network request failed', error);
     return { ok: false, status: 'failed', transport: this.mode, reason: error instanceof Error ? error.message : String(error) };
   }
     };

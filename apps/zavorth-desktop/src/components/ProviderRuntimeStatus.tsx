@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ModelSelectionService, ResolvedProviderRuntime } from '../../../../src/services/ModelSelectionService.js';
 import { Server, Key, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { errorMessage } from '../lib/errors';
 
 export function ProviderRuntimeStatus() {
   const [status, setStatus] = useState<ResolvedProviderRuntime | null>(null);
@@ -13,9 +14,9 @@ export function ProviderRuntimeStatus() {
         const resolved = await selector.selectProvider({});
         setStatus(resolved);
         setError(null);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setStatus(null);
-        setError(e.message);
+        setError(errorMessage(e));
       }
     };
 

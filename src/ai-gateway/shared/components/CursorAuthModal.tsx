@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 "use client";
 
 import { useState, useEffect } from "react";
@@ -38,8 +39,7 @@ export default function CursorAuthModal({ isOpen, onSuccess, onClose }) {
         } else {
           setError(data.error || "Could not auto-detect tokens");
         }
-      } catch (err: any) { const error = err; const e = err;
-        setError("Failed to auto-detect tokens");
+      } catch (error: unknown) {setError("Failed to auto-detect tokens");
       } finally {
         setAutoDetecting(false);
       }
@@ -81,7 +81,8 @@ export default function CursorAuthModal({ isOpen, onSuccess, onClose }) {
       // Success - close modal and trigger refresh
       onSuccess?.();
       onClose();
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError(err.message);
     } finally {
       setImporting(false);

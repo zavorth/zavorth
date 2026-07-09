@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../src/utils/errorLike';
 /**
  * Fase 21K-A — Provider Runtime Integration Smoke Tests
  *
@@ -35,9 +36,7 @@ describe('AgentWorkspaceProviderRuntimeSmoke — Fase 21K-A', () => {
     (ProviderRuntimeClientFactory.getInstance as jest.Mock).mockReturnValue({ createInvoker: mockCreateInvoker });
   });
 
-  // -----------------------------------------------------------------------
   // 1. Successful invocation with workspace-configured provider
-  // -----------------------------------------------------------------------
   describe('successful invocation flow', () => {
     it('uses workspace provider and returns sanitized result', async () => {
       const resolvedRuntime = {
@@ -94,9 +93,7 @@ describe('AgentWorkspaceProviderRuntimeSmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 2. Missing key — sanitized error
-  // -----------------------------------------------------------------------
   describe('missing provider key — sanitized error flow', () => {
     it('throws missing_key when provider not ready', async () => {
       mockRoute.mockRejectedValue(new Error('missing_key'));
@@ -105,8 +102,8 @@ describe('AgentWorkspaceProviderRuntimeSmoke — Fase 21K-A', () => {
       let caught: Error | null = null;
       try {
         await svc.invoke({} as any, []);
-      } catch (e: any) {
-        caught = e;
+      } catch (error: unknown) { const err = asErrorLike(error);
+caught = e;
       }
 
       expect(caught).not.toBeNull();
@@ -132,9 +129,7 @@ describe('AgentWorkspaceProviderRuntimeSmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 3. Unknown/raw errors are normalized by router
-  // -----------------------------------------------------------------------
   describe('raw provider errors are normalized', () => {
     it('routing_error wraps unknown failures — raw details never exposed', async () => {
       // Router already normalizes; invocation service re-throws router errors
@@ -144,8 +139,8 @@ describe('AgentWorkspaceProviderRuntimeSmoke — Fase 21K-A', () => {
       let caught: Error | null = null;
       try {
         await svc.invoke({} as any, []);
-      } catch (e: any) {
-        caught = e;
+      } catch (error: unknown) { const err = asErrorLike(error);
+caught = e;
       }
 
       expect(caught!.message).toBe('routing_error');
@@ -156,9 +151,7 @@ describe('AgentWorkspaceProviderRuntimeSmoke — Fase 21K-A', () => {
     });
   });
 
-  // -----------------------------------------------------------------------
   // 4. Fallback policy respected
-  // -----------------------------------------------------------------------
   describe('fallback policy', () => {
     it('invocation with fallback=false does not silently switch provider', async () => {
       // When workspace has allowProviderFallback=false, router won't attempt fallback.

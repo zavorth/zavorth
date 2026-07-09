@@ -8,9 +8,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     service = new ZavorthCommandlessModeService();
   });
 
-  // =========================================================================
   // Same intent, different languages
-  // =========================================================================
   describe('Read file — "read_file" across 8 languages', () => {
     const testCases: Array<[string, string]> = [
       ['en', 'read the report file'],
@@ -30,9 +28,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Create file across languages
-  // =========================================================================
   describe('Create file — "create_file" across languages', () => {
     const testCases: Array<[string, string]> = [
       ['en', 'create a new document'],
@@ -52,9 +48,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Web search across languages
-  // =========================================================================
   describe('Web search — "web_search" across languages', () => {
     const testCases: Array<[string, string]> = [
       ['en', 'search for information'],
@@ -74,9 +68,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Send email across languages
-  // =========================================================================
   describe('Send email — "email" across languages', () => {
     const testCases: Array<[string, string]> = [
       ['en', 'send an email'],
@@ -96,9 +88,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Schedule/Calendar across languages
-  // =========================================================================
   describe('Schedule meeting — "calendar" across languages', () => {
     const testCases: Array<[string, string]> = [
       ['en', 'schedule a meeting'],
@@ -118,9 +108,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Greetings across languages
-  // =========================================================================
   describe('Greeting across languages', () => {
     const testCases: Array<[string, string]> = [
       ['en', 'hello!'],
@@ -140,9 +128,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Thanks across languages
-  // =========================================================================
   describe('Acknowledgment across languages', () => {
     const testCases: Array<[string, string]> = [
       ['en', 'thanks'],
@@ -162,9 +148,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Run code across languages
-  // =========================================================================
   describe('Run code — "run_code" across languages', () => {
     const testCases: Array<[string, string]> = [
       ['en', 'run this script'],
@@ -184,9 +168,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Mixed language input (bilingual)
-  // =========================================================================
   describe('Bilingual input — merged packs', () => {
     it('should handle PT + EN mixed input', () => {
       const merged = mergeLanguagePacks('pt', 'en');
@@ -208,9 +190,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Auto-locale detection fallback
-  // =========================================================================
   describe('Auto-locale detection', () => {
     it('should fallback to English for unknown locale', () => {
       const result = service.detectIntent('read file');
@@ -218,9 +198,7 @@ describe('CommandlessMode — Cross-language intent detection', () => {
     });
   });
 
-  // =========================================================================
   // Summary: all languages have required intents
-  // =========================================================================
   describe('Language pack completeness', () => {
     const requiredIntents = [
       'read_file', 'create_file', 'web_search', 'email',

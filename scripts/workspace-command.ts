@@ -58,7 +58,7 @@ async function main() {
   console.log(`[workspace-command] resolved: ${resolved.resolvedText}`);
 }
 
-main().catch((error: any) => {
+main().catch((error: unknown) => {
   console.error(`[workspace-command] erro: ${error?.message || String(error)}`);
   process.exitCode = 1;
 });

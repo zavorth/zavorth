@@ -202,8 +202,7 @@ export class SurfaceIdentityService {
       return {
         links: parsed.links && typeof parsed.links === 'object' ? parsed.links : {},
       };
-    } catch (error: any) {
-    logger.warn('[Surface Identity] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Surface Identity] JSON parse failed', error);
     return { links: {} };
   }
   }

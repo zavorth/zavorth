@@ -32,8 +32,7 @@ export class ProviderConfigService {
     let parsed: URL;
     try {
       parsed = new URL(url);
-    } catch (error: any) {
-      throw new Error('Invalid URL format');
+    } catch (error: unknown) {throw new Error('Invalid URL format');
     }
 
     if (parsed.protocol === 'file:') {

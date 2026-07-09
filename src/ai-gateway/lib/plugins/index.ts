@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 /**
  * Plugin/Middleware Architecture — L-8
  *
@@ -168,7 +169,7 @@ export async function runOnRequest(
           currentCtx.metadata = { ...currentCtx.metadata, ...result.metadata };
         }
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Plugins] onRequest error in "${plugin.name}": ${message}`);
       // Plugin errors don't block the pipeline by default
@@ -192,7 +193,7 @@ export async function runOnResponse(ctx: PluginContext, response: ChatResponse):
       if (modified !== undefined && modified !== null) {
         currentResponse = modified;
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Plugins] onResponse error in "${plugin.name}": ${message}`);
     }
@@ -215,7 +216,7 @@ export async function runOnError(ctx: PluginContext, error: Error): Promise<Chat
         console.log(`[Plugins] Error recovered by "${plugin.name}"`);
         return recovery;
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Plugins] onError error in "${plugin.name}": ${message}`);
     }

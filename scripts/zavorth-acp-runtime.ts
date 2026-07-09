@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 /**
  * Zavorth ACP Server — Runtime Bridge
  *
@@ -45,7 +46,8 @@ async function bootstrapAcpRuntimeServer() {
       if (ToolClass) {
         toolRegistry.register(new ToolClass());
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error(`[BOOT] Failed to load tool ${mod}: ${err instanceof Error ? err.message : err}`);
     }
   }
@@ -66,7 +68,8 @@ async function bootstrapAcpRuntimeServer() {
         const result = await toolExecutor.executeTool(name, args);
         console.error(`[TOOL] ${name} completed successfully`);
         return result;
-      } catch (err) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         const error = err instanceof Error ? err.message : String(err);
         console.error(`[TOOL] ${name} failed: ${error}`);
         throw err;

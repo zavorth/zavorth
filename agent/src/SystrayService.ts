@@ -5,6 +5,12 @@ import * as os from 'os';
 import * as path from 'path';
 import SysTray from 'systray2';
 import { t, getLanguages } from './i18n.js';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 type AgentTrayState = {
   backendOnline: boolean;
@@ -171,8 +177,9 @@ export class SystrayService extends EventEmitter {
       console.log('[Systray] systray2 started.');
       this.emit('ready');
       return true;
-    } catch (error: any) {
-      console.log(`[Systray] systray2 unavailable: ${error.message}`);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      console.log(`[Systray] systray2 unavailable: ${err.message}`);
       this.systray = null;
       return false;
     }
@@ -323,8 +330,9 @@ export class SystrayService extends EventEmitter {
         this.isRunning = false;
         this.trayProcess = null;
       });
-    } catch (error: any) {
-      console.error(t('systray_icon_failed', { message: error.message }));
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      console.error(t('systray_icon_failed', { message: String(err.message || 'Unexpected error') }));
     }
   }
 

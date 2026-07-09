@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { Database } from '../storage/Database.js';
 import { logger } from '../logger.js';
-
 export interface MccNode {
   id: string; // Caminho relativo ou id do bloco
   name: string;
@@ -60,7 +59,7 @@ export class MccParserService {
       }
 
       logger.info(`[MCC Parser] Indexação do workspace concluída com sucesso.`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`[MCC Parser] Falha ao indexar o workspace: ${error.message}`);
     }
   }
@@ -303,8 +302,7 @@ export class MccParserService {
           target: `${relativePath}#schema`,
           type: 'contains'
         });
-      } catch (error: any) {
-        // Ignora JSONs malformados
+      } catch (error: unknown) {// Ignora JSONs malformados
       }
     }
   }

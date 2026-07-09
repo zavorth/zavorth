@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../src/utils/errorLike';
 /**
  * Zavorth Dashboard - Runtime Bridge
  *
@@ -16,6 +17,7 @@ import { createRuntimeRefresh } from './runtime-refresh';
 import { createRuntimeRealtime } from './runtime-realtime';
 import { createRuntimeRunReplay } from './runtime-run-replay';
 import { createRuntimeSessionUi } from './runtime-session-ui';
+import { shellWarn } from './shell-debug';
 
 export function initRuntimeBridge() {
 
@@ -1533,8 +1535,9 @@ export function initRuntimeBridge() {
 
         return;
       }
-    } catch (e) {
-      console.warn('Failed to fetch skills from REST endpoint, using fallback', e);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      shellWarn('Failed to fetch skills from REST endpoint, using fallback', err);
     }
 
     const tools = collectToolExposures();
@@ -2201,7 +2204,7 @@ export function initRuntimeBridge() {
       await fetchCurrentApprovals().catch(() => undefined);
       await fetchCurrentArtifacts().catch(() => undefined);
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
       const recovery = error?.recovery?.primaryCommand || 'zavorth dashboard';
       setUnlockFeedback(
         `${messageFromCaughtError(error, 'Invalid or expired token.')} Open a fresh dashboard URL with ${recovery}, then paste the new token here.`,
@@ -2391,7 +2394,7 @@ export function initRuntimeBridge() {
         await fetchCurrentArtifacts(ui).catch(() => undefined);
       }
       return payload;
-    } catch (error) {
+    } catch (error: unknown) {
       ui.removeThinkingState?.();
       ui.appendEcho?.('core', protectedRuntimeReply(error));
       error.uiHandled = Boolean(ui.appendEcho);

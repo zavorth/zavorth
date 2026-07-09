@@ -1,7 +1,6 @@
 import type { Context } from 'grammy';
 import { normalizeSharedSurfaceCommandCallback } from '../../../../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
 import { logger } from '../../../../logger';
-
 export type GatewayCallbackRouterDeps = {
   handleHubCallback: (ctx: Context, data: string) => Promise<void>;
   handlePermissionCallback: (ctx: Context, data: string) => Promise<void>;
@@ -28,8 +27,7 @@ export class GatewayCallbackRouter {
           if (ctx.msg?.message_id) {
             await ctx.deleteMessage();
           }
-        } catch (error: any) { const err = error; const e = error;
-      // Delete callbacks should still acknowledge stale messages.
+        } catch (error: unknown) {// Delete callbacks should still acknowledge stale messages.
       logger.warn('[way Callback r] delete operation failed', error);
     }
 
@@ -161,7 +159,7 @@ export class GatewayCallbackRouter {
         default:
           await ctx.answerCallbackQuery({ text: 'Comando nao reconhecido.' });
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       this.deps.logError?.(message);
       await ctx.answerCallbackQuery({ text: 'Erro ao processar.' });

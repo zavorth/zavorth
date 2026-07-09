@@ -7,9 +7,7 @@ import { BaseTool } from '../BaseTool.js';
 import { WorkspaceFsPolicy } from './WorkspaceFsPolicy.js';
 import { logger } from '../../logger.js';
 import { executionContextScope } from '../../runtime/context/ExecutionContextScope.js';
-import { ZavorthGitLockTool } from '../ZavorthGitLockTool.js';
-
-function readString(value: unknown): string {
+import { ZavorthGitLockTool } from '../ZavorthGitLockTool.js';function readString(value: unknown): string {
   return String(value ?? '').trim();
 }
 
@@ -96,8 +94,7 @@ export class WorkspaceEditTool extends BaseTool {
           preview: result.preview,
           receipt: result.receipt,
         });
-      } catch (error: any) {
-    logger.warn('[Workspace Edit] serialization failed', error);
+      } catch (error: unknown) {logger.warn('[Workspace Edit] serialization failed', error);
     return JSON.stringify({
           success: false,
           applied: false,
@@ -124,8 +121,7 @@ export class WorkspaceEditTool extends BaseTool {
     let resolved: ReturnType<WorkspaceFsPolicy['resolveEditPath']>;
     try {
       resolved = new WorkspaceFsPolicy().resolveEditPath(filepath);
-    } catch (error: any) {
-    logger.warn('[Workspace Edit] search failed', error);
+    } catch (error: unknown) {logger.warn('[Workspace Edit] search failed', error);
     return JSON.stringify({
         success: false,
         applied: false,

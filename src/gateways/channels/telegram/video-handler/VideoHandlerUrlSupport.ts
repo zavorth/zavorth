@@ -1,6 +1,4 @@
-import path from "path";
-
-import { buildCapabilityProvisionHint } from "../../../../services/OptionalCapabilityGuard.js";
+import path from "path";import { buildCapabilityProvisionHint } from "../../../../services/OptionalCapabilityGuard.js";
 import {
   DEFAULT_VIDEO_REQUEST,
   SUPPORTED_VIDEO_EXTENSIONS,
@@ -37,7 +35,7 @@ export class VideoHandlerUrlSupport {
       const parsed = new URL(url);
       const host = parsed.hostname.toLowerCase();
       return host.includes("youtube.com") || host.includes("youtu.be");
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Video  Url] parsing failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Video  Url] parsing failed', error); return false; }
   }
 
   public static isDirectVideoUrl(url: string): boolean {
@@ -46,7 +44,7 @@ export class VideoHandlerUrlSupport {
       return SUPPORTED_VIDEO_EXTENSIONS.has(
         path.extname(parsed.pathname).toLowerCase(),
       );
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Video  Url] parsing failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Video  Url] parsing failed', error); return false; }
   }
 
   public static extractYouTubeVideoId(url: string): string | null {
@@ -72,7 +70,7 @@ export class VideoHandlerUrlSupport {
       }
 
       return null;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Video  Url] parsing failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Video  Url] parsing failed', error); return null; }
   }
 
   public static async fetchYouTubeOEmbed(
@@ -84,6 +82,6 @@ export class VideoHandlerUrlSupport {
       return typeof response === "object" && response !== null
         ? (response as YouTubeOEmbedResponse)
         : null;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Video  Url] network request failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Video  Url] network request failed', error); return null; }
   }
 }

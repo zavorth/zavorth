@@ -3,6 +3,12 @@ import type {
   EchoAgentResult,
   EchoAgentSurfaceState,
 } from './EchoClientService.js';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 export type AgentVoiceFlowStatus =
   | 'completed'
@@ -143,9 +149,10 @@ export class AgentVoiceFlowService {
         surfaceState,
         error: null,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.options.chime?.playError();
-      const message = error instanceof Error ? error.message : String(error);
+      const message = String(err.message || 'Unexpected error');
       await this.options.overlay.showResult(t('error_prefix', { message }), false);
       return {
         status: 'failed',
@@ -176,9 +183,9 @@ export class AgentVoiceFlowService {
     let ttsAudioPath = '';
     try {
       ttsAudioPath = await this.options.tts.speak(text);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.warn(`[AgentVoiceFlow] TTS unavailable: ${message}`);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      console.warn(`[AgentVoiceFlow] TTS unavailable: ${err.message || 'Unexpected error'}`);
       return;
     }
 

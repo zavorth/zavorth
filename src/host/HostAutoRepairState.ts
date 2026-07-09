@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-
 export type HostAutoRepairStateDeps = {
   stateFilePath: string;
   now: () => number;
@@ -27,7 +26,7 @@ export function persistAutoRepairTriggerState(
       ),
       'utf-8',
     );
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     deps.log(`Failed to persist autorepair trigger state: ${error.message}`);
   }
 }
@@ -37,8 +36,7 @@ export function clearAutoRepairTriggerState(stateFilePath: string): void {
     if (fs.existsSync(stateFilePath)) {
       fs.unlinkSync(stateFilePath);
     }
-  } catch (error: any) { const err = error; const e = error;
-    // Ignore cleanup failures; cooldown will naturally expire.
+  } catch (error: unknown) {// Ignore cleanup failures; cooldown will naturally expire.
   }
 }
 
@@ -65,7 +63,6 @@ export function readAutoRepairCooldownState(input: {
       active: remainingMs > 0,
       remainingMs: Math.max(0, remainingMs),
     };
-  } catch (error: any) { const err = error; const e = error;
-    return { active: false, remainingMs: 0 };
+  } catch (error: unknown) {return { active: false, remainingMs: 0 };
   }
 }

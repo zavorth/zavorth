@@ -1,5 +1,4 @@
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
-
 declare function escapeHtml(value: unknown): string;
 declare function showToast(msg: string, isError?: boolean): void;
 
@@ -94,7 +93,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         }
         renderOperationsChannels(payload.channels || null);
         showToast(payload.result?.summary || ('Acao executada: ' + actionId + '.'));
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         showToast(error instanceof Error ? error.message : 'Falha ao executar a acao do Channel Mesh.');
       }
     }

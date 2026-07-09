@@ -13,6 +13,7 @@ import {
 } from '../services/CodexRemoteProfileRegistryService.js';
 import { CodexRemotePowerShellBrokerClientService } from '../services/CodexRemotePowerShellBrokerClientService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 type CodexExecOptions = {
   dryRun?: boolean;
@@ -52,7 +53,7 @@ export class CodexCliAdapter {
       }
       await this.runCodex(['--version'], config.defaultWorkspace, timeoutSeconds, profile);
       return true;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Codex Cli Adapter] operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Codex Cli Adapter] operation failed', error); return false; }
   }
 
   public async executeDirect(task: Task, instructions: string[], workspaceHint: string): Promise<ExecutionResult> {
@@ -125,7 +126,8 @@ export class CodexCliAdapter {
       result.success = true;
       result.stdout = (derivedOutput || stdout || '').trim() || null;
       result.stderr = stderr?.trim() || null;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const finalMessage = await this.readOutputFile(outputFile);
       const derivedOutput = finalMessage || this.extractLastMeaningfulLine(this.cleanOutput(err?.stdout));
       result.success = false;
@@ -189,7 +191,7 @@ export class CodexCliAdapter {
     try {
       const content = await fs.promises.readFile(outputFile, 'utf8');
       return content.trim();
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Codex Cli Adapter] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Codex Cli Adapter] filesystem operation failed', error); return ''; }
   }
 
   private cleanOutput(value: unknown): string {

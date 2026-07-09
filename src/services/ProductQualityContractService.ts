@@ -301,7 +301,7 @@ export class ProductQualityContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch (error: any) { logger.warn('[Product Quality Contract] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Product Quality Contract] JSON parse failed', error); return null; }
   }
 
   private readText(relativePath: string): string | null {

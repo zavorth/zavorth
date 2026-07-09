@@ -28,9 +28,7 @@ import {
   fetchGeminiCliModels,
   fetchGlmModels,
   fetchOpenAiCompatibleModels,
-} from "./providerModelsFetchers";
-
-function buildModelsContext(
+} from "./providerModelsFetchers";function buildModelsContext(
   request: Request,
   id: string,
   excludeHidden: boolean,
@@ -139,8 +137,7 @@ export async function handleProviderModelsGet(
     }
 
     return fetchGenericProviderModels(modelsContext, config);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching provider models:", error);
+  } catch (error: unknown) {console.log("Error fetching provider models:", error);
     return jsonError("Failed to fetch models", 500);
   }
 }

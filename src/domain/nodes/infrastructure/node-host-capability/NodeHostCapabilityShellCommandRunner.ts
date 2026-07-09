@@ -6,6 +6,7 @@ import type {
 } from './NodeHostCapabilityTypes.js';
 import { normalizeTimeout } from './NodeHostCapabilityExecutionHelpers.js';
 import { logger } from '../../../../logger.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 export class ShellNodeHostCommandRunner implements NodeHostCommandRunner {
   public async run(
@@ -50,7 +51,9 @@ export class ShellNodeHostCommandRunner implements NodeHostCommandRunner {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          logger.warn("[auto-fix] Empty catch block", err); }
 
         finalize({
           ok: false,

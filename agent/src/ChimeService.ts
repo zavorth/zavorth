@@ -2,6 +2,12 @@ import { exec } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,7 +66,8 @@ export class ChimeService {
           console.error(`[Chime] Failed to play sound ${fileName}: ${error.message}`);
         }
       });
-    } catch (err: any) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error(`[Chime] Error invoking player: ${err.message}`);
     }
   }

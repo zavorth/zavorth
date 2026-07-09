@@ -21,10 +21,6 @@ import {
   type ChannelCapabilities,
 } from './ZavorthChannelCapabilitiesService.js';
 
-// ---------------------------------------------------------------------------
-// Universal response types (what the agent produces)
-// ---------------------------------------------------------------------------
-
 export type ResponseContentType =
   | 'text'
   | 'choice'
@@ -47,10 +43,6 @@ export interface UniversalResponse {
   metadata?: Record<string, unknown>;
 }
 
-// ---------------------------------------------------------------------------
-// Formatted output types (what channels receive)
-// ---------------------------------------------------------------------------
-
 export interface FormattedMessage {
   /** The formatted text to send. */
   text: string;
@@ -70,10 +62,6 @@ export interface FormattedMessage {
   /** Capabilities that were used during formatting. */
   appliedCapabilities: string[];
 }
-
-// ---------------------------------------------------------------------------
-// PresentationAdapterService
-// ---------------------------------------------------------------------------
 
 export class ZavorthPresentationAdapterService {
   private readonly caps: ZavorthChannelCapabilitiesService;
@@ -153,10 +141,6 @@ export class ZavorthPresentationAdapterService {
 
     return chunks;
   }
-
-  // -------------------------------------------------------------------------
-  // Private: per-type formatters
-  // -------------------------------------------------------------------------
 
   private formatText(
     response: UniversalResponse,
@@ -381,10 +365,6 @@ export class ZavorthPresentationAdapterService {
       appliedCapabilities: applied,
     };
   }
-
-  // -------------------------------------------------------------------------
-  // Helpers
-  // -------------------------------------------------------------------------
 
   private stripMarkdown(text: string): string {
     return text

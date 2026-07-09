@@ -27,7 +27,7 @@ export class ListDirectoryTool extends BaseTool {
     let dirPath: string;
     try {
       dirPath = new WorkspaceFsPolicy().resolveListPath(rawDirPath).absolutePath;
-    } catch (error: any) { logger.warn('[List Directory] process execution failed', error); return 'Error: for security, directories can only be listed inside the current workspace.'; }
+    } catch (error: unknown) {logger.warn('[List Directory] process execution failed', error); return 'Error: for security, directories can only be listed inside the current workspace.'; }
 
     try {
       if (!fs.existsSync(dirPath)) {
@@ -59,7 +59,7 @@ export class ListDirectoryTool extends BaseTool {
       }
 
       return output.trim();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       console.error('[ListDirectory] Error while listing:', message);
       return `Error while reading directory: ${message}`;

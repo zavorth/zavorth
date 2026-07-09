@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../../logger.js';
-
-export type ZavorthSetupStudioProgress = {
+import { logger } from '../../logger.js';export type ZavorthSetupStudioProgress = {
   contractVersion: 'zavorth-setup-progress/1';
   updatedAt: string;
   providerId?: string | null;
@@ -43,7 +41,7 @@ export class ZavorthSetupStudioProgressStore {
         lastChannelId: nullableString(parsed.lastChannelId),
         safety: { rawSecretsStored: false },
       };
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Setup Studio Progress Store] parsing failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Setup Studio Progress Store] parsing failed', error); return null; }
   }
 
   public write(progress: Omit<ZavorthSetupStudioProgress, 'contractVersion' | 'updatedAt' | 'safety'>): ZavorthSetupStudioProgress {

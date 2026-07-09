@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -291,7 +292,9 @@ async function publishTelegram(message: string): Promise<void> {
       if (!response.ok) {
         process.stdout.write(`[stay-online] Telegram notification failed for chat ${maskChatId(chatId)}: HTTP ${response.status}\n`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       process.stdout.write(`[stay-online] Telegram notification failed for chat ${maskChatId(chatId)}: ${error instanceof Error ? error.message : String(error)}\n`);
     }
   }));

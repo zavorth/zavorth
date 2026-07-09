@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import fs from 'fs';
 import http from 'http';
@@ -297,7 +298,8 @@ server = http.createServer(async (request, response) => {
     const body = await readRequestBody(request);
     const payload = await handleAction(route, body);
     respondJson(response, 200, payload);
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     respondJson(response, 400, { ok: false, error: error instanceof Error ? error.message : String(error) });
   }
 });

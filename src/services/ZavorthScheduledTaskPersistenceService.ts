@@ -414,7 +414,7 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
     ) {
       return metadata as SchedulerGovernedScheduledTaskMetadata;
     }
-  } catch (error: any) { logger.warn('[Zavorth Scheduled Task Persistence] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth Scheduled Task Persistence] JSON parse failed', error); return null; }
   return null;
 }
 

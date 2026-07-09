@@ -5,9 +5,7 @@ import {
   type ZavorthMnemosCompactionMode,
 } from '../contracts/ZavorthMnemosMemoryOsContract.js';
 import { countTokens, countMessagesTokens } from '../utils/tokenCounter.js';
-import type { ILlmProvider } from '../providers/ILlmProvider.js';
-
-export type ContextCompactionMessageRole = 'system' | 'user' | 'assistant' | 'tool';
+import type { ILlmProvider } from '../providers/ILlmProvider.js';export type ContextCompactionMessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
 export type ContextCompactionMessage = {
   id?: string;
@@ -416,8 +414,7 @@ export class ContextCompactionService {
             ...message,
             content: `[Old tool result summarized (${tool}) - ${summary}]`,
           });
-        } catch (err: any) { const error = err; const e = err;
-          // Fallback cleanly to static description in case of error
+        } catch (error: unknown) {// Fallback cleanly to static description in case of error
           const status = message.status || 'ok';
           compacted.push({
             ...message,

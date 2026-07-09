@@ -93,8 +93,8 @@ export class CalendarTool extends BaseTool {
         default:
           return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: any) {
-    logger.warn('[Calendar] delete operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Calendar] delete operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Erro no calendario: ${message}`;
   }
@@ -141,7 +141,7 @@ export class CalendarTool extends BaseTool {
     if (typeof args.attendees === 'string') {
       try {
         attendees = JSON.parse(args.attendees);
-      } catch (error: any) { logger.warn('[Calendar] JSON parse failed', error); return 'Erro: JSON de attendees invalido.'; }
+      } catch (error: unknown) {logger.warn('[Calendar] JSON parse failed', error); return 'Erro: JSON de attendees invalido.'; }
     }
 
     const event: CalendarEvent = {

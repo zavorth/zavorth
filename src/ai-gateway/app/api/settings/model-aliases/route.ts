@@ -15,9 +15,7 @@ import {
   updateModelAliasesSchema,
 } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * GET /api/settings/model-aliases
  * Returns the full alias map, separated into built-in and custom.
  */
@@ -31,8 +29,7 @@ export async function GET(request: Request) {
       custom: getCustomAliases(),
       all: getAllAliases(),
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API ERROR] /api/settings/model-aliases GET:", error);
+  } catch (error: unknown) {console.error("[API ERROR] /api/settings/model-aliases GET:", error);
     return NextResponse.json({ error: "Failed to get model aliases" }, { status: 500 });
   }
 }
@@ -49,8 +46,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -71,8 +67,7 @@ export async function PUT(request) {
     setCustomAliases(aliases);
     await updateSettings({ modelAliases: JSON.stringify(aliases) });
     return NextResponse.json({ success: true, custom: getCustomAliases() });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API ERROR] /api/settings/model-aliases PUT:", error);
+  } catch (error: unknown) {console.error("[API ERROR] /api/settings/model-aliases PUT:", error);
     return NextResponse.json({ error: "Failed to update model aliases" }, { status: 500 });
   }
 }
@@ -89,8 +84,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -111,8 +105,7 @@ export async function POST(request) {
     addCustomAlias(from, to);
     await updateSettings({ modelAliases: JSON.stringify(getCustomAliases()) });
     return NextResponse.json({ success: true, custom: getCustomAliases() });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API ERROR] /api/settings/model-aliases POST:", error);
+  } catch (error: unknown) {console.error("[API ERROR] /api/settings/model-aliases POST:", error);
     return NextResponse.json({ error: "Failed to add alias" }, { status: 500 });
   }
 }
@@ -129,8 +122,7 @@ export async function DELETE(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] delete operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] delete operation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -154,8 +146,7 @@ export async function DELETE(request) {
     }
     await updateSettings({ modelAliases: JSON.stringify(getCustomAliases()) });
     return NextResponse.json({ success: true, custom: getCustomAliases() });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API ERROR] /api/settings/model-aliases DELETE:", error);
+  } catch (error: unknown) {console.error("[API ERROR] /api/settings/model-aliases DELETE:", error);
     return NextResponse.json({ error: "Failed to remove alias" }, { status: 500 });
   }
 }

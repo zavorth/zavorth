@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../utils/errorLike';
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -107,7 +108,9 @@ export function useOAuthModal({
 
         setStep("success");
         onSuccess?.();
-      } catch (caughtError: any) { const error = caughtError; const err = caughtError; const e = caughtError;
+      } catch (caughtError: unknown) {
+        const err = asErrorLike(caughtError);
+        const error = err;
         const message =
           caughtError instanceof Error ? caughtError.message : "Exchange failed unexpectedly";
         if (
@@ -162,7 +165,9 @@ export function useOAuthModal({
           if (data.error === "slow_down") {
             interval = Math.min(interval + 5, 30);
           }
-        } catch (caughtError: any) { const error = caughtError; const err = caughtError; const e = caughtError;
+        } catch (caughtError: unknown) {
+          const err = asErrorLike(caughtError);
+          const error = err;
           const message =
             caughtError instanceof Error
               ? caughtError.message
@@ -260,8 +265,7 @@ export function useOAuthModal({
 
           setPolling(false);
           throw new Error("Authorization timeout");
-        } catch (caughtError: any) { const error = caughtError; const err = caughtError; const e = caughtError;
-          console.warn(
+        } catch (caughtError: unknown) {console.warn(
             "Codex callback server failed, falling back to standard manual flow",
             caughtError
           );
@@ -299,7 +303,9 @@ export function useOAuthModal({
       if (!popupRef.current) {
         setStep("input");
       }
-    } catch (caughtError: any) { const error = caughtError; const err = caughtError; const e = caughtError;
+    } catch (caughtError: unknown) {
+      const err = asErrorLike(caughtError);
+      const error = err;
       const message =
         caughtError instanceof Error ? caughtError.message : "OAuth flow failed unexpectedly";
       setError(message);
@@ -382,8 +388,7 @@ export function useOAuthModal({
       channel.onmessage = (event) => {
         void handleCallback(event.data);
       };
-    } catch (error: any) { const err = error; const e = error;
-      console.log("BroadcastChannel not supported");
+    } catch (error: unknown) {console.log("BroadcastChannel not supported");
     }
 
     const handleStorage = (event: StorageEvent) => {
@@ -395,8 +400,7 @@ export function useOAuthModal({
         const data = JSON.parse(event.newValue);
         void handleCallback(data);
         localStorage.removeItem("oauth_callback");
-      } catch (error: any) { const err = error; const e = error;
-        console.log("Failed to parse localStorage data");
+      } catch (error: unknown) {console.log("Failed to parse localStorage data");
       }
     };
     window.addEventListener("storage", handleStorage);
@@ -410,8 +414,7 @@ export function useOAuthModal({
           localStorage.removeItem("oauth_callback");
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Ignore malformed or unavailable localStorage.
+    } catch (error: unknown) {// Ignore malformed or unavailable localStorage.
       logger.warn('[use O Auth Modal] JSON parse failed', error);
     }
 
@@ -438,8 +441,7 @@ export function useOAuthModal({
           clearInterval(popupClosedInterval);
           setStep("input");
         }
-      } catch (error: any) { const err = error; const e = error;
-      // Ignore cross-origin access errors.
+      } catch (error: unknown) {// Ignore cross-origin access errors.
       logger.warn('[use O Auth Modal] resource cleanup failed', error);
     }
     }, 1000);
@@ -478,7 +480,9 @@ export function useOAuthModal({
       }
 
       await exchangeTokens(callbackData.code, callbackData.state);
-    } catch (caughtError: any) { const error = caughtError; const err = caughtError; const e = caughtError;
+    } catch (caughtError: unknown) {
+      const err = asErrorLike(caughtError);
+      const error = err;
       const message =
         caughtError instanceof Error ? caughtError.message : "Manual callback handling failed";
       setError(message);

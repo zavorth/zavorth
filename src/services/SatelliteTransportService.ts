@@ -141,8 +141,7 @@ export class SatelliteTransportService {
     this.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch (error: any) {
-      // Ignore shutdown errors.
+      } catch (error: unknown) {// Ignore shutdown errors.
       logger.warn('[Satellite Transport] resource cleanup failed', error);
     }
     });
@@ -192,8 +191,7 @@ export class SatelliteTransportService {
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
-    } catch (error: any) {
-      this.sendError(session, 'INVALID_MESSAGE', 'Mensagem JSON invalida.');
+    } catch (error: unknown) {this.sendError(session, 'INVALID_MESSAGE', 'Mensagem JSON invalida.');
       return;
     }
 
@@ -228,7 +226,7 @@ export class SatelliteTransportService {
 
     try {
       await handler(session, envelope);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(
         `[SatelliteTransport] Handler error (${envelope.type}): ${
           error instanceof Error ? error.message : String(error)
@@ -440,7 +438,7 @@ export class SatelliteTransportService {
 
     try {
       session.send(envelope);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(
         `[SatelliteTransport] Send failed to ${session.sessionId}: ${
           error instanceof Error ? error.message : String(error)

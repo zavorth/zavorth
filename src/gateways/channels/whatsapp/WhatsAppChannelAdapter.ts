@@ -11,6 +11,7 @@ import {
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
 import { SecurityAuditLogger } from '../../../services/SecurityAuditLogger.js';
 import { LogRepository } from '../../../storage/LogRepository.js';
+import { logger } from '../../../logger.js';
 
 interface WhatsAppWebhookPayload {
   fromMe?: boolean | string;
@@ -74,14 +75,14 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
   async initialize(): Promise<void> {
     fs.mkdirSync(this.outboxDir, { recursive: true });
     if (!this.apiKey) {
-      console.warn('[ChannelMesh] WhatsApp Channel offline (Missing config)');
+      logger.warn('[ChannelMesh] WhatsApp Channel offline (Missing config)');
       return;
     }
-    console.log('[ChannelMesh] WhatsApp API Webhooks listening.');
+    logger.info('[ChannelMesh] WhatsApp API Webhooks listening.');
   }
 
   async shutdown(): Promise<void> {
-    console.log('[ChannelMesh] WhatsApp bounds detached.');
+    logger.info('[ChannelMesh] WhatsApp bounds detached.');
   }
 
   async onMessageReceived(webhookPayload: WhatsAppWebhookPayload): Promise<void> {
@@ -98,7 +99,7 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
     // Use verifyChatAccess to check permissions for this conversation
     const isAllowed = await this.policyManager.verifyChatAccess('whatsapp', chatId, userId);
     if (!isAllowed) {
-      console.warn(`[Security] Blocked unauthorized WhatsApp interaction from ${userId} in chat ${chatId}`);
+      logger.warn(`[Security] Blocked unauthorized WhatsApp interaction from ${userId} in chat ${chatId}`);
       
       let reason: 'unauthorized_group' | 'unauthorized_user' | 'blocked_user' = 'unauthorized_user';
       const policy = this.policyManager.getPolicy('whatsapp');

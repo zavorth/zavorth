@@ -548,7 +548,7 @@ export class HostedSiteOperationsService {
     }
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch (error: any) { logger.warn('[Hosted Site Operations] filesystem operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Hosted Site Operations] filesystem operation failed', error); return null; }
   }
 
   private websiteRootExists(): boolean {
@@ -581,5 +581,5 @@ function resolveDefaultWebsiteRoot(projectRoot: string): string {
 function parseJson(raw: string): unknown | null {
   try {
     return JSON.parse(raw);
-  } catch (error: any) { logger.warn('[Hosted Site Operations] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Hosted Site Operations] JSON parse failed', error); return null; }
 }

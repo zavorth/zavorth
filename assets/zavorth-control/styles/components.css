@@ -96,8 +96,8 @@
   border-radius: var(--b-radius-lg);
   padding: 18px;
   box-shadow: var(--b-glass-shadow-soft);
-  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.85)) saturate(var(--b-glass-saturate));
-  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.85)) saturate(var(--b-glass-saturate));
+  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.65)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.65)) saturate(var(--b-glass-saturate));
   animation: b-rise 0.25s var(--b-ease-out) backwards;
   transition: border-color var(--b-duration-normal) var(--b-ease-out), box-shadow var(--b-duration-normal) var(--b-ease-out);
 }
@@ -117,8 +117,8 @@
   margin-top: 8px;
   background: color-mix(in srgb, var(--b-glass) 88%, transparent);
   box-shadow: var(--b-glass-shadow-soft);
-  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.85)) saturate(var(--b-glass-saturate));
-  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.85)) saturate(var(--b-glass-saturate));
+  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.5)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.5)) saturate(var(--b-glass-saturate));
   transition: border-color var(--b-duration-fast) ease-out, background var(--b-duration-fast) ease-out;
   max-height: 120px;
   overflow: hidden;
@@ -248,8 +248,8 @@
   background: var(--b-component-bg);
   border-radius: var(--b-radius-lg);
   box-shadow: var(--b-glass-shadow-soft);
-  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.85)) saturate(var(--b-glass-saturate));
-  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.85)) saturate(var(--b-glass-saturate));
+  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.56)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.56)) saturate(var(--b-glass-saturate));
 }
 
 .zv-section {
@@ -277,7 +277,7 @@
   color: var(--b-signal-strong);
   font-family: var(--b-font-display);
   font-size: 18px;
-  font-weight: 740;
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 1.15;
 }
@@ -293,7 +293,7 @@
   color: var(--b-signal-muted);
   font-family: var(--b-mono);
   font-size: var(--b-label-size);
-  font-weight: 760;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -363,7 +363,7 @@
   color: var(--b-signal-muted);
   font-family: var(--b-mono);
   font-size: 10px;
-  font-weight: 740;
+  font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -424,7 +424,7 @@
   color: var(--b-signal-muted);
   font-family: var(--b-mono);
   font-size: var(--b-label-size);
-  font-weight: 760;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-align: left;
   text-transform: uppercase;
@@ -454,49 +454,4 @@
 
 :where(.core-btn, .bcc-trace-link, .config-tab, .zavorth-permission-card__btn, .echo-action-row button, .suggestion-chip, .home-command-panel__button) {
   min-height: var(--b-control-sm);
-}
-
-/* ═══ Premium Hover Shimmer Sheen ═══ */
-.suggestion-chip,
-.home-profile-card,
-.logic-cell,
-.core-btn--primary,
-.operator-primary-action,
-.home-command-panel__button {
-  position: relative;
-  overflow: hidden;
-}
-
-.suggestion-chip::after,
-.home-profile-card::after,
-.logic-cell::after,
-.core-btn--primary::after,
-.operator-primary-action::after,
-.home-command-panel__button::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent
-  );
-  transform: translate(-150%, -50%) rotate(25deg);
-  pointer-events: none;
-  transition: opacity var(--b-duration-normal) ease;
-  opacity: 0;
-}
-
-.suggestion-chip:hover::after,
-.home-profile-card:hover::after,
-.logic-cell:hover::after,
-.core-btn--primary:hover::after,
-.operator-primary-action:hover::after,
-.home-command-panel__button:hover::after {
-  animation: b-shimmer-sweep 1.2s var(--b-ease-out);
-  opacity: 1;
 }

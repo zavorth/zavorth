@@ -7,6 +7,7 @@ import { SkillInstallPlanPresentationService } from '../../../../services/SkillI
 import { SkillMcpSidecarService } from '../../../../services/SkillMcpSidecarService.js';
 import { TelegramHubActionService } from '../../../../gateways/channels/telegram/controllers/TelegramHubActionService.js';
 import { HubSection, TelegramHubRenderService } from '../../../../gateways/channels/telegram/controllers/TelegramHubRenderService.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 export type TelegramHubControllerDeps = {
   zavorthBridgePreferenceStore: ZavorthBridgePreferenceStore;
@@ -102,7 +103,8 @@ export class TelegramHubController {
       try {
         await ctx.api.editMessageText(ctx.chat.id, ctx.callbackQuery.message.message_id, text, options);
         return;
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         if (!(err instanceof Error) || !err.message?.includes('not modified')) {
           await ctx.reply(text, options);
         }

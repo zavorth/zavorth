@@ -168,7 +168,7 @@ export async function startInstall() {
         installRoot: null,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     emitFailure(error);
   }
 }
@@ -176,7 +176,7 @@ export async function startInstall() {
 export async function cancelInstall() {
   try {
     await invokeCommand('cancel_bootstrap');
-  } catch (error) {
+  } catch (error: unknown) {
     emitFailure(error);
   }
 }
@@ -184,7 +184,7 @@ export async function cancelInstall() {
 export async function launchDesktop() {
   try {
     await invokeCommand('launch_zavorth_desktop', { installRoot: state.installRoot });
-  } catch (error) {
+  } catch (error: unknown) {
     emitFailure(error);
   }
 }

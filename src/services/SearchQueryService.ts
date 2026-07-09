@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿/**
  * SearchQueryService — Serviço Zavorth-nativo de orquestração de busca web unificada.
  *
@@ -62,15 +63,7 @@ import {
 import { safeFetch } from '../security/SafeFetchService.js';
 import { wrapUntrustedContent } from '../security/UntrustedContent.js';
 
-// ---------------------------------------------------------------------------
-// Constantes de política
-// ---------------------------------------------------------------------------
-
 const MAX_RESULTS = 10;
-
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
 
 export class SearchQueryService {
   private readonly adapters: Map<string, ISearchQueryAdapter>;
@@ -84,10 +77,6 @@ export class SearchQueryService {
       this.adapters.set(adapter.adapterId, adapter);
     }
   }
-
-  // -------------------------------------------------------------------------
-  // API Pública
-  // -------------------------------------------------------------------------
 
   /**
    * Executa busca web de ponta a ponta.
@@ -123,8 +112,9 @@ export class SearchQueryService {
     let adapterOutput: AdapterSearchOutput;
     try {
       adapterOutput = await this.invokeAdapterWithFallback(effectiveRequest, mode);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Search Query] search failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Search Query] search failed', error);
     return this.buildAdapterErrorResult(err, request, policyDecision, processedAt);
   }
 
@@ -158,10 +148,6 @@ export class SearchQueryService {
     };
   }
 
-  // -------------------------------------------------------------------------
-  // Validação
-  // -------------------------------------------------------------------------
-
   private validateRequest(request: SearchQueryRequest): SearchQueryError | null {
     if (!request.query || typeof request.query !== 'string' || request.query.trim().length === 0) {
       return {
@@ -171,10 +157,6 @@ export class SearchQueryService {
     }
     return null;
   }
-
-  // -------------------------------------------------------------------------
-  // Política
-  // -------------------------------------------------------------------------
 
   private evaluatePolicy(request: SearchQueryRequest): SearchQueryPolicyDecision {
     // Sanitiza a consulta (corrige erros comuns de transcrição de nomes).
@@ -202,20 +184,12 @@ export class SearchQueryService {
       .trim();
   }
 
-  // -------------------------------------------------------------------------
-  // Resolução de domínio de evidência
-  // -------------------------------------------------------------------------
-
   private resolveEvidenceDomain(request: SearchQueryRequest): SearchEvidenceDomain {
     if (request.evidenceDomain && request.evidenceDomain !== 'auto') {
       return request.evidenceDomain;
     }
     return inferEvidenceDomainFromText(request.query) as SearchEvidenceDomain;
   }
-
-  // -------------------------------------------------------------------------
-  // Invocação de adapter com fallback
-  // -------------------------------------------------------------------------
 
   private async invokeAdapterWithFallback(
     request: SearchQueryRequest,
@@ -238,7 +212,8 @@ export class SearchQueryService {
           if (result.groundedSynthesis?.synthesizedText && result.groundedSynthesis.synthesizedText.length > 50) {
             return result;
           }
-        } catch (err: any) { const error = err; const e = err;
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn(`[SearchQueryService] Grounding failed, falling back to DDG: ${err instanceof Error ? err.message : String(err)}`);
         }
       }
@@ -293,10 +268,6 @@ export class SearchQueryService {
       : null;
   }
 
-  // -------------------------------------------------------------------------
-  // Scoring e normalização
-  // -------------------------------------------------------------------------
-
   private scoreAndNormalize(
     output: AdapterSearchOutput,
     evidenceDomain: SearchEvidenceDomain,
@@ -330,10 +301,6 @@ export class SearchQueryService {
     });
   }
 
-  // -------------------------------------------------------------------------
-  // Diversificação de hosts
-  // -------------------------------------------------------------------------
-
   private diversifyHosts(items: SearchResultItem[], limit: number): SearchResultItem[] {
     const selected: SearchResultItem[] = [];
     const deferred: SearchResultItem[] = [];
@@ -354,18 +321,13 @@ export class SearchQueryService {
     return [...selected, ...deferred].slice(0, limit);
   }
 
-  // -------------------------------------------------------------------------
-  // Extração de conteúdo de páginas
-  // -------------------------------------------------------------------------
-
   private async extractTopPages(items: SearchResultItem[], maxExtract: number): Promise<void> {
     const targets = items.slice(0, maxExtract);
 
     await Promise.all(targets.map(async (item) => {
       try {
         item.extractedContent = await this.extractPageExcerpt(item.url);
-      } catch (error: any) { const err = error; const e = error;
-        item.extractedContent = { error: 'extraction_failed' };
+      } catch (error: unknown) {item.extractedContent = { error: 'extraction_failed' };
       }
     }));
   }
@@ -416,8 +378,9 @@ export class SearchQueryService {
         excerpt: this.wrapUntrustedWebEvidence(excerpt, url, 'page_excerpt'),
         publishedAt,
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Search Query] operation failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Search Query] operation failed', error);
     return { error: err?.name === 'AbortError' ? 'timeout' : (err?.message || String(err)) };
   } finally {
       clearTimeout(timeout);
@@ -478,10 +441,6 @@ export class SearchQueryService {
     });
   }
 
-  // -------------------------------------------------------------------------
-  // Quality Gate
-  // -------------------------------------------------------------------------
-
   private buildQualityGate(items: SearchResultItem[], profile: EvidenceDomainProfile): SearchQualityGate {
     const highSignalCount = items.filter((item) => item.highSignal).length;
     const hostDiversity = new Set(items.map((item) => item.host)).size;
@@ -504,10 +463,6 @@ export class SearchQueryService {
       guidance: profile.guidance || '',
     };
   }
-
-  // -------------------------------------------------------------------------
-  // Builders de resultado
-  // -------------------------------------------------------------------------
 
   private buildErrorResult(
     error: SearchQueryError,
@@ -813,7 +768,7 @@ function titleFromUrl(url: string): string {
   try {
     const parsed = new URL(url);
     return parsed.hostname.replace(/^www\./, '');
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Search Query] parsing failed', error); return url; }
+  } catch (error: unknown) {logger.warn('[Search Query] parsing failed', error); return url; }
 }
 
 function readProviderError(payload: unknown, status: number): string {

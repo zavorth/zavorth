@@ -604,7 +604,7 @@ export class ZavorthQaControlPlaneService {
     }
     try {
       return JSON.parse(this.readFileSync(filePath, 'utf8')) as T;
-    } catch (error: any) { logger.warn('[Zavorth Qa Control Plane] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Qa Control Plane] JSON parse failed', error); return null; }
   }
 
   private normalizeTimestamp(value: string | null | undefined): string | null {

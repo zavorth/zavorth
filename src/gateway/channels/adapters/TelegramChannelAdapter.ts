@@ -1,5 +1,6 @@
 import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
 import { GatewayEventBus } from '../../events/GatewayEventBus';
+import { logger } from '../../../logger.js';
 
 export class TelegramChannelAdapter implements GatewayChannelAdapter {
   id = 'telegram';
@@ -14,14 +15,14 @@ export class TelegramChannelAdapter implements GatewayChannelAdapter {
       return;
     }
     this.initialized = true;
-    console.log('[Gateway] Telegram Channel initialized. Long polling started.');
+    logger.info('[Gateway] Telegram Channel initialized. Long polling started.');
   }
 
   async shutdown(): Promise<void> {
     if (!this.initialized) {
       return;
     }
-    console.log('[Gateway] Telegram Channel closed.');
+    logger.info('[Gateway] Telegram Channel closed.');
     this.initialized = false;
   }
 

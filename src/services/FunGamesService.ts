@@ -95,8 +95,7 @@ export class FunGamesService {
 
     try {
       this.llm = new GeminiProvider();
-    } catch (error: any) {
-      this.llm = null;
+    } catch (error: unknown) {this.llm = null;
     }
 
     return this.llm;

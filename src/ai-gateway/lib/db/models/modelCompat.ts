@@ -6,9 +6,7 @@ import {
 } from "@/shared/constants/modelCompat";
 import { isForbiddenUpstreamHeaderName } from "@/shared/constants/upstreamHeaders";
 import { getKeyValue } from "./modelRowUtils";
-import { logger } from '@/shared/utils/logger';
-
-const MODEL_COMPAT_NAMESPACE = "modelCompatOverrides";
+import { logger } from '@/shared/utils/logger';const MODEL_COMPAT_NAMESPACE = "modelCompatOverrides";
 
 export { MODEL_COMPAT_PROTOCOL_KEYS, type ModelCompatProtocolKey };
 
@@ -116,7 +114,7 @@ export function readCompatList(providerId: string): ModelCompatOverride[] {
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed) ? parsed : [];
-  } catch (error: any) { const err = error; const e = error; logger.warn('[model Compat] JSON parse failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[model Compat] JSON parse failed', error); return []; }
 }
 
 export function writeCompatList(providerId: string, list: ModelCompatOverride[]) {

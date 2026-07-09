@@ -35,8 +35,7 @@ export class OutboxRetryService {
       if (!this.running) return;
       try {
         await this.processOutbox();
-      } catch (error: any) {
-      // Skip error logging in production daemon
+      } catch (error: unknown) {// Skip error logging in production daemon
       logger.warn('[Outbox Retry] lifecycle operation failed', error);
     }
       if (this.running) {
@@ -78,8 +77,7 @@ export class OutboxRetryService {
       let files: string[];
       try {
         files = fs.readdirSync(outboxDir).filter(f => f.endsWith('.json'));
-      } catch (error: any) {
-        continue;
+      } catch (error: unknown) {continue;
       }
 
       for (const file of files) {
@@ -137,8 +135,7 @@ export class OutboxRetryService {
               }, null, 2), 'utf8');
             }
           }
-        } catch (error: any) {
-      // ignore parsing/reading errors for individual files
+        } catch (error: unknown) {// ignore parsing/reading errors for individual files
       logger.warn('[Outbox Retry] filesystem operation failed', error);
     }
       }

@@ -10,7 +10,6 @@ import type {
   ZavorthActionResult,
   ZavorthActionSchema,
 } from '../ZavorthActionContracts.js';
-
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = ['tests/runtime/actions/ZavorthActionHarness.test.ts'];
 
@@ -44,8 +43,7 @@ function redactUrl(value: string): string {
   try {
     const url = new URL(value);
     return `${url.protocol}//${url.host}/***`;
-  } catch (error: any) { const err = error; const e = error;
-    return '***';
+  } catch (error: unknown) {return '***';
   }
 }
 
@@ -115,7 +113,7 @@ async function shellPreviewCommand(input: ZavorthActionHandlerInput): Promise<Za
       lines: ['Preview only. No process was spawned.', `cwd: ${input.root}`, `command: ${command.normalized}`],
       data: { ...command, cwd: input.root, timeoutMs: 30000, outputTruncated: true },
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     return block(input, 'Shell command preview blocked.', [error instanceof Error ? error.message : String(error)]);
   }
 }
@@ -272,8 +270,7 @@ function mcpConfigPath(root: string): string {
 function readMcpConfig(root: string): Record<string, unknown> {
   try {
     if (fs.existsSync(mcpConfigPath(root))) return JSON.parse(fs.readFileSync(mcpConfigPath(root), 'utf8'));
-  } catch (error: any) { const err = error; const e = error;
-    return {};
+  } catch (error: unknown) {return {};
   }
   return {};
 }

@@ -1,42 +1,38 @@
 /**
- * Zavorth Nexus â€” Core Runtime Logic
+ * Zavorth Nexus --- Core Runtime Logic
  * Manages dock navigation, neural feed (chat), signals, and interactive behaviors.
  */
 
 (function () {
   'use strict';
 
-  // â•â•â• Markdown & Syntax Highlighting â•â•â•
+  // --------- Markdown & Syntax Highlighting ---------
   if (window.marked) {
     marked.setOptions({ breaks: true, gfm: true });
   }
 
-  // â•â•â• Dock Navigation â•â•â•
+  // --------- Dock Navigation ---------
   const coreFrame = document.getElementById('core-frame');
   const dockNodes = document.querySelectorAll('.dock-node[data-sector]');
   const sectors = document.querySelectorAll('.sector');
   const bridgeCurrent = document.getElementById('bridge-current');
 
   const sectorLabels = {
-    terminal: 'Inbox', overview: 'Work', channels: 'Channels',
-    'sales-os': 'Review',
-    instances: 'Proof', sessions: 'Sessions', usage: 'Models',
-    agents: 'Agents', skills: 'Tools', nodes: 'Memory',
-    dreams: 'Learning', config: 'Settings', docs: 'Docs', cron: 'Cron',
-    canvas: 'Canvas'
+    terminal: 'Inbox',
+    overview: 'Work',
+    nodes: 'Memory',
+    skills: 'Tools',
+    usage: 'Models',
+    config: 'Settings',
+    channels: 'Channels',
+    'sales-os': 'Approvals',
+    instances: 'History',
+    sessions: 'Sessions',
+    agents: 'Agents',
+    dreams: 'Rest',
+    docs: 'Docs',
+    cron: 'Schedule'
   };
-  const primarySectorIds = new Set(['terminal', 'overview', 'sales-os', 'instances', 'config']);
-  const dockMore = document.getElementById('dock-more');
-  const dockMoreTrigger = document.getElementById('dock-more-trigger');
-  const dockMorePanel = document.getElementById('dock-more-panel');
-
-  function setDockMoreOpen(open) {
-    if (!dockMore || !dockMoreTrigger || !dockMorePanel) return;
-    dockMore.classList.toggle('is-open', open);
-    dockMoreTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open) dockMorePanel.removeAttribute('hidden');
-    else dockMorePanel.setAttribute('hidden', '');
-  }
 
   dockNodes.forEach(node => {
     node.addEventListener('click', (e) => {
@@ -54,36 +50,25 @@
 
       // Update bridge breadcrumb
       if (bridgeCurrent) bridgeCurrent.textContent = sectorLabels[sectorId] || sectorId;
-      if (dockMore && dockMoreTrigger) {
-        const secondary = sectorId && !primarySectorIds.has(sectorId);
-        dockMore.classList.toggle('has-active', secondary);
-        dockMoreTrigger.classList.toggle('active', secondary);
-      }
-      if (primarySectorIds.has(sectorId)) setDockMoreOpen(false);
-      else setDockMoreOpen(false);
       if (sectorId === 'overview') requestAnimationFrame(updateDashboardGlass);
     });
   });
 
-  if (dockMoreTrigger) {
-    dockMoreTrigger.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const open = dockMoreTrigger.getAttribute('aria-expanded') !== 'true';
-      setDockMoreOpen(open);
-    });
-  }
-  document.addEventListener('click', (e) => {
-    if (!dockMore || !dockMore.classList.contains('is-open')) return;
-    if (e.target instanceof Node && dockMore.contains(e.target)) return;
-    setDockMoreOpen(false);
-  });
-
-  // â•â•â• Neural Feed (Chat) Input â•â•â•
+  // --------- Neural Feed (Chat) Input ---------
   const composeInput = document.getElementById('compose-input');
   const composeDock = document.querySelector('.compose-dock');
   const composeFrame = document.querySelector('.compose-dock__input-frame');
   const tokenCount = document.getElementById('token-count');
+  const COMPOSER_SETTINGS_KEY = 'zavorth.control.composerSettings';
+  const DEFAULT_COMPOSER_SETTINGS = {
+    voice: 'default',
+    model: 'auto',
+    sensitivity: 'default',
+    thinking: false,
+    tools: true,
+    focus: false,
+  };
+  let composerSettingsState = readComposerSettings();
   let pendingAttachments = [];
   let pendingSelectedSkills = [];
   let lastVoiceInput = null;
@@ -98,6 +83,11 @@
   attachmentTray.className = 'compose-attachments';
   attachmentTray.setAttribute('aria-live', 'polite');
 
+  const composerContextBar = document.createElement('div');
+  composerContextBar.className = 'compose-context-bar';
+  composerContextBar.hidden = true;
+  composerContextBar.setAttribute('aria-live', 'polite');
+
   const skillPopover = document.createElement('div');
   skillPopover.className = 'compose-skill-popover hidden';
   skillPopover.setAttribute('role', 'dialog');
@@ -105,7 +95,67 @@
 
   if (composeFrame && composeInput) {
     composeFrame.insertBefore(attachmentTray, composeInput.nextSibling);
+    composeFrame.insertBefore(composerContextBar, attachmentTray.nextSibling);
     (composeDock || composeFrame).appendChild(skillPopover);
+  }
+
+  function readComposerSettings() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(COMPOSER_SETTINGS_KEY) || '{}');
+      return {
+        ...DEFAULT_COMPOSER_SETTINGS,
+        ...(parsed && typeof parsed === 'object' ? parsed : {}),
+      };
+    } catch {
+      return { ...DEFAULT_COMPOSER_SETTINGS };
+    }
+  }
+
+  function writeComposerSettings(nextSettings) {
+    composerSettingsState = {
+      ...DEFAULT_COMPOSER_SETTINGS,
+      ...(nextSettings && typeof nextSettings === 'object' ? nextSettings : {}),
+    };
+    try {
+      localStorage.setItem(COMPOSER_SETTINGS_KEY, JSON.stringify(composerSettingsState));
+    } catch {
+      // Local composer preferences are best-effort.
+    }
+    applyComposerSettingsToUi();
+  }
+
+  function getComposePlaceholder() {
+    if (composerSettingsState.model === 'safe') return 'Ask Zavorth safely';
+    if (composerSettingsState.model === 'local') return 'Ask Zavorth locally';
+    return 'Ask Zavorth';
+  }
+
+  function applyComposerSettingsToUi() {
+    document.querySelectorAll('[data-composer-setting]').forEach((field) => {
+      const key = field.getAttribute('data-composer-setting');
+      if (!key || !(key in composerSettingsState)) return;
+      field.value = composerSettingsState[key];
+    });
+    document.querySelectorAll('[data-composer-toggle]').forEach((toggle) => {
+      const key = toggle.getAttribute('data-composer-toggle');
+      const enabled = Boolean(composerSettingsState[key]);
+      toggle.classList.toggle('is-active', enabled);
+      toggle.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-composer-preset]').forEach((preset) => {
+      const key = preset.getAttribute('data-composer-preset');
+      const active = key === 'safe-review'
+        ? composerSettingsState.model === 'safe' && composerSettingsState.sensitivity === 'high'
+        : key === 'fast-local'
+          ? composerSettingsState.model === 'local' && composerSettingsState.focus
+          : composerSettingsState.model === 'auto' && composerSettingsState.sensitivity === 'default';
+      preset.classList.toggle('is-active', Boolean(active));
+    });
+    document.body.classList.toggle('zavorth-chat-focus-mode', Boolean(composerSettingsState.focus));
+    if (composeInput && pendingAttachments.length === 0) {
+      composeInput.placeholder = getComposePlaceholder();
+    }
+    updateComposerContextBar();
   }
 
   function emitLocalNotice(message) {
@@ -114,6 +164,30 @@
       return;
     }
     appendEcho('core', message);
+  }
+
+  function messageFromErrorPayload(payload, fallback = 'Try again in a moment.') {
+    const candidates = [
+      payload?.error,
+      payload?.message,
+      payload?.reason,
+      payload?.detail,
+    ];
+    for (const candidate of candidates) {
+      if (!candidate) continue;
+      if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+      if (typeof candidate === 'object') {
+        const nested = candidate.message || candidate.detail || candidate.reason || candidate.code;
+        if (typeof nested === 'string' && nested.trim()) return nested.trim();
+      }
+    }
+    return fallback;
+  }
+
+  function messageFromCaughtError(error, fallback = 'Try again in a moment.') {
+    const message = String(error?.message || '').trim();
+    if (message && message !== '[object Object]') return message;
+    return messageFromErrorPayload(error?.payload, fallback);
   }
 
   function formatBytes(size) {
@@ -132,17 +206,81 @@
     send.setAttribute('aria-label', hasFiles && !hasText ? 'Send files to Zavorth' : 'Send message');
   }
 
+  function setBadge(node, value, visible) {
+    if (!node) return;
+    node.textContent = String(value);
+    node.hidden = !visible;
+  }
+
+  function composerSettingLabel(key, value) {
+    const normalized = String(value || '').trim();
+    if (!normalized || normalized === 'default') return '';
+    if (key === 'voice') return normalized.replace('-', ' ');
+    if (key === 'model') return normalized === 'safe' ? 'Safe model' : normalized === 'local' ? 'Local model' : '';
+    if (key === 'sensitivity') return `${normalized} sensitivity`;
+    return normalized;
+  }
+
+  function updateComposerContextBar() {
+    if (!composerContextBar) return;
+    const chips = [];
+    if (pendingAttachments.length > 0) {
+      chips.push(`<span class="compose-context-chip compose-context-chip--files"><strong>${pendingAttachments.length}</strong> file${pendingAttachments.length === 1 ? '' : 's'} ready</span>`);
+    }
+    pendingSelectedSkills.slice(0, 4).forEach((skill) => {
+      chips.push(`
+        <span class="compose-context-chip compose-context-chip--tool" title="${escapeHtml(skill.prompt || skill.title || skill.id)}">
+          <strong>${escapeHtml(skill.title || skill.id)}</strong>
+          <button type="button" data-compose-remove-skill="${escapeHtml(skill.id)}" aria-label="Remove ${escapeHtml(skill.title || skill.id)}">&times;</button>
+        </span>
+      `);
+    });
+    if (lastVoiceInput) {
+      chips.push(`<span class="compose-context-chip compose-context-chip--voice"><strong>Voice</strong>${escapeHtml(compactTraceText(lastVoiceInput.transcript || 'captured', 42))}</span>`);
+    } else if (isListening) {
+      chips.push('<span class="compose-context-chip compose-context-chip--voice"><strong>Voice</strong>listening</span>');
+    }
+    ['model', 'sensitivity', 'voice'].forEach((key) => {
+      const label = composerSettingLabel(key, composerSettingsState[key]);
+      if (label) chips.push(`<span class="compose-context-chip"><strong>${key}</strong>${escapeHtml(label)}</span>`);
+    });
+    composerContextBar.innerHTML = chips.join('');
+    composerContextBar.hidden = chips.length === 0;
+  }
+
+  function updateComposerBadges() {
+    setBadge(attachmentCountBadge, pendingAttachments.length, pendingAttachments.length > 0);
+    setBadge(toolCountBadge, pendingSelectedSkills.length, pendingSelectedSkills.length > 0);
+    setBadge(voiceStateBadge, isListening ? 'on' : 'voice', isListening || Boolean(lastVoiceInput));
+    setBadge(historyCountBadge, traceEvents.length > 99 ? '99+' : traceEvents.length, traceEvents.length > 0);
+    if (skillsBtn) {
+      skillsBtn.classList.toggle('is-active', pendingSelectedSkills.length > 0 || !skillPopover.classList.contains('hidden'));
+      skillsBtn.setAttribute('aria-label', pendingSelectedSkills.length > 0
+        ? `${pendingSelectedSkills.length} selected tool${pendingSelectedSkills.length === 1 ? '' : 's'}`
+        : 'Tools');
+    }
+    if (voiceBtn) {
+      voiceBtn.classList.toggle('has-voice', Boolean(lastVoiceInput));
+    }
+    updateComposerContextBar();
+    if (toolSheet && !toolSheet.classList.contains('hidden')) updateToolSheetState();
+  }
+
   function refreshAttachmentHint() {
     const count = pendingAttachments.length;
-    const fileLabel = count === 1 ? '1 arquivo pronto' : `${count} arquivos prontos`;
+    const fileLabel = count === 1 ? '1 file ready' : `${count} files ready`;
     if (composeInput) {
       composeInput.placeholder = count > 0
-        ? `${fileLabel}. Diga o que o Zavorth deve fazer.`
-        : 'Ask Zavorth';
+        ? `${fileLabel}. Tell Zavorth what to do.`
+        : getComposePlaceholder();
     }
     if (attachBtn) {
       attachBtn.classList.toggle('is-active', count > 0);
-      attachBtn.setAttribute('aria-label', count > 0 ? (count === 1 ? '1 arquivo anexado' : `${count} arquivos anexados`) : 'Abrir ferramentas');
+      attachBtn.setAttribute('aria-label', count > 0 ? (count === 1 ? '1 file attached' : `${count} files attached`) : 'Open tools');
+    }
+    if (attachFileTrigger) {
+      attachFileTrigger.classList.toggle('is-active', count > 0);
+      attachFileTrigger.setAttribute('aria-label', count > 0 ? (count === 1 ? '1 file attached' : `${count} files attached`) : 'Attach file');
     }
     if (attachmentTray) {
       attachmentTray.innerHTML = pendingAttachments.map((file, index) => `
@@ -150,11 +288,12 @@
           <span class="compose-attachment-chip__icon">${file.text ? 'doc' : 'file'}</span>
           <span class="compose-attachment-chip__name">${escapeHtml(file.name)}</span>
           <span class="compose-attachment-chip__size">${formatBytes(file.size)}</span>
-          <button type="button" class="compose-attachment-chip__remove" data-attachment-index="${index}" aria-label="Remover ${escapeHtml(file.name)}">&times;</button>
+          <button type="button" class="compose-attachment-chip__remove" data-attachment-index="${index}" aria-label="Remove ${escapeHtml(file.name)}">&times;</button>
         </span>
       `).join('');
       attachmentTray.classList.toggle('is-visible', count > 0);
     }
+    updateComposerBadges();
     updateSendAffordance();
   }
 
@@ -165,8 +304,8 @@
     pendingAttachments = [...pendingAttachments, ...parsed].slice(0, 5);
     refreshAttachmentHint();
     emitLocalNotice(incoming.length === 1
-      ? `Arquivo pronto: ${incoming[0].name}. Agora diga o que devo fazer com ele.`
-      : `${incoming.length} arquivos prontos. Agora diga o que devo fazer com eles.`);
+      ? `File ready: ${incoming[0].name}. Now tell Zavorth what to do with it.`
+      : `${incoming.length} files ready. Now tell Zavorth what to do with them.`);
   }
 
   async function readAttachmentFile(file) {
@@ -209,8 +348,8 @@
           <div class="chat-attachment-card" title="${escapeHtml(file.name)}">
             <div class="chat-attachment-card__icon">${escapeHtml(attachmentKindLabel(file))}</div>
             <div class="chat-attachment-card__body">
-              <div class="chat-attachment-card__name">${escapeHtml(String(file.name || 'arquivo').replace(/\.[^.]+$/, ''))}</div>
-              <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} · ${formatBytes(file.size)}</div>
+              <div class="chat-attachment-card__name">${escapeHtml(String(file.name || 'file').replace(/\.[^.]+$/, ''))}</div>
+              <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} - ${formatBytes(file.size)}</div>
             </div>
           </div>
         `).join('')}
@@ -252,10 +391,19 @@
   const traceStepCount = document.getElementById('trace-step-count');
   const traceApprovalCount = document.getElementById('trace-approval-count');
   const traceReceiptCount = document.getElementById('trace-receipt-count');
-  const attachBtn = toolSheetTrigger || document.querySelector('.compose-dock__btn[title="Anexar"]');
+  const attachFileTrigger = document.getElementById('attach-file-trigger');
+  const composerSettingsTrigger = document.getElementById('compose-settings-trigger');
+  const composerSettingsPanel = document.getElementById('compose-settings-panel');
+  const exportChatTrigger = document.getElementById('export-chat-trigger');
+  const newSessionTrigger = document.getElementById('new-session-trigger');
+  const attachmentCountBadge = document.getElementById('attachment-count-badge');
+  const voiceStateBadge = document.getElementById('voice-state-badge');
+  const toolCountBadge = document.getElementById('tool-count-badge');
+  const historyCountBadge = document.getElementById('history-count-badge');
+  const attachBtn = toolSheetTrigger || document.querySelector('.compose-dock__btn[title="Tools"]');
   let overlayOpenedAt = 0;
-  const skillsBtn = document.querySelector('.compose-dock__btn[title="Habilidades"]');
-  const voiceBtn = document.getElementById('voice-trigger') || document.querySelector('.compose-dock__btn[title="Voz"]');
+  const skillsBtn = document.querySelector('.compose-dock__btn[title="Tools"]');
+  const voiceBtn = document.getElementById('voice-trigger') || document.querySelector('.compose-dock__btn[title="Voice"]');
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.multiple = true;
@@ -406,6 +554,7 @@
     if (stableId) traceEventIds.add(stableId);
     if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length - TRACE_EVENT_LIMIT);
     renderTraceSheet();
+    updateComposerBadges();
     updateDashboardGlass();
   }
 
@@ -436,6 +585,7 @@
       if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length - TRACE_EVENT_LIMIT);
     }
     renderTraceSheet();
+    updateComposerBadges();
     updateDashboardGlass();
     return changed;
   }
@@ -458,7 +608,7 @@
     const receipt = event.receipt || null;
     if (!receipt) return '';
     return `
-      <div class="trace-sheet__receipt" aria-label="Receipt seguro">
+      <div class="trace-sheet__receipt" aria-label="Safe receipt">
         <span>Receipt</span>
         ${receipt.id ? `<code>${escapeHtml(receipt.id)}</code>` : ''}
         ${receipt.status ? `<small>${escapeHtml(receipt.status)}</small>` : ''}
@@ -473,7 +623,7 @@
     const replay = event.replay || null;
     if (!replay) return '';
     return `
-      <div class="trace-sheet__replay" aria-label="Contexto de replay seguro">
+      <div class="trace-sheet__replay" aria-label="Safe replay context">
         <span>Replay context</span>
         ${replay.runId ? `<code>run ${escapeHtml(replay.runId)}</code>` : ''}
         ${replay.traceId ? `<code>trace ${escapeHtml(replay.traceId)}</code>` : ''}
@@ -541,7 +691,7 @@
       traceSheetTimeline.innerHTML = `
         <div class="trace-sheet__empty">
           <span class="trace-sheet__empty-dot"></span>
-          <strong>${focused ? 'Sem eventos para esta run' : 'Waiting for activity'}</strong>
+          <strong>${focused ? 'No events for this run' : 'Waiting for activity'}</strong>
           <small>${focused ? 'The observatory returned no persistent events for this filter.' : 'Send a task to inspect the runtime from inside.'}</small>
         </div>
       `;
@@ -550,21 +700,40 @@
 
     const latestReceipt = visibleEvents.slice().reverse().find((event) => traceEventClass(event.type) === 'receipt');
     const latestApproval = visibleEvents.slice().reverse().find((event) => traceEventClass(event.type) === 'approval');
+    const latestRequest = visibleEvents.slice().reverse().find((event) => traceEventClass(event.type) === 'message' && String(event.type).toLowerCase() === 'request');
+    const latestError = visibleEvents.slice().reverse().find((event) => traceEventClass(event.type) === 'error');
+    const latestTool = visibleEvents.slice().reverse().find((event) => event.capability?.label || /tool|terminal|artifact|gateway/i.test(`${event.title} ${event.detail}`));
+    const flowState = {
+      request: Boolean(latestRequest),
+      tool: Boolean(latestTool),
+      approval: Boolean(latestApproval),
+      receipt: Boolean(latestReceipt),
+    };
     const queryLine = hasTraceSheetQuery()
       ? [
         traceSheetQuery.runId ? `run ${traceSheetQuery.runId}` : '',
         traceSheetQuery.traceId ? `trace ${traceSheetQuery.traceId}` : '',
         traceSheetQuery.sessionId ? `session ${traceSheetQuery.sessionId}` : '',
-      ].filter(Boolean).join(' · ')
-      : 'sessao atual';
+      ].filter(Boolean).join(' - ')
+      : 'current session';
     const summary = `
       <div class="trace-sheet__summary">
-        <strong>Explicacao segura do run</strong>
-        <span>Mostra steps, tools, approvals, receipts e replay por evidencias. Raciocinio bruto do modelo permanece privado.</span>
+        <strong>${latestRequest ? 'Current session history' : 'Readable run summary'}</strong>
+        <span>${latestError ? `Needs attention: ${escapeHtml(latestError.title || latestError.detail)}` : 'Shows requests, tools, approvals, receipts and replay evidence. Raw model reasoning stays private.'}</span>
         <div class="trace-sheet__summary-grid">
           <small>${escapeHtml(queryLine)}</small>
-          <small>${latestApproval ? `ultimo approval: ${escapeHtml(latestApproval.status || latestApproval.title)}` : 'sem approval ativo'}</small>
-          <small>${latestReceipt ? `ultimo receipt: ${escapeHtml(latestReceipt.status || latestReceipt.title)}` : 'sem receipt ainda'}</small>
+          <small>${latestRequest ? `latest request: ${escapeHtml(latestRequest.detail || latestRequest.title)}` : 'no request yet'}</small>
+          <small>${latestTool ? `latest tool: ${escapeHtml(latestTool.capability?.label || latestTool.title)}` : 'no tool used yet'}</small>
+          <small>${latestApproval ? `latest approval: ${escapeHtml(latestApproval.status || latestApproval.title)}` : 'no active approval'}</small>
+          <small>${latestReceipt ? `latest receipt: ${escapeHtml(latestReceipt.status || latestReceipt.title)}` : 'no receipt yet'}</small>
+        </div>
+        <div class="trace-sheet__flow" aria-label="Run lifecycle">
+          ${[
+            ['request', 'Request'],
+            ['tool', 'Tool'],
+            ['approval', 'Approval'],
+            ['receipt', 'Receipt'],
+          ].map(([key, label]) => `<span class="${flowState[key] ? 'is-active' : ''}">${label}</span>`).join('')}
         </div>
       </div>
     `;
@@ -588,7 +757,7 @@
             ${detail}
             ${renderTraceChips(event)}
             ${preview}
-            ${event.capability?.reason ? `<div class="trace-sheet__policy"><span>Motivo</span>${escapeHtml(event.capability.reason)}</div>` : ''}
+            ${event.capability?.reason ? `<div class="trace-sheet__policy"><span>Reason</span>${escapeHtml(event.capability.reason)}</div>` : ''}
             ${renderTraceReceipt(event)}
             ${renderTraceReplay(event)}
             ${meta}
@@ -612,6 +781,21 @@
     });
   }
 
+  function setLiveStrip(runtimeState, runtimeDetail, gatewayState, gatewayDetail, syncDetail) {
+    setDashboardText('[data-live-runtime-state]', runtimeState);
+    setDashboardText('[data-live-runtime-detail]', runtimeDetail);
+    setDashboardText('[data-live-gateway-state]', gatewayState);
+    setDashboardText('[data-live-gateway-detail]', gatewayDetail);
+    setDashboardText('[data-live-sync-state]', 'Last sync');
+    setDashboardText('[data-live-sync-detail]', syncDetail);
+    document.querySelectorAll('[data-live-runtime-state]').forEach((node) => {
+      node.dataset.liveValue = String(runtimeState || '').toLowerCase();
+    });
+    document.querySelectorAll('[data-live-gateway-state]').forEach((node) => {
+      node.dataset.liveValue = String(gatewayState || '').toLowerCase();
+    });
+  }
+
   function latestTraceEvents(limit = 3) {
     return traceEvents.slice(Math.max(0, traceEvents.length - limit)).reverse();
   }
@@ -621,9 +805,33 @@
     return cleaned || fallback;
   }
 
+  function getLiveRuntimeSnapshot() {
+    const bridgeState = window.ZavorthRuntimeBridge?.state || {};
+    const snapshot = bridgeState.zavorthControl?.snapshot || {};
+    const runs = Array.isArray(snapshot.runs) ? snapshot.runs : [];
+    const activeRun = snapshot.activeRun || runs[0] || null;
+    const activeStatus = String(activeRun?.status || '').toLowerCase();
+    const active = Boolean(activeRun && !['done', 'completed', 'complete', 'success', 'succeeded', 'failed', 'error', 'cancelled', 'canceled'].includes(activeStatus));
+    const pendingApprovals = runs.reduce((count, run) => {
+      const approvals = Array.isArray(run?.approvals) ? run.approvals : [];
+      return count + approvals.filter((approval) => String(approval?.status || 'pending') === 'pending').length;
+    }, 0);
+    return {
+      live: Boolean(bridgeState.zavorthControl?.live),
+      authRequired: Boolean(bridgeState.zavorthControl?.authRequired),
+      runs,
+      activeRun,
+      active,
+      pendingApprovals,
+      modelLabel: window.ZavorthRuntimeBridge?.getCurrentModelLabel?.() || '',
+      routeLabel: window.ZavorthRuntimeBridge?.getCurrentModelRouteLabel?.() || '',
+    };
+  }
+
   function getDashboardSnapshot() {
+    const liveSnapshot = getLiveRuntimeSnapshot();
     const requestCount = traceEvents.filter((event) => String(event.type).toLowerCase() === 'request').length;
-    const pendingApprovals = document.querySelectorAll('.zavorth-approval-card').length;
+    const pendingApprovals = Math.max(document.querySelectorAll('.zavorth-approval-card').length, liveSnapshot.pendingApprovals);
     const pendingRemoteMesh = document.querySelectorAll('.zavorth-remote-mesh-card[data-status="pending"], .zavorth-remote-mesh-card[data-status="retryable"]').length;
     const artifactCards = document.querySelectorAll('.zavorth-artifact-card').length;
     const receiptEvents = countTraceByClass('receipt');
@@ -647,24 +855,23 @@
       lastEvent,
       modelLabel,
       totalEvents: traceEvents.length,
+      liveSnapshot,
     };
   }
 
   function updateDashboardTimeline(events) {
     const timeline = document.querySelector('[data-dashboard-timeline]');
     if (!timeline) return;
-    timeline.hidden = false;
     if (events.length === 0) {
-      timeline.innerHTML = `
-        <div class="platform-section-title">Live trail</div>
-        <div class="premium-status premium-status--info"><span>No events yet</span><strong>—</strong></div>
-      `;
+      timeline.hidden = true;
+      timeline.innerHTML = '';
       return;
     }
+    timeline.hidden = false;
     timeline.innerHTML = `
-      <div class="platform-section-title">Live trail</div>
+      <div class="platform-section-title">Recent activity</div>
       <div class="dashboard-mini-timeline">
-        ${events.slice(0, 6).map((event) => `
+        ${events.slice(0, 3).map((event) => `
       <div class="dashboard-timeline-item dashboard-timeline-item--${escapeHtml(traceEventClass(event.type))}">
         <span></span>
         <p>${escapeHtml(event.title || traceEventLabel(event.type))}</p>
@@ -675,235 +882,45 @@
     `;
   }
 
-  function computeNextAction(input) {
-    const pending = Math.max(0, Number(input.pendingApprovals || input.activeApprovals || 0));
-    const errors = Math.max(0, Number(input.errorEvents || 0));
-    if (input.authRequired) {
-      return { kind: 'auth', title: 'Unlock runtime', detail: 'Auth required before live work.', cta: 'Doctor', doctor: true, tone: 'warn' };
-    }
-    if (pending > 0) {
-      return {
-        kind: 'review',
-        title: `${pending} approval${pending === 1 ? '' : 's'} waiting`,
-        detail: 'Decide before risky work continues.',
-        cta: 'Review',
-        sector: 'sales-os',
-        tone: 'warn',
-      };
-    }
-    if (errors > 0) {
-      return {
-        kind: 'errors',
-        title: `${errors} error${errors === 1 ? '' : 's'} in trail`,
-        detail: 'Check proof / receipts.',
-        cta: 'Proof',
-        sector: 'instances',
-        tone: 'danger',
-      };
-    }
-    if (input.thinking || input.runActive) {
-      return {
-        kind: 'running',
-        title: (input.runTitle && String(input.runTitle).trim()) || 'Task running',
-        detail: input.thinking ? 'Working…' : 'Active run',
-        cta: 'Open chat',
-        sector: 'terminal',
-        tone: 'info',
-      };
-    }
-    if (input.live === false || input.providerReady === false) {
-      return {
-        kind: 'doctor',
-        title: 'Runtime needs a check',
-        detail: input.providerReady === false ? 'Provider not ready.' : 'Not live yet.',
-        cta: 'Doctor',
-        doctor: true,
-        tone: 'warn',
-      };
-    }
-    return {
-      kind: 'chat',
-      title: 'Ready for a request',
-      detail: 'Start in Inbox.',
-      cta: 'New chat',
-      sector: 'terminal',
-      tone: 'ok',
-    };
-  }
+  function updateDashboardGlass() {
+    const root = document.querySelector('.dashboard-glass');
+    if (!root) return;
+    const snapshot = getDashboardSnapshot();
+    const activeRun = snapshot.liveSnapshot.activeRun;
+    const hasActiveRun = snapshot.liveSnapshot.active;
+    setLiveStrip(
+      snapshot.thinking ? 'Working' : hasActiveRun ? 'Task running' : snapshot.activeApprovals > 0 ? 'Decision needed' : 'Runtime ready',
+      hasActiveRun ? dashboardStatusText(activeRun?.status || activeRun?.title, 'active task') : snapshot.lastEvent ? dashboardStatusText(snapshot.lastEvent.title, 'runtime updated') : 'Waiting for your request',
+      snapshot.liveSnapshot.modelLabel || snapshot.modelLabel || 'Gateway',
+      snapshot.liveSnapshot.routeLabel || getCurrentModelRouteLabel(),
+      snapshot.lastEvent ? snapshot.lastEvent.time : 'Just now',
+    );
+    const runtimeTitle = snapshot.thinking
+      ? 'Task in progress'
+      : hasActiveRun
+        ? compactTraceText(activeRun?.title || activeRun?.summary || activeRun?.id, 80)
+        : 'No task running';
+    const runtimeText = hasActiveRun
+      ? compactTraceText(`${activeRun?.status || 'running'} - ${activeRun?.summary || activeRun?.nextAction || 'Zavorth is working on the current request.'}`, 180)
+      : 'Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.';
+    setDashboardText('[data-dashboard-runtime-title]', runtimeTitle);
+    setDashboardText('[data-dashboard-runtime-text]', runtimeText);
 
-  function renderNextActionBar(model) {
-    const roots = document.querySelectorAll('[data-next-action]');
-    if (!roots.length) return;
-    const sectorAttr = model.sector ? `data-dashboard-sector="${escapeHtml(model.sector)}"` : '';
-    const doctorAttr = model.doctor ? 'data-dashboard-doctor' : '';
-    const promptAttr = model.prompt ? `data-prompt="${escapeHtml(model.prompt)}"` : '';
-    const html = `
-      <div class="next-action next-action--${escapeHtml(model.tone)}" data-next-action-kind="${escapeHtml(model.kind)}">
-        <div class="next-action__copy">
-          <span class="next-action__eyebrow">Next</span>
-          <strong class="next-action__title">${escapeHtml(model.title)}</strong>
-          <small class="next-action__detail">${escapeHtml(model.detail)}</small>
-        </div>
-        <button type="button" class="next-action__cta daily-button daily-button--primary" ${sectorAttr} ${doctorAttr} ${promptAttr}>${escapeHtml(model.cta)}</button>
-      </div>
-    `;
-    roots.forEach((root) => {
-      root.innerHTML = html;
-      root.dataset.nextKind = model.kind;
-      root.dataset.nextTone = model.tone;
-      root.hidden = false;
-    });
+    setDashboardText('[data-dashboard-approval-title]', snapshot.activeApprovals > 0
+      ? `${snapshot.activeApprovals} pending approval${snapshot.activeApprovals === 1 ? '' : 's'}`
+      : 'No pending approvals');
+    setDashboardText('[data-dashboard-approval-text]', snapshot.activeApprovals > 0
+      ? 'Review before allowing changes or tool access.'
+      : 'When Zavorth needs a decision, it appears here with approve, deny, or adjust scope.');
 
-    document.querySelectorAll('[data-attention-count]').forEach((node) => {
-      const show = model.kind === 'review' || model.kind === 'errors' || model.kind === 'doctor' || model.kind === 'auth';
-      const pending = model.kind === 'review' ? (parseInt(String(model.title), 10) || 1) : (show ? 1 : 0);
-      node.hidden = !show;
-      node.textContent = model.kind === 'review' ? String(pending) : (show ? '!' : '');
-      node.dataset.tone = model.tone;
-    });
-  }
-
-  function updateNextActionSurface(snapshot) {
-    const model = computeNextAction({
-      pendingApprovals: snapshot.pendingApprovals,
-      activeApprovals: snapshot.activeApprovals,
-      errorEvents: snapshot.errorEvents,
-      thinking: snapshot.thinking,
-      runActive: false,
-      runTitle: '',
-      authRequired: false,
-      live: true,
-      providerReady: null,
-    });
-    renderNextActionBar(model);
-
-    document.querySelectorAll('.dock-node[data-sector="sales-os"]').forEach((node) => {
-      node.classList.toggle('has-badge', snapshot.activeApprovals > 0);
-      let badge = node.querySelector('.dock-node__badge');
-      if (snapshot.activeApprovals > 0) {
-        if (!badge) {
-          badge = document.createElement('span');
-          badge.className = 'dock-node__badge';
-          node.appendChild(badge);
-        }
-        badge.textContent = String(snapshot.activeApprovals);
-        badge.hidden = false;
-      } else if (badge) {
-        badge.hidden = true;
-      }
-    });
-  }
-
-  function updateTrustRailSurface(snapshot) {
-    const pendingHost = document.getElementById('trust-pending-rail');
-    if (pendingHost) {
-      const cards = Array.from(document.querySelectorAll('.zavorth-approval-card, .zavorth-remote-mesh-card[data-status="pending"], .zavorth-remote-mesh-card[data-status="retryable"]'));
-      if (cards.length === 0 && snapshot.activeApprovals <= 0) {
-        pendingHost.innerHTML = '<p class="trust-rail__empty">None</p>';
-      } else if (cards.length === 0) {
-        pendingHost.innerHTML = `<p class="trust-rail__empty">${snapshot.activeApprovals} pending</p>`;
-      } else {
-        pendingHost.innerHTML = cards.slice(0, 4).map((card) => {
-          const title = compactTraceText(card.querySelector('strong, .zavorth-approval-card__title')?.textContent || card.getAttribute('data-title') || 'Approval', 42);
-          const detail = compactTraceText(card.querySelector('p, small, .zavorth-approval-card__summary')?.textContent || 'Needs decision', 56);
-          return `<article class="trust-rail__item"><strong>${escapeHtml(title)}</strong><small>${escapeHtml(detail)}</small></article>`;
-        }).join('');
-      }
-    }
-
-    const receiptHost = document.getElementById('trust-receipt-rail');
-    if (receiptHost) {
-      const lastReceipt = traceEvents.slice().reverse().find((event) => traceEventClass(event.type) === 'receipt');
-      if (!lastReceipt) {
-        receiptHost.innerHTML = '<p class="trust-rail__empty">—</p>';
-      } else {
-        receiptHost.innerHTML = `
-          <article class="trust-rail__item">
-            <strong>${escapeHtml(compactTraceText(lastReceipt.title || 'Receipt', 48))}</strong>
-            <small>${escapeHtml(compactTraceText(lastReceipt.status || lastReceipt.time || 'recorded', 40))}</small>
-          </article>
-        `;
-      }
-    }
-
-    const scoreRoot = document.getElementById('session-trust-score');
-    if (scoreRoot) {
-      const pending = Math.max(0, Number(snapshot.activeApprovals || 0));
-      const errors = Math.max(0, Number(snapshot.errorEvents || 0));
-      const receipts = Math.max(0, Number(snapshot.receiptEvents || 0));
-      let score = 92;
-      let tone = 'ok';
-      let label = 'Stable';
-      if (errors > 0) {
-        score = Math.max(24, 70 - errors * 12);
-        tone = 'danger';
-        label = 'Errors in trail';
-      } else if (pending > 0) {
-        score = Math.max(40, 82 - pending * 8);
-        tone = 'warn';
-        label = 'Needs review';
-      } else if (receipts > 0) {
-        score = Math.min(99, 90 + Math.min(receipts, 6));
-        tone = 'ok';
-        label = 'Receipts ok';
-      }
-      scoreRoot.dataset.trustTone = tone;
-      const valueEl = scoreRoot.querySelector('[data-session-trust-value]');
-      const labelEl = scoreRoot.querySelector('[data-session-trust-label]');
-      if (valueEl) valueEl.textContent = String(score);
-      if (labelEl) labelEl.textContent = label;
-    }
-  }
-
-  function updateInboxActionSurfaces(snapshot) {
     const approvalBanner = document.getElementById('approval-context-banner');
     if (approvalBanner) approvalBanner.hidden = snapshot.activeApprovals <= 0;
     setDashboardText('[data-inbox-approval-title]', snapshot.activeApprovals > 0
-      ? `${snapshot.activeApprovals} pending`
+      ? `${snapshot.activeApprovals} pending approval${snapshot.activeApprovals === 1 ? '' : 's'}`
       : 'No pending approvals');
     setDashboardText('[data-inbox-approval-text]', snapshot.activeApprovals > 0
-      ? 'Review pending decisions.'
-      : 'No risky actions waiting.');
-    setDashboardText('[data-inbox-metric="approvals"]', String(snapshot.activeApprovals || 0));
-    setDashboardText('[data-inbox-metric="receipts"]', String(snapshot.receiptEvents || 0));
-    updateNextActionSurface(snapshot);
-    updateTrustRailSurface(snapshot);
-  }
-
-  function updateDashboardGlass() {
-    const snapshot = getDashboardSnapshot();
-    updateInboxActionSurfaces(snapshot);
-
-    const root = document.querySelector('.dashboard-glass');
-    if (!root) return;
-    setDashboardText('[data-dashboard-metric="runs"]', snapshot.requestCount);
-    setDashboardText('[data-dashboard-metric="approvals"]', snapshot.approvalCount);
-    setDashboardText('[data-dashboard-metric="artifacts"]', snapshot.artifactCount);
-
-    setDashboardText('[data-dashboard-meta="runs"]', snapshot.thinking
-      ? 'mission running now'
-      : snapshot.requestCount > 0
-        ? `${snapshot.totalEvents} trace event(s)`
-        : 'waiting for first mission');
-    setDashboardText('[data-dashboard-meta="approvals"]', snapshot.activeApprovals > 0
-      ? `${snapshot.activeApprovals} pending approval(s)`
-      : snapshot.approvalEvents > 0
-        ? `${snapshot.approvalEvents} policy event(s)`
-        : 'no pending permissions');
-    setDashboardText('[data-dashboard-meta="artifacts"]', snapshot.artifactCount > 0
-      ? `${snapshot.receiptEvents} receipt(s) recorded`
-      : 'no artifact in this session');
-
-    const runtimeTitle = snapshot.thinking
-      ? 'Mission running'
-      : snapshot.lastEvent
-        ? `Latest event: ${traceEventLabel(snapshot.lastEvent.type)}`
-        : 'Waiting for a mission';
-    const runtimeText = snapshot.lastEvent
-      ? compactTraceText(snapshot.lastEvent.detail || snapshot.lastEvent.title, 170)
-      : 'The dashboard gateway is online. Runtime events appear when live snapshots arrive.';
-    setDashboardText('[data-dashboard-runtime-title]', runtimeTitle);
-    setDashboardText('[data-dashboard-runtime-text]', runtimeText);
+      ? 'Review before Zavorth changes files, tools, or external state.'
+      : 'Risky actions appear here before Zavorth acts.');
 
     setDashboardText('[data-dashboard-remote="mcp"]', snapshot.pendingRemoteMesh > 0
       ? `${snapshot.pendingRemoteMesh} pending approval`
@@ -923,19 +940,22 @@
     setDashboardText('[data-dashboard-strip-detail="budget"]', snapshot.errorEvents > 0 ? `${snapshot.errorEvents} trace error(s)` : 'local trace in real time');
     setDashboardText('[data-dashboard-strip="security"]', snapshot.activeApprovals > 0 ? 'approval' : 'active');
     setDashboardText('[data-dashboard-strip-detail="security"]', snapshot.activeApprovals > 0 ? 'pending decision' : 'policy, preview and receipt');
+    setDashboardText('[data-inbox-metric="approvals"]', String(snapshot.activeApprovals || 0));
+    setDashboardText('[data-inbox-metric="receipts"]', String(snapshot.receiptEvents || 0));
     setDashboardText('[data-sales-os-metric="approvals"]', String(snapshot.activeApprovals || 0));
     setDashboardText('[data-sales-os-meta="approvals"]', snapshot.activeApprovals > 0 ? 'waiting for your decision' : 'no pending approval');
     setDashboardText('[data-provider-picker="active"]', getCurrentModelRouteLabel());
     setDashboardText('[data-provider-picker="fallbacks"]', snapshot.modelLabel || 'configured');
     setDashboardText('[data-provider-picker="proof"]', snapshot.errorEvents > 0 ? 'needs review' : 'redacted proof');
 
-    updateDashboardTimeline(latestTraceEvents(3));
+    updateDashboardTimeline(latestTraceEvents(4));
   }
 
   function openToolSheet() {
     if (!toolSheet || !toolSheetTrigger) return;
     closeTraceSheet(false);
     closeSkillPopover();
+    updateToolSheetState();
     const shade = getOverlayShade();
     if (shade) shade.classList.add('active');
     markOverlayOpened();
@@ -962,6 +982,37 @@
     setTimeout(() => {
       if (!toolSheet.classList.contains('active')) toolSheet.classList.add('hidden');
     }, 180);
+  }
+
+  function updateToolSheetState() {
+    if (!toolSheet) return;
+    const activeMap = {
+      attach: pendingAttachments.length > 0,
+      media: pendingAttachments.some((file) => /^(image|video|audio)\//i.test(file.type || '')),
+      skills: pendingSelectedSkills.length > 0,
+      voice: Boolean(lastVoiceInput) || isListening,
+      terminal: pendingSelectedSkills.some((skill) => /terminal|shell|command/i.test(`${skill.id} ${skill.title}`)),
+      docs: pendingSelectedSkills.some((skill) => /doc|file|read/i.test(`${skill.id} ${skill.title}`)),
+      mcp: pendingSelectedSkills.some((skill) => /mcp|remote/i.test(`${skill.id} ${skill.title}`)),
+    };
+    toolSheet.querySelectorAll('[data-tool-sheet-action]').forEach((item) => {
+      const action = item.getAttribute('data-tool-sheet-action') || '';
+      const active = Boolean(activeMap[action]);
+      item.classList.toggle('is-active', active);
+      item.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    let stateNode = toolSheet.querySelector('.tool-sheet__state');
+    if (!stateNode) {
+      stateNode = document.createElement('div');
+      stateNode.className = 'tool-sheet__state';
+      toolSheet.querySelector('.tool-sheet__header')?.after(stateNode);
+    }
+    const facts = [
+      pendingAttachments.length ? `${pendingAttachments.length} file${pendingAttachments.length === 1 ? '' : 's'} attached` : 'No files attached',
+      pendingSelectedSkills.length ? `${pendingSelectedSkills.length} tool${pendingSelectedSkills.length === 1 ? '' : 's'} selected` : 'No tool selected',
+      lastVoiceInput ? 'Voice transcript ready' : isListening ? 'Voice listening' : 'Voice idle',
+    ];
+    stateNode.innerHTML = facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join('');
   }
 
   function openTraceSheet(query = null) {
@@ -1037,6 +1088,208 @@
     directoryInput.click();
   }
 
+  function closeComposerSettings() {
+    if (!composerSettingsPanel) return;
+    composerSettingsPanel.classList.add('hidden');
+    composerSettingsTrigger?.classList.remove('is-active');
+    composerSettingsTrigger?.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleComposerSettings() {
+    if (!composerSettingsPanel) return;
+    const willOpen = composerSettingsPanel.classList.contains('hidden');
+    if (willOpen) ensureComposerPresets();
+    composerSettingsPanel.classList.toggle('hidden', !willOpen);
+    composerSettingsTrigger?.classList.toggle('is-active', willOpen);
+    composerSettingsTrigger?.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    if (willOpen) closeSkillPopover();
+  }
+
+  function ensureComposerPresets() {
+    if (!composerSettingsPanel || composerSettingsPanel.querySelector('.compose-settings-presets')) return;
+    const presets = document.createElement('div');
+    presets.className = 'compose-settings-presets';
+    presets.innerHTML = `
+      <span>Presets</span>
+      <button type="button" data-composer-preset="balanced">Balanced</button>
+      <button type="button" data-composer-preset="safe-review">Safe review</button>
+      <button type="button" data-composer-preset="fast-local">Fast local</button>
+    `;
+    composerSettingsPanel.insertBefore(presets, composerSettingsPanel.firstChild);
+    presets.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-composer-preset]');
+      if (!button) return;
+      const preset = button.getAttribute('data-composer-preset');
+      const next = preset === 'safe-review'
+        ? { model: 'safe', sensitivity: 'high', tools: true, thinking: true, focus: false }
+        : preset === 'fast-local'
+          ? { model: 'local', sensitivity: 'low', tools: false, thinking: false, focus: true }
+          : { model: 'auto', sensitivity: 'default', tools: true, thinking: false, focus: false };
+      writeComposerSettings({ ...composerSettingsState, ...next });
+      emitLocalNotice(`Composer preset applied: ${button.textContent.trim()}.`);
+    });
+  }
+
+  function collectTranscriptMarkdown() {
+    const groups = Array.from(document.querySelectorAll('#neural-feed .echo-group'));
+    if (groups.length === 0) {
+      return [
+        '# Zavorth conversation',
+        '',
+        '_No messages in this session._',
+      ].join('\n');
+    }
+    const lines = ['# Zavorth conversation', '', `Exported at ${new Date().toLocaleString()}`, ''];
+    groups.forEach((group) => {
+      const sender = group.querySelector('.echo-sender')?.textContent?.trim() || 'Message';
+      const bubble = group.querySelector('.echo-bubble')?.innerText?.trim() || '';
+      if (!bubble) return;
+      lines.push(`## ${sender}`, '', bubble, '');
+    });
+    return lines.join('\n').replace(/\n{3,}/g, '\n\n');
+  }
+
+  function collectTranscriptRecords() {
+    return Array.from(document.querySelectorAll('#neural-feed .echo-group')).map((group) => ({
+      sender: group.querySelector('.echo-sender')?.textContent?.trim() || 'Message',
+      time: group.querySelector('.echo-timestamp')?.textContent?.trim() || '',
+      model: group.querySelector('.echo-meta__model')?.textContent?.trim() || '',
+      route: group.querySelector('.echo-meta__cost')?.textContent?.trim() || '',
+      text: group.querySelector('.echo-bubble')?.innerText?.trim() || '',
+    })).filter((record) => record.text);
+  }
+
+  function collectTranscriptText() {
+    const records = collectTranscriptRecords();
+    if (records.length === 0) return 'No messages in this session.';
+    return records.map((record) => `[${record.time || 'now'}] ${record.sender}: ${record.text}`).join('\n\n');
+  }
+
+  function collectTranscriptJson() {
+    return JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      sessionId: sessionStorage.getItem('zavorth.zavorthControl.sessionId') || '',
+      messages: collectTranscriptRecords(),
+      trace: traceEvents.slice(-90),
+      composer: {
+        settings: composerSettingsState,
+        selectedTools: pendingSelectedSkills,
+        attachments: pendingAttachments.map((file) => ({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          truncated: Boolean(file.truncated),
+        })),
+      },
+    }, null, 2);
+  }
+
+  function downloadTextFile(filename, text, type = 'text/plain;charset=utf-8') {
+    const blob = new Blob([text], { type });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 800);
+  }
+
+  function exportCurrentConversation(format = 'md') {
+    const date = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    if (format === 'json') {
+      downloadTextFile(`zavorth-conversation-${date}.json`, collectTranscriptJson(), 'application/json;charset=utf-8');
+      emitLocalNotice('Conversation exported as JSON.');
+      return;
+    }
+    if (format === 'txt') {
+      downloadTextFile(`zavorth-conversation-${date}.txt`, collectTranscriptText(), 'text/plain;charset=utf-8');
+      emitLocalNotice('Conversation exported as text.');
+      return;
+    }
+    downloadTextFile(`zavorth-conversation-${date}.md`, collectTranscriptMarkdown(), 'text/markdown;charset=utf-8');
+    emitLocalNotice('Conversation exported as Markdown.');
+  }
+
+  function openExportMenu() {
+    if (typeof window.openCoreModal !== 'function') {
+      exportCurrentConversation('md');
+      return;
+    }
+    window.openCoreModal('Export conversation', `
+      <div class="zavorth-export-menu" role="group" aria-label="Export formats">
+        <button type="button" data-export-format="md"><strong>Markdown</strong><span>Readable transcript with headings.</span></button>
+        <button type="button" data-export-format="json"><strong>JSON</strong><span>Messages, trace, composer context and receipts.</span></button>
+        <button type="button" data-export-format="txt"><strong>Text</strong><span>Plain log for quick sharing.</span></button>
+      </div>
+    `);
+    const cancel = document.getElementById('core-modal-cancel');
+    const confirm = document.getElementById('core-modal-confirm');
+    if (cancel) {
+      cancel.textContent = 'Close';
+      cancel.onclick = dismissOverlays;
+    }
+    if (confirm) {
+      confirm.textContent = 'Export Markdown';
+      confirm.disabled = false;
+      confirm.onclick = () => {
+        exportCurrentConversation('md');
+        dismissOverlays();
+      };
+    }
+    document.querySelectorAll('.zavorth-export-menu button').forEach((button, index) => {
+      const format = ['md', 'json', 'txt'][index] || 'md';
+      button.addEventListener('click', () => {
+        exportCurrentConversation(format);
+        dismissOverlays();
+      });
+    });
+  }
+
+  function startNewLocalSession() {
+    const sessionId = `web-${Date.now().toString(36)}`;
+    try {
+      sessionStorage.setItem('zavorth.zavorthControl.sessionId', sessionId);
+      sessionStorage.removeItem('zavorth.zavorthControl.runId');
+      const url = new URL(window.location.href);
+      url.searchParams.set('sessionId', sessionId);
+      url.searchParams.delete('runId');
+      history.replaceState(null, '', url);
+    } catch {
+      // Session storage can be unavailable in restricted browsers.
+    }
+    const feed = document.getElementById('neural-feed');
+    if (feed) feed.innerHTML = '';
+    const terminalView = document.getElementById('terminal-view');
+    if (terminalView) terminalView.classList.add('is-empty');
+    if (composeInput) {
+      composeInput.value = '';
+      composeInput.style.height = 'auto';
+      composeInput.focus();
+      composeInput.dispatchEvent(new Event('input'));
+    }
+    pendingAttachments = [];
+    pendingSelectedSkills = [];
+    pendingGuidedFlow = '';
+    lastVoiceInput = null;
+    traceSheetQuery = { runId: '', traceId: '', sessionId: '', source: '' };
+    traceEvents.length = 0;
+    traceEventIds.clear();
+    refreshAttachmentHint();
+    renderTraceSheet();
+    window.ZavorthRuntimeBridge?.suppressTranscriptRender?.(2500);
+    recordTraceEvent({
+      type: 'session',
+      title: 'New local session',
+      detail: sessionId,
+      meta: 'composer',
+      status: 'ready',
+    });
+    window.ZavorthRuntimeBridge?.disconnectRealtime?.('new-session');
+    emitLocalNotice('New session ready. Write the next request for Zavorth.');
+  }
+
   function summarizeWorkspaceSelection(fileList) {
     const files = Array.from(fileList || []);
     const firstPath = String(files[0]?.webkitRelativePath || files[0]?.name || 'selected workspace');
@@ -1071,6 +1324,46 @@
   if (attachBtn) {
     attachBtn.addEventListener('click', openToolSheet);
   }
+  if (attachFileTrigger) {
+    attachFileTrigger.addEventListener('click', () => chooseAttachmentFiles(''));
+  }
+  if (composerSettingsTrigger) {
+    composerSettingsTrigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleComposerSettings();
+    });
+  }
+  if (exportChatTrigger) {
+    exportChatTrigger.addEventListener('click', openExportMenu);
+  }
+  if (newSessionTrigger) {
+    newSessionTrigger.addEventListener('click', startNewLocalSession);
+  }
+  document.querySelectorAll('[data-composer-setting]').forEach((field) => {
+    field.addEventListener('change', () => {
+      const key = field.getAttribute('data-composer-setting');
+      if (!key) return;
+      writeComposerSettings({ ...composerSettingsState, [key]: field.value });
+    });
+  });
+  document.querySelectorAll('[data-composer-toggle]').forEach((toggle) => {
+    toggle.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const key = toggle.getAttribute('data-composer-toggle');
+      if (!key) return;
+      writeComposerSettings({ ...composerSettingsState, [key]: !composerSettingsState[key] });
+      if (key === 'tools' && composerSettingsState.tools) openSkillPopover();
+      if (key === 'focus') emitLocalNotice(composerSettingsState.focus ? 'Focus mode on.' : 'Focus mode off.');
+    });
+  });
+  document.addEventListener('click', (event) => {
+    if (!composerSettingsPanel || composerSettingsPanel.classList.contains('hidden')) return;
+    if (composerSettingsPanel.contains(event.target) || composerSettingsTrigger?.contains(event.target)) return;
+    closeComposerSettings();
+  });
+  applyComposerSettingsToUi();
 
   if (toolSheetClose) toolSheetClose.addEventListener('click', () => closeToolSheet());
   if (traceSheetTrigger) traceSheetTrigger.addEventListener('click', openTraceSheet);
@@ -1107,7 +1400,7 @@
       }
       if (action === 'docs') {
         closeToolSheet();
-        focusComposeWithPrompt('Use os docs e o contexto do projeto Zavorth para responder este pedido:');
+        focusComposeWithPrompt('Use the docs and Zavorth project context to answer this request:');
         return;
       }
       if (action === 'terminal') {
@@ -1125,6 +1418,17 @@
       if (!Number.isFinite(index)) return;
       pendingAttachments.splice(index, 1);
       refreshAttachmentHint();
+    });
+  }
+
+  if (composerContextBar) {
+    composerContextBar.addEventListener('click', (event) => {
+      const remove = event.target.closest('[data-compose-remove-skill]');
+      if (!remove) return;
+      const skillId = remove.getAttribute('data-compose-remove-skill') || '';
+      pendingSelectedSkills = pendingSelectedSkills.filter((skill) => skill.id !== skillId);
+      updateComposerBadges();
+      updateSendAffordance();
     });
   }
 
@@ -1178,9 +1482,9 @@
       ? bridge.getAvailableSkills()
       : [];
     const defaults = [
-      { id: 'read_file', title: 'Analisar arquivos', prompt: 'Analise os arquivos ou pasta que eu indicar e me de um resumo claro.', status: 'local' },
-      { id: 'network_fetch', title: 'Pesquisar na web', prompt: 'Pesquise fontes recentes sobre este assunto e me traga um resumo com links.', status: 'web' },
-      { id: 'pdf.generate', title: 'Gerar relatorio', prompt: 'Gere um relatorio organizado com os pontos principais.', status: 'relatorio' },
+      { id: 'read_file', title: 'Review files', prompt: 'Review the files or folder I provide and give me a clear summary.', status: 'local' },
+      { id: 'network_fetch', title: 'Search the web', prompt: 'Search recent sources about this topic and bring me a summary with links.', status: 'web' },
+      { id: 'pdf.generate', title: 'Generate report', prompt: 'Generate an organized report with the main points.', status: 'report' },
     ];
     const byId = new Map();
     [...runtimeSkills, ...defaults].forEach((skill) => {
@@ -1189,8 +1493,8 @@
       byId.set(id, {
         id,
         title: String(skill.title || skill.name || id).trim(),
-        prompt: String(skill.prompt || skill.summary || skill.description || `Use a habilidade ${id} para este pedido.`).trim(),
-        status: String(skill.status || 'disponivel').trim(),
+        prompt: String(skill.prompt || skill.summary || skill.description || `Use ${id} for this request.`).trim(),
+        status: String(skill.status || 'available').trim(),
       });
     });
     return Array.from(byId.values()).slice(0, 8);
@@ -1200,6 +1504,7 @@
     if (!skillPopover) return;
     skillPopover.classList.add('hidden');
     if (skillsBtn) skillsBtn.classList.remove('is-active');
+    updateComposerBadges();
   }
 
   function openSkillPopover() {
@@ -1207,12 +1512,12 @@
     const options = buildSkillOptions();
     skillPopover.innerHTML = `
       <div class="compose-skill-popover__header">
-        <span>Skills</span>
-        <button type="button" class="compose-skill-popover__close" aria-label="Close skills">?</button>
+        <span>Tools</span>
+        <button type="button" class="compose-skill-popover__close" aria-label="Close tools">&times;</button>
       </div>
       <div class="compose-skill-popover__list">
         ${options.map((skill) => `
-          <button type="button" class="compose-skill-option" data-skill-id="${escapeHtml(skill.id)}" data-skill-title="${escapeHtml(skill.title)}" data-skill-status="${escapeHtml(skill.status)}" data-skill-prompt="${escapeHtml(skill.prompt)}">
+          <button type="button" class="compose-skill-option${pendingSelectedSkills.some((selected) => selected.id === skill.id) ? ' is-selected' : ''}" data-skill-id="${escapeHtml(skill.id)}" data-skill-title="${escapeHtml(skill.title)}" data-skill-status="${escapeHtml(skill.status)}" data-skill-prompt="${escapeHtml(skill.prompt)}">
             <span class="compose-skill-option__title">${escapeHtml(skill.title)}</span>
             <span class="compose-skill-option__meta">${escapeHtml(skill.status)}</span>
           </button>
@@ -1229,6 +1534,7 @@
     });
     skillPopover.classList.remove('hidden');
     if (skillsBtn) skillsBtn.classList.add('is-active');
+    updateComposerBadges();
   }
 
   function applySelectedSkill(option) {
@@ -1247,7 +1553,7 @@
     }
     const skillPrompt = prompt
       ? `Use ${skillTitle}: ${prompt}`
-      : `Use ${skillTitle} para este pedido.`;
+      : `Use ${skillTitle} for this request.`;
     const current = composeInput.value.trim();
     composeInput.value = current ? `${skillPrompt}
 
@@ -1255,6 +1561,7 @@ ${current}` : skillPrompt;
     composeInput.dispatchEvent(new Event('input'));
     composeInput.focus();
     closeSkillPopover();
+    updateComposerBadges();
   }
 
   if (skillsBtn) {
@@ -1288,8 +1595,9 @@ ${current}` : skillPrompt;
     isListening = nextState === 'listening';
     if (!voiceBtn) return;
     voiceBtn.classList.toggle('is-listening', isListening);
-    voiceBtn.setAttribute('aria-label', isListening ? 'Parar ditado' : 'Ditado por voz');
-    voiceBtn.setAttribute('title', isListening ? 'Parar voz' : 'Voz');
+    voiceBtn.setAttribute('aria-label', isListening ? 'Stop dictation' : 'Voice dictation');
+    voiceBtn.setAttribute('title', isListening ? 'Stop voice' : 'Voice');
+    updateComposerBadges();
   }
 
   if (voiceBtn) {
@@ -1304,7 +1612,7 @@ ${current}` : skillPrompt;
           <div class="voice-overlay__levels">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
-          <div class="voice-overlay__text">Estou ouvindo... Fale agora.</div>
+          <div class="voice-overlay__text">Listening... Speak now.</div>
         </div>
       `;
       document.body.appendChild(voiceOverlay);
@@ -1332,14 +1640,16 @@ ${current}` : skillPrompt;
       }
       const recognition = new SpeechRecognition();
       activeRecognition = recognition;
-      recognition.lang = 'en-US';
+      recognition.lang = composerSettingsState.voice && composerSettingsState.voice !== 'default'
+        ? composerSettingsState.voice
+        : 'en-US';
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
       let finalTranscript = '';
       recognition.onstart = () => {
         setVoiceState('listening');
         voiceOverlay.classList.remove('hidden');
-        voiceOverlay.querySelector('.voice-overlay__text').textContent = 'Ouvindo... Fale agora.';
+        voiceOverlay.querySelector('.voice-overlay__text').textContent = 'Listening... Speak now.';
       };
       recognition.onerror = () => {
         setVoiceState('idle');
@@ -1391,9 +1701,10 @@ ${current}` : skillPrompt;
       truncated: Boolean(file.truncated),
       source: 'zavorth-control-browser',
     }));
-    const outboundText = text || 'Analise os arquivos em anexo.';
+    const outboundText = text || 'Review the attached files.';
     const outboundSkills = pendingSelectedSkills.slice(0, 8);
     const outboundVoice = lastVoiceInput ? { ...lastVoiceInput } : null;
+    const outboundComposerSettings = { ...composerSettingsState };
 
     // Transition out of empty state on first message
     const terminalView = document.getElementById('terminal-view');
@@ -1403,19 +1714,21 @@ ${current}` : skillPrompt;
 
     recordTraceEvent({
       type: 'request',
-      title: 'Pedido recebido',
+      title: 'Request received',
       detail: outboundText,
       meta: [
-        outboundAttachments.length ? `${outboundAttachments.length} arquivo(s)` : '',
-        outboundSkills.length ? `${outboundSkills.length} skill(s)` : '',
+        outboundAttachments.length ? `${outboundAttachments.length} file(s)` : '',
+        outboundSkills.length ? `${outboundSkills.length} tool(s)` : '',
         outboundVoice ? 'voice' : '',
-      ].filter(Boolean).join(' · ') || 'chat',
+        outboundComposerSettings.model && outboundComposerSettings.model !== 'auto' ? `model:${outboundComposerSettings.model}` : '',
+        outboundComposerSettings.sensitivity && outboundComposerSettings.sensitivity !== 'default' ? `sens:${outboundComposerSettings.sensitivity}` : '',
+      ].filter(Boolean).join(' - ') || 'chat',
       status: 'queued',
     });
     if (outboundAttachments.length > 0) {
       recordTraceEvent({
         type: 'artifact',
-        title: 'Contexto anexado',
+        title: 'Attached context',
         detail: outboundAttachments.map((file) => file.name).join(', '),
         meta: 'compose attachment',
       });
@@ -1423,13 +1736,13 @@ ${current}` : skillPrompt;
     if (outboundSkills.length > 0) {
       recordTraceEvent({
         type: 'step',
-        title: 'Skills selecionadas',
+        title: 'Selected tools',
         detail: outboundSkills.map((skill) => skill.title || skill.id).join(', '),
         meta: 'tool exposure',
       });
     }
 
-    appendEcho('operator', text || 'Analisar arquivos em anexo', buildSentAttachmentCards(outboundAttachments));
+    appendEcho('operator', text || 'Review attached files', buildSentAttachmentCards(outboundAttachments));
     composeInput.value = '';
     composeInput.style.height = 'auto';
     if (tokenCount) tokenCount.textContent = '0 tokens';
@@ -1506,8 +1819,8 @@ ${current}` : skillPrompt;
     if (runtimeBridge && typeof runtimeBridge.sendChat === 'function') {
       recordTraceEvent({
         type: 'step',
-        title: 'Gateway universal',
-        detail: 'Pedido enviado ao runtime real do Zavorth.',
+        title: 'Live gateway',
+        detail: 'Request sent to the live Zavorth runtime.',
         meta: getCurrentModelRouteLabel(),
         status: 'running',
       });
@@ -1525,23 +1838,27 @@ ${current}` : skillPrompt;
           attachments: outboundAttachments,
           selectedSkills: outboundSkills,
           voice: outboundVoice,
+          composerSettings: outboundComposerSettings,
         },
       ).catch((error) => {
         removeThinkingState();
+        const detail = messageFromCaughtError(error);
         recordTraceEvent({
           type: 'error',
-          title: 'Falha no runtime',
-          detail: error?.message || 'Tente novamente em instantes.',
+          title: 'Runtime failed',
+          detail,
           status: 'failed',
         });
-        appendEcho('core', `Nao consegui enviar ao runtime real.\n\n${error?.message || 'Tente novamente em instantes.'}`);
+        if (!error?.uiHandled) {
+          appendEcho('core', `I could not send this to the live runtime.\n\n${detail}`);
+        }
       });
       return;
     }
 
     recordTraceEvent({
       type: 'step',
-      title: 'Runtime local de preview',
+      title: 'Local preview runtime',
       detail: 'No live bridge is available; using the local dashboard response.',
       status: 'fallback',
     });
@@ -1554,7 +1871,7 @@ ${current}` : skillPrompt;
     }, 300);
   }
 
-  // â•â•â• Suggestion Chips Logic â•â•â•
+  // --------- Suggestion Chips Logic ---------
   const suggestionChips = document.querySelectorAll('.suggestion-chip');
   suggestionChips.forEach(chip => {
     chip.addEventListener('click', () => {
@@ -1579,13 +1896,13 @@ ${current}` : skillPrompt;
         composeInput.dispatchEvent(new Event('input'));
         composeInput.focus();
       }
-      if (chip.getAttribute('data-auto-submit') === 'true') {
+      if (chip.getAttribute('data-auto-submit') !== 'false') {
         window.setTimeout(transmitSignal, 40);
       }
     });
   });
 
-  // â•â•â• Neural Echo Rendering â•â•â•
+  // --------- Neural Echo Rendering ---------
   const neuralFeed = document.getElementById('neural-feed');
   const neuralStream = document.getElementById('neural-stream');
 
@@ -1630,6 +1947,35 @@ ${current}` : skillPrompt;
         <button type="button" data-prompt="Show pending approvals with approve and reject actions.">Approvals</button>
         <button type="button" data-prompt="Show the latest receipt or explain why none exists yet.">Receipt</button>
       </div>
+    `;
+  }
+
+  function buildConversationStateCard(kind, title, summary, items = [], options = {}) {
+    const normalizedKind = String(kind || 'info').replace(/[^\w-]/g, '') || 'info';
+    const safeTitle = escapeHtml(title || 'Zavorth update');
+    const safeSummary = escapeHtml(summary || '');
+    const safeBadge = escapeHtml(options.badge || normalizedKind);
+    const safeMeta = escapeHtml(options.meta || '');
+    const safeItems = Array.isArray(items) ? items.filter(Boolean).slice(0, 5) : [];
+    return `
+      <article class="conversation-state-card conversation-state-card--${normalizedKind}" aria-label="${safeTitle}">
+        <div class="conversation-state-card__rail">
+          <span class="conversation-state-card__pulse"></span>
+        </div>
+        <div class="conversation-state-card__body">
+          <div class="conversation-state-card__topline">
+            <span>${safeBadge}</span>
+            ${safeMeta ? `<small>${safeMeta}</small>` : ''}
+          </div>
+          <strong>${safeTitle}</strong>
+          ${safeSummary ? `<p>${safeSummary}</p>` : ''}
+          ${safeItems.length ? `
+            <ol class="conversation-state-card__steps">
+              ${safeItems.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+            </ol>
+          ` : ''}
+        </div>
+      </article>
     `;
   }
 
@@ -1711,8 +2057,8 @@ ${current}` : skillPrompt;
     suppressTraceCapture = false;
     recordTraceEvent({
       type: 'session',
-      title: 'Historico carregado',
-      detail: `${messages.length} mensagem(ns) projetadas no chat.`,
+      title: 'History loaded',
+      detail: `${messages.length} message(s) projected into chat.`,
       meta: options.label || 'transcript',
     });
 
@@ -1729,7 +2075,7 @@ ${current}` : skillPrompt;
   ]);
   const SAFE_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
   const SAFE_EMBED_PROTOCOLS = new Set(['blob:']);
-  const TRUSTED_UI_TAGS = new Set(['button', 'form', 'input', 'label', 'textarea']);
+  const TRUSTED_UI_TAGS = new Set(['button', 'form', 'input', 'label', 'option', 'select', 'textarea']);
 
   function isSafeUrl(value, allowedProtocols) {
     try {
@@ -1757,7 +2103,7 @@ ${current}` : skillPrompt;
       : ALLOWED_MARKDOWN_TAGS;
     for (const node of nodes) {
       const tag = node.tagName.toLowerCase();
-      if (DROP_MARKDOWN_TAGS.has(tag)) {
+      if (DROP_MARKDOWN_TAGS.has(tag) && !(options.allowTrustedUi && TRUSTED_UI_TAGS.has(tag))) {
         node.remove();
         continue;
       }
@@ -1772,6 +2118,7 @@ ${current}` : skillPrompt;
         const keepGlobal =
           name === 'title'
           || name === 'aria-label'
+          || name === 'aria-pressed'
           || name === 'role'
           || (name === 'class' && sanitizeClassName(value));
 
@@ -1812,8 +2159,9 @@ ${current}` : skillPrompt;
 
         if (tag === 'img' && ['alt', 'loading'].includes(name)) continue;
         if (tag === 'iframe' && ['title', 'allowfullscreen'].includes(name)) continue;
-        if (options.allowTrustedUi && ['form', 'input', 'label', 'textarea', 'button'].includes(tag)) {
-          if (['id', 'name', 'type', 'placeholder', 'autocomplete', 'for', 'value', 'disabled'].includes(name)) continue;
+        if (options.allowTrustedUi && name === 'id') continue;
+        if (options.allowTrustedUi && ['form', 'input', 'label', 'textarea', 'button', 'select', 'option'].includes(tag)) {
+          if (['id', 'name', 'type', 'placeholder', 'autocomplete', 'for', 'value', 'disabled', 'selected'].includes(name)) continue;
         }
         if (keepGlobal) continue;
 
@@ -1845,7 +2193,7 @@ ${current}` : skillPrompt;
     recordTraceEvent({
       type: 'thinking',
       title: 'Thinking started',
-      detail: 'O Zavorth esta planejando a proxima resposta.',
+      detail: 'Zavorth is planning the next response.',
       status: 'running',
     });
     const indicator = document.createElement('div');
@@ -1868,6 +2216,11 @@ ${current}` : skillPrompt;
             <small>Preview, approval and receipt stay visible here.</small>
           </div>
         </div>
+        ${buildConversationStateCard('thinking', 'Working on your request', 'Zavorth is using the natural route first, then escalating only if tools or approvals are needed.', [
+          'Understand the request in plain language',
+          'Choose the lightest safe route',
+          'Keep approvals and receipts inside this conversation',
+        ], { badge: 'live', meta: 'safe route' })}
       </div>
     `;
     neuralFeed.appendChild(indicator);
@@ -1921,7 +2274,7 @@ ${current}` : skillPrompt;
     return `
       <div class="interactive-actions b-fade-in" style="animation-delay: 300ms">
         <button class="interactive-btn interactive-btn--primary"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Authorize Action</button>
-        <button class="interactive-btn interactive-btn--danger"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Recusar</button>
+        <button class="interactive-btn interactive-btn--danger"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Deny</button>
       </div>
     `;
   }
@@ -1967,6 +2320,39 @@ ${current}` : skillPrompt;
     };
   }
 
+  function approvalRiskCopy(risk, sideEffect) {
+    const normalized = String(risk || '').toLowerCase();
+    if (/high|critical|danger/.test(normalized)) return 'High impact. Review target, scope and rollback before allowing it.';
+    if (/medium|write|process|external/.test(`${normalized} ${sideEffect}`)) return 'May change files, run tools, or touch external state. Keep the scope tight.';
+    if (/low|read/.test(`${normalized} ${sideEffect}`)) return 'Read-first action. It should not mutate anything unless a later approval says so.';
+    return 'Review what Zavorth will do, then allow once or narrow the scope.';
+  }
+
+  function approvalTtlLabel(approval = {}) {
+    const expiresAt = approval.expiresAt || approval.expires_at || approval.ttlExpiresAt || approval.ttl_expires_at;
+    const ttlMs = Number(approval.ttlMs || approval.ttl_ms || approval.ttl);
+    if (expiresAt) {
+      const date = new Date(String(expiresAt));
+      if (Number.isFinite(date.getTime())) return `until ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    if (Number.isFinite(ttlMs) && ttlMs > 0) {
+      const minutes = Math.max(1, Math.round(ttlMs / 60000));
+      return `${minutes} min`;
+    }
+    return 'one decision';
+  }
+
+  function approvalRollbackLabel(approval = {}) {
+    return compactTraceText(
+      approval.rollback
+      || approval.rollbackInstruction
+      || approval.rollback_instruction
+      || approval.receipt?.rollback
+      || 'receipt required after decision',
+      80,
+    );
+  }
+
   function buildApprovalCard(approval) {
     const approvalId = escapeHtml(approval.id);
     const approvalKind = escapeHtml(approval.kind);
@@ -1982,13 +2368,9 @@ ${current}` : skillPrompt;
     const title = escapeHtml(approval.title || 'Pending action');
     const summary = escapeHtml(approval.summary || approval.reason || 'Zavorth needs your decision to continue.');
     const risk = escapeHtml(approval.risk || 'review');
-    const allowLabel = sideEffect === 'write' || scope.toLowerCase().includes('workspace')
-      ? 'Allow in Workspace'
-      : capabilityKind === 'docker' || capabilityKind === 'mcp'
-        ? 'Allow via MCP'
-        : capabilityKind === 'shell'
-          ? 'Allow once'
-        : 'Allow';
+    const ttl = escapeHtml(approvalTtlLabel(approval));
+    const rollback = escapeHtml(approvalRollbackLabel(approval));
+    const allowLabel = 'Allow once';
     const capabilityAttrs = [
       `data-capability-label="${capabilityLabel}"`,
       `data-capability-kind="${capabilityKind}"`,
@@ -2002,7 +2384,7 @@ ${current}` : skillPrompt;
       ? `<button class="zavorth-permission-card__btn zavorth-permission-card__btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>`
       : '';
     return `
-      <div class="zavorth-permission-card b-fade-in zavorth-approval-card" data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}" data-status="pending" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}" ${capabilityAttrs}>
+      <div class="zavorth-permission-card b-fade-in zavorth-approval-card" data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}" data-status="pending" data-approval-scope="once" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}" ${capabilityAttrs}>
         <div class="zavorth-permission-card__state">Waiting for user input</div>
         <div class="zavorth-permission-card__panel">
           <div class="zavorth-permission-card__request">
@@ -2015,7 +2397,17 @@ ${current}` : skillPrompt;
           </div>
           <div class="zavorth-permission-card__title">${title}</div>
           <div class="zavorth-permission-card__summary">${summary}</div>
-          <div class="zavorth-permission-card__meta">${capabilityKind} ? ${sideEffect} ? ${previewLabel} ? scope: ${scope}</div>
+          <div class="zavorth-approval-explain" aria-label="Approval explanation">
+            <div><span>Will do</span><strong>${previewLabel}</strong><small>${approvalRiskCopy(risk, sideEffect)}</small></div>
+            <div><span>Will not do</span><strong>Anything outside scope</strong><small>Changing the scope here updates the approval payload before Zavorth continues.</small></div>
+          </div>
+          <div class="zavorth-approval-scope-grid" aria-label="Approval scope">
+            <span><strong>Current scope</strong><small>${scope}</small></span>
+            <span><strong>Expires</strong><small>${ttl}</small></span>
+            <span><strong>After decision</strong><small>${rollback}</small></span>
+          </div>
+          <div class="zavorth-permission-card__meta">${capabilityKind} - ${sideEffect} - ${previewLabel} - target: ${scope}</div>
+          <div class="zavorth-permission-card__meta" data-zavorth-approval-scope-label>Decision scope: allow once</div>
         </div>
         <div class="zavorth-permission-card__actions b-fade-in" style="animation-delay: 120ms">
           <button class="zavorth-permission-card__btn" data-zavorth-approval-decision="reject" data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}">
@@ -2024,13 +2416,96 @@ ${current}` : skillPrompt;
           <button class="zavorth-permission-card__btn zavorth-permission-card__btn--primary" data-zavorth-approval-decision="approve" data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}">
             ${allowLabel}
           </button>
-          <button class="zavorth-permission-card__btn zavorth-permission-card__btn--caret" type="button" aria-label="Permission options" disabled>
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          <button class="zavorth-permission-card__btn" type="button" data-zavorth-approval-edit-scope data-zavorth-approval-id="${approvalId}">
+            Edit scope
           </button>
           ${traceButton}
         </div>
       </div>
     `;
+  }
+
+  function normalizeApprovalScopeLabel(scope, customScope = '') {
+    const normalized = String(scope || 'once').trim().toLowerCase();
+    const custom = String(customScope || '').trim();
+    if (custom) return custom;
+    if (normalized === 'session') return 'this session only';
+    if (normalized === 'read-only') return 'read-only only';
+    if (normalized === 'target') return 'selected target only';
+    return 'allow once';
+  }
+
+  function applyApprovalScope(card, scope, customScope = '') {
+    if (!card) return;
+    const label = normalizeApprovalScopeLabel(scope, customScope);
+    card.dataset.approvalScope = String(scope || 'once').trim() || 'once';
+    card.dataset.approvalScopeNote = String(customScope || '').trim();
+    const labelNode = card.querySelector('[data-zavorth-approval-scope-label]');
+    if (labelNode) labelNode.textContent = `Decision scope: ${label}`;
+    const approve = card.querySelector('[data-zavorth-approval-decision="approve"]');
+    if (approve) approve.textContent = label === 'allow once' ? 'Allow once' : 'Allow scoped';
+  }
+
+  function openApprovalScopeEditor(trigger) {
+    const card = trigger?.closest?.('.zavorth-approval-card');
+    if (!card || typeof window.openCoreModal !== 'function') return;
+    const currentScope = card.dataset.approvalScope || 'once';
+    const currentNote = card.dataset.approvalScopeNote || '';
+    window.openCoreModal('Edit approval scope', `
+      <form id="zavorth-approval-scope-form" class="config-form" autocomplete="off">
+        <div class="config-form-section">
+          <span class="config-form-section__title">Decision scope</span>
+          <label class="zavorth-secret-field">
+            <span>Scope</span>
+            <div class="zavorth-secret-field__row">
+              <select id="zavorth-approval-scope" class="zavorth-scope-select">
+                <option value="once"${currentScope === 'once' ? ' selected' : ''}>Allow once</option>
+                <option value="session"${currentScope === 'session' ? ' selected' : ''}>This session only</option>
+                <option value="target"${currentScope === 'target' ? ' selected' : ''}>Selected target only</option>
+                <option value="read-only"${currentScope === 'read-only' ? ' selected' : ''}>Read-only only</option>
+              </select>
+            </div>
+          </label>
+          <label class="zavorth-secret-field">
+            <span>Limit</span>
+            <div class="zavorth-secret-field__row">
+              <input id="zavorth-approval-scope-note" type="text" value="${escapeHtml(currentNote)}" placeholder="Example: only this folder, only this command, or read-only." />
+            </div>
+          </label>
+          <p style="margin:0;color:var(--b-signal-muted);line-height:1.6">
+            Editing the scope changes what Zavorth sends with this approval. It does not run anything until you confirm.
+          </p>
+        </div>
+      </form>
+    `);
+    const cancel = document.getElementById('core-modal-cancel');
+    const confirm = document.getElementById('core-modal-confirm');
+    if (cancel) {
+      cancel.textContent = 'Cancel';
+      cancel.onclick = dismissOverlays;
+    }
+    if (confirm) {
+      confirm.textContent = 'Save scope';
+      confirm.disabled = false;
+      confirm.onclick = () => {
+        const scope = document.getElementById('zavorth-approval-scope')?.value || 'once';
+        const note = document.getElementById('zavorth-approval-scope-note')?.value || '';
+        applyApprovalScope(card, scope, note);
+        recordTraceEvent({
+          type: 'approval',
+          title: 'Approval scope edited',
+          detail: normalizeApprovalScopeLabel(scope, note),
+          meta: card.dataset.zavorthApprovalId || 'approval',
+          status: 'scoped',
+        });
+        dismissOverlays();
+      };
+    }
+    const form = document.getElementById('zavorth-approval-scope-form');
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      confirm?.click();
+    });
   }
 
   function renderApprovals(approvals) {
@@ -2069,11 +2544,13 @@ ${current}` : skillPrompt;
           <span class="echo-timestamp">${currentTimestamp()}</span>
           <span class="echo-meta"><span class="echo-meta__model">${escapeHtml(getCurrentModelLabel())}</span><span class="echo-meta__cost">${escapeHtml(getCurrentModelRouteLabel())}</span></span>
         </div>
-        <div class="echo-bubble">
-          ${pending.length === 1
-            ? 'Uma acao precisa da sua autorizacao para continuar.'
-            : `${pending.length} acoes precisam da sua autorizacao para continuar.`}
-        </div>
+        ${buildConversationStateCard('approval', 'Decision needed', pending.length === 1
+          ? 'One action is ready, but Zavorth needs your approval before it can continue.'
+          : `${pending.length} actions are ready, but Zavorth needs your approval before it can continue.`, [
+          'Review what will happen',
+          'Approve only this scoped action or deny it',
+          'A receipt will be recorded after the decision',
+        ], { badge: 'approval', meta: `${pending.length} pending` })}
         <div class="artifacts-grid" style="display: grid; gap: 0.75rem; margin-top: 0.75rem;">
           ${cards}
         </div>
@@ -2091,12 +2568,14 @@ ${current}` : skillPrompt;
     const traceId = escapeHtml(card.traceId || card.correlation?.traceId || '');
     const sessionId = escapeHtml(card.sessionId || card.correlation?.sessionId || '');
     const title = escapeHtml(card.title || 'Remote Mesh approval');
-    const summary = escapeHtml(card.summary || 'Revise a acao remota antes de aplicar no notebook MCP.');
+    const summary = escapeHtml(card.summary || 'Review the remote action before applying it through the notebook MCP.');
     const risk = escapeHtml(card.risk || 'medium');
     const targetKind = escapeHtml(card.targetKind || 'notebook');
     const targetLabel = escapeHtml(card.targetLabel || 'Notebook MCP');
     const scope = escapeHtml(card.scope || card.targetLabel || 'Notebook MCP');
     const sideEffect = escapeHtml(card.sideEffect || (card.targetKind === 'project-file' ? 'read' : 'remote'));
+    const ttl = escapeHtml(approvalTtlLabel(card));
+    const rollback = escapeHtml(approvalRollbackLabel(card));
     const allowLabel = escapeHtml(card.targetKind === 'project-file' ? 'Allow in Workspace' : (card.primaryActionLabel || 'Allow via MCP'));
     const capabilityAttrs = [
       `data-capability-label="${targetLabel}"`,
@@ -2124,7 +2603,16 @@ ${current}` : skillPrompt;
           </div>
           <div class="zavorth-permission-card__title">${title}</div>
           <div class="zavorth-permission-card__summary">${summary}</div>
-          <div class="zavorth-permission-card__meta">${targetKind} · ${sideEffect} · server-side proxy · token protected</div>
+          <div class="zavorth-approval-explain" aria-label="Approval explanation">
+            <div><span>Will do</span><strong>Use remote proxy</strong><small>${approvalRiskCopy(risk, sideEffect)}</small></div>
+            <div><span>Will not do</span><strong>Bypass dashboard approval</strong><small>Token-protected actions stay behind this decision card.</small></div>
+          </div>
+          <div class="zavorth-approval-scope-grid" aria-label="Approval scope">
+            <span><strong>Current scope</strong><small>${scope}</small></span>
+            <span><strong>Expires</strong><small>${ttl}</small></span>
+            <span><strong>After decision</strong><small>${rollback}</small></span>
+          </div>
+          <div class="zavorth-permission-card__meta">${targetKind} - ${sideEffect} - server-side proxy - token protected</div>
         </div>
         <div class="zavorth-permission-card__actions b-fade-in" style="animation-delay: 120ms">
           <button class="zavorth-permission-card__btn" data-zavorth-remote-mesh-action="deny" data-zavorth-remote-mesh-approval-id="${approvalId}">
@@ -2221,11 +2709,13 @@ ${current}` : skillPrompt;
           <span class="echo-timestamp">${currentTimestamp()}</span>
           <span class="echo-meta"><span class="echo-meta__model">Notebook MCP</span><span class="echo-meta__cost">server-side proxy</span></span>
         </div>
-        <div class="echo-bubble">
-          ${pending.length === 1
-            ? 'Uma acao remota do notebook esta pronta para approval via MCP real.'
-            : `${pending.length} acoes remotas do notebook estao prontas para approval via MCP real.`}
-        </div>
+        ${buildConversationStateCard('approval', 'Remote action ready', pending.length === 1
+          ? 'One remote action is prepared and waiting for your explicit approval.'
+          : `${pending.length} remote actions are prepared and waiting for your explicit approval.`, [
+          'Zavorth keeps the remote target scoped',
+          'Secrets stay protected by the gateway',
+          'Execution only happens after your decision',
+        ], { badge: 'remote approval', meta: `${pending.length} pending` })}
         <div class="artifacts-grid" style="display: grid; gap: 0.75rem; margin-top: 0.75rem;">
           ${cardsHtml}
         </div>
@@ -2243,7 +2733,7 @@ ${current}` : skillPrompt;
     const traceId = escapeHtml(artifact.traceId || '');
     const sessionId = escapeHtml(artifact.sessionId || '');
     const title = escapeHtml(artifact.title || artifact.name || artifact.path || 'Artifact');
-    const kind = escapeHtml(artifact.kind || 'arquivo');
+    const kind = escapeHtml(artifact.kind || 'file');
     const summary = escapeHtml(artifact.summary || artifact.path || 'Output generated by Zavorth.');
     return `
       <div class="logic-cell b-fade-in zavorth-artifact-card" data-zavorth-artifact-id="${artifactId}" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">
@@ -2257,9 +2747,9 @@ ${current}` : skillPrompt;
         <div class="logic-cell__detail">${summary}</div>
         <div class="interactive-actions b-fade-in" style="animation-delay: 120ms">
           <button class="interactive-btn interactive-btn--primary" data-zavorth-artifact-id="${artifactId}">
-            Abrir artefato
+            Open artifact
           </button>
-          ${(runId || traceId) ? `<button class="interactive-btn interactive-btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">Ver trace</button>` : ''}
+          ${(runId || traceId) ? `<button class="interactive-btn interactive-btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>` : ''}
         </div>
       </div>
     `;
@@ -2298,7 +2788,7 @@ ${current}` : skillPrompt;
       type: 'receipt',
       title: 'Registered artifacts',
       detail: visibleArtifacts.map((artifact) => artifact.title || artifact.name || artifact.path || artifact.id).join(', '),
-      meta: `${visibleArtifacts.length} item(ns)`,
+        meta: `${visibleArtifacts.length} item(s)`,
       status: 'available',
       receipt: {
         id: visibleArtifacts[0]?.receiptId || visibleArtifacts[0]?.id,
@@ -2320,16 +2810,20 @@ ${current}` : skillPrompt;
     group.id = 'zavorth-artifacts-group';
     group.className = 'echo-group core b-fade-in';
     group.innerHTML = `
-      <div class="echo-avatar core">ðŸ</div>
+      <div class="echo-avatar core">Z</div>
       <div class="echo-group__messages">
         <div class="echo-group__header">
           <span class="echo-sender">Zavorth</span>
           <span class="echo-timestamp">${currentTimestamp()}</span>
           <span class="echo-meta"><span class="echo-meta__model">Workspace</span></span>
         </div>
-        <div class="echo-bubble">
-          ${visibleArtifacts.length === 1 ? 'Artifact generated and available for inspection:' : `${visibleArtifacts.length} artifacts generated and available for inspection:`}
-        </div>
+        ${buildConversationStateCard('receipt', 'Result recorded', visibleArtifacts.length === 1
+          ? 'One output is ready for inspection.'
+          : `${visibleArtifacts.length} outputs are ready for inspection.`, [
+          'Open the artifact when you want details',
+          'Use trace to inspect how the result was produced',
+          'Receipts stay available for review and replay',
+        ], { badge: 'receipt', meta: `${visibleArtifacts.length} item(s)` })}
         <div class="artifacts-grid" style="display: grid; gap: 0.75rem; margin-top: 0.75rem;">
           ${cards}
         </div>
@@ -2704,7 +3198,7 @@ ${current}` : skillPrompt;
       'Business mode is active.',
       '',
       'I prepared a governed audit preview. This is safe to inspect: no policy was changed, no channel was modified, no message was sent and no workspace files were edited.',
-      'Nothing outside this zavorthControl was changed.',
+      'Nothing outside this ZavorthControl was changed.',
       '',
       'The approval channel, policy scope, TTL, blocked actions and receipt evidence are below.',
     ].join('\n');
@@ -2732,7 +3226,7 @@ ${current}` : skillPrompt;
             <span>Approval channel</span>
             <strong>dashboard</strong>
           </div>
-          <p>Primary approval channel: ZavorthControl inbox. Optional channel delivery stays inactive until Telegram, email or another channel is configured and tested live.</p>
+          <p>Primary approval channel: ZavorthControl inbox. Optional channel delivery stays inactive until a separate channel is configured and tested live.</p>
           <div class="business-flow-actions" data-business-approval="${safeReceiptId}" data-status="pending">
             <button type="button" class="interactive-btn" data-business-flow-action="deny-channel" data-business-receipt-id="${safeReceiptId}">Deny</button>
             <button type="button" class="interactive-btn interactive-btn--primary" data-business-flow-action="confirm-channel" data-business-receipt-id="${safeReceiptId}">Confirm channel</button>
@@ -2779,7 +3273,7 @@ ${current}` : skillPrompt;
     `;
   }
 
-  // â•â•â• Artifact Pane Logic â•â•â•
+  // --------- Artifact Pane Logic ---------
   const artifactPane = document.getElementById('artifact-pane');
   const artifactTitle = document.getElementById('artifact-title');
   const artifactBody = document.getElementById('artifact-body');
@@ -2946,7 +3440,7 @@ ${current}` : skillPrompt;
       if (action === 'deny') {
         recordTraceEvent({
           type: 'approval-decision',
-          title: 'Remote Mesh negado',
+          title: 'Remote Mesh denied',
           detail: id,
           meta: 'Notebook MCP',
           status: 'denied',
@@ -2967,7 +3461,7 @@ ${current}` : skillPrompt;
       if (!runtimeBridge || typeof runtimeBridge.applyRemoteMeshApproval !== 'function') return;
       recordTraceEvent({
         type: 'approval-decision',
-        title: 'Remote Mesh autorizado',
+        title: 'Remote Mesh authorized',
         detail: id,
         meta: 'Notebook MCP',
         status: 'applying',
@@ -2988,7 +3482,7 @@ ${current}` : skillPrompt;
           remoteMeshButton.textContent = 'Allowed';
           recordTraceEvent({
             type: 'remote-apply',
-            title: 'MCP aplicado',
+            title: 'MCP applied',
             detail: payload?.receipt?.summary || payload?.message || id,
             meta: 'receipt',
             status: 'success',
@@ -3012,7 +3506,7 @@ ${current}` : skillPrompt;
         const failureMessage = String(payload?.error || payload?.jsonRpcError?.message || 'Check the notebook MCP server.');
         recordTraceEvent({
           type: 'error',
-          title: 'MCP recusou a acao',
+          title: 'MCP rejected the action',
           detail: failureMessage,
           meta: id,
           status: 'failed',
@@ -3034,9 +3528,9 @@ ${current}` : skillPrompt;
           button.disabled = false;
         });
         remoteMeshButton.textContent = 'Try again';
-        appendEcho('core', `O MCP recusou esta acao remota.\n\n${escapeHtml(failureMessage)}`);
+        appendEcho('core', `The MCP rejected this remote action.\n\n${escapeHtml(failureMessage)}`);
       }).catch((error) => {
-        const failureMessage = String(error?.message || 'Tente novamente.');
+        const failureMessage = String(error?.message || 'Try again.');
         recordTraceEvent({
           type: 'error',
           title: 'MCP unavailable',
@@ -3061,8 +3555,16 @@ ${current}` : skillPrompt;
           button.disabled = false;
         });
         remoteMeshButton.textContent = 'Try again';
-        appendEcho('core', `Nao consegui chamar o MCP do notebook.\n\n${escapeHtml(failureMessage)}`);
+        appendEcho('core', `I could not call the notebook MCP.\n\n${escapeHtml(failureMessage)}`);
       });
+      return;
+    }
+
+    const editScopeButton = e.target.closest('[data-zavorth-approval-edit-scope]');
+    if (editScopeButton) {
+      e.preventDefault();
+      e.stopPropagation();
+      openApprovalScopeEditor(editScopeButton);
       return;
     }
 
@@ -3074,16 +3576,23 @@ ${current}` : skillPrompt;
       const decision = approvalButton.dataset.zavorthApprovalDecision;
       const id = approvalButton.dataset.zavorthApprovalId;
       const kind = approvalButton.dataset.zavorthApprovalKind;
+      const scope = card?.dataset?.approvalScope || 'once';
+      const scopeNote = card?.dataset?.approvalScopeNote || '';
       const capability = capabilityFromElement(card);
       recordTraceEvent({
         type: 'approval-decision',
-        title: decision === 'approve' ? 'Approval autorizado' : 'Approval recusado',
+        title: decision === 'approve' ? 'Approval authorized' : 'Approval rejected',
         detail: id,
         meta: kind,
         status: decision,
         approvalId: id,
         capability,
         preview: capability?.preview || '',
+        receipt: {
+          id,
+          status: decision,
+          summary: `Decision scope: ${normalizeApprovalScopeLabel(scope, scopeNote)}`,
+        },
       });
       if (decision === 'reject') {
         if (card) card.dataset.status = 'denied';
@@ -3094,7 +3603,7 @@ ${current}` : skillPrompt;
       card?.querySelectorAll('button').forEach((button) => {
         button.disabled = true;
       });
-      runtimeBridge.decideApproval({ id, kind, decision }, {
+      runtimeBridge.decideApproval({ id, kind, decision, scope, scopeNote }, {
         appendEcho,
         renderApprovals,
         renderTranscript,
@@ -3103,14 +3612,15 @@ ${current}` : skillPrompt;
         card?.querySelectorAll('button').forEach((button) => {
           button.disabled = false;
         });
+        const detail = messageFromCaughtError(error, 'Try again.');
         recordTraceEvent({
           type: 'error',
-          title: 'Falha ao resolver approval',
-          detail: error?.message || 'Tente novamente.',
+          title: 'Approval failed',
+          detail,
           meta: kind,
           status: 'failed',
         });
-        appendEcho('core', `I could not resolve this approval.\n\n${error?.message || 'Try again.'}`);
+        appendEcho('core', `I could not resolve this approval.\n\n${detail}`);
       });
       return;
     }
@@ -3131,7 +3641,7 @@ ${current}` : skillPrompt;
     }
   });
 
-  // â•â•â• Signal System (Toasts) â•â•â•
+  // --------- Signal System (Toasts) ---------
   const signalFeed = document.getElementById('signal-feed');
   window.emitSignal = function(type, title, msg) {
     if (!signalFeed) return;
@@ -3165,7 +3675,7 @@ ${current}` : skillPrompt;
     }, 4000);
   };
 
-  // â•â•â• Command Palette â•â•â•
+  // --------- Command Palette ---------
   const overlayShade = document.getElementById('overlay-shade');
   const cmdPalette = document.getElementById('cmd-palette');
   const cmdInput = document.getElementById('cmd-input');
@@ -3181,16 +3691,11 @@ ${current}` : skillPrompt;
   const coreModalCancel = document.getElementById('core-modal-cancel');
 
   function openPalette() {
-    if (!overlayShade || !cmdPalette) return;
     overlayShade.classList.add('active');
     markOverlayOpened();
     closeMobileDrawer(false);
     cmdPalette.classList.add('active');
-    if (cmdInput) {
-      cmdInput.value = '';
-      filterStaticPalette('');
-      cmdInput.focus();
-    }
+    cmdInput.focus();
   }
 
   function openMobileDrawer() {
@@ -3222,55 +3727,12 @@ ${current}` : skillPrompt;
   }
 
   function dismissOverlays() {
-    if (overlayShade) overlayShade.classList.remove('active');
-    if (cmdPalette) cmdPalette.classList.remove('active');
-    if (coreModal) coreModal.classList.remove('active');
+    overlayShade.classList.remove('active');
+    cmdPalette.classList.remove('active');
+    coreModal.classList.remove('active');
     closeToolSheet(false);
     closeTraceSheet(false);
     closeMobileDrawer(false);
-  }
-
-  function filterStaticPalette(query) {
-    const needle = String(query || '').trim().toLowerCase();
-    const items = Array.from(document.querySelectorAll('#cmd-palette .cmd-palette__item'));
-    items.forEach((item) => {
-      const text = (item.textContent || '').toLowerCase();
-      const action = String(item.getAttribute('data-cmd-action') || '').toLowerCase();
-      const match = !needle || text.includes(needle) || action.includes(needle);
-      item.style.display = match ? '' : 'none';
-      item.classList.remove('selected');
-    });
-    const visible = items.filter((item) => item.style.display !== 'none');
-    if (visible[0]) visible[0].classList.add('selected');
-  }
-
-  function runStaticPaletteAction(action) {
-    const normalized = String(action || '').trim().toLowerCase();
-    dismissOverlays();
-    if (normalized === 'new-chat' || normalized === 'inbox') {
-      activateSector('terminal');
-      return;
-    }
-    if (normalized === 'approvals') return activateSector('sales-os');
-    if (normalized === 'receipts') return activateSector('instances');
-    if (normalized === 'channels') return activateSector('channels');
-    if (normalized === 'models') return activateSector('usage');
-    if (normalized === 'doctor' || normalized === 'ready' || normalized === 'ready-check') {
-      activateSector('terminal');
-      const input = document.getElementById('compose-input');
-      if (input) {
-        input.value = 'Run a ready check and summarize only blockers.';
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.focus();
-      }
-      if (window.emitSignal) window.emitSignal('info', 'Ready check', 'Prompt prepared in Inbox.');
-      return;
-    }
-    if (normalized === 'export') {
-      const exportBtn = document.getElementById('export-chat-trigger');
-      if (exportBtn) exportBtn.click();
-      else if (window.emitSignal) window.emitSignal('info', 'Export', 'Use Export in the composer when available.');
-    }
   }
 
   if (searchBtn) searchBtn.addEventListener('click', openPalette);
@@ -3297,42 +3759,8 @@ ${current}` : skillPrompt;
     });
   }
 
-  const cmdResults = document.getElementById('cmd-palette-results') || document.querySelector('#cmd-palette .cmd-palette__results');
-  if (cmdResults && !document.documentElement.dataset.zavorthStaticPaletteBound) {
-    document.documentElement.dataset.zavorthStaticPaletteBound = '1';
-    cmdResults.addEventListener('click', (event) => {
-      const item = event.target && event.target.closest ? event.target.closest('.cmd-palette__item') : null;
-      if (!item) return;
-      event.preventDefault();
-      const action = item.getAttribute('data-cmd-action') || '';
-      const sector = item.getAttribute('data-dashboard-sector') || '';
-      if (action) runStaticPaletteAction(action);
-      else if (sector) {
-        dismissOverlays();
-        activateSector(sector);
-      }
-    });
-    if (cmdInput) {
-      cmdInput.addEventListener('input', () => filterStaticPalette(cmdInput.value || ''));
-      cmdInput.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter') return;
-        event.preventDefault();
-        const selected = document.querySelector('#cmd-palette .cmd-palette__item.selected')
-          || Array.from(document.querySelectorAll('#cmd-palette .cmd-palette__item')).find((item) => item.style.display !== 'none');
-        if (!selected) return;
-        const action = selected.getAttribute('data-cmd-action') || '';
-        const sector = selected.getAttribute('data-dashboard-sector') || '';
-        if (action) runStaticPaletteAction(action);
-        else if (sector) {
-          dismissOverlays();
-          activateSector(sector);
-        }
-      });
-    }
-  }
-
   document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && String(e.key || '').toLowerCase() === 'k') {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
       openPalette();
     }
@@ -3353,59 +3781,43 @@ ${current}` : skillPrompt;
   if (coreModalClose) coreModalClose.addEventListener('click', dismissOverlays);
   if (coreModalCancel) coreModalCancel.addEventListener('click', dismissOverlays);
 
-  // â•â•â• Seed Initial Neural Feed â•â•â•
+  // --------- Seed Initial Neural Feed ---------
   function seedNeuralFeed() {
     recordTraceEvent({
       type: 'session',
-      title: 'Session started',
-      detail: 'Dashboard connected to the local runtime.',
+      title: 'Dashboard opened',
+      detail: 'Local runtime access is being checked.',
       meta: location.origin,
-      status: 'online',
+      status: 'checking',
     });
     const divider = document.createElement('div');
     divider.className = 'echo-divider';
     divider.innerHTML = `
       <span class="echo-divider__line"></span>
-      <span class="echo-divider__label">Session Started</span>
+      <span class="echo-divider__label">Dashboard Ready</span>
       <span class="echo-divider__line"></span>
     `;
     neuralFeed.appendChild(divider);
 
     setTimeout(() => {
+      const liveSnapshot = getLiveRuntimeSnapshot();
+      const liveUnlocked = liveSnapshot.live && !liveSnapshot.authRequired;
       const cells = buildLogicCell(
-        'gateway_connect',
+        'local_access_check',
         'M22 12h-4l-3 9L9 3l-3 9H2',
-        'Connected to local gateway in 42ms',
+        'Checking local runtime access',
         `Protocol: WebSocket/SSE\nEndpoint: ${location.origin}/api\nModel:    ${getCurrentModelLabel()}\nRoute:    ${getCurrentModelRouteLabel()}`
       );
       appendEcho('core',
-        'Zavorth is online. Ask normally. Low-risk maintenance stays quiet; real decisions appear when needed.',
+        `${liveUnlocked ? 'Dashboard is ready.' : 'Checking local runtime access'}\n\nIf this browser needs access, paste the local token. I will mark the runtime connected only after the local bridge confirms it.`,
         cells
       );
     }, 400);
   }
 
-  // â•â•â• Boot Sequence â•â•â•
-  const bootGate = document.getElementById('boot-gate');
-  const bootStatus = document.getElementById('boot-status');
+  seedNeuralFeed();
 
-  if (bootGate) {
-    setTimeout(() => {
-      bootStatus.innerHTML = '<div class="boot-spinner"></div> Authenticating with local core...';
-      setTimeout(() => {
-        bootStatus.innerHTML = '<span style="color:var(--b-ok)">System Ready</span>';
-        setTimeout(() => {
-          bootGate.classList.add('hidden');
-          seedNeuralFeed();
-          window.emitSignal('success', 'Core Connected', 'Secure connection established with the runtime.');
-        }, 600);
-      }, 800);
-    }, 600);
-  } else {
-    seedNeuralFeed();
-  }
-
-  // â•â•â• Theme Toggle â•â•â•
+  // --------- Theme Toggle ---------
   const themeToggle = document.getElementById('theme-toggle');
   const iconSun = themeToggle ? themeToggle.querySelector('.icon-sun') : null;
   const iconMoon = themeToggle ? themeToggle.querySelector('.icon-moon') : null;
@@ -3436,197 +3848,6 @@ ${current}` : skillPrompt;
       const current = document.documentElement.getAttribute('data-theme');
       setTheme(current === 'light' ? 'zavorth' : 'light');
     });
-  }
-
-  // ═══ Trust rail mobile sheet + action-first inbox boot ═══
-  (function initTrustRailMobile() {
-    const MQ = '(max-width: 900px)';
-    if (document.documentElement.dataset.zavorthTrustRailMobile === '1') return;
-    document.documentElement.dataset.zavorthTrustRailMobile = '1';
-
-    function isMobile() {
-      return typeof window.matchMedia === 'function' && window.matchMedia(MQ).matches;
-    }
-
-    function openTrustRailSheet() {
-      const rail = document.getElementById('trust-rail');
-      const shade = document.getElementById('trust-rail-shade');
-      const fab = document.getElementById('trust-rail-fab');
-      if (!rail) return;
-      rail.classList.add('is-sheet-open');
-      rail.setAttribute('aria-hidden', 'false');
-      shade?.classList.add('is-open');
-      shade?.setAttribute('aria-hidden', 'false');
-      fab?.setAttribute('aria-expanded', 'true');
-      document.body.classList.add('trust-sheet-open');
-    }
-
-    function closeTrustRailSheet() {
-      const rail = document.getElementById('trust-rail');
-      const shade = document.getElementById('trust-rail-shade');
-      const fab = document.getElementById('trust-rail-fab');
-      rail?.classList.remove('is-sheet-open');
-      rail?.setAttribute('aria-hidden', isMobile() ? 'true' : 'false');
-      shade?.classList.remove('is-open');
-      shade?.setAttribute('aria-hidden', 'true');
-      fab?.setAttribute('aria-expanded', 'false');
-      document.body.classList.remove('trust-sheet-open');
-    }
-
-    function syncMode() {
-      const rail = document.getElementById('trust-rail');
-      const fab = document.getElementById('trust-rail-fab');
-      const shade = document.getElementById('trust-rail-shade');
-      if (!rail) return;
-      if (isMobile()) {
-        document.documentElement.classList.add('trust-rail-mobile');
-        fab?.removeAttribute('hidden');
-        shade?.removeAttribute('hidden');
-        if (!rail.classList.contains('is-sheet-open')) {
-          rail.setAttribute('aria-hidden', 'true');
-        }
-      } else {
-        document.documentElement.classList.remove('trust-rail-mobile');
-        fab?.setAttribute('hidden', '');
-        shade?.setAttribute('hidden', '');
-        shade?.classList.remove('is-open');
-        rail.classList.remove('is-sheet-open');
-        rail.setAttribute('aria-hidden', 'false');
-        document.body.classList.remove('trust-sheet-open');
-      }
-    }
-
-    function ensureMobileChrome() {
-      const rail = document.getElementById('trust-rail');
-      if (!rail) return;
-
-      let header = rail.querySelector('.trust-rail__header');
-      if (!header) {
-        header = document.createElement('div');
-        header.className = 'trust-rail__header';
-        header.innerHTML = '<strong>Trust</strong>';
-        rail.prepend(header);
-      }
-      if (!header.querySelector('[data-trust-sheet-close]')) {
-        const close = document.createElement('button');
-        close.type = 'button';
-        close.className = 'trust-rail__close';
-        close.setAttribute('data-trust-sheet-close', '');
-        close.setAttribute('aria-label', 'Close trust panel');
-        close.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-        header.appendChild(close);
-      }
-
-      if (!rail.querySelector('.trust-rail__handle')) {
-        const handle = document.createElement('div');
-        handle.className = 'trust-rail__handle';
-        handle.setAttribute('aria-hidden', 'true');
-        rail.prepend(handle);
-      }
-
-      if (!document.getElementById('trust-rail-fab')) {
-        const fab = document.createElement('button');
-        fab.type = 'button';
-        fab.id = 'trust-rail-fab';
-        fab.className = 'trust-rail-fab';
-        fab.setAttribute('aria-label', 'Open trust panel');
-        fab.setAttribute('aria-controls', 'trust-rail');
-        fab.setAttribute('aria-expanded', 'false');
-        fab.hidden = true;
-        fab.innerHTML = `
-          <span class="trust-rail-fab__label">Trust</span>
-          <span class="trust-rail-fab__badge" data-attention-count hidden></span>
-        `;
-        document.body.appendChild(fab);
-      }
-
-      if (!document.getElementById('trust-rail-shade')) {
-        const shade = document.createElement('div');
-        shade.id = 'trust-rail-shade';
-        shade.className = 'trust-rail-shade';
-        shade.setAttribute('aria-hidden', 'true');
-        shade.hidden = true;
-        document.body.appendChild(shade);
-      }
-    }
-
-    ensureMobileChrome();
-    syncMode();
-
-    document.addEventListener('click', (event) => {
-      const target = event.target instanceof Element ? event.target : null;
-      if (!target) return;
-
-      if (target.closest('#trust-rail-fab')) {
-        event.preventDefault();
-        if (document.getElementById('trust-rail')?.classList.contains('is-sheet-open')) {
-          closeTrustRailSheet();
-        } else {
-          openTrustRailSheet();
-        }
-        return;
-      }
-
-      if (target.closest('[data-trust-sheet-close]')) {
-        event.preventDefault();
-        closeTrustRailSheet();
-        return;
-      }
-
-      if (target.closest('#trust-rail-shade')) {
-        closeTrustRailSheet();
-        return;
-      }
-
-      if (
-        isMobile()
-        && target.closest('#trust-rail [data-dashboard-sector], #trust-rail [data-dashboard-doctor]')
-      ) {
-        window.setTimeout(() => closeTrustRailSheet(), 80);
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') closeTrustRailSheet();
-    });
-
-    if (typeof window.matchMedia === 'function') {
-      const mql = window.matchMedia(MQ);
-      const onChange = () => {
-        syncMode();
-        if (!mql.matches) closeTrustRailSheet();
-      };
-      if (mql.addEventListener) mql.addEventListener('change', onChange);
-      else if (mql.addListener) mql.addListener(onChange);
-    }
-  })();
-
-  if (!document.documentElement.dataset.zavorthDashboardActionBound) {
-    document.documentElement.dataset.zavorthDashboardActionBound = '1';
-    document.addEventListener('click', (event) => {
-      const target = event.target instanceof Element ? event.target : null;
-      if (!target) return;
-
-      const doctorBtn = target.closest('[data-dashboard-doctor]');
-      if (doctorBtn) {
-        event.preventDefault();
-        runStaticPaletteAction('doctor');
-        return;
-      }
-
-      const sectorBtn = target.closest('[data-dashboard-sector]');
-      if (sectorBtn) {
-        event.preventDefault();
-        const sector = sectorBtn.getAttribute('data-dashboard-sector') || '';
-        if (sector) activateSector(sector);
-      }
-    });
-  }
-
-  try {
-    updateDashboardGlass();
-  } catch (_) {
-    /* ignore until DOM hooks exist */
   }
 
 })();

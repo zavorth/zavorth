@@ -149,7 +149,6 @@ export function composeSurfaceRuntime(
   coreOrchestrator.attachAgentGateway(foundation.agentGateway);
   coreOrchestrator.registerGateway('telegram', botGateway);
 
-  // === CONTEXT ENGINE WIRING ===
   if (foundation.contextEngine) {
     coreOrchestrator.attachContextEngine(foundation.contextEngine);
   }
@@ -160,7 +159,6 @@ export function composeSurfaceRuntime(
   if (foundation.episodicMemoryBridge) {
     foundation.episodicMemoryBridge.attach(sharedMemoryService);
   }
-  // === END CONTEXT ENGINE WIRING ===
 
   const discordGateway = config.discordBotToken
     ? new DiscordGateway({

@@ -122,7 +122,7 @@ export function resolvePersistedProductMode(stateFilePath?: string | null): Zavo
       return null;
     }
     return normalizeZavorthProductMode(parsed.productMode, parsed.profile);
-  } catch (error: any) { logger.warn('[Product Mode] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Product Mode] JSON parse failed', error); return null; }
 }
 
 export function resolveBootstrapProductMode(

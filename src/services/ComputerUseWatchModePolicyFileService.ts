@@ -79,8 +79,7 @@ export class ComputerUseWatchModePolicyFileService {
         return { ...DEFAULT_POLICY };
       }
       return this.normalizeDocument(JSON.parse(this.readFileSyncImpl(this.policyFile, 'utf8')) as Record<string, any>);
-    } catch (error: any) {
-    logger.warn('[Computer Use Watch Mode  File] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Computer Use Watch Mode  File] JSON parse failed', error);
     return { ...DEFAULT_POLICY };
   }
   }
@@ -204,8 +203,7 @@ export class ComputerUseWatchModePolicyFileService {
     try {
       const target = raw.match(/^https?:\/\//i) ? raw : `https://${raw}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch (error: any) {
-    logger.warn('[Computer Use Watch Mode  File] network request failed', error);
+    } catch (error: unknown) {logger.warn('[Computer Use Watch Mode  File] network request failed', error);
     return raw
         .replace(/^https?:\/\//i, '')
         .replace(/\/.*$/u, '')

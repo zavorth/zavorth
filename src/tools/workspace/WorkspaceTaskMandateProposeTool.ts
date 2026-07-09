@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 ﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
@@ -92,8 +93,9 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
         try {
           const resolved = guard.resolveForWrite(dirInput);
           targetDirectories.push(resolved);
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Workspace Task Mandate Propose] validation failed', error);
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          logger.warn('[Workspace Task Mandate Propose] validation failed', error);
     return JSON.stringify({
             success: false,
             error: `Invalid target directory '${dirInput}': ${err.message || err}`
@@ -135,8 +137,9 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
         }
       });
 
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Workspace Task Mandate Propose] creation failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Workspace Task Mandate Propose] creation failed', error);
     return JSON.stringify({
         success: false,
         error: `Error while proposing task mandate: ${err.message || err}`

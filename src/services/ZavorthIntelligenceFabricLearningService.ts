@@ -110,7 +110,7 @@ export class ZavorthIntelligenceFabricLearningService {
       .map((line) => {
         try {
           return JSON.parse(line) as IntelligenceFabricEvalRecord;
-        } catch (error: any) { logger.warn('[Zavorth Intelligence Fabric Learning] JSON parse failed', error); return null; }
+        } catch (error: unknown) {logger.warn('[Zavorth Intelligence Fabric Learning] JSON parse failed', error); return null; }
       })
       .filter((record): record is IntelligenceFabricEvalRecord => Boolean(record));
   }

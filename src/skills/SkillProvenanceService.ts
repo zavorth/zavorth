@@ -7,9 +7,7 @@ import type {
   SkillOriginDocument,
   SkillProvenanceMetadata,
   SkillRiskAssessment,
-} from './SkillCatalogContract.js';
-
-type SkillProvenanceRuntime = {
+} from './SkillCatalogContract.js';type SkillProvenanceRuntime = {
   existsSync?: typeof fs.existsSync;
   readFileSync?: typeof fs.readFileSync;
 };
@@ -134,8 +132,7 @@ export class SkillProvenanceService {
           audit: this.normalizeAudit(raw.governance?.audit),
         },
       };
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 

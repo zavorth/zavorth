@@ -876,8 +876,8 @@ export class WebAppConversationService {
         text: String(analysisText || '').trim() || null,
         error: result.error?.message || null,
       };
-    } catch (error: any) {
-    logger.warn('[Web App Conversation] string operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Web App Conversation] string operation failed', error);
     return {
         ok: false,
         name: attachment.name,
@@ -1067,7 +1067,7 @@ export class WebAppConversationService {
         }),
       ]);
       return result;
-    } catch (error: any) { logger.warn('[Web App Conversation] cache operation failed', error); return null; } finally {
+    } catch (error: unknown) {logger.warn('[Web App Conversation] cache operation failed', error); return null; } finally {
       if (timeoutHandle) {
         clearTimeout(timeoutHandle);
       }

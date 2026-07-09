@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 /**
  * A2A JSON-RPC 2.0 Router — `/a2a` endpoint
  *
@@ -22,8 +23,6 @@ import { isAuthRequired, isStrictlyAuthenticated } from "@/shared/utils/apiAuth"
 import { logger } from '@/shared/utils/logger';
 
 export const runtime = "nodejs";
-
-// ============ Skill Registry ============
 
 const SKILL_HANDLERS: Record<string, (task: any) => Promise<any>> = {
   "smart-routing": executeSmartRouting,
@@ -75,8 +74,6 @@ function toMessageArray(raw: unknown): A2AMessage[] | null {
   return null;
 }
 
-// ============ Auth ============
-
 function configuredA2AApiKey(): string {
   return process.env.ZAVORTH_A2A_API_KEY || process.env.ZavorthGateway_API_KEY || "";
 }
@@ -98,7 +95,7 @@ function isSameOriginZavorthControlRequest(req: NextRequest): boolean {
 
   try {
     return new URL(origin).origin === new URL(req.url).origin;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[route] operation failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[route] operation failed', error); return false; }
 }
 
 async function authenticate(req: NextRequest): Promise<boolean> {
@@ -114,8 +111,6 @@ async function authenticate(req: NextRequest): Promise<boolean> {
   return isSameOriginZavorthControlRequest(req) && !(await isAuthRequired());
 }
 
-// ============ JSON-RPC Helpers ============
-
 function jsonRpcError(id: string | number | null, code: number, message: string, data?: unknown) {
   return NextResponse.json(
     { jsonrpc: "2.0", id, error: { code, message, data } },
@@ -127,8 +122,6 @@ function jsonRpcResult(id: string | number | null, result: unknown) {
   return NextResponse.json({ jsonrpc: "2.0", id, result });
 }
 
-// ============ Route Handler ============
-
 export async function POST(req: NextRequest) {
   // Auth check
   if (!(await authenticate(req))) {
@@ -139,8 +132,7 @@ export async function POST(req: NextRequest) {
   let body: any;
   try {
     body = await req.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] parsing failed', error);
+  } catch (error: unknown) {logger.warn('[route] parsing failed', error);
     return jsonRpcError(null, -32700, "Parse error: invalid JSON");
   }
 
@@ -197,7 +189,8 @@ export async function POST(req: NextRequest) {
           artifacts: result.artifacts,
           metadata: result.metadata,
         });
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         const msg = err instanceof Error ? err.message : String(err);
         tm.updateTask(task.id, "failed", [{ type: "error", content: msg }], msg);
         return jsonRpcError(id, -32603, `Skill execution failed: ${msg}`);
@@ -256,8 +249,9 @@ export async function POST(req: NextRequest) {
       try {
         const task = tm.cancelTask(taskId);
         return jsonRpcResult(id, { task: { id: task.id, state: task.state } });
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn('[route] validation failed', error);
     const msg = err instanceof Error ? err.message : String(err);
         return jsonRpcError(id, -32603, msg);
   }

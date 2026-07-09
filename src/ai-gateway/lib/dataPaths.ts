@@ -1,14 +1,11 @@
 import path from "path";
 import os from "os";
-import { logger } from '@/shared/utils/logger';
-
-export const APP_NAME = "ZavorthGateway";
+import { logger } from '@/shared/utils/logger';export const APP_NAME = "ZavorthGateway";
 
 function safeHomeDir() {
   try {
     return os.homedir();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[data Paths] operation failed', error);
+  } catch (error: unknown) {logger.warn('[data Paths] operation failed', error);
     return process.cwd();
   }
 }

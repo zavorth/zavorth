@@ -37,8 +37,8 @@ export class WslControlService {
         : 'WSL parado. Nenhuma distro rodando.';
 
       return { ok: true, action: 'status', distros, message, warnings: [] };
-    } catch (error: any) {
-    logger.warn('[Wsl Control] parsing failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Wsl Control] parsing failed', error);
     return {
         ok: false,
         action: 'status',
@@ -134,8 +134,8 @@ export class WslControlService {
         message: `WSL iniciado e confirmado. ${runningDistros.length} distro(s) em execucao: ${runningDistros.map((entry) => entry.name).join(', ')}.`,
         warnings,
       };
-    } catch (error: any) {
-    logger.warn('[Wsl Control] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Wsl Control] process execution failed', error);
     return {
         ok: false,
         action: 'start',
@@ -175,8 +175,8 @@ export class WslControlService {
             : `O comando de desligamento foi enviado, mas ainda ha distros rodando: ${runningDistros.map((entry) => entry.name).join(', ')}.`,
         warnings: [],
       };
-    } catch (error: any) {
-    logger.warn('[Wsl Control] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Wsl Control] filesystem check failed', error);
     return {
         ok: false,
         action: 'shutdown',

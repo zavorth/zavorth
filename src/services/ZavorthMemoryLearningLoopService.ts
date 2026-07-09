@@ -497,8 +497,7 @@ export class ZavorthMemoryLearningLoopService {
     let metadata: Record<string, unknown> = {};
     try {
       metadata = JSON.parse(String(row.metadata_json || '{}'));
-    } catch (error: any) {
-    logger.warn('[Zavorth Memory Learning Loop] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Memory Learning Loop] JSON parse failed', error);
     metadata = {};
   }
     return {

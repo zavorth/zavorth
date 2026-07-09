@@ -12,7 +12,6 @@ fileExists,
   readEnvFile,
   redactValue,
 } from './checks/ZavorthDoctorCheckUtils.js';
-
 export type BuildZavorthDoctorPremiumInput = {
   projectRoot: string;
   now?: () => Date;
@@ -67,7 +66,7 @@ function checkGatewayConnectivity(env: Record<string, string>): ZavorthDoctorPre
     return value ? [{ key, value }] : [];
   });
   const invalid = configured.filter(({ value }) => {
-    try { const url = new URL(value); return url.protocol !== 'https:' && url.protocol !== 'http:'; } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Doctor Check Registry] network request failed', error); return true; }
+    try { const url = new URL(value); return url.protocol !== 'https:' && url.protocol !== 'http:'; } catch (error: unknown) {logger.warn('[Zavorth Doctor Check Registry] network request failed', error); return true; }
   });
   return {
     id: 'gateway-connectivity', title: 'Gateway connectivity',
@@ -93,7 +92,7 @@ function checkSqliteIntegrity(projectRoot: string): ZavorthDoctorPremiumCheck {
       try { const row = db.prepare('PRAGMA integrity_check').get() as { integrity_check?: string }; return row.integrity_check === 'ok' ? [] : [path.basename(databasePath)]; } finally { db.close(); }
     });
     return { id: 'sqlite-integrity', title: 'SQLite integrity', status: failures.length ? 'fail' : 'pass', summary: failures.length ? `Integrity check failed: ${failures.join(', ')}.` : `${databases.length} SQLite database(s) passed integrity_check.`, impact: failures.length ? 'Local state may be corrupted and should be restored from a known-good backup.' : 'Local agent state is structurally readable.', fixCommand: failures.length ? 'Restore the affected database from backup before using governed writes.' : null, canAutoFix: false, evidence: databases.map((databasePath) => `database=${path.basename(databasePath)}`) };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[Zavorth Doctor Check Registry] filesystem check failed', error);
     return { id: 'sqlite-integrity', title: 'SQLite integrity', status: 'warn', summary: 'SQLite integrity check could not run.', impact: 'Database health is not verified until the SQLite driver is available.', fixCommand: 'npm install, then rerun zavorth doctor.', canAutoFix: false, evidence: [`reason=${error instanceof Error ? error.message.slice(0, 96) : 'unknown'}`] };
   }
@@ -116,8 +115,7 @@ function checkLocalStorage(projectRoot: string): ZavorthDoctorPremiumCheck {
       canAutoFix: false,
       evidence: [`projectRoot=read-write`, `data=${fs.existsSync(storageRoot) ? 'read-write' : 'created-on-demand'}`],
     };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Doctor Check Registry] filesystem operation failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Doctor Check Registry] filesystem operation failed', error);
     return {
       id: 'local-storage',
       title: 'Local storage',

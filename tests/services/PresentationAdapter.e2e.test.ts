@@ -13,9 +13,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     adapter = new ZavorthPresentationAdapterService(caps);
   });
 
-  // =========================================================================
   // SCENARIO 1: Task reminder sent by the agent
-  // =========================================================================
   describe('Scenario 1: Daily task reminder', () => {
     const reminder: UniversalResponse = {
       type: 'card',
@@ -73,9 +71,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // =========================================================================
   // SCENARIO 2: User asks to create a file
-  // =========================================================================
   describe('Scenario 2: File creation confirmation', () => {
     const confirmation: UniversalResponse = {
       type: 'confirmation',
@@ -116,9 +112,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // =========================================================================
   // SCENARIO 3: Code review response
-  // =========================================================================
   describe('Scenario 3: Code snippet response', () => {
     const codeResponse: UniversalResponse = {
       type: 'code',
@@ -156,9 +150,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // =========================================================================
   // SCENARIO 4: Error message
-  // =========================================================================
   describe('Scenario 4: Deployment error', () => {
     const error: UniversalResponse = {
       type: 'error',
@@ -195,9 +187,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // =========================================================================
   // SCENARIO 5: User asks "what tools are available?"
-  // =========================================================================
   describe('Scenario 5: List available tools', () => {
     const toolList: UniversalResponse = {
       type: 'list',
@@ -247,9 +237,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // =========================================================================
   // SCENARIO 6: Choice with multiple options
-  // =========================================================================
   describe('Scenario 6: Provider selection', () => {
     const choice: UniversalResponse = {
       type: 'choice',
@@ -290,9 +278,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // =========================================================================
   // SCENARIO 7: Status update
-  // =========================================================================
   describe('Scenario 7: Build status', () => {
     const statusSuccess: UniversalResponse = {
       type: 'status',
@@ -352,9 +338,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // =========================================================================
   // SCENARIO 8: Long message truncation
-  // =========================================================================
   describe('Scenario 8: Long research summary', () => {
     const longResponse: UniversalResponse = {
       type: 'text',
@@ -388,9 +372,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // =========================================================================
   // SCENARIO 9: Custom channel registration
-  // =========================================================================
   describe('Scenario 9: Custom channel (MyCustomBot)', () => {
     beforeEach(() => {
       caps.register({
@@ -459,9 +441,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // =========================================================================
   // SCENARIO 10: Message splitting
-  // =========================================================================
   describe('Scenario 10: Long message splitting', () => {
     it('should split a very long message into chunks for Telegram', () => {
       const lines = Array.from({ length: 100 }, (_, i) => `Line ${i + 1}: ${'x'.repeat(50)}`);

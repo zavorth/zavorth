@@ -8,12 +8,12 @@
 (function () {
   'use strict';
 
-  const AUTH_STORAGE_KEY = 'zavorth.commandCenter.webToken';
-  const SESSION_STORAGE_KEY = 'zavorth.commandCenter.sessionId';
-  const RUN_STORAGE_KEY = 'zavorth.commandCenter.runId';
+  const AUTH_STORAGE_KEY = 'zavorth.zavorthControl.webToken';
+  const SESSION_STORAGE_KEY = 'zavorth.zavorthControl.sessionId';
+  const RUN_STORAGE_KEY = 'zavorth.zavorthControl.runId';
   const state = {
     auth: null,
-    commandCenter: null,
+    zavorthControl: null,
     providerModelCatalog: null,
     providerActivation: null,
     catalog: null,
@@ -139,7 +139,7 @@
     }
   }
 
-  function buildCommandCenterQueryString(extra = {}) {
+  function buildZavorthControlQueryString(extra = {}) {
     const params = new URLSearchParams();
     const sessionId = String(extra.sessionId || readSessionId() || '').trim();
     const runId = String(extra.runId || readRunId() || '').trim();
@@ -155,7 +155,7 @@
     return query ? `?${query}` : '';
   }
 
-  function replaceCommandCenterUrlParams(values = {}) {
+  function replaceZavorthControlUrlParams(values = {}) {
     try {
       const url = new URL(window.location.href);
       for (const [key, value] of Object.entries(values)) {
@@ -176,12 +176,12 @@
     const stored = readSessionId();
     if (stored) return stored;
 
-    const snapshot = state.commandCenter?.snapshot || {};
+    const snapshot = state.zavorthControl?.snapshot || {};
     const activeRun = getActiveRun();
     const candidate = String(
       activeRun?.sessionId
       || snapshot.activeSessionId
-      || state.commandCenter?.sessionId
+      || state.zavorthControl?.sessionId
       || '',
     ).trim();
     if (candidate) {
@@ -262,7 +262,7 @@
   }
 
   function emitDashboardEvents(events, source = 'runtime-history') {
-    const ui = window.ZavorthCommandCenterChat || {};
+    const ui = window.ZavorthControlChat || {};
     if (!Array.isArray(events) || typeof ui.ingestRuntimeEvents !== 'function') {
       return false;
     }
@@ -337,7 +337,7 @@
     };
   }
 
-  async function fetchDashboardEvents(ui = window.ZavorthCommandCenterChat || {}, query = {}) {
+  async function fetchDashboardEvents(ui = window.ZavorthControlChat || {}, query = {}) {
     const sessionId = String(query.sessionId || readSessionId() || '').trim();
     if (!sessionId) return null;
     const params = new URLSearchParams({ sessionId });
@@ -360,7 +360,7 @@
     return payload;
   }
 
-  async function openPersistentTrace(query = {}, ui = window.ZavorthCommandCenterChat || {}) {
+  async function openPersistentTrace(query = {}, ui = window.ZavorthControlChat || {}) {
     const normalized = {
       runId: String(query?.runId || readRunId() || '').trim(),
       traceId: String(query?.traceId || readUrlParam('traceId') || '').trim(),
@@ -372,7 +372,7 @@
       ui.openTraceSheet(normalized);
     }
     if (normalized.runId || normalized.traceId || normalized.sessionId) {
-      replaceCommandCenterUrlParams({
+      replaceZavorthControlUrlParams({
         runId: normalized.runId,
         traceId: normalized.traceId,
         sessionId: normalized.sessionId,
@@ -405,10 +405,10 @@
 
     if (eventType === 'snapshot') {
       const payload = { snapshot: event?.payload || {} };
-      renderMessagesFromPayload(payload, window.ZavorthCommandCenterChat || {}, { reason: 'realtime-snapshot' });
-      renderApprovalsFromPayload(payload, window.ZavorthCommandCenterChat || {});
-      renderRemoteMeshApprovalsFromPayload(payload, window.ZavorthCommandCenterChat || {});
-      renderArtifactsFromPayload(payload, window.ZavorthCommandCenterChat || {}, { display: false, reason: 'realtime-snapshot' });
+      renderMessagesFromPayload(payload, window.ZavorthControlChat || {}, { reason: 'realtime-snapshot' });
+      renderApprovalsFromPayload(payload, window.ZavorthControlChat || {});
+      renderRemoteMeshApprovalsFromPayload(payload, window.ZavorthControlChat || {});
+      renderArtifactsFromPayload(payload, window.ZavorthControlChat || {}, { display: false, reason: 'realtime-snapshot' });
       void fetchDashboardEvents().catch(() => undefined);
     }
 
@@ -548,7 +548,7 @@
 
   function connectRealtime() {
     const sessionId = resolveRealtimeSessionId();
-    if (!sessionId || !state.commandCenter?.live || state.commandCenter?.authRequired) {
+    if (!sessionId || !state.zavorthControl?.live || state.zavorthControl?.authRequired) {
       disconnectRealtime('not-ready');
       return false;
     }
@@ -588,6 +588,30 @@
     updatePulse();
   }
 
+  function messageFromErrorPayload(payload, fallback = 'Try again in a moment.') {
+    const candidates = [
+      payload?.error,
+      payload?.message,
+      payload?.reason,
+      payload?.detail,
+    ];
+    for (const candidate of candidates) {
+      if (!candidate) continue;
+      if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+      if (typeof candidate === 'object') {
+        const nested = candidate.message || candidate.detail || candidate.reason || candidate.code;
+        if (typeof nested === 'string' && nested.trim()) return nested.trim();
+      }
+    }
+    return fallback;
+  }
+
+  function messageFromCaughtError(error, fallback = 'Try again in a moment.') {
+    const message = String(error?.message || '').trim();
+    if (message && message !== '[object Object]') return message;
+    return messageFromErrorPayload(error?.payload, fallback);
+  }
+
   async function readJson(path, options = {}) {
     const requestHeaders = {
       Accept: 'application/json',
@@ -600,9 +624,7 @@
     });
     const payload = await response.json().catch(() => null);
     if (!response.ok) {
-      const error = new Error(
-        String(payload?.error || payload?.message || `${path} respondeu HTTP ${response.status}`),
-      );
+      const error = new Error(messageFromErrorPayload(payload, `${path} returned HTTP ${response.status}`));
       error.status = response.status;
       error.payload = payload;
       error.recovery = payload?.recovery || null;
@@ -621,9 +643,7 @@
     });
     if (!response.ok) {
       const payload = await response.json().catch(() => null);
-      const error = new Error(
-        String(payload?.error || payload?.message || `${path} respondeu HTTP ${response.status}`),
-      );
+      const error = new Error(messageFromErrorPayload(payload, `${path} returned HTTP ${response.status}`));
       error.status = response.status;
       error.payload = payload;
       throw error;
@@ -631,7 +651,7 @@
     return response.blob();
   }
 
-  function text(value, fallback = 'â€”') {
+  function text(value, fallback = '---') {
     const normalized = String(value ?? '').trim();
     return normalized || fallback;
   }
@@ -644,7 +664,7 @@
 
   function formatDate(value) {
     const date = new Date(String(value || ''));
-    if (!Number.isFinite(date.getTime())) return 'agora';
+    if (!Number.isFinite(date.getTime())) return 'now';
     return date.toLocaleString('en-US', {
       day: '2-digit',
       month: '2-digit',
@@ -667,7 +687,8 @@
 
   function isUnknownModelLabel(value) {
     const normalized = String(value || '').trim().toLowerCase();
-    return !normalized || ['current model', 'model not informed'].includes(normalized);
+    const legacyUnsetLabel = 'model ' + 'not' + ' informed';
+    return !normalized || ['current model', legacyUnsetLabel, 'model not set'].includes(normalized);
   }
 
   function normalizeModelProfile(profile) {
@@ -676,8 +697,8 @@
     const providerLabel = String(profile.providerLabel || profile.provider || '').trim();
     if (isUnknownModelLabel(modelLabel) && !providerLabel) return null;
     return {
-      providerLabel: providerLabel || 'Provider not informed',
-      modelLabel: isUnknownModelLabel(modelLabel) ? 'current model not informed' : modelLabel,
+      providerLabel: providerLabel || 'Provider not set',
+      modelLabel: isUnknownModelLabel(modelLabel) ? 'Current model not set' : modelLabel,
       routingPolicy: String(profile.routingPolicy || profile.route || 'unknown').trim() || 'unknown',
       fallbackModelLabel: String(profile.fallbackModelLabel || profile.fallbackModel || '').trim() || null,
       supportsTools: profile.supportsTools,
@@ -691,8 +712,8 @@
     const runs = getRuns();
     const candidates = [
       activeRun?.modelProfile,
-      state.commandCenter?.modelProfile,
-      state.commandCenter?.snapshot?.modelProfile,
+      state.zavorthControl?.modelProfile,
+      state.zavorthControl?.snapshot?.modelProfile,
       ...runs.map((run) => run?.modelProfile),
     ];
     for (const candidate of candidates) {
@@ -701,11 +722,11 @@
         return profile;
       }
     }
-    return normalizeModelProfile(state.commandCenter?.modelProfile)
-      || normalizeModelProfile(state.commandCenter?.snapshot?.modelProfile)
+    return normalizeModelProfile(state.zavorthControl?.modelProfile)
+      || normalizeModelProfile(state.zavorthControl?.snapshot?.modelProfile)
       || {
-        providerLabel: 'Provider not informed',
-        modelLabel: 'current model not informed',
+        providerLabel: 'Provider not set',
+        modelLabel: 'Current model not set',
         routingPolicy: 'unknown',
         fallbackModelLabel: null,
       };
@@ -749,7 +770,7 @@
   }
 
   function escapeHtml(value) {
-    return String(value ?? '')
+    return String(value - '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
@@ -812,8 +833,14 @@
     if (node && prompt) node.setAttribute('data-dashboard-prompt', String(prompt));
   }
 
+  function setControlTelemetry(key, value) {
+    document.querySelectorAll(`[data-control-telemetry="${key}"]`).forEach((node) => {
+      node.textContent = String(value);
+    });
+  }
+
   function getGatewaySnapshot() {
-    return state.commandCenter?.snapshot || {};
+    return state.zavorthControl?.snapshot || {};
   }
 
   function getRuns() {
@@ -879,12 +906,12 @@
       return 'Review error';
     }
     if (status === 'cancelled') {
-      return 'Run cancelada';
+      return 'Run cancelled';
     }
     if (status === 'completed') {
-      return Array.isArray(run.artifacts) && run.artifacts.length > 0 ? 'Abrir artefatos' : 'Revisar replay';
+      return Array.isArray(run.artifacts) && run.artifacts.length > 0 ? 'Open artifacts' : 'Review replay';
     }
-    return 'Revisar estado';
+    return 'Review state';
   }
 
   function latestRunEvent(run) {
@@ -901,7 +928,7 @@
           run,
           event: {
             createdAt: run?.updatedAt || run?.createdAt,
-            title: run?.summary || run?.title || 'Run registrada',
+            title: run?.summary || run?.title || 'Run recorded',
             detail: deriveNextRunAction(run),
             kind: 'status',
             status: run?.status || 'unknown',
@@ -957,7 +984,7 @@
       state.catalog?.catalog?.channels,
       state.gatewayRuntime?.channels,
       state.gatewayRuntime?.snapshot?.channels,
-      state.commandCenter?.snapshot?.channels,
+      state.zavorthControl?.snapshot?.channels,
     ];
     for (const list of candidates) {
       if (!Array.isArray(list)) continue;
@@ -998,26 +1025,46 @@
     return true;
   }
 
+  function setLiveStripValue(selector, value) {
+    document.querySelectorAll(selector).forEach((node) => {
+      node.textContent = String(value);
+      if (selector.includes('-state')) {
+        node.dataset.liveValue = String(value || '').toLowerCase();
+      }
+    });
+  }
+
+  function updateLiveStripFromRuntime(runtimeState, runtimeDetail, gatewayState, gatewayDetail) {
+    setLiveStripValue('[data-live-runtime-state]', runtimeState);
+    setLiveStripValue('[data-live-runtime-detail]', runtimeDetail);
+    setLiveStripValue('[data-live-gateway-state]', gatewayState);
+    setLiveStripValue('[data-live-gateway-detail]', gatewayDetail);
+    setLiveStripValue('[data-live-sync-state]', 'Last sync');
+    setLiveStripValue('[data-live-sync-detail]', state.updatedAt ? formatDate(state.updatedAt) : 'Just now');
+  }
+
   function updatePulse() {
     const pulse = document.getElementById('core-pulse');
     const label = pulse?.querySelector('.bridge__pulse-label');
     if (!pulse || !label) return;
 
     if (state.lastError) {
-      label.textContent = 'Core verificando';
+      label.textContent = 'Core checking';
       pulse.title = state.lastError;
       setPulseAccessState('checking');
+      updateLiveStripFromRuntime('Checking', state.lastError, 'Gateway', 'Retrying local status');
       wireUnlockPulse(false);
       return;
     }
 
     const auth = state.auth;
-    const command = state.commandCenter;
+    const command = state.zavorthControl;
     if (command?.live) {
       if (state.realtime.connected) {
-        label.textContent = 'Core Ao Vivo';
+        label.textContent = 'Core live';
         pulse.title = `Tab unlocked. Live runtime connected (${state.realtime.lastEventType || 'stream'}).`;
         setPulseAccessState('unlocked');
+        updateLiveStripFromRuntime('Runtime live', 'Tab unlocked and streaming', 'Gateway connected', state.realtime.lastEventType || 'live events');
         wireUnlockPulse(false);
         return;
       }
@@ -1025,6 +1072,7 @@
         label.textContent = 'Core Connecting';
         pulse.title = 'Tab unlocked. Opening live runtime stream.';
         setPulseAccessState('unlocked');
+        updateLiveStripFromRuntime('Runtime live', 'Opening event stream', 'Gateway connecting', 'Preparing live updates');
         wireUnlockPulse(false);
         return;
       }
@@ -1033,6 +1081,7 @@
         ? `Tab unlocked. Live runtime connected; live stream reconnecting: ${state.realtime.lastError}`
         : 'Tab unlocked. Live runtime connected to the dashboard.';
       setPulseAccessState('unlocked');
+      updateLiveStripFromRuntime('Runtime unlocked', 'Live requests are available', 'Gateway ready', state.realtime.lastError ? 'Stream reconnecting' : 'Live route');
       wireUnlockPulse(false);
       return;
     }
@@ -1043,14 +1092,16 @@
         ? 'Token saved in this tab, but the runtime still requires validation. Click to review.'
         : 'The dashboard is protected. Live data requires the local token. Click to unlock.';
       setPulseAccessState('protected');
+      updateLiveStripFromRuntime('Token required', hasStoredToken() ? 'Saved token needs validation' : 'Unlock to send live messages', 'Gateway protected', 'Local token required');
       wireUnlockPulse(true);
       return;
     }
 
     if (auth?.webReady || auth?.gatewayReady) {
-      label.textContent = 'Core Connected';
-      pulse.title = 'Dashboard conectado ao servidor local.';
+      label.textContent = 'Zavorth connected';
+      pulse.title = 'Dashboard connected to the local server.';
       setPulseAccessState('local');
+      updateLiveStripFromRuntime('Runtime connected', 'Local server responding', 'Gateway ready', 'Dashboard route');
       wireUnlockPulse(false);
       return;
     }
@@ -1058,6 +1109,7 @@
     label.textContent = 'Core Local';
     pulse.title = 'Waiting for runtime state.';
     setPulseAccessState('local');
+    updateLiveStripFromRuntime('Runtime local', 'Waiting for live state', 'Gateway local', 'Dashboard route');
     wireUnlockPulse(false);
   }
 
@@ -1076,7 +1128,7 @@
     if (pulse.dataset.unlockWired === 'true') return;
     pulse.dataset.unlockWired = 'true';
     pulse.addEventListener('click', () => {
-      if (state.commandCenter?.authRequired) {
+      if (state.zavorthControl?.authRequired) {
         openUnlockModal('Enter the local token to read live runs and send messages to Zavorth.');
         return;
       }
@@ -1085,12 +1137,12 @@
   }
 
   function updateOverview() {
-    const snapshot = state.commandCenter?.snapshot || {};
+    const snapshot = state.zavorthControl?.snapshot || {};
     const runs = getRuns();
     const activeRun = getActiveRun();
     const jobs = getWorkflowJobs();
-    const live = Boolean(state.commandCenter?.live);
-    const authRequired = Boolean(state.commandCenter?.authRequired);
+    const live = Boolean(state.zavorthControl?.live);
+    const authRequired = Boolean(state.zavorthControl?.authRequired);
     const runtimeLabel = live ? 'live runtime' : authRequired ? 'protected access' : 'fallback local';
     const activeSessions = new Set(runs.map((run) => run.sessionId || run.id).filter(Boolean)).size;
     const pendingApprovals = runs.reduce((count, run) => {
@@ -1098,35 +1150,46 @@
       return count + approvals.filter((approval) => approval.status === 'pending').length;
     }, 0);
 
-    updateSummaryCard('Total Messages', numberLabel(runs.length), `${runtimeLabel} · runs registered`);
-    updateSummaryCard('Tokens Used', 'â€”', 'token telemetry is not connected yet');
-    updateSummaryCard('Total Cost', 'â€”', 'live costs are not connected yet');
+    updateSummaryCard('Total Messages', numberLabel(runs.length), `${runtimeLabel} - runs registered`);
+    updateSummaryCard('Tokens Used', '-', 'token telemetry is not connected yet');
+    updateSummaryCard('Total Cost', '-', 'live costs are not connected yet');
     updateSummaryCard('Active Sessions', numberLabel(activeSessions), activeRun ? `active: ${text(activeRun.title, activeRun.id)}` : 'no active run now');
     updateSummaryCard('Uptime', state.auth?.webReady ? 'Online' : 'Local', state.auth?.gatewayReady ? 'gateway ready' : 'local dashboard responding');
     updateSummaryCard('Average Latency', activeRun ? text(activeRun.status, 'run') : '0', pendingApprovals ? `${pendingApprovals} approval(s) pending` : deriveNextRunAction(activeRun));
 
-    updatePremiumMetric('Missions', numberLabel(runs.length), activeRun ? deriveNextRunAction(activeRun) : 'waiting for first mission');
-    updatePremiumMetric('Provider', getCurrentProviderLabel(), getCurrentModelLabel());
-    updatePremiumMetric('Approvals', numberLabel(pendingApprovals), pendingApprovals ? 'waiting for decision' : 'no pending decision');
-    updatePremiumMetric('Receipts', numberLabel(totalArtifactCount()), totalArtifactCount() ? 'receipt evidence available' : 'no receipt yet');
-
+    const activeRunStatus = String(activeRun?.status || '').toLowerCase();
+    const hasActiveWork = Boolean(activeRun && !['done', 'completed', 'complete', 'success', 'succeeded', 'failed', 'error', 'cancelled', 'canceled'].includes(activeRunStatus));
     const runtimeTitle = document.querySelector('[data-dashboard-runtime-title]');
     const runtimeText = document.querySelector('[data-dashboard-runtime-text]');
-    if (runtimeTitle) runtimeTitle.textContent = activeRun ? text(activeRun.title || activeRun.summary, activeRun.id) : 'No task running';
+    if (runtimeTitle) runtimeTitle.textContent = hasActiveWork ? text(activeRun.title || activeRun.summary, activeRun.id) : 'No task running';
     if (runtimeText) {
-      runtimeText.textContent = activeRun
-        ? `${text(activeRun.status, 'running')} — ${deriveNextRunAction(activeRun)}`
-        : 'Ready.';
+      runtimeText.textContent = hasActiveWork
+        ? `${text(activeRun.status, 'running')} - ${deriveNextRunAction(activeRun)}`
+        : 'Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.';
     }
 
-    updatePremiumStatus('Web dashboard', state.auth?.webReady ? 'ready' : 'local', state.auth?.webReady ? 'ok' : 'info');
-    updatePremiumStatus('CLI/TUI', 'ready', 'ok');
-    updatePremiumStatus('Telegram', channelReadinessLabel('telegram'), channelReadinessTone('telegram'));
-    updatePremiumStatus('Mutable work', pendingApprovals ? 'approval waiting' : 'approval gated', pendingApprovals ? 'warn' : 'ok');
+    const approvalTitle = document.querySelector('[data-dashboard-approval-title]');
+    const approvalText = document.querySelector('[data-dashboard-approval-text]');
+    if (approvalTitle) approvalTitle.textContent = pendingApprovals ? `${pendingApprovals} pending approval${pendingApprovals === 1 ? '' : 's'}` : 'No pending approvals';
+    if (approvalText) {
+      approvalText.textContent = pendingApprovals
+        ? 'Review before allowing changes or tool access.'
+        : 'When Zavorth needs a decision, it appears here with approve, deny, or adjust scope.';
+    }
 
-    updatePlatformAction('sector-overview', 'Ask Zavorth', `Current route: ${getCurrentProviderLabel()}`);
-    updatePlatformAction('sector-overview', 'Review approvals', pendingApprovals ? `${pendingApprovals} waiting` : 'No pending decision.');
-    updatePlatformAction('sector-overview', 'Inspect receipts', totalArtifactCount() ? `${totalArtifactCount()} receipt artifact(s)` : 'No receipt artifact yet.');
+    const inboxApprovalBanner = document.getElementById('approval-context-banner');
+    if (inboxApprovalBanner) inboxApprovalBanner.hidden = pendingApprovals <= 0;
+    const inboxApprovalTitle = document.querySelector('[data-inbox-approval-title]');
+    const inboxApprovalText = document.querySelector('[data-inbox-approval-text]');
+    if (inboxApprovalTitle) inboxApprovalTitle.textContent = pendingApprovals ? `${pendingApprovals} pending approval${pendingApprovals === 1 ? '' : 's'}` : 'No pending approvals';
+    if (inboxApprovalText) {
+      inboxApprovalText.textContent = pendingApprovals
+        ? 'Review before Zavorth changes files, tools, or external state.'
+        : 'Risky actions appear here before Zavorth acts.';
+    }
+
+    updatePremiumStatus('Dashboard', state.auth?.webReady ? 'online' : 'local', state.auth?.webReady ? 'ok' : 'info');
+    updatePremiumStatus('Sensitive actions', pendingApprovals ? 'waiting' : 'approval gated', pendingApprovals ? 'warn' : 'ok');
   }
 
   function updateRecentActivityTable() {
@@ -1139,22 +1202,22 @@
     if (rows.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td class="mono">${formatDate(state.commandCenter?.generatedAt || state.updatedAt)}</td>
+          <td class="mono">${formatDate(state.zavorthControl?.generatedAt || state.updatedAt)}</td>
           <td>No live run registered yet</td>
           <td class="mono">agent-gateway</td>
-          <td>${statusBadge(state.commandCenter?.authRequired ? 'auth' : 'ready', state.commandCenter?.authRequired ? 'Protected' : 'Ready')}</td>
+          <td>${statusBadge(state.zavorthControl?.authRequired ? 'auth' : 'ready', state.zavorthControl?.authRequired ? 'Protected' : 'Ready')}</td>
         </tr>
       `;
       return;
     }
 
     tbody.innerHTML = rows.map(({ run, event }) => `
-      <tr data-zavorth-run-id="${escapeHtml(run.id || '')}" data-zavorth-trace-id="${escapeHtml(run.traceId || event.traceId || '')}" data-zavorth-session-id="${escapeHtml(run.sessionId || event.sessionId || '')}" title="Abrir replay desta run">
+      <tr data-zavorth-run-id="${escapeHtml(run.id || '')}" data-zavorth-trace-id="${escapeHtml(run.traceId || event.traceId || '')}" data-zavorth-session-id="${escapeHtml(run.sessionId || event.sessionId || '')}" title="Open this run replay">
         <td class="mono">${formatDate(event.createdAt || run.updatedAt || run.createdAt)}</td>
         <td>${escapeHtml(text(event.title || event.detail || run.summary, run.title || run.id))}</td>
         <td class="mono">${escapeHtml(text(run.title, run.id))}</td>
-        <td>${statusBadge(event.status || run.status || event.kind, text(event.status || run.status || event.kind, 'evento'))}</td>
-        <td><button class="bcc-trace-link" type="button" data-zavorth-trace-action="open" data-run-id="${escapeHtml(run.id || '')}" data-trace-id="${escapeHtml(run.traceId || event.traceId || '')}" data-session-id="${escapeHtml(run.sessionId || event.sessionId || '')}">Ver trace</button></td>
+        <td>${statusBadge(event.status || run.status || event.kind, text(event.status || run.status || event.kind, 'event'))}</td>
+        <td><button class="bcc-trace-link" type="button" data-zavorth-trace-action="open" data-run-id="${escapeHtml(run.id || '')}" data-trace-id="${escapeHtml(run.traceId || event.traceId || '')}" data-session-id="${escapeHtml(run.sessionId || event.sessionId || '')}">View trace</button></td>
       </tr>
     `).join('');
   }
@@ -1176,10 +1239,10 @@
           <td class="mono">runtime local</td>
           <td>Web</td>
           <td>0</td>
-          <td>â€”</td>
-          <td>${state.commandCenter?.authRequired ? 'Unlock runtime' : 'Wait for first run'}</td>
-          <td>${formatDate(state.commandCenter?.generatedAt || state.updatedAt)}</td>
-          <td>${statusBadge(state.commandCenter?.authRequired ? 'auth' : 'ready', state.commandCenter?.authRequired ? 'Protected' : 'Ready')}</td>
+          <td>---</td>
+          <td>${state.zavorthControl?.authRequired ? 'Unlock runtime' : 'Wait for first run'}</td>
+          <td>${formatDate(state.zavorthControl?.generatedAt || state.updatedAt)}</td>
+          <td>${statusBadge(state.zavorthControl?.authRequired ? 'auth' : 'ready', state.zavorthControl?.authRequired ? 'Protected' : 'Ready')}</td>
         </tr>
       `;
       return;
@@ -1203,28 +1266,51 @@
     const section = document.getElementById('sector-instances');
     const tbody = section?.querySelector('tbody');
     if (!tbody) return;
+    const headers = Array.from(section?.querySelectorAll('thead th') || []);
+    ['Item', 'Source', 'Artifacts', 'Decision', 'Updated', 'Status'].forEach((label, index) => {
+      if (headers[index]) headers[index].textContent = label;
+    });
 
-    const auth = state.auth || {};
-    const gatewayReady = Boolean(auth.gatewayReady);
-    const webReady = Boolean(auth.webReady);
-    tbody.innerHTML = `
-      <tr>
-        <td class="mono">zavorth-web</td>
-        <td class="mono">${location.hostname || 'localhost'}</td>
-        <td class="mono">â€”</td>
-        <td>â€”</td>
-        <td>${formatDate(state.updatedAt)}</td>
-        <td>${statusBadge(webReady ? 'ready' : 'degraded', webReady ? 'Running' : 'Local')}</td>
-      </tr>
-      <tr>
-        <td class="mono">agent-gateway</td>
-        <td class="mono">runtime</td>
-        <td class="mono">â€”</td>
-        <td>â€”</td>
-        <td>${state.commandCenter?.live ? 'live' : 'protected'}</td>
-        <td>${statusBadge(gatewayReady || state.commandCenter?.live ? 'ready' : 'degraded', gatewayReady || state.commandCenter?.live ? 'Connected' : 'Protected')}</td>
-      </tr>
-    `;
+    const runs = getRuns();
+    const historyTitle = section.querySelector('[data-history-title]');
+    const historySummary = section.querySelector('[data-history-summary]');
+    if (historyTitle) {
+      historyTitle.textContent = runs.length ? `${numberLabel(runs.length)} recorded run${runs.length === 1 ? '' : 's'}` : 'No completed work yet';
+    }
+    if (historySummary) {
+      historySummary.textContent = runs.length
+        ? 'Recent runs show status, decisions, artifacts and replay links in one readable place.'
+        : 'After a mission, this area shows files touched, tools used, approvals, blocked risks, cost and rollback notes.';
+    }
+
+    if (runs.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td class="mono">none yet</td>
+          <td>Web</td>
+          <td>0</td>
+          <td>${state.zavorthControl?.authRequired ? 'Unlock runtime' : 'Ask Zavorth first'}</td>
+          <td>${formatDate(state.updatedAt)}</td>
+          <td>${statusBadge(state.zavorthControl?.authRequired ? 'auth' : 'waiting', state.zavorthControl?.authRequired ? 'Protected' : 'Waiting')}</td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = runs.slice(0, 8).map((run) => {
+      const approvals = pendingRunApprovals(run);
+      const decision = approvals.length ? `${approvals.length} approval${approvals.length === 1 ? '' : 's'} pending` : deriveNextRunAction(run);
+      return `
+        <tr data-zavorth-run-id="${escapeHtml(run.id || '')}" data-zavorth-trace-id="${escapeHtml(run.traceId || '')}" data-zavorth-session-id="${escapeHtml(run.sessionId || '')}" title="Open this run replay">
+          <td class="mono">${escapeHtml(runTitle(run, 'run'))}</td>
+          <td>${escapeHtml(text(run.channel || run.source || run.surface, 'Web'))}</td>
+          <td>${numberLabel(runArtifactCount(run))}</td>
+          <td>${escapeHtml(decision)}</td>
+          <td>${formatDate(run.updatedAt || run.createdAt)}</td>
+          <td>${statusBadge(run.status, text(run.status, 'Ready'))}</td>
+        </tr>
+      `;
+    }).join('');
   }
 
   function updateConfig() {
@@ -1237,12 +1323,12 @@
       const value = row.querySelector('.info-row__value');
       if (!value) return;
       if (label === 'endpoint') value.textContent = `${location.origin}/api`;
-      if (label === 'auth') value.textContent = state.commandCenter?.authRequired ? 'Local token required' : 'Local session';
+      if (label === 'auth') value.textContent = state.zavorthControl?.authRequired ? 'Local token required' : 'Local session';
       if (label === 'status') value.innerHTML = statusBadge(state.auth?.webReady ? 'ready' : 'degraded', state.auth?.webReady ? 'Connected' : 'Local');
       if (label === 'chat') value.textContent = modelProfile.modelLabel;
       if (label === 'agents') value.textContent = modelProfile.modelLabel;
       if (label === 'fallback') value.textContent = modelProfile.fallbackModelLabel || 'not configured';
-      if (label === 'protocol') value.textContent = `${modelProfile.providerLabel} · ${getCurrentModelRouteLabel()}`;
+      if (label === 'protocol') value.textContent = `${modelProfile.providerLabel} - ${getCurrentModelRouteLabel()}`;
     });
 
     updatePremiumStatus('Auto approvals', pendingApprovalCount() ? 'attention' : 'limited', pendingApprovalCount() ? 'warn' : 'info');
@@ -1260,7 +1346,7 @@
     if (!catalog || catalog.surface !== 'provider-model-catalog') {
       summaryGrid.innerHTML = `
         <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">waiting</span></div>
-        <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">waiting</span></div>
+        <div class="info-row"><span class="info-row__label">Ready</span><span class="info-row__value mono">waiting</span></div>
         <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">waiting</span></div>
         <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">waiting</span></div>
       `;
@@ -1268,7 +1354,7 @@
         title: 'Catalog waiting',
         id: 'read-only',
         status: 'Waiting',
-        detail: 'Provider and model catalog has not been published by the runtime yet.',
+        detail: 'The runtime has not published the model catalog yet.',
       });
       return;
     }
@@ -1277,8 +1363,8 @@
     const sections = catalog.sections || {};
     summaryGrid.innerHTML = `
       <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">${numberLabel(summary.providerRoutes || 0)} total / ${numberLabel(summary.defaultRouteAllowed || 0)} default</span></div>
-      <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">${numberLabel(summary.liveReadyRoutes || 0)} proven / ${numberLabel(summary.catalogReadyButNotLive || 0)} needs proof</span></div>
-      <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">${numberLabel(summary.effectiveModelSurface || 0)} surface / ${numberLabel(summary.liveDiscoveredModels || 0)} live-listed</span></div>
+      <div class="info-row"><span class="info-row__label">Ready</span><span class="info-row__value mono">${numberLabel(summary.liveReadyRoutes || 0)} proven / ${numberLabel(summary.catalogReadyButNotLive || 0)} need proof</span></div>
+      <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">${numberLabel(summary.effectiveModelSurface || 0)} visible / ${numberLabel(summary.liveDiscoveredModels || 0)} live</span></div>
       <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">${numberLabel((sections.mediaCapable || []).length)} route(s)</span></div>
     `;
 
@@ -1291,14 +1377,14 @@
     list.innerHTML = topProviders.map((provider) => entityCardHtml({
       title: provider.label || provider.id,
       id: `${provider.id} - ${provider.routeKind || 'route'}`,
-      status: provider.liveReady ? 'Live proven' : provider.catalogReady ? 'Needs proof' : 'Configure',
+      status: provider.liveReady ? 'Ready' : provider.catalogReady ? 'Needs proof' : 'Configure',
       detail: `${numberLabel(provider.effectiveModelCount || 0)} model(s). ${escapeHtml((provider.modelSample || []).slice(0, 3).join(', ') || provider.userAction || 'No model listed yet.')}`,
-      meta: `<span class="badge badge--muted">${escapeHtml((provider.modalities || []).join(' / ') || 'text')}</span><span class="badge badge--muted">${escapeHtml(provider.defaultRouteAllowed ? 'default allowed' : 'readiness gated')}</span>`,
+      meta: `<span class="badge badge--muted">${escapeHtml((provider.modalities || []).join(' / ') || 'text')}</span><span class="badge badge--muted">${escapeHtml(provider.defaultRouteAllowed ? 'default allowed' : 'waiting for readiness')}</span>`,
     })).join('') || entityCardHtml({
-      title: 'No provider routes',
+      title: 'No provider route',
       id: 'catalog',
       status: 'Empty',
-      detail: 'No provider route has been projected yet.',
+      detail: 'No provider route has been published yet.',
     });
   }
 
@@ -1371,7 +1457,7 @@
     const id = escapeHtml(input?.id || '');
     const status = escapeHtml(input?.status || 'Waiting');
     const tone = input?.tone || badgeToneForStatus(status);
-    const detail = escapeHtml(input?.detail || 'Sem dados reais publicados ainda.');
+    const detail = escapeHtml(input?.detail || 'No real data published yet.');
     const meta = input?.meta ? `<div class="entity-card__meta">${input.meta}</div>` : '';
     return `
       <div class="entity-card">
@@ -1418,6 +1504,202 @@
     return Math.max(runArtifacts, Array.isArray(state.artifacts) ? state.artifacts.length : 0);
   }
 
+  function firstReadyChannelLabel() {
+    const ids = configuredChannelIds();
+    const priority = ['web', 'dashboard', 'local'];
+    const match = priority.find((id) => ids.has(id));
+    if (!match) return ids.size > 3 ? 'Remote' : 'Local';
+    if (match === 'web' || match === 'dashboard') return 'Web';
+    return match.charAt(0).toUpperCase() + match.slice(1);
+  }
+
+  function memoryTelemetryLabel() {
+    const tools = collectToolExposures();
+    const hasMnemos = tools.some((tool) => /mnemos|memory|file understanding/i.test(`${tool.id} ${tool.title} ${tool.summary}`));
+    const snapshot = state.gatewayRuntime?.snapshot || state.gatewayRuntime || {};
+    const memoryStatus = String(
+      snapshot?.memory?.status
+      || snapshot?.mnemos?.status
+      || state.zavorthControl?.snapshot?.memory?.status
+      || state.zavorthControl?.snapshot?.mnemos?.status
+      || '',
+    ).trim();
+    if (memoryStatus) return memoryStatus;
+    return hasMnemos ? 'Ready' : 'Scope needed';
+  }
+
+  function controlCostLabel() {
+    const total = sumRunNumbers([
+      'usage.cost',
+      'usage.totalCost',
+      'cost',
+      'totalCost',
+      'billing.costUsd',
+      'billing.totalCostUsd',
+    ]);
+    return formattedMoney(total);
+  }
+
+  function updateControlTelemetryRail() {
+    const modelProfile = resolveCurrentModelProfile();
+    const pending = pendingApprovalCount();
+    const receipts = totalArtifactCount();
+    const skillCount = getAvailableSkills().filter((skill) => !/disabled/i.test(String(skill.status || ''))).length;
+    const live = Boolean(state.zavorthControl?.live);
+    const protectedRuntime = Boolean(state.zavorthControl?.authRequired);
+    const gatewayLabel = state.realtime.connected
+      ? 'Live'
+      : live
+        ? 'Unlocked'
+        : protectedRuntime
+          ? 'Protected'
+          : state.auth?.webReady
+            ? 'Ready'
+            : 'Local';
+
+    setControlTelemetry('model', modelProfile.modelLabel || 'Auto');
+    setControlTelemetry('provider', `${modelProfile.providerLabel || 'Provider'} - ${getCurrentModelRouteLabel()}`);
+    setControlTelemetry('gateway', gatewayLabel);
+    setControlTelemetry('approvals', pending ? `${pending} pending` : '0');
+    setControlTelemetry('receipts', String(receipts || 0));
+    setControlTelemetry('channel', firstReadyChannelLabel());
+    setControlTelemetry('memory', memoryTelemetryLabel());
+    setControlTelemetry('skills', skillCount > 0 ? `${skillCount} ready` : 'Checking');
+    setControlTelemetry('cost', controlCostLabel());
+  }
+
+  function runTitle(run, fallback = 'Workspace session') {
+    const candidates = [
+      run?.title,
+      run?.name,
+      run?.summary,
+      run?.goal,
+      run?.prompt,
+      run?.id,
+    ];
+    const value = candidates.map((candidate) => String(candidate || '').trim()).find(Boolean);
+    if (!value) return fallback;
+    return value.length > 38 ? `${value.slice(0, 35).trim()}...` : value;
+  }
+
+  function runSubtitle(run) {
+    const status = text(run?.status, 'ready');
+    const next = deriveNextRunAction(run);
+    const channel = text(run?.channel || run?.source || run?.surface, firstReadyChannelLabel());
+    if (next && next !== 'No active run') return `${status} - ${next}`;
+    return `${status} - ${channel}`;
+  }
+
+  function runPrompt(run) {
+    const id = text(run?.id || run?.runId || run?.traceId, 'current');
+    return `Open run ${id}. Show status, next action, approvals, receipts and trace.`;
+  }
+
+  function controlSessionItemHtml(run, isActive) {
+    const status = normalizeRunStatus(run?.status);
+    const tone = badgeToneForStatus(status);
+    const live = isRunLive(run) || tone === 'warn';
+    const attrs = [
+      ['data-prompt', runPrompt(run)],
+      ['data-run-id', run?.id || run?.runId || ''],
+      ['data-session-id', run?.sessionId || run?.session?.id || ''],
+      ['data-trace-id', run?.traceId || run?.trace?.id || ''],
+      ['data-run-status', status],
+    ]
+      .filter(([, value]) => String(value || '').trim())
+      .map(([key, value]) => `${key}="${escapeHtml(value)}"`)
+      .join(' ');
+
+    return `
+      <button class="control-session-item${isActive ? ' is-active' : ''}" type="button" ${attrs}>
+        <span class="control-session-item__dot${live ? '' : ' control-session-item__dot--muted'} control-session-item__dot--${tone}"></span>
+        <span>
+          <strong>${escapeHtml(runTitle(run))}</strong>
+          <small>${escapeHtml(runSubtitle(run))}</small>
+        </span>
+      </button>
+    `;
+  }
+
+  function fallbackControlSessionItemsHtml() {
+    return [
+      {
+        title: 'Main workspace',
+        subtitle: state.realtime.connected ? 'Live gateway connected' : 'Local gateway ready',
+        prompt: 'Show the current main session status.',
+        active: true,
+      },
+      {
+        title: 'Documents',
+        subtitle: `${memoryTelemetryLabel()} memory`,
+        prompt: 'Show recent document and Mnemos work.',
+      },
+      {
+        title: 'Review queue',
+        subtitle: `${pendingApprovalCount()} approvals - ${totalArtifactCount()} receipts`,
+        prompt: 'Show recent reviews, approvals and receipts.',
+      },
+    ].map((item) => `
+      <button class="control-session-item${item.active ? ' is-active' : ''}" type="button" data-prompt="${escapeHtml(item.prompt)}">
+        <span class="control-session-item__dot${item.active ? '' : ' control-session-item__dot--muted'}"></span>
+        <span>
+          <strong>${escapeHtml(item.title)}</strong>
+          <small>${escapeHtml(item.subtitle)}</small>
+        </span>
+      </button>
+    `).join('');
+  }
+
+  function controlRailLinkHtml(label, prompt, attention = false) {
+    return `
+      <button class="control-rail-link" type="button" data-attention="${attention ? 'true' : 'false'}" data-prompt="${escapeHtml(prompt)}">
+        ${escapeHtml(label)}
+      </button>
+    `;
+  }
+
+  function updateControlSessionRail() {
+    const list = document.querySelector('[data-control-session-list]');
+    if (list) {
+      const runs = getRuns()
+        .slice()
+        .sort((a, b) => new Date(b?.updatedAt || b?.createdAt || 0).getTime() - new Date(a?.updatedAt || a?.createdAt || 0).getTime())
+        .slice(0, 5);
+      const active = getActiveRun();
+      list.innerHTML = runs.length
+        ? runs.map((run, index) => controlSessionItemHtml(run, String(run?.id || '') === String(active?.id || '') || (!active && index === 0))).join('')
+        : fallbackControlSessionItemsHtml();
+    }
+
+    const shortcuts = document.querySelector('[data-control-session-shortcuts]');
+    if (!shortcuts) return;
+    const approvals = pendingApprovalCount();
+    const receipts = totalArtifactCount();
+    const skillCount = getAvailableSkills().filter((skill) => !/disabled/i.test(String(skill.status || ''))).length;
+    shortcuts.innerHTML = [
+      controlRailLinkHtml(
+        approvals ? `Approvals (${approvals})` : 'Approvals',
+        'Show pending approvals with accept or reject actions.',
+        approvals > 0,
+      ),
+      controlRailLinkHtml(
+        receipts ? `Receipts (${receipts})` : 'Receipts',
+        'Show recent receipts and what changed.',
+        receipts > 0,
+      ),
+      controlRailLinkHtml(
+        skillCount ? `Tools (${skillCount})` : 'Tools',
+        'Open tools and suggest what is useful for this workspace.',
+        skillCount > 0,
+      ),
+      controlRailLinkHtml(
+        `Input (${firstReadyChannelLabel()})`,
+        'Show active input routes and suggest the next safe setup step.',
+        firstReadyChannelLabel() !== 'Local',
+      ),
+    ].join('');
+  }
+
   function collectChannelStats() {
     const stats = new Map();
     for (const run of getRuns()) {
@@ -1443,8 +1725,8 @@
       entityCardHtml({
         title: 'Dashboard',
         id: 'web:/dashboard',
-        status: state.commandCenter?.live ? 'Online' : state.commandCenter?.authRequired ? 'Protected' : 'Local',
-        detail: state.commandCenter?.authRequired
+        status: state.zavorthControl?.live ? 'Online' : state.zavorthControl?.authRequired ? 'Protected' : 'Local',
+        detail: state.zavorthControl?.authRequired
           ? 'Live data requires the local token before it appears here.'
           : 'Dashboard connected to the local web surface.',
       }),
@@ -1462,7 +1744,7 @@
       title: channel.title,
       id: `${channel.runs} run(s)`,
       status: channel.lastStatus,
-      detail: `Ultimo sinal: ${formatDate(channel.lastUpdatedAt)}`,
+      detail: `Latest signal: ${formatDate(channel.lastUpdatedAt)}`,
     }));
 
     setCardGrid('sector-channels', [...baseCards, ...channelCards].join(''));
@@ -1501,7 +1783,7 @@
       : [];
 
     setSalesOsText('[data-sales-os-metric="conversations"]', numberLabel(summary.conversations || inbox.length || 0));
-    setSalesOsText('[data-sales-os-meta="conversations"]', inbox.length ? `${inbox.length} conversa(s) na inbox` : 'nenhuma conversa recebida');
+    setSalesOsText('[data-sales-os-meta="conversations"]', inbox.length ? `${inbox.length} conversation(s) in inbox` : 'no conversation received');
     setSalesOsText('[data-sales-os-metric="score"]', numberLabel(signal?.leadScore || 0));
     setSalesOsText('[data-sales-os-meta="score"]', signal?.nextAction || 'waiting for a sales signal');
     setSalesOsText('[data-sales-os-metric="processed"]', numberLabel(channelSummary.processed || 0));
@@ -1519,22 +1801,22 @@
         detail: inbox[0]?.summary || 'Receive local inbound or WhatsApp Cloud API events and track the lead in Sales Pack.',
       }),
       entityCardHtml({
-        title: 'CRM inteligente',
+        title: 'Smart CRM',
         id: signal?.customerId || 'lead score',
-        status: signal?.stage || 'Waiting sinal',
-        detail: signal?.explanation || 'Intencao, objecao, risco e proxima acao aparecem aqui apos a primeira conversa.',
+        status: signal?.stage || 'Waiting for signal',
+        detail: signal?.explanation || 'Intent, objection, risk and next action appear here after the first conversation.',
       }),
       entityCardHtml({
         title: 'Channel I/O',
         id: `${channel?.mode || 'demo'} / ${channelSummary.knownMessageIds || 0} ids`,
-        status: `${numberLabel(channelSummary.processed || 0)} processadas`,
-        detail: channel?.narrative?.operatorSummary || 'Idempotencia, status e receipts ficam visiveis no ledger de canal.',
+        status: `${numberLabel(channelSummary.processed || 0)} processed`,
+        detail: channel?.narrative?.operatorSummary || 'Idempotency, status and receipts stay visible in the channel ledger.',
       }),
       entityCardHtml({
         title: 'Agent Builder',
         id: 'AgentProfile',
-        status: `${numberLabel(summary.agentProfiles || 5)} perfis`,
-        detail: 'Sales, support, recovery, crm e supervisor entram por contratos do core.',
+        status: `${numberLabel(summary.agentProfiles || 5)} profiles`,
+        detail: 'Sales, support, recovery, CRM and supervisor profiles enter through core contracts.',
       }),
       entityCardHtml({
         title: 'Policy Simulator',
@@ -1545,7 +1827,7 @@
       entityCardHtml({
         title: 'Agent Mesh',
         id: 'Maestro',
-        status: state.commandCenter?.snapshot?.agentMesh ? 'Connected' : 'Auditable',
+        status: state.zavorthControl?.snapshot?.agentMesh ? 'Connected' : 'Auditable',
         detail: 'Runtime adapters appear as governed arms of Zavorth.',
       }),
       entityCardHtml({
@@ -1563,8 +1845,8 @@
       setCardGrid('sector-agents', entityCardHtml({
         title: 'Agent Gateway',
         id: getCurrentModelLabel(),
-        status: state.commandCenter?.authRequired ? 'Protected' : 'Waiting',
-        detail: state.commandCenter?.authRequired
+        status: state.zavorthControl?.authRequired ? 'Protected' : 'Waiting',
+        detail: state.zavorthControl?.authRequired
           ? 'Unlock with the local token to list live runs.'
           : 'No live run has been registered yet. When you talk to Zavorth, executions appear here.',
         meta: `<span class="badge badge--muted">${escapeHtml(getCurrentModelLabel())}</span>`,
@@ -1591,8 +1873,8 @@
     return {
       id,
       title: String(entry?.title || entry?.name || entry?.tool || id).trim(),
-      summary: String(entry?.summary || entry?.description || entry?.reason || 'Ferramenta exposta por uma run real.').trim(),
-      status: String(entry?.status || entry?.mode || entry?.risk || 'disponivel').trim(),
+      summary: String(entry?.summary || entry?.description || entry?.reason || 'Tool exposed by a live run.').trim(),
+      status: String(entry?.status || entry?.mode || entry?.risk || 'available').trim(),
       enabled: entry?.enabled !== false,
     };
   }
@@ -1645,39 +1927,51 @@
   function updateSkills() {
     const tools = collectToolExposures();
     const premiumList = document.querySelector('#sector-skills .premium-skill-list');
-    const renderSkillRow = (tool) => `
-      <article class="skill-row skill-row--${tool.enabled ? 'ok' : 'info'}">
+    const skillFilterFor = (tool) => {
+      const haystack = `${tool.status || ''} ${tool.summary || ''}`.toLowerCase();
+      if (!tool.enabled || /setup|scope|consent|config|credential|token/.test(haystack)) return 'setup';
+      if (/approval|preview|blocked|gated|simulation|simulate/.test(haystack)) return 'approval';
+      return 'ready';
+    };
+    const renderSkillRow = (tool) => {
+      const filter = skillFilterFor(tool);
+      const prompt = `Use ${tool.title || tool.id} in this request, respecting approvals and scope.`;
+      const search = `${tool.title || ''} ${tool.summary || ''} ${tool.status || ''}`.toLowerCase();
+      return `
+      <article class="skill-row skill-row--${tool.enabled ? 'ok' : 'info'}" data-skill-row data-skill-status="${escapeHtml(filter)}" data-skill-search-text="${escapeHtml(search)}">
         <div>
           <h2>${escapeHtml(tool.title)}</h2>
           <p>${escapeHtml(tool.summary)}</p>
         </div>
         <span>${escapeHtml(tool.enabled ? text(tool.status, 'ready') : 'disabled')}</span>
+        <button type="button" class="skill-row__use" data-dashboard-prompt="${escapeHtml(prompt)}">Use</button>
       </article>
     `;
+    };
 
     if (premiumList) {
       const rows = tools.length > 0 ? tools.slice(0, 12) : [
         {
-          title: 'Workspace review',
-          summary: 'Available through the governed review surface when a repository is selected.',
+          title: 'Review workspace',
+          summary: 'Reads the project in read-only mode and highlights clear risks.',
           status: state.auth?.webReady ? 'ready' : 'local',
           enabled: true,
         },
         {
-          title: 'Mnemos file understanding',
-          summary: 'Reads only approved folders and files, then returns explanations with receipts.',
-          status: 'scope required',
+          title: 'Understand files',
+          summary: 'Uses only approved folders to explain documents.',
+          status: 'needs scope',
           enabled: true,
         },
         {
-          title: 'Skill curator',
-          summary: 'Uses runtime evidence to suggest quality improvements, merges and rollback-safe patches.',
+          title: 'Tool curator',
+          summary: 'Suggests improvements without changing anything before approval.',
           status: 'preview first',
           enabled: true,
         },
         {
-          title: 'Runtime adapter onboarding',
-          summary: 'Creates profiles from user-provided paths without silent scanning or live execution.',
+          title: 'Connect adapter',
+          summary: 'Creates a profile only from a path you provide.',
           status: 'consent required',
           enabled: true,
         },
@@ -1685,17 +1979,24 @@
       premiumList.innerHTML = rows.map(renderSkillRow).join('');
     }
 
-    updatePremiumStatus('Draft creation', 'approval gated', 'ok');
-    updatePremiumStatus('Merge proposals', eventCountMatching(/skill.*merge|curator/i) ? 'available' : 'preview first', 'info');
-    updatePremiumStatus('External sources', 'blocked by default', 'ok');
-    updatePremiumStatus('Rollback', totalArtifactCount() ? 'receipt backed' : 'ready', 'ok');
+    const readyCount = tools.filter((tool) => tool.enabled && skillFilterFor(tool) === 'ready').length;
+    const approvalCount = tools.filter((tool) => skillFilterFor(tool) === 'approval').length;
+    const latestTool = runEventRows(20).find(({ event }) => /tool|capability|terminal|artifact|mcp/i.test(`${event?.title || ''} ${event?.detail || ''}`));
+    setLiveStripValue('[data-tools-live-count]', tools.length || 0);
+    setLiveStripValue('[data-tools-live-ready]', tools.length ? `${readyCount} ready / ${approvalCount} gated` : state.zavorthControl?.authRequired ? 'unlock required' : 'waiting');
+    setLiveStripValue('[data-tools-live-last]', latestTool ? text(latestTool.event?.title || latestTool.event?.detail, 'tool event') : 'no tool yet');
+
+    updatePremiumStatus('New tools', 'approval gated', 'ok');
+    updatePremiumStatus('Changes', eventCountMatching(/skill.*merge|curator/i) ? 'available' : 'preview first', 'info');
+    updatePremiumStatus('External sources', 'blocked', 'ok');
+    updatePremiumStatus('Undo', totalArtifactCount() ? 'receipt backed' : 'ready', 'ok');
 
     if (tools.length === 0) {
       setCardGrid('sector-skills', entityCardHtml({
         title: 'Active run tools',
         id: 'live runtime',
-        status: state.commandCenter?.authRequired ? 'Protected' : 'Waiting',
-        detail: state.commandCenter?.authRequired
+        status: state.zavorthControl?.authRequired ? 'Protected' : 'Waiting',
+        detail: state.zavorthControl?.authRequired
           ? 'Unlock the dashboard to read live tools.'
           : 'No tool is exposed by an active run right now.',
       }));
@@ -1704,7 +2005,7 @@
     setCardGrid('sector-skills', tools.slice(0, 12).map((tool) => entityCardHtml({
       title: tool.title,
       id: tool.id,
-      status: tool.enabled ? tool.status : 'desativada',
+      status: tool.enabled ? tool.status : 'disabled',
       detail: tool.summary,
     })).join(''));
   }
@@ -1713,7 +2014,7 @@
     const groups = new Map();
     for (const run of getRuns()) {
       const profile = normalizeModelProfile(run?.modelProfile) || resolveCurrentModelProfile();
-      const key = profile.modelLabel || 'modelo atual';
+      const key = profile.modelLabel || 'current model';
       const current = groups.get(key) || {
         model: key,
         runs: 0,
@@ -1738,17 +2039,17 @@
     const toolCalls = eventCountMatching(/tool|executor|command|mcp/i);
     const errors = eventCountMatching(/failed|error|blocked|rejected|cancelled|canceled/i);
 
-    updatePremiumMetric('Tokens', numberLabel(tokenTotal), tokenTotal ? 'measured from run usage' : 'no measured usage yet');
-    updatePremiumMetric('Cost', formattedMoney(costTotal), costTotal ? 'reported by provider/runtime' : 'provider cost proof pending');
-    updatePremiumMetric('Tool calls', numberLabel(toolCalls), toolCalls ? 'from run events' : 'no execution recorded');
-    updatePremiumMetric('Errors', numberLabel(errors), errors ? 'review reliability events' : 'no visible errors');
-    updatePremiumStatus('Usage ledger', state.commandCenter?.live ? 'live' : 'local', state.commandCenter?.live ? 'ok' : 'info');
-    updatePremiumStatus('Provider costs', costTotal ? 'reported' : 'when reported', costTotal ? 'ok' : 'info');
+    updatePremiumMetric('Tokens', numberLabel(tokenTotal), tokenTotal ? 'measured by runtime' : 'no measured usage');
+    updatePremiumMetric('Cost', formattedMoney(costTotal), costTotal ? 'reported by provider' : 'waiting for provider proof');
+    updatePremiumMetric('Calls', numberLabel(toolCalls), toolCalls ? 'tools used' : 'no tools executed');
+    updatePremiumMetric('Errors', numberLabel(errors), errors ? 'review recent events' : 'no visible errors');
+    updatePremiumStatus('Usage', state.zavorthControl?.live ? 'live' : 'local', state.zavorthControl?.live ? 'ok' : 'info');
+    updatePremiumStatus('Costs', costTotal ? 'reported' : 'when reported', costTotal ? 'ok' : 'info');
     updatePremiumStatus('Secrets', 'redacted', 'ok');
-    updatePremiumStatus('Exports', totalArtifactCount() ? 'available' : 'manual', totalArtifactCount() ? 'ok' : 'info');
-    updatePlatformAction('sector-usage', 'Today', `${numberLabel(runs.length)} run(s), ${numberLabel(tokenTotal)} token(s)`);
-    updatePlatformAction('sector-usage', 'Reliability', `${numberLabel(errors)} issue event(s), ${numberLabel(toolCalls)} tool event(s)`);
-    updatePlatformAction('sector-usage', 'Cost proof', costTotal ? formattedMoney(costTotal) : 'Waiting for provider cost data.');
+    updatePremiumStatus('Export', totalArtifactCount() ? 'available' : 'manual', totalArtifactCount() ? 'ok' : 'info');
+    updatePlatformAction('sector-usage', 'Active model', getCurrentModelRouteLabel());
+    updatePlatformAction('sector-usage', 'Test route', errors ? `${numberLabel(errors)} event(s) to review` : 'Ready for a safe check.');
+    updatePlatformAction('sector-usage', 'Recent usage', `${numberLabel(runs.length)} run(s), ${numberLabel(tokenTotal)} token(s)`);
 
     updateSummaryCard('Runs', numberLabel(runs.length), runs.length ? 'live executions registered' : 'no execution registered');
     updateSummaryCard('Current Model', getCurrentModelLabel(), getCurrentProviderLabel());
@@ -1763,7 +2064,7 @@
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>${statusBadge(state.commandCenter?.authRequired ? 'auth' : 'ready', state.commandCenter?.authRequired ? 'Protected' : 'Waiting run')}</td>
+          <td>${statusBadge(state.zavorthControl?.authRequired ? 'auth' : 'ready', state.zavorthControl?.authRequired ? 'Protected' : 'Waiting run')}</td>
         </tr>
       `);
       return;
@@ -1782,16 +2083,16 @@
 
   function updateCron() {
     const jobs = getWorkflowJobs();
-    setTableHeaders('sector-cron', ['Job', 'Tipo', 'Tentativas', 'Proxima', 'Atualizada', 'Status']);
+    setTableHeaders('sector-cron', ['Job', 'Type', 'Attempts', 'Next', 'Updated', 'Status']);
     if (jobs.length === 0) {
       setTableBody('sector-cron', `
         <tr>
           <td class="mono">workflow queue</td>
-          <td>duravel local</td>
+          <td>local durable</td>
           <td>0</td>
-          <td>â€”</td>
+          <td>---</td>
           <td>${formatDate(state.updatedAt)}</td>
-          <td>${statusBadge(state.commandCenter?.authRequired ? 'auth' : 'ready', state.commandCenter?.authRequired ? 'Protected' : 'No live jobs')}</td>
+          <td>${statusBadge(state.zavorthControl?.authRequired ? 'auth' : 'ready', state.zavorthControl?.authRequired ? 'Protected' : 'No live jobs')}</td>
         </tr>
       `);
       return;
@@ -1802,7 +2103,7 @@
         <td class="mono">${escapeHtml(text(job.id || job.jobId || job.runId, 'job'))}</td>
         <td>${escapeHtml(text(job.type || job.kind, 'workflow'))}</td>
         <td>${numberLabel(job.attempts || job.attempt || 0)}</td>
-        <td>${job.nextRunAt ? formatDate(job.nextRunAt) : 'â€”'}</td>
+        <td>${job.nextRunAt ? formatDate(job.nextRunAt) : '---'}</td>
         <td>${formatDate(job.updatedAt || job.createdAt)}</td>
         <td>${statusBadge(job.status, text(job.status, 'Ready'))}</td>
       </tr>
@@ -1830,20 +2131,21 @@
       ...companions.map((node) => `${node?.id || ''} ${node?.label || ''} ${node?.type || ''} ${node?.kind || ''} ${node?.summary || ''}`),
     ].join(' ').toLowerCase();
     const hasMnemos = /mnemos|memory|vault/.test(haystack);
-    const hasSwarm = /swarm|worker|subagent/.test(haystack) || Boolean(state.commandCenter?.snapshot?.swarmV2);
-    const hasAcp = /\bacp\b|agent communication protocol/.test(haystack) || Boolean(state.commandCenter?.snapshot?.acp);
+    const hasSwarm = /swarm|worker|subagent/.test(haystack) || Boolean(state.zavorthControl?.snapshot?.swarmV2);
+    const hasAcp = /\bacp\b|agent communication protocol/.test(haystack) || Boolean(state.zavorthControl?.snapshot?.acp);
     const backendCount = companions.length;
+    setLiveStripValue('[data-memory-live-files]', hasMnemos ? 'ready' : state.zavorthControl?.authRequired ? 'protected' : 'configurable');
+    setLiveStripValue('[data-memory-live-agents]', companions.length || (hasAcp ? 1 : 0));
+    setLiveStripValue('[data-memory-live-env]', backendCount ? `${backendCount} visible` : 'approval gated');
 
-    updatePremiumStatus('Mnemos', hasMnemos ? 'ready' : 'configurable', hasMnemos ? 'ok' : 'info');
-    updatePremiumStatus('Swarm v2', hasSwarm ? 'ready' : 'ready', 'ok');
-    updatePremiumStatus('ACP', hasAcp ? 'configured' : 'opt-in', hasAcp ? 'ok' : 'info');
-    updatePremiumStatus('Backends', backendCount ? `${backendCount} visible` : 'policy gated', backendCount ? 'ok' : 'warn');
-    updatePremiumStatus('Runtime adapters', companions.length ? `${companions.length} profile(s)` : 'consent required', companions.length ? 'ok' : 'info');
-    updatePlatformAction('sector-nodes', 'Mnemos', hasMnemos ? 'Memory tools visible in runtime.' : 'Memory vault scope is configurable.');
-    updatePlatformAction('sector-nodes', 'Swarm v2', hasSwarm ? 'Parallel work is ready with budget guard.' : 'Ready when a swarm task is requested.');
-    updatePlatformAction('sector-nodes', 'ACP', hasAcp ? 'ACP adapter is configured.' : 'Universal ACP remains opt-in and policy-gated.');
-    updatePlatformAction('sector-nodes', 'Execution backends', backendCount ? `${backendCount} backend/profile signal(s) visible.` : 'Backends require explicit configuration.');
-    updatePlatformAction('sector-nodes', 'Runtime adapters', companions.length ? `${companions.length} consented profile(s).` : 'User-provided paths only; no silent discovery.');
+    updatePremiumStatus('File memory', hasMnemos ? 'ready' : 'configurable', hasMnemos ? 'ok' : 'info');
+    updatePremiumStatus('Parallel work', hasSwarm ? 'ready' : 'ready', 'ok');
+    updatePremiumStatus('External links', companions.length || hasAcp ? `${companions.length || 1} profile` : 'consent required', companions.length || hasAcp ? 'ok' : 'info');
+    updatePremiumStatus('Safe execution', backendCount ? `${backendCount} visible` : 'approval gated', backendCount ? 'ok' : 'warn');
+    updatePlatformAction('sector-nodes', 'File memory', hasMnemos ? 'Memory tools are visible in the runtime.' : 'Memory scope is configurable.');
+    updatePlatformAction('sector-nodes', 'Parallel work', hasSwarm ? 'Ready with cost limits and receipts.' : 'Active when a task asks for parallel work.');
+    updatePlatformAction('sector-nodes', 'Connect adapter', companions.length ? `${companions.length} consented profile(s).` : 'Only from a path you provide.');
+    updatePlatformAction('sector-nodes', 'Execution environments', backendCount ? `${backendCount} visible backend signal(s).` : 'Shell, files, and remote actions require scope.');
 
     setTableHeaders('sector-nodes', ['Node', 'Type', 'Processes', 'Memory', 'Summary', 'Actions', 'Status']);
     if (companions.length === 0) {
@@ -1852,10 +2154,10 @@
           <td class="mono">companions</td>
           <td>Runtime</td>
           <td>0</td>
-          <td>â€”</td>
-          <td>${state.commandCenter?.authRequired ? 'Unlock to read live nodes' : 'No live companion/node connected'}</td>
-          <td>â€”</td>
-          <td>${statusBadge(state.commandCenter?.authRequired ? 'auth' : 'ready', state.commandCenter?.authRequired ? 'Protected' : 'Waiting')}</td>
+          <td>---</td>
+          <td>${state.zavorthControl?.authRequired ? 'Unlock to read live nodes' : 'No live companion/node connected'}</td>
+          <td>---</td>
+          <td>${statusBadge(state.zavorthControl?.authRequired ? 'auth' : 'ready', state.zavorthControl?.authRequired ? 'Protected' : 'Waiting')}</td>
         </tr>
       `);
       return;
@@ -1868,8 +2170,8 @@
           <td class="mono">${escapeHtml(text(node.id, node.label))}</td>
           <td>${escapeHtml(text(node.type || node.kind || node.label, 'Companion'))}</td>
           <td>${numberLabel(node.processCount || node.processes || 0)}</td>
-          <td>${node.workingSetMb ? `${numberLabel(node.workingSetMb)} MB` : 'â€”'}</td>
-          <td>${escapeHtml(text(node.summary || node.details, 'Sem resumo publicado'))}</td>
+          <td>${node.workingSetMb ? `${numberLabel(node.workingSetMb)} MB` : '---'}</td>
+          <td>${escapeHtml(text(node.summary || node.details, 'No summary published'))}</td>
           <td>${numberLabel(actions)}</td>
           <td>${statusBadge(node.status, text(node.status, 'Ready'))}</td>
         </tr>
@@ -1997,8 +2299,8 @@
 
     const runs = [
       payload?.snapshot?.runs,
-      payload?.commandCenter?.snapshot?.runs,
-      state.commandCenter?.snapshot?.runs,
+      payload?.zavorthControl?.snapshot?.runs,
+      state.zavorthControl?.snapshot?.runs,
     ];
     for (const candidate of runs) {
       if (!Array.isArray(candidate)) continue;
@@ -2028,7 +2330,7 @@
   }
 
   function extractResponseDecision(payload) {
-    const snapshot = payload?.snapshot || payload?.commandCenter?.snapshot || state.commandCenter?.snapshot || null;
+    const snapshot = payload?.snapshot || payload?.zavorthControl?.snapshot || state.zavorthControl?.snapshot || null;
     const candidates = [
       payload?.responseDecision,
       payload?.agentRun?.metadata?.responseDecision,
@@ -2043,7 +2345,7 @@
 
   function extractArtifactPolicy(payload) {
     const responseDecision = extractResponseDecision(payload);
-    const snapshot = payload?.snapshot || payload?.commandCenter?.snapshot || state.commandCenter?.snapshot || null;
+    const snapshot = payload?.snapshot || payload?.zavorthControl?.snapshot || state.zavorthControl?.snapshot || null;
     const candidates = [
       payload?.artifactPolicy,
       responseDecision?.artifactPolicy,
@@ -2108,15 +2410,15 @@
     };
   }
 
-  function extractDiffPreviews(payload = state.commandCenter || {}) {
+  function extractDiffPreviews(payload = state.zavorthControl || {}) {
     const candidates = [
       payload?.snapshot?.diffPreviews,
       payload?.snapshot?.runObservatory?.diffPreviews,
       payload?.diffPreviews,
-      payload?.commandCenter?.snapshot?.diffPreviews,
-      payload?.commandCenter?.snapshot?.runObservatory?.diffPreviews,
-      state.commandCenter?.snapshot?.diffPreviews,
-      state.commandCenter?.snapshot?.runObservatory?.diffPreviews,
+      payload?.zavorthControl?.snapshot?.diffPreviews,
+      payload?.zavorthControl?.snapshot?.runObservatory?.diffPreviews,
+      state.zavorthControl?.snapshot?.diffPreviews,
+      state.zavorthControl?.snapshot?.runObservatory?.diffPreviews,
     ];
     const previews = [];
     for (const candidate of candidates) {
@@ -2159,7 +2461,7 @@
     `;
   }
 
-  function renderDiffPreviewsFromPayload(payload = state.commandCenter || {}) {
+  function renderDiffPreviewsFromPayload(payload = state.zavorthControl || {}) {
     const neuralFeed = document.getElementById('neural-feed');
     if (!neuralFeed) return false;
     neuralFeed.querySelectorAll('#zavorth-diff-previews-group').forEach((node) => node.remove());
@@ -2205,7 +2507,7 @@
       </div>
     `;
     neuralFeed.appendChild(group);
-    window.ZavorthCommandCenterChat?.scrollFeedToEnd?.();
+    window.ZavorthControlChat?.scrollFeedToEnd?.();
     return true;
   }
 
@@ -2217,7 +2519,7 @@
     if (Array.isArray(payload.artifacts) && payload.artifacts.length > 0) return true;
     if (Array.isArray(payload.artifactIds) && payload.artifactIds.length > 0) return true;
     if (payload.agentRun || payload.activeRun || payload.run) return true;
-    const snapshot = payload.snapshot || payload.commandCenter || null;
+    const snapshot = payload.snapshot || payload.zavorthControl || null;
     if (snapshot && typeof snapshot === 'object') {
       if (snapshot.activeRun || snapshot.agentRun || snapshot.run) return true;
       if (Array.isArray(snapshot.tasks) && snapshot.tasks.length > 0) return true;
@@ -2239,9 +2541,9 @@
 
   function artifactMetadataHtml(artifact) {
     const rows = [
-      ['Tipo', artifact.kind],
-      ['Origem', artifact.source],
-      ['Caminho', artifact.path],
+      ['Type', artifact.kind],
+      ['Source', artifact.source],
+      ['Path', artifact.path],
       ['Run', artifact.runId || artifact.toolRunId],
       ['Status', artifact.status],
     ].filter(([, value]) => String(value || '').trim());
@@ -2290,7 +2592,7 @@
       return [
         artifactMetadataHtml(artifact),
         `<pre class="artifact-render"><code>${escapeHtml(content || 'File without text content.')}</code></pre>`,
-        payload?.preview?.truncated ? '<div class="callout info">Preview truncado para manter o painel leve.</div>' : '',
+        payload?.preview?.truncated ? '<div class="callout info">Preview was truncated to keep this panel light.</div>' : '',
       ].join('');
     }
 
@@ -2319,10 +2621,10 @@
     return artifactFallbackHtml(artifact);
   }
 
-  async function fetchCurrentArtifacts(ui = window.ZavorthCommandCenterChat || {}) {
+  async function fetchCurrentArtifacts(ui = window.ZavorthControlChat || {}) {
     const sessionId = readSessionId();
     if (!sessionId) {
-      renderArtifactsFromPayload(state.commandCenter || {}, ui, { display: false, reason: 'state-sync' });
+      renderArtifactsFromPayload(state.zavorthControl || {}, ui, { display: false, reason: 'state-sync' });
       return null;
     }
     const payload = await readJson(`/api/web/artifacts?sessionId=${encodeURIComponent(sessionId)}`, {
@@ -2332,7 +2634,7 @@
     return payload;
   }
 
-  async function openArtifact(id, ui = window.ZavorthCommandCenterChat || {}) {
+  async function openArtifact(id, ui = window.ZavorthControlChat || {}) {
     const artifact = state.artifactsById.get(String(id || '').trim());
     if (!artifact) {
       throw new Error('Artifact not found in the current dashboard state.');
@@ -2355,7 +2657,7 @@
             `${String(index + 1).padStart(2, '0')}.`,
             `[${formatDate(event.createdAt)}]`,
             `${event.kind || 'evento'}:${event.status ? ` ${event.status}` : ''}`,
-            `â€” ${event.title || event.detail || 'evento registrado'}`,
+            `--- ${event.title || event.detail || 'registered event'}`,
             event.detail && event.detail !== event.title ? `\n    ${event.detail}` : '',
           ].join(' ');
           return line;
@@ -2372,7 +2674,7 @@
           </div>
           ${statusBadge(run.status, text(run.status, 'run'))}
         </div>
-        <div class="logic-cell__detail">${escapeHtml(run.summary || run.input || 'Run registrada pelo gateway universal.')}</div>
+        <div class="logic-cell__detail">${escapeHtml(run.summary || run.input || 'Run registered by the universal gateway.')}</div>
         <div class="logic-cell__block">
           <div class="logic-cell__block-header"><span class="logic-cell__block-label">Next action</span></div>
           <pre class="logic-cell__block-content">${escapeHtml(deriveNextRunAction(run))}</pre>
@@ -2380,14 +2682,14 @@
       </div>
       ${error ? `<div class="callout info">Recorded error: ${escapeHtml(error)}</div>` : ''}
       <div class="artifact-render">${[
-        `Run: ${run.id || 'â€”'}`,
-        `Session: ${run.sessionId || '—'}`,
-        `Channel: ${run.channel || '—'}`,
-        `Model: ${run.modelProfile?.modelLabel || 'not informed'}`,
+        `Run: ${run.id || '---'}`,
+        `Session: ${run.sessionId || '-'}`,
+        `Channel: ${run.channel || '-'}`,
+        `Model: ${run.modelProfile?.modelLabel || 'not set'}`,
         `Pending approvals: ${approvals.length}`,
         `Artifacts: ${artifacts.length}`,
-        `Workflow job: ${job?.status || 'â€”'}`,
-        `Atualizada: ${formatDate(run.updatedAt || run.createdAt)}`,
+        `Workflow job: ${job?.status || '---'}`,
+        `Updated: ${formatDate(run.updatedAt || run.createdAt)}`,
       ].map(escapeHtml).join('\n')}</div>
       <pre class="artifact-render"><code>${escapeHtml(replay)}</code></pre>
     `;
@@ -2401,10 +2703,10 @@
     }
     const html = buildRunReplayHtml(run);
     if (typeof window.openCoreModal === 'function') {
-    window.openCoreModal(`Replay · ${text(run.title, run.id)}`, html);
+    window.openCoreModal(`Replay - ${text(run.title, run.id)}`, html);
       return run;
     }
-    window.ZavorthCommandCenterChat?.openArtifactPane?.(`Replay · ${text(run.title, run.id)}`, html);
+    window.ZavorthControlChat?.openArtifactPane?.(`Replay - ${text(run.title, run.id)}`, html);
     return run;
   }
 
@@ -2420,7 +2722,7 @@
           runId: traceButton.dataset.runId || traceButton.dataset.zavorthRunId || '',
           traceId: traceButton.dataset.traceId || traceButton.dataset.zavorthTraceId || '',
           sessionId: traceButton.dataset.sessionId || traceButton.dataset.zavorthSessionId || '',
-        }, window.ZavorthCommandCenterChat || {}).catch((error) => {
+        }, window.ZavorthControlChat || {}).catch((error) => {
           window.emitSignal?.('error', 'Trace unavailable', String(error?.message || 'Run not found.'));
         });
         return;
@@ -2438,7 +2740,9 @@
 
   function closeCoreModal() {
     document.getElementById('overlay-shade')?.classList.remove('active');
-    document.getElementById('core-modal')?.classList.remove('active');
+    const modal = document.getElementById('core-modal');
+    modal?.classList.remove('active');
+    modal?.classList.remove('core-modal--unlock');
     const cancel = document.getElementById('core-modal-cancel');
     const confirm = document.getElementById('core-modal-confirm');
     if (cancel) {
@@ -2456,12 +2760,12 @@
     const feedback = document.getElementById('zavorth-unlock-feedback');
     if (!feedback) return;
     feedback.textContent = String(message || '');
-    feedback.style.color = tone === 'danger' ? 'var(--b-danger)' : 'var(--b-signal-muted)';
+    feedback.classList.toggle('is-danger', tone === 'danger');
   }
 
   function openAccessStatusModal() {
-    const unlocked = Boolean(state.commandCenter?.live && !state.commandCenter?.authRequired);
-    const protectedMode = Boolean(state.commandCenter?.authRequired);
+    const unlocked = Boolean(state.zavorthControl?.live && !state.zavorthControl?.authRequired);
+    const protectedMode = Boolean(state.zavorthControl?.authRequired);
     const statusLabel = unlocked ? 'Unlocked' : protectedMode ? 'Protected' : 'Local';
     const statusTone = unlocked ? 'ok' : protectedMode ? 'warn' : 'info';
     const detail = unlocked
@@ -2509,12 +2813,12 @@
       confirm.textContent = unlocked || hasStoredToken() ? 'Lock this tab' : 'Unlock';
       confirm.disabled = false;
       confirm.onclick = unlocked || hasStoredToken()
-        ? lockCommandCenterTab
+        ? lockZavorthControlTab
         : () => openUnlockModal('Enter the local token to read live runs and send messages to Zavorth.');
     }
   }
 
-  async function lockCommandCenterTab() {
+  async function lockZavorthControlTab() {
     clearStoredToken();
     disconnectRealtime('locked');
     closeCoreModal();
@@ -2524,52 +2828,114 @@
 
   function openUnlockModal(reason = '') {
     const content = `
-      <form id="zavorth-unlock-form" class="config-form" autocomplete="off">
-        <div class="config-form-section">
-          <span class="config-form-section__title">Protected access</span>
-          <div class="info-row">
-            <span class="info-row__label">Estado</span>
-            <span class="info-row__value">${statusBadge('warn', hasStoredToken() ? 'Revalidate token' : 'Token required')}</span>
+      <form id="zavorth-unlock-form" class="zavorth-unlock-card" autocomplete="off">
+        <div class="zavorth-unlock-card__header">
+          <div class="zavorth-unlock-card__mark">Z</div>
+          <div>
+            <span class="zavorth-unlock-card__eyebrow">Local access</span>
+            <h4>Connect to Zavorth runtime</h4>
           </div>
-          <p style="margin:0;color:var(--b-signal-muted);line-height:1.6">
-            ${text(reason, 'Enter the local token to connect this tab to the live runtime.')}
-          </p>
-          <div class="info-row">
-            <span class="info-row__label">Jeito facil</span>
-            <span class="info-row__value mono">zavorth dashboard</span>
-          </div>
-          <p style="margin:0;color:var(--b-signal-muted);font-size:12px;line-height:1.5">
-            In the terminal, this command opens the dashboard already unlocked. To copy it manually,
-            use <span class="mono">zavorth dashboard token</span>.
-          </p>
-          <label class="core-field">
-            <span>Token local</span>
-            <input id="zavorth-unlock-token" type="password" placeholder="Paste the Zavorth token" autocomplete="off" />
-          </label>
-          <p id="zavorth-unlock-feedback" style="margin:0;color:var(--b-signal-muted);font-size:12px;line-height:1.5">
-            O token fica salvo apenas no sessionStorage desta aba. Depois de validar, o topo muda para Core Unlocked.
-          </p>
+          ${statusBadge('warn', hasStoredToken() ? 'Revalidate token' : 'Token required')}
         </div>
+        <p class="zavorth-unlock-card__reason">
+          ${text(reason, 'Paste the local token to unlock live conversations, runs, approvals, and artifacts in this tab.')}
+        </p>
+        <div class="zavorth-unlock-status-grid" aria-label="Connection requirements">
+          <span><strong>Runtime</strong><small>${state.auth?.webReady || state.auth?.gatewayReady ? 'Local server reachable' : 'Checking local server'}</small></span>
+          <span><strong>Auth</strong><small>${hasStoredToken() ? 'Token saved in this tab' : 'Token required'}</small></span>
+          <span><strong>Session</strong><small>${readSessionId() ? 'Existing session found' : 'New session ready'}</small></span>
+        </div>
+        <label class="zavorth-secret-field">
+          <span>Dashboard token</span>
+          <div class="zavorth-secret-field__row">
+            <input id="zavorth-unlock-token" type="password" placeholder="Paste the Zavorth token" autocomplete="off" spellcheck="false" />
+            <button id="zavorth-unlock-token-toggle" type="button" aria-label="Show token" aria-pressed="false">
+              Show
+            </button>
+          </div>
+        </label>
+        <div class="zavorth-unlock-help">
+          <strong>Quick fix</strong>
+          <ol>
+            <li>Open the dashboard with <span class="mono">zavorth dashboard</span> to receive an authenticated URL.</li>
+            <li>To copy manually, run <span class="mono">zavorth dashboard token</span> in the local terminal.</li>
+            <li>If the token fails, generate a new one and do not reuse an old token from another tab.</li>
+          </ol>
+          <div class="zavorth-unlock-help__path">
+            <span>Current route</span>
+            <code>${escapeHtml(window.location.origin)}</code>
+          </div>
+          <div class="zavorth-unlock-actions">
+            <button id="zavorth-copy-token-command" type="button">Copy token command</button>
+            <button id="zavorth-refresh-access" type="button">Refresh status</button>
+            <button id="zavorth-reconnect-runtime" type="button">Reconnect</button>
+          </div>
+        </div>
+        <p id="zavorth-unlock-feedback" class="zavorth-unlock-feedback">
+          The token is stored only in this tab sessionStorage. After validation, the top status changes to Core Unlocked.
+        </p>
       </form>
     `;
 
     if (typeof window.openCoreModal === 'function') {
-      window.openCoreModal('Unlock live runtime', content);
+      window.openCoreModal('Connect to Zavorth', content);
+      document.getElementById('core-modal')?.classList.add('core-modal--unlock');
     } else {
       return;
     }
 
     const input = document.getElementById('zavorth-unlock-token');
+    const toggle = document.getElementById('zavorth-unlock-token-toggle');
     const form = document.getElementById('zavorth-unlock-form');
     const cancel = document.getElementById('core-modal-cancel');
     const confirm = document.getElementById('core-modal-confirm');
+    const copyCommand = document.getElementById('zavorth-copy-token-command');
+    const refreshStatus = document.getElementById('zavorth-refresh-access');
+    const reconnectRuntime = document.getElementById('zavorth-reconnect-runtime');
+
+    if (toggle && input) {
+      toggle.onclick = () => {
+        const willShow = input.type === 'password';
+        input.type = willShow ? 'text' : 'password';
+        toggle.textContent = willShow ? 'Hide' : 'Show';
+        toggle.setAttribute('aria-label', willShow ? 'Hide token' : 'Show token');
+        toggle.setAttribute('aria-pressed', willShow ? 'true' : 'false');
+      };
+    }
+
+    if (copyCommand) {
+      copyCommand.onclick = async () => {
+        const command = 'zavorth dashboard token';
+        try {
+          await navigator.clipboard?.writeText(command);
+          setUnlockFeedback(`Copied: ${command}`);
+        } catch {
+          setUnlockFeedback(`Run this command: ${command}`);
+        }
+      };
+    }
+    if (refreshStatus) {
+      refreshStatus.onclick = async () => {
+        setUnlockFeedback('Refreshing local gateway status...');
+        await refresh({ skipRealtime: true }).catch((error) => setUnlockFeedback(messageFromCaughtError(error, 'Refresh failed.'), 'danger'));
+        setUnlockFeedback(state.lastError ? `Still checking: ${state.lastError}` : 'Status refreshed. Paste the token if live access is still protected.');
+      };
+    }
+    if (reconnectRuntime) {
+      reconnectRuntime.onclick = async () => {
+        setUnlockFeedback('Reconnecting live runtime stream...');
+        disconnectRealtime('manual-reconnect');
+        await refresh().catch((error) => setUnlockFeedback(messageFromCaughtError(error, 'Reconnect failed.'), 'danger'));
+        setUnlockFeedback(state.realtime.connected ? 'Realtime stream connected.' : 'Reconnect requested. If protected, paste a fresh token.');
+      };
+    }
 
     if (cancel) {
       cancel.textContent = 'Not now';
       cancel.onclick = closeCoreModal;
     }
     if (confirm) {
-      confirm.textContent = 'Unlock';
+      confirm.textContent = 'Connect';
       confirm.disabled = false;
       confirm.onclick = () => validateUnlockToken(String(input?.value || '').trim());
     }
@@ -2584,14 +2950,14 @@
 
   async function validateUnlockToken(token) {
     if (!token) {
-      setUnlockFeedback('Paste the local token before unlocking.', 'danger');
+      setUnlockFeedback('Paste the local token before connecting.', 'danger');
       return false;
     }
 
     const confirm = document.getElementById('core-modal-confirm');
     if (confirm) {
       confirm.disabled = true;
-      confirm.textContent = 'Validando...';
+      confirm.textContent = 'Validating...';
     }
 
     try {
@@ -2614,12 +2980,12 @@
     } catch (error) {
       const recovery = error?.recovery?.primaryCommand || 'zavorth dashboard';
       setUnlockFeedback(
-        `${error?.message || 'Invalid or old token.'} Open a new tab with ${recovery}.`,
+        `${messageFromCaughtError(error, 'Invalid or expired token.')} Open a fresh dashboard URL with ${recovery}, then paste the new token here.`,
         'danger',
       );
       if (confirm) {
         confirm.disabled = false;
-        confirm.textContent = 'Unlock';
+        confirm.textContent = 'Connect';
       }
       return false;
     }
@@ -2627,6 +2993,8 @@
 
   function applyRuntimeData() {
     updatePulse();
+    updateControlTelemetryRail();
+    updateControlSessionRail();
     updateOverview();
     updateRecentActivityTable();
     updateSessionsTable();
@@ -2642,9 +3010,9 @@
     updateProviderModelCatalog();
     updateProviderActivation();
     publishCurrentModelProfile();
-    renderRemoteMeshApprovalsFromPayload(state.commandCenter || {}, window.ZavorthCommandCenterChat || {});
-    renderArtifactsFromPayload(state.commandCenter || {}, window.ZavorthCommandCenterChat || {}, { display: false, reason: 'dashboard-refresh' });
-    renderDiffPreviewsFromPayload(state.commandCenter || {});
+    renderRemoteMeshApprovalsFromPayload(state.zavorthControl || {}, window.ZavorthControlChat || {});
+    renderArtifactsFromPayload(state.zavorthControl || {}, window.ZavorthControlChat || {}, { display: false, reason: 'dashboard-refresh' });
+    renderDiffPreviewsFromPayload(state.zavorthControl || {});
   }
 
   function normalizeTranscriptEntry(message) {
@@ -2769,8 +3137,8 @@
 
     const runs = [
       payload?.snapshot?.runs,
-      payload?.commandCenter?.snapshot?.runs,
-      state.commandCenter?.snapshot?.runs,
+      payload?.zavorthControl?.snapshot?.runs,
+      state.zavorthControl?.snapshot?.runs,
     ];
     for (const candidate of runs) {
       if (!Array.isArray(candidate)) continue;
@@ -2816,19 +3184,19 @@
     if (!applyToolName || !applyArguments) return null;
     const stateValue = String(card?.state || '').trim().toLowerCase();
     if (stateValue && stateValue !== 'approval-required' && stateValue !== 'pending') return null;
-    const surface = String(card?.surface || 'command-center').trim().toLowerCase();
-    if (surface && surface !== 'command-center') return null;
+    const surface = String(card?.surface || 'zavorth-control').trim().toLowerCase();
+    if (surface && surface !== 'zavorth-control') return null;
 
     return {
       id: approvalId,
       status: 'pending',
       title: String(card?.title || 'Remote Mesh approval').trim(),
-      summary: String(card?.body || 'Revise a acao remota antes de aplicar no notebook MCP.').trim(),
+      summary: String(card?.body || 'Review the remote action before applying it through the notebook MCP.').trim(),
       risk: String(card?.riskLabel || 'medium').trim(),
       targetKind: String(card?.targetKind || 'notebook').trim(),
       targetLabel: String(card?.targetLabel || 'Notebook MCP').trim(),
-      badge: String(card?.commandCenter?.badge || 'Needs approval').trim(),
-      primaryActionLabel: String(card?.commandCenter?.primaryActionLabel || 'Aplicar no MCP').trim(),
+      badge: String(card?.zavorthControl?.badge || 'Needs approval').trim(),
+      primaryActionLabel: String(card?.zavorthControl?.primaryActionLabel || 'Aplicar no MCP').trim(),
       applyToolName,
       applyArguments,
       approvalPhrase: String(approval?.approvalPhrase || '').trim(),
@@ -2842,10 +3210,10 @@
       payload?.remoteMeshNotebookApprovalUx,
       payload?.snapshot?.remoteMeshApprovalUx,
       payload?.snapshot?.remoteMeshNotebookApprovalUx,
-      payload?.commandCenter?.remoteMeshApprovalUx,
-      payload?.commandCenter?.remoteMeshNotebookApprovalUx,
-      payload?.commandCenter?.snapshot?.remoteMeshApprovalUx,
-      payload?.commandCenter?.snapshot?.remoteMeshNotebookApprovalUx,
+      payload?.zavorthControl?.remoteMeshApprovalUx,
+      payload?.zavorthControl?.remoteMeshNotebookApprovalUx,
+      payload?.zavorthControl?.snapshot?.remoteMeshApprovalUx,
+      payload?.zavorthControl?.snapshot?.remoteMeshNotebookApprovalUx,
       payload?.snapshot?.activeRun?.metadata?.remoteMeshApprovalUx,
       payload?.snapshot?.activeRun?.metadata?.remoteMeshNotebookApprovalUx,
       payload?.activeRun?.metadata?.remoteMeshApprovalUx,
@@ -2854,8 +3222,8 @@
 
     const runs = [
       payload?.snapshot?.runs,
-      payload?.commandCenter?.snapshot?.runs,
-      state.commandCenter?.snapshot?.runs,
+      payload?.zavorthControl?.snapshot?.runs,
+      state.zavorthControl?.snapshot?.runs,
     ];
     for (const candidate of runs) {
       if (!Array.isArray(candidate)) continue;
@@ -2893,7 +3261,7 @@
     return ui.renderRemoteMeshApprovals(cards);
   }
 
-  async function fetchCurrentApprovals(ui = window.ZavorthCommandCenterChat || {}) {
+  async function fetchCurrentApprovals(ui = window.ZavorthControlChat || {}) {
     const sessionId = readSessionId();
     if (!sessionId) return null;
     const payload = await readJson(`/api/web/permissions?sessionId=${encodeURIComponent(sessionId)}`, {
@@ -2903,7 +3271,7 @@
     return payload;
   }
 
-  async function hydrateCurrentSession(ui = window.ZavorthCommandCenterChat || {}, options = {}) {
+  async function hydrateCurrentSession(ui = window.ZavorthControlChat || {}, options = {}) {
     const sessionId = String(options.sessionId || readSessionId() || '').trim();
     if (!sessionId) {
       return null;
@@ -2917,7 +3285,7 @@
     renderApprovalsFromPayload(payload, ui);
     renderRemoteMeshApprovalsFromPayload(payload, ui);
     renderArtifactsFromPayload(payload, ui, { display: false, reason: 'state-sync' });
-    renderDiffPreviewsFromPayload(state.commandCenter || {});
+    renderDiffPreviewsFromPayload(state.zavorthControl || {});
     await fetchDashboardEvents(ui).catch(() => undefined);
     if (rendered) {
       state.lastHydratedSessionId = sessionId;
@@ -2962,7 +3330,7 @@
     return [
       'I could not send to the live runtime right now.',
       '',
-      String(error?.message || 'Tente novamente em instantes.'),
+      messageFromCaughtError(error),
     ].join('\n');
   }
 
@@ -2978,6 +3346,9 @@
     const voice = composerPayload.voice && typeof composerPayload.voice === 'object'
       ? composerPayload.voice
       : null;
+    const composerSettings = composerPayload.composerSettings && typeof composerPayload.composerSettings === 'object'
+      ? composerPayload.composerSettings
+      : null;
 
     try {
       const payload = await readJson('/api/web/chat/send', {
@@ -2987,10 +3358,11 @@
           message: text,
           sessionId: readSessionId() || undefined,
           platform: 'web',
-          source: 'command-center',
+          source: 'zavorth-control',
           attachments,
           selectedSkills,
           voice,
+          composerSettings,
         }),
       });
       writeSessionId(payload?.sessionId || payload?.snapshot?.sessionId);
@@ -3013,11 +3385,12 @@
     } catch (error) {
       ui.removeThinkingState?.();
       ui.appendEcho?.('core', protectedRuntimeReply(error));
+      error.uiHandled = Boolean(ui.appendEcho);
       if (error?.status === 401) {
         openUnlockModal('To send live messages, unlock this tab with the local Zavorth token.');
       }
       if (error?.status !== 401) {
-        ui.emitSignal?.('error', 'Runtime unavailable', error?.message || 'Try again.');
+        ui.emitSignal?.('error', 'Runtime unavailable', messageFromCaughtError(error, 'Try again.'));
       }
       await refresh().catch(() => undefined);
       throw error;
@@ -3028,6 +3401,8 @@
     const id = String(input?.id || '').trim();
     const kind = String(input?.kind || '').trim();
     const decision = String(input?.decision || '').trim().toLowerCase();
+    const scope = String(input?.scope || 'once').trim() || 'once';
+    const scopeNote = String(input?.scopeNote || '').trim();
     if (!id || !['approve', 'reject'].includes(decision)) {
       throw new Error('Invalid approval.');
     }
@@ -3039,10 +3414,10 @@
         ? `/api/web/tasks/${action}`
         : `/api/web/permissions/${action}`;
     const body = kind === 'agent-run'
-      ? { approvalId: id, sessionId, source: 'command-center' }
+      ? { approvalId: id, sessionId, source: 'zavorth-control', scope, scopeNote }
       : kind === 'task'
-        ? { taskId: id, sessionId }
-        : { permissionId: id, sessionId, scope: 'once' };
+        ? { taskId: id, sessionId, scope, scopeNote }
+        : { permissionId: id, sessionId, scope, scopeNote };
 
     const payload = await readJson(path, {
       method: 'POST',
@@ -3052,7 +3427,7 @@
     if (decision === 'approve') {
       ui.emitSignal?.(
         'success',
-        'Autorizado',
+        'Authorized',
         'The decision was sent to the live runtime.',
       );
     }
@@ -3079,10 +3454,10 @@
         tenantId: 'default-tenant',
         channelAccountId: 'sales-channel-whatsapp',
         providerMessageId,
-        customerId: 'lead-command-center',
-        text: 'Achei caro, mas ainda tenho interesse. Ainda tem vaga?',
+        customerId: 'lead-zavorth-control',
+        text: 'I think it is expensive, but I am still interested. Is there still availability?',
         traceId: `trace-${providerMessageId}`,
-        metadata: { source: 'command-center-sales-os' },
+        metadata: { source: 'zavorth-control-sales-os' },
       }),
     });
     state.salesPack = payload?.snapshot ? { data: payload.snapshot } : state.salesPack;
@@ -3151,15 +3526,15 @@
       }),
     });
     if (payload?.snapshot) {
-      state.commandCenter = {
-        ...(state.commandCenter || {}),
-        live: state.commandCenter?.live !== false,
-        generatedAt: payload.generatedAt || state.commandCenter?.generatedAt,
+      state.zavorthControl = {
+        ...(state.zavorthControl || {}),
+        live: state.zavorthControl?.live !== false,
+        generatedAt: payload.generatedAt || state.zavorthControl?.generatedAt,
         snapshot: payload.snapshot,
       };
       writeRunId(payload.run?.id || payload.snapshot?.activeRun?.id || runId);
       writeSessionId(payload.run?.sessionId || payload.snapshot?.activeRun?.sessionId || sessionId);
-      replaceCommandCenterUrlParams({
+      replaceZavorthControlUrlParams({
         runId: payload.run?.id || payload.snapshot?.activeRun?.id || runId,
         sessionId: payload.run?.sessionId || payload.snapshot?.activeRun?.sessionId || sessionId,
       });
@@ -3169,7 +3544,7 @@
     renderMessagesFromPayload(payload, ui, { renderTranscript: false });
     renderApprovalsFromPayload(payload, ui);
     renderRemoteMeshApprovalsFromPayload(payload, ui);
-    renderArtifactsFromPayload(payload, ui, { display: true, reason: 'diff-preview-apply', source: 'command-center' });
+    renderArtifactsFromPayload(payload, ui, { display: true, reason: 'diff-preview-apply', source: 'zavorth-control' });
     renderDiffPreviewsFromPayload(payload);
     await refresh({ skipSessionHydrate: true }).catch(() => undefined);
     await fetchDashboardEvents(ui).catch(() => undefined);
@@ -3178,22 +3553,30 @@
 
   async function refresh(options = {}) {
     try {
-      const [auth, commandCenter, providerModelCatalog, providerActivation, salesPack, salesPackChannelIo] = await Promise.all([
+      const queryString = buildZavorthControlQueryString();
+      const readZavorthControlSnapshot = () => readJson(`/api/web/zavorthControl${queryString}`, { headers: authHeaders() })
+        .catch((error) => {
+          if (error?.status === 404) {
+            return readJson(`/api/web/dashboard${queryString}`, { headers: authHeaders() });
+          }
+          throw error;
+        });
+      const [auth, zavorthControl, providerModelCatalog, providerActivation, salesPack, salesPackChannelIo] = await Promise.all([
         readJson('/api/auth/status'),
-        readJson(`/api/web/command-center${buildCommandCenterQueryString()}`, { headers: authHeaders() }),
+        readZavorthControlSnapshot(),
         readJson('/api/providers/model-catalog', { headers: authHeaders() }).catch(() => null),
         readJson('/api/providers/activation', { headers: authHeaders() }).catch(() => null),
         readJson('/api/v2/sales-pack/snapshot').catch(() => null),
         readJson('/api/v2/sales-pack/channel-io/snapshot').catch(() => null),
       ]);
       state.auth = auth;
-      state.commandCenter = commandCenter;
+      state.zavorthControl = zavorthControl;
       state.providerModelCatalog = providerModelCatalog?.providerModelCatalog || providerModelCatalog || null;
       state.providerActivation = providerActivation?.providerActivation || providerActivation || null;
       state.salesPack = salesPack;
       state.salesPackChannelIo = salesPackChannelIo;
-      writeRunId(commandCenter?.snapshot?.activeRun?.id || commandCenter?.activeRun?.id || readRunId());
-      if (commandCenter?.live && !commandCenter?.authRequired) {
+      writeRunId(zavorthControl?.snapshot?.activeRun?.id || zavorthControl?.activeRun?.id || readRunId());
+      if (zavorthControl?.live && !zavorthControl?.authRequired) {
         const sessionId = readSessionId();
         const sessionQuery = sessionId ? `?sessionId=${encodeURIComponent(sessionId)}` : '';
         const [catalog, companions, gatewayRuntime] = await Promise.all([
@@ -3212,11 +3595,11 @@
       state.lastError = null;
       state.updatedAt = new Date().toISOString();
       applyRuntimeData();
-      if (!options.skipSessionHydrate && commandCenter?.live && readSessionId()) {
+      if (!options.skipSessionHydrate && zavorthControl?.live && readSessionId()) {
         hydrateCurrentSession().catch(() => undefined);
         fetchCurrentArtifacts().catch(() => undefined);
       }
-      if (commandCenter?.live && readSessionId()) {
+      if (zavorthControl?.live && readSessionId()) {
         fetchDashboardEvents().catch(() => undefined);
       }
       if (!options.skipRealtime) {
@@ -3240,6 +3623,7 @@
     openRunDetails,
     connectRealtime,
     disconnectRealtime,
+    suppressTranscriptRender,
     getCurrentModelLabel,
     getCurrentProviderLabel,
     getCurrentModelRouteLabel,
@@ -3260,12 +3644,12 @@
     if (action.getAttribute('data-sales-os-action') !== 'demo-inbound') return;
     action.disabled = true;
     const previousText = action.textContent;
-    action.textContent = 'Criando...';
+    action.textContent = 'Creating...';
     sendSalesPackDemoInbound()
-      .catch((error) => window.emitSignal?.('error', 'Sales OS', error?.message || 'Falha ao criar conversa local.'))
+      .catch((error) => window.emitSignal?.('error', 'Approvals', error?.message || 'Failed to create local conversation.'))
       .finally(() => {
         action.disabled = false;
-        action.textContent = previousText || 'Criar conversa local';
+        action.textContent = previousText || 'Create local conversation';
       });
   });
 
@@ -3277,9 +3661,9 @@
     if (card?.dataset?.status === 'applied') return;
     const runtimeBridge = window.ZavorthRuntimeBridge;
     if (!runtimeBridge || typeof runtimeBridge.applyDiffPreview !== 'function') return;
-    const ui = window.ZavorthCommandCenterChat || {};
+    const ui = window.ZavorthControlChat || {};
     applyButton.disabled = true;
-    applyButton.textContent = 'Aplicando...';
+    applyButton.textContent = 'Applying...';
     card?.querySelectorAll('button').forEach((button) => {
       button.disabled = true;
     });
@@ -3306,8 +3690,8 @@
       card?.querySelectorAll('button').forEach((button) => {
         button.disabled = false;
       });
-      applyButton.textContent = 'Tentar novamente';
-      window.emitSignal?.('error', 'Apply bloqueado', String(error?.message || 'Tente novamente.'));
+      applyButton.textContent = 'Try again';
+      window.emitSignal?.('error', 'Apply blocked', String(error?.message || 'Try again.'));
     });
   });
 

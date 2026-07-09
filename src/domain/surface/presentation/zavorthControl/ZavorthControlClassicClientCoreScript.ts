@@ -1,6 +1,4 @@
-import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
-
-declare function loadLogs(): void;
+import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';declare function loadLogs(): void;
 declare function loadAudit(): void;
 declare function loadSnippets(): void;
 declare function renderOperatorBrief(brief: Record<string, unknown>): void;
@@ -155,7 +153,7 @@ function zavorthControlClassicClientCore() {
             <small>Heartbeat ON</small>
           </div>
         `;
-      } catch (_e: any) { const error = _e; const err = _e; const e = _e; console.warn("[auto-fix] Empty catch block", _e); }
+      } catch (_e: unknown) {console.warn("[auto-fix] Empty catch block", _e); }
     }
 
     function formatBytes(bytes: unknown) {

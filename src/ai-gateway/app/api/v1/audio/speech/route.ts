@@ -18,9 +18,7 @@ import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { getProviderNodes } from "@/lib/localDb";
 import { v1AudioSpeechSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * Handle CORS preflight
  */
 export async function OPTIONS() {
@@ -48,8 +46,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
 
@@ -78,11 +75,10 @@ export async function POST(request) {
             hostname === "127.0.0.1" ||
             /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)
           );
-        } catch (error: any) { const err = error; const e = error; logger.warn('[route] operation failed', error); return false; }
+        } catch (error: unknown) {logger.warn('[route] operation failed', error); return false; }
       })
       .map((n) => buildDynamicAudioProvider(n, "/audio/speech"));
-  } catch (error: any) { const err = error; const e = error;
-      // DB error — fall back to hardcoded providers only
+  } catch (error: unknown) {// DB error — fall back to hardcoded providers only
       logger.warn('[route] creation failed', error);
     }
 

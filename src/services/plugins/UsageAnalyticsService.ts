@@ -34,7 +34,7 @@ export class UsageAnalyticsService {
     if (!fs.existsSync(p)) return;
     try {
       this.entries = JSON.parse(fs.readFileSync(p, 'utf-8'));
-    } catch (error: any) { /* ignore */ logger.warn('[Usage Analytics] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Usage Analytics] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

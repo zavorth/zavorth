@@ -590,8 +590,7 @@ export class CapabilityLifecycleService {
           fs.unlinkSync(absolutePath);
         }
         removed.push(relative.replace(/\\/g, '/'));
-      } catch (error: any) {
-      // O Zavorth segue leve mesmo quando um artefato antigo esta travado por outro processo.
+      } catch (error: unknown) {// O Zavorth segue leve mesmo quando um artefato antigo esta travado por outro processo.
       logger.warn('[Capability Lifecycle] file cleanup failed', error);
     }
     }
@@ -613,8 +612,7 @@ export class CapabilityLifecycleService {
           capabilities: parsed.capabilities && typeof parsed.capabilities === 'object' ? parsed.capabilities : {},
         };
       }
-    } catch (error: any) {
-      // Se o estado estiver corrompido, o Zavorth volta para o baseline leve.
+    } catch (error: unknown) {// Se o estado estiver corrompido, o Zavorth volta para o baseline leve.
       logger.warn('[Capability Lifecycle] parsing failed', error);
     }
 

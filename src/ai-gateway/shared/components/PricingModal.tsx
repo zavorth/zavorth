@@ -26,8 +26,7 @@ export default function PricingModal({ isOpen, onClose, onSave }) {
         const defaults = getDefaultPricing();
         setPricingData(defaults);
       }
-    } catch (error: any) { const err = error; const e = error;
-      console.error("Failed to load pricing:", error);
+    } catch (error: unknown) {console.error("Failed to load pricing:", error);
       const defaults = getDefaultPricing();
       setPricingData(defaults);
     } finally {
@@ -64,8 +63,7 @@ export default function PricingModal({ isOpen, onClose, onSave }) {
         const error = await response.json();
         alert(`Failed to save pricing: ${error.error}`);
       }
-    } catch (error: any) { const err = error; const e = error;
-      console.error("Failed to save pricing:", error);
+    } catch (error: unknown) {console.error("Failed to save pricing:", error);
       alert("Failed to save pricing");
     } finally {
       setSaving(false);
@@ -81,8 +79,7 @@ export default function PricingModal({ isOpen, onClose, onSave }) {
         const defaults = getDefaultPricing();
         setPricingData(defaults);
       }
-    } catch (error: any) { const err = error; const e = error;
-      console.error("Failed to reset pricing:", error);
+    } catch (error: unknown) {console.error("Failed to reset pricing:", error);
       alert("Failed to reset pricing");
     }
   };

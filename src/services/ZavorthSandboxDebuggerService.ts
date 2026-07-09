@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { execFileSync } from 'child_process';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export class ZavorthSandboxDebuggerService {
   /**
@@ -41,8 +42,7 @@ export class ZavorthSandboxDebuggerService {
           stdio: 'pipe',
           timeout: 60000,
         });
-      } catch (tscError: any) {
-        const errorOutput = tscError.stdout?.toString() || tscError.stderr?.toString() || tscError.message;
+      } catch (tscError: unknown) {const errorOutput = tscError.stdout?.toString() || tscError.stderr?.toString() || tscError.message;
         logger.warn(`[Sandbox Debugger] Compilation check failed. Output:\n${errorOutput}`);
         logger.warn(`[Sandbox Debugger] Rolling back changes...`);
         fs.writeFileSync(filePath, originalContent, 'utf-8');
@@ -64,7 +64,7 @@ export class ZavorthSandboxDebuggerService {
             stdio: 'pipe',
             timeout: 45000,
           });
-        } catch (testError) {
+        } catch (testError: unknown) {
           logger.warn(`[Sandbox Debugger] Unit tests failed. Rolling back changes...`);
           fs.writeFileSync(filePath, originalContent, 'utf-8');
           return false;
@@ -73,13 +73,14 @@ export class ZavorthSandboxDebuggerService {
 
       logger.info(`[Sandbox Debugger] Safe code validation passed! Changes applied successfully.`);
       return true;
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.error(`[Sandbox Debugger] Unexpected error during validation: ${err}`);
       // Safety rollback
       try {
         fs.writeFileSync(filePath, originalContent, 'utf-8');
-      } catch (rollbackErr) {
-        logger.error(`[Sandbox Debugger] Failed to rollback: ${rollbackErr}`);
+      } catch (rollbackErr: unknown) {
+        logger.error(`[Sandbox Debugger] Failed to rollback: ${asErrorLike(rollbackErr)}`);
       }
       return false;
     }

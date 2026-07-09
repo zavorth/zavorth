@@ -53,7 +53,7 @@ export class MemorySupermemoryService {
       for (const [id, entry] of Object.entries(data as Record<string, SupermemoryEntry>)) {
         this.entries.set(id, entry);
       }
-    } catch (error: any) { /* ignore */ logger.warn('[Memory Supermemory] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Memory Supermemory] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

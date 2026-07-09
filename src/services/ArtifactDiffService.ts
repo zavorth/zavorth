@@ -95,8 +95,8 @@ export class ArtifactDiffService {
         processedAt,
         error: null,
       };
-    } catch (error: any) {
-    logger.warn('[Artifact Diff] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Artifact Diff] operation failed', error);
     return {
         ok: false,
         contractVersion: ARTIFACT_DIFF_CONTRACT_VERSION,

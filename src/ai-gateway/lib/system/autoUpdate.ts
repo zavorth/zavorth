@@ -3,9 +3,7 @@ import { closeSync, mkdirSync, openSync, existsSync } from "node:fs";
 import { access } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
-import { logger } from '@/shared/utils/logger';
-
-const execFileAsync = promisify(execFile);
+import { logger } from '@/shared/utils/logger';const execFileAsync = promisify(execFile);
 
 type ComposeCommand = "docker compose" | "docker-compose";
 export type AutoUpdateMode = "npm" | "docker-compose" | "source";
@@ -49,7 +47,7 @@ async function pathExists(targetPath: string): Promise<boolean> {
   try {
     await access(targetPath);
     return true;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[auto Update] filesystem check failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[auto Update] filesystem check failed', error); return false; }
 }
 
 function shellQuote(value: string): string {
@@ -98,15 +96,14 @@ export async function detectComposeCommand(
   try {
     await execFileImpl("docker", ["compose", "version"], { timeout: 10_000 });
     return "docker compose";
-  } catch (error: any) { const err = error; const e = error;
-      // Fall through.
+  } catch (error: unknown) {// Fall through.
       logger.warn('[auto Update] process execution failed', error);
     }
 
   try {
     await execFileImpl("docker-compose", ["version"], { timeout: 10_000 });
     return "docker-compose";
-  } catch (error: any) { const err = error; const e = error; logger.warn('[auto Update] process execution failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[auto Update] process execution failed', error); return null; }
 }
 
 export async function validateAutoUpdateRuntime(
@@ -126,8 +123,7 @@ export async function validateAutoUpdateRuntime(
 
     try {
       await execFileImpl("git", ["--version"], { timeout: 10_000 });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[auto Update] process execution failed', error);
+    } catch (error: unknown) {logger.warn('[auto Update] process execution failed', error);
     return {
         supported: false,
         reason: "git is not available. Install git to enable auto-update.",
@@ -172,8 +168,7 @@ export async function validateAutoUpdateRuntime(
 
   try {
     await execFileImpl("git", ["--version"], { timeout: 10_000 });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[auto Update] process execution failed', error);
+  } catch (error: unknown) {logger.warn('[auto Update] process execution failed', error);
     return {
       supported: false,
       reason: "git is not available inside the ZavorthGateway container.",
@@ -204,8 +199,7 @@ export async function ensureGitTagExists(
       timeout: 10_000,
       cwd,
     });
-  } catch (error: any) { const err = error; const e = error;
-    throw new Error(`Git tag not found: ${targetTag}`);
+  } catch (error: unknown) {throw new Error(`Git tag not found: ${targetTag}`);
   }
 }
 

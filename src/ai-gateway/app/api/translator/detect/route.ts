@@ -3,9 +3,7 @@ import { detectFormat } from "@ZavorthGateway/open-sse/services/provider.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { translatorDetectSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * POST /api/translator/detect
  * Detect the format of a request body.
  * Body: { body: object }
@@ -18,8 +16,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
         success: false,
@@ -45,8 +42,7 @@ export async function POST(request) {
       success: true,
       format,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error detecting format:", error);
+  } catch (error: unknown) {console.error("Error detecting format:", error);
     return NextResponse.json({ success: false, error: "Failed to detect format" }, { status: 500 });
   }
 }

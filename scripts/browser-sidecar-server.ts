@@ -2,6 +2,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { AutomaticBrowserTool } from '../src/mcp/tools/AutomaticBrowserTool.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 const host = String(process.env.ZAVORTH_BROWSER_SIDECAR_HOST || '127.0.0.1').trim() || '127.0.0.1';
 const port = Number(process.env.ZAVORTH_BROWSER_SIDECAR_PORT || 35791) || 35791;
@@ -109,7 +110,9 @@ const server = http.createServer(async (req, res) => {
     const text = result.content[0]?.text || '{}';
     const payload = JSON.parse(text);
     writeJson(res, result.isError ? 400 : 200, payload);
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     writeJson(res, 500, {
       ok: false,
       error: error instanceof Error ? error.message : String(error),

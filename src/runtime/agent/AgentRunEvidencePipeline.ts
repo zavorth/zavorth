@@ -2,6 +2,7 @@ import type {
   UniversalAgentRequest,
   UniversalAgentRun,
 } from './UniversalAgentRuntimeTypes.js';
+import { asErrorLike } from '../../utils/errorLike';
 
 export type AgentRunEvidenceStepId =
   | 'memoryWithReceipts'
@@ -378,8 +379,7 @@ export class AgentRunEvidencePipeline {
         deferred: true,
         executionMode: 'scheduled',
       };
-    } catch (error: any) { const err = error; const e = error;
-      this.appendWorkerReceipt(context, {
+    } catch (error: unknown) {this.appendWorkerReceipt(context, {
         jobId: job.id,
         phase,
         collectorId,
@@ -405,7 +405,9 @@ export class AgentRunEvidencePipeline {
         collectorId: job.collectorId,
         status: 'fallback-inline',
       });
-    } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
+    } catch (fallbackError: unknown) {
+      const err = asErrorLike(fallbackError);
+      const error = err;
       this.appendWorkerReceipt(context, {
         jobId: job.id,
         phase: job.phase,

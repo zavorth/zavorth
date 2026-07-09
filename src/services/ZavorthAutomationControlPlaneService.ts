@@ -406,8 +406,7 @@ export class ZavorthAutomationControlPlaneService {
       if (typeof scheduler.describeTaskRuntime === 'function') {
         return scheduler.describeTaskRuntime(task);
       }
-    } catch (error: any) {
-      // Snapshot deve continuar legivel mesmo se a task antiga tiver JSON quebrado.
+    } catch (error: unknown) {// Snapshot deve continuar legivel mesmo se a task antiga tiver JSON quebrado.
       logger.warn('[Zavorth Automation Control Plane] search failed', error);
     }
     return this.defaultTaskRuntime(task);
@@ -471,8 +470,7 @@ export class ZavorthAutomationControlPlaneService {
       if (typeof this.deliveryService.readOutboxStatus === 'function') {
         return this.deliveryService.readOutboxStatus();
       }
-    } catch (error: any) {
-      // fallback abaixo
+    } catch (error: unknown) {// fallback abaixo
       logger.warn('[Zavorth Automation Control Plane] creation failed', error);
     }
     return {
@@ -504,7 +502,7 @@ export class ZavorthAutomationControlPlaneService {
     try {
       const parsed = JSON.parse(String(value || '{}'));
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-    } catch (error: any) { logger.warn('[Zavorth Automation Control Plane] JSON parse failed', error); return {}; }
+    } catch (error: unknown) {logger.warn('[Zavorth Automation Control Plane] JSON parse failed', error); return {}; }
   }
 
   private toNumber(value: unknown, fallback: number): number {

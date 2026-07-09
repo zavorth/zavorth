@@ -1,11 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
-
-// ============================================================================
 // WhitelistConfig - security configuration for Zavorth Echo
-// ============================================================================
 
-// --- OS: Executaveis permitidos para os_open_app ---
 export const SYSTEM_EXECUTABLES_WHITELIST = [
     'chrome.exe', 'brave.exe', 'msedge.exe', 'spotify.exe',
     'explorer.exe', 'code', 'notepad.exe', 'calc.exe',
@@ -68,7 +64,6 @@ export function isWhitelistedSystemExecutable(value: string | undefined): boolea
     });
 }
 
-// --- OS: Padroes destrutivos bloqueados no prompt original ---
 export const DESTRUCTIVE_REGEX = [
     /\brm\s+-rf\b/i,
     /\bdel\s+\/f\b/i,
@@ -82,7 +77,6 @@ export const DESTRUCTIVE_REGEX = [
     /\btaskkill\s+\/f\s+\/im/i,
 ];
 
-// --- IoT: Prefixos de entity_id permitidos para Home Assistant ---
 export const ALLOWED_HA_ENTITY_PREFIXES = [
     'light.', 'switch.', 'climate.', 'sensor.', 'binary_sensor.',
     'fan.', 'cover.', 'media_player.', 'input_boolean.', 'automation.',
@@ -94,7 +88,6 @@ export const ALLOWED_HA_ENTITY_PREFIXES = [
     'air_quality.', 'plant.', 'sun.', 'todo.',
 ];
 
-// --- IoT: Brokers MQTT permitidos (apenas rede local) ---
 export const ALLOWED_MQTT_BROKERS = [
     'localhost', '127.0.0.1',
     '192.168.', '10.', '172.16.', '172.17.', '172.18.',
@@ -125,7 +118,6 @@ export function isLocalNetworkHostname(hostname: string | undefined): boolean {
     return false;
 }
 
-// --- OS: File paths blocked for reading ---
 export const BLOCKED_FILE_PATHS = [
     'system32', 'C:\\Windows', 'C:\\Program Files',
     '/etc/passwd', '/etc/shadow', '/etc/sudoers',
@@ -158,8 +150,7 @@ export function resolveBrowserTargetPolicy(
     let parsed: URL;
     try {
         parsed = new URL(candidate);
-    } catch (error: any) { const err = error; const e = error;
-        throw new Error(`SandboxBlock: URL '${candidate}' invalida para navegacao Playwright.`);
+    } catch (error: unknown) {throw new Error(`SandboxBlock: URL '${candidate}' invalida para navegacao Playwright.`);
     }
 
     const protocol = String(parsed.protocol || '').toLowerCase();

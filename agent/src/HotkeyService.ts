@@ -1,5 +1,11 @@
 import { EventEmitter } from 'events';
 import { t } from './i18n.js';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 /**
  * HotkeyService — Captures local terminal hotkey activations.
@@ -52,8 +58,9 @@ export class HotkeyService extends EventEmitter {
       } else {
         console.log('[Hotkey] Non-TTY terminal. Stdin hotkey listener skipped.');
       }
-    } catch (error: any) {
-      console.error(`[Hotkey] Start failed: ${error.message}`);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      console.error(`[Hotkey] Start failed: ${err.message}`);
       this.enabled = false;
     }
   }

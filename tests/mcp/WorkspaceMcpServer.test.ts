@@ -6,6 +6,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import { Database } from '../../src/storage/Database.js';
 import { config } from '../../src/config/index.js';
+import { asErrorLike } from '../../src/utils/errorLike';
 
 jest.setTimeout(60000);
 
@@ -279,8 +280,8 @@ describe('WorkspaceMcpServer E2E Git Read-Only', () => {
       fs.symlinkSync(outsideFile, linkToOutside);
       let readLinkOut = await readTool.execute({ file: 'out-link.txt' });
       expect(readLinkOut).toContain('Path traversal detected');
-    } catch (e: any) {
-      if (e.code !== 'EPERM') throw e;
+    } catch (error: unknown) { const err = asErrorLike(error);
+if (err.code !== 'EPERM') throw err;
     } finally {
       try {
         fs.unlinkSync(outsideFile);
@@ -291,8 +292,8 @@ describe('WorkspaceMcpServer E2E Git Read-Only', () => {
       fs.symlinkSync(envFile, linkToEnv);
       let readLinkEnv = await readTool.execute({ file: 'safe-link.txt' });
       expect(readLinkEnv).toContain('Access to sensitive file ".env" is blocked');
-    } catch (e: any) {
-      if (e.code !== 'EPERM') throw e;
+    } catch (error: unknown) { const err = asErrorLike(error);
+if (err.code !== 'EPERM') throw err;
     }
 
     // 7. Directory listing with pruning
@@ -433,8 +434,8 @@ describe('WorkspaceMcpServer E2E Git Read-Only', () => {
       fs.symlinkSync(outsideFile, linkPath);
       let resLink = await writeTool!.execute({ file: 'out-link-write.txt', content: 'hijack' });
       expect(resLink).toContain('Path traversal detected');
-    } catch (e: any) {
-      if (e.code !== 'EPERM') throw e;
+    } catch (error: unknown) { const err = asErrorLike(error);
+if (err.code !== 'EPERM') throw err;
     } finally {
       try {
         fs.unlinkSync(outsideFile);

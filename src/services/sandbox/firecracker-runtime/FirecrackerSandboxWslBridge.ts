@@ -82,7 +82,7 @@ export function getWslStatus(wslProjectRoot: string | null): FirecrackerSandboxS
       };
       return status;
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.warn('[Firecracker Sandbox Wsl Bridge] cache operation failed', error);
     return buildWslUnavailableStatus(`[FirecrackerSandbox] Ponte WSL indisponivel: ${error.message}`);
   }
@@ -121,8 +121,7 @@ export async function executeViaWsl(
     }
 
     throw new Error('A ponte WSL retornou um payload invalido.');
-  } catch (error: any) {
-    wslStatusCache = null;
+  } catch (error: unknown) {wslStatusCache = null;
     throw error;
   }
 }
@@ -143,7 +142,7 @@ function runWslBridge(payload: Record<string, unknown>, wslProjectRoot: string, 
 
   try {
     return JSON.parse(output);
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error(`Resposta invalida da ponte WSL: ${error.message}`);
   }
 }
@@ -288,7 +287,7 @@ function handleWslBridgeLine(
   let parsed: WslBridgeReadyEnvelope | WslBridgeResponseEnvelope;
   try {
     parsed = JSON.parse(line);
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (!bridge.ready) {
       clearTimeout(startupTimer);
       rejectStartup(new Error(`Ponte Firecracker WSL retornou JSON invalido: ${error.message}`));
@@ -362,15 +361,13 @@ function resetWslBridgeIdleTimer(): void {
 
     try {
       current.child.stdin?.end();
-    } catch (error: any) {
-      // ignore
+    } catch (error: unknown) {// ignore
       logger.warn('[Firecracker Sandbox Wsl Bridge] cache operation failed', error);
     }
 
     try {
       current.child.kill('SIGTERM');
-    } catch (error: any) {
-      // ignore
+    } catch (error: unknown) {// ignore
       logger.warn('[Firecracker Sandbox Wsl Bridge] operation failed', error);
     }
 

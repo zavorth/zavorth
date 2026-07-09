@@ -425,7 +425,6 @@ export class ContextEngine {
     // Keep only the last N lines.
     this.summaries.set(key, lines.slice(-MAX_SUMMARY_BULLETS).join('\n'));
 
-    // === EPISODIC MEMORY BRIDGE: Auto-persist ===
     if (this.episodicBridge && toCompact.length > 0) {
       const userId = toCompact[0]?.userId;
       if (userId) {

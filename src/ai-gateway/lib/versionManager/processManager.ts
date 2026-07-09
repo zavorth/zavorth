@@ -5,6 +5,7 @@ import path from "path";
 import os from "os";
 import { setToolStatus, getVersionManagerTool } from "@/lib/db/versionManager";
 import { logger } from '../logger.js';
+import { asErrorLike } from '../../../utils/errorLike';
 
 const DEFAULT_PORT = 8317;
 const GRACEFUL_TIMEOUT_MS = 5000;
@@ -72,7 +73,7 @@ export function isProcessRunning(pid: number): boolean {
   try {
     process.kill(pid, 0);
     return true;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[process Manager] lifecycle operation failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[process Manager] lifecycle operation failed', error); return false; }
 }
 
 export function stopProcess(pid: number): Promise<void> {
@@ -84,15 +85,16 @@ export function stopProcess(pid: number): Promise<void> {
 
     try {
       process.kill(pid, "SIGTERM");
-    } catch (error: any) { const err = error; const e = error;
-      resolve();
+    } catch (error: unknown) {resolve();
       return;
     }
 
     const timer = setTimeout(() => {
       try {
         process.kill(pid, "SIGKILL");
-      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn("[auto-fix] Empty catch block", err); }
       clearInterval(check);
       resolve();
     }, GRACEFUL_TIMEOUT_MS);
@@ -148,8 +150,7 @@ export async function getProcessInfo(pid: number): Promise<{
       }
     }
     return { pid, alive: true };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[process Manager] process execution failed', error);
+  } catch (error: unknown) {logger.warn('[process Manager] process execution failed', error);
     return { pid, alive: true };
   }
 }

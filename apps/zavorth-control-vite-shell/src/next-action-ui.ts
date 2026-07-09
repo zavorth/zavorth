@@ -1,7 +1,8 @@
 /**
- * C2 — Next best action (action-first, no essays).
- * Picks one primary CTA from live signals.
+ * Primary next-action CTA from live signals.
  */
+
+import { translate, translateCount } from './locale';
 
 export type NextActionKind =
   | 'review'
@@ -42,9 +43,9 @@ export function computeNextAction(input: NextActionInput = {}): NextActionModel 
   if (input.authRequired) {
     return {
       kind: 'auth',
-      title: 'Unlock runtime',
-      detail: 'Auth required before live work.',
-      cta: 'Doctor',
+      title: translate('Unlock runtime'),
+      detail: translate('Auth required before live work.'),
+      cta: translate('Doctor'),
       doctor: true,
       tone: 'warn',
     };
@@ -53,9 +54,9 @@ export function computeNextAction(input: NextActionInput = {}): NextActionModel 
   if (pending > 0) {
     return {
       kind: 'review',
-      title: `${pending} approval${pending === 1 ? '' : 's'} waiting`,
-      detail: 'Decide before risky work continues.',
-      cta: 'Review',
+      title: translateCount('1 approval waiting', '{n} approvals waiting', pending),
+      detail: translate('Decide before risky work continues.'),
+      cta: translate('Review'),
       sector: 'sales-os',
       tone: 'warn',
     };
@@ -64,9 +65,9 @@ export function computeNextAction(input: NextActionInput = {}): NextActionModel 
   if (errors > 0) {
     return {
       kind: 'errors',
-      title: `${errors} error${errors === 1 ? '' : 's'} in trail`,
-      detail: 'Check proof / receipts.',
-      cta: 'Proof',
+      title: translateCount('1 error in trail', '{n} errors in trail', errors),
+      detail: translate('Check proof / receipts.'),
+      cta: translate('Proof'),
       sector: 'instances',
       tone: 'danger',
     };
@@ -75,9 +76,9 @@ export function computeNextAction(input: NextActionInput = {}): NextActionModel 
   if (input.thinking || input.runActive) {
     return {
       kind: 'running',
-      title: input.runTitle?.trim() || 'Task running',
-      detail: input.thinking ? 'Working…' : 'Active run',
-      cta: 'Open chat',
+      title: input.runTitle?.trim() || translate('Task running'),
+      detail: input.thinking ? translate('Working…') : translate('Active run'),
+      cta: translate('Open chat'),
       sector: 'terminal',
       tone: 'info',
     };
@@ -86,9 +87,11 @@ export function computeNextAction(input: NextActionInput = {}): NextActionModel 
   if (input.live === false || input.providerReady === false) {
     return {
       kind: 'doctor',
-      title: 'Runtime needs a check',
-      detail: input.providerReady === false ? 'Provider not ready.' : 'Not live yet.',
-      cta: 'Doctor',
+      title: translate('Runtime needs a check'),
+      detail: input.providerReady === false
+        ? translate('Provider not ready.')
+        : translate('Not live yet.'),
+      cta: translate('Doctor'),
       doctor: true,
       tone: 'warn',
     };
@@ -96,9 +99,9 @@ export function computeNextAction(input: NextActionInput = {}): NextActionModel 
 
   return {
     kind: 'chat',
-    title: 'Ready for a request',
-    detail: 'Start in Inbox.',
-    cta: 'New chat',
+    title: translate('Ready for a request'),
+    detail: translate('Start in Inbox.'),
+    cta: translate('New chat'),
     sector: 'terminal',
     tone: 'ok',
   };
@@ -115,7 +118,7 @@ export function renderNextActionBar(model: NextActionModel): void {
   const html = `
     <div class="next-action next-action--${model.tone}" data-next-action-kind="${model.kind}">
       <div class="next-action__copy">
-        <span class="next-action__eyebrow">Next</span>
+        <span class="next-action__eyebrow">${escapeHtml(translate('Next'))}</span>
         <strong class="next-action__title">${escapeHtml(model.title)}</strong>
         <small class="next-action__detail">${escapeHtml(model.detail)}</small>
       </div>
@@ -136,14 +139,8 @@ export function renderNextActionBar(model: NextActionModel): void {
     root.hidden = false;
   });
 
-  // Compact badge for dock / bridge
   document.querySelectorAll<HTMLElement>('[data-attention-count]').forEach((node) => {
-    const n =
-      model.kind === 'review' || model.kind === 'errors' || model.kind === 'doctor' || model.kind === 'auth'
-        ? 1
-        : 0;
-    // Prefer real pending when review
-    const pending = model.kind === 'review' ? parseInt(String(model.title), 10) || 1 : n;
+    const pending = model.kind === 'review' ? parseInt(String(model.title), 10) || 1 : 0;
     const show = model.kind === 'review' || model.kind === 'errors' || model.kind === 'doctor' || model.kind === 'auth';
     node.hidden = !show;
     node.textContent = model.kind === 'review' ? String(pending) : show ? '!' : '';

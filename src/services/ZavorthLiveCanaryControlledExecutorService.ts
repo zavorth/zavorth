@@ -163,8 +163,8 @@ export class ZavorthLiveCanaryControlledExecutorService {
         error: null,
         providerCanary: null,
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Live Canary Controlled Executor] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Live Canary Controlled Executor] process execution failed', error);
     return {
         executorId: request.executorId,
         status: 'failed',

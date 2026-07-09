@@ -3,9 +3,7 @@ import type { ReleaseTrainSnapshot } from '../../contracts/ReleaseTrainContract.
 import type { IntegrationShowcasePartnerSurfaceSnapshot } from './IntegrationShowcasePartnerSurfaceService.js';
 import type { PublicAdoptionPilotLoopSnapshot } from './PublicAdoptionPilotLoopService.js';
 import type { FeedbackTelemetryProductLoopSnapshot } from './FeedbackTelemetryProductLoopService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-
-export const RELEASE_ADOPTION_READINESS_CONTRACT_VERSION = '2026-05-04.release-readiness' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const RELEASE_ADOPTION_READINESS_CONTRACT_VERSION = '2026-05-04.release-readiness' as const;
 export const RELEASE_ADOPTION_READINESS_METADATA_KEY = 'releaseAdoptionReadiness' as const;
 
 export type ReleaseAdoptionReadinessStatus =
@@ -182,8 +180,7 @@ function numberOrZero(value: unknown): number {
 function safeCall<T>(factory: () => T): T | null {
   try {
     return factory();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

@@ -9,9 +9,7 @@ import {
   getRateLimitStatus,
   getAllRateLimitStatus,
 } from "@ZavorthGateway/open-sse/services/rateLimitManager.ts";
-import { getAccountDisplayName } from "@/lib/display/names";
-
-import { toggleRateLimitSchema } from "@/shared/validation/schemas";
+import { getAccountDisplayName } from "@/lib/display/names";import { toggleRateLimitSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
 
@@ -63,8 +61,7 @@ export async function GET(request: Request) {
       lockouts,
       cacheStats,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API ERROR] /api/rate-limits GET:", error);
+  } catch (error: unknown) {console.error("[API ERROR] /api/rate-limits GET:", error);
     return NextResponse.json({ error: "Failed to get rate limit status" }, { status: 500 });
   }
 }
@@ -80,8 +77,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] connection failed', error);
+  } catch (error: unknown) {logger.warn('[route] connection failed', error);
     return NextResponse.json(
       {
         error: {
@@ -113,8 +109,7 @@ export async function POST(request) {
     });
 
     return NextResponse.json({ success: true, connectionId, enabled: !!enabled });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API ERROR] /api/rate-limits POST:", error);
+  } catch (error: unknown) {console.error("[API ERROR] /api/rate-limits POST:", error);
     return NextResponse.json({ error: "Failed to toggle rate limit" }, { status: 500 });
   }
 }

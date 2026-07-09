@@ -5,6 +5,7 @@ import type {
   SystemOverlordSmokeReport,
   SystemOverlordSmokeStatus,
 } from './smokeTypes.js';
+import { asErrorLike } from '../../utils/errorLike';
 
 export function buildSmokeCommand(platform: NodeJS.Platform = process.platform): string {
   return platform === 'win32'
@@ -108,5 +109,7 @@ export function writeSmokeReport(
   try {
     input.mkdirSync(path.dirname(input.reportFile), { recursive: true });
     input.writeFileSync(input.reportFile, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
 }

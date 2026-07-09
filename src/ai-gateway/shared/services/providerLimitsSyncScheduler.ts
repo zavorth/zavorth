@@ -3,9 +3,7 @@ import {
   getProviderLimitsSyncIntervalMinutes,
   getProviderLimitsSyncIntervalMs,
   syncAllProviderLimits,
-} from "@/lib/usage/providerLimits";
-
-const STARTUP_DELAY_MS = 5_000;
+} from "@/lib/usage/providerLimits";const STARTUP_DELAY_MS = 5_000;
 
 let schedulerTimer: NodeJS.Timeout | null = null;
 let startupTimer: NodeJS.Timeout | null = null;
@@ -25,8 +23,7 @@ async function runProviderLimitsSyncCycle(): Promise<void> {
     console.log(
       `[ProviderLimitsSync] Cycle complete: ${result.succeeded}/${result.total} synced in ${Date.now() - start}ms`
     );
-  } catch (error: any) { const err = error; const e = error;
-    console.warn("[ProviderLimitsSync] Cycle failed:", (error as Error).message);
+  } catch (error: unknown) {console.warn("[ProviderLimitsSync] Cycle failed:", (error as Error).message);
   } finally {
     isRunning = false;
   }

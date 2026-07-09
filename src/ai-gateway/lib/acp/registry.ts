@@ -179,9 +179,7 @@ const AGENT_DEFINITIONS: Omit<CliAgentInfo, "version" | "installed">[] = [
   },
 ];
 
-// ---------------------------------------------------------------------------
 // Detection cache (60 seconds)
-// ---------------------------------------------------------------------------
 let _cachedAgents: CliAgentInfo[] | null = null;
 let _cacheTimestamp = 0;
 const CACHE_TTL_MS = 60_000;
@@ -225,8 +223,7 @@ function detectAgent(
     const versionMatch = output.match(/(\d+\.\d+\.\d+(?:-\w+)?)/);
     version = versionMatch ? versionMatch[1] : output.split("\n")[0];
     installed = true;
-  } catch (error: any) { const err = error; const e = error;
-      // Not installed or not runnable
+  } catch (error: unknown) {// Not installed or not runnable
       logger.warn('[registry] process execution failed', error);
     }
 

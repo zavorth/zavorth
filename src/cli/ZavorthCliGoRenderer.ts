@@ -9,9 +9,7 @@ import {
 buildZavorthFailureExplanation,
   formatZavorthFailureExplanation,
   renderZavorthFailureExplanation,
-} from './ZavorthCliFailureExplanation.js';
-
-export type ZavorthGoLauncherSnapshot = {
+} from './ZavorthCliFailureExplanation.js';export type ZavorthGoLauncherSnapshot = {
   skipped: boolean;
   applied: boolean;
   mode: string;
@@ -254,8 +252,7 @@ function normalizeHomeUrl(value: string | null): string {
       url.hash = '';
       return url.toString();
     }
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Cli Go Renderer] search failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Go Renderer] search failed', error);
     return target.replace(/\/zavorthControl(?:[?#].*)?$/u, '/zavorthControl');
   }
   return target;

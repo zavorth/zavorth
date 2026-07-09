@@ -126,8 +126,7 @@ export class ZavorthMnemosPromotionGateService {
             recommendation: 'Manter a regra de seguranca transacional e rejeitar o bypass de aprovacao.',
           });
         }
-      } catch (error: any) {
-      // Safe skip on read error
+      } catch (error: unknown) {// Safe skip on read error
       logger.warn('[Zavorth Mnemos Promotion] operation failed', error);
     }
     }
@@ -178,8 +177,7 @@ export class ZavorthMnemosPromotionGateService {
 
         this.fsRuntime.writeFileSync(pagePath, content, 'utf8');
         mutated.add(`.zavorth/wiki/${candidate.targetPage}.md`);
-      } catch (error: any) {
-      // Safe skip on write error
+      } catch (error: unknown) {// Safe skip on write error
       logger.warn('[Zavorth Mnemos Promotion] filesystem operation failed', error);
     }
     }

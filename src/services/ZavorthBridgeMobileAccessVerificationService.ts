@@ -67,8 +67,8 @@ export class ZavorthBridgeMobileAccessVerificationService {
         }
 
         lastError = `HTTP ${response.status}`;
-      } catch (error: any) {
-    logger.warn('[Zavorth Bridge Mobile Access Verification] network request failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Zavorth Bridge Mobile Access Verification] network request failed', error);
     lastError = error?.message || String(error);
   }
     }

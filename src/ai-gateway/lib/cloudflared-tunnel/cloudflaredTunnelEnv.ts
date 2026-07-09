@@ -8,16 +8,14 @@ import {
   type CloudflaredRuntimeDirs,
 } from "./cloudflaredTunnelTypes";
 import { getCloudflaredRuntimeDirs } from "./cloudflaredTunnelPaths";
-import { logger } from '@/shared/utils/logger';
-
-export function extractTryCloudflareUrl(text: string) {
+import { logger } from '@/shared/utils/logger';export function extractTryCloudflareUrl(text: string) {
   const match = text.match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com\b/i);
   if (!match) return null;
 
   try {
     const hostname = new URL(match[0]).hostname.toLowerCase();
     if (hostname === "api.trycloudflare.com") return null;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[cloudflared Tunnel Env] network request failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[cloudflared Tunnel Env] network request failed', error); return null; }
 
   return match[0];
 }

@@ -7,9 +7,7 @@ import {
 isLocalDirectoryInspectionPrompt as isLocalDirectoryInspectionPromptImpl,
   normalizeComparisonValue as normalizeComparisonValueImpl,
   resolveDirectoryListingTarget as resolveDirectoryListingTargetImpl,
-} from './RealZavorthBridgeWatcherDirectoryHelpers.js';
-
-export type RealZavorthBridgeWatcherTaskSupportHost = {
+} from './RealZavorthBridgeWatcherDirectoryHelpers.js';export type RealZavorthBridgeWatcherTaskSupportHost = {
   logRepo: { log(level: string, source: string, message: string, meta?: Record<string, any>): void };
   deps: {
     taskManager?: {
@@ -217,7 +215,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
     let entries: fs.Dirent[] = [];
     try {
       entries = await fs.promises.readdir(directoryPath, { withFileTypes: true });
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Real Zavorth Bridge Watcher Task] filesystem operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Real Zavorth Bridge Watcher Task] filesystem operation failed', error); return false; }
 
     const folders = entries
       .filter((entry) => entry.isDirectory())

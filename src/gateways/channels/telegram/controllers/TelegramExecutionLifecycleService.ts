@@ -9,6 +9,7 @@ import { LogRepository } from '../../../../storage/LogRepository.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import { TaskResponseEnvelopeService } from '../../../../services/TaskResponseEnvelopeService.js';
 import { logger } from '../../../../logger.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 type ExecuteTaskFn = (task: Task, isDryRun: boolean) => Promise<{ output: string; success: boolean }>;
 type CaptureExecutionEnvelopeFn = (task: Task, userFacingText: string, success: boolean) => void;
@@ -85,7 +86,8 @@ export class TelegramExecutionLifecycleService {
 
       await SmartOutputService.reply(ctx, output, { includeDeleteAction: false });
       await this.deps.sendTaskArtifacts(ctx, task);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (!StateMachine.isTerminal(task.status)) {
         this.deps.taskManager.advanceState(task, 'failed');
       }

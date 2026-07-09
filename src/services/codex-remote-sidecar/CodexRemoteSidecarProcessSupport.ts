@@ -195,7 +195,7 @@ export class CodexRemoteSidecarProcessSupport {
     try {
       process.kill(session.pid, 0);
       return true;
-    } catch (error: any) { logger.warn('[Codex Remote Sidecar Process] process signal failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Codex Remote Sidecar Process] process signal failed', error); return false; }
   }
 
   public async terminateChild(child: ChildProcess): Promise<void> {
@@ -212,7 +212,7 @@ export class CodexRemoteSidecarProcessSupport {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (error: any) { logger.warn('[Codex Remote Sidecar Process] operation failed', error); }
+        } catch (error: unknown) {logger.warn('[Codex Remote Sidecar Process] operation failed', error); }
         finalize();
       }, 5000);
 
@@ -231,8 +231,7 @@ export class CodexRemoteSidecarProcessSupport {
 
       try {
         child.kill('SIGTERM');
-      } catch (error: any) {
-        clearTimeout(timeout);
+      } catch (error: unknown) {clearTimeout(timeout);
         finalize();
       }
     });
@@ -246,7 +245,7 @@ export class CodexRemoteSidecarProcessSupport {
       }
       try {
         process.kill(pid, 'SIGTERM');
-      } catch (error: any) { logger.warn('[Codex Remote Sidecar Process] process execution failed', error); }
+      } catch (error: unknown) {logger.warn('[Codex Remote Sidecar Process] process execution failed', error); }
       resolve();
     });
   }

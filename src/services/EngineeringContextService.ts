@@ -76,7 +76,7 @@ export class EngineeringContextService {
         return null;
       }
       return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    } catch (error: any) { logger.warn('[Engineering Context] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Engineering Context] JSON parse failed', error); return null; }
   }
 
   private readConnectedMcpToolNames(mcpRuntimeService: Pick<McpRuntimeService, 'readSnapshot'> | null): string[] {

@@ -161,8 +161,7 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
         };
       }
       return this.providerClassification(parsed, local);
-    } catch (error: any) {
-    logger.warn('[Zavorth Adaptive Semantic Classifier] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Adaptive Semantic Classifier] parsing failed', error);
     return {
         ...local,
         recommendedLane: local.recommendedLane === 'green' && local.confidence < 0.75 ? 'yellow' : local.recommendedLane,
@@ -261,7 +260,7 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : null;
-    } catch (error: any) { logger.warn('[Zavorth Adaptive Semantic Classifier] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Adaptive Semantic Classifier] JSON parse failed', error); return null; }
   }
 
   private validLane(value: unknown): ZavorthAdaptiveLearningLaneId | null {

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -267,8 +268,7 @@ export class ZavorthExternalAgentMigrationPackService {
         let entries: fs.Dirent[];
         try {
           entries = this.readdirSyncImpl(current, { withFileTypes: true }) as fs.Dirent[];
-        } catch (error: any) {
-    logger.warn('[Zavorth External Agent Migration Pack] filesystem operation failed', error);
+        } catch (error: unknown) {logger.warn('[Zavorth External Agent Migration Pack] filesystem operation failed', error);
     return;
   }
         for (const entry of entries.slice(0, 120)) {
@@ -295,8 +295,7 @@ export class ZavorthExternalAgentMigrationPackService {
               ext,
               size: stat.size,
             });
-          } catch (error: any) {
-      // read-only best effort
+          } catch (error: unknown) {// read-only best effort
       logger.warn('[Zavorth External Agent Migration Pack] operation failed', error);
     }
         }
@@ -368,8 +367,7 @@ export class ZavorthExternalAgentMigrationPackService {
         bytesRead: Buffer.byteLength(raw, 'utf8'),
         secretLikeContentDetected: containsSecretLike(raw),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth External Agent Migration Pack] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth External Agent Migration Pack] filesystem operation failed', error);
     return { text: '', bytesRead: 0, secretLikeContentDetected: false };
   }
   }
@@ -419,7 +417,9 @@ export class ZavorthExternalAgentMigrationPackService {
             logger.warn(`[Migration] Failed to register memory in SQLite: ${err}`);
           });
         }
-      } catch (err) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+
         logger.warn(`[Migration] Failed during native migration write: ${err}`);
       }
 
@@ -468,8 +468,7 @@ export class ZavorthExternalAgentMigrationPackService {
               bodyContent,
             ].join('\n');
           }
-        } catch (e) {
-          logger.warn(`[Migration Pack] Failed to read or parse source file: ${e}`);
+        } catch (error: unknown) { const err = asErrorLike(error); logger.warn(`[Migration Pack] Failed to read or parse source file: ${err}`);
         }
       }
     }

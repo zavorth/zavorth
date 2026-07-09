@@ -80,9 +80,7 @@ import {
   type WebAppSharedSurfaceFactorySource,
 } from './WebAppSharedSurfaceFactoryService.js';
 import type { WebAppOperationsState, WebAppRuntimeServiceState } from './WebAppServiceState.js';
-import { logger } from '../../../../logger';
-
-interface ConversationSnapshotMessage {
+import { logger } from '../../../../logger';interface ConversationSnapshotMessage {
   role?: string | null;
   kind?: string | null;
   type?: string | null;
@@ -539,7 +537,7 @@ export function createWebAppServiceComposition(
     getConversationService: () => {
       try {
         return options.getConversationService();
-      } catch (error: any) { const err = error; const e = error; logger.warn('[Web App  Composition] operation failed', error); return null; }
+      } catch (error: unknown) {logger.warn('[Web App  Composition] operation failed', error); return null; }
     },
     getRealtime: () => options.getRealtime(),
     getChannelActions: () => options.operations.channelActions,

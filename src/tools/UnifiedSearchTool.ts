@@ -31,9 +31,7 @@ import type {
   SearchEvidenceDomain,
 } from '../contracts/SearchQueryContract.js';
 
-// ---------------------------------------------------------------------------
 // Tool
-// ---------------------------------------------------------------------------
 
 export class UnifiedSearchTool extends BaseTool {
   public readonly name = 'web_search';
@@ -75,9 +73,7 @@ export class UnifiedSearchTool extends BaseTool {
     this.service = options?.service || new SearchQueryService();
   }
 
-  // -------------------------------------------------------------------------
   // Execution
-  // -------------------------------------------------------------------------
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const request = this.buildRequest(args);
@@ -90,9 +86,7 @@ export class UnifiedSearchTool extends BaseTool {
     return this.formatSuccessResponse(result);
   }
 
-  // -------------------------------------------------------------------------
   // Argument conversion
-  // -------------------------------------------------------------------------
 
   private buildRequest(args: Record<string, unknown>): SearchQueryRequest {
     const mode = String(args.mode || args.search_mode || 'deep').toLowerCase();
@@ -135,9 +129,7 @@ export class UnifiedSearchTool extends BaseTool {
     return Object.keys(output).length > 0 ? output : null;
   }
 
-  // -------------------------------------------------------------------------
   // Response formatting
-  // -------------------------------------------------------------------------
 
   private formatSuccessResponse(result: SearchQueryResult): string {
     const lines: string[] = [];

@@ -24,7 +24,6 @@ import {
 } from '../contracts/ZavorthAndroidAdbBridgeContract.js';
 import type { ZavorthVisionPolicyDecision } from '../contracts/ZavorthVisionControlPlaneContract.js';
 import { ZavorthVisionControlPlaneService } from '@zavorth/services/ZavorthVisionControlPlaneService.js';
-
 export type ZavorthAdbRunOptions = {
   binary?: string;
   timeoutMs?: number;
@@ -400,7 +399,7 @@ export class ZavorthAndroidAdbBridgeService {
         timeoutMs: options.timeoutMs || DEFAULT_TIMEOUT_MS,
         encoding: options.encoding || 'utf8',
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         ok: false,
         code: null,

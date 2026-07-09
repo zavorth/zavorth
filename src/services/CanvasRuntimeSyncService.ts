@@ -56,7 +56,7 @@ export async function syncSpeculativeAutonomyToCanvas(input: {
       status: result.status,
       error: null,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.warn('[Canvas Runtime] creation failed', error);
     return {
       ok: false,

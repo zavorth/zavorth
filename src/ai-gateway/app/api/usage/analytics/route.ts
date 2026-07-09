@@ -3,9 +3,7 @@ import { getUsageDb } from "@/lib/usageDb";
 import { computeAnalytics } from "@/lib/usageAnalytics";
 import { getDbInstance } from "@/lib/db/core";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';
-
-function getRangeStartIso(range: string): string | null {
+import { logger } from '@/shared/utils/logger';function getRangeStartIso(range: string): string | null {
   const end = new Date();
   const start = new Date(end);
 
@@ -69,7 +67,7 @@ export async function GET(request) {
           connectionId;
         connectionMap[connectionId] = name;
       }
-    } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] connection failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[route] connection failed', error); }
 
     const analytics: any = await computeAnalytics(history, range, connectionMap);
 
@@ -108,15 +106,13 @@ export async function GET(request) {
         withRequested > 0 ? Number(((fallbackCount / withRequested) * 100).toFixed(2)) : 0;
       analytics.summary.requestedModelCoveragePct =
         total > 0 ? Number(((withRequested / total) * 100).toFixed(2)) : 0;
-    } catch (error: any) { const err = error; const e = error;
-      analytics.summary.fallbackCount = 0;
+    } catch (error: unknown) {analytics.summary.fallbackCount = 0;
       analytics.summary.fallbackRatePct = 0;
       analytics.summary.requestedModelCoveragePct = 0;
     }
 
     return NextResponse.json(analytics);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error computing analytics:", error);
+  } catch (error: unknown) {console.error("Error computing analytics:", error);
     return NextResponse.json({ error: "Failed to compute analytics" }, { status: 500 });
   }
 }

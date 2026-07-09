@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { spawnSync } from 'child_process';
 import { config } from '../src/config/index.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 type SmokeStatus = 'PASSOU' | 'FALHOU' | 'PULADO' | 'AVISO';
 
@@ -225,7 +226,9 @@ async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
     }
 
     return makeResult('Dashboard shell', 'PASSOU', `HTML principal do /dashboard carregou o shell ${matchedShell.label}.`);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return makeResult('Dashboard shell', 'FALHOU', error?.message || String(error));
   }
 }
@@ -247,7 +250,9 @@ async function smokeAuth(baseUrl: string, token: string): Promise<SmokeResult> {
     }
 
     return makeResult('Auth web', 'PASSOU', 'Token validado com sucesso.');
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return makeResult('Auth web', 'FALHOU', error?.message || String(error));
   }
 }
@@ -270,7 +275,9 @@ async function smokeHostStatus(baseUrl: string, token: string): Promise<SmokeRes
       'PASSOU',
       `Host respondeu; autorizacao ${authorization}; local ${localReady ? 'pronto' : 'pendente'}; remoto ${remoteReady ? 'pronto' : 'pendente'}.`,
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return makeResult('Host status', 'FALHOU', error?.message || String(error));
   }
 }
@@ -291,7 +298,9 @@ async function smokeSession(baseUrl: string, token: string): Promise<{ result: S
       tasks: [],
       continuity: payload.continuity || null,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       result: makeResult('Sessao web', 'FALHOU', error?.message || String(error)),
       sessionId: '',
@@ -318,7 +327,9 @@ async function smokeState(baseUrl: string, token: string, sessionId: string): Pr
       result: makeResult('Estado web', 'PASSOU', `${messages.length} mensagem(ns), ${tasks.length} task(s) e snapshot valido.`),
       tasks,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       result: makeResult('Estado web', 'FALHOU', error?.message || String(error)),
       tasks: [],
@@ -340,7 +351,9 @@ async function smokeCatalog(baseUrl: string, token: string, sessionId: string): 
     const commands = Array.isArray(catalog.commands) ? catalog.commands.length : 0;
     const suggestions = Array.isArray(catalog.suggestedActions) ? catalog.suggestedActions.length : 0;
     return makeResult('Catalogo', 'PASSOU', `${commands} comando(s) e ${suggestions} sugestao(oes) disponiveis.`);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return makeResult('Catalogo', 'FALHOU', error?.message || String(error));
   }
 }
@@ -395,7 +408,9 @@ async function smokePreview(baseUrl: string, token: string, tasks: any[]): Promi
         ? `Preview carregado para ${candidate.label}.`
         : `Preview respondeu para ${candidate.label}.`,
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return makeResult('Preview arquivo', 'AVISO', error?.message || String(error), false);
   }
 }
@@ -416,7 +431,9 @@ async function smokeEvents(baseUrl: string, token: string, sessionId: string): P
     }
 
     return makeResult('Stream SSE', 'PASSOU', 'Endpoint SSE respondeu com content-type correto.');
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return makeResult('Stream SSE', 'AVISO', error?.message || String(error), false);
   }
 }

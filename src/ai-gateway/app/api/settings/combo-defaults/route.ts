@@ -3,9 +3,7 @@ import { getSettings, updateSettings } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateComboDefaultsSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * GET /api/settings/combo-defaults
  * Returns the current combo global defaults and provider overrides
  */
@@ -31,8 +29,7 @@ export async function GET(request: Request) {
       },
       providerOverrides: settings.providerOverrides || {},
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching combo defaults:", error);
+  } catch (error: unknown) {console.log("Error fetching combo defaults:", error);
     return NextResponse.json({ error: "Failed to fetch combo defaults" }, { status: 500 });
   }
 }
@@ -49,8 +46,7 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -83,8 +79,7 @@ export async function PATCH(request) {
       comboDefaults: settings.comboDefaults || {},
       providerOverrides: settings.providerOverrides || {},
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating combo defaults:", error);
+  } catch (error: unknown) {console.log("Error updating combo defaults:", error);
     return NextResponse.json({ error: "Failed to update combo defaults" }, { status: 500 });
   }
 }

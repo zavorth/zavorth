@@ -193,8 +193,7 @@ export class CapabilityDiscoveryService {
           }
         }
       }
-    } catch (error: any) {
-      // skip unreadable files
+    } catch (error: unknown) {// skip unreadable files
       logger.warn('[Capability Discovery] operation failed', error);
     }
   }

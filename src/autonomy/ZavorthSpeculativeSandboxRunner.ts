@@ -14,8 +14,6 @@ import type {
   ZavorthSpeculativeCommandRunner,
   ZavorthSpeculativeDockerValidationRunner,
 } from './ZavorthSpeculativeAutonomyService.js';
-
-
 const MAX_VALIDATION_COMMANDS = 3;
 const MAX_AST_FILES = 80;
 const MAX_DIFF_CHARS = 100000;
@@ -310,8 +308,7 @@ export function safeDockerStatus(dockerRuntime: Pick<DockerSandboxRuntime, 'getS
     }
     try {
       return dockerRuntime.getStatus('javascript');
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 
@@ -415,7 +412,7 @@ export function defaultDockerValidationRunner(
         windowsHide: true,
         stdio: ['ignore', 'pipe', 'pipe'],
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       finish({
         command: input.originalCommand,
         status: 'failed',

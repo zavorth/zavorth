@@ -191,5 +191,5 @@ function readPackageManifest(rootDir: string): PackageManifest {
   }
   try {
     return JSON.parse(fs.readFileSync(packagePath, 'utf8')) as PackageManifest;
-  } catch (error: any) { logger.warn('[Zavorth Release Acceptance Check] JSON parse failed', error); return {}; }
+  } catch (error: unknown) {logger.warn('[Zavorth Release Acceptance Check] JSON parse failed', error); return {}; }
 }

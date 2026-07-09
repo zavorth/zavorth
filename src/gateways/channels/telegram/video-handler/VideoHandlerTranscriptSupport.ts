@@ -6,9 +6,7 @@ import {
 } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
 import { VideoHandlerFetchSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFetchSupport.js";
 import { VideoHandlerFormatSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js";
-import { logger } from '../../../../logger';
-
-export class VideoHandlerTranscriptSupport {
+import { logger } from '../../../../logger';export class VideoHandlerTranscriptSupport {
   public static extractYouTubePlayerResponse(html: string): YouTubePlayerResponse | null {
     const markers = [
       "var ytInitialPlayerResponse = ",
@@ -27,8 +25,7 @@ export class VideoHandlerTranscriptSupport {
           jsonText,
           "YouTube player response",
         ) as YouTubePlayerResponse;
-      } catch (error: any) { const err = error; const e = error;
-        continue;
+      } catch (error: unknown) {continue;
       }
     }
 
@@ -120,8 +117,7 @@ export class VideoHandlerTranscriptSupport {
       if (text) {
         return text;
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Fallback to XML below.
+    } catch (error: unknown) {// Fallback to XML below.
       logger.warn('[Video  Transcript] network request failed', error);
     }
 

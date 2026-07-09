@@ -6671,7 +6671,7 @@
   }
 }
 
-/* --- P2 product surfaces (compact action UI) --- */
+/* Product surface helpers */
 .session-trust-score {
   display: inline-flex;
   align-items: baseline;
@@ -6724,6 +6724,18 @@
   display: grid;
   gap: 2px;
   font-size: 13px;
+}
+.workboard-lite__col li[data-workboard-item] {
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin: 0 -4px;
+  transition: background 0.12s ease;
+}
+.workboard-lite__col li[data-workboard-item]:hover,
+.workboard-lite__col li[data-workboard-item]:focus-visible {
+  background: color-mix(in srgb, var(--b-accent, #00e88f) 12%, transparent);
+  outline: none;
 }
 .workboard-lite__col li small {
   color: var(--b-signal-muted);

@@ -423,7 +423,7 @@ export class ArtifactReplayWorkbenchService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch (error: any) { logger.warn('[Artifact Replay Workbench] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Artifact Replay Workbench] JSON parse failed', error); return null; }
   }
 
   private check(

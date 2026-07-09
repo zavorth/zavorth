@@ -8,7 +8,6 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-
 /**
  * POST /api/oauth/cursor/import
  * Import and validate access token from Cursor IDE's local SQLite database
@@ -24,8 +23,7 @@ export async function POST(request: any) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -85,7 +83,7 @@ export async function POST(request: any) {
         email: connection.email,
       },
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Cursor import token error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -133,7 +131,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing to cloud after Cursor import:", error);
+  } catch (error: unknown) {console.log("Error syncing to cloud after Cursor import:", error);
   }
 }

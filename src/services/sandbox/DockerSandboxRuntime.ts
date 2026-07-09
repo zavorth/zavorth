@@ -144,7 +144,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         },
       );
       return result.status === 0;
-    } catch (error: any) { logger.warn('[Docker Sandbox Runtime] lifecycle operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Docker Sandbox Runtime] lifecycle operation failed', error); return false; }
   }
 
   /**
@@ -436,8 +436,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
     } finally {
       try {
         fs.rmSync(tempDir, { recursive: true, force: true });
-      } catch (error: any) {
-      // ignore cleanup failures for ephemeral docker sandboxes
+      } catch (error: unknown) {// ignore cleanup failures for ephemeral docker sandboxes
       logger.warn('[Docker Sandbox Runtime] process execution failed', error);
     }
     }
@@ -573,8 +572,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         stdout: String(output || ''),
         stderr: '',
       };
-    } catch (error: any) {
-      const execError = error as DockerExecError;
+    } catch (error: unknown) {const execError = error as DockerExecError;
       return {
         status: typeof execError?.status === 'number' ? execError.status : null,
         stdout: String(execError?.stdout || ''),
@@ -613,8 +611,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (error: any) {
-      // ignore timeout kill failures
+        } catch (error: unknown) {// ignore timeout kill failures
       logger.warn('[Docker Sandbox Runtime] operation failed', error);
     }
 
@@ -660,7 +657,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
               fs.rmSync(fullPath, { recursive: true, force: true });
               cleaned++;
             }
-          } catch (err) {
+          } catch (error: unknown) {
             // ignore stat or delete errors for specific folders
           }
         }
@@ -668,7 +665,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
       if (cleaned > 0) {
         logger.info(`[DockerSandboxRuntime] GC: cleaned ${cleaned} orphaned temp jail(s) from ${this.tempBasePath}`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('[DockerSandboxRuntime] Failed to run garbage collection on temp jails:', error);
     }
     return cleaned;

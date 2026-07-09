@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import fs from "node:fs";
 import http from "node:http";
@@ -673,7 +674,7 @@ async function sendProviderCanary(page: any, target: ProviderTarget, timeoutMs: 
         },
         (error) => { metrics.sendError = String(error?.message || error); },
       );
-    } catch (error) {
+    } catch (error: unknown) {
       metrics.sendError = String(error?.message || error);
     }
   })()`);
@@ -820,7 +821,8 @@ async function runProvider(browser: any, options: Options, target: ProviderTarge
       },
       screenshot,
     };
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     let metrics: Record<string, unknown> = {};
     let screenshot: string | null = null;
     try {

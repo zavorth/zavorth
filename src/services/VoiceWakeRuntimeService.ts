@@ -142,8 +142,7 @@ export class VoiceWakeRuntimeService {
         safety: this.defaultSession().safety,
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.slice(-RECEIPT_LIMIT) : [],
       };
-    } catch (error: any) {
-    logger.warn('[Voice Wake Runtime] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Voice Wake Runtime] JSON parse failed', error);
     return this.defaultSession();
   }
   }

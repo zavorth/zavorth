@@ -8,9 +8,7 @@ ProviderNode,
   RequestLoggerSortKey,
   RequestLoggerStatusFilter,
   RequestLoggerVisibleColumns,
-} from "./requestLoggerTypes";
-
-type RequestLoggerDetailState = Record<string, unknown> | null;
+} from "./requestLoggerTypes";type RequestLoggerDetailState = Record<string, unknown> | null;
 
 export function useRequestLoggerV2() {
   const [logs, setLogs] = useState<RequestLogEntry[]>([]);
@@ -54,8 +52,7 @@ export function useRequestLoggerV2() {
           const data = (await response.json()) as RequestLogEntry[];
           setLogs(data);
         }
-      } catch (error: any) { const err = error; const e = error;
-        console.error("Failed to fetch call logs:", error);
+      } catch (error: unknown) {console.error("Failed to fetch call logs:", error);
       } finally {
         if (showLoading) {
           setLoading(false);
@@ -142,8 +139,7 @@ export function useRequestLoggerV2() {
       if (response.ok) {
         setDetailData((await response.json()) as Record<string, unknown>);
       }
-    } catch (error: any) { const err = error; const e = error;
-      console.error("Failed to fetch log detail:", error);
+    } catch (error: unknown) {console.error("Failed to fetch log detail:", error);
     } finally {
       setDetailLoading(false);
     }
@@ -170,8 +166,7 @@ export function useRequestLoggerV2() {
       }
 
       setDetailLoggingEnabled(nextEnabled);
-    } catch (error: any) { const err = error; const e = error;
-      console.error("Failed to toggle pipeline logging:", error);
+    } catch (error: unknown) {console.error("Failed to toggle pipeline logging:", error);
     } finally {
       setDetailLoggingLoading(false);
     }

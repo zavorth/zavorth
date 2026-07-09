@@ -318,8 +318,7 @@ export class ZavorthPersistentApprovalPolicyService {
         updatedAt: parsed.updatedAt || this.now().toISOString(),
         policies: Array.isArray(parsed.policies) ? parsed.policies.map(normalizePolicy).filter(Boolean) as ZavorthPersistentApprovalPolicy[] : [],
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Persistent Approval] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Persistent Approval] parsing failed', error);
     return {
         contractVersion: ZAVORTH_PERSISTENT_APPROVAL_POLICY_CONTRACT_VERSION,
         schemaVersion: 1,

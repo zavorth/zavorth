@@ -1,4 +1,8 @@
 import { useEffect, useState } from 'react';
+import { createLogger } from '../logger';
+
+const logger = createLogger('trust');
+import { asErrorLike } from '../lib/errors';
 
 interface WorkspaceTaskMandateStatusProps {
   activeMandate: {
@@ -54,8 +58,10 @@ export function WorkspaceTaskMandateStatus({
     setLoading(true);
     try {
       await onRevoke();
-    } catch (err) {
-      console.error('Failed to revoke mandate:', err);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
+      logger.error('Failed to revoke mandate:', err);
     } finally {
       setLoading(false);
     }

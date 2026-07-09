@@ -432,8 +432,8 @@ export class ZavorthPersonalOpsRuntimeService {
         profile,
         error: null,
       });
-    } catch (error: any) {
-    logger.warn('[Zavorth Personal Ops Runtime] connection failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Personal Ops Runtime] connection failed', error);
     return this.operationResult({
         operation: input.operation,
         connectorId,

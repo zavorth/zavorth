@@ -4,9 +4,7 @@ import path from 'path';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { ArtifactRecord } from '../../../../contracts/ArtifactContract.js';
 import { ArtifactPipelineService } from '../../../../runtime/artifacts/ArtifactPipelineService.js';
-import { SmartOutputService } from '../../../../services/SmartOutputService.js';
-
-type PersistTaskFn = (task: Task) => void;
+import { SmartOutputService } from '../../../../services/SmartOutputService.js';type PersistTaskFn = (task: Task) => void;
 
 type ReplyWithPhotoFn = (photo: InputFile, options?: { caption?: string }) => Promise<unknown>;
 type ReplyWithAudioFn = (audio: InputFile, options?: { caption?: string; title?: string }) => Promise<unknown>;
@@ -78,8 +76,7 @@ export class TelegramExecutionArtifactDeliveryService {
           deliveredKeys.add(deliveryKey);
           newlyDelivered.push(deliveryKey);
         }
-      } catch (error: any) { const err = error; const e = error;
-        if (remoteUrl) {
+      } catch (error: unknown) {if (remoteUrl) {
           deferredLinks.push(this.artifactPipeline.formatLinkLine(artifact));
           deliveredKeys.add(deliveryKey);
           newlyDelivered.push(deliveryKey);

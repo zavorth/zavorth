@@ -50,8 +50,7 @@ function getState(identifier) {
       lockoutCache.set(identifier, fromDb);
       return fromDb;
     }
-  } catch (error: any) { const err = error; const e = error;
-      // DB may not be ready
+  } catch (error: unknown) {// DB may not be ready
       logger.warn('[lockout] cache operation failed', error);
     }
 
@@ -67,8 +66,7 @@ function persistState(identifier, state) {
   lockoutCache.set(identifier, state);
   try {
     saveLockoutState(identifier, state);
-  } catch (error: any) { const err = error; const e = error;
-      // Non-critical
+  } catch (error: unknown) {// Non-critical
       logger.warn('[lockout] cache operation failed', error);
     }
 }
@@ -154,8 +152,7 @@ export function recordSuccess(identifier) {
   lockoutCache.delete(identifier);
   try {
     deleteLockoutState(identifier);
-  } catch (error: any) { const err = error; const e = error;
-      // Non-critical
+  } catch (error: unknown) {// Non-critical
       logger.warn('[lockout] cache operation failed', error);
     }
 }
@@ -169,8 +166,7 @@ export function forceUnlock(identifier) {
   lockoutCache.delete(identifier);
   try {
     deleteLockoutState(identifier);
-  } catch (error: any) { const err = error; const e = error;
-      // Non-critical
+  } catch (error: unknown) {// Non-critical
       logger.warn('[lockout] cache operation failed', error);
     }
 }
@@ -194,8 +190,7 @@ export function getLockedIdentifiers() {
         });
       }
     }
-  } catch (error: any) { const err = error; const e = error;
-      // Use cache only
+  } catch (error: unknown) {// Use cache only
       logger.warn('[lockout] cache operation failed', error);
     }
 

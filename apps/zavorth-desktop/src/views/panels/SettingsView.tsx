@@ -15,6 +15,7 @@ import { readinessFromProvider } from '../../desktop-state/readiness';
 import type { DesktopUpdateStatus } from '../../desktop-state/desktopUpdate';
 import { UpdateControlPanel } from '../../components/UpdateControlPanel';
 import { DetailRows, PageFrame, TextTabs } from '../panelChrome';
+import { asErrorLike } from '../../lib/errors';
 
 export function SettingsView(props: {
   accent: 'green' | 'orange' | 'purple' | 'navy';
@@ -77,7 +78,8 @@ export function SettingsView(props: {
       setPersonalConnectStatus(result.accountEmail
         ? `Connected ${result.accountEmail}.`
         : 'Google account connected.');
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setPersonalConnectStatus(error instanceof Error ? error.message : 'Google authorization failed.');
     }
   };
@@ -756,7 +758,12 @@ export function SettingsView(props: {
       id: 'gateway-fallback-order',
       title: 'Fallback order',
       description: gatewayFallbackOrder.length > 0
-        ? gatewayFallbackOrder.map((target: any) => target.modelId ? `${target.providerId}:${target.modelId}` : target.providerId).join(' -> ')
+        ? gatewayFallbackOrder.map((target) => {
+            const row = target && typeof target === 'object' ? target as Record<string, unknown> : {};
+            const providerId = String(row.providerId || 'provider');
+            const modelId = row.modelId ? String(row.modelId) : '';
+            return modelId ? `${providerId}:${modelId}` : providerId;
+          }).join(' -> ')
         : 'Fallback order is not configured yet.',
       meta: `${gatewayFallbackOrder.length} fallback(s)`,
       tone: gatewayFallbackOrder.length > 0 ? 'ready' as const : 'muted' as const,
@@ -768,13 +775,16 @@ export function SettingsView(props: {
       meta: String(gatewayBudget.decision || 'allowed'),
       tone: gatewayBudget.decision === 'blocked' ? 'danger' as const : 'ready' as const,
     },
-    ...gatewayReceipts.slice(0, 4).map((receipt: any, index: number) => ({
-      id: String(receipt.receiptId || `gateway-receipt-${index}`),
-      title: receipt.fallbackUsed ? 'Fallback used' : 'Route tested',
-      description: String(receipt.receiptId || 'Routing receipt stored.'),
-      meta: String(receipt.budgetDecision || 'allowed'),
-      tone: receipt.fallbackUsed ? 'warning' as const : 'muted' as const,
-    })),
+    ...gatewayReceipts.slice(0, 4).map((receipt, index) => {
+      const row = receipt && typeof receipt === 'object' ? receipt as Record<string, unknown> : {};
+      return {
+        id: String(row.receiptId || `gateway-receipt-${index}`),
+        title: row.fallbackUsed ? 'Fallback used' : 'Route tested',
+        description: String(row.receiptId || 'Routing receipt stored.'),
+        meta: String(row.budgetDecision || 'allowed'),
+        tone: row.fallbackUsed ? 'warning' as const : 'muted' as const,
+      };
+    }),
   ];
 
   const runtimeRows = [

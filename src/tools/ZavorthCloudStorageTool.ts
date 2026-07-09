@@ -101,7 +101,7 @@ export class ZavorthCloudStorageTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: any) { logger.warn('[Zavorth Cloud Storage] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Cloud Storage] process execution failed', error); return ''; }
   }
 
   private buildS3Uri(bucket: string, key: string): string {

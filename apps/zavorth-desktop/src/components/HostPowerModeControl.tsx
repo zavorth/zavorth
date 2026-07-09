@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
 import * as apiClient from '../apiClient';
+import { createLogger } from '../logger';
+
+const logger = createLogger('trust');
+import { asErrorLike } from '../lib/errors';
 
 interface HostPowerModeControlProps {
   workspaceId: string;
@@ -21,8 +25,10 @@ export function HostPowerModeControl({ workspaceId }: HostPowerModeControlProps)
           setEnabled(res.data.enabled);
           setTimeLeft(res.data.timeLeftSeconds || 0);
         }
-      } catch (err) {
-        console.error('Failed to get host power status', err);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+
+        logger.error('Failed to get host power status', err);
       }
     };
 
@@ -50,7 +56,7 @@ export function HostPowerModeControl({ workspaceId }: HostPowerModeControlProps)
         await apiClient.disableHostPower(workspaceId);
         setEnabled(false);
         setTimeLeft(0);
-      } catch (err) {
+      } catch (error: unknown) {
         alert('Failed to disable Host Power Mode');
       }
     } else {
@@ -64,7 +70,7 @@ export function HostPowerModeControl({ workspaceId }: HostPowerModeControlProps)
       setEnabled(true);
       setTimeLeft(duration * 60);
       setShowOptions(false);
-    } catch (err) {
+    } catch (error: unknown) {
       alert('Failed to enable Host Power Mode');
     }
   };

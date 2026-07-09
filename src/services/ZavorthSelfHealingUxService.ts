@@ -387,7 +387,7 @@ export class ZavorthSelfHealingUxService {
         probe: false,
         live: false,
       });
-    } catch (error: any) { logger.warn('[Zavorth Self Healing Ux] creation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Self Healing Ux] creation failed', error); return null; }
   }
 }
 

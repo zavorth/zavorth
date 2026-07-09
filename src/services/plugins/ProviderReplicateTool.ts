@@ -98,7 +98,7 @@ export class ProviderReplicateTool extends BaseTool {
 
     let input: Record<string, unknown> = {};
     if (typeof args.input === 'string') {
-      try { input = JSON.parse(args.input); } catch (error: any) { logger.warn('[Replicate] JSON parse failed', error); return 'Error: invalid JSON for "input"..'; }
+      try { input = JSON.parse(args.input); } catch (error: unknown) {logger.warn('[Replicate] JSON parse failed', error); return 'Error: invalid JSON for "input"..'; }
     }
 
     try {
@@ -115,7 +115,7 @@ export class ProviderReplicateTool extends BaseTool {
         `https://api.replicate.com/v1/predictions`,
       ], { timeout: 60000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Replicate] file cleanup failed', error); }
+      try { fs.unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Replicate] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.detail) return `Replicate error: ${parsed.detail}`;
@@ -133,7 +133,7 @@ export class ProviderReplicateTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: any) { logger.warn('[Replicate] parsing failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Replicate] parsing failed', error); return ''; }
   }
 
   private async getPrediction(args: Record<string, unknown>, apiKey: string): Promise<string> {
@@ -165,7 +165,7 @@ export class ProviderReplicateTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: any) { logger.warn('[Replicate] parsing failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Replicate] parsing failed', error); return ''; }
   }
 
   private async checkStatus(apiKey: string): Promise<string> {
@@ -179,6 +179,6 @@ export class ProviderReplicateTool extends BaseTool {
       const parsed = JSON.parse(result);
       if (parsed.detail) return `Replicate: Erro ${parsed.detail}`;
       return `Replicate: Connected. Usuario: ${parsed.username || 'unknown'}`;
-    } catch (error: any) { logger.warn('[Replicate] JSON parse failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Replicate] JSON parse failed', error); return ''; }
   }
 }

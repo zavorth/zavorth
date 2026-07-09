@@ -92,8 +92,7 @@ export class VideoGenerationTool extends BaseTool {
       let payload: Record<string, unknown> = {};
       try {
         payload = text ? JSON.parse(text) : {};
-      } catch (error: any) {
-    logger.warn('[Video Generation] JSON parse failed', error);
+      } catch (error: unknown) {logger.warn('[Video Generation] JSON parse failed', error);
     payload = { rawText: text.slice(0, 1000) };
   }
       if (!response.ok) {
@@ -115,8 +114,8 @@ export class VideoGenerationTool extends BaseTool {
         `  - Style: ${style}`,
         outputUrl ? `  - URL: ${outputUrl}` : '  - URL: unavailable in backend response',
       ].join('\n');
-    } catch (error: any) {
-    logger.warn('[Video Generation] creation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Video Generation] creation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Video generation error: ${message}`;
   }

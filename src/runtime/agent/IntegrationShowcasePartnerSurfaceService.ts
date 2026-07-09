@@ -1,8 +1,6 @@
 import type { IntegrationShowcaseSnapshot } from '../../contracts/IntegrationShowcaseContract.js';
 import type { PublicAdoptionPilotLoopSnapshot } from './PublicAdoptionPilotLoopService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-
-export const INTEGRATION_SHOWCASE_PARTNER_SURFACE_CONTRACT_VERSION = '2026-05-04.integration-showcase' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const INTEGRATION_SHOWCASE_PARTNER_SURFACE_CONTRACT_VERSION = '2026-05-04.integration-showcase' as const;
 export const INTEGRATION_SHOWCASE_PARTNER_SURFACE_METADATA_KEY = 'integrationShowcasePartnerSurface' as const;
 
 export type IntegrationShowcasePartnerSurfaceStatus =
@@ -163,8 +161,7 @@ function arrayOrEmpty<T = unknown>(value: unknown): T[] {
 function safeCall<T>(factory: () => T): T | null {
   try {
     return factory();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

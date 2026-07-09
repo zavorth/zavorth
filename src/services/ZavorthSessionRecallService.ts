@@ -276,8 +276,7 @@ export class ZavorthSessionRecallService {
           ? parsed.sessions.map(normalizeSession).filter((entry): entry is ZavorthSessionRecallSession => Boolean(entry))
           : [],
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Session Recall] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Session Recall] JSON parse failed', error);
     return { sessions: [] };
   }
   }

@@ -46,8 +46,7 @@ export default function LoginPage() {
           setHasPassword(true);
           setSetupComplete(true);
         }
-      } catch (err: any) { const error = err; const e = err;
-        clearTimeout(timeoutId);
+      } catch (error: unknown) {clearTimeout(timeoutId);
         setHasPassword(true);
         setSetupComplete(true);
       }
@@ -80,8 +79,7 @@ export default function LoginPage() {
         }
         setError(data.error || t("invalidPassword"));
       }
-    } catch (err: any) { const error = err; const e = err;
-      setError(t("errorOccurredRetry"));
+    } catch (error: unknown) {setError(t("errorOccurredRetry"));
     } finally {
       setLoading(false);
     }

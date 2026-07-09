@@ -60,7 +60,7 @@ async function testMinimax() {
       console.log(htmlContent);
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ ERRO:', error?.message || error);
     process.exit(1);
   }

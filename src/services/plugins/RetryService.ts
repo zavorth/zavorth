@@ -39,7 +39,7 @@ export class RetryService {
     try {
       const p = path.join(this.storageDir, 'attempts.json');
       if (fs.existsSync(p)) this.attempts = JSON.parse(fs.readFileSync(p, 'utf-8'));
-    } catch (error: any) { /* ignore */ logger.warn('[Retry] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Retry] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {
@@ -91,7 +91,7 @@ export class RetryService {
           this.recordAttempt(operation, attempt, config.maxRetries, '', 0, true);
         }
         return result;
-      } catch (error: any) {
+      } catch (error: unknown) {
         lastError = error instanceof Error ? error : new Error(String(error));
         const errorMsg = lastError.message;
 

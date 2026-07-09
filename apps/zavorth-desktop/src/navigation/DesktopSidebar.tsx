@@ -1,4 +1,7 @@
 import { t } from '../i18n';
+import { createLogger } from '../logger';
+
+const logger = createLogger('shell');
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { DesktopPanel } from '../slashCommands';
 import {
@@ -39,6 +42,7 @@ import {
   type SessionChromeMap,
 } from '../session/sessionChrome';
 import { isSecondaryPanel, PRIMARY_PANELS, SECONDARY_PANELS } from './navConfig';
+import { asErrorLike } from '../lib/errors';
 
 type SidebarItem = {
   panel: DesktopPanel;
@@ -90,7 +94,7 @@ export function DesktopSidebar(props: {
   onToggle(): void;
   onWorkspaceFolder(): void | Promise<void>;
   onWorkspaceScope(value: string): void;
-  activeMandate?: any;
+  activeMandate?: import('../apiClient').TaskMandate | null;
   onRevokeMandate?: () => Promise<void>;
   currentSessionId?: string;
   onSwitchSession?: (sessionId: string) => void;
@@ -165,8 +169,7 @@ export function DesktopSidebar(props: {
           setSessions(filtered);
         }
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error: unknown) { const err = asErrorLike(error); logger.error(err);
     }
   }, []);
 

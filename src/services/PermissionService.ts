@@ -429,8 +429,7 @@ export class PermissionService {
           decidedBy: permission.decided_by,
         },
       });
-    } catch (error: any) {
-      // telemetry should never break permission flow
+    } catch (error: unknown) {// telemetry should never break permission flow
       logger.warn('[Permission] process execution failed', error);
     }
   }

@@ -27,7 +27,7 @@ async function webJson(
       status: response.status,
       payload: await response.json(),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error(`Falha em ${route}: ${error?.message || error}`);
   } finally {
     clearTimeout(timeout);

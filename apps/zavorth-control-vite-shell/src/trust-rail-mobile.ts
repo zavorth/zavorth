@@ -1,6 +1,6 @@
-/**
- * Mobile trust rail — bottom sheet instead of hiding the rail entirely.
- */
+/** Mobile trust rail as bottom sheet. */
+
+import { translate } from './locale';
 
 const MQ = '(max-width: 900px)';
 
@@ -87,7 +87,7 @@ function ensureMobileChrome(): void {
   if (!header) {
     header = document.createElement('div');
     header.className = 'trust-rail__header';
-    header.innerHTML = '<strong>Trust</strong>';
+    header.innerHTML = `<strong>${translate('Trust')}</strong>`;
     rail.prepend(header);
   }
   if (!header.querySelector('[data-trust-sheet-close]')) {
@@ -95,7 +95,7 @@ function ensureMobileChrome(): void {
     close.type = 'button';
     close.className = 'trust-rail__close';
     close.setAttribute('data-trust-sheet-close', '');
-    close.setAttribute('aria-label', 'Close trust panel');
+    close.setAttribute('aria-label', translate('Close trust panel'));
     close.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
     header.appendChild(close);
   }
@@ -114,12 +114,12 @@ function ensureMobileChrome(): void {
     fab.type = 'button';
     fab.id = 'trust-rail-fab';
     fab.className = 'trust-rail-fab';
-    fab.setAttribute('aria-label', 'Open trust panel');
+    fab.setAttribute('aria-label', translate('Open trust panel'));
     fab.setAttribute('aria-controls', 'trust-rail');
     fab.setAttribute('aria-expanded', 'false');
     fab.hidden = true;
     fab.innerHTML = `
-      <span class="trust-rail-fab__label">Trust</span>
+      <span class="trust-rail-fab__label">${translate('Trust')}</span>
       <span class="trust-rail-fab__badge" data-attention-count hidden></span>
     `;
     document.body.appendChild(fab);

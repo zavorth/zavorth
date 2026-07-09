@@ -9,6 +9,7 @@ import {
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
+import { logger } from '../../../logger.js';
 
 type TeamsChannelAdapterRuntime = {
   outboxDir?: string;
@@ -35,12 +36,12 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
   async initialize(): Promise<void> {
     fs.mkdirSync(this.outboxDir, { recursive: true });
     if (!this.providerHint && !config.teamsAppId) {
-      console.warn('[ChannelMesh] Teams bridge offline (missing Teams app/tenant configuration).');
+      logger.warn('[ChannelMesh] Teams bridge offline (missing Teams app/tenant configuration).');
     }
   }
 
   async shutdown(): Promise<void> {
-    console.log('[ChannelMesh] Teams bridge detached.');
+    logger.info('[ChannelMesh] Teams bridge detached.');
   }
 
   async onMessageReceived(payload: any): Promise<void> {
@@ -63,7 +64,7 @@ export class TeamsChannelAdapter implements GatewayChannelAdapter {
     const threadId = String(payload?.replyToId || payload?.threadId || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('teams', userId);
     if (!isAllowed) {
-      console.warn(`[Security] Blocked unauthorized Teams interaction from ${userId}`);
+      logger.warn(`[Security] Blocked unauthorized Teams interaction from ${userId}`);
       return;
     }
 

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 /**
  * Eval Scheduler — L-7
  *
@@ -161,7 +162,8 @@ async function executeScheduledRun(suiteId: string): Promise<EvalRunResult | nul
     for (const evalCase of suite.cases) {
       try {
         outputs[evalCase.id] = await _outputProvider(suiteId, evalCase.id);
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         console.warn(`[EvalScheduler] Failed to get output for ${evalCase.id}: ${err.message}`);
         outputs[evalCase.id] = `[ERROR] ${err.message}`;
       }
@@ -196,7 +198,8 @@ async function executeScheduledRun(suiteId: string): Promise<EvalRunResult | nul
     );
 
     return runResult;
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error(`[EvalScheduler] Error running ${suiteId}:`, err.message);
     return null;
   }

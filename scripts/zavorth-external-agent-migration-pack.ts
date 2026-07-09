@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import { ZavorthExternalAgentMigrationPackService } from '../src/services/ZavorthExternalAgentMigrationPackService.js';
 import type { ZavorthExternalAgentMigrationPreset } from '../src/contracts/ZavorthExternalAgentMigrationPackContract.js';
@@ -119,7 +120,9 @@ function normalizePreset(value: string | null): ZavorthExternalAgentMigrationPre
 
 try {
   main();
-} catch (error) {
+} catch (error: unknown) {
+  const err = asErrorLike(error);
+
   console.error(`[zavorth-external-agent-migration-pack] ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 }

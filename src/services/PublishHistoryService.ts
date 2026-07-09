@@ -51,7 +51,7 @@ export class PublishHistoryService {
     try {
       const parsed = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
       return Array.isArray(parsed) ? parsed : [];
-    } catch (error: any) { logger.warn('[Publish History] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Publish History] JSON parse failed', error); return []; }
   }
 
   public resolveDescriptor(entry: PublishHistoryEntry): PublishSnapshotDescriptor | null {

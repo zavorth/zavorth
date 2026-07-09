@@ -26,8 +26,7 @@ export class CanvasEgressGuardService {
     let parsed: URL;
     try {
       parsed = new URL(trimmed);
-    } catch (error: any) {
-    logger.warn('[Canvas Egress Guard] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Canvas Egress Guard] parsing failed', error);
     return { allowed: true, reason: 'Relative canvas asset.', event: null };
   }
 
@@ -70,7 +69,7 @@ export class CanvasEgressGuardService {
             if (/^(data|blob|about):/i.test(url)) return false;
             const parsed = new URL(url, window.location.href);
             return !['localhost', '127.0.0.1', '::1'].includes(parsed.hostname);
-          } catch (error: any) { logger.warn('[Canvas Egress Guard] parsing failed', error); return false; }
+          } catch (error: unknown) {logger.warn('[Canvas Egress Guard] parsing failed', error); return false; }
         };
         const originalFetch = window.fetch?.bind(window);
         if (originalFetch) {

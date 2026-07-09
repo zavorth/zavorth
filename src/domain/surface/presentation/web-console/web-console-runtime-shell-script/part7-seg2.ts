@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../utils/errorLike';
 export const runtimeShellScriptPart7Seg2: string = [
     "      mode === 'extensions-open' ? 'Abrindo painel das extensoes...' : 'Atualizando catalogo de extensoes...',",
     "    );",
@@ -11,7 +12,7 @@ export const runtimeShellScriptPart7Seg2: string = [
     "      opsExtensionsStatus,",
     "      selectedId ? 'Catalogo atualizado para o workspace selecionado.' : 'Catalogo de extensoes atualizado.',",
     "    );",
-    "  } catch (error: any) { const err = error; const e = error;",
+    "  } catch (error: unknown) { const err = asErrorLike(error); const e = err;",
     "    const message = error instanceof Error ? error.message : String(error);",
     "    if (kind === 'nodes') {",
     "      setOperationalActionStatus(opsNodesStatus, message);",
@@ -551,7 +552,7 @@ export const runtimeShellScriptPart7Seg2: string = [
     "        );",
     "        return;",
     "      }",
-    "    } catch (error: any) { const err = error; const e = error;",
+    "    } catch (error: unknown) { const err = asErrorLike(error); const e = err;",
     "    const message = error instanceof Error ? error.message : String(error);",
     "    if (kind === 'nodes') {",
     "      setOperationalActionStatus(opsNodesStatus, message);",

@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef, useCallback, memo } from 'react';
 import type { FileExplorerNode } from './FileExplorer';
-import { logger } from '../logger.js';
+import { createLogger } from '../logger.js';
+
+const logger = createLogger('shell');
 
 interface AtCompletionsProps {
   value: string;

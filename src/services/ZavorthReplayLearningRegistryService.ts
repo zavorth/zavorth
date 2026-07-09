@@ -104,8 +104,7 @@ export class ZavorthReplayLearningRegistryService {
         records: Array.isArray(parsed.records) ? parsed.records.map((entry) => this.normalizeRecord(entry)) : [],
         profile: this.normalizeProfile(parsed.profile),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Replay Learning Registry] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Replay Learning Registry] filesystem operation failed', error);
     return this.emptyRegistry();
   }
   }

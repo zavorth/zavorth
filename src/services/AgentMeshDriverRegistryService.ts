@@ -257,8 +257,7 @@ function postJson(urlValue: string | null, payload: unknown, timeoutMs: number):
         }
         try {
           resolve(text ? JSON.parse(text) : {});
-        } catch (error: any) {
-          reject(new Error('Agent Mesh webhook returned invalid JSON.'));
+        } catch (error: unknown) {reject(new Error('Agent Mesh webhook returned invalid JSON.'));
         }
       });
     });
@@ -320,7 +319,6 @@ function runAgentMeshCommand(
 function parseJsonOutput(output: string): any {
   try {
     return JSON.parse(output || '{}');
-  } catch (error: any) {
-    throw new Error('Agent Mesh driver returned invalid JSON.');
+  } catch (error: unknown) {throw new Error('Agent Mesh driver returned invalid JSON.');
   }
 }

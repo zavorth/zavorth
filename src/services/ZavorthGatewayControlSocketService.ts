@@ -69,8 +69,7 @@ export class ZavorthGatewayControlSocketService {
     this.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch (error: any) {
-      // Ignore close failures while shutting down the gateway.
+      } catch (error: unknown) {// Ignore close failures while shutting down the gateway.
       logger.warn('[Zavorth way Control Socket] resource cleanup failed', error);
     }
     });

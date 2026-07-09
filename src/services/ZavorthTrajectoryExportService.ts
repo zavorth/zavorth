@@ -208,12 +208,12 @@ function readJsonLikeValues(filePath: string): unknown[] {
         .flatMap((line) => {
           try {
             return [JSON.parse(line)];
-          } catch (error: any) { logger.warn('[Zavorth Trajectory Export] JSON parse failed', error); return []; }
+          } catch (error: unknown) {logger.warn('[Zavorth Trajectory Export] JSON parse failed', error); return []; }
         });
     }
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [parsed];
-  } catch (error: any) { logger.warn('[Zavorth Trajectory Export] JSON parse failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[Zavorth Trajectory Export] JSON parse failed', error); return []; }
 }
 
 function renderExport(format: ZavorthTrajectoryExportFormat, records: ZavorthTrajectoryExportRecord[]): string {
@@ -272,7 +272,7 @@ function stringifySmall(value: unknown): string {
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   try {
     return JSON.stringify(value).slice(0, 1_000);
-  } catch (error: any) { logger.warn('[Zavorth Trajectory Export] serialization failed', error); return ''; }
+  } catch (error: unknown) {logger.warn('[Zavorth Trajectory Export] serialization failed', error); return ''; }
 }
 
 function inferSourceKind(sourcePath: string): ZavorthTrajectoryExportRecord['sourceKind'] {

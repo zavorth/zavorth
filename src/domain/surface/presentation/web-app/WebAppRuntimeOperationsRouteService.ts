@@ -13,9 +13,7 @@ import {
   listZavorthProductModeSnapshots,
 } from '../../../../services/ProductModeService.js';
 import type { ZavorthProductModeSnapshot } from '../../../../services/ProductModeService.js';
-import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
-
-function extractErrorMessage(error: unknown): string {
+import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';function extractErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   if (error && typeof error === 'object' && 'message' in error) {
     return String((error as { message: unknown }).message);
@@ -81,8 +79,7 @@ export class WebAppRuntimeOperationsRouteService {
           hydrated: this.isFullDetailRequested(url),
         });
         deps.writeJson(res, { ok: true, runtime: runtimeSnapshot }, 200);
-      } catch (error: any) { const err = error; const e = error;
-        const errorMessage = extractErrorMessage(error);
+      } catch (error: unknown) {const errorMessage = extractErrorMessage(error);
         deps.writeJson(
           res,
           {
@@ -130,8 +127,7 @@ export class WebAppRuntimeOperationsRouteService {
           requestedBy: String(body.requestedBy || deps.runtime.webUserId || '').trim() || null,
         }, deps);
         deps.writeJson(res, payload, 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao trocar o product mode.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao trocar o product mode.' }, 400);
       }
       return true;
     }
@@ -143,8 +139,7 @@ export class WebAppRuntimeOperationsRouteService {
       try {
         const payload = await this.getModeEscalation(sessionId, deps);
         deps.writeJson(res, payload, 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao ler o mode escalation.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao ler o mode escalation.' }, 400);
       }
       return true;
     }
@@ -159,8 +154,7 @@ export class WebAppRuntimeOperationsRouteService {
           requestedBy: String(body.requestedBy || deps.runtime.webUserId || '').trim() || null,
         }, deps);
         deps.writeJson(res, payload, 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao resolver o mode escalation.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao resolver o mode escalation.' }, 400);
       }
       return true;
     }
@@ -185,8 +179,7 @@ export class WebAppRuntimeOperationsRouteService {
         const companionId = asCompanionId(String(companionInspectMatch[1] || ''));
         const companion = await deps.companions.inspectCompanion(companionId, { preferCachedWithinMs: 15_000 });
         deps.writeJson(res, { ok: true, companion }, 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao inspecionar companion.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao inspecionar companion.' }, 400);
       }
       return true;
     }
@@ -213,8 +206,7 @@ export class WebAppRuntimeOperationsRouteService {
           force: body.force === true,
         });
         deps.writeJson(res, { ok: result.ok, result }, result.ok ? 200 : result.requiresApproval ? 202 : 409);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao operar companion.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao operar companion.' }, 400);
       }
       return true;
     }
@@ -228,8 +220,7 @@ export class WebAppRuntimeOperationsRouteService {
         const workspaceHint = String(url.searchParams.get('workspace') || '').trim() || null;
         const profile = await deps.workspaceOptimizer.buildLoadProfile({ workspaceHint });
         deps.writeJson(res, { ok: true, profile }, 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao montar o workspace doctor.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao montar o workspace doctor.' }, 400);
       }
       return true;
     }
@@ -273,8 +264,7 @@ export class WebAppRuntimeOperationsRouteService {
           { ok: !preview.blocked, preview },
           preview.blocked ? 409 : preview.waitingApproval ? 202 : 200,
         );
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao otimizar workspace.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao otimizar workspace.' }, 400);
       }
       return true;
     }

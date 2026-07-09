@@ -50,8 +50,7 @@ export class ProviderRuntimeClientFactory {
       invoke: async (request: SanitizedProviderInvocationRequest) => {
         try {
           return await this.executeSafeRequest(resolved, rawKey, request);
-        } catch (error: any) {
-          throw this.sanitizeError(error);
+        } catch (error: unknown) {throw this.sanitizeError(error);
         }
       }
     };

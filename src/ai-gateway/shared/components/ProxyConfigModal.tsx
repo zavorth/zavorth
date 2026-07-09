@@ -159,8 +159,7 @@ export default function ProxyConfigModal({
             }
           }
         }
-      } catch (error: any) { const err = error; const e = error;
-        console.error("Error loading proxy config:", error);
+      } catch (error: unknown) {console.error("Error loading proxy config:", error);
       } finally {
         setLoading(false);
       }
@@ -246,7 +245,7 @@ export default function ProxyConfigModal({
       }
       onSaved?.();
       onClose();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       console.error("Error saving proxy:", error);
       setFormError(error.message || "Failed to save proxy configuration");
     } finally {
@@ -283,7 +282,7 @@ export default function ProxyConfigModal({
       setTestResult(null);
       onSaved?.();
       onClose();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       console.error("Error clearing proxy:", error);
       setFormError(error.message || "Failed to clear proxy configuration");
     } finally {
@@ -348,7 +347,7 @@ export default function ProxyConfigModal({
         return;
       }
       setTestResult(data);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       setTestResult({ success: false, error: error.message });
       setFormError(error.message || "Connection failed");
     } finally {

@@ -137,8 +137,8 @@ export class ComposerActionService {
         taskId: permission.task_id || null,
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
-    } catch (error: any) {
-    logger.warn('[Composer Action] path resolution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Composer Action] path resolution failed', error);
     return this.finishWithError(
         sessionId,
         error instanceof Error ? error.message : 'Falha ao aprovar a permissao selecionada.',
@@ -222,8 +222,8 @@ export class ComposerActionService {
         taskId: String(actionMention.payload?.taskId || '').trim() || null,
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
-    } catch (error: any) {
-    logger.warn('[Composer Action] load operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Composer Action] load operation failed', error);
     return this.finishWithError(
         sessionId,
         error instanceof Error ? error.message : 'Falha ao retomar o workflow selecionado.',
@@ -266,8 +266,8 @@ export class ComposerActionService {
         taskId: String(actionMention.payload?.taskId || '').trim() || null,
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
-    } catch (error: any) {
-    logger.warn('[Composer Action] lifecycle operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Composer Action] lifecycle operation failed', error);
     return this.finishWithError(
         sessionId,
         error instanceof Error ? error.message : 'Falha ao reiniciar a etapa do workflow selecionado.',
@@ -309,8 +309,8 @@ export class ComposerActionService {
         taskId: String(actionMention.payload?.taskId || '').trim() || null,
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
-    } catch (error: any) {
-    logger.warn('[Composer Action] resource cleanup failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Composer Action] resource cleanup failed', error);
     return this.finishWithError(
         sessionId,
         error instanceof Error ? error.message : 'Falha ao encerrar o workflow selecionado.',

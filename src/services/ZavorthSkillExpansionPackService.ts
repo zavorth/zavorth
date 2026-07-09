@@ -558,7 +558,7 @@ function safeListDirs(root: string): string[] {
     return fs.readdirSync(root, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => path.join(root, entry.name));
-  } catch (error: any) { logger.warn('[Zavorth Skill Expansion Pack] filesystem operation failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[Zavorth Skill Expansion Pack] filesystem operation failed', error); return []; }
 }
 
 function findSkillFiles(root: string): string[] {
@@ -568,8 +568,7 @@ function findSkillFiles(root: string): string[] {
     let entries: fs.Dirent[];
     try {
       entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch (error: any) {
-    logger.warn('[Zavorth Skill Expansion Pack] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Skill Expansion Pack] filesystem operation failed', error);
     return;
   }
     for (const entry of entries) {
@@ -637,7 +636,7 @@ function readLimited(filePath: string): string {
     } finally {
       fs.closeSync(fd);
     }
-  } catch (error: any) { logger.warn('[Zavorth Skill Expansion Pack] filesystem operation failed', error); return ''; }
+  } catch (error: unknown) {logger.warn('[Zavorth Skill Expansion Pack] filesystem operation failed', error); return ''; }
 }
 
 function readLicenseName(sourceRoot: string): string | null {

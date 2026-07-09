@@ -48,8 +48,7 @@ export async function GET(request: Request) {
       missingCount: plan.missingEntries.length,
       missingKeys: plan.missingEntries.map((entry: { key: string }) => entry.key),
     });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] load operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] load operation failed', error);
     return NextResponse.json(
       { error: (error as Error)?.message || "Failed to inspect env defaults" },
       { status: 500 }
@@ -75,8 +74,7 @@ export async function POST(request: Request) {
       missingCount: plan.missingEntries.length,
       missingKeys: plan.missingEntries.map((entry: { key: string }) => entry.key),
     });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] creation failed', error);
+  } catch (error: unknown) {logger.warn('[route] creation failed', error);
     return NextResponse.json(
       { error: (error as Error)?.message || "Failed to repair env defaults" },
       { status: 500 }

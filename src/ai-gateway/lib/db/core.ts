@@ -44,7 +44,7 @@ export function closeDbInstance(options?: { checkpointMode?: CheckpointMode | nu
         if (checkpointDb(db, checkpointMode)) {
           console.log(`[DB] SQLite WAL checkpoint completed (${checkpointMode}).`);
         }
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         console.warn(`[DB] WAL checkpoint failed during close (${checkpointMode}):`, message);
       }

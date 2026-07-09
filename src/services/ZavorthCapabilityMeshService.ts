@@ -512,7 +512,7 @@ function stableId(value: string): string {
 function safeRead<T>(reader: () => T, fallback: T): T {
   try {
     return reader();
-  } catch (error: any) { logger.warn('[Zavorth Capability Mesh] creation failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[Zavorth Capability Mesh] creation failed', error); return fallback; }
 }
 
 function emptyExternalRegistry(generatedAt: string): ZavorthExternalAgentGatewayRegistrySnapshot {

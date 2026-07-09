@@ -1,9 +1,4 @@
-/*
- * C0 brand alignment with Desktop/site
- * Brand: green #00e88f · void #060809 (docs/brand-guide.md)
- * Tokens mirror apps/zavorth-desktop dark theme where practical.
- * All tokens use the --b- prefix for system isolation.
- */
+/* Brand tokens: #00e88f / #060809. Prefix --b-. */
 
 :root {
   /* ═══ Void — Deep background layers (Desktop dark seeds) ═══ */
@@ -421,7 +416,7 @@ h1, h2, h3, h4,
 }
 
 /* ==========================================================================
-   C0 calm shell lock-in
+   Calm shell surface
    Keeps brand green #00e88f and void #060809 as the final dark defaults.
    No warm/gold pulse override — Control matches Desktop/site brand.
    ========================================================================== */

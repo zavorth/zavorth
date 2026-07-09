@@ -27,10 +27,6 @@ import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesS
 import { detectDeviceLocale } from './ZavorthIntentI18n.js';
 import { getChannelPairingService } from './ZavorthChannelPairingService.js';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export interface MiddlewareInput {
   text: string;
   channelId: string;
@@ -52,10 +48,6 @@ export interface MiddlewareResult {
   locale: string;
   error?: string;
 }
-
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
 
 export class ZavorthChannelMessageMiddleware {
   private readonly commandless: ZavorthCommandlessModeService;
@@ -137,7 +129,7 @@ export class ZavorthChannelMessageMiddleware {
         requiresApproval: result.requiresApproval,
         locale: result.detectedLanguage,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Graceful degradation: if middleware fails, let the gateway handle it
       return {
         handled: false,

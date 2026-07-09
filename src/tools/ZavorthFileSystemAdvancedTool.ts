@@ -118,7 +118,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
         ...events.slice(0, 50),
         events.length > 50 ? `... and ${events.length - 50} more` : '',
       ].filter(Boolean).join('\n');
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] resource cleanup failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] resource cleanup failed', error); return ''; }
   }
 
   private async compress(args: Record<string, unknown>): Promise<string> {
@@ -146,7 +146,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
 
       const stats = fs.statSync(targetPath);
       return `Compressed ${sourcePath} → ${targetPath} (${(stats.size / 1024).toFixed(1)} KB)`;
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] filesystem operation failed', error); return ''; }
   }
 
   private async extract(args: Record<string, unknown>): Promise<string> {
@@ -174,7 +174,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
       }
 
       return `Extracted ${sourcePath} → ${targetPath}`;
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
   }
 
   private async batchRename(args: Record<string, unknown>): Promise<string> {
@@ -215,7 +215,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
       });
 
       return `Batch rename (${results.length} files):\n${results.join('\n').slice(0, 3000)}`;
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] parsing failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] parsing failed', error); return ''; }
   }
 
   private async dedup(args: Record<string, unknown>): Promise<string> {
@@ -229,7 +229,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
       const files = fs.readdirSync(sourcePath, { recursive: args.recursive !== false })
         .filter(f => {
           const fullPath = path.join(sourcePath, String(f));
-          try { return fs.statSync(fullPath).isFile(); } catch (error: any) { logger.warn('[Zavorth File System Advanced] filesystem operation failed', error); return false; }
+          try { return fs.statSync(fullPath).isFile(); } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] filesystem operation failed', error); return false; }
         });
 
       const hashMap = new Map<string, string[]>();
@@ -241,7 +241,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
           const existing = hashMap.get(hash) || [];
           existing.push(fullPath);
           hashMap.set(hash, existing);
-        } catch (error: any) { /* skip unreadable files */ logger.warn('[Zavorth File System Advanced] filesystem operation failed', error); }
+        } catch (error: unknown) {/* skip unreadable files */ logger.warn('[Zavorth File System Advanced] filesystem operation failed', error); }
       }
 
       const duplicates: string[][] = [];
@@ -255,7 +255,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
         `Found ${duplicates.length} duplicate groups:`,
         ...duplicates.map(group => `  ${group.join('\n    ')}`),
       ].join('\n').slice(0, 5000);
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] operation failed', error); return ''; }
   }
 
   private async sync(args: Record<string, unknown>): Promise<string> {
@@ -273,8 +273,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
         const cmd = `robocopy "${sourcePath}" "${targetPath}" /MIR ${excludeArgs}`;
         try {
           execFileSync('robocopy', [sourcePath, targetPath, '/MIR'], { timeout: 300000 });
-        } catch (error: any) {
-      // robocopy returns non-zero on success sometimes
+        } catch (error: unknown) {// robocopy returns non-zero on success sometimes
       logger.warn('[Zavorth File System Advanced] process execution failed', error);
     }
         return `Synced ${sourcePath} → ${targetPath} (robocopy /MIR)`;
@@ -288,7 +287,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
         const result = execFileSync('rsync', rsyncArgs, { timeout: 300000 }).toString();
         return `Synced ${sourcePath} → ${targetPath}:\n${result.trim().slice(0, 2000)}`;
       }
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
   }
 
   private async checksum(args: Record<string, unknown>): Promise<string> {
@@ -326,7 +325,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
         `  SHA1: ${sha1}`,
         `  SHA256: ${sha256}`,
       ].join('\n');
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] creation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] creation failed', error); return ''; }
   }
 
   private async searchContent(args: Record<string, unknown>): Promise<string> {
@@ -351,7 +350,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
         }).toString();
         return `Content search results:\n${result.trim().slice(0, 5000)}`;
       }
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
   }
 
   private async diskUsage(args: Record<string, unknown>): Promise<string> {
@@ -367,7 +366,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
         const result = execFileSync('du', ['-sh', sourcePath], { timeout: 30000 }).toString();
         return `Disk usage:\n${result.trim()}`;
       }
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
   }
 
   private async findLarge(args: Record<string, unknown>): Promise<string> {
@@ -384,7 +383,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
         const result = execFileSync('find', [sourcePath, '-type', 'f', '-size', `+${minSize}`, '-exec', 'ls', '-lh', '{}', ';'], { timeout: 30000 }).toString();
         return `Large files:\n${result.trim().slice(0, 3000)}`;
       }
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
   }
 
   private parseSize(size: string): number {
@@ -412,7 +411,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
         const result = execFileSync('find', [sourcePath, '-type', 'f', '-empty'], { timeout: 30000 }).toString();
         return `Empty files:\n${result.trim() || 'None found'}`;
       }
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
   }
 
   private async chmod(args: Record<string, unknown>): Promise<string> {
@@ -424,7 +423,7 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       execFileSync('chmod', ['-R', pattern, sourcePath], { timeout: 15000 });
       return `Changed permissions of ${sourcePath} to ${pattern}`;
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] process execution failed', error); return ''; }
   }
 
   private async touch(args: Record<string, unknown>): Promise<string> {
@@ -439,6 +438,6 @@ export class ZavorthFileSystemAdvancedTool extends BaseTool {
       const now = new Date();
       fs.utimesSync(sourcePath, now, now);
       return `Updated timestamp: ${sourcePath}`;
-    } catch (error: any) { logger.warn('[Zavorth File System Advanced] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth File System Advanced] filesystem operation failed', error); return ''; }
   }
 }

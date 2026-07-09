@@ -7,6 +7,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import type { ActiveSubagent } from '../../useDesktopAppState';
+import { isSafeStaticSvg } from '../../lib/safeHtml';
 import { t } from '../../i18n';
 
 export function AgentsPanel(props: {
@@ -55,12 +56,13 @@ export function AgentsPanel(props: {
     const statusLabel = t(agent.identity.surface?.i18nKey || `subagent.status.${agent.identity.motionState}`);
     const ariaLabel = `${agent.identity.displayName} ${statusLabel}`;
 
-    // Inject the SVG with the correct pixel size
-    const svgHtml = agent.identity.iconSvg
-      ? isMascot
-        ? agent.identity.iconSvg.replace(/width="[^"]*"/, '').replace(/height="[^"]*"/, '')
-        : agent.identity.iconSvg.replace(/width="[^"]*"/, `width="${px}"`).replace(/height="[^"]*"/, `height="${px}"`)
-      : null;
+    const rawSvg = agent.identity.iconSvg;
+    const svgHtml =
+      rawSvg && isSafeStaticSvg(rawSvg)
+        ? isMascot
+          ? rawSvg.replace(/width="[^"]*"/, '').replace(/height="[^"]*"/, '')
+          : rawSvg.replace(/width="[^"]*"/, `width="${px}"`).replace(/height="[^"]*"/, `height="${px}"`)
+        : null;
 
     return (
       <span

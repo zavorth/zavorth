@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 /**
  * Model Auto-Sync Scheduler (#488)
  *
@@ -75,7 +76,8 @@ async function getAutoSyncConnections(): Promise<
           : {};
       return psd.autoSync === true;
     });
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.warn("[ModelSync] Failed to load connections:", (err as Error).message);
     return [];
   }
@@ -108,7 +110,8 @@ async function syncConnectionModels(
       `[ModelSync] ${provider} (${connectionId.slice(0, 8)}): ✓ ${data.syncedModels || 0} models`
     );
     return true;
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.warn(
       `[ModelSync] ${provider} (${connectionId.slice(0, 8)}): fetch failed —`,
       (err as Error).message
@@ -152,8 +155,7 @@ async function runSyncCycle(apiBaseUrl: string): Promise<void> {
     // Record last sync time
     try {
       await updateSettings({ [MODEL_SYNC_SETTING_KEY]: new Date().toISOString() });
-    } catch (error: any) { const err = error; const e = error;
-      // Non-critical
+    } catch (error: unknown) {// Non-critical
       logger.warn('[model] connection failed', error);
     }
   } finally {
@@ -209,5 +211,5 @@ export async function getLastModelSyncTime(): Promise<string | null> {
   try {
     const settings = await getSettings();
     return (settings as Record<string, string>)[MODEL_SYNC_SETTING_KEY] ?? null;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[model] lifecycle operation failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[model] lifecycle operation failed', error); return null; }
 }

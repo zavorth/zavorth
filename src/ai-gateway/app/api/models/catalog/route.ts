@@ -8,9 +8,7 @@ import {
   type ModelCatalogProviderInput,
 } from "../../../../../services/providers/catalog/ModelCatalogAggregationService.js";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * GET /api/models/catalog
  * Returns all models grouped by provider, with metadata (type, custom flag)
  */
@@ -105,8 +103,7 @@ export async function GET(request: Request) {
     const catalog = aggregationService.toLegacyModelsCatalog(aggregation);
 
     return Response.json({ catalog });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] operation failed', error);
     return Response.json(
       { error: { message: (error as any).message, type: "server_error" } },
       { status: 500 }

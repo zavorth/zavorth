@@ -277,7 +277,7 @@ export async function handleWebAppSurfaceOperationRoutes(
         },
         202,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Falha no action seguro de Natural Setup.';
       deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }
@@ -411,7 +411,7 @@ export async function handleWebAppSurfaceOperationRoutes(
         },
         action.ok ? 200 : 409,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Falha ao agir no Hub + MCP.';
       deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }

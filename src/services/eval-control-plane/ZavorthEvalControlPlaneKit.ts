@@ -669,8 +669,7 @@ export function readEvalTelemetrySnapshot(
       redaction: snapshot.redaction || buildEvalMissingTelemetry().redaction,
       recommendation: snapshot.recommendation,
     };
-  } catch (error: any) {
-    logger.warn('[Zavorth Eval Control Plane Kit] creation failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Eval Control Plane Kit] creation failed', error);
     return {
       ...buildEvalMissingTelemetry(),
       recommendation: 'A leitura da telemetria falhou neste host.',
@@ -723,8 +722,7 @@ export function captureEvalHistorySnapshot(
       return buildEvalFallbackHistory(snapshot.summary.posture);
     }
     return evalHistoryService.capture(snapshot) || buildEvalFallbackHistory(snapshot.summary.posture);
-  } catch (error: any) {
-    logger.warn('[Zavorth Eval Control Plane Kit] creation failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Eval Control Plane Kit] creation failed', error);
     return buildEvalFallbackHistory(snapshot.summary.posture);
   }
 }

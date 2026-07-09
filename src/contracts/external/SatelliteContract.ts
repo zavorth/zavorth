@@ -25,17 +25,13 @@
  * @author Zavorth Core Team
  */
 
-// ---------------------------------------------------------------------------
 // Capability ID
-// ---------------------------------------------------------------------------
 
 export const SATELLITE_CONNECT_CAPABILITY_ID = 'satellite.connect' as const;
 export const SATELLITE_PWA_ROUTE_BASE = '/satellite' as const;
 export const SATELLITE_WS_PATH = '/api/web/satellite/ws' as const;
 
-// ---------------------------------------------------------------------------
 // Message envelope
-// ---------------------------------------------------------------------------
 
 /**
  * Message type for the Satellite protocol.
@@ -83,9 +79,7 @@ export interface SatelliteEnvelope<T = unknown> {
   sessionId?: string | null;
 }
 
-// ---------------------------------------------------------------------------
 // Payloads
-// ---------------------------------------------------------------------------
 
 /** chat.send payload (Satellite -> Runtime). */
 export interface SatelliteChatSendPayload {
@@ -242,9 +236,7 @@ export interface SatelliteErrorPayload {
   message: string;
 }
 
-// ---------------------------------------------------------------------------
 // Artifact and attachment references
-// ---------------------------------------------------------------------------
 
 /** Artifact reference for Satellite. */
 export interface SatelliteArtifactRef {
@@ -279,9 +271,7 @@ export interface SatelliteAttachment {
   sizeBytes: number;
 }
 
-// ---------------------------------------------------------------------------
 // Satellite connection state
-// ---------------------------------------------------------------------------
 
 /** Connection state between Satellite and the runtime. */
 export type SatelliteConnectionState =

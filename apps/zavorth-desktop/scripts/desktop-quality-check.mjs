@@ -78,14 +78,12 @@ const workspaceView = requireFile('src/views/DesktopWorkspaceView.tsx');
 const fileTreeVirtual = requireFile('src/lib/fileTreeVirtual.ts');
 const virtualFileTree = requireFile('src/components/VirtualFileTree.tsx');
 
-// --- Brand ---
 requireMarkers('brand', `${designCss}\n${tokens}\n${designMd}`, [
   '#00e88f',
   '#060809',
   'Kael',
 ]);
 
-// --- Design system primitives (const or function export) ---
 requireMarkers('primitives', primitivesUi, [
   'export const Button',
   'EmptyState',
@@ -115,7 +113,6 @@ requireMarkers('design-system css', designCss, [
   '.zvd-sidebar-nav-primary',
 ]);
 
-// --- IA / nav ---
 requireMarkers('navConfig', navConfig, [
   "PRIMARY_PANELS",
   "'chat'",
@@ -135,7 +132,6 @@ requireMarkers('sidebar', sidebar, [
   'onOpenCommandCenter',
 ]);
 
-// --- Chat trust ---
 requireMarkers('thread', thread, [
   'ReceiptChip',
   'InlineActivityStrip',
@@ -165,7 +161,6 @@ requireMarkers('message window', messageWindow, [
   'nextMessageWindow',
 ]);
 
-// --- Trust hubs ---
 requireMarkers('review hub', review, [
   'nav.review',
   'learning',
@@ -177,7 +172,6 @@ requireMarkers('proof hub', proof, [
   'zvd-proof-timeline',
 ]);
 
-// --- Command center & onboarding ---
 requireMarkers('command center', cc, [
   'CommandCenterOverlay',
   'buildCommandCenterItems',
@@ -205,7 +199,6 @@ requireMarkers('onboarding', `${onboarding}\n${onboardingLib}`, [
   'onStartWithSuggestion',
 ]);
 
-// --- a11y ---
 requireMarkers('a11y shell', shell, [
   'zvd-skip-link',
   'a11y.skipToContent',
@@ -222,20 +215,17 @@ requireMarkers('a11y i18n', i18n, [
   'onboarding.welcomeTitle',
 ]);
 
-// --- Density ---
 requireMarkers('density', `${designCss}\n${stylesCss}\n${shell}`, [
   'density-compact',
   'density-comfortable',
   '--zvd-control-h',
 ]);
 
-// --- Banner 2.0 ---
 requireMarkers('runtime banner', banner, [
   'zvd-runtime-banner',
   'runtime.start',
 ]);
 
-// --- Readiness honesty ---
 requireMarkers('readiness', readiness, [
   'live',
   'needs_setup',
@@ -244,7 +234,6 @@ requireMarkers('readiness', readiness, [
   'Catalog support',
 ]);
 
-// --- Forbidden product clone names in desktop UI sources ---
 const uiSources = [
   designMd,
   primitivesUi,
@@ -409,7 +398,6 @@ requireMarkers('marketplace secondary nav', navConfig, [
   'SECONDARY_PANELS',
 ]);
 
-// --- reduced motion in CSS ---
 if (!/prefers-reduced-motion/.test(`${designCss}\n${stylesCss}`)) {
   fail('prefers-reduced-motion missing');
 } else {

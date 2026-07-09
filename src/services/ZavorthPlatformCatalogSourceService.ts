@@ -113,8 +113,7 @@ export class ZavorthPlatformCatalogSourceService {
         collections: this.mergeById(localCatalog.collections, remoteCatalog.collections),
         recipes: this.mergeById(localCatalog.recipes, remoteCatalog.recipes),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Platform  Source] cache operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Platform  Source] cache operation failed', error);
     return { entries: [], collections: [], recipes: [] };
   }
   }
@@ -152,8 +151,7 @@ export class ZavorthPlatformCatalogSourceService {
           .filter((entry): entry is ZavorthPlatformCatalogRecipe => Boolean(entry))
         : [];
       return { entries, collections, recipes };
-    } catch (error: any) {
-    logger.warn('[Zavorth Platform  Source] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Platform  Source] parsing failed', error);
     return { entries: [], collections: [], recipes: [] };
   }
   }

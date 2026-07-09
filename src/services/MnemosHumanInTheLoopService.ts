@@ -168,8 +168,7 @@ export class MnemosHumanInTheLoopService {
     let filePath: string;
     try {
       filePath = Buffer.from(encodedPath, 'base64url').toString('utf-8');
-    } catch (error: any) {
-    logger.warn('[Mnemos Human In The Loop] encoding failed', error);
+    } catch (error: unknown) {logger.warn('[Mnemos Human In The Loop] encoding failed', error);
     return {
         handled: true,
         responseText: '❌ Caminho do arquivo corrompido.',
@@ -211,7 +210,7 @@ export class MnemosHumanInTheLoopService {
     let toolResult: string;
     try {
       toolResult = await this.toolInvoker.execute('index_file', { file_path: filePath });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       this.logRepo.log('error', 'Mnemos', `Falha ao indexar ${fileName}: ${message}`);
       return {
@@ -270,8 +269,7 @@ export class MnemosHumanInTheLoopService {
         error: null,
         chunksIndexed: typeof parsed.chunks_indexed === 'number' ? parsed.chunks_indexed : null,
       };
-    } catch (error: any) {
-      if (/error executing tool|erro/i.test(text)) {
+    } catch (error: unknown) {if (/error executing tool|erro/i.test(text)) {
         return { error: text, chunksIndexed: null };
       }
       return { error: null, chunksIndexed: null };

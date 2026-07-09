@@ -1,3 +1,4 @@
+import { asErrorLike } from '../src/utils/errorLike';
 ﻿import { TerminalTheme } from '../src/cli/presentation/TerminalTheme.js';
 import { TerminalSpinner } from '../src/cli/presentation/TerminalSpinner.js';
 import { TerminalPanel } from '../src/cli/presentation/TerminalPanel.js';
@@ -104,7 +105,9 @@ function validateToken(token) {
     return jwt.verify(token, config.JWT_SECRET, {
       algorithms: ['HS256']
     });
-  } catch (err) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     console.error('Invalid token:', err.message);
     return null;
   }

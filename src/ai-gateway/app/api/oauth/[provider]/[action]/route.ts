@@ -27,7 +27,6 @@ import {
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-
 // Shared interfaces for OAuth flow data in this route
 
 interface OAuthTokenData {
@@ -134,8 +133,7 @@ function normalizeOAuthRedirectUri(value: string | null, request: Request): stri
   let parsed: URL;
   try {
     parsed = new URL(redirectUri);
-  } catch (error: any) { const err = error; const e = error;
-    throw new Error("Invalid redirect_uri");
+  } catch (error: unknown) {throw new Error("Invalid redirect_uri");
   }
 
   const hostname = parsed.hostname.toLowerCase();
@@ -155,8 +153,7 @@ function normalizeOAuthRedirectUri(value: string | null, request: Request): stri
   if (configuredBaseUrl) {
     try {
       allowedOrigins.add(new URL(configuredBaseUrl).origin);
-    } catch (error: any) { const err = error; const e = error;
-      // Ignore invalid deployment base URL; it should not expand redirect allowances.
+    } catch (error: unknown) {// Ignore invalid deployment base URL; it should not expand redirect allowances.
       logger.warn('[route] network request failed', error);
     }
   }
@@ -236,7 +233,7 @@ export async function GET(
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("OAuth GET error:", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
@@ -258,7 +255,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
   if (globalThis.__codexCallbackState?.close) {
     try {
       globalThis.__codexCallbackState.close();
-    } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] resource cleanup failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[route] resource cleanup failed', error); }
   }
   globalThis.__codexCallbackState = null;
 
@@ -290,7 +287,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
       if (globalThis.__codexCallbackState?.startedAt === startedAt) {
         try {
           close();
-        } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] resource cleanup failed', error); }
+        } catch (error: unknown) {/* ignore */ logger.warn('[route] resource cleanup failed', error); }
         globalThis.__codexCallbackState = null;
       }
     }, 300000);
@@ -301,7 +298,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
       redirectUri,
       serverPort: port,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] resource cleanup failed', error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
@@ -321,8 +318,7 @@ export async function POST(
     let rawBody: Record<string, unknown> = {};
     try {
       rawBody = await request.json() as Record<string, unknown>;
-    } catch (error: any) { const err = error; const e = error;
-      if (action !== "poll-callback") {
+    } catch (error: unknown) {if (action !== "poll-callback") {
         return NextResponse.json(
           {
             error: {
@@ -569,7 +565,7 @@ export async function POST(
       // Clean up server
       try {
         close();
-      } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] resource cleanup failed', error); }
+      } catch (error: unknown) {/* ignore */ logger.warn('[route] resource cleanup failed', error); }
       globalThis.__codexCallbackState = null;
 
       if (params.error) {
@@ -662,14 +658,13 @@ export async function POST(
             displayName: connection.displayName,
           },
         });
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] connection failed', error);
+      } catch (error: unknown) {logger.warn('[route] connection failed', error);
     return NextResponse.json({ success: false, error: exchangeErr instanceof Error ? exchangeErr.message : "Unknown exchange error" }, { status: 500 });
   }
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("OAuth POST error:", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
@@ -685,7 +680,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing to cloud after OAuth:", error);
+  } catch (error: unknown) {console.log("Error syncing to cloud after OAuth:", error);
   }
 }

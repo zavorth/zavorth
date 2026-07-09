@@ -150,7 +150,7 @@ export function checkKvmAccess(): boolean {
   try {
     fs.accessSync('/dev/kvm', fs.constants.R_OK | fs.constants.W_OK);
     return true;
-  } catch (error: any) { logger.warn('[Firecracker Sandbox Environment] creation failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[Firecracker Sandbox Environment] creation failed', error); return false; }
 }
 
 export function checkFirecrackerBinary(binPath: string): boolean {
@@ -160,7 +160,7 @@ export function checkFirecrackerBinary(binPath: string): boolean {
       encoding: 'utf8',
     });
     return true;
-  } catch (error: any) { logger.warn('[Firecracker Sandbox Environment] process execution failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[Firecracker Sandbox Environment] process execution failed', error); return false; }
 }
 
 export function toWslPath(targetPath: string): string | null {

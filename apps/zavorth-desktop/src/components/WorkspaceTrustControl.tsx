@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getWorkspaceTrustStatus, resolveWorkspaceTrust } from '../apiClient';
+import { errorMessage } from '../lib/errors';
 
 interface WorkspaceTrustControlProps {
   workspaceId: string;
@@ -32,8 +33,8 @@ export function WorkspaceTrustControl({
           setAllowNetwork(res.entry.allowNetwork);
         }
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch trust status.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to fetch trust status.'));
     } finally {
       setLoading(false);
     }
@@ -60,8 +61,8 @@ export function WorkspaceTrustControl({
       if (onStatusChange) {
         onStatusChange();
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to update trust status.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to update trust status.'));
     } finally {
       setLoading(false);
     }
@@ -93,8 +94,8 @@ export function WorkspaceTrustControl({
       if (onStatusChange) {
         onStatusChange();
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to update trust permissions.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to update trust permissions.'));
     } finally {
       setLoading(false);
     }

@@ -3,9 +3,7 @@ import type { Plan } from '../../contracts/PlanContract.js';
 import type { Task } from '../../contracts/TaskContract.js';
 import type { ToolHookPipelineService } from '../../services/ToolHookPipelineService.js';
 import type { TelemetryRuntimeService } from '../../observability/telemetry/TelemetryRuntimeService.js';
-import { resolveExecutionGatewayWorkspace } from './ExecutionGatewayAliases.js';
-
-export async function recordExecutionGatewayTelemetry(
+import { resolveExecutionGatewayWorkspace } from './ExecutionGatewayAliases.js';export async function recordExecutionGatewayTelemetry(
   telemetryRuntime: TelemetryRuntimeService | null,
   traceId: string,
   eventType: string,
@@ -24,8 +22,7 @@ export async function recordExecutionGatewayTelemetry(
       status,
       payload,
     });
-  } catch (error: any) { const err = error; const e = error;
-    // telemetry should never break execution flow
+  } catch (error: unknown) {// telemetry should never break execution flow
   }
 }
 
@@ -71,7 +68,6 @@ export async function runExecutionGatewayRuntimeFailureHook(
 ): Promise<void> {
   try {
     await runExecutionGatewayRuntimeHook(hookPipeline, 'runtime.exec_failed', workspace, context);
-  } catch (error: any) { const err = error; const e = error;
-    // Observability hooks must not break the gateway decision.
+  } catch (error: unknown) {// Observability hooks must not break the gateway decision.
   }
 }

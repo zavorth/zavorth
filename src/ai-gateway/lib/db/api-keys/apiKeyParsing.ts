@@ -1,7 +1,5 @@
 import type { AccessSchedule, JsonRecord } from "./apiKeyTypes";
-import { logger } from '@/shared/utils/logger';
-
-export function toRecord(value: unknown): JsonRecord {
+import { logger } from '@/shared/utils/logger';export function toRecord(value: unknown): JsonRecord {
   return value && typeof value === "object" ? (value as JsonRecord) : {};
 }
 
@@ -56,7 +54,7 @@ export function parseAccessSchedule(value: unknown): AccessSchedule | null {
       days,
       tz: obj["tz"],
     };
-  } catch (error: any) { const err = error; const e = error; logger.warn('[api Key Parsing] operation failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[api Key Parsing] operation failed', error); return null; }
 }
 
 function parseStringArrayJson(value: unknown): string[] {
@@ -68,5 +66,5 @@ function parseStringArrayJson(value: unknown): string[] {
     return Array.isArray(parsed)
       ? parsed.filter((entry): entry is string => typeof entry === "string")
       : [];
-  } catch (error: any) { const err = error; const e = error; logger.warn('[api Key Parsing] JSON parse failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[api Key Parsing] JSON parse failed', error); return []; }
 }

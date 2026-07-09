@@ -1,7 +1,5 @@
 import type { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
-import { logger } from '../../../../logger';
-
-export type IntentType =
+import { logger } from '../../../../logger';export type IntentType =
   | 'remote_mode'
   | 'runtime_maintenance'
   | 'zavorth_bridge_prompt'
@@ -77,8 +75,7 @@ export class TelegramIntentClassifier {
       }
 
       return { type: 'unknown' };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Telegram  Classifier] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Telegram  Classifier] parsing failed', error);
     return { type: 'unknown' };
   }
   }
@@ -88,7 +85,7 @@ export class TelegramIntentClassifier {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) return null;
       return JSON.parse(jsonMatch[0]);
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Telegram  Classifier] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Telegram  Classifier] JSON parse failed', error); return null; }
   }
 
   private isValidIntent(intent: unknown): intent is ClassifiedIntent {

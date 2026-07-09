@@ -7,7 +7,6 @@ import type { NodeDeviceProfileService } from '../../../../services/NodeDevicePr
 import type { NodeInvokeService } from '../../../../services/NodeInvokeService.js';
 import type { NodePairingService } from '../../../../services/NodePairingService.js';
 import { logger } from '../../../../logger';
-
 type SharedSurfaceSessionNodeCommandPackDeps = {
   sessionPlaneService?: Pick<
     ZavorthSessionPlaneService,
@@ -74,7 +73,7 @@ export class SharedSurfaceSessionNodeCommandPack {
           ...this.resolveSessionTargetFromArgs(ctx, args),
         }),
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(error instanceof Error ? error.message : 'Nao consegui montar o session plane agora.');
     }
   }
@@ -92,7 +91,7 @@ export class SharedSurfaceSessionNodeCommandPack {
           ...this.resolveSessionTargetFromArgs(ctx, args),
         }),
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(error instanceof Error ? error.message : 'Nao consegui ler o historico dessa sessao agora.');
     }
   }
@@ -132,7 +131,7 @@ export class SharedSurfaceSessionNodeCommandPack {
           result.snapshot?.handoff?.operatorSummary || result.snapshot?.replay?.operatorSummary || 'Sem resumo adicional apos o envio.',
         ].join('\n'),
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(error instanceof Error ? error.message : 'Nao consegui despachar a mensagem para essa sessao agora.');
     }
   }
@@ -162,7 +161,7 @@ export class SharedSurfaceSessionNodeCommandPack {
           `Handoff: ${result.handoffCommand}.`,
         ].join('\n'),
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(error instanceof Error ? error.message : 'Nao consegui abrir a sessao derivada agora.');
     }
   }
@@ -422,8 +421,7 @@ export class SharedSurfaceSessionNodeCommandPack {
       try {
         const parsed = JSON.parse(payloadRaw);
         payload = parsed && typeof parsed === 'object' ? parsed : null;
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Shared Surface Session Node Command Pack] JSON parse failed', error);
+      } catch (error: unknown) {logger.warn('[Shared Surface Session Node Command Pack] JSON parse failed', error);
     payload = null;
   }
     }

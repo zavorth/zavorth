@@ -9,9 +9,7 @@ import {
 import type { ZavorthBridgeArtifact } from './RealZavorthBridgeWatcherArtifactLogHelpers.js';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
 import type { ZavorthBridgeUiSnapshot } from '../../services/ZavorthBridgeUiCaptureService.js';
-import { logger } from '../../logger.js';
-
-export function normalizeVisibleResponse(value: string | null | undefined): string {
+import { logger } from '../../logger.js';export function normalizeVisibleResponse(value: string | null | undefined): string {
   return normalizeZavorthBridgeUiText(value);
 }
 
@@ -305,8 +303,7 @@ export function normalizeTelegramFriendlyText(value: string): string {
       if (decoded && decoded.includes(' ') && !decoded.includes('\u00c3')) {
         normalized = decoded;
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Ignore decode failures and keep original text.
+    } catch (error: unknown) {// Ignore decode failures and keep original text.
       logger.warn('[Real Zavorth Bridge Watcher Formatting Helpers] encoding failed', error);
     }
   }

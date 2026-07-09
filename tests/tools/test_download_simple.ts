@@ -1,6 +1,7 @@
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import { asErrorLike } from '../../src/utils/errorLike';
 
 const TEST_DIR = path.join(process.cwd(), 'test-downloads');
 const PORT = 18899;
@@ -109,8 +110,8 @@ async function main() {
     assert(r12.includes('href'), 'Links extracted');
     assert(r12.includes('test.pdf'), 'PDF link found');
     assert(r12.includes('image.png'), 'Image link found');
-  } catch (e: any) {
-    console.log('Links extraction skipped (Playwright timeout):', e.message?.substring(0, 100));
+  } catch (error: unknown) { const err = asErrorLike(error);
+console.log('Links extraction skipped (Playwright timeout):', err.message?.substring(0, 100));
   }
 
   console.log('\n=== ALL TESTS PASSED ===');

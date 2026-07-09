@@ -11,8 +11,7 @@ export async function GET(request: Request) {
   try {
     const status = await getVersionManagerStatus();
     return NextResponse.json(status);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[version-manager] status error:", error);
+  } catch (error: unknown) {console.error("[version-manager] status error:", error);
     return NextResponse.json({ error: "Failed to get status" }, { status: 500 });
   }
 }

@@ -26,9 +26,11 @@ export function KaelOverlayApp() {
     document.head.appendChild(style);
 
     // Listen for state updates pushed from the main window
-    const unsubState = window.zavorthDesktop?.kaelOverlay?.onState((payload: any) => {
-      if (payload.state) setState(payload.state);
-      if (payload.bubbleText) {
+    const unsubState = window.zavorthDesktop?.kaelOverlay?.onState((payload) => {
+      if (payload.state === 'idle' || payload.state === 'thinking' || payload.state === 'working' || payload.state === 'finished') {
+        setState(payload.state);
+      }
+      if (typeof payload.bubbleText === 'string') {
         setBubbleText(payload.bubbleText);
       } else if (payload.bubbleText === null) {
         setBubbleText(null);

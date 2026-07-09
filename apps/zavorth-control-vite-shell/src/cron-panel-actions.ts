@@ -1,8 +1,11 @@
 import { escapeHtml } from './html-utils';
+import { asErrorLike } from '../../../src/utils/errorLike';
+import { createShellLogger, surfaceShellError } from './shell-debug';
+import { translate } from './locale';
 
-// ---------------------------------------------------------------------------
+const log = createShellLogger('cron-panel');
+
 // Constants
-// ---------------------------------------------------------------------------
 
 const API_BASE = '/api/scheduled-tasks';
 
@@ -17,9 +20,7 @@ const DELIVERY_OPTIONS = [
   'signal',
 ] as const;
 
-// ---------------------------------------------------------------------------
 // 1. API Functions
-// ---------------------------------------------------------------------------
 
 export async function fetchScheduledTasks(): Promise<any> {
   const res = await fetch(API_BASE);
@@ -64,9 +65,7 @@ export async function deleteScheduledTask(taskId: string): Promise<any> {
   return res.json();
 }
 
-// ---------------------------------------------------------------------------
 // 2. Form Rendering
-// ---------------------------------------------------------------------------
 
 export function renderCreateRoutineForm(): string {
   const deliveryOpts = DELIVERY_OPTIONS.map(
@@ -138,9 +137,7 @@ export function renderCreateRoutineForm(): string {
   `;
 }
 
-// ---------------------------------------------------------------------------
 // 3. Form CSS Styles
-// ---------------------------------------------------------------------------
 
 export function getCronPanelStyles(): string {
   return `<style>
@@ -229,9 +226,7 @@ select.cron-form-input {
 </style>`;
 }
 
-// ---------------------------------------------------------------------------
 // 4. Action Buttons Rendering
-// ---------------------------------------------------------------------------
 
 export function renderTaskActionButtons(taskId: string, status: string): string {
   const id = escapeHtml(taskId);
@@ -267,16 +262,13 @@ export function renderTaskActionButtons(taskId: string, status: string): string 
   return btn('delete', 'delete', '🗑️', 'Delete');
 }
 
-// ---------------------------------------------------------------------------
 // 5. Event Binding
-// ---------------------------------------------------------------------------
 
 export function bindCronPanelEvents(refreshCallback: () => void): void {
   // Prevent double-binding
   if (document.documentElement.dataset.cronPanelBound === '1') return;
   document.documentElement.dataset.cronPanelBound = '1';
 
-  // --- Action buttons (pause / resume / trigger / delete) -----------------
   document.addEventListener('click', async (e) => {
     const target = (e.target as HTMLElement).closest<HTMLElement>(
       '[data-cron-action]',
@@ -296,14 +288,24 @@ export function bindCronPanelEvents(refreshCallback: () => void): void {
           action as 'pause' | 'resume' | 'trigger' | 'revoke',
         );
       }
-    } catch (err) {
-      console.error(`[cron-panel] ${action} failed for ${taskId}`, err);
+      window.emitSignal?.(
+        'success',
+        translate('Scheduled task updated'),
+        translate('Task action completed: {action}').replace('{action}', action),
+      );
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      const message = err instanceof Error ? err.message : String(err);
+      log.error(`${action} failed for ${taskId}`, err);
+      surfaceShellError(
+        translate('Scheduled task failed'),
+        message || translate('Could not update the scheduled task.'),
+      );
     }
 
     refreshCallback();
   });
 
-  // --- Form submission ----------------------------------------------------
   document.addEventListener('submit', async (e) => {
     const form = (e.target as HTMLElement).closest<HTMLFormElement>(
       '#cron-create-form',
@@ -333,14 +335,24 @@ export function bindCronPanelEvents(refreshCallback: () => void): void {
       form.reset();
       const wrapper = document.getElementById('cron-create-form-wrapper');
       if (wrapper) wrapper.style.display = 'none';
-    } catch (err) {
-      console.error('[cron-panel] create task failed', err);
+      window.emitSignal?.(
+        'success',
+        translate('Scheduled task created'),
+        translate('The task is on the board.'),
+      );
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      const message = err instanceof Error ? err.message : String(err);
+      log.error('create task failed', err);
+      surfaceShellError(
+        translate('Scheduled task failed'),
+        message || translate('Could not create the scheduled task.'),
+      );
     }
 
     refreshCallback();
   });
 
-  // --- Cancel button (hides the form) ------------------------------------
   document.addEventListener('click', (e) => {
     const cancel = (e.target as HTMLElement).closest<HTMLElement>(
       '[data-cron-cancel-form]',
@@ -351,7 +363,6 @@ export function bindCronPanelEvents(refreshCallback: () => void): void {
     if (wrapper) wrapper.style.display = 'none';
   });
 
-  // --- "New Routine" toggle button ----------------------------------------
   document.addEventListener('click', (e) => {
     const toggle = (e.target as HTMLElement).closest<HTMLElement>(
       '[data-cron-show-form]',

@@ -10,7 +10,7 @@ export class CodexRemoteSidecarTerminalSupport {
     try {
       const content = await fs.promises.readFile(normalized, 'utf8');
       return content.trim();
-    } catch (error: any) { logger.warn('[Codex Remote Sidecar Terminal] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Codex Remote Sidecar Terminal] filesystem operation failed', error); return ''; }
   }
 
   public async readTailFromFile(filePath: string | null, maxLines: number): Promise<string[]> {
@@ -21,7 +21,7 @@ export class CodexRemoteSidecarTerminalSupport {
     try {
       const content = await fs.promises.readFile(normalized, 'utf8');
       return content.split(/\r?\n/).map((line) => line.trimEnd()).filter(Boolean).slice(-maxLines);
-    } catch (error: any) { logger.warn('[Codex Remote Sidecar Terminal] filesystem operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Codex Remote Sidecar Terminal] filesystem operation failed', error); return []; }
   }
 
   public normalizeChunk(chunk: unknown): string {

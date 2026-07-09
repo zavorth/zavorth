@@ -30,7 +30,7 @@ MATCH_PASSWORD=<signing repo password> pnpm android:release:signing:check
 
 The pull command materializes decrypted signing files under `apps/android/build/release-signing/`, which is gitignored. Later Fastlane release commands reload those materialized values and export them to Gradle for the current process.
 
-For the first setup or rotation, provide the Play upload keystore and a local signing properties file, then push encrypted assets to `apps-signing`:
+For the first setup or rotation, provide the Play upload keystore and a local signing properties file, then push encrypted assets to `apps-signing`. Env keys below are Zavorth Android release signing vars (legacy key names):
 
 ```bash
 MATCH_PASSWORD=<signing repo password> \

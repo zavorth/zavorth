@@ -61,8 +61,7 @@ export class LoopEngineeringService {
     try {
       const content = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(content);
-    } catch (error: any) {
-    logger.warn('[Loop Engineering] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Loop Engineering] JSON parse failed', error);
     return { sessionId, status: 'IDLE', task: '' };
   }
   }
@@ -79,8 +78,7 @@ export class LoopEngineeringService {
     if (fs.existsSync(filePath)) {
       try {
         fs.unlinkSync(filePath);
-      } catch (error: any) {
-      // Best effort cleanup only.
+      } catch (error: unknown) {// Best effort cleanup only.
       logger.warn('[Loop Engineering] file cleanup failed', error);
     }
     }
@@ -202,8 +200,7 @@ Task: "${task}"`;
       if (Array.isArray(parsed) && parsed.length >= 2 && parsed.length <= 5) {
         return parsed.map(String);
       }
-    } catch (error: any) {
-      // Fall back to safe default questions.
+    } catch (error: unknown) {// Fall back to safe default questions.
       logger.warn('[Loop Engineering] JSON parse failed', error);
     }
 
@@ -235,8 +232,7 @@ ${answersContext ? `User-provided answers:\n${answersContext}` : ''}`;
       if (parsed && Array.isArray(parsed.criteria) && parsed.criteria.length === 3) {
         return parsed.criteria.map(String);
       }
-    } catch (error: any) {
-      // Use deterministic fallback criteria.
+    } catch (error: unknown) {// Use deterministic fallback criteria.
       logger.warn('[Loop Engineering] JSON parse failed', error);
     }
 
@@ -363,8 +359,7 @@ Respond ONLY with JSON in this format:
             critique: String(parsedCritique || ''),
           };
         }
-      } catch (error: any) {
-        const syntaxScore = ok ? 10 : 3;
+      } catch (error: unknown) {const syntaxScore = ok ? 10 : 3;
         judgeResult = {
           grades: { criterion1: syntaxScore, criterion2: 7, criterion3: 6 },
           average: (syntaxScore + 7 + 6) / 3,
@@ -392,8 +387,7 @@ Respond ONLY with JSON in this format:
 
       try {
         fs.unlinkSync(sandboxFile);
-      } catch (error: any) {
-      // Best effort cleanup only.
+      } catch (error: unknown) {// Best effort cleanup only.
       logger.warn('[Loop Engineering] file cleanup failed', error);
     }
 
@@ -427,8 +421,7 @@ Generate a clean, concise Mutation Plan in plan or diff markdown format.`;
         }),
         'loop_engineering',
       );
-    } catch (error: any) {
-      // Memory persistence is best effort in test environments.
+    } catch (error: unknown) {// Memory persistence is best effort in test environments.
       logger.warn('[Loop Engineering] operation failed', error);
     }
 

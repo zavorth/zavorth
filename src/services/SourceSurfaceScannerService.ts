@@ -439,7 +439,7 @@ function readDir(absolutePath: string): fs.Dirent[] {
   try {
     return fs.readdirSync(absolutePath, { withFileTypes: true })
       .sort((left, right) => left.name.localeCompare(right.name));
-  } catch (error: any) { logger.warn('[Source Surface Scanner] filesystem operation failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[Source Surface Scanner] filesystem operation failed', error); return []; }
 }
 
 function dedupeSurfaces(surfaces: SourceDiscoveredSurface[]): SourceDiscoveredSurface[] {

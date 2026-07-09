@@ -14,6 +14,7 @@ import { SkillUpdateChecker } from '../skills/marketplace/SkillUpdateChecker.js'
 import { detectConflicts } from '../skills/marketplace/SkillConflictDetector.js';
 import { SkillBundleManager } from '../skills/marketplace/SkillBundle.js';
 import { setAuthToken, removeAuthToken } from '../skills/marketplace/SkillAuth.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export class ZavorthSkillMarketplaceTool extends BaseTool {
   public readonly name = 'zavorth_skill_marketplace';
@@ -229,8 +230,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
 
         this.cleanup(tmpDir);
         return [`Installed ${results.filter((r) => r.includes('Installed')).length} skill(s):`, '', ...results].join('\n');
-      } catch (e) {
-        return `Git clone failed: ${e instanceof Error ? e.message : String(e)}`;
+      } catch (error: unknown) { const err = asErrorLike(error); return `Git clone failed: ${err instanceof Error ? err.message : String(err)}`;
       }
     }
 

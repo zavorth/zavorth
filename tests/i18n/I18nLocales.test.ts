@@ -60,9 +60,7 @@ function collectKeys(obj: Record<string, unknown>, prefix = ''): string[] {
 }
 
 describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
-  // ============================================================
   // 1. Locale file loading
-  // ============================================================
   describe('Locale files load correctly', () => {
     for (const localeCode of ALL_LOCALE_CODES) {
       it(`${localeCode}.json should exist and be valid JSON`, () => {
@@ -76,9 +74,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     }
   });
 
-  // ============================================================
   // 2. Required namespaces per locale
-  // ============================================================
   describe('Each locale has all required namespaces', () => {
     for (const localeCode of ALL_LOCALE_CODES) {
       it(`${localeCode} contains namespaces: ${EXPECTED_NAMESPACES.join(', ')}`, () => {
@@ -91,9 +87,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     }
   });
 
-  // ============================================================
   // 3. Translation keys exist for all expected strings
-  // ============================================================
   describe('Translation keys exist for all expected strings', () => {
     for (const localeCode of ALL_LOCALE_CODES) {
       const expected = SPOT_CHECK_KEYS[localeCode];
@@ -122,9 +116,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     }
   });
 
-  // ============================================================
   // 4. Interpolation works per locale
-  // ============================================================
   describe('Interpolation works in each locale', () => {
     it('interpolate() replaces {name} placeholder', () => {
       expect(interpolate('Hello, {name}!', { name: 'World' })).toBe('Hello, World!');
@@ -153,9 +145,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 5. Pluralization works per locale
-  // ============================================================
   describe('Pluralization works in each locale', () => {
     let manager: I18nManager;
 
@@ -200,9 +190,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     }
   });
 
-  // ============================================================
   // 6. Fallback chain works across locales
-  // ============================================================
   describe('Fallback chain works across locales', () => {
     let manager: I18nManager;
 
@@ -254,9 +242,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 7. Missing keys fall back to English
-  // ============================================================
   describe('Missing keys fall back to English', () => {
     let manager: I18nManager;
 
@@ -300,9 +286,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 8. Date formatting works per locale
-  // ============================================================
   describe('Date formatting works per locale', () => {
     let manager: I18nManager;
 
@@ -356,9 +340,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 9. Number formatting works per locale
-  // ============================================================
   describe('Number formatting works per locale', () => {
     let manager: I18nManager;
 
@@ -416,9 +398,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 10. normalizeLocale mapping correctness
-  // ============================================================
   describe('normalizeLocale maps locale inputs correctly', () => {
     const mappings: [string, string][] = [
       ['en', 'en-US'],
@@ -448,9 +428,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     }
   });
 
-  // ============================================================
   // 11. resolveFromEnv picks correct env var
-  // ============================================================
   describe('resolveFromEnv reads environment variables', () => {
     it('returns ZAVORTH_LANG when set', () => {
       const result = resolveFromEnv({ ZAVORTH_LANG: 'pt-BR' });
@@ -473,9 +451,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 12. resolveLocale priority chain
-  // ============================================================
   describe('resolveLocale respects priority chain', () => {
     it('explicitLocale takes highest priority', () => {
       const result = resolveLocale({
@@ -517,9 +493,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 13. I18nManager setLocale / getLocale round-trip
-  // ============================================================
   describe('I18nManager setLocale / getLocale', () => {
     it('defaults to the configured defaultLocale (normalized)', () => {
       const mgr = new I18nManager({ defaultLocale: 'en', localesDir: LOCALES_DIR });
@@ -539,9 +513,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 14. KNOWN_LOCALES and NAMESPACE_LIST constants
-  // ============================================================
   describe('Constants are defined correctly', () => {
     it('DEFAULT_LOCALE is en-US', () => {
       expect(DEFAULT_LOCALE).toBe('en-US');
@@ -568,9 +540,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 15. Structural integrity across all locales
-  // ============================================================
   describe('Structural integrity across all locales', () => {
     for (const localeCode of ALL_LOCALE_CODES) {
       it(`${localeCode}: all namespace values are string-valued (leaf strings)`, () => {
@@ -597,9 +567,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     }
   });
 
-  // ============================================================
   // 16. loadTranslations and addNamespace
-  // ============================================================
   describe('loadTranslations and addNamespace', () => {
     it('loadTranslations injects new translations', () => {
       const mgr = new I18nManager({ defaultLocale: 'en', localesDir: LOCALES_DIR });
@@ -626,9 +594,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 17. Interpolation via I18nManager.t()
-  // ============================================================
   describe('I18nManager.t() with interpolation parameters', () => {
     it('replaces {name} in a loaded translation', () => {
       const mgr = new I18nManager({ defaultLocale: 'en', localesDir: LOCALES_DIR });
@@ -651,9 +617,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
   });
 
-  // ============================================================
   // 18. No duplicate translations across locale files
-  // ============================================================
   describe('No unexpected extra keys compared to English baseline', () => {
     const enData = loadLocaleJson('en');
     const enKeysByNs: Record<string, string[]> = {};

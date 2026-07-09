@@ -276,8 +276,7 @@ export class ZavorthCapabilityActionExposureService {
         exposures: Array.isArray(parsed.exposures) ? parsed.exposures.map(normalizeExposure).filter(isExposure) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error: any) {
-    if (error?.code !== 'ENOENT') {
+    } catch (error: unknown) {if (error?.code !== 'ENOENT') {
       logger.warn('[Zavorth Capability Action Exposure] parsing failed', error);
     }
     return this.emptyStore();

@@ -266,7 +266,7 @@ export function createRuntimeRealtime({
         ...parsed,
         type: parsed?.type || eventType,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       state.realtime.lastError = error?.message || 'Invalid realtime event.';
     }
   }
@@ -313,7 +313,7 @@ export function createRuntimeRealtime({
       buffer += decoder.decode();
       consumeSseBuffer(`${buffer}\n\n`);
       throw new Error('Realtime stream ended.');
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (controller.signal.aborted || state.realtime.stopped) return;
       markRealtimeDisconnected(error);
       scheduleRealtimeReconnect();
@@ -347,7 +347,7 @@ export function createRuntimeRealtime({
             ...parsed,
             type: parsed?.type || type,
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
           state.realtime.lastError = error?.message || 'Invalid realtime event.';
         }
       });

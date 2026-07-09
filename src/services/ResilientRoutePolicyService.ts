@@ -169,7 +169,7 @@ export class ResilientRoutePolicyService {
         request: 'resilient provider route',
       });
       return contract.userFacingCopy.receiptLine;
-    } catch (error: any) { logger.warn('[Resilient] creation failed', error); return 'Cost guard: unavailable; deterministic resilience budget still applied.'; }
+    } catch (error: unknown) {logger.warn('[Resilient] creation failed', error); return 'Cost guard: unavailable; deterministic resilience budget still applied.'; }
   }
 }
 

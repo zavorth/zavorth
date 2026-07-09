@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
-
-import {
+import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';import {
   buildCloudflareAiGatewayBaseUrl,
   normalizeBearerToken,
   normalizeUrl,
@@ -89,8 +87,7 @@ function readPersistedProviderPreference(projectRoot?: string): PersistedProvide
       routeId: String(parsed.routeId || '').trim() || null,
       familyId: String(parsed.familyId || '').trim() || null,
     };
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

@@ -1,6 +1,5 @@
 import { isComputerUseAllowed } from './helpers.js';
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
-
 export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx) => {
   const { req, res, pathname, deps } = ctx;
 
@@ -91,7 +90,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
           },
           200,
         );
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Falha ao iniciar o Computer Use experimental.';
         const statusCode = /bloqueado por seguranca/i.test(message) ? 403 : 409;
         deps.writeJson(res, { ok: false, error: message }, statusCode);

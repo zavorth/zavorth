@@ -13,6 +13,7 @@ import {
 } from '../contracts/ZavorthConversationalSetupContract.js';
 import type { ZavorthExperienceProfileId } from '../contracts/ZavorthExperienceProfileContract.js';
 import { ZavorthExperienceProfileService } from './ZavorthExperienceProfileService.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export type ZavorthConversationalSetupInput = {
   agentName?: unknown;
@@ -320,7 +321,8 @@ ${history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
       if (jsonStart !== -1 && jsonEnd !== -1) {
         extracted = JSON.parse(content.substring(jsonStart, jsonEnd));
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.error('Extraction from onboarding history failed', err);
     }
 

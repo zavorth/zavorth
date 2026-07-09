@@ -131,7 +131,7 @@ export class PersonalizationConfigSchemaService {
   private readText(file: string): string {
     try {
       return String(this.readFileSync(file, 'utf8') || '');
-    } catch (error: any) { logger.warn('[Personalization  Schema] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Personalization  Schema] filesystem operation failed', error); return ''; }
   }
 }
 

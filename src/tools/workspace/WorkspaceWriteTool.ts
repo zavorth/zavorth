@@ -4,7 +4,6 @@ import { CreateFileTool } from '../CreateFileTool.js';
 import { executionContextScope } from '../../runtime/context/ExecutionContextScope.js';
 import { ZavorthGitLockTool } from '../ZavorthGitLockTool.js';
 import { WorkspaceFsPolicy } from './WorkspaceFsPolicy.js';
-
 export class WorkspaceWriteTool extends BaseTool {
   public readonly name = 'workspace.write';
   public readonly description = 'Creates a file inside the workspace write scope using the canonical policy.';
@@ -25,7 +24,7 @@ export class WorkspaceWriteTool extends BaseTool {
         const policy = new WorkspaceFsPolicy();
         const fullPath = policy.resolveWritePath(filepath).absolutePath;
         await ZavorthGitLockTool.checkLock(fullPath, currentSubagentId);
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error.message && error.message.includes('locked by another subagent')) {
           throw error;
         }

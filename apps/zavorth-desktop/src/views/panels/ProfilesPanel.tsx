@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { PageFrame } from './panelPrimitives';
 import { IconPlus, IconTrash, IconUserCircle, IconChevronDown } from '@tabler/icons-react';
 import type { AgentProfile } from '../../useDesktopAppState';
+import { parseEffort } from '../../lib/typeGuards';
 import { t } from '../../i18n';
 
 export function ProfilesPanel(props: {
   customProfiles: AgentProfile[];
   allProfiles: AgentProfile[];
-  onAddCustomProfile?: (name: string, prompt: string, effort: any, costLimit: number) => void;
+  onAddCustomProfile?: (name: string, prompt: string, effort: AgentProfile['effort'], costLimit: number) => void;
   onDeleteCustomProfile?: (id: string) => void;
 }) {
   const [name, setName] = useState('');
@@ -355,7 +356,7 @@ export function ProfilesPanel(props: {
               <label className="zvd-form-label">{t('schedule')}</label>
               <select
                 value={effort}
-                onChange={e => setEffort(e.target.value as any)}
+                onChange={e => setEffort(parseEffort(e.target.value))}
                 className="zvd-form-select"
               >
                 <option value="low">Low Effort</option>

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 /**
  * LLMIntentClassifier - Intelligent intent classification using the user's LLM.
  *
@@ -110,7 +111,7 @@ export class LLMIntentClassifier {
       }
 
       return classification;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('[LLMIntentClassifier] LLM classification failed, returning ambiguous:', error);
       return this.getAmbiguousFallback();
     }
@@ -201,7 +202,9 @@ export class LLMIntentClassifier {
           signals: ['llm-classified'],
         },
       };
-    } catch (parseError) {
+    } catch (parseError: unknown) {
+      const err = asErrorLike(parseError);
+      const error = err;
       console.error('[LLMIntentClassifier] Failed to parse LLM response:', content);
       throw new Error(`Failed to parse classification: ${parseError}`);
     }

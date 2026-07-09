@@ -1,5 +1,4 @@
 import { spawn } from 'child_process';
-
 export type RuntimeAccessLaunchPreference = 'local' | 'remote' | 'best';
 
 export type RuntimeAccessLaunchSelection = {
@@ -167,7 +166,7 @@ export class RuntimeAccessLaunchService {
         command: `${launchCommand.command} ${launchCommand.args.join(' ')}`,
         error: null,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error ?? 'failed to open surface');
       return {
         attempted: true,

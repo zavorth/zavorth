@@ -1,9 +1,7 @@
 import { logger } from '../../../../logger.js';
 import fs from "fs";
 import path from "path";
-import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
-
-export class VideoHandlerFormatSupport {
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';export class VideoHandlerFormatSupport {
   public static firstNonEmptyString(
     ...values: Array<string | null | undefined>
   ): string | undefined {
@@ -35,7 +33,7 @@ export class VideoHandlerFormatSupport {
       const parsed = new URL(url);
       const candidate = path.basename(parsed.pathname) || "video-remoto.mp4";
       return candidate.includes(".") ? candidate : `${candidate}.mp4`;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Video  Format] parsing failed', error); return "video-remoto.mp4"; }
+    } catch (error: unknown) {logger.warn('[Video  Format] parsing failed', error); return "video-remoto.mp4"; }
   }
 
   public static guessMimeTypeFromPath(filePath: string): string {
@@ -155,8 +153,7 @@ export class VideoHandlerFormatSupport {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-    } catch (error: any) { const err = error; const e = error;
-      logger.warn(`Falha ao remover temporario de video: ${error}`);
+    } catch (error: unknown) {logger.warn(`Falha ao remover temporario de video: ${error}`);
     }
   }
 }

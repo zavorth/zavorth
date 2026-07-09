@@ -10,9 +10,7 @@ import {
   type ImportedCapabilityTrustState,
   type ImportedCapabilityTrustSummary,
 } from '../security/index.js';
-import type { CanonicalColdContextInput } from './CanonicalSessionContextAssembler.js';
-
-export type McpSnapshotRuntime = Pick<McpRuntimeService, 'readSnapshot'>;
+import type { CanonicalColdContextInput } from './CanonicalSessionContextAssembler.js';export type McpSnapshotRuntime = Pick<McpRuntimeService, 'readSnapshot'>;
 export type McpSnapshotQuarantinePolicy = Pick<McpQuarantinePolicy, 'evaluate'>;
 
 export type McpSnapshotAssemblerOptions = {
@@ -112,8 +110,7 @@ export class McpSnapshotAssembler {
     try {
       const snapshot = input.snapshot || input.runtime?.readSnapshot() || null;
       return this.fromRuntimeSnapshot(snapshot, input.metadata);
-    } catch (error: any) { const err = error; const e = error;
-      return this.failedSnapshot(error, input.metadata);
+    } catch (error: unknown) {return this.failedSnapshot(error, input.metadata);
     }
   }
 

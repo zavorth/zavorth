@@ -5,9 +5,7 @@ import { SelfModificationCommandService } from '../../../services/SelfModificati
 import {
   ArchitectureRefactorScorecardService,
   type ArchitectureRefactorSnapshot,
-} from '../../../observability/ArchitectureRefactorScorecardService.js';
-
-type MaintenanceAutomationPort = {
+} from '../../../observability/ArchitectureRefactorScorecardService.js';type MaintenanceAutomationPort = {
   triggerNow: (updatedBy?: string | null, note?: string | null) => { lastActionId?: string | null; note?: string | null };
 };
 
@@ -139,8 +137,7 @@ export class AutonomousHousekeepingAgentService {
           command: 'npm run qa:selfmod-optimization',
           artifactId: preview.previewId || preview.artifactId || null,
         });
-      } catch (error: any) { const err = error; const e = error;
-        operations.push({
+      } catch (error: unknown) {operations.push({
           id: 'refactor-preview',
           label: 'Refactor Preview',
           status: 'skipped',

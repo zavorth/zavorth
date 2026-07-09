@@ -13,9 +13,7 @@ import type {
   GovernedReviewRequest,
   GovernedReviewRequestedActions,
   GovernedReviewResult,
-} from './GovernedReviewTypes.js';
-
-export type GovernedReviewGitHubCommandResult = {
+} from './GovernedReviewTypes.js';export type GovernedReviewGitHubCommandResult = {
   command: string;
   args: string[];
   stdout: string;
@@ -450,8 +448,7 @@ function parseJsonRecord(value: string): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value);
     return isRecord(parsed) ? parsed : {};
-  } catch (error: any) { const err = error; const e = error;
-    return {};
+  } catch (error: unknown) {return {};
   }
 }
 

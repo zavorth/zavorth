@@ -8,7 +8,7 @@ describe('Repository Hygiene Check', () => {
     try {
       const stdout = execSync('git ls-files', { encoding: 'utf8', cwd: process.cwd() });
       trackedFiles = stdout.split('\n').map(f => f.trim()).filter(Boolean);
-    } catch (error) {
+    } catch (error: unknown) {
       const walk = (dir: string): string[] => {
         let results: string[] = [];
         const list = fs.readdirSync(dir);

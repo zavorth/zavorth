@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import { logger } from '../logger.js';
-
 export type StreamEvent = {
   type: 'start' | 'chunk' | 'end' | 'error';
   agentId: string;
@@ -86,7 +85,7 @@ export class AgentStreamService extends EventEmitter {
       yield endEvent;
       this.emit('end', endEvent);
       options.onEnd?.(fullOutput);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       const errorEvent: StreamEvent = {
         type: 'error',

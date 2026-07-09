@@ -218,8 +218,8 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
         evidence: execution.evidence,
         metadata: execution.metadata,
       });
-    } catch (error: any) {
-    logger.warn('[Capability Autopilot Approved Repair Runner] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Capability Autopilot Approved Repair Runner] process execution failed', error);
     return this.stepResult({
         step: input.step,
         startedAt,

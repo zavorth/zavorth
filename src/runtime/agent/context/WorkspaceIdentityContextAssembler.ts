@@ -12,9 +12,7 @@ import type {
 import type {
   CanonicalIdentityFile,
   CanonicalWarmContextInput,
-} from './CanonicalSessionContextAssembler.js';
-
-export type WorkspaceIdentityContextResolver = Pick<ContextResolverService, 'resolve'>;
+} from './CanonicalSessionContextAssembler.js';export type WorkspaceIdentityContextResolver = Pick<ContextResolverService, 'resolve'>;
 export type WorkspaceIdentityFirstRunProfileReader = Pick<
   FirstRunWorkspaceBootstrapProfileService,
   'buildWorkspaceIdentitySnapshot'
@@ -164,8 +162,7 @@ export class WorkspaceIdentityContextAssembler {
     }
     try {
       return this.firstRunProfileReader.buildWorkspaceIdentitySnapshot();
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 

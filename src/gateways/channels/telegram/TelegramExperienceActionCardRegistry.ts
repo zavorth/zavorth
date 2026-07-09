@@ -1,8 +1,6 @@
 import { randomBytes } from 'crypto';
 import fs from 'fs';
-import path from 'path';
-
-export type TelegramExperienceCallbackScope = {
+import path from 'path';export type TelegramExperienceCallbackScope = {
   userId?: string | null;
   chatId?: string | null;
   sessionId?: string | null;
@@ -179,8 +177,7 @@ export class TelegramExperienceActionCardRegistry {
           expiresAt: Number(entry.expiresAt),
         });
       }
-    } catch (error: any) { const err = error; const e = error;
-      this.entries.clear();
+    } catch (error: unknown) {this.entries.clear();
     }
   }
 

@@ -76,8 +76,7 @@ export function LiveTerminal({
         if (msg.type === 'state:change' && msg.state) {
           setStatus(msg.state.status || 'IDLE');
         }
-      } catch (error: any) { const err = error; const e = error;
-        // raw text fallback
+      } catch (error: unknown) {// raw text fallback
         setLines((prev) => [...prev.slice(-500), { text: event.data, type: 'output' }]);
       }
     };

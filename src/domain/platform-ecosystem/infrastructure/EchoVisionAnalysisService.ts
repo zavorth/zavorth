@@ -1,7 +1,6 @@
 import { LlmRuntimeService } from '../../../services/llm/LlmRuntimeService.js';
 import type { ChatMessage } from '../../../providers/ILlmProvider.js';
 import { logger } from '../../../logger.js';
-
 export type EchoVisionScreenAnalysis = {
   ok: boolean;
   providerName: string | null;
@@ -124,8 +123,8 @@ export class EchoVisionAnalysisService {
         rawResponse: result.response.content || null,
         error: null,
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Vision Analysis] parsing failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Vision Analysis] parsing failed', error);
     return {
         ok: false,
         providerName: null,
@@ -212,8 +211,8 @@ export class EchoVisionAnalysisService {
         rawResponse: result.response.content || null,
         error: null,
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Vision Analysis] parsing failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Vision Analysis] parsing failed', error);
     return {
         ok: false,
         providerName: null,
@@ -272,7 +271,7 @@ export class EchoVisionAnalysisService {
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : null;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Vision Analysis] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Vision Analysis] JSON parse failed', error); return null; }
   }
 
   private normalizeConfidence(value: unknown): number {

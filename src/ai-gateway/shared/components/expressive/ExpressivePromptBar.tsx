@@ -3,9 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/* ------------------------------------------------------------------ */
 /*  Types                                                              */
-/* ------------------------------------------------------------------ */
 
 interface ExpressivePromptBarProps {
   onSubmit: (text: string) => void;
@@ -14,9 +12,7 @@ interface ExpressivePromptBarProps {
   agentState?: "idle" | "thinking" | "streaming";
 }
 
-/* ------------------------------------------------------------------ */
 /*  Expand‑popover action definitions                                  */
-/* ------------------------------------------------------------------ */
 
 const EXPAND_ACTIONS = [
   { icon: "upload_file", label: "Upload File" },
@@ -25,9 +21,7 @@ const EXPAND_ACTIONS = [
   { icon: "mic", label: "Voice" },
 ] as const;
 
-/* ------------------------------------------------------------------ */
 /*  Animated gradient border (cyan → emerald cycling)                  */
-/* ------------------------------------------------------------------ */
 
 function GradientBorder() {
   return (
@@ -70,9 +64,7 @@ function GradientBorder() {
   );
 }
 
-/* ------------------------------------------------------------------ */
 /*  Component                                                          */
-/* ------------------------------------------------------------------ */
 
 export function ExpressivePromptBar({
   onSubmit,

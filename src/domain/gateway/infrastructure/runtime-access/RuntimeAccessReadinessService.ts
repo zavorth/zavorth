@@ -16,7 +16,6 @@ RuntimeAccessZavorthControlSnapshot,
   RuntimeAccessReadinessReport,
   RuntimeAccessResolvedInput,
 } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessTypes.js';
-
 export type { RuntimeAccessAuthStatus, RuntimeAccessChannelProviderDoctorSnapshot, RuntimeAccessZavorthControlSnapshot, RuntimeAccessDiscordBridgeSnapshot, RuntimeAccessLayeredMemorySnapshot, RuntimeAccessLearningSnapshot, RuntimeAccessLockSnapshot, RuntimeAccessMcpSnapshot, RuntimeAccessNodeMeshSmokeSnapshot, RuntimeAccessPlatformSnapshot, RuntimeAccessProviderSnapshot, RuntimeAccessReadinessInput, RuntimeAccessReadinessReport, RuntimeAccessReadinessStep, RuntimeAccessRemoteTransportDoctorSnapshot, RuntimeAccessResolvedInput, RuntimeAccessSystemOverlordSmokeSnapshot, RuntimeAccessTenantSnapshot } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessTypes.js';
 
 type RuntimeAccessSurfaceProbe = { ok: boolean; targetUrl: string; statusCode: number | null; error: string | null };
@@ -259,7 +258,7 @@ export class RuntimeAccessReadinessService {
         statusCode: response.status,
         error: response.ok ? null : `status ${response.status}`,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const fallbackProbe = await this.probeLocalSurfaceViaNodeHttp(targetUrl);
       if (fallbackProbe) {
         return fallbackProbe;
@@ -316,7 +315,7 @@ export class RuntimeAccessReadinessService {
         });
         request.end();
       });
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness] resource cleanup failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Runtime Access Readiness] resource cleanup failed', error); return null; }
   }
 
   private normalizeUrl(rawValue: string): string {

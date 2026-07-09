@@ -49,14 +49,13 @@ export class BrowserPlaywrightService {
         return `Error: unsupported URL protocol "${parsed.protocol}".`;
       }
       return null;
-    } catch (error: any) { logger.warn('[Browser Playwright] network request failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Browser Playwright] network request failed', error); return ''; }
   }
 
   private cleanupTempScript(tmpScript: string): void {
     try {
       fs.unlinkSync(tmpScript);
-    } catch (error: any) {
-      // Best-effort cleanup only; execution errors are reported separately.
+    } catch (error: unknown) {// Best-effort cleanup only; execution errors are reported separately.
       logger.warn('[Browser Playwright] file cleanup failed', error);
     }
   }
@@ -102,11 +101,10 @@ export class BrowserPlaywrightService {
         const parsed = JSON.parse(result);
         if (parsed.error) return `Playwright error: ${parsed.error}`;
         return `Pagina carregada: "${parsed.title}" (${parsed.load_time_ms}ms)\nURL: ${parsed.url}\nScreenshot: ${parsed.screenshot}\nConteudo: ${parsed.content_length} characters`;
-      } catch (e: any) { const error = e; const err = e;
-        this.cleanupTempScript(tmpScript);
+      } catch (error: unknown) { this.cleanupTempScript(tmpScript);
         throw e;
       }
-    } catch (error: any) { logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
   }
 
   public async screenshot(url: string, options?: { full_page?: boolean; selector?: string }): Promise<string> {
@@ -153,11 +151,10 @@ export class BrowserPlaywrightService {
         const parsed = JSON.parse(result);
         if (parsed.error) return `Error: ${parsed.error}`;
         return `Screenshot salvo: ${parsed.screenshot}`;
-      } catch (e: any) { const error = e; const err = e;
-        this.cleanupTempScript(tmpScript);
+      } catch (error: unknown) { this.cleanupTempScript(tmpScript);
         throw e;
       }
-    } catch (error: any) { logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
   }
 
   public async extract(url: string, selectors: Record<string, string>): Promise<string> {
@@ -184,8 +181,7 @@ export class BrowserPlaywrightService {
             try {
               const els = await page.locator(sel).all();
               result[key] = await Promise.all(els.map(el => el.textContent()));
-            } catch (error: any) {
-              result[key] = [];
+            } catch (error: unknown) {result[key] = [];
             }
           }
           console.log(JSON.stringify(result));
@@ -213,11 +209,10 @@ export class BrowserPlaywrightService {
           }
         }
         return lines.join('\n');
-      } catch (e: any) { const error = e; const err = e;
-        this.cleanupTempScript(tmpScript);
+      } catch (error: unknown) { this.cleanupTempScript(tmpScript);
         throw e;
       }
-    } catch (error: any) { logger.warn('[Browser Playwright] parsing failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Browser Playwright] parsing failed', error); return ''; }
   }
 
   public async pdf(url: string, outputPath?: string): Promise<string> {
@@ -256,11 +251,10 @@ export class BrowserPlaywrightService {
         const parsed = JSON.parse(result);
         if (parsed.error) return `Error: ${parsed.error}`;
         return `PDF gerado: ${parsed.pdf}`;
-      } catch (e: any) { const error = e; const err = e;
-        this.cleanupTempScript(tmpScript);
+      } catch (error: unknown) { this.cleanupTempScript(tmpScript);
         throw e;
       }
-    } catch (error: any) { logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
   }
 
   public getStats(): string {

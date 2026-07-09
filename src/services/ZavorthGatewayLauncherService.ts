@@ -92,7 +92,7 @@ export class ZavorthGatewayLauncherService {
         },
       });
       return response.ok;
-    } catch (error: any) { logger.warn('[Zavorth way Launcher] network request failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Zavorth way Launcher] network request failed', error); return false; }
   }
 
   private isPidAlive(pid: number | null): boolean {
@@ -102,6 +102,6 @@ export class ZavorthGatewayLauncherService {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error: any) { logger.warn('[Zavorth way Launcher] process signal failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Zavorth way Launcher] process signal failed', error); return false; }
   }
 }

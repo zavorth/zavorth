@@ -244,8 +244,7 @@ export class UserModelDialecticReasoningService {
             allDeepInsights.push(obs);
           }
         }
-      } catch (error: any) {
-        if (lastOutput.trim().length > 20) {
+      } catch (error: unknown) {if (lastOutput.trim().length > 20) {
           allDeepInsights.push(lastOutput.trim().slice(0, 500));
         }
       }
@@ -410,7 +409,7 @@ export class UserModelDialecticReasoningService {
     if (!fs.existsSync(fp)) return null;
     try {
       return JSON.parse(fs.readFileSync(fp, 'utf-8'));
-    } catch (error: any) { logger.warn('[User Model Dialectic Reasoning] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[User Model Dialectic Reasoning] JSON parse failed', error); return null; }
   }
 
   private getFilePath(): string {

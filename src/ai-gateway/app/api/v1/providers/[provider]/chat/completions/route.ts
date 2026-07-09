@@ -6,9 +6,7 @@ import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
 import { getRegistryEntry } from "@ZavorthGateway/open-sse/config/providerRegistry.ts";
 import { providerChatCompletionSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-let initialized = false;
+import { logger } from '@/shared/utils/logger';let initialized = false;
 
 async function ensureInitialized() {
   if (!initialized) {
@@ -52,8 +50,7 @@ export async function POST(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
   const validation = validateBody(providerChatCompletionSchema, rawBody);

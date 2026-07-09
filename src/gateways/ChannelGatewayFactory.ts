@@ -5,9 +5,7 @@ import { ChannelPolicyManager } from '../channels/policies/ChannelPolicyManager.
 import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import type { WebhookGateway, WebhookGatewayOptions } from './WebhookGateway.js';
-import { ChannelGatewayRegistry } from './ChannelGatewayRegistry.js';
-
-import { MatrixGateway } from './channels/simple/MatrixGateway.js';
+import { ChannelGatewayRegistry } from './ChannelGatewayRegistry.js';import { MatrixGateway } from './channels/simple/MatrixGateway.js';
 import { LineGateway } from './channels/simple/LineGateway.js';
 import { GoogleChatGateway } from './channels/simple/GoogleChatGateway.js';
 import { FeishuGateway } from './channels/simple/FeishuGateway.js';
@@ -213,8 +211,7 @@ export class ChannelGatewayFactory {
       try {
         const gateway = new registration.GatewayClass(baseOptions);
         registry.registerGateway(gateway);
-      } catch (error: any) { const err = error; const e = error;
-      // Gateway construction failed; skip silently
+      } catch (error: unknown) {// Gateway construction failed; skip silently
       logger.warn('[Channel way Factory] creation failed', error);
     }
     }
@@ -233,8 +230,7 @@ export class ChannelGatewayFactory {
       try {
         const gateway = new registration.GatewayClass(baseOptions);
         registry.registerGateway(gateway);
-      } catch (error: any) { const err = error; const e = error;
-      // Gateway construction failed; skip silently
+      } catch (error: unknown) {// Gateway construction failed; skip silently
       logger.warn('[Channel way Factory] creation failed', error);
     }
     }

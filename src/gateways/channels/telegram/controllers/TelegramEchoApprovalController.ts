@@ -9,9 +9,7 @@ import {
   type TelegramEchoPermission,
   type TelegramEchoSurfaceContext,
 } from '../../../../gateways/channels/telegram/TelegramEchoSurfaceClient.js';
-import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
-
-export type TelegramEchoApprovalClient = Pick<
+import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';export type TelegramEchoApprovalClient = Pick<
   TelegramEchoSurfaceClient,
   'getSurfaceContext' | 'readPendingPermissions' | 'resolvePermission'
 >;
@@ -319,8 +317,7 @@ export class TelegramEchoApprovalController {
     try {
       await ctx.editMessageText(rendered.text);
       return;
-    } catch (error: any) { const err = error; const e = error;
-      await replyWithTelegramSurfaceResponse(ctx, response);
+    } catch (error: unknown) {await replyWithTelegramSurfaceResponse(ctx, response);
     }
   }
 

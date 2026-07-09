@@ -158,8 +158,7 @@ export class UserModelDialecticService {
       try {
         const data = JSON.parse(fs.readFileSync(fp, 'utf-8'));
         if (data && data.contractVersion) return data;
-      } catch (error: any) {
-      // fall through
+      } catch (error: unknown) {// fall through
       logger.warn('[User Model Dialectic] JSON parse failed', error);
     }
     }

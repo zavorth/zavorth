@@ -1,9 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { resolveZavorthLocalStateFile } from '../../config/localStatePaths.js';
-import type { NodeMeshCapabilityId } from '../../contracts/NodeMeshContract.js';
-
-export type CapabilityId = NodeMeshCapabilityId;
+import type { NodeMeshCapabilityId } from '../../contracts/NodeMeshContract.js';export type CapabilityId = NodeMeshCapabilityId;
 export type DevicePolicyRiskLevel = 'low' | 'medium' | 'high';
 export type DevicePolicySource = 'manual' | 'pairing-credentials';
 
@@ -184,8 +182,7 @@ export class DeviceCapabilityPolicy {
         updatedAt: String(parsed.updatedAt || this.now().toISOString()),
         policies: parsed.policies as Record<string, DevicePolicy>,
       };
-    } catch (error: any) { const err = error; const e = error;
-      return DEFAULT_POLICY_STATE();
+    } catch (error: unknown) {return DEFAULT_POLICY_STATE();
     }
   }
 

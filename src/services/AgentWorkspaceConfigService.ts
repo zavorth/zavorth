@@ -161,6 +161,6 @@ export class AgentWorkspaceConfigService {
         .map((value) => String(value || '').trim())
         .filter((value): value is AgentWorkspaceConfig['allowedCapabilities'][number] =>
           capabilityValues.has(value as AgentWorkspaceConfig['allowedCapabilities'][number]));
-    } catch (error: any) { logger.warn('[Agent Workspace] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Agent Workspace] JSON parse failed', error); return []; }
   }
 }

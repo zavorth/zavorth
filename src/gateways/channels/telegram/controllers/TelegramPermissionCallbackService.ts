@@ -4,7 +4,6 @@ import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 import type { TelegramPermissionApprovalPatch } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionDecisionService.js';
 import { TelegramPermissionDecisionService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionDecisionService.js';
 import { TelegramPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPolicyService.js';
-
 export type TelegramPermissionCallbackServiceDeps = {
   permissionDecision: TelegramPermissionDecisionService;
   permissionPolicy: TelegramPermissionPolicyService;
@@ -52,7 +51,7 @@ export class TelegramPermissionCallbackService {
       }
 
       await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to process the permission.';
       if (!callbackAnswered) {
         await ctx.answerCallbackQuery({ text: message });

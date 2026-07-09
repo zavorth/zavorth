@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { SkillPackageManifest, SkillPackageSummary, SkillTrustLevel } from './SkillPackageTypes.js';
+import { asErrorLike } from '../../utils/errorLike';
 
 type AuthorTrustData = {
   [author: string]: { installs: number; ratings: number[]; trustScore: number };
@@ -55,8 +56,7 @@ export class SkillLocalRegistry {
           fs.closeSync(fd);
           try { fs.unlinkSync(lockPath); } catch { /* ignore */ }
         }
-      } catch (e: any) {
-        if (e?.code === 'EEXIST' && attempt < maxRetries - 1) {
+      } catch (error: unknown) { const err = asErrorLike(error); if (err?.code === 'EEXIST' && attempt < maxRetries - 1) {
           // Lock held by another process — wait briefly then retry
           const start = Date.now();
           while (Date.now() - start < 500) { /* busy-wait up to 500ms */ }

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * Zavorth-native adapter for media analysis through Gemini Vision.
  *
@@ -27,10 +28,6 @@ import type {
   MediaAnalysisProviderEvidence,
 } from '../../contracts/MediaUnderstandingContract.js';
 
-// ---------------------------------------------------------------------------
-// Adapter
-// ---------------------------------------------------------------------------
-
 export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
   public readonly adapterId = 'gemini-vision';
   public readonly supportedModalities: MediaUnderstandingModality[] = ['image', 'audio', 'video'];
@@ -47,7 +44,8 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
     for (const key of keys) {
       try {
         return await this.analyzeWithKey(key, input);
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn(`[GeminiVisionAnalysisAdapter] Key failed: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
@@ -55,9 +53,7 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
     throw new VisionAdapterError(this.adapterId, 'All Gemini keys failed during media analysis.');
   }
 
-  // -------------------------------------------------------------------------
   // Analysis with a specific key.
-  // -------------------------------------------------------------------------
 
   private async analyzeWithKey(apiKey: string, input: AdapterAnalysisInput): Promise<AdapterAnalysisOutput> {
     const modelId = input.contentType.startsWith('audio/')
@@ -111,9 +107,7 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
     };
   }
 
-  // -------------------------------------------------------------------------
   // Prompt construction.
-  // -------------------------------------------------------------------------
 
   private buildPrompt(input: AdapterAnalysisInput): string {
     const base = this.getBasePrompt(input.analysisType);
@@ -166,10 +160,6 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
     }
   }
 }
-
-// ---------------------------------------------------------------------------
-// Erros tipados
-// ---------------------------------------------------------------------------
 
 export class VisionAdapterError extends Error {
   public readonly adapterId: string;

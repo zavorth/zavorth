@@ -114,7 +114,7 @@ export class RuntimeBrowserSidecarService {
         summary: `Browser sidecar executou ${request.action}.`,
       });
       return output;
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.recordBrowserReceipt({
         action: request.action,
         args: request.args,
@@ -171,8 +171,7 @@ export class RuntimeBrowserSidecarService {
           origin: this.safeOrigin(),
         },
       });
-    } catch (error: any) {
-      // Receipts nao podem derrubar ou mascarar uma chamada ao sidecar remoto.
+    } catch (error: unknown) {// Receipts nao podem derrubar ou mascarar uma chamada ao sidecar remoto.
       logger.warn('[Runtime Browser Sidecar] operation failed', error);
     }
   }
@@ -180,13 +179,13 @@ export class RuntimeBrowserSidecarService {
   private safeOrigin(): string | null {
     try {
       return new URL(this.baseUrl).origin;
-    } catch (error: any) { logger.warn('[Runtime Browser Sidecar] operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Runtime Browser Sidecar] operation failed', error); return null; }
   }
 
   private parseJson(value: string): unknown {
     try {
       return JSON.parse(value);
-    } catch (error: any) { logger.warn('[Runtime Browser Sidecar] JSON parse failed', error); return value; }
+    } catch (error: unknown) {logger.warn('[Runtime Browser Sidecar] JSON parse failed', error); return value; }
   }
 
   private extractError(value: unknown): string | null {

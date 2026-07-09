@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * SkillWebScraper - Scrapes skill listings from any website.
  *
@@ -17,9 +18,7 @@
 
 import { logger } from '../../logger.js';
 
-// ============================================================================
 // Types
-// ============================================================================
 
 export interface ScrapedSkillInfo {
   /** Skill name */
@@ -60,9 +59,7 @@ export interface ScrapeResult {
   rawContent?: string;
 }
 
-// ============================================================================
 // SSRF Protection - Blocked hosts/IPs
-// ============================================================================
 
 const BLOCKED_HOSTS = new Set([
   'localhost',
@@ -138,9 +135,7 @@ function validateUrlForFetch(url: string): string | null {
   }
 }
 
-// ============================================================================
 // URL Pattern Matchers
-// ============================================================================
 
 const INSTALL_URL_PATTERNS: Array<{ pattern: RegExp; type: InstallUrl['type']; label: string }> = [
   // GitHub URLs
@@ -162,9 +157,7 @@ const INSTALL_URL_PATTERNS: Array<{ pattern: RegExp; type: InstallUrl['type']; l
   { pattern: /https?:\/\/[^/]+\.git(?:\s|$|"|')/g, type: 'git', label: 'Git Repository' },
 ];
 
-// ============================================================================
 // Main Scraper
-// ============================================================================
 
 export class SkillWebScraper {
   private readonly requestTimeoutMs: number;
@@ -233,7 +226,8 @@ export class SkillWebScraper {
         skill,
         rawContent: content.slice(0, 10000), // Limit for debugging
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn(`[SkillWebScraper] Failed to scrape ${url}:`, error);
       return {
         success: false,

@@ -43,9 +43,7 @@ export class SandboxExecutionService {
     getWasmRuntime: () => this.wasmRuntime,
   });
 
-  // ---------------------------------------------------------------------------
   // Availability
-  // ---------------------------------------------------------------------------
 
   public isDockerAvailable(): boolean {
     return this.dockerRuntime.isAvailable();
@@ -55,9 +53,7 @@ export class SandboxExecutionService {
     return this.firecrackerRuntime.isAvailable();
   }
 
-  // ---------------------------------------------------------------------------
   // Status
-  // ---------------------------------------------------------------------------
 
   public getDockerStatus(language: SandboxLanguage = 'javascript'): DockerSandboxStatus {
     return this.dockerRuntime.getStatus(language);
@@ -71,9 +67,7 @@ export class SandboxExecutionService {
     return this.firecrackerRuntime.getStatus();
   }
 
-  // ---------------------------------------------------------------------------
   // Policy — 3-tier decision
-  // ---------------------------------------------------------------------------
 
   /**
    * Decide se o request precisa de sandbox e em qual camada.
@@ -114,9 +108,7 @@ export class SandboxExecutionService {
     return tier?.tier === 'microvm';
   }
 
-  // ---------------------------------------------------------------------------
   // Command builders (Docker path)
-  // ---------------------------------------------------------------------------
 
   public buildSandboxCommand(command: string, workspace: string): string {
     const language = this.policy.inferExecutionSandboxLanguage(command);
@@ -135,9 +127,7 @@ export class SandboxExecutionService {
     };
   }
 
-  // ---------------------------------------------------------------------------
   // Execution (Firecracker path)
-  // ---------------------------------------------------------------------------
 
   public async executeCodeInMicrovm(
     code: string,

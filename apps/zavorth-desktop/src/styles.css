@@ -2231,7 +2231,6 @@ input:focus-visible {
   font-weight: 500;
 }
 
-
 .theme-dark .zvd-statusbar {
   border-top-color: rgba(255, 255, 255, 0.08);
   /* WCAG AA contrast on near-black statusbar */
@@ -2515,7 +2514,6 @@ input:focus-visible {
   display: none !important;
 }
 
-
 .theme-dark .zvd-provider-add:hover {
   background: var(--zvd-accent-soft);
 }
@@ -2790,7 +2788,6 @@ input:focus-visible {
 .theme-dark .btn-deny:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.05);
 }
-
 
 .zavorth-pane-shell {
   display: flex;
@@ -3665,8 +3662,6 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-
-
 /* Sidebar flip layout */
 .zvd-app.zvd-sidebar-side-right {
   grid-template-columns: minmax(0, 1fr) 240px !important;
@@ -3996,7 +3991,6 @@ input:focus, textarea:focus, select:focus {
 .zvd-empty-rows {
   min-height: 120px;
 }
-
 
 .zvd-onboarding-overlay {
   position: fixed;
@@ -4458,7 +4452,6 @@ input:focus, textarea:focus, select:focus {
     animation: none !important;
   }
 }
-
 
 .zvd-app.is-chat-focus .zvd-sidebar {
   border-right-color: var(--zvd-border-soft, var(--zvd-border));

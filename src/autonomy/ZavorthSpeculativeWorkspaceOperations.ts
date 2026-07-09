@@ -6,8 +6,6 @@ import type {
   ZavorthSpeculativeWorkspaceWrite,
   ZavorthSpeculativeWorkspacePatch,
 } from './ZavorthSpeculativeAutonomyService.js';
-
-
 const MAX_VALIDATION_COMMANDS = 3;
 const MAX_AST_FILES = 80;
 const MAX_DIFF_CHARS = 100000;
@@ -157,7 +155,7 @@ export function applyWrite(input: {
       fs.mkdirSync(path.dirname(targetPath), { recursive: true });
       fs.writeFileSync(targetPath, input.write.content, 'utf8');
       return { relativePath, blockedReason: null };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         relativePath: null,
         blockedReason: error instanceof Error ? error.message : String(error),
@@ -196,7 +194,7 @@ export function applyPatch(input: {
       }
       fs.writeFileSync(targetPath, nextContent, 'utf8');
       return { relativePath, blockedReason: null };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         relativePath: null,
         blockedReason: error instanceof Error ? error.message : String(error),

@@ -76,7 +76,7 @@ async function main() {
   }
 }
 
-main().catch((error: any) => {
+main().catch((error: unknown) => {
   console.error(`[workspace-hook] erro: ${error?.message || String(error)}`);
   process.exitCode = 1;
 });

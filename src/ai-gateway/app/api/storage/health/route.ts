@@ -10,7 +10,6 @@ getAppLogRetentionDays,
   getCallLogsTableMaxRows,
   getProxyLogsTableMaxRows,
 } from "@/lib/logEnv";
-
 /**
  * GET /api/storage/health — Return database storage information.
  * Provides: driver, dbPath, sizeBytes, lastBackupAt, retentionDays
@@ -31,7 +30,7 @@ export async function GET(request: Request) {
         const stat = fs.statSync(dbFilePath);
         sizeBytes = stat.size;
       }
-    } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[route] filesystem operation failed', error); }
 
     // Get last backup info
     let lastBackupAt = null;
@@ -49,7 +48,7 @@ export async function GET(request: Request) {
           lastBackupAt = latestStat.mtime.toISOString();
         }
       }
-    } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[route] filesystem operation failed', error); }
 
     // Get the display path (abbreviated with ~)
     const homeDir = process.env.HOME || process.env.USERPROFILE || "";
@@ -73,7 +72,7 @@ export async function GET(request: Request) {
       },
       dataDir: dataDir.startsWith(homeDir) ? "~" + dataDir.slice(homeDir.length) : dataDir,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.error("[API] Error getting storage health:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

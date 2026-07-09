@@ -429,7 +429,7 @@ export class TenantTeamOpsService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch (error: any) { logger.warn('[Tenant Team Ops] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Tenant Team Ops] JSON parse failed', error); return null; }
   }
 
   private check(

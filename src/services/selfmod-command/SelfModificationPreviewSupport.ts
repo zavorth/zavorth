@@ -136,8 +136,8 @@ export class SelfModificationPreviewSupport {
         ),
         validationPlan: this.options.defaultValidationPlan([relativePath]),
       };
-    } catch (error: any) {
-    logger.warn('[Self Modification Preview] validation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Self Modification Preview] validation failed', error);
     return {
         success: false,
         mode: 'file',
@@ -302,8 +302,8 @@ export class SelfModificationPreviewSupport {
         resourceImpact: this.options.formatResourceImpact(plan.resourceImpact),
         optimizationAnalysis,
       };
-    } catch (error: any) {
-    logger.warn('[Self Modification Preview] validation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Self Modification Preview] validation failed', error);
     return {
         success: false,
         mode: 'goal',

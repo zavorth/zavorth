@@ -43,7 +43,7 @@ function parseJsonObject(input: unknown): Record<string, unknown> | null {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : null;
-  } catch (error: any) { logger.warn('[Node Mesh] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Node Mesh] JSON parse failed', error); return null; }
 }
 
 function parsePayload(input: unknown): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string } {

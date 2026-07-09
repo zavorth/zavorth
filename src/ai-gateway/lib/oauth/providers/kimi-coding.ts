@@ -1,9 +1,7 @@
 import { KIMI_CODING_CONFIG } from "../constants/oauth";
 import { randomUUID } from "crypto";
 import { hostname } from "os";
-import { logger } from '@/shared/utils/logger';
-
-// Generate device ID (persistent per installation)
+import { logger } from '@/shared/utils/logger';// Generate device ID (persistent per installation)
 const DEVICE_ID = randomUUID();
 const PLATFORM = process.env.KIMI_CODING_OAUTH_PLATFORM || "Zavorth";
 const VERSION = "2.1.2";
@@ -66,8 +64,7 @@ export const kimiCoding = {
     let data;
     try {
       data = await response.json();
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[kimi-coding] network request failed', error);
+    } catch (error: unknown) {logger.warn('[kimi-coding] network request failed', error);
     const text = await response.text();
       data = { error: "invalid_response", error_description: text };
   }

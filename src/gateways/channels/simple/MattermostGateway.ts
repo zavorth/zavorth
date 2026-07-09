@@ -1,7 +1,6 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
-
 interface MattermostWebhookPayload {
   user_id?: string;
   user_name?: string;
@@ -126,7 +125,7 @@ export class MattermostGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       this.recordError(`Mattermost send failed: ${message}`);
     }

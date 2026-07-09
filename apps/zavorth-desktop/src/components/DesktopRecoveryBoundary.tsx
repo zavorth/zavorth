@@ -1,4 +1,7 @@
 import React from 'react';
+import { createLogger } from '../logger';
+
+const logger = createLogger('shell');
 import { RecoveryOverlay } from './ProductPolishComponents';
 
 type DesktopRecoveryBoundaryProps = {
@@ -22,7 +25,7 @@ export class DesktopRecoveryBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('Zavorth desktop renderer recovered from an error.', error, info);
+    logger.error('Zavorth desktop renderer recovered from an error.', error, info);
   }
 
   private handleRecover = () => {

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import { execFile, ExecException } from 'child_process';
 import crypto from 'crypto';
 import path from 'path';
@@ -102,8 +103,9 @@ export class WorkspaceCommandRunnerService {
       stdout = res.stdout;
       stderr = res.stderr;
       exitCode = res.code !== null ? res.code : 0;
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Workspace Command Runner] process execution failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Workspace Command Runner] process execution failed', error);
     exitCode = err.code !== undefined ? err.code : 1;
       stderr = err.message || 'Unknown execution error';
   }

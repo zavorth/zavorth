@@ -5,9 +5,7 @@ RuntimeAccessChannelProviderDoctorSnapshot,
   RuntimeAccessNodeMeshSmokeSnapshot,
   RuntimeAccessRemoteTransportDoctorSnapshot,
   RuntimeAccessSystemOverlordSmokeSnapshot,
-} from "./RuntimeAccessReadinessTypes.js";
-
-export class RuntimeAccessReadinessSmokeSnapshotReader {
+} from "./RuntimeAccessReadinessTypes.js";export class RuntimeAccessReadinessSmokeSnapshotReader {
   public constructor(
     private readonly options: RuntimeAccessReadinessSnapshotReaderOptions,
   ) {}
@@ -76,7 +74,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
         ageMs,
         maxAgeMs: this.options.nodeMeshSmokeMaxAgeMs,
       };
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readSystemOverlordSmokeSnapshot(): RuntimeAccessSystemOverlordSmokeSnapshot {
@@ -172,7 +170,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
         maxAgeMs: this.options.systemOverlordSmokeMaxAgeMs,
         items,
       };
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readChannelProviderDoctorSnapshot(): RuntimeAccessChannelProviderDoctorSnapshot {
@@ -282,7 +280,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
         maxAgeMs: this.options.channelProviderDoctorMaxAgeMs,
         items,
       };
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readRemoteTransportDoctorSnapshot(): RuntimeAccessRemoteTransportDoctorSnapshot {
@@ -385,7 +383,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
               fallback.command,
         items,
       };
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   private calculateAgeMs(checkedAt: string | null): number | null {

@@ -3,9 +3,7 @@ import path from 'path';
 import { config } from '../../../config/index.js';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { PlatformGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
-import { logger } from '../../../logger.js';
-
-export interface DiscordGatewayStubMessage {
+import { logger } from '../../../logger.js';export interface DiscordGatewayStubMessage {
   userId: string;
   chatId: string;
   rawText: string;
@@ -75,8 +73,7 @@ export class DiscordGateway implements PlatformGatewayContract {
         `${createdAt.replace(/[:.]/g, '-')}-${envelope.id}.json`,
       );
       fs.writeFileSync(targetFile, JSON.stringify(envelope, null, 2), 'utf8');
-    } catch (error: any) { const err = error; const e = error;
-      // ignore write errors in pure stub
+    } catch (error: unknown) {// ignore write errors in pure stub
       logger.warn('[Discord way.stub] filesystem operation failed', error);
     }
   }

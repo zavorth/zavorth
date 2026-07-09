@@ -75,7 +75,7 @@ export class VoiceRecorderService {
 
         throw new Error(t('recording_no_file'));
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.log('[Recorder] Windows PowerShell recording failed, trying via SoX...');
         return this.recordViaSox(outputPath, durationSeconds);
       } finally {

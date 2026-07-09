@@ -2,13 +2,10 @@ import { getRequestConfig } from "next-intl/server";
 import { cookies, headers } from "next/headers";
 import { LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE, SYSTEM_LOCALE } from "./config";
 import type { Locale } from "./config";
-import { logger } from '@/shared/utils/logger';
-
-function normalizeLocale(value: string): string {
+import { logger } from '@/shared/utils/logger';function normalizeLocale(value: string): string {
   try {
     return Intl.getCanonicalLocales(value.trim().replace(/_/g, "-"))[0] || value.trim();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[request] string operation failed', error);
+  } catch (error: unknown) {logger.warn('[request] string operation failed', error);
     return value.trim();
   }
 }

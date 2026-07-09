@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿/**
  * MediaGenerationService — Serviço Zavorth-nativo de orquestração de geração de mídia.
  *
@@ -46,10 +47,6 @@ import {
 } from '../adapters/media/AiGatewayImageGenerationAdapter.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 
-// ---------------------------------------------------------------------------
-// Constantes de política
-// ---------------------------------------------------------------------------
-
 /** Termos bloqueados por política de segurança de conteúdo. */
 const BLOCKED_TERMS = [
   'explicit',
@@ -62,10 +59,6 @@ const BLOCKED_TERMS = [
 
 /** Limite padrão de unidades por request. */
 const MAX_COUNT_PER_REQUEST = 4;
-
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
 
 export class MediaGenerationService {
   private readonly adapters: Map<string, IMediaGenerationAdapter>;
@@ -84,10 +77,6 @@ export class MediaGenerationService {
       this.adapters.set(adapter.adapterId, adapter);
     }
   }
-
-  // -------------------------------------------------------------------------
-  // API Pública
-  // -------------------------------------------------------------------------
 
   /**
    * Executa a geração de mídia de ponta a ponta.
@@ -130,8 +119,9 @@ export class MediaGenerationService {
         : request;
 
       adapterOutputs = await adapter.generate(effectiveRequest);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Media Generation] creation failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Media Generation] creation failed', error);
     return this.buildAdapterErrorResult(err, processedAt, policyDecision);
   }
 
@@ -141,7 +131,8 @@ export class MediaGenerationService {
       try {
         const artifact = await this.storeAsArtifact(output, modality, request);
         artifacts.push(artifact);
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.error(`[MediaGenerationService] Artifact storage failed: ${err instanceof Error ? err.message : String(err)}`);
         // Continua com os outros artefatos, não falha tudo.
       }
@@ -168,10 +159,6 @@ export class MediaGenerationService {
     };
   }
 
-  // -------------------------------------------------------------------------
-  // Validação
-  // -------------------------------------------------------------------------
-
   private validateRequest(request: MediaGenerationRequest): MediaGenerationError | null {
     if (!request.prompt || typeof request.prompt !== 'string' || request.prompt.trim().length === 0) {
       return {
@@ -197,10 +184,6 @@ export class MediaGenerationService {
     return null;
   }
 
-  // -------------------------------------------------------------------------
-  // Política
-  // -------------------------------------------------------------------------
-
   private evaluatePolicy(request: MediaGenerationRequest): MediaGenerationPolicyDecision {
     const promptLower = request.prompt.toLowerCase();
 
@@ -223,10 +206,6 @@ export class MediaGenerationService {
     };
   }
 
-  // -------------------------------------------------------------------------
-  // Seleção de adapter
-  // -------------------------------------------------------------------------
-
   private selectAdapter(modality: MediaGenerationModality): IMediaGenerationAdapter | null {
     for (const adapter of this.adapters.values()) {
       if (adapter.supportedModalities.includes(modality)) {
@@ -235,10 +214,6 @@ export class MediaGenerationService {
     }
     return null;
   }
-
-  // -------------------------------------------------------------------------
-  // Armazenamento de artefatos
-  // -------------------------------------------------------------------------
 
   private async storeAsArtifact(
     output: AdapterGenerationOutput,
@@ -304,10 +279,6 @@ export class MediaGenerationService {
     };
     return map[contentType] || '.bin';
   }
-
-  // -------------------------------------------------------------------------
-  // Builders de resultado
-  // -------------------------------------------------------------------------
 
   private buildErrorResult(
     error: MediaGenerationError,

@@ -17,9 +17,7 @@ import * as log from "@/sse/utils/logger";
 import { toJsonErrorPayload } from "@/shared/utils/upstreamError";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { v1ImageGenerationSchema } from "@/shared/validation/schemas";
-import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-
-/**
+import { isValidationFailure, validateBody } from "@/shared/validation/helpers";/**
  * Handle CORS preflight
  */
 export async function OPTIONS() {
@@ -64,8 +62,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    log.warn("MUSIC", "Invalid JSON body");
+  } catch (error: unknown) {log.warn("MUSIC", "Invalid JSON body");
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
 

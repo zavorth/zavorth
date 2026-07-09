@@ -3,9 +3,7 @@ import { z } from "zod";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { setProviderKeyLimit, getProviderKeyLimit } from "@/lib/db/registeredKeys";
-import { logger } from '@/shared/utils/logger';
-
-const limitsSchema = z.object({
+import { logger } from '@/shared/utils/logger';const limitsSchema = z.object({
   maxActiveKeys: z.number().int().positive().nullable().optional(),
   dailyIssueLimit: z.number().int().positive().nullable().optional(),
   hourlyIssueLimit: z.number().int().positive().nullable().optional(),
@@ -35,8 +33,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ prov
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] string operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] string operation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 

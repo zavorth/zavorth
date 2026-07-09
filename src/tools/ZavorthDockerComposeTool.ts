@@ -102,6 +102,6 @@ export class ZavorthDockerComposeTool extends BaseTool {
       }).toString();
 
       return `Docker Compose ${action}:\n${result.slice(0, 3000)}`;
-    } catch (error: any) { logger.warn('[Zavorth Docker Compose] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Docker Compose] process execution failed', error); return ''; }
   }
 }

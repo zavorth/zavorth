@@ -16,9 +16,7 @@ import {
   ZAVORTH_PROCESS_LOCK_CONFLICT_EXIT_CODE,
   ZavorthProcessLockConflictError,
   ProcessLockService,
-} from './services/ProcessLockService.js';
-
-const DEFAULT_WORKER_EXTENSION = path.extname(__filename) === '.ts' ? '.ts' : '.js';
+} from './services/ProcessLockService.js';const DEFAULT_WORKER_EXTENSION = path.extname(__filename) === '.ts' ? '.ts' : '.js';
 const DEFAULT_WORKER_SCRIPT = path.resolve(__dirname, `index${DEFAULT_WORKER_EXTENSION}`);
 const DEFAULT_BACKUPS_DIR = path.resolve(__dirname, '..', 'data', 'self-heal', 'backups');
 const DEFAULT_MANIFEST_PATH = path.resolve(DEFAULT_BACKUPS_DIR, 'manifest.json');
@@ -168,8 +166,7 @@ export class ZavorthHost {
     try {
       this.hostLock.acquire(this.hostLockOwner);
       this.hostLock.ensure(this.hostLockOwner);
-    } catch (error: any) { const err = error; const e = error;
-      if (error instanceof ZavorthProcessLockConflictError || error?.code === 'ZAVORTH_PROCESS_LOCK_CONFLICT') {
+    } catch (error: unknown) {if (error instanceof ZavorthProcessLockConflictError || error?.code === 'ZAVORTH_PROCESS_LOCK_CONFLICT') {
         this.log(`Another Zavorth host supervisor is already active (PID ${error.existingPid}). Exiting duplicate host.`);
         this.exitImpl(0);
         return;
@@ -215,8 +212,7 @@ export class ZavorthHost {
         stdio: ['pipe', 'inherit', 'inherit', 'ipc'],
         env: workerEnv,
       });
-    } catch (error: any) { const err = error; const e = error;
-      if (process.platform !== 'win32' || error?.code !== 'EPERM') {
+    } catch (error: unknown) {if (process.platform !== 'win32' || error?.code !== 'EPERM') {
         throw error;
       }
 
@@ -424,8 +420,7 @@ export class ZavorthHost {
         signal: timeoutSignal,
       } as RequestInit);
       return Boolean(response?.ok);
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 

@@ -1,7 +1,6 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
-
 export class HomeAssistantGateway extends WebhookGateway {
   public readonly id = 'home-assistant';
   public readonly name = 'Home Assistant';
@@ -129,7 +128,7 @@ export class HomeAssistantGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
       this.recordError(`Home Assistant send failed: ${msg}`);
     }

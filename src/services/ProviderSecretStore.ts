@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Database } from '../storage/Database.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export interface SecretSaveResult {
   secretRef: string;
@@ -49,7 +50,8 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
       const newSeed = crypto.randomBytes(32).toString('hex');
       fs.writeFileSync(keyPath, newSeed, { mode: 0o600 });
       return newSeed;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       throw new Error(`Critical Error: Could not read or create master key for ProviderSecretStore. Encrypted fallback requires a secure persistent seed. ${err.message}`);
     }
   }
@@ -132,11 +134,10 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
           userId: 'system',
           context: { secretRef, operation: 'get' }
         });
-      } catch (e: any) { const error = e; const err = e; logger.warn('[SECURITY] Failed to write audit log for secret decryption', { secretRef, error: (e as Error).message }); }
+      } catch (error: unknown) { const err = asErrorLike(error); logger.warn('[SECURITY] Failed to write audit log for secret decryption', { secretRef, error: (err as Error).message }); }
 
       return decrypted;
-    } catch (err: any) { const error = err; const e = err;
-      logger.warn('[SECURITY] Failed to decrypt provider secret. Database might be corrupted or moved to a different machine.');
+    } catch (error: unknown) {logger.warn('[SECURITY] Failed to decrypt provider secret. Database might be corrupted or moved to a different machine.');
       return null;
     }
   }

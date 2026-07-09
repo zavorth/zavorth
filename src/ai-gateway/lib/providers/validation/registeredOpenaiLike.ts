@@ -7,7 +7,6 @@ connectionFailed,
   providerUnavailable,
   validationSuccess,
 } from "./validationResult.ts";
-
 export async function validateRegisteredOpenAILikeProvider({
   provider,
   apiKey,
@@ -52,8 +51,7 @@ export async function validateRegisteredOpenAILikeProvider({
         warning: "Rate limited, but credentials are valid",
       };
     }
-  } catch (error: any) { const err = error; const e = error;
-      // Fall through to chat test.
+  } catch (error: unknown) {// Fall through to chat test.
       logger.warn('[registered Openai Like] validation failed', error);
     }
 
@@ -117,8 +115,7 @@ export async function validateRegisteredOpenAILikeProvider({
     if (chatRes.status >= 500) {
       return providerUnavailable(chatRes.status);
     }
-  } catch (error: any) { const err = error; const e = error;
-      // Chat test also failed â€” fall through to simple connectivity check.
+  } catch (error: unknown) {// Chat test also failed â€” fall through to simple connectivity check.
       logger.warn('[registered Openai Like] validation failed', error);
     }
 
@@ -139,7 +136,7 @@ export async function validateRegisteredOpenAILikeProvider({
     }
 
     return providerUnavailable(pingRes.status);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[registered Openai Like] network request failed', error);
     return connectionFailed(error.message || "Connection failed");
   }

@@ -12,6 +12,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { validateProviderApiKey } from "@/lib/providers/validation";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getCliRuntimeStatus } from "@/shared/services/cliRuntime";
+import { asErrorLike } from '../../../../../../utils/errorLike';
 // Use the shared open-sse token refresh with built-in dedup/race-condition cache
 import { getAccessToken } from "@ZavorthGateway/open-sse/services/tokenRefresh.ts";
 import { saveCallLog } from "@/lib/usageDb";
@@ -358,7 +359,7 @@ async function getProviderRuntimeStatus(connection: ConnectionRecord): Promise<R
       ),
       error: runtimeMessage,
     };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const errObj = error instanceof Error ? error : new Error(String(error));
     const runtimeMessage = `Failed to check local CLI runtime: ${errObj.message || "runtime_check_failed"}`;
     return {
@@ -392,7 +393,8 @@ async function refreshOAuthToken(connection: ConnectionRecord): Promise<Refreshe
 
     const result = await getAccessToken(provider, credentials, console);
     return result; // { accessToken, expiresIn, refreshToken } or null
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const errObj = err instanceof Error ? err : new Error(String(err));
     console.log(`Error refreshing ${provider} token:`, errObj.message);
     return null;
@@ -420,8 +422,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing to cloud after token refresh:", error);
+  } catch (error: unknown) {console.log("Error syncing to cloud after token refresh:", error);
   }
 }
 
@@ -606,7 +607,8 @@ async function testOAuthConnection(connection: ConnectionRecord): Promise<TestRe
       statusCode: res.status,
       diagnosis: classifyFailure({ error, statusCode: res.status }),
     };
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const error = toSafeMessage(err?.message, "Connection test failed");
     return {
       valid: false,
@@ -690,8 +692,7 @@ export async function testSingleConnection(connectionId: string, validationModel
   let proxyInfo: ProxyResolution | null = null;
   try {
     proxyInfo = await resolveProxyForConnection(connectionId);
-  } catch (proxyErr: any) { const error = proxyErr; const err = proxyErr; const e = proxyErr;
-    const proxyErrObj = proxyErr instanceof Error ? proxyErr : new Error(String(proxyErr));
+  } catch (proxyErr: unknown) {const proxyErrObj = proxyErr instanceof Error ? proxyErr : new Error(String(proxyErr));
     console.log(`[ConnectionTest] Failed to resolve proxy for ${connectionId}:`, proxyErrObj.message);
   }
 
@@ -783,7 +784,9 @@ export async function testSingleConnection(connectionId: string, validationModel
       sourceFormat: "test",
       targetFormat: "test",
     }).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
 
   // Log to Proxy tab (proxy_logs table)
   try {
@@ -801,7 +804,9 @@ export async function testSingleConnection(connectionId: string, validationModel
       account: connectionId?.slice(0, 8) || null,
       tlsFingerprint: false,
     });
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
 
   return {
     valid: result.valid,
@@ -833,8 +838,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     let rawBody: unknown = {};
     try {
       rawBody = await request.json();
-    } catch (error: any) { const err = error; const e = error;
-      // Empty or non-JSON body — treat as {}
+    } catch (error: unknown) {// Empty or non-JSON body — treat as {}
       logger.warn('[route] connection failed', error);
     }
     const validation = validateBody(providerConnectionTestBodySchema, rawBody);
@@ -850,8 +854,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     return NextResponse.json(data);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error testing connection:", error);
+  } catch (error: unknown) {console.log("Error testing connection:", error);
     return NextResponse.json({ error: "Test failed" }, { status: 500 });
   }
 }

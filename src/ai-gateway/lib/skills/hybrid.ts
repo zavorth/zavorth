@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 export type ExecutionMode = "direct" | "sandbox" | "hybrid";
 
 export interface HybridConfig {
@@ -35,7 +36,8 @@ export class HybridExecutor {
 
     try {
       return await this.executeDirect(skillName, input, context);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (this.config.autoUpgrade && this.isRetryable(err)) {
         return this.executeInSandbox(skillName, input, context);
       }

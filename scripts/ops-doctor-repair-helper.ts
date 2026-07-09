@@ -1,4 +1,5 @@
 #!/usr/bin/env npx tsx
+import { asErrorLike } from '../src/utils/errorLike';
 
 import fs from 'fs';
 import path from 'path';
@@ -67,7 +68,7 @@ function isProcessAlive(pid: number): boolean {
   try {
     process.kill(pid, 0);
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return error?.code !== 'ESRCH';
   }
 }
@@ -134,16 +135,14 @@ function clearLocks() {
         try {
           fs.unlinkSync(walFile);
           console.log(`[zavorth-repair] Cleaned database WAL file: ${walFile}`);
-        } catch (e: any) {
-          console.error(`[zavorth-repair] Failed to clean WAL file: ${e.message}`);
+        } catch (error: unknown) { const err = asErrorLike(error); const e = err; console.error(`[zavorth-repair] Failed to clean WAL file: ${e.message}`);
         }
       }
       if (fs.existsSync(shmFile)) {
         try {
           fs.unlinkSync(shmFile);
           console.log(`[zavorth-repair] Cleaned database SHM file: ${shmFile}`);
-        } catch (e: any) {
-          console.error(`[zavorth-repair] Failed to clean SHM file: ${e.message}`);
+        } catch (error: unknown) { const err = asErrorLike(error); const e = err; console.error(`[zavorth-repair] Failed to clean SHM file: ${e.message}`);
         }
       }
     }

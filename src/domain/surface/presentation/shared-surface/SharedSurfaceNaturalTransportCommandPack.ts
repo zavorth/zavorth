@@ -1,8 +1,6 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ZavorthRemoteTransportService } from '../../../../services/ZavorthRemoteTransportService.js';
-import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';
-
-type NaturalTransportIntent = {
+import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';type NaturalTransportIntent = {
   transportId?: string;
   transportIds?: string[];
   actionId?: 'inspect' | 'prepare' | 'smoke' | 'repair';
@@ -226,8 +224,7 @@ export class SharedSurfaceNaturalTransportCommandPack {
         '',
         `Comandos uteis agora: /transports ${intent.transportId} | /transports prepare ${intent.transportId} | /transports repair ${intent.transportId}.`,
       ].join('\n'));
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse transporte agora.');
+    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse transporte agora.');
     }
   }
 

@@ -21,7 +21,6 @@ import {
   IconTerminal2,
 } from '@tabler/icons-react';
 
-
 interface InlineCodeEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -36,7 +35,6 @@ interface InlineCodeEditorProps {
   readOnly?: boolean;
   className?: string;
 }
-
 
 const EXTENSION_LANGUAGE_MAP: Record<string, string> = {
   js: 'javascript',
@@ -136,7 +134,6 @@ const LANGUAGE_ICONS: Record<string, typeof IconFileCode> = {
   powershell: IconTerminal2,
 };
 
-
 const INDENT = '  ';
 
 function getLineIndent(line: string): string {
@@ -159,7 +156,6 @@ function getSelectionLines(
 
   return { startLine, endLine, startLineOffset, endLineOffset };
 }
-
 
 export default memo(function InlineCodeEditor({
   value,

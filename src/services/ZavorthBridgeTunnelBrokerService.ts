@@ -101,6 +101,6 @@ export class ZavorthBridgeTunnelBrokerService {
     }
     try {
       return this.publicTunnelService.readStatus();
-    } catch (error: any) { logger.warn('[Zavorth Bridge Tunnel Broker] filesystem check failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Bridge Tunnel Broker] filesystem check failed', error); return null; }
   }
 }

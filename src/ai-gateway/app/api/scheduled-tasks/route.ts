@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-
 async function createSurfaceService() {
   const { Database } = await import("../../../../storage/Database.js");
   const { SchedulerRepository } = await import("../../../../storage/SchedulerRepository.js");
@@ -27,7 +26,7 @@ export async function GET(request: Request) {
     const tasks = await surface.list();
 
     return NextResponse.json({ tasks });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] creation failed', error);
     const message = error instanceof Error ? error.message : "Failed to list scheduled tasks";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -62,7 +61,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(result, { status: 201 });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] creation failed', error);
     const message = error instanceof Error ? error.message : "Failed to create scheduled task";
     return NextResponse.json({ error: message }, { status: 500 });

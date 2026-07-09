@@ -128,8 +128,7 @@ export async function calculateCost(provider, model, tokens) {
     }
 
     return cost;
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error calculating cost:", error);
+  } catch (error: unknown) {console.error("Error calculating cost:", error);
     return 0;
   }
 }

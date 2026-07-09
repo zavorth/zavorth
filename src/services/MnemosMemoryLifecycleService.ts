@@ -163,7 +163,7 @@ export class MnemosMemoryLifecycleService {
   private safeRead(file: string): string {
     try {
       return String(this.readFileSync(file, 'utf8') || '');
-    } catch (error: any) { logger.warn('[Mnemos Memory Lifecycle] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Mnemos Memory Lifecycle] filesystem operation failed', error); return ''; }
   }
 }
 

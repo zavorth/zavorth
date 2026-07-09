@@ -3,7 +3,6 @@ import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentR
 import { SkillRouter } from '../../skills/SkillRouter.js';
 import { SkillLoader } from '../../skills/SkillLoader.js';
 import { UniversalSkillBridgeRuntimeService } from '../../skills/UniversalSkillBridgeRuntimeService.js';
-
 export type AgentRunAutomaticSkillInvocationSnapshot = {
   contractVersion: 'agent-run-automatic-skill-invocation/1';
   source: 'AgentRunAutomaticSkillInvocationService';
@@ -134,7 +133,7 @@ export class AgentRunAutomaticSkillInvocationService {
           : `Auto-selected governed skill "${selectedSkill.name}" em modo dry-run.`,
         skillCount: skills.length,
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return this.finalizeSnapshot({
         run: input.run,
         generatedAt,

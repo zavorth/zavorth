@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import fs from 'fs';
 import path from 'path';
@@ -77,7 +78,7 @@ async function fetchOk(pathname: string): Promise<Record<string, unknown>> {
         bytes: text.length,
         attempts: attempt,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error;
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
@@ -169,7 +170,9 @@ async function measure(operationName: string): Promise<BenchmarkRunReport> {
       warning: null,
       details,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       operationName,
       durationMs: Date.now() - started,

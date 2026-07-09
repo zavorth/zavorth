@@ -2,9 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { Task } from '../contracts/TaskContract.js';
-import { logger } from '../logger.js';
-
-export type MailboxAgent = 'ZAVORTH_BRIDGE' | 'CODEX';
+import { logger } from '../logger.js';export type MailboxAgent = 'ZAVORTH_BRIDGE' | 'CODEX';
 
 type SignedEnvelopeFields = {
   protocol: string;
@@ -306,7 +304,7 @@ export class MailboxProtocol {
 
     try {
       return Buffer.from(value, 'base64').toString('utf8').trim();
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Mailbox Protocol] encoding failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Mailbox Protocol] encoding failed', error); return null; }
   }
 
   private safeCompare(left: string, right: string): boolean {

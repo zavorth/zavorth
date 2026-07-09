@@ -1,9 +1,7 @@
 import type { PublicReleaseBundleContractSnapshot } from '../../contracts/PublicReleaseBundleContract.js';
 import type { ProductEntryRuntimeSnapshot } from './ProductEntryRuntimeService.js';
 import type { ProductizationEvidenceSnapshot } from './ProductizationEvidenceService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-
-export const RELEASE_INSTALLER_ROLLBACK_PATH_CONTRACT_VERSION = '2026-05-04.release-rollback' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const RELEASE_INSTALLER_ROLLBACK_PATH_CONTRACT_VERSION = '2026-05-04.release-rollback' as const;
 export const RELEASE_INSTALLER_ROLLBACK_PATH_METADATA_KEY = 'releaseInstallerRollbackPath' as const;
 
 export type ReleaseInstallerRollbackPathStatus =
@@ -161,8 +159,7 @@ function normalizeReleaseBundleStatus(value: unknown): ReleaseInstallerRollbackP
 function safeCall<T>(factory: () => T): T | null {
   try {
     return factory();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

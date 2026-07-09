@@ -13,7 +13,6 @@ import {
   type RuntimeInstallJourneyReport,
 } from './RuntimeInstallJourneyService.js';
 import { isWeakZavorthControlToken } from '../../../../services/ZavorthControlTokenService.js';
-
 type AccessProbe = {
   ok: boolean;
   targetUrl: string;
@@ -230,7 +229,7 @@ export class RuntimeOfficialAccessService {
         statusCode: response.status,
         error: response.ok ? null : `status ${response.status}`,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error ?? 'network failure');
       return {
         attempted: true,
@@ -268,7 +267,7 @@ export class RuntimeOfficialAccessService {
         statusCode: response.status,
         error: response.ok ? null : `status ${response.status}`,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error ?? 'network failure');
       return {
         ok: false,

@@ -163,7 +163,7 @@ export class ZavorthSubagentSkillLiveCompletionService {
   private loadSkills(): SkillMetadata[] {
     try {
       return this.skillLoader.loadAll({ includeSupportFiles: false, quiet: true });
-    } catch (error: any) { logger.warn('[Zavorth Subagent Skill Live Completion] load operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Subagent Skill Live Completion] load operation failed', error); return []; }
   }
 
   private buildEntries(input: {

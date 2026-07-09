@@ -8,6 +8,7 @@ import { SignalGateway } from '../gateways/channels/signal/SignalGateway.stub.js
 import { EmailGateway } from '../gateways/channels/email/EmailGateway.stub.js';
 import { InstagramGateway } from '../gateways/channels/instagram/InstagramGateway.stub.js';
 import { DiscordGateway } from '../gateways/channels/discord/DiscordGateway.stub.js';
+import { asErrorLike } from '../utils/errorLike';
 
 import { CoreOrchestrator } from '../core/CoreOrchestrator.js';
 import { LogRepository } from '../storage/LogRepository.js';
@@ -179,7 +180,8 @@ export async function runZavorthMockGatewayCommand(rawArgs: string[]): Promise<n
             isGroup,
           });
         }
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         process.stderr.write(`[ERROR] Failed to process message: ${err?.message || err}\n`);
       }
     }

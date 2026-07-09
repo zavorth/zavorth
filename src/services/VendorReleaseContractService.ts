@@ -110,8 +110,7 @@ export class VendorReleaseContractService {
         return { sources: [] };
       }
       return JSON.parse(this.readFileSyncImpl(this.manifestFile, 'utf8')) as VendorSourceRawDocument;
-    } catch (error: any) {
-    logger.warn('[Vendor Release Contract] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Vendor Release Contract] JSON parse failed', error);
     return { sources: [] };
   }
   }

@@ -110,8 +110,7 @@ export class TrustedWorkspacePolicyService {
       if (!stat.isDirectory()) {
         return { ok: false, path: normalized, reason: 'Trusted workspace path must be an existing directory.' };
       }
-    } catch (error: any) {
-    logger.warn('[Trusted Workspace] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Trusted Workspace] filesystem operation failed', error);
     return { ok: false, path: normalized, reason: 'Trusted workspace path must exist before it can be trusted.' };
   }
     return { ok: true, path: normalized, reason: null };

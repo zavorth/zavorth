@@ -22,7 +22,7 @@ const readAuth = async () => {
   try {
     const content = await fs.readFile(AUTH_PATH, "utf-8");
     return JSON.parse(content);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     if (error.code === "ENOENT") return null;
     throw error;
   }
@@ -88,7 +88,7 @@ export async function GET(request: Request) {
           extensionSettings[key] = value;
         }
       }
-    } catch (error: any) { const err = error; const e = error; /* VS Code settings not available */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: unknown) {/* VS Code settings not available */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       installed: runtime.installed,
@@ -104,8 +104,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGatewayConfig(auth),
       authPath: AUTH_PATH,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error checking kilo settings:", error);
+  } catch (error: unknown) {console.log("Error checking kilo settings:", error);
     return NextResponse.json({ error: "Failed to check kilo settings" }, { status: 500 });
   }
 }
@@ -118,8 +117,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -152,8 +150,7 @@ export async function POST(request) {
         if (keyRecord?.key) {
           apiKey = keyRecord.key as string;
         }
-      } catch (error: any) { const err = error; const e = error;
-      // Non-critical: fall back to whatever value was in apiKey
+      } catch (error: unknown) {// Non-critical: fall back to whatever value was in apiKey
       logger.warn('[route] validation failed', error);
     }
     }
@@ -169,7 +166,7 @@ export async function POST(request) {
     try {
       const existing = await fs.readFile(AUTH_PATH, "utf-8");
       auth = JSON.parse(existing);
-    } catch (error: any) { const err = error; const e = error; /* No existing auth */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: unknown) {/* No existing auth */ logger.warn('[route] JSON parse failed', error); }
 
     // Normalize baseUrl
     const normalizedBaseUrl = baseUrl.endsWith("/v1") ? baseUrl : `${baseUrl}/v1`;
@@ -197,7 +194,7 @@ export async function POST(request) {
       try {
         const raw = await fs.readFile(vscodeSettingsPath, "utf-8");
         vscodeSettings = JSON.parse(raw);
-      } catch (error: any) { const err = error; const e = error; /* no existing settings */ logger.warn('[route] JSON parse failed', error); }
+      } catch (error: unknown) {/* no existing settings */ logger.warn('[route] JSON parse failed', error); }
 
       // Set custom provider config for the extension
       vscodeSettings["kilocode.customProvider"] = {
@@ -208,23 +205,21 @@ export async function POST(request) {
       vscodeSettings["kilocode.defaultModel"] = model;
 
       await fs.writeFile(vscodeSettingsPath, JSON.stringify(vscodeSettings, null, 2));
-    } catch (error: any) { const err = error; const e = error;
-      // VS Code settings not writable — not a problem for CLI
+    } catch (error: unknown) {// VS Code settings not writable — not a problem for CLI
       logger.warn('[route] filesystem operation failed', error);
     }
 
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("kilo");
-    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: unknown) {/* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "Kilo Code settings applied successfully!",
       authPath: AUTH_PATH,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating kilo settings:", error);
+  } catch (error: unknown) {console.log("Error updating kilo settings:", error);
     return NextResponse.json({ error: "Failed to update kilo settings" }, { status: 500 });
   }
 }
@@ -248,7 +243,7 @@ export async function DELETE(request: Request) {
     try {
       const existing = await fs.readFile(AUTH_PATH, "utf-8");
       auth = JSON.parse(existing);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (error.code === "ENOENT") {
         return NextResponse.json({ success: true, message: "No settings file to reset" });
       }
@@ -275,19 +270,18 @@ export async function DELETE(request: Request) {
       delete vscodeSettings["kilocode.customProvider"];
       delete vscodeSettings["kilocode.defaultModel"];
       await fs.writeFile(vscodeSettingsPath, JSON.stringify(vscodeSettings, null, 2));
-    } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[route] JSON parse failed', error); }
 
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("kilo");
-    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: unknown) {/* non-critical */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "ZavorthGateway settings removed from Kilo Code",
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error resetting kilo settings:", error);
+  } catch (error: unknown) {console.log("Error resetting kilo settings:", error);
     return NextResponse.json({ error: "Failed to reset kilo settings" }, { status: 500 });
   }
 }

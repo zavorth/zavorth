@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 "use client";
 
 import { useState, useEffect } from "react";
@@ -41,7 +42,8 @@ export default function KiroSocialOAuthModal({ isOpen, provider, onSuccess, onCl
 
         // Auto-open browser
         window.open(data.authUrl, "kiro_social_auth");
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         setError(err.message);
         setStep("error");
       }
@@ -58,8 +60,7 @@ export default function KiroSocialOAuthModal({ isOpen, provider, onSuccess, onCl
       let url;
       try {
         url = new URL(callbackUrl);
-      } catch (e: any) { const error = e; const err = e;
-        // If URL parsing fails, might be malformed
+      } catch (error: unknown) {// If URL parsing fails, might be malformed
         throw new Error("Invalid callback URL format");
       }
 
@@ -91,7 +92,8 @@ export default function KiroSocialOAuthModal({ isOpen, provider, onSuccess, onCl
 
       setStep("success");
       onSuccess?.();
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError(err.message);
       setStep("error");
     }

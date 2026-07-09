@@ -304,8 +304,8 @@ export class ProviderLongTailActivationService {
         liveIoPerformed: true,
         secretValuesSerialized: false,
       };
-    } catch (error: any) {
-    logger.warn('[Long Tail Activation] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Long Tail Activation] filesystem check failed', error);
     return {
         id,
         providerId: descriptor.providerId,

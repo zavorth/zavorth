@@ -131,8 +131,8 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
         case 'convert': return await this.convertTrajectory(args);
       }
       return 'Internal error.';
-    } catch (error: any) {
-    logger.warn('[Zavorth Trajectory Export] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Trajectory Export] filesystem check failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `TrajectoryExport error: ${message}`;
   }
@@ -310,7 +310,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
   private async mergeTrajectories(args: Record<string, unknown>): Promise<string> {
     const idsRaw = String(args.trajectory_ids || '[]');
     let ids: string[];
-    try { ids = JSON.parse(idsRaw); } catch (error: any) { logger.warn('[Zavorth Trajectory Export] JSON parse failed', error); return 'Error: invalid JSON for "trajectory_ids".'; }
+    try { ids = JSON.parse(idsRaw); } catch (error: unknown) {logger.warn('[Zavorth Trajectory Export] JSON parse failed', error); return 'Error: invalid JSON for "trajectory_ids".'; }
 
     const trajectories = this.loadTrajectories().filter((t) => ids.includes(t.id));
     if (trajectories.length === 0) return 'No trajectories found with the provided IDs.';
@@ -396,7 +396,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
   private async convertTrajectory(args: Record<string, unknown>): Promise<string> {
     const idsRaw = String(args.trajectory_ids || '[]');
     let ids: string[];
-    try { ids = JSON.parse(idsRaw); } catch (error: any) { logger.warn('[Zavorth Trajectory Export] JSON parse failed', error); return 'Error: invalid JSON for "trajectory_ids".'; }
+    try { ids = JSON.parse(idsRaw); } catch (error: unknown) {logger.warn('[Zavorth Trajectory Export] JSON parse failed', error); return 'Error: invalid JSON for "trajectory_ids".'; }
 
     const trajectories = this.loadTrajectories().filter((t) => ids.includes(t.id));
     if (trajectories.length === 0) return 'No trajectories found.';
@@ -421,8 +421,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
         } else if (parsed.id) {
           trajectories.push(parsed);
         }
-      } catch (error: any) {
-        continue;
+      } catch (error: unknown) {continue;
       }
     }
 
@@ -515,8 +514,7 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
           results.push(fullPath);
         }
       }
-    } catch (error: any) {
-      // ignore
+    } catch (error: unknown) {// ignore
       logger.warn('[Zavorth Trajectory Export] filesystem operation failed', error);
     }
     return results;

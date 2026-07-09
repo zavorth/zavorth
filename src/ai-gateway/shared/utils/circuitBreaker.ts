@@ -89,8 +89,7 @@ export class CircuitBreaker {
           this.halfOpenAllowed = this.halfOpenRequests;
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      // DB may not be ready yet (build phase)
+    } catch (error: unknown) {// DB may not be ready yet (build phase)
       logger.warn('[circuit Breaker] resource cleanup failed', error);
     }
   }
@@ -111,8 +110,7 @@ export class CircuitBreaker {
           halfOpenRequests: this.halfOpenRequests,
         },
       });
-    } catch (error: any) { const err = error; const e = error;
-      // Non-critical: in-memory still works
+    } catch (error: unknown) {// Non-critical: in-memory still works
       logger.warn('[circuit Breaker] operation failed', error);
     }
   }
@@ -154,8 +152,7 @@ export class CircuitBreaker {
       const result = await fn();
       this._onSuccess();
       return result;
-    } catch (error: any) { const err = error; const e = error;
-      if (this.isFailure(error)) {
+    } catch (error: unknown) {if (this.isFailure(error)) {
         this._onFailure();
       }
       throw error;
@@ -294,8 +291,7 @@ export function getAllCircuitBreakerStatuses() {
         getCircuitBreaker(cb.name);
       }
     }
-  } catch (error: any) { const err = error; const e = error;
-      // Use registry only
+  } catch (error: unknown) {// Use registry only
       logger.warn('[circuit Breaker] load operation failed', error);
     }
   return Array.from(registry.values()).map((cb) => cb.getStatus());
@@ -311,8 +307,7 @@ export function resetAllCircuitBreakers() {
   registry.clear();
   try {
     deleteAllCircuitBreakerStates();
-  } catch (error: any) { const err = error; const e = error;
-      // Non-critical
+  } catch (error: unknown) {// Non-critical
       logger.warn('[circuit Breaker] delete operation failed', error);
     }
 }

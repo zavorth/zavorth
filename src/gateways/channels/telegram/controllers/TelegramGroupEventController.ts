@@ -6,6 +6,7 @@ import { MessageFilterService, type FilterableMessageType } from '../../../../se
 import { GroupModerationService } from '../../../../services/GroupModerationService.js';
 import { GroupStatsService } from '../../../../services/GroupStatsService.js';
 import { WarnService } from '../../../../services/WarnService.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 interface GroupEventDeps {
   welcomeService: WelcomeService;
@@ -61,8 +62,7 @@ export class TelegramGroupEventController {
       });
       try {
         await ctx.reply(rendered);
-      } catch (e: any) { const error = e; const err = e;
-        logger.error('[GroupEvent] Failed to send welcome message:', e);
+      } catch (error: unknown) { const err = asErrorLike(error); logger.error('[GroupEvent] Failed to send welcome message:', err);
       }
     }
 
@@ -96,8 +96,7 @@ export class TelegramGroupEventController {
 
     try {
       await ctx.reply(rendered);
-    } catch (e: any) { const error = e; const err = e;
-      logger.error('[GroupEvent] Failed to send goodbye message:', e);
+    } catch (error: unknown) { const err = asErrorLike(error); logger.error('[GroupEvent] Failed to send goodbye message:', err);
     }
 
     if (config?.delete_service_messages && ctx.message?.message_id) {
@@ -134,11 +133,13 @@ export class TelegramGroupEventController {
           setTimeout(async () => {
             try {
               await this.moderationService.deleteMessage(chatId, warnMsg.message_id);
-            } catch (err: any) { const error = err; const e = err;
+            } catch (error: unknown) {
+              const err = asErrorLike(error);
               logger.warn('[auto-fix] Empty catch block', err);
             }
           }, 5000);
-        } catch (err: any) { const error = err; const e = err;
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[auto-fix] Empty catch block', err);
         }
         return true;
@@ -155,7 +156,8 @@ export class TelegramGroupEventController {
         }
         try {
           await ctx.reply(msg);
-        } catch (err: any) { const error = err; const e = err;
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[auto-fix] Empty catch block', err);
         }
         return true;
@@ -168,7 +170,8 @@ export class TelegramGroupEventController {
         }
         try {
           await ctx.reply(`${ctx.from?.first_name} was muted for 5 minutes. Reason: ${result.reason}`);
-        } catch (err: any) { const error = err; const e = err;
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[auto-fix] Empty catch block', err);
         }
         return true;
@@ -177,7 +180,8 @@ export class TelegramGroupEventController {
         await this.moderationService.banUser(ctx.chat!.id, ctx.from!.id, 'anti-spam');
         try {
           await ctx.reply(`${ctx.from?.first_name} was banned automatically. Reason: ${result.reason}`);
-        } catch (err: any) { const error = err; const e = err;
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[auto-fix] Empty catch block', err);
         }
         return true;

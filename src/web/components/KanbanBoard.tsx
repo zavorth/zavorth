@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { asErrorLike } from '../../utils/errorLike';
 
 type Priority = 'low' | 'medium' | 'high' | 'critical';
 
@@ -80,7 +81,8 @@ export function KanbanBoardComponent() {
           setSelectedBoardId(data.boards[0].id);
         }
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error('Failed to fetch boards:', err);
     }
   }, [selectedBoardId]);
@@ -93,7 +95,8 @@ export function KanbanBoardComponent() {
       if (data.ok) {
         setBoardData({ board: data.board, cards: data.cards });
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error('Failed to fetch board details:', err);
     }
   }, []);
@@ -105,7 +108,8 @@ export function KanbanBoardComponent() {
       if (data.ok) {
         setComments(data.comments || []);
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error('Failed to fetch comments:', err);
     }
   };
@@ -134,7 +138,8 @@ export function KanbanBoardComponent() {
         setIsAddingBoard(false);
         fetchBoards();
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error('Failed to create board:', err);
     }
   };
@@ -160,7 +165,8 @@ export function KanbanBoardComponent() {
         setIsAddingCard(false);
         fetchBoardData(selectedBoardId);
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error('Failed to create card:', err);
     }
   };
@@ -185,7 +191,8 @@ export function KanbanBoardComponent() {
           setSelectedCard((prev) => prev ? { ...prev, column_name: targetCol } : null);
         }
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error('Failed to move card:', err);
     }
   };
@@ -207,7 +214,8 @@ export function KanbanBoardComponent() {
         setNewCommentText('');
         fetchComments(cardId);
       }
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error('Failed to add comment:', err);
     }
   };

@@ -3,7 +3,6 @@ import { Task } from '../contracts/TaskContract.js';
 import { DeepSearchService } from '../services/DeepSearchService.js';
 import { SmartOutputService } from '../services/SmartOutputService.js';
 import { TaskManager } from './TaskManager.js';
-
 type BotApiLike = {
   sendMessage(chatId: string | number, text: string, options?: { parse_mode?: 'Markdown' | 'HTML' }): Promise<unknown>;
 };
@@ -62,7 +61,7 @@ export class ResearchQueueWorker {
       }
 
       await this.execute(task);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.deps.log('error', 'ResearchQueueWorker', error.message || 'Research worker failed.');
     } finally {
       this.running = false;
@@ -96,7 +95,7 @@ export class ResearchQueueWorker {
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'delivery_pending');
       await this.deliver(task, false);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       task.error_summary = error.message || 'Failed to execute queued research.';
       task.metadata = {
         ...(task.metadata || {}),
@@ -142,7 +141,7 @@ export class ResearchQueueWorker {
       };
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'completed');
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       task.metadata = {
         ...(task.metadata || {}),
         async_queue: {
@@ -174,8 +173,7 @@ export class ResearchQueueWorker {
         chatId,
         `Research failed.\nShort reference: ${task.task_id.substring(0, 8)}\n\nReason: ${task.error_summary || 'Unknown error.'}`,
       );
-    } catch (error: any) { const err = error; const e = error;
-      this.deps.log('warn', 'ResearchQueueWorker', 'Failed to deliver research error.', {
+    } catch (error: unknown) {this.deps.log('warn', 'ResearchQueueWorker', 'Failed to deliver research error.', {
       });
     }
   }

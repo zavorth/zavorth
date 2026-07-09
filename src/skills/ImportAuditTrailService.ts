@@ -7,9 +7,7 @@ import type {
 import type {
   SkillImportDetailedPreview,
   SkillImportDetailedPreviewEntry,
-} from './SkillImportPreviewService.js';
-
-export type SkillImportAuditEvent = {
+} from './SkillImportPreviewService.js';export type SkillImportAuditEvent = {
   id: string;
   kind: 'preview' | 'import';
   recordedAt: string;
@@ -175,8 +173,7 @@ export class ImportAuditTrailService {
           : null,
         events: Array.isArray(parsed.events) ? parsed.events as SkillImportAuditEvent[] : [],
       };
-    } catch (error: any) { const err = error; const e = error;
-      return {
+    } catch (error: unknown) {return {
         version: 1,
         updatedAt: null,
         events: [],
