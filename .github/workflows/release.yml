@@ -16,7 +16,10 @@ on:
           - 'false'
 
 permissions:
-  contents: read
+  contents: write
+
+env:
+  NODE_VERSION: '22'
 
 jobs:
   pre-release:
@@ -31,7 +34,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Install dependencies
@@ -69,7 +72,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Install dependencies
@@ -106,12 +109,27 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  publish:
-    name: Publish
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [test-suite, docker]
-    if: startsWith(github.ref, 'refs/tags/v') && github.event.inputs.dry_run != 'true'
+  build-binaries:
+    name: Build ${{ matrix.platform }}
+    needs: pre-release
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: darwin-arm64
+            arch: arm64
+          - os: macos-13
+            platform: darwin-x64
+            arch: x64
+          - os: ubuntu-latest
+            platform: linux-x64
+            arch: x64
+          - os: ubuntu-latest
+            platform: linux-arm64
+            arch: arm64
 
     steps:
       - name: Checkout
@@ -120,7 +138,121 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build TypeScript
+        run: npm run build --silent
+
+      - name: Compile standalone binary
+        run: node scripts/zavorth-compile.mjs
+
+      - name: Package binary
+        shell: bash
+        run: |
+          cd dist-standalone
+          VERSION="${GITHUB_REF_NAME:-dev}"
+          ARCHIVE="zavorth-${{ matrix.platform }}.tar.gz"
+
+          # Include native addon if it exists
+          if [ -d native ]; then
+            tar -czf "../${ARCHIVE}" zavorth* native/
+          else
+            tar -czf "../${ARCHIVE}" zavorth*
+          fi
+
+          echo "Archive: ${ARCHIVE}"
+          echo "Size: $(du -h "../${ARCHIVE}" | cut -f1)"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.platform }}
+          path: zavorth-${{ matrix.platform }}.tar.gz
+          retention-days: 1
+
+  create-release:
+    name: Create GitHub Release
+    needs: [test-suite, docker, build-binaries]
+    if: startsWith(github.ref, 'refs/tags/v') && github.event.inputs.dry_run != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: binary-*
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -lh artifacts/
+
+      - name: Generate checksums
+        id: checksums
+        run: |
+          cd artifacts
+          echo "## Checksums" > checksums.txt
+          echo '```' >> checksums.txt
+          for f in *.tar.gz; do
+            sha256sum "$f" | tee -a checksums.txt
+          done
+          echo '```' >> checksums.txt
+
+          # Export individual checksums for formula update
+          for f in *.tar.gz; do
+            PLATFORM=$(echo "$f" | sed 's/zavorth-//' | sed 's/.tar.gz//')
+            CHECKSUM=$(sha256sum "$f" | cut -d' ' -f1)
+            echo "SHA256_${PLATFORM//-/_}=${CHECKSUM}" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/*.tar.gz
+          body: |
+            ## Zavorth ${{ github.ref_name }}
+
+            ### Installation
+
+            **Homebrew (macOS/Linux):**
+            ```bash
+            brew tap zavorth/zavorth https://github.com/zavorth/zavorth.git
+            brew install zavorth
+            ```
+
+            **Binary downloads:** See assets below.
+
+            **npm:**
+            ```bash
+            npm install -g zavorth
+            ```
+
+            ${{ steps.checksums.outputs.changelog }}
+
+  publish-npm:
+    name: Publish to npm
+    needs: [test-suite, docker]
+    if: startsWith(github.ref, 'refs/tags/v') && github.event.inputs.dry_run != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           registry-url: 'https://registry.npmjs.org'
 
