@@ -40,7 +40,7 @@ export async function isDetailedLoggingEnabled(): Promise<boolean> {
     const settings = await getSettings();
     const val = settings.call_log_pipeline_enabled;
     return val === true || val === "1" || val === "true";
-  } catch (error: any) { const err = error; const e = error; logger.warn('[detailed] pipe operation failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[detailed] pipe operation failed', error); return false; }
 }
 
 /** Save a detailed log entry — caller must verify isDetailedLoggingEnabled() first */

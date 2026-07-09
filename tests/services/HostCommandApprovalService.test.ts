@@ -44,7 +44,7 @@ describe('HostCommandApprovalService', () => {
         if (fs.existsSync(dir)) {
           fs.rmSync(dir, { recursive: true, force: true });
         }
-      } catch (err) {
+      } catch (error: unknown) {
         // ignore cleanup errors
       }
     }

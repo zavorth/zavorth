@@ -174,8 +174,7 @@ export class ApprovalDecisionCacheService {
         schemaVersion: 1,
         entries: Array.isArray(parsed.entries) ? parsed.entries.map(normalizeEntry).filter(Boolean) as ApprovalDecisionCacheEntry[] : [],
       };
-    } catch (error: any) {
-    logger.warn('[Approval Decision Cache] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Approval Decision Cache] JSON parse failed', error);
     return { schemaVersion: 1, entries: [] };
   }
   }

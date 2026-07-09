@@ -158,7 +158,7 @@ async function readJson(response: Response): Promise<Record<string, unknown>> {
     return json && typeof json === 'object' && !Array.isArray(json)
       ? json as Record<string, unknown>
       : {};
-  } catch (error: any) { logger.warn('[Zavorth Personal Ops O Auth] operation failed', error); return {}; }
+  } catch (error: unknown) {logger.warn('[Zavorth Personal Ops O Auth] operation failed', error); return {}; }
 }
 
 function normalizeProvider(value: unknown): 'google' | 'microsoft' {

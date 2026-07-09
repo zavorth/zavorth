@@ -103,7 +103,7 @@ export class ZavorthSshTunnelTool extends BaseTool {
       });
 
       return `SSH tunnel created:\n  ID: ${id}\n  Type: ${tunnelType}\n  ${user}@${host}:${port} -> localhost:${assignedLocalPort}`;
-    } catch (error: any) { logger.warn('[Zavorth Ssh Tunnel] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Ssh Tunnel] process execution failed', error); return ''; }
   }
 
   private listTunnels(): string {

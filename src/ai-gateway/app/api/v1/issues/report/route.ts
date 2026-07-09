@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike';
 
 const reportSchema = z.object({
   title: z.string().min(1).max(300),
@@ -30,8 +31,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] operation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
@@ -123,7 +123,8 @@ export async function POST(request: Request) {
       githubIssueUrl: ghData.html_url,
       githubIssueNumber: ghData.number,
     });
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[issues/report] GitHub fetch failed:", err);
     return NextResponse.json(
       { logged: true, githubIssueCreated: false, error: "GitHub request failed" },

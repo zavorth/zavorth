@@ -2,6 +2,7 @@ import { CORS_ORIGIN } from "@/shared/utils/cors";
 import { PROVIDER_MODELS } from "@/shared/constants/models";
 import { getAllCustomModels, getSyncedAvailableModels } from "@/lib/db/models";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike';
 
 /**
  * Handle CORS preflight
@@ -61,7 +62,8 @@ export async function GET() {
           ...(m.supportsThinking === true ? { thinking: true } : {}),
         });
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error("[v1beta/models] Error fetching synced Gemini models:", err);
     }
 
@@ -88,13 +90,12 @@ export async function GET() {
           });
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Custom models are optional — skip on error
+    } catch (error: unknown) {// Custom models are optional — skip on error
       logger.warn('[route] creation failed', error);
     }
 
     return Response.json({ models });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Error fetching models:", error);
     return Response.json({ error: { message: error.message } }, { status: 500 });
   }

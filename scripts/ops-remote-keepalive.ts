@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import { execFileSync, spawn } from 'child_process';
 import * as fs from 'fs';
@@ -235,7 +236,9 @@ async function ensureAIGatewayUpstream(processSpec: ManagedProcess, health: Proc
     if (!ready) {
       spawnManaged(processSpec, health);
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     updateHealth(health, false, error instanceof Error ? error.message : String(error));
     if (processSpec.manageProcess) {
       spawnManaged(processSpec, health);
@@ -250,7 +253,9 @@ async function ensureAIGatewayProxy(processSpec: ManagedProcess, health: Process
     if (!probe.listening) {
       spawnManaged(processSpec, health);
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     updateHealth(health, false, error instanceof Error ? error.message : String(error));
     spawnManaged(processSpec, health);
   }
@@ -269,7 +274,9 @@ async function ensureNodeHost(
     if (!ready) {
       spawnManaged(processSpec, health);
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     updateHealth(health, false, error instanceof Error ? error.message : String(error));
     spawnManaged(processSpec, health);
   }
@@ -287,7 +294,9 @@ async function main() {
     if (existingLock?.pid && existingLock.pid !== process.pid) {
       try {
         killPid(existingLock.pid);
-      } catch (error) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+
         console.error('[ops-keepalive] falha ao encerrar PID ' + existingLock.pid + ': ' + (error instanceof Error ? error.message : String(error)));
       }
     }

@@ -188,7 +188,7 @@ export class OperationsActionService {
       });
       child.unref();
       this.closeSyncImpl(logFd);
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.writeFileSyncImpl(
         logFd,
         `[${this.now().toISOString()}] Falha ao iniciar acao: ${error?.message || error}${lineBreak}`,

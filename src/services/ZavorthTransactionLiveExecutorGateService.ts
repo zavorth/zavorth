@@ -528,7 +528,7 @@ function endpointHostFromManifest(manifest: ZavorthTransactionLiveExecutorAdapte
   }
   try {
     return new URL(url).host;
-  } catch (error: any) { logger.warn('[Zavorth Transaction Live Executor] process execution failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth Transaction Live Executor] process execution failed', error); return null; }
 }
 
 function buildResultId(text: string, now: Date): string {

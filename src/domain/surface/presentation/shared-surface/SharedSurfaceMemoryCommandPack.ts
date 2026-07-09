@@ -1,8 +1,6 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ZavorthLayeredMemoryService } from '../../../../services/ZavorthLayeredMemoryService.js';
-import type { ZavorthMemoryPlaneService } from '../../../../services/ZavorthMemoryPlaneService.js';
-
-export type NaturalMemoryCommandIntent = {
+import type { ZavorthMemoryPlaneService } from '../../../../services/ZavorthMemoryPlaneService.js';export type NaturalMemoryCommandIntent = {
   command: 'memory' | 'memoryplane';
   args: string;
   intro: string;
@@ -89,8 +87,7 @@ export class SharedSurfaceMemoryCommandPack {
       }
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(error?.message || 'Nao consegui montar o memory plane agora.');
+    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui montar o memory plane agora.');
     }
   }
 
@@ -162,8 +159,7 @@ export class SharedSurfaceMemoryCommandPack {
         `Episodica: ${status.summary.episodic} | semantica: ${status.summary.semantic} | procedural: ${status.summary.procedural}.`,
         `Budget por camada: ${status.budgets.perLayer}.`,
       ].join('\n'));
-    } catch (error: any) { const err = error; const e = error;
-      if (mode === 'status' && this.deps.memoryPlaneService) {
+    } catch (error: unknown) {if (mode === 'status' && this.deps.memoryPlaneService) {
         await this.handleMemoryPlane(ctx);
         return;
       }

@@ -1,6 +1,4 @@
-import type { JsonRecord } from "./coreTypes";
-
-export function toSnakeCase(str: string): string {
+import type { JsonRecord } from "./coreTypes";export function toSnakeCase(str: string): string {
   return str.replace(/([A-Z])/g, "_$1").toLowerCase();
 }
 
@@ -36,8 +34,7 @@ export function rowToCamel(row: unknown): JsonRecord | null {
     if (camelKey === "providerSpecificData" && typeof value === "string") {
       try {
         result[camelKey] = JSON.parse(value);
-      } catch (error: any) { const err = error; const e = error;
-        result[camelKey] = value;
+      } catch (error: unknown) {result[camelKey] = value;
       }
       continue;
     }

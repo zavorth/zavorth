@@ -1,3 +1,4 @@
+import { asErrorLike } from '../src/utils/errorLike';
 ﻿// Android Version script supports Zavorth repository automation.
 import { resolveAndroidVersion } from "./lib/android-version.ts";
 import { parseVersionQueryArgs } from "./lib/version-script-args.ts";
@@ -41,7 +42,8 @@ function main(argv = process.argv.slice(2)): number {
 
 try {
   process.exitCode = main();
-} catch (error) {
+} catch (error: unknown) {
+  const err = asErrorLike(error);
   process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 }

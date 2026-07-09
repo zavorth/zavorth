@@ -63,7 +63,7 @@ function parseVariables(value: unknown): string[] | null {
     const parsed = JSON.parse(value) as unknown;
     if (!Array.isArray(parsed)) return null;
     return parsed.filter((item): item is string => typeof item === "string");
-  } catch (error: any) { const err = error; const e = error; logger.warn('[prompts] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[prompts] JSON parse failed', error); return null; }
 }
 
 // ── Schema (auto-created on first access) ──
@@ -94,8 +94,7 @@ function ensureSchema(): void {
     const db = getDbInstance() as unknown as DbLike;
     db.exec(PROMPT_SCHEMA);
     _initialized = true;
-  } catch (error: any) { const err = error; const e = error;
-      // Schema creation is best-effort during build phase
+  } catch (error: unknown) {// Schema creation is best-effort during build phase
       logger.warn('[prompts] process execution failed', error);
     }
 }

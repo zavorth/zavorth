@@ -5,7 +5,6 @@ import {
 FirstRunPersonalizationService,
   type FirstRunPersonalizationAnswers,
 } from "../../../../../services/FirstRunPersonalizationService";
-
 function createService() {
   return new FirstRunPersonalizationService({ projectRoot: process.cwd() });
 }
@@ -16,7 +15,7 @@ export async function GET(request: Request) {
 
   try {
     return NextResponse.json(createService().getStatus());
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] creation failed', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to inspect personalization" },
@@ -35,7 +34,7 @@ export async function POST(request: Request) {
     const completeBootstrap = body.completeBootstrap === true;
     const result = createService().applyAnswers(answers, { completeBootstrap });
     return NextResponse.json(result);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] creation failed', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to save personalization" },

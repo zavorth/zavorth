@@ -181,7 +181,7 @@ export class GoalLoopStatusProjectionService {
         stateDbPath: this.stateDbPath,
         now: this.now,
       }).snapshot().goals;
-    } catch (error: any) { logger.warn('[Goal Loop Status Projection] creation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Goal Loop Status Projection] creation failed', error); return []; }
   }
 
   private readContinuationTasks(): TaskPlaneItem[] {
@@ -198,7 +198,7 @@ export class GoalLoopStatusProjectionService {
       return tasks
         .filter((task) => task.source === 'goal-loop')
         .filter((task) => normalize((task.payload || {}).kind) === 'goal-loop-continuation');
-    } catch (error: any) { logger.warn('[Goal Loop Status Projection] load operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Goal Loop Status Projection] load operation failed', error); return []; }
   }
 
   private readHeartbeat(): StoredHeartbeat | null {

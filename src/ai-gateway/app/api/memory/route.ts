@@ -6,6 +6,7 @@ import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 const createMemorySchema = z.object({
   content: z.string().min(1),
@@ -47,7 +48,8 @@ export async function GET(request: Request) {
       ),
     };
     return NextResponse.json({ memories, stats });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] parsing failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
@@ -66,7 +68,8 @@ export async function POST(request: Request) {
     }
     const memoryId = await createMemory(validation.data);
     return NextResponse.json({ success: true, id: memoryId });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] validation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 400 });

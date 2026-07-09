@@ -168,7 +168,7 @@ export class WebAppPolishContractService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch (error: any) { logger.warn('[Web App Polish Contract] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Web App Polish Contract] JSON parse failed', error); return null; }
   }
 
   private check(

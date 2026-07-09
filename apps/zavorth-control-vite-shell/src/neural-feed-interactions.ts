@@ -186,7 +186,7 @@ export function bindNeuralFeedInteractions(neuralFeed: HTMLElement | null, optio
         sessionId: traceButton.dataset.sessionId || '',
       };
       if (runtimeBridge && typeof runtimeBridge.openPersistentTrace === 'function') {
-        runtimeBridge.openPersistentTrace(query, window.ZavorthControlChat || {}).catch((error: any) => {
+        runtimeBridge.openPersistentTrace(query, window.ZavorthControlChat || {}).catch((error: unknown) => {
           window.emitSignal?.('error', 'Trace unavailable', error?.message || 'I could not open this run trace.');
         });
       } else {
@@ -203,7 +203,7 @@ export function bindNeuralFeedInteractions(neuralFeed: HTMLElement | null, optio
         runtimeBridge.openArtifact(id, {
           openArtifactPane: options.openArtifactPane,
           emitSignal: window.emitSignal,
-        }).catch((error: any) => {
+        }).catch((error: unknown) => {
           options.openArtifactPane('Artifact', `<div class="empty-state"><div class="empty-state__icon">Doc</div><div class="empty-state__title">Could not open</div><div class="empty-state__desc">${options.escapeHtml(error?.message || 'Try again.')}</div></div>`);
         });
       } else {
@@ -268,7 +268,7 @@ export function bindNeuralFeedInteractions(neuralFeed: HTMLElement | null, optio
             'The MCP rejected this remote action.',
           );
         })
-        .catch((error: any) => handleRemoteMeshFailure(
+        .catch((error: unknown) => handleRemoteMeshFailure(
           String(error?.message || 'Try again.'),
           card,
           remoteMeshButton,
@@ -323,7 +323,7 @@ export function bindNeuralFeedInteractions(neuralFeed: HTMLElement | null, optio
         renderApprovals: options.renderApprovals,
         renderTranscript: options.renderTranscript,
         emitSignal: window.emitSignal,
-      }).catch((error: any) => {
+      }).catch((error: unknown) => {
         card?.querySelectorAll('button').forEach((button: HTMLButtonElement) => {
           button.disabled = false;
         });

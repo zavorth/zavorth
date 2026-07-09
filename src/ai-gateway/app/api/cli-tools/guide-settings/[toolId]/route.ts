@@ -9,6 +9,7 @@ import { guideSettingsSaveSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike';
 
 /**
  * POST /api/cli-tools/guide-settings/:toolId
@@ -23,7 +24,7 @@ export async function POST(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     logger.warn('[route] encoding failed', error);
     return NextResponse.json(
       {
@@ -57,7 +58,7 @@ export async function POST(request, { params }) {
           { status: 400 }
         );
     }
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     logger.warn('[route] encoding failed', error);
     return NextResponse.json({ error: (error as any).message }, { status: 500 });
   }
@@ -80,7 +81,7 @@ async function saveContinueConfig({ baseUrl, apiKey, model }) {
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     existingConfig = JSON.parse(raw);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // No existing config or invalid JSON — start fresh
       logger.warn('[route] JSON parse failed', error);
     }
@@ -163,7 +164,7 @@ async function saveOpenCodeConfig({ baseUrl, apiKey, model }) {
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     existingConfig = JSON.parse(raw);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // File doesn't exist or invalid JSON — start fresh
       logger.warn('[route] JSON parse failed', error);
     }

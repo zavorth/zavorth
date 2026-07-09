@@ -3,9 +3,7 @@ import type {
   SessionCleanupReceipt,
   SessionOwnershipEventKind,
   SessionOwnershipRecord,
-} from './SessionOwnershipContract.js';
-
-type SessionRegistryServiceOptions = {
+} from './SessionOwnershipContract.js';type SessionRegistryServiceOptions = {
   now?: () => Date;
   idFactory?: (prefix: string) => string;
 };
@@ -181,8 +179,7 @@ function sanitizeMetadata(input: Record<string, unknown>): Record<string, unknow
   try {
     const parsed = JSON.parse(JSON.stringify(input || {}));
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-  } catch (error: any) { const err = error; const e = error;
-    return {};
+  } catch (error: unknown) {return {};
   }
 }
 

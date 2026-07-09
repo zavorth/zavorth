@@ -7,6 +7,7 @@ import {
 import type { ExecuteSmokeAction, SystemOverlordSmokeItem } from './smokeTypes.js';
 import type { SystemOverlordActionRecord } from '../../contracts/SystemOverlordContract.js';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike';
 
 async function inspectDockerRuntime(
   executeSmokeAction: ExecuteSmokeAction,
@@ -204,7 +205,9 @@ export async function runDockerSmoke(input: {
       if (containerProvisionedBySmoke) {
         try {
           await removeDockerProbeContainer(container, input.executeSmokeAction);
-        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          logger.warn("[auto-fix] Empty catch block", err); }
       }
     }
 
@@ -228,7 +231,9 @@ export async function runDockerSmoke(input: {
         if (!hasContainers) {
           await input.stopDockerDesktop();
         }
-      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn("[auto-fix] Empty catch block", err); }
     }
   }
 }

@@ -258,8 +258,7 @@ export class ZavorthPlatformCatalogSyncService {
         ok: true,
         ...this.readStatus(),
       };
-    } catch (error: any) {
-      const failed = this.persistFailure(error?.message || 'Falha ao sincronizar o registry remoto.');
+    } catch (error: unknown) {const failed = this.persistFailure(error?.message || 'Falha ao sincronizar o registry remoto.');
       return {
         ok: false,
         ...failed,
@@ -389,7 +388,7 @@ export class ZavorthPlatformCatalogSyncService {
       const httpAllowed = parsed.protocol === 'http:' && this.allowHttpHosts.includes(host);
       const hostAllowed = this.allowedHosts.length < 1 || this.allowedHosts.includes(host);
       return hostAllowed && (httpsAllowed || httpAllowed);
-    } catch (error: any) { logger.warn('[Zavorth Platform] network request failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Zavorth Platform] network request failed', error); return false; }
   }
 
   private normalizeCatalog(input: PlatformCatalogLike): Required<PlatformCatalogLike> {
@@ -415,7 +414,7 @@ export class ZavorthPlatformCatalogSyncService {
         return null;
       }
       return JSON.parse(this.readFileSync(this.statusFile, 'utf8')) as SyncStateFile;
-    } catch (error: any) { logger.warn('[Zavorth Platform] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Platform] JSON parse failed', error); return null; }
   }
 
   private writeJsonFile(targetFile: string, payload: unknown): void {

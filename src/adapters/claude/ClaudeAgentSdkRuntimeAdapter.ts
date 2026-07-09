@@ -7,7 +7,6 @@ import type {
 import { buildChildProcessEnv } from '../../security/ChildProcessEnv.js';
 import { ToolPolicyService } from '../../services/ToolPolicyService.js';
 import type { ZavorthToolPolicyAction } from '../../contracts/ToolPolicyContract.js';
-
 export type ClaudeAgentSdkCredentialRoute =
   | 'api-key'
   | 'bedrock'
@@ -428,7 +427,7 @@ export class ClaudeAgentSdkRuntimeAdapter {
           sessionId,
         } as unknown as Record<string, unknown> : {}),
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       attempts.push({
         providerName: PROVIDER_NAME,
         modelName,

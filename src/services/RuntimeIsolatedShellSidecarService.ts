@@ -122,8 +122,7 @@ export class RuntimeIsolatedShellSidecarService {
         startedAt,
       });
       return output;
-    } catch (error: any) {
-      this.recordShellBlock({
+    } catch (error: unknown) {this.recordShellBlock({
         command,
         auditId,
         policyLevel,
@@ -179,8 +178,7 @@ export class RuntimeIsolatedShellSidecarService {
           stderrBytes: Buffer.byteLength(result.stderr || '', 'utf8'),
         },
       });
-    } catch (error: any) {
-      // Receipts nao podem derrubar execucao ja isolada.
+    } catch (error: unknown) {// Receipts nao podem derrubar execucao ja isolada.
       logger.warn('[Runtime Isolated Shell Sidecar] process execution failed', error);
     }
   }
@@ -213,8 +211,7 @@ export class RuntimeIsolatedShellSidecarService {
           policyReason: input.policyReason,
         },
       });
-    } catch (error: any) {
-      // Receipts nao podem mascarar o erro original.
+    } catch (error: unknown) {// Receipts nao podem mascarar o erro original.
       logger.warn('[Runtime Isolated Shell Sidecar] lifecycle operation failed', error);
     }
   }

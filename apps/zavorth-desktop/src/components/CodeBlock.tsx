@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useRef, memo } from 'react';
 import hljs from 'highlight.js';
+import { sanitizeHighlightedHtml } from '../lib/safeHtml';
 
 interface CodeBlockProps {
   code: string;
@@ -22,9 +23,9 @@ export const CodeBlock = memo(function CodeBlock({ code, language, showLineNumbe
   const highlighted = useMemo(() => {
     try {
       if (language && hljs.getLanguage(language)) {
-        return hljs.highlight(code, { language }).value;
+        return sanitizeHighlightedHtml(hljs.highlight(code, { language }).value);
       }
-      return hljs.highlightAuto(code).value;
+      return sanitizeHighlightedHtml(hljs.highlightAuto(code).value);
     } catch {
       return escapeHtml(code);
     }

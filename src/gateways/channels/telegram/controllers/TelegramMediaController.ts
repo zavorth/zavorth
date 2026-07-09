@@ -19,6 +19,7 @@ import { EchoOutputStageService } from '@zavorth/services/EchoOutputStageService
 import { safeFetch } from '@zavorth/security/SafeFetchService.js';
 import { TelegramOpsInsightPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramOpsInsightPresentationService.js';
 import { wrapUntrustedContent } from '@zavorth/security/UntrustedContent.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type EchoPreferenceStoreLike = {
@@ -84,8 +85,7 @@ export class TelegramMediaController {
         transport: 'photo',
         requestedBy: userId,
       });
-    } catch (e: any) { const error = e; const err = e;
-      await ctx.reply(t('media.photo_analysis_failed', { error: getErrorMessage(e) }));
+    } catch (error: unknown) { const err = asErrorLike(error); await ctx.reply(t('media.photo_analysis_failed', { error: getErrorMessage(err) }));
     }
   }
 
@@ -148,7 +148,9 @@ export class TelegramMediaController {
       try {
         transcriptionResult = await this.transcribeVoice(filePath, durationSeconds);
         transcript = transcriptionResult.text;
-      } catch (transcriptionError: any) { const error = transcriptionError; const err = transcriptionError; const e = transcriptionError;
+      } catch (transcriptionError: unknown) {
+        const err = asErrorLike(transcriptionError);
+        const error = err;
         const message = getErrorMessage(transcriptionError);
         transcriptWarning = message
           ? t('media.transcription_unavailable_detail', { error: message })
@@ -259,8 +261,7 @@ export class TelegramMediaController {
         totalMs: Date.now() - flowStartedAt,
       });
       logger.info(`[TelegramMedia] voice flow dispatched totalMs=${Date.now() - flowStartedAt}`);
-    } catch (e: any) { const error = e; const err = e;
-      if (isCapabilityUnavailableError(e)) {
+    } catch (error: unknown) { const err = asErrorLike(error); if (isCapabilityUnavailableError(err)) {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           e,
           userId,
@@ -306,8 +307,7 @@ export class TelegramMediaController {
         'media',
         `media flow used by ${userId} via Telegram video`,
       );
-    } catch (e: any) { const error = e; const err = e;
-      if (isCapabilityUnavailableError(e)) {
+    } catch (error: unknown) { const err = asErrorLike(error); if (isCapabilityUnavailableError(err)) {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           e,
           userId,
@@ -416,8 +416,7 @@ export class TelegramMediaController {
           `media flow used by ${userId} via Telegram PDF`,
         );
       }
-    } catch (e: any) { const error = e; const err = e;
-      if (isCapabilityUnavailableError(e)) {
+    } catch (error: unknown) { const err = asErrorLike(error); if (isCapabilityUnavailableError(err)) {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           e,
           userId,
@@ -834,8 +833,7 @@ export class TelegramMediaController {
         });
       }
       return result.delivered === 'voice';
-    } catch (error: any) { const err = error; const e = error;
-      const message = getErrorMessage(error);
+    } catch (error: unknown) {const message = getErrorMessage(error);
       logger.warn(`[TelegramMedia] Security Echo failed for low-confidence audio: ${message}`);
       return false;
     }

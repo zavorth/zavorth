@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import path from 'path';
 import { DiagnosticsExporterService } from '../src/services/DiagnosticsExporterService.js';
@@ -40,7 +41,9 @@ async function main() {
     console.log(`[zavorth-ops] Logs gathered: ${report.logs.length}`);
     console.log(`[zavorth-ops] Exported at: ${report.exportedAt}`);
     process.exit(0);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     console.error(`[zavorth-ops] Failed to export diagnostics: ${error?.message || String(error)}`);
     process.exit(1);
   }

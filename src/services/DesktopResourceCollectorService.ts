@@ -117,14 +117,12 @@ $processes = Get-Process | ForEach-Object {
   $startTime = $null
   try {
     $startTime = $_.StartTime.ToString('o')
-  } catch (error: any) {
-    $startTime = $null
+  } catch (error: unknown) {$startTime = $null
   }
   $responding = $null
   try {
     $responding = [bool]$_.Responding
-  } catch (error: any) {
-    $responding = $null
+  } catch (error: unknown) {$responding = $null
   }
   [PSCustomObject]@{
     pid = $_.Id
@@ -165,8 +163,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
     try {
       const stdout = await this.exec(this.powershellPath, ['-NoProfile', '-Command', script], { timeoutMs: 30_000 });
       return JSON.parse(stdout) as RawProcessReport;
-    } catch (error: any) {
-      const totalVisibleMemoryMb = this.round(os.totalmem() / 1024 / 1024);
+    } catch (error: unknown) {const totalVisibleMemoryMb = this.round(os.totalmem() / 1024 / 1024);
       const freePhysicalMemoryMb = this.round(os.freemem() / 1024 / 1024);
       return {
         generatedAt: this.now().toISOString(),
@@ -199,8 +196,8 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
             }))
           : [],
       };
-    } catch (error: any) {
-    logger.warn('[Desktop Resource Collector] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Desktop Resource Collector] filesystem check failed', error);
     return {
         ok: false,
         message: `Falha ao coletar WSL: ${error instanceof Error ? error.message : String(error)}`,
@@ -228,8 +225,8 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
         contextName: String(contextOutput || '').trim() || null,
         warnings: [],
       };
-    } catch (error: any) {
-    logger.warn('[Desktop Resource Collector] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Desktop Resource Collector] filesystem check failed', error);
     return {
         detected: false,
         status: 'unavailable',

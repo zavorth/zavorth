@@ -1,6 +1,4 @@
-import fs from 'fs';
-
-import {
+import fs from 'fs';import {
   type EchoSpeechCostEstimator,
   type EchoSpeechSynthesisProvider,
   type EchoVoiceTelemetryInput,
@@ -181,8 +179,7 @@ export class EchoSpeechSynthesisService {
         outputBytes: detailed.outputBytes,
         traceId,
       };
-    } catch (error: any) { const err = error; const e = error;
-      await this.recordVoiceFailure({
+    } catch (error: unknown) {await this.recordVoiceFailure({
         traceId,
         surface,
         provider: 'gemini',

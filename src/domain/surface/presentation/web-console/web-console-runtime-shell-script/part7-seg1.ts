@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../utils/errorLike';
 export const runtimeShellScriptPart7Seg1: string = [
     "    return;",
     "  }",
@@ -11,7 +12,7 @@ export const runtimeShellScriptPart7Seg1: string = [
     "    setJourneyActionStatus('Atualizando manifesto, journey e remoto deste host...');",
     "    await refreshProtectedShellState(token);",
     "    setJourneyActionStatus('Host atualizado com sucesso.');",
-    "  } catch (error: any) { const err = error; const e = error;",
+    "  } catch (error: unknown) { const err = asErrorLike(error); const e = err;",
     "    setJourneyActionStatus(error instanceof Error ? error.message : String(error));",
     "  } finally {",
     "    for (const button of buttons) {",
@@ -430,7 +431,7 @@ export const runtimeShellScriptPart7Seg1: string = [
     "",
     "    await refreshProtectedShellState(token);",
     "    setText(authCopy, 'Token validado. Manifesto, journey e acesso remoto oficial carregados.');",
-    "  } catch (error: any) { const err = error; const e = error;",
+    "  } catch (error: unknown) { const err = asErrorLike(error); const e = err;",
     "    writeStoredToken('');",
     "    protectedShellUnlocked = false;",
     "    closeGatewayControlSocket('Token necessario');",

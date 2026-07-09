@@ -420,8 +420,7 @@ export class WebAppService {
       ) {
         return true;
       }
-    } catch (error: any) {
-      const message = error?.message || 'Falha interna ao processar a rota web.';
+    } catch (error: unknown) {const message = error?.message || 'Falha interna ao processar a rota web.';
       if (!res.headersSent) {
         this.composition.runtimeContextBridge.writeJson(res, { ok: false, error: message }, 500);
         return true;

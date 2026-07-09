@@ -210,7 +210,7 @@ export function scaffoldChannel(
       ],
       success: true,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     return { files: [], success: false };
   }
 }

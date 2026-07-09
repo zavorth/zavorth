@@ -4,7 +4,6 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as os from 'os';
 import { logger } from '../../../logger.js';
-
 const execAsync = promisify(exec);
 
 /**
@@ -61,8 +60,8 @@ export class SystemInfoTool implements IZavorthTool {
                 message: summary,
                 data,
             };
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[System Info] creation failed', error);
+        } catch (error: unknown) {
+          logger.warn('[System Info] creation failed', error);
     return {
                 success: false,
                 error: `Failed to get system information: ${error.message}`,
@@ -119,8 +118,7 @@ export class SystemInfoTool implements IZavorthTool {
             );
             const drives = JSON.parse(stdout.trim());
             return Array.isArray(drives) ? drives : [drives];
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[System Info] JSON parse failed', error);
+        } catch (error: unknown) {logger.warn('[System Info] JSON parse failed', error);
     return [{ error: 'Could not get disk information.' }];
   }
     }
@@ -144,8 +142,7 @@ export class SystemInfoTool implements IZavorthTool {
                 charge_percent: charge,
                 status: statusMap[parsed.BatteryStatus] || 'unknown',
             };
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[System Info] parsing failed', error);
+        } catch (error: unknown) {logger.warn('[System Info] parsing failed', error);
     return { charge_percent: null, status: 'no battery detected' };
   }
     }
@@ -160,8 +157,7 @@ export class SystemInfoTool implements IZavorthTool {
             );
             const procs = JSON.parse(stdout.trim());
             return Array.isArray(procs) ? procs : [procs];
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[System Info] JSON parse failed', error);
+        } catch (error: unknown) {logger.warn('[System Info] JSON parse failed', error);
     return [{ error: 'Could not list processes.' }];
   }
     }

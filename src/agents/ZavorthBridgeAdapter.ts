@@ -3,7 +3,6 @@ import { Plan } from '../contracts/PlanContract.js';
 import { Task } from '../contracts/TaskContract.js';
 import { config } from '../config/index.js';
 import { StructuredPlanner } from './StructuredPlanner.js';
-
 export class ZavorthBridgeAdapter {
   private planner: StructuredPlanner;
   private logRepo: any;
@@ -29,7 +28,7 @@ export class ZavorthBridgeAdapter {
       }
 
       return result.plan;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (this.logRepo) {
         this.logRepo.log('error', 'ZavorthBridgeAdapter', `Erro no planner: ${error.message}`);
       }

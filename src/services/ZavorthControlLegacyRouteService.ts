@@ -261,7 +261,7 @@ export class ZavorthControlLegacyRouteService {
           body.content as string,
         );
         deps.writeJson(res, { ok: true, snippet }, 200);
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
@@ -277,7 +277,7 @@ export class ZavorthControlLegacyRouteService {
           body.name as string,
         );
         deps.writeJson(res, { ok }, 200);
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
@@ -305,7 +305,7 @@ export class ZavorthControlLegacyRouteService {
           },
           200,
         );
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         deps.writeJson(res, { error: message }, 500);
       }

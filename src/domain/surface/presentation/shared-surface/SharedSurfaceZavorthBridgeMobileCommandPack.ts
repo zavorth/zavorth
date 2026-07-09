@@ -2,9 +2,7 @@ import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type {
   ZavorthBridgeMobileAccessResult,
   ZavorthBridgeMobileAccessService,
-} from '../../../../services/ZavorthBridgeMobileAccessService.js';
-
-type ZavorthBridgeMobileAccessLike = Pick<ZavorthBridgeMobileAccessService, 'start' | 'status' | 'guide' | 'stop'>;
+} from '../../../../services/ZavorthBridgeMobileAccessService.js';type ZavorthBridgeMobileAccessLike = Pick<ZavorthBridgeMobileAccessService, 'start' | 'status' | 'guide' | 'stop'>;
 
 type SharedSurfaceZavorthBridgeMobileCommandPackDeps = {
   accessService: ZavorthBridgeMobileAccessLike;
@@ -64,8 +62,7 @@ export class SharedSurfaceZavorthBridgeMobileCommandPack {
       }
 
       await ctx.reply(this.formatReply(result));
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(error?.message || 'Nao consegui preparar o ZavorthBridge para uso no celular agora.');
+    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui preparar o ZavorthBridge para uso no celular agora.');
     }
   }
 

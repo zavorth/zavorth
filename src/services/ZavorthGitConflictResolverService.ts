@@ -1,6 +1,7 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export interface MergeResult {
   success: boolean;
@@ -35,7 +36,7 @@ export class ZavorthGitConflictResolverService {
 
       logger.info(`[Git Conflict Resolver] Merge completed successfully (no conflicts).`);
       return { success: true, conflictFiles: [], output: stdout };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const output = error.stdout?.toString() || error.message || '';
       logger.warn(`[Git Conflict Resolver] Merge failed or encountered conflicts: ${output}`);
 
@@ -60,7 +61,8 @@ export class ZavorthGitConflictResolverService {
         encoding: 'utf8',
       });
       return stdout.split('\n').map((f) => f.trim()).filter(Boolean);
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.error(`[Git Conflict Resolver] Failed to check conflict files: ${err}`);
       return [];
     }
@@ -96,7 +98,8 @@ export class ZavorthGitConflictResolverService {
 
       logger.info(`[Git Conflict Resolver] Resolved and staged ${filePath}.`);
       return true;
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.error(`[Git Conflict Resolver] Failed to resolve conflict for ${filePath}: ${err}`);
       return false;
     }
@@ -114,7 +117,8 @@ export class ZavorthGitConflictResolverService {
       });
       logger.info('[Git Conflict Resolver] Merge commit finalized.');
       return true;
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.error(`[Git Conflict Resolver] Failed to finalize merge commit: ${err}`);
       return false;
     }
@@ -131,7 +135,8 @@ export class ZavorthGitConflictResolverService {
         stdio: 'ignore',
       });
       return true;
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.error(`[Git Conflict Resolver] Failed to abort merge: ${err}`);
       return false;
     }

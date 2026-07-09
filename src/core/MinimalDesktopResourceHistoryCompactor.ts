@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-
 type JsonObject = Record<string, unknown>;
 
 export type MinimalDesktopResourceHistoryCompactionPolicy = {
@@ -135,7 +134,7 @@ export class MinimalDesktopResourceHistoryCompactor {
         message: `Desktop resource history compacted to ${prepared.plan.currentSnapshots} snapshots; ${prepared.plan.keptFullSnapshots} recent snapshots kept full.`,
         reason: 'desktop-resource-history-compacted',
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         ...prepared.plan,
         status: 'skipped',
@@ -259,7 +258,7 @@ export class MinimalDesktopResourceHistoryCompactor {
       }
       try {
         objects.push(JSON.parse(trimmed));
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         errors.push({
           line: index + 1,
           reason: error instanceof Error ? error.message : String(error),

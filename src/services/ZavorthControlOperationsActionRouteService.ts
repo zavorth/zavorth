@@ -60,7 +60,7 @@ export class ZavorthControlOperationsActionRouteService {
         },
         execution.status === 'started' ? 202 : 500,
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       deps.writeJson(res, { ok: false, error: error?.message || String(error) }, 400);
     }
 

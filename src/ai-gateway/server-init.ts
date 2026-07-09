@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 // Server startup script
 import initializeCloudSync from "./shared/services/initializeCloudSync";
 import { enforceSecrets } from "./shared/utils/secretsValidator";
@@ -19,7 +20,8 @@ async function startServer() {
   try {
     initAuditLog();
     logger.info("[COMPLIANCE] Audit log table initialized");
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn("[COMPLIANCE] Could not initialize audit log:", err.message);
   }
 
@@ -36,7 +38,8 @@ async function startServer() {
     ) {
       logger.info("[COMPLIANCE] Expired log cleanup:", cleanup);
     }
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn("[COMPLIANCE] Log cleanup failed:", err.message);
   }
 
@@ -49,8 +52,7 @@ async function startServer() {
 
     // Log server start event to audit log
     logAuditEvent({ action: "server.start", details: { timestamp: new Date().toISOString() } });
-  } catch (error: any) { const err = error; const e = error;
-    logger.error("[FATAL] Error initializing cloud sync:", error);
+  } catch (error: unknown) {logger.error("[FATAL] Error initializing cloud sync:", error);
     process.exit(1);
   }
 
@@ -59,7 +61,8 @@ async function startServer() {
     try {
       const { initPricingSync } = await import("./lib/pricingSync");
       await initPricingSync();
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn(
         "[PRICING_SYNC] Could not initialize:",
         err instanceof Error ? err.message : err

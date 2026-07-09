@@ -96,8 +96,8 @@ export class ZavorthMemoryGraphTool extends BaseTool {
   private loadGraph(): void {
     const nodesPath = path.join(this.storageDir, 'nodes.json');
     const edgesPath = path.join(this.storageDir, 'edges.json');
-    try { if (fs.existsSync(nodesPath)) { const d = JSON.parse(fs.readFileSync(nodesPath, 'utf-8')); this.nodes = new Map(Object.entries(d)); } } catch (error: any) { /* ignore */ logger.warn('[Zavorth Memory Graph] JSON parse failed', error); }
-    try { if (fs.existsSync(edgesPath)) this.edges = JSON.parse(fs.readFileSync(edgesPath, 'utf-8')); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Memory Graph] JSON parse failed', error); }
+    try { if (fs.existsSync(nodesPath)) { const d = JSON.parse(fs.readFileSync(nodesPath, 'utf-8')); this.nodes = new Map(Object.entries(d)); } } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Memory Graph] JSON parse failed', error); }
+    try { if (fs.existsSync(edgesPath)) this.edges = JSON.parse(fs.readFileSync(edgesPath, 'utf-8')); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Memory Graph] JSON parse failed', error); }
   }
 
   private saveGraph(): void {

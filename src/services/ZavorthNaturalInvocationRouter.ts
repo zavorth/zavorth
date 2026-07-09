@@ -582,7 +582,7 @@ Examples:
       approvalReason: risky ? 'LLM-classified intent involves potentially risky operations.' : null,
       risky,
     });
-  } catch (error: any) { logger.warn('[Zavorth Natural Invocation r] parsing failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth Natural Invocation r] parsing failed', error); return null; }
 }
 
 function base(input: {

@@ -7,9 +7,7 @@ import {
   StitchPersistArtifactsInput,
   StitchPersistArtifactsResult,
 } from './stitchExecutorTypes.js';
-import { safeFetch } from '../../security/SafeFetchService.js';
-
-export function resolveStitchProjectId(project: any): string {
+import { safeFetch } from '../../security/SafeFetchService.js';export function resolveStitchProjectId(project: any): string {
   return String(project?.projectId || project?.id || project?.name || '')
     .replace(/^projects\//, '')
     .trim();
@@ -205,8 +203,7 @@ export function resolveStitchArtifactExtension(mimeType: string, artifactUrl: st
   const pathname = (() => {
     try {
       return new URL(artifactUrl).pathname;
-    } catch (error: any) { const err = error; const e = error;
-      return '';
+    } catch (error: unknown) {return '';
     }
   })();
 

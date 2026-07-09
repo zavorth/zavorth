@@ -13,9 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../../logger.js';
 
-// ============================================================================
 // Types
-// ============================================================================
 
 export interface TrustedSource {
   /** Unique identifier */
@@ -66,9 +64,7 @@ export interface ApprovalAuditEntry {
   user?: string;
 }
 
-// ============================================================================
 // Default Trusted Sources
-// ============================================================================
 
 const DEFAULT_TRUSTED_SOURCES: TrustedSource[] = [
   // Zavorth official
@@ -109,9 +105,7 @@ const DEFAULT_TRUSTED_SOURCES: TrustedSource[] = [
   },
 ];
 
-// ============================================================================
 // Risk Level Order
-// ============================================================================
 
 const RISK_ORDER: Record<string, number> = {
   low: 0,
@@ -119,9 +113,7 @@ const RISK_ORDER: Record<string, number> = {
   high: 2,
 };
 
-// ============================================================================
 // Main Service
-// ============================================================================
 
 export class SkillAutoApproval {
   private readonly trustedSources: Map<string, TrustedSource> = new Map();
@@ -140,9 +132,7 @@ export class SkillAutoApproval {
     this.loadPersistedSources();
   }
 
-  // -------------------------------------------------------------------------
   // Source Management
-  // -------------------------------------------------------------------------
 
   /**
    * Add a trusted source.
@@ -172,9 +162,7 @@ export class SkillAutoApproval {
     return Array.from(this.trustedSources.values());
   }
 
-  // -------------------------------------------------------------------------
   // Approval Logic
-  // -------------------------------------------------------------------------
 
   /**
    * Evaluate whether a skill should be auto-approved.
@@ -274,9 +262,7 @@ export class SkillAutoApproval {
     return decision;
   }
 
-  // -------------------------------------------------------------------------
   // Matching Logic
-  // -------------------------------------------------------------------------
 
   private matchesSource(
     skillInfo: { sourceUrl: string; publisher?: string },
@@ -386,9 +372,7 @@ export class SkillAutoApproval {
     }
   }
 
-  // -------------------------------------------------------------------------
   // Audit
-  // -------------------------------------------------------------------------
 
   private recordAudit(
     skillId: string,
@@ -420,9 +404,7 @@ export class SkillAutoApproval {
     return [...this.auditLog];
   }
 
-  // -------------------------------------------------------------------------
   // Persistence
-  // -------------------------------------------------------------------------
 
   private persistSources(): void {
     try {
@@ -437,7 +419,7 @@ export class SkillAutoApproval {
         JSON.stringify(sources, null, 2),
         'utf-8'
       );
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('[SkillAutoApproval] Failed to persist sources:', error);
     }
   }
@@ -452,7 +434,7 @@ export class SkillAutoApproval {
         }
         logger.info(`[SkillAutoApproval] Loaded ${sources.length} persisted trusted sources`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('[SkillAutoApproval] Failed to load persisted sources:', error);
     }
   }
@@ -467,7 +449,7 @@ export class SkillAutoApproval {
       const logPath = path.join(dir, 'approval-audit.log');
       const line = JSON.stringify(entry) + '\n';
       fs.appendFileSync(logPath, line, 'utf-8');
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('[SkillAutoApproval] Failed to persist audit entry:', error);
     }
   }

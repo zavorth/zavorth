@@ -15,8 +15,7 @@ export class ZavorthPolicyCompilerService {
         hardBlocksPreserved: true,
         error: null,
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth  Compiler] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth  Compiler] parsing failed', error);
     return {
         source: 'ZavorthPolicyCompilerService',
         status: 'blocked',

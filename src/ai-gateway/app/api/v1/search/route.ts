@@ -21,6 +21,7 @@ import {
   getOrCoalesce,
   SEARCH_CACHE_DEFAULT_TTL_MS,
 } from "@ZavorthGateway/open-sse/services/searchCache.ts";
+import { asErrorLike } from '../../../../../utils/errorLike';
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": CORS_ORIGIN,
@@ -86,8 +87,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    log.warn("SEARCH", "Invalid JSON body");
+  } catch (error: unknown) {log.warn("SEARCH", "Invalid JSON body");
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
 
@@ -228,8 +228,7 @@ export async function POST(request: Request) {
     if (!cached && policy.apiKeyInfo?.id && searchResult.usage?.search_cost_usd > 0) {
       try {
         recordCost(policy.apiKeyInfo.id, searchResult.usage.search_cost_usd);
-      } catch (e: any) { const error = e; const err = e;
-        log.warn("SEARCH", `Cost recording failed: ${e?.message}`);
+      } catch (error: unknown) { const err = asErrorLike(error); log.warn("SEARCH", `Cost recording failed: ${err?.message}`);
       }
     }
 
@@ -244,7 +243,8 @@ export async function POST(request: Request) {
       status: 200,
       headers: { "Content-Type": "application/json", ...CORS_HEADERS },
     });
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     if (err instanceof SearchError) {
       const errorPayload = toJsonErrorPayload(err.message, "Search provider error");
       return new Response(JSON.stringify(errorPayload), {

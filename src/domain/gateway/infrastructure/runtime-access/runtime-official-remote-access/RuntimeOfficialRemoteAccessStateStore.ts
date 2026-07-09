@@ -4,9 +4,7 @@ import { logger } from '../../../../../logger';
 import {
 EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE,
   type RuntimeOfficialRemotePersistedState,
-} from './RuntimeOfficialRemoteAccessTypes.js';
-
-type RuntimeOfficialRemoteAccessStateStoreDeps = {
+} from './RuntimeOfficialRemoteAccessTypes.js';type RuntimeOfficialRemoteAccessStateStoreDeps = {
   stateFilePath: string;
   existsSync: typeof fs.existsSync;
   readFileSync: typeof fs.readFileSync;
@@ -58,8 +56,7 @@ export class RuntimeOfficialRemoteAccessStateStore {
         ...EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE,
         ...(parsed as Partial<RuntimeOfficialRemotePersistedState>),
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Runtime Official Remote Access State Store] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Runtime Official Remote Access State Store] JSON parse failed', error);
     return { ...EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE };
   }
   }

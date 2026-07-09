@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -342,7 +343,8 @@ function run(command: string, commandArgs: string[], timeoutMs = 3000): CommandR
       error: result.error ? redact(result.error.message) : null,
       timedOut: Boolean(result.error && result.error.message.toLowerCase().includes('timed out')),
     };
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     return {
       command: commandLabel,
       exitCode: null,

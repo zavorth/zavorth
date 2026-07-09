@@ -79,8 +79,7 @@ export class ProfileSelectionPreferenceService {
       if (parsed?.contractVersion === 'ExperienceProfileSelectionPreferences/v1' && parsed.preferences && typeof parsed.preferences === 'object') {
         return parsed;
       }
-    } catch (error: any) {
-      // Missing or invalid state should not block profile selection.
+    } catch (error: unknown) {// Missing or invalid state should not block profile selection.
       logger.warn('[Profile Selection Preference] JSON parse failed', error);
     }
     return {

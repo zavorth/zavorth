@@ -2,7 +2,6 @@ import path from 'path';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
 import { config } from '../../config/index.js';
 import type { Task } from '../../contracts/TaskContract.js';
-
 export type RealZavorthBridgeWatcherCompanionSupportHost = {
   logRepo: { log(level: string, source: string, message: string, meta?: Record<string, any>): void };
   bridgeManager: {
@@ -84,7 +83,7 @@ export class RealZavorthBridgeWatcherCompanionSupport {
         reason,
         action: session.lastAutomationAction,
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.host.logRepo.log('warn', 'RealZavorthBridgeWatcher', `ZavorthBridge window automation failed: ${error.message}`, {
         taskId: session.taskId,
         reason,

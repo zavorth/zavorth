@@ -418,8 +418,7 @@ export class SchedulerService {
             lastFailureAt: null,
             consecutiveFailures: 0,
           });
-        } catch (error: any) {
-          const consecutiveFailures = Number(task.consecutive_failures || 0) + 1;
+        } catch (error: unknown) {const consecutiveFailures = Number(task.consecutive_failures || 0) + 1;
           const shouldAutoPause = consecutiveFailures >= runtime.guardrails.autoPauseAfterConsecutiveFailures;
           this.repo.updateLastRun(task.id, {
             lastRun: now.toISOString(),
@@ -447,8 +446,7 @@ export class SchedulerService {
           this.runningTaskIds.delete(task.id);
         }
       }
-    } catch (error: any) {
-      logger.error('Erro no tick do SchedulerService:', error);
+    } catch (error: unknown) {logger.error('Erro no tick do SchedulerService:', error);
     }
   }
 
@@ -627,7 +625,7 @@ export class SchedulerService {
     try {
       const parsed = JSON.parse(String(rawValue || '{}'));
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-    } catch (error: any) { logger.warn('[SchedulerService] JSON parse failed', error); return {}; }
+    } catch (error: unknown) {logger.warn('[SchedulerService] JSON parse failed', error); return {}; }
   }
 
   private toBoundedNumber(value: unknown, fallback: number, min: number, max: number): number {

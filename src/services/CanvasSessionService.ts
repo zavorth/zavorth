@@ -332,8 +332,7 @@ export class CanvasSessionService {
           content: fs.readFileSync(absolutePath, 'utf8'),
           mimeType: mimeForSnapshot(relativePath),
         });
-      } catch (error: any) {
-      // The sandbox may report a touched file that was removed by a failed attempt.
+      } catch (error: unknown) {// The sandbox may report a touched file that was removed by a failed attempt.
       logger.warn('[Canvas Session] filesystem operation failed', error);
     }
     }

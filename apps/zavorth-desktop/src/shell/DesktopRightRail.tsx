@@ -23,6 +23,7 @@ import {
   setAgentActivity,
   type TerminalTab,
 } from './terminalTabs';
+import { asErrorLike } from '../lib/errors';
 
 export function DesktopRightRail(props: {
   activePanel: DesktopPanel;
@@ -406,7 +407,8 @@ function GitRailPanel(props: {
         ...nextSnapshot,
         summary: result.data?.snapshot?.summary || nextSnapshot.summary,
       });
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setError(err instanceof Error ? err.message : 'Could not inspect Git status.');
     } finally {
       setLoading(false);

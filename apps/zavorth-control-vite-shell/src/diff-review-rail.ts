@@ -3,6 +3,9 @@
  * Pure DOM — no React, no desktop imports.
  */
 
+import { translate, translateCount } from './locale';
+import { openTrustRailSheet } from './trust-rail-mobile';
+
 export type DiffHunkStatus = 'pending' | 'approved' | 'rejected';
 export type HunkDecision = 'approve' | 'reject';
 
@@ -226,16 +229,21 @@ function dispatchDecision(detail: DiffDecisionDetail) {
 
   const label =
     detail.decision === 'approve-all'
-      ? 'All pending hunks approved'
+      ? translate('All pending hunks approved')
       : detail.decision === 'approve'
-        ? 'Hunk approved'
-        : 'Hunk rejected';
+        ? translate('Hunk approved')
+        : translate('Hunk rejected');
+  const summaryLine = [
+    translateCount('1 approved', '{n} approved', detail.summary.approved),
+    translateCount('1 rejected', '{n} rejected', detail.summary.rejected),
+    translateCount('1 pending', '{n} pending', detail.summary.pending),
+  ].join(' · ');
   emitToast(
     detail.decision === 'reject' ? 'info' : 'success',
     label,
     detail.hunkId
       ? `${detail.filePath} · ${detail.header}`
-      : `${detail.summary.approved} approved · ${detail.summary.rejected} rejected · ${detail.summary.pending} pending`,
+      : summaryLine,
   );
 }
 
@@ -254,7 +262,11 @@ function renderLine(line: string) {
 function renderHunkCard(hunk: DiffHunk) {
   const pending = hunk.status === 'pending';
   const statusLabel =
-    hunk.status === 'approved' ? 'Approved' : hunk.status === 'rejected' ? 'Rejected' : 'Pending';
+    hunk.status === 'approved'
+      ? translate('Approved')
+      : hunk.status === 'rejected'
+        ? translate('Rejected')
+        : translate('Pending');
   const statusClass =
     hunk.status === 'approved'
       ? 'diff-hunk--approved'
@@ -263,7 +275,8 @@ function renderHunkCard(hunk: DiffHunk) {
         : 'diff-hunk--pending';
   const approvePrompt = draftDecisionPrompt('approve', hunk, activeMeta);
   const rejectPrompt = draftDecisionPrompt('reject', hunk, activeMeta);
-  const body = hunk.lines.map(renderLine).join('') || `<div class="diff-line diff-line--meta"><code>(empty hunk)</code></div>`;
+  const body = hunk.lines.map(renderLine).join('')
+    || `<div class="diff-line diff-line--meta"><code>${escapeHtml(translate('(empty hunk)'))}</code></div>`;
 
   return `
     <article class="diff-hunk ${statusClass}" data-hunk-id="${escapeHtml(hunk.id)}" data-hunk-status="${hunk.status}">
@@ -275,10 +288,10 @@ function renderHunkCard(hunk: DiffHunk) {
         <div class="diff-hunk__stats">
           <span class="diff-hunk__add">+${hunk.addedLines}</span>
           <span class="diff-hunk__del">−${hunk.removedLines}</span>
-          <span class="diff-hunk__status" data-hunk-status-label>${statusLabel}</span>
+          <span class="diff-hunk__status" data-hunk-status-label>${escapeHtml(statusLabel)}</span>
         </div>
       </header>
-      <div class="diff-hunk__body" role="region" aria-label="Hunk lines">
+      <div class="diff-hunk__body" role="region" aria-label="${escapeHtml(translate('Hunk lines'))}">
         ${body}
       </div>
       <footer class="diff-hunk__actions">
@@ -289,7 +302,7 @@ function renderHunkCard(hunk: DiffHunk) {
           data-hunk-id="${escapeHtml(hunk.id)}"
           data-prompt="${escapeHtml(rejectPrompt)}"
           ${pending ? '' : 'disabled'}
-        >Reject hunk</button>
+        >${escapeHtml(translate('Reject hunk'))}</button>
         <button
           type="button"
           class="diff-hunk__btn diff-hunk__btn--approve"
@@ -297,7 +310,7 @@ function renderHunkCard(hunk: DiffHunk) {
           data-hunk-id="${escapeHtml(hunk.id)}"
           data-prompt="${escapeHtml(approvePrompt)}"
           ${pending ? '' : 'disabled'}
-        >Approve hunk</button>
+        >${escapeHtml(translate('Approve hunk'))}</button>
       </footer>
     </article>
   `;
@@ -305,7 +318,7 @@ function renderHunkCard(hunk: DiffHunk) {
 
 function renderRailHtml() {
   const summary = summarizeHunkDecisions(hunks);
-  const title = activeMeta.title || activeMeta.file || 'Diff review';
+  const title = activeMeta.title || activeMeta.file || translate('Diff review');
   const fileLine = activeMeta.file
     ? `<div class="diff-review-rail__file">${escapeHtml(activeMeta.file)}</div>`
     : '';
@@ -316,14 +329,14 @@ function renderRailHtml() {
     return `
       <div class="diff-review-rail__toolbar">
         <div class="diff-review-rail__heading">
-          <span class="diff-review-rail__eyebrow">Trust rail</span>
+          <span class="diff-review-rail__eyebrow">${escapeHtml(translate('Trust rail'))}</span>
           <strong class="diff-review-rail__title">${escapeHtml(title)}</strong>
           ${fileLine}
         </div>
       </div>
       <div class="diff-review-rail__empty" data-diff-empty>
-        <div class="diff-review-rail__empty-title">No pending diff</div>
-        <div class="diff-review-rail__empty-desc">Open a patch or artifact with unified-diff text to review hunks here.</div>
+        <div class="diff-review-rail__empty-title">${escapeHtml(translate('No pending diff'))}</div>
+        <div class="diff-review-rail__empty-desc">${escapeHtml(translate('Open a patch or artifact with unified-diff text to review hunks here.'))}</div>
       </div>
     `;
   }
@@ -331,14 +344,14 @@ function renderRailHtml() {
   return `
     <div class="diff-review-rail__toolbar">
       <div class="diff-review-rail__heading">
-        <span class="diff-review-rail__eyebrow">Trust rail</span>
+        <span class="diff-review-rail__eyebrow">${escapeHtml(translate('Trust rail'))}</span>
         <strong class="diff-review-rail__title">${escapeHtml(title)}</strong>
         ${fileLine}
         <div class="diff-review-rail__summary">
-          <span>${summary.total} hunk${summary.total === 1 ? '' : 's'}</span>
-          <span data-diff-pending-count>${pending} pending</span>
-          <span>${summary.approved} approved</span>
-          <span>${summary.rejected} rejected</span>
+          <span>${escapeHtml(translateCount('1 hunk', '{n} hunks', summary.total))}</span>
+          <span data-diff-pending-count>${escapeHtml(translateCount('1 pending', '{n} pending', pending))}</span>
+          <span>${escapeHtml(translateCount('1 approved', '{n} approved', summary.approved))}</span>
+          <span>${escapeHtml(translateCount('1 rejected', '{n} rejected', summary.rejected))}</span>
         </div>
       </div>
       <div class="diff-review-rail__toolbar-actions">
@@ -348,7 +361,7 @@ function renderRailHtml() {
           data-diff-hunk-action="approve-all"
           data-prompt="${escapeHtml(approveAllPrompt)}"
           ${pending === 0 ? 'disabled' : ''}
-        >Approve all pending</button>
+        >${escapeHtml(translate('Approve all pending'))}</button>
       </div>
     </div>
     <div class="diff-review-rail__list">
@@ -420,7 +433,7 @@ function ensureRailMount(): HTMLElement | null {
     existing.id = 'trust-diff-rail';
     existing.className = 'diff-review-rail';
     existing.setAttribute('role', 'region');
-    existing.setAttribute('aria-label', 'Diff trust rail');
+    existing.setAttribute('aria-label', translate('Diff trust rail'));
     existing.hidden = true;
 
     const artifactBody = document.getElementById('artifact-body');
@@ -471,20 +484,12 @@ export function initDiffReviewRail(): HTMLElement | null {
  */
 export function setDiffReviewContent(diffText: string, meta: DiffReviewMeta = {}): DiffHunk[] {
   initDiffReviewRail();
-  // Mobile: surface the trust sheet when a diff lands
-  try {
-    // Lazy require pattern via dynamic import without blocking render
-    void import('./trust-rail-mobile').then((mod) => {
-      if (typeof window !== 'undefined' && window.matchMedia?.('(max-width: 900px)').matches) {
-        mod.openTrustRailSheet();
-      }
-    });
-  } catch {
-    // ignore
+  if (typeof window !== 'undefined' && window.matchMedia?.('(max-width: 900px)').matches) {
+    openTrustRailSheet();
   }
   activeMeta = {
     file: meta.file || undefined,
-    title: meta.title || meta.file || 'Diff review',
+    title: meta.title || meta.file || translate('Diff review'),
     runId: meta.runId || undefined,
     sessionId: meta.sessionId || undefined,
     artifactId: meta.artifactId || undefined,
@@ -516,7 +521,7 @@ export function setDiffReviewContent(diffText: string, meta: DiffReviewMeta = {}
   }
 
   paint();
-  showArtifactPane(activeMeta.title || 'Diff review');
+  showArtifactPane(activeMeta.title || translate('Diff review'));
   return hunks.slice();
 }
 

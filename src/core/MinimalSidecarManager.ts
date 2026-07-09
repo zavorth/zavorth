@@ -7,9 +7,7 @@ import type {
   MinimalCapabilitySidecarSpec,
 } from './MinimalCapabilityRegistry.js';
 import type { MinimalRuntimeProfile } from './MinimalRuntimeProfileRegistry.js';
-import { safeFetch } from '../security/SafeFetchService.js';
-
-export type MinimalSidecarState = 'disabled' | 'planned' | 'stopped' | 'starting' | 'running' | 'ready' | 'failed';
+import { safeFetch } from '../security/SafeFetchService.js';export type MinimalSidecarState = 'disabled' | 'planned' | 'stopped' | 'starting' | 'running' | 'ready' | 'failed';
 
 export type MinimalSidecarSnapshot = {
   id: string;
@@ -267,8 +265,7 @@ export class MinimalSidecarManager {
         ready,
         message: ready ? `Healthcheck respondeu em ${snapshot.healthUrl}.` : snapshot.message,
       };
-    } catch (error: any) { const err = error; const e = error;
-      return snapshot;
+    } catch (error: unknown) {return snapshot;
     }
   }
 
@@ -288,8 +285,7 @@ export class MinimalSidecarManager {
         return {};
       }
       return JSON.parse(fs.readFileSync(statusFile, 'utf8')) as PersistedSidecarStatus;
-    } catch (error: any) { const err = error; const e = error;
-      return {};
+    } catch (error: unknown) {return {};
     }
   }
 
@@ -305,8 +301,7 @@ export class MinimalSidecarManager {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error: any) { const err = error; const e = error;
-      return error?.code !== 'ESRCH';
+    } catch (error: unknown) {return error?.code !== 'ESRCH';
     }
   }
 }

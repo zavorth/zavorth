@@ -94,8 +94,8 @@ export class ZavorthSttTool extends BaseTool {
         case 'set_default': return this.setDefault(args);
         default: return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: any) {
-    logger.warn('[Zavorth Stt] async operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Stt] async operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `STT error: ${message}`;
   }
@@ -168,8 +168,8 @@ export class ZavorthSttTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error: any) {
-    logger.warn('[Zavorth Stt] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Stt] operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Transcription error: ${message}`;
   }
@@ -200,8 +200,8 @@ export class ZavorthSttTool extends BaseTool {
       }
 
       return `Idioma detectado: ${result.language || 'desconhecido'}. Texto: "${result.text.slice(0, 100)}..."`;
-    } catch (error: any) {
-    logger.warn('[Zavorth Stt] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Stt] process execution failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Language detection error: ${message}`;
   }
@@ -250,7 +250,7 @@ export class ZavorthSttTool extends BaseTool {
           const { execFileSync } = require('child_process');
           execFileSync('whisper', ['--help'], { timeout: 3000 });
           return true;
-        } catch (error: any) { logger.warn('[Zavorth Stt] process execution failed', error); return false; }
+        } catch (error: unknown) {logger.warn('[Zavorth Stt] process execution failed', error); return false; }
       }
       default: return false;
     }
@@ -313,8 +313,7 @@ export class ZavorthSttTool extends BaseTool {
             };
           }
           return { success: true, text: parsed.text || result, language: parsed.language, backend: 'whisper' };
-        } catch (error: any) {
-    logger.warn('[Zavorth Stt] parsing failed', error);
+        } catch (error: unknown) {logger.warn('[Zavorth Stt] parsing failed', error);
     return { success: true, text: result, backend: 'whisper' };
   }
       }
@@ -352,8 +351,7 @@ export class ZavorthSttTool extends BaseTool {
             })),
             backend: 'deepgram',
           };
-        } catch (error: any) {
-    logger.warn('[Zavorth Stt] parsing failed', error);
+        } catch (error: unknown) {logger.warn('[Zavorth Stt] parsing failed', error);
     return { success: true, text: result, backend: 'deepgram' };
   }
       }
@@ -394,12 +392,11 @@ export class ZavorthSttTool extends BaseTool {
               language: options.language,
               backend: 'gemini',
             };
-          } catch (error: any) {
-    logger.warn('[Zavorth Stt] JSON parse failed', error);
+          } catch (error: unknown) {logger.warn('[Zavorth Stt] JSON parse failed', error);
     return { success: true, text: result, backend: 'gemini' };
   }
         } finally {
-          try { fs.unlinkSync(tmpPayload); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Stt] file cleanup failed', error); }
+          try { fs.unlinkSync(tmpPayload); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Stt] file cleanup failed', error); }
         }
       }
 
@@ -420,8 +417,7 @@ export class ZavorthSttTool extends BaseTool {
         try {
           const parsed = JSON.parse(result);
           return { success: true, text: parsed.DisplayText || result, language: locale, backend: 'azure' };
-        } catch (error: any) {
-    logger.warn('[Zavorth Stt] JSON parse failed', error);
+        } catch (error: unknown) {logger.warn('[Zavorth Stt] JSON parse failed', error);
     return { success: true, text: result, backend: 'azure' };
   }
       }

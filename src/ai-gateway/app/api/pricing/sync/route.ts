@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../utils/errorLike';
 /**
  * API Route: /api/pricing/sync
  *
@@ -19,8 +20,7 @@ export async function POST(request: NextRequest) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -43,7 +43,8 @@ export async function POST(request: NextRequest) {
     const result = await syncPricingFromSources({ sources, dryRun });
 
     return NextResponse.json(result, { status: result.success ? 200 : 502 });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] validation failed', error);
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
@@ -57,7 +58,8 @@ export async function GET(request: NextRequest) {
   try {
     const { getSyncStatus } = await import("@/lib/pricingSync");
     return NextResponse.json(getSyncStatus());
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] filesystem check failed', error);
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
@@ -72,7 +74,8 @@ export async function DELETE(request: NextRequest) {
     const { clearSyncedPricing } = await import("@/lib/pricingSync");
     clearSyncedPricing();
     return NextResponse.json({ success: true, message: "Synced pricing data cleared" });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] delete operation failed', error);
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });

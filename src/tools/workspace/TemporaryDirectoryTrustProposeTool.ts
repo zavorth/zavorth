@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 ﻿import os from 'os';
 import path from 'path';
 import { BaseTool } from '../BaseTool.js';
@@ -111,8 +112,9 @@ export class TemporaryDirectoryTrustProposeTool extends BaseTool {
           note: 'Awaiting user approval via desktop modal.',
         },
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Temporary Directory Trust Propose] creation failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Temporary Directory Trust Propose] creation failed', error);
     return JSON.stringify({
         success: false,
         error: `Failed to propose Temporary Directory Trust: ${err.message || err}`,

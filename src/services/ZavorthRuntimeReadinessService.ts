@@ -469,8 +469,7 @@ export class ZavorthRuntimeReadinessService {
         command,
         ...factory(),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Runtime Readiness] string operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Runtime Readiness] string operation failed', error);
     return failedCheck(id, label, required, command, error);
   }
   }
@@ -490,8 +489,7 @@ export class ZavorthRuntimeReadinessService {
         command,
         ...(await factory()),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Runtime Readiness] string operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Runtime Readiness] string operation failed', error);
     return failedCheck(id, label, required, command, error);
   }
   }

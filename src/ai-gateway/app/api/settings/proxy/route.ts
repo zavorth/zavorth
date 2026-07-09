@@ -17,9 +17,7 @@ import {
 } from "@/lib/api/errorResponse";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import type { z } from "zod";
-import { logger } from '@/shared/utils/logger';
-
-const BASE_SUPPORTED_PROXY_TYPES = new Set(["http", "https"]);
+import { logger } from '@/shared/utils/logger';const BASE_SUPPORTED_PROXY_TYPES = new Set(["http", "https"]);
 type UpdateProxyConfigInput = z.infer<typeof updateProxyConfigSchema>;
 type ProxyConfigInput = NonNullable<UpdateProxyConfigInput["proxy"]>;
 type ProxyMapInput = Record<string, ProxyConfigInput | null>;
@@ -187,8 +185,7 @@ export async function GET(request: Request) {
     // Get full config
     const config = await getProxyConfig();
     return Response.json(redactProxySecrets(config));
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to load proxy config");
   }
 }
@@ -204,8 +201,7 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] load operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] load operation failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -228,8 +224,7 @@ export async function PUT(request: Request) {
     const updated = await setProxyConfig(normalizedBody);
     clearDispatcherCache();
     return Response.json(updated);
-  } catch (error: any) { const err = error; const e = error;
-    const routeError = toApiRouteError(error);
+  } catch (error: unknown) {const routeError = toApiRouteError(error);
     const status = Number(routeError.status) || 500;
     const type = (routeError.type ||
       (status === 400 ? "invalid_request" : "server_error")) as ApiErrorType;
@@ -261,8 +256,7 @@ export async function DELETE(request: Request) {
     const updated = await deleteProxyForLevel(level, id);
     clearDispatcherCache();
     return Response.json(updated);
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] cache operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] cache operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to delete proxy");
   }
 }

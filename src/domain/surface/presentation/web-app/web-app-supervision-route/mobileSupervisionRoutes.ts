@@ -4,18 +4,15 @@ import { getRequestedBy } from './helpers.js';
 import {
   ZavorthMobileSupervisionService,
 } from '../../../../../services/ZavorthMobileSupervisionService.js';
+import { asErrorLike } from '../../../../../utils/errorLike';
 
-// ---------------------------------------------------------------------------
 // Singleton – shared across all requests
-// ---------------------------------------------------------------------------
 
 const mobileService = new ZavorthMobileSupervisionService();
 const streamTickets = new Map<string, number>();
 const STREAM_TICKET_TTL_MS = 30_000;
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
 
 function extractMobileToken(ctx: WebAppSupervisionRouteContext): string {
   const fromHeader = String(
@@ -54,9 +51,7 @@ function pruneStreamTickets(): void {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Mobile SPA HTML (standalone, inline, no external deps except Google Font)
-// ---------------------------------------------------------------------------
 
 const MOBILE_SPA_HTML = /* html */ `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -349,7 +344,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       if(data.type==='status-change'&&data.data)setStatus(data.data.status);
       if(data.type==='approval-pending'||data.type==='approval-resolved')fetchStatus();
       prependEvent(data);
-    }catch (e: any) { const error = e; const err = e; logger.warn("[auto-fix] Empty catch block", e); }
+    }catch (error: unknown) { const err = asErrorLike(error); logger.warn("[auto-fix] Empty catch block", err); }
   }
 
   function prependEvent(e){
@@ -379,16 +374,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 </body>
 </html>`;
 
-// ---------------------------------------------------------------------------
 // Route handler
-// ---------------------------------------------------------------------------
 
 export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = async (ctx) => {
   const { req, res, url, pathname, deps } = ctx;
 
-  // -----------------------------------------------------------------------
   // GET /api/web/mobile — Serve the SPA HTML
-  // -----------------------------------------------------------------------
   if (pathname === '/api/web/mobile' && req.method === 'GET') {
     const html = Buffer.from(MOBILE_SPA_HTML, 'utf-8');
     res.writeHead(200, {
@@ -400,18 +391,14 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
     return true;
   }
 
-  // -----------------------------------------------------------------------
   // GET /api/web/mobile/auth — Check session validity
-  // -----------------------------------------------------------------------
   if (pathname === '/api/web/mobile/auth' && req.method === 'GET') {
     const authenticated = requireAuth(ctx);
     deps.writeJson(res, { ok: true, authenticated }, 200);
     return true;
   }
 
-  // -----------------------------------------------------------------------
   // POST /api/web/mobile/auth — Generate a new session token
-  // -----------------------------------------------------------------------
   if (pathname === '/api/web/mobile/auth' && req.method === 'POST') {
     // Require operator approval token header
     const expected = String(
@@ -453,9 +440,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
     return true;
   }
 
-  // -----------------------------------------------------------------------
   // GET /api/web/mobile/status — ZavorthControl snapshot JSON
-  // -----------------------------------------------------------------------
   if (pathname === '/api/web/mobile/status' && req.method === 'GET') {
     if (!requireAuth(ctx)) {
       deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);
@@ -465,9 +450,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
     return true;
   }
 
-  // -----------------------------------------------------------------------
   // GET /api/web/mobile/stream-ticket — Short-lived SSE ticket
-  // -----------------------------------------------------------------------
   if (pathname === '/api/web/mobile/stream-ticket' && req.method === 'GET') {
     if (!requireAuth(ctx)) {
       deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);
@@ -485,9 +468,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
     return true;
   }
 
-  // -----------------------------------------------------------------------
   // GET /api/web/mobile/stream — SSE endpoint
-  // -----------------------------------------------------------------------
   if (pathname === '/api/web/mobile/stream' && req.method === 'GET') {
     if (!consumeStreamTicket(String(url.searchParams.get('ticket') || ''))) {
       deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);
@@ -507,9 +488,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
     return true;
   }
 
-  // -----------------------------------------------------------------------
   // POST /api/web/mobile/action — Mobile operator actions
-  // -----------------------------------------------------------------------
   if (pathname === '/api/web/mobile/action' && req.method === 'POST') {
     if (!requireAuth(ctx)) {
       deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);

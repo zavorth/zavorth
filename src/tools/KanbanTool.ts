@@ -107,8 +107,8 @@ export class KanbanTool extends BaseTool {
         default:
           return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: any) {
-    logger.warn('[Kanban] delete operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Kanban] delete operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Erro no Kanban: ${message}`;
   }

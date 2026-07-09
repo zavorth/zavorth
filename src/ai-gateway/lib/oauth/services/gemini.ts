@@ -4,7 +4,6 @@ import { GEMINI_CONFIG } from "../constants/oauth";
 import { getServerCredentials } from "../config/index";
 import { startLocalServer } from "../utils/server";
 import { spinner as createSpinner } from "../utils/ui";
-
 /**
  * Gemini CLI (Google Cloud Code Assist) OAuth Service
  * Uses standard OAuth2 Authorization Code flow (no PKCE)
@@ -239,7 +238,7 @@ export class GeminiCLIService {
         `Gemini CLI connected successfully! (${userInfo.email}, Project: ${projectId})`
       );
       return true;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

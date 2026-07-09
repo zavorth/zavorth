@@ -3,9 +3,7 @@ import path from "node:path";
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isUnsafeCrossSiteMutation } from "../../runtime-engine-state";
-import { logger } from '@/shared/utils/logger';
-
-export const runtime = "nodejs";
+import { logger } from '@/shared/utils/logger';export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type LearningAction = "approve" | "reject" | "promote";
@@ -37,8 +35,7 @@ function readState(): LearningState {
       return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
     }
     return JSON.parse(fs.readFileSync(filePath, "utf8")) as LearningState;
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] JSON parse failed', error);
+  } catch (error: unknown) {logger.warn('[route] JSON parse failed', error);
     return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
   }
 }
@@ -47,7 +44,7 @@ async function readBody(request: Request): Promise<Record<string, unknown>> {
   try {
     const body = await request.json();
     return body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : {};
-  } catch (error: any) { const err = error; const e = error; logger.warn('[route] filesystem operation failed', error); return {}; }
+  } catch (error: unknown) {logger.warn('[route] filesystem operation failed', error); return {}; }
 }
 
 export async function POST(request: Request) {

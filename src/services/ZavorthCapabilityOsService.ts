@@ -566,8 +566,8 @@ export class ZavorthCapabilityOsService {
         status: entry.status,
         reason: 'Decisao registrada no Trust Plane ledger com entrada redigida.',
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Capability Os] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Capability Os] filesystem check failed', error);
     return {
         recorded: false,
         entryId: null,

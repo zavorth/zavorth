@@ -117,8 +117,7 @@ export class RuntimeBootstrapRepairService {
           durationMs: Math.max(0, finished.getTime() - stepStart.getTime()),
           output: String(output || '').trim() || undefined,
         });
-      } catch (error: any) {
-        const finished = this.now();
+      } catch (error: unknown) {const finished = this.now();
         steps.push({
           actionId: action.id,
           title: action.title,
@@ -210,8 +209,7 @@ export class RuntimeBootstrapRepairService {
           durationMs: Math.max(0, finished.getTime() - stepStart.getTime()),
           output: String(output || '').trim() || undefined,
         });
-      } catch (error: any) {
-        const finished = this.now();
+      } catch (error: unknown) {const finished = this.now();
         steps.push({
           actionId: action.id,
           title: action.title,

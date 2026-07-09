@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { errorMessage } from '../lib/errors';
 
 export interface HostCommandApproval {
   operationId: string;
@@ -58,8 +59,8 @@ export function HostCommandApprovalModal({
         decision,
         activeApproval.requiresStrongConfirmation ? confirmInput : undefined
       );
-    } catch (err: any) {
-      setError(err.message || 'Failed to resolve host command approval.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to resolve host command approval.'));
     } finally {
       setLoading(false);
     }

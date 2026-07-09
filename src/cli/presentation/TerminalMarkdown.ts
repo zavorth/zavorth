@@ -1,9 +1,7 @@
 import { marked } from 'marked';
 import { markedTerminal } from 'marked-terminal';
 import { TerminalTheme } from './TerminalTheme.js';
-import { logger } from '../../logger.js';
-
-// Apply the terminal renderer
+import { logger } from '../../logger.js';// Apply the terminal renderer
 marked.use(markedTerminal({
   // Customizing colors to match Zavorth theme
   code: TerminalTheme.colors.muted,
@@ -29,8 +27,7 @@ export class TerminalMarkdown {
     try {
       const parsed = marked.parse(markdownText) as string;
       return parsed.trim();
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Terminal Markdown] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Terminal Markdown] parsing failed', error);
     // Fallback to raw text if parsing fails
       return markdownText;
   }

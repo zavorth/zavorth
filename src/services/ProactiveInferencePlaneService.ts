@@ -208,8 +208,7 @@ export class ProactiveInferencePlaneService {
         correlation: pendingIntent.correlation || null,
         warnings: memoryRecall.warnings || [],
       };
-    } catch (error: any) {
-      logger.error('[ProactiveInferencePlane] Ciclo de inferencia falhou.', error);
+    } catch (error: unknown) {logger.error('[ProactiveInferencePlane] Ciclo de inferencia falhou.', error);
       return {
         ok: false,
         skipped: 'invalid_payload',
@@ -269,8 +268,7 @@ ${executionHistoryText}
 
     try {
       return ProactiveInferenceSchema.safeParse(JSON.parse(rawMatch[0]));
-    } catch (error: any) {
-    logger.warn('[Proactive Inference Plane] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Proactive Inference Plane] JSON parse failed', error);
     return ProactiveInferenceSchema.safeParse(null);
   }
   }

@@ -1,5 +1,4 @@
-import { logger } from '../logger.js';
-/**
+import { logger } from '../logger.js';/**
  * StreamingByteGuard — Protection against unlimited provider response consumption.
  *
  * Wraps a ReadableStreamDefaultReader to track accumulated bytes
@@ -84,8 +83,7 @@ export class StreamingByteGuard {
     this.cancelled = true;
     try {
       await this.reader.cancel();
-    } catch (error: any) { const err = error; const e = error;
-      // Ignore cancellation errors.
+    } catch (error: unknown) {// Ignore cancellation errors.
       logger.warn('[Streaming Byte Guard] operation failed', error);
     }
   }

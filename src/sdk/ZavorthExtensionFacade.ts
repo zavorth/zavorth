@@ -4,6 +4,7 @@ import { computeToolFingerprint } from './ExtensionToolFingerprint.js';
 import { ServiceRegistry } from '../bootstrap/ServiceRegistry.js';
 import { ServiceTokens } from '../bootstrap/ServiceTokens.js';
 import type { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export type ExtensionRegistrationResult = {
   namespace: string;
@@ -82,7 +83,8 @@ export class ZavorthExtensionFacade {
         previousFingerprint: existing?.fingerprint,
         effectiveAllowed: status === 'registered_unapproved',
       });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       // If native validation in logger fails, fail clearly
       throw new Error(`Audit logging failed: ${err.message}`);
     }

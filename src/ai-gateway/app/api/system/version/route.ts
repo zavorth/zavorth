@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../utils/errorLike';
 /**
  * GET  /api/system/version  — Returns current version and latest available on npm
  * POST /api/system/version  — Triggers a deployment-aware background update
@@ -28,7 +29,7 @@ async function getLatestNpmVersion(): Promise<string | null> {
     });
     const parsed = JSON.parse(stdout.trim());
     return typeof parsed === "string" ? parsed : null;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[route] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[route] JSON parse failed', error); return null; }
 }
 
 function getCurrentVersion(): string {
@@ -170,8 +171,7 @@ export async function POST(req: NextRequest) {
               timeout: 30_000,
               cwd: process.cwd(),
             });
-          } catch (error: any) { const err = error; const e = error;
-      // No local changes to stash.
+          } catch (error: unknown) {// No local changes to stash.
       logger.warn('[route] process execution failed', error);
     }
 
@@ -188,8 +188,7 @@ export async function POST(req: NextRequest) {
               timeout: 10_000,
               cwd: process.cwd(),
             });
-          } catch (error: any) { const err = error; const e = error;
-      // Backup branch is best-effort only.
+          } catch (error: unknown) {// Backup branch is best-effort only.
       logger.warn('[route] process execution failed', error);
     }
 
@@ -215,8 +214,7 @@ export async function POST(req: NextRequest) {
               timeout: 15_000,
               cwd: process.cwd(),
             });
-          } catch (error: any) { const err = error; const e = error;
-      // .env sync is non-fatal during update.
+          } catch (error: unknown) {// .env sync is non-fatal during update.
       logger.warn('[route] process execution failed', error);
     }
 
@@ -238,8 +236,7 @@ export async function POST(req: NextRequest) {
               cwd: process.cwd(),
             });
             send({ step: "restart", status: "done", message: "Service restarted" });
-          } catch (error: any) { const err = error; const e = error;
-            send({
+          } catch (error: unknown) {send({
               step: "restart",
               status: "skipped",
               message: "PM2 not available — manual restart needed",
@@ -254,7 +251,8 @@ export async function POST(req: NextRequest) {
             message: `Update to ${resolvedTargetTag} complete!`,
           });
           console.log(`[AutoUpdate] Successfully updated to ${resolvedTargetTag} via source mode`);
-        } catch (err: any) { const error = err; const e = err;
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
           const errMsg = err?.stderr || err?.message || String(err);
           send({ step: "error", status: "failed", message: errMsg });
           console.error("[AutoUpdate] Source update failed:", err);
@@ -314,8 +312,7 @@ export async function POST(req: NextRequest) {
         try {
           await execFileAsync("pm2", ["restart", "ZavorthGateway", "--update-env"], { timeout: 30000 });
           send({ step: "restart", status: "done", message: "Service restarted" });
-        } catch (error: any) { const err = error; const e = error;
-          // PM2 may not be available (Docker/manual setups)
+        } catch (error: unknown) {// PM2 may not be available (Docker/manual setups)
           send({
             step: "restart",
             status: "skipped",
@@ -331,7 +328,8 @@ export async function POST(req: NextRequest) {
           message: `Update to v${latest} complete!`,
         });
         console.log(`[AutoUpdate] Successfully updated to v${latest}`);
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         const errMsg = err?.stderr || err?.message || String(err);
         send({ step: "error", status: "failed", message: errMsg });
         console.error(`[AutoUpdate] Update failed:`, err);

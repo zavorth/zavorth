@@ -229,8 +229,7 @@ export class RuntimeDiagnosticsService {
         alive,
         file: filePath,
       };
-    } catch (error: any) {
-    logger.warn('[Runtime Diagnostics] lifecycle operation failed', error);
+    } catch (error: unknown) {logger.warn('[Runtime Diagnostics] lifecycle operation failed', error);
     return {
         active: true,
         pid: null,
@@ -246,7 +245,7 @@ export class RuntimeDiagnosticsService {
     try {
       this.killFn(pid, 0);
       return true;
-    } catch (error: any) { logger.warn('[Runtime Diagnostics] lifecycle operation failed', error); return error?.code !== 'ESRCH'; }
+    } catch (error: unknown) {logger.warn('[Runtime Diagnostics] lifecycle operation failed', error); return error?.code !== 'ESRCH'; }
   }
 
   private readBridgeSnapshot(filePath: string): BridgeSnapshot {
@@ -289,8 +288,7 @@ export class RuntimeDiagnosticsService {
         updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : null,
         file: filePath,
       };
-    } catch (error: any) {
-    logger.warn('[Runtime Diagnostics] filesystem check failed', error);
+    } catch (error: unknown) {logger.warn('[Runtime Diagnostics] filesystem check failed', error);
     return {
         mode: config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : 'unknown',
         enabled: false,

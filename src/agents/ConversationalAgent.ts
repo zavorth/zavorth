@@ -43,7 +43,6 @@ import {
 } from '../services/ZavorthSubagentAutoInvocationPolicyService.js';
 import { ZavorthSubagentInvocationGatewayService } from '../services/ZavorthSubagentInvocationGatewayService.js';
 import type { ZavorthSubagentRuntimeSnapshot } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
-
 type InlineData = Array<{ mimeType: string; data: string }>;
 type ConversationalResponse = {
   text?: string;
@@ -273,8 +272,8 @@ export class ConversationalAgent {
             // Store in cache (Improvement E)
             this.toolCache.set(toolCall.name, toolCall.arguments, toolResult);
           }
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Conversational Agent] process execution failed', error);
+        } catch (error: unknown) {
+          logger.warn('[Conversational Agent] process execution failed', error);
     const message = error instanceof Error ? error.message : String(error);
           toolResult = `Tool ${toolCall.name} failed: ${message}`;
   }
@@ -517,7 +516,7 @@ export class ConversationalAgent {
         escalation: this.resolveExecutionEscalation(text, mode, options),
         llm,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (!decision.explicitSubagentRequest) {
         return null;
       }
@@ -761,7 +760,7 @@ export class ConversationalAgent {
           query,
         }),
       ].filter(Boolean).join('\n\n');
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return [
         'Automatic web search failed for this recency-sensitive request.',

@@ -33,7 +33,7 @@ function resolvePersistedProfile(stateFilePath?: string | null): ZavorthProfile 
       return null;
     }
     return normalizeZavorthProfile(parsed.profile);
-  } catch (error: any) { logger.warn('[Runtime Profile] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Runtime Profile] JSON parse failed', error); return null; }
 }
 
 function resolveBootstrapProfile(

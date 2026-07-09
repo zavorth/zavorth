@@ -184,5 +184,5 @@ function readPackageScripts(rootDir: string): Record<string, string> {
   try {
     const parsed = JSON.parse(fs.readFileSync(packagePath, 'utf8')) as { scripts?: Record<string, string> };
     return parsed.scripts || {};
-  } catch (error: any) { logger.warn('[Zavorth Qa Scenario Importer] JSON parse failed', error); return {}; }
+  } catch (error: unknown) {logger.warn('[Zavorth Qa Scenario Importer] JSON parse failed', error); return {}; }
 }

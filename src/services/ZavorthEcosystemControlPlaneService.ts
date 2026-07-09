@@ -517,7 +517,7 @@ export class ZavorthEcosystemControlPlaneService {
         signature: this.nullableText(parsed.signature),
         validationWarnings: warnings,
       };
-    } catch (error: any) { logger.warn('[Zavorth Ecosystem Control Plane] parsing failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Ecosystem Control Plane] parsing failed', error); return null; }
   }
 
   private summarizeFileReadiness(files: Array<{ path: string; exists: boolean }>): FileReadinessSummary {

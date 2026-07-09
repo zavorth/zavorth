@@ -7,7 +7,6 @@ import type {
 } from './MinimalCapabilityActivationPlanner.js';
 import type { MinimalCapabilityBootMode } from './MinimalCapabilityRegistry.js';
 import type { MinimalSidecarSnapshot } from './MinimalSidecarManager.js';
-
 export type MinimalCapabilityActivationOperation = 'plan' | 'activate' | 'replay' | 'rollback';
 
 export type MinimalCapabilityActivationReceipt = {
@@ -203,7 +202,7 @@ export class MinimalCapabilityActivationLedger {
         const parsed = JSON.parse(line) as MinimalCapabilityActivationReceipt;
         this.assertReceipt(parsed);
         receipts.push(parsed);
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         errors.push({
           line: index + 1,
           reason: error instanceof Error ? error.message : String(error),

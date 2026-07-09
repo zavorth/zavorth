@@ -3,9 +3,7 @@ import type {
   IMediaGenerationAdapter,
   MediaGenerationModality,
   MediaGenerationRequest,
-} from '../../contracts/MediaGenerationContract.js';
-
-type FetchRuntime = {
+} from '../../contracts/MediaGenerationContract.js';type FetchRuntime = {
   fetchImpl?: typeof fetch;
   now?: () => Date;
   sleepMs?: (ms: number) => Promise<void>;
@@ -316,8 +314,7 @@ function normalizeMediaOutputs(payload: any, input: {
 async function readJson(response: Response): Promise<any> {
   try {
     return await response.json();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

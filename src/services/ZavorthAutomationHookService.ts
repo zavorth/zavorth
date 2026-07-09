@@ -338,7 +338,7 @@ export class ZavorthAutomationHookService {
       }
       const hook = this.normalizeHook(parsed);
       return hook;
-    } catch (error: any) { logger.warn('[Zavorth Automation Hook] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Automation Hook] JSON parse failed', error); return null; }
   }
 
   private normalizeHook(raw: unknown): ZavorthAutomationHookDefinition | null {

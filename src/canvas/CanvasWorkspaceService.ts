@@ -11,9 +11,7 @@ import { ZavorthFederatedMeshControlPlaneService } from '@zavorth/mesh/ZavorthFe
 import { ZavorthMutationPlaneService } from '@zavorth/services/ZavorthMutationPlaneService.js';
 import { ZavorthRolloutReadinessControlPlaneService } from '@zavorth/services/ZavorthRolloutReadinessControlPlaneService.js';
 import { ZavorthSkillEvolutionService } from '@zavorth/skills/ZavorthSkillEvolutionService.js';
-import { ZavorthWatchModeControlPlaneService } from '@zavorth/services/ZavorthWatchModeControlPlaneService.js';
-
-export type CanvasEntityKind =
+import { ZavorthWatchModeControlPlaneService } from '@zavorth/services/ZavorthWatchModeControlPlaneService.js';export type CanvasEntityKind =
   | 'chat'
   | 'file'
   | 'diff'
@@ -654,8 +652,7 @@ export class CanvasWorkspaceService {
         plan,
         snapshot: await this.buildSnapshot(),
       };
-    } catch (error: any) { const err = error; const e = error;
-      return {
+    } catch (error: unknown) {return {
         generatedAt: this.now().toISOString(),
         ok: false,
         status: 'missing',
@@ -1255,16 +1252,14 @@ export class CanvasWorkspaceService {
         return null;
       }
       return asCanvasRecord(await (service.buildSnapshot as (input?: unknown) => unknown | Promise<unknown>)(input));
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 
   private safeMutationPlans(limit: number): ZavorthMutationPlan[] {
     try {
       return this.mutationPlaneService.listPlans({ limit, includeExpired: false });
-    } catch (error: any) { const err = error; const e = error;
-      return [];
+    } catch (error: unknown) {return [];
     }
   }
 
@@ -1275,8 +1270,7 @@ export class CanvasWorkspaceService {
       }
       const parsed = JSON.parse(this.readFileSync(this.stateFile, 'utf8')) as Partial<CanvasWorkspaceDocument>;
       return this.normalizeDocument(parsed);
-    } catch (error: any) { const err = error; const e = error;
-      return this.emptyDocument();
+    } catch (error: unknown) {return this.emptyDocument();
     }
   }
 

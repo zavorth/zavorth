@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 "use client";
 
 import { useTranslations } from "next-intl";
@@ -43,8 +44,7 @@ function CallbackContent() {
           window.opener.postMessage({ type: "oauth_callback", data: callbackData }, targetOrigin);
         }
         sent = true;
-      } catch (e: any) { const error = e; const err = e;
-        console.log("postMessage failed:", e);
+      } catch (error: unknown) { const err = asErrorLike(error); console.log("postMessage failed:", err);
       }
     }
 
@@ -54,8 +54,7 @@ function CallbackContent() {
       channel.postMessage(callbackData);
       channel.close();
       sent = true;
-    } catch (e: any) { const error = e; const err = e;
-      console.log("BroadcastChannel failed:", e);
+    } catch (error: unknown) { const err = asErrorLike(error); console.log("BroadcastChannel failed:", err);
     }
 
     // Method 3: localStorage event (fallback)
@@ -67,13 +66,11 @@ function CallbackContent() {
       storageCleanupTimer = window.setTimeout(() => {
         try {
           localStorage.removeItem("oauth_callback");
-        } catch (error: any) { const err = error; const e = error;
-          // Ignore unavailable storage.
+        } catch (error: unknown) {// Ignore unavailable storage.
         }
       }, 30000);
       sent = true;
-    } catch (e: any) { const error = e; const err = e;
-      console.log("localStorage failed:", e);
+    } catch (error: unknown) { const err = asErrorLike(error); console.log("localStorage failed:", err);
     }
 
     if (sent && (code || error)) {
@@ -100,8 +97,7 @@ function CallbackContent() {
       if (storageCleanupTimer) window.clearTimeout(storageCleanupTimer);
       try {
         localStorage.removeItem("oauth_callback");
-      } catch (error: any) { const err = error; const e = error;
-        // Ignore unavailable storage.
+      } catch (error: unknown) {// Ignore unavailable storage.
       }
     };
   }, [searchParams]);

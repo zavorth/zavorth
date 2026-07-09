@@ -10,9 +10,7 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/errorResponse";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getProxyById } from "@/lib/localDb";
-import { logger } from '@/shared/utils/logger';
-
-const BASE_SUPPORTED_PROXY_TYPES = new Set(["http", "https"]);
+import { logger } from '@/shared/utils/logger';const BASE_SUPPORTED_PROXY_TYPES = new Set(["http", "https"]);
 
 function getErrorMessage(error: unknown, fallbackMessage: string): string {
   if (error instanceof Error && error.message) {
@@ -44,8 +42,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] connection failed', error);
+  } catch (error: unknown) {logger.warn('[route] connection failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -127,8 +124,7 @@ export async function POST(request: Request) {
         });
       }
       proxyUrl = normalizedProxyUrl;
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+    } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return createErrorResponse({
         status: 400,
         message: getErrorMessage(proxyError, "Invalid proxy configuration"),
@@ -161,8 +157,7 @@ export async function POST(request: Request) {
         } else {
           parsed = { ip: String(parsedJson) };
         }
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] JSON parse failed', error);
+      } catch (error: unknown) {logger.warn('[route] JSON parse failed', error);
     parsed = { ip: responseText.trim() };
   }
 
@@ -172,8 +167,7 @@ export async function POST(request: Request) {
         latencyMs: Date.now() - startTime,
         proxyUrl: publicProxyUrl,
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[route] parsing failed', error);
     return Response.json({
         success: false,
         error:
@@ -186,8 +180,7 @@ export async function POST(request: Request) {
   } finally {
       clearTimeout(timeout);
     }
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return createErrorResponseFromUnknown(error, "Unexpected server error");
   }
 }

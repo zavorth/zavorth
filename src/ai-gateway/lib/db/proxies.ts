@@ -2,7 +2,6 @@ import { randomUUID } from "crypto";
 import { getDbInstance } from "./core";
 import { backupDbFile } from "./backup";
 import { logger } from '@/shared/utils/logger';
-
 type JsonRecord = Record<string, unknown>;
 type ProxyScope = "global" | "provider" | "account" | "combo";
 
@@ -109,7 +108,7 @@ function coerceProxyPayload(value: unknown, fallbackName: string): ProxyPayload 
         password: parsed.password ? decodeURIComponent(parsed.password) : "",
         status: "active",
       };
-    } catch (error: any) { const err = error; const e = error; logger.warn('[proxies] network request failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[proxies] network request failed', error); return null; }
   }
 
   if (typeof value !== "object" || Array.isArray(value)) return null;
@@ -447,8 +446,7 @@ export async function migrateLegacyProxyConfigToRegistry(options?: { force?: boo
     if (!row?.key || typeof row.value !== "string") continue;
     try {
       raw[row.key as keyof LegacyProxyConfig] = JSON.parse(row.value);
-    } catch (error: any) { const err = error; const e = error;
-      // ignore malformed legacy entry
+    } catch (error: unknown) {// ignore malformed legacy entry
       logger.warn('[proxies] JSON parse failed', error);
     }
   }
@@ -576,7 +574,7 @@ export async function bulkAssignProxyToScope(
     try {
       await assignProxyToScope(scope, scopeId, proxyId);
       updated++;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       failed.push({
         scopeId,
         reason: error instanceof Error ? error.message : "Unknown error",

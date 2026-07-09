@@ -143,8 +143,7 @@ export function parseJsonRpc(rawBody: string): { ok: true; request: JsonRpcReque
   try {
     const parsed = JSON.parse(rawBody) as JsonRpcRequest;
     return { ok: true, request: parsed };
-  } catch (error: any) {
-    logger.warn('[Remote Mesh Notebook Scoped Mcp Server Helpers] JSON parse failed', error);
+  } catch (error: unknown) {logger.warn('[Remote Mesh Notebook Scoped Mcp Server Helpers] JSON parse failed', error);
     return { ok: false, error: 'Invalid JSON body.' };
   }
 }
@@ -543,5 +542,5 @@ export function parseDockerContainerLine(line: string): RemoteMeshNotebookDocker
       status: String(parsed.Status || ''),
       ports: parsed.Ports ? String(parsed.Ports) : null,
     };
-  } catch (error: any) { logger.warn('[Remote Mesh Notebook Scoped Mcp Server Helpers] parsing failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Remote Mesh Notebook Scoped Mcp Server Helpers] parsing failed', error); return null; }
 }

@@ -1,9 +1,7 @@
 import { getProxyLogs, clearProxyLogs, getProxyLogStats } from "@/lib/proxyLogger";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * GET /api/usage/proxy-logs — get proxy usage logs
  * Query params: ?status=ok|error|timeout&type=http|socks5&provider=xxx&level=global|provider|combo|key&search=xxx&limit=300
  */
@@ -24,8 +22,7 @@ export async function GET(request: Request) {
 
     const logs = getProxyLogs(filters);
     return Response.json(logs);
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] parsing failed', error);
+  } catch (error: unknown) {logger.warn('[route] parsing failed', error);
     return Response.json(
       { error: { message: (error as any).message, type: "server_error" } },
       { status: 500 }
@@ -43,8 +40,7 @@ export async function DELETE(request: Request) {
   try {
     clearProxyLogs();
     return Response.json({ cleared: true });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] delete operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] delete operation failed', error);
     return Response.json(
       { error: { message: (error as any).message, type: "server_error" } },
       { status: 500 }

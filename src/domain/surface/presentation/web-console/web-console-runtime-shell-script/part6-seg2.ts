@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../utils/errorLike';
 export const runtimeShellScriptPart6Seg2: string = [
     "          : '<strong>Instrucao principal:</strong> sem instrucao destacada para o foco atual.',",
     "        selectorRow",
@@ -351,7 +352,7 @@ export const runtimeShellScriptPart6Seg2: string = [
     "      officialRemoteAccess: payload.report,",
     "    });",
     "    setRemoteActionStatus(normalizeText(payload?.report?.summary) || 'Acao remota concluida.');",
-    "  } catch (error: any) { const err = error; const e = error;",
+    "  } catch (error: unknown) { const err = asErrorLike(error); const e = err;",
     "    setRemoteActionStatus(error instanceof Error ? error.message : String(error));",
     "  } finally {",
     "    for (const button of buttons) {",
@@ -586,7 +587,7 @@ export const runtimeShellScriptPart6Seg2: string = [
     "      officialRemoteAccess: payload.officialRemoteAccess,",
     "    });",
     "    setJourneyActionStatus('Host autorizado e estado local atualizado.');",
-    "  } catch (error: any) { const err = error; const e = error;",
+    "  } catch (error: unknown) { const err = asErrorLike(error); const e = err;",
     "    setJourneyActionStatus(error instanceof Error ? error.message : String(error));",
     "  } finally {",
     "    for (const button of buttons) {",

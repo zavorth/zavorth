@@ -82,13 +82,11 @@ export async function computeAnalytics(
 ) {
   const { start, end } = getDateRange(range);
 
-  // ---- Filtered entries ----
   const entries = history.filter((e) => {
     const t = new Date(e.timestamp);
     return t >= start && t <= end;
   });
 
-  // ---- Summary ----
   const summary = {
     totalTokens: 0,
     promptTokens: 0,
@@ -100,26 +98,21 @@ export async function computeAnalytics(
     uniqueApiKeys: new Set<string>(),
   };
 
-  // ---- Daily trend ----
   const dailyMap: Record<string, any> = {}; // "YYYY-MM-DD" → { requests, promptTokens, completionTokens, cost }
   const dailyByModelMap: Record<string, Record<string, number>> = {}; // "YYYY-MM-DD" → { modelShort → tokens }
 
-  // ---- Activity heatmap (always last 365 days, regardless of range filter) ----
   const heatmapStart = new Date();
   heatmapStart.setDate(heatmapStart.getDate() - 364);
   const activityMap: Record<string, number> = {};
 
-  // ---- By model / account / provider ----
   const byModelMap: Record<string, any> = {};
   const byAccountMap: Record<string, any> = {};
   const byProviderMap: Record<string, any> = {};
   const byApiKeyMap: Record<string, any> = {};
 
-  // ---- Weekly pattern (0=Sun..6=Sat) ----
   const weeklyTokens = [0, 0, 0, 0, 0, 0, 0];
   const weeklyCounts = [0, 0, 0, 0, 0, 0, 0];
 
-  // ---- Single pass over ALL history for heatmap ----
   for (const entry of history) {
     const entryDate = new Date(entry.timestamp);
     if (entryDate >= heatmapStart) {
@@ -153,7 +146,6 @@ export async function computeAnalytics(
     })
   );
 
-  // ---- Single pass over filtered entries for everything else ----
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
     const pt = entry.tokens?.input ?? entry.tokens?.prompt_tokens ?? 0;
@@ -272,7 +264,6 @@ export async function computeAnalytics(
     }
   }
 
-  // ---- Build sorted arrays ----
   const dailyTrend = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
 
   // Daily by model — collect all unique model names

@@ -101,8 +101,7 @@ export class SessionPersistenceStore {
     try {
       const content = fs.readFileSync(file, 'utf-8');
       return JSON.parse(content) as SessionState;
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 
@@ -132,8 +131,7 @@ export class SessionPersistenceStore {
       try {
         const content = fs.readFileSync(path.join(this.sessionsDir, file), 'utf-8');
         sessions.push(JSON.parse(content) as SessionState);
-      } catch (error: any) { const err = error; const e = error;
-        // ignore corrupted files
+      } catch (error: unknown) {// ignore corrupted files
       }
     }
 
@@ -163,8 +161,7 @@ export class SessionPersistenceStore {
     try {
       const content = fs.readFileSync(file, 'utf-8');
       return JSON.parse(content) as CompressedMemoryChunk[];
-    } catch (error: any) { const err = error; const e = error;
-      return [];
+    } catch (error: unknown) {return [];
     }
   }
 
@@ -217,8 +214,7 @@ export class SessionPersistenceStore {
         const content = fs.readFileSync(path.join(this.memoryDir, file), 'utf-8');
         const chunks = JSON.parse(content) as CompressedMemoryChunk[];
         totalChunks += chunks.length;
-      } catch (error: any) { const err = error; const e = error;
-        // ignore
+      } catch (error: unknown) {// ignore
       }
     }
 

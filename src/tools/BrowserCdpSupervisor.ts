@@ -146,8 +146,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
       try {
         await this.connect();
         this.emit('reconnected');
-      } catch (error: any) {
-        this.attemptReconnect();
+      } catch (error: unknown) {this.attemptReconnect();
       }
     }, delay);
   }
@@ -181,8 +180,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
       if (msg.method) {
         this.handleEvent(msg.method, msg.params);
       }
-    } catch (error: any) {
-      // Ignore invalid messages.
+    } catch (error: unknown) {// Ignore invalid messages.
       logger.warn('[Browser Cdp Supervisor] delete operation failed', error);
     }
   }

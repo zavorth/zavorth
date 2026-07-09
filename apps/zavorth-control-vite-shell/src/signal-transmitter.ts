@@ -292,7 +292,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         );
         window.ZavorthControlChat?.setComposerRunState?.("idle");
         return true;
-      } catch (error: any) {
+      } catch (error: unknown) {
         options.removeThinkingState();
         window.ZavorthControlChat?.setComposerRunState?.("idle");
         const detail = messageFromCaughtError(error);

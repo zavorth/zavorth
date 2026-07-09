@@ -80,7 +80,7 @@ async function readJsonBody(req: { on: (event: string, listener: (...args: any[]
       }
       try {
         resolve(JSON.parse(raw));
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         reject(new InvalidRequestError('Invalid JSON body.'));
       }
     });

@@ -23,8 +23,6 @@ import type { ApprovalLeaseDecisionContext } from '../../src/approval-leases/App
 import type { ApprovalLeaseIntegrationAuditEvent } from '../../src/approval-leases/ApprovalLeaseDecisionAdapter';
 import type { ApprovalLeaseGateReceipt } from '../../src/approval-leases/ApprovalLeaseIntegrationPolicy';
 
-// ---- Test helpers ----
-
 const AUDIT_CORRELATION = 'corr-abc-123';
 const NOW = '2026-06-15T12:00:00.000Z';
 
@@ -95,8 +93,6 @@ function grantLease(overrides?: Record<string, unknown>) {
     ...overrides,
   });
 }
-
-// ---- Core decision tests ----
 
 describe('ApprovalLeaseDecisionAdapter', () => {
   beforeEach(() => {
@@ -260,8 +256,6 @@ describe('ApprovalLeaseDecisionAdapter', () => {
     }).toThrow('Audit sink is required');
   });
 
-  // ---- Gate receipt validation tests ----
-
   test('undefined existingGateResult fails closed (no gate ran)', () => {
     const { sink, events } = makeSink();
     const adapter = new ApprovalLeaseDecisionAdapter(sink);
@@ -352,8 +346,6 @@ describe('ApprovalLeaseDecisionAdapter', () => {
     expect(result.status).toBe('lease_satisfied');
     expect(result.upstreamGatesConfirmed).toBe(true);
   });
-
-  // ---- Audit sink fail-closed tests ----
 
   test('audit sink throw on lease_considered returns fail_closed', () => {
     grantLease();

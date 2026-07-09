@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import { BaseTool } from './BaseTool.js';
 import { search, SearchResults, SafeSearchType } from 'duck-duck-scrape';
 import { config } from '../config/index.js';
@@ -153,7 +154,7 @@ export class WebSearchTool extends BaseTool {
 
       return `No results found for search: "${query}".`;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error(`❌ [WebSearchTool] Erro na busca:`, errorMessage);
       const fallbackResult = this.shouldUseNewsRssFallback(query)
@@ -262,7 +263,7 @@ export class WebSearchTool extends BaseTool {
             scoreReasons: [...score.reasons, ...weighted.reasons].slice(0, 8),
           });
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         firstError ||= new Error(error instanceof Error ? error.message : String(error));
       }
     }
@@ -421,7 +422,7 @@ export class WebSearchTool extends BaseTool {
 
       try {
         return await runSearch();
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         if (!/too quickly|anomaly|rate|429/i.test(message)) {
           throw error;
@@ -438,8 +439,7 @@ export class WebSearchTool extends BaseTool {
     try {
       const duckDuckGoResults = await this.searchDuckDuckGoWithBackoff(query);
       return duckDuckGoResults;
-    } catch (error: any) {
-      const bingResults = await this.searchBingWeb(query);
+    } catch (error: unknown) {const bingResults = await this.searchBingWeb(query);
       if (bingResults.length > 0) {
         return {
           noResults: false,
@@ -511,7 +511,7 @@ export class WebSearchTool extends BaseTool {
         'base64',
       ).toString('utf8');
       return /^https?:\/\//i.test(decoded) ? decoded : raw;
-    } catch (error: any) { logger.warn('[Web Search] network request failed', error); return raw; }
+    } catch (error: unknown) {logger.warn('[Web Search] network request failed', error); return raw; }
   }
 
   private async enqueueDuckDuckGoSearch<T>(operation: () => Promise<T>): Promise<T> {
@@ -638,8 +638,8 @@ export class WebSearchTool extends BaseTool {
         return { title, publishedAt, error: 'empty extracted text' };
       }
       return { title, excerpt, publishedAt };
-    } catch (error: any) {
-    logger.warn('[Web Search] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Web Search] operation failed', error);
     return { error: error instanceof Error ? (error.name === 'AbortError' ? 'timeout' : error.message) : String(error) };
   } finally {
       clearTimeout(timeout);
@@ -711,14 +711,18 @@ export class WebSearchTool extends BaseTool {
       if (googleResult) {
         return googleResult;
       }
-    } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
+    } catch (fallbackError: unknown) {
+      const err = asErrorLike(fallbackError);
+      const error = err;
       const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
       console.error(`[WebSearchTool] Fallback Google News falhou:`, errorMessage);
     }
 
     try {
       return await this.searchBingNewsFallback(query, limit);
-    } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
+    } catch (fallbackError: unknown) {
+      const err = asErrorLike(fallbackError);
+      const error = err;
       const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
       console.error(`[WebSearchTool] Fallback Bing News falhou:`, errorMessage);
       return null;
@@ -760,7 +764,9 @@ export class WebSearchTool extends BaseTool {
         if (result) {
           lastQualityGate = result;
         }
-      } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
+      } catch (fallbackError: unknown) {
+        const err = asErrorLike(fallbackError);
+        const error = err;
         const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
         console.error(`[WebSearchTool] Fallback ${candidate.label} falhou:`, errorMessage);
       }
@@ -802,7 +808,9 @@ export class WebSearchTool extends BaseTool {
           ? await this.fetchGoogleNewsTopicRssXml(candidate.topic, candidate.locale)
           : await this.fetchGoogleNewsRssXml(String(candidate.query || ''), candidate.locale);
         itemBlocks.push(...Array.from(xml.matchAll(/<item\b[^>]*>[\s\S]*?<\/item>/gi)).map((match) => match[0]));
-      } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
+      } catch (fallbackError: unknown) {
+        const err = asErrorLike(fallbackError);
+        const error = err;
         const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
         console.error(`[WebSearchTool] Fallback politica global falhou:`, errorMessage);
       }

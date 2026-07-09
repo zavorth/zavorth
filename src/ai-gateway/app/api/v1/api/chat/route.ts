@@ -3,6 +3,7 @@ import { handleChat } from "@/sse/handlers/chat";
 import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
 import { transformToOllama } from "@ZavorthGateway/open-sse/utils/ollamaTransform.ts";
 import { logger } from '../logger.js';
+import { asErrorLike } from '../../../../../../utils/errorLike';
 
 let initialized = false;
 
@@ -32,7 +33,9 @@ export async function POST(request) {
   try {
     const body = await clonedReq.json();
     modelName = body.model || "llama3.2";
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
 
   const response = await handleChat(request);
   return transformToOllama(response, modelName);

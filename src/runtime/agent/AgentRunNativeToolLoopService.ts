@@ -49,7 +49,6 @@ import {
   truthy,
   uniqueToolDefinitions,
 } from './AgentRunNativeToolLoopUtils.js';
-
 export type NativeToolLoopStats = {
   requested: number;
   executed: number;
@@ -446,7 +445,7 @@ export class AgentRunNativeToolLoopService {
                 ? { providerNativeFallback: toolCall.arguments.providerNativeFallback }
                 : {}),
             }));
-          } catch (error: any) { const err = error; const e = error;
+          } catch (error: unknown) {
             stats.failed += 1;
             if (isTransientToolError(error)) {
               stats.retriedToolCalls += 1;
@@ -835,8 +834,7 @@ export class AgentRunNativeToolLoopService {
         output: await this.toolRuntime.executeTool(toolName, args),
         attempts: 1,
       };
-    } catch (error: any) { const err = error; const e = error;
-      if (!isTransientToolError(error)) {
+    } catch (error: unknown) {if (!isTransientToolError(error)) {
         throw error;
       }
       await delay(120);
@@ -897,8 +895,7 @@ export class AgentRunNativeToolLoopService {
           messages.push(...mappedMessages);
           truncatedToolMessages = result.clearedToolOutputs;
         }
-      } catch (err: any) { const error = err; const e = err;
-        // Fallback cleanly to static compaction
+      } catch (error: unknown) {// Fallback cleanly to static compaction
       }
     }
 
@@ -1242,8 +1239,7 @@ export class AgentRunNativeToolLoopService {
     };
     try {
       return await this.speculativeAutonomy.prepare(preparedInput);
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 
@@ -1276,8 +1272,7 @@ export class AgentRunNativeToolLoopService {
         reason: snapshot.plan.reason,
         nextSafeAction: snapshot.nextSafeAction,
       };
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 

@@ -127,7 +127,6 @@ import type {
   UniversalAgentSteeringEntry,
   UniversalApprovalRequest,
 } from './UniversalAgentRuntimeTypes.js';
-
 export type { UniversalAgentLlmRuntime } from './AgentRunLlmRuntimeExecutor.js';
 export type { UniversalAgentToolRuntime } from './AgentRunEchoHandsExecutor.js';
 
@@ -1014,8 +1013,7 @@ export class AgentRunService {
         if (selfModificationPreview) {
           return selfModificationPreview;
         }
-      } catch (error: any) { const err = error; const e = error;
-        return this.buildFailureResult(run, error, 'selfmod');
+      } catch (error: unknown) {return this.buildFailureResult(run, error, 'selfmod');
       }
 
       const selfModificationActionProposal = this.createSelfModificationActionProposalIfNeeded(run, input);
@@ -1086,7 +1084,7 @@ export class AgentRunService {
         providerNativeTokenStreaming: false,
       });
       executorResult = await this.execute(run, input, options);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await this.publishRuntimeEvent(run, 'agent.execution.failed', {
         source: 'executor',
         error: error instanceof Error ? error.message : String(error),
@@ -1287,8 +1285,7 @@ export class AgentRunService {
       if (swarmResult) {
         return swarmResult;
       }
-    } catch (error: any) { const err = error; const e = error;
-      return this.buildFailureResult(run, error, 'swarm');
+    } catch (error: unknown) {return this.buildFailureResult(run, error, 'swarm');
     }
 
     const selfModificationActionResult = this.acknowledgeApprovedSelfModificationActionProposalIfNeeded(run, request);
@@ -1301,8 +1298,7 @@ export class AgentRunService {
       if (watchModeVisualResult) {
         return watchModeVisualResult;
       }
-    } catch (error: any) { const err = error; const e = error;
-      return this.buildFailureResult(run, error, 'watch-mode');
+    } catch (error: unknown) {return this.buildFailureResult(run, error, 'watch-mode');
     }
 
     this.applyToolRehearsal(run, request, run.updatedAt);
@@ -1321,8 +1317,7 @@ export class AgentRunService {
     let executorResult: UniversalAgentExecutorResult;
     try {
       executorResult = await this.execute(run, request, options);
-    } catch (error: any) { const err = error; const e = error;
-      return this.buildFailureResult(run, error, 'executor');
+    } catch (error: unknown) {return this.buildFailureResult(run, error, 'executor');
     }
     this.applyExecutorResult(run, executorResult);
     this.applyCapabilityLoopGovernance(run, request);
@@ -1605,7 +1600,7 @@ export class AgentRunService {
     }
     try {
       await this.autoSkillInvocation.apply({ run, request });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const generatedAt = this.now().toISOString();
       const reason = error instanceof Error ? error.message : String(error);
       run.metadata = {
@@ -1792,8 +1787,7 @@ export class AgentRunService {
     }
     try {
       return this.modelPickerContractService.buildContract({ includeAdvanced: true });
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 
@@ -1855,7 +1849,7 @@ export class AgentRunService {
         try {
           await eventBus.emit(type, runtimePayload);
           delivered += 1;
-        } catch (error: any) { const err = error; const e = error;
+        } catch (error: unknown) {
           errors.push(error instanceof Error ? error.message : String(error));
         }
       }
@@ -1869,7 +1863,7 @@ export class AgentRunService {
         failed: errors.length,
         error: errors.length > 0 ? errors.join('; ') : undefined,
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.appendRuntimeEventReceipt(run, {
         ...receipt,
         delivery: 'failed',
@@ -2006,8 +2000,7 @@ export class AgentRunService {
       }
       try {
         return { index, snapshot: eventBus.snapshot() };
-      } catch (error: any) { const err = error; const e = error;
-        return { index, snapshot: null };
+      } catch (error: unknown) {return { index, snapshot: null };
       }
     });
   }
@@ -2191,7 +2184,7 @@ export class AgentRunService {
           quietLanes: snapshot.reviewCenter.quietLanes,
         },
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       run.metadata = {
         ...run.metadata,
         nativeAutonomySpine: {

@@ -23,6 +23,7 @@ import {
   renameColumn,
   upsertCard,
 } from './productData';
+import { asErrorLike } from '../lib/errors';
 
 export function useDesktopProduct(input: {
   tools: ToolItem[];
@@ -91,7 +92,8 @@ export function useDesktopProduct(input: {
       setLastPushError(null);
       setLastSyncedAt(new Date().toISOString());
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setLastPushOk(false);
       setLastPushError(error instanceof Error ? error.message : 'Runtime workboard push failed.');
       return false;
@@ -244,7 +246,8 @@ export function useDesktopProduct(input: {
       }
       input.setNotice(result.data?.message || `Installed ${plugin?.name || pluginId}.`);
       await refreshMarketplace();
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       // Optimistic local mark when API is unavailable but tool already exists.
       setMarketplacePlugins(current => current.map(item => item.id === pluginId
         ? { ...item, status: 'installed' }
@@ -268,7 +271,8 @@ export function useDesktopProduct(input: {
       }
       input.setNotice(result.data?.message || `Uninstalled ${pluginId}.`);
       await refreshMarketplace();
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       setMarketplacePlugins(current => current.map(item => item.id === pluginId
         ? { ...item, status: 'available' }
         : item));

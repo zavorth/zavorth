@@ -5,9 +5,7 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { assertProviderValidationTargetAllowed } from "@/lib/security/egressGuard";
 import { providerNodeValidateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-function sanitizeAnthropicBaseUrl(baseUrl: string) {
+import { logger } from '@/shared/utils/logger';function sanitizeAnthropicBaseUrl(baseUrl: string) {
   return (baseUrl || "")
     .trim()
     .replace(/\/$/, "")
@@ -29,8 +27,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -102,8 +99,7 @@ export async function POST(request) {
     });
 
     return NextResponse.json({ valid: res.ok, error: res.ok ? null : "Invalid API key" });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error validating provider node:", error);
+  } catch (error: unknown) {console.log("Error validating provider node:", error);
     return NextResponse.json({ error: "Validation failed" }, { status: 500 });
   }
 }

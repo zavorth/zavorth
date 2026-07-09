@@ -243,8 +243,8 @@ export class CapabilityAutopilotRepairExecutionService {
         evidence: output.evidence || [],
         metadata: output.metadata || {},
       });
-    } catch (error: any) {
-    logger.warn('[Capability Autopilot Repair Execution] lifecycle operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Capability Autopilot Repair Execution] lifecycle operation failed', error);
     return this.stepResult(input.step, 'failed', input.startedAt, this.now().toISOString(), {
         summary: 'Runner de repair falhou.',
         detail: error?.message || String(error),

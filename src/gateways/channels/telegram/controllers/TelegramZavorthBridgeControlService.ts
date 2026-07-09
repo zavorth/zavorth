@@ -11,7 +11,6 @@ import {
   ZavorthBridgeControlService,
 } from '@zavorth/services/ZavorthBridgeControlService.js';
 import { TelegramOpsInsightPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramOpsInsightPresentationService.js';
-
 type TelegramZavorthBridgeControlServiceDeps = {
   zavorthBridgeControlService: Pick<ZavorthBridgeControlService, 'open' | 'restart' | 'status' | 'setModel'>;
   zavorthBridgePreferenceStore: Pick<ZavorthBridgePreferenceStore, 'getPreferredModel' | 'setPreferredModel'>;
@@ -119,7 +118,7 @@ export class TelegramZavorthBridgeControlService {
       }
 
       await ctx.reply(this.formatControlReply(result));
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (isCapabilityUnavailableError(error)) {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           error,

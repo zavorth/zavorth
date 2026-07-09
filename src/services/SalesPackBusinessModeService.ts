@@ -134,7 +134,7 @@ export class SalesPackBusinessModeService {
         updatedAt: this.clean(record.updatedAt) || this.now().toISOString(),
         updatedBy: this.clean(record.updatedBy) || 'legacy',
       };
-    } catch (error: any) { logger.warn('[Sales Pack Business Mode] operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Sales Pack Business Mode] operation failed', error); return null; }
   }
 
   private clean(value: unknown): string | null {

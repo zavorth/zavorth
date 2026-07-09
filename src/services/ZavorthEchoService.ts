@@ -179,7 +179,7 @@ export class ZavorthEchoService {
         permissionsRequested: loopResult.permissionsRequested,
         executionEntry: entry,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const entry = this.buildExecutionEntry({
         prompt: normalizedPrompt,
         startTime,
@@ -427,8 +427,7 @@ export class ZavorthEchoService {
         providerName,
         latencyMs: Date.now() - start,
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth] network request failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth] network request failed', error);
     return {
         online: false,
         model,
@@ -636,7 +635,7 @@ export class ZavorthEchoService {
         return typeof tool.getRecentPhysicalEvents === 'function'
           ? tool.getRecentPhysicalEvents(6)
           : [];
-      } catch (error: any) { logger.warn('[Zavorth] process signal failed', error); return []; }
+      } catch (error: unknown) {logger.warn('[Zavorth] process signal failed', error); return []; }
     });
 
     return events

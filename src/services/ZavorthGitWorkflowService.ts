@@ -340,8 +340,7 @@ export class ZavorthGitWorkflowService {
     try {
       const parsed = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
       current = Array.isArray(parsed?.receipts) ? parsed.receipts : [];
-    } catch (error: any) {
-    logger.warn('[Zavorth Git Workflow] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Git Workflow] JSON parse failed', error);
     current = [];
   }
     fs.mkdirSync(path.dirname(receiptPath), { recursive: true });

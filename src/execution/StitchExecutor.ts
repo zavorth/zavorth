@@ -49,9 +49,7 @@ import {
   StitchModelId,
   StitchSdkModule,
   StitchSuccessSummaryInput,
-} from './stitch-executor/stitchExecutorTypes.js';
-
-export class StitchExecutor implements IExecutor {
+} from './stitch-executor/stitchExecutorTypes.js';export class StitchExecutor implements IExecutor {
   public readonly name = 'stitch';
 
   public async execute(request: ExecutionRequest): Promise<ExecutionResult> {
@@ -119,8 +117,7 @@ export class StitchExecutor implements IExecutor {
     try {
       await this.loadSdk();
       return true;
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 

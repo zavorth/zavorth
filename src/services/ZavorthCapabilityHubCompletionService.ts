@@ -239,7 +239,7 @@ export class ZavorthCapabilityHubCompletionService {
         completedManualSteps: ['review scope and approval budget'],
         completedReadinessChecks: ['release-readiness-readiness', 'artifact-receipt-policy'],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (!/already exists/i.test(error instanceof Error ? error.message : String(error))) {
         throw error;
       }

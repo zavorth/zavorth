@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 import {
   readArg,
   readNestedJsonFromTsxScript,
@@ -99,7 +100,9 @@ function main(): void {
     if (requirePass && !snapshot.summary.ok) {
       process.exitCode = 1;
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     process.stderr.write(`[capability-autopilot-release-execution] falha: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   }

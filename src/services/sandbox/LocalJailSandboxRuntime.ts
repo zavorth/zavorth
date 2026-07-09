@@ -82,8 +82,7 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
     } finally {
       try {
         fs.rmSync(jailPath, { recursive: true, force: true });
-      } catch (error: any) {
-      // ignore cleanup failures for ephemeral jails
+      } catch (error: unknown) {// ignore cleanup failures for ephemeral jails
       logger.warn('[Local Jail Sandbox Runtime] process execution failed', error);
     }
     }
@@ -221,8 +220,7 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
           } else {
             child.kill('SIGKILL');
           }
-        } catch (error: any) {
-      // ignore kill failures on timeout
+        } catch (error: unknown) {// ignore kill failures on timeout
       logger.warn('[Local Jail Sandbox Runtime] process execution failed', error);
     }
 

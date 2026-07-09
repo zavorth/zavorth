@@ -37,9 +37,7 @@ import { SkillContentScannerService, type SkillContentScanResult } from './Skill
 import { SkillLoader } from './SkillLoader.js';
 import { ZavorthSkillPreprocessorService } from './ZavorthSkillPreprocessorService.js';
 import { ZavorthPathCompactor } from './ZavorthPathCompactor.js';
-import { ZavorthRuntimeStateBusService } from '../services/ZavorthRuntimeStateBusService.js';
-
-type Runtime = {
+import { ZavorthRuntimeStateBusService } from '../services/ZavorthRuntimeStateBusService.js';type Runtime = {
   now?: () => Date;
   projectRoot?: string;
   runtimeStateBus?: Pick<ZavorthRuntimeStateBusService, 'dispatch'> | null;
@@ -677,8 +675,7 @@ export class UniversalSkillBridgeRuntimeService {
         }
         const parsed = JSON.parse(this.readFileSyncImpl(filePath, 'utf8'));
         return Array.isArray(parsed?.receipts) ? parsed.receipts : [];
-      } catch (error: any) { const err = error; const e = error;
-        return [];
+      } catch (error: unknown) {return [];
       }
     })();
     this.mkdirSyncImpl(path.dirname(filePath), { recursive: true });
@@ -729,8 +726,7 @@ export class UniversalSkillBridgeRuntimeService {
           },
         },
       });
-    } catch (error: any) { const err = error; const e = error;
-      // Skill bridge receipts must not fail the safe prompt envelope path.
+    } catch (error: unknown) {// Skill bridge receipts must not fail the safe prompt envelope path.
     }
   }
 }

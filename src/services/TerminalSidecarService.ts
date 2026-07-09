@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -178,7 +179,7 @@ export class TerminalSidecarService {
         allowLoopback: true,
       });
       return response.status > 0 && response.status < 500;
-    } catch (error: any) { logger.warn('[Terminal Sidecar] network request failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Terminal Sidecar] network request failed', error); return false; }
   }
 
   private buildHealthUrl(): string {
@@ -191,7 +192,7 @@ export class TerminalSidecarService {
       const parsed = new URL(this.baseUrl);
       const port = parsed.port ? Number(parsed.port) : 80;
       return Number.isFinite(port) && port > 0 ? port : 4747;
-    } catch (error: any) { logger.warn('[Terminal Sidecar] parsing failed', error); return 4747; }
+    } catch (error: unknown) {logger.warn('[Terminal Sidecar] parsing failed', error); return 4747; }
   }
 
   private resolveLocalUrl(): string {
@@ -199,7 +200,7 @@ export class TerminalSidecarService {
       const parsed = new URL(this.baseUrl);
       const port = parsed.port || '4747';
       return `http://${this.getLocalIp()}:${port}`;
-    } catch (error: any) { logger.warn('[Terminal Sidecar] network request failed', error); return this.baseUrl; }
+    } catch (error: unknown) {logger.warn('[Terminal Sidecar] network request failed', error); return this.baseUrl; }
   }
 
   private getLocalIp(): string {
@@ -281,7 +282,9 @@ export class TerminalSidecarService {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          logger.warn("[auto-fix] Empty catch block", err); }
         finalize();
       }, 5000);
 
@@ -299,8 +302,7 @@ export class TerminalSidecarService {
 
       try {
         child.kill('SIGTERM');
-      } catch (error: any) {
-        clearTimeout(timeout);
+      } catch (error: unknown) {clearTimeout(timeout);
         finalize();
       }
     });

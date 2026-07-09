@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿/**
  * BrowserCdpSupervisorEnhanced — Full CDP browser control with frame tree,
  * console capture, dialog bridge injection, and OOPIF support.
@@ -212,8 +213,7 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
       try {
         await this.connect();
         this.emit('reconnected');
-      } catch (error: any) {
-        this.attemptReconnect();
+      } catch (error: unknown) {this.attemptReconnect();
       }
     }, delay);
   }
@@ -246,8 +246,7 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
       if (msg.method) {
         this.handleEvent(msg.method, msg.params);
       }
-    } catch (error: any) {
-      // ignore invalid messages
+    } catch (error: unknown) {// ignore invalid messages
       logger.warn('[Browser Cdp Supervisor Enhanced] delete operation failed', error);
     }
   }
@@ -398,7 +397,8 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
       });
       this.bridgeInjected = true;
       this.emit('bridge_injected');
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.emit('bridge_error', err);
     }
   }
@@ -411,8 +411,7 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
       const result = await this.send('Page.getFrameTree', {}) as Record<string, unknown>;
       const frameTree = result?.frameTree as Record<string, unknown>;
       return this.parseFrameTree(frameTree);
-    } catch (error: any) {
-      // Fallback to tracked frames
+    } catch (error: unknown) {// Fallback to tracked frames
       const roots: FrameTreeNode[] = [];
       for (const frame of this.frames.values()) {
         if (!frame.parentId) {
@@ -465,7 +464,7 @@ export class BrowserCdpSupervisorEnhanced extends EventEmitter {
 
       const context = result?.executionContextId as number | undefined;
       return context;
-    } catch (error: any) { logger.warn('[Browser Cdp Supervisor Enhanced] process execution failed', error); return undefined; }
+    } catch (error: unknown) {logger.warn('[Browser Cdp Supervisor Enhanced] process execution failed', error); return undefined; }
   }
 
   /**

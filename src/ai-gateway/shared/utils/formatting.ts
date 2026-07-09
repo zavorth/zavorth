@@ -1,5 +1,4 @@
-import { logger } from '@/shared/utils/logger';
-/**
+import { logger } from '@/shared/utils/logger';/**
  * Shared formatting utilities - DRY extraction from duplicated functions
  * across RequestLoggerV2.js, UsageAnalytics.js, ProxyLogger.js
  *
@@ -20,7 +19,7 @@ export function formatTime(isoString) {
       minute: "2-digit",
       second: "2-digit",
     });
-  } catch (error: any) { const err = error; const e = error; logger.warn('[formatting] string operation failed', error); return "-"; }
+  } catch (error: unknown) {logger.warn('[formatting] string operation failed', error); return "-"; }
 }
 
 /**
@@ -43,7 +42,7 @@ export function formatDateTime(iso) {
   try {
     const d = new Date(iso);
     return d.toLocaleDateString("en-US") + ", " + d.toLocaleTimeString("en-US", { hour12: false });
-  } catch (error: any) { const err = error; const e = error; logger.warn('[formatting] string operation failed', error); return iso; }
+  } catch (error: unknown) {logger.warn('[formatting] string operation failed', error); return iso; }
 }
 
 /**
@@ -141,8 +140,7 @@ export function truncateUrl(url, max = 50) {
     const parsed = new URL(url);
     const display = parsed.hostname + parsed.pathname;
     return display.length > max ? display.slice(0, max) + "..." : display;
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[formatting] parsing failed', error);
+  } catch (error: unknown) {logger.warn('[formatting] parsing failed', error);
     return url.length > max ? url.slice(0, max) + "..." : url;
   }
 }

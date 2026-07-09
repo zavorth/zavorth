@@ -1,3 +1,4 @@
+import { translate, translateCount } from './locale';
 import { computeNextAction, renderNextActionBar } from './next-action-ui';
 import { renderSessionTrustScore } from './session-trust-score';
 import { updateWorkboardLite } from './workboard-lite';
@@ -38,7 +39,7 @@ function setLiveStrip(
   setDashboardText('[data-live-runtime-detail]', runtimeDetail);
   setDashboardText('[data-live-gateway-state]', gatewayState);
   setDashboardText('[data-live-gateway-detail]', gatewayDetail);
-  setDashboardText('[data-live-sync-state]', 'Last sync');
+  setDashboardText('[data-live-sync-state]', translate('Last sync'));
   setDashboardText('[data-live-sync-detail]', syncDetail);
   document.querySelectorAll<HTMLElement>('[data-live-runtime-state]').forEach((node) => {
     node.dataset.liveValue = String(runtimeState || '').toLowerCase();
@@ -186,8 +187,8 @@ export function createDashboardLiveView({
         if (String(approval?.status || 'pending') !== 'pending') return;
         pending.push({
           id: String(approval?.id || run?.id || 'approval'),
-          title: String(approval?.title || approval?.action || run?.title || 'Approval needed'),
-          detail: String(approval?.summary || approval?.risk || run?.summary || 'Decision required'),
+          title: String(approval?.title || approval?.action || run?.title || translate('Approval needed')),
+          detail: String(approval?.summary || approval?.risk || run?.summary || translate('Decision required')),
         });
       });
     });
@@ -206,10 +207,10 @@ export function createDashboardLiveView({
       items.push(`
         <article class="daily-attention-item daily-attention-item--warn">
           <div>
-            <strong>Unlock runtime</strong>
-            <small>Auth required</small>
+            <strong>${escapeHtml(translate('Unlock runtime'))}</strong>
+            <small>${escapeHtml(translate('Auth required'))}</small>
           </div>
-          <button class="daily-button daily-button--primary" type="button" data-dashboard-doctor>Doctor</button>
+          <button class="daily-button daily-button--primary" type="button" data-dashboard-doctor>${escapeHtml(translate('Doctor'))}</button>
         </article>
       `);
     }
@@ -220,10 +221,10 @@ export function createDashboardLiveView({
       items.push(`
         <article class="daily-attention-item daily-attention-item--warn">
           <div>
-            <strong>${snapshot.activeApprovals} approval${snapshot.activeApprovals === 1 ? '' : 's'}</strong>
-            <small>${escapeHtml(compactTraceText(first?.title || 'Pending decision', 48))}</small>
+            <strong>${escapeHtml(translateCount('1 approval waiting', '{n} approvals waiting', snapshot.activeApprovals))}</strong>
+            <small>${escapeHtml(compactTraceText(first?.title || translate('Pending decision'), 48))}</small>
           </div>
-          <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="sales-os">Review</button>
+          <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="sales-os">${escapeHtml(translate('Review'))}</button>
         </article>
       `);
     }
@@ -232,10 +233,10 @@ export function createDashboardLiveView({
       items.push(`
         <article class="daily-attention-item daily-attention-item--danger">
           <div>
-            <strong>${snapshot.errorEvents} error${snapshot.errorEvents === 1 ? '' : 's'}</strong>
-            <small>In recent trail</small>
+            <strong>${escapeHtml(translateCount('1 error in trail', '{n} errors in trail', snapshot.errorEvents))}</strong>
+            <small>${escapeHtml(translate('In recent trail'))}</small>
           </div>
-          <button class="daily-button" type="button" data-dashboard-sector="instances">Proof</button>
+          <button class="daily-button" type="button" data-dashboard-sector="instances">${escapeHtml(translate('Proof'))}</button>
         </article>
       `);
     }
@@ -244,10 +245,10 @@ export function createDashboardLiveView({
       items.push(`
         <article class="daily-attention-item daily-attention-item--warn">
           <div>
-            <strong>Runtime offline</strong>
-            <small>Run doctor</small>
+            <strong>${escapeHtml(translate('Runtime offline'))}</strong>
+            <small>${escapeHtml(translate('Run doctor'))}</small>
           </div>
-          <button class="daily-button daily-button--primary" type="button" data-dashboard-doctor>Doctor</button>
+          <button class="daily-button daily-button--primary" type="button" data-dashboard-doctor>${escapeHtml(translate('Doctor'))}</button>
         </article>
       `);
     }
@@ -257,42 +258,42 @@ export function createDashboardLiveView({
         snapshot.liveSnapshot.activeRun?.title
           || snapshot.liveSnapshot.activeRun?.summary
           || snapshot.lastEvent?.title
-          || 'Task running',
+          || translate('Task running'),
         48,
       );
       items.push(`
         <article class="daily-attention-item">
           <div>
-            <strong>${escapeHtml(title || 'Task running')}</strong>
-            <small>${snapshot.thinking ? 'Working' : 'Active'}</small>
+            <strong>${escapeHtml(title || translate('Task running'))}</strong>
+            <small>${escapeHtml(snapshot.thinking ? translate('Working…') : translate('Active run'))}</small>
           </div>
-          <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
+          <button class="daily-button" type="button" data-dashboard-sector="terminal">${escapeHtml(translate('Open chat'))}</button>
         </article>
       `);
     }
 
     const html = items.length
       ? items.join('')
-      : '<p class="daily-muted">Nothing needs you</p>';
+      : `<p class="daily-muted">${escapeHtml(translate('Nothing needs you'))}</p>`;
     nodes.forEach((node) => {
       node.innerHTML = html;
       node.dataset.attentionCount = String(items.length);
     });
 
-    // Inbox banner stays aggressive when something needs the user
+    // Inbox banner when the user must act
     const approvalBanner = document.getElementById('approval-context-banner');
     if (approvalBanner) {
       const needsBanner = snapshot.activeApprovals > 0 || authRequired || (!live && !authRequired);
       approvalBanner.hidden = !needsBanner;
       if (snapshot.activeApprovals > 0) {
-        setDashboardText('[data-inbox-approval-title]', `${snapshot.activeApprovals} pending approval${snapshot.activeApprovals === 1 ? '' : 's'}`);
-        setDashboardText('[data-inbox-approval-text]', 'Review before risky work continues.');
+        setDashboardText('[data-inbox-approval-title]', translateCount('1 approval waiting', '{n} approvals waiting', snapshot.activeApprovals));
+        setDashboardText('[data-inbox-approval-text]', translate('Review before risky work continues.'));
       } else if (authRequired) {
-        setDashboardText('[data-inbox-approval-title]', 'Unlock runtime');
-        setDashboardText('[data-inbox-approval-text]', 'Auth required.');
+        setDashboardText('[data-inbox-approval-title]', translate('Unlock runtime'));
+        setDashboardText('[data-inbox-approval-text]', translate('Auth required'));
       } else if (!live) {
-        setDashboardText('[data-inbox-approval-title]', 'Runtime offline');
-        setDashboardText('[data-inbox-approval-text]', 'Run doctor.');
+        setDashboardText('[data-inbox-approval-title]', translate('Runtime offline'));
+        setDashboardText('[data-inbox-approval-text]', translate('Run doctor'));
       }
     }
   };
@@ -343,8 +344,8 @@ export function createDashboardLiveView({
     const pending = collectPendingApprovals(snapshot);
     if (pending.length === 0 && snapshot.activeApprovals <= 0) {
       queue.innerHTML = `
-        <p class="daily-muted" data-dashboard-approval-text>Nothing pending.</p>
-        <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
+        <p class="daily-muted" data-dashboard-approval-text>${escapeHtml(translate('Nothing pending.'))}</p>
+        <button class="daily-button" type="button" data-dashboard-sector="terminal">${escapeHtml(translate('Open chat'))}</button>
       `;
       return;
     }
@@ -353,10 +354,10 @@ export function createDashboardLiveView({
       queue.innerHTML = `
         <article class="daily-attention-item daily-attention-item--warn">
           <div>
-            <strong>${snapshot.activeApprovals} pending</strong>
-            <small>Open chat to decide</small>
+            <strong>${escapeHtml(translateCount('1 pending', '{n} pending', snapshot.activeApprovals))}</strong>
+            <small>${escapeHtml(translate('Open chat to decide'))}</small>
           </div>
-          <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>
+          <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">${escapeHtml(translate('Open chat'))}</button>
         </article>
       `;
       return;
@@ -368,7 +369,7 @@ export function createDashboardLiveView({
           <strong>${escapeHtml(compactTraceText(item.title, 64))}</strong>
           <small>${escapeHtml(compactTraceText(item.detail, 80))}</small>
         </div>
-        <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>
+        <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">${escapeHtml(translate('Open chat'))}</button>
       </article>
     `).join('');
   };
@@ -378,9 +379,9 @@ export function createDashboardLiveView({
     if (pendingHost) {
       const pending = collectPendingApprovals(snapshot);
       if (pending.length === 0 && snapshot.activeApprovals <= 0) {
-        pendingHost.innerHTML = '<p class="trust-rail__empty">None</p>';
+        pendingHost.innerHTML = `<p class="trust-rail__empty">${escapeHtml(translate('None'))}</p>`;
       } else if (pending.length === 0) {
-        pendingHost.innerHTML = `<p class="trust-rail__empty">${snapshot.activeApprovals} pending</p>`;
+        pendingHost.innerHTML = `<p class="trust-rail__empty">${escapeHtml(translateCount('1 approval waiting', '{n} approvals waiting', snapshot.activeApprovals))}</p>`;
       } else {
         pendingHost.innerHTML = pending.slice(0, 4).map((item) => `
           <article class="trust-rail__item">
@@ -402,8 +403,8 @@ export function createDashboardLiveView({
       } else {
         receiptHost.innerHTML = `
           <article class="trust-rail__item">
-            <strong>${escapeHtml(compactTraceText(lastReceipt.title || 'Receipt', 48))}</strong>
-            <small>${escapeHtml(compactTraceText(lastReceipt.status || lastReceipt.time || 'recorded', 40))}</small>
+            <strong>${escapeHtml(compactTraceText(lastReceipt.title || translate('Proof'), 48))}</strong>
+            <small>${escapeHtml(compactTraceText(lastReceipt.status || lastReceipt.time || translate('recorded'), 40))}</small>
           </article>
         `;
       }
@@ -438,14 +439,18 @@ export function createDashboardLiveView({
     hasActiveRun: boolean,
     activeRun: any,
   ) => {
-    if (snapshot.thinking) return 'Working…';
+    if (snapshot.thinking) return translate('Working…');
     if (hasActiveRun) {
       const status = dashboardStatusText(activeRun?.status || activeRun?.nextAction || activeRun?.summary, 'running');
-      return compactTraceText(status, 72) || 'Running.';
+      return compactTraceText(status, 72) || translate('Running.');
     }
-    if (snapshot.activeApprovals > 0) return `${snapshot.activeApprovals} approval${snapshot.activeApprovals === 1 ? '' : 's'} pending.`;
-    if (snapshot.errorEvents > 0) return `${snapshot.errorEvents} error${snapshot.errorEvents === 1 ? '' : 's'} in trace.`;
-    return 'Ready.';
+    if (snapshot.activeApprovals > 0) {
+      return translateCount('1 approval waiting', '{n} approvals waiting', snapshot.activeApprovals);
+    }
+    if (snapshot.errorEvents > 0) {
+      return translateCount('1 error in trail', '{n} errors in trail', snapshot.errorEvents);
+    }
+    return translate('Ready.');
   };
 
   const updateDashboardGlass = () => {
@@ -460,60 +465,88 @@ export function createDashboardLiveView({
     const activeRun = snapshot.liveSnapshot.activeRun;
     const hasActiveRun = snapshot.liveSnapshot.active;
     setLiveStrip(
-      snapshot.thinking ? 'Working' : hasActiveRun ? 'Task running' : snapshot.activeApprovals > 0 ? 'Decision needed' : 'Ready',
+      snapshot.thinking
+        ? translate('Working')
+        : hasActiveRun
+          ? translate('Task running')
+          : snapshot.activeApprovals > 0
+            ? translate('Decision needed')
+            : translate('Ready'),
       hasActiveRun
         ? dashboardStatusText(activeRun?.status || activeRun?.title, 'active')
         : snapshot.lastEvent
           ? dashboardStatusText(snapshot.lastEvent.title, 'updated')
-          : 'Idle',
-      snapshot.liveSnapshot.modelLabel || snapshot.modelLabel || 'Gateway',
+          : translate('Idle'),
+      snapshot.liveSnapshot.modelLabel || snapshot.modelLabel || translate('Gateway'),
       snapshot.liveSnapshot.routeLabel || getCurrentModelRouteLabel(),
-      snapshot.lastEvent ? snapshot.lastEvent.time || 'Just now' : 'Just now',
+      snapshot.lastEvent ? snapshot.lastEvent.time || translate('Just now') : translate('Just now'),
     );
 
     const runtimeTitle = snapshot.thinking
-      ? 'Task in progress'
+      ? translate('Task in progress')
       : hasActiveRun
         ? compactTraceText(activeRun?.title || activeRun?.summary || activeRun?.id, 80)
-        : 'No task running';
+        : translate('No task running');
     const runtimeText = shortRuntimeText(snapshot, hasActiveRun, activeRun);
     setDashboardText('[data-dashboard-runtime-title]', runtimeTitle);
     setDashboardText('[data-dashboard-runtime-text]', runtimeText);
 
     setDashboardText('[data-dashboard-approval-title]', snapshot.activeApprovals > 0
-      ? `${snapshot.activeApprovals} pending`
-      : 'Nothing needs you');
+      ? translateCount('1 pending', '{n} pending', snapshot.activeApprovals)
+      : translate('Nothing needs you'));
     setDashboardText('[data-dashboard-approval-text]', snapshot.activeApprovals > 0
-      ? 'Review pending decisions.'
-      : 'Nothing pending.');
+      ? translate('Review pending decisions.')
+      : translate('Nothing pending.'));
 
     const approvalBanner = document.getElementById('approval-context-banner');
     if (approvalBanner) approvalBanner.hidden = snapshot.activeApprovals <= 0;
     setDashboardText('[data-inbox-approval-title]', snapshot.activeApprovals > 0
-      ? `${snapshot.activeApprovals} pending`
-      : 'No pending approvals');
+      ? translateCount('1 pending', '{n} pending', snapshot.activeApprovals)
+      : translate('No pending approvals'));
     setDashboardText('[data-inbox-approval-text]', snapshot.activeApprovals > 0
-      ? 'Review pending decisions.'
-      : 'Nothing pending.');
+      ? translate('Review pending decisions.')
+      : translate('Nothing pending.'));
 
     setDashboardText('[data-dashboard-remote="mcp"]', snapshot.pendingRemoteMesh > 0
-      ? `${snapshot.pendingRemoteMesh} pending`
+      ? translateCount('1 pending', '{n} pending', snapshot.pendingRemoteMesh)
       : snapshot.receiptEvents > 0
-        ? 'receipt ok'
-        : 'protected');
-    setDashboardText('[data-dashboard-remote="docker"]', snapshot.pendingRemoteMesh > 0 ? 'waiting' : 'gated');
-    setDashboardText('[data-dashboard-remote="files"]', snapshot.artifactCount > 0 ? 'scoped' : 'read');
+        ? translate('receipt ok')
+        : translate('protected'));
+    setDashboardText(
+      '[data-dashboard-remote="docker"]',
+      snapshot.pendingRemoteMesh > 0 ? translate('waiting') : translate('gated'),
+    );
+    setDashboardText(
+      '[data-dashboard-remote="files"]',
+      snapshot.artifactCount > 0 ? translate('scoped') : translate('read'),
+    );
 
-    setDashboardText('[data-dashboard-strip="status"]', snapshot.thinking ? 'running' : 'online');
+    setDashboardText('[data-dashboard-strip="status"]', snapshot.thinking ? translate('running') : translate('online'));
     setDashboardText('[data-dashboard-strip-detail="status"]', snapshot.lastEvent
       ? dashboardStatusText(snapshot.lastEvent.title, 'updated')
-      : 'local');
+      : translate('local'));
     setDashboardText('[data-dashboard-strip="model"]', snapshot.modelLabel);
     setDashboardText('[data-dashboard-strip-detail="model"]', getCurrentModelRouteLabel());
-    setDashboardText('[data-dashboard-strip="budget"]', snapshot.totalEvents > 0 ? `${snapshot.totalEvents} evt` : '0 evt');
-    setDashboardText('[data-dashboard-strip-detail="budget"]', snapshot.errorEvents > 0 ? `${snapshot.errorEvents} error(s)` : 'ok');
-    setDashboardText('[data-dashboard-strip="security"]', snapshot.activeApprovals > 0 ? 'approval' : 'active');
-    setDashboardText('[data-dashboard-strip-detail="security"]', snapshot.activeApprovals > 0 ? 'pending' : 'ok');
+    setDashboardText(
+      '[data-dashboard-strip="budget"]',
+      snapshot.totalEvents > 0
+        ? translate('{n} evt').replace('{n}', String(snapshot.totalEvents))
+        : translate('0 evt'),
+    );
+    setDashboardText(
+      '[data-dashboard-strip-detail="budget"]',
+      snapshot.errorEvents > 0
+        ? translateCount('1 error', '{n} errors', snapshot.errorEvents)
+        : translate('ok'),
+    );
+    setDashboardText(
+      '[data-dashboard-strip="security"]',
+      snapshot.activeApprovals > 0 ? translate('approval') : translate('active'),
+    );
+    setDashboardText(
+      '[data-dashboard-strip-detail="security"]',
+      snapshot.activeApprovals > 0 ? translate('pending') : translate('ok'),
+    );
     setDashboardText('[data-inbox-metric="approvals"]', String(snapshot.activeApprovals || 0));
     setDashboardText('[data-inbox-metric="receipts"]', String(snapshot.artifactCount || snapshot.receiptEvents || 0));
     setDashboardText('[data-dashboard-metric="receipts"]', String(snapshot.artifactCount || snapshot.receiptEvents || 0));
@@ -529,6 +562,12 @@ export function createDashboardLiveView({
     updateTrustRail(snapshot);
     updateApprovalsQueue(snapshot);
     applySessionSearchFilter();
+    // Re-apply locale to any static labels that were not rebuilt via translate()
+    try {
+      window.ZavorthLocale?.apply?.(document.getElementById('trust-rail') || document);
+    } catch {
+      // optional
+    }
 
     renderSessionTrustScore({
       pendingApprovals: snapshot.pendingApprovals,

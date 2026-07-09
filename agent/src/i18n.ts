@@ -1,6 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,7 +46,7 @@ function detectSystemLanguage(): string {
       const code = locale.split('-')[0].toLowerCase();
       return code;
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // continue
   }
   return 'en';
@@ -59,13 +65,15 @@ export function loadAllLocales(): void {
         try {
           const content = fs.readFileSync(filePath, 'utf8');
           dictionaries[langCode] = JSON.parse(content);
-        } catch (err) {
-          console.warn(`[i18n] Failed to parse locale file ${file}: ${(err as Error).message}`);
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          console.warn(`[i18n] Failed to parse locale file ${file}: ${err.message}`);
         }
       }
     }
-  } catch (error) {
-    console.error(`[i18n] Failed to read locales directory: ${(error as Error).message}`);
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    console.error(`[i18n] Failed to read locales directory: ${err.message}`);
   }
 
   // Ensure 'en' is loaded (at least in memory as a fallback if file doesn't exist)
@@ -207,8 +215,9 @@ async function translateAndCacheKey(key: string, englishText: string, targetLang
       fs.writeFileSync(filePath, JSON.stringify(dictionaries[targetLang], null, 2), 'utf8');
       console.log(`[i18n] Translation cached: "${key}" -> "${cleanText}" (${targetLang})`);
     }
-  } catch (error) {
-    console.warn(`[i18n] Failed to translate key "${key}" to "${targetLang}": ${(error as Error).message}`);
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    console.warn(`[i18n] Failed to translate key "${key}" to "${targetLang}": ${err.message}`);
   } finally {
     pendingTranslations.delete(cacheKey);
   }
@@ -219,6 +228,6 @@ try {
   loadAllLocales();
   osLang = detectSystemLanguage();
   activeLang = dictionaries[osLang] ? osLang : 'en';
-} catch (error) {
+} catch (error: unknown) {
   // Silent fallback
 }

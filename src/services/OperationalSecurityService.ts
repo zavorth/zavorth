@@ -177,8 +177,7 @@ export class OperationalSecurityService {
         ok: typeof parsed.ok === 'boolean' ? parsed.ok : null,
         summary: typeof parsed.summary === 'string' ? parsed.summary : null,
       };
-    } catch (error: any) {
-    logger.warn('[Operational Security] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Operational Security] JSON parse failed', error);
     return {
         available: false,
         generatedAt: null,
@@ -219,7 +218,7 @@ export class OperationalSecurityService {
       }
 
       return JSON.parse(this.readFileSync(filePath, 'utf8')) as Record<string, unknown>;
-    } catch (error: any) { logger.warn('[Operational Security] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Operational Security] JSON parse failed', error); return null; }
   }
 
   private readRecentAuditRecords(filePath: string, limit: number): SecurityAuditReplayRecord[] {
@@ -247,7 +246,7 @@ export class OperationalSecurityService {
             typeof record.previous_chain_hash === 'string' ? record.previous_chain_hash : null,
         }))
         .filter((record) => record.chainHash);
-    } catch (error: any) { logger.warn('[Operational Security] operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Operational Security] operation failed', error); return []; }
   }
 
   private describeZavorthControlAuthSource(

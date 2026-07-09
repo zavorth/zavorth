@@ -2,7 +2,6 @@ import { z } from 'zod';
 import type { IZavorthTool, ToolCategory, ToolDangerLevel, ToolExecutionResult } from '../../types/IZavorthTool.js';
 import type { ZavorthActionDefinition, ZavorthActionResult, ZavorthActionSchema } from '../../../runtime/actions/ZavorthActionContracts.js';
 import type { ZavorthActionGateway } from '../../../runtime/actions/ZavorthActionGateway.js';
-
 /**
  * ActionHarnessToolAdapter
  *
@@ -77,7 +76,7 @@ export class ActionHarnessToolAdapter implements IZavorthTool {
         error: result.summary || `Action "${this.actionId}" returned a non-ok result.`,
         data: scrubLlmToolData(result.data),
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         success: false,

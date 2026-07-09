@@ -42,8 +42,7 @@ export async function loadOptionalDependency<T>(
 ): Promise<T> {
   try {
     return await import(dependencyName) as T;
-  } catch (error: any) {
-    const message = String(error?.message || error || '').trim();
+  } catch (error: unknown) {const message = String(error?.message || error || '').trim();
     if (
       message.includes(`Cannot find package '${dependencyName}'`)
       || message.includes(`Cannot find module '${dependencyName}'`)

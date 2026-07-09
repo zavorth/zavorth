@@ -1,6 +1,5 @@
 import { Context } from 'grammy';
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
-
 export type TelegramFileDeliveryPermissionApprovalServiceDeps = {
   replyWithPermissionDecision: (
     ctx: Context,
@@ -26,7 +25,7 @@ export class TelegramFileDeliveryPermissionApprovalService {
         if (resumed) {
           return true;
         }
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : String(error);
         await ctx.reply(
           `The permission was approved, but I could not complete the delivery right now.\n\nReason: ${msg}`,
@@ -41,7 +40,7 @@ export class TelegramFileDeliveryPermissionApprovalService {
         if (resumed) {
           return true;
         }
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : String(error);
         await ctx.reply(
           `The permission was approved, but I could not complete the inspection right now.\n\nReason: ${msg}`,

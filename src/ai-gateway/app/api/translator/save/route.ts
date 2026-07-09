@@ -4,17 +4,14 @@ import path from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { translatorSaveSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-export async function POST(request) {
+import { logger } from '@/shared/utils/logger';export async function POST(request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
         success: false,
@@ -57,8 +54,7 @@ export async function POST(request) {
     fs.writeFileSync(filePath, content, "utf-8");
 
     return NextResponse.json({ success: true });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error saving file:", error);
+  } catch (error: unknown) {console.error("Error saving file:", error);
     return NextResponse.json({ success: false, error: "Failed to save file" }, { status: 500 });
   }
 }

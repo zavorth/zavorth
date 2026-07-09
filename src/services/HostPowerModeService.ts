@@ -3,6 +3,7 @@ import { Database } from '../storage/Database.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { HostCommandPayloadCache } from './HostCommandPayloadCache.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export interface HostPowerModeState {
   enabled: boolean;
@@ -178,8 +179,7 @@ export class HostPowerModeService {
     for (const cb of this.onDisableCallbacks) {
       try {
         await cb(workspaceId);
-      } catch (e: any) { const error = e; const err = e;
-        logger.error('Error in HostPowerMode disable callback:', e);
+      } catch (error: unknown) { const err = asErrorLike(error); logger.error('Error in HostPowerMode disable callback:', err);
       }
     }
   }

@@ -16,7 +16,6 @@ import {
 } from '../ZavorthCliLiveNamespaces.js';
 import { runDiskMutationGateCommand } from '../disk/ZavorthCliDiskMutationNamespace.js';
 import { runProjectConstitutionCommand } from '../constitution/ZavorthCliConstitutionNamespace.js';
-
 // Shared infrastructure imports
 import {
   projectRoot,
@@ -144,7 +143,7 @@ export async function runDiagnosticsExport(rawArgs: string[]): Promise<number> {
       ], 'success');
     }
     return 0;
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     await logCliError(`Failed to export diagnostics: ${error?.message || String(error)}`, 'Export Failed');
     return 1;
   }
@@ -232,8 +231,7 @@ export function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { 
   let current = '';
   try {
     current = existsSync(envFile) ? readFileSync(envFile, 'utf8') : '';
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Cli Premium Part1] filesystem operation failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Premium Part1] filesystem operation failed', error);
     current = '';
   }
   const lines = current.split(/\r?\n/u);

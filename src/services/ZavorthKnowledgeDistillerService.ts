@@ -106,7 +106,7 @@ Return only the markdown list items.`;
       logger.info(`[Knowledge Distiller] Distilled rules written to ${this.knowledgePath}`);
       return true;
 
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error(`[Knowledge Distiller] Failed to distill knowledge: ${error}`);
       return false;
     }

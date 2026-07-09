@@ -258,7 +258,7 @@ export class ZavorthRuntimeGuidedFixesService {
   private safeProviderSnapshot(): ZavorthProviderReadinessMatrixSnapshot | null {
     try {
       return this.providerReadiness.buildSnapshot({ includeAdvanced: false, probe: false });
-    } catch (error: any) { logger.warn('[Zavorth Runtime Guided es] creation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Runtime Guided es] creation failed', error); return null; }
   }
 
   private renderTelegramFromParts(snapshot: Omit<ZavorthRuntimeGuidedFixesSnapshot, 'telegramProjection'>): string {

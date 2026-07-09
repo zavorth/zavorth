@@ -12,9 +12,7 @@ import {
 } from './ZavorthActionContracts.js';
 import { ZavorthActionCatalog } from './ZavorthActionCatalog.js';
 import type { GoalLoopLlmRuntime } from '../../services/GoalLoopService.js';
-import type { GoalLoopAgentRunner } from '../../services/GoalLoopWorkerService.js';
-
-type Runtime = {
+import type { GoalLoopAgentRunner } from '../../services/GoalLoopWorkerService.js';type Runtime = {
   root?: string;
   catalog?: ZavorthActionCatalog;
   llmRuntime?: GoalLoopLlmRuntime | null;
@@ -53,8 +51,7 @@ async function readJsonArray(file: string): Promise<unknown[]> {
   try {
     const parsed = JSON.parse(await fsp.readFile(file, 'utf8'));
     return Array.isArray(parsed) ? parsed : [];
-  } catch (error: any) { const err = error; const e = error;
-    return [];
+  } catch (error: unknown) {return [];
   }
 }
 

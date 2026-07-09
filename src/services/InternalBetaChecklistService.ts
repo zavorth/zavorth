@@ -33,8 +33,7 @@ export class InternalBetaChecklistService {
       const trustService = await TrustedWorkspaceService.getInstance();
       const entry = trustService.getTrustEntry(workspaceId);
       workspaceTrusted = Boolean(entry && entry.trusted);
-    } catch (error: any) {
-      // Keep checklist rendering even when trust lookup fails.
+    } catch (error: unknown) {// Keep checklist rendering even when trust lookup fails.
       logger.warn('[Internal Beta Checklist] operation failed', error);
     }
     checklist.push({
@@ -50,8 +49,7 @@ export class InternalBetaChecklistService {
       const providerService = ProviderConfigService.getInstance();
       const providers = await providerService.getProviders();
       providerConfigured = providers.some((provider: any) => provider.enabled && (!provider.requiresApiKey || provider.secretRef));
-    } catch (error: any) {
-      // Keep checklist rendering even when provider lookup fails.
+    } catch (error: unknown) {// Keep checklist rendering even when provider lookup fails.
       logger.warn('[Internal Beta Checklist] operation failed', error);
     }
     checklist.push({
@@ -66,8 +64,7 @@ export class InternalBetaChecklistService {
     try {
       const config = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
       defaultSelected = Boolean(config.defaultProviderId && config.defaultModelId);
-    } catch (error: any) {
-      // Keep checklist rendering even when config lookup fails.
+    } catch (error: unknown) {// Keep checklist rendering even when config lookup fails.
       logger.warn('[Internal Beta Checklist] operation failed', error);
     }
     checklist.push({
@@ -83,8 +80,7 @@ export class InternalBetaChecklistService {
       const db = await Database.getInstance();
       const row = db.get('SELECT 1 FROM agent_workspace_config WHERE workspace_id = ?', [workspaceId]);
       configCustomized = Boolean(row);
-    } catch (error: any) {
-      // Keep checklist rendering even when the database lookup fails.
+    } catch (error: unknown) {// Keep checklist rendering even when the database lookup fails.
       logger.warn('[Internal Beta Checklist] operation failed', error);
     }
     checklist.push({
@@ -145,8 +141,7 @@ export class InternalBetaChecklistService {
           totalSteps: checklist.length,
         },
       });
-    } catch (error: any) {
-      // Checklist rendering should not depend on audit logging availability.
+    } catch (error: unknown) {// Checklist rendering should not depend on audit logging availability.
       logger.warn('[Internal Beta Checklist] operation failed', error);
     }
 

@@ -1,7 +1,5 @@
 import type { LlmResponse, LlmStreamEvent, ToolCall } from './ILlmProvider.js';
-import { logger } from '../logger.js';
-
-type OpenAICompatibleStreamChunk = {
+import { logger } from '../logger.js';type OpenAICompatibleStreamChunk = {
   choices?: Array<{
     delta?: {
       content?: unknown;
@@ -156,8 +154,7 @@ function parseToolArguments(rawValue: string): Record<string, unknown> {
       return parsed as Record<string, unknown>;
     }
     return { value: parsed };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Open A I Compatible Streaming] JSON parse failed', error);
+  } catch (error: unknown) {logger.warn('[Open A I Compatible Streaming] JSON parse failed', error);
     return { raw: normalized };
   }
 }

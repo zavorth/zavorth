@@ -209,7 +209,7 @@ export class GoalLoopService {
           });
         }
         this.recordParseFailure(goal, result.response.content || '');
-      } catch (error: any) {
+      } catch ($1: unknown) {
         this.recordParseFailure(goal, error instanceof Error ? error.message : String(error));
       }
     }
@@ -462,7 +462,7 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : null;
-  } catch (error: any) {
+  } catch ($1: unknown) {
     const match = text.match(/\{[\s\S]*\}/u);
     if (!match) return null;
     try {
@@ -470,6 +470,6 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : null;
-    } catch (error: any) { logger.warn('[Goal Loop] JSON parse failed', error); return null; }
+    } catch ($1: unknown) { logger.warn('[Goal Loop] JSON parse failed', error); return null; }
   }
 }

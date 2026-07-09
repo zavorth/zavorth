@@ -70,8 +70,7 @@ export function validateProxyUrl(
       };
     }
     return { valid: true, url };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[upstream] network request failed', error);
+  } catch (error: unknown) {logger.warn('[upstream] network request failed', error);
     return { valid: false, error: `Invalid URL: "${url}"` };
   }
 }
@@ -81,8 +80,7 @@ function rowToConfig(record: Record<string, unknown>): UpstreamProxyConfig {
   if (record.cliproxyapi_model_mapping && typeof record.cliproxyapi_model_mapping === "string") {
     try {
       mapping = JSON.parse(record.cliproxyapi_model_mapping);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[upstream] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[upstream] JSON parse failed', error);
     mapping = null;
   }
   }

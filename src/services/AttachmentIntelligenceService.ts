@@ -328,7 +328,7 @@ export class AttachmentIntelligenceService {
     try {
       const decoded = decodeURIComponent(value);
       return decoded !== value ? decoded : null;
-    } catch (error: any) { logger.warn('[Attachment Intelligence] encoding failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Attachment Intelligence] encoding failed', error); return null; }
   }
 
   private looksHashLike(value: string): boolean {

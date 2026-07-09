@@ -44,8 +44,7 @@ export default function StatusPage() {
         return;
       }
       setHealth(data);
-    } catch (error: any) { const err = error; const e = error;
-      setError("Unable to reach health endpoint. Check connectivity and retry.");
+    } catch (error: unknown) {setError("Unable to reach health endpoint. Check connectivity and retry.");
       setHealth(null);
     } finally {
       setLoading(false);

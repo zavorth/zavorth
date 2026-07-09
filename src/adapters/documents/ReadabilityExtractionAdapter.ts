@@ -2,9 +2,7 @@ import crypto from 'node:crypto';
 import type {
   DocumentExtractionArtifact,
   DocumentExtractionReceipt,
-} from '../../contracts/SourceMemoryDocumentTerminalPackContract.js';
-
-type Runtime = {
+} from '../../contracts/SourceMemoryDocumentTerminalPackContract.js';type Runtime = {
   now?: () => Date;
 };
 
@@ -110,8 +108,7 @@ function extractReadableHtml(html: string, url: string | null): {
           siteName: cleanText(article?.siteName || '') || null,
         };
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Fall through to the deterministic extractor.
+    } catch (error: unknown) {// Fall through to the deterministic extractor.
     }
   }
 
@@ -136,8 +133,7 @@ function loadReadability(): { Readability: ReadabilityShape; JSDOM: JSDOMShape }
       Readability: readabilityModule.Readability,
       JSDOM: jsdomModule.JSDOM,
     };
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

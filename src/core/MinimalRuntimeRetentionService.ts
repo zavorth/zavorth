@@ -6,7 +6,6 @@ import {
   MinimalRuntimeArtifactRetentionCatalog,
   type MinimalRuntimeArtifactRetentionRule,
 } from './MinimalRuntimeArtifactRetentionCatalog.js';
-
 export type MinimalRuntimeRetentionActionKind =
   | 'keep'
   | 'compact-activation-ledger'
@@ -154,7 +153,7 @@ export class MinimalRuntimeRetentionService {
     for (const filePath of files) {
       try {
         actions.push(this.buildActionForFile(filePath));
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         errors.push({
           filePath,
           reason: error instanceof Error ? error.message : String(error),
@@ -489,7 +488,7 @@ export class MinimalRuntimeRetentionService {
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         status: 'manual',
         currentItems: 0,
@@ -666,7 +665,7 @@ export class MinimalRuntimeRetentionService {
           message: plan.message,
           reason: plan.reason,
         };
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         errors.push({
           filePath: action.filePath,
           reason: error instanceof Error ? error.message : String(error),
@@ -709,7 +708,7 @@ export class MinimalRuntimeRetentionService {
         backupFile,
         message: `Activation ledger compacted to ${kept.length} receipts.`,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       errors.push({
         filePath: action.filePath,
         reason: error instanceof Error ? error.message : String(error),
@@ -798,7 +797,7 @@ export class MinimalRuntimeRetentionService {
         message: `Runtime artifact compacted safely to ${updatedStats.size} bytes.`,
         reason: 'runtime-artifact-compacted',
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       errors.push({
         filePath: action.filePath,
         reason: error instanceof Error ? error.message : String(error),
@@ -835,7 +834,7 @@ export class MinimalRuntimeRetentionService {
       }
       try {
         objects.push(JSON.parse(line));
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         errors.push({
           line: index + 1,
           reason: error instanceof Error ? error.message : String(error),

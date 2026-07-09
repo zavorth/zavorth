@@ -4,6 +4,7 @@ import { getSettings, updateSettings } from "@/lib/localDb";
 import { updateResilienceSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -42,7 +43,8 @@ export async function GET(request: Request) {
       circuitBreakers,
       rateLimitStatus,
     });
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[API] GET /api/resilience error:", err);
     return NextResponse.json(
       { error: getErrorMessage(err, "Failed to load resilience status") },
@@ -61,8 +63,7 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] load operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] load operation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -92,7 +93,8 @@ export async function PATCH(request) {
       ...(profiles ? { profiles } : {}),
       ...(defaults ? { defaults } : {}),
     });
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[API] PATCH /api/resilience error:", err);
     return NextResponse.json(
       { error: getErrorMessage(err, "Failed to save resilience settings") },

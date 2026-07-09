@@ -381,8 +381,8 @@ export class IntegrationProbeService {
         httpStatus: null,
         latencyMs,
       });
-    } catch (error: any) {
-    logger.warn('[Integration Probe] network request failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Integration Probe] network request failed', error);
     return this.createSnapshot(manifest, {
         status: 'failed',
         transport: 'cli',
@@ -536,7 +536,7 @@ export class IntegrationProbeService {
         httpStatus: response.status,
         latencyMs,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const aborted = error?.name === 'AbortError';
       return {
         generatedAt: this.now().toISOString(),
@@ -564,7 +564,7 @@ export class IntegrationProbeService {
         return '';
       }
       return text.slice(0, 180);
-    } catch (error: any) { logger.warn('[Integration Probe] network request failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Integration Probe] network request failed', error); return ''; }
   }
 
   private describeFailure(status: number): string {
@@ -606,8 +606,7 @@ export class IntegrationProbeService {
         updatedAt: parsed.updatedAt || this.now().toISOString(),
         entries: parsed.entries || {},
       };
-    } catch (error: any) {
-    logger.warn('[Integration Probe] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Integration Probe] JSON parse failed', error);
     return {
         version: 1,
         updatedAt: this.now().toISOString(),

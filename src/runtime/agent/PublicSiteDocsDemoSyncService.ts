@@ -3,9 +3,7 @@ import type { PublicDocsRecipesSnapshot } from '../../contracts/PublicDocsRecipe
 import type { PublicReleaseBundleContractSnapshot } from '../../contracts/PublicReleaseBundleContract.js';
 import type { WebsitePublicContractSnapshot } from '../../contracts/WebsitePublicContract.js';
 import type { ReleaseInstallerRollbackPathSnapshot } from './ReleaseInstallerRollbackPathService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-
-export const PUBLIC_SITE_DOCS_DEMO_SYNC_CONTRACT_VERSION = '2026-05-04.docs-demo' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const PUBLIC_SITE_DOCS_DEMO_SYNC_CONTRACT_VERSION = '2026-05-04.docs-demo' as const;
 export const PUBLIC_SITE_DOCS_DEMO_SYNC_METADATA_KEY = 'publicSiteDocsDemoSync' as const;
 
 export type PublicSiteDocsDemoSyncStatus =
@@ -176,8 +174,7 @@ function arrayOrEmpty<T = unknown>(value: unknown): T[] {
 function safeCall<T>(factory: () => T): T | null {
   try {
     return factory();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 

@@ -1,9 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import type { SkillSourceRegistryEntry } from '../services/SkillSourceRegistryService.js';
-
-type SkillLicenseClassification = {
+import type { SkillSourceRegistryEntry } from '../services/SkillSourceRegistryService.js';type SkillLicenseClassification = {
   license: string | null;
   confidence: 'high' | 'medium' | 'low';
   evidence: string[];
@@ -118,8 +116,7 @@ export class SkillLicenseClassifierService {
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
         return parsed as Record<string, unknown>;
       }
-    } catch (error: any) { const err = error; const e = error;
-      // fallback abaixo
+    } catch (error: unknown) {// fallback abaixo
     }
 
     const fields: Record<string, unknown> = {};
@@ -146,8 +143,7 @@ export class SkillLicenseClassifierService {
       }
       const parsed = JSON.parse(this.readFileSyncImpl(filePath, 'utf8'));
       return parsed && typeof parsed === 'object' ? parsed as Record<string, any> : null;
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 

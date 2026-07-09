@@ -183,7 +183,7 @@ function runtimeCheck(): CertificationCheck {
       ? ['/d', '/s', '/c', 'npm run runtime:check --silent']
       : ['run', 'runtime:check', '--silent'], { stdio: 'pipe', encoding: 'utf8', maxBuffer: 1024 * 1024 * 16 });
     return check('passed', 'runtime-check', 'TypeScript runtime check', 'ok');
-  } catch (error: any) {
+  } catch (error: unknown) {
     const output = String(error?.stdout || error?.stderr || error?.message || '').split(/\r?\n/).slice(0, 8).join(' | ');
     return check('failed', 'runtime-check', 'TypeScript runtime check', output || 'failed');
   }

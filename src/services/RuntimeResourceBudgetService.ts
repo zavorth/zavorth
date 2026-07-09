@@ -148,7 +148,7 @@ function readLoadedCommonJsModules(): number {
   try {
     const require = createRequire(__filename);
     return Object.keys(require.cache || {}).length;
-  } catch (error: any) { logger.warn('[Runtime Resource Budget] cache operation failed', error); return 0; }
+  } catch (error: unknown) {logger.warn('[Runtime Resource Budget] cache operation failed', error); return 0; }
 }
 
 export class RuntimeResourceBudgetService {

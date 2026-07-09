@@ -2,6 +2,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { asErrorLike } from '../../src/utils/errorLike';
 
 describe('zavorth-mcp-install.ts CLI Script', () => {
   let tempDir: string;
@@ -47,7 +48,9 @@ describe('zavorth-mcp-install.ts CLI Script', () => {
     try {
       const stdout = execSync(`npx tsx "${scriptPath}" ${args.join(' ')}`, { env, stdio: 'pipe' }).toString();
       return { stdout, stderr: '', code: 0 };
-    } catch (err: any) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       return {
         stdout: err.stdout ? err.stdout.toString() : '',
         stderr: err.stderr ? err.stderr.toString() : err.message,

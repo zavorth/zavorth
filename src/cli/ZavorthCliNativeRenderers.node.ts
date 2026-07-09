@@ -7,6 +7,7 @@ import type { NodePairingService } from '../services/NodePairingService.js';
 import { formatAdditionalCount, formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 function formatNodeStatus(status: string | null | undefined): string {
   const normalized = String(status || '').trim().toLowerCase();
@@ -483,7 +484,9 @@ function parseCliNodeInvokePayload(rawPayload: string): Record<string, unknown> 
 
   try {
     return JSON.parse(trimmed) as Record<string, unknown>;
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
 
   const keyValueEntries = trimmed
     .split(/\s+/)

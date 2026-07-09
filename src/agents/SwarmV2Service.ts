@@ -21,6 +21,7 @@ import {
 } from '../runtime/agent/subagents/index.js';
 import { CanonicalExecutionPipelineService } from '../services/CanonicalExecutionPipelineService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export const SWARM_V2_OFFICIAL_CONTRACT_VERSION = '2026-05-17.official-swarm-v2' as const;
 
@@ -1356,7 +1357,7 @@ export class SwarmV2Service {
         },
       } satisfies LlmRunOptions);
       return response.content?.trim() || deterministic;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
         error: String(error instanceof Error ? error.message : String(error ?? 'unknown')).slice(0, 240),
       });
@@ -1429,7 +1430,7 @@ export class SwarmV2Service {
         availableRoleCount: input.library.length,
         rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
       };
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Swarm V2] parsing failed', error); return fallback; }
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Swarm V2] parsing failed', error); return fallback; }
   }
 
   private resolveSyncRoleSelection(input: {
@@ -1541,12 +1542,12 @@ export class SwarmV2Service {
     if (!text) return null;
     try {
       return JSON.parse(text);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       const match = text.match(/\{[\s\S]*\}/);
       if (!match) return null;
       try {
         return JSON.parse(match[0]);
-      } catch (error: any) { const err = error; const e = error; logger.warn('[Swarm V2] JSON parse failed', error); return null; }
+      } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Swarm V2] JSON parse failed', error); return null; }
     }
   }
 
@@ -1700,7 +1701,7 @@ export class SwarmV2Service {
       if (Array.isArray(parsed)) {
         return parsed.map((entry) => this.normalizeRoleLibraryEntry(entry)).filter(Boolean) as SwarmV2RoleLibraryEntry[];
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // fall through to defaults
       logger.warn('[Swarm V2] JSON parse failed', error);
     }

@@ -31,9 +31,7 @@ import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { MediaGenerationService } from '../services/MediaGenerationService.js';
 import type { MediaGenerationRequest } from '../contracts/MediaGenerationContract.js';
 
-// ---------------------------------------------------------------------------
 // Tool
-// ---------------------------------------------------------------------------
 
 export class ImageGenerationTool extends BaseTool {
   public readonly name = 'generate_image';
@@ -71,9 +69,7 @@ export class ImageGenerationTool extends BaseTool {
     this.service = options?.service || new MediaGenerationService();
   }
 
-  // -------------------------------------------------------------------------
   // Execution
-  // -------------------------------------------------------------------------
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const request = this.buildRequest(args);
@@ -86,9 +82,7 @@ export class ImageGenerationTool extends BaseTool {
     return this.formatSuccessResponse(result);
   }
 
-  // -------------------------------------------------------------------------
   // Argument conversion
-  // -------------------------------------------------------------------------
 
   private buildRequest(args: Record<string, unknown>): MediaGenerationRequest {
     return {
@@ -100,9 +94,7 @@ export class ImageGenerationTool extends BaseTool {
     };
   }
 
-  // -------------------------------------------------------------------------
   // Response formatting
-  // -------------------------------------------------------------------------
 
   private formatSuccessResponse(result: import('../contracts/MediaGenerationContract.js').MediaGenerationResult): string {
     const lines: string[] = [];

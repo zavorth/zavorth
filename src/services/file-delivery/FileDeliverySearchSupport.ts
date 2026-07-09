@@ -64,8 +64,7 @@ export class FileDeliverySearchSupport {
         let entries: fs.Dirent[];
         try {
           entries = await fs.promises.readdir(currentDir, { withFileTypes: true });
-        } catch (error: any) {
-          continue;
+        } catch (error: unknown) {continue;
         }
 
         for (const entry of entries) {
@@ -81,8 +80,7 @@ export class FileDeliverySearchSupport {
           let stats: fs.Stats;
           try {
             stats = await fs.promises.stat(absolutePath);
-          } catch (error: any) {
-            continue;
+          } catch (error: unknown) {continue;
           }
 
           const candidate = this.pathSupport.makeEntry(absolutePath, root, stats, 0);

@@ -47,7 +47,7 @@ export class DeepSearchService {
         this.logRepo.log('info', 'DeepSearch', `Grounding bem-sucedido (${groundedResult.length} chars)`);
         return groundedResult;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       this.logRepo.log('warn', 'DeepSearch', `Grounding falhou: ${message}. Usando fallback DDG.`);
     }
@@ -72,8 +72,7 @@ export class DeepSearchService {
         if (subResult && subResult.length > 30) {
           subResults.push(`---\n**Sub-pergunta:** ${subQuestion}\n${subResult}`);
         }
-      } catch (error: any) {
-      // Continua para as próximas sub-perguntas.
+      } catch (error: unknown) {// Continua para as próximas sub-perguntas.
       logger.warn('[Deep Search] search failed', error);
     }
     }
@@ -119,7 +118,7 @@ export class DeepSearchService {
         }
 
         return text + sources;
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         this.logRepo.log('warn', 'DeepSearch', `Grounding com chave falhou: ${message}`);
       }
@@ -166,7 +165,7 @@ export class DeepSearchService {
       }
 
       return this.formatRawDuckDuckGoResults(query, topResults);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : String(error);
       this.logRepo.log('error', 'DeepSearch', `Falha DDG: ${errMsg}`);
       return `❌ Falha no Deep Search.\n\nMotivo: ${errMsg}`;
@@ -218,7 +217,7 @@ export class DeepSearchService {
           }
           return text;
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         this.logRepo.log('warn', 'DeepSearch', `Resumo com ${providerName} falhou: ${message}`);
       }

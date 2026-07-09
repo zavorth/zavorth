@@ -449,7 +449,7 @@ export class ZavorthLearningPlaneService {
       return this.nativeRunStore.loadRuns()
         .filter((run) => !workspace || this.normalizeValue(run.workspace || '') === workspace)
         .flatMap((run) => this.toNativeRunCandidates(run, stateEntries));
-    } catch (error: any) { logger.warn('[Zavorth Learning Plane] load operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Learning Plane] load operation failed', error); return []; }
   }
 
   private toNativeRunCandidates(
@@ -729,7 +729,7 @@ export class ZavorthLearningPlaneService {
         return fallback;
       }
       return JSON.parse(this.readFileSyncImpl(this.stateFile, 'utf8')) as T;
-    } catch (error: any) { logger.warn('[Zavorth Learning Plane] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Zavorth Learning Plane] JSON parse failed', error); return fallback; }
   }
 
   private normalizeValue(value: string | null | undefined): string {

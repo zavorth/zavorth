@@ -3,6 +3,7 @@ import path from 'path';
 import { Plan, PlanStep } from '../contracts/PlanContract.js';
 import { DangerousCommandBlocker } from './DangerousCommandBlocker.js';
 import { WorkspaceResolver } from './WorkspaceResolver.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export interface PolicyViolation {
   rule: string;
@@ -185,8 +186,6 @@ export class PolicyEngine {
     return this.policy;
   }
 
-  // --- Private ---
-
   private evaluateStep(step: PlanStep, violations: PolicyViolation[], warnings: PolicyViolation[]): void {
     // Validar comandos do step
     if (step.command) {
@@ -260,8 +259,7 @@ export class PolicyEngine {
       const parsed = JSON.parse(raw) as SecurityPolicy;
       this.validatePolicySchema(parsed);
       return parsed;
-    } catch (e: any) { const error = e; const err = e;
-      const message = e instanceof Error ? e.message : String(e);
+    } catch (error: unknown) { const err = asErrorLike(error); const message = err instanceof Error ? err.message : String(err);
       throw new Error(`[PolicyEngine] Erro ao carregar pol?tica de seguran?a: ${message}`);
     }
   }

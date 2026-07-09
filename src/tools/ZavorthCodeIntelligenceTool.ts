@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
@@ -135,7 +136,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
 
       execFileSync(cmd, cmdArgs, { timeout: 60000 });
       return `Formatted ${filePath} with ${style}.`;
-    } catch (error: any) { logger.warn('[Zavorth Code Intelligence] process execution failed', error); return ''; }
+    } catch ($1: unknown) { logger.warn('[Zavorth Code Intelligence] process execution failed', error); return ''; }
   }
 
   private async lintCode(filePath: string): Promise<string> {
@@ -151,7 +152,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
 
       if (!result.trim()) return `No lint issues found in ${filePath}.`;
       return `Lint results for ${filePath}:\n${result.slice(0, 3000)}`;
-    } catch (error: any) { const e = error;
+    } catch (error: unknown) { const e = asErrorLike(error);
       const err = error as { stdout?: Buffer; message?: string };
       const output = err.stdout?.toString() || err.message || '';
       if (!output.trim()) return `No lint issues found in ${filePath}.`;
@@ -294,7 +295,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
       const result = execFileSync('git', ['diff', '--stat', filePath], { timeout: 10000 }).toString();
       if (!result.trim()) return `No changes in ${filePath}.`;
       return `Diff for ${filePath}:\n${result}`;
-    } catch (error: any) { logger.warn('[Zavorth Code Intelligence] process execution failed', error); return ''; }
+    } catch ($1: unknown) { logger.warn('[Zavorth Code Intelligence] process execution failed', error); return ''; }
   }
 
   private detectLanguage(filePath: string): string {
@@ -322,7 +323,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
           }
         }
       }
-    } catch (error: any) { /* ignore */ logger.warn('[Zavorth Code Intelligence] operation failed', error); }
+    } catch ($1: unknown) { /* ignore */ logger.warn('[Zavorth Code Intelligence] operation failed', error); }
     return results;
   }
 }

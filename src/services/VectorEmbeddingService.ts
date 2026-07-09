@@ -35,8 +35,7 @@ export class VectorEmbeddingService {
       const model = this.genAI.getGenerativeModel({ model: this.modelName });
       const result = await model.embedContent(text);
       return this.normalizeDimensions(result.embedding.values);
-    } catch (error: any) {
-      logger.error('[VectorEmbeddingService] Erro ao gerar embedding:', error);
+    } catch (error: unknown) {logger.error('[VectorEmbeddingService] Erro ao gerar embedding:', error);
       throw error;
     }
   }
@@ -55,8 +54,7 @@ export class VectorEmbeddingService {
         requests: texts.map((text) => ({ content: { role: 'user', parts: [{ text }] } })),
       });
       return results.embeddings.map((e) => this.normalizeDimensions(e.values));
-    } catch (error: any) {
-      logger.error('[VectorEmbeddingService] Erro ao gerar batch embeddings:', error);
+    } catch (error: unknown) {logger.error('[VectorEmbeddingService] Erro ao gerar batch embeddings:', error);
       throw error;
     }
   }

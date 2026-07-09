@@ -100,8 +100,7 @@ export class McpOAuthManager {
     if (stored?.refreshToken) {
       try {
         return await this.refreshWithToken(stored.refreshToken);
-      } catch (error: any) { const err = error; const e = error;
-        // Se refresh falhou com invalid_client, marcar como dead
+      } catch (error: unknown) {// Se refresh falhou com invalid_client, marcar como dead
         if (this.isInvalidClientError(error)) {
           this.deadClients.add(this.clientId);
           throw new Error('Invalid client ID. Re-registration required.');
@@ -229,8 +228,7 @@ export class McpOAuthManager {
       this.cachedTokens = stored;
 
       return stored;
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 
@@ -247,8 +245,7 @@ export class McpOAuthManager {
       }
 
       return await this.readStoredTokens();
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 

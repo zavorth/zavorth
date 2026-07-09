@@ -76,7 +76,6 @@ export class MoAWithFallback extends EventEmitter {
       timeoutMs = 60_000,
     } = request;
 
-    // Phase 1: Run reference models in parallel with fallback
     const referenceResults = await this.runReferencesWithFallback(
       query,
       references,
@@ -85,7 +84,6 @@ export class MoAWithFallback extends EventEmitter {
       timeoutMs,
     );
 
-    // Phase 2: Aggregate with fallback
     const aggregatorStart = Date.now();
     const finalResponse = await this.aggregateWithFallback(
       query,
@@ -195,7 +193,7 @@ export class MoAWithFallback extends EventEmitter {
           latencyMs: Date.now() - startTime,
           success: true,
         };
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         lastError = message;
         const reason = this.classifyError(message);
@@ -258,7 +256,7 @@ Instructions:
         const response = await this.callModel(candidate, aggregatorPrompt, systemPrompt, timeoutMs);
         chain.recordSuccess(candidate);
         return response;
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         lastError = message;
         const reason = this.classifyError(message);

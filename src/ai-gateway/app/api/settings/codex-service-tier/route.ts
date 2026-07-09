@@ -4,9 +4,7 @@ import { setDefaultFastServiceTierEnabled } from "@ZavorthGateway/open-sse/execu
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateCodexServiceTierSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-export async function GET(request: Request) {
+import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -20,8 +18,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       enabled: typeof persisted?.enabled === "boolean" ? persisted.enabled : false,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API ERROR] /api/settings/codex-service-tier GET:", error);
+  } catch (error: unknown) {console.error("[API ERROR] /api/settings/codex-service-tier GET:", error);
     return NextResponse.json({ error: "Failed to get config" }, { status: 500 });
   }
 }
@@ -33,8 +30,7 @@ export async function PUT(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -57,8 +53,7 @@ export async function PUT(request: Request) {
     setDefaultFastServiceTierEnabled(config.enabled);
 
     return NextResponse.json(config);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API ERROR] /api/settings/codex-service-tier PUT:", error);
+  } catch (error: unknown) {console.error("[API ERROR] /api/settings/codex-service-tier PUT:", error);
     return NextResponse.json({ error: "Failed to update config" }, { status: 500 });
   }
 }

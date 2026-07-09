@@ -42,7 +42,7 @@ export class MemoryQdrantService {
         for (const v of col.vectors || []) vectorsMap.set(v.id, v);
         this.collections.set(name, { name, vectors: vectorsMap, dimension: col.dimension, created_at: col.created_at });
       }
-    } catch (error: any) { /* ignore */ logger.warn('[Memory Qdrant] creation failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Memory Qdrant] creation failed', error); }
   }
 
   private scheduleFlush(): void {

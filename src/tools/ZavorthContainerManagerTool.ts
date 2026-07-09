@@ -125,7 +125,7 @@ export class ZavorthContainerManagerTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim() || '(no output)';
-    } catch (error: any) { logger.warn('[Zavorth Container Manager] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Container Manager] process execution failed', error); return ''; }
   }
 
   private async logs(args: Record<string, unknown>): Promise<string> {
@@ -202,7 +202,7 @@ export class ZavorthContainerManagerTool extends BaseTool {
       }).toString();
       const parsed = JSON.parse(result.trim());
       return `Container ${container}:\n  Status: ${parsed[0]?.State?.Status}\n  Image: ${parsed[0]?.Config?.Image}\n  Created: ${parsed[0]?.Created}\n  Ports: ${JSON.stringify(parsed[0]?.NetworkSettings?.Ports || {})}`;
-    } catch (error: any) { logger.warn('[Zavorth Container Manager] JSON parse failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Container Manager] JSON parse failed', error); return ''; }
   }
 
   private async pull(args: Record<string, unknown>): Promise<string> {

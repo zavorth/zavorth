@@ -24,9 +24,7 @@ redactCommand,
   runBackground,
   runTaskBoard,
   taskPlaneServiceForCli,
-} from './ZavorthCliLiveNamespaces.js';
-
-type JsonObject = Record<string, unknown>;
+} from './ZavorthCliLiveNamespaces.js';type JsonObject = Record<string, unknown>;
 
 export async function runRunnableCollection(root: string, collection: string, args: string[], label: string) {
   const action = firstArg(args, 'list');
@@ -331,8 +329,7 @@ export async function acquireTaskLock(root: string, collection: string): Promise
     await handle.writeFile(JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() }));
     await handle.close();
     return { ok: true, file, message: 'lock acquired' };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Cli Runnable Collection] filesystem operation failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Runnable Collection] filesystem operation failed', error);
     return { ok: false, file, message: `Worker lock is active for ${collection}. Use logs/status or remove stale lock only after verifying no worker is running.` };
   }
 }

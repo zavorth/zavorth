@@ -197,7 +197,7 @@ export class MaintenanceAutomationService {
         `${isRecurringMaintenance ? 'Manutencao recorrente disparada' : `${priorityActionLabel} disparada`} (${source}).`,
         { actionId: action.id, logFile: action.logFile, pid: action.pid },
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.state = {
         ...this.state,
         running: false,
@@ -310,7 +310,7 @@ export class MaintenanceAutomationService {
       }
 
       return null;
-    } catch (error: any) { logger.warn('[Maintenance Automation] validation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Maintenance Automation] validation failed', error); return null; }
   }
 
   private describePriorityAction(actionId: string): string {
@@ -382,8 +382,7 @@ export class MaintenanceAutomationService {
         updatedBy: parsed.updatedBy || null,
         note: parsed.note || null,
       };
-    } catch (error: any) {
-    logger.warn('[Maintenance Automation] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Maintenance Automation] parsing failed', error);
     return {
         enabled: config.maintenanceAutomationEnabled,
         running: false,
@@ -404,8 +403,7 @@ export class MaintenanceAutomationService {
     try {
       this.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       this.writeFileSync(this.stateFile, JSON.stringify(this.state, null, 2), 'utf8');
-    } catch (error: any) {
-      // Ignore persistence failures and keep the in-memory state.
+    } catch (error: unknown) {// Ignore persistence failures and keep the in-memory state.
       logger.warn('[Maintenance Automation] filesystem operation failed', error);
     }
   }

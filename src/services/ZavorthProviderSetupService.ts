@@ -94,8 +94,7 @@ function canonicalHostname(value: string | null): string | null {
         .replace(/^\[|\]$/g, '')
         .toLowerCase();
       if (hostname) return hostname;
-    } catch (error: any) {
-      // Try next candidate.
+    } catch (error: unknown) {// Try next candidate.
       logger.warn('[Zavorth  Setup] network request failed', error);
     }
   }

@@ -113,7 +113,7 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
     if (!fs.existsSync(logPath)) return;
     try {
       this.auditLog = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
-    } catch (error: any) { /* ignore */ logger.warn('[Zavorth Agent Governance] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Agent Governance] JSON parse failed', error); }
   }
 
   private saveAuditLog(): void {

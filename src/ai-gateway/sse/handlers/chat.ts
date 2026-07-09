@@ -47,6 +47,7 @@ import {
   safeLogEvents,
   withSessionHeader,
 } from "./chatHelpers";
+import { asErrorLike } from '../../../utils/errorLike';
 
 /** Chat completion request body (OpenAI-compatible format). */
 interface ChatBody {
@@ -165,8 +166,7 @@ export async function handleChat(request: Request, clientRawRequest: ClientRawRe
     telemetry.startPhase("parse");
     body = await request.json();
     telemetry.endPhase();
-  } catch (error: any) { const err = error; const e = error;
-    log.warn("CHAT", "Invalid JSON body");
+  } catch (error: unknown) {log.warn("CHAT", "Invalid JSON body");
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
 
@@ -495,7 +495,8 @@ export async function handleChat(request: Request, clientRawRequest: ClientRawRe
           "GLOBAL_FALLBACK",
           `Global fallback ${fallbackModel} also failed (${fallbackResponse.status})`
         );
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         const message = err instanceof Error ? err.message : "unknown";
         log.warn("GLOBAL_FALLBACK", `Global fallback error: ${message}`);
       }
@@ -542,8 +543,7 @@ async function cacheChatResponseIfEligible(
       Number(usage?.total_tokens || 0) ||
       Math.ceil(Buffer.byteLength(JSON.stringify(payload), "utf8") / 4);
     setCachedResponse(signature, model, payload, tokensSaved);
-  } catch (error: any) { const err = error; const e = error;
-      // Non-JSON or already consumed responses are simply not cached.
+  } catch (error: unknown) {// Non-JSON or already consumed responses are simply not cached.
       logger.warn('[chat] cache operation failed', error);
     }
 }

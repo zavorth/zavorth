@@ -220,7 +220,8 @@ export class ZavorthProductHardeningService {
     ];
     const allFiles = files.every((file) => this.exists(file));
     const chatHome = this.hasMarker('apps/zavorth-control-vite-shell/public/styles/chat.css', 'terminal-hero')
-      && this.hasMarker('apps/zavorth-control-vite-shell/index.html', 'Ask Zavorth or start with a suggestion.');
+      && this.hasMarker('apps/zavorth-control-vite-shell/index.html', 'id="terminal-hero"')
+      && this.hasMarker('apps/zavorth-control-vite-shell/index.html', 'id="trust-rail"');
     const scripts = this.packageScripts();
     const gates = [
       this.gate('zavorthControl-files', 'ZavorthControl files', allFiles ? 'ready' : 'blocked', allFiles
@@ -402,7 +403,7 @@ export class ZavorthProductHardeningService {
     try {
       const packageJson = JSON.parse(this.read('package.json')) as PackageJson;
       return packageJson.scripts || {};
-    } catch (error: any) { logger.warn('[Zavorth Product Hardening] JSON parse failed', error); return {}; }
+    } catch (error: unknown) {logger.warn('[Zavorth Product Hardening] JSON parse failed', error); return {}; }
   }
 
   private hasMarker(file: string, marker: string): boolean {

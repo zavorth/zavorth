@@ -87,8 +87,8 @@ export class SourceSearchFetchService {
         liveNetworkPerformed: true,
         reason: `HTTP ${response.status}`,
       });
-    } catch (error: any) {
-    logger.warn('[Source Search] network request failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Source Search] network request failed', error);
     return this.fetchReceipt({
         status: 'failed',
         url,

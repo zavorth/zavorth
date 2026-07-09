@@ -21,6 +21,12 @@ import { VoiceRecorderService } from './VoiceRecorderService.js';
 import { WakeWordService } from './WakeWordService.js';
 import { WhisperService } from './WhisperService.js';
 import { ChimeService } from './ChimeService.js';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '..', '..', '.env') });
@@ -149,9 +155,9 @@ Phrase: "${englishText}"`;
       try {
         const ttsAudioPath = await tts.speak(event.feedback);
         tts.cleanup(ttsAudioPath);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.warn(`[Agent] TTS IoT unavailable: ${message}`);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        console.warn(`[Agent] TTS IoT unavailable: ${err.message || 'Unexpected error'}`);
       }
     }
   };
@@ -348,7 +354,8 @@ function parseNumberEnv(value: string | undefined, fallback: number): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-main().catch((error) => {
-  console.error(`\n[FATAL] ${error.message}\n`);
+main().catch((error: unknown) => {
+  const err = asErrorLike(error);
+  console.error(`\n[FATAL] ${err.message || String(error)}\n`);
   process.exit(1);
 });

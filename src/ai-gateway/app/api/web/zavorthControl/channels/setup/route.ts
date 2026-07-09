@@ -7,7 +7,6 @@ import {
 import { ChannelProviderDoctorService } from "../../../../../../../services/ChannelProviderDoctorService.js";
 import { ChannelSetupAssistantService } from "../../../../../../../services/ChannelSetupAssistantService.js";
 import { logger } from '@/shared/utils/logger';
-
 export const runtime = "nodejs";
 
 function createService() {
@@ -35,7 +34,7 @@ export async function GET(request: Request) {
       assistant,
       channels: assistant.channels,
     }));
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] load operation failed', error);
     return NextResponse.json({
       ok: false,
@@ -117,7 +116,7 @@ export async function POST(request: Request) {
       error: "unsupported channel setup action",
       allowedActions: ["applyScaffold", "doctor", "testConnection"],
     }, { status: 400 });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] connection failed', error);
     return NextResponse.json({
       ok: false,

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { execFile } from 'child_process';
@@ -126,7 +127,7 @@ export class EnableMnemosTool extends BaseTool {
       } else {
         output.push(`[OK] Vector database directory validated at: ${dbDir}`);
       }
-    } catch (error: any) { logger.warn('[Enable Mnemos] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Enable Mnemos] filesystem operation failed', error); return ''; }
 
     const envPath = path.resolve(process.cwd(), '.env');
     if (fs.existsSync(envPath)) {
@@ -148,7 +149,8 @@ export class EnableMnemosTool extends BaseTool {
           fs.writeFileSync(envPath, envContent, 'utf8');
           output.push('[OK] .env file updated with Mnemos settings.');
         }
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         output.push(`[WARNING] Could not update .env automatically: ${err.message}`);
       }
     }
@@ -163,7 +165,8 @@ export class EnableMnemosTool extends BaseTool {
         maxBuffer: 1024 * 1024,
       });
       output.push('[OK] Docker image built successfully.');
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       output.push(`[DOCKER ERROR] Failed to build the image. Check whether Docker Daemon (Docker Desktop) is running. Error log:\n${err.message}`);
       return output.join('\n');
     }

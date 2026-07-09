@@ -1,6 +1,4 @@
-/**
- * Mnemos memory browser helper (P2-18) — compact search filter over [data-memory-list].
- */
+/** Memory list search/filter helper. */
 
 export function applyMemorySearchFilter(root: ParentNode = document) {
   const section = root.querySelector('#sector-nodes') || root;

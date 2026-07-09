@@ -1,7 +1,5 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
-import type { ZavorthLearningPlaneService } from '../../../../services/ZavorthLearningPlaneService.js';
-
-export type NaturalLearningCommandIntent = {
+import type { ZavorthLearningPlaneService } from '../../../../services/ZavorthLearningPlaneService.js';export type NaturalLearningCommandIntent = {
   args: string;
   intro: string;
 };
@@ -82,8 +80,7 @@ export class SharedSurfaceLearningCommandPack {
       }
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(error?.message || 'Nao consegui montar o learning plane agora.');
+    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui montar o learning plane agora.');
     }
   }
 

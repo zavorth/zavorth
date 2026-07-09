@@ -17,7 +17,6 @@ import {
   resolveRelativeImport,
   normalizeRelativeSourcePath
 } from './ZavorthSpeculativeAstAnalysis.js';
-
 import {
   copyWorkspace,
   shouldSkipCopy,
@@ -488,8 +487,7 @@ export class ZavorthSpeculativeAutonomyService {
     let workspaceStat: ReturnType<typeof fs.lstatSync> | null = null;
     try {
       workspaceStat = fs.lstatSync(workspaceRoot);
-    } catch (error: any) { const err = error; const e = error;
-      workspaceStat = null;
+    } catch (error: unknown) {workspaceStat = null;
     }
     if (!workspaceStat?.isDirectory() || workspaceStat.isSymbolicLink()) {
       const attempt = this.blockedAttempt({
@@ -626,7 +624,7 @@ export class ZavorthSpeculativeAutonomyService {
     let copyStats: WorkspaceCopyStats;
     try {
       copyStats = this.copyWorkspace(input.workspaceRoot, sandboxWorkspace);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const reason = error instanceof Error ? error.message : String(error);
       return this.blockedAttempt({
         id: input.id,
@@ -1147,8 +1145,7 @@ export class ZavorthSpeculativeAutonomyService {
         return ['npm test -- --runInBand'];
       }
       return [];
-    } catch (error: any) { const err = error; const e = error;
-      return [];
+    } catch (error: unknown) {return [];
     }
   }
 

@@ -300,8 +300,7 @@ export class ZavorthAgentReviewService {
         diffText: diff.stdout,
         collectedFromGit: true,
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Agent] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Agent] parsing failed', error);
     return {
         files: [],
         diffText: '',
@@ -454,8 +453,7 @@ export async function defaultAgentReviewCommandRunner(
       stderr: result.stderr || '',
       exitCode: 0,
     };
-  } catch (error: any) {
-    const failure = error as Error & { stdout?: string; stderr?: string; code?: number };
+  } catch (error: unknown) {const failure = error as Error & { stdout?: string; stderr?: string; code?: number };
     return {
       command,
       args,

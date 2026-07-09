@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
-
+import { logger } from '../logger.js';
 const logger = {
-  info: (message: string) => console.info(message),
-  warn: (message: string) => console.warn(message),
-  error: (message: string) => console.error(message),
+  info: (message: string) => logger.info(message),
+  warn: (message: string) => logger.warn(message),
+  error: (message: string) => logger.error(message),
 };
 
 type ProcessStatus = boolean | 'access_denied';
@@ -14,7 +14,7 @@ function isProcessRunning(pid: number): ProcessStatus {
   try {
     process.kill(pid, 0);
     return true;
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const code = error instanceof Error && 'code' in error ? String((error as NodeJS.ErrnoException).code || '') : '';
     const message = error instanceof Error ? error.message : String(error);
     if (code === 'ESRCH') {
@@ -56,7 +56,7 @@ async function attemptToKillProcess(pid: number, type: string, timeoutMs = 1000)
 
     logger.info(`${type} process with PID ${pid} was already dead or exited shortly after timeout.`);
     return true;
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const code = error instanceof Error && 'code' in error ? String((error as NodeJS.ErrnoException).code || '') : '';
     if (code === 'ESRCH') {
       logger.info(`${type} process with PID ${pid} was already dead.`);
@@ -100,7 +100,7 @@ export async function cleanupOrphanProcesses(lockDirPath: string): Promise<void>
           await fs.promises.unlink(lockFilePath);
           continue;
         }
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         logger.warn(`Could not read lock file '${file}': ${message}. Removing it.`);
         await fs.promises.unlink(lockFilePath);
@@ -134,7 +134,7 @@ export async function cleanupOrphanProcesses(lockDirPath: string): Promise<void>
 
       logger.info(`Lock file '${file}' points to active PID ${pidFromLock}. Keeping it.`);
     }
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to list or process lock files in ${lockDirPath}: ${message}`);
     logger.error('Critical error during lock file cleanup. Boot may be compromised and may require manual intervention.');

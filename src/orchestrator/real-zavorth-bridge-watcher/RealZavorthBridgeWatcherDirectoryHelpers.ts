@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../../logger.js';
-
-export function normalizeComparisonValue(rawValue: string | null | undefined): string {
+import { logger } from '../../logger.js';export function normalizeComparisonValue(rawValue: string | null | undefined): string {
   return String(rawValue || '')
     .trim()
     .replace(/\\/g, '/')
@@ -202,11 +200,11 @@ export function pathTokensRoughlyMatch(left: string, right: string): boolean {
 export function isExistingDirectory(candidate: string): boolean {
   try {
     return fs.existsSync(candidate) && fs.statSync(candidate).isDirectory();
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return false; }
 }
 
 export function safeReadDirectory(candidate: string): fs.Dirent[] {
   try {
     return fs.readdirSync(candidate, { withFileTypes: true });
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return []; }
 }

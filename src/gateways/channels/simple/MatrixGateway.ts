@@ -1,7 +1,6 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
-
 export class MatrixGateway extends WebhookGateway {
   public readonly id = 'matrix';
   public readonly name = 'Matrix';
@@ -136,7 +135,7 @@ export class MatrixGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.recordError(`Matrix send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

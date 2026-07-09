@@ -4,7 +4,6 @@ import { ZAVORTH_BRIDGE_CONFIG } from "../constants/oauth";
 import { getServerCredentials } from "../config/index";
 import { startLocalServer } from "../utils/server";
 import { spinner as createSpinner } from "../utils/ui";
-
 const CODE_ASSIST_FALLBACK_TIER_ID = "legacy-tier";
 
 /**
@@ -332,7 +331,7 @@ export class ZavorthBridgeService {
         `ZavorthBridge connected successfully! (${userInfo.email}, Project: ${finalProjectId})`
       );
       return true;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

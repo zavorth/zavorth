@@ -72,7 +72,7 @@
   z-index: 0;
   pointer-events: none;
 }
-/* C0: calm brand wash — no heavy aurora drift */
+/* Calm brand wash. */
 .core-frame::before {
   background: var(--b-aurora-layer);
   background-size: 100% 100%;
@@ -1051,7 +1051,7 @@
 }
 
 /* ==========================================================================
-   Operator Workbench Shell (C0 brand-aligned)
+   Operator Workbench Shell
    Quiet dark surface with brand green wash — no gold / grid noise.
    ========================================================================== */
 

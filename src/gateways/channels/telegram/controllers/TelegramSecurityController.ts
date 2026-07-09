@@ -9,7 +9,6 @@ import { SecurityLockService } from '@zavorth/services/SecurityLockService.js';
 import { SystemCleanupService } from '@zavorth/services/SystemCleanupService.js';
 import { t } from '../../../../gateways/channels/telegram/i18n.js';
 import { logger } from '../../../../logger';
-
 export class TelegramSecurityController {
   constructor(
     private bot: Bot,
@@ -44,7 +43,7 @@ export class TelegramSecurityController {
       }
 
       await ctx.reply(reply);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(t('security.cleanup_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
@@ -62,7 +61,7 @@ export class TelegramSecurityController {
       await ctx.reply(t('security.clear_deleting', { count: String(tracked) }));
       const result = await this.chatCleanup.clearChat(this.bot, chatId);
       await ctx.reply(result.message);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(t('security.clear_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
@@ -94,7 +93,7 @@ export class TelegramSecurityController {
       await ctx.reply(
         `${t('security.lock_success', { lockedAt: state.lockedAt || '' })}`,
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(t('security.lock_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
@@ -120,15 +119,14 @@ export class TelegramSecurityController {
         setTimeout(async () => {
           try {
             await this.bot.api.deleteMessage(ctx.chat!.id, reply.message_id);
-          } catch (error: any) { const err = error; const e = error;
-      // Ignore follow-up deletion failures.
+          } catch (error: unknown) {// Ignore follow-up deletion failures.
       logger.warn('[Telegram Security] delete operation failed', error);
     }
         }, 5000);
       } else {
         await ctx.reply(t('security.wrong_password'));
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       await ctx.reply(t('security.unlock_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
@@ -216,8 +214,7 @@ export class TelegramSecurityController {
       if (ctx.chat && ctx.message) {
         await this.bot.api.deleteMessage(ctx.chat.id, ctx.message.message_id);
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Ignore missing permissions or messages already removed.
+    } catch (error: unknown) {// Ignore missing permissions or messages already removed.
       logger.warn('[Telegram Security] delete operation failed', error);
     }
   }

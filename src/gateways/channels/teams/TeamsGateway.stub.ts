@@ -5,9 +5,7 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 import { TeamsGraphBotClient } from '../../../adapters/channels/TeamsGraphBotClient.js';
-import { logger } from '../../../logger.js';
-
-export interface TeamsGatewayStubMessage {
+import { logger } from '../../../logger.js';export interface TeamsGatewayStubMessage {
   userId: string;
   chatId: string;
   rawText: string;
@@ -83,7 +81,7 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.teamsStatusFile, 'utf8')) as TeamsGatewayStatusSnapshot;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Teams way.stub] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Teams way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
@@ -277,8 +275,7 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
         this.lastError = null;
         this.writeStatus();
         return;
-      } catch (error: any) { const err = error; const e = error;
-        this.lastError = `Teams Graph live send failed: ${error?.message || error}`;
+      } catch (error: unknown) {this.lastError = `Teams Graph live send failed: ${error?.message || error}`;
         this.writeStatus();
         throw error;
       }
@@ -302,8 +299,7 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
         this.lastError = null;
         this.writeStatus();
         return;
-      } catch (error: any) { const err = error; const e = error;
-        this.lastError = `Teams Graph live edit failed: ${error?.message || error}`;
+      } catch (error: unknown) {this.lastError = `Teams Graph live edit failed: ${error?.message || error}`;
         this.writeStatus();
         throw error;
       }

@@ -5,10 +5,6 @@ import type { ProviderDoctorService } from './ProviderDoctorService.js';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export type FirstBootStatus = 'ready' | 'env_detected' | 'needs_provider' | 'fresh';
 
 export type DetectedEnvProvider = {
@@ -35,10 +31,6 @@ export type FirstBootSnapshot = {
   dbExists: boolean;
 };
 
-// ---------------------------------------------------------------------------
-// Env-var → provider mapping
-// ---------------------------------------------------------------------------
-
 type EnvProviderMapping = {
   envVar: string;
   id: string;
@@ -56,10 +48,6 @@ const ENV_PROVIDER_MAP: EnvProviderMapping[] = [
   { envVar: 'OPENROUTER_API_KEY', id: 'openrouter', name: 'OpenRouter', type: 'openrouter' },
 ];
 
-// ---------------------------------------------------------------------------
-// Runtime type (constructor DI)
-// ---------------------------------------------------------------------------
-
 type FirstBootRuntime = {
   env?: Record<string, string | undefined>;
   cwd?: string;
@@ -67,10 +55,6 @@ type FirstBootRuntime = {
   existsSync?: (p: string) => boolean;
   now?: () => Date;
 };
-
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
 
 export class ZavorthFirstBootDetectionService {
   private readonly env: Record<string, string | undefined>;
@@ -86,10 +70,6 @@ export class ZavorthFirstBootDetectionService {
     this.existsSync = runtime.existsSync ?? fs.existsSync;
     this.now = runtime.now ?? (() => new Date());
   }
-
-  // -------------------------------------------------------------------------
-  // detect()
-  // -------------------------------------------------------------------------
 
   public detect(): FirstBootSnapshot {
     const workspace = this.detectWorkspace();
@@ -112,8 +92,7 @@ export class ZavorthFirstBootDetectionService {
             dbExists,
           });
         }
-      } catch (error: any) {
-      // Provider doctor unavailable — continue detection heuristics.
+      } catch (error: unknown) {// Provider doctor unavailable — continue detection heuristics.
       logger.warn('[Zavorth First Boot Detection] creation failed', error);
     }
     }
@@ -152,10 +131,6 @@ export class ZavorthFirstBootDetectionService {
       dbExists,
     });
   }
-
-  // -------------------------------------------------------------------------
-  // detectWorkspace()
-  // -------------------------------------------------------------------------
 
   public detectWorkspace(): WorkspaceHint {
     if (this.existsSync(path.join(this.cwd, 'package.json'))) {
@@ -200,10 +175,6 @@ export class ZavorthFirstBootDetectionService {
     };
   }
 
-  // -------------------------------------------------------------------------
-  // Internal helpers
-  // -------------------------------------------------------------------------
-
   private scanEnvProviders(): DetectedEnvProvider[] {
     const detected: DetectedEnvProvider[] = [];
 
@@ -235,8 +206,7 @@ export class ZavorthFirstBootDetectionService {
       if (config && typeof (config as Record<string, unknown>).dataDir === 'string') {
         return path.join((config as Record<string, unknown>).dataDir as string, 'zavorth.db');
       }
-    } catch (error: any) {
-      // config unavailable — use fallback
+    } catch (error: unknown) {// config unavailable — use fallback
       logger.warn('[Zavorth First Boot Detection] operation failed', error);
     }
     return path.join(this.cwd, 'data', 'zavorth.db');

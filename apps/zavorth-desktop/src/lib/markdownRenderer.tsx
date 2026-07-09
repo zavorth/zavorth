@@ -156,11 +156,13 @@ function attachLinkHandlers(container: HTMLElement) {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const href = link.getAttribute('href');
-      if (href && typeof window !== 'undefined' && (window as any).electronAPI?.openExternal) {
-        (window as any).electronAPI.openExternal(href);
-      } else if (href) {
-        window.open(href, '_blank', 'noopener,noreferrer');
+      if (!href) return;
+      const desktop = typeof window !== 'undefined' ? window.zavorthDesktop : undefined;
+      if (desktop && typeof (desktop as { openExternal?: (url: string) => void }).openExternal === 'function') {
+        (desktop as { openExternal: (url: string) => void }).openExternal(href);
+        return;
       }
+      window.open(href, '_blank', 'noopener,noreferrer');
     });
   });
 }

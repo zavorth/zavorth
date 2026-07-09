@@ -102,10 +102,8 @@ export class MixtureOfAgents {
       }
     }
 
-    // Phase 1: run reference models in parallel.
     const referenceResults = await this.runReferences(query, options);
 
-    // Phase 2: synthesize with aggregator.
     const aggregatorStart = Date.now();
     const finalResponse = await this.aggregate(query, referenceResults, options);
     const aggregatorLatencyMs = Date.now() - aggregatorStart;
@@ -175,7 +173,7 @@ export class MixtureOfAgents {
         latencyMs: Date.now() - startTime,
         success: true,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         provider: ref.provider,

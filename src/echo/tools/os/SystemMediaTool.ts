@@ -3,7 +3,6 @@ import { IZavorthTool, ToolExecutionResult } from '../../types/IZavorthTool';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { logger } from '../../../logger.js';
-
 const execAsync = promisify(exec);
 
 /**
@@ -37,8 +36,8 @@ export class SystemMediaTool implements IZavorthTool {
             }
             return await this.executeViaPowerShell(params);
 
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[System Media] process execution failed', error);
+        } catch (error: unknown) {
+          logger.warn('[System Media] process execution failed', error);
     return {
                 success: false,
                 error: `Failed to control media: ${error.message}`,
@@ -162,6 +161,6 @@ export class SystemMediaTool implements IZavorthTool {
         try {
             await execAsync('where nircmd.exe');
             return true;
-        } catch (error: any) { const err = error; const e = error; logger.warn('[System Media] process execution failed', error); return false; }
+        } catch (error: unknown) {logger.warn('[System Media] process execution failed', error); return false; }
     }
 }

@@ -2,9 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { FileManager } from './FileManager.js';
 import { TaskManager } from '../orchestrator/TaskManager.js';
-import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
-
-export class RollbackManager {
+import { WorkspaceResolver } from '../security/WorkspaceResolver.js';export class RollbackManager {
   private taskManager: TaskManager;
 
   constructor(taskManager: TaskManager) {
@@ -43,8 +41,7 @@ export class RollbackManager {
     try {
       this.taskManager.advanceState(task, 'rollback_pending');
       this.taskManager.advanceState(task, 'reverted');
-    } catch (e: any) { const error = e; const err = e;
-      // Ignore error if the state is not compatible; force manual persistence.
+    } catch (error: unknown) {// Ignore error if the state is not compatible; force manual persistence.
       task.status = 'reverted';
     }
 

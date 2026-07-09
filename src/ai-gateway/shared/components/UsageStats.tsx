@@ -161,8 +161,7 @@ export default function UsageStats() {
         }
         prevTotalRequestsRef.current = currentTotal;
       }
-    } catch (error: any) { const err = error; const e = error;
-      console.error("Failed to fetch usage stats:", error);
+    } catch (error: unknown) {console.error("Failed to fetch usage stats:", error);
     } finally {
       if (showLoading) setLoading(false);
     }

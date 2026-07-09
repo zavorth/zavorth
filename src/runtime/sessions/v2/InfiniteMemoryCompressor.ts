@@ -1,9 +1,7 @@
 import { EventEmitter } from 'events';
 import type { LlmRuntimeService } from '../../../services/llm/LlmRuntimeService.js';
 import type { MemoryVectorStore } from '../../../storage/MemoryVectorStore.js';
-import { logger } from '../../../logger.js';
-
-/**
+import { logger } from '../../../logger.js';/**
  * A compressed memory chunk stored in the vector plane.
  */
 export interface MemoryChunk {
@@ -155,8 +153,7 @@ export class InfiniteMemoryCompressor extends EventEmitter {
             scored.push({ chunk, score });
           }
         }
-      } catch (error: any) { const err = error; const e = error;
-        // Persistent store failure is non-fatal
+      } catch (error: unknown) {// Persistent store failure is non-fatal
       }
     }
 
@@ -258,8 +255,7 @@ ${combined}`;
             const parsed = JSON.parse(block);
             summary = String(parsed.summary || '');
             keywords = Array.isArray(parsed.keywords) ? parsed.keywords.map(String) : [];
-         } catch (error: any) { const err = error; const e = error;
-             // Fallback to heuristics when the LLM fails
+         } catch (error: unknown) {// Fallback to heuristics when the LLM fails
              summary = this.generateDenseSummary(combined);
              keywords = this.extractKeywords(combined);
          }
@@ -288,8 +284,7 @@ ${combined}`;
       if (this.config.vectorStore) {
         try {
           await this.config.vectorStore.save(chunk);
-        } catch (error: any) { const err = error; const e = error;
-          // Persistence failure is non-fatal
+        } catch (error: unknown) {// Persistence failure is non-fatal
         }
       }
 

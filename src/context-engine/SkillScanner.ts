@@ -79,8 +79,7 @@ export class SkillScanner {
     if (hasToolsMd) {
       try {
         toolsMarkdown = fs.readFileSync(toolsMdPath, 'utf8');
-      } catch (error: any) { const err = error; const e = error;
-        toolsMarkdown = null;
+      } catch (error: unknown) {toolsMarkdown = null;
       }
     }
 
@@ -89,8 +88,7 @@ export class SkillScanner {
         const raw = JSON.parse(fs.readFileSync(manifestJsonPath, 'utf8'));
         toolDefinitions = raw.tools || raw.toolDefinitions || [];
         metadata = raw.metadata || raw;
-      } catch (error: any) { const err = error; const e = error;
-        // Invalid manifest, ignore it.
+      } catch (error: unknown) {// Invalid manifest, ignore it.
       }
     }
 

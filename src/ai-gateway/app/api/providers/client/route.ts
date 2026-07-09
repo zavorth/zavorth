@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { getProviderConnections } from "@/lib/localDb";
-import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
-
-// GET /api/providers/client - List all connections for client (includes sensitive fields for sync)
+import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";// GET /api/providers/client - List all connections for client (includes sensitive fields for sync)
 export async function GET(request: Request) {
   const authError = await requireStrictManagementAuth(request);
   if (authError) return authError;
@@ -17,8 +15,7 @@ export async function GET(request: Request) {
     }));
 
     return NextResponse.json({ connections: clientConnections });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching providers for client:", error);
+  } catch (error: unknown) {console.log("Error fetching providers for client:", error);
     return NextResponse.json({ error: "Failed to fetch providers" }, { status: 500 });
   }
 }

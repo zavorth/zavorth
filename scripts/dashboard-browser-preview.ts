@@ -848,7 +848,7 @@ function buildPreviewHtml(defaultFixtureId: string): string {
         renderLoading("Conectando ao runtime ao vivo");
         try {
           vm = await fetchLiveViewModel();
-        } catch (error) {
+        } catch (error: unknown) {
           id = DEFAULT_FIXTURE_ID;
           current = FIXTURES[id];
           vm = {

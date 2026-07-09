@@ -163,8 +163,7 @@ export class CustomCompatibleProviderOnboardingService {
       if (!['http:', 'https:'].includes(parsed.protocol)) {
         throw new Error('protocol');
       }
-    } catch (error: any) {
-      throw new Error('baseUrl precisa ser uma URL http(s) valida.');
+    } catch (error: unknown) {throw new Error('baseUrl precisa ser uma URL http(s) valida.');
     }
   }
 

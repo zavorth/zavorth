@@ -247,7 +247,7 @@ export class SidecarStatusService {
         ...fallback,
         ...parsed,
       };
-    } catch (error: any) { logger.warn('[Sidecar Status] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Sidecar Status] JSON parse failed', error); return fallback; }
   }
 
   private normalizeText(value: unknown): string | null {
@@ -277,6 +277,6 @@ export class SidecarStatusService {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error: any) { logger.warn('[Sidecar Status] filesystem check failed', error); return error?.code !== 'ESRCH'; }
+    } catch (error: unknown) {logger.warn('[Sidecar Status] filesystem check failed', error); return error?.code !== 'ESRCH'; }
   }
 }

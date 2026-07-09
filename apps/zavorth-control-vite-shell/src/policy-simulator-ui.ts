@@ -1,6 +1,4 @@
-/**
- * Policy simulator (P2-16) — read-only keyword heuristic for predicted gates.
- */
+/** Policy what-if keyword heuristic. */
 
 type GatePrediction = {
   gate: string;

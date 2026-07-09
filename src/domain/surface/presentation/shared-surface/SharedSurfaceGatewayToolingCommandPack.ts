@@ -25,9 +25,7 @@ import {
   type SurfaceReceiptStatus,
   type SurfaceResponseAction,
 } from '../../application/surface-response/index.js';
-import { replyWithSharedSurfaceResponse } from './SharedSurfaceResponseSender.js';
-
-type SharedSurfaceGatewayToolingCommandPackDeps = {
+import { replyWithSharedSurfaceResponse } from './SharedSurfaceResponseSender.js';type SharedSurfaceGatewayToolingCommandPackDeps = {
   AIGatewayGatewayService: Pick<AIGatewayProxyService, 'readStatus'>;
   AIGatewayGatewayLauncherService: Pick<ZavorthGatewayLauncherService, 'ensureStarted'>;
   GatewayCompatibilityDoctorService: Pick<GatewayCompatibilityDoctorService, 'run'>;
@@ -89,8 +87,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
       }
 
       await ctx.reply('Use /AIGateway [status|route|start|doctor|sync|promote|rollback].');
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(error?.message || 'Nao consegui operar o AIGateway agora.');
+    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui operar o AIGateway agora.');
     }
   }
 

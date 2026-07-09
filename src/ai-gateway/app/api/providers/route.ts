@@ -16,9 +16,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { createProviderSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { normalizeQoderPatProviderData } from "@ZavorthGateway/open-sse/services/qoderCli.ts";
-
-type AccessRouteConnectionInput = {
+import { normalizeQoderPatProviderData } from "@ZavorthGateway/open-sse/services/qoderCli.ts";type AccessRouteConnectionInput = {
   id: string | null;
   provider: string | null;
   providerName: string | null;
@@ -90,8 +88,7 @@ export async function GET(request: Request) {
     const accessRoutes = resolveZavorthControlAccessRoutes(connections.map(toAccessRouteConnectionInput));
 
     return NextResponse.json({ connections: safeConnections, accessRoutes });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching providers:", error);
+  } catch (error: unknown) {console.log("Error fetching providers:", error);
     return NextResponse.json({ error: "Failed to fetch providers" }, { status: 500 });
   }
 }
@@ -216,8 +213,7 @@ export async function POST(request: Request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ connection: result }, { status: 201 });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error creating provider:", error);
+  } catch (error: unknown) {console.log("Error creating provider:", error);
     return NextResponse.json({ error: "Failed to create provider" }, { status: 500 });
   }
 }
@@ -232,7 +228,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing providers to cloud:", error);
+  } catch (error: unknown) {console.log("Error syncing providers to cloud:", error);
   }
 }

@@ -7,9 +7,7 @@ import {
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { homedir } from 'os';
 import { dirname, join } from 'path';
-import { logger } from '../logger.js';
-
-export type TerminalShellMode = 'daily' | 'ops';
+import { logger } from '../logger.js';export type TerminalShellMode = 'daily' | 'ops';
 
 export type TerminalShellFocusTarget =
   | 'composer'
@@ -329,11 +327,11 @@ export function createTerminalShellHistoryStore(
       if (!existsSync(filePath)) {
         return [];
       }
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
     let lines: string[];
     try {
       lines = readFileSync(filePath, 'utf8').split(/\r?\n/);
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
     const entries: string[] = [];
     for (const line of lines) {
       const parsed = parseTerminalHistoryLine(line);
@@ -385,8 +383,7 @@ function parseTerminalHistoryLine(line: string): string | null {
   try {
     const parsed = JSON.parse(trimmed) as { text?: unknown };
     return normalizeTerminalHistoryEntry(parsed.text);
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Cli Terminal Shell] JSON parse failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Terminal Shell] JSON parse failed', error);
     return normalizeTerminalHistoryEntry(trimmed);
   }
 }

@@ -13,7 +13,7 @@ function runGuard(cwd: string): { status: 'passed' | 'failed'; findingCount: num
       cwd,
       encoding: 'utf8',
     });
-  } catch (error) {
+  } catch (error: unknown) {
     output = String((error as { stdout?: string }).stdout || '');
   }
   return JSON.parse(output);

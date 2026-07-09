@@ -13,7 +13,6 @@ import {
   type ZavorthExecutionLifecycleStatus,
   type ExecutionLifecycleRecord,
 } from '../../contracts/ExecutionLifecycleContract.js';
-
 type InternalExecutionApiDeps = {
   decideExecution?: (intent: ExecutionIntent) => Partial<ExecutionDecision> | Promise<Partial<ExecutionDecision>>;
   executeExecution?: (intent: ExecutionIntent) => Partial<ExecutionOutcome> | Promise<Partial<ExecutionOutcome>>;
@@ -58,7 +57,7 @@ export class InternalExecutionApiService {
           ...(decision.metadata || {}),
         },
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         ok: false,
@@ -97,7 +96,7 @@ export class InternalExecutionApiService {
           ...(outcome.metadata || {}),
         },
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         ok: false,

@@ -5,6 +5,7 @@ import { ToolHookPipelineService } from './ToolHookPipelineService.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import { logger } from '../logger.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
+import { asErrorLike } from '../utils/errorLike';
 
 const MAX_GUIDELINE_CHARS = 2000;
 const MAX_GUIDELINE_LINES = 20;
@@ -92,7 +93,8 @@ export class ZavorthMemoryConsolidator {
           timeout: GIT_DIFF_TIMEOUT_MS,
           maxBuffer: GIT_DIFF_MAX_BUFFER,
         }).trim();
-      } catch (err: any) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[MemoryConsolidator] git diff failed:', err.message);
         return;
       }
@@ -171,8 +173,7 @@ ${gitDiff.slice(0, 4000)}
       }
 
       logger.info('[MemoryConsolidator] Guidelines successfully appended.');
-    } catch (error: any) {
-      logger.error('[MemoryConsolidator] Error during memory consolidation:', error);
+    } catch (error: unknown) {logger.error('[MemoryConsolidator] Error during memory consolidation:', error);
     }
   }
 }

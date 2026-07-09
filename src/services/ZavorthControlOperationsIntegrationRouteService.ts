@@ -69,8 +69,7 @@ export class ZavorthControlOperationsIntegrationRouteService {
           },
           action.status === 'started' ? 202 : 200,
         );
-      } catch (error: any) {
-        deps.writeJson(
+      } catch (error: unknown) {deps.writeJson(
           res,
           { ok: false, error: error?.message || 'Falha ao executar a acao do Integration Hub.' },
           400,

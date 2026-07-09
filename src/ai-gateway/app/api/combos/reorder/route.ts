@@ -5,9 +5,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { reorderCombosSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-// POST /api/combos/reorder - Persist combo ordering
+import { logger } from '@/shared/utils/logger';// POST /api/combos/reorder - Persist combo ordering
 export async function POST(request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -15,8 +13,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -38,8 +35,7 @@ export async function POST(request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ combos });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error reordering combos:", error);
+  } catch (error: unknown) {console.log("Error reordering combos:", error);
     return NextResponse.json({ error: "Failed to reorder combos" }, { status: 500 });
   }
 }
@@ -51,7 +47,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing to cloud:", error);
+  } catch (error: unknown) {console.log("Error syncing to cloud:", error);
   }
 }

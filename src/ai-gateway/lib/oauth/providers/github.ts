@@ -1,7 +1,5 @@
 import { GITHUB_CONFIG } from "../constants/oauth";
-import { logger } from '@/shared/utils/logger';
-
-export const github = {
+import { logger } from '@/shared/utils/logger';export const github = {
   config: GITHUB_CONFIG,
   flowType: "device_code",
   requestDeviceCode: async (config) => {
@@ -41,8 +39,7 @@ export const github = {
     let data;
     try {
       data = await response.json();
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[github] encoding failed', error);
+    } catch (error: unknown) {logger.warn('[github] encoding failed', error);
     const text = await response.text();
       data = { error: "invalid_response", error_description: text };
   }

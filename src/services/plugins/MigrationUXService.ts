@@ -209,8 +209,7 @@ export class MigrationUXService {
     try {
       const reportPath = path.join(this.storageDir, 'last-import-report.json');
       fs.writeFileSync(reportPath, JSON.stringify(snapshot, null, 2), 'utf8');
-    } catch (error: any) {
-      logger.warn('[MigrationUX] failed to write report', error);
+    } catch (error: unknown) {logger.warn('[MigrationUX] failed to write report', error);
     }
 
     return { success, failed, skipped, snapshot };

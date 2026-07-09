@@ -22,6 +22,12 @@ import {
   readPermission,
   readPhysicalEvents
 } from './EchoResponseParser.js';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 // Re-export all types for backward compatibility
 export * from './EchoTypes.js';
@@ -110,8 +116,9 @@ export class EchoClientService {
         artifactId: correlation?.artifactId || null,
       };
 
-    } catch (error: any) {
-      if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      if (err.name === 'TimeoutError' || err.name === 'AbortError') {
         return {
           success: false,
           response: t('error_timeout'),
@@ -120,7 +127,7 @@ export class EchoClientService {
       }
       return {
         success: false,
-        response: t('error_connection', { message: error.message }),
+        response: t('error_connection', { message: String(err.message || 'Unexpected error') }),
         toolsUsed: [],
       };
     }

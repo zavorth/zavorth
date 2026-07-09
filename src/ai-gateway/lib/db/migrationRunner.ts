@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 /**
  * Migration Runner — Versioned SQL Migrations for SQLite
  *
@@ -33,8 +34,7 @@ function resolveMigrationsDir(): string {
       const __filename = fileURLToPath(metaUrl);
       return path.join(path.dirname(__filename), "migrations");
     }
-  } catch (error: any) { const err = error; const e = error;
-      // fileURLToPath failed (e.g. Windows global install) — use fallback
+  } catch (error: unknown) { // fileURLToPath failed (e.g. Windows global install) — use fallback
       logger.warn('[migration Runner] lifecycle operation failed', error);
     }
   // Fallback: resolve relative to cwd (works for both dev and global installs)
@@ -101,7 +101,8 @@ export function runMigrations(db: Database.Database): number {
       applyMigration();
       count++;
       console.log(`[Migration] Applied: ${migration.version}_${migration.name}`);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Migration] FAILED: ${migration.version}_${migration.name} — ${message}`);
       throw err; // Re-throw to prevent DB from starting in inconsistent state

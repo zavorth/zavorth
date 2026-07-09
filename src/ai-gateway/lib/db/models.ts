@@ -524,7 +524,7 @@ function getCustomModelRow(providerId: string, modelId: string): JsonRecord | nu
       return (x as { id?: string }).id === modelId;
     }) as JsonRecord | undefined;
     return m ?? null;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[models] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[models] JSON parse failed', error); return null; }
 }
 
 /**

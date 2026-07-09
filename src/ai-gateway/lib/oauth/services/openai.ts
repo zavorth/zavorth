@@ -2,7 +2,6 @@ import { OAuthService } from "./oauth";
 import { OPENAI_CONFIG } from "../constants/oauth";
 import { getServerCredentials } from "../config/index";
 import { spinner as createSpinner } from "../utils/ui";
-
 /**
  * OpenAI OAuth Service (Native)
  * Uses Authorization Code Flow with PKCE (similar to Codex)
@@ -114,7 +113,7 @@ export class OpenAIService extends OAuthService {
 
       spinner.succeed("OpenAI connected successfully!");
       return true;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

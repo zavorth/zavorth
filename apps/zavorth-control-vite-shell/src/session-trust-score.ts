@@ -1,6 +1,6 @@
-/**
- * Session trust score (P2-15) — compact 0–100 + short label from live snapshot signals.
- */
+/** Session trust score from live signals. */
+
+import { translate } from './locale';
 
 export type SessionTrustInput = {
   pendingApprovals?: number;
@@ -31,10 +31,10 @@ export function computeSessionTrustScore(input: SessionTrustInput = {}): Session
   }
   score = Math.max(0, Math.min(100, Math.round(score)));
 
-  if (score < 40) return { score, label: 'At risk', tone: 'danger' };
-  if (pending > 0 || score < 70) return { score, label: 'Needs review', tone: 'warn' };
-  if (score < 90) return { score, label: 'Stable', tone: 'info' };
-  return { score, label: 'Governed', tone: 'ok' };
+  if (score < 40) return { score, label: translate('At risk'), tone: 'danger' };
+  if (pending > 0 || score < 70) return { score, label: translate('Needs review'), tone: 'warn' };
+  if (score < 90) return { score, label: translate('Stable'), tone: 'info' };
+  return { score, label: translate('Governed'), tone: 'ok' };
 }
 
 export function renderSessionTrustScore(input: SessionTrustInput = {}): SessionTrustResult {

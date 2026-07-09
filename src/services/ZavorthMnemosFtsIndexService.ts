@@ -120,14 +120,12 @@ export class ZavorthMnemosFtsIndexService {
         fts5Available: true,
         safety: this.safety(),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Mnemos Fts] creation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Mnemos Fts] creation failed', error);
     return this.unavailable(generatedAt, dbPath, pages.length, String(error?.message || error || 'sqlite failed'));
   } finally {
       try {
         db?.close?.();
-      } catch (error: any) {
-      // ignored
+      } catch (error: unknown) {// ignored
       logger.warn('[Zavorth Mnemos Fts] resource cleanup failed', error);
     }
     }
@@ -165,14 +163,12 @@ export class ZavorthMnemosFtsIndexService {
         available: true,
         hits: rows.map((row, index) => ({ pageId: row.pageId, rank: index + 1 })),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Mnemos Fts] array operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Mnemos Fts] array operation failed', error);
     return { available: false, hits: [] };
   } finally {
       try {
         db?.close?.();
-      } catch (error: any) {
-      // ignored
+      } catch (error: unknown) {// ignored
       logger.warn('[Zavorth Mnemos Fts] resource cleanup failed', error);
     }
     }
@@ -212,7 +208,7 @@ export class ZavorthMnemosFtsIndexService {
   private loadBetterSqlite(): any | null {
     try {
       return this.require('better-sqlite3');
-    } catch (error: any) { logger.warn('[Zavorth Mnemos Fts] lifecycle operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Mnemos Fts] lifecycle operation failed', error); return null; }
   }
 
   private unavailable(

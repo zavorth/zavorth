@@ -14,9 +14,7 @@ import { UniversalSkillExpansionService } from '../../../services/UniversalSkill
 import { ZavorthExternalAgentGatewayService } from '../../../services/ZavorthExternalAgentGatewayService.js';
 import { UniversalCapabilityFabricService } from '../../../services/UniversalCapabilityFabricService.js';
 import { UniversalWorkspaceImportService } from '../../../services/UniversalWorkspaceImportService.js';
-import type { CapabilityFabricKind } from '../../../contracts/UniversalCapabilityFabricContract.js';
-
-const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
+import type { CapabilityFabricKind } from '../../../contracts/UniversalCapabilityFabricContract.js';const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = [
   'tests/services/ZavorthHiddenCapabilitySpineService.test.ts',
   'tests/runtime/actions/ZavorthCapabilitySpineActions.test.ts',
@@ -70,8 +68,7 @@ async function appendJsonArray(file: string, value: unknown): Promise<void> {
   try {
     const parsed = JSON.parse(await fsp.readFile(file, 'utf8'));
     items = Array.isArray(parsed) ? parsed : [];
-  } catch (error: any) { const err = error; const e = error;
-    items = [];
+  } catch (error: unknown) {items = [];
   }
   items.push(value);
   await fsp.writeFile(file, `${JSON.stringify(items, null, 2)}\n`, 'utf8');
@@ -171,8 +168,7 @@ function listSkills(root: string): Array<{ id: string; name: string; file: strin
           source,
         });
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Optional skill roots may not exist.
+    } catch (error: unknown) {// Optional skill roots may not exist.
     }
   }
   return found.sort((left, right) => left.id.localeCompare(right.id));

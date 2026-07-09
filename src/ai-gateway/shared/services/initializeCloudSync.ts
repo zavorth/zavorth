@@ -1,7 +1,5 @@
 import { getCloudSyncScheduler } from "@/shared/services/cloudSyncScheduler";
-import { isCloudEnabled, cleanupProviderConnections } from "@/lib/localDb";
-
-/**
+import { isCloudEnabled, cleanupProviderConnections } from "@/lib/localDb";/**
  * Initialize cloud sync scheduler
  * This should be called when the application starts
  */
@@ -17,8 +15,7 @@ export async function initializeCloudSync() {
     await scheduler.start();
 
     return scheduler;
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[CloudSync] Error initializing scheduler:", error);
+  } catch (error: unknown) {console.error("[CloudSync] Error initializing scheduler:", error);
     throw error;
   }
 }

@@ -107,7 +107,7 @@ export class CompanionAndroidService {
             for (const [id, t] of Object.entries(data as Record<string, QuickSettingsTile>)) this.tiles.set(id, t);
             break;
         }
-      } catch (error: any) { /* ignore */ logger.warn('[Companion Android] operation failed', error); }
+      } catch (error: unknown) {/* ignore */ logger.warn('[Companion Android] operation failed', error); }
     }
   }
 

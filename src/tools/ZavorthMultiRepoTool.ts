@@ -73,7 +73,7 @@ export class ZavorthMultiRepoTool extends BaseTool {
     try {
       const data = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
       this.repos = new Map(Object.entries(data));
-    } catch (error: any) { /* ignore */ logger.warn('[Zavorth Multi Repo] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Multi Repo] JSON parse failed', error); }
   }
 
   private saveRepos(): void {
@@ -141,7 +141,7 @@ export class ZavorthMultiRepoTool extends BaseTool {
       execFileSync('git', ['add', '-A'], { cwd: repo.path, timeout: 30000 });
       try {
         execFileSync('git', ['commit', '-m', message], { cwd: repo.path, timeout: 30000 });
-      } catch (error: any) { /* no changes to commit */ logger.warn('[Zavorth Multi Repo] process execution failed', error); }
+      } catch (error: unknown) {/* no changes to commit */ logger.warn('[Zavorth Multi Repo] process execution failed', error); }
 
       if (repo.remote) {
         execFileSync('git', ['push', 'origin', repo.branch], { cwd: repo.path, timeout: 60000 });
@@ -151,7 +151,7 @@ export class ZavorthMultiRepoTool extends BaseTool {
       this.saveRepos();
 
       return `Repository "${name}" synced. Branch: ${repo.branch}${repo.remote ? ', pushed to remote.' : ''}`;
-    } catch (error: any) { logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
   }
 
   private async repoStatus(args: Record<string, unknown>): Promise<string> {
@@ -167,7 +167,7 @@ export class ZavorthMultiRepoTool extends BaseTool {
       const branch = execFileSync('git', ['branch', '--show-current'], { cwd: repo.path, timeout: 5000 }).toString().trim();
 
       return `Repository "${name}" (${branch}):\n${status || '  Clean working tree.'}`;
-    } catch (error: any) { logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
   }
 
   private async repoDiff(args: Record<string, unknown>): Promise<string> {
@@ -181,7 +181,7 @@ export class ZavorthMultiRepoTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const diff = execFileSync('git', ['diff', '--stat'], { cwd: repo.path, timeout: 10000 }).toString();
       return `Diff for "${name}":\n${diff || '  No changes.'}`;
-    } catch (error: any) { logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
   }
 
   private async createBranch(args: Record<string, unknown>): Promise<string> {
@@ -198,7 +198,7 @@ export class ZavorthMultiRepoTool extends BaseTool {
       repo.branch = branch;
       this.saveRepos();
       return `Branch "${branch}" created and checked out in "${name}".`;
-    } catch (error: any) { logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
   }
 
   private async createPR(args: Record<string, unknown>): Promise<string> {
@@ -212,7 +212,7 @@ export class ZavorthMultiRepoTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('gh', ['pr', 'create', '--fill'], { cwd: repo.path, timeout: 60000 }).toString();
       return `PR created for "${name}":\n${result}`;
-    } catch (error: any) { logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Multi Repo] process execution failed', error); return ''; }
   }
 
   private removeRepo(args: Record<string, unknown>): string {

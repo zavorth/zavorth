@@ -1,3 +1,4 @@
+import { logger } from '../../../logger.js';
 ﻿import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
 import { GatewayEventBus } from '../../events/GatewayEventBus';
 
@@ -9,12 +10,12 @@ export class CliChannelAdapter implements GatewayChannelAdapter {
   constructor(private eventBus: GatewayEventBus) {}
 
   async initialize(): Promise<void> {
-    console.log('[Gateway] CLI Channel initialized. Listening on STDIN.');
+    logger.info('[Gateway] CLI Channel initialized. Listening on STDIN.');
     // Binding the CLI input streams to root Gateway events
   }
 
   async shutdown(): Promise<void> {
-    console.log('[Gateway] CLI Channel closed.');
+    logger.info('[Gateway] CLI Channel closed.');
   }
 
   async onMessageReceived(payload: string): Promise<void> {

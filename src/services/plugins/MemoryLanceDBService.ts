@@ -46,8 +46,7 @@ export class MemoryLanceDBService {
       try {
         const data = JSON.parse(fs.readFileSync(path.join(this.dbPath, file), 'utf-8'));
         this.collections.set(name, Array.isArray(data) ? data : []);
-      } catch (error: any) {
-        this.collections.set(name, []);
+      } catch (error: unknown) {this.collections.set(name, []);
       }
     }
   }

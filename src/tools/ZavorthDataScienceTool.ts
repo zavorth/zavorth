@@ -93,7 +93,7 @@ export class ZavorthDataScienceTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error: any) { logger.warn('[Zavorth Data Science] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Data Science] process execution failed', error); return ''; }
   }
 
   private loadScript(filePath: string, additional: string): string {

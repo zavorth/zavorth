@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿/**
  * SafeModificationService - Guarded Self-Modification
  *
@@ -58,8 +59,9 @@ export class SafeModificationService {
         success: true,
         reason: `Arquivo ${path.basename(absolutePath)} modificado com sucesso. Backup criado pelo Host.`,
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Safe Modification] filesystem operation failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Safe Modification] filesystem operation failed', error);
     return {
         success: false,
         reason: `Falha ao escrever o arquivo: ${err.message}`,
@@ -85,8 +87,8 @@ export class SafeModificationService {
       try {
         JSON.parse(newContent);
         return { passes: true, output: '' };
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Safe Modification] JSON parse failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Safe Modification] JSON parse failed', error);
     return {
           passes: false,
           output: `JSON invalido: ${error.message}`,
@@ -140,8 +142,7 @@ export class SafeModificationService {
           }),
         );
         passes = true;
-      } catch (e: any) { const error = e; const err = e;
-        output = e.stdout || e.stderr || e.message || '';
+      } catch (error: unknown) { const err = asErrorLike(error); output = (error as any)?.stdout || (error as any)?.stderr || err.message || '';
         const basename = path.basename(originalPath);
         const relevantErrors = output
           .split('\n')
@@ -157,8 +158,7 @@ export class SafeModificationService {
     } finally {
       try {
         fs.unlinkSync(tmpPath);
-      } catch (error: any) { const err = error; const e = error;
-      // ignore cleanup failures
+      } catch (error: unknown) {// ignore cleanup failures
       logger.warn('[Safe Modification] file cleanup failed', error);
     }
     }
@@ -217,8 +217,7 @@ export class SafeModificationService {
           passes: true,
           output: output.trim(),
         };
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Safe Modification] validation failed', error);
+      } catch (error: unknown) {logger.warn('[Safe Modification] validation failed', error);
     return {
           passes: false,
           output: String(error?.stdout || error?.stderr || error?.message || '').trim() || 'Falha desconhecida ao validar o script PowerShell.',
@@ -227,8 +226,7 @@ export class SafeModificationService {
     } finally {
       try {
         fs.unlinkSync(tmpPath);
-      } catch (error: any) { const err = error; const e = error;
-      // ignore cleanup failures
+      } catch (error: unknown) {// ignore cleanup failures
       logger.warn('[Safe Modification] file cleanup failed', error);
     }
     }

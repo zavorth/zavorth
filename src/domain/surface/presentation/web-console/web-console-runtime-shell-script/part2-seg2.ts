@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../utils/errorLike';
 export const runtimeShellScriptPart2Seg2: string = [
     "  for (const artifact of (Array.isArray(replay?.recentArtifacts) ? replay.recentArtifacts : []).slice(0, 2)) {",
     "    const artifactLabel = escapeHtml(artifact?.label || artifact?.path || artifact?.id || 'Entrega recente');",
@@ -312,7 +313,7 @@ export const runtimeShellScriptPart2Seg2: string = [
     "  let urlSessionId = '';",
     "  try {",
     "    urlSessionId = normalizeText(new URL(window.location.href).searchParams.get('sessionId'));",
-    "  } catch (err: any) { const error = err; const e = err; console.warn('[auto-fix] Empty catch block', err); }",
+    "  } catch (error: unknown) { const err = asErrorLike(error); const e = err; console.warn('[auto-fix] Empty catch block', err); }",
     "  return pickFirstText([",
     "    urlSessionId,",
     "    sessionWorkspaceData.session?.sessionId,",

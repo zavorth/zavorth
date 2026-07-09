@@ -19,6 +19,7 @@ import { getExecutor } from "@ZavorthGateway/open-sse/executors/index.ts";
 import { getUsageForProvider } from "@ZavorthGateway/open-sse/services/usage.ts";
 import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../utils/errorLike';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -82,8 +83,7 @@ async function syncToCloudIfEnabled() {
     const machineId = await getMachineId();
     if (!machineId) return;
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[ProviderLimits] Error syncing refreshed credentials to cloud:", error);
+  } catch (error: unknown) {console.error("[ProviderLimits] Error syncing refreshed credentials to cloud:", error);
   }
 }
 
@@ -180,7 +180,9 @@ async function syncExpiredStatusIfNeeded(connection: ProviderConnectionLike, usa
       lastErrorType: "token_expired",
       lastErrorAt: new Date().toISOString(),
     });
-  } catch (dbError: any) { const error = dbError; const err = dbError; const e = dbError;
+  } catch (dbError: unknown) {
+    const err = asErrorLike(dbError);
+    const error = err;
     console.error("[ProviderLimits] Failed to sync expired status to DB:", dbError);
   }
 }
@@ -199,7 +201,7 @@ export async function getLastProviderLimitsAutoSyncTime(): Promise<string | null
     const settings = await getSettings();
     const value = settings[PROVIDER_LIMITS_AUTO_SYNC_SETTING_KEY];
     return typeof value === "string" && value.trim() ? value : null;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[provider] operation failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[provider] operation failed', error); return null; }
 }
 
 async function setLastProviderLimitsAutoSyncTime(timestamp: string): Promise<void> {
@@ -257,8 +259,7 @@ export async function fetchLiveProviderLimits(connectionId: string): Promise<{
 
   try {
     result = await fetchUsageWithContext(proxyConfig);
-  } catch (error: any) { const err = error; const e = error;
-    const isThrownNetworkError =
+  } catch (error: unknown) {const isThrownNetworkError =
       error?.message === "fetch failed" ||
       error?.code === "PROXY_UNREACHABLE" ||
       error?.code === "UND_ERR_CONNECT_TIMEOUT" ||

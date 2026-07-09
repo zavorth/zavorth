@@ -35,7 +35,7 @@ export class MemorySemanticCacheService {
     try {
       const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
       if (data && typeof data === 'object') this.entries = new Map(Object.entries(data));
-    } catch (error: any) { /* ignore */ logger.warn('[Memory Semantic Cache] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Memory Semantic Cache] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

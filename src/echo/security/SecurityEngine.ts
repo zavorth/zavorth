@@ -9,9 +9,7 @@ import {
   isLocalNetworkHostname,
   isWhitelistedSystemExecutable,
   resolveBrowserTargetPolicy,
-} from './WhitelistConfig';
-
-const UNSAFE_OS_ARGUMENT_PATTERN = /[\r\n"`|<>^]/;
+} from './WhitelistConfig';const UNSAFE_OS_ARGUMENT_PATTERN = /[\r\n"`|<>^]/;
 
 /**
  * Three-layer security gate for Echo tool execution.
@@ -28,8 +26,7 @@ export class SecurityEngine {
   public static validateToolSchema(tool: IZavorthTool, params: any): any {
     try {
       return tool.schema.parse(params);
-    } catch (error: any) { const err = error; const e = error;
-      if (error instanceof z.ZodError) {
+    } catch (error: unknown) {if (error instanceof z.ZodError) {
         const issues = error.issues
           .map((entry) => `${entry.path.join('.')}: ${entry.message}`)
           .join(', ');
@@ -146,8 +143,7 @@ export class SecurityEngine {
     let hostname = '';
     try {
       hostname = new URL(broker).hostname;
-    } catch (error: any) { const err = error; const e = error;
-      throw new Error(
+    } catch (error: unknown) {throw new Error(
         `SandboxBlock: MQTT broker '${broker}' possui URL invalida.`,
       );
     }

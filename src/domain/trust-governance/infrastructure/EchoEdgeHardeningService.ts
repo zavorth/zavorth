@@ -3,9 +3,7 @@ import fs from 'fs';
 import * as http from 'http';
 import { config } from '../../../config/index.js';
 import { normalizeBearerToken } from '../../../config/configHelpers.js';
-import { logger } from '../../../logger.js';
-
-type EchoRouteBucket = 'read' | 'execute' | 'resolve';
+import { logger } from '../../../logger.js';type EchoRouteBucket = 'read' | 'execute' | 'resolve';
 
 type EchoRoutePolicy = {
   bucket: EchoRouteBucket;
@@ -159,7 +157,7 @@ export class EchoEdgeHardeningService {
 
     try {
       return fs.readFileSync(tokenFile, 'utf8').trim();
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Edge Hardening] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Edge Hardening] filesystem operation failed', error); return ''; }
   }
 
   private resolveRoutePolicy(pathname: string, method: string): EchoRoutePolicy | null {

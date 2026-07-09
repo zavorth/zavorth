@@ -81,7 +81,7 @@ export class ZavorthPredictiveCostService {
           historyCount: row.count,
         };
       }
-    } catch (dbError) {
+    } catch (dbError: unknown) {
       logger.warn(`[Predictive Cost] Error querying database: ${dbError}`);
     }
 

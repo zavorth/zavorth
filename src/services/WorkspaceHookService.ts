@@ -96,8 +96,8 @@ export class WorkspaceHookService {
         env: process.env,
         stdio: 'inherit',
       });
-    } catch (error: any) {
-    logger.warn('[Workspace Hook] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Workspace Hook] process execution failed', error);
     return {
         command,
         status: 'failed_to_start',

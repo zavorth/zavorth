@@ -2,7 +2,6 @@ import type { ZavorthActionDefinition, ZavorthActionHandlerInput, ZavorthActionR
 import { AgentChainBuilder, type AgentChainConfig } from './AgentChainBuilder.js';
 import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';
 import { logger } from '../logger.js';
-
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = ['tests/agents/AgentChainBuilder.test.ts'];
 const DEFAULT_MAX_CONCURRENCY = 5;
@@ -126,7 +125,7 @@ export function createAgentChainActionModule(externalAgentGateway: ZavorthExtern
         lines: summary.split('\n'),
         data: { execution },
       });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       logger.error(`[AgentChainAction] Chain execution failed: ${errorMsg}`);
       return result({

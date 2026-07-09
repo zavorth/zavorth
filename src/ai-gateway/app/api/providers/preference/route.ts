@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-
 export async function GET(request: NextRequest) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -14,7 +13,7 @@ export async function GET(request: NextRequest) {
     const preference = await service.readPreference();
 
     return NextResponse.json({ preference });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] operation failed', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : String(error) },
@@ -49,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(result);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] operation failed', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : String(error) },

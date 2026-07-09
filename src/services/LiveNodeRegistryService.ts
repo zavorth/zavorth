@@ -324,8 +324,7 @@ export class LiveNodeRegistryService {
     for (const listener of this.listeners) {
       try {
         listener(event);
-      } catch (error: any) {
-      // Listener failures must not break node heartbeats.
+      } catch (error: unknown) {// Listener failures must not break node heartbeats.
       logger.warn('[Live Node Registry] load operation failed', error);
     }
     }

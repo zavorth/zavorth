@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 /**
  * GatewayMiddlewareIntegration — Example integration of the
  * ChannelMessageMiddleware into Telegram and WhatsApp gateways.
@@ -13,9 +14,7 @@
 
 import { ZavorthChannelMessageMiddleware } from '../services/ZavorthChannelMessageMiddleware.js';
 
-// ---------------------------------------------------------------------------
 // Singleton instance for use across gateways
-// ---------------------------------------------------------------------------
 
 let middlewareInstance: ZavorthChannelMessageMiddleware | null = null;
 
@@ -26,9 +25,7 @@ export function getGatewayMiddleware(): ZavorthChannelMessageMiddleware {
   return middlewareInstance;
 }
 
-// ---------------------------------------------------------------------------
 // Telegram integration example
-// ---------------------------------------------------------------------------
 
 /**
  * How to integrate into BotGatewayMessageProcessing.ts:
@@ -54,9 +51,7 @@ export function getGatewayMiddleware(): ZavorthChannelMessageMiddleware {
  *    }
  */
 
-// ---------------------------------------------------------------------------
 // WhatsApp integration example
-// ---------------------------------------------------------------------------
 
 /**
  * How to integrate into WhatsAppChannelAdapter.ts:
@@ -84,9 +79,7 @@ export function getGatewayMiddleware(): ZavorthChannelMessageMiddleware {
  *    }
  */
 
-// ---------------------------------------------------------------------------
 // Discord integration example
-// ---------------------------------------------------------------------------
 
 /**
  * How to integrate into Discord gateway:
@@ -111,9 +104,7 @@ export function getGatewayMiddleware(): ZavorthChannelMessageMiddleware {
  *    }
  */
 
-// ---------------------------------------------------------------------------
 // Error handling wrapper
-// ---------------------------------------------------------------------------
 
 /**
  * Wraps any gateway's message handler with the middleware.
@@ -146,7 +137,7 @@ export async function withMiddleware<T>(
   }
 
   if (result.error) {
-    console.error(`[Middleware] Error processing message: ${result.error}`);
+    logger.error(`[Middleware] Error processing message: ${result.error}`);
   }
 
   return handler();

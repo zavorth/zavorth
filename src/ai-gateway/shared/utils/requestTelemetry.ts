@@ -86,7 +86,7 @@ export class RequestTelemetry {
       const result = await fn();
       this.endPhase();
       return result;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.endPhase({ error: error.message });
       throw error;
     }
@@ -158,7 +158,6 @@ export function getTelemetrySummary(windowMs = 300000) {
 
   const totals = recent.map((h) => h.totalMs).sort((a, b) => a - b);
 
-  // Phase breakdown
   const phaseBreakdown = {};
   for (const phase of STAGES) {
     const durations = recent

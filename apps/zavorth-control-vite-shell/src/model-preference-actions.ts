@@ -1,4 +1,9 @@
 import { escapeHtml } from './html-utils';
+import { asErrorLike } from '../../../src/utils/errorLike';
+import { createShellLogger, surfaceShellError } from './shell-debug';
+import { translate } from './locale';
+
+const log = createShellLogger('model-pref');
 
 const API_BASE = '/api/providers/preference';
 
@@ -48,7 +53,13 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
       }
     })
     .catch((err) => {
-      console.error('[model-pref] failed to load initial preference', err);
+      log.error('failed to load initial preference', err);
+      const message = err instanceof Error ? err.message : String(err);
+      surfaceShellError(
+        translate('Model preference'),
+        message || translate('Could not load the saved model preference.'),
+        'info',
+      );
     });
 
   // 2. Submit Event (Save Preference)
@@ -85,15 +96,18 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
       `;
 
       refreshCallback();
-    } catch (err) {
-      console.error('[model-pref] failed to save preference', err);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      const message = err instanceof Error ? err.message : String(err);
+      log.error('failed to save preference', err);
+      surfaceShellError(translate('Model preference'), message || translate('Could not save the model preference.'));
       resultPanel.style.display = 'block';
       resultPanel.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <strong style="color:#f87171;">❌ Save Failed</strong>
           <button class="cron-action-btn" type="button" id="btn-clear-pref-result">Clear</button>
         </div>
-        <p style="margin:4px 0; color:rgba(255,255,255,0.7);">${escapeHtml(err instanceof Error ? err.message : String(err))}</p>
+        <p style="margin:4px 0; color:rgba(255,255,255,0.7);">${escapeHtml(message)}</p>
       `;
     }
   });
@@ -138,15 +152,18 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
             💡 <strong>Next Action:</strong> ${escapeHtml(result.nextAction || 'Preview ready.')}
           </div>
         `;
-      } catch (err) {
-        console.error('[model-pref] failed to preview preference', err);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        const message = err instanceof Error ? err.message : String(err);
+        log.error('failed to preview preference', err);
+        surfaceShellError(translate('Model preference'), message || translate('Could not preview the model preference.'));
         resultPanel.style.display = 'block';
         resultPanel.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <strong style="color:#f87171;">❌ Preview Failed</strong>
             <button class="cron-action-btn" type="button" id="btn-clear-pref-result">Clear</button>
           </div>
-          <p style="margin:4px 0; color:rgba(255,255,255,0.7);">${escapeHtml(err instanceof Error ? err.message : String(err))}</p>
+          <p style="margin:4px 0; color:rgba(255,255,255,0.7);">${escapeHtml(message)}</p>
         `;
       }
     });

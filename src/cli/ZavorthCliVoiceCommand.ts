@@ -7,6 +7,7 @@ import { VoiceStatusService } from '../voice/VoiceStatusService.js';
 import { VoiceWakeRuntimeService } from '../services/VoiceWakeRuntimeService.js';
 import path from 'node:path';
 import fs from 'node:fs';
+import { asErrorLike } from '../utils/errorLike';
 
 type VoiceCommandParams = {
   runtime: ZavorthCliRuntime;
@@ -61,10 +62,6 @@ export async function handleZavorthCliVoiceCommand(
   }
 }
 
-// ---------------------------------------------------------------------------
-// Subcommands
-// ---------------------------------------------------------------------------
-
 async function voiceStatus(writer: CliWriter): Promise<CliExecutionResult> {
   const tts = new LocalVoiceTTS();
   const statusService = new VoiceStatusService();
@@ -104,7 +101,8 @@ async function voiceSpeak(text: string, writer: CliWriter): Promise<CliExecution
     await tts.speak(text);
     writer.line(formatCliSuccessEventCard({ title: 'Speech completed.' }));
     return { ok: true, handled: true, output: ['Done.'], error: null };
-  } catch (err: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const msg = `TTS error: ${err?.message || String(err)}`;
     writer.line(formatCliEventCard({ title: msg, tone: 'danger' }));
     return { ok: false, handled: true, output: [msg], error: msg };
@@ -127,7 +125,8 @@ async function voiceListen(writer: CliWriter): Promise<CliExecutionResult> {
     await dictation.startContinuousMicrophoneRecord((transcript) => {
       writer.line(`📝 ${transcript}`);
     });
-  } catch (err: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const msg = `Listen error: ${err?.message || String(err)}`;
     writer.line(formatCliEventCard({ title: msg, tone: 'danger' }));
     return { ok: false, handled: true, output: [msg], error: msg };

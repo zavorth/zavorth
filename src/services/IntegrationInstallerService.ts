@@ -504,7 +504,7 @@ export class IntegrationInstallerService {
         return fallback;
       }
       return JSON.parse(fs.readFileSync(targetPath, 'utf8')) as T;
-    } catch (error: any) { logger.warn('[Integration Installer] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Integration Installer] JSON parse failed', error); return fallback; }
   }
 
   private writeJsonFile(targetPath: string, value: unknown): void {

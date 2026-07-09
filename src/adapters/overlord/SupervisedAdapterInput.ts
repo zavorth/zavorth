@@ -14,8 +14,7 @@ export function readStructuredInput(command: string | null | undefined, metadata
           ...parsed,
         };
       }
-    } catch (error: any) { const err = error; const e = error;
-      return {
+    } catch (error: unknown) {return {
         ...direct,
         rawCommand: normalizedCommand,
       };
@@ -88,8 +87,7 @@ export function stringArrayField(input: Record<string, unknown>, ...names: strin
               .map((entry) => String(entry || '').trim())
               .filter(Boolean);
           }
-        } catch (error: any) { const err = error; const e = error;
-          return [normalized];
+        } catch (error: unknown) {return [normalized];
         }
       }
       return normalized

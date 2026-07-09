@@ -2,9 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';
-
-export const runtime = "nodejs";
+import { logger } from '@/shared/utils/logger';export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type RunLike = {
@@ -47,7 +45,7 @@ function readJson<T>(filePath: string, fallback: T): T {
   try {
     if (!fs.existsSync(filePath)) return fallback;
     return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[route] JSON parse failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[route] JSON parse failed', error); return fallback; }
 }
 
 function readLearningState(root: string): LearningState {

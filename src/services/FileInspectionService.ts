@@ -488,8 +488,7 @@ export class FileInspectionService {
         let entries: fs.Dirent[];
         try {
           entries = await fs.promises.readdir(currentDir, { withFileTypes: true });
-        } catch (error: any) {
-          continue;
+        } catch (error: unknown) {continue;
         }
 
         for (const entry of entries) {
@@ -542,8 +541,7 @@ export class FileInspectionService {
       let entries: fs.Dirent[];
       try {
         entries = await fs.promises.readdir(currentDir, { withFileTypes: true });
-      } catch (error: any) {
-        continue;
+      } catch (error: unknown) {continue;
       }
 
       for (const entry of entries) {
@@ -560,8 +558,7 @@ export class FileInspectionService {
         let stats: fs.Stats;
         try {
           stats = await fs.promises.stat(absolutePath);
-        } catch (error: any) {
-          continue;
+        } catch (error: unknown) {continue;
         }
 
         const extension = path.extname(absolutePath).toLowerCase();
@@ -650,7 +647,7 @@ export class FileInspectionService {
   private safeIsDirectory(targetPath: string): boolean {
     try {
       return fs.statSync(targetPath).isDirectory();
-    } catch (error: any) { logger.warn('[File] filesystem operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[File] filesystem operation failed', error); return false; }
   }
 
   private looksBinary(buffer: Buffer): boolean {

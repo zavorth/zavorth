@@ -39,7 +39,7 @@
   opacity: 0.74;
 }
 
-/* --- Hero Empty State (Gemini-style) --- */
+/* --- Hero Empty State --- */
 .terminal-hero {
   display: none;
   flex-direction: column;
@@ -1570,7 +1570,7 @@
   }
 }
 
-/* --- C2 next action --- */
+/* Next action bar */
 .next-action-host {
   margin: 0 0 12px;
 }
@@ -2002,6 +2002,19 @@
 
 .echo-group--agent-stream .echo-meta__cost {
   color: color-mix(in srgb, var(--b-pulse) 72%, var(--b-signal-strong));
+}
+
+/* Workboard deep-link focus in transcript */
+.echo-group.is-workboard-focus,
+.echo-group--agent-stream.is-workboard-focus,
+.zavorth-approval-card.is-workboard-focus,
+.zavorth-artifact-card.is-workboard-focus,
+[data-run-id].is-workboard-focus {
+  outline: 2px solid color-mix(in srgb, var(--b-pulse) 70%, var(--b-signal-strong));
+  outline-offset: 4px;
+  border-radius: 12px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--b-pulse) 18%, transparent);
+  transition: outline-color 180ms ease, box-shadow 180ms ease;
 }
 
 .echo-group--agent-stream.is-streaming .echo-bubble--agent-stream::after {

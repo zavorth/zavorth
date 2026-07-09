@@ -9,9 +9,7 @@
 
 import React from '../../../apps/zavorth-desktop/node_modules/react';
 
-// ---------------------------------------------------------------------------
 // Lightweight mock DOM (reuse pattern from DesktopReadOnlyFileExplorer.test.ts)
-// ---------------------------------------------------------------------------
 class MockElement {
   nodeType = 1;
   tagName: string;
@@ -92,7 +90,7 @@ class MockElement {
       if (propsKey) {
         const rProps = current[propsKey];
         if (rProps?.onClick) {
-          try { rProps.onClick(event); } catch (e: any) { /* ignore */ }
+          try { rProps.onClick(event); } catch (error: unknown) { /* ignore */ }
         }
       }
       if ((event as any)._stopped) break;
@@ -223,9 +221,7 @@ const mockWindow = {
 (global as any).cancelAnimationFrame = (id: any) => clearTimeout(id);
 (global as any).IS_REACT_ACT_ENVIRONMENT = true;
 
-// ---------------------------------------------------------------------------
 // Imports (after globals are set)
-// ---------------------------------------------------------------------------
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRoot, type Root } from '../../../apps/zavorth-desktop/node_modules/react-dom/client';
@@ -252,9 +248,7 @@ const {
   ApprovalsPanel: (props: any) => any;
 };
 
-// ---------------------------------------------------------------------------
 // Test suite
-// ---------------------------------------------------------------------------
 describe('Fase 12 — Desktop Read-Only Approvals Panel', () => {
   const panelSrc = fs.readFileSync(
     path.resolve('apps/zavorth-desktop/src/views/panels/ApprovalsPanel.tsx'),
@@ -285,9 +279,7 @@ describe('Fase 12 — Desktop Read-Only Approvals Panel', () => {
     }
   });
 
-  // =========================================================================
   // A) Pure-function tests — sanitizeApproval
-  // =========================================================================
   describe('sanitizeApproval — pure function', () => {
     it('returns a SafeApprovalRecord for a safe item', () => {
       const result = sanitizeApproval(
@@ -370,9 +362,7 @@ describe('Fase 12 — Desktop Read-Only Approvals Panel', () => {
     });
   });
 
-  // =========================================================================
   // B) Static source analysis
-  // =========================================================================
   describe('ApprovalsPanel — static source analysis', () => {
     it('does not import or use summary, description, details, diff, patch, content, prompt', () => {
       // These field names must not appear as accessed properties on approval items
@@ -442,9 +432,7 @@ describe('Fase 12 — Desktop Read-Only Approvals Panel', () => {
     });
   });
 
-  // =========================================================================
   // C) DOM render tests
-  // =========================================================================
   describe('ApprovalsPanel — DOM rendering', () => {
     const safePendingApprovals = [
       { id: 'a1', title: 'Write to config.json', action: 'write', risk: 'medium', status: 'pending', createdAt: '2026-06-01T12:00:00Z' },

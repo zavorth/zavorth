@@ -28,7 +28,6 @@ import type {
   ZavorthAgentGateway,
 } from '../runtime/agent/index.js';
 import { randomUUID } from 'crypto';
-
 type ParsedCoreCommand = ReturnType<CommandParser['parse']>;
 
 type CoreOrchestratorPipelineState = {
@@ -131,7 +130,6 @@ export class CoreOrchestrator implements IMessageBroker {
 
     const shouldUseLegacyUnifiedGatewayIngress = this.shouldUseLegacyUnifiedGatewayIngress(ctx, rawText);
 
-    // === CONTEXT ENGINE: feed conversational memory ===
     if ((this.legacyUnifiedGateway || this.contextEngine) && rawText && !shouldUseLegacyUnifiedGatewayIngress) {
       const event = {
         id: randomUUID(),
@@ -149,9 +147,7 @@ export class CoreOrchestrator implements IMessageBroker {
         this.contextEngine?.pushEvent(event);
       }
     }
-    // === END CONTEXT ENGINE ===
 
-    // === NATURAL LANGUAGE ROUTER: intent classification ===
     if (rawText && !rawText.startsWith('/')) {
       const route = this.naturalRouter.route(rawText);
       this.logRepo.log(
@@ -163,7 +159,6 @@ export class CoreOrchestrator implements IMessageBroker {
       // Enrich context with classification for downstream use
       ctx.__naturalRoute = route;
     }
-    // === END NATURAL LANGUAGE ROUTER ===
     
     if (ctx.rawText === '/ping') {
       await ctx.reply(`Sovereign responding through ${ctx.platform}! Pong!`);
@@ -434,7 +429,7 @@ export class CoreOrchestrator implements IMessageBroker {
           surfaceTaskDispatcherDeferred: shouldBridgeToSurfaceDispatcher,
         },
       }, executor ? { executor } : {});
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.logRepo.log(
         'warn',
         'CoreOrchestrator',

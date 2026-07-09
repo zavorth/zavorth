@@ -189,7 +189,7 @@ export class ZavorthSkillEcosystemImporterService {
     }
     try {
       return this.skillCatalogService.listEntries();
-    } catch (error: any) { logger.warn('[Zavorth Skill Ecosystem Importer] load operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Skill Ecosystem Importer] load operation failed', error); return []; }
   }
 
   private materializeManifest(spec: ManifestSpec): ZavorthSkillManifest {

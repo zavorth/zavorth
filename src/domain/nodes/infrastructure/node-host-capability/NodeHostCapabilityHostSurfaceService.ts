@@ -25,7 +25,6 @@ import {
 import { inferImageMimeType, normalizeTimeout } from './NodeHostCapabilityExecutionHelpers.js';
 import { ShellNodeHostCommandRunner } from './NodeHostCapabilityShellCommandRunner.js';
 import { logger } from '../../../../logger';
-
 export class NodeHostCapabilityHostSurfaceService {
   private readonly now: () => Date;
   private readonly platform: NodeJS.Platform;
@@ -149,8 +148,7 @@ export class NodeHostCapabilityHostSurfaceService {
         now: this.now,
         resolveAllowedPath: (targetPath, capabilityId) => this.resolveAllowedPath(targetPath, capabilityId),
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Node Host Capability Host Surface] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Node Host Capability Host Surface] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'screen.capture',
         targetPath: requestedOutputPath || path.resolve(this.tempRoot, 'captures'),
@@ -213,8 +211,7 @@ export class NodeHostCapabilityHostSurfaceService {
         capabilityId: 'camera.capture',
         prefix: 'camera',
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Node Host Capability Host Surface] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Node Host Capability Host Surface] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'camera.capture',
         targetPath: requestedOutputPath || path.resolve(this.tempRoot, 'captures'),
@@ -269,8 +266,7 @@ export class NodeHostCapabilityHostSurfaceService {
     let sourcePath: string;
     try {
       sourcePath = this.resolveAllowedPath(rawSourcePath, 'camera.capture');
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Node Host Capability Host Surface] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Node Host Capability Host Surface] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'camera.capture',
         targetPath: rawSourcePath,
@@ -334,8 +330,7 @@ export class NodeHostCapabilityHostSurfaceService {
       let sourcePath: string;
       try {
         sourcePath = this.resolveAllowedPath(rawSourcePath, 'location.read');
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Node Host Capability Host Surface] load operation failed', error);
+      } catch (error: unknown) {logger.warn('[Node Host Capability Host Surface] load operation failed', error);
     return buildScopeViolationResult({
           capabilityId: 'location.read',
           targetPath: rawSourcePath,
@@ -361,8 +356,8 @@ export class NodeHostCapabilityHostSurfaceService {
       let parsedFile: Record<string, unknown> | null = null;
       try {
         parsedFile = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Node Host Capability Host Surface] JSON parse failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Node Host Capability Host Surface] JSON parse failed', error);
     return {
           ok: false,
           resultSummary: 'location.read nao conseguiu ler o arquivo de localizacao informado.',

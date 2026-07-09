@@ -273,8 +273,7 @@ export class ZavorthInspectService {
   private readPackageJson(): Record<string, any> {
     try {
       return JSON.parse(fs.readFileSync(path.join(this.projectRoot, 'package.json'), 'utf8'));
-    } catch (error: any) {
-      logger.warn('[Inspect] Failed to read package.json:', error);
+    } catch (error: unknown) {logger.warn('[Inspect] Failed to read package.json:', error);
       return {};
     }
   }

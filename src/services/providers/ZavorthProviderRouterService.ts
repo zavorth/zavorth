@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 ﻿import { logger } from '../../logger.js';
 import * as http from 'http';
 import type {
@@ -317,7 +318,7 @@ export class ZavorthProviderRouterService {
 
         this.lastReceipt = receipt;
         return receipt;
-      } catch (error: any) {
+      } catch ($1: unknown) {
         const providerError = error as ProviderError;
         const providerLatencyMs = Date.now() - providerStart;
         this.recordHealth(entry.providerId, false, providerLatencyMs);
@@ -533,7 +534,7 @@ export class ZavorthProviderRouterService {
         const routerRequest = this.parseRouterRequest(body as RouterRequestInput);
         const receipt = await this.route(routerRequest);
         this.writeJson(res, { ok: true, receipt }, 200);
-      } catch (error: any) { const e = error;
+      } catch (error: unknown) { const e = asErrorLike(error);
         const err = error as Error;
         this.writeJson(
           res,
@@ -554,7 +555,7 @@ export class ZavorthProviderRouterService {
 
         const openAiResponse = this.receiptToOpenAiResponse(receipt, openAiBody.model);
         this.writeJson(res, openAiResponse, receipt.status === 'all-providers-exhausted' ? 503 : 200);
-      } catch (error: any) { const e = error;
+      } catch (error: unknown) { const e = asErrorLike(error);
         const err = error as Error;
         this.writeJson(res, {
           error: {
@@ -950,7 +951,7 @@ export class ZavorthProviderRouterService {
         try {
           const raw = Buffer.concat(chunks).toString('utf-8');
           resolve(raw.length > 0 ? JSON.parse(raw) : {});
-        } catch (error: any) {
+        } catch ($1: unknown) {
           reject(new Error('Invalid JSON body.'));
         }
       });

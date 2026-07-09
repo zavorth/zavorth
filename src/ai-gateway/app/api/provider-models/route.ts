@@ -17,9 +17,7 @@ import {
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 import { providerModelMutationSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-function normalizeRequestedModelIds(
+import { logger } from '@/shared/utils/logger';function normalizeRequestedModelIds(
   searchParams: URLSearchParams,
   body: Record<string, unknown>
 ): string[] {
@@ -55,8 +53,7 @@ export async function GET(request) {
     const modelCompatOverrides = provider ? getModelCompatOverrides(provider) : [];
 
     return Response.json({ models, modelCompatOverrides });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] search failed', error);
+  } catch (error: unknown) {logger.warn('[route] search failed', error);
     return Response.json(
       { error: { message: "Failed to fetch provider models", type: "server_error" } },
       { status: 500 }
@@ -72,8 +69,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return Response.json(
       { error: { message: "Invalid JSON body", type: "validation_error" } },
       { status: 400 }
@@ -104,8 +100,7 @@ export async function POST(request) {
       supportedEndpoints
     );
     return Response.json({ model });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error adding provider model:", error);
+  } catch (error: unknown) {console.error("Error adding provider model:", error);
     return Response.json(
       { error: { message: "Failed to add provider model", type: "server_error" } },
       { status: 500 }
@@ -121,8 +116,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return Response.json(
       { error: { message: "Invalid JSON body", type: "validation_error" } },
       { status: 400 }
@@ -236,8 +230,7 @@ export async function PUT(request) {
     }
 
     return Response.json({ model });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error updating provider model:", error);
+  } catch (error: unknown) {console.error("Error updating provider model:", error);
     return Response.json(
       { error: { message: "Failed to update provider model", type: "server_error" } },
       { status: 500 }
@@ -253,8 +246,7 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return Response.json(
       { error: { message: "Invalid JSON body", type: "validation_error" } },
       { status: 400 }
@@ -316,8 +308,7 @@ export async function PATCH(request) {
       models: await getCustomModels(provider),
       modelCompatOverrides: getModelCompatOverrides(provider),
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error patching provider models:", error);
+  } catch (error: unknown) {console.error("Error patching provider models:", error);
     return Response.json(
       { error: { message: "Failed to update provider models", type: "server_error" } },
       { status: 500 }
@@ -375,8 +366,7 @@ export async function DELETE(request) {
 
     const removed = await removeCustomModel(provider, modelId);
     return Response.json({ removed });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error removing provider model:", error);
+  } catch (error: unknown) {console.error("Error removing provider model:", error);
     return Response.json(
       { error: { message: "Failed to remove provider model", type: "server_error" } },
       { status: 500 }

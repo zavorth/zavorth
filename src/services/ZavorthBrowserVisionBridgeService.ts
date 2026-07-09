@@ -298,8 +298,8 @@ export class ZavorthBrowserVisionBridgeService {
       });
       const evidence = extractTextFromSidecar(dom) || JSON.stringify(unwrapSidecarPayload(dom));
       return { used: true, title, evidence, error: null };
-    } catch (error: any) {
-    logger.warn('[Zavorth Browser Vision Bridge] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Browser Vision Bridge] process execution failed', error);
     return {
         used: false,
         title: null,
@@ -320,8 +320,8 @@ export class ZavorthBrowserVisionBridgeService {
     try {
       const parsed = await this.egressGuard(value, allowPrivateEgress);
       return { status: 'allowed', url: parsed, reason: 'Public HTTP target allowed.' };
-    } catch (error: any) {
-    logger.warn('[Zavorth Browser Vision Bridge] network request failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Browser Vision Bridge] network request failed', error);
     return {
         status: 'blocked',
         url: null,
@@ -678,8 +678,7 @@ function redactUrl(value: string | null): string | null {
     parsed.username = parsed.username ? '[redacted]' : '';
     parsed.password = parsed.password ? '[redacted]' : '';
     return parsed.toString();
-  } catch (error: any) {
-    logger.warn('[Zavorth Browser Vision Bridge] parsing failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Browser Vision Bridge] parsing failed', error);
     return safePreview(value, 160);
   }
 }
@@ -687,7 +686,7 @@ function redactUrl(value: string | null): string | null {
 function safeOrigin(value: string | null | undefined): string | null {
   try {
     return new URL(String(value || '')).origin;
-  } catch (error: any) { logger.warn('[Zavorth Browser Vision Bridge] parsing failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth Browser Vision Bridge] parsing failed', error); return null; }
 }
 
 function makePlanId(input: ZavorthBrowserVisionInput, steps: ZavorthBrowserVisionPlanStep[]): string {

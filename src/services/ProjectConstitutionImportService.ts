@@ -407,7 +407,7 @@ export class ProjectConstitutionImportService {
     try {
       const parsed = JSON.parse(String(this.fsRuntime.readFileSync(receiptPath, 'utf8') || '{}'));
       return Array.isArray(parsed?.receipts) ? parsed.receipts as ProjectConstitutionImportReceipt[] : [];
-    } catch (error: any) { logger.warn('[Project Constitution Import] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Project Constitution Import] JSON parse failed', error); return []; }
   }
 
   private ensureDir(dirPath: string): void {

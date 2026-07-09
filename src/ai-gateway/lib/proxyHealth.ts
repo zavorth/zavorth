@@ -47,8 +47,7 @@ export async function isProxyReachable(
   let url: URL;
   try {
     url = new URL(proxyUrl);
-  } catch (error: any) { const err = error; const e = error;
-    // Malformed URL — treat as unreachable
+  } catch (error: unknown) {// Malformed URL — treat as unreachable
     proxyHealthCache.set(proxyUrl, {
       healthy: false,
       checkedAt: Date.now(),

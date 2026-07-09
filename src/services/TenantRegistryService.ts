@@ -166,8 +166,7 @@ export class TenantRegistryService {
           }, {})
           : {},
       };
-    } catch (error: any) {
-    logger.warn('[Tenant Registry] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Tenant Registry] parsing failed', error);
     return { tenants: {} };
   }
   }

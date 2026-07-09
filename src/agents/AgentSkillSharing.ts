@@ -1,8 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../logger.js';
-
-export type SharedSkill = {
+import { logger } from '../logger.js';export type SharedSkill = {
   id: string;
   name: string;
   description: string;
@@ -178,7 +176,7 @@ export class AgentSkillSharing {
     try {
       if (!fs.existsSync(this.skillsFile)) return [];
       return JSON.parse(fs.readFileSync(this.skillsFile, 'utf-8')) as SharedSkill[];
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Agent Skill Sharing] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Agent Skill Sharing] JSON parse failed', error); return []; }
   }
 
   private writeSkills(skills: SharedSkill[]): void {

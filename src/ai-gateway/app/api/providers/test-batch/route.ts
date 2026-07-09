@@ -12,7 +12,6 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { providersBatchTestSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
-
 // Determine auth type group for a provider id
 function getAuthGroup(providerId) {
   if (FREE_PROVIDERS[providerId]) return "free";
@@ -43,8 +42,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] connection failed', error);
+  } catch (error: unknown) {logger.warn('[route] connection failed', error);
     return NextResponse.json(
       {
         error: {
@@ -127,8 +125,8 @@ export async function POST(request) {
           statusCode: data.statusCode || null,
           testedAt: data.testedAt || new Date().toISOString(),
         };
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+      } catch (error: unknown) {
+        logger.warn('[route] validation failed', error);
     return {
           provider: conn.provider,
           connectionId: conn.id,
@@ -185,8 +183,7 @@ export async function POST(request) {
         failed: results.filter((r) => !r.valid).length,
       },
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error in batch test:", error);
+  } catch (error: unknown) {console.log("Error in batch test:", error);
     return NextResponse.json({ error: "Batch test failed" }, { status: 500 });
   }
 }

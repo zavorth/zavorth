@@ -1,9 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import crypto from 'crypto';
-import { config } from '../../config/index.js';
-
-export interface PublishOptions {
+import { config } from '../../config/index.js';export interface PublishOptions {
   packagePath: string;
   authToken?: string;
   signLocal: boolean;
@@ -126,8 +124,7 @@ export class ZavorthPackagePublisher {
         if (response.ok) {
           uploadStatus = 'published';
         }
-      } catch (error: any) { const err = error; const e = error;
-        uploadStatus = 'prepared';
+      } catch (error: unknown) {uploadStatus = 'prepared';
       }
     }
 

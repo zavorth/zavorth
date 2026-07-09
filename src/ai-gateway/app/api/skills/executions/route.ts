@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { skillExecutor } from "@/lib/skills/executor";
+import { asErrorLike } from '../../../../../utils/errorLike';
 
 export async function GET(request: Request) {
   if (!(await isAuthenticated(request))) {
@@ -8,7 +9,8 @@ export async function GET(request: Request) {
   try {
     const executions = skillExecutor.listExecutions();
     return NextResponse.json({ executions });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] process execution failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
@@ -44,7 +46,8 @@ export async function POST(request: Request) {
       sessionId,
     });
     return NextResponse.json({ execution });
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const error = err instanceof Error ? err.message : String(err);
     if (error.includes("disabled")) {
       return NextResponse.json({ error }, { status: 503 });

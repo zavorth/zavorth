@@ -518,7 +518,7 @@ export class ZavorthProductExcellenceService {
   private hasMarker(relativePath: string, marker: string): boolean {
     try {
       return fs.readFileSync(path.join(this.projectRoot, relativePath), 'utf8').includes(marker);
-    } catch (error: any) { logger.warn('[Zavorth Product Excellence] filesystem operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Zavorth Product Excellence] filesystem operation failed', error); return false; }
   }
 
   private packageScripts(): Record<string, string> {
@@ -527,6 +527,6 @@ export class ZavorthProductExcellenceService {
         scripts?: Record<string, string>;
       };
       return packageJson.scripts || {};
-    } catch (error: any) { logger.warn('[Zavorth Product Excellence] JSON parse failed', error); return {}; }
+    } catch (error: unknown) {logger.warn('[Zavorth Product Excellence] JSON parse failed', error); return {}; }
   }
 }

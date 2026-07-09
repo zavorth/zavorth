@@ -450,8 +450,7 @@ function safeFiglet(value: string): string {
       verticalLayout: 'default',
       width: 80,
     });
-  } catch (error: any) {
-    logger.warn('[Zavorth Cli Tui Polish] string operation failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Tui Polish] string operation failed', error);
     return value.toUpperCase();
   }
 }

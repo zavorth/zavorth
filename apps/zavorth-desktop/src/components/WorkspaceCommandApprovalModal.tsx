@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { errorMessage } from '../lib/errors';
 
 interface WorkspaceCommandApprovalModalProps {
   approvals: Array<{
@@ -43,8 +44,8 @@ export function WorkspaceCommandApprovalModal({
     setError(null);
     try {
       await onResolve(activeApproval.operationId, decision);
-    } catch (err: any) {
-      setError(err.message || 'Failed to resolve command approval.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to resolve command approval.'));
     } finally {
       setLoading(false);
     }

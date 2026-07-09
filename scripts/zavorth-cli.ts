@@ -7,7 +7,7 @@ async function main(): Promise<void> {
   process.exitCode = exitCode;
 }
 
-main().catch((error: any) => {
+main().catch((error: unknown) => {
   console.error(`[zavorth-cli] erro: ${error?.message || String(error)}`);
   process.exitCode = 1;
 });

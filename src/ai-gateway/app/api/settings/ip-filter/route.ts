@@ -12,16 +12,13 @@ import {
 } from "@ZavorthGateway/open-sse/services/ipFilter.ts";
 import { updateIpFilterSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-export async function GET(request: Request) {
+import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
   try {
     return NextResponse.json(getIPFilterConfig());
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error getting IP filter config:", error);
+  } catch (error: unknown) {console.error("Error getting IP filter config:", error);
     return NextResponse.json({ error: "Failed to get IP filter config" }, { status: 500 });
   }
 }
@@ -33,8 +30,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -75,8 +71,7 @@ export async function PUT(request) {
     if (body.removeBan) removeTempBan(body.removeBan);
 
     return NextResponse.json(getIPFilterConfig());
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error updating IP filter config:", error);
+  } catch (error: unknown) {console.error("Error updating IP filter config:", error);
     return NextResponse.json({ error: "Failed to update IP filter config" }, { status: 500 });
   }
 }

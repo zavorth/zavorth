@@ -282,8 +282,8 @@ export class ZavorthBridgeControlService {
 
     try {
       await this.focusInteractiveWindow(effectiveResult.processId ?? preferredProcessId ?? undefined);
-    } catch (error: any) {
-    logger.warn('[Zavorth Bridge Control] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Bridge Control] operation failed', error);
     return {
         ok: false,
         action,
@@ -454,7 +454,7 @@ export class ZavorthBridgeControlService {
           message: verifyResult.message || `Modelo confirmado: ${model.label}.`,
         };
       }
-    } catch (error: any) { logger.warn('[Zavorth Bridge Control] lifecycle operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Bridge Control] lifecycle operation failed', error); return null; }
 
     return null;
   }
@@ -482,8 +482,7 @@ export class ZavorthBridgeControlService {
             ),
           ),
         }));
-    } catch (error: any) {
-      logger.warn(`[ZavorthBridgeControlService] Falha ao carregar modelos permitidos: ${error}`);
+    } catch (error: unknown) {logger.warn(`[ZavorthBridgeControlService] Falha ao carregar modelos permitidos: ${error}`);
       return [];
     }
   }
@@ -589,8 +588,7 @@ export class ZavorthBridgeControlService {
 
           try {
             resolve(this.parseJsonPayload(stdout, 'ZavorthBridge UI result'));
-          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
-            reject(new Error(`Failed to parse ZavorthBridge UI result: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
+          } catch (parseError: unknown) {reject(new Error(`Failed to parse ZavorthBridge UI result: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
           }
         },
       );
@@ -653,8 +651,7 @@ export class ZavorthBridgeControlService {
           try {
             const parsed = this.parseJsonPayload<ZavorthBridgeControlResult>(stdout, 'ZavorthBridge control result');
             resolve(parsed);
-          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
-            reject(new Error(`Failed to parse ZavorthBridge control result: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
+          } catch (parseError: unknown) {reject(new Error(`Failed to parse ZavorthBridge control result: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
           }
         },
       );

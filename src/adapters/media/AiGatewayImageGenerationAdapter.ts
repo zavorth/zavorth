@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * Zavorth-native adapter for image generation through AI Gateway.
  * via AI Gateway.
@@ -30,10 +31,6 @@ import { config } from '../../config/index.js';
 import { logger } from '../../logger.js';
 import { safeFetch } from '../../security/SafeFetchService.js';
 
-// ---------------------------------------------------------------------------
-// Internal adapter types; never exported to the domain.
-// ---------------------------------------------------------------------------
-
 interface AiGatewayImageRequestBody {
   prompt: string;
   n?: number;
@@ -57,10 +54,6 @@ interface AiGatewayImageResponse {
     code?: string;
   };
 }
-
-// ---------------------------------------------------------------------------
-// Adapter
-// ---------------------------------------------------------------------------
 
 export class AiGatewayImageGenerationAdapter implements IMediaGenerationAdapter {
   public readonly adapterId = 'ai-gateway-image';
@@ -91,7 +84,8 @@ export class AiGatewayImageGenerationAdapter implements IMediaGenerationAdapter 
         serviceName: 'AI Gateway image generation',
         allowLoopback: true,
       });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
       logger.error(`[AiGatewayImageGenerationAdapter] Network error: ${message}`);
       throw new MediaAdapterNetworkError(this.adapterId, message);
@@ -112,9 +106,7 @@ export class AiGatewayImageGenerationAdapter implements IMediaGenerationAdapter 
     return this.convertResponse(json, request);
   }
 
-  // -------------------------------------------------------------------------
   // Internal methods.
-  // -------------------------------------------------------------------------
 
   private buildRequestBody(request: MediaGenerationRequest): AiGatewayImageRequestBody {
     const body: AiGatewayImageRequestBody = {
@@ -188,10 +180,6 @@ export class AiGatewayImageGenerationAdapter implements IMediaGenerationAdapter 
     }));
   }
 }
-
-// ---------------------------------------------------------------------------
-// Erros tipados do adapter
-// ---------------------------------------------------------------------------
 
 export class MediaAdapterNetworkError extends Error {
   public readonly adapterId: string;

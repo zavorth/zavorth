@@ -423,5 +423,5 @@ function sanitizeRagSources(value: unknown): unknown[] {
 function safeResolve(value: string): string | null {
   try {
     return path.resolve(value);
-  } catch (error: any) { logger.warn('[Zavorth Runtime Secure Integration] operation failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth Runtime Secure Integration] operation failed', error); return null; }
 }

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../src/utils/errorLike';
 /**
  * Zavorth Nexus --- Core Runtime Logic
  * Manages dock navigation, neural feed (chat), signals, and interactive behaviors.
@@ -42,7 +43,7 @@ import { renderTraceTimelineHtml } from './trace-renderer';
 import { compactTraceText, normalizeTraceCapability, normalizeTraceEvent, traceEventClass, traceEventLabel, traceEventMatchesQuery } from './trace-utils';
 import { buildSkillOptions, buildSkillPopoverHtml, promptForSkill, skillFromOption } from './skills-popover';
 import { bindVoiceDictation } from './voice-dictation';
-import { applyControlLocale, installControlLocale } from './locale';
+import { applyControlLocale, installControlLocale, translate, translateCount } from './locale';
 import { initRuntimeEngineUi } from './runtime-engines-ui';
 import {
   createPromptQueueItem,
@@ -74,12 +75,10 @@ export function initControlApp() {
   initRuntimeEngineUi();
   installRuntimeTextSanitizer();
 
-  // --------- Markdown & Syntax Highlighting ---------
   if (window.marked) {
     marked.setOptions({ breaks: true, gfm: true });
   }
 
-  // --------- Dock Navigation ---------
   const coreFrame = document.getElementById('core-frame');
   const sidebarToggle = document.getElementById('sidebar-toggle');
   const dockNodes = document.querySelectorAll('.dock-node[data-sector]');
@@ -95,7 +94,6 @@ export function initControlApp() {
   });
   initSidebarCollapse();
 
-  // --------- Neural Feed (Chat) Input ---------
   const composeInput = document.getElementById('compose-input');
   const composeDock = document.querySelector('.compose-dock');
   const composeFrame = document.querySelector('.compose-dock__input-frame');
@@ -882,7 +880,6 @@ export function initControlApp() {
     const target = event.target as HTMLElement | null;
     if (!target) return;
 
-    // --- FEATURE 2: Audio Waveform Player Click ---
     const playBtn = target.closest('.audio-waveform-play-btn');
     if (playBtn) {
       event.preventDefault();
@@ -955,7 +952,6 @@ export function initControlApp() {
       return;
     }
 
-    // --- FEATURE 3: Quick Look Preview Click ---
     const quickLookBtn = target.closest('.chat-attachment-card__quicklook');
     if (quickLookBtn) {
       event.preventDefault();
@@ -966,7 +962,6 @@ export function initControlApp() {
       return;
     }
 
-    // --- FEATURE 5: Terminal Replay Launcher Click ---
     const replayBtn = target.closest('.trace-sheet__replay-btn');
     if (replayBtn) {
       event.preventDefault();
@@ -1181,7 +1176,7 @@ export function initControlApp() {
             window.emitSignal?.('info', 'Memory forget unavailable', 'No runtime bridge is available for memory mutation.');
             button.disabled = false;
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           window.emitSignal?.('info', 'Memory forget failed', String(error?.message || error || 'Request failed.'));
           button.disabled = false;
         }
@@ -1907,7 +1902,9 @@ export function initControlApp() {
         status: 'cancelled',
       });
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       appendEcho('core', `/stop failed: ${error?.message || String(error)}`);
       return true;
     } finally {
@@ -2068,7 +2065,9 @@ export function initControlApp() {
         status: 'done',
       });
       return payload;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       const fallback = typeof fallbackRenderer === 'function' ? fallbackRenderer() : '';
       if (options.append !== false) {
         appendEcho('core', fallback || `/${command} failed: ${error?.message || String(error)}`);
@@ -2173,7 +2172,9 @@ export function initControlApp() {
         status: 'done',
       });
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       appendEcho('core', `/compact failed: ${error?.message || String(error)}`);
       recordTraceEvent({
         type: 'error',
@@ -2236,7 +2237,9 @@ export function initControlApp() {
       });
       emitLocalNotice(`Approval ${decision === 'approve' ? 'approved' : 'rejected'}: ${id}.`);
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       appendEcho('core', `Approval decision failed: ${error?.message || String(error)}`);
       return true;
     }
@@ -2570,7 +2573,7 @@ export function initControlApp() {
           detail: 'The active Zavorth run was asked to stop from the composer.',
           status: 'cancelled',
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         window.emitSignal?.('error', 'Stop failed', error?.message || 'Could not cancel the active run.');
       } finally {
         removeThinkingState();
@@ -2921,7 +2924,9 @@ ${current}` : skillPrompt;
         status: 'done',
       });
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       restoreQueuedPrompt(snapshot);
       renderSideChannelResult(kind, text || 'Review attached files', {
         message: error?.message || String(error),
@@ -3045,7 +3050,9 @@ ${current}` : skillPrompt;
         status: payload?.snapshot?.status === 'blocked' || payload?.snapshot?.status === 'failed' ? 'failed' : 'done',
       });
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       appendEcho('core', `/${command} failed: ${error?.message || String(error)}`);
       recordTraceEvent({
         type: 'error',
@@ -3123,7 +3130,9 @@ ${current}` : skillPrompt;
       renderPromptQueue();
       emitLocalNotice('Queued prompt steered into the active run.');
       return true;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       promptQueue[index] = {
         ...item,
         status: 'failed',
@@ -3424,7 +3433,6 @@ ${current}` : skillPrompt;
       schedulePromptQueueDrain(120);
     }
   }
-  // --------- Suggestion Chips Logic ---------
   const suggestionChips = document.querySelectorAll('.suggestion-chip');
   suggestionChips.forEach(chip => {
     chip.addEventListener('click', () => {
@@ -3456,7 +3464,6 @@ ${current}` : skillPrompt;
   });
   setSelectedExperienceProfile(selectedExperienceProfile || 'personal');
 
-  // --------- Neural Echo Rendering ---------
   const neuralFeed = document.getElementById('neural-feed');
   const neuralStream = document.getElementById('neural-stream');
 
@@ -3818,6 +3825,99 @@ ${current}` : skillPrompt;
     looksLikeUnifiedDiff,
   };
 
+  function highlightTranscriptForRun(runId: string): boolean {
+    if (!runId || !neuralFeed) return false;
+    const needle = runId.toLowerCase();
+    const candidates = Array.from(
+      neuralFeed.querySelectorAll<HTMLElement>(
+        '[data-run-id], [data-replay-run-id], .echo-group, .echo-group--agent-stream, .zavorth-approval-card, .zavorth-artifact-card',
+      ),
+    );
+    let match: HTMLElement | null = null;
+    for (const node of candidates) {
+      const attrs = [
+        node.getAttribute('data-run-id'),
+        node.getAttribute('data-replay-run-id'),
+        node.getAttribute('data-zavorth-run-id'),
+        node.dataset?.runId,
+      ]
+        .filter(Boolean)
+        .map((value) => String(value).toLowerCase());
+      const text = String(node.textContent || '').toLowerCase();
+      if (attrs.includes(needle) || text.includes(needle)) {
+        match = node;
+        break;
+      }
+    }
+    // Prefer active stream map entry for this run.
+    if (!match && agentStreamGroups.size) {
+      const state = agentStreamGroups.get(`${runId}:assistant`) || agentStreamGroups.get(runId);
+      if (state?.group instanceof HTMLElement) match = state.group;
+    }
+    if (!match) return false;
+    neuralFeed.querySelectorAll('.is-workboard-focus').forEach((node) => {
+      node.classList.remove('is-workboard-focus');
+    });
+    match.classList.add('is-workboard-focus');
+    match.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => {
+      match?.classList.remove('is-workboard-focus');
+    }, 4200);
+    return true;
+  }
+
+  function openWorkboardRun(detail: { runId?: string; title?: string } = {}) {
+    const runId = String(detail?.runId || '').trim();
+    const title = String(detail?.title || runId || translate('Open run')).trim();
+    activateDashboardSector('terminal');
+    try {
+      if (runId) {
+        sessionStorage.setItem('zavorth.zavorthControl.runId', runId);
+        const url = new URL(window.location.href);
+        url.searchParams.set('runId', runId);
+        window.history.replaceState({}, '', url.toString());
+      }
+    } catch {
+      // storage / history optional
+    }
+
+    const foundInFeed = highlightTranscriptForRun(runId);
+    if (runId) {
+      openTraceSheet({ runId, source: 'workboard' });
+    }
+
+    if (foundInFeed) {
+      window.emitSignal?.('info', translate('Workboard'), translate('Jumped to run in transcript'));
+      return;
+    }
+
+    if (runId) {
+      // Honest fallback: open filtered proof trail rather than a no-op toast.
+      window.emitSignal?.(
+        'info',
+        translate('Workboard'),
+        translate('Run opened in proof trail'),
+      );
+      recordTraceEvent({
+        type: 'step',
+        title: translate('Workboard open'),
+        detail: title || runId,
+        meta: runId,
+        status: 'done',
+      });
+      return;
+    }
+
+    window.emitSignal?.('info', translate('Workboard'), title || translate('Open chat'));
+  }
+
+  if (typeof window !== 'undefined' && !(window as any).__zavorthWorkboardOpenBound) {
+    (window as any).__zavorthWorkboardOpenBound = true;
+    window.addEventListener('zavorth-workboard-open', ((event: CustomEvent) => {
+      openWorkboardRun(event?.detail || {});
+    }) as EventListener);
+  }
+
   window.ZavorthControlChat = {
     appendEcho,
     appendThinkingState,
@@ -3839,6 +3939,8 @@ ${current}` : skillPrompt;
     refreshDashboard: updateDashboardGlass,
     openTraceSheet,
     scrollFeedToEnd,
+    activateDashboardSector,
+    openWorkboardRun,
   };
 
   const localPreviewResponses = createLocalPreviewResponses({
@@ -3906,7 +4008,6 @@ ${current}` : skillPrompt;
     tokenCount,
   });
 
-  // --------- Artifact Pane Logic ---------
   if (artifactClose) {
     artifactClose.addEventListener('click', () => {
       artifactPane.classList.add('hidden');
@@ -3942,7 +4043,6 @@ ${current}` : skillPrompt;
     transmitSignal,
     updateDashboardGlass,
   });
-  // --------- Signal System (Toasts) ---------
   const signalFeed = document.getElementById('signal-feed');
   window.emitSignal = function(type, title, msg) {
     if (!signalFeed) return;
@@ -3976,7 +4076,6 @@ ${current}` : skillPrompt;
     }, type === 'success' ? 2200 : 4000);
   };
 
-  // --------- Command Palette ---------
   overlays.bind();
   dockNodes.forEach(node => {
     node.addEventListener('click', () => overlays.syncDrawerActive(node.dataset.sector));
@@ -4017,9 +4116,26 @@ ${current}` : skillPrompt;
     return lines.join('\n');
   }
 
+  function controlAuthHeaders(json = false): Record<string, string> {
+    const headers: Record<string, string> = {};
+    if (json) headers['Content-Type'] = 'application/json';
+    try {
+      const token = sessionStorage.getItem('zavorth.zavorthControl.webToken')
+        || localStorage.getItem('zavorth.zavorthControl.webToken')
+        || '';
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+        headers['X-Zavorth-Token'] = token;
+      }
+    } catch {
+      // ignore storage access errors
+    }
+    return headers;
+  }
+
   async function runDoctorReadyCheck() {
     activateDashboardSector('terminal');
-    window.emitSignal?.('info', 'Ready check', 'Running readiness…');
+    window.emitSignal?.('info', translate('Ready check'), translate('Running readiness…'));
     recordTraceEvent({
       type: 'step',
       title: 'Ready check / Doctor',
@@ -4028,28 +4144,30 @@ ${current}` : skillPrompt;
       status: 'running',
     });
     try {
-      const headers: Record<string, string> = {};
-      try {
-        const token = sessionStorage.getItem('zavorth.zavorthControl.webToken')
-          || localStorage.getItem('zavorth.zavorthControl.webToken')
-          || '';
-        if (token) headers.Authorization = `Bearer ${token}`;
-      } catch {
-        // ignore storage access errors
-      }
-      const response = await fetch('/api/runtime/ready-to-go', { headers });
+      const response = await fetch('/api/runtime/ready-to-go', { headers: controlAuthHeaders() });
       if (response.ok) {
         const payload = await response.json();
         const summary = formatReadyCheckSummary(payload);
         appendEcho('core', summary);
+        const status = String(payload?.readyToGo?.status || payload?.status || 'ok');
         recordTraceEvent({
           type: 'receipt',
-          title: 'Ready check complete',
-          detail: String(payload?.readyToGo?.status || payload?.status || 'ok'),
+          title: translate('Ready check complete'),
+          detail: status,
           meta: 'doctor',
           status: 'done',
         });
-        window.emitSignal?.('success', 'Ready check', String(payload?.readyToGo?.status || 'done'));
+        window.emitSignal?.(
+          /ready|ok|pass|green/i.test(status) ? 'success' : 'info',
+          translate('Ready check'),
+          status,
+        );
+        try {
+          await window.ZavorthRuntimeBridge?.refresh?.({ skipSessionHydrate: true });
+        } catch {
+          // optional refresh
+        }
+        window.ZavorthControlChat?.refreshDashboard?.();
         return;
       }
     } catch {
@@ -4064,11 +4182,193 @@ ${current}` : skillPrompt;
         meta: 'doctor',
         status: 'done',
       });
-      window.emitSignal?.('info', 'Ready check', 'Used session status summary.');
-    } catch (error: any) {
-      appendEcho('core', `Ready check failed: ${error?.message || String(error)}`);
-      window.emitSignal?.('error', 'Ready check failed', error?.message || 'Could not run readiness.');
+      window.emitSignal?.('info', translate('Ready check'), translate('Used session status summary.'));
+      window.ZavorthControlChat?.refreshDashboard?.();
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      const message = (err instanceof Error ? err.message : null)
+        || (error as { message?: string } | null)?.message
+        || String(error);
+
+      appendEcho('core', `${translate('Ready check failed')}: ${message}`);
+      recordTraceEvent({
+        type: 'error',
+        title: translate('Ready check failed'),
+        detail: message,
+        meta: 'doctor',
+        status: 'failed',
+      });
+      window.emitSignal?.(
+        'error',
+        translate('Ready check failed'),
+        message || translate('Could not run readiness.'),
+      );
     }
+  }
+
+  async function submitDiffDecisionToRuntime(detail: {
+    decision: string;
+    hunkId: string | null;
+    filePath: string;
+    header: string;
+    prompt: string;
+    meta: Record<string, unknown>;
+    summary: { pending: number; approved: number; rejected: number; total: number };
+  }) {
+    const decision = String(detail?.decision || '').trim();
+    if (!decision) return null;
+    const meta = detail.meta || {};
+    const apiAction = decision === 'reject'
+      ? 'reject'
+      : decision === 'approve-all'
+        ? 'approve-all'
+        : 'approve';
+    const body = {
+      action: apiAction,
+      targetId: String(meta.artifactId || meta.runId || 'diff-review').trim() || 'diff-review',
+      engineId: 'shield',
+      targetPath: detail.filePath || meta.file || null,
+      hunkId: detail.hunkId || null,
+      header: detail.header || '',
+      sessionId: meta.sessionId || undefined,
+      runId: meta.runId || undefined,
+      artifactId: meta.artifactId || undefined,
+      summary: detail.summary,
+      source: 'zavorth-control-diff-rail',
+    };
+
+    try {
+      const response = await fetch('/api/web/diff/review', {
+        method: 'POST',
+        headers: controlAuthHeaders(true),
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return await response.json().catch(() => ({ ok: true, status: 'accepted' }));
+    } catch {
+      return null;
+    }
+  }
+
+  function bindDiffDecisionLoop() {
+    if (document.documentElement.dataset.zavorthDiffDecisionBound === '1') return;
+    document.documentElement.dataset.zavorthDiffDecisionBound = '1';
+
+    window.addEventListener('zavorth-diff-decision', (event) => {
+      const detail = (event as CustomEvent)?.detail;
+      if (!detail || typeof detail !== 'object') return;
+
+      const decision = String(detail.decision || '').trim();
+      const summary = detail.summary || { pending: 0, approved: 0, rejected: 0, total: 0 };
+      const meta = detail.meta || {};
+      const filePath = String(detail.filePath || meta.file || 'unknown');
+      const title = decision === 'approve-all'
+        ? translate('All pending hunks approved')
+        : decision === 'approve'
+          ? translate('Hunk approved')
+          : translate('Hunk rejected');
+      const summaryLine = [
+        translateCount('1 approved', '{n} approved', Number(summary.approved || 0)),
+        translateCount('1 rejected', '{n} rejected', Number(summary.rejected || 0)),
+        translateCount('1 pending', '{n} pending', Number(summary.pending || 0)),
+      ].join(' · ');
+
+      recordTraceEvent({
+        type: 'receipt',
+        title,
+        detail: detail.hunkId
+          ? `${filePath} · ${detail.header || detail.hunkId}`
+          : `${filePath} · ${summaryLine}`,
+        meta: String(meta.artifactId || meta.runId || 'diff-review'),
+        status: decision === 'reject' ? 'denied' : 'done',
+        runId: meta.runId,
+        sessionId: meta.sessionId,
+        artifactId: meta.artifactId,
+        capability: { label: 'diff-review', kind: 'patch' },
+      });
+
+      void (async () => {
+        const payload = await submitDiffDecisionToRuntime(detail);
+        if (payload) {
+          const apiStatus = String(payload?.review?.status || payload?.status || 'accepted');
+          const apiSummary = String(payload?.review?.summary || payload?.summary || summaryLine);
+          recordTraceEvent({
+            type: 'receipt',
+            title: translate('Diff decision sent'),
+            detail: `${apiStatus}: ${apiSummary}`,
+            meta: 'diff-review-api',
+            status: 'done',
+            runId: meta.runId,
+            sessionId: meta.sessionId,
+            artifactId: meta.artifactId,
+          });
+          appendEcho('core', [
+            title,
+            '',
+            `File: \`${filePath}\``,
+            summaryLine,
+            apiSummary && apiSummary !== summaryLine ? `Runtime: ${apiSummary}` : '',
+            Number(summary.pending) === 0 && decision !== 'reject'
+              ? 'No pending hunks left. Runtime still applies only policy-allowed mutations.'
+              : '',
+          ].filter(Boolean).join('\n'));
+          window.emitSignal?.('success', translate('Diff decision sent'), apiStatus);
+        } else {
+          const localDetail = translate('Could not reach diff review API; decision kept locally.');
+          recordTraceEvent({
+            type: 'step',
+            title: translate('Diff decision recorded'),
+            detail: localDetail,
+            meta: 'diff-review-local',
+            status: 'done',
+          });
+          appendEcho('core', [
+            title,
+            '',
+            `File: \`${filePath}\``,
+            summaryLine,
+            localDetail,
+            detail.prompt ? `\nDraft for agent:\n${detail.prompt}` : '',
+          ].filter(Boolean).join('\n'));
+          window.emitSignal?.('info', translate('Diff decision recorded'), localDetail);
+        }
+
+        // When every hunk is decided and all approved, try draft apply if the artifact is a plan.
+        if (
+          Number(summary.pending) === 0
+          && Number(summary.approved) > 0
+          && Number(summary.rejected) === 0
+          && meta.artifactId
+          && typeof window.ZavorthRuntimeBridge?.applyDiffPreview === 'function'
+        ) {
+          try {
+            await window.ZavorthRuntimeBridge.applyDiffPreview({
+              planId: meta.artifactId,
+              sessionId: meta.sessionId,
+              runId: meta.runId,
+            }, {
+              emitSignal: window.emitSignal,
+              appendEcho,
+              renderArtifacts,
+              renderApprovals,
+            });
+          } catch {
+            // Artifact may not be a draft plan — local receipt + prompt remain the path.
+          }
+        }
+
+        try {
+          await window.ZavorthRuntimeBridge?.fetchCurrentApprovals?.(window.ZavorthControlChat);
+          await window.ZavorthRuntimeBridge?.fetchCurrentArtifacts?.(window.ZavorthControlChat);
+          await window.ZavorthRuntimeBridge?.fetchDashboardEvents?.(window.ZavorthControlChat);
+        } catch {
+          // optional refresh
+        }
+        window.ZavorthControlChat?.refreshDashboard?.();
+      })();
+    });
   }
 
   function runPaletteAction(action: string) {
@@ -4201,6 +4501,7 @@ ${current}` : skillPrompt;
   }
 
   bindCommandPalette();
+  bindDiffDecisionLoop();
 
   document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -4217,7 +4518,6 @@ ${current}` : skillPrompt;
 
   window.openCoreModal = overlays.openCoreModal;
 
-  // --------- Seed Initial Neural Feed ---------
   function seedNeuralFeed() {
     recordTraceEvent({
       type: 'session',
@@ -4257,7 +4557,6 @@ ${current}` : skillPrompt;
           'Nothing sensitive is written to memory until you confirm it.',
         ].join('\n'),
 
-
         cells
       );
     }, 400);
@@ -4265,7 +4564,6 @@ ${current}` : skillPrompt;
 
   seedNeuralFeed();
 
-  // --------- Retro-Futuristic Event Console & Interactive Features ---------
   
   function appendConsoleLog(event: any) {
     const consoleContainer = document.getElementById('zavorth-console-events');
@@ -4371,7 +4669,7 @@ ${current}` : skillPrompt;
         throw new Error(payload?.error || `Pairing draft rejected (${response.status})`);
       }
       draft = payload.draft;
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (otpDisplay) otpDisplay.style.display = 'none';
       if (otpStatusText) {
         otpStatusText.textContent = `Pairing unavailable: ${error?.message || 'Zavorth did not return a pairing draft.'}`;
@@ -4439,7 +4737,9 @@ ${current}` : skillPrompt;
         configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--ok';
       }
       if (configSaveBtn) configSaveBtn.disabled = false;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+
       if (configStatus) {
         configStatus.textContent = `Error: ${error.message}`;
         configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--error';
@@ -4482,7 +4782,9 @@ ${current}` : skillPrompt;
         });
         
         updateDashboardGlass();
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+
         if (configStatus) {
           configStatus.textContent = `Failed to save: ${error.message}`;
           configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--error';
@@ -4495,7 +4797,6 @@ ${current}` : skillPrompt;
   (window as any).appendConsoleLog = appendConsoleLog;
   (window as any).hydrateConsoleLogs = hydrateConsoleLogs;
 
-  // --------- Theme Toggle ---------
   initThemeToggle();
 
 }

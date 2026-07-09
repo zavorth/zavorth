@@ -226,12 +226,11 @@ export class ZavorthTelemetryLedgerService {
         .map((line) => {
           try {
             return JSON.parse(line) as TelemetryEventLike;
-          } catch (error: any) { logger.warn('[Zavorth Telemetry Ledger] JSON parse failed', error); return null; }
+          } catch (error: unknown) {logger.warn('[Zavorth Telemetry Ledger] JSON parse failed', error); return null; }
         })
           .filter((entry): entry is TelemetryEventLike => Boolean(entry?.traceId)),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Telemetry Ledger] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Telemetry Ledger] JSON parse failed', error);
     return {
         events: [],
         scannedEvents: 0,

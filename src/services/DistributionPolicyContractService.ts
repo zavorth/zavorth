@@ -344,7 +344,7 @@ export class DistributionPolicyContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch (error: any) { logger.warn('[Distribution  Contract] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Distribution  Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -370,7 +370,7 @@ export class DistributionPolicyContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch (error: any) { logger.warn('[Distribution  Contract] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Distribution  Contract] filesystem operation failed', error); return ''; }
   }
 
   private check(

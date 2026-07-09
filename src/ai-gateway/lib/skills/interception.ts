@@ -1,6 +1,7 @@
 import { skillExecutor } from "./executor";
 import { detectProvider } from "./injection";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../utils/errorLike';
 
 interface ToolCall {
   id: string;
@@ -42,8 +43,9 @@ export async function interceptToolCalls(
           id: call.id,
           result,
         };
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[interception] process execution failed', error);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn('[interception] process execution failed', error);
     return {
           id: call.id,
           result: { error: err instanceof Error ? err.message : String(err) },
@@ -103,7 +105,7 @@ function parseArguments(args: string | Record<string, unknown>): Record<string, 
 
   try {
     return JSON.parse(args);
-  } catch (error: any) { const err = error; const e = error; logger.warn('[interception] JSON parse failed', error); return {}; }
+  } catch (error: unknown) {logger.warn('[interception] JSON parse failed', error); return {}; }
 }
 
 export async function handleToolCallExecution(

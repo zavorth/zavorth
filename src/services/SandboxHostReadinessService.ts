@@ -545,8 +545,7 @@ export class SandboxHostReadinessService {
           ? 'Local-jail executou codigo efemero e limpou o workspace temporario.'
           : 'Local-jail executou, mas a saida esperada nao apareceu.',
       );
-    } catch (error: any) {
-    logger.warn('[Sandbox Host Readiness] process execution failed', error);
+    } catch (error: unknown) {logger.warn('[Sandbox Host Readiness] process execution failed', error);
     return {
         id: 'local-jail:e2e',
         status: 'fail',
@@ -569,8 +568,7 @@ export class SandboxHostReadinessService {
           ? 'MicroVM executou codigo e retornou saida esperada.'
           : 'MicroVM executou, mas a saida esperada nao apareceu.',
       );
-    } catch (error: any) {
-    logger.warn('[Sandbox Host Readiness] process execution failed', error);
+    } catch (error: unknown) {logger.warn('[Sandbox Host Readiness] process execution failed', error);
     return {
         id: 'firecracker:e2e',
         status: 'fail',
@@ -692,8 +690,7 @@ export class SandboxHostReadinessService {
   private getDockerStatus(): DockerSandboxStatus {
     try {
       return this.dockerRuntime.getStatus('javascript');
-    } catch (error: any) {
-    logger.warn('[Sandbox Host Readiness] filesystem check failed', error);
+    } catch (error: unknown) {logger.warn('[Sandbox Host Readiness] filesystem check failed', error);
     return {
         enabled: this.config.dockerSandboxEnabled,
         language: 'javascript',
@@ -712,8 +709,7 @@ export class SandboxHostReadinessService {
   private getFirecrackerStatus(): FirecrackerSandboxStatus {
     try {
       return this.firecrackerRuntime.getStatus();
-    } catch (error: any) {
-    logger.warn('[Sandbox Host Readiness] filesystem check failed', error);
+    } catch (error: unknown) {logger.warn('[Sandbox Host Readiness] filesystem check failed', error);
     return {
         enabled: this.config.firecrackerEnabled,
         transport: this.config.firecrackerTransport === 'wsl' ? 'wsl' : 'direct',
@@ -732,7 +728,7 @@ export class SandboxHostReadinessService {
     try {
       this.accessSync(targetPath, mode);
       return true;
-    } catch (error: any) { logger.warn('[Sandbox Host Readiness] filesystem check failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Sandbox Host Readiness] filesystem check failed', error); return false; }
   }
 
   private pathLooksPresent(targetPath: string): boolean {

@@ -4,6 +4,7 @@ import * as http from 'http';
 import { config } from '../../config/index.js';
 import { ApiResponse, ForbiddenError, NotFoundError, UnauthorizedError } from '../../contracts/public/errors';
 import { isWeakZavorthControlToken } from '../../services/ZavorthControlTokenService.js';
+import { logger } from '../../logger.js';
 
 export type RequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => Promise<void>;
 export type PublicApiAccess = 'public' | 'authenticated' | 'admin';
@@ -84,7 +85,7 @@ export class PublicApiRouter {
       }
 
       throw new NotFoundError(`Route ${method} ${url.pathname} not found`);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.handleError(error, res);
     }
   }
@@ -177,7 +178,7 @@ export class PublicApiRouter {
       }
       const token = fs.readFileSync(filePath, 'utf8').trim();
       return isWeakZavorthControlToken(token) ? '' : token;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return '';
     }
   }
@@ -215,7 +216,7 @@ export class PublicApiRouter {
         details: error.details
       };
     } else {
-      console.error('[PublicApiRouter] Unhandled error:', error);
+      logger.error('[PublicApiRouter] Unhandled error:', error);
     }
 
     if (!res.headersSent) {

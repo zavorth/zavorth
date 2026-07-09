@@ -63,8 +63,7 @@ export class EngineeringFileSystemService {
       let entries: fs.Dirent[] = [];
       try {
         entries = this.readdirSync(current, { withFileTypes: true });
-      } catch (error: any) {
-        continue;
+      } catch (error: unknown) {continue;
       }
 
       for (const entry of entries) {
@@ -91,8 +90,7 @@ export class EngineeringFileSystemService {
               break;
             }
           }
-        } catch (error: any) {
-          continue;
+        } catch (error: unknown) {continue;
         }
       }
     }
@@ -113,8 +111,7 @@ export class EngineeringFileSystemService {
       let entries: fs.Dirent[] = [];
       try {
         entries = this.readdirSync(current, { withFileTypes: true });
-      } catch (error: any) {
-        continue;
+      } catch (error: unknown) {continue;
       }
 
       for (const entry of entries) {
@@ -133,8 +130,7 @@ export class EngineeringFileSystemService {
             modifiedAt: stat.mtime.toISOString(),
             sizeBytes: stat.size,
           });
-        } catch (error: any) {
-          continue;
+        } catch (error: unknown) {continue;
         }
       }
     }
@@ -180,8 +176,7 @@ export class EngineeringFileSystemService {
     let entries: fs.Dirent[] = [];
     try {
       entries = this.readdirSync(currentPath, { withFileTypes: true });
-    } catch (error: any) {
-    logger.warn('[Engineering File System] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Engineering File System] filesystem operation failed', error);
     return;
   }
 

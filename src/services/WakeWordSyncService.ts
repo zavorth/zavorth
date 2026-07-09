@@ -108,8 +108,7 @@ export class WakeWordSyncService {
           updatedAt: data.updatedAt ?? new Date().toISOString(),
         };
       }
-    } catch (error: any) {
-      // Ignore errors, return defaults
+    } catch (error: unknown) {// Ignore errors, return defaults
       logger.warn('[Wake Word] JSON parse failed', error);
     }
 

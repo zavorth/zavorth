@@ -57,8 +57,7 @@ export class AutoRepairCodeAttemptRunner {
         filePath: plan.targetFile,
         instruction: plan.instruction,
       });
-    } catch (error: any) {
-      attempt.status = 'failed';
+    } catch (error: unknown) {attempt.status = 'failed';
       attempt.error = `Falha ao gerar preview de autoreparo: ${normalizeAutoRepairError(error)}`;
       return attempt;
     }
@@ -135,8 +134,7 @@ export class AutoRepairCodeAttemptRunner {
           status: 'deleted-new-file',
           reason: 'Arquivo novo removido durante o rollback.',
         };
-      } catch (error: any) {
-    logger.warn('[Auto Repair Code Attempt Runner] file cleanup failed', error);
+      } catch (error: unknown) {logger.warn('[Auto Repair Code Attempt Runner] file cleanup failed', error);
     return {
           status: 'failed',
           reason: `Falha ao remover o arquivo novo durante o rollback: ${normalizeAutoRepairError(error)}`,

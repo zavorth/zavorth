@@ -500,7 +500,7 @@ export class NodeInvocationStoreService {
         return fallback;
       }
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
-    } catch (error: any) { logger.warn('[Node Invocation Store] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[Node Invocation Store] JSON parse failed', error); return fallback; }
   }
 
   private writeState(payload: NodeInvocationStoreState): void {

@@ -10,6 +10,7 @@ import {
 } from "@/lib/db/jsonBackupAdapters";
 import { runJsonMigration } from "@/lib/db/jsonMigration";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike';
 
 /**
  * POST /api/settings/import-json
@@ -47,8 +48,7 @@ export async function POST(request: Request) {
     let parsed: unknown;
     try {
       parsed = JSON.parse(rawText);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[route] JSON parse failed', error);
     return NextResponse.json(
         { error: "Invalid JSON: the file could not be parsed. Please upload a valid .json backup." },
         { status: 400 }
@@ -83,7 +83,8 @@ export async function POST(request: Request) {
       message: "Settings backup imported successfully",
       ...counts,
     });
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[API] Error importing JSON backup:", err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }

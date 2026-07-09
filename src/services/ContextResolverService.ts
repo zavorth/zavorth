@@ -8,9 +8,7 @@ import { MccPathfinderService } from './MccPathfinderService.js';
 import {
 isMnemosAvailable,
   buildMnemosCognitiveInstruction,
-} from './MnemosCognitiveProtocol.js';
-
-export type ContextResolverLayer = {
+} from './MnemosCognitiveProtocol.js';export type ContextResolverLayer = {
   id: string;
   label: string;
   summary: string;
@@ -216,8 +214,7 @@ export class ContextResolverService {
             source: 'zavorth://mcc/graph-path',
           });
         }
-      } catch (error: any) {
-        logger.warn('[Context Resolver] MccPathfinderService failed to resolve context:', error);
+      } catch (error: unknown) {logger.warn('[Context Resolver] MccPathfinderService failed to resolve context:', error);
       }
 
       layers.push({
@@ -238,6 +235,6 @@ export class ContextResolverService {
 
     try {
       return await this.connectedToolNamesProvider();
-    } catch (error: any) { logger.warn('[Context Resolver] connection failed', error); return this.connectedToolNames; }
+    } catch (error: unknown) {logger.warn('[Context Resolver] connection failed', error); return this.connectedToolNames; }
   }
 }

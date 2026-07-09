@@ -115,8 +115,7 @@ export class LLMFallbackRouter {
           fallbackUsed: fallbackUsed || attempts > 1,
           totalLatencyMs: Date.now() - startTime,
         };
-      } catch (error: any) {
-        const reason = this.classifyError(error);
+      } catch (error: unknown) {const reason = this.classifyError(error);
         chain.recordFailure(candidate, reason);
 
         if (reason === 'auth_error' || reason === 'billing') {

@@ -96,7 +96,7 @@ export class EchoHandsService {
       const result = await this.executeAllowed(request, risk, trusted);
       this.log('info', request, result);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       const result = this.result(false, action, message, { risk }, false);
       this.log('error', request, result);

@@ -10,6 +10,7 @@ import type {
   MemoryKnowledgeRecord,
   MemoryKnowledgeWriteReceipt,
 } from '../../contracts/SourceMemoryDocumentTerminalPackContract.js';
+import { asErrorLike } from '../../utils/errorLike';
 
 type SqliteStatement = {
   run(...params: unknown[]): { changes?: number };
@@ -327,11 +328,11 @@ export class SqliteVecMemoryBackend {
         }
       }
       return db;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       const reason = error instanceof Error ? error.message : 'SQLite memory database open failed.';
       try {
         db?.close();
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) { const err = asErrorLike(error); const e = err;
         // Best effort cleanup only.
       }
       if (this.fullFileEncryption.mode !== 'off') {
@@ -346,7 +347,7 @@ export class SqliteVecMemoryBackend {
         for (const candidate of [dbPath, `${dbPath}-shm`, `${dbPath}-wal`]) {
           try {
             fs.rmSync(candidate, { force: true });
-          } catch (error: any) { const err = error; const e = error;
+          } catch (error: unknown) { const err = asErrorLike(error); const e = err;
             // Best effort cleanup only.
           }
         }
@@ -464,7 +465,7 @@ export class SqliteVecMemoryBackend {
       return (JSON.parse(payload) as MemoryKnowledgeRecord[])
         .map(normalizeRecord)
         .filter((record): record is MemoryKnowledgeRecord => Boolean(record));
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       const reason = error instanceof Error ? error.message : 'Invalid JSON memory fallback.';
       throw new Error(`Unable to read encrypted JSON memory fallback: ${reason}`);
     }
@@ -629,7 +630,7 @@ function parseObject(value: string): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value) as unknown;
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {};
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     return {};
   }
 }
@@ -638,7 +639,7 @@ function parseStringArray(value: string): string[] {
   try {
     const parsed = JSON.parse(value) as unknown;
     return Array.isArray(parsed) ? parsed.map(String) : [];
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     return [];
   }
 }
@@ -647,7 +648,7 @@ function parseNumberArray(value: string): number[] {
   try {
     const parsed = JSON.parse(value) as unknown;
     return Array.isArray(parsed) ? parsed.map(Number).filter(Number.isFinite) : [];
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     return [];
   }
 }
@@ -676,7 +677,7 @@ function resolveAtRestEncryptionKey(input: {
     fs.writeFileSync(keyPath, crypto.randomBytes(32).toString('base64'), { encoding: 'utf8', mode: 0o600 });
     try {
       fs.chmodSync(keyPath, 0o600);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Windows does not consistently honor POSIX file modes.
     }
   }
@@ -786,7 +787,7 @@ function resolveFullFileEncryptionKey(input: {
     fs.writeFileSync(keyPath, crypto.randomBytes(32).toString('base64'), { encoding: 'utf8', mode: 0o600 });
     try {
       fs.chmodSync(keyPath, 0o600);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Windows does not consistently honor POSIX file modes.
     }
   }
@@ -824,7 +825,7 @@ function resolveOsProtectedKey(keyPath: string, required: boolean): Buffer | nul
     fs.mkdirSync(path.dirname(protectedPath), { recursive: true });
     fs.writeFileSync(protectedPath, encrypted.trim(), { encoding: 'utf8', mode: 0o600 });
     return normalizeAtRestKey(key);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     if (required) {
       return null;
     }
@@ -873,7 +874,7 @@ function resolveSqliteConstructor(state: FullFileEncryptionState): {
         driverPackage: packageName,
         reason: `loaded ${packageName}`,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Try the next optional driver.
     }
   }
@@ -916,7 +917,7 @@ function verifyFullFileEncryptionProof(dbPath: string): FullFileEncryptionState[
       unkeyedOpenBlocked: false,
       reason: 'unkeyed sqlite open succeeded',
     };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     return {
       unkeyedOpenBlocked: true,
       reason: 'unkeyed sqlite open was blocked',
@@ -936,7 +937,7 @@ function normalizeAtRestKey(value: string | Buffer): Buffer {
       if (decoded.length === 32) {
         return decoded;
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Fall through to a stable key derivation hash.
     }
   }

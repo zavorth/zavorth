@@ -248,8 +248,7 @@ export class ZavorthCapabilityCandidateRegistryService {
         candidates: Array.isArray(parsed.candidates) ? parsed.candidates.map(normalizeCandidate).filter(isCandidate) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Capability Candidate Registry] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Capability Candidate Registry] parsing failed', error);
     return this.emptyStore();
   }
   }

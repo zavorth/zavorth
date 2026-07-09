@@ -194,8 +194,7 @@ export class ZavorthDynamicWorkflowService {
           approved: true,
         },
       });
-    } catch (error: any) {
-    logger.warn('[Zavorth Dynamic Workflow] number operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Dynamic Workflow] number operation failed', error);
     return this.blocked(snapshot, `swarm launch failed: ${errorMessage(error)}`);
   }
 
@@ -251,7 +250,7 @@ export class ZavorthDynamicWorkflowService {
     try {
       const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       return isDynamicWorkflowSnapshot(parsed) ? parsed : null;
-    } catch (error: any) { logger.warn('[Zavorth Dynamic Workflow] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Dynamic Workflow] JSON parse failed', error); return null; }
   }
 
   public launchSavedWorkflow(

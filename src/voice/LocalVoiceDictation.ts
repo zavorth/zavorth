@@ -2,9 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { randomUUID } from 'crypto';
-import { spawn, spawnSync, type ChildProcess } from 'child_process';
-
-export interface WhisperConfig {
+import { spawn, spawnSync, type ChildProcess } from 'child_process';export interface WhisperConfig {
   modelPath: string;
   language: string;
   binaryPath: string | null;
@@ -187,8 +185,7 @@ export class LocalVoiceDictation {
     if (this.recorderProcess) {
       try {
         this.recorderProcess.kill();
-      } catch (error: any) { const err = error; const e = error;
-        // noop
+      } catch (error: unknown) {// noop
       }
       this.recorderProcess = null;
     }
@@ -333,8 +330,7 @@ export class LocalVoiceDictation {
       if (this.existsSyncImpl(targetPath)) {
         this.rmSyncImpl(targetPath, { force: true });
       }
-    } catch (error: any) { const err = error; const e = error;
-      // noop
+    } catch (error: unknown) {// noop
     }
   }
 }

@@ -1,7 +1,6 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
-
 export class LineGateway extends WebhookGateway {
   public readonly id = 'line';
   public readonly name = 'LINE Messaging API';
@@ -129,7 +128,7 @@ export class LineGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.recordError(`LINE reply failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -161,7 +160,7 @@ export class LineGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.recordError(`LINE push failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

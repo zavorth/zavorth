@@ -57,8 +57,6 @@ describe('ExtensionLeaseDogfoodFlow', () => {
     InMemoryApprovalLeaseStore.clearForTests();
   });
 
-  // --- Fixtures ---
-
   function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
@@ -101,8 +99,6 @@ describe('ExtensionLeaseDogfoodFlow', () => {
       existingGateResult: receipt,
     };
   }
-
-  // --- Tests ---
 
   test('safe tool registers as registered_unapproved, not executed', () => {
     const descriptor = makeDescriptor();

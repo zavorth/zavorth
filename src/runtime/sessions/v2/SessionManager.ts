@@ -8,7 +8,6 @@ import type { RegisterSessionOwnershipInput } from './SessionOwnershipContract.j
 import type { SessionRegistryService } from './SessionRegistryService.js';
 import { buildChildProcessEnv } from '../../../security/ChildProcessEnv.js';
 import { redactSensitiveText } from '../../../security/SensitiveDataGuard.js';
-
 type NodePtyProcess = {
   write(data: string): void;
   kill(signal?: string): void;
@@ -142,8 +141,7 @@ export class SessionManager {
         cwd: this.state.context.cwd,
         env: this.state.context.env,
       });
-    } catch (error: any) { const err = error; const e = error;
-      const output = this.formatSpawnError(shell, shellArgs, error);
+    } catch (error: unknown) {const output = this.formatSpawnError(shell, shellArgs, error);
       this.appendLog(`[spawn:error] ${output}`);
       this.events.emit('pty:error', output);
       this.events.emit('pty:exit', null);
@@ -205,7 +203,7 @@ export class SessionManager {
     }
     try {
       this.childProcess.stdin.write(input);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const output = error?.message || String(error);
       this.appendLog(`[stdin:error] ${output}`);
       this.events.emit('pty:error', output);
@@ -313,8 +311,7 @@ export class SessionManager {
     try {
       const require = createRequire(__filename);
       return require('node-pty') as NodePtyModule;
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 }

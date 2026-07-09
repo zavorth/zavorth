@@ -115,7 +115,7 @@ export class ZavorthSandboxCloudTool extends BaseTool {
       });
       this.writeLog(id, result);
       return this.formatRunResult(id, result);
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.sandboxes.set(id, {
         id,
         provider: requestedProvider || 'local-docker',
@@ -256,5 +256,5 @@ function parseEnvVars(value: unknown): Record<string, string> {
       Object.entries(parsed as Record<string, unknown>)
         .map(([key, entry]) => [key, String(entry ?? '')]),
     );
-  } catch (error: any) { logger.warn('[Zavorth Sandbox Cloud] JSON parse failed', error); return {}; }
+  } catch (error: unknown) {logger.warn('[Zavorth Sandbox Cloud] JSON parse failed', error); return {}; }
 }

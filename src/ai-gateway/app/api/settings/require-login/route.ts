@@ -5,7 +5,6 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateRequireLoginSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
-
 // Node.js compatibility check — better-sqlite3 requires Node <24
 function getNodeCompatibility() {
   const nodeVersion = process.version;
@@ -21,8 +20,7 @@ export async function GET() {
     const hasPassword = !!settings.password || !!process.env.INITIAL_PASSWORD;
     const setupComplete = !!settings.setupComplete;
     return NextResponse.json({ requireLogin, hasPassword, setupComplete, ...nodeInfo });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API] Error fetching require-login settings:", error);
+  } catch (error: unknown) {console.error("[API] Error fetching require-login settings:", error);
     return NextResponse.json(
       { requireLogin: true, hasPassword: true, setupComplete: true, ...nodeInfo },
       { status: 200 }
@@ -41,8 +39,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -75,7 +72,7 @@ export async function POST(request: Request) {
 
     await updateSettings(updates);
     return NextResponse.json({ success: true });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.error("[API] Error updating require-login settings:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to update settings" },

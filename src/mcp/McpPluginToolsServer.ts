@@ -92,7 +92,7 @@ export class McpPluginToolsServer {
       return {
         content: [{ type: 'text', text: String(result) }],
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         content: [{ type: 'text', text: `Erro ao executar ${name}: ${message}` }],
@@ -177,8 +177,7 @@ export class McpPluginToolsServer {
           if (response.id !== undefined) {
             process.stdout.write(JSON.stringify(response) + '\n');
           }
-        } catch (error: any) { const err = error; const e = error;
-          process.stdout.write(
+        } catch (error: unknown) {process.stdout.write(
             JSON.stringify({
               jsonrpc: '2.0',
               error: { code: -32700, message: 'Parse error' },

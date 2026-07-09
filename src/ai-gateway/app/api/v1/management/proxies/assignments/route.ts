@@ -4,9 +4,7 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/errorResponse";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { clearDispatcherCache } from "@ZavorthGateway/open-sse/utils/proxyDispatcher";
-import { logger } from '@/shared/utils/logger';
-
-function toPagination(searchParams: URLSearchParams) {
+import { logger } from '@/shared/utils/logger';function toPagination(searchParams: URLSearchParams) {
   const limit = Math.max(1, Math.min(200, Number(searchParams.get("limit") || 100)));
   const offset = Math.max(0, Number(searchParams.get("offset") || 0));
   return { limit, offset };
@@ -41,8 +39,7 @@ export async function GET(request: Request) {
       items,
       page: { limit, offset, total: filtered.length },
     });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] search failed', error);
+  } catch (error: unknown) {logger.warn('[route] search failed', error);
     return createErrorResponseFromUnknown(error, "Failed to load proxy assignments");
   }
 }
@@ -54,8 +51,7 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] load operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] load operation failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -79,8 +75,7 @@ export async function PUT(request: Request) {
     clearDispatcherCache();
 
     return Response.json({ success: true, assignment });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] cache operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] cache operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to update proxy assignment");
   }
 }

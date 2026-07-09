@@ -75,7 +75,7 @@ export async function GET() {
     cachedSpec = { data: catalog, mtime };
 
     return NextResponse.json(catalog);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to parse OpenAPI spec" },

@@ -4,6 +4,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprot
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
+import { asErrorLike } from '../src/utils/errorLike';
 
 const server = new Server(
   {
@@ -181,7 +182,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     throw new Error(`Tool not found: ${name}`);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       content: [{ type: 'text', text: error.message }],
       isError: true,

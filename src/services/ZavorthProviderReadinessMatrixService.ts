@@ -360,7 +360,7 @@ export class ZavorthProviderReadinessMatrixService {
           ? `Live probe passed${typeof modelCount === 'number' ? ` and listed ${modelCount} model(s)` : ''}.`
           : `Live probe failed with HTTP ${response.status}.`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       const target = sanitizeProbeTarget(probe.url);
       return liveProbeResult({
         status: 'failed',
@@ -782,7 +782,7 @@ function countAnyModelArray(data: unknown): number | null {
 function parseJson(text: string): unknown | null {
   try {
     return JSON.parse(text);
-  } catch (error: any) { logger.warn('[Zavorth  Readiness Matrix] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth  Readiness Matrix] JSON parse failed', error); return null; }
 }
 
 async function fetchProbe(fetchImpl: typeof fetch, probe: ProviderProbeConfig): Promise<ProviderHttpProbeResponse> {
@@ -850,7 +850,7 @@ function sanitizeProbeTarget(rawUrl: string): string {
   try {
     const url = new URL(rawUrl);
     return `${url.origin}${url.pathname}`;
-  } catch (error: any) { logger.warn('[Zavorth  Readiness Matrix] creation failed', error); return 'unknown'; }
+  } catch (error: unknown) {logger.warn('[Zavorth  Readiness Matrix] creation failed', error); return 'unknown'; }
 }
 
 function normalizeBaseUrl(value: string): string {

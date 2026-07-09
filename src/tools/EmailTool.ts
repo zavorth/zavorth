@@ -135,7 +135,7 @@ export class EmailTool extends BaseTool {
     if (typeof args.attachments === 'string') {
       try {
         attachments = JSON.parse(args.attachments);
-      } catch (error: any) { logger.warn('[Email] JSON parse failed', error); return 'Erro: JSON de attachments invalido.'; }
+      } catch (error: unknown) {logger.warn('[Email] JSON parse failed', error); return 'Erro: JSON de attachments invalido.'; }
     }
 
     try {
@@ -165,8 +165,8 @@ export class EmailTool extends BaseTool {
       lines.push(`  - SMTP: ${config.host}:${config.port}`);
 
       return lines.join('\n');
-    } catch (error: any) {
-    logger.warn('[Email] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Email] operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Erro ao enviar email: ${message}`;
   }

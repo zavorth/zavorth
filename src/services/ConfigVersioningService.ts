@@ -100,7 +100,7 @@ export class ConfigVersioningService {
   private safeQuery(db: Database, sql: string): any[] {
     try {
       return db.all(sql);
-    } catch (error: any) { logger.warn('[Versioning] filesystem operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Versioning] filesystem operation failed', error); return []; }
   }
 
   private runGit(

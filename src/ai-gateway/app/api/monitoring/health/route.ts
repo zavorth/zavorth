@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getProviderConnections, getSettings } from "@/lib/localDb";
 import { APP_CONFIG } from "@/shared/constants/config";
-import { AI_PROVIDERS } from "@/shared/constants/providers";
-
-/**
+import { AI_PROVIDERS } from "@/shared/constants/providers";/**
  * GET /api/monitoring/health — System health overview
  *
  * Returns system info, provider health (circuit breakers),
@@ -77,8 +75,7 @@ export async function GET() {
       },
       setupComplete: settings?.setupComplete || false,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API] GET /api/monitoring/health error:", error);
+  } catch (error: unknown) {console.error("[API] GET /api/monitoring/health error:", error);
     return NextResponse.json({ status: "error", error: "Health check failed" }, { status: 500 });
   }
 }
@@ -109,8 +106,7 @@ export async function DELETE(request: Request) {
       message: `Reset ${resetCount} circuit breaker(s) to healthy state`,
       resetCount,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API] DELETE /api/monitoring/health error:", error);
+  } catch (error: unknown) {console.error("[API] DELETE /api/monitoring/health error:", error);
     return NextResponse.json({ error: "Failed to reset circuit breakers" }, { status: 500 });
   }
 }

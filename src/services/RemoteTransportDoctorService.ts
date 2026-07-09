@@ -120,7 +120,7 @@ export class RemoteTransportDoctorService {
         status: this.resolveStatus(items),
         items,
       };
-    } catch (error: any) { logger.warn('[Remote Transport Doctor] parsing failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Remote Transport Doctor] parsing failed', error); return null; }
   }
 
   private async inspectEntry(entry: ZavorthRemoteTransportEntry): Promise<RemoteTransportDoctorItem> {
@@ -280,8 +280,8 @@ export class RemoteTransportDoctorService {
         httpStatus: response.status,
         detail: `Probe ativo confirmou reachability em ${endpoint} (HTTP ${response.status}).`,
       };
-    } catch (error: any) {
-    logger.warn('[Remote Transport Doctor] network request failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Remote Transport Doctor] network request failed', error);
     return {
         status: 'failed',
         httpStatus: null,
@@ -304,7 +304,7 @@ export class RemoteTransportDoctorService {
     try {
       const sidecar = await this.aiGatewaySidecar.start();
       details.push(sidecar.message);
-    } catch (error: any) {
+    } catch (error: unknown) {
       details.push(`Tentativa de start do sidecar AIGateway falhou: ${error?.message || String(error)}`);
       return details;
     }
@@ -312,7 +312,7 @@ export class RemoteTransportDoctorService {
     try {
       const gateway = await this.gatewayLauncher.ensureStarted();
       details.push(gateway.message || 'Gateway AIGateway reconciliado antes do probe.');
-    } catch (error: any) {
+    } catch (error: unknown) {
       details.push(`Tentativa de start do gateway AIGateway falhou: ${error?.message || String(error)}`);
     }
 

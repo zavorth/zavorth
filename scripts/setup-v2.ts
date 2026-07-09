@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import path from 'path';
 import readline from 'readline';
@@ -703,7 +704,9 @@ async function checkCommand(command: string, args: string[], label: string): Pro
     });
     const detail = String(result.stdout || result.stderr || '').trim().split(/\r?\n/)[0];
     return { ok: true, label, detail };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return { ok: false, label, detail: error.message };
   }
 }

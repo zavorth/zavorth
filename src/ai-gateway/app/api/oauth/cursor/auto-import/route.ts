@@ -3,9 +3,7 @@ import { homedir } from "os";
 import { join } from "path";
 import Database from "better-sqlite3";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * GET /api/oauth/cursor/auto-import
  * Auto-detect and extract Cursor tokens from local SQLite database.
  *
@@ -34,8 +32,7 @@ export async function GET(request: Request) {
     let db;
     try {
       db = new Database(dbPath, { readonly: true, fileMustExist: true });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+    } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({
         found: false,
         error:
@@ -73,15 +70,13 @@ export async function GET(request: Request) {
         accessToken: tokens.accessToken,
         machineId: tokens.machineId,
       });
-    } catch (error: any) { const err = error; const e = error;
-      db?.close();
+    } catch (error: unknown) {db?.close();
       return NextResponse.json({
         found: false,
         error: `Failed to read database: ${(error as any).message}`,
       });
     }
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Cursor auto-import error:", error);
+  } catch (error: unknown) {console.log("Cursor auto-import error:", error);
     return NextResponse.json({ found: false, error: (error as any).message }, { status: 500 });
   }
 }

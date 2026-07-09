@@ -649,8 +649,7 @@ export class ZavorthExternalCapabilityInventoryService {
         dirs: entries.filter((entry) => entry.isDirectory()).length,
         names,
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth External Capability Inventory] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth External Capability Inventory] filesystem operation failed', error);
     return { files: 0, dirs: 0, names: [] };
   }
   }

@@ -3,9 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { spawn } from 'child_process';
-import { CapabilityUnavailableError } from '../../../services/OptionalCapabilityGuard.js';
-
-const AUDIO_TMP_DIR = path.join(os.tmpdir(), 'zavorth-audio-chunks');
+import { CapabilityUnavailableError } from '../../../services/OptionalCapabilityGuard.js';const AUDIO_TMP_DIR = path.join(os.tmpdir(), 'zavorth-audio-chunks');
 
 export interface PreparedAudioChunk {
   filePath: string;
@@ -29,8 +27,7 @@ export class AudioChunker {
     try {
       const loaded = require('ffmpeg-static');
       this.ffmpegPath = typeof loaded === 'string' && loaded ? loaded : null;
-    } catch (error: any) { const err = error; const e = error;
-      this.ffmpegPath = null;
+    } catch (error: unknown) {this.ffmpegPath = null;
     }
   }
 
@@ -106,8 +103,7 @@ export class AudioChunker {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
-      } catch (error: any) { const err = error; const e = error;
-        logger.warn(`[AudioChunker] Falha ao remover temporario: ${error}`);
+      } catch (error: unknown) {logger.warn(`[AudioChunker] Falha ao remover temporario: ${error}`);
       }
     }
   }

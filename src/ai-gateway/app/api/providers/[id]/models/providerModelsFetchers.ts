@@ -16,7 +16,6 @@ import { jsonError } from "./providerModelsResponse";
 import { assertProviderValidationTargetAllowed } from "@/lib/security/egressGuard";
 import { OpenAiCompatibleModelDiscoveryAdapter } from "../../../../../../services/providers/catalog/discovery/OpenAiCompatibleModelDiscoveryAdapter.js";
 import { AnthropicCompatibleModelDiscoveryAdapter } from "../../../../../../services/providers/catalog/discovery/AnthropicCompatibleModelDiscoveryAdapter.js";
-
 export async function fetchOpenAiCompatibleModels(
   context: ProviderModelsHandlerContext
 ) {
@@ -138,7 +137,7 @@ export async function fetchGeminiCliModels(context: ProviderModelsHandlerContext
       }));
 
     return buildResponse({ provider, connectionId, models });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.log("[models] Gemini CLI model fetch error:", message);
     return jsonError("Failed to fetch Gemini CLI models", 500);

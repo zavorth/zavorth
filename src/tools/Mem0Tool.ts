@@ -54,6 +54,6 @@ export class Mem0Tool extends BaseTool {
       }
 
       return results.map((entry) => `- ${entry}`).join('\n');
-    } catch (error: any) { logger.warn('[Mem0] search failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Mem0] search failed', error); return ''; }
   }
 }

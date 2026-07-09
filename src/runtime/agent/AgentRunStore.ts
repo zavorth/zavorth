@@ -1,8 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-
-export type AgentRunStore = {
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export type AgentRunStore = {
   loadRuns: () => UniversalAgentRun[];
   saveRuns: (runs: UniversalAgentRun[]) => void;
 };
@@ -48,8 +46,7 @@ export class JsonAgentRunStore implements AgentRunStore {
           && typeof (run as { id?: unknown }).id === 'string'
         ))
         .slice(0, this.maxRuns);
-    } catch (error: any) { const err = error; const e = error;
-      return [];
+    } catch (error: unknown) {return [];
     }
   }
 

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../utils/errorLike';
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
@@ -142,7 +143,8 @@ export default function Header({ onMenuClick, showMenuButton = true }) {
         router.push("/login");
         router.refresh();
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error("Failed to logout:", err);
     }
   };

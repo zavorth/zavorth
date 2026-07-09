@@ -7,7 +7,6 @@ import {
   type MinimalCapabilityActivationPlan,
 } from './MinimalCapabilityActivationPlanner.js';
 import { MinimalRuntimeProfileRegistry } from './MinimalRuntimeProfileRegistry.js';
-
 export type MinimalRuntimeModeLeaseStatus = 'dry-run' | 'active' | 'released' | 'expired' | 'blocked';
 export type MinimalRuntimeModeLeaseOperation = 'plan' | 'elevate' | 'release' | 'expire';
 export type MinimalRuntimeModePlanStatus = 'ready' | 'noop' | 'blocked' | 'missing' | 'manual';
@@ -516,7 +515,7 @@ export class MinimalRuntimeModeGovernor {
         const parsed = JSON.parse(line) as MinimalRuntimeModeLease;
         this.assertLease(parsed);
         leases.push(parsed);
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         errors.push({
           line: index + 1,
           reason: error instanceof Error ? error.message : String(error),

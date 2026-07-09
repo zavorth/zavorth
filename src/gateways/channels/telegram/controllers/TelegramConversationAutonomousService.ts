@@ -14,6 +14,7 @@ import { TelegramConversationContextService } from '../../../../gateways/channel
 import { TelegramConversationDecisionService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationDecisionService.js';
 import { TelegramConversationDirectReplyService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationDirectReplyService.js';
 import { TelegramConversationStateService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationStateService.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type ContinuityContext = ReturnType<typeof buildWorkspaceContinuityContext>;
@@ -242,7 +243,8 @@ export class TelegramConversationAutonomousService {
           this.resolveGatewayAssistantMessageKind(result),
         ),
       );
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const errorMessage = err instanceof Error ? err.message : String(err);
       this.deps.stateService.recordAgentGatewayRunException(task, actionPayload, err);
       await SmartOutputService.reply(ctx, `Governed execution failed: ${errorMessage}`);

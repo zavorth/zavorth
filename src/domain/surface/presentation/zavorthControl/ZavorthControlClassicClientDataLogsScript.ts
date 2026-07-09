@@ -1,6 +1,4 @@
-import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
-
-function zavorthControlClassicClientDataLogs() {
+import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';function zavorthControlClassicClientDataLogs() {
     type LogRow = { timestamp?: string; level?: string; category?: string; message?: string };
     async function loadLogs() {
       try {
@@ -17,8 +15,7 @@ function zavorthControlClassicClientDataLogs() {
             `;
          }).join('');
          document.getElementById('log-container')!.innerHTML = html || 'Nenhum log.';
-      } catch (e: any) { const error = e; const err = e;
-         document.getElementById('log-container')!.innerHTML = 'Falha ao carregar logs.';
+      } catch (error: unknown) {document.getElementById('log-container')!.innerHTML = 'Falha ao carregar logs.';
       }
     }
 }

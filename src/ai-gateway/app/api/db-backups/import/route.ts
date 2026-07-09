@@ -7,7 +7,6 @@ import { getDbInstance, resetDbInstance, SQLITE_FILE } from "@/lib/db/core";
 import { backupDbFile } from "@/lib/db/backup";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-
 const MAX_UPLOAD_SIZE = 100 * 1024 * 1024; // 100 MB
 
 // Required tables that must exist in a valid ZavorthGateway database
@@ -112,8 +111,7 @@ export async function POST(request: Request) {
 
       testDb.close();
       testDb = null;
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] resource cleanup failed', error);
+    } catch (error: unknown) { logger.warn('[route] resource cleanup failed', error);
     if (testDb) testDb.close();
       return NextResponse.json({ error: `Invalid database file: ${e.message}` }, { status: 400 });
   }
@@ -162,7 +160,7 @@ export async function POST(request: Request) {
       comboCount,
       apiKeyCount: keyCount,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.error("[API] Error importing database:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   } finally {
@@ -170,7 +168,7 @@ export async function POST(request: Request) {
     if (tmpPath && fs.existsSync(tmpPath)) {
       try {
         fs.unlinkSync(tmpPath);
-      } catch (error: any) { const err = error; const e = error; /* best effort */ logger.warn('[route] file cleanup failed', error); }
+      } catch (error: unknown) {/* best effort */ logger.warn('[route] file cleanup failed', error); }
     }
   }
 }

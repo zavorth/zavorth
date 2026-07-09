@@ -287,7 +287,7 @@ const executedAsScript =
   && require.main === module;
 
 if (executedAsScript) {
-  main().catch((error: any) => {
+  main().catch((error: unknown) => {
     console.error(`[node-mesh-host] erro: ${error?.message || String(error)}`);
     process.exitCode = 1;
   });

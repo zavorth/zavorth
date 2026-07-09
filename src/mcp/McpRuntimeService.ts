@@ -15,9 +15,7 @@ import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import {
   McpToolPolicy,
   type McpToolPolicyDocument,
-} from './McpToolPolicy.js';
-
-type McpSecurityDefinition = Record<string, unknown>;
+} from './McpToolPolicy.js';type McpSecurityDefinition = Record<string, unknown>;
 
 type ToolWithRemoteName = BaseTool & { remoteName?: string };
 
@@ -218,8 +216,7 @@ export class McpRuntimeService {
         try {
           const discovered = await this.collectDiscoveredTools(manager, server.id);
           return { manager, server, discovered, attemptedAt };
-        } catch (error: any) { const err = error; const e = error;
-          return { manager, server, discovered: [], attemptedAt, error };
+        } catch (error: unknown) {return { manager, server, discovered: [], attemptedAt, error };
         }
       })
     );
@@ -297,8 +294,7 @@ export class McpRuntimeService {
 
       try {
         await manager.disconnect();
-      } catch (error: any) { const err = error; const e = error;
-        this.logRepo.log(
+      } catch (error: unknown) {this.logRepo.log(
           'warn',
           'MCP',
           `Falha ao desconectar servidor MCP ${manager.name}: ${getErrorMessage(error)}`,
@@ -329,8 +325,7 @@ export class McpRuntimeService {
     const manager = this.managers[managerIndex];
     try {
       await manager.disconnect();
-    } catch (error: any) { const err = error; const e = error;
-      this.logRepo.log(
+    } catch (error: unknown) {this.logRepo.log(
         'warn',
         'MCP',
         `Falha ao desconectar servidor MCP ${manager.name}: ${getErrorMessage(error)}`,
@@ -419,8 +414,7 @@ export class McpRuntimeService {
       );
 
       return { ok: true, toolCount: registeredToolNames.length, toolNames: registeredToolNames, error: null };
-    } catch (error: any) { const err = error; const e = error;
-      this.entries.set(serverId, {
+    } catch (error: unknown) {this.entries.set(serverId, {
         id: serverId,
         capability: String(serverEntry.capability || '').trim() || null,
         enabled: true,

@@ -62,7 +62,7 @@ export class GatewayUpstreamSyncService {
         ...fallback,
         ...parsed,
       };
-    } catch (error: any) { logger.warn('[way Upstream] JSON parse failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[way Upstream] JSON parse failed', error); return fallback; }
   }
 
   public async sync(): Promise<AIGatewayUpstreamSyncReport> {
@@ -165,8 +165,8 @@ export class GatewayUpstreamSyncService {
         licenseDecision: null,
         error: compat && !compat.ok ? compat.error || compat.summary : null,
       }));
-    } catch (error: any) {
-    logger.warn('[way Upstream] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[way Upstream] filesystem check failed', error);
     return this.persist(this.decorateVendorMetadata({
         ok: false,
         action,

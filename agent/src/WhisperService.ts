@@ -3,6 +3,12 @@ import { promisify } from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
 import { t } from './i18n.js';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 const execAsync = promisify(exec);
 
@@ -56,8 +62,9 @@ export class WhisperService {
       try {
         // Fallback: whisper via Python
         return await this.transcribeViaPython(audioPath);
-      } catch (error: any) {
-        throw new Error(t('whisper_no_method', { message: error.message }));
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        throw new Error(t('whisper_no_method', { message: String(err.message || 'Unexpected error') }));
       }
     }
   }

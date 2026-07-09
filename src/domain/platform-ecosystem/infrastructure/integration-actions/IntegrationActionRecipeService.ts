@@ -14,7 +14,6 @@ import { IntegrationInstallerService } from '../../../../services/IntegrationIns
 import { IntegrationProbeService } from '../../../../services/IntegrationProbeService.js';
 import { TerminalSidecarService } from '../../../../services/TerminalSidecarService.js';
 import type { IntegrationActionLedgerService } from './IntegrationActionLedgerService.js';
-
 type VendorUpstreamRecipeReport = {
   ok: boolean;
   action: string;
@@ -531,7 +530,7 @@ export class IntegrationActionRecipeService {
       };
       this.ledgerService.persistRecord(record);
       return record;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const doctor = this.healthService.buildDoctorSnapshot(integrationId);
       this.installerService.recordHealthStatus(integrationId, doctor.status);
       const record: IntegrationActionExecution = {
@@ -586,7 +585,7 @@ export class IntegrationActionRecipeService {
       };
       this.ledgerService.persistRecord(record);
       return record;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const doctor = this.healthService.buildDoctorSnapshot(integrationId);
       this.installerService.recordHealthStatus(integrationId, doctor.status);
       const record: IntegrationActionExecution = {
@@ -645,7 +644,7 @@ export class IntegrationActionRecipeService {
       };
       this.ledgerService.persistRecord(record);
       return record;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const doctor = this.healthService.buildDoctorSnapshot(integrationId);
       this.installerService.recordHealthStatus(integrationId, doctor.status);
       const record: IntegrationActionExecution = {

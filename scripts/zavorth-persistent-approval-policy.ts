@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import {
   ZAVORTH_BREAK_GLASS_CONFIRMATION_PHRASE,
@@ -47,7 +48,8 @@ try {
   } else {
     output(service.buildSnapshot());
   }
-} catch (error) {
+} catch (error: unknown) {
+  const err = asErrorLike(error);
   console.error('[zavorth-persistent-approval-policy] failed');
   console.error(error instanceof Error ? error.message : String(error));
   if (['break-glass', 'modo-extremo', 'responsabilidade-total'].includes(action)) {

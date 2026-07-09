@@ -446,7 +446,7 @@ export class ZavorthNativeConvergenceService {
         title,
         ...result,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         id,
@@ -475,7 +475,7 @@ export class ZavorthNativeConvergenceService {
     try {
       const parsed = JSON.parse(fs.readFileSync(path.join(this.projectRoot, 'package.json'), 'utf8')) as PackageJson;
       return parsed.scripts || {};
-    } catch (error: any) { logger.warn('[Zavorth Native Convergence] JSON parse failed', error); return {}; }
+    } catch (error: unknown) {logger.warn('[Zavorth Native Convergence] JSON parse failed', error); return {}; }
   }
 
   public static requiredPillars(): ConvergencePillarId[] {

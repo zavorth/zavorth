@@ -106,7 +106,7 @@ export function sanitizeBaseUrl(raw: string): string {
     }
 
     return url.toString();
-  } catch (error: any) { logger.warn('[Model Id Sanitizer] network request failed', error); return ''; }
+  } catch (error: unknown) {logger.warn('[Model Id Sanitizer] network request failed', error); return ''; }
 }
 
 export function validateModelId(id: string): { valid: boolean; error?: string } {

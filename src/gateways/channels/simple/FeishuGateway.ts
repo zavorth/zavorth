@@ -1,7 +1,6 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
-
 interface FeishuWebhookPayload extends Record<string, unknown> {
   userId?: unknown;
   chatId?: unknown;
@@ -100,8 +99,7 @@ export class FeishuGateway extends WebhookGateway {
     try {
       const parsed = JSON.parse(content);
       rawText = String(parsed.text || '').trim();
-    } catch (error: any) { const err = error; const e = error;
-      rawText = String(
+    } catch (error: unknown) {rawText = String(
         message?.content
         || payload.text
         || '',
@@ -155,7 +153,7 @@ export class FeishuGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.recordError(`Feishu send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

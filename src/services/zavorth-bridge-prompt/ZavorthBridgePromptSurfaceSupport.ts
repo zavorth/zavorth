@@ -21,7 +21,7 @@ export class ZavorthBridgePromptSurfaceSupport {
         windowTitle: start.windowTitle || config.zavorthBridgeWindowTitle,
         expectedModel: start.selectedModel,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.host.logRepo.log(
         'warn',
         'ZavorthBridgePromptService',
@@ -160,8 +160,8 @@ export class ZavorthBridgePromptSurfaceSupport {
           promptSurfaceReady: ready,
         },
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
     return {
         ready: false,
         message: error.message,
@@ -200,8 +200,8 @@ export class ZavorthBridgePromptSurfaceSupport {
           recoveryAttempted: true,
         },
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
     return {
         ready: false,
         message: error.message,

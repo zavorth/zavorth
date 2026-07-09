@@ -3,6 +3,7 @@ import os from "os";
 import path from "path";
 import crypto from "crypto";
 import { logger } from '../logger.js';
+import { asErrorLike } from '../../utils/errorLike';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -22,7 +23,7 @@ function readJson<T>(fileName: string, fallback: T): T {
     const filePath = path.join(STORE_DIR, safeName(fileName));
     if (!fs.existsSync(filePath)) return fallback;
     return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[zavorth way Runtime Store] JSON parse failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[zavorth way Runtime Store] JSON parse failed', error); return fallback; }
 }
 
 function writeJson(fileName: string, value: unknown) {
@@ -122,7 +123,9 @@ export function deleteGatewayFile(id: string): boolean {
   if (!found) return false;
   try {
     if (found.path && fs.existsSync(found.path)) fs.unlinkSync(found.path);
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
   writeJson("files.json", files.filter((file) => file.id !== id));
   return true;
 }

@@ -25,9 +25,7 @@ import {
 import { SkillTrustPolicyService } from '../services/SkillTrustPolicyService.js';
 import { LicensePolicyService } from './LicensePolicyService.js';
 import { SkillRiskScoringService } from './SkillRiskScoringService.js';
-import { ZavorthPathCompactor } from './ZavorthPathCompactor.js';
-
-const BLOCKED_ROOT_SUPPORT_FILES = new Set([
+import { ZavorthPathCompactor } from './ZavorthPathCompactor.js';const BLOCKED_ROOT_SUPPORT_FILES = new Set([
   'SKILL.md',
   'ATTRIBUTION.md',
   'ORIGIN.md',
@@ -200,8 +198,7 @@ export class SkillLoader {
           if (!quiet) {
             logger.info(`Skill loaded: ${metadata.name}`);
           }
-        } catch (error: any) { const err = error; const e = error;
-          if (!quiet) {
+        } catch (error: unknown) {if (!quiet) {
             logger.warn(`Failed to load skill "${skillName}": ${error}`);
           }
         }
@@ -270,8 +267,7 @@ export class SkillLoader {
       let entries: fs.Dirent[];
       try {
         entries = fs.readdirSync(dir, { withFileTypes: true });
-      } catch (error: any) { const err = error; const e = error;
-        return;
+      } catch (error: unknown) {return;
       }
       for (const entry of entries) {
         if (!entry.isDirectory()) {
@@ -485,8 +481,7 @@ export class SkillLoader {
             .map(([key, value]) => [key, String(value ?? '').trim()]),
         );
       }
-    } catch (error: any) { const err = error; const e = error;
-      // fallback abaixo para frontmatters mais permissivos
+    } catch (error: unknown) {// fallback abaixo para frontmatters mais permissivos
     }
 
     const fields: Record<string, string> = {};

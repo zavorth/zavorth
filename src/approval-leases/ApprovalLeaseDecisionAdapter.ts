@@ -1,3 +1,5 @@
+import { asErrorLike } from '../utils/errorLike';
+import { logger } from '../logger.js';
 /**
  * ApprovalLeaseDecisionAdapter.ts
  *
@@ -120,7 +122,8 @@ export class ApprovalLeaseDecisionAdapter {
     // Step 1: Validate context does not carry secrets
     try {
       validateNoSecrets(context as unknown as Record<string, unknown>);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const errMsg = err instanceof Error ? err.message : 'unknown error';
       const reason = 'Context validation failed: ' + errMsg;
       return this.emitAndResult({ eventType: 'lease_fail_closed', context, status: 'fail_closed', reason, evaluatedAt, leaseConsidered: false, upstreamGatesConfirmed: false });
@@ -279,10 +282,10 @@ export class ApprovalLeaseDecisionAdapter {
         p.catch((asyncErr) => {
           // Log to stderr but do not crash. Since evaluate is sync and already returned,
           // we cannot change the returned status to fail_closed retroactively here.
-          console.error('[SECURITY-AUDIT-ERROR] Async audit logging failed: ', asyncErr);
+          logger.error('[SECURITY-AUDIT-ERROR] Async audit logging failed: ', asyncErr);
         });
       }
-    } catch (auditErr: any) { const error = auditErr; const err = auditErr; const e = auditErr;
+    } catch (auditErr: unknown) {
       const auditErrMsg = auditErr instanceof Error ? auditErr.message : 'unknown audit error';
       const failReason = 'Audit sink threw during ' + params.eventType + ': ' + auditErrMsg + '. Failing closed.';
       return buildFailClosedResult(failReason, params.context, params.evaluatedAt, params.upstreamGatesConfirmed);

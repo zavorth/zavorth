@@ -62,7 +62,7 @@ export class HybridTtsService {
 
     try {
       return await this.localTts.speakEdge(text);
-    } catch (error) {
+    } catch (error: unknown) {
       localError = toError(error);
       console.warn(`[TTS] edge-tts unavailable, trying cloud fallback: ${localError.message}`);
     }
@@ -70,7 +70,7 @@ export class HybridTtsService {
     if (this.cloudTts?.isConfigured()) {
       try {
         return await this.cloudTts.speak(text);
-      } catch (error) {
+      } catch (error: unknown) {
         const cloudError = toError(error);
         console.warn(`[TTS] cloud fallback failed, resuming local fallback: ${cloudError.message}`);
       }

@@ -1,8 +1,6 @@
 import OpenAI from 'openai';
 import type { ToolCall } from './ILlmProvider.js';
-import { logger } from '../logger.js';
-
-type OpenAiFunctionToolCall = Extract<OpenAI.ChatCompletionMessageToolCall, { type: 'function' }>;
+import { logger } from '../logger.js';type OpenAiFunctionToolCall = Extract<OpenAI.ChatCompletionMessageToolCall, { type: 'function' }>;
 
 function isFunctionToolCall(toolCall: OpenAI.ChatCompletionMessageToolCall): toolCall is OpenAiFunctionToolCall {
   return toolCall.type === 'function' && 'function' in toolCall;
@@ -21,8 +19,7 @@ function parseToolArguments(rawValue: string): Record<string, unknown> {
     }
 
     return { value: parsed };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[openai  Calls] JSON parse failed', error);
+  } catch (error: unknown) {logger.warn('[openai  Calls] JSON parse failed', error);
     return { raw: normalized };
   }
 }

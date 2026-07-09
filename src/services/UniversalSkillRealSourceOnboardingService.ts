@@ -508,7 +508,7 @@ export class UniversalSkillRealSourceOnboardingService {
       return Array.isArray(parsed.entries)
         ? parsed.entries.filter(isHistoryEntry)
         : [];
-    } catch (error: any) { logger.warn('[Universal Skill Real Source Onboarding] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Universal Skill Real Source Onboarding] JSON parse failed', error); return []; }
   }
 
   private persistHistory(historyPath: string, history: HistoryFile): void {

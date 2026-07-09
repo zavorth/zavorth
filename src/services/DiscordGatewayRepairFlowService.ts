@@ -106,8 +106,7 @@ export class DiscordGatewayRepairFlowService {
         dormant: capability.state === 'dormant',
         notes: typeof capability.notes === 'string' ? capability.notes : null,
       };
-    } catch (error: any) {
-    logger.warn('[Discord way Repair Flow] filesystem check failed', error);
+    } catch (error: unknown) {logger.warn('[Discord way Repair Flow] filesystem check failed', error);
     return { dormant: false, notes: null };
   }
   }

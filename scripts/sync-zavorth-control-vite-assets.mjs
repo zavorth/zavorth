@@ -1,11 +1,25 @@
 #!/usr/bin/env node
+/**
+ * Canonical Control shell asset sync.
+ *
+ * Source of truth: apps/zavorth-control-vite-shell
+ * Runtime output:  src/zavorth-control/public/zavorth-control-vite-shell (vite outDir)
+ * Legacy mirrors:  assets/zavorth-control, assets/command-center
+ *                  (generated from source; do not hand-edit as primary)
+ */
 import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
 const sourceRoot = path.join(root, 'apps', 'zavorth-control-vite-shell');
 const staticShellRoot = path.join(root, 'src', 'zavorth-control', 'public', 'zavorth-control-vite-shell');
+const aiGatewayShellRoot = path.join(root, 'src', 'ai-gateway', 'public', 'zavorth-control-vite-shell');
+const legacyAssetRoots = [
+  path.join(root, 'assets', 'zavorth-control'),
+  path.join(root, 'assets', 'command-center'),
+];
 const normalizeOnly = process.argv.includes('--normalize-only');
+const afterBuild = process.argv.includes('--after-build');
 
 const requiredSourceFiles = [
   'index.html',
@@ -19,12 +33,17 @@ const requiredSourceFiles = [
   'src/conversation-export.ts',
   'src/control-sheets.ts',
   'src/dashboard-live-view.ts',
+  'src/dashboard-surface-registry.ts',
+  'src/diff-review-rail.ts',
   'src/guided-flow-cards.ts',
   'src/html-utils.ts',
   'src/local-preview-responses.ts',
+  'src/memory-browser-ui.ts',
   'src/neural-feed-interactions.ts',
+  'src/next-action-ui.ts',
   'src/overlay-controller.ts',
   'src/pages.ts',
+  'src/policy-simulator-ui.ts',
   'src/runtime-artifact-utils.ts',
   'src/runtime-auth-session.ts',
   'src/runtime-bridge.ts',
@@ -36,6 +55,7 @@ const requiredSourceFiles = [
   'src/runtime-realtime.ts',
   'src/runtime-run-replay.ts',
   'src/runtime-session-ui.ts',
+  'src/session-trust-score.ts',
   'src/shell-navigation.ts',
   'src/signal-transmitter.ts',
   'src/skills-popover.ts',
@@ -43,10 +63,9 @@ const requiredSourceFiles = [
   'src/theme.ts',
   'src/trace-renderer.ts',
   'src/trace-utils.ts',
+  'src/trust-rail-mobile.ts',
   'src/voice-dictation.ts',
-  'public/scripts/app.js',
-  'public/scripts/pages.js',
-  'public/scripts/runtime-bridge.js',
+  'src/workboard-lite.ts',
   'public/styles/base.css',
   'public/styles/layout.css',
   'public/styles/components.css',
@@ -65,6 +84,12 @@ function assertSourceExists() {
   }
 }
 
+function isTextAsset(filePath) {
+  return ['.html', '.css', '.js', '.json', '.svg', '.txt', '.md', '.mjs', '.map'].includes(
+    path.extname(filePath).toLowerCase(),
+  );
+}
+
 function copyFile(source, target) {
   fs.mkdirSync(path.dirname(target), { recursive: true });
   if (isTextAsset(source)) {
@@ -75,11 +100,8 @@ function copyFile(source, target) {
   fs.copyFileSync(source, target);
 }
 
-function isTextAsset(filePath) {
-  return ['.html', '.css', '.js', '.json', '.svg', '.txt', '.md'].includes(path.extname(filePath).toLowerCase());
-}
-
 function copyDirectory(source, target) {
+  if (!fs.existsSync(source)) return;
   fs.mkdirSync(target, { recursive: true });
   for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
     const sourcePath = path.join(source, entry.name);
@@ -89,6 +111,18 @@ function copyDirectory(source, target) {
       continue;
     }
     if (entry.isFile()) copyFile(sourcePath, targetPath);
+  }
+}
+
+function emptyDirectory(target) {
+  if (!fs.existsSync(target)) return;
+  for (const entry of fs.readdirSync(target, { withFileTypes: true })) {
+    const entryPath = path.join(target, entry.name);
+    if (entry.isDirectory()) {
+      fs.rmSync(entryPath, { recursive: true, force: true });
+    } else {
+      fs.unlinkSync(entryPath);
+    }
   }
 }
 
@@ -107,27 +141,69 @@ function normalizeExistingTextFiles(targetRoot) {
   }
 }
 
-function syncTo(targetRoot, options = {}) {
+/** Pre-build: copy static public assets into Next public shell path for legacy readers. */
+function syncSourcePublicAssets(targetRoot) {
+  fs.mkdirSync(targetRoot, { recursive: true });
   copyFile(path.join(sourceRoot, 'index.html'), path.join(targetRoot, 'index.html'));
-  copyDirectory(path.join(sourceRoot, 'public', 'scripts'), path.join(targetRoot, 'scripts'));
   copyDirectory(path.join(sourceRoot, 'public', 'styles'), path.join(targetRoot, 'styles'));
   copyDirectory(path.join(sourceRoot, 'public', 'assets'), path.join(targetRoot, 'assets'));
+  // Keep public/scripts only if present (legacy plain JS fallback; vite TS is canonical)
+  const scriptsDir = path.join(sourceRoot, 'public', 'scripts');
+  if (fs.existsSync(scriptsDir)) {
+    copyDirectory(scriptsDir, path.join(targetRoot, 'scripts'));
+  }
+}
 
-  if (options.includePublicFolder) {
-    copyDirectory(path.join(sourceRoot, 'public'), path.join(targetRoot, 'public'));
+/**
+ * After vite build, mirror the built shell into legacy asset roots so runtime
+ * and older checks share one compiled surface.
+ */
+function mirrorBuiltShellToLegacyAssets() {
+  if (!fs.existsSync(staticShellRoot) || !fs.existsSync(path.join(staticShellRoot, 'index.html'))) {
+    console.warn('[zavorth-control-vite-sync] skip legacy mirror: built shell missing (run vite build first)');
+    return;
+  }
+
+  for (const legacyRoot of legacyAssetRoots) {
+    fs.mkdirSync(legacyRoot, { recursive: true });
+    // Preserve nothing hand-written: full replace with built shell
+    emptyDirectory(legacyRoot);
+    copyDirectory(staticShellRoot, legacyRoot);
+    const stamp = [
+      '# Generated control shell',
+      '',
+      'This directory is produced by `npm run zavorth-control-vite:build`.',
+      'Edit only: `apps/zavorth-control-vite-shell`.',
+      '',
+    ].join('\n');
+    fs.writeFileSync(path.join(legacyRoot, 'GENERATED.md'), stamp, 'utf8');
+    console.log(`[zavorth-control-vite-sync] mirrored build -> ${path.relative(root, legacyRoot)}`);
+  }
+
+  // Also publish under ai-gateway public if that tree exists
+  if (fs.existsSync(path.dirname(aiGatewayShellRoot))) {
+    emptyDirectory(aiGatewayShellRoot);
+    copyDirectory(staticShellRoot, aiGatewayShellRoot);
+    console.log('[zavorth-control-vite-sync] mirrored build -> src/ai-gateway/public/zavorth-control-vite-shell');
   }
 }
 
 if (normalizeOnly) {
   normalizeExistingTextFiles(staticShellRoot);
-  console.log('[zavorth-control-vite-sync] normalized text assets in Next Vite shell output');
+  for (const legacyRoot of legacyAssetRoots) normalizeExistingTextFiles(legacyRoot);
+  console.log('[zavorth-control-vite-sync] normalized text assets');
+  process.exit(0);
+}
+
+if (afterBuild) {
+  mirrorBuiltShellToLegacyAssets();
+  normalizeExistingTextFiles(staticShellRoot);
   process.exit(0);
 }
 
 assertSourceExists();
-syncTo(staticShellRoot);
+syncSourcePublicAssets(staticShellRoot);
 
-console.log('[zavorth-control-vite-sync] synced apps/zavorth-control-vite-shell -> Next Vite shell assets');
-console.log('[zavorth-control-vite-sync] app module source: apps/zavorth-control-vite-shell/src/app.ts');
-console.log('[zavorth-control-vite-sync] pages module source: apps/zavorth-control-vite-shell/src/pages.ts');
-console.log('[zavorth-control-vite-sync] runtime bridge module source: apps/zavorth-control-vite-shell/src/runtime-bridge.ts');
+console.log('[zavorth-control-vite-sync] synced apps/zavorth-control-vite-shell public assets -> runtime shell path');
+console.log('[zavorth-control-vite-sync] source of truth: apps/zavorth-control-vite-shell');
+console.log('[zavorth-control-vite-sync] runtime outDir: src/zavorth-control/public/zavorth-control-vite-shell (via vite build)');

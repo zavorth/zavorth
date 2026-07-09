@@ -273,7 +273,7 @@ export class RuntimeIdleBudgetService {
     }
     try {
       return this.desktopResourcePlane.readLatest();
-    } catch (error: any) { logger.warn('[Runtime Idle Budget] operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Runtime Idle Budget] operation failed', error); return null; }
   }
 
   private readPackageJson(): PackageLike | null {
@@ -286,7 +286,7 @@ export class RuntimeIdleBudgetService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch (error: any) { logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
   }
 
   private readAlphaBudget(): AlphaBudgetLike | null {
@@ -299,7 +299,7 @@ export class RuntimeIdleBudgetService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as AlphaBudgetLike;
-    } catch (error: any) { logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
   }
 
   private check(

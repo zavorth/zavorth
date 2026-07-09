@@ -1,3 +1,4 @@
+import { asErrorLike } from '../src/utils/errorLike';
 ﻿// Android Sync Versioning script supports Zavorth repository automation.
 import path from "node:path";
 import { syncAndroidVersioning } from "./lib/android-version.ts";
@@ -34,7 +35,8 @@ function main(argv = process.argv.slice(2)): number {
 
 try {
   process.exitCode = main();
-} catch (error) {
+} catch (error: unknown) {
+  const err = asErrorLike(error);
   process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
   process.exitCode = 1;
 }

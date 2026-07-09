@@ -36,6 +36,7 @@ import {
   buildExecutionGatewayOutcomeLifecycle,
 } from './execution-gateway/ExecutionGatewayLifecycle.js';
 import { buildExecutionGatewayRequest } from './execution-gateway/ExecutionGatewayRequestSupport.js';
+import { asErrorLike } from '../utils/errorLike';
 
 type ExecutionGatewayRuntime = {
   defaultWorkspace?: string | null;
@@ -271,8 +272,7 @@ export class ExecutionGateway {
         WorkspaceResolver.validate(plan.workspace_recommendation);
       }
       return null;
-    } catch (e: any) { const error = e; const err = e;
-      return `Workspace invalido: ${e.message}`;
+    } catch (error: unknown) { const err = asErrorLike(error); return `Workspace invalido: ${err.message}`;
     }
   }
 
@@ -449,8 +449,7 @@ export class ExecutionGateway {
           timing: result.timing,
         },
       );
-    } catch (e: any) { const error = e; const err = e;
-      const workspace = resolveExecutionGatewayWorkspace(
+    } catch (error: unknown) { const workspace = resolveExecutionGatewayWorkspace(
         plan.workspace_recommendation || task.workspace || '',
         this.defaultWorkspace,
       );
@@ -690,8 +689,7 @@ export class ExecutionGateway {
         this.healer = new SelfHealingService();
       }
       return await this.healer.analyzeAndProposeFix(request, result);
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 }

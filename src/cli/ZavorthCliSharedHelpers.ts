@@ -3,9 +3,7 @@ import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
-import { logger } from '../logger.js';
-
-export type JsonObject = Record<string, unknown>;
+import { logger } from '../logger.js';export type JsonObject = Record<string, unknown>;
 
 export function firstArg(args: string[], fallback: string): string {
   return String(args.find((arg) => !arg.startsWith('--')) || fallback).trim().toLowerCase();
@@ -77,7 +75,7 @@ export async function ensureDir(dir: string): Promise<void> {
 export async function readJson(file: string, fallback: unknown): Promise<unknown> {
   try {
     return JSON.parse(await fs.readFile(file, 'utf8'));
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Shared Helpers] JSON parse failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Shared Helpers] JSON parse failed', error); return fallback; }
 }
 
 export async function readArray(file: string): Promise<unknown[]> {
@@ -99,13 +97,13 @@ export async function appendJsonArray(file: string, value: unknown): Promise<voi
 export async function listJsonFiles(dir: string): Promise<string[]> {
   try {
     return (await fs.readdir(dir)).filter((file) => file.endsWith('.json')).sort();
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Shared Helpers] filesystem operation failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Shared Helpers] filesystem operation failed', error); return []; }
 }
 
 export async function listAnyFiles(dir: string): Promise<string[]> {
   try {
     return (await fs.readdir(dir)).map((file) => path.join(dir, file));
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Shared Helpers] filesystem operation failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Shared Helpers] filesystem operation failed', error); return []; }
 }
 
 export async function walkFiles(dir: string, limit: number): Promise<string[]> {
@@ -115,8 +113,7 @@ export async function walkFiles(dir: string, limit: number): Promise<string[]> {
     let entries: Array<{ name: string; isDirectory(): boolean; isFile(): boolean }>;
     try {
       entries = await fs.readdir(current, { withFileTypes: true }) as unknown as Array<{ name: string; isDirectory(): boolean; isFile(): boolean }>;
-    } catch (error: any) { const err = error; const e = error;
-      logger.warn('[Zavorth Cli Shared Helpers] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Cli Shared Helpers] filesystem operation failed', error);
       return;
     }
     for (const entry of entries) {

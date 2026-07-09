@@ -1,7 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * Test that corrupt metadata in retrieval doesn't throw (returns {} instead).
  * This validates the fix for the 500 error caused by JSON.parse on corrupt metadata.
  */
@@ -16,7 +14,7 @@ describe("Memory Retrieval - corrupt metadata handling", () => {
       const result = (() => {
         try {
           return JSON.parse(String(corrupt));
-        } catch (error: any) { const err = error; const e = error; logger.warn('[retrieval.test] JSON parse failed', error); return {}; }
+        } catch (error: unknown) {logger.warn('[retrieval.test] JSON parse failed', error); return {}; }
       })();
       expect(result).toEqual({});
     }

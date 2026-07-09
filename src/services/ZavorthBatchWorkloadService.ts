@@ -129,7 +129,7 @@ export class ZavorthBatchWorkloadService {
             startedAt,
             finishedAt: this.now().toISOString(),
           };
-        } catch (error: any) {
+        } catch (error: unknown) {
           results[index] = {
             ...item,
             status: 'failed',

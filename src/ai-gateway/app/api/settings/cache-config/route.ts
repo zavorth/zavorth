@@ -4,7 +4,6 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { z } from "zod";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
-
 const cacheConfigUpdateSchema = z.object({
   semanticCacheEnabled: z.boolean().optional(),
   semanticCacheMaxSize: z.number().positive().optional(),
@@ -46,7 +45,7 @@ export async function GET(request: NextRequest) {
       config[key] = settings[key] ?? DEFAULTS[key];
     }
     return NextResponse.json(config);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
@@ -60,8 +59,7 @@ export async function PUT(request: NextRequest) {
     let rawBody: unknown;
     try {
       rawBody = await request.json();
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+    } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
@@ -97,7 +95,7 @@ export async function PUT(request: NextRequest) {
 
     await updateSettings(updates);
     return NextResponse.json({ ok: true });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

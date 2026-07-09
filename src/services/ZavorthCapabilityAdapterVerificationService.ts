@@ -272,8 +272,8 @@ export class ZavorthCapabilityAdapterVerificationService {
           `${kind} artifact integrity checked.`,
           digest === item.sha256 ? 'sha256 matched' : 'sha256 mismatch; adapter draft may have been modified after generation.',
         );
-      } catch (error: any) {
-    logger.warn('[Zavorth Capability Adapter Verification] filesystem operation failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Zavorth Capability Adapter Verification] filesystem operation failed', error);
     return check(`eval.artifact.${kind}`, 'eval', 'blocked', `${kind} artifact path is unsafe.`, error instanceof Error ? error.message : String(error));
   }
     });
@@ -300,7 +300,7 @@ export class ZavorthCapabilityAdapterVerificationService {
         && policy.gates.canaryRequired === true
         && policy.gates.securityReviewRequired === true
         && policy.gates.ownerApprovalRequiredForActivation === true;
-    } catch (error: any) { logger.warn('[Zavorth Capability Adapter Verification] module import failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Zavorth Capability Adapter Verification] module import failed', error); return false; }
   }
 
   private rawSecretCheck(adapter: ZavorthCapabilityAdapterDraftRecord, adapterRoot: string): ZavorthCapabilityAdapterVerificationCheck {
@@ -312,8 +312,7 @@ export class ZavorthCapabilityAdapterVerificationService {
         if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
           contents.push(fs.readFileSync(filePath, 'utf8'));
         }
-      } catch (error: any) {
-        contents.push('unsafe-artifact-path');
+      } catch (error: unknown) {contents.push('unsafe-artifact-path');
       }
     }
     const serialized = contents.join('\n');
@@ -349,8 +348,7 @@ export class ZavorthCapabilityAdapterVerificationService {
         verifications: Array.isArray(parsed.verifications) ? parsed.verifications.map(normalizeVerification).filter(isVerification) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Capability Adapter Verification] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Capability Adapter Verification] parsing failed', error);
     return this.emptyStore();
   }
   }

@@ -126,7 +126,7 @@ export class ZavorthMnemosUnifiedMemoryService {
           body,
           hash: hash(body),
         }];
-      } catch (error: any) { logger.warn('[Zavorth Mnemos Unified Memory] operation failed', error); return []; }
+      } catch (error: unknown) {logger.warn('[Zavorth Mnemos Unified Memory] operation failed', error); return []; }
     });
   }
 

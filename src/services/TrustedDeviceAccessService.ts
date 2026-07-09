@@ -437,7 +437,7 @@ export class TrustedDeviceAccessService {
         devices: this.normalizeRecord(parsed.devices),
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.slice(-100) as TrustedDeviceReceipt[] : [],
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const detail = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to read trusted-device access state at ${this.stateFilePath}: ${detail}`);
     }
@@ -452,15 +452,13 @@ export class TrustedDeviceAccessService {
     });
     try {
       fs.chmodSync(tmpPath, 0o600);
-    } catch (error: any) {
-      // Some platforms ignore POSIX permissions; state still contains hashes, not raw secrets.
+    } catch (error: unknown) {// Some platforms ignore POSIX permissions; state still contains hashes, not raw secrets.
       logger.warn('[Trusted Device Access] filesystem operation failed', error);
     }
     fs.renameSync(tmpPath, this.stateFilePath);
     try {
       fs.chmodSync(this.stateFilePath, 0o600);
-    } catch (error: any) {
-      // Best-effort hardening for Windows and filesystems without chmod support.
+    } catch (error: unknown) {// Best-effort hardening for Windows and filesystems without chmod support.
       logger.warn('[Trusted Device Access] filesystem operation failed', error);
     }
   }

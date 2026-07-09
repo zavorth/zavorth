@@ -5,9 +5,7 @@ EchoCapabilityArtifactRecord,
   EchoCapabilityLifecycleRecord,
   EchoCapabilityPolicyRecord,
   EchoCapabilitySurfaceState,
-} from '../../../echo/types/EchoTypes.js';
-
-type ToolExecutionSurfaceProjection = {
+} from '../../../echo/types/EchoTypes.js';type ToolExecutionSurfaceProjection = {
   lifecycle: EchoCapabilityLifecycleRecord | null;
   artifact: EchoCapabilityArtifactRecord | null;
   policy: EchoCapabilityPolicyRecord | null;
@@ -59,7 +57,7 @@ export class EchoCapabilitySurfaceStateService {
     }
     try {
       return this.normalizeLifecycle(capableTool.getLifecycleSnapshot());
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Capability Surface State] module import failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Capability Surface State] module import failed', error); return null; }
   }
 
   private normalizeLifecycle(value: unknown): EchoCapabilityLifecycleRecord | null {

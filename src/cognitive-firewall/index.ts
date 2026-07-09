@@ -123,7 +123,7 @@ export class CognitiveFirewall {
           console.log(`[CognitiveFirewall] LLM upgraded classification: ${regexClassification.category} (${regexClassification.confidence}) → ${llmClassification.category} (${llmClassification.confidence})`);
           return this.buildDecision(llmClassification, allTools, evaluateOptions);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.warn('[CognitiveFirewall] LLM classification failed, using regex:', error);
       }
     }

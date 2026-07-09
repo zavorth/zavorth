@@ -3,7 +3,6 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { EventEmitter } from 'events';
 import { buildMcpChildEnv } from './McpClientManager.js';
-
 /**
  * Represents a registered external MCP server that the Zavorth can consume.
  * Think: GitHub MCP, SQLite MCP, Google Drive MCP, etc.
@@ -190,7 +189,7 @@ export class ZavorthMcpClient extends EventEmitter {
         content: (result.content || []) as McpToolCallResult['content'],
         isError: result.isError === true,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         serverId: entry.registration.id,
         toolName,

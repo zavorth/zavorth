@@ -4,10 +4,6 @@ import type {
   ZavorthProviderRouterMessage,
 } from '../../contracts/ZavorthProviderRouterContract.js';
 
-// ---------------------------------------------------------------------------
-// Heurísticas de estimativa de tokens por família de modelo
-// ---------------------------------------------------------------------------
-
 const MODEL_TOKEN_FACTORS: Array<{ pattern: RegExp; factor: number }> = [
   { pattern: /claude/i, factor: 3.8 },
   { pattern: /gpt-?4/i, factor: 3.5 },
@@ -28,10 +24,6 @@ const MIXED_CONTENT_THRESHOLD = 0.15;
 const RECENT_MESSAGES_TO_PRESERVE = 4;
 const SUMMARY_PREFIX = '[Resumo de contexto anterior] ';
 
-// ---------------------------------------------------------------------------
-// Detecção de conteúdo misto (não-ASCII)
-// ---------------------------------------------------------------------------
-
 function detectMixedContentRatio(text: string): number {
   if (text.length === 0) return 0;
   let nonAscii = 0;
@@ -51,10 +43,6 @@ function resolveTokenFactor(model?: string | null): { english: number; mixed: nu
   }
   return { english: DEFAULT_ENGLISH_FACTOR, mixed: DEFAULT_MIXED_FACTOR };
 }
-
-// ---------------------------------------------------------------------------
-// ZavorthContextBudgetService
-// ---------------------------------------------------------------------------
 
 export class ZavorthContextBudgetService {
   /**
@@ -245,10 +233,6 @@ export class ZavorthContextBudgetService {
       summarizedMessages,
     };
   }
-
-  // -------------------------------------------------------------------------
-  // Privado: resumo heurístico de mensagens antigas
-  // -------------------------------------------------------------------------
 
   private buildHeuristicSummary(
     messages: ZavorthProviderRouterMessage[],

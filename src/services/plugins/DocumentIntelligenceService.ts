@@ -75,7 +75,7 @@ export class DocumentIntelligenceService {
         default:
           return fs.readFileSync(filePath, 'utf-8');
       }
-    } catch (error: any) { logger.warn('[Document Intelligence] filesystem operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Document Intelligence] filesystem operation failed', error); return ''; }
   }
 
   public getMetadata(filePath: string): DocumentMetadata {
@@ -199,8 +199,7 @@ export class DocumentIntelligenceService {
       const { execFileSync } = require('child_process');
       const result = execFileSync('pdftotext', [filePath, '-'], { timeout: 30000 }).toString();
       return result;
-    } catch (error: any) {
-    logger.warn('[Document Intelligence] process execution failed', error);
+    } catch (error: unknown) {logger.warn('[Document Intelligence] process execution failed', error);
     return '[PDF extraction requires pdftotext]';
   }
   }
@@ -212,8 +211,7 @@ export class DocumentIntelligenceService {
       const matches = text.match(/<w:t[^>]*>([^<]+)<\/w:t>/g);
       if (matches) return matches.map((m: string) => m.replace(/<[^>]+>/g, '')).join(' ');
       return '[DOCX extraction failed]';
-    } catch (error: any) {
-    logger.warn('[Document Intelligence] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Document Intelligence] filesystem operation failed', error);
     return '[DOCX extraction error]';
   }
   }
@@ -319,8 +317,8 @@ export class DocumentIntelligenceService {
           }
           
           if (langCode && langCode.length === 2) return langCode;
-        } finally { try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Document Intelligence] file cleanup failed', error); } }
-      } catch (error: any) { continue; }
+        } finally { try { fs.unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Document Intelligence] file cleanup failed', error); } }
+      } catch (error: unknown) {continue; }
     }
 
     return null;

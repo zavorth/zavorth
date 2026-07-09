@@ -90,7 +90,7 @@ export class ZavorthVisionService extends BaseTool {
     try {
       const apiKey = process.env[provider.apiKeyEnv]!;
       return await callVisionProvider(provider, base64, mimeType, `${prompt} Detail level: ${detailLevel}`, apiKey);
-    } catch (error: any) { logger.warn('[Zavorth Vision] operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Vision] operation failed', error); return ''; }
   }
 
   private async ocrImage(args: Record<string, unknown>): Promise<string> {
@@ -104,7 +104,7 @@ export class ZavorthVisionService extends BaseTool {
         maxBuffer: 5 * 1024 * 1024,
       }).toString();
       return `OCR result:\n${result}`;
-    } catch (error: any) { logger.warn('[Zavorth Vision] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Vision] process execution failed', error); return ''; }
   }
 
   private async describeImage(args: Record<string, unknown>): Promise<string> {

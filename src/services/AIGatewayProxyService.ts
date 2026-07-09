@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import fs from 'fs';
 import http from 'http';
 import path from 'path';
@@ -128,8 +129,7 @@ export class AIGatewayProxyService {
           resolve();
         });
       });
-    } catch (error: any) {
-      server.removeAllListeners();
+    } catch (error: unknown) {server.removeAllListeners();
       this.server = null;
       const errObj = error && typeof error === 'object' ? error as { code?: string } : {};
       if (errObj.code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
@@ -164,7 +164,8 @@ export class AIGatewayProxyService {
     AIGatewayProxyService.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('Failed to close WebSocket client during gateway shutdown.', { err });
       }
     });
@@ -193,7 +194,8 @@ export class AIGatewayProxyService {
         ...fallback,
         ...parsed,
       };
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('Failed to read persisted gateway status; using fallback.', { err });
       return fallback;
     }
@@ -273,7 +275,7 @@ export class AIGatewayProxyService {
       res.end(bodyBuffer);
       const status = this.buildStatus(true, response.ok, 'AIGateway local gateway forwarded the upstream response.');
       this.writeStatus(status);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const status = this.buildStatus(true, false, `Failed to forward request to AIGateway upstream: ${errorMessage}`);
       this.writeStatus(status);
@@ -318,7 +320,8 @@ export class AIGatewayProxyService {
     let message: GatewayWebSocketMessage;
     try {
       message = JSON.parse(Buffer.isBuffer(raw) ? raw.toString('utf8') : raw.toString());
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('Received WebSocket message is not valid JSON.', { err });
       this.sendWebSocketJson(ws, { type: 'error', error: 'Expected JSON message.' });
       return;
@@ -357,7 +360,7 @@ export class AIGatewayProxyService {
         ok: response.ok,
         body,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.sendWebSocketJson(ws, {
         id,
         type: 'chat.completions.error',
@@ -385,7 +388,8 @@ export class AIGatewayProxyService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('Local gateway healthcheck failed.', { err });
       return false;
     }
@@ -403,7 +407,8 @@ export class AIGatewayProxyService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('Healthcheck do upstream falhou.', { err });
       return false;
     }
@@ -638,7 +643,8 @@ export class AIGatewayProxyService {
         return {};
       }
       return JSON.parse(fs.readFileSync(config.AIGatewayOverlayFile, 'utf8')) as GatewayOverlay;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('Failed to read gateway overlay; using default configuration.', { err });
       return {};
     }

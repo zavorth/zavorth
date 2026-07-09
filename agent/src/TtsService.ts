@@ -4,6 +4,12 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { t } from './i18n.js';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 const execAsync = promisify(exec);
 
@@ -35,13 +41,15 @@ export class TtsService {
   public async speak(text: string): Promise<string> {
     try {
       return await this.speakEdge(text);
-    } catch (error: any) {
-      console.error(t('tts_failed', { message: error.message }));
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      const message = String(err.message || 'Unexpected error');
+      console.error(t('tts_failed', { message }));
 
       try {
         return await this.speakSystemFallback(text);
       } catch {
-        throw new Error(`No TTS method available: ${error.message}`);
+        throw new Error(`No TTS method available: ${message}`);
       }
     }
   }

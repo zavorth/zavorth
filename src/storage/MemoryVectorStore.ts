@@ -73,11 +73,9 @@ export class MemoryVectorStore {
       `);
       try {
         this.db.exec('ALTER TABLE memory_chunks ADD COLUMN embedding_json TEXT');
-      } catch (error: any) {
-        // Existing databases may already contain the column.
+      } catch (error: unknown) {// Existing databases may already contain the column.
       }
-    } catch (error: any) {
-      // better-sqlite3 not available — use JSON file fallback
+    } catch (error: unknown) {// better-sqlite3 not available — use JSON file fallback
       this.initializeFallback();
     }
   }
@@ -266,8 +264,7 @@ export class MemoryVectorStore {
     try {
       const raw = fs.readFileSync(this.fallbackPath, 'utf8');
       return (JSON.parse(raw) as MemoryChunk[]).map((chunk) => this.normalizeChunk(chunk));
-    } catch (error: any) {
-      return [];
+    } catch (error: unknown) {return [];
     }
   }
 
@@ -291,8 +288,7 @@ export class MemoryVectorStore {
         ...chunk,
         embedding,
       });
-    } catch (error: any) {
-      return this.normalizeChunk(chunk);
+    } catch (error: unknown) {return this.normalizeChunk(chunk);
     }
   }
 
@@ -345,8 +341,7 @@ export class MemoryVectorStore {
       }
       const values = parsed.map((value) => Number(value)).filter((value) => Number.isFinite(value));
       return values.length > 0 ? values : null;
-    } catch (error: any) {
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 

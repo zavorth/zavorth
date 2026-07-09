@@ -2,8 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 const LEGACY_ZAVORTH_CONTROL_CANDIDATES = [
+  // Built shell (canonical runtime output)
+  path.join(process.cwd(), "src", "zavorth-control", "public", "zavorth-control-vite-shell", "index.html"),
   path.join(process.cwd(), "public", "zavorth-control-vite-shell", "index.html"),
   path.join(process.cwd(), "src", "ai-gateway", "public", "zavorth-control-vite-shell", "index.html"),
+  // Editable source (dev fallback)
   path.join(process.cwd(), "apps", "zavorth-control-vite-shell", "index.html"),
   path.join(process.cwd(), "..", "..", "apps", "zavorth-control-vite-shell", "index.html"),
 ];

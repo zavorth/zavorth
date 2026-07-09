@@ -451,7 +451,7 @@ class ZavorthFirstRunSetupWizard {
         spinner.stop('Live test completed with attention.');
       }
       return validation;
-    } catch (error) {
+    } catch (error: unknown) {
       spinner.stop('Live test failed.');
       throw error;
     }

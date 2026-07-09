@@ -5,6 +5,7 @@ import type {
   BootstrapSupervisor,
   BootstrapSurfaceRuntime,
 } from './bootstrapTypes.js';
+import { logger } from '../logger.js';
 
 export function registerShutdownHandlers(
   foundation: BootstrapFoundation,
@@ -65,7 +66,7 @@ export function registerShutdownHandlers(
   let shutdownInProgress = false;
   const guardedShutdown = async (signal: string) => {
     if (shutdownInProgress) {
-      console.log(`\n${signal} received again — forcing exit.`);
+      logger.info(`\n${signal} received again — forcing exit.`);
       process.exit(1);
     }
     shutdownInProgress = true;

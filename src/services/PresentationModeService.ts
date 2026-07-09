@@ -63,8 +63,7 @@ export class PresentationModeService {
         updatedBy: parsed.updatedBy || null,
         note: parsed.note || null,
       };
-    } catch (error: any) {
-    logger.warn('[Presentation Mode] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Presentation Mode] JSON parse failed', error);
     return {
         enabled: false,
         updatedAt: null,
@@ -78,8 +77,7 @@ export class PresentationModeService {
     try {
       fs.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       fs.writeFileSync(this.stateFile, JSON.stringify(this.snapshot, null, 2), 'utf8');
-    } catch (error: any) {
-      // Keep in-memory state even if persistence fails.
+    } catch (error: unknown) {// Keep in-memory state even if persistence fails.
       logger.warn('[Presentation Mode] filesystem operation failed', error);
     }
   }

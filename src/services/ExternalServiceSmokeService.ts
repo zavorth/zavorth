@@ -158,7 +158,7 @@ export class ExternalServiceSmokeService {
         durationMs: Math.max(0, finished.getTime() - started.getTime()),
         output: String(output || '').trim(),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const finished = this.now();
       return {
         label,

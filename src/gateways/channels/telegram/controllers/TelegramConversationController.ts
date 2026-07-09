@@ -32,7 +32,6 @@ import { wrapUntrustedContent } from '@zavorth/security/UntrustedContent.js';
 import type { ExperienceCoreService } from '@zavorth/services/experience/ExperienceCoreService.js';
 import type { ChatMessage } from '@zavorth/providers/ILlmProvider.js';
 import type { TaskManagerLike, PermissionServiceLike } from '@zavorth/services/GatewaySessionService.js';
-
 type InlineData = Array<{ mimeType: string; data: string }>;
 type TelegramAgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
 type TelegramExperienceCore = Pick<ExperienceCoreService, 'buildHome' | 'executeCommand'>;
@@ -279,7 +278,7 @@ export class TelegramConversationController {
           chatId,
         });
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error || 'unknown error');
       const failureMessage = `I could not answer this right now.\n\nReason: ${message}`;
       await ctx.reply(failureMessage);

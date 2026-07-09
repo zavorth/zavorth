@@ -16,9 +16,7 @@ import {
   type NaturalRecentTaskFollowupIntent,
   type NaturalTaskApprovalIntent,
   type NaturalTaskControlIntent,
-} from './SharedSurfaceTaskNaturalLanguage.js';
-
-type TaskApprovalController = {
+} from './SharedSurfaceTaskNaturalLanguage.js';type TaskApprovalController = {
   handleApproval: (ctx: SurfaceControllerContext, args: string) => Promise<void>;
   handleRejection: (ctx: SurfaceControllerContext, taskId: string) => Promise<void>;
 };
@@ -112,8 +110,7 @@ export class SharedSurfaceTaskControlCommandPack {
 
     try {
       await this.deps.taskApprovalController.handleApproval(surfaceCtx, args);
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(
+    } catch (error: unknown) {await ctx.reply(
         `Nao consegui aprovar essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
       );
     }
@@ -142,8 +139,7 @@ export class SharedSurfaceTaskControlCommandPack {
 
     try {
       await this.deps.taskApprovalController.handleRejection(surfaceCtx, taskId);
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(
+    } catch (error: unknown) {await ctx.reply(
         `Nao consegui rejeitar essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
       );
     }
@@ -177,8 +173,7 @@ export class SharedSurfaceTaskControlCommandPack {
 
     try {
       await this.deps.taskExecutionController.handleUndo(surfaceCtx, task.task_id);
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(
+    } catch (error: unknown) {await ctx.reply(
         `Nao consegui desfazer essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
       );
     }

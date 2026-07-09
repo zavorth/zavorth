@@ -16,7 +16,7 @@ export function useControlPageClient() {
   const loadControlState = async () => {
     const [gatewayControl, resilience] = await Promise.all([
       fetchJson("/api/gateway-control"),
-      fetchJson("/api/gateway-control/resilience").catch((error: any) => ({
+      fetchJson("/api/gateway-control/resilience").catch((error: unknown) => ({
         ok: false,
         error: error?.message || "Falha ao carregar a resiliencia do gateway.",
       })),
@@ -28,7 +28,7 @@ export function useControlPageClient() {
   const reloadGatewayControl = async () => {
     const [gatewayControl, resilience] = await Promise.all([
       fetchJson("/api/gateway-control"),
-      fetchJson("/api/gateway-control/resilience").catch((error: any) => ({
+      fetchJson("/api/gateway-control/resilience").catch((error: unknown) => ({
         ok: false,
         error: error?.message || "Falha ao carregar a resiliencia do gateway.",
       })),

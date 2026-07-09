@@ -75,7 +75,7 @@ export class ZavorthMnemosCompilerService {
     try {
       const parsed = JSON.parse(String(this.fsRuntime.readFileSync(filePath, 'utf8') || '{}'));
       return Array.isArray(parsed?.events) ? parsed.events as MnemosSessionEvent[] : [];
-    } catch (error: any) { logger.warn('[Zavorth Mnemos Compiler] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Mnemos Compiler] JSON parse failed', error); return []; }
   }
 
   public clearEvents(workspaceRoot: string): void {

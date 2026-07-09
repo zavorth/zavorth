@@ -184,8 +184,8 @@ export class WebExtractService {
         processedAt,
         error: null,
       };
-    } catch (error: any) {
-    logger.warn('[Web Extract] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Web Extract] operation failed', error);
     return this.errorResult(
         mode,
         target,

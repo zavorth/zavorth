@@ -2,6 +2,7 @@ import { Task } from '../contracts/TaskContract.js';
 import { UniversalPlanner } from './UniversalPlanner.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { Plan } from '../contracts/PlanContract.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export class FallbackRouter {
   public static async planWithRedundancy(task: Task, logRepo: LogRepository): Promise<Plan> {
@@ -11,7 +12,8 @@ export class FallbackRouter {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         return await planner.generatePlan(task);
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logRepo.log(
           'warn',
           'FallbackRouter',

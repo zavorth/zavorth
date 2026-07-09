@@ -9,9 +9,7 @@ import type {
   WebExtractLiveAdapterInput,
   WebExtractLiveAdapterOutput,
   IWebExtractLiveAdapter,
-} from '../../services/WebExtractService.js';
-
-type FetchRuntime = {
+} from '../../services/WebExtractService.js';type FetchRuntime = {
   fetchImpl?: typeof fetch;
 };
 
@@ -428,8 +426,7 @@ export class BrowserCaptureWebExtractLiveAdapter implements IWebExtractLiveAdapt
 async function readJson(response: Response): Promise<unknown> {
   try {
     return await response.json();
-  } catch (error: any) { const err = error; const e = error;
-    return null;
+  } catch (error: unknown) {return null;
   }
 }
 
@@ -499,8 +496,7 @@ function extractLinks(html: string, baseUrl: string): string[] {
     .map((match) => {
       try {
         return new URL(match[1] || '', baseUrl).toString();
-      } catch (error: any) { const err = error; const e = error;
-        return '';
+      } catch (error: unknown) {return '';
       }
     })
     .filter(Boolean)

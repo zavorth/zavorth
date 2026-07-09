@@ -1,7 +1,5 @@
 import * as fs from 'fs';
-import * as path from 'path';
-
-import { DEFAULT_LOCALE } from './types.js';
+import * as path from 'path';import { DEFAULT_LOCALE } from './types.js';
 import { normalizeLocale } from './localeDetector.js';
 
 export type Locale = string;
@@ -63,8 +61,7 @@ export class I18nManager {
           }
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      // directory may not exist yet
+    } catch (error: unknown) {// directory may not exist yet
     }
     return Array.from(new Set(locales)).sort();
   }
@@ -128,8 +125,7 @@ export class I18nManager {
           : {}),
       });
       return formatter.format(number);
-    } catch (error: any) { const err = error; const e = error;
-      return String(number);
+    } catch (error: unknown) {return String(number);
     }
   }
 
@@ -194,13 +190,11 @@ export class I18nManager {
             const parsed = JSON.parse(content) as TranslationDict;
             if (!merged[ns]) merged[ns] = {};
             this.deepMerge(merged[ns] as TranslationDict, parsed);
-          } catch (error: any) { const err = error; const e = error;
-            // skip corrupt files
+          } catch (error: unknown) {// skip corrupt files
           }
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      // directory may not exist
+    } catch (error: unknown) {// directory may not exist
     }
 
     return merged;
@@ -299,8 +293,7 @@ export class I18nManager {
         ) {
           return parsed as PluralForms;
         }
-      } catch (error: any) { const err = error; const e = error;
-        // not JSON
+      } catch (error: unknown) {// not JSON
       }
     }
 
@@ -331,8 +324,7 @@ export class I18nManager {
         month: '2-digit',
         day: '2-digit',
       }).format(date);
-    } catch (error: any) { const err = error; const e = error;
-      return date.toISOString().slice(0, 10);
+    } catch (error: unknown) {return date.toISOString().slice(0, 10);
     }
   }
 
@@ -344,8 +336,7 @@ export class I18nManager {
         day: 'numeric',
         weekday: 'long',
       }).format(date);
-    } catch (error: any) { const err = error; const e = error;
-      return date.toLocaleDateString();
+    } catch (error: unknown) {return date.toLocaleDateString();
     }
   }
 
@@ -412,15 +403,13 @@ export class I18nManager {
                 const content = fs.readFileSync(path.join(localeDir, file), 'utf-8');
                 const parsed = JSON.parse(content) as TranslationDict;
                 this.loadTranslations(entry.name, { [ns]: parsed });
-              } catch (error: any) { const err = error; const e = error;
-                // skip corrupt files
+              } catch (error: unknown) {// skip corrupt files
               }
             }
           }
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      // directory may not exist
+    } catch (error: unknown) {// directory may not exist
     }
   }
 

@@ -11,9 +11,7 @@ import { getProviderConnections } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { translatorTranslateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-type JsonRecord = Record<string, unknown>;
+import { logger } from '@/shared/utils/logger';type JsonRecord = Record<string, unknown>;
 
 function asJsonRecord(value: unknown): JsonRecord {
   if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -52,8 +50,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] connection failed', error);
+  } catch (error: unknown) {logger.warn('[route] connection failed', error);
     return NextResponse.json(
       {
         success: false,
@@ -215,8 +212,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ success: true, result });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error translating:", error);
+  } catch (error: unknown) {console.error("Error translating:", error);
     return NextResponse.json(
       { success: false, error: "Failed to translate request" },
       { status: 500 }

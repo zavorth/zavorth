@@ -10,9 +10,7 @@ import { createProxyRegistrySchema, updateProxyRegistrySchema } from "@/shared/v
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/errorResponse";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';
-
-export async function GET(request: Request) {
+import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -36,8 +34,7 @@ export async function GET(request: Request) {
 
     const proxies = await listProxies({ includeSecrets: false });
     return Response.json({ items: proxies, total: proxies.length });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] creation failed', error);
+  } catch (error: unknown) {logger.warn('[route] creation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to load proxies");
   }
 }
@@ -49,8 +46,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] load operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] load operation failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -71,8 +67,7 @@ export async function POST(request: Request) {
 
     const created = await createProxy(validation.data);
     return Response.json(created, { status: 201 });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to create proxy");
   }
 }
@@ -84,8 +79,7 @@ export async function PATCH(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return createErrorResponse({
       status: 400,
       message: "Invalid JSON body",
@@ -111,8 +105,7 @@ export async function PATCH(request: Request) {
     }
 
     return Response.json(updated);
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to update proxy");
   }
 }
@@ -140,8 +133,7 @@ export async function DELETE(request: Request) {
     }
 
     return Response.json({ success: true });
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] delete operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] delete operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to delete proxy");
   }
 }

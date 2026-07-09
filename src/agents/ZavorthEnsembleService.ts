@@ -21,6 +21,7 @@ import {
 } from '../runtime/agent/subagents/index.js';
 import { CanonicalExecutionPipelineService } from '@zavorth/services/CanonicalExecutionPipelineService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export const ZAVORTH_ENSEMBLE_OFFICIAL_CONTRACT_VERSION = '2026-05-17.official-zavorth-ensemble' as const;
 
@@ -1334,7 +1335,7 @@ export class ZavorthEnsembleService {
         },
       } satisfies LlmRuntimeChatOptions);
       return response.content?.trim() || deterministic;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
         error: this.getErrorMessage(error).slice(0, 240),
       });
@@ -1407,7 +1408,7 @@ export class ZavorthEnsembleService {
         availableRoleCount: input.library.length,
         rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
       };
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Ensemble] parsing failed', error); return fallback; }
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Zavorth Ensemble] parsing failed', error); return fallback; }
   }
 
   private resolveSyncRoleSelection(input: {
@@ -1519,12 +1520,12 @@ export class ZavorthEnsembleService {
     if (!text) return null;
     try {
       return JSON.parse(text);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       const match = text.match(/\{[\s\S]*\}/);
       if (!match) return null;
       try {
         return JSON.parse(match[0]);
-      } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Ensemble] JSON parse failed', error); return null; }
+      } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Zavorth Ensemble] JSON parse failed', error); return null; }
     }
   }
 
@@ -1677,7 +1678,7 @@ export class ZavorthEnsembleService {
       if (Array.isArray(parsed)) {
         return parsed.map((entry: unknown) => this.normalizeRoleLibraryEntry(entry as Record<string, unknown>)).filter(Boolean) as ZavorthEnsembleRoleLibraryEntry[];
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // fall through to defaults
       logger.warn('[Zavorth Ensemble] JSON parse failed', error);
     }

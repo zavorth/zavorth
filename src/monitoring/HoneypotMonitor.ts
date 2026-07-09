@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { SecurityLockService } from '../services/SecurityLockService.js';
-
 /**
  * HoneypotMonitor - creates and watches canary decoy files.
  *
@@ -74,8 +73,7 @@ export class HoneypotMonitor {
       });
 
       console.log('Honeypot armed at:', this.honeyPath);
-    } catch (error: any) { const err = error; const e = error;
-      console.error('Failed to start honeypot:', error);
+    } catch (error: unknown) {console.error('Failed to start honeypot:', error);
     }
   }
 
@@ -99,8 +97,7 @@ export class HoneypotMonitor {
     try {
       fs.writeFileSync(this.honeyPath, decoyContent, 'utf-8');
       this.lastSelfWriteAt = Date.now();
-    } catch (error: any) { const err = error; const e = error;
-      console.error('Failed to write honeypot decoy:', error);
+    } catch (error: unknown) {console.error('Failed to write honeypot decoy:', error);
     }
   }
 
@@ -137,7 +134,7 @@ export class HoneypotMonitor {
 
       await this.botAlertCallback(alertMessage);
       console.warn('Honeypot: canary file access detected (alert only, no lock).');
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       console.error('Failed to process honeypot alert:', error.message);
     }
   }

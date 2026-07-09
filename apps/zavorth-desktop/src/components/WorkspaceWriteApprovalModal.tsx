@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { loadWorkspaceWriteApprovalPayload } from '../apiClient';
+import { errorMessage } from '../lib/errors';
 
 interface WorkspaceWriteApprovalModalProps {
   approvals: Array<{
@@ -51,8 +52,8 @@ export function WorkspaceWriteApprovalModal({
           workspacePath || undefined
         );
         setPayload(res.data || res);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load proposed content payload.');
+      } catch (err: unknown) {
+        setError(errorMessage(err, 'Failed to load proposed content payload.'));
       } finally {
         setLoading(false);
       }
@@ -86,8 +87,8 @@ export function WorkspaceWriteApprovalModal({
     setLoading(true);
     try {
       await onResolve(activeApproval.operationId, decision);
-    } catch (err: any) {
-      setError(err.message || 'Failed to resolve write approval.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to resolve write approval.'));
     } finally {
       setLoading(false);
     }

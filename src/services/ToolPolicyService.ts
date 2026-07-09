@@ -114,7 +114,7 @@ export class ToolPolicyService {
     try {
       const raw = String(this.fs.readFileSync(permPath, 'utf8') || '{}');
       perms = JSON.parse(raw);
-    } catch (error: any) { logger.warn('[ToolPolicyService] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[ToolPolicyService] JSON parse failed', error); return []; }
     const entries: ZavorthToolPolicyEntry[] = [];
     for (const [key, value] of Object.entries(perms)) {
       const action = key as ZavorthToolPolicyAction;
@@ -178,7 +178,7 @@ export class ToolPolicyService {
     try {
       if (!this.fs.existsSync(filePath)) return fallback;
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch (error: any) { logger.warn('[ToolPolicyService] filesystem operation failed', error); return fallback; }
+    } catch (error: unknown) {logger.warn('[ToolPolicyService] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

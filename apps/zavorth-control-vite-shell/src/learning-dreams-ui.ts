@@ -210,7 +210,7 @@ async function loadLearning(root: HTMLElement) {
       unwrap<LearningPayload>(learningPayload),
       memoryPayload ? unwrap<MemoryStatusPayload>(memoryPayload) : undefined,
     );
-  } catch (error) {
+  } catch (error: unknown) {
     const status = Number((error as any)?.status || 0);
     if (status === 401 || status === 403) {
       renderLearningError(root, error);
@@ -244,7 +244,7 @@ async function executeLearningAction(root: HTMLElement, candidateId: string, act
     });
     window.emitSignal?.('info', 'Learning updated', actionId === 'reject' ? 'The candidate was forgotten.' : 'The candidate was reviewed.');
     await loadLearning(root);
-  } catch (error) {
+  } catch (error: unknown) {
     window.emitSignal?.('error', 'Learning action failed', String((error as Error)?.message || 'Try again.'));
     if (button) button.disabled = false;
   }

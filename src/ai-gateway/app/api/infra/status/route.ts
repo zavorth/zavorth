@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { isDraining, getActiveRequestCount, STARTUP_EPOCH } from "@/lib/gracefulShutdown";
-
 export async function GET() {
   try {
     return NextResponse.json({
@@ -8,7 +7,7 @@ export async function GET() {
       activeRequests: getActiveRequestCount(),
       epoch: STARTUP_EPOCH,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.error("[Status API] Error handling request:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

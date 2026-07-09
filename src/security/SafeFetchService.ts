@@ -1,7 +1,6 @@
 import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
 import { decideSecurityPolicy, formatSecurityPolicyReceipt } from './SecurityPolicyBroker.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
-
 interface ReadableStreamLike {
   getReader(): ReadableStreamDefaultReader<Uint8Array>;
 }
@@ -88,8 +87,7 @@ async function assertSafeHttpTargetAllowed(
     let parsed: URL;
     try {
       parsed = new URL(rawUrl);
-    } catch (error: any) { const err = error; const e = error;
-      const decision = decideSecurityPolicy({
+    } catch (error: unknown) {const decision = decideSecurityPolicy({
         surface: 'web-fetch',
         operation: 'parse_url',
         target: rawUrl,
@@ -135,7 +133,7 @@ async function assertSafeHttpTargetAllowed(
       reasons: [`${serviceName} target passed DNS/IP egress policy.`],
     });
     return parsed;
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     const decision = decideSecurityPolicy({
       surface: 'web-fetch',

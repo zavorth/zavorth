@@ -6,9 +6,7 @@ import type { SessionHandoffSnapshot } from '../../../../services/SessionHandoff
 import type { WorkflowRunSnapshot } from '../../../../services/WorkflowRunService.js';
 import type { Task } from '../../../../contracts/TaskContract.js';
 import type { SystemOverlordActionRecord } from '../../../../contracts/core/SystemOverlordContract.js';
-import { logger } from '../../../../logger';
-
-type SessionContinuityLike = {
+import { logger } from '../../../../logger';type SessionContinuityLike = {
   buildSnapshot: (sessionId: string, chatId: string, userId: string) => SessionContinuitySnapshot;
 };
 
@@ -249,14 +247,14 @@ export class ZavorthControlOperationalSnapshotService {
     try {
       const tasks = deps.taskManager?.getRecentTasks?.(50, deps.continuityUserId);
       return Array.isArray(tasks) ? tasks : [];
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
   }
 
   private safeReadHostActions(deps: ZavorthControlOperationalSnapshotDeps): SystemOverlordActionRecord[] {
     try {
       const actions = deps.hostActions?.listActions?.(50);
       return Array.isArray(actions) ? actions : [];
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
   }
 
   private readTaskId(task: unknown): string | null {

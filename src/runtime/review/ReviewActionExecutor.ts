@@ -16,7 +16,6 @@ import type {
   GovernedReviewRequestedActions,
   GovernedReviewResult,
 } from './GovernedReviewTypes.js';
-
 export type GovernedReviewActionExecution = {
   execution: GovernedReviewExecutionSummary;
   receipts: GovernedReviewReceipt[];
@@ -162,7 +161,7 @@ export class ReviewActionExecutor {
           },
         }),
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         liveAgentSnapshot: {
           status: 'failed',
@@ -533,7 +532,6 @@ function parseJsonObject(value: string): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value);
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-  } catch (error: any) { const err = error; const e = error;
-    return {};
+  } catch (error: unknown) {return {};
   }
 }

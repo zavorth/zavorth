@@ -6,9 +6,7 @@ import {
   type WorkspaceHint,
 } from '../../src/services/ZavorthFirstBootDetectionService.js';
 
-// ---------------------------------------------------------------------------
 // Helpers
-// ---------------------------------------------------------------------------
 
 function emptyEnv(): Record<string, string | undefined> {
   return {};
@@ -54,9 +52,7 @@ function fakeDoctorThrows() {
   };
 }
 
-// ---------------------------------------------------------------------------
 // detect() status tests
-// ---------------------------------------------------------------------------
 
 describe('ZavorthFirstBootDetectionService', () => {
   describe('detect()', () => {
@@ -218,9 +214,7 @@ describe('ZavorthFirstBootDetectionService', () => {
     });
   });
 
-  // -------------------------------------------------------------------------
   // API key masking
-  // -------------------------------------------------------------------------
 
   describe('API key masking', () => {
     it('masks API keys showing only last 4 chars', () => {
@@ -280,9 +274,7 @@ describe('ZavorthFirstBootDetectionService', () => {
     });
   });
 
-  // -------------------------------------------------------------------------
   // detectWorkspace()
-  // -------------------------------------------------------------------------
 
   describe('detectWorkspace()', () => {
     it('returns nodejs when package.json exists', () => {
@@ -401,9 +393,7 @@ describe('ZavorthFirstBootDetectionService', () => {
     });
   });
 
-  // -------------------------------------------------------------------------
   // WorkspaceHint readOnly invariant
-  // -------------------------------------------------------------------------
 
   describe('WorkspaceHint readOnly invariant', () => {
     const cases: Array<{ files: string[]; expectedType: WorkspaceHint['type'] }> = [
@@ -431,9 +421,7 @@ describe('ZavorthFirstBootDetectionService', () => {
     }
   });
 
-  // -------------------------------------------------------------------------
   // Env-var → provider type mapping
-  // -------------------------------------------------------------------------
 
   describe('env var to provider type mapping', () => {
     const mappings: Array<{ envVar: string; expectedType: string; expectedId: string }> = [
@@ -465,9 +453,7 @@ describe('ZavorthFirstBootDetectionService', () => {
     }
   });
 
-  // -------------------------------------------------------------------------
   // Snapshot shape
-  // -------------------------------------------------------------------------
 
   describe('snapshot shape', () => {
     it('includes all required fields', () => {

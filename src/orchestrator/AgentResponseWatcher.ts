@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { LogRepository } from '../storage/LogRepository.js';
 import { config } from '../config/index.js';
-
 type BroadcastClient = {
   broadcast(message: string): Promise<void>;
 };
@@ -30,7 +29,7 @@ export class AgentResponseWatcher {
       this.processing = true;
       try {
         await this.processPendingResponses();
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         this.logRepo.log('error', 'AgentResponseWatcher', error.message);
       } finally {
         this.processing = false;

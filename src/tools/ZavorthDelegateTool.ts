@@ -105,8 +105,8 @@ export class ZavorthDelegateTool extends BaseTool {
         case 'cancel_batch': return this.cancelBatch(args);
       }
       return 'Internal error.';
-    } catch (error: any) {
-    logger.warn('[Zavorth Delegate] filesystem check failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Delegate] filesystem check failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Delegate error: ${message}`;
   }
@@ -169,7 +169,7 @@ export class ZavorthDelegateTool extends BaseTool {
 
     let context: Record<string, unknown> = {};
     if (typeof args.context === 'string') {
-      try { context = JSON.parse(args.context); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Delegate] JSON parse failed', error); }
+      try { context = JSON.parse(args.context); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Delegate] JSON parse failed', error); }
     } else if (typeof args.context === 'object' && args.context !== null) {
       context = args.context as Record<string, unknown>;
     }
@@ -223,7 +223,7 @@ export class ZavorthDelegateTool extends BaseTool {
     let tasks: Array<{ task_description: string; role?: string; context?: Record<string, unknown> }>;
     try {
       tasks = JSON.parse(tasksJson);
-    } catch (error: any) { logger.warn('[Zavorth Delegate] JSON parse failed', error); return 'Error: invalid JSON for "tasks".'; }
+    } catch (error: unknown) {logger.warn('[Zavorth Delegate] JSON parse failed', error); return 'Error: invalid JSON for "tasks".'; }
 
     if (!Array.isArray(tasks) || tasks.length === 0) {
       return 'Error: "tasks" must be a non-empty array.';

@@ -2,9 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { randomBytes } from 'node:crypto';
-import { logger } from '../logger.js';
-
-export type ApprovalSigningKeyResolution = {
+import { logger } from '../logger.js';export type ApprovalSigningKeyResolution = {
   key: string;
   source: 'env' | 'local-file';
   envVar: string | null;
@@ -218,14 +216,12 @@ function writeGeneratedKey(filePath: string, key: string): void {
   fs.mkdirSync(path.dirname(filePath), { recursive: true, mode: 0o700 });
   try {
     fs.chmodSync(path.dirname(filePath), 0o700);
-  } catch (error: any) { const err = error; const e = error;
-      // Best effort on Windows and restricted filesystems.
+  } catch (error: unknown) {// Best effort on Windows and restricted filesystems.
       logger.warn('[Approval Signing Key] filesystem operation failed', error);
     }
   try {
     fs.writeFileSync(filePath, `${key}\n`, { encoding: 'utf8', flag: 'wx', mode: 0o600 });
-  } catch (error: any) { const err = error; const e = error;
-    if (error?.code === 'EEXIST') {
+  } catch (error: unknown) {if (error?.code === 'EEXIST') {
       const existing = readExistingGeneratedKey(filePath);
       if (existing) {
         return;
@@ -235,8 +231,7 @@ function writeGeneratedKey(filePath: string, key: string): void {
   }
   try {
     fs.chmodSync(filePath, 0o600);
-  } catch (error: any) { const err = error; const e = error;
-      // Best effort on Windows and restricted filesystems.
+  } catch (error: unknown) {// Best effort on Windows and restricted filesystems.
       logger.warn('[Approval Signing Key] filesystem operation failed', error);
     }
 }
@@ -245,8 +240,7 @@ function archiveInvalidKeyFile(filePath: string): void {
   const archivePath = `${filePath}.invalid-${Date.now()}`;
   try {
     fs.renameSync(filePath, archivePath);
-  } catch (error: any) { const err = error; const e = error;
-    fs.rmSync(filePath, { force: true });
+  } catch (error: unknown) {fs.rmSync(filePath, { force: true });
   }
 }
 

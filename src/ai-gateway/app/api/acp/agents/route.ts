@@ -10,9 +10,7 @@ import { getSettings, updateSettings } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { jsonObjectSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-export async function GET(request: Request) {
+import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -37,8 +35,7 @@ export async function GET(request: Request) {
         custom: agents.filter((a) => a.isCustom).length,
       },
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error detecting agents:", error);
+  } catch (error: unknown) {console.error("Error detecting agents:", error);
     return NextResponse.json({ error: "Failed to detect agents" }, { status: 500 });
   }
 }
@@ -50,8 +47,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
@@ -106,8 +102,7 @@ export async function POST(request: Request) {
     // Refresh cache to detect the new agent
     const agents = refreshAgentCache();
     return NextResponse.json({ agents, added: newAgent });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error adding custom agent:", error);
+  } catch (error: unknown) {console.error("Error adding custom agent:", error);
     return NextResponse.json({ error: "Failed to add agent" }, { status: 500 });
   }
 }
@@ -140,8 +135,7 @@ export async function DELETE(request: Request) {
     const agents = refreshAgentCache();
 
     return NextResponse.json({ agents, removed: agentId });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error removing custom agent:", error);
+  } catch (error: unknown) {console.error("Error removing custom agent:", error);
     return NextResponse.json({ error: "Failed to remove agent" }, { status: 500 });
   }
 }

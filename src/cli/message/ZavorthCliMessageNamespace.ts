@@ -19,9 +19,7 @@ import {
   isInside,
   ensureDir,
   sha256
-} from '../ZavorthCliSharedHelpers.js';
-
-import { logger } from '../../logger.js';
+} from '../ZavorthCliSharedHelpers.js';import { logger } from '../../logger.js';
 import {
 type ChannelAdapterMode,
   type ChannelAdapter,
@@ -46,7 +44,7 @@ function redactUrl(value: string): string {
     if (url.searchParams.has('api_key')) url.searchParams.set('api_key', '***');
     if (url.searchParams.has('token')) url.searchParams.set('token', '***');
     return url.toString();
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Message Namespace] search failed', error); return value; }
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Message Namespace] search failed', error); return value; }
 }
 
 function redactMessageRecord(value: unknown): JsonObject {
@@ -127,8 +125,7 @@ async function resolveAttachments(files: string[]): Promise<Array<{ file: string
       const hashVal = sha256(content);
       const contentBase64 = stats.size < 5 * 1024 * 1024 ? content.toString('base64') : undefined;
       results.push({ file, bytes: stats.size, sha256: hashVal, contentBase64 });
-    } catch (error: any) { const err = error; const e = error;
-      // Ignore file read errors for optional attachments.
+    } catch (error: unknown) {// Ignore file read errors for optional attachments.
       logger.warn('[Zavorth Cli Message Namespace] filesystem operation failed', error);
     }
   }

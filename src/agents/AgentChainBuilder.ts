@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../logger.js';
 import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';
 import type { ZavorthExternalAgentGatewayReceipt } from '../contracts/external/ZavorthExternalAgentGatewayContract.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export type AgentChainStepKind = 'agent' | 'local' | 'transform';
 
@@ -356,7 +357,7 @@ export class AgentChainBuilder {
 
         this.log.info(`[AgentChain] Step "${stepConfig.id}" completed (${stepResult.durationMs}ms)`);
         return true;
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) { const err = asErrorLike(error); const e = err;
         lastError = error instanceof Error ? error.message : String(error);
         stepResult.error = lastError;
         stepResult.finishedAt = this.now().toISOString();
@@ -386,7 +387,7 @@ export class AgentChainBuilder {
 
             this.log.info(`[AgentChain] Step "${stepConfig.id}" completed via fallback "${stepConfig.fallback}" (${stepResult.durationMs}ms)`);
             return true;
-          } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
+          } catch ($1: unknown) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
             const fallbackErrorMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
             this.log.error(`[AgentChain] Fallback "${stepConfig.fallback}" also failed: ${fallbackErrorMsg}`);
             stepResult.status = 'failed';

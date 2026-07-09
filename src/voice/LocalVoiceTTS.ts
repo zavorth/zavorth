@@ -147,9 +147,7 @@ export class LocalVoiceTTS {
     return [];
   }
 
-  // ---------------------------------------------------------------------------
   // Private helpers
-  // ---------------------------------------------------------------------------
 
   private detectTool(): string | null {
     if (this.platform === 'darwin') {

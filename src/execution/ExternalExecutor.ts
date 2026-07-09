@@ -3,9 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config/index.js';
 import { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionContract.js';
 import { IExecutor } from '../contracts/IExecutor.js';
-import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
-
-type ExternalExecutorTransport = 'wsl' | 'direct';
+import { WorkspaceResolver } from '../security/WorkspaceResolver.js';type ExternalExecutorTransport = 'wsl' | 'direct';
 
 type ExternalExecutorSettings = {
   cliPath: string;
@@ -252,8 +250,7 @@ export class ExternalExecutor implements IExecutor {
           };
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      const executionError = this.normalizeProcessError(error);
+    } catch (error: unknown) {const executionError = this.normalizeProcessError(error);
       result.success = false;
       result.stdout = this.cleanOutput(executionError.stdout) || null;
       result.stderr = this.cleanOutput(executionError.stderr) || this.cleanOutput(executionError.message) || null;
@@ -281,8 +278,7 @@ export class ExternalExecutor implements IExecutor {
       }
 
       return true;
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 
@@ -493,8 +489,7 @@ export class ExternalExecutor implements IExecutor {
         ok: combined.includes('RPC probe: ok'),
         detail: combined || 'gateway_status_empty',
       };
-    } catch (error: any) { const err = error; const e = error;
-      const executionError = this.normalizeProcessError(error);
+    } catch (error: unknown) {const executionError = this.normalizeProcessError(error);
       return {
         ok: false,
         detail:
@@ -527,8 +522,7 @@ export class ExternalExecutor implements IExecutor {
         }
       }
       return false;
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 
@@ -556,8 +550,7 @@ export class ExternalExecutor implements IExecutor {
     try {
       const result = await runOnce();
       return { ...result, recoveredGateway: false };
-    } catch (error: any) { const err = error; const e = error;
-      if (!this.shouldRecoverGateway(error)) {
+    } catch (error: unknown) {if (!this.shouldRecoverGateway(error)) {
         throw error;
       }
 
@@ -689,8 +682,7 @@ export class ExternalExecutor implements IExecutor {
         this.resolvedWslDistro = name;
         return name;
       }
-    } catch (error: any) { const err = error; const e = error;
-      this.resolvedWslDistro = null;
+    } catch (error: unknown) {this.resolvedWslDistro = null;
       return undefined;
     }
 

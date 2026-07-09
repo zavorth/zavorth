@@ -1,4 +1,5 @@
 import { GatewayEventBus } from '../events/GatewayEventBus';
+import { logger } from '../../logger.js';
 
 export type GatewayState = 'uninitialized' | 'core_ready' | 'surface_ready' | 'channel_ready' | 'error' | 'shutdown';
 
@@ -26,6 +27,6 @@ export class GatewayLifecycle {
       await this.eventBus.emit({ type: 'gateway_ready', uptime: this.getUptime() });
     }
 
-    console.log(`[GatewayLifecycle] Status transition: ${oldState} -> ${newState}`);
+    logger.info(`[GatewayLifecycle] Status transition: ${oldState} -> ${newState}`);
   }
 }

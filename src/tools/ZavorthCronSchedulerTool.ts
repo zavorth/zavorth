@@ -106,8 +106,8 @@ export class ZavorthCronSchedulerTool extends BaseTool {
         case 'update': return this.updateJob(args);
         default: return `Error: action "${action}" not implemented.`;
       }
-    } catch (error: any) {
-    logger.warn('[Zavorth Cron] delete operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Cron] delete operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `CronScheduler error: ${message}`;
   }

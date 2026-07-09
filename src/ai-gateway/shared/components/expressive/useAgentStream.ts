@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../utils/errorLike';
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -171,13 +172,13 @@ export function useAgentStream() {
                   }
                 }
               }
-            } catch (error: any) { const err = error; const e = error;
-      // Ignore malformed SSE chunks
+            } catch (error: unknown) {// Ignore malformed SSE chunks
       logger.warn('[use Agent Stream] operation failed', error);
     }
           }
         }
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         if (err instanceof Error && err.name === "AbortError") {
           // User cancelled — leave current text in place
         } else {

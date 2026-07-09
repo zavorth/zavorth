@@ -2,9 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { LogRepository } from '../storage/LogRepository.js';
-import { McpManifestLoader, type McpServerManifestEntry, type ResolvedMcpServerManifestEntry } from './McpManifest.js';
-
-export type McpInstallRequest = {
+import { McpManifestLoader, type McpServerManifestEntry, type ResolvedMcpServerManifestEntry } from './McpManifest.js';export type McpInstallRequest = {
   id: string;
   command: string;
   args?: string[];
@@ -220,8 +218,7 @@ export class McpManagementService {
       const raw = fs.readFileSync(this.manifestPath, 'utf8');
       const parsed = JSON.parse(raw);
       return Array.isArray(parsed) ? parsed : [];
-    } catch (error: any) { const err = error; const e = error;
-      this.log('warn', `MCP manifest at ${this.manifestPath} cannot be read; using an empty list.`);
+    } catch (error: unknown) {this.log('warn', `MCP manifest at ${this.manifestPath} cannot be read; using an empty list.`);
       return [];
     }
   }

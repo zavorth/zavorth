@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * modelsDevSync.ts — Fetch model specs, pricing, and capabilities from models.dev
  *
@@ -235,8 +236,7 @@ export async function fetchModelsDev(): Promise<ModelsDevData> {
     cachedData = data;
     cacheTime = Date.now();
     return data;
-  } catch (error: any) { const err = error; const e = error;
-    throw new Error(`models.dev returned invalid JSON (${text.slice(0, 100)}...)`);
+  } catch (error: unknown) {throw new Error(`models.dev returned invalid JSON (${text.slice(0, 100)}...)`);
   }
 }
 
@@ -355,8 +355,7 @@ export function getModelsDevPricing(): PricingByProvider {
     if (!key || rawValue === null) continue;
     try {
       synced[key] = JSON.parse(rawValue) as PricingModels;
-    } catch (error: any) { const err = error; const e = error;
-      console.warn(`[MODELS_DEV] Corrupted pricing data for provider "${key}", skipping`);
+    } catch (error: unknown) {console.warn(`[MODELS_DEV] Corrupted pricing data for provider "${key}", skipping`);
     }
   }
   return synced;
@@ -594,7 +593,8 @@ export async function syncModelsDev(opts?: {
       dryRun,
       ...(dryRun ? { data: { pricing, capabilities } } : {}),
     };
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const message = err instanceof Error ? err.message : String(err);
     console.warn("[MODELS_DEV] Sync failed:", message);
     return {

@@ -61,7 +61,7 @@ export class TrustedDeviceAccessRouteService {
           },
           receipt: draft.receipt,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         deps.writeJson(res, {
           ok: false,
           error: error instanceof Error ? error.message : 'Invalid local access request',

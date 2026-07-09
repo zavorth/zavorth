@@ -5,9 +5,7 @@ import { resolveZavorthLocalStateFile } from '../../config/localStatePaths.js';
 import { safeFetch } from '../../security/SafeFetchService.js';
 import { NodeHostCapabilityService } from '../../services/NodeHostCapabilityService.js';
 import { NodeCredentials, NodePairingManager } from '../pairing/NodePairingManager.js';
-import { CapabilityId, DeviceCapabilityPolicy } from '../policy/DeviceCapabilityPolicy.js';
-
-type CompanionFetchResponse = {
+import { CapabilityId, DeviceCapabilityPolicy } from '../policy/DeviceCapabilityPolicy.js';type CompanionFetchResponse = {
   ok: boolean;
   status: number;
   json: () => Promise<any>;
@@ -68,8 +66,7 @@ function loadPendingResults(stateFile: string | null): Array<Record<string, unkn
   try {
     const parsed = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
     return Array.isArray(parsed?.pendingResults) ? parsed.pendingResults : [];
-  } catch (error: any) { const err = error; const e = error;
-    return [];
+  } catch (error: unknown) {return [];
   }
 }
 

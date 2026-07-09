@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-
 export async function GET(request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -41,7 +40,7 @@ export async function GET(request) {
     const content = fs.readFileSync(filePath, "utf-8");
 
     return NextResponse.json({ success: true, content });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.error("Error loading file:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

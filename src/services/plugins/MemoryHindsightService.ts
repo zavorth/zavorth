@@ -56,13 +56,13 @@ export class MemoryHindsightService {
         for (const [id, dec] of Object.entries(data as Record<string, Decision>)) {
           this.decisions.set(id, dec);
         }
-      } catch (error: any) { /* ignore */ logger.warn('[Memory Hindsight] JSON parse failed', error); }
+      } catch (error: unknown) {/* ignore */ logger.warn('[Memory Hindsight] JSON parse failed', error); }
     }
 
     if (fs.existsSync(lessonsPath)) {
       try {
         this.lessons = JSON.parse(fs.readFileSync(lessonsPath, 'utf-8'));
-      } catch (error: any) { /* ignore */ logger.warn('[Memory Hindsight] JSON parse failed', error); }
+      } catch (error: unknown) {/* ignore */ logger.warn('[Memory Hindsight] JSON parse failed', error); }
     }
   }
 

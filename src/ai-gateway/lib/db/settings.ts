@@ -116,8 +116,7 @@ export async function getPricing() {
     if (!key || rawValue === null) continue;
     try {
       modelsDevPricing[key] = JSON.parse(rawValue) as PricingModels;
-    } catch (error: any) { const err = error; const e = error;
-      // Corrupted data â€” skip silently, fallback to lower layers
+    } catch (error: unknown) {// Corrupted data â€” skip silently, fallback to lower layers
       logger.warn('[settings] JSON parse failed', error);
     }
   }
@@ -167,8 +166,7 @@ export async function getPricingForModel(provider: string, model: string) {
   try {
     const { PROVIDER_ID_TO_ALIAS } = await import("@ZavorthGateway/open-sse/config/providerModels");
     alias = PROVIDER_ID_TO_ALIAS[provider];
-  } catch (error: any) { const err = error; const e = error;
-    alias = {
+  } catch (error: unknown) {alias = {
       anthropic: "claude",
       google: "gemini",
       openai: "openai",
@@ -274,7 +272,7 @@ export async function getLKGP(comboName: string, modelId: string): Promise<strin
   if (!row?.value) return null;
   try {
     return JSON.parse(row.value);
-  } catch (error: any) { const err = error; const e = error; logger.warn('[settings] JSON parse failed', error); return row.value; }
+  } catch (error: unknown) {logger.warn('[settings] JSON parse failed', error); return row.value; }
 }
 
 export async function setLKGP(comboName: string, modelId: string, providerId: string) {

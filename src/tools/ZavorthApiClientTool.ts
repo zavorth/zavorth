@@ -118,7 +118,7 @@ export class ZavorthApiClientTool extends BaseTool {
     let parsedUrl: URL;
     try {
       parsedUrl = new URL(url);
-    } catch (error: any) { logger.warn('[Zavorth Api Client] process execution failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Zavorth Api Client] process execution failed', error); return ''; }
 
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
       return `Error: protocol "${parsedUrl.protocol}" not supported. Use http: or https:.`;
@@ -147,8 +147,8 @@ export class ZavorthApiClientTool extends BaseTool {
     try {
       const result = await this.executeRequest(parsedUrl, method, args);
       return this.formatResponse(result);
-    } catch (error: any) {
-    logger.warn('[Zavorth Api Client] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Api Client] process execution failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `HTTP request error: ${message}`;
   }
@@ -167,8 +167,7 @@ export class ZavorthApiClientTool extends BaseTool {
       try {
         const customHeaders = JSON.parse(args.headers);
         headers = { ...headers, ...customHeaders };
-      } catch (error: any) {
-    logger.warn('[Zavorth Api Client] JSON parse failed', error);
+      } catch (error: unknown) {logger.warn('[Zavorth Api Client] JSON parse failed', error);
     return {
           success: false, status: 0, status_text: 'Bad Headers',
           headers: {}, body: '', body_json: null,
@@ -221,7 +220,7 @@ export class ZavorthApiClientTool extends BaseTool {
         for (const [key, value] of Object.entries(params)) {
           url.searchParams.set(key, String(value));
         }
-      } catch (error: any) { /* ignore */ logger.warn('[Zavorth Api Client] JSON parse failed', error); }
+      } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Api Client] JSON parse failed', error); }
     }
 
     const curlArgs: string[] = [
@@ -278,7 +277,7 @@ export class ZavorthApiClientTool extends BaseTool {
 
       let bodyJson: unknown | null = null;
       if (String(args.response_format || 'auto') === 'json' || responseBody.startsWith('{') || responseBody.startsWith('[')) {
-        try { bodyJson = JSON.parse(responseBody); } catch (error: any) { /* not json */ logger.warn('[Zavorth Api Client] JSON parse failed', error); }
+        try { bodyJson = JSON.parse(responseBody); } catch (error: unknown) {/* not json */ logger.warn('[Zavorth Api Client] JSON parse failed', error); }
       }
 
       if (typeof args.save_response_to === 'string' && responseBody) {
@@ -306,8 +305,8 @@ export class ZavorthApiClientTool extends BaseTool {
         body_json: bodyJson,
         duration_ms: Date.now() - startTime,
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Api Client] filesystem operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Api Client] filesystem operation failed', error);
     return {
         success: false,
         status: 0,
@@ -320,7 +319,7 @@ export class ZavorthApiClientTool extends BaseTool {
       };
   } finally {
       if (tmpBodyFile) {
-        try { const fs = await import('fs'); fs.unlinkSync(tmpBodyFile); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Api Client] file cleanup failed', error); }
+        try { const fs = await import('fs'); fs.unlinkSync(tmpBodyFile); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Api Client] file cleanup failed', error); }
       }
     }
   }

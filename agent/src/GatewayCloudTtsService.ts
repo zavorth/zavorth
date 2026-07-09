@@ -114,7 +114,7 @@ export class GatewayCloudTtsService {
         fs.writeFileSync(audioPath, audioBytes);
         await this.audioPlayer(audioPath);
         return audioPath;
-      } catch (error) {
+      } catch (error: unknown) {
         lastError = toError(error);
       }
     }

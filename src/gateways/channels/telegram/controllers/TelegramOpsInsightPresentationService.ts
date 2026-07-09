@@ -16,9 +16,7 @@ import type {
 CapabilityApprovalRequest,
   CapabilityManifest,
   CapabilityStateSnapshot,
-} from '../../../../services/CapabilityLifecycleService.js';
-
-export type TelegramOpsSystemStatusSnapshot = {
+} from '../../../../services/CapabilityLifecycleService.js';export type TelegramOpsSystemStatusSnapshot = {
   process: {
     uptimeSeconds: number;
     rssMb: number;
@@ -624,7 +622,7 @@ export class TelegramOpsInsightPresentationService {
       TelegramOpsInsightPresentationService.cachedSkillPlaneSnapshot =
         this.skillLibraryPresentationService.buildSnapshot();
       return TelegramOpsInsightPresentationService.cachedSkillPlaneSnapshot;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Telegram Ops Insight Presentation] cache operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Telegram Ops Insight Presentation] cache operation failed', error); return null; }
   }
 
   private describeRuntimeTaskStatus(status: string): string {

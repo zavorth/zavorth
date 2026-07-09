@@ -185,7 +185,7 @@ export class ChannelProviderDoctorService {
         return null;
       }
       return JSON.parse(this.readFileSync(filePath, 'utf8')) as Record<string, any>;
-    } catch (error: any) { logger.warn('[Channel  Doctor] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Channel  Doctor] JSON parse failed', error); return null; }
   }
 
   private readCapabilityLifecycleHint(capabilityId: string): ChannelCapabilityLifecycleHint {

@@ -86,8 +86,7 @@ export class CodexRemoteNotificationService {
         targetChatId,
         reason: response.ok ? 'delivered' : `http-${response.status}`,
       };
-    } catch (error: any) {
-    logger.warn('[Codex Remote Notification] network request failed', error);
+    } catch (error: unknown) {logger.warn('[Codex Remote Notification] network request failed', error);
     return {
         delivered: false,
         targetChatId,

@@ -42,8 +42,7 @@ export class Mem0MemoryBackend implements IMemoryBackend {
       this.client = new module.MemoryClient({ apiKey: this.apiKey });
       this.available = true;
       return true;
-    } catch (error: any) {
-      this.client = null;
+    } catch (error: unknown) {this.client = null;
       this.available = false;
       return false;
     }

@@ -6,6 +6,8 @@ import { TelegramChannelAdapter } from './channels/adapters/TelegramChannelAdapt
 import { WebChannelAdapter } from './channels/adapters/WebChannelAdapter.js';
 import { GatewayHostService, type GatewayHostOptions } from './core/GatewayHostService.js';
 import { GatewayRuntime } from './core/GatewayRuntime.js';
+import { asErrorLike } from '../utils/errorLike';
+import { logger } from '../logger.js';
 
 type GatewayCoreBundle = {
   runtime: GatewayRuntime;
@@ -41,21 +43,23 @@ async function buildGatewayCore(env: NodeJS.ProcessEnv): Promise<GatewayCoreBund
 }
 
 export async function bootstrapGateway(env: NodeJS.ProcessEnv): Promise<GatewayRuntime> {
-  console.log('[Bootstrap] Starting Gateway Core...');
+  logger.info('[Bootstrap] Starting Gateway Core...');
   const { runtime } = await buildGatewayCore(env);
   await runtime.start();
-  console.log('[Bootstrap] Gateway Running. Ready for events.');
+  logger.info('[Bootstrap] Gateway Running. Ready for events.');
 
   try {
     const { getChannelPairingService } = await import('../services/ZavorthChannelPairingService.js');
     const pairingService = getChannelPairingService();
     const code = pairingService.generateCode();
-    console.log(`\n==================================================`);
-    console.log(`🔑 Zavorth Channel Pairing Code: ${code}`);
-    console.log(`Use this code to pair Telegram/WhatsApp/Discord.`);
-    console.log(`==================================================\n`);
-  } catch (err) {
-    console.error('[Bootstrap] Failed to generate pairing code:', err);
+    logger.info(`\n==================================================`);
+    logger.info(`🔑 Zavorth Channel Pairing Code: ${code}`);
+    logger.info(`Use this code to pair Telegram/WhatsApp/Discord.`);
+    logger.info(`==================================================\n`);
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
+    logger.error('[Bootstrap] Failed to generate pairing code:', err);
   }
 
   return runtime;
@@ -65,7 +69,7 @@ export async function startGatewayHost(
   env: NodeJS.ProcessEnv,
   options: GatewayHostOptions = {},
 ): Promise<{ runtime: GatewayRuntime; host: GatewayHostService; url: string }> {
-  console.log('[Bootstrap] Starting Gateway Host...');
+  logger.info('[Bootstrap] Starting Gateway Host...');
   const { runtime, apiRouter } = await buildGatewayCore(env);
   await runtime.start();
   const host = new GatewayHostService(runtime, apiRouter, {
@@ -75,18 +79,20 @@ export async function startGatewayHost(
       : Number(env.ZAVORTH_GATEWAY_PORT || env.PORT || 3000),
   });
   const url = await host.start();
-  console.log(`[Bootstrap] Gateway Host listening on ${url}`);
+  logger.info(`[Bootstrap] Gateway Host listening on ${url}`);
 
   try {
     const { getChannelPairingService } = await import('../services/ZavorthChannelPairingService.js');
     const pairingService = getChannelPairingService();
     const code = pairingService.generateCode();
-    console.log(`\n==================================================`);
-    console.log(`🔑 Zavorth Channel Pairing Code: ${code}`);
-    console.log(`Use this code to pair Telegram/WhatsApp/Discord.`);
-    console.log(`==================================================\n`);
-  } catch (err) {
-    console.error('[Bootstrap] Failed to generate pairing code:', err);
+    logger.info(`\n==================================================`);
+    logger.info(`🔑 Zavorth Channel Pairing Code: ${code}`);
+    logger.info(`Use this code to pair Telegram/WhatsApp/Discord.`);
+    logger.info(`==================================================\n`);
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
+    logger.error('[Bootstrap] Failed to generate pairing code:', err);
   }
 
   return { runtime, host, url };
@@ -107,12 +113,12 @@ async function runAsMain(): Promise<void> {
     void shutdown();
   });
 
-  console.log(`[Gateway] Running at ${url}`);
+  logger.info(`[Gateway] Running at ${url}`);
 }
 
 if (require.main === module) {
   void runAsMain().catch((error) => {
-    console.error('[Gateway] Failed to start host:', error);
+    logger.error('[Gateway] Failed to start host:', error);
     process.exit(1);
   });
 }

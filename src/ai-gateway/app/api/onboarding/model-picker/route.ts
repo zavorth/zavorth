@@ -1,7 +1,6 @@
 import type { ModelCapabilityKind } from "../../../../../services/providers/catalog/ProviderCatalogContracts.js";
 import { ProviderMeshOnboardingProductService } from "../../../../../services/providers/catalog/ProviderMeshOnboardingProductService.js";
 import { logger } from '@/shared/utils/logger';
-
 function readFlag(value: string | null): boolean {
   return String(value || "").trim().toLowerCase() === "true";
 }
@@ -25,7 +24,7 @@ export async function GET(request: Request) {
       picker: product.picker,
       providerMeshOnboarding: product.providerMeshOnboarding,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] search failed', error);
     return Response.json(
       {

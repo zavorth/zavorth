@@ -13,9 +13,7 @@ import {
   idWithTime,
   render,
   splitList
-} from '../ZavorthCliSharedHelpers.js';
-
-type JsonObject = Record<string, unknown>;
+} from '../ZavorthCliSharedHelpers.js';type JsonObject = Record<string, unknown>;
 
 export async function runMcp(root: string, args: string[]) {
   const file = path.join(stateDir(root), 'mcp.json');
@@ -190,8 +188,7 @@ function parseMcpFrames(buffer: Buffer<ArrayBufferLike>): { messages: JsonObject
     const body = remaining.slice(bodyStart, bodyEnd).toString('utf8');
     try {
       messages.push(JSON.parse(body));
-    } catch (error: any) { const err = error; const e = error;
-      messages.push({ error: { message: 'invalid-json-rpc-response' } });
+    } catch (error: unknown) {messages.push({ error: { message: 'invalid-json-rpc-response' } });
     }
     remaining = remaining.slice(bodyEnd);
   }

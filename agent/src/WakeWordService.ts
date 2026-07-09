@@ -1,6 +1,12 @@
 import { EventEmitter } from 'events';
 import { spawn, ChildProcess } from 'child_process';
 import { t } from './i18n.js';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 /**
  * WakeWordService — Detects activation word "Zavorth" (Mode 1).
@@ -72,8 +78,9 @@ export class WakeWordService extends EventEmitter {
         this.emit('unavailable', 'python_not_found');
       });
 
-    } catch (error: any) {
-      console.error(t('wakeword_start_failed', { message: error.message }));
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      console.error(t('wakeword_start_failed', { message: String(err.message || 'Unexpected error') }));
       this.enabled = false;
     }
   }

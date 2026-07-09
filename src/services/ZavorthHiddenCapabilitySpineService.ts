@@ -412,8 +412,7 @@ export class ZavorthHiddenCapabilitySpineService {
           if (id) ids.add(id);
         }
       }
-    } catch (error: any) {
-      logger.warn('[ZavorthHiddenCapabilitySpineService] Failed to read capability manifests:', error);
+    } catch (error: unknown) {logger.warn('[ZavorthHiddenCapabilitySpineService] Failed to read capability manifests:', error);
       return ids;
     }
     return ids;
@@ -424,8 +423,7 @@ function readPackageScripts(root: string): Record<string, string> {
   try {
     const parsed = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
     return parsed.scripts || {};
-  } catch (error: any) {
-    logger.warn('[ZavorthHiddenCapabilitySpineService] Failed to read package.json scripts:', error);
+  } catch (error: unknown) {logger.warn('[ZavorthHiddenCapabilitySpineService] Failed to read package.json scripts:', error);
     return {};
   }
 }

@@ -318,7 +318,7 @@ export class ComputerUseWatchModeService {
     try {
       const target = normalized.match(/^https?:\/\//i) ? normalized : `https://${normalized}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch (error: any) { logger.warn('[Computer Use Watch Mode] network request failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Computer Use Watch Mode] network request failed', error); return null; }
   }
 
   private normalizeOptional(value: unknown): string | null {

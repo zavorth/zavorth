@@ -115,15 +115,14 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
         case 'modal':
           try {
             execFileSync('modal', ['--version'], { timeout: 10000, windowsHide: true, stdio: 'pipe' });
-          } catch (error: any) {
-            execFileSync('python', ['-m', 'modal', '--version'], { timeout: 10000, windowsHide: true, stdio: 'pipe' });
+          } catch (error: unknown) {execFileSync('python', ['-m', 'modal', '--version'], { timeout: 10000, windowsHide: true, stdio: 'pipe' });
           }
           config.connected = true;
           config.options = options || {};
           return 'Modal connected.';
       }
-    } catch (error: any) {
-    logger.warn('[Zavorth Terminal Backends] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Terminal Backends] process execution failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Error connecting to ${backend}: ${message}`;
   }
@@ -217,7 +216,7 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
       result.duration_ms = Date.now() - startTime;
       this.logExecution(backend, command, result);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       const result = this.errorResult(backend, message);
       result.duration_ms = Date.now() - startTime;
@@ -322,7 +321,7 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
       const result = execFileSync('modal', ['run', tmpFile], { timeout, windowsHide: true, maxBuffer: 5 * 1024 * 1024, encoding: 'utf-8' });
       return { stdout: String(result), stderr: '', exitCode: 0, backend: 'modal', duration_ms: 0 };
     } finally {
-      try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Terminal Backends] file cleanup failed', error); }
+      try { fs.unlinkSync(tmpFile); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Terminal Backends] file cleanup failed', error); }
     }
   }
 
@@ -340,13 +339,13 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
   private getDockerVersion(): string {
     try {
       return execFileSync('docker', ['version', '--format', '{{.Server.Version}}'], { timeout: 5000, windowsHide: true, encoding: 'utf-8' }).trim();
-    } catch (error: any) { logger.warn('[Zavorth Terminal Backends] process execution failed', error); return 'unknown'; }
+    } catch (error: unknown) {logger.warn('[Zavorth Terminal Backends] process execution failed', error); return 'unknown'; }
   }
 
   private getSingularityVersion(): string {
     try {
       return execFileSync('singularity', ['--version'], { timeout: 5000, windowsHide: true, encoding: 'utf-8' }).trim();
-    } catch (error: any) { logger.warn('[Zavorth Terminal Backends] process execution failed', error); return 'unknown'; }
+    } catch (error: unknown) {logger.warn('[Zavorth Terminal Backends] process execution failed', error); return 'unknown'; }
   }
 
   private getBackendDetails(config: BackendConfig): string {

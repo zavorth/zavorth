@@ -1153,7 +1153,7 @@
     "qa:zavorth-product-qa-live": "node scripts/zavorth-product-qa-live-check.mjs",
     "zavorth-control-vite:sync": "node scripts/sync-zavorth-control-vite-assets.mjs",
     "zavorth-control-vite:dev": "npm run zavorth-control-vite:sync --silent && vite --config apps/zavorth-control-vite-shell/vite.config.mjs",
-    "zavorth-control-vite:build": "npm run zavorth-control-vite:sync --silent && vite build --config apps/zavorth-control-vite-shell/vite.config.mjs && node scripts/sync-zavorth-control-vite-assets.mjs --normalize-only",
+    "zavorth-control-vite:build": "npm run zavorth-control-vite:sync --silent && vite build --config apps/zavorth-control-vite-shell/vite.config.mjs && node scripts/sync-zavorth-control-vite-assets.mjs --after-build",
     "zavorth-control-vite:check": "npm run zavorth-control-vite:build --silent && npm run zavorth:zavorthControl-design-system:check --silent",
     "zavorth-desktop:dev": "npm --prefix apps/zavorth-desktop run dev --silent",
     "zavorth-desktop:build": "npm --prefix apps/zavorth-desktop run build --silent",

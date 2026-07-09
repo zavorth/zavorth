@@ -1,9 +1,7 @@
 import { logger } from '../logger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import crypto from 'crypto';
-import path from 'path';
-
-// Typed metadata for audit events: allows structured values
+import path from 'path';// Typed metadata for audit events: allows structured values
 type AuditMetadata = Record<
   string,
   string | number | boolean | undefined | Record<string, unknown> | unknown[]
@@ -97,8 +95,7 @@ export class SecurityAuditLogger {
   private safePersist(event: string, metadata: AuditMetadata): void {
     try {
       this.logRepo.log('security', 'security_audit', event, metadata);
-    } catch (err: any) { const error = err; const e = err;
-      // Minimal safe warning to stderr without leaking any sensitive metadata/payload.
+    } catch (error: unknown) {// Minimal safe warning to stderr without leaking any sensitive metadata/payload.
       logger.error(`[SecurityAuditLogger] Failed to persist security audit event: DB error.`);
     }
   }

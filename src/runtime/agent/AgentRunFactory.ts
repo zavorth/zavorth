@@ -20,9 +20,7 @@ import type {
   UniversalAgentRequest,
   UniversalAgentRun,
   UniversalReplyPort,
-} from './UniversalAgentRuntimeTypes.js';
-
-export type AgentRunFactoryRuntime = {
+} from './UniversalAgentRuntimeTypes.js';export type AgentRunFactoryRuntime = {
   now: () => Date;
   idFactory: (prefix: string) => string;
   toolPolicy: ToolExposurePolicy;
@@ -576,8 +574,7 @@ export class AgentRunFactory {
     }
     try {
       return this.modelPickerContractService.buildContract({ includeAdvanced: true });
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 

@@ -71,7 +71,7 @@ function normalizeReturnValue(value) {
       returnValue: normalized,
       stdout: normalized ? \`\${normalized}\\n\` : '',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     parentPort.postMessage({
       ok: false,
       error: error instanceof Error ? error.message : String(error),

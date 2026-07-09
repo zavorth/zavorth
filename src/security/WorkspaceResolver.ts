@@ -1,9 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
-import { logger } from '../logger.js';
-
-function normalizePath(target: string): string {
+import { logger } from '../logger.js';function normalizePath(target: string): string {
   return path.resolve(target).replace(/\\/g, '/');
 }
 
@@ -54,7 +52,7 @@ function readPolicyAllowedWorkspaces(): string[] {
     return parsed.allowed_workspaces
       .filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0)
       .map((entry) => normalizePath(entry));
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Workspace Resolver] JSON parse failed', error); return []; }
+  } catch (error: unknown) {logger.warn('[Workspace Resolver] JSON parse failed', error); return []; }
 }
 
 function uniqueNormalizedPaths(candidates: string[]): string[] {
@@ -118,7 +116,7 @@ export class WorkspaceResolver {
     try {
       this.validate(workspaceHint);
       return true;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Workspace Resolver] filesystem operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Workspace Resolver] filesystem operation failed', error); return false; }
   }
 
   public static ensurePathInsideWorkspace(baseDir: string, targetPath: string): string {

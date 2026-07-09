@@ -4,7 +4,6 @@ import type {
   ApiKeysStatements,
   JsonRecord,
 } from "./apiKeyTypes";
-
 let schemaChecked = false;
 let stmtGetAllKeys: ApiKeysStatements["getAllKeys"] | null = null;
 let stmtGetKeyById: ApiKeysStatements["getKeyById"] | null = null;
@@ -136,7 +135,7 @@ function ensureApiKeysColumns(db: ApiKeysDbLike) {
       "ALTER TABLE api_keys ADD COLUMN max_sessions INTEGER NOT NULL DEFAULT 0",
     );
     schemaChecked = true;
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.warn("[DB] Failed to verify api_keys schema:", message);
   }

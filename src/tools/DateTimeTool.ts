@@ -39,8 +39,7 @@ export class DateTimeTool extends BaseTool {
         iso: now.toISOString(),
         timezone,
       });
-    } catch (error: any) {
-    logger.warn('[Date Time] serialization failed', error);
+    } catch (error: unknown) {logger.warn('[Date Time] serialization failed', error);
     return JSON.stringify({ error: `Invalid time zone: ${timezone}` });
   }
   }

@@ -24,9 +24,7 @@ import type {
 } from '../../application/surface-response/index.js';
 import { createSurfaceResponse } from '../../application/surface-response/index.js';
 import { isSharedSurfaceChannelCallbackAction } from './SharedSurfaceCallbackCommandPolicy.js';
-import { replyWithSharedSurfaceResponse } from './SharedSurfaceResponseSender.js';
-
-type ChannelActionExecute = Pick<ZavorthChannelActionService, 'execute'>['execute'];
+import { replyWithSharedSurfaceResponse } from './SharedSurfaceResponseSender.js';type ChannelActionExecute = Pick<ZavorthChannelActionService, 'execute'>['execute'];
 type ChannelActionRequest = Parameters<ChannelActionExecute>[0];
 type ChannelActionResult = Awaited<ReturnType<ChannelActionExecute>>;
 
@@ -103,8 +101,7 @@ export class SharedSurfaceIntegrationCommandPack {
           intentTitle: 'Plugin plane',
           result,
         }));
-      } catch (error: any) { const err = error; const e = error;
-        await ctx.reply(error?.message || 'Nao consegui executar a acao do plugin plane agora.');
+      } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui executar a acao do plugin plane agora.');
       }
       return;
     }
@@ -149,8 +146,7 @@ export class SharedSurfaceIntegrationCommandPack {
           requestedBy: String(ctx.userId || '').trim() || null,
         });
         await replyWithSharedSurfaceResponse(ctx, this.buildChannelActionSurfaceResponse(result));
-      } catch (error: any) { const err = error; const e = error;
-        await ctx.reply(error?.message || 'Nao consegui executar a acao do Channel Mesh agora.');
+      } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui executar a acao do Channel Mesh agora.');
       }
       return;
     }
@@ -193,8 +189,7 @@ export class SharedSurfaceIntegrationCommandPack {
           intentTitle: 'Remote transport plane',
           result,
         }));
-      } catch (error: any) { const err = error; const e = error;
-        await ctx.reply(error?.message || 'Nao consegui executar a acao do plano remoto agora.');
+      } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui executar a acao do plano remoto agora.');
       }
       return;
     }

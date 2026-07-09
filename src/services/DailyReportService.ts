@@ -303,8 +303,7 @@ export class DailyReportService {
         updatedBy: parsed.updatedBy || null,
         note: parsed.note || null,
       };
-    } catch (error: any) {
-    logger.warn('[Daily Report] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Daily Report] JSON parse failed', error);
     return {
         enabled: config.dailyReportEnabled,
         lastSentAt: null,
@@ -320,8 +319,7 @@ export class DailyReportService {
     try {
       this.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       this.writeFileSync(this.stateFile, JSON.stringify(this.state, null, 2), 'utf8');
-    } catch (error: any) {
-      // Ignore persistence failures and keep the in-memory state.
+    } catch (error: unknown) {// Ignore persistence failures and keep the in-memory state.
       logger.warn('[Daily Report] filesystem operation failed', error);
     }
   }

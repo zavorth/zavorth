@@ -608,14 +608,14 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
     ) {
       return metadata as SchedulerGovernedScheduledTaskMetadata;
     }
-  } catch (error: any) { logger.warn('[Zavorth Scheduled Task Live Tick Certification] JSON parse failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Zavorth Scheduled Task Live Tick Certification] JSON parse failed', error); return null; }
   return null;
 }
 
 function readGuardrails(task: ScheduledTask): any {
   try {
     return JSON.parse(String(task.guardrail_json || '{}'));
-  } catch (error: any) { logger.warn('[Zavorth Scheduled Task Live Tick Certification] JSON parse failed', error); return {}; }
+  } catch (error: unknown) {logger.warn('[Zavorth Scheduled Task Live Tick Certification] JSON parse failed', error); return {}; }
 }
 
 function findTask(scheduler: SchedulerLiveTickLike, taskId: string): ScheduledTask | null {

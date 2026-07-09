@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { errorMessage } from '../lib/errors';
 
 interface WorkspaceTaskMandateModalProps {
   proposedMandate: {
@@ -31,8 +32,8 @@ export function WorkspaceTaskMandateModal({
     setError(null);
     try {
       await onResolve(approved);
-    } catch (err: any) {
-      setError(err.message || 'Failed to resolve task mandate.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to resolve task mandate.'));
     } finally {
       setLoading(false);
     }

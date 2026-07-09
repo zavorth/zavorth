@@ -1,6 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
+  if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
+  if (typeof error === 'string' && error.trim()) return { message: error };
+  if (typeof error === 'number' || typeof error === 'boolean') return { message: String(error) };
+  return { message: 'Unexpected error' };
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,8 +75,9 @@ export class ConfigService {
           chimesEnabled: typeof parsed.chimesEnabled === 'boolean' ? parsed.chimesEnabled : defaultConfig.chimesEnabled,
         };
       }
-    } catch (error) {
-      console.warn(`[Config] Failed to load config, using defaults: ${(error as Error).message}`);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      console.warn(`[Config] Failed to load config, using defaults: ${err.message}`);
     }
 
     return defaultConfig;
@@ -81,8 +88,9 @@ export class ConfigService {
       this.stopWatching();
       fs.writeFileSync(this.configPath, JSON.stringify(this.currentConfig, null, 2), 'utf8');
       this.startWatching();
-    } catch (error) {
-      console.error(`[Config] Failed to save config: ${(error as Error).message}`);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      console.error(`[Config] Failed to save config: ${err.message}`);
     }
   }
 
@@ -98,8 +106,9 @@ export class ConfigService {
           this.handleFileChange();
         }
       });
-    } catch (error) {
-      console.warn(`[Config] Failed to start fs.watch on agent config directory: ${(error as Error).message}`);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      console.warn(`[Config] Failed to start fs.watch on agent config directory: ${err.message}`);
     }
   }
 
@@ -129,8 +138,9 @@ export class ConfigService {
         for (const callback of this.watchCallbacks) {
           try {
             callback(newConfig);
-          } catch (err) {
-            console.error(`[Config] Error in change callback: ${(err as Error).message}`);
+          } catch (error: unknown) {
+            const err = asErrorLike(error);
+            console.error(`[Config] Error in change callback: ${err.message}`);
           }
         }
       }

@@ -10,7 +10,6 @@ import { TaskResponseEnvelopeService } from '../../../../services/TaskResponseEn
 import { UserFacingResponseService } from '../../../../services/UserFacingResponseService.js';
 import type { PolicyViolation } from '../../../../security/PolicyEngine.js';
 import { logger } from '../../../../logger.js';
-
 type PersistTaskFn = (task: Task) => void;
 
 export type TelegramExecutionPlanningServiceDeps = {
@@ -94,7 +93,7 @@ export class TelegramExecutionPlanningService {
       });
 
       await SmartOutputService.reply(ctx, userFacingText);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       this.deps.taskManager.advanceState(task, 'failed');
       const message = error instanceof Error ? error.message : String(error);
       task.error_summary = message;

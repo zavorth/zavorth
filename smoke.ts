@@ -35,8 +35,9 @@ async function run() {
     if (result.stderr) {
       console.log('STDERR:\n', result.stderr);
     }
-  } catch (err: any) {
-    console.error('❌ Falha na execucao:', err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('❌ Falha na execucao:', message);
     process.exit(1);
   }
 }

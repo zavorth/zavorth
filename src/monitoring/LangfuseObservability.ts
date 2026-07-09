@@ -1,4 +1,5 @@
 import { createRequire } from 'module';
+import { asErrorLike } from '../utils/errorLike';
 
 const localRequire = createRequire(__filename);
 
@@ -49,7 +50,8 @@ export class LangfuseObservability {
         '[Observability] Langfuse OpenTelemetry is active and recording generator/critic conversations with cost tracking enabled.',
       );
       return this.handler;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.warn(`[Observability] Failed to instantiate Langfuse: ${err.message}`);
       return null;
     }

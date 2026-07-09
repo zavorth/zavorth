@@ -10,7 +10,6 @@ import {
 import { DeveloperWorkspaceSurfaceService } from '../domain/surface/application/developer-workspace/index.js';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
-
 type WorkspaceCliAction =
   | 'help'
   | 'init'
@@ -373,8 +372,7 @@ function loadWorkspaceManifest(command: WorkspaceCliCommand): (
         manifestPath: command.manifestPath || undefined,
       }),
     };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Cli Registry Workspace] load operation failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth Cli Registry Workspace] load operation failed', error);
     return {
       ok: false,
       error: error instanceof Error ? error : new Error(String(error || 'unknown manifest error')),
@@ -665,8 +663,8 @@ function validateWorkspaceExamples(): Record<string, unknown> {
           ok: true,
           error: null,
         };
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Cli Registry Workspace] filesystem operation failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Zavorth Cli Registry Workspace] filesystem operation failed', error);
     return {
           id: entry.name,
           manifestPath,

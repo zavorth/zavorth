@@ -6,7 +6,7 @@ import {
   IconAlertTriangle,
   IconLink,
 } from '@tabler/icons-react';
-
+import { asErrorLike } from '../lib/errors';
 
 interface EmbedRendererProps {
   url?: string;
@@ -19,7 +19,6 @@ interface EmbedRendererProps {
   lazy?: boolean;
   className?: string;
 }
-
 
 function extractYouTubeId(url: string): string | null {
   const patterns = [
@@ -45,9 +44,7 @@ function extractDomain(url: string): string {
   }
 }
 
-
 const MERMAID_LANGUAGES = new Set(['mermaid', 'mmd']);
-
 
 function useLazyLoad(enabled: boolean): { ref: React.RefObject<HTMLDivElement | null>; visible: boolean } {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -71,7 +68,6 @@ function useLazyLoad(enabled: boolean): { ref: React.RefObject<HTMLDivElement | 
 
   return { ref, visible };
 }
-
 
 const CONSENT_STORAGE_KEY = 'zvd-embed-consent-v1';
 
@@ -181,7 +177,6 @@ const ConsentGate = memo(function ConsentGate({
   );
 });
 
-
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
@@ -222,7 +217,6 @@ class EmbedErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
-
 
 const YouTubeEmbed = memo(function YouTubeEmbed({
   videoId,
@@ -271,7 +265,6 @@ const YouTubeEmbed = memo(function YouTubeEmbed({
   );
 });
 
-
 let mermaidInstance: { default?: { initialize: (cfg: unknown) => void; render: (id: string, code: string) => Promise<{ svg: string }> } } | null = null;
 let mermaidLoading: Promise<typeof mermaidInstance> | null = null;
 
@@ -318,7 +311,9 @@ const MermaidRenderer = memo(function MermaidRenderer({
           containerRef.current.innerHTML = svg;
           setRendered(true);
         }
-      } catch (err) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Mermaid rendering failed');
         }
@@ -383,7 +378,6 @@ const MermaidRenderer = memo(function MermaidRenderer({
   );
 });
 
-
 const SvgRenderer = memo(function SvgRenderer({
   code,
   theme,
@@ -422,7 +416,6 @@ const SvgRenderer = memo(function SvgRenderer({
     </div>
   );
 });
-
 
 const UrlPreviewCard = memo(function UrlPreviewCard({
   url,
@@ -546,7 +539,6 @@ const UrlPreviewCard = memo(function UrlPreviewCard({
   );
 });
 
-
 const ImageEmbed = memo(function ImageEmbed({
   url,
   theme,
@@ -580,7 +572,6 @@ const ImageEmbed = memo(function ImageEmbed({
     </div>
   );
 });
-
 
 const CodeFenceRenderer = memo(function CodeFenceRenderer({
   code,
@@ -677,7 +668,6 @@ const CodeFenceRenderer = memo(function CodeFenceRenderer({
     </div>
   );
 });
-
 
 export default memo(function EmbedRenderer({
   url,

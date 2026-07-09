@@ -101,7 +101,7 @@ export async function hookMiddleware(input: HookInput): Promise<HookResult> {
     }
 
     return { handled: false };
-  } catch (error: any) {
+  } catch ($1: unknown) {
     // Graceful degradation: don't break the gateway
     return {
       handled: false,

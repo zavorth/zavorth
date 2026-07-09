@@ -1,7 +1,5 @@
 import crypto from "crypto";
-import { logger } from '@/shared/utils/logger';
-
-// FASE-01: No hardcoded fallback — enforced by secretsValidator at startup
+import { logger } from '@/shared/utils/logger';// FASE-01: No hardcoded fallback — enforced by secretsValidator at startup
 if (!process.env.API_KEY_SECRET) {
   console.error("[SECURITY] API_KEY_SECRET is not set. API key CRC validation is disabled.");
 }
@@ -73,7 +71,7 @@ export function parseApiKey(
     let expectedCrc;
     try {
       expectedCrc = generateCrc(machineId, keyId);
-    } catch (error: any) { const err = error; const e = error; logger.warn('[api Key] lifecycle operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[api Key] lifecycle operation failed', error); return null; }
     if (crc !== expectedCrc) return null;
 
     return { machineId, keyId, isNewFormat: true };

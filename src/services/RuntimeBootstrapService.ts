@@ -238,8 +238,7 @@ export class RuntimeBootstrapService {
             }
           });
         }
-      } catch (error: any) {
-    logger.warn('[Runtime] filesystem operation failed', error);
+      } catch (error: unknown) {logger.warn('[Runtime] filesystem operation failed', error);
     skillSourcesValid = false;
   }
     }

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { BaseTool } from './BaseTool.js';
@@ -47,8 +48,7 @@ export class McpToolWrapper extends BaseTool {
               content: args.content as string,
             });
           }
-        } catch (error: any) {
-      // not a WRITE_APPROVAL_REQUIRED json error
+        } catch (error: unknown) {// not a WRITE_APPROVAL_REQUIRED json error
       logger.warn('[Mcp  Wrapper] parsing failed', error);
     }
 
@@ -56,8 +56,7 @@ export class McpToolWrapper extends BaseTool {
       }
 
       return textBlocks.map((block) => block.text).join('\n');
-    } catch (e: any) { const error = e; const err = e;
-      console.error(`[MCP] Falha ao executar ${this.name}:`, e.message);
+    } catch (error: unknown) { const err = asErrorLike(error); console.error(`[MCP] Falha ao executar ${this.name}:`, err.message);
       return `Error executing tool: ${e.message}`;
     } finally {
       if (opId) {

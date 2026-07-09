@@ -9,6 +9,7 @@ import {
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
+import { logger } from '../../../logger.js';
 
 type IMessageMacBridgeAdapterRuntime = {
   outboxDir?: string;
@@ -41,12 +42,12 @@ export class IMessageMacBridgeAdapter implements GatewayChannelAdapter {
   async initialize(): Promise<void> {
     fs.mkdirSync(this.outboxDir, { recursive: true });
     if (!this.nodeHostId) {
-      console.warn('[ChannelMesh] iMessage Mac bridge offline (missing macOS node host).');
+      logger.warn('[ChannelMesh] iMessage Mac bridge offline (missing macOS node host).');
     }
   }
 
   async shutdown(): Promise<void> {
-    console.log('[ChannelMesh] iMessage Mac bridge detached.');
+    logger.info('[ChannelMesh] iMessage Mac bridge detached.');
   }
 
   async onMessageReceived(payload: any): Promise<void> {
@@ -56,7 +57,7 @@ export class IMessageMacBridgeAdapter implements GatewayChannelAdapter {
     const messageId = String(payload?.messageId || payload?.guid || payload?.id || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('imessage', userId);
     if (!isAllowed) {
-      console.warn(`[Security] Blocked unauthorized iMessage interaction from ${userId}`);
+      logger.warn(`[Security] Blocked unauthorized iMessage interaction from ${userId}`);
       return;
     }
 

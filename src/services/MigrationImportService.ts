@@ -190,8 +190,8 @@ export class MigrationImportService {
         reportArtifactId,
         error: null,
       });
-    } catch (error: any) {
-    logger.warn('[Migration Import] creation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Migration Import] creation failed', error);
     return this.result({
         ok: false,
         status: 'failed',
@@ -253,8 +253,7 @@ export class MigrationImportService {
       try {
         redactedData = this.redactSecrets(JSON.parse(raw));
         kind = 'json';
-      } catch (error: any) {
-    logger.warn('[Migration Import] JSON parse failed', error);
+      } catch (error: unknown) {logger.warn('[Migration Import] JSON parse failed', error);
     redactedData = this.redactText(raw);
   }
     } else {

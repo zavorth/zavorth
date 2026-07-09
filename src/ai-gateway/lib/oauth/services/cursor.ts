@@ -1,7 +1,5 @@
 import { CURSOR_CONFIG } from "../constants/oauth";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * Cursor IDE OAuth Service
  * Supports Import Token method from Cursor IDE's local SQLite database
  *
@@ -148,8 +146,7 @@ export class CursorService {
           userId: decoded.sub || decoded.user_id,
         };
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Token is not a JWT, that's okay
+    } catch (error: unknown) {// Token is not a JWT, that's okay
       logger.warn('[cursor] JSON parse failed', error);
     }
 

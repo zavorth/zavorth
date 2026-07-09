@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿import fs from 'node:fs';
 import path from 'node:path';
 
@@ -136,7 +137,8 @@ export class PluginMarketplaceService {
           this.plugins.set(plugin.id, plugin);
         }
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
       logger.warn(`[PluginMarketplace] Failed to load plugins catalog: ${message}`);
     }
@@ -151,7 +153,8 @@ export class PluginMarketplaceService {
           this.reviews.set(review.pluginId, list);
         }
       }
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
       logger.warn(`[PluginMarketplace] Failed to load reviews: ${message}`);
     }
@@ -168,7 +171,8 @@ export class PluginMarketplaceService {
         for (const r of list) allReviews.push(r);
       });
       fs.writeFileSync(reviewsFile, JSON.stringify(allReviews, null, 2), 'utf-8');
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
       logger.error(`[PluginMarketplace] Failed to persist marketplace data: ${message}`);
     }
@@ -277,8 +281,9 @@ export class PluginMarketplaceService {
       await this.persistData();
 
       return { success: true, pluginId: id, message: 'Plugin installed successfully', path: installPath };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Plugin Marketplace] load operation failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Plugin Marketplace] load operation failed', error);
     const message = err instanceof Error ? err.message : 'Unknown installation error';
       return { success: false, pluginId: id, message, path: installPath };
   }
@@ -307,8 +312,9 @@ export class PluginMarketplaceService {
       await this.persistData();
 
       return { success: true, pluginId: id, message: 'Plugin uninstalled successfully', path: installPath };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Plugin Marketplace] filesystem operation failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Plugin Marketplace] filesystem operation failed', error);
     const message = err instanceof Error ? err.message : 'Unknown uninstallation error';
       return { success: false, pluginId: id, message, path: installPath };
   }

@@ -14,8 +14,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] validation failed', error);
+  } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
@@ -28,7 +27,7 @@ export async function POST(request: Request) {
     const { tool, version } = validation.data;
     const result = await installTool(tool, version || undefined);
     return NextResponse.json({ success: true, ...result });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Installation failed";
     console.error("[version-manager] install error:", message);
     return NextResponse.json({ error: message }, { status: 500 });

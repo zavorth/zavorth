@@ -4,9 +4,7 @@ import { getModelAliases, setModelAlias, getProviderConnections } from "@/models
 import { AI_MODELS, PROVIDER_ID_TO_ALIAS } from "@/shared/constants/models";
 import { updateModelAliasSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-// GET /api/models - Get models with aliases (only from active providers by default)
+import { logger } from '@/shared/utils/logger';// GET /api/models - Get models with aliases (only from active providers by default)
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -31,8 +29,7 @@ export async function GET(request: Request) {
           const alias = PROVIDER_ID_TO_ALIAS[pId];
           if (alias) activeProviders.add(alias);
         }
-      } catch (error: any) { const err = error; const e = error;
-      // If DB unavailable, show all models
+      } catch (error: unknown) {// If DB unavailable, show all models
       logger.warn('[route] operation failed', error);
     }
     }
@@ -49,8 +46,7 @@ export async function GET(request: Request) {
     }).filter((m: any) => showAll || m.available);
 
     return NextResponse.json({ models });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching models:", error);
+  } catch (error: unknown) {console.log("Error fetching models:", error);
     return NextResponse.json({ error: "Failed to fetch models" }, { status: 500 });
   }
 }
@@ -63,8 +59,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {
@@ -98,8 +93,7 @@ export async function PUT(request) {
     await setModelAlias(model, alias);
 
     return NextResponse.json({ success: true, model, alias });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating alias:", error);
+  } catch (error: unknown) {console.log("Error updating alias:", error);
     return NextResponse.json({ error: "Failed to update alias" }, { status: 500 });
   }
 }

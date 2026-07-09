@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-
 export type MinimalCapabilityKind =
   | 'core'
   | 'channel'
@@ -188,7 +187,7 @@ export class MinimalCapabilityRegistry {
           for (const item of items) {
             manifests.push(this.normalizeManifest(item, filePath, 'manifest'));
           }
-        } catch (error: any) { const err = error; const e = error;
+        } catch (error: unknown) {
           invalidManifests.push({
             filePath,
             reason: error instanceof Error ? error.message : String(error),

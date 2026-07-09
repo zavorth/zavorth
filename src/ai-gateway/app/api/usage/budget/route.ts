@@ -3,9 +3,7 @@ import { getCostSummary, setBudget, checkBudget } from "@/domain/costRules";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { setBudgetSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-export async function GET(request) {
+import { logger } from '@/shared/utils/logger';export async function GET(request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -18,8 +16,7 @@ export async function GET(request) {
     const summary = getCostSummary(apiKeyId);
     const budgetCheck = checkBudget(apiKeyId);
     return NextResponse.json({ ...summary, budgetCheck });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error fetching budget summary:", error);
+  } catch (error: unknown) {console.error("Error fetching budget summary:", error);
     return NextResponse.json({ error: "Failed to fetch budget summary" }, { status: 500 });
   }
 }
@@ -31,8 +28,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {
@@ -53,8 +49,7 @@ export async function POST(request) {
 
     setBudget(apiKeyId, { dailyLimitUsd, monthlyLimitUsd, warningThreshold });
     return NextResponse.json({ success: true, apiKeyId, dailyLimitUsd });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error setting budget:", error);
+  } catch (error: unknown) {console.error("Error setting budget:", error);
     return NextResponse.json({ error: "Failed to set budget" }, { status: 500 });
   }
 }

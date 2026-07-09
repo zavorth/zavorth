@@ -385,8 +385,7 @@ export class ZavorthMaturityService {
       return {
         scripts: parsed.scripts || {},
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Maturity] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Maturity] JSON parse failed', error);
     return { scripts: {} };
   }
   }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ProviderSecretInput } from './ProviderSecretInput.js';
+import { errorMessage } from '../lib/errors';
 
 export interface ProviderConfigPayload {
   providerId?: string;
@@ -85,8 +86,8 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
     try {
       await onSave(formData);
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to save provider.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to save provider.'));
     } finally {
       setLoading(false);
     }
@@ -117,8 +118,8 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
         ok: data.data.ok,
         message: data.data.message || (data.data.ok ? 'Connection successful.' : 'Connection failed.')
       });
-    } catch (err: any) {
-      setTestResult({ ok: false, message: err.message || 'Failed to run test' });
+    } catch (err: unknown) {
+      setTestResult({ ok: false, message: errorMessage(err, 'Failed to run test') });
     } finally {
       setTesting(false);
     }
@@ -143,7 +144,19 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
             <label className="text-xs font-semibold text-gray-400">Provider Type</label>
             <select
               value={formData.type}
-              onChange={e => handleTypeChange(e.target.value as any)}
+              onChange={e => {
+                const next = e.target.value;
+                if (
+                  next === 'openai'
+                  || next === 'anthropic'
+                  || next === 'google'
+                  || next === 'openrouter'
+                  || next === 'ollama'
+                  || next === 'openai-compatible'
+                ) {
+                  handleTypeChange(next);
+                }
+              }}
               disabled={!!providerToEdit}
               className="bg-gray-900 border border-gray-700 rounded-md py-2 px-3 text-sm text-gray-100 disabled:opacity-50"
             >
@@ -224,8 +237,8 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
                       if (!res.ok) throw new Error('Falha ao remover a chave');
                       setFormData({ ...formData, configured: false, apiKey: '' });
                       alert('Key removed successfully. Status was updated to Missing.');
-                    } catch (err: any) {
-                      alert(err.message);
+                    } catch (err: unknown) {
+                      alert(errorMessage(err));
                     }
                   }}
                   className="absolute right-3 top-3 text-xs text-red-400 hover:text-red-300"

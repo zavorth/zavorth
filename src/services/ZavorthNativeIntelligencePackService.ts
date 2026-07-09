@@ -273,8 +273,7 @@ export class ZavorthNativeIntelligencePackService {
         if (!manifestMatchesDefinition) {
           issues.push('manifest does not match native definition');
         }
-      } catch (error: any) {
-        issues.push('manifest is not valid JSON');
+      } catch (error: unknown) {issues.push('manifest is not valid JSON');
       }
     }
 

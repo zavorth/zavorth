@@ -1,6 +1,7 @@
 import { updateToolHealth } from "@/lib/db/versionManager";
 import { safeFetch } from "../../../security/SafeFetchService.js";
 import { logger } from '../logger.js';
+import { asErrorLike } from '../../../utils/errorLike';
 
 interface HealthResult {
   healthy: boolean;
@@ -35,7 +36,8 @@ async function checkHealth(url: string, healthPath?: string): Promise<HealthResu
     const modelCount = Array.isArray(data.data) ? data.data.length : 0;
 
     return { healthy: true, latency, modelCount, error: null };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[health Monitor] network request failed', error);
     const latency = Date.now() - start;
     const message = err instanceof Error ? err.message : String(err);

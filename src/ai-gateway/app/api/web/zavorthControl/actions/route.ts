@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { isUnsafeCrossSiteMutation } from "../../runtime-engine-state";
 import { nowIso } from "../zavorthControlApiSnapshot";
-import { logger } from '@/shared/utils/logger';
-
-export async function POST(request: Request) {
+import { logger } from '@/shared/utils/logger';export async function POST(request: Request) {
   if (isUnsafeCrossSiteMutation(request)) {
     return NextResponse.json({
       ok: false,
@@ -13,8 +11,7 @@ export async function POST(request: Request) {
   let body: Record<string, unknown> = {};
   try {
     body = (await request.json()) as Record<string, unknown>;
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     body = {};
   }
   return NextResponse.json({

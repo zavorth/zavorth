@@ -1,8 +1,6 @@
 import { getSyncedAvailableModels, getAllSyncedAvailableModels } from "@/lib/db/models";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
-import { logger } from '@/shared/utils/logger';
-
-/**
+import { logger } from '@/shared/utils/logger';/**
  * GET /api/synced-available-models?provider=<id>
  * List synced available models for a provider (or all providers).
  */
@@ -25,8 +23,7 @@ export async function GET(request: Request) {
 
     const allModels = await getAllSyncedAvailableModels();
     return Response.json(allModels);
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] search failed', error);
+  } catch (error: unknown) {logger.warn('[route] search failed', error);
     return Response.json(
       { error: { message: "Failed to fetch synced available models", type: "server_error" } },
       { status: 500 }

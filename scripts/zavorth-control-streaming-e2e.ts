@@ -142,7 +142,7 @@ function readRequestJson(request: http.IncomingMessage): Promise<unknown> {
       }
       try {
         resolve(JSON.parse(raw));
-      } catch (error) {
+      } catch (error: unknown) {
         reject(error);
       }
     });

@@ -12,7 +12,6 @@ import type {
   WorkflowWorkspaceContext,
 } from '@zavorth/runtime/workflows/WorkflowRunService.js';
 import { telegramLegacySurfacePolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramLegacySurfacePolicyService.js';
-
 type ExecutionControllerLike = {
   executeImmediate(ctx: Context, task: Task, isDryRun: boolean): Promise<void>;
 };
@@ -217,7 +216,7 @@ export class TelegramTaskAutoRouteService {
           );
           return;
         }
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error || 'unknown error');
         await ctx.reply(`Could not prepare this video link right now.\n\nReason: ${message}`);
         return;

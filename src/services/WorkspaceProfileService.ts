@@ -205,7 +205,7 @@ export class WorkspaceProfileService {
 
     try {
       return JSON.parse(await fs.promises.readFile(packageJsonPath, 'utf8')) as Record<string, any>;
-    } catch (error: any) { logger.warn('[Workspace Profile] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Workspace Profile] JSON parse failed', error); return null; }
   }
 
   private async detectLockFiles(workspace: string): Promise<string[]> {
@@ -474,8 +474,7 @@ export class WorkspaceProfileService {
     try {
       const rawContent = await fs.promises.readFile(path.join(workspace, fileName), 'utf8');
       return this.parseWorkspaceInstructions(filePath, rawContent);
-    } catch (error: any) {
-    logger.warn('[Workspace Profile] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[Workspace Profile] filesystem operation failed', error);
     return {
         filePath,
         sources: [filePath],
@@ -580,8 +579,7 @@ export class WorkspaceProfileService {
         } else {
           notes.push(`Diretorio de skills detectado em ${directory}`);
         }
-      } catch (error: any) {
-        notes.push(`Diretorio de skills detectado em ${directory}`);
+      } catch (error: unknown) {notes.push(`Diretorio de skills detectado em ${directory}`);
       }
     }
     return notes;
@@ -673,8 +671,7 @@ export class WorkspaceProfileService {
       let entries: string[] = [];
       try {
         entries = fs.readdirSync(current);
-      } catch (error: any) {
-        continue;
+      } catch (error: unknown) {continue;
       }
 
       for (const entry of entries) {
@@ -692,8 +689,7 @@ export class WorkspaceProfileService {
           if (extensions.includes(path.extname(entry).toLowerCase())) {
             return true;
           }
-        } catch (error: any) {
-          continue;
+        } catch (error: unknown) {continue;
         }
       }
     }

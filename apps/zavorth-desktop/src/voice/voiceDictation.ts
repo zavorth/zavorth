@@ -28,7 +28,22 @@ export function speechRecognitionAvailability(globalLike: SpeechRecognitionGloba
   return { available: true };
 }
 
-export function speechRecognitionConstructor(globalLike: SpeechRecognitionGlobal | undefined | null): any | null {
+// Browser SpeechRecognition constructors are not in the standard TS lib everywhere.
+export type SpeechRecognitionConstructor = new () => {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript?: string }>> }) => void) | null;
+  onerror: ((event: { error?: string }) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
+  abort?(): void;
+};
+
+export function speechRecognitionConstructor(
+  globalLike: SpeechRecognitionGlobal | undefined | null,
+): SpeechRecognitionConstructor | null {
   const ctor = globalLike?.SpeechRecognition || globalLike?.webkitSpeechRecognition;
-  return typeof ctor === 'function' ? ctor : null;
+  return typeof ctor === 'function' ? (ctor as SpeechRecognitionConstructor) : null;
 }

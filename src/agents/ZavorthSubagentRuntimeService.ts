@@ -73,9 +73,7 @@ import {
 ZavorthSubagentBoardService,
   type ZavorthSubagentBoardSnapshot,
   type ZavorthSubagentBoardTask,
-} from '../services/ZavorthSubagentBoardService.js';
-
-type DecideSecurityPolicy = (
+} from '../services/ZavorthSubagentBoardService.js';type DecideSecurityPolicy = (
   request: SecurityPolicyBrokerRequest,
   runtime?: { now?: () => Date },
 ) => SecurityPolicyBrokerDecision;
@@ -1607,8 +1605,7 @@ export class ZavorthSubagentRuntimeService {
       } finally {
         board.close();
       }
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Subagent Runtime] resource cleanup failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Subagent Runtime] resource cleanup failed', error);
     snapshot = null;
   }
     const sessions = (snapshot?.sessions || []).map((session) => ({
@@ -1808,8 +1805,7 @@ export class ZavorthSubagentRuntimeService {
           : [],
         batchRuns: positiveInteger((parsed as Partial<StoredState>).batchRuns, 0),
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth Subagent Runtime] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Subagent Runtime] parsing failed', error);
     return emptyState();
   }
   }

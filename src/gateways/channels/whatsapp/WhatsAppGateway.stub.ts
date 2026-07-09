@@ -5,7 +5,6 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 import { logger } from '../../../logger.js';
-
 interface CloudApiSendResult {
   messaging_product?: string;
   contacts?: Array<{ input: string; wa_id: string }>;
@@ -189,7 +188,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
 
     try {
       return JSON.parse(fs.readFileSync(config.whatsappStatusFile, 'utf8')) as WhatsAppGatewayStatusSnapshot;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Whats App way.stub] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Whats App way.stub] JSON parse failed', error); return null; }
   }
 
   public async requestLoginQr(): Promise<WhatsAppLoginQrReceipt> {
@@ -521,7 +520,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
         if (value) {
           return { value, source: candidate };
         }
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         this.lastError = `Could not read the WhatsApp QR from ${candidate}: ${error instanceof Error ? error.message : String(error)}`;
         return null;
       }
@@ -562,8 +561,8 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
         }),
         updatedAt: new Date().toISOString(),
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Whats App way.stub] validation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Whats App way.stub] validation failed', error);
     return {
         ...status,
         state: 'error',
@@ -776,8 +775,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     let responsePayload: CloudApiSendResult | null = null;
     try {
       responsePayload = await response.json() as CloudApiSendResult;
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Whats App way.stub] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Whats App way.stub] load operation failed', error);
     responsePayload = null;
   }
 

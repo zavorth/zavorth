@@ -133,7 +133,7 @@ export class LRUCache {
   #estimateSize(value: unknown): number {
     try {
       return JSON.stringify(value).length * 2;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[cache Layer] cache operation failed', error); return 1024; }
+    } catch (error: unknown) {logger.warn('[cache Layer] cache operation failed', error); return 1024; }
   }
 
   /**

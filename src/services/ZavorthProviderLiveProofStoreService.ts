@@ -76,8 +76,7 @@ export class ZavorthProviderLiveProofStoreService {
           .map(normalizeEntry)
           .filter((entry): entry is ZavorthProviderLiveProofEntry => Boolean(entry)),
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth  Live Proof Store] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth  Live Proof Store] parsing failed', error);
     return this.emptyDocument();
   }
   }

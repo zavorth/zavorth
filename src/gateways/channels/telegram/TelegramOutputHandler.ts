@@ -5,9 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../../../config/index.js';
 import { buildCapabilityProvisionHint, isCapabilityUnavailableError } from '../../../services/OptionalCapabilityGuard.js';
-import { AudioHandler } from '../../../gateways/channels/telegram/AudioHandler.js';
-
-const TELEGRAM_MAX_LENGTH = 4096;
+import { AudioHandler } from '../../../gateways/channels/telegram/AudioHandler.js';const TELEGRAM_MAX_LENGTH = 4096;
 
 export interface OutputResult {
   text: string;
@@ -48,8 +46,7 @@ export class TelegramOutputHandler {
       } else {
         await this.sendText(ctx, result.text);
       }
-    } catch (error: any) { const err = error; const e = error;
-      logger.error(`[OutputHandler] Erro ao enviar resposta: ${error}`);
+    } catch (error: unknown) {logger.error(`[OutputHandler] Erro ao enviar resposta: ${error}`);
       await this.sendError(ctx, 'Falha ao enviar resposta. Tente novamente.');
     }
   }
@@ -80,8 +77,7 @@ export class TelegramOutputHandler {
       await ctx.replyWithDocument(new InputFile(filePath, fileName), {
         caption: `Documento gerado: ${fileName}`,
       });
-    } catch (error: any) { const err = error; const e = error;
-      logger.error(`[OutputHandler] Erro ao enviar arquivo: ${error}`);
+    } catch (error: unknown) {logger.error(`[OutputHandler] Erro ao enviar arquivo: ${error}`);
       await this.sendText(ctx, `Nao consegui gerar o arquivo. Conteudo em texto:\n\n${content}`);
     } finally {
       if (fs.existsSync(filePath)) {
@@ -100,8 +96,7 @@ export class TelegramOutputHandler {
       let audioPath: string | null = null;
       try {
         audioPath = await this.audioHandler.synthesize(text);
-      } catch (error: any) { const err = error; const e = error;
-        if (isCapabilityUnavailableError(error)) {
+      } catch (error: unknown) {if (isCapabilityUnavailableError(error)) {
           await this.sendText(
             ctx,
             `A resposta em audio pediu a capability opcional de midia, que ainda nao esta ativa neste host.\n${buildCapabilityProvisionHint(error.capabilityId)}\n\nResposta em texto:\n\n${text}`,
@@ -121,8 +116,7 @@ export class TelegramOutputHandler {
 
       logger.warn('[OutputHandler] TTS falhou, enviando como texto.');
       await this.sendText(ctx, text);
-    } catch (error: any) { const err = error; const e = error;
-      logger.error(`[OutputHandler] Erro no envio de audio: ${error}`);
+    } catch (error: unknown) {logger.error(`[OutputHandler] Erro no envio de audio: ${error}`);
       await this.sendText(ctx, `Falha ao gerar audio. Resposta em texto:\n\n${text}`);
     }
   }
@@ -183,8 +177,7 @@ export class TelegramOutputHandler {
   private async safeSend(ctx: Context, text: string): Promise<void> {
     try {
       await ctx.reply(text);
-    } catch (error: any) { const err = error; const e = error;
-      const telegramError = error as TelegramApiError;
+    } catch (error: unknown) {const telegramError = error as TelegramApiError;
       if (telegramError?.error_code === 429) {
         const retryAfter = telegramError?.parameters?.retry_after || 5;
         await this.sleep(retryAfter * 1000);

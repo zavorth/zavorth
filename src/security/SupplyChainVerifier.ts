@@ -79,7 +79,7 @@ export class SupplyChainVerifier {
     let hash: string;
     try {
       hash = await this.calculateHash(skillPath);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         verified: false,
@@ -109,8 +109,7 @@ export class SupplyChainVerifier {
         trustedKey = this.trustedKeys.has(keyFingerprint);
         try {
           signatureValid = this.verifySignature(skillPath, signature, keyFingerprint);
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Supply Chain Verifier] validation failed', error);
+        } catch (error: unknown) {logger.warn('[Supply Chain Verifier] validation failed', error);
     signatureValid = false;
   }
       }
@@ -221,7 +220,7 @@ export class SupplyChainVerifier {
 
     try {
       return verify.verify(keyData.publicKey, signature, 'hex');
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Supply Chain Verifier] creation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Supply Chain Verifier] creation failed', error); return false; }
   }
 
   private extractKeyFingerprint(signature: string): string | null {
@@ -340,8 +339,7 @@ export class SupplyChainVerifier {
           }
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      // ignore load errors
+    } catch (error: unknown) {// ignore load errors
       logger.warn('[Supply Chain Verifier] JSON parse failed', error);
     }
 

@@ -3,6 +3,7 @@ import { SwarmOrchestrator, type SwarmRole } from '@zavorth/runtime/sessions/v2/
 import { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
 import path from 'path';
 import { logger } from '../../../../logger';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 type TelegramSwarmDeps = {
   botApi: {
@@ -129,7 +130,8 @@ export class TelegramSwarmController {
         : finalMessage;
 
       await this.deps.botApi.sendMessage(chatId, truncated, { parse_mode: 'Markdown' });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const errMessage = err instanceof Error ? err.message : String(err);
       await this.deps.botApi.sendMessage(chatId,
         `🐝❌ **Swarm failed**: ${errMessage}`,
@@ -174,8 +176,7 @@ export class TelegramSwarmController {
         `\`[Researcher]\` ${researcherStatus} ${status === 'running' && roleId.includes('researcher') ? 'Processing...' : ''}`,
         `\`[Actor]\`      ${actorStatus} ${status === 'running' && roleId.includes('actor') ? 'Processing...' : ''}`,
       ].join('\n'), { parse_mode: 'Markdown' });
-    } catch (error: any) { const err = error; const e = error;
-      // edit may fail if message is unchanged or too fast — ignore
+    } catch (error: unknown) {// edit may fail if message is unchanged or too fast — ignore
       logger.warn('[Telegram Swarm] parsing failed', error);
     }
   }

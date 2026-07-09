@@ -4,6 +4,7 @@ import { SwarmOrchestrator, type SwarmRole } from '../runtime/sessions/v2/SwarmO
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import { asErrorLike } from '../utils/errorLike';
 
 export class SwarmExecutor implements IExecutor {
   public readonly name = 'swarm';
@@ -98,7 +99,8 @@ export class SwarmExecutor implements IExecutor {
       const snapshot = await orchestrator.execute();
       success = snapshot.status === 'completed';
       outputSummary = snapshot.synthesizedOutput || 'Synthesis not generated due to internal failure.';
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       outputSummary = `Critical failure during Swarm Orchestrator execution: ${err.message || err}`;
       errorCode = 'SWARM_ORCHESTRATOR_FAULT';
     }

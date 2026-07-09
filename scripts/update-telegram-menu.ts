@@ -2,6 +2,7 @@ import { Bot } from 'grammy';
 import { config } from '../src/config/index.js';
 import { TelegramMenuController } from '../src/telegram/controllers/TelegramMenuController.js';
 import dotenv from 'dotenv';
+import { asErrorLike } from '../src/utils/errorLike';
 
 dotenv.config();
 
@@ -19,7 +20,9 @@ async function updateMenu() {
     await menuController.registerTelegramMenu();
     console.log('✅ Menu do Telegram atualizado com sucesso!');
     console.log('Nota: Pode levar alguns minutos para o cache do app do Telegram atualizar no seu celular.');
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     console.error('❌ Falha ao atualizar o menu:', error.message);
   }
 }

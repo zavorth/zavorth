@@ -10,9 +10,7 @@ import {
   sanitizeQuotaProvider,
   type QuotaProviderEntry,
   type QuotaTokenStatus,
-} from "@/shared/contracts/quota";
-
-type ProviderConnectionRecord = Record<string, unknown>;
+} from "@/shared/contracts/quota";type ProviderConnectionRecord = Record<string, unknown>;
 
 function toDateMs(value: unknown): number | null {
   if (typeof value !== "string" || !value.trim()) return null;
@@ -171,8 +169,7 @@ export async function GET(request: Request) {
     );
 
     return NextResponse.json(response);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API] GET /api/usage/quota error:", error);
+  } catch (error: unknown) {console.error("[API] GET /api/usage/quota error:", error);
     return NextResponse.json({ error: "Failed to fetch quota data" }, { status: 500 });
   }
 }

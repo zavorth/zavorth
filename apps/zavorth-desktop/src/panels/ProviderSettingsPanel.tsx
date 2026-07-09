@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Plus, Server, Edit2, Trash2, Key, CheckCircle2, XCircle, ChevronRight, HelpCircle } from 'lucide-react';
 import { ProviderConfigPayload } from '../components/ProviderSetupModal.js';
+import { errorMessage } from '../lib/errors';
 
 export function ProviderSettingsPanel() {
   const [providers, setProviders] = useState<ProviderConfigPayload[]>([]);
@@ -54,8 +55,8 @@ export function ProviderSettingsPanel() {
         setFormData({ ...list[0], apiKey: '' });
         setDetailMode('view');
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load providers');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to load providers'));
     } finally {
       setLoading(false);
     }
@@ -121,8 +122,8 @@ export function ProviderSettingsPanel() {
       }
       await fetchProviders();
       setDetailMode('view');
-    } catch (err: any) {
-      alert('Failed to save: ' + err.message);
+    } catch (err: unknown) {
+      alert('Failed to save: ' + errorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -138,8 +139,8 @@ export function ProviderSettingsPanel() {
       
       setSelectedProviderId(null);
       await fetchProviders();
-    } catch (err: any) {
-      alert('Failed to remove: ' + err.message);
+    } catch (err: unknown) {
+      alert('Failed to remove: ' + errorMessage(err));
     }
   };
 
@@ -158,8 +159,8 @@ export function ProviderSettingsPanel() {
       } else {
         setTestResult({ ok: false, message: 'Connection failed: ' + (data.data?.message || data.error) });
       }
-    } catch (err: any) {
-      setTestResult({ ok: false, message: 'Failed to test: ' + err.message });
+    } catch (err: unknown) {
+      setTestResult({ ok: false, message: 'Failed to test: ' + errorMessage(err) });
     } finally {
       setTesting(false);
     }
@@ -671,7 +672,19 @@ export function ProviderSettingsPanel() {
                     <select
                       className="zvd-select"
                       value={formData.type}
-                      onChange={e => handleTypeChange(e.target.value as any)}
+                      onChange={e => {
+                        const next = e.target.value;
+                        if (
+                          next === 'openai'
+                          || next === 'anthropic'
+                          || next === 'google'
+                          || next === 'openrouter'
+                          || next === 'ollama'
+                          || next === 'openai-compatible'
+                        ) {
+                          handleTypeChange(next);
+                        }
+                      }}
                     >
                       <option value="openai">OpenAI</option>
                       <option value="anthropic">Anthropic</option>

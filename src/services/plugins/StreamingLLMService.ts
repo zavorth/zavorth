@@ -153,7 +153,7 @@ export class StreamingLLMService {
             session.total_tokens += chunk.tokens;
             options?.onChunk?.(chunk);
           }
-        } catch (error: any) { /* skip non-JSON lines */ logger.warn('[Streaming L L M] parsing failed', error); }
+        } catch (error: unknown) {/* skip non-JSON lines */ logger.warn('[Streaming L L M] parsing failed', error); }
       }
 
       session.status = 'complete';
@@ -161,7 +161,7 @@ export class StreamingLLMService {
       options?.onComplete?.(session);
 
       return fullContent;
-    } catch (error: any) {
+    } catch (error: unknown) {
       session.status = 'error';
       session.error = error instanceof Error ? error.message : String(error);
       options?.onError?.(session.error);

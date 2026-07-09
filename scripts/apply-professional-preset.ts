@@ -13,7 +13,7 @@ try {
   });
   console.log('Preset applied successfully!');
   console.log(result.summary);
-} catch (error) {
+} catch (error: unknown) {
   console.error('Failed to apply preset:', error);
   process.exit(1);
 }

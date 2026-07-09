@@ -3,7 +3,6 @@ import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
-
 const ALLOWED_SCOPES = ['global', 'session', 'task'] as const;
 type AllowedScope = (typeof ALLOWED_SCOPES)[number];
 const ALLOWED_ACTIONS_ON_EXCEED = ['warn', 'throttle', 'block'] as const;
@@ -121,7 +120,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     let sqlite3: any;
     try {
       sqlite3 = await import('better-sqlite3');
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(
         `Erro: driver SQLite real better-sqlite3 indisponivel. Instale as dependencias nativas antes de executar zavorth_token_budget. Detalhe: ${message}`
@@ -219,7 +218,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
         default:
           return `Error: action "${action}" is invalid.`;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       return `Error executing ${action}: ${message}`;
     }

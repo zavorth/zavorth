@@ -10,7 +10,6 @@ import { validateRegisteredOpenAILikeProvider } from "./registeredOpenaiLike.ts"
 import { normalizeBaseUrl } from "../validationHttpSupport.ts";
 import { validationFailure } from "./validationResult.ts";
 import { logger } from '@/shared/utils/logger';
-
 export { validateClaudeCodeCompatibleProvider };
 
 export async function validateProviderApiKey({ provider, apiKey, providerSpecificData = {} }: any) {
@@ -31,8 +30,8 @@ export async function validateProviderApiKey({ provider, apiKey, providerSpecifi
         providerSpecificData: genericOpenAIProviderData,
         modelId: providerSpecificData?.validationModelId || "gpt-4o-mini",
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[provider Validation] delete operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[provider Validation] delete operation failed', error);
     return { valid: false, error: error.message || "Validation failed", unsupported: false };
   }
   }
@@ -51,8 +50,8 @@ export async function validateProviderApiKey({ provider, apiKey, providerSpecifi
         chatPath: providerSpecificData?.chatPath,
         providerSpecificData,
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[provider Validation] validation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[provider Validation] validation failed', error);
     return { valid: false, error: error.message || "Validation failed", unsupported: false };
   }
   }
@@ -116,7 +115,7 @@ export async function validateProviderApiKey({ provider, apiKey, providerSpecifi
     }
 
     return { valid: false, error: "Provider validation not supported", unsupported: true };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[provider Validation] validation failed', error);
     return validationFailure(error.message || "Validation failed", { unsupported: false });
   }

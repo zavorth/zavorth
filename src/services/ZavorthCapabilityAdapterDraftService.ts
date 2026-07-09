@@ -270,7 +270,7 @@ export class ZavorthCapabilityAdapterDraftService {
     assertInside(prototypeRoot, filePath);
     try {
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as PrototypeManifest;
-    } catch (error: any) { logger.warn('[Zavorth Capability Adapter Draft] JSON parse failed', error); return {}; }
+    } catch (error: unknown) {logger.warn('[Zavorth Capability Adapter Draft] JSON parse failed', error); return {}; }
   }
 
   private resolveWorkspace(adapterId: string): string {
@@ -296,8 +296,7 @@ export class ZavorthCapabilityAdapterDraftService {
         adapters: Array.isArray(parsed.adapters) ? parsed.adapters.map(normalizeAdapter).filter(isAdapter) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Capability Adapter Draft] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Capability Adapter Draft] parsing failed', error);
     return this.emptyStore();
   }
   }

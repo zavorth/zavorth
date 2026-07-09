@@ -10,7 +10,6 @@ import { getMcpHttpStatus } from "../../../../../open-sse/mcp-server/httpTranspo
 import { getSettings } from "@/lib/db/settings";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -70,7 +69,7 @@ export async function GET(request: Request) {
         lastCallTool: lastCall?.toolName || null,
       },
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] network request failed', error);
     const message = error instanceof Error ? error.message : "Failed to load MCP status";
     return NextResponse.json({ error: message }, { status: 500 });

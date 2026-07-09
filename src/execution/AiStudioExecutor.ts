@@ -2,9 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { v4 as uuidv4 } from 'uuid';
 import { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionContract.js';
 import { IExecutor } from '../contracts/IExecutor.js';
-import { config } from '../config/index.js';
-
-type AiStudioBuiltinTool = 'google_search' | 'code_execution';
+import { config } from '../config/index.js';type AiStudioBuiltinTool = 'google_search' | 'code_execution';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -218,8 +216,7 @@ export class AiStudioExecutor implements IExecutor {
           return result;
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      const classified = this.classifyError(error);
+    } catch (error: unknown) {const classified = this.classifyError(error);
       result.error_code = classified.code;
       result.error_message = classified.message;
       result.stderr = classified.stderr;
@@ -289,8 +286,7 @@ export class AiStudioExecutor implements IExecutor {
           ? 'Google AI Studio respondeu normalmente.'
           : 'Google AI Studio authenticated, but the probe response was not expected.',
       };
-    } catch (error: any) { const err = error; const e = error;
-      const classified = this.classifyError(error);
+    } catch (error: unknown) {const classified = this.classifyError(error);
       return { ok: false, message: classified.message };
     }
   }

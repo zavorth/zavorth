@@ -11,9 +11,7 @@ import {
   resetRateLimit,
   extractClientIp,
   applyRateLimitHeaders,
-} from "@/lib/rateLimiter";
-
-// SECURITY: No hardcoded fallback — JWT_SECRET must be configured.
+} from "@/lib/rateLimiter";// SECURITY: No hardcoded fallback — JWT_SECRET must be configured.
 if (!process.env.JWT_SECRET) {
   console.error("[SECURITY] FATAL: JWT_SECRET is not set. Login authentication is disabled.");
 }
@@ -148,8 +146,7 @@ export async function POST(request) {
     const failResponse = authJson({ error: "Invalid password" }, { status: 401 });
     applyRateLimitHeaders(failResponse.headers, rateLimitResult);
     return failResponse;
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[AUTH] Login failed:", error);
+  } catch (error: unknown) {console.error("[AUTH] Login failed:", error);
     return authJson({ error: "Internal server error" }, { status: 500 });
   }
 }

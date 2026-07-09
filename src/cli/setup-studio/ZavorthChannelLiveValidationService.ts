@@ -1,6 +1,5 @@
 import net from 'net';
 import { logger } from '../../logger.js';
-
 export type ZavorthChannelLiveValidationStatus = 'not-requested' | 'passed' | 'failed' | 'unsupported';
 
 export type ZavorthChannelLiveValidationInput = {
@@ -74,7 +73,7 @@ export async function validateZavorthChannelLive(
       return result(input, channelId, 'passed', 'SMTP host accepted a TCP connection. No email was sent.', true);
     }
     return result(input, channelId, 'unsupported', `${channelId || 'unknown'} does not have a live setup test yet.`, false);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[Zavorth Channel Live Validation] connection failed', error);
     return result(
       input,

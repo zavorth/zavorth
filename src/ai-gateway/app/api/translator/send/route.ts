@@ -13,7 +13,6 @@ import { translatorSendSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { assertProviderRequestTargetAllowed } from "@/lib/security/egressGuard";
 import { logger } from '@/shared/utils/logger';
-
 function getProviderBaseUrl(providerSpecificData: unknown): string | undefined {
   if (!providerSpecificData || typeof providerSpecificData !== "object") return undefined;
   const baseUrl = (providerSpecificData as Record<string, unknown>).baseUrl;
@@ -27,8 +26,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] string operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] string operation failed', error);
     return NextResponse.json(
       {
         success: false,
@@ -97,7 +95,7 @@ export async function POST(request) {
     // Send request to provider
     try {
       await assertProviderRequestTargetAllowed(url);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Provider URL blocked by egress policy";
       return NextResponse.json(
         { success: false, error: message },
@@ -158,8 +156,7 @@ export async function POST(request) {
         Connection: "keep-alive",
       },
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error sending request:", error);
+  } catch (error: unknown) {console.error("Error sending request:", error);
     return NextResponse.json({ success: false, error: "Failed to send request" }, { status: 500 });
   }
 }

@@ -5,7 +5,6 @@ import { config } from '../../config/index.js';
 import type { ZavorthMutationPlan } from '../../contracts/ZavorthMutationPlaneContract.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
-
 export type AgentRunIntelligenceFabricDraftWorkspaceWrite = {
   path: string;
   content: string;
@@ -190,7 +189,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
           fs.mkdirSync(path.dirname(record.targetPath), { recursive: true });
           fs.writeFileSync(record.targetPath, write.content, 'utf8');
         });
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         this.restoreRollback(records);
         return {
           status: 'failed',
@@ -214,7 +213,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
         touchedFiles: records.map((record) => record.relativePath),
         blockedReasons: [],
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return blocked(error instanceof Error ? error.message : String(error));
     }
   }
@@ -237,7 +236,7 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
         touchedFiles: records.map((record) => record.relativePath),
         blockedReasons: [],
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         status: 'failed',
         ok: false,
@@ -371,7 +370,7 @@ export function previewDraftWorkspacePatches(input: {
         continue;
       }
       files.push(patchPreviewFile(relativePath, patch, 'passed', sha256(currentContent), sha256(patchResult.content), []));
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const reason = error instanceof Error ? error.message : String(error);
       files.push(patchPreviewFile(patch.path, patch, 'blocked', null, null, [reason]));
       blockedReasons.push(reason);

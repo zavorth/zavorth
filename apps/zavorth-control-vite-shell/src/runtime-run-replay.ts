@@ -117,7 +117,7 @@ export function createRuntimeRunReplay({
       const runId = row.dataset.zavorthRunId;
       try {
         openRunDetails(runId);
-      } catch (error: any) {
+      } catch (error: unknown) {
         window.emitSignal?.('error', 'Replay unavailable', String(error?.message || 'Run not found.'));
       }
     });

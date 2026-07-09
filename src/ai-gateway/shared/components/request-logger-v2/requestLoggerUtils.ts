@@ -13,6 +13,7 @@ ProviderNode,
   RequestLoggerStats,
   RequestLoggerVisibleColumns,
 } from "./requestLoggerTypes";
+import { asErrorLike } from '../../../../utils/errorLike';
 
 export function getProviderDisplayLabel(
   provider: string | undefined,
@@ -51,13 +52,15 @@ export function loadVisibleColumns(): RequestLoggerVisibleColumns {
   try {
     const saved = localStorage.getItem(LOGGER_VISIBLE_COLUMNS_STORAGE_KEY);
     return saved ? { ...DEFAULT_VISIBLE, ...JSON.parse(saved) } : DEFAULT_VISIBLE;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[request Logger Utils] JSON parse failed', error); return DEFAULT_VISIBLE; }
+  } catch (error: unknown) {logger.warn('[request Logger Utils] JSON parse failed', error); return DEFAULT_VISIBLE; }
 }
 
 export function persistVisibleColumns(next: RequestLoggerVisibleColumns): void {
   try {
     localStorage.setItem(LOGGER_VISIBLE_COLUMNS_STORAGE_KEY, JSON.stringify(next));
-  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn("[auto-fix] Empty catch block", err); }
 }
 
 export function buildLogsQuery(params: {

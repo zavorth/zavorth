@@ -1,6 +1,4 @@
-import type { OAuthCallbackData } from "./oauthModalTypes";
-
-const GOOGLE_OAUTH_PROVIDERS = new Set(["zavorthBridge", "gemini-cli"]);
+import type { OAuthCallbackData } from "./oauthModalTypes";const GOOGLE_OAUTH_PROVIDERS = new Set(["zavorthBridge", "gemini-cli"]);
 const DEVICE_CODE_PROVIDERS = new Set(["github", "qwen", "kiro", "kimi-coding", "kilocode"]);
 const MANUAL_INPUT_PROVIDERS = new Set(["claude", "cline"]);
 
@@ -114,8 +112,7 @@ export function parseCallbackInput(
       error: url.searchParams.get("error"),
       errorDescription: url.searchParams.get("error_description"),
     };
-  } catch (error: any) { const err = error; const e = error;
-    const [rawCode, rawState] = input.split("#", 2);
+  } catch (error: unknown) {const [rawCode, rawState] = input.split("#", 2);
     return {
       code: rawCode || null,
       state: rawState || fallbackState || null,

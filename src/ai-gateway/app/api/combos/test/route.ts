@@ -7,7 +7,6 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { testComboSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
-
 async function testComboModel(modelStr, internalUrl) {
   const startTime = Date.now();
   try {
@@ -45,8 +44,7 @@ async function testComboModel(modelStr, internalUrl) {
       let responseBody = null;
       try {
         responseBody = await res.json();
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] cache operation failed', error);
+      } catch (error: unknown) {logger.warn('[route] cache operation failed', error);
     responseBody = null;
   }
 
@@ -68,8 +66,7 @@ async function testComboModel(modelStr, internalUrl) {
     try {
       const errBody = await res.json();
       errorMsg = errBody?.error?.message || errBody?.error || res.statusText;
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+    } catch (error: unknown) {logger.warn('[route] network request failed', error);
     errorMsg = res.statusText;
   }
 
@@ -80,7 +77,7 @@ async function testComboModel(modelStr, internalUrl) {
       error: errorMsg,
       latencyMs,
     };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const latencyMs = Date.now() - startTime;
     return {
       model: modelStr,
@@ -103,8 +100,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] operation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -147,8 +143,7 @@ export async function POST(request) {
       results,
       testedAt: new Date().toISOString(),
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error testing combo:", error);
+  } catch (error: unknown) {console.log("Error testing combo:", error);
     return NextResponse.json({ error: "Failed to test combo" }, { status: 500 });
   }
 }

@@ -16,9 +16,7 @@ import type { AgentRunExecutionOptions } from '../runtime/agent/AgentRunService.
 import type {
   UniversalAgentRequest,
   UniversalAgentRunResult,
-} from '../runtime/agent/UniversalAgentRuntimeTypes.js';
-
-export type ProjectLogWatchEventStatus =
+} from '../runtime/agent/UniversalAgentRuntimeTypes.js';export type ProjectLogWatchEventStatus =
   | 'recorded'
   | 'deduped'
   | 'rate_limited'
@@ -361,8 +359,7 @@ export class ProjectLogWatchService {
       event.agentRunStatus = result.run.status;
       event.status = 'agent_run_created';
       event.updatedAt = this.nowIso();
-    } catch (error: any) { const err = error; const e = error;
-      event.status = 'agent_run_failed';
+    } catch (error: unknown) {event.status = 'agent_run_failed';
       event.error = errorMessage(error);
       event.updatedAt = this.nowIso();
     }
@@ -651,8 +648,7 @@ function defaultIdFactory(prefix: string): string {
 function matchesPattern(text: string, pattern: string): boolean {
   try {
     return new RegExp(pattern, 'i').test(text);
-  } catch (error: any) { const err = error; const e = error;
-    return normalizeText(text).toLowerCase().includes(normalizeText(pattern).toLowerCase());
+  } catch (error: unknown) {return normalizeText(text).toLowerCase().includes(normalizeText(pattern).toLowerCase());
   }
 }
 

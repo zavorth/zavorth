@@ -255,8 +255,7 @@ export class NodeHostCapabilityService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: any) {
-    logger.warn('[Node Host Capability] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Node Host Capability] load operation failed', error);
     return {
         ok: false,
         result: buildScopeViolationResult({

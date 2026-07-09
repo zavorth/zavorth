@@ -5,9 +5,7 @@ import {
   resetComboMetrics,
   resetAllComboMetrics,
 } from "@ZavorthGateway/open-sse/services/comboMetrics.ts";
-import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-
-// GET /api/combos/metrics - Get per-combo metrics
+import { requireManagementAuth } from "@/lib/api/requireManagementAuth";// GET /api/combos/metrics - Get per-combo metrics
 export async function GET(request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -26,8 +24,7 @@ export async function GET(request) {
 
     const allMetrics = getAllComboMetrics();
     return NextResponse.json({ metrics: allMetrics });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching combo metrics:", error);
+  } catch (error: unknown) {console.log("Error fetching combo metrics:", error);
     return NextResponse.json({ error: "Failed to fetch combo metrics" }, { status: 500 });
   }
 }
@@ -48,8 +45,7 @@ export async function DELETE(request) {
 
     resetAllComboMetrics();
     return NextResponse.json({ success: true, message: "All combo metrics reset" });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error resetting combo metrics:", error);
+  } catch (error: unknown) {console.log("Error resetting combo metrics:", error);
     return NextResponse.json({ error: "Failed to reset combo metrics" }, { status: 500 });
   }
 }

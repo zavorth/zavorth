@@ -3,7 +3,6 @@ import { getTelemetrySummary } from "@/shared/utils/requestTelemetry";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
 import { logger } from '@/shared/utils/logger';
-
 export async function GET(request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -13,7 +12,7 @@ export async function GET(request) {
     const windowMs = safeParseInt(searchParams.get("windowMs"), 300000);
     const summary = getTelemetrySummary(windowMs);
     return NextResponse.json(summary);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] parsing failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

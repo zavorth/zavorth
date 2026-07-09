@@ -9,14 +9,14 @@ export async function safeAsync<T>(fn: () => T | Promise<T>, fallback: T): Promi
   try {
     const value = await fn();
     return (value === undefined ? fallback : value) as T;
-  } catch (error: any) { logger.warn('[Replay Learning Control Plane] operation failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[Replay Learning Control Plane] operation failed', error); return fallback; }
 }
 
 export function safeSync<T>(fn: () => T, fallback: T): T {
   try {
     const value = fn();
     return value === undefined ? fallback : value;
-  } catch (error: any) { logger.warn('[Replay Learning Control Plane] operation failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[Replay Learning Control Plane] operation failed', error); return fallback; }
 }
 
 export function normalizeReplayLearningLimit(limit: number | null | undefined): number {

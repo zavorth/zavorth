@@ -1,8 +1,6 @@
 import React from '../../../apps/zavorth-desktop/node_modules/react';
 
-// ---------------------------------------------------------------------------
 // Lightweight mock DOM (reuse pattern from DesktopReadOnlyFileExplorer.test.ts)
-// ---------------------------------------------------------------------------
 class MockElement {
   nodeType = 1;
   tagName: string;
@@ -83,7 +81,7 @@ class MockElement {
       if (propsKey) {
         const rProps = current[propsKey];
         if (rProps?.onClick) {
-          try { rProps.onClick(event); } catch (e: any) { /* ignore */ }
+          try { rProps.onClick(event); } catch (error: unknown) { /* ignore */ }
         }
       }
       if ((event as any)._stopped) break;
@@ -213,9 +211,7 @@ const mockWindow = {
 (global as any).cancelAnimationFrame = (id: any) => clearTimeout(id);
 (global as any).IS_REACT_ACT_ENVIRONMENT = true;
 
-// ---------------------------------------------------------------------------
 // Imports (after globals are set)
-// ---------------------------------------------------------------------------
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRoot, type Root } from '../../../apps/zavorth-desktop/node_modules/react-dom/client';

@@ -1,3 +1,8 @@
+import { asErrorLike } from '../../../src/utils/errorLike';
+import { createShellLogger } from './shell-debug';
+
+const log = createShellLogger('voice');
+
 export type VoiceTranscript = {
   transcript: string;
   language: string;
@@ -118,15 +123,17 @@ export function bindVoiceDictation({
     if (activeRecognition && isListening()) {
       try {
         activeRecognition.stop();
-      } catch (e) {
-        console.warn(e);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        log.warn('recognition stop', err);
       }
     }
     if (activeRecorder && activeRecorder.state !== 'inactive') {
       try {
         activeRecorder.stop();
-      } catch (e) {
-        console.warn(e);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        log.warn('recorder stop', err);
       }
     }
     if (recordingStream) {
@@ -198,8 +205,8 @@ export function bindVoiceDictation({
       setOverlayText(voiceOverlay, 'Recording audio... Click to stop.');
 
       recorder.start();
-    } catch (error) {
-      console.error('Error starting MediaRecorder:', error);
+    } catch (error: unknown) {
+      log.error('Error starting MediaRecorder', error);
       onNotice(voiceNotice('Microphone access is blocked. Allow microphone permission for this site and try again.'));
     }
   }
@@ -212,7 +219,7 @@ export function bindVoiceDictation({
 
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Recognition) {
-      console.warn('SpeechRecognition is not supported. Attempting raw audio recording fallback...');
+      log.warn('SpeechRecognition is not supported; using raw audio fallback');
       await startAudioRecording();
       return;
     }
@@ -243,7 +250,7 @@ export function bindVoiceDictation({
     };
 
     recognition.onerror = async (event) => {
-      console.warn('SpeechRecognition failed with error:', event?.error);
+      log.warn('SpeechRecognition failed', event?.error);
       stopListening();
 
       // Seamless fallback on network or service blockages!

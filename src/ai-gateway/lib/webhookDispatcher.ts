@@ -69,7 +69,7 @@ export async function deliverWebhook(
 ): Promise<{ success: boolean; status: number; error?: string }> {
   try {
     await assertWebhookTargetAllowed(url);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[webhook Dispatcher] network request failed', error);
     return {
       success: false,
@@ -115,7 +115,7 @@ export async function deliverWebhook(
       if (attempt < maxRetries) {
         await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000));
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (attempt === maxRetries) {
         return { success: false, status: 0, error: error.message || "Network error" };
       }

@@ -523,7 +523,7 @@ export class ZavorthWorkspaceMemoryOsService {
     }
     try {
       return await this.memoryService.listAll(userId);
-    } catch (error: any) { logger.warn('[Zavorth Workspace Memory Os] operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Workspace Memory Os] operation failed', error); return []; }
   }
 
   private buildWorkspaceProfile(input: {
@@ -819,7 +819,7 @@ export class ZavorthWorkspaceMemoryOsService {
         return null;
       }
       return JSON.parse(String(this.readFileSync(packagePath, 'utf8') || '{}')) as Record<string, unknown>;
-    } catch (error: any) { logger.warn('[Zavorth Workspace Memory Os] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Workspace Memory Os] JSON parse failed', error); return null; }
   }
 
   private existsInWorkspace(workspace: string | null, target: string): boolean {
@@ -828,7 +828,7 @@ export class ZavorthWorkspaceMemoryOsService {
     }
     try {
       return this.existsSync(path.join(workspace, target));
-    } catch (error: any) { logger.warn('[Zavorth Workspace Memory Os] JSON parse failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Zavorth Workspace Memory Os] JSON parse failed', error); return false; }
   }
 
   private findImportantDirectories(workspace: string | null): string[] {
@@ -846,7 +846,7 @@ export class ZavorthWorkspaceMemoryOsService {
         .map((entry: Dirent) => String(entry.name))
         .filter((name) => !name.startsWith('.') && name !== 'node_modules' && name !== 'dist')
         .slice(0, 8);
-    } catch (error: any) { logger.warn('[Zavorth Workspace Memory Os] filesystem operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Workspace Memory Os] filesystem operation failed', error); return []; }
   }
 
   private pickScripts(scripts: Record<string, string>, preferred: string[]): string[] {
@@ -911,7 +911,7 @@ export class ZavorthWorkspaceMemoryOsService {
     }
     try {
       return path.resolve(normalized);
-    } catch (error: any) { logger.warn('[Zavorth Workspace Memory Os] path resolution failed', error); return normalized; }
+    } catch (error: unknown) {logger.warn('[Zavorth Workspace Memory Os] path resolution failed', error); return normalized; }
   }
 
   private buildNarrative(

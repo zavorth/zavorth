@@ -27,6 +27,7 @@ import {
 } from "../../../../../services/providers/catalog/ModelCatalogAggregationService.js";
 import type { ProviderModel } from "@ZavorthGateway/open-sse/config/providerModels.ts";
 import type { SyncedAvailableModel } from "@/lib/db/models";
+import { asErrorLike } from '../../../../../utils/errorLike';
 
 interface LocalRegistryModel {
   provider: string;
@@ -174,7 +175,7 @@ export async function getUnifiedModelsResponse(
     let settings: Record<string, unknown> = {};
     try {
       settings = await getSettings();
-    } catch (e: any) { const error = e; const err = e; console.warn('[catalog] Failed to fetch settings for auth check:', e); }
+    } catch (error: unknown) { const err = asErrorLike(error); console.warn('[catalog] Failed to fetch settings for auth check:', err); }
     if (settings.requireAuthForModels === true) {
       if (!(await isAuthenticated(request))) {
         return Response.json(
@@ -205,8 +206,7 @@ export async function getUnifiedModelsResponse(
       totalConnectionCount = connections.length;
       // Filter to only active connections
       connections = connections.filter((c) => c.isActive !== false);
-    } catch (e: any) { const error = e; const err = e;
-      // If database not available, show no provider models (safe default)
+    } catch (error: unknown) { // If database not available, show no provider models (safe default)
       console.log("[catalog] Could not fetch providers:", e);
     }
 
@@ -214,8 +214,7 @@ export async function getUnifiedModelsResponse(
     let providerNodes = [];
     try {
       providerNodes = await getProviderNodes();
-    } catch (e: any) { const error = e; const err = e;
-      console.log("Could not fetch provider nodes");
+    } catch (error: unknown) {console.log("Could not fetch provider nodes");
     }
 
     // Build map of provider node ID to prefix and type for compatible providers
@@ -234,8 +233,7 @@ export async function getUnifiedModelsResponse(
     let combos = [];
     try {
       combos = await getCombos();
-    } catch (e: any) { const error = e; const err = e;
-      console.log("Could not fetch combos");
+    } catch (error: unknown) {console.log("Could not fetch combos");
     }
 
     // Build set of active provider aliases
@@ -326,7 +324,8 @@ export async function getUnifiedModelsResponse(
                 return modelType === "audio" ? [baseModel, { ...baseModel, subtype: "speech" }] : [baseModel];
               }),
           });
-        } catch (err: any) { const error = err; const e = err;
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
           console.error("[catalog] Error fetching synced Gemini models:", err);
         }
       }
@@ -455,8 +454,7 @@ export async function getUnifiedModelsResponse(
               }),
           });
         }
-      } catch (e: any) { const error = e; const err = e;
-        console.log("Could not fetch custom models");
+      } catch (error: unknown) {console.log("Could not fetch custom models");
       }
 
       const fallbackCatalogs: ModelCatalogProviderInput[] = connections.flatMap((conn) => {
@@ -611,7 +609,8 @@ export async function getUnifiedModelsResponse(
             });
           }
         }
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         console.error("[catalog] Error fetching synced Gemini models:", err);
       }
     }
@@ -809,8 +808,7 @@ export async function getUnifiedModelsResponse(
           }
         }
       }
-    } catch (e: any) { const error = e; const err = e;
-      console.log("Could not fetch custom models");
+    } catch (error: unknown) {console.log("Could not fetch custom models");
     }
 
     // Add managed fallback models for compatible providers that don't import a model list.
@@ -887,7 +885,7 @@ export async function getUnifiedModelsResponse(
         headers: corsHeaders,
       }
     );
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Error fetching models:", error);
     return Response.json(
       { error: { message: error instanceof Error ? error.message : "Unknown error", type: "server_error" } },

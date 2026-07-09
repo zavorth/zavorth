@@ -111,7 +111,7 @@ export class ZavorthLiveSubagentExecutionService {
           maxOutputChars: input.maxOutputChars,
           maxToolCalls: input.maxToolCalls,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         const completedAt = this.now().toISOString();
         return {
           workerId,
@@ -270,8 +270,8 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
         try {
           toolResult = await this.toolRuntime.executeTool(toolCall.name, toolCall.arguments);
           toolStats.executed += 1;
-        } catch (error: any) {
-    logger.warn('[Zavorth Live Subagent Execution] process execution failed', error);
+        } catch (error: unknown) {
+          logger.warn('[Zavorth Live Subagent Execution] process execution failed', error);
     toolResult = `Tool ${toolCall.name} failed: ${error instanceof Error ? error.message : String(error)}`;
   }
         toolMessages.push({

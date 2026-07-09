@@ -8,6 +8,7 @@ import {
     resolveBrowserTargetPolicy,
     type BrowserTargetPolicy,
 } from '../../security/WhitelistConfig.js';
+import { asErrorLike } from '../../../utils/errorLike';
 
 type BrowserSelfHealingSnapshot = {
     attemptedAt: string;
@@ -126,8 +127,8 @@ export class PlaywrightActionTool implements IZavorthTool {
                             error: `Navigation blocked by file policy: ${resolvedTargetPolicy.filePath}`,
                         };
                     }
-                } catch (error: any) { const err = error; const e = error;
-                    const errorMessage = error instanceof Error ? error.message : 'URL blocked by browser policy.';
+                } catch (error: unknown) {
+                  const errorMessage = error instanceof Error ? error.message : 'URL blocked by browser policy.';
                     return {
                         success: false,
                         error: errorMessage,
@@ -199,8 +200,8 @@ export class PlaywrightActionTool implements IZavorthTool {
                 this.readSelfHealing(extraData?.selfHealing),
             );
             return await this.buildResponse(sessionId, page, actionMessage, extraData);
-        } catch (error: any) { const err = error; const e = error;
-            const errorMessage = error instanceof Error ? error.message : String(error);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
             return {
                 success: false,
                 message: `Error interacting with the site: ${errorMessage}`,
@@ -366,8 +367,10 @@ export class PlaywrightActionTool implements IZavorthTool {
                 extraData: direct.extraData,
                 selfHealing: null,
             };
-        } catch (directError: any) { const error = directError; const err = directError; const e = directError;
-            const heuristicCandidates = await this.buildRepairCandidates(
+        } catch (directError: unknown) {
+          const err = asErrorLike(directError);
+          const error = err;
+          const heuristicCandidates = await this.buildRepairCandidates(
                 input.page,
                 input.selector,
                 input.action,
@@ -554,8 +557,7 @@ export class PlaywrightActionTool implements IZavorthTool {
         for (const attempt of attempts) {
             try {
                 return await attempt();
-            } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Playwright Action] async operation failed', error);
+            } catch (error: unknown) {logger.warn('[Playwright Action] async operation failed', error);
     lastError = error;
   }
         }
@@ -607,8 +609,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                         providerName: meta.providerName,
                     },
                 };
-            } catch (error: any) { const err = error; const e = error;
-      // Try the next fallback candidate.
+            } catch (error: unknown) {// Try the next fallback candidate.
       logger.warn('[Playwright Action] operation failed', error);
     }
         }
@@ -755,6 +756,6 @@ export class PlaywrightActionTool implements IZavorthTool {
         try {
             const currentUrl = String(page.url() || '').trim();
             return currentUrl.length > 0 ? currentUrl : null;
-        } catch (error: any) { const err = error; const e = error; logger.warn('[Playwright Action] code compilation failed', error); return null; }
+        } catch (error: unknown) {logger.warn('[Playwright Action] code compilation failed', error); return null; }
     }
 }

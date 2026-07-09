@@ -14,9 +14,7 @@ import {
 import {
   IntelligenceFabricPostDefaultHealthService,
   type IntelligenceFabricPostDefaultHealthSnapshot,
-} from '../../services/IntelligenceFabricPostDefaultHealthService.js';
-
-export const RUN_OBSERVATORY_CONTRACT_VERSION = '2026-05-03.run-observatory' as const;
+} from '../../services/IntelligenceFabricPostDefaultHealthService.js';export const RUN_OBSERVATORY_CONTRACT_VERSION = '2026-05-03.run-observatory' as const;
 
 export type UniversalAgentRunObservatoryQuery = {
   runId?: string | null;
@@ -264,8 +262,7 @@ function toSerializableRecord(value: unknown): Record<string, unknown> | undefin
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : undefined;
-  } catch (error: any) { const err = error; const e = error;
-    return undefined;
+  } catch (error: unknown) {return undefined;
   }
 }
 
@@ -763,14 +760,12 @@ function buildSidecars(generatedAt: string): UniversalAgentRunObservatorySidecar
 
   try {
     health = new SidecarStatusService().list();
-  } catch (error: any) { const err = error; const e = error;
-    health = [];
+  } catch (error: unknown) {health = [];
   }
 
   try {
     receipts = new SidecarExecutionReceiptService().buildSnapshot(20);
-  } catch (error: any) { const err = error; const e = error;
-    receipts = {
+  } catch (error: unknown) {receipts = {
       ...receipts,
       generatedAt,
     };

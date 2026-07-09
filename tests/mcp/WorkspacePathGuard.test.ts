@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { WorkspacePathGuard } from '../../src/mcp/workspace/WorkspacePathGuard.js';
+import { asErrorLike } from '../../src/utils/errorLike';
 
 describe('WorkspacePathGuard', () => {
   let root: string;
@@ -72,11 +73,11 @@ describe('WorkspacePathGuard', () => {
       expect(() => {
         guard.resolve('symlink-to-outside.txt');
       }).toThrow('Dangerous symlink outside workspace detected');
-    } catch (e: any) {
-      if (e.code === 'EPERM') {
+    } catch (error: unknown) { const err = asErrorLike(error);
+if (err.code === 'EPERM') {
         console.warn('Skipping symlink test due to Windows EPERM (requires admin rights).');
       } else {
-        throw e;
+        throw err;
       }
     } finally {
       try {
@@ -155,11 +156,11 @@ describe('WorkspacePathGuard', () => {
       expect(() => {
         guard.resolveExisting('safe.txt');
       }).toThrow('Access to sensitive file ".env" is blocked.');
-    } catch (e: any) {
-      if (e.code === 'EPERM') {
+    } catch (error: unknown) { const err = asErrorLike(error);
+if (err.code === 'EPERM') {
         console.warn('Skipping inner symlink to .env test due to Windows EPERM (requires admin rights).');
       } else {
-        throw e;
+        throw err;
       }
     }
   });

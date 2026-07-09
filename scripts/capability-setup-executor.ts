@@ -1,4 +1,5 @@
 import { ZavorthCapabilitySetupExecutorApiService } from '../src/services/ZavorthCapabilitySetupExecutorApiService.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 const args = process.argv.slice(2);
 const api = new ZavorthCapabilitySetupExecutorApiService();
@@ -20,7 +21,8 @@ try {
   } else {
     console.log(api.renderReport(readNumber('--limit') || 20));
   }
-} catch (error) {
+} catch (error: unknown) {
+  const err = asErrorLike(error);
   const message = error instanceof Error ? error.message : String(error);
   if (asJson) {
     console.log(JSON.stringify({ status: 'failed', error: message }, null, 2));

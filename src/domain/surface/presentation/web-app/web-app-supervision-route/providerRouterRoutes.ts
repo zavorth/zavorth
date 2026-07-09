@@ -1,7 +1,6 @@
 import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
 import type { WebAppSupervisionRouteHandler } from './types.js';
 import { asNullableString, getRequestedBy } from './helpers.js';
-
 interface ProviderRouterService {
   buildSnapshot(): Record<string, unknown>;
   getLastReceipt(): Record<string, unknown> | null;
@@ -72,7 +71,7 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
         budgetPreference: asNullableString(body.budgetPreference) || 'auto',
       });
       deps.writeJson(res, { ok: true, receipt }, 200);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       deps.writeJson(
         res,
         { ok: false, error: error instanceof Error ? error.message : 'Falha ao rotear a requisicao.' },

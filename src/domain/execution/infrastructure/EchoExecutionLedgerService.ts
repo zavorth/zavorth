@@ -1,9 +1,7 @@
 import type { EchoExecutionEntry } from '../../../echo/types/EchoTypes.js';
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../../../logger.js';
-
-type EchoExecutionLedgerOptions = {
+import { logger } from '../../../logger.js';type EchoExecutionLedgerOptions = {
   maxEntries?: number;
   filePath?: string | null;
 };
@@ -59,8 +57,7 @@ export class EchoExecutionLedgerService {
         this.entries.length,
         ...records.map((entry): EchoExecutionEntry => this.clone(entry as EchoExecutionEntry)).slice(-this.maxEntries),
       );
-    } catch (error: any) { const err = error; const e = error;
-      this.entries.splice(0, this.entries.length);
+    } catch (error: unknown) {this.entries.splice(0, this.entries.length);
     }
   }
 
@@ -76,8 +73,7 @@ export class EchoExecutionLedgerService {
         JSON.stringify({ entries: this.entries.slice(-this.maxEntries) }, null, 2),
         'utf8',
       );
-    } catch (error: any) { const err = error; const e = error;
-      // Persistence is best-effort; callers still receive the in-process ledger.
+    } catch (error: unknown) {// Persistence is best-effort; callers still receive the in-process ledger.
       logger.warn('[Execution Ledger] filesystem operation failed', error);
     }
   }

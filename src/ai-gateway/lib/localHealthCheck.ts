@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 /**
  * Local Provider Health Check
  *
@@ -85,7 +86,7 @@ function isLocalhostUrl(baseUrl: string): boolean {
       u.hostname === "127.0.0.1" ||
       /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(u.hostname)
     );
-  } catch (error: any) { const err = error; const e = error; logger.warn('[local  Check] network request failed', error); return false; }
+  } catch (error: unknown) {logger.warn('[local  Check] network request failed', error); return false; }
 }
 
 function getNextInterval(failures: number): number {
@@ -117,7 +118,8 @@ async function checkNode(node: {
       responseTimeMs: Date.now() - start,
       lastError: isHealthy ? undefined : `HTTP ${res.status}`,
     };
-  } catch (err: any) { const error = err; const e = err;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const message = err instanceof Error ? err.message : "Connection failed";
     return {
       nodeId: node.id,
@@ -145,7 +147,8 @@ export async function sweep(): Promise<void> {
         (n: Record<string, unknown>) =>
           typeof n.baseUrl === "string" && isLocalhostUrl(n.baseUrl as string)
       ) as Array<{ id: string; prefix: string; baseUrl: string }>;
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error(LOG_PREFIX, "Failed to load provider_nodes:", err);
       return;
     }

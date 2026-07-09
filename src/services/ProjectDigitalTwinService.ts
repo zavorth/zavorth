@@ -108,13 +108,13 @@ export class ProjectDigitalTwinService {
   private safeReadDir(dir: string): string[] {
     try {
       return this.readdirSync(dir);
-    } catch (error: any) { logger.warn('[Project Digital Twin] filesystem operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Project Digital Twin] filesystem operation failed', error); return []; }
   }
 
   private safeStat(target: string): fs.Stats | null {
     try {
       return this.statSync(target);
-    } catch (error: any) { logger.warn('[Project Digital Twin] filesystem operation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Project Digital Twin] filesystem operation failed', error); return null; }
   }
 
   private readPackageSummary(root: string): AgentOsProjectTwinSnapshot['packageSummary'] {
@@ -131,8 +131,7 @@ export class ProjectDigitalTwinService {
         dependencies: Object.keys(parsed.dependencies || {}).slice(0, 40).map((entry) => truncateAgentOsText(entry, 80)),
         devDependencies: Object.keys(parsed.devDependencies || {}).slice(0, 40).map((entry) => truncateAgentOsText(entry, 80)),
       };
-    } catch (error: any) {
-    logger.warn('[Project Digital Twin] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Project Digital Twin] parsing failed', error);
     return { scripts: [], dependencies: [], devDependencies: [] };
   }
   }

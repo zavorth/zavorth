@@ -3,7 +3,6 @@ import { ZavorthBridgeWindowAutomator } from '../../../../agents/ZavorthBridgeWi
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { logger } from '../../../../logger';
-
 export type ZavorthBridgeCompanionBridgeLike = Pick<ZavorthBridgeCompanionBridge, 'readStatus' | 'isOnline'>;
 export type ZavorthBridgeWindowAutomatorLike = Pick<
   ZavorthBridgeWindowAutomator,
@@ -135,8 +134,8 @@ export class TelegramZavorthBridgePermissionAutomationService {
         const effectiveProcessId = Number(candidatePid || approvalResult.pid || 0);
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }
     }
@@ -157,8 +156,8 @@ export class TelegramZavorthBridgePermissionAutomationService {
         const effectiveProcessId = Number(candidatePid || rejectionResult.pid || 0);
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
-      } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }
     }

@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
 import path from 'path';
-
 import { config } from '../config/index.js';
 import {
   ZavorthSkillCuratorLiveLoopService,
@@ -699,7 +698,7 @@ export class SkillCuratorPlaneService {
         ],
         error: null,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         ...this.emptyLlmReview('failed'),
         providerName: this.llmProviderName || null,
@@ -815,8 +814,7 @@ export class SkillCuratorPlaneService {
         enabled: this.enabled,
         skillStates: parsed.skillStates && typeof parsed.skillStates === 'object' ? parsed.skillStates : {},
       };
-    } catch (error: any) { const err = error; const e = error;
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+    } catch (error: unknown) {if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
         throw error;
       }
       return this.defaultState();

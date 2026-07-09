@@ -1,9 +1,7 @@
 import { Context } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
-import { SmartOutputService } from '../../../../services/SmartOutputService.js';
-
-type BotApiLike = {
+import { SmartOutputService } from '../../../../services/SmartOutputService.js';type BotApiLike = {
   sendMessage(chatId: string | number, text: string, other?: Record<string, unknown>): Promise<unknown>;
 };
 
@@ -84,8 +82,7 @@ export class TelegramZavorthBridgeResearchService {
       );
       this.deps.taskManager.advanceState(task, 'completed');
       return true;
-    } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
-      const fallbackMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+    } catch (fallbackError: unknown) {const fallbackMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
       task.error_summary = zavorthBridgeError
         ? `ZavorthBridge: ${zavorthBridgeError.message}\nFallback web: ${fallbackMsg}`
         : `Web research: ${fallbackMsg}`;

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { asErrorLike } from '../utils/errorLike';
 
 export interface BackupManifest {
   files: Array<{ originalPath: string; backupPath: string; timestamp: string }>;
@@ -43,7 +44,8 @@ export class HostBackupStore {
         });
         this.pruneRelatedBackups(manifest, filePath);
         this.options.log(`  Backed up: ${basename} -> ${backupName}`);
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         this.options.log(`  Failed to backup ${filePath}: ${err.message}`);
       }
     }
@@ -88,7 +90,8 @@ export class HostBackupStore {
         }
         fs.copyFileSync(entry.backupPath, originalPath);
         this.options.log(`  Restored: ${path.basename(originalPath)}`);
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         this.options.log(`  Failed to restore ${originalPath}: ${err.message}`);
       }
     }
@@ -107,8 +110,7 @@ export class HostBackupStore {
       if (fs.existsSync(entry.backupPath)) {
         try {
           fs.unlinkSync(entry.backupPath);
-        } catch (error: any) { const err = error; const e = error;
-          // Ignore cleanup failure for old backups.
+        } catch (error: unknown) {// Ignore cleanup failure for old backups.
         }
       }
     }
@@ -122,8 +124,7 @@ export class HostBackupStore {
       if (fs.existsSync(this.options.manifestPath)) {
         return JSON.parse(fs.readFileSync(this.options.manifestPath, 'utf-8'));
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Ignore malformed manifest and rebuild it on the next save.
+    } catch (error: unknown) {// Ignore malformed manifest and rebuild it on the next save.
     }
 
     return { files: [], lastStableTimestamp: '' };

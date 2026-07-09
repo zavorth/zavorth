@@ -713,7 +713,7 @@ export async function executeCliTaskDispatch(
     );
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     if (showSpinner) {
       globalSpinner.fail('Failed to dispatch the task');
     }
@@ -1322,7 +1322,7 @@ export async function executeCliUniversalAgentRuntime(
       output: [body],
       error: result.ok ? null : result.run.summary,
     };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     if (showSpinner) {
       globalSpinner.fail('Runtime command failed');
     }
@@ -1581,7 +1581,7 @@ export async function executeCliLegacyUnifiedConversation(
       output: [body],
       error: null,
     };
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     const message = `Could not process this conversation through the unified CLI: ${error.message}`;
     if (flags.repl) {
       const body = formatCliRecoverableErrorEventCard({
@@ -1631,7 +1631,7 @@ export async function showCurationNotifications(
       );
       writer.line('\n' + card);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // ignore
   }
 
@@ -1652,7 +1652,7 @@ export async function showCurationNotifications(
         writer.line('\n' + card);
       }
     }
-  } catch (error) {
+  } catch (error: unknown) {
     // ignore
   }
 }

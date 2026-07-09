@@ -330,7 +330,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
           } else {
             button.removeAttribute('disabled');
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           button.removeAttribute('disabled');
           window.emitSignal?.('info', 'Memory action failed', String(error?.message || error || 'Request failed.'));
         }
@@ -366,7 +366,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
             <small>${options.escapeHtml((hit.rankSources || []).join(', ') || 'ranked')} - ${options.escapeHtml(String(hit.score || ''))}</small>
           </article>
         `).join('');
-      } catch (error: any) {
+      } catch (error: unknown) {
         result.innerHTML = `<div class="mnemos-recall-empty">Recall failed: ${options.escapeHtml(error?.message || error || 'request failed')}</div>`;
       }
     });

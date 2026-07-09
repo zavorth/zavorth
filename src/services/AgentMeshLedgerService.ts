@@ -64,13 +64,11 @@ export class AgentMeshLedgerService {
           if (isBlockedStatus(receipt.status)) {
             this.blockedExecutions++;
           }
-        } catch (error: any) {
-      // Ignore malformed ledger lines.
+        } catch (error: unknown) {// Ignore malformed ledger lines.
       logger.warn('[Agent Mesh Ledger] JSON parse failed', error);
     }
       }
-    } catch (error: any) {
-      logger.error('Failed to load Agent Mesh Ledger:', error);
+    } catch (error: unknown) {logger.error('Failed to load Agent Mesh Ledger:', error);
     }
   }
 
@@ -79,8 +77,7 @@ export class AgentMeshLedgerService {
       const dir = path.dirname(this.ledgerPath);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       fs.appendFileSync(this.ledgerPath, `${JSON.stringify(sanitizeReceipt(receipt))}\n`);
-    } catch (error: any) {
-      logger.error('Failed to append to Agent Mesh Ledger:', error);
+    } catch (error: unknown) {logger.error('Failed to append to Agent Mesh Ledger:', error);
     }
   }
 }

@@ -145,7 +145,7 @@ export class TransactionalExecutionService {
           this.mkdirSync(path.dirname(target), { recursive: true });
           this.writeFileSync(target, write.content, 'utf8');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         this.rollbackManager.restore({ workspaceRoot, artifactPath: rollback.artifactPath });
         const summary = `Falha no apply; rollback executado: ${error instanceof Error ? error.message : String(error)}`;
         this.mutationPlane.markBlocked(plan.id, summary);
@@ -181,7 +181,7 @@ export class TransactionalExecutionService {
         rollbackArtifactPath: rollback.artifactPath,
         blockedReasons: [],
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const summary = error instanceof Error ? error.message : String(error);
       this.mutationPlane.markBlocked(plan.id, summary);
       return this.commitBlocked(plan.id, transactionId, summary, [summary]);
@@ -255,7 +255,7 @@ export class TransactionalExecutionService {
       }
       try {
         WorkspaceResolver.ensurePathInsideWorkspace(input.workspaceRoot, write.path);
-      } catch (error: any) {
+      } catch (error: unknown) {
         blockers.push(error instanceof Error ? error.message : String(error));
       }
     }

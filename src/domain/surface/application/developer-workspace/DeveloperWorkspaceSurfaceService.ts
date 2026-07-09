@@ -23,9 +23,7 @@ DEVELOPER_WORKSPACE_SURFACE_CONTRACT_VERSION,
   type DeveloperWorkspaceSurfaceOperationContract,
   type DeveloperWorkspaceSurfaceProcess,
   type DeveloperWorkspaceSurfaceSnapshot,
-} from './DeveloperWorkspaceSurfaceContract.js';
-
-export type DeveloperWorkspaceSurfaceOptions = {
+} from './DeveloperWorkspaceSurfaceContract.js';export type DeveloperWorkspaceSurfaceOptions = {
   loader?: ProjectManifestLoader;
   workspaceService?: ProjectWorkspaceService;
   processSupervisor?: ProjectProcessSupervisor;
@@ -272,8 +270,7 @@ export class DeveloperWorkspaceSurfaceService {
         snapshot,
         message: `Developer Workspace executou ${action}.`,
       });
-    } catch (error: any) { const err = error; const e = error;
-      const snapshot = this.buildSnapshot(input);
+    } catch (error: unknown) {const snapshot = this.buildSnapshot(input);
       return this.actionResult({
         ok: false,
         httpStatus: 500,
@@ -302,8 +299,7 @@ export class DeveloperWorkspaceSurfaceService {
           manifestPath: input.manifestPath || undefined,
         }),
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Developer Workspace Surface] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Developer Workspace Surface] load operation failed', error);
     return {
         ok: false,
         error: error instanceof Error ? error : new Error(String(error || 'unknown manifest error')),

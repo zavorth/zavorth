@@ -1,8 +1,6 @@
 import { Context, Api } from 'grammy';
 import { FunGamesService } from '../../../../services/FunGamesService.js';
-import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
-
-type FunCommand = '/roll' | '/coinflip' | '/8ball' | '/joke' | '/roulette';
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';type FunCommand = '/roll' | '/coinflip' | '/8ball' | '/joke' | '/roulette';
 
 export class TelegramFunController {
   constructor(
@@ -38,8 +36,7 @@ export class TelegramFunController {
         const joke = await this.funGamesService.tellAJoke();
         await this.botApi.editMessageText(ctx.chat!.id, loadingMessage.message_id, joke, { parse_mode: 'Markdown' });
       }
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply('Estou sem paciencia para jogos agora.', {
+    } catch (error: unknown) {await ctx.reply('Estou sem paciencia para jogos agora.', {
         reply_to_message_id: ctx.message?.message_id,
       });
     }

@@ -6,7 +6,6 @@ import { LocalJailSandboxRuntime } from './LocalJailSandboxRuntime.js';
 import { WasmSandboxRuntime } from './WasmSandboxRuntime.js';
 import { SandboxPolicyService, type CodeSandboxPolicy } from './SandboxPolicyService.js';
 import { logger } from '../../logger.js';
-
 export class SecurityOrchestratorEngine {
   private readonly policyService: SandboxPolicyService;
   private readonly dockerRuntime: DockerSandboxRuntime;
@@ -86,7 +85,7 @@ export class SecurityOrchestratorEngine {
           securityLevel: level,
           runtime: runtime.constructor.name,
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`[SecurityOrchestrator] Failed executing with level ${level}: ${error.message}. Trying next fallback...`);
       }
     }

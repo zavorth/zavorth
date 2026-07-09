@@ -8,6 +8,7 @@ import { decideSecurityPolicy } from '../security/SecurityPolicyBroker.js';
 import { Database } from '../storage/Database.js';
 import type { SkillMetadata } from './SkillCatalogContract.js';
 import { ZavorthPathCompactor } from './ZavorthPathCompactor.js';
+import { asErrorLike } from '../utils/errorLike';
 
 /**
  * Options for initializing the preprocessor service.
@@ -159,7 +160,8 @@ export class ZavorthSkillPreprocessorService {
     if (!this.database) {
       try {
         this.database = await Database.getInstance();
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[ZavorthSkillPreprocessorService] Database.getInstance() failed, proceeding with fallback config lookup only.', err);
       }
     }
@@ -194,7 +196,8 @@ export class ZavorthSkillPreprocessorService {
             configKeys = [parsed.config_keys];
           }
         }
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[ZavorthSkillPreprocessorService] Frontmatter parsing failed:', err);
       }
     }
@@ -274,7 +277,8 @@ export class ZavorthSkillPreprocessorService {
             allowed: true,
             output: trimmedOutput,
           });
-        } catch (err: any) { const error = err; const e = err;
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
           const errMsg = err?.message || String(err);
           finalBody += `[Error: ${errMsg}]`;
 
@@ -338,7 +342,8 @@ export class ZavorthSkillPreprocessorService {
         if (stateMetaRow && stateMetaRow.value_json) {
           return JSON.parse(String(stateMetaRow.value_json));
         }
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in zavorth_state_meta:`, err);
       }
 
@@ -359,7 +364,8 @@ export class ZavorthSkillPreprocessorService {
         if (fallbackMemoryRow && fallbackMemoryRow.value !== undefined) {
           return fallbackMemoryRow.value;
         }
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in user_memory:`, err);
       }
 
@@ -371,7 +377,8 @@ export class ZavorthSkillPreprocessorService {
         if (snippetRow && snippetRow.content !== undefined) {
           return snippetRow.content;
         }
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in snippets:`, err);
       }
     }
@@ -394,8 +401,6 @@ export class ZavorthSkillPreprocessorService {
     }
     return current;
   }
-
-  // --- Static Backwards Compatibility Layer ---
 
   /**
    * Preprocesses the capability content by replacing variables, binding configurations,
@@ -468,8 +473,7 @@ export class ZavorthSkillPreprocessorService {
       lines.push(']');
 
       return content + '\n' + lines.join('\n');
-    } catch (error: any) { const err = error; const e = error;
-      return content;
+    } catch (error: unknown) {return content;
     }
   }
 
@@ -529,7 +533,8 @@ export class ZavorthSkillPreprocessorService {
         }
 
         return output || `[Zavorth capability execution finished with exit code ${result.status}]`;
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         return `[Zavorth capability evaluation error: ${err.message}]`;
       }
     });

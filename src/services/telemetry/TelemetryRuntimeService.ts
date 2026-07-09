@@ -70,8 +70,7 @@ export class TelemetryRuntimeService {
         }
       }
       await fs.promises.rename(this.outputFile, `${this.outputFile}.1`).catch(() => undefined);
-    } catch (error: any) {
-      // Telemetria nao pode derrubar o runtime principal.
+    } catch (error: unknown) {// Telemetria nao pode derrubar o runtime principal.
       logger.warn('[Telemetry Runtime] operation failed', error);
     }
   }
@@ -80,6 +79,6 @@ export class TelemetryRuntimeService {
     try {
       await fs.promises.access(filePath);
       return true;
-    } catch (error: any) { logger.warn('[Telemetry Runtime] filesystem check failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Telemetry Runtime] filesystem check failed', error); return false; }
   }
 }

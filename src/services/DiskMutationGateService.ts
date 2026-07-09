@@ -242,7 +242,7 @@ export class DiskMutationGateService {
         this.applyOperation(operation);
         appliedOperations.push(this.receiptOperation(operation, this.inspectAppliedOperation(operation), 'applied'));
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.mutationPlane.markBlocked(
         preview.mutationPlanId,
         error instanceof Error ? error.message : String(error),
@@ -515,8 +515,7 @@ export class DiskMutationGateService {
       if (!isInsidePath(workspaceRoot, realParent)) {
         findings.push(this.blocked(relativePath, 'parent-symlink-escape', 'Parent existente resolve fora do workspace.'));
       }
-    } catch (error: any) {
-      findings.push(this.blocked(relativePath, 'parent-resolution-failed', 'Nao foi possivel resolver o parent do alvo.'));
+    } catch (error: unknown) {findings.push(this.blocked(relativePath, 'parent-resolution-failed', 'Nao foi possivel resolver o parent do alvo.'));
     }
   }
 
@@ -614,7 +613,7 @@ export class DiskMutationGateService {
     try {
       const parsed = JSON.parse(String(this.fsRuntime.readFileSync(receiptPath, 'utf8') || '{}'));
       return Array.isArray(parsed?.receipts) ? parsed.receipts as DiskMutationGateReceipt[] : [];
-    } catch (error: any) { logger.warn('[Disk] JSON parse failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Disk] JSON parse failed', error); return []; }
   }
 
   private resolveWorkspaceRoot(workspaceRoot: string): string {

@@ -1,5 +1,6 @@
 import type {
   ApprovalItem,
+  ChannelItem,
   LearningItem,
   MemoryEncryptionMigrationReceipt,
   MemoryEncryptionStatus,
@@ -22,7 +23,7 @@ export function DesktopInspector(props: {
   activePanel: DesktopPanel;
   approvals: ApprovalItem[];
   busy: boolean;
-  channels: any[];
+  channels: ChannelItem[];
   encryptionReceipt: MemoryEncryptionMigrationReceipt | null;
   encryptionStatus: MemoryEncryptionStatus | null;
   events: BootEvent[];
@@ -187,7 +188,7 @@ function SkillsPanel(props: { tools: ToolItem[] }) {
   );
 }
 
-function ChannelsPanel(props: { channels: any[] }) {
+function ChannelsPanel(props: { channels: ChannelItem[] }) {
   return (
     <PanelScaffold title="Channels" subtitle="Configured routes and readiness.">
       {props.channels.length === 0 ? <EmptyPanel text="No channel readiness is projected yet." /> : props.channels.map((channel, index) => {

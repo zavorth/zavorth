@@ -1,7 +1,5 @@
 import fs from 'node:fs';
-import path from 'node:path';
-
-import type { Context } from 'grammy';
+import path from 'node:path';import type { Context } from 'grammy';
 import { logger } from '../../../logger.js';
 
 export type TelegramAuthorizedChatRecord = {
@@ -73,8 +71,7 @@ export class TelegramAuthorizedChatRegistry {
         updatedAt: cleanOptional(parsed.updatedAt) || new Date(0).toISOString(),
         chats,
       };
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Telegram Authorized Chat Registry] parsing failed', error);
+    } catch (error: unknown) {logger.warn('[Telegram Authorized Chat Registry] parsing failed', error);
     return {
         version: 1,
         updatedAt: new Date(0).toISOString(),

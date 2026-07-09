@@ -1,5 +1,6 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ErrorNormalizationService } from '../../../../src/services/ErrorNormalizationService.js';
+import { errorMessage } from '../lib/errors';
 
 export interface DiagnosticsCheck {
   id: string;
@@ -48,23 +49,29 @@ export const InternalBetaDiagnosticsPanel: React.FC<{ workspaceId: string }> = (
       const normalizer = ErrorNormalizationService.getInstance();
       const sanitizedReport: DiagnosticsReport = {
         ...rawReport,
-        checks: (rawReport.checks || []).map((c: any) => ({
-          ...c,
-          message: normalizer.sanitizeText(c.message),
-          remediation: c.remediation ? normalizer.sanitizeText(c.remediation) : undefined
-        }))
+        checks: (rawReport.checks || []).map((c: unknown) => {
+          const check = (typeof c === 'object' && c !== null) ? c as DiagnosticsCheck : { id: '', status: 'fail' as const, message: '' };
+          return {
+            ...check,
+            message: normalizer.sanitizeText(check.message),
+            remediation: check.remediation ? normalizer.sanitizeText(check.remediation) : undefined
+          };
+        })
       };
 
-      const sanitizedChecklist: ChecklistItem[] = (rawChecklist || []).map((item: any) => ({
-        ...item,
-        title: normalizer.sanitizeText(item.title),
-        description: normalizer.sanitizeText(item.description)
-      }));
+      const sanitizedChecklist: ChecklistItem[] = (rawChecklist || []).map((item: unknown) => {
+        const checklistItem = (typeof item === 'object' && item !== null) ? item as ChecklistItem : { id: '', title: '', description: '', status: 'pending' as const, manual: false };
+        return {
+          ...checklistItem,
+          title: normalizer.sanitizeText(checklistItem.title),
+          description: normalizer.sanitizeText(checklistItem.description)
+        };
+      });
 
       setReport(sanitizedReport);
       setChecklist(sanitizedChecklist);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load panel data.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, 'Failed to load panel data.'));
     } finally {
       setLoading(false);
     }

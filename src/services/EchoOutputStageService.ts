@@ -162,7 +162,7 @@ export class EchoOutputStageService {
       }
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error || 'erro desconhecido');
       if (request.traceId) {
         logEchoTrace(request.traceId, 'voice.send.failed', {

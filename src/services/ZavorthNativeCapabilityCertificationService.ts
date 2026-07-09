@@ -418,8 +418,8 @@ export class ZavorthNativeCapabilityCertificationService {
           `Daemon heartbeat recorded: ${result.safety.heartbeatRecorded ? 'yes' : 'no'}.`,
         ],
       };
-    } catch (error: any) {
-    logger.warn('[Zavorth Native Capability Certification] creation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Native Capability Certification] creation failed', error);
     return {
         id: 'goal-loop-long-session',
         status: 'missing',

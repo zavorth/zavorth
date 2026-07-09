@@ -6,6 +6,7 @@ import { spawnCommand } from '../core/CommandSpawn.js';
 import { buildChildProcessEnv } from '../security/ChildProcessEnv.js';
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike';
 
 /** Error returned by the Gemini CLI process with optional stderr output. */
 interface GeminiCliProcessError extends Error {
@@ -87,8 +88,7 @@ export class GeminiCliExecutor implements IExecutor {
       result.success = true;
       result.actions_executed.push(`[GeminiCLI] Prompt executado (${prompt.length} chars)`);
       result.commands_executed.push(`gemini --prompt "${prompt.substring(0, 80)}..."`);
-    } catch (error: any) { const err = error; const e = error;
-      const classifiedError = this.classifyExecutionError(error);
+    } catch (error: unknown) {const classifiedError = this.classifyExecutionError(error);
       result.error_message = classifiedError.errorMessage;
       result.error_code = classifiedError.errorCode;
       result.stderr = classifiedError.stderr;
@@ -143,7 +143,9 @@ export class GeminiCliExecutor implements IExecutor {
       const timer = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          logger.warn("[auto-fix] Empty catch block", err); }
         reject(new Error(`Gemini CLI timeout apos ${timeoutMs / 1000}s`));
       }, timeoutMs);
 

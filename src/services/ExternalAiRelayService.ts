@@ -114,7 +114,7 @@ export class ExternalAiRelayService {
 
     try {
       analysis = await analyzer.transcribeYouTubeUrl(youtubeUrl, undefined, request.prompt);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       if (message.includes('input token count exceeds')) {
         throw new Error(
@@ -167,7 +167,7 @@ export class ExternalAiRelayService {
       const parsed = new URL(url);
       const host = parsed.hostname.toLowerCase();
       return host.includes('youtube.com') || host.includes('youtu.be');
-    } catch (error: any) { logger.warn('[External Ai Relay] parsing failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[External Ai Relay] parsing failed', error); return false; }
   }
 
   private createProvider(providerName: NormalizedRelayProvider): ILlmProvider {

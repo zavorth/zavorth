@@ -655,8 +655,7 @@ export class WebRealtimeService {
   private emit(sessionId: string, event: WebRealtimeEvent): void {
     try {
       this.mnemosCompiler.ingestEvent(config.projectRoot, sessionId, event);
-    } catch (error: any) {
-      // Catch errors silently to not impact active sessions
+    } catch (error: unknown) {// Catch errors silently to not impact active sessions
       logger.warn('[Web Realtime] load operation failed', error);
     }
 

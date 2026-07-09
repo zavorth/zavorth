@@ -3,7 +3,6 @@ import type { PermissionRequest } from '../../../../contracts/PermissionRequest.
 import type { ZavorthSessionPlaneService } from '../../../../services/ZavorthSessionPlaneService.js';
 import type { CodexRemoteActionService } from '../../../../services/CodexRemoteActionService.js';
 import type { CodexRemoteControlPlaneService } from '../../../../services/CodexRemoteControlPlaneService.js';
-
 type CodexRemoteActionResult = Awaited<ReturnType<CodexRemoteActionService['execute']>>;
 
 type CodexRemoteControlPlaneLike = Pick<CodexRemoteControlPlaneService, 'buildSnapshot'>;
@@ -312,7 +311,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
         await ctx.reply(lines.join('\n'));
         return;
       }
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       await ctx.reply(`Nao consegui operar o Codex Remote agora.\n\nMotivo: ${message}`);
     }
@@ -611,7 +610,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
           codexHome: String(parsed.codexHome || '').trim() || null,
           workspaceRoot: String(parsed.workspaceRoot || '').trim() || null,
         };
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'JSON invalido';
         throw new Error(`Payload de perfil invalido: ${message}.`);
       }

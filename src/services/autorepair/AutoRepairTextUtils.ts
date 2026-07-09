@@ -43,8 +43,7 @@ export function tryParseAutoRepairJson(rawText: string): any | null {
   for (const candidate of candidates) {
     try {
       return JSON.parse(candidate);
-    } catch (error: any) {
-      // Keep trying.
+    } catch (error: unknown) {// Keep trying.
       logger.warn('[Auto Repair Text Utils] JSON parse failed', error);
     }
   }
@@ -86,5 +85,5 @@ export function readOptionalAutoRepairText(
 
   try {
     return trimAutoRepairOutput(readText(filePath), MAX_LOG_EXCERPT_CHARACTERS);
-  } catch (error: any) { logger.warn('[Auto Repair Text Utils] filesystem operation failed', error); return ''; }
+  } catch (error: unknown) {logger.warn('[Auto Repair Text Utils] filesystem operation failed', error); return ''; }
 }

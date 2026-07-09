@@ -4,9 +4,7 @@ import {
   resolveRunContextProfile,
   type RunContextDepth,
   type RunContextProfile,
-} from './RunContextProfile.js';
-
-export type ContextBudgetLayerId = 'hot' | 'warm' | 'cold';
+} from './RunContextProfile.js';export type ContextBudgetLayerId = 'hot' | 'warm' | 'cold';
 
 export type ContextBudgetTokenEvaluation = {
   used: number;
@@ -71,8 +69,7 @@ function serializeLayer(value: unknown): string {
 
   try {
     return JSON.stringify(value);
-  } catch (error: any) { const err = error; const e = error;
-    return String(value);
+  } catch (error: unknown) {return String(value);
   }
 }
 

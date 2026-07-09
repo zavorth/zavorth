@@ -209,8 +209,8 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
         case 'test': return this.testPolicy(args);
       }
       return 'Internal error.';
-    } catch (error: any) {
-    logger.warn('[Zavorth  Enforcer] delete operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Zavorth  Enforcer] delete operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `PolicyEnforcer error: ${message}`;
   }
@@ -222,13 +222,13 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
 
     let toolArgs: Record<string, unknown> = {};
     if (typeof args.tool_args === 'string') {
-      try { toolArgs = JSON.parse(args.tool_args); } catch (error: any) { /* ignore */ logger.warn('[Zavorth  Enforcer] JSON parse failed', error); }
+      try { toolArgs = JSON.parse(args.tool_args); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth  Enforcer] JSON parse failed', error); }
     }
 
     const riskLevel = String(args.risk_level || 'medium');
     let context: Record<string, unknown> = {};
     if (typeof args.context === 'string') {
-      try { context = JSON.parse(args.context); } catch (error: any) { /* ignore */ logger.warn('[Zavorth  Enforcer] JSON parse failed', error); }
+      try { context = JSON.parse(args.context); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth  Enforcer] JSON parse failed', error); }
     }
 
     const results = this.evaluatePolicies(toolName, toolArgs, riskLevel, context);
@@ -483,7 +483,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
         const parsed = new URL(url);
         const trustedDomains = ['github.com', 'google.com', 'openai.com', 'localhost'];
         if (!trustedDomains.some((d) => parsed.hostname.endsWith(d))) return true;
-      } catch (error: any) { logger.warn('[Zavorth  Enforcer] parsing failed', error); return true; }
+      } catch (error: unknown) {logger.warn('[Zavorth  Enforcer] parsing failed', error); return true; }
     }
 
     if (cond.includes('hour')) {

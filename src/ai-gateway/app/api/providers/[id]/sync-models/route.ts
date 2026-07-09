@@ -17,6 +17,7 @@ import {
 } from "@/shared/services/modelSyncScheduler";
 import { getModelsByProviderId } from "@/shared/constants/models";
 import { logger } from '../logger.js';
+import { asErrorLike } from '../../../../../../utils/errorLike';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -261,8 +262,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           ...(m.supportsThinking === true ? { supportsThinking: true } : {}),
         }));
         await replaceSyncedAvailableModelsForConnection(logProvider, id, syncedModels);
-      } catch (e: any) { const error = e; const err = e;
-        console.error("Failed to union synced available models for gemini:", e);
+      } catch (error: unknown) { const err = asErrorLike(error); console.error("Failed to union synced available models for gemini:", err);
       }
     }
 
@@ -307,7 +307,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       logged: modelChanges.total > 0,
       models: replaced,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     const errorMessage = error instanceof Error ? error.message : "Sync failed";
 
     await saveCallLog({

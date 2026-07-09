@@ -90,7 +90,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
     if (!fs.existsSync(chunksPath)) return;
     try {
       this.chunks = JSON.parse(fs.readFileSync(chunksPath, 'utf-8'));
-    } catch (error: any) { /* ignore */ logger.warn('[Zavorth Rag Builder] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Rag Builder] JSON parse failed', error); }
   }
 
   private saveChunks(): void {
@@ -147,7 +147,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
           maxBuffer: 10 * 1024 * 1024,
         }).toString();
         source = sourceUrl;
-      } catch (error: any) { logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); return ''; }
+      } catch (error: unknown) {logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); return ''; }
     }
 
     const chunks = this.chunkText(content, source, chunkSize, chunkOverlap);
@@ -177,7 +177,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
         }));
         this.chunks.push(...embedded);
         totalChunks += embedded.length;
-      } catch (error: any) { continue; }
+      } catch (error: unknown) {continue; }
     }
 
     this.saveChunks();
@@ -320,7 +320,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
         if (entry.isDirectory()) results.push(...this.listFiles(fullPath));
         else if (entry.isFile()) results.push(fullPath);
       }
-    } catch (error: any) { /* ignore */ logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); }
     return results;
   }
 }

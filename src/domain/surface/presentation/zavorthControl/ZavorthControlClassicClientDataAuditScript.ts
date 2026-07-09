@@ -1,6 +1,4 @@
-import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
-
-function zavorthControlClassicClientDataAudit() {
+import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';function zavorthControlClassicClientDataAudit() {
     let auditOffset = 0;
     const auditLimit = 50;
     type AuditTypeSummary = { event_type: string; c: number };
@@ -32,8 +30,7 @@ function zavorthControlClassicClientDataAudit() {
           sel.innerHTML = '<option value="">Todos os tipos</option>' +
             s.byType.map((t: AuditTypeSummary) => `<option value="${t.event_type}" ${t.event_type === current ? 'selected' : ''}>${t.event_type} (${t.c})</option>`).join('');
         }
-      } catch (error: any) { const err = error; const e = error;
-        console.warn('Failed to load audit stats', error);
+      } catch (error: unknown) {console.warn('Failed to load audit stats', error);
       }
     }
 
@@ -71,8 +68,7 @@ function zavorthControlClassicClientDataAudit() {
         document.getElementById('audit-page-info')!.textContent = `Pagina ${page} de ${totalPages || 1}`;
         (document.getElementById('audit-prev-btn') as HTMLButtonElement).disabled = auditOffset <= 0;
         (document.getElementById('audit-next-btn') as HTMLButtonElement).disabled = auditOffset + auditLimit >= (data.total || 0);
-      } catch (e: any) { const error = e; const err = e;
-        document.getElementById('audit-table-body')!.innerHTML = '<tr><td colspan="7" style="color:var(--danger)">Falha ao carregar audit log.</td></tr>';
+      } catch (error: unknown) {document.getElementById('audit-table-body')!.innerHTML = '<tr><td colspan="7" style="color:var(--danger)">Falha ao carregar audit log.</td></tr>';
       }
     }
 

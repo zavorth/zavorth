@@ -62,7 +62,7 @@ export class ZavorthBridgePromptArtifactSupport {
       const parsed = JSON.parse(raw) as PendingZavorthBridgeSession;
       parsed.trackingFile = trackingFile;
       return parsed;
-    } catch (error: any) { logger.warn('[Zavorth Bridge Prompt Artifact] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Bridge Prompt Artifact] JSON parse failed', error); return null; }
   }
 
   public async markSessionCompleted(
@@ -157,7 +157,7 @@ export class ZavorthBridgePromptArtifactSupport {
             updatedAt,
             updatedAtMs,
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
           this.host.logRepo.log('warn', 'ZavorthBridgePromptService', `Falha ao ler artefato do ZavorthBridge: ${error.message}`);
         }
       }

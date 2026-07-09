@@ -20,7 +20,6 @@ import type {
   ZavorthExternalAgentNetworkMode,
 } from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
-
 type InstallJourneyActionBody = Record<string, unknown> & {
   timeoutMs?: unknown;
   pollIntervalMs?: unknown;
@@ -103,8 +102,7 @@ export class WebAppHostRouteService {
           ok: true,
           status: this.projectConstitutionImporter.buildStatus({ workspaceRoot }),
         }, 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao inspecionar constituicao do projeto.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao inspecionar constituicao do projeto.' }, 400);
       }
       return true;
     }
@@ -130,8 +128,7 @@ export class WebAppHostRouteService {
           sourcePaths: Array.isArray(body.sourcePaths) ? body.sourcePaths.map((entry: unknown) => String(entry || '')) : null,
         });
         deps.writeJson(res, { ok: true, preview }, preview.status === 'preview_ready' ? 200 : 404);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao preparar importacao da constituicao.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao preparar importacao da constituicao.' }, 400);
       }
       return true;
     }
@@ -146,8 +143,7 @@ export class WebAppHostRouteService {
             limit: this.normalizePositiveInteger(url.searchParams.get('limit')),
           }),
         }, 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao inspecionar gate de mutacao em disco.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao inspecionar gate de mutacao em disco.' }, 400);
       }
       return true;
     }
@@ -176,8 +172,7 @@ export class WebAppHostRouteService {
           reason: String(body.reason || '').trim() || null,
         });
         deps.writeJson(res, { ok: true, preview }, preview.status === 'blocked' ? 409 : 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao preparar gate de mutacao em disco.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao preparar gate de mutacao em disco.' }, 400);
       }
       return true;
     }
@@ -190,8 +185,7 @@ export class WebAppHostRouteService {
           workspaceRoot,
         });
         deps.writeJson(res, { ok: true, snapshot }, 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao inspecionar Git workflow.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao inspecionar Git workflow.' }, 400);
       }
       return true;
     }
@@ -211,8 +205,7 @@ export class WebAppHostRouteService {
           approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'zavorthControl').trim() || 'zavorthControl',
         });
         deps.writeJson(res, { ok: snapshot.status !== 'failed' && snapshot.status !== 'blocked', snapshot }, snapshot.status === 'blocked' ? 409 : 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao executar Git workflow.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao executar Git workflow.' }, 400);
       }
       return true;
     }
@@ -241,8 +234,7 @@ export class WebAppHostRouteService {
           sessionId: String(body.sessionId || '').trim() || 'zavorthControl-review',
         });
         deps.writeJson(res, { ok: true, snapshot }, 200);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao executar review governado.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao executar review governado.' }, 400);
       }
       return true;
     }
@@ -272,8 +264,7 @@ export class WebAppHostRouteService {
               ? 200
               : 409,
         );
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao normalizar frame ACP generico.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Falha ao normalizar frame ACP generico.' }, 400);
       }
       return true;
     }
@@ -324,8 +315,7 @@ export class WebAppHostRouteService {
           receipt,
           snapshot: this.externalAgentGateway.buildZavorthControlSnapshot(),
         }, ok ? 200 : 202);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, {
+      } catch (error: unknown) {deps.writeJson(res, {
           ok: false,
           error: this.extractErrorMessage(error) || 'Falha ao registrar agente externo.',
           snapshot: this.externalAgentGateway.buildZavorthControlSnapshot(),
@@ -352,8 +342,7 @@ export class WebAppHostRouteService {
           receipt,
           snapshot: this.externalAgentGateway.buildZavorthControlSnapshot(),
         }, receipt.status === 'approval-required' ? 202 : ok ? 200 : receipt.status === 'failed' ? 500 : 409);
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(res, {
+      } catch (error: unknown) {deps.writeJson(res, {
           ok: false,
           error: this.extractErrorMessage(error) || 'Falha ao executar agente externo.',
           snapshot: this.externalAgentGateway.buildZavorthControlSnapshot(),
@@ -397,7 +386,7 @@ export class WebAppHostRouteService {
           200,
         );
         return true;
-      } catch (error: any) { const err = error; const e = error;
+      } catch (error: unknown) {
         deps.writeJson(
           res,
           {
@@ -491,8 +480,7 @@ export class WebAppHostRouteService {
           },
           200,
         );
-      } catch (error: any) { const err = error; const e = error;
-        deps.writeJson(
+      } catch (error: unknown) {deps.writeJson(
           res,
           { ok: false, error: this.extractErrorMessage(error) || 'Falha ao executar a jornada local do host.' },
           409,

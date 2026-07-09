@@ -70,8 +70,7 @@ export default function RequestLoggerDetail({ log, detail, loading, onClose, onC
       return (
         d.toLocaleDateString("en-US") + ", " + d.toLocaleTimeString("en-US", { hour12: false })
       );
-    } catch (error: any) { const err = error; const e = error;
-      return iso;
+    } catch (error: unknown) {return iso;
     }
   };
 
@@ -79,8 +78,7 @@ export default function RequestLoggerDetail({ log, detail, loading, onClose, onC
     if (payload === null || payload === undefined) return null;
     try {
       return JSON.stringify(payload, null, 2);
-    } catch (error: any) { const err = error; const e = error;
-      return String(payload);
+    } catch (error: unknown) {return String(payload);
     }
   };
 

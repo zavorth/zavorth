@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../utils/errorLike';
 ﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
@@ -28,8 +29,9 @@ export class PtyTerminateTool extends BaseTool {
     try {
       await this.ptySessionService.terminateSession(sessionId, workspaceId);
       return JSON.stringify({ success: true });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Pty Terminate] process execution failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Pty Terminate] process execution failed', error);
     return JSON.stringify({ success: false, error: err.message });
   }
   }

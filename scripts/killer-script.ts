@@ -1,4 +1,5 @@
 import { execSync } from 'child_process';
+import { asErrorLike } from '../src/utils/errorLike';
 
 try {
     const output = execSync('powershell.exe -Command "Get-CimInstance Win32_Process | Select-Object ProcessId, CommandLine | ConvertTo-Json"').toString();
@@ -9,9 +10,8 @@ try {
             console.log(`Killing process ${proc.ProcessId}: ${proc.CommandLine}`);
             try {
                 execSync(`taskkill /F /PID ${proc.ProcessId}`);
-            } catch (e) {}
+            } catch (error: unknown) {}
         }
     }
-} catch (e) {
-    console.error('Error during cleanup:', e.message);
+} catch (error: unknown) { const err = asErrorLike(error); const e = err; console.error('Error during cleanup:', e.message);
 }

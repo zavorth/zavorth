@@ -11,9 +11,7 @@ import { isClaudeCodeCompatibleProvider } from "@/shared/constants/providers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateProviderNodeSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-type JsonRecord = Record<string, unknown>;
+import { logger } from '@/shared/utils/logger';type JsonRecord = Record<string, unknown>;
 
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonRecord) : {};
@@ -41,8 +39,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] string operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] string operation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -130,8 +127,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     );
 
     return NextResponse.json({ node: updated });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating provider node:", error);
+  } catch (error: unknown) {console.log("Error updating provider node:", error);
     return NextResponse.json({ error: "Failed to update provider node" }, { status: 500 });
   }
 }
@@ -153,8 +149,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     await deleteProviderNode(id);
 
     return NextResponse.json({ success: true });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error deleting provider node:", error);
+  } catch (error: unknown) {console.log("Error deleting provider node:", error);
     return NextResponse.json({ error: "Failed to delete provider node" }, { status: 500 });
   }
 }

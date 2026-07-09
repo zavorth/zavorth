@@ -283,15 +283,14 @@ export class ZavorthEvalHistoryFileService {
           } as StoredEvalHistoryEntry;
         })
         .filter((entry) => Boolean(entry.generatedAt));
-    } catch (error: any) { logger.warn('[Zavorth Eval History File] creation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Eval History File] creation failed', error); return []; }
   }
 
   private writeEntries(entries: StoredEvalHistoryEntry[]): void {
     try {
       this.mkdirSync(path.dirname(this.filePath), { recursive: true });
       this.writeFileSync(this.filePath, JSON.stringify(entries, null, 2), 'utf8');
-    } catch (error: any) {
-      // Keep history best-effort only.
+    } catch (error: unknown) {// Keep history best-effort only.
       logger.warn('[Zavorth Eval History File] filesystem operation failed', error);
     }
   }

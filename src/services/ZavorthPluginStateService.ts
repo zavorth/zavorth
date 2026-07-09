@@ -131,8 +131,7 @@ export class ZavorthPluginStateService {
         };
       }
       return JSON.parse(fs.readFileSync(this.stateFile, 'utf8')) as ZavorthPluginState;
-    } catch (error: any) {
-    logger.warn('[Zavorth Plugin State] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[Zavorth Plugin State] JSON parse failed', error);
     return {
         version: 1,
         updatedAt: this.now().toISOString(),

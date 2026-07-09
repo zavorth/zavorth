@@ -5,9 +5,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 import { cloudModelAliasUpdateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-// GET /api/models/alias - Get all aliases
+import { logger } from '@/shared/utils/logger';// GET /api/models/alias - Get all aliases
 export async function GET(request) {
   try {
     // Require authentication for security
@@ -17,8 +15,7 @@ export async function GET(request) {
 
     const aliases = await getModelAliases();
     return NextResponse.json({ aliases });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching aliases:", error);
+  } catch (error: unknown) {console.log("Error fetching aliases:", error);
     return NextResponse.json({ error: "Failed to fetch aliases" }, { status: 500 });
   }
 }
@@ -28,8 +25,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {
@@ -57,8 +53,7 @@ export async function PUT(request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ success: true, model, alias });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating alias:", error);
+  } catch (error: unknown) {console.log("Error updating alias:", error);
     return NextResponse.json({ error: "Failed to update alias" }, { status: 500 });
   }
 }
@@ -82,8 +77,7 @@ export async function DELETE(request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ success: true });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error deleting alias:", error);
+  } catch (error: unknown) {console.log("Error deleting alias:", error);
     return NextResponse.json({ error: "Failed to delete alias" }, { status: 500 });
   }
 }
@@ -95,7 +89,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing aliases to cloud:", error);
+  } catch (error: unknown) {console.log("Error syncing aliases to cloud:", error);
   }
 }

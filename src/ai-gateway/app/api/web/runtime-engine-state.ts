@@ -6,9 +6,7 @@ import { logger } from '@/shared/utils/logger';
 import {
 getRuntimeEngineApiState as getSharedRuntimeEngineApiState,
   type RuntimeEngineApiState,
-} from "../../../../services/RuntimeEngineApiStateService";
-
-export function getRuntimeEngineApiState(): RuntimeEngineApiState {
+} from "../../../../services/RuntimeEngineApiStateService";export function getRuntimeEngineApiState(): RuntimeEngineApiState {
   return getSharedRuntimeEngineApiState();
 }
 
@@ -27,8 +25,7 @@ export function isUnsafeCrossSiteMutation(request: Request): boolean {
   let requestOrigin = "";
   try {
     requestOrigin = new URL(request.url).origin;
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[runtime-engine-state] network request failed', error);
+  } catch (error: unknown) {logger.warn('[runtime-engine-state] network request failed', error);
     requestOrigin = "";
   }
 
@@ -39,7 +36,7 @@ export function isUnsafeCrossSiteMutation(request: Request): boolean {
   if (referer && requestOrigin) {
     try {
       if (new URL(referer).origin !== requestOrigin) return true;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[runtime-engine-state] operation failed', error); return true; }
+    } catch (error: unknown) {logger.warn('[runtime-engine-state] operation failed', error); return true; }
   }
 
   return false;
@@ -51,5 +48,5 @@ export async function readJsonBody(request: Request): Promise<Record<string, unk
     return value && typeof value === "object" && !Array.isArray(value)
       ? value as Record<string, unknown>
       : {};
-  } catch (error: any) { const err = error; const e = error; logger.warn('[runtime-engine-state] operation failed', error); return {}; }
+  } catch (error: unknown) {logger.warn('[runtime-engine-state] operation failed', error); return {}; }
 }

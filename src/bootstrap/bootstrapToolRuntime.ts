@@ -4,10 +4,9 @@ import { McpCapabilityControlPlaneService } from '../services/McpCapabilityContr
 import { RuntimeCompositionService } from '../services/RuntimeCompositionService.js';
 import type { LogRepository } from '../storage/LogRepository.js';
 import { ToolHookPipelineService } from '../services/ToolHookPipelineService.js';
-import { ZavorthMemoryConsolidator } from '../services/ZavorthMemoryConsolidator.js';
-
-export function createBootstrapToolRuntime(logRepo: LogRepository) {
+import { ZavorthMemoryConsolidator } from '../services/ZavorthMemoryConsolidator.js';export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ToolRegistry } = require('../tools/ToolRegistry.js');
+import { logger } from '../logger.js';
   const { ToolExecutor } = require('../execution/ToolExecutor.js');
   const { ToolCatalogService } = require('../services/tools/ToolCatalogService.js');
   const { UnifiedSearchTool } = require('../tools/UnifiedSearchTool.js');
@@ -295,7 +294,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
 
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
-  console.log('[BOOT] tools-ready (' + toolRegistry.size + ' tools registered)');
+  logger.info('[BOOT] tools-ready (' + toolRegistry.size + ' tools registered)');
   const telemetryRuntime = new TelemetryRuntimeService();
   const hookPipelineService = new ToolHookPipelineService();
   const memoryConsolidator = new ZavorthMemoryConsolidator(hookPipelineService);
@@ -362,10 +361,10 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const companionIOS = new CompanionIOSService();
   const companionAndroid = new CompanionAndroidService();
 
-  console.log('[BOOT] plugins-ready (55 services + 10 tools)');
+  logger.info('[BOOT] plugins-ready (55 services + 10 tools)');
 
   const dispose = () => {
-    try { kanbanDispatcher.close(); } catch (error: any) { const err = error; const e = error; /* ignore */ }
+    try { kanbanDispatcher.close(); } catch (error: unknown) {/* ignore */ }
   };
 
   return {

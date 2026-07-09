@@ -130,7 +130,7 @@ export class AgentMeshExecutionService {
           }
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof AgentMeshDriverUnavailableException) {
         finalStatus = 'failed_driver_unavailable';
         finalSummary = sanitizeReceiptText(error.message);

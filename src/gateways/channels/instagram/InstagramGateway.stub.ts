@@ -3,9 +3,7 @@ import path from 'path';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
-import { logger } from '../../../logger.js';
-
-export interface InstagramGatewayStubMessage {
+import { logger } from '../../../logger.js';export interface InstagramGatewayStubMessage {
   userId: string;
   chatId: string;
   rawText: string;
@@ -137,7 +135,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.instagramStatusFile, 'utf8')) as InstagramGatewayStatusSnapshot;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Instagram way.stub] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Instagram way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
@@ -397,8 +395,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     let responsePayload: InstagramApiResponse | null = null;
     try {
       responsePayload = await response.json() as InstagramApiResponse;
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Instagram way.stub] load operation failed', error);
+    } catch (error: unknown) {logger.warn('[Instagram way.stub] load operation failed', error);
     responsePayload = null;
   }
 

@@ -31,7 +31,6 @@ import { TelegramTaskWorkflowRoutingService } from '../../../../gateways/channel
 import { buildTaskEventSurfaceResponse } from '@zavorth/domain/surface/application/surface-response/index.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 import { logger } from '../../../../logger.js';
-
 type AttachRecentContextFn = (task: Task) => Promise<void>;
 type RouteIntentFn = (parsed: ParsedCommand) => RouteIntent;
 type RiskClassifierFn = (parsed: ParsedCommand, route: RouteIntent) => RiskClassification;
@@ -239,7 +238,7 @@ export class TelegramTaskOrchestrationController {
         surfaceForceApproval,
       });
       return task;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.deps.logRepo.log('error', 'BotGateway', `Error processing task: ${errorMessage}`);
       if (!StateMachine.isTerminal(task.status)) {

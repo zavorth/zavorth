@@ -6,6 +6,7 @@ import {
 } from "../../../../../services/UniversalSkillApprovedZavorthControlCanaryService.js";
 import type { ZavorthUniversalSkillZavorthControlCanaryMode } from "../../../../../contracts/ZavorthUniversalSkillApprovedZavorthControlCanaryContract.js";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike';
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -25,7 +26,8 @@ export async function GET(request: Request) {
       persistCanaryReport: false,
     });
     return NextResponse.json(snapshot);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] validation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
@@ -48,7 +50,8 @@ export async function POST(request: Request) {
       persistCanaryReport: false,
     });
     return NextResponse.json(snapshot);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] creation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });

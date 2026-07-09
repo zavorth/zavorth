@@ -39,9 +39,7 @@ ZavorthPlatformRegistryEntry,
   ZavorthPlatformRegistrySnapshot,
   ZavorthPlatformRegistryStatusSummarySnapshot,
   ZavorthPlatformRegistrySummarySnapshot,
-} from '../../../../services/ZavorthPlatformRegistryService.js';
-
-export type { ZavorthPlatformRegistrySnapshotBuilderRuntime } from './ZavorthPlatformRegistrySnapshotBuilderTypes.js';
+} from '../../../../services/ZavorthPlatformRegistryService.js';export type { ZavorthPlatformRegistrySnapshotBuilderRuntime } from './ZavorthPlatformRegistrySnapshotBuilderTypes.js';
 
 export class ZavorthPlatformRegistrySnapshotBuilderService {
   private readonly now: () => Date;
@@ -259,13 +257,13 @@ export class ZavorthPlatformRegistrySnapshotBuilderService {
   private safeLoadSkills(options?: Parameters<SkillLoader['loadAll']>[0]): SkillMetadata[] {
     try {
       return this.skillLoader.loadAll(options);
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Platform Registry Snapshot Builder] load operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Platform Registry Snapshot Builder] load operation failed', error); return []; }
   }
 
   private safeLoadMcpEntries(): ResolvedMcpServerManifestEntry[] {
     try {
       return this.mcpManifestLoader.load();
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Platform Registry Snapshot Builder] load operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Platform Registry Snapshot Builder] load operation failed', error); return []; }
   }
 
   private safeDiscoverSkillIdsFast(): string[] {
@@ -288,7 +286,7 @@ export class ZavorthPlatformRegistrySnapshotBuilderService {
           ids.add(normalizePlatformValue(`skill:${entry.name}`));
         }
       }
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Platform Registry Snapshot Builder] filesystem operation failed', error); return []; }
+    } catch (error: unknown) {logger.warn('[Zavorth Platform Registry Snapshot Builder] filesystem operation failed', error); return []; }
 
     return Array.from(ids.values());
   }

@@ -2,9 +2,7 @@ import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isPathContained } from './NodeHostCapabilityPathPolicy.js';
-import { logger } from '../../../../logger';
-
-export type NodeHostCommandDescriptor = {
+import { logger } from '../../../../logger';export type NodeHostCommandDescriptor = {
   label: string;
   command: string;
   file?: string;
@@ -288,7 +286,7 @@ export function normalizeNodeHostBrowserUrl(
     return allowedProtocols.includes(parsed.protocol)
       ? parsed.toString()
       : null;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Node Host Capability Helpers] network request failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Node Host Capability Helpers] network request failed', error); return null; }
 }
 
 export function normalizeNodeHostBrowserTargetUrl(
@@ -319,7 +317,7 @@ export function normalizeNodeHostBrowserTargetUrl(
     }
 
     return null;
-  } catch (error: any) { const err = error; const e = error; logger.warn('[Node Host Capability Helpers] parsing failed', error); return null; }
+  } catch (error: unknown) {logger.warn('[Node Host Capability Helpers] parsing failed', error); return null; }
 }
 
 export function normalizeNodeHostLocationPayload(

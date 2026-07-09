@@ -86,8 +86,8 @@ export class SkillFeedbackCollectorTool extends BaseTool {
         default:
           return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error: any) {
-    logger.warn('[Skill Feedback Collector] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Skill Feedback Collector] operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Erro no skill feedback: ${message}`;
   }

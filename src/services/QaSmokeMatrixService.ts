@@ -129,6 +129,6 @@ export class QaSmokeMatrixService {
     if (!fs.existsSync(packagePath)) return null;
     try {
       return JSON.parse(fs.readFileSync(packagePath, 'utf8')) as PackageLike;
-    } catch (error: any) { logger.warn('[Qa Smoke Matrix] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Qa Smoke Matrix] JSON parse failed', error); return null; }
   }
 }

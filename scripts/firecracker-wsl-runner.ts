@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { FirecrackerSandboxRuntime } from '../src/services/sandbox/FirecrackerSandboxRuntime.js';
+import { asErrorLike } from '../src/utils/errorLike';
 
 type StatusPayload = {
   mode: 'status';
@@ -25,7 +26,9 @@ function parsePayload(): BridgePayload {
 
   try {
     return JSON.parse(Buffer.from(encoded, 'base64').toString('utf8')) as BridgePayload;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     fail(`Payload invalido: ${error.message}`);
   }
 }
@@ -49,6 +52,6 @@ async function main() {
   process.stdout.write(JSON.stringify({ result }));
 }
 
-main().catch((error: any) => {
+main().catch((error: unknown) => {
   fail(error?.message || String(error));
 });

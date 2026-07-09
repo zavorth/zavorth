@@ -1,3 +1,5 @@
+import { shellWarn } from './shell-debug';
+
 export type SupportedControlLocale =
   | 'en-US'
   | 'pt-BR'
@@ -71,8 +73,290 @@ const SUPPORTED_LOCALES: SupportedControlLocale[] = [
   'fa',
 ];
 
-const STRINGS: Partial<Record<SupportedControlLocale, Record<string, string>>> = {
+/** Shared UI strings for action-first surfaces (English keys → locale). */
+const CONTROL_SURFACE_I18N: Partial<Record<SupportedControlLocale, Record<string, string>>> = {
   'pt-BR': {
+    'Next': 'Próximo',
+    'Trust': 'Confiança',
+    'Pending': 'Pendentes',
+    'Last receipt': 'Último recibo',
+    'Diff': 'Diff',
+    'Trust score': 'Score de confiança',
+    'Open': 'Abrir',
+    'Proof': 'Prova',
+    'Doctor': 'Doctor',
+    'New chat': 'Novo chat',
+    'Open chat': 'Abrir chat',
+    'Nothing needs you': 'Nada precisa de você',
+    'Needs you': 'Precisa de você',
+    'Ready for a request': 'Pronto para um pedido',
+    'Start in Inbox.': 'Comece na Caixa de entrada.',
+    '1 approval waiting': '1 aprovação aguardando',
+    '{n} approvals waiting': '{n} aprovações aguardando',
+    'Decide before risky work continues.': 'Decida antes que o trabalho arriscado continue.',
+    '1 error in trail': '1 erro no trail',
+    '{n} errors in trail': '{n} erros no trail',
+    'Check proof / receipts.': 'Veja prova / recibos.',
+    'Task running': 'Tarefa em andamento',
+    'Working…': 'Trabalhando…',
+    'Active run': 'Execução ativa',
+    'Unlock runtime': 'Desbloquear runtime',
+    'Auth required before live work.': 'Autenticação necessária antes do trabalho ao vivo.',
+    'Auth required': 'Autenticação necessária',
+    'Runtime needs a check': 'Runtime precisa de verificação',
+    'Provider not ready.': 'Provedor não está pronto.',
+    'Not live yet.': 'Ainda não está ao vivo.',
+    'Runtime offline': 'Runtime offline',
+    'Run doctor': 'Rodar doctor',
+    'No pending diff': 'Nenhum diff pendente',
+    'None': 'Nenhum',
+    'More': 'Mais',
+    'Attention': 'Atenção',
+    'Pending decision': 'Decisão pendente',
+    'In recent trail': 'No trail recente',
+    'Review before risky work continues.': 'Revise antes que o trabalho arriscado continue.',
+    'No risky actions waiting.': 'Nenhuma ação arriscada aguardando.',
+    'Ready.': 'Pronto.',
+    'No task running': 'Nenhuma tarefa em execução',
+    'Governed': 'Governado',
+    'Stable': 'Estável',
+    'Needs review': 'Precisa de revisão',
+    'At risk': 'Em risco',
+    'Diff review': 'Revisão de diff',
+    'Trust rail': 'Trilho de confiança',
+    'Approve hunk': 'Aprovar trecho',
+    'Reject hunk': 'Rejeitar trecho',
+    'Approve all pending': 'Aprovar todos pendentes',
+    'Approved': 'Aprovado',
+    'Rejected': 'Rejeitado',
+    'Hunk approved': 'Trecho aprovado',
+    'Hunk rejected': 'Trecho rejeitado',
+    'All pending hunks approved': 'Todos os trechos pendentes aprovados',
+    'Open a patch or artifact with unified-diff text to review hunks here.': 'Abra um patch ou artefato com diff unificado para revisar trechos aqui.',
+    'Ready check': 'Verificação de prontidão',
+    'Running readiness…': 'Verificando prontidão…',
+    'Ready check complete': 'Verificação concluída',
+    'Ready check failed': 'Falha na verificação',
+    'Diff decision recorded': 'Decisão de diff registrada',
+    'Diff decision sent': 'Decisão de diff enviada',
+    'Could not reach diff review API; decision kept locally.': 'Não foi possível alcançar a API de revisão de diff; decisão mantida localmente.',
+    '1 hunk': '1 trecho',
+    '{n} hunks': '{n} trechos',
+    '1 pending': '1 pendente',
+    '{n} pending': '{n} pendentes',
+    '1 approved': '1 aprovado',
+    '{n} approved': '{n} aprovados',
+    '1 rejected': '1 rejeitado',
+    '{n} rejected': '{n} rejeitados',
+    'Hunk lines': 'Linhas do trecho',
+    'Diff trust rail': 'Trilho de confiança do diff',
+    '(empty hunk)': '(trecho vazio)',
+    'Open trust panel': 'Abrir painel de confiança',
+    'Close trust panel': 'Fechar painel de confiança',
+    'Used session status summary.': 'Usou o resumo de status da sessão.',
+    'Could not run readiness.': 'Não foi possível verificar prontidão.',
+    'Scheduled task updated': 'Tarefa agendada atualizada',
+    'Scheduled task created': 'Tarefa agendada criada',
+    'Scheduled task failed': 'Falha na tarefa agendada',
+    'Task action completed: {action}': 'Ação concluída: {action}',
+    'The task is on the board.': 'A tarefa está no board.',
+    'Could not update the scheduled task.': 'Não foi possível atualizar a tarefa agendada.',
+    'Could not create the scheduled task.': 'Não foi possível criar a tarefa agendada.',
+    'Model preference': 'Preferência de modelo',
+    'Could not load the saved model preference.': 'Não foi possível carregar a preferência de modelo.',
+    'Could not save the model preference.': 'Não foi possível salvar a preferência de modelo.',
+    'Could not preview the model preference.': 'Não foi possível pré-visualizar a preferência de modelo.',
+    'Workboard': 'Workboard',
+    'Running': 'Em execução',
+    'Done': 'Concluído',
+    'Open run': 'Abrir execução',
+    'Opening run…': 'Abrindo execução…',
+    'Jumped to run in transcript': 'Foi para a execução no transcript',
+    'Run opened in proof trail': 'Execução aberta no trail de prova',
+    'Workboard open': 'Abertura do workboard',
+    'Last sync': 'Última sincronização',
+    'Nothing pending.': 'Nada pendente.',
+    'Open chat to decide': 'Abra o chat para decidir',
+    'Approval needed': 'Aprovação necessária',
+    'Decision required': 'Decisão necessária',
+    'recorded': 'registrado',
+    'Running.': 'Em execução.',
+    'Working': 'Trabalhando',
+    'Decision needed': 'Decisão necessária',
+    'Ready': 'Pronto',
+    'Idle': 'Ocioso',
+    'Gateway': 'Gateway',
+    'Just now': 'Agora',
+    'Task in progress': 'Tarefa em andamento',
+    'Review pending decisions.': 'Revise as decisões pendentes.',
+    'No pending approvals': 'Sem aprovações pendentes',
+    'receipt ok': 'recibo ok',
+    'protected': 'protegido',
+    'waiting': 'aguardando',
+    'gated': 'com gate',
+    'scoped': 'com escopo',
+    'read': 'leitura',
+    'running': 'em execução',
+    'online': 'online',
+    'local': 'local',
+    '{n} evt': '{n} evt',
+    '0 evt': '0 evt',
+    '1 error': '1 erro',
+    '{n} errors': '{n} erros',
+    'ok': 'ok',
+    'approval': 'aprovação',
+    'active': 'ativo',
+    'pending': 'pendente',
+  },
+  es: {
+    'Next': 'Siguiente',
+    'Trust': 'Confianza',
+    'Pending': 'Pendientes',
+    'Last receipt': 'Último recibo',
+    'Diff': 'Diff',
+    'Trust score': 'Puntuación de confianza',
+    'Open': 'Abrir',
+    'Proof': 'Prueba',
+    'Doctor': 'Doctor',
+    'New chat': 'Nuevo chat',
+    'Open chat': 'Abrir chat',
+    'Nothing needs you': 'Nada te necesita',
+    'Needs you': 'Te necesita',
+    'Ready for a request': 'Listo para un pedido',
+    'Start in Inbox.': 'Empieza en la bandeja.',
+    '1 approval waiting': '1 aprobación pendiente',
+    '{n} approvals waiting': '{n} aprobaciones pendientes',
+    'Decide before risky work continues.': 'Decide antes de que continúe el trabajo riesgoso.',
+    '1 error in trail': '1 error en el trail',
+    '{n} errors in trail': '{n} errores en el trail',
+    'Check proof / receipts.': 'Revisa prueba / recibos.',
+    'Task running': 'Tarea en curso',
+    'Working…': 'Trabajando…',
+    'Active run': 'Ejecución activa',
+    'Unlock runtime': 'Desbloquear runtime',
+    'Auth required before live work.': 'Se requiere autenticación antes del trabajo en vivo.',
+    'Auth required': 'Autenticación requerida',
+    'Runtime needs a check': 'El runtime necesita una revisión',
+    'Provider not ready.': 'Proveedor no listo.',
+    'Not live yet.': 'Aún no está en vivo.',
+    'Runtime offline': 'Runtime offline',
+    'Run doctor': 'Ejecutar doctor',
+    'No pending diff': 'Sin diff pendiente',
+    'None': 'Ninguno',
+    'More': 'Más',
+    'Attention': 'Atención',
+    'Pending decision': 'Decisión pendiente',
+    'In recent trail': 'En el trail reciente',
+    'Review before risky work continues.': 'Revisa antes de que continúe el trabajo riesgoso.',
+    'No risky actions waiting.': 'No hay acciones riesgosas pendientes.',
+    'Ready.': 'Listo.',
+    'No task running': 'Ninguna tarea en ejecución',
+    'Governed': 'Gobernado',
+    'Stable': 'Estable',
+    'Needs review': 'Necesita revisión',
+    'At risk': 'En riesgo',
+    'Diff review': 'Revisión de diff',
+    'Trust rail': 'Riel de confianza',
+    'Approve hunk': 'Aprobar tramo',
+    'Reject hunk': 'Rechazar tramo',
+    'Approve all pending': 'Aprobar todos pendientes',
+    'Approved': 'Aprobado',
+    'Rejected': 'Rechazado',
+    'Hunk approved': 'Tramo aprobado',
+    'Hunk rejected': 'Tramo rechazado',
+    'All pending hunks approved': 'Todos los tramos pendientes aprobados',
+    'Open a patch or artifact with unified-diff text to review hunks here.': 'Abre un patch o artefacto con diff unificado para revisar tramos aquí.',
+    'Ready check': 'Comprobación de listo',
+    'Running readiness…': 'Comprobando listo…',
+    'Ready check complete': 'Comprobación completa',
+    'Ready check failed': 'Falló la comprobación',
+    'Diff decision recorded': 'Decisión de diff registrada',
+    'Diff decision sent': 'Decisión de diff enviada',
+    'Could not reach diff review API; decision kept locally.': 'No se pudo alcanzar la API de revisión de diff; decisión mantenida localmente.',
+    '1 hunk': '1 tramo',
+    '{n} hunks': '{n} tramos',
+    '1 pending': '1 pendiente',
+    '{n} pending': '{n} pendientes',
+    '1 approved': '1 aprobado',
+    '{n} approved': '{n} aprobados',
+    '1 rejected': '1 rechazado',
+    '{n} rejected': '{n} rechazados',
+    'Hunk lines': 'Líneas del tramo',
+    'Diff trust rail': 'Riel de confianza del diff',
+    '(empty hunk)': '(tramo vacío)',
+    'Open trust panel': 'Abrir panel de confianza',
+    'Close trust panel': 'Cerrar panel de confianza',
+    'Used session status summary.': 'Usó el resumen de estado de la sesión.',
+    'Could not run readiness.': 'No se pudo comprobar el listo.',
+    'Scheduled task updated': 'Tarea programada actualizada',
+    'Scheduled task created': 'Tarea programada creada',
+    'Scheduled task failed': 'Falló la tarea programada',
+    'Task action completed: {action}': 'Acción completada: {action}',
+    'The task is on the board.': 'La tarea está en el tablero.',
+    'Could not update the scheduled task.': 'No se pudo actualizar la tarea programada.',
+    'Could not create the scheduled task.': 'No se pudo crear la tarea programada.',
+    'Model preference': 'Preferencia de modelo',
+    'Could not load the saved model preference.': 'No se pudo cargar la preferencia de modelo.',
+    'Could not save the model preference.': 'No se pudo guardar la preferencia de modelo.',
+    'Could not preview the model preference.': 'No se pudo previsualizar la preferencia de modelo.',
+    'Workboard': 'Tablero',
+    'Running': 'En ejecución',
+    'Done': 'Hecho',
+    'Open run': 'Abrir ejecución',
+    'Opening run…': 'Abriendo ejecución…',
+    'Jumped to run in transcript': 'Saltó a la ejecución en el transcript',
+    'Run opened in proof trail': 'Ejecución abierta en el trail de prueba',
+    'Workboard open': 'Apertura del tablero',
+    'Last sync': 'Última sincronización',
+    'Nothing pending.': 'Nada pendiente.',
+    'Open chat to decide': 'Abre el chat para decidir',
+    'Approval needed': 'Aprobación necesaria',
+    'Decision required': 'Decisión requerida',
+    'recorded': 'registrado',
+    'Running.': 'En ejecución.',
+    'Working': 'Trabajando',
+    'Decision needed': 'Decisión necesaria',
+    'Ready': 'Listo',
+    'Idle': 'Inactivo',
+    'Gateway': 'Gateway',
+    'Just now': 'Ahora',
+    'Task in progress': 'Tarea en curso',
+    'Review pending decisions.': 'Revisa las decisiones pendientes.',
+    'No pending approvals': 'Sin aprobaciones pendientes',
+    'receipt ok': 'recibo ok',
+    'protected': 'protegido',
+    'waiting': 'esperando',
+    'gated': 'con gate',
+    'scoped': 'con alcance',
+    'read': 'lectura',
+    'running': 'en ejecución',
+    'online': 'en línea',
+    'local': 'local',
+    '{n} evt': '{n} evt',
+    '0 evt': '0 evt',
+    '1 error': '1 error',
+    '{n} errors': '{n} errores',
+    'ok': 'ok',
+    'approval': 'aprobación',
+    'active': 'activo',
+    'pending': 'pendiente',
+  },
+};
+
+function mergeSurfaceI18n(
+  locale: SupportedControlLocale,
+  base: Record<string, string>,
+): Record<string, string> {
+  const surface =
+    CONTROL_SURFACE_I18N[locale]
+    || (locale.startsWith('es') ? CONTROL_SURFACE_I18N.es : undefined)
+    || (locale.startsWith('pt') ? CONTROL_SURFACE_I18N['pt-BR'] : undefined)
+    || {};
+  return { ...surface, ...base };
+}
+
+const STRINGS: Partial<Record<SupportedControlLocale, Record<string, string>>> = {
+  'pt-BR': mergeSurfaceI18n('pt-BR', {
     'Inbox': 'Caixa de entrada',
     'Work': 'Trabalho',
     'Memory': 'Memória',
@@ -414,8 +698,8 @@ const STRINGS: Partial<Record<SupportedControlLocale, Record<string, string>>> =
     'Preview this safely before applying.': 'Visualize com seguranca antes de aplicar.',
     'Open a sandbox preview before applying visual or file changes.': 'Abra uma previa em sandbox antes de aplicar mudancas visuais ou em arquivos.',
     'Preview is starting.': 'A previa esta iniciando.',
-  },
-  'es-AR': {
+  }),
+  'es-AR': mergeSurfaceI18n('es-AR', {
     'Inbox': 'Bandeja',
     'Work': 'Trabajo',
     'Memory': 'Memoria',
@@ -750,7 +1034,7 @@ const STRINGS: Partial<Record<SupportedControlLocale, Record<string, string>>> =
     'blocked requests': 'solicitudes bloqueadas',
     'No diff yet.': 'Todavia no hay diff.',
     'Preview is starting.': 'La vista previa esta iniciando.',
-  },
+  }),
 };
 const DASHBOARD_ACCESS_STRINGS = {
   'Dashboard Ready': 'Dashboard Ready',
@@ -822,7 +1106,8 @@ export function readControlLocalePreference(): ControlLocalePreference {
   } catch {
     // Locale is a convenience preference.
   }
-  return 'en-US';
+  // Follow the device language when the user has not set an override.
+  return 'system';
 }
 
 export function readControlLocale(): ControlLocale {
@@ -853,8 +1138,27 @@ export function persistControlLocale(locale: ControlLocalePreference | 'auto'): 
 
 export function translate(value: string, locale = readControlLocale()): string {
   const clean = String(value || '').trim();
-  if (!clean || locale === 'en-US') return value;
-  return STRINGS[locale]?.[clean] || value;
+  if (!clean) return value;
+  if (locale === 'en-US') return value;
+  const table = STRINGS[locale]
+    || (locale.startsWith('es') ? STRINGS.es || STRINGS['es-AR'] : undefined)
+    || (locale.startsWith('pt') ? STRINGS['pt-BR'] : undefined)
+    || {};
+  if (table[clean]) return table[clean];
+  // Template keys like "{n} approvals waiting"
+  for (const [key, translated] of Object.entries(table)) {
+    if (!key.includes('{n}')) continue;
+    const pattern = new RegExp(`^${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{n\\}', '(\\d+)')}$`);
+    const match = clean.match(pattern);
+    if (match) return translated.replace('{n}', match[1] || '');
+  }
+  return value;
+}
+
+/** Translate with a count placeholder. */
+export function translateCount(singular: string, pluralTemplate: string, count: number, locale = readControlLocale()): string {
+  if (count === 1) return translate(singular, locale);
+  return translate(pluralTemplate, locale).replace(/\{n\}/g, String(count));
 }
 
 export function applyControlLocale(root: ParentNode = document) {
@@ -916,10 +1220,10 @@ async function syncLocaleToBackend(locale: string) {
       body: JSON.stringify({ lang: locale }),
     });
     if (!response.ok) {
-      console.warn(`[LocaleSync] Failed to sync language to backend: ${response.status}`);
+      shellWarn(`LocaleSync failed to sync language to backend: ${response.status}`);
     }
-  } catch (error) {
-    console.warn(`[LocaleSync] Error syncing language to backend: ${(error as Error).message}`);
+  } catch (error: unknown) {
+    shellWarn(`LocaleSync error syncing language to backend: ${(error as Error).message}`);
   }
 }
 
@@ -942,8 +1246,8 @@ async function loadLocaleFromBackend() {
         }
       }
     }
-  } catch (error) {
-    console.warn(`[LocaleSync] Error loading language from backend: ${(error as Error).message}`);
+  } catch (error: unknown) {
+    shellWarn(`LocaleSync error loading language from backend: ${(error as Error).message}`);
   }
 }
 

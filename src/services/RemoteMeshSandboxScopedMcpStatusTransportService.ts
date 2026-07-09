@@ -130,8 +130,8 @@ export class ScopedMcpStatusHttpTransport implements RemoteMeshLiveProbeTranspor
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error: any) {
-    logger.warn('[Remote Mesh Sandbox Scoped Mcp Status Transport] network request failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Remote Mesh Sandbox Scoped Mcp Status Transport] network request failed', error);
     return {
         status: 'failed',
         startedAt,
@@ -371,8 +371,7 @@ function parseEndpoint(endpointUrl: string | null): {
   }
   try {
     return { url: new URL(endpointUrl), error: null };
-  } catch (error: any) {
-    logger.warn('[Remote Mesh Sandbox Scoped Mcp Status Transport] network request failed', error);
+  } catch (error: unknown) {logger.warn('[Remote Mesh Sandbox Scoped Mcp Status Transport] network request failed', error);
     return { url: null, error: 'Endpoint is not a valid URL.' };
   }
 }
@@ -536,8 +535,7 @@ function sanitizeResponseText(text: string): string {
   try {
     const parsed = JSON.parse(trimmed) as RemoteMeshJson;
     return JSON.stringify(redactJson(parsed)).slice(0, 2000);
-  } catch (error: any) {
-    logger.warn('[Remote Mesh Sandbox Scoped Mcp Status Transport] JSON parse failed', error);
+  } catch (error: unknown) {logger.warn('[Remote Mesh Sandbox Scoped Mcp Status Transport] JSON parse failed', error);
     return trimmed.replace(/(sk-[A-Za-z0-9_-]{8,}|xox[baprs]-[A-Za-z0-9-]{8,})/g, '<redacted>');
   }
 }

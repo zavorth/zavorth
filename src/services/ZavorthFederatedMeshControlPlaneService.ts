@@ -965,7 +965,7 @@ export class ZavorthFederatedMeshControlPlaneService {
   private async safeDistributedRuntimeSnapshot(): Promise<ZavorthDistributedRuntimeSnapshot | null> {
     try {
       return await this.distributedRuntimeService.buildSnapshot();
-    } catch (error: any) { logger.warn('[Zavorth Federated Mesh Control Plane] creation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth Federated Mesh Control Plane] creation failed', error); return null; }
   }
 
   private buildActions(

@@ -2,7 +2,6 @@ import { OAuthService } from "./oauth";
 import { CLAUDE_CONFIG } from "../constants/oauth";
 import { getServerCredentials } from "../config/index";
 import { spinner as createSpinner } from "../utils/ui";
-
 /**
  * Claude OAuth Service
  */
@@ -127,7 +126,7 @@ export class ClaudeService extends OAuthService {
 
       spinner.succeed("Claude connected successfully!");
       return true;
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

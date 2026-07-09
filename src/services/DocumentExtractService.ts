@@ -156,8 +156,8 @@ export class DocumentExtractService {
         processedAt,
         error: null,
       };
-    } catch (error: any) {
-    logger.warn('[Document Extract] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Document Extract] operation failed', error);
     return {
         ok: false,
         contractVersion: DOCUMENT_EXTRACT_CONTRACT_VERSION,

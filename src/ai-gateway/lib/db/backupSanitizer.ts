@@ -4,9 +4,7 @@ import { logger } from '@/shared/utils/logger';
 import {
 redactSensitiveData,
   redactSensitiveText,
-} from "../../../security/SensitiveDataGuard.js";
-
-type DbLike = Database.Database;
+} from "../../../security/SensitiveDataGuard.js";type DbLike = Database.Database;
 
 export type BackupSanitizerReport = {
   sanitized: true;
@@ -204,8 +202,7 @@ function redactMaybeJsonString(value: string): string {
   if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
     try {
       return JSON.stringify(redactSensitiveData(redactExportedLogValue(JSON.parse(value))));
-    } catch (error: any) { const err = error; const e = error;
-      // Fall through to text redaction.
+    } catch (error: unknown) {// Fall through to text redaction.
       logger.warn('[backup Sanitizer] JSON parse failed', error);
     }
   }

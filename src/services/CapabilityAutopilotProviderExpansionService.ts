@@ -203,7 +203,7 @@ export class CapabilityAutopilotProviderExpansionService {
   ): Promise<CapabilityReceipt | null> {
     try {
       return await this.receiptService.buildCapabilityReceipt(id, { surface, audience });
-    } catch (error: any) { logger.warn('[Capability Autopilot  Expansion] creation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Capability Autopilot  Expansion] creation failed', error); return null; }
   }
 
   private findManifestForCapability(

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 /**
  * Universal Capability Fabric Service
  *
@@ -309,7 +310,8 @@ export class UniversalCapabilityFabricService {
           remoteUrl,
           contentHash: crypto.createHash('sha256').update(body).digest('hex'),
         };
-      } catch (error) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         issues.push({
           severity: 'blocked',
           code: 'source.remote_failed',
@@ -489,7 +491,8 @@ export class UniversalCapabilityFabricService {
       this.writeManifest(target, candidate, source);
       if (candidate.kind === 'mcp') this.writeMcpDisabledManifest(target, candidate);
       return target;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       issues.push({
         severity: 'error',
         code: 'materialize.failed',

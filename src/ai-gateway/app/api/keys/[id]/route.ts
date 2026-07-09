@@ -10,9 +10,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { updateKeyPermissionsSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth, requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
-import { logger } from '@/shared/utils/logger';
-
-// GET /api/keys/[id] - Get single API key
+import { logger } from '@/shared/utils/logger';// GET /api/keys/[id] - Get single API key
 export async function GET(request, { params }) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -31,8 +29,7 @@ export async function GET(request, { params }) {
       ...key,
       key: keyValue ? keyValue.slice(0, 8) + "****" + keyValue.slice(-4) : null,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error fetching key:", error);
+  } catch (error: unknown) {console.log("Error fetching key:", error);
     return NextResponse.json({ error: "Failed to fetch key" }, { status: 500 });
   }
 }
@@ -45,8 +42,7 @@ export async function PATCH(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {
@@ -104,8 +100,7 @@ export async function PATCH(request, { params }) {
       ...(maxSessions !== undefined && { maxSessions }),
       ...(accessSchedule !== undefined && { accessSchedule }),
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating key permissions:", error);
+  } catch (error: unknown) {console.log("Error updating key permissions:", error);
     return NextResponse.json({ error: "Failed to update permissions" }, { status: 500 });
   }
 }
@@ -127,8 +122,7 @@ export async function DELETE(request, { params }) {
     await syncKeysToCloudIfEnabled();
 
     return NextResponse.json({ message: "Key deleted successfully" });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error deleting key:", error);
+  } catch (error: unknown) {console.log("Error deleting key:", error);
     return NextResponse.json({ error: "Failed to delete key" }, { status: 500 });
   }
 }
@@ -143,7 +137,6 @@ async function syncKeysToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing keys to cloud:", error);
+  } catch (error: unknown) {console.log("Error syncing keys to cloud:", error);
   }
 }

@@ -1,7 +1,5 @@
 import { ServiceTokens } from './ServiceTokens.js';
-import type { ServiceToken } from './ServiceTokens.js';
-
-export class ServiceRegistry {
+import type { ServiceToken } from './ServiceTokens.js';export class ServiceRegistry {
   private static readonly services = new Map<symbol, unknown>();
 
   private constructor() {
@@ -50,8 +48,7 @@ export class ServiceRegistry {
     try {
       this.validateToken(token);
       return this.services.has(token.id);
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 

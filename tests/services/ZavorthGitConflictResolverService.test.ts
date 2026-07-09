@@ -19,7 +19,7 @@ describe('ZavorthGitConflictResolverService', () => {
       execFileSync('git', ['checkout', '-b', 'main'], { cwd: tempRepoDir, stdio: 'ignore' });
       execFileSync('git', ['config', 'user.email', 'test@zavorth.com'], { cwd: tempRepoDir, stdio: 'ignore' });
       execFileSync('git', ['config', 'user.name', 'Zavorth Test'], { cwd: tempRepoDir, stdio: 'ignore' });
-    } catch (err) {
+    } catch (error: unknown) {
       // If git is not installed in the environment, skip tests
       tempRepoDir = '';
     }

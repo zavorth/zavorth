@@ -144,7 +144,7 @@ export class KanbanSQLiteDispatcherService {
     // Migração de coluna dinâmica se a tabela cards já existia sem subagent_id
     try {
       this.db.exec('ALTER TABLE cards ADD COLUMN subagent_id TEXT;');
-    } catch (e) {
+    } catch (error: unknown) {
       // Ignora se a coluna já existia
     }
   }

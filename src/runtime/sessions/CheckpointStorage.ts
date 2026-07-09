@@ -1,3 +1,4 @@
+import { logger } from '../../logger.js';
 /**
  * CheckpointStorage — File-based storage for session checkpoints.
  *
@@ -129,12 +130,11 @@ export class CheckpointStorage {
       // Verify checksum
       const checksum = crypto.createHash('sha256').update(content).digest('hex');
       if (checksum !== metadata.checksum) {
-        console.warn(`Checksum mismatch for checkpoint ${checkpointId}`);
+        logger.warn(`Checksum mismatch for checkpoint ${checkpointId}`);
       }
 
       return JSON.parse(content) as CheckpointData;
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 
@@ -159,8 +159,7 @@ export class CheckpointStorage {
 
       this.metadataIndex.delete(checkpointId);
       return true;
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 
@@ -243,8 +242,7 @@ export class CheckpointStorage {
       const content = fs.readFileSync(metadata.filePath, 'utf-8');
       const checksum = crypto.createHash('sha256').update(content).digest('hex');
       return checksum === metadata.checksum;
-    } catch (error: any) { const err = error; const e = error;
-      return false;
+    } catch (error: unknown) {return false;
     }
   }
 
@@ -271,8 +269,7 @@ export class CheckpointStorage {
       const checkpoint = imported.checkpoint as CheckpointData;
       await this.saveCheckpoint(checkpoint);
       return checkpoint;
-    } catch (error: any) { const err = error; const e = error;
-      return null;
+    } catch (error: unknown) {return null;
     }
   }
 
@@ -295,8 +292,7 @@ export class CheckpointStorage {
         const content = fs.readFileSync(path.join(metaDir, file), 'utf-8');
         const metadata = JSON.parse(content) as CheckpointMetadata;
         this.metadataIndex.set(metadata.id, metadata);
-      } catch (error: any) { const err = error; const e = error;
-        // Skip corrupted metadata files
+      } catch (error: unknown) {// Skip corrupted metadata files
       }
     }
   }

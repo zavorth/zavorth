@@ -1,7 +1,5 @@
 import { fetchAndPersistProviderLimits } from "@/lib/usage/providerLimits";
-import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-
-/**
+import { requireManagementAuth } from "@/lib/api/requireManagementAuth";/**
  * GET /api/usage/[connectionId] - Get live usage data for a specific connection
  * and persist the refreshed Provider Limits cache.
  */
@@ -16,8 +14,7 @@ export async function GET(
     const { connectionId } = await params;
     const { usage } = await fetchAndPersistProviderLimits(connectionId, "manual");
     return Response.json(usage);
-  } catch (error: any) { const err = error; const e = error;
-    const status =
+  } catch (error: unknown) {const status =
       typeof (error as { status?: unknown })?.status === "number"
         ? (error as { status: number }).status
         : 500;

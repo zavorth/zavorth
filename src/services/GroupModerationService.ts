@@ -88,7 +88,7 @@ export class GroupModerationService {
     try {
       await this.botApi.deleteMessage(chatId, messageId);
       return true;
-    } catch (error: any) { logger.warn('[Group Moderation] process execution failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Group Moderation] process execution failed', error); return false; }
   }
 
   public async isBotAdmin(chatId: number | string): Promise<boolean> {
@@ -96,7 +96,7 @@ export class GroupModerationService {
       const me = await this.botApi.getMe();
       const member = await this.botApi.getChatMember(chatId, me.id);
       return member.status === 'administrator' || member.status === 'creator';
-    } catch (error: any) { logger.warn('[Group Moderation] delete operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Group Moderation] delete operation failed', error); return false; }
   }
 
   private async executeAction(
@@ -128,7 +128,7 @@ export class GroupModerationService {
       });
 
       return { success: true, action, userId, chatId };
-    } catch (error: any) {
+    } catch (error: unknown) {
       await this.auditLogger.logEvent({
         timestamp: new Date().toISOString(),
         event_type: `group_moderation_${action}_failed`,

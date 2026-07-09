@@ -66,9 +66,43 @@ declare global {
       onVoiceHotkey?(callback: () => void): () => void;
       openWindow(): Promise<{ ok: boolean }>;
       onDeepLink(callback: (url: string) => void): () => void;
+      openExternal?(url: string): Promise<{ ok: boolean } | void> | void;
+      kaelOverlay?: KaelOverlayApi;
     };
   }
 }
+
+export type KaelMascotState = 'idle' | 'thinking' | 'working' | 'finished';
+
+export type KaelOverlayStatePayload = {
+  state?: KaelMascotState;
+  bubbleText?: string | null;
+};
+
+export type KaelOverlayControlPayload =
+  | { type: 'toggle-main-window' }
+  | { type: 'submit-prompt'; text: string }
+  | { type: 'pop-in' }
+  | { type: string; text?: string; [key: string]: unknown };
+
+export type KaelOverlayBounds = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type KaelOverlayApi = {
+  open(bounds: KaelOverlayBounds): Promise<unknown>;
+  close(): Promise<unknown>;
+  setBounds(bounds: KaelOverlayBounds): void;
+  setIgnoreMouse(ignore: boolean): void;
+  setFocusable(focusable: boolean): void;
+  state(payload: KaelOverlayStatePayload): void;
+  onState(callback: (payload: KaelOverlayStatePayload) => void): () => void;
+  control(payload: KaelOverlayControlPayload): void;
+  onControl(callback: (payload: KaelOverlayControlPayload) => void): () => void;
+};
 
 export type DesktopApiRequest = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

@@ -23,16 +23,13 @@ import {
 runZavorthCliTerminalShellInk,
   type ZavorthTerminalShellRunResult,
   type ZavorthTerminalShellRunnerParams,
-} from './ZavorthCliTerminalShellInkApp.js';
-
-async function readCliReplQuestion(
+} from './ZavorthCliTerminalShellInkApp.js';async function readCliReplQuestion(
   rl: ReturnType<CliReadlineFactory>,
   prompt: string,
 ): Promise<string | null> {
   try {
     return await rl.question(prompt);
-  } catch (error: any) { const err = error; const e = error;
-    const message = String(error?.message || error || '');
+  } catch (error: unknown) {const message = String(error?.message || error || '');
     if (/readline was closed|readline closed|closed/i.test(message)) {
       return null;
     }
@@ -79,8 +76,7 @@ export async function runZavorthCliRepl(params: {
     interrupted = true;
     try {
       rl.close();
-    } catch (error: any) { const err = error; const e = error;
-      // readline may already be closing after Ctrl+C.
+    } catch (error: unknown) {// readline may already be closing after Ctrl+C.
       logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error);
     }
   });
@@ -139,8 +135,7 @@ export async function runZavorthCliRepl(params: {
         if (showSpinner) {
           globalSpinner.succeed(result.ok ? 'Done' : 'Needs attention');
         }
-      } catch (error: any) { const err = error; const e = error;
-        if (showSpinner) {
+      } catch (error: unknown) {if (showSpinner) {
           globalSpinner.fail('Could not finish');
         }
         throw error;
@@ -153,8 +148,7 @@ export async function runZavorthCliRepl(params: {
   } finally {
     try {
       rl.close();
-    } catch (error: any) { const err = error; const e = error;
-      // A piped/non-interactive stdin can close before the REPL loop asks again.
+    } catch (error: unknown) {// A piped/non-interactive stdin can close before the REPL loop asks again.
       logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error);
     }
   }

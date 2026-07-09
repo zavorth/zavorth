@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-
-import type {
+import { requireManagementAuth } from "@/lib/api/requireManagementAuth";import type {
   RemoteMeshNotebookMcpProxyApplyRequest,
 } from "../../../../../../contracts/RemoteMeshNotebookMcpProxyContract.js";
 import { RemoteMeshNotebookMcpProxyService } from "../../../../../../services/RemoteMeshNotebookMcpProxyService.js";
@@ -16,8 +14,7 @@ export async function POST(request: Request) {
   let payload: RemoteMeshNotebookMcpProxyApplyRequest;
   try {
     payload = await request.json() as RemoteMeshNotebookMcpProxyApplyRequest;
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] load operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] load operation failed', error);
     return NextResponse.json(
       { ok: false, error: "Invalid Remote Mesh MCP proxy JSON body." },
       { status: 400 },

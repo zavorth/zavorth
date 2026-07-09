@@ -53,8 +53,7 @@ export async function GET(request: Request) {
         for (const row of rows) {
           settings[row.key] = row.value;
         }
-      } catch (error: any) { const err = error; const e = error;
-      // key_value table might not exist
+      } catch (error: unknown) {// key_value table might not exist
       logger.warn('[route] operation failed', error);
     }
       fs.writeFileSync(path.join(tempDir, "settings.json"), JSON.stringify(redactExportedLogValue(settings), null, 2));
@@ -64,8 +63,7 @@ export async function GET(request: Request) {
       try {
         const rows = db.prepare("SELECT * FROM combos").all();
         combos.push(...rows);
-      } catch (error: any) { const err = error; const e = error;
-      // combos table might not exist
+      } catch (error: unknown) {// combos table might not exist
       logger.warn('[route] filesystem operation failed', error);
     }
       fs.writeFileSync(path.join(tempDir, "combos.json"), JSON.stringify(redactExportedLogValue(combos), null, 2));
@@ -79,8 +77,7 @@ export async function GET(request: Request) {
           )
           .all();
         providers.push(...rows);
-      } catch (error: any) { const err = error; const e = error;
-      // provider_connections table might not exist
+      } catch (error: unknown) {// provider_connections table might not exist
       logger.warn('[route] connection failed', error);
     }
       fs.writeFileSync(path.join(tempDir, "providers.json"), JSON.stringify(providers, null, 2));
@@ -94,8 +91,7 @@ export async function GET(request: Request) {
           )
           .all();
         apiKeys.push(...rows);
-      } catch (error: any) { const err = error; const e = error;
-      // api_keys table might not exist
+      } catch (error: unknown) {// api_keys table might not exist
       logger.warn('[route] creation failed', error);
     }
       fs.writeFileSync(path.join(tempDir, "api-keys.json"), JSON.stringify(apiKeys, null, 2));
@@ -144,15 +140,18 @@ export async function GET(request: Request) {
           "X-Zavorth-Raw-Secrets-Included": includeSensitive ? "true" : "false",
         },
       });
-    } catch (innerError: any) { const error = innerError; const err = innerError; const e = innerError;
+    } catch (innerError: unknown) {
       // Cleanup on error
       try {
         if (fs.existsSync(tempDir)) fs.rmSync(tempDir, { recursive: true, force: true });
         if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
-      } catch (error: any) { const err = error; const e = error; /* ignore cleanup errors */ logger.warn('[route] file cleanup failed', error); }
+      } catch (cleanupError: unknown) {
+        /* ignore cleanup errors */
+        logger.warn('[route] file cleanup failed', cleanupError);
+      }
       throw innerError;
     }
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.error("[ExportAll] Error:", error);
     return NextResponse.json(
       {

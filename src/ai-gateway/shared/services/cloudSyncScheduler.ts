@@ -1,9 +1,7 @@
 import { getConsistentMachineId } from "@/shared/utils/machineId";
 import { isCloudEnabled } from "@/lib/localDb";
 import { getRuntimePorts } from "@/lib/runtime/ports";
-import { logger } from '../logger.js';
-
-const { zavorthControlPort } = getRuntimePorts();
+import { logger } from '../logger.js';const { zavorthControlPort } = getRuntimePorts();
 
 const INTERNAL_BASE_URL =
   process.env.BASE_URL ||
@@ -76,8 +74,7 @@ export class CloudSyncScheduler {
       try {
         const result = await this.sync();
         return result;
-      } catch (error: any) { const err = error; const e = error;
-        if (attempt === maxRetries) {
+      } catch (error: unknown) {if (attempt === maxRetries) {
           return null;
         }
 

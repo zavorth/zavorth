@@ -35,7 +35,6 @@ import { AgentRunLlmRequestBuilder } from './AgentRunLlmRequestBuilder.js';
 import { StructuredWorkspaceDraftParser, type StructuredWorkspaceDraft } from './StructuredWorkspaceDraftParser.js';
 import { AgentRunNativeToolLoopService } from './AgentRunNativeToolLoopService.js';
 import type { AgentRunSteeringStream, AgentRunSteeringStreamFrame } from './AgentRunSteeringStream.js';
-
 export type UniversalAgentLlmRuntime = {
   chatDetailed(
     messages: ChatMessage[],
@@ -761,7 +760,7 @@ export class AgentRunLlmRuntimeExecutor {
 
     try {
       return await this.speculativeAutonomy.prepare(input);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const detail = error instanceof Error ? error.message : String(error);
       return {
         id: `failed-${run.id}`,

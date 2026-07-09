@@ -921,7 +921,7 @@ export class ZavorthRuntimeStateBusService {
           };
         }
       }
-    } catch (error: any) {
+    } catch ($1: unknown) {
       // Corrupt state falls back to a clean in-memory state; the next dispatch rewrites it.
       logger.warn('[Zavorth Runtime State Bus] parsing failed', error);
     }
@@ -2034,7 +2034,7 @@ function evaluateNetworkTarget(providerId: string, targetUrl: string | null): {
       return { ok: false, targetHost: host, localLoopback: false };
     }
     return { ok: true, targetHost: host, localLoopback: false };
-  } catch (error: any) {
+  } catch ($1: unknown) {
     logger.warn('[Zavorth Runtime State Bus] lifecycle operation failed', error);
     return { ok: false, targetHost: null, localLoopback: false };
   }
@@ -2239,10 +2239,10 @@ function safeResolve(value: unknown): string | null {
 function safeRealPath(value: string): string | null {
   try {
     return fs.realpathSync.native(value);
-  } catch (error: any) {
+  } catch ($1: unknown) {
     try {
       return fs.realpathSync(value);
-    } catch (error: any) { logger.warn('[Zavorth Runtime State Bus] operation failed', error); return null; }
+    } catch ($1: unknown) { logger.warn('[Zavorth Runtime State Bus] operation failed', error); return null; }
   }
 }
 

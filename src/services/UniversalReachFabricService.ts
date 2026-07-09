@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 /**
  * Universal Reach Fabric Service
  *
@@ -315,7 +316,8 @@ export class UniversalReachFabricService {
         } as any);
         allowed = Boolean(result && (result as any).ok !== false && (result as any).allowed !== false);
         reason = String((result as any)?.reason || (result as any)?.summary || reason);
-      } catch (error) {
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         allowed = false;
         reason = error instanceof Error ? error.message : String(error);
       }

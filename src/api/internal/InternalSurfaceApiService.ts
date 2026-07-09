@@ -7,9 +7,7 @@ import {
   type CommandResult,
 } from '../../contracts/InternalBoundaryContract.js';
 import type { SharedSurfaceCommandService } from '../../services/SharedSurfaceCommandService.js';
-import type { ParsedCommand } from '../../gateways/channels/telegram/CommandParser.js';
-
-export type InternalSurfaceApiDeps = {
+import type { ParsedCommand } from '../../gateways/channels/telegram/CommandParser.js';export type InternalSurfaceApiDeps = {
   commandService: Pick<SharedSurfaceCommandService, 'maybeHandle'>;
 };
 
@@ -78,8 +76,7 @@ export class InternalSurfaceApiService {
           approved: Boolean(request.approved),
         },
       };
-    } catch (error: any) { const err = error; const e = error;
-      if (!swallowErrors) {
+    } catch (error: unknown) {if (!swallowErrors) {
         throw error;
       }
       const mappedError = this.mapError(error);

@@ -2,9 +2,7 @@ import { CORS_ORIGIN, CORS_HEADERS } from "@/shared/utils/cors";
 import { callCloudWithMachineId } from "@/shared/utils/cloud";
 import { handleChat } from "@/sse/handlers/chat";
 import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
-import { createInjectionGuard } from "@/middleware/promptInjectionGuard";
-
-let initPromise = null;
+import { createInjectionGuard } from "@/middleware/promptInjectionGuard";let initPromise = null;
 
 // Singleton injection guard instance
 const injectionGuard = createInjectionGuard();
@@ -57,8 +55,7 @@ export async function POST(request) {
         );
       }
     }
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[SECURITY] Prompt injection guard failed:", error);
+  } catch (error: unknown) {console.error("[SECURITY] Prompt injection guard failed:", error);
     return new Response(
       JSON.stringify({
         error: {

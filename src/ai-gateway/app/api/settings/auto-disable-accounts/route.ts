@@ -3,9 +3,7 @@ import { getSettings, updateSettings } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateAutoDisableAccountsSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { logger } from '@/shared/utils/logger';
-
-export async function GET(request: Request) {
+import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -15,8 +13,7 @@ export async function GET(request: Request) {
       enabled: settings.autoDisableBannedAccounts ?? false,
       threshold: settings.autoDisableBannedThreshold ?? 3,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error reading auto-disable accounts config:", error);
+  } catch (error: unknown) {console.error("Error reading auto-disable accounts config:", error);
     return NextResponse.json(
       { error: "Failed to read auto-disable accounts config" },
       { status: 500 }
@@ -31,8 +28,7 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -61,8 +57,7 @@ export async function PUT(request: Request) {
       enabled: settings.autoDisableBannedAccounts ?? false,
       threshold: settings.autoDisableBannedThreshold ?? 3,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("Error updating auto-disable accounts config:", error);
+  } catch (error: unknown) {console.error("Error updating auto-disable accounts config:", error);
     return NextResponse.json(
       { error: "Failed to update auto-disable accounts config" },
       { status: 500 }

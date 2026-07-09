@@ -71,8 +71,7 @@ export class IntentExampleSimilarityService {
         .filter((entry: IntentExampleRecord | null): entry is IntentExampleRecord => Boolean(entry));
       this.cache = normalized;
       return this.cache;
-    } catch (error: any) {
-      this.cache = [];
+    } catch (error: unknown) {this.cache = [];
       return this.cache;
     }
   }

@@ -6,6 +6,7 @@ import { AutomaticBrowserTool } from './tools/AutomaticBrowserTool.js';
 import type { ToolRegistry } from '../tools/ToolRegistry.js';
 import { McpToolPolicy } from './McpToolPolicy.js';
 import type { ToolExecutor } from '../execution/ToolExecutor.js';
+import { asErrorLike } from '../utils/errorLike';
 
 type ZavorthMcpServerOptions = {
   toolPolicy?: McpToolPolicy;
@@ -107,8 +108,9 @@ export class ZavorthMcpServer {
               ],
               isError: false,
             };
-          } catch (err: any) { const error = err; const e = err;
-             return {
+          } catch (error: unknown) {
+            const err = asErrorLike(error);
+            return {
               content: [
                 {
                   type: 'text',

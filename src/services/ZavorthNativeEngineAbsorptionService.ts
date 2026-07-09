@@ -222,8 +222,7 @@ export class ZavorthNativeEngineAbsorptionService {
       } else {
         parsed = value as Record<string, unknown>;
       }
-    } catch (error: any) {
-      blockedReasons.push('json-parse-failed');
+    } catch (error: unknown) {blockedReasons.push('json-parse-failed');
     }
 
     const dangerousIntentDetected = /\b(rm\s+-rf|Remove-Item\b.*-(?:Recurse|Force)|git\s+push|git\s+clean\s+-fd|DROP\s+DATABASE|sudo\b)\b/i.test(rawArguments);

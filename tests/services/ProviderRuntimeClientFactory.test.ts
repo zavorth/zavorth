@@ -1,6 +1,7 @@
 import { ProviderRuntimeClientFactory } from '../../src/services/ProviderRuntimeClientFactory.js';
 import { ResolvedProviderRuntime } from '../../src/services/ModelSelectionService.js';
 import { ProviderSecretStore, LocalEncryptedProviderSecretStore } from '../../src/services/ProviderSecretStore.js';
+import { asErrorLike } from '../../src/utils/errorLike';
 
 jest.mock('../../src/services/ProviderSecretStore.js', () => {
   return {
@@ -51,8 +52,8 @@ describe('ProviderRuntimeClientFactory', () => {
     let caught: any;
     try {
       await invoker.invoke({ messages: [] });
-    } catch (e) {
-      caught = e;
+    } catch (error: unknown) { const err = asErrorLike(error);
+caught = e;
     }
 
     expect(caught.message).toBe('invalid_key');

@@ -39,9 +39,6 @@ export async function handleZavorthCompileCommand(
   return compileRun(writer);
 }
 
-// ---------------------------------------------------------------------------
-// --check: Verify prerequisites
-// ---------------------------------------------------------------------------
 async function compileCheck(writer: CliWriter): Promise<CliExecutionResult> {
   const checks = [
     checkNodeVersion(),
@@ -73,9 +70,6 @@ async function compileCheck(writer: CliWriter): Promise<CliExecutionResult> {
   return { ok: allOk, handled: true, output: lines, error: allOk ? null : 'Prerequisites not met.' };
 }
 
-// ---------------------------------------------------------------------------
-// Default: Run compile pipeline
-// ---------------------------------------------------------------------------
 async function compileRun(writer: CliWriter): Promise<CliExecutionResult> {
   const projectRoot = process.cwd();
   const scriptPath = path.join(projectRoot, 'scripts', 'zavorth-compile.mjs');
@@ -118,9 +112,6 @@ async function compileRun(writer: CliWriter): Promise<CliExecutionResult> {
   return { ok: true, handled: true, output: [output], error: null };
 }
 
-// ---------------------------------------------------------------------------
-// Prerequisite checks
-// ---------------------------------------------------------------------------
 function checkNodeVersion(): { ok: boolean; label: string; detail: string } {
   const major = parseInt(process.versions.node.split('.')[0], 10);
   return {

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import type { ChannelItem, ChannelSetupSnapshot } from '../../apiClient';
+import type { ChannelItem, ChannelSetupOption, ChannelSetupSnapshot } from '../../apiClient';
 import { asRecord, panelLabels } from '../../primitives/desktopPrimitives';
 import { StatusBadge } from '../../primitives';
 import { readinessFromChannel } from '../../desktop-state/readiness';
+import { asString, isRecord } from '../../lib/typeGuards';
 import { DetailRows, PageFrame, SearchBox, EmptyRows } from '../panelChrome';
 
 export function ChannelsView(props: {
@@ -72,10 +73,14 @@ export function ChannelsView(props: {
           <EmptyRows text="No channel setup options are available yet." />
         ) : (
           <div className="zvd-detail-list">
-            {setupOptions.slice(0, 8).map((option: any) => {
-              const channelId = String(option.channelId || option.id || '');
-              const active = selected && String((selected as any).channelId || '') === channelId;
-              const hasMissing = Array.isArray(option.missingEnvKeys) && option.missingEnvKeys.length > 0;
+            {setupOptions.slice(0, 8).map((option: ChannelSetupOption) => {
+              const channelId = asString(option.channelId || option.id);
+              const selectedChannelId = isRecord(selected) ? asString(selected.channelId) : '';
+              const active = Boolean(selected) && selectedChannelId === channelId;
+              const missingKeys = Array.isArray(option.missingEnvKeys)
+                ? option.missingEnvKeys.map(key => asString(key)).filter(Boolean)
+                : [];
+              const hasMissing = missingKeys.length > 0;
               const isConfiguring = configuringChannelId === channelId;
               
               return (
@@ -88,7 +93,7 @@ export function ChannelsView(props: {
                       
                       {isConfiguring ? (
                         <div className="zvd-credentials-form">
-                          {option.missingEnvKeys.map((key: string) => {
+                          {missingKeys.map((key) => {
                             const isSensitive = /(token|secret|password|credential|authorization|api[_-]?key)/i.test(key);
                             return (
                               <div className="zvd-credentials-field" key={key}>

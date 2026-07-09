@@ -17,7 +17,7 @@ describe('ZavorthChannelPairingService', () => {
     if (fs.existsSync(storagePath)) {
       try {
         fs.unlinkSync(storagePath);
-      } catch (err) {
+      } catch (error: unknown) {
         // Ignored
       }
     }

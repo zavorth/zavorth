@@ -1,9 +1,7 @@
 import type {
   CodexRuntimeModelEntry,
 } from '../../contracts/CodexRuntimeContract.js';
-import { CodexAppServerRpcAdapter } from './CodexAppServerRpcAdapter.js';
-
-type CodexModelCatalogAdapterRuntime = {
+import { CodexAppServerRpcAdapter } from './CodexAppServerRpcAdapter.js';type CodexModelCatalogAdapterRuntime = {
   rpcAdapter?: Pick<CodexAppServerRpcAdapter, 'hasRequester' | 'listModels'>;
 };
 
@@ -32,8 +30,7 @@ export class CodexModelCatalogAdapter {
         if (liveModels.length > 0) {
           return liveModels;
         }
-      } catch (error: any) { const err = error; const e = error;
-        return this.fallbackCatalog();
+      } catch (error: unknown) {return this.fallbackCatalog();
       }
     }
     return this.fallbackCatalog();

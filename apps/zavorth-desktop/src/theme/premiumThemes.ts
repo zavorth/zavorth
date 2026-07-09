@@ -232,35 +232,36 @@ export function exportPremiumThemeState(state: PremiumThemeState): string {
   return JSON.stringify(sanitizeThemeState(state), null, 2);
 }
 
-function sanitizeThemeState(value: any): PremiumThemeState {
-  const selectedByProfile = isRecord(value?.selectedByProfile)
+function sanitizeThemeState(value: unknown): PremiumThemeState {
+  const root = isRecord(value) ? value : {};
+  const selectedByProfile = isRecord(root.selectedByProfile)
     ? Object.fromEntries(
-        Object.entries(value.selectedByProfile)
+        Object.entries(root.selectedByProfile)
           .filter(([key, themeId]) => typeof key === 'string' && typeof themeId === 'string')
           .map(([key, themeId]) => [profileKey(key), themeId]),
       )
     : {};
-  const selectedBySession = isRecord(value?.selectedBySession)
+  const selectedBySession = isRecord(root.selectedBySession)
     ? Object.fromEntries(
-        Object.entries(value.selectedBySession)
+        Object.entries(root.selectedBySession)
           .filter(([key, themeId]) => typeof key === 'string' && typeof themeId === 'string')
           .map(([key, themeId]) => [sessionKey(key), themeId]),
       )
     : {};
-  const fontByProfile = isRecord(value?.fontByProfile)
+  const fontByProfile = isRecord(root.fontByProfile)
     ? Object.fromEntries(
-        Object.entries(value.fontByProfile)
+        Object.entries(root.fontByProfile)
           .filter(([key, font]) => typeof key === 'string' && typeof font === 'string')
           .map(([key, font]) => [profileKey(key), sanitizeFontFamily(font)]),
       )
     : {};
-  const customThemes = Array.isArray(value?.customThemes)
-    ? value.customThemes.map(sanitizeTheme).filter(Boolean) as PremiumTheme[]
+  const customThemes = Array.isArray(root.customThemes)
+    ? root.customThemes.map(sanitizeTheme).filter(Boolean) as PremiumTheme[]
     : [];
   return { selectedByProfile, selectedBySession, fontByProfile, customThemes };
 }
 
-function sanitizeTheme(value: any): PremiumTheme | null {
+function sanitizeTheme(value: unknown): PremiumTheme | null {
   if (!isRecord(value)) {
     return null;
   }
@@ -287,7 +288,7 @@ function sanitizeTheme(value: any): PremiumTheme | null {
   };
 }
 
-function sanitizeVsCodeTheme(value: any): PremiumTheme | null {
+function sanitizeVsCodeTheme(value: unknown): PremiumTheme | null {
   if (!isRecord(value) || !isRecord(value.colors)) {
     return null;
   }

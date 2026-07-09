@@ -3,9 +3,7 @@
 import { useState, useEffect, useRef, Fragment } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/* ------------------------------------------------------------------ */
 /*  Types                                                              */
-/* ------------------------------------------------------------------ */
 
 type MessageRole = "user" | "assistant";
 
@@ -33,9 +31,7 @@ interface ExpressiveResponseRendererProps {
   isStreaming?: boolean;
 }
 
-/* ------------------------------------------------------------------ */
 /*  Animation variants                                                 */
-/* ------------------------------------------------------------------ */
 
 const messageVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -66,9 +62,7 @@ const toolCardVariants = {
   }),
 };
 
-/* ------------------------------------------------------------------ */
 /*  Glassmorphic style tokens                                          */
-/* ------------------------------------------------------------------ */
 
 const glass = {
   base: "bg-[rgba(10,10,10,0.45)] backdrop-blur-xl border border-[rgba(255,255,255,0.05)]",
@@ -79,9 +73,7 @@ const glass = {
     "bg-[rgba(10,10,10,0.45)] backdrop-blur-lg border border-[rgba(255,255,255,0.05)]",
 };
 
-/* ------------------------------------------------------------------ */
 /*  Inline markdown helpers (bold + code)                              */
-/* ------------------------------------------------------------------ */
 
 function renderInlineMarkdown(text: string): React.ReactNode[] {
   // Split on **bold** and `code` patterns
@@ -108,9 +100,7 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
   });
 }
 
-/* ------------------------------------------------------------------ */
 /*  Sub-components                                                     */
-/* ------------------------------------------------------------------ */
 
 function TextBlock({ content }: { content: string }) {
   const paragraphs = content.split(/\n\n+/);
@@ -243,9 +233,7 @@ function StreamingDots() {
   );
 }
 
-/* ------------------------------------------------------------------ */
 /*  Main component                                                     */
-/* ------------------------------------------------------------------ */
 
 export function ExpressiveResponseRenderer({
   messages,
@@ -309,7 +297,6 @@ export function ExpressiveResponseRenderer({
                 )}
 
                 {isUser ? (
-                  /* ---- User bubble ---- */
                   <div className={`rounded-2xl rounded-br-md px-5 py-3 ${glass.user}`}>
                     {msg.blocks.map((block, blockIdx) => (
                       <motion.div
@@ -328,7 +315,6 @@ export function ExpressiveResponseRenderer({
                     ))}
                   </div>
                 ) : (
-                  /* ---- Assistant blocks ---- */
                   <div className="flex flex-col gap-3 w-full">
                     {msg.blocks.map((block, blockIdx) => {
                       const isLastBlock = blockIdx === msg.blocks.length - 1;

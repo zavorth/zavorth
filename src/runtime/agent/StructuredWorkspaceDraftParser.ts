@@ -38,8 +38,7 @@ export class StructuredWorkspaceDraftParser {
             writes.push({ path: filePath, content: fileContent });
           }
         }
-      } catch (error: any) { const err = error; const e = error;
-        // Invalid structured proposal blocks are ignored; natural text remains intact.
+      } catch (error: unknown) {// Invalid structured proposal blocks are ignored; natural text remains intact.
       }
     }
     return writes.slice(0, 12);
@@ -65,8 +64,7 @@ export class StructuredWorkspaceDraftParser {
             patches.push({ path: filePath, search, replace, hunks: [{ search, replace }] });
           }
         }
-      } catch (error: any) { const err = error; const e = error;
-        // Invalid structured proposal blocks are ignored; natural text remains intact.
+      } catch (error: unknown) {// Invalid structured proposal blocks are ignored; natural text remains intact.
       }
     }
     return patches.slice(0, 12);

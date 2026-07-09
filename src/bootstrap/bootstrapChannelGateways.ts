@@ -4,9 +4,7 @@ import type {
   BootstrapFoundation,
   BootstrapSupervisor,
   BootstrapSurfaceRuntime,
-} from './bootstrapTypes.js';
-
-export async function startChannelGateways(
+} from './bootstrapTypes.js';export async function startChannelGateways(
   foundation: BootstrapFoundation,
   surfaceRuntime: BootstrapSurfaceRuntime,
   supervisor: BootstrapSupervisor,
@@ -149,8 +147,7 @@ export async function startChannelGateways(
     const outboxRetryService = OutboxRetryService.getInstance(gatewayRegistry);
     outboxRetryService.start();
     foundation.logRepo.log('info', 'OutboxRetryService', 'Outbox retry daemon started successfully.');
-  } catch (error: any) { const err = error; const e = error;
-    foundation.logRepo.log('warn', 'OutboxRetryService', `Failed to start outbox retry daemon: ${describeError(error)}`);
+  } catch (error: unknown) {foundation.logRepo.log('warn', 'OutboxRetryService', `Failed to start outbox retry daemon: ${describeError(error)}`);
   }
 
   supervisor.markBootReady();

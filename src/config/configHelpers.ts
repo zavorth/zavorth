@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-
 export type ZavorthProfile = 'core' | 'ops' | 'full';
 export type ZavorthProductMode = 'chat' | 'assistant' | 'builder' | 'operator';
 
@@ -36,7 +35,7 @@ export function parseStringMap(rawValue: string): Record<string, string> {
 
     const entries = Object.entries(parsed).filter(([key, value]) => key && value !== undefined && value !== null);
     return Object.fromEntries(entries.map(([key, value]) => [String(key), String(value)]));
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.warn(
       `[config] Ignorando mapa JSON invalido no .env: ${error instanceof Error ? error.message : String(error)}`,
     );
@@ -71,8 +70,7 @@ export function readJsonStringField(filePath: string, fieldNames: string[]): str
         return value;
       }
     }
-  } catch (error: any) { const err = error; const e = error;
-    return '';
+  } catch (error: unknown) {return '';
   }
 
   return '';

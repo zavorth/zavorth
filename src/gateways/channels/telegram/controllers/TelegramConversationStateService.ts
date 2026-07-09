@@ -3,6 +3,7 @@ import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { buildWorkspaceContinuityContext } from '../../../../runtime/context/WorkspaceContinuityContext.js';
 import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from '../../../../services/WorkspaceTaskKind.js';
 import { logger } from '../../../../logger.js';
+import { asErrorLike } from '../../../../utils/errorLike';
 
 type WorkspaceStrategySnapshotBuilder = (task: Task, taskGoal?: string) => Record<string, unknown>;
 
@@ -93,7 +94,8 @@ export class TelegramConversationStateService {
 
     try {
       this.persistDirectTerminalState(task, 'direct_response_completed');
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       // best-effort persistence for workspace learning
       logger.warn('[TelegramConversationState] persistDirectTerminalState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
@@ -260,7 +262,8 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[TelegramConversationState] advanceState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
@@ -427,7 +430,8 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[TelegramConversationState] advanceState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
@@ -458,7 +462,8 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[TelegramConversationState] advanceState to completed failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
@@ -510,7 +515,8 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[TelegramConversationState] advanceState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }

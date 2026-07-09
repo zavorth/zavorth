@@ -8,7 +8,6 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-
 /**
  * POST /api/oauth/kiro/import
  * Import and validate refresh token from Kiro IDE
@@ -20,8 +19,7 @@ export async function POST(request: any) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] network request failed', error);
+  } catch (error: unknown) {logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
         error: {
@@ -80,7 +78,7 @@ export async function POST(request: any) {
         email: connection.email,
       },
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Kiro import token error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -96,7 +94,6 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error syncing to cloud after Kiro import:", error);
+  } catch (error: unknown) {console.log("Error syncing to cloud after Kiro import:", error);
   }
 }

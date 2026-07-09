@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import { ZavorthExternalAgentGatewayService } from '../src/services/ZavorthExternalAgentGatewayService.js';
 import { AgentChainBuilder } from '../src/agents/AgentChainBuilder.js';
@@ -74,7 +75,8 @@ async function main(): Promise<void> {
     if (!Array.isArray(steps) || steps.length === 0) {
       throw new Error('Steps must be a non-empty array');
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     process.stdout.write(`Error parsing --steps: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
     return;
@@ -116,7 +118,8 @@ async function main(): Promise<void> {
       process.stdout.write(chainBuilder.formatExecutionSummary(execution));
       process.stdout.write('\n');
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     process.stdout.write(`Chain execution failed: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   }

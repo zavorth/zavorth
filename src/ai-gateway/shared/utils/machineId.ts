@@ -1,6 +1,7 @@
 import { execSync, execFileSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../utils/errorLike';
 
 /**
  * Get raw machine ID using OS-specific methods.
@@ -31,7 +32,7 @@ function getMachineIdRaw(): string {
         ?.toLowerCase();
       if (id && id.length > 8) return id;
     }
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Not Windows or REG.exe failed — continue
       logger.warn('[machine Id] process execution failed', error);
     }
@@ -53,7 +54,7 @@ function getMachineIdRaw(): string {
         ?.toLowerCase();
       if (id && id.length > 8) return id;
     }
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Not macOS or ioreg not available — continue
       logger.warn('[machine Id] process execution failed', error);
     }
@@ -66,7 +67,7 @@ function getMachineIdRaw(): string {
         if (content.length > 8) return content;
       }
     }
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Files not readable — continue
       logger.warn('[machine Id] filesystem operation failed', error);
     }
@@ -76,7 +77,7 @@ function getMachineIdRaw(): string {
     const hostname = execSync("hostname", { encoding: "utf8", timeout: 5000 });
     const id = hostname.trim().toLowerCase();
     if (id) return id;
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // hostname failed — continue
       logger.warn('[machine Id] process execution failed', error);
     }
@@ -85,7 +86,7 @@ function getMachineIdRaw(): string {
   try {
     const os = require("os");
     return os.hostname().toLowerCase();
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Final fallback
       logger.warn('[machine Id] process execution failed', error);
     }
@@ -112,13 +113,13 @@ export async function getConsistentMachineId(salt = null) {
       .digest("hex");
     // Return only first 16 characters for brevity
     return hashedMachineId.substring(0, 16);
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     console.log("Error getting machine ID:", error);
     // Fallback to random ID if node-machine-id fails
     try {
       const cryptoFallback = await import("crypto");
       return cryptoFallback.randomUUID();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     logger.warn('[machine Id] string operation failed', error);
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0;
@@ -136,13 +137,13 @@ export async function getConsistentMachineId(salt = null) {
 export async function getRawMachineId() {
   try {
     return getMachineIdRaw();
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     console.log("Error getting raw machine ID:", error);
     // Fallback to random ID if node-machine-id fails
     try {
       const cryptoFallback = await import("crypto");
       return cryptoFallback.randomUUID();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
     logger.warn('[machine Id] string operation failed', error);
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0;

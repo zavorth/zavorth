@@ -83,7 +83,7 @@ export class KeepaliveStatusService {
         },
         processes,
       };
-    } catch (error: any) { logger.warn('[Keepalive Status] health check failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Keepalive Status] health check failed', error); return null; }
   }
 
   private normalizeProcess(name: string, raw: unknown): KeepaliveProcessSnapshot {

@@ -3,9 +3,7 @@ import path from 'path';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
-import { logger } from '../../../logger.js';
-
-export interface EmailGatewayStubMessage {
+import { logger } from '../../../logger.js';export interface EmailGatewayStubMessage {
   from: string;
   subject?: string | null;
   text: string;
@@ -68,7 +66,7 @@ export class EmailGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.emailStatusFile, 'utf8')) as EmailGatewayStatusSnapshot;
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Email way.stub] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Email way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {

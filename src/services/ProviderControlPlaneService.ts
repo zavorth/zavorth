@@ -974,6 +974,6 @@ export class ProviderControlPlaneService {
         checkedAt: String(parsed.checkedAt || '').trim(),
         message: String(parsed.message || '').trim(),
       };
-    } catch (error: any) { logger.warn('[Control Plane] parsing failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Control Plane] parsing failed', error); return null; }
   }
 }

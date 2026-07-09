@@ -402,7 +402,7 @@ function mergeStatus(statuses: Array<ZavorthAgentKernelStatus | null | undefined
 function safe<T>(fn: () => T, fallback: T): T {
   try {
     return fn();
-  } catch (error: any) { logger.warn('[Zavorth Agent Kernel Snapshot] filesystem check failed', error); return fallback; }
+  } catch (error: unknown) {logger.warn('[Zavorth Agent Kernel Snapshot] filesystem check failed', error); return fallback; }
 }
 
 function normalize(value: unknown, fallback = ''): string {

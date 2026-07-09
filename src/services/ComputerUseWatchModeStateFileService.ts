@@ -48,7 +48,7 @@ export class ComputerUseWatchModeStateFileService {
         return (parsed as WatchModeStateDocument).snapshot || null;
       }
       return (parsed as WatchModeSnapshot) || null;
-    } catch (error: any) { logger.warn('[Computer Use Watch Mode State File] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Computer Use Watch Mode State File] JSON parse failed', error); return null; }
   }
 
   public saveSnapshot(snapshot: WatchModeSnapshot): WatchModeSnapshot {

@@ -11,9 +11,7 @@ import {
   LEGACY_EXTERNAL_COMMAND,
   LEGACY_EXTERNAL_REVIEW_COMMAND,
   LEGACY_EXTERNAL_REVIEW_DASH_COMMAND,
-} from '../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
-
-export class AuthGuard {
+} from '../../../gateways/channels/telegram/ExternalExecutorIdentity.js';export class AuthGuard {
   private static readonly FUN_COMMANDS = ['/roll', '/coinflip', '/8ball', '/joke', '/roulette'];
   private static readonly READ_ONLY_ALLOWED_COMMANDS = new Set([
     '/start', '/help', '/menu', '/zavorth', '/settings', '/status', '/zavorthControl',
@@ -145,8 +143,7 @@ export class AuthGuard {
                 await next();
                 return;
               }
-            } catch (error: any) { const err = error; const e = error;
-      // Deny access if verification fails.
+            } catch (error: unknown) {// Deny access if verification fails.
       logger.warn('[Auth Guard] operation failed', error);
     }
             await ctx.reply('Only group administrators can use this command.', { reply_to_message_id: ctx.message?.message_id });
@@ -165,8 +162,7 @@ export class AuthGuard {
             ];
             const response = sarcasms[Math.floor(Math.random() * sarcasms.length)];
             await ctx.reply(response, { reply_to_message_id: ctx.message?.message_id });
-          } catch (error: any) { const err = error; const e = error;
-      // ignore reply errors for unauthorized group noise
+          } catch (error: unknown) {// ignore reply errors for unauthorized group noise
       logger.warn('[Auth Guard] operation failed', error);
     }
         }
@@ -200,8 +196,7 @@ export class AuthGuard {
   private static logSecurityBlock(userId: string, command: string) {
     try {
       logger.warn(`[Security] Non-admin role blocked while trying to execute: ${command}`);
-    } catch (error: any) { const err = error; const e = error;
-      // ignore logging failures
+    } catch (error: unknown) {// ignore logging failures
       logger.warn('[Auth Guard] process execution failed', error);
     }
   }

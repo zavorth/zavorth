@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       latencyMs,
       contentType,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {

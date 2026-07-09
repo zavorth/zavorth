@@ -12,10 +12,6 @@
 import fs from 'fs';
 import path from 'path';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export interface IntentKeywordSet {
   verbs: string[];
   nouns: string[];
@@ -27,10 +23,6 @@ export interface IntentLanguagePack {
   name: string;
   intents: Record<string, IntentKeywordSet>;
 }
-
-// ---------------------------------------------------------------------------
-// Locale detection (uses existing Zavorth i18n infrastructure)
-// ---------------------------------------------------------------------------
 
 function findLocalesDir(): string {
   const candidates = [
@@ -58,10 +50,6 @@ export function detectDeviceLocale(): string {
   }
   return 'en';
 }
-
-// ---------------------------------------------------------------------------
-// YAML loader (simple parser, no external dependency)
-// ---------------------------------------------------------------------------
 
 function parseYamlKeywords(content: string): Record<string, IntentKeywordSet> {
   const intents: Record<string, IntentKeywordSet> = {};
@@ -126,10 +114,6 @@ function parseYamlKeywords(content: string): Record<string, IntentKeywordSet> {
   return intents;
 }
 
-// ---------------------------------------------------------------------------
-// Cache
-// ---------------------------------------------------------------------------
-
 const packCache = new Map<string, IntentLanguagePack>();
 let localesDir = '';
 
@@ -137,10 +121,6 @@ function getLocalesDir(): string {
   if (!localesDir) localesDir = findLocalesDir();
   return localesDir;
 }
-
-// ---------------------------------------------------------------------------
-// Public API
-// ---------------------------------------------------------------------------
 
 export function getLanguagePack(locale: string): IntentLanguagePack {
   const normalized = locale.trim().toLowerCase();

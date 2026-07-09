@@ -58,7 +58,7 @@ export class SupervisedExecutionGatewayService {
     this.recordBuilder = new SupervisedExecutionGatewayRecordBuilder((actionId) => {
       try {
         return this.ledger.find(actionId)?.metadata?.execution_lifecycle;
-      } catch (error: any) { logger.warn('[Supervised Execution way] process execution failed', error); return null; }
+      } catch (error: unknown) {logger.warn('[Supervised Execution way] process execution failed', error); return null; }
     });
   }
 
@@ -220,7 +220,7 @@ export class SupervisedExecutionGatewayService {
             adapterId: adapter.id,
           },
         }));
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (this.isCancelled(actionId)) {
           return this.ledger.find(actionId) || this.recordBuilder.buildRecord({
             actionId,
@@ -329,8 +329,8 @@ export class SupervisedExecutionGatewayService {
           runtimeTarget: decision.runtimeTarget,
         },
       }));
-    } catch (error: any) {
-    logger.warn('[Supervised Execution way] process execution failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Supervised Execution way] process execution failed', error);
     return this.ledger.record(this.recordBuilder.buildRecord({
         actionId,
         createdAt,
@@ -395,8 +395,7 @@ export class SupervisedExecutionGatewayService {
               reason: `Kill switch: ${reason}`,
             });
             affectedActions.push(cancelled);
-          } catch (error: any) {
-      // Some actions may not expose canonical cancelation handles yet.
+          } catch (error: unknown) {// Some actions may not expose canonical cancelation handles yet.
       logger.warn('[Supervised Execution way] operation failed', error);
     }
         }
@@ -658,7 +657,7 @@ export class SupervisedExecutionGatewayService {
               cancelError: null,
             });
           })
-          .catch((error: any) => {
+          .catch((error: unknown) => {
             resolve({
               kind: 'timed_out',
               cancelResult: null,

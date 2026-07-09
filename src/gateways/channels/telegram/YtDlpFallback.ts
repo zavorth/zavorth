@@ -2,9 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { CapabilityUnavailableError, buildCapabilityProvisionHint } from '../../../services/OptionalCapabilityGuard.js';
-import { logger } from '../../../logger.js';
-
-const YTDLP_TMP_DIR = path.join(os.tmpdir(), 'zavorth-ytdlp');
+import { logger } from '../../../logger.js';const YTDLP_TMP_DIR = path.join(os.tmpdir(), 'zavorth-ytdlp');
 const LOCAL_FFMPEG_PATH = path.join(YTDLP_TMP_DIR, 'ffmpeg.exe');
 
 export interface DownloadedAudioResult {
@@ -29,8 +27,7 @@ export class YtDlpFallback {
     try {
       const loaded = require('youtube-dl-exec');
       this.ytDlpExec = typeof loaded === 'function' ? loaded : loaded?.default || null;
-    } catch (error: any) { const err = error; const e = error;
-      this.ytDlpExec = null;
+    } catch (error: unknown) {this.ytDlpExec = null;
     }
 
     try {
@@ -39,8 +36,7 @@ export class YtDlpFallback {
         fs.copyFileSync(loaded, LOCAL_FFMPEG_PATH);
         this.ffmpegPath = LOCAL_FFMPEG_PATH;
       }
-    } catch (error: any) { const err = error; const e = error;
-      this.ffmpegPath = null;
+    } catch (error: unknown) {this.ffmpegPath = null;
     }
   }
 
@@ -131,7 +127,7 @@ export class YtDlpFallback {
         subFormat: 'json3/vtt/srt/best',
         addHeader: ['referer:youtube.com'],
       });
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Yt Dlp Fallback] process execution failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Yt Dlp Fallback] process execution failed', error); return null; }
 
     const subtitleFiles = fs.readdirSync(YTDLP_TMP_DIR)
       .filter((entry) => entry.startsWith(`${basename}.`))
@@ -160,8 +156,7 @@ export class YtDlpFallback {
           if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
           }
-        } catch (error: any) { const err = error; const e = error;
-      // Ignora falhas na limpeza de caption temporaria.
+        } catch (error: unknown) {// Ignora falhas na limpeza de caption temporaria.
       logger.warn('[Yt Dlp Fallback] file cleanup failed', error);
     }
       }
@@ -228,7 +223,7 @@ export class YtDlpFallback {
       }
 
       return lines.join('\n').trim();
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Yt Dlp Fallback] lifecycle operation failed', error); return ''; }
+    } catch (error: unknown) {logger.warn('[Yt Dlp Fallback] lifecycle operation failed', error); return ''; }
   }
 
   private parseVttTranscript(content: string): string {

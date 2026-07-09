@@ -1,8 +1,6 @@
 import { assertProviderValidationTargetAllowed } from "../../security/egressGuard.ts";
 import { applyCustomUserAgent } from "../validationHttpSupport.ts";
-import { connectionFailed, invalidApiKey, validationFailed, validationSuccess } from "./validationResult.ts";
-
-export async function validateGeminiLikeProvider({
+import { connectionFailed, invalidApiKey, validationFailed, validationSuccess } from "./validationResult.ts";export async function validateGeminiLikeProvider({
   apiKey,
   baseUrl,
   authType,
@@ -58,8 +56,7 @@ export async function validateGeminiLikeProvider({
       if (response.status === 401 || response.status === 403) {
         return invalidApiKey();
       }
-    } catch (error: any) { const err = error; const e = error;
-      if (response.status === 401 || response.status === 403) {
+    } catch (error: unknown) {if (response.status === 401 || response.status === 403) {
         return invalidApiKey();
       }
       return invalidApiKey();

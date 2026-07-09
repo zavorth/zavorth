@@ -55,8 +55,7 @@ export class ProcessLockService {
         flag: 'wx',
       });
       this.acquired = true;
-    } catch (error: any) {
-      if (error?.code !== 'EEXIST') {
+    } catch (error: unknown) {if (error?.code !== 'EEXIST') {
         throw error;
       }
 
@@ -82,8 +81,7 @@ export class ProcessLockService {
     if (!activeLock || activeLock.pid === this.currentPid) {
       try {
         this.removeLockFileSafely();
-      } catch (error: any) {
-      // Shutdown should not fail just because Windows kept the lock file busy.
+      } catch (error: unknown) {// Shutdown should not fail just because Windows kept the lock file busy.
       logger.warn('[Process Lock] delete operation failed', error);
     }
     }
@@ -125,8 +123,7 @@ export class ProcessLockService {
     if (!activeLock.pid || !this.isProcessAlive(activeLock.pid)) {
       try {
         this.removeLockFileSafely();
-      } catch (error: any) {
-      // If Windows keeps the stale file locked, acquire() can still overwrite it safely later.
+      } catch (error: unknown) {// If Windows keeps the stale file locked, acquire() can still overwrite it safely later.
       logger.warn('[Process Lock] filesystem operation failed', error);
     }
     }
@@ -140,24 +137,21 @@ export class ProcessLockService {
     try {
       fs.rmSync(this.lockFilePath, { force: true });
       return true;
-    } catch (error: any) {
-      if (error?.code !== 'EPERM') {
+    } catch (error: unknown) {if (error?.code !== 'EPERM') {
         throw error;
       }
     }
 
     try {
       fs.chmodSync(this.lockFilePath, 0o666);
-    } catch (error: any) {
-      // Keep going; Windows may still allow deletion after a short rename.
+    } catch (error: unknown) {// Keep going; Windows may still allow deletion after a short rename.
       logger.warn('[Process Lock] filesystem operation failed', error);
     }
 
     try {
       fs.rmSync(this.lockFilePath, { force: true });
       return true;
-    } catch (error: any) {
-      if (error?.code !== 'EPERM') {
+    } catch (error: unknown) {if (error?.code !== 'EPERM') {
         throw error;
       }
     }
@@ -167,12 +161,11 @@ export class ProcessLockService {
       fs.renameSync(this.lockFilePath, renamedPath);
       try {
         fs.rmSync(renamedPath, { force: true });
-      } catch (error: any) {
-      // If cleanup fails after rename, the active lock path is still free for reuse.
+      } catch (error: unknown) {// If cleanup fails after rename, the active lock path is still free for reuse.
       logger.warn('[Process Lock] operation failed', error);
     }
       return true;
-    } catch (error: any) { logger.warn('[Process Lock] rename operation failed', error); return false; }
+    } catch (error: unknown) {logger.warn('[Process Lock] rename operation failed', error); return false; }
   }
 
   private readLock(): LockPayload | null {
@@ -182,13 +175,13 @@ export class ProcessLockService {
 
     try {
       return JSON.parse(fs.readFileSync(this.lockFilePath, 'utf8')) as LockPayload;
-    } catch (error: any) { logger.warn('[Process Lock] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Process Lock] JSON parse failed', error); return null; }
   }
 
   private isProcessAlive(pid: number): boolean {
     try {
       this.killFn(pid, 0);
       return true;
-    } catch (error: any) { logger.warn('[Process Lock] JSON parse failed', error); return error?.code !== 'ESRCH'; }
+    } catch (error: unknown) {logger.warn('[Process Lock] JSON parse failed', error); return error?.code !== 'ESRCH'; }
   }
 }

@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from 'uuid';
-
 import { config } from '../config/index.js';
 import type { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionContract.js';
 import type { IExecutor } from '../contracts/IExecutor.js';
@@ -87,7 +86,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
           storedServerSide: Boolean(config.geminiManagedAgentsStore),
         },
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       result.error_code = 'GEMINI_MANAGED_AGENT_API_ERROR';
       result.error_message = `Gemini Managed Agent API error: ${(error as Error)?.message || String(error)}`;
     }

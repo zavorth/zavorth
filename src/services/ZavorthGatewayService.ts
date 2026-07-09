@@ -503,7 +503,7 @@ export class ZavorthGatewayService {
   private safeBuildGoalLoopStatus(): GoalLoopStatusProjection | null {
     try {
       return this.goalLoopStatus?.buildSnapshot() || null;
-    } catch (error: any) { logger.warn('[Zavorth way] creation failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Zavorth way] creation failed', error); return null; }
   }
 
   private buildControlPlane(input: {

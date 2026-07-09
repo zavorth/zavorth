@@ -142,8 +142,7 @@ export class SmartOutputService {
       try {
         await this.sendAsDocument(target, text, options);
         return;
-      } catch (error: any) {
-    logger.warn('[Smart Output] filesystem check failed', error);
+      } catch (error: unknown) {logger.warn('[Smart Output] filesystem check failed', error);
     // Fall back to chunked messages when this context cannot upload documents
         // or when Telegram rejects the upload.
   }
@@ -160,8 +159,7 @@ export class SmartOutputService {
     try {
       await sendText(text, options);
       return;
-    } catch (error: any) {
-      if (!this.shouldRetryWithoutParseMode(error, options)) {
+    } catch (error: unknown) {if (!this.shouldRetryWithoutParseMode(error, options)) {
         throw error;
       }
     }
@@ -210,8 +208,7 @@ export class SmartOutputService {
         if (fs.existsSync(filepath)) {
           fs.unlinkSync(filepath);
         }
-      } catch (error: any) {
-      // ignore cleanup errors
+      } catch (error: unknown) {// ignore cleanup errors
       logger.warn('[Smart Output] file cleanup failed', error);
     }
     }

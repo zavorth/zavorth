@@ -1,3 +1,4 @@
+import { logger } from '../../../logger.js';
 ﻿import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
 import { GatewayEventBus } from '../../events/GatewayEventBus';
 import { PublicApiRouter } from '../../../api/public/PublicApiRouter';
@@ -13,12 +14,12 @@ export class WebChannelAdapter implements GatewayChannelAdapter {
   ) {}
 
   async initialize(): Promise<void> {
-    console.log('[Gateway] Web Channel initialized (HTTP/WS endpoints routed).');
+    logger.info('[Gateway] Web Channel initialized (HTTP/WS endpoints routed).');
     // In production this would connect the native Node HTTP server to this.apiRouter.route().
   }
 
   async shutdown(): Promise<void> {
-    console.log('[Gateway] Web Channel closed.');
+    logger.info('[Gateway] Web Channel closed.');
   }
 
   async onMessageReceived(payload: unknown): Promise<void> {

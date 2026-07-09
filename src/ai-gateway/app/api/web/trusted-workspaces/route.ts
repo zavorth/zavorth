@@ -6,7 +6,6 @@ getRuntimeEngineApiState,
   isUnsafeCrossSiteMutation,
   readJsonBody,
 } from "../runtime-engine-state";
-
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
@@ -53,7 +52,7 @@ export async function POST(request: Request) {
       label: typeof body.label === "string" ? body.label : undefined,
       state: isTrustedWorkspaceState(body.state) ? body.state : "trusted",
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] validation failed', error);
     return NextResponse.json({
       ok: false,

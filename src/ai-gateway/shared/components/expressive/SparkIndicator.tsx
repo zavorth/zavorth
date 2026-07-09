@@ -3,9 +3,7 @@
 import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/* ------------------------------------------------------------------ */
 /*  Types                                                              */
-/* ------------------------------------------------------------------ */
 
 type SparkState = "idle" | "thinking" | "streaming";
 
@@ -14,9 +12,7 @@ interface SparkIndicatorProps {
   size?: number;
 }
 
-/* ------------------------------------------------------------------ */
 /*  Neon palette                                                       */
-/* ------------------------------------------------------------------ */
 
 const NEON = {
   cyan: "#00E5FF",
@@ -24,9 +20,7 @@ const NEON = {
   teal: "#14B8A6",
 } as const;
 
-/* ------------------------------------------------------------------ */
 /*  Four-pointed compass-rose star path                                */
-/* ------------------------------------------------------------------ */
 
 /**
  * Builds an SVG path for an elongated 4-pointed star (compass rose).
@@ -43,9 +37,7 @@ function starPath(cx: number, cy: number, outerR: number, innerR: number): strin
   return pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(" ") + "Z";
 }
 
-/* ------------------------------------------------------------------ */
 /*  Ambient particles (tiny floating dots)                             */
-/* ------------------------------------------------------------------ */
 
 interface ParticleSeed {
   id: number;
@@ -73,9 +65,7 @@ function useAmbientParticles(count: number): ParticleSeed[] {
   }, [count]);
 }
 
-/* ------------------------------------------------------------------ */
 /*  Orbital particle seeds (streaming state)                           */
-/* ------------------------------------------------------------------ */
 
 interface OrbitalSeed {
   id: number;
@@ -104,9 +94,7 @@ function useOrbitalParticles(count: number): OrbitalSeed[] {
   }, [count]);
 }
 
-/* ------------------------------------------------------------------ */
 /*  Concentric ripple ring (thinking state)                            */
-/* ------------------------------------------------------------------ */
 
 function RippleRing({
   cx,
@@ -145,9 +133,7 @@ function RippleRing({
   );
 }
 
-/* ------------------------------------------------------------------ */
 /*  Ambient floating dot                                                */
-/* ------------------------------------------------------------------ */
 
 function AmbientDot({
   cx,
@@ -194,9 +180,7 @@ function AmbientDot({
   );
 }
 
-/* ------------------------------------------------------------------ */
 /*  Orbital dot (streaming state)                                       */
-/* ------------------------------------------------------------------ */
 
 function OrbitalDot({
   cx,
@@ -240,9 +224,7 @@ function OrbitalDot({
   );
 }
 
-/* ------------------------------------------------------------------ */
 /*  Main component                                                      */
-/* ------------------------------------------------------------------ */
 
 export function SparkIndicator({ state, size = 96 }: SparkIndicatorProps) {
   const viewSize = 100; // internal SVG viewBox
@@ -257,8 +239,6 @@ export function SparkIndicator({ state, size = 96 }: SparkIndicatorProps) {
 
   const ambientParticles = useAmbientParticles(5);
   const orbitalParticles = useOrbitalParticles(4);
-
-  /* ---------- state-driven motion configs ---------- */
 
   const rotationTransition = {
     idle: { duration: 60, repeat: Infinity, ease: "linear" as const },

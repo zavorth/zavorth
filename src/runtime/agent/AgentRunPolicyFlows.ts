@@ -7,8 +7,6 @@ import { CoreDietBaselineDraft } from './AgentRunMetadataEvidenceHelpers.js';
 import { UniversalIntentTrustEnforcementSnapshot } from './UniversalIntentTrustEnforcementService.js';
 import { TrustSliderPolicyDecision } from '../uni/UniversalIntentContracts.js';
 import { CapabilityNegotiationSnapshot } from './CapabilityNegotiationService.js';
-
-
 export class AgentRunPolicyFlows {
   constructor(private service: AgentRunService) {}
 
@@ -192,7 +190,7 @@ export class AgentRunPolicyFlows {
     }
     try {
       await this.service.autoSkillInvocation.apply({ run, request });
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const generatedAt = this.service.now().toISOString();
       const reason = error instanceof Error ? error.message : String(error);
       run.metadata = {

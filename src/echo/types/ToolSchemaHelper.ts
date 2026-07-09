@@ -1,9 +1,7 @@
 import { z } from 'zod';
 import type { ToolDefinition, ToolParameter } from '../../providers/ILlmProvider';
 import type { IZavorthTool } from './IZavorthTool';
-import { logger } from '../../logger.js';
-
-/**
+import { logger } from '../../logger.js';/**
  * ToolSchemaHelper converts IZavorthTool Zod schemas into OpenAI/Ollama-compatible
  * function-calling ToolDefinition JSON Schema objects.
  *
@@ -28,8 +26,7 @@ export class ToolSchemaHelper {
           required.push(key);
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      // If the schema is not a ZodObject, return an empty safe fallback.
+    } catch (error: unknown) {// If the schema is not a ZodObject, return an empty safe fallback.
       logger.warn('[Schema Helper] operation failed', error);
     }
 

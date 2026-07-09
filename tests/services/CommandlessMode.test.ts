@@ -66,9 +66,7 @@ describe('ZavorthCommandlessModeService — Multi-language intent detection', ()
     service = new ZavorthCommandlessModeService();
   });
 
-  // =========================================================================
   // English (base)
-  // =========================================================================
   describe('English detection', () => {
     const enPack = getLanguagePack('en');
 
@@ -113,9 +111,7 @@ describe('ZavorthCommandlessModeService — Multi-language intent detection', ()
     });
   });
 
-  // =========================================================================
   // Portuguese
-  // =========================================================================
   describe('Portuguese detection', () => {
     const ptPack = getLanguagePack('pt');
 
@@ -143,9 +139,7 @@ describe('ZavorthCommandlessModeService — Multi-language intent detection', ()
     });
   });
 
-  // =========================================================================
   // Spanish
-  // =========================================================================
   describe('Spanish detection', () => {
     const esPack = getLanguagePack('es');
 
@@ -168,9 +162,7 @@ describe('ZavorthCommandlessModeService — Multi-language intent detection', ()
     });
   });
 
-  // =========================================================================
   // French
-  // =========================================================================
   describe('French detection', () => {
     const frPack = getLanguagePack('fr');
 
@@ -188,9 +180,7 @@ describe('ZavorthCommandlessModeService — Multi-language intent detection', ()
     });
   });
 
-  // =========================================================================
   // German
-  // =========================================================================
   describe('German detection', () => {
     const dePack = getLanguagePack('de');
 
@@ -204,9 +194,7 @@ describe('ZavorthCommandlessModeService — Multi-language intent detection', ()
     });
   });
 
-  // =========================================================================
   // Japanese
-  // =========================================================================
   describe('Japanese detection', () => {
     const jaPack = getLanguagePack('ja');
 
@@ -219,9 +207,7 @@ describe('ZavorthCommandlessModeService — Multi-language intent detection', ()
     });
   });
 
-  // =========================================================================
   // Chinese
-  // =========================================================================
   describe('Chinese detection', () => {
     const zhPack = getLanguagePack('zh');
 
@@ -234,9 +220,7 @@ describe('ZavorthCommandlessModeService — Multi-language intent detection', ()
     });
   });
 
-  // =========================================================================
   // Korean
-  // =========================================================================
   describe('Korean detection', () => {
     const koPack = getLanguagePack('ko');
 
@@ -249,9 +233,7 @@ describe('ZavorthCommandlessModeService — Multi-language intent detection', ()
     });
   });
 
-  // =========================================================================
   // Merged pack (bilingual)
-  // =========================================================================
   describe('Merged pack — bilingual support', () => {
     it('should detect both EN and PT keywords', () => {
       const merged = mergeLanguagePacks('pt', 'en');

@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../utils/errorLike';
 /**
  * Token Health API Route — Batch G
  *
@@ -35,7 +36,8 @@ export async function GET(request: Request) {
       lastCheckAt: lastCheck,
       status: errored > 0 ? "error" : healthy < total ? "warning" : "healthy",
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] health check failed', error);
     return Response.json({ error: err.message, status: "unknown" }, { status: 500 });
   }

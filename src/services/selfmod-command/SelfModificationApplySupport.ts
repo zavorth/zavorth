@@ -69,8 +69,8 @@ export class SelfModificationApplySupport {
       }
 
       return this.applyGoalPreview(artifact, requestedBy);
-    } catch (error: any) {
-    logger.warn('[Self Modification Apply] operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Self Modification Apply] operation failed', error);
     return {
         success: false,
         mode: 'file',
@@ -141,8 +141,8 @@ export class SelfModificationApplySupport {
         restoredFiles,
         summary: `Rollback concluido para ${restoredFiles} arquivo(s).`,
       };
-    } catch (error: any) {
-    logger.warn('[Self Modification Apply] array operation failed', error);
+    } catch (error: unknown) {
+      logger.warn('[Self Modification Apply] array operation failed', error);
     return {
         success: false,
         changeId,
@@ -338,7 +338,7 @@ export class SelfModificationApplySupport {
           .filter(Boolean)
           .join('\n\n'),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       await this.rollbackPartialApply(applied);
       return {
         success: false,

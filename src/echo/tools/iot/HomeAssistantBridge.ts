@@ -21,6 +21,7 @@ HomeAssistantBridgeRuntime,
     HomeAssistantLifecycleStatus,
     HomeAssistantPhysicalEvent,
 } from './HomeAssistantBridgeTypes.js';
+import { asErrorLike } from '../../../utils/errorLike';
 
 interface HomeAssistantEntityState {
     state: string;
@@ -221,8 +222,9 @@ export class HomeAssistantBridge implements IZavorthTool {
                 console.warn(`[HomeAssistantBridge] Physical-world connection lost. Retrying in ${timeoutMs / 1000}s...`);
                 setTimeout(() => this.connectWithBackoff(haUrl, haToken), timeoutMs);
             });
-        } catch (err: any) { const error = err; const e = err;
-            this.updateState({
+        } catch (error: unknown) {
+          const err = asErrorLike(error);
+          this.updateState({
                 connected: false,
                 status: this.listening ? 'degraded' : 'idle',
                 lastError: String((err as Error)?.message || err || 'unknown error'),
@@ -367,8 +369,8 @@ export class HomeAssistantBridge implements IZavorthTool {
                     correlation: this.extractCorrelation(context),
                 },
             };
-        } catch (error: any) { const err = error; const e = error;
-            const errMessage = error instanceof Error ? error.message : String(error);
+        } catch (error: unknown) {
+          const errMessage = error instanceof Error ? error.message : String(error);
             this.updateState({
                 status: this.listening ? 'degraded' : 'idle',
                 lastError: errMessage || 'unknown error',
@@ -533,8 +535,8 @@ export class HomeAssistantBridge implements IZavorthTool {
                     correlation: this.extractCorrelation(input.context),
                 },
             };
-        } catch (error: any) { const err = error; const e = error;
-            const errMessage = error instanceof Error ? error.message : String(error);
+        } catch (error: unknown) {
+          const errMessage = error instanceof Error ? error.message : String(error);
             this.voiceAssetStore.remove(asset.id);
             this.updateState({
                 status: this.listening ? 'degraded' : 'idle',
@@ -613,8 +615,7 @@ export class HomeAssistantBridge implements IZavorthTool {
                 hostname,
                 transport: 'rest+websocket',
             };
-        } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Home Assistant Bridge] string operation failed', error);
+        } catch (error: unknown) {logger.warn('[Home Assistant Bridge] string operation failed', error);
     return {
                 scope: 'blocked',
                 normalizedUrl: String(rawUrl || '').trim(),

@@ -2,9 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import type { WebhookGateway } from './WebhookGateway.js';
 import type { ChannelGatewayRegistry } from './ChannelGatewayRegistry.js';
-import { logger } from '../logger.js';
-
-export type ScaleToZeroConfig = {
+import { logger } from '../logger.js';export type ScaleToZeroConfig = {
   enabled: boolean;
   defaultIdleTimeoutMs: number;
   gatewayTimeouts: Record<string, number>;
@@ -163,13 +161,13 @@ export class ScaleToZeroManager {
     if (gateway && isLifecycleGateway(gateway)) {
       try {
         await gateway.shutdown();
-      } catch (error: any) { const err = error; const e = error; logger.warn('[Scale To Zero Manager] filesystem check failed', error); return false; }
+      } catch (error: unknown) {logger.warn('[Scale To Zero Manager] filesystem check failed', error); return false; }
     }
 
     if (this.onShutdown) {
       try {
         await this.onShutdown(normalized);
-      } catch (error: any) { const err = error; const e = error; logger.warn('[Scale To Zero Manager] filesystem check failed', error); return false; }
+      } catch (error: unknown) {logger.warn('[Scale To Zero Manager] filesystem check failed', error); return false; }
     }
 
     state.isShutdown = true;
@@ -210,13 +208,13 @@ export class ScaleToZeroManager {
 
       try {
         await Promise.race([initPromise, timeoutPromise]);
-      } catch (error: any) { const err = error; const e = error; logger.warn('[Scale To Zero Manager] operation failed', error); return false; }
+      } catch (error: unknown) {logger.warn('[Scale To Zero Manager] operation failed', error); return false; }
     }
 
     if (this.onWarmUp) {
       try {
         await this.onWarmUp(gatewayId);
-      } catch (error: any) { const err = error; const e = error; logger.warn('[Scale To Zero Manager] operation failed', error); return false; }
+      } catch (error: unknown) {logger.warn('[Scale To Zero Manager] operation failed', error); return false; }
     }
 
     const state = this.states.get(gatewayId);
@@ -332,8 +330,7 @@ export class ScaleToZeroManager {
       };
 
       fs.writeFileSync(this.stateFilePath, JSON.stringify(state, null, 2), 'utf-8');
-    } catch (error: any) { const err = error; const e = error;
-      // Persistence failure is non-critical
+    } catch (error: unknown) {// Persistence failure is non-critical
       logger.warn('[Scale To Zero Manager] filesystem operation failed', error);
     }
   }
@@ -358,8 +355,7 @@ export class ScaleToZeroManager {
       if (Array.isArray(persisted.events)) {
         this.events.push(...persisted.events);
       }
-    } catch (error: any) { const err = error; const e = error;
-      // Load failure is non-critical; start fresh
+    } catch (error: unknown) {// Load failure is non-critical; start fresh
       logger.warn('[Scale To Zero Manager] operation failed', error);
     }
   }

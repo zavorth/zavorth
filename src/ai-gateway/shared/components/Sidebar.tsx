@@ -103,8 +103,7 @@ export default function Sidebar({
     setIsShuttingDown(true);
     try {
       await fetch("/api/shutdown", { method: "POST" });
-    } catch (e: any) { const error = e; const err = e;
-      // Expected to fail as server shuts down; ignore error
+    } catch (error: unknown) {// Expected to fail as server shuts down; ignore error
     }
     setIsShuttingDown(false);
     setShowShutdownModal(false);
@@ -115,8 +114,7 @@ export default function Sidebar({
     setIsRestarting(true);
     try {
       await fetch("/api/restart", { method: "POST" });
-    } catch (e: any) { const error = e; const err = e;
-      // Expected to fail as server restarts
+    } catch (error: unknown) {// Expected to fail as server restarts
     }
     setIsRestarting(false);
     setShowRestartModal(false);

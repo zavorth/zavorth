@@ -12,7 +12,6 @@ import { PermissionService } from '@zavorth/services/PermissionService.js';
 import { SmartOutputService } from '@zavorth/services/SmartOutputService.js';
 import { TenantContextService } from '@zavorth/services/TenantContextService.js';
 import { ZavorthBridgeWindowAutomatorLike } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeService.js';
-
 type BotApiLike = Api;
 
 // Bridge interface that matches SmartOutputService.send's expected botApi shape
@@ -116,7 +115,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
       );
 
       void this.finishPrompt(task, startResult);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       task.error_summary = errorMsg;
       this.deps.persistTask(task);
@@ -194,7 +193,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
         task.chat_id,
         this.formatPromptCompletion(task, completion),
       );
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       task.error_summary = errorMsg;
       this.deps.persistTask(task);

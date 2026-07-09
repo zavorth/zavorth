@@ -10,6 +10,7 @@ import {
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
 import { truncateSlackText } from '../../../utils/text.js';
+import { logger } from '../../../logger.js';
 
 
 type SlackChannelAdapterRuntime = {
@@ -37,14 +38,14 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
   async initialize(): Promise<void> {
     fs.mkdirSync(this.outboxDir, { recursive: true });
     if (!this.botToken) {
-      console.warn('[ChannelMesh] Slack Channel offline (Missing config)');
+      logger.warn('[ChannelMesh] Slack Channel offline (Missing config)');
       return;
     }
-    console.log('[ChannelMesh] Slack SocketMode/Bolt started.');
+    logger.info('[ChannelMesh] Slack SocketMode/Bolt started.');
   }
 
   async shutdown(): Promise<void> {
-    console.log('[ChannelMesh] Slack detached.');
+    logger.info('[ChannelMesh] Slack detached.');
   }
 
   async onMessageReceived(slackPayload: any): Promise<void> {
@@ -55,7 +56,7 @@ export class SlackChannelAdapter implements GatewayChannelAdapter {
     const messageId = String(slackPayload?.ts || slackPayload?.messageId || '').trim() || null;
     const isAllowed = await this.policyManager.verifyAccess('slack', userId);
     if (!isAllowed) {
-        console.warn(`[Security] Blocked unauthorized Slack user: ${userId}`);
+        logger.warn(`[Security] Blocked unauthorized Slack user: ${userId}`);
         return;
     }
 

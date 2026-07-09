@@ -1,6 +1,6 @@
-/**
- * Light workboard (P2-19) — Pending / Running / Done lists from live runs.
- */
+/** Lite workboard columns from live runs. */
+
+import { translate } from './locale';
 
 export type WorkboardRun = {
   id?: string;
@@ -35,9 +35,72 @@ function labelFor(run: WorkboardRun): string {
   return String(run.title || run.summary || run.id || 'Run').slice(0, 64);
 }
 
+function openWorkboardRunFromLite(runId: string, title: string): void {
+  const detail = { runId, title };
+  // Prefer the control chat bridge when present (deep-links into transcript/trace).
+  try {
+    if (typeof window.ZavorthControlChat?.openWorkboardRun === 'function') {
+      window.ZavorthControlChat.openWorkboardRun(detail);
+      return;
+    }
+  } catch {
+    // fall through
+  }
+  try {
+    window.ZavorthControlChat?.activateDashboardSector?.('terminal')
+      || document.querySelector<HTMLElement>('[data-dashboard-sector="terminal"]')?.click();
+  } catch {
+    // optional navigation
+  }
+  try {
+    window.dispatchEvent(new CustomEvent('zavorth-workboard-open', { detail }));
+  } catch {
+    // ignore
+  }
+  try {
+    window.emitSignal?.(
+      'info',
+      translate('Workboard'),
+      runId ? translate('Opening run…') : title,
+    );
+  } catch {
+    // optional toast
+  }
+}
+
+function bindWorkboardClicks(): void {
+  if (typeof document === 'undefined') return;
+  if (document.documentElement.dataset.zavorthWorkboardLiteBound === '1') return;
+  document.documentElement.dataset.zavorthWorkboardLiteBound = '1';
+
+  const activate = (item: HTMLElement) => {
+    const runId = String(item.getAttribute('data-workboard-item') || '').trim();
+    const title = String(item.querySelector('strong')?.textContent || runId || translate('Open run'));
+    openWorkboardRunFromLite(runId, title);
+  };
+
+  document.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const item = target?.closest?.('[data-workboard-item]') as HTMLElement | null;
+    if (!item) return;
+    event.preventDefault();
+    activate(item);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const target = event.target instanceof HTMLElement ? event.target : null;
+    if (!target?.matches?.('[data-workboard-item]')) return;
+    event.preventDefault();
+    activate(target);
+  });
+}
+
 export function updateWorkboardLite(runs: WorkboardRun[] = []) {
   const board = document.querySelector<HTMLElement>('[data-workboard-lite]');
   if (!board) return;
+
+  bindWorkboardClicks();
 
   const buckets: Record<'pending' | 'running' | 'done', WorkboardRun[]> = {
     pending: [],
@@ -63,8 +126,19 @@ export function updateWorkboardLite(runs: WorkboardRun[] = []) {
         const id = escapeLite(String(run.id || ''));
         const title = escapeLite(labelFor(run));
         const status = escapeLite(String(run.status || key));
-        return `<li data-workboard-item="${id}"><strong>${title}</strong><small>${status}</small></li>`;
+        return `<li data-workboard-item="${id}" role="button" tabindex="0" title="${escapeLite(translate('Open run'))}"><strong>${title}</strong><small>${status}</small></li>`;
       })
       .join('');
   });
+}
+
+declare global {
+  interface Window {
+    emitSignal?: (type: string, title: string, detail?: string) => void;
+    ZavorthControlChat?: {
+      activateDashboardSector?: (sector: string) => void;
+      refreshDashboard?: () => void;
+      openWorkboardRun?: (detail: { runId?: string; title?: string }) => void;
+    };
+  }
 }

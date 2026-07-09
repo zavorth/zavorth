@@ -47,7 +47,7 @@ export class PromptCacheService {
       for (const [key, value] of Object.entries(data)) {
         this.cache.set(key, value as CachedPrompt);
       }
-    } catch (error: any) { /* ignore */ logger.warn('[Prompt Cache] JSON parse failed', error); }
+    } catch (error: unknown) {/* ignore */ logger.warn('[Prompt Cache] JSON parse failed', error); }
   }
 
   private saveCache(): void {

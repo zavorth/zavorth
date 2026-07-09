@@ -107,7 +107,7 @@ export function useZavorthControlSalesPackBusinessMode(
     try {
       const next = await fetchSalesPackSnapshot();
       setSnapshot(next);
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       setMessage(error instanceof Error ? error.message : "Nao foi possivel carregar o Modo Business.");
     } finally {
       setLoading(false);
@@ -122,7 +122,7 @@ export function useZavorthControlSalesPackBusinessMode(
       persistBusinessMode(storageKey, preference.enabled);
       setMessage("Modo Business ativado para este perfil.");
       await refresh();
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       persistBusinessMode(storageKey, true);
       setEnabled(true);
       setMessage(error instanceof Error
@@ -141,7 +141,7 @@ export function useZavorthControlSalesPackBusinessMode(
       setEnabled(preference.enabled);
       persistBusinessMode(storageKey, preference.enabled);
       setMessage("Modo Business oculto para este perfil. Atendimentos ativos ainda podem reaparecer como alerta.");
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       persistBusinessMode(storageKey, false);
       setEnabled(false);
       setMessage(error instanceof Error
@@ -180,7 +180,7 @@ export function useZavorthControlSalesPackBusinessMode(
       persistBusinessMode(storageKey, preference.enabled);
       setEnabled(preference.enabled);
       setMessage("Exemplo local criado sem envio externo.");
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       setMessage(error instanceof Error ? error.message : "Falha ao criar exemplo local.");
     } finally {
       setBusyActionId(null);
@@ -193,8 +193,7 @@ export function useZavorthControlSalesPackBusinessMode(
         const preference = await fetchBusinessModePreference(resolvedIdentity);
         setEnabled(preference.enabled);
         persistBusinessMode(storageKey, preference.enabled);
-      } catch (error: any) { const err = error; const e = error;
-        setEnabled(readPersistedBusinessMode(storageKey));
+      } catch (error: unknown) {setEnabled(readPersistedBusinessMode(storageKey));
       }
     };
     void loadPreference();
@@ -343,7 +342,7 @@ async function readJsonResponse(response: Response): Promise<unknown> {
   }
   try {
     return JSON.parse(text);
-  } catch (error: any) { const err = error; const e = error; logger.warn('[use Zavorth Control Sales Pack Business Mode] JSON parse failed', error); return text; }
+  } catch (error: unknown) {logger.warn('[use Zavorth Control Sales Pack Business Mode] JSON parse failed', error); return text; }
 }
 
 function readErrorMessage(payload: unknown, fallback: string): string {

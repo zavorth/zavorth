@@ -77,8 +77,7 @@ class AcpStreamInterceptor extends Transform {
           void this.onElevatedApproval(obj);
           continue;
         }
-      } catch (error: any) {
-      // Not JSON or parse error, let it pass
+      } catch (error: unknown) {// Not JSON or parse error, let it pass
       logger.warn('[Acp Live Session] JSON parse failed', error);
     }
       this.push(line + '\n');
@@ -95,8 +94,7 @@ class AcpStreamInterceptor extends Transform {
         } else {
           this.push(this.buffer + '\n');
         }
-      } catch (err: any) { const error = err; const e = err;
-        this.push(this.buffer + '\n');
+      } catch (error: unknown) {this.push(this.buffer + '\n');
       }
     }
     callback();
@@ -341,7 +339,7 @@ export class AcpLiveSessionService {
 
       await transport.request(jsonRpc('session/end', { sessionId }));
       push('session-end', 'ACP session ended.');
-    } catch (error: any) {
+    } catch (error: unknown) {
       status = 'failed';
       outputText = error instanceof Error ? error.message : String(error);
       push('error', outputText);
@@ -537,7 +535,7 @@ export class AcpLiveSessionService {
         stopReason: response.stopReason,
       });
       params.push('session-end', 'ACP SDK session ended.', { stopReason: response.stopReason });
-    } catch (error: any) {
+    } catch (error: unknown) {
       status = 'failed';
       outputText = error instanceof Error ? error.message : String(error);
       params.push('error', outputText, stderr ? { stderr: sanitizeText(stderr) } : undefined);
@@ -750,8 +748,7 @@ class StdioAcpJsonRpcTransport implements AcpJsonRpcTransport {
           this.pending.get(response.id)?.resolve(response);
           this.pending.delete(response.id);
         }
-      } catch (error: any) {
-      // Ignore non-JSON diagnostic output from third-party ACP servers.
+      } catch (error: unknown) {// Ignore non-JSON diagnostic output from third-party ACP servers.
       logger.warn('[Acp Live Session] delete operation failed', error);
     }
     }

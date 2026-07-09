@@ -274,24 +274,21 @@ export class FirecrackerSandboxRuntime implements ISandboxRuntime {
       this.firecrackerApiCall(socketPath, 'PUT', '/actions', {
         action_type: 'SendCtrlAltDel',
       }).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
-    } catch (error: any) {
-      // ignore
+    } catch (error: unknown) {// ignore
       logger.warn('[Firecracker Sandbox Runtime] process execution failed', error);
     }
 
     if (firecrackerProcess) {
       try {
         firecrackerProcess.kill('SIGKILL');
-      } catch (error: any) {
-      // ignore
+      } catch (error: unknown) {// ignore
       logger.warn('[Firecracker Sandbox Runtime] operation failed', error);
     }
     }
 
     try {
       fs.rmSync(vmDir, { recursive: true, force: true });
-    } catch (error: any) {
-      // ignore
+    } catch (error: unknown) {// ignore
       logger.warn('[Firecracker Sandbox Runtime] operation failed', error);
     }
   }

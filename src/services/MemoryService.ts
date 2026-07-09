@@ -2,9 +2,7 @@ import { Database } from '../storage/Database.js';
 import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 import { SecureStorageService } from './SecureStorageService.js';
 import { VectorEmbeddingService } from './VectorEmbeddingService.js';
-import { logger } from '../logger.js';
-
-const VECTOR_DIMENSIONS = 768; // text-embedding-04 utiliza 768 dimens??es
+import { logger } from '../logger.js';const VECTOR_DIMENSIONS = 768; // text-embedding-04 utiliza 768 dimens??es
 
 export interface MemoryEntry {
   id: number;
@@ -483,8 +481,7 @@ export class MemoryService {
 
     try {
       return await this.embeddingService.generate(text);
-    } catch (error: any) {
-    logger.warn('[Memory] creation failed', error);
+    } catch (error: unknown) {logger.warn('[Memory] creation failed', error);
     return this.buildEmbedding(text);
   }
   }
@@ -509,7 +506,7 @@ export class MemoryService {
         .map((item) => Number(item))
         .filter((item) => Number.isFinite(item));
       return vector.length === VECTOR_DIMENSIONS ? vector : null;
-    } catch (error: any) { logger.warn('[Memory] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Memory] JSON parse failed', error); return null; }
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {

@@ -5,9 +5,7 @@ import {
   type MnemosToolInvoker,
 } from '@zavorth/services/MnemosHumanInTheLoopService.js';
 import type { LogRepository } from '@zavorth/storage/LogRepository.js';
-import { logger } from '../../../../logger';
-
-type TelegramMnemosControllerOptions = {
+import { logger } from '../../../../logger';type TelegramMnemosControllerOptions = {
   logRepo: LogRepository;
   mcpRuntimeService?: Pick<McpRuntimeService, 'readSnapshot'> | null;
   toolInvoker?: MnemosToolInvoker | null;
@@ -40,8 +38,7 @@ export class TelegramMnemosController {
   private async answerCallback(ctx: Context): Promise<void> {
     try {
       await ctx.answerCallbackQuery();
-    } catch (error: any) { const err = error; const e = error;
-      // Telegram may reject stale callbacks; the user-facing response still matters.
+    } catch (error: unknown) {// Telegram may reject stale callbacks; the user-facing response still matters.
       logger.warn('[Telegram Mnemos] connection failed', error);
     }
   }
@@ -50,8 +47,7 @@ export class TelegramMnemosController {
     try {
       await ctx.editMessageText(text);
       return;
-    } catch (error: any) { const err = error; const e = error;
-      await ctx.reply(text);
+    } catch (error: unknown) {await ctx.reply(text);
     }
   }
 }

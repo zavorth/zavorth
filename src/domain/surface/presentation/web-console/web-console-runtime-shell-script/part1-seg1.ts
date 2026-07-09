@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../utils/errorLike';
 export const runtimeShellScriptPart1Seg1: string = [
     "const root = document.querySelector('#runtime-handoff');",
     "const runtimeStatus = document.querySelector('#runtime-shell-status');",
@@ -483,7 +484,7 @@ export const runtimeShellScriptPart1Seg1: string = [
     "      await navigator.clipboard.writeText(text);",
     "      return true;",
     "    }",
-    "  } catch (err: any) { const error = err; const e = err; console.warn('[auto-fix] Empty catch block', err); }",
+    "  } catch (error: unknown) { const err = asErrorLike(error); const e = err; console.warn('[auto-fix] Empty catch block', err); }",
     "  window.prompt(promptLabel, text);",
     "  return false;",
     "}",

@@ -25,10 +25,6 @@ import {
 import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesService.js';
 import { detectDeviceLocale, getLanguagePack, mergeLanguagePacks } from './ZavorthIntentI18n.js';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export interface GatewayMessageInput {
   /** Raw text from the user. */
   text: string;
@@ -68,10 +64,6 @@ export interface GatewayMessageResult {
   /** Language used for this interaction. */
   locale: string;
 }
-
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
 
 export class ZavorthGatewayIntegrationService {
   private readonly commandless: ZavorthCommandlessModeService;

@@ -12,7 +12,6 @@ import {
   type ImportedCapabilityTrustSummary,
 } from '../security/index.js';
 import type { CanonicalColdContextInput } from './CanonicalSessionContextAssembler.js';
-
 export type SkillSnapshotScanner = Pick<SkillScanner, 'scan'>;
 export type SkillSnapshotQuarantinePolicy = Pick<SkillQuarantinePolicy, 'evaluate'>;
 
@@ -141,7 +140,7 @@ export class SkillSnapshotAssembler {
         },
         metadata,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       const metadata: Record<string, unknown> = {
         ...(input.metadata || {}),
         source: 'SkillScanner',

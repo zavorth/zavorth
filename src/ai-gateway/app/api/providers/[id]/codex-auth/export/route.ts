@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { buildCodexAuthFile, CodexAuthFileError } from "@/lib/oauth/utils/codexAuthFile";
-import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
-
-function toErrorResponse(error: unknown) {
+import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";function toErrorResponse(error: unknown) {
   if (error instanceof CodexAuthFileError) {
     return NextResponse.json(
       {
@@ -34,8 +32,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         "X-Content-Type-Options": "nosniff",
       },
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[Codex Auth Export] Failed:", error);
+  } catch (error: unknown) {console.error("[Codex Auth Export] Failed:", error);
     return toErrorResponse(error);
   }
 }

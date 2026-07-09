@@ -44,8 +44,7 @@ export class WebAppGatewayControlService {
         limit: input.limit,
         contextTokenBudget: input.contextTokenBudget,
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Web App way Control] search failed', error);
+    } catch (error: unknown) {logger.warn('[Web App way Control] search failed', error);
     return buildWebAppRuntimeEmptyMemoryRecall(sessionId, query, [
         `Hybrid Memory indisponivel no momento: ${error?.message || 'erro desconhecido'}.`,
       ]);
@@ -76,8 +75,7 @@ export class WebAppGatewayControlService {
         chatId,
         workspaceHint: input.workspaceHint || null,
       });
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Web App way Control] operation failed', error);
+    } catch (error: unknown) {logger.warn('[Web App way Control] operation failed', error);
     return {
         ok: true,
         contractVersion: HYBRID_MEMORY_CONTRACT_VERSION,
@@ -214,8 +212,7 @@ export class WebAppGatewayControlService {
         sessionId,
         permissionId: permission.permission_id,
       };
-    } catch (error: any) { const err = error; const e = error;
-      const task = deps.runtime.taskManager.getTask(approvalId);
+    } catch (error: unknown) {const task = deps.runtime.taskManager.getTask(approvalId);
       if (!task) {
         throw new Error('Approval nao encontrado como permissao nem task gate.');
       }

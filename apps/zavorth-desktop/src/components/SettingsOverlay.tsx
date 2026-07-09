@@ -15,6 +15,8 @@ import { ProviderSettingsPanel } from '../panels/ProviderSettingsPanel';
 import { InternalBetaDiagnosticsPanel } from '../panels/InternalBetaDiagnosticsPanel';
 import { CockpitDashboard } from './CockpitDashboard';
 import { asRecord, effortLabels, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
+import { errorMessage } from '../lib/errors';
+import { parseAccent, parseThemeMode } from '../lib/typeGuards';
 
 interface SettingsOverlayProps {
   isOpen: boolean;
@@ -73,8 +75,8 @@ export function SettingsOverlay({
       a.download = `zavorth-config-${new Date().toISOString().split('T')[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch (err: any) {
-      alert('Failed to export settings: ' + err.message);
+    } catch (err: unknown) {
+      alert('Failed to export settings: ' + errorMessage(err));
     }
   };
 
@@ -114,8 +116,8 @@ export function SettingsOverlay({
 
         alert('Settings imported successfully.');
         window.location.reload();
-      } catch (err: any) {
-        alert('Failed to import backup: ' + err.message);
+      } catch (err: unknown) {
+        alert('Failed to import backup: ' + errorMessage(err));
       }
     };
     reader.readAsText(file);
@@ -431,7 +433,7 @@ export function SettingsOverlay({
                   <select
                     className="zvd-settings-select"
                     value={props.theme}
-                    onChange={e => props.onTheme(e.target.value as any)}
+                    onChange={e => props.onTheme(parseThemeMode(e.target.value))}
                   >
                     <option value="system">System</option>
                     <option value="light">Light</option>
@@ -444,7 +446,7 @@ export function SettingsOverlay({
                   <select
                     className="zvd-settings-select"
                     value={props.accent}
-                    onChange={e => props.onAccent(e.target.value as any)}
+                    onChange={e => props.onAccent(parseAccent(e.target.value, ['green', 'orange', 'purple', 'navy'] as const, 'green'))}
                   >
                     <option value="green">Green (brand)</option>
                     <option value="orange">Orange</option>

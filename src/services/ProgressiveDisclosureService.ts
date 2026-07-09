@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 /**
  * ProgressiveDisclosure — Manages complexity reveal over time.
  *
@@ -323,7 +324,8 @@ export class ProgressiveDisclosureService {
       const safeId = this.sanitizeUserId(userId);
       const filePath = path.join(this.storageDir, `${safeId}.json`);
       this.fsOps?.writeFileSync(filePath, JSON.stringify(state, null, 2), 'utf-8');
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.warn('[ProgressiveDisclosure] Failed to persist state:', err instanceof Error ? err.message : err);
     }
   }

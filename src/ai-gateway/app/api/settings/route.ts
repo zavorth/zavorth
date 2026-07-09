@@ -9,9 +9,7 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { setCliCompatProviders } from "../../../open-sse/config/cliFingerprints";
 import { getConsistentMachineId } from "@/shared/utils/machineId";
 import { validateProxyUrl, upsertUpstreamProxyConfig } from "@/lib/db/upstreamProxy";
-import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-
-export async function GET(request: Request) {
+import { requireManagementAuth } from "@/lib/api/requireManagementAuth";export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
@@ -38,8 +36,7 @@ export async function GET(request: Request) {
       cloudUrl,
       machineId,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error getting settings:", error);
+  } catch (error: unknown) {console.log("Error getting settings:", error);
     return NextResponse.json({ error: "Failed to load settings" }, { status: 500 });
   }
 }
@@ -184,8 +181,7 @@ export async function PATCH(request) {
 
     const { password, ...safeSettings } = settings;
     return NextResponse.json(safeSettings);
-  } catch (error: any) { const err = error; const e = error;
-    console.log("Error updating settings:", error);
+  } catch (error: unknown) {console.log("Error updating settings:", error);
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
   }
 }

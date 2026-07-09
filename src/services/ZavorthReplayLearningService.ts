@@ -611,8 +611,7 @@ export class ZavorthReplayLearningService {
       if (parsed && typeof parsed === 'object' && typeof parsed.text === 'string') {
         return parsed.text;
       }
-    } catch (error: any) {
-      // plain transcript line
+    } catch (error: unknown) {// plain transcript line
       logger.warn('[Zavorth Replay Learning] JSON parse failed', error);
     }
     return trimmed;

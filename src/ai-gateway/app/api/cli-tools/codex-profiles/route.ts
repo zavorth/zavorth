@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../utils/errorLike';
 "use server";
 
 import { NextResponse } from "next/server";
@@ -48,7 +49,7 @@ function extractAuthLabel(authJson) {
     if (data.auth_mode) return data.auth_mode;
     if (data.OPENAI_API_KEY) return `API Key: ${data.OPENAI_API_KEY.slice(0, 8)}...`;
     return "unknown";
-  } catch (error: any) { const err = error; const e = error; logger.warn('[route] JSON parse failed', error); return "unknown"; }
+  } catch (error: unknown) {logger.warn('[route] JSON parse failed', error); return "unknown"; }
 }
 
 // GET - List all saved profiles
@@ -62,8 +63,7 @@ export async function GET(request: Request) {
     let entries;
     try {
       entries = await fs.readdir(PROFILES_DIR);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem operation failed', error);
+    } catch (error: unknown) {logger.warn('[route] filesystem operation failed', error);
     return NextResponse.json({ profiles: [] });
   }
 
@@ -82,8 +82,7 @@ export async function GET(request: Request) {
           hasConfig: !!profile.configToml,
           hasAuth: !!profile.authJson,
         });
-      } catch (error: any) { const err = error; const e = error;
-      // Skip corrupt files
+      } catch (error: unknown) {// Skip corrupt files
       logger.warn('[route] JSON parse failed', error);
     }
     }
@@ -91,7 +90,7 @@ export async function GET(request: Request) {
     // Sort by name
     profiles.sort((a, b) => a.name.localeCompare(b.name));
     return NextResponse.json({ profiles });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Error listing codex profiles:", error.message);
     return NextResponse.json({ error: "Failed to list profiles" }, { status: 500 });
   }
@@ -105,8 +104,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -141,15 +139,13 @@ export async function POST(request) {
 
     try {
       configToml = await fs.readFile(paths.config, "utf-8");
-    } catch (error: any) { const err = error; const e = error;
-      // No config file
+    } catch (error: unknown) {// No config file
       logger.warn('[route] filesystem operation failed', error);
     }
 
     try {
       authJson = await fs.readFile(paths.auth, "utf-8");
-    } catch (error: any) { const err = error; const e = error;
-      // No auth file
+    } catch (error: unknown) {// No auth file
       logger.warn('[route] filesystem operation failed', error);
     }
 
@@ -183,7 +179,7 @@ export async function POST(request) {
       message: `Profile "${name}" saved successfully`,
       profileId,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Error saving codex profile:", error.message);
     return NextResponse.json({ error: "Failed to save profile" }, { status: 500 });
   }
@@ -197,8 +193,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         error: {
@@ -227,8 +222,7 @@ export async function PUT(request) {
     try {
       const raw = await fs.readFile(profilePath, "utf-8");
       profile = JSON.parse(raw);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] JSON parse failed', error);
+    } catch (error: unknown) {logger.warn('[route] JSON parse failed', error);
     return NextResponse.json({ error: `Profile "${profileId}" not found` }, { status: 404 });
   }
 
@@ -259,7 +253,7 @@ export async function PUT(request) {
       restoredConfig: !!profile.configToml,
       restoredAuth: !!profile.authJson,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Error activating codex profile:", error.message);
     return NextResponse.json({ error: "Failed to activate profile" }, { status: 500 });
   }
@@ -273,8 +267,7 @@ export async function DELETE(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] delete operation failed', error);
+  } catch (error: unknown) {logger.warn('[route] delete operation failed', error);
     return NextResponse.json(
       {
         error: {
@@ -296,7 +289,8 @@ export async function DELETE(request) {
     const profilePath = path.join(PROFILES_DIR, `${profileId}.json`);
     try {
       await fs.unlink(profilePath);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (err.code === "ENOENT") {
         return NextResponse.json({ error: `Profile "${profileId}" not found` }, { status: 404 });
       }
@@ -307,7 +301,7 @@ export async function DELETE(request) {
       success: true,
       message: `Profile "${profileId}" deleted`,
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     console.log("Error deleting codex profile:", error.message);
     return NextResponse.json({ error: "Failed to delete profile" }, { status: 500 });
   }

@@ -311,7 +311,7 @@ export class ZavorthA2UIService {
         event: completionEvent,
         data: handlerResult ? this.clone(handlerResult) : null,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       const event = this.appendEvent(surfaceId, 'action_blocked', {
         actionId,

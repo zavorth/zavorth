@@ -1,3 +1,4 @@
+import { asErrorLike } from '../../../../../../utils/errorLike';
 /**
  * API endpoint for importing Zed IDE OAuth credentials
  *
@@ -76,7 +77,8 @@ export async function POST(request: Request): Promise<NextResponse<ImportRespons
           isActive: true,
         });
         savedCount++;
-      } catch (err: any) { const error = err; const e = err;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
         console.error(`[Zed Import] Failed to save credential for ${cred.provider}:`, err);
       }
     }
@@ -102,8 +104,7 @@ export async function POST(request: Request): Promise<NextResponse<ImportRespons
       credentials: credentialSummary,
       zedInstalled: true,
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[Zed Import] Error importing credentials:", error);
+  } catch (error: unknown) {console.error("[Zed Import] Error importing credentials:", error);
 
     if (error?.message?.includes("User canceled") || error?.message?.includes("denied")) {
       return NextResponse.json(

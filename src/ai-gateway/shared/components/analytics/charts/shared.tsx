@@ -5,8 +5,7 @@ import { fmtCompact as fmt, fmtCost } from "@/shared/utils/formatting";
 export function createDateFormatter(locale: string, options: Intl.DateTimeFormatOptions) {
   try {
     return new Intl.DateTimeFormat(locale, options);
-  } catch (error: any) { const err = error; const e = error;
-    return new Intl.DateTimeFormat(undefined, options);
+  } catch (error: unknown) {return new Intl.DateTimeFormat(undefined, options);
   }
 }
 

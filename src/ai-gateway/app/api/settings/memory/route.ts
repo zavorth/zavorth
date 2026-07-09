@@ -9,7 +9,6 @@ invalidateMemorySettingsCache,
   normalizeMemorySettings,
   toMemorySettingsUpdates,
 } from "@/lib/memory/settings";
-
 const memorySettingsUpdateSchema = z
   .object({
     enabled: z.boolean().optional(),
@@ -27,7 +26,7 @@ export async function GET(request: NextRequest) {
   try {
     const settings = (await getSettings()) as Record<string, unknown>;
     return NextResponse.json(normalizeMemorySettings(settings));
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] string operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
@@ -41,8 +40,7 @@ export async function PUT(request: NextRequest) {
     let rawBody: unknown;
     try {
       rawBody = await request.json();
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[route] filesystem check failed', error);
+    } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
@@ -56,7 +54,7 @@ export async function PUT(request: NextRequest) {
     invalidateMemorySettingsCache();
 
     return NextResponse.json(normalizeMemorySettings(settings));
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

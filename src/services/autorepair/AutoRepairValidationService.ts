@@ -474,8 +474,7 @@ export class AutoRepairValidationService {
         durationMs: Math.max(0, finished.getTime() - started.getTime()),
         output: this.trimOutput(String(output || '').trim()),
       };
-    } catch (error: any) {
-      const finished = this.now();
+    } catch (error: unknown) {const finished = this.now();
       return {
         label: input.label,
         command: input.command,
@@ -508,8 +507,7 @@ export class AutoRepairValidationService {
         durationMs: Math.max(0, finished.getTime() - started.getTime()),
         output: this.trimOutput(String(output || '').trim()),
       };
-    } catch (error: any) {
-      const finished = this.now();
+    } catch (error: unknown) {const finished = this.now();
       return {
         label: input.label,
         command: [input.command, ...input.args].join(' ').trim(),

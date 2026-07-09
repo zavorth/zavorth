@@ -8,7 +8,6 @@ import {
 } from './ZavorthSetupStudioService.js';
 import { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry.js';
 import { logger } from '../logger.js';
-
 export type ZavorthProviderLiveValidationStatus =
   | 'not-requested'
   | 'passed'
@@ -140,7 +139,7 @@ export async function validateZavorthProviderLive(
       environmentRestored: true,
       responsePreview: responsePreview || 'ok',
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[Zavorth  Live Validation] health check failed', error);
     return result({
       input,
@@ -271,8 +270,7 @@ function readProofFile(proofPath: string): {
     return {
       results: Array.isArray(parsed.results) ? parsed.results : [],
     };
-  } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Zavorth  Live Validation] JSON parse failed', error);
+  } catch (error: unknown) {logger.warn('[Zavorth  Live Validation] JSON parse failed', error);
     return { results: [] };
   }
 }

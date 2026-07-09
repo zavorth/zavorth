@@ -138,7 +138,7 @@ export class WorkspaceExtensionRegistryService {
         return null;
       }
       return parsed as WorkspaceProfile;
-    } catch (error: any) { logger.warn('[Workspace Extension Registry] JSON parse failed', error); return null; }
+    } catch (error: unknown) {logger.warn('[Workspace Extension Registry] JSON parse failed', error); return null; }
   }
 
   private resolveSelectedEntry(

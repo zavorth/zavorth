@@ -11,9 +11,7 @@ import {
   createZavorthSettingsBackupFilename,
   redactZavorthSettingsBackupSecrets,
 } from "@/lib/db/jsonBackupAdapters";
-import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
-
-/**
+import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";/**
  * GET /api/settings/export-json
  * Exports a Zavorth settings backup JSON that can be re-imported by the
  * current gateway storage layer.
@@ -52,8 +50,7 @@ export async function GET(request: Request) {
         "X-Content-Type-Options": "nosniff",
       },
     });
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API] Error exporting JSON backup:", error);
+  } catch (error: unknown) {console.error("[API] Error exporting JSON backup:", error);
     return NextResponse.json({ error: "Failed to export JSON" }, { status: 500 });
   }
 }

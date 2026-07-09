@@ -6,9 +6,7 @@ import type {
   ChannelPolicySnapshot,
   ChannelPolicyState,
   ChannelPolicySummary,
-} from '../../contracts/ChannelMeshContract.js';
-
-export interface GroupToolPolicy {
+} from '../../contracts/ChannelMeshContract.js';export interface GroupToolPolicy {
   untrustedUserMode: 'none' | 'safe-only' | 'allowlist-only' | 'safe-plus-allowlist';
   allowedToolsForUntrustedUsers: string[];
 }
@@ -295,8 +293,7 @@ export class ChannelPolicyManager {
           ? parsed.policies as Record<string, ChannelAccessPolicy>
           : {},
       };
-    } catch (error: any) { const err = error; const e = error;
-      return {
+    } catch (error: unknown) {return {
         version: 1,
         updatedAt: this.now().toISOString(),
         policies: {},

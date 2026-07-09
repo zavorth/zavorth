@@ -509,8 +509,7 @@ export class ModeEscalationService {
           requests: Array.isArray(parsed.requests) ? parsed.requests : [],
         };
       }
-    } catch (error: any) {
-      // Keep runtime resilient even if the persisted file was corrupted.
+    } catch (error: unknown) {// Keep runtime resilient even if the persisted file was corrupted.
       logger.warn('[Mode Escalation] JSON parse failed', error);
     }
     return {

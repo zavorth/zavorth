@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { asErrorLike } from '../src/utils/errorLike';
 
 const file1 = path.join(process.cwd(), 'scripts', 'out_omnilens_final_utf8.html');
 const file2 = path.join(process.cwd(), 'scripts', 'out_omnilens_part2_utf8.html');
@@ -31,6 +32,5 @@ try {
 
   fs.writeFileSync(target, fullHtml, 'utf8');
   console.log(`✅ Arquivo unificado com sucesso em: ${target}`);
-} catch (e: any) {
-  console.error(`❌ Erro ao unificar: ${e.message}`);
+} catch (error: unknown) { const err = asErrorLike(error); const e = err; console.error(`❌ Erro ao unificar: ${e.message}`);
 }

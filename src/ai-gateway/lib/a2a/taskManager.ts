@@ -13,8 +13,6 @@
 
 import { randomUUID } from "crypto";
 
-// ============ Types ============
-
 export type TaskState = "submitted" | "working" | "completed" | "failed" | "cancelled";
 
 export interface TaskInput {
@@ -61,8 +59,6 @@ export interface A2ATaskStats {
   lastTaskAt: string | null;
 }
 
-// ============ Valid Transitions ============
-
 const VALID_TRANSITIONS: Record<TaskState, TaskState[]> = {
   submitted: ["working", "failed", "cancelled"],
   working: ["completed", "failed", "cancelled"],
@@ -70,8 +66,6 @@ const VALID_TRANSITIONS: Record<TaskState, TaskState[]> = {
   failed: [],
   cancelled: [],
 };
-
-// ============ Task Manager ============
 
 export class A2ATaskManager {
   private tasks = new Map<string, A2ATask>();

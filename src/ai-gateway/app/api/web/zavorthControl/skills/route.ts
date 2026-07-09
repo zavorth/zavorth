@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isUnsafeCrossSiteMutation, readJsonBody } from "../../runtime-engine-state";
-
 // Importações relativas robustas para referenciar o módulo de skills fora da pasta do next
 import { SkillCurationService } from "../../../../../../skills/SkillCurationService.js";
 import { SkillCuratorPlaneService } from "../../../../../../skills/SkillCuratorPlaneService.js";
@@ -114,7 +113,7 @@ export async function GET(request: Request) {
 
   try {
     return NextResponse.json(await buildUnifiedSkillsResponse());
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,
@@ -220,7 +219,7 @@ export async function POST(request: Request) {
       skillId,
       data: await buildUnifiedSkillsResponse(),
     });
-  } catch (error: any) { const err = error; const e = error;
+  } catch (error: unknown) {
     logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,

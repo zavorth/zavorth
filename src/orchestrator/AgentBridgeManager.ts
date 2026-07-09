@@ -2,9 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Task } from '../contracts/TaskContract.js';
 import { config } from '../config/index.js';
-import { logger } from '../logger.js';
-
-export interface BridgeHandoff {
+import { logger } from '../logger.js';export interface BridgeHandoff {
   agent: 'ZAVORTH_BRIDGE';
   taskId: string;
   workspace: string;
@@ -171,8 +169,7 @@ export class AgentBridgeManager {
         const parsed = JSON.parse(raw) as PendingZavorthBridgeSession;
         parsed.trackingFile = trackingFile;
         sessions.push(parsed);
-      } catch (error: any) { const err = error; const e = error;
-      // Ignore malformed tracking files so they do not break the watcher loop.
+      } catch (error: unknown) {// Ignore malformed tracking files so they do not break the watcher loop.
       logger.warn('[Agent Bridge Manager] JSON parse failed', error);
     }
     }
@@ -271,7 +268,7 @@ export class AgentBridgeManager {
             ? session.lastNotifiedPermissionId
             : existing.lastNotifiedPermissionId || null,
       };
-    } catch (error: any) { const err = error; const e = error; logger.warn('[Agent Bridge Manager] operation failed', error); return session; }
+    } catch (error: unknown) {logger.warn('[Agent Bridge Manager] operation failed', error); return session; }
   }
 
   private mergeArtifactKeys(existing: string[] | undefined, next: string[] | undefined): string[] {

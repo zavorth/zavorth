@@ -81,8 +81,8 @@ export class AutoSkillCreatorTool extends BaseTool {
       let parsedTools: Array<Record<string, unknown>>;
       try {
         parsedTools = JSON.parse(toolsJson);
-      } catch (error: any) {
-    logger.warn('[Auto Skill Creator] JSON parse failed', error);
+      } catch (error: unknown) {
+        logger.warn('[Auto Skill Creator] JSON parse failed', error);
     const message = error instanceof Error ? error.message : String(error);
         return `Error: invalid toolsJson. It must be a valid JSON string containing an array. Detail: ${message}`;
   }
@@ -203,7 +203,7 @@ export class AutoSkillCreatorTool extends BaseTool {
         `Preview saved at ${draftPath}.`,
         'Materialization into a live skill requires explicit approval, an approved wrapper, and non-destructive smoke checks.',
       ].join('\n');
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       console.error('[AutoSkillCreator] Failed to create skill draft:', message);
       return `Failed to create governed skill draft: ${message}`;

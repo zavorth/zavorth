@@ -1,3 +1,4 @@
+import { asErrorLike } from '../utils/errorLike';
 ﻿/**
  * MediaUnderstandingService - Zavorth-native media analysis and understanding service.
  *
@@ -45,10 +46,6 @@ GeminiVisionAnalysisAdapter,
   VisionAdapterError,
 } from '../adapters/media/GeminiVisionAnalysisAdapter.js';
 
-// ---------------------------------------------------------------------------
-// Policy constants
-// ---------------------------------------------------------------------------
-
 /** Maximum analysis file size (20 MB). */
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
@@ -88,10 +85,6 @@ export type MediaArtifactResolverResult = {
 
 export type MediaArtifactResolver = (artifactId: string) => Promise<MediaArtifactResolverResult | null>;
 
-// ---------------------------------------------------------------------------
-// Service
-// ---------------------------------------------------------------------------
-
 export class MediaUnderstandingService {
   private readonly adapters: Map<string, IMediaUnderstandingAdapter>;
   private readonly artifactResolver: MediaArtifactResolver;
@@ -112,10 +105,6 @@ export class MediaUnderstandingService {
     }
   }
 
-  // -------------------------------------------------------------------------
-  // Public API
-  // -------------------------------------------------------------------------
-
   /**
    * Runs media analysis end to end.
    *
@@ -129,7 +118,8 @@ export class MediaUnderstandingService {
     let resolved: ResolvedMediaSource;
     try {
       resolved = await this.resolveSource(request);
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       const message = err instanceof Error ? err.message : String(err);
       return this.buildErrorResult(
         { code: 'INVALID_SOURCE', message },
@@ -180,8 +170,9 @@ export class MediaUnderstandingService {
         providerHints: request.providerHints,
       };
       adapterOutput = await adapter.analyze(adapterInput);
-    } catch (error: any) { const err = error; const e = error;
-    logger.warn('[Media Understanding] path resolution failed', error);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Media Understanding] path resolution failed', error);
     return this.buildAdapterErrorResult(err, analysisType, modality, policyDecision, processedAt);
   }
 
@@ -198,10 +189,6 @@ export class MediaUnderstandingService {
       processedAt,
     };
   }
-
-  // -------------------------------------------------------------------------
-  // Source resolution
-  // -------------------------------------------------------------------------
 
   private async resolveSource(request: MediaUnderstandingRequest): Promise<ResolvedMediaSource> {
     const source = request.source;
@@ -320,20 +307,12 @@ export class MediaUnderstandingService {
     return map[ext] || 'application/octet-stream';
   }
 
-  // -------------------------------------------------------------------------
-  // Modality inference
-  // -------------------------------------------------------------------------
-
   private inferModality(contentType: string): MediaUnderstandingModality | null {
     if (contentType.startsWith('image/')) return 'image';
     if (contentType.startsWith('audio/')) return 'audio';
     if (contentType.startsWith('video/')) return 'video';
     return null;
   }
-
-  // -------------------------------------------------------------------------
-  // Policy
-  // -------------------------------------------------------------------------
 
   private evaluatePolicy(
     contentType: string,
@@ -366,10 +345,6 @@ export class MediaUnderstandingService {
     };
   }
 
-  // -------------------------------------------------------------------------
-  // Adapter selection
-  // -------------------------------------------------------------------------
-
   private selectAdapter(modality: MediaUnderstandingModality): IMediaUnderstandingAdapter | null {
     for (const adapter of this.adapters.values()) {
       if (adapter.supportedModalities.includes(modality)) {
@@ -378,10 +353,6 @@ export class MediaUnderstandingService {
     }
     return null;
   }
-
-  // -------------------------------------------------------------------------
-  // Analysis construction
-  // -------------------------------------------------------------------------
 
   private buildAnalysis(
     output: AdapterAnalysisOutput,
@@ -436,10 +407,6 @@ export class MediaUnderstandingService {
 
     return classifications.length > 0 ? classifications : [{ label: text.slice(0, 100), confidence: 0.5 }];
   }
-
-  // -------------------------------------------------------------------------
-  // Builders de resultado
-  // -------------------------------------------------------------------------
 
   private buildErrorResult(
     error: MediaUnderstandingError,

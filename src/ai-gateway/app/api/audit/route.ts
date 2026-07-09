@@ -7,9 +7,7 @@ import {
   AuditSource,
 } from "@/domain/configAudit";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
-import { safeParseInt } from "@/shared/utils/safeParseInt";
-
-export async function GET(req: Request) {
+import { safeParseInt } from "@/shared/utils/safeParseInt";export async function GET(req: Request) {
   const authError = await requireStrictManagementAuth(req);
   if (authError) return authError;
 
@@ -36,8 +34,7 @@ export async function GET(req: Request) {
 
     const result = getAuditLog(options);
     return NextResponse.json(result);
-  } catch (error: any) { const err = error; const e = error;
-    console.error("[API ERROR] /api/audit GET:", error);
+  } catch (error: unknown) {console.error("[API ERROR] /api/audit GET:", error);
     return NextResponse.json({ error: "Failed to fetch audit log." }, { status: 500 });
   }
 }

@@ -8,6 +8,7 @@ import { HostPowerModeService } from './HostPowerModeService.js';
 import { HostCommandRunnerService } from './HostCommandRunnerService.js';
 import * as schemas from '../domain/validation/controlSchemas.js';
 import type { ZavorthControlCoreRouteDeps } from './ZavorthControlCoreRouteService.js';
+import { asErrorLike } from '../utils/errorLike';
 
 export async function handleHostCommandsRequest(
   req: http.IncomingMessage,
@@ -63,7 +64,8 @@ export async function handleHostCommandsRequest(
       }));
 
       deps.writeJson(res, { ok: true, data });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -94,7 +96,8 @@ export async function handleHostCommandsRequest(
       }
 
       deps.writeJson(res, { ok: true });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -201,7 +204,8 @@ export async function handleHostCommandsRequest(
         ok: true,
         data: runResult
       });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -224,7 +228,8 @@ export async function handleHostCommandsRequest(
       db.run('DELETE FROM workspace_host_command_proposals WHERE operation_id = ?', [operationId]);
       HostCommandPayloadCache.getInstance().delete(operationId);
       deps.writeJson(res, { ok: true });
-    } catch (err: any) { const error = err; const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;

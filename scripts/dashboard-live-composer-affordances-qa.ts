@@ -167,7 +167,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       await page.goto(url.toString(), { waitUntil: "domcontentloaded", timeout: 30_000 });
       await page.waitForSelector("#compose-input", { timeout: 15_000 });
       await page.waitForLoadState("load", { timeout: 10_000 }).catch(() => undefined);
-    } catch (error) {
+    } catch (error: unknown) {
       report.skipped = !options.requireLive;
       if (options.requireLive) pushCheck(report, "live-server-reachable", false, `Nao consegui abrir o ZavorthControl real: ${String(error?.message || error)}`);
       else pushSkip(report, "live-server-reachable", "Servidor local nao respondeu. Inicie com npm run start:zavorth-control ou npm run go.");

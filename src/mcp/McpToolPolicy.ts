@@ -5,9 +5,7 @@ import {
   decideSecurityPolicy,
   type SecurityPolicyBrokerAction,
   type SecurityPolicyBrokerReceipt,
-} from '../security/SecurityPolicyBroker.js';
-
-export type McpSecurityProfile = 'safe' | 'trusted' | 'dangerous';
+} from '../security/SecurityPolicyBroker.js';export type McpSecurityProfile = 'safe' | 'trusted' | 'dangerous';
 
 export type McpToolEntry = {
   status: 'approved' | 'pending_approval' | 'blocked';
@@ -132,8 +130,7 @@ export class McpToolPolicy {
           ? parsed.tools
           : {},
       };
-    } catch (error: any) { const err = error; const e = error;
-      return { ...DEFAULT_POLICY_DOCUMENT };
+    } catch (error: unknown) {return { ...DEFAULT_POLICY_DOCUMENT };
     }
   }
 

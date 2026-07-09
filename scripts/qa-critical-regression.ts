@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { asErrorLike } from '../src/utils/errorLike';
 
 import fs from 'fs';
 import path from 'path';
@@ -35,7 +36,7 @@ async function fetchJson(pathname: string): Promise<unknown> {
         throw new Error(`HTTP ${response.status} em ${pathname}: ${text.slice(0, 160)}`);
       }
       return text ? JSON.parse(text) : null;
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error;
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
@@ -55,7 +56,7 @@ async function fetchText(pathname: string): Promise<string> {
         throw new Error(`HTTP ${response.status} em ${pathname}: ${text.slice(0, 160)}`);
       }
       return text;
-    } catch (error) {
+    } catch (error: unknown) {
       lastError = error;
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
@@ -109,7 +110,9 @@ async function runTest(id: string, description: string, criticalPath: string, fn
       durationMs: Date.now() - started,
       error: null,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+
     return {
       id,
       description,

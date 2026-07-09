@@ -5,9 +5,7 @@ import type {
 import type { ToolCategory } from '../../../echo/types/IZavorthTool.js';
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../../../logger.js';
-
-export type EchoPendingExecutionKind = 'tool' | 'intent';
+import { logger } from '../../../logger.js';export type EchoPendingExecutionKind = 'tool' | 'intent';
 
 export type EchoPendingExecutionRecord = {
   permissionId: string;
@@ -99,8 +97,7 @@ export class EchoPendingExecutionStoreService {
           this.records.set(normalized.permissionId, normalized);
         }
       }
-    } catch (error: any) { const err = error; const e = error;
-      this.records.clear();
+    } catch (error: unknown) {this.records.clear();
     }
   }
 
@@ -116,8 +113,7 @@ export class EchoPendingExecutionStoreService {
         JSON.stringify({ records: this.list() }, null, 2),
         'utf8',
       );
-    } catch (error: any) { const err = error; const e = error;
-      // Persistence is best-effort; the in-memory boundary remains authoritative for this process.
+    } catch (error: unknown) {// Persistence is best-effort; the in-memory boundary remains authoritative for this process.
       logger.warn('[Pending Execution Store] filesystem operation failed', error);
     }
   }

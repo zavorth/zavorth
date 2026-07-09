@@ -76,7 +76,6 @@ import {
 } from '@zavorth/services/RemoteMeshNotebookScopedMcpServerGuardHelpers.js';
 import { buildNotebookScopedMcpSelfTestReadiness } from '@zavorth/services/RemoteMeshNotebookScopedMcpSelfTestReadiness.js';
 import { safeFetch } from '../security/SafeFetchService.js';
-
 export type RemoteMeshNotebookDockerObservabilityProvider = {
   listContainers: () => Promise<{
     containers: RemoteMeshNotebookDockerContainerSummary[];
@@ -571,7 +570,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         httpStatus: 200,
         body: toolResult(id, payload),
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         httpStatus: 200,
         body: toolErrorResult(id, {
@@ -629,7 +628,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         httpStatus: 200,
         body: toolResult(id, payload),
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       return {
         httpStatus: 200,
         body: toolErrorResult(id, {
@@ -1139,7 +1138,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1225,7 +1224,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1323,7 +1322,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1416,7 +1415,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error: any) { const err = error; const e = error;
+    } catch (error: unknown) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;

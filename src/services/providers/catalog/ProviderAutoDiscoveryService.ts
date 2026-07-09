@@ -248,7 +248,7 @@ export class ProviderAutoDiscoveryService {
           timeoutMs: input.timeoutMs,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Discovery failed unexpectedly';
       errors.push(msg);
       return this.buildErrorResult(id, label, sanitizedUrl, errors);

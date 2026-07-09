@@ -81,8 +81,7 @@ export class ZavorthHandoffPreviewEngine {
               .map((line) => line.trim().replace(/^-\s*/, ''))
               .filter(Boolean);
           }
-        } catch (error: any) {
-      // Fallback if read fails
+        } catch (error: unknown) {// Fallback if read fails
       logger.warn('[Zavorth Handoff Preview Engine] filesystem operation failed', error);
     }
       }
@@ -142,8 +141,7 @@ export class ZavorthHandoffPreviewEngine {
               .map((line) => line.trim().replace(/^-\s*/, ''))
               .filter(Boolean);
           }
-        } catch (error: any) {
-      // Fallback if read fails
+        } catch (error: unknown) {// Fallback if read fails
       logger.warn('[Zavorth Handoff Preview Engine] filesystem operation failed', error);
     }
       }
