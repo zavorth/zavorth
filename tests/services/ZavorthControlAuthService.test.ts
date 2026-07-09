@@ -35,7 +35,8 @@ describe('ZavorthControlAuthService', () => {
   it('prefers ZAVORTH_WEB_AUTH_TOKEN over any other auth material', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-control-auth-env-'));
     tempDirs.push(root);
-    config.zavorthWebAuthToken = 'web-secret';
+    const webSecret = 'web-secret-strong-token-32chars-min';
+    config.zavorthWebAuthToken = webSecret;
     config.zavorthWebAuthTokenFile = path.join(root, 'web-token.txt');
     config.highRiskApprovalPin = '654321';
 
@@ -47,7 +48,7 @@ describe('ZavorthControlAuthService', () => {
       tokenFile: config.zavorthWebAuthTokenFile,
       multiUserJwtEnabled: false,
     });
-    expect(service.validate('web-secret')).toBe(true);
+    expect(service.validate(webSecret)).toBe(true);
     expect(service.validate('654321')).toBe(false);
   });
 

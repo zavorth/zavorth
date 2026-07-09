@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import { Database } from '../storage/Database.js';
+import { Database } from '../storage/Database.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { TrustedWorkspaceService } from './TrustedWorkspaceService.js';
 import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';

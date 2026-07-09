@@ -172,13 +172,15 @@ describe('auth boundary hardening', () => {
     }
   });
 
-  it('does not accept runtime auth tokens from URL query parameters', () => {
+  it('persists runtime auth tokens from hash or query then strips them from the URL', () => {
     const runtimeAuthSession = readProjectFile('apps', 'zavorth-control-vite-shell', 'src', 'runtime-auth-session.ts');
 
     expect(runtimeAuthSession).toContain("const tokenFromHash = String(hashParams.get('token') || '').trim();");
-    expect(runtimeAuthSession).toContain("const hadQueryToken = url.searchParams.has('token');");
+    expect(runtimeAuthSession).toContain("const tokenFromQuery = String(url.searchParams.get('token') || '').trim();");
+    expect(runtimeAuthSession).toContain('const tokenFromUrl = tokenFromHash || tokenFromQuery;');
+    expect(runtimeAuthSession).toContain('sessionStorage.setItem(authStorageKey, tokenFromUrl)');
     expect(runtimeAuthSession).toContain("url.searchParams.delete('token');");
-    expect(runtimeAuthSession).not.toContain("url.searchParams.get('token')");
+    expect(runtimeAuthSession).toContain("hashParams.delete('token')");
   });
 
   it('keeps MCP CLI add behind the safe installer instead of direct manifest install', () => {

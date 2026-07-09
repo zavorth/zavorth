@@ -1,9 +1,34 @@
 import crypto from 'crypto';
 import path from 'path';
+import { logger } from '../logger.js';
 import { Database } from '../storage/Database.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { HostCommandPayloadCache } from './HostCommandPayloadCache.js';
+
+/** Process-local non-prod fallback — never a well-known constant. */
+let nonProdHostCommandAuditHashKey: string | null = null;
+let warnedMissingAuditHashKey = false;
+
+function resolveHostCommandAuditHashKey(): string {
+  const key = process.env.ZAVORTH_AUDIT_HASH_KEY;
+  if (key) {
+    return key;
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('ZAVORTH_AUDIT_HASH_KEY environment variable is required in production.');
+  }
+  if (!nonProdHostCommandAuditHashKey) {
+    nonProdHostCommandAuditHashKey = crypto.randomBytes(32).toString('hex');
+    if (!warnedMissingAuditHashKey) {
+      warnedMissingAuditHashKey = true;
+      logger.warn(
+        'ZAVORTH_AUDIT_HASH_KEY is unset; using a process-local random key. Set the env var for stable audit hashes.',
+      );
+    }
+  }
+  return nonProdHostCommandAuditHashKey;
+}
 
 export interface HostProposalRow {
   operation_id: string;
@@ -43,14 +68,7 @@ export class HostCommandApprovalService {
   }
 
   public hashValue(val: string): string {
-    const key = process.env.ZAVORTH_AUDIT_HASH_KEY;
-    if (!key) {
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('ZAVORTH_AUDIT_HASH_KEY environment variable is required in production.');
-      }
-      return crypto.createHmac('sha256', 'default-zavorth-host-command-key').update(val).digest('hex');
-    }
-    return crypto.createHmac('sha256', key).update(val).digest('hex');
+    return crypto.createHmac('sha256', resolveHostCommandAuditHashKey()).update(val).digest('hex');
   }
 
   public classifyRisk(command: string, args: string[], shell: boolean): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {

@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { PublicApiRouter } from '../../../src/api/public/PublicApiRouter.js';
 import { config } from '../../../src/config/index.js';
+import { generateZavorthControlToken } from '../../../src/services/ZavorthControlTokenService.js';
 
 class MockResponse extends EventEmitter {
   public statusCode = 200;
@@ -59,14 +60,15 @@ describe('PublicApiRouter security', () => {
   });
 
   it('applies no-store and browser hardening headers to public API responses', async () => {
-    config.zavorthWebAuthToken = 'dashboard-secret';
+    const strongToken = generateZavorthControlToken();
+    config.zavorthWebAuthToken = strongToken;
     const router = new PublicApiRouter();
     router.register('GET', /^\/secure$/, async (_req, res) => {
       PublicApiRouter.sendJson(res, 200, { ok: true });
     });
     const res = new MockResponse();
 
-    await router.route(buildRequest({ authorization: 'Bearer dashboard-secret' }) as any, res as any);
+    await router.route(buildRequest({ authorization: `Bearer ${strongToken}` }) as any, res as any);
 
     expect(res.statusCode).toBe(200);
     expect(res.headers['x-content-type-options']).toBe('nosniff');

@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import { spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import path from 'node:path';
 import type {
   GovernedTerminalReceipt,

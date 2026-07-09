@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿/**
+/**
  * MediaUnderstandingService - Zavorth-native media analysis and understanding service.
  *
  * This service is the center of the `media.understand` capability. It orchestrates:

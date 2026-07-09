@@ -921,7 +921,7 @@ export class ZavorthRuntimeStateBusService {
           };
         }
       }
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
       // Corrupt state falls back to a clean in-memory state; the next dispatch rewrites it.
       logger.warn('[Zavorth Runtime State Bus] parsing failed', error);
     }
@@ -2034,7 +2034,7 @@ function evaluateNetworkTarget(providerId: string, targetUrl: string | null): {
       return { ok: false, targetHost: host, localLoopback: false };
     }
     return { ok: true, targetHost: host, localLoopback: false };
-  } catch ($1: unknown) {
+  } catch (error: unknown) {
     logger.warn('[Zavorth Runtime State Bus] lifecycle operation failed', error);
     return { ok: false, targetHost: null, localLoopback: false };
   }
@@ -2239,10 +2239,13 @@ function safeResolve(value: unknown): string | null {
 function safeRealPath(value: string): string | null {
   try {
     return fs.realpathSync.native(value);
-  } catch ($1: unknown) {
+  } catch {
     try {
       return fs.realpathSync(value);
-    } catch ($1: unknown) { logger.warn('[Zavorth Runtime State Bus] operation failed', error); return null; }
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Runtime State Bus] operation failed', error);
+      return null;
+    }
   }
 }
 
@@ -2391,31 +2394,33 @@ function coerceWorkboardState(value: unknown, fallback: ZavorthRuntimeWorkboardS
       }).filter((entry): entry is ZavorthRuntimeWorkboardState['receipts'][number] => Boolean(entry)).slice(0, 40)
       : fallback.receipts,
     boards: Array.isArray(raw.boards)
-      ? raw.boards.map((entry) => {
+      ? raw.boards.flatMap((entry) => {
         const item = record(entry) || {};
         const id = clean(item.id);
         const name = clean(item.name);
-        if (!id || !name) return null;
-        return {
+        if (!id || !name) return [];
+        const columns: ZavorthRuntimeWorkboardState['boards'][number]['columns'] = Array.isArray(item.columns)
+          ? item.columns.flatMap((column, order) => {
+            const col = record(column) || {};
+            const columnId = clean(col.id);
+            const columnName = clean(col.name);
+            if (!columnId || !columnName) return [];
+            const color = clean(col.color) || undefined;
+            return [{
+              id: columnId,
+              name: columnName,
+              order: Number(col.order ?? order) || order,
+              ...(color ? { color } : {}),
+            }];
+          })
+          : [];
+        return [{
           id,
           name,
           description: clean(item.description),
-          columns: Array.isArray(item.columns)
-            ? item.columns.map((column, order) => {
-              const col = record(column) || {};
-              const columnId = clean(col.id);
-              const columnName = clean(col.name);
-              if (!columnId || !columnName) return null;
-              return {
-                id: columnId,
-                name: columnName,
-                order: Number(col.order ?? order) || order,
-                color: clean(col.color) || undefined,
-              };
-            }).filter((column): column is ZavorthRuntimeWorkboardState['boards'][number]['columns'][number] => Boolean(column))
-            : [],
-        };
-      }).filter((entry): entry is ZavorthRuntimeWorkboardState['boards'][number] => Boolean(entry))
+          columns,
+        }];
+      })
       : fallback.boards,
     summary: summarizeWorkboardTasks(tasks, sessions.length),
     safety: {
@@ -2484,19 +2489,20 @@ function applyWorkboardSync(
   const boardId = clean(boardRaw?.id) || 'desktop-board';
   const boardName = clean(boardRaw?.name) || 'Desktop Workboard';
   const boardDescription = clean(boardRaw?.description);
-  const boardColumns = Array.isArray(boardRaw?.columns)
-    ? boardRaw!.columns.map((column, order) => {
+  const boardColumns: ZavorthRuntimeWorkboardState['boards'][number]['columns'] = Array.isArray(boardRaw?.columns)
+    ? boardRaw!.columns.flatMap((column, order) => {
       const col = record(column) || {};
       const id = clean(col.id);
       const name = clean(col.name);
-      if (!id || !name) return null;
-      return {
+      if (!id || !name) return [];
+      const color = clean(col.color) || undefined;
+      return [{
         id,
         name,
         order: Number(col.order ?? order) || order,
-        color: clean(col.color) || undefined,
-      };
-    }).filter((column): column is ZavorthRuntimeWorkboardState['boards'][number]['columns'][number] => Boolean(column))
+        ...(color ? { color } : {}),
+      }];
+    })
     : (current.boards.find((board) => board.id === boardId)?.columns || []);
 
   let tasks = [...current.tasks];

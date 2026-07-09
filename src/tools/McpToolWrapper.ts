@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { BaseTool } from './BaseTool.js';
 import { WorkspaceWriteApprovalPayloadCache } from '../services/WorkspaceWriteApprovalPayloadCache.js';

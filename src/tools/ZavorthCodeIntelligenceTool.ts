@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';

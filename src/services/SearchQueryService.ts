@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿/**
+/**
  * SearchQueryService — Serviço Zavorth-nativo de orquestração de busca web unificada.
  *
  * Este serviço é o coração da capability `search.query`. Ele unifica as superfícies

@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import { execFile } from 'child_process';
+import { execFile } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';

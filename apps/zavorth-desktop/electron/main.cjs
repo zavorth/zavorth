@@ -23,6 +23,7 @@ const {
 const {
   sanitizeApiPath,
   isAllowedNavigationUrl,
+  isAllowedExternalUrl,
   validateRendererUrl,
 } = require('./api-path.cjs');
 const desktopUpdates = require('./desktop-updates.cjs');
@@ -31,6 +32,26 @@ let mainWindow = null;
 let runtimeProcess = null;
 let lastEvents = [];
 const trustedWorkspaceRoots = new Set();
+
+/** App renderer dist root — only file: navigation under this path is allowed. */
+function getAllowedFileNavigationRoots() {
+  return [path.join(__dirname, '..', 'dist')];
+}
+
+function navigationUrlAllowed(url) {
+  return isAllowedNavigationUrl(url, { allowedFileRoots: getAllowedFileNavigationRoots() });
+}
+
+/**
+ * Open only http(s)/mailto URLs in the system browser.
+ * Silently no-ops for file:, javascript:, custom schemes, etc.
+ */
+function openExternalSafe(url) {
+  if (!isAllowedExternalUrl(url)) {
+    return Promise.resolve();
+  }
+  return shell.openExternal(String(url));
+}
 
 function nowIso() {
   return new Date().toISOString();
@@ -313,7 +334,7 @@ async function connectGooglePersonalOps() {
       authUrl.searchParams.set('access_type', 'offline');
       authUrl.searchParams.set('include_granted_scopes', 'true');
       authUrl.searchParams.set('prompt', 'consent');
-      shell.openExternal(authUrl.toString()).catch(error => {
+      openExternalSafe(authUrl.toString()).catch(error => {
         emitBootEvent('error', `Could not open Google authorization: ${error.message}`);
       });
     },
@@ -625,17 +646,18 @@ function createWindow() {
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (isAllowedNavigationUrl(url)) {
+    if (navigationUrlAllowed(url)) {
       return { action: 'allow' };
     }
-    shell.openExternal(url).catch(() => {});
+    // External handoff: http(s)/mailto only — never file:/javascript:/custom schemes
+    void openExternalSafe(url).catch(() => {});
     return { action: 'deny' };
   });
 
   mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (!isAllowedNavigationUrl(url)) {
+    if (!navigationUrlAllowed(url)) {
       event.preventDefault();
-      shell.openExternal(url).catch(() => {});
+      void openExternalSafe(url).catch(() => {});
     }
   });
 
@@ -728,7 +750,7 @@ async function launchGuidedSetup(extra = {}) {
   // If a package download URL exists for this install path, also surface it.
   if (extra?.downloadUrl) {
     try {
-      await shell.openExternal(String(extra.downloadUrl));
+      await openExternalSafe(String(extra.downloadUrl));
     } catch {
       // ignore external open failures
     }

@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿/**
+/**
  * MediaGenerationService — Serviço Zavorth-nativo de orquestração de geração de mídia.
  *
  * Este serviço é o coração da capability `media.generate`. Ele é responsável por:

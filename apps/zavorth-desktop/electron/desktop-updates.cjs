@@ -12,6 +12,7 @@ const http = require('node:http');
 const https = require('node:https');
 const path = require('node:path');
 const { shell } = require('electron');
+const { isAllowedExternalUrl } = require('./api-path.cjs');
 
 const DEFAULT_GITHUB_REPO = 'zavorth/zavorth';
 
@@ -318,11 +319,15 @@ function packageMarkerPath(homeDir, version) {
 }
 
 async function openExternalUrl(url, input = {}) {
-  if (typeof input.openExternal === 'function') {
-    await input.openExternal(url);
+  const target = String(url || '').trim();
+  if (!isAllowedExternalUrl(target)) {
     return;
   }
-  await shell.openExternal(url);
+  if (typeof input.openExternal === 'function') {
+    await input.openExternal(target);
+    return;
+  }
+  await shell.openExternal(target);
 }
 
 async function downloadUpdate(input = {}) {

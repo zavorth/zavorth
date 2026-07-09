@@ -1,5 +1,5 @@
 import { asErrorLike } from '../../utils/errorLike';
-﻿import path from 'path';
+import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { PtySessionApprovalService } from '../../services/PtySessionApprovalService.js';

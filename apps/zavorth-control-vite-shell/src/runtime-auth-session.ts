@@ -31,16 +31,19 @@ export function createRuntimeAuthSession({
       const url = new URL(window.location.href);
       const hashParams = new URLSearchParams(url.hash.startsWith('#') ? url.hash.slice(1) : url.hash);
       const tokenFromHash = String(hashParams.get('token') || '').trim();
-      const hadQueryToken = url.searchParams.has('token');
-      if (tokenFromHash || hadQueryToken) {
-        if (tokenFromHash) {
-          sessionStorage.setItem(authStorageKey, tokenFromHash);
+      const tokenFromQuery = String(url.searchParams.get('token') || '').trim();
+      const tokenFromUrl = tokenFromHash || tokenFromQuery;
+      if (tokenFromUrl || url.searchParams.has('token') || hashParams.has('token')) {
+        // Persist before stripping so refresh / subsequent API calls keep auth
+        // whether the token arrived via hash (#token=) or query (?token=).
+        if (tokenFromUrl) {
+          sessionStorage.setItem(authStorageKey, tokenFromUrl);
         }
         hashParams.delete('token');
         url.searchParams.delete('token');
         url.hash = hashParams.toString() ? `#${hashParams.toString()}` : '';
         history.replaceState(null, '', url);
-        if (tokenFromHash) return tokenFromHash;
+        if (tokenFromUrl) return tokenFromUrl;
       }
       return String(sessionStorage.getItem(authStorageKey) || '').trim();
     } catch {

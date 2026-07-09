@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿/**
+/**
  * BrowserCdpSupervisorEnhanced — Full CDP browser control with frame tree,
  * console capture, dialog bridge injection, and OOPIF support.
  *

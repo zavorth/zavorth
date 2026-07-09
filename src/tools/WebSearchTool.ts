@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import { BaseTool } from './BaseTool.js';
+import { BaseTool } from './BaseTool.js';
 import { search, SearchResults, SafeSearchType } from 'duck-duck-scrape';
 import { config } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';

@@ -2,6 +2,9 @@ import { config } from '../../src/config/index.js';
 import { DashboardService } from '../../src/services/DashboardService.js';
 import { createTestLogRepo, fetchJson } from '../helpers/dashboardWebTestUtils.js';
 
+/** Meets isWeakZavorthControlToken floor (length >= 32). */
+const STRONG_PUBLIC_API_TOKEN = 'dashboard-secret-test-token-32chars!!';
+
 describe('Web app canonical public api', () => {
   const logRepo = createTestLogRepo();
   const originalWebAuthToken = config.zavorthWebAuthToken;
@@ -11,9 +14,9 @@ describe('Web app canonical public api', () => {
   });
 
   it('exposes canonical v1 endpoints with live runtime-backed data behind public api auth', async () => {
-    config.zavorthWebAuthToken = 'dashboard-secret';
+    config.zavorthWebAuthToken = STRONG_PUBLIC_API_TOKEN;
     const publicApiAuthHeaders = {
-      authorization: 'Bearer dashboard-secret',
+      authorization: `Bearer ${STRONG_PUBLIC_API_TOKEN}`,
     };
     const operationsHealthService = {
       readSnapshotFast: jest.fn(() => ({
@@ -875,7 +878,7 @@ describe('Web app canonical public api', () => {
   });
 
   it('rejects sensitive canonical endpoints without public api auth', async () => {
-    config.zavorthWebAuthToken = 'dashboard-secret';
+    config.zavorthWebAuthToken = STRONG_PUBLIC_API_TOKEN;
     const service = new DashboardService(logRepo, {
       sessionPlaneService: {
         buildSnapshot: jest.fn(),
@@ -905,7 +908,7 @@ describe('Web app canonical public api', () => {
   });
 
   it('keeps artifacts empty when the canonical request is not scoped to a session', async () => {
-    config.zavorthWebAuthToken = 'dashboard-secret';
+    config.zavorthWebAuthToken = STRONG_PUBLIC_API_TOKEN;
     const service = new DashboardService(logRepo, {
       gatewayService: {
         buildHydratedSnapshot: jest.fn(),
@@ -915,7 +918,7 @@ describe('Web app canonical public api', () => {
     await service.start();
     const result = await fetchJson(`${service.getUrl()}/api/v1/artifacts`, {
       headers: {
-        authorization: 'Bearer dashboard-secret',
+        authorization: `Bearer ${STRONG_PUBLIC_API_TOKEN}`,
       },
     });
     await service.stopAsync();
