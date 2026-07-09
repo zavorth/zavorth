@@ -91,6 +91,19 @@ describe('quality bar — structural polish files', () => {
       'src/session/sessionChrome.ts',
       'src/shell/reviewRailModel.ts',
       'src/shell/terminalTabs.ts',
+      'src/trust/hunkApproval.ts',
+      'src/trust/trustedOperator.ts',
+      'src/thread/runTimeline.ts',
+      'src/agents/agentStrip.ts',
+      'src/command-center/domainWizards.ts',
+      'src/thread/HunkReviewCard.tsx',
+      'src/thread/RunTimeline.tsx',
+      'src/thread/AgentStrip.tsx',
+      'src/command-center/DomainWizardOverlay.tsx',
+      'src/constellation/constellationLayout.ts',
+      'src/constellation/ConstellationOverlay.tsx',
+      'src/views/panels/automationsModel.ts',
+      'src/views/panels/AutomationsPanel.tsx',
     ];
     for (const rel of required) {
       expect(existsSync(resolve(root, rel)), rel).toBe(true);

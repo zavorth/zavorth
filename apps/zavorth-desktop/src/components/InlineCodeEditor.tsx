@@ -21,9 +21,6 @@ import {
   IconTerminal2,
 } from '@tabler/icons-react';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface InlineCodeEditorProps {
   value: string;
@@ -40,9 +37,6 @@ interface InlineCodeEditorProps {
   className?: string;
 }
 
-// ---------------------------------------------------------------------------
-// Language detection
-// ---------------------------------------------------------------------------
 
 const EXTENSION_LANGUAGE_MAP: Record<string, string> = {
   js: 'javascript',
@@ -142,9 +136,6 @@ const LANGUAGE_ICONS: Record<string, typeof IconFileCode> = {
   powershell: IconTerminal2,
 };
 
-// ---------------------------------------------------------------------------
-// Indentation helpers
-// ---------------------------------------------------------------------------
 
 const INDENT = '  ';
 
@@ -169,9 +160,6 @@ function getSelectionLines(
   return { startLine, endLine, startLineOffset, endLineOffset };
 }
 
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
 
 export default memo(function InlineCodeEditor({
   value,

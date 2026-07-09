@@ -18,12 +18,25 @@
   const bridgeCurrent = document.getElementById('bridge-current');
 
   const sectorLabels = {
-    terminal: 'Chat', overview: 'Dashboard', channels: 'Channels',
-    'sales-os': 'Sales OS',
-    instances: 'Nodes', sessions: 'Sessions', usage: 'Usage',
-    agents: 'Agents', skills: 'Skills', nodes: 'Network',
-    dreams: 'Rest', config: 'Settings', docs: 'Docs', cron: 'Schedule'
+    terminal: 'Inbox', overview: 'Work', channels: 'Channels',
+    'sales-os': 'Review',
+    instances: 'Proof', sessions: 'Sessions', usage: 'Models',
+    agents: 'Agents', skills: 'Tools', nodes: 'Memory',
+    dreams: 'Learning', config: 'Settings', docs: 'Docs', cron: 'Cron',
+    canvas: 'Canvas'
   };
+  const primarySectorIds = new Set(['terminal', 'overview', 'sales-os', 'instances', 'config']);
+  const dockMore = document.getElementById('dock-more');
+  const dockMoreTrigger = document.getElementById('dock-more-trigger');
+  const dockMorePanel = document.getElementById('dock-more-panel');
+
+  function setDockMoreOpen(open) {
+    if (!dockMore || !dockMoreTrigger || !dockMorePanel) return;
+    dockMore.classList.toggle('is-open', open);
+    dockMoreTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) dockMorePanel.removeAttribute('hidden');
+    else dockMorePanel.setAttribute('hidden', '');
+  }
 
   dockNodes.forEach(node => {
     node.addEventListener('click', (e) => {
@@ -41,8 +54,29 @@
 
       // Update bridge breadcrumb
       if (bridgeCurrent) bridgeCurrent.textContent = sectorLabels[sectorId] || sectorId;
+      if (dockMore && dockMoreTrigger) {
+        const secondary = sectorId && !primarySectorIds.has(sectorId);
+        dockMore.classList.toggle('has-active', secondary);
+        dockMoreTrigger.classList.toggle('active', secondary);
+      }
+      if (primarySectorIds.has(sectorId)) setDockMoreOpen(false);
+      else setDockMoreOpen(false);
       if (sectorId === 'overview') requestAnimationFrame(updateDashboardGlass);
     });
+  });
+
+  if (dockMoreTrigger) {
+    dockMoreTrigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const open = dockMoreTrigger.getAttribute('aria-expanded') !== 'true';
+      setDockMoreOpen(open);
+    });
+  }
+  document.addEventListener('click', (e) => {
+    if (!dockMore || !dockMore.classList.contains('is-open')) return;
+    if (e.target instanceof Node && dockMore.contains(e.target)) return;
+    setDockMoreOpen(false);
   });
 
   // â•â•â• Neural Feed (Chat) Input â•â•â•
@@ -641,10 +675,207 @@
     `;
   }
 
+  function computeNextAction(input) {
+    const pending = Math.max(0, Number(input.pendingApprovals || input.activeApprovals || 0));
+    const errors = Math.max(0, Number(input.errorEvents || 0));
+    if (input.authRequired) {
+      return { kind: 'auth', title: 'Unlock runtime', detail: 'Auth required before live work.', cta: 'Doctor', doctor: true, tone: 'warn' };
+    }
+    if (pending > 0) {
+      return {
+        kind: 'review',
+        title: `${pending} approval${pending === 1 ? '' : 's'} waiting`,
+        detail: 'Decide before risky work continues.',
+        cta: 'Review',
+        sector: 'sales-os',
+        tone: 'warn',
+      };
+    }
+    if (errors > 0) {
+      return {
+        kind: 'errors',
+        title: `${errors} error${errors === 1 ? '' : 's'} in trail`,
+        detail: 'Check proof / receipts.',
+        cta: 'Proof',
+        sector: 'instances',
+        tone: 'danger',
+      };
+    }
+    if (input.thinking || input.runActive) {
+      return {
+        kind: 'running',
+        title: (input.runTitle && String(input.runTitle).trim()) || 'Task running',
+        detail: input.thinking ? 'Working…' : 'Active run',
+        cta: 'Open chat',
+        sector: 'terminal',
+        tone: 'info',
+      };
+    }
+    if (input.live === false || input.providerReady === false) {
+      return {
+        kind: 'doctor',
+        title: 'Runtime needs a check',
+        detail: input.providerReady === false ? 'Provider not ready.' : 'Not live yet.',
+        cta: 'Doctor',
+        doctor: true,
+        tone: 'warn',
+      };
+    }
+    return {
+      kind: 'chat',
+      title: 'Ready for a request',
+      detail: 'Start in Inbox.',
+      cta: 'New chat',
+      sector: 'terminal',
+      tone: 'ok',
+    };
+  }
+
+  function renderNextActionBar(model) {
+    const roots = document.querySelectorAll('[data-next-action]');
+    if (!roots.length) return;
+    const sectorAttr = model.sector ? `data-dashboard-sector="${escapeHtml(model.sector)}"` : '';
+    const doctorAttr = model.doctor ? 'data-dashboard-doctor' : '';
+    const promptAttr = model.prompt ? `data-prompt="${escapeHtml(model.prompt)}"` : '';
+    const html = `
+      <div class="next-action next-action--${escapeHtml(model.tone)}" data-next-action-kind="${escapeHtml(model.kind)}">
+        <div class="next-action__copy">
+          <span class="next-action__eyebrow">Next</span>
+          <strong class="next-action__title">${escapeHtml(model.title)}</strong>
+          <small class="next-action__detail">${escapeHtml(model.detail)}</small>
+        </div>
+        <button type="button" class="next-action__cta daily-button daily-button--primary" ${sectorAttr} ${doctorAttr} ${promptAttr}>${escapeHtml(model.cta)}</button>
+      </div>
+    `;
+    roots.forEach((root) => {
+      root.innerHTML = html;
+      root.dataset.nextKind = model.kind;
+      root.dataset.nextTone = model.tone;
+      root.hidden = false;
+    });
+
+    document.querySelectorAll('[data-attention-count]').forEach((node) => {
+      const show = model.kind === 'review' || model.kind === 'errors' || model.kind === 'doctor' || model.kind === 'auth';
+      const pending = model.kind === 'review' ? (parseInt(String(model.title), 10) || 1) : (show ? 1 : 0);
+      node.hidden = !show;
+      node.textContent = model.kind === 'review' ? String(pending) : (show ? '!' : '');
+      node.dataset.tone = model.tone;
+    });
+  }
+
+  function updateNextActionSurface(snapshot) {
+    const model = computeNextAction({
+      pendingApprovals: snapshot.pendingApprovals,
+      activeApprovals: snapshot.activeApprovals,
+      errorEvents: snapshot.errorEvents,
+      thinking: snapshot.thinking,
+      runActive: false,
+      runTitle: '',
+      authRequired: false,
+      live: true,
+      providerReady: null,
+    });
+    renderNextActionBar(model);
+
+    document.querySelectorAll('.dock-node[data-sector="sales-os"]').forEach((node) => {
+      node.classList.toggle('has-badge', snapshot.activeApprovals > 0);
+      let badge = node.querySelector('.dock-node__badge');
+      if (snapshot.activeApprovals > 0) {
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'dock-node__badge';
+          node.appendChild(badge);
+        }
+        badge.textContent = String(snapshot.activeApprovals);
+        badge.hidden = false;
+      } else if (badge) {
+        badge.hidden = true;
+      }
+    });
+  }
+
+  function updateTrustRailSurface(snapshot) {
+    const pendingHost = document.getElementById('trust-pending-rail');
+    if (pendingHost) {
+      const cards = Array.from(document.querySelectorAll('.zavorth-approval-card, .zavorth-remote-mesh-card[data-status="pending"], .zavorth-remote-mesh-card[data-status="retryable"]'));
+      if (cards.length === 0 && snapshot.activeApprovals <= 0) {
+        pendingHost.innerHTML = '<p class="trust-rail__empty">None</p>';
+      } else if (cards.length === 0) {
+        pendingHost.innerHTML = `<p class="trust-rail__empty">${snapshot.activeApprovals} pending</p>`;
+      } else {
+        pendingHost.innerHTML = cards.slice(0, 4).map((card) => {
+          const title = compactTraceText(card.querySelector('strong, .zavorth-approval-card__title')?.textContent || card.getAttribute('data-title') || 'Approval', 42);
+          const detail = compactTraceText(card.querySelector('p, small, .zavorth-approval-card__summary')?.textContent || 'Needs decision', 56);
+          return `<article class="trust-rail__item"><strong>${escapeHtml(title)}</strong><small>${escapeHtml(detail)}</small></article>`;
+        }).join('');
+      }
+    }
+
+    const receiptHost = document.getElementById('trust-receipt-rail');
+    if (receiptHost) {
+      const lastReceipt = traceEvents.slice().reverse().find((event) => traceEventClass(event.type) === 'receipt');
+      if (!lastReceipt) {
+        receiptHost.innerHTML = '<p class="trust-rail__empty">—</p>';
+      } else {
+        receiptHost.innerHTML = `
+          <article class="trust-rail__item">
+            <strong>${escapeHtml(compactTraceText(lastReceipt.title || 'Receipt', 48))}</strong>
+            <small>${escapeHtml(compactTraceText(lastReceipt.status || lastReceipt.time || 'recorded', 40))}</small>
+          </article>
+        `;
+      }
+    }
+
+    const scoreRoot = document.getElementById('session-trust-score');
+    if (scoreRoot) {
+      const pending = Math.max(0, Number(snapshot.activeApprovals || 0));
+      const errors = Math.max(0, Number(snapshot.errorEvents || 0));
+      const receipts = Math.max(0, Number(snapshot.receiptEvents || 0));
+      let score = 92;
+      let tone = 'ok';
+      let label = 'Stable';
+      if (errors > 0) {
+        score = Math.max(24, 70 - errors * 12);
+        tone = 'danger';
+        label = 'Errors in trail';
+      } else if (pending > 0) {
+        score = Math.max(40, 82 - pending * 8);
+        tone = 'warn';
+        label = 'Needs review';
+      } else if (receipts > 0) {
+        score = Math.min(99, 90 + Math.min(receipts, 6));
+        tone = 'ok';
+        label = 'Receipts ok';
+      }
+      scoreRoot.dataset.trustTone = tone;
+      const valueEl = scoreRoot.querySelector('[data-session-trust-value]');
+      const labelEl = scoreRoot.querySelector('[data-session-trust-label]');
+      if (valueEl) valueEl.textContent = String(score);
+      if (labelEl) labelEl.textContent = label;
+    }
+  }
+
+  function updateInboxActionSurfaces(snapshot) {
+    const approvalBanner = document.getElementById('approval-context-banner');
+    if (approvalBanner) approvalBanner.hidden = snapshot.activeApprovals <= 0;
+    setDashboardText('[data-inbox-approval-title]', snapshot.activeApprovals > 0
+      ? `${snapshot.activeApprovals} pending`
+      : 'No pending approvals');
+    setDashboardText('[data-inbox-approval-text]', snapshot.activeApprovals > 0
+      ? 'Review pending decisions.'
+      : 'No risky actions waiting.');
+    setDashboardText('[data-inbox-metric="approvals"]', String(snapshot.activeApprovals || 0));
+    setDashboardText('[data-inbox-metric="receipts"]', String(snapshot.receiptEvents || 0));
+    updateNextActionSurface(snapshot);
+    updateTrustRailSurface(snapshot);
+  }
+
   function updateDashboardGlass() {
+    const snapshot = getDashboardSnapshot();
+    updateInboxActionSurfaces(snapshot);
+
     const root = document.querySelector('.dashboard-glass');
     if (!root) return;
-    const snapshot = getDashboardSnapshot();
     setDashboardText('[data-dashboard-metric="runs"]', snapshot.requestCount);
     setDashboardText('[data-dashboard-metric="approvals"]', snapshot.approvalCount);
     setDashboardText('[data-dashboard-metric="artifacts"]', snapshot.artifactCount);
@@ -692,8 +923,6 @@
     setDashboardText('[data-dashboard-strip-detail="budget"]', snapshot.errorEvents > 0 ? `${snapshot.errorEvents} trace error(s)` : 'local trace in real time');
     setDashboardText('[data-dashboard-strip="security"]', snapshot.activeApprovals > 0 ? 'approval' : 'active');
     setDashboardText('[data-dashboard-strip-detail="security"]', snapshot.activeApprovals > 0 ? 'pending decision' : 'policy, preview and receipt');
-    setDashboardText('[data-inbox-metric="approvals"]', String(snapshot.activeApprovals || 0));
-    setDashboardText('[data-inbox-metric="receipts"]', String(snapshot.receiptEvents || 0));
     setDashboardText('[data-sales-os-metric="approvals"]', String(snapshot.activeApprovals || 0));
     setDashboardText('[data-sales-os-meta="approvals"]', snapshot.activeApprovals > 0 ? 'waiting for your decision' : 'no pending approval');
     setDashboardText('[data-provider-picker="active"]', getCurrentModelRouteLabel());
@@ -3209,6 +3438,195 @@ ${current}` : skillPrompt;
     });
   }
 
+  // ═══ Trust rail mobile sheet + action-first inbox boot ═══
+  (function initTrustRailMobile() {
+    const MQ = '(max-width: 900px)';
+    if (document.documentElement.dataset.zavorthTrustRailMobile === '1') return;
+    document.documentElement.dataset.zavorthTrustRailMobile = '1';
 
+    function isMobile() {
+      return typeof window.matchMedia === 'function' && window.matchMedia(MQ).matches;
+    }
+
+    function openTrustRailSheet() {
+      const rail = document.getElementById('trust-rail');
+      const shade = document.getElementById('trust-rail-shade');
+      const fab = document.getElementById('trust-rail-fab');
+      if (!rail) return;
+      rail.classList.add('is-sheet-open');
+      rail.setAttribute('aria-hidden', 'false');
+      shade?.classList.add('is-open');
+      shade?.setAttribute('aria-hidden', 'false');
+      fab?.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('trust-sheet-open');
+    }
+
+    function closeTrustRailSheet() {
+      const rail = document.getElementById('trust-rail');
+      const shade = document.getElementById('trust-rail-shade');
+      const fab = document.getElementById('trust-rail-fab');
+      rail?.classList.remove('is-sheet-open');
+      rail?.setAttribute('aria-hidden', isMobile() ? 'true' : 'false');
+      shade?.classList.remove('is-open');
+      shade?.setAttribute('aria-hidden', 'true');
+      fab?.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('trust-sheet-open');
+    }
+
+    function syncMode() {
+      const rail = document.getElementById('trust-rail');
+      const fab = document.getElementById('trust-rail-fab');
+      const shade = document.getElementById('trust-rail-shade');
+      if (!rail) return;
+      if (isMobile()) {
+        document.documentElement.classList.add('trust-rail-mobile');
+        fab?.removeAttribute('hidden');
+        shade?.removeAttribute('hidden');
+        if (!rail.classList.contains('is-sheet-open')) {
+          rail.setAttribute('aria-hidden', 'true');
+        }
+      } else {
+        document.documentElement.classList.remove('trust-rail-mobile');
+        fab?.setAttribute('hidden', '');
+        shade?.setAttribute('hidden', '');
+        shade?.classList.remove('is-open');
+        rail.classList.remove('is-sheet-open');
+        rail.setAttribute('aria-hidden', 'false');
+        document.body.classList.remove('trust-sheet-open');
+      }
+    }
+
+    function ensureMobileChrome() {
+      const rail = document.getElementById('trust-rail');
+      if (!rail) return;
+
+      let header = rail.querySelector('.trust-rail__header');
+      if (!header) {
+        header = document.createElement('div');
+        header.className = 'trust-rail__header';
+        header.innerHTML = '<strong>Trust</strong>';
+        rail.prepend(header);
+      }
+      if (!header.querySelector('[data-trust-sheet-close]')) {
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'trust-rail__close';
+        close.setAttribute('data-trust-sheet-close', '');
+        close.setAttribute('aria-label', 'Close trust panel');
+        close.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+        header.appendChild(close);
+      }
+
+      if (!rail.querySelector('.trust-rail__handle')) {
+        const handle = document.createElement('div');
+        handle.className = 'trust-rail__handle';
+        handle.setAttribute('aria-hidden', 'true');
+        rail.prepend(handle);
+      }
+
+      if (!document.getElementById('trust-rail-fab')) {
+        const fab = document.createElement('button');
+        fab.type = 'button';
+        fab.id = 'trust-rail-fab';
+        fab.className = 'trust-rail-fab';
+        fab.setAttribute('aria-label', 'Open trust panel');
+        fab.setAttribute('aria-controls', 'trust-rail');
+        fab.setAttribute('aria-expanded', 'false');
+        fab.hidden = true;
+        fab.innerHTML = `
+          <span class="trust-rail-fab__label">Trust</span>
+          <span class="trust-rail-fab__badge" data-attention-count hidden></span>
+        `;
+        document.body.appendChild(fab);
+      }
+
+      if (!document.getElementById('trust-rail-shade')) {
+        const shade = document.createElement('div');
+        shade.id = 'trust-rail-shade';
+        shade.className = 'trust-rail-shade';
+        shade.setAttribute('aria-hidden', 'true');
+        shade.hidden = true;
+        document.body.appendChild(shade);
+      }
+    }
+
+    ensureMobileChrome();
+    syncMode();
+
+    document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target) return;
+
+      if (target.closest('#trust-rail-fab')) {
+        event.preventDefault();
+        if (document.getElementById('trust-rail')?.classList.contains('is-sheet-open')) {
+          closeTrustRailSheet();
+        } else {
+          openTrustRailSheet();
+        }
+        return;
+      }
+
+      if (target.closest('[data-trust-sheet-close]')) {
+        event.preventDefault();
+        closeTrustRailSheet();
+        return;
+      }
+
+      if (target.closest('#trust-rail-shade')) {
+        closeTrustRailSheet();
+        return;
+      }
+
+      if (
+        isMobile()
+        && target.closest('#trust-rail [data-dashboard-sector], #trust-rail [data-dashboard-doctor]')
+      ) {
+        window.setTimeout(() => closeTrustRailSheet(), 80);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeTrustRailSheet();
+    });
+
+    if (typeof window.matchMedia === 'function') {
+      const mql = window.matchMedia(MQ);
+      const onChange = () => {
+        syncMode();
+        if (!mql.matches) closeTrustRailSheet();
+      };
+      if (mql.addEventListener) mql.addEventListener('change', onChange);
+      else if (mql.addListener) mql.addListener(onChange);
+    }
+  })();
+
+  if (!document.documentElement.dataset.zavorthDashboardActionBound) {
+    document.documentElement.dataset.zavorthDashboardActionBound = '1';
+    document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target) return;
+
+      const doctorBtn = target.closest('[data-dashboard-doctor]');
+      if (doctorBtn) {
+        event.preventDefault();
+        runStaticPaletteAction('doctor');
+        return;
+      }
+
+      const sectorBtn = target.closest('[data-dashboard-sector]');
+      if (sectorBtn) {
+        event.preventDefault();
+        const sector = sectorBtn.getAttribute('data-dashboard-sector') || '';
+        if (sector) activateSector(sector);
+      }
+    });
+  }
+
+  try {
+    updateDashboardGlass();
+  } catch (_) {
+    /* ignore until DOM hooks exist */
+  }
 
 })();

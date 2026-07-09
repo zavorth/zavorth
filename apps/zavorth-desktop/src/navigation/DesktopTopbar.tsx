@@ -1,6 +1,7 @@
 import { Command, Refresh, Search, Sliders, Stop, Sparkles } from '../icons';
 import type { RuntimeStatus } from '../global';
 import { t } from '../i18n';
+import { trustedOperatorBadge } from '../trust/trustedOperator';
 
 export function DesktopTopbar(props: {
   busy: boolean;
@@ -13,10 +14,14 @@ export function DesktopTopbar(props: {
   onModel(): void;
   onRefresh(): void;
   onStop(): void;
+  trustedOperator?: boolean;
+  onToggleTrustedOperator?(): void;
 }) {
   const isMac = navigator.userAgent.includes('Macintosh');
   const shortcutHint = isMac ? '⌘K' : 'Ctrl+K';
   const ccShortcutHint = isMac ? '⌘⇧K' : 'Ctrl+Shift+K';
+  const trustEnabled = Boolean(props.trustedOperator);
+  const trustBadge = trustedOperatorBadge(trustEnabled);
 
   return (
     <header className="zvd-topbar" role="banner">
@@ -53,6 +58,19 @@ export function DesktopTopbar(props: {
           {props.status.running ? t('topbar.localReady') : t('topbar.localOffline')}
           <small>{props.modelLabel}</small>
         </button>
+        {props.onToggleTrustedOperator ? (
+          <button
+            className={`zvd-trust-badge${trustEnabled ? ' is-on' : ''}`}
+            type="button"
+            onClick={props.onToggleTrustedOperator}
+            aria-pressed={trustEnabled}
+            aria-label={t(trustBadge.labelKey)}
+            title={`${t(trustBadge.labelKey)} — ${t(trustBadge.riskNoteKey)}`}
+          >
+            <span className="zvd-trust-badge__dot" aria-hidden="true" />
+            <span className="zvd-trust-badge__label">{t(trustBadge.labelKey)}</span>
+          </button>
+        ) : null}
         <button
           className={`zvd-icon-button ${props.kaelActive ? 'is-active' : ''}`}
           onClick={props.onToggleKael}

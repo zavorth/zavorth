@@ -181,7 +181,15 @@ function ActivityRailPanel(props: {
           <span>{t('quickActions')}</span>
         </div>
         <div className="zvd-rail-actions">
-          <button onClick={() => props.onPanel('approvals')} type="button">{t('reviewApprovals')}</button>
+          <button onClick={() => props.onPanel('approvals')} type="button">
+            {t('reviewApprovals')}
+            {props.approvals.length > 0 ? (
+              <span className="zvd-rail-action-count" aria-label={`${props.approvals.length} pending`}>
+                {props.approvals.length}
+              </span>
+            ) : null}
+          </button>
+          <button onClick={() => props.onPanel('receipts')} type="button">{t('nav.proof')}</button>
           <button onClick={() => props.onPanel('settings')} type="button">{t('settings')}</button>
         </div>
       </div>

@@ -103,76 +103,22 @@
               <div class="terminal-hero" id="terminal-hero">
                 <div class="terminal-hero__status">
                   <span class="terminal-hero__status-dot"></span>
-                  <span>Local gateway ready</span>
+                  <span>Ready</span>
                 </div>
                 <div class="terminal-hero__greeting">
                   <span class="terminal-hero__hello">Inbox</span>
-                  <span class="terminal-hero__question">Ask normally. Zavorth will answer, preview risky work, and ask before acting.</span>
                 </div>
-                <div class="home-command-panel" aria-label="Inbox overview">
-                  <div class="home-command-panel__main">
-                    <span class="home-command-panel__label">Best first request</span>
-                    <strong>Review this workspace safely</strong>
-                    <p>Starts read-only, lists risks, and keeps changes behind approval.</p>
-                  </div>
-                  <button class="home-command-panel__button suggestion-chip" type="button" data-prompt="Review this workspace safely. Read first, list risks, and do not change files.">
-                    Start review
-                  </button>
+                <div class="next-action-host next-action-host--inbox" data-next-action aria-label="Next action"></div>
+              </div>
+              <div class="approval-context-banner" id="approval-context-banner" hidden>
+                <div>
+                  <span>Needs you</span>
+                  <strong data-inbox-approval-title>No pending approvals</strong>
+                  <p data-inbox-approval-text>No risky actions waiting.</p>
                 </div>
-                <div class="inbox-flow-strip" aria-label="How Zavorth handles requests">
-                  <span><strong>1</strong>Ask</span>
-                  <span><strong>2</strong>Preview risk</span>
-                  <span><strong>3</strong>Approve only if needed</span>
-                  <span><strong>4</strong>Get a receipt</span>
-                </div>
-                <div class="inbox-premium-rail" aria-label="Live inbox cards">
-                  <article class="inbox-mini-card inbox-mini-card--active">
-                    <span>Conversation</span>
-                    <strong>Natural request first</strong>
-                    <p>Messages stay here with thinking, tool previews and final answers in one flow.</p>
-                  </article>
-                  <article class="inbox-mini-card">
-                    <span>Approval preview</span>
-                    <strong><em data-inbox-metric="approvals">0</em> waiting</strong>
-                    <p>Approve, reject or scope from the conversation when a risky action appears.</p>
-                  </article>
-                  <article class="inbox-mini-card">
-                    <span>Receipt preview</span>
-                    <strong><em data-inbox-metric="receipts">0</em> recorded</strong>
-                    <p>Each completed action explains what happened, why, and how to review it.</p>
-                  </article>
-                </div>
-                <div class="home-profile-grid home-profile-grid--compact" aria-label="Common starts">
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="personal" data-prompt="Use Personal mode. Help me get one safe useful result first, with simple wording and a receipt." aria-pressed="false">
-                    <span class="home-profile-card__title">Personal</span>
-                    <span class="home-profile-card__text">Daily help with safe defaults.</span>
-                  </button>
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="developer" data-prompt="Use Developer mode. Review this workspace read-only before suggesting any change." aria-pressed="false">
-                    <span class="home-profile-card__title">Developer</span>
-                    <span class="home-profile-card__text">Review, patch preview and proof.</span>
-                  </button>
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="business" data-prompt="Use Business mode. Show policy, approval channel, scope, TTL, blocked actions and evidence." aria-pressed="false">
-                    <span class="home-profile-card__title">Business</span>
-                    <span class="home-profile-card__text">Approvals, limits and receipts.</span>
-                  </button>
-                </div>
-                <div class="home-readiness-strip home-readiness-strip--compact" aria-label="Useful destinations">
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="inbox" data-prompt="Open my Inbox and show what needs attention." aria-pressed="false">
-                    <span class="home-profile-card__title">Inbox</span>
-                    <span class="home-profile-card__text">Messages and waiting items.</span>
-                  </button>
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="tasks" data-prompt="Show my tasks and safe next steps." aria-pressed="false">
-                    <span class="home-profile-card__title">Tasks</span>
-                    <span class="home-profile-card__text">Missions and next steps.</span>
-                  </button>
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="approvals" data-prompt="Do I have pending approvals?" aria-pressed="false">
-                    <span class="home-profile-card__title">Approvals</span>
-                    <span class="home-profile-card__text">Decisions before actions.</span>
-                  </button>
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="receipts" data-prompt="Show recent receipts and blocked actions." aria-pressed="false">
-                    <span class="home-profile-card__title">Receipts</span>
-                    <span class="home-profile-card__text">Proof and audit trail.</span>
-                  </button>
+                <div class="approval-context-banner__actions">
+                  <button type="button" data-dashboard-sector="sales-os">Review</button>
+                  <button type="button" data-dashboard-doctor>Doctor</button>
                 </div>
               </div>
 
@@ -188,25 +134,13 @@
                     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <span>Review workspace</span>
                   </button>
-                  <button class="suggestion-chip" data-prompt="Help me connect a channel safely. Show the steps and keep raw tokens hidden.">
-                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-                    <span>Connect channel</span>
+                  <button class="suggestion-chip" data-prompt="Show what Zavorth can remember right now and which scopes are active.">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/></svg>
+                    <span>Check memory</span>
                   </button>
                   <button class="suggestion-chip" data-prompt="Summarize a document or PDF safely. Start with a preview and receipt.">
                     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
                     <span>Summarize document</span>
-                  </button>
-                  <button class="suggestion-chip" data-prompt="Run safe project checks. Explain every command before anything risky.">
-                    <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-                    <span>Run checks</span>
-                  </button>
-                  <button class="suggestion-chip" data-mission="business-audit" data-auto-submit="true" data-prompt="Use Business mode and run a governed audit. Show policy, approval channel, scope, TTL, blocked actions and evidence receipt.">
-                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-5"/></svg>
-                    <span>Run audit</span>
-                  </button>
-                  <button class="suggestion-chip" data-prompt="What can you do without asking first, and what requires approval?">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span>Safety rules</span>
                   </button>
                 </div>
                 <div class="compose-dock__input-frame">
@@ -226,14 +160,54 @@
               </div>
             </div>
           </div>
-          <!-- Artifact Pane -->
-          <div class="artifact-pane hidden" id="artifact-pane">
-            <div class="artifact-pane__header">
-              <span class="artifact-pane__title" id="artifact-title">Artifact</span>
-              <button class="artifact-pane__close" id="artifact-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          <!-- Trust rail (chat default) + artifact pane share the right column -->
+          <aside class="trust-rail" id="trust-rail" aria-label="Trust">
+            <div class="trust-rail__handle" aria-hidden="true"></div>
+            <div class="trust-rail__header">
+              <strong>Trust</strong>
+              <button type="button" class="trust-rail__close" data-trust-sheet-close aria-label="Close trust panel">×</button>
             </div>
-            <div class="artifact-pane__body" id="artifact-body"></div>
-          </div>
+            <section class="trust-rail__section" data-trust-section="pending">
+              <div class="trust-rail__section-head">
+                <span>Pending</span>
+                <button type="button" class="trust-rail__action" data-dashboard-sector="sales-os">Open</button>
+              </div>
+              <div class="trust-rail__body" id="trust-pending-rail">
+                <p class="trust-rail__empty">None</p>
+              </div>
+            </section>
+            <section class="trust-rail__section" data-trust-section="receipt">
+              <div class="trust-rail__section-head">
+                <span>Last receipt</span>
+                <button type="button" class="trust-rail__action" data-dashboard-sector="instances">Proof</button>
+              </div>
+              <div class="trust-rail__body" id="trust-receipt-rail">
+                <p class="trust-rail__empty">—</p>
+              </div>
+            </section>
+            <section class="trust-rail__section" data-trust-section="diff">
+              <div class="trust-rail__section-head">
+                <span>Diff</span>
+              </div>
+              <div class="trust-rail__body" id="trust-diff-rail"></div>
+            </section>
+            <section class="trust-rail__section" data-trust-section="score">
+              <div class="trust-rail__section-head">
+                <span>Trust score</span>
+              </div>
+              <div class="trust-rail__body session-trust-score" id="session-trust-score" data-session-trust-score>
+                <strong data-session-trust-value>—</strong>
+                <span data-session-trust-label></span>
+              </div>
+            </section>
+            <div class="artifact-pane hidden" id="artifact-pane">
+              <div class="artifact-pane__header">
+                <span class="artifact-pane__title" id="artifact-title">Artifact</span>
+                <button class="artifact-pane__close" id="artifact-close" aria-label="Close artifact"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+              </div>
+              <div class="artifact-pane__body" id="artifact-body"></div>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -265,74 +239,49 @@
       <section class="sector" id="sector-cron"></section>
     </main>
 
-    <!-- Bottom navigation -->
+    <!-- Bottom navigation — primary ≤6 (Inbox, Work, Review, Proof, More, Settings) -->
     <nav class="nexus-dock" id="nexus-dock">
       <div class="nexus-dock__rail">
-        <!-- Primary -->
-        <div class="dock-group">
+        <div class="dock-group dock-group--primary">
           <a class="dock-node active" data-sector="terminal" href="#" title="Inbox">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
-            <span class="dock-node__label">Chat</span>
+            <span class="dock-node__label">Inbox</span>
           </a>
-          <a class="dock-node" data-sector="overview" href="#" title="Overview">
+          <a class="dock-node" data-sector="overview" href="#" title="Work">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-            <span class="dock-node__label">Overview</span>
+            <span class="dock-node__label">Work</span>
           </a>
-          <a class="dock-node" data-sector="channels" href="#" title="Connectors">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M4 11a9 9 0 0118 0"/><path d="M4 4a16 16 0 0118 0"/><circle cx="12" cy="18" r="1"/><path d="M8 14a5 5 0 018 0"/></svg></span>
-            <span class="dock-node__label">Channels</span>
-          </a>
-          <a class="dock-node" data-sector="sales-os" href="#" title="Approvals">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3z"/><path d="M7 9h4"/><path d="M7 13h7"/><path d="M17 9h.01"/><path d="M17 13h.01"/></svg></span>
-            <span class="dock-node__label">Approvals</span>
-          </a>
-          <a class="dock-node" data-sector="instances" href="#" title="Receipts">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></span>
-            <span class="dock-node__label">Receipts</span>
-          </a>
-        </div>
-        <span class="dock-divider"></span>
-        <!-- Secondary -->
-        <div class="dock-group">
-          <a class="dock-node" data-sector="sessions" href="#" title="History">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-            <span class="dock-node__label">History</span>
-          </a>
-          <a class="dock-node" data-sector="agents" href="#" title="Review">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+          <a class="dock-node" data-sector="sales-os" href="#" title="Review">
+            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-5"/></svg></span>
             <span class="dock-node__label">Review</span>
           </a>
-          <a class="dock-node" data-sector="skills" href="#" title="Tools">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-            <span class="dock-node__label">Skills</span>
+          <a class="dock-node" data-sector="instances" href="#" title="Proof">
+            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>
+            <span class="dock-node__label">Proof</span>
           </a>
-          <a class="dock-node" data-sector="nodes" href="#" title="Advanced">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><line x1="12" y1="9" x2="12" y2="5"/><line x1="14.5" y1="13.5" x2="18" y2="18"/><line x1="9.5" y1="13.5" x2="6" y2="18"/></svg></span>
-            <span class="dock-node__label">Nexus</span>
-          </a>
-          <a class="dock-node" data-sector="dreams" href="#" title="Rest">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></span>
-            <span class="dock-node__label">Rest</span>
-          </a>
-        </div>
-        <span class="dock-divider"></span>
-        <!-- System -->
-        <div class="dock-group">
-          <a class="dock-node" data-sector="usage" href="#" title="Usage">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
-            <span class="dock-node__label">Usage</span>
-          </a>
+          <div class="dock-more" id="dock-more">
+            <button class="dock-node dock-more__trigger" type="button" id="dock-more-trigger" aria-expanded="false" aria-controls="dock-more-panel" title="More">
+              <span class="dock-node__glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span>
+              <span class="dock-node__label">More</span>
+            </button>
+            <div class="dock-more__panel" id="dock-more-panel" role="menu" aria-label="Command Center" hidden>
+              <a class="dock-node dock-more__item" data-sector="channels" href="#" role="menuitem" title="Channels"><span class="dock-node__label">Channels</span></a>
+              <a class="dock-node dock-more__item" data-sector="nodes" href="#" role="menuitem" title="Memory"><span class="dock-node__label">Memory</span></a>
+              <a class="dock-node dock-more__item" data-sector="dreams" href="#" role="menuitem" title="Learning"><span class="dock-node__label">Learning</span></a>
+              <a class="dock-node dock-more__item" data-sector="skills" href="#" role="menuitem" title="Tools"><span class="dock-node__label">Tools</span></a>
+              <a class="dock-node dock-more__item" data-sector="agents" href="#" role="menuitem" title="Agents"><span class="dock-node__label">Agents</span></a>
+              <a class="dock-node dock-more__item" data-sector="usage" href="#" role="menuitem" title="Models"><span class="dock-node__label">Models</span></a>
+              <a class="dock-node dock-more__item" data-sector="canvas" href="#" role="menuitem" title="Canvas"><span class="dock-node__label">Canvas</span></a>
+              <a class="dock-node dock-more__item" data-sector="cron" href="#" role="menuitem" title="Cron"><span class="dock-node__label">Cron</span></a>
+              <a class="dock-node dock-more__item" data-sector="sessions" href="#" role="menuitem" title="Sessions"><span class="dock-node__label">Sessions</span></a>
+            </div>
+          </div>
           <a class="dock-node" data-sector="config" href="#" title="Settings">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
-            <span class="dock-node__label">Config</span>
-          </a>
-          <a class="dock-node" data-sector="docs" href="#" title="Docs">
-            <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>
-            <span class="dock-node__label">Docs</span>
+            <span class="dock-node__label">Settings</span>
           </a>
         </div>
       </div>
-      <!-- Dock Version Indicator -->
       <div class="dock-sys-info">
         <span class="dock-sys-info__version">v2026.4</span>
         <span class="dock-sys-info__status dock-sys-info__status--live"></span>
@@ -423,15 +372,20 @@
     </div>
     <nav class="mobile-drawer__nav" aria-label="Main navigation">
       <button class="mobile-drawer__item active" type="button" data-drawer-sector="terminal">Inbox</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="overview">Tasks</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="channels">Connectors</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="sales-os">Approvals</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="instances">Receipts</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="sessions">History</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="agents">Review</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="skills">Tools</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="nodes">Advanced</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="config">Config</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="overview">Work</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="sales-os">Review</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="instances">Proof</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="config">Settings</button>
+      <div class="mobile-drawer__group-label">More</div>
+      <button class="mobile-drawer__item mobile-drawer__item--secondary" type="button" data-drawer-sector="channels">Channels</button>
+      <button class="mobile-drawer__item mobile-drawer__item--secondary" type="button" data-drawer-sector="nodes">Memory</button>
+      <button class="mobile-drawer__item mobile-drawer__item--secondary" type="button" data-drawer-sector="dreams">Learning</button>
+      <button class="mobile-drawer__item mobile-drawer__item--secondary" type="button" data-drawer-sector="skills">Tools</button>
+      <button class="mobile-drawer__item mobile-drawer__item--secondary" type="button" data-drawer-sector="agents">Agents</button>
+      <button class="mobile-drawer__item mobile-drawer__item--secondary" type="button" data-drawer-sector="usage">Models</button>
+      <button class="mobile-drawer__item mobile-drawer__item--secondary" type="button" data-drawer-sector="canvas">Canvas</button>
+      <button class="mobile-drawer__item mobile-drawer__item--secondary" type="button" data-drawer-sector="cron">Cron</button>
+      <button class="mobile-drawer__item mobile-drawer__item--secondary" type="button" data-drawer-sector="sessions">Sessions</button>
     </nav>
     <div class="mobile-drawer__footer">
       <button class="mobile-drawer__action" type="button" id="mobile-drawer-search">Search</button>

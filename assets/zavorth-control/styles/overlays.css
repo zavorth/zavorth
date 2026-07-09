@@ -170,6 +170,23 @@
   overflow-y: auto;
 }
 
+.mobile-drawer__group-label {
+  margin: 10px 4px 2px;
+  padding: 0 10px;
+  color: var(--b-signal-muted);
+  font-family: var(--b-mono, var(--b-font-display));
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mobile-drawer__item--secondary {
+  min-height: 40px;
+  font-weight: 550;
+  opacity: 0.94;
+}
+
 .mobile-drawer__item {
   width: 100%;
   min-height: 44px;

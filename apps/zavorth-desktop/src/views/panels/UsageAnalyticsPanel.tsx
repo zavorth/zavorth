@@ -16,8 +16,6 @@ import {
   IconX,
 } from '@tabler/icons-react';
 
-// --- Types ---
-
 export type TokenUsage = {
   inputTokens: number;
   outputTokens: number;
@@ -49,12 +47,8 @@ export type UsageAnalyticsPanelProps = {
   costPerModel?: Record<string, { input: number; output: number }>;
 };
 
-// --- Local nanostores ---
-
 const $selectedTab = atom<'overview' | 'tools' | 'models' | 'sessions'>('overview');
 const $searchQuery = atom('');
-
-// --- Helpers ---
 
 function formatNumber(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -84,8 +78,6 @@ function formatDate(ts: number): string {
     minute: '2-digit',
   });
 }
-
-// --- Sub-components ---
 
 function StatCard(props: {
   icon: React.ReactNode;
@@ -141,8 +133,6 @@ function SuccessBadge(props: { rate: number }) {
     </span>
   );
 }
-
-// --- Main component ---
 
 export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
   const tab = useStore($selectedTab);

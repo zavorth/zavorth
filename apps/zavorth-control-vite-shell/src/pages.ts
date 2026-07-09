@@ -25,13 +25,14 @@ export function initControlPages() {
       ${dailyHeader('Work', '', `
         <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>
         <button class="daily-button" type="button" data-dashboard-sector="sales-os">Review</button>
-        <button class="daily-button" type="button" data-dashboard-sector="instances">Receipts</button>
-        <button class="daily-button" type="button" data-dashboard-prompt="Run doctor health check. Show only missing setup, failed routes, and the next fix.">Doctor</button>
+        <button class="daily-button" type="button" data-dashboard-sector="instances">Proof</button>
+        <button class="daily-button" type="button" data-dashboard-doctor>Doctor</button>
       `)}
+      <section class="next-action-host" data-next-action aria-label="Next action"></section>
       <section class="daily-panel daily-panel--attention" aria-label="Attention">
         <div class="daily-panel__head">
           <div><span>Attention</span><h2 data-dashboard-approval-title>Nothing needs you</h2></div>
-          <button class="daily-button" type="button" data-dashboard-sector="sales-os">Review</button>
+          <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="sales-os">Review</button>
         </div>
         <div data-attention-list class="daily-list">
           <p class="daily-muted">Nothing needs you</p>
@@ -39,8 +40,9 @@ export function initControlPages() {
       </section>
       <section class="daily-action-row" aria-label="Primary actions">
         <button type="button" data-dashboard-sector="terminal">New chat</button>
-        <button type="button" data-dashboard-sector="sales-os">Approvals</button>
-        <button type="button" data-dashboard-sector="instances">Receipts</button>
+        <button type="button" data-dashboard-sector="sales-os">Review</button>
+        <button type="button" data-dashboard-sector="instances">Proof</button>
+        <button type="button" data-dashboard-doctor>Doctor</button>
         <button type="button" data-dashboard-sector="channels">Channels</button>
         <button type="button" data-dashboard-sector="usage">Models</button>
       </section>
@@ -49,7 +51,7 @@ export function initControlPages() {
         ${dailyMetric('Approvals pending', '<span data-sales-os-metric="approvals">0</span>', '<span data-sales-os-meta="approvals">None</span>')}
         ${dailyMetric('Receipts', '<span data-dashboard-metric="receipts">0</span>', '<span data-inbox-metric="receipts">0</span>')}
         ${dailyMetric('Errors', '<span data-dashboard-metric="errors">0</span>', 'Trace')}
-        ${dailyMetric('Trust', '<span id="session-trust-score" class="session-trust-score" data-session-trust-score><strong data-session-trust-value>100</strong> <span data-session-trust-label>Governed</span></span>', 'Session')}
+        ${dailyMetric('Trust', '<span class="session-trust-score" data-session-trust-score><strong data-session-trust-value>—</strong> <span data-session-trust-label></span></span>', 'Session')}
       </section>
       <section class="workboard-lite" data-workboard-lite aria-label="Workboard">
         <div class="workboard-lite__col" data-workboard-col="pending">

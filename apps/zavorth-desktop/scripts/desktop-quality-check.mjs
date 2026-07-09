@@ -185,6 +185,7 @@ requireMarkers('command center', cc, [
 ]);
 
 requireMarkers('domain cards', domainCards, [
+  'hero:constellation',
   'hero:skills',
   'hero:channels',
   'hero:automations',
@@ -306,6 +307,16 @@ const streamIsolation = requireFile('src/thread/streamIsolation.ts');
 const sessionChrome = requireFile('src/session/sessionChrome.ts');
 const reviewRailModel = requireFile('src/shell/reviewRailModel.ts');
 const terminalTabs = requireFile('src/shell/terminalTabs.ts');
+const hunkApproval = requireFile('src/trust/hunkApproval.ts');
+const trustedOperator = requireFile('src/trust/trustedOperator.ts');
+const runTimeline = requireFile('src/thread/runTimeline.ts');
+const agentStrip = requireFile('src/agents/agentStrip.ts');
+const domainWizards = requireFile('src/command-center/domainWizards.ts');
+const hunkReviewCard = requireFile('src/thread/HunkReviewCard.tsx');
+const runTimelineUi = requireFile('src/thread/RunTimeline.tsx');
+const agentStripUi = requireFile('src/thread/AgentStrip.tsx');
+const domainWizardOverlay = requireFile('src/command-center/DomainWizardOverlay.tsx');
+const topbar = requireFile('src/navigation/DesktopTopbar.tsx');
 requireMarkers('composer status', composerStatus, ['deriveComposerStatus', 'ComposerPhase']);
 requireMarkers('composer queue', composerQueue, ['enqueuePrompt', 'nextAutoSubmit', 'MAX_QUEUE_LENGTH']);
 requireMarkers('plan card', planCard, ['parsePlanFromText', 'planFromApproval']);
@@ -319,6 +330,83 @@ requireMarkers('composer bar wiring', requireFile('src/composer/DesktopCommandBa
   'ComposerStatusStack',
   'ContextMeterBar',
   'onQueuePrompt',
+]);
+requireMarkers('hunk approval', hunkApproval, ['parseUnifiedDiff', 'applyHunkDecision', 'buildHunkReceipt']);
+requireMarkers('trusted operator', trustedOperator, ['loadTrustedOperator', 'saveTrustedOperator', 'toggleTrustedOperator', 'TRUSTED_OPERATOR_KEY']);
+requireMarkers('run timeline', runTimeline, ['buildRunTimeline', 'compactRunTimeline']);
+requireMarkers('agent strip', agentStrip, ['buildAgentStrip', 'agentStripVisible']);
+requireMarkers('domain wizards', domainWizards, ['DOMAIN_WIZARDS', 'getWizard', 'wizardIdFromHero']);
+requireMarkers('hunk review ui', hunkReviewCard, ['HunkReviewCard', 'onHunkReceipt', 'thread.hunkApproveAll']);
+requireMarkers('run timeline ui', runTimelineUi, ['RunTimeline', 'compactRunTimeline', 'zvd-run-timeline']);
+requireMarkers('agent strip ui', agentStripUi, ['AgentStrip', 'buildAgentStrip', 'zvd-agent-strip']);
+requireMarkers('domain wizard ui', domainWizardOverlay, ['DomainWizardOverlay', 'getWizard', 'onFinish']);
+requireMarkers('topbar trust badge', topbar, ['zvd-trust-badge', 'trustedOperator', 'onToggleTrustedOperator']);
+requireMarkers('thread trust surfaces', thread, ['HunkReviewCard', 'RunTimeline', 'AgentStrip', 'looksLikeUnifiedDiff']);
+requireMarkers('shell trust wiring', shell, ['loadTrustedOperator', 'toggleTrustedOperator', 'onToggleTrustedOperator', 'subagents']);
+requireMarkers('command center wizard wiring', cc, ['DomainWizardOverlay', 'wizardIdFromHero']);
+requireMarkers('trust surfaces css', designCss, [
+  '.zvd-trust-badge',
+  '.zvd-hunk-review',
+  '.zvd-run-timeline',
+  '.zvd-agent-strip',
+  '.zvd-wizard-overlay',
+]);
+requireMarkers('trust i18n', i18n, [
+  'trust.operator.on',
+  'thread.hunkReviewTitle',
+  'thread.timeline.title',
+  'thread.agent.stripTitle',
+  'wizard.absorb.title',
+]);
+
+const constellationLayout = requireFile('src/constellation/constellationLayout.ts');
+const constellationOverlay = requireFile('src/constellation/ConstellationOverlay.tsx');
+const automationsModel = requireFile('src/views/panels/automationsModel.ts');
+const automationsPanel = requireFile('src/views/panels/AutomationsPanel.tsx');
+requireMarkers('constellation layout', constellationLayout, [
+  'layoutConstellation',
+  'buildConstellationFromRuntime',
+  'filterConstellationNodes',
+  'ConstellationDomain',
+]);
+requireMarkers('constellation overlay', constellationOverlay, [
+  'ConstellationOverlay',
+  'zvd-constellation-overlay',
+  'buildConstellationFromRuntime',
+  'onOpenDomain',
+]);
+requireMarkers('automations model', automationsModel, [
+  'mapScheduledTasks',
+  'mergeAutomationJobs',
+  'filterAutomationJobs',
+  'selectAutomationJob',
+]);
+requireMarkers('automations panel', automationsPanel, [
+  'AutomationsPanel',
+  'zvd-auto-layout',
+  'mergeAutomationJobs',
+  'EmptyState',
+]);
+requireMarkers('constellation shell wiring', shell, [
+  'ConstellationOverlay',
+  'constellationOpen',
+  "action.type === 'constellation'",
+  'onOpenDomain',
+]);
+requireMarkers('constellation css', designCss, [
+  '.zvd-constellation-overlay',
+  '.zvd-constellation-panel',
+  '.zvd-auto-layout',
+  '.zvd-auto-row',
+]);
+requireMarkers('constellation i18n', i18n, [
+  'constellation.title',
+  'automations.title',
+  'cc.hero.constellation.title',
+]);
+requireMarkers('marketplace secondary nav', navConfig, [
+  "'marketplace'",
+  'SECONDARY_PANELS',
 ]);
 
 // --- reduced motion in CSS ---

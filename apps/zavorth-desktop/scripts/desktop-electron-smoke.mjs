@@ -377,7 +377,7 @@ try {
   // Wait for the app root element to render
   await window.waitForSelector('.zvd-app', { timeout: 15000 });
 
-  // Sprint 0: first-run onboarding may cover the shell — skip it for smoke.
+  // Skip first-run onboarding if present.
   try {
     const skipOnboarding = window.locator('.zvd-onboarding-overlay button', { hasText: /Pular|Skip/i }).first();
     if (await skipOnboarding.isVisible({ timeout: 1500 }).catch(() => false)) {
@@ -412,7 +412,7 @@ try {
   await window.getByTitle('Effort settings').click({ force: true });
   await waitForRuntimeAction('agents', 'sync');
 
-  // Sidebar Settings nav (avoid topbar title/icon which share the same accessible name after Sprint 2)
+  // Sidebar Settings nav (avoid topbar title/icon which share the same accessible name)
   await window.locator('.zvd-sidebar-nav button', { hasText: /Settings|Configurações/i }).click({ force: true });
   await window.waitForSelector('.zvd-settings-section[aria-label="Runtime"]', { timeout: 5000 });
   const runtimeTabs = () => window.locator('.zvd-settings-section[aria-label="Runtime"] .zvd-text-tabs button');

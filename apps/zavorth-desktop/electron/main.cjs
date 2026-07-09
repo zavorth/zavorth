@@ -1060,7 +1060,7 @@ ipcMain.on('zavorth:kael-overlay:control', (_event, payload) => {
 });
 
 
-// Phase 4 / Sprint fix — Auto-Updates and companion voice IPC
+// Auto-updates and companion voice IPC
 function updateHomeDir() {
   try {
     return resolveZavorthHome();

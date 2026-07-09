@@ -370,6 +370,63 @@
   gap: 4px;
 }
 
+.dock-more {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dock-more__trigger {
+  border: none;
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.dock-more__panel {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 240px;
+  max-width: min(360px, 80vw);
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--b-glass-border) 80%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--b-glass-strong) 94%, transparent);
+  box-shadow: var(--b-glass-shadow);
+  backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
+}
+
+.dock-more__panel[hidden] {
+  display: none !important;
+}
+
+.dock-more.is-open .dock-more__panel {
+  display: grid;
+}
+
+.dock-more__item {
+  min-width: 0;
+  padding: 8px 6px;
+}
+
+.dock-more__item .dock-node__label {
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.dock-more.has-active .dock-more__trigger,
+.dock-more__trigger.active {
+  color: var(--b-signal-strong);
+}
+
 .dock-divider {
   width: 1px;
   height: 28px;

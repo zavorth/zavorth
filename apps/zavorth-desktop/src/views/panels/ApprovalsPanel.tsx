@@ -4,10 +4,8 @@ import { itemId, panelLabels } from '../../primitives/desktopPrimitives';
 import { DetailRows, PageFrame, SearchBox, TextTabs } from './panelPrimitives';
 import type { DetailRowTone } from './panelPrimitives';
 
-// ---------------------------------------------------------------------------
 // Safe display type — never includes summary / description / diff / patch /
 // content / prompt / details.  Only structural metadata.
-// ---------------------------------------------------------------------------
 export type SafeApprovalRecord = {
   id: string;
   title: string;
@@ -17,9 +15,6 @@ export type SafeApprovalRecord = {
   createdAt: string;
 };
 
-// ---------------------------------------------------------------------------
-// Sanitization helpers
-// ---------------------------------------------------------------------------
 const CONTROL_CHAR_RE = /[\x00-\x1F\x7F]/g;
 const MAX_TEXT_LENGTH = 80;
 
@@ -74,18 +69,13 @@ export function sanitizeApproval(
   return { id, title, action, risk, status, createdAt };
 }
 
-// ---------------------------------------------------------------------------
-// Tone mapping
-// ---------------------------------------------------------------------------
 function riskTone(risk: SafeApprovalRecord['risk']): DetailRowTone {
   if (risk === 'high') return 'danger';
   if (risk === 'medium') return 'warning';
   return 'muted';
 }
 
-// ---------------------------------------------------------------------------
 // Props — read-only; no approve/deny callbacks
-// ---------------------------------------------------------------------------
 type ApprovalsPanelProps = {
   approvals: ApprovalItem[];
   recentApprovals?: ApprovalItem[];
@@ -98,9 +88,6 @@ const TAB_ITEMS: Array<{ value: TabValue; label: string }> = [
   { value: 'recent', label: 'Recent' },
 ];
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 export function ApprovalsPanel(props: ApprovalsPanelProps) {
   const [tab, setTab] = useState<TabValue>('pending');
   const [query, setQuery] = useState('');

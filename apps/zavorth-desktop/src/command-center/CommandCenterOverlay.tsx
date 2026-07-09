@@ -11,6 +11,8 @@ import {
   type CommandCenterItem,
 } from './commandCenter';
 import { DOMAIN_HERO_CARDS } from './domainCards';
+import { DomainWizardOverlay } from './DomainWizardOverlay';
+import { wizardIdFromHero, type WizardId } from './domainWizards';
 
 const CATEGORY_I18N: Record<CommandCenterCategory, string> = {
   Daily: 'cc.domain.daily',
@@ -34,6 +36,7 @@ export type CommandCenterOverlayProps = {
 
 export function CommandCenterOverlay(props: CommandCenterOverlayProps) {
   const [localQuery, setLocalQuery] = useState('');
+  const [wizardId, setWizardId] = useState<WizardId | null>(null);
   const query = props.query ?? localQuery;
   const setQuery = props.onQueryChange ?? setLocalQuery;
 
@@ -42,19 +45,24 @@ export function CommandCenterOverlay(props: CommandCenterOverlayProps) {
       if (props.query === undefined) {
         setLocalQuery('');
       }
+      setWizardId(null);
       return;
     }
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         event.preventDefault();
+        if (wizardId) {
+          setWizardId(null);
+          return;
+        }
         props.onClose();
       }
     }
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [props.open, props.onClose, props.query]);
+  }, [props.open, props.onClose, props.query, wizardId]);
 
   const input: CommandCenterInput = props.input ?? { settingsGroups: [] };
 
@@ -84,95 +92,116 @@ export function CommandCenterOverlay(props: CommandCenterOverlayProps) {
     props.onAction(action);
   }
 
+  function handleHero(cardId: string, action: CommandCenterAction) {
+    const wizard = wizardIdFromHero(cardId);
+    if (wizard) {
+      setWizardId(wizard);
+      return;
+    }
+    runAction(action);
+  }
+
   return (
-    <div
-      className="zvd-cc-overlay"
-      role="presentation"
-      onMouseDown={event => {
-        if (event.target === event.currentTarget) {
-          props.onClose();
-        }
-      }}
-    >
-      <section
-        className="zvd-cc-window"
-        role="dialog"
-        aria-modal="true"
-        aria-label={t('cc.title')}
-        onMouseDown={event => event.stopPropagation()}
+    <>
+      <div
+        className="zvd-cc-overlay"
+        role="presentation"
+        onMouseDown={event => {
+          if (event.target === event.currentTarget) {
+            props.onClose();
+          }
+        }}
       >
-        <header className="zvd-cc-header">
-          <div className="zvd-cc-header-text">
-            <h2 className="zvd-cc-title">{t('cc.title')}</h2>
-          </div>
-          <label className="zvd-cc-search">
-            <Search aria-hidden="true" size={16} stroke={1.8} />
-            <input
-              autoFocus
-              type="search"
-              value={query}
-              onChange={event => setQuery(event.target.value)}
-              placeholder={t('cc.search')}
-              aria-label={t('cc.search')}
-            />
-          </label>
-          <button
-            type="button"
-            className="zvd-cc-close"
-            onClick={props.onClose}
-            aria-label={t('cc.close')}
-            title={t('cc.close')}
-          >
-            <X aria-hidden="true" size={16} stroke={2} />
-          </button>
-        </header>
-
-        <div className="zvd-cc-body">
-          {isEmpty ? (
-            <div className="zvd-cc-empty" role="status">
-              {t('cc.empty')}
+        <section
+          className="zvd-cc-window"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('cc.title')}
+          onMouseDown={event => event.stopPropagation()}
+        >
+          <header className="zvd-cc-header">
+            <div className="zvd-cc-header-text">
+              <h2 className="zvd-cc-title">{t('cc.title')}</h2>
             </div>
-          ) : (
-            <>
-              {heroCards.length > 0 ? (
-                <section className="zvd-cc-hero-grid" aria-label={t('cc.title')}>
-                  {heroCards.map(card => (
-                    <button
-                      key={card.id}
-                      type="button"
-                      className="zvd-cc-hero"
-                      onClick={() => runAction(card.action)}
-                    >
-                      <strong>{t(card.titleKey)}</strong>
-                      <small>{t(card.subtitleKey)}</small>
-                    </button>
-                  ))}
-                </section>
-              ) : null}
+            <label className="zvd-cc-search">
+              <Search aria-hidden="true" size={16} stroke={1.8} />
+              <input
+                autoFocus
+                type="search"
+                value={query}
+                onChange={event => setQuery(event.target.value)}
+                placeholder={t('cc.search')}
+                aria-label={t('cc.search')}
+              />
+            </label>
+            <button
+              type="button"
+              className="zvd-cc-close"
+              onClick={props.onClose}
+              aria-label={t('cc.close')}
+              title={t('cc.close')}
+            >
+              <X aria-hidden="true" size={16} stroke={2} />
+            </button>
+          </header>
 
-              <div className="zvd-cc-grid">
-                {groups.map(group => (
-                  <section key={group.category} className="zvd-cc-domain">
-                    <h3 className="zvd-cc-domain-title">
-                      {t(CATEGORY_I18N[group.category])}
-                    </h3>
-                    <div className="zvd-cc-domain-cards">
-                      {group.items.map(item => (
-                        <CommandCenterCard
-                          key={item.id}
-                          item={item}
-                          onSelect={() => runAction(item.action)}
-                        />
-                      ))}
-                    </div>
-                  </section>
-                ))}
+          <div className="zvd-cc-body">
+            {isEmpty ? (
+              <div className="zvd-cc-empty" role="status">
+                {t('cc.empty')}
               </div>
-            </>
-          )}
-        </div>
-      </section>
-    </div>
+            ) : (
+              <>
+                {heroCards.length > 0 ? (
+                  <section className="zvd-cc-hero-grid" aria-label={t('cc.title')}>
+                    {heroCards.map(card => (
+                      <button
+                        key={card.id}
+                        type="button"
+                        className="zvd-cc-hero"
+                        onClick={() => handleHero(card.id, card.action)}
+                      >
+                        <strong>{t(card.titleKey)}</strong>
+                        <small>{t(card.subtitleKey)}</small>
+                      </button>
+                    ))}
+                  </section>
+                ) : null}
+
+                <div className="zvd-cc-grid">
+                  {groups.map(group => (
+                    <section key={group.category} className="zvd-cc-domain">
+                      <h3 className="zvd-cc-domain-title">
+                        {t(CATEGORY_I18N[group.category])}
+                      </h3>
+                      <div className="zvd-cc-domain-cards">
+                        {group.items.map(item => (
+                          <CommandCenterCard
+                            key={item.id}
+                            item={item}
+                            onSelect={() => runAction(item.action)}
+                          />
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      </div>
+
+      <DomainWizardOverlay
+        open={wizardId != null}
+        wizardId={wizardId}
+        onClose={() => setWizardId(null)}
+        onFinish={action => {
+          setWizardId(null);
+          runAction(action);
+        }}
+      />
+    </>
   );
 }
 

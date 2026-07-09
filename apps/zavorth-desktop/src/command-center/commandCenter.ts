@@ -18,6 +18,7 @@ export type CommandCenterAction =
   | { type: 'settings'; tab: SettingsModuleId }
   | { type: 'panel'; panel: DesktopPanel }
   | { type: 'rail'; tab: RightRailTab }
+  | { type: 'constellation' }
   | { type: 'insert'; value: string }
   | { type: 'run'; value: string }
   | { type: 'close' };
@@ -50,6 +51,11 @@ export type CommandCenterInput = {
   workspaceLabel?: string;
   rightRailOpen?: boolean;
   rightRailTab?: RightRailTab;
+  tools?: Array<{ id?: string; name?: string; label?: string }>;
+  channels?: Array<{ id?: string; name?: string; label?: string; status?: string }>;
+  agents?: Array<{ id?: string; name?: string; role?: string; status?: string }>;
+  approvalsPending?: number;
+  receiptsCount?: number;
 };
 
 /** Product IA order used by the Command Center overlay and grouping. */
@@ -146,7 +152,7 @@ const panelCommands: PanelCommandDef[] = [
     category: 'Power',
     title: 'Open marketplace',
     subtitle: 'Discover and install skills for this workspace',
-    keywords: ['marketplace', 'store', 'plugins', 'install', 'skills'],
+    keywords: ['marketplace', 'store', 'plugins', 'install', 'skills', 'absorb'],
   },
   {
     panel: 'channels',
@@ -222,6 +228,15 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
   return [
     ...panelItems,
     ...settingsItems,
+    {
+      id: 'constellation:open',
+      category: 'Power',
+      title: 'Open constellation',
+      subtitle: 'Visual map of skills, channels, agents, trust, and power',
+      keywords: ['constellation', 'map', 'domains', 'skills', 'channels', 'agents', 'visual', 'graph'],
+      statusLabel: 'Map',
+      action: { type: 'constellation' },
+    },
     {
       id: 'workspace:files',
       category: 'Workspace',

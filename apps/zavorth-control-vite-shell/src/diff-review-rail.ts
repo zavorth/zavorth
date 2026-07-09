@@ -471,6 +471,17 @@ export function initDiffReviewRail(): HTMLElement | null {
  */
 export function setDiffReviewContent(diffText: string, meta: DiffReviewMeta = {}): DiffHunk[] {
   initDiffReviewRail();
+  // Mobile: surface the trust sheet when a diff lands
+  try {
+    // Lazy require pattern via dynamic import without blocking render
+    void import('./trust-rail-mobile').then((mod) => {
+      if (typeof window !== 'undefined' && window.matchMedia?.('(max-width: 900px)').matches) {
+        mod.openTrustRailSheet();
+      }
+    });
+  } catch {
+    // ignore
+  }
   activeMeta = {
     file: meta.file || undefined,
     title: meta.title || meta.file || 'Diff review',
