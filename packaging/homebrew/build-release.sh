@@ -1,38 +1,57 @@
 #!/bin/bash
-# Build release archives for Homebrew formula
-# Usage: ./build-release.sh <version>
-set -e
+# build-release.sh — Build release archives for Homebrew formula.
+#
+# Usage:
+#   ./packaging/homebrew/build-release.sh [version]
+#
+# This builds for the CURRENT platform only.
+# Cross-platform builds are handled by GitHub Actions (release.yml).
+#
+# For a full release:
+#   1. Push a tag: git tag v2.0.0 && git push origin v2.0.0
+#   2. GitHub Actions builds all platforms automatically
+#   3. Run: ./scripts/update-homebrew-formula.sh 2.0.0
 
-VERSION=${1:-"1.1.0"}
+set -euo pipefail
+
+VERSION="${1:-$(node -p "require('./package.json').version")}"
 BUILD_DIR="dist-release"
-PLATFORMS=("darwin-x64" "darwin-arm64" "linux-x64" "linux-arm64")
 
+echo "Building Zavorth v${VERSION} for $(uname -s)-$(uname -m)..."
+
+# Ensure build exists
+if [ ! -d dist ]; then
+  echo "Running npm build first..."
+  npm run build --silent
+fi
+
+# Compile standalone binary
+node scripts/zavorth-compile.mjs
+
+# Package
 mkdir -p "$BUILD_DIR"
+cd dist-standalone
 
-for platform in "${PLATFORMS[@]}"; do
-  echo "Building for $platform..."
-  ARCHIVE="$BUILD_DIR/zavorth-$platform.tar.gz"
+ARCHIVE="../${BUILD_DIR}/zavorth-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).tar.gz"
 
-  if [ "$platform" = "darwin-x64" ] || [ "$platform" = "linux-x64" ]; then
-    NODE_ARCH="x64"
-  else
-    NODE_ARCH="arm64"
-  fi
+if [ -d native ]; then
+  tar -czf "$ARCHIVE" zavorth* native/
+else
+  tar -czf "$ARCHIVE" zavorth*
+fi
 
-  # Build Node SEA binary
-  npx tsx scripts/zavorth-compile.mjs --arch "$NODE_ARCH" --output "$BUILD_DIR/zavorth-$platform"
+cd ..
 
-  # Create tarball
-  cd "$BUILD_DIR"
-  tar -czf "zavorth-$platform.tar.gz" "zavorth-$platform"
-  rm -f "zavorth-$platform"
-  cd ..
-
-  # Calculate checksum
-  CHECKSUM=$(shasum -a 256 "$ARCHIVE" | cut -d' ' -f1)
-  echo "  $platform: sha256 $CHECKSUM"
-done
+CHECKSUM=$(shasum -a 256 "$ARCHIVE" | cut -d' ' -f1)
 
 echo ""
-echo "Release archives built in $BUILD_DIR/"
-echo "Update the Homebrew formula with the checksums above."
+echo "Build complete:"
+echo "  Archive: $ARCHIVE"
+echo "  Size:    $(du -h "$ARCHIVE" | cut -f1)"
+echo "  SHA256:  $CHECKSUM"
+echo ""
+echo "To create a full release with all platforms:"
+echo "  1. git tag v${VERSION}"
+echo "  2. git push origin v${VERSION}"
+echo "  3. Wait for GitHub Actions to build all platforms"
+echo "  4. ./scripts/update-homebrew-formula.sh ${VERSION}"

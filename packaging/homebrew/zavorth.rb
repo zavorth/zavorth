@@ -1,17 +1,17 @@
 class Zavorth < Formula
   desc "Local-first AI agent runtime with governed tools"
   homepage "https://github.com/zavorth/zavorth"
-  version "1.1.0"
+  version "2.0.0"
   license "MIT"
 
   on_macos do
     on_intel do
       url "https://github.com/zavorth/zavorth/releases/download/v#{version}/zavorth-darwin-x64.tar.gz"
-      sha256 "PLACEHOLDER_SHA256_X64"
+      sha256 "PLACEHOLDER_SHA256_DARWIN_X64"
     end
     on_arm do
       url "https://github.com/zavorth/zavorth/releases/download/v#{version}/zavorth-darwin-arm64.tar.gz"
-      sha256 "PLACEHOLDER_SHA256_ARM64"
+      sha256 "PLACEHOLDER_SHA256_DARWIN_ARM64"
     end
   end
 
@@ -29,6 +29,8 @@ class Zavorth < Formula
   def install
     bin.install "zavorth"
     libexec.install "skill-library" if File.exist?("skill-library")
+    libexec.install "native" if File.exist?("native")
+
     (bin/"zavorth").write_env_script bin/"zavorth", {}
 
     bash_completion.install "completions/zavorth.bash" if File.exist?("completions/zavorth.bash")
